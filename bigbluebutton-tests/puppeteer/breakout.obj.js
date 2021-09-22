@@ -18,18 +18,18 @@ const breakoutTest = () => {
     let screenshot;
     try {
       const testName = 'createBreakoutrooms';
-      await test.page1.logger('begin of ', testName);
+      await test.modPage1.logger('begin of ', testName);
       await test.init(undefined, testName);
-      await test.page1.startRecording(testName);
+      await test.modPage1.startRecording(testName);
       await test.create(testName);
       response = await test.testCreatedBreakout(testName);
-      const breakoutPage2 = await test.page2.getLastTargetPage();
-      await breakoutPage2.bringToFront();
-      await test.page1.stopRecording();
-      screenshot = await breakoutPage2.page.screenshot();
-      await test.page1.logger('end of ', testName);
+      const breakoutUserPage1 = await test.userPage1.getLastTargetPage();
+      await breakoutUserPage1.bringToFront();
+      await test.modPage1.stopRecording();
+      screenshot = await breakoutUserPage1.page.screenshot();
+      await test.modPage1.logger('end of ', testName);
     } catch (err) {
-      await test.page1.logger(err);
+      await test.modPage1.logger(err);
     } finally {
       await test.close();
     }
@@ -44,19 +44,19 @@ const breakoutTest = () => {
     let screenshot;
     try {
       const testName = 'joinBreakoutroomsWithoutFeatures';
-      await test.page1.logger('begin of ', testName);
+      await test.modPage1.logger('begin of ', testName);
       await test.init(undefined, testName);
-      await test.page1.startRecording(testName);
+      await test.modPage1.startRecording(testName);
       await test.create(testName);
       await test.join(testName);
       response = await test.testJoined(testName);
-      const breakoutPage2 = await test.page2.getLastTargetPage();
-      await breakoutPage2.bringToFront();
-      await test.page1.stopRecording();
-      screenshot = await breakoutPage2.page.screenshot();
-      await test.page1.logger('end of ', testName);
+      const breakoutUserPage1 = await test.userPage1.getLastTargetPage();
+      await breakoutUserPage1.bringToFront();
+      await test.modPage1.stopRecording();
+      screenshot = await breakoutUserPage1.page.screenshot();
+      await test.modPage1.logger('end of ', testName);
     } catch (err) {
-      await test.page1.logger(err);
+      await test.modPage1.logger(err);
     } finally {
       await test.close();
     }
@@ -71,19 +71,19 @@ const breakoutTest = () => {
     let screenshot;
     try {
       const testName = 'joinBreakoutroomsWithVideo';
-      await test.page1.logger('begin of ', testName);
+      await test.modPage1.logger('begin of ', testName);
       await test.init(undefined, testName);
-      await test.page1.startRecording(testName);
+      await test.modPage1.startRecording(testName);
       await test.create(testName);
       await test.join(testName);
       response = await test.testJoined(testName);
-      const breakoutPage2 = await test.page2.getLastTargetPage();
-      await breakoutPage2.bringToFront();
-      await test.page1.stopRecording();
-      screenshot = await breakoutPage2.page.screenshot();
-      await test.page1.logger('end of ', testName);
+      const breakoutUserPage1 = await test.userPage1.getLastTargetPage();
+      await breakoutUserPage1.bringToFront();
+      await test.modPage1.stopRecording();
+      screenshot = await breakoutUserPage1.page.screenshot();
+      await test.modPage1.logger('end of ', testName);
     } catch (err) {
-      await test.page1.logger(err);
+      await test.modPage1.logger(err);
     } finally {
       await test.close();
     }
@@ -98,19 +98,19 @@ const breakoutTest = () => {
     let screenshot;
     try {
       const testName = 'joinBreakoutroomsAndShareScreen';
-      await test.page1.logger('begin of ', testName);
+      await test.modPage1.logger('begin of ', testName);
       await test.init(undefined, testName);
-      await test.page1.startRecording(testName);
+      await test.modPage1.startRecording(testName);
       await test.create(testName);
       await test.join(testName);
       response = await test.testJoined(testName);
-      const breakoutPage2 = await test.page2.getLastTargetPage();
-      await breakoutPage2.bringToFront();
-      await test.page1.stopRecording();
-      screenshot = await breakoutPage2.page.screenshot();
-      await test.page1.logger('end of ', testName);
+      const breakoutUserPage1 = await test.userPage1.getLastTargetPage();
+      await breakoutUserPage1.bringToFront();
+      await test.modPage1.stopRecording();
+      screenshot = await breakoutUserPage1.page.screenshot();
+      await test.modPage1.logger('end of ', testName);
     } catch (err) {
-      await test.page1.logger(err);
+      await test.modPage1.logger(err);
     } finally {
       await test.close();
     }
@@ -125,19 +125,19 @@ const breakoutTest = () => {
     let screenshot;
     try {
       const testName = 'joinBreakoutroomsWithAudio';
-      await test.page1.logger('begin of ', testName);
+      await test.modPage1.logger('begin of ', testName);
       await test.init(undefined, testName);
-      await test.page1.startRecording(testName);
+      await test.modPage1.startRecording(testName);
       await test.create(testName);
       await test.join(testName);
       response = await test.testJoined(testName);
-      const breakoutPage2 = await test.page2.getLastTargetPage();
-      await breakoutPage2.bringToFront();
-      await test.page1.stopRecording();
-      screenshot = await breakoutPage2.page.screenshot();
-      await test.page1.logger('end of ', testName);
+      const breakoutUserPage1 = await test.userPage1.getLastTargetPage();
+      await breakoutUserPage1.bringToFront();
+      await test.modPage1.stopRecording();
+      screenshot = await breakoutUserPage1.page.screenshot();
+      await test.modPage1.logger('end of ', testName);
     } catch (err) {
-      await test.page1.logger(err);
+      await test.modPage1.logger(err);
     } finally {
       await test.close();
     }

@@ -10,69 +10,68 @@ class Join extends Create {
 
   // Join Existing Breakoutrooms
   async join(testName) {
-    await this.joinWithUser3(testName);
+    await this.joinWithMod2(testName);
   }
 
   // Check if User Joined in Breakoutrooms
   async testJoined(testName) {
-    await this.page3.logger('Now executing: ', testName);
+    await this.modPage2.logger('Now executing: ', testName);
     try {
       if (testName === 'joinBreakoutroomsWithAudio') {
-        await this.page3.logger('logged in to breakout with audio');
+        await this.modPage2.logger('logged in to breakout with audio');
 
-        const breakoutPage2 = await this.page2.getLastTargetPage();
-        await breakoutPage2.bringToFront();
+        const breakoutUserPage1 = await this.userPage1.getLastTargetPage();
+        await breakoutUserPage1.bringToFront();
 
         // Talking indicator bar
-        await breakoutPage2.waitForSelector(e.talkingIndicator);
-        await breakoutPage2.screenshot(testName, '05-breakout-page02-user-joined-with-audio-before-check');
+        await breakoutUserPage1.waitForSelector(e.talkingIndicator);
+        await breakoutUserPage1.screenshot(testName, '05-breakout-page02-user-joined-with-audio-before-check');
 
-        await this.page3.logger('before pages check');
+        await this.modPage2.logger('before pages check');
 
-        const resp = await breakoutPage2.hasElement(e.isTalking);
-        await breakoutPage2.screenshot(testName, '06-breakout-page02-user-joined-with-audio-after-check');
+        const resp = await breakoutUserPage1.hasElement(e.isTalking);
+        await breakoutUserPage1.screenshot(testName, '06-breakout-page02-user-joined-with-audio-after-check');
 
-        await this.page3.logger('after pages check');
+        await this.modPage2.logger('after pages check');
         return resp === true;
       } else if (testName === 'joinBreakoutroomsWithVideo') {
-        await this.page3.logger('logged in to breakout with video');
+        await this.modPage2.logger('logged in to breakout with video');
 
-        const breakoutPage2 = await this.page2.getLastTargetPage();
-        await breakoutPage2.bringToFront();
-        await breakoutPage2.screenshot(testName, '05-breakout-page02-user-joined-with-webcam-success');
-        await this.page3.logger('before pages check');
+        const breakoutUserPage1 = await this.userPage1.getLastTargetPage();
+        await breakoutUserPage1.bringToFront();
+        await breakoutUserPage1.screenshot(testName, '05-breakout-page02-user-joined-with-webcam-success');
+        await this.modPage2.logger('before pages check');
 
-        // aqui
-        const resp = await breakoutPage2.hasElement(e.videoContainer, true, VIDEO_LOADING_WAIT_TIME);
+        const resp = await breakoutUserPage1.hasElement(e.videoContainer, true, VIDEO_LOADING_WAIT_TIME);
 
-        await breakoutPage2.screenshot(testName, '06-breakout-page02-user-joined-webcam-before-check');
-        await this.page3.logger('after pages check');
+        await breakoutUserPage1.screenshot(testName, '06-breakout-page02-user-joined-webcam-before-check');
+        await this.modPage2.logger('after pages check');
 
         return resp === true;
       } else if (testName === 'joinBreakoutroomsAndShareScreen') {
-        await this.page3.logger('logged in to breakout with screenshare');
-        const breakoutPage2 = await this.page2.getLastTargetPage();
-        await breakoutPage2.bringToFront();
+        await this.modPage2.logger('logged in to breakout with screenshare');
+        const breakoutUserPage1 = await this.userPage1.getLastTargetPage();
+        await breakoutUserPage1.bringToFront();
 
-        await breakoutPage2.screenshot(testName, '05-breakout-page02-user-joined-screenshare-before-check');
-        await this.page3.logger('before pages check');
-        const resp = await utilScreenShare.getScreenShareBreakoutContainer(breakoutPage2);
+        await breakoutUserPage1.screenshot(testName, '05-breakout-page02-user-joined-screenshare-before-check');
+        await this.modPage2.logger('before pages check');
+        const resp = await utilScreenShare.getScreenShareBreakoutContainer(breakoutUserPage1);
 
-        await breakoutPage2.screenshot(testName, '06-breakout-page02-user-joined-screenshare-after-check');
-        this.page2.logger('after pages check');
+        await breakoutUserPage1.screenshot(testName, '06-breakout-page02-user-joined-screenshare-after-check');
+        this.userPage1.logger('after pages check');
 
         return resp === true;
       } else {
-        await this.page2.page.bringToFront();
-        await this.page2.waitForSelector(e.breakoutRoomsItem);
-        await this.page2.waitAndClick(e.chatButton);
-        await this.page2.waitAndClick(e.breakoutRoomsItem);
-        await this.page2.waitForSelector(e.alreadyConnected);
+        await this.userPage1.page.bringToFront();
+        await this.userPage1.waitForSelector(e.breakoutRoomsItem);
+        await this.userPage1.waitAndClick(e.chatButton);
+        await this.userPage1.waitAndClick(e.breakoutRoomsItem);
+        await this.userPage1.waitForSelector(e.alreadyConnected);
 
         return true;
       }
     } catch (err) {
-      await this.page3.logger(err);
+      await this.modPage2.logger(err);
       return false;
     }
   }
@@ -80,11 +79,11 @@ class Join extends Create {
   // Close pages
   async close() {
     try {
-      await this.page1.close();
-      await this.page2.close();
-      await this.page3.close();
+      await this.modPage1.close();
+      await this.userPage1.close();
+      await this.modPage2.close();
     } catch (err) {
-      await this.page3.logger(err);
+      await this.modPage2.logger(err);
     }
   }
 }
