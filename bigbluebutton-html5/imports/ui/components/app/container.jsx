@@ -61,6 +61,7 @@ const AppContainer = (props) => {
     pushLayoutToEveryone,
     currentUserId,
     shouldShowPresentation: propsShouldShowPresentation,
+    presentationRestoreOnUpdate,
     ...otherProps
   } = props;
   const {
@@ -76,7 +77,8 @@ const AppContainer = (props) => {
   const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
   const sidebarContentIsOpen = sidebarContent.isOpen;
   const presentationIsOpen = presentation.isOpen;
-  const shouldShowPresentation = propsShouldShowPresentation && presentationIsOpen;
+  const shouldShowPresentation = propsShouldShowPresentation
+    && (presentationIsOpen || presentationRestoreOnUpdate);
 
   return currentUserId
     ? (
@@ -199,6 +201,10 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo,
     shouldShowExternalVideo,
     isLargeFont: Session.get('isLargeFont'),
+    presentationRestoreOnUpdate: getFromUserSettings(
+      'bbb_force_restore_presentation_on_new_events',
+      Meteor.settings.public.presentation.restoreOnUpdate,
+    ),
   };
 })(AppContainer)));
 
