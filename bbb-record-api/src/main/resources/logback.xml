@@ -36,6 +36,9 @@
         <appender-ref ref="CONSOLE" />
     </logger>
 
+    <logger name="org.hibernate.SQL" level="ERROR"/>
+    <logger name="org.hibernate.type" level="INFO"/>
+
     <root level="info">
         <appender-ref ref="FILE-ROLLING"/>
         <appender-ref ref="CONSOLE" />

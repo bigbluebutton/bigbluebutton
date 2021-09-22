@@ -27,6 +27,12 @@
         <!-- Set the current session context -->
         <property name="current_session_context_class">thread</property>
 
+        <property name="hibernate.show_sql">false</property>
+        <!-- format the sql nice -->
+        <property name="hibernate.format_sql">false</property>
+        <!-- show the hql as comment -->
+        <property name="use_sql_comments">false</property>
+
     </session-factory>
 
 </hibernate-configuration>

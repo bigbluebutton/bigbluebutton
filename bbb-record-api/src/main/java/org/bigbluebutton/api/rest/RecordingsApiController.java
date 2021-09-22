@@ -132,7 +132,7 @@ public class RecordingsApiController implements RecordingsApi {
         Pageable pageable = PageRequest.of(page, size);
         Page<Recording> recordings = recordingService.searchRecordings(query, pageable);
 
-        if(recordings.toList().isEmpty()) {
+        if(recordings == null || recordings.toList().isEmpty()) {
             Errors errors = new Errors();
             errors.addError(Error.NO_RESULTS);
             response.setErrors(errors);
@@ -151,7 +151,10 @@ public class RecordingsApiController implements RecordingsApi {
     }
 
     @Override
-    public ResponseEntity<ResponseEnvelope> searchMetadata(String query, Integer page, Integer size) {
+    public ResponseEntity<ResponseEnvelope> searchMetadata(@Parameter(in = ParameterIn.QUERY, description = "XPath formatted metadata query",
+            schema = @Schema()) @RequestParam(value = "query", required = false) String query, @Parameter(in = ParameterIn.QUERY, description = "Page number",
+            schema = @Schema()) @RequestParam(value = "page", required = false) Integer page, @Parameter(in = ParameterIn.QUERY, description = "Page size",
+            schema = @Schema()) @RequestParam(value = "size", required = false) Integer size) {
         ResponseEnvelope response = new ResponseEnvelope();
 
         if(query == null || query.isEmpty()) {
@@ -172,7 +175,7 @@ public class RecordingsApiController implements RecordingsApi {
         Pageable pageable = PageRequest.of(page, size);
         Page<Recording> recordings = recordingService.searchMetadata(query, pageable);
 
-        if(recordings.toList().isEmpty()) {
+        if(recordings == null || recordings.toList().isEmpty()) {
             Errors errors = new Errors();
             errors.addError(Error.NO_RESULTS);
             response.setErrors(errors);

@@ -31,8 +31,7 @@ public class RecordingPredicatesBuilder {
         }
 
         List<BooleanExpression> predicates = params.stream().map(param -> {
-            RecordingPredicate predicate = new RecordingPredicate();
-            predicate.setSearchCriteria(param);
+            RecordingPredicate predicate = new RecordingPredicate(param);
             return predicate.getPredicate();
         }).filter(Objects::nonNull).collect(Collectors.toList());
 

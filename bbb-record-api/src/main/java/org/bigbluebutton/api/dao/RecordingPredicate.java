@@ -4,10 +4,12 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.core.types.dsl.StringPath;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bigbluebutton.api.model.entity.Recording;
 
 @Data
+@AllArgsConstructor
 public class RecordingPredicate {
 
     private SearchCriteria searchCriteria;

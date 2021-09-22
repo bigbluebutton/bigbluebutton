@@ -17,6 +17,7 @@ import org.bigbluebutton.api.model.mapper.RecordingMapper;
 import org.bigbluebutton.api.model.request.NumericQuery;
 import org.bigbluebutton.api.model.request.RecordingSearchBody;
 import org.bigbluebutton.api.model.request.RecordingSearchFilters;
+import org.bigbluebutton.api.service.JPAService;
 import org.bigbluebutton.api.service.RecordingService;
 import org.bigbluebutton.api.util.DataStore;
 import org.slf4j.Logger;
@@ -40,14 +41,14 @@ public class RecordingServiceImpl implements RecordingService {
 
     private RecordingRepository recordingRepository;
     private RecordingMapper recordingMapper;
-    private DataStore dataStore;
+    private JPAService jpaService;
     List<Recording> recordings;
     List<Recording> temp;
 
-    public RecordingServiceImpl(RecordingRepository recordingRepository, RecordingMapper recordingMapper) {
+    public RecordingServiceImpl(RecordingRepository recordingRepository, RecordingMapper recordingMapper, JPAService jpaService) {
         this.recordingRepository = recordingRepository;
         this.recordingMapper = recordingMapper;
-        this.dataStore = DataStore.getInstance();
+        this.jpaService = jpaService;
     }
 
     @Override
@@ -62,46 +63,73 @@ public class RecordingServiceImpl implements RecordingService {
 
     @Override
     public Page<Recording> searchRecordings(String query, Pageable pageable) {
+        logger.info("Searching recordings with query [{}]", query);
 
         RecordingPredicatesBuilder builder = new RecordingPredicatesBuilder();
-        Pattern pattern = Pattern.compile("(\\w+?)(:|<|>)(\\w+?),");
+        Pattern pattern = Pattern.compile("(\\w+?)(:|<|>)(\\S(?: *\\S+)*),");
         Matcher matcher = pattern.matcher(query + ",");
 
         while(matcher.find()) {
+            logger.info("Matched [{} {} {}]", matcher.group(1), matcher.group(2), matcher.group(3));
             builder.with(matcher.group(1), matcher.group(2), matcher.group(3));
         }
 
         BooleanExpression expression = builder.build();
-        Iterable<Recording> recordings = recordingRepository.findAll(expression);
 
-        return recordingListToPage(
-                StreamSupport.stream(recordings.spliterator(), false)
-                    .collect(Collectors.toList()),
-                pageable
-        );
+        if(expression == null) {
+            return null;
+        }
+
+        logger.info("Querying database with expression [{}]", expression);
+        try {
+            Iterable<Recording> recordings = recordingRepository.findAll(expression);
+            return recordingListToPage(
+                    StreamSupport.stream(recordings.spliterator(), false)
+                            .collect(Collectors.toList()),
+                    pageable
+            );
+        } catch(Exception e) {
+            e.printStackTrace();
+            logger.error("Failed to query database");
+            return null;
+        }
     }
 
     @Override
     public Page<Recording> searchMetadata(String query, Pageable pageable) {
-        Pattern pattern = Pattern.compile("(\\w+?)(:|<|>)(\\w+?),");
+        logger.info("Searching recording metadata with query [{}]", query);
+
+        Pattern pattern = Pattern.compile("(.*?)(:|<|>)(\\S(?: *\\S+)*),");
         Matcher matcher = pattern.matcher(query + ",");
 
         StringBuilder dbQueryString = new StringBuilder();
         dbQueryString.append("SELECT * FROM recording_metadata");
         int numMatches = 0;
         while(matcher.find()) {
-            if(numMatches > 0) {
+            logger.info("Matched [{} {} {}]", matcher.group(1), matcher.group(2), matcher.group(3));
+
+            numMatches++;
+            if(numMatches > 1) {
                 dbQueryString.append(" AND ");
             }
 
             String path = matcher.group(1) + "/text()";
             String value = matcher.group(3);
-            String predicate = " WHERE xpath(content, '" + path + "') = '" + value +"'";
+            String predicate = " WHERE cast(xpath('" + path + "', content) as text[]) = '{" + value +"}'";
             dbQueryString.append(predicate);
         }
 
-        List<RecordingMetadata> metadataList = dataStore.executeQuery(dbQueryString.toString(), RecordingMetadata.class);
+        if(numMatches == 0) {
+            return null;
+        }
+
+        logger.info("Querying database with expression [{}]", dbQueryString);
+        List<RecordingMetadata> metadataList = jpaService.executeQuery(dbQueryString.toString(), RecordingMetadata.class);
         List<Recording> recordings = new ArrayList<>();
+
+        if(metadataList == null) {
+            return null;
+        }
 
         for(RecordingMetadata metadata: metadataList) {
             recordings.add(metadata.getRecording());

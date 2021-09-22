@@ -145,7 +145,13 @@ public class RecordingHandler {
 //        String meetingName = getMetaElementTagContent(metaElement, "meetingName");
 
         RecordingMetadata recordingMetadata = new RecordingMetadata();
-        recordingMetadata.setContent(childNodesToString(meta));
+        try {
+            String content = nodeToString(meta);
+            String trimmedContent = content.trim().replaceAll("[\\s]{2,}", "");
+            recordingMetadata.setContent(trimmedContent);
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
 
 //        recordingMetadata.setBbbOrigin(bbbOrigin);
 //        recordingMetadata.setBbbOriginServerName(bbbOriginServerName);

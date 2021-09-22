@@ -5,9 +5,13 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.query.NativeQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -104,26 +108,6 @@ public class DataStore {
             Root<T> root = criteriaQuery.from(entityClass);
             CriteriaQuery<T> allEntities = criteriaQuery.select(root);
             result = session.createQuery(allEntities).getResultList();
-        } catch(Exception e) {
-            if(transaction != null) {
-                transaction.rollback();
-                e.printStackTrace();
-            }
-        } finally {
-            session.close();
-        }
-
-        return result;
-    }
-
-    public <T> List<T> executeQuery(String query, Class<T> entityClass) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = null;
-        List<T> result = null;
-
-        try {
-            transaction = session.beginTransaction();
-            result = session.createSQLQuery(query).addEntity(entityClass).getResultList();
         } catch(Exception e) {
             if(transaction != null) {
                 transaction.rollback();
