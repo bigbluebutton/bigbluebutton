@@ -1,5 +1,5 @@
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
-const e = require('./elements');
+const e = require('../core/elements');
 
 async function setStatus(test, status) {
   await test.waitForSelector(e.firstUser, ELEMENT_WAIT_TIME);

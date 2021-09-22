@@ -2,13 +2,7 @@ const Page = require('../core/page');
 const params = require('../params');
 const util = require('../chat/util');
 const utilUser = require('./util');
-const pe = require('../core/elements');
-const ne = require('../notifications/elements');
-const ple = require('../polling/elemens');
-const we = require('../whiteboard/elements');
-const ue = require('./elements');
-const ce = require('../chat/elements');
-const cu = require('../customparameters/elements');
+const e = require('../core/elements');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helper');
 const { getElementLength, checkElementLengthEqualTo, checkElementLengthDifferentTo } = require('../core/util');
@@ -33,8 +27,8 @@ class MultiUsers {
 
   // Run the test for the page
   async checkForOtherUser() {
-    const firstCheck = await this.page1.page.evaluate(getElementLength, ue.userListItem) > 0;
-    const secondCheck = await this.page1.page.evaluate(getElementLength, ue.userListItem) > 0;
+    const firstCheck = await this.page1.page.evaluate(getElementLength, e.userListItem) > 0;
+    const secondCheck = await this.page1.page.evaluate(getElementLength, e.userListItem) > 0;
     return {
       firstCheck,
       secondCheck,
@@ -43,9 +37,9 @@ class MultiUsers {
 
   async multiUsersPublicChat() {
     try {
-      const chat0 = await this.page1.page.evaluate(getElementLength, ce.chatUserMessageText);
+      const chat0 = await this.page1.page.evaluate(getElementLength, e.chatUserMessageText);
       await util.sendPublicChatMessage(this.page1, this.page2);
-      const chat1 = await this.page1.page.evaluate(getElementLength, ce.chatUserMessageText);
+      const chat1 = await this.page1.page.evaluate(getElementLength, e.chatUserMessageText);
       return chat0 !== chat1;
     } catch (err) {
       await this.page1.logger(err);
@@ -56,10 +50,10 @@ class MultiUsers {
   async multiUsersPrivateChat() {
     try {
       await util.openPrivateChatMessage(this.page1, this.page2);
-      const chat0 = await this.page1.page.evaluate(getElementLength, ce.chatUserMessageText);
+      const chat0 = await this.page1.page.evaluate(getElementLength, e.chatUserMessageText);
       await util.sendPrivateChatMessage(this.page1, this.page2);
       await sleep(2000);
-      const chat1 = await this.page1.page.evaluate(getElementLength, ce.chatUserMessageText);
+      const chat1 = await this.page1.page.evaluate(getElementLength, e.chatUserMessageText);
       return chat0 !== chat1;
     } catch (err) {
       await this.page1.logger(err);
@@ -83,13 +77,13 @@ class MultiUsers {
       await this.page1.closeAudioModal();
       await this.page2.startRecording(testName);
       await this.page2.closeAudioModal();
-      await this.page1.waitForSelector(pe.actions, ELEMENT_WAIT_TIME);
-      await this.page1.click(pe.actions, true);
-      await this.page1.waitForSelector(ne.polling, ELEMENT_WAIT_TIME);
-      await this.page1.click(ne.polling, true);
-      await this.page1.waitForSelector(ple.pollQuestionArea, ELEMENT_WAIT_TIME);
-      await this.page1.page.focus(ple.pollQuestionArea);
-      await this.page1.page.keyboard.type(ple.pollQuestion);
+      await this.page1.waitForSelector(e.actions, ELEMENT_WAIT_TIME);
+      await this.page1.click(e.actions, true);
+      await this.page1.waitForSelector(e.polling, ELEMENT_WAIT_TIME);
+      await this.page1.click(e.polling, true);
+      await this.page1.waitForSelector(e.pollQuestionArea, ELEMENT_WAIT_TIME);
+      await this.page1.page.focus(e.pollQuestionArea);
+      await this.page1.page.keyboard.type(e.pollQuestion);
 
       const chosenRandomNb = await this.page1.page.evaluate((responseTypes) => {
         const responseTypesDiv = document.querySelector(responseTypes);
@@ -99,10 +93,10 @@ class MultiUsers {
         const chosenRandomNb = randomNb - 1;
         responseTypesDiv.querySelectorAll('button')[chosenRandomNb].click();
         return chosenRandomNb;
-      }, ple.responseTypes);
+      }, e.responseTypes);
 
       const customs = {
-        0: ple.uncertain,
+        0: e.uncertain,
         1: 0,
         2: 'ABSTENTION',
         3: 'All good!',
@@ -110,24 +104,24 @@ class MultiUsers {
       switch (chosenRandomNb) {
         case 0:
           // Adding a poll option
-          await this.page1.waitForSelector(ple.responseChoices, ELEMENT_WAIT_TIME);
-          await this.page1.waitForSelector(ple.addItem, ELEMENT_WAIT_TIME);
-          await this.page1.click(ple.addItem, true);
-          await this.page1.click(ple.pollOptionItem, true);
+          await this.page1.waitForSelector(e.responseChoices, ELEMENT_WAIT_TIME);
+          await this.page1.waitForSelector(e.addItem, ELEMENT_WAIT_TIME);
+          await this.page1.click(e.addItem, true);
+          await this.page1.click(e.pollOptionItem, true);
           await this.page1.tab(2);
           await this.page1.page.keyboard.type(customs[0]);
           break;
 
         case 1:
           // Deleting a poll option
-          await this.page1.waitForSelector(ple.deletePollOption, ELEMENT_WAIT_TIME);
-          await this.page1.clickNItem(ple.deletePollOption, true, customs[1]);
+          await this.page1.waitForSelector(e.deletePollOption, ELEMENT_WAIT_TIME);
+          await this.page1.clickNItem(e.deletePollOption, true, customs[1]);
           break;
 
         case 2:
           // Editing a poll option
-          await this.page1.waitForSelector(ple.responseChoices, ELEMENT_WAIT_TIME);
-          await this.page1.clickNItem(ple.pollOptionItem, true, 2);
+          await this.page1.waitForSelector(e.responseChoices, ELEMENT_WAIT_TIME);
+          await this.page1.clickNItem(e.pollOptionItem, true, 2);
           await this.page1.hold('Control');
           await this.page1.press('KeyA');
           await this.page1.release('Control');
@@ -137,29 +131,29 @@ class MultiUsers {
 
         case 3:
           // Do nothing to let Users write their single response answer
-          await this.page1.waitForSelector(ple.responseChoices, ELEMENT_WAIT_TIME);
+          await this.page1.waitForSelector(e.responseChoices, ELEMENT_WAIT_TIME);
           await sleep(2000);
           break;
       }
       const condition = chosenRandomNb === 0 || chosenRandomNb === 1 || chosenRandomNb === 2;
-      await this.page1.waitForSelector(ple.startPoll, ELEMENT_WAIT_TIME);
-      await this.page1.click(ple.startPoll, true);
-      await this.page2.waitForSelector(ple.pollingContainer, ELEMENT_WAIT_TIME);
+      await this.page1.waitForSelector(e.startPoll, ELEMENT_WAIT_TIME);
+      await this.page1.click(e.startPoll, true);
+      await this.page2.waitForSelector(e.pollingContainer, ELEMENT_WAIT_TIME);
       switch (condition) {
         case true:
-          await this.page2.clickNItem(ple.pollAnswerOptionBtn, true, 2);
+          await this.page2.clickNItem(e.pollAnswerOptionBtn, true, 2);
           break;
         case false:
-          await this.page2.page.focus(ple.pollAnswerOptionInput);
+          await this.page2.page.focus(e.pollAnswerOptionInput);
           await this.page2.page.keyboard.type(customs[3]);
-          await this.page2.waitForSelector(ple.pollSubmitAnswer, ELEMENT_WAIT_TIME);
-          await this.page2.click(ple.pollSubmitAnswer, true);
+          await this.page2.waitForSelector(e.pollSubmitAnswer, ELEMENT_WAIT_TIME);
+          await this.page2.click(e.pollSubmitAnswer, true);
           break;
       }
-      await this.page1.waitForSelector(ple.publishLabel, ELEMENT_WAIT_TIME);
-      await this.page1.click(ple.publishLabel, true);
-      await this.page1.waitForSelector(ple.restartPoll, ELEMENT_WAIT_TIME);
-      const receivedAnswerFound = await this.page1.page.evaluate(checkElementLengthDifferentTo, ple.receivedAnswer, 0);
+      await this.page1.waitForSelector(e.publishLabel, ELEMENT_WAIT_TIME);
+      await this.page1.click(e.publishLabel, true);
+      await this.page1.waitForSelector(e.restartPoll, ELEMENT_WAIT_TIME);
+      const receivedAnswerFound = await this.page1.page.evaluate(checkElementLengthDifferentTo, e.receivedAnswer, 0);
       return receivedAnswerFound;
     } catch (err) {
       await this.page1.logger(err);
@@ -172,13 +166,13 @@ class MultiUsers {
       await this.page1.closeAudioModal();
       await this.page2.closeAudioModal();
       await this.page3.closeAudioModal();
-      await this.page1.waitForSelector(we.whiteboard, ELEMENT_WAIT_TIME);
-      await this.page1.clickNItem(we.userListItem, true, 1);
-      await this.page1.clickNItem(we.changeWhiteboardAccess, true, 1);
+      await this.page1.waitForSelector(e.whiteboard, ELEMENT_WAIT_TIME);
+      await this.page1.clickNItem(e.userListItem, true, 1);
+      await this.page1.clickNItem(e.changeWhiteboardAccess, true, 1);
       await sleep(2000);
       const resp = await this.page1.page.evaluate((multiWhiteboardTool) => {
         return document.querySelector(multiWhiteboardTool).children[0].innerText === '1';
-      }, ue.multiWhiteboardTool);
+      }, e.multiWhiteboardTool);
       return resp === true;
     } catch (err) {
       await this.page1.logger(err);
@@ -191,10 +185,10 @@ class MultiUsers {
     try {
       await this.page1.closeAudioModal();
       await this.page2.closeAudioModal();
-      await this.page2.waitForSelector(we.raiseHandLabel, ELEMENT_WAIT_TIME);
-      await this.page2.click(we.raiseHandLabel, true);
+      await this.page2.waitForSelector(e.raiseHandLabel, ELEMENT_WAIT_TIME);
+      await this.page2.click(e.raiseHandLabel, true);
       await sleep(2000);
-      const resp = await this.page2.page.evaluate(checkElementLengthDifferentTo, we.lowerHandLabel, 0);
+      const resp = await this.page2.page.evaluate(checkElementLengthDifferentTo, e.lowerHandLabel, 0);
       return resp === true;
     } catch (err) {
       await this.page1.logger(err);
@@ -205,10 +199,10 @@ class MultiUsers {
   // Lower Hand
   async lowerHandTest() {
     try {
-      await this.page2.waitForSelector(we.lowerHandLabel, ELEMENT_WAIT_TIME);
-      await this.page2.click(we.lowerHandLabel, true);
+      await this.page2.waitForSelector(e.lowerHandLabel, ELEMENT_WAIT_TIME);
+      await this.page2.click(e.lowerHandLabel, true);
       await sleep(2000);
-      const resp = await this.page2.page.evaluate(checkElementLengthDifferentTo, we.raiseHandLabel, 0);
+      const resp = await this.page2.page.evaluate(checkElementLengthDifferentTo, e.raiseHandLabel, 0);
       return resp === true;
     } catch (err) {
       await this.page2.logger(err);
@@ -219,8 +213,8 @@ class MultiUsers {
   // Get Avatars Colors from Userlist and Notification toast
   async getAvatarColorAndCompareWithUserListItem() {
     try {
-      const avatarInToastElementColor = await this.page1.page.$eval(we.avatarsWrapperAvatar, (elem) => getComputedStyle(elem).backgroundColor);
-      const avatarInUserListColor = await this.page1.page.$eval(`${ue.userListItem} > div ${ue.statusIcon}`, (elem) => getComputedStyle(elem).backgroundColor);
+      const avatarInToastElementColor = await this.page1.page.$eval(e.avatarsWrapperAvatar, (elem) => getComputedStyle(elem).backgroundColor);
+      const avatarInUserListColor = await this.page1.page.$eval(`${e.userListItem} > div ${e.userAvatar}`, (elem) => getComputedStyle(elem).backgroundColor);
       return avatarInToastElementColor === avatarInUserListColor;
     } catch (err) {
       await this.page1.logger(err);
@@ -239,8 +233,8 @@ class MultiUsers {
       await sleep(5000);
       await utilUser.connectionStatus(this.page1);
       await sleep(5000);
-      const connectionStatusItemEmpty = await this.page1.page.evaluate(checkElementLengthEqualTo, ue.connectionStatusItemEmpty, 0);
-      const connectionStatusOfflineUser = await this.page1.page.evaluate(checkElementLengthDifferentTo, ue.connectionStatusOfflineUser, 0) === true;
+      const connectionStatusItemEmpty = await this.page1.page.evaluate(checkElementLengthEqualTo, e.connectionStatusItemEmpty, 0);
+      const connectionStatusOfflineUser = await this.page1.page.evaluate(checkElementLengthDifferentTo, e.connectionStatusOfflineUser, 0) === true;
       return connectionStatusOfflineUser && connectionStatusItemEmpty;
     } catch (err) {
       await this.page1.logger(err);
@@ -252,8 +246,8 @@ class MultiUsers {
     try {
       await this.page1.closeAudioModal();
       await this.page2.closeAudioModal();
-      const userlistPanel = await this.page1.page.evaluate(checkElementLengthEqualTo, ue.chatButton, 0);
-      const chatPanel = await this.page2.page.evaluate(checkElementLengthEqualTo, ue.chatButton, 0);
+      const userlistPanel = await this.page1.page.evaluate(checkElementLengthEqualTo, e.chatButtonKey, 0);
+      const chatPanel = await this.page2.page.evaluate(checkElementLengthEqualTo, e.chatButtonKey, 0);
       return userlistPanel && chatPanel;
     } catch (err) {
       await this.page1.logger(err);
@@ -265,11 +259,11 @@ class MultiUsers {
     try {
       await this.page1.closeAudioModal();
       await this.page2.closeAudioModal();
-      await this.page1.click(ue.userListButton, true);
-      await this.page2.click(ue.userListButton, true);
-      await this.page2.click(ue.chatButton, true);
-      const onUserListPanel = await this.page1.isNotVisible(cu.hidePresentation, ELEMENT_WAIT_TIME) === true;
-      const onChatPanel = await this.page2.page.evaluate(checkElementLengthEqualTo, cu.hidePresentation, 0);
+      await this.page1.click(e.userListButton, true);
+      await this.page2.click(e.userListButton, true);
+      await this.page2.click(e.chatButtonKey, true);
+      const onUserListPanel = await this.page1.isNotVisible(e.hidePresentation, ELEMENT_WAIT_TIME) === true;
+      const onChatPanel = await this.page2.page.evaluate(checkElementLengthEqualTo, e.hidePresentation, 0);
       await sleep(2000);
       return onUserListPanel && onChatPanel;
     } catch (err) {
@@ -282,10 +276,10 @@ class MultiUsers {
     try {
       await this.page1.closeAudioModal();
       await this.page2.closeAudioModal();
-      await this.page2.click(ue.userListButton, true);
-      await this.page2.click(ue.chatButton, true);
-      const whiteboard = await this.page1.page.evaluate(checkElementLengthEqualTo, ue.chatButton, 0);
-      const onChatPanel = await this.page2.isNotVisible(ue.chatButton, ELEMENT_WAIT_TIME) === true;
+      await this.page2.click(e.userListButton, true);
+      await this.page2.click(e.chatButtonKey, true);
+      const whiteboard = await this.page1.page.evaluate(checkElementLengthEqualTo, e.chatButtonKey, 0);
+      const onChatPanel = await this.page2.isNotVisible(e.chatButtonKey, ELEMENT_WAIT_TIME) === true;
       await sleep(2000);
       return whiteboard && onChatPanel;
     } catch (err) {

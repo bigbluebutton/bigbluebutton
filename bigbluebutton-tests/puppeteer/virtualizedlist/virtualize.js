@@ -1,7 +1,7 @@
 const Page = require('../core/page');
 const params = require('../params');
 const { USER_LIST_VLIST_BOTS_LISTENING, ELEMENT_WAIT_TIME } = require('../core/constants');
-const ue = require('../user/elements');
+const e = require('../core/elements');
 const { getElementLength } = require('../core/util')
 
 class VirtualizeList {
@@ -15,7 +15,7 @@ class VirtualizeList {
     try {
       await this.page1.init(Page.getArgs(), meetingId, { ...params, fullName: 'BroadCaster1' }, undefined, testName);
       await this.page1.closeAudioModal();
-      await this.page1.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
+      await this.page1.waitForSelector(e.anyUser, ELEMENT_WAIT_TIME);
       for (let i = 1; i <= parseInt(USER_LIST_VLIST_BOTS_LISTENING); i++) {
         const viewerPage = new Page();
         await viewerPage.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: `Viewer${i}`, moderatorPW: '' }, undefined, testName);
@@ -32,7 +32,7 @@ class VirtualizeList {
 
   async test() {
     try {
-      const USER_LIST_VLIST_VISIBLE_USERS = await this.page1.page.evaluate(getElementLength, ue.anyUser);
+      const USER_LIST_VLIST_VISIBLE_USERS = await this.page1.page.evaluate(getElementLength, e.anyUser);
       const totalNumberOfUsersMongo = await this.page1.page.evaluate(() => {
         const collection = require('/imports/api/users/index.js');
         const users = collection.default._collection.find().count();

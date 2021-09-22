@@ -11,7 +11,6 @@ const params = require('../params');
 const { ELEMENT_WAIT_TIME } = require('./constants');
 const { getElementLength } = require('./util');
 const e = require('./elements');
-const ue = require('../user/elements');
 const { NETWORK_PRESETS } = require('./profiles');
 const devices = require('./devices');
 const linuxDesktop = devices['Linux Desktop'];
@@ -84,7 +83,7 @@ class Page {
       await this.page.goto(joinURL, { waitUntil: 'networkidle2' });
 
       if (process.env.BBB_COLLECT_METRICS === 'true' && process.env.IS_MOBILE !== 'true') {
-        await this.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
+        await this.waitForSelector(e.anyUser, ELEMENT_WAIT_TIME);
         await this.getMetrics(testFolderName);
       }
     } catch (err) {
@@ -94,14 +93,14 @@ class Page {
 
   // Joining audio with microphone
   async joinMicrophone() {
-    await this.waitForSelector(e.audioDialog, ELEMENT_WAIT_TIME);
+    await this.waitForSelector(e.audioModal, ELEMENT_WAIT_TIME);
     await this.waitForSelector(e.microphoneButton, ELEMENT_WAIT_TIME);
     await this.click(e.microphoneButton, true);
     await this.waitForSelector(e.connectingStatus, ELEMENT_WAIT_TIME);
     const parsedSettings = await this.getSettingsYaml();
     const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
-    await this.waitForSelector(e.echoYes, listenOnlyCallTimeout);
-    await this.click(e.echoYes, true);
+    await this.waitForSelector(e.echoYesButton, listenOnlyCallTimeout);
+    await this.click(e.echoYesButton, true);
     await this.waitForSelector(e.isTalking, ELEMENT_WAIT_TIME);
   }
 
@@ -136,14 +135,14 @@ class Page {
 
   // Joining audio with Listen Only mode
   async listenOnly() {
-    await this.waitForSelector(e.audioDialog, ELEMENT_WAIT_TIME);
-    await this.waitForSelector(e.listenButton, ELEMENT_WAIT_TIME);
-    await this.click(e.listenButton);
+    await this.waitForSelector(e.audioModal, ELEMENT_WAIT_TIME);
+    await this.waitForSelector(e.listenOnlyButton, ELEMENT_WAIT_TIME);
+    await this.click(e.listenOnlyButton);
   }
 
   async closeAudioModal() {
-    await this.waitForSelector(e.audioDialog, ELEMENT_WAIT_TIME);
-    await this.click(e.closeAudio, true);
+    await this.waitForSelector(e.audioModal, ELEMENT_WAIT_TIME);
+    await this.click(e.closeAudioButton, true);
   }
 
   async setDownloadBehavior(downloadPath) {
@@ -405,13 +404,13 @@ class Page {
     if (!fs.existsSync(metricsFolder)) {
       fs.mkdirSync(metricsFolder);
     }
-    await this.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
+    await this.waitForSelector(e.anyUser, ELEMENT_WAIT_TIME);
     const totalNumberOfUsersMongo = await this.page.evaluate(() => {
       const collection = require('/imports/api/users-persistent-data/index.js');
       const users = collection.default._collection.find({}, {}, {}, {}, {}, { loggedOut: 'false' }).count();
       return users;
     });
-    const totalNumberOfUsersDom = await this.page.evaluate(getElementLength, '[data-test^="userListItem"]');
+    const totalNumberOfUsersDom = await this.page.evaluate(getElementLength, e.anyUser);
     await this.logger({ totalNumberOfUsersDom, totalNumberOfUsersMongo });
     const metric = await this.page.metrics();
     pageMetricsObj.totalNumberOfUsersMongoObj = totalNumberOfUsersMongo;

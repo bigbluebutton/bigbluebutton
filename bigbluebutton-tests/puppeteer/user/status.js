@@ -1,6 +1,6 @@
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const Page = require('../core/page');
-const e = require('./elements');
+const e = require('../core/elements');
 const util = require('./util');
 const utilWebcam = require('../webcam/util');
 const utilScreenshare = require('../screenshare/util');

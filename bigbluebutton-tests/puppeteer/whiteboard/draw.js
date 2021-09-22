@@ -1,6 +1,6 @@
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const Page = require('../core/page');
-const e = require('./elements');
+const e = require('../core/elements');
 
 class Draw extends Page {
   constructor() {
@@ -38,8 +38,8 @@ class Draw extends Page {
 
   async getTestElements() {
     try {
-      await this.waitForSelector('g[clip-path="url(#viewBox)"]', ELEMENT_WAIT_TIME);
-      const shapes = await this.page.evaluate(() => document.querySelector('svg g[clip-path]').children[1].outerHTML);
+      await this.waitForSelector(e.whiteboardViewBox, ELEMENT_WAIT_TIME);
+      const shapes = await this.page.evaluate((selector) => document.querySelector(selector).children[1].outerHTML, e.whiteboardViewBox);
       return shapes;
     } catch (err) {
       await this.logger(err);

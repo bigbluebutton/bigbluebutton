@@ -1,7 +1,7 @@
 // Test: Sending a chat message
 
 const Notifications = require('../notifications/notifications');
-const e = require('./elements');
+const e = require('../core/elements');
 const { checkElementLengthEqualTo } = require('../core/util');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 

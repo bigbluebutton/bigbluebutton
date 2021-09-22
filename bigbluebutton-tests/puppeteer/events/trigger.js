@@ -25,9 +25,9 @@ class Trigger extends Page {
       const meteorStatus = await this.page.evaluate(() => Meteor.status());
       const meteorStatusConfirm = await meteorStatus.status === "offline";
       await this.logger('Check if Meteor is Offline => ', meteorStatusConfirm);
-      const getAudioButton = await this.page.evaluate(() =>
-        document.querySelectorAll('button[aria-label="Join audio"]')[0]
-          .getAttribute('aria-disabled') === "true");
+      const getAudioButton = await this.page.evaluate((joinAudioSelector) => {
+        return document.querySelectorAll(joinAudioSelector)[0].getAttribute('aria-disabled') === "true";
+      }, e.joinAudio);
       await this.logger('Check if Connections Buttons are disabled => ', getAudioButton);
       await this.page.evaluate(() => Meteor.reconnect());
       await sleep(3000);

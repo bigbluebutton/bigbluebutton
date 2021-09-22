@@ -2,10 +2,7 @@ const path = require('path');
 const moment = require('moment');
 const Create = require('./create');
 const utilScreenShare = require('../screenshare/util');
-const e = require('./elements');
-const pe = require('../core/elements');
-const we = require('../webcam/elements');
-const ae = require('../audio/elements');
+const e = require('../core/elements');
 const { checkElement } = require('../core/util');
 const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
 
@@ -33,14 +30,14 @@ class Join extends Create {
         await page2[2].bringToFront();
 
         // Talking indicator bar
-        await page2[2].waitForSelector(ae.talkingIndicator, { timeout: ELEMENT_WAIT_TIME });
+        await page2[2].waitForSelector(e.talkingIndicator, { timeout: ELEMENT_WAIT_TIME });
 
         if (process.env.GENERATE_EVIDENCES === 'true') {
           await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-with-audio-before-check-${testName}.png`) });
         }
         await this.page3.logger('before pages check');
 
-        const resp = await page2[2].evaluate(checkElement, pe.isTalking);
+        const resp = await page2[2].evaluate(checkElement, e.isTalking);
 
         if (process.env.GENERATE_EVIDENCES === 'true') {
           await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/06-breakout-page02-user-joined-with-audio-after-check-${testName}.png`) });
@@ -51,13 +48,13 @@ class Join extends Create {
         await this.page3.logger('logged in to breakout with video');
 
         const page2 = await this.page2.browser.pages();
-        await page2[2].waitForSelector(we.videoContainer, { timeout: VIDEO_LOADING_WAIT_TIME });
+        await page2[2].waitForSelector(e.videoContainer, { timeout: VIDEO_LOADING_WAIT_TIME });
         if (process.env.GENERATE_EVIDENCES === 'true') {
           await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-with-webcam-success-${testName}.png`) });
         }
         await this.page3.logger('before pages check');
 
-        const resp = await page2[2].evaluate(checkElement, we.videoContainer);
+        const resp = await page2[2].evaluate(checkElement, e.videoContainer);
 
         if (process.env.GENERATE_EVIDENCES === 'true') {
           await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/06-breakout-page02-user-joined-webcam-before-check-${testName}.png`) });

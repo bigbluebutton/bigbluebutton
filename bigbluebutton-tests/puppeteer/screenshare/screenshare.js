@@ -29,7 +29,7 @@ class ShareScreen extends Page {
       await this.init(args, undefined, undefined, undefined, testName, undefined, deviceX);
       await this.startRecording(testName);
       await this.closeAudioModal();
-      const screenshareBtn = await this.page.evaluate(checkElementLengthEqualTo, e.screenShare, 1);
+      const screenshareBtn = await this.page.evaluate(checkElementLengthEqualTo, e.startScreenSharing, 1);
       return screenshareBtn;
     } catch (err) {
       await this.logger(err);

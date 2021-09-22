@@ -1,4 +1,4 @@
-const e = require('./elements');
+const e = require('../core/elements');
 const { ELEMENT_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
 
 async function createBreakoutRooms(page1, page2) {
