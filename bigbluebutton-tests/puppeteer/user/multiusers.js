@@ -50,11 +50,12 @@ class MultiUsers {
   async multiUsersPrivateChat() {
     try {
       await util.openPrivateChatMessage(this.page1, this.page2);
-      const chat0 = await this.page1.page.evaluate(getElementLength, e.chatUserMessageText);
+      const chat0 = await this.page1.page.evaluate(checkElementLengthEqualTo, e.chatUserMessageText, 0);
+
       await util.sendPrivateChatMessage(this.page1, this.page2);
-      await sleep(2000);
-      const chat1 = await this.page1.page.evaluate(getElementLength, e.chatUserMessageText);
-      return chat0 !== chat1;
+      const receivedMessages = await this.page1.hasElement(e.chatUserMessageText, true) && await this.page2.hasElement(e.chatUserMessageText, true);
+
+      return chat0 && receivedMessages;
     } catch (err) {
       await this.page1.logger(err);
       return false;
@@ -129,7 +130,6 @@ class MultiUsers {
         case 3:
           // Do nothing to let Users write their single response answer
           await this.page1.waitForSelector(e.responseChoices);
-          await sleep(2000);
           break;
       }
       const condition = chosenRandomNb === 0 || chosenRandomNb === 1 || chosenRandomNb === 2;
@@ -137,7 +137,7 @@ class MultiUsers {
       await this.page2.waitForSelector(e.pollingContainer);
       switch (condition) {
         case true:
-          await this.page2.clickNItem(e.pollAnswerOptionBtn, true, 2);
+          await this.page2.clickNItem(e.pollAnswerOptionBtn, false, 2);
           break;
         case false:
           await this.page2.page.focus(e.pollAnswerOptionInput);
@@ -145,10 +145,11 @@ class MultiUsers {
           await this.page2.waitAndClick(e.pollSubmitAnswer);
           break;
       }
-      await this.page1.waitAndClick(e.publishLabel);
+      const receivedAnswerFound = await this.page1.hasElement(e.receivedAnswer, true);
+      await this.page1.waitAndClick(e.publishLabel, ELEMENT_WAIT_TIME, true);
       await this.page1.waitForSelector(e.restartPoll);
-      const receivedAnswerFound = await this.page1.page.evaluate(checkElementLengthDifferentTo, e.receivedAnswer, 0);
-      return receivedAnswerFound;
+      const isPollResultsPublished = await this.page1.hasElement(e.pollResults, true);
+      return receivedAnswerFound && isPollResultsPublished;
     } catch (err) {
       await this.page1.logger(err);
       return false;
@@ -163,7 +164,7 @@ class MultiUsers {
       await this.page1.waitForSelector(e.whiteboard);
       await this.page1.clickNItem(e.userListItem, true, 1);
       await this.page1.clickNItem(e.changeWhiteboardAccess, true, 1);
-      await sleep(2000);
+      await this.page1.waitForSelector(e.multiWhiteboardTool);
       const resp = await this.page1.page.evaluate((multiWhiteboardTool) => {
         return document.querySelector(multiWhiteboardTool).children[0].innerText === '1';
       }, e.multiWhiteboardTool);
@@ -180,8 +181,8 @@ class MultiUsers {
       await this.page1.closeAudioModal();
       await this.page2.closeAudioModal();
       await this.page2.waitAndClick(e.raiseHandLabel);
-      await sleep(2000);
-      const resp = await this.page2.page.evaluate(checkElementLengthDifferentTo, e.lowerHandLabel, 0);
+      const resp = await this.page2.hasElement(e.lowerHandLabel, true);
+
       return resp === true;
     } catch (err) {
       await this.page1.logger(err);
@@ -193,8 +194,9 @@ class MultiUsers {
   async lowerHandTest() {
     try {
       await this.page2.waitAndClick(e.lowerHandLabel);
-      await sleep(2000);
-      const resp = await this.page2.page.evaluate(checkElementLengthDifferentTo, e.raiseHandLabel, 0);
+      await this.page2.waitAndClick(e.lowerHandLabel, ELEMENT_WAIT_TIME, true);
+      const resp = await this.page2.hasElement(e.raiseHandLabel, true);
+
       return resp === true;
     } catch (err) {
       await this.page2.logger(err);
@@ -220,14 +222,12 @@ class MultiUsers {
       await this.page2.closeAudioModal();
       await this.page2.page.evaluate(() => window.dispatchEvent(new CustomEvent('socketstats', { detail: { rtt: 2000 } })));
       await this.page2.page.setOfflineMode(true);
-      await sleep(3000);
       await this.page2.close();
-      await sleep(5000);
       await utilUser.connectionStatus(this.page1);
-      await sleep(5000);
-      const connectionStatusItemEmpty = await this.page1.page.evaluate(checkElementLengthEqualTo, e.connectionStatusItemEmpty, 0);
-      const connectionStatusOfflineUser = await this.page1.page.evaluate(checkElementLengthDifferentTo, e.connectionStatusOfflineUser, 0) === true;
-      return connectionStatusOfflineUser && connectionStatusItemEmpty;
+      const connectionStatusItemEmpty = await this.page1.wasRemoved(e.connectionStatusItemEmpty);
+      const connectionStatusOfflineUser = await this.page1.hasElement(e.connectionStatusOfflineUser, true);
+
+      return connectionStatusItemEmpty && connectionStatusOfflineUser;
     } catch (err) {
       await this.page1.logger(err);
       return false;
@@ -255,8 +255,8 @@ class MultiUsers {
       await this.page2.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.chatButtonKey);
       const onUserListPanel = await this.page1.isNotVisible(e.hidePresentation);
-      const onChatPanel = await this.page2.page.evaluate(checkElementLengthEqualTo, e.hidePresentation, 0);
-      await sleep(2000);
+      const onChatPanel = await this.page2.isNotVisible(e.hidePresentation);
+
       return onUserListPanel && onChatPanel;
     } catch (err) {
       await this.page1.logger(err);
@@ -272,7 +272,7 @@ class MultiUsers {
       await this.page2.waitAndClick(e.chatButtonKey);
       const whiteboard = await this.page1.page.evaluate(checkElementLengthEqualTo, e.chatButtonKey, 0);
       const onChatPanel = await this.page2.isNotVisible(e.chatButtonKey);
-      await sleep(2000);
+
       return whiteboard && onChatPanel;
     } catch (err) {
       await this.page1.logger(err);

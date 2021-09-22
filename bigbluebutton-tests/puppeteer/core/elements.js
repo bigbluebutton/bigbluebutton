@@ -3,6 +3,7 @@ exports.actions = 'button[aria-label="Actions"]';
 exports.options = 'button[aria-label="Options"]';
 exports.screenshareConnecting = 'div[data-test="screenshareConnecting"]';
 exports.screenShareVideo = 'video[id="screenshareVideo"]';
+exports.isSharingScreen = 'div[data-test="isSharingScreen"]';
 exports.raiseHandLabel = 'button[data-test="raiseHandLabel"]';
 exports.lowerHandLabel = 'button[data-test="lowerHandLabel"]';
 exports.logout = 'li[data-test="logout"]';
@@ -137,6 +138,7 @@ exports.startPoll = 'button[data-test="startPoll"]';
 exports.restartPoll = 'button[data-test="restartPoll"]';
 exports.receivedAnswer = 'td[data-test="receivedAnswer"]';
 exports.publishLabel = 'button[data-test="publishLabel"]';
+exports.pollResults = 'g[data-test="pollResultAria"]';
 
 // Presentation
 exports.startScreenSharing = 'button[data-test="startScreenShare"]';

@@ -11,11 +11,6 @@ async function waitForScreenshareContainer(test) {
   await test.waitForSelector(e.screenShareVideo, VIDEO_LOADING_WAIT_TIME);
 }
 
-async function getScreenShareContainer(test) {
-  await test.waitForSelector(e.screenShareVideo, VIDEO_LOADING_WAIT_TIME);
-  return test.page.evaluate(checkElement, e.screenShareVideo);
-}
-
 async function getScreenShareBreakoutContainer(test) {
   await test.waitForSelector(e.screenshareConnecting, VIDEO_LOADING_WAIT_TIME);
   await test.waitForSelector(e.screenShareVideo, VIDEO_LOADING_WAIT_TIME);
@@ -23,6 +18,5 @@ async function getScreenShareBreakoutContainer(test) {
 }
 
 exports.getScreenShareBreakoutContainer = getScreenShareBreakoutContainer;
-exports.getScreenShareContainer = getScreenShareContainer;
 exports.startScreenshare = startScreenshare;
 exports.waitForScreenshareContainer = waitForScreenshareContainer;

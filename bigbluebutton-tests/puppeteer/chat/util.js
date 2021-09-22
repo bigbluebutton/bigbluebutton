@@ -17,7 +17,6 @@ async function sendPublicChatMessage(page1, page2) {
 
 async function openPrivateChatMessage(page1, page2) {
   // Open private Chat with the other User
-  Object.values(arguments).forEach(async argument => await argument.waitForSelector(e.userListItem));
   await page1.waitAndClick(e.userListItem);
   await page2.waitAndClick(e.userListItem);
   await page1.waitAndClick(e.activeChat);
