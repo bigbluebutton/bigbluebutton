@@ -23,10 +23,10 @@ const breakoutTest = () => {
       await test.page1.startRecording(testName);
       await test.create(testName);
       response = await test.testCreatedBreakout(testName);
-      const page2 = await test.page2.browser.pages();
-      await page2[2].bringToFront();
+      const breakoutPage2 = await test.page2.getLastTargetPage();
+      await breakoutPage2.bringToFront();
       await test.page1.stopRecording();
-      screenshot = await page2[2].screenshot();
+      screenshot = await breakoutPage2.page.screenshot();
       await test.page1.logger('end of ', testName);
     } catch (err) {
       await test.page1.logger(err);
@@ -50,10 +50,10 @@ const breakoutTest = () => {
       await test.create(testName);
       await test.join(testName);
       response = await test.testJoined(testName);
-      const page2 = await test.page2.browser.pages();
-      await page2[2].bringToFront();
+      const breakoutPage2 = await test.page2.getLastTargetPage();
+      await breakoutPage2.bringToFront();
       await test.page1.stopRecording();
-      screenshot = await page2[2].screenshot();
+      screenshot = await breakoutPage2.page.screenshot();
       await test.page1.logger('end of ', testName);
     } catch (err) {
       await test.page1.logger(err);
@@ -77,10 +77,10 @@ const breakoutTest = () => {
       await test.create(testName);
       await test.join(testName);
       response = await test.testJoined(testName);
-      const page2 = await test.page2.browser.pages();
-      await page2[2].bringToFront();
+      const breakoutPage2 = await test.page2.getLastTargetPage();
+      await breakoutPage2.bringToFront();
       await test.page1.stopRecording();
-      screenshot = await page2[2].screenshot();
+      screenshot = await breakoutPage2.page.screenshot();
       await test.page1.logger('end of ', testName);
     } catch (err) {
       await test.page1.logger(err);
@@ -104,10 +104,10 @@ const breakoutTest = () => {
       await test.create(testName);
       await test.join(testName);
       response = await test.testJoined(testName);
-      const page2 = await test.page2.browser.pages();
-      await page2[2].bringToFront();
+      const breakoutPage2 = await test.page2.getLastTargetPage();
+      await breakoutPage2.bringToFront();
       await test.page1.stopRecording();
-      screenshot = await page2[2].screenshot();
+      screenshot = await breakoutPage2.page.screenshot();
       await test.page1.logger('end of ', testName);
     } catch (err) {
       await test.page1.logger(err);
@@ -131,10 +131,10 @@ const breakoutTest = () => {
       await test.create(testName);
       await test.join(testName);
       response = await test.testJoined(testName);
-      const page2 = await test.page2.browser.pages();
-      await page2[2].bringToFront();
+      const breakoutPage2 = await test.page2.getLastTargetPage();
+      await breakoutPage2.bringToFront();
       await test.page1.stopRecording();
-      screenshot = await page2[2].screenshot();
+      screenshot = await breakoutPage2.page.screenshot();
       await test.page1.logger('end of ', testName);
     } catch (err) {
       await test.page1.logger(err);

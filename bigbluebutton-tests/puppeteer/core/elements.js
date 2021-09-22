@@ -49,7 +49,9 @@ exports.alreadyConnected = 'span[class^="alreadyConnected--"]';
 exports.breakoutJoin = '[data-test="breakoutJoin"]';
 exports.userJoined = 'div[aria-label^="Moderator3"]';
 exports.breakoutRoomsButton = 'div[aria-label="Breakout Rooms"]';
-exports.joinRoom1 = 'button[aria-label="Join room 1"]';
+exports.generateRoom1 = 'button[aria-label="Generate URL Room 1"]';
+exports.joinGeneratedRoom1 = 'button[aria-label="Generated Room 1"]';
+exports.joinRoom1 = 'button[aria-label="Join room Room 1"]';
 
 // Chat
 exports.chatButton = 'div[data-test="chatButton"]';
