@@ -9,11 +9,9 @@ class Draw extends Page {
 
   async test() {
     try {
-      await this.waitForSelector(e.tools, ELEMENT_WAIT_TIME);
-      await this.click(e.tools, true);
-      await this.waitForSelector(e.rectangle, ELEMENT_WAIT_TIME);
-      await this.click(e.rectangle, true);
-      await this.waitForSelector(e.whiteboard, ELEMENT_WAIT_TIME);
+      await this.waitForSelector(e.whiteboard);
+      await this.waitAndClick(e.tools);
+      await this.waitAndClick(e.rectangle);
 
       const shapes0 = await this.getTestElements();
       shapes0 === '<g></g>';
@@ -25,7 +23,7 @@ class Draw extends Page {
       await this.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
       await this.page.mouse.up();
 
-      await this.waitForSelector(e.drawnRectangle, ELEMENT_WAIT_TIME);
+      await this.waitForSelector(e.drawnRectangle);
       const shapes1 = await this.getTestElements();
       shapes1 !== '<g></g>';
 
@@ -38,7 +36,7 @@ class Draw extends Page {
 
   async getTestElements() {
     try {
-      await this.waitForSelector(e.whiteboardViewBox, ELEMENT_WAIT_TIME);
+      await this.waitForSelector(e.whiteboardViewBox);
       const shapes = await this.page.evaluate((selector) => document.querySelector(selector).children[1].outerHTML, e.whiteboardViewBox);
       return shapes;
     } catch (err) {

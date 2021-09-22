@@ -1,63 +1,58 @@
 const e = require('../core/elements');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
-const { clickElement, getElementText, checkElement, checkElementLengthEqualTo } = require('../core/util');
+const { getElementText, checkElement, checkElementLengthEqualTo } = require('../core/util');
 
 async function popupMenu(test) {
-  await test.page.evaluate(clickElement, e.options);
-  await test.page.evaluate(clickElement, e.settings);
+  await test.waitAndClick(e.options);
+  await test.waitAndClick(e.settings);
 }
 
 async function enableChatPopup(test) {
-  await test.waitForSelector(e.notificationsTab, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickElement, e.notificationsTab);
-  await test.waitForSelector(e.chatPushAlerts, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickElement, e.chatPushAlerts);
+  await test.waitAndClick(e.notificationsTab);
+  await test.waitAndClickElement(e.chatPushAlerts);
 }
 
 async function enableUserJoinPopup(test) {
-  await test.waitForSelector(e.notificationsTab, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickElement, e.notificationsTab);
-  await test.waitForSelector(e.userJoinPushAlerts, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickElement, e.userJoinPushAlerts);
+  await test.waitAndClick(e.notificationsTab);
+  await test.waitAndClickElement(e.userJoinPushAlerts);
 }
 
 async function saveSettings(page) {
-  await page.waitForSelector(e.modalConfirmButton, ELEMENT_WAIT_TIME);
-  await page.click(e.modalConfirmButton, true);
+  await page.waitAndClick(e.modalConfirmButton);
 }
 
 async function waitForToast(test) {
-  await test.waitForSelector(e.smallToastMsg, ELEMENT_WAIT_TIME);
+  await test.waitForSelector(e.smallToastMsg);
   const resp = await test.page.evaluate(checkElement, e.smallToastMsg, 1);
   return resp;
 }
 
 async function getLastToastValue(test) {
-  await test.waitForSelector(e.smallToastMsg, ELEMENT_WAIT_TIME);
+  await test.waitForSelector(e.smallToastMsg);
   const toast = test.page.evaluate(getElementText, e.smallToastMsg);
   return toast;
 }
 
 async function getOtherToastValue(test) {
-  await test.waitForSelector(e.smallToastMsg, ELEMENT_WAIT_TIME);
+  await test.waitForSelector(e.smallToastMsg);
   const toast = test.page.evaluate(getElementText, e.smallToastMsg, 1);
   return toast;
 }
 
 async function publicChatMessageToast(page1, page2) {
   // Open private Chat with the other User
-  await page1.page.evaluate(clickElement, e.userListItem);
-  await page1.page.evaluate(clickElement, e.activeChat);
+  await page1.waitAndClick(e.userListItem);
+  await page1.waitAndClick(e.activeChat);
   // send a public message
-  await page2.page.type(e.publicChat, e.publicMessage1);
-  await page2.click(e.sendButton, true);
+  await page2.type(e.publicChat, e.publicMessage1);
+  await page2.waitAndClick(e.sendButton);
   return e.publicChatToast;
 }
 
 async function privateChatMessageToast(page2) {
   // Open private Chat with the other User
-  await page2.page.evaluate(clickElement, e.userListItem);
-  await page2.page.evaluate(clickElement, e.activeChat);
+  await page2.waitAndClick(e.userListItem);
+  await page2.waitAndClick(e.activeChat);
   // wait for the private chat to be ready
   await page2.page.waitForFunction(
     checkElementLengthEqualTo,
@@ -65,29 +60,24 @@ async function privateChatMessageToast(page2) {
     e.chatButton, 2
   );
   // send a private message
-  await page2.page.type(e.privateChat, e.message1);
-  await page2.click(e.sendButton, true);
+  await page2.type(e.privateChat, e.message1);
+  await page2.waitAndClick(e.sendButton);
   return e.privateChatToast;
 }
 
 // File upload notification
 async function uploadFileMenu(test) {
-  await test.click(e.actions);
-  await test.click(e.uploadPresentation);
+  await test.waitAndClick(e.actions);
+  await test.waitAndClick(e.uploadPresentation);
 }
 
 async function startPoll(test) {
-  await test.click(e.actions);
-  await test.click(e.polling);
-  await test.waitForSelector(e.hidePollDesc, ELEMENT_WAIT_TIME);
-  await test.waitForSelector(e.polling, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickElement, e.polling);
-  await test.waitForSelector(e.pollYesNoAbstentionBtn, ELEMENT_WAIT_TIME);
-  await test.click(e.pollYesNoAbstentionBtn, true);
-  await test.waitForSelector(e.startPoll, ELEMENT_WAIT_TIME);
-  await test.click(e.startPoll, true);
-  await test.waitForSelector(e.publishLabel, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickElement, e.publishLabel);
+  await test.waitAndClick(e.actions);
+  await test.waitAndClick(e.polling);
+  await test.waitForSelector(e.hidePollDesc);
+  await test.waitAndClick(e.pollYesNoAbstentionBtn);
+  await test.waitAndClick(e.startPoll);
+  await test.waitAndClick(e.publishLabel);
 }
 
 exports.privateChatMessageToast = privateChatMessageToast;

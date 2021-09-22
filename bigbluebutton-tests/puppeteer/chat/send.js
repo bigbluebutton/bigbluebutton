@@ -22,7 +22,7 @@ class Send extends Page {
       await this.type(e.chatBox, e.message);
       await this.screenshot(`${testName}`, `02-typing-chat-message-[${this.meetingId}]`);
 
-      await this.click(e.sendButton, true);
+      await this.waitAndClick(e.sendButton);
       await this.screenshot(`${testName}`, `03-after-chat-message-send-[${this.meetingId}]`);
 
       await this.waitForSelector(e.chatUserMessageText);

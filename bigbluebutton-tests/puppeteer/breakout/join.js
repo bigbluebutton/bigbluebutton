@@ -80,13 +80,12 @@ class Join extends Create {
         return resp === true;
       } else {
         await this.page3.page.bringToFront();
-        await this.page3.waitForSelector(e.breakoutRoomsItem, ELEMENT_WAIT_TIME);
-        await this.page3.waitForSelector(e.chatButton, ELEMENT_WAIT_TIME);
-        await this.page3.click(e.chatButton, true);
-        await this.page3.click(e.breakoutRoomsItem, true);
-        const resp = await this.page3.page.evaluate(checkElement, e.alreadyConnected);
+        await this.page3.waitForSelector(e.breakoutRoomsItem);
+        await this.page3.waitAndClick(e.chatButton);
+        await this.page3.waitAndClick(e.breakoutRoomsItem);
+        await this.page3.waitForSelector(e.alreadyConnected);
 
-        return resp === true;
+        return true;
       }
     } catch (err) {
       await this.page3.logger(err);

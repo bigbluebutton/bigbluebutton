@@ -3,7 +3,6 @@
 const Notifications = require('../notifications/notifications');
 const e = require('../core/elements');
 const { checkElementLengthEqualTo } = require('../core/util');
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
 class Poll extends Notifications {
   constructor() {
@@ -18,9 +17,8 @@ class Poll extends Notifications {
 
       await this.publishPollResults(testName);
 
-      await this.page3.waitForSelector(e.chatButton, ELEMENT_WAIT_TIME);
-      await this.page3.click(e.chatButton, true);
-      await this.page3.waitForSelector(e.chatPollMessageText, ELEMENT_WAIT_TIME);
+      await this.page3.waitAndClick(e.chatButton);
+      await this.page3.waitForSelector(e.chatPollMessageText);
 
       // 1 message
       const chat1 = await this.page3.page.evaluate(checkElementLengthEqualTo, e.chatPollMessageText, 1);

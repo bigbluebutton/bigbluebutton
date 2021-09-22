@@ -1,31 +1,27 @@
 const e = require('../core/elements');
-const { clickElement } = require('../core/util');
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
 async function openChat(test) {
-  await test.waitForSelector(e.chatBox, ELEMENT_WAIT_TIME);
-  await test.waitForSelector(e.chatMessages, ELEMENT_WAIT_TIME);
+  await test.waitForSelector(e.chatBox);
+  await test.waitForSelector(e.chatMessages);
 }
 
 async function sendPublicChatMessage(page1, page2) {
   // send a public message
-  await page1.page.type(e.publicChat, e.publicMessage1);
-  await page1.page.click(e.sendButton, true);
+  await page1.type(e.publicChat, e.publicMessage1);
+  await page1.waitAndClick(e.sendButton);
   await page1.page.screenshot(true);
-  await page2.page.type(e.publicChat, e.publicMessage2);
-  await page2.page.click(e.sendButton, true);
+  await page2.type(e.publicChat, e.publicMessage2);
+  await page2.waitAndClick(e.sendButton);
   await page2.page.screenshot(true);
 }
 
 async function openPrivateChatMessage(page1, page2) {
   // Open private Chat with the other User
-  Object.values(arguments).forEach(async argument => await argument.waitForSelector(e.userListItem, ELEMENT_WAIT_TIME));
-  await page1.page.evaluate(clickElement, e.userListItem);
-  await page2.page.evaluate(clickElement, e.userListItem);
-  await page1.page.waitForSelector(e.activeChat, ELEMENT_WAIT_TIME);
-  await page1.page.evaluate(clickElement, e.activeChat);
-  await page2.page.waitForSelector(e.activeChat, ELEMENT_WAIT_TIME);
-  await page2.page.evaluate(clickElement, e.activeChat);
+  Object.values(arguments).forEach(async argument => await argument.waitForSelector(e.userListItem));
+  await page1.waitAndClick(e.userListItem);
+  await page2.waitAndClick(e.userListItem);
+  await page1.waitAndClick(e.activeChat);
+  await page2.waitAndClick(e.activeChat);
 }
 
 async function sendPrivateChatMessage(page1, page2) {
@@ -33,11 +29,11 @@ async function sendPrivateChatMessage(page1, page2) {
   await page1.waitForSelector(e.hidePrivateChat);
   await page2.waitForSelector(e.hidePrivateChat);
 
-  await page1.page.type(e.privateChat, e.message1);
-  await page1.page.click(e.sendButton, true);
+  await page1.type(e.privateChat, e.message1);
+  await page1.waitAndClick(e.sendButton);
   await page1.page.screenshot(true);
-  await page2.page.type(e.privateChat, e.message2);
-  await page2.page.click(e.sendButton, true);
+  await page2.type(e.privateChat, e.message2);
+  await page2.waitAndClick(e.sendButton);
   await page2.page.screenshot(true);
 }
 

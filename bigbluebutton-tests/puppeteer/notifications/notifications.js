@@ -5,7 +5,7 @@ const params = require('../params');
 const util = require('./util');
 const utilScreenShare = require('../screenshare/util'); // utils imported from screenshare folder
 const e = require('../core/elements');
-const { ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
 const { checkElementTextIncludes } = require('../core/util');
 
 class Notifications extends MultiUsers {
@@ -65,9 +65,9 @@ class Notifications extends MultiUsers {
       await this.page1.screenshot(`${testName}`, `04-page01-applied-settings-${testName}`);
       const expectedToastValue = await util.publicChatMessageToast(this.page1, this.page2);
       await this.page1.screenshot(`${testName}`, `05-page01-public-chat-message-sent-${testName}`);
-      await this.page1.click(e.chatTitle);
-      await this.page1.waitForSelector(e.smallToastMsg, ELEMENT_WAIT_TIME);
-      await this.page1.waitForSelector(e.hasUnreadMessages, ELEMENT_WAIT_TIME);
+      await this.page1.waitAndClick(e.chatTitle);
+      await this.page1.waitForSelector(e.smallToastMsg);
+      await this.page1.waitForSelector(e.hasUnreadMessages);
       const lastToast = await util.getLastToastValue(this.page1);
       await this.page1.screenshot(`${testName}`, `06-page01-public-chat-toast-${testName}`);
       return expectedToastValue === lastToast;
@@ -91,8 +91,8 @@ class Notifications extends MultiUsers {
       await this.page1.screenshot(`${testName}`, `04-page01-applied-settings-${testName}`);
       const expectedToastValue = await util.privateChatMessageToast(this.page2);
       await this.page1.screenshot(`${testName}`, `05-page01-private-chat-message-sent-${testName}`);
-      await this.page1.waitForSelector(e.smallToastMsg, ELEMENT_WAIT_TIME);
-      await this.page1.waitForSelector(e.hasUnreadMessages, ELEMENT_WAIT_TIME);
+      await this.page1.waitForSelector(e.smallToastMsg);
+      await this.page1.waitForSelector(e.hasUnreadMessages);
       const lastToast = await util.getLastToastValue(this.page1);
       await this.page1.screenshot(`${testName}`, `06-page01-public-chat-toast-${testName}`);
       return expectedToastValue === lastToast;
@@ -125,7 +125,7 @@ class Notifications extends MultiUsers {
       await this.page3.screenshot(`${testName}`, `03-page03-after-user-join-notification-activation-${testName}`);
       await this.initUser4(testName);
       await this.page4.closeAudioModal();
-      await this.page3.waitForSelector(e.smallToastMsg, ELEMENT_WAIT_TIME);
+      await this.page3.waitForSelector(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
       await this.page3.page.waitForFunction(checkElementTextIncludes, {},
         'body', 'User joined the session'
       );
@@ -147,20 +147,19 @@ class Notifications extends MultiUsers {
       await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);
       await util.uploadFileMenu(this.page3);
       await this.page3.screenshot(`${testName}`, `03-page03-upload-file-menu-${testName}`);
-      await this.page3.waitForSelector(e.fileUpload, ELEMENT_WAIT_TIME);
+      await this.page3.waitForSelector(e.fileUpload);
       const fileUpload = await this.page3.page.$(e.fileUpload);
       await fileUpload.uploadFile(path.join(__dirname, `../media/${e.pdfFileName}.pdf`));
       await this.page3.page.waitForFunction(checkElementTextIncludes, {},
         'body', 'To be uploaded ...'
       );
-      await this.page3.waitForSelector(e.upload, ELEMENT_WAIT_TIME);
-      await this.page3.click(e.upload, true);
+      await this.page3.waitAndClick(e.upload);
       await this.page3.page.waitForFunction(checkElementTextIncludes, {},
         'body', 'Converting file'
       );
       await this.page3.screenshot(`${testName}`, `04-page03-file-uploaded-and-ready-${testName}`);
       await this.page3.waitForSelector(e.smallToastMsg, UPLOAD_PDF_WAIT_TIME);
-      await this.page3.waitForSelector(e.whiteboard, ELEMENT_WAIT_TIME);
+      await this.page3.waitForSelector(e.whiteboard);
       await this.page3.screenshot(`${testName}`, `05-page03-presentation-changed-${testName}`);
       await this.page3.page.waitForFunction(checkElementTextIncludes, {},
         'body', 'Current presentation'
@@ -179,10 +178,10 @@ class Notifications extends MultiUsers {
       await this.page3.screenshot(`${testName}`, `01-page03-initialized-${testName}`);
       await this.page3.closeAudioModal();
       await this.page3.screenshot(`${testName}`, `02-page03-audio-modal-closed-${testName}`);
-      await this.page3.waitForSelector(e.whiteboard, ELEMENT_WAIT_TIME);
+      await this.page3.waitForSelector(e.whiteboard);
       await util.startPoll(this.page3);
       await this.page3.screenshot(`${testName}`, `03-page03-started-poll-${testName}`);
-      await this.page3.waitForSelector(e.smallToastMsg, ELEMENT_WAIT_TIME);
+      await this.page3.waitForSelector(e.smallToastMsg);
       const resp = await util.getLastToastValue(this.page3);
       await this.page3.screenshot(`${testName}`, `04-page03-poll-toast-${testName}`);
       return resp;

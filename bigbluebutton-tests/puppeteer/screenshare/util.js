@@ -3,12 +3,11 @@ const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constant
 const { checkElement } = require('../core/util');
 
 async function startScreenshare(test) {
-  await test.waitForSelector(e.startScreenSharing, ELEMENT_WAIT_TIME);
-  await test.click(e.startScreenSharing, true);
+  await test.waitAndClick(e.startScreenSharing);
 }
 
 async function waitForScreenshareContainer(test) {
-  await test.waitForSelector(e.screenshareConnecting, ELEMENT_WAIT_TIME);
+  await test.waitForSelector(e.screenshareConnecting);
   await test.waitForSelector(e.screenShareVideo, VIDEO_LOADING_WAIT_TIME);
 }
 
@@ -18,8 +17,8 @@ async function getScreenShareContainer(test) {
 }
 
 async function getScreenShareBreakoutContainer(test) {
-  await test.waitForSelector(e.screenshareConnecting, { timeout: VIDEO_LOADING_WAIT_TIME });
-  await test.waitForSelector(e.screenShareVideo, { timeout: VIDEO_LOADING_WAIT_TIME });
+  await test.waitForSelector(e.screenshareConnecting, VIDEO_LOADING_WAIT_TIME);
+  await test.waitForSelector(e.screenShareVideo, VIDEO_LOADING_WAIT_TIME);
   return test.evaluate(checkElement, e.screenShareVideo);
 }
 

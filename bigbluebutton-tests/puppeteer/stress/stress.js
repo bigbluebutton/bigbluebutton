@@ -17,9 +17,9 @@ class Stress extends Page {
       for (let i = 1; i <= c.JOIN_AS_MODERATOR_TEST_ROUNDS; i++) {
         await this.init(Page.getArgs(), undefined, { ...params, fullName: `Moderator-${i}` }, undefined, testName);
         await this.closeAudioModal();
-        await this.page.waitForSelector(e.userAvatar, { timeout: c.ELEMENT_WAIT_TIME });
+        await this.waitForSelector(e.userAvatar);
         const hasPresenterClass = await this.page.evaluate(util.checkIncludeClass, e.userAvatar, e.presenterClassName);
-        await this.click(e.actions);
+        await this.waitAndClick(e.actions);
         const canStartPoll = await this.page.evaluate(checkElementLengthEqualTo, e.polling, 1);
         if (!hasPresenterClass || !canStartPoll) {
           failureCount++;

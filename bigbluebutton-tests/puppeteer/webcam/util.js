@@ -1,28 +1,25 @@
 const e = require('../core/elements');
 const { sleep } = require('../core/helper');
-const { checkElement, clickElement, checkElementLengthDifferentTo } = require('../core/util');
+const { checkElement, checkElementLengthDifferentTo } = require('../core/util');
 const {
   LOOP_INTERVAL,
-  ELEMENT_WAIT_TIME,
   VIDEO_LOADING_WAIT_TIME,
   ELEMENT_WAIT_LONGER_TIME,
 } = require('../core/constants');
 
 async function enableWebcam(test, videoPreviewTimeout) {
   // Enabling webcam
-  await test.waitForSelector(e.joinVideo, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickElement, e.joinVideo);
+  await test.waitAndClick(e.joinVideo);
   await test.waitForSelector(e.videoPreview, videoPreviewTimeout);
-  await test.waitForSelector(e.startSharingWebcam, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickElement, e.startSharingWebcam);
-  await test.waitForSelector(e.webcamConnecting, ELEMENT_WAIT_TIME);
+  await test.waitAndClick(e.startSharingWebcam);
+  await test.waitForSelector(e.webcamConnecting);
   await test.waitForSelector(e.webcamVideo, VIDEO_LOADING_WAIT_TIME);
   await test.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
   return test.page.evaluate(checkElementLengthDifferentTo, e.webcamVideo, 0);
 }
 
 async function evaluateCheck(test) {
-  await test.waitForSelector(e.videoContainer, ELEMENT_WAIT_TIME);
+  await test.waitForSelector(e.videoContainer);
   return test.page.evaluate(checkElement, e.presentationFullscreenButton, 1);
 }
 
@@ -33,7 +30,7 @@ async function startAndCheckForWebcams(test) {
 }
 
 async function webcamContentCheck(test) {
-  await test.waitForSelector(e.videoContainer, ELEMENT_WAIT_TIME);
+  await test.waitForSelector(e.videoContainer);
   await test.waitForElementHandleToBeRemoved(e.webcamConnecting, ELEMENT_WAIT_LONGER_TIME);
   const repeats = 5;
   let check;

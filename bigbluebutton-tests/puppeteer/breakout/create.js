@@ -3,7 +3,7 @@ const path = require('path');
 const Page = require('../core/page');
 const params = require('../params');
 const e = require('../core/elements');
-const { checkElement, clickElement } = require('../core/util');
+const { checkElement } = require('../core/util');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 const today = moment().format('DD-MM-YYYY');
@@ -32,14 +32,14 @@ class Create {
       await this.page1.closeAudioModal();
       await this.page2.closeAudioModal();
       await this.page1.screenshot(`${testName}`, `02-after-closing-audio-modal-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(e.manageUsers, ELEMENT_WAIT_TIME);
-      await this.page1.click(e.manageUsers, true);
+
+      await this.page1.waitAndClick(e.manageUsers);
       await this.page1.screenshot(`${testName}`, `03-opened-users-managing-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(e.guestPolicyLabel, ELEMENT_WAIT_TIME);
-      await this.page1.click(e.guestPolicyLabel, true);
+
+      await this.page1.waitAndClick(e.guestPolicyLabel);
       await this.page1.screenshot(`${testName}`, `04-opened-guest-policy-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(e.askModerator, ELEMENT_WAIT_TIME);
-      await this.page1.click(e.askModerator, true);
+
+      await this.page1.waitAndClick(e.askModerator);
       await this.page1.screenshot(`${testName}`, `05-clicked-askModerator-[${this.page1.meetingId}]`);
       await this.initViewer(testName);
       const responseLoggedIn = await this.page1.page.evaluate(checkElement, e.waitingUsersBtn);
@@ -57,14 +57,14 @@ class Create {
       await this.page1.closeAudioModal();
       await this.page2.closeAudioModal();
       await this.page1.screenshot(`${testName}`, `02-after-closing-audio-modal-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(e.manageUsers, ELEMENT_WAIT_TIME);
-      await this.page1.click(e.manageUsers, true);
+
+      await this.page1.waitAndClick(e.manageUsers);
       await this.page1.screenshot(`${testName}`, `03-opened-users-managing-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(e.guestPolicyLabel, ELEMENT_WAIT_TIME);
-      await this.page1.click(e.guestPolicyLabel, true);
+
+      await this.page1.waitAndClick(e.guestPolicyLabel);
       await this.page1.screenshot(`${testName}`, `04-opened-guest-policy-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(e.alwaysAccept, ELEMENT_WAIT_TIME);
-      await this.page1.click(e.alwaysAccept, true);
+
+      await this.page1.waitAndClick(e.alwaysAccept);
       await this.page1.screenshot(`${testName}`, `05-clicked-alwaysAccept-[${this.page1.meetingId}]`);
       await this.initViewer(testName);
       await this.page3.closeAudioModal();
@@ -83,14 +83,14 @@ class Create {
       await this.page1.closeAudioModal();
       await this.page2.closeAudioModal();
       await this.page1.screenshot(`${testName}`, `02-after-closing-audio-modal-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(e.manageUsers, ELEMENT_WAIT_TIME);
-      await this.page1.click(e.manageUsers, true);
+
+      await this.page1.waitAndClick(e.manageUsers);
       await this.page1.screenshot(`${testName}`, `03-opened-users-managing-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(e.guestPolicyLabel, ELEMENT_WAIT_TIME);
-      await this.page1.click(e.guestPolicyLabel, true);
+
+      await this.page1.waitAndClick(e.guestPolicyLabel);
       await this.page1.screenshot(`${testName}`, `04-opened-guest-policy-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(e.alwaysAccept, ELEMENT_WAIT_TIME);
-      await this.page1.click(e.alwaysAccept, true);
+
+      await this.page1.waitAndClick(e.alwaysAccept);
       await this.page1.screenshot(`${testName}`, `05-clicked-alwaysAccept-[${this.page1.meetingId}]`);
       await this.initViewer(testName);
       const responseLoggedIn = await this.page3.page.evaluate(checkElement, e.joinMeetingDemoPage);
@@ -110,27 +110,22 @@ class Create {
       await this.page1.screenshot(`${testName}`, `01-page01-initialized-${testName}`);
       await this.page2.screenshot(`${testName}`, `01-page02-initialized-${testName}`);
 
-      await this.page1.page.evaluate(clickElement, e.manageUsers);
-      await this.page1.page.evaluate(clickElement, e.createBreakoutRooms);
+      await this.page1.waitAndClick(e.manageUsers);
+      await this.page1.waitAndClick(e.createBreakoutRooms);
       await this.page1.screenshot(`${testName}`, `02-page01-creating-breakoutrooms-${testName}`);
 
-      await this.page1.waitForSelector(e.randomlyAssign, ELEMENT_WAIT_TIME);
-      await this.page1.page.evaluate(clickElement, e.randomlyAssign);
+      await this.page1.waitAndClick(e.randomlyAssign);
       await this.page1.screenshot(`${testName}`, `03-page01-randomly-assign-user-${testName}`);
 
-      await this.page1.waitForSelector(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
-      await this.page1.page.evaluate(clickElement, e.modalConfirmButton);
+      await this.page1.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
       await this.page1.screenshot(`${testName}`, `04-page01-confirm-breakoutrooms-creation-${testName}`);
 
-      await this.page2.waitForSelector(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
-      await this.page2.page.evaluate(clickElement, e.modalConfirmButton);
+      await this.page2.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
       await this.page2.screenshot(`${testName}`, `02-page02-accept-invite-breakoutrooms-${testName}`);
 
       await this.page2.page.bringToFront();
-      await this.page2.waitForSelector(e.breakoutRoomsItem, ELEMENT_WAIT_TIME);
-      await this.page2.waitForSelector(e.chatButton, ELEMENT_WAIT_TIME);
-      await this.page2.click(e.chatButton, true);
-      await this.page2.click(e.breakoutRoomsItem, true);
+      await this.page2.waitAndClick(e.chatButton);
+      await this.page2.waitAndClick(e.breakoutRoomsItem);
       await this.page2.waitForSelector(e.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
       const page2 = await this.page2.browser.pages();
       await page2[2].bringToFront();
@@ -172,18 +167,15 @@ class Create {
       if (testName === 'joinBreakoutroomsWithAudio') {
         await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined, testName);
         await this.page3.closeAudioModal();
-        await this.page3.waitForSelector(e.breakoutRoomsButton, ELEMENT_WAIT_TIME);
-        await this.page3.click(e.breakoutRoomsButton, true);
+        await this.page3.waitAndClick(e.breakoutRoomsButton);
 
-        await this.page3.waitForSelector(e.breakoutRoomsItem, ELEMENT_WAIT_TIME);
-        await this.page3.waitForSelector(e.chatButton, ELEMENT_WAIT_TIME);
-        await this.page3.click(e.chatButton, true);
-        await this.page3.click(e.breakoutRoomsItem, true);
+        await this.page3.waitForSelector(e.breakoutRoomsItem);
+        await this.page3.waitAndClick(e.chatButton);
+        await this.page3.waitAndClick(e.breakoutRoomsItem);
 
-        await this.page3.waitForSelector(e.joinRoom1, ELEMENT_WAIT_TIME);
-        await this.page3.click(e.joinRoom1);
+        await this.page3.waitAndClick(e.joinRoom1);
         // wait to generate URL and click again to join
-        await this.page3.click(e.joinRoom1, true);
+        await this.page3.waitAndClick(e.joinRoom1);
         await this.page3.waitForSelector(e.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
 
         const page3 = await this.page3.browser.pages();
@@ -207,13 +199,11 @@ class Create {
       } else if (testName === 'joinBreakoutroomsWithVideo') {
         await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined, testName);
         await this.page3.closeAudioModal();
-        await this.page3.waitForSelector(e.breakoutRoomsButton, ELEMENT_WAIT_TIME);
-        await this.page3.click(e.breakoutRoomsButton, true);
-        await this.page3.waitForSelector(e.joinRoom1, ELEMENT_WAIT_TIME);
-        await this.page3.click(e.joinRoom1);
+        await this.page3.waitAndClick(e.breakoutRoomsButton);
+        await this.page3.waitAndClick(e.joinRoom1);
         // wait to generate URL and click again to join
-        await this.page3.click(e.joinRoom1, true);
-        await this.page3.waitForSelector(e.alreadyConnected, ELEMENT_WAIT_TIME);
+        await this.page3.waitAndClick(e.joinRoom1);
+        await this.page3.waitForSelector(e.alreadyConnected);
 
         const page3 = await this.page3.browser.pages();
 
@@ -238,13 +228,11 @@ class Create {
       } else if (testName === 'joinBreakoutroomsAndShareScreen') {
         await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined, testName);
         await this.page3.closeAudioModal();
-        await this.page3.waitForSelector(e.breakoutRoomsButton, ELEMENT_WAIT_TIME);
-        await this.page3.click(e.breakoutRoomsButton, true);
-        await this.page3.waitForSelector(e.joinRoom1, ELEMENT_WAIT_TIME);
-        await this.page3.click(e.joinRoom1);
+        await this.page3.waitAndClick(e.breakoutRoomsButton);
+        await this.page3.waitAndClick(e.joinRoom1);
         // wait to generate URL and click again to join
-        await this.page3.click(e.joinRoom1, true);
-        await this.page3.waitForSelector(e.alreadyConnected, ELEMENT_WAIT_TIME);
+        await this.page3.waitAndClick(e.joinRoom1);
+        await this.page3.waitForSelector(e.alreadyConnected);
         const page3 = await this.page3.browser.pages();
 
         if (process.env.GENERATE_EVIDENCES === 'true') {
