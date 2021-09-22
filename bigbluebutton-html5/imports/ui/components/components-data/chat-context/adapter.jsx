@@ -5,7 +5,7 @@ import { UsersContext } from '../users-context/context';
 import { makeCall } from '/imports/ui/services/api';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import Auth from '/imports/ui/services/auth';
-import CollectionHooksCallbacks from '/imports/ui/services/collection-hooks-callbacks/collection-hooks-callbacks';
+import CollectionEventsBroker from '/imports/ui/services/collection-hooks-callbacks/collection-hooks-callbacks';
 
 let prevUserData = {};
 let currentUserData = {};
@@ -132,7 +132,7 @@ const Adapter = () => {
       throttledDispatch();
     };
 
-    CollectionHooksCallbacks.addCallback('group-chat-msg', 'added', insertToContext);
+    CollectionEventsBroker.addListener('group-chat-msg', 'added', insertToContext);
   }, [Meteor.status().connected, Meteor.connection._lastSessionId]);
 
   return null;
