@@ -303,3 +303,5 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
     return Promise.resolve();
   }
 }
+
+module.exports = KurentoAudioBridge;
