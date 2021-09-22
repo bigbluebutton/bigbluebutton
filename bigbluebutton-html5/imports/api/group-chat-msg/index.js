@@ -8,6 +8,7 @@ if (Meteor.isServer) {
   UsersTyping._ensureIndex({ meetingId: 1, isTypingTo: 1 });
 }
 
+// As we store chat in context, skip adding to mini mongo
 if (Meteor.isClient) {
   GroupChatMsg.onAdded = () => false;
 }

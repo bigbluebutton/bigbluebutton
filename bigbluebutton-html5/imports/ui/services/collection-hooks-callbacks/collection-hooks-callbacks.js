@@ -1,5 +1,5 @@
-class CollectionHooksCallbacks {
-  static buildIndex(msg, updates) {
+class CollectionEventsBroker {
+  static getKey(msg, updates) {
     // the msg.msg has the collection event,
     // see the collection hooks event object for more information
     return `/${msg.collection}/${msg.msg}/`;
@@ -10,9 +10,9 @@ class CollectionHooksCallbacks {
     this.callbacks = {};
   }
 
-  addCallback(collection, event, callback) {
+  addListener(collection, event, callback) {
     try {
-      const index = CollectionHooksCallbacks.buildIndex({ collection, msg: event });
+      const index = CollectionEventsBroker.getKey({ collection, msg: event });
       const TheresCallback = this.callbacks[index];
       if (TheresCallback) {
         throw new Error('There is already an associated callback for this event');
@@ -25,8 +25,8 @@ class CollectionHooksCallbacks {
     }
   }
 
-  callByMsg(msg, updates) {
-    const msgIndex = CollectionHooksCallbacks.buildIndex(msg, updates);
+  dispatchEvent(msg, updates) {
+    const msgIndex = CollectionEventsBroker.getKey(msg, updates);
     const { fields } = msg;
     const callback = this.callbacks[msgIndex];
     if (callback) {
@@ -36,4 +36,4 @@ class CollectionHooksCallbacks {
   }
 }
 
-export default new CollectionHooksCallbacks();
+export default new CollectionEventsBroker();

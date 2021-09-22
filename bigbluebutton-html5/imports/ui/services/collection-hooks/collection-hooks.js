@@ -1,4 +1,4 @@
-import CollectionHooksCallbacks from '/imports/ui/services/collection-hooks-callbacks/collection-hooks-callbacks';
+import CollectionEventsBroker from '/imports/ui/services/collection-hooks-callbacks/collection-hooks-callbacks';
 
 Meteor.connection._processOneDataMessage = function (msg, updates) {
   const messageType = msg.msg;
@@ -7,7 +7,7 @@ Meteor.connection._processOneDataMessage = function (msg, updates) {
   if (msg.collection && msg.collection.indexOf('stream-cursor') === -1) {
     col = Meteor.connection._stores[msg.collection]?._getCollection();
   }
-  CollectionHooksCallbacks.callByMsg(msg, updates);
+  CollectionEventsBroker.dispatchEvent(msg, updates);
   // msg is one of ['added', 'changed', 'removed', 'ready', 'updated']
   if (messageType === 'added') {
     if (!col || !col.onAdded || col.onAdded(msg, updates)) {
