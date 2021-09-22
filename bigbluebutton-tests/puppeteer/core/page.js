@@ -324,8 +324,8 @@ class Page {
   async waitAndClickElement(element, index = 0, timeout = ELEMENT_WAIT_TIME, relief = false) {
     if (relief) await helper.sleep(1000);
     await this.waitForSelector(element, timeout);
-    await this.page.evaluate((element, index) => {
-      document.querySelectorAll(element)[index].click();
+    await this.page.evaluate((elem, i) => {
+      document.querySelectorAll(elem)[i].click();
     }, element, index);
   }
 

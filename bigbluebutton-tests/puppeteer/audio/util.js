@@ -9,8 +9,7 @@ async function joinAudio(test) {
   const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
   await test.waitForSelector(e.leaveAudio, listenOnlyCallTimeout);
   await test.waitForSelector(e.whiteboard);
-  const resp = await test.page.evaluate(getElementLength, e.leaveAudio) >= 1;
-  return resp;
+  return test.page.evaluate(getElementLength, e.leaveAudio) >= 1;
 }
 
 async function joinMicrophone(test) {
@@ -20,8 +19,7 @@ async function joinMicrophone(test) {
   const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
   await test.waitAndClick(e.echoYesButton, listenOnlyCallTimeout);
   await test.waitForSelector(e.whiteboard);
-  const resp = await test.page.evaluate(getElementLength, e.echoYesButton) >= 1;
-  return resp;
+  return test.page.evaluate(getElementLength, e.echoYesButton) >= 1;
 }
 
 exports.joinAudio = joinAudio;

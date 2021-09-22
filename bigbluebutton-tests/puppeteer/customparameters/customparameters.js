@@ -742,7 +742,7 @@ class CustomParameters {
       await this.page1.waitAndClick(e.joinVideo);
       const firstCheck = await this.page1.page.evaluate(checkElementLengthEqualTo, e.webcamSettingsModal, 0);
       await this.page1.waitAndClick(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
-      await this.page1.waitForElementHandleToBeRemoved(e.webcamVideo), ELEMENT_WAIT_LONGER_TIME;
+      await this.page1.waitForElementHandleToBeRemoved(e.webcamVideo, ELEMENT_WAIT_LONGER_TIME);
       await this.page1.waitForElementHandleToBeRemoved(e.leaveVideo, ELEMENT_WAIT_LONGER_TIME);
 
       await this.page1.waitAndClick(e.joinVideo);

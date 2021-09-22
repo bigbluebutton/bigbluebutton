@@ -23,20 +23,17 @@ async function saveSettings(page) {
 
 async function waitForToast(test) {
   await test.waitForSelector(e.smallToastMsg);
-  const resp = await test.page.evaluate(checkElement, e.smallToastMsg, 1);
-  return resp;
+  return test.page.evaluate(checkElement, e.smallToastMsg, 1);
 }
 
 async function getLastToastValue(test) {
   await test.waitForSelector(e.smallToastMsg);
-  const toast = test.page.evaluate(getElementText, e.smallToastMsg);
-  return toast;
+  return test.page.evaluate(getElementText, e.smallToastMsg);
 }
 
 async function getOtherToastValue(test) {
   await test.waitForSelector(e.smallToastMsg);
-  const toast = test.page.evaluate(getElementText, e.smallToastMsg, 1);
-  return toast;
+  return test.page.evaluate(getElementText, e.smallToastMsg, 1);
 }
 
 async function publicChatMessageToast(page1, page2) {
