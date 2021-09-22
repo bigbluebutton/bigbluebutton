@@ -44,7 +44,7 @@ async function publicChatMessageToast(page1, page2) {
   await page1.waitAndClick(e.userListItem);
   await page1.waitAndClick(e.activeChat);
   // send a public message
-  await page2.type(e.publicChat, e.publicMessage1);
+  await page2.type(e.chatBox, e.publicMessage1);
   await page2.waitAndClick(e.sendButton);
   return e.publicChatToast;
 }
@@ -60,7 +60,7 @@ async function privateChatMessageToast(page2) {
     e.chatButton, 2
   );
   // send a private message
-  await page2.type(e.privateChat, e.message1);
+  await page2.type(e.chatBox, e.message1);
   await page2.waitAndClick(e.sendButton);
   return e.privateChatToast;
 }

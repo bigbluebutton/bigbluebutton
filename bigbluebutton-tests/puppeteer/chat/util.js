@@ -7,10 +7,10 @@ async function openChat(test) {
 
 async function sendPublicChatMessage(page1, page2) {
   // send a public message
-  await page1.type(e.publicChat, e.publicMessage1);
+  await page1.type(e.chatBox, e.publicMessage1);
   await page1.waitAndClick(e.sendButton);
   await page1.page.screenshot(true);
-  await page2.type(e.publicChat, e.publicMessage2);
+  await page2.type(e.chatBox, e.publicMessage2);
   await page2.waitAndClick(e.sendButton);
   await page2.page.screenshot(true);
 }
@@ -29,10 +29,10 @@ async function sendPrivateChatMessage(page1, page2) {
   await page1.waitForSelector(e.hidePrivateChat);
   await page2.waitForSelector(e.hidePrivateChat);
 
-  await page1.type(e.privateChat, e.message1);
+  await page1.type(e.chatBox, e.message1);
   await page1.waitAndClick(e.sendButton);
   await page1.page.screenshot(true);
-  await page2.type(e.privateChat, e.message2);
+  await page2.type(e.chatBox, e.message2);
   await page2.waitAndClick(e.sendButton);
   await page2.page.screenshot(true);
 }
