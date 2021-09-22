@@ -117,13 +117,13 @@ class MultiUsers {
         case 1:
           // Deleting a poll option
           await this.page1.waitForSelector(e.deletePollOption);
-          await this.page1.clickNItem(e.deletePollOption, true, customs[1]);
+          await this.page1.clickNItem(e.deletePollOption, customs[1]);
           break;
 
         case 2:
           // Editing a poll option
           await this.page1.waitForSelector(e.responseChoices);
-          await this.page1.clickNItem(e.pollOptionItem, true, 2);
+          await this.page1.clickNItem(e.pollOptionItem, 2);
           await this.page1.hold('Control');
           await this.page1.press('KeyA');
           await this.page1.release('Control');
@@ -141,7 +141,7 @@ class MultiUsers {
       await this.page2.waitForSelector(e.pollingContainer);
       switch (condition) {
         case true:
-          await this.page2.clickNItem(e.pollAnswerOptionBtn, false, 2);
+          await this.page2.clickNItem(e.pollAnswerOptionBtn, 2);
           break;
         case false:
           await this.page2.page.focus(e.pollAnswerOptionInput);

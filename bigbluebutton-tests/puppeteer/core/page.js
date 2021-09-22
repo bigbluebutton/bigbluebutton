@@ -329,7 +329,7 @@ class Page {
     }, element, index);
   }
 
-  async clickNItem(element, relief = false, n) {
+  async clickNItem(element, n, relief = false) {
     if (relief) await helper.sleep(1000);
     await this.waitForSelector(element);
     const elementHandle = await this.page.$$(element);
