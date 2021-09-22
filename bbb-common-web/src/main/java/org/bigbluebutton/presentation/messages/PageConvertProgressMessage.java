@@ -7,9 +7,11 @@ public class PageConvertProgressMessage implements IPresentationCompletionMessag
     public final String presId;
     public final int page;
     public final List<String> errors;
+    public final String meetingId;
 
-    public PageConvertProgressMessage(int page, String presId, List<String> errors) {
+    public PageConvertProgressMessage(int page, String presId, String meetingId, List<String> errors) {
         this.presId = presId;
+        this.meetingId = meetingId;
         this.page = page;
         this.errors = errors;
     }

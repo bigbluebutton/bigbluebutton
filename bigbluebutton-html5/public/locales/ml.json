@@ -482,8 +482,6 @@
     "app.audioModal.playAudio.arialabel" : "ഓഡിയോ പ്ലേ ചെയ്യുക",
     "app.audioDial.tipIndicator": "നുറുങ്ങ്",
     "app.audioDial.tipMessage": "സ്വയം നിശബ്ദമാക്കുന്നതിനും നിശബ്ദമാക്കുന്നതിനും നിങ്ങളുടെ ഫോണിലെ '0' കീ അമർത്തുക.",
-    "app.audioModal.connecting": "ബന്ധിപ്പിക്കുന്നു",
-    "app.audioModal.connectingEchoTest": "എക്കോ ടെസ്റ്റിലേക്ക് കണക്റ്റുചെയ്യുന്നു",
     "app.audioManager.joinedAudio": "നിങ്ങൾ ഓഡിയോ കോൺഫറൻസിൽ ചേർന്നു",
     "app.audioManager.joinedEcho": "നിങ്ങൾ എക്കോ ടെസ്റ്റിൽ ചേർന്നു",
     "app.audioManager.leftAudio": "നിങ്ങൾ ഓഡിയോ കോൺഫറൻസ് വിട്ടു",

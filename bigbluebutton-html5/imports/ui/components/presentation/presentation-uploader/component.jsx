@@ -739,6 +739,7 @@ class PresentationUploader extends Component {
     const {
       intl,
       selectedToBeNextCurrent,
+      allowDownloadable
     } = this.props;
 
     const isActualCurrent = selectedToBeNextCurrent ? item.id === selectedToBeNextCurrent : item.isCurrent;
@@ -757,6 +758,10 @@ class PresentationUploader extends Component {
       [styles.tableItemConverting]: isConverting,
       [styles.tableItemError]: hasError,
       [styles.tableItemAnimated]: isProcessing,
+    };
+	
+    const itemActions = {
+        [styles.notDownloadable]: !allowDownloadable,
     };
 
     const formattedDownloadableLabel = !item.isDownloadable
@@ -795,17 +800,21 @@ class PresentationUploader extends Component {
           {this.renderPresentationItemStatus(item)}
         </td>
         {hasError ? null : (
-          <td className={styles.tableItemActions}>
-            <Button
-              disabled={disableActions}
-              className={isDownloadableStyle}
-              label={formattedDownloadableLabel}
-              aria-label={formattedDownloadableAriaLabel}
-              hideLabel
-              size="sm"
-              icon={item.isDownloadable ? 'download' : 'download-off'}
-              onClick={() => this.handleToggleDownloadable(item)}
-            />
+          <td className={cx(styles.tableItemActions, itemActions)}>
+            {allowDownloadable ? (
+              <Button
+                disabled={disableActions}
+                className={isDownloadableStyle}
+                label={formattedDownloadableLabel}
+                data-test={item.isDownloadable ? 'disallowPresentationDownload' : 'allowPresentationDownload'}
+                aria-label={formattedDownloadableAriaLabel}
+                hideLabel
+                size="sm"
+                icon={item.isDownloadable ? 'download' : 'download-off'}
+                onClick={() => this.handleToggleDownloadable(item)}
+              />
+              ) : null
+            }
             <Checkbox
               ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.filename}`}
               checked={item.isCurrent}
@@ -818,6 +827,7 @@ class PresentationUploader extends Component {
               disabled={disableActions}
               className={cx(styles.itemAction, styles.itemActionRemove)}
               label={intl.formatMessage(intlMessages.removePresentation)}
+              data-test="removePresentation"
               aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.filename}`}
               size="sm"
               icon="delete"
@@ -1006,6 +1016,7 @@ class PresentationUploader extends Component {
               />
               <Button
                 className={styles.confirm}
+                data-test="confirmManagePresentation"
                 color="primary"
                 onClick={() => this.handleConfirm(hasNewUpload)}
                 disabled={disableActions}

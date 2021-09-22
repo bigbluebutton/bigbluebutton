@@ -318,8 +318,6 @@
     "app.audioModal.audioDialTitle": "अपने फोन का उपयोग कर जुड़ें",
     "app.audioDial.audioDialDescription": "डायल",
     "app.audioDial.audioDialConfrenceText": "और सम्मेलन पिन नंबर दर्ज करें:",
-    "app.audioModal.connecting": "कनेक्ट",
-    "app.audioModal.connectingEchoTest": "कनेक्ट इको टेस्ट से जुड़ना",
     "app.audioManager.joinedAudio": "आप ऑडियो कॉन्फ्रेंस में शामिल हुए हैं",
     "app.audioManager.joinedEcho": "आप इको टेस्ट में शामिल हो गए हैं",
     "app.audioManager.leftAudio": "आपने ऑडियो कॉन्फ्रेंस छोड़ दी है",

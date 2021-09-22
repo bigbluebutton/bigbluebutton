@@ -3,7 +3,9 @@ import _ from 'lodash';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
-import { DEVICE_TYPE, ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import {
+  DEVICE_TYPE, ACTIONS, PANELS, CAMERADOCK_POSITION,
+} from '/imports/ui/components/layout/enums';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -341,6 +343,7 @@ const SmartLayout = () => {
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
         cameraDockBounds.height = mediaAreaBounds.height;
         cameraDockBounds.maxHeight = mediaAreaBounds.height;
+        cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_TOP;
       } else if (mediaBounds.width < mediaAreaBounds.width) {
         cameraDockBounds.width = mediaAreaBounds.width - mediaBoundsWidth;
         cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
@@ -349,6 +352,9 @@ const SmartLayout = () => {
         cameraDockBounds.left += camerasMargin;
         cameraDockBounds.width -= (camerasMargin * 2);
         cameraDockBounds.isCameraHorizontal = true;
+        cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_LEFT;
+        // button size in vertical position
+        cameraDockBounds.height -= 20;
       } else {
         cameraDockBounds.width = mediaAreaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
@@ -356,6 +362,7 @@ const SmartLayout = () => {
         cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.8;
         cameraDockBounds.top += camerasMargin;
         cameraDockBounds.height -= (camerasMargin * 2);
+        cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_TOP;
       }
 
       cameraDockBounds.minWidth = cameraDockBounds.width;
@@ -608,6 +615,7 @@ const SmartLayout = () => {
       type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
       value: {
         display: cameraDockInput.numCameras > 0,
+        position: cameraDockBounds.position,
         minWidth: cameraDockBounds.minWidth,
         width: cameraDockBounds.width,
         maxWidth: cameraDockBounds.maxWidth,

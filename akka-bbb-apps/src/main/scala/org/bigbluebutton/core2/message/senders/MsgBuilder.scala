@@ -160,14 +160,29 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildStopExternalVideoEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
+  def buildStopExternalVideoEvtMsg(meetingId: String, userId: String = "not-used"): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, "nodeJSapp")
     val envelope = BbbCoreEnvelope(StopExternalVideoEvtMsg.NAME, routing)
 
     val body = StopExternalVideoEvtMsgBody()
-    val header = BbbClientMsgHeader(StopExternalVideoEvtMsg.NAME, meetingId, "not-used")
+    val header = BbbClientMsgHeader(StopExternalVideoEvtMsg.NAME, meetingId, userId)
     val event = StopExternalVideoEvtMsg(header, body)
 
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildStopScreenshareRtmpBroadcastEvtMsg(
+      meetingId: String,
+      voiceConf: String, screenshareConf: String,
+      stream: String, vidWidth: Int, vidHeight: Int,
+      timestamp: String
+  ): BbbCommonEnvCoreMsg = {
+
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
+    val envelope = BbbCoreEnvelope(ScreenshareRtmpBroadcastStoppedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(ScreenshareRtmpBroadcastStoppedEvtMsg.NAME, meetingId, "not-used")
+    val body = ScreenshareRtmpBroadcastStoppedEvtMsgBody(voiceConf, screenshareConf, stream, vidWidth, vidHeight, timestamp)
+    val event = ScreenshareRtmpBroadcastStoppedEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
 

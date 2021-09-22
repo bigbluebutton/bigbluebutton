@@ -288,8 +288,6 @@
     "app.audioModal.settingsTitle": "Cambia tu configuración de audio",
     "app.audioModal.helpTitle": "Ocurrió un error con tus dispositivos de medios",
     "app.audioModal.helpText": "¿Autorizaste el uso de tu micrófono? Ten en cuenta que cuando tratas de ingresar al audio, se te debe mostrar una caja de diálogo en la que se solicita tu autorización. Si no ocurrió intenta cambiar los permisos de tu micrófono en el area de configuración de tu navegador.",
-    "app.audioModal.connecting": "Conectandose",
-    "app.audioModal.connectingEchoTest": "Conenctandose a prueba de eco",
     "app.audioManager.joinedAudio": "Has ingresado a la conferencia de audio",
     "app.audioManager.joinedEcho": "Has ingresado a la prueba de eco",
     "app.audioManager.leftAudio": "Has abandonado la conferencia de audio",

@@ -481,8 +481,6 @@
     "app.audioModal.playAudio.arialabel" : "Phát âm thanh",
     "app.audioDial.tipIndicator": "Lời khuyên",
     "app.audioDial.tipMessage": "Nhấn phím '0' trên điện thoại để tắt/bật tiếng.",
-    "app.audioModal.connecting": "Đang kết nối, vui lòng đợi chút",
-    "app.audioModal.connectingEchoTest": "Kết nối với kiểm tra tiếng vang",
     "app.audioManager.joinedAudio": "Bạn đã tham gia hội nghị âm thanh",
     "app.audioManager.joinedEcho": "Bạn đã tham gia kiểm tra tiếng vang",
     "app.audioManager.leftAudio": "Bạn đã rời hội nghị âm thanh",

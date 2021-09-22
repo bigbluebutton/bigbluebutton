@@ -37,6 +37,7 @@ const DownloadPresentationButton = ({
   return (
     <div className={wrapperClassName}>
       <Button
+        data-test="presentationDownload"
         color="default"
         icon="template_download"
         size="sm"

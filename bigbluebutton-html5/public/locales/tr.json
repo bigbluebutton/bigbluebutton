@@ -425,8 +425,6 @@
     "app.audioModal.playAudio.arialabel" : "Sesi oynat",
     "app.audioDial.tipIndicator": "İpucu",
     "app.audioDial.tipMessage": "Kendi sesinizi açmak ya da kapatmak için telefonunuzda '0' tuşuna basın.",
-    "app.audioModal.connecting": "Bağlantı kuruluyor",
-    "app.audioModal.connectingEchoTest": "Yankı testi ile bağlantı kuruluyor",
     "app.audioManager.joinedAudio": "Sesli görüşmeye katıldınız",
     "app.audioManager.joinedEcho": "Yankı testine katıldınız",
     "app.audioManager.leftAudio": "Sesli görüşmeden ayrıldınız",

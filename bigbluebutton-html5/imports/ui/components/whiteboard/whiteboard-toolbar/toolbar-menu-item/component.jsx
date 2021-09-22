@@ -76,6 +76,8 @@ export default class ToolbarMenuItem extends Component {
       className,
       children,
       showCornerTriangle,
+      expanded,
+      haspopup,
     } = this.props;
 
     return (
@@ -84,6 +86,8 @@ export default class ToolbarMenuItem extends Component {
         hidden={disabled}
       >
         <Button
+          aria-expanded={expanded}
+          aria-haspopup={haspopup}
           hideLabel
           role="button"
           color="default"

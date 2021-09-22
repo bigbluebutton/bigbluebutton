@@ -429,8 +429,6 @@
     "app.audioModal.playAudio.arialabel" : "Reproduzir audio",
     "app.audioDial.tipIndicator": "Dica",
     "app.audioDial.tipMessage": "Prima a tecla '0' no seu telefone para alternar entre o modo silencio",
-    "app.audioModal.connecting": "A estabelecer ligação",
-    "app.audioModal.connectingEchoTest": "A ligar ao teste de áudio",
     "app.audioManager.joinedAudio": "Entrou na conferência de áudio",
     "app.audioManager.joinedEcho": "Iniciou o teste de áudio",
     "app.audioManager.leftAudio": "Saiu da conferência de áudio",
