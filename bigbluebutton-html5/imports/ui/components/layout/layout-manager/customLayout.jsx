@@ -370,7 +370,7 @@ const CustomLayout = (props) => {
 
     const baseBounds = baseCameraDockBounds(mediaAreaBounds, sidebarSize);
 
-    // do not proceed if using values from BaseLayout
+    // do not proceed if using values from LayoutEngine
     if (Object.keys(baseBounds).length > 0) {
       return baseBounds;
     }

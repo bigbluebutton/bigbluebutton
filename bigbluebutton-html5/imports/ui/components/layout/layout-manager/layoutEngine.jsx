@@ -13,7 +13,7 @@ const propTypes = {
   layoutType: PropTypes.string.isRequired,
 };
 
-const BaseLayout = ({ layoutType }) => {
+const LayoutEngine = ({ layoutType }) => {
   const bannerBarInput = layoutSelectInput((i) => i.bannerBar);
   const notificationsBarInput = layoutSelectInput((i) => i.notificationsBar);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
@@ -121,6 +121,6 @@ const BaseLayout = ({ layoutType }) => {
   }
 };
 
-BaseLayout.propTypes = propTypes;
+LayoutEngine.propTypes = propTypes;
 
-export default BaseLayout;
+export default LayoutEngine;

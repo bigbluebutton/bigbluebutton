@@ -33,7 +33,7 @@ import { DEVICE_TYPE, ACTIONS } from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 } from '../layout/utils';
-import BaseLayout from '../layout/layout-manager/baseLayout';
+import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
@@ -460,7 +460,7 @@ class App extends Component {
 
     return (
       <>
-        <BaseLayout layoutType={layoutType} />
+        <LayoutEngine layoutType={layoutType} />
         <div
           id="layout"
           className={styles.layout}
