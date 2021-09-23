@@ -13,7 +13,7 @@ const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
 const CustomLayout = (props) => {
-  const { bannerAreaHeight, baseCameraDockBounds } = props;
+  const { bannerAreaHeight, calculatesActionbarHeight } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -185,29 +185,6 @@ const CustomLayout = (props) => {
       });
     }
     throttledCalculatesLayout();
-  };
-
-  const calculatesNavbarBounds = (mediaAreaBounds) => {
-    return {
-      width: mediaAreaBounds.width,
-      height: DEFAULT_VALUES.navBarHeight,
-      top: DEFAULT_VALUES.navBarTop + bannerAreaHeight(),
-      left: !isRTL ? mediaAreaBounds.left : 0,
-    };
-  }
-
-  const calculatesActionbarHeight = () => {
-    const BASE_FONT_SIZE = 14; // 90% font size
-    const BASE_HEIGHT = DEFAULT_VALUES.actionBarHeight;
-    const PADDING = DEFAULT_VALUES.actionBarPadding;
-
-    const actionBarHeight = ((BASE_HEIGHT / BASE_FONT_SIZE) * fontSize);
-
-    return {
-      height: actionBarHeight + (PADDING * 2),
-      innerHeight: actionBarHeight,
-      padding: PADDING,
-    };
   };
 
   const calculatesActionbarBounds = (mediaAreaBounds) => {
@@ -388,6 +365,7 @@ const CustomLayout = (props) => {
   };
 
   const calculatesCameraDockBounds = (sidebarNavWidth, sidebarContentWidth, mediaAreaBounds) => {
+    const { baseCameraDockBounds } = props;
     const sidebarSize = sidebarNavWidth + sidebarContentWidth;
 
     const baseBounds = baseCameraDockBounds(mediaAreaBounds, sidebarSize);
@@ -607,6 +585,7 @@ const CustomLayout = (props) => {
   }
 
   const calculatesLayout = () => {
+    const { calculatesNavbarBounds } = props;
     const { position: cameraPosition } = cameraDockInput;
     const { camerasMargin, captionsMargin } = DEFAULT_VALUES;
 
@@ -647,6 +626,7 @@ const CustomLayout = (props) => {
         top: navbarBounds.top,
         left: navbarBounds.left,
         tabOrder: DEFAULT_VALUES.navBarTabOrder,
+        zIndex: navbarBounds.zIndex,
       },
     });
 

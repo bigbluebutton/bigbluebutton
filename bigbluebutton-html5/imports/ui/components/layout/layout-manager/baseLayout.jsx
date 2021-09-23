@@ -21,6 +21,7 @@ const BaseLayout = ({ layoutType }) => {
 
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const isRTL = layoutSelect((i) => i.isRTL);
+  const fontSize = layoutSelect((i) => i.fontSize);
 
   const windowWidth = () => window.document.documentElement.clientWidth;
   const windowHeight = () => window.document.documentElement.clientHeight;
@@ -74,9 +75,36 @@ const BaseLayout = ({ layoutType }) => {
     return cameraDockBounds;
   };
 
+  const calculatesNavbarBounds = (mediaAreaBounds) => {
+    const { navBarHeight, navBarTop } = DEFAULT_VALUES;
+
+    return {
+      width: mediaAreaBounds.width,
+      height: navBarHeight,
+      top: navBarTop + bannerAreaHeight(),
+      left: !isRTL ? mediaAreaBounds.left : 0,
+      zIndex: 1,
+    };
+  }
+
+  const calculatesActionbarHeight = () => {
+    const { actionBarHeight, actionBarPadding } = DEFAULT_VALUES;
+
+    const BASE_FONT_SIZE = 14; // 90% font size
+    const height = ((actionBarHeight / BASE_FONT_SIZE) * fontSize);
+
+    return {
+      height: height + (actionBarPadding * 2),
+      innerHeight: height,
+      padding: actionBarPadding,
+    };
+  };
+
   const common = {
     bannerAreaHeight,
     baseCameraDockBounds,
+    calculatesNavbarBounds,
+    calculatesActionbarHeight,
   };
 
   switch (layoutType) {
