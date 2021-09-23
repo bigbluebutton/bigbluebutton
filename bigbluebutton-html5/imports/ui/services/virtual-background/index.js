@@ -4,8 +4,6 @@
  */
 
 import * as wasmcheck from 'wasm-check';
-import createTFLiteModule from './tflite/tflite.js';
-import createTFLiteSIMDModule from './tflite/tflite-simd.js';
 import {
     CLEAR_TIMEOUT,
     TIMEOUT_TICK,
@@ -272,10 +270,10 @@ export async function createVirtualBackgroundService(parameters = null) {
     let modelResponse;
 
     if (wasmcheck.feature.simd) {
-        tflite = await createTFLiteSIMDModule();
+        tflite = await window.createTFLiteSIMDModule();
         modelResponse = await fetch(BASE_PATH+MODELS.model144.path);
     } else {
-        tflite = await createTFLiteModule();
+        tflite = await window.createTFLiteModule();
         modelResponse = await fetch(BASE_PATH+MODELS.model96.path);
     }
 
