@@ -1,3 +1,4 @@
+const Page = require('./core/page');
 const SharedNotes = require('./notes/sharednotes');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
 const { MAX_SHARED_NOTES_TEST_TIMEOUT } = require('./core/constants'); // core constants (Timeouts vars imported)
