@@ -177,60 +177,39 @@ const VideoFocusLayout = (props) => {
   };
 
   const calculatesCameraDockBounds = (mediaAreaBounds, sidebarSize) => {
-    const cameraDockBounds = {};
-    const { isOpen } = presentationInput;
-    const { numCameras } = cameraDockInput;
+    const { baseCameraDockBounds } = props;
 
-    if (numCameras > 0) {
-      if (!isOpen) {
-        cameraDockBounds.width = mediaAreaBounds.width;
-        cameraDockBounds.maxWidth = mediaAreaBounds.width;
-        cameraDockBounds.height = mediaAreaBounds.height;
-        cameraDockBounds.maxHeight = mediaAreaBounds.height;
-        cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
-        cameraDockBounds.left = !isRTL ? mediaAreaBounds.left : 0;
-        cameraDockBounds.right = isRTL ? sidebarSize : null;
-      } else {
-        if (deviceType === DEVICE_TYPE.MOBILE) {
-          cameraDockBounds.minHeight = mediaAreaBounds.height * 0.7;
-          cameraDockBounds.height = mediaAreaBounds.height * 0.7;
-          cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.7;
-        } else {
-          cameraDockBounds.minHeight = mediaAreaBounds.height;
-          cameraDockBounds.height = mediaAreaBounds.height;
-          cameraDockBounds.maxHeight = mediaAreaBounds.height;
-        }
+    const baseBounds = baseCameraDockBounds(mediaAreaBounds, sidebarSize);
 
-        cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
-        cameraDockBounds.left = !isRTL ? mediaAreaBounds.left : null;
-        cameraDockBounds.right = isRTL ? sidebarSize : null;
-        cameraDockBounds.minWidth = mediaAreaBounds.width;
-        cameraDockBounds.width = mediaAreaBounds.width;
-        cameraDockBounds.maxWidth = mediaAreaBounds.width;
-        cameraDockBounds.zIndex = 1;
-
-        if (fullscreen.group === 'webcams') {
-          cameraDockBounds.width = windowWidth();
-          cameraDockBounds.minWidth = windowWidth();
-          cameraDockBounds.maxWidth = windowWidth();
-          cameraDockBounds.height = windowHeight();
-          cameraDockBounds.minHeight = windowHeight();
-          cameraDockBounds.maxHeight = windowHeight();
-          cameraDockBounds.top = 0;
-          cameraDockBounds.left = 0;
-          cameraDockBounds.zIndex = 99;
-        }
-      }
-      return cameraDockBounds;
+    // do not proceed if using values from LayoutEngine
+    if (Object.keys(baseBounds).length > 0) {
+      return baseBounds;
     }
 
-    cameraDockBounds.top = 0;
-    cameraDockBounds.left = 0;
-    cameraDockBounds.minWidth = 0;
-    cameraDockBounds.height = 0;
-    cameraDockBounds.width = 0;
-    cameraDockBounds.maxWidth = 0;
-    cameraDockBounds.zIndex = 0;
+    const { navBarHeight } = DEFAULT_VALUES;
+
+    const cameraDockBounds = {};
+
+    const isMobile = deviceType === DEVICE_TYPE.MOBILE;
+
+    if (isMobile) {
+      cameraDockBounds.minHeight = mediaAreaBounds.height * 0.7;
+      cameraDockBounds.height = mediaAreaBounds.height * 0.7;
+      cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.7;
+    } else {
+      cameraDockBounds.minHeight = mediaAreaBounds.height;
+      cameraDockBounds.height = mediaAreaBounds.height;
+      cameraDockBounds.maxHeight = mediaAreaBounds.height;
+    }
+
+    cameraDockBounds.top = navBarHeight;
+    cameraDockBounds.left = !isRTL ? mediaAreaBounds.left : null;
+    cameraDockBounds.right = isRTL ? sidebarSize : null;
+    cameraDockBounds.minWidth = mediaAreaBounds.width;
+    cameraDockBounds.width = mediaAreaBounds.width;
+    cameraDockBounds.maxWidth = mediaAreaBounds.width;
+    cameraDockBounds.zIndex = 1;
+
     return cameraDockBounds;
   };
 
