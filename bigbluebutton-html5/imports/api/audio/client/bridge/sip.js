@@ -1089,7 +1089,7 @@ class SIPSession {
       };
 
       const checkIfCallStopped = (message) => {
-        if ((!this._ignoreCallState && fsReady) || !sessionTerminated) {
+        if ((!this.ignoreCallState && fsReady) || !sessionTerminated) {
           return null;
         }
 
