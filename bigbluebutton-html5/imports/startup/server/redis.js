@@ -5,11 +5,13 @@ import { check } from 'meteor/check';
 import Logger from './logger';
 import Metrics from './metrics';
 import queue from 'queue';
+import { PrometheusAgent, METRIC_NAMES } from './prom-metrics/index.js'
 
 // Fake meetingId used for messages that have no meetingId
 const NO_MEETING_ID = '_';
 
 const { queueMetrics } = Meteor.settings.private.redis.metrics;
+const { collectRedisMetrics: PROM_METRICS_ENABLED  } = Meteor.settings.private.prometheus;
 
 const makeEnvelope = (channel, eventName, header, body, routing) => {
   const envelope = {
@@ -78,6 +80,16 @@ class MeetingMessageQueue {
       }
 
       const queueLength = this.queue.length;
+
+      if (PROM_METRICS_ENABLED) {
+        const dataLength = JSON.stringify(data).length;
+        const currentTimestamp = Date.now();
+        const processTime = currentTimestamp - beginHandleTimestamp;
+        PrometheusAgent.observe(METRIC_NAMES.REDIS_PROCESSING_TIME, processTime, { eventName });
+        PrometheusAgent.observe(METRIC_NAMES.REDIS_PAYLOAD_SIZE, dataLength, { eventName });
+        meetingId && PrometheusAgent.set(METRIC_NAMES.REDIS_MESSAGE_QUEUE, queueLength, { meetingId });
+      }
+
       if (queueLength > 100) {
         Logger.warn(`Redis: MeetingMessageQueue for meetingId=${meetingId} has queue size=${queueLength} `);
       }
