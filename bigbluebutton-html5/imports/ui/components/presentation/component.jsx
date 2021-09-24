@@ -13,7 +13,6 @@ import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import { styles } from './styles.scss';
 import toastStyles from '/imports/ui/components/toast/styles';
-import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';

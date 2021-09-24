@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
+import MediaService, { getSwapLayout, } from '/imports/ui/components/media/service';
 import { notify } from '/imports/ui/services/notification';
 import { Session } from 'meteor/session';
 import PresentationService from './service';
@@ -66,7 +66,7 @@ const fetchedpresentation = {};
 export default withTracker(({ podId }) => {
   const currentSlide = PresentationService.getCurrentSlide(podId);
   const presentationIsDownloadable = PresentationService.isPresentationDownloadable(podId);
-  const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
+  const layoutSwapped = getSwapLayout();
 
   let slidePosition;
   if (currentSlide) {

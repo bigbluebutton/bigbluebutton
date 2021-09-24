@@ -17,7 +17,6 @@ import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service'
 
 import MediaService, {
   getSwapLayout,
-  shouldEnableSwapLayout,
 } from '../media/service';
 
 const ActionsBarContainer = (props) => {
@@ -53,7 +52,7 @@ export default withTracker(() => ({
   amIModerator: Service.amIModerator(),
   stopExternalVideoShare: ExternalVideoService.stopWatching,
   enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
-  isLayoutSwapped: getSwapLayout() && shouldEnableSwapLayout(),
+  isLayoutSwapped: getSwapLayout(),
   toggleSwapLayout: MediaService.toggleSwapLayout,
   handleTakePresenter: Service.takePresenterRole,
   currentSlidHasContent: PresentationService.currentSlidHasContent(),
@@ -66,7 +65,7 @@ export default withTracker(() => ({
   isSelectRandomUserEnabled: SELECT_RANDOM_USER_ENABLED,
   isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
-    { fields: {} }) || ExternalVideoService.getVideoUrl() || isVideoBroadcasting(),
+    { fields: {} }),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
   setEmojiStatus: UserListService.setEmojiStatus,
 }))(injectIntl(ActionsBarContainer));

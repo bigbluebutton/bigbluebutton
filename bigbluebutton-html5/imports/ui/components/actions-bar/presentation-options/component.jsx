@@ -36,24 +36,41 @@ const PresentationOptionsContainer = ({
   intl,
   isLayoutSwapped,
   toggleSwapLayout,
-  isThereCurrentPresentation,
   layoutContextDispatch,
-}) => (
-  <Button
-    className={cx(styles.button, !isLayoutSwapped || styles.btn)}
-    icon="presentation"
-    label={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
-    description={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationDesc : intlMessages.minimizePresentationDesc)}
-    color={!isLayoutSwapped ? "primary" : "default"}
-    hideLabel
-    circle
-    size="lg"
-    onClick={() => toggleSwapLayout(layoutContextDispatch)}
-    id="restore-presentation"
-    ghost={isLayoutSwapped}
-    disabled={!isThereCurrentPresentation}
-  />
-);
+  hasPresentation,
+  hasExternalVideo,
+  hasScreenshare,
+}) => {
+  let buttonType;
+  if (hasExternalVideo) {
+    buttonType = 'external_video';
+  } else if (hasScreenshare) {
+    buttonType = 'desktop';
+  } else {
+    buttonType = 'presentation';
+  }
+
+  // hack until we have new icons
+  buttonType = 'presentation';
+
+  const isThereCurrentPresentation = hasExternalVideo || hasScreenshare || hasPresentation;
+  return (
+    <Button
+      className={cx(styles.button, !isLayoutSwapped || styles.btn)}
+      icon={`${buttonType}${isLayoutSwapped ? '_off' : ''}`}
+      label={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
+      description={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationDesc : intlMessages.minimizePresentationDesc)}
+      color={!isLayoutSwapped ? "primary" : "default"}
+      hideLabel
+      circle
+      size="lg"
+      onClick={() => toggleSwapLayout(layoutContextDispatch)}
+      id="restore-presentation"
+      ghost={isLayoutSwapped}
+      disabled={!isThereCurrentPresentation}
+    />
+  );
+};
 
 PresentationOptionsContainer.propTypes = propTypes;
 export default injectIntl(PresentationOptionsContainer);
