@@ -3,9 +3,10 @@ import BaseBroker from '/imports/ui/services/bbb-webrtc-sfu/sfu-base-broker';
 
 const ON_ICE_CANDIDATE_MSG = 'iceCandidate';
 const SUBSCRIBER_ANSWER = 'subscriberAnswer';
-const SFU_COMPONENT_NAME = 'audio';
 
-class ListenOnlyBroker extends BaseBroker {
+const SFU_COMPONENT_NAME = 'fullaudio';
+
+class FullAudioBroker extends BaseBroker {
   constructor(
     wsUrl,
     voiceBridge,
@@ -25,7 +26,7 @@ class ListenOnlyBroker extends BaseBroker {
     Object.assign(this, options);
   }
 
-  joinListenOnly () {
+  joinAudio() {
     return new Promise((resolve, reject) => {
       const options = {
         mediaConstraints: {
@@ -39,7 +40,13 @@ class ListenOnlyBroker extends BaseBroker {
 
       this.addIceServers(options);
 
-      this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, (error) => {
+      const WebRTCPeer = (this.role === 'sendrecv')
+        ? kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv
+        : kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
+
+      window.kurento = kurentoUtils.WebRtcPeer;
+
+      this.webRtcPeer = WebRTCPeer(options, (error) => {
         if (error) {
           // 1305: "PEER_NEGOTIATION_FAILED",
           const normalizedError = BaseBroker.assembleError(1305);
@@ -51,7 +58,7 @@ class ListenOnlyBroker extends BaseBroker {
               sfuComponent: this.sfuComponent,
               started: this.started,
             },
-          }, `Listen only peer creation failed`);
+          }, 'Audio peer creation failed');
           this.onerror(normalizedError);
           return reject(normalizedError);
         }
@@ -61,18 +68,21 @@ class ListenOnlyBroker extends BaseBroker {
         if (this.offering) {
           this.webRtcPeer.generateOffer(this.onOfferGenerated.bind(this));
         } else {
-          this.sendStartReq()
+          this.sendStartReq();
         }
+
+        return resolve();
       });
 
-      this.webRtcPeer.peerConnection.onconnectionstatechange = this.handleConnectionStateChange.bind(this);
+      this.webRtcPeer.peerConnection.onconnectionstatechange = this
+        .handleConnectionStateChange.bind(this);
       return resolve();
     });
   }
 
-  listen () {
+  listen() {
     return this.openWSConnection()
-      .then(this.joinListenOnly.bind(this));
+      .then(this.joinAudio.bind(this));
   }
 
   onWSMessage (message) {
@@ -192,4 +202,4 @@ class ListenOnlyBroker extends BaseBroker {
   }
 }
 
-export default ListenOnlyBroker;
+export default FullAudioBroker;
