@@ -89,7 +89,7 @@ class TranslationSettings extends Component {
             <div key={index} className={styles.translationOriginalVolumePanel}>
               <div>{language.name}:</div>
               <input type="range" data-ext={index} name="volume" min="0" max="1" step=".01"
-                     defaultValue={ this.state.translationOriginalVolume[index] ? 1 - this.state.translationOriginalVolume[index] : 1}
+                     defaultValue={1 - AudioManager.getTranslationFloorVolumeByExt(index)}
                      onChange={this.setTranslationOriginalVolume.bind(this)}/>
               <div className={styles.interpretationVolumeWrapper}>
                 <div className={styles.interpretationVolumeOriginal}>{intl.formatMessage(intlMessages.interpretationVolumeOriginal)}</div>

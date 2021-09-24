@@ -29,6 +29,7 @@ const DEFAULT_OUTPUT_DEVICE_ID = 'default';
 const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE = Meteor.settings
   .public.app.experimentalUseKmsTrickleIceForMicrophone;
 const TRANSLATOR_SPEECH_DETECTION_THRESHOLD = MEDIA.translation.translator.speakDetection.threshold || -70;
+const TRANSLATION_SETTINGS = Meteor.settings.public.media.translation || {};
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -1014,11 +1015,17 @@ class AudioManager {
     }
   }
 
-  setTranslationFloorVolumeByExt(pExt) {
+  getTranslationFloorVolumeByExt(pExt) {
     let tIdx = parseInt((pExt+ '').charAt(2));
-    let tVol = Array.isArray(this.translationOriginalVolume) && typeof this.translationOriginalVolume[tIdx] !== 'undefined' ?
-        this.translationOriginalVolume[tIdx] : 1;
-    this.setFloorOutputVolume(tVol);
+    return Array.isArray(this.translationOriginalVolume) && typeof this.translationOriginalVolume[tIdx] !== 'undefined'
+      ? this.translationOriginalVolume[tIdx]
+      : TRANSLATION_SETTINGS.hasOwnProperty('floorVolume')
+        ? TRANSLATION_SETTINGS.floorVolume
+        : 0.4;
+  }
+
+  setTranslationFloorVolumeByExt(pExt) {
+    this.setFloorOutputVolume(this.getTranslationFloorVolumeByExt(pExt));
   }
 
   setFloorOutputVolume(volume) {
