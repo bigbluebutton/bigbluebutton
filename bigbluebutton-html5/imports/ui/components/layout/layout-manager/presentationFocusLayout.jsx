@@ -10,7 +10,9 @@ const windowHeight = () => window.document.documentElement.clientHeight;
 const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
-const PresentationFocusLayout = () => {
+const PresentationFocusLayout = (props) => {
+  const { bannerAreaHeight } = props;
+
   function usePrevious(value) {
     const ref = useRef();
     useEffect(() => {
@@ -26,8 +28,6 @@ const PresentationFocusLayout = () => {
   const fontSize = layoutSelect((i) => i.fontSize);
   const currentPanelType = layoutSelect((i) => i.currentPanelType);
 
-  const bannerBarInput = layoutSelectInput((i) => i.bannerBar);
-  const notificationsBarInput = layoutSelectInput((i) => i.notificationsBar);
   const presentationInput = layoutSelectInput((i) => i.presentation);
   const sidebarNavigationInput = layoutSelectInput((i) => i.sidebarNavigation);
   const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
@@ -64,15 +64,6 @@ const PresentationFocusLayout = () => {
       throttledCalculatesLayout();
     }
   }, [input, deviceType, isRTL, fontSize, fullscreen]);
-
-  const bannerAreaHeight = () => {
-    const { hasNotification } = notificationsBarInput;
-    const { hasBanner } = bannerBarInput;
-    const bannerHeight = hasBanner ? DEFAULT_VALUES.bannerHeight : 0;
-    const notificationHeight = hasNotification ? DEFAULT_VALUES.bannerHeight : 0;
-
-    return bannerHeight + notificationHeight;
-  };
 
   const init = () => {
     if (deviceType === DEVICE_TYPE.MOBILE) {
@@ -134,136 +125,6 @@ const PresentationFocusLayout = () => {
     throttledCalculatesLayout();
   };
 
-  const calculatesNavbarBounds = (mediaAreaBounds) => {
-    return {
-      width: mediaAreaBounds.width,
-      height: DEFAULT_VALUES.navBarHeight,
-      top: DEFAULT_VALUES.navBarTop + bannerAreaHeight(),
-      left: !isRTL ? mediaAreaBounds.left : 0,
-      zIndex: 1,
-    };
-  }
-
-  const calculatesActionbarHeight = () => {
-    const BASE_FONT_SIZE = 14; // 90% font size
-    const BASE_HEIGHT = DEFAULT_VALUES.actionBarHeight;
-    const PADDING = DEFAULT_VALUES.actionBarPadding;
-
-    const actionBarHeight = ((BASE_HEIGHT / BASE_FONT_SIZE) * fontSize);
-
-    return {
-      height: actionBarHeight + (PADDING * 2),
-      innerHeight: actionBarHeight,
-      padding: PADDING,
-    };
-  };
-
-  const calculatesActionbarBounds = (mediaAreaBounds) => {
-    const actionBarHeight = calculatesActionbarHeight();
-
-    return {
-      display: actionbarInput.hasActionBar,
-      width: mediaAreaBounds.width,
-      height: actionBarHeight.height,
-      innerHeight: actionBarHeight.innerHeight,
-      padding: actionBarHeight.padding,
-      top: windowHeight() - actionBarHeight.height,
-      left: !isRTL ? mediaAreaBounds.left : 0,
-      zIndex: 1,
-    };
-  };
-
-  const calculatesSidebarNavWidth = () => {
-    const {
-      sidebarNavMinWidth,
-      sidebarNavMaxWidth,
-    } = DEFAULT_VALUES;
-    let minWidth = 0;
-    let width = 0;
-    let maxWidth = 0;
-    if (sidebarNavigationInput.isOpen) {
-      if (deviceType === DEVICE_TYPE.MOBILE) {
-        minWidth = windowWidth();
-        width = windowWidth();
-        maxWidth = windowWidth();
-      } else {
-        if (sidebarNavigationInput.width === 0) {
-          width = min(max((windowWidth() * 0.2), sidebarNavMinWidth), sidebarNavMaxWidth);
-        } else {
-          width = min(max(sidebarNavigationInput.width, sidebarNavMinWidth), sidebarNavMaxWidth);
-        }
-        minWidth = sidebarNavMinWidth;
-        maxWidth = sidebarNavMaxWidth;
-      }
-    }
-    return {
-      minWidth,
-      width,
-      maxWidth,
-    };
-  };
-
-  const calculatesSidebarNavHeight = () => {
-    const { navBarHeight } = DEFAULT_VALUES;
-    let sidebarNavHeight = 0;
-    if (sidebarNavigationInput.isOpen) {
-      if (deviceType === DEVICE_TYPE.MOBILE) {
-        sidebarNavHeight = windowHeight() - navBarHeight - bannerAreaHeight();
-      } else {
-        sidebarNavHeight = windowHeight() - bannerAreaHeight();
-      }
-    }
-    return sidebarNavHeight;
-  };
-
-  const calculatesSidebarNavBounds = () => {
-    const { sidebarNavTop, navBarHeight, sidebarNavLeft } = DEFAULT_VALUES;
-
-    let top = sidebarNavTop + bannerAreaHeight();
-
-    if (deviceType === DEVICE_TYPE.MOBILE) top = navBarHeight + bannerAreaHeight();
-
-    return {
-      top,
-      left: !isRTL ? sidebarNavLeft : null,
-      right: isRTL ? sidebarNavLeft : null,
-      zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 2,
-    };
-  };
-
-  const calculatesSidebarContentWidth = () => {
-    const {
-      sidebarContentMinWidth,
-      sidebarContentMaxWidth,
-    } = DEFAULT_VALUES;
-    let minWidth = 0;
-    let width = 0;
-    let maxWidth = 0;
-    if (sidebarContentInput.isOpen) {
-      if (deviceType === DEVICE_TYPE.MOBILE) {
-        minWidth = windowWidth();
-        width = windowWidth();
-        maxWidth = windowWidth();
-      } else {
-        if (sidebarContentInput.width === 0) {
-          width = min(
-            max((windowWidth() * 0.2), sidebarContentMinWidth), sidebarContentMaxWidth,
-          );
-        } else {
-          width = min(max(sidebarContentInput.width, sidebarContentMinWidth),
-            sidebarContentMaxWidth);
-        }
-        minWidth = sidebarContentMinWidth;
-        maxWidth = sidebarContentMaxWidth;
-      }
-    }
-    return {
-      minWidth,
-      width,
-      maxWidth,
-    };
-  };
-
   const calculatesSidebarContentHeight = () => {
     const { isOpen } = presentationInput;
     const {
@@ -297,49 +158,6 @@ const PresentationFocusLayout = () => {
       height,
       minHeight,
       maxHeight,
-    };
-  };
-
-  const calculatesSidebarContentBounds = (sidebarNavWidth) => {
-    const { navBarHeight, sidebarNavTop } = DEFAULT_VALUES;
-
-    let top = sidebarNavTop + bannerAreaHeight();
-
-    if (deviceType === DEVICE_TYPE.MOBILE) top = navBarHeight + bannerAreaHeight();
-
-    let left = deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth;
-    let right = deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth;
-    left = !isRTL ? left : null;
-    right = isRTL ? right : null;
-
-    const zIndex = deviceType === DEVICE_TYPE.MOBILE ? 11 : 1;
-
-    return {
-      top,
-      left,
-      right,
-      zIndex,
-    };
-  };
-
-  const calculatesMediaAreaBounds = (sidebarNavWidth, sidebarContentWidth) => {
-    const { navBarHeight } = DEFAULT_VALUES;
-    const { height: actionBarHeight } = calculatesActionbarHeight();
-    let left = 0;
-    let width = 0;
-    if (deviceType === DEVICE_TYPE.MOBILE) {
-      left = 0;
-      width = windowWidth();
-    } else {
-      left = !isRTL ? sidebarNavWidth + sidebarContentWidth : 0;
-      width = windowWidth() - sidebarNavWidth - sidebarContentWidth;
-    }
-
-    return {
-      width,
-      height: windowHeight() - (navBarHeight + actionBarHeight + bannerAreaHeight()),
-      top: navBarHeight + bannerAreaHeight(),
-      left,
     };
   };
 
@@ -450,6 +268,16 @@ const PresentationFocusLayout = () => {
   };
 
   const calculatesLayout = () => {
+    const {
+      calculatesNavbarBounds,
+      calculatesActionbarBounds,
+      calculatesSidebarNavWidth,
+      calculatesSidebarNavHeight,
+      calculatesSidebarNavBounds,
+      calculatesSidebarContentWidth,
+      calculatesSidebarContentBounds,
+      calculatesMediaAreaBounds,
+    } = props;
     const { captionsMargin } = DEFAULT_VALUES;
 
     const sidebarNavWidth = calculatesSidebarNavWidth();
