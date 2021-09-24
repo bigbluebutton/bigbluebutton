@@ -3,9 +3,7 @@ import _ from 'lodash';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
-import {
-  DEVICE_TYPE, ACTIONS, CAMERADOCK_POSITION, PANELS,
-} from '../enums';
+import { ACTIONS, CAMERADOCK_POSITION, PANELS } from '../enums';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -13,7 +11,7 @@ const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
 const CustomLayout = (props) => {
-  const { bannerAreaHeight, calculatesActionbarHeight } = props;
+  const { bannerAreaHeight, calculatesActionbarHeight, isMobile } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -128,7 +126,7 @@ const CustomLayout = (props) => {
   };
 
   const init = () => {
-    if (deviceType === DEVICE_TYPE.MOBILE) {
+    if (isMobile) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: _.defaultsDeep({
@@ -191,7 +189,7 @@ const CustomLayout = (props) => {
     const { isOpen } = presentationInput;
     let sidebarContentHeight = 0;
     if (sidebarContentInput.isOpen) {
-      if (deviceType === DEVICE_TYPE.MOBILE) {
+      if (isMobile) {
         sidebarContentHeight = windowHeight() - DEFAULT_VALUES.navBarHeight;
       } else if (cameraDockInput.numCameras > 0
         && cameraDockInput.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM
@@ -232,7 +230,6 @@ const CustomLayout = (props) => {
     if (cameraDockInput.isDragging) cameraDockBounds.zIndex = 99;
     else cameraDockBounds.zIndex = 1;
 
-    const isMobile = deviceType === DEVICE_TYPE.MOBILE;
     const isCameraTop = cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_TOP;
     const isCameraBottom = cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_BOTTOM;
     const isCameraLeft = cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_LEFT;
@@ -435,6 +432,7 @@ const CustomLayout = (props) => {
       calculatesSidebarContentWidth,
       calculatesSidebarContentBounds,
       calculatesMediaAreaBounds,
+      isTablet,
     } = props;
     const { position: cameraPosition } = cameraDockInput;
     const { camerasMargin, captionsMargin } = DEFAULT_VALUES;
@@ -516,8 +514,7 @@ const CustomLayout = (props) => {
         left: sidebarNavBounds.left,
         right: sidebarNavBounds.right,
         tabOrder: DEFAULT_VALUES.sidebarNavTabOrder,
-        isResizable: deviceType !== DEVICE_TYPE.MOBILE
-          && deviceType !== DEVICE_TYPE.TABLET,
+        isResizable: !isMobile && !isTablet,
         zIndex: sidebarNavBounds.zIndex,
       },
     });
@@ -545,8 +542,7 @@ const CustomLayout = (props) => {
         right: sidebarContentBounds.right,
         currentPanelType,
         tabOrder: DEFAULT_VALUES.sidebarContentTabOrder,
-        isResizable: deviceType !== DEVICE_TYPE.MOBILE
-          && deviceType !== DEVICE_TYPE.TABLET,
+        isResizable: !isMobile && !isTablet,
         zIndex: sidebarContentBounds.zIndex,
       },
     });
@@ -585,8 +581,7 @@ const CustomLayout = (props) => {
         left: cameraDockBounds.left,
         right: cameraDockBounds.right,
         tabOrder: 4,
-        isDraggable: deviceType !== DEVICE_TYPE.MOBILE
-          && deviceType !== DEVICE_TYPE.TABLET,
+        isDraggable: !isMobile && !isTablet,
         resizableEdge: {
           top: cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_BOTTOM
             || cameraDockInput.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM,

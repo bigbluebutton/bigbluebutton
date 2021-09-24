@@ -28,6 +28,7 @@ const LayoutEngine = ({ layoutType }) => {
   const deviceType = layoutSelect((i) => i.deviceType);
 
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
+  const isTablet = deviceType === DEVICE_TYPE.TABLET;
   const windowWidth = () => window.document.documentElement.clientWidth;
   const windowHeight = () => window.document.documentElement.clientHeight;
   const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
@@ -278,6 +279,8 @@ const LayoutEngine = ({ layoutType }) => {
     calculatesSidebarContentWidth,
     calculatesSidebarContentBounds,
     calculatesMediaAreaBounds,
+    isMobile,
+    isTablet,
   };
 
   switch (layoutType) {

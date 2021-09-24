@@ -8,13 +8,13 @@ import {
 } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
-import { DEVICE_TYPE, ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
 
 const VideoFocusLayout = (props) => {
-  const { bannerAreaHeight } = props;
+  const { bannerAreaHeight, isMobile } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -71,7 +71,7 @@ const VideoFocusLayout = (props) => {
   }, [input, deviceType, isRTL, fontSize, fullscreen]);
 
   const init = () => {
-    if (deviceType === DEVICE_TYPE.MOBILE) {
+    if (isMobile) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: _.defaultsDeep(
@@ -141,7 +141,7 @@ const VideoFocusLayout = (props) => {
     let height = 0;
     let maxHeight = 0;
     if (sidebarContentInput.isOpen) {
-      if (deviceType === DEVICE_TYPE.MOBILE) {
+      if (isMobile) {
         height = windowHeight() - DEFAULT_VALUES.navBarHeight - bannerAreaHeight();
         minHeight = height;
         maxHeight = height;
@@ -190,8 +190,6 @@ const VideoFocusLayout = (props) => {
 
     const cameraDockBounds = {};
 
-    const isMobile = deviceType === DEVICE_TYPE.MOBILE;
-
     if (isMobile) {
       cameraDockBounds.minHeight = mediaAreaBounds.height * 0.7;
       cameraDockBounds.height = mediaAreaBounds.height * 0.7;
@@ -234,7 +232,7 @@ const VideoFocusLayout = (props) => {
       return mediaBounds;
     }
 
-    if (deviceType === DEVICE_TYPE.MOBILE) {
+    if (isMobile) {
       mediaBounds.height = mediaAreaBounds.height - cameraDockBounds.height;
       mediaBounds.left = mediaAreaBounds.left;
       mediaBounds.top = mediaAreaBounds.top + cameraDockBounds.height;
@@ -268,6 +266,7 @@ const VideoFocusLayout = (props) => {
       calculatesSidebarContentWidth,
       calculatesSidebarContentBounds,
       calculatesMediaAreaBounds,
+      isTablet,
     } = props;
     const { captionsMargin } = DEFAULT_VALUES;
 
@@ -342,8 +341,7 @@ const VideoFocusLayout = (props) => {
         left: sidebarNavBounds.left,
         right: sidebarNavBounds.right,
         tabOrder: DEFAULT_VALUES.sidebarNavTabOrder,
-        isResizable: deviceType !== DEVICE_TYPE.MOBILE
-          && deviceType !== DEVICE_TYPE.TABLET,
+        isResizable: !isMobile && !isTablet,
         zIndex: sidebarNavBounds.zIndex,
       },
     });
@@ -373,8 +371,7 @@ const VideoFocusLayout = (props) => {
         right: sidebarContentBounds.right,
         currentPanelType,
         tabOrder: DEFAULT_VALUES.sidebarContentTabOrder,
-        isResizable: deviceType !== DEVICE_TYPE.MOBILE
-          && deviceType !== DEVICE_TYPE.TABLET,
+        isResizable: !isMobile && !isTablet,
         zIndex: sidebarContentBounds.zIndex,
       },
     });
@@ -432,8 +429,7 @@ const VideoFocusLayout = (props) => {
         left: mediaBounds.left,
         right: isRTL ? mediaBounds.right : null,
         tabOrder: DEFAULT_VALUES.presentationTabOrder,
-        isResizable: deviceType !== DEVICE_TYPE.MOBILE
-          && deviceType !== DEVICE_TYPE.TABLET,
+        isResizable: !isMobile && !isTablet,
         zIndex: mediaBounds.zIndex,
       },
     });

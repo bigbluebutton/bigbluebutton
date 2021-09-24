@@ -3,15 +3,13 @@ import _ from 'lodash';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
-import {
-  DEVICE_TYPE, ACTIONS, PANELS, CAMERADOCK_POSITION,
-} from '/imports/ui/components/layout/enums';
+import { ACTIONS, PANELS, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
 
 const SmartLayout = (props) => {
-  const { bannerAreaHeight } = props;
+  const { bannerAreaHeight, isMobile } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -66,7 +64,7 @@ const SmartLayout = (props) => {
   }, [input, deviceType, isRTL, fontSize, fullscreen]);
 
   const init = () => {
-    if (deviceType === DEVICE_TYPE.MOBILE) {
+    if (isMobile) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: _.defaultsDeep({
@@ -128,7 +126,7 @@ const SmartLayout = (props) => {
   const calculatesSidebarContentHeight = () => {
     let sidebarContentHeight = 0;
     if (sidebarContentInput.isOpen) {
-      if (deviceType === DEVICE_TYPE.MOBILE) {
+      if (isMobile) {
         sidebarContentHeight = windowHeight() - DEFAULT_VALUES.navBarHeight;
       } else {
         sidebarContentHeight = windowHeight();
@@ -154,8 +152,6 @@ const SmartLayout = (props) => {
     const cameraDockBounds = {};
 
     cameraDockBounds.isCameraHorizontal = false;
-
-    const isMobile = deviceType === DEVICE_TYPE.MOBILE;
 
     const mediaBoundsWidth = (mediaBounds.width > presentationToolbarMinWidth && !isMobile)
       ? mediaBounds.width
@@ -247,7 +243,7 @@ const SmartLayout = (props) => {
 
     if (cameraDockInput.numCameras > 0 && !cameraDockInput.isDragging) {
       if (slideSize.width !== 0 && slideSize.height !== 0) {
-        if (slideSize.width < mediaAreaBounds.width && deviceType !== DEVICE_TYPE.MOBILE) {
+        if (slideSize.width < mediaAreaBounds.width && !isMobile) {
           if (slideSize.width < (mediaAreaBounds.width * 0.8)) {
             mediaBounds.width = slideSize.width;
           } else {
@@ -304,6 +300,7 @@ const SmartLayout = (props) => {
       calculatesSidebarContentWidth,
       calculatesSidebarContentBounds,
       calculatesMediaAreaBounds,
+      isTablet,
     } = props;
     const { camerasMargin, captionsMargin } = DEFAULT_VALUES;
 
@@ -373,8 +370,7 @@ const SmartLayout = (props) => {
         left: sidebarNavBounds.left,
         right: sidebarNavBounds.right,
         tabOrder: DEFAULT_VALUES.sidebarNavTabOrder,
-        isResizable: deviceType !== DEVICE_TYPE.MOBILE
-          && deviceType !== DEVICE_TYPE.TABLET,
+        isResizable: !isMobile && !isTablet,
         zIndex: sidebarNavBounds.zIndex,
       },
     });
@@ -402,8 +398,7 @@ const SmartLayout = (props) => {
         right: sidebarContentBounds.right,
         currentPanelType,
         tabOrder: DEFAULT_VALUES.sidebarContentTabOrder,
-        isResizable: deviceType !== DEVICE_TYPE.MOBILE
-          && deviceType !== DEVICE_TYPE.TABLET,
+        isResizable: !isMobile && !isTablet,
         zIndex: sidebarContentBounds.zIndex,
       },
     });
