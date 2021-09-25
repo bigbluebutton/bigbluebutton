@@ -1,3 +1,5 @@
+import playAndRetry from '/imports/utils/mediaElementPlayRetry';
+
 const playMediaElement = (mediaElement) => {
   return new Promise((resolve, reject) => {
     if (mediaElement.paused) {
