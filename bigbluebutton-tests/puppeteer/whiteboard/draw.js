@@ -1,22 +1,19 @@
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const Page = require('../core/page');
-const e = require('./elements');
+const e = require('../core/elements');
 
 class Draw extends Page {
   constructor() {
-    super('whiteboard-draw');
+    super();
   }
 
   async test() {
     try {
-      await this.waitForSelector(e.tools, ELEMENT_WAIT_TIME);
-      await this.click(e.tools, true);
-      await this.waitForSelector(e.rectangle, ELEMENT_WAIT_TIME);
-      await this.click(e.rectangle, true);
-      await this.waitForSelector(e.whiteboard, ELEMENT_WAIT_TIME);
+      await this.waitForSelector(e.whiteboard);
+      await this.waitAndClick(e.tools);
+      await this.waitAndClick(e.rectangle);
 
-      const shapes0 = await this.getTestElements();
-      shapes0 === '<g></g>';
+      const shapes1 = await this.getTestElements();
+      const test1 = shapes1 === '<g></g>';
 
       const wb = await this.page.$(e.whiteboard);
       const wbBox = await wb.boundingBox();
@@ -25,11 +22,11 @@ class Draw extends Page {
       await this.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
       await this.page.mouse.up();
 
-      await this.waitForSelector(e.drawnRectangle, ELEMENT_WAIT_TIME);
-      const shapes1 = await this.getTestElements();
-      shapes1 !== '<g></g>';
+      await this.waitForSelector(e.drawnRectangle);
+      const shapes2 = await this.getTestElements();
+      const test2 = shapes2 !== '<g></g>';
 
-      return shapes0 && shapes1;
+      return test1 && test2;
     } catch (err) {
       await this.logger(err);
       return false;
@@ -38,9 +35,8 @@ class Draw extends Page {
 
   async getTestElements() {
     try {
-      await this.waitForSelector('g[clip-path="url(#viewBox)"]', ELEMENT_WAIT_TIME);
-      const shapes = await this.page.evaluate(() => document.querySelector('svg g[clip-path]').children[1].outerHTML);
-      return shapes;
+      await this.waitForSelector(e.whiteboardViewBox);
+      return this.page.evaluate((selector) => document.querySelector(selector).children[1].outerHTML, e.whiteboardViewBox);
     } catch (err) {
       await this.logger(err);
     }

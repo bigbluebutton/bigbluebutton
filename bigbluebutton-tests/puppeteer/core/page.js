@@ -11,14 +11,13 @@ const params = require('../params');
 const { ELEMENT_WAIT_TIME } = require('./constants');
 const { getElementLength } = require('./util');
 const e = require('./elements');
-const ue = require('../user/elements');
 const { NETWORK_PRESETS } = require('./profiles');
 const devices = require('./devices');
 const linuxDesktop = devices['Linux Desktop'];
 
 class Page {
-  constructor(name) {
-    this.name = name;
+  constructor(page) {
+    this.page = page;
     this.screenshotIndex = 0;
     this.meetingId;
     this.parentDir = this.getParentDir(__dirname);
@@ -84,7 +83,7 @@ class Page {
       await this.page.goto(joinURL, { waitUntil: 'networkidle2' });
 
       if (process.env.BBB_COLLECT_METRICS === 'true' && process.env.IS_MOBILE !== 'true') {
-        await this.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
+        await this.waitForSelector(e.anyUser);
         await this.getMetrics(testFolderName);
       }
     } catch (err) {
@@ -94,56 +93,44 @@ class Page {
 
   // Joining audio with microphone
   async joinMicrophone() {
-    await this.waitForSelector(e.audioDialog, ELEMENT_WAIT_TIME);
-    await this.waitForSelector(e.microphoneButton, ELEMENT_WAIT_TIME);
-    await this.click(e.microphoneButton, true);
-    await this.waitForSelector(e.connectingStatus, ELEMENT_WAIT_TIME);
+    await this.waitForSelector(e.audioModal);
+    await this.waitAndClick(e.microphoneButton);
+    await this.waitForSelector(e.connectingStatus);
     const parsedSettings = await this.getSettingsYaml();
     const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
-    await this.waitForSelector(e.echoYes, listenOnlyCallTimeout);
-    await this.click(e.echoYes, true);
-    await this.waitForSelector(e.isTalking, ELEMENT_WAIT_TIME);
+    await this.waitAndClick(e.echoYesButton, listenOnlyCallTimeout);
+    await this.waitForSelector(e.isTalking);
   }
 
   // Joining audio with microphone
   async joinMicrophoneWithoutEchoTest() {
-    await this.waitForSelector(e.joinAudio, ELEMENT_WAIT_TIME);
-    await this.click(e.joinAudio, true);
+    await this.waitAndClick(e.joinAudio);
     const parsedSettings = await this.getSettingsYaml();
     const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
-    await this.waitForSelector(e.leaveAudio, listenOnlyCallTimeout);
-    await this.click(e.leaveAudio, ELEMENT_WAIT_TIME);
-    await this.waitForSelector(e.disconnectAudio, ELEMENT_WAIT_TIME);
-    await this.click(e.disconnectAudio, true);
+    await this.waitAndClick(e.leaveAudio, listenOnlyCallTimeout);
   }
 
   // Leave audio
   async leaveAudio() {
-    await this.waitForSelector(e.leaveAudio, ELEMENT_WAIT_TIME);
-    await this.click(e.leaveAudio, true);
-    await this.waitForSelector(e.disconnectAudio, ELEMENT_WAIT_TIME);
-    await this.click(e.disconnectAudio, true);
-    await this.waitForSelector(e.joinAudio, ELEMENT_WAIT_TIME);
+    await this.waitAndClick(e.leaveAudio);
+    await this.waitForSelector(e.joinAudio);
   }
 
   // Logout from meeting
   async logoutFromMeeting() {
-    await this.waitForSelector(e.options, ELEMENT_WAIT_TIME);
-    await this.click(e.options, true);
-    await this.waitForSelector(e.logout, ELEMENT_WAIT_TIME);
-    await this.click(e.logout, true);
+    await this.waitAndClick(e.options);
+    await this.waitAndClick(e.logout);
   }
 
   // Joining audio with Listen Only mode
   async listenOnly() {
-    await this.waitForSelector(e.audioDialog, ELEMENT_WAIT_TIME);
-    await this.waitForSelector(e.listenButton, ELEMENT_WAIT_TIME);
-    await this.click(e.listenButton);
+    await this.waitForSelector(e.audioModal);
+    await this.waitAndClick(e.listenOnlyButton);
   }
 
   async closeAudioModal() {
-    await this.waitForSelector(e.audioDialog, ELEMENT_WAIT_TIME);
-    await this.click(e.closeAudio, true);
+    await this.waitForSelector(e.audioModal);
+    await this.waitAndClick(e.closeAudioButton);
   }
 
   async setDownloadBehavior(downloadPath) {
@@ -225,9 +212,9 @@ class Page {
     }
   }
 
-  async isNotVisible(el, timeout) {
+  async isNotVisible(element, timeout = ELEMENT_WAIT_TIME) {
     try {
-      await this.page.waitForSelector(el, { visible: false, timeout: timeout });
+      await this.hasElement(element, false, timeout);
       return true;
     } catch (err) {
       await this.logger(err);
@@ -240,9 +227,28 @@ class Page {
   // }
 
   // Returns a Promise that resolves when an element does not exist/is removed from the DOM
-  async waitForElementHandleToBeRemoved(element) {
-    await this.page.waitForTimeout(1000);
-    await this.page.waitForSelector(element, { hidden: true });
+  async waitForElementHandleToBeRemoved(element, timeout = ELEMENT_WAIT_TIME) {
+    await this.page.waitForSelector(element, { timeout, hidden: true });
+  }
+
+  async wasRemoved(element, timeout = ELEMENT_WAIT_TIME) {
+    try {
+      await this.waitForElementHandleToBeRemoved(element, timeout);
+      return true;
+    } catch (err) {
+      this.logger(err);
+      return false;
+    }
+  }
+
+  async hasElement(element, visible = false, timeout = ELEMENT_WAIT_TIME) {
+    try {
+      await this.page.waitForSelector(element, { visible, timeout });
+      return true;
+    } catch (err) {
+      await this.logger(err);
+      return false;
+    }
   }
 
   // Presses a hotkey (Ctrl, Alt and Shift can be held down while pressing the key)
@@ -299,21 +305,40 @@ class Page {
     await this.page.keyboard.up(key);
   }
 
-  async click(element, relief = false) {
+  async bringToFront() {
+    await this.page.bringToFront();
+  }
+
+  async getLastTargetPage() {
+    const browserPages = await this.browser.pages();
+    return new Page(browserPages[browserPages.length - 1]);
+  }
+
+  async waitAndClick(element, timeout = ELEMENT_WAIT_TIME, relief = false) {
     if (relief) await helper.sleep(1000);
-    await this.waitForSelector(element, ELEMENT_WAIT_TIME);
+    await this.waitForSelector(element, timeout);
+    await this.page.focus(element);
     await this.page.click(element, true);
   }
 
-  async clickNItem(element, relief = false, n) {
+  async waitAndClickElement(element, index = 0, timeout = ELEMENT_WAIT_TIME, relief = false) {
     if (relief) await helper.sleep(1000);
+    await this.waitForSelector(element, timeout);
+    await this.page.evaluate((elem, i) => {
+      document.querySelectorAll(elem)[i].click();
+    }, element, index);
+  }
+
+  async clickNItem(element, n, relief = false) {
+    if (relief) await helper.sleep(1000);
+    await this.waitForSelector(element);
     const elementHandle = await this.page.$$(element);
     await elementHandle[n].click();
   }
 
   async type(element, text, relief = false) {
     if (relief) await helper.sleep(1000);
-    await this.waitForSelector(element, ELEMENT_WAIT_TIME);
+    await this.waitForSelector(element);
     await this.page.type(element, text);
   }
 
@@ -380,13 +405,13 @@ class Page {
   }
 
   async paste(element) {
-    await this.click(element);
+    await this.waitAndClick(element);
     await this.page.keyboard.down('ControlLeft');
     await this.page.keyboard.press('KeyV');
     await this.page.keyboard.up('ControlLeft');
   }
 
-  async waitForSelector(element, timeout) {
+  async waitForSelector(element, timeout = ELEMENT_WAIT_TIME) {
     await this.page.waitForSelector(element, { timeout });
   }
 
@@ -405,13 +430,13 @@ class Page {
     if (!fs.existsSync(metricsFolder)) {
       fs.mkdirSync(metricsFolder);
     }
-    await this.waitForSelector(ue.anyUser, ELEMENT_WAIT_TIME);
+    await this.waitForSelector(e.anyUser);
     const totalNumberOfUsersMongo = await this.page.evaluate(() => {
       const collection = require('/imports/api/users-persistent-data/index.js');
       const users = collection.default._collection.find({}, {}, {}, {}, {}, { loggedOut: 'false' }).count();
       return users;
     });
-    const totalNumberOfUsersDom = await this.page.evaluate(getElementLength, '[data-test^="userListItem"]');
+    const totalNumberOfUsersDom = await this.page.evaluate(getElementLength, e.anyUser);
     await this.logger({ totalNumberOfUsersDom, totalNumberOfUsersMongo });
     const metric = await this.page.metrics();
     pageMetricsObj.totalNumberOfUsersMongoObj = totalNumberOfUsersMongo;
