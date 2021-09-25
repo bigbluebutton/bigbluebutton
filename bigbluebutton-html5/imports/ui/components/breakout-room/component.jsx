@@ -171,6 +171,7 @@ class BreakoutRoom extends PureComponent {
       this.setState(
         {
           waiting: true,
+          generated: false,
           requestedBreakoutId: breakoutId,
         },
         () => requestJoinURL(breakoutId),

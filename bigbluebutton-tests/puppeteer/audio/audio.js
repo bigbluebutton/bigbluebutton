@@ -3,7 +3,7 @@ const util = require('./util');
 
 class Audio extends Page {
   constructor() {
-    super('audio-test');
+    super();
   }
 
   async test() {
