@@ -45,7 +45,28 @@ function breakouts(role) {
     ],
   };
 
-  return Breakouts.find(selector);
+  const fields = {
+    fields: {
+      users: {
+        $elemMatch: {
+          // do not allow users to obtain 'redirectToHtml5JoinURL' for others
+          userId,
+        },
+      },
+      breakoutId: 1,
+      externalId: 1,
+      freeJoin: 1,
+      isDefaultName: 1,
+      joinedUsers: 1,
+      name: 1,
+      parentMeetingId: 1,
+      sequence: 1,
+      shortName: 1,
+      timeRemaining: 1,
+    },
+  };
+
+  return Breakouts.find(selector, fields);
 }
 
 function publish(...args) {

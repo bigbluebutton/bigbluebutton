@@ -1,0 +1,279 @@
+<!-- http://wiki.freeswitch.org/wiki/Mod_conference -->
+<!-- None of these paths are real if you want any of these options you need to really set them up -->
+<configuration name="conference.conf" description="Audio Conference">
+  <!-- Advertise certain presence on startup . -->
+  <advertise>
+    <room name="3001@$${domain}" status="FreeSWITCH"/>
+  </advertise>
+
+  <!-- These are the default keys that map when you do not specify a caller control group -->
+  <!-- Note: none and default are reserved names for group names.  Disabled if dist-dtmf member flag is set. -->
+  <caller-controls>
+    <group name="default">
+      <control action="mute" digits="0"/>
+      <control action="deaf mute" digits="*"/>
+      <control action="energy up" digits="9"/>
+      <control action="energy equ" digits="8"/>
+      <control action="energy dn" digits="7"/>
+      <control action="vol talk up" digits="3"/>
+      <control action="vol talk zero" digits="2"/>
+      <control action="vol talk dn" digits="1"/>
+      <control action="vol listen up" digits="6"/>
+      <control action="vol listen zero" digits="5"/>
+      <control action="vol listen dn" digits="4"/>
+      <!--control action="hangup" digits="#"/ -->
+    </group>
+  </caller-controls>
+
+  <!-- Profiles are collections of settings you can reference by name. -->
+  <profiles>
+    <!--If no profile is specified it will default to "default"-->
+    <profile name="default">
+      <!-- Directory to drop CDR's
+           'auto' means $PREFIX/logs/conference_cdr/<confernece_uuid>.cdr.xml
+           a non-absolute path means $PREFIX/logs/<value>/<confernece_uuid>.cdr.xml
+           absolute path means <value>/<confernece_uuid>.cdr.xml
+      -->
+      <!-- <param name="cdr-log-dir" value="auto"/> -->
+
+      <!-- Domain (for presence) -->
+      <param name="domain" value="$${domain}"/>
+      <!-- Sample Rate-->
+      <param name="rate" value="8000"/>
+      <!-- Number of milliseconds per frame -->
+      <param name="interval" value="20"/>
+      <!-- Energy level required for audio to be sent to the other users -->
+      <param name="energy-level" value="100"/>
+
+      <!--Can be | delim of waste|mute|deaf|dist-dtmf waste will always transmit data to each channel
+          even during silence.  dist-dtmf propagates dtmfs to all other members, but channel controls
+          via dtmf will be disabled. -->
+      <!-- <param name="member-flags" value="waste"/> -->
+
+      <!-- Name of the caller control group to use for this profile -->
+      <!-- <param name="caller-controls" value="some name"/> -->
+      <!-- Name of the caller control group to use for the moderator in this profile -->
+      <!-- <param name="moderator-controls" value="some name"/> -->
+      <!-- TTS Engine to use -->
+      <!-- <param name="tts-engine" value="cepstral"/> -->
+      <!-- TTS Voice to use -->
+      <!-- <param name="tts-voice" value="david"/> -->
+
+      <!-- If TTS is enabled all audio-file params beginning with -->
+      <!-- 'say:' will be considered text to say with TTS -->
+      <!-- Override the default path here, after which you use relative paths in the other sound params -->
+      <!-- Note: The default path is the conference's first caller's sound_prefix -->
+      <!-- <param name="sound-prefix" value="$${sounds_dir}/en/us/callie"/> -->
+      <!-- File to play to acknowledge succees -->
+      <!-- <param name="ack-sound" value="beep.wav"/> -->
+      <!-- File to play to acknowledge failure -->
+      <!-- <param name="nack-sound" value="beeperr.wav"/> -->
+      <!-- File to play to acknowledge muted -->
+      <param name="muted-sound" value="conference/conf-muted.wav"/>
+      <!-- File to play to acknowledge unmuted -->
+      <param name="unmuted-sound" value="conference/conf-unmuted.wav"/>
+      <!-- File to play if you are alone in the conference -->
+      <param name="alone-sound" value="conference/conf-alone.wav"/>
+      <!-- File to play endlessly (nobody will ever be able to talk) -->
+      <!-- <param name="perpetual-sound" value="perpetual.wav"/> -->
+      <!-- File to play when you're alone (music on hold)-->
+      <param name="moh-sound" value="$${hold_music}"/>
+      <!-- File to play when you join the conference -->
+      <param name="enter-sound" value="tone_stream://%(200,0,500,600,700)"/>
+      <!-- File to play when you leave the conference -->
+      <param name="exit-sound" value="tone_stream://%(500,0,300,200,100,50,25)"/>
+      <!-- File to play when you are ejected from the conference -->
+      <param name="kicked-sound" value="conference/conf-kicked.wav"/>
+      <!-- File to play when the conference is locked -->
+      <param name="locked-sound" value="conference/conf-locked.wav"/>
+      <!-- File to play when the conference is locked during the call-->
+      <param name="is-locked-sound" value="conference/conf-is-locked.wav"/>
+      <!-- File to play when the conference is unlocked during the call-->
+      <param name="is-unlocked-sound" value="conference/conf-is-unlocked.wav"/>
+      <!-- File to play to prompt for a pin -->
+      <param name="pin-sound" value="conference/conf-pin.wav"/>
+      <!-- File to play to when the pin is invalid -->
+      <param name="bad-pin-sound" value="conference/conf-bad-pin.wav"/>
+      <!-- Conference pin -->
+      <!-- <param name="pin" value="12345"/> -->
+      <!-- <param name="moderator-pin" value="54321"/> -->
+      <!-- Max number of times the user can be prompted for PIN -->
+      <!-- <param name="pin-retries" value="3"/> -->
+      <!-- Default Caller ID Name for outbound calls -->
+      <param name="caller-id-name" value="$${outbound_caller_name}"/>
+      <!-- Default Caller ID Number for outbound calls -->
+      <param name="caller-id-number" value="$${outbound_caller_id}"/>
+      <!-- Suppress start and stop talking events -->
+      <!-- <param name="suppress-events" value="start-talking,stop-talking"/> -->
+      <!-- enable comfort noise generation -->
+      <param name="comfort-noise" value="true"/>
+      <!-- Uncomment auto-record to toggle recording every conference call. -->
+      <!-- Another valid value is   shout://user:pass@server.com/live.mp3   -->
+      <!--
+      <param name="auto-record" value="$${recordings_dir}/${conference_name}_${strftime(%Y-%m-%d-%H-%M-%S)}.wav"/>
+      -->
+
+      <!-- IVR digit machine timeouts -->
+      <!-- How much to wait between DTMF digits to match caller-controls -->
+      <!-- <param name="ivr-dtmf-timeout" value="500"/> -->
+      <!-- How much to wait for the first DTMF, 0 forever -->
+      <!-- <param name="ivr-input-timeout" value="0" /> -->
+      <!-- Delay before a conference is asked to be terminated -->
+      <!-- <param name="endconf-grace-time" value="120" /> -->
+      <!-- Can be | delim of wait-mod|audio-always|video-bridge|video-floor-only
+           wait_mod will wait until the moderator in,
+           audio-always will always mix audio from all members regardless they are talking or not -->
+      <!-- <param name="conference-flags" value="audio-always"/> -->
+      <!-- Allow live array sync for Verto -->
+      <!-- <param name="conference-flags" value="livearray-sync"/> -->
+    </profile>
+
+    <profile name="wideband">
+      <param name="domain" value="$${domain}"/>
+      <param name="rate" value="16000"/>
+      <param name="interval" value="20"/>
+      <param name="energy-level" value="100"/>
+      <!-- <param name="sound-prefix" value="$${sounds_dir}/en/us/callie"/> -->
+      <param name="muted-sound" value="conference/conf-muted.wav"/>
+      <param name="unmuted-sound" value="conference/conf-unmuted.wav"/>
+      <param name="alone-sound" value="conference/conf-alone.wav"/>
+      <param name="moh-sound" value="$${hold_music}"/>
+      <param name="enter-sound" value="tone_stream://%(200,0,500,600,700)"/>
+      <param name="exit-sound" value="tone_stream://%(500,0,300,200,100,50,25)"/>
+      <param name="kicked-sound" value="conference/conf-kicked.wav"/>
+      <param name="locked-sound" value="conference/conf-locked.wav"/>
+      <param name="is-locked-sound" value="conference/conf-is-locked.wav"/>
+      <param name="is-unlocked-sound" value="conference/conf-is-unlocked.wav"/>
+      <param name="pin-sound" value="conference/conf-pin.wav"/>
+      <param name="bad-pin-sound" value="conference/conf-bad-pin.wav"/>
+      <param name="caller-id-name" value="$${outbound_caller_name}"/>
+      <param name="caller-id-number" value="$${outbound_caller_id}"/>
+      <param name="comfort-noise" value="true"/>
+      <!-- <param name="tts-engine" value="flite"/> -->
+      <!-- <param name="tts-voice" value="kal16"/> -->
+    </profile>
+
+    <profile name="ultrawideband">
+      <param name="domain" value="$${domain}"/>
+      <param name="rate" value="32000"/>
+      <param name="interval" value="20"/>
+      <param name="energy-level" value="100"/>
+      <!-- <param name="sound-prefix" value="$${sounds_dir}/en/us/callie"/> -->
+      <param name="muted-sound" value="conference/conf-muted.wav"/>
+      <param name="unmuted-sound" value="conference/conf-unmuted.wav"/>
+      <param name="alone-sound" value="conference/conf-alone.wav"/>
+      <param name="moh-sound" value="$${hold_music}"/>
+      <param name="enter-sound" value="tone_stream://%(200,0,500,600,700)"/>
+      <param name="exit-sound" value="tone_stream://%(500,0,300,200,100,50,25)"/>
+      <param name="kicked-sound" value="conference/conf-kicked.wav"/>
+      <param name="locked-sound" value="conference/conf-locked.wav"/>
+      <param name="is-locked-sound" value="conference/conf-is-locked.wav"/>
+      <param name="is-unlocked-sound" value="conference/conf-is-unlocked.wav"/>
+      <param name="pin-sound" value="conference/conf-pin.wav"/>
+      <param name="bad-pin-sound" value="conference/conf-bad-pin.wav"/>
+      <param name="caller-id-name" value="$${outbound_caller_name}"/>
+      <param name="caller-id-number" value="$${outbound_caller_id}"/>
+      <param name="comfort-noise" value="true"/>
+
+      <!-- <param name="conference-flags" value="video-floor-only|rfc-4579|livearray-sync|auto-3d-position|transcode-video|minimize-video-encoding"/> -->
+
+      <!-- <param name="video-mode" value="mux"/> -->
+      <!-- <param name="video-layout-name" value="3x3"/> -->
+      <!-- <param name="video-layout-name" value="group:grid"/> -->
+      <!-- <param name="video-canvas-size" value="1280x720"/> -->
+      <!-- <param name="video-canvas-bgcolor" value="#333333"/> -->
+      <!-- <param name="video-layout-bgcolor" value="#000000"/> -->
+      <!-- <param name="video-codec-bandwidth" value="2mb"/> -->
+      <!-- <param name="video-fps" value="15"/> -->
+      <!-- <param name="video-auto-floor-msec" value="100"/> -->
+
+
+      <!-- <param name="tts-engine" value="flite"/> -->
+      <!-- <param name="tts-voice" value="kal16"/> -->
+    </profile>
+
+    <profile name="cdquality">
+      <param name="domain" value="$${domain}"/>
+      <param name="rate" value="48000"/>
+      <param name="interval" value="20"/>
+      <param name="energy-level" value="100"/>
+      <!-- <param name="sound-prefix" value="$${sounds_dir}/en/us/callie"/> -->
+      <param name="muted-sound" value="conference/conf-muted.wav"/>
+      <param name="unmuted-sound" value="conference/conf-unmuted.wav"/>
+      <param name="alone-sound" value="conference/conf-alone.wav"/>
+<!--
+      <param name="moh-sound" value="$${hold_music}"/>
+      <param name="enter-sound" value="tone_stream://%(200,0,500,600,700)"/>
+      <param name="exit-sound" value="tone_stream://%(500,0,300,200,100,50,25)"/>
+      <param name="kicked-sound" value="conference/conf-kicked.wav"/>
+-->
+      <param name="locked-sound" value="conference/conf-locked.wav"/>
+      <param name="is-locked-sound" value="conference/conf-is-locked.wav"/>
+      <param name="is-unlocked-sound" value="conference/conf-is-unlocked.wav"/>
+      <param name="pin-sound" value="conference/conf-pin.wav"/>
+      <param name="bad-pin-sound" value="conference/conf-bad-pin.wav"/>
+      <param name="caller-id-name" value="$${outbound_caller_name}"/>
+      <param name="caller-id-number" value="$${outbound_caller_id}"/>
+      <!-- param name="comfort-noise" value="true"/ -->
+      <param name="comfort-noise" value="1400"/>
+
+      <!-- <param name="conference-flags" value="video-floor-only|rfc-4579|livearray-sync|auto-3d-position|minimize-video-encoding"/> -->
+
+      <!-- <param name="video-mode" value="mux"/> -->
+      <!-- <param name="video-layout-name" value="3x3"/> -->
+      <!-- <param name="video-layout-name" value="group:grid"/> -->
+      <!-- <param name="video-canvas-size" value="1920x1080"/> -->
+      <!-- <param name="video-canvas-bgcolor" value="#333333"/> -->
+      <!-- <param name="video-layout-bgcolor" value="#000000"/> -->
+      <!-- <param name="video-codec-bandwidth" value="2mb"/> -->
+      <!-- <param name="video-fps" value="15"/> -->
+
+    </profile>
+
+    <profile name="video-mcu-stereo">
+      <param name="domain" value="$${domain}"/>
+      <param name="rate" value="48000"/>
+      <param name="channels" value="2"/>
+      <param name="interval" value="20"/>
+      <param name="energy-level" value="100"/>
+      <!-- <param name="tts-engine" value="flite"/> -->
+      <!-- <param name="tts-voice" value="kal16"/> -->
+      <param name="muted-sound" value="conference/conf-muted.wav"/>
+      <param name="unmuted-sound" value="conference/conf-unmuted.wav"/>
+      <param name="alone-sound" value="conference/conf-alone.wav"/>
+      <param name="moh-sound" value="local_stream://stereo"/>
+      <param name="enter-sound" value="tone_stream://%(200,0,500,600,700)"/>
+      <param name="exit-sound" value="tone_stream://%(500,0,300,200,100,50,25)"/>
+      <param name="kicked-sound" value="conference/conf-kicked.wav"/>
+      <param name="locked-sound" value="conference/conf-locked.wav"/>
+      <param name="is-locked-sound" value="conference/conf-is-locked.wav"/>
+      <param name="is-unlocked-sound" value="conference/conf-is-unlocked.wav"/>
+      <param name="pin-sound" value="conference/conf-pin.wav"/>
+      <param name="bad-pin-sound" value="conference/conf-bad-pin.wav"/>
+      <param name="caller-id-name" value="$${outbound_caller_name}"/>
+      <param name="caller-id-number" value="$${outbound_caller_id}"/>
+      <param name="comfort-noise" value="false"/>
+      <param name="conference-flags" value="video-floor-only|rfc-4579|livearray-sync|minimize-video-encoding"/>
+      <param name="video-mode" value="mux"/>
+      <param name="video-layout-name" value="3x3"/>
+      <param name="video-layout-name" value="group:grid"/>
+      <param name="video-canvas-size" value="1920x1080"/>
+      <param name="video-canvas-bgcolor" value="#333333"/>
+      <param name="video-layout-bgcolor" value="#000000"/>
+      <param name="video-codec-bandwidth" value="1mb"/>
+      <param name="video-fps" value="15"/>
+    </profile>
+
+
+    <profile name="sla">
+      <param name="domain" value="$${domain}"/>
+      <param name="rate" value="16000"/>
+      <param name="interval" value="20"/>
+      <param name="caller-controls" value="none"/>
+      <param name="energy-level" value="200"/>
+      <param name="moh-sound" value="silence"/>
+      <param name="comfort-noise" value="true"/>
+    </profile>
+  </profiles>
+</configuration>
+

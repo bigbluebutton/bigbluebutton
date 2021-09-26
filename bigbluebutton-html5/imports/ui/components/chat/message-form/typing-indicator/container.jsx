@@ -40,7 +40,7 @@ export default withTracker(({ idChatOpen }) => {
     },
   });
 
-  if (meeting.lockSettingsProps.hideUserList && currentUser.role === USER_CONFIG.role_viewer) {
+  if (meeting.lockSettingsProps.hideUserList && currentUser?.role === USER_CONFIG.role_viewer) {
     selector.role = { $ne: USER_CONFIG.role_viewer };
   }
 

@@ -1,14 +1,14 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { injectIntl } from 'react-intl';
 import QuickPollDropdown from './component';
-import { NLayoutContext } from '../../layout/context/context';
+import { layoutDispatch } from '../../layout/context';
 import PollService from '/imports/ui/components/poll/service';
 
 const QuickPollDropdownContainer = (props) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextDispatch } = newLayoutContext;
-  return <QuickPollDropdown {...{ newLayoutContextDispatch, ...props }} />;
+  const layoutContextDispatch = layoutDispatch();
+
+  return <QuickPollDropdown {...{ layoutContextDispatch, ...props }} />;
 };
 
 export default withTracker(() => ({

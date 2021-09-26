@@ -1,13 +1,27 @@
 import React from 'react';
 import FullscreenButtonComponent from './component';
-import FullscreenService from './service';
+import { layoutSelect, layoutDispatch } from '../layout/context';
 
-const FullscreenButtonContainer = props => <FullscreenButtonComponent {...props} />;
+const FullscreenButtonContainer = (props) => <FullscreenButtonComponent {...props} />;
 
 export default (props) => {
-  const handleToggleFullScreen = ref => FullscreenService.toggleFullScreen(ref);
-  const isIphone = (navigator.userAgent.match(/iPhone/i)) ? true : false;
+  const isIphone = !!(navigator.userAgent.match(/iPhone/i));
+
+  const fullscreen = layoutSelect((i) => i.fullscreen);
+  const { element: currentElement, group: currentGroup } = fullscreen;
+  const isFullscreen = !!currentElement;
+  const layoutContextDispatch = layoutDispatch();
+
   return (
-    <FullscreenButtonContainer {...props} {...{ handleToggleFullScreen, isIphone }} />
+    <FullscreenButtonContainer
+      {...props}
+      {...{
+        isIphone,
+        isFullscreen,
+        currentElement,
+        currentGroup,
+        layoutContextDispatch,
+      }}
+    />
   );
 };

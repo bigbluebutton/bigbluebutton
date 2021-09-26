@@ -1056,33 +1056,21 @@ def processPresentation(package_dir)
   File.write("#{package_dir}/#{$cursor_xml_filename}", cursors_doc.to_xml)
 end
 
-def processChatMessages
+def processChatMessages(events, bbb_props)
   BigBlueButton.logger.info("Processing chat events")
   # Create slides.xml and chat.
-  $slides_doc = Nokogiri::XML::Builder.new do |xml|
-    $xml = xml
-    $xml.popcorn {
-      # Process chat events.
-      current_time = 0
-      $rec_events.each do |re|
-        $chat_events.each do |node|
-          if (node[:timestamp].to_i >= re[:start_timestamp] and node[:timestamp].to_i <= re[:stop_timestamp])
-            chat_timestamp =  node[:timestamp]
-            chat_sender = node.xpath(".//sender")[0].text()
-            chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
-            chat_start = ( translateTimestamp(chat_timestamp) / 1000).to_i
-            # Creates a list of the clear timestamps that matter for this message
-            next_clear_timestamps = $clear_chat_timestamps.select{ |e| e >= node[:timestamp] }
-            # If there is none we skip it, or else we add the out time that will remove a message
-            if next_clear_timestamps.empty?
-              $xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
-            else
-              chat_end = ( translateTimestamp( next_clear_timestamps.first ) / 1000).to_i
-              $xml.chattimeline(:in => chat_start, :out => chat_end, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
-            end
-          end
-        end
-        current_time += re[:stop_timestamp] - re[:start_timestamp]
+  Nokogiri::XML::Builder.new do |xml|
+    xml.popcorn {
+      BigBlueButton::Events.get_chat_events(events, $meeting_start.to_i, $meeting_end.to_i, bbb_props).each do |chat|
+        chattimeline = {
+          in: (chat[:in] / 1000.0).round(1),
+          direction: 'down',
+          name: chat[:sender],
+          message: chat[:message],
+          target: 'chat'
+        }
+        chattimeline[:out] = (chat[:out] / 1000.0).round(1) unless chat[:out].nil?
+        xml.chattimeline(**chattimeline)
       end
     }
   end
@@ -1198,6 +1186,38 @@ def processPollEvents(events, package_dir)
   if not published_polls.empty?
     File.open("#{package_dir}/polls.json", "w") do |f|
       f.puts(published_polls.to_json)
+    end
+  end
+end
+
+def processExternalVideoEvents(events, package_dir)
+  BigBlueButton.logger.info("Processing external video events")
+
+  # Retrieve external video events
+  external_video_events = BigBlueButton::Events.match_start_and_stop_external_video_events(
+    BigBlueButton::Events.get_start_and_stop_external_video_events(@doc))
+
+  external_videos = []
+  $rec_events.each do |re|
+    external_video_events.each do |event|
+      #BigBlueButton.logger.info("Processing rec event #{re} and external video event #{event}")
+      timestamp = (translateTimestamp(event[:start_timestamp]) / 1000).to_i
+      # do not add same external_video twice
+      if (external_videos.find {|ev| ev[:timestamp] == timestamp}.nil?)
+        if ((event[:start_timestamp] >= re[:start_timestamp] and event[:start_timestamp] <= re[:stop_timestamp]) ||
+           (event[:start_timestamp] < re[:start_timestamp] and event[:stop_timestamp] >= re[:start_timestamp]))
+          external_videos << {
+            :timestamp => timestamp,
+            :external_video_url => event[:external_video_url]
+          }
+        end
+      end
+    end
+  end
+
+  if not external_videos.empty?
+    File.open("#{package_dir}/external_videos.json", "w") do |f|
+      f.puts(external_videos.to_json)
     end
   end
 end
@@ -1382,18 +1402,11 @@ begin
         #Create slides.xml
         BigBlueButton.logger.info("Generating xml for slides and chat")
 
-        # Gathering all the events from the events.xml
-        $chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
-
-        # Create a list of timestamps when the moderator cleared the public chat
-        $clear_chat_timestamps = [ ]
-        clear_chat_events = @doc.xpath("//event[@eventname='ClearPublicChatEvent']")
-        clear_chat_events.each { |clear| $clear_chat_timestamps << clear[:timestamp] }
-        $clear_chat_timestamps.sort!
-
         calculateRecordEventsOffset()
 
-        processChatMessages()
+        # Write slides.xml to file
+        slides_doc = processChatMessages(@doc, bbb_props)
+        File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts slides_doc.to_xml }
 
         processPresentation(package_dir)
 
@@ -1401,8 +1414,7 @@ begin
 
         processPollEvents(@doc, package_dir)
 
-        # Write slides.xml to file
-        File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts $slides_doc.to_xml }
+        processExternalVideoEvents(@doc, package_dir)
 
         # Write deskshare.xml to file
         File.open("#{package_dir}/#{$deskshare_xml_filename}", 'w') { |f| f.puts $deskshare_xml.to_xml }

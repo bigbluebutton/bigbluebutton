@@ -74,8 +74,6 @@
     "app.userList.mobile": "Móvil",
     "app.userList.guest": "Invitado/a",
     "app.userList.menuTitleContext": "Opciones disponibles",
-    "app.userList.chatListItem.unreadSingular": "{0} Nuevo Mensaje",
-    "app.userList.chatListItem.unreadPlural": "{0} Nuevos mensajes",
     "app.userList.menu.chat.label": "Iniciar un chat privado",
     "app.userList.menu.clearStatus.label": "Limpiar estado",
     "app.userList.menu.removeUser.label": "Eliminar usuario",
@@ -484,8 +482,6 @@
     "app.audioModal.playAudio.arialabel" : "Reproducir audio",
     "app.audioDial.tipIndicator": "Tip",
     "app.audioDial.tipMessage": "Presione la tecla '0' en su teléfono para silenciarse/desilenciarse.",
-    "app.audioModal.connecting": "Conectando",
-    "app.audioModal.connectingEchoTest": "Conectando a la prueba de eco",
     "app.audioManager.joinedAudio": "Se ha unido a la audio conferencia",
     "app.audioManager.joinedEcho": "Se ha unido a la prueba de eco",
     "app.audioManager.leftAudio": "Ha abandonado la audio conferencia",
@@ -497,7 +493,6 @@
     "app.audioManager.mediaError": "Error: Hubo un problema al obtener sus dispositivos multimedia",
     "app.audio.joinAudio": "Unirse al audio",
     "app.audio.leaveAudio": "Abandonar audio",
-    "app.audio.changeLeaveAudio": "Cambiar/abandonar audio",
     "app.audio.enterSessionLabel": "Entrar en la sesión",
     "app.audio.playSoundLabel": "Reproducir sonido",
     "app.audio.backLabel": "Atrás",
@@ -670,7 +665,6 @@
     "app.videoPreview.profileNotFoundLabel": "Perfil de cámara no soportado",
     "app.video.joinVideo": "Compartir webcam",
     "app.video.connecting": "Ha empezado a compartir la cámara",
-    "app.video.dataSaving": "Se ha deshabilitado el compartir la cámara en salvar los datos",
     "app.video.leaveVideo": "Detener compartir webcam",
     "app.video.iceCandidateError": "Error añadiendo candidato ICE",
     "app.video.iceConnectionStateError": "Fallo de conexión (error ICE 1107)",
@@ -679,7 +673,7 @@
     "app.video.abortError": "Ha ocurrido un problema que impide el uso de su dispositivo",
     "app.video.overconstrainedError": "Ningún dispositivo disponible que cumpla con los criterios solicitados",
     "app.video.securityError": "El soporte de medios audiovisuales está deshabilitado en el documento",
-    "app.video.typeError": "La lista de restricciones especificadas está vacía o tiene todas las restricciones establecidas como \"falso\"",
+    "app.video.typeError": "La lista de restricciones especificadas está vacía o tiene todas las restricciones establecidas como 'falso'",
     "app.video.notFoundError": "No se encuentra la webcam. Por favor, asegúrese de que está conectada",
     "app.video.notAllowed": "Permisos perdidos para compartir la webcam. Por favor, revise los permisos del navegador",
     "app.video.notSupportedError": "Puede compartir video webcam solo con fuentes seguras, asegúrese de que su certificado SSL es válido",
@@ -797,8 +791,6 @@
     "app.externalVideo.urlError": "La URL de este video no está soportada",
     "app.externalVideo.close": "Cerrar",
     "app.externalVideo.autoPlayWarning": "Reproduzca el video para habilitar la sincronización de medios",
-    "app.network.connection.effective.slow": "Estamos notando problemas de conectividad.",
-    "app.network.connection.effective.slow.help": "Más información",
     "app.externalVideo.noteLabel": "Nota: Los vídeos externos compartidos no se mostrarán en las grabaciones. Están soportados Youtube, Vimeo, Instructure Media, Twitch, Dailymotion y enlaces tipo URL a archivos audiovisuales (p.ej. https://ejemplo.es/xy.mp4)",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Compartir un video externo",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Detener compartir video externo",
@@ -813,3 +805,4 @@
     "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(se deshabilitará si se arrastra o redimensiona el área de las cámaras)"
 
 }
+

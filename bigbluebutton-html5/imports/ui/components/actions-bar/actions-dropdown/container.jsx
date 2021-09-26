@@ -1,20 +1,19 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Presentations from '/imports/api/presentations';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
 import PresentationPodService from '/imports/ui/components/presentation-pod/service';
 import ActionsDropdown from './component';
-import { NLayoutContext } from '../../layout/context/context';
+import { layoutSelectInput, layoutDispatch } from '../../layout/context';
 
 const ActionsDropdownContainer = (props) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { input } = newLayoutContextState;
-  const { sidebarContent, sidebarNavigation } = input;
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
+  const layoutContextDispatch = layoutDispatch();
 
   return (
     <ActionsDropdown {...{
-      newLayoutContextDispatch,
+      layoutContextDispatch,
       sidebarContent,
       sidebarNavigation,
       ...props,

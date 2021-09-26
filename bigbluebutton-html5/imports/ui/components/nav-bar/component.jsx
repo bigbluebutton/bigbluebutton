@@ -70,39 +70,39 @@ class NavBar extends Component {
     const {
       sidebarNavigation,
       sidebarContent,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
     } = this.props;
 
     if (sidebarNavigation.isOpen) {
       if (sidebarContent.isOpen) {
-        newLayoutContextDispatch({
+        layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
           value: false,
         });
-        newLayoutContextDispatch({
+        layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
           value: PANELS.NONE,
         });
-        newLayoutContextDispatch({
+        layoutContextDispatch({
           type: ACTIONS.SET_ID_CHAT_OPEN,
           value: '',
         });
       }
 
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
         value: false,
       });
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
         value: PANELS.NONE,
       });
     } else {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
         value: true,
       });
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
         value: PANELS.USERLIST,
       });
@@ -164,6 +164,7 @@ class NavBar extends Component {
               hideLabel
               data-test={hasNotification ? 'hasUnreadMessages' : null}
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
+              tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
               aria-label={ariaLabel}
               icon="user"
               className={cx(toggleBtnClasses)}

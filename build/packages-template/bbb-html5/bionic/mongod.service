@@ -1,0 +1,38 @@
+#
+# Override file for mongod.service
+#
+[Unit]
+Description=High-performance, schema-free document-oriented database
+After=network.target
+Documentation=https://docs.mongodb.org/manual
+
+[Service]
+User=mongodb
+Group=mongodb
+PermissionsStartOnly=true
+ExecStartPre=/usr/share/meteor/bundle/mongod_start_pre.sh
+ExecStart=/usr/bin/mongod --config /usr/share/meteor/bundle/mongo-ramdisk.conf --oplogSize 8 --replSet rs0 --noauth
+PIDFile=/var/run/mongodb/mongod.pid
+
+# file size
+LimitFSIZE=infinity
+# cpu time
+LimitCPU=infinity
+# virtual memory size
+LimitAS=infinity
+# open files
+LimitNOFILE=64000
+# processes/threads
+LimitNPROC=64000
+# locked memory
+LimitMEMLOCK=infinity
+# total threads (user+kernel)
+TasksMax=infinity
+TasksAccounting=false
+
+# Recommended limits for for mongod as specified in
+# http://docs.mongodb.org/manual/reference/ulimit/#recommended-settings
+
+[Install]
+WantedBy=multi-user.target
+

@@ -47,7 +47,8 @@ class Note extends Component {
       isLocked,
       intl,
       isRTL,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
+      isResizing,
     } = this.props;
 
     const url = isLocked ? this.readOnlyURL : this.noteURL;
@@ -63,11 +64,11 @@ class Note extends Component {
           >
             <Button
               onClick={() => {
-                newLayoutContextDispatch({
+                layoutContextDispatch({
                   type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
                   value: false,
                 });
-                newLayoutContextDispatch({
+                layoutContextDispatch({
                   type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                   value: PANELS.NONE,
                 });
@@ -84,6 +85,9 @@ class Note extends Component {
           title="etherpad"
           src={url}
           aria-describedby="sharedNotesEscapeHint"
+          style={{
+            pointerEvents: isResizing ? 'none' : 'inherit',
+          }}
         />
         <span id="sharedNotesEscapeHint" className={styles.hint} aria-hidden>
           {intl.formatMessage(intlMessages.tipLabel)}

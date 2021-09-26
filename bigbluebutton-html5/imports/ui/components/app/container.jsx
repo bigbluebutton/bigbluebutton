@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -12,9 +12,14 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
-import { NLayoutContext } from '../layout/context/context';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
+import { 
+  layoutSelect, 
+  layoutSelectInput, 
+  layoutSelectOutput, 
+  layoutDispatch 
+} from '../layout/context';
 
 import {
   getFontSize,
@@ -26,17 +31,16 @@ import { withModalMounter } from '../modal/service';
 
 import App from './component';
 import ActionsBarContainer from '../actions-bar/container';
-import MediaContainer from '../media/container';
+
+const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
 
 const propTypes = {
   actionsbar: PropTypes.node,
-  media: PropTypes.node,
-  meetingLayout: PropTypes.string.isRequired
+  meetingLayout: PropTypes.string.isRequired,
 };
 
 const defaultProps = {
   actionsbar: <ActionsBarContainer />,
-  media: <MediaContainer />,
 };
 
 const intlMessages = defineMessages({
@@ -52,48 +56,56 @@ const endMeeting = (code) => {
 };
 
 const AppContainer = (props) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-
   const {
     actionsbar,
-    media,
-    meetingLayoutManager,
     meetingLayout,
+    settingsLayout,
+    pushLayoutToEveryone,
+    currentUserId,
+    shouldShowPresentation: propsShouldShowPresentation,
+    presentationRestoreOnUpdate,
     ...otherProps
   } = props;
-  const {
-    input,
-    output,
-    layoutType,
-    deviceType,
-  } = newLayoutContextState;
-  const { sidebarContent, sidebarNavigation } = input;
-  const { actionBar: actionsBarStyle } = output;
-  const { sidebarNavPanel } = sidebarNavigation;
-  const { sidebarContentPanel } = sidebarContent;
-  const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
-  const sidebarContentIsOpen = sidebarContent.isOpen;
 
-  return (
-    <App
-      {...{
-        actionsbar,
-        actionsBarStyle,
-        media,
-        layoutType,
-        meetingLayoutManager,
-        meetingLayout,
-        deviceType,
-        newLayoutContextDispatch,
-        sidebarNavPanel,
-        sidebarNavigationIsOpen,
-        sidebarContentPanel,
-        sidebarContentIsOpen,
-      }}
-      {...otherProps}
-    />
-  );
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
+  const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
+  const captionsStyle = layoutSelectOutput((i) => i.captions);
+  const presentation = layoutSelectInput((i) => i.presentation);
+  const layoutType = layoutSelect((i) => i.layoutType);
+  const deviceType = layoutSelect((i) => i.deviceType);
+  const layoutContextDispatch = layoutDispatch();
+
+  const { sidebarContentPanel, isOpen: sidebarContentIsOpen } = sidebarContent;
+  const { sidebarNavPanel, isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
+  const { isOpen: presentationIsOpen } = presentation;
+  const shouldShowPresentation = propsShouldShowPresentation
+    && (presentationIsOpen || presentationRestoreOnUpdate);
+
+  return currentUserId
+    ? (
+      <App
+        {...{
+          actionsbar,
+          actionsBarStyle,
+          captionsStyle,
+          currentUserId,
+          layoutType,
+          meetingLayout,
+          settingsLayout,
+          pushLayoutToEveryone,
+          deviceType,
+          layoutContextDispatch,
+          sidebarNavPanel,
+          sidebarNavigationIsOpen,
+          sidebarContentPanel,
+          sidebarContentIsOpen,
+          shouldShowPresentation,
+        }}
+        {...otherProps}
+      />
+    )
+    : null;
 };
 
 const currentUserEmoji = (currentUser) => (currentUser
@@ -130,10 +142,22 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   );
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1, layoutManager: 1, layout: 1 } });
-  const { publishedPoll, voiceProp, randomlySelectedUser, layoutManager, layout } = currentMeeting;
+    {
+      fields: {
+        publishedPoll: 1,
+        voiceProp: 1,
+        randomlySelectedUser: 1,
+        layout: 1,
+      },
+    });
+  const {
+    publishedPoll,
+    voiceProp,
+    randomlySelectedUser,
+    layout,
+  } = currentMeeting;
 
-  if (!currentUser.approved) {
+  if (currentUser && !currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
   }
 
@@ -142,19 +166,23 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     requesterUserId: Auth.userID,
   }).fetch();
 
-  const layoutManagerLoaded = Session.get('layoutManagerLoaded');
   const AppSettings = Settings.application;
   const { viewScreenshare } = Settings.dataSaving;
+  const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
     && (viewScreenshare || MediaService.isUserPresenter());
-  const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
+  let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
+
+  if (!customStyleUrl && CUSTOM_STYLE_URL) {
+    customStyleUrl = CUSTOM_STYLE_URL;
+  }
 
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
     customStyle: getFromUserSettings('bbb_custom_style', false),
-    customStyleUrl: getFromUserSettings('bbb_custom_style_url', false),
+    customStyleUrl,
     UserInfo,
     notify,
     validIOSVersion,
@@ -163,18 +191,22 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     meetingMuted: voiceProp.muteOnStart,
     currentUserEmoji: currentUserEmoji(currentUser),
     hasPublishedPoll: publishedPoll,
-    layoutManagerLoaded,
     randomlySelectedUser,
-    currentUserId: currentUser.userId,
-    isPresenter: currentUser.presenter,
-    meetingLayoutManager: layoutManager,
+    currentUserId: currentUser?.userId,
+    isPresenter: currentUser?.presenter,
     meetingLayout: layout,
+    settingsLayout: AppSettings.selectedLayout,
+    pushLayoutToEveryone: AppSettings.pushLayoutToEveryone,
     audioAlertEnabled: AppSettings.chatAudioAlerts,
     pushAlertEnabled: AppSettings.chatPushAlerts,
     shouldShowScreenshare,
     shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo,
     shouldShowExternalVideo,
-    isLargeFont: Session.get('isLargeFont')
+    isLargeFont: Session.get('isLargeFont'),
+    presentationRestoreOnUpdate: getFromUserSettings(
+      'bbb_force_restore_presentation_on_new_events',
+      Meteor.settings.public.presentation.restoreOnUpdate,
+    ),
   };
 })(AppContainer)));
 

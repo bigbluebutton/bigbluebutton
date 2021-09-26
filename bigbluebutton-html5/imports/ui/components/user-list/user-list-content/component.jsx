@@ -44,12 +44,17 @@ class UserContent extends PureComponent {
       forcePollOpen,
       hasBreakoutRoom,
       pendingUsers,
+      isWaitingRoomEnabled,
+      isGuestLobbyMessageEnabled,
       requestUserInformation,
       currentClosedChats,
       sidebarContentPanel,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
       startedChats,
     } = this.props;
+
+    const showWaitingRoom = (isGuestLobbyMessageEnabled && isWaitingRoomEnabled)
+      || pendingUsers.length > 0;
 
     return (
       <div
@@ -82,14 +87,14 @@ class UserContent extends PureComponent {
             intl,
           }}
         />
-        {pendingUsers.length > 0 && currentUser.role === ROLE_MODERATOR
+        {showWaitingRoom && currentUser.role === ROLE_MODERATOR
           ? (
             <WaitingUsers
               {...{
                 intl,
                 pendingUsers,
                 sidebarContentPanel,
-                newLayoutContextDispatch,
+                layoutContextDispatch,
               }}
             />
           ) : null}
@@ -99,7 +104,7 @@ class UserContent extends PureComponent {
             pollIsOpen,
             forcePollOpen,
             sidebarContentPanel,
-            newLayoutContextDispatch,
+            layoutContextDispatch,
           }}
         />
         <BreakoutRoomItem
@@ -107,7 +112,7 @@ class UserContent extends PureComponent {
           {...{
             hasBreakoutRoom,
             sidebarContentPanel,
-            newLayoutContextDispatch,
+            layoutContextDispatch,
           }}
         />
         <UserParticipantsContainer

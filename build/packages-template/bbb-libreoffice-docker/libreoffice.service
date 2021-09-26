@@ -1,0 +1,16 @@
+[Unit]
+Description=LibreOffice
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/lib/libreoffice/program/soffice.bin --headless \
+    --nologo --nofirststartwizard '--accept=socket,host=127.0.0.1,port=8100;urp' --pidfile=/var/run/soffice.pid
+Restart=always
+
+MemoryLimit=1G
+CPUQuota=20%
+
+[Install]
+WantedBy=multi-user.target
+

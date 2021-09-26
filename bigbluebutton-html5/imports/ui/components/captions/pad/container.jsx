@@ -1,27 +1,28 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import CaptionsService from '/imports/ui/components/captions/service';
 import Pad from './component';
 import Auth from '/imports/ui/services/auth';
-import { NLayoutContext } from '../../layout/context/context';
+import { layoutSelectInput, layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 
-
 const PadContainer = (props) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextDispatch } = newLayoutContext;
+  const cameraDock = layoutSelectInput((i) => i.cameraDock);
+  const { isResizing } = cameraDock;
+  const layoutContextDispatch = layoutDispatch();
+
   const {
     amIModerator,
     children,
   } = props;
 
   if (!amIModerator) {
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
       value: false,
     });
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
       value: PANELS.NONE,
     });
@@ -29,7 +30,7 @@ const PadContainer = (props) => {
   }
 
   return (
-    <Pad {...{ newLayoutContextDispatch, ...props }}>
+    <Pad {...{ layoutContextDispatch, isResizing, ...props }}>
       {children}
     </Pad>
   );

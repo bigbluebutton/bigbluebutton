@@ -58,7 +58,7 @@ const ChatAlert = (props) => {
     unreadMessagesCountByChat,
     unreadMessagesByChat,
     intl,
-    newLayoutContextDispatch,
+    layoutContextDispatch,
   } = props;
 
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
@@ -76,7 +76,7 @@ const ChatAlert = (props) => {
         : unreadObject.filter((chat) => chat.chatId !== idChatOpen)
           .reduce((a, b) => a + b.unreadCounter, 0);
 
-      if (audioAlertEnabled && unreadCount > unreadMessagesCount) {
+      if (unreadCount > unreadMessagesCount) {
         AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
           + Meteor.settings.public.app.basename
           + Meteor.settings.public.app.instanceId}`
@@ -189,7 +189,7 @@ const ChatAlert = (props) => {
               () => setUnreadMessages(newUnreadMessages)
             }
             alertDuration={timeWindow.durationDiff}
-            newLayoutContextDispatch={newLayoutContextDispatch}
+            layoutContextDispatch={layoutContextDispatch}
           />
         ) : null;
     })

@@ -4,7 +4,6 @@ import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
-import { PANELS } from '../../layout/enums';
 
 const intlMessages = defineMessages({
   wasTalking: {

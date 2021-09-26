@@ -2,13 +2,16 @@
 
 # Please check bigbluebutton/bigbluebutton-html5/dev_local_deployment/README.md
 
-echo " start "
-pwd
 UPPER_DESTINATION_DIR=/usr/share/meteor
 DESTINATION_DIR=$UPPER_DESTINATION_DIR/bundle
 
 SERVICE_FILES_DIR=/usr/lib/systemd/system
 LOCAL_PACKAGING_DIR=/home/bigbluebutton/dev/bigbluebutton/bigbluebutton-html5/dev_local_deployment
+
+if [ ! -d "$LOCAL_PACKAGING_DIR" ]; then
+  echo "Did not find LOCAL_PACKAGING_DIR=$LOCAL_PACKAGING_DIR"
+  exit
+fi
 
 sudo rm -rf "$UPPER_DESTINATION_DIR"
 sudo mkdir -p "$UPPER_DESTINATION_DIR"

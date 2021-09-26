@@ -1,0 +1,61 @@
+# https://github.com/ether/etherpad-lite/wiki/How-to-put-Etherpad-Lite-behind-a-reverse-Proxy
+location /pad/p/ {
+    rewrite /pad/p/(.*) /p/$1 break;
+    rewrite ^/pad/p$ /pad/p/ permanent;
+    proxy_pass http://127.0.0.1:9001/p;
+    proxy_pass_header Server;
+    proxy_redirect /p /pad/p;
+    proxy_set_header Host $host;
+    proxy_buffering off;
+
+    proxy_set_header X-Real-IP $remote_addr;  # http://wiki.nginx.org/HttpProxyModule
+    proxy_set_header X-Forwarded-For $remote_addr; # EP logs to show the actual remote IP
+    proxy_set_header X-Forwarded-Proto $scheme; # for EP to set secure cookie flag when https is used
+    proxy_http_version 1.1;
+
+    auth_request /bigbluebutton/connection/validatePad;
+    auth_request_set $auth_status $upstream_status;
+}
+
+location /pad {
+    rewrite /pad/(.*) /$1 break;
+    rewrite ^/pad$ /pad/ permanent;
+    proxy_pass http://127.0.0.1:9001/;
+    proxy_pass_header Server;
+    proxy_redirect / /pad/;
+    proxy_set_header Host $host;
+    proxy_buffering off;
+}
+
+location /pad/socket.io/socket.io.js {
+    rewrite /pad/socket.io/socket.io.js /socket.io/socket.io.js break;
+    proxy_pass http://127.0.0.1:9001/;
+    proxy_set_header Host $host;
+    proxy_buffering off;
+}
+
+location /pad/socket.io {
+    rewrite /pad/socket.io/(.*) /socket.io/$1 break;
+    proxy_pass http://127.0.0.1:9001/;
+    proxy_redirect / /pad/;
+    proxy_set_header Host $host;
+    proxy_buffering off;
+    proxy_set_header X-Real-IP $remote_addr;  # http://wiki.nginx.org/HttpProxyModule
+    proxy_set_header X-Forwarded-For $remote_addr; # EP logs to show the actual remote IP
+    proxy_set_header X-Forwarded-Proto $scheme; # for EP to set secure cookie flag when https is used
+    proxy_set_header Host $host;  # pass the host header
+    proxy_http_version 1.1;  # recommended with keepalive connections
+    # WebSocket proxying - from http://nginx.org/en/docs/http/websocket.html
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "Upgrade";
+
+    auth_request /bigbluebutton/connection/checkAuthorization;
+    auth_request_set $auth_status $upstream_status;
+}
+
+location /static {
+    rewrite /static/(.*) /static/$1 break;
+    proxy_pass http://127.0.0.1:9001/;
+    proxy_set_header Host $host;
+    proxy_buffering off;
+}

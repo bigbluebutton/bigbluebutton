@@ -339,7 +339,8 @@ class MeetingActor(
         state = state.update(tracker)
       }
     } else {
-      if (state.expiryTracker.moderatorHasJoined == true) {
+      if (state.expiryTracker.moderatorHasJoined == true &&
+        state.expiryTracker.lastModeratorLeftOnInMs == 0) {
         log.info("All moderators have left. Setting setLastModeratorLeftOn(). meetingId=" + props.meetingProp.intId)
         val tracker = state.expiryTracker.setLastModeratorLeftOn(TimeUtil.timeNowInMs())
         state = state.update(tracker)
@@ -872,6 +873,7 @@ class MeetingActor(
         outGW.send(userLeftMeetingEvent)
 
         if (u.presenter) {
+          log.info("removeUsersWithExpiredUserLeftFlag will cause an automaticallyAssignPresenter because user={} left", u)
           UsersApp.automaticallyAssignPresenter(outGW, liveMeeting)
 
           // request screenshare to end

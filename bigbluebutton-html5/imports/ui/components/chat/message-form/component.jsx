@@ -262,7 +262,6 @@ class MessageForm extends PureComponent {
       title,
       disabled,
       className,
-      chatAreaId,
       idChatOpen,
       partnerIsLoggedOut,
     } = this.props;

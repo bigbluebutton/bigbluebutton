@@ -21,6 +21,6 @@ export default function changePresenter(presenter, userId, meetingId, changedBy)
         + `${changedBy ? ` changedBy=${changedBy}` : ''}`);
     }
   } catch (err) {
-    Logger.error(`Changed user role: ${err}`);
+    Logger.error(`Change presenter error: ${err}`);
   }
 }

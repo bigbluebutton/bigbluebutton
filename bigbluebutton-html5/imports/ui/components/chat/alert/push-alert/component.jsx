@@ -10,7 +10,7 @@ const propTypes = {
   title: PropTypes.node.isRequired,
   content: PropTypes.node.isRequired,
   alertDuration: PropTypes.number.isRequired,
-  newLayoutContextDispatch: PropTypes.func.isRequired,
+  layoutContextDispatch: PropTypes.func.isRequired,
 };
 
 class ChatPushAlert extends PureComponent {
@@ -24,7 +24,7 @@ class ChatPushAlert extends PureComponent {
   }
 
   link(title, chatId) {
-    const { newLayoutContextDispatch } = this.props;
+    const { layoutContextDispatch } = this.props;
 
     return (
       <div
@@ -33,15 +33,15 @@ class ChatPushAlert extends PureComponent {
         aria-label={title}
         tabIndex={0}
         onClick={() => {
-          newLayoutContextDispatch({
+          layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: true,
           });
-          newLayoutContextDispatch({
+          layoutContextDispatch({
             type: ACTIONS.SET_ID_CHAT_OPEN,
             value: chatId,
           });
-          newLayoutContextDispatch({
+          layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
             value: PANELS.CHAT,
           });

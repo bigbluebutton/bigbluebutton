@@ -2,7 +2,6 @@ import Breakouts from '/imports/api/breakouts';
 import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
-import { Session } from 'meteor/session';
 import Users from '/imports/api/users';
 import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
@@ -24,7 +23,7 @@ const findBreakouts = () => {
 const breakoutRoomUser = (breakoutId) => {
   const breakoutRooms = findBreakouts();
   const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
-  const breakoutUser = breakoutRoom.users.filter(user => user.userId === Auth.userID).shift();
+  const breakoutUser = breakoutRoom.users?.filter(user => user.userId === Auth.userID).shift();
   return breakoutUser;
 };
 
