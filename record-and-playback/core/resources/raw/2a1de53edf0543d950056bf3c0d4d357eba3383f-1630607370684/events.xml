@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<recording meeting_id="2a1de53edf0543d950056bf3c0d4d357eba3383f-1630607370684" bbb_version="2.1.0">
+  <meeting id="2a1de53edf0543d950056bf3c0d4d357eba3383f-1630607370684" externalId="random-9678161_calvin_" name="random-9678161" breakout="false"/>
+  <metadata bbb-anonymize-chat="true" isBreakout="false" meetingId="random-9678161_calvin_" meetingName="random-9678161"/>
+  <event timestamp="1131799575" module="PRESENTATION" eventname="CreatePresentationPodEvent">
+    <currentPresenter/>
+    <timestampUTC>1630607370704</timestampUTC>
+    <podId>DEFAULT_PRESENTATION_POD</podId>
+    <date>2021-09-02T14:29:30.704-04</date>
+  </event>
+  <event timestamp="1131799900" module="PAD" eventname="AddPadEvent">
+    <timestampUTC>1630607371029</timestampUTC>
+    <date>2021-09-02T14:29:31.029-04</date>
+    <padId>[2]cfe107fd5780210103d9d4017f8c751d5594</padId>
+  </event>
+  <event timestamp="1131803050" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <name>User 7520456</name>
+    <timestampUTC>1630607374179</timestampUTC>
+    <role>MODERATOR</role>
+    <date>2021-09-02T14:29:34.179-04</date>
+    <externalUserId>w_jw2fcjeovwa6</externalUserId>
+    <userId>w_jw2fcjeovwa6</userId>
+  </event>
+  <event timestamp="1131803051" module="PARTICIPANT" eventname="AssignPresenterEvent">
+    <name>User 7520456</name>
+    <timestampUTC>1630607374180</timestampUTC>
+    <userid>w_jw2fcjeovwa6</userid>
+    <assignedBy>w_jw2fcjeovwa6</assignedBy>
+    <date>2021-09-02T14:29:34.180-04</date>
+  </event>
+  <event timestamp="1131803066" module="PARTICIPANT" eventname="AssignPresenterEvent">
+    <name>User 7520456</name>
+    <timestampUTC>1630607374195</timestampUTC>
+    <userid>w_jw2fcjeovwa6</userid>
+    <assignedBy>w_jw2fcjeovwa6</assignedBy>
+    <date>2021-09-02T14:29:34.195-04</date>
+  </event>
+  <event timestamp="1131803067" module="PRESENTATION" eventname="SetPresenterInPodEvent">
+    <timestampUTC>1630607374196</timestampUTC>
+    <podId>DEFAULT_PRESENTATION_POD</podId>
+    <date>2021-09-02T14:29:34.196-04</date>
+    <nextPresenterId>w_jw2fcjeovwa6</nextPresenterId>
+  </event>
+  <event timestamp="1131803071" module="PARTICIPANT" eventname="AssignPresenterEvent">
+    <name>User 7520456</name>
+    <timestampUTC>1630607374200</timestampUTC>
+    <userid>w_jw2fcjeovwa6</userid>
+    <assignedBy>w_jw2fcjeovwa6</assignedBy>
+    <date>2021-09-02T14:29:34.200-04</date>
+  </event>
+  <event timestamp="1131803072" module="PRESENTATION" eventname="SetPresenterInPodEvent">
+    <timestampUTC>1630607374201</timestampUTC>
+    <podId>DEFAULT_PRESENTATION_POD</podId>
+    <date>2021-09-02T14:29:34.201-04</date>
+    <nextPresenterId>w_jw2fcjeovwa6</nextPresenterId>
+  </event>
+  <event timestamp="1131805474" module="PRESENTATION" eventname="ConversionCompletedEvent">
+    <originalFilename>default.pdf</originalFilename>
+    <timestampUTC>1630607376603</timestampUTC>
+    <presentationName>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentationName>
+    <podId>DEFAULT_PRESENTATION_POD</podId>
+    <date>2021-09-02T14:29:36.603-04</date>
+  </event>
+  <event timestamp="1131805477" module="PRESENTATION" eventname="SharePresentationEvent">
+    <timestampUTC>1630607376606</timestampUTC>
+    <presentationName>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentationName>
+    <podId>DEFAULT_PRESENTATION_POD</podId>
+    <share>true</share>
+    <date>2021-09-02T14:29:36.606-04</date>
+  </event>
+  <event timestamp="1131805479" module="PRESENTATION" eventname="SetPresentationDownloadable">
+    <timestampUTC>1630607376608</timestampUTC>
+    <presentationName>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentationName>
+    <podId>DEFAULT_PRESENTATION_POD</podId>
+    <date>2021-09-02T14:29:36.608-04</date>
+    <downloadable>false</downloadable>
+  </event>
+  <event timestamp="1131824162" module="VOICE" eventname="ParticipantJoinedEvent">
+    <participant>w_jw2fcjeovwa6</participant>
+    <timestampUTC>1630607395291</timestampUTC>
+    <bridge>578447737</bridge>
+    <callername>User 7520456</callername>
+    <talking>false</talking>
+    <callernumber>w_jw2fcjeovwa6_1-bbbID-User 7520456</callernumber>
+    <date>2021-09-02T14:29:55.291-04</date>
+    <muted>false</muted>
+  </event>
+  <event timestamp="1131824186" module="VOICE" eventname="StartRecordingEvent">
+    <filename>/var/freeswitch/meetings/2a1de53edf0543d950056bf3c0d4d357eba3383f-1630607370684-1131824162.opus</filename>
+    <bridge>578447737</bridge>
+    <timestampUTC>1630607395314</timestampUTC>
+    <date>2021-09-02T14:29:55.314-04</date>
+    <recordingTimestamp>1131824184</recordingTimestamp>
+  </event>
+  <event timestamp="1131824226" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>w_jw2fcjeovwa6</participant>
+    <timestampUTC>1630607395355</timestampUTC>
+    <bridge>578447737</bridge>
+    <talking>true</talking>
+    <date>2021-09-02T14:29:55.355-04</date>
+  </event>
+  <event timestamp="1131825122" module="VOICE" eventname="ParticipantMutedEvent">
+    <participant>w_jw2fcjeovwa6</participant>
+    <timestampUTC>1630607396250</timestampUTC>
+    <bridge>578447737</bridge>
+    <date>2021-09-02T14:29:56.250-04</date>
+    <muted>true</muted>
+  </event>
+  <event timestamp="1131825327" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607396456</timestampUTC>
+    <xOffset>42.81167030334473</xOffset>
+    <date>2021-09-02T14:29:56.456-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>87.12742558232061</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131825473" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607396602</timestampUTC>
+    <xOffset>-62.891248067220054</xOffset>
+    <date>2021-09-02T14:29:56.602-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>-60.94213415075232</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131834887" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607406015</timestampUTC>
+    <xOffset>34.58885828653971</xOffset>
+    <date>2021-09-02T14:30:06.015-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>75.1026690447772</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131835039" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607406168</timestampUTC>
+    <xOffset>-62.891248067220054</xOffset>
+    <date>2021-09-02T14:30:06.168-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>-60.94213415075232</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131839891" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607411020</timestampUTC>
+    <xOffset>40.557028452555336</xOffset>
+    <date>2021-09-02T14:30:11.020-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>0.8321106875384296</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131840041" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607411169</timestampUTC>
+    <xOffset>-62.891248067220054</xOffset>
+    <date>2021-09-02T14:30:11.169-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>-60.94213415075232</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131841537" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607412665</timestampUTC>
+    <xOffset>50.63660303751628</xOffset>
+    <date>2021-09-02T14:30:12.665-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>9.084394949453849</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131841691" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607412819</timestampUTC>
+    <xOffset>-62.891248067220054</xOffset>
+    <date>2021-09-02T14:30:12.819-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>-60.94213415075232</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131841840" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607412969</timestampUTC>
+    <xOffset>36.57824834187826</xOffset>
+    <date>2021-09-02T14:30:12.969-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>33.60546818485967</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131842003" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607413131</timestampUTC>
+    <xOffset>-62.891248067220054</xOffset>
+    <date>2021-09-02T14:30:13.131-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>-60.94213415075232</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131882243" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <name>(guest) Calvin</name>
+    <timestampUTC>1630607453372</timestampUTC>
+    <role>VIEWER</role>
+    <date>2021-09-02T14:30:53.372-04</date>
+    <externalUserId>3ff859e3-1c2e-48e9-860d-cf230648cfca</externalUserId>
+    <userId>w_tvumguamxhhs</userId>
+  </event>
+  <event timestamp="1131885821" module="VOICE" eventname="ParticipantJoinedEvent">
+    <participant>w_tvumguamxhhs</participant>
+    <timestampUTC>1630607456950</timestampUTC>
+    <bridge>578447737</bridge>
+    <callername>(guest) Calvin</callername>
+    <talking>false</talking>
+    <callernumber>(guest) Calvin</callernumber>
+    <date>2021-09-02T14:30:56.950-04</date>
+    <muted>true</muted>
+  </event>
+  <event timestamp="1131895190" module="CHAT" eventname="PublicChatEvent">
+    <timestampUTC>1630607466319</timestampUTC>
+    <color>#6a1b9a</color>
+    <senderId>w_jw2fcjeovwa6</senderId>
+    <date>2021-09-02T14:31:06.319-04</date>
+    <sender>User 7520456</sender>
+    <message>Hello, moderator chat message!</message>
+  </event>
+  <event timestamp="1131905701" module="CHAT" eventname="PublicChatEvent">
+    <timestampUTC>1630607476829</timestampUTC>
+    <color>#4a148c</color>
+    <senderId>w_tvumguamxhhs</senderId>
+    <date>2021-09-02T14:31:16.829-04</date>
+    <sender>(guest) Calvin</sender>
+    <message>Hello, guest chat message!</message>
+  </event>
+  <event timestamp="1131908051" module="CHAT" eventname="PublicChatEvent">
+    <timestampUTC>1630607479180</timestampUTC>
+    <color>#4a148c</color>
+    <senderId>w_tvumguamxhhs</senderId>
+    <date>2021-09-02T14:31:19.180-04</date>
+    <sender>(guest) Calvin</sender>
+    <message>yay!</message>
+  </event>
+  <event timestamp="1131949647" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607520776</timestampUTC>
+    <xOffset>10.185674826304119</xOffset>
+    <date>2021-09-02T14:32:00.776-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>96.79438838252314</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131949798" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607520927</timestampUTC>
+    <xOffset>14.297080039978027</xOffset>
+    <date>2021-09-02T14:32:00.927-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>90.1925602665654</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131949893" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607521022</timestampUTC>
+    <xOffset>14.297080039978027</xOffset>
+    <date>2021-09-02T14:32:01.022-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>89.95677806712963</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131950258" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607521387</timestampUTC>
+    <xOffset>14.297080039978027</xOffset>
+    <date>2021-09-02T14:32:01.387-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>90.1925602665654</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131950408" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607521537</timestampUTC>
+    <xOffset>-62.891248067220054</xOffset>
+    <date>2021-09-02T14:32:01.537-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>-60.94213415075232</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131955635" module="CHAT" eventname="ClearPublicChatEvent">
+    <timestampUTC>1630607526763</timestampUTC>
+    <date>2021-09-02T14:32:06.763-04</date>
+  </event>
+  <event timestamp="1131964123" module="CHAT" eventname="PublicChatEvent">
+    <timestampUTC>1630607535252</timestampUTC>
+    <color>#6a1b9a</color>
+    <senderId>w_jw2fcjeovwa6</senderId>
+    <date>2021-09-02T14:32:15.252-04</date>
+    <sender>User 7520456</sender>
+    <message>Chat was cleared</message>
+  </event>
+  <event timestamp="1131994645" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607565774</timestampUTC>
+    <xOffset>43.34217389424642</xOffset>
+    <date>2021-09-02T14:32:45.774-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>96.55861183449073</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131994767" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607565896</timestampUTC>
+    <xOffset>-62.891248067220054</xOffset>
+    <date>2021-09-02T14:32:45.896-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>-60.94213415075232</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131997197" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607568326</timestampUTC>
+    <xOffset>32.20158894856771</xOffset>
+    <date>2021-09-02T14:32:48.326-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>96.55861183449073</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131997346" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607568475</timestampUTC>
+    <xOffset>-62.891248067220054</xOffset>
+    <date>2021-09-02T14:32:48.475-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>-60.94213415075232</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1131999450" module="PARTICIPANT" eventname="RecordStatusEvent">
+    <timestampUTC>1630607570579</timestampUTC>
+    <date>2021-09-02T14:32:50.579-04</date>
+    <status>true</status>
+    <userId>w_jw2fcjeovwa6</userId>
+  </event>
+  <event timestamp="1131999466" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607570595</timestampUTC>
+    <xOffset>13.501324653625488</xOffset>
+    <date>2021-09-02T14:32:50.595-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>59.77699562355324</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1132001481" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607572610</timestampUTC>
+    <xOffset>13.103446960449219</xOffset>
+    <date>2021-09-02T14:32:52.610-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>59.77699562355324</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1132001799" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607572927</timestampUTC>
+    <xOffset>-62.891248067220054</xOffset>
+    <date>2021-09-02T14:32:52.927-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>-60.94213415075232</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1132011085" module="CHAT" eventname="PublicChatEvent">
+    <timestampUTC>1630607582214</timestampUTC>
+    <color>#4a148c</color>
+    <senderId>w_tvumguamxhhs</senderId>
+    <date>2021-09-02T14:33:02.214-04</date>
+    <sender>(guest) Calvin</sender>
+    <message>whoops, forgot to start recording…</message>
+  </event>
+  <event timestamp="1132049253" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607620382</timestampUTC>
+    <xOffset>36.180369059244796</xOffset>
+    <date>2021-09-02T14:33:40.382-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>97.9732824254919</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1132049403" module="WHITEBOARD" eventname="WhiteboardCursorMoveEvent">
+    <timestampUTC>1630607620531</timestampUTC>
+    <xOffset>-62.891248067220054</xOffset>
+    <date>2021-09-02T14:33:40.531-04</date>
+    <whiteboardId>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702/1</whiteboardId>
+    <pageNumber>0</pageNumber>
+    <userId>w_jw2fcjeovwa6</userId>
+    <yOffset>-60.94213415075232</yOffset>
+    <presentation>d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1630607370702</presentation>
+  </event>
+  <event timestamp="1132053637" module="PARTICIPANT" eventname="EndAndKickAllEvent">
+    <timestampUTC>1630607624766</timestampUTC>
+    <reason>ENDED_AFTER_USER_LOGGED_OUT</reason>
+    <date>2021-09-02T14:33:44.766-04</date>
+  </event>
+</recording>

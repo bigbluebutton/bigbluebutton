@@ -85,6 +85,8 @@ const propTypes = {
     chatAudioAlerts: PropTypes.bool,
     chatPushAlerts: PropTypes.bool,
     userJoinAudioAlerts: PropTypes.bool,
+    userLeaveAudioAlerts: PropTypes.bool,
+    userLeavePushAlerts: PropTypes.bool,
     guestWaitingAudioAlerts: PropTypes.bool,
     guestWaitingPushAlerts: PropTypes.bool,
     paginationEnabled: PropTypes.bool,
@@ -166,7 +168,8 @@ class Settings extends Component {
       isModerator,
       showGuestNotification,
       showToggleLabel,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
+      selectedLayout,
     } = this.props;
 
     const {
@@ -215,7 +218,9 @@ class Settings extends Component {
             settings={current.application}
             showToggleLabel={showToggleLabel}
             displaySettingsStatus={this.displaySettingsStatus}
-            newLayoutContextDispatch={newLayoutContextDispatch}
+            layoutContextDispatch={layoutContextDispatch}
+            selectedLayout={selectedLayout}
+            isModerator={isModerator}
           />
         </TabPanel>
         <TabPanel className={styles.tabPanel}>

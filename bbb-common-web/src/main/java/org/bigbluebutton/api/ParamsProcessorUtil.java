@@ -77,14 +77,19 @@ public class ParamsProcessorUtil {
     private String defaultAvatarURL;
     private String defaultGuestPolicy;
     private Boolean authenticatedGuest;
+    private String defaultMeetingLayout;
     private int defaultMeetingDuration;
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
+    private boolean learningDashboardEnabled;
+    private int learningDashboardCleanupDelayInMinutes;
     private boolean webcamsOnlyForModerator;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultKeepEvents = false;
+    private Boolean useDefaultLogo;
+    private String defaultLogoURL;
 
 		private boolean defaultBreakoutRoomsEnabled;
 		private boolean defaultBreakoutRoomsRecord;
@@ -414,6 +419,36 @@ public class ParamsProcessorUtil {
             }
         }
 
+        boolean learningDashboardEn = learningDashboardEnabled;
+        if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED))) {
+            try {
+                learningDashboardEn = Boolean.parseBoolean(params
+                        .get(ApiParams.LEARNING_DASHBOARD_ENABLED));
+            } catch (Exception ex) {
+                log.warn(
+                        "Invalid param [learningDashboardEnabled] for meeting=[{}]",
+                        internalMeetingId);
+            }
+        }
+
+        int learningDashboardCleanupMins = learningDashboardCleanupDelayInMinutes;
+        if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES))) {
+            try {
+                learningDashboardCleanupMins = Integer.parseInt(params
+                        .get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES));
+            } catch (Exception ex) {
+                log.warn(
+                        "Invalid param [learningDashboardCleanupDelayInMinutes] for meeting=[{}]",
+                        internalMeetingId);
+            }
+        }
+
+        //Generate token to access Activity Report
+        String learningDashboardAccessToken = "";
+        if(learningDashboardEn == true) {
+            learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
+        }
+
         boolean webcamsOnlyForMod = webcamsOnlyForModerator;
         if (!StringUtils.isEmpty(params.get(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR))) {
             try {
@@ -447,11 +482,16 @@ public class ParamsProcessorUtil {
         String guestPolicy = defaultGuestPolicy;
         if (!StringUtils.isEmpty(params.get(ApiParams.GUEST_POLICY))) {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
-		}
+		    }
+
+        String meetingLayout = defaultMeetingLayout;
+
+        if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_LAYOUT))) {
+            meetingLayout = params.get(ApiParams.MEETING_LAYOUT);
+        }
+
         BreakoutRoomsParams breakoutParams = processBreakoutRoomsParams(params);
         LockSettingsParams lockSettingsParams = processLockSettingsParams(params);
-
-
 
         // Collect metadata for this meeting that the third-party app wants to
         // store if meeting is recorded.
@@ -501,10 +541,14 @@ public class ParamsProcessorUtil {
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
                 .withAuthenticatedGuest(authenticatedGuest)
+                .withMeetingLayout(meetingLayout)
 				.withBreakoutRoomsParams(breakoutParams)
 				.withLockSettingsParams(lockSettingsParams)
 				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
                 .withHTML5InstanceId(html5InstanceId)
+                .withLearningDashboardEnabled(learningDashboardEn)
+                .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
+                .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
@@ -537,6 +581,8 @@ public class ParamsProcessorUtil {
 
 		if (!StringUtils.isEmpty(params.get(ApiParams.LOGO))) {
 			meeting.setCustomLogoURL(params.get(ApiParams.LOGO));
+		} else if (this.getUseDefaultLogo()) {
+			meeting.setCustomLogoURL(this.getDefaultLogoURL());
 		}
 
 		if (!StringUtils.isEmpty(params.get(ApiParams.COPYRIGHT))) {
@@ -585,6 +631,14 @@ public class ParamsProcessorUtil {
 	public String getDefaultGuestWaitURL() {
 		return defaultGuestWaitURL;
         }
+
+	public Boolean getUseDefaultLogo() {
+		return useDefaultLogo;
+	}
+
+	public String getDefaultLogoURL() {
+		return defaultLogoURL;
+	}
 
 	public Boolean getAllowRequestsWithoutSession() {
 		return allowRequestsWithoutSession;
@@ -720,6 +774,7 @@ public class ParamsProcessorUtil {
         return "";
     }
 
+	// Can be removed. Checksum validation is performed by the ChecksumValidator
 	public boolean isChecksumSame(String apiCall, String checksum, String queryString) {
 		if (StringUtils.isEmpty(securitySalt)) {
 			log.warn("Security is disabled in this service. Make sure this is intentional.");
@@ -873,6 +928,14 @@ public class ParamsProcessorUtil {
 		this.defaultGuestWaitURL = url;
         }
 
+	public void setUseDefaultLogo(Boolean value) {
+		this.useDefaultLogo = value;
+	}
+
+	public void setDefaultLogoURL(String url) {
+		this.defaultLogoURL = url;
+	}
+
 	public void setAllowRequestsWithoutSession(Boolean allowRequestsWithoutSession) {
 		this.allowRequestsWithoutSession = allowRequestsWithoutSession;
 	}
@@ -893,6 +956,14 @@ public class ParamsProcessorUtil {
         this.allowStartStopRecording = allowStartStopRecording;
     }
 
+    public void setLearningDashboardEnabled(boolean learningDashboardEnabled) {
+        this.learningDashboardEnabled = learningDashboardEnabled;
+    }
+
+    public void setlearningDashboardCleanupDelayInMinutes(int learningDashboardCleanupDelayInMinutes) {
+        this.learningDashboardCleanupDelayInMinutes = learningDashboardCleanupDelayInMinutes;
+    }
+
     public void setWebcamsOnlyForModerator(boolean webcamsOnlyForModerator) {
         this.webcamsOnlyForModerator = webcamsOnlyForModerator;
     }
@@ -911,6 +982,10 @@ public class ParamsProcessorUtil {
 
 	public void setAuthenticatedGuest(Boolean value) {
 		this.authenticatedGuest = value;
+	}
+
+  public void setDefaultMeetingLayout(String meetingLayout) {
+		this.defaultMeetingLayout =  meetingLayout;
 	}
 
 	public void setClientLogoutTimerInMinutes(Integer value) {

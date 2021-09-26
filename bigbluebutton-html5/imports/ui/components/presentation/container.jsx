@@ -11,17 +11,26 @@ import { UsersContext } from '../components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { NLayoutContext } from '../layout/context/context';
+import LayoutContext from '../layout/context';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
+import { DEVICE_TYPE } from '../layout/enums';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
 const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props }) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { output, layoutLoaded } = newLayoutContextState;
+  const fullscreenElementId = 'Presentation';
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
+  const {
+    input, output, layoutType, fullscreen, deviceType,
+  } = layoutContextState;
+  const { cameraDock } = input;
+  const { numCameras } = cameraDock;
   const { presentation } = output;
+  const { element } = fullscreen;
+  const fullscreenContext = (element === fullscreenElementId);
   const { layoutSwapped, podId } = props;
+  const isIphone = !!(navigator.userAgent.match(/iPhone/i));
 
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
@@ -29,21 +38,25 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
 
   const userIsPresenter = (podId === 'DEFAULT_PRESENTATION_POD') ? currentUser.presenter : props.isPresenter;
 
-  return mountPresentation
-    && (
-      <Presentation
-        {
-        ...{
-          newLayoutContextDispatch,
-          ...props,
-          isViewer: currentUser.role === ROLE_VIEWER,
-          userIsPresenter: userIsPresenter && !layoutSwapped,
-          presentationBounds: presentation,
-          layoutLoaded,
-        }
-        }
-      />
-    );
+  return (
+    <Presentation
+      {
+      ...{
+        layoutContextDispatch,
+        numCameras,
+        ...props,
+        isViewer: currentUser.role === ROLE_VIEWER,
+        userIsPresenter: userIsPresenter && !layoutSwapped,
+        presentationBounds: presentation,
+        layoutType,
+        fullscreenContext,
+        fullscreenElementId,
+        isMobile: deviceType === DEVICE_TYPE.MOBILE,
+        isIphone,
+      }
+      }
+    />
+  );
 };
 
 const APP_CONFIG = Meteor.settings.public.app;
@@ -97,7 +110,6 @@ export default withTracker(({ podId }) => {
     }
   }
 
-  const layoutManagerLoaded = Session.get('layoutManagerLoaded');
   return {
     currentSlide,
     slidePosition,
@@ -118,11 +130,9 @@ export default withTracker(({ podId }) => {
         publishedPoll: 1,
       },
     }).publishedPoll,
-    currentPresentationId: Session.get('currentPresentationId') || null,
     restoreOnUpdate: getFromUserSettings(
       'bbb_force_restore_presentation_on_new_events',
       Meteor.settings.public.presentation.restoreOnUpdate,
     ),
-    layoutManagerLoaded,
   };
 })(PresentationContainer);

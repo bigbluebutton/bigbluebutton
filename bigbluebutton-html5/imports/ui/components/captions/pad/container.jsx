@@ -4,24 +4,27 @@ import { Session } from 'meteor/session';
 import CaptionsService from '/imports/ui/components/captions/service';
 import Pad from './component';
 import Auth from '/imports/ui/services/auth';
-import { NLayoutContext } from '../../layout/context/context';
+import LayoutContext from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 
-
 const PadContainer = (props) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextDispatch } = newLayoutContext;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextDispatch, layoutContextState } = layoutContext;
+  const { input } = layoutContextState;
+  const { cameraDock } = input;
+  const { isResizing } = cameraDock;
+
   const {
     amIModerator,
     children,
   } = props;
 
   if (!amIModerator) {
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
       value: false,
     });
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
       value: PANELS.NONE,
     });
@@ -29,7 +32,7 @@ const PadContainer = (props) => {
   }
 
   return (
-    <Pad {...{ newLayoutContextDispatch, ...props }}>
+    <Pad {...{ layoutContextDispatch, isResizing, ...props }}>
       {children}
     </Pad>
   );

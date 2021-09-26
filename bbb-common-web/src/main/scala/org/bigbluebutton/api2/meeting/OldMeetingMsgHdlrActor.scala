@@ -45,6 +45,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: RecordingChapterBreakSysMsg       => handleRecordingChapterBreakSysMsg(m)
       case m: SetPresentationDownloadableEvtMsg => handleSetPresentationDownloadableEvtMsg(m)
       case m: RecordingStatusChangedEvtMsg      => handleRecordingStatusChangedEvtMsg(m)
+      case m: LearningDashboardEvtMsg           => handleLearningDashboardEvtMsg(m)
       case _                                    => log.error("***** Cannot handle " + msg.envelope.name)
     }
   }
@@ -87,6 +88,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.room.parentId,
       msg.body.room.name,
       msg.body.room.sequence,
+      msg.body.room.shortName,
+      msg.body.room.isDefaultName,
       msg.body.room.freeJoin,
       msg.body.room.dialNumber,
       msg.body.room.voiceConfId,
@@ -176,6 +179,10 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
     val presFilename = msg.body.presFilename
     val m = new MakePresentationDownloadableMsg(meetingId, presId, presFilename, downloadable)
     olgMsgGW.handle(m)
+  }
+
+  def handleLearningDashboardEvtMsg(msg: LearningDashboardEvtMsg): Unit = {
+    olgMsgGW.handle(new LearningDashboard(msg.header.meetingId, msg.body.activityJson))
   }
 
 }

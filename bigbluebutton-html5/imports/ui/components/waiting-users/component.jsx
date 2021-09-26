@@ -92,8 +92,7 @@ const renderGuestUserItem = (
         </UserAvatar>
       </div>
       <p key={`user-name-${userId}`} className={styles.userName}>
-        {sequence}
-        {name}
+        {`[${sequence}] ${name}`}
       </p>
     </div>
 
@@ -152,15 +151,15 @@ const WaitingUsers = (props) => {
     const {
       authenticatedUsers,
       guestUsers,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
     } = props;
 
     if (!authenticatedUsers.length && !guestUsers.length) {
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
         value: false,
       });
-      newLayoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
         value: PANELS.NONE,
       });
@@ -177,7 +176,7 @@ const WaitingUsers = (props) => {
     setGuestLobbyMessage,
     guestLobbyMessage,
     authenticatedGuest,
-    newLayoutContextDispatch,
+    layoutContextDispatch,
     allowRememberChoice,
   } = props;
 
@@ -237,7 +236,9 @@ const WaitingUsers = (props) => {
     },
   ];
 
-  const buttonsData = authenticatedGuest ? _.concat(authGuestButtonsData, guestButtonsData) : guestButtonsData;
+  const buttonsData = authenticatedGuest
+    ? _.concat(authGuestButtonsData, guestButtonsData)
+    : guestButtonsData;
 
   return (
     <div
@@ -251,11 +252,11 @@ const WaitingUsers = (props) => {
         >
           <Button
             onClick={() => {
-              newLayoutContextDispatch({
+              layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
                 value: false,
               });
-              newLayoutContextDispatch({
+              layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                 value: PANELS.NONE,
               });

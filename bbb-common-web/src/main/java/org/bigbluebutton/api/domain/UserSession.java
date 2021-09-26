@@ -51,6 +51,96 @@ public class UserSession {
   public synchronized int incrementConnectionNum() {
     return connections.incrementAndGet();
   }
-  
-  
+
+  public String getAuthToken() {
+    return authToken;
+  }
+
+  public String getInternalUserId() {
+    return internalUserId;
+  }
+
+  public String getConferencename() {
+    return conferencename;
+  }
+
+  public String getMeetingID() {
+    return meetingID;
+  }
+
+  public String getExternMeetingID() {
+    return externMeetingID;
+  }
+
+  public String getExternUserID() {
+    return externUserID;
+  }
+
+  public String getFullname() {
+    return fullname;
+  }
+
+  public String getRole() {
+    return role;
+  }
+
+  public String getConference() {
+    return conference;
+  }
+
+  public String getRoom() {
+    return room;
+  }
+
+  public Boolean getGuest() {
+    return guest;
+  }
+
+  public Boolean getAuthed() {
+    return authed;
+  }
+
+  public String getVoicebridge() {
+    return voicebridge;
+  }
+
+  public String getWebvoiceconf() {
+    return webvoiceconf;
+  }
+
+  public String getMode() {
+    return mode;
+  }
+
+  public String getRecord() {
+    return record;
+  }
+
+  public String getWelcome() {
+    return welcome;
+  }
+
+  public String getLogoutUrl() {
+    return logoutUrl;
+  }
+
+  public String getDefaultLayout() {
+    return defaultLayout;
+  }
+
+  public String getAvatarURL() {
+    return avatarURL;
+  }
+
+  public String getGuestStatus() {
+    return guestStatus;
+  }
+
+  public String getClientUrl() {
+    return clientUrl;
+  }
+
+  public String toString() {
+    return fullname + " " + meetingID + " " + conferencename;
+  }
 }

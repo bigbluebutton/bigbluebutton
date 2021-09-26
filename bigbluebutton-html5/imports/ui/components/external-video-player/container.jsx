@@ -3,15 +3,28 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import { getVideoUrl } from './service';
 import ExternalVideoComponent from './component';
-import { NLayoutContext } from '../layout/context/context';
+import LayoutContext from '../layout/context';
+import MediaService, { getSwapLayout } from '/imports/ui/components/media/service';
 
 const ExternalVideoContainer = (props) => {
-  const NewLayoutManager = useContext(NLayoutContext);
-  const { newLayoutContextState } = NewLayoutManager;
-  const { output, layoutLoaded } = newLayoutContextState;
+  const layoutManager = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutManager;
+  const { output, input } = layoutContextState;
   const { externalVideo } = output;
-
-  return <ExternalVideoComponent {...{ ...props }} {...externalVideo} layoutLoaded={layoutLoaded} />
+  const { cameraDock } = input;
+  const { isResizing } = cameraDock;
+  return (
+    <ExternalVideoComponent
+      {
+      ...{
+        layoutContextDispatch,
+        ...props,
+        ...externalVideo,
+        isResizing,
+      }
+      }
+    />
+  );
 };
 
 export default withTracker(({ isPresenter }) => {
@@ -20,5 +33,7 @@ export default withTracker(({ isPresenter }) => {
     inEchoTest,
     isPresenter,
     videoUrl: getVideoUrl(),
+    getSwapLayout,
+    toggleSwapLayout: MediaService.toggleSwapLayout,
   };
 })(ExternalVideoContainer);

@@ -134,6 +134,7 @@ class MutedAlert extends Component {
     const { visible } = this.state;
     const style = {};
     style[styles.alignForMod] = !isViewer || isPresenter;
+    style[styles.alignForViewer] = isViewer;
 
     return visible && muted ? (
       <TooltipContainer

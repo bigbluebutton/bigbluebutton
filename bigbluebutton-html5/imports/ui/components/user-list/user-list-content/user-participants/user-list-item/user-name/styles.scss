@@ -5,7 +5,7 @@
   flex-grow: 1;
   margin: 0 0 0 var(--sm-padding-x);
   justify-content: center;
-  font-size: 0.95rem;
+  font-size: 90%;
 
   [dir="rtl"]  & {
     margin: 0 var(--sm-padding-x) 0 0;
@@ -14,7 +14,7 @@
 
 .userNameMain {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 90%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

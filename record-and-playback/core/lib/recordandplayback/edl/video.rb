@@ -24,7 +24,7 @@ module BigBlueButton
   module EDL
     module Video
       FFMPEG_WF_CODEC = 'libx264'
-      FFMPEG_WF_ARGS = ['-an', '-codec', FFMPEG_WF_CODEC.to_s, '-preset', 'veryfast', '-crf', '30', '-force_key_frames', 'expr:gte(t,n_forced*10)', '-pix_fmt', 'yuv420p']
+      FFMPEG_WF_ARGS = ['-codec', FFMPEG_WF_CODEC.to_s, '-preset', 'veryfast', '-crf', '30', '-force_key_frames', 'expr:gte(t,n_forced*10)', '-pix_fmt', 'yuv420p']
       WF_EXT = 'mp4'
 
       def self.dump(edl)
@@ -212,9 +212,7 @@ module BigBlueButton
             newvideofile = File.join(File.dirname(output_basename), File.basename(videofile))
 
             if !File.exist?(newvideofile)
-              ffmpeg_cmd = [*FFMPEG]
-              ffmpeg_cmd += ['-i', videofile, '-c', 'copy', newvideofile]
-
+              ffmpeg_cmd = [*FFMPEG, '-i', videofile, '-c', 'copy', newvideofile]
               exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)
               raise "ffmpeg failed, exit code #{exitstatus}" if exitstatus != 0
             end
@@ -271,8 +269,7 @@ module BigBlueButton
           end
         end
 
-        ffmpeg_cmd = [*FFMPEG]
-        ffmpeg_cmd += ['-safe', '0', '-f', 'concat', '-i', concat_file , '-c', 'copy', render]
+        ffmpeg_cmd = [*FFMPEG, '-safe', '0', '-f', 'concat', '-i', concat_file , '-c', 'copy', render]
         exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)
         raise "ffmpeg failed, exit code #{exitstatus}" if exitstatus != 0
 
@@ -559,9 +556,7 @@ module BigBlueButton
 
         ffmpeg_filter << ",trim=end=#{ms_to_s(duration)}"
 
-        ffmpeg_cmd = [*FFMPEG]
-        ffmpeg_cmd += ['-filter_complex', ffmpeg_filter, *FFMPEG_WF_ARGS, '-r', layout[:framerate].to_s, output]
-
+        ffmpeg_cmd = [*FFMPEG, '-filter_complex', ffmpeg_filter, '-an', *FFMPEG_WF_ARGS, '-r', layout[:framerate].to_s, output]
         exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)
         raise "ffmpeg failed, exit code #{exitstatus}" if exitstatus != 0
 

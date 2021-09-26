@@ -26,14 +26,14 @@ const WaitingUsers = ({
   intl,
   pendingUsers,
   sidebarContentPanel,
-  newLayoutContextDispatch,
+  layoutContextDispatch,
 }) => {
   const toggleWaitingPanel = () => {
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
       value: sidebarContentPanel !== PANELS.WAITING_USERS,
     });
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
       value: sidebarContentPanel === PANELS.WAITING_USERS
         ? PANELS.NONE
@@ -52,6 +52,7 @@ const WaitingUsers = ({
         <div className={styles.list}>
           <div
             role="button"
+            data-test="waitingUsersBtn"
             tabIndex={0}
             className={styles.listItem}
             onClick={toggleWaitingPanel}

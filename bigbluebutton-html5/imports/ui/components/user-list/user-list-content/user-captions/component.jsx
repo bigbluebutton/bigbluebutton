@@ -19,6 +19,8 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  sidebarContentPanel: PropTypes.string.isRequired,
+  layoutContextDispatch: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -29,29 +31,21 @@ const intlMessages = defineMessages({
 });
 
 class UserCaptions extends Component {
-  constructor(props) {
-    super(props);
-
-    this.updatedOwnledLocales = this.updatedOwnledLocales.bind(this);
-  }
-
   shouldComponentUpdate(nextProps) {
-    return this.updatedOwnledLocales(nextProps);
-  }
+    const { ownedLocales, sidebarContentPanel } = this.props;
 
-  updatedOwnledLocales(nextProps) {
-    const { ownedLocales } = this.props;
-    return ownedLocales.length !== nextProps.ownedLocales.length;
+    return ownedLocales.length !== nextProps.ownedLocales.length
+      || sidebarContentPanel !== nextProps.sidebarContentPanel;
   }
 
   renderCaptions() {
     const {
       ownedLocales,
       sidebarContentPanel,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
     } = this.props;
 
-    return ownedLocales.map(locale => (
+    return ownedLocales.map((locale) => (
       <CSSTransition
         classNames={listTransition}
         appear
@@ -62,7 +56,12 @@ class UserCaptions extends Component {
         className={styles.captionsList}
         key={locale.locale}
       >
-        <CaptionsListItem {...{ locale, newLayoutContextDispatch, sidebarContentPanel }} tabIndex={-1} />
+        <CaptionsListItem
+          {...{
+            locale, layoutContextDispatch, sidebarContentPanel,
+          }}
+          tabIndex={-1}
+        />
       </CSSTransition>
     ));
   }
