@@ -53,6 +53,18 @@ const getAvailableLocales = () => {
   return locales;
 };
 
+const getAllAvailableLocales = () => {
+  const { meetingID } = Auth;
+  const locales = [];
+  Captions.find({ meetingId: meetingID },
+    { sort: { locale: 1 } },
+    { fields: { ownerId: 1, locale: 1 } })
+    .forEach((caption) => {
+      locales.push(caption.locale);
+    });
+  return locales;
+};
+
 const getOwnedLocales = () => {
   const { meetingID } = Auth;
   const locales = [];
@@ -174,6 +186,7 @@ export default {
   CAPTIONS_TOKEN,
   getCaptionsData,
   getAvailableLocales,
+  getAllAvailableLocales,
   getOwnedLocales,
   takeOwnership,
   appendText,
