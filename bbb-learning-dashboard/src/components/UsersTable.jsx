@@ -395,12 +395,12 @@ class UsersTable extends React.Component {
                     {
                                       user.leftOn > 0
                                         ? (
-                                          <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
+                                          <span className="px-2 py-0 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
                                             <FormattedMessage id="app.learningDashboard.usersTable.userStatusOffline" defaultMessage="Offline" />
                                           </span>
                                         )
                                         : (
-                                          <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
+                                          <span className="px-2 py-0 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
                                             <FormattedMessage id="app.learningDashboard.usersTable.userStatusOnline" defaultMessage="Online" />
                                           </span>
                                         )
