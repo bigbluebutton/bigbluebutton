@@ -50,7 +50,7 @@ export default withModalMounter(withTracker(({ mountModal }) => {
     },
   });
 
-  const randomUserReq = () => (SELECT_RANDOM_USER_ENABLED ? makeCall('setRandomUser') : null);
+  const randomUserReq = (allowRepeat) => (SELECT_RANDOM_USER_ENABLED ? makeCall('setRandomUser', allowRepeat) : null);
 
   const clearRandomlySelectedUser = () => (SELECT_RANDOM_USER_ENABLED ? makeCall('clearRandomlySelectedUser') : null);
 

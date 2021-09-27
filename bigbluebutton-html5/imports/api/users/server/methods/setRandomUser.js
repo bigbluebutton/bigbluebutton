@@ -4,7 +4,7 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 
-export default function setRandomUser() {
+export default function setRandomUser(allowrepeat) {
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -17,7 +17,14 @@ export default function setRandomUser() {
 
     const payload = {
       requestedBy: requesterUserId,
+      allowRepeat: false
     };
+
+    if(allowrepeat){
+      payload.allowRepeat = allowrepeat;
+    }
+
+    console.log("\n\n\nAllowRepeat in setRandomUser: " + allowrepeat + "\n\n\n");
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   } catch (err) {
