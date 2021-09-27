@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Modal from '/imports/ui/components/modal/simple/component';
@@ -56,12 +56,28 @@ class RandomUserSelect extends Component {
       props.randomUserReq();
     }
 
-    if(SELECT_RANDOM_USER_COUNTDOWN) {
-      this.state = {
-        count: 0,
-      };
-      this.play = this.play.bind(this);
+    // this.state = {
+    //   allowRepeat : false
+    // }
+
+    // if(SELECT_RANDOM_USER_COUNTDOWN) {
+    //   this.state = {
+    //     count: 0,
+    //     allowRepeat : false
+    //   };
+    //   this.play = this.play.bind(this);
+    // }
+
+    this.state = {
+      allowRepeat : false,
+      count : 0
     }
+
+    if(SELECT_RANDOM_USER_COUNTDOWN) {
+        this.setState({ count : 0 });
+        this.play = this.play.bind(this);
+      }
+
   }
 
   iterateSelection() {
@@ -110,7 +126,7 @@ class RandomUserSelect extends Component {
         count: 0,
       });
     }
-    this.props.randomUserReq();
+    this.props.randomUserReq(this.state.allowRepeat);
   }
 
   render() {
@@ -165,6 +181,13 @@ class RandomUserSelect extends Component {
           </div>
           <div className={styles.selectedUserName}>
             {selectedUser.name}
+          </div>
+          <div>
+            <input type="checkbox" name="allowRepeat" 
+            onChange={() => this.setState( { allowRepeat: !this.state.allowRepeat } )} 
+              defaultChecked={this.state.allowRepeat}/>
+            <label for="allowRepeat"> Allow users to be selected more than once</label>
+            <br/>
           </div>
           {currentUser.presenter
             && countDown == 0
