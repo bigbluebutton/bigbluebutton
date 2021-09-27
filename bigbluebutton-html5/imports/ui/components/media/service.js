@@ -48,13 +48,17 @@ const swapLayout = {
 };
 
 const setSwapLayout = (layoutContextDispatch) => {
+  const hidePresentation = getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation);
+
   swapLayout.value = getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout);
   swapLayout.tracker.changed();
 
-  layoutContextDispatch({
-    type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-    value: !swapLayout.value,
-  });
+  if (!hidePresentation) {
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+      value: !swapLayout.value,
+    });
+  }
 };
 
 const toggleSwapLayout = (layoutContextDispatch) => {

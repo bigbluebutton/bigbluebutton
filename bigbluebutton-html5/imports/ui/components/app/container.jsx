@@ -175,6 +175,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     customStyleUrl = CUSTOM_STYLE_URL;
   }
 
+  const LAYOUT_CONFIG = Meteor.settings.public.layout;
+
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     fontSize: getFontSize(),
@@ -205,6 +207,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
       'bbb_force_restore_presentation_on_new_events',
       Meteor.settings.public.presentation.restoreOnUpdate,
     ),
+    hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
   };
 })(AppContainer)));
 
