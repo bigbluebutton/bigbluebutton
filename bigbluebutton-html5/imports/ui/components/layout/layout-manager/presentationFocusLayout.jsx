@@ -99,7 +99,7 @@ class PresentationFocusLayout extends Component {
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: defaultsDeep({
           sidebarNavigation: {
-            isOpen: true,
+            isOpen: input.sidebarNavigation.isOpen || false,
           },
           sidebarContent: {
             isOpen: sidebarContentPanel !== PANELS.NONE,
