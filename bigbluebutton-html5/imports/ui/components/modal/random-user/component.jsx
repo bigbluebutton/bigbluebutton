@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Modal from '/imports/ui/components/modal/simple/component';
@@ -7,6 +7,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import { styles } from './styles';
 
 const SELECT_RANDOM_USER_COUNTDOWN = Meteor.settings.public.selectRandomUser.countdown;
+const DEFAULT_ALLOW_REPEAT = false;
 
 const messages = defineMessages({
   noViewers: {
@@ -28,6 +29,10 @@ const messages = defineMessages({
   onlyOneViewerTobeSelected: {
     id: 'app.modal.randomUser.alone',
     description: 'Label shown when only one viewer to be selected',
+  },
+  allowRepeat: {
+    id: 'app.modal.randomUser.allowRepeat.label',
+    description: 'asks user whether they want to allow repetition in random user selection',
   },
   reselect: {
     id: 'app.modal.randomUser.reselect.label',
@@ -53,7 +58,7 @@ class RandomUserSelect extends Component {
     super(props);
 
     if (props.currentUser.presenter) {
-      props.randomUserReq();
+      props.randomUserReq(DEFAULT_ALLOW_REPEAT);
     }
 
     // this.state = {
@@ -69,8 +74,8 @@ class RandomUserSelect extends Component {
     // }
 
     this.state = {
-      allowRepeat : false,
-      count : 0
+      allowRepeat: DEFAULT_ALLOW_REPEAT,
+      count: 0
     }
 
     if(SELECT_RANDOM_USER_COUNTDOWN) {
@@ -186,7 +191,7 @@ class RandomUserSelect extends Component {
             <input type="checkbox" name="allowRepeat" 
             onChange={() => this.setState( { allowRepeat: !this.state.allowRepeat } )} 
               defaultChecked={this.state.allowRepeat}/>
-            <label for="allowRepeat"> Allow users to be selected more than once</label>
+              <label htmlFor="allowRepeat">{intl.formatMessage(messages.allowRepeat)}</label>
             <br/>
           </div>
           {currentUser.presenter

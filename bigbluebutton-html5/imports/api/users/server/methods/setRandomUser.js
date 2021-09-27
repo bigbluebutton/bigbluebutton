@@ -14,17 +14,12 @@ export default function setRandomUser(allowrepeat) {
 
     check(meetingId, String);
     check(requesterUserId, String);
+    check(allowrepeat, Boolean);
 
     const payload = {
       requestedBy: requesterUserId,
-      allowRepeat: false
+      allowRepeat: allowrepeat
     };
-
-    if(allowrepeat){
-      payload.allowRepeat = allowrepeat;
-    }
-
-    console.log("\n\n\nAllowRepeat in setRandomUser: " + allowrepeat + "\n\n\n");
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   } catch (err) {
