@@ -19,7 +19,7 @@ const intlMessages = defineMessages({
     description: '',
   },
   minimizePresentationDesc: {
-    id: 'app.actionsBar,actionsDropdown.minimizePresentationDesc',
+    id: 'app.actionsBar.actionsDropdown.restorePresentationDesc',
     description: '',
   },
   restorePresentationLabel: {
