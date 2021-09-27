@@ -490,7 +490,7 @@ class BreakoutRoom extends PureComponent {
             messageDuration={intlMessages.breakoutDuration}
             breakoutRoom={breakoutRooms[0]}
           />
-          {!visibleExtendTimeForm
+          {amIModerator && !visibleExtendTimeForm
             ? (
               <Button
                 onClick={this.showExtendTimeForm}
