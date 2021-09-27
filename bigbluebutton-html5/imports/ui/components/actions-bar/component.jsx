@@ -9,9 +9,6 @@ import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/scree
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
-import {
-  isVideoBroadcasting,
-} from '/imports/ui/components/screenshare/service';
 
 class ActionsBar extends PureComponent {
   render() {
@@ -24,6 +21,7 @@ class ActionsBar extends PureComponent {
       handleTakePresenter,
       intl,
       isSharingVideo,
+      hasScreenshare,
       stopExternalVideoShare,
       isCaptionsAvailable,
       isMeteorConnected,
@@ -89,7 +87,7 @@ class ActionsBar extends PureComponent {
             layoutContextDispatch={layoutContextDispatch}
             hasPresentation={isThereCurrentPresentation}
             hasExternalVideo={isSharingVideo}
-            hasScreenshare={isVideoBroadcasting}
+            hasScreenshare={hasScreenshare}
           />
           {isRaiseHandButtonEnabled
             ? (
