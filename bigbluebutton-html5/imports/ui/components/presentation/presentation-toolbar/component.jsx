@@ -235,6 +235,7 @@ class PresentationToolbar extends PureComponent {
       currentSlide,
       toggleSeparatePresentationWindow,
       separatePresentationWindow,
+      presentationWindow,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -389,13 +390,15 @@ class PresentationToolbar extends PureComponent {
           : null
         }
             {
-              ALLOW_FULLSCREEN && !separatePresentationWindow
+              ALLOW_FULLSCREEN
                 ? (
                   <FullscreenButtonContainer
                     fullscreenRef={fullscreenRef}
                     isFullscreen={isFullscreen}
                     elementName={intl.formatMessage(intlMessages.presentationLabel)}
                     className={styles.presentationBtn}
+                    separatePresentationWindow={separatePresentationWindow}
+                    presentationWindow={presentationWindow}
                   />
                 )
                 : null
