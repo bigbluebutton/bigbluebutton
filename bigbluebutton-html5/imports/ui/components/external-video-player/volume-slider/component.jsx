@@ -61,6 +61,11 @@ class VolumeSlider extends Component {
 
   render() {
     const { muted, volume } = this.state;
+    const { hideVolume } = this.props;
+
+    if (hideVolume) {
+      return null;
+    }
 
     return (
       <div className={styles.slider}>

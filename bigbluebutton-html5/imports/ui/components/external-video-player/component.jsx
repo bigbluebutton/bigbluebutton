@@ -73,6 +73,13 @@ class VideoPlayer extends Component {
       key: 0,
     };
 
+    this.hideVolume = {
+      Vimeo: true,
+      Facebook: true,
+      Peertube: true,
+      ArcPlayer: true,
+    };
+
     this.opts = {
       // default option for all players, can be overwritten
       playerOptions: {
@@ -86,6 +93,9 @@ class VideoPlayer extends Component {
           autoplay: 'autoplay',
           playsinline: 'playsinline',
         },
+      },
+      facebook: {
+        controls: isPresenter,
       },
       dailymotion: {
         params: {
@@ -483,6 +493,10 @@ class VideoPlayer extends Component {
       volume, muted, key, showHoverToolBar,
     } = this.state;
 
+    // This looks weird, but I need to get this nested player
+    const playerName = this.player && this.player.player
+      && this.player.player.player && this.player.player.player.constructor.name;
+
     const mobileHoverToolBarStyle = showHoverToolBar
       ? styles.showMobileHoverToolbar
       : styles.dontShowMobileHoverToolbar;
@@ -529,6 +543,7 @@ class VideoPlayer extends Component {
             onReady={this.handleOnReady}
             onPlay={this.handleOnPlay}
             onPause={this.handleOnPause}
+            controls={isPresenter}
             key={`react-player${key}`}
             ref={(ref) => { this.player = ref; }}
             height="100%"
@@ -540,6 +555,7 @@ class VideoPlayer extends Component {
                 (
                   <div className={hoverToolbarStyle} key="hover-toolbar-external-video">
                     <VolumeSlider
+                      hideVolume={this.hideVolume[playerName]}
                       volume={volume}
                       muted={muted || mutedByEchoTest}
                       onMuted={this.handleOnMuted}
