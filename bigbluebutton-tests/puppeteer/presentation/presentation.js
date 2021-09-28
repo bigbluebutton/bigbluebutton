@@ -1,7 +1,7 @@
 const Page = require('../core/page');
 const e = require('../core/elements');
 const util = require('./util');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const { checkElement, checkElementTextIncludes, checkElementText } = require('../core/util');
 
 class Presentation {
@@ -69,18 +69,21 @@ class Presentation {
       await this.modPage.waitForSelector(e.fileUpload);
       const fileUpload = await this.modPage.page.$(e.fileUpload);
       await fileUpload.uploadFile(`${__dirname}/upload-test.png`);
-      await this.modPage.page.waitForFunction(checkElementTextIncludes, {},
+      await this.modPage.page.waitForFunction(checkElementTextIncludes,
+        { timeout: ELEMENT_WAIT_TIME },
         'body', 'To be uploaded ...'
       );
       await this.modPage.page.waitForSelector(e.upload);
 
       await this.modPage.waitAndClick(e.upload);
       await this.modPage.logger('\nWaiting for the new presentation to upload...');
-      await this.modPage.page.waitForFunction(checkElementTextIncludes, {},
+      await this.modPage.page.waitForFunction(checkElementTextIncludes,
+        { timeout: ELEMENT_WAIT_TIME },
         'body', 'Converting file'
       );
       await this.modPage.logger('\nPresentation uploaded!');
-      await this.modPage.page.waitForFunction(checkElementTextIncludes, {},
+      await this.modPage.page.waitForFunction(checkElementTextIncludes,
+        { timeout: ELEMENT_WAIT_LONGER_TIME },
         'body', 'Current presentation'
       );
       await this.modPage.screenshot(`${testName}`, `02-after-presentation-upload-[${testName}]`);
