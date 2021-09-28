@@ -1,7 +1,7 @@
-const Join = require('./breakout/join');
-const Create = require('./breakout/create');
-const Page = require('./core/page');
-const { MAX_BREAKOUT_TEST_TIMEOUT } = require('./core/constants');
+const Join = require('./join');
+const Create = require('./create');
+const Page = require('../core/page');
+const { MAX_BREAKOUT_TEST_TIMEOUT } = require('../core/constants');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
 
 expect.extend({ toMatchImageSnapshot });

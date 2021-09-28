@@ -1,10 +1,10 @@
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
-const Page = require('./core/page');
-const Status = require('./user/status');
-const MultiUsers = require('./user/multiusers');
-const { MAX_MULTIUSERS_TEST_TIMEOUT, TEST_DURATION_TIME } = require('./core/constants'); // core constants (Timeouts vars imported)
-const { NETWORK_PRESETS } = require('./core/profiles');
-const devices = require('./core/devices');
+const Page = require('../core/page');
+const Status = require('./status');
+const MultiUsers = require('./multiusers');
+const { MAX_MULTIUSERS_TEST_TIMEOUT, TEST_DURATION_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
+const { NETWORK_PRESETS } = require('../core/profiles');
+const devices = require('../core/devices');
 const iPhonex = devices['iPhone X'];
 const galaxyNote3 = devices['Galaxy Note 3'];
 

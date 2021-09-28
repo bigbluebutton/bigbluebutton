@@ -1,9 +1,9 @@
-const Page = require('./core/page');
-const CustomParameters = require('./customparameters/customparameters');
-const c = require('./customparameters/constants');
-const util = require('./customparameters/util');
+const Page = require('../core/page');
+const CustomParameters = require('./customparameters');
+const c = require('./constants');
+const util = require('./util');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
-const { MAX_CUSTOM_PARAMETERS_TEST_TIMEOUT } = require('./core/constants'); // core constants (Timeouts vars imported)
+const { MAX_CUSTOM_PARAMETERS_TEST_TIMEOUT } = require('../core/constants'); // core constants (Timeouts vars imported)
 
 expect.extend({ toMatchImageSnapshot });
 

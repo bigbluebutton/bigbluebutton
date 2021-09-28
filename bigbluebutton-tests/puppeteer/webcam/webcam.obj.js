@@ -1,21 +1,22 @@
-const Audio = require('./audio/audio');
-const Page = require('./core/page');
+const Share = require('./share');
+const Check = require('./check');
+const Page = require('../core/page');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
-const { MAX_AUDIO_TEST_TIMEOUT } = require('./core/constants');
+const { MAX_WEBCAM_TEST_TIMEOUT } = require('../core/constants');
 
 expect.extend({ toMatchImageSnapshot });
 
-const audioTest = () => {
+const webcamTest = () => {
   beforeEach(() => {
-    jest.setTimeout(MAX_AUDIO_TEST_TIMEOUT);
+    jest.setTimeout(MAX_WEBCAM_TEST_TIMEOUT);
   });
 
-  test('Join audio with Listen Only', async () => {
-    const test = new Audio();
+  test('Shares webcam', async () => {
+    const test = new Share();
     let response;
     let screenshot;
     try {
-      const testName = 'joinWithListenOnly';
+      const testName = 'shareWebcam';
       await test.logger('begin of ', testName);
       await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
       await test.startRecording(testName);
@@ -29,19 +30,19 @@ const audioTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.65, screenshot);
+    await Page.checkRegression(0.81, screenshot);
   });
 
-  test('Join audio with Microphone', async () => {
-    const test = new Audio();
+  test('Checks content of webcam', async () => {
+    const test = new Check();
     let response;
     let screenshot;
     try {
-      const testName = 'joinWithMicrophone';
+      const testName = 'checkWebcamContent';
       await test.logger('begin of ', testName);
       await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
       await test.startRecording(testName);
-      response = await test.microphone();
+      response = await test.test();
       await test.stopRecording();
       screenshot = await test.page.screenshot();
       await test.logger('end of ', testName);
@@ -51,8 +52,7 @@ const audioTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.52, screenshot);
+    await Page.checkRegression(7.5, screenshot);
   });
 };
-
-module.exports = exports = audioTest;
+module.exports = exports = webcamTest;
