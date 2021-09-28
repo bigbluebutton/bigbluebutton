@@ -76,7 +76,6 @@ class VideoPlayer extends Component {
     this.hideVolume = {
       Vimeo: true,
       Facebook: true,
-      Peertube: true,
       ArcPlayer: true,
     };
 

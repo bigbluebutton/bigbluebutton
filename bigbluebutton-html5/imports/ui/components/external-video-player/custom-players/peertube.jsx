@@ -69,10 +69,12 @@ export class PeerTubePlayer extends Component {
   }
 
   getEmbedUrl = () => {
-    const { url } = this.props;
+    const { url, config } = this.props;
     const m = MATCH_URL.exec(url);
 
-    return `${m[1]}://${m[2]}/videos/embed/${m[4]}?api=1&controls=${true}`;
+    const isPresenter = config && config.peertube && config.peertube.isPresenter;
+
+    return `${m[1]}://${m[2]}/videos/embed/${m[4]}?api=1&controls=${isPresenter}`;
   };
 
   load() {
@@ -134,7 +136,11 @@ export class PeerTubePlayer extends Component {
   }
 
   setVolume(fraction) {
-    // console.log("SET VOLUME");
+    this._player.setVolume(fraction);
+  }
+
+  getVolume() {
+    return this._player.getVolume();
   }
 
   setLoop(loop) {
