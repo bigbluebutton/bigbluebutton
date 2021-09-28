@@ -101,50 +101,23 @@
       }
     }
 
-    function findSessionToken() {
-      return location.search
-        .substr(1)
-        .split('&')
-        .find(function (item) {
-          return item.split('=')[0] === 'sessionToken'
-        });
-    };
+    function getSearchParam(name) {
+      const params = new URLSearchParams(window.location.search);
 
-    async function fetchOverrideLocale() {
-      const token = findSessionToken();
-      let overrideLocale = false;
+      if (params && params.has(name)) {
+        const param = params.get(name);
 
-      if (token) {
-        const sessionToken = token.split('=')[1];
-
-        // use enter api to get params for the client
-        const ENTER_ENDPOINT = `/bigbluebutton/api/enter?sessionToken=${sessionToken}`;
-        const url = new URL(`${window.location.origin}${ENTER_ENDPOINT}`);
-
-        const fetchContent = await fetch(url, { credentials: 'same-origin' });
-        const parseToJson = await fetchContent.json();
-        const { response } = parseToJson;
-
-        if (response.returncode !== 'FAILED') {
-          const { customdata } = response;
-
-          customdata.forEach((el) => {
-            const settingKey = Object.keys(el).shift();
-
-            if (settingKey === 'bbb_override_default_locale') {
-              overrideLocale = el[settingKey];
-            }
-          });
-        }
+        return param;
       }
-      return overrideLocale;
+
+      return null;
     }
 
     async function fetchLocalizedMessages() {
       const DEFAULT_LANGUAGE = 'en';
       const LOCALES_ENDPOINT = '/html5client/locale';
       const url = new URL(`${window.location.origin}${LOCALES_ENDPOINT}`);
-      const overrideLocale = await fetchOverrideLocale();
+      const overrideLocale = getSearchParam('locale');
 
       url.search = overrideLocale
         ? `locale=${overrideLocale}`
@@ -220,7 +193,7 @@
                 const ATTEMPT_EVERY_MS = 5000;
                 const ATTEMPT_LIMIT = 100;
 
-                const sessionToken = findSessionToken();
+                const sessionToken = getSearchParam('sessionToken');
 
                 if (!sessionToken) {
                   disableAnimation()
@@ -245,10 +218,9 @@
 
     function fetchGuestWait(sessionToken) {
       const GUEST_WAIT_ENDPOINT = '/bigbluebutton/api/guestWait';
-      const urlTest = new URL(`${window.location.origin}${GUEST_WAIT_ENDPOINT}`);
-      const concatedParams = sessionToken.concat('&redirect=false');
-      urlTest.search = concatedParams;
-      return fetch(urlTest, { method: 'get' });
+      const url = new URL(`${window.location.origin}${GUEST_WAIT_ENDPOINT}`);
+      url.search = `sessionToken=${sessionToken}&redirect=false`;
+      return fetch(url, { method: 'get' });
     };
 
     function redirect(message, url) {

@@ -500,6 +500,11 @@ class ApiController {
     if (guestStatusVal.equals(GuestPolicy.WAIT)) {
       String guestWaitUrl = paramsProcessorUtil.getDefaultGuestWaitURL();
       destUrl = guestWaitUrl + "?sessionToken=" + sessionToken
+      // Check if the user has her/his default locale overridden by an userdata
+      String customLocale = userCustomData.get("bbb_override_default_locale")
+      if (customLocale != null) {
+        destUrl += "&locale=" + customLocale
+      }
       msgKey = "guestWait"
       msgValue = "Guest waiting for approval to join meeting."
     } else if (guestStatusVal.equals(GuestPolicy.DENY)) {
