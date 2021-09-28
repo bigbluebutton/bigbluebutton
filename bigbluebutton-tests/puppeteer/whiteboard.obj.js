@@ -20,10 +20,8 @@ const whiteboardTest = () => {
     try {
       const testName = 'drawRectangle';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.init(true, true, testName);
       await test.startRecording(testName);
-      await test.logger('Test Name: ', testName);
-      await test.closeAudioModal();
       response = await test.test();
       await test.logger('end of ', testName);
       await test.stopRecording();
@@ -46,10 +44,9 @@ const whiteboardTest = () => {
     try {
       const testName = 'giveWhiteboardAdditionalAccess';
       await test.page1.logger('begin of ', testName);
-      await test.init(undefined, testName);
+      await test.init(testName);
       await test.page1.startRecording(testName);
       await test.page2.startRecording(testName);
-      await test.page1.logger('Test Name: ', testName);
       response = await test.testWhiteboardAccess();
       await test.page1.logger('end of ', testName);
       await test.page1.stopRecording();

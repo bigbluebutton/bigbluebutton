@@ -122,7 +122,7 @@ const notificationsTest = () => {
     try {
       const testName = 'pollResultsNotification';
       await test.page3.logger('begin of ', testName);
-      await test.initUser3(Page.getArgs(), undefined, testName);
+      await test.initUser3(true, testName);
       response = await test.publishPollResults(testName);
       await test.page3.logger('end of ', testName);
       await test.page3.stopRecording();

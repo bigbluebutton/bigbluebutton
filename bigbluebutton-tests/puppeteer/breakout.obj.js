@@ -19,7 +19,7 @@ const breakoutTest = () => {
     try {
       const testName = 'createBreakoutrooms';
       await test.modPage1.logger('begin of ', testName);
-      await test.init(undefined, testName);
+      await test.init(testName);
       await test.modPage1.startRecording(testName);
       await test.create(testName);
       response = await test.testCreatedBreakout(testName);
@@ -45,7 +45,7 @@ const breakoutTest = () => {
     try {
       const testName = 'joinBreakoutroomsWithoutFeatures';
       await test.modPage1.logger('begin of ', testName);
-      await test.init(undefined, testName);
+      await test.init(testName);
       await test.modPage1.startRecording(testName);
       await test.create(testName);
       await test.join(testName);
@@ -72,7 +72,7 @@ const breakoutTest = () => {
     try {
       const testName = 'joinBreakoutroomsWithVideo';
       await test.modPage1.logger('begin of ', testName);
-      await test.init(undefined, testName);
+      await test.init(testName);
       await test.modPage1.startRecording(testName);
       await test.create(testName);
       await test.join(testName);
@@ -99,7 +99,7 @@ const breakoutTest = () => {
     try {
       const testName = 'joinBreakoutroomsAndShareScreen';
       await test.modPage1.logger('begin of ', testName);
-      await test.init(undefined, testName);
+      await test.init(testName);
       await test.modPage1.startRecording(testName);
       await test.create(testName);
       await test.join(testName);
@@ -126,7 +126,7 @@ const breakoutTest = () => {
     try {
       const testName = 'joinBreakoutroomsWithAudio';
       await test.modPage1.logger('begin of ', testName);
-      await test.init(undefined, testName);
+      await test.init(testName);
       await test.modPage1.startRecording(testName);
       await test.create(testName);
       await test.join(testName);

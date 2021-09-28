@@ -12,14 +12,11 @@ class Trigger extends Page {
 
   async triggerMeteorDisconnect(testName) {
     try {
-      await this.screenshot(`${testName}`, `01-before-audio-modal-close-[${this.meetingId}]`);
-
-      await this.closeAudioModal();
-      await this.screenshot(`${testName}`, `02-after-audio-modal-close-[${this.meetingId}]`);
+      await this.screenshot(`${testName}`, `01-after-audio-modal-close-[${this.meetingId}]`);
 
       await sleep(5000);
       await this.page.evaluate(() => Meteor.disconnect());
-      await this.screenshot(`${testName}`, `03-after-meteor-disconnection-[${this.meetingId}]`);
+      await this.screenshot(`${testName}`, `02-after-meteor-disconnection-[${this.meetingId}]`);
 
       await sleep(CLIENT_RECONNECTION_TIMEOUT);
       const meteorStatus = await this.page.evaluate(() => Meteor.status());
@@ -31,7 +28,7 @@ class Trigger extends Page {
       await this.logger('Check if Connections Buttons are disabled => ', getAudioButton);
       await this.page.evaluate(() => Meteor.reconnect());
       await sleep(3000);
-      await this.screenshot(`${testName}`, `04-after-meteor-reconnection-[${this.meetingId}]`);
+      await this.screenshot(`${testName}`, `03-after-meteor-reconnection-[${this.meetingId}]`);
 
       const findUnauthorized = await this.page.evaluate(checkElementLengthDifferentTo, e.unauthorized, 0) === true;
       await this.logger('Check if Unauthorized message appears => ', findUnauthorized);
@@ -44,10 +41,7 @@ class Trigger extends Page {
 
   async triggerNetworkServiceDisconnection(testName) {
     try {
-      await this.screenshot(`${testName}`, `01-before-audio-modal-close-[${this.meetingId}]`);
-
-      await this.closeAudioModal();
-      await this.screenshot(`${testName}`, `02-after-audio-modal-close-[${this.meetingId}]`);
+      await this.screenshot(`${testName}`, `01-after-audio-modal-close-[${this.meetingId}]`);
 
       await sleep(5000);
       await this.logger('Stopping Network Service...');
@@ -65,7 +59,7 @@ class Trigger extends Page {
       const meteorStatus = await this.page.evaluate(() => Meteor.status());
       const meteorStatusConfirm = await meteorStatus.status === "offline";
       await this.logger('Check if Meteor is Offline => ', meteorStatusConfirm);
-      await this.screenshot(`${testName}`, `03-after-network-service-shutdown-[${this.meetingId}]`);
+      await this.screenshot(`${testName}`, `02-after-network-service-shutdown-[${this.meetingId}]`);
 
       await this.logger('Counting ', CLIENT_RECONNECTION_TIMEOUT / 6000, ' seconds...');
       await sleep(CLIENT_RECONNECTION_TIMEOUT);
@@ -81,7 +75,7 @@ class Trigger extends Page {
         }
         await this.logger("data", data);
       });
-      await this.screenshot(`${testName}`, `04-after-network-service-restart-[${this.meetingId}]`);
+      await this.screenshot(`${testName}`, `03-after-network-service-restart-[${this.meetingId}]`);
 
       await this.page.reload();
       await this.closeAudioModal();
