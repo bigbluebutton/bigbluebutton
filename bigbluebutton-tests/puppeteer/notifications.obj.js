@@ -28,7 +28,7 @@ const notificationsTest = () => {
       await test.page1.logger('Save Setting notification !');
     }
     expect(response).toBe(true);
-    await Page.checkRegression(1.56, screenshot);
+    Page.checkRegression(1.56, screenshot);
   });
 
   test('Public Chat notification', async () => {
@@ -49,7 +49,7 @@ const notificationsTest = () => {
       await test.page1.logger('Public Chat notification !');
     }
     expect(response).toBe(true);
-    await Page.checkRegression(1.0, screenshot);
+    Page.checkRegression(1.0, screenshot);
   });
 
   test('Private Chat notification', async () => {
@@ -70,7 +70,7 @@ const notificationsTest = () => {
       await test.page1.logger('Private Chat notification !');
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.6, screenshot);
+    Page.checkRegression(0.6, screenshot);
   });
 
   test('User join notification', async () => {
@@ -91,7 +91,7 @@ const notificationsTest = () => {
       await test.page3.logger('User join notification !');
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.0, screenshot);
+    Page.checkRegression(2.0, screenshot);
   });
 
   test('Presentation upload notification', async () => {
@@ -112,7 +112,7 @@ const notificationsTest = () => {
       await test.page3.logger('Presentation upload notification !');
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.64, screenshot);
+    Page.checkRegression(2.64, screenshot);
   });
 
   test('Poll results notification', async () => {
@@ -134,7 +134,7 @@ const notificationsTest = () => {
       await test.page3.logger('Poll results notification !');
     }
     expect(response).toContain('Poll results were published');
-    await Page.checkRegression(7.26, screenshot);
+    Page.checkRegression(7.26, screenshot);
   });
 
   test('Screenshare notification', async () => {
@@ -155,7 +155,7 @@ const notificationsTest = () => {
       await test.page3.logger('Screenshare notification !');
     }
     expect(response).toBe('Screenshare has started');
-    await Page.checkRegression(7.25, screenshot);
+    Page.checkRegression(7.25, screenshot);
   });
 
   test('Audio notifications', async () => {
@@ -176,7 +176,7 @@ const notificationsTest = () => {
       await test.page3.logger('Audio notification !');
     }
     expect(response).toBe(true);
-    await Page.checkRegression(1.05, screenshot);
+    Page.checkRegression(1.05, screenshot);
   });
 };
 module.exports = exports = notificationsTest;

@@ -35,7 +35,7 @@ const userTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.0, screenshot);
+    Page.checkRegression(2.0, screenshot);
   });
 
   // Change user status icon and check if it has changed
@@ -58,7 +58,7 @@ const userTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.0, screenshot);
+    Page.checkRegression(2.0, screenshot);
   });
 
   // Connect with 2 users and check if User1 sees User2
@@ -83,7 +83,7 @@ const userTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.0, screenshot);
+    Page.checkRegression(2.0, screenshot);
   });
 
   // Open Connection Status Modal and check if appears
@@ -106,7 +106,7 @@ const userTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.0, screenshot);
+    Page.checkRegression(2.0, screenshot);
   });
 
   // Open Connection Status Modal, start Webcam Share, disable Webcams in
@@ -130,7 +130,7 @@ const userTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.0, screenshot);
+    Page.checkRegression(2.0, screenshot);
   });
 
   // Open Connection Status Modal, start Screenshare, disable Screenshare in
@@ -154,7 +154,7 @@ const userTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.0, screenshot);
+    Page.checkRegression(2.0, screenshot);
   });
 
   // Connect with a Good3G NETWORK_PRESET profil,  Open Connection Status Modal
@@ -178,7 +178,7 @@ const userTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.0, screenshot);
+    Page.checkRegression(2.0, screenshot);
   }, TEST_DURATION_TIME);
 
   // Force bad connection profile, force disconnection
@@ -202,7 +202,7 @@ const userTest = () => {
       await test.closePage(test.page1);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.0, screenshot);
+    Page.checkRegression(2.0, screenshot);
   }, TEST_DURATION_TIME);
 
   // Raise and Lower Hand and make sure that the User2 Avatar color
@@ -231,7 +231,7 @@ const userTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.0, screenshot);
+    Page.checkRegression(2.0, screenshot);
   });
 
   // Set Guest policy to ASK_MODERATOR
@@ -254,7 +254,7 @@ const userTest = () => {
       await test.close(test.page1, test.userPage);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.0, screenshot);
+    Page.checkRegression(2.0, screenshot);
   });
 
   // Set Guest policy to ALWAYS_ACCEPT
@@ -277,7 +277,7 @@ const userTest = () => {
       await test.close(test.page1, test.userPage);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.0, screenshot);
+    Page.checkRegression(2.0, screenshot);
   });
 
   // Set Guest policy to ALWAYS_DENY
@@ -300,7 +300,7 @@ const userTest = () => {
       await test.close(test.page1, test.userPage);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.0, screenshot);
+    Page.checkRegression(2.0, screenshot);
   });
 
   // Whiteboard shouldn't be accessible when
@@ -327,7 +327,7 @@ const userTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.0, screenshot);
+    Page.checkRegression(2.0, screenshot);
   });
 
   // Userlist and chat panel should not appear at page
@@ -354,7 +354,7 @@ const userTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.0, screenshot);
+    Page.checkRegression(2.0, screenshot);
   });
 
   // Userslist shouldn't appear when Chat Panel or Whiteboard
@@ -381,7 +381,7 @@ const userTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.0, screenshot);
+    Page.checkRegression(2.0, screenshot);
   });
 
   // Chat Panel shouldn't appear when Userlist or Whiteboard
@@ -408,7 +408,7 @@ const userTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(2.0, screenshot);
+    Page.checkRegression(2.0, screenshot);
   });
 };
 

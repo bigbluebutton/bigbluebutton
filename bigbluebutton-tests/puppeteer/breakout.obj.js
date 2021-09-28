@@ -34,7 +34,7 @@ const breakoutTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(8.0, screenshot);
+    Page.checkRegression(8.0, screenshot);
   });
 
   // Join Breakout Room
@@ -61,7 +61,7 @@ const breakoutTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(4.0, screenshot);
+    Page.checkRegression(4.0, screenshot);
   });
 
   // Join Breakout Room with Video
@@ -88,7 +88,7 @@ const breakoutTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.6, screenshot);
+    Page.checkRegression(0.6, screenshot);
   });
 
   // Join Breakout Room and start Screen Share
@@ -115,7 +115,7 @@ const breakoutTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.7, screenshot);
+    Page.checkRegression(0.7, screenshot);
   });
 
   // Join Breakout Room with Audio
@@ -142,7 +142,7 @@ const breakoutTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(3.6, screenshot);
+    Page.checkRegression(3.6, screenshot);
   });
 };
 

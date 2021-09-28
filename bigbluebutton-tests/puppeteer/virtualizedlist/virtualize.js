@@ -17,7 +17,7 @@ class VirtualizeList {
       for (let i = 1; i <= parseInt(USER_LIST_VLIST_BOTS_LISTENING); i++) {
         const viewerPage = new Page();
         await viewerPage.init(false, true, testName, `Viewer${i}`, this.page1.meetingId);
-        await this.pagesArray.push(viewerPage);
+        this.pagesArray.push(viewerPage);
 
         await this.page1.getMetrics();
       }
@@ -32,8 +32,7 @@ class VirtualizeList {
       const USER_LIST_VLIST_VISIBLE_USERS = await this.page1.page.evaluate(getElementLength, e.anyUser);
       const totalNumberOfUsersMongo = await this.page1.page.evaluate(() => {
         const collection = require('/imports/api/users/index.js');
-        const users = collection.default._collection.find().count();
-        return users;
+        return collection.default._collection.find().count();
       });
       if (USER_LIST_VLIST_VISIBLE_USERS === totalNumberOfUsersMongo) {
         return false;
