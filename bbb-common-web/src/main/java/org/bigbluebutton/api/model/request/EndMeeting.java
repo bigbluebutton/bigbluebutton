@@ -7,6 +7,7 @@ import org.bigbluebutton.api.model.shared.Checksum;
 import org.bigbluebutton.api.model.shared.ModeratorPassword;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import java.util.Map;
 
 public class EndMeeting extends RequestWithChecksum<EndMeeting.Params> {
@@ -27,6 +28,7 @@ public class EndMeeting extends RequestWithChecksum<EndMeeting.Params> {
     private String meetingID;
 
     @PasswordConstraint
+    @NotEmpty(message = "You must provide the moderator password")
     private String password;
 
     @Valid

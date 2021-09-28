@@ -3,7 +3,7 @@ const util = require('./util');
 
 class SharedNotes extends Create {
   constructor() {
-    super('shared-notes');
+    super();
   }
 
   async test() {

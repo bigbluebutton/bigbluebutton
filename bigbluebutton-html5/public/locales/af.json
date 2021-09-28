@@ -481,8 +481,6 @@
     "app.audioModal.playAudio.arialabel" : "Speel klank",
     "app.audioDial.tipIndicator": "Wenk",
     "app.audioDial.tipMessage": "Druk die '0'-sleutel op jou foon om jouself te demp",
-    "app.audioModal.connecting": "Aansluiting",
-    "app.audioModal.connectingEchoTest": "Aansluiting by echo toets",
     "app.audioManager.joinedAudio": "Jy het by die klankkonferensie aangesluit",
     "app.audioManager.joinedEcho": "Jy het by die eggotoets aangesluit",
     "app.audioManager.leftAudio": "Jy het die klankkonferensie verlaat",
