@@ -4,15 +4,15 @@ import { Session } from 'meteor/session';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/container';
 import BreakoutService from '../service';
+import Auth from '../../../services/auth';
 
 const BREAKOUT_MODAL_DELAY = 200;
 
 const propTypes = {
   mountModal: PropTypes.func.isRequired,
-  currentBreakoutUser: PropTypes.shape({
-    insertedTime: PropTypes.number.isRequired,
+  breakoutRoom: PropTypes.shape({
+    breakoutId: PropTypes.number.isRequired,
   }),
-  getBreakoutByUser: PropTypes.func.isRequired,
   breakoutUserIsIn: PropTypes.shape({
     sequence: PropTypes.number.isRequired,
   }),
@@ -22,7 +22,7 @@ const propTypes = {
 };
 
 const defaultProps = {
-  currentBreakoutUser: undefined,
+  breakoutRoom: undefined,
   breakoutUserIsIn: undefined,
   breakouts: [],
 };
@@ -55,9 +55,9 @@ class BreakoutRoomInvitation extends Component {
   checkBreakouts(oldProps) {
     const {
       breakouts,
-      currentBreakoutUser,
-      getBreakoutByUser,
+      breakoutRoom,
       breakoutUserIsIn,
+      getUrlByBreakout,
     } = this.props;
 
     const {
@@ -67,20 +67,17 @@ class BreakoutRoomInvitation extends Component {
     const hasBreakouts = breakouts.length > 0;
 
     if (hasBreakouts && !breakoutUserIsIn && BreakoutService.checkInviteModerators()) {
-      // Have to check for freeJoin breakouts first because currentBreakoutUser will
+      // Have to check for freeJoin breakouts first because currentBreakoutUrl will
       // populate after a room has been joined
-      const breakoutRoom = getBreakoutByUser(currentBreakoutUser);
-      const freeJoinBreakout = breakouts.find(breakout => breakout.freeJoin);
+      const freeJoinBreakout = breakouts.find((breakout) => breakout.freeJoin);
       if (freeJoinBreakout) {
         if (!didSendBreakoutInvite) {
           this.inviteUserToBreakout(breakoutRoom || freeJoinBreakout);
           this.setState({ didSendBreakoutInvite: true });
         }
-      } else if (currentBreakoutUser) {
-        const currentInsertedTime = currentBreakoutUser.insertedTime;
-        const oldCurrentUser = oldProps.currentBreakoutUser || {};
-        const oldInsertedTime = oldCurrentUser.insertedTime;
-        if (currentInsertedTime !== oldInsertedTime) {
+      } else if (breakoutRoom && getUrlByBreakout(breakoutRoom, Auth.userID)) {
+        const oldBreakoutRoomURL = getUrlByBreakout((oldProps || {}).breakoutRoom, Auth.userID) || '';
+        if (getUrlByBreakout(breakoutRoom, Auth.userID) !== oldBreakoutRoomURL) {
           const breakoutId = Session.get('lastBreakoutOpened');
           if (breakoutRoom.breakoutId !== breakoutId) {
             this.inviteUserToBreakout(breakoutRoom);

@@ -147,17 +147,16 @@ class BreakoutJoinConfirmation extends Component {
       this.setState({ waiting: true });
 
       await new Promise((resolve) => {
-
         interval = setInterval(() => {
           const url = getURL(selectValue);
 
-          if (url !== "") {
+          if (url !== '') {
             resolve();
             clearInterval(interval);
             this.setState({ waiting: false });
           }
-        }, 1000)
-      })
+        }, 1000);
+      });
     } else {
       this.setState({ waiting: false });
     }
@@ -171,7 +170,7 @@ class BreakoutJoinConfirmation extends Component {
 
   renderSelectMeeting() {
     const { breakouts, intl } = this.props;
-    const { selectValue, waiting, } = this.state;
+    const { selectValue, waiting } = this.state;
     return (
       <div className={styles.selectParent}>
         {`${intl.formatMessage(intlMessages.freeJoinMessage)}`}
