@@ -1,7 +1,6 @@
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
 const Page = require('./core/page');
 const Status = require('./user/status');
-const Create = require('./breakout/create');
 const MultiUsers = require('./user/multiusers');
 const { MAX_MULTIUSERS_TEST_TIMEOUT, TEST_DURATION_TIME } = require('./core/constants'); // core constants (Timeouts vars imported)
 const { NETWORK_PRESETS } = require('./core/profiles');
@@ -243,25 +242,21 @@ const userTest = () => {
   // Set Guest policy to ASK_MODERATOR
   // and expect user in guest wait list
   test('Guest policy: ASK_MODERATOR', async () => {
-    const test = new Create();
+    const test = new MultiUsers();
     let response;
     let screenshot;
     try {
       const testName = 'askModeratorGuestPolicy';
       await test.page1.logger('begin of ', testName);
-      await test.init(undefined, testName);
       await test.page1.startRecording(testName);
-      await test.page2.startRecording(testName);
       response = await test.askModeratorGuestPolicy(testName);
       await test.page1.stopRecording();
-      await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
-      await test.closePage(test.page3);
+      await test.close(test.page1, test.userPage);
     }
     expect(response).toBe(true);
     await Page.checkRegression(2.0, screenshot);
@@ -270,25 +265,21 @@ const userTest = () => {
   // Set Guest policy to ALWAYS_ACCEPT
   // and expect user to get accepted automatically
   test('Guest policy: ALWAYS_ACCEPT', async () => {
-    const test = new Create();
+    const test = new MultiUsers();
     let response;
     let screenshot;
     try {
       const testName = 'alwaysAcceptGuestPolicy';
       await test.page1.logger('begin of ', testName);
-      await test.init(undefined, testName);
       await test.page1.startRecording(testName);
-      await test.page2.startRecording(testName);
       response = await test.alwaysAcceptGuestPolicy(testName);
       await test.page1.stopRecording();
-      await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
-      await test.closePage(test.page3);
+      await test.close(test.page1, test.userPage);
     }
     expect(response).toBe(true);
     await Page.checkRegression(2.0, screenshot);
@@ -297,25 +288,21 @@ const userTest = () => {
   // Set Guest policy to ALWAYS_DENY
   // and expect user to get denied
   test('Guest policy: ALWAYS_DENY', async () => {
-    const test = new Create();
+    const test = new MultiUsers();
     let response;
     let screenshot;
     try {
       const testName = 'alwaysDenyGuestPolicy';
       await test.page1.logger('begin of ', testName);
-      await test.init(undefined, testName);
       await test.page1.startRecording(testName);
-      await test.page2.startRecording(testName);
       response = await test.alwaysDenyGuestPolicy(testName);
       await test.page1.stopRecording();
-      await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await test.page1.logger('end of ', testName);
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
-      await test.closePage(test.page3);
+      await test.close(test.page1, test.userPage);
     }
     expect(response).toBe(true);
     await Page.checkRegression(2.0, screenshot);

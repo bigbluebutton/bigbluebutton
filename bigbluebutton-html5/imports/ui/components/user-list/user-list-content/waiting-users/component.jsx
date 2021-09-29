@@ -52,6 +52,7 @@ const WaitingUsers = ({
         <div className={styles.list}>
           <div
             role="button"
+            data-test="waitingUsersBtn"
             tabIndex={0}
             className={styles.listItem}
             onClick={toggleWaitingPanel}

@@ -171,6 +171,7 @@ class BreakoutRoom extends PureComponent {
       this.setState(
         {
           waiting: true,
+          generated: false,
           requestedBreakoutId: breakoutId,
         },
         () => requestJoinURL(breakoutId),
@@ -489,7 +490,7 @@ class BreakoutRoom extends PureComponent {
             messageDuration={intlMessages.breakoutDuration}
             breakoutRoom={breakoutRooms[0]}
           />
-          {!visibleExtendTimeForm
+          {amIModerator && !visibleExtendTimeForm
             ? (
               <Button
                 onClick={this.showExtendTimeForm}
