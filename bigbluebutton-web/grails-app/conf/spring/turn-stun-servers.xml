@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
+NOTE that you need to overwrite this with /usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml before executing ./deploy.sh of bbb-common-web!!!
 
 BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 

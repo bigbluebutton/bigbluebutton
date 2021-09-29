@@ -127,4 +127,27 @@ public final class Util {
 			}
 		}
 	}
+	
+       public static String generateUploadId(String filename) {
+               long timestamp = System.currentTimeMillis();
+               return DigestUtils.sha1Hex(filename) + "-" + timestamp;
+       }
+
+       public static File createUploadDir(String rootDir, String source, String meetingId, String uploadId) {
+               String meetingsPath = rootDir + File.separatorChar + "meetings";
+               String sourcePath = meetingsPath + File.separatorChar + meetingId + File.separatorChar + source;
+               String uploadPath = sourcePath + File.separatorChar + uploadId;
+               File uploadDir = new File(uploadPath);
+               if (uploadDir.mkdirs()) {
+                       return uploadDir;
+               }
+               return null;
+       }
+
+       public static String getDownloadPath(String rootDir, String source, String meetingId, String uploadId) {
+               String meetingsPath = rootDir + File.separatorChar + "meetings";
+               String sourcePath = meetingsPath + File.separatorChar + meetingId + File.separatorChar + source;
+               String downloadPath = sourcePath + File.separatorChar + uploadId;
+               return downloadPath;
+       }
 }
