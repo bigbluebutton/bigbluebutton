@@ -300,6 +300,8 @@
 
             if (status === 'ALLOW') {
               updateLobbyMessage(_('app.guest.allow'));
+              // Timeout is required by accessibility to allow viewing of the message for a minimum of 3 seconds
+              // before redirecting.
               setTimeout(() => {
                 disableAnimation();
                 window.location = data.response.url;
