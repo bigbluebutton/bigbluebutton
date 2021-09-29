@@ -133,22 +133,6 @@ class ReaderMenu extends PureComponent {
     this.getPreviewStyle = this.getPreviewStyle.bind(this);
   }
 
-  getPreviewStyle() {
-    const {
-      backgroundColor,
-      fontColor,
-      fontFamily,
-      fontSize,
-    } = this.state;
-
-    return {
-      fontFamily,
-      fontSize,
-      color: fontColor,
-      background: backgroundColor,
-    };
-  }
-
   handleColorPickerClick(fieldname) {
     const obj = {};
     // eslint-disable-next-line react/destructuring-assignment
@@ -197,6 +181,22 @@ class ReaderMenu extends PureComponent {
     };
     activateCaptions(locale, settings);
     closeModal();
+  }
+
+  getPreviewStyle() {
+    const {
+      backgroundColor,
+      fontColor,
+      fontFamily,
+      fontSize,
+    } = this.state;
+
+    return {
+      fontFamily,
+      fontSize,
+      color: fontColor,
+      background: backgroundColor,
+    };
   }
 
   render() {
@@ -255,14 +255,15 @@ class ReaderMenu extends PureComponent {
                   >
                     {intl.formatMessage(intlMessages.select)}
                   </option>
-                  {ownedLocales.map(loc => (
+                  {ownedLocales.map((loc) => (
                     <option
                       key={loc.locale}
                       value={loc.locale}
                       lang={loc.locale}
                     >
                       {loc.name}
-                    </option>))}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -275,25 +276,34 @@ class ReaderMenu extends PureComponent {
                   tabIndex={DEFAULT_INDEX}
                   className={styles.swatch}
                   onClick={this.handleColorPickerClick.bind(this, 'displayFontColorPicker')}
+                  onKeyPress={() => { }}
+                  role="button"
                 >
                   <div className={styles.swatchInner} style={{ background: fontColor }} />
                 </div>
-                {displayFontColorPicker
-                  ? (
-                    <div className={styles.colorPickerPopover}>
-                      <div
-                        className={styles.colorPickerOverlay}
-                        onClick={this.handleCloseColorPicker.bind(this)}
-                      />
-                      <GithubPicker
-                        onChange={this.handleColorChange.bind(this, 'fontColor')}
-                        colors={COLORS}
-                        width="140px"
-                        triangle="hide"
-                      />
-                    </div>
-                  ) : null
-              }
+                {
+                  displayFontColorPicker
+                    ? (
+                      <div className={styles.colorPickerPopover}>
+                        <div
+                          className={styles.colorPickerOverlay}
+                          onClick={this.handleCloseColorPicker.bind(this)}
+                          onKeyPress={() => { }}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={ariaTextColor}
+                        />
+                        <GithubPicker
+                          // eslint-disable-next-line react/jsx-no-bind
+                          onChange={this.handleColorChange.bind(this, 'fontColor')}
+                          colors={COLORS}
+                          width="140px"
+                          triangle="hide"
+                        />
+                      </div>
+                    )
+                    : null
+                }
               </div>
 
               <div className={styles.row}>
@@ -305,25 +315,34 @@ class ReaderMenu extends PureComponent {
                   tabIndex={DEFAULT_INDEX}
                   className={styles.swatch}
                   onClick={this.handleColorPickerClick.bind(this, 'displayBackgroundColorPicker')}
+                  role="button"
+                  onKeyPress={() => { }}
                 >
                   <div className={styles.swatchInner} style={{ background: backgroundColor }} />
                 </div>
-                {displayBackgroundColorPicker
-                  ? (
-                    <div className={styles.colorPickerPopover}>
-                      <div
-                        className={styles.colorPickerOverlay}
-                        onClick={this.handleCloseColorPicker.bind(this)}
-                      />
-                      <GithubPicker
-                        onChange={this.handleColorChange.bind(this, 'backgroundColor')}
-                        colors={COLORS}
-                        width="140px"
-                        triangle="hide"
-                      />
-                    </div>
-                  ) : null
-              }
+                {
+                  displayBackgroundColorPicker
+                    ? (
+                      <div className={styles.colorPickerPopover}>
+                        <div
+                          aria-label={ariaBackgroundColor}
+                          className={styles.colorPickerOverlay}
+                          onClick={this.handleCloseColorPicker.bind(this)}
+                          tabIndex={0}
+                          role="button"
+                          onKeyPress={() => { }}
+                        />
+                        <GithubPicker
+                          // eslint-disable-next-line react/jsx-no-bind
+                          onChange={this.handleColorChange.bind(this, 'backgroundColor')}
+                          colors={COLORS}
+                          width="140px"
+                          triangle="hide"
+                        />
+                      </div>
+                    )
+                    : null
+                }
               </div>
 
               <div className={styles.row}>

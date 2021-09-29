@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 public class ParamsUtil {
   private static Logger log = LoggerFactory.getLogger(ParamsUtil.class);
@@ -19,9 +20,9 @@ public class ParamsUtil {
   public static String stripControlChars(String text) {
     return text.replaceAll("\\p{Cc}", "");
   }
-  
-  public static String stripHTMLTags(String value) {
-    return value.replaceAll("\\<.*?>","");
+
+  public static String escapeHTMLTags(String value) {
+    return StringEscapeUtils.escapeHtml4(value);
   }
 
   public static boolean isValidMeetingId(String meetingId) {
@@ -67,5 +68,15 @@ public class ParamsUtil {
       log.error(e.toString());
     }
     return padId;
+  }
+
+  public static String sanitizeString(String inputString) {
+    if(inputString == null) {
+      return "";
+    }
+
+    String sanitizedString = stripControlChars(inputString);
+    String trimmedString = sanitizedString.trim();
+    return trimmedString;
   }
 }

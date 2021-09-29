@@ -1,17 +1,21 @@
-import React, { PureComponent } from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Note from './component';
 import NoteService from './service';
+import LayoutContext from '../layout/context';
 
-class NoteContainer extends PureComponent {
-  render() {
-    return (
-      <Note {...this.props}>
-        {this.props.children}
-      </Note>
-    );
-  }
-}
+const NoteContainer = ({ children, ...props }) => {
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextDispatch, layoutContextState } = layoutContext;
+  const { input } = layoutContextState;
+  const { cameraDock } = input;
+  const { isResizing } = cameraDock;
+  return (
+    <Note {...{ layoutContextDispatch, isResizing, ...props }}>
+      {children}
+    </Note>
+  );
+};
 
 export default withTracker(() => {
   const isLocked = NoteService.isLocked();

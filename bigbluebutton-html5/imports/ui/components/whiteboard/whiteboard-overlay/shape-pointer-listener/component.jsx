@@ -174,7 +174,7 @@ export default class ShapePointerListener extends Component {
     if (this.isDrawing) {
       // make sure we are drawing and we have some coordinates sent for this shape before
       // to prevent sending DRAW_END on a random mouse click
-      if (this.lastSentCoordinate.x && this.lastSentCoordinate.y) {
+      if (this.lastSentCoordinate.x !== undefined && this.lastSentCoordinate.y !== undefined) {
         const { getCurrentShapeId } = actions;
         this.handleDrawCommonAnnotation(
           this.initialCoordinate,

@@ -74,6 +74,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     [hidden]:not([hidden="false"]) {
       display: none !important;
     }
+
+    textarea::-webkit-input-placeholder,
+    input::-webkit-input-placeholder {
+      color: var(--palette-placeholder-text);
+      opacity: 1;
+    }
   </style>
   <script>
     document.addEventListener('gesturestart', function (e) {

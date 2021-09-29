@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import { UsersTyping } from '/imports/api/group-chat-msg';
@@ -11,16 +11,9 @@ const USER_CONFIG = Meteor.settings.public.user;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 
-class TypingIndicatorContainer extends PureComponent {
-  render() {
-    return (
-      <TypingIndicator {...this.props} />
-    );
-  }
-}
+const TypingIndicatorContainer = props => <TypingIndicator {...props} />;
 
-export default withTracker(() => {
-  const idChatOpen = Session.get('idChatOpen');
+export default withTracker(({ idChatOpen }) => {
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, {
     fields: {
       'lockSettingsProps.hideUserList': 1,
@@ -47,7 +40,7 @@ export default withTracker(() => {
     },
   });
 
-  if (meeting.lockSettingsProps.hideUserList && currentUser.role === USER_CONFIG.role_viewer) {
+  if (meeting.lockSettingsProps.hideUserList && currentUser?.role === USER_CONFIG.role_viewer) {
     selector.role = { $ne: USER_CONFIG.role_viewer };
   }
 

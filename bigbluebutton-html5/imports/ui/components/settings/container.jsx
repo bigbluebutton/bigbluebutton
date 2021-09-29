@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import SettingsService from '/imports/ui/services/settings';
 import Settings from './component';
+import LayoutContext from '../layout/context';
 
 import {
   getUserRoles,
@@ -10,9 +11,12 @@ import {
   getAvailableLocales,
 } from './service';
 
-const SettingsContainer = props => (
-  <Settings {...props} />
-);
+const SettingsContainer = (props) => {
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextDispatch } = layoutContext;
+
+  return <Settings {...props} layoutContextDispatch={layoutContextDispatch} />;
+};
 
 export default withTracker(() => ({
   audio: SettingsService.audio,
