@@ -1,4 +1,5 @@
 const e = require('../core/elements');
+const { sleep } = require('../core/helper');
 
 async function openChat(test) {
   await test.waitForSelector(e.chatBox);
@@ -20,6 +21,7 @@ async function openPrivateChatMessage(page1, page2) {
   await page1.waitAndClick(e.userListItem);
   await page2.waitAndClick(e.userListItem);
   await page1.waitAndClick(e.activeChat);
+  await sleep(500); // prevent a race condition when running on a deployed server
   await page2.waitAndClick(e.activeChat);
 }
 
