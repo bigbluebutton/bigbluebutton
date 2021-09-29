@@ -4,7 +4,6 @@ import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import UserListService from '/imports/ui/components/user-list/service';
-import fp from 'lodash/fp';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -76,7 +75,7 @@ const transferUserToMeeting = (fromMeetingId, toMeetingId) => makeCall('transfer
 
 const transferToBreakout = (breakoutId) => {
   const breakoutRooms = findBreakouts();
-  const breakoutRoom = breakoutRooms.filter((breakout) => breakout.breakoutId === breakoutId).shift();
+  const breakoutRoom = breakoutRooms.filter((brk) => brk.breakoutId === breakoutId).shift();
   const breakoutMeeting = Meetings.findOne({
     $and: [
       { 'breakoutProps.sequence': breakoutRoom.sequence },
