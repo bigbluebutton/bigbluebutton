@@ -1,8 +1,8 @@
-const Page = require('./core/page');
-const Draw = require('./whiteboard/draw');
-const Multiusers = require('./user/multiusers');
+const Page = require('../core/page');
+const Draw = require('./draw');
+const Multiusers = require('../user/multiusers');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
-const { MAX_WHITEBOARD_TEST_TIMEOUT } = require('./core/constants');
+const { MAX_WHITEBOARD_TEST_TIMEOUT } = require('../core/constants');
 
 expect.extend({ toMatchImageSnapshot });
 

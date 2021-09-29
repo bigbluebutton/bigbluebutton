@@ -1,7 +1,7 @@
-const Notifications = require('./notifications/notifications');
-const Page = require('./core/page');
+const Notifications = require('./notifications');
+const Page = require('../core/page');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
-const { MAX_NOTIFICATIONS_TEST_TIMEOUT } = require('./core/constants'); // core constants (Timeouts vars imported)
+const { MAX_NOTIFICATIONS_TEST_TIMEOUT } = require('../core/constants'); // core constants (Timeouts vars imported)
 
 expect.extend({ toMatchImageSnapshot });
 
