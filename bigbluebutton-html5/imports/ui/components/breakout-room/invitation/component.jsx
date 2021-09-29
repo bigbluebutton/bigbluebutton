@@ -11,7 +11,7 @@ const BREAKOUT_MODAL_DELAY = 200;
 const propTypes = {
   mountModal: PropTypes.func.isRequired,
   breakoutRoom: PropTypes.shape({
-    breakoutId: PropTypes.number.isRequired,
+    breakoutId: PropTypes.string.isRequired,
   }),
   breakoutUserIsIn: PropTypes.shape({
     sequence: PropTypes.number.isRequired,
