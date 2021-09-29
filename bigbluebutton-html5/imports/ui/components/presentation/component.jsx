@@ -823,7 +823,7 @@ class Presentation extends PureComponent {
     const { presentationToolbarMinWidth } = DEFAULT_VALUES;
 
     const isLargePresentation = (svgWidth > presentationToolbarMinWidth || isMobile)
-      && !(layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0);
+      && !(layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0 && !fullscreenContext);
 
     const containerWidth = isLargePresentation
       ? svgWidth

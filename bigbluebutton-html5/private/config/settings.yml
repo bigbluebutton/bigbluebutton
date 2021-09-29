@@ -13,13 +13,13 @@ public:
     # Skips the echo test when connecting with microphone.
     skipCheck: false
     # Skips the echo test when connecting with microphone right after user
-    # joins the room the first time. Subsequents joins  to microphone won't
-    # have echo test skipped, for example if user leave and join mic again
-    # or reloading page and joining mic again.
+    # joins the room the first time. Subsequent joins to microphone won't
+    # have echo test skipped, for example if user leaves and joins the mic
+    # again or reloading page and joining mic again.
     # This setting won't have effect if skipCheck = true
     skipCheckOnJoin: false
     #
-    # Allow users to change microphone/speaker dinamically
+    # Allow users to change microphone/speaker dynamically
     # The device is changed immediately, without the need to rejoin
     # audio. Default value is true
     # Firefox users: if no output devices is shown, you may set the flag
@@ -197,6 +197,9 @@ public:
     wsConnectionTimeout: 4000
     # Time in milis to wait for the browser to return a gUM call (used in video-preview)
     gUMTimeout: 20000
+    # Experiment(al). Controls whether ICE candidates should be signaled.
+    # Applies to webcams, listen only and screen sharing. True is "stable behavior".
+    signalCandidates: true
     cameraTimeouts:
       # Base camera timeout: used as the camera *sharing* timeout and
       # as the minimum camera subscribe reconnection timeout

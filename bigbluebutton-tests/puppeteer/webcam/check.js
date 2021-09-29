@@ -3,7 +3,7 @@ const util = require('./util');
 
 class Check extends Share {
   constructor() {
-    super('webcam-check-content-test');
+    super();
   }
 
   async compare() {
