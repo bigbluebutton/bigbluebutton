@@ -88,6 +88,7 @@
     }
 
     const REDIRECT_TIMEOUT = 15000;
+    const MESSAGE_TIMEOUT = 3000;
 
     function updateMessage(message) {
       document.querySelector('#content > p').innerHTML = message;
@@ -298,8 +299,11 @@
             }
 
             if (status === 'ALLOW') {
-              disableAnimation();
-              window.location = data.response.url;
+              updateLobbyMessage(_('app.guest.allow'));
+              setTimeout(() => {
+                disableAnimation();
+                window.location = data.response.url;
+              }, MESSAGE_TIMEOUT);
               return;
             }
 
