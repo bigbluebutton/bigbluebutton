@@ -259,6 +259,7 @@ class SettingsDropdown extends PureComponent {
           icon: 'logout',
           label: intl.formatMessage(intlMessages.leaveSessionLabel),
           // description: intl.formatMessage(intlMessages.leaveSessionDesc),
+          className: styles.leaveMeetingButton,
           onClick: () => this.leaveSession(),
         },
       );
