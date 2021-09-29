@@ -312,8 +312,9 @@ class VideoPlayer extends Component {
 
   getCurrentPlaybackRate() {
     const intPlayer = this.player && this.player.getInternalPlayer();
+    const rate = (intPlayer && intPlayer.getPlaybackRate && intPlayer.getPlaybackRate());
 
-    return (intPlayer && intPlayer.getPlaybackRate && intPlayer.getPlaybackRate()) || 1;
+    return typeof(rate) == 'number' ? rate : 1;
   }
 
   setPlaybackRate(rate) {
