@@ -14,7 +14,7 @@ const ClosePresentationComponent = ({
   intl, toggleSwapLayout, layoutContextDispatch, isIphone,
 }) => (
   <Button
-    color="primary"
+    color="muted"
     icon="minus"
     size="sm"
     data-test="hidePresentationButton"
