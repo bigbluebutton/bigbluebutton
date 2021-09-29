@@ -26,7 +26,7 @@ const getBreakoutRoomUrl = (breakoutId) => {
     .filter((breakout) => typeof breakout[`url_${Auth.userID}`] !== 'undefined')
     .shift();
 
-  return breakoutRoom[`url_${Auth.userID}`] || null;
+  return (breakoutRoom || {})[`url_${Auth.userID}`] || null;
 };
 
 const endAllBreakouts = () => {
