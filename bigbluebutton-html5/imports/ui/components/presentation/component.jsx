@@ -730,7 +730,7 @@ class Presentation extends PureComponent {
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
         isFullscreen={isFullscreen}
-        color="primary"
+        color="muted"
         fullScreenStyle={false}
         className={styles.presentationFullscreen}
       />
