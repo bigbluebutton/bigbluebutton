@@ -90,7 +90,7 @@ class BreakoutRoom extends PureComponent {
 
   componentDidUpdate() {
     const {
-      breakoutRoomUser,
+      getBreakoutRoomUrl,
       breakoutRooms,
       closeBreakoutPanel,
       setBreakoutAudioTransferStatus,
@@ -107,11 +107,11 @@ class BreakoutRoom extends PureComponent {
     if (breakoutRooms.length <= 0) closeBreakoutPanel();
 
     if (waiting) {
-      const breakoutUser = breakoutRoomUser(requestedBreakoutId);
+      const breakoutUrl = getBreakoutRoomUrl(requestedBreakoutId);
 
-      if (!breakoutUser) return;
-      if (breakoutUser.redirectToHtml5JoinURL !== '') {
-        window.open(breakoutUser.redirectToHtml5JoinURL, '_blank');
+      if (!breakoutUrl) return false;
+      if (breakoutUrl !== '') {
+        window.open(breakoutUrl, '_blank');
         _.delay(() => this.setState({ waiting: false }), 1000);
       }
     }
@@ -127,10 +127,10 @@ class BreakoutRoom extends PureComponent {
 
   getBreakoutURL(breakoutId) {
     Session.set('lastBreakoutOpened', breakoutId);
-    const { requestJoinURL, breakoutRoomUser } = this.props;
+    const { requestJoinURL, getBreakoutRoomUrl } = this.props;
     const { waiting } = this.state;
-    const hasUser = breakoutRoomUser(breakoutId);
-    if (!hasUser && !waiting) {
+    const breakoutRoomUserUrl = getBreakoutRoomUrl(breakoutId);
+    if (!breakoutRoomUserUrl && !waiting) {
       this.setState(
         {
           waiting: true,
@@ -140,8 +140,8 @@ class BreakoutRoom extends PureComponent {
       );
     }
 
-    if (hasUser) {
-      window.open(hasUser.redirectToHtml5JoinURL, '_blank');
+    if (breakoutRoomUserUrl) {
+      window.open(breakoutRoomUserUrl, '_blank');
       this.setState({ waiting: false });
     }
     return null;

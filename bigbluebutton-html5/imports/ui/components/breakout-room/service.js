@@ -5,7 +5,6 @@ import Auth from '/imports/ui/services/auth';
 import { Session } from 'meteor/session';
 import Users from '/imports/api/users';
 import UserListService from '/imports/ui/components/user-list/service';
-import fp from 'lodash/fp';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -21,11 +20,13 @@ const findBreakouts = () => {
   return BreakoutRooms;
 };
 
-const breakoutRoomUser = (breakoutId) => {
+const getBreakoutRoomUrl = (breakoutId) => {
   const breakoutRooms = findBreakouts();
-  const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
-  const breakoutUser = breakoutRoom.users?.filter(user => user.userId === Auth.userID).shift();
-  return breakoutUser;
+  const breakoutRoom = breakoutRooms.filter((breakout) => breakout.breakoutId === breakoutId)
+    .filter((breakout) => typeof breakout[`url_${Auth.userID}`] !== 'undefined')
+    .shift();
+
+  return (breakoutRoom || {})[`url_${Auth.userID}`] || null;
 };
 
 const closeBreakoutPanel = () => {
@@ -48,7 +49,7 @@ const transferUserToMeeting = (fromMeetingId, toMeetingId) => makeCall('transfer
 
 const transferToBreakout = (breakoutId) => {
   const breakoutRooms = findBreakouts();
-  const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
+  const breakoutRoom = breakoutRooms.filter((brk) => brk.breakoutId === breakoutId).shift();
   const breakoutMeeting = Meetings.findOne({
     $and: [
       { 'breakoutProps.sequence': breakoutRoom.sequence },
@@ -70,29 +71,12 @@ const checkInviteModerators = () => {
   return !((amIModerator() && !BREAKOUTS_CONFIG.sendInvitationToIncludedModerators));
 };
 
-const getBreakoutByUserId = userId => Breakouts.find(
-  { 'users.userId': userId },
+const getOneBreakoutByUserId = (userId) => Breakouts.findOne(
+  { [`url_${userId}`]: { $exists: true } },
   { fields: { timeRemaining: 0 } },
-).fetch();
+);
 
-const getBreakoutByUser = user => Breakouts.findOne({ users: user });
-
-const getUsersFromBreakouts = breakoutsArray => breakoutsArray
-  .map(breakout => breakout.users)
-  .reduce((acc, usersArray) => [...acc, ...usersArray], []);
-
-const filterUserURLs = userId => breakoutUsersArray => breakoutUsersArray
-  .filter(user => user.userId === userId);
-
-const getLastURLInserted = breakoutURLArray => breakoutURLArray
-  .sort((a, b) => a.insertedTime - b.insertedTime).pop();
-
-const getBreakoutUserByUserId = userId => fp.pipe(
-  getBreakoutByUserId,
-  getUsersFromBreakouts,
-  filterUserURLs(userId),
-  getLastURLInserted,
-)(userId);
+const getUrlByBreakout = (breakout, userId) => (breakout || {})[`url_${userId}`] || null;
 
 const getBreakouts = () => Breakouts.find({}, { sort: { sequence: 1 } }).fetch();
 const getBreakoutsNoTime = () => Breakouts.find(
@@ -103,29 +87,28 @@ const getBreakoutsNoTime = () => Breakouts.find(
   },
 ).fetch();
 
-const getBreakoutUserIsIn = userId => Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${userId}`) }, { fields: { sequence: 1 } });
+const getBreakoutUserIsIn = (userId) => Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${userId}`) }, { fields: { sequence: 1 } });
 
 const isUserInBreakoutRoom = (joinedUsers) => {
   const userId = Auth.userID;
 
-  return !!joinedUsers.find(user => user.userId.startsWith(userId));
+  return !!joinedUsers.find((user) => user.userId.startsWith(userId));
 };
 
 export default {
   findBreakouts,
   endAllBreakouts,
   requestJoinURL,
-  breakoutRoomUser,
+  getBreakoutRoomUrl,
   transferUserToMeeting,
   transferToBreakout,
   meetingId: () => Auth.meetingID,
   closeBreakoutPanel,
   amIModerator,
-  getBreakoutUserByUserId,
-  getBreakoutByUser,
+  getUrlByBreakout,
+  getOneBreakoutByUserId,
   getBreakouts,
   getBreakoutsNoTime,
-  getBreakoutByUserId,
   getBreakoutUserIsIn,
   sortUsersByName: UserListService.sortUsersByName,
   isUserInBreakoutRoom,
