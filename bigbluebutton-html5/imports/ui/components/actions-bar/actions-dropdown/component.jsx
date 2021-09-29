@@ -219,7 +219,7 @@ class ActionsDropdown extends PureComponent {
       actions.push({
         icon: "upload",
         label: formatMessage(uploadMediaLabel),
-        key: this.uploadMediaI,
+        key: this.uploadMediaId,
         onClick: this.handleUploadMediaClick,
       })
     }
