@@ -87,6 +87,7 @@ class ScreenshareComponent extends React.Component {
       toggleSwapLayout,
       layoutContextDispatch,
       intl,
+      hidePresentation,
     } = this.props;
 
     screenshareHasStarted();
@@ -100,6 +101,13 @@ class ScreenshareComponent extends React.Component {
     notify(intl.formatMessage(intlMessages.screenshareStarted), 'info', 'desktop');
 
     if (getSwapLayout()) toggleSwapLayout(layoutContextDispatch);
+
+    if (hidePresentation) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: true,
+      });
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -112,7 +120,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   componentWillUnmount() {
-    const { intl, fullscreenContext, layoutContextDispatch } = this.props;
+    const { intl, fullscreenContext, layoutContextDispatch, hidePresentation } = this.props;
     screenshareHasEnded();
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
@@ -126,6 +134,13 @@ class ScreenshareComponent extends React.Component {
           element: '',
           group: '',
         },
+      });
+    }
+
+    if (hidePresentation) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: false,
       });
     }
   }

@@ -20,6 +20,7 @@ import ReloadButton from '/imports/ui/components/reload-button/component';
 
 import ArcPlayer from '/imports/ui/components/external-video-player/custom-players/arc-player';
 import PeerTubePlayer from '/imports/ui/components/external-video-player/custom-players/peertube';
+import { ACTIONS } from '/imports/ui/components/layout/enums';
 
 import { styles } from './styles';
 
@@ -142,6 +143,7 @@ class VideoPlayer extends Component {
       getSwapLayout,
       toggleSwapLayout,
       layoutContextDispatch,
+      hidePresentation,
     } = this.props;
 
     window.addEventListener('beforeunload', this.onBeforeUnload);
@@ -153,6 +155,13 @@ class VideoPlayer extends Component {
     this.registerVideoListeners();
 
     if (getSwapLayout()) toggleSwapLayout(layoutContextDispatch);
+
+    if (hidePresentation) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: true,
+      });
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -182,6 +191,7 @@ class VideoPlayer extends Component {
   }
 
   componentWillUnmount() {
+    const { hidePresentation } = this.props;
     window.removeEventListener('beforeunload', this.onBeforeUnload);
 
     VideoPlayer.clearVideoListeners();
@@ -190,6 +200,13 @@ class VideoPlayer extends Component {
     clearTimeout(this.autoPlayTimeout);
 
     this.player = null;
+
+    if (hidePresentation) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: false,
+      });
+    }
   }
 
   handleOnReady() {
