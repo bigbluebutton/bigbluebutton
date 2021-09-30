@@ -5,7 +5,7 @@ import { check } from 'meteor/check';
 export default function updateRandomUser(meetingId, userIds, choice, requesterId) {
   check(meetingId, String);
   check(userIds, Array);
-  check(choice, Number);
+  check(choice, String);
   check(requesterId, String);
 
   const selector = {
@@ -13,7 +13,7 @@ export default function updateRandomUser(meetingId, userIds, choice, requesterId
   };
 
   const userList = [];
-  if (choice < 0) { // no viewer
+  if (choice == "") { // no viewer
     userList.push([requesterId,0]);
   } else if (userIds.length == 1) {
     userList.push([userIds[0],0]);
@@ -26,15 +26,7 @@ export default function updateRandomUser(meetingId, userIds, choice, requesterId
       }
       userList.push([userId, intervals.shift()]);
     }
-    userList[userList.length-1][0] = userIds[choice]; // last one should be chosen in akka-app
-  }
-
-  if (userIds.length == 2) {
-    // I don't like this.. When the userList is same as previous one, we need to change it a bit to make sure that clients does not skip the change in MongoDB
-    const previousMeeting = Meetings.findOne(selector, { fields: {randomlySelectedUser:1}});
-    if (previousMeeting.randomlySelectedUser.length != 0 && userList[0][0] == previousMeeting.randomlySelectedUser[0][0]) {
-      userList[0][0] = userList[1][0];
-    }
+    userList[0][0] = choice;  // first one should be chosen in akka-app
   }
 
   const modifier = {
