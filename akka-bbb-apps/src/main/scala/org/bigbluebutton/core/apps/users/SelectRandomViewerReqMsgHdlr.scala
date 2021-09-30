@@ -12,40 +12,35 @@ trait SelectRandomViewerReqMsgHdlr extends RightsManagementTrait {
 
   val outGW: OutMsgRouter
 
-  var previouslySelectedIds = List("")
+  var randomizedIds = Vector[String]()
+  var previousIds = Set[String]()
+  var counter = 0
 
-  def pickUser(userIds: Vector[String]): Int = {
-
-    if (previouslySelectedIds.size == 1) {
-      val log1 = log.debug(s"\n\n\n")
-      val log2 = log.debug(s" --- start experimental select viewer only once ---")
-      val log7 = log.debug(s" from the choosable users in the meeting")
-      val log6 = userIds.map(i => log.debug(s" Id -> $i"))
-    }
-
-    if (userIds.size != previouslySelectedIds.size - 1) {
-      val randNum = (new scala.util.Random).nextInt(userIds.size)
-      val matches = previouslySelectedIds.filter(_ == userIds(randNum))
-      if (matches.size == 1) pickUser(userIds)
-      else {
-        previouslySelectedIds = previouslySelectedIds :+ userIds(randNum)
-        val chosen = userIds(randNum)
-        val log7 = log.debug(s" Chose user with ID - $chosen so returning number $randNum")
-        randNum
+  def pickUser(userIds: Vector[String], refresh: Boolean): String = {
+    if (userIds.length != 1) {
+      val setOfIds = userIds.toSet
+      if ((randomizedIds.size == 0) || refresh) { //executed once on the first call
+        randomizedIds = Random.shuffle(userIds)
+        previousIds = setOfIds
+        counter = 0
       }
-    } else {
-      val log3 = log.debug(s" no-more-users")
-      val log4 = log.debug(s" --- end experimental select viewer only once -")
-      val log5 = log.debug(s"\n\n\n")
-
-      -1
-    }
+      if (!(setOfIds).equals(previousIds)) { //only executed if list of users has changed
+        val usedUp = randomizedIds.dropRight(randomizedIds.length - counter)
+        val leftToChoose = userIds.diff(usedUp)
+        randomizedIds = usedUp ++ Random.shuffle(leftToChoose)
+        previousIds = setOfIds
+      }
+      if (counter != userIds.length) {
+        counter = counter + 1
+        randomizedIds(counter - 1)
+      } else ""
+    } else userIds(0)
   }
 
   def handleSelectRandomViewerReqMsg(msg: SelectRandomViewerReqMsg): Unit = {
     log.debug("Received SelectRandomViewerReqMsg {}", SelectRandomViewerReqMsg)
 
-    def broadcastEvent(msg: SelectRandomViewerReqMsg, users: Vector[String], choice: Integer): Unit = {
+    def broadcastEvent(msg: SelectRandomViewerReqMsg, users: Vector[String], choice: String): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(SelectRandomViewerRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(SelectRandomViewerRespMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
@@ -62,21 +57,17 @@ trait SelectRandomViewerReqMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
       val users = Users2x.findNotPresentersNorModerators(liveMeeting.users2x)
-      // val randNum = new scala.util.Random
-      // val chosenUser = if (users.size == 0) -1 else randNum.nextInt(users.size)
 
-      val userIds = users.map { case (v) => v.intId }
-
-      val log5 = log.debug(s"\n\n\n")
-      val log1 = log.debug("allowRepeat: " + msg.body.allowRepeat)
-      val log4 = log.debug(s"\n\n\n")
+      val userIds = (users.map { case (v) => v.intId })
 
       var allowRepeat = msg.body.allowRepeat
 
+      var refresh = msg.body.refresh
+
       val choice = if (allowRepeat) {
         val randNum = new scala.util.Random
-        if (users.size == 0) -1 else randNum.nextInt(users.size)
-      } else pickUser(userIds)
+        if (users.size == 0) "" else userIds(randNum.nextInt(users.size))
+      } else pickUser(userIds, refresh)
 
       broadcastEvent(msg, userIds, choice)
     }

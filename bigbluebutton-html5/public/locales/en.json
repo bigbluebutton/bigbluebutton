@@ -564,6 +564,7 @@
     "app.modal.randomUser.who": "Who will be selected..?",
     "app.modal.randomUser.alone": "There is only one viewer",
     "app.modal.randomUser.allowRepeat.label": " Allow users to be selected more than once",
+    "app.modal.randomUser.restart.label": "Restart",
     "app.modal.randomUser.reselect.label": "Select again",
     "app.modal.randomUser.ariaLabel.title": "Randomly selected User Modal",
     "app.dropdown.close": "Close",

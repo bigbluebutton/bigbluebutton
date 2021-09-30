@@ -8,6 +8,7 @@ import { styles } from './styles';
 
 const SELECT_RANDOM_USER_COUNTDOWN = Meteor.settings.public.selectRandomUser.countdown;
 const DEFAULT_ALLOW_REPEAT = false;
+const DEFAULT_REFRESH = false;
 
 const messages = defineMessages({
   noViewers: {
@@ -34,6 +35,10 @@ const messages = defineMessages({
     id: 'app.modal.randomUser.allowRepeat.label',
     description: 'asks user whether they want to allow repetition in random user selection',
   },
+  restart: {
+    id: 'app.modal.randomUser.restart.label',
+    description: 'suggest user to start non-repetitive selection again',
+  },
   reselect: {
     id: 'app.modal.randomUser.reselect.label',
     description: 'select new random user button label',
@@ -58,20 +63,8 @@ class RandomUserSelect extends Component {
     super(props);
 
     if (props.currentUser.presenter) {
-      props.randomUserReq(DEFAULT_ALLOW_REPEAT);
+      props.randomUserReq(DEFAULT_ALLOW_REPEAT, DEFAULT_REFRESH);
     }
-
-    // this.state = {
-    //   allowRepeat : false
-    // }
-
-    // if(SELECT_RANDOM_USER_COUNTDOWN) {
-    //   this.state = {
-    //     count: 0,
-    //     allowRepeat : false
-    //   };
-    //   this.play = this.play.bind(this);
-    // }
 
     this.state = {
       allowRepeat: DEFAULT_ALLOW_REPEAT,
@@ -125,13 +118,13 @@ class RandomUserSelect extends Component {
       + '/resources/sounds/Poll.mp3');
   }
 
-  reselect() {
+  reselect(refresh) {
     if(SELECT_RANDOM_USER_COUNTDOWN) {
       this.setState({
         count: 0,
       });
     }
-    this.props.randomUserReq(this.state.allowRepeat);
+    this.props.randomUserReq(this.state.allowRepeat, refresh);
   }
 
   render() {
@@ -164,6 +157,16 @@ class RandomUserSelect extends Component {
             {intl.formatMessage(messages.randUserTitle)}
           </div>
           <div>{intl.formatMessage(messages.noViewers)}</div>
+          {<>
+            <br/>
+            <Button
+              onClick={() => this.reselect(true)}
+              label={intl.formatMessage(messages.restart)}
+              color="primary"
+              size="md"
+              className={styles.selectBtn}
+            />
+            </>}
         </div>
       );
     } else { // viewers are available
@@ -187,23 +190,25 @@ class RandomUserSelect extends Component {
           <div className={styles.selectedUserName}>
             {selectedUser.name}
           </div>
-          <div>
+          {currentUser.presenter
+            && countDown == 0
+            && (
+            <>
+            <div>
             <input type="checkbox" name="allowRepeat" 
             onChange={() => this.setState( { allowRepeat: !this.state.allowRepeat } )} 
               defaultChecked={this.state.allowRepeat}/>
               <label htmlFor="allowRepeat">{intl.formatMessage(messages.allowRepeat)}</label>
             <br/>
-          </div>
-          {currentUser.presenter
-            && countDown == 0
-            && (
+            </div>
             <Button
               label={intl.formatMessage(messages.reselect)}
               color="primary"
               size="md"
               className={styles.selectBtn}
-              onClick={() => this.reselect()}
+              onClick={() => this.reselect(false)}
             />
+            </>
             )}
         </div>
       );
