@@ -99,9 +99,9 @@ public class Main {
   private final class TinyTileBackgroundPredicate
       implements Predicate<XSLFPictureData> {
     public boolean evaluate(XSLFPictureData img) {
-      return img.getContentType() != null
-          && img.getContentType().equals("image/jpeg")
-          && LittleEndian.getLong(img.getChecksum()) == 4114937224L;
+        return img.getContentType() != null
+                && ((img.getContentType().equals("image/jpeg") && LittleEndian.getLong(img.getChecksum()) == 4114937224L) ||
+                (img.getContentType().equals("image/png") && LittleEndian.getLong(img.getChecksum()) == 3207965638L));
     }
   }
 
