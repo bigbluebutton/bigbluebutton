@@ -1,6 +1,5 @@
 const Page = require('../core/page');
 const e = require('../core/elements');
-const params = require('../params');
 const util = require('./util');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { checkElement, checkElementTextIncludes, checkElementText } = require('../core/util');
@@ -17,13 +16,11 @@ class Presentation {
   }
 
   async initModPage(testName) {
-    await this.modPage.init(Page.getArgs(), undefined, { ...params, fullName: 'Mod' }, undefined, testName);
-    await this.modPage.closeAudioModal();
+    await this.modPage.init(true, true, testName, 'Mod');
   }
 
   async initUserPage(testName) {
-    await this.userPage.init(Page.getArgs(), this.modPage.meetingId, { ...params, fullName: 'Attendee', moderatorPW: '' }, undefined, testName);
-    await this.userPage.closeAudioModal();
+    await this.userPage.init(false, true, testName, 'Attendee', this.modPage.meetingId);
   }
 
   async closePages() {

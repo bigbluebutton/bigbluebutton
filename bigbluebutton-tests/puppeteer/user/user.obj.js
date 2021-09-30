@@ -23,9 +23,8 @@ const userTest = () => {
     try {
       const testName = 'mobileTagName';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
+      await test.init(true, true, testName, 'Moderator', undefined, undefined, undefined, iPhonex);
       await test.startRecording(testName);
-      await test.closeAudioModal();
       response = await test.mobileTagName();
       await test.logger('end of ', testName);
       await test.stopRecording();
@@ -47,9 +46,8 @@ const userTest = () => {
     try {
       const testName = 'changeUserStatus';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.init(true, true, testName);
       await test.startRecording(testName);
-      await test.closeAudioModal();
       response = await test.test();
       await test.logger('end of ', testName);
       await test.stopRecording();
@@ -71,11 +69,9 @@ const userTest = () => {
     try {
       const testName = 'multiUsersPresenceCheck';
       await test.page1.logger('begin of ', testName);
-      await test.init(undefined, testName);
+      await test.init(testName);
       await test.page1.startRecording(testName);
-      await test.page1.closeAudioModal();
       await test.page2.startRecording(testName);
-      await test.page2.closeAudioModal();
       response = await test.test();
       await test.page1.stopRecording();
       await test.page2.stopRecording();
@@ -98,9 +94,8 @@ const userTest = () => {
     try {
       const testName = 'connectionStatusModal';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.init(true, true, testName);
       await test.startRecording(testName);
-      await test.closeAudioModal();
       response = await test.findConnectionStatusModal();
       await test.stopRecording();
       screenshot = await test.page.screenshot();
@@ -123,7 +118,7 @@ const userTest = () => {
     try {
       const testName = 'disableWebcamsFromConnectionStatus';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.init(true, true, testName);
       await test.startRecording(testName);
       response = await test.disableWebcamsFromConnectionStatus();
       await test.stopRecording();
@@ -147,7 +142,7 @@ const userTest = () => {
     try {
       const testName = 'disableScreenshareFromConnectionStatus';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.init(true, true, testName);
       await test.startRecording(testName);
       response = await test.disableScreenshareFromConnectionStatus();
       await test.stopRecording();
@@ -171,7 +166,7 @@ const userTest = () => {
     try {
       const testName = 'reportUserInConnectionIssues';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs(), undefined, undefined, undefined, testName, NETWORK_PRESETS.Regular4G);
+      await test.init(true, false, testName, 'Moderator', undefined, undefined, NETWORK_PRESETS.Regular4G);
       await test.startRecording(testName);
       response = await test.reportUserInConnectionIssues();
       await test.stopRecording();
@@ -195,7 +190,7 @@ const userTest = () => {
     try {
       const testName = 'userOfflineWithInternetProblem';
       await test.page1.logger('begin of ', testName);
-      await test.init(undefined, testName);
+      await test.init(testName);
       await test.page1.startRecording(testName);
       response = await test.userOfflineWithInternetProblem();
       await test.page1.stopRecording();
@@ -219,7 +214,7 @@ const userTest = () => {
     try {
       const testName = 'raiseAndLowerHandToast';
       await test.page1.logger('begin of ', testName);
-      await test.init(undefined, testName);
+      await test.init(testName);
       await test.page1.startRecording(testName);
       await test.page2.startRecording(testName);
       const response1 = await test.raiseHandTest();
@@ -317,8 +312,8 @@ const userTest = () => {
     try {
       const testName = 'whiteboardNotAppearOnMobile';
       await test.page1.logger('begin of ', testName);
-      await test.page1.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
-      await test.page2.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
+      await test.page1.init(true, true, testName, 'Mod1', undefined, undefined, undefined, iPhonex);
+      await test.page2.init(true, true, testName, 'Mod2', undefined, undefined, undefined, galaxyNote3);
       await test.page1.startRecording(testName);
       await test.page2.startRecording(testName);
       response = await test.whiteboardNotAppearOnMobile(testName);
@@ -344,8 +339,8 @@ const userTest = () => {
     try {
       const testName = 'userlistNotAppearOnMobile';
       await test.page1.logger('begin of ', testName);
-      await test.page1.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
-      await test.page2.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
+      await test.page1.init(true, true, testName, 'Mod1', undefined, undefined, undefined, iPhonex);
+      await test.page2.init(true, true, testName, 'Mod2', undefined, undefined, undefined, galaxyNote3);
       await test.page1.startRecording(testName);
       await test.page2.startRecording(testName);
       response = await test.userlistNotAppearOnMobile(testName);
@@ -371,8 +366,8 @@ const userTest = () => {
     try {
       const testName = 'userlistNotAppearOnMobile';
       await test.page1.logger('begin of ', testName);
-      await test.page1.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
-      await test.page2.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
+      await test.page1.init(true, true, testName, 'Mod1', undefined, undefined, undefined, iPhonex);
+      await test.page2.init(true, true, testName, 'Mod2', undefined, undefined, undefined, galaxyNote3);
       await test.page1.startRecording(testName);
       await test.page2.startRecording(testName);
       response = await test.userlistNotAppearOnMobile();
@@ -398,8 +393,8 @@ const userTest = () => {
     try {
       const testName = 'chatPanelNotAppearOnMobile';
       await test.page1.logger('begin of ', testName);
-      await test.page1.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, iPhonex);
-      await test.page2.init(Page.getArgs(), undefined, undefined, undefined, testName, undefined, galaxyNote3);
+      await test.page1.init(true, true, testName, 'Mod1', undefined, undefined, undefined, iPhonex);
+      await test.page2.init(true, true, testName, 'Mod2', undefined, undefined, undefined, galaxyNote3);
       await test.page1.startRecording(testName);
       await test.page2.startRecording(testName);
       response = await test.chatPanelNotAppearOnMobile();

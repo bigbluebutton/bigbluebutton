@@ -18,7 +18,7 @@ const webcamTest = () => {
     try {
       const testName = 'shareWebcam';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.init(true, true, testName);
       await test.closeAudioModal();
       await test.startRecording(testName);
       response = await test.test();
@@ -41,7 +41,7 @@ const webcamTest = () => {
     try {
       const testName = 'checkWebcamContent';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.init(true, true, testName);
       await test.closeAudioModal();
       await test.startRecording(testName);
       response = await test.test();

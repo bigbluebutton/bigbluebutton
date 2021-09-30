@@ -1,5 +1,3 @@
-// Test: Sending a chat message
-
 const Notifications = require('../notifications/notifications');
 const e = require('../core/elements');
 const { checkElementLengthEqualTo } = require('../core/util');
