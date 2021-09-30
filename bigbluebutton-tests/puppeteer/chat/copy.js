@@ -1,6 +1,6 @@
 const Page = require('../core/page');
 const e = require('../core/elements');
-const p = require('../params');
+const p = require('../core/params');
 const util = require('./util');
 
 class Copy extends Page {
