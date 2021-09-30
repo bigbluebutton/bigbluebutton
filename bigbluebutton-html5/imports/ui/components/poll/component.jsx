@@ -74,12 +74,12 @@ const intlMessages = defineMessages({
     id: 'app.poll.optionDelete.label',
     description: '',
   },
-  pollPanelDesc: {
-    id: 'app.poll.panel.desc',
-    description: '',
-  },
   questionLabel: {
     id: 'app.poll.question.label',
+    description: '',
+  },
+  optionalQuestionLabel: {
+    id: 'app.poll.optionalQuestion.label',
     description: '',
   },
   userResponse: {
@@ -117,10 +117,6 @@ const intlMessages = defineMessages({
   nonSecretPollLabel: {
     id: 'app.poll.secretPoll.notSecretLabel',
     description: 'label explaining that the presenter will see for which option everyone voted',
-  },
-  questionTitle: {
-    id: 'app.poll.question.title',
-    description: '',
   },
   true: {
     id: 'app.poll.answer.true',
@@ -471,13 +467,12 @@ class Poll extends Component {
       checkPollType,
     } = this.props;
     const defaultPoll = isDefaultPoll(type);
+    const questionPlaceholder = (type === pollTypes.Response)
+      ? intlMessages.questionLabel
+      : intlMessages.optionalQuestionLabel;
     return (
       <div>
-        <div className={styles.instructions}>
-          {intl.formatMessage(intlMessages.pollPanelDesc)}
-        </div>
         <div>
-          <h4 aria-hidden>{intl.formatMessage(intlMessages.questionTitle)}</h4>
           <textarea
             data-test="pollQuestionArea"
             className={styles.pollQuestion}
@@ -486,8 +481,8 @@ class Poll extends Component {
             rows="4"
             cols="35"
             maxLength={QUESTION_MAX_INPUT_CHARS}
-            aria-label={intl.formatMessage(intlMessages.questionTitle)}
-            placeholder={intl.formatMessage(intlMessages.questionLabel)}
+            aria-label={intl.formatMessage(questionPlaceholder)}
+            placeholder={intl.formatMessage(questionPlaceholder)}
           />
           {(type === pollTypes.Response && question.length === 0 && error) ? (
             <div className={styles.inputError}>{error}</div>
