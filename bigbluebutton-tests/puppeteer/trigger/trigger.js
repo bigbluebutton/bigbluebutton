@@ -45,7 +45,7 @@ class Trigger extends Page {
 
       await sleep(5000);
       await this.logger('Stopping Network Service...');
-      await exec('sh events/stop-network.sh', async (error, data, getter) => {
+      await exec('sh trigger/stop-network.sh', async (error, data, getter) => {
         if (error) {
           await this.logger("error", error.message);
           return;
@@ -64,7 +64,7 @@ class Trigger extends Page {
       await this.logger('Counting ', CLIENT_RECONNECTION_TIMEOUT / 6000, ' seconds...');
       await sleep(CLIENT_RECONNECTION_TIMEOUT);
       await this.logger('Restarting Network Service...');
-      await exec('sh events/restart-network.sh', async (error, data, getter) => {
+      await exec('sh trigger/restart-network.sh', async (error, data, getter) => {
         if (error) {
           await this.logger("error", error.message);
           return;
