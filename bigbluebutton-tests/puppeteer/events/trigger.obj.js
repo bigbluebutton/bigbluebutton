@@ -26,7 +26,7 @@ const triggerTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.1, screenshot);
+    Page.checkRegression(0.1, screenshot);
   });
 
   test('Trigger disconnection: SHUTTING DOWN NETWORK SERVICE', async () => {
@@ -45,7 +45,7 @@ const triggerTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.1, screenshot);
+    Page.checkRegression(0.1, screenshot);
   });
 };
 

@@ -30,7 +30,7 @@ const webcamLayoutTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(10.83, screenshot);
+    Page.checkRegression(10.83, screenshot);
   });
 };
 module.exports = exports = webcamLayoutTest;

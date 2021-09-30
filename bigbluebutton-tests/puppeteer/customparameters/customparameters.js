@@ -9,7 +9,6 @@ class CustomParameters {
   constructor() {
     this.page1 = new Page();
     this.page2 = new Page();
-    this.name = name;
     this.screenshotIndex = 0;
     this.parentDir = this.getParentDir(__dirname);
   }
@@ -397,30 +396,6 @@ class CustomParameters {
   }
 
   async customStyle(testName, customParameter) {
-    try {
-      await this.page1.init(true, true, testName, 'Moderator1', undefined, customParameter);
-      await this.page1.startRecording(testName);
-      await this.page1.screenshot(`${testName}`, `01-${testName}`);
-      await this.page1.waitForSelector(e.whiteboard);
-      await this.page1.screenshot(`${testName}`, `02-${testName}`);
-      const isHidden = await this.page1.page.$eval(e.presentationTitle, elem => elem.offsetHeight == 0);
-      if (isHidden !== true) {
-        await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
-        await this.page1.logger(testName, ' failed');
-        return false;
-      }
-      await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
-      const resp = isHidden;
-      await this.page1.logger(testName, ' passed');
-
-      return resp === true;
-    } catch (err) {
-      await this.page1.logger(err);
-      return false;
-    }
-  }
-
-  async customStyleUrl(testName, customParameter) {
     try {
       await this.page1.init(true, true, testName, 'Moderator1', undefined, customParameter);
       await this.page1.startRecording(testName);

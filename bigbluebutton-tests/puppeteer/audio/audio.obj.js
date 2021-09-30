@@ -29,7 +29,7 @@ const audioTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.65, screenshot);
+    Page.checkRegression(0.65, screenshot);
   });
 
   test('Join audio with Microphone', async () => {
@@ -51,7 +51,7 @@ const audioTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.52, screenshot);
+    Page.checkRegression(0.52, screenshot);
   });
 };
 

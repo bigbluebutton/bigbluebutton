@@ -32,8 +32,7 @@ class VirtualizeList {
       const USER_LIST_VLIST_VISIBLE_USERS = await this.page1.page.evaluate(getElementLength, e.anyUser);
       const totalNumberOfUsersMongo = await this.page1.page.evaluate(() => {
         const collection = require('/imports/api/users/index.js');
-        const users = collection.default._collection.find().count();
-        return users;
+        return collection.default._collection.find().count();
       });
       if (USER_LIST_VLIST_VISIBLE_USERS === totalNumberOfUsersMongo) {
         return false;

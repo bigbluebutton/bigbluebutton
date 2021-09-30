@@ -7,12 +7,12 @@ const pollingTest = require('./polling.obj');
 const presentationTest = require('./presentation.obj');
 const screenShareTest = require('./screenshare.obj');
 const sharedNotesTest = require('./sharednotes.obj');
+const stressTest = require('./stress.obj');
 const userTest = require('./user.obj');
 const virtualizedListTest = require('./virtualizedlist.obj');
 const webcamTest = require('./webcam.obj');
 const webcamLayout = require('./webcamlayout.obj');
 const whiteboardTest = require('./whiteboard.obj');
-const stressTest = require('./stress.obj');
 
 process.setMaxListeners(Infinity);
 
@@ -32,4 +32,4 @@ describe('Webcam Layout', webcamLayout);
 describe('Whiteboard', whiteboardTest);
 if (process.env.STRESS_TEST === 'true') {
   describe('Stress', stressTest);
-};
+}

@@ -32,7 +32,7 @@ const whiteboardTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.9, screenshot);
+    Page.checkRegression(0.9, screenshot);
   });
 
   // Give a User Whiteboard addition access
@@ -58,7 +58,7 @@ const whiteboardTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.9, screenshot);
+    Page.checkRegression(0.9, screenshot);
   });
 };
 module.exports = exports = whiteboardTest;

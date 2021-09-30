@@ -45,7 +45,7 @@ async function checkForPublicMessageReception(page1, page2) {
   const checkPublicMessage2 = await publicChat2[1].evaluate(n => n.innerText);
 
   const response = checkPublicMessage1 == e.publicMessage1 && checkPublicMessage2 == e.publicMessage2;
-  return response;
+  return response == true;
 }
 
 async function checkForPrivateMessageReception(page1, page2) {
@@ -56,7 +56,7 @@ async function checkForPrivateMessageReception(page1, page2) {
   const checkPrivateMessage2 = await privateChat2[1].evaluate(n => n.innerText);
 
   const response = checkPrivateMessage1 == e.message1 && checkPrivateMessage2 == e.message2;
-  return response;
+  return response == true;
 }
 
 async function getTestElements(test) {
