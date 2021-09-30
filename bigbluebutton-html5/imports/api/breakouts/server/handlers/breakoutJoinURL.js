@@ -15,21 +15,9 @@ export default function handleBreakoutJoinURL({ body }) {
     breakoutId,
   };
 
-  const pullModifier = {
-    $pull: {
-      users: {
-        userId,
-      },
-    },
-  };
-
-  const pushModifier = {
-    $push: {
-      users: {
-        userId,
-        redirectToHtml5JoinURL,
-        insertedTime: new Date().getTime(),
-      },
+  const modifier = {
+    $set: {
+      [`url_${userId}`]: redirectToHtml5JoinURL,
     },
   };
 
@@ -39,8 +27,7 @@ export default function handleBreakoutJoinURL({ body }) {
     let numberAffected = 0;
 
     const updateBreakout = Meteor.bindEnvironment(() => {
-      Breakouts.update(selector, pullModifier); // remove old invitations
-      numberAffected = Breakouts.update(selector, pushModifier);
+      numberAffected = Breakouts.update(selector, modifier);
     });
 
     const updateBreakoutPromise = new Promise((resolve) => {
