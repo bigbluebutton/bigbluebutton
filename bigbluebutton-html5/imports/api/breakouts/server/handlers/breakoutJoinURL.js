@@ -15,26 +15,21 @@ export default function handleBreakoutJoinURL({ body }) {
     breakoutId,
   };
 
-  // only keep each users' last invitation
-  const newUsers = [];
+  const pullModifier = {
+    $pull: {
+      users: {
+        userId,
+      },
+    },
+  };
 
-  const currentBreakout = Breakouts.findOne({ breakoutId }, { fields: { users: 1 } });
-
-  currentBreakout.users.forEach((item) => {
-    if (item.userId !== userId) {
-      newUsers.push(item);
-    }
-  });
-
-  newUsers.push({
-    userId,
-    redirectToHtml5JoinURL,
-    insertedTime: new Date().getTime(),
-  });
-
-  const modifier = {
-    $set: {
-      users: newUsers,
+  const pushModifier = {
+    $push: {
+      users: {
+        userId,
+        redirectToHtml5JoinURL,
+        insertedTime: new Date().getTime(),
+      },
     },
   };
 
@@ -44,7 +39,8 @@ export default function handleBreakoutJoinURL({ body }) {
     let numberAffected = 0;
 
     const updateBreakout = Meteor.bindEnvironment(() => {
-      numberAffected = Breakouts.update(selector, modifier);
+      Breakouts.update(selector, pullModifier); // remove old invitations
+      numberAffected = Breakouts.update(selector, pushModifier);
     });
 
     const updateBreakoutPromise = new Promise((resolve) => {
