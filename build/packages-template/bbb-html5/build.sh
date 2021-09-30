@@ -35,8 +35,13 @@ mkdir -p staging/usr/share/meteor
 rm -rf /tmp/html5-build
 mkdir -p /tmp/html5-build
 
+meteor npm -v
+meteor node -v
+cat .meteor/release
+meteor update --allow-superuser --release 2.3.6
+
 # build the HTML5 client
-meteor npm install --production
+meteor npm ci --production
 
 METEOR_DISABLE_OPTIMISTIC_CACHING=1 meteor build /tmp/html5-build --architecture os.linux.x86_64 --allow-superuser
 
