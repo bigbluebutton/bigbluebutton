@@ -15,7 +15,7 @@ class PollsTable extends React.Component {
     }
 
     return (
-      <table className="w-full whitespace-no-wrap">
+      <table className="w-full whitespace-nowrap">
         <thead>
           <tr className="text-xs font-semibold tracking-wide col-text-left text-gray-500 uppercase border-b bg-gray-100">
             <th className="px-4 py-3">
