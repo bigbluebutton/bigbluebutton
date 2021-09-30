@@ -12,7 +12,16 @@ trait ChangeUserEmojiCmdMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleChangeUserEmojiCmdMsg(msg: ChangeUserEmojiCmdMsg) {
-    if (msg.header.userId != msg.body.userId && permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    // Usually only moderators are allowed to change someone else's emoji status
+    // Exceptional case: Viewers who are presenter are allowed to lower someone else's raised hand:
+    val isViewerProhibitedFromLoweringOthersHand =
+      !(Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId).get.emoji.equals("raiseHand") &&
+        msg.body.emoji.equals("none")) ||
+        permissionFailed(PermissionCheck.VIEWER_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)
+
+    if (msg.header.userId != msg.body.userId &&
+      permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) &&
+      isViewerProhibitedFromLoweringOthersHand) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to clear change user emoji status."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)

@@ -14,10 +14,12 @@ const StatusNotifierContainer = (props) => {
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
   const isViewer = currentUser.role === ROLE_VIEWER;
+  const isPresenter = currentUser.presenter;
   return (
     <StatusNotifier {...{
       ...props,
       isViewer,
+      isPresenter,
     }}
     />
   );
