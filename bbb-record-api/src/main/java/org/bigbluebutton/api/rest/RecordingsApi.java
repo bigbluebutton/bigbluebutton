@@ -9,9 +9,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.bigbluebutton.api.model.response.InlineResponse200;
-import org.bigbluebutton.api.model.response.InlineResponse201;
-import org.bigbluebutton.api.model.response.InlineResponse405;
 import org.bigbluebutton.api.model.response.ResponseEnvelope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -27,9 +24,9 @@ public interface RecordingsApi {
     @ApiResponses(value = { 
         @ApiResponse(responseCode = "204", description = "Recording was successfully deleted"),
         @ApiResponse(responseCode = "404", description = "The specified resource could not be found",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse405.class))),
+                content = @Content(mediaType = "application/json")),
         @ApiResponse(responseCode = "405", description = "Validation error",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse405.class))) })
+                content = @Content(mediaType = "application/json")) })
     @RequestMapping(value = "/recordings/{recordingId}",
         produces = { "application/json", "application/xml" }, 
         method = RequestMethod.DELETE)
@@ -41,11 +38,11 @@ public interface RecordingsApi {
         @SecurityRequirement(name = "api_key")    }, tags={ "recording" })
     @ApiResponses(value = { 
         @ApiResponse(responseCode = "200", description = "Recording successfully retrieved",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse200.class))),
+                content = @Content(mediaType = "application/json")),
         @ApiResponse(responseCode = "404", description = "The specified resource could not be found",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse405.class))),
+                content = @Content(mediaType = "application/json")),
         @ApiResponse(responseCode = "405", description = "Validation error",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse405.class))) })
+                content = @Content(mediaType = "application/json")) })
     @RequestMapping(value = "/recordings/{recordingId}",
         produces = { "application/json", "application/xml" }, 
         method = RequestMethod.GET)
@@ -57,11 +54,11 @@ public interface RecordingsApi {
         @SecurityRequirement(name = "api_key")    }, tags={ "recording" })
     @ApiResponses(value = { 
         @ApiResponse(responseCode = "200", description = "Request successful",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse201.class))),
+                content = @Content(mediaType = "application/json")),
         @ApiResponse(responseCode = "404", description = "No resources could be found",
                 content = @Content(mediaType = "application/json")),
         @ApiResponse(responseCode = "405", description = "Validation error",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse405.class))) })
+                content = @Content(mediaType = "application/json")) })
     @RequestMapping(value = "/recordings/search",
         produces = { "application/json", "application/xml" },
         method = RequestMethod.GET)
@@ -74,11 +71,11 @@ public interface RecordingsApi {
             @SecurityRequirement(name = "api_key")    }, tags={ "recording" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Request successful",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse201.class))),
+                    content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "404", description = "No resources could be found",
                     content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "405", description = "Validation error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse405.class))) })
+                    content = @Content(mediaType = "application/json")) })
     @RequestMapping(value = "/recordings/metadata/search",
             produces = { "application/json", "application/xml" },
             method = RequestMethod.GET)
@@ -92,11 +89,11 @@ public interface RecordingsApi {
         @SecurityRequirement(name = "api_key")    }, tags={ "recording" })
     @ApiResponses(value = { 
         @ApiResponse(responseCode = "200", description = "Request successful",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse201.class))),
+                content = @Content(mediaType = "application/json")),
         @ApiResponse(responseCode = "404", description = "The specified resource could not be found",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse405.class))),
+                content = @Content(mediaType = "application/json")),
         @ApiResponse(responseCode = "405", description = "Validation error",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse405.class))) })
+                content = @Content(mediaType = "application/json")) })
     @RequestMapping(value = "/recordings/{recordingId}",
         produces = { "application/json", "application/xml" }, 
         consumes = { "application/json-patch+json"},

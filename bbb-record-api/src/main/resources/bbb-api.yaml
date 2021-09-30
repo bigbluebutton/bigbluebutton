@@ -35,10 +35,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MeetingRequest'
+              $ref: '#/components/schemas/Create'
           application/xml:
             schema:
-              $ref: '#/components/schemas/MeetingRequest'
+              $ref: '#/components/schemas/Create'
         required: true
       responses:
         201:
@@ -54,40 +54,26 @@ paths:
       tags:
       - meeting
       summary: Retrieve meetings
-      operationId: getMeetings
-      requestBody:
-        description: Search filters for meetings
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                filters:
-                  type: "object"
-                  properties:
-                    meetingIds:
-                      type: array
-                      items:
-                        type: string
-                    roomIds:
-                      type: array
-                      items:
-                        type: string
-          application/xml:
-            schema:
-              type: object
-              properties:
-                meetingIds:
-                  type: array
-                  items:
-                    type: string
-                roomIds:
-                  type: array
-                  items:
-                    type: string
-              xml:
-                name: search
-        required: false
+      operationId: searchMeetings
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+            example: "field1:value1,field2:value2,field3:value3"
+          description: "Search query string"  
+        - in: query
+          name: page
+          schema:
+            type: integer
+            format: int32
+          description: "Page number"  
+        - in: query
+          name: size
+          schema:
+            type: integer
+            format: int32
+          description: "Page size"
       responses:
         200:
           $ref: '#/components/responses/Hateoas'
@@ -164,10 +150,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MeetingRequest'
+              $ref: '#/components/schemas/Create'
           application/xml:
             schema:
-              $ref: '#/components/schemas/MeetingRequest'
+              $ref: '#/components/schemas/Create'
         required: true
       responses:
         200:
@@ -283,7 +269,7 @@ paths:
           name: query
           schema:
             type: string
-            example: "parent1/child1:value1,parent2/child2/child3:value2"
+            example: "/parent1/child1:value1,/parent2/child2/child3:value2"
           description: XPath formatted metadata query
         - in: query
           name: page
@@ -387,65 +373,239 @@ paths:
       
 components:
   schemas:
-    MeetingRequest:
+    Create:
       required:
-      - meetingId
-      - name
+      - meetingID
       type: object
       properties:
         name:
           type: string
-        meetingId:
-          type: string
-        voiceBridge:
-          type: integer
-          format: int32
-        attendeePw:
-          type: string
-        moderatorPw:
-          type: string
-        isBreakoutRoom:
-          type: boolean
-        record:
-          type: boolean
-      xml:
-        name: meetingRequest
-    MeetingResponse:
-      type: object
-      properties:
         meetingID:
-          type: string
-        internalMeetingID:
-          type: string
-        parentMeetingID:
           type: string
         attendeePW:
           type: string
         moderatorPW:
           type: string
+        welcome:
+          type: string
+        dialNumber:
+          type: string
+        voiceBridge:
+          type: integer
+          format: int32
+          example: "Number between 10000 and 99999"
+        maxParticipants:
+          type: integer
+          format: int32
+        logoutURL:
+          type: string
+        record:
+          type: boolean
+        duration:
+          type: integer
+          format: int32
+        isBreakout:
+          type: boolean
+        parentMeetingID:
+          type: string
+        sequence:
+          type: integer
+          format: int32
+        freeJoin:
+          type: boolean
+        breakoutRoomsEnabled:
+          type: boolean
+          default: true
+        breakoutRoomsPrivateChatEnabled:
+          type: boolean
+          default: true
+        breakoutRoomsRecord:
+          type: boolean
+          default: true
+        meta_*: 
+          type: string
+          example: "meta_Presenter=Jane%20Doe"
+        moderatorOnlyMessage:
+          type: string
+        autoStartRecording:
+          type: boolean
+          default: false
+        allowStartStopRecording:
+          type: boolean
+          default: true
+        webcamsOnlyForModerator:
+          type: boolean
+        logo:
+          type: string
+        bannerText:
+          type: string
+        bannerColor:
+          type: string
+        copyright:
+          type: string
+        muteOnStart:
+          type: boolean
+        allowModsToUnmuteUsers:
+          type: boolean
+          default: false
+        lockSettingsDisableCam:
+          type: boolean
+          default: false
+        lockSettingsDisableMic:
+          type: boolean
+          default: false
+        lockSettingsDisablePrivateChat:
+          type: boolean
+          default: false
+        lockSettingsDisablePublicChat:
+          type: boolean
+          default: false
+        lockSettingsDisableNote:
+          type: boolean
+          default: false
+        lockSettingLockedLayout:
+          type: boolean
+          default: false
+        lockSettingsLockOnJoin:
+          type: boolean
+          default: true
+        lockSettingsLockOnJoinConfigurable:
+          type: boolean
+          default: false
+        guestPolicy:
+          type: string
+          example: "[ALWAYS_ACCEPT, ALWAYS_DENY, ASK_MODERATOR]"
+        meetingKeepEvents:
+          type: boolean
+          default: false
+        endWhenNoModerator:
+          type: boolean
+          default: false
+        endWhenNoModeratorDelayInMinutes:
+          type: integer
+          format: int32
+          default: 1
+        meetingLayout:
+          type: string
+          example: "[SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS]"
+        learningDashboardEnabled:
+          type: boolean
+          default: true
+        learningDashboardCleanupDelayInMinutes:
+          type: integer
+          format: int32
+          default: 2
+      xml:
+        name: createMeeting
+    Meeting:
+      type: object
+      properties:
+        meetingName:
+          type: string
+        meetingID:
+          type: string
+        internalMeetingID:
+          type: string
         createTime:
           type: integer
           format: int64
+        createDate:
+          type: string
         voiceBridge:
           type: integer
           format: int32
         dialNumber:
           type: string
-        createDate:
+        attendeePW:
           type: string
-        hasUserJoined:
+        moderatorPW:
+          type: string
+        running:
           type: boolean
         duration:
           type: integer
           format: int32
+        hasUserJoined:
+          type: boolean
+        recording:
+          type: boolean
         hasBeenForciblyEnded:
           type: boolean
-        messageKey:
+        startTime:
+          type: integer
+          format: int64
+        endTime:
+          type: integer
+          format: int64
+        participantCount:
+          type: integer
+          format: int32
+        listenerCount:
+          type: integer
+          format: int32
+        voiceParticipantCount:
+          type: integer
+          format: int32
+        videoCount:
+          type: integer
+          format: int32
+        maxUsers:
+          type: integer
+          format: int32
+        moderatorCount:
+          type: integer
+          format: int32
+        attendees:
+          type: array
+          items: 
+            $ref: '#/components/schemas/Attendee'
+        meta:
+          type: array
+          items:
+            type: string
+        isBreakout:
+          type: boolean
+        breakoutRooms:
+          type: array
+          items: 
+            type: string
+        breakout:
+          $ref: '#/components/schemas/Breakout'
+      xml:
+        name: meeting
+    Attendee:
+      type: object
+      properties:
+        userId:
           type: string
-        message:
+        fullName:
+          type: string
+        role:
+          type: string
+        isPresented:
+          type: boolean
+        isListeningOnly:
+          type: boolean
+        hasJoinedVoice:
+          type: boolean
+        hasVideo:
+          type: boolean
+        clientType:
           type: string
       xml:
-        name: meetingResponse
+        name: attendee
+    Breakout:
+      type: object
+      properties:
+        parentMeetingId:
+          type: string
+        sequence:
+          type: integer
+          format: int32
+        freeJoin:
+          type: boolean
+      xml:
+        name: breakout
     Recording:
       type: object
       properties:
@@ -607,20 +767,6 @@ components:
           format: int64
       xml:
         name: join
-    NumericQuery:
-      type: object
-      properties:
-        lowerBound:
-          type: integer
-          format: int64
-        upperBound:
-          type: integer
-          format: int64
-        order:
-          type: string
-          example: desc
-      xml:
-        name: numeric_query
           
   responses:
     Default:
@@ -734,7 +880,7 @@ components:
                 type: object
                 properties:
                   meeting:
-                    $ref: '#/components/schemas/MeetingResponse'
+                    $ref: '#/components/schemas/Meeting'
                   links:
                     type: array
                     items:
@@ -750,7 +896,7 @@ components:
                 type: object
                 properties:
                   meeting:
-                    $ref: '#/components/schemas/MeetingResponse'
+                    $ref: '#/components/schemas/Meeting'
                   links:
                     type: array
                     items:
@@ -773,7 +919,7 @@ components:
                   meetings:
                     type: array
                     items:
-                      $ref: '#/components/schemas/MeetingResponse'
+                      $ref: '#/components/schemas/Meeting'
               errors:
                 type: object
                 properties: {}
@@ -787,7 +933,7 @@ components:
                   meetings:
                     type: array
                     items:
-                      $ref: '#/components/schemas/MeetingResponse'
+                      $ref: '#/components/schemas/Meeting'
               errors:
                 type: object
                 properties: {}
