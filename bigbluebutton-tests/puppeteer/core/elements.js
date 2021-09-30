@@ -165,7 +165,6 @@ exports.confirmManagePresentation = 'button[data-test="confirmManagePresentation
 exports.allowPresentationDownload = 'button[data-test="allowPresentationDownload"]';
 exports.disallowPresentationDownload = 'button[data-test="disallowPresentationDownload"]';
 
-
 // User
 exports.firstUser = '[data-test="userListItemCurrent"]';
 exports.userListItem = 'div[data-test="userListItem"]';

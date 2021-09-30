@@ -141,13 +141,15 @@ class Presentation {
       await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
       await this.modPage.waitAndClick(e.actions);
       await this.modPage.waitAndClick(e.uploadPresentation);
-      await this.modPage.screenshot(testName, `1-modPage-before-remove-download-[${this.modPage.meetingId}]`);
+      await this.modPage.screenshot(testName, '1-modPage-before-remove-presentation');
       await this.modPage.waitAndClick(e.removePresentation);
       await this.modPage.waitAndClick(e.confirmManagePresentation);
-      await this.modPage.waitForSelector(e.actions);
-      await this.modPage.screenshot(testName, `2-modPage-after-remove-download-[${this.modPage.meetingId}]`);
-      await this.userPage.screenshot(testName, `3-userPage-after-remove-download-[${this.modPage.meetingId}]`);
+
+      await this.modPage.waitForSelector(e.presentationPlaceholder);
+      await this.modPage.screenshot(testName, '2-modPage-after-remove-presentation');
       const modPagePlaceholder = await this.modPage.page.evaluate(checkElementText, e.presentationPlaceholder, e.presentationPlaceholderLabel);
+      await this.userPage.waitForSelector(e.presentationPlaceholder);
+      await this.userPage.screenshot(testName, '3-userPage-after-remove-presentation');
       const userPagePlaceholder = await this.userPage.page.evaluate(checkElementText, e.presentationPlaceholder, e.presentationPlaceholderLabel);
 
       return modPagePlaceholder && userPagePlaceholder;
