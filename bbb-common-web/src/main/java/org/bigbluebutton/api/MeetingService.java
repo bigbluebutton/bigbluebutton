@@ -283,34 +283,34 @@ public class MeetingService implements MessageListener {
       processRecording(m);
     }
   }
-  
+
   public Boolean isUploadRequestValid(String meetingId, String source, String filename, String userId, String token) {
     Meeting m = getMeeting(meetingId);
     if (m != null) {
       return m.isUploadRequestValid(source, filename, userId, token);
-    } else {
+     } else {
       return false;
     }
   }
-
+  
   public Boolean isDownloadRequestValid(String meetingId, String source, String uploadId) {
     Meeting m = getMeeting(meetingId);
     if (m != null) {
       return m.hasUploadedFile(source, uploadId);
-    } else {
+     } else {
       return false;
     }
   }
-
+  
   public UploadedFile getUploadedFile(String meetingId, String uploadId) {
     Meeting m = getMeeting(meetingId);
     if (m != null) {
       return m.getUploadedFile(uploadId);
-    } else {
+     } else {
       return null;
     }
   }
-
+  
   public Boolean authzTokenIsValid(String authzToken) { // Note we DO NOT expire the token
     return uploadAuthzTokens.containsKey(authzToken);
   }
@@ -649,21 +649,21 @@ public class MeetingService implements MessageListener {
   }
 
   public void fileUploaded(
-      String uploadId,
-      String source,
-      String filename,
-      String contentType,
-      String extension,
-      String userId,
-      String meetingId
-    ) {
+    String uploadId,
+    String source,
+    String filename,
+    String contentType,
+    String extension,
+    String userId,
+    String meetingId
+   ) {
     Meeting m = getMeeting(meetingId);
     if (m != null) {
       m.addUploadedFile(source, filename, contentType, extension, uploadId);
       gw.fileUploaded(uploadId, source, filename, contentType, userId, meetingId);
     }
   }
-
+  
   public void endMeeting(String meetingId) {
     handle(new EndMeeting(meetingId));
   }
