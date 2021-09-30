@@ -38,7 +38,9 @@ mkdir -p /tmp/html5-build
 meteor npm -v
 meteor node -v
 cat .meteor/release
-meteor update --allow-superuser --release 2.3.6
+
+# meteor version control was moved to the Dockerfile of the image used in .gitlab-ci.yml
+# meteor update --allow-superuser --release 2.3.6
 
 # build the HTML5 client
 meteor npm ci --production
