@@ -15,7 +15,7 @@ const BreakoutRoomInvitationContainer = ({ isMeetingBreakout, ...props }) => {
 export default withTracker(() => ({
   isMeetingBreakout: AppService.meetingIsBreakout(),
   breakouts: BreakoutService.getBreakoutsNoTime(),
-  getBreakoutByUser: BreakoutService.getBreakoutByUser,
-  currentBreakoutUser: BreakoutService.getBreakoutUserByUserId(Auth.userID),
+  getBreakoutByUrlData: BreakoutService.getBreakoutByUrlData,
+  currentBreakoutUrlData: BreakoutService.getBreakoutUrlByUserId(Auth.userID),
   breakoutUserIsIn: BreakoutService.getBreakoutUserIsIn(Auth.userID),
 }))(BreakoutRoomInvitationContainer);

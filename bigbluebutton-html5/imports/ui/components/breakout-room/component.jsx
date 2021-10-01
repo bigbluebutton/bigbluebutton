@@ -125,7 +125,7 @@ class BreakoutRoom extends PureComponent {
 
   componentDidUpdate() {
     const {
-      breakoutRoomUser,
+      getBreakoutRoomUrl,
       setBreakoutAudioTransferStatus,
       isMicrophoneUser,
       isReconnecting,
@@ -144,10 +144,10 @@ class BreakoutRoom extends PureComponent {
     }
 
     if (waiting && !generated) {
-      const breakoutUser = breakoutRoomUser(requestedBreakoutId);
+      const breakoutUrlData = getBreakoutRoomUrl(requestedBreakoutId);
 
-      if (!breakoutUser) return false;
-      if (breakoutUser.redirectToHtml5JoinURL !== '') {
+      if (!breakoutUrlData) return false;
+      if (breakoutUrlData.redirectToHtml5JoinURL !== '') {
         _.delay(() => this.setState({ generated: true, waiting: false }), 1000);
       }
     }
@@ -164,10 +164,10 @@ class BreakoutRoom extends PureComponent {
 
   getBreakoutURL(breakoutId) {
     Session.set('lastBreakoutOpened', breakoutId);
-    const { requestJoinURL, breakoutRoomUser } = this.props;
+    const { requestJoinURL, getBreakoutRoomUrl } = this.props;
     const { waiting } = this.state;
-    const hasUser = breakoutRoomUser(breakoutId);
-    if (!hasUser && !waiting) {
+    const breakoutRoomUrlData = getBreakoutRoomUrl(breakoutId);
+    if (!breakoutRoomUrlData && !waiting) {
       this.setState(
         {
           waiting: true,
@@ -178,24 +178,24 @@ class BreakoutRoom extends PureComponent {
       );
     }
 
-    if (hasUser) {
-      window.open(hasUser.redirectToHtml5JoinURL, '_blank');
+    if (breakoutRoomUrlData) {
+      window.open(breakoutRoomUrlData.redirectToHtml5JoinURL, '_blank');
       this.setState({ waiting: false, generated: false });
     }
     return null;
   }
 
   getBreakoutLabel(breakoutId) {
-    const { intl, breakoutRoomUser } = this.props;
+    const { intl, getBreakoutRoomUrl } = this.props;
     const { requestedBreakoutId, generated } = this.state;
 
-    const hasUser = breakoutRoomUser(breakoutId);
+    const breakoutRoomUrlData = getBreakoutRoomUrl(breakoutId);
 
     if (generated && requestedBreakoutId === breakoutId) {
       return intl.formatMessage(intlMessages.generatedURL);
     }
 
-    if (hasUser) {
+    if (breakoutRoomUrlData) {
       return intl.formatMessage(intlMessages.breakoutJoin);
     }
 
