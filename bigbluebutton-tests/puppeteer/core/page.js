@@ -19,7 +19,6 @@ class Page {
   constructor(page) {
     this.page = page;
     this.screenshotIndex = 0;
-    this.meetingId;
     this.parentDir = this.getParentDir(__dirname);
     this.recorder = new PuppeteerVideoRecorder();
   }
