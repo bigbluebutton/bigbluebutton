@@ -9,10 +9,9 @@ const BREAKOUT_MODAL_DELAY = 200;
 
 const propTypes = {
   mountModal: PropTypes.func.isRequired,
-  currentBreakoutUser: PropTypes.shape({
+  currentBreakoutUrlData: PropTypes.shape({
     insertedTime: PropTypes.number.isRequired,
   }),
-  getBreakoutByUser: PropTypes.func.isRequired,
   breakoutUserIsIn: PropTypes.shape({
     sequence: PropTypes.number.isRequired,
   }),
@@ -22,7 +21,7 @@ const propTypes = {
 };
 
 const defaultProps = {
-  currentBreakoutUser: undefined,
+  currentBreakoutUrlData: undefined,
   breakoutUserIsIn: undefined,
   breakouts: [],
 };
@@ -55,8 +54,8 @@ class BreakoutRoomInvitation extends Component {
   checkBreakouts(oldProps) {
     const {
       breakouts,
-      currentBreakoutUser,
-      getBreakoutByUser,
+      currentBreakoutUrlData,
+      getBreakoutByUrlData,
       breakoutUserIsIn,
     } = this.props;
 
@@ -67,19 +66,19 @@ class BreakoutRoomInvitation extends Component {
     const hasBreakouts = breakouts.length > 0;
 
     if (hasBreakouts && !breakoutUserIsIn && BreakoutService.checkInviteModerators()) {
-      // Have to check for freeJoin breakouts first because currentBreakoutUser will
+      // Have to check for freeJoin breakouts first because currentBreakoutUrlData will
       // populate after a room has been joined
-      const breakoutRoom = getBreakoutByUser(currentBreakoutUser);
-      const freeJoinBreakout = breakouts.find(breakout => breakout.freeJoin);
+      const breakoutRoom = getBreakoutByUrlData(currentBreakoutUrlData);
+      const freeJoinBreakout = breakouts.find((breakout) => breakout.freeJoin);
       if (freeJoinBreakout) {
         if (!didSendBreakoutInvite) {
           this.inviteUserToBreakout(breakoutRoom || freeJoinBreakout);
           this.setState({ didSendBreakoutInvite: true });
         }
-      } else if (currentBreakoutUser) {
-        const currentInsertedTime = currentBreakoutUser.insertedTime;
-        const oldCurrentUser = oldProps.currentBreakoutUser || {};
-        const oldInsertedTime = oldCurrentUser.insertedTime;
+      } else if (currentBreakoutUrlData) {
+        const currentInsertedTime = currentBreakoutUrlData.insertedTime;
+        const oldCurrentUrlData = oldProps.currentBreakoutUrlData || {};
+        const oldInsertedTime = oldCurrentUrlData.insertedTime;
         if (currentInsertedTime !== oldInsertedTime) {
           const breakoutId = Session.get('lastBreakoutOpened');
           if (breakoutRoom.breakoutId !== breakoutId) {

@@ -4,7 +4,7 @@ import React, { Component } from 'react'
 //To work with PeerTube >=v3.3 URL patterns
 const MATCH_URL = new RegExp("(https?)://(.*)(/videos/watch/|/w/)(.*)");
 
-const SDK_URL = 'https://unpkg.com/@peertube/embed-api/build/player.min.js';
+const SDK_URL = 'https://unpkg.com/@peertube/embed-api@0.0.4/build/player.min.js';
 
 // Util function to load an external SDK or return the SDK if it is already loaded
 // From https://github.com/CookPete/react-player/blob/master/src/utils.js
@@ -69,10 +69,12 @@ export class PeerTubePlayer extends Component {
   }
 
   getEmbedUrl = () => {
-    const { url } = this.props;
+    const { url, config } = this.props;
     const m = MATCH_URL.exec(url);
 
-    return `${m[1]}://${m[2]}/videos/embed/${m[3]}?api=1&controls=${true}`;
+    const isPresenter = config && config.peertube && config.peertube.isPresenter;
+
+    return `${m[1]}://${m[2]}/videos/embed/${m[4]}?api=1&controls=${isPresenter}`;
   };
 
   load() {
@@ -134,7 +136,11 @@ export class PeerTubePlayer extends Component {
   }
 
   setVolume(fraction) {
-    // console.log("SET VOLUME");
+    this._player.setVolume(fraction);
+  }
+
+  getVolume() {
+    return this._player.getVolume();
   }
 
   setLoop(loop) {

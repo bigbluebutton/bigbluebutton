@@ -1,7 +1,7 @@
-const Page = require('./core/page');
-const Trigger = require('./events/trigger');
+const Page = require('../core/page');
+const Trigger = require('./trigger');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
-const { MAX_TRIGGER_EVENTS_TEST_TIMEOUT } = require('./core/constants'); // core constants (Timeouts vars imported)
+const { MAX_TRIGGER_EVENTS_TEST_TIMEOUT } = require('../core/constants'); // core constants (Timeouts vars imported)
 
 expect.extend({ toMatchImageSnapshot });
 

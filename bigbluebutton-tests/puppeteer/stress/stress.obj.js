@@ -1,4 +1,4 @@
-const Stress = require('./stress/stress.js');
+const Stress = require('./stress.js');
 
 const stressTest = () => {
   // First moderator to join the meeting should be the presenter

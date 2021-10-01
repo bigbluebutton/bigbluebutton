@@ -1,11 +1,11 @@
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
-const CustomParameters = require('./customparameters/customparameters');
-const Multiusers = require('./user/multiusers');
-const Polling = require('./polling/poll');
-const Page = require('./core/page');
-const Poll = require('./chat/poll');
-const ce = require('./customparameters/constants');
-const { MAX_POLLING_TEST_TIMEOUT, TEST_DURATION_TIME } = require('./core/constants'); // core constants (Timeouts vars imported)
+const CustomParameters = require('../customparameters/customparameters');
+const Multiusers = require('../user/multiusers');
+const Polling = require('./poll');
+const Page = require('../core/page');
+const Poll = require('../chat/poll');
+const ce = require('../customparameters/constants');
+const { MAX_POLLING_TEST_TIMEOUT, TEST_DURATION_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
 
 expect.extend({ toMatchImageSnapshot });
 

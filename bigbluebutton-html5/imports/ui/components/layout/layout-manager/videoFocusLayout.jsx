@@ -104,7 +104,7 @@ class VideoFocusLayout extends Component {
         value: defaultsDeep(
           {
             sidebarNavigation: {
-              isOpen: true,
+              isOpen: input.sidebarNavigation.isOpen || false,
             },
             sidebarContent: {
               isOpen: sidebarContentPanel !== PANELS.NONE,

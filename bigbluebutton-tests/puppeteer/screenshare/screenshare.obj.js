@@ -1,8 +1,8 @@
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
-const ShareScreen = require('./screenshare/screenshare');
-const Page = require('./core/page');
-const { MAX_SCREENSHARE_TEST_TIMEOUT } = require('./core/constants'); // core constants (Timeouts vars imported)
-const devices = require('./core/devices');
+const ShareScreen = require('./screenshare');
+const Page = require('../core/page');
+const { MAX_SCREENSHARE_TEST_TIMEOUT } = require('../core/constants'); // core constants (Timeouts vars imported)
+const devices = require('../core/devices');
 const iPhonex = devices['iPhone X'];
 const galaxyNote3 = devices['Galaxy Note 3'];
 const ipadPro = devices['iPad Pro'];

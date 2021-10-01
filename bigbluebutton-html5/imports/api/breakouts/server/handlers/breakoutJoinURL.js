@@ -15,26 +15,12 @@ export default function handleBreakoutJoinURL({ body }) {
     breakoutId,
   };
 
-  // only keep each users' last invitation
-  const newUsers = [];
-
-  const currentBreakout = Breakouts.findOne({ breakoutId }, { fields: { users: 1 } });
-
-  currentBreakout.users.forEach((item) => {
-    if (item.userId !== userId) {
-      newUsers.push(item);
-    }
-  });
-
-  newUsers.push({
-    userId,
-    redirectToHtml5JoinURL,
-    insertedTime: new Date().getTime(),
-  });
-
   const modifier = {
     $set: {
-      users: newUsers,
+      [`url_${userId}`]: {
+        redirectToHtml5JoinURL,
+        insertedTime: new Date().getTime(),
+      },
     },
   };
 
