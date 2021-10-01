@@ -593,6 +593,8 @@
     "app.guest.guestWait": "يرجى الانتظار حتى يوافق المشرف على انضمامك إلى الاجتماع.",
     "app.guest.guestDeny": "رُفض الضيف من الانضمام إلى الاجتماع.",
     "app.guest.seatWait": "ضيف ينتظر مقعدًا في الاجتماع.",
+    "app.guest.validationError": "الاجتماع غير منعقد. يتم إعادة توجيهك.",
+    "app.guest.allow": "وافق الضيف وإعادة التوجيه إلى الاجتماع.",
     "app.userList.guest.waitingUsers": "انتظار المستخدمين",
     "app.userList.guest.waitingUsersTitle": "إدارة المستخدم",
     "app.userList.guest.optionTitle": "مراجعة المستخدمين المعلقين",
