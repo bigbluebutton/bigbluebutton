@@ -12,7 +12,6 @@ const propTypes = {
   currentBreakoutUser: PropTypes.shape({
     insertedTime: PropTypes.number.isRequired,
   }),
-  getBreakoutByUser: PropTypes.func.isRequired,
   breakoutUserIsIn: PropTypes.shape({
     sequence: PropTypes.number.isRequired,
   }),
@@ -55,8 +54,8 @@ class BreakoutRoomInvitation extends Component {
   checkBreakouts(oldProps) {
     const {
       breakouts,
-      currentBreakoutUser,
-      getBreakoutByUser,
+      currentBreakoutUrlData,
+      getBreakoutByUrlData,
       breakoutUserIsIn,
     } = this.props;
 
@@ -69,15 +68,15 @@ class BreakoutRoomInvitation extends Component {
     if (hasBreakouts && !breakoutUserIsIn && BreakoutService.checkInviteModerators()) {
       // Have to check for freeJoin breakouts first because currentBreakoutUser will
       // populate after a room has been joined
-      const breakoutRoom = getBreakoutByUser(currentBreakoutUser);
-      const freeJoinBreakout = breakouts.find(breakout => breakout.freeJoin);
+      const breakoutRoom = getBreakoutByUrlData(currentBreakoutUrlData);
+      const freeJoinBreakout = breakouts.find((breakout) => breakout.freeJoin);
       if (freeJoinBreakout) {
         if (!didSendBreakoutInvite) {
           this.inviteUserToBreakout(breakoutRoom || freeJoinBreakout);
           this.setState({ didSendBreakoutInvite: true });
         }
-      } else if (currentBreakoutUser) {
-        const currentInsertedTime = currentBreakoutUser.insertedTime;
+      } else if (currentBreakoutUrlData) {
+        const currentInsertedTime = currentBreakoutUrlData.insertedTime;
         const oldCurrentUser = oldProps.currentBreakoutUser || {};
         const oldInsertedTime = oldCurrentUser.insertedTime;
         if (currentInsertedTime !== oldInsertedTime) {
