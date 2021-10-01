@@ -509,7 +509,7 @@ class Poll extends Component {
               }}
               className={
                 cx(styles.pBtn, {
-                  [styles.selectedBtnBlue]: type === pollTypes.TrueFalse,
+                  [styles.selectedTypeBtn]: type === pollTypes.TrueFalse,
                 })
               }
             />
@@ -530,7 +530,7 @@ class Poll extends Component {
               }}
               className={
                 cx(styles.pBtn, {
-                  [styles.selectedBtnBlue]: type === pollTypes.Letter,
+                  [styles.selectedTypeBtn]: type === pollTypes.Letter,
                 })
               }
             />
@@ -550,7 +550,7 @@ class Poll extends Component {
               }}
               className={
               cx(styles.pBtn, styles.yna, {
-                [styles.selectedBtnBlue]: type === pollTypes.YesNoAbstention,
+                [styles.selectedTypeBtn]: type === pollTypes.YesNoAbstention,
               })
             }
             />
@@ -561,7 +561,7 @@ class Poll extends Component {
               onClick={() => { this.setState({ type: pollTypes.Response }); }}
               className={
               cx(styles.pBtn, styles.fullWidth, {
-                [styles.selectedBtnWhite]: type === pollTypes.Response,
+                [styles.selectedTypeBtn]: type === pollTypes.Response,
               })
             }
             />
