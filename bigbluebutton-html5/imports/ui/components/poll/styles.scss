@@ -286,9 +286,9 @@
     top: 1px;
     position: relative;
     display: block;
-    width: var(--poll-addItem-width);
-    padding-left: var(--md-padding-y);
-    padding-right: var(--md-padding-y);
+    color: var(--color-primary);
+    padding-left: 0;
+    padding-right: 0;
     font-size: var(--font-size-base);
     white-space: pre-wrap;
 
