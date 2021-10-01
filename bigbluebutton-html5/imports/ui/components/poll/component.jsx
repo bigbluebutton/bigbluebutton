@@ -461,6 +461,7 @@ class Poll extends Component {
       pollTypes,
       isDefaultPoll,
       checkPollType,
+      smallSidebar,
     } = this.props;
     const defaultPoll = isDefaultPoll(type);
     const questionPlaceholder = (type === pollTypes.Response)
@@ -510,6 +511,7 @@ class Poll extends Component {
               className={
                 cx(styles.pBtn, {
                   [styles.selectedTypeBtn]: type === pollTypes.TrueFalse,
+                  [styles.smallBtn]: !smallSidebar,
                 })
               }
             />
@@ -531,6 +533,7 @@ class Poll extends Component {
               className={
                 cx(styles.pBtn, {
                   [styles.selectedTypeBtn]: type === pollTypes.Letter,
+                  [styles.smallBtn]: !smallSidebar,
                 })
               }
             />

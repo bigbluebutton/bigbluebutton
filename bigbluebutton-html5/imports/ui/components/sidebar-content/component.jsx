@@ -81,6 +81,8 @@ const SidebarContent = (props) => {
     });
   };
 
+  const smallSidebar = width < (maxWidth / 2);
+
   return (
     <Resizable
       minWidth={minWidth}
@@ -125,7 +127,7 @@ const SidebarContent = (props) => {
       {sidebarContentPanel === PANELS.POLL
         && (
           <div className={styles.poll} style={{ minWidth, top: '0' }} id="pollPanel">
-            <PollContainer />
+            <PollContainer smallSidebar={smallSidebar} />
           </div>
         )}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
