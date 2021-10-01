@@ -580,12 +580,6 @@ class Poll extends Component {
                 && (
                   <div>
                     <span>{intl.formatMessage(intlMessages.typedResponseDesc)}</span>
-                    <div className={styles.exampleResponse}>
-                      <div className={styles.exampleTitle} />
-                      <div className={styles.responseInput}>
-                        <div className={styles.rInput} />
-                      </div>
-                    </div>
                   </div>
                 )
               }
