@@ -260,7 +260,6 @@
     "app.poll.start.label" : "Start Poll",
     "app.poll.secretPoll.label" : "Anonymous Poll",
     "app.poll.secretPoll.isSecretLabel": "The poll is anonymous – you will not be able to see individual responses.",
-    "app.poll.secretPoll.notSecretLabel": "The poll is not anonymous – you will be able to see individual responses.",
     "app.poll.questionErr": "Providing a question is required.",
     "app.poll.optionErr": "Enter a Poll option",
     "app.poll.startPollDesc": "Begins the poll",
