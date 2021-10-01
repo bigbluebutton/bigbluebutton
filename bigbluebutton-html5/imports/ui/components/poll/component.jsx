@@ -470,12 +470,17 @@ class Poll extends Component {
     const questionPlaceholder = (type === pollTypes.Response)
       ? intlMessages.questionLabel
       : intlMessages.optionalQuestionLabel;
+    const hasQuestionError = (type === pollTypes.Response && question.length === 0 && error);
     return (
       <div>
         <div>
           <textarea
             data-test="pollQuestionArea"
-            className={styles.pollQuestion}
+            className={
+              cx(styles.pollQuestion, {
+                [styles.hasError]: hasQuestionError,
+              })
+            }
             value={question}
             onChange={(e) => this.handleTextareaChange(e)}
             rows="4"
@@ -484,7 +489,7 @@ class Poll extends Component {
             aria-label={intl.formatMessage(questionPlaceholder)}
             placeholder={intl.formatMessage(questionPlaceholder)}
           />
-          {(type === pollTypes.Response && question.length === 0 && error) ? (
+          {hasQuestionError ? (
             <div className={styles.inputError}>{error}</div>
           ) : (
             <div className={styles.errorSpacer}>&nbsp;</div>
