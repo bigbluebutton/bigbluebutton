@@ -16,9 +16,8 @@ export default function handleBreakoutJoinURL({ body }) {
   };
 
   const modifier = {
-    $push: {
-      users: {
-        userId,
+    $set: {
+      [`url_${userId}`]: {
         redirectToHtml5JoinURL,
         insertedTime: new Date().getTime(),
       },
