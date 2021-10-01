@@ -4,5 +4,5 @@ node_modules/
 .meteor/dev_bundle
 public/locales/de_DE.json
 public/locales/ja_JP.json
-
+private/config/settings.yml
 
