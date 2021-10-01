@@ -55,6 +55,8 @@ const PresentationOptionsContainer = ({
       className={cx(styles.button, !isLayoutSwapped || styles.btn)}
       icon={`${buttonType}${isLayoutSwapped ? '_off' : ''}`}
       label={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
+      aria-label={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
+      aria-describedby={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationDesc : intlMessages.minimizePresentationDesc)}
       description={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationDesc : intlMessages.minimizePresentationDesc)}
       color={!isLayoutSwapped ? "primary" : "default"}
       hideLabel
