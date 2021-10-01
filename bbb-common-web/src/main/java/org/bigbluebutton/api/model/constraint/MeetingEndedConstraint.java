@@ -15,7 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface MeetingEndedConstraint {
 
-    String message() default "You can not re-join a meeting that has already been forcibly ended";
+    String message() default "meetingEnded-You can not join a meeting that has already been forcibly ended";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

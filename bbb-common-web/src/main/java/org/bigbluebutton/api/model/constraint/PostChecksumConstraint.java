@@ -15,7 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface PostChecksumConstraint {
 
-    String message() default "Invalid checksum: checksums do not match";
+    String message() default "checksumError-Checksums do not match";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

@@ -31,11 +31,11 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
 
     private String userID;
 
-    @NotEmpty(message = "You must provide your name")
+    @NotEmpty(message = "missingParamFullName-You must provide your name")
     private String fullName;
 
     @PasswordConstraint
-    @NotEmpty(message = "You must provide either the moderator or attendee password")
+    @NotEmpty(message = "invalidPassword-You must provide either the moderator or attendee password")
     private String password;
 
     @IsBooleanConstraint(message = "Guest must be a boolean value (true or false)")

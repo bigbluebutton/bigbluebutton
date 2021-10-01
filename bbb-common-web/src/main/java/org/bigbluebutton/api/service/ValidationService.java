@@ -60,16 +60,16 @@ public class ValidationService {
         validator = validatorFactory.getValidator();
     }
 
-    public Set<String> validate(ApiCall apiCall, Map<String, String[]> params, String queryString) {
+    public Map<String, String> validate(ApiCall apiCall, Map<String, String[]> params, String queryString) {
         log.info("Validating {} request with query string {}", apiCall.getName(), queryString);
 
         params = sanitizeParams(params);
 
         Request request = initializeRequest(apiCall, params, queryString);
-        Set<String> violations = new HashSet<>();
+        Map<String,String> violations = new HashMap<>();
 
         if(request == null) {
-            violations.add("validationError: Request not recognized");
+            violations.put("validationError", "Request not recognized");
         } else {
             request.populateFromParamsMap(params);
             violations = performValidation(request);
@@ -137,19 +137,26 @@ public class ValidationService {
         return request;
     }
 
-    private <R extends Request> Set<String> performValidation(R classToValidate) {
+    private <R extends Request> Map<String, String> performValidation(R classToValidate) {
         Set<ConstraintViolation<R>> violations = validator.validate(classToValidate);
-        Set<String> violationSet = new HashSet<>();
+        Map<String, String> violationMap = new HashMap<>();
 
         for(ConstraintViolation<R> violation: violations) {
-            violationSet.add(violation.getMessage());
+            String violationMessage = violation.getMessage();
+            String[] s = violationMessage.split("-");
+
+            if(s.length == 2) {
+                violationMap.put(s[0], s[1]);
+            } else {
+                violationMap.put("validationError", violationMessage);
+            }
         }
 
-        if(violationSet.isEmpty()) {
+        if(violationMap.isEmpty()) {
             classToValidate.convertParamsFromString();
         }
 
-        return violationSet;
+        return violationMap;
     }
 
     private Map<String, String[]> sanitizeParams(Map<String, String[]> params) {

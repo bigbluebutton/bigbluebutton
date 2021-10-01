@@ -97,14 +97,14 @@ class ApiController {
     log.debug request.getParameterMap().toMapString()
     log.debug request.getQueryString()
 
-    String validationResponse = validateRequest(
+    Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.CREATE,
             request.getParameterMap(),
             request.getQueryString()
     )
 
-    if(!validationResponse.isEmpty()) {
-      invalid("validationError", validationResponse)
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
       return
     }
 
@@ -177,14 +177,14 @@ class ApiController {
     log.debug request.getParameterMap().toMapString()
     log.debug request.getQueryString()
 
-    String validationResponse = validateRequest(
+    Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.JOIN,
             request.getParameterMap(),
             request.getQueryString()
     )
 
-    if(!validationResponse.isEmpty()) {
-      invalid("validationError", validationResponse, REDIRECT_RESPONSE)
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue(), REDIRECT_RESPONSE)
       return
     }
 
@@ -412,14 +412,14 @@ class ApiController {
     log.debug request.getParameterMap().toMapString()
     log.debug request.getQueryString()
 
-    String validationResponse = validateRequest(
+    Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.MEETING_RUNNING,
             request.getParameterMap(),
             request.getQueryString()
     )
 
-    if(!validationResponse.isEmpty()) {
-      invalid("validationError", validationResponse)
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
       return
     }
 
@@ -449,14 +449,14 @@ class ApiController {
     String API_CALL = "end"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
-    String validationResponse = validateRequest(
+    Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.END,
             request.getParameterMap(),
             request.getQueryString()
     )
 
-    if(!validationResponse.isEmpty()) {
-      invalid("validationError", validationResponse)
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
       return
     }
 
@@ -496,14 +496,14 @@ class ApiController {
     String API_CALL = "getMeetingInfo"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
-    String validationResponse = validateRequest(
+    Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.GET_MEETING_INFO,
             request.getParameterMap(),
             request.getQueryString()
     )
 
-    if(!validationResponse.isEmpty()) {
-      invalid("validationError", validationResponse)
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
       return
     }
 
@@ -526,14 +526,14 @@ class ApiController {
     String API_CALL = "getMeetings"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
-    String validationResponse = validateRequest(
+    Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.GET_MEETINGS,
             request.getParameterMap(),
             request.getQueryString()
     )
 
-    if(!validationResponse.isEmpty()) {
-      invalid("validationError", validationResponse)
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
       return
     }
 
@@ -564,14 +564,14 @@ class ApiController {
     String API_CALL = "getSessions"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
-    String validationResponse = validateRequest(
+    Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.GET_SESSIONS,
             request.getParameterMap(),
             request.getQueryString()
     )
 
-    if(!validationResponse.isEmpty()) {
-      invalid("validationError", validationResponse)
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
       return
     }
 
@@ -621,14 +621,14 @@ class ApiController {
 
     Map<String, String[]> reqParams = getParameters(request)
 
-    String validationResponse = validateRequest(
+    Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.SET_POLL_XML,
             reqParams,
             request.getQueryString()
     )
 
-    if(!validationResponse.isEmpty()) {
-      invalid("validationError", validationResponse)
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
       return
     }
 
@@ -684,15 +684,15 @@ class ApiController {
     String msgValue = "defaultValue"
     String destURL = paramsProcessorUtil.getDefaultLogoutUrl()
 
-    String validationResponse = validateRequest(
+    Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.GUEST_WAIT,
             request.getParameterMap(),
             request.getQueryString()
     )
 
-    if(!validationResponse.isEmpty()) {
-      msgKey = "validationError"
-      msgValue = validationResponse
+    if(!(validationResponse == null)) {
+      msgKey = validationResponse.getKey()
+      msgValue = validationResponse.getValue()
       respondWithJSONError(msgKey, msgValue, destURL)
       return
     }
@@ -788,14 +788,14 @@ class ApiController {
     UserSession us
     Meeting meeting
 
-    String validationResponse = validateRequest(
+    Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.ENTER,
             request.getParameterMap(),
             request.getQueryString(),
     )
 
-    if(!validationResponse.isEmpty()) {
-      respMessage = validationResponse
+    if(!(validationResponse == null)) {
+      respMessage = validationResponse.getValue()
       reject = true
     } else {
       sessionToken = sanitizeSessionToken(params.sessionToken)
@@ -937,13 +937,13 @@ class ApiController {
     UserSession us
     Meeting meeting
 
-    String validationResponse = validateRequest(
+    Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.STUNS,
             request.getParameterMap(),
             request.getQueryString(),
     )
 
-    if(!validationResponse.isEmpty()) {
+    if(!(validationResponse == null)) {
       reject = true
     } else {
       sessionToken = sanitizeSessionToken(params.sessionToken)
@@ -1014,13 +1014,13 @@ class ApiController {
     String API_CALL = 'signOut'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
-    String validationResponse = validateRequest(
+    Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.SIGN_OUT,
             request.getParameterMap(),
             request.getQueryString()
     )
 
-    if(validationResponse.isEmpty()) {
+    if(validationResponse == null) {
       String sessionToken = sanitizeSessionToken(params.sessionToken)
       UserSession us = meetingService.removeUserSessionWithAuthToken(sessionToken)
       Map<String, Object> logData = new HashMap<String, Object>();
@@ -1432,22 +1432,21 @@ class ApiController {
     redirect(url: newUri)
   }
 
-  private String validateRequest(ValidationService.ApiCall apiCall, Map<String, String[]> params, String queryString) {
-    Set<String> violations = validationService.validate(apiCall, params, queryString)
-    StringBuilder violationMessage = new StringBuilder()
+  private Map.Entry<String, String> validateRequest(ValidationService.ApiCall apiCall, Map<String, String[]> params, String queryString) {
+    Map<String, String> violations = validationService.validate(apiCall, params, queryString)
+    Map.Entry<String, String> response = null
 
     if(!violations.isEmpty()) {
-      //violationMessage.append("Validation Error: ")
-      for (String violation: violations) {
-        log.error violation
+      for (Map.Entry<String, String> violation: violations.entrySet()) {
+        log.error violation.getValue()
       }
-      for(String violation: violations) {
-        violationMessage.append(violation);
+      for(Map.Entry<String, String> violation: violations.entrySet()) {
+        response = new AbstractMap.SimpleEntry<String, String>(violation.getKey(), violation.getValue())
         break
       }
     }
 
-    return violationMessage.toString()
+    return response
   }
 
 }

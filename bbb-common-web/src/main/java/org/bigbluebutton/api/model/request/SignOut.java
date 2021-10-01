@@ -17,7 +17,6 @@ public class SignOut implements Request<SignOut.Params> {
         public String getValue() { return value; }
     }
 
-    @NotNull(message = "You must provide a session token")
     @UserSessionConstraint
     private String sessionToken;
 

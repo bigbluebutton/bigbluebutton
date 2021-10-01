@@ -9,7 +9,7 @@ public abstract class Checksum {
     @NotEmpty(message = "You must provide the API call")
     protected String apiCall;
 
-    @NotEmpty(message = "You must provide the checksum")
+    @NotEmpty(message = "checksumError-You must provide the checksum")
     protected String checksum;
 
     protected String queryStringWithoutChecksum;

@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@NotEmpty(message = "You must provide a meeting ID")
+@NotEmpty(message = "missingParamMeetingID-You must provide a meeting ID")
 @Size(min = 2, max = 256, message = "Meeting ID must be between 2 and 256 characters")
 @Pattern(regexp = "^[^,]+$", message = "Meeting ID cannot contain ','")
 @Constraint(validatedBy = {})
