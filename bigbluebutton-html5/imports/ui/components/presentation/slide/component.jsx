@@ -16,6 +16,7 @@ const Slide = ({ imageUri, svgWidth, svgHeight }) => (
           fill="white"
         />
         <image
+          id="slideimg"
           x="0"
           y="0"
           width={svgWidth}

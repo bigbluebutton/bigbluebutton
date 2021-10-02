@@ -200,6 +200,89 @@ def svg_render_shape_pencil(g, slide, shape)
   end
 end
 
+def svg_render_shape_marker(g, slide, shape)
+  g['shape'] = "marker#{shape[:shape_unique_id]}"
+
+  doc = g.document
+  if shape[:data_points].length < 2
+    BigBlueButton.logger.warn("Marker #{shape[:shape_unique_id]} doesn't have enough points")
+    return
+  end
+
+  line_cap = ""
+  if shape[:data_points].length == 2
+    BigBlueButton.logger.info("Marker #{shape[:shape_unique_id]}: Drawing single point")
+    path = []
+    data_points = shape[:data_points].each
+    x = shape_scale_width(slide, data_points.next)
+    y = shape_scale_height(slide, data_points.next)
+    path.push("M#{x} #{y}")
+    path.push("L#{x} #{y}")
+    line_cap = "square"
+  else
+    path = []
+    data_points = shape[:data_points].each
+
+    if !shape[:commands].nil?
+      BigBlueButton.logger.info("Marker #{shape[:shape_unique_id]}: Drawing from command string (#{shape[:commands].length} commands)")
+      shape[:commands].each do |command|
+        case command
+        when 1 # MOVE_TO
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path.push("M#{x} #{y}")
+        when 2 # LINE_TO
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path.push("L#{x} #{y}")
+        when 3 # Q_CURVE_TO
+          cx1 = shape_scale_width(slide, data_points.next)
+          cy1 = shape_scale_height(slide, data_points.next)
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path.push("Q#{cx1} #{cy2},#{x} #{y}")
+        when 4 # C_CURVE_TO
+          cx1 = shape_scale_width(slide, data_points.next)
+          cy1 = shape_scale_height(slide, data_points.next)
+          cx2 = shape_scale_width(slide, data_points.next)
+          cy2 = shape_scale_height(slide, data_points.next)
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path.push("C#{cx1} #{cy1},#{cx2} #{cy2},#{x} #{y}")
+        else
+          raise "Unknown marker command: #{command}"
+        end
+      end
+    else
+      BigBlueButton.logger.info("Marker #{shape[:shape_unique_id]}: Drawing simple line (#{shape[:data_points].length / 2} points)")
+      x = shape_scale_width(slide, data_points.next)
+      y = shape_scale_height(slide, data_points.next)
+      path << "M#{x} #{y}"
+      begin
+        while true
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path << "L#{x} #{y}"
+        end
+      rescue StopIteration
+      end
+    end
+    line_cap == "butt"
+  end
+    path = path.join('')
+    bg_path = doc.create_element('path', d: path, style: "stroke:##{shape[:color]};stroke-linecap:#{line_cap};stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};fill:none;shape-rendering:crispEdges")
+    mask = doc.create_element('mask', id: g['id']+'-mask')
+    mask_path = doc.create_element('path', d: path, style: "stroke:##{shape[:color] == "ffffff" ? "ffffff" : "a0a0a0"};stroke-linecap:#{line_cap};stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};fill:none;shape-rendering:crispEdges")
+    mask << mask_path
+    use = doc.create_element('use',
+            'mask': "url(##{g['id']+'-mask'})",
+            'xlink:href': "##{g['id'].sub(/-.*/,'')}")
+    g << bg_path
+    g << mask
+    g << use
+    g['style'] = ""
+end
+
 def svg_render_shape_line(g, slide, shape)
   g['shape'] = "line#{shape[:shape_unique_id]}"
   g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
@@ -407,6 +490,8 @@ def svg_render_shape(canvas, slide, shape, image_id)
   case shape[:type]
   when 'pencil'
     svg_render_shape_pencil(g, slide, shape)
+  when 'marker'
+    svg_render_shape_marker(g, slide, shape)
   when 'line'
     svg_render_shape_line(g, slide, shape)
   when 'rectangle'
@@ -595,7 +680,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   # Some shape-specific properties
   if shape[:type] == 'pencil' or shape[:type] == 'rectangle' or
       shape[:type] == 'ellipse' or shape[:type] == 'triangle' or
-      shape[:type] == 'line'
+      shape[:type] == 'line' or shape[:type] == 'marker'
     shape[:color] = color_to_hex(event.at_xpath('color').text)
     thickness = event.at_xpath('thickness')
     unless thickness
@@ -620,7 +705,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
       shape[:circle] = (circle.text == 'true')
     end
   end
-  if shape[:type] == 'pencil'
+  if shape[:type] == 'pencil' or shape[:type] == 'marker'
     commands = event.at_xpath('commands')
     if !commands.nil?
       shape[:commands] = commands.text.split(',').map { |c| c.to_i }
