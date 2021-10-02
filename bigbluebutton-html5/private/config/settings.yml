@@ -624,6 +624,8 @@ public:
         - value: 20
         - value: 16
       tools:
+        - icon: eraser_tool
+          value: eraser
         - icon: marker_tool
           value: marker
         - icon: text_tool
@@ -641,6 +643,7 @@ public:
         - icon: hand
           value: hand
       presenterTools:
+        - eraser
         - marker
         - text
         - line
@@ -650,6 +653,7 @@ public:
         - pencil
         - hand
       multiUserTools:
+        - eraser
         - marker
         - text
         - line
