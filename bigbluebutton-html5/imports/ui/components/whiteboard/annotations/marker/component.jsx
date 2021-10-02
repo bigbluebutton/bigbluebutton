@@ -89,7 +89,7 @@ export default class MarkerComponent extends Component {
     return version !== nextProps.version;
   }
 
-  componentDidUpdate(nextProps) {
+  componentDidUpdate(prevProps) {
     const { annotation: prevAnnotation } = prevProps;
     const { points: prevPoints } = prevAnnotation;
     const { annotation, slideWidth, slideHeight } = this.props;
