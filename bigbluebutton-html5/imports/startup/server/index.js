@@ -209,17 +209,31 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 
   let normalizedLocale;
 
+  const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
+
   if (browserLocale.length > 1) {
+    // browser asks for specific locale
     normalizedLocale = `${browserLocale[0]}_${browserLocale[1].toUpperCase()}`;
 
     const normDefault = usableLocales.find(locale => normalizedLocale === locale);
-    if (normDefault) localeFile = normDefault;
-  }
-
-  const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
-
-  if (localeFile === fallback && regionDefault !== localeFile) {
-    localeFile = regionDefault;
+    if (normDefault) {
+      localeFile = normDefault;
+    } else {
+      if (regionDefault) {
+        localeFile = regionDefault;
+      } else {
+        const specFallback = usableLocales.find(locale => browserLocale[0] === locale.split("_")[0]);
+        if (specFallback) localeFile = specFallback;
+      }
+    }
+  } else {
+    // browser asks for region default locale
+    if (regionDefault && localeFile === fallback && regionDefault !== localeFile) {
+      localeFile = regionDefault;
+    } else {
+      const normFallback = usableLocales.find(locale => browserLocale[0] === locale.split("_")[0]);
+      if (normFallback) localeFile = normFallback;
+    }
   }
 
   res.setHeader('Content-Type', 'application/json');
@@ -307,6 +321,29 @@ WebApp.connectHandlers.use('/guestWait', (req, res) => {
   res.setHeader('Content-Type', 'text/html');
   res.writeHead(200);
   res.end(guestWaitHtml);
+});
+
+// WASM endpoint to be used to fetch the .wasm models for camera effects
+// (blur, virtual background).
+// See: /imports/ui/services/virtual-backgrounds/
+WebApp.connectHandlers.use('/wasm', (req, res) => {
+  const pathname = req._parsedUrl.pathname;
+  let file = "";
+  let hasError = false;
+  try {
+    file = Assets.getBinary(pathname.substr(1, pathname.length-1));
+  } catch (error) {
+    hasError = true;
+    Logger.warn(`Could not find WASM file: ${error}`);
+  }
+
+  res.setHeader('Content-Type', 'application/wasm');
+  if (hasError) {
+    res.writeHead(404);
+  } else {
+    res.writeHead(200);
+  }
+  res.end(file);
 });
 
 

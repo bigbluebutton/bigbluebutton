@@ -46,6 +46,9 @@ class UserContent extends PureComponent {
       pendingUsers,
       requestUserInformation,
       currentClosedChats,
+      sidebarContentPanel,
+      layoutContextDispatch,
+      startedChats,
     } = this.props;
 
     return (
@@ -54,17 +57,18 @@ class UserContent extends PureComponent {
         className={styles.content}
       >
         {CHAT_ENABLED
-          ? (<UserMessages
-            {...{
-              isPublicChat,
-              compact,
-              intl,
-              roving,
-              currentClosedChats,
-            }}
-          />
-          ) : null
-        }
+          ? (
+            <UserMessages
+              {...{
+                isPublicChat,
+                compact,
+                intl,
+                roving,
+                currentClosedChats,
+                startedChats,
+              }}
+            />
+          ) : null}
         {currentUser.role === ROLE_MODERATOR
           ? (
             <UserCaptionsContainer
@@ -72,8 +76,7 @@ class UserContent extends PureComponent {
                 intl,
               }}
             />
-          ) : null
-        }
+          ) : null}
         <UserNotesContainer
           {...{
             intl,
@@ -85,18 +88,28 @@ class UserContent extends PureComponent {
               {...{
                 intl,
                 pendingUsers,
+                sidebarContentPanel,
+                layoutContextDispatch,
               }}
             />
-          ) : null
-        }
+          ) : null}
         <UserPolls
           isPresenter={currentUser.presenter}
           {...{
             pollIsOpen,
             forcePollOpen,
+            sidebarContentPanel,
+            layoutContextDispatch,
           }}
         />
-        <BreakoutRoomItem isPresenter={currentUser.presenter} hasBreakoutRoom={hasBreakoutRoom} />
+        <BreakoutRoomItem
+          isPresenter={currentUser.presenter}
+          {...{
+            hasBreakoutRoom,
+            sidebarContentPanel,
+            layoutContextDispatch,
+          }}
+        />
         <UserParticipantsContainer
           {...{
             compact,

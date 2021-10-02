@@ -20,10 +20,10 @@ import clearUserInfo from '/imports/api/users-infos/server/modifiers/clearUserIn
 import clearConnectionStatus from '/imports/api/connection-status/server/modifiers/clearConnectionStatus';
 import clearScreenshare from '/imports/api/screenshare/server/modifiers/clearScreenshare';
 import clearNote from '/imports/api/note/server/modifiers/clearNote';
-import clearNetworkInformation from '/imports/api/network-information/server/modifiers/clearNetworkInformation';
 import clearMeetingTimeRemaining from '/imports/api/meetings/server/modifiers/clearMeetingTimeRemaining';
 import clearLocalSettings from '/imports/api/local-settings/server/modifiers/clearLocalSettings';
 import clearRecordMeeting from './clearRecordMeeting';
+import clearExternalVideoMeeting from './clearExternalVideoMeeting';
 import clearVoiceCallStates from '/imports/api/voice-call-states/server/modifiers/clearVoiceCallStates';
 import clearVideoStreams from '/imports/api/video-streams/server/modifiers/clearVideoStreams';
 import clearAuthTokenValidation from '/imports/api/auth-token-validation/server/modifiers/clearAuthTokenValidation';
@@ -54,10 +54,10 @@ export default function meetingHasEnded(meetingId) {
     clearUserInfo(meetingId);
     clearConnectionStatus(meetingId);
     clearNote(meetingId);
-    clearNetworkInformation(meetingId);
     clearLocalSettings(meetingId);
     clearMeetingTimeRemaining(meetingId);
     clearRecordMeeting(meetingId);
+    clearExternalVideoMeeting(meetingId);
     clearVoiceCallStates(meetingId);
     clearVideoStreams(meetingId);
     clearAuthTokenValidation(meetingId);

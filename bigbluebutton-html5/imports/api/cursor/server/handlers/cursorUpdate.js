@@ -3,8 +3,6 @@ import CursorStreamer from '/imports/api/cursor/server/streamer';
 import Logger from '/imports/startup/server/logger';
 import _ from 'lodash';
 
-const { streamerLog } = Meteor.settings.private.serverLog;
-
 const CURSOR_PROCCESS_INTERVAL = 30;
 
 const cursorQueue = {};

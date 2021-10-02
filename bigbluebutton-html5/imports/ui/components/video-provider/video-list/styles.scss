@@ -19,6 +19,12 @@
   justify-content: center;
 }
 
+.videoCanvasLRPosition {
+  flex-wrap: wrap;
+  align-content: center;
+  order: 0;
+}
+
 .videoList {
   display: grid;
 
@@ -104,13 +110,8 @@
   white-space: nowrap;
   z-index: 1;
   vertical-align: middle;
-  margin: 0 -0.25em 0 0;
   border-radius: 1px;
   opacity: 1;
-
-  [dir="rtl"] & {
-    margin: 0 0 0 -0.25em
-  }
 }
 
 .loadingText {
@@ -263,12 +264,22 @@
   }
 }
 
+.nextPageLRPosition {
+  order: 3;
+  margin-right: 2px;
+}
+
 .previousPage {
   margin-right: 1px;
 
   @include mq($medium-up) {
     margin-right: 2px;
   }
+}
+
+.previousPageLRPosition {
+  order: 2;
+  margin-left: 2px;
 }
 
 .unhealthyStream {
@@ -279,4 +290,19 @@
   @extend .connectingSpinner;
   background-color: transparent;
   color: var(--color-white);
+}
+
+.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99;
+}
+
+.break {
+  order: 1;
+  flex-basis: 100%;
+  height: 5px;
 }

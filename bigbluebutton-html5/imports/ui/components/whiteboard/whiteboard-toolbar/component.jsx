@@ -68,6 +68,10 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.tools.hand',
     description: 'Label for the pan toolbar item',
   },
+  toolbarAriaLabel: {
+    id: 'app.whiteboard.toolbarAriaLabel',
+    description: 'aria label for whiteboard toolbar',
+  }
 });
 
 class WhiteboardToolbar extends Component {
@@ -313,8 +317,8 @@ class WhiteboardToolbar extends Component {
         }
         // 1st case a)
         this.colorListIconColor.beginElement();
-        // 2nd case - never happens when the text tool is selected
-      } else if (thicknessSelected.value !== prevState.thicknessSelected.value) {
+        // 2nd case
+      } else if (thicknessSelected.value !== prevState.thicknessSelected.value && annotationSelected.value !== 'text') {
         this.thicknessListIconRadius.beginElement();
         // 3rd case
       } else if (annotationSelected.value !== 'text'
@@ -505,7 +509,9 @@ class WhiteboardToolbar extends Component {
         />
       ) : (
         <ToolbarMenuItem
+          expanded={currentSubmenuOpen === 'annotationList'}
           disabled={isDisabled}
+          haspopup={true}
           label={intl.formatMessage(intlMessages.toolbarTools)}
           icon={annotationSelected.icon}
           onItemClick={this.displaySubMenu}
@@ -521,7 +527,7 @@ class WhiteboardToolbar extends Component {
                 customIcon={false}
                 label="Annotations"
                 onItemClick={this.handleAnnotationChange}
-                objectsToRender={panMode ? annotations[annotations.length - 1] : annotations}
+                objectsToRender={annotations}
                 objectSelected={annotationSelected}
                 handleMouseEnter={this.handleMouseEnter}
                 handleMouseLeave={this.handleMouseLeave}
@@ -540,6 +546,8 @@ class WhiteboardToolbar extends Component {
     return (
       <ToolbarMenuItem
         label={intl.formatMessage(intlMessages.toolbarFontSize)}
+        expanded={currentSubmenuOpen === 'fontSizeList'}
+        haspopup={true}
         customIcon={this.renderFontItemIcon()}
         onItemClick={this.displaySubMenu}
         objectToReturn="fontSizeList"
@@ -600,6 +608,8 @@ class WhiteboardToolbar extends Component {
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
+        expanded={currentSubmenuOpen === 'thicknessList'}
+        haspopup={true}
         label={isDisabled
           ? intl.formatMessage(intlMessages.toolbarLineThicknessDisabled)
           : intl.formatMessage(intlMessages.toolbarLineThickness)}
@@ -690,6 +700,8 @@ class WhiteboardToolbar extends Component {
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
+        expanded={currentSubmenuOpen === 'colorList'}
+        haspopup={true}
         label={isDisabled
           ? intl.formatMessage(intlMessages.toolbarLineColorDisabled)
           : intl.formatMessage(intlMessages.toolbarLineColor)}
@@ -815,12 +827,12 @@ class WhiteboardToolbar extends Component {
       />
     );
   }
-
+ 
   render() {
     const { annotationSelected } = this.state;
-    const { isPresenter } = this.props;
+    const { isPresenter, intl } = this.props;
     return (
-      <div className={styles.toolbarContainer}>
+      <div className={styles.toolbarContainer} role="region" aria-label={intl.formatMessage(intlMessages.toolbarAriaLabel)}>
         <div className={styles.toolbarWrapper}>
           {this.renderToolItem()}
           {annotationSelected.value === 'text' ? this.renderFontItem() : this.renderThicknessItem()}

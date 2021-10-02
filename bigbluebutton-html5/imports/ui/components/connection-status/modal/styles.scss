@@ -24,11 +24,15 @@
 
 .container {
   margin: 0 var(--modal-margin) var(--lg-padding-x);
+
+  @include mq($hasPhoneDimentions) {
+    margin: 0 1rem;
+  }
 }
 
 .modal {
   @extend .modal;
-  padding: var(--jumbo-padding-y);
+  padding: var(--sm-padding-y);
 }
 
 .overlay {
@@ -38,7 +42,7 @@
 .description {
   text-align: center;
   color: var(--color-gray);
-  margin-bottom: var(--jumbo-padding-y)
+  margin-bottom: var(--sm-padding-y)
 }
 
 .label {
@@ -129,6 +133,38 @@
   }
 }
 
+.networkDataContainer {
+  width: 100%;
+  display: flex;
+  background-color: var(--color-off-white);
+}
+
+.networkData {
+  float: left;
+  font-size: var(--font-size-small);
+  margin-left: var(--sm-padding-x);
+}
+
+.disabled {
+  cursor: not-allowed !important;
+}
+
+.copyContainer {
+  width: 100%;
+}
+
+.copy {
+  float: right;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-right: var(--sm-padding-x);
+
+  [dir="rtl"] & {
+    margin-left: var(--sm-padding-x);
+    float: left;
+  }
+}
+
 .right {
   display: flex;
   width: 5rem;
@@ -151,8 +187,47 @@
   width: 100%;
 }
 
-.saving {
+.row {
   display: flex;
-  width: 100%;
+  flex-flow: row;
+  flex-grow: 1;
   justify-content: space-between;
+  margin-bottom: 0.7rem;
+}
+
+.col {
+  display: flex;
+  flex-grow: 1;
+  flex-basis: 0;
+
+  &:last-child {
+    padding-right: 0;
+    padding-left: 1rem;
+
+    [dir="rtl"] & {
+      padding-right: 0.1rem;
+      padding-left: 0;
+    }
+  }
+}
+
+.formElement {
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  flex-grow: 1;
+}
+
+.pullContentRight {
+  display: flex;
+  justify-content: flex-end;
+  flex-flow: row;
+}
+
+.toggleLabel {
+  margin-right: var(--sm-padding-x);
+
+  [dir="rtl"] & {
+    margin: 0 0 0 var(--sm-padding-x);
+  }
 }

@@ -25,6 +25,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-bbb-screenshare-fullscreen:before {
+  content: "\e92a";
+}
+.icon-bbb-screenshare-close-fullscreen:before {
+  content: "\e935";
+}
 .icon-bbb-alert:before {
   content: "\e958";
 }
@@ -57,6 +63,9 @@
 }
 .icon-bbb-line_tool:before {
   content: "\e91c";
+}
+.icon-bbb-marker_tool:before {
+  content: "\e95c";
 }
 .icon-bbb-circle_tool:before {
   content: "\e91d";
@@ -164,6 +173,22 @@
 }
 .icon-bbb-audio_off:before {
   content: "\e91b";
+}
+
+.icon-bbb-volume_down:before {
+  content: "\e947";
+}
+
+.icon-bbb-volume_mute:before {
+  content: "\e947";
+}
+
+.icon-bbb-volume_off:before {
+  content: "\e947";
+}
+
+.icon-bbb-volume_up:before {
+  content: "\e947";
 }
 
 /* Aliases for emoji status */
@@ -297,4 +322,7 @@
 }
 .icon-bbb-no_palm_rejection:before {
   content: "\e95a";
+}
+.icon-bbb-device_list_selector:before {
+  content: "\e95b";
 }

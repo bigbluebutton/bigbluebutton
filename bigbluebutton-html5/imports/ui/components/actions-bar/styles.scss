@@ -58,6 +58,13 @@
   }
 }
 
+.offsetBottom {
+  :global(.MuiPaper-root) {
+    top: auto !important;
+    bottom: 4rem !important;
+  }
+}
+
 .left {
   display: inherit;
   flex: 0;
@@ -111,12 +118,16 @@
   }
 }
 
-.btn {
-  z-index: 3;
-}
 .dropdown{
   z-index: 4;
 }
+
+.hideDropdownButton {
+  @include mq($small-only) {
+    display:none;
+  }
+}
+
 .presentationItem {
   span {
     text-overflow: ellipsis;
@@ -157,6 +168,7 @@
   outline-width: 1px !important;
   outline-color: transparent !important;
   max-height: 50vh;
+  padding: 0.25rem;
 
   @include mq($small-only) {
     max-height: 100%;

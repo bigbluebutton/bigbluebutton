@@ -4,6 +4,11 @@
 .container {
   display: flex;
   flex-flow: row;
+  position: relative;
+
+  > div {
+    position: relative;
+  }
 
   .muteToggle {
     margin-right: var(--sm-padding-x);
@@ -76,7 +81,11 @@
 }
 
 .dropdownListContainer {
-  min-width: 10rem;
+  width: max-content;
+
+  @include mq($small-only) {
+    width: 100%;
+  }
 }
 
 .stopButton {
@@ -90,5 +99,5 @@
 }
 
 .selectedDevice {
-  font-weight: bold;
+  font-weight: bold !important;
 }

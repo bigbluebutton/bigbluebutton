@@ -39,7 +39,7 @@ export default class ShapePointerListener extends Component {
     this.handlePointerDown = this.handlePointerDown.bind(this);
     this.handlePointerUp = this.handlePointerUp.bind(this);
     this.handlePointerMove = this.handlePointerMove.bind(this);
-    this.handlePointerCancle = this.handlePointerCancle.bind(this);
+    this.handlePointerCancel = this.handlePointerCancel.bind(this);
 
     this.resetState = this.resetState.bind(this);
     this.sendLastMessage = this.sendLastMessage.bind(this);
@@ -174,7 +174,7 @@ export default class ShapePointerListener extends Component {
     if (this.isDrawing) {
       // make sure we are drawing and we have some coordinates sent for this shape before
       // to prevent sending DRAW_END on a random mouse click
-      if (this.lastSentCoordinate.x && this.lastSentCoordinate.y) {
+      if (this.lastSentCoordinate.x !== undefined && this.lastSentCoordinate.y !== undefined) {
         const { getCurrentShapeId } = actions;
         this.handleDrawCommonAnnotation(
           this.initialCoordinate,
@@ -207,7 +207,7 @@ export default class ShapePointerListener extends Component {
     // remove event handler
     window.removeEventListener('pointerup', this.handlePointerUp);
     window.removeEventListener('pointermove', this.handlePointerMove);
-    window.removeEventListener('pointercancle', this.handlePointerCancle, true);
+    window.removeEventListener('pointercancel', this.handlePointerCancel, true);
   }
 
   // since Rectangle / Triangle / Ellipse / Line have the same coordinate structure
@@ -315,7 +315,7 @@ export default class ShapePointerListener extends Component {
     if (!this.isDrawing) {
       window.addEventListener('pointerup', this.handlePointerUp);
       window.addEventListener('pointermove', this.handlePointerMove);
-      window.addEventListener('pointercancle', this.handlePointerCancle, true);
+      window.addEventListener('pointercancel', this.handlePointerCancel, true);
 
       const { clientX, clientY } = event;
       this.commonDrawStartHandler(clientX, clientY);
@@ -376,7 +376,7 @@ export default class ShapePointerListener extends Component {
     }
   }
 
-  handlePointerCancle(event) {
+  handlePointerCancel(event) {
     switch (event.pointerType) {
       case 'pen': {
         this.sendLastMessage();

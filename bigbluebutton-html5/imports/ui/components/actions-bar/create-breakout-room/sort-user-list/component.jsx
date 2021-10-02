@@ -13,8 +13,8 @@ const propTypes = {
 };
 
 const defaultProps = {
-  onCheck: () => {},
-  onUncheck: () => {},
+  onCheck: () => { },
+  onUncheck: () => { },
 };
 
 const intlMessages = defineMessages({
@@ -99,7 +99,8 @@ class SortUsers extends Component {
             {user.userName}
             {user.room && !(user.room === room) ? `\t[${user.room}]` : ''}
           </span>
-        </div>));
+        </div>
+      ));
   }
 
   renderJoinedUserItem() {
@@ -107,18 +108,18 @@ class SortUsers extends Component {
     if (!joinedUsers.length) return null;
 
     return joinedUsers
-      .map(b => b.joinedUsers.map(u => ({ ...u, room: b.sequence })))
+      .map((b) => b.joinedUsers.map((u) => ({ ...u, room: b.sequence })))
       .flat()
-      .map(user => (
+      .map((user) => (
         <div className={styles.selectUserContainer}>
           <span className={styles.lockIcon} />
           <span className={styles.textName}>
             {user.name}
             {`\t[${user.room}]`}
           </span>
-        </div>));
+        </div>
+      ));
   }
-
 
   render() {
     const {

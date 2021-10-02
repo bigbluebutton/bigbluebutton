@@ -1,5 +1,9 @@
 import { Meteor } from 'meteor/meteor';
-import Meetings, { RecordMeetings, MeetingTimeRemaining } from '/imports/api/meetings';
+import Meetings, {
+  RecordMeetings,
+  MeetingTimeRemaining,
+  ExternalVideoMeetings,
+} from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
@@ -39,6 +43,12 @@ function meetings(role) {
     },
   };
 
+  if (User.role === ROLE_MODERATOR) {
+    delete options.fields.password;
+    options.fields['password.viewerPass'] = false;
+    options.fields['password.moderatorPass'] = false;
+  }
+
   return Meetings.find(selector, options);
 }
 
@@ -69,6 +79,28 @@ function recordPublish(...args) {
 }
 
 Meteor.publish('record-meetings', recordPublish);
+
+function externalVideoMeetings() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing ExternalVideoMeetings was requested by unauth connection ${this.connection.id}`);
+    return ExternalVideoMeetings.find({ meetingId: '' });
+  }
+
+  const { meetingId, userId } = tokenValidation;
+
+  Logger.debug(`Publishing ExternalVideoMeetings for ${meetingId} ${userId}`);
+
+  return ExternalVideoMeetings.find({ meetingId });
+}
+
+function externalVideoPublish(...args) {
+  const boundExternalVideoMeetings = externalVideoMeetings.bind(this);
+  return boundExternalVideoMeetings(...args);
+}
+
+Meteor.publish('external-video-meetings', externalVideoPublish);
 
 function meetingTimeRemaining() {
   const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });

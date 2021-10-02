@@ -188,7 +188,7 @@ export default class WhiteboardOverlay extends Component {
           whiteboardId={whiteboardId}
         />
       );
-    } if (tool === 'pencil') {
+    } if (tool === 'pencil' || tool === 'marker') {
       if (window.PointerEvent) {
         return (
           <PencilPointerListener

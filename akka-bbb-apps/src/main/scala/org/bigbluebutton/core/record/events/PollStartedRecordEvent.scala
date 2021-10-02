@@ -31,12 +31,27 @@ class PollStartedRecordEvent extends AbstractPollRecordEvent {
     eventMap.put(USER_ID, userId)
   }
 
+  def setQuestion(question: String) {
+    eventMap.put(QUESTION, question)
+  }
+
   def setAnswers(answers: Array[SimpleAnswerOutVO]) {
     eventMap.put(ANSWERS, JsonUtil.toJson(answers))
+  }
+
+  def setType(pollType: String) {
+    eventMap.put(TYPE, pollType)
+  }
+
+  def setSecretPoll(secretPoll: Boolean) {
+    eventMap.put(SECRET_POLL, secretPoll.toString)
   }
 }
 
 object PollStartedRecordEvent {
   protected final val USER_ID = "userId"
+  protected final val QUESTION = "question"
   protected final val ANSWERS = "answers"
+  protected final val TYPE = "type"
+  protected final val SECRET_POLL = "secretPoll"
 }
