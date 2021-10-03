@@ -244,6 +244,9 @@
 .icon-bbb-multi_whiteboard:before {
   content: "\e93d";
 }
+.icon-bbb-multi_whiteboard_isolated:before {
+  content: "\e95e";
+}
 .icon-bbb-whiteboard:before {
   content: "\e93e";
 }
