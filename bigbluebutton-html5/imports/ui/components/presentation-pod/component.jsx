@@ -55,7 +55,7 @@ class PresentationPods extends PureComponent {
       PresentationContainer should fill any empty box provided by us
     */
     return (
-      <PresentationAreaContainer
+      <PresentationContainer
         podId="DEFAULT_PRESENTATION_POD"
         key={this.state.separatePresentationWindow && this.state.separatePresentationWindow.id}
         separatePresentationWindow={this.state.separatePresentationWindow}
