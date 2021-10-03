@@ -798,6 +798,7 @@ class Presentation extends PureComponent {
         toggleSeparatePresentationWindow={toggleSeparatePresentationWindow}
         separatePresentationWindow={separatePresentationWindow}
         presentationWindow={presentationWindow}
+        fullscreenRef={presentationWindow.document.documentElement}
       />
     );
   }
