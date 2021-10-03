@@ -978,7 +978,7 @@ class Presentation extends PureComponent {
               ? this.renderWhiteboardToolbar(svgDimensions)
               : null ;
 
-    let pToolbarStyle = {width: toolbarWidth};
+    let pToolbarStyle = {width: containerWidth};
     if (userIsPresenter && separatePresentationWindow){
       pToolbarStyle.left = "50%";
       pToolbarStyle.transform = "translateX(-50%)";
@@ -992,7 +992,7 @@ class Presentation extends PureComponent {
                   ref={(ref) => { this.refPresentationToolbar = ref; }}
                   style={pToolbarStyle}
                 >
-                  {this.renderPresentationToolbar()}
+                  {this.renderPresentationToolbar(svgWidth)}
                 </div>
               )
               : null ;
