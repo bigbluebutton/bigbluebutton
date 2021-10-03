@@ -114,8 +114,10 @@ export default class PresentationOverlay extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('mousemove', this.mouseMoveHandler);
-    window.removeEventListener('mouseup', this.mouseUpHandler);
+    const { eventWindow } = this.props;
+
+    eventWindow.removeEventListener('mousemove', this.mouseMoveHandler);
+    eventWindow.removeEventListener('mouseup', this.mouseUpHandler);
   }
 
   getTransformedSvgPoint(clientX, clientY) {
@@ -382,13 +384,14 @@ export default class PresentationOverlay extends Component {
   handleTouchStart(event) {
     const {
       annotationTool,
+      eventWindow,
     } = this.props;
 
     if (annotationTool !== HAND_TOOL) return;
     // to prevent default behavior (scrolling) on devices (in Safari), when you draw a text box
-    window.addEventListener('touchend', this.handleTouchEnd, { passive: false });
-    window.addEventListener('touchmove', this.handleTouchMove, { passive: false });
-    window.addEventListener('touchcancel', this.handleTouchCancel, true);
+    eventWindow.addEventListener('touchend', this.handleTouchEnd, { passive: false });
+    eventWindow.addEventListener('touchmove', this.handleTouchMove, { passive: false });
+    eventWindow.addEventListener('touchcancel', this.handleTouchCancel, true);
 
     this.touchStarted = true;
 
@@ -423,28 +426,31 @@ export default class PresentationOverlay extends Component {
   }
 
   handleTouchEnd(event) {
+    const { eventWindow } = this.props;
     event.preventDefault();
 
     // resetting the touchStarted flag
     this.touchStarted = false;
 
-    window.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
-    window.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
-    window.removeEventListener('touchcancel', this.handleTouchCancel, true);
+    eventWindow.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
+    eventWindow.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
+    eventWindow.removeEventListener('touchcancel', this.handleTouchCancel, true);
   }
 
   handleTouchCancel(event) {
+    const { eventWindow } = this.props;
     event.preventDefault();
 
-    window.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
-    window.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
-    window.removeEventListener('touchcancel', this.handleTouchCancel, true);
+    eventWindow.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
+    eventWindow.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
+    eventWindow.removeEventListener('touchcancel', this.handleTouchCancel, true);
   }
 
   mouseDownHandler(event) {
     const {
       annotationTool,
       userIsPresenter,
+      eventWindow,
     } = this.props;
 
     if (annotationTool !== HAND_TOOL || !userIsPresenter) return;
@@ -458,8 +464,8 @@ export default class PresentationOverlay extends Component {
         pressed: true,
       });
 
-      window.addEventListener('mousemove', this.mouseMoveHandler, { passive: false });
-      window.addEventListener('mouseup', this.mouseUpHandler, { passive: false });
+      eventWindow.addEventListener('mousemove', this.mouseMoveHandler, { passive: false });
+      eventWindow.addEventListener('mouseup', this.mouseUpHandler, { passive: false });
     }
   }
 
@@ -487,6 +493,8 @@ export default class PresentationOverlay extends Component {
   }
 
   mouseUpHandler(event) {
+    const { eventWindow } = this.props;
+    
     const {
       pressed,
     } = this.state;
@@ -498,8 +506,8 @@ export default class PresentationOverlay extends Component {
         pressed: false,
       });
 
-      window.removeEventListener('mousemove', this.mouseMoveHandler);
-      window.removeEventListener('mouseup', this.mouseUpHandler);
+      eventWindow.removeEventListener('mousemove', this.mouseMoveHandler);
+      eventWindow.removeEventListener('mouseup', this.mouseUpHandler);
     }
   }
 
@@ -513,6 +521,7 @@ export default class PresentationOverlay extends Component {
       slideHeight,
       children,
       userIsPresenter,
+      separatePresentationWindow,
     } = this.props;
 
     const {
@@ -524,7 +533,13 @@ export default class PresentationOverlay extends Component {
     this.viewBoxX = viewBoxX;
     this.viewBoxY = viewBoxY;
 
-    const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
+    const hostUri = `https://${window.document.location.hostname}`;
+    let baseName;
+    if (separatePresentationWindow) {
+      baseName = hostUri + Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
+    } else {
+      baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
+    }
 
     let cursor;
     if (!userIsPresenter) {

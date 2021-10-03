@@ -73,6 +73,14 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.title',
     description: 'presentation area element label',
   },
+  splitPresentationDesc: {
+    id: 'app.presentation.presentationToolbar.splitPresentationDesc',
+    description: 'detach the presentation area label',
+  },
+  mergePresentationDesc: {
+    id: 'app.presentation.presentationToolbar.mergePresentationDesc',
+    description: 'merge the detached presentation area label',
+  },
 });
 
 class PresentationToolbar extends PureComponent {
@@ -88,11 +96,13 @@ class PresentationToolbar extends PureComponent {
   }
 
   componentDidMount() {
-    document.addEventListener('keydown', this.switchSlide);
+    const { presentationWindow } = this.props;
+    presentationWindow.document.addEventListener('keydown', this.switchSlide);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.switchSlide);
+    const { presentationWindow } = this.props;
+    presentationWindow.document.removeEventListener('keydown', this.switchSlide);
   }
 
   switchSlide(event) {
@@ -213,6 +223,9 @@ class PresentationToolbar extends PureComponent {
       parseCurrentSlideContent,
       startPoll,
       currentSlide,
+      toggleSeparatePresentationWindow,
+      separatePresentationWindow,
+      presentationWindow,
       toolbarWidth,
     } = this.props;
 
@@ -256,6 +269,31 @@ class PresentationToolbar extends PureComponent {
               ) : null
             }
           </div>
+        }
+        {
+         !isFullscreen
+         ?
+          <div>
+            <Button
+              role="button"
+              aria-label={separatePresentationWindow
+                ? `${intl.formatMessage(intlMessages.mergePresentationDesc)}`
+                : `${intl.formatMessage(intlMessages.splitPresentationDesc)}`
+              }
+              aria-describedby={separatePresentationWindow ? 'mergePresentationDesc' : 'splitPresentationDesc'}
+              color="default"
+              icon={separatePresentationWindow ? "application" : "rooms"}
+              size="md"
+              onClick={toggleSeparatePresentationWindow}
+              label={separatePresentationWindow
+                ? `${intl.formatMessage(intlMessages.mergePresentationDesc)}`
+                : `${intl.formatMessage(intlMessages.splitPresentationDesc)}`
+              }
+              hideLabel
+              className={cx(styles.separateWindow, styles.presentationBtn)}
+            />
+          </div>
+         : null
         }
         {
           <div className={styles.presentationSlideControls}>
@@ -324,6 +362,8 @@ class PresentationToolbar extends PureComponent {
                 )
                 : null
             }
+        {!separatePresentationWindow
+          ?
             <Button
               role="button"
               aria-describedby={fitToWidth ? 'fitPageDesc' : 'fitWidthDesc'}
@@ -344,6 +384,22 @@ class PresentationToolbar extends PureComponent {
               hideLabel
               className={cx(styles.fitToWidth, styles.presentationBtn)}
             />
+          : null
+        }
+            {
+              ALLOW_FULLSCREEN
+                ? (
+                  <FullscreenButtonContainer
+                    fullscreenRef={fullscreenRef}
+                    isFullscreen={isFullscreen}
+                    elementName={intl.formatMessage(intlMessages.presentationLabel)}
+                    className={styles.presentationBtn}
+                    separatePresentationWindow={separatePresentationWindow}
+                    presentationWindow={presentationWindow}
+                  />
+                )
+                : null
+            }
           </div>
         }
       </div>
