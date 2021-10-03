@@ -701,7 +701,7 @@ class Presentation extends PureComponent {
         <span id="currentSlideText" className={styles.visuallyHidden}>{slideContent}</span>
         {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
-        {this.renderPresentationFullscreen()}
+        {separatePresentationWindow ? null : this.renderPresentationFullscreen()}
         <svg
           key={currentSlide.id}
           data-test="whiteboard"
