@@ -970,7 +970,7 @@ class Presentation extends PureComponent {
 
     const slide =
             showSlide && svgWidth > 0 && svgHeight > 0
-              ? this.renderPresentationArea(svgDimensions, viewBoxDimensions)
+              ? this.renderPresentation(svgDimensions, viewBoxDimensions)
               : null ;
 
     const wToolbar =
