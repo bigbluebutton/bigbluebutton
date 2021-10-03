@@ -13,6 +13,8 @@
   margin-top: var(--sm-padding-y);
   margin-bottom: var(--sm-padding-y);
   font-size: var(--font-size-base);
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .main {
@@ -23,7 +25,7 @@
 
 .center {
   position: relative;
-  flex: 1 1 auto;
+  flex: 3;
   border-left: 1px solid var(--color-gray-lighter);
   border-right : none;
   width: 100%;
@@ -40,12 +42,14 @@
   max-width: var(--poll-result-width);
   min-width: var(--poll-stats-element-width);
   word-wrap: break-word;
+  flex: 6;
 }
 
 .right {
   text-align: right;
   max-width: var(--poll-stats-element-width);
   min-width: var(--poll-stats-element-width);
+  flex: 1;
 
   [dir="rtl"] & {
     text-align: left;
@@ -63,7 +67,6 @@
 
 .left,
 .right {
-  flex: 0 0 auto;
   position: relative;
 }
 

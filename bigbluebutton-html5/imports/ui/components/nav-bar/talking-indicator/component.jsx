@@ -34,7 +34,11 @@ class TalkingIndicator extends PureComponent {
 
   render() {
     const {
-      intl, talkers, openPanel, amIModerator,
+      intl,
+      talkers,
+      amIModerator,
+      sidebarNavigationIsOpen,
+      sidebarContentIsOpen,
     } = this.props;
     if (!talkers) return null;
 
@@ -51,7 +55,8 @@ class TalkingIndicator extends PureComponent {
         [styles.talker]: true,
         [styles.spoke]: !talking,
         [styles.muted]: muted,
-        [styles.mobileHide]: openPanel !== '',
+        [styles.mobileHide]: sidebarNavigationIsOpen
+          && sidebarContentIsOpen,
         [styles.isViewer]: !amIModerator,
       };
 

@@ -6,6 +6,8 @@ case class BreakoutRoom2x(
     name:          String,
     parentId:      String,
     sequence:      Int,
+    shortName:     String,
+    isDefaultName: Boolean,
     freeJoin:      Boolean,
     voiceConf:     String,
     assignedUsers: Vector[String],

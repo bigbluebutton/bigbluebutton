@@ -14,7 +14,7 @@
   flex-direction: column;
   justify-content: space-around;
   overflow: hidden;
-  height: 100vh;
+  height: 100%;
 
   :global(.browser-chrome) & {
     transform: translateZ(0);

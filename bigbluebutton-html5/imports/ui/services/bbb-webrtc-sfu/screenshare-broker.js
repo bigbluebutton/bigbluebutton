@@ -2,6 +2,7 @@ import logger from '/imports/startup/client/logger';
 import BaseBroker from '/imports/ui/services/bbb-webrtc-sfu/sfu-base-broker';
 
 const ON_ICE_CANDIDATE_MSG = 'iceCandidate';
+const SUBSCRIBER_ANSWER = 'subscriberAnswer';
 const SFU_COMPONENT_NAME = 'screenshare';
 
 class ScreenshareBroker extends BaseBroker {
@@ -21,8 +22,9 @@ class ScreenshareBroker extends BaseBroker {
     this.ws = null;
     this.webRtcPeer = null;
     this.hasAudio = false;
+    this.offering = true;
 
-    // Optional parameters are: userName, caleeName, iceServers, hasAudio, bitrate
+    // Optional parameters are: userName, caleeName, iceServers, hasAudio, bitrate, offering, mediaServer
     Object.assign(this, options);
   }
 
@@ -45,7 +47,7 @@ class ScreenshareBroker extends BaseBroker {
 
     switch (parsedMessage.id) {
       case 'startResponse':
-        this.processAnswer(parsedMessage);
+        this.onRemoteDescriptionReceived(parsedMessage);
         break;
       case 'playStart':
         this.onstart();
@@ -91,6 +93,45 @@ class ScreenshareBroker extends BaseBroker {
     this.onerror(error);
   }
 
+  sendLocalDescription (localDescription) {
+    const message = {
+      id: SUBSCRIBER_ANSWER,
+      type: this.sfuComponent,
+      role: this.role,
+      voiceBridge: this.voiceBridge,
+      callerName: this.userId,
+      answer: localDescription,
+    };
+
+    this.sendMessage(message);
+  }
+
+  onRemoteDescriptionReceived (sfuResponse) {
+    if (this.offering) {
+      return this.processAnswer(sfuResponse);
+    }
+
+    return this.processOffer(sfuResponse);
+  }
+
+  sendStartReq (offer) {
+    const message = {
+      id: 'start',
+      type: this.sfuComponent,
+      role: this.role,
+      internalMeetingId: this.internalMeetingId,
+      voiceBridge: this.voiceBridge,
+      userName: this.userName,
+      callerName: this.userId,
+      sdpOffer: offer,
+      hasAudio: !!this.hasAudio,
+      bitrate: this.bitrate,
+      mediaServer: this.mediaServer,
+    };
+
+    this.sendMessage(message);
+  }
+
   onOfferGenerated (error, sdpOffer) {
     if (error) {
       logger.error({
@@ -106,20 +147,7 @@ class ScreenshareBroker extends BaseBroker {
       return this.onerror(error);
     }
 
-    const message = {
-      id: 'start',
-      type: this.sfuComponent,
-      role: this.role,
-      internalMeetingId: this.internalMeetingId,
-      voiceBridge: this.voiceBridge,
-      userName: this.userName,
-      callerName: this.userId,
-      sdpOffer,
-      hasAudio: !!this.hasAudio,
-      bitrate: this.bitrate,
-    };
-
-    this.sendMessage(message);
+    this.sendStartReq(sdpOffer);
   }
 
   startScreensharing () {
@@ -151,7 +179,12 @@ class ScreenshareBroker extends BaseBroker {
         }
 
         this.webRtcPeer.iceQueue = [];
-        this.webRtcPeer.generateOffer(this.onOfferGenerated.bind(this));
+
+        if (this.offering) {
+          this.webRtcPeer.generateOffer(this.onOfferGenerated.bind(this));
+        } else {
+          this.sendStartReq();
+        }
 
         const localStream = this.webRtcPeer.peerConnection.getLocalStreams()[0];
 
@@ -217,7 +250,12 @@ class ScreenshareBroker extends BaseBroker {
           return reject(normalizedError);
         }
         this.webRtcPeer.iceQueue = [];
-        this.webRtcPeer.generateOffer(this.onOfferGenerated.bind(this));
+
+        if (this.offering) {
+          this.webRtcPeer.generateOffer(this.onOfferGenerated.bind(this));
+        } else {
+          this.sendStartReq();
+        }
       });
 
       this.webRtcPeer.peerConnection.onconnectionstatechange = () => {

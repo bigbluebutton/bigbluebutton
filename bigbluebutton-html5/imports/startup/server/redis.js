@@ -1,4 +1,3 @@
-/* global PowerQueue */
 import Redis from 'redis';
 import { Meteor } from 'meteor/meteor';
 import { EventEmitter2 } from 'eventemitter2';
@@ -9,6 +8,7 @@ import {
 } from './etherpad';
 import Logger from './logger';
 import Metrics from './metrics';
+import queue from 'queue';
 
 // Fake meetingId used for messages that have no meetingId
 const NO_MEETING_ID = '_';
@@ -49,7 +49,7 @@ class MeetingMessageQueue {
   constructor(eventEmitter, asyncMessages = [], redisDebugEnabled = false) {
     this.asyncMessages = asyncMessages;
     this.emitter = eventEmitter;
-    this.queue = new PowerQueue();
+    this.queue = queue({ autostart: true });
     this.redisDebugEnabled = redisDebugEnabled;
 
     this.handleTask = this.handleTask.bind(this);
@@ -86,7 +86,7 @@ class MeetingMessageQueue {
         Metrics.processEvent(queueId, eventName, dataLength, beginHandleTimestamp);
       }
 
-      const queueLength = this.queue.length();
+      const queueLength = this.queue.length;
       if (queueLength > 100) {
         Logger.warn(`Redis: MeetingMessageQueue for meetingId=${meetingId} has queue size=${queueLength} `);
       }
@@ -120,7 +120,12 @@ class MeetingMessageQueue {
   }
 
   add(...args) {
-    return this.queue.add(...args);
+    const { taskHandler } = this.queue;
+
+    this.queue.push(function (next) {
+      taskHandler(...args, next);
+    })
+
   }
 }
 

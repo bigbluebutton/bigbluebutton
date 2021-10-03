@@ -123,11 +123,12 @@ class BbbWebApiGWApp(
   def createMeeting(meetingId: String, extMeetingId: String, parentMeetingId: String, meetingName: String,
                     recorded: java.lang.Boolean, voiceBridge: String, duration: java.lang.Integer,
                     autoStartRecording:      java.lang.Boolean,
-                    allowStartStopRecording: java.lang.Boolean, webcamsOnlyForModerator: java.lang.Boolean, moderatorPass: String,
-                    viewerPass: String, createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean,
+                    allowStartStopRecording: java.lang.Boolean, webcamsOnlyForModerator: java.lang.Boolean,
+                    moderatorPass: String, viewerPass: String, learningDashboardEnabled: java.lang.Boolean, learningDashboardAccessToken: String,
+                    createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean,
                     sequence: java.lang.Integer,
                     freeJoin: java.lang.Boolean,
-                    metadata: java.util.Map[String, String], guestPolicy: String, authenticatedGuest: java.lang.Boolean,
+                    metadata: java.util.Map[String, String], guestPolicy: String, authenticatedGuest: java.lang.Boolean, meetingLayout: String,
                     welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String,
                     dialNumber: String, maxUsers: java.lang.Integer,
                     meetingExpireIfNoUserJoinedInMinutes:   java.lang.Integer,
@@ -145,7 +146,7 @@ class BbbWebApiGWApp(
                     html5InstanceId:                        java.lang.Integer): Unit = {
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
-      isBreakout = isBreakout.booleanValue())
+      isBreakout = isBreakout.booleanValue(), learningDashboardEnabled = learningDashboardEnabled.booleanValue())
     val durationProps = DurationProps(
       duration = duration.intValue(),
       createdTime = createTime.longValue(), createDate,
@@ -158,7 +159,7 @@ class BbbWebApiGWApp(
       endWhenNoModeratorDelayInMinutes.intValue()
     )
 
-    val password = PasswordProp(moderatorPass = moderatorPass, viewerPass = viewerPass)
+    val password = PasswordProp(moderatorPass = moderatorPass, viewerPass = viewerPass, learningDashboardAccessToken = learningDashboardAccessToken)
     val recordProp = RecordProp(record = recorded.booleanValue(), autoStartRecording = autoStartRecording.booleanValue(),
       allowStartStopRecording = allowStartStopRecording.booleanValue(), keepEvents = keepEvents.booleanValue())
 
@@ -176,7 +177,7 @@ class BbbWebApiGWApp(
       modOnlyMessage = modOnlyMessage)
     val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber, muteOnStart = muteOnStart.booleanValue())
     val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
-      guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(), authenticatedGuest = authenticatedGuest.booleanValue())
+      guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(), authenticatedGuest = authenticatedGuest.booleanValue())
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
     val screenshareProps = ScreenshareProps(
       screenshareConf = voiceBridge + screenshareConfSuffix,

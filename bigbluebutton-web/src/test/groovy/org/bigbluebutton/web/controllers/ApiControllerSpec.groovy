@@ -31,7 +31,6 @@ class ApiControllerSpec extends Specification implements ControllerUnitTest<ApiC
     paramsProcessorUtil.setApiVersion(apiVersion)
     paramsProcessorUtil.setSecuritySalt(securitySalt)
     paramsProcessorUtil.setDefaultServerUrl(defaultServerUrl)
-    paramsProcessorUtil.setDefaultConfigURL(defaultServerUrl + "/client/conf/config.xml")
     paramsProcessorUtil.setDefaultWelcomeMessage(welcomeMessage)
     paramsProcessorUtil.setDefaultLogoutUrl(logoutUrl)
     controller.paramsProcessorUtil = paramsProcessorUtil

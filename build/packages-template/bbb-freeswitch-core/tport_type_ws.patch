@@ -1,0 +1,30 @@
+diff --git a/libs/sofia-sip/libsofia-sip-ua/tport/tport_type_ws.c b/libs/sofia-sip/libsofia-sip-ua/tport/tport_type_ws.c
+index 7e1dc76..618ac8b 100644
+--- a/libs/sofia-sip/libsofia-sip-ua/tport/tport_type_ws.c
++++ b/libs/sofia-sip/libsofia-sip-ua/tport/tport_type_ws.c
+@@ -635,6 +635,8 @@ int tport_ws_next_timer(tport_t *self,
+                SU_DEBUG_7(("%s(%p): %s to " TPN_FORMAT "%s\n",
+                                        __func__, (void *)self,
+                                        (punt == 2 ? "Timeout establishing SSL" : "Error establishing SSL"), TPN_ARGS(self->tp_name), ""));
++               if (wstp->ws.secure)
++                       return -1;
+        }
+
+
+@@ -646,7 +648,13 @@ int tport_ws_next_timer(tport_t *self,
+ /** WS timer. */
+ void tport_ws_timer(tport_t *self, su_time_t now)
+ {
+-  tport_recv_timeout_timer(self, now);
+-  tport_keepalive_timer(self, now);
++  tport_ws_t *wstp = (tport_ws_t *)self;
++
++  if (!strcmp("wss", self->tp_protoname) && !wstp->ws.secure_established) {
++    tport_close(self);
++  } else {
++    tport_recv_timeout_timer(self, now);
++    tport_keepalive_timer(self, now);
++  }
+   tport_base_timer(self, now);
+ }
+

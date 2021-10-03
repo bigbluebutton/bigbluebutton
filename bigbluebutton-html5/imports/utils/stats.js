@@ -190,21 +190,6 @@ const monitorAudioConnection = conn => {
   });
 };
 
-const monitorVideoConnection = conn => {
-  if (!conn) return;
-
-  logger.debug(
-    { logCode: 'stats_video_monitor' },
-    'Starting to monitor video connection'
-  );
-
-  collect(conn, (result) => {
-    const event = new CustomEvent('videostats', { detail: result });
-    window.dispatchEvent(event);
-  });
-};
-
 export {
   monitorAudioConnection,
-  monitorVideoConnection
-}
+};

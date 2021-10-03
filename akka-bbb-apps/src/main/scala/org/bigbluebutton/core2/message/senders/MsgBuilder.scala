@@ -160,12 +160,67 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildStopExternalVideoEvtMsg(meetingId: String, userId: String = "not-used"): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, "nodeJSapp")
+    val envelope = BbbCoreEnvelope(StopExternalVideoEvtMsg.NAME, routing)
+
+    val body = StopExternalVideoEvtMsgBody()
+    val header = BbbClientMsgHeader(StopExternalVideoEvtMsg.NAME, meetingId, userId)
+    val event = StopExternalVideoEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildStopScreenshareRtmpBroadcastEvtMsg(
+      meetingId: String,
+      voiceConf: String, screenshareConf: String,
+      stream: String, vidWidth: Int, vidHeight: Int,
+      timestamp: String
+  ): BbbCommonEnvCoreMsg = {
+
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
+    val envelope = BbbCoreEnvelope(ScreenshareRtmpBroadcastStoppedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(ScreenshareRtmpBroadcastStoppedEvtMsg.NAME, meetingId, "not-used")
+    val body = ScreenshareRtmpBroadcastStoppedEvtMsgBody(voiceConf, screenshareConf, stream, vidWidth, vidHeight, timestamp)
+    val event = ScreenshareRtmpBroadcastStoppedEvtMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildMeetingCreatedEvtMsg(meetingId: String, props: DefaultProps): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(MeetingCreatedEvtMsg.NAME, routing)
     val header = BbbCoreBaseHeader(MeetingCreatedEvtMsg.NAME)
     val body = MeetingCreatedEvtBody(props)
     val event = MeetingCreatedEvtMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildMeetingInfoAnalyticsMsg(analytics: MeetingInfoAnalytics): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(MeetingInfoAnalyticsMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(MeetingInfoAnalyticsMsg.NAME)
+    val body = MeetingInfoAnalyticsMsgBody(analytics)
+    val event = MeetingInfoAnalyticsMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildMeetingInfoAnalyticsServiceMsg(analytics: MeetingInfoAnalytics): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(MeetingInfoAnalyticsServiceMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(MeetingInfoAnalyticsServiceMsg.NAME)
+    val body = MeetingInfoAnalyticsMsgBody(analytics)
+    val event = MeetingInfoAnalyticsServiceMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildCamStreamSubscribeSysMsg(meetingId: String, userId: String, streamId: String, sfuSessionId: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(CamStreamSubscribeSysMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(CamStreamSubscribeSysMsg.NAME)
+    val body = CamStreamSubscribeSysMsgBody(meetingId, userId, streamId, sfuSessionId)
+    val event = CamStreamSubscribeSysMsg(header, body)
+
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
@@ -504,4 +559,15 @@ object MsgBuilder {
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
+
+  def buildLearningDashboardEvtMsg(meetingId: String, activityJson: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(LearningDashboardEvtMsg.NAME, routing)
+    val body = LearningDashboardEvtMsgBody(activityJson)
+    val header = BbbCoreHeaderWithMeetingId(LearningDashboardEvtMsg.NAME, meetingId)
+    val event = LearningDashboardEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
 }

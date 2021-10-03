@@ -42,7 +42,7 @@
 .description {
   text-align: center;
   color: var(--color-gray);
-  margin-bottom: var(--jumbo-padding-y)
+  margin-bottom: var(--sm-padding-y)
 }
 
 .label {
@@ -130,6 +130,38 @@
       width: 2.05rem;
       height: 2.05rem;
     }
+  }
+}
+
+.networkDataContainer {
+  width: 100%;
+  display: flex;
+  background-color: var(--color-off-white);
+}
+
+.networkData {
+  float: left;
+  font-size: var(--font-size-small);
+  margin-left: var(--sm-padding-x);
+}
+
+.disabled {
+  cursor: not-allowed !important;
+}
+
+.copyContainer {
+  width: 100%;
+}
+
+.copy {
+  float: right;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-right: var(--sm-padding-x);
+
+  [dir="rtl"] & {
+    margin-left: var(--sm-padding-x);
+    float: left;
   }
 }
 

@@ -10,17 +10,19 @@ const intlMessages = defineMessages({
   },
 });
 
-const ClosePresentationComponent = ({ intl, toggleSwapLayout }) => (
+const ClosePresentationComponent = ({
+  intl, toggleSwapLayout, layoutContextDispatch, isIphone,
+}) => (
   <Button
     color="primary"
     icon="minus"
     size="sm"
     data-test="hidePresentationButton"
-    onClick={toggleSwapLayout}
+    onClick={() => toggleSwapLayout(layoutContextDispatch)}
     label={intl.formatMessage(intlMessages.closePresentationLabel)}
     aria-label={intl.formatMessage(intlMessages.closePresentationLabel)}
     hideLabel
-    className={styles.button}
+    className={isIphone ? styles.button : styles.buttonWithMargin}
   />
 );
 

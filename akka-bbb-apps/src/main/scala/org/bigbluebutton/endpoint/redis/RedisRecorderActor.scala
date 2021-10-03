@@ -563,6 +563,7 @@ class RedisRecorderActor(
     ev.setQuestion(msg.body.question)
     ev.setAnswers(msg.body.poll.answers)
     ev.setType(msg.body.pollType)
+    ev.setSecretPoll(msg.body.secretPoll)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
@@ -570,7 +571,11 @@ class RedisRecorderActor(
   private def handleUserRespondedToPollRecordMsg(msg: UserRespondedToPollRecordMsg): Unit = {
     val ev = new UserRespondedToPollRecordEvent()
     ev.setPollId(msg.body.pollId)
-    ev.setUserId(msg.header.userId)
+    if (msg.body.isSecret) {
+      ev.setUserId("")
+    } else {
+      ev.setUserId(msg.header.userId)
+    }
     ev.setAnswerId(msg.body.answerId)
     ev.setAnswer(msg.body.answer)
 

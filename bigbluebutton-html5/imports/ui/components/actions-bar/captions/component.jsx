@@ -6,7 +6,9 @@ import { styles } from '/imports/ui/components/actions-bar/styles';
 import Button from '/imports/ui/components/button/component';
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   isActive: PropTypes.bool.isRequired,
   handleOnClick: PropTypes.func.isRequired,
 };

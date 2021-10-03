@@ -8,10 +8,8 @@ import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtil
 import cx from 'classnames';
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
-import FullscreenButtonContainer from '../../fullscreen-button/container';
 import TooltipContainer from '/imports/ui/components/tooltip/container';
 import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick-poll-dropdown/container';
-import FullscreenService from '/imports/ui/components/fullscreen-button/service';
 import KEY_CODES from '/imports/utils/keyCodes';
 
 const intlMessages = defineMessages({
@@ -85,8 +83,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
-
 class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
@@ -112,7 +108,6 @@ class PresentationToolbar extends PureComponent {
   switchSlide(event) {
     const { target, which } = event;
     const isBody = target.nodeName === 'BODY';
-    const { fullscreenRef } = this.props;
 
     if (isBody) {
       switch (which) {
@@ -123,9 +118,6 @@ class PresentationToolbar extends PureComponent {
         case KEY_CODES.ARROW_RIGHT:
         case KEY_CODES.PAGE_DOWN:
           this.nextSlideHandler();
-          break;
-        case KEY_CODES.ENTER:
-          FullscreenService.toggleFullScreen(fullscreenRef);
           break;
         default:
       }
@@ -224,8 +216,6 @@ class PresentationToolbar extends PureComponent {
       fitToWidth,
       intl,
       zoom,
-      isFullscreen,
-      fullscreenRef,
       isMeteorConnected,
       isPollingEnabled,
       amIPresenter,
@@ -236,6 +226,7 @@ class PresentationToolbar extends PureComponent {
       toggleSeparatePresentationWindow,
       separatePresentationWindow,
       presentationWindow,
+      toolbarWidth,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -252,7 +243,13 @@ class PresentationToolbar extends PureComponent {
       : `${intl.formatMessage(intlMessages.nextSlideLabel)} (${currentSlideNum >= 1 ? (currentSlideNum + 1) : ''})`;
 
     return (
-      <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
+      <div id="presentationToolbarWrapper"
+        className={styles.presentationToolbarWrapper}
+        style={
+          {
+            width: toolbarWidth,
+          }
+        }>
         {this.renderAriaDescs()}
         {
           <div>
@@ -270,7 +267,7 @@ class PresentationToolbar extends PureComponent {
                   className={styles.presentationBtn}
                 />
               ) : null
-          }
+            }
           </div>
         }
         {
@@ -427,15 +424,8 @@ PresentationToolbar.propTypes = {
   zoomChanger: PropTypes.func.isRequired,
   fitToWidthHandler: PropTypes.func.isRequired,
   fitToWidth: PropTypes.bool.isRequired,
-  fullscreenRef: PropTypes.instanceOf(Element),
-  isFullscreen: PropTypes.bool.isRequired,
   zoom: PropTypes.number.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
 };
-
-PresentationToolbar.defaultProps = {
-  fullscreenRef: null,
-};
-
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));

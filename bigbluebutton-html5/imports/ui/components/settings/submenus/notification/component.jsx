@@ -32,6 +32,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.notification.userJoinLabel',
     description: 'label for chat messages',
   },
+  userLeaveLabel: {
+    id: 'app.submenu.notification.userLeaveLabel',
+    description: 'label for user leave notifications',
+  },
   guestWaitingLabel: {
     id: 'app.submenu.notification.guestWaitingLabel',
     description: 'label for guests waiting for approval',
@@ -143,6 +147,38 @@ class NotificationMenu extends BaseMenu {
                   defaultChecked={settings.userJoinPushAlerts}
                   onChange={() => this.handleToggle('userJoinPushAlerts')}
                   ariaLabel={`${intl.formatMessage(intlMessages.userJoinLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
+                  showToggleLabel={showToggleLabel}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.row}>
+            <div className={styles.col}>
+              <label className={styles.label}>
+                {intl.formatMessage(intlMessages.userLeaveLabel)}
+              </label>
+            </div>
+            <div className={styles.col}>
+              <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                {displaySettingsStatus(settings.userLeaveAudioAlerts)}
+                <Toggle
+                  icons={false}
+                  defaultChecked={settings.userLeaveAudioAlerts}
+                  onChange={() => this.handleToggle('userLeaveAudioAlerts')}
+                  ariaLabel={`${intl.formatMessage(intlMessages.userLeaveLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)}`}
+                  showToggleLabel={showToggleLabel}
+                />
+              </div>
+            </div>
+            <div className={styles.col}>
+              <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                {displaySettingsStatus(settings.userLeavePushAlerts)}
+                <Toggle
+                  icons={false}
+                  defaultChecked={settings.userLeavePushAlerts}
+                  onChange={() => this.handleToggle('userLeavePushAlerts')}
+                  ariaLabel={`${intl.formatMessage(intlMessages.userLeaveLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
                   showToggleLabel={showToggleLabel}
                 />
               </div>

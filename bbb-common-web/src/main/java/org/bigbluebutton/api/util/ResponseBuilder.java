@@ -195,7 +195,7 @@ public class ResponseBuilder {
 
         Map<String, Serializable> data = new HashMap<String, Serializable>();
         data.put("returnCode", returnCode);
-        data.put("sessionsList", new ArrayList<UserSession>(sessions));
+        data.put("sessionsList", new ArrayList<>(sessions));
         data.put("msgKey", msgKey);
         data.put("msg", msg);
 
@@ -213,19 +213,6 @@ public class ResponseBuilder {
         data.put("recordings", recordings);
 
         processData(getTemplate("get-recordings.ftlx"), data, xmlText);
-        return xmlText.toString();
-    }
-
-    public String buildConfgXmlReject(String message, String logoutUrl, String returnCode) {
-
-        StringWriter xmlText = new StringWriter();
-
-        Map<String, Object> data = new HashMap<String, Object>();
-        data.put("returnCode", returnCode);
-        data.put("message", message);
-        data.put("logoutUrl", logoutUrl);
-
-        processData(getTemplate("config-xml-rejected.ftlx"), data, xmlText);
         return xmlText.toString();
     }
 

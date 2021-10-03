@@ -25,7 +25,7 @@ function groupChatMsg(chatsIds) {
     timestamp: { $gte: User.authTokenValidatedTime },
     $or: [
       { meetingId, chatId: { $eq: PUBLIC_GROUP_CHAT_ID } },
-      { chatId: { $in: chatsIds } },
+      { meetingId, chatId: { $in: chatsIds } },
     ],
   };
   return GroupChatMsg.find(selector);

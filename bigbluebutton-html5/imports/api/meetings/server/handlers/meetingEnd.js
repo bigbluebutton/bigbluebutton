@@ -6,7 +6,7 @@ import Logger from '/imports/startup/server/logger';
 
 export default function handleMeetingEnd({ header, body }) {
   check(body, Object);
-  const { meetingId } = body;
+  const { meetingId, reason } = body;
   check(meetingId, String);
 
   check(header, Object);
@@ -24,7 +24,7 @@ export default function handleMeetingEnd({ header, body }) {
   };
 
   Meetings.update({ meetingId },
-    { $set: { meetingEnded: true, meetingEndedBy: userId } },
+    { $set: { meetingEnded: true, meetingEndedBy: userId, meetingEndedReason: reason } },
     (err, num) => { cb(err, num, 'Meeting'); });
 
   Breakouts.update({ parentMeetingId: meetingId },

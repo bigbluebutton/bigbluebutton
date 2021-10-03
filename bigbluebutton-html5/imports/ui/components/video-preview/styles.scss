@@ -1,5 +1,9 @@
 @import "/imports/ui/stylesheets/variables/breakpoints";
 @import "/imports/ui/components/modal/simple/styles";
+@import '/imports/ui/stylesheets/mixins/focus';
+@import '/imports/ui/stylesheets/mixins/_indicators';
+@import '/imports/ui/components/loading-screen/styles';
+@import "/imports/ui/stylesheets/variables/placeholders";
 
 .warning {
   text-align: center;
@@ -20,41 +24,41 @@
 
 .actions {
   margin-left: auto;
-  margin-right: 3px;
+  margin-right: var(--border-size-large);
 
 
   [dir="rtl"] & {
     margin-right: auto;
-    margin-left: 3px;
+    margin-left: var(--border-size-large);
   }
 
   :first-child {
-    margin-right: 3px;
+    margin-right: var(--border-size-large);
     margin-left: inherit;
 
     [dir="rtl"] & {
       margin-right: inherit;
-      margin-left: 3px;
+      margin-left: var(--border-size-large);
     }
   }
 }
 
 .extraActions {
   margin-right: auto;
-  margin-left: 3px;
+  margin-left: var(--border-size-large);
 
   [dir="rtl"] & {
     margin-left: auto;
-    margin-right: 3px;
+    margin-right: var(--border-size-large);
   }
 
   :first-child {
-    margin-left: 3px;
+    margin-left: var(--border-size-large);
     margin-right: inherit;
 
     [dir="rtl"] & {
       margin-left: inherit;
-      margin-right: 3px;
+      margin-right: var(--border-size-large);
     }
   }
 }
@@ -151,14 +155,21 @@
 }
 
 .select {
-  margin-top: 0.4rem;
-  width: 100%;
-  height: 1.6rem;
-
-  color: var(--color-gray-label);
-  border-radius: 0.3rem;
+  @include elementFocus(var(--color-primary));
 
   background-color: var(--color-white);
+  border: var(--border-size) solid var(--color-white);
+  border-radius: var(--border-size);
+  border-bottom: 0.1rem solid var(--color-gray-lighter);
+  color: var(--color-gray-label);
+  width: 100%;
+  height: 1.75rem;
+  padding: 1px;
+
+  &:hover,
+  &:focus {
+    @extend %highContrastOutline;
+  }
 }
 
 .title {
@@ -170,7 +181,7 @@
 
 .browserWarning {
   padding: 0.5rem;
-  border-width: 3px;
+  border-width: var(--border-size-large);
   border-style: solid;
   border-radius: 0.25rem;
   margin: var(--line-height-computed);

@@ -26,11 +26,12 @@ object Dependencies {
 
     // Server
     val servlet = "3.1.0"
-    
+
     // Apache Commons
     val lang = "3.9"
     val io = "2.6"
     val pool = "2.8.0"
+    val text = "1.9"
 
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"
@@ -57,10 +58,11 @@ object Dependencies {
     val nuProcess = "com.zaxxer" % "nuprocess" % Versions.nuProcess
 
     val servletApi = "javax.servlet" % "javax.servlet-api" % Versions.servlet
-    
+
     val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
     val apacheIo = "commons-io" % "commons-io" % Versions.io
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
+    val apacheText = "org.apache.commons" % "commons-text" % Versions.text
 
     val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.12" % Versions.bbbCommons excludeAll (
       ExclusionRule(organization = "org.red5"))
@@ -96,5 +98,6 @@ object Dependencies {
     Compile.apacheLang,
     Compile.apacheIo,
     Compile.apachePool2,
+    Compile.apacheText,
     Compile.bbbCommons) ++ testing
 }

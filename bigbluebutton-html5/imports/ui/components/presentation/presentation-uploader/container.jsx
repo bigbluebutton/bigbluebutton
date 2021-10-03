@@ -12,24 +12,24 @@ const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 const PresentationUploaderContainer = (props) => (
   props.isPresenter
   && (
-  <ErrorBoundary Fallback={() => <FallbackModal />}>
-    <PresentationUploader {...props} />
-  </ErrorBoundary>
+    <ErrorBoundary Fallback={() => <FallbackModal />}>
+      <PresentationUploader {...props} />
+    </ErrorBoundary>
   )
 );
 
 export default withTracker(() => {
   const currentPresentations = Service.getPresentations();
   const {
-    dispatchDisableDownloadable,
-    dispatchEnableDownloadable,
-    dispatchTogglePresentationDownloadable,
-  } = Service;
+	  dispatchDisableDownloadable,
+	  dispatchEnableDownloadable,
+	  dispatchTogglePresentationDownloadable,
+        } = Service;
 
   return {
     presentations: currentPresentations,
-    defaultFileName: PRESENTATION_CONFIG.defaultPresentationFile,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
+    allowDownloadable: PRESENTATION_CONFIG.allowDownloadable,
     handleSave: (presentations) => Service.persistPresentationChanges(
       currentPresentations,
       presentations,

@@ -1,12 +1,12 @@
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
-import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import TextInput from '/imports/ui/components/text-input/component';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
+import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
   waitingUsersTitle: {
@@ -59,7 +59,7 @@ const intlMessages = defineMessages({
   },
   accept: {
     id: 'app.userList.guest.acceptLabel',
-    description: 'Accept guest button label'
+    description: 'Accept guest button label',
   },
   deny: {
     id: 'app.userList.guest.denyLabel',
@@ -73,10 +73,12 @@ const DENY_STATUS = 'DENY';
 const getNameInitials = (name) => {
   const nameInitials = name.slice(0, 2);
 
-  return nameInitials.replace(/^\w/, c => c.toUpperCase());
-}
+  return nameInitials.replace(/^\w/, (c) => c.toUpperCase());
+};
 
-const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequence, userId, avatar, intl) => (
+const renderGuestUserItem = (
+  name, color, handleAccept, handleDeny, role, sequence, userId, avatar, intl,
+) => (
   <div key={`userlist-item-${userId}`} className={styles.listItem}>
     <div key={`user-content-container-${userId}`} className={styles.userContentContainer}>
       <div key={`user-avatar-container-${userId}`} className={styles.userAvatar}>
@@ -90,10 +92,7 @@ const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequen
         </UserAvatar>
       </div>
       <p key={`user-name-${userId}`} className={styles.userName}>
-[
-        {sequence}
-]
-        {name}
+        {`[${sequence}] ${name}`}
       </p>
     </div>
 
@@ -152,10 +151,18 @@ const WaitingUsers = (props) => {
     const {
       authenticatedUsers,
       guestUsers,
+      layoutContextDispatch,
     } = props;
+
     if (!authenticatedUsers.length && !guestUsers.length) {
-      Session.set('openPanel', 'userlist');
-      window.dispatchEvent(new Event('panelChanged'));
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+        value: false,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.NONE,
+      });
     }
   });
 
@@ -169,6 +176,7 @@ const WaitingUsers = (props) => {
     setGuestLobbyMessage,
     guestLobbyMessage,
     authenticatedGuest,
+    layoutContextDispatch,
     allowRememberChoice,
   } = props;
 
@@ -228,7 +236,9 @@ const WaitingUsers = (props) => {
     },
   ];
 
-  const buttonsData = authenticatedGuest ? _.concat(authGuestButtonsData, guestButtonsData) : guestButtonsData;
+  const buttonsData = authenticatedGuest
+    ? _.concat(authGuestButtonsData, guestButtonsData)
+    : guestButtonsData;
 
   return (
     <div
@@ -242,8 +252,14 @@ const WaitingUsers = (props) => {
         >
           <Button
             onClick={() => {
-              Session.set('openPanel', 'userlist');
-              window.dispatchEvent(new Event('panelChanged'));
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.NONE,
+              });
             }}
             label={intl.formatMessage(intlMessages.title)}
             icon="left_arrow"
@@ -258,14 +274,24 @@ const WaitingUsers = (props) => {
             placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
             send={setGuestLobbyMessage}
           />
-          <p><i>"{guestLobbyMessage.length > 0 ? guestLobbyMessage : intl.formatMessage(intlMessages.emptyMessage)}"</i></p>
+          <p>
+            <i>
+              &quot;
+              {
+                guestLobbyMessage.length > 0
+                  ? guestLobbyMessage
+                  : intl.formatMessage(intlMessages.emptyMessage)
+              }
+              &quot;
+            </i>
+          </p>
         </div>
       ) : null}
       <div>
         <div>
           <p className={styles.mainTitle}>{intl.formatMessage(intlMessages.optionTitle)}</p>
           {
-            buttonsData.map(buttonData => renderButton(
+            buttonsData.map((buttonData) => renderButton(
               intl.formatMessage(buttonData.messageId),
               buttonData,
             ))

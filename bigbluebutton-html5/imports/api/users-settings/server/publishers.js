@@ -16,7 +16,7 @@ function userSettings() {
 
   const currentUser = User.findOne({ userId, meetingId });
 
-  if (currentUser && currentUser.breakoutProps.isBreakoutUser) {
+  if (currentUser && currentUser?.breakoutProps?.isBreakoutUser) {
     const { parentId } = currentUser.breakoutProps;
 
     const [externalId] = currentUser.extId.split('-');
