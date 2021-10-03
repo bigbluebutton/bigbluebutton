@@ -322,15 +322,15 @@ class Presentation extends PureComponent {
   setEventExternalWindow (win, toolbarHeight) {
     win.addEventListener('resize', () => {
       this.setState({
-        presentationAreaWidth: win.innerWidth,
-        presentationAreaHeight: win.innerHeight - toolbarHeight,
+        presentationWidth: win.innerWidth,
+        presentationHeight: win.innerHeight - toolbarHeight,
       });
     });
 
     win.addEventListener('fullscreenchange', () => {
       this.setState({
-        presentationAreaWidth: win.innerWidth,
-        presentationAreaHeight: win.innerHeight - toolbarHeight,
+        presentationWidth: win.innerWidth,
+        presentationHeight: win.innerHeight - toolbarHeight,
       });
     });
   }
