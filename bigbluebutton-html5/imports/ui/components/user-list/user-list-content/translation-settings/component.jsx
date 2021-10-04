@@ -81,7 +81,7 @@ class TranslationSettings extends Component {
       <div key={"translation-settings"}>
         <div className={cstyles.container}>
           <h2 className={cstyles.smallTitle}>
-            {intl.formatMessage(intlMessages.interpretationVolumeHeader)}
+            { (this.state.selectedChannel >= 0) ? intl.formatMessage(intlMessages.interpretationVolumeHeader) : ""}
           </h2>
         </div>
         {this.state.languages.map(function (language, index) {

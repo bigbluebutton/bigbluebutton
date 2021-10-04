@@ -815,17 +815,17 @@
     "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(es wird deaktiviert, wenn Sie den Webcambereich ziehen oder in der Größe verändern)",
     "app.debugWindow.form.chatLoggerLabel": "Test der Chatprotokollierungsstufen",
     "app.debugWindow.form.button.apply": "Anwenden",
-    "app.translation.translation.title": "Übersetzung",
-    "app.translation.translations.title": "Übersetzungen",
+    "app.translation.translation.title": "Dolmetschen",
+    "app.translation.translations.title": "Dolmetschen",
     "app.translation.languages.title": "Sprachen",
-    "app.translation.warning.confirmAllLanguages": "Bitte bestätigen sie alle Sprachen.",
+    "app.translation.warning.confirmAllLanguages": "Bitte bestätigen Sie alle Sprachen.",
     "app.translation.warning.addLanguages": "Bitte füge eine Sprache hinzu.",
-    "app.translation.startTranslation": "Beginne Übersetzung",
+    "app.translation.startTranslation": "Beginne Dolmetschen",
     "app.translation.addLanguage": "+ Sprache hinzufügen",
-    "app.translation.endTranslation": "Übersetzungen beenden",
+    "app.translation.endTranslation": "Dolmetschen beenden",
     "app.translation.newLanguage": "Neue Sprache",
     "app.translation.confirmLanguage": "bestätigen",
-    "app.translation.translator.microphone": "Dolmetscher Micro",
+    "app.translation.translator.microphone": "Dolmetscher:in Micro",
     "app.translation.translator.selectLanguage": "Sprache dolmetschen",
     "app.translation.selectTranslation": "Verfügbare Sprachen",
     "app.translation.language.origin": "Original",
@@ -836,9 +836,9 @@
     "app.translation.filterMarker.languageTranslating": "sprechen",
     "app.translation.speechDetectionThresholdInfo": "Sprachschwellenwert f. Dolmetscher (-100 bis 0)",
     "app.translation.speechDetectionThresholdExplanation": "Während Sie als Dolmetscher:in aktiv sind, versucht das System zu entecken, ob sie gerade sprechen. Ist dies der Fall, wird die Laustärke des Original-Audiokanals abgesenkt, damit die Zuhörer:innen ihre Stimme besser hören können. Mithilfe des Mikrofon-Buttons, der sich weiß färbt, wenn sie sprechen, können Sie den Sprachschwellenwert ändern und an Ihr Setup anpassen. Das Spektrum reicht von -100 (dauerhaft aktiviert) bis 0 (dauerhaft deaktiviert). Klicken sie auf \"Set\", um den Wert für die aktuelle Sitzung zu speichern (eine dauerhafte Speicherung ist nicht möglich). Bitte vergewissern Sie sich, dass ihr Mikrofon über einen ausreichenden Eingangspegel verfügt, ohne zu übersteuern. Dies kann über die Audio-Optionen Ihres Betriebssystems eingestellt werden.",
-    "app.translation.language.interpretationVolumeHeader": "Lautstärke Übersetzung",
+    "app.translation.language.interpretationVolumeHeader": "Lautstärke Dolmetschen",
     "app.translation.language.interpretationVolumeOriginal": "Original",
-    "app.translation.language.interpretationVolumeInterpretation": "Übersetzung"
+    "app.translation.language.interpretationVolumeInterpretation": "Dolmetscher:in"
 
 }
 
