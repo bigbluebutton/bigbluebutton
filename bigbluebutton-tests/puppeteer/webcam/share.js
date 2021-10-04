@@ -13,8 +13,9 @@ class Share extends Page {
     try {
       const parsedSettings = await this.getSettingsYaml();
       const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-      const response = await util.enableWebcam(this, videoPreviewTimeout);
-      return response;
+      await this.shareWebcam(true, videoPreviewTimeout);
+
+      return true;
     } catch (err) {
       await this.logger(err);
       return false;
@@ -26,7 +27,7 @@ class Share extends Page {
       await this.joinMicrophone();
       const parsedSettings = await this.getSettingsYaml();
       const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-      await util.enableWebcam(this, videoPreviewTimeout);
+      await this.shareWebcam(true, videoPreviewTimeout);
     } catch (err) {
       await this.logger(err);
     }

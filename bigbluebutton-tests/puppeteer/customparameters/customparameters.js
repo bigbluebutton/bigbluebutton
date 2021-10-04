@@ -267,7 +267,7 @@ class CustomParameters {
       await this.page1.init(true, true, testName, 'Moderator', undefined, customParameter);
       await this.page1.startRecording(testName);
       await this.page1.screenshot(`${testName}`, `01-${testName}`);
-      const resp = await this.page1.page.evaluate(checkElementLengthEqualTo, e.joinVideo, 0);
+      const resp = await this.page1.wasRemoved(e.joinVideo);
       if (!resp) {
         await this.page1.screenshot(`${testName}`, `02-fail-${testName}`);
         await this.page1.logger(testName, ' failed');
@@ -681,31 +681,22 @@ class CustomParameters {
       await this.page1.init(true, true, testName, 'Moderator1', undefined, customParameter);
       await this.page1.startRecording(testName);
       await this.page1.screenshot(`${testName}`, `01-${testName}`);
-      await this.page1.waitAndClick(e.joinVideo);
-      const firstCheck = await this.page1.page.evaluate(checkElementLengthEqualTo, e.webcamSettingsModal, 0);
+      await this.page1.shareWebcam(false);
+
       await this.page1.waitAndClick(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
       await this.page1.waitForElementHandleToBeRemoved(e.webcamVideo, ELEMENT_WAIT_LONGER_TIME);
       await this.page1.waitForElementHandleToBeRemoved(e.leaveVideo, ELEMENT_WAIT_LONGER_TIME);
 
-      await this.page1.waitAndClick(e.joinVideo);
       const parsedSettings = await this.page1.getSettingsYaml();
       const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-      await this.page1.waitForSelector(e.videoPreview, videoPreviewTimeout);
-      await this.page1.waitForSelector(e.startSharingWebcam);
-      const secondCheck = await this.page1.page.evaluate(checkElementLengthDifferentTo, e.webcamSettingsModal, 0);
-      await this.page1.waitAndClick(e.startSharingWebcam);
-      await this.page1.waitForSelector(e.webcamConnecting);
+      await this.page1.shareWebcam(true, videoPreviewTimeout);
 
-      if (firstCheck !== secondCheck) {
-        await this.page1.screenshot(`${testName}`, `02-fail-${testName}`);
-        await this.page1.logger(testName, ' failed');
-        return false;
-      }
       await this.page1.screenshot(`${testName}`, `02-success-${testName}`);
       await this.page1.logger(testName, ' passed');
 
       return true;
     } catch (err) {
+      await this.page1.screenshot(`${testName}`, `02-fail-${testName}`);
       await this.page1.logger(err);
       return false;
     }

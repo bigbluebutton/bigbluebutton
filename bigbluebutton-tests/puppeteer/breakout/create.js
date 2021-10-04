@@ -116,11 +116,9 @@ class Create {
 
         await breakoutModPage2.bringToFront();
         await breakoutModPage2.closeAudioModal();
-        await breakoutModPage2.waitAndClick(e.joinVideo);
         const parsedSettings = await this.modPage2.getSettingsYaml();
         const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-        await breakoutModPage2.waitAndClick(e.videoPreview, videoPreviewTimeout);
-        await breakoutModPage2.waitAndClick(e.startSharingWebcam);
+        await breakoutModPage2.shareWebcam(true, videoPreviewTimeout);
 
         await breakoutModPage2.screenshot(testName, '00-breakout-page03-user-joined-with-webcam-before-check');
       } else if (testName === 'joinBreakoutroomsAndShareScreen') {

@@ -1,7 +1,6 @@
 const Page = require('../core/page');
 const util = require('../chat/util');
 const utilUser = require('./util');
-const utilWebcam = require('../webcam/util');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { getElementLength, checkElementLengthEqualTo, checkElementLengthDifferentTo } = require('../core/util');
@@ -316,12 +315,12 @@ class MultiUsers {
 
   async usersConnectionStatus(testName) {
     try {
-      await utilWebcam.enableWebcam(this.page1, ELEMENT_WAIT_TIME);
+      await this.page1.shareWebcam();
       await this.page1.screenshot(testName, '01-page1-after-share-webcam');
       await this.initUserPage(false, testName);
       await this.userPage.joinMicrophone();
       await this.userPage.screenshot(testName, '02-userPage-after-join-microhpone');
-      await utilWebcam.enableWebcam(this.userPage);
+      await this.userPage.shareWebcam();
       await this.userPage.screenshot(testName, '03-userPage-after-share-webcam');
       await this.userPage.waitAndClick(e.connectionStatusBtn);
       try {

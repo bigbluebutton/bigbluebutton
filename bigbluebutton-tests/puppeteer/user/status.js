@@ -54,7 +54,7 @@ class Status extends Page {
 
   async disableWebcamsFromConnectionStatus() {
     try {
-      await utilWebcam.enableWebcam(this, ELEMENT_WAIT_LONGER_TIME);
+      await this.shareWebcam(ELEMENT_WAIT_LONGER_TIME);
       await util.connectionStatus(this);
       await this.waitAndClickElement(e.dataSavingWebcams);
       await this.waitAndClickElement(e.closeConnectionStatusModal);
@@ -87,7 +87,7 @@ class Status extends Page {
     try {
       await this.page.evaluate(() => window.dispatchEvent(new CustomEvent('socketstats', { detail: { rtt: 2000 } })));
       await this.joinMicrophone();
-      await utilWebcam.enableWebcam(this, ELEMENT_WAIT_LONGER_TIME);
+      await this.shareWebcam(ELEMENT_WAIT_LONGER_TIME);
       await utilScreenshare.startScreenshare(this);
       await utilScreenshare.waitForScreenshareContainer(this);
       await util.connectionStatus(this);
