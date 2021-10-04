@@ -142,14 +142,23 @@ public class ValidationService {
         Map<String, String> violationMap = new HashMap<>();
 
         for(ConstraintViolation<R> violation: violations) {
-            String violationMessage = violation.getMessage();
-            String[] s = violationMessage.split("-");
+            Map<String, Object> attributes = violation.getConstraintDescriptor().getAttributes();
+            String key;
+            String message;
 
-            if(s.length == 2) {
-                violationMap.put(s[0], s[1]);
+            if(attributes.containsKey("key")) {
+                key = (String) attributes.get("key");
             } else {
-                violationMap.put("validationError", violationMessage);
+                key = "validationError";
             }
+
+            if(attributes.containsKey("message")) {
+                message = (String) attributes.get("message");
+            } else {
+                message = "An unknown validation error occurred";
+            }
+
+            violationMap.put(key, message);
         }
 
         if(violationMap.isEmpty()) {

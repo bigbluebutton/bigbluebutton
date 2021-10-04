@@ -22,7 +22,6 @@ public class GuestWait implements Request<GuestWait.Params> {
     }
 
     @UserSessionConstraint
-   // @MaxParticipantsConstraint
     private String sessionToken;
 
     @MeetingExistsConstraint

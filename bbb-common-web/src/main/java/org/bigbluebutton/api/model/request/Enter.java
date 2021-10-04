@@ -18,7 +18,6 @@ public class Enter implements Request<Enter.Params> {
     }
 
     @UserSessionConstraint
-    //@MaxParticipantsConstraint
     @GuestPolicyConstraint
     private String sessionToken;
 
