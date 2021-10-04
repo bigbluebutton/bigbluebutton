@@ -17,7 +17,7 @@ const audioTest = () => {
     try {
       const testName = 'joinWithListenOnly';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.init(true, false, testName);
       await test.startRecording(testName);
       response = await test.test();
       await test.stopRecording();
@@ -29,7 +29,7 @@ const audioTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.65, screenshot);
+    Page.checkRegression(0.65, screenshot);
   });
 
   test('Join audio with Microphone', async () => {
@@ -39,7 +39,7 @@ const audioTest = () => {
     try {
       const testName = 'joinWithMicrophone';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.init(true, false, testName);
       await test.startRecording(testName);
       response = await test.microphone();
       await test.stopRecording();
@@ -51,7 +51,7 @@ const audioTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.52, screenshot);
+    Page.checkRegression(0.52, screenshot);
   });
 };
 

@@ -17,7 +17,7 @@ const webcamLayoutTest = () => {
     try {
       const testName = 'joinWebcamAndMicrophone';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.init(true, false, testName);
       await test.startRecording(testName);
       await test.webcamLayoutStart();
       response = await test.webcamLayoutTest(testName);
@@ -30,7 +30,7 @@ const webcamLayoutTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(10.83, screenshot);
+    Page.checkRegression(10.83, screenshot);
   });
 };
 module.exports = exports = webcamLayoutTest;

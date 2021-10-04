@@ -20,9 +20,8 @@ const screenShareTest = () => {
     try {
       const testName = 'shareScreen';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.init(true, true, testName)
       await test.startRecording(testName);
-      await test.closeAudioModal();
       response = await test.test();
       await test.logger('end of ', testName);
       await test.stopRecording();
@@ -33,7 +32,7 @@ const screenShareTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(1.37, screenshot);
+    Page.checkRegression(1.37, screenshot);
   });
 
   test('Share screen unavailable on Mobile Android', async () => {
@@ -44,7 +43,7 @@ const screenShareTest = () => {
     try {
       const testName = 'shareScreenAndroidMobile';
       await test.logger('begin of ', testName);
-      response = await test.testMobileDevice(Page.getArgs(), testName, galaxyNote3);
+      response = await test.testMobileDevice(testName, galaxyNote3);
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
@@ -54,7 +53,7 @@ const screenShareTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(1.37, screenshot);
+    Page.checkRegression(1.37, screenshot);
   });
 
   test('Share screen unavailable on Mobile iPhone', async () => {
@@ -65,7 +64,7 @@ const screenShareTest = () => {
     try {
       const testName = 'shareScreenIphoneMobile';
       await test.logger('begin of ', testName);
-      response = await test.testMobileDevice(Page.getArgs(), testName, iPhonex);
+      response = await test.testMobileDevice(testName, iPhonex);
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
@@ -75,7 +74,7 @@ const screenShareTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(1.37, screenshot);
+    Page.checkRegression(1.37, screenshot);
   });
 
   test('Share screen unavailable on Tablet iPad', async () => {
@@ -86,7 +85,7 @@ const screenShareTest = () => {
     try {
       const testName = 'shareScreenTabletIpad';
       await test.logger('begin of ', testName);
-      response = await test.testMobileDevice(Page.getArgs(), testName, ipadPro);
+      response = await test.testMobileDevice(testName, ipadPro);
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();
@@ -96,7 +95,7 @@ const screenShareTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(1.37, screenshot);
+    Page.checkRegression(1.37, screenshot);
   });
 };
 module.exports = exports = screenShareTest;

@@ -7,16 +7,16 @@ class SharedNotes extends Create {
   }
 
   async test() {
-    const response = await util.startSharedNotes(this.page1);
+    const response = await util.startSharedNotes(this.modPage1);
     return response;
   }
 
   async close() {
     try {
-      await this.page1.close();
-      await this.page2.close();
+      await this.modPage1.close();
+      await this.userPage1.close();
     } catch (e) {
-      await this.page1.logger(e);
+      await this.modPage1.logger(e);
     }
   }
 }
