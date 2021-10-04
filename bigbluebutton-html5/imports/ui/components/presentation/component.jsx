@@ -13,8 +13,6 @@ import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import { styles } from './styles.scss';
 import toastStyles from '/imports/ui/components/toast/styles';
-import MediaService, { shouldEnableSwapLayout } from '../media/service';
-import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';
@@ -427,30 +425,6 @@ class Presentation extends PureComponent {
     zoomSlide(currentSlide.num, podId, w, h, x, y);
   }
 
-  renderPresentationClose() {
-    const { isFullscreen } = this.state;
-    const {
-      layoutType,
-      fullscreenContext,
-      layoutContextDispatch,
-      isIphone,
-    } = this.props;
-
-    if (!shouldEnableSwapLayout()
-      || isFullscreen
-      || fullscreenContext
-      || layoutType === LAYOUT_TYPE.PRESENTATION_FOCUS) {
-      return null;
-    }
-    return (
-      <PresentationCloseButton
-        toggleSwapLayout={MediaService.toggleSwapLayout}
-        layoutContextDispatch={layoutContextDispatch}
-        isIphone={isIphone}
-      />
-    );
-  }
-
   renderOverlays(slideObj, svgDimensions, viewBoxPosition, viewBoxDimensions, physicalDimensions) {
     const {
       userIsPresenter,
@@ -588,7 +562,6 @@ class Presentation extends PureComponent {
         }}
       >
         <span id="currentSlideText" className={styles.visuallyHidden}>{slideContent}</span>
-        {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
         {this.renderPresentationFullscreen()}
         <svg

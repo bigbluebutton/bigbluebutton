@@ -22,9 +22,8 @@ const pollingTest = () => {
     try {
       const testName = 'createPoll';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.init(true, testName);
       await test.startRecording(testName);
-      await test.closeAudioModal();
       response = await test.test(testName);
       await test.logger('end of ', testName);
       await test.stopRecording();
@@ -35,7 +34,7 @@ const pollingTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(1.37, screenshot);
+    Page.checkRegression(1.37, screenshot);
   }, TEST_DURATION_TIME);
 
   // Check for Poll Results chat message and return true when it appears
@@ -46,7 +45,7 @@ const pollingTest = () => {
     try {
       const testName = 'pollResultsChatMessage';
       await test.page3.logger('begin of ', testName);
-      await test.initUser3(Page.getArgs(), undefined, testName);
+      await test.initUser3(true, testName);
       await test.page3.startRecording(testName);
       response = await test.test(testName);
       await test.page3.logger('end of ', testName);
@@ -58,7 +57,7 @@ const pollingTest = () => {
       await test.closePage(test.page3);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.9, screenshot);
+    Page.checkRegression(0.9, screenshot);
   }, TEST_DURATION_TIME);
 
   // This test spec sets the userdata-bbb_force_restore_presentation_on_new_events parameter to true
@@ -71,7 +70,7 @@ const pollingTest = () => {
     try {
       const testName = 'forceRestorePresentationOnNewPollResult';
       await test.page1.logger('begin of ', testName);
-      response = await test.forceRestorePresentationOnNewPollResult(Page.getArgs(), undefined, `${ce.forceRestorePresentationOnNewEvents}`, testName);
+      response = await test.forceRestorePresentationOnNewPollResult(ce.forceRestorePresentationOnNewEvents, testName);
       await test.page1.logger('end of ', testName);
       await test.page2.stopRecording();
       screenshot = await test.page1.page.screenshot();
@@ -81,7 +80,7 @@ const pollingTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5, screenshot);
+    Page.checkRegression(0.5, screenshot);
   }, TEST_DURATION_TIME);
 
   // This Test chooses randomly a polling case, runs it
@@ -93,7 +92,7 @@ const pollingTest = () => {
     try {
       const testName = 'randomPoll';
       await test.page1.logger('begin of ', testName);
-      await test.init(undefined, testName);
+      await test.init(testName);
       response = await test.randomPoll(testName);
       await test.page1.logger('end of ', testName);
       await test.page1.stopRecording();
@@ -105,7 +104,7 @@ const pollingTest = () => {
       await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.5, screenshot);
+    Page.checkRegression(0.5, screenshot);
   }, TEST_DURATION_TIME);
 };
 module.exports = exports = pollingTest;

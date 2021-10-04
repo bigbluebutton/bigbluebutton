@@ -66,13 +66,7 @@ async function webcamContentCheck(test) {
   return check === true;
 }
 
-async function countTestElements(element) {
-  const respCount = await document.querySelectorAll(element).length;
-  return respCount;
-}
-
 exports.startAndCheckForWebcams = startAndCheckForWebcams;
 exports.webcamContentCheck = webcamContentCheck;
 exports.evaluateCheck = evaluateCheck;
 exports.enableWebcam = enableWebcam;
-exports.countTestElements = countTestElements;

@@ -16,24 +16,23 @@ const sharedNotesTest = () => {
     let screenshot;
     try {
       const testName = 'openSharedNotes';
-      await test.page1.logger('begin of ', testName);
-      await test.init(undefined, testName);
-      await test.page1.startRecording(testName);
-      await test.page1.closeAudioModal();
-      await test.page2.startRecording(testName);
-      await test.page2.closeAudioModal();
+      await test.modPage1.logger('begin of ', testName);
+      await test.init(testName);
+      await test.modPage1.startRecording(testName);
+      await test.userPage1.startRecording(testName);
       response = await test.test();
-      await test.page1.logger('end of ', testName);
-      await test.page1.stopRecording();
-      await test.page2.stopRecording();
-      screenshot = await test.page1.page.screenshot();
+      await test.modPage1.logger('end of ', testName);
+      await test.modPage1.stopRecording();
+      await test.userPage1.stopRecording();
+      screenshot = await test.modPage1.page.screenshot();
     } catch (err) {
-      await test.page1.logger(err);
+      await test.modPage1.logger(err);
     } finally {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.1, screenshot);
+    Page.checkRegression(0.1, screenshot);
   });
 };
+
 module.exports = exports = sharedNotesTest;
