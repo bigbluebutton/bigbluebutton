@@ -18,7 +18,8 @@ export default function addCaption(meetingId, padId, locale) {
   const modifier = {
     meetingId,
     padId,
-    locale,
+    locale: locale.locale,
+    name: locale.name,
     ownerId: '',
     readOnlyPadId: '',
     data: '',
