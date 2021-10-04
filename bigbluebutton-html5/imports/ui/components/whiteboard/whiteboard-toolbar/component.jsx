@@ -655,6 +655,8 @@ class WhiteboardToolbar extends Component {
           cy="50%"
           stroke="black"
           strokeWidth="1"
+          fill={colorSelected.value}
+          r={thicknessSelected.value}
         >
           <animate
             ref={(ref) => { this.thicknessListIconColor = ref; }}
@@ -739,7 +741,7 @@ class WhiteboardToolbar extends Component {
 
     return (
       <svg className={styles.customSvgIcon}>
-        <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1">
+        <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1" fill={colorSelected.value}>
           <animate
             ref={(ref) => { this.colorListIconColor = ref; }}
             attributeName="fill"
