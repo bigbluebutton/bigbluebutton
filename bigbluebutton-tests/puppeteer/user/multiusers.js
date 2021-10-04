@@ -1,6 +1,7 @@
 const Page = require('../core/page');
 const util = require('../chat/util');
 const utilUser = require('./util');
+const utilWebcam = require('../webcam/util');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { getElementLength, checkElementLengthEqualTo, checkElementLengthDifferentTo } = require('../core/util');
@@ -309,6 +310,33 @@ class MultiUsers {
       return userlistPanel && chatPanel;
     } catch (err) {
       await this.page1.logger(err);
+      return false;
+    }
+  }
+
+  async usersConnectionStatus(testName) {
+    try {
+      await utilWebcam.enableWebcam(this.page1, ELEMENT_WAIT_TIME);
+      await this.page1.screenshot(testName, '01-page1-after-share-webcam');
+      await this.initUserPage(false, testName);
+      await this.userPage.joinMicrophone();
+      await this.userPage.screenshot(testName, '02-userPage-after-join-microhpone');
+      await utilWebcam.enableWebcam(this.userPage);
+      await this.userPage.screenshot(testName, '03-userPage-after-share-webcam');
+      await this.userPage.waitAndClick(e.connectionStatusBtn);
+      try {
+        await this.userPage.page.waitForFunction(utilUser.checkNetworkStatus, { timeout: ELEMENT_WAIT_TIME },
+          e.connectionDataContainer, e.connectionNetwordData
+        );
+        await this.userPage.screenshot(testName, '04-connection-network-success');
+        return true;
+      } catch (err) {
+        await this.userPage.screenshot(testName, '04-connection-network-failed');
+        this.userPage.logger(err);
+        return false;
+      }
+    } catch (err) {
+      this.page1.logger(err);
       return false;
     }
   }

@@ -205,6 +205,29 @@ const userTest = () => {
     Page.checkRegression(2.0, screenshot);
   }, TEST_DURATION_TIME);
 
+  test('Show network data in Connection Status', async () => {
+    const test = new MultiUsers();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'connectionNetworkStatus';
+      await test.page1.logger('begin of ', testName);
+      await test.initMod1(testName);
+      await test.page1.startRecording(testName);
+      response = await test.usersConnectionStatus(testName);
+      await test.page1.stopRecording();
+      screenshot = await test.page1.page.screenshot();
+      await test.page1.logger('end of ', testName);
+    } catch (err) {
+      await test.page1.logger(err);
+    } finally {
+      await test.close(test.page1, test.userPage);
+    }
+    expect(response).toBe(true);
+    Page.checkRegression(2.0, screenshot);
+  });
+
+
   // Raise and Lower Hand and make sure that the User2 Avatar color
   // and its avatar in raised hand toast are the same
   test('Raise Hand Toast', async () => {

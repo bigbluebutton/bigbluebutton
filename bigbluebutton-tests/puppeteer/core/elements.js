@@ -204,6 +204,8 @@ exports.chatPanel = 'section[data-test="chatPanel"]';
 exports.userListPanel = 'div[data-test="userListPanel"]';
 exports.multiWhiteboardTool = 'span[data-test="multiWhiteboardTool"]'
 exports.connectionStatusBtn = 'button[data-test="connectionStatusButton"]';
+exports.connectionDataContainer = '[class^=networkDataContainer--]';
+exports.connectionNetwordData = '[class^=networkData--]';
 
 // Webcam
 exports.joinVideo = 'button[data-test="joinVideo"]';
