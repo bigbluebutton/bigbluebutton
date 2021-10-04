@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -27,64 +27,64 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  isRTL: PropTypes.bool.isRequired,
 };
 
-class Note extends Component {
-  constructor(props) {
-    super(props);
+const Note = ({
+  isLocked,
+  intl,
+  isRTL
+}) => {
+  const [noteURL, setNoteURL] = useState();
 
-    this.noteURL = NoteService.getNoteURL();
-    this.readOnlyURL = NoteService.getReadOnlyURL();
-  }
+  useEffect(() => {
+    NoteService.getNoteId().then(response => {
+      setNoteURL(NoteService.buildNoteURL(response));
+    });
+  }, [isLocked, isRTL]);
 
-  componentWillUnmount() {
-    const revs = NoteService.getRevs();
-    NoteService.setLastRevs(revs);
-  }
+  useEffect(() => {
+    return () => NoteService.setLastRevs();
+  }, []);
 
-  render() {
-    const {
-      isLocked,
-      intl,
-      isRTL,
-    } = this.props;
-
-    const url = isLocked ? this.readOnlyURL : this.noteURL;
-    return (
-      <div
-        data-test="note"
-        className={styles.note}
+  return (
+    <div
+      data-test="note"
+      className={styles.note}
+    >
+      <header className={styles.header}>
+        <div
+          data-test="noteTitle"
+          className={styles.title}
+        >
+          <Button
+            onClick={() => {
+              Session.set('openPanel', 'userlist');
+              window.dispatchEvent(new Event('panelChanged'));
+            }}
+            data-test="hideNoteLabel"
+            aria-label={intl.formatMessage(intlMessages.hideNoteLabel)}
+            label={intl.formatMessage(intlMessages.title)}
+            icon={isRTL ? 'right_arrow' : 'left_arrow'}
+            className={styles.hideBtn}
+          />
+        </div>
+      </header>
+      <iframe
+        title="etherpad"
+        src={noteURL}
+        aria-describedby="sharedNotesEscapeHint"
+      />
+      <span
+        id="sharedNotesEscapeHint"
+        className={styles.hint}
+        aria-hidden
       >
-        <header className={styles.header}>
-          <div
-            data-test="noteTitle"
-            className={styles.title}
-          >
-            <Button
-              onClick={() => {
-                Session.set('openPanel', 'userlist');
-                window.dispatchEvent(new Event('panelChanged'));
-              }}
-              data-test="hideNoteLabel"
-              aria-label={intl.formatMessage(intlMessages.hideNoteLabel)}
-              label={intl.formatMessage(intlMessages.title)}
-              icon={isRTL ? 'right_arrow' : 'left_arrow'}
-              className={styles.hideBtn}
-            />
-          </div>
-        </header>
-        <iframe
-          title="etherpad"
-          src={url}
-          aria-describedby="sharedNotesEscapeHint"
-        />
-        <span id="sharedNotesEscapeHint" className={styles.hint} aria-hidden>
-          {intl.formatMessage(intlMessages.tipLabel)}
-        </span>
-      </div>
-    );
-  }
-}
+        {intl.formatMessage(intlMessages.tipLabel)}
+      </span>
+    </div>
+  );
+};
 
 Note.propTypes = propTypes;
 
