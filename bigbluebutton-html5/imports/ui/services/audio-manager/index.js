@@ -385,7 +385,7 @@ class AudioManager {
   }
 
   exitTranslationBridgeAudio() {
-    if( this.translationBridge.activeSession ) {
+    if(this.translationBridge && this.translationBridge.activeSession ) {
       this.translationBridge.exitAudio();
     }
   }
@@ -398,12 +398,12 @@ class AudioManager {
     this.isHangingUp = true;
 
     this.exitTranslationBridgeAudio();
-    return bridge.exitAudio();
+    if(bridge) return bridge.exitAudio();
   }
 
   transferCall() {
     this.onTransferStart();
-    return this.bridge.transferCall(this.onAudioJoin.bind(this));
+    if(this.bridge) return this.bridge.transferCall(this.onAudioJoin.bind(this));
   }
 
   onVoiceUserChanges(fields) {
@@ -641,16 +641,20 @@ class AudioManager {
     // we force stream to be null, so MutedAlert will deallocate it and
     // a new one will be created for the new stream
     this.inputStream = null;
-    this.bridge.liveChangeInputDevice(deviceId).then((stream) => {
-      this.setSenderTrackEnabled(!this.isMuted);
-      this.inputStream = stream;
-    });
+    if(this.bridge) {
+      this.bridge.liveChangeInputDevice(deviceId).then((stream) => {
+        this.setSenderTrackEnabled(!this.isMuted);
+        this.inputStream = stream;
+      });
+    }
   }
 
   async changeOutputDevice(deviceId, isLive) {
-    await this
-      .bridge
-      .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID, isLive);
+    if(this.bridge) {
+      await this
+        .bridge
+        .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID, isLive);
+    }
   }
 
   set inputDevice(value) {
@@ -817,7 +821,7 @@ class AudioManager {
       }
     })
     try {
-      if (this.translatorBridge.activeSession) {
+      if (this.translatorBridge && this.translatorBridge.activeSession) {
         // Bridge -> SIP.js bridge, the only full audio capable one right now
           const peer = this.translatorBridge.getPeerConnection();
           peer.getSenders().forEach(sender => {
@@ -873,7 +877,9 @@ class AudioManager {
   }
 
   async updateAudioConstraints(constraints) {
-    await this.bridge.updateAudioConstraints(constraints);
+    if(this.bridge) {
+      await this.bridge.updateAudioConstraints(constraints);
+    }
   }
 
   async handleTranslationChannelStateChange(languageExtension, message) {
@@ -896,7 +902,7 @@ class AudioManager {
 
   openTranslationChannel(languageExtension) {
     return new Promise((resolve, reject) => {
-      if (this.translationBridge.activeSession) {
+      if (this.translationBridge && this.translationBridge.activeSession) {
         this.translationBridge.exitAudio()
         this.translationBridge.userData.languageExtension = -1;
       }
@@ -910,14 +916,16 @@ class AudioManager {
           extension: null,
           inputStream: dest.stream,
         };
-        this.translationBridge.userData.voiceBridge = this.userData.voiceBridge.toString() + languageExtension;
-        this.translationBridge.joinAudio(callOptions, (message) => {
-          if (message.status == CALL_STATES.STARTED) {
-            resolve(languageExtension);
-          }
-          return this.handleTranslationChannelStateChange(languageExtension, message);
-        });
-        this.translationBridge.userData.languageExtension = languageExtension;
+        if(this.translationBridge) {
+          this.translationBridge.userData.voiceBridge = this.userData.voiceBridge.toString() + languageExtension;
+          this.translationBridge.joinAudio(callOptions, (message) => {
+            if (message.status == CALL_STATES.STARTED) {
+              resolve(languageExtension);
+            }
+            return this.handleTranslationChannelStateChange(languageExtension, message);
+          });
+          this.translationBridge.userData.languageExtension = languageExtension;
+        }
       } else {
         this.resetTranslationChannelSelected();
         resolve(-1);
@@ -928,7 +936,7 @@ class AudioManager {
 
   async openTranslatorChannel(languageExtension, onConnected) {
 
-    if( this.translatorBridge.activeSession ) {
+    if(this.translatorBridge && this.translatorBridge.activeSession ) {
       this.translatorChannelOpen = false;
       this.translatorBridge.exitAudio();
       this.translatorSpeechEvents.stop();
@@ -972,8 +980,7 @@ class AudioManager {
           extension: null,
           inputStream: inputStream,
         };
-
-        this.translatorBridge.userData.voiceBridge = this.userData.voiceBridge.toString() + languageExtension;
+        if(this.translatorBridge) this.translatorBridge.userData.voiceBridge = this.userData.voiceBridge.toString() + languageExtension;
         let callback = function (message) {
           if (onConnected) {
             onConnected(message);
