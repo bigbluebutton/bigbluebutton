@@ -407,7 +407,7 @@ class Poll extends Component {
                   </span>
                 </>
               )
-              : <div style={{ width: '40px' }} />}
+              : <div style={{ width: '40px', flex: 'none' }} />}
           </div>
           {!hasVal && type !== pollTypes.Response && error ? (
             <div className={styles.inputError}>{error}</div>
@@ -588,6 +588,7 @@ class Poll extends Component {
                   <div style={{
                     display: 'flex',
                     flexFlow: 'wrap',
+                    flexDirection: 'column',
                   }}
                   >
                     {defaultPoll && this.renderInputs()}

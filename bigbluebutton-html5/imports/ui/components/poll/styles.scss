@@ -286,6 +286,8 @@
     top: 1px;
     position: relative;
     display: block;
+    width: var(--poll-addItem-width);
+    text-align: left;
     color: var(--color-primary);
     padding-left: 0;
     padding-right: 0;
@@ -329,6 +331,8 @@
 
 .deleteBtn {
     font-size: var(--font-size-base);
+    flex: none;
+    width: 40px;
     position: relative;
     i {
         font-size: 150%;
@@ -359,16 +363,14 @@
 }
 
 .selectedTypeBtn {
-    background-color: var(--color-blue-light);
-    color: var(--color-white);
+    background-color: var(--color-gray-lightest);
     font-size: var(--font-size-base);
 
     &:hover,
     &:focus,
     &:active {
-        background-color: var(--color-blue-light) !important;
+        background-color: var(--color-gray-lightest) !important;
         box-shadow: none !important;
-        color: var(--color-white);
     }
 }
 
