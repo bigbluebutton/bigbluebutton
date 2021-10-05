@@ -373,8 +373,6 @@
     "app.audioModal.playAudio.arialabel" : "Ruleaza audio",
     "app.audioDial.tipIndicator": "Sfat",
     "app.audioDial.tipMessage": "Apasa butonul '0' de pe telefon pentru dezactivare/activare microfon.",
-    "app.audioModal.connecting": "Conectare",
-    "app.audioModal.connectingEchoTest": "Conectare la test echo",
     "app.audioManager.joinedAudio": "Te-ai alatura sedintei in mod audio",
     "app.audioManager.joinedEcho": "Te-ai alatura testului echo",
     "app.audioManager.leftAudio": "Ai parasit sedinta audio",

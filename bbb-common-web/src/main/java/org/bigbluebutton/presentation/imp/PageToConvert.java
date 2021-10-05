@@ -67,6 +67,10 @@ public class PageToConvert {
     return pres.getId();
   }
 
+  public String getMeetingId() {
+    return pres.getMeetingId();
+  }
+
   public PageToConvert convert() {
 
     // Only create SWF files if the configuration requires it

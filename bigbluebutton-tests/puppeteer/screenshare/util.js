@@ -1,37 +1,21 @@
-const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constants');
 const e = require('../core/elements');
+const { VIDEO_LOADING_WAIT_TIME } = require('../core/constants');
+const { checkElement } = require('../core/util');
 
 async function startScreenshare(test) {
-  await test.waitForSelector(e.screenShare, ELEMENT_WAIT_TIME);
-  await test.click(e.screenShare, true);
-}
-
-async function getTestElement(element) {
-  (await document.querySelectorAll(element)[0]) !== null;
+  await test.waitAndClick(e.startScreenSharing);
 }
 
 async function waitForScreenshareContainer(test) {
-  await test.waitForSelector(e.screenshareConnecting, ELEMENT_WAIT_TIME);
+  await test.waitForSelector(e.screenshareConnecting);
   await test.waitForSelector(e.screenShareVideo, VIDEO_LOADING_WAIT_TIME);
-}
-
-async function getScreenShareContainer(test) {
-  await test.waitForSelector(e.screenShareVideo, VIDEO_LOADING_WAIT_TIME);
-  const screenShareContainer = await test.page.evaluate(getTestElement, e.screenShareVideo);
-  const response = screenShareContainer !== null;
-  return response;
 }
 
 async function getScreenShareBreakoutContainer(test) {
-  await test.waitForSelector(e.screenshareConnecting, { timeout: VIDEO_LOADING_WAIT_TIME });
-  await test.waitForSelector(e.screenShareVideo, { timeout: VIDEO_LOADING_WAIT_TIME });
-  const screenShareContainer = await test.evaluate(getTestElement, e.screenShareVideo);
-  const response = screenShareContainer !== null;
-  return response;
+  await test.waitForSelector(e.screenshareConnecting, VIDEO_LOADING_WAIT_TIME);
+  return test.hasElement(e.screenShareVideo, true, VIDEO_LOADING_WAIT_TIME);
 }
 
 exports.getScreenShareBreakoutContainer = getScreenShareBreakoutContainer;
-exports.getScreenShareContainer = getScreenShareContainer;
-exports.getTestElement = getTestElement;
 exports.startScreenshare = startScreenshare;
 exports.waitForScreenshareContainer = waitForScreenshareContainer;

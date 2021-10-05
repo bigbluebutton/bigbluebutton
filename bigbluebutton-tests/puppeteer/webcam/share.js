@@ -1,12 +1,12 @@
 const Page = require('../core/page');
 const util = require('./util');
-const wle = require('./elements');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
+const { checkElementLengthDifferentTo } = require('../core/util');
+const { VIDEO_LOADING_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
 
 class Share extends Page {
   constructor() {
-    super('webcam-share-test');
+    super();
   }
 
   async test() {
@@ -34,10 +34,10 @@ class Share extends Page {
 
   async webcamLayoutTest(testName) {
     try {
-      await this.waitForSelector(wle.webcamVideo, VIDEO_LOADING_WAIT_TIME);
-      await this.waitForSelector(wle.stopSharingWebcam, VIDEO_LOADING_WAIT_TIME);
+      await this.waitForSelector(e.webcamVideo, VIDEO_LOADING_WAIT_TIME);
+      await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
       await this.waitForSelector(e.isTalking);
-      const foundTestElement = await this.page.evaluate(util.countTestElements, wle.webcamItemTalkingUser) !== 0;
+      const foundTestElement = await this.page.evaluate(checkElementLengthDifferentTo, e.webcamItemTalkingUser, 0);
       if (foundTestElement === true) {
         await this.screenshot(`${testName}`, `success-${testName}`);
         this.logger(testName, ' passed');

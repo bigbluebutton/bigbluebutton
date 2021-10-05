@@ -29,16 +29,11 @@ import PresentationAreaContainer from '../presentation/presentation-area/contain
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
 import { styles } from './styles';
-import {
-  LAYOUT_TYPE, DEVICE_TYPE, ACTIONS,
-} from '../layout/enums';
+import { DEVICE_TYPE, ACTIONS } from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 } from '../layout/utils';
-import CustomLayout from '../layout/layout-manager/customLayout';
-import SmartLayout from '../layout/layout-manager/smartLayout';
-import PresentationFocusLayout from '../layout/layout-manager/presentationFocusLayout';
-import VideoFocusLayout from '../layout/layout-manager/videoFocusLayout';
+import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
@@ -47,6 +42,7 @@ import ConnectionStatusService from '/imports/ui/components/connection-status/se
 import { NAVBAR_HEIGHT, LARGE_NAVBAR_HEIGHT } from '/imports/ui/components/layout/defaultValues';
 import Settings from '/imports/ui/services/settings';
 import LayoutService from '/imports/ui/components/layout/service';
+import { registerTitleView } from '/imports/utils/dom-utils';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -98,6 +94,10 @@ const intlMessages = defineMessages({
   pollPublishedLabel: {
     id: 'app.whiteboard.annotations.poll',
     description: 'message displayed when a poll is published',
+  },
+  defaultViewLabel: {
+    id: 'app.title.defaultViewLabel',
+    description: 'view name apended to document title',
   },
 });
 
@@ -153,12 +153,14 @@ class App extends Component {
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
 
+    registerTitleView(intl.formatMessage(intlMessages.defaultViewLabel));
+
     layoutContextDispatch({
       type: ACTIONS.SET_IS_RTL,
       value: isRTL,
     });
 
-    MediaService.setSwapLayout();
+    MediaService.setSwapLayout(layoutContextDispatch);
     Modal.setAppElement('#app');
 
     const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
@@ -443,22 +445,6 @@ class App extends Component {
     ) : null);
   }
 
-  renderLayoutManager() {
-    const { layoutType } = this.props;
-    switch (layoutType) {
-      case LAYOUT_TYPE.CUSTOM_LAYOUT:
-        return <CustomLayout />;
-      case LAYOUT_TYPE.SMART_LAYOUT:
-        return <SmartLayout />;
-      case LAYOUT_TYPE.PRESENTATION_FOCUS:
-        return <PresentationFocusLayout />;
-      case LAYOUT_TYPE.VIDEO_FOCUS:
-        return <VideoFocusLayout />;
-      default:
-        return <CustomLayout />;
-    }
-  }
-
   render() {
     const {
       customStyle,
@@ -469,11 +455,12 @@ class App extends Component {
       shouldShowScreenshare,
       shouldShowExternalVideo,
       isPresenter,
+      layoutType,
     } = this.props;
 
     return (
       <>
-        {this.renderLayoutManager()}
+        <LayoutEngine layoutType={layoutType} />
         <div
           id="layout"
           className={styles.layout}

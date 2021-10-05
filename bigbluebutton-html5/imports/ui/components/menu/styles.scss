@@ -10,6 +10,11 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+
+  [dir="rtl"] & {
+    margin-right: .5rem;
+    margin-left: 1.65rem;
+  }
 }
 
 .closeBtn {

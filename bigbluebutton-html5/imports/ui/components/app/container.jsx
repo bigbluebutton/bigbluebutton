@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -12,9 +12,14 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
-import LayoutContext from '../layout/context';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
+import { 
+  layoutSelect, 
+  layoutSelectInput, 
+  layoutSelectOutput, 
+  layoutDispatch 
+} from '../layout/context';
 
 import {
   getFontSize,
@@ -51,29 +56,31 @@ const endMeeting = (code) => {
 };
 
 const AppContainer = (props) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-
   const {
     actionsbar,
     meetingLayout,
     settingsLayout,
     pushLayoutToEveryone,
     currentUserId,
+    shouldShowPresentation: propsShouldShowPresentation,
+    presentationRestoreOnUpdate,
     ...otherProps
   } = props;
-  const {
-    input,
-    output,
-    layoutType,
-    deviceType,
-  } = layoutContextState;
-  const { sidebarContent, sidebarNavigation } = input;
-  const { actionBar: actionsBarStyle, captions: captionsStyle } = output;
-  const { sidebarNavPanel } = sidebarNavigation;
-  const { sidebarContentPanel } = sidebarContent;
-  const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
-  const sidebarContentIsOpen = sidebarContent.isOpen;
+
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
+  const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
+  const captionsStyle = layoutSelectOutput((i) => i.captions);
+  const presentation = layoutSelectInput((i) => i.presentation);
+  const layoutType = layoutSelect((i) => i.layoutType);
+  const deviceType = layoutSelect((i) => i.deviceType);
+  const layoutContextDispatch = layoutDispatch();
+
+  const { sidebarContentPanel, isOpen: sidebarContentIsOpen } = sidebarContent;
+  const { sidebarNavPanel, isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
+  const { isOpen: presentationIsOpen } = presentation;
+  const shouldShowPresentation = propsShouldShowPresentation
+    && (presentationIsOpen || presentationRestoreOnUpdate);
 
   return currentUserId
     ? (
@@ -93,6 +100,7 @@ const AppContainer = (props) => {
           sidebarNavigationIsOpen,
           sidebarContentPanel,
           sidebarContentIsOpen,
+          shouldShowPresentation,
         }}
         {...otherProps}
       />
@@ -162,7 +170,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
-    && (viewScreenshare || MediaService.isUserPresenter()) && !shouldShowExternalVideo;
+    && (viewScreenshare || MediaService.isUserPresenter());
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
 
   if (!customStyleUrl && CUSTOM_STYLE_URL) {
@@ -195,6 +203,10 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo,
     shouldShowExternalVideo,
     isLargeFont: Session.get('isLargeFont'),
+    presentationRestoreOnUpdate: getFromUserSettings(
+      'bbb_force_restore_presentation_on_new_events',
+      Meteor.settings.public.presentation.restoreOnUpdate,
+    ),
   };
 })(AppContainer)));
 

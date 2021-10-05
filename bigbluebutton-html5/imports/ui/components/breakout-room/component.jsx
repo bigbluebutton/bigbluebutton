@@ -119,6 +119,10 @@ class BreakoutRoom extends PureComponent {
     };
   }
 
+  componentDidMount() {
+    if (this.panel) this.panel.firstChild.focus();
+  }
+
   componentDidUpdate() {
     const {
       breakoutRoomUser,
@@ -167,6 +171,7 @@ class BreakoutRoom extends PureComponent {
       this.setState(
         {
           waiting: true,
+          generated: false,
           requestedBreakoutId: breakoutId,
         },
         () => requestJoinURL(breakoutId),
@@ -309,7 +314,7 @@ class BreakoutRoom extends PureComponent {
               <Button
                 label={this.getBreakoutLabel(breakoutId)}
                 data-test="breakoutJoin"
-                aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
+                aria-label={`${this.getBreakoutLabel(breakoutId)} ${this.props.breakoutRooms[number - 1]?.shortName }`}
                 onClick={() => {
                   this.getBreakoutURL(breakoutId);
                   // leave main room's audio,
@@ -513,7 +518,7 @@ class BreakoutRoom extends PureComponent {
       amIModerator,
     } = this.props;
     return (
-      <div className={styles.panel}>
+      <div className={styles.panel} ref={(n) => this.panel = n}>
         <Button
           icon="left_arrow"
           label={intl.formatMessage(intlMessages.breakoutTitle)}

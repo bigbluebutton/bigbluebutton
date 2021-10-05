@@ -30,7 +30,7 @@ const getLearningDashboardAccessToken = () => ((
 
 const openLearningDashboardUrl = (lang) => {
   const cookieExpiresDate = new Date();
-  cookieExpiresDate.setTime(cookieExpiresDate.getTime() + 3600000);
+  cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 30)); // keep cookie 30d
   document.cookie = `learningDashboardAccessToken-${Auth.meetingID}=${getLearningDashboardAccessToken()}; expires=${cookieExpiresDate.toGMTString()}; path=/`;
   window.open(`/learning-dashboard/?meeting=${Auth.meetingID}&lang=${lang}`, '_blank');
 };

@@ -1,18 +1,16 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import CaptionsService from '/imports/ui/components/captions/service';
 import Pad from './component';
 import Auth from '/imports/ui/services/auth';
-import LayoutContext from '../../layout/context';
+import { layoutSelectInput, layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 
 const PadContainer = (props) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextDispatch, layoutContextState } = layoutContext;
-  const { input } = layoutContextState;
-  const { cameraDock } = input;
+  const cameraDock = layoutSelectInput((i) => i.cameraDock);
   const { isResizing } = cameraDock;
+  const layoutContextDispatch = layoutDispatch();
 
   const {
     amIModerator,

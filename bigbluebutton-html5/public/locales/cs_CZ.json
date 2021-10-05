@@ -482,8 +482,6 @@
     "app.audioModal.playAudio.arialabel" : "Přehrát zvuk",
     "app.audioDial.tipIndicator": "Tip",
     "app.audioDial.tipMessage": "Zmáčkněte '0' na svém telefonu pro ztlumení se / zapnutí zvuku",
-    "app.audioModal.connecting": "Připojování",
-    "app.audioModal.connectingEchoTest": "Připojování k testu ozvěny",
     "app.audioManager.joinedAudio": "Připojili jste se k audio konferenci",
     "app.audioManager.joinedEcho": "Připojili jste se k testu ozvěny",
     "app.audioManager.leftAudio": "Opustili jste audio konferenci",

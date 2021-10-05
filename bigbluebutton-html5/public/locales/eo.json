@@ -433,8 +433,6 @@
     "app.audioModal.playAudio.arialabel" : "Ludigi sonon",
     "app.audioDial.tipIndicator": "Helpeto",
     "app.audioDial.tipMessage": "Premu la '0'-klavon sur via telefono por (mal)silentigi vin mem.",
-    "app.audioModal.connecting": "Konektiĝante",
-    "app.audioModal.connectingEchoTest": "Konektiĝante kun eĥotesto",
     "app.audioManager.joinedAudio": "Vi konektiĝis kun la sono de la kunsido",
     "app.audioManager.joinedEcho": "Vi konektiĝis kun la eĥotesto",
     "app.audioManager.leftAudio": "Vi forlasis la sonon de la kunsido",

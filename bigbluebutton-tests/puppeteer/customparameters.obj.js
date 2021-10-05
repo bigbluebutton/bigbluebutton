@@ -554,11 +554,13 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'recordMeeting';
       await page.logger('before ', testName);
       response = await test.recordMeeting(testName, Page.getArgs(), undefined, `${c.recordMeeting}`);
       await test.page1.stopRecording();
+      screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
     } catch (err) {
       await page.logger(err);
@@ -575,11 +577,13 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'skipVideoPreview';
       await page.logger('before ', testName);
       response = await test.skipVideoPreview(testName, Page.getArgs(), undefined, `${c.skipVideoPreview}`);
       await test.page1.stopRecording();
+      screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
     } catch (err) {
       await page.logger(err);
@@ -596,11 +600,13 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'skipVideoPreviewOnFirstJoin';
       await page.logger('before ', testName);
       response = await test.skipVideoPreviewOnFirstJoin(testName, Page.getArgs(), undefined, `${c.skipVideoPreviewOnFirstJoin}`);
       await test.page1.stopRecording();
+      screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
     } catch (err) {
       await page.logger(err);
@@ -618,11 +624,13 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'mirrorOwnWebcam';
       await page.logger('before ', testName);
       response = await test.mirrorOwnWebcam(testName, Page.getArgs(), undefined, `${c.mirrorOwnWebcam}`);
       await test.page1.stopRecording();
+      screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
     } catch (err) {
       await page.logger(err);
@@ -639,11 +647,13 @@ const customParametersTest = () => {
     const test = new CustomParameters();
     const page = new Page();
     let response;
+    let screenshot;
     try {
       const testName = 'showParticipantsOnLogin';
       await page.logger('before ', testName);
       response = await test.showParticipantsOnLogin(testName, Page.getArgs(), undefined, `${c.showParticipantsOnLogin}`);
       await test.page1.stopRecording();
+      screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
     } catch (err) {
       await page.logger(err);

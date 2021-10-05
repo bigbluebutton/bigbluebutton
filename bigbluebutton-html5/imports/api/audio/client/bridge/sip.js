@@ -1495,3 +1495,5 @@ export default class SIPBridge extends BaseAudioBridge {
     return this.activeSession.updateAudioConstraints(constraints);
   }
 }
+
+module.exports = SIPBridge;

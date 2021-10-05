@@ -1,13 +1,13 @@
 const Page = require('../core/page');
-const e = require('../core/elements');
-const util = require('../customparameters/util');
 const { exec } = require("child_process");
 const { CLIENT_RECONNECTION_TIMEOUT } = require('../core/constants'); // core constants (Timeouts vars imported)
 const { sleep } = require('../core/helper');
+const e = require('../core/elements');
+const { checkElementLengthDifferentTo } = require('../core/util');
 
 class Trigger extends Page {
   constructor() {
-    super('trigger-events');
+    super();
   }
 
   async triggerMeteorDisconnect(testName) {
@@ -25,15 +25,15 @@ class Trigger extends Page {
       const meteorStatus = await this.page.evaluate(() => Meteor.status());
       const meteorStatusConfirm = await meteorStatus.status === "offline";
       await this.logger('Check if Meteor is Offline => ', meteorStatusConfirm);
-      const getAudioButton = await this.page.evaluate(() =>
-        document.querySelectorAll('button[aria-label="Join audio"]')[0]
-          .getAttribute('aria-disabled') === "true");
+      const getAudioButton = await this.page.evaluate((joinAudioSelector) => {
+        return document.querySelectorAll(joinAudioSelector)[0].getAttribute('aria-disabled') === "true";
+      }, e.joinAudio);
       await this.logger('Check if Connections Buttons are disabled => ', getAudioButton);
       await this.page.evaluate(() => Meteor.reconnect());
       await sleep(3000);
       await this.screenshot(`${testName}`, `04-after-meteor-reconnection-[${this.meetingId}]`);
 
-      const findUnauthorized = await this.page.evaluate(util.countTestElements, e.unauthorized) === true;
+      const findUnauthorized = await this.page.evaluate(checkElementLengthDifferentTo, e.unauthorized, 0) === true;
       await this.logger('Check if Unauthorized message appears => ', findUnauthorized);
       return meteorStatusConfirm && getAudioButton && findUnauthorized;
     } catch (err) {
@@ -85,12 +85,12 @@ class Trigger extends Page {
 
       await this.page.reload();
       await this.closeAudioModal();
-      const getAudioButton = await this.page.evaluate(() =>
-        document.querySelectorAll('button[aria-label="Join audio"]')[0]
-          .getAttribute('aria-disabled') === "true");
+      const getAudioButton = await this.page.evaluate((joinAudioSelector) => {
+        return document.querySelectorAll(joinAudioSelector)[0].getAttribute('aria-disabled') === "true";
+      }, e.joinAudio)
       await this.logger('Check if Connections Buttons are disabled => ', getAudioButton);
       await sleep(3000);
-      const findUnauthorized = await this.page.evaluate(util.countTestElements, e.unauthorized) === true;
+      const findUnauthorized = await this.page.evaluate(checkElementLengthDifferentTo, e.unauthorized, 0) === true;
       await this.logger('Check if Unauthorized message appears => ', findUnauthorized);
       return meteorStatusConfirm && getAudioButton && findUnauthorized;
     } catch (err) {

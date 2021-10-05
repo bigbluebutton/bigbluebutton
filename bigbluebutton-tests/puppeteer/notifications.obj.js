@@ -1,6 +1,4 @@
 const Notifications = require('./notifications/notifications');
-const ShareScreen = require('./screenshare/screenshare');
-const Audio = require('./audio/audio');
 const Page = require('./core/page');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
 const { MAX_NOTIFICATIONS_TEST_TIMEOUT } = require('./core/constants'); // core constants (Timeouts vars imported)

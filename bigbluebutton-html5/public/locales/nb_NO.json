@@ -394,8 +394,6 @@
     "app.audioModal.playAudio.arialabel" : "Spill av audio",
     "app.audioDial.tipIndicator": "Tips",
     "app.audioDial.tipMessage": "Trykk '0' på telefonen din for å mute/unmute deg selv",
-    "app.audioModal.connecting": "Kobler til",
-    "app.audioModal.connectingEchoTest": "Kobler til lydtest",
     "app.audioManager.joinedAudio": "Du har blitt med i audiokonferansen",
     "app.audioManager.joinedEcho": "Du har blitt med i ekkotesten",
     "app.audioManager.leftAudio": "Du har forlatt audiokonferansen",

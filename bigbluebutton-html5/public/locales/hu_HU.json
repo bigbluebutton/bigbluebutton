@@ -467,8 +467,6 @@
     "app.audioModal.playAudio.arialabel" : "Hang lejátszása",
     "app.audioDial.tipIndicator": "Tipp",
     "app.audioDial.tipMessage": "Saját magad némításához/hangosításához nyomj '0'-t a telefonon.",
-    "app.audioModal.connecting": "Kapcsolódás",
-    "app.audioModal.connectingEchoTest": "Kapcsolódás a hangteszthez",
     "app.audioManager.joinedAudio": "Csatlakoztál a beszélgetéshez",
     "app.audioManager.joinedEcho": "Csatlakoztál a hangteszthez",
     "app.audioManager.leftAudio": "Kiléptél a beszélgetésből",

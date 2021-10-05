@@ -403,8 +403,6 @@
     "app.audioModal.playAudio.arialabel" : "Reprodukujte zvuk",
     "app.audioDial.tipIndicator": "Savet",
     "app.audioDial.tipMessage": "Pritisnite broj '0' na svom telefonu kako biste omogućili/ukinuli da se vaš glas čuje.",
-    "app.audioModal.connecting": "Povezivanje",
-    "app.audioModal.connectingEchoTest": "Povezivanje testa glasa",
     "app.audioManager.joinedAudio": "Pristupili ste audio predavanju",
     "app.audioManager.joinedEcho": "Pristupili ste zvučnom testu",
     "app.audioManager.leftAudio": "Napustili ste audio predavanje",

@@ -6,9 +6,6 @@ const axios = require('axios');
 const httpPath = path.join(path.dirname(require.resolve('axios')), 'lib/adapters/http');
 const http = require(httpPath);
 
-const params = require('../params');
-const e = require('./elements');
-
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);

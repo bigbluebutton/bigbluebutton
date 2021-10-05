@@ -1,14 +1,13 @@
 const Page = require('../core/page');
-const { checkIncludeClass, checkUniqueElement } = require('./util');
+const e = require('../core/elements');
 const c = require('../core/constants');
 const params = require('../params');
-const ne = require('../notifications/elements');
-const ue = require('../user/elements');
-const e = require('../core/elements');
+const util = require('./util');
+const { checkElementLengthEqualTo } = require('../core/util');
 
 class Stress extends Page {
   constructor() {
-    super('stress');
+    super();
   }
 
   async moderatorAsPresenter(testName) {
@@ -18,10 +17,10 @@ class Stress extends Page {
       for (let i = 1; i <= c.JOIN_AS_MODERATOR_TEST_ROUNDS; i++) {
         await this.init(Page.getArgs(), undefined, { ...params, fullName: `Moderator-${i}` }, undefined, testName);
         await this.closeAudioModal();
-        await this.page.waitForSelector(ue.statusIcon, { timeout: c.ELEMENT_WAIT_TIME });
-        const hasPresenterClass = await this.page.evaluate(checkIncludeClass, ue.statusIcon, e.presenterClassName);
-        await this.click(e.actions);
-        const canStartPoll = await this.page.evaluate(checkUniqueElement, ne.polling);
+        await this.waitForSelector(e.userAvatar);
+        const hasPresenterClass = await this.page.evaluate(util.checkIncludeClass, e.userAvatar, e.presenterClassName);
+        await this.waitAndClick(e.actions);
+        const canStartPoll = await this.page.evaluate(checkElementLengthEqualTo, e.polling, 1);
         if (!hasPresenterClass || !canStartPoll) {
           failureCount++;
           await this.screenshot(`${testName}`, `loop-${i}-failure-${testName}`);

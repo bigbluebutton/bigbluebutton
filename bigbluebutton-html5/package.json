@@ -31,7 +31,6 @@
     "@browser-bunyan/server-stream": "^1.6.1",
     "@jitsi/sdp-interop": "0.1.14",
     "@material-ui/core": "^4.11.4",
-    "@welldone-software/why-did-you-render": "^6.2.0",
     "autoprefixer": "^10.2.5",
     "axios": "^0.21.1",
     "babel-runtime": "~6.26.0",
@@ -74,9 +73,11 @@
     "reconnecting-websocket": "~v4.4.0",
     "redis": "^3.1.2",
     "sanitize-html": "2.3.3",
+    "scheduler": "^0.20.2",
     "sdp-transform": "2.7.0",
     "string-hash": "~1.1.3",
     "tippy.js": "^5.1.3",
+    "use-context-selector": "^1.3.7",
     "useragent": "^2.3.0",
     "wasm-check": "^2.0.2",
     "winston": "^3.3.3",
@@ -98,7 +99,8 @@
     "postcss-modules-local-by-default": "1.2.0",
     "postcss-modules-scope": "1.1.0",
     "postcss-modules-values": "1.3.0",
-    "sha1": "^1.1.1"
+    "sha1": "^1.1.1",
+    "@welldone-software/why-did-you-render": "^6.2.0"
   },
   "resolutions": {
     "trim-newlines": "^4.0.1"

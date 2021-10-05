@@ -5,6 +5,8 @@ import _ from 'lodash';
 import BBBMenu from "/imports/ui/components/menu/component";
 import Button from '/imports/ui/components/button/component';
 
+import { alertScreenReader } from '/imports/utils/dom-utils';
+
 import ChatService from '../service';
 
 const intlMessages = defineMessages({
@@ -19,6 +21,14 @@ const intlMessages = defineMessages({
   copy: {
     id: 'app.chat.dropdown.copy',
     description: 'Copy button label',
+  },
+  copySuccess: {
+    id: 'app.chat.copySuccess',
+    description: 'aria success alert',
+  },
+  copyErr: {
+    id: 'app.chat.copyErr',
+    description: 'aria error alert',
   },
   options: {
     id: 'app.chat.dropdown.options',
@@ -92,7 +102,11 @@ class ChatDropdown extends PureComponent {
             label: intl.formatMessage(intlMessages.copy),
             onClick: () => {
               let chatHistory = ChatService.exportChat(timeWindowsValues, users, intl);
-              navigator.clipboard.writeText(chatHistory);
+              navigator.clipboard.writeText(chatHistory).then(() => {
+                alertScreenReader(intl.formatMessage(intlMessages.copySuccess));
+              }).catch(() => {
+                alertScreenReader(intl.formatMessage(intlMessages.copyErr));
+              });
             }
           }
         )
@@ -121,6 +135,7 @@ class ChatDropdown extends PureComponent {
 
     if (!amIModerator && !ENABLE_SAVE_AND_COPY_PUBLIC_CHAT) return null;
     return (
+      <>
       <BBBMenu
         trigger={
           <Button
@@ -148,6 +163,7 @@ class ChatDropdown extends PureComponent {
         }}
         actions={this.getAvailableActions()}
       />
+      </>
     );
   }
 }

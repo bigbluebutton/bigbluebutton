@@ -389,8 +389,6 @@
     "app.audioModal.playAudio.arialabel" : "Play audio",
     "app.audioDial.tipIndicator": "Tip",
     "app.audioDial.tipMessage": "Press the '0' key on your phone to mute/unmute yourself.",
-    "app.audioModal.connecting": "Connecting",
-    "app.audioModal.connectingEchoTest": "Connecting to echo test",
     "app.audioManager.joinedAudio": "You have joined the audio conference",
     "app.audioManager.joinedEcho": "You have joined the echo test",
     "app.audioManager.leftAudio": "You have left the audio conference",

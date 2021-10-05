@@ -13,6 +13,7 @@ import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import { toast } from 'react-toastify';
 import _ from 'lodash';
+import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 import { styles } from './styles';
 
 const { isMobile } = deviceInfo;
@@ -214,6 +215,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.clearErrorsDesc',
     description: 'aria description for button clearing upload error',
   },
+  uploadViewTitle: {
+    id: 'app.presentationUploder.uploadViewTitle',
+    description: 'view name apended to document title',
+  }
 });
 
 class PresentationUploader extends Component {
@@ -251,10 +256,16 @@ class PresentationUploader extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { isOpen, presentations: propPresentations } = this.props;
+    const { isOpen, presentations: propPresentations, intl } = this.props;
     const { presentations } = this.state;
+
+    if (!isOpen && prevProps.isOpen) {
+      unregisterTitleView();
+    }
+
     // Updates presentation list when chat modal opens to avoid missing presentations
     if (isOpen && !prevProps.isOpen) {
+      registerTitleView(intl.formatMessage(intlMessages.uploadViewTitle));
       const  focusableElements =
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
       const modal = document.getElementById('upload-modal');
@@ -728,6 +739,7 @@ class PresentationUploader extends Component {
     const {
       intl,
       selectedToBeNextCurrent,
+      allowDownloadable
     } = this.props;
 
     const isActualCurrent = selectedToBeNextCurrent ? item.id === selectedToBeNextCurrent : item.isCurrent;
@@ -746,6 +758,10 @@ class PresentationUploader extends Component {
       [styles.tableItemConverting]: isConverting,
       [styles.tableItemError]: hasError,
       [styles.tableItemAnimated]: isProcessing,
+    };
+	
+    const itemActions = {
+        [styles.notDownloadable]: !allowDownloadable,
     };
 
     const formattedDownloadableLabel = !item.isDownloadable
@@ -784,17 +800,21 @@ class PresentationUploader extends Component {
           {this.renderPresentationItemStatus(item)}
         </td>
         {hasError ? null : (
-          <td className={styles.tableItemActions}>
-            <Button
-              disabled={disableActions}
-              className={isDownloadableStyle}
-              label={formattedDownloadableLabel}
-              aria-label={formattedDownloadableAriaLabel}
-              hideLabel
-              size="sm"
-              icon={item.isDownloadable ? 'download' : 'download-off'}
-              onClick={() => this.handleToggleDownloadable(item)}
-            />
+          <td className={cx(styles.tableItemActions, itemActions)}>
+            {allowDownloadable ? (
+              <Button
+                disabled={disableActions}
+                className={isDownloadableStyle}
+                label={formattedDownloadableLabel}
+                data-test={item.isDownloadable ? 'disallowPresentationDownload' : 'allowPresentationDownload'}
+                aria-label={formattedDownloadableAriaLabel}
+                hideLabel
+                size="sm"
+                icon={item.isDownloadable ? 'download' : 'download-off'}
+                onClick={() => this.handleToggleDownloadable(item)}
+              />
+              ) : null
+            }
             <Checkbox
               ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.filename}`}
               checked={item.isCurrent}
@@ -807,6 +827,7 @@ class PresentationUploader extends Component {
               disabled={disableActions}
               className={cx(styles.itemAction, styles.itemActionRemove)}
               label={intl.formatMessage(intlMessages.removePresentation)}
+              data-test="removePresentation"
               aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.filename}`}
               size="sm"
               icon="delete"
@@ -995,6 +1016,7 @@ class PresentationUploader extends Component {
               />
               <Button
                 className={styles.confirm}
+                data-test="confirmManagePresentation"
                 color="primary"
                 onClick={() => this.handleConfirm(hasNewUpload)}
                 disabled={disableActions}

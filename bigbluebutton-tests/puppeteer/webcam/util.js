@@ -1,32 +1,26 @@
-const we = require('./elements');
+const e = require('../core/elements');
 const { sleep } = require('../core/helper');
+const { checkElement, checkElementLengthDifferentTo } = require('../core/util');
 const {
-  LOOP_INTERVAL, ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME,
+  LOOP_INTERVAL,
+  VIDEO_LOADING_WAIT_TIME,
+  ELEMENT_WAIT_LONGER_TIME,
 } = require('../core/constants');
 
 async function enableWebcam(test, videoPreviewTimeout) {
   // Enabling webcam
-  await test.waitForSelector(we.joinVideo, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickTestElement, we.joinVideo);
-  await test.waitForSelector(we.videoPreview, videoPreviewTimeout);
-  await test.waitForSelector(we.startSharingWebcam, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickTestElement, we.startSharingWebcam);
-  await test.waitForSelector(we.webcamConnecting, ELEMENT_WAIT_TIME);
-  await test.waitForSelector(we.webcamVideo, VIDEO_LOADING_WAIT_TIME);
-  await test.waitForSelector(we.leaveVideo, VIDEO_LOADING_WAIT_TIME);
-  const resp = await test.page.evaluate(countTestElements, we.webcamVideo) !== 0;
-  return resp;
-}
-
-async function getFullScreenWebcamButton(element) {
-  return await document.querySelectorAll(element)[1] !== null;
+  await test.waitAndClick(e.joinVideo);
+  await test.waitForSelector(e.videoPreview, videoPreviewTimeout);
+  await test.waitAndClick(e.startSharingWebcam);
+  await test.waitForSelector(e.webcamConnecting);
+  await test.waitForSelector(e.webcamVideo, VIDEO_LOADING_WAIT_TIME);
+  await test.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
+  return test.page.evaluate(checkElementLengthDifferentTo, e.webcamVideo, 0);
 }
 
 async function evaluateCheck(test) {
-  await test.waitForSelector(we.videoContainer, ELEMENT_WAIT_TIME);
-  const videoContainer = await test.page.evaluate(getFullScreenWebcamButton, we.presentationFullscreenButton);
-  const response = videoContainer !== false;
-  return response;
+  await test.waitForSelector(e.videoContainer);
+  return test.page.evaluate(checkElement, e.presentationFullscreenButton, 1);
 }
 
 async function startAndCheckForWebcams(test) {
@@ -36,8 +30,8 @@ async function startAndCheckForWebcams(test) {
 }
 
 async function webcamContentCheck(test) {
-  await test.waitForSelector(we.videoContainer, ELEMENT_WAIT_TIME);
-  await test.waitForElementHandleToBeRemoved(we.webcamConnecting, ELEMENT_WAIT_LONGER_TIME);
+  await test.waitForSelector(e.videoContainer);
+  await test.waitForElementHandleToBeRemoved(e.webcamConnecting, ELEMENT_WAIT_LONGER_TIME);
   const repeats = 5;
   let check;
   for (let i = repeats; i >= 1; i--) {
@@ -72,11 +66,6 @@ async function webcamContentCheck(test) {
   return check === true;
 }
 
-
-async function clickTestElement(element) {
-  document.querySelectorAll(element)[0].click();
-}
-
 async function countTestElements(element) {
   const respCount = await document.querySelectorAll(element).length;
   return respCount;
@@ -85,6 +74,5 @@ async function countTestElements(element) {
 exports.startAndCheckForWebcams = startAndCheckForWebcams;
 exports.webcamContentCheck = webcamContentCheck;
 exports.evaluateCheck = evaluateCheck;
-exports.getFullScreenWebcamButton = getFullScreenWebcamButton;
 exports.enableWebcam = enableWebcam;
 exports.countTestElements = countTestElements;

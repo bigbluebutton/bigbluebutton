@@ -1,7 +1,15 @@
 import React from 'react';
+import { defineMessages, injectIntl } from 'react-intl';
 import styles from './styles.scss';
 
-const DropArea = ({ id, style }) => (
+const intlMessages = defineMessages({
+  dropZoneLabel: {
+    id: 'app.video.dropZoneLabel',
+    description: 'message showing where the user can drop cameraDock',
+  },
+});
+
+const DropArea = ({ id, style, intl }) => (
   <>
     <div
       id={id}
@@ -22,9 +30,9 @@ const DropArea = ({ id, style }) => (
         }
       }
     >
-      Drop Here
+      {intl.formatMessage(intlMessages.dropZoneLabel)}
     </div>
   </>
 );
 
-export default DropArea;
+export default injectIntl(DropArea);

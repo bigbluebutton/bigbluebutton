@@ -269,7 +269,7 @@ class ScreenshareComponent extends React.Component {
         {
           isGloballyBroadcasting
             ? (
-              <div>
+              <div data-test="isSharingScreen">
                 {!switched
                   && ScreenshareComponent.renderScreenshareContainerInside(
                     intl.formatMessage(intlMessages.presenterSharingLabel),

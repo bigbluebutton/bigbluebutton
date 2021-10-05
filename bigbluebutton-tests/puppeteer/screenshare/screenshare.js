@@ -1,22 +1,22 @@
 const Page = require('../core/page');
 const util = require('./util');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constants');
-const { sleep } = require('../core/helper');
+const { VIDEO_LOADING_WAIT_TIME } = require('../core/constants');
+const { checkElementLengthEqualTo } = require('../core/util');
 
 class ShareScreen extends Page {
   constructor() {
-    super('share-screen');
+    super();
   }
 
   async test() {
     try {
       await util.startScreenshare(this);
-      await this.page.waitForSelector(e.screenshareConnecting, ELEMENT_WAIT_TIME);
-      await this.page.waitForSelector(e.screenShareVideo, VIDEO_LOADING_WAIT_TIME);
-      await sleep(5000);
-      const response = await util.getScreenShareContainer(this);
-      return response;
+      await this.waitForSelector(e.screenshareConnecting);
+      await this.waitForSelector(e.screenShareVideo, VIDEO_LOADING_WAIT_TIME);
+      const response = await this.hasElement(e.isSharingScreen, true);
+
+      return response === true;
     } catch (err) {
       await this.logger(err);
       return false;
@@ -28,8 +28,7 @@ class ShareScreen extends Page {
       await this.init(args, undefined, undefined, undefined, testName, undefined, deviceX);
       await this.startRecording(testName);
       await this.closeAudioModal();
-      const screenshareBtn = await this.page.evaluate(() => document.querySelectorAll('button[aria-label="Share your screen"]').length === 0) === true;
-      return screenshareBtn;
+      return this.wasRemoved(e.startScreenSharing);
     } catch (err) {
       await this.logger(err);
       return false;

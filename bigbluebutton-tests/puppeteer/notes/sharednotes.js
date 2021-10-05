@@ -3,7 +3,7 @@ const util = require('./util');
 
 class SharedNotes extends Create {
   constructor() {
-    super('shared-notes');
+    super();
   }
 
   async test() {
@@ -12,8 +12,13 @@ class SharedNotes extends Create {
   }
 
   async close() {
-    await this.page1.close();
-    await this.page2.close();
+    try {
+      await this.page1.close();
+      await this.page2.close();
+    } catch (e) {
+      await this.page1.logger(e);
+    }
   }
 }
+
 module.exports = exports = SharedNotes;

@@ -460,8 +460,6 @@
     "app.audioModal.playAudio.arialabel" : "Afspil lyd",
     "app.audioDial.tipIndicator": "Tip",
     "app.audioDial.tipMessage": "Tryk på '0' på din telefon for at mute/unmute dig selv.",
-    "app.audioModal.connecting": "Forbinder",
-    "app.audioModal.connectingEchoTest": "Forbinder til mikrofontest",
     "app.audioManager.joinedAudio": "Du har tilsluttet dig et lyd konferencen ",
     "app.audioManager.joinedEcho": "Du er tilsluttet mikrofontesten",
     "app.audioManager.leftAudio": "Du har forladt lyd konferencen ",

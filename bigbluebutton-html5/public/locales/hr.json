@@ -207,8 +207,6 @@
     "app.audioModal.playAudio": "Pusti zvuk",
     "app.audioModal.playAudio.arialabel" : "Pusti zvuk",
     "app.audioDial.tipIndicator": "Savjet",
-    "app.audioModal.connecting": "Spajanje",
-    "app.audioModal.connectingEchoTest": "Spajanje na test jeke",
     "app.audioManager.joinedEcho": "Spojili ste se na test jeke",
     "app.audio.audioSettings.microphoneSourceLabel": "Izvor mikrofona",
     "app.audio.listenOnly.closeLabel": "Zatvori",

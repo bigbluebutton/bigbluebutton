@@ -489,8 +489,6 @@
     "app.audioModal.playAudio.arialabel" : "Putar audio",
     "app.audioDial.tipIndicator": "Tip",
     "app.audioDial.tipMessage": "Tekan tombol '0' pada telepon Anda untuk membisukan/membolehkan bicara.",
-    "app.audioModal.connecting": "Menyambung",
-    "app.audioModal.connectingEchoTest": "Menyambung ke uji echo",
     "app.audioManager.joinedAudio": "Anda telah bergabung dengan konferensi audio",
     "app.audioManager.joinedEcho": "Anda telah bergabung ke uji echo",
     "app.audioManager.leftAudio": "Anda telah meninggalkan konferensi audio",
@@ -805,11 +803,7 @@
     "playback.player.chat.message.poll.option.yes": "Ya",
     "playback.player.chat.message.poll.option.no": "Tidak",
     "playback.player.chat.message.poll.option.true": "Benar",
-    "playback.player.chat.message.poll.option.false": "Salah",
-    "app.learningDashboard.participantsTable.colStatus": "Status",
-    "app.learningDashboard.participantsTable.userStatusOnline": "Daring",
-    "app.learningDashboard.participantsTable.userStatusOffline": "Luring",
-    "app.learningDashboard.pollsTable.colParticipant": "Partisipan"
+    "playback.player.chat.message.poll.option.false": "Salah"
 
 }
 
