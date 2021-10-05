@@ -627,8 +627,12 @@ public:
         - value: 20
         - value: 16
       tools:
+        - icon: eraser_tool
+          value: eraser
         - icon: text_tool
           value: text
+        - icon: highlighter_tool
+          value: highlighter
         - icon: line_tool
           value: line
         - icon: circle_tool
@@ -649,6 +653,8 @@ public:
         - rectangle
         - pencil
         - hand
+        - highlighter
+        - eraser
       multiUserTools:
         - text
         - line
@@ -656,6 +662,8 @@ public:
         - triangle
         - rectangle
         - pencil
+        - highlighter
+        - eraser
   clientLog:
     server:
       enabled: false

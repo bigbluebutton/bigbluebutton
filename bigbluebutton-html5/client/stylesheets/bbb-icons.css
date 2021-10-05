@@ -73,6 +73,12 @@
 .icon-bbb-text_tool:before {
   content: "\e920";
 }
+.icon-bbb-eraser_tool:before {
+  content: "\e95b";
+}
+.icon-bbb-highlighter_tool:before {
+  content: "\e95c";
+}
 .icon-bbb-plus:before {
   content: "\e921";
 }

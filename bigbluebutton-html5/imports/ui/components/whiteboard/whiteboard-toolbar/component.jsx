@@ -604,7 +604,7 @@ class WhiteboardToolbar extends Component {
       thicknessSelected,
     } = this.state;
 
-    const isDisabled = annotationSelected.value === 'hand' || !annotations.length;
+    const isDisabled = annotationSelected.value === 'hand' || annotationSelected.value === 'eraser' || !annotations.length;
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
@@ -698,7 +698,7 @@ class WhiteboardToolbar extends Component {
       colorSelected,
     } = this.state;
 
-    const isDisabled = annotationSelected.value === 'hand' || !annotations.length;
+    const isDisabled = annotationSelected.value === 'hand' || annotationSelected.value === 'eraser' || !annotations.length;
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
