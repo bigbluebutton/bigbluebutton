@@ -1178,7 +1178,7 @@ check_state() {
         echo "#"
     fi
 
-    if [ "$(echo "$HTML5_CONFIG" | yq r - public.media.sipjsHackViaWs)" == "false" ]; then
+    if [ "$(echo "$HTML5_CONFIG" | yq r - public.media.sipjsHackViaWs)" != "true" ]; then
       if [ "$PROTOCOL" == "https" ]; then
         if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q https; then
           echo "# Warning: You have this server defined for https, but in"

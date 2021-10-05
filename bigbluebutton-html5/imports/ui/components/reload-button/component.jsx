@@ -1,4 +1,5 @@
 import React from 'react';
+import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import _ from 'lodash';
 import { styles } from './styles';
@@ -13,12 +14,11 @@ const ReloadButtonComponent = ({
   handleReload,
   label,
 }) => (
-  <div className={styles.button}>
+  <div className={cx(styles.wrapper, styles.top)}>
     <Button
+      className={cx(styles.button, styles.reloadButton)}
       color="primary"
       icon="refresh"
-      size="md"
-      circle
       onClick={_.debounce(handleReload, DEBOUNCE_TIMEOUT, DEBOUNCE_OPTIONS)}
       label={label}
       hideLabel

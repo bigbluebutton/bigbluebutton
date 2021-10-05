@@ -101,7 +101,7 @@ class SmartLayout extends Component {
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: _.defaultsDeep({
           sidebarNavigation: {
-            isOpen: true,
+            isOpen: input.sidebarNavigation.isOpen || false,
           },
           sidebarContent: {
             isOpen: sidebarContentPanel !== PANELS.NONE,
