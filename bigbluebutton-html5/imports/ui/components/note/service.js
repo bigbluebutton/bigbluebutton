@@ -1,22 +1,13 @@
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import Note from '/imports/api/note';
+import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import { Session } from 'meteor/session';
 
 const NOTE_CONFIG = Meteor.settings.public.note;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-
-const getNoteId = () => {
-  const note = Note.findOne({ meetingId: Auth.meetingID }, { fields: { noteId: 1 } });
-  return note ? note.noteId : '';
-};
-
-const getReadOnlyNoteId = () => {
-  const note = Note.findOne({ meetingId: Auth.meetingID }, { fields: { readOnlyNoteId: 1 } });
-  return note ? note.readOnlyNoteId : '';
-};
 
 const getLang = () => {
   const { locale } = Settings.application;
@@ -48,18 +39,16 @@ const isLocked = () => {
   return false;
 };
 
-const getReadOnlyURL = () => {
-  const readOnlyNoteId = getReadOnlyNoteId();
-  const params = getNoteParams();
-  const url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${readOnlyNoteId}?${params}`);
-  return url;
-};
+const getNoteId = () => makeCall('getNoteId');
 
-const getNoteURL = () => {
-  const noteId = getNoteId();
-  const params = getNoteParams();
-  const url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${noteId}?${params}`);
-  return url;
+const buildNoteURL = (noteId) => {
+  if (noteId) {
+    const params = getNoteParams();
+    const url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${noteId}?${params}`);
+    return url;
+  }
+
+  return null;
 };
 
 const getRevs = () => {
@@ -74,7 +63,8 @@ const getLastRevs = () => {
   return lastRevs;
 };
 
-const setLastRevs = (revs) => {
+const setLastRevs = () => {
+  const revs = getRevs();
   const lastRevs = getLastRevs();
 
   if (revs !== 0 && revs > lastRevs) {
@@ -108,8 +98,8 @@ const toggleNotePanel = () => {
 };
 
 export default {
-  getNoteURL,
-  getReadOnlyURL,
+  getNoteId,
+  buildNoteURL,
   toggleNotePanel,
   isLocked,
   isEnabled,
