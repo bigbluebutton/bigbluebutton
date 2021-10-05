@@ -158,7 +158,13 @@ get_bbb_web_config_value() {
 RECORD_CONFIG=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 
 HTML5_CONFIG_OLD=/usr/share/meteor/bundle/programs/server/assets/app/config/settings-production.json
-HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+HTML5_DEFAULT_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+HTML5_ETC_CONFIG=/etc/bigbluebutton/bbb-html5.yml
+if [ -f $HTML5_ETC_CONFIG ]; then
+    HTML5_CONFIG=$(yq m -x $HTML5_DEFAULT_CONFIG $HTML5_ETC_CONFIG)
+else
+    HTML5_CONFIG=$(yq r $HTML5_DEFAULT_CONFIG)
+fi
 
 KURENTO_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
 
@@ -820,7 +826,7 @@ check_configuration() {
         echo "# is not owned by $BBB_USER"
     fi
 
-    if [ -f $HTML5_CONFIG ]; then
+    if [ -n "$HTML5_CONFIG" ]; then
         SVG_IMAGES_REQUIRED=$(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^svgImagesRequired/{s/.*=//;p}')
         if [ "$SVG_IMAGES_REQUIRED" != "true" ]; then
             echo
@@ -1179,7 +1185,7 @@ check_state() {
         echo "#"
     fi
 
-    if [ "$(yq r /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml public.media.sipjsHackViaWs)" != "true" ]; then
+    if [ "$(echo "$HTML5_CONFIG" | yq r - public.media.sipjsHackViaWs)" != "true" ]; then
       if [ "$PROTOCOL" == "https" ]; then
         if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q https; then
           echo "# Warning: You have this server defined for https, but in"
@@ -1406,13 +1412,14 @@ if [ $CHECK ]; then
         echo "               codec_video_content: $(yq r $KURENTO_CONFIG conference-media-specs.codec_video_content)"
     fi
 
-     if [ -f $HTML5_CONFIG ]; then
+     if [ -n "$HTML5_CONFIG" ]; then
         echo
         echo "/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml (HTML5 client)"
-        echo "                             build: $(yq r $HTML5_CONFIG public.app.html5ClientBuild)"
-        echo "                        kurentoUrl: $(yq r $HTML5_CONFIG public.kurento.wsUrl)"
-        echo "                  enableListenOnly: $(yq r $HTML5_CONFIG public.kurento.enableListenOnly)"
-        echo "                    sipjsHackViaWs: $(yq r $HTML5_CONFIG public.media.sipjsHackViaWs)"
+        echo "/etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)"
+        echo "                             build: $(echo "$HTML5_CONFIG" | yq r - public.app.html5ClientBuild)"
+        echo "                        kurentoUrl: $(echo "$HTML5_CONFIG" | yq r - public.kurento.wsUrl)"
+        echo "                  enableListenOnly: $(echo "$HTML5_CONFIG" | yq r - public.kurento.enableListenOnly)"
+        echo "                    sipjsHackViaWs: $(echo "$HTML5_CONFIG" | yq r - public.media.sipjsHackViaWs)"
      fi
 
      if [ ! -z "$STUN" ]; then
@@ -1677,10 +1684,10 @@ if [ -n "$HOST" ]; then
         sed -i "s|\"wsUrl.*|\"wsUrl\": \"$WS/bbb-webrtc-sfu\",|g" $HTML5_CONFIG_OLD
     fi
 
-    if [ -f $HTML5_CONFIG ]; then
-        yq w -i $HTML5_CONFIG public.kurento.wsUrl "wss://$HOST/bbb-webrtc-sfu"
-        yq w -i $HTML5_CONFIG public.note.url      "$PROTOCOL://$HOST/pad"
-        chown meteor:meteor $HTML5_CONFIG
+    if [ -f $HTML5_DEFAULT_CONFIG ]; then
+        yq w -i $HTML5_DEFAULT_CONFIG public.kurento.wsUrl "wss://$HOST/bbb-webrtc-sfu"
+        yq w -i $HTML5_DEFAULT_CONFIG public.note.url      "$PROTOCOL://$HOST/pad"
+        chown meteor:meteor $HTML5_DEFAULT_CONFIG
 
         #if [ -f $KURENTO_CONFIG ]; then
         #    yq w -i $KURENTO_CONFIG kurento[0].url "ws://$HOST:8888/kurento"
