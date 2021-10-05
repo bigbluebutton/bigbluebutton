@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Draggable from 'react-draggable';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import PropTypes from 'prop-types';
@@ -27,7 +28,6 @@ class GradingSelectModal extends Component {
     super(props);
 
     this.state = {
-      checked: false,
       grades: Users.find({
         meetingId: Auth.meetingID,
         presenter: { $ne: true },
@@ -86,14 +86,20 @@ class GradingSelectModal extends Component {
     } = this.props;
 
     const {
-      checked,
       smileys,
     } = this.state;
 
     const gradetype = ['Lesson', 'IP'];
-    const lessons = [...Array(100).keys()];
+    const lessons = [];
+    for (let i = 0; i <= 99; i += 1) {
+      if (i === 0) lessons.push('GP');
+      else lessons.push(i.toString());
+    }
+
+    // const lessons = [...Array(100).keys()];
 
     return (
+      <Draggable>
       <Modal
         overlayClassName={styles.overlay}
         className={styles.modal}
@@ -170,6 +176,7 @@ class GradingSelectModal extends Component {
           </div>
         </div>
       </Modal>
+      </Draggable>
     );
   }
 }

@@ -74,6 +74,10 @@ class TekSelect extends Component {
     } = this.props;
     const subjects = ['Math', 'Reading', 'Science', 'Social Studies', 'Algebra', 'Biology', 'History', 'ELA 1', 'ELA 2'];
     const grades = ['3', '4', '5', '6', '7', '8', 'HS'];
+    const lessons = [];
+    for (let i = 1; i <= 30; i += 1) {
+      lessons.push(i.toString());
+    }
 
     return (
       <Modal
@@ -100,6 +104,10 @@ class TekSelect extends Component {
               <select name="gr" onChange={this.handleChange.bind(this)}>
                 <option value="" selected disabled hidden>Select Grade</option>
                 {grades.map((grade) => <option value={grade}>{grade}</option>)}
+              </select>
+              <select name="lsn" onChange={this.handleChange.bind(this)}>
+                <option value="" selected disabled hidden>Select Lesson</option>
+                {lessons.map((lsn) => <option value={lsn}>{lsn}</option>)}
               </select>
               <input type="number" name="lsn" required="required" min="1" max="99" onChange={this.handleChange.bind(this)} />
             </span>

@@ -20,6 +20,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.publishLabel',
     description: 'label for the publish button',
   },
+  closePollLabel: {
+    id: 'app.poll.closePollLabel',
+    description: 'label for the close poll button',
+  },
   backLabel: {
     id: 'app.poll.backLabel',
     description: 'label for the return to poll options button',
@@ -106,7 +110,8 @@ class LiveResult extends PureComponent {
     answers.reduce(caseInsensitiveReducer, []).map((obj) => {
       const formattedMessageIndex = obj.key.toLowerCase();
       const pct = Math.round(obj.numVotes / numRespondents * 100);
-      const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
+      // const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
+      const pctFotmatted = '';
 
       const calculatedWidth = {
         width: pctFotmatted,
@@ -124,9 +129,6 @@ class LiveResult extends PureComponent {
           <div className={styles.center}>
             <div className={styles.barShade} style={calculatedWidth} />
             <div className={styles.barVal}>{obj.numVotes || 0}</div>
-          </div>
-          <div className={styles.right}>
-            {pctFotmatted}
           </div>
         </div>,
       );
@@ -196,6 +198,19 @@ class LiveResult extends PureComponent {
           </div>
           {pollStats}
         </div>
+        <Button
+          disabled={!isMeteorConnected}
+          onClick={() => {
+            Session.set('pollInitiated', false);
+            Service.publishPoll();
+            stopPoll();
+            handleBackClick();
+          }}
+          label={intl.formatMessage(intlMessages.closePollLabel)}
+          data-test="closePollLabel"
+          color="primary"
+          className={styles.btn}
+        />
         {currentPoll && currentPoll.answers.length > 0
           ? (
             <Button

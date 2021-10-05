@@ -242,6 +242,7 @@
     "app.poll.dragDropPollInstruction": "To fill the poll values, drag a text file with the poll values onto the highlighted field",
     "app.poll.customPollTextArea": "Fill poll values",
     "app.poll.publishLabel": "Publish polling results",
+    "app.poll.closePollLabel": "Close polling",
     "app.poll.backLabel": "Start A Poll",
     "app.poll.closeLabel": "Close",
     "app.poll.waitingLabel": "Waiting for responses ({0}/{1})",

@@ -89,7 +89,7 @@ export default class HighlighterComponent extends Component {
     return version !== nextProps.version;
   }
 
-  componentDidUpdate(nextProps) {
+  componentDidUpdate(prevProps) {
     const { annotation: prevAnnotation } = prevProps;
     const { points: prevPoints } = prevAnnotation;
     const { annotation, slideWidth, slideHeight } = this.props;
@@ -140,38 +140,39 @@ export default class HighlighterComponent extends Component {
 
     return { path, points };
   }
+
   render() {
     const { annotation, slideWidth } = this.props;
     const maskId = "mask-" + annotation.id;
-    const coord = this.getCurrentPath().replace(/^\s+/,'').split(' ').map(x => parseFloat(x.replace(/[ML]/,'')));
+    const coord = this.getCurrentPath().replace(/^\s+/,'').split(' ').map((x) => parseFloat(x.replace(/[ML]/, '')));
     const lineCap = coord.length == 4 && coord[0] == coord[2] && coord[1] == coord[3] ? "square" : "butt";
     return (
       <g data-test="drawnHighlighter">
-      <path
-        fill="none"
-        stroke={getFormattedColor(annotation.color)}
-        d={this.getCurrentPath()}
-        strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
-        strokeLinejoin="round"
-        strokeLinecap={lineCap}
-        shapeRendering="crispEdges"
-      />
-      <mask id = {maskId}>
         <path
           fill="none"
-          stroke={annotation.color == 16777215 ? "#ffffff" : "#a0a0a0"}
+          stroke={getFormattedColor(annotation.color)}
           d={this.getCurrentPath()}
           strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
           strokeLinejoin="round"
           strokeLinecap={lineCap}
           shapeRendering="crispEdges"
         />
-      </mask>
-      <use mask={`url(#${maskId})`}
-        x="0"
-        y="0"
-        xlinkHref="#slideimg"
-      />
+        <mask id={maskId}>
+          <path
+            fill="none"
+            stroke={annotation.color == 16777215 ? "#ffffff" : "#a0a0a0"}
+            d={this.getCurrentPath()}
+            strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
+            strokeLinejoin="round"
+            strokeLinecap={lineCap}
+            shapeRendering="crispEdges"
+          />
+        </mask>
+        <use mask={`url(#${maskId})`}
+          x="0"
+          y="0"
+          xlinkHref="#slideimg"
+        />
       </g>
     );
   }
