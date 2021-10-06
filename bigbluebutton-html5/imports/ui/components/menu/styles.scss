@@ -10,6 +10,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  padding: .1rem 0;
 
   [dir="rtl"] & {
     margin-right: .5rem;
