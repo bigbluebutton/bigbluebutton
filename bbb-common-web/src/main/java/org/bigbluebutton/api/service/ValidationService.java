@@ -12,6 +12,9 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class ValidationService {
@@ -85,6 +88,10 @@ public class ValidationService {
         String checksumValue = "";
         if(params.containsKey("checksum")) {
             checksumValue = params.get("checksum")[0];
+        }
+
+        if(queryString == null || queryString.isEmpty()) {
+            queryString = buildQueryStringFromParamsMap(params);
         }
 
         switch(apiCall.requestType) {
@@ -190,6 +197,47 @@ public class ValidationService {
         }
 
         return mapString.toString();
+    }
+
+    public static String buildQueryStringFromParamsMap(Map<String, String[]> params) {
+        StringBuilder queryString = new StringBuilder();
+        SortedSet<String> keys = new TreeSet<>(params.keySet());
+
+        boolean firstParam = true;
+        for(String key: keys) {
+
+            if(key.equals("checksum")) {
+                continue;
+            }
+
+            for(String value: params.get(key)) {
+                if(firstParam) {
+                    firstParam = false;
+                } else {
+                    queryString.append("&");
+                }
+
+                queryString.append(key);
+                queryString.append("=");
+
+                String encodedValue = encodeString(value);
+                queryString.append(encodedValue);
+            }
+        }
+
+        return queryString.toString();
+    }
+
+    private static String encodeString(String stringToEncode) {
+        String encodedResult;
+
+        try {
+            encodedResult = URLEncoder.encode(stringToEncode, StandardCharsets.UTF_8.name());
+        } catch(UnsupportedEncodingException ex) {
+            encodedResult = stringToEncode;
+        }
+
+        return encodedResult;
     }
 
     public void setSecuritySalt(String securitySalt) { this.securitySalt = securitySalt; }
