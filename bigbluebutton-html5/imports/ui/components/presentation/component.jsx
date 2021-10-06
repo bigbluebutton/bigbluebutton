@@ -849,7 +849,7 @@ class Presentation extends PureComponent {
             {showSlide && (userIsPresenter || multiUser)
               ? this.renderWhiteboardToolbar(svgDimensions)
               : null}
-            {showSlide && userIsPresenter && svgWidth > 0 && svgHeight > 0
+            {showSlide && userIsPresenter
               ? (
                 <div
                   className={styles.presentationToolbar}
