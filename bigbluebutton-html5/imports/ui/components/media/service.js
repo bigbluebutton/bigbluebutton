@@ -72,8 +72,6 @@ const toggleSwapLayout = (layoutContextDispatch) => {
   });
 };
 
-export const shouldEnableSwapLayout = () => !shouldShowScreenshare() && !shouldShowExternalVideo();
-
 export const getSwapLayout = () => {
   swapLayout.tracker.depend();
   return swapLayout.value;
@@ -88,7 +86,6 @@ export default {
   isUserPresenter,
   isVideoBroadcasting,
   toggleSwapLayout,
-  shouldEnableSwapLayout,
   getSwapLayout,
   setSwapLayout,
 };

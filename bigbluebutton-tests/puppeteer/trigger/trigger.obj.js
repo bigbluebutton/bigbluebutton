@@ -17,7 +17,7 @@ const triggerTest = () => {
     try {
       const testName = 'triggerMeteorDisconnect';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.init(true, true, testName);
       response = await test.triggerMeteorDisconnect(testName);
       screenshot = await test.page.screenshot();
     } catch (err) {
@@ -26,7 +26,7 @@ const triggerTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.1, screenshot);
+    Page.checkRegression(0.1, screenshot);
   });
 
   test('Trigger disconnection: SHUTTING DOWN NETWORK SERVICE', async () => {
@@ -36,7 +36,7 @@ const triggerTest = () => {
     try {
       const testName = 'triggerNetworkServiceDisconnection';
       await test.logger('begin of ', testName);
-      await test.init(Page.getArgs(), undefined, undefined, undefined, testName);
+      await test.init(true, true, testName);
       response = await test.triggerNetworkServiceDisconnection(testName);
       screenshot = await test.page.screenshot();
     } catch (err) {
@@ -45,7 +45,8 @@ const triggerTest = () => {
       await test.close();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.1, screenshot);
+    Page.checkRegression(0.1, screenshot);
   });
 };
+
 module.exports = exports = triggerTest;

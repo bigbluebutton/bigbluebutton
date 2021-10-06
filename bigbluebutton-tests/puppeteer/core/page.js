@@ -7,7 +7,7 @@ const moment = require('moment');
 const path = require('path');
 const PuppeteerVideoRecorder = require('puppeteer-video-recorder');
 const helper = require('./helper');
-const params = require('../params');
+const params = require('./params');
 const { ELEMENT_WAIT_TIME } = require('./constants');
 const { getElementLength } = require('./util');
 const e = require('./elements');
@@ -19,7 +19,6 @@ class Page {
   constructor(page) {
     this.page = page;
     this.screenshotIndex = 0;
-    this.meetingId;
     this.parentDir = this.getParentDir(__dirname);
     this.recorder = new PuppeteerVideoRecorder();
   }
@@ -40,10 +39,12 @@ class Page {
   }
 
   // Join BigBlueButton meeting
-  async init(args, meetingId, newParams, customParameter, testFolderName, connectionPreset, deviceX) {
+  async init(isModerator, shouldCloseAudioModal, testFolderName, fullName, meetingId, customParameter, connectionPreset, deviceX) {
     try {
-      this.effectiveParams = newParams || params;
-      const isModerator = this.effectiveParams.moderatorPW;
+      const args = this.getArgs();
+      this.effectiveParams = Object.assign({}, params);
+      if (!isModerator) this.effectiveParams.moderatorPW = '';
+      if (fullName) this.effectiveParams.fullName = fullName;
       if (process.env.BROWSERLESS_ENABLED === 'true') {
         this.browser = await puppeteer.connect({
           browserWSEndpoint: `ws://${process.env.BROWSERLESS_URL}?token=${process.env.BROWSERLESS_TOKEN}&${args.args.join('&')}`,
@@ -86,6 +87,7 @@ class Page {
         await this.waitForSelector(e.anyUser);
         await this.getMetrics(testFolderName);
       }
+      if (shouldCloseAudioModal) await this.closeAudioModal();
     } catch (err) {
       await this.logger(err);
     }
@@ -167,7 +169,7 @@ class Page {
   }
 
   // Get the default arguments for creating a page
-  static getArgs() {
+  getArgs() {
     if (process.env.BROWSERLESS_ENABLED === 'true') {
       const args = [
         '--no-sandbox',

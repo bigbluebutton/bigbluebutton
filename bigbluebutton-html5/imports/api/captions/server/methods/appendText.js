@@ -2,21 +2,22 @@ import axios from 'axios';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Captions from '/imports/api/captions';
-import { CAPTIONS_TOKEN } from '/imports/api/captions/server/helpers';
 import { appendTextURL } from '/imports/api/common/server/etherpad';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
 export default function appendText(text, locale) {
   try {
-    const { meetingId } = extractCredentials(this.userId);
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
     check(meetingId, String);
+    check(requesterUserId, String);
     check(text, String);
     check(locale, String);
 
     const captions = Captions.findOne({
       meetingId,
-      padId: { $regex: `${CAPTIONS_TOKEN}${locale}$` },
+      locale,
+      ownerId: requesterUserId,
     });
 
     if (!captions) {
