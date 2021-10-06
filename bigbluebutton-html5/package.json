@@ -51,6 +51,7 @@
     "node-sass": "^6.0.1",
     "postcss-nested": "^5.0.5",
     "probe-image-size": "^4.1.1",
+    "prom-client": "^13.2.0",
     "prop-types": "^15.7.2",
     "re-resizable": "^4.11.0",
     "react": "^16.14.0",

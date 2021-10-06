@@ -10,6 +10,7 @@ import Logger from './logger';
 import Redis from './redis';
 
 import setMinBrowserVersions from './minBrowserVersion';
+import MCSPrometheusAgent from './prom-metrics/index.js'
 
 let guestWaitHtml = '';
 
