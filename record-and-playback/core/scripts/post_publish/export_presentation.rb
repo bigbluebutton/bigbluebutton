@@ -8,6 +8,7 @@ require "nokogiri"
 require "base64"
 require "builder"
 require "csv"
+require 'digest/bubblebabble'
 require "fileutils"
 require "json"
 require "loofah"
@@ -69,12 +70,18 @@ WEBCAMS_HEIGHT = 240
 CHAT_WIDTH = WEBCAMS_WIDTH
 CHAT_HEIGHT = OUTPUT_HEIGHT - WEBCAMS_HEIGHT
 
+HIDE_CHAT = false
+HIDE_CHAT_NAMES = false
+
+HIDE_DESKSHARE = false
+
 # Assumes a monospaced font with a width to aspect ratio of 3:5
 CHAT_FONT_SIZE = 15
 CHAT_FONT_SIZE_X = (0.6 * CHAT_FONT_SIZE).to_i
+CHAT_STARTING_OFFSET = CHAT_HEIGHT + CHAT_FONT_SIZE
 
 # Max. dimensions supported: 8032 x 32767
-CHAT_CANVAS_WIDTH = 640 # (8032 / CHAT_WIDTH) * CHAT_WIDTH
+CHAT_CANVAS_WIDTH = (8032 / CHAT_WIDTH) * CHAT_WIDTH
 CHAT_CANVAS_HEIGHT = (32_767 / CHAT_FONT_SIZE) * CHAT_FONT_SIZE
 
 # Dimensions of the whiteboard area
@@ -86,30 +93,33 @@ DESKSHARE_INPUT_WIDTH = 1280
 DESKSHARE_INPUT_HEIGHT = 720
 
 # Center the deskshare
-DESKSHARE_Y_OFFSET = ((SLIDES_HEIGHT - ([SLIDES_WIDTH.to_f / DESKSHARE_INPUT_WIDTH,
-                                         SLIDES_HEIGHT.to_f / DESKSHARE_INPUT_HEIGHT].min * DESKSHARE_INPUT_HEIGHT)) / 2).to_i
+DESKSHARE_Y_OFFSET = ((SLIDES_HEIGHT -
+([SLIDES_WIDTH.to_f / DESKSHARE_INPUT_WIDTH,
+  SLIDES_HEIGHT.to_f / DESKSHARE_INPUT_HEIGHT].min * DESKSHARE_INPUT_HEIGHT)) / 2).to_i
 
 WhiteboardElement = Struct.new(:begin, :end, :value, :id)
 WhiteboardSlide = Struct.new(:href, :begin, :end, :width, :height)
 
 def add_captions
   json = JSON.parse(File.read("#{@published_files}/captions.json"))
+  caption_amount = json.length
 
-  return if json.length.zero?
+  return if caption_amount.zero?
 
   caption_input = ""
   maps = ""
   language_names = ""
 
-  (0..json.length - 1).each do |i|
-     caption_input << "-i #{@published_files}/caption_#{json[i]['locale']}.vtt "
+  (0..caption_amount - 1).each do |i|
+     caption = json[i]
+     caption_input << "-i #{@published_files}/caption_#{caption['locale']}.vtt "
      maps << "-map #{i + 1} "
-     language_names << "-metadata:s:s:#{i} language=#{json[i]['localeName'].downcase[0..2]} "
+     language_names << "-metadata:s:s:#{i} language=#{caption['localeName'].downcase[0..2]} "
   end
 
   render = "ffmpeg -i #{@published_files}/meeting-tmp.mp4 #{caption_input} " \
-            "-map 0:v -map 0:a #{maps} -c:v copy -c:a copy -c:s mov_text #{language_names} " \
-            "-y #{@published_files}/meeting_captioned.mp4"
+           "-map 0:v -map 0:a #{maps} -c:v copy -c:a copy -c:s mov_text #{language_names} " \
+           "-y #{@published_files}/meeting_captioned.mp4"
 
   ffmpeg = system(render)
 
@@ -157,7 +167,11 @@ def add_chapters(duration, slides)
     file << chapter
   end
 
-  ffmpeg = system("ffmpeg -i #{@published_files}/meeting-tmp.mp4 -i #{@published_files}/meeting_metadata -map_metadata 1 -map_chapters 1 -codec copy -y -t #{duration} #{@published_files}/meeting_chapters.mp4")
+  render = "ffmpeg -i #{@published_files}/meeting-tmp.mp4 " \
+           "-i #{@published_files}/meeting_metadata -map_metadata 1 " \
+           "-map_chapters 1 -codec copy -y -t #{duration} #{@published_files}/meeting_chapters.mp4"
+
+  ffmpeg = system(render)
   if ffmpeg
     FileUtils.mv("#{@published_files}/meeting_chapters.mp4", "#{@published_files}/meeting-tmp.mp4")
   else
@@ -170,7 +184,7 @@ def add_greenlight_buttons(metadata)
   meeting_id = metadata.xpath('recording/id').inner_text
   hostname = metadata.xpath('recording/meta/bbb-origin-server-name').inner_text
 
-  metadata.xpath('recording/playback/format').children.first.content = "Video"
+  metadata.xpath('recording/playback/format').children.first.content = "video"
   metadata.xpath('recording/playback/link').children.first.content = "https://#{hostname}/presentation/#{meeting_id}/meeting.mp4"
 
   File.open("/var/bigbluebutton/published/video/#{meeting_id}/metadata.xml", "w") do |file|
@@ -204,7 +218,7 @@ def convert_whiteboard_shapes(whiteboard)
       # Namespace xmlns:xlink is required by FFmpeg
       poll.add_namespace_definition("xlink", "http://www.w3.org/1999/xlink")
 
-      data = FFMPEG_REFERENCE_SUPPORT ? "file:///#{path}" : base64_encode(path)
+      data = FFMPEG_REFERENCE_SUPPORT ? "file://#{path}" : base64_encode(path)
 
       poll.set_attribute("xlink:href", data)
     end
@@ -304,7 +318,7 @@ def parse_whiteboard_shapes(shape_reader)
       # Image paths need to follow the URI Data Scheme (for slides and polls)
       path = "#{@published_files}/#{node.attribute('href')}"
 
-      data = FFMPEG_REFERENCE_SUPPORT ? "file:///#{path}" : base64_encode(path)
+      data = FFMPEG_REFERENCE_SUPPORT ? "file://#{path}" : base64_encode(path)
 
       slides << WhiteboardSlide.new(data, slide_in, slide_out, node.attribute("width").to_f, node.attribute("height"))
     end
@@ -342,8 +356,9 @@ def remove_adjacent(array)
   array.compact! || array
 end
 
-def render_chat(chat_reader)
+def parse_chat(chat_reader)
   messages = []
+  salt = Time.now.nsec
 
   chat_reader.each do |node|
     unless node.name == "chattimeline" &&
@@ -352,12 +367,22 @@ def render_chat(chat_reader)
       next
     end
 
-    messages << [node.attribute("in").to_f, node.attribute("name"), node.attribute("message")]
+    name = node.attribute("name")
+    name = Digest::SHA1.bubblebabble(name << salt.to_s)[0..10] if HIDE_CHAT_NAMES
+
+    messages << [node.attribute("in").to_f, name, node.attribute("message")]
   end
+
+  messages
+end
+
+def render_chat(chat_reader)
+  messages = parse_chat(chat_reader)
+  return if messages.empty?
 
   # Text coordinates on the SVG file
   svg_x = 0
-  svg_y = CHAT_HEIGHT + CHAT_FONT_SIZE
+  svg_y = CHAT_STARTING_OFFSET
 
   # Chat viewbox coordinates
   chat_x = 0
@@ -386,11 +411,12 @@ def render_chat(chat_reader)
       line_index = 0
       last_linebreak_pos = 0
 
-      (0..chat.length - 1).each do |chat_index|
+      chat_length = chat.length - 1
+      (0..chat_length).each do |chat_index|
         last_linebreak_pos = chat_index if chat[chat_index] == " "
 
         if line_index >= max_message_length
-          last_linebreak_pos = last_linebreak_pos <= chat_index - max_message_length ? chat_index : last_linebreak_pos
+          last_linebreak_pos = chat_index if last_linebreak_pos <= chat_index - max_message_length
 
           line_breaks << last_linebreak_pos
 
@@ -405,7 +431,7 @@ def render_chat(chat_reader)
         line_wraps << [a + 1, b]
       end
 
-      line_wraps << [line_breaks.last + 1, chat.length - 1]
+      line_wraps << [line_breaks.last + 1, chat_length]
 
       # Message height equals the line break amount + the line for the name / time + the empty line afterwards
       message_height = (line_wraps.size + 2) * CHAT_FONT_SIZE
@@ -417,19 +443,20 @@ def render_chat(chat_reader)
         duplicate_y = CHAT_HEIGHT
         duplicates.each do |header, duplicate_content, duplicate_x|
           break if header.nil? || duplicate_y.negative?
+          duplicate_x += CHAT_WIDTH
 
           duplicate_content.each do |content|
             duplicate_y -= CHAT_FONT_SIZE
-            builder.text(x: duplicate_x + CHAT_WIDTH, y: duplicate_y) { builder << content }
+            builder.text(x: duplicate_x, y: duplicate_y) { builder << content }
           end
 
           duplicate_y -= CHAT_FONT_SIZE
-          builder.text(x: duplicate_x + CHAT_WIDTH, y: duplicate_y, "font-weight" => "bold") { builder << header }
+          builder.text(x: duplicate_x, y: duplicate_y, "font-weight" => "bold") { builder << header }
           duplicate_y -= CHAT_FONT_SIZE
         end
 
         # Set coordinates to new column
-        svg_y = CHAT_HEIGHT + CHAT_FONT_SIZE
+        svg_y = CHAT_STARTING_OFFSET
         svg_x += CHAT_WIDTH
 
         chat_x += CHAT_WIDTH
@@ -466,14 +493,22 @@ def render_chat(chat_reader)
     end
   end
 
+  # Dynamically adjust the chat canvas size for the fastest possible export
+  cropped_chat_canvas_width = svg_x + CHAT_WIDTH
+  cropped_chat_canvas_height = cropped_chat_canvas_width == CHAT_WIDTH ? svg_y : CHAT_CANVAS_HEIGHT
+
+  builder = Nokogiri::XML(builder.target!)
+
+  builder_root = builder.root
+  builder_root.set_attribute('width', cropped_chat_canvas_width)
+  builder_root.set_attribute('height', cropped_chat_canvas_height)
+
   # Saves chat as SVG / SVGZ file
   File.open("#{@published_files}/chats/chat.svg", "w", 0o600) do |file|
-    file.write(builder.target!)
+    file.write(builder)
   end
 
   File.open("#{@published_files}/timestamps/chat_timestamps", "w", 0o600) do |file|
-    file.puts "0 overlay@msg x 0, overlay@msg y 0;" if overlay_position.empty?
-
     overlay_position.each do |timestamp, x, y|
       file.puts "#{timestamp} crop@c x #{x}, crop@c y #{y};"
     end
@@ -539,8 +574,8 @@ def render_cursor(panzooms, cursor_reader)
       cursor_y *= scale_factor
 
       # Translate given difference to new on-screen dimensions
-      x_offset = (SLIDES_WIDTH - scale_factor * width) / 2
-      y_offset = (SLIDES_HEIGHT - scale_factor * height) / 2
+      x_offset = (SLIDES_WIDTH - (scale_factor * width)) / 2
+      y_offset = (SLIDES_HEIGHT - (scale_factor * height)) / 2
 
       # Center cursor
       cursor_x -= 8
@@ -559,36 +594,62 @@ def render_cursor(panzooms, cursor_reader)
 end
 
 def render_video(duration, meeting_name)
-  # Determine if video had screensharing
-  deskshare = File.file?("#{@published_files}/deskshare/deskshare.#{VIDEO_EXTENSION}")
+  # Determine if video had screensharing / chat messages
+  deskshare = !HIDE_DESKSHARE && File.file?("#{@published_files}/deskshare/deskshare.#{VIDEO_EXTENSION}")
+  chat = !HIDE_CHAT && File.file?("#{@published_files}/chats/chat.svg")
 
   render = "ffmpeg -f lavfi -i color=c=white:s=#{OUTPUT_WIDTH}x#{OUTPUT_HEIGHT} " \
-          "-f concat -safe 0 #{BASE_URI} -i #{@published_files}/timestamps/whiteboard_timestamps " \
-          "-framerate 10 -loop 1 -i #{@published_files}/cursor/cursor.svg " \
-          "-framerate 1 -loop 1 -i #{@published_files}/chats/chat.svg " \
-          "-i #{@published_files}/video/webcams.#{VIDEO_EXTENSION} "
+           "-f concat -safe 0 #{BASE_URI} -i #{@published_files}/timestamps/whiteboard_timestamps " \
+           "-framerate 10 -loop 1 -i #{@published_files}/cursor/cursor.svg "
 
-  render << if deskshare
-    "-i #{@published_files}/deskshare/deskshare.#{VIDEO_EXTENSION} -filter_complex " \
-    "'[2]sendcmd=f=#{@published_files}/timestamps/cursor_timestamps[cursor];" \
-    "[3]sendcmd=f=#{@published_files}/timestamps/chat_timestamps,crop@c=w=#{CHAT_WIDTH}:h=#{CHAT_HEIGHT}:x=0:y=0[chat];" \
-    "[4]scale=w=#{WEBCAMS_WIDTH}:h=#{WEBCAMS_HEIGHT}[webcams];[5]scale=w=#{SLIDES_WIDTH}:h=#{SLIDES_HEIGHT}:force_original_aspect_ratio=1[deskshare];" \
-    "[0][deskshare]overlay=x=#{WEBCAMS_WIDTH}:y=#{DESKSHARE_Y_OFFSET}[screenshare];" \
-    "[screenshare][1]overlay=x=#{WEBCAMS_WIDTH}[slides];" \
-    "[slides][cursor]overlay@m[whiteboard];" \
-    "[whiteboard][chat]overlay=y=#{WEBCAMS_HEIGHT}[chats];" \
-    "[chats][webcams]overlay' "
+  if chat
+    render << "-framerate 1 -loop 1 -i #{@published_files}/chats/chat.svg " \
+              "-i #{@published_files}/video/webcams.#{VIDEO_EXTENSION} "
+
+    render << if deskshare
+       "-i #{@published_files}/deskshare/deskshare.#{VIDEO_EXTENSION} -filter_complex " \
+         "'[2]sendcmd=f=#{@published_files}/timestamps/cursor_timestamps[cursor];" \
+         "[3]sendcmd=f=#{@published_files}/timestamps/chat_timestamps," \
+         "crop@c=w=#{CHAT_WIDTH}:h=#{CHAT_HEIGHT}:x=0:y=0[chat];" \
+         "[4]scale=w=#{WEBCAMS_WIDTH}:h=#{WEBCAMS_HEIGHT}[webcams];" \
+         "[5]scale=w=#{SLIDES_WIDTH}:h=#{SLIDES_HEIGHT}:force_original_aspect_ratio=1[deskshare];" \
+         "[0][deskshare]overlay=x=#{WEBCAMS_WIDTH}:y=#{DESKSHARE_Y_OFFSET}[screenshare];" \
+         "[screenshare][1]overlay=x=#{WEBCAMS_WIDTH}[slides];" \
+         "[slides][cursor]overlay@m[whiteboard];" \
+         "[whiteboard][chat]overlay=y=#{WEBCAMS_HEIGHT}[chats];" \
+         "[chats][webcams]overlay' "
+     else
+        "-filter_complex '[2]sendcmd=f=#{@published_files}/timestamps/cursor_timestamps[cursor];" \
+          "[3]sendcmd=f=#{@published_files}/timestamps/chat_timestamps," \
+          "crop@c=w=#{CHAT_WIDTH}:h=#{CHAT_HEIGHT}:x=0:y=0[chat];" \
+          "[4]scale=w=#{WEBCAMS_WIDTH}:h=#{WEBCAMS_HEIGHT}[webcams];" \
+          "[0][1]overlay=x=#{WEBCAMS_WIDTH}[slides];" \
+          "[slides][cursor]overlay@m[whiteboard];" \
+          "[whiteboard][chat]overlay=y=#{WEBCAMS_HEIGHT}[chats];[chats][webcams]overlay' "
+               end
   else
-    "-filter_complex '[2]sendcmd=f=#{@published_files}/timestamps/cursor_timestamps[cursor];" \
-    "[3]sendcmd=f=#{@published_files}/timestamps/chat_timestamps,crop@c=w=#{CHAT_WIDTH}:h=#{CHAT_HEIGHT}:x=0:y=0[chat];" \
-    "[4]scale=w=#{WEBCAMS_WIDTH}:h=#{WEBCAMS_HEIGHT}[webcams];" \
-    "[0][1]overlay=x=#{WEBCAMS_WIDTH}[slides];" \
-    "[slides][cursor]overlay@m[whiteboard];" \
-    "[whiteboard][chat]overlay=y=#{WEBCAMS_HEIGHT}[chats];[chats][webcams]overlay' "
+    render << "-i #{@published_files}/video/webcams.#{VIDEO_EXTENSION} "
+
+    render << if deskshare
+      "-i #{@published_files}/deskshare/deskshare.#{VIDEO_EXTENSION} -filter_complex " \
+        "'[2]sendcmd=f=#{@published_files}/timestamps/cursor_timestamps[cursor];" \
+        "[3]scale=w=#{WEBCAMS_WIDTH}:h=#{WEBCAMS_HEIGHT}[webcams];" \
+        "[4]scale=w=#{SLIDES_WIDTH}:h=#{SLIDES_HEIGHT}:force_original_aspect_ratio=1[deskshare];" \
+        "[0][deskshare]overlay=x=#{WEBCAMS_WIDTH}:y=#{DESKSHARE_Y_OFFSET}[screenshare];" \
+        "[screenshare][1]overlay=x=#{WEBCAMS_WIDTH}[slides];" \
+        "[slides][cursor]overlay@m[whiteboard];" \
+        "[whiteboard][webcams]overlay' "
+    else
+      "-filter_complex '[2]sendcmd=f=#{@published_files}/timestamps/cursor_timestamps[cursor];" \
+        "[3]scale=w=#{WEBCAMS_WIDTH}:h=#{WEBCAMS_HEIGHT}[webcams];" \
+        "[0][1]overlay=x=#{WEBCAMS_WIDTH}[slides];" \
+        "[slides][cursor]overlay@m[whiteboard];" \
+        "[whiteboard][webcams]overlay' "
+              end
   end
 
-  render << "-c:a aac -crf #{CONSTANT_RATE_FACTOR} -shortest -y -t #{duration} -threads #{THREADS} "
-  render << "-metadata title=\"#{meeting_name}\" #{BENCHMARK} #{@published_files}/meeting-tmp.mp4"
+  render << "-c:a aac -crf #{CONSTANT_RATE_FACTOR} -shortest -y -t #{duration} -threads #{THREADS} " \
+            "-metadata title=\"#{meeting_name}\" #{BENCHMARK} #{@published_files}/meeting-tmp.mp4"
 
   ffmpeg = system(render)
 
@@ -681,7 +742,8 @@ def export_presentation
   duration = metadata.xpath('recording/playback/duration').inner_text.to_f / 1000
   meeting_name = metadata.xpath('recording/meta/meetingName').inner_text
 
-  shapes, slides, timestamps = parse_whiteboard_shapes(Nokogiri::XML::Reader(File.open("#{@published_files}/shapes_modified.svg")))
+  shapes, slides, timestamps =
+    parse_whiteboard_shapes(Nokogiri::XML::Reader(File.open("#{@published_files}/shapes_modified.svg")))
   panzooms, timestamps = parse_panzooms(Nokogiri::XML::Reader(File.open("#{@published_files}/panzooms.xml")),
                                         timestamps)
 
@@ -690,7 +752,7 @@ def export_presentation
   timestamps = timestamps.select { |t| t <= duration }
 
   # Create video assets
-  render_chat(Nokogiri::XML::Reader(File.open("#{@published_files}/slides_new.xml")))
+  render_chat(Nokogiri::XML::Reader(File.open("#{@published_files}/slides_new.xml"))) unless HIDE_CHAT
   render_cursor(panzooms, Nokogiri::XML::Reader(File.open("#{@published_files}/cursor.xml")))
   render_whiteboard(panzooms, slides, shapes, timestamps)
 
