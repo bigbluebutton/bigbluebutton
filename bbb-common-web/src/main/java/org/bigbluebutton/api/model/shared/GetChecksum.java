@@ -5,7 +5,7 @@ import org.bigbluebutton.api.util.ParamsUtil;
 
 import javax.validation.constraints.NotEmpty;
 
-@GetChecksumConstraint
+@GetChecksumConstraint(groups = ChecksumValidationGroup.class)
 public class GetChecksum extends Checksum {
 
     @NotEmpty(message = "You must provide the query string")

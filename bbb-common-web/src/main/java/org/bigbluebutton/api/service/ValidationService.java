@@ -2,6 +2,7 @@ package org.bigbluebutton.api.service;
 
 import org.bigbluebutton.api.model.request.*;
 import org.bigbluebutton.api.model.shared.Checksum;
+import org.bigbluebutton.api.model.shared.ChecksumValidationGroup;
 import org.bigbluebutton.api.model.shared.GetChecksum;
 import org.bigbluebutton.api.model.shared.PostChecksum;
 import org.bigbluebutton.api.util.ParamsUtil;
@@ -145,7 +146,16 @@ public class ValidationService {
     }
 
     private <R extends Request> Map<String, String> performValidation(R classToValidate) {
-        Set<ConstraintViolation<R>> violations = validator.validate(classToValidate);
+        Set<ConstraintViolation<R>> violations = validator.validate(classToValidate, ChecksumValidationGroup.class);
+
+        if(violations.isEmpty()) {
+            violations = validator.validate(classToValidate);
+        }
+
+        return buildViolationsMap(classToValidate, violations);
+    }
+
+    private <R extends Request> Map<String, String> buildViolationsMap(R classToValidate, Set<ConstraintViolation<R>> violations) {
         Map<String, String> violationMap = new HashMap<>();
 
         for(ConstraintViolation<R> violation: violations) {
