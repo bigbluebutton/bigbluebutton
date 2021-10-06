@@ -1,6 +1,7 @@
 package org.bigbluebutton.api.model.shared;
 
 import org.bigbluebutton.api.model.constraint.PostChecksumConstraint;
+import org.bigbluebutton.api.service.ValidationService;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -17,7 +18,7 @@ public class PostChecksum extends Checksum {
     public PostChecksum(String apiCall, String checksum, Map<String, String[]> params) {
         super(apiCall, checksum);
         this.params = params;
-        buildQueryStringFromParamsMap();
+        queryStringWithoutChecksum = ValidationService.buildQueryStringFromParamsMap(params);
     }
 
     private void buildQueryStringFromParamsMap() {
