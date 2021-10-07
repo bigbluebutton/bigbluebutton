@@ -144,6 +144,7 @@ class BreakoutRoom extends PureComponent {
 
       if (!breakoutUrlData) return false;
       if (breakoutUrlData.redirectToHtml5JoinURL !== '') {
+        window.open(breakoutUrlData.redirectToHtml5JoinURL, '_blank');
         _.delay(() => this.setState({ generated: true, waiting: false }), 1000);
       }
     }
