@@ -13,7 +13,13 @@ export default (props) => {
   const { layoutContextState, layoutContextDispatch } = layoutContext;
   const { fullscreen } = layoutContextState;
   const { element: currentElement, group: currentGroup } = fullscreen;
-  const isFullscreen = !!currentElement;
+  const {separatePresentationWindow, presentationWindow } = props;
+  let isFullscreen;
+  if (separatePresentationWindow) {
+    isFullscreen = FullscreenService.isFullScreen(presentationWindow.document.documentElement);
+  } else {
+    isFullscreen = !!currentElement;
+  }
 
   return (
     <FullscreenButtonContainer
