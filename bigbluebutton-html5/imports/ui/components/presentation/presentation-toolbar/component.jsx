@@ -112,7 +112,7 @@ class PresentationToolbar extends PureComponent {
   switchSlide(event) {
     const { target, which } = event;
     const isBody = target.nodeName === 'BODY';
-    const { fullscreenRef } = this.props;
+    const { fullscreenRef, presentationWindow } = this.props;
 
     if (isBody) {
       switch (which) {
@@ -125,7 +125,7 @@ class PresentationToolbar extends PureComponent {
           this.nextSlideHandler();
           break;
         case KEY_CODES.ENTER:
-          FullscreenService.toggleFullScreen(fullscreenRef);
+          FullscreenService.toggleFullScreen(presentationWindow ? presentationWindow.document.documentElement : fullscreenRef);
           break;
         default:
       }
