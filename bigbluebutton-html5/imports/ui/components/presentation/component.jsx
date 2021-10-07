@@ -341,6 +341,11 @@ class PresentationArea extends PureComponent {
     });
 
     win.addEventListener('fullscreenchange', () => {
+      const { isFullscreen } = this.state;
+      const newIsFullscreen = FullscreenService.isFullScreen(presentationWindow.document.documentElement);
+      if (isFullscreen !== newIsFullscreen) {
+        this.setState({ isFullscreen: newIsFullscreen });
+      }
       this.setState({
         presentationAreaWidth: win.innerWidth,
         presentationAreaHeight: win.innerHeight - toolbarHeight,
