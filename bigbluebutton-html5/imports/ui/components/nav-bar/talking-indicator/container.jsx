@@ -12,6 +12,7 @@ import LayoutContext from '../../layout/context';
 const APP_CONFIG = Meteor.settings.public.app;
 const { enableTalkingIndicator } = APP_CONFIG;
 const TALKING_INDICATOR_MUTE_INTERVAL = 500;
+const TALKING_INDICATORS_MAX = 16;
 
 const TalkingIndicatorContainer = (props) => {
   if (!enableTalkingIndicator) return null;
@@ -53,7 +54,11 @@ export default withTracker(() => {
   }).fetch().sort(Service.sortVoiceUsers);
 
   if (usersTalking) {
-    for (let i = 0; i < usersTalking.length; i += 1) {
+    const max = usersTalking.length < TALKING_INDICATORS_MAX
+      ? usersTalking.length
+      : TALKING_INDICATORS_MAX;
+
+    for (let i = 0; i < max; i += 1) {
       const {
         callerName, talking, color, voiceUserId, muted, intId,
       } = usersTalking[i];
@@ -82,5 +87,6 @@ export default withTracker(() => {
     talkers,
     muteUser,
     isBreakoutRoom: meetingIsBreakout(),
+    moreThanMaxIndicators: usersTalking.length > TALKING_INDICATORS_MAX,
   };
 })(TalkingIndicatorContainer);

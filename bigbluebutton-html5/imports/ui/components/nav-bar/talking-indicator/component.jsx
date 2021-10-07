@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
+import Service from './service';
 
 const intlMessages = defineMessages({
   wasTalking: {
@@ -22,6 +23,10 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.muteLabel',
     description: 'indicator mute label for moderators',
   },
+  moreThanMaxIndicatorsDesc: {
+    id: 'app.talkingIndicator.moreThanMaxIndicatorsDesc',
+    description: 'indicator there are more than 16 users talking in the moment',
+  },
 });
 
 class TalkingIndicator extends PureComponent {
@@ -39,6 +44,7 @@ class TalkingIndicator extends PureComponent {
       amIModerator,
       sidebarNavigationIsOpen,
       sidebarContentIsOpen,
+      moreThanMaxIndicators,
     } = this.props;
     if (!talkers) return null;
 
@@ -76,8 +82,7 @@ class TalkingIndicator extends PureComponent {
           label={callerName}
           tooltipLabel={!muted && amIModerator
             ? `${intl.formatMessage(intlMessages.muteLabel)} ${callerName}`
-            : null
-          }
+            : null}
           data-test={talking ? 'isTalking' : 'wasTalking'}
           aria-label={ariaLabel}
           aria-describedby={talking ? 'description' : null}
@@ -93,16 +98,51 @@ class TalkingIndicator extends PureComponent {
             <div id="description" className={styles.hidden}>
               {`${intl.formatMessage(intlMessages.ariaMuteDesc)}`}
             </div>
-          ) : null
-          }
+          ) : null}
         </Button>
       );
     });
+
+    const maxIndicator = () => {
+      if (!moreThanMaxIndicators) return null;
+
+      const style = {
+        [styles.talker]: true,
+        [styles.spoke]: Service.everyNotTalking(talkers),
+        [styles.muted]: false,
+        [styles.mobileHide]: sidebarNavigationIsOpen
+          && sidebarContentIsOpen,
+      };
+
+      const ariaLabel = intl.formatMessage(intlMessages.moreThanMaxIndicatorsDesc, {
+        0: Object.keys(talkers).length,
+      });
+
+      return (
+        <Button
+          key={_.uniqueId('_has__More_')}
+          className={cx(style)}
+          onClick={() => {}} // maybe add a dropdown to show the rest of the users
+          label="..."
+          tooltipLabel={ariaLabel}
+          aria-label={ariaLabel}
+          color="primary"
+          icon="unmute"
+          size="sm"
+          style={{
+            backgroundColor: '#4a148c',
+            border: 'solid 2px #4a148c',
+            cursor: 'default',
+          }}
+        />
+      );
+    };
 
     return (
       <div className={styles.isTalkingWrapper}>
         <div className={styles.speaking}>
           {talkingUserElements}
+          {maxIndicator()}
         </div>
       </div>
     );
