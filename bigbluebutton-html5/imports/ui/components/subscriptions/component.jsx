@@ -69,7 +69,13 @@ export default withTracker(() => {
 
   if (currentUser) {
     subscriptionsHandlers.push(Meteor.subscribe('meetings', currentUser.role, subscriptionErrorHandler));
-    subscriptionsHandlers.push(Meteor.subscribe('users', currentUser.role, subscriptionErrorHandler));
+    subscriptionsHandlers.push(Meteor.subscribe('users', currentUser.role, {
+      ...subscriptionErrorHandler,
+      onStop: () => {
+        const event = new Event(EVENT_NAME);
+        window.dispatchEvent(event);
+      },
+    }));
     subscriptionsHandlers.push(Meteor.subscribe('breakouts', currentUser.role, subscriptionErrorHandler));
     subscriptionsHandlers.push(Meteor.subscribe('guestUser', currentUser.role, subscriptionErrorHandler));
   }
@@ -110,10 +116,6 @@ export default withTracker(() => {
 
     const subHandler = {
       ...subscriptionErrorHandler,
-      onStop: () => {
-        const event = new Event(EVENT_NAME);
-        window.dispatchEvent(event);
-      },
     };
 
     groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatIds, subHandler);
