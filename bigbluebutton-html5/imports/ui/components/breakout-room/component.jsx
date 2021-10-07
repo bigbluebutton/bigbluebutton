@@ -43,17 +43,13 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.returnAudio',
     description: 'label for option to return audio',
   },
-  generateURL: {
-    id: 'app.createBreakoutRoom.generateURL',
+  askToJoin: {
+    id: 'app.createBreakoutRoom.askToJoin',
     description: 'label for generate breakout room url',
   },
   generatingURL: {
     id: 'app.createBreakoutRoom.generatingURL',
     description: 'label for generating breakout room url',
-  },
-  generatedURL: {
-    id: 'app.createBreakoutRoom.generatedURL',
-    description: 'label for generated breakout room url',
   },
   endAllBreakouts: {
     id: 'app.createBreakoutRoom.endAllBreakouts',
@@ -192,14 +188,14 @@ class BreakoutRoom extends PureComponent {
     const breakoutRoomUrlData = getBreakoutRoomUrl(breakoutId);
 
     if (generated && requestedBreakoutId === breakoutId) {
-      return intl.formatMessage(intlMessages.generatedURL);
+      return intl.formatMessage(intlMessages.breakoutJoin);
     }
 
     if (breakoutRoomUrlData) {
       return intl.formatMessage(intlMessages.breakoutJoin);
     }
 
-    return intl.formatMessage(intlMessages.generateURL);
+    return intl.formatMessage(intlMessages.askToJoin);
   }
 
   clearJoinedAudioOnly() {
