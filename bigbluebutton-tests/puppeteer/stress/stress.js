@@ -2,7 +2,6 @@ const Page = require('../core/page');
 const e = require('../core/elements');
 const c = require('../core/constants');
 const util = require('./util');
-const { checkElementLengthEqualTo } = require('../core/util');
 
 class Stress extends Page {
   constructor() {
@@ -18,7 +17,7 @@ class Stress extends Page {
         await this.waitForSelector(e.userAvatar);
         const hasPresenterClass = await this.page.evaluate(util.checkIncludeClass, e.userAvatar, e.presenterClassName);
         await this.waitAndClick(e.actions);
-        const canStartPoll = await this.page.evaluate(checkElementLengthEqualTo, e.polling, 1);
+        const canStartPoll = await this.hasElement(e.polling);
         if (!hasPresenterClass || !canStartPoll) {
           failureCount++;
           await this.screenshot(testName, `loop-${i}-failure-${testName}`);

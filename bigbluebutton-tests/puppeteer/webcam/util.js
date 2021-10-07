@@ -1,6 +1,6 @@
 const e = require('../core/elements');
 const { sleep } = require('../core/helper');
-const { checkElement, checkElementLengthDifferentTo } = require('../core/util');
+const { checkElement } = require('../core/util');
 const {
   LOOP_INTERVAL,
   ELEMENT_WAIT_LONGER_TIME,

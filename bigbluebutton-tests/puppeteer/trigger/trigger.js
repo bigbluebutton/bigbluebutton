@@ -3,7 +3,6 @@ const { exec } = require("child_process");
 const { CLIENT_RECONNECTION_TIMEOUT } = require('../core/constants'); // core constants (Timeouts vars imported)
 const { sleep } = require('../core/helper');
 const e = require('../core/elements');
-const { checkElementLengthDifferentTo } = require('../core/util');
 
 class Trigger extends Page {
   constructor() {
@@ -30,7 +29,7 @@ class Trigger extends Page {
       await sleep(3000);
       await this.screenshot(`${testName}`, `03-after-meteor-reconnection-[${this.meetingId}]`);
 
-      const findUnauthorized = await this.page.evaluate(checkElementLengthDifferentTo, e.unauthorized, 0) === true;
+      const findUnauthorized = await this.hasElement(e.unauthorized);
       await this.logger('Check if Unauthorized message appears => ', findUnauthorized);
       return meteorStatusConfirm && getAudioButton && findUnauthorized;
     } catch (err) {
@@ -84,7 +83,7 @@ class Trigger extends Page {
       }, e.joinAudio)
       await this.logger('Check if Connections Buttons are disabled => ', getAudioButton);
       await sleep(3000);
-      const findUnauthorized = await this.page.evaluate(checkElementLengthDifferentTo, e.unauthorized, 0) === true;
+      const findUnauthorized = await this.hasElement(e.unauthorized);
       await this.logger('Check if Unauthorized message appears => ', findUnauthorized);
       return meteorStatusConfirm && getAudioButton && findUnauthorized;
     } catch (err) {

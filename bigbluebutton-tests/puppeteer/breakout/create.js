@@ -1,6 +1,5 @@
 const Page = require('../core/page');
 const e = require('../core/elements');
-const { checkElement } = require('../core/util');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 class Create {
@@ -62,7 +61,7 @@ class Create {
   // Check if Breakoutrooms have been created
   async testCreatedBreakout(testName) {
     try {
-      const resp = await this.modPage1.page.evaluate(checkElement, e.breakoutRoomsItem);
+      const resp = await this.modPage1.hasElement(e.breakoutRoomsItem);
       if (resp === true) {
         await this.modPage1.screenshot(`${testName}`, `05-page01-success-${testName}`);
 
