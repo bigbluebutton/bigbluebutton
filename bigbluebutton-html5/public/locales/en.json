@@ -593,6 +593,7 @@
     "app.guest.guestWait": "Please wait for a moderator to approve you joining the meeting.",
     "app.guest.guestDeny": "Guest denied of joining the meeting.",
     "app.guest.seatWait": "Guest waiting for a seat in the meeting.",
+    "app.guest.validationError": "Meeting is not running. You are being redirected.",
     "app.userList.guest.waitingUsers": "Waiting Users",
     "app.userList.guest.waitingUsersTitle": "User Management",
     "app.userList.guest.optionTitle": "Review Pending Users",
