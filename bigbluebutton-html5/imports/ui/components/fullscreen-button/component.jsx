@@ -21,14 +21,14 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  fullscreenRef: PropTypes.instanceOf(Element),
   dark: PropTypes.bool,
   bottom: PropTypes.bool,
   isIphone: PropTypes.bool,
   isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
   className: PropTypes.string,
-  handleToggleFullScreen: PropTypes.func.isRequired,
+  color: PropTypes.string,
+  fullScreenStyle: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -38,7 +38,8 @@ const defaultProps = {
   isFullscreen: false,
   elementName: '',
   className: '',
-  fullscreenRef: null,
+  color: 'default',
+  fullScreenStyle: true,
 };
 
 const FullscreenButtonComponent = ({
@@ -49,14 +50,13 @@ const FullscreenButtonComponent = ({
   elementId,
   elementGroup,
   className,
-  fullscreenRef,
-  handleToggleFullScreen,
   isIphone,
   isFullscreen,
-  layoutManagerLoaded,
-  newLayoutContextDispatch,
+  layoutContextDispatch,
   currentElement,
   currentGroup,
+  color,
+  fullScreenStyle,
 }) => {
   if (isIphone) return null;
 
@@ -80,32 +80,34 @@ const FullscreenButtonComponent = ({
   });
 
   const handleClick = () => {
-    if (layoutManagerLoaded === 'legacy') {
-      handleToggleFullScreen(fullscreenRef);
-    } else {
-      const newElement = (elementId === currentElement) ? '' : elementId;
-      const newGroup = (elementGroup === currentGroup) ? '' : elementGroup;
+    const newElement = (elementId === currentElement) ? '' : elementId;
+    const newGroup = (elementGroup === currentGroup) ? '' : elementGroup;
 
-      newLayoutContextDispatch({
-        type: ACTIONS.SET_FULLSCREEN_ELEMENT,
-        value: {
-          element: newElement,
-          group: newGroup,
-        },
-      });
-    }
+    layoutContextDispatch({
+      type: ACTIONS.SET_FULLSCREEN_ELEMENT,
+      value: {
+        element: newElement,
+        group: newGroup,
+      },
+    });
   };
+
+  const buttonClassName = cx({
+    [styles.button]: fullScreenStyle,
+    [styles.fullScreenButton]: fullScreenStyle,
+    [className]: true,
+  });
 
   return (
     <div className={wrapperClassName}>
       <Button
-        color="default"
+        color={color || 'default'}
         icon={!isFullscreen ? 'fullscreen' : 'exit_fullscreen'}
         size="sm"
         onClick={() => handleClick()}
         label={formattedLabel(isFullscreen)}
         hideLabel
-        className={cx(styles.button, styles.fullScreenButton, className)}
+        className={buttonClassName}
         data-test="presentationFullscreenButton"
       />
     </div>

@@ -4,14 +4,13 @@ import AudioService from '/imports/ui/components/audio/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import BreakoutComponent from './component';
 import Service from './service';
-import { NLayoutContext } from '../layout/context/context';
+import LayoutContext from '../layout/context';
 
 const BreakoutContainer = (props) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextDispatch } = newLayoutContext;
-  return <BreakoutComponent {...{ newLayoutContextDispatch, ...props }} />;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextDispatch } = layoutContext;
+  return <BreakoutComponent {...{ layoutContextDispatch, ...props }} />;
 };
-
 
 export default withTracker((props) => {
   const {
@@ -20,7 +19,7 @@ export default withTracker((props) => {
     extendBreakoutsTime,
     isExtendTimeHigherThanMeetingRemaining,
     findBreakouts,
-    breakoutRoomUser,
+    getBreakoutRoomUrl,
     transferUserToMeeting,
     transferToBreakout,
     meetingId,
@@ -44,7 +43,7 @@ export default withTracker((props) => {
     requestJoinURL,
     extendBreakoutsTime,
     isExtendTimeHigherThanMeetingRemaining,
-    breakoutRoomUser,
+    getBreakoutRoomUrl,
     transferUserToMeeting,
     transferToBreakout,
     isMicrophoneUser,

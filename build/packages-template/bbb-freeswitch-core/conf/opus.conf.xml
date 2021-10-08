@@ -1,0 +1,12 @@
+<configuration name="opus.conf">
+      <settings>
+        <param name="use-vbr" value="1"/>
+        <param name="use-dtx" value="0"/>
+	<param name="complexity" value="5"/>
+
+        <param name="packet-loss-percent" value="15"/>
+        <param name="keep-fec-enabled" value="1"/>
+        <param name="use-jb-lookahead" value="1"/>
+        <param name="advertise-useinbandfec" value="1"/>
+      </settings>
+</configuration>

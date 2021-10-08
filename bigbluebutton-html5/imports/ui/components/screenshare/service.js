@@ -13,6 +13,14 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
 
+/**
+ * Screenshare status to be filtered in getStats()
+ */
+const FILTER_SCREENSHARE_STATS = [
+  'outbound-rtp',
+  'inbound-rtp',
+];
+
 let _isSharingScreen = false;
 const _sharingScreenDep = {
   value: false,
@@ -135,6 +143,41 @@ const screenShareEndAlert = () => AudioService
 
 const dataSavingSetting = () => Settings.dataSaving.viewScreenshare;
 
+/**
+   * Get stats about all active screenshare peer.
+   * We filter the status based on FILTER_SCREENSHARE_STATS constant.
+   *
+   * For more information see:
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
+   * and
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
+   * @returns An Object containing the information about each active peer
+   *          (currently one, for screenshare). The returned format
+   *          follows the format returned by video's service getStats, which
+   *          considers more than one peer connection to be returned.
+   *          The format is given by:
+   *          {
+   *            peerIdString: RTCStatsReport
+   *          }
+   */
+const getStats = async () => {
+  const peer = KurentoBridge.getPeerConnection();
+
+  if (!peer) return null;
+
+  const peerStats = await peer.getStats();
+
+  const screenshareStats = {};
+
+  peerStats.forEach((stat) => {
+    if (FILTER_SCREENSHARE_STATS.includes(stat.type)) {
+      screenshareStats[stat.type] = stat;
+    }
+  });
+
+  return { screenshareStats };
+};
+
 export {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
   isVideoBroadcasting,
@@ -148,4 +191,5 @@ export {
   getMediaElement,
   attachLocalPreviewStream,
   isGloballyBroadcasting,
+  getStats,
 };

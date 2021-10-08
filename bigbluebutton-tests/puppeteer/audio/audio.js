@@ -3,15 +3,15 @@ const util = require('./util');
 
 class Audio extends Page {
   constructor() {
-    super('audio-test');
+    super();
   }
 
   async test() {
-    return await util.joinAudio(this);
+    return util.joinAudio(this);
   }
 
   async microphone() {
-    return await util.joinMicrophone(this);
+    return util.joinMicrophone(this);
   }
 }
 

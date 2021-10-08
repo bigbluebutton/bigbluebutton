@@ -227,9 +227,9 @@ case class DeletedRecordingSysMsgBody(recordId: String)
 /**
  * Sent from akka-apps to bbb-web to inform a summary of the meeting activities
  */
-object ActivityReportEvtMsg { val NAME = "ActivityReportEvtMsg" }
-case class ActivityReportEvtMsg(
+object LearningDashboardEvtMsg { val NAME = "LearningDashboardEvtMsg" }
+case class LearningDashboardEvtMsg(
     header: BbbCoreHeaderWithMeetingId,
-    body:   ActivityReportEvtMsgBody
+    body:   LearningDashboardEvtMsgBody
 ) extends BbbCoreMsg
-case class ActivityReportEvtMsgBody(activityJson: String)
+case class LearningDashboardEvtMsgBody(activityJson: String)

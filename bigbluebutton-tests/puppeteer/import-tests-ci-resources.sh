@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-testDir=$PWD/tests/puppeteer/;
+testDir=$PWD/bigbluebutton-tests/puppeteer/;
 
 echo "Cloning bbb-ci-tests-resources repo...";
 git clone https://github.com/bigbluebutton/bbb-ci-test-resources.git;

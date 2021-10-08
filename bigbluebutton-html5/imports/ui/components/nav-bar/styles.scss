@@ -128,8 +128,19 @@
   z-index: 99;
 }
 
+.offsetTop {
+  :global(.MuiPaper-root) {
+    top: 4rem !important;
+    bottom: auto !important;
+  }
+}
+
 .hideDropdownButton {
   @include mq($small-only) {
     display: none;
   }
+}
+
+.leaveMeetingButton {
+  color: var(--color-danger) !important;
 }

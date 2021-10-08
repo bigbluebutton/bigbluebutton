@@ -8,14 +8,14 @@ import { Session } from 'meteor/session';
 import Service from './service';
 import Auth from '/imports/ui/services/auth';
 import { UsersContext } from '../components-data/users-context/context';
-import { NLayoutContext } from '../layout/context/context';
+import LayoutContext from '../layout/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
 const PollContainer = ({ ...props }) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextDispatch } = newLayoutContext;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextDispatch } = layoutContext;
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
 
@@ -25,7 +25,7 @@ const PollContainer = ({ ...props }) => {
     usernames[user.userId] = { userId: user.userId, name: user.name };
   });
 
-  return <Poll {...{ newLayoutContextDispatch, ...props }} usernames={usernames} />;
+  return <Poll {...{ layoutContextDispatch, ...props }} usernames={usernames} />;
 };
 
 export default withTracker(() => {

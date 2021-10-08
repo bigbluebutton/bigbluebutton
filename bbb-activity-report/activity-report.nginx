@@ -1,5 +1,0 @@
-location /activity-report/ {
-    alias /var/bigbluebutton/activity-report/;
-    autoindex off;
-}
-

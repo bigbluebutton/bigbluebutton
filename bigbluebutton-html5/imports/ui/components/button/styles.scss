@@ -34,6 +34,10 @@
   --btn-offline-bg: var(--color-offline);
   --btn-offline-border: var(--color-offline);
 
+  --btn-muted-color: var(--color-muted);
+  --btn-muted-bg: var(--color-muted-background);
+  --btn-muted-border: var(--color-muted-background);
+
   --btn-border-size: var(--border-size);
   --btn-border-radius: var(--border-radius);
   --btn-font-weight: 600;
@@ -219,7 +223,7 @@
   height: 100%;
   top: 0;
   left: 0;
-  z-index: 1;
+  z-index: 0;
 }
 
 .emojiButton {
@@ -232,6 +236,7 @@
   background-color: var(--btn-default-bg);
   overflow: hidden;
   z-index: 2;
+  border: none;
 
   &:hover {
     transform: scale(1.5);
@@ -324,6 +329,10 @@
   @include button-variant(var(--btn-offline-color), var(--btn-offline-bg), var(--btn-offline-border));
 }
 
+.muted {
+  @include button-variant(var(--btn-muted-color), var(--btn-muted-bg), var(--btn-muted-border));
+}
+
 /* Styles
  * ==========
  */
@@ -360,6 +369,10 @@
 
   &.offline {
     @include button-ghost-variant(var(--btn-offline-bg), var(--btn-offline-color));
+  }
+
+  &.muted {
+    @include button-ghost-variant(var(--btn-muted-bg), var(--btn-muted-color));
   }
 }
 

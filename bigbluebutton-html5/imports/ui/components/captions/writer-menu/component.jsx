@@ -70,22 +70,28 @@ class WriterMenu extends PureComponent {
     this.handleStart = this.handleStart.bind(this);
   }
 
+  componentWillUnmount() {
+    const { closeModal } = this.props;
+
+    closeModal();
+  }
+
   handleChange(event) {
     this.setState({ locale: event.target.value });
   }
 
   handleStart() {
-    const { closeModal, takeOwnership, newLayoutContextDispatch } = this.props;
+    const { closeModal, takeOwnership, layoutContextDispatch } = this.props;
     const { locale } = this.state;
 
     takeOwnership(locale);
     Session.set('captionsLocale', locale);
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
       value: true,
     });
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
       value: PANELS.CAPTIONS,
     });
@@ -116,9 +122,10 @@ class WriterMenu extends PureComponent {
           </h3>
         </header>
         <div className={styles.content}>
-          <label>
+          <span>
             {intl.formatMessage(intlMessages.subtitle)}
-          </label>
+          </span>
+          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
           <label
             aria-hidden
             htmlFor="captionsLangSelector"

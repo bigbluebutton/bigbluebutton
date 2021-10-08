@@ -19,7 +19,7 @@ public class Enter implements Request<Enter.Params> {
 
     @NotNull(message = "You must provide a session token")
     @UserSessionConstraint
-    @MaxParticipantsConstraint
+    //@MaxParticipantsConstraint
     @GuestPolicyConstraint
     private String sessionToken;
 

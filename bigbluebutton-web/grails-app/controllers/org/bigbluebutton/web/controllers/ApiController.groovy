@@ -367,6 +367,11 @@ class ApiController {
     if (guestStatusVal.equals(GuestPolicy.WAIT)) {
       String guestWaitUrl = paramsProcessorUtil.getDefaultGuestWaitURL();
       destUrl = guestWaitUrl + "?sessionToken=" + sessionToken
+      // Check if the user has her/his default locale overridden by an userdata
+      String customLocale = userCustomData.get("bbb_override_default_locale")
+      if (customLocale != null) {
+        destUrl += "&locale=" + customLocale
+      }
       msgKey = "guestWait"
       msgValue = "Guest waiting for approval to join meeting."
     } else if (guestStatusVal.equals(GuestPolicy.DENY)) {
@@ -735,12 +740,14 @@ class ApiController {
       case GuestPolicy.ALLOW:
         // IF the user was allowed to join but there is no room available in
         // the meeting we must hold his approval
-        meetingService.guestIsWaiting(us.meetingID, us.internalUserId)
-        destURL = guestURL
-        msgKey = "seatWait"
-        msgValue = "Guest waiting for a seat in the meeting."
-        redirectClient = false
-        status = GuestPolicy.WAIT
+        if (hasReachedMaxParticipants(meeting, us)) {
+          meetingService.guestIsWaiting(us.meetingID, us.internalUserId)
+          destURL = guestURL
+          msgKey = "seatWait"
+          msgValue = "Guest waiting for a seat in the meeting."
+          redirectClient = false
+          status = GuestPolicy.WAIT
+        }
         break
       default:
         break
@@ -799,10 +806,16 @@ class ApiController {
       sessionToken = sanitizeSessionToken(params.sessionToken)
       us = getUserSession(sessionToken)
       meeting = meetingService.getMeeting(us.meetingID)
-      meeting.userEntered(us.internalUserId)
 
       if (!hasValidSession(sessionToken)) {
         reject = true;
+      } else {
+        if(hasReachedMaxParticipants(meeting, us)) {
+          reject = true
+          respMessage = "The maximum number of participants allowed for this meeting has been reached."
+        } else {
+          meeting.userEntered(us.internalUserId)
+        }
       }
     }
 

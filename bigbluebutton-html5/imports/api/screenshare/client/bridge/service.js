@@ -3,11 +3,13 @@ import logger from '/imports/startup/client/logger';
 import { fetchWebRTCMappedStunTurnServers, getMappedFallbackStun } from '/imports/utils/fetchStunTurnServers';
 import loadAndPlayMediaStream from '/imports/ui/services/bbb-webrtc-sfu/load-play';
 import { SCREENSHARING_ERRORS } from './errors';
+import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 
 const {
   constraints: GDM_CONSTRAINTS,
   mediaTimeouts: MEDIA_TIMEOUTS,
   bitrate: BASE_BITRATE,
+  mediaServer: DEFAULT_SCREENSHARE_MEDIA_SERVER,
 } = Meteor.settings.public.kurento.screenshare;
 const {
   baseTimeout: BASE_MEDIA_TIMEOUT,
@@ -103,6 +105,10 @@ const getIceServers = (sessionToken) => {
   });
 }
 
+const getMediaServerAdapter = () => {
+  return getFromMeetingSettings('media-server-screenshare', DEFAULT_SCREENSHARE_MEDIA_SERVER);
+}
+
 const getNextReconnectionInterval = (oldInterval) => {
   return Math.min(
     TIMEOUT_INCREASE_FACTOR * oldInterval,
@@ -149,6 +155,7 @@ export default {
   getNextReconnectionInterval,
   streamHasAudioTrack,
   screenshareLoadAndPlayMediaStream,
+  getMediaServerAdapter,
   BASE_MEDIA_TIMEOUT,
   MAX_CONN_ATTEMPTS,
   BASE_BITRATE,

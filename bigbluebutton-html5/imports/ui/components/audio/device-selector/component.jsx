@@ -35,7 +35,7 @@ class DeviceSelector extends Component {
   componentDidMount() {
     const { kind } = this.props;
     const handleEnumerateDevicesSuccess = (deviceInfos) => {
-      const devices = deviceInfos.filter(d => d.kind === kind);
+      const devices = deviceInfos.filter((d) => d.kind === kind);
       logger.info({
         logCode: 'audiodeviceselector_component_enumeratedevices_success',
         extraInfo: {
@@ -56,7 +56,7 @@ class DeviceSelector extends Component {
     navigator.mediaDevices
       .enumerateDevices()
       .then(handleEnumerateDevicesSuccess)
-      .catch((err) => {
+      .catch(() => {
         logger.error({
           logCode: 'audiodeviceselector_component_enumeratedevices_error',
           extraInfo: {
@@ -71,7 +71,7 @@ class DeviceSelector extends Component {
     const { onChange } = this.props;
     const { devices } = this.state;
     this.setState({ value }, () => {
-      const selectedDevice = devices.find(d => d.deviceId === value);
+      const selectedDevice = devices.find((d) => d.deviceId === value);
       onChange(selectedDevice.deviceId, selectedDevice, event);
     });
   }
@@ -84,6 +84,14 @@ class DeviceSelector extends Component {
     const { options, value } = this.state;
     const { isSafari } = browserInfo;
 
+    let notFoundOption;
+
+    if (kind === 'audiooutput' && isSafari) {
+      notFoundOption = <option value="not-found">Default</option>;
+    } else {
+      notFoundOption = <option value="not-found">{`no ${kind} found`}</option>;
+    }
+
     return (
       <select
         {...props}
@@ -94,7 +102,7 @@ class DeviceSelector extends Component {
       >
         {
           options.length
-            ? options.map(option => (
+            ? options.map((option) => (
               <option
                 key={option.key}
                 value={option.value}
@@ -102,11 +110,7 @@ class DeviceSelector extends Component {
                 {option.label}
               </option>
             ))
-            : (
-              (kind === 'audiooutput' && isSafari)
-                ? <option value="not-found">Default</option>
-                : <option value="not-found">{`no ${kind} found`}</option>
-            )
+            : notFoundOption
         }
       </select>
     );

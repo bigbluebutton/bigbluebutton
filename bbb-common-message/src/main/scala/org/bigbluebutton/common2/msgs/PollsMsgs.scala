@@ -30,7 +30,6 @@ object UserRespondedToPollRecordMsg { val NAME = "UserRespondedToPollRecordMsg" 
 case class UserRespondedToPollRecordMsg(header: BbbClientMsgHeader, body: UserRespondedToPollRecordMsgBody) extends BbbCoreMsg
 case class UserRespondedToPollRecordMsgBody(pollId: String, answerId: Int, answer: String, isSecret: Boolean)
 
-
 object RespondToPollReqMsg { val NAME = "RespondToPollReqMsg" }
 case class RespondToPollReqMsg(header: BbbClientMsgHeader, body: RespondToPollReqMsgBody) extends StandardMsg
 case class RespondToPollReqMsgBody(requesterId: String, pollId: String, questionId: Int, answerId: Int)

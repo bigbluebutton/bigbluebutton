@@ -5,12 +5,12 @@ import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UserListItem from './component';
 import UserListService from '/imports/ui/components/user-list/service';
-import { NLayoutContext } from '../../../../layout/context/context';
+import LayoutContext from '../../../../layout/context';
 
 const UserListItemContainer = (props) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextDispatch } = newLayoutContext;
-  return <UserListItem {...{ newLayoutContextDispatch, ...props }} />;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextDispatch } = layoutContext;
+  return <UserListItem {...{ layoutContextDispatch, ...props }} />;
 };
 const isMe = (intId) => intId === Auth.userID;
 

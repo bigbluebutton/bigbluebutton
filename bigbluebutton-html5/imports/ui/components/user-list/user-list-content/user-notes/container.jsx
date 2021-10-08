@@ -3,15 +3,15 @@ import { withTracker } from 'meteor/react-meteor-data';
 import NoteService from '/imports/ui/components/note/service';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import UserNotes from './component';
-import { NLayoutContext } from '../../../layout/context/context';
+import LayoutContext from '../../../layout/context';
 
 const UserNotesContainer = (props) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { input } = newLayoutContextState;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
+  const { input } = layoutContextState;
   const { sidebarContent } = input;
   const { sidebarContentPanel } = sidebarContent;
-  return <UserNotes {...{ newLayoutContextDispatch, sidebarContentPanel, ...props }} />;
+  return <UserNotes {...{ layoutContextDispatch, sidebarContentPanel, ...props }} />;
 };
 
 export default lockContextContainer(withTracker(({ userLocks }) => {

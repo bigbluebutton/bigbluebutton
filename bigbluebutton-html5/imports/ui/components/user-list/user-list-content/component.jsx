@@ -47,7 +47,7 @@ class UserContent extends PureComponent {
       requestUserInformation,
       currentClosedChats,
       sidebarContentPanel,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
       startedChats,
     } = this.props;
 
@@ -89,7 +89,7 @@ class UserContent extends PureComponent {
                 intl,
                 pendingUsers,
                 sidebarContentPanel,
-                newLayoutContextDispatch,
+                layoutContextDispatch,
               }}
             />
           ) : null}
@@ -99,7 +99,7 @@ class UserContent extends PureComponent {
             pollIsOpen,
             forcePollOpen,
             sidebarContentPanel,
-            newLayoutContextDispatch,
+            layoutContextDispatch,
           }}
         />
         <BreakoutRoomItem
@@ -107,7 +107,7 @@ class UserContent extends PureComponent {
           {...{
             hasBreakoutRoom,
             sidebarContentPanel,
-            newLayoutContextDispatch,
+            layoutContextDispatch,
           }}
         />
         <UserParticipantsContainer

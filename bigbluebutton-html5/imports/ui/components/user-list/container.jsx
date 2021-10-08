@@ -13,14 +13,12 @@ const propTypes = {
   requestUserInformation: PropTypes.func.isRequired,
 };
 
-const UserListContainer = props => <UserList {...props} />;
+const UserListContainer = (props) => <UserList {...props} />;
 
 UserListContainer.propTypes = propTypes;
 
-export default withTracker(({ compact }) => {
-  const layoutManagerLoaded = Session.get('layoutManagerLoaded');
-
-  return {
+export default withTracker(({ compact }) => (
+  {
     hasBreakoutRoom: Service.hasBreakoutRoom(),
     isPublicChat: Service.isPublicChat,
     setEmojiStatus: Service.setEmojiStatus,
@@ -36,6 +34,5 @@ export default withTracker(({ compact }) => {
     hasPrivateChatBetweenUsers: Service.hasPrivateChatBetweenUsers,
     toggleUserLock: Service.toggleUserLock,
     requestUserInformation: Service.requestUserInformation,
-    layoutManagerLoaded,
-  };
-})(UserListContainer);
+  }
+))(UserListContainer);

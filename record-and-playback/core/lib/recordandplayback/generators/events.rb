@@ -21,13 +21,14 @@
 
 
 require 'rubygems'
+require 'time'
 require 'nokogiri'
 require 'loofah'
 require 'set'
 
 module BigBlueButton
   module Events
-  
+
     # Get the total number of participants
     def self.get_num_participants(events)
       participants_ids = Set.new
@@ -75,31 +76,31 @@ module BigBlueButton
       external_meeting_id = metadata['meetingId'] if !metadata['meetingId'].nil?
       external_meeting_id
     end
-    
+
     # Get the timestamp of the first event.
     def self.first_event_timestamp(events)
       first_event = events.at_xpath('/recording/event[position() = 1]')
       first_event['timestamp'].to_i if first_event && first_event.key?('timestamp')
     end
-    
+
     # Get the timestamp of the last event.
     def self.last_event_timestamp(events)
       last_event = events.at_xpath('/recording/event[position() = last()]')
       last_event['timestamp'].to_i if last_event && last_event.key?('timestamp')
-    end  
-    
+    end
+
     # Determine if the start and stop event matched.
-    def self.find_video_event_matched(start_events, stop)      
+    def self.find_video_event_matched(start_events, stop)
       BigBlueButton.logger.info("Task: Finding video events that match")
       start_events.each do |start|
         if (start[:stream] == stop[:stream])
           return start
-        end      
+        end
       end
       return nil
     end
-    
-    # Get start video events  
+
+    # Get start video events
     def self.get_start_video_events(events)
       start_events = []
       events.xpath("/recording/event[@eventname='StartWebcamShareEvent']").each do |start_event|
@@ -235,7 +236,7 @@ module BigBlueButton
     end
 
     def self.get_stop_deskshare_events(events)
-      BigBlueButton.logger.info("Task: Getting stop DESKSHARE events")      
+      BigBlueButton.logger.info("Task: Getting stop DESKSHARE events")
       stop_events = []
       events.xpath('/recording/event[@module="Deskshare" or (@module="bbb-webrtc-sfu" and @eventname="StopWebRTCDesktopShareEvent")]').each do |stop_event|
         case stop_event['eventname']
@@ -476,10 +477,132 @@ module BigBlueButton
       node['href'] = node['href'][6..-1] if node.name == 'a' && node['href'] && node['href'].start_with?('event:')
     end
 
-    def self.linkify( text )
+    def self.linkify(text)
       html = Loofah.fragment(text)
       html.scrub!(@remove_link_event_prefix).scrub!(:strip).scrub!(:nofollow).scrub!(:unprintable)
       html.to_html
+    end
+
+    # Build a map of internal user IDs to anonymized names. This can be used to anonymize users in
+    # chat, cursor overlays, etc.
+    def self.anonymous_user_map(events, moderators: false)
+      viewer_count = 0
+      moderator_count = 0
+
+      external_map = {}
+      map = {}
+
+      events.xpath('/recording/event[@module="PARTICIPANT" and @eventname="ParticipantJoinEvent"]').each do |event|
+        internal_id = event.at_xpath('./userId')&.content
+        next if internal_id.nil?
+
+        external_id = event.at_xpath('./externalUserId')&.content || internal_id
+        name = external_map.fetch(external_id) do
+          role = event.at_xpath('./role').content
+          new_name = \
+            if role == 'MODERATOR' && moderators
+              moderator_count += 1
+              "Moderator #{moderator_count}"
+            elsif role == 'MODERATOR'
+              event.at_xpath('./name')&.content
+            else
+              viewer_count += 1
+              "Viewer #{viewer_count}"
+            end
+          external_map[external_id] = new_name unless new_name.nil?
+        end
+        map[internal_id] = name unless name.nil?
+      end
+
+      map
+    end
+
+    # Get a list of chat events, with start/end time for segments and recording marks applied.
+    # Optionally anonymizes chat participant names.
+    # Reads the keys 'anonymize_chat' and 'anonymize_chat_moderators' from bbb_props, but allows
+    # per-meeting override using the create meta params 'meta_bbb-anonymize-chat' and
+    # 'meta_bbb-anonymize-chat-moderators'
+    # Each event in the return value has the following properties:
+    #   in: 0-based milliseconds timestamp of when chat was sent
+    #   out: 0-based milliseconds timestamp of when chat was cleared (or nil if chat was never cleared)
+    #   sender_id: The internal user id of the sender (can be nil on really old BBB versions)
+    #   sender: The display name of the sender
+    #   message: The chat message, with link cleanup already applied
+    #   date: The real time of when the message was sent (if available) as a DateTime
+    #   text_color: The RGB color value of the chat message text as an integer (old BBB versions only)
+    #   avatar_color: The color of the user's avatar (initials) box (newer BBB versions only)
+    def self.get_chat_events(events, start_time, end_time, bbb_props = {})
+      BigBlueButton.logger.info('Getting chat events')
+
+      initial_timestamp = first_event_timestamp(events)
+      start_time -= initial_timestamp
+      end_time -= initial_timestamp
+
+      last_stop_timestamp = start_time
+      offset = start_time
+      # Recordings without status events are assumed to have been recorded from the beginning
+      record = events.at_xpath('/recording/event[@eventname="RecordStatusEvent"]').nil?
+
+      # Load the anonymize settings; defaults from bigbluebutton.yml, override with meta params
+      metadata = events.at_xpath('/recording/metadata')
+      anonymize_senders = metadata['bbb-anonymize-chat'] unless metadata.nil?
+      anonymize_senders = bbb_props['anonymize_chat'] if anonymize_senders.nil?
+      anonymize_senders = anonymize_senders.to_s.casecmp?('true')
+      anonymize_moderators = metadata['bbb-anonymize-chat-moderators'] unless metadata.nil?
+      anonymize_moderators = bbb_props['anonymize_chat_moderators'] if anonymize_moderators.nil?
+      anonymize_moderators = anonymize_moderators.to_s.casecmp?('true')
+
+      user_map = anonymize_senders ? anonymous_user_map(events, moderators: anonymize_moderators) : {}
+
+      chats = []
+      events.xpath('/recording/event').each do |event|
+        timestamp = event[:timestamp].to_i - initial_timestamp
+        break if timestamp >= end_time
+
+        case [event[:module], event[:eventname]]
+        when %w[CHAT PublicChatEvent]
+          next if timestamp < start_time || !record
+
+          date = event.at_xpath('./date')&.content
+          date = DateTime.iso8601(date) unless date.nil?
+          sender_id = event.at_xpath('./senderId')&.content
+          color = event.at_xpath('./color')&.content
+          if color&.start_with?('#')
+            avatar_color = color
+          else
+            text_color = color.to_i
+          end
+
+          chats << {
+            in: timestamp - offset,
+            out: nil,
+            sender_id: sender_id,
+            sender: user_map.fetch(sender_id) { event.at_xpath('./sender').content },
+            message: linkify(event.at_xpath('./message').content.strip),
+            avatar_color: avatar_color,
+            text_color: text_color,
+            date: date,
+          }
+        when %w[CHAT ClearPublicChatEvent]
+          next if timestamp < start_time
+
+          clear_timestamp = (record ? timestamp : last_stop_timestamp) - offset
+          chats.each do |chat|
+            chat[:out] = clear_timestamp if chat[:out].nil?
+          end
+        when %w[PARTICIPANT RecordStatusEvent]
+          record = event.at_xpath('status').content == 'true'
+          next if timestamp < start_time
+
+          if record
+            offset += timestamp - last_stop_timestamp
+          else
+            last_stop_timestamp = timestamp
+          end
+        end
+      end
+
+      chats
     end
 
     def self.get_record_status_events(events_xml)
@@ -496,8 +619,8 @@ module BigBlueButton
       BigBlueButton.logger.info "Getting external video events"
       external_videos_events = []
       events_xml.xpath("//event[@eventname='StartExternalVideoRecordEvent']").each do |event|
-        s = { 
-          :timestamp => event['timestamp'].to_i, 
+        s = {
+          :timestamp => event['timestamp'].to_i,
           :external_video_url => event.at_xpath("externalVideoUrl").text
         }
         external_videos_events << s
@@ -523,7 +646,7 @@ module BigBlueButton
       end
       rec_events.sort_by {|a| a[:timestamp]}
     end
-    
+
     # Get events when the moderator wants the recording to start or stop
     def self.get_start_and_stop_external_video_events(events_xml)
       BigBlueButton.logger.info "Getting start and stop externalvideo events"
@@ -534,7 +657,7 @@ module BigBlueButton
       end
       external_video_events.sort_by {|a| a[:timestamp]}
     end
-    
+
     # Match recording start and stop events
     def self.match_start_and_stop_rec_events(rec_events)
       BigBlueButton.logger.info ("Matching record events")
@@ -751,8 +874,7 @@ module BigBlueButton
     end
 
     # Check if any screenshare files has audio
-    def self.screenshare_has_audio?(events_xml, deskshare_dir)
-      events = Nokogiri::XML(File.open(events_xml))
+    def self.screenshare_has_audio?(events, deskshare_dir)
       events.xpath('/recording/event[@eventname="StartWebRTCDesktopShareEvent"]').each do |event|
         filename = event.at_xpath('filename').text
         filename = "#{deskshare_dir}/#{File.basename(filename)}"

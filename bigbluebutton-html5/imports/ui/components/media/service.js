@@ -47,23 +47,30 @@ const swapLayout = {
   tracker: new Tracker.Dependency(),
 };
 
-const setSwapLayout = () => {
+const setSwapLayout = (layoutContextDispatch) => {
+  const hidePresentation = getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation);
+
   swapLayout.value = getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout);
   swapLayout.tracker.changed();
+
+  if (!hidePresentation) {
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+      value: !swapLayout.value,
+    });
+  }
 };
 
-const toggleSwapLayout = (newLayoutContextDispatch) => {
+const toggleSwapLayout = (layoutContextDispatch) => {
   window.dispatchEvent(new Event('togglePresentationHide'));
   swapLayout.value = !swapLayout.value;
   swapLayout.tracker.changed();
 
-  newLayoutContextDispatch({
+  layoutContextDispatch({
     type: ACTIONS.SET_PRESENTATION_IS_OPEN,
     value: !swapLayout.value,
   });
 };
-
-export const shouldEnableSwapLayout = () => !shouldShowScreenshare() && !shouldShowExternalVideo();
 
 export const getSwapLayout = () => {
   swapLayout.tracker.depend();
@@ -79,7 +86,6 @@ export default {
   isUserPresenter,
   isVideoBroadcasting,
   toggleSwapLayout,
-  shouldEnableSwapLayout,
   getSwapLayout,
   setSwapLayout,
 };

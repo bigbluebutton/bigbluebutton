@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
-import { NLayoutContext } from '../../layout/context/context';
+import LayoutContext from '../../layout/context';
 import PresentationArea from './component';
 
 const PresentationAreaContainer = () => {
-  const NewLayoutManager = useContext(NLayoutContext);
-  const { newLayoutContextState } = NewLayoutManager;
-  const { output } = newLayoutContextState;
+  const layoutManager = useContext(LayoutContext);
+  const { layoutContextState } = layoutManager;
+  const { output } = layoutContextState;
   const { presentation } = output;
 
   return <PresentationArea {...{ ...presentation }} />;

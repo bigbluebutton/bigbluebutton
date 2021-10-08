@@ -1,13 +1,13 @@
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { Fragment, useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
 import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
 import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
 import { styles } from './styles.scss';
-import { NLayoutContext } from '../layout/context/context';
+import LayoutContext from '../layout/context';
 import { ACTIONS } from '../layout/enums';
 
 import breakoutService from '/imports/ui/components/breakout-room/service';
@@ -76,17 +76,17 @@ const intlMessages = defineMessages({
 
 const NotificationsBarContainer = (props) => {
   const { message, color } = props;
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { input } = newLayoutContextState;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
+  const { input } = layoutContextState;
   const { notificationsBar } = input;
   const { hasNotification } = notificationsBar;
 
   useEffect(() => {
     const localHasNotification = !!message;
 
-    if(localHasNotification !== hasNotification){
-      newLayoutContextDispatch({
+    if (localHasNotification !== hasNotification) {
+      layoutContextDispatch({
         type: ACTIONS.SET_HAS_NOTIFICATIONS_BAR,
         value: localHasNotification,
       });
@@ -96,7 +96,6 @@ const NotificationsBarContainer = (props) => {
   if (_.isEmpty(message)) {
     return null;
   }
-
 
   return (
     <NotificationsBar color={color}>
@@ -153,12 +152,12 @@ export default injectIntl(withTracker(({ intl }) => {
         const sec = Math.round((retryTime - (new Date()).getTime()) / 1000);
         retryInterval = startCounter(sec, setRetrySeconds, getRetrySeconds, retryInterval);
         data.message = (
-          <Fragment>
+          <>
             {intl.formatMessage(intlMessages.waitingMessage, { 0: getRetrySeconds() })}
             <button className={styles.retryButton} type="button" onClick={reconnect}>
               {intl.formatMessage(intlMessages.retryNow)}
             </button>
-          </Fragment>
+          </>
         );
         break;
       }
@@ -172,10 +171,10 @@ export default injectIntl(withTracker(({ intl }) => {
   const meetingId = Auth.meetingID;
   const breakouts = breakoutService.getBreakouts();
 
-  const msg = { id: `${intlMessages.alertBreakoutEndsUnderMinutes.id}${REMAINING_TIME_ALERT_THRESHOLD == 1 ? 'Singular' : 'Plural'}` };
+  let msg = { id: `${intlMessages.alertBreakoutEndsUnderMinutes.id}${REMAINING_TIME_ALERT_THRESHOLD === 1 ? 'Singular' : 'Plural'}` };
 
   if (breakouts.length > 0) {
-    const currentBreakout = breakouts.find(b => b.breakoutId === meetingId);
+    const currentBreakout = breakouts.find((b) => b.breakoutId === meetingId);
 
     if (currentBreakout) {
       data.message = (
@@ -184,7 +183,7 @@ export default injectIntl(withTracker(({ intl }) => {
           messageDuration={intlMessages.breakoutTimeRemaining}
           timeEndedMessage={intlMessages.breakoutWillClose}
           alertMessage={
-            intl.formatMessage(msg, {0: REMAINING_TIME_ALERT_THRESHOLD})
+            intl.formatMessage(msg, { 0: REMAINING_TIME_ALERT_THRESHOLD })
           }
           alertUnderMinutes={REMAINING_TIME_ALERT_THRESHOLD}
         />
@@ -201,7 +200,7 @@ export default injectIntl(withTracker(({ intl }) => {
     const { isBreakout } = Meeting.meetingProp;
     const underThirtyMin = timeRemaining && timeRemaining <= (REMAINING_TIME_THRESHOLD * 60);
 
-    const msg = { id: `${intlMessages.alertMeetingEndsUnderMinutes.id}${REMAINING_TIME_ALERT_THRESHOLD == 1 ? 'Singular' : 'Plural'}` };
+    msg = { id: `${intlMessages.alertMeetingEndsUnderMinutes.id}${REMAINING_TIME_ALERT_THRESHOLD === 1 ? 'Singular' : 'Plural'}` };
 
     if (underThirtyMin && !isBreakout) {
       data.message = (
@@ -210,7 +209,7 @@ export default injectIntl(withTracker(({ intl }) => {
           messageDuration={intlMessages.meetingTimeRemaining}
           timeEndedMessage={intlMessages.meetingWillClose}
           alertMessage={
-            intl.formatMessage(msg, {0: REMAINING_TIME_ALERT_THRESHOLD})
+            intl.formatMessage(msg, { 0: REMAINING_TIME_ALERT_THRESHOLD })
           }
           alertUnderMinutes={REMAINING_TIME_ALERT_THRESHOLD}
         />

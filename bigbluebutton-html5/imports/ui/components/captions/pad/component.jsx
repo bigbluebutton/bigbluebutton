@@ -9,6 +9,7 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import { notify } from '/imports/ui/services/notification';
 import { styles } from './styles';
 import { PANELS, ACTIONS } from '../../layout/enums';
+import _ from 'lodash';
 
 const intlMessages = defineMessages({
   hide: {
@@ -50,19 +51,23 @@ const intlMessages = defineMessages({
   speechRecognitionStop: {
     id: 'app.captions.pad.speechRecognitionStop',
     description: 'Notification for stopped speech recognition',
-  },  
+  },
 });
 
 const propTypes = {
   locale: PropTypes.string.isRequired,
   ownerId: PropTypes.string.isRequired,
   currentUserId: PropTypes.string.isRequired,
-  padId: PropTypes.string.isRequired,
-  readOnlyPadId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+};
+
+const DEBOUNCE_TIMEOUT = 500;
+const DEBOUNCE_OPTIONS = {
+  leading: true,
+  trailing: false,
 };
 
 class Pad extends PureComponent {
@@ -78,34 +83,60 @@ class Pad extends PureComponent {
 
     this.state = {
       listening: false,
+      url: null,
     };
 
     const { locale, intl } = props;
     this.recognition = CaptionsService.initSpeechRecognition(locale);
 
-    this.toggleListen = this.toggleListen.bind(this);
+    this.toggleListen = _.debounce(this.toggleListen.bind(this), DEBOUNCE_TIMEOUT, DEBOUNCE_OPTIONS);
     this.handleListen = this.handleListen.bind(this);
-    
-    this.recognition.addEventListener('end', () => {
-      const { listening } = this.state;
-      if (listening) {
-        notify(intl.formatMessage(intlMessages.speechRecognitionStop), 'info', 'warning');
-        this.stopListen();
-      }
-    });
+
+    if (this.recognition) {
+      this.recognition.addEventListener('end', () => {
+        const { listening } = this.state;
+        if (listening) {
+          notify(intl.formatMessage(intlMessages.speechRecognitionStop), 'info', 'warning');
+          this.stopListen();
+        }
+      });
+    }
   }
 
-  componentDidUpdate() {
+  componentDidMount() {
+    const { locale } = this.props;
+
+    this.updatePadURL(locale);
+  }
+
+  componentDidUpdate(prevProps) {
     const {
       locale,
       ownerId,
       currentUserId,
     } = this.props;
 
+    const { listening } = this.state;
+
     if (this.recognition) {
+      if (ownerId !== currentUserId) {
+        this.recognition.stop();
+      } else if (listening && this.recognition.lang !== locale) {
+        this.recognition.stop();
+        this.stopListen();
+      }
       this.recognition.lang = locale;
-      if (ownerId !== currentUserId) this.recognition.stop();
     }
+
+    if (prevProps.ownerId !== ownerId || prevProps.locale !== locale) {
+      this.updatePadURL(locale);
+    }
+  }
+
+  updatePadURL(locale) {
+    PadService.getPadId(locale).then(response => {
+      this.setState({ url: PadService.buildPadURL(response) });
+    });
   }
 
   handleListen() {
@@ -121,7 +152,14 @@ class Pad extends PureComponent {
       // Starts and stops the recognition when listening.
       // Throws an error if start() is called on a recognition that has already been started.
       if (listening) {
-        this.recognition.start();
+        try {
+          this.recognition.start();
+        } catch (e) {
+          logger.error({
+            logCode: 'captions_recognition',
+            extraInfo: { error: e.error },
+          }, 'Captions pad error when starting the recognition');
+        }
       } else {
         this.recognition.stop();
       }
@@ -180,7 +218,7 @@ class Pad extends PureComponent {
       listening: !listening,
     }, this.handleListen);
   }
-  
+
   stopListen() {
     this.setState({ listening: false });
   }
@@ -189,15 +227,16 @@ class Pad extends PureComponent {
     const {
       locale,
       intl,
-      padId,
-      readOnlyPadId,
       ownerId,
       name,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
+      isResizing,
     } = this.props;
 
-    const { listening } = this.state;
-    const url = PadService.getPadURL(padId, readOnlyPadId, ownerId);
+    const {
+      listening,
+      url,
+    } = this.state;
 
     return (
       <div className={styles.pad}>
@@ -205,11 +244,11 @@ class Pad extends PureComponent {
           <div className={styles.title}>
             <Button
               onClick={() => {
-                newLayoutContextDispatch({
+                layoutContextDispatch({
                   type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
                   value: false,
                 });
-                newLayoutContextDispatch({
+                layoutContextDispatch({
                   type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                   value: PANELS.NONE,
                 });
@@ -266,6 +305,9 @@ class Pad extends PureComponent {
           title="etherpad"
           src={url}
           aria-describedby="padEscapeHint"
+          style={{
+            pointerEvents: isResizing ? 'none' : 'inherit',
+          }}
         />
         <span id="padEscapeHint" className={styles.hint} aria-hidden>
           {intl.formatMessage(intlMessages.tip)}

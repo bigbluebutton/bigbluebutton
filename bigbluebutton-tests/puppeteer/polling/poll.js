@@ -1,22 +1,22 @@
 const Page = require('../core/page');
-const utilNotification = require('../notifications/util');
-const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
+const e = require('../core/elements');
+const util = require('../notifications/util');
+const { checkElementLengthEqualTo } = require('../core/util');
 
 class Polling extends Page {
   constructor() {
-    super('polling-test');
+    super();
   }
 
   async test(testName) {
     try {
-      await utilNotification.startPoll(this);
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await this.screenshot(`${testName}`, `01-before-chat-message-send-[${this.meetingId}]`);
-      }
-      const resp = this.page.evaluate(() => document.querySelectorAll('[data-test="pollMenuButton"]').length === 1);
+      await util.startPoll(this);
+      await this.screenshot(`${testName}`, `01-before-chat-message-send-[${this.meetingId}]`);
+
+      const resp = this.page.evaluate(checkElementLengthEqualTo, e.pollMenuButton, 1);
       return resp;
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }

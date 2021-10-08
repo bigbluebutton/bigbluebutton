@@ -15,15 +15,15 @@ const intlMessages = defineMessages({
 const BreakoutRoomItem = ({
   hasBreakoutRoom,
   sidebarContentPanel,
-  newLayoutContextDispatch,
+  layoutContextDispatch,
   intl,
 }) => {
   const toggleBreakoutPanel = () => {
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
       value: sidebarContentPanel !== PANELS.BREAKOUT,
     });
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
       value: sidebarContentPanel === PANELS.BREAKOUT
         ? PANELS.NONE
@@ -48,6 +48,7 @@ const BreakoutRoomItem = ({
               data-test="breakoutRoomsItem"
               className={styles.listItem}
               aria-label={intl.formatMessage(intlMessages.breakoutTitle)}
+              onKeyPress={() => {}}
             >
               <Icon iconName="rooms" />
               <span aria-hidden>{intl.formatMessage(intlMessages.breakoutTitle)}</span>

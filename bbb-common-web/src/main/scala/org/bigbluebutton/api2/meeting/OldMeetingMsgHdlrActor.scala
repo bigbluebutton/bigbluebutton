@@ -45,7 +45,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: RecordingChapterBreakSysMsg       => handleRecordingChapterBreakSysMsg(m)
       case m: SetPresentationDownloadableEvtMsg => handleSetPresentationDownloadableEvtMsg(m)
       case m: RecordingStatusChangedEvtMsg      => handleRecordingStatusChangedEvtMsg(m)
-      case m: ActivityReportEvtMsg              => handleActivityReportEvtMsg(m)
+      case m: LearningDashboardEvtMsg           => handleLearningDashboardEvtMsg(m)
       case _                                    => log.error("***** Cannot handle " + msg.envelope.name)
     }
   }
@@ -181,8 +181,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
     olgMsgGW.handle(m)
   }
 
-  def handleActivityReportEvtMsg(msg: ActivityReportEvtMsg): Unit = {
-    olgMsgGW.handle(new ActivityReport(msg.header.meetingId, msg.body.activityJson))
+  def handleLearningDashboardEvtMsg(msg: LearningDashboardEvtMsg): Unit = {
+    olgMsgGW.handle(new LearningDashboard(msg.header.meetingId, msg.body.activityJson))
   }
 
 }

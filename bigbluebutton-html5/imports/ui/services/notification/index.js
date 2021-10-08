@@ -33,13 +33,13 @@ export function notify(message, type = 'default', icon, options, content, small)
       toast.update(
         lastToast.id,
         {
-          render: <Toast {...toastProps} />,
+          render: <div role="alert"><Toast {...toastProps} /></div>,
           autoClose: options.autoClose,
           ...toastProps,
         },
       );
     } else {
-      const id = toast(<Toast {...toastProps} />, settings);
+      const id = toast(<div role="alert"><Toast {...toastProps} /></div>, settings);
 
       lastToast = { id, ...toastProps };
 

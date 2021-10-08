@@ -3,14 +3,13 @@ import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import VoiceUsers from '/imports/api/voice-users/';
 import VideoListItem from './component';
-import { NLayoutContext } from '/imports/ui/components/layout/context/context';
+import LayoutContext from '/imports/ui/components/layout/context';
 
 const VideoListItemContainer = (props) => {
   const { cameraId } = props;
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { layoutLoaded: layoutManagerLoaded } = newLayoutContextState;
-  const { layoutLoaded, fullscreen } = newLayoutContextState;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
+  const { fullscreen } = layoutContextState;
   const { element } = fullscreen;
   const isFullscreenContext = (element === cameraId);
 
@@ -18,10 +17,8 @@ const VideoListItemContainer = (props) => {
     <VideoListItem
       {...props}
       {...{
-        layoutManagerLoaded,
         isFullscreenContext,
-        newLayoutContextDispatch,
-        layoutLoaded,
+        layoutContextDispatch,
       }}
     />
   );

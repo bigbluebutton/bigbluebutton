@@ -60,6 +60,9 @@ const getAudioSessionNumber = () => {
   return currItem;
 };
 
+const getCurrentAudioSessionNumber = () => {
+  return sessionStorage.getItem(AUDIO_SESSION_NUM_KEY) || '0';
+}
 
 /**
   * Get error code from SIP.js websocket messages.
@@ -95,6 +98,7 @@ class SIPSession {
     this._hangupFlag = false;
     this._reconnecting = false;
     this._currentSessionState = null;
+    this._ignoreCallState = false;
   }
 
   get inputStream() {
@@ -223,6 +227,24 @@ class SIPSession {
     this._outputDeviceId = deviceId;
   }
 
+  /**
+   * This _ignoreCallState flag is set to true when we want to ignore SIP's
+   * call state retrieved directly from FreeSWITCH ESL, when doing some checks
+   * (for example , when checking  if call stopped).
+   * We need to ignore this , for example, when moderator is in
+   * breakout audio transfer ("Join Audio" button in breakout panel): in this
+   * case , we will monitor moderator's lifecycle in audio conference by
+   * using the SIP state taken from SIP.js only (ignoring the ESL's call state).
+   * @param {boolean} value true to ignore call state, false otherwise.
+   */
+  set ignoreCallState(value) {
+    this._ignoreCallState = value;
+  }
+
+  get ignoreCallState() {
+    return this._ignoreCallState;
+  }
+
   joinAudio({
     isListenOnly,
     extension,
@@ -232,6 +254,8 @@ class SIPSession {
   }, managerCallback) {
     return new Promise((resolve, reject) => {
       const callExtension = extension ? `${extension}${this.userData.voiceBridge}` : this.userData.voiceBridge;
+
+      this.ignoreCallState = false;
 
       const callback = (message) => {
         // There will sometimes we erroneous errors put out like timeouts and improper shutdowns,
@@ -324,7 +348,8 @@ class SIPSession {
 
       const timeout = setTimeout(() => {
         trackerControl.stop();
-        logger.error({ logCode: 'sip_js_transfer_timed_out' }, 'Timeout on transferring from echo test to conference');
+        logger.warn({ logCode: 'sip_js_transfer_timed_out' },
+          'Timeout on transferring from echo test to conference');
         this.callback({
           status: this.baseCallStates.failed,
           error: 1008,
@@ -835,6 +860,7 @@ class SIPSession {
 
       let iceCompleted = false;
       let fsReady = false;
+      let sessionTerminated = false;
 
       const setupRemoteMedia = () => {
         const mediaElement = document.querySelector(MEDIA_TAG);
@@ -934,14 +960,14 @@ class SIPSession {
 
       const handleIceNegotiationFailed = (peer) => {
         if (iceCompleted) {
-          logger.error({
+          logger.warn({
             logCode: 'sipjs_ice_failed_after',
             extraInfo: {
               callerIdName: this.user.callerIdName,
             },
           }, 'ICE connection failed after success');
         } else {
-          logger.error({
+          logger.warn({
             logCode: 'sipjs_ice_failed_before',
             extraInfo: {
               callerIdName: this.user.callerIdName,
@@ -961,7 +987,7 @@ class SIPSession {
 
       const handleIceConnectionTerminated = (peer) => {
         if (!this.userRequestedHangup) {
-          logger.error({
+          logger.warn({
             logCode: 'sipjs_ice_closed',
             extraInfo: {
               callerIdName: this.user.callerIdName,
@@ -1024,7 +1050,7 @@ class SIPSession {
                       currentState: peer.connectionState,
                       callerIdName: this.user.callerIdName,
                     },
-                  }, 'ICE connection success, but user is already connected'
+                  }, 'ICE connection success, but user is already connected, '
                   + 'ignoring it...'
                   + `${peer.iceConnectionState}`);
 
@@ -1062,9 +1088,10 @@ class SIPSession {
           };
       };
 
-      const handleSessionTerminated = (message) => {
-        clearTimeout(callTimeout);
-        clearTimeout(iceNegotiationTimeout);
+      const checkIfCallStopped = (message) => {
+        if ((!this.ignoreCallState && fsReady) || !sessionTerminated) {
+          return null;
+        }
 
         if (!message && !!this.userRequestedHangup) {
           return this.callback({
@@ -1088,7 +1115,7 @@ class SIPSession {
           mappedCause = '1005';
         }
 
-        logger.error({
+        logger.warn({
           logCode: 'sip_js_call_terminated',
           extraInfo: { cause, callerIdName: this.user.callerIdName },
         }, `Audio call terminated. cause=${cause}`);
@@ -1099,6 +1126,19 @@ class SIPSession {
           bridgeError: cause,
           bridge: BRIDGE_NAME,
         });
+      }
+
+      const handleSessionTerminated = (message) => {
+        logger.info({
+          logCode: 'sip_js_session_terminated',
+          extraInfo: { callerIdName: this.user.callerIdName },
+        }, 'SIP.js session terminated');
+
+        clearTimeout(callTimeout);
+        clearTimeout(iceNegotiationTimeout);
+
+        sessionTerminated = true;
+        checkIfCallStopped();
       };
 
       currentSession.stateChange.addListener((state) => {
@@ -1117,7 +1157,7 @@ class SIPSession {
             handleSessionTerminated();
             break;
           default:
-            logger.error({
+            logger.warn({
               logCode: 'sipjs_ice_session_unknown_state',
               extraInfo: {
                 callerIdName: this.user.callerIdName,
@@ -1129,17 +1169,26 @@ class SIPSession {
       });
 
       Tracker.autorun((c) => {
-        const selector = { meetingId: Auth.meetingID, userId: Auth.userID };
+        const selector = {
+          meetingId: Auth.meetingID,
+          userId: Auth.userID,
+          clientSession: getCurrentAudioSessionNumber(),
+        };
+
         const query = VoiceCallStates.find(selector);
 
         query.observeChanges({
           changed: (id, fields) => {
-            if ((this.inEchoTest && fields.callState === CallStateOptions.IN_ECHO_TEST)
-              || (!this.inEchoTest && fields.callState === CallStateOptions.IN_CONFERENCE)) {
+            if (!fsReady && ((this.inEchoTest && fields.callState === CallStateOptions.IN_ECHO_TEST)
+              || (!this.inEchoTest && fields.callState === CallStateOptions.IN_CONFERENCE))) {
               fsReady = true;
               checkIfCallReady();
+            }
 
+            if (fields.callState === CallStateOptions.CALL_ENDED) {
+              fsReady = false;
               c.stop();
+              checkIfCallStopped();
             }
           },
         });
@@ -1324,6 +1373,20 @@ export default class SIPBridge extends BaseAudioBridge {
     return this.activeSession ? this.activeSession.inputStream : null;
   }
 
+  /**
+   * Wrapper for SIPSession's ignoreCallState flag
+   * @param {boolean} value
+   */
+  set ignoreCallState(value) {
+    if (this.activeSession) {
+      this.activeSession.ignoreCallState = value;
+    }
+  }
+
+  get ignoreCallState() {
+    return this.activeSession ? this.activeSession.ignoreCallState : false;
+  }
+
   joinAudio({ isListenOnly, extension, validIceCandidates }, managerCallback) {
     const hasFallbackDomain = typeof IPV4_FALLBACK_DOMAIN === 'string' && IPV4_FALLBACK_DOMAIN !== '';
 
@@ -1398,6 +1461,8 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   getPeerConnection() {
+    if (!this.activeSession) return null;
+
     const { currentSession } = this.activeSession;
     if (currentSession && currentSession.sessionDescriptionHandler) {
       return currentSession.sessionDescriptionHandler.peerConnection;

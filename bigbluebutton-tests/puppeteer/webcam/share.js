@@ -1,38 +1,54 @@
 const Page = require('../core/page');
 const util = require('./util');
-const wle = require('./elements');
-const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
+const e = require('../core/elements');
+const { checkElementLengthDifferentTo } = require('../core/util');
+const { VIDEO_LOADING_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
 
 class Share extends Page {
   constructor() {
-    super('webcam-share-test');
+    super();
   }
 
   async test() {
-    const parsedSettings = await this.getSettingsYaml();
-    const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-    const response = await util.enableWebcam(this, videoPreviewTimeout);
-    return response;
+    try {
+      const parsedSettings = await this.getSettingsYaml();
+      const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
+      const response = await util.enableWebcam(this, videoPreviewTimeout);
+      return response;
+    } catch (err) {
+      await this.logger(err);
+      return false;
+    }
   }
 
   async webcamLayoutStart() {
-    await this.joinMicrophone();
-    const parsedSettings = await this.getSettingsYaml();
-    const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-    await util.enableWebcam(this, videoPreviewTimeout);
+    try {
+      await this.joinMicrophone();
+      const parsedSettings = await this.getSettingsYaml();
+      const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
+      await util.enableWebcam(this, videoPreviewTimeout);
+    } catch (err) {
+      await this.logger(err);
+    }
   }
 
   async webcamLayoutTest(testName) {
-    await this.waitForSelector(wle.webcamVideo, VIDEO_LOADING_WAIT_TIME);
-    await this.waitForSelector(wle.stopSharingWebcam, VIDEO_LOADING_WAIT_TIME);
-    const foundTestElement = await this.page.evaluate(util.countTestElements, wle.webcamItemTalkingUser) !== 0;
-    if (foundTestElement === true) {
-      await this.screenshot(`${testName}`, `success-${testName}`);
-      this.logger(testName, ' passed');
-      return true;
-    } else if (foundTestElement === false) {
-      await this.screenshot(`${testName}`, `fail-${testName}`);
-      this.logger(testName, ' failed');
+    try {
+      await this.waitForSelector(e.webcamVideo, VIDEO_LOADING_WAIT_TIME);
+      await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
+      await this.waitForSelector(e.isTalking);
+      const foundTestElement = await this.page.evaluate(checkElementLengthDifferentTo, e.webcamItemTalkingUser, 0);
+      if (foundTestElement === true) {
+        await this.screenshot(`${testName}`, `success-${testName}`);
+        this.logger(testName, ' passed');
+        return true;
+      } else if (foundTestElement === false) {
+        await this.screenshot(`${testName}`, `fail-${testName}`);
+        this.logger(testName, ' failed');
+        return false;
+      }
+    } catch (err) {
+      await this.logger(err);
       return false;
     }
   }

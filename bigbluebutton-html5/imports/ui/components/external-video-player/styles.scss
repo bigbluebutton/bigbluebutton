@@ -9,20 +9,43 @@
   }
 }
 
-.videoPlayerWrapper {
-  position: relative;
+.mobileControlsOverlay {
+  position: absolute;
+  top:0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
 }
 
-.videoPlayer iframe {
+.showMobileHoverToolbar {
   display: flex;
-  flex-flow: column;
-  flex-grow: 1;
-  flex-shrink: 1;
+  z-index: 2;
+}
+.dontShowMobileHoverToolbar {
+  display: none;
+}
+
+.videoPlayerWrapper {
   position: relative;
-  overflow-x: hidden;
-  overflow-y: auto;
-  border-style: none;
-  border-bottom: none;
+  width: 100%;
+  height: 100%;
+}
+
+.videoPlayer {
+  width: 100%;
+  height: 100%;
+  & iframe {
+    display: flex;
+    flex-flow: column;
+    flex-grow: 1;
+    flex-shrink: 1;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-style: none;
+    border-bottom: none;
+  }
 }
 
 .autoPlayWarning {

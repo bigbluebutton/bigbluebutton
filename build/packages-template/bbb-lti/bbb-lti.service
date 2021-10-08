@@ -1,0 +1,23 @@
+[Unit]
+Description=BigBlueButton LTI Application
+Requires=network.target
+
+[Service]
+Type=simple
+User=bigbluebutton
+Group=bigbluebutton
+WorkingDirectory=/usr/share/bbb-lti
+#EnvironmentFile=/etc/default/bbb-lti
+#ExecStartPre=/bin/chown -R bigbluebutton:bigbluebutton /usr/share/bbb-lti
+ExecStart=/usr/share/bbb-lti/run-prod.sh
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=60
+SuccessExitStatus=
+TimeoutStopSec=5
+PermissionsStartOnly=true
+LimitNOFILE=1024
+
+[Install]
+WantedBy=multi-user.target
+

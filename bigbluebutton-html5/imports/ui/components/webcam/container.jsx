@@ -3,12 +3,13 @@ import React, { useContext } from 'react';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { withTracker } from 'meteor/react-meteor-data';
 import Settings from '/imports/ui/services/settings';
-import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
+import MediaService, { getSwapLayout, } from '/imports/ui/components/media/service';
 import Auth from '/imports/ui/services/auth';
 import breakoutService from '/imports/ui/components/breakout-room/service';
 import VideoService from '/imports/ui/components/video-provider/service';
+import { UsersContext } from '../components-data/users-context/context';
 
-import { NLayoutContext } from '../layout/context/context';
+import LayoutContext from '../layout/context';
 import WebcamComponent from '/imports/ui/components/webcam/component';
 
 const WebcamContainer = ({
@@ -17,10 +18,17 @@ const WebcamContainer = ({
   usersVideo,
   disableVideo,
 }) => {
-  const LayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = LayoutContext;
-  const { fullscreen, output } = newLayoutContextState;
-  const { cameraDock, cameraOptimalGridSize } = output;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
+  const { fullscreen, output, input, isRTL } = layoutContextState;
+  const { cameraDock, presentation } = output;
+  const { cameraDock: cameraDockInput } = input;
+  const { cameraOptimalGridSize } = cameraDockInput;
+  const { display: displayPresentation } = presentation;
+
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const currentUser = users[Auth.meetingID][Auth.userID];
 
   return !disableVideo
     && !audioModalIsOpen
@@ -32,8 +40,11 @@ const WebcamContainer = ({
           usersVideo,
           cameraDock,
           cameraOptimalGridSize,
-          newLayoutContextDispatch,
+          layoutContextDispatch,
           fullscreen,
+          isPresenter: currentUser.presenter,
+          displayPresentation,
+          isRTL,
         }}
       />
     )
@@ -78,7 +89,7 @@ export default withModalMounter(withTracker(() => {
 
   const { streams: usersVideo } = VideoService.getVideoStreams();
   data.usersVideo = usersVideo;
-  data.swapLayout = (getSwapLayout() || !hasPresentation) && shouldEnableSwapLayout();
+  data.swapLayout = getSwapLayout() || !hasPresentation;
   data.disableVideo = !viewParticipantsWebcams;
 
   if (data.swapLayout) {

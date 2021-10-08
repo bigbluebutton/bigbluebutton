@@ -18,17 +18,17 @@ const UserPolls = ({
   pollIsOpen,
   forcePollOpen,
   sidebarContentPanel,
-  newLayoutContextDispatch,
+  layoutContextDispatch,
 }) => {
   if (!isPresenter) return null;
   if (!pollIsOpen && !forcePollOpen) return null;
 
   const handleClickTogglePoll = () => {
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
       value: sidebarContentPanel !== PANELS.POLL,
     });
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
       value: sidebarContentPanel === PANELS.POLL
         ? PANELS.NONE

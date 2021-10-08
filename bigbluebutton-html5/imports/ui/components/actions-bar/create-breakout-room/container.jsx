@@ -4,12 +4,15 @@ import ActionsBarService from '/imports/ui/components/actions-bar/service';
 
 import CreateBreakoutRoomModal from './component';
 
-const CreateBreakoutRoomContainer = (props) => (
-  props.amIModerator
-  && (
-    <CreateBreakoutRoomModal {...props} />
-  )
-);
+const CreateBreakoutRoomContainer = (props) => {
+  const { amIModerator } = props;
+  return (
+    amIModerator
+    && (
+      <CreateBreakoutRoomModal {...props} />
+    )
+  );
+};
 
 export default withTracker(() => ({
   createBreakoutRoom: ActionsBarService.createBreakoutRoom,

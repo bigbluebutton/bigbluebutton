@@ -13,7 +13,7 @@ public class IsIntegralValidator implements ConstraintValidator<IsIntegralConstr
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
 
-        if(value == null) {
+        if(value == null || value.equals("")) {
             return true;
         }
 

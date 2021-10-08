@@ -16,7 +16,6 @@ const propTypes = {
   streams: PropTypes.arrayOf(PropTypes.object).isRequired,
   onVideoItemMount: PropTypes.func.isRequired,
   onVideoItemUnmount: PropTypes.func.isRequired,
-  webcamDraggableDispatch: PropTypes.func.isRequired,
   intl: PropTypes.objectOf(Object).isRequired,
   swapLayout: PropTypes.bool.isRequired,
   numberOfPages: PropTypes.number.isRequired,
@@ -80,6 +79,7 @@ const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItem
 const ASPECT_RATIO = 4 / 3;
 const ACTION_NAME_FOCUS = 'focus';
 const ACTION_NAME_MIRROR = 'mirror';
+// const ACTION_NAME_BACKGROUND = 'blurBackground';
 
 class VideoList extends Component {
   constructor(props) {
@@ -112,36 +112,37 @@ class VideoList extends Component {
   }
 
   componentDidMount() {
-    const { webcamDraggableDispatch } = this.props;
-    webcamDraggableDispatch(
-      {
-        type: 'setVideoListRef',
-        value: this.grid,
-      },
-    );
-
     this.handleCanvasResize();
     window.addEventListener('resize', this.handleCanvasResize, false);
-    window.addEventListener('layoutSizesSets', this.handleCanvasResize, false);
     window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
   componentDidUpdate(prevProps) {
-    const { layoutType, cameraDock } = this.props;
+    const { focusedId } = this.state;
+    const { layoutType, cameraDock, streams } = this.props;
     const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
-    const { layoutType: prevLayoutType, cameraDock: prevCameraDock } = prevProps;
+    const {
+      layoutType: prevLayoutType,
+      cameraDock: prevCameraDock,
+      streams: prevStreams,
+    } = prevProps;
     const { width: prevCameraDockWidth, height: prevCameraDockHeight } = prevCameraDock;
 
+    const focusedStream = streams.filter((item) => item.stream === focusedId);
+
+    if (focusedId && focusedStream.length === 0) {
+      this.handleVideoFocus(focusedId);
+    }
     if (layoutType !== prevLayoutType
       || cameraDockWidth !== prevCameraDockWidth
-      || cameraDockHeight !== prevCameraDockHeight) {
+      || cameraDockHeight !== prevCameraDockHeight
+      || streams.length !== prevStreams.length) {
       this.handleCanvasResize();
     }
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleCanvasResize, false);
-    window.removeEventListener('layoutSizesSets', this.handleCanvasResize, false);
     window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
@@ -208,26 +209,15 @@ class VideoList extends Component {
     const {
       streams,
       cameraDock,
-      webcamDraggableDispatch,
-      layoutLoaded,
-      newLayoutContextDispatch,
+      layoutContextDispatch,
     } = this.props;
     let numItems = streams.length;
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
     }
     const { focusedId } = this.state;
-    let canvasWidth;
-    let canvasHeight;
-    const canvasBounds = this.canvas.getBoundingClientRect();
-
-    if (layoutLoaded === 'legacy') {
-      canvasWidth = canvasBounds?.width;
-      canvasHeight = canvasBounds?.height;
-    } else {
-      canvasWidth = cameraDock?.width;
-      canvasHeight = cameraDock?.height;
-    }
+    const canvasWidth = cameraDock?.width;
+    const canvasHeight = cameraDock?.height;
 
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
       .getPropertyValue('grid-row-gap'), 10);
@@ -247,13 +237,7 @@ class VideoList extends Component {
         const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
         return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
       }, { filledArea: 0 });
-    webcamDraggableDispatch(
-      {
-        type: 'setOptimalGrid',
-        value: optimalGrid,
-      },
-    );
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE,
       value: {
         width: optimalGrid.width,
@@ -269,7 +253,7 @@ class VideoList extends Component {
     const { mirroredCameras } = this.state;
     if (this.cameraIsMirrored(stream)) {
       this.setState({
-        mirroredCameras: mirroredCameras.filter((x) => x != stream),
+        mirroredCameras: mirroredCameras.filter((x) => x !== stream),
       });
     } else {
       this.setState({
@@ -283,10 +267,27 @@ class VideoList extends Component {
     return mirroredCameras.indexOf(stream) >= 0;
   }
 
-  renderNextPageButton() {
-    const { intl, numberOfPages, currentVideoPageIndex } = this.props;
+  displayPageButtons() {
+    const { numberOfPages, cameraDock } = this.props;
+    const { width: cameraDockWidth } = cameraDock;
 
-    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1) return null;
+    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1 || cameraDockWidth === 0) {
+      return false;
+    }
+
+    return true;
+  }
+
+  renderNextPageButton() {
+    const {
+      intl,
+      numberOfPages,
+      currentVideoPageIndex,
+      cameraDock,
+    } = this.props;
+    const { position } = cameraDock;
+
+    if (!this.displayPageButtons()) return null;
 
     const currentPage = currentVideoPageIndex + 1;
     const nextPageLabel = intl.formatMessage(intlMessages.nextPageLabel);
@@ -302,15 +303,26 @@ class VideoList extends Component {
         onClick={VideoService.getNextVideoPage}
         label={nextPageDetailedLabel}
         hideLabel
-        className={cx(styles.nextPage)}
+        className={
+          cx({
+            [styles.nextPage]: true,
+            [styles.nextPageLRPosition]: position === 'contentRight' || position === 'contentLeft',
+          })
+        }
       />
     );
   }
 
   renderPreviousPageButton() {
-    const { intl, currentVideoPageIndex, numberOfPages } = this.props;
+    const {
+      intl,
+      currentVideoPageIndex,
+      numberOfPages,
+      cameraDock,
+    } = this.props;
+    const { position } = cameraDock;
 
-    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1) return null;
+    if (!this.displayPageButtons()) return null;
 
     const currentPage = currentVideoPageIndex + 1;
     const prevPageLabel = intl.formatMessage(intlMessages.prevPageLabel);
@@ -326,7 +338,12 @@ class VideoList extends Component {
         onClick={VideoService.getPreviousVideoPage}
         label={prevPageDetailedLabel}
         hideLabel
-        className={cx(styles.previousPage)}
+        className={
+          cx({
+            [styles.previousPage]: true,
+            [styles.previousPageLRPosition]: position === 'contentRight' || position === 'contentLeft',
+          })
+        }
       />
     );
   }
@@ -340,8 +357,8 @@ class VideoList extends Component {
       swapLayout,
     } = this.props;
     const { focusedId } = this.state;
-
     const numOfStreams = streams.length;
+
     return streams.map((vs) => {
       const { stream, userId, name } = vs;
       const isFocused = focusedId === stream;
@@ -394,11 +411,14 @@ class VideoList extends Component {
     const {
       streams,
       intl,
+      cameraDock,
     } = this.props;
     const { optimalGrid, autoplayBlocked } = this.state;
+    const { position } = cameraDock;
 
     const canvasClassName = cx({
       [styles.videoCanvas]: true,
+      [styles.videoCanvasLRPosition]: position === 'contentRight' || position === 'contentLeft',
     });
 
     const videoListClassName = cx({
@@ -411,8 +431,10 @@ class VideoList extends Component {
           this.canvas = ref;
         }}
         className={canvasClassName}
+        style={{
+          minHeight: 'inherit',
+        }}
       >
-
         {this.renderPreviousPageButton()}
 
         {!streams.length ? null : (
@@ -439,8 +461,12 @@ class VideoList extends Component {
           />
         )}
 
-        {this.renderNextPageButton()}
+        {
+          (position === 'contentRight' || position === 'contentLeft')
+          && <div className={styles.break} />
+        }
 
+        {this.renderNextPageButton()}
       </div>
     );
   }

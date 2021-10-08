@@ -52,7 +52,7 @@ export default function addMeeting(meeting) {
       intId: String,
       extId: String,
       isBreakout: Boolean,
-      activityReportTracking: Boolean,
+      learningDashboardEnabled: Boolean,
       name: String,
     },
     usersProp: {
@@ -89,7 +89,7 @@ export default function addMeeting(meeting) {
     password: {
       viewerPass: String,
       moderatorPass: String,
-      activityReportAccessToken: String,
+      learningDashboardAccessToken: String,
     },
     voiceProp: {
       voiceConf: String,

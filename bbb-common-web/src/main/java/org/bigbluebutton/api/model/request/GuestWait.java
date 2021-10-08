@@ -23,7 +23,7 @@ public class GuestWait implements Request<GuestWait.Params> {
 
     @NotNull(message = "You must provide the session token")
     @UserSessionConstraint
-    @MaxParticipantsConstraint
+   // @MaxParticipantsConstraint
     private String sessionToken;
 
     @MeetingExistsConstraint

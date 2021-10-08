@@ -58,7 +58,7 @@ module BigBlueButton
 
       # and mixing it with deskshare audio	
       deskshare_dir = "#{archive_dir}/deskshare"
-      if BigBlueButton::Events.screenshare_has_audio?(events_xml, deskshare_dir)
+      if BigBlueButton::Events.screenshare_has_audio?(events, deskshare_dir)
         BigBlueButton.logger.info("AudioProcessor.process: processing Deskshare audio...")	
 
         mixed_dir = "#{archive_dir}/mixed"

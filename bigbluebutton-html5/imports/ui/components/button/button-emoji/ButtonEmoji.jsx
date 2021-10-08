@@ -19,21 +19,34 @@ const propTypes = {
   onKeyDown: PropTypes.func,
 
   onFocus: PropTypes.func,
+
+  tabIndex: PropTypes.number,
+
+  hideLabel: PropTypes.bool,
 };
 
 const defaultProps = {
   emoji: '',
   label: '',
-  onClick: null,
   onKeyDown: null,
   onFocus: null,
+  tabIndex: -1,
+  hideLabel: false,
+  onClick: null,
 };
 
 const ButtonEmoji = (props) => {
   const {
+    hideLabel,
+    ...newProps
+  } = props;
+
+  const {
     emoji,
     label,
-  } = props;
+    tabIndex,
+    onClick,
+  } = newProps;
 
   const IconComponent = (
     <Icon
@@ -45,16 +58,19 @@ const ButtonEmoji = (props) => {
   return (
     <span>
       <TooltipContainer title={label}>
-        <div
-          tabIndex={-1}
-          {...props}
+        <button
+          type="button"
+          tabIndex={tabIndex}
+          {...newProps}
           className={styles.emojiButton}
+          aria-label={label}
+          onClick={onClick}
         >
           <span className={styles.label}>
-            {label}
+            { !hideLabel && label }
             { IconComponent }
           </span>
-        </div>
+        </button>
       </TooltipContainer>
     </span>
   );

@@ -72,14 +72,6 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.layoutOptionLabel',
     description: 'layout options',
   },
-  pushLayoutOptionLabel: {
-    id: 'app.submenu.application.pushLayoutOptionLabel',
-    description: 'enable/disable push layout to all users',
-  },
-  legacyLayout: {
-    id: 'app.layout.style.legacy',
-    description: 'label for legacy layout style',
-  },
   customLayout: {
     id: 'app.layout.style.custom',
     description: 'label for custom layout style',
@@ -95,6 +87,14 @@ const intlMessages = defineMessages({
   videoFocusLayout: {
     id: 'app.layout.style.videoFocus',
     description: 'label for videoFocus layout style',
+  },
+  presentationFocusPushLayout: {
+    id: 'app.layout.style.presentationFocusPush',
+    description: 'label for presentationFocus layout style (push to all)',
+  },
+  videoFocusPushLayout: {
+    id: 'app.layout.style.videoFocusPush',
+    description: 'label for videoFocus layout style (push to all)',
   },
 });
 
@@ -130,9 +130,7 @@ class ApplicationMenu extends BaseMenu {
 
   componentWillUnmount() {
     // fix Warning: Can't perform a React state update on an unmounted component
-    this.setState = (state, callback) => {
-
-    };
+    this.setState = () => {};
   }
 
   setInitialFontSize() {
@@ -175,7 +173,7 @@ class ApplicationMenu extends BaseMenu {
       : _constraints || {};
 
     isAnyFilterEnabled = Object.values(constraints).find(
-      constraintValue => _isConstraintEnabled(constraintValue),
+      (constraintValue) => _isConstraintEnabled(constraintValue),
     );
 
     return isAnyFilterEnabled;
@@ -202,7 +200,7 @@ class ApplicationMenu extends BaseMenu {
   }
 
   changeFontSize(size) {
-    const { newLayoutContextDispatch } = this.props;
+    const { layoutContextDispatch } = this.props;
     const obj = this.state;
     obj.settings.fontSize = size;
     this.setState(obj, () => {
@@ -210,9 +208,9 @@ class ApplicationMenu extends BaseMenu {
       this.handleUpdateFontSize(this.state.settings.fontSize);
     });
 
-    newLayoutContextDispatch({
+    layoutContextDispatch({
       type: ACTIONS.SET_FONT_SIZE,
-      value: parseInt(size.slice(0, -2)),
+      value: parseInt(size.slice(0, -2), 10),
     });
   }
 
@@ -282,7 +280,7 @@ class ApplicationMenu extends BaseMenu {
 
   renderPaginationToggle() {
     // See VideoService's method for an explanation
-    if (!VideoService.shouldRenderPaginationToggle()) return;
+    if (!VideoService.shouldRenderPaginationToggle()) return false;
 
     const { intl, showToggleLabel, displaySettingsStatus } = this.props;
     const { settings } = this.state;
@@ -291,6 +289,7 @@ class ApplicationMenu extends BaseMenu {
       <div className={styles.row}>
         <div className={styles.col} aria-hidden="true">
           <div className={styles.formElement}>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
             <label className={styles.label}>
               {intl.formatMessage(intlMessages.paginationEnabledLabel)}
             </label>
@@ -313,8 +312,16 @@ class ApplicationMenu extends BaseMenu {
   }
 
   renderChangeLayout() {
-    const { intl, showToggleLabel, displaySettingsStatus, isModerator } = this.props;
+    const { intl, isModerator } = this.props;
     const { settings } = this.state;
+
+    if (isModerator) {
+      const pushLayouts = {
+        PRESENTATION_FOCUS_PUSH: 'presentationFocusPush',
+        VIDEO_FOCUS_PUSH: 'videoFocusPush',
+      };
+      Object.assign(LAYOUT_TYPE, pushLayouts);
+    }
 
     return (
       <>
@@ -330,11 +337,10 @@ class ApplicationMenu extends BaseMenu {
             <div className={cx(styles.formElement, styles.pullContentRight)}>
               <select
                 className={styles.select}
-                onChange={e => this.handleSelectChange('selectedLayout', e)}
+                onChange={(e) => this.handleSelectChange('selectedLayout', e)}
                 id="layoutList"
                 value={settings.selectedLayout}
               >
-                <option key="legacy" value="legacy">{intl.formatMessage(intlMessages.legacyLayout)}</option>
                 {
                   Object.values(LAYOUT_TYPE)
                     .map((layout) => <option key={layout} value={layout}>{intl.formatMessage(intlMessages[`${layout}Layout`])}</option>)
@@ -343,30 +349,6 @@ class ApplicationMenu extends BaseMenu {
             </div>
           </div>
         </div>
-
-        {isModerator ? (
-          <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.pushLayoutOptionLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                {displaySettingsStatus(settings.pushLayoutToEveryone)}
-                <Toggle
-                  icons={false}
-                  defaultChecked={settings.pushLayoutToEveryone}
-                  onChange={() => this.handleToggle('pushLayoutToEveryone')}
-                  ariaLabel={intl.formatMessage(intlMessages.pushLayoutOptionLabel)}
-                  showToggleLabel={showToggleLabel}
-                />
-              </div>
-            </div>
-          </div>
-        ) : null}
       </>
     );
   }
@@ -406,6 +388,7 @@ class ApplicationMenu extends BaseMenu {
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                 <label className={styles.label}>
                   {intl.formatMessage(intlMessages.animationsLabel)}
                 </label>
@@ -445,7 +428,7 @@ class ApplicationMenu extends BaseMenu {
                 {showSelect ? (
                   <LocalesDropdown
                     allLocales={allLocales}
-                    handleChange={e => this.handleSelectChange('locale', e)}
+                    handleChange={(e) => this.handleSelectChange('locale', e)}
                     value={settings.locale}
                     elementId="langSelector"
                     elementClass={styles.select}
@@ -466,6 +449,7 @@ class ApplicationMenu extends BaseMenu {
           <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement}>
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                 <label className={styles.label}>
                   {intl.formatMessage(intlMessages.fontSizeControlLabel)}
                 </label>
@@ -473,6 +457,7 @@ class ApplicationMenu extends BaseMenu {
             </div>
             <div className={styles.col}>
               <div aria-hidden className={cx(styles.formElement, styles.pullContentCenter)}>
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                 <label className={cx(styles.label, styles.bold)}>
                   {`${pixelPercentage[settings.fontSize]}`}
                 </label>

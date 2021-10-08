@@ -12,18 +12,20 @@ import Service from './service';
 import UserListService from '/imports/ui/components/user-list/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import CaptionsService from '/imports/ui/components/captions/service';
-import { NLayoutContext } from '../layout/context/context';
+import LayoutContext from '../layout/context';
+import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 
 import MediaService, {
   getSwapLayout,
-  shouldEnableSwapLayout,
 } from '../media/service';
 
 const ActionsBarContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextDispatch } = newLayoutContext;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
+  const { output } = layoutContextState;
+  const { actionBar: actionsBarStyle } = output;
 
   const currentUser = { userId: Auth.userID, emoji: users[Auth.meetingID][Auth.userID].emoji };
 
@@ -32,7 +34,8 @@ const ActionsBarContainer = (props) => {
       ...{
         ...props,
         currentUser,
-        newLayoutContextDispatch,
+        layoutContextDispatch,
+        actionsBarStyle,
       }
     }
     />
@@ -49,12 +52,13 @@ export default withTracker(() => ({
   amIModerator: Service.amIModerator(),
   stopExternalVideoShare: ExternalVideoService.stopWatching,
   enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
-  isLayoutSwapped: getSwapLayout() && shouldEnableSwapLayout(),
+  isLayoutSwapped: getSwapLayout(),
   toggleSwapLayout: MediaService.toggleSwapLayout,
   handleTakePresenter: Service.takePresenterRole,
   currentSlidHasContent: PresentationService.currentSlidHasContent(),
   parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
   isSharingVideo: Service.isSharingVideo(),
+  hasScreenshare: isVideoBroadcasting(),
   isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
   isMeteorConnected: Meteor.status().connected,
   isPollingEnabled: POLLING_ENABLED,

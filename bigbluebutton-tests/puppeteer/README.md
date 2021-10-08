@@ -22,7 +22,7 @@ First, you need to have the dependencies installed with `meteor npm install`, fr
 To run individual tests, you can also optionally install Jest globally with `sudo npm install jest -g`.
 
 ```bash
-$ cd tests/puppeteer
+$ cd ../bigbluebutton-tests/puppeteer
 $ npm install
 ```
 
@@ -35,7 +35,7 @@ To run all the tests at once, run `npm test`.
 To run a specific test from `bash`:
 
 ```bash
-$ ./tests/puppeteer/run.sh -t testcase
+$ bash ../bigbluebutton-tests/puppeteer/run.sh -t testcase
 ```
 
 Test cases list: `webcamlayout/whiteboard/webcam/virtualizedlist/user/sharednotes/screenshare/presentation/notifications/customparameters/chat/breakout/audio`.

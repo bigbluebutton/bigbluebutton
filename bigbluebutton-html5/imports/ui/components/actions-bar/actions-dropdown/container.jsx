@@ -4,17 +4,18 @@ import Presentations from '/imports/api/presentations';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
 import PresentationPodService from '/imports/ui/components/presentation-pod/service';
 import ActionsDropdown from './component';
-import { NLayoutContext } from '../../layout/context/context';
+import LayoutContext from '../../layout/context';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const ActionsDropdownContainer = (props) => {
-  const newLayoutContext = useContext(NLayoutContext);
-  const { newLayoutContextState, newLayoutContextDispatch } = newLayoutContext;
-  const { input } = newLayoutContextState;
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
+  const { input } = layoutContextState;
   const { sidebarContent, sidebarNavigation } = input;
 
   return (
     <ActionsDropdown {...{
-      newLayoutContextDispatch,
+      layoutContextDispatch,
       sidebarContent,
       sidebarNavigation,
       ...props,
@@ -23,6 +24,8 @@ const ActionsDropdownContainer = (props) => {
   );
 };
 
+const LAYOUT_CONFIG = Meteor.settings.public.layout;
+
 export default withTracker(() => {
   const presentations = Presentations.find({ 'conversion.done': true }).fetch();
   return ({
@@ -30,5 +33,6 @@ export default withTracker(() => {
     isDropdownOpen: Session.get('dropdownOpen'),
     setPresentation: PresentationUploaderService.setPresentation,
     podIds: PresentationPodService.getPresentationPodIds(),
+    hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
   });
 })(ActionsDropdownContainer);
