@@ -154,6 +154,7 @@ class App extends Component {
       meetingLayout,
       settingsLayout,
       isRTL,
+      hidePresentation,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -163,6 +164,11 @@ class App extends Component {
     layoutContextDispatch({
       type: ACTIONS.SET_IS_RTL,
       value: isRTL,
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+      value: !hidePresentation,
     });
 
     MediaService.setSwapLayout(layoutContextDispatch);

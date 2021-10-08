@@ -15,9 +15,9 @@ const BreakoutJoinConfirmationContrainer = (props) => (
 
 const getURL = (breakoutId) => {
   const currentUserId = Auth.userID;
-  const getBreakout = Breakouts.findOne({ breakoutId }, { fields: { users: 1 } });
-  const user = getBreakout ? getBreakout.users?.find((u) => u.userId === currentUserId) : '';
-  if (user) return user.redirectToHtml5JoinURL;
+  const breakout = Breakouts.findOne({ breakoutId }, { fields: { [`url_${currentUserId}`]: 1 } });
+  const breakoutUrlData = (breakout && breakout[`url_${currentUserId}`]) ? breakout[`url_${currentUserId}`] : null;
+  if (breakoutUrlData) return breakoutUrlData.redirectToHtml5JoinURL;
   return '';
 };
 

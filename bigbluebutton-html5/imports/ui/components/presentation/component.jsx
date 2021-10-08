@@ -14,8 +14,6 @@ import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import { styles } from './styles.scss';
 import toastStyles from '/imports/ui/components/toast/styles';
-import MediaService, { shouldEnableSwapLayout } from '../media/service';
-import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';
@@ -528,32 +526,6 @@ class Presentation extends PureComponent {
     zoomSlide(currentSlide.num, podId, w, h, x, y);
   }
 
-  renderPresentationClose() {
-    const { isFullscreen } = this.state;
-    const {
-      separatePresentationWindow,
-      layoutType,
-      fullscreenContext,
-      layoutContextDispatch,
-      isIphone,
-    } = this.props;
-
-    if (!shouldEnableSwapLayout()
-      || isFullscreen
-      || separatePresentationWindow
-      || fullscreenContext
-      || layoutType === LAYOUT_TYPE.PRESENTATION_FOCUS) {
-      return null;
-    }
-    return (
-      <PresentationCloseButton
-        toggleSwapLayout={MediaService.toggleSwapLayout}
-        layoutContextDispatch={layoutContextDispatch}
-        isIphone={isIphone}
-      />
-    );
-  }
-
   renderOverlays(slideObj, svgDimensions, viewBoxPosition, viewBoxDimensions, physicalDimensions) {
     const {
       userIsPresenter,
@@ -704,7 +676,6 @@ class Presentation extends PureComponent {
         style={presentationStyle}
       >
         <span id="currentSlideText" className={styles.visuallyHidden}>{slideContent}</span>
-        {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
         {separatePresentationWindow ? null : this.renderPresentationFullscreen()}
         <svg
@@ -775,6 +746,9 @@ class Presentation extends PureComponent {
       isMobile,
       layoutType,
       numCameras,
+      fullscreenElementId,
+      fullscreenContext,
+      layoutContextDispatch,
     } = this.props;
     const { zoom, fitToWidth } = this.state;
 
@@ -795,6 +769,8 @@ class Presentation extends PureComponent {
           podId,
           currentSlide,
           toolbarWidth,
+          fullscreenElementId,
+          layoutContextDispatch,
         }}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
@@ -804,6 +780,8 @@ class Presentation extends PureComponent {
         separatePresentationWindow={separatePresentationWindow}
         presentationWindow={presentationWindow}
         fullscreenRef={presentationWindow.document.documentElement}
+        isFullscreen={fullscreenContext}
+        fullscreenAction={ACTIONS.SET_FULLSCREEN_ELEMENT}
       />
     );
   }
@@ -853,7 +831,7 @@ class Presentation extends PureComponent {
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
         isFullscreen={isFullscreen}
-        color="primary"
+        color="muted"
         fullScreenStyle={false}
         className={styles.presentationFullscreen}
       />
@@ -957,7 +935,7 @@ class Presentation extends PureComponent {
     const { presentationToolbarMinWidth } = DEFAULT_VALUES;
 
     const isLargePresentation = (svgWidth > presentationToolbarMinWidth || isMobile)
-      && !(layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0);
+      && !(layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0 && !fullscreenContext);
 
     const containerWidth = isLargePresentation
       ? svgWidth
@@ -991,7 +969,7 @@ class Presentation extends PureComponent {
     }
 
     const pToolbar =
-            showSlide && userIsPresenter && svgWidth > 0 && svgHeight > 0
+            showSlide && userIsPresenter
               ? (
                 <div
                   className={styles.presentationToolbar}

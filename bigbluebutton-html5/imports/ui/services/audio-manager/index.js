@@ -631,6 +631,14 @@ class AudioManager {
 
     if (typeof status === 'string') {
       currentStatus.status = status;
+
+      if (this.bridge && !this.isListenOnly) {
+        if (status !== BREAKOUT_AUDIO_TRANSFER_STATES.CONNECTED) {
+          this.bridge.ignoreCallState = false;
+        } else {
+          this.bridge.ignoreCallState = true;
+        }
+      }
     }
   }
 
