@@ -56,7 +56,7 @@ class LiveResult extends PureComponent {
     if (!currentPoll) return null;
 
     const {
-      answers, responses, users, numRespondents, pollType
+      answers, responses, users, numResponders, pollType
     } = currentPoll;
 
     const defaultPoll = isDefaultPoll(pollType);
@@ -105,7 +105,7 @@ class LiveResult extends PureComponent {
 
     answers.reduce(caseInsensitiveReducer, []).map((obj) => {
       const formattedMessageIndex = obj.key.toLowerCase();
-      const pct = Math.round(obj.numVotes / numRespondents * 100);
+      const pct = Math.round(obj.numVotes / numResponders * 100);
       const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
 
       const calculatedWidth = {
