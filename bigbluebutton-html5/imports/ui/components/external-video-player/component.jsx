@@ -491,6 +491,8 @@ class VideoPlayer extends Component {
         extraInfo: { time },
       }, `Seek external video to: ${time}`);
     }
+    return true;
+  }
 
   renderExternalVideoClose() {
     const { isPresenter } = this.props;
@@ -502,9 +504,6 @@ class VideoPlayer extends Component {
     }
   }
     
-    return true;
-  }
-
   render() {
     const {
       videoUrl,
