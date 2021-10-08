@@ -242,6 +242,8 @@ class PresentationToolbar extends PureComponent {
       screenSharingCheck,
       fullscreenElementId,
       toolbarWidth,
+      isFullscreen,
+      fullscreenRef,
     } = this.props;
 
     const { isMobile } = deviceInfo;
