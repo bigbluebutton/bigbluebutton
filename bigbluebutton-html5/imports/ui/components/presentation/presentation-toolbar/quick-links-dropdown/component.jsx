@@ -13,6 +13,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import DropdownListTitle from '/imports/ui/components/dropdown/list/title/component';
 import FullscreenService from '/imports/ui/components/fullscreen-button/service';
+import Panopto from '/imports/ui/components/external-video-player/custom-players/panopto';
 import Auth from '/imports/ui/services/auth';
 
 import { styles } from '../styles';
@@ -68,7 +69,12 @@ const handleClickQuickVideo = (videoUrl, isFullscreen, fullscreenRef) => {
     FullscreenService.toggleFullScreen(fullscreenRef);
   }
   sendGroupMessage(videoUrl);
-  makeCall('startWatchingExternalVideo', { externalVideoUrl: videoUrl });
+  
+  let externalVideoUrl = videoUrl;
+  if (Panopto.canPlay(videoUrl)) {
+    externalVideoUrl = Panopto.getSocialUrl(videoUrl);
+  }
+  makeCall('startWatchingExternalVideo', externalVideoUrl);
 };
 
 const handleClickQuickUrl = (url, isFullscreen, fullscreenRef) => {
