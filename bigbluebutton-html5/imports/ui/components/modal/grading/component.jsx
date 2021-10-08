@@ -92,7 +92,6 @@ class GradingSelectModal extends Component {
     for (let i = 0; i <= 99; i += 1) {
       if (i === 0) {
         lessons.push('GP');
-        lessons.push('N/A');
       } else lessons.push(i.toString());
     }
 
@@ -125,6 +124,7 @@ class GradingSelectModal extends Component {
                 </select>
               </div>
               <div>
+                <span className={styles.smileysbar}>N/A</span>
                 <img src="./resources/images/smiley1.png" alt="logo" className={styles.smileysbar} />
                 <img src="./resources/images/smiley2.png" alt="logo" className={styles.smileysbar} />
                 <img src="./resources/images/smiley3.png" alt="logo" className={styles.smileysbar} />
@@ -149,10 +149,10 @@ class GradingSelectModal extends Component {
                         <td>
                           <input
                             type="range"
-                            min="1"
+                            min="0"
                             max="5"
                             step="1"
-                            defaultValue="3"
+                            defaultValue="0"
                             className={styles.slider}
                             name={gradeitem.userId}
                             onChange={this.handleChange.bind(this, gradeitem.userId)}
