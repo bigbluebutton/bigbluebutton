@@ -19,7 +19,7 @@ const stressTest = () => {
   });
 
   // Check that all users invited to a breakout room can join it
-  test.only('All users must receive breakout room invitations', async () => {
+  test('All users must receive breakout room invitations', async () => {
     const test = new Stress();
     let response;
     try {
