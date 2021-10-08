@@ -14,6 +14,8 @@ import {
 } from '../layout/utils';
 
 import logger from '/imports/startup/client/logger';
+import ExternalVideoCloseButton from './externalvideo-close-button/component';
+import Service from './service';
 
 import VolumeSlider from './volume-slider/component';
 import ReloadButton from '/imports/ui/components/reload-button/component';
@@ -489,6 +491,17 @@ class VideoPlayer extends Component {
         extraInfo: { time },
       }, `Seek external video to: ${time}`);
     }
+
+  renderExternalVideoClose() {
+    const { isPresenter } = this.props;
+    const { playing } = this.state;
+    if (isPresenter && playing) {
+      return <ExternalVideoCloseButton />;
+    } else {
+      return null;
+    }
+  }
+    
     return true;
   }
 
@@ -605,6 +618,7 @@ class VideoPlayer extends Component {
               ]
               : null
           }
+          {this.renderExternalVideoClose()}
         </div>
       </span>
     );
