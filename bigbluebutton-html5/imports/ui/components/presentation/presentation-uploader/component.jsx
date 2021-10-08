@@ -88,6 +88,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.fileToUpload',
     description: 'message used in the file selected for upload',
   },
+  URLzone: {
+    id: 'app.presentationUploder.URLzone',
+    description: 'message used in the url input for upload',
+  },
   rejectedError: {
     id: 'app.presentationUploder.rejectedError',
     description: 'some files rejected, please check the file mime types',
@@ -244,6 +248,7 @@ class PresentationUploader extends Component {
     this.handleToggleDownloadable = this.handleToggleDownloadable.bind(this);
     // renders
     this.renderDropzone = this.renderDropzone.bind(this);
+    this.renderURLzone = this.renderURLzone.bind(this);
     this.renderPicDropzone = this.renderPicDropzone.bind(this);
     this.renderPresentationList = this.renderPresentationList.bind(this);
     this.renderPresentationItem = this.renderPresentationItem.bind(this);
@@ -840,6 +845,32 @@ class PresentationUploader extends Component {
     );
   }
 
+  renderURLzone() {
+    const {
+      intl,
+    } = this.props;
+    const { disableActions } = this.state;
+    const hasNewUpload = true;
+    return (
+      <div>
+        <form>
+          <label>
+            {intl.formatMessage(intlMessages.URLzone)}
+          </label>
+          <input className={styles.urlinput} type="url" placeholder="Copy/Paste the link to the lesson slides here" />
+          <Button
+            className={styles.confirm}
+            data-test="confirmManagePresentation"
+            color="primary"
+            onClick={() => this.handleConfirm(hasNewUpload)}
+            label={intl.formatMessage(intlMessages.uploadLabel)}
+            disabled={disableActions}
+          />
+        </form>
+      </div>
+    );
+  }
+
   renderDropzone() {
     const {
       intl,
@@ -1031,6 +1062,7 @@ class PresentationUploader extends Component {
             {`${intl.formatMessage(intlMessages.message)}`}
           </div>
           {this.renderPresentationList()}
+          {this.renderURLzone()}
           {isMobile ? this.renderPicDropzone() : null}
           {this.renderDropzone()}
         </div>

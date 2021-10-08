@@ -207,6 +207,7 @@
     "app.presentationUploder.upload.408": "Request upload token timeout.",
     "app.presentationUploder.upload.404": "404: Invalid upload token",
     "app.presentationUploder.upload.401": "Request presentation upload token failed.",
+    "app.presentationUploder.URLzone": "Input the URL for file upload: ",
     "app.presentationUploder.conversion.conversionProcessingSlides": "Processing page {0} of {1}",
     "app.presentationUploder.conversion.genericConversionStatus": "Converting file ...",
     "app.presentationUploder.conversion.generatingThumbnail": "Generating thumbnails ...",

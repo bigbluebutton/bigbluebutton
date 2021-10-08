@@ -90,39 +90,45 @@ class TekSelect extends Component {
         <div className={styles.container}>
           <div className={styles.header}>
             <div className={styles.title}>
-              Input Current Subject/Grade/Lesson:
+              Input the Subject     /     Grade     /     Lesson:
             </div>
           </div>
         </div>
-        <div className={styles.description}>
-          <form id="myform" onSubmit={this.handleSubmit.bind(this)}>
-            <span>
+        <form id="myform" onSubmit={this.handleSubmit.bind(this)}>
+          <div className={styles.columns}>
+            <div>
+              <span className={styles.columnheader}>Subject: </span>
               <select name="subj" onChange={this.handleChange.bind(this)}>
                 <option value="" selected disabled hidden>Select Subject</option>
                 {subjects.map((subject) => <option value={subject}>{subject}</option>)}
               </select>
+            </div>
+            <div>
+              <span className={styles.columnheader}>Grade: </span>
               <select name="gr" onChange={this.handleChange.bind(this)}>
                 <option value="" selected disabled hidden>Select Grade</option>
                 {grades.map((grade) => <option value={grade}>{grade}</option>)}
               </select>
+            </div>
+            <div>
+              <span className={styles.columnheader}>Lesson: </span>
               <select name="lsn" onChange={this.handleChange.bind(this)}>
                 <option value="" selected disabled hidden>Select Lesson</option>
                 {lessons.map((lsn) => <option value={lsn}>{lsn}</option>)}
               </select>
-              <input type="number" name="lsn" required="required" min="1" max="99" onChange={this.handleChange.bind(this)} />
-            </span>
-            <div className={styles.footer}>
-              <Button
-                color="primary"
-                className={styles.confirmBtn}
-                label={intl.formatMessage(messages.submitLabel)}
-                onClick={() => {
-                  mountModal(null);
-                }}
-              />
             </div>
-          </form>
-        </div>
+          </div>
+          <div className={styles.footer}>
+            <Button
+              color="primary"
+              className={styles.confirmBtn}
+              label={intl.formatMessage(messages.submitLabel)}
+              onClick={() => {
+                mountModal(null);
+              }}
+            />
+          </div>
+        </form>
       </Modal>
     );
   }

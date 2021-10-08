@@ -1,3 +1,8 @@
+@import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/placeholders";
+@import "../base/styles";
+
+
 .modalViewContainer {
     display: flex;
     flex-flow: column;
@@ -40,4 +45,63 @@
     margin-top: var(--md-padding-x);
     float: right;
 }
+
+.title {
+  @extend %text-elipsis;
+  flex: 1;
+  margin: 0;
+  font-weight: 400;
+  font-size: var(--font-size-large);
+  text-align: center;
+  align-self: flex-end;
+}
+
+.modal {
+  @extend %highContrastOutline;
+  outline-style: solid;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--line-height-computed) / 2) var(--line-height-computed);
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+  background-color: var(--color-white) !important;
+  //align-items: center;
+}
+
+.content {
+  overflow: auto;
+  color: var(--color-text);
+  font-weight: normal;
+  padding: var(--line-height-computed) 0;
+}
+
+.headerNoBorder, .header {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.header {
+   padding: calc(var(--line-height-computed) / 2) 0;
+   border-bottom: var(--border-size) solid var(--color-gray-lighter);
+}
+.overlay {
+  @extend .overlay;
+  background-color: rgba(6, 23, 42, 0.75);
+}
+.columns {
+  display: grid;
+  grid-template-columns: 33% 33% 34%;
+}
+.columnheader {
+  width: 100%;
+  margin: 0;
+  font-weight: 400;
+  font-size: var(--font-size-large);
+  text-align: center;
+}
+
+
+
+
+
+
 
