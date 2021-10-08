@@ -57,11 +57,11 @@ export default withTracker(() => {
   }).fetch();
 
   if (usersTalking) {
-    const max = usersTalking.length < TALKING_INDICATORS_MAX
+    const maxNumberVoiceUsersNotification = usersTalking.length < TALKING_INDICATORS_MAX
       ? usersTalking.length
       : TALKING_INDICATORS_MAX;
 
-    for (let i = 0; i < max; i += 1) {
+    for (let i = 0; i < maxNumberVoiceUsersNotification; i += 1) {
       const {
         callerName, talking, color, voiceUserId, muted, intId,
       } = usersTalking[i];

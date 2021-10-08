@@ -110,19 +110,19 @@ class TalkingIndicator extends PureComponent {
     const maxIndicator = () => {
       if (!moreThanMaxIndicators) return null;
 
-      const everyNotTalking = Service.everyNotTalking(talkers);
+      const nobodyTalking = Service.nobodyTalking(talkers);
 
       const style = {
         [styles.talker]: true,
-        [styles.spoke]: everyNotTalking,
-        [styles.muted]: false,
+        [styles.spoke]: nobodyTalking,
+        // [styles.muted]: false,
         [styles.mobileHide]: sidebarNavigationIsOpen
           && sidebarContentIsOpen,
       };
 
       const { moreThanMaxIndicatorsTalking, moreThanMaxIndicatorsWereTalking } = intlMessages;
 
-      const ariaLabel = intl.formatMessage(everyNotTalking
+      const ariaLabel = intl.formatMessage(nobodyTalking
         ? moreThanMaxIndicatorsWereTalking : moreThanMaxIndicatorsTalking, {
         0: Object.keys(talkers).length,
       });
