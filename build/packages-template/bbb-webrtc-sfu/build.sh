@@ -35,10 +35,19 @@ git init
 if [ "$DISTRO" == "bionic" ]; then
   # this is a workaround so that the post-install command will find the pegjs binary
   export PATH=$PWD/node_modules/pegjs/bin:$PATH
-  npm install --unsafe-perm --production
+  # use development build until mediasoup is a production dependency
+  npm install --unsafe-perm -D
 else
   npm install --unsafe-perm --production
 fi
+
+# clean out stuff that is not required in the final package
+rm -rf node_modules/mediasoup/{rust,.github,test}
+rm -rf node_modules/mediasoup/worker/{deps,src,test,include,fuzzer}
+rm -rf node_modules/mediasoup/worker/out/Release/*.a
+rm -rf node_modules/mediasoup/worker/out/Release/.deps
+rm -rf node_modules/mediasoup/worker/out/Release/obj.target
+rm -rf node_modules/mediasoup/worker/out/deps
 
 popd
 
