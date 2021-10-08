@@ -23,9 +23,13 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.muteLabel',
     description: 'indicator mute label for moderators',
   },
-  moreThanMaxIndicatorsDesc: {
-    id: 'app.talkingIndicator.moreThanMaxIndicatorsDesc',
-    description: 'indicator there are more than 16 users talking in the moment',
+  moreThanMaxIndicatorsTalking: {
+    id: 'app.talkingIndicator.moreThanMaxIndicatorsTalking',
+    description: 'indicator label for all users who is talking but not visible',
+  },
+  moreThanMaxIndicatorsWereTalking: {
+    id: 'app.talkingIndicator.moreThanMaxIndicatorsWereTalking',
+    description: 'indicator label for all users who is not talking but not visible',
   },
 });
 
@@ -106,15 +110,20 @@ class TalkingIndicator extends PureComponent {
     const maxIndicator = () => {
       if (!moreThanMaxIndicators) return null;
 
+      const everyNotTalking = Service.everyNotTalking(talkers);
+
       const style = {
         [styles.talker]: true,
-        [styles.spoke]: Service.everyNotTalking(talkers),
+        [styles.spoke]: everyNotTalking,
         [styles.muted]: false,
         [styles.mobileHide]: sidebarNavigationIsOpen
           && sidebarContentIsOpen,
       };
 
-      const ariaLabel = intl.formatMessage(intlMessages.moreThanMaxIndicatorsDesc, {
+      const { moreThanMaxIndicatorsTalking, moreThanMaxIndicatorsWereTalking } = intlMessages;
+
+      const ariaLabel = intl.formatMessage(everyNotTalking
+        ? moreThanMaxIndicatorsWereTalking : moreThanMaxIndicatorsTalking, {
         0: Object.keys(talkers).length,
       });
 
@@ -127,7 +136,6 @@ class TalkingIndicator extends PureComponent {
           tooltipLabel={ariaLabel}
           aria-label={ariaLabel}
           color="primary"
-          icon="unmute"
           size="sm"
           style={{
             backgroundColor: '#4a148c',
