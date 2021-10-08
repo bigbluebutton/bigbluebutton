@@ -11,7 +11,6 @@ case "$1" in
     cp /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.example.yml $TARGET
     chown bigbluebutton:bigbluebutton $TARGET
 
-      yq w -i $TARGET localIpAddress "$IP"
       yq w -i $TARGET kurento[0].ip  "$IP"
 
       # https://github.com/bigbluebutton/bbb-webrtc-sfu/pull/37

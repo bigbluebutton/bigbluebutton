@@ -1,7 +1,7 @@
-const Page = require('./core/page');
-const Presentation = require('./presentation/presentation');
+const Page = require('../core/page');
+const Presentation = require('./presentation');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
-const { MAX_PRESENTATION_TEST_TIMEOUT } = require('./core/constants'); // core constants (Timeouts vars imported)
+const { MAX_PRESENTATION_TEST_TIMEOUT } = require('../core/constants'); // core constants (Timeouts vars imported)
 
 expect.extend({ toMatchImageSnapshot });
 
@@ -29,7 +29,7 @@ const presentationTest = () => {
       await test.closePages();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(0.81, screenshot);
+    Page.checkRegression(0.81, screenshot);
   });
 
   test('Upload presentation', async () => {
@@ -51,7 +51,7 @@ const presentationTest = () => {
       await test.closePages();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(24.62, screenshot);
+    Page.checkRegression(24.62, screenshot);
   });
 
   test('Allow and disallow presentation download', async () => {
@@ -73,7 +73,7 @@ const presentationTest = () => {
       await test.closePages();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(24.62, screenshot);
+    Page.checkRegression(24.62, screenshot);
   });
 
   test('Remove all presentation', async () => {
@@ -95,7 +95,7 @@ const presentationTest = () => {
       await test.closePages();
     }
     expect(response).toBe(true);
-    await Page.checkRegression(24.62, screenshot);
+    Page.checkRegression(24.62, screenshot);
   });
 };
 module.exports = exports = presentationTest;
