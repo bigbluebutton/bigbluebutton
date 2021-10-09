@@ -13,9 +13,9 @@ export default (props) => {
   const { layoutContextState, layoutContextDispatch } = layoutContext;
   const { fullscreen } = layoutContextState;
   const { element: currentElement, group: currentGroup } = fullscreen;
-  const {separatePresentationWindow, presentationWindow } = props;
+  const {isPresentationDetached, presentationWindow } = props;
   let isFullscreen;
-  if (separatePresentationWindow) {
+  if (isPresentationDetached) {
     isFullscreen = FullscreenService.isFullScreen(presentationWindow.document.documentElement);
   } else {
     isFullscreen = !!currentElement;
