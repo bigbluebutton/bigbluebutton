@@ -113,7 +113,7 @@ class PresentationToolbar extends PureComponent {
   switchSlide(event) {
     const { target, which } = event;
     const isBody = target.nodeName === 'BODY';
-    const { presentationWindow, separatePresentationWindow } = this.props;
+    const { presentationWindow, isPresentationDetached } = this.props;
 
     if (isBody) {
       switch (which) {
@@ -126,7 +126,7 @@ class PresentationToolbar extends PureComponent {
           this.nextSlideHandler();
           break;
         case KEY_CODES.ENTER:
-          if (separatePresentationWindow){
+          if (isPresentationDetached){
             FullscreenService.toggleFullScreen(presentationWindow.document.documentElement);
           } else {
             this.fullscreenToggleHandler();
@@ -257,8 +257,8 @@ class PresentationToolbar extends PureComponent {
       parseCurrentSlideContent,
       startPoll,
       currentSlide,
-      toggleSeparatePresentationWindow,
-      separatePresentationWindow,
+      togglePresentationDetached,
+      isPresentationDetached,
       presentationWindow,
       toolbarWidth,
     } = this.props;
@@ -310,16 +310,16 @@ class PresentationToolbar extends PureComponent {
           <div>
             <Button
               role="button"
-              aria-label={separatePresentationWindow
+              aria-label={isPresentationDetached
                 ? `${intl.formatMessage(intlMessages.mergePresentationDesc)}`
                 : `${intl.formatMessage(intlMessages.splitPresentationDesc)}`
               }
-              aria-describedby={separatePresentationWindow ? 'mergePresentationDesc' : 'splitPresentationDesc'}
+              aria-describedby={isPresentationDetached ? 'mergePresentationDesc' : 'splitPresentationDesc'}
               color="default"
-              icon={separatePresentationWindow ? "application" : "rooms"}
+              icon={isPresentationDetached ? "application" : "rooms"}
               size="md"
-              onClick={toggleSeparatePresentationWindow}
-              label={separatePresentationWindow
+              onClick={togglePresentationDetached}
+              label={isPresentationDetached
                 ? `${intl.formatMessage(intlMessages.mergePresentationDesc)}`
                 : `${intl.formatMessage(intlMessages.splitPresentationDesc)}`
               }
@@ -396,7 +396,7 @@ class PresentationToolbar extends PureComponent {
                 )
                 : null
             }
-        {!separatePresentationWindow
+        {!isPresentationDetached
           ?
             <Button
               role="button"
@@ -421,14 +421,14 @@ class PresentationToolbar extends PureComponent {
           : null
         }
             {
-              ALLOW_FULLSCREEN && separatePresentationWindow
+              ALLOW_FULLSCREEN && isPresentationDetached
                 ? (
                   <FullscreenButtonContainer
                     fullscreenRef={fullscreenRef}
                     isFullscreen={isFullscreen}
                     elementName={intl.formatMessage(intlMessages.presentationLabel)}
                     className={styles.presentationBtn}
-                    separatePresentationWindow={separatePresentationWindow}
+                    isPresentationDetached={isPresentationDetached}
                     presentationWindow={presentationWindow}
                   />
                 )
