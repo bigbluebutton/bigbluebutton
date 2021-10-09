@@ -46,14 +46,14 @@ export default class ShapeDrawListener extends Component {
   }
 
   componentDidMount() {
-    const { eventWindow } = this.props;
+    const { presentationWindow } = this.props;
     // to send the last message if the user refreshes the page while drawing
-    eventWindow.addEventListener('beforeunload', this.sendLastMessage);
+    presentationWindow.addEventListener('beforeunload', this.sendLastMessage);
   }
 
   componentWillUnmount() {
-    const { eventWindow } = this.props;
-    eventWindow.removeEventListener('beforeunload', this.sendLastMessage);
+    const { presentationWindow } = this.props;
+    presentationWindow.removeEventListener('beforeunload', this.sendLastMessage);
 
     // sending the last message on componentDidUnmount
     this.sendLastMessage();
@@ -129,13 +129,13 @@ export default class ShapeDrawListener extends Component {
   }
 
   handleTouchStart(event) {
-    const { eventWindow } = this.props;
+    const { presentationWindow } = this.props;
     event.preventDefault();
 
     if (!this.isDrawing) {
-      eventWindow.addEventListener('touchend', this.handleTouchEnd, { passive: false });
-      eventWindow.addEventListener('touchmove', this.handleTouchMove, { passive: false });
-      eventWindow.addEventListener('touchcancel', this.handleTouchCancel, true);
+      presentationWindow.addEventListener('touchend', this.handleTouchEnd, { passive: false });
+      presentationWindow.addEventListener('touchmove', this.handleTouchMove, { passive: false });
+      presentationWindow.addEventListener('touchcancel', this.handleTouchCancel, true);
 
       const { clientX, clientY } = event.changedTouches[0];
       this.commonDrawStartHandler(clientX, clientY);
@@ -163,14 +163,14 @@ export default class ShapeDrawListener extends Component {
 
   // main mouse down handler
   handleMouseDown(event) {
-    const { eventWindow } = this.props;
+    const { presentationWindow } = this.props;
     const isLeftClick = event.button === 0;
     const isRightClick = event.button === 2;
 
     if (!this.isDrawing) {
       if (isLeftClick) {
-        eventWindow.addEventListener('mouseup', this.handleMouseUp);
-        eventWindow.addEventListener('mousemove', this.handleMouseMove, true);
+        presentationWindow.addEventListener('mouseup', this.handleMouseUp);
+        presentationWindow.addEventListener('mousemove', this.handleMouseMove, true);
 
         const { clientX, clientY } = event;
         this.commonDrawStartHandler(clientX, clientY);
@@ -256,14 +256,14 @@ export default class ShapeDrawListener extends Component {
   }
 
   resetState() {
-    const { eventWindow } = this.props;
+    const { presentationWindow } = this.props;
     // resetting the current drawing state
-    eventWindow.removeEventListener('mouseup', this.handleMouseUp);
-    eventWindow.removeEventListener('mousemove', this.handleMouseMove, true);
+    presentationWindow.removeEventListener('mouseup', this.handleMouseUp);
+    presentationWindow.removeEventListener('mousemove', this.handleMouseMove, true);
     // touchend, touchmove and touchcancel are removed on devices
-    eventWindow.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
-    eventWindow.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
-    eventWindow.removeEventListener('touchcancel', this.handleTouchCancel, true);
+    presentationWindow.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
+    presentationWindow.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
+    presentationWindow.removeEventListener('touchcancel', this.handleTouchCancel, true);
     this.isDrawing = false;
     this.currentStatus = undefined;
     this.initialCoordinate = {
@@ -344,7 +344,7 @@ export default class ShapeDrawListener extends Component {
     const {
       actions,
       drawSettings,
-      separatePresentationWindow,
+      isPresentationDetached,
     } = this.props;
 
     const {
@@ -357,7 +357,7 @@ export default class ShapeDrawListener extends Component {
 
     let baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
     const hostUri = `https://${window.document.location.hostname}`;
-    if (separatePresentationWindow) {
+    if (isPresentationDetached) {
       baseName = hostUri + baseName ;
     }
     const shapeDrawStyle = {
