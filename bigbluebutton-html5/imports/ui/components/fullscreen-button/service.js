@@ -1,25 +1,29 @@
-function getFullscreenElement() {
-  if (document.fullscreenElement) return document.fullscreenElement;
-  if (document.webkitFullscreenElement) return document.webkitFullscreenElement;
-  if (document.mozFullScreenElement) return document.mozFullScreenElement;
-  if (document.msFullscreenElement) return document.msFullscreenElement;
+function getFullscreenElement(pdoc) {
+  const doc = pdoc ? pdoc : document;
+  if (doc.fullscreenElement) return doc.fullscreenElement;
+  if (doc.webkitFullscreenElement) return doc.webkitFullscreenElement;
+  if (doc.mozFullScreenElement) return doc.mozFullScreenElement;
+  if (doc.msFullscreenElement) return doc.msFullscreenElement;
   return null;
 }
 
 const isFullScreen = (element) => {
-  if (getFullscreenElement() && getFullscreenElement() === element) {
+  //const parentWin = element.ownerDocument.defaultView; // to get element -> document -> window
+  const parentDoc = element.ownerDocument;
+  if (getFullscreenElement(parentDoc) && getFullscreenElement(parentDoc) === element) {
     return true;
   }
   return false;
 };
 
-function cancelFullScreen() {
-  if (document.exitFullscreen) {
-    document.exitFullscreen();
-  } else if (document.mozCancelFullScreen) {
-    document.mozCancelFullScreen();
-  } else if (document.webkitExitFullscreen) {
-    document.webkitExitFullscreen();
+function cancelFullScreen(elem) {
+  const doc = elem.ownerDocument;
+  if (doc.exitFullscreen) {
+    doc.exitFullscreen();
+  } else if (doc.mozCancelFullScreen) {
+    doc.mozCancelFullScreen();
+  } else if (doc.webkitExitFullscreen) {
+    doc.webkitExitFullscreen();
   }
 }
 
@@ -44,7 +48,7 @@ const toggleFullScreen = (ref = null) => {
   const element = ref || document.documentElement;
 
   if (isFullScreen(element)) {
-    cancelFullScreen();
+    cancelFullScreen(element);
   } else {
     fullscreenRequest(element);
   }

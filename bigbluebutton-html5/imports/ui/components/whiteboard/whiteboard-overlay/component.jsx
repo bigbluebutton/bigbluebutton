@@ -6,6 +6,7 @@ import PencilDrawListener from './pencil-draw-listener/component';
 import ShapePointerListener from './shape-pointer-listener/component';
 import PencilPointerListener from './pencil-pointer-listener/component';
 import CursorListener from './cursor-listener/component';
+import browserInfo from '/imports/utils/browserInfo';
 
 export default class WhiteboardOverlay extends Component {
   // a function to transform a screen point to svg point
@@ -62,6 +63,8 @@ export default class WhiteboardOverlay extends Component {
   getTransformedSvgPoint(clientX, clientY) {
     const {
       getSvgRef,
+      slideWidth,
+      isPresentationDetached,
     } = this.props;
 
     const svgObject = getSvgRef();
@@ -70,6 +73,11 @@ export default class WhiteboardOverlay extends Component {
     svgPoint.y = clientY;
     const transformedSvgPoint = WhiteboardOverlay.coordinateTransform(svgPoint, svgObject);
 
+    //Firefox SVG conversion behaves differently and needs an adjustment
+    if ( isPresentationDetached && browserInfo.isFirefox ) {
+      transformedSvgPoint.x += slideWidth * 0.5;
+    }
+    
     return transformedSvgPoint;
   }
 
@@ -164,18 +172,22 @@ export default class WhiteboardOverlay extends Component {
       physicalSlideHeight,
       slideWidth,
       slideHeight,
+      presentationWindow,
+      isPresentationDetached,
     } = this.props;
 
     const { tool } = drawSettings;
 
     if (tool === 'triangle' || tool === 'rectangle' || tool === 'ellipse' || tool === 'line') {
-      if (window.PointerEvent) {
+      if (presentationWindow.PointerEvent) {
         return (
           <ShapePointerListener
             userId={userId}
             actions={actions}
             drawSettings={drawSettings}
             whiteboardId={whiteboardId}
+            presentationWindow={presentationWindow}
+            isPresentationDetached={isPresentationDetached}
           />
         );
       }
@@ -189,7 +201,7 @@ export default class WhiteboardOverlay extends Component {
         />
       );
     } if (tool === 'pencil') {
-      if (window.PointerEvent) {
+      if (presentationWindow.PointerEvent) {
         return (
           <PencilPointerListener
             userId={userId}
@@ -198,6 +210,8 @@ export default class WhiteboardOverlay extends Component {
             actions={actions}
             physicalSlideWidth={physicalSlideWidth}
             physicalSlideHeight={physicalSlideHeight}
+            presentationWindow={presentationWindow}
+            isPresentationDetached={isPresentationDetached}
           />
         );
       }
@@ -210,6 +224,8 @@ export default class WhiteboardOverlay extends Component {
           actions={actions}
           physicalSlideWidth={physicalSlideWidth}
           physicalSlideHeight={physicalSlideHeight}
+          presentationWindow={presentationWindow}
+          isPresentationDetached={isPresentationDetached}
         />
       );
     } if (tool === 'text') {
@@ -221,6 +237,8 @@ export default class WhiteboardOverlay extends Component {
           actions={actions}
           slideWidth={slideWidth}
           slideHeight={slideHeight}
+          presentationWindow={presentationWindow}
+          isPresentationDetached={isPresentationDetached}
         />
       );
     }
@@ -238,6 +256,7 @@ export default class WhiteboardOverlay extends Component {
       contextMenuHandler,
       clearPreview,
       updateCursor,
+      presentationWindow,
     } = this.props;
 
     const actions = {
@@ -260,6 +279,7 @@ export default class WhiteboardOverlay extends Component {
         whiteboardId={whiteboardId}
         actions={actions}
         updateCursor={updateCursor}
+        presentationWindow={presentationWindow}
       >
         {this.renderDrawListener(actions)}
       </CursorListener>

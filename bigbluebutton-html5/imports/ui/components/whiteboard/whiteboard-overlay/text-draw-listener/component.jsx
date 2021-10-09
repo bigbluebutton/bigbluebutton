@@ -65,8 +65,9 @@ export default class TextDrawListener extends Component {
   }
 
   componentDidMount() {
-    window.addEventListener('beforeunload', this.sendLastMessage);
-    window.addEventListener('click', this.handleClick);
+    const { presentationWindow } = this.props;
+    presentationWindow.addEventListener('beforeunload', this.sendLastMessage);
+    presentationWindow.addEventListener('click', this.handleClick);
   }
 
   componentDidUpdate(prevProps) {
@@ -107,8 +108,9 @@ export default class TextDrawListener extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('beforeunload', this.sendLastMessage);
-    window.removeEventListener('click', this.handleClick);
+    const { presentationWindow } = this.props;
+    presentationWindow.removeEventListener('beforeunload', this.sendLastMessage);
+    presentationWindow.removeEventListener('click', this.handleClick);
     // sending the last message on componentDidUnmount
     // for example in case when you switched a tool while drawing text shape
     this.sendLastMessage();
@@ -146,6 +148,8 @@ export default class TextDrawListener extends Component {
       isDrawing,
       isWritingText,
     } = this.state;
+    
+    const { presentationWindow } = this.props;
 
     this.hasBeenTouchedRecently = true;
     setTimeout(() => { this.hasBeenTouchedRecently = false; }, 500);
@@ -155,9 +159,9 @@ export default class TextDrawListener extends Component {
 
     // if our current drawing state is not drawing the box and not writing the text
     if (!isDrawing && !isWritingText) {
-      window.addEventListener('touchend', this.handleTouchEnd, { passive: false });
-      window.addEventListener('touchmove', this.handleTouchMove, { passive: false });
-      window.addEventListener('touchcancel', this.handleTouchCancel, true);
+      presentationWindow.addEventListener('touchend', this.handleTouchEnd, { passive: false });
+      presentationWindow.addEventListener('touchmove', this.handleTouchMove, { passive: false });
+      presentationWindow.addEventListener('touchcancel', this.handleTouchCancel, true);
 
       const { clientX, clientY } = event.changedTouches[0];
       this.commonDrawStartHandler(clientX, clientY);
@@ -180,16 +184,18 @@ export default class TextDrawListener extends Component {
   }
 
   handleTouchEnd() {
-    window.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
-    window.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
-    window.removeEventListener('touchcancel', this.handleTouchCancel, true);
+    const { presentationWindow } = this.props;
+    presentationWindow.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
+    presentationWindow.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
+    presentationWindow.removeEventListener('touchcancel', this.handleTouchCancel, true);
     this.commonDrawEndHandler();
   }
 
   handleTouchCancel() {
-    window.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
-    window.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
-    window.removeEventListener('touchcancel', this.handleTouchCancel, true);
+    const { presentationWindow } = this.props;
+    presentationWindow.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
+    presentationWindow.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
+    presentationWindow.removeEventListener('touchcancel', this.handleTouchCancel, true);
     this.commonDrawEndHandler();
   }
 
@@ -200,6 +206,8 @@ export default class TextDrawListener extends Component {
       isWritingText,
     } = this.state;
 
+    const { presentationWindow } = this.props;
+    
     const isLeftClick = event.button === 0;
     const isRightClick = event.button === 2;
 
@@ -210,8 +218,8 @@ export default class TextDrawListener extends Component {
     // if our current drawing state is not drawing the box and not writing the text
     if (!isDrawing && !isWritingText) {
       if (isLeftClick) {
-        window.addEventListener('mouseup', this.handleMouseUp);
-        window.addEventListener('mousemove', this.handleMouseMove, true);
+        presentationWindow.addEventListener('mouseup', this.handleMouseUp);
+        presentationWindow.addEventListener('mousemove', this.handleMouseMove, true);
 
         const { clientX, clientY } = event;
         this.commonDrawStartHandler(clientX, clientY);
@@ -234,8 +242,9 @@ export default class TextDrawListener extends Component {
 
   // main mouse up handler
   handleMouseUp() {
-    window.removeEventListener('mouseup', this.handleMouseUp);
-    window.removeEventListener('mousemove', this.handleMouseMove, true);
+    const { presentationWindow } = this.props;
+    presentationWindow.removeEventListener('mouseup', this.handleMouseUp);
+    presentationWindow.removeEventListener('mousemove', this.handleMouseMove, true);
     this.commonDrawEndHandler();
   }
 
@@ -296,14 +305,15 @@ export default class TextDrawListener extends Component {
   resetState() {
     const {
       actions,
+      presentationWindow,
     } = this.props;
     // resetting the current drawing state
-    window.removeEventListener('mouseup', this.handleMouseUp);
-    window.removeEventListener('mousemove', this.handleMouseMove, true);
+    presentationWindow.removeEventListener('mouseup', this.handleMouseUp);
+    presentationWindow.removeEventListener('mousemove', this.handleMouseMove, true);
     // touchend, touchmove and touchcancel are removed on devices
-    window.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
-    window.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
-    window.removeEventListener('touchcancel', this.handleTouchCancel, true);
+    presentationWindow.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
+    presentationWindow.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
+    presentationWindow.removeEventListener('touchcancel', this.handleTouchCancel, true);
 
     // resetting the text shape session values
     actions.resetTextShapeSession();
@@ -498,6 +508,7 @@ export default class TextDrawListener extends Component {
   render() {
     const {
       actions,
+      isPresentationDetached,
     } = this.props;
 
     const {
@@ -512,7 +523,11 @@ export default class TextDrawListener extends Component {
     const { contextMenuHandler } = actions;
     const { settings } = Meteor;
     const { public: _public } = settings;
-    const baseName = _public.app.cdn + _public.app.basename + _public.app.instanceId;
+    let baseName = _public.app.cdn + _public.app.basename + _public.app.instanceId;
+    const hostUri = `https://${window.document.location.hostname}`;
+    if (isPresentationDetached) {
+      baseName = hostUri + baseName ;
+    }
     const textDrawStyle = {
       width: '100%',
       height: '100%',
