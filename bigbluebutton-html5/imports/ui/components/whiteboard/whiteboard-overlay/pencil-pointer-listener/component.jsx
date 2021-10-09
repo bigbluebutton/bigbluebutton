@@ -34,14 +34,14 @@ export default class PencilPointerListener extends Component {
   }
 
   componentDidMount() {
-    const { eventWindow } = this.props;
+    const { presentationWindow } = this.props;
     // to send the last DRAW_END message in case if a user reloads the page while drawing
-    eventWindow.addEventListener('beforeunload', this.sendLastMessage);
+    presentationWindow.addEventListener('beforeunload', this.sendLastMessage);
   }
 
   componentWillUnmount() {
-    const { eventWindow } = this.props;
-    eventWindow.removeEventListener('beforeunload', this.sendLastMessage);
+    const { presentationWindow } = this.props;
+    presentationWindow.removeEventListener('beforeunload', this.sendLastMessage);
 
     // sending the last message on componentDidUnmount
     this.sendLastMessage();
@@ -179,14 +179,14 @@ export default class PencilPointerListener extends Component {
   }
 
   resetState() {
-    const { eventWindow } = this.props;
+    const { presentationWindow } = this.props;
     // resetting the current info
     this.points = [];
     this.isDrawing = false;
     // remove event listener
-    eventWindow.removeEventListener('pointerup', this.handlePointerUp);
-    eventWindow.removeEventListener('pointermove', this.handlePointerMove);
-    eventWindow.removeEventListener('pointercancel', this.handlePointerCancel, true);
+    presentationWindow.removeEventListener('pointerup', this.handlePointerUp);
+    presentationWindow.removeEventListener('pointermove', this.handlePointerMove);
+    presentationWindow.removeEventListener('pointercancel', this.handlePointerCancel, true);
   }
 
   discardAnnotation() {
@@ -204,7 +204,7 @@ export default class PencilPointerListener extends Component {
   }
 
   handlePointerDown(event) {
-    const { eventWindow } = this.props;
+    const { presentationWindow } = this.props;
     this.palmRejectionActivated = Storage.getItem(PALM_REJECTION_MODE);
     switch (event.pointerType) {
       case 'mouse': {
@@ -213,8 +213,8 @@ export default class PencilPointerListener extends Component {
 
         if (!this.isDrawing) {
           if (isLeftClick) {
-            eventWindow.addEventListener('pointerup', this.handlePointerUp);
-            eventWindow.addEventListener('pointermove', this.handlePointerMove);
+            presentationWindow.addEventListener('pointerup', this.handlePointerUp);
+            presentationWindow.addEventListener('pointermove', this.handlePointerMove);
 
             const { clientX, clientY } = event;
             this.commonDrawStartHandler(clientX, clientY);
@@ -245,12 +245,12 @@ export default class PencilPointerListener extends Component {
 
   // handler for finger touch and pencil touch
   touchPenDownHandler(event) {
-    const { eventWindow } = this.props;
+    const { presentationWindow } = this.props;
     event.preventDefault();
     if (!this.isDrawing) {
-      eventWindow.addEventListener('pointerup', this.handlePointerUp);
-      eventWindow.addEventListener('pointermove', this.handlePointerMove);
-      eventWindow.addEventListener('pointercancel', this.handlePointerCancel, true);
+      presentationWindow.addEventListener('pointerup', this.handlePointerUp);
+      presentationWindow.addEventListener('pointermove', this.handlePointerMove);
+      presentationWindow.addEventListener('pointercancel', this.handlePointerCancel, true);
 
       const { clientX, clientY } = event;
       this.commonDrawStartHandler(clientX, clientY);
@@ -332,14 +332,14 @@ export default class PencilPointerListener extends Component {
   render() {
     const {
       actions,
-      separatePresentationWindow,
+      isPresentationDetached,
     } = this.props;
 
     const { contextMenuHandler } = actions;
 
     let baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
     const hostUri = `https://${window.document.location.hostname}`;
-    if (separatePresentationWindow) {
+    if (isPresentationDetached) {
       baseName = hostUri + baseName ;
     }
     const pencilDrawStyle = {
