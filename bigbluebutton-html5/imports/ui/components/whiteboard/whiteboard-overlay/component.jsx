@@ -172,22 +172,22 @@ export default class WhiteboardOverlay extends Component {
       physicalSlideHeight,
       slideWidth,
       slideHeight,
-      eventWindow,
-      separatePresentationWindow,
+      presentationWindow,
+      isPresentationDetached,
     } = this.props;
 
     const { tool } = drawSettings;
 
     if (tool === 'triangle' || tool === 'rectangle' || tool === 'ellipse' || tool === 'line') {
-      if (eventWindow.PointerEvent) {
+      if (presentationWindow.PointerEvent) {
         return (
           <ShapePointerListener
             userId={userId}
             actions={actions}
             drawSettings={drawSettings}
             whiteboardId={whiteboardId}
-            eventWindow={eventWindow}
-            separatePresentationWindow={separatePresentationWindow}
+            presentationWindow={presentationWindow}
+            isPresentationDetached={isPresentationDetached}
           />
         );
       }
@@ -201,7 +201,7 @@ export default class WhiteboardOverlay extends Component {
         />
       );
     } if (tool === 'pencil') {
-      if (eventWindow.PointerEvent) {
+      if (presentationWindow.PointerEvent) {
         return (
           <PencilPointerListener
             userId={userId}
@@ -210,8 +210,8 @@ export default class WhiteboardOverlay extends Component {
             actions={actions}
             physicalSlideWidth={physicalSlideWidth}
             physicalSlideHeight={physicalSlideHeight}
-            eventWindow={eventWindow}
-            separatePresentationWindow={separatePresentationWindow}
+            presentationWindow={presentationWindow}
+            isPresentationDetached={isPresentationDetached}
           />
         );
       }
@@ -224,8 +224,8 @@ export default class WhiteboardOverlay extends Component {
           actions={actions}
           physicalSlideWidth={physicalSlideWidth}
           physicalSlideHeight={physicalSlideHeight}
-          eventWindow={eventWindow}
-          separatePresentationWindow={separatePresentationWindow}
+          presentationWindow={presentationWindow}
+          isPresentationDetached={isPresentationDetached}
         />
       );
     } if (tool === 'text') {
@@ -237,8 +237,8 @@ export default class WhiteboardOverlay extends Component {
           actions={actions}
           slideWidth={slideWidth}
           slideHeight={slideHeight}
-          eventWindow={eventWindow}
-          separatePresentationWindow={separatePresentationWindow}
+          presentationWindow={presentationWindow}
+          isPresentationDetached={isPresentationDetached}
         />
       );
     }
@@ -256,7 +256,7 @@ export default class WhiteboardOverlay extends Component {
       contextMenuHandler,
       clearPreview,
       updateCursor,
-      eventWindow,
+      presentationWindow,
     } = this.props;
 
     const actions = {
@@ -279,7 +279,7 @@ export default class WhiteboardOverlay extends Component {
         whiteboardId={whiteboardId}
         actions={actions}
         updateCursor={updateCursor}
-        eventWindow={eventWindow}
+        presentationWindow={presentationWindow}
       >
         {this.renderDrawListener(actions)}
       </CursorListener>
