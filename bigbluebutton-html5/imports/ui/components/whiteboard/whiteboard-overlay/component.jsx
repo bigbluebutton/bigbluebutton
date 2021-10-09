@@ -6,6 +6,7 @@ import PencilDrawListener from './pencil-draw-listener/component';
 import ShapePointerListener from './shape-pointer-listener/component';
 import PencilPointerListener from './pencil-pointer-listener/component';
 import CursorListener from './cursor-listener/component';
+import browserInfo from '/imports/utils/browserInfo';
 
 export default class WhiteboardOverlay extends Component {
   // a function to transform a screen point to svg point
@@ -62,6 +63,8 @@ export default class WhiteboardOverlay extends Component {
   getTransformedSvgPoint(clientX, clientY) {
     const {
       getSvgRef,
+      slideWidth,
+      separatePresentationWindow,
     } = this.props;
 
     const svgObject = getSvgRef();
@@ -70,6 +73,10 @@ export default class WhiteboardOverlay extends Component {
     svgPoint.y = clientY;
     const transformedSvgPoint = WhiteboardOverlay.coordinateTransform(svgPoint, svgObject);
 
+    if ( separatePresentationWindow && browserInfo.isFirefox ) {
+      transformedSvgPoint.x += slideWidth * 0.5;
+    }
+    
     return transformedSvgPoint;
   }
 
