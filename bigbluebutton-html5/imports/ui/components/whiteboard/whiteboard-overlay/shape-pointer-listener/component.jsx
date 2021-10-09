@@ -47,14 +47,14 @@ export default class ShapePointerListener extends Component {
   }
 
   componentDidMount() {
-    const { eventWindow } = this.props;
+    const { presentationWindow } = this.props;
     // to send the last message if the user refreshes the page while drawing
-    eventWindow.addEventListener('beforeunload', this.sendLastMessage);
+    presentationWindow.addEventListener('beforeunload', this.sendLastMessage);
   }
 
   componentWillUnmount() {
-    const { eventWindow } = this.props;
-    eventWindow.removeEventListener('beforeunload', this.sendLastMessage);
+    const { presentationWindow } = this.props;
+    presentationWindow.removeEventListener('beforeunload', this.sendLastMessage);
 
     // sending the last message on componentDidUnmount
     this.sendLastMessage();
@@ -191,7 +191,7 @@ export default class ShapePointerListener extends Component {
   }
 
   resetState() {
-    const { eventWindow } = this.props;
+    const { presentationWindow } = this.props;
     // resetting the current drawing state
     this.isDrawing = false;
     this.currentStatus = undefined;
@@ -208,9 +208,9 @@ export default class ShapePointerListener extends Component {
       y: undefined,
     };
     // remove event handler
-    eventWindow.removeEventListener('pointerup', this.handlePointerUp);
-    eventWindow.removeEventListener('pointermove', this.handlePointerMove);
-    eventWindow.removeEventListener('pointercancel', this.handlePointerCancel, true);
+    presentationWindow.removeEventListener('pointerup', this.handlePointerUp);
+    presentationWindow.removeEventListener('pointermove', this.handlePointerMove);
+    presentationWindow.removeEventListener('pointercancel', this.handlePointerCancel, true);
   }
 
   // since Rectangle / Triangle / Ellipse / Line have the same coordinate structure
@@ -274,7 +274,7 @@ export default class ShapePointerListener extends Component {
   }
 
   handlePointerDown(event) {
-    const { eventWindow } = this.props;
+    const { presentationWindow } = this.props;
     this.palmRejectionActivated = Storage.getItem(PALM_REJECTION_MODE);
     switch (event.pointerType) {
       case 'mouse': {
@@ -283,8 +283,8 @@ export default class ShapePointerListener extends Component {
 
         if (!this.isDrawing) {
           if (isLeftClick) {
-            eventWindow.addEventListener('pointerup', this.handlePointerUp);
-            eventWindow.addEventListener('pointermove', this.handlePointerMove);
+            presentationWindow.addEventListener('pointerup', this.handlePointerUp);
+            presentationWindow.addEventListener('pointermove', this.handlePointerMove);
 
             const { clientX, clientY } = event;
             this.commonDrawStartHandler(clientX, clientY);
@@ -315,12 +315,12 @@ export default class ShapePointerListener extends Component {
 
   // handler for finger touch and pencil touch
   touchPenDownHandler(event) {
-    const { eventWindow } = this.props;
+    const { presentationWindow } = this.props;
     event.preventDefault();
     if (!this.isDrawing) {
-      eventWindow.addEventListener('pointerup', this.handlePointerUp);
-      eventWindow.addEventListener('pointermove', this.handlePointerMove);
-      eventWindow.addEventListener('pointercancel', this.handlePointerCancel, true);
+      presentationWindow.addEventListener('pointerup', this.handlePointerUp);
+      presentationWindow.addEventListener('pointermove', this.handlePointerMove);
+      presentationWindow.addEventListener('pointercancel', this.handlePointerCancel, true);
 
       const { clientX, clientY } = event;
       this.commonDrawStartHandler(clientX, clientY);
@@ -403,7 +403,7 @@ export default class ShapePointerListener extends Component {
     const {
       actions,
       drawSettings,
-      separatePresentationWindow,
+      isPresentationDetached,
     } = this.props;
 
     const {
@@ -416,7 +416,7 @@ export default class ShapePointerListener extends Component {
 
     let baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
     const hostUri = `https://${window.document.location.hostname}`;
-    if (separatePresentationWindow) {
+    if (isPresentationDetached) {
       baseName = hostUri + baseName ;
     }
     const shapeDrawStyle = {
