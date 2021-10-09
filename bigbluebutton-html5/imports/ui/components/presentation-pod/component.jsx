@@ -7,21 +7,21 @@ class PresentationPods extends PureComponent {
     super();
 
     this.state = {
-      separatePresentationWindow: false,
+      isPresentationDetached: false,
     };
 
     this.previousSvgSize = {width:0, height:0};
     this.previousToolbarHeight = 0;
-    this.setSeparatePresentationWindow = this.setSeparatePresentationWindow.bind(this);
-    this.toggleSeparatePresentationWindow = this.toggleSeparatePresentationWindow.bind(this);
+    this.setPresentationDetached = this.setPresentationDetached.bind(this);
+    this.togglePresentationDetached = this.togglePresentationDetached.bind(this);
     this.setPreviousSvgSize = this.setPreviousSvgSize.bind(this);
     this.getPreviousSvgSize = this.getPreviousSvgSize.bind(this);
     this.setPreviousToolbarHeight = this.setPreviousToolbarHeight.bind(this);
     this.getPreviousToolbarHeight = this.getPreviousToolbarHeight.bind(this);
   }
 
-  setSeparatePresentationWindow(isSeparate) {
-    this.setState({ separatePresentationWindow: isSeparate });
+  setPresentationDetached(isDetached) {
+    this.setState({ isPresentationDetached: isDetached });
   }
 
   setPreviousSvgSize(w, h) {
@@ -43,9 +43,9 @@ class PresentationPods extends PureComponent {
     return this.previousToolBarHeight;
   }
 
-  toggleSeparatePresentationWindow() {
-    const { separatePresentationWindow } = this.state;
-    this.setState({ separatePresentationWindow: !separatePresentationWindow });
+  togglePresentationDetached() {
+    const { isPresentationDetached } = this.state;
+    this.setState({ isPresentationDetached: !isPresentationDetached });
   }
   
   render() {
@@ -57,10 +57,10 @@ class PresentationPods extends PureComponent {
     return (
       <PresentationContainer
         podId="DEFAULT_PRESENTATION_POD"
-        key={this.state.separatePresentationWindow && this.state.separatePresentationWindow.id}
-        separatePresentationWindow={this.state.separatePresentationWindow}
-        setSeparatePresentationWindow={this.setSeparatePresentationWindow}
-        toggleSeparatePresentationWindow={this.toggleSeparatePresentationWindow}
+        key={this.state.isPresentationDetached && this.state.isPresentationDetached.id}
+        isPresentationDetached={this.state.isPresentationDetached}
+        setPresentationDetached={this.setPresentationDetached}
+        togglePresentationDetached={this.togglePresentationDetached}
         setPreviousSvgSize={this.setPreviousSvgSize}
         getPreviousSvgSize={this.getPreviousSvgSize}
         setPreviousToolbarHeight={this.setPreviousToolbarHeight}
