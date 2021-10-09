@@ -89,7 +89,7 @@ class MyWindowPortal extends React.PureComponent {
     const {
       svgSize,
       setEventExternalWindow,
-      setSeparatePresentationWindow,
+      setPresentationDetached,
       toolbarHeight,
     } = this.props;
 
@@ -104,7 +104,7 @@ class MyWindowPortal extends React.PureComponent {
 
     win.addEventListener('beforeunload', () => {
       presentationWindow = window;
-      setSeparatePresentationWindow(false); //for closing the window by X button
+      setPresentationDetached(false); //for closing the window by X button
     });
 
     this.setState({ win, el });
@@ -367,7 +367,7 @@ class Presentation extends PureComponent {
   }
 
   getPresentationSizesAvailable() {
-    const { separatePresentationWindow } = this.props;
+    const { isPresentationDetached } = this.props;
     const {
       presentationBounds,
       presentationAreaSize: newPresentationAreaSize,
@@ -377,7 +377,7 @@ class Presentation extends PureComponent {
       presentationHeight: 0,
     };
 
-    if (separatePresentationWindow && presentationWindow.innerWidth != 0) {
+    if (isPresentationDetached && presentationWindow.innerWidth != 0) {
       presentationSizes.presentationWidth = presentationWindow.innerWidth;
       presentationSizes.presentationHeight = presentationWindow.innerHeight - (this.getToolbarHeight() || 0)
     } else {
@@ -533,7 +533,7 @@ class Presentation extends PureComponent {
       podId,
       currentSlide,
       slidePosition,
-      separatePresentationWindow,
+      isPresentationDetached,
     } = this.props;
 
     const {
@@ -573,8 +573,8 @@ class Presentation extends PureComponent {
         panAndZoomChanger={this.panAndZoomChanger}
         getSvgRef={this.getSvgRef}
         fitToWidth={fitToWidth}
-        eventWindow={presentationWindow}
-        separatePresentationWindow={separatePresentationWindow}
+        presentationWindow={presentationWindow}
+        isPresentationDetached={isPresentationDetached}
       >
         <WhiteboardOverlayContainer
           getSvgRef={this.getSvgRef}
@@ -591,8 +591,8 @@ class Presentation extends PureComponent {
           physicalSlideHeight={physicalDimensions.height}
           zoom={zoom}
           zoomChanger={this.zoomChanger}
-          eventWindow={presentationWindow}
-          separatePresentationWindow={separatePresentationWindow}
+          presentationWindow={presentationWindow}
+          isPresentationDetached={isPresentationDetached}
         />
       </PresentationOverlayContainer>
     );
@@ -607,7 +607,7 @@ class Presentation extends PureComponent {
       slidePosition,
       userIsPresenter,
       layoutSwapped,
-      separatePresentationWindow,
+      isPresentationDetached,
     } = this.props;
 
     const {
@@ -666,7 +666,7 @@ class Presentation extends PureComponent {
       display: layoutSwapped ? 'none' : 'block',
     };
 
-    if ( userIsPresenter && separatePresentationWindow ) {
+    if ( userIsPresenter && isPresentationDetached ) {
       presentationStyle.left = "50%";
       presentationStyle.transform = "translateX(-50%)";
     }
@@ -677,7 +677,7 @@ class Presentation extends PureComponent {
       >
         <span id="currentSlideText" className={styles.visuallyHidden}>{slideContent}</span>
         {this.renderPresentationDownload()}
-        {separatePresentationWindow ? null : this.renderPresentationFullscreen()}
+        {isPresentationDetached ? null : this.renderPresentationFullscreen()}
         <svg
           key={currentSlide.id}
           data-test="whiteboard"
@@ -741,8 +741,8 @@ class Presentation extends PureComponent {
     const {
       currentSlide,
       podId,
-      separatePresentationWindow,
-      toggleSeparatePresentationWindow,
+      isPresentationDetached,
+      togglePresentationDetached,
       isMobile,
       layoutType,
       numCameras,
@@ -776,8 +776,7 @@ class Presentation extends PureComponent {
         presentationId={currentSlide.presentationId}
         zoomChanger={this.zoomChanger}
         fitToWidthHandler={this.fitToWidthHandler}
-        toggleSeparatePresentationWindow={toggleSeparatePresentationWindow}
-        separatePresentationWindow={separatePresentationWindow}
+        togglePresentationDetached={togglePresentationDetached
         presentationWindow={presentationWindow}
         fullscreenRef={presentationWindow.document.documentElement}
         isFullscreen={fullscreenContext}
@@ -882,8 +881,8 @@ class Presentation extends PureComponent {
       userIsPresenter,
       multiUser,
       slidePosition,
-      separatePresentationWindow,
-      setSeparatePresentationWindow,
+      isPresentationDetached,
+      setPresentationDetached,
       setPreviousSvgSize,
       getPreviousSvgSize,
       setPreviousToolbarHeight,
@@ -963,7 +962,7 @@ class Presentation extends PureComponent {
               : null ;
 
     let pToolbarStyle = {width: containerWidth};
-    if (userIsPresenter && separatePresentationWindow){
+    if (userIsPresenter && isPresentationDetached){
       pToolbarStyle.left = "50%";
       pToolbarStyle.transform = "translateX(-50%)";
     }
@@ -1018,11 +1017,11 @@ class Presentation extends PureComponent {
               height: svgHeight + toolbarHeight,
             }}
           >
-          {userIsPresenter && separatePresentationWindow
+          {userIsPresenter && isPresentationDetached
             ?
               <Fragment>
                 <MyWindowPortal
-                  setSeparatePresentationWindow={setSeparatePresentationWindow}
+                  setPresentationDetached={setPresentationDetached}
                   setEventExternalWindow={this.setEventExternalWindow}
                   svgSize={getPreviousSvgSize()}
                   toolbarHeight={getPreviousToolbarHeight()}
