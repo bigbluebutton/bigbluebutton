@@ -82,7 +82,7 @@ const FullscreenButtonComponent = ({
     [styles.bottom]: bottom,
   });
   
-  //const newFullscreenRef = separatePresentationWindow ? presentationWindow.document.documentElement : fullscreenRef;
+  //const newFullscreenRef = isPresentationDetached ? presentationWindow.document.documentElement : fullscreenRef;
 
   const handleClick = () => {
     const newElement = (elementId === currentElement) ? '' : elementId;
