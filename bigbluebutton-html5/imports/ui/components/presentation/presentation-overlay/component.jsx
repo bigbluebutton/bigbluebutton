@@ -114,10 +114,10 @@ export default class PresentationOverlay extends Component {
   }
 
   componentWillUnmount() {
-    const { eventWindow } = this.props;
+    const { presentationWindow } = this.props;
 
-    eventWindow.removeEventListener('mousemove', this.mouseMoveHandler);
-    eventWindow.removeEventListener('mouseup', this.mouseUpHandler);
+    presentationWindow.removeEventListener('mousemove', this.mouseMoveHandler);
+    presentationWindow.removeEventListener('mouseup', this.mouseUpHandler);
   }
 
   getTransformedSvgPoint(clientX, clientY) {
@@ -384,14 +384,14 @@ export default class PresentationOverlay extends Component {
   handleTouchStart(event) {
     const {
       annotationTool,
-      eventWindow,
+      presentationWindow,
     } = this.props;
 
     if (annotationTool !== HAND_TOOL) return;
     // to prevent default behavior (scrolling) on devices (in Safari), when you draw a text box
-    eventWindow.addEventListener('touchend', this.handleTouchEnd, { passive: false });
-    eventWindow.addEventListener('touchmove', this.handleTouchMove, { passive: false });
-    eventWindow.addEventListener('touchcancel', this.handleTouchCancel, true);
+    presentationWindow.addEventListener('touchend', this.handleTouchEnd, { passive: false });
+    presentationWindow.addEventListener('touchmove', this.handleTouchMove, { passive: false });
+    presentationWindow.addEventListener('touchcancel', this.handleTouchCancel, true);
 
     this.touchStarted = true;
 
@@ -426,31 +426,31 @@ export default class PresentationOverlay extends Component {
   }
 
   handleTouchEnd(event) {
-    const { eventWindow } = this.props;
+    const { presentationWindow } = this.props;
     event.preventDefault();
 
     // resetting the touchStarted flag
     this.touchStarted = false;
 
-    eventWindow.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
-    eventWindow.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
-    eventWindow.removeEventListener('touchcancel', this.handleTouchCancel, true);
+    presentationWindow.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
+    presentationWindow.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
+    presentationWindow.removeEventListener('touchcancel', this.handleTouchCancel, true);
   }
 
   handleTouchCancel(event) {
-    const { eventWindow } = this.props;
+    const { presentationWindow } = this.props;
     event.preventDefault();
 
-    eventWindow.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
-    eventWindow.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
-    eventWindow.removeEventListener('touchcancel', this.handleTouchCancel, true);
+    presentationWindow.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
+    presentationWindow.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
+    presentationWindow.removeEventListener('touchcancel', this.handleTouchCancel, true);
   }
 
   mouseDownHandler(event) {
     const {
       annotationTool,
       userIsPresenter,
-      eventWindow,
+      presentationWindow,
     } = this.props;
 
     if (annotationTool !== HAND_TOOL || !userIsPresenter) return;
@@ -464,8 +464,8 @@ export default class PresentationOverlay extends Component {
         pressed: true,
       });
 
-      eventWindow.addEventListener('mousemove', this.mouseMoveHandler, { passive: false });
-      eventWindow.addEventListener('mouseup', this.mouseUpHandler, { passive: false });
+      presentationWindow.addEventListener('mousemove', this.mouseMoveHandler, { passive: false });
+      presentationWindow.addEventListener('mouseup', this.mouseUpHandler, { passive: false });
     }
   }
 
@@ -493,7 +493,7 @@ export default class PresentationOverlay extends Component {
   }
 
   mouseUpHandler(event) {
-    const { eventWindow } = this.props;
+    const { presentationWindow } = this.props;
     
     const {
       pressed,
@@ -506,8 +506,8 @@ export default class PresentationOverlay extends Component {
         pressed: false,
       });
 
-      eventWindow.removeEventListener('mousemove', this.mouseMoveHandler);
-      eventWindow.removeEventListener('mouseup', this.mouseUpHandler);
+      presentationWindow.removeEventListener('mousemove', this.mouseMoveHandler);
+      presentationWindow.removeEventListener('mouseup', this.mouseUpHandler);
     }
   }
 
@@ -521,7 +521,7 @@ export default class PresentationOverlay extends Component {
       slideHeight,
       children,
       userIsPresenter,
-      separatePresentationWindow,
+      isPresentationDetached,
     } = this.props;
 
     const {
@@ -535,7 +535,7 @@ export default class PresentationOverlay extends Component {
 
     const hostUri = `https://${window.document.location.hostname}`;
     let baseName;
-    if (separatePresentationWindow) {
+    if (isPresentationDetached) {
       baseName = hostUri + Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
     } else {
       baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
