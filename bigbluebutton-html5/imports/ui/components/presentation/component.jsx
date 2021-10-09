@@ -776,7 +776,7 @@ class Presentation extends PureComponent {
         presentationId={currentSlide.presentationId}
         zoomChanger={this.zoomChanger}
         fitToWidthHandler={this.fitToWidthHandler}
-        togglePresentationDetached={togglePresentationDetached
+        togglePresentationDetached={togglePresentationDetached}
         presentationWindow={presentationWindow}
         fullscreenRef={presentationWindow.document.documentElement}
         isFullscreen={fullscreenContext}
