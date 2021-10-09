@@ -104,10 +104,10 @@ export default class CursorListener extends Component {
   }
 
   removeTouchListeners() {
-    const { eventWindow } = this.props;
-    eventWindow.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
-    eventWindow.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
-    eventWindow.removeEventListener('touchcancel', this.handleTouchCancel, true);
+    const { presentationWindow } = this.props;
+    presentationWindow.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
+    presentationWindow.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
+    presentationWindow.removeEventListener('touchcancel', this.handleTouchCancel, true);
   }
 
   handleMouseEnter(event) {
@@ -137,12 +137,12 @@ export default class CursorListener extends Component {
   }
 
   handleTouchStart(event) {
-    const { eventWindow } = this.props;
+    const { presentationWindow } = this.props;
     event.preventDefault();
 
-    eventWindow.addEventListener('touchmove', this.handleTouchMove, { passive: false });
-    eventWindow.addEventListener('touchend', this.handleTouchEnd, { passive: false });
-    eventWindow.addEventListener('touchcancel', this.handleTouchCancel, true);
+    presentationWindow.addEventListener('touchmove', this.handleTouchMove, { passive: false });
+    presentationWindow.addEventListener('touchend', this.handleTouchEnd, { passive: false });
+    presentationWindow.addEventListener('touchcancel', this.handleTouchCancel, true);
 
     this.touchStarted = true;
 
