@@ -326,7 +326,7 @@ class ApplicationMenu extends BaseMenu {
     return (
       <>
         <div className={styles.row}>
-          <div className={styles.col} aria-hidden="true">
+          <div className={styles.col}>
             <div className={styles.formElement}>
               <label htmlFor="layoutList" className={styles.label}>
                 {intl.formatMessage(intlMessages.layoutOptionLabel)}
@@ -412,7 +412,7 @@ class ApplicationMenu extends BaseMenu {
           {this.renderPaginationToggle()}
 
           <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
+            <div className={styles.col}>
               <div className={styles.formElement}>
                 <label
                   className={styles.label}
