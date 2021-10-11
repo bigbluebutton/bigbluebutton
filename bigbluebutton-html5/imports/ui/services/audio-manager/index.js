@@ -12,6 +12,7 @@ import { monitorAudioConnection } from '/imports/utils/stats';
 import AudioErrors from './error-codes';
 import {Meteor} from "meteor/meteor";
 import browserInfo from '/imports/utils/browserInfo';
+import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 
 const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
@@ -113,6 +114,11 @@ class AudioManager {
         defaultListenOnlyBridge,
       } = MEDIA.audio;
 
+      const _fullAudioBridge = getFromMeetingSettings(
+        'fullaudio-bridge',
+        defaultFullAudioBridge,
+      );
+
       this.bridges = {};
 
       await Promise.all(Object.values(bridges).map(async (bridge) => {
@@ -121,8 +127,8 @@ class AudioManager {
           + bridge.path) || {}).default;
       }));
 
-      if (defaultFullAudioBridge && (this.bridges[defaultFullAudioBridge])) {
-        FullAudioBridge = this.bridges[defaultFullAudioBridge];
+      if (_fullAudioBridge && (this.bridges[_fullAudioBridge])) {
+        FullAudioBridge = this.bridges[_fullAudioBridge];
       }
 
       if (defaultListenOnlyBridge && (this.bridges[defaultListenOnlyBridge])) {
