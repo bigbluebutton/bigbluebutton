@@ -232,6 +232,7 @@
               messages = mergedMessages;
 
               window.document.title = _('app.guest.windowTitle');
+              setGuestLobbyHeadingText();
               updateMessage(_('app.guest.guestWait'));
               enableAnimation();
               try {
@@ -324,6 +325,13 @@
 
     function disableAnimation() {
       document.documentElement.style.setProperty('--enableAnimation', 0);
+    }
+
+    function setGuestLobbyHeadingText() {
+      const headingText = _('app.guest.windowTitle');
+      if (headingText) {
+        document.getElementsByTagName('h1')[0].innerHTML = headingText;
+      }
     }
 
     window.onload = function () {
