@@ -11,6 +11,7 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 import UserListService from '/imports/ui/components/user-list/service';
 import AudioManager from '/imports/ui/services/audio-manager';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -373,4 +374,4 @@ class BreakoutRoom extends PureComponent {
   }
 }
 
-export default injectIntl(BreakoutRoom);
+export default injectWbResizeEvent(injectIntl(BreakoutRoom));
