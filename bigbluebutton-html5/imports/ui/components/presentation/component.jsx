@@ -819,6 +819,7 @@ class Presentation extends PureComponent {
     const {
       intl,
       fullscreenElementId,
+      isPresentationDetached,
     } = this.props;
     const { isFullscreen } = this.state;
 
@@ -833,6 +834,8 @@ class Presentation extends PureComponent {
         color="muted"
         fullScreenStyle={false}
         className={styles.presentationFullscreen}
+        isPresentationDetached={isPresentationDetached}
+        presentationWindow={presentationWindow}
       />
     );
   }
