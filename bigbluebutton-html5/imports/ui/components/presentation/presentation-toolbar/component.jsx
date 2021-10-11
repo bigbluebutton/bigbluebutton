@@ -420,20 +420,6 @@ class PresentationToolbar extends PureComponent {
             />
           : null
         }
-            {
-              ALLOW_FULLSCREEN && isPresentationDetached
-                ? (
-                  <FullscreenButtonContainer
-                    fullscreenRef={fullscreenRef}
-                    isFullscreen={isFullscreen}
-                    elementName={intl.formatMessage(intlMessages.presentationLabel)}
-                    className={styles.presentationBtn}
-                    isPresentationDetached={isPresentationDetached}
-                    presentationWindow={presentationWindow}
-                  />
-                )
-                : null
-            }
           </div>
         }
       </div>
