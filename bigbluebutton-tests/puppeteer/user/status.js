@@ -15,7 +15,7 @@ class Status extends Page {
     try {
       await util.setStatus(this, e.applaud);
       const resp1 = await this.hasElement(e.applauseIcon);
-      await sleep(750);
+      await sleep(1000);
       await util.setStatus(this, e.away);
       const resp2 = await this.hasElement(e.awayIcon);
 

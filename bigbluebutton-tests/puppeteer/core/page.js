@@ -225,16 +225,6 @@ class Page {
     }
   }
 
-  async isNotVisible(element, timeout = ELEMENT_WAIT_TIME) {
-    try {
-      await this.hasElement(element, false, timeout);
-      return true;
-    } catch (err) {
-      await this.logger(err);
-      return false;
-    }
-  }
-
   // async emulateMobile(userAgent) {
   //   await this.page.setUserAgent(userAgent);
   // }

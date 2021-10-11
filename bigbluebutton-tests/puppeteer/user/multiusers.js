@@ -2,7 +2,7 @@ const Page = require('../core/page');
 const util = require('../chat/util');
 const utilUser = require('./util');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { getElementLength, checkElementLengthEqualTo } = require('../core/util');
 
 class MultiUsers {
@@ -293,7 +293,7 @@ class MultiUsers {
       await this.page2.close();
       await utilUser.connectionStatus(this.page1);
       const connectionStatusItemEmpty = await this.page1.wasRemoved(e.connectionStatusItemEmpty);
-      const connectionStatusOfflineUser = await this.page1.hasElement(e.connectionStatusOfflineUser, true);
+      const connectionStatusOfflineUser = await this.page1.hasElement(e.connectionStatusOfflineUser, true, ELEMENT_WAIT_LONGER_TIME);
 
       return connectionStatusItemEmpty && connectionStatusOfflineUser;
     } catch (err) {
@@ -345,8 +345,8 @@ class MultiUsers {
       await this.page1.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.chatButtonKey);
-      const onUserListPanel = await this.page1.isNotVisible(e.hidePresentation);
-      const onChatPanel = await this.page2.isNotVisible(e.hidePresentation);
+      const onUserListPanel = await this.page1.hasElement(e.hidePresentation);
+      const onChatPanel = await this.page2.hasElement(e.hidePresentation);
 
       return onUserListPanel && onChatPanel;
     } catch (err) {
@@ -360,7 +360,7 @@ class MultiUsers {
       await this.page2.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.chatButtonKey);
       const whiteboard = await this.page1.page.evaluate(checkElementLengthEqualTo, e.chatButtonKey, 0);
-      const onChatPanel = await this.page2.isNotVisible(e.chatButtonKey);
+      const onChatPanel = await this.page2.hasElement(e.chatButtonKey);
 
       return whiteboard && onChatPanel;
     } catch (err) {
