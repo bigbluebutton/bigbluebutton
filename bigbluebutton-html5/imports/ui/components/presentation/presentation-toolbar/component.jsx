@@ -274,8 +274,6 @@ class PresentationToolbar extends PureComponent {
           </div>
         }
         {
-         !isFullscreen
-         ?
           <div>
             <Button
               role="button"
@@ -296,7 +294,6 @@ class PresentationToolbar extends PureComponent {
               className={cx(styles.separateWindow, styles.presentationBtn)}
             />
           </div>
-         : null
         }
         {
           <div className={styles.presentationSlideControls}>
