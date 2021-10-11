@@ -87,8 +87,7 @@ class Create {
         await this.modPage2.waitAndClick(e.chatButton);
         await this.modPage2.waitAndClick(e.breakoutRoomsItem);
 
-        await this.modPage2.waitAndClick(e.generateRoom1);
-        await this.modPage2.waitAndClick(e.joinGeneratedRoom1);
+        await this.modPage2.waitAndClick(e.askJoinRoom1);
         await this.modPage2.waitForSelector(e.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
 
         const breakoutModPage2 = await this.modPage2.getLastTargetPage();
@@ -106,8 +105,7 @@ class Create {
       } else if (testName === 'joinBreakoutroomsWithVideo') {
         await this.modPage2.init(true, true, testName, 'Moderator2', this.modPage1.meetingId);
         await this.modPage2.waitAndClick(e.breakoutRoomsButton);
-        await this.modPage2.waitAndClick(e.generateRoom1);
-        await this.modPage2.waitAndClick(e.joinGeneratedRoom1);
+        await this.modPage2.waitAndClick(e.askJoinRoom1);
         await this.modPage2.waitForSelector(e.alreadyConnected);
 
         const breakoutModPage2 = await this.modPage2.getLastTargetPage();
@@ -123,8 +121,7 @@ class Create {
       } else if (testName === 'joinBreakoutroomsAndShareScreen') {
         await this.modPage2.init(true, true, testName, 'Moderator2', this.modPage1.meetingId);
         await this.modPage2.waitAndClick(e.breakoutRoomsButton);
-        await this.modPage2.waitAndClick(e.generateRoom1);
-        await this.modPage2.waitAndClick(e.joinGeneratedRoom1);
+        await this.modPage2.waitAndClick(e.askJoinRoom1);
         await this.modPage2.waitForSelector(e.alreadyConnected);
         const breakoutModPage2 = await this.modPage2.getLastTargetPage();
 
