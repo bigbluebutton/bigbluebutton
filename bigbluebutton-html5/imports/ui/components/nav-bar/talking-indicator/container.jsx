@@ -51,7 +51,7 @@ export default withTracker(() => {
       intId: 1,
     },
     sort: {
-      startTime: -1,
+      startTime: 1,
     },
     limit: TALKING_INDICATORS_MAX + 1,
   }).fetch();
