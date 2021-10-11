@@ -244,7 +244,7 @@ class Page {
     }
   }
 
-  async hasElement(element, visible = false, timeout = ELEMENT_WAIT_TIME) {
+  async hasElement(element, visible = true, timeout = ELEMENT_WAIT_TIME) {
     try {
       await this.page.waitForSelector(element, { visible, timeout });
       return true;

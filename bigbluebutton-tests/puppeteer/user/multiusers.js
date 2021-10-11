@@ -345,8 +345,8 @@ class MultiUsers {
       await this.page1.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.chatButtonKey);
-      const onUserListPanel = await this.page1.hasElement(e.hidePresentation);
-      const onChatPanel = await this.page2.hasElement(e.hidePresentation);
+      const onUserListPanel = await this.page1.wasRemoved(e.hidePresentation);
+      const onChatPanel = await this.page2.wasRemoved(e.hidePresentation);
 
       return onUserListPanel && onChatPanel;
     } catch (err) {
@@ -360,7 +360,7 @@ class MultiUsers {
       await this.page2.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.chatButtonKey);
       const whiteboard = await this.page1.page.evaluate(checkElementLengthEqualTo, e.chatButtonKey, 0);
-      const onChatPanel = await this.page2.hasElement(e.chatButtonKey);
+      const onChatPanel = await this.page2.hasElement(e.chatButtonKey, false);
 
       return whiteboard && onChatPanel;
     } catch (err) {
