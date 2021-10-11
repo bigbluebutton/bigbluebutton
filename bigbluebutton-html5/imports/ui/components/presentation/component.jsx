@@ -778,6 +778,7 @@ class Presentation extends PureComponent {
         fitToWidthHandler={this.fitToWidthHandler}
         togglePresentationDetached={togglePresentationDetached}
         presentationWindow={presentationWindow}
+        isPresentationDetached={isPresentationDetached}
         fullscreenRef={presentationWindow.document.documentElement}
         isFullscreen={fullscreenContext}
         fullscreenAction={ACTIONS.SET_FULLSCREEN_ELEMENT}
