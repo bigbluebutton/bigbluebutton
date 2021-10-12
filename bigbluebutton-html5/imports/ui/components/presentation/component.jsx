@@ -78,7 +78,7 @@ function copyStyles(sourceDoc, targetDoc) {
 }
 
 let presentationWindow = window;
-class MyWindowPortal extends React.PureComponent {
+class WindowPortal extends React.PureComponent {
   // Most of the idea and code were copied from https://stackoverflow.com/questions/47909601/onclick-not-working-inside-the-pop-up-opened-via-react-portals
   constructor(props) {
     super(props);
@@ -1024,7 +1024,7 @@ class Presentation extends PureComponent {
           {userIsPresenter && isPresentationDetached
             ?
               <Fragment>
-                <MyWindowPortal
+                <WindowPortal
                   setPresentationDetached={setPresentationDetached}
                   setEventExternalWindow={this.setEventExternalWindow}
                   svgSize={getPreviousSvgSize()}
@@ -1033,7 +1033,7 @@ class Presentation extends PureComponent {
                   {slide}
                   {wToolbar}
                   {pToolbar}
-                </MyWindowPortal>
+                </WindowPortal>
                 {/*
                   wToolbar can be here if it impairs the slide visibility
                 */}
