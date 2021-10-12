@@ -9,8 +9,9 @@ trait GetWhiteboardAnnotationsReqMsgHdlr {
 
   def handle(msg: GetWhiteboardAnnotationsReqMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
-    def broadcastEvent(msg: GetWhiteboardAnnotationsReqMsg, history: Array[AnnotationVO], multiUser: Boolean): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, msg.header.userId)
+    def broadcastEvent(msg: GetWhiteboardAnnotationsReqMsg, history: Array[AnnotationVO], multiUser: Array[String]): Unit = {
+      val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, liveMeeting.props.systemProps.html5InstanceId.toString)
+
       val envelope = BbbCoreEnvelope(GetWhiteboardAnnotationsRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(GetWhiteboardAnnotationsRespMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 

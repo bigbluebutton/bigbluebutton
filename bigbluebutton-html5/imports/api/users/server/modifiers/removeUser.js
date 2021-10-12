@@ -2,58 +2,58 @@ import { check } from 'meteor/check';
 import Users from '/imports/api/users';
 import VideoStreams from '/imports/api/video-streams';
 import Logger from '/imports/startup/server/logger';
-import stopWatchingExternalVideo from '/imports/api/external-videos/server/methods/stopWatchingExternalVideo';
+import setloggedOutStatus from '/imports/api/users-persistent-data/server/modifiers/setloggedOutStatus';
+import stopWatchingExternalVideoSystemCall from '/imports/api/external-videos/server/methods/stopWatchingExternalVideoSystemCall';
 import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
+import ClientConnections from '/imports/startup/server/ClientConnections';
 
 const clearAllSessions = (sessionUserId) => {
   const serverSessions = Meteor.server.sessions;
   Object.keys(serverSessions)
-    .filter(i => serverSessions[i].userId === sessionUserId)
-    .forEach(i => serverSessions[i].close());
+    .filter((i) => serverSessions[i].userId === sessionUserId)
+    .forEach((i) => serverSessions[i].close());
 };
 
 export default function removeUser(meetingId, userId) {
   check(meetingId, String);
   check(userId, String);
 
-  const userToRemove = Users.findOne({ userId, meetingId });
-
-  if (userToRemove) {
-    const { presenter } = userToRemove;
-    if (presenter) {
-      stopWatchingExternalVideo({ meetingId, requesterUserId: userId });
-    }
-  }
-
-  const selector = {
-    meetingId,
-    userId,
-  };
-
-  const modifier = {
-    $set: {
-      connectionStatus: 'offline',
-      validated: false,
-      emoji: 'none',
-      presenter: false,
-      role: 'VIEWER',
-    },
-  };
-
   try {
-    VideoStreams.remove({ meetingId, userId });
-    const numberAffected = Users.update(selector, modifier);
-
-    if (numberAffected) {
+    if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
       const sessionUserId = `${meetingId}-${userId}`;
+      ClientConnections.removeClientConnection(`${meetingId}--${userId}`);
       clearAllSessions(sessionUserId);
 
-      clearUserInfoForRequester(meetingId, userId);
-
-      Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
-      return;
+      // we don't want to fully process the redis message in frontend
+      // since the backend is supposed to update Mongo
+      if (process.env.BBB_HTML5_ROLE === 'frontend') {
+        return;
+      }
     }
+
+    const selector = {
+      meetingId,
+      userId,
+    };
+
+    const userToRemove = Users.findOne({ userId, meetingId });
+
+    if (userToRemove) {
+      const { presenter } = userToRemove;
+      if (presenter) {
+        stopWatchingExternalVideoSystemCall({ meetingId, requesterUserId: 'system-presenter-was-removed' });
+      }
+    }
+
+    setloggedOutStatus(userId, meetingId, true);
+    VideoStreams.remove({ meetingId, userId });
+
+    clearUserInfoForRequester(meetingId, userId);
+
+    Users.remove(selector);
+
+    Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
   } catch (err) {
-    Logger.error(`Removing user from collection: ${err}`);
+    Logger.error(`Removing user from Users collection: ${err}`);
   }
 }

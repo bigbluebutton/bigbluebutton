@@ -1,0 +1,42 @@
+.modalViewContainer {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+.modalViewTitle {
+    font-weight: 600;
+    font-size: var(--font-size-large);
+    margin-bottom: var(--md-padding-x);
+}
+
+.modalAvatar {
+    height: 6rem;
+    width: 6rem;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: var(--font-size-xxl);
+    font-weight: 400;
+    margin-bottom: var(--sm-padding-x);
+    text-transform: capitalize;
+}
+
+.selectedUserName {
+    margin-bottom: var(--md-padding-x);;
+    font-weight: var(--headings-font-weight);
+    font-size: 2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+    width: 100%;
+    text-align: center;
+}
+
+.selectBtn {
+    margin-bottom: var(--md-padding-x);
+}
+

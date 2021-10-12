@@ -72,15 +72,14 @@ public class ParamsProcessorUtil {
     private String defaultLogoutUrl;
     private String defaultServerUrl;
     private int defaultNumDigitsForTelVoice;
-    private String defaultClientUrl;
+    private String defaultHTML5ClientUrl;
     private String defaultGuestWaitURL;
-    private String html5ClientUrl;
-    private Boolean moderatorsJoinViaHTML5Client;
-    private Boolean attendeesJoinViaHTML5Client;
     private Boolean allowRequestsWithoutSession;
+    private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
     private String defaultConfigURL;
     private String defaultGuestPolicy;
+    private Boolean authenticatedGuest;
     private int defaultMeetingDuration;
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
@@ -88,6 +87,9 @@ public class ParamsProcessorUtil {
     private boolean webcamsOnlyForModerator;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
+    private boolean defaultKeepEvents = false;
+    private Boolean useDefaultLogo;
+    private String defaultLogoURL;
 
 		private boolean defaultBreakoutRoomsEnabled;
 		private boolean defaultBreakoutRoomsRecord;
@@ -107,9 +109,7 @@ public class ParamsProcessorUtil {
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
-    private Integer maxInactivityTimeoutMinutes = 120;
     private Integer clientLogoutTimerInMinutes = 0;
-	private Integer warnMinutesBeforeMax = 5;
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
 	private Integer userInactivityInspectTimerInMinutes = 120;
@@ -117,6 +117,8 @@ public class ParamsProcessorUtil {
     private Integer userActivitySignResponseDelayInMinutes = 5;
     private Boolean defaultAllowDuplicateExtUserid = true;
 	private Boolean defaultEndWhenNoModerator = false;
+	private Integer defaultEndWhenNoModeratorDelayInMinutes = 1;
+	private Integer defaultHtml5InstanceId = 1;
 
 	private String formatConfNum(String s) {
 		if (s.length() > 5) {
@@ -145,13 +147,21 @@ public class ParamsProcessorUtil {
 
         for (String keyword : keywordList) {
             if (keyword.equals(DIAL_NUM)) {
-                welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNumber);
+                welcomeMessage = welcomeMessage.replaceAll(
+                        Pattern.quote(DIAL_NUM),
+                        Matcher.quoteReplacement(dialNumber));
             } else if (keyword.equals(CONF_NUM)) {
-                welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, formatConfNum(telVoice));
+                welcomeMessage = welcomeMessage.replaceAll(
+                        Pattern.quote(CONF_NUM),
+                        Matcher.quoteReplacement(formatConfNum(telVoice)));
             } else if (keyword.equals(CONF_NAME)) {
-                welcomeMessage = welcomeMessage.replaceAll(CONF_NAME, meetingName);
+                welcomeMessage = welcomeMessage.replaceAll(
+                        Pattern.quote(CONF_NAME),
+                        Matcher.quoteReplacement(meetingName));
             } else if (keyword.equals(SERVER_URL)) {
-                welcomeMessage = welcomeMessage.replaceAll(SERVER_URL, defaultServerUrl);
+                welcomeMessage = welcomeMessage.replaceAll(
+                        Pattern.quote(SERVER_URL),
+                        Matcher.quoteReplacement(defaultServerUrl));
             }
         }
         return  welcomeMessage;
@@ -432,6 +442,15 @@ public class ParamsProcessorUtil {
           }
         }
 
+        int endWhenNoModeratorDelayInMinutes = defaultEndWhenNoModeratorDelayInMinutes;
+        if (!StringUtils.isEmpty(params.get(ApiParams.END_WHEN_NO_MODERATOR_DELAY_IN_MINUTES))) {
+          try {
+              endWhenNoModeratorDelayInMinutes = Integer.parseInt(params.get(ApiParams.END_WHEN_NO_MODERATOR_DELAY_IN_MINUTES));
+          } catch (Exception ex) {
+            log.warn("Invalid param [endWhenNoModeratorDelayInMinutes] for meeting=[{}]", internalMeetingId);
+          }
+        }
+
         String guestPolicy = defaultGuestPolicy;
         if (!StringUtils.isEmpty(params.get(ApiParams.GUEST_POLICY))) {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
@@ -466,6 +485,10 @@ public class ParamsProcessorUtil {
             externalMeetingId = externalHash + "-" + timeStamp;
         }
 
+        String avatarURL = useDefaultAvatar ? defaultAvatarURL : "";
+
+        int html5InstanceId = processHtml5InstanceId(params.get(ApiParams.HTML5_INSTANCE_ID));
+
         // Create the meeting with all passed in parameters.
         Meeting meeting = new Meeting.Builder(externalMeetingId,
                 internalMeetingId, createTime).withName(meetingName)
@@ -476,7 +499,7 @@ public class ParamsProcessorUtil {
                 .withBannerText(bannerText).withBannerColor(bannerColor)
                 .withTelVoice(telVoice).withWebVoice(webVoice)
                 .withDialNumber(dialNumber)
-                .withDefaultAvatarURL(defaultAvatarURL)
+                .withDefaultAvatarURL(avatarURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
@@ -484,9 +507,11 @@ public class ParamsProcessorUtil {
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
+                .withAuthenticatedGuest(authenticatedGuest)
 				.withBreakoutRoomsParams(breakoutParams)
 				.withLockSettingsParams(lockSettingsParams)
 				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
+                .withHTML5InstanceId(html5InstanceId)
                 .build();
 
         String configXML = getDefaultConfigXML();
@@ -504,13 +529,14 @@ public class ParamsProcessorUtil {
         	meeting.setMeetingEndedCallbackURL(meetingEndedCallbackURL);
         }
 
-        meeting.setMaxInactivityTimeoutMinutes(maxInactivityTimeoutMinutes);
-        meeting.setWarnMinutesBeforeMax(warnMinutesBeforeMax);
         meeting.setMeetingExpireIfNoUserJoinedInMinutes(meetingExpireIfNoUserJoinedInMinutes);
 		meeting.setMeetingExpireWhenLastUserLeftInMinutes(meetingExpireWhenLastUserLeftInMinutes);
 		meeting.setUserInactivityInspectTimerInMinutes(userInactivityInspectTimerInMinutes);
 		meeting.setUserActivitySignResponseDelayInMinutes(userActivitySignResponseDelayInMinutes);
 		meeting.setUserInactivityThresholdInMinutes(userInactivityThresholdInMinutes);
+//		meeting.setHtml5InstanceId(html5InstanceId);
+        meeting.setEndWhenNoModerator(endWhenNoModerator);
+        meeting.setEndWhenNoModeratorDelayInMinutes(endWhenNoModeratorDelayInMinutes);
 
         // Add extra parameters for breakout room
         if (isBreakout) {
@@ -521,6 +547,8 @@ public class ParamsProcessorUtil {
 
 		if (!StringUtils.isEmpty(params.get(ApiParams.LOGO))) {
 			meeting.setCustomLogoURL(params.get(ApiParams.LOGO));
+		} else if (this.getUseDefaultLogo()) {
+			meeting.setCustomLogoURL(this.getDefaultLogoURL());
 		}
 
 		if (!StringUtils.isEmpty(params.get(ApiParams.COPYRIGHT))) {
@@ -531,7 +559,19 @@ public class ParamsProcessorUtil {
         	muteOnStart = Boolean.parseBoolean(params.get(ApiParams.MUTE_ON_START));
         }
 
+		// when a moderator joins in a breakout room only with the audio, and the muteOnStart is set to true,
+		// the moderator is unable to unmute himself, because they don't have an icon to do so
+		if (isBreakout) {
+			muteOnStart = false;
+		}
+
 		meeting.setMuteOnStart(muteOnStart);
+
+    Boolean meetingKeepEvents = defaultKeepEvents;
+    if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_KEEP_EVENTS))) {
+      meetingKeepEvents = Boolean.parseBoolean(params.get(ApiParams.MEETING_KEEP_EVENTS));
+    }
+    meeting.setMeetingKeepEvents(meetingKeepEvents);
 
         Boolean allowModsToUnmuteUsers = defaultAllowModsToUnmuteUsers;
         if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_MODS_TO_UNMUTE_USERS))) {
@@ -550,24 +590,20 @@ public class ParamsProcessorUtil {
 		return serviceEnabled;
 	}
 	
-	public String getDefaultClientUrl() {
-		return defaultClientUrl;
+	public String getDefaultHTML5ClientUrl() {
+		return defaultHTML5ClientUrl;
 	}
 
 	public String getDefaultGuestWaitURL() {
 		return defaultGuestWaitURL;
         }
 
-	public String getHTML5ClientUrl() {
-		return html5ClientUrl;
+	public Boolean getUseDefaultLogo() {
+		return useDefaultLogo;
 	}
 
-	public Boolean getAttendeesJoinViaHTML5Client() {
-		return attendeesJoinViaHTML5Client;
-	}
-
-	public Boolean getModeratorsJoinViaHTML5Client() {
-		return moderatorsJoinViaHTML5Client;
+	public String getDefaultLogoURL() {
+		return defaultLogoURL;
 	}
 
 	public Boolean getAllowRequestsWithoutSession() {
@@ -689,6 +725,17 @@ public class ParamsProcessorUtil {
 		}
 		
 		return rec;
+	}
+
+	public int processHtml5InstanceId(String instanceId) {
+		int html5InstanceId = 1;
+		try {
+            html5InstanceId = Integer.parseInt(instanceId);
+		} catch(Exception ex) {
+            html5InstanceId = defaultHtml5InstanceId;
+		}
+
+		return html5InstanceId;
 	}
 		
 	public int processMaxUser(String maxUsers) {
@@ -912,28 +959,24 @@ public class ParamsProcessorUtil {
 		this.defaultNumDigitsForTelVoice = defaultNumDigitsForTelVoice;
 	}
 
-	public void setDefaultClientUrl(String defaultClientUrl) {
-		this.defaultClientUrl = defaultClientUrl;
+	public void setDefaultHTML5ClientUrl(String defaultHTML5ClientUrl) {
+		this.defaultHTML5ClientUrl = defaultHTML5ClientUrl;
 	}
 
 	public void setDefaultGuestWaitURL(String url) {
 		this.defaultGuestWaitURL = url;
         }
 
-	public void setHtml5ClientUrl(String html5ClientUrl) {
-		this.html5ClientUrl = html5ClientUrl;
+	public void setUseDefaultLogo(Boolean value) {
+		this.useDefaultLogo = value;
 	}
 
-	public void setModeratorsJoinViaHTML5Client(Boolean moderatorsJoinViaHTML5Client) {
-		this.moderatorsJoinViaHTML5Client = moderatorsJoinViaHTML5Client;
+	public void setDefaultLogoURL(String url) {
+		this.defaultLogoURL = url;
 	}
 
 	public void setAllowRequestsWithoutSession(Boolean allowRequestsWithoutSession) {
 		this.allowRequestsWithoutSession = allowRequestsWithoutSession;
-	}
-
-	public void setAttendeesJoinViaHTML5Client(Boolean attendeesJoinViaHTML5Client) {
-		this.attendeesJoinViaHTML5Client = attendeesJoinViaHTML5Client;
 	}
 
 	public void setDefaultMeetingDuration(int defaultMeetingDuration) {
@@ -956,6 +999,10 @@ public class ParamsProcessorUtil {
         this.webcamsOnlyForModerator = webcamsOnlyForModerator;
     }
 	
+	public void setUseDefaultAvatar(Boolean value) {
+		this.useDefaultAvatar = value;
+	}
+
 	public void setdefaultAvatarURL(String url) {
 		this.defaultAvatarURL = url;
 	}
@@ -964,24 +1011,12 @@ public class ParamsProcessorUtil {
 		this.defaultGuestPolicy =  guestPolicy;
 	}
 
-	public void setMaxInactivityTimeoutMinutes(Integer value) {
-		maxInactivityTimeoutMinutes = value;
+	public void setAuthenticatedGuest(Boolean value) {
+		this.authenticatedGuest = value;
 	}
 
 	public void setClientLogoutTimerInMinutes(Integer value) {
 		clientLogoutTimerInMinutes = value;
-	}
-
-	public void setWarnMinutesBeforeMax(Integer value) {
-		warnMinutesBeforeMax = value;
-	}
-
-	public Integer getMaxInactivityTimeoutMinutes() {
-		return maxInactivityTimeoutMinutes;
-	}
-
-	public Integer getWarnMinutesBeforeMax() {
-		return warnMinutesBeforeMax;
 	}
 
 	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
@@ -1034,6 +1069,10 @@ public class ParamsProcessorUtil {
 
 	public Boolean getMuteOnStart() {
 		return defaultMuteOnStart;
+	}
+
+	public void setDefaultKeepEvents(Boolean mke) {
+		defaultKeepEvents = mke;
 	}
 
 	public void setAllowModsToUnmuteUsers(Boolean value) {
@@ -1155,5 +1194,8 @@ public class ParamsProcessorUtil {
 		this.defaultEndWhenNoModerator = val;
 	}
 
+    public void setEndWhenNoModeratorDelayInMinutes(Integer value) {
+        this.defaultEndWhenNoModeratorDelayInMinutes = value;
+    }
 
 }

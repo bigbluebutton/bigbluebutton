@@ -16,12 +16,18 @@ export default function syncMeetingChatMsgs(meetingId, chatId, msgs) {
 
     msgs
       .forEach((msg) => {
+        const {
+          sender,
+          color,
+          ...restMsg
+        } = msg;
+
         const msgToSync = {
-          ...msg,
+          ...restMsg,
           meetingId,
           chatId,
           message: parseMessage(msg.message),
-          sender: msg.sender.id,
+          sender: sender.id,
         };
 
         const modifier = flat(msgToSync, { safe: true });

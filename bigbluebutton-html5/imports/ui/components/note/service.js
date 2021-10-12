@@ -24,18 +24,17 @@ const getLang = () => {
 };
 
 const getNoteParams = () => {
-  const { config } = NOTE_CONFIG;
-  const User = Users.findOne({ userId: Auth.userID }, { fields: { name: 1, color: 1 } });
+  const config = {};
+  const User = Users.findOne({ userId: Auth.userID }, { fields: { name: 1 } });
   config.userName = User.name;
-  config.userColor = User.color;
   config.lang = getLang();
+  config.rtl = document.documentElement.getAttribute('dir') === 'rtl';
 
   const params = [];
-  for (const key in config) {
-    if (config.hasOwnProperty(key)) {
-      params.push(`${key}=${encodeURIComponent(config[key])}`);
-    }
-  }
+  Object.keys(config).forEach((k) => {
+    params.push(`${k}=${encodeURIComponent(config[k])}`);
+  });
+
   return params.join('&');
 };
 
@@ -43,7 +42,7 @@ const isLocked = () => {
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { 'lockSettingsProps.disableNote': 1 } });
   const user = Users.findOne({ userId: Auth.userID }, { fields: { locked: 1, role: 1 } });
 
-  if (meeting.lockSettingsProps && user.role !== ROLE_MODERATOR) {
+  if (meeting.lockSettingsProps && user.role !== ROLE_MODERATOR && user.locked) {
     return meeting.lockSettingsProps.disableNote;
   }
   return false;
@@ -51,7 +50,8 @@ const isLocked = () => {
 
 const getReadOnlyURL = () => {
   const readOnlyNoteId = getReadOnlyNoteId();
-  const url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${readOnlyNoteId}`);
+  const params = getNoteParams();
+  const url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${readOnlyNoteId}?${params}`);
   return url;
 };
 
@@ -67,6 +67,33 @@ const getRevs = () => {
   return note ? note.revs : 0;
 };
 
+const getLastRevs = () => {
+  const lastRevs = Session.get('noteLastRevs');
+
+  if (!lastRevs) return -1;
+  return lastRevs;
+};
+
+const setLastRevs = (revs) => {
+  const lastRevs = getLastRevs();
+
+  if (revs !== 0 && revs > lastRevs) {
+    Session.set('noteLastRevs', revs);
+  }
+};
+
+const isPanelOpened = () => Session.get('openPanel') === 'note';
+
+const hasUnreadNotes = () => {
+  const opened = isPanelOpened();
+  if (opened) return false;
+
+  const revs = getRevs();
+  const lastRevs = getLastRevs();
+
+  return (revs !== 0 && revs > lastRevs);
+};
+
 const isEnabled = () => {
   const note = Note.findOne({ meetingId: Auth.meetingID });
   return NOTE_CONFIG.enabled && note;
@@ -77,9 +104,8 @@ const toggleNotePanel = () => {
     'openPanel',
     isPanelOpened() ? 'userlist' : 'note',
   );
+  window.dispatchEvent(new Event('panelChanged'));
 };
-
-const isPanelOpened = () => Session.get('openPanel') === 'note';
 
 export default {
   getNoteURL,
@@ -89,4 +115,7 @@ export default {
   isEnabled,
   isPanelOpened,
   getRevs,
+  setLastRevs,
+  getLastRevs,
+  hasUnreadNotes,
 };

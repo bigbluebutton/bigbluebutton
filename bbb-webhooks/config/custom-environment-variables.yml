@@ -12,3 +12,6 @@ hooks:
 redis:
   host: REDIS_HOST
   port: REDIS_PORT
+server:
+  bind: SERVER_BIND_IP
+  port: SERVER_PORT

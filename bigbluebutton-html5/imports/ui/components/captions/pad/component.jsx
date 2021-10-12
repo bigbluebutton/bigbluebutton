@@ -7,6 +7,7 @@ import Button from '/imports/ui/components/button/component';
 import logger from '/imports/startup/client/logger';
 import PadService from './service';
 import CaptionsService from '/imports/ui/components/captions/service';
+import { notify } from '/imports/ui/services/notification';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -46,6 +47,10 @@ const intlMessages = defineMessages({
     id: 'app.captions.pad.dictationOffDesc',
     description: 'Aria description for button that turns off speech recognition',
   },
+  speechRecognitionStop: {
+    id: 'app.captions.pad.speechRecognitionStop',
+    description: 'Notification for stopped speech recognition',
+  },  
 });
 
 const propTypes = {
@@ -76,11 +81,21 @@ class Pad extends PureComponent {
       listening: false,
     };
 
-    const { locale } = props;
+    const { locale, intl } = props;
     this.recognition = CaptionsService.initSpeechRecognition(locale);
 
     this.toggleListen = this.toggleListen.bind(this);
     this.handleListen = this.handleListen.bind(this);
+    
+    if (this.recognition) {
+      this.recognition.addEventListener('end', () => {
+        const { listening } = this.state;
+        if (listening) {
+          notify(intl.formatMessage(intlMessages.speechRecognitionStop), 'info', 'warning');
+          this.stopListen();
+        }
+      });
+    }
   }
 
   componentDidUpdate() {
@@ -91,19 +106,14 @@ class Pad extends PureComponent {
     } = this.props;
 
     if (this.recognition) {
+      if (ownerId !== currentUserId) {
+        this.recognition.stop();
+      } else if (this.state.listening && this.recognition.lang !== locale) {
+        this.recognition.stop();
+        this.stopListen();
+      }
       this.recognition.lang = locale;
-      if (ownerId !== currentUserId) this.recognition.stop();
     }
-  }
-
-  toggleListen() {
-    const {
-      listening,
-    } = this.state;
-
-    this.setState({
-      listening: !listening,
-    }, this.handleListen);
   }
 
   handleListen() {
@@ -169,6 +179,20 @@ class Pad extends PureComponent {
     }
   }
 
+  toggleListen() {
+    const {
+      listening,
+    } = this.state;
+
+    this.setState({
+      listening: !listening,
+    }, this.handleListen);
+  }
+  
+  stopListen() {
+    this.setState({ listening: false });
+  }
+
   render() {
     const {
       locale,
@@ -182,6 +206,7 @@ class Pad extends PureComponent {
 
     if (!amIModerator) {
       Session.set('openPanel', 'userlist');
+      window.dispatchEvent(new Event('panelChanged'));
       return null;
     }
 
@@ -193,7 +218,10 @@ class Pad extends PureComponent {
         <header className={styles.header}>
           <div className={styles.title}>
             <Button
-              onClick={() => { Session.set('openPanel', 'userlist'); }}
+              onClick={() => {
+                Session.set('openPanel', 'userlist');
+                window.dispatchEvent(new Event('panelChanged'));
+              }}
               aria-label={intl.formatMessage(intlMessages.hide)}
               label={name}
               icon="left_arrow"
@@ -207,8 +235,7 @@ class Pad extends PureComponent {
                   onClick={() => { this.toggleListen(); }}
                   label={listening
                     ? intl.formatMessage(intlMessages.dictationStop)
-                    : intl.formatMessage(intlMessages.dictationStart)
-                  }
+                    : intl.formatMessage(intlMessages.dictationStart)}
                   aria-describedby="dictationBtnDesc"
                   color="primary"
                   disabled={!this.recognition}
@@ -216,12 +243,11 @@ class Pad extends PureComponent {
                 <div id="dictationBtnDesc" hidden>
                   {listening
                     ? intl.formatMessage(intlMessages.dictationOffDesc)
-                    : intl.formatMessage(intlMessages.dictationOnDesc)
-                  }
+                    : intl.formatMessage(intlMessages.dictationOnDesc)}
                 </div>
               </span>
-            ) : null
-          }
+            )
+            : null}
           {CaptionsService.canIOwnThisPad(ownerId)
             ? (
               <Button
@@ -231,8 +257,7 @@ class Pad extends PureComponent {
                 aria-label={intl.formatMessage(intlMessages.takeOwnership)}
                 label={intl.formatMessage(intlMessages.takeOwnership)}
               />
-            ) : null
-        }
+            ) : null}
         </header>
         {listening ? (
           <div>
@@ -244,8 +269,7 @@ class Pad extends PureComponent {
               ref={(node) => { this.iterimResultContainer = node; }}
             />
           </div>
-        ) : null
-      }
+        ) : null}
         <iframe
           title="etherpad"
           src={url}

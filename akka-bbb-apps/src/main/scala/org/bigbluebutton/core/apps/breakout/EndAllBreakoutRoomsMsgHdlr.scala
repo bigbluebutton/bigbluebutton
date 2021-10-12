@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.breakout
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.EndBreakoutRoomInternalMsg
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
-import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.domain.{ MeetingEndReason, MeetingState2x }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
@@ -23,7 +23,7 @@ trait EndAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
         model <- state.breakout
       } yield {
         model.rooms.values.foreach { room =>
-          eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(props.breakoutProps.parentId, room.id)))
+          eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(props.breakoutProps.parentId, room.id, MeetingEndReason.BREAKOUT_ENDED_BY_MOD)))
         }
       }
 

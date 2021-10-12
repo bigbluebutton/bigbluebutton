@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Note from '/imports/api/note';
 import Logger from '/imports/startup/server/logger';
+import addPad from '/imports/api/note/server/methods/addPad';
 
 export default function addNote(meetingId, noteId, readOnlyNoteId) {
   check(meetingId, String);
@@ -23,6 +24,7 @@ export default function addNote(meetingId, noteId, readOnlyNoteId) {
     const { insertedId } = Note.upsert(selector, modifier);
 
     if (insertedId) {
+      addPad(meetingId, noteId, readOnlyNoteId);
       Logger.info(`Added note id=${noteId} readOnlyId=${readOnlyNoteId} meeting=${meetingId}`);
     } else {
       Logger.info(`Upserted note id=${noteId} readOnlyId=${readOnlyNoteId} meeting=${meetingId}`);

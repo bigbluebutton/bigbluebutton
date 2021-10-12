@@ -11,7 +11,7 @@ trait SendWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
   def handle(msg: SendWhiteboardAnnotationPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(msg: SendWhiteboardAnnotationPubMsg, annotation: AnnotationVO): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
+      val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, liveMeeting.props.systemProps.html5InstanceId.toString)
       val envelope = BbbCoreEnvelope(SendWhiteboardAnnotationEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(SendWhiteboardAnnotationEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
@@ -71,7 +71,7 @@ trait SendWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
           WhiteboardKeyUtil.DRAW_UPDATE_STATUS == annotation.status)
     }
 
-    if (!excludedWbMsg(msg.body.annotation) && filterWhiteboardMessage(msg.body.annotation.wbId, liveMeeting) && permissionFailed(
+    if (!excludedWbMsg(msg.body.annotation) && filterWhiteboardMessage(msg.body.annotation.wbId, msg.header.userId, liveMeeting) && permissionFailed(
       PermissionCheck.GUEST_LEVEL,
       PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId
     )) {
@@ -95,7 +95,7 @@ trait SendWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
       //println("============= Printing Sanitized annotation ============")
       //printAnnotationInfo(sanitizedShape)
       //println("============= Printed Sanitized annotation  ============")
-      val annotation = sendWhiteboardAnnotation(sanitizedShape, liveMeeting)
+      val annotation = sendWhiteboardAnnotation(sanitizedShape, msg.body.drawEndOnly, liveMeeting)
       broadcastEvent(msg, annotation)
     }
   }

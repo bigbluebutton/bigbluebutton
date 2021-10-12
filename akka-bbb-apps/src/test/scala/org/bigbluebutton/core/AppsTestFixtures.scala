@@ -18,8 +18,6 @@ trait AppsTestFixtures {
   val muteOnStart = true
   val deskshareConfId = "85115-DESKSHARE"
   val durationInMinutes = 10
-  val maxInactivityTimeoutMinutes = 120
-  val warnMinutesBeforeMax = 30
   val meetingExpireIfNoUserJoinedInMinutes = 5
   val meetingExpireWhenLastUserLeftInMinutes = 10
   val userInactivityInspectTimerInMinutes = 60
@@ -41,6 +39,7 @@ trait AppsTestFixtures {
   val maxUsers = 25
   val guestPolicy = "ALWAYS_ASK"
   val allowModsToUnmuteUsers = false
+  val authenticatedGuest = false
 
   val red5DeskShareIPTestFixture = "127.0.0.1"
   val red5DeskShareAppTestFixtures = "red5App"
@@ -50,7 +49,7 @@ trait AppsTestFixtures {
 
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
     isBreakout = isBreakout.booleanValue())
-  val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate, maxInactivityTimeoutMinutes = maxInactivityTimeoutMinutes, warnMinutesBeforeMax = warnMinutesBeforeMax,
+  val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate,
     meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes, meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes,
     userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes, userInactivityThresholdInMinutes = userInactivityInspectTimerInMinutes, userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes)
   val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword)
@@ -60,7 +59,7 @@ trait AppsTestFixtures {
     modOnlyMessage = modOnlyMessage)
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
-    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers)
+    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, authenticatedGuest = authenticatedGuest)
   val metadataProp = new MetadataProp(metadata)
 
   val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
@@ -72,7 +71,6 @@ trait AppsTestFixtures {
   val presModel = new PresentationModel()
   val breakoutRooms = new BreakoutRooms()
   val captionModel = new CaptionModel()
-  val notesModel = new SharedNotesModel()
   val registeredUsers = new RegisteredUsers
   val meetingStatux2x = new MeetingStatus2x
   val webcams = new Webcams
@@ -88,7 +86,6 @@ trait AppsTestFixtures {
     val wbModel = new WhiteboardModel()
     val presModel = new PresentationModel()
     val captionModel = new CaptionModel()
-    val notesModel = new SharedNotesModel()
     val registeredUsers = new RegisteredUsers
     val meetingStatux2x = new MeetingStatus2x
     val webcams = new Webcams
@@ -102,6 +99,6 @@ trait AppsTestFixtures {
     // easy to test.
     new LiveMeeting(defaultProps, meetingStatux2x, deskshareModel, chatModel, layouts,
       registeredUsers, polls2x, wbModel, presModel, captionModel,
-      notesModel, webcams, voiceUsers, users2x, guestsWaiting)
+      webcams, voiceUsers, users2x, guestsWaiting)
   }
 }

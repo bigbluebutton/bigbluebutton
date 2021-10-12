@@ -1,0 +1,29 @@
+%no-margin {
+    margin: 0;
+}
+
+%flex-column {
+    display: flex;
+    flex-flow: column;
+}
+
+%flex-row {
+    display: flex;
+    flex-flow: row;
+}
+
+%text-elipsis {
+    min-width: 0;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+%highContrastOutline {
+  /* Visible in Windows high-contrast themes */
+  outline: transparent;
+  outline-style: dotted;
+  outline-width: var(--border-size);
+}
+

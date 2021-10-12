@@ -10,7 +10,7 @@ export default function clearVideoStreams(meetingId) {
         Logger.info(`Cleared VideoStreams in (${meetingId})`);
       }
     } catch (err) {
-      Logger.error(`Error on clearing VideoStreams (${ meetingId }). ${err}`);
+      Logger.error(`Error on clearing VideoStreams (${meetingId}). ${err}`);
     }
   } else {
     try {

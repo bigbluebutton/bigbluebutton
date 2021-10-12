@@ -1,11 +1,16 @@
 AllCops:
-  TargetRubyVersion: 2.3 # System ruby on Ubuntu 16.04
-Layout/AlignHash:
+  TargetRubyVersion: 2.5 # System ruby on Ubuntu 18.04
+Layout/HashAlignment:
   EnforcedHashRocketStyle: [ key, table ]
+  EnforcedColonStyle: [ key, table ]
+Layout/LineLength:
+  Max: 128
 Metrics:
   Enabled: false
 Style/AsciiComments:
   AllowedChars: [ © ]
+Style/Documentation:
+  Enabled: false
 Style/TrailingCommaInArrayLiteral:
   EnforcedStyleForMultiline: consistent_comma
 Style/TrailingCommaInHashLiteral:

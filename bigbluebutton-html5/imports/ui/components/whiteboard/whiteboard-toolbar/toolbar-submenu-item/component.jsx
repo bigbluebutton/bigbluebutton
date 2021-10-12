@@ -11,10 +11,7 @@ export default class ToolbarSubmenuItem extends Component {
     this.handleTouchStart = this.handleTouchStart.bind(this);
     this.handleOnMouseUp = this.handleOnMouseUp.bind(this);
     this.setRef = this.setRef.bind(this);
-  }
 
-  // generating a unique ref string for the toolbar-item
-  componentWillMount() {
     this.uniqueRef = _.uniqueId('toolbar-submenu-item');
   }
 

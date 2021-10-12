@@ -9,7 +9,7 @@ trait SyncGetMeetingInfoRespMsgHdlr {
   val outGW: OutMsgRouter
 
   def handleSyncGetMeetingInfoRespMsg(props: DefaultProps): Unit = {
-    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, props.meetingProp.intId, "nodeJSapp")
+    val routing = Routing.addMsgToHtml5InstanceIdRouting(props.meetingProp.intId, props.systemProps.html5InstanceId.toString)
     val envelope = BbbCoreEnvelope(SyncGetMeetingInfoRespMsg.NAME, routing)
     val header = BbbCoreBaseHeader(SyncGetMeetingInfoRespMsg.NAME)
 

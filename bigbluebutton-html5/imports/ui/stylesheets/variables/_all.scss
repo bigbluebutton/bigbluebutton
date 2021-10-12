@@ -1,9 +1,6 @@
 @import "./breakpoints";
-
-%text-elipsis {
-  min-width: 0;
-  display: inline-block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+@import "./general";
+@import "./palette";
+@import "./typography";
+@import "./video";
+@import "./placeholders";

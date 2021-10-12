@@ -1,6 +1,5 @@
 import BaseAudioBridge from './base';
 import Auth from '/imports/ui/services/auth';
-import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import logger from '/imports/startup/client/logger';
 import ListenOnlyBroker from '/imports/ui/services/bbb-webrtc-sfu/listenonly-broker';
 import loadAndPlayMediaStream from '/imports/ui/services/bbb-webrtc-sfu/load-play';
@@ -69,6 +68,8 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
   }
 
   getPeerConnection() {
+    if (!this.broker) return null;
+
     const webRtcPeer = this.broker.webRtcPeer;
     if (webRtcPeer) return webRtcPeer.peerConnection;
     return null;
@@ -194,6 +195,48 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
     });
   }
 
+  trickleIce() {
+    return new Promise((resolve, reject) => {
+      try {
+        fetchWebRTCMappedStunTurnServers(this.sessionToken)
+          .then((iceServers) => {
+            const options = {
+              userName: this.name,
+              caleeName: `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}`,
+              iceServers,
+            };
+
+            this.broker = new ListenOnlyBroker(
+              Auth.authenticateURL(SFU_URL),
+              this.voiceBridge,
+              this.userId,
+              this.internalMeetingID,
+              RECV_ROLE,
+              options,
+            );
+
+            this.broker.onstart = () => {
+              const { peerConnection } = this.broker.webRtcPeer;
+
+              if (!peerConnection) return resolve(null);
+
+              const selectedCandidatePair = peerConnection.getReceivers()[0]
+                .transport.iceTransport.getSelectedCandidatePair();
+
+              const validIceCandidate = [selectedCandidatePair.local];
+
+              this.broker.stop();
+              return resolve(validIceCandidate);
+            };
+
+            this.broker.listen();
+          });
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
   joinAudio({ isListenOnly }, callback) {
     return new Promise(async (resolve, reject) => {
       if (!isListenOnly) return reject(new Error('Invalid bridge option'));
@@ -236,8 +279,16 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
   }
 
   exitAudio() {
+    const mediaElement = document.getElementById(MEDIA_TAG);
+
     this.broker.stop();
     this.clearReconnectionTimeout();
+
+    if (mediaElement && typeof mediaElement.pause === 'function') {
+      mediaElement.pause();
+      mediaElement.srcObject = null;
+    }
+
     return Promise.resolve();
   }
 }

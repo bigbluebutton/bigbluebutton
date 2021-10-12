@@ -20,7 +20,10 @@ const getFormattedColor = (color) => {
 
 const getStrokeWidth = (thickness, slideWidth) => (thickness * slideWidth) / 100;
 
-export default {
+const denormalizeCoord = (normCoord, sideLength) => ((normCoord / 100) * sideLength).toFixed(2);
+
+export {
   getFormattedColor,
   getStrokeWidth,
+  denormalizeCoord,
 };

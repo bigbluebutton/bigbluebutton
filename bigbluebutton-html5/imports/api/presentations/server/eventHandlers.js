@@ -9,6 +9,7 @@ RedisPubSub.on('PdfConversionInvalidErrorEvtMsg', handlePresentationConversionUp
 RedisPubSub.on('PresentationPageGeneratedEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationPageCountErrorEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationConversionUpdateEvtMsg', handlePresentationConversionUpdate);
+RedisPubSub.on('PresentationUploadedFileTooLargeErrorEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationConversionCompletedEvtMsg', handlePresentationAdded);
 RedisPubSub.on('RemovePresentationEvtMsg', handlePresentationRemove);
 RedisPubSub.on('SetCurrentPresentationEvtMsg', handlePresentationCurrentSet);

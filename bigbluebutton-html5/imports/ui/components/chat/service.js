@@ -1,6 +1,5 @@
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
-import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import GroupChat from '/imports/api/group-chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
@@ -8,6 +7,8 @@ import Storage from '/imports/ui/services/storage/session';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
+import { defineMessages } from 'react-intl';
+import PollService from '/imports/ui/components/poll/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
@@ -16,60 +17,70 @@ const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
-const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
-const PUBLIC_CHAT_USER_ID = CHAT_CONFIG.system_userid;
-const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
+
+const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.chat_clear;
+const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-
-const CONNECTION_STATUS_ONLINE = 'online';
 
 const ScrollCollection = new Mongo.Collection(null);
 
 const UnsentMessagesCollection = new Mongo.Collection(null);
 
+export const UserSentMessageCollection = new Mongo.Collection(null);
+
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
+const intlMessages = defineMessages({
+  publicChatClear: {
+    id: 'app.chat.clearPublicChatMessage',
+    description: 'message of when clear the public chat',
+  },
+  pollResult: {
+    id: 'app.chat.pollResult',
+    description: 'used in place of user name who published poll to chat',
+  },
+});
+
+const setUserSentMessage = (bool) => {
+  UserSentMessageCollection.upsert(
+    { userId: Auth.userID },
+    { $set: { sent: bool } },
+  );
+}
+
 const getUser = userId => Users.findOne({ userId });
+
+const getPrivateChatByUsers = userId => GroupChat
+  .findOne({ users: { $all: [userId, Auth.userID] } });
 
 const getWelcomeProp = () => Meetings.findOne({ meetingId: Auth.meetingID },
   { fields: { welcomeProp: 1 } });
 
 const mapGroupMessage = (message) => {
   const mappedMessage = {
-    id: message._id,
+    id: message._id || message.id,
     content: message.content,
-    time: message.timestamp,
+    time: message.timestamp || message.time,
     sender: null,
+    key: message.key
   };
-  try {
-    if (message.sender !== SYSTEM_CHAT_TYPE) {
-      const sender = Users.findOne({ userId: message.sender },
-          {
-            fields: {
-              color: 1, role: 1, name: 1, connectionStatus: 1,
-            },
-          });
-      const {
-        color,
-        role,
-        name,
-        connectionStatus,
-      } = sender;
 
-      const mappedSender = {
-        color,
-        isModerator: role === ROLE_MODERATOR,
-        name,
-        isOnline: connectionStatus === CONNECTION_STATUS_ONLINE,
-      };
+  if (message.sender && message.sender !== SYSTEM_CHAT_TYPE) {
+    const sender = Users.findOne({ userId: message.sender }, { fields: { avatar: 1, role: 1, name: 1 } });
 
-      mappedMessage.sender = mappedSender;
-    }
-  }catch (e) {
-    
+    const mappedSender = {
+      avatar: sender?.avatar,
+      color: message.color,
+      isModerator: sender?.role === ROLE_MODERATOR,
+      name: sender.name,
+      isOnline: !!sender,
+    };
+
+    mappedMessage.sender = mappedSender;
   }
+
   return mappedMessage;
 };
 
@@ -80,16 +91,21 @@ const reduceGroupMessages = (previous, current) => {
     id: current.id,
     text: current.message,
     time: current.timestamp,
+    color: current.color,
   }];
-  if (!lastMessage || !currentMessage.chatId === PUBLIC_GROUP_CHAT_ID) {
+  if (!lastMessage) {
     return previous.concat(currentMessage);
   }
   // Check if the last message is from the same user and time discrepancy
-  // between the two messages exceeds window and then group current message
-  // with the last one
+  // between the two messages exceeds window and then group current
+  // message with the last one
   const timeOfLastMessage = lastMessage.content[lastMessage.content.length - 1].time;
-  if (lastMessage.sender === currentMessage.sender
-    && (currentMessage.timestamp - timeOfLastMessage) <= GROUPING_MESSAGES_WINDOW) {
+  const isOrWasPoll = currentMessage.id.includes(CHAT_POLL_RESULTS_MESSAGE)
+    || lastMessage.id.includes(CHAT_POLL_RESULTS_MESSAGE);
+  const groupingWindow = isOrWasPoll ? 0 : GROUPING_MESSAGES_WINDOW;
+
+  if (lastMessage.sender.id === currentMessage.sender.id
+    && (currentMessage.timestamp - timeOfLastMessage) <= groupingWindow) {
     lastMessage.content.push(currentMessage.content.pop());
     return previous;
   }
@@ -100,39 +116,8 @@ const reduceGroupMessages = (previous, current) => {
 const reduceAndMapGroupMessages = messages => (messages
   .reduce(reduceGroupMessages, []).map(mapGroupMessage));
 
-const getPublicGroupMessages = () => {
-  const publicGroupMessages = GroupChatMsg.find({
-    meetingId: Auth.meetingID,
-    chatId: PUBLIC_GROUP_CHAT_ID,
-  }, { sort: ['timestamp'] }).fetch();
-  return publicGroupMessages;
-};
-
-const getPrivateGroupMessages = () => {
-  const chatID = Session.get('idChatOpen');
-  const senderId = Auth.userID;
-
-  const privateChat = GroupChat.findOne({
-    meetingId: Auth.meetingID,
-    users: { $all: [chatID, senderId] },
-    access: PRIVATE_CHAT_TYPE,
-  });
-
-  let messages = [];
-
-  if (privateChat) {
-    const {
-      chatId,
-    } = privateChat;
-
-    messages = GroupChatMsg.find({
-      meetingId: Auth.meetingID,
-      chatId,
-    }, { sort: ['timestamp'] }).fetch();
-  }
-
-  return reduceAndMapGroupMessages(messages, []);
-};
+const reduceAndDontMapGroupMessages = messages => (messages
+  .reduce(reduceGroupMessages, []));
 
 const isChatLocked = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
@@ -162,12 +147,6 @@ const isChatLocked = (receiverID) => {
   return false;
 };
 
-const hasUnreadMessages = (receiverID) => {
-  const isPublic = receiverID === PUBLIC_CHAT_ID;
-  const chatType = isPublic ? PUBLIC_GROUP_CHAT_ID : receiverID;
-  return UnreadMessages.count(chatType) > 0;
-};
-
 const lastReadMessageTime = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
   const chatType = isPublic ? PUBLIC_GROUP_CHAT_ID : receiverID;
@@ -176,7 +155,11 @@ const lastReadMessageTime = (receiverID) => {
 };
 
 const sendGroupMessage = (message) => {
-  const chatID = Session.get('idChatOpen');
+  // TODO: Refactor to use chatId directly
+  const chatIdToSent = Session.get('idChatOpen') === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : Session.get('idChatOpen')
+  const chat = GroupChat.findOne({ chatId: chatIdToSent },
+  { fields: { users: 1 } });
+  const chatID = Session.get('idChatOpen') === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chat.users.filter(id => id !== Auth.userID)[0];
   const isPublicChat = chatID === PUBLIC_CHAT_ID;
 
   let destinationChatId = PUBLIC_GROUP_CHAT_ID;
@@ -195,8 +178,10 @@ const sendGroupMessage = (message) => {
     }
   }
 
+  const userAvatarColor = Users.findOne({ userId: senderUserId }, { fields: { color: 1 } });
+
   const payload = {
-    color: '0',
+    color: userAvatarColor?.color || '0',
     correlationId: `${senderUserId}-${Date.now()}`,
     sender: {
       id: senderUserId,
@@ -235,12 +220,11 @@ const updateUnreadMessage = (timestamp) => {
 
 const clearPublicChatHistory = () => (makeCall('clearPublicChatHistory'));
 
-const closePrivateChat = () => {
-  const chatID = Session.get('idChatOpen');
+const closePrivateChat = (chatId) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
 
-  if (_.indexOf(currentClosedChats, chatID) < 0) {
-    currentClosedChats.push(chatID);
+  if (_.indexOf(currentClosedChats, chatId) < 0) {
+    currentClosedChats.push(chatId);
 
     Storage.setItem(CLOSED_CHAT_LIST_KEY, currentClosedChats);
   }
@@ -265,77 +249,77 @@ const htmlDecode = (input) => {
 };
 
 // Export the chat as [Hour:Min] user: message
-const exportChat = (messageList) => {
-  const { welcomeProp } = getWelcomeProp();
-  const { loginTime } = Users.findOne({ userId: Auth.userID }, { fields: { loginTime: 1 } });
-  const { welcomeMsg } = welcomeProp;
+const exportChat = (timeWindowList, users, intl) => {
 
-  const clearMessage = messageList.filter(message => message.message === PUBLIC_CHAT_CLEAR);
-
-  const hasClearMessage = clearMessage.length;
-
-  if (!hasClearMessage || (hasClearMessage && clearMessage[0].timestamp < loginTime)) {
-    messageList.push({
-      timestamp: loginTime,
-      message: welcomeMsg,
-      type: SYSTEM_CHAT_TYPE,
-      sender: PUBLIC_CHAT_USER_ID,
+  const messageList = timeWindowList.reduce((acc, timeWindow) => {
+    const msgs = timeWindow.content.map(message => {
+      const date = new Date(message.time);
+      const hour = date.getHours().toString().padStart(2, 0);
+      const min = date.getMinutes().toString().padStart(2, 0);
+      const hourMin = `[${hour}:${min}]`;
+      let userName = message.id.startsWith(SYSTEM_CHAT_TYPE)
+        ? ''
+        : `${users[timeWindow.sender].name}: `;
+      let messageText = '';
+      if (message.text === PUBLIC_CHAT_CLEAR) {
+        message.text = intl.formatMessage(intlMessages.publicChatClear);
+      } else if (message.id.includes(CHAT_POLL_RESULTS_MESSAGE)) {
+        userName = `${intl.formatMessage(intlMessages.pollResult)}:\n`;
+        const { pollResultData } = timeWindow.extra;
+        const pollText = htmlDecode(PollService.getPollResultString(pollResultData, intl).split('<br/>').join('\n'));
+        // remove last \n to avoid empty line
+        messageText = pollText.slice(0, -1);
+      } else {
+        messageText = message.text;
+      }
+      return `${hourMin} ${userName}${htmlDecode(messageText)}`;
     });
+
+    return [...acc, ...msgs];
+  }, [])
+
+  return messageList.join('\n');
+}
+
+const getAllMessages = (chatID, messages) => {
+  if(!messages[chatID]){
+    return [];
   }
 
-  messageList.sort((a, b) => a.timestamp - b.timestamp);
-
-  return messageList.map((message) => {
-    const date = new Date(message.timestamp);
-    const hour = date.getHours().toString().padStart(2, 0);
-    const min = date.getMinutes().toString().padStart(2, 0);
-    const hourMin = `[${hour}:${min}]`;
-    if (message.type === SYSTEM_CHAT_TYPE) {
-      return `${hourMin} ${message.message}`;
-    }
-    const userName = message.sender === PUBLIC_CHAT_USER_ID
-      ? ''
-      : `${getUser(message.sender).name} :`;
-    return `${hourMin} ${userName} ${htmlDecode(message.message)}`;
-  }).join('\n');
-};
-
-const getAllMessages = (chatID) => {
-  const filter = {
-    sender: { $ne: Auth.userID },
-  };
-  if (chatID === PUBLIC_GROUP_CHAT_ID) {
-    filter.chatId = { $eq: chatID };
-  } else {
-    const privateChat = GroupChat.findOne({ users: { $all: [chatID, Auth.userID] } });
-
-    filter.chatId = { $ne: PUBLIC_GROUP_CHAT_ID };
-
-    if (privateChat) {
-      filter.chatId = privateChat.chatId;
-    }
-  }
-  const messages = GroupChatMsg.find(filter).fetch();
-  return messages;
+  return (chatID === PUBLIC_GROUP_CHAT_ID)
+  ? Object.values(messages[chatID].posJoinMessages)
+  : Object.values(messages[chatID].messageGroups)
 };
 
 const maxTimestampReducer = (max, el) => ((el.timestamp > max) ? el.timestamp : max);
 
 const maxNumberReducer = (max, el) => ((el > max) ? el : max);
 
-const getLastMessageTimestampFromChatList = activeChats => activeChats
-  .map(chat => ((chat.userId === 'public') ? 'MAIN-PUBLIC-GROUP-CHAT' : chat.userId))
-  .map(chatId => getAllMessages(chatId).reduce(maxTimestampReducer, 0))
+const getLastMessageTimestampFromChatList = (activeChats, messages) => activeChats
+  .map((chat) => ((chat.userId === 'public') ? 'MAIN-PUBLIC-GROUP-CHAT' : chat.chatId))
+  .map((chatId) => getAllMessages(chatId, messages).reduce(maxTimestampReducer, 0))
   .reduce(maxNumberReducer, 0);
 
+const removePackagedClassAttribute = (classnames, attribute) => {
+  classnames.map(c => {
+    const elements = document.getElementsByClassName(c);
+      if (elements) {
+        for (const [,v] of Object.entries(elements)) {
+          v.removeAttribute(attribute);
+      }
+    }
+  });
+}
+
 export default {
+  setUserSentMessage,
+  mapGroupMessage,
   reduceAndMapGroupMessages,
-  getPublicGroupMessages,
-  getPrivateGroupMessages,
+  reduceAndDontMapGroupMessages,
   getUser,
+  getPrivateChatByUsers,
   getWelcomeProp,
   getScrollPosition,
-  hasUnreadMessages,
   lastReadMessageTime,
   isChatLocked,
   updateScrollPosition,
@@ -348,4 +332,5 @@ export default {
   maxTimestampReducer,
   getLastMessageTimestampFromChatList,
   UnsentMessagesCollection,
+  removePackagedClassAttribute,
 };

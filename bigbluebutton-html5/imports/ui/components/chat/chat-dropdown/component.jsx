@@ -31,6 +31,9 @@ const intlMessages = defineMessages({
   },
 });
 
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const ENABLE_SAVE_AND_COPY_PUBLIC_CHAT = CHAT_CONFIG.enableSaveAndCopyPublicChat;
+
 class ChatDropdown extends PureComponent {
   constructor(props) {
     super(props);
@@ -50,8 +53,18 @@ class ChatDropdown extends PureComponent {
 
   componentDidMount() {
     this.clipboard = new Clipboard('#clipboardButton', {
-      text: () => ChatService.exportChat(ChatService.getPublicGroupMessages()),
+      text: () => '',
     });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { timeWindowsValues, users, intl } = this.props;
+    const { isSettingOpen } = this.state;
+    if (prevState.isSettingOpen !== isSettingOpen) {
+      this.clipboard = new Clipboard('#clipboardButton', {
+        text: () => ChatService.exportChat(timeWindowsValues, users, intl),
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -72,14 +85,21 @@ class ChatDropdown extends PureComponent {
 
   getAvailableActions() {
     const {
-      intl, isMeteorConnected, amIModerator, meetingIsBreakout,
+      intl,
+      isMeteorConnected,
+      amIModerator,
+      meetingIsBreakout,
+      meetingName,
+      timeWindowsValues,
+      users,
     } = this.props;
 
     const clearIcon = 'delete';
     const saveIcon = 'download';
     const copyIcon = 'copy';
-
     return _.compact([
+      ENABLE_SAVE_AND_COPY_PUBLIC_CHAT
+      && (
       <DropdownListItem
         data-test="chatSave"
         icon={saveIcon}
@@ -88,23 +108,29 @@ class ChatDropdown extends PureComponent {
         onClick={() => {
           const link = document.createElement('a');
           const mimeType = 'text/plain';
-
-          link.setAttribute('download', `public-chat-${Date.now()}.txt`);
+          const date = new Date();
+          const time = `${date.getHours()}-${date.getMinutes()}`;
+          const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_${time}`;
+          link.setAttribute('download', `bbb-${meetingName}[public-chat]_${dateString}.txt`);
           link.setAttribute(
             'href',
-            `data: ${mimeType} ;charset=utf-8,
-            ${encodeURIComponent(ChatService.exportChat(ChatService.getPublicGroupMessages()))}`,
+            `data: ${mimeType} ;charset=utf-8,`
+            + `${encodeURIComponent(ChatService.exportChat(timeWindowsValues, users, intl))}`,
           );
           link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
         }}
-      />,
+      />
+      ),
+      ENABLE_SAVE_AND_COPY_PUBLIC_CHAT
+      && (
       <DropdownListItem
         data-test="chatCopy"
         icon={copyIcon}
         id="clipboardButton"
         label={intl.formatMessage(intlMessages.copy)}
         key={this.actionsKey[1]}
-      />,
+      />
+      ),
       !meetingIsBreakout && amIModerator && isMeteorConnected ? (
         <DropdownListItem
           data-test="chatClear"
@@ -118,11 +144,14 @@ class ChatDropdown extends PureComponent {
   }
 
   render() {
-    const { intl } = this.props;
+    const {
+      intl,
+      amIModerator,
+    } = this.props;
     const { isSettingOpen } = this.state;
 
     const availableActions = this.getAvailableActions();
-
+    if (!amIModerator && !ENABLE_SAVE_AND_COPY_PUBLIC_CHAT) return null;
     return (
       <Dropdown
         isOpen={isSettingOpen}

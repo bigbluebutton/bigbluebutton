@@ -7,7 +7,7 @@ import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 
 const CAPTIONS_CONFIG = Meteor.settings.public.captions;
-const CAPTIONS = '_captions_';
+const CAPTIONS_TOKEN = '_cc_';
 const LINE_BREAK = '\n';
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -19,7 +19,7 @@ const getActiveCaptions = () => {
 
 const getCaptions = locale => Captions.findOne({
   meetingId: Auth.meetingID,
-  padId: { $regex: `${CAPTIONS}${locale}$` },
+  padId: { $regex: `${CAPTIONS_TOKEN}${locale}$` },
 });
 
 const getCaptionsData = () => {
@@ -43,6 +43,7 @@ const getAvailableLocales = () => {
   const { meetingID } = Auth;
   const locales = [];
   Captions.find({ meetingId: meetingID },
+    { sort: { locale: 1 } },
     { fields: { ownerId: 1, locale: 1 } })
     .forEach((caption) => {
       if (caption.ownerId === '') {
@@ -68,14 +69,11 @@ const takeOwnership = (locale) => {
   makeCall('takeOwnership', locale);
 };
 
-const formatEntry = (entry) => {
-  const letterIndex = entry.charAt(0) === ' ' ? 1 : 0;
-  const formattedEntry = `${entry.charAt(letterIndex).toUpperCase() + entry.slice(letterIndex + 1)}.\n\n`;
-  return formattedEntry;
-};
-
 const appendText = (text, locale) => {
-  makeCall('appendText', formatEntry(text), locale);
+  if (typeof text !== 'string' || text.length === 0) return;
+
+  const formattedText = `${text.trim().replace(/^\w/, (c) => c.toUpperCase())}\n\n`;
+  makeCall('appendText', formattedText, locale);
 };
 
 const canIOwnThisPad = (ownerId) => {
@@ -117,7 +115,10 @@ const getCaptionsSettings = () => {
   return settings;
 };
 
-const isCaptionsEnabled = () => CAPTIONS_CONFIG.enabled;
+const isCaptionsEnabled = () => {
+  const captions = Captions.findOne({ meetingId: Auth.meetingID });
+  return CAPTIONS_CONFIG.enabled && captions;
+};
 
 const isCaptionsAvailable = () => {
   if (isCaptionsEnabled) {
@@ -170,6 +171,7 @@ const initSpeechRecognition = (locale) => {
 };
 
 export default {
+  CAPTIONS_TOKEN,
   getCaptionsData,
   getAvailableLocales,
   getOwnedLocales,

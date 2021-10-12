@@ -34,20 +34,6 @@ log_history=28
 find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-*" -mtime +$history -exec rm -rf '{}' +
 
 #
-# Delete streams in red5 older than N days
-#
-for webapp in video screenshare video-broadcast; do
-	webapp_dir=/usr/share/red5/webapps/$webapp/streams
-	if [[ -d $webapp_dir ]]; then
-		find $webapp_dir -name "*.flv" -mtime +$history -delete
-		find $webapp_dir -name "*.flv.ser" -mtime +$history -delete
-		find $webapp_dir -name "*.flv.info" -mtime +$history -delete
-		find $webapp_dir -name "*.flv.meta" -mtime +$history -delete
-		find $webapp_dir -type d -empty -mtime +$history -exec rmdir '{}' +
-	fi
-done
-
-#
 # Delete streams in kurento older than N days
 #
 for app in recordings screenshare; do
@@ -68,7 +54,6 @@ find /var/freeswitch/meetings/ -name "*.opus" -mtime +$history -delete
 # Delete old/rotated log files
 #
 find /opt/freeswitch/var/log/freeswitch -type f -mtime +$log_history -delete
-find /var/log/red5 -type f -mtime +$log_history -delete
 [[ -d /var/log/tomcat7 ]] && find /var/log/tomcat7 -type f -mtime +$log_history -delete
 find /var/log/bigbluebutton -type f -mtime +$log_history -delete
 find /var/log/bbb-webrtc-sfu -type f -mtime +$log_history -delete

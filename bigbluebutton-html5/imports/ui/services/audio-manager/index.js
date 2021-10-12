@@ -11,13 +11,13 @@ import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
-import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import { monitorAudioConnection } from '/imports/utils/stats';
 import AudioErrors from './error-codes';
+import {Meteor} from "meteor/meteor";
+import browserInfo from '/imports/utils/browserInfo';
 import {makeCall} from "../api";
 
-const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
-
+const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
@@ -25,6 +25,8 @@ const MAX_LISTEN_ONLY_RETRIES = 1;
 const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 25000;
 const DEFAULT_INPUT_DEVICE_ID = 'default';
 const DEFAULT_OUTPUT_DEVICE_ID = 'default';
+const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE = Meteor.settings
+  .public.app.experimentalUseKmsTrickleIceForMicrophone;
 const TRANSLATOR_SPEAK_DETECTION_THRESHOLD = MEDIA.translation.translator.speakDetection.threshold || -70;
 
 const CALL_STATES = {
@@ -35,6 +37,23 @@ const CALL_STATES = {
   AUTOPLAY_BLOCKED: 'autoplayBlocked',
 };
 
+const BREAKOUT_AUDIO_TRANSFER_STATES = {
+  CONNECTED: 'connected',
+  DISCONNECTED: 'disconnected',
+  RETURNING: 'returning',
+};
+
+/**
+ * Audio status to be filtered in getStats()
+ */
+const FILTER_AUDIO_STATS = [
+  'outbound-rtp',
+  'inbound-rtp',
+  'candidate-pair',
+  'local-candidate',
+  'transport',
+];
+
 export const ORIGINAL_TRANSLATION = 'original';
 
 class AudioManager {
@@ -43,6 +62,12 @@ class AudioManager {
       value: DEFAULT_INPUT_DEVICE_ID,
       tracker: new Tracker.Dependency(),
     };
+
+    this._breakoutAudioTransferStatus = {
+      status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+      breakoutMeetingId: null,
+    };
+
     this.translatorStream = null
     this.defineProperties({
       isMuted: false,
@@ -54,9 +79,9 @@ class AudioManager {
       isTalking: false,
       isWaitingPermissions: false,
       error: null,
-      outputDeviceId: null,
       muteHandle: null,
       autoplayBlocked: false,
+      isReconnecting: false,
       listeningTranslation: ORIGINAL_TRANSLATION,
       translatorChannelOpen:false,
       translationChannelOpen:false
@@ -66,13 +91,18 @@ class AudioManager {
     this.failedMediaElements = [];
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.monitor = this.monitor.bind(this);
+
+    this._inputStream = null;
+    this._inputStreamTracker = new Tracker.Dependency();
+
+    this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
     this.muteHandels = new Set();
     this.muteStateCallbacks = new Set();
     this.translationStateCallbacks = new Set();
     this.translationState = null;
   }
 
-  init(userData) {
+  init(userData, audioEventHandler) {
     this.bridge = new SIPBridge(userData); // no alternative as of 2019-03-08
     this.translationBridge = new SIPBridge({...userData}, "#translation-media");
     this.translatorBridge = new SIPBridge({...userData},
@@ -89,6 +119,7 @@ class AudioManager {
     }
     this.userData = userData;
     this.initialized = true;
+    this.audioEventHandler = audioEventHandler;
   }
 
   setAudioMessages(messages, intl) {
@@ -117,7 +148,29 @@ class AudioManager {
     });
   }
 
+  async trickleIce() {
+    const { isFirefox, isIe, isSafari } = browserInfo;
+
+    if (!this.listenOnlyBridge
+      || isFirefox
+      || isIe
+      || isSafari) return [];
+
+    if (this.validIceCandidates && this.validIceCandidates.length) {
+      logger.info({ logCode: 'audiomanager_trickle_ice_reuse_candidate' },
+        'Reusing trickle-ice information before activating microphone');
+      return this.validIceCandidates;
+    }
+
+    logger.info({ logCode: 'audiomanager_trickle_ice_get_local_candidate' },
+      'Performing trickle-ice before activating microphone');
+    this.validIceCandidates = await this.listenOnlyBridge.trickleIce() || [];
+    return this.validIceCandidates;
+  }
+
   joinMicrophone() {
+    this.audioJoinStartTime = new Date();
+    this.logAudioJoinTime = false;
     this.isListenOnly = false;
     this.isEchoTest = false;
 
@@ -133,15 +186,23 @@ class AudioManager {
   }
 
   joinEchoTest() {
+    this.audioJoinStartTime = new Date();
+    this.logAudioJoinTime = false;
     this.isListenOnly = false;
     this.isEchoTest = true;
 
     return this.onAudioJoining.bind(this)()
-      .then(() => {
+      .then(async () => {
+        let validIceCandidates = [];
+        if (EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE) {
+          validIceCandidates = await this.trickleIce();
+        }
+
         const callOptions = {
           isListenOnly: false,
           extension: ECHO_TEST_NUMBER,
           inputStream: this.inputStream,
+          validIceCandidates,
         };
         logger.info({ logCode: 'audiomanager_join_echotest', extraInfo: { logType: 'user_action' } }, 'User requested to join audio conference with mic');
         return this.joinAudio(callOptions, this.callStateCallback.bind(this));
@@ -191,6 +252,8 @@ class AudioManager {
   }
 
   async joinListenOnly(r = 0) {
+    this.audioJoinStartTime = new Date();
+    this.logAudioJoinTime = false;
     let retries = r;
     this.isListenOnly = true;
     this.isEchoTest = false;
@@ -201,22 +264,7 @@ class AudioManager {
     const callOptions = {
       isListenOnly: true,
       extension: null,
-      inputStream: this.createListenOnlyStream(),
     };
-
-    // WebRTC restrictions may need a capture device permission to release
-    // useful ICE candidates on recvonly/no-gUM peers
-    try {
-      await tryGenerateIceCandidates();
-    } catch (error) {
-      logger.error({
-        logCode: 'listenonly_no_valid_candidate_gum_failure',
-        extraInfo: {
-          errorName: error.name,
-          errorMessage: error.message,
-        },
-      }, `Forced gUM to release additional ICE candidates failed due to ${error.name}.`);
-    }
 
     // Call polyfills for webrtc client if navigator is "iOS Webview"
     const userAgent = window.navigator.userAgent.toLocaleLowerCase();
@@ -363,13 +411,30 @@ class AudioManager {
         changed: (id, fields) => this.onVoiceUserChanges(fields),
       });
     }
+    const secondsToActivateAudio = (new Date() - this.audioJoinStartTime) / 1000;
+
+    if (!this.logAudioJoinTime) {
+      this.logAudioJoinTime = true;
+      logger.info({
+        logCode: 'audio_mic_join_time',
+        extraInfo: {
+          secondsToActivateAudio,
+        },
+      }, `Time needed to connect audio (seconds): ${secondsToActivateAudio}`);
+    }
 
     if (!this.isEchoTest) {
       window.parent.postMessage({ response: 'joinedAudio' }, '*');
       this.notify(this.intl.formatMessage(this.messages.info.JOINED_AUDIO));
       logger.info({ logCode: 'audio_joined' }, 'Audio Joined');
-      if (ENABLE_NETWORK_MONITORING) this.monitor();
+      this.inputStream = (this.bridge ? this.bridge.inputStream : null);
+      if (STATS.enabled) this.monitor();
+      this.audioEventHandler({
+        name: 'started',
+        isListenOnly: this.isListenOnly,
+      });
     }
+    Session.set('audioModalIsOpen', false);
   }
 
   onTransferStart() {
@@ -385,8 +450,8 @@ class AudioManager {
     this.failedMediaElements = [];
 
     if (this.inputStream) {
-      window.defaultInputStream.forEach(track => track.stop());
-      this.inputStream.getTracks().forEach(track => track.stop());
+      this.inputStream.getTracks().forEach((track) => track.stop());
+      this.inputStream = null;
       this.inputDevice = { id: 'default' };
     }
 
@@ -420,12 +485,23 @@ class AudioManager {
       } = response;
 
       if (status === STARTED) {
+        this.isReconnecting = false;
         this.onAudioJoin();
         resolve(STARTED);
       } else if (status === ENDED) {
+        this.isReconnecting = false;
+        this.setBreakoutAudioTransferStatus({
+          breakoutMeetingId: '',
+          status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+        });
         logger.info({ logCode: 'audio_ended' }, 'Audio ended without issue');
         this.onAudioExit();
       } else if (status === FAILED) {
+        this.isReconnecting = false;
+        this.setBreakoutAudioTransferStatus({
+          breakoutMeetingId: '',
+          status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+        })
         const errorKey = this.messages.error[error] || this.messages.error.GENERIC_ERROR;
         const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
         this.error = !!error;
@@ -443,37 +519,25 @@ class AudioManager {
           this.onAudioExit();
         }
       } else if (status === RECONNECTING) {
+        this.isReconnecting = true;
+        this.setBreakoutAudioTransferStatus({
+          breakoutMeetingId: '',
+          status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+        })
         logger.info({ logCode: 'audio_reconnecting' }, 'Attempting to reconnect audio');
         this.notify(this.intl.formatMessage(this.messages.info.RECONNECTING_AUDIO), true);
         this.playHangUpSound();
       } else if (status === AUTOPLAY_BLOCKED) {
+        this.setBreakoutAudioTransferStatus({
+          breakoutMeetingId: '',
+          status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+        })
+        this.isReconnecting = false;
         this.autoplayBlocked = true;
         this.onAudioJoin();
         resolve(AUTOPLAY_BLOCKED);
       }
     });
-  }
-
-  createListenOnlyStream() {
-    const audio = document.querySelector(MEDIA_TAG);
-
-    // Play bogus silent audio to try to circumvent autoplay policy on Safari
-    if (!audio.src) {
-      audio.src = 'resources/sounds/silence.mp3';
-    }
-
-    audio.play().catch((e) => {
-      if (e.name === 'AbortError') {
-        return;
-      }
-
-      logger.warn({
-        logCode: 'audiomanager_error_test_audio',
-        extraInfo: { error: e },
-      }, 'Error on playing test audio');
-    });
-
-    return {};
   }
 
   isUsingAudio() {
@@ -541,10 +605,20 @@ class AudioManager {
     );
   }
 
-  async changeOutputDevice(deviceId) {
-    this.outputDeviceId = await this
+  liveChangeInputDevice(deviceId) {
+    // we force stream to be null, so MutedAlert will deallocate it and
+    // a new one will be created for the new stream
+    this.inputStream = null;
+    this.bridge.liveChangeInputDevice(deviceId).then((stream) => {
+      this.setSenderTrackEnabled(!this.isMuted);
+      this.inputStream = stream;
+    });
+  }
+
+  async changeOutputDevice(deviceId, isLive) {
+    await this
       .bridge
-      .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID);
+      .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID, isLive);
   }
 
   set inputDevice(value) {
@@ -553,8 +627,19 @@ class AudioManager {
   }
 
   get inputStream() {
-    this._inputDevice.tracker.depend();
-    return this._inputDevice.value.stream;
+    this._inputStreamTracker.depend();
+    return this._inputStream;
+  }
+
+  set inputStream(stream) {
+    // We store reactive information about input stream
+    // because mutedalert component needs to track when it changes
+    // and then update hark with the new value for inputStream
+    if (this._inputStream !== stream) {
+      this._inputStreamTracker.changed();
+    }
+
+    this._inputStream = stream;
   }
 
   get inputDevice() {
@@ -564,6 +649,39 @@ class AudioManager {
   get inputDeviceId() {
     return (this.bridge && this.bridge.inputDeviceId)
       ? this.bridge.inputDeviceId : DEFAULT_INPUT_DEVICE_ID;
+  }
+
+  get outputDeviceId() {
+    return (this.bridge && this.bridge.outputDeviceId)
+      ? this.bridge.outputDeviceId : DEFAULT_OUTPUT_DEVICE_ID;
+  }
+
+  /**
+   * Sets the current status for breakout audio transfer
+   * @param {Object} newStatus                  The status Object to be set for
+   *                                            audio transfer.
+   * @param {string} newStatus.breakoutMeetingId The meeting id of the current
+   *                                            breakout audio transfer.
+   * @param {string} newStatus.status           The status of the current audio
+   *                                            transfer. Valid values are
+   *                                            'connected', 'disconnected' and
+   *                                            'returning'.
+   */
+  setBreakoutAudioTransferStatus(newStatus) {
+    const currentStatus = this._breakoutAudioTransferStatus;
+    const { breakoutMeetingId, status } = newStatus;
+
+    if (typeof breakoutMeetingId === 'string') {
+      currentStatus.breakoutMeetingId = breakoutMeetingId;
+    }
+
+    if (typeof status === 'string') {
+      currentStatus.status = status;
+    }
+  }
+
+  getBreakoutAudioTransferStatus() {
+    return this._breakoutAudioTransferStatus;
   }
 
   set userData(value) {
@@ -580,7 +698,7 @@ class AudioManager {
 
   playHangUpSound() {
     this.playAlertSound(`${Meteor.settings.public.app.cdn
-      + Meteor.settings.public.app.basename}`
+      + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}`
       + '/resources/sounds/LeftCall.mp3');
   }
 
@@ -640,7 +758,7 @@ class AudioManager {
     }
   }
 
-  setSenderTrackEnabled (shouldEnable) {
+  setSenderTrackEnabled(shouldEnable) {
     // If the bridge is set to listen only mode, nothing to do here. This method
     // is solely for muting outbound tracks.
     if (this.isListenOnly) return;
@@ -682,28 +800,240 @@ class AudioManager {
     }
   }
 
-  mute () {
+  mute() {
     this.setSenderTrackEnabled(false);
   }
 
-  unmute () {
+  unmute() {
     this.setSenderTrackEnabled(true);
   }
 
-  playAlertSound (url) {
-    if (!url) {
+  playAlertSound(url) {
+    if (!url || !this.bridge) {
       return Promise.resolve();
     }
 
     const audioAlert = new Audio(url);
 
-    if (this.outputDeviceId && (typeof audioAlert.setSinkId === 'function')) {
+    audioAlert.addEventListener('ended', () => { audioAlert.src = null; });
+
+
+    const { outputDeviceId } = this.bridge;
+
+    if (outputDeviceId && (typeof audioAlert.setSinkId === 'function')) {
       return audioAlert
-        .setSinkId(this.outputDeviceId)
+        .setSinkId(outputDeviceId)
         .then(() => audioAlert.play());
     }
 
     return audioAlert.play();
+  }
+
+  async updateAudioConstraints(constraints) {
+    await this.bridge.updateAudioConstraints(constraints);
+  }
+
+  /**
+   * Helper for retrieving the current bridge being used by audio.
+   * @returns An Object representing the current bridge.
+   */
+  getCurrentBridge() {
+    return this.isListenOnly ? this.listenOnlyBridge : this.bridge;
+  }
+
+  /**
+   * Get the info about candidate-pair that is being used by the current peer.
+   * For firefox, or any other browser that doesn't support iceTransport
+   * property of RTCDtlsTransport, we retrieve the selected local candidate
+   * by looking into stats returned from getStats() api. For other browsers,
+   * we should use getSelectedCandidatePairFromPeer instead, because it has
+   * relatedAddress and relatedPort information about local candidate.
+   *
+   * @param {Object} stats object returned by getStats() api
+   * @returns An Object of type RTCIceCandidatePairStats containing information
+   *          about the candidate-pair being used by the peer.
+   *
+   * For firefox, we can use the 'selected' flag to find the candidate pair
+   * being used, while in chrome we can retrieved the selected pair
+   * by looking for the corresponding transport of the active peer.
+   * For more information see:
+   * https://www.w3.org/TR/webrtc-stats/#dom-rtcicecandidatepairstats
+   * and
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCIceCandidatePairStats/selected#value
+   */
+  static getSelectedCandidatePairFromStats(stats) {
+    if (!stats || typeof stats !== 'object') return null;
+
+    const transport = Object.values(stats).find((stat) => stat.type
+      === 'transport') || {};
+
+    return Object.values(stats).find((stat) => stat.type === 'candidate-pair'
+      && stat.nominated && (stat.selected
+        || stat.id === transport.selectedCandidatePairId));
+  }
+
+  /**
+   * Get the info about candidate-pair that is being used by the current peer.
+   * This function's return value (RTCIceCandidatePair object ) is different
+   * from getSelectedCandidatePairFromStats (RTCIceCandidatePairStats object).
+   * The information returned here contains the relatedAddress and relatedPort
+   * fields (only for candidates that are derived from another candidate, for
+   * host candidates, these fields are null). These field can be helpful for
+   * debugging network issues. For all the browsers that support iceTransport
+   * field of RTCDtlsTransport, we use this function as default to retrieve
+   * information about current selected-pair. For other browsers we retrieve it
+   * from getSelectedCandidatePairFromStats
+   *
+   * @returns {Object} An RTCIceCandidatePair represented the selected
+   *                   candidate-pair of the active peer.
+   *
+   * For more info see:
+   * https://www.w3.org/TR/webrtc/#dom-rtcicecandidatepair
+   * and
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCIceCandidatePair
+   * and
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCDtlsTransport
+   */
+  getSelectedCandidatePairFromPeer() {
+    const bridge = this.getCurrentBridge();
+
+    if (!bridge) return null;
+
+    const peer = bridge.getPeerConnection();
+
+    if (!peer) return null;
+
+    let selectedPair = null;
+
+    const receivers = peer.getReceivers();
+    if (receivers && receivers[0] && receivers[0].transport
+        && receivers[0].transport.iceTransport
+        && receivers[0].transport.iceTransport) {
+      selectedPair = receivers[0].transport.iceTransport
+        .getSelectedCandidatePair();
+    }
+
+    return selectedPair;
+  }
+
+  /**
+   * Gets the selected local-candidate information. For browsers that support
+   * iceTransport property (see getSelectedCandidatePairFromPeer) we get this
+   * info from peer, otherwise we retrieve this information from getStats() api
+   *
+   * @param {Object} [stats] The status object returned from getStats() api
+   * @returns {Object} An Object containing the information about the
+   *                   local-candidate. For browsers that support iceTransport
+   *                   property, the object's type is RCIceCandidate. A
+   *                   RTCIceCandidateStats is returned, otherwise.
+   *
+   * For more info see:
+   * https://www.w3.org/TR/webrtc/#dom-rtcicecandidate
+   * and
+   * https://www.w3.org/TR/webrtc-stats/#dom-rtcicecandidatestats
+   *
+   */
+  getSelectedLocalCandidate(stats) {
+    let selectedPair = this.getSelectedCandidatePairFromPeer();
+
+    if (selectedPair) return selectedPair.local;
+
+    if (!stats) return null;
+
+    selectedPair = AudioManager.getSelectedCandidatePairFromStats(stats);
+
+    if (selectedPair) return stats[selectedPair.localCandidateId];
+
+    return null;
+  }
+
+  /**
+   * Gets the information about private/public ip address from peer
+   * stats. The information retrieved from selected pair from the current
+   * RTCIceTransport and returned in a new Object with format:
+   * {
+   *   address: String,
+   *   relatedAddress: String,
+   *   port: Number,
+   *   relatedPort: Number,
+   *   candidateType: String,
+   *   selectedLocalCandidate: Object,
+   * }
+   *
+   * If users isn't behind NAT, relatedAddress and relatedPort may be null.
+   *
+   * @returns An Object containing the information about private/public IP
+   *          addresses and ports.
+   *
+   * For more information see:
+   * https://www.w3.org/TR/webrtc-stats/#dom-rtcicecandidatepairstats
+   * and
+   * https://www.w3.org/TR/webrtc-stats/#dom-rtcicecandidatestats
+   * and
+   * https://www.w3.org/TR/webrtc/#rtcicecandidatetype-enum
+   */
+  async getInternalExternalIpAddresses(stats) {
+    let transports = {};
+
+    if (stats) {
+      const selectedLocalCandidate = this.getSelectedLocalCandidate(stats);
+
+      if (!selectedLocalCandidate) return transports;
+
+      const candidateType = selectedLocalCandidate.candidateType
+        || selectedLocalCandidate.type;
+
+      transports = {
+        isUsingTurn: (candidateType === 'relay'),
+        address: selectedLocalCandidate.address,
+        relatedAddress: selectedLocalCandidate.relatedAddress,
+        port: selectedLocalCandidate.port,
+        relatedPort: selectedLocalCandidate.relatedPort,
+        candidateType,
+        selectedLocalCandidate,
+      };
+    }
+
+    return transports;
+  }
+
+  /**
+   * Get stats about active audio peer.
+   * We filter the status based on FILTER_AUDIO_STATS constant.
+   * We also append to the returned object the information about peer's
+   * transport. This transport information is retrieved by
+   * getInternalExternalIpAddressesFromPeer().
+   *
+   * @returns An Object containing the status about the active audio peer.
+   *
+   * For more information see:
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
+   * and
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
+   */
+  async getStats() {
+    const bridge = this.getCurrentBridge();
+
+    if (!bridge) return null;
+
+    const peer = bridge.getPeerConnection();
+
+    if (!peer) return null;
+
+    const peerStats = await peer.getStats();
+
+    const audioStats = {};
+
+    peerStats.forEach((stat) => {
+      if (FILTER_AUDIO_STATS.includes(stat.type)) {
+        audioStats[stat.id] = stat;
+      }
+    });
+
+    const transportStats = await this
+      .getInternalExternalIpAddresses(audioStats);
+
+    return { transportStats, ...audioStats };
   }
 
   async handleTranslationChannelStateChange(languageExtension, message) {

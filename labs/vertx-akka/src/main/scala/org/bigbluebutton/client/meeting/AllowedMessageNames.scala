@@ -22,7 +22,6 @@ object AllowedMessageNames {
     UserBroadcastCamStopMsg.NAME,
     LogoutAndEndMeetingCmdMsg.NAME,
     GetRecordingStatusReqMsg.NAME,
-    MeetingActivityResponseCmdMsg.NAME,
     SetRecordingStatusCmdMsg.NAME,
     EjectUserFromMeetingCmdMsg.NAME,
     IsMeetingMutedReqMsg.NAME,
@@ -85,14 +84,6 @@ object AllowedMessageNames {
     SendCaptionHistoryReqMsg.NAME,
     UpdateCaptionOwnerPubMsg.NAME,
     EditCaptionHistoryPubMsg.NAME,
-
-    // Shared Notes Messages
-    GetSharedNotesPubMsg.NAME,
-    CreateSharedNoteReqMsg.NAME,
-    DestroySharedNoteReqMsg.NAME,
-    UpdateSharedNoteReqMsg.NAME,
-    SyncSharedNotePubMsg.NAME,
-    ClearSharedNotePubMsg.NAME,
 
     // Layout Messages
     GetCurrentLayoutReqMsg.NAME,

@@ -16,7 +16,6 @@ class LiveMeeting(
     val wbModel:          WhiteboardModel,
     val presModel:        PresentationModel,
     val captionModel:     CaptionModel,
-    val notesModel:       SharedNotesModel,
     val webcams:          Webcams,
     val voiceUsers:       VoiceUsers,
     val users2x:          Users2x,

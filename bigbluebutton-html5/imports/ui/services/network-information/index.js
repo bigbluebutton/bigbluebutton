@@ -77,7 +77,6 @@ export const startBandwidthMonitoring = () => {
 
     const usersOnline = Users.find({
       userId: { $ne: Auth.userID },
-      connectionStatus: 'online',
     }, { fields: { userId: 1 } }).map(user => user.userId);
 
     const usersWithViewWebcamsEnabled = LocalSettings.find({

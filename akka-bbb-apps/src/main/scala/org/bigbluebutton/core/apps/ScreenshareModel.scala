@@ -10,6 +10,7 @@ object ScreenshareModel {
     status.voiceConf = ""
     status.screenshareConf = ""
     status.timestamp = ""
+    status.hasAudio = false
   }
 
   def getScreenshareStarted(status: ScreenshareModel): Boolean = {
@@ -79,6 +80,14 @@ object ScreenshareModel {
   def getTimestamp(status: ScreenshareModel): String = {
     status.timestamp
   }
+
+  def setHasAudio(status: ScreenshareModel, hasAudio: Boolean): Unit = {
+    status.hasAudio = hasAudio
+  }
+
+  def getHasAudio(status: ScreenshareModel): Boolean = {
+    status.hasAudio
+  }
 }
 
 class ScreenshareModel {
@@ -90,4 +99,5 @@ class ScreenshareModel {
   private var voiceConf: String = ""
   private var screenshareConf: String = ""
   private var timestamp: String = ""
+  private var hasAudio = false
 }

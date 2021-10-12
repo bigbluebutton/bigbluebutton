@@ -33,7 +33,11 @@ function fullscreenRequest(element) {
     element.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
   } else if (element.msRequestFullscreen) {
     element.msRequestFullscreen();
+  } else {
+    return;
   }
+  document.activeElement.blur();
+  element.focus();
 }
 
 const toggleFullScreen = (ref = null) => {

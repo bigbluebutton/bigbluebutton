@@ -109,7 +109,7 @@ class ExternalVideoModal extends Component {
 
         <div className={styles.content}>
           <div className={styles.videoUrl}>
-            <label htmlFor="video-modal-input" id="video-modal-input">
+            <label htmlFor="video-modal-input">
               {intl.formatMessage(intlMessages.input)}
               <input
                 id="video-modal-input"

@@ -25,6 +25,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-bbb-alert:before {
+  content: "\e958";
+}
 .icon-bbb-mute:before {
   content: "\e932";
 }
@@ -285,10 +288,13 @@
 .icon-bbb-closed_caption:before {
   content: "\e957";
 }
-.icon-bbb-globe:before {
-  content: "\1f310";
+/*\e958 -> icon-bbb-alert*/
+.icon-bbb-palm_rejection:before {
+  content: "\e959";
 }
-
+.icon-bbb-no_palm_rejection:before {
+  content: "\e95a";
+}
 .icon-bbb-translation{
   background-image: url("/html5client/resources/images/bbb_trans_icons.svg");
 }

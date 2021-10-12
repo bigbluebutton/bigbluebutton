@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import { throttle } from 'lodash';
 import PropTypes from 'prop-types';
 
+const { cursorInterval: CURSOR_INTERVAL } = Meteor.settings.public.whiteboard;
+
 // maximum value of z-index to prevent other things from overlapping
 const MAX_Z_INDEX = (2 ** 31) - 1;
-const CURSOR_INTERVAL = 40;
 
 export default class CursorListener extends Component {
   static touchCenterPoint(touches) {

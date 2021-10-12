@@ -1,5 +1,5 @@
 import React from 'react';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
@@ -13,7 +13,7 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   handleDownloadPresentation: PropTypes.func.isRequired,
   dark: PropTypes.bool,
 };
@@ -29,7 +29,7 @@ const DownloadPresentationButton = ({
     <Button
       color="default"
       icon="template_download"
-      size="sm"
+      size="md"
       onClick={handleDownloadPresentation}
       label={intl.formatMessage(intlMessages.downloadPresentationButton)}
       hideLabel

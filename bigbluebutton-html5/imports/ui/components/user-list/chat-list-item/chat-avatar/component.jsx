@@ -12,11 +12,14 @@ const defaultProps = {
 };
 
 const ChatAvatar = (props) => {
-  const { color, name, isModerator } = props;
+  const {
+    color, name, avatar, isModerator,
+  } = props;
   return (
 
     <UserAvatar
       moderator={isModerator}
+      avatar={avatar}
       color={color}
     >
       {name.toLowerCase().slice(0, 2)}

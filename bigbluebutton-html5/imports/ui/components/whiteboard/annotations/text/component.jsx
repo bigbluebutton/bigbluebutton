@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import RenderInBrowser from 'react-render-in-browser';
-import AnnotationHelpers from '../helpers';
+import { getFormattedColor, denormalizeCoord } from '../helpers';
 
 const DRAW_END = Meteor.settings.public.whiteboard.annotations.status.end;
 
@@ -109,11 +109,11 @@ export default class TextDrawComponent extends Component {
       text,
     } = annotation;
 
-    const _x = (x / 100) * slideWidth;
-    const _y = (y / 100) * slideHeight;
-    const _width = (textBoxWidth / 100) * slideWidth;
-    const _height = (textBoxHeight / 100) * slideHeight;
-    const _fontColor = AnnotationHelpers.getFormattedColor(fontColor);
+    const _x = denormalizeCoord(x, slideWidth);
+    const _y = denormalizeCoord(y, slideHeight);
+    const _width = denormalizeCoord(textBoxWidth, slideWidth);
+    const _height = denormalizeCoord(textBoxHeight, slideHeight);
+    const _fontColor = getFormattedColor(fontColor);
     const _fontSize = fontSize;
     const _calcedFontSize = (calcedFontSize / 100) * slideHeight;
     const _text = text;

@@ -17,7 +17,7 @@ trait SyncGetVoiceUsersMsgHdlr {
           callerNum = u.callerNum, muted = u.muted, talking = u.talking, listenOnly = u.listenOnly)
       }
 
-      val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, "nodeJSapp")
+      val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, liveMeeting.props.systemProps.html5InstanceId.toString)
       val envelope = BbbCoreEnvelope(SyncGetVoiceUsersRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(SyncGetVoiceUsersRespMsg.NAME, liveMeeting.props.meetingProp.intId, "nodeJSapp")
       val body = SyncGetVoiceUsersRespMsgBody(voiceUsers)

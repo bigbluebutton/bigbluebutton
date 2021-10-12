@@ -4,12 +4,30 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { makeCall } from '/imports/ui/services/api';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
+import { withUsersConsumer } from '/imports/ui/components/components-data/users-context/context';
 import logger from '/imports/startup/client/logger';
+import Auth from '/imports/ui/services/auth';
+import Storage from '/imports/ui/services/storage/session';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioControls from './component';
 import AudioModalContainer from '../audio-modal/container';
-import Service from '../service';
+import {
+  setUserSelectedMicrophone,
+  setUserSelectedListenOnly,
+} from '../audio-modal/service';
 
-const AudioControlsContainer = props => <AudioControls {...props} />;
+import Service from '../service';
+import AppService from '/imports/ui/components/app/service';
+
+const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
+const APP_CONFIG = Meteor.settings.public.app;
+
+const AudioControlsContainer = (props) => {
+  const {
+    users, lockSettings, userLocks, children, ...newProps
+  } = props;
+  return <AudioControls {...newProps} />;
+};
 
 const processToggleMuteFromOutside = (e) => {
   switch (e.data) {
@@ -34,6 +52,18 @@ const processToggleMuteFromOutside = (e) => {
 };
 
 const handleLeaveAudio = () => {
+  const meetingIsBreakout = AppService.meetingIsBreakout();
+
+  if (!meetingIsBreakout) {
+    setUserSelectedMicrophone(false);
+    setUserSelectedListenOnly(false);
+  }
+
+  const skipOnFistJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
+  if (skipOnFistJoin && !Storage.getItem('getEchoTest')) {
+    Storage.setItem('getEchoTest', true);
+  }
+
   Service.exitAudio();
   logger.info({
     logCode: 'audiocontrols_leave_audio',
@@ -54,16 +84,33 @@ const {
   joinListenOnly,
 } = Service;
 
-export default lockContextContainer(withModalMounter(withTracker(({ mountModal, userLocks }) => ({
-  processToggleMuteFromOutside: arg => processToggleMuteFromOutside(arg),
-  showMute: isConnected() && !isListenOnly() && !isEchoTest() && !userLocks.userMic,
-  muted: isConnected() && !isListenOnly() && isMuted(),
-  inAudio: isConnected() && !isEchoTest(),
-  listenOnly: isConnected() && isListenOnly(),
-  disable: isConnecting() || isHangingUp() || !Meteor.status().connected,
-  talking: isTalking() && !isMuted(),
-  isVoiceUser: isVoiceUser(),
-  handleToggleMuteMicrophone: () => toggleMuteMicrophone(),
-  handleJoinAudio: () => (isConnected() ? joinListenOnly() : mountModal(<AudioModalContainer />)),
-  handleLeaveAudio,
-}))(AudioControlsContainer)));
+export default withUsersConsumer(lockContextContainer(withModalMounter(withTracker(({ mountModal, userLocks, users }) => {
+  const currentUser = users[Auth.meetingID][Auth.userID];
+  const isViewer = currentUser.role === ROLE_VIEWER;
+  const isPresenter = currentUser.presenter;
+  const { status } = Service.getBreakoutAudioTransferStatus();
+
+  if (status === AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.RETURNING) {
+    Service.setBreakoutAudioTransferStatus({
+      status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+    });
+    Service.recoverMicState();
+  }
+
+  return ({
+    processToggleMuteFromOutside: (arg) => processToggleMuteFromOutside(arg),
+    showMute: isConnected() && !isListenOnly() && !isEchoTest() && !userLocks.userMic,
+    muted: isConnected() && !isListenOnly() && isMuted(),
+    inAudio: isConnected() && !isEchoTest(),
+    listenOnly: isConnected() && isListenOnly(),
+    disable: isConnecting() || isHangingUp() || !Meteor.status().connected,
+    talking: isTalking() && !isMuted(),
+    isVoiceUser: isVoiceUser(),
+    handleToggleMuteMicrophone: () => toggleMuteMicrophone(),
+    handleJoinAudio: () => (isConnected() ? joinListenOnly() : mountModal(<AudioModalContainer />)),
+    handleLeaveAudio,
+    inputStream: AudioManager.inputStream,
+    isViewer,
+    isPresenter,
+  });
+})(AudioControlsContainer))));

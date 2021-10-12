@@ -3,7 +3,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import logger from '/imports/startup/client/logger';
-import browser from 'browser-detect';
+import browserInfo from '/imports/utils/browserInfo';
 import { styles } from '../audio-modal/styles';
 
 const propTypes = {
@@ -82,6 +82,7 @@ class DeviceSelector extends Component {
     } = this.props;
 
     const { options, value } = this.state;
+    const { isSafari } = browserInfo;
 
     return (
       <select
@@ -102,7 +103,7 @@ class DeviceSelector extends Component {
               </option>
             ))
             : (
-              (kind === 'audiooutput' && browser().name === 'safari')
+              (kind === 'audiooutput' && isSafari)
                 ? <option value="not-found">Default</option>
                 : <option value="not-found">{`no ${kind} found`}</option>
             )

@@ -23,7 +23,6 @@ export default function setCurrentPresentation(meetingId, podId, presentationId)
       }
 
       Logger.info('Unsetted as current presentation');
-      return;
     },
   };
 
@@ -43,7 +42,6 @@ export default function setCurrentPresentation(meetingId, podId, presentationId)
       }
 
       Logger.info(`Setted as current presentation id=${presentationId}`);
-      return;
     },
   };
 

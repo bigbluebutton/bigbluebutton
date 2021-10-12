@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Icon from '/imports/ui/components/icon/component';
 import { Session } from 'meteor/session';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   locale: PropTypes.shape({
     locale: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,

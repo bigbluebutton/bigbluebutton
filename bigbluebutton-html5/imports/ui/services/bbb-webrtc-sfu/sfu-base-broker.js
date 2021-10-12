@@ -1,6 +1,6 @@
 import logger from '/imports/startup/client/logger';
 import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
-import SFU_BROKER_ERRORS from '/imports/ui/services/bbb-webrtc-sfu/broker-base-errors';
+import { SFU_BROKER_ERRORS } from '/imports/ui/services/bbb-webrtc-sfu/broker-base-errors';
 
 const PING_INTERVAL_MS = 15000;
 

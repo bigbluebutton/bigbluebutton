@@ -55,13 +55,19 @@ public interface IVoiceConferenceService {
                                      String streamname,
                                      Integer videoWidth,
                                      Integer videoHeight,
-                                     String timestamp);
+                                     String timestamp,
+                                     boolean hasAudio);
 
   void deskShareRTMPBroadcastStopped(String room,
                                      String streamname,
                                      Integer videoWidth,
                                      Integer videoHeight,
                                      String timestamp);
+
+  void audioFloorChanged(String room,
+                         String voiceUserId,
+                         String oldVoiceUserId,
+                         String floorTimestamp);
 
   void voiceConfRunningAndRecording(String room,
                                     Boolean isRunning,

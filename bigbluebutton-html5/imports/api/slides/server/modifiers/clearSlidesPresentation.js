@@ -26,6 +26,5 @@ export default function clearSlidesPresentation(meetingId, presentationId) {
     }
   } catch (err) {
     Logger.error(`Removing Slides from collection: ${err}`);
-    return;
   }
 }

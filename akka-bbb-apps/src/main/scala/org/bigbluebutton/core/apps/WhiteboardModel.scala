@@ -25,7 +25,14 @@ class WhiteboardModel extends SystemConfiguration {
   }
 
   private def createWhiteboard(wbId: String): Whiteboard = {
-    new Whiteboard(wbId, multiUserWhiteboardDefault, System.currentTimeMillis(), 0, new HashMap[String, List[AnnotationVO]]())
+    new Whiteboard(
+      wbId,
+      Array.empty[String],
+      Array.empty[String],
+      System.currentTimeMillis(),
+      0,
+      new HashMap[String, List[AnnotationVO]]()
+    )
   }
 
   private def getAnnotationsByUserId(wb: Whiteboard, id: String): List[AnnotationVO] = {
@@ -97,7 +104,7 @@ class WhiteboardModel extends SystemConfiguration {
     }
   }
 
-  def endAnnotationPencil(wbId: String, userId: String, annotation: AnnotationVO): AnnotationVO = {
+  def endAnnotationPencil(wbId: String, userId: String, annotation: AnnotationVO, drawEndOnly: Boolean): AnnotationVO = {
     var rtnAnnotation: AnnotationVO = annotation
 
     val wb = getWhiteboard(wbId)
@@ -105,49 +112,69 @@ class WhiteboardModel extends SystemConfiguration {
 
     //not empty and head id equals annotation id
     //println("!usersAnnotations.isEmpty: " + (!usersAnnotations.isEmpty) + ", usersAnnotations.head.id == annotation.id: " + (usersAnnotations.head.id == annotation.id));
-    if (!usersAnnotations.isEmpty && usersAnnotations.head.id == annotation.id) {
-      var dimensions: List[Int] = List[Int]()
-      annotation.annotationInfo.get("dimensions").foreach(d => {
-        d match {
-          case d2: List[_] => dimensions = convertListNumbersToInt(d2)
-        }
-      })
 
-      //println("dimensions.size(): " + dimensions.size());
-      if (dimensions.length == 2) {
-        val oldAnnotation = usersAnnotations.head
-        var oldPoints: List[Float] = List[Float]()
-        oldAnnotation.annotationInfo.get("points").foreach(a => {
-          a match {
-            case a2: List[_] => oldPoints = a2.asInstanceOf[List[Float]]
-          }
-        })
-
-        var newPoints: List[Float] = List[Float]()
-        annotation.annotationInfo.get("points").foreach(a => {
-          a match {
-            case a2: List[_] => newPoints = convertListNumbersToFloat(a2)
-          }
-        }) //newPoints = a.asInstanceOf[ArrayList[Float]])
-
-        //println("oldPoints.size(): " + oldPoints.size());
-
-        //val oldPointsJava: java.util.List[java.lang.Float] = oldPoints.asJava.asInstanceOf[java.util.List[java.lang.Float]]
-        //println("****class = " + oldPointsJava.getClass())
-        val pathData = BezierWrapper.lineSimplifyAndCurve((oldPoints ::: newPoints).asJava.asInstanceOf[java.util.List[java.lang.Float]], dimensions(0), dimensions(1))
-        //println("Path data: pointssize " + pathData.points.size() + " commandssize " + pathData.commands.size())
-
-        val updatedAnnotationData = annotation.annotationInfo + ("points" -> pathData.points.asScala.toList) + ("commands" -> pathData.commands.asScala.toList)
-        val updatedAnnotation = annotation.copy(position = oldAnnotation.position, annotationInfo = updatedAnnotationData)
-
-        val newAnnotationsMap = wb.annotationsMap + (userId -> (updatedAnnotation :: usersAnnotations.tail))
-        //println("Annotation has position [" + usersAnnotations.head.position + "]")
-        val newWb = wb.copy(annotationsMap = newAnnotationsMap)
-        //println("Updating annotation on page [" + wb.id + "]. After numAnnotations=[" + getAnnotationsByUserId(wb, userId).length + "].")
-        saveWhiteboard(newWb)
-
-        rtnAnnotation = updatedAnnotation
+    var dimensions: List[Int] = List[Int]()
+    annotation.annotationInfo.get("dimensions").foreach(d => {
+      d match {
+        case d2: List[_] => dimensions = convertListNumbersToInt(d2)
       }
+    })
+
+    //println("dimensions.size(): " + dimensions.size());
+    if (dimensions.length == 2) {
+      var oldPoints: List[Float] = List[Float]()
+      val oldAnnotationOption: Option[AnnotationVO] = usersAnnotations.headOption
+      if (!oldAnnotationOption.isEmpty) {
+        val oldAnnotation = oldAnnotationOption.get
+        if (oldAnnotation.id == annotation.id) {
+          oldAnnotation.annotationInfo.get("points").foreach(a => {
+            a match {
+              case a2: List[_] => oldPoints = a2.asInstanceOf[List[Float]]
+            }
+          })
+        }
+      }
+
+      var newPoints: List[Float] = List[Float]()
+      annotation.annotationInfo.get("points").foreach(a => {
+        a match {
+          case a2: List[_] => newPoints = convertListNumbersToFloat(a2)
+        }
+      }) //newPoints = a.asInstanceOf[ArrayList[Float]])
+
+      //println("oldPoints.size(): " + oldPoints.size)
+
+      //val oldPointsJava: java.util.List[java.lang.Float] = oldPoints.asJava.asInstanceOf[java.util.List[java.lang.Float]]
+      //println("****class = " + oldPointsJava.getClass())
+      val pathData = BezierWrapper.lineSimplifyAndCurve((oldPoints ::: newPoints).asJava.asInstanceOf[java.util.List[java.lang.Float]], dimensions(0), dimensions(1))
+      //println("Path data: pointssize " + pathData.points.size() + " commandssize " + pathData.commands.size())
+
+      val updatedAnnotationData = annotation.annotationInfo + ("points" -> pathData.points.asScala.toList) + ("commands" -> pathData.commands.asScala.toList)
+      //println("oldAnnotation value = " + oldAnnotationOption.getOrElse("Empty"))
+
+      var newPosition: Int = oldAnnotationOption match {
+        case Some(annotation) => annotation.position
+        case None             => wb.annotationCount
+      }
+
+      val updatedAnnotation = annotation.copy(position = newPosition, annotationInfo = updatedAnnotationData)
+
+      var newUsersAnnotations: List[AnnotationVO] = oldAnnotationOption match {
+        //As part of the whiteboard improvments for the HTML5 client it no longer sends
+        //DRAW_START and DRAW_UPDATE events (#9019). Client now sends drawEndOnly in the
+        //SendWhiteboardAnnotationPubMsg so akka knows not to expect usersAnnotations to be accumulating.
+        case Some(annotation) if (drawEndOnly == true) => usersAnnotations
+        case Some(annotation)                          => usersAnnotations.tail
+        case None                                      => usersAnnotations
+      }
+
+      val newAnnotationsMap = wb.annotationsMap + (userId -> (updatedAnnotation :: newUsersAnnotations))
+      //println("Annotation has position [" + usersAnnotations.head.position + "]")
+      val newWb = wb.copy(annotationsMap = newAnnotationsMap)
+      //println("Updating annotation on page [" + wb.id + "]. After numAnnotations=[" + getAnnotationsByUserId(wb, userId).length + "].")
+      saveWhiteboard(newWb)
+
+      rtnAnnotation = updatedAnnotation
     }
 
     rtnAnnotation
@@ -164,7 +191,7 @@ class WhiteboardModel extends SystemConfiguration {
     if (hasWhiteboard(wbId)) {
       val wb = getWhiteboard(wbId)
 
-      if (wb.multiUser) {
+      if (wb.multiUser.contains(userId)) {
         if (wb.annotationsMap.contains(userId)) {
           val newWb = wb.copy(annotationsMap = wb.annotationsMap - userId)
           saveWhiteboard(newWb)
@@ -185,7 +212,7 @@ class WhiteboardModel extends SystemConfiguration {
     var last: Option[AnnotationVO] = None
     val wb = getWhiteboard(wbId)
 
-    if (wb.multiUser) {
+    if (wb.multiUser.contains(userId)) {
       val usersAnnotations = getAnnotationsByUserId(wb, userId)
 
       //not empty and head id equals annotation id
@@ -214,13 +241,21 @@ class WhiteboardModel extends SystemConfiguration {
     wb.copy(annotationsMap = newAnnotationsMap)
   }
 
-  def modifyWhiteboardAccess(wbId: String, multiUser: Boolean) {
+  def modifyWhiteboardAccess(wbId: String, multiUser: Array[String]) {
     val wb = getWhiteboard(wbId)
-    val newWb = wb.copy(multiUser = multiUser, changedModeOn = System.currentTimeMillis())
+    val newWb = wb.copy(multiUser = multiUser, oldMultiUser = wb.multiUser, changedModeOn = System.currentTimeMillis())
     saveWhiteboard(newWb)
   }
 
-  def getWhiteboardAccess(wbId: String): Boolean = getWhiteboard(wbId).multiUser
+  def getWhiteboardAccess(wbId: String): Array[String] = getWhiteboard(wbId).multiUser
+
+  def hasWhiteboardAccess(wbId: String, userId: String): Boolean = {
+    val wb = getWhiteboard(wbId)
+    wb.multiUser.contains(userId) || {
+      val lastChange = System.currentTimeMillis() - wb.changedModeOn
+      wb.oldMultiUser.contains(userId) && lastChange < 5000
+    }
+  }
 
   def getChangedModeOn(wbId: String): Long = getWhiteboard(wbId).changedModeOn
 
