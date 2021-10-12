@@ -1034,6 +1034,9 @@ class Presentation extends PureComponent {
                   {wToolbar}
                   {pToolbar}
                 </MyWindowPortal>
+                {/*
+                  wToolbar can be here if it impairs the slide visibility
+                */}
               </Fragment>
             :
               <Fragment>
