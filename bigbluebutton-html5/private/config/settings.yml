@@ -35,6 +35,8 @@ public:
     lockOnJoin: true
     cdn: ''
     basename: '/html5client'
+    # Use https URL of CSS file. Example: https://docs.bigbluebutton.org/admin/customize.html#examples
+    customStyleUrl: null
     askForFeedbackOnLogout: false
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
@@ -88,6 +90,12 @@ public:
     # https://developer.mozilla.org/en-US/docs/Web/API/RTCDtlsTransport/iceTransport
     # This is an EXPERIMENTAL setting and the default value is false
     # experimentalUseKmsTrickleIceForMicrophone: false
+    #
+    # Shows stats about download and upload rates, audio jitter, lost packets
+    # and turn information
+    enableNetworkStats: false
+    # Enable the button to allow users to copy network stats to clipboard
+    enableCopyNetworkStatsButton: false
     defaultSettings:
       application:
         animations: true

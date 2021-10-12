@@ -1,8 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
+import Users from '/imports/api/users';
 import Polls from '/imports/api/polls';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 function currentPoll() {
   const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
@@ -13,13 +15,23 @@ function currentPoll() {
 
   const { meetingId, userId } = tokenValidation;
 
-  Logger.debug('Publishing Polls', { meetingId, userId });
+  const User = Users.findOne({ userId, meetingId }, { fields: { role: 1, presenter: 1 } });
 
-  const selector = {
-    meetingId,
-  };
+  if (!!User && (User.role === ROLE_MODERATOR || User.presenter)) {
+    Logger.debug('Publishing Polls', { meetingId, userId });
 
-  return Polls.find(selector);
+    const selector = {
+      meetingId,
+    };
+
+    return Polls.find(selector);
+  }
+
+  Logger.warn(
+    'Publishing current-poll was requested by non-moderator connection',
+    { meetingId, userId, connectionId: this.connection.id },
+  );
+  return Polls.find({ meetingId: '' });
 }
 
 function publishCurrentPoll(...args) {

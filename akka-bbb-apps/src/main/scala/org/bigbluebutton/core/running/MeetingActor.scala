@@ -311,7 +311,8 @@ class MeetingActor(
         state = state.update(tracker)
       }
     } else {
-      if (state.expiryTracker.moderatorHasJoined == true) {
+      if (state.expiryTracker.moderatorHasJoined == true &&
+        state.expiryTracker.lastModeratorLeftOnInMs == 0) {
         log.info("All moderators have left. Setting setLastModeratorLeftOn(). meetingId=" + props.meetingProp.intId)
         val tracker = state.expiryTracker.setLastModeratorLeftOn(TimeUtil.timeNowInMs())
         state = state.update(tracker)

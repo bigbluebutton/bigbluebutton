@@ -476,8 +476,10 @@ class WebcamDraggable extends PureComponent {
             enable={{
               top: (webcamsPlacement === 'bottom') && !swapLayout,
               bottom: (webcamsPlacement === 'top') && !swapLayout,
-              left: (webcamsPlacement === 'right') && !swapLayout,
-              right: (webcamsPlacement === 'left') && !swapLayout,
+              left: ((!isRTL && webcamsPlacement === 'right') || (isRTL && webcamsPlacement === 'left'))
+                && !swapLayout,
+              right: ((!isRTL && webcamsPlacement === 'left') || (isRTL && webcamsPlacement === 'right'))
+                && !swapLayout,
               topLeft: false,
               topRight: false,
               bottomLeft: false,

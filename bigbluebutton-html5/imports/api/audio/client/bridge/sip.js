@@ -61,6 +61,9 @@ const getAudioSessionNumber = () => {
   return currItem;
 };
 
+const getCurrentAudioSessionNumber = () => {
+  return sessionStorage.getItem(AUDIO_SESSION_NUM_KEY) || '0';
+}
 
 /**
   * Get error code from SIP.js websocket messages.
@@ -327,7 +330,8 @@ class SIPSession {
 
       const timeout = setTimeout(() => {
         trackerControl.stop();
-        logger.error({ logCode: 'sip_js_transfer_timed_out' }, 'Timeout on transferring from echo test to conference');
+        logger.warn({ logCode: 'sip_js_transfer_timed_out' },
+          'Timeout on transferring from echo test to conference');
         this.callback({
           status: this.baseCallStates.failed,
           error: 1008,
@@ -846,7 +850,8 @@ class SIPSession {
       if (this.userRequestedHangup === true) reject();
 
       let iceCompleted = false;
-      let fsReady = true;
+      let fsReady = false;
+      let sessionTerminated = false;
 
       const setupRemoteMedia = () => {
         const mediaElement = document.querySelector(this.mediaTag);
@@ -855,10 +860,10 @@ class SIPSession {
 
         this.currentSession.sessionDescriptionHandler
           .peerConnection.getReceivers().forEach((receiver) => {
-          if (receiver.track) {
-            this.remoteStream.addTrack(receiver.track);
-          }
-        });
+            if (receiver.track) {
+              this.remoteStream.addTrack(receiver.track);
+            }
+          });
 
         logger.info({
           logCode: 'sip_js_session_playing_remote_media',
@@ -946,14 +951,14 @@ class SIPSession {
 
       const handleIceNegotiationFailed = (peer) => {
         if (iceCompleted) {
-          logger.error({
+          logger.warn({
             logCode: 'sipjs_ice_failed_after',
             extraInfo: {
               callerIdName: this.user.callerIdName,
             },
           }, 'ICE connection failed after success');
         } else {
-          logger.error({
+          logger.warn({
             logCode: 'sipjs_ice_failed_before',
             extraInfo: {
               callerIdName: this.user.callerIdName,
@@ -973,7 +978,7 @@ class SIPSession {
 
       const handleIceConnectionTerminated = (peer) => {
         if (!this.userRequestedHangup) {
-          logger.error({
+          logger.warn({
             logCode: 'sipjs_ice_closed',
             extraInfo: {
               callerIdName: this.user.callerIdName,
@@ -1074,9 +1079,8 @@ class SIPSession {
           };
       };
 
-      const handleSessionTerminated = (message) => {
-        clearTimeout(callTimeout);
-        clearTimeout(iceNegotiationTimeout);
+      const checkIfCallStopped = (message) => {
+        if (fsReady || !sessionTerminated) return null;
 
         if (!message && !!this.userRequestedHangup) {
           return this.callback({
@@ -1100,7 +1104,7 @@ class SIPSession {
           mappedCause = '1005';
         }
 
-        logger.error({
+        logger.warn({
           logCode: 'sip_js_call_terminated',
           extraInfo: { cause, callerIdName: this.user.callerIdName },
         }, `Audio call terminated. cause=${cause}`);
@@ -1111,6 +1115,19 @@ class SIPSession {
           bridgeError: cause,
           bridge: BRIDGE_NAME,
         });
+      }
+
+      const handleSessionTerminated = (message) => {
+        logger.info({
+          logCode: 'sip_js_session_terminated',
+          extraInfo: { callerIdName: this.user.callerIdName },
+        }, 'SIP.js session terminated');
+
+        clearTimeout(callTimeout);
+        clearTimeout(iceNegotiationTimeout);
+
+        sessionTerminated = true;
+        checkIfCallStopped();
       };
 
       currentSession.stateChange.addListener((state) => {
@@ -1129,7 +1146,7 @@ class SIPSession {
             handleSessionTerminated();
             break;
           default:
-            logger.error({
+            logger.warn({
               logCode: 'sipjs_ice_session_unknown_state',
               extraInfo: {
                 callerIdName: this.user.callerIdName,
@@ -1141,17 +1158,26 @@ class SIPSession {
       });
 
       Tracker.autorun((c) => {
-        const selector = { meetingId: Auth.meetingID, userId: Auth.userID };
+        const selector = {
+          meetingId: Auth.meetingID,
+          userId: Auth.userID,
+          clientSession: getCurrentAudioSessionNumber(),
+        };
+
         const query = VoiceCallStates.find(selector);
 
         query.observeChanges({
           changed: (id, fields) => {
-            if ((this.inEchoTest && fields.callState === CallStateOptions.IN_ECHO_TEST)
-              || (!this.inEchoTest && fields.callState === CallStateOptions.IN_CONFERENCE)) {
+            if (!fsReady && ((this.inEchoTest && fields.callState === CallStateOptions.IN_ECHO_TEST)
+              || (!this.inEchoTest && fields.callState === CallStateOptions.IN_CONFERENCE))) {
               fsReady = true;
               checkIfCallReady();
+            }
 
+            if (fields.callState === CallStateOptions.CALL_ENDED) {
+              fsReady = false;
               c.stop();
+              checkIfCallStopped();
             }
           },
         });
@@ -1216,19 +1242,19 @@ class SIPSession {
       const matchConstraints = this.filterSupportedConstraints(constraints);
 
       //Chromium bug - see: https://bugs.chromium.org/p/chromium/issues/detail?id=796964&q=applyConstraints&can=2
-      const {isChrome} = browserInfo;
+      const { isChrome } = browserInfo;
 
       if (isChrome) {
         matchConstraints.deviceId = this.inputDeviceId;
 
         const stream = await navigator.mediaDevices.getUserMedia(
-          {audio: matchConstraints},
+          { audio: matchConstraints },
         );
 
         this.currentSession.sessionDescriptionHandler
           .setLocalMediaStream(stream);
       } else {
-        const {localMediaStream} = this.currentSession
+        const { localMediaStream } = this.currentSession
           .sessionDescriptionHandler;
 
         localMediaStream.getAudioTracks().forEach(
@@ -1413,6 +1439,8 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   getPeerConnection() {
+    if (!this.activeSession) return null;
+
     const { currentSession } = this.activeSession;
     if (currentSession && currentSession.sessionDescriptionHandler) {
       return currentSession.sessionDescriptionHandler.peerConnection;

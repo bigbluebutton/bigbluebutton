@@ -68,7 +68,9 @@ object Polls {
     stoppedPoll match {
       case None => {
         for {
-          curPoll <- getRunningPollThatStartsWith("public", lm.polls)
+          // Assuming there's only one running poll at a time, fallback to the
+          // current running poll without indexing by a presentation page.
+          curPoll <- getRunningPoll(lm.polls)
         } yield {
           stopPoll(curPoll.id, lm.polls)
           curPoll.id
@@ -305,6 +307,12 @@ object Polls {
 
     shape += "points" -> mapA
     shape.toMap
+  }
+
+  def getRunningPoll(polls: Polls): Option[PollVO] = {
+    for {
+      poll <- polls.polls.values find { poll => poll.isRunning() }
+    } yield poll.toPollVO()
   }
 
   def getRunningPollThatStartsWith(pollId: String, polls: Polls): Option[PollVO] = {

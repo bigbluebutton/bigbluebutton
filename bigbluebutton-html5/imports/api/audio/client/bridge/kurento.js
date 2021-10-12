@@ -68,6 +68,8 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
   }
 
   getPeerConnection() {
+    if (!this.broker) return null;
+
     const webRtcPeer = this.broker.webRtcPeer;
     if (webRtcPeer) return webRtcPeer.peerConnection;
     return null;
@@ -277,8 +279,16 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
   }
 
   exitAudio() {
+    const mediaElement = document.getElementById(MEDIA_TAG);
+
     this.broker.stop();
     this.clearReconnectionTimeout();
+
+    if (mediaElement && typeof mediaElement.pause === 'function') {
+      mediaElement.pause();
+      mediaElement.srcObject = null;
+    }
+
     return Promise.resolve();
   }
 }

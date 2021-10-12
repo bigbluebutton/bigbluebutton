@@ -11,8 +11,6 @@ const logConnectionStatus = (meetingId, userId, status, type, value) => {
       Logger.info(`Connection status updated: meetingId=${meetingId} userId=${userId} status=${status} type=${type}`);
       break;
     case 'warning':
-      // Skip
-      break;
     case 'danger':
     case 'critical':
       switch (type) {

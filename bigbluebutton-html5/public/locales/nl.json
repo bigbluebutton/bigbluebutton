@@ -49,6 +49,7 @@
     "app.captions.pad.dictationStop": "Stop met dicteren",
     "app.captions.pad.dictationOnDesc": "Schakelt spraakherkenning in",
     "app.captions.pad.dictationOffDesc": "Schakelt spraakherkenning uit",
+    "app.captions.pad.speechRecognitionStop": "Spraakherkenning is gestopt omdat de browser niet compatibel is met periodes van stilte",
     "app.textInput.sendLabel": "Verstuur",
     "app.note.title": "Gedeelde notities",
     "app.note.label": "Notitie",
@@ -139,6 +140,9 @@
     "app.meeting.ended": "Deze sessie is beëindigd",
     "app.meeting.meetingTimeRemaining": "Resterende vergadertijd: {0}",
     "app.meeting.meetingTimeHasEnded": "Tijd verstreken. Vergadering wordt spoedig afgesloten",
+    "app.meeting.endedByUserMessage": "De sessie is beëindigd door {0}",
+    "app.meeting.endedByNoModeratorMessageSingular": "De vergadering is beëindigd omdat er al meer dan één minuut geen moderator meer is",
+    "app.meeting.endedByNoModeratorMessagePlural": "De vergadering is beëindigd omdat er meer dan {0} minuten geen moderator meer is",
     "app.meeting.endedMessage": "U wordt teruggestuurd naar het startscherm",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Vergadering sluit over één minuut.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Vergadering sluit over {0} minuten.",
@@ -787,6 +791,7 @@
     "app.createBreakoutRoom.addParticipantLabel": "+ Deelnemer toevoegen",
     "app.createBreakoutRoom.freeJoin": "Gebruikers toestaan ​​een brainstormruimte te kiezen om deel te nemen",
     "app.createBreakoutRoom.leastOneWarnBreakout": "U moet ten minste één gebruiker in een brainstormruimte plaatsen.",
+    "app.createBreakoutRoom.minimumDurationWarnBreakout": "Minimale duur voor een brainstormruimte is {0} minuten.",
     "app.createBreakoutRoom.modalDesc": "Tip: u kunt de naam van een gebruiker slepen en neerzetten om deze aan een specifieke brainstormruimte toe te wijzen.",
     "app.createBreakoutRoom.roomTime": "{0} minuten",
     "app.createBreakoutRoom.numberOfRoomsError": "Het aantal kamers is ongeldig.",
@@ -810,7 +815,9 @@
     "app.debugWindow.form.userAgentLabel": "User Agent",
     "app.debugWindow.form.button.copy": "Kopiëren",
     "app.debugWindow.form.enableAutoarrangeLayoutLabel": "Schakel Auto Arrange Layout in",
-    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(deze wordt uitgeschakeld als u het webcamgedeelte sleept of het formaat ervan wijzigt)"
+    "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(deze wordt uitgeschakeld als u het webcamgedeelte sleept of het formaat ervan wijzigt)",
+    "app.debugWindow.form.chatLoggerLabel": "Test chat logniveaus",
+    "app.debugWindow.form.button.apply": "Toepassen"
 
 }
 

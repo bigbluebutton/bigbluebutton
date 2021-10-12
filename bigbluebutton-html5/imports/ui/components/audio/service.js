@@ -148,6 +148,7 @@ export default {
     .setBreakoutAudioTransferStatus(status),
   getBreakoutAudioTransferStatus: () => AudioManager
     .getBreakoutAudioTransferStatus(),
+  getStats: () => AudioManager.getStats(),
   isTranslatorTalking,
   isTranslatorMuted: () => AudioManager.isTranslatorMuted(),
   hasLanguages: () => Meeting.hasLanguages(),
