@@ -72,6 +72,7 @@
     "reconnecting-websocket": "~v4.1.10",
     "redis": "^3.1.2",
     "sanitize-html": "2.3.3",
+    "rxjs": "^7.1.0",
     "sdp-transform": "2.7.0",
     "string-hash": "~1.1.3",
     "tippy.js": "^5.1.3",

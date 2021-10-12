@@ -15,6 +15,8 @@ import { monitorAudioConnection } from '/imports/utils/stats';
 import AudioErrors from './error-codes';
 import {Meteor} from "meteor/meteor";
 import browserInfo from '/imports/utils/browserInfo';
+import { BehaviorSubject } from "rxjs";
+import Service from "../../components/actions-bar/service";
 import {makeCall} from "../api";
 
 const STATS = Meteor.settings.public.stats;
@@ -27,7 +29,8 @@ const DEFAULT_INPUT_DEVICE_ID = 'default';
 const DEFAULT_OUTPUT_DEVICE_ID = 'default';
 const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE = Meteor.settings
   .public.app.experimentalUseKmsTrickleIceForMicrophone;
-const TRANSLATOR_SPEAK_DETECTION_THRESHOLD = MEDIA.translation.translator.speakDetection.threshold || -70;
+const TRANSLATOR_SPEECH_DETECTION_THRESHOLD = MEDIA.translation.translator.speakDetection.threshold || -70;
+const TRANSLATION_SETTINGS = Meteor.settings.public.media.translation || {};
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -68,7 +71,28 @@ class AudioManager {
       breakoutMeetingId: null,
     };
 
-    this.translatorStream = null
+    this.setSenderTrackSettings = {
+      maxTries: 3,
+      base: 0,
+      inc: 500,
+      i: 0
+    };
+
+
+    this.translatorStream = null;
+    this.translatorSpeechEvents = null;
+
+    // this shows whether the user wants to be muted, regardless of the channel they have chosen
+    this.$muteIntended = new BehaviorSubject(false);
+
+    this.$translatorSpeechDetectionThresholdChanged = new BehaviorSubject(TRANSLATOR_SPEECH_DETECTION_THRESHOLD);
+    this.$translationChannelSelected= new BehaviorSubject(-1);
+    this.$translatorSpeakingChanged = new BehaviorSubject(false);
+    this.$translatorChannelLanguageExtensionChanged = new BehaviorSubject(-1);
+
+    this.$translationOriginalVolumeChanged = new BehaviorSubject({ extension: -1, volume: 0 });
+    this.translationOriginalVolume = [];
+
     this.defineProperties({
       isMuted: false,
       isConnected: false,
@@ -84,7 +108,7 @@ class AudioManager {
       isReconnecting: false,
       listeningTranslation: ORIGINAL_TRANSLATION,
       translatorChannelOpen:false,
-      translationChannelOpen:false
+      translationChannelOpen:false,
     });
 
     this.useKurento = Meteor.settings.public.kurento.enableListenOnly;
@@ -96,23 +120,43 @@ class AudioManager {
     this._inputStreamTracker = new Tracker.Dependency();
 
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
-    this.muteHandels = new Set();
+
+    // this.muteHandles = new Set();
+    this.$translatorMuted = new BehaviorSubject(true);
+    this.$translatorMuted.subscribe((val) => {
+      this.setSenderTrackEnabledTranslator(!val);
+    })
+
     this.muteStateCallbacks = new Set();
     this.translationStateCallbacks = new Set();
     this.translationState = null;
+    this.$translatorSpeechDetectionThresholdChanged.subscribe((val) => {
+      if(this.translatorSpeechEvents && this.translatorSpeechEvents.hasOwnProperty("setThreshold")) {
+        this.translatorSpeechEvents.setThreshold(val);
+      }
+    });
+
+    this.$translationOriginalVolumeChanged.subscribe((pLang) => {
+        if(
+            pLang.hasOwnProperty("extension") &&
+            pLang.hasOwnProperty("volume")
+        ) {
+          this.translationOriginalVolume[pLang.extension] = pLang.volume;
+        }
+    })
   }
 
   init(userData, audioEventHandler) {
     this.bridge = new SIPBridge(userData); // no alternative as of 2019-03-08
     this.translationBridge = new SIPBridge({...userData}, "#translation-media");
     this.translatorBridge = new SIPBridge({...userData},
-      "#translator-media",
-      {
-        video: false,
-        audio: {
-          echoCancellation: false,
+        "#translator-media",
+        {
+          video: false,
+          audio: {
+            echoCancellation: false,
+          },
         },
-      },
     );
     if (this.useKurento) {
       this.listenOnlyBridge = new KurentoBridge(userData);
@@ -353,7 +397,7 @@ class AudioManager {
   }
 
   exitTranslationBridgeAudio() {
-    if( this.translationBridge.activeSession ) {
+    if(this.translationBridge && this.translationBridge.activeSession ) {
       this.translationBridge.exitAudio();
     }
   }
@@ -366,12 +410,12 @@ class AudioManager {
     this.isHangingUp = true;
 
     this.exitTranslationBridgeAudio();
-    return bridge.exitAudio();
+    if(bridge) return bridge.exitAudio();
   }
 
   transferCall() {
     this.onTransferStart();
-    return this.bridge.transferCall(this.onAudioJoin.bind(this));
+    if(this.bridge) return this.bridge.transferCall(this.onAudioJoin.bind(this));
   }
 
   onVoiceUserChanges(fields) {
@@ -593,15 +637,15 @@ class AudioManager {
     };
 
     return Promise.all(
-      [
-        this.bridge.changeInputDeviceId(deviceId)
-          .then(handleChangeInputDeviceSuccess)
-          .catch(handleChangeInputDeviceError),
-        this.translatorBridge.changeInputDeviceId(deviceId)
-          .then(handleChangeInputDeviceSuccess)
-          .then(reconnectTranslator.bind(this))
-          .catch(handleChangeInputDeviceError),
-      ]
+        [
+          this.bridge.changeInputDeviceId(deviceId)
+              .then(handleChangeInputDeviceSuccess)
+              .catch(handleChangeInputDeviceError),
+          this.translatorBridge.changeInputDeviceId(deviceId)
+              .then(handleChangeInputDeviceSuccess)
+              .then(reconnectTranslator.bind(this))
+              .catch(handleChangeInputDeviceError),
+        ]
     );
   }
 
@@ -609,16 +653,20 @@ class AudioManager {
     // we force stream to be null, so MutedAlert will deallocate it and
     // a new one will be created for the new stream
     this.inputStream = null;
-    this.bridge.liveChangeInputDevice(deviceId).then((stream) => {
-      this.setSenderTrackEnabled(!this.isMuted);
-      this.inputStream = stream;
-    });
+    if(this.bridge) {
+      this.bridge.liveChangeInputDevice(deviceId).then((stream) => {
+        this.setSenderTrackEnabled(!this.isMuted);
+        this.inputStream = stream;
+      });
+    }
   }
 
   async changeOutputDevice(deviceId, isLive) {
-    await this
-      .bridge
-      .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID, isLive);
+    if(this.bridge) {
+      await this
+        .bridge
+        .changeOutputDevice(deviceId || DEFAULT_OUTPUT_DEVICE_ID, isLive);
+    }
   }
 
   set inputDevice(value) {
@@ -777,26 +825,37 @@ class AudioManager {
       }
     });
   }
-  setSenderTrackEnabledTranslator (shouldEnable) {
 
+  setSenderTrackEnabledTranslator (shouldEnable) {
     this.translatorStream && this.translatorStream.getTracks().forEach(track=>{
       if (track && track.kind === 'audio') {
         track.enabled = shouldEnable;
       }
     })
     try {
-      if (this.translatorBridge.activeSession) {
+      if (this.translatorBridge && this.translatorBridge.activeSession) {
         // Bridge -> SIP.js bridge, the only full audio capable one right now
-        const peer = this.translatorBridge.getPeerConnection();
-        peer.getSenders().forEach(sender => {
-          const {track} = sender;
-          if (track && track.kind === 'audio') {
-            track.enabled = shouldEnable;
-          }
-        });
+          const peer = this.translatorBridge.getPeerConnection();
+          peer.getSenders().forEach(sender => {
+            const {track} = sender;
+            if (track && track.kind === 'audio') {
+              track.enabled = shouldEnable;
+              this.setSenderTrackSettings.i = 0;
+              this.setSenderTrackSettings.base = 0;
+            }
+          });
       }
     }catch (e) {
-      //ignore it is muted two times anyway
+      if(++this.setSenderTrackSettings.i === this.setSenderTrackSettings.maxTries) {
+        this.setSenderTrackSettings.i = 0;
+        this.setSenderTrackSettings.base = 0;
+        return;
+      }
+      console.log("error getting peer. retrying in " + ( 0 + this.setSenderTrackSettings.base + this.setSenderTrackSettings.inc));
+      setTimeout(() => {
+        this.setSenderTrackEnabledTranslator(shouldEnable)
+      }, this.setSenderTrackSettings.base + this.setSenderTrackSettings.inc);
+      this.setSenderTrackSettings.base = this.setSenderTrackSettings.base + this.setSenderTrackSettings.inc;
     }
   }
 
@@ -830,7 +889,9 @@ class AudioManager {
   }
 
   async updateAudioConstraints(constraints) {
-    await this.bridge.updateAudioConstraints(constraints);
+    if(this.bridge) {
+      await this.bridge.updateAudioConstraints(constraints);
+    }
   }
 
   /**
@@ -1037,7 +1098,8 @@ class AudioManager {
   }
 
   async handleTranslationChannelStateChange(languageExtension, message) {
-    this.translationState = message.status;
+    if(message && message.hasOwnProperty('status')) this.translationState = message.status;
+    this.$translationChannelSelected.next(languageExtension);
     this.notifyTranslationChannelStateChange(languageExtension, message);
   }
 
@@ -1049,77 +1111,92 @@ class AudioManager {
     this.translationStateCallbacks.add(translationStateChangeCallback);
   }
 
+  resetTranslationChannelSelected() {
+    this.$translationChannelSelected.next(-1);
+  }
+
   openTranslationChannel(languageExtension) {
     return new Promise((resolve, reject) => {
-      if (this.translationBridge.activeSession) {
+      if (this.translationBridge && this.translationBridge.activeSession) {
         this.translationBridge.exitAudio()
         this.translationBridge.userData.languageExtension = -1;
       }
       //create a dummy stream that does nothing at all
       let ac = new AudioContext();
       let dest = ac.createMediaStreamDestination();
+
       if (languageExtension >= 0) {
         const callOptions = {
           isListenOnly: true,
           extension: null,
           inputStream: dest.stream,
         };
-        this.translationBridge.userData.voiceBridge = this.userData.voiceBridge.toString() + languageExtension;
-        this.translationBridge.joinAudio(callOptions, (message) => {
-          if (message.status == CALL_STATES.STARTED) {
-            resolve(languageExtension);
-          }
-          return this.handleTranslationChannelStateChange(languageExtension, message);
-        });
-        this.translationBridge.userData.languageExtension = languageExtension;
+
+        if(this.translationBridge) {
+          this.translationBridge.userData.voiceBridge = this.userData.voiceBridge.toString() + languageExtension;
+            this.translationBridge.joinAudio(callOptions, (message) => {
+              if (message.status == CALL_STATES.STARTED) {
+                resolve(languageExtension);
+              }
+              return this.handleTranslationChannelStateChange(languageExtension, message);
+            });
+          this.translationBridge.userData.languageExtension = languageExtension;
+        }
       } else {
+        this.resetTranslationChannelSelected();
         resolve(-1);
       }
     });
+
   }
 
   async openTranslatorChannel(languageExtension, onConnected) {
-    if( this.translatorBridge.activeSession ) {
+
+    if(this.translatorBridge && this.translatorBridge.activeSession ) {
+      this.translatorChannelOpen = false;
       this.translatorBridge.exitAudio();
       this.translatorSpeechEvents.stop();
     }
 
     if( languageExtension >= 0 ) {
-      let success = function (inputStream) {
+      let success = (inputStream) => {
         let speechEventsOptions = {
           interval: 200,
-          threshold: TRANSLATOR_SPEAK_DETECTION_THRESHOLD,
+          threshold: this.$translatorSpeechDetectionThresholdChanged.value,
           play: false,
         };
         let hark = window.hark;
         this.translatorStream = inputStream
         this.translatorSpeechEvents = hark(inputStream, speechEventsOptions);
         this.translatorSpeechEvents.on('speaking', () => {
-          console.log("Speaking")
+          this.$translatorSpeakingChanged.next(true);
           Meeting.changeTranslatorSpeackState(languageExtension, true);
         });
 
         this.translatorSpeechEvents.on('volume_change', () => {
           const translatorIsSpeaking = this.translatorSpeechEvents.speaking;
           if (translatorIsSpeaking && (!this.translatorSpeechEvents.lastTimestamp || Date.now() - this.translatorSpeechEvents.lastTimestamp > 2000)) {
-            console.log("Check is translator speaking");
             this.translatorSpeechEvents.lastTimestamp = Date.now();
             Meeting.changeTranslatorSpeackState(languageExtension, translatorIsSpeaking);
           }
         });
 
         this.translatorSpeechEvents.on('stopped_speaking', () => {
+          this.$translatorSpeakingChanged.next(false);
           Meeting.changeTranslatorSpeackState(languageExtension, false);
-          console.log("stopped speaking")
         });
 
+        if (this.$translatorChannelLanguageExtensionChanged.value > -1) {
+          Meeting.changeTranslatorSpeackState(this.$translatorChannelLanguageExtensionChanged.value, false);
+        }
+
+        this.$translatorChannelLanguageExtensionChanged.next(languageExtension);
         const callOptions = {
           isListenOnly: false,
           extension: null,
           inputStream: inputStream,
         };
-
-        this.translatorBridge.userData.voiceBridge = this.userData.voiceBridge.toString() + languageExtension;
+        if(this.translatorBridge) this.translatorBridge.userData.voiceBridge = this.userData.voiceBridge.toString() + languageExtension;
         let callback = function (message) {
           if (onConnected) {
             onConnected(message);
@@ -1132,13 +1209,46 @@ class AudioManager {
           translatorBridgechangeInputDeviceIdPromise = this.translatorBridge.changeInputDeviceId(this.inputDevice.id);
         }
         translatorBridgechangeInputDeviceIdPromise.then(() => this.translatorBridge.joinAudio(callOptions, callback));
+        this.translatorChannelOpen = true;
+        Service.muteMicrophone();
+        this.restoreMuteState(true);
       }
       return navigator.mediaDevices.getUserMedia({ audio: { deviceId: this.inputDeviceId }, video: false }).then(success.bind(this));
     }else{
       let mainaudio = document.getElementById("remote-media")
       mainaudio.vol = 1
-
+      this._muteTranslator();
+      this.restoreMuteState(false);
     }
+
+  }
+
+  /**
+   * Check current channel is translation or floor, and set the mute state according to the mute intent.
+   * @param isTranslator
+   */
+  restoreMuteState(isTranslator) {
+    let muteIntended = this.$muteIntended.value;
+    if(isTranslator) {
+      if(muteIntended) this._muteTranslator();
+      else this._unmuteTranslator();
+    } else {
+      if(muteIntended) Service.muteMicrophone();
+      else Service.unmuteMicrophone();
+    }
+  }
+
+  getTranslationFloorVolumeByExt(pExt) {
+    let tIdx = parseInt((pExt+ '').charAt(2));
+    return Array.isArray(this.translationOriginalVolume) && typeof this.translationOriginalVolume[tIdx] !== 'undefined'
+      ? this.translationOriginalVolume[tIdx]
+      : TRANSLATION_SETTINGS.hasOwnProperty('floorVolume')
+        ? TRANSLATION_SETTINGS.floorVolume
+        : 0.4;
+  }
+
+  setTranslationFloorVolumeByExt(pExt) {
+    this.setFloorOutputVolume(this.getTranslationFloorVolumeByExt(pExt));
   }
 
   setFloorOutputVolume(volume) {
@@ -1146,26 +1256,36 @@ class AudioManager {
     floorMediaElement.volume = volume;
   }
 
-  muteTranslator(muteHandle) {
-    this.setSenderTrackEnabledTranslator(false)
-    this.muteHandels.add(muteHandle);
+  muteTranslator() {
+    this.$muteIntended.next(true);
+    this._muteTranslator();
+  }
+
+  _muteTranslator() {
+    this.$translatorMuted.next(true);
     this.notifyMuteStateListener();
   }
 
-  unmuteTranslator(muteHandle) {
-    this.muteHandels.delete(muteHandle);
-    if(this.muteHandels.size === 0) {
-      this.setSenderTrackEnabledTranslator(true);
-    }
+  unmuteTranslator() {
+    this.$muteIntended.next(false);
+    this._unmuteTranslator();
+  }
+
+  _unmuteTranslator() {
+    this.$translatorMuted.next(false);
     this.notifyMuteStateListener();
   }
 
-  isTranslatorMuted(muteHandle = null) {
-    if(muteHandle === null) {
-      return this.muteHandels.size !== 0;
+  toggleMuteTranslator() {
+    if (this.isTranslatorMuted()) {
+      this.unmuteTranslator();
     } else {
-      return this.muteHandels.has(muteHandle);
+      this.muteTranslator();
     }
+  }
+
+  isTranslatorMuted() {
+    return this.$translatorMuted.value;
   }
 
   registerMuteStateListener( callback ) {
@@ -1174,6 +1294,10 @@ class AudioManager {
 
   async notifyMuteStateListener() {
     this.muteStateCallbacks.forEach(callback => callback());
+  }
+
+  resetCurrentTranslatorChannelExtension() {
+    this.$translatorChannelLanguageExtensionChanged.next(-1);
   }
 }
 

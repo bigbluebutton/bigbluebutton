@@ -7,6 +7,7 @@ import { makeCall } from '/imports/ui/services/api';
 import VoiceUsers from '/imports/api/voice-users';
 import logger from '/imports/startup/client/logger';
 import Storage from '../../services/storage/session';
+import Meeting from "../../services/meeting";
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const TOGGLE_MUTE_THROTTLE_TIME = Meteor.settings.public.media.toggleMuteThrottleTime;
@@ -66,6 +67,15 @@ const init = (messages, intl) => {
   AudioManager.init(userData, audioEventHandler);
 };
 
+const isTranslatorTalking = () => {
+  const translationLanguageExtension = AudioManager.translationLanguageExtension;
+  let isTranslatorTalking = false;
+  if(translationLanguageExtension >= 0) {
+    isTranslatorTalking = Meeting.isTranslatorSpeaking(translationLanguageExtension);
+  }
+  return isTranslatorTalking;
+}
+
 const isVoiceUser = () => {
   const voiceUser = VoiceUsers.findOne({ intId: Auth.userID },
     { fields: { joined: 1 } });
@@ -84,12 +94,14 @@ const toggleMuteMicrophone = throttle(() => {
       logCode: 'audiomanager_unmute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'microphone unmuted by user');
+    AudioManager.$muteIntended.next(false);
     makeCall('toggleVoice');
   } else {
     logger.info({
       logCode: 'audiomanager_mute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'microphone muted by user');
+    AudioManager.$muteIntended.next(true);
     makeCall('toggleVoice');
   }
 }, TOGGLE_MUTE_THROTTLE_TIME);
@@ -137,4 +149,8 @@ export default {
   getBreakoutAudioTransferStatus: () => AudioManager
     .getBreakoutAudioTransferStatus(),
   getStats: () => AudioManager.getStats(),
+  isTranslatorTalking,
+  isTranslatorMuted: () => AudioManager.isTranslatorMuted(),
+  hasLanguages: () => Meeting.hasLanguages(),
+  showTranslatorMicButton: () => AudioManager.translatorChannelOpen && Meeting.hasLanguages(),
 };

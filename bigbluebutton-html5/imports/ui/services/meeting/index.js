@@ -1,6 +1,5 @@
 import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
-import Language from "../../components/translations/LanguageField/component";
 import {makeCall} from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings/index.js'
 
@@ -66,7 +65,11 @@ class MeetingService {
         const meeting = Meetings.findOne(
             {meetingId: Auth.meetingID},
             {fields: {'languages': 1}});
-        return meeting.languages.find(language => language.extension === languageExtension).translatorIsSpeaking;
+        if (Array.isArray(meeting) && meeting.length > 0) {
+                return meeting.languages.find(language => language.extension === languageExtension).translatorIsSpeaking;
+        }
+        return false;
+
     }
 }
 

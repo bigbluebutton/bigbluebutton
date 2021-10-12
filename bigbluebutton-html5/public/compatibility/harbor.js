@@ -1,18 +1,20 @@
 function anchorPosition(element,anchor) {
-    let rect = element.getBoundingClientRect()
-    switch (anchor) {
-        case "left":
-            return rect.left
-        case "right":
-            return rect.right
-        case "top":
-            return rect.top
-        case "bottom":
-            return rect.bottom
-        case "verticalCenter":
-            return rect.bottom - (rect.height / 2)
-        case "horizontalCenter":
-            return (rect.left + (rect.width / 2))
+    if(element) {
+        let rect = element.getBoundingClientRect()
+        switch (anchor) {
+            case "left":
+                return rect.left
+            case "right":
+                return rect.right
+            case "top":
+                return rect.top
+            case "bottom":
+                return rect.bottom
+            case "verticalCenter":
+                return rect.bottom - (rect.height / 2)
+            case "horizontalCenter":
+                return (rect.left + (rect.width / 2))
+        }
     }
 }
 

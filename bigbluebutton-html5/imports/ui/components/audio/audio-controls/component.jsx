@@ -9,6 +9,7 @@ import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import InputStreamLiveSelectorContainer from './input-stream-live-selector/container';
 import MutedAlert from '/imports/ui/components/muted-alert/component';
 import { styles } from './styles';
+import AudioManager from "../../../services/audio-manager";
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -26,6 +27,11 @@ const intlMessages = defineMessages({
   unmuteAudio: {
     id: 'app.actionsBar.unmuteLabel',
     description: 'Unmute audio button label',
+  },
+  translatorMicrophoneLabel: {
+    id: 'app.translation.translator.microphone',
+    description: 'Label for translator microphone button',
+    defaultMessage: 'Translator mic',
   },
 });
 
@@ -53,6 +59,8 @@ class AudioControls extends PureComponent {
       .renderLeaveButtonWithoutLiveStreamSelector.bind(this);
 
     this.renderJoinLeaveButton = this.renderJoinLeaveButton.bind(this);
+    this.handleMuteTranslator = this.handleMuteTranslator.bind(this)
+
   }
 
   componentDidMount() {
@@ -89,6 +97,11 @@ class AudioControls extends PureComponent {
     );
   }
 
+  handleMuteTranslator(){
+    AudioManager.toggleMuteTranslator();
+    this.forceUpdate();
+  }
+
   static renderLeaveButtonWithLiveStreamSelector(props) {
     const { handleLeaveAudio } = props;
     return (
@@ -98,6 +111,7 @@ class AudioControls extends PureComponent {
 
   renderLeaveButtonWithoutLiveStreamSelector() {
     const {
+      handleToggleMuteMicrophone,
       handleJoinAudio,
       handleLeaveAudio,
       disable,
@@ -179,9 +193,16 @@ class AudioControls extends PureComponent {
       inputStream,
       isViewer,
       isPresenter,
+      translatorChannelOpen,
+      hasBreakouts,
+      isTranslatorTalking,
+      isTranslatorMuted,
+      showTranslatorMicButton,
+      amIModerator,
+      hasLanguages
     } = this.props;
 
-    const label = muted ? intl.formatMessage(intlMessages.unmuteAudio)
+    const label = "Floor " + muted ? intl.formatMessage(intlMessages.unmuteAudio)
       : intl.formatMessage(intlMessages.muteAudio);
 
     const toggleMuteBtn = (
@@ -201,22 +222,42 @@ class AudioControls extends PureComponent {
       />
     );
 
+    const amIAsTranslatorMuted = isTranslatorMuted();
+
+    const translatorToggleMuteBtn = (
+      <Button
+          className={cx(styles.muteToggle, [amIAsTranslatorMuted ? styles.btnmuted: "", styles.translatorBtn ].join(" "))}
+          onClick={this.handleMuteTranslator}
+          hideLabel
+          label={intl.formatMessage(intlMessages.translatorMicrophoneLabel)}
+          aria-label={intl.formatMessage(intlMessages.translatorMicrophoneLabel)}
+          color={!amIAsTranslatorMuted ? 'primary' : 'default'}
+          ghost={amIAsTranslatorMuted}
+          icon={amIAsTranslatorMuted ? 'mute' : AudioManager.$translatorSpeakingChanged.value ? "mute_filled": 'unmute'}
+          size="lg"
+          circle
+      />
+    );
+
     const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
     const {enabled: muteAlertEnabled} = MUTE_ALERT_CONFIG;
 
     return (
       <span className={styles.container}>
         {isVoiceUser && inputStream && muteAlertEnabled && !listenOnly && muted && showMute ? (
-          <MutedAlert {...{
-            muted, inputStream, isViewer, isPresenter,
-          }}
-          />
+            <MutedAlert {...{
+              muted, inputStream, isViewer, isPresenter,
+            }}
+            />
         ) : null}
-        {showMute && isVoiceUser ? toggleMuteBtn : null}
+        {(showMute && isVoiceUser ) && ! translatorChannelOpen ? toggleMuteBtn : null}
+        { amIModerator && hasLanguages && showTranslatorMicButton ? translatorToggleMuteBtn : null }
         {
           this.renderJoinLeaveButton()
         }
+
       </span>
+
     );
   }
 }

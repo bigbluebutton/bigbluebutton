@@ -10,14 +10,14 @@
 }
 
 .optionName{
-    font-weight: 400;
-    font-size: var(--font-size-small);
-    color: var(--color-gray-dark);
-    flex-grow: 1;
-    line-height: 2;
-    text-align: left;
-    padding: 0 0 0 var(--lg-padding-y);
-    text-overflow: ellipsis;
+  font-weight: 400;
+  font-size: var(--font-size-small);
+  color: var(--color-gray-dark);
+  flex-grow: 1;
+  line-height: 2;
+  text-align: left;
+  padding: 0 0 0 var(--lg-padding-y);
+  text-overflow: ellipsis;
 }
 
 .translationContainer {

@@ -145,8 +145,8 @@ export default function addMeeting(meeting) {
 
   if (newMeeting.meetingProp.isBreakout) {
     const parent = Meetings.findOne(
-      { meetingId: newMeeting.breakoutProps.parentId },
-      { fields: { 'languages': 1 } });
+        { meetingId: newMeeting.breakoutProps.parentId },
+        { fields: { 'languages': 1 } });
 
     let languages = []
     if (parent.languages) {

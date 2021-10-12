@@ -53,7 +53,7 @@ class EchoTest extends Component {
       intl,
     } = this.props;
     const disableYesButtonClicked = callback => () => {
-      setTimeout(()=>this.setState({ disabled: true }, callback),2000);
+      this.setState({ disabled: true }, callback);
     };
     return (
       <span className={styles.echoTest}>

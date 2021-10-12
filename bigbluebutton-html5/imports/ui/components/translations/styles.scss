@@ -67,4 +67,39 @@
   &:hover {
     background-color: var(--color-white);
   }
+
+}
+.thInfo {
+  width: 180px;
+}
+
+[data-tooltip]:before {
+  content: attr(data-tooltip);
+  position: absolute;
+  opacity: 0;
+  transition: all 0.15s ease;
+  padding: 10px;
+  color: #333;
+  border-radius: 10px;
+}
+
+[data-tooltip]:hover:before {
+  opacity: 1;
+  background: lightgray;
+  margin-top: -50px;
+  margin-left: 20px;
+}
+
+[data-tooltip]:not([data-tooltip-persistent]):before {
+  pointer-events: none;
+}
+
+.speechDetectionThresholdWrapper {
+  max-width: 270px;
+}
+
+.speechDetectionThresholdExplanation {
+  margin: 5px 0 0 0;
+  font-size: .8em;
+  text-align: justify;
 }

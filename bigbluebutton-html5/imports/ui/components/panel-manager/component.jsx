@@ -565,9 +565,9 @@ class PanelManager extends Component {
 
   renderTranslationPanel(){
     return (
-        <div key={"translation-container"}>
-          <Translations/>
-        </div>
+      <div key={"translation-container"}>
+        <Translations/>
+      </div>
 
     )
   }
@@ -645,9 +645,7 @@ class PanelManager extends Component {
   }
 
   render() {
-
     const { enableResize, openPanel } = this.props;
-    console.log("render panel "+openPanel)
     if (openPanel === '') return null;
     const panels = [];
 
@@ -667,9 +665,11 @@ class PanelManager extends Component {
         panels.push(this.renderChat());
       }
     }
+
     if(openPanel === "translations"){
       panels.push(this.renderTranslationPanel())
     }
+
     if (openPanel === 'note') {
       if (enableResize) {
         panels.push(this.renderNoteResizable());

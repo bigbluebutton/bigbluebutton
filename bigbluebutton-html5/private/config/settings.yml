@@ -183,16 +183,16 @@ public:
     connectionTimeout: 60000
     showHelpButton: true
     effectiveConnection:
-      - critical
-      - danger
-      - warning
+    - critical
+    - danger
+    - warning
   externalVideoPlayer:
     enabled: true
   networkMonitoring:
     enableNetworkMonitoring: false
     packetLostThreshold: 10
   kurento:
-    wsUrl: wss://bbb80.wechange.de/bbb-webrtc-sfu
+    wsUrl: HOST
     # Valid for video-provider. Time (ms) before its WS connection times out
     # and tries to reconnect.
     wsConnectionTimeout: 4000
@@ -436,7 +436,7 @@ public:
       enabled: true
   note:
     enabled: true
-    url: https://bbb80.wechange.de/pad
+    url: ETHERPAD_HOST
   layout:
     autoSwapLayout: false
     hidePresentation: false
@@ -470,6 +470,8 @@ public:
     websocketKeepAliveDebounce: 10
     #Trace sip/audio messages in browser. If not set, default value is false.
     traceSip: false
+    # SDP semantics: plan-b|unified-plan
+    sdpSemantics: 'unified-plan'
     translation:
       floorVolume: 0.2
       translator:
@@ -478,8 +480,6 @@ public:
           timeout: 60000
           delay: 5000
           threshold: -70
-    # SDP semantics: plan-b|unified-plan
-    sdpSemantics: 'unified-plan'
   stats:
     enabled: true
     interval: 10000
@@ -663,7 +663,7 @@ private:
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
   etherpad:
-    apikey: Q5Z4aME99T605jIs0O0BrHZBP4ltsJJozI8aaWbRRec4nNdumXUnSfQuORcJXqH
+    apikey: ETHERPAD_APIKEY
     version: 1.2.13
     host: 127.0.0.1
     port: 9001

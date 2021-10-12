@@ -16,8 +16,8 @@ const getBreakouts = () => Breakouts.find({ parentMeetingId: Auth.meetingID })
   .sort((a, b) => a.sequence - b.sequence);
 
 const hasBreakouts = () => Breakouts
-  .find( { parentMeetingId: Auth.meetingID }, { fields: {} })
-  .count() > 0;
+    .find( { parentMeetingId: Auth.meetingID }, { fields: {} })
+    .count() > 0;
 
 const currentBreakoutUsers = user => !Breakouts.findOne({
   'joinedUsers.userId': new RegExp(`^${user.userId}`),
@@ -53,15 +53,19 @@ const amIModerator = () => {
 
 const isMe = intId => intId === Auth.userID;
 
-
 const muteMicrophone = () => {
   if (!AudioManager.isMuted) {
     makeCall('toggleVoice');
   }
 }
 
+const unmuteMicrophone = () => {
+  if (AudioManager.isMuted) {
+    makeCall('toggleVoice');
+  }
+}
+
 const isTranslatorTalking = () => {
-  console.log("translator talking!")
   const translationLanguageExtension = AudioManager.translationLanguageExtension;
   let isTranslatorTalking = false;
   if(translationLanguageExtension >= 0) {
@@ -98,7 +102,9 @@ export default {
   takePresenterRole,
   isSharingVideo: () => getVideoUrl(),
   muteMicrophone,
+  unmuteMicrophone,
   isTranslatorTalking,
   isTranslatorMuted: () => AudioManager.isTranslatorMuted(),
   hasLanguages: () => Meeting.hasLanguages(),
+  showTranslatorMicButton: () => AudioManager.translatorChannelOpen && Meeting.hasLanguages()
 };

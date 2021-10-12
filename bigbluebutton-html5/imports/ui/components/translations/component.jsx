@@ -6,17 +6,18 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { makeCall } from '/imports/ui/services/api';
 import Meeting from "/imports/ui/services/meeting";
 import Button from '/imports/ui/components/button/component';
+import AudioManager from '/imports/ui/services/audio-manager';
 
 const intlMessages = defineMessages({
     translationsTitle: {
-      id: 'app.translation.translations.title',
-      description: 'Translation title',
-      defaultMessage: 'Translation',
+        id: 'app.translation.translations.title',
+        description: 'Translation title',
+        defaultMessage: 'Translation',
     },
     confirmAllLangugagesWarning: {
-      id: 'app.translation.warning.confirmAllLanguages',
-      description: 'Warning that ask user to confirm all languages',
-      defaultMessage: 'Please confirm all languages.',
+        id: 'app.translation.warning.confirmAllLanguages',
+        description: 'Warning that ask user to confirm all languages',
+        defaultMessage: 'Please confirm all languages.',
     },
     addLangugagesWarning: {
         id: 'app.translation.warning.addLanguages',
@@ -38,6 +39,16 @@ const intlMessages = defineMessages({
         description: 'Label for end translation button',
         defaultMessage: 'End Translation',
     },
+    speechDetectionThresholdInfo: {
+        id: 'app.translation.speechDetectionThresholdInfo',
+        description: 'Translator speech detection threshold info',
+        defaultMessage: 'Translator speech detection threshold info',
+    },
+    speechDetectionThresholdExplanation: {
+        id: 'app.translation.speechDetectionThresholdExplanation',
+        description: 'Translator speech detection threshold explanation',
+        defaultMessage: 'Translator speech detection threshold explanation',
+    },
 });
 
 class Translations extends Component{
@@ -50,6 +61,10 @@ class Translations extends Component{
             let active = breakouts.length > 0;
             this.setState({languages: breakouts, active: active })
         })
+    }
+
+    componentDidUpdate() {
+        // TranslationManager.$languagesChanged.next(null);
     }
 
     createEditForm = () => {
@@ -66,6 +81,7 @@ class Translations extends Component{
         this.state.languages[index].name = name;
         this.state.languages[index].edit = false;
         this.setState(this.state)
+
     }
 
     deletionHandler = (index)=>{
@@ -92,21 +108,37 @@ class Translations extends Component{
     }
 
     endTranslation = () =>{
-        Meeting.clearLanguages()
+        Meeting.clearLanguages();
         this.state.languages = [];
         this.state.active = false
         this.state.warning = ""
         this.setState(this.state)
+        // also remove participants from translation rooms
+        AudioManager.translatorChannelOpen = false;
+        AudioManager.resetCurrentTranslatorChannelExtension();
     }
 
     state ={
         languages: [],
         active: false,
         warning: null,
+        speechDetectionThreshold: AudioManager.$translatorSpeechDetectionThresholdChanged.value,
     }
 
     componentWillUnmount() {
         window.dispatchEvent(new Event('panelChanged'));
+    }
+
+    updateThreshold() {
+        AudioManager.$translatorSpeechDetectionThresholdChanged.next(this.state.speechDetectionThreshold);
+    }
+
+    setThreshold(pEvent) {
+        this.setState({speechDetectionThreshold: pEvent.target.value});
+    }
+
+    handleSubmit(pEvent) {
+        pEvent.preventDefault();
     }
 
     render() {
@@ -144,7 +176,8 @@ class Translations extends Component{
                             intl={intl}
                         />
                     }else{
-                        return <Language
+                        return (<div style={{margin: "0 0 10px 0"}}>
+                            <Language
                             active={this.state.active}
                             name={language.name}
                             key={index}
@@ -152,6 +185,8 @@ class Translations extends Component{
                             deletionHandler={this.deletionHandler}
                             intl={intl}
                         />
+
+                        </div>);
                     }
                 }, this)}
                 {add}
@@ -164,6 +199,16 @@ class Translations extends Component{
                         : null
                     }
                 </p>
+              <div className={styles.speechDetectionThresholdWrapper}>
+                <div>{intl.formatMessage(intlMessages.speechDetectionThresholdInfo)}:</div>
+                <form onSubmit={this.handleSubmit}>
+                    <input id="speechDetectionThreshold" type="number" value={this.state.speechDetectionThreshold} onChange={this.setThreshold.bind(this)} />
+                    <input type="submit" onClick={ this.updateThreshold.bind(this) } value="Set" />
+                </form>
+                <div className={styles.speechDetectionThresholdExplanation}>
+                    {intl.formatMessage(intlMessages.speechDetectionThresholdExplanation)}
+                </div>
+              </div>
             </div>
         );
     }

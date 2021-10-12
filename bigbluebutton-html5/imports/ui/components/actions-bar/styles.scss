@@ -4,6 +4,7 @@
 @import "/imports/ui/stylesheets/mixins/focus";
 @import "/imports/ui/stylesheets/mixins/_indicators";
 @import "/imports/ui/stylesheets/variables/placeholders";
+@import "/imports/ui/stylesheets/variables/palette";
 
 .modal {
   @extend .modal;
@@ -218,20 +219,9 @@
   margin: 0;
 }
 
-.btnmuted{
-  span{
-    border-color: white !important;
-  }
-}
-
 .translatorBtn{
   span{
     background-color: mediumpurple;
   }
 }
 
-.translatorBtn:not(.btnmuted):focus{
-  span{
-    background-color: mediumpurple !important;
-  }
-}

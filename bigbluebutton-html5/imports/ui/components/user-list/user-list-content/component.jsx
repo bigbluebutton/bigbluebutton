@@ -9,6 +9,7 @@ import WaitingUsers from './waiting-users/component';
 import UserPolls from './user-polls/component';
 import BreakoutRoomItem from './breakout-room/component';
 import Translations from "./translations/component"
+import TranslationSettings from "./translation-settings/component";
 
 const propTypes = {
   compact: PropTypes.bool,
@@ -50,6 +51,7 @@ class UserContent extends PureComponent {
       startedChats,
       amIModerator,
       meetingIsBreakout,
+      hasLanguages
     } = this.props;
 
     return (
@@ -95,14 +97,23 @@ class UserContent extends PureComponent {
           ) : null
         }
 
+        {hasLanguages ? (
+          <TranslationSettings
+            {...{
+              intl,
+            }}
+          />
+        ) : null
+        }
+
         {amIModerator && !meetingIsBreakout
-          ? (
-            <Translations
-              {...{
-                intl,
-              }}
-            />
-          ) : null
+            ? (
+                <Translations
+                    {...{
+                      intl,
+                    }}
+                />
+            ) : null
         }
 
         <UserPolls

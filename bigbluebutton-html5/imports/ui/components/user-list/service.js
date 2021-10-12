@@ -210,7 +210,7 @@ const isMe = userId => userId === Auth.userID;
 const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
 
   if (_.isEmpty(groupChats) && _.isEmpty(users)) return [];
-  
+
   const chatIds = Object.keys(groupChats);
   const lastTimeWindows = chatIds.reduce((acc, chatId) => {
     const chat = groupChatsMessages[chatId];
@@ -222,18 +222,18 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
     }
   }, {});
 
-  chatIds.sort((a,b) => { 
+  chatIds.sort((a,b) => {
     if (a === PUBLIC_GROUP_CHAT_ID) {
       return -1;
     }
-  
+
     if (lastTimeWindows[a] === lastTimeWindows[b]){
       return 0;
     }
-    
+
     return 1;
   });
-  
+
   const chatInfo = chatIds.map((chatId) => {
     const contextChat = groupChatsMessages[chatId];
     const isPublicChat = chatId === PUBLIC_GROUP_CHAT_ID;
@@ -241,7 +241,7 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
     if (contextChat) {
       const unreadTimewindows = contextChat.unreadTimeWindows;
       for (const unreadTimeWindowId of unreadTimewindows) {
-        const timeWindow = (isPublicChat 
+        const timeWindow = (isPublicChat
           ? contextChat?.preJoinMessages[unreadTimeWindowId] || contextChat?.posJoinMessages[unreadTimeWindowId]
           : contextChat?.messageGroups[unreadTimeWindowId]);
         unreadMessagesCount += timeWindow.content.length;
@@ -275,7 +275,7 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
       shouldDisplayInChatList: true
     };
   });
-  
+
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
   return chatInfo.filter(chat => !currentClosedChats.includes(chat.chatId) && chat.shouldDisplayInChatList);
 }
