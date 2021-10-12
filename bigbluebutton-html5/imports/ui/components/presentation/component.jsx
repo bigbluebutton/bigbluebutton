@@ -1031,9 +1031,9 @@ class Presentation extends PureComponent {
                   toolbarHeight={getPreviousToolbarHeight()}
                 >
                   {slide}
+                  {wToolbar}
                   {pToolbar}
                 </MyWindowPortal>
-                {wToolbar}
               </Fragment>
             :
               <Fragment>
