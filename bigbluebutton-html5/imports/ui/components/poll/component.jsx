@@ -9,6 +9,7 @@ import Button from '/imports/ui/components/button/component';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
 import DragAndDrop from './dragAndDrop/component';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 
 const intlMessages = defineMessages({
   pollPaneTitle: {
@@ -648,7 +649,7 @@ class Poll extends Component {
   }
 }
 
-export default withModalMounter(injectIntl(Poll));
+export default injectWbResizeEvent(withModalMounter(injectIntl(Poll)));
 
 Poll.propTypes = {
   intl: PropTypes.shape({
