@@ -322,7 +322,7 @@ class PresentationToolbar extends PureComponent {
                 : `${intl.formatMessage(intlMessages.splitPresentationDesc)}`
               }
               hideLabel
-              className={cx(styles.separateWindow, styles.presentationBtn)}
+              className={cx(styles.detachWindow, styles.presentationBtn)}
             />
           </div>
         }
