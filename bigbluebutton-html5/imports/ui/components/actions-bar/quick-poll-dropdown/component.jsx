@@ -86,7 +86,7 @@ const getAvailableQuickPolls = (
     }
 
     // removes any whitespace from the label
-    itemLabel = itemLabel.replace(/\s+/g, '').toUpperCase();
+    itemLabel = itemLabel.replace(/\s+/g, '');
 
     /*
     const numChars = {
