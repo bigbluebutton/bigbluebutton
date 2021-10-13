@@ -1,8 +1,9 @@
-import Breakouts from '/imports/api/breakouts';
-import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
+import Breakouts from '/imports/ui/local-collections/breakouts-collection/breakouts';
+import { MeetingTimeRemaining } from '/imports/api/meetings';
+import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
+import Users from '/imports/ui/local-collections/users-collection/users';
 import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
 

@@ -40,9 +40,7 @@ export default function sendGroupChatMsg(chatId, message) {
     check(requesterUserId, String);
     check(chatId, String);
     check(message, Object);
-
     const parsedMessage = parseMessage(message.message);
-
     message.message = parsedMessage;
 
     const payload = {
