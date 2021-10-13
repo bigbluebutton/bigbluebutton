@@ -114,7 +114,7 @@ const getAvailableQuickPolls = (
   const sizes = [];
   return pollItemElements.filter((el) => {
     const { label } = el.props;
-    if (label.length === sizes[sizes.length - 1]) return false;
+    //if (label.length === sizes[sizes.length - 1]) return false;
     sizes.push(label.length);
     return el;
   });
