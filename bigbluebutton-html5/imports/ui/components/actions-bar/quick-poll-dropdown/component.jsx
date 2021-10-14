@@ -97,7 +97,7 @@ const getAvailableQuickPolls = (slideId, parsedSlides, startPoll, pollTypes) => 
   const sizes = [];
   return pollItemElements.filter((el) => {
     const { label } = el.props;
-    if (label.length === sizes[sizes.length - 1]) return;
+    //if (label.length === sizes[sizes.length - 1]) return;
     sizes.push(label.length);
     return el;
   });
