@@ -910,6 +910,8 @@
     "playback.player.video.wrapper.aria": "Video area",
     "app.learningDashboard.dashboardTitle": "Learning Dashboard",
     "app.learningDashboard.user": "User",
+    "app.learningDashboard.shareButton": "Share with others",
+    "app.learningDashboard.shareLinkCopied": "Link successfully copied",
     "app.learningDashboard.indicators.meetingStatusEnded": "Ended",
     "app.learningDashboard.indicators.meetingStatusActive": "Active",
     "app.learningDashboard.indicators.usersOnline": "Active Users",
