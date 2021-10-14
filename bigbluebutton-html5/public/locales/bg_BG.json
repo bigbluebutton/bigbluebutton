@@ -697,7 +697,7 @@
     "app.sfu.invalidSdp2202":"Клиента генерира невалидна медия заявка (SDP грешка 2202)",
     "app.sfu.noAvailableCodec2203": "Сървъра на може да намери подходящ кодек (грешка 2203)",
     "app.meeting.endNotification.ok.label": "OK",
-    "app.whiteboard.annotations.poll": "Резултатите от проучването бяха побликувани",
+    "app.whiteboard.annotations.poll": "Резултатите от проучването бяха публикувани",
     "app.whiteboard.annotations.pollResult": "Резултати от проучването",
     "app.whiteboard.toolbar.tools": "Инструменти",
     "app.whiteboard.toolbar.tools.hand": "Показалец",

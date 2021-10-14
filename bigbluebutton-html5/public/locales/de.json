@@ -565,7 +565,7 @@
     "app.guest.missingMeeting": "Konferenz existiert nicht.",
     "app.guest.meetingEnded": "Konferenz beendet.",
     "app.guest.guestWait": "Bitte warten Sie, bis ein Moderator Ihre Teilnahme an der Konferenz freigibt.",
-    "app.guest.guestDeny": "Gast hat die Teilnahme an der Konferenz abgelehnt.",
+    "app.guest.guestDeny": "Der Moderator hat die Teilnahme an der Konferenz abgelehnt.",
     "app.guest.seatWait": "Gast wartet auf die Teilnahme an der Konferenz.",
     "app.userList.guest.waitingUsers": "Wartende Teilnehmer",
     "app.userList.guest.waitingUsersTitle": "Teilnehmerverwaltung",
