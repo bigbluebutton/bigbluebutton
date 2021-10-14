@@ -44,7 +44,7 @@ public class SupportedDocumentFilter {
     notifyProgressListener(supported, pres);
     if (supported) {
       log.info("Received supported file {}", pres.getUploadedFile().getAbsolutePath());
-      pres.setFileType(extension);
+      pres.setFileType(extension.toLowerCase());
     } else {
       log.warn("Received not supported file {}", pres.getUploadedFile().getAbsolutePath());
     }
