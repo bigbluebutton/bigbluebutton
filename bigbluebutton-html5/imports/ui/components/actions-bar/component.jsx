@@ -6,6 +6,7 @@ import ActionsDropdown from './actions-dropdown/container';
 import AudioCaptionsButtonContainer from '/imports/ui/components/audio/captions/button/container';
 import CaptionsReaderMenuContainer from '/imports/ui/components/captions/reader-menu/container';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
+import InteractionsButtonContainer from '/imports/ui/components/actions-bar/interactions-button/container';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
@@ -45,6 +46,7 @@ class ActionsBar extends PureComponent {
       isPollingEnabled,
       isSelectRandomUserEnabled,
       isRaiseHandButtonEnabled,
+      isInteractionsButtonEnabled,
       isThereCurrentPresentation,
       allowExternalVideo,
       setEmojiStatus,
@@ -122,6 +124,7 @@ class ActionsBar extends PureComponent {
             isMeteorConnected,
           }}
           />
+          {isInteractionsButtonEnabled && <InteractionsButtonContainer />}
         </Styled.Center>
         <Styled.Right>
           { shouldShowOptionsButton ?

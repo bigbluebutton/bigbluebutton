@@ -48,6 +48,11 @@ const ActionsBarContainer = (props) => {
 const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabled;
 const RAISE_HAND_BUTTON_ENABLED = Meteor.settings.public.app.raiseHandActionButton.enabled;
 
+const isInterationsButtonEnabled = () => {
+  const INTERACTIONS_BUTTON_ENABLED = Meteor.settings.public.app.interactionsButton.enabled;
+  return getFromMeetingSettingsAsBoolean('enable-interations-button', INTERACTIONS_BUTTON_ENABLED);
+};
+
 export default withTracker(() => ({
   amIModerator: Service.amIModerator(),
   stopExternalVideoShare: ExternalVideoService.stopWatching,
@@ -64,6 +69,7 @@ export default withTracker(() => ({
   isPollingEnabled: isPollingEnabled() && isPresentationEnabled(),
   isSelectRandomUserEnabled: SELECT_RANDOM_USER_ENABLED,
   isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
+  isInteractionsButtonEnabled: isInterationsButtonEnabled(),
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
   allowExternalVideo: isExternalVideoEnabled(),

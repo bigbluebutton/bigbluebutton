@@ -10,6 +10,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
 const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
+const CHAT_USER_STATUS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_status_message;
 const CHAT_PUBLIC_ID = CHAT_CONFIG.public_id;
 const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
 const CHAT_EXPORTED_PRESENTATION_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_exported_presentation;
@@ -55,6 +56,14 @@ const intlMessages = defineMessages({
   breakoutDurationUpdated: {
     id: 'app.chat.breakoutDurationUpdated',
     description: 'used when the breakout duration is updated',
+  },
+  away: {
+    id: 'app.chat.away',
+    description: 'away label',
+  },
+  notAway: {
+    id: 'app.chat.notAway',
+    description: 'not away label',
   },
 });
 
@@ -107,6 +116,10 @@ class TimeWindowChatItem extends PureComponent {
 
     if (messages && messages[0].id.includes(CHAT_EXPORTED_PRESENTATION_MESSAGE)) {
       return this.renderExportedPresentationItem();
+    }
+
+    if (messages && messages[0].id.includes(CHAT_USER_STATUS_MESSAGE)) {
+      return this.renderStatusItem();
     }
 
     return (
@@ -222,6 +235,92 @@ class TimeWindowChatItem extends PureComponent {
         </Styled.Wrapper>
       </Styled.Item>
     );
+  }
+
+  renderStatusItem() {
+    const {
+      timestamp,
+      color,
+      intl,
+      messages,
+      scrollArea,
+      chatAreaId,
+      messageKey,
+      dispatch,
+      chatId,
+      extra,
+      read,
+      name,
+      isModerator,
+      avatar,
+      isOnline,
+    } = this.props;
+
+    const dateTime = new Date(timestamp);
+    ChatLogger.debug('TimeWindowChatItem::renderMessageItem', this.props);
+    const defaultAvatarString = name?.toLowerCase().slice(0, 2) || '  ';
+
+    return messages ? (
+      <div className={styles.item} key={`time-window-status-message${messageKey}`}>
+        <div className={styles.wrapper}>
+          <div className={styles.avatarWrapper}>
+            <UserAvatar
+              className={styles.avatar}
+              color={color}
+              moderator={isModerator}
+              avatar={avatar}
+            >
+              {defaultAvatarString}
+            </UserAvatar>
+          </div>
+          <div className={styles.content}>
+            <div className={styles.meta}>
+              <div className={isOnline ? styles.name : styles.logout}>
+                <span>{name}</span>
+                {isOnline
+                  ? null
+                  : (
+                    <span className={styles.offline}>
+                      {`(${intl.formatMessage(intlMessages.offline)})`}
+                    </span>
+                  )}
+              </div>
+              <time className={styles.time} dateTime={dateTime}>
+                <FormattedTime value={dateTime} />
+              </time>
+            </div>
+            <div className={styles.messages}>
+              {messages.map((message) => (
+                <MessageChatItem
+                  className={styles.statusMessage}
+                  key={message.id}
+                  text={extra.status === 'away'
+                    ? `<span styles={{width: '100px', heigth: '100px'}} class='icon-bbb-interactions-away'></span> ${intl.formatMessage(intlMessages.away)}`
+                    : `<span class='icon-bbb-interactions-notAway'></span> ${intl.formatMessage(intlMessages.notAway)}`}
+                  time={message.time}
+                  chatAreaId={chatAreaId}
+                  dispatch={dispatch}
+                  read={message.read}
+                  chatUserMessageItem
+                  handleReadMessage={(time) => {
+                    if (!read) {
+                      dispatch({
+                        type: 'last_read_message_timestamp_changed',
+                        value: {
+                          chatId,
+                          timestamp: time,
+                        },
+                      });
+                    }
+                  }}
+                  scrollArea={scrollArea}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    ) : null;
   }
 
   renderPollItem() {
