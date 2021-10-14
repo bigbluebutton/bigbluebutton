@@ -411,6 +411,8 @@
     "app.switch.offLabel": "OFF",
     "app.talkingIndicator.ariaMuteDesc" : "Select to mute user",
     "app.talkingIndicator.isTalking" : "{0} is talking",
+    "app.talkingIndicator.moreThanMaxIndicatorsTalking" : "{0}+ are talking",
+    "app.talkingIndicator.moreThanMaxIndicatorsWereTalking" : "{0}+ were talking",
     "app.talkingIndicator.wasTalking" : "{0} stopped talking",
     "app.actionsBar.actionsDropdown.actionsLabel": "Actions",
     "app.actionsBar.actionsDropdown.presentationLabel": "Manage presentations",
