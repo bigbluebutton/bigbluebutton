@@ -190,7 +190,7 @@
     "app.presentationUploder.dropzoneImagesLabel": "Arraste imagens aqui para carregar",
     "app.presentationUploder.browseFilesLabel": "ou procure arquivos",
     "app.presentationUploder.browseImagesLabel": "ou procure/capture imagens",
-    "app.presentationUploder.fileToUpload": "Carregar arquivo...",
+    "app.presentationUploder.fileToUpload": "Clique em enviar ...",
     "app.presentationUploder.currentBadge": "Atual",
     "app.presentationUploder.rejectedError": "Os arquivos selecionados foram rejeitados. Por favor, verifique os tipos de arquivos permitidos.",
     "app.presentationUploder.upload.progress": "Carregando ({0}%)",
