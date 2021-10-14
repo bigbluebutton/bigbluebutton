@@ -77,6 +77,10 @@ case "$1" in
 #      echo "#"
 #    fi
 
+    # Creates the mediasoup raw media file dir if needed
+    if [ ! -d /var/mediasoup ]; then
+      mkdir -p /var/mediasoup
+    fi
 
     # Create a symbolic link from /var/kurento -> /var/lib/kurento if needed
     if [ ! -d /var/kurento ]; then
