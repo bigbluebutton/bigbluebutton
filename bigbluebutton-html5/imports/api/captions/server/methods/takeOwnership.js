@@ -2,7 +2,6 @@ import { check } from 'meteor/check';
 import Captions from '/imports/api/captions';
 import updateOwnerId from '/imports/api/captions/server/modifiers/updateOwnerId';
 import { extractCredentials } from '/imports/api/common/server/helpers';
-import { CAPTIONS_TOKEN } from '/imports/api/captions/server/helpers';
 import Logger from '/imports/startup/server/logger';
 
 export default function takeOwnership(locale) {
@@ -10,12 +9,10 @@ export default function takeOwnership(locale) {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
     check(locale, String);
+    check(meetingId, String);
+    check(requesterUserId, String);
 
-    const pad = Captions.findOne({ meetingId, padId: { $regex: `${CAPTIONS_TOKEN}${locale}$` } });
-
-    if (pad) {
-      updateOwnerId(meetingId, requesterUserId, pad.padId);
-    }
+    updateOwnerId(meetingId, requesterUserId, locale);
   } catch (err) {
     Logger.error(`Exception while invoking method takeOwnership ${err.stack}`);
   }

@@ -419,29 +419,36 @@ public class ParamsProcessorUtil {
             }
         }
 
-        boolean learningDashboardEn = learningDashboardEnabled;
-        if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED))) {
-            try {
-                learningDashboardEn = Boolean.parseBoolean(params
-                        .get(ApiParams.LEARNING_DASHBOARD_ENABLED));
-            } catch (Exception ex) {
-                log.warn(
-                        "Invalid param [learningDashboardEnabled] for meeting=[{}]",
-                        internalMeetingId);
+        boolean learningDashboardEn = false;
+        int learningDashboardCleanupMins = 0;
+
+        // Learning Dashboard not allowed for Breakout Rooms
+        if(!isBreakout) {
+            learningDashboardEn = learningDashboardEnabled;
+            if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED))) {
+                try {
+                    learningDashboardEn = Boolean.parseBoolean(params
+                            .get(ApiParams.LEARNING_DASHBOARD_ENABLED));
+                } catch (Exception ex) {
+                    log.warn(
+                            "Invalid param [learningDashboardEnabled] for meeting=[{}]",
+                            internalMeetingId);
+                }
+            }
+
+            learningDashboardCleanupMins = learningDashboardCleanupDelayInMinutes;
+            if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES))) {
+                try {
+                    learningDashboardCleanupMins = Integer.parseInt(params
+                            .get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES));
+                } catch (Exception ex) {
+                    log.warn(
+                            "Invalid param [learningDashboardCleanupDelayInMinutes] for meeting=[{}]",
+                            internalMeetingId);
+                }
             }
         }
 
-        int learningDashboardCleanupMins = learningDashboardCleanupDelayInMinutes;
-        if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES))) {
-            try {
-                learningDashboardCleanupMins = Integer.parseInt(params
-                        .get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES));
-            } catch (Exception ex) {
-                log.warn(
-                        "Invalid param [learningDashboardCleanupDelayInMinutes] for meeting=[{}]",
-                        internalMeetingId);
-            }
-        }
 
         //Generate token to access Activity Report
         String learningDashboardAccessToken = "";

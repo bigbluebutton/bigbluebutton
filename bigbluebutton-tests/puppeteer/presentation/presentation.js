@@ -1,8 +1,7 @@
 const Page = require('../core/page');
 const e = require('../core/elements');
-const params = require('../params');
 const util = require('./util');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const { checkElement, checkElementTextIncludes, checkElementText } = require('../core/util');
 
 class Presentation {
@@ -17,13 +16,11 @@ class Presentation {
   }
 
   async initModPage(testName) {
-    await this.modPage.init(Page.getArgs(), undefined, { ...params, fullName: 'Mod' }, undefined, testName);
-    await this.modPage.closeAudioModal();
+    await this.modPage.init(true, true, testName, 'Mod');
   }
 
   async initUserPage(testName) {
-    await this.userPage.init(Page.getArgs(), this.modPage.meetingId, { ...params, fullName: 'Attendee', moderatorPW: '' }, undefined, testName);
-    await this.userPage.closeAudioModal();
+    await this.userPage.init(false, true, testName, 'Attendee', this.modPage.meetingId);
   }
 
   async closePages() {
@@ -72,18 +69,21 @@ class Presentation {
       await this.modPage.waitForSelector(e.fileUpload);
       const fileUpload = await this.modPage.page.$(e.fileUpload);
       await fileUpload.uploadFile(`${__dirname}/upload-test.png`);
-      await this.modPage.page.waitForFunction(checkElementTextIncludes, {},
+      await this.modPage.page.waitForFunction(checkElementTextIncludes,
+        { timeout: ELEMENT_WAIT_TIME },
         'body', 'To be uploaded ...'
       );
       await this.modPage.page.waitForSelector(e.upload);
 
       await this.modPage.waitAndClick(e.upload);
       await this.modPage.logger('\nWaiting for the new presentation to upload...');
-      await this.modPage.page.waitForFunction(checkElementTextIncludes, {},
+      await this.modPage.page.waitForFunction(checkElementTextIncludes,
+        { timeout: ELEMENT_WAIT_TIME },
         'body', 'Converting file'
       );
       await this.modPage.logger('\nPresentation uploaded!');
-      await this.modPage.page.waitForFunction(checkElementTextIncludes, {},
+      await this.modPage.page.waitForFunction(checkElementTextIncludes,
+        { timeout: ELEMENT_WAIT_LONGER_TIME },
         'body', 'Current presentation'
       );
       await this.modPage.screenshot(`${testName}`, `02-after-presentation-upload-[${testName}]`);
@@ -141,13 +141,15 @@ class Presentation {
       await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
       await this.modPage.waitAndClick(e.actions);
       await this.modPage.waitAndClick(e.uploadPresentation);
-      await this.modPage.screenshot(testName, `1-modPage-before-remove-download-[${this.modPage.meetingId}]`);
+      await this.modPage.screenshot(testName, '1-modPage-before-remove-presentation');
       await this.modPage.waitAndClick(e.removePresentation);
       await this.modPage.waitAndClick(e.confirmManagePresentation);
-      await this.modPage.waitForSelector(e.actions);
-      await this.modPage.screenshot(testName, `2-modPage-after-remove-download-[${this.modPage.meetingId}]`);
-      await this.userPage.screenshot(testName, `3-userPage-after-remove-download-[${this.modPage.meetingId}]`);
+
+      await this.modPage.waitForSelector(e.presentationPlaceholder);
+      await this.modPage.screenshot(testName, '2-modPage-after-remove-presentation');
       const modPagePlaceholder = await this.modPage.page.evaluate(checkElementText, e.presentationPlaceholder, e.presentationPlaceholderLabel);
+      await this.userPage.waitForSelector(e.presentationPlaceholder);
+      await this.userPage.screenshot(testName, '3-userPage-after-remove-presentation');
       const userPagePlaceholder = await this.userPage.page.evaluate(checkElementText, e.presentationPlaceholder, e.presentationPlaceholderLabel);
 
       return modPagePlaceholder && userPagePlaceholder;

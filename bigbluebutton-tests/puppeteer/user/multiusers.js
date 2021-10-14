@@ -1,5 +1,4 @@
 const Page = require('../core/page');
-const params = require('../params');
 const util = require('../chat/util');
 const utilUser = require('./util');
 const e = require('../core/elements');
@@ -14,18 +13,18 @@ class MultiUsers {
   }
 
   // Join BigBlueButton meeting
-  async init(meetingId, testFolderName) {
-    await this.initMod1(meetingId, testFolderName);
-    await this.page2.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Mod2' }, undefined, testFolderName);
+  async init(testFolderName) {
+    await this.initMod1(testFolderName);
+    await this.page2.init(true, true, testFolderName, 'Mod2', this.page1.meetingId);
   }
 
-  async initMod1(meetingId, testFolderName) {
-    await this.page1.init(Page.getArgs(), meetingId, { ...params, fullName: 'Mod1'}, undefined, testFolderName);
+  async initMod1(testFolderName) {
+    await this.page1.init(true, true, testFolderName, 'Mod1')
   }
 
   // Join BigBlueButton meeting
-  async initUserPage(testFolderName) {
-    await this.userPage.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Attendee', moderatorPW: '' }, undefined, testFolderName);
+  async initUserPage(shouldCloseAudioModal, testFolderName) {
+    await this.userPage.init(false, shouldCloseAudioModal, testFolderName, 'Attendee', this.page1.meetingId);
   }
 
   // Run the test for the page
@@ -79,9 +78,8 @@ class MultiUsers {
   async randomPoll(testName) {
     try {
       await this.page1.startRecording(testName);
-      await this.page1.closeAudioModal();
       await this.page2.startRecording(testName);
-      await this.page2.closeAudioModal();
+
       await this.page1.waitAndClick(e.actions);
       await this.page1.waitAndClick(e.polling);
       await this.page1.waitForSelector(e.pollQuestionArea);
@@ -162,24 +160,22 @@ class MultiUsers {
 
   async askModeratorGuestPolicy(testName) {
     try {
-      await this.initMod1(undefined, testName);
-      await this.page1.screenshot(`${testName}`, `01-before-closing-audio-modal-[${this.page1.meetingId}]`);
-      await this.page1.closeAudioModal();
-      await this.page1.screenshot(`${testName}`, `02-after-closing-audio-modal-[${this.page1.meetingId}]`);
+      await this.initMod1(testName);
+      await this.page1.screenshot(`${testName}`, `01-after-closing-audio-modal-[${this.page1.meetingId}]`);
 
       await this.page1.waitAndClick(e.manageUsers);
-      await this.page1.screenshot(`${testName}`, `03-opened-users-managing-[${this.page1.meetingId}]`);
+      await this.page1.screenshot(`${testName}`, `02-opened-users-managing-[${this.page1.meetingId}]`);
 
       await this.page1.waitAndClick(e.guestPolicyLabel);
-      await this.page1.screenshot(`${testName}`, `04-opened-guest-policy-[${this.page1.meetingId}]`);
+      await this.page1.screenshot(`${testName}`, `03-opened-guest-policy-[${this.page1.meetingId}]`);
 
       await this.page1.waitAndClick(e.askModerator);
-      await this.page1.screenshot(`${testName}`, `05-clicked-askModerator-[${this.page1.meetingId}]`);
-      await this.initUserPage(testName);
+      await this.page1.screenshot(`${testName}`, `04-clicked-askModerator-[${this.page1.meetingId}]`);
+      await this.initUserPage(false, testName);
       await this.page1.bringToFront();
 
       const responseLoggedIn = await this.page1.hasElement(e.waitingUsersBtn);
-      await this.page1.screenshot(`${testName}`, `06-after-viewer-acceptance-[${this.page1.meetingId}]`);
+      await this.page1.screenshot(`${testName}`, `05-after-viewer-acceptance-[${this.page1.meetingId}]`);
       return responseLoggedIn;
     } catch (err) {
       await this.page1.logger(err);
@@ -189,23 +185,21 @@ class MultiUsers {
 
   async alwaysAcceptGuestPolicy(testName) {
     try {
-      await this.initMod1(undefined, testName);
-      await this.page1.screenshot(`${testName}`, `01-before-closing-audio-modal-[${this.page1.meetingId}]`);
-      await this.page1.closeAudioModal();
-      await this.page1.screenshot(`${testName}`, `02-after-closing-audio-modal-[${this.page1.meetingId}]`);
+      await this.initMod1(testName);
+      await this.page1.screenshot(`${testName}`, `01-after-closing-audio-modal-[${this.page1.meetingId}]`);
 
       await this.page1.waitAndClick(e.manageUsers);
-      await this.page1.screenshot(`${testName}`, `03-opened-users-managing-[${this.page1.meetingId}]`);
+      await this.page1.screenshot(`${testName}`, `02-opened-users-managing-[${this.page1.meetingId}]`);
 
       await this.page1.waitAndClick(e.guestPolicyLabel);
-      await this.page1.screenshot(`${testName}`, `04-opened-guest-policy-[${this.page1.meetingId}]`);
+      await this.page1.screenshot(`${testName}`, `03-opened-guest-policy-[${this.page1.meetingId}]`);
 
       await this.page1.waitAndClick(e.alwaysAccept);
-      await this.page1.screenshot(`${testName}`, `05-clicked-alwaysAccept-[${this.page1.meetingId}]`);
-      await this.initUserPage(testName);
+      await this.page1.screenshot(`${testName}`, `04-clicked-alwaysAccept-[${this.page1.meetingId}]`);
+      await this.initUserPage(false, testName);
 
       const responseLoggedIn = await this.userPage.hasElement(e.whiteboard);
-      await this.userPage.screenshot(`${testName}`, `06-after-viewer-connection-[${this.page1.meetingId}]`);
+      await this.userPage.screenshot(`${testName}`, `05-after-viewer-connection-[${this.page1.meetingId}]`);
       return responseLoggedIn;
     } catch (err) {
       await this.page1.logger(err);
@@ -215,23 +209,21 @@ class MultiUsers {
 
   async alwaysDenyGuestPolicy(testName) {
     try {
-      await this.initMod1(undefined, testName);
-      await this.page1.screenshot(`${testName}`, `01-before-closing-audio-modal-[${this.page1.meetingId}]`);
-      await this.page1.closeAudioModal();
-      await this.page1.screenshot(`${testName}`, `02-after-closing-audio-modal-[${this.page1.meetingId}]`);
+      await this.initMod1(testName);
+      await this.page1.screenshot(`${testName}`, `01-after-closing-audio-modal-[${this.page1.meetingId}]`);
 
       await this.page1.waitAndClick(e.manageUsers);
-      await this.page1.screenshot(`${testName}`, `03-opened-users-managing-[${this.page1.meetingId}]`);
+      await this.page1.screenshot(`${testName}`, `02-opened-users-managing-[${this.page1.meetingId}]`);
 
       await this.page1.waitAndClick(e.guestPolicyLabel);
-      await this.page1.screenshot(`${testName}`, `04-opened-guest-policy-[${this.page1.meetingId}]`);
+      await this.page1.screenshot(`${testName}`, `03-opened-guest-policy-[${this.page1.meetingId}]`);
 
       await this.page1.waitAndClick(e.alwaysDeny);
-      await this.page1.screenshot(`${testName}`, `05-clicked-alwaysAccept-[${this.page1.meetingId}]`);
-      await this.initUserPage(testName);
+      await this.page1.screenshot(`${testName}`, `04-clicked-alwaysAccept-[${this.page1.meetingId}]`);
+      await this.initUserPage(false, testName);
 
       const responseLoggedIn = await this.userPage.hasElement(e.joinMeetingDemoPage);
-      await this.userPage.screenshot(`${testName}`, `06-after-viewer-gets-denied-[${this.page1.meetingId}]`);
+      await this.userPage.screenshot(`${testName}`, `05-after-viewer-gets-denied-[${this.page1.meetingId}]`);
       return responseLoggedIn;
     } catch (err) {
       await this.page1.logger(err);
@@ -241,8 +233,6 @@ class MultiUsers {
 
   async testWhiteboardAccess() {
     try {
-      await this.page1.closeAudioModal();
-      await this.page2.closeAudioModal();
       await this.page1.waitForSelector(e.whiteboard);
       await this.page1.waitAndClick(e.userListItem);
       await this.page1.waitAndClick(e.changeWhiteboardAccess);
@@ -260,8 +250,6 @@ class MultiUsers {
   // Raise Hand
   async raiseHandTest() {
     try {
-      await this.page1.closeAudioModal();
-      await this.page2.closeAudioModal();
       await this.page2.waitAndClick(e.raiseHandLabel);
       const resp = await this.page2.hasElement(e.lowerHandLabel, true);
 
@@ -300,8 +288,6 @@ class MultiUsers {
 
   async userOfflineWithInternetProblem() {
     try {
-      await this.page1.closeAudioModal();
-      await this.page2.closeAudioModal();
       await this.page2.page.evaluate(() => window.dispatchEvent(new CustomEvent('socketstats', { detail: { rtt: 2000 } })));
       await this.page2.page.setOfflineMode(true);
       await this.page2.close();
@@ -318,8 +304,6 @@ class MultiUsers {
 
   async userlistNotAppearOnMobile() {
     try {
-      await this.page1.closeAudioModal();
-      await this.page2.closeAudioModal();
       const userlistPanel = await this.page1.page.evaluate(checkElementLengthEqualTo, e.chatButtonKey, 0);
       const chatPanel = await this.page2.page.evaluate(checkElementLengthEqualTo, e.chatButtonKey, 0);
       return userlistPanel && chatPanel;
@@ -331,8 +315,6 @@ class MultiUsers {
 
   async whiteboardNotAppearOnMobile() {
     try {
-      await this.page1.closeAudioModal();
-      await this.page2.closeAudioModal();
       await this.page1.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.chatButtonKey);
@@ -348,8 +330,6 @@ class MultiUsers {
 
   async chatPanelNotAppearOnMobile() {
     try {
-      await this.page1.closeAudioModal();
-      await this.page2.closeAudioModal();
       await this.page2.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.chatButtonKey);
       const whiteboard = await this.page1.page.evaluate(checkElementLengthEqualTo, e.chatButtonKey, 0);
