@@ -16,6 +16,10 @@ case "$1" in
       # https://github.com/bigbluebutton/bbb-webrtc-sfu/pull/37
       # yq w -i $TARGET kurento[0].url "ws://$SERVER_URL:8888/kurento"
 
+      # Set mediasoup IPs
+      yq w -i $TARGET mediasoup.webrtc.listenIps[0].announcedIp "$IP"
+      yq w -i $TARGET mediasoup.plainRtp.listenIp.announcedIp "$IP"
+
       FREESWITCH_IP=$(xmlstarlet sel -t -v '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "local_ip_v4=")]/@data' /opt/freeswitch/conf/vars.xml | sed 's/local_ip_v4=//g')
       if [ "$FREESWITCH_IP" != "" ]; then
         yq w -i $TARGET freeswitch.ip $FREESWITCH_IP
