@@ -35,8 +35,8 @@ case "$1" in
 
     # there's a problem rebuilding bufferutil
     # do not abort in case npm rebuild return something different than 0
-    npm config set unsafe-perm true
-    npm rebuild || true
+    #npm config set unsafe-perm true
+    #npm rebuild || true
 
     mkdir -p /var/log/bbb-webrtc-sfu/
     touch /var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log
