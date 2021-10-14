@@ -4,6 +4,7 @@ import cx from 'classnames';
 import PropTypes from 'prop-types';
 import Resizable from 're-resizable';
 import deviceInfo from '/imports/utils/deviceInfo';
+import browserInfo from '/imports/utils/browserInfo';
 import { withDraggableConsumer } from './context';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import { styles } from '../styles.scss';
@@ -32,6 +33,9 @@ const defaultProps = {
   refMediaContainer: null,
 };
 
+const { isSafari } = browserInfo;
+const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
+
 class WebcamDraggable extends PureComponent {
   constructor(props) {
     super(props);
@@ -56,12 +60,12 @@ class WebcamDraggable extends PureComponent {
   }
 
   componentDidMount() {
-    document.addEventListener('fullscreenchange', this.onFullscreenChange);
+    document.addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     window.addEventListener('layoutSizesSets', this.handleLayoutSizesSets);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    document.removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     window.removeEventListener('layoutSizesSets', this.handleLayoutSizesSets);
   }
 
