@@ -51,6 +51,9 @@ exports.userJoined = 'div[aria-label^="Moderator3"]';
 exports.breakoutRoomsButton = 'div[aria-label="Breakout Rooms"]';
 exports.askJoinRoom1 = 'button[aria-label="Ask to join Room 1"]';
 exports.joinRoom1 = 'button[aria-label="Join room Room 1"]';
+exports.allowChoiceRoom = 'input[id="freeJoinCheckbox"]';
+exports.labelGeneratingURL = 'span[data-test="labelGeneratingURL"]';
+exports.endBreakoutRoomsButton = 'button[data-test="endBreakoutRoomsButton"]';
 
 // Chat
 exports.chatButton = 'div[data-test="chatButton"]';

@@ -2,9 +2,9 @@ package org.bigbluebutton.api.model.request;
 
 import org.bigbluebutton.api.model.constraint.MeetingExistsConstraint;
 import org.bigbluebutton.api.model.constraint.MeetingIDConstraint;
+import org.bigbluebutton.api.model.constraint.NotEmpty;
 import org.bigbluebutton.api.model.shared.Checksum;
 
-import javax.validation.constraints.NotEmpty;
 import java.util.Map;
 
 public class SetPollXML extends RequestWithChecksum<SetPollXML.Params> {
@@ -21,10 +21,10 @@ public class SetPollXML extends RequestWithChecksum<SetPollXML.Params> {
     }
 
     @MeetingIDConstraint
-    @MeetingExistsConstraint
+    @MeetingExistsConstraint(key = "invalidMeetingIdentifier")
     private String meetingID;
 
-    @NotEmpty(message = "You must provide the poll")
+    @NotEmpty(key = "configXMLError", message = "You did not pass a poll XML")
     private String pollXML;
 
     public SetPollXML(Checksum checksum) {

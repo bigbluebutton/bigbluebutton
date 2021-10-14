@@ -258,7 +258,6 @@
     "app.videoDock.webcamFocusLabel": "Fokus",
     "app.invitation.confirm": "Pozovi",
     "app.createBreakoutRoom.generatingURL": "Stvaranje URL",
-    "app.createBreakoutRoom.generatedURL": "Stvoreno",
     "app.createBreakoutRoom.duration": "Trajanje {0}",
     "app.createBreakoutRoom.room": "Soba {0}",
     "app.createBreakoutRoom.confirm": "Stvori",

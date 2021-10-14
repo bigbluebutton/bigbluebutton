@@ -15,7 +15,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface IsIntegralConstraint {
 
-    String message() default "Validation error: value must be an integral number";
+    String key() default "validationError";
+    String message() default "Value must be an integral number";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

@@ -3,7 +3,6 @@ package org.bigbluebutton.api.model.request;
 import org.bigbluebutton.api.model.constraint.*;
 import org.bigbluebutton.api.model.shared.Checksum;
 
-import javax.validation.constraints.NotEmpty;
 import java.util.Map;
 
 public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
@@ -25,17 +24,17 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
     }
 
     @MeetingIDConstraint
-    @MeetingExistsConstraint
+    @MeetingExistsConstraint(key = "invalidMeetingIdentifier")
     @MeetingEndedConstraint
     private String meetingID;
 
     private String userID;
 
-    @NotEmpty(message = "You must provide your name")
+    @NotEmpty(key = "missingParamFullName", message = "You must provide your name")
     private String fullName;
 
     @PasswordConstraint
-    @NotEmpty(message = "You must provide either the moderator or attendee password")
+    @NotEmpty(key = "invalidPassword", message = "You must provide either the moderator or attendee password")
     private String password;
 
     @IsBooleanConstraint(message = "Guest must be a boolean value (true or false)")

@@ -3,6 +3,8 @@ raw_audio_src: /var/freeswitch/meetings
 raw_video_src: /usr/share/red5/webapps/video/streams
 kurento_video_src: /var/kurento/recordings
 kurento_screenshare_src: /var/kurento/screenshare
+mediasoup_video_src: /var/mediasoup/recordings
+mediasoup_screenshare_src: /var/mediasoup/screenshare
 raw_screenshare_src: /usr/share/red5/webapps/screenshare/streams
 raw_webrtc_deskshare_src: /usr/share/red5/webapps/video-broadcast/streams
 raw_deskshare_src: /var/bigbluebutton/deskshare
