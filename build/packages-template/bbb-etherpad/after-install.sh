@@ -10,5 +10,5 @@ TARGET=/usr/share/etherpad-lite/settings.json
 if [ ! -f /.dockerenv ]; then
   systemctl enable etherpad.service
   systemctl daemon-reload
-  startService etherpad.service || echo "bbb-etherpad service could not be registered or started"
+  startService etherpad.service || echo "etherpad service could not be registered or started"
 fi

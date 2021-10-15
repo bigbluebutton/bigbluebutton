@@ -1,0 +1,37 @@
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/variables/placeholders";
+@import "/imports/ui/stylesheets/variables/breakpoints";
+
+.hint {
+  visibility: hidden;
+  position: absolute;
+
+  @media (pointer: none) {
+    visibility: visible;
+    position: relative;
+    color: var(--color-gray);
+    font-size: var(--font-size-small);
+    font-style: italic;
+    padding: var(--sm-padding-x) 0 0 var(--sm-padding-x);
+    text-align: left;
+
+    [dir="rtl"] & {
+      padding-right: var(--lg-padding-y) var(--lg-padding-y) 0 0;
+      text-align: right;
+    }
+  }
+}
+
+.pad {
+  display: flex;
+  height: 100%;
+  width: 100%;
+
+  iframe {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    border-style: none;
+    border-bottom: 1px solid var(--color-gray-lightest);
+  }
+}

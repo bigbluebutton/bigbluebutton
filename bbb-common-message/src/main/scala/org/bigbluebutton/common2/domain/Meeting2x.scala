@@ -39,7 +39,7 @@ case class LockSettingsProps(
     disableMic:             Boolean,
     disablePrivateChat:     Boolean,
     disablePublicChat:      Boolean,
-    disableNote:            Boolean,
+    disableNotes:           Boolean,
     hideUserList:           Boolean,
     lockedLayout:           Boolean,
     lockOnJoin:             Boolean,

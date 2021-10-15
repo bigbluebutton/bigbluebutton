@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
-import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
+import CaptionsButtonContainer from '/imports/ui/components/captions/button/container';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles.scss';
 import ActionsDropdown from './actions-dropdown/container';

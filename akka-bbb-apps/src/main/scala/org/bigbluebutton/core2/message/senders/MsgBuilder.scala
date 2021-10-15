@@ -96,26 +96,6 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildAddPadEvtMsg(meetingId: String, padId: String, readOnlyId: String): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-    val envelope = BbbCoreEnvelope(AddPadEvtMsg.NAME, routing)
-    val header = BbbCoreHeaderWithMeetingId(AddPadEvtMsg.NAME, meetingId)
-    val body = AddPadEvtMsgBody(padId, readOnlyId)
-    val event = AddPadEvtMsg(header, body)
-
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
-
-  def buildAddCaptionsPadsEvtMsg(meetingId: String, padIds: Array[String]): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-    val envelope = BbbCoreEnvelope(AddCaptionsPadsEvtMsg.NAME, routing)
-    val header = BbbCoreHeaderWithMeetingId(AddCaptionsPadsEvtMsg.NAME, meetingId)
-    val body = AddCaptionsPadsEvtMsgBody(padIds)
-    val event = AddCaptionsPadsEvtMsg(header, body)
-
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
-
   def buildGetUsersMeetingRespMsg(meetingId: String, userId: String, webusers: Vector[WebUser]): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(GetUsersMeetingRespMsg.NAME, routing)

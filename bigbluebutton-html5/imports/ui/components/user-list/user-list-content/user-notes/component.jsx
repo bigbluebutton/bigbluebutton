@@ -2,15 +2,15 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
-import NoteService from '/imports/ui/components/note/service';
+import NotesService from '/imports/ui/components/notes/service';
 import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
-import { PANELS } from '../../../layout/enums';
+import { PANELS } from '/imports/ui/components/layout/enums';
 
 const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  revs: PropTypes.number.isRequired,
+  rev: PropTypes.number.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -19,7 +19,7 @@ const intlMessages = defineMessages({
     description: 'Title for the notes list',
   },
   sharedNotes: {
-    id: 'app.note.title',
+    id: 'app.notes.title',
     description: 'Title for the shared notes',
   },
   unreadContent: {
@@ -27,7 +27,7 @@ const intlMessages = defineMessages({
     description: 'Aria label for notes unread content',
   },
   locked: {
-    id: 'app.note.locked',
+    id: 'app.notes.locked',
     description: '',
   },
   byModerator: {
@@ -47,19 +47,21 @@ class UserNotes extends Component {
   }
 
   componentDidMount() {
-    const { revs } = this.props;
+    const {
+      rev,
+    } = this.props;
 
-    const lastRevs = NoteService.getLastRevs();
+    const lastRev = NotesService.getLastRev();
 
-    if (revs !== 0 && revs > lastRevs) this.setUnread(true);
+    if (rev !== 0 && rev > lastRev) this.setUnread(true);
   }
 
   componentDidUpdate(prevProps) {
-    const { sidebarContentPanel, revs } = this.props;
+    const { sidebarContentPanel, rev } = this.props;
     const { unread } = this.state;
 
     if (sidebarContentPanel !== PANELS.SHARED_NOTES && !unread) {
-      if (prevProps.revs !== revs) this.setUnread(true);
+      if (prevProps.rev !== rev) this.setUnread(true);
     }
 
     if (sidebarContentPanel === PANELS.SHARED_NOTES && unread) {
@@ -73,7 +75,10 @@ class UserNotes extends Component {
 
   renderNotes() {
     const {
-      intl, disableNote, sidebarContentPanel, layoutContextDispatch,
+      intl,
+      disableNotes,
+      sidebarContentPanel,
+      layoutContextDispatch,
     } = this.props;
     const { unread } = this.state;
 
@@ -94,23 +99,23 @@ class UserNotes extends Component {
     return (
       <div
         aria-label={intl.formatMessage(intlMessages.sharedNotes)}
-        aria-describedby="lockedNote"
+        aria-describedby="lockedNotes"
         role="button"
         tabIndex={0}
         className={styles.listItem}
-        onClick={() => NoteService.toggleNotePanel(sidebarContentPanel, layoutContextDispatch)}
+        onClick={() => NotesService.toggleNotesPanel(sidebarContentPanel, layoutContextDispatch)}
         onKeyPress={() => { }}
       >
         <Icon iconName="copy" />
         <div aria-hidden>
-          <div className={styles.noteTitle} data-test="sharedNotes">
+          <div className={styles.notesTitle} data-test="sharedNotes">
             {intl.formatMessage(intlMessages.sharedNotes)}
           </div>
-          {disableNote
+          {disableNotes
             ? (
-              <div className={styles.noteLock}>
+              <div className={styles.notesLock}>
                 <Icon iconName="lock" />
-                <span id="lockedNote">{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
+                <span id="lockedNotes">{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
               </div>
             ) : null}
         </div>
@@ -122,7 +127,7 @@ class UserNotes extends Component {
   render() {
     const { intl } = this.props;
 
-    if (!NoteService.isEnabled()) return null;
+    if (!NotesService.isEnabled()) return null;
 
     return (
       <div className={styles.messages}>

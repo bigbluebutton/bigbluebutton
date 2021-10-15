@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Toggle from '/imports/ui/components/switch/component';
 import Modal from '/imports/ui/components/modal/simple/component';
-import NoteService from '/imports/ui/components/note/service';
+import NotesService from '/imports/ui/components/notes/service';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
 
@@ -308,7 +308,7 @@ class LockViewersComponent extends Component {
               </Fragment>
             ) : null
             }
-            {NoteService.isEnabled()
+            {NotesService.isEnabled()
               ? (
                 <div className={styles.row}>
                   <div className={styles.col} aria-hidden="true">
@@ -320,12 +320,12 @@ class LockViewersComponent extends Component {
                   </div>
                   <div className={styles.col}>
                     <div className={cx(styles.formElement, styles.pullContentRight)}>
-                      {this.displayLockStatus(lockSettingsProps.disableNote)}
+                      {this.displayLockStatus(lockSettingsProps.disableNotes)}
                       <Toggle
                         icons={false}
-                        defaultChecked={lockSettingsProps.disableNote}
+                        defaultChecked={lockSettingsProps.disableNotes}
                         onChange={() => {
-                          this.toggleLockSettings('disableNote');
+                          this.toggleLockSettings('disableNotes');
                         }}
                         ariaLabel={intl.formatMessage(intlMessages.notesLabel)}
                         showToggleLabel={showToggleLabel}

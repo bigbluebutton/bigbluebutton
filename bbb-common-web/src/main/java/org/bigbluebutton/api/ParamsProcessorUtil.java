@@ -99,7 +99,7 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsDisableMic;
 		private boolean defaultLockSettingsDisablePrivateChat;
 		private boolean defaultLockSettingsDisablePublicChat;
-		private boolean defaultLockSettingsDisableNote;
+		private boolean defaultLockSettingsDisableNotes;
 		private boolean defaultLockSettingsHideUserList;
 		private boolean defaultLockSettingsLockedLayout;
 		private boolean defaultLockSettingsLockOnJoin;
@@ -294,10 +294,17 @@ public class ParamsProcessorUtil {
 				lockSettingsDisablePublicChat = Boolean.parseBoolean(lockSettingsDisablePublicChatParam);
 			}
 
-			Boolean lockSettingsDisableNote = defaultLockSettingsDisableNote;
-			String lockSettingsDisableNoteParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_NOTE);
-			if (!StringUtils.isEmpty(lockSettingsDisableNoteParam)) {
-				lockSettingsDisableNote = Boolean.parseBoolean(lockSettingsDisableNoteParam);
+			Boolean lockSettingsDisableNotes = defaultLockSettingsDisableNotes;
+			String lockSettingsDisableNotesParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_NOTES);
+			if (!StringUtils.isEmpty(lockSettingsDisableNotesParam)) {
+				lockSettingsDisableNotes = Boolean.parseBoolean(lockSettingsDisableNotesParam);
+			} else {
+				// To be removed after deprecation period
+				lockSettingsDisableNotesParam = params.get(ApiParams.DEPRECATED_LOCK_SETTINGS_DISABLE_NOTES);
+				if (!StringUtils.isEmpty(lockSettingsDisableNotesParam)) {
+					log.warn("[DEPRECATION] use lockSettingsDisableNotes instead of lockSettingsDisableNote");
+					lockSettingsDisableNotes = Boolean.parseBoolean(lockSettingsDisableNotesParam);
+				}
 			}
 
 			Boolean lockSettingsHideUserList = defaultLockSettingsHideUserList;
@@ -328,7 +335,7 @@ public class ParamsProcessorUtil {
 							lockSettingsDisableMic,
 							lockSettingsDisablePrivateChat,
 							lockSettingsDisablePublicChat,
-							lockSettingsDisableNote,
+							lockSettingsDisableNotes,
 							lockSettingsHideUserList,
 							lockSettingsLockedLayout,
 							lockSettingsLockOnJoin,
@@ -1146,8 +1153,8 @@ public class ParamsProcessorUtil {
 		this.defaultLockSettingsDisablePublicChat = lockSettingsDisablePublicChat;
 	}
 
-	public void setLockSettingsDisableNote(Boolean lockSettingsDisableNote) {
-		this.defaultLockSettingsDisableNote = lockSettingsDisableNote;
+	public void setLockSettingsDisableNotes(Boolean lockSettingsDisableNotes) {
+		this.defaultLockSettingsDisableNotes = lockSettingsDisableNotes;
 	}
 
 	public void setLockSettingsHideUserList(Boolean lockSettingsHideUserList) {

@@ -7,7 +7,7 @@ import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import { notify } from '/imports/ui/services/notification';
-import CaptionsContainer from '/imports/ui/components/captions/container';
+import CaptionsContainer from '/imports/ui/components/captions/live/container';
 import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';

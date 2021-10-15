@@ -40,8 +40,6 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: GuestsWaitingApprovedEvtMsg       => handleGuestsWaitingApprovedEvtMsg(m)
       case m: GuestPolicyChangedEvtMsg          => handleGuestPolicyChangedEvtMsg(m)
       case m: GuestLobbyMessageChangedEvtMsg    => handleGuestLobbyMessageChangedEvtMsg(m)
-      case m: AddCaptionsPadsEvtMsg             => handleAddCaptionsPadsEvtMsg(m)
-      case m: AddPadEvtMsg                      => handleAddPadEvtMsg(m)
       case m: RecordingChapterBreakSysMsg       => handleRecordingChapterBreakSysMsg(m)
       case m: SetPresentationDownloadableEvtMsg => handleSetPresentationDownloadableEvtMsg(m)
       case m: RecordingStatusChangedEvtMsg      => handleRecordingStatusChangedEvtMsg(m)
@@ -56,14 +54,6 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handleGuestLobbyMessageChangedEvtMsg(msg: GuestLobbyMessageChangedEvtMsg): Unit = {
     olgMsgGW.handle(new GuestLobbyMessageChanged(msg.header.meetingId, msg.body.message))
-  }
-
-  def handleAddPadEvtMsg(msg: AddPadEvtMsg): Unit = {
-    olgMsgGW.handle(new AddPad(msg.header.meetingId, msg.body.padId, msg.body.readOnlyId))
-  }
-
-  def handleAddCaptionsPadsEvtMsg(msg: AddCaptionsPadsEvtMsg): Unit = {
-    olgMsgGW.handle(new AddCaptionsPads(msg.header.meetingId, msg.body.padIds))
   }
 
   def handleRecordingChapterBreakSysMsg(msg: RecordingChapterBreakSysMsg): Unit = {
