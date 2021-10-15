@@ -54,8 +54,9 @@ const JoinVideoButton = ({
   disableReason,
   mountVideoPreview,
 }) => {
-  const exitVideo = () => hasVideoStream && !VideoService.isMultipleCamerasEnabled();
   const { enableWebcamSelectorButton } = Meteor.settings.public.app;
+  const exitVideo = () => hasVideoStream
+    && (!VideoService.isMultipleCamerasEnabled() || enableWebcamSelectorButton);
 
   const handleOnClick = debounce(() => {
     if (!validIOSVersion()) {
