@@ -7,7 +7,10 @@ import VideoService from '../service';
 import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles';
 import { validIOSVersion } from '/imports/ui/components/app/service';
+import deviceInfo from '/imports/utils/deviceInfo';
 import { debounce } from 'lodash';
+
+const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app;
 
 const intlMessages = defineMessages({
   joinVideo: {
@@ -54,9 +57,12 @@ const JoinVideoButton = ({
   disableReason,
   mountVideoPreview,
 }) => {
-  const { enableWebcamSelectorButton } = Meteor.settings.public.app;
+  const { isMobile } = deviceInfo;
+  const shouldEnableWebcamSelectorButton = ENABLE_WEBCAM_SELECTOR_BUTTON
+    && !isMobile;
   const exitVideo = () => hasVideoStream
-    && (!VideoService.isMultipleCamerasEnabled() || enableWebcamSelectorButton);
+    && !isMobile
+    && (!VideoService.isMultipleCamerasEnabled() || shouldEnableWebcamSelectorButton);
 
   const handleOnClick = debounce(() => {
     if (!validIOSVersion()) {
@@ -80,10 +86,9 @@ const JoinVideoButton = ({
     : intl.formatMessage(intlMessages.joinVideo);
 
   if (disableReason) label = intl.formatMessage(intlMessages[disableReason]);
-  const shouldEnableEmojiButton = enableWebcamSelectorButton;
 
   const renderEmojiButton = () => (
-    shouldEnableEmojiButton
+    shouldEnableWebcamSelectorButton
       && (<ButtonEmoji
         onClick={handleOpenAdvancedOptions}
         emoji="device_list_selector"
