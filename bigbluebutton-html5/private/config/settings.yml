@@ -197,6 +197,9 @@ public:
     wsConnectionTimeout: 4000
     # Time in milis to wait for the browser to return a gUM call (used in video-preview)
     gUMTimeout: 20000
+    # Experiment(al). Controls whether ICE candidates should be signaled.
+    # Applies to webcams, listen only and screen sharing. True is "stable behavior".
+    signalCandidates: true
     cameraTimeouts:
       # Base camera timeout: used as the camera *sharing* timeout and
       # as the minimum camera subscribe reconnection timeout

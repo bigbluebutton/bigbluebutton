@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { withTracker } from 'meteor/react-meteor-data';
 import Settings from '/imports/ui/services/settings';
-import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
+import MediaService, { getSwapLayout, } from '/imports/ui/components/media/service';
 import Auth from '/imports/ui/services/auth';
 import breakoutService from '/imports/ui/components/breakout-room/service';
 import VideoService from '/imports/ui/components/video-provider/service';
@@ -95,7 +95,7 @@ export default withModalMounter(withTracker(() => {
 
   const { streams: usersVideo } = VideoService.getVideoStreams();
   data.usersVideo = usersVideo;
-  data.swapLayout = (getSwapLayout() || !hasPresentation) && shouldEnableSwapLayout();
+  data.swapLayout = getSwapLayout() || !hasPresentation;
   data.disableVideo = !viewParticipantsWebcams;
 
   if (data.swapLayout) {

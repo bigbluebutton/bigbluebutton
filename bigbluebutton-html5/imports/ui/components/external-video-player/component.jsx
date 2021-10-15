@@ -20,6 +20,7 @@ import ReloadButton from '/imports/ui/components/reload-button/component';
 
 import ArcPlayer from '/imports/ui/components/external-video-player/custom-players/arc-player';
 import PeerTubePlayer from '/imports/ui/components/external-video-player/custom-players/peertube';
+import { ACTIONS } from '/imports/ui/components/layout/enums';
 
 import { styles } from './styles';
 
@@ -73,6 +74,12 @@ class VideoPlayer extends Component {
       key: 0,
     };
 
+    this.hideVolume = {
+      Vimeo: true,
+      Facebook: true,
+      ArcPlayer: true,
+    };
+
     this.opts = {
       // default option for all players, can be overwritten
       playerOptions: {
@@ -86,6 +93,9 @@ class VideoPlayer extends Component {
           autoplay: 'autoplay',
           playsinline: 'playsinline',
         },
+      },
+      facebook: {
+        controls: isPresenter,
       },
       dailymotion: {
         params: {
@@ -142,6 +152,7 @@ class VideoPlayer extends Component {
       getSwapLayout,
       toggleSwapLayout,
       layoutContextDispatch,
+      hidePresentation,
     } = this.props;
 
     window.addEventListener('beforeunload', this.onBeforeUnload);
@@ -153,6 +164,13 @@ class VideoPlayer extends Component {
     this.registerVideoListeners();
 
     if (getSwapLayout()) toggleSwapLayout(layoutContextDispatch);
+
+    if (hidePresentation) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: true,
+      });
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -182,6 +200,7 @@ class VideoPlayer extends Component {
   }
 
   componentWillUnmount() {
+    const { hidePresentation } = this.props;
     window.removeEventListener('beforeunload', this.onBeforeUnload);
 
     VideoPlayer.clearVideoListeners();
@@ -190,6 +209,13 @@ class VideoPlayer extends Component {
     clearTimeout(this.autoPlayTimeout);
 
     this.player = null;
+
+    if (hidePresentation) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: false,
+      });
+    }
   }
 
   handleOnReady() {
@@ -303,8 +329,9 @@ class VideoPlayer extends Component {
 
   getCurrentPlaybackRate() {
     const intPlayer = this.player && this.player.getInternalPlayer();
+    const rate = (intPlayer && intPlayer.getPlaybackRate && intPlayer.getPlaybackRate());
 
-    return (intPlayer && intPlayer.getPlaybackRate && intPlayer.getPlaybackRate()) || 1;
+    return typeof(rate) == 'number' ? rate : 1;
   }
 
   setPlaybackRate(rate) {
@@ -483,6 +510,10 @@ class VideoPlayer extends Component {
       volume, muted, key, showHoverToolBar,
     } = this.state;
 
+    // This looks weird, but I need to get this nested player
+    const playerName = this.player && this.player.player
+      && this.player.player.player && this.player.player.player.constructor.name;
+
     const mobileHoverToolBarStyle = showHoverToolBar
       ? styles.showMobileHoverToolbar
       : styles.dontShowMobileHoverToolbar;
@@ -529,6 +560,7 @@ class VideoPlayer extends Component {
             onReady={this.handleOnReady}
             onPlay={this.handleOnPlay}
             onPause={this.handleOnPause}
+            controls={isPresenter}
             key={`react-player${key}`}
             ref={(ref) => { this.player = ref; }}
             height="100%"
@@ -540,6 +572,7 @@ class VideoPlayer extends Component {
                 (
                   <div className={hoverToolbarStyle} key="hover-toolbar-external-video">
                     <VolumeSlider
+                      hideVolume={this.hideVolume[playerName]}
                       volume={volume}
                       muted={muted || mutedByEchoTest}
                       onMuted={this.handleOnMuted}

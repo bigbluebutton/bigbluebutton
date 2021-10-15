@@ -52,6 +52,9 @@ exports.breakoutRoomsButton = 'div[aria-label="Breakout Rooms"]';
 exports.generateRoom1 = 'button[aria-label="Generate URL Room 1"]';
 exports.joinGeneratedRoom1 = 'button[aria-label="Generated Room 1"]';
 exports.joinRoom1 = 'button[aria-label="Join room Room 1"]';
+exports.allowChoiceRoom = 'input[id="freeJoinCheckbox"]';
+exports.labelGeneratingURL = 'span[data-test="labelGeneratingURL"]';
+exports.endBreakoutRoomsButton = 'button[data-test="endBreakoutRoomsButton"]';
 
 // Chat
 exports.chatButton = 'div[data-test="chatButton"]';
@@ -164,7 +167,6 @@ exports.toastDownload = 'a[data-test="toastDownload"]';
 exports.confirmManagePresentation = 'button[data-test="confirmManagePresentation"]';
 exports.allowPresentationDownload = 'button[data-test="allowPresentationDownload"]';
 exports.disallowPresentationDownload = 'button[data-test="disallowPresentationDownload"]';
-
 
 // User
 exports.firstUser = '[data-test="userListItemCurrent"]';

@@ -66,6 +66,8 @@ class UserParticipants extends Component {
   }
 
   componentDidMount() {
+    document.getElementById('user-list-virtualized-scroll')?.getElementsByTagName('div')[0]?.firstElementChild?.setAttribute('aria-label', 'Users list');
+
     const { compact } = this.props;
     if (!compact) {
       this.refScrollContainer.addEventListener(
@@ -220,6 +222,8 @@ class UserParticipants extends Component {
         }
         <div
           id={'user-list-virtualized-scroll'}
+          aria-label="Users list"
+          role="region"
           className={styles.virtulizedScrollableList}
           tabIndex={0}
           ref={(ref) => {

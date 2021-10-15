@@ -28,6 +28,7 @@ const {
 } = Meteor.settings.public.kurento.cameraTimeouts || {};
 const CAMERA_QUALITY_THRESHOLDS_ENABLED = Meteor.settings.public.kurento.cameraQualityThresholds.enabled;
 const PING_INTERVAL = 15000;
+const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
 
 const intlClientErrors = defineMessages({
   permissionError: {
@@ -782,17 +783,21 @@ class VideoProvider extends Component {
   }
 
   _getOnIceCandidateCallback(stream, isLocal) {
-    return (candidate) => {
-      const peer = this.webRtcPeers[stream];
-      const role = VideoService.getRole(isLocal);
+    if (SIGNAL_CANDIDATES) {
+      return (candidate) => {
+        const peer = this.webRtcPeers[stream];
+        const role = VideoService.getRole(isLocal);
 
-      if (peer && !peer.didSDPAnswered) {
-        this.outboundIceQueues[stream].push(candidate);
-        return;
-      }
+        if (peer && !peer.didSDPAnswered) {
+          this.outboundIceQueues[stream].push(candidate);
+          return;
+        }
 
-      this.sendIceCandidateToSFU(peer, role, candidate, stream);
-    };
+        this.sendIceCandidateToSFU(peer, role, candidate, stream);
+      };
+    }
+
+    return null;
   }
 
   sendIceCandidateToSFU(peer, role, candidate, stream) {

@@ -109,7 +109,7 @@ const VideoFocusLayout = (props) => {
         value: _.defaultsDeep(
           {
             sidebarNavigation: {
-              isOpen: true,
+              isOpen: input.sidebarNavigation.isOpen || false,
             },
             sidebarContent: {
               isOpen: sidebarContentPanel !== PANELS.NONE,
