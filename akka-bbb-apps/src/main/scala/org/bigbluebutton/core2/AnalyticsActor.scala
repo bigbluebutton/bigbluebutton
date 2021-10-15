@@ -174,6 +174,26 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: BroadcastLayoutMsg => logMessage(msg)
       case m: BroadcastLayoutEvtMsg => logMessage(msg)
 
+      // Pads
+      case m: PadCreateGroupReqMsg => logMessage(msg)
+      case m: PadCreateGroupCmdMsg => logMessage(msg)
+      case m: PadGroupCreatedEvtMsg => logMessage(msg)
+      case m: PadGroupCreatedRespMsg => logMessage(msg)
+      case m: PadCreateReqMsg => logMessage(msg)
+      case m: PadCreateCmdMsg => logMessage(msg)
+      case m: PadCreatedEvtMsg => logMessage(msg)
+      case m: PadCreatedRespMsg => logMessage(msg)
+      case m: PadCreateSessionReqMsg => logMessage(msg)
+      case m: PadCreateSessionCmdMsg => logMessage(msg)
+      case m: PadSessionCreatedEvtMsg => logMessage(msg)
+      case m: PadSessionCreatedRespMsg => logMessage(msg)
+      case m: PadSessionDeletedSysMsg => logMessage(msg)
+      case m: PadSessionDeletedEvtMsg => logMessage(msg)
+      case m: PadUpdatedSysMsg => logMessage(msg)
+      case m: PadUpdatedEvtMsg => logMessage(msg)
+      case m: PadUpdatePubMsg => logMessage(msg)
+      case m: PadUpdateCmdMsg => logMessage(msg)
+
       case _ => // ignore message
     }
   }

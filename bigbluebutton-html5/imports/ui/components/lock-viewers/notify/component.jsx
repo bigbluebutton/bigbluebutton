@@ -20,9 +20,9 @@ const intlDisableMessages = defineMessages({
     id: 'app.userList.userOptions.disablePubChat',
     description: 'label to disable private chat notification',
   },
-  disableNote: {
-    id: 'app.userList.userOptions.disableNote',
-    description: 'label to disable note notification',
+  disableNotes: {
+    id: 'app.userList.userOptions.disableNotes',
+    description: 'label to disable shared notes notification',
   },
   hideUserList: {
     id: 'app.userList.userOptions.hideUserList',
@@ -51,9 +51,9 @@ const intlEnableMessages = defineMessages({
     id: 'app.userList.userOptions.enablePubChat',
     description: 'label to enable private chat notification',
   },
-  disableNote: {
-    id: 'app.userList.userOptions.enableNote',
-    description: 'label to enable note notification',
+  disableNotes: {
+    id: 'app.userList.userOptions.enableNotes',
+    description: 'label to enable shared notes notification',
   },
   hideUserList: {
     id: 'app.userList.userOptions.showUserList',
