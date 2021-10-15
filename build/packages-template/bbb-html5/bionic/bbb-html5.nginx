@@ -22,7 +22,7 @@ location /html5client/wasm {
   types {
     application/wasm wasm;
   }
-  gzip_types application/wasm;
+  gzip_static on;
   alias /usr/share/meteor/bundle/programs/web.browser/app/wasm;
 }
 
