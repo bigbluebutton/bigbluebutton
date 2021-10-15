@@ -340,6 +340,24 @@ class MultiUsers {
     }
   }
 
+  async disableWebcamsFromConnectionStatus() {
+    try {
+      await this.page1.shareWebcam(true, ELEMENT_WAIT_LONGER_TIME);
+      await this.page2.shareWebcam(true, ELEMENT_WAIT_LONGER_TIME);
+      await utilUser.connectionStatus(this.page1);
+      await this.page1.waitAndClickElement(e.dataSavingWebcams);
+      await this.page1.waitAndClickElement(e.closeConnectionStatusModal);
+      await this.page1.waitForSelector(e.smallToastMsg);
+      const checkUserWhoHasDisabled = await this.page1.page.evaluate(checkElementLengthEqualTo, e.videoContainer, 1);
+      const checkSecondUser = await this.page2.page.evaluate(checkElementLengthEqualTo, e.videoContainer, 2);
+
+      return checkUserWhoHasDisabled && checkSecondUser;
+    } catch (err) {
+      await this.page1.logger(err);
+      return false;
+    }
+  }
+
   async whiteboardNotAppearOnMobile() {
     try {
       await this.page1.waitAndClick(e.userListButton);

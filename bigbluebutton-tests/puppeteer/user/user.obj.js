@@ -112,22 +112,22 @@ const userTest = () => {
   // Open Connection Status Modal, start Webcam Share, disable Webcams in
   // Connection Status Modal and check if webcam sharing is still available
   test('Disable Webcams From Connection Status Modal', async () => {
-    const test = new Status();
+    const test = new MultiUsers();
     let response;
     let screenshot;
     try {
       const testName = 'disableWebcamsFromConnectionStatus';
-      await test.logger('begin of ', testName);
-      await test.init(true, true, testName);
-      await test.startRecording(testName);
+      await test.page1.logger('begin of ', testName);
+      await test.init(testName);
+      await test.page1.startRecording(testName);
       response = await test.disableWebcamsFromConnectionStatus();
-      await test.stopRecording();
-      screenshot = await test.page.screenshot();
-      await test.logger('end of ', testName);
+      await test.page1.stopRecording();
+      screenshot = await test.page1.screenshot();
+      await test.page1.logger('end of ', testName);
     } catch (err) {
-      await test.logger(err);
+      await test.page1.logger(err);
     } finally {
-      await test.close();
+      await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);

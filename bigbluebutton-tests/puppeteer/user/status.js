@@ -50,21 +50,6 @@ class Status extends Page {
     }
   }
 
-  async disableWebcamsFromConnectionStatus() {
-    try {
-      await this.shareWebcam(true, ELEMENT_WAIT_LONGER_TIME);
-      await util.connectionStatus(this);
-      await this.waitAndClickElement(e.dataSavingWebcams);
-      await this.waitAndClickElement(e.closeConnectionStatusModal);
-
-      const webcamsIsDisabledInDataSaving = await this.hasElement(e.webcamsIsDisabledInDataSaving);
-      return webcamsIsDisabledInDataSaving === true;
-    } catch (err) {
-      await this.logger(err);
-      return false;
-    }
-  }
-
   async disableScreenshareFromConnectionStatus() {
     try {
       await utilScreenshare.startScreenshare(this);
