@@ -1256,6 +1256,10 @@ class AudioManager {
     floorMediaElement.volume = volume;
   }
 
+  isTranslationEnabled() {
+    return (TRANSLATION_SETTINGS.hasOwnProperty('enabled') && TRANSLATION_SETTINGS.enabled) || false;
+  }
+
   muteTranslator() {
     this.$muteIntended.next(true);
     this._muteTranslator();

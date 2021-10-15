@@ -121,5 +121,6 @@ export default withUsersConsumer(lockContextContainer(withModalMounter(withTrack
     showTranslatorMicButton: Service.showTranslatorMicButton(),
     hasLanguages: Service.hasLanguages(),
     amIModerator: ActionsBarService.amIModerator(),
+    isTranslationEnabled: Service.isTranslationEnabled()
   });
 })(AudioControlsContainer))));

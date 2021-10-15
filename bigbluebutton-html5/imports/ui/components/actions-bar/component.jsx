@@ -92,43 +92,45 @@ class ActionsBar extends PureComponent {
 
   componentDidMount() {
 
-    AudioManager.registerMuteStateListener(() => this.forceUpdate());
+    if(AudioManager.isTranslationEnabled) {
+      AudioManager.registerMuteStateListener(() => this.forceUpdate());
 
-    if (TRANSLATOR_SPEAKING_ENABLED) {
-      setInterval(() => {
-        const meeting = Meetings.findOne(
-            { meetingId: Auth.meetingID },
-            { fields: { 'languages': 1 } });
+      if (TRANSLATOR_SPEAKING_ENABLED) {
+        setInterval(() => {
+          const meeting = Meetings.findOne(
+            {meetingId: Auth.meetingID},
+            {fields: {'languages': 1}});
 
-        if (meeting?.languages) {
+          if (meeting?.languages) {
 
-          let transaudio = document.getElementById("translation-media")
+            let transaudio = document.getElementById("translation-media")
 
-          let result = false;
-          const languageExtension = AudioManager.translationLanguageExtension;
-          let meeting1 = meeting.languages.find(language => language.extension === languageExtension);
-          if (meeting1 !== undefined) {
-            if (meeting1.hasOwnProperty("translatorIsSpeaking")) {
-              result = meeting1.translatorIsSpeaking;
-              if (meeting1.hasOwnProperty("translatorSpeakingUtcTimestamp")) {
-                if (meeting1.translatorSpeakingUtcTimestamp + TRANSLATOR_SPEAKING_DELAY > Date.now() && !result) {
-                  result = true;
-                }
-                if (meeting1.translatorSpeakingUtcTimestamp + TRANSLATOR_SPEAKING_TIMEOUT < Date.now()) {
-                  result = false;
+            let result = false;
+            const languageExtension = AudioManager.translationLanguageExtension;
+            let meeting1 = meeting.languages.find(language => language.extension === languageExtension);
+            if (meeting1 !== undefined) {
+              if (meeting1.hasOwnProperty("translatorIsSpeaking")) {
+                result = meeting1.translatorIsSpeaking;
+                if (meeting1.hasOwnProperty("translatorSpeakingUtcTimestamp")) {
+                  if (meeting1.translatorSpeakingUtcTimestamp + TRANSLATOR_SPEAKING_DELAY > Date.now() && !result) {
+                    result = true;
+                  }
+                  if (meeting1.translatorSpeakingUtcTimestamp + TRANSLATOR_SPEAKING_TIMEOUT < Date.now()) {
+                    result = false;
+                  }
                 }
               }
             }
+            if (result) {
+              AudioManager.setTranslationFloorVolumeByExt(languageExtension);
+              // AudioManager.setFloorOutputVolume(FLOOR_TRANSLATION_VOLUME);
+              transaudio.volume = 1
+            } else {
+              AudioManager.setFloorOutputVolume(1.0);
+            }
           }
-          if (result) {
-            AudioManager.setTranslationFloorVolumeByExt(languageExtension);
-            // AudioManager.setFloorOutputVolume(FLOOR_TRANSLATION_VOLUME);
-            transaudio.volume = 1
-          } else {
-            AudioManager.setFloorOutputVolume(1.0);
-          }
-        }
-      }, 500);
+        }, 500);
+      }
     }
   }
 
@@ -225,6 +227,7 @@ class ActionsBar extends PureComponent {
       currentUser,
       shortcuts,
       hasLanguages,
+      isTranslationEnabled
     } = this.props;
 
     return (
@@ -268,7 +271,7 @@ class ActionsBar extends PureComponent {
             isMeteorConnected,
           }}
           />
-          { this.state.showLanguageChoice ?
+          { isTranslationEnabled && this.state.showLanguageChoice ?
               (
                   <div className={["sailingShip", styles.languageOverlay, styles.translationLanguageOverlay].join(' ')}>
                     <LanguageOverlay
@@ -281,7 +284,7 @@ class ActionsBar extends PureComponent {
                   </div>
               ):null
           }
-          {hasLanguages
+          { isTranslationEnabled && hasLanguages
               ? (
                   <div id={"translationButton"}>
                     <Button
@@ -303,7 +306,7 @@ class ActionsBar extends PureComponent {
               : null
           }
 
-          { amIModerator && hasLanguages ?
+          { isTranslationEnabled && amIModerator && hasLanguages ?
               (
                   <div id={"translatorButton"}>
                     <Button
@@ -324,7 +327,7 @@ class ActionsBar extends PureComponent {
                   </div>
               ) :null
           }
-          { this.state.showTranslatorChoice ?
+          { isTranslationEnabled && this.state.showTranslatorChoice ?
               (
                   <div className={["sailingShip", styles.languageOverlay, styles.translatorLanguageOverlay].join(' ')}>
                     <LanguageOverlay

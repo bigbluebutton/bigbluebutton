@@ -473,6 +473,7 @@ public:
     # SDP semantics: plan-b|unified-plan
     sdpSemantics: 'unified-plan'
     translation:
+      enabled: true
       floorVolume: 0.2
       translator:
         speakDetection:

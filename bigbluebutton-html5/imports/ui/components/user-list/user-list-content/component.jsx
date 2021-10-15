@@ -51,7 +51,8 @@ class UserContent extends PureComponent {
       startedChats,
       amIModerator,
       meetingIsBreakout,
-      hasLanguages
+      hasLanguages,
+      isTranslationEnabled
     } = this.props;
 
     return (
@@ -97,7 +98,7 @@ class UserContent extends PureComponent {
           ) : null
         }
 
-        {hasLanguages ? (
+        {isTranslationEnabled && hasLanguages ? (
           <TranslationSettings
             {...{
               intl,
@@ -106,7 +107,7 @@ class UserContent extends PureComponent {
         ) : null
         }
 
-        {amIModerator && !meetingIsBreakout
+        {isTranslationEnabled && amIModerator && !meetingIsBreakout
             ? (
                 <Translations
                     {...{

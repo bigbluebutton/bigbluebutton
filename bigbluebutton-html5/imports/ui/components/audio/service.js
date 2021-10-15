@@ -153,4 +153,5 @@ export default {
   isTranslatorMuted: () => AudioManager.isTranslatorMuted(),
   hasLanguages: () => Meeting.hasLanguages(),
   showTranslatorMicButton: () => AudioManager.translatorChannelOpen && Meeting.hasLanguages(),
+  isTranslationEnabled: () => AudioManager.isTranslationEnabled()
 };

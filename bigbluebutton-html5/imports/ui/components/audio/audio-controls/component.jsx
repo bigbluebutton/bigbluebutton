@@ -199,7 +199,8 @@ class AudioControls extends PureComponent {
       isTranslatorMuted,
       showTranslatorMicButton,
       amIModerator,
-      hasLanguages
+      hasLanguages,
+      isTranslationEnabled
     } = this.props;
 
     const label = "Floor " + muted ? intl.formatMessage(intlMessages.unmuteAudio)
@@ -251,7 +252,7 @@ class AudioControls extends PureComponent {
             />
         ) : null}
         {(showMute && isVoiceUser ) && ! translatorChannelOpen ? toggleMuteBtn : null}
-        { amIModerator && hasLanguages && showTranslatorMicButton ? translatorToggleMuteBtn : null }
+        { isTranslationEnabled && amIModerator && hasLanguages && showTranslatorMicButton ? translatorToggleMuteBtn : null }
         {
           this.renderJoinLeaveButton()
         }
