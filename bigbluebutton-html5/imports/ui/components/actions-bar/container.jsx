@@ -65,7 +65,9 @@ export default withTracker(() => ({
   isTranslatorTalking: Service.isTranslatorTalking(),
   isTranslatorMuted: Service.isTranslatorMuted,
   hasLanguages: Service.hasLanguages(),
-  showTranslatorMicButton: Service.showTranslatorMicButton()
+  showTranslatorMicButton: Service.showTranslatorMicButton(),
+  isTranslationEnabled: Service.isTranslationEnabled()
+
 }))(injectIntl(ActionsBarContainer));
 
 

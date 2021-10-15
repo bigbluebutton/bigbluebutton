@@ -1,1 +1,0 @@
-{"version":3,"file":"ignoreElements.js","sourceRoot":"","sources":["../../../../src/internal/operators/ignoreElements.ts"],"names":[],"mappings":";;;AACA,qCAAuC;AACvC,2DAA0D;AAC1D,qCAAoC;AAkCpC,SAAgB,cAAc;IAC5B,OAAO,cAAO,CAAC,UAAC,MAAM,EAAE,UAAU;QAChC,MAAM,CAAC,SAAS,CAAC,IAAI,uCAAkB,CAAC,UAAU,EAAE,WAAI,CAAC,CAAC,CAAC;IAC7D,CAAC,CAAC,CAAC;AACL,CAAC;AAJD,wCAIC"}
