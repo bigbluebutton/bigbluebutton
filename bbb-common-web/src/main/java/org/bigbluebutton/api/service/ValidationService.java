@@ -2,6 +2,7 @@ package org.bigbluebutton.api.service;
 
 import org.bigbluebutton.api.model.request.*;
 import org.bigbluebutton.api.model.shared.Checksum;
+import org.bigbluebutton.api.model.shared.ChecksumValidationGroup;
 import org.bigbluebutton.api.model.shared.GetChecksum;
 import org.bigbluebutton.api.model.shared.PostChecksum;
 import org.bigbluebutton.api.util.ParamsUtil;
@@ -63,16 +64,16 @@ public class ValidationService {
         validator = validatorFactory.getValidator();
     }
 
-    public Set<String> validate(ApiCall apiCall, Map<String, String[]> params, String queryString) {
+    public Map<String, String> validate(ApiCall apiCall, Map<String, String[]> params, String queryString) {
         log.info("Validating {} request with query string {}", apiCall.getName(), queryString);
 
         params = sanitizeParams(params);
 
         Request request = initializeRequest(apiCall, params, queryString);
-        Set<String> violations = new HashSet<>();
+        Map<String,String> violations = new HashMap<>();
 
         if(request == null) {
-            violations.add("validationError: Request not recognized");
+            violations.put("validationError", "Request not recognized");
         } else {
             request.populateFromParamsMap(params);
             violations = performValidation(request);
@@ -144,19 +145,44 @@ public class ValidationService {
         return request;
     }
 
-    private <R extends Request> Set<String> performValidation(R classToValidate) {
-        Set<ConstraintViolation<R>> violations = validator.validate(classToValidate);
-        Set<String> violationSet = new HashSet<>();
+    private <R extends Request> Map<String, String> performValidation(R classToValidate) {
+        Set<ConstraintViolation<R>> violations = validator.validate(classToValidate, ChecksumValidationGroup.class);
 
-        for(ConstraintViolation<R> violation: violations) {
-            violationSet.add(violation.getMessage());
+        if(violations.isEmpty()) {
+            violations = validator.validate(classToValidate);
         }
 
-        if(violationSet.isEmpty()) {
+        return buildViolationsMap(classToValidate, violations);
+    }
+
+    private <R extends Request> Map<String, String> buildViolationsMap(R classToValidate, Set<ConstraintViolation<R>> violations) {
+        Map<String, String> violationMap = new HashMap<>();
+
+        for(ConstraintViolation<R> violation: violations) {
+            Map<String, Object> attributes = violation.getConstraintDescriptor().getAttributes();
+            String key;
+            String message;
+
+            if(attributes.containsKey("key")) {
+                key = (String) attributes.get("key");
+            } else {
+                key = "validationError";
+            }
+
+            if(attributes.containsKey("message")) {
+                message = (String) attributes.get("message");
+            } else {
+                message = "An unknown validation error occurred";
+            }
+
+            violationMap.put(key, message);
+        }
+
+        if(violationMap.isEmpty()) {
             classToValidate.convertParamsFromString();
         }
 
-        return violationSet;
+        return violationMap;
     }
 
     private Map<String, String[]> sanitizeParams(Map<String, String[]> params) {
