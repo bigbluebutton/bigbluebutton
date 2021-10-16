@@ -265,8 +265,6 @@ class PresentationToolbar extends PureComponent {
       isPresentationDetached,
       presentationWindow,
       toolbarWidth,
-      isFullscreen,
-      fullscreenRef,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -325,8 +323,6 @@ class PresentationToolbar extends PureComponent {
                 }}
               />
           }
-          </div>
-          <div>
             <Button
               role="button"
               aria-label={isPresentationDetached
