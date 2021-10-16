@@ -1,11 +1,8 @@
 #!/bin/bash -e
 
-# TODO:
-# - get available packages from repo server
-# - actually use the VALID_PACKAGE_VERSIONS
-#   to check whether to rebuild.
-# - export that information and use in
-#   setup-inside-docker.sh and the push job
+# This script checks which recent commits have not changed a
+# particular package and asks the repo server whether it has
+# a build of any of those versions (done for all packages).
 
 cd "$(dirname $0)"
 source package-names.inc.sh
@@ -24,7 +21,7 @@ do
 	if [ "$SOURCEDIR" == "do_not_copy_anything" ] ; then
 		SOURCEDIR=""
 	fi
-	LAST_CHANGE="$(git log -n1 --format=format:%H -- ${SOURCEDIR} "build/packages-template/$DEBNAME" .gitlab-ci.yml build/*.sh)"
+	LAST_CHANGE="$(git log -n1 --format=format:%H -- ${SOURCEDIR} "build/packages-template/$DEBNAME" "$DEBNAME.placeholder.sh" .gitlab-ci.yml build/*.sh)"
 	VALID_PACKAGE_VERSIONS="$(git log --format=%H "${LAST_CHANGE}^..HEAD")"
 	VALID_PACKAGE_VERSIONS="$(for HASH in $VALID_PACKAGE_VERSIONS; do echo -n "${HASH::10} "; done)"
 	VALID_PACKAGE_VERSIONS="${VALID_PACKAGE_VERSIONS::-1}"
