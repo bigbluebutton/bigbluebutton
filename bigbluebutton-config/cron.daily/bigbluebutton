@@ -34,15 +34,23 @@ log_history=28
 find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-*" -mtime +$history -exec rm -rf '{}' +
 
 #
-# Delete streams in kurento older than N days
+# Delete streams from Kurento and mediasoup older than N days
 #
-for app in recordings screenshare; do
-	app_dir=/var/kurento/$app
-	if [[ -d $app_dir ]]; then
-		find $app_dir -name "*.mkv" -o -name "*.webm" -mtime +$history -delete
-		find $app_dir -type d -empty -mtime +$history -exec rmdir '{}' +
-	fi
-done
+kurento_dir=/var/kurento/
+mediasoup_dir=/var/mediasoup/
+
+remove_stale_sfu_raw_files() {
+  for app in recordings screenshare; do
+      app_dir="${1}${app}"
+      if [[ -d $app_dir ]]; then
+          find "$app_dir" -name "*.mkv" -o -name "*.webm" -mtime +"$history" -delete
+          find "$app_dir" -type d -empty -mtime +"$history" -exec rmdir '{}' +
+      fi
+  done
+}
+
+remove_stale_sfu_raw_files "$kurento_dir"
+remove_stale_sfu_raw_files "$mediasoup_dir"
 
 #
 # Delete FreeSWITCH wav/opus recordings older than N days

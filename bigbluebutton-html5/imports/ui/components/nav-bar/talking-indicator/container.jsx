@@ -6,12 +6,12 @@ import { debounce } from 'lodash';
 import TalkingIndicator from './component';
 import { makeCall } from '/imports/ui/services/api';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
-import Service from './service';
 import LayoutContext from '../../layout/context';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const { enableTalkingIndicator } = APP_CONFIG;
 const TALKING_INDICATOR_MUTE_INTERVAL = 500;
+const TALKING_INDICATORS_MAX = 8;
 
 const TalkingIndicatorContainer = (props) => {
   if (!enableTalkingIndicator) return null;
@@ -50,10 +50,18 @@ export default withTracker(() => {
       muted: 1,
       intId: 1,
     },
-  }).fetch().sort(Service.sortVoiceUsers);
+    sort: {
+      startTime: 1,
+    },
+    limit: TALKING_INDICATORS_MAX + 1,
+  }).fetch();
 
   if (usersTalking) {
-    for (let i = 0; i < usersTalking.length; i += 1) {
+    const maxNumberVoiceUsersNotification = usersTalking.length < TALKING_INDICATORS_MAX
+      ? usersTalking.length
+      : TALKING_INDICATORS_MAX;
+
+    for (let i = 0; i < maxNumberVoiceUsersNotification; i += 1) {
       const {
         callerName, talking, color, voiceUserId, muted, intId,
       } = usersTalking[i];
@@ -82,5 +90,6 @@ export default withTracker(() => {
     talkers,
     muteUser,
     isBreakoutRoom: meetingIsBreakout(),
+    moreThanMaxIndicators: usersTalking.length > TALKING_INDICATORS_MAX,
   };
 })(TalkingIndicatorContainer);

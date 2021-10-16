@@ -536,6 +536,7 @@ class BreakoutRoom extends PureComponent {
                 size="lg"
                 label={intl.formatMessage(intlMessages.endAllBreakouts)}
                 className={styles.endButton}
+                data-test="endBreakoutRoomsButton"
                 onClick={() => {
                   this.closePanel();
                   endAllBreakouts();

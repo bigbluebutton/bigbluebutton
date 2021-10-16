@@ -15,6 +15,9 @@ case "$1" in
 		if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
 			cp /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml /tmp/bbb-webrtc-sfu-default.yml
 		fi
+		# there might be remaining files from older BBB versions
+		# BBB 2.3 and earlier did an npm rebuild in the after-install script.
+		rm -rf /usr/local/bigbluebutton/bbb-webrtc-sfu/node_modules
 	;;
 
 	abort-upgrade)
