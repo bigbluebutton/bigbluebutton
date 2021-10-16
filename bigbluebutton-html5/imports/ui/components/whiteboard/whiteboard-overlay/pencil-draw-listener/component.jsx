@@ -149,7 +149,7 @@ export default class PencilDrawListener extends Component {
       window.addEventListener('touchend', this.handleTouchEnd, { passive: false });
       window.addEventListener('touchmove', this.handleTouchMove, { passive: false });
       window.addEventListener('touchcancel', this.handleTouchCancel, true);
-      Window.addEventListener('keydown', this.handleKeyDown, true);
+      window.addEventListener('keydown', this.handleKeyDown, true);
 
       const { clientX, clientY } = event.changedTouches[0];
       this.commonDrawStartHandler(clientX, clientY);
