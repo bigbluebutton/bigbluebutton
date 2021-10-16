@@ -45,6 +45,7 @@ export default class ShapePointerListener extends Component {
     this.resetState = this.resetState.bind(this);
     this.sendLastMessage = this.sendLastMessage.bind(this);
     this.sendCoordinates = this.sendCoordinates.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
   componentDidMount() {
@@ -211,6 +212,7 @@ export default class ShapePointerListener extends Component {
     window.removeEventListener('pointerup', this.handlePointerUp);
     window.removeEventListener('pointermove', this.handlePointerMove);
     window.removeEventListener('pointercancel', this.handlePointerCancel, true);
+    window.removeEventListener('keydown', this.handleKeyDown, true);
   }
 
   // since Rectangle / Triangle / Ellipse / Line have the same coordinate structure
@@ -286,6 +288,7 @@ export default class ShapePointerListener extends Component {
           if (isLeftClick) {
             window.addEventListener('pointerup', this.handlePointerUp);
             window.addEventListener('pointermove', this.handlePointerMove);
+            window.addEventListener('keydown', this.handleKeyDown, true);
 
             const { clientX, clientY } = event;
             this.commonDrawStartHandler(clientX, clientY);
@@ -314,6 +317,31 @@ export default class ShapePointerListener extends Component {
     }
   }
 
+  handleKeyDown(event) {
+    const {
+      physicalSlideWidth,
+      physicalSlideHeight,
+    } = this.props;
+
+    const d = {
+      x: 1.0 * physicalSlideHeight / (physicalSlideWidth + physicalSlideHeight),
+      y: 1.0 * physicalSlideWidth  / (physicalSlideWidth + physicalSlideHeight),
+    };
+
+    if        (event.keyCode == '38') { // up arrow
+      this.initialCoordinate.y -= d.y;
+    } else if (event.keyCode == '40') { // down arrow
+      this.initialCoordinate.y += d.y;
+    } else if (event.keyCode == '37') { // left arrow
+      this.initialCoordinate.x -= d.x;
+    } else if (event.keyCode == '39') { // right arrow
+      this.initialCoordinate.x += d.x;
+    }
+    event.stopPropagation();
+    this.lastSentCoordinate = {x:undefined, y:undefined}; // a hacky solution; to avoid skipping the update in sendCoordinates().
+    this.sendCoordinates();
+  }
+
   // handler for finger touch and pencil touch
   touchPenDownHandler(event) {
     event.preventDefault();
@@ -321,6 +349,7 @@ export default class ShapePointerListener extends Component {
       window.addEventListener('pointerup', this.handlePointerUp);
       window.addEventListener('pointermove', this.handlePointerMove);
       window.addEventListener('pointercancel', this.handlePointerCancel, true);
+      window.addEventListener('keydown', this.handleKeyDown, true);
 
       const { clientX, clientY } = event;
       this.commonDrawStartHandler(clientX, clientY);
