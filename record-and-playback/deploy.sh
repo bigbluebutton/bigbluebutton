@@ -39,61 +39,32 @@ function deploy_format() {
 }
 
 deploy_format "presentation"
+## NOTE these changes are not necessary. You can Probably make the "meeting" directly manually if not present.
 
-CAPTIONS_DIR=/var/bigbluebutton/captions/
-if [ ! -d "$CAPTIONS_DIR" ]; then
-  sudo mkdir -p $CAPTIONS_DIR
-fi
+BASE_DIR="/var/bigbluebutton"
+RECORDING_DIR="$BASE_DIR/recording"
+STATUS_DIR="$RECORDING_DIR/status"
 
-EVENTS_DIR=/var/bigbluebutton/events/
-if [ ! -d "$EVENTS_DIR" ]; then
-  sudo mkdir -p $EVENTS_DIR
-fi
+DIRS=(
+	"$BASE_DIR/captions/"
+	"$BASE_DIR/meetings/"
+	"$BASE_DIR/events/"
+	"$BASE_DIR/playback/"
+	"$RECORDING_DIR/raw/"
+	"$RECORDING_DIR/process/"
+	"$RECORDING_DIR/publish/"
+	"$RECORDING_DIR/status/ended/"
+	"$STATUS_DIR/recorded/"
+	"$STATUS_DIR/archived/"
+	"$STATUS_DIR/processed/"
+	"$STATUS_DIR/sanity/"
+)
 
-PLAYBACK_DIR=/var/bigbluebutton/playback/
-if [ ! -d "$PLAYBACK_DIR" ]; then
-  sudo mkdir -p $PLAYBACK_DIR
-fi
-
-REC_RAW_DIR=/var/bigbluebutton/recording/raw/
-if [ ! -d "$REC_RAW_DIR" ]; then
-  sudo mkdir -p $REC_RAW_DIR
-fi
-
-REC_PROC_DIR=/var/bigbluebutton/recording/process/
-if [ ! -d "$REC_PROC_DIR" ]; then
-  sudo mkdir -p $REC_PROC_DIR
-fi
-
-REC_PUB_DIR=/var/bigbluebutton/recording/publish/
-if [ ! -d "$REC_PUB_DIR" ]; then
-  sudo mkdir -p $REC_PUB_DIR
-fi
-
-REC_STATUS_ENDED_DIR=/var/bigbluebutton/recording/status/ended/
-if [ ! -d "$REC_STATUS_ENDED_DIR" ]; then
-  sudo mkdir -p $REC_STATUS_ENDED_DIR
-fi
-
-REC_STATUS_RECORDED_DIR=/var/bigbluebutton/recording/status/recorded/
-if [ ! -d "$REC_STATUS_RECORDED_DIR" ]; then
-  sudo mkdir -p $REC_STATUS_RECORDED_DIR
-fi
-
-REC_STATUS_ARCHIVED_DIR=/var/bigbluebutton/recording/status/archived/
-if [ ! -d "$REC_STATUS_ARCHIVED_DIR" ]; then
-  sudo mkdir -p $REC_STATUS_ARCHIVED_DIR
-fi
-
-REC_STATUS_PROCESSED_DIR=/var/bigbluebutton/recording/status/processed/
-if [ ! -d "$REC_STATUS_PROCESSED_DIR" ]; then
-  sudo mkdir -p $REC_STATUS_PROCESSED_DIR
-fi
-
-REC_STATUS_SANITY_DIR=/var/bigbluebutton/recording/status/sanity/
-if [ ! -d "$REC_STATUS_SANITY_DIR" ]; then
-  sudo mkdir -p $REC_STATUS_SANITY_DIR
-fi
+for i in "${DIRS[@]}"; do
+	if [ ! -d "$i" ]; then
+		sudo mkdir -p $i
+	fi
+done
 
 sudo mv /usr/local/bigbluebutton/core/scripts/*.nginx /etc/bigbluebutton/nginx/
 sudo service nginx reload

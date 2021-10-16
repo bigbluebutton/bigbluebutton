@@ -192,6 +192,7 @@ class BbbWebApiGWApp(
       disablePublicChat = lockSettingsParams.disablePublicChat.booleanValue(),
       disableNote = lockSettingsParams.disableNote.booleanValue(),
       hideUserList = lockSettingsParams.hideUserList.booleanValue(),
+      hideAnnotations = lockSettingsParams.hideAnnotations.booleanValue(),
       lockedLayout = lockSettingsParams.lockedLayout.booleanValue(),
       lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
       lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue()
@@ -262,6 +263,18 @@ class BbbWebApiGWApp(
 
   def sendKeepAlive(system: String, bbbWebTimestamp: java.lang.Long, akkaAppsTimestamp: java.lang.Long): Unit = {
     val event = MsgBuilder.buildCheckAlivePingSysMsg(system, bbbWebTimestamp.longValue(), akkaAppsTimestamp.longValue())
+    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+  }
+
+  def fileUploaded(
+      uploadId:    String,
+      source:      String,
+      filename:    String,
+      contentType: String,
+      userId:      String,
+      meetingId:   String
+  ): Unit = {
+    val event = MsgBuilder.buildFileUploadedSysMsg(uploadId, source, filename, contentType, userId, meetingId)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 

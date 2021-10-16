@@ -83,11 +83,12 @@ export default class TextDrawComponent extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    const { version, isActive, annotation } = this.props;
+    const { version, isActive, annotation, hidden } = this.props;
     return version !== nextProps.version
       || isActive !== nextProps.isActive
       || annotation.x !== nextProps.annotation.x
       || annotation.y !== nextProps.annotation.y;
+      || hidden !== nextProps.hidden;
   }
 
   // If the user is drawing a text shape and clicks Undo - reset textShapeId
@@ -176,10 +177,11 @@ export default class TextDrawComponent extends Component {
   }
 
   renderViewerTextShape(results) {
-    const { annotation } = this.props;
+    const { annotation, hidden } = this.props;
     const styles = TextDrawComponent.getViewerStyles(results);
 
     return (
+      hidden ? null :
       <g>
         <RenderInBrowser only firefox>
           <clipPath id={annotation.id}>

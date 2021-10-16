@@ -219,6 +219,10 @@ class PollDrawComponent extends Component {
     const reducedResult = result.reduce(caseInsensitiveReducer, []);
     const reducedResultRatio = reducedResult.length * 100 / result.length;
 
+    for (const r of result) {
+      r.key = r.key.slice(0,10); //To make poll text visible.
+    }
+    
     // x1 and y1 - coordinates of the top left corner of the annotation
     // initial width and height are the width and height of the annotation
     // all the points are given as percentages of the slide

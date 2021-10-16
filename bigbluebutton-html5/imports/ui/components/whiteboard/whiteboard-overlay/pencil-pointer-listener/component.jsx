@@ -35,12 +35,14 @@ export default class PencilPointerListener extends Component {
   }
 
   componentDidMount() {
+    const { presentationWindow } = this.props;
     // to send the last DRAW_END message in case if a user reloads the page while drawing
-    window.addEventListener('beforeunload', this.sendLastMessage);
+    presentationWindow.addEventListener('beforeunload', this.sendLastMessage);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('beforeunload', this.sendLastMessage);
+    const { presentationWindow } = this.props;
+    presentationWindow.removeEventListener('beforeunload', this.sendLastMessage);
 
     // sending the last message on componentDidUnmount
     this.sendLastMessage();
@@ -49,6 +51,7 @@ export default class PencilPointerListener extends Component {
   commonDrawStartHandler(clientX, clientY) {
     const {
       actions,
+      drawSettings,
     } = this.props;
 
     const {
@@ -68,7 +71,7 @@ export default class PencilPointerListener extends Component {
 
     // sending the first message
     this.points = [transformedSvgPoint.x, transformedSvgPoint.y];
-    this.handleDrawPencil(this.points, DRAW_START, generateNewShapeId());
+    this.handleDrawPencil(this.points, DRAW_START, generateNewShapeId(), undefined, drawSettings.tool);
   }
 
   commonDrawMoveHandler(clientX, clientY) {
@@ -106,14 +109,15 @@ export default class PencilPointerListener extends Component {
     if (this.isDrawing && this.points.length > 0) {
       const {
         actions,
+        drawSettings,
       } = this.props;
 
       const { getCurrentShapeId } = actions;
-      this.handleDrawPencil(this.points, DRAW_UPDATE, getCurrentShapeId());
+      this.handleDrawPencil(this.points, DRAW_UPDATE, getCurrentShapeId(), undefined, drawSettings.tool);
     }
   }
 
-  handleDrawPencil(points, status, id, dimensions) {
+  handleDrawPencil(points, status, id, dimensions, pencilType) {
     const {
       whiteboardId,
       userId,
@@ -134,7 +138,7 @@ export default class PencilPointerListener extends Component {
     const annotation = {
       id,
       status,
-      annotationType: 'pencil',
+      annotationType: pencilType,
       annotationInfo: {
         color,
         thickness: normalizeThickness(thickness),
@@ -142,7 +146,7 @@ export default class PencilPointerListener extends Component {
         id,
         whiteboardId,
         status,
-        type: 'pencil',
+        type: pencilType,
       },
       wbId: whiteboardId,
       userId,
@@ -163,6 +167,7 @@ export default class PencilPointerListener extends Component {
         physicalSlideWidth,
         physicalSlideHeight,
         actions,
+        drawSettings,
       } = this.props;
 
       const { getCurrentShapeId } = actions;
@@ -172,20 +177,22 @@ export default class PencilPointerListener extends Component {
         DRAW_END,
         getCurrentShapeId(),
         [Math.round(physicalSlideWidth), Math.round(physicalSlideHeight)],
+        drawSettings.tool,
       );
       this.resetState();
     }
   }
 
   resetState() {
+    const { presentationWindow } = this.props;
     // resetting the current info
     this.points = [];
     this.isDrawing = false;
     // remove event listener
-    window.removeEventListener('pointerup', this.handlePointerUp);
-    window.removeEventListener('pointermove', this.handlePointerMove);
-    window.removeEventListener('pointercancel', this.handlePointerCancel, true);
-    window.removeEventListener('keydown', this.handleKeyDown, true);
+    presentationWindow.removeEventListener('pointerup', this.handlePointerUp);
+    presentationWindow.removeEventListener('pointermove', this.handlePointerMove);
+    presentationWindow.removeEventListener('pointercancel', this.handlePointerCancel, true);
+    presentationWindow.removeEventListener('keydown', this.handleKeyDown, true);
     
   }
 
@@ -204,6 +211,7 @@ export default class PencilPointerListener extends Component {
   }
 
   handlePointerDown(event) {
+    const { presentationWindow } = this.props;
     this.palmRejectionActivated = Storage.getItem(PALM_REJECTION_MODE);
     switch (event.pointerType) {
       case 'mouse': {
@@ -212,9 +220,9 @@ export default class PencilPointerListener extends Component {
 
         if (!this.isDrawing) {
           if (isLeftClick) {
-            window.addEventListener('pointerup', this.handlePointerUp);
-            window.addEventListener('pointermove', this.handlePointerMove);
-            window.addEventListener('keydown', this.handleKeyDown, true);
+            presentationWindow.addEventListener('pointerup', this.handlePointerUp);
+            presentationWindow.addEventListener('pointermove', this.handlePointerMove);
+            presentationWindow.addEventListener('keydown', this.handleKeyDown, true);
 
             const { clientX, clientY } = event;
             this.commonDrawStartHandler(clientX, clientY);
@@ -287,12 +295,13 @@ export default class PencilPointerListener extends Component {
 
   // handler for finger touch and pencil touch
   touchPenDownHandler(event) {
+    const { presentationWindow } = this.props;
     event.preventDefault();
     if (!this.isDrawing) {
-      window.addEventListener('pointerup', this.handlePointerUp);
-      window.addEventListener('pointermove', this.handlePointerMove);
-      window.addEventListener('pointercancel', this.handlePointerCancel, true);
-      window.addEventListener('keydown', this.handleKeyDown, true);
+      presentationWindow.addEventListener('pointerup', this.handlePointerUp);
+      presentationWindow.addEventListener('pointermove', this.handlePointerMove);
+      presentationWindow.addEventListener('pointercancel', this.handlePointerCancel, true);
+      presentationWindow.addEventListener('keydown', this.handleKeyDown, true);
 
       const { clientX, clientY } = event;
       this.commonDrawStartHandler(clientX, clientY);
@@ -374,17 +383,27 @@ export default class PencilPointerListener extends Component {
   render() {
     const {
       actions,
+      drawSettings,
+      isPresentationDetached,
     } = this.props;
 
     const { contextMenuHandler } = actions;
 
-    const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
+    const {
+      tool,
+    } = drawSettings;
+
+    let baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
+    const hostUri = `https://${window.document.location.hostname}`;
+    if (isPresentationDetached) {
+      baseName = hostUri + baseName ;
+    }
     const pencilDrawStyle = {
       width: '100%',
       height: '100%',
       touchAction: 'none',
       zIndex: MAX_Z_INDEX,
-      cursor: `url('${baseName}/resources/images/whiteboard-cursor/pencil.png') 2 22, default`,
+      cursor: `url('${baseName}/resources/images/whiteboard-cursor/${tool}.png') 2 22, default`,
     };
 
     return (

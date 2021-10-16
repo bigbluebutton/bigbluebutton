@@ -416,7 +416,7 @@ public:
     toggleSelfVoice: false
   poll:
     enabled: true
-    maxCustom: 5
+    maxCustom: 99
     allowDragAndDropFile: false
     maxTypedAnswerLength: 45
     chatMessage: true
@@ -430,6 +430,7 @@ public:
     takeOwnership: true
     lines: 2
     time: 5000
+    googleTranslateUrl: https://script.google.com/macros/s/your_id
   chat:
     enabled: true
     itemsPerPage: 100
@@ -522,6 +523,25 @@ public:
       - danger
       - critical
     help: STATS_HELP_URL
+  upload:
+    endpoint: /bigbluebutton/upload
+    timeout: 5000
+    notification: true
+    media:
+      enabled: true
+      maxSize: 900000000
+      source: media
+      validFiles:
+        - extension: .mp3
+          type: audio/mp3
+        - extension: .ogg
+          type: audio/ogg
+        - extension: .mp4
+          type: video/mp4
+        - extension: .webm
+          type: video/webm
+  download:
+    endpoint: /bigbluebutton/download
   presentation:
     allowDownloadable: true
     panZoomThrottle: 32
@@ -627,6 +647,10 @@ public:
         - value: 20
         - value: 16
       tools:
+        - icon: eraser_tool
+          value: eraser
+        - icon: marker_tool
+          value: marker
         - icon: text_tool
           value: text
         - icon: line_tool
@@ -642,6 +666,8 @@ public:
         - icon: hand
           value: hand
       presenterTools:
+        - eraser
+        - marker
         - text
         - line
         - ellipse
@@ -650,6 +676,8 @@ public:
         - pencil
         - hand
       multiUserTools:
+        - eraser
+        - marker
         - text
         - line
         - ellipse
