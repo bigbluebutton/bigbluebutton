@@ -33,7 +33,6 @@ export default class PencilPointerListener extends Component {
     this.discardAnnotation = this.discardAnnotation.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
   }
-  }
 
   componentDidMount() {
     // to send the last DRAW_END message in case if a user reloads the page while drawing
