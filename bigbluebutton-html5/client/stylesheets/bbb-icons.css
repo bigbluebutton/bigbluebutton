@@ -326,3 +326,12 @@
 .icon-bbb-device_list_selector:before {
   content: "\e95b";
 }
+.icon-bbb-presentation_off:before {
+  content: "\e95c";
+}
+.icon-bbb-external-video:before {
+  content: "\e95d";
+}
+.icon-bbb-external-video_off:before {
+  content: "\e95e";
+}

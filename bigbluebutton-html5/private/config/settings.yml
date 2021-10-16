@@ -197,6 +197,9 @@ public:
     wsConnectionTimeout: 4000
     # Time in milis to wait for the browser to return a gUM call (used in video-preview)
     gUMTimeout: 20000
+    # Experiment(al). Controls whether ICE candidates should be signaled.
+    # Applies to webcams, listen only and screen sharing. True is "stable behavior".
+    signalCandidates: true
     cameraTimeouts:
       # Base camera timeout: used as the camera *sharing* timeout and
       # as the minimum camera subscribe reconnection timeout
@@ -207,7 +210,7 @@ public:
     screenshare:
       # Experimental. True is the canonical behavior. Flip to false to reverse
       # the negotiation flow for subscribers.
-      subscriberOffering: true
+      subscriberOffering: false
       # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
       # media server adapter should be used for screen sharing.
       # Default is undefined, which means the default setting in bbb-webrtc-sfu
@@ -473,7 +476,7 @@ public:
     listenOnlyCallTimeout: 25000
     # Experimental. True is the canonical behavior. Flip to false to reverse
     # the negotiation flow for LO subscribers.
-    listenOnlyOffering: true
+    listenOnlyOffering: false
     #Timeout (ms) for gathering ICE candidates. When this timeout expires
     #the SDP is sent to the server with the candidates the browser gathered
     #so far. Increasing this value might help avoiding 1004 error when

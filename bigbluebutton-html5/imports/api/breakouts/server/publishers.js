@@ -37,7 +37,7 @@ function breakouts(role) {
       },
       {
         parentMeetingId: meetingId,
-        'users.userId': userId,
+        [`url_${userId}`]: { $exists: true },
       },
       {
         breakoutId: meetingId,
@@ -47,12 +47,7 @@ function breakouts(role) {
 
   const fields = {
     fields: {
-      users: {
-        $elemMatch: {
-          // do not allow users to obtain 'redirectToHtml5JoinURL' for others
-          userId,
-        },
-      },
+      [`url_${userId}`]: 1,
       breakoutId: 1,
       externalId: 1,
       freeJoin: 1,

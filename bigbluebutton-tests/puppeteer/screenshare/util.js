@@ -1,6 +1,5 @@
 const e = require('../core/elements');
 const { VIDEO_LOADING_WAIT_TIME } = require('../core/constants');
-const { checkElement } = require('../core/util');
 
 async function startScreenshare(test) {
   await test.waitAndClick(e.startScreenSharing);

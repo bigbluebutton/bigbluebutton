@@ -104,7 +104,7 @@ class VideoFocusLayout extends Component {
         value: defaultsDeep(
           {
             sidebarNavigation: {
-              isOpen: true,
+              isOpen: input.sidebarNavigation.isOpen || false,
             },
             sidebarContent: {
               isOpen: sidebarContentPanel !== PANELS.NONE,
@@ -383,6 +383,20 @@ class VideoFocusLayout extends Component {
     const cameraDockBounds = {};
 
     if (numCameras > 0) {
+      if (fullscreen.group === 'webcams') {
+        cameraDockBounds.width = windowWidth();
+        cameraDockBounds.minWidth = windowWidth();
+        cameraDockBounds.maxWidth = windowWidth();
+        cameraDockBounds.height = windowHeight();
+        cameraDockBounds.minHeight = windowHeight();
+        cameraDockBounds.maxHeight = windowHeight();
+        cameraDockBounds.top = 0;
+        cameraDockBounds.left = 0;
+        cameraDockBounds.right = 0;
+        cameraDockBounds.zIndex = 99;
+        return cameraDockBounds;
+      }
+
       if (!isOpen) {
         cameraDockBounds.width = mediaAreaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
@@ -409,18 +423,6 @@ class VideoFocusLayout extends Component {
         cameraDockBounds.width = mediaAreaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
         cameraDockBounds.zIndex = 1;
-
-        if (fullscreen.group === 'webcams') {
-          cameraDockBounds.width = windowWidth();
-          cameraDockBounds.minWidth = windowWidth();
-          cameraDockBounds.maxWidth = windowWidth();
-          cameraDockBounds.height = windowHeight();
-          cameraDockBounds.minHeight = windowHeight();
-          cameraDockBounds.maxHeight = windowHeight();
-          cameraDockBounds.top = 0;
-          cameraDockBounds.left = 0;
-          cameraDockBounds.zIndex = 99;
-        }
       }
       return cameraDockBounds;
     }

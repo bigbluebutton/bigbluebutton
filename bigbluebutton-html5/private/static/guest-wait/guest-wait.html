@@ -2,9 +2,37 @@
 <html>
 
 <head>
-  <title>Guest Lobby</title>
+  <title>BigBlueButton - Guest Lobby</title>
   <meta charset="UTF-8">
   <style>
+    /* vietnamese */
+    @font-face {
+      font-family: 'Source Sans Pro';
+      font-style: normal;
+      font-weight: 300;
+      src: local('Source Sans Pro Light'), local('SourceSansPro-Light'),
+          url('fonts/SourceSansPro/SourceSansPro-Light.woff') format('woff');
+      unicode-range: U+0102-0103, U+1EA0-1EF9, U+20AB;
+    }
+    /* latin-ext */
+    @font-face {
+      font-family: 'Source Sans Pro';
+      font-style: normal;
+      font-weight: 300;
+      src: local('Source Sans Pro Light'), local('SourceSansPro-Light'),
+          url('fonts/SourceSansPro/SourceSansPro-Light.woff') format('woff');
+      unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+    }
+    /* latin */
+    @font-face {
+      font-family: 'Source Sans Pro';
+      font-style: normal;
+      font-weight: 300;
+      src: local('Source Sans Pro Light'), local('SourceSansPro-Light'),
+          url('fonts/SourceSansPro/SourceSansPro-Light.woff') format('woff');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+    }
+
     :root {
       --enableAnimation: 1;
     }
@@ -23,11 +51,16 @@
       color: white;
       font-weight: bold;
       font-size: 24px;
-      font-family: arial, sans-serif;
+      font-family: 'Source Sans Pro', arial, sans-serif;
+    }
+
+    #content h1 {
+      font-size: 2rem;
     }
 
     .spinner {
       margin: 20px auto;
+      font-size: 0px;
     }
 
     .spinner .bounce1 {
@@ -39,8 +72,9 @@
     }
 
     .spinner>div {
-      width: 30px;
-      height: 30px;
+      width: 18px;
+      height: 18px;
+      margin: 0 5px;
       background-color: rgb(255, 255, 255);
       display: inline-block;
       border-radius: 100%;
@@ -84,6 +118,7 @@
     }
 
     const REDIRECT_TIMEOUT = 15000;
+    const MESSAGE_TIMEOUT = 3000;
 
     function updateMessage(message) {
       document.querySelector('#content > p').innerHTML = message;
@@ -101,54 +136,29 @@
       }
     }
 
-    function findSessionToken() {
-      return location.search
-        .substr(1)
-        .split('&')
-        .find(function (item) {
-          return item.split('=')[0] === 'sessionToken'
-        });
-    };
+    function getSearchParam(name) {
+      const params = new URLSearchParams(window.location.search);
 
-    async function fetchOverrideLocale() {
-      const token = findSessionToken();
-      let overrideLocale = false;
+      if (params && params.has(name)) {
+        const param = params.get(name);
 
-      if (token) {
-        const sessionToken = token.split('=')[1];
-
-        // use enter api to get params for the client
-        const ENTER_ENDPOINT = `/bigbluebutton/api/enter?sessionToken=${sessionToken}`;
-        const url = new URL(`${window.location.origin}${ENTER_ENDPOINT}`);
-
-        const fetchContent = await fetch(url, { credentials: 'same-origin' });
-        const parseToJson = await fetchContent.json();
-        const { response } = parseToJson;
-
-        if (response.returncode !== 'FAILED') {
-          const { customdata } = response;
-
-          customdata.forEach((el) => {
-            const settingKey = Object.keys(el).shift();
-
-            if (settingKey === 'bbb_override_default_locale') {
-              overrideLocale = el[settingKey];
-            }
-          });
-        }
+        return param;
       }
-      return overrideLocale;
+
+      return null;
     }
 
     async function fetchLocalizedMessages() {
       const DEFAULT_LANGUAGE = 'en';
       const LOCALES_ENDPOINT = '/html5client/locale';
       const url = new URL(`${window.location.origin}${LOCALES_ENDPOINT}`);
-      const overrideLocale = await fetchOverrideLocale();
+      const overrideLocale = getSearchParam('locale');
 
       url.search = overrideLocale
         ? `locale=${overrideLocale}`
         : `locale=${navigator.language}&init=true`;
+      
+      document.getElementsByTagName('html')[0].lang = overrideLocale || navigator.language;
 
       const localesPath = 'locales';
 
@@ -222,13 +232,14 @@
               messages = mergedMessages;
 
               window.document.title = _('app.guest.windowTitle');
+              document.querySelector('#heading').innerHTML = _('app.guest.windowTitle');
               updateMessage(_('app.guest.guestWait'));
               enableAnimation();
               try {
                 const ATTEMPT_EVERY_MS = 5000;
                 const ATTEMPT_LIMIT = 100;
 
-                const sessionToken = findSessionToken();
+                const sessionToken = getSearchParam('sessionToken');
 
                 if (!sessionToken) {
                   disableAnimation()
@@ -253,10 +264,9 @@
 
     function fetchGuestWait(sessionToken) {
       const GUEST_WAIT_ENDPOINT = '/bigbluebutton/api/guestWait';
-      const urlTest = new URL(`${window.location.origin}${GUEST_WAIT_ENDPOINT}`);
-      const concatedParams = sessionToken.concat('&redirect=false');
-      urlTest.search = concatedParams;
-      return fetch(urlTest, { method: 'get' });
+      const url = new URL(`${window.location.origin}${GUEST_WAIT_ENDPOINT}`);
+      url.search = `sessionToken=${sessionToken}&redirect=false`;
+      return fetch(url, { method: 'get' });
     };
 
     function redirect(message, url) {
@@ -292,8 +302,13 @@
             }
 
             if (status === 'ALLOW') {
-              disableAnimation();
-              window.location = data.response.url;
+              updateLobbyMessage(_('app.guest.allow'));
+              // Timeout is required by accessibility to allow viewing of the message for a minimum of 3 seconds
+              // before redirecting.
+              setTimeout(() => {
+                disableAnimation();
+                window.location = data.response.url;
+              }, MESSAGE_TIMEOUT);
               return;
             }
 
@@ -320,12 +335,13 @@
 
 <body>
   <div id="content">
+    <h1 id="heading">BigBlueButton - Guest Lobby</h1>
     <div class="spinner">
       <div class="bounce1"></div>
       <div class="bounce2"></div>
       <div class="bounce3"></div>
     </div>
-    <p>Please wait for a moderator to approve you joining the meeting.</p>
+    <p aria-live="polite">Please wait for a moderator to approve you joining the meeting.</p>
   </div>
 </body>
 

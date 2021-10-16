@@ -42,19 +42,14 @@ export default withTracker(() => {
   const locale = Session.get('captionsLocale');
   const caption = CaptionsService.getCaptions(locale);
   const {
-    padId,
+    name,
     ownerId,
-    readOnlyPadId,
   } = caption;
-
-  const { name } = caption ? caption.locale : '';
 
   return {
     locale,
     name,
     ownerId,
-    padId,
-    readOnlyPadId,
     currentUserId: Auth.userID,
     amIModerator: CaptionsService.amIModerator(),
   };

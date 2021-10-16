@@ -15,6 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface GuestPolicyConstraint {
 
+    String key() default "guestDeny";
     String message() default "User denied access for this session";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};

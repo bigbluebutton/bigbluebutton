@@ -22,6 +22,7 @@ fi;
 #Create tmp dir for conversion
 mkdir -p "/tmp/bbb-soffice-$(whoami)/"
 tempDir="$(mktemp -d -p /tmp/bbb-soffice-$(whoami)/)"
+trap 'rm -fr "$tempDir"' EXIT
 
 source="$1"
 dest="$2"
@@ -37,8 +38,5 @@ then
 fi
 
 cp "${source}" "$tempDir/file"
-sudo /usr/bin/docker run --rm --network none --env="HOME=/tmp/" -w /tmp/ --user=$(printf %05d `id -u`) -v "$tempDir/":/data/ -v /usr/share/fonts/:/usr/share/fonts/:ro --rm bbb-soffice sh -c "/usr/bin/soffice -env:UserInstallation=file:///tmp/ $convertToParam --outdir /data /data/file"
+sudo /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env="HOME=/tmp/" -w /tmp/ --user=$(printf %05d `id -u`) -v "$tempDir/":/data/ -v /usr/share/fonts/:/usr/share/fonts/:ro --rm bbb-soffice sh -c "/usr/bin/soffice -env:UserInstallation=file:///tmp/ $convertToParam --outdir /data /data/file"
 cp "$tempDir/file.$convertTo" "${dest}"
-rm -r "$tempDir/"
-
-exit 0

@@ -105,23 +105,12 @@ ldconfig
 #make install
 #popd
 
-# Checkout the latest release in 1.6.x branch
 
 git fetch
 git fetch --tags
 git reset --hard
-#git checkout v1.8.5
-#git checkout master
-git checkout tags/v1.10.6
-#git pull
-#git checkout e1f63ce5b18a83793c0af4bfe85e9de05a00e18a
-#git checkout 4bef44b7b0aca79c27b6b208b5e0011e048a30c1
-# 
-# good
-#git checkout 6d8e8f35b4b2e2de6aad27b4d5f3b1bc2a4b9e11
-#git checkout 89379c3
-#git checkout v1.10.5
-#git checkout master
+git checkout master
+git pull
 
 #git apply ../crash-fix2.patch
 

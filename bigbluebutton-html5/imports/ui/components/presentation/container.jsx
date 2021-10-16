@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
+import MediaService, { getSwapLayout, } from '/imports/ui/components/media/service';
 import { notify } from '/imports/ui/services/notification';
 import { Session } from 'meteor/session';
 import PresentationService from './service';
@@ -63,10 +63,10 @@ const APP_CONFIG = Meteor.settings.public.app;
 const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 const fetchedpresentation = {};
 
-export default withTracker(({ podId }) => {
+export default withTracker(({ podId, isPresentationDetached, setPresentationDetached }) => {
   const currentSlide = PresentationService.getCurrentSlide(podId);
   const presentationIsDownloadable = PresentationService.isPresentationDownloadable(podId);
-  const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
+  const layoutSwapped = getSwapLayout();
 
   let slidePosition;
   if (currentSlide) {
@@ -123,6 +123,8 @@ export default withTracker(({ podId }) => {
     notify,
     zoomSlide: PresentationToolbarService.zoomSlide,
     podId,
+    isPresentationDetached,
+    setPresentationDetached,
     layoutSwapped,
     toggleSwapLayout: MediaService.toggleSwapLayout,
     publishedPoll: Meetings.findOne({ meetingId: Auth.meetingID }, {
