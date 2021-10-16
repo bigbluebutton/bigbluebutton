@@ -186,6 +186,8 @@ export default class WhiteboardOverlay extends Component {
             actions={actions}
             drawSettings={drawSettings}
             whiteboardId={whiteboardId}
+            physicalSlideWidth={physicalSlideWidth}
+            physicalSlideHeight={physicalSlideHeight}
             presentationWindow={presentationWindow}
             isPresentationDetached={isPresentationDetached}
           />
@@ -198,6 +200,8 @@ export default class WhiteboardOverlay extends Component {
           actions={actions}
           drawSettings={drawSettings}
           whiteboardId={whiteboardId}
+          physicalSlideWidth={physicalSlideWidth}
+          physicalSlideHeight={physicalSlideHeight}
         />
       );
     } if (tool === 'pencil' || tool === 'marker') {
@@ -326,6 +330,8 @@ WhiteboardOverlay.propTypes = {
     textFontSize: PropTypes.number.isRequired,
     // Text shape value
     textShapeValue: PropTypes.string.isRequired,
+    // Fill shape
+    //fill: PropTypes.bool.isRequired,
   }).isRequired,
   // Defines a function which resets the current state of the text shape drawing
   resetTextShapeSession: PropTypes.func.isRequired,

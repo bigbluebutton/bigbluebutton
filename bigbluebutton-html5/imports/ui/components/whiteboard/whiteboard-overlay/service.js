@@ -26,6 +26,7 @@ const getWhiteboardToolbarValues = () => {
     textFontSize,
     textShapeValue: textShape.textShapeValue ? textShape.textShapeValue : '',
     textShapeActiveId: textShape.textShapeActiveId ? textShape.textShapeActiveId : '',
+    textShapeOffset: textShape.textShapeOffset ? textShape.textShapeOffset : {x:0.0, y:0.0},
   };
 };
 

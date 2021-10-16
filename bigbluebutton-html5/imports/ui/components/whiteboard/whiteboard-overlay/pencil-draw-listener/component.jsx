@@ -30,6 +30,7 @@ export default class PencilDrawListener extends Component {
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
     this.discardAnnotation = this.discardAnnotation.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
   componentDidMount() {
@@ -103,6 +104,48 @@ export default class PencilDrawListener extends Component {
     }
   }
 
+  handleKeyDown(event) {
+    const {
+      physicalSlideWidth,
+      physicalSlideHeight,
+    } = this.props;
+
+    const iter = this.points.length / 2;
+
+    const d = {
+      x: 1.0 * physicalSlideHeight /(physicalSlideWidth + physicalSlideHeight),
+      y: 1.0 * physicalSlideWidth  /(physicalSlideWidth + physicalSlideHeight),
+    };
+
+    if        (event.keyCode == '38') { // up arrow
+      for (let i = 0; i < iter; i++) {
+        const move = -d.y * (this.points[i * 2 + 0] - this.points[this.points.length - 2]) /
+                            (this.points[        0] - this.points[this.points.length - 2]);
+        this.points[i * 2 + 1] += move;
+      }
+    } else if (event.keyCode == '40') { // down arrow
+      for (let i = 0; i < iter; i++) {
+        const move =  d.y * (this.points[i * 2 + 0] - this.points[this.points.length - 2]) /
+                            (this.points[        0] - this.points[this.points.length - 2]);
+        this.points[i * 2 + 1] += move;
+      }
+    } else if (event.keyCode == '37') { // left arrow
+      for (let i = 0; i < iter; i++) {
+        const move = -d.x * (this.points[i * 2 + 1] - this.points[this.points.length - 1]) /
+                            (this.points[        1] - this.points[this.points.length - 1]);
+        this.points[i * 2    ] += move;
+      }
+    } else if (event.keyCode == '39') { // right arrow
+      for (let i = 0; i < iter; i++) {
+        const move =  d.x * (this.points[i * 2 + 1] - this.points[this.points.length - 1]) /
+                            (this.points[        1] - this.points[this.points.length - 1]);
+        this.points[i * 2    ] += move;
+      }
+    }
+    event.stopPropagation();
+    this.sendCoordinates();
+  }
+
   handleTouchStart(event) {
     const { presentationWindow } = this.props;
     event.preventDefault();
@@ -110,6 +153,7 @@ export default class PencilDrawListener extends Component {
       presentationWindow.addEventListener('touchend', this.handleTouchEnd, { passive: false });
       presentationWindow.addEventListener('touchmove', this.handleTouchMove, { passive: false });
       presentationWindow.addEventListener('touchcancel', this.handleTouchCancel, true);
+      presentationWindow.addEventListener('keydown', this.handleKeyDown, true);
 
       const { clientX, clientY } = event.changedTouches[0];
       this.commonDrawStartHandler(clientX, clientY);
@@ -145,6 +189,7 @@ export default class PencilDrawListener extends Component {
       if (isLeftClick) {
         presentationWindow.addEventListener('mouseup', this.mouseUpHandler);
         presentationWindow.addEventListener('mousemove', this.mouseMoveHandler, true);
+        presentationWindow.addEventListener('keydown', this.handleKeyDown, true);
 
         const { clientX, clientY } = event;
         this.commonDrawStartHandler(clientX, clientY);
@@ -254,6 +299,7 @@ export default class PencilDrawListener extends Component {
     // mouseup and mousemove are removed on desktop
     presentationWindow.removeEventListener('mouseup', this.mouseUpHandler);
     presentationWindow.removeEventListener('mousemove', this.mouseMoveHandler, true);
+    presentationWindow.removeEventListener('keydown', this.handleKeyDown, true);
     // touchend, touchmove and touchcancel are removed on devices
     presentationWindow.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
     presentationWindow.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
