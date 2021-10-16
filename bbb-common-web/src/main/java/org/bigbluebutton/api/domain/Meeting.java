@@ -88,6 +88,9 @@ public class Meeting {
 	private Boolean allowModsToUnmuteUsers = false;
 	private Boolean meetingKeepEvents;
 
+	private  HashMap<String, UploadRequest> uploadRequests = new HashMap<String, UploadRequest>();
+	private  HashMap<String, UploadedFile> uploadedFiles = new HashMap<String, UploadedFile>();
+	
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
 	private Integer userInactivityInspectTimerInMinutes = 120;
@@ -165,6 +168,16 @@ public class Meeting {
 		return breakoutRooms;
 	}
 
+	public void addUploadRequest(String source, String filename, String userId, String token) {
+		UploadRequest uploadRequest = new UploadRequest(source, filename, userId);
+		uploadRequests.put(token, uploadRequest);
+	}
+	
+	public void addUploadedFile(String source, String filename, String contentType, String extension, String uploadId)  {
+		UploadedFile uploadedFile = new UploadedFile(source, filename, contentType, extension);
+		uploadedFiles.put(uploadId, uploadedFile);
+	}
+	
 	public Map<String, String> getPads() {
 		return pads;
 	}
@@ -201,6 +214,29 @@ public class Meeting {
 
 	}
 
+	public Boolean isUploadRequestValid(String source, String filename, String userId, String token) {
+		UploadRequest uploadRequest = uploadRequests.get(token);
+		if (uploadRequest != null) {
+			return uploadRequest.isValid(source, filename, userId);
+		} else {
+			return false;
+		}
+	}
+	
+	public Boolean hasUploadedFile(String source, String uploadId) {
+		UploadedFile uploadedFile = uploadedFiles.get(uploadId);
+		if (uploadedFile != null) {
+			return source.equals(uploadedFile.source);
+		} else {
+			return false;
+		}
+	}
+	
+	public UploadedFile getUploadedFile(String uploadId) {
+		UploadedFile uploadedFile = uploadedFiles.get(uploadId);
+		return uploadedFile;
+	}
+	
 	public RegisteredUser getRegisteredUserWithAuthToken(String authToken) {
 		for (RegisteredUser ruser : registeredUsers.values()) {
 			if (ruser.authToken.equals(authToken)) {

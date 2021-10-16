@@ -139,7 +139,75 @@
             proxy_set_header        X-textTrack-track $textTrack;
             proxy_set_header        X-Original-URI $request_uri;
         }
+	
+	# For the implementation, you need to add these directly to /etc/bigbluebutton/nginx/web
+			location ~ "^\/bigbluebutton\/upload\/(?<source>[a-z]+)\/(?<token>[a-zA-Z0-9]{32})$" {
+			proxy_pass                 http://127.0.0.1:8090;
+			proxy_redirect             default;
+			proxy_set_header           X-Forwarded-For $proxy_add_x_forwarded_for;
+			proxy_set_header           X-Source $source;
 
+			# Allow 30M uploaded files
+			client_max_body_size       900m;
+			client_body_buffer_size    128k;
+
+			proxy_connect_timeout      90;
+			proxy_send_timeout         90;
+			proxy_read_timeout         90;
+
+			proxy_buffer_size          4k;
+			proxy_buffers              4 32k;
+			proxy_busy_buffers_size    64k;
+			proxy_temp_file_write_size 64k;
+
+			include fastcgi_params;
+
+			proxy_request_buffering    off;
+
+			# Send a sub-request bbb-web to refuse before loading
+			auth_request /bigbluebutton/upload/check;
+		}
+
+		location = /bigbluebutton/upload/check {
+			internal;
+			proxy_pass                 http://127.0.0.1:8090;
+			proxy_redirect             default;
+			proxy_set_header           Content-Length "";
+			proxy_set_header           X-Forwarded-For $proxy_add_x_forwarded_for;
+			proxy_set_header           X-Original-URI $request_uri;
+			proxy_set_header           X-Content-Length $http_content_length;
+			proxy_set_header           X-Source $source;
+			proxy_set_header           X-Token $token;
+
+			# Allow 30M uploaded files
+			client_max_body_size       900m;
+			client_body_buffer_size    128k;
+
+			proxy_pass_request_body    off;
+			proxy_request_buffering    off;
+		}
+
+		location ~ "^\/bigbluebutton\/download\/(?<source>[a-z]+)\/(?<id>[a-zA-Z0-9-]+)$" {
+			proxy_pass                 http://127.0.0.1:8090;
+			proxy_redirect             default;
+			proxy_set_header           X-Forwarded-For $proxy_add_x_forwarded_for;
+			proxy_set_header           X-Original-URI $request_uri;
+			proxy_set_header           X-Source $source;
+			proxy_set_header           X-Upload-ID $id;
+
+			# Send a sub-request bbb-web to refuse before loading
+			auth_request /bigbluebutton/download/check;
+		}
+
+		location = /bigbluebutton/download/check {
+			internal;
+			proxy_pass                 http://127.0.0.1:8090;
+			proxy_pass_request_body    off;
+			proxy_set_header           Content-Length "";
+			proxy_set_header           X-Original-URI $request_uri;
+			proxy_set_header           X-Source $source;
+			proxy_set_header           X-Upload-ID $id;
+		}
 	}
 
 	location @error403 {
