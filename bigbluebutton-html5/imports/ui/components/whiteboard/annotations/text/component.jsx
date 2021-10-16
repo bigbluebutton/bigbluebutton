@@ -87,7 +87,7 @@ export default class TextDrawComponent extends Component {
     return version !== nextProps.version
       || isActive !== nextProps.isActive
       || annotation.x !== nextProps.annotation.x
-      || annotation.y !== nextProps.annotation.y;
+      || annotation.y !== nextProps.annotation.y
       || hidden !== nextProps.hidden;
   }
 
