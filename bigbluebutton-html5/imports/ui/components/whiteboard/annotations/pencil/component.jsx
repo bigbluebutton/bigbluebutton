@@ -78,7 +78,7 @@ export default class PencilDrawComponent extends Component {
 
     const { annotation, slideWidth, slideHeight } = this.props;
 
-    this.path = this.getCoordinates(annotation, slideWidth, slideHeight);
+    this.path = this.getCoordinates(annotation, slideWidth, slideHeight, false);
 
     this.getCurrentPath = this.getCurrentPath.bind(this);
     this.getCoordinates = this.getCoordinates.bind(this);
@@ -94,12 +94,14 @@ export default class PencilDrawComponent extends Component {
     const { points: prevPoints } = prevAnnotation;
     const { annotation, slideWidth, slideHeight } = this.props;
     const { points } = annotation;
-    if (prevPoints.length !== points.length) {
-      this.path = this.getCoordinates(annotation, slideWidth, slideHeight);
+    if (prevPoints[0] != points[0] || prevPoints[1] != points[1]) {
+      this.path = this.getCoordinates(annotation, slideWidth, slideHeight, true);
+    } else if (prevPoints.length !== points.length) {
+      this.path = this.getCoordinates(annotation, slideWidth, slideHeight, false);
     }
   }
 
-  getCoordinates(annotation, slideWidth, slideHeight) {
+  getCoordinates(annotation, slideWidth, slideHeight, fullUpdate) {
     if ((!annotation || annotation.points.length === 0)
         || (annotation.status === 'DRAW_END' && !annotation.commands)) {
       return undefined;
@@ -114,7 +116,7 @@ export default class PencilDrawComponent extends Component {
       data = PencilDrawComponent.getInitialCoordinates(annotation, slideWidth, slideHeight);
     // If it's not the first 2 cases - means we just got an update, updating the coordinates
     } else {
-      data = this.updateCoordinates(annotation, slideWidth, slideHeight);
+      data = this.updateCoordinates(annotation, slideWidth, slideHeight, fullUpdate);
     }
 
     this.points = data.points;
@@ -125,18 +127,24 @@ export default class PencilDrawComponent extends Component {
     return this.path ? this.path : 'M -1 -1';
   }
 
-  updateCoordinates(annotation, slideWidth, slideHeight) {
+  updateCoordinates(annotation, slideWidth, slideHeight, fullUpdate) {
     const { points } = annotation;
 
-    let i = this.points.length;
+    let i;
     let path = '';
+    if (fullUpdate) {
+      i = 2
+      path += `M${denormalizeCoord(points[0], slideWidth)}, ${denormalizeCoord(points[1], slideHeight)}`;
+    } else {
+      i = this.points.length;
+      path += this.path;
+    }
+    
     while (i < points.length) {
       path = `${path} L${denormalizeCoord(points[i], slideWidth)
       }, ${denormalizeCoord(points[i + 1], slideHeight)}`;
       i += 2;
     }
-
-    path = this.path + path;
 
     return { path, points };
   }

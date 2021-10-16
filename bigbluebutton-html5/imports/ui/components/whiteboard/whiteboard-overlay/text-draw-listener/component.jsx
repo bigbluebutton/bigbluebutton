@@ -77,6 +77,7 @@ export default class TextDrawListener extends Component {
 
     const prevDrawsettings = prevProps.drawSettings;
     const prevTextShapeValue = prevProps.drawSettings.textShapeValue;
+    const prevTextShapeOffset = prevProps.drawSettings.textShapeOffset;
     // If the activeId suddenly became empty - this means the shape was deleted
     // While the user was drawing it. So we are resetting the state.
     if (prevDrawsettings.textShapeActiveId !== '' && drawSettings.textShapeActiveId === '') {
@@ -90,13 +91,14 @@ export default class TextDrawListener extends Component {
     const colorChanged = drawSettings.color !== prevDrawsettings.color;
     const textShapeValueChanged = drawSettings.textShapeValue !== prevTextShapeValue;
     const textShapeIdNotEmpty = drawSettings.textShapeActiveId !== '';
+    const textShapeOffsetChanged = drawSettings.textShapeOffset.x !== prevTextShapeOffset.x || drawSettings.textShapeOffset.y !== prevTextShapeOffset.y;
 
-    if ((fontSizeChanged || colorChanged || textShapeValueChanged) && textShapeIdNotEmpty) {
+    if ((fontSizeChanged || colorChanged || textShapeValueChanged) && textShapeIdNotEmpty || textShapeOffsetChanged) {
       const { getCurrentShapeId } = actions;
       this.currentStatus = DRAW_UPDATE;
 
       this.handleDrawText(
-        { x: this.currentX, y: this.currentY },
+        { x: this.currentX + drawSettings.textShapeOffset.x, y: this.currentY + drawSettings.textShapeOffset.y },
         this.currentWidth,
         this.currentHeight,
         this.currentStatus,
@@ -282,7 +284,7 @@ export default class TextDrawListener extends Component {
     this.currentStatus = DRAW_END;
 
     this.handleDrawText(
-      { x: this.currentX, y: this.currentY },
+      { x: this.currentX + drawSettings.textShapeOffset.x, y: this.currentY + drawSettings.textShapeOffset.y },
       this.currentWidth,
       this.currentHeight,
       this.currentStatus,
@@ -576,6 +578,10 @@ TextDrawListener.propTypes = {
     textShapeValue: PropTypes.string.isRequired,
     // Text active text shape id
     textShapeActiveId: PropTypes.string.isRequired,
+    textShapeOffset: PropTypes.shape({
+      x: PropTypes.number.isRequired,
+      y: PropTypes.number.isRequired,
+    }),
   }).isRequired,
   actions: PropTypes.shape({
     // Defines a function which transforms a coordinate from the window to svg coordinate system
