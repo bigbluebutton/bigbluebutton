@@ -14,10 +14,10 @@ import ExternalVideoService from '/imports/ui/components/external-video-player/s
 import MediaUploadService from '/imports/ui/components/upload/media/service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import LayoutContext from '../layout/context';
+import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 
 import MediaService, {
   getSwapLayout,
-  shouldEnableSwapLayout,
 } from '../media/service';
 
 const ActionsBarContainer = (props) => {
@@ -53,12 +53,13 @@ export default withTracker(() => ({
   amIModerator: Service.amIModerator(),
   stopExternalVideoShare: ExternalVideoService.stopWatching,
   enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
-  isLayoutSwapped: getSwapLayout() && shouldEnableSwapLayout(),
+  isLayoutSwapped: getSwapLayout(),
   toggleSwapLayout: MediaService.toggleSwapLayout,
   handleTakePresenter: Service.takePresenterRole,
   currentSlidHasContent: PresentationService.currentSlidHasContent(),
   parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
   isSharingVideo: Service.isSharingVideo(),
+  hasScreenshare: isVideoBroadcasting(),
   isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
   isMeteorConnected: Meteor.status().connected,
   isPollingEnabled: POLLING_ENABLED,

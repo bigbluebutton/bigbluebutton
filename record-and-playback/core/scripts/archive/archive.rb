@@ -179,6 +179,8 @@ presentation_dir = props['raw_presentation_src']
 video_dir = props['raw_video_src']
 kurento_video_dir = props['kurento_video_src']
 kurento_screenshare_dir = props['kurento_screenshare_src']
+mediasoup_video_dir = props['mediasoup_video_src']
+mediasoup_screenshare_dir = props['mediasoup_screenshare_src']
 log_dir = props['log_dir']
 notes_endpoint = props['notes_endpoint']
 notes_formats = props['notes_formats']
@@ -212,6 +214,9 @@ archive_directory("#{kurento_video_dir}/#{meeting_id}", "#{target_dir}/video/#{m
 # Note: modify directly /usr/local/bigbluebutton/core/scripts/archive/archive.rb
 # Uploaded media
 archive_directory("#{upload_dir}/#{meeting_id}", "#{target_dir}/upload")
+# mediasoup media
+archive_directory("#{mediasoup_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
+archive_directory("#{mediasoup_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")
 
 # If this was the last (or only) segment in a recording, delete the original media files
 if break_timestamp.nil?
@@ -226,6 +231,9 @@ if break_timestamp.nil?
   # Kurento media
   FileUtils.rm_rf("#{kurento_screenshare_dir}/#{meeting_id}")
   FileUtils.rm_rf("#{kurento_video_dir}/#{meeting_id}")
+  # mediasoup media
+  FileUtils.rm_rf("#{mediasoup_screenshare_dir}/#{meeting_id}")
+  FileUtils.rm_rf("#{mediasoup_video_dir}/#{meeting_id}")
 end
 
 if not archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp)

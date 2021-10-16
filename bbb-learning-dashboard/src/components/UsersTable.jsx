@@ -6,10 +6,29 @@ import { getUserEmojisSummary, emojiConfigs } from '../services/EmojiService';
 import UserAvatar from './UserAvatar';
 
 class UsersTable extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      activityscoreOrder: 'desc',
+    };
+  }
+
+  toggleActivityScoreOrder() {
+    const { activityscoreOrder } = this.state;
+
+    if (activityscoreOrder === 'asc') {
+      this.setState({ activityscoreOrder: 'desc' });
+    } else {
+      this.setState({ activityscoreOrder: 'asc' });
+    }
+  }
+
   render() {
     const {
       allUsers, totalOfActivityTime, totalOfPolls, tab,
     } = this.props;
+
+    const { activityscoreOrder } = this.state;
 
     function getSumOfTime(eventsArr) {
       return eventsArr.reduce((prevVal, elem) => {
@@ -82,7 +101,7 @@ class UsersTable extends React.Component {
     });
 
     return (
-      <table className="w-full whitespace-no-wrap">
+      <table className="w-full whitespace-nowrap">
         <thead>
           <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-100">
             <th className="px-4 py-3 col-text-left">
@@ -121,7 +140,10 @@ class UsersTable extends React.Component {
             <th className="px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.usersTable.colRaiseHands" defaultMessage="Raise Hand" />
             </th>
-            <th className="px-4 py-3 text-center">
+            <th
+              className={`px-4 py-3 text-center ${tab === 'overview_activityscore' ? 'cursor-pointer' : ''}`}
+              onClick={() => { if (tab === 'overview_activityscore') this.toggleActivityScoreOrder(); }}
+            >
               <FormattedMessage id="app.learningDashboard.usersTable.colActivityScore" defaultMessage="Activity Score" />
               {
                 tab === 'overview_activityscore'
@@ -133,7 +155,12 @@ class UsersTable extends React.Component {
                       viewBox="0 0 24 24"
                       stroke="currentColor"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d={activityscoreOrder === 'asc' ? 'M17 13l-5 5m0 0l-5-5m5 5V6' : 'M7 11l5-5m0 0l5 5m-5-5v12'}
+                      />
                     </svg>
                   )
                   : null
@@ -148,8 +175,12 @@ class UsersTable extends React.Component {
           { typeof allUsers === 'object' && Object.values(allUsers || {}).length > 0 ? (
             Object.values(allUsers || {})
               .sort((a, b) => {
-                if (tab === 'overview_activityscore' && usersActivityScore[a.intId] < usersActivityScore[b.intId]) return 1;
-                if (tab === 'overview_activityscore' && usersActivityScore[a.intId] > usersActivityScore[b.intId]) return -1;
+                if (tab === 'overview_activityscore' && usersActivityScore[a.intId] < usersActivityScore[b.intId]) {
+                  return activityscoreOrder === 'desc' ? 1 : -1;
+                }
+                if (tab === 'overview_activityscore' && usersActivityScore[a.intId] > usersActivityScore[b.intId]) {
+                  return activityscoreOrder === 'desc' ? -1 : 1;
+                }
                 if (a.isModerator === false && b.isModerator === true) return 1;
                 if (a.isModerator === true && b.isModerator === false) return -1;
                 if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;

@@ -99,7 +99,7 @@ class PresentationFocusLayout extends Component {
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: defaultsDeep({
           sidebarNavigation: {
-            isOpen: true,
+            isOpen: input.sidebarNavigation.isOpen || false,
           },
           sidebarContent: {
             isOpen: sidebarContentPanel !== PANELS.NONE,
@@ -378,6 +378,20 @@ class PresentationFocusLayout extends Component {
     const sidebarSize = sidebarNavWidth + sidebarContentWidth;
 
     if (input.cameraDock.numCameras > 0) {
+      if (fullscreen.group === 'webcams') {
+        cameraDockBounds.width = windowWidth();
+        cameraDockBounds.minWidth = windowWidth();
+        cameraDockBounds.maxWidth = windowWidth();
+        cameraDockBounds.height = windowHeight();
+        cameraDockBounds.minHeight = windowHeight();
+        cameraDockBounds.maxHeight = windowHeight();
+        cameraDockBounds.top = 0;
+        cameraDockBounds.left = 0;
+        cameraDockBounds.right = 0;
+        cameraDockBounds.zIndex = 99;
+        return cameraDockBounds;
+      }
+
       if (!isOpen) {
         cameraDockBounds.width = mediaAreaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
@@ -388,20 +402,6 @@ class PresentationFocusLayout extends Component {
         cameraDockBounds.right = isRTL ? sidebarSize : null;
       } else {
         let cameraDockHeight = 0;
-
-        if (fullscreen.group === 'webcams') {
-          cameraDockBounds.width = windowWidth();
-          cameraDockBounds.minWidth = windowWidth();
-          cameraDockBounds.maxWidth = windowWidth();
-          cameraDockBounds.height = windowHeight();
-          cameraDockBounds.minHeight = windowHeight();
-          cameraDockBounds.maxHeight = windowHeight();
-          cameraDockBounds.top = 0;
-          cameraDockBounds.left = 0;
-          cameraDockBounds.right = 0;
-          cameraDockBounds.zIndex = 99;
-          return cameraDockBounds;
-        }
 
         if (deviceType === DEVICE_TYPE.MOBILE) {
           cameraDockBounds.top = mediaAreaBounds.top + mediaBounds.height;

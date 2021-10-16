@@ -11,11 +11,14 @@ case "$1" in
     cp /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.example.yml $TARGET
     chown bigbluebutton:bigbluebutton $TARGET
 
-      yq w -i $TARGET localIpAddress "$IP"
       yq w -i $TARGET kurento[0].ip  "$IP"
 
       # https://github.com/bigbluebutton/bbb-webrtc-sfu/pull/37
       # yq w -i $TARGET kurento[0].url "ws://$SERVER_URL:8888/kurento"
+
+      # Set mediasoup IPs
+      yq w -i $TARGET mediasoup.webrtc.listenIps[0].announcedIp "$IP"
+      yq w -i $TARGET mediasoup.plainRtp.listenIp.announcedIp "$IP"
 
       FREESWITCH_IP=$(xmlstarlet sel -t -v '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "local_ip_v4=")]/@data' /opt/freeswitch/conf/vars.xml | sed 's/local_ip_v4=//g')
       if [ "$FREESWITCH_IP" != "" ]; then
@@ -36,8 +39,8 @@ case "$1" in
 
     # there's a problem rebuilding bufferutil
     # do not abort in case npm rebuild return something different than 0
-    npm config set unsafe-perm true
-    npm rebuild || true
+    #npm config set unsafe-perm true
+    #npm rebuild || true
 
     mkdir -p /var/log/bbb-webrtc-sfu/
     touch /var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log
@@ -78,6 +81,10 @@ case "$1" in
 #      echo "#"
 #    fi
 
+    # Creates the mediasoup raw media file dir if needed
+    if [ ! -d /var/mediasoup ]; then
+      mkdir -p /var/mediasoup
+    fi
 
     # Create a symbolic link from /var/kurento -> /var/lib/kurento if needed
     if [ ! -d /var/kurento ]; then
