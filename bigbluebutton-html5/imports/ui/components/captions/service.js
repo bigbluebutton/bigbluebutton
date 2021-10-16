@@ -61,9 +61,12 @@ const getAllAvailableLocales = () => {
   const locales = [];
   Captions.find({ meetingId: meetingID },
     { sort: { locale: 1 } },
-    { fields: { ownerId: 1, locale: 1 } })
+    { fields: { ownerId: 1, locale: 1, name: 1 } })
     .forEach((caption) => {
-      locales.push(caption.locale);
+      locales.push({
+        locale: caption.locale,
+        name: caption.name,
+      });
     });
   return locales;
 };
