@@ -46,10 +46,11 @@ export default class EraserComponent extends Component {
 
   render() {
     const results = this.getCoordinates();
-    const { annotation } = this.props;
+    const { annotation, hidden } = this.props;
     // Option 1. Using clipPath seems less CPU intensive, but a thin white line is drawn on a dark background.
     const clipId = "clip-" + annotation.id ;
     return (
+      hidden ? null :
       <g data-test="eraser">
         <clipPath id ={clipId}>
           <rect
