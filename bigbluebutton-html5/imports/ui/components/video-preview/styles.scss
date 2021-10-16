@@ -98,8 +98,8 @@
 
 .content {
   display: flex;
-  height: 14rem;
-  max-height: 40vh;
+  min-height: 14rem;
+  max-height: 50vh;
   justify-content: center;
   align-items: center;
 

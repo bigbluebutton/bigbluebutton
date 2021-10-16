@@ -15,7 +15,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface ModeratorPasswordConstraint {
 
-    String message() default "Invalid password: The supplied moderator password is incorrect";
+    String key() default "invalidPassword";
+    String message() default "The supplied moderator password is incorrect";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

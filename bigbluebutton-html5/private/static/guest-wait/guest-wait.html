@@ -5,6 +5,34 @@
   <title>BigBlueButton - Guest Lobby</title>
   <meta charset="UTF-8">
   <style>
+    /* vietnamese */
+    @font-face {
+      font-family: 'Source Sans Pro';
+      font-style: normal;
+      font-weight: 300;
+      src: local('Source Sans Pro Light'), local('SourceSansPro-Light'),
+          url('fonts/SourceSansPro/SourceSansPro-Light.woff') format('woff');
+      unicode-range: U+0102-0103, U+1EA0-1EF9, U+20AB;
+    }
+    /* latin-ext */
+    @font-face {
+      font-family: 'Source Sans Pro';
+      font-style: normal;
+      font-weight: 300;
+      src: local('Source Sans Pro Light'), local('SourceSansPro-Light'),
+          url('fonts/SourceSansPro/SourceSansPro-Light.woff') format('woff');
+      unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+    }
+    /* latin */
+    @font-face {
+      font-family: 'Source Sans Pro';
+      font-style: normal;
+      font-weight: 300;
+      src: local('Source Sans Pro Light'), local('SourceSansPro-Light'),
+          url('fonts/SourceSansPro/SourceSansPro-Light.woff') format('woff');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+    }
+
     :root {
       --enableAnimation: 1;
     }
@@ -23,7 +51,7 @@
       color: white;
       font-weight: bold;
       font-size: 24px;
-      font-family: arial, sans-serif;
+      font-family: 'Source Sans Pro', arial, sans-serif;
     }
 
     #content h1 {
@@ -204,6 +232,7 @@
               messages = mergedMessages;
 
               window.document.title = _('app.guest.windowTitle');
+              document.querySelector('#heading').innerHTML = _('app.guest.windowTitle');
               updateMessage(_('app.guest.guestWait'));
               enableAnimation();
               try {
@@ -306,7 +335,7 @@
 
 <body>
   <div id="content">
-    <h1>Guest Lobby</h1>
+    <h1 id="heading">BigBlueButton - Guest Lobby</h1>
     <div class="spinner">
       <div class="bounce1"></div>
       <div class="bounce2"></div>

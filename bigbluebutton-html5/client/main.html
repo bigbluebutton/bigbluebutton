@@ -75,8 +75,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       display: none !important;
     }
 
-    textarea::-webkit-input-placeholder,
-    input::-webkit-input-placeholder {
+    ::-webkit-input-placeholder {
+      color: var(--palette-placeholder-text);
+      opacity: 1;
+    }
+
+    :-moz-placeholder, /* Firefox 4 to 18 */
+    ::-moz-placeholder { /* Firefox 19+ */
       color: var(--palette-placeholder-text);
       opacity: 1;
     }

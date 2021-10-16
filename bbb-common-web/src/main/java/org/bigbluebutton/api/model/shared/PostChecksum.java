@@ -3,14 +3,9 @@ package org.bigbluebutton.api.model.shared;
 import org.bigbluebutton.api.model.constraint.PostChecksumConstraint;
 import org.bigbluebutton.api.service.ValidationService;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
-@PostChecksumConstraint(message = "Checksums do not match")
+@PostChecksumConstraint(groups = ChecksumValidationGroup.class)
 public class PostChecksum extends Checksum {
 
     Map<String, String[]> params;

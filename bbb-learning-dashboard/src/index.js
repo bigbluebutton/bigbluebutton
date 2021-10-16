@@ -60,7 +60,7 @@ class Dashboard extends React.Component {
   setRtl() {
     const { intlLocale } = this.state;
 
-    if (RTL_LANGUAGES.includes(intlLocale)) {
+    if (RTL_LANGUAGES.includes(intlLocale.substring(0, 2))) {
       document.body.parentNode.setAttribute('dir', 'rtl');
     }
   }

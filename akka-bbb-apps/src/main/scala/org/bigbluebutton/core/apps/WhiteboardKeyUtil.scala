@@ -4,9 +4,11 @@ object WhiteboardKeyUtil {
   val TEXT_TYPE = "text";
   val PENCIL_TYPE = "pencil";
   val RECTANGLE_TYPE = "rectangle";
+  val ERASER_TYPE = "eraser";
   val ELLIPSE_TYPE = "ellipse";
   val TRIANGLE_TYPE = "triangle";
   val LINE_TYPE = "line";
+  val MARKER_TYPE = "marker";
   val DRAW_START_STATUS = "DRAW_START";
   val DRAW_UPDATE_STATUS = "DRAW_UPDATE";
   val DRAW_END_STATUS = "DRAW_END";

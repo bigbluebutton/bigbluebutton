@@ -150,6 +150,11 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: SetGuestLobbyMessageCmdMsg => logMessage(msg)
       case m: GuestLobbyMessageChangedEvtMsg => logMessage(msg)
 
+      // Upload
+      case m: UploadRequestReqMsg => logMessage(msg)
+      case m: UploadRequestRespMsg => logMessage(msg)
+      case m: FileUploadedEvtMsg => logMessage(msg)
+
       // System
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
       case m: ServerToClientLatencyTracerMsg => traceMessage(msg)
