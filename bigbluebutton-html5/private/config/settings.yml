@@ -430,6 +430,7 @@ public:
     takeOwnership: true
     lines: 2
     time: 5000
+    googleTranslateUrl: https://script.google.com/macros/s/your_id
   chat:
     enabled: true
     itemsPerPage: 100

@@ -6,6 +6,7 @@ import { GithubPicker } from 'react-color';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { styles } from './styles.scss';
+import { Session } from 'meteor/session';
 
 const DEFAULT_VALUE = 'select';
 const DEFAULT_KEY = -1;
@@ -81,6 +82,10 @@ const intlMessages = defineMessages({
     id: 'app.captions.menu.ariaSelect',
     description: 'Captions language select aria label',
   },
+  selectDst: {
+    id: 'app.captions.menu.selectDst',
+    description: 'Select available destination language',
+  },
   captionsLabel: {
     id: 'app.captions.label',
     description: 'Used in font / size aria labels',
@@ -96,6 +101,7 @@ const propTypes = {
   getCaptionsSettings: PropTypes.func.isRequired,
   closeModal: PropTypes.func.isRequired,
   ownedLocales: PropTypes.arrayOf(PropTypes.object).isRequired,
+  allAvailableLocales: PropTypes.arrayOf(PropTypes.object).isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -113,9 +119,15 @@ class ReaderMenu extends PureComponent {
     } = props.getCaptionsSettings();
 
     const { ownedLocales } = this.props;
+    const initLocale = (ownedLocales && ownedLocales[0]) ? ownedLocales[0].locale : null;
+    const prevLocale = Session.get('captionsLocale');
+    const prevDstLocale = Session.get('captionsDstLocale');
+    const locale = prevLocale ? prevLocale : initLocale;
+    const dstLocale = prevDstLocale ? prevDstLocale : initLocale;
 
     this.state = {
-      locale: (ownedLocales && ownedLocales[0]) ? ownedLocales[0].locale : null,
+      locale,
+      dstLocale,
       backgroundColor,
       fontColor,
       fontFamily,
@@ -129,6 +141,7 @@ class ReaderMenu extends PureComponent {
     this.handleCloseColorPicker = this.handleCloseColorPicker.bind(this);
     this.handleColorChange = this.handleColorChange.bind(this);
     this.handleLocaleChange = this.handleLocaleChange.bind(this);
+    this.handleDstLocaleChange = this.handleDstLocaleChange.bind(this);
     this.handleStart = this.handleStart.bind(this);
     this.getPreviewStyle = this.getPreviewStyle.bind(this);
   }
@@ -158,6 +171,10 @@ class ReaderMenu extends PureComponent {
     this.setState({ locale: event.target.value });
   }
 
+  handleDstLocaleChange(event) {
+    this.setState({ dstLocale: event.target.value });
+  }
+  
   handleSelectChange(fieldname, options, event) {
     const obj = {};
     obj[fieldname] = options[event.target.value];
@@ -168,6 +185,7 @@ class ReaderMenu extends PureComponent {
     const { closeModal, activateCaptions } = this.props;
     const {
       locale,
+      dstLocale,
       backgroundColor,
       fontColor,
       fontFamily,
@@ -179,6 +197,8 @@ class ReaderMenu extends PureComponent {
       fontFamily,
       fontSize,
     };
+    Session.set('captionsLocale', locale);
+    Session.set('captionsDstLocale', dstLocale);
     activateCaptions(locale, settings);
     closeModal();
   }
@@ -203,6 +223,7 @@ class ReaderMenu extends PureComponent {
     const {
       intl,
       ownedLocales,
+      allAvailableLocales,
       closeModal,
     } = this.props;
 
@@ -214,9 +235,11 @@ class ReaderMenu extends PureComponent {
       fontFamily,
       fontSize,
       locale,
+      dstLocale,
     } = this.state;
 
     const defaultLocale = locale || DEFAULT_VALUE;
+    const defaultDstLocale = dstLocale || defaultLocale;
 
     const ariaTextColor = `${intl.formatMessage(intlMessages.fontColor)} ${intl.formatMessage(intlMessages.current, { 0: HEX_COLOR_NAMES[fontColor.toLowerCase()] })}`;
     const ariaBackgroundColor = `${intl.formatMessage(intlMessages.backgroundColor)} ${intl.formatMessage(intlMessages.current, { 0: HEX_COLOR_NAMES[backgroundColor.toLowerCase()] })}`;
@@ -266,7 +289,34 @@ class ReaderMenu extends PureComponent {
                   ))}
                 </select>
               </div>
-
+              <div className={styles.row}>
+                <div aria-hidden className={styles.label}>
+                  {intl.formatMessage(intlMessages.selectDst)}
+                </div>
+                <select
+                  aria-label={intl.formatMessage(intlMessages.selectDst)}
+                  className={styles.select}
+                  onChange={this.handleDstLocaleChange}
+                  defaultValue={defaultDstLocale}
+                  lang={locale}
+                >
+                  <option
+                    disabled
+                    key={DEFAULT_KEY}
+                    value={DEFAULT_VALUE}
+                  >
+                    {intl.formatMessage(intlMessages.select)}
+                  </option>
+                  {allAvailableLocales.map(loc => (
+                    <option
+                      key={loc.locale}
+                      value={loc.locale}
+                      lang={loc.locale}
+                    >
+                      {loc.name}
+                    </option>))}
+                </select>
+              </div>
               <div className={styles.row}>
                 <div aria-hidden className={styles.label}>
                   {intl.formatMessage(intlMessages.fontColor)}
