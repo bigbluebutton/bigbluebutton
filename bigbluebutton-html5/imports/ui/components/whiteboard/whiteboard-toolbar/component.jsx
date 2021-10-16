@@ -794,6 +794,7 @@ class WhiteboardToolbar extends Component {
       isMeteorConnected,
       multiUser,
       multiUserSize,
+      hideAnnotationsForAnnotator,
     } = this.props;
 
     return (
@@ -805,7 +806,11 @@ class WhiteboardToolbar extends Component {
             ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
             : intl.formatMessage(intlMessages.toolbarMultiUserOn)
           }
-          icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
+          icon={multiUser
+            ? hideAnnotationsForAnnotator
+                ? 'multi_whiteboard_isolated'
+                : 'multi_whiteboard'
+            : 'whiteboard'}
           onItemClick={this.handleSwitchWhiteboardMode}
           className={styles.toolbarButton}
         />
