@@ -38,7 +38,7 @@ export default function sendAnnotationHelper(annotation, meetingId, requesterUse
         userId: String,
         position: Number,
       });
-    } else if (annotation.annotationType === 'rectangle' || annotation.annotationType === 'triangle' || annotation.annotationType === 'ellipse' || annotation.annotationType === 'line' ){
+    } else if (annotation.annotationType === 'rectangle' || annotation.annotationType === 'triangle' || annotation.annotationType === 'ellipse' || annotation.annotationType === 'line' || annotation.annotationType === 'eraser' ){
       // line does not have the 'fill' property but this is necessary as 'fill' is anyway added at ui/components/whiteboard/whiteboard-overlay/shape-draw-listener/component.jsx
       // Any other shape excluding pencil and text (e.g., eraser) needs to be added here.
       check(annotation, {
