@@ -1,7 +1,8 @@
 const path = require('path');
 const e = require('../core/elements');
+const c = require('./constants');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { checkElementLengthEqualTo, checkElementLengthDifferentTo, checkElementText } = require('../core/util');
+const { checkElementLengthEqualTo, checkElementLengthDifferentTo, checkElementText, checkElement } = require('../core/util');
 
 async function autoJoinTest(test) {
   try {
@@ -160,6 +161,28 @@ function encodeCustomParams(param) {
   }
 }
 
+function getAllShortcutParams() {
+  const getParams = (shortcutArray) => {
+    return Object.values(shortcutArray.map(e => `"${e.param}"`));
+  }
+  return c.shortcuts.replace('$', [...getParams(c.initialShortcuts), ...getParams(c.laterShortcuts)]);
+}
+
+async function checkAccesskey(test, key) {
+  return test.page.evaluate(checkElement, `[accesskey="${key}"]`);
+}
+
+async function checkShortcutsArray(test, shortcut) {
+  for (const { param, key } of shortcut) {
+    const resp = await checkAccesskey(test, key);
+    if (!resp) {
+      await test.logger(`${param} shortcut failed`)
+      return false;
+    }
+  }
+  return true;
+}
+
 exports.zoomIn = zoomIn;
 exports.zoomOut = zoomOut;
 exports.poll = poll;
@@ -173,3 +196,6 @@ exports.listenOnlyMode = listenOnlyMode;
 exports.forceListenOnly = forceListenOnly;
 exports.skipCheck = skipCheck;
 exports.encodeCustomParams = encodeCustomParams;
+exports.getAllShortcutParams = getAllShortcutParams;
+exports.checkAccesskey = checkAccesskey;
+exports.checkShortcutsArray = checkShortcutsArray;

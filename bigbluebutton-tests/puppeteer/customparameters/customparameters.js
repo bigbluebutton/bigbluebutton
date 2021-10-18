@@ -218,23 +218,30 @@ class CustomParameters {
   async shortcuts(testName, customParameter) {
     try {
       await this.page1.init(true, true, testName, 'Moderator', undefined, customParameter);
+      await this.page2.init(false, true, testName, 'Attendee', this.page1.meetingId);
       await this.page1.startRecording(testName);
-      await this.page1.screenshot(`${testName}`, `01-${testName}`);
-      await this.page1.screenshot(`${testName}`, `02-${testName}`);
-      await this.page1.logger('audio modal closed');
-      await this.page1.waitForSelector(e.options);
-      await this.page1.page.keyboard.down('Alt');
-      await this.page1.page.keyboard.press('O');
-      const resp = await this.page1.wasRemoved(e.verticalListOptions);
-      if (!resp) {
-        await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
-        await this.page1.logger(testName, ' failed');
-        return false;
-      }
-      await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
-      await this.page1.logger(testName, ' passed');
+      await this.page1.screenshot(`${testName}`, '01-after-close-audio-modal');
 
-      return resp === true;
+      // Check the initial shortcuts that can be used right after joining the meeting
+      const check1 = await util.checkShortcutsArray(this.page1, c.initialShortcuts);
+      if (!check1) return false;
+      await this.page1.bringToFront();
+
+      // Join audio
+      await this.page1.waitAndClick(e.joinAudio);
+      await this.page1.joinMicrophone();
+      await this.page1.screenshot(`${testName}`, '02-after-join-audio');
+
+      // Open private chat
+      await this.page1.waitAndClick(e.userListItem);
+      await this.page1.waitAndClick(e.activeChat);
+      await this.page1.waitForSelector(e.hidePrivateChat);
+      await this.page1.screenshot(`${testName}`, '03-after-open-private-chat');
+
+      // Check the later shortcuts that can be used after joining audio and opening private chat
+      const check2 = await util.checkShortcutsArray(this.page1, c.laterShortcuts);
+
+      return check2 === true;
     } catch (err) {
       await this.page1.logger(err);
       return false;
