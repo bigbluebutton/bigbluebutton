@@ -178,12 +178,29 @@
 }
 
 .icon-bbb-volume_off:before {
-  content: "\e947";
+  content: "\e95f";
 }
 
 .icon-bbb-volume_up:before {
   content: "\e947";
 }
+
+.icon-bbb-volume_level_1:before {
+  content: "\e960";
+}
+
+.icon-bbb-volume_level_2:before {
+  content: "\e961";
+}
+
+.icon-bbb-volume_level_3:before {
+  content: "\e962";
+}
+
+.icon-bbb-no_audio:before {
+  content: "\e963";
+}
+
 
 /* Aliases for emoji status */
 .icon-bbb-time:before {
