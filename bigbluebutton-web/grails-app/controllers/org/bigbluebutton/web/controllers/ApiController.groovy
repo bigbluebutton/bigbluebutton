@@ -1070,15 +1070,15 @@ class ApiController {
     UserSession us
     Meeting meeting
 
-    String validationResponse = validateRequest(
+    Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.ENTER,
             request.getParameterMap(),
             request.getQueryString(),
     )
 
     //Validate Session
-    if(!validationResponse.isEmpty()) {
-      respMessage = validationResponse
+    if(!(validationResponse == null)) {
+      respMessage = validationResponse.getValue()
       reject = true
     } else {
       sessionToken = sanitizeSessionToken(params.sessionToken)
