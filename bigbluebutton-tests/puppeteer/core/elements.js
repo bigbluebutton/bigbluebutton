@@ -49,9 +49,11 @@ exports.alreadyConnected = 'span[class^="alreadyConnected--"]';
 exports.breakoutJoin = '[data-test="breakoutJoin"]';
 exports.userJoined = 'div[aria-label^="Moderator3"]';
 exports.breakoutRoomsButton = 'div[aria-label="Breakout Rooms"]';
-exports.generateRoom1 = 'button[aria-label="Generate URL Room 1"]';
-exports.joinGeneratedRoom1 = 'button[aria-label="Generated Room 1"]';
+exports.askJoinRoom1 = 'button[aria-label="Ask to join Room 1"]';
 exports.joinRoom1 = 'button[aria-label="Join room Room 1"]';
+exports.allowChoiceRoom = 'input[id="freeJoinCheckbox"]';
+exports.labelGeneratingURL = 'span[data-test="labelGeneratingURL"]';
+exports.endBreakoutRoomsButton = 'button[data-test="endBreakoutRoomsButton"]';
 
 // Chat
 exports.chatButton = 'div[data-test="chatButton"]';
@@ -204,6 +206,8 @@ exports.chatPanel = 'section[data-test="chatPanel"]';
 exports.userListPanel = 'div[data-test="userListPanel"]';
 exports.multiWhiteboardTool = 'span[data-test="multiWhiteboardTool"]'
 exports.connectionStatusBtn = 'button[data-test="connectionStatusButton"]';
+exports.connectionDataContainer = '[class^=networkDataContainer--]';
+exports.connectionNetwordData = '[class^=networkData--]';
 
 // Webcam
 exports.joinVideo = 'button[data-test="joinVideo"]';

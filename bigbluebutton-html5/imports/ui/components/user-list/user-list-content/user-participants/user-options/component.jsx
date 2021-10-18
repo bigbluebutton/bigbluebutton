@@ -214,7 +214,7 @@ class UserOptions extends PureComponent {
       hasBreakoutRoom,
       isBreakoutEnabled,
       getUsersNotAssigned,
-      learningDashboardAccessToken,
+      learningDashboardEnabled,
       openLearningDashboardUrl,
       amIModerator,
       users,
@@ -326,7 +326,7 @@ class UserOptions extends PureComponent {
         });
       }
       if (amIModerator) {
-        if (learningDashboardAccessToken != null) {
+        if (learningDashboardEnabled === true) {
           this.menuItems.push({
             icon: 'multi_whiteboard',
             iconRight: 'popout_window',
@@ -336,7 +336,7 @@ class UserOptions extends PureComponent {
             onClick: () => { openLearningDashboardUrl(locale); },
             dividerTop: true,
           });
-         }
+        }
       }
     }
 
