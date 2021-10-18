@@ -95,17 +95,6 @@ patch -p0 < floor.patch
 
 ./bootstrap.sh 
 
-apt update
-apt install -y python3-pip
-
-pip3 --version
-pip3 install
-python3 -m site
-python3 -c 'from distutils import sysconfig; print(sysconfig.get_python_lib(0));'
-
-
-
-
 ./configure --disable-core-odbc-support --disable-core-pgsql-support \
     --without-python --without-erlang --without-java \
     --prefix=/opt/freeswitch CFLAGS="-Wno-error -Og -ggdb" CXXFLAGS="-Wno-error -Og -ggdb"
