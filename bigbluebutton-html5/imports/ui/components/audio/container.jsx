@@ -186,7 +186,7 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
 
     if (userMic && !Service.isMuted()) {
       Service.toggleMuteMicrophone();
-      notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'audio_on');
+      notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'volume_level_2');
     }
   }
 
