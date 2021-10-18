@@ -17,6 +17,7 @@ class App extends React.Component {
       tab: 'overview',
       meetingId: '',
       learningDashboardAccessToken: '',
+      sessionToken: '',
     };
   }
 
@@ -30,12 +31,17 @@ class App extends React.Component {
   setDashboardParams() {
     let learningDashboardAccessToken = '';
     let meetingId = '';
+    let sessionToken = '';
 
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
 
     if (typeof params.meeting !== 'undefined') {
       meetingId = params.meeting;
+    }
+
+    if (typeof params.sessionToken !== 'undefined') {
+      sessionToken = params.sessionToken;
     }
 
     if (typeof params.report !== 'undefined') {
@@ -56,11 +62,12 @@ class App extends React.Component {
       }
     }
 
-    this.setState({ learningDashboardAccessToken, meetingId }, this.fetchActivitiesJson);
+    this.setState({ learningDashboardAccessToken, meetingId, sessionToken },
+      this.fetchActivitiesJson);
   }
 
   fetchActivitiesJson() {
-    const { learningDashboardAccessToken, meetingId } = this.state;
+    const { learningDashboardAccessToken, meetingId, sessionToken } = this.state;
 
     if (learningDashboardAccessToken !== '') {
       fetch(`${meetingId}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
@@ -71,6 +78,24 @@ class App extends React.Component {
         }).catch(() => {
           this.setState({ loading: false });
         });
+    } else if (sessionToken !== '') {
+      const url = new URL('/bigbluebutton/api/learningDashboard', window.location);
+      fetch(`${url}?sessionToken=${sessionToken}`)
+        .then((response) => response.json())
+        .then((json) => {
+          if (json.response.returncode === 'SUCCESS') {
+            const jsonData = JSON.parse(json.response.data);
+            this.setState({ activitiesJson: jsonData, loading: false });
+            document.title = `Learning Dashboard - ${jsonData.name}`;
+          } else {
+            // When meeting is ended the sessionToken stop working, check for new cookies
+            this.setDashboardParams();
+            this.setState({ loading: false });
+          }
+        })
+        .catch(() => {
+          this.setState({ loading: false });
+        });
     } else {
       this.setState({ loading: false });
     }
@@ -78,7 +103,7 @@ class App extends React.Component {
 
   render() {
     const {
-      activitiesJson, tab, learningDashboardAccessToken, loading,
+      activitiesJson, tab, meetingId, learningDashboardAccessToken, sessionToken, loading,
     } = this.state;
     const { intl } = this.props;
 
@@ -162,19 +187,59 @@ class App extends React.Component {
     }
 
     function getErrorMessage() {
-      if (learningDashboardAccessToken === '') {
+      if (learningDashboardAccessToken === '' && sessionToken === '') {
         return intl.formatMessage({ id: 'app.learningDashboard.errors.invalidToken', defaultMessage: 'Invalid session token' });
       }
-      return intl.formatMessage({ id: 'app.learningDashboard.errors.dataUnavailable', defaultMessage: 'Data is no longer available' });
+
+      if (activitiesJson === {} || typeof activitiesJson.name === 'undefined') {
+        return intl.formatMessage({ id: 'app.learningDashboard.errors.dataUnavailable', defaultMessage: 'Data is no longer available' });
+      }
+
+      return '';
     }
 
-    if (loading === false && typeof activitiesJson.name === 'undefined') return <ErrorMessage message={getErrorMessage()} />;
+    function copyPublicLink() {
+      let url = window.location.href.split('?')[0];
+      url += `?meeting=${meetingId}&report=${learningDashboardAccessToken}&lang=${intl.locale}`;
+      navigator.clipboard.writeText(url);
+      const copiedMessage = intl.formatMessage({ id: 'app.learningDashboard.linkCopied', defaultMessage: 'Link successfully copied' });
+      alert(copiedMessage);
+    }
+
+    if (loading === false && getErrorMessage() !== '') return <ErrorMessage message={getErrorMessage()} />;
 
     return (
       <div className="mx-10">
         <div className="flex items-start justify-between pb-3">
           <h1 className="mt-3 text-2xl font-semibold whitespace-nowrap inline-block">
             <FormattedMessage id="app.learningDashboard.dashboardTitle" defaultMessage="Learning Dashboard" />
+            &nbsp;
+            {
+              learningDashboardAccessToken !== ''
+                ? (
+                  <button type="button" onClick={() => { copyPublicLink(); }} className="text-sm font-medium text-blue-500 ease-out" name="teste">
+                    (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 inline"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                      />
+                    </svg>
+                    &nbsp;
+                    <FormattedMessage id="app.learningDashboard.shareButton" defaultMessage="Share with others" />
+                    )
+                  </button>
+                )
+                : null
+            }
             <br />
             <span className="text-sm font-medium">{activitiesJson.name || ''}</span>
           </h1>

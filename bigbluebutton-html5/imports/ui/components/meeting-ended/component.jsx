@@ -266,7 +266,9 @@ class MeetingEnded extends PureComponent {
               <div>
                 {
                   LearningDashboardService.isModerator()
-                  && LearningDashboardService.getLearningDashboardAccessToken() != null
+                  && LearningDashboardService.isLearningDashboardEnabled() === true
+                  // Always set cookie in case Dashboard is already opened
+                  && LearningDashboardService.setLearningDashboardCookie() === true
                     ? (
                       <div className={styles.text}>
                         <Button
