@@ -39,7 +39,8 @@ public class ValidationService {
         GUEST_WAIT("guestWait", RequestType.GET),
         ENTER("enter", RequestType.GET),
         STUNS("stuns", RequestType.GET),
-        SIGN_OUT("signOut", RequestType.GET);
+        SIGN_OUT("signOut", RequestType.GET),
+        LEARNING_DASHBOARD("learningDashboard", RequestType.GET);
 
         private final String name;
         private final RequestType requestType;
@@ -132,6 +133,9 @@ public class ValidationService {
                         break;
                     case SIGN_OUT:
                         request = new SignOut();
+                        break;
+                    case LEARNING_DASHBOARD:
+                        request = new LearningDashboard();
                         break;
                 }
             case POST:

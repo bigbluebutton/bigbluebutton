@@ -1071,7 +1071,7 @@ class ApiController {
     Meeting meeting
 
     Map.Entry<String, String> validationResponse = validateRequest(
-            ValidationService.ApiCall.ENTER,
+            ValidationService.ApiCall.LEARNING_DASHBOARD,
             request.getParameterMap(),
             request.getQueryString(),
     )
