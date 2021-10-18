@@ -5,18 +5,22 @@ import {
   colorGray,
   colorGrayDark,
   colorGrayLabel,
+  colorGrayLightest,
+  colorPrimary,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
   smPaddingY,
   lgPaddingY,
   lgPaddingX,
-  modalMargin,
   titlePositionLeft,
+  mdPaddingX,
+  borderSizeLarge,
+  jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeSmall,
-  fontSizeLarge,
+  fontSizeXL,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { hasPhoneDimentions } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
@@ -24,9 +28,10 @@ const Item = styled.div`
   display: flex;
   width: 100%;
   height: 4rem;
+  border-bottom: 1px solid ${colorGrayLightest};
 
-  ${({ even }) => even && `
-    background-color: ${colorOffWhite};
+  ${({ last }) => last && `
+    border: none;
   `}
 `;
 
@@ -37,11 +42,19 @@ const Left = styled.div`
 `;
 
 const Name = styled.div`
-  display: grid;
-  width: 100%;
+  display: flex;
+  width: 27.5%;
   height: 100%;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+
+  @media ${hasPhoneDimentions} {
+    width: 100%;
+  }
+`;
+
+const FullName = styled(Name)`
+  width: 100%;
 `;
 
 const Text = styled.div`
@@ -51,8 +64,13 @@ const Text = styled.div`
   text-overflow: ellipsis;
 
   ${({ offline }) => offline && `
-      font-style: italic;
+    font-style: italic;
   `}
+
+  [dir="rtl"] & {
+    padding: 0;
+    padding-right: .5rem;
+  }
 `;
 
 const ToggleLabel = styled.span`
@@ -65,7 +83,6 @@ const ToggleLabel = styled.span`
 
 const Avatar = styled.div`
   display: flex;
-  width: 4rem;
   height: 100%;
   justify-content: center;
   align-items: center;
@@ -87,6 +104,7 @@ const Time = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
+  justify-content: flex-end;
 `;
 
 const DataSaving = styled.div`
@@ -149,30 +167,42 @@ const Label = styled.span`
 
 const NetworkDataContainer = styled.div`
   width: 100%;
+  height: 100%;
   display: flex;
-  background-color: ${colorOffWhite};
 `;
 
 const NetworkData = styled.div`
-  float: left;
   font-size: ${fontSizeSmall};
-  margin-left: ${smPaddingX};
+
+  ${({ invisible }) => invisible && `
+    visibility: hidden;
+  `}
+
+  & .dataLabel {
+    font-weight: 600;
+  }
 `;
 
 const CopyContainer = styled.div`
   width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  border: none;
+  border-top: 1px solid ${colorOffWhite};
+  padding: ${jumboPaddingY} 0 0;
 `;
 
 const ConnectionStatusModal = styled(Modal)`
-  padding: ${smPaddingY};
+  padding: 1.5rem;
+  border-radius: 7.5px;
+
+  @media ${hasPhoneDimentions} {
+    padding: 1rem;
+  }
 `;
 
 const Container = styled.div`
-  margin: 0 ${modalMargin} ${lgPaddingX};
-
-  @media ${hasPhoneDimentions} {
-    margin: 0 1rem;
-  }
+  padding: 0 calc(${mdPaddingX} / 2 + ${borderSizeLarge});
 `;
 
 const Header = styled.div`
@@ -184,16 +214,14 @@ const Header = styled.div`
 `;
 
 const Title = styled.h2`
-  left: ${titlePositionLeft};
-  right: auto;
   color: ${colorGrayDark};
-  font-weight: bold;
-  font-size: ${fontSizeLarge};
-  text-align: center;
+  font-weight: 500;
+  font-size: ${fontSizeXL};
+  text-align: left;
+  margin: 0;
 
   [dir="rtl"] & {
-    left: auto;
-    right: ${titlePositionLeft};
+    text-align: right;
   }
 `;
 
@@ -219,19 +247,97 @@ const Status = styled.div`
 `;
 
 const Copy = styled.span`
-  float: right;
-  text-decoration: underline;
   cursor: pointer;
-  margin-right: ${smPaddingX};
+  color: ${colorPrimary};
 
-  [dir="rtl"] & {
-    margin-left: ${smPaddingX};
-    float: left;
+  &:hover {
+    text-decoration: underline;
   }
 
   ${({ disabled }) => disabled && `
     cursor: not-allowed !important;
   `}
+`;
+
+const Helper = styled.div`
+  width: 12.5rem;
+  height: 100%;
+  border-radius: .5rem;
+  background-color: ${colorOffWhite};
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  @media ${hasPhoneDimentions} {
+    display: none;
+  }
+`;
+
+const NetworkDataContent = styled.div`
+  margin: 0;
+  display: flex;
+  justify-content: space-around;
+  flex-grow: 1;
+`;
+
+const DataColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  @media ${hasPhoneDimentions} {
+    flex-grow: 1;
+  }
+`;
+
+const Main = styled.div`
+  height: 19.5rem;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+`;
+
+const Body = styled.div`
+  padding: ${jumboPaddingY} 0;
+  margin: 0;
+  flex-grow: 1;
+`;
+
+const Navigation = styled.div`
+  display: flex;
+  border: none;
+  border-bottom: 1px solid ${colorOffWhite};
+  user-select: none;
+  overflow-y: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  & :not(:last-child) {
+    margin: 0;
+    margin-right: ${lgPaddingX};
+  }
+
+  .activeConnectionStatusTab {
+    border: none;
+    border-bottom: 2px solid ${colorPrimary};
+    color: ${colorPrimary};
+  }
+
+  & * {
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  [dir="rtl"] & {
+    & :not(:last-child) {
+      margin: 0;
+      margin-left: ${lgPaddingX};
+    }
+  }
 `;
 
 export default {
@@ -262,4 +368,11 @@ export default {
   Wrapper,
   Status,
   Copy,
+  Helper,
+  NetworkDataContent,
+  Main,
+  Body,
+  Navigation,
+  FullName,
+  DataColumn,
 };
