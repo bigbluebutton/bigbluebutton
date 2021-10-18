@@ -89,31 +89,34 @@ const JoinVideoButton = ({
 
   const renderEmojiButton = () => (
     shouldEnableWebcamSelectorButton
-      && (<ButtonEmoji
+      && (
+      <ButtonEmoji
         onClick={handleOpenAdvancedOptions}
         emoji="device_list_selector"
         hidden={!hasVideoStream}
+        hideLabel
         label={intl.formatMessage(intlMessages.advancedVideo)}
       />
       )
   );
 
   return (
-    <Button
-      label={label}
-      data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
-      className={cx(hasVideoStream || styles.btn)}
-      onClick={handleOnClick}
-      hideLabel
-      color={hasVideoStream ? 'primary' : 'default'}
-      icon={hasVideoStream ? 'video' : 'video_off'}
-      ghost={!hasVideoStream}
-      size="lg"
-      circle
-      disabled={!!disableReason}
-    >
+    <div className={styles.offsetBottom}>
+      <Button
+        label={label}
+        data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
+        className={cx(hasVideoStream || styles.btn)}
+        onClick={handleOnClick}
+        hideLabel
+        color={hasVideoStream ? 'primary' : 'default'}
+        icon={hasVideoStream ? 'video' : 'video_off'}
+        ghost={!hasVideoStream}
+        size="lg"
+        circle
+        disabled={!!disableReason}
+      />
       {renderEmojiButton()}
-    </Button>
+    </div>
   );
 };
 
