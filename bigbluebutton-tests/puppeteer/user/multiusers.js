@@ -2,8 +2,8 @@ const Page = require('../core/page');
 const util = require('../chat/util');
 const utilUser = require('./util');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
-const { getElementLength, checkElementLengthEqualTo, checkElementLengthDifferentTo } = require('../core/util');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { getElementLength, checkElementLengthEqualTo } = require('../core/util');
 
 class MultiUsers {
   constructor() {
@@ -293,7 +293,7 @@ class MultiUsers {
       await this.page2.close();
       await utilUser.connectionStatus(this.page1);
       const connectionStatusItemEmpty = await this.page1.wasRemoved(e.connectionStatusItemEmpty);
-      const connectionStatusOfflineUser = await this.page1.hasElement(e.connectionStatusOfflineUser, true);
+      const connectionStatusOfflineUser = await this.page1.hasElement(e.connectionStatusOfflineUser, true, ELEMENT_WAIT_LONGER_TIME);
 
       return connectionStatusItemEmpty && connectionStatusOfflineUser;
     } catch (err) {
@@ -313,13 +313,58 @@ class MultiUsers {
     }
   }
 
+  async usersConnectionStatus(testName) {
+    try {
+      await this.page1.shareWebcam(true);
+      await this.page1.screenshot(testName, '01-page1-after-share-webcam');
+      await this.initUserPage(false, testName);
+      await this.userPage.joinMicrophone();
+      await this.userPage.screenshot(testName, '02-userPage-after-join-microhpone');
+      await this.userPage.shareWebcam(true);
+      await this.userPage.screenshot(testName, '03-userPage-after-share-webcam');
+      await this.userPage.waitAndClick(e.connectionStatusBtn);
+      try {
+        await this.userPage.page.waitForFunction(utilUser.checkNetworkStatus, { timeout: ELEMENT_WAIT_TIME },
+          e.connectionDataContainer, e.connectionNetwordData
+        );
+        await this.userPage.screenshot(testName, '04-connection-network-success');
+        return true;
+      } catch (err) {
+        await this.userPage.screenshot(testName, '04-connection-network-failed');
+        this.userPage.logger(err);
+        return false;
+      }
+    } catch (err) {
+      this.page1.logger(err);
+      return false;
+    }
+  }
+
+  async disableWebcamsFromConnectionStatus() {
+    try {
+      await this.page1.shareWebcam(true, ELEMENT_WAIT_LONGER_TIME);
+      await this.page2.shareWebcam(true, ELEMENT_WAIT_LONGER_TIME);
+      await utilUser.connectionStatus(this.page1);
+      await this.page1.waitAndClickElement(e.dataSavingWebcams);
+      await this.page1.waitAndClickElement(e.closeConnectionStatusModal);
+      await this.page1.waitForSelector(e.smallToastMsg);
+      const checkUserWhoHasDisabled = await this.page1.page.evaluate(checkElementLengthEqualTo, e.videoContainer, 1);
+      const checkSecondUser = await this.page2.page.evaluate(checkElementLengthEqualTo, e.videoContainer, 2);
+
+      return checkUserWhoHasDisabled && checkSecondUser;
+    } catch (err) {
+      await this.page1.logger(err);
+      return false;
+    }
+  }
+
   async whiteboardNotAppearOnMobile() {
     try {
       await this.page1.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.chatButtonKey);
-      const onUserListPanel = await this.page1.isNotVisible(e.hidePresentation);
-      const onChatPanel = await this.page2.isNotVisible(e.hidePresentation);
+      const onUserListPanel = await this.page1.wasRemoved(e.hidePresentation);
+      const onChatPanel = await this.page2.wasRemoved(e.hidePresentation);
 
       return onUserListPanel && onChatPanel;
     } catch (err) {
@@ -333,7 +378,7 @@ class MultiUsers {
       await this.page2.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.chatButtonKey);
       const whiteboard = await this.page1.page.evaluate(checkElementLengthEqualTo, e.chatButtonKey, 0);
-      const onChatPanel = await this.page2.isNotVisible(e.chatButtonKey);
+      const onChatPanel = await this.page2.hasElement(e.chatButtonKey, false);
 
       return whiteboard && onChatPanel;
     } catch (err) {
