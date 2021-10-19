@@ -345,37 +345,6 @@ class App extends Component {
       && (isPhone || isLayeredView.matches);
   }
 
-  renderNavBar() {
-    const { navbar, isLargeFont } = this.props;
-
-    if (!navbar) return null;
-
-    const realNavbarHeight = isLargeFont ? LARGE_NAVBAR_HEIGHT : NAVBAR_HEIGHT;
-
-    return (
-      <header
-        className={styles.navbar}
-        style={{
-          height: realNavbarHeight,
-        }}
-      >
-        {navbar}
-      </header>
-    );
-  }
-
-  renderSidebar() {
-    const { sidebar } = this.props;
-
-    if (!sidebar) return null;
-
-    return (
-      <aside className={styles.sidebar}>
-        {sidebar}
-      </aside>
-    );
-  }
-
   renderCaptions() {
     const {
       captions,
