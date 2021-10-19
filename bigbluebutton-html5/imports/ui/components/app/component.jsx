@@ -406,9 +406,10 @@ class App extends Component {
       actionsbar,
       intl,
       actionsBarStyle,
+      hideActionsBar,
     } = this.props;
 
-    if (!actionsbar) return null;
+    if (!actionsbar || hideActionsBar) return null;
 
     return (
       <section
