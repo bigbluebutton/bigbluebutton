@@ -129,7 +129,6 @@
     "app.presentationUploder.clearErrors": "Escafar las errors",
     "app.poll.quickPollTitle": "Sondatge rapid",
     "app.poll.closeLabel": "Tampar",
-    "app.poll.question.label" : "Escrivètz vòstra question.",
     "app.poll.userResponse.label" : "Responsa de l’utilizaire",
     "app.poll.responseTypes.label" : "Tipes de responsa",
     "app.poll.optionDelete.label" : "Supirmir",
@@ -221,7 +220,6 @@
     "app.audioModal.yes": "Òc",
     "app.audioModal.no": "Non",
     "app.audioDial.tipIndicator": "Astúcia",
-    "app.audioModal.connecting": "Connexion",
     "app.audio.backLabel": "Tornar",
     "app.audio.loading": "Cargament",
     "app.audio.microphones": "Microfòns",
@@ -309,19 +307,8 @@
     "playback.player.chat.message.poll.option.no": "Non",
     "playback.player.chat.message.poll.option.true": "Verai",
     "playback.player.chat.message.poll.option.false": "Fals",
-    "app.learningDashboard.indicators.participants": "Participants",
     "app.learningDashboard.indicators.polls": "Sondatges",
-    "app.learningDashboard.indicators.duration": "Durada",
-    "app.learningDashboard.participantsTable.title": "Apercebut",
-    "app.learningDashboard.participantsTable.colParticipant": "Participant",
-    "app.learningDashboard.participantsTable.colOnline": "Temps en linha",
-    "app.learningDashboard.participantsTable.colTalk": "Temps de paraula",
-    "app.learningDashboard.participantsTable.colWebcam": "Temps d’imatge",
-    "app.learningDashboard.participantsTable.colMessages": "Messatges",
-    "app.learningDashboard.participantsTable.colEmojis": "Emoji",
-    "app.learningDashboard.participantsTable.userStatusOnline": "En linha",
-    "app.learningDashboard.participantsTable.userStatusOffline": "Fòra linha",
-    "app.learningDashboard.pollsTable.colParticipant": "Participant"
+    "app.learningDashboard.indicators.duration": "Durada"
 
 }
 

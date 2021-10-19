@@ -2,7 +2,7 @@ import Presentations from '/imports/api/presentations';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
+import Users from '/imports/ui/local-collections/users-collection/users';
 import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { ACTIONS } from '../layout/enums';
@@ -48,13 +48,17 @@ const swapLayout = {
 };
 
 const setSwapLayout = (layoutContextDispatch) => {
+  const hidePresentation = getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation);
+
   swapLayout.value = getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout);
   swapLayout.tracker.changed();
 
-  layoutContextDispatch({
-    type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-    value: !swapLayout.value,
-  });
+  if (!hidePresentation) {
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+      value: !swapLayout.value,
+    });
+  }
 };
 
 const toggleSwapLayout = (layoutContextDispatch) => {
@@ -67,8 +71,6 @@ const toggleSwapLayout = (layoutContextDispatch) => {
     value: !swapLayout.value,
   });
 };
-
-export const shouldEnableSwapLayout = () => !shouldShowScreenshare() && !shouldShowExternalVideo();
 
 export const getSwapLayout = () => {
   swapLayout.tracker.depend();
@@ -84,7 +86,6 @@ export default {
   isUserPresenter,
   isVideoBroadcasting,
   toggleSwapLayout,
-  shouldEnableSwapLayout,
   getSwapLayout,
   setSwapLayout,
 };

@@ -3,10 +3,6 @@ function checkElement(element, index = 0) {
   return document.querySelectorAll(element)[index] !== undefined;
 }
 
-function clickElement(element, index = 0) {
-  document.querySelectorAll(element)[index].click();
-}
-
 // Text
 function checkElementText(element, param, index = 0) {
   return document.querySelectorAll(element)[index].innerText === param;
@@ -35,7 +31,6 @@ function getElementLength(element) {
 }
 
 exports.checkElement = checkElement;
-exports.clickElement = clickElement;
 exports.checkElementText = checkElementText;
 exports.checkElementTextIncludes = checkElementTextIncludes;
 exports.getElementText = getElementText;

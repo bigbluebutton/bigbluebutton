@@ -1,15 +1,14 @@
 package org.bigbluebutton.api.model.shared;
 
+import org.bigbluebutton.api.model.constraint.NotEmpty;
 import org.bigbluebutton.api.util.ParamsUtil;
-
-import javax.validation.constraints.NotEmpty;
 
 public abstract class Checksum {
 
-    @NotEmpty(message = "You must provide the API call")
+    @NotEmpty(message = "You must provide the API call", groups = ChecksumValidationGroup.class)
     protected String apiCall;
 
-    @NotEmpty(message = "You must provide the checksum")
+    @NotEmpty(key = "checksumError", message = "You must provide the checksum", groups = ChecksumValidationGroup.class)
     protected String checksum;
 
     protected String queryStringWithoutChecksum;

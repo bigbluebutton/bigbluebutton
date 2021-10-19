@@ -284,17 +284,6 @@ class UserOptions extends PureComponent {
           onClick: this.onSaveUserNames,
           icon: 'download',
         });
-
-        if (learningDashboardAccessToken != null) {
-          this.menuItems.push({
-            icon: 'multi_whiteboard',
-            iconRight: 'popout_window',
-            label: intl.formatMessage(intlMessages.learningDashboardLabel),
-            description: intl.formatMessage(intlMessages.learningDashboardDesc),
-            key: this.learningDashboardId,
-            onClick: () => { openLearningDashboardUrl(locale); },
-          });
-        }
       }
 
       this.menuItems.push({
@@ -320,6 +309,7 @@ class UserOptions extends PureComponent {
       if (canInviteUsers) {
         this.menuItems.push({
           icon: 'rooms',
+          dataTest: 'inviteBreakoutRooms',
           label: intl.formatMessage(intlMessages.invitationItem),
           key: this.createBreakoutId,
           onClick: this.onInvitationUsers,
@@ -333,8 +323,20 @@ class UserOptions extends PureComponent {
           // description: intl.formatMessage(intlMessages.captionsDesc),
           key: this.captionsId,
           onClick: this.handleCaptionsClick,
-          dataTest: 'inviteBreakoutRooms',
         });
+      }
+      if (amIModerator) {
+        if (learningDashboardAccessToken != null) {
+          this.menuItems.push({
+            icon: 'multi_whiteboard',
+            iconRight: 'popout_window',
+            label: intl.formatMessage(intlMessages.learningDashboardLabel),
+            description: intl.formatMessage(intlMessages.learningDashboardDesc),
+            key: this.learningDashboardId,
+            onClick: () => { openLearningDashboardUrl(locale); },
+            dividerTop: true,
+          });
+         }
       }
     }
 

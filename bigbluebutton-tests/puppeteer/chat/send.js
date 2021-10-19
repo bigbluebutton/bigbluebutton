@@ -1,13 +1,11 @@
-// Test: Sending a chat message
-
 const Page = require('../core/page');
-const e = require('./elements');
+const e = require('../core/elements');
 const util = require('./util');
 const { checkElementLengthEqualTo } = require('../core/util');
 
 class Send extends Page {
   constructor() {
-    super('chat-send');
+    super();
   }
 
   async test(testName) {
@@ -22,7 +20,7 @@ class Send extends Page {
       await this.type(e.chatBox, e.message);
       await this.screenshot(`${testName}`, `02-typing-chat-message-[${this.meetingId}]`);
 
-      await this.click(e.sendButton, true);
+      await this.waitAndClick(e.sendButton);
       await this.screenshot(`${testName}`, `03-after-chat-message-send-[${this.meetingId}]`);
 
       await this.waitForSelector(e.chatUserMessageText);
