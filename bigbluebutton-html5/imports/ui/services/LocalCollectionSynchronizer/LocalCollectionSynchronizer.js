@@ -1,7 +1,13 @@
 import SubscriptionRegistry from '/imports/ui/services/subscription-registry/subscriptionRegistry';
-import CollectionEventsBroker from '/imports/ui/services/collection-hooks-callbacks/collection-hooks-callbacks';
+import CollectionEventsBroker from '/imports/ui/services/LiveDataEventBroker/LiveDataEventBroker';
 
-class AbstractCollection {
+/*
+This class connects a local collection with the LiveDataEventBroker, propagating the changes of a server-side published cursor to a local collection. 
+
+It also guarantee that in case of a reconnection or a re-subscription, the data is only removed after subscription is ready, avoiding the situation of missing data during re-synchronization.
+*/
+
+class LocalCollectionSynchronizer {
   constructor(serverCollection, localCollection, options = {}) {
     this.serverCollection = serverCollection;
     this.localCollection = localCollection;
@@ -9,21 +15,24 @@ class AbstractCollection {
     this.lastSubscriptionId = '';
     this.options = options;
     this.ignoreDeletes = false;
-    this.createObserver();
   }
 
+  /*
+  This method allow to enable/disable the ignoreDeletes feature.
+  When enabled, system will skip the received deletes ( not apply on local collection ).
+  Don't panic: these deletes will be processed when the subscription gets ready - see removeOldSubscriptionData method.
+  */
   setIgnoreDeletes(value) {
     this.ignoreDeletes = value;
   }
 
   // Replicates remote collection to local collection ( avoiding cleanup during the forced resync )
-  createObserver() {
+  setupListeners() {
     const self = this;
 
     const addedCallback = function (item) {
       const subscription = SubscriptionRegistry
         .getSubscription(self.serverCollection._name);
-
       if (item.id === 'publication-stop-marker' && item.stopped) {
         self.ignoreDeletes = true;
         return;
@@ -34,8 +43,9 @@ class AbstractCollection {
         const wasEmpty = self.lastSubscriptionId === '';
         self.lastSubscriptionId = subscription.subscriptionId;
         if (!wasEmpty) {
-          self.PollForReadyStatus(() => {
+          self.callWhenSubscriptionReady(() => {
             self.ignoreDeletes = false;
+            Session.set('globalIgnoreDeletes', false);
             self.removeOldSubscriptionData();
           });
         }
@@ -73,7 +83,8 @@ class AbstractCollection {
     };
 
     const removedCallback = function (item) {
-      if (self.ignoreDeletes) {
+      const globalIgnoreDeletes = Session.get('globalIgnoreDeletes');
+      if (self.ignoreDeletes || globalIgnoreDeletes) {
         return;
       }
       const selector = { referenceId: item.referenceId };
@@ -86,7 +97,10 @@ class AbstractCollection {
     CollectionEventsBroker.addListener(this.serverCollection._name, 'removed', removedCallback);
   }
 
-  PollForReadyStatus(func) {
+  /*
+  This method calls the function received as parameter when the subscription gets ready.
+*/
+  callWhenSubscriptionReady(func) {
     const temp = (res) => {
       setTimeout(() => {
         const subscription = SubscriptionRegistry.getSubscription(this.serverCollection._name);
@@ -103,6 +117,9 @@ class AbstractCollection {
     return tempPromise;
   }
 
+  /*
+  This method removes data from previous subscriptions after the current one is ready.
+  */
   removeOldSubscriptionData() {
     const subscription = SubscriptionRegistry.getSubscription(this.serverCollection._name);
 
@@ -122,4 +139,4 @@ class AbstractCollection {
   }
 }
 
-export default AbstractCollection;
+export default LocalCollectionSynchronizer;

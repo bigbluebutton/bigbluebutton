@@ -4,12 +4,15 @@ import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import GroupChat from '/imports/api/group-chat';
 import Annotations from '/imports/api/annotations';
-import Users, { localUsersSync } from '/imports/ui/local-collections/users-collection/users';
-import { localBreakoutsSync } from '/imports/ui/local-collections/breakouts-collection/breakouts';
-import { localGuestUsersSync } from '/imports/ui/local-collections/guest-users-collection/guest-users';
-import { localMeetingsSync } from '/imports/ui/local-collections/meetings-collection/meetings';
+import Users from '/imports/api/users';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 import { Annotations as AnnotationsLocal } from '/imports/ui/components/whiteboard/service';
+import {
+  localBreakoutsSync,
+  localGuestUsersSync,
+  localMeetingsSync,
+  localUsersSync,
+} from '/imports/ui/services/LocalCollectionSynchronizer/LocalCollectionSynchronizer';
 import SubscriptionRegistry, { subscriptionReactivity } from '../../services/subscription-registry/subscriptionRegistry';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -22,7 +25,7 @@ const SUBSCRIPTIONS = [
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note', 'meeting-time-remaining',
   'local-settings', 'users-typing', 'record-meetings', 'video-streams',
-  'connection-status', 'voice-call-states', 'external-video-meetings', 'breakouts',
+  'connection-status', 'external-video-meetings', 'breakouts',
 ];
 
 const EVENT_NAME = 'bbb-group-chat-messages-subscription-has-stoppped';
@@ -37,6 +40,7 @@ class Subscriptions extends Component {
       Session.set('subscriptionsReady', true);
       const event = new Event(EVENT_NAME_SUBSCRIPTION_READY);
       window.dispatchEvent(event);
+      Session.set('globalIgnoreDeletes', false);
     }
   }
 
@@ -49,6 +53,12 @@ class Subscriptions extends Component {
 export default withTracker(() => {
   const { credentials } = Auth;
   const { meetingId, requesterUserId } = credentials;
+  const userWillAuth = Session.get('userWillAuth');
+  // This if exist because when a unauth user try to subscribe to a publisher
+  // it returns a empty collection to the subscription
+  // and not rerun when the user is authenticated
+  if (userWillAuth) return {};
+
   if (Session.get('codeError')) {
     return {
       subscriptionsReady: true,
@@ -90,11 +100,11 @@ export default withTracker(() => {
     if (oldRole === 'VIEWER' && currentUser?.role === 'MODERATOR') {
       // let this withTracker re-execute when a subscription is stopped
       subscriptionReactivity.depend();
-      // Prevent data being removed by subscription stop
       localBreakoutsSync.setIgnoreDeletes(true);
       localGuestUsersSync.setIgnoreDeletes(true);
       localMeetingsSync.setIgnoreDeletes(true);
       localUsersSync.setIgnoreDeletes(true);
+      // Prevent data being removed by subscription stop
       // stop role dependent subscriptions
       [
         SubscriptionRegistry.getSubscription('meetings'),

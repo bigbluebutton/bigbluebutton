@@ -4,7 +4,7 @@ import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import UserContent from './component';
-import GuestUsers from '/imports/ui/local-collections/guest-users-collection/guest-users';
+import GuestUsers from '/imports/api/guest-users';
 import { layoutSelectInput, layoutDispatch } from '../../layout/context';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import WaitingUsersService from '/imports/ui/components/waiting-users/service';
