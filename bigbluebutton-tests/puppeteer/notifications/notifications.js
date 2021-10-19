@@ -2,6 +2,7 @@ const path = require('path');
 const MultiUsers = require('../user/multiusers');
 const Page = require('../core/page');
 const util = require('./util');
+const utilPolling = require('../polling/util');
 const utilScreenShare = require('../screenshare/util'); // utils imported from screenshare folder
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME, UPLOAD_PDF_WAIT_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
@@ -173,7 +174,7 @@ class Notifications extends MultiUsers {
     try {
       await this.page3.screenshot(`${testName}`, `01-page03-audio-modal-closed-${testName}`);
       await this.page3.waitForSelector(e.whiteboard);
-      await util.startPoll(this.page3);
+      await utilPolling.startPoll(this.page3, true);
       await this.page3.screenshot(`${testName}`, `02-page03-started-poll-${testName}`);
       await this.page3.waitForSelector(e.smallToastMsg);
       const resp = await util.getLastToastValue(this.page3);

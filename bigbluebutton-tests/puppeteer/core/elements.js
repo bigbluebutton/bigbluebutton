@@ -120,7 +120,6 @@ exports.fileUploadDropZone = '[data-test="fileUploadDropZone"]';
 exports.polling = 'li[data-test="polling"]';
 exports.pollYesNoAbstentionBtn = 'button[aria-label="Yes / No / Abstention"]';
 exports.yesBtn = 'button[aria-label="Yes"]';
-exports.publishPollingResults = 'button[aria-label="Publish polling results"]';
 exports.hidePollDesc = 'button[data-test="hidePollDesc"]';
 exports.joinAudioToast = 'You have joined the audio conference';
 exports.notificationsTab = 'span[id="notificationTab"]';
@@ -141,7 +140,7 @@ exports.pollSubmitAnswer = 'button[data-test="submitAnswer"]';
 exports.startPoll = 'button[data-test="startPoll"]';
 exports.restartPoll = 'button[data-test="restartPoll"]';
 exports.receivedAnswer = 'td[data-test="receivedAnswer"]';
-exports.publishLabel = 'button[data-test="publishLabel"]';
+exports.publishPollingLabel = 'button[data-test="publishPollingLabel"]';
 exports.pollResults = 'g[data-test="pollResultAria"]';
 
 // Presentation

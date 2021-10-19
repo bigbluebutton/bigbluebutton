@@ -549,6 +549,29 @@ const customParametersTest = () => {
     Page.checkRegression(0.5, screenshot);
   });
 
+  // This test spec sets the userdata-bbb_force_restore_presentation_on_new_events parameter to true
+  // and checks that the viewers get the presentation restored forcefully when the Moderator zooms
+  // publishes a poll result
+  test('Force Restore Presentation On New Poll Result', async () => {
+    const test = new CustomParameters();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'forceRestorePresentationOnNewPollResult';
+      await test.page1.logger('begin of ', testName);
+      response = await test.forceRestorePresentationOnNewPollResult(testName, c.forceRestorePresentationOnNewEvents);
+      await test.page1.logger('end of ', testName);
+      await test.page2.stopRecording();
+      screenshot = await test.page1.page.screenshot();
+    } catch (err) {
+      await test.page1.logger(err);
+    } finally {
+      await test.close(test.page1, test.page2);
+    }
+    expect(response).toBe(true);
+    Page.checkRegression(0.5, screenshot);
+  });
+
   // This test spec sets the userdata-bbb_record_video parameter to false
   // and makes sure that the meeting recording button should not be available
   test('Record Meeting', async () => {

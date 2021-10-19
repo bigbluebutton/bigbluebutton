@@ -99,7 +99,7 @@ async function poll(page1, page2) {
     await page1.waitAndClick(e.startPoll);
     await page2.waitForSelector(e.pollingContainer);
     await page2.waitAndClick(e.yesBtn);
-    await page1.waitAndClick(e.publishPollingResults);
+    await page1.waitAndClick(e.publishPollingLabel);
     return true;
   } catch (err) {
     console.log(err);
