@@ -12,8 +12,8 @@ const TOKEN_TIMEOUT = 5000;
 // fetch doesn't support progress. So we use xhr which support progress.
 const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
   const xhr = new XMLHttpRequest();
-
   xhr.open(opts.method || 'get', url);
+  xhr.withCredentials = true;
 
   Object.keys(opts.headers || {})
     .forEach(k => xhr.setRequestHeader(k, opts.headers[k]));

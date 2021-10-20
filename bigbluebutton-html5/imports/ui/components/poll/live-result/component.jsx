@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
+import Draggable from '../../modal/draggable/component';
 import { styles } from './styles';
 import Service from './service';
 
@@ -19,6 +20,10 @@ const intlMessages = defineMessages({
   publishLabel: {
     id: 'app.poll.publishLabel',
     description: 'label for the publish button',
+  },
+  closePollLabel: {
+    id: 'app.poll.closePollLabel',
+    description: 'label for the close poll button',
   },
   backLabel: {
     id: 'app.poll.backLabel',
@@ -56,7 +61,7 @@ class LiveResult extends PureComponent {
     if (!currentPoll) return null;
 
     const {
-      answers, responses, users, numRespondents, pollType
+      answers, responses, users, numRespondents, pollType,
     } = currentPoll;
 
     const defaultPoll = isDefaultPoll(pollType);
@@ -106,7 +111,8 @@ class LiveResult extends PureComponent {
     answers.reduce(caseInsensitiveReducer, []).map((obj) => {
       const formattedMessageIndex = obj.key.toLowerCase();
       const pct = Math.round(obj.numVotes / numRespondents * 100);
-      const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
+      // const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
+      const pctFotmatted = '';
 
       const calculatedWidth = {
         width: pctFotmatted,
@@ -124,9 +130,6 @@ class LiveResult extends PureComponent {
           <div className={styles.center}>
             <div className={styles.barShade} style={calculatedWidth} />
             <div className={styles.barVal}>{obj.numVotes || 0}</div>
-          </div>
-          <div className={styles.right}>
-            {pctFotmatted}
           </div>
         </div>,
       );
@@ -196,6 +199,19 @@ class LiveResult extends PureComponent {
           </div>
           {pollStats}
         </div>
+        <Button
+          disabled={!isMeteorConnected}
+          onClick={() => {
+            Session.set('pollInitiated', false);
+            Service.publishPoll();
+            stopPoll();
+            handleBackClick();
+          }}
+          label={intl.formatMessage(intlMessages.closePollLabel)}
+          data-test="closePollLabel"
+          color="primary"
+          className={styles.btn}
+        />
         {currentPoll && currentPoll.answers.length > 0
           ? (
             <Button
@@ -226,18 +242,24 @@ class LiveResult extends PureComponent {
         <div className={styles.separator} />
         { currentPoll && !currentPoll.secretPoll
           ? (
-            <table>
-              <tbody>
-                <tr>
-                  <th className={styles.theading}>{intl.formatMessage(intlMessages.usersTitle)}</th>
-                  <th className={styles.theading}>{intl.formatMessage(intlMessages.responsesTitle)}</th>
-                </tr>
-                {userAnswers}
-              </tbody>
-            </table>
-          ) : (
+            <Draggable
+              title="Test Poll Title"
+            >
+              <p>Modal Message Here</p>
+              <table>
+                <tbody>
+                  <tr>
+                    <th className={styles.theading}>{intl.formatMessage(intlMessages.usersTitle)}</th>
+                    <th className={styles.theading}>{intl.formatMessage(intlMessages.responsesTitle)}</th>
+                  </tr>
+                  {userAnswers}
+                </tbody>
+              </table>
+            </Draggable>
+          )
+          : (
             currentPoll ? (<div>{intl.formatMessage(intlMessages.secretPollLabel)}</div>) : null
-        )}
+          )}
       </div>
     );
   }

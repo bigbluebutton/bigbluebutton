@@ -280,8 +280,10 @@ class PollDrawComponent extends Component {
         _tempArray.push('0%');
         _tempArray.push(i);
       } else {
-        const percResult = (_result.numVotes / votesTotal) * 100;
-        _tempArray.push(`${Math.round(percResult)}%`);
+        // const percResult = (_result.numVotes / votesTotal) * 100;
+        // _tempArray.push(`${Math.round(percResult)}%`);
+        const percResult = '';
+        _tempArray.push(percResult);
         _tempArray.push(i);
       }
 
