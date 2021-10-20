@@ -429,8 +429,6 @@
     "app.audioModal.playAudio.arialabel" : "Leisti garsą",
     "app.audioDial.tipIndicator": "Patarimas",
     "app.audioDial.tipMessage": "Norėdami nutildyti / įjungti garsą, paspauskite telefono mygtuką „0“.",
-    "app.audioModal.connecting": "Jungiamasi",
-    "app.audioModal.connectingEchoTest": "Prisijungiama prie aido testo",
     "app.audioManager.joinedAudio": "Jūs prisijungėte prie garso konferencijos",
     "app.audioManager.joinedEcho": "Jūs prisijungėte prie aido testo",
     "app.audioManager.leftAudio": "Išėjote iš garso konferencijos",

@@ -376,8 +376,6 @@
     "app.audioModal.playAudio.arialabel" : "เล่นเสียง",
     "app.audioDial.tipIndicator": "เคล็ดลับ",
     "app.audioDial.tipMessage": "กดปุ่ม '0' บนโทรศัพท์ของคุณเพื่อปิด / เปิดเสียงตัวเอง",
-    "app.audioModal.connecting": "การเชื่อมต่อ",
-    "app.audioModal.connectingEchoTest": "กำลังเชื่อมต่อกับการทดสอบเสียงสะท้อน",
     "app.audioManager.joinedAudio": "คุณได้เข้าร่วมการประชุมด้วยเสียง",
     "app.audioManager.joinedEcho": "คุณได้เข้าร่วมทดสอบเสียงสะท้อน",
     "app.audioManager.leftAudio": "คุณออกจากการประชุมด้วยเสียงแล้ว",

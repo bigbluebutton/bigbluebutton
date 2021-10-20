@@ -126,12 +126,17 @@ const VirtualBgSelector = ({
 
     return (
       <div className={styles.virtualBackgroundRowThumbnail}>
-        <div className={styles.bgWrapper}>
+        <div
+          role="group"
+          aria-label={intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
+          className={styles.bgWrapper}
+        >
           <>
             <Button
               className={styles.bgNone}
               icon='close'
               label={intl.formatMessage(intlMessages.noneLabel)}
+              aria-pressed={currentVirtualBg?.name === undefined}
               aria-describedby={`vr-cam-btn-none`}
               hideLabel
               tabIndex={disabled ? -1 : 0}
@@ -152,6 +157,7 @@ const VirtualBgSelector = ({
               aria-describedby={`vr-cam-btn-blur`}
               tabIndex={disabled ? -1 : 0}
               hideLabel
+              aria-pressed={currentVirtualBg?.name?.includes('blur') || currentVirtualBg?.name?.includes('Blur')}
               disabled={disabled}
               ref={ref => { inputElementsRef.current[0] = ref; }}
               onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE, 'Blur', 0)}
@@ -172,6 +178,7 @@ const VirtualBgSelector = ({
                   className={thumbnailStyles.join(' ')}
                   aria-label={capitalizeFirstLetter(imageName.split('.').shift())}
                   aria-describedby={`vr-cam-btn-${index}`}
+                  aria-pressed={currentVirtualBg?.name?.includes(imageName.split('.').shift())}
                   hideLabel
                   ref={ref => inputElementsRef.current[index + 1] = ref}
                   onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index + 1)}

@@ -171,7 +171,7 @@ const CustomLayout = () => {
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: _.defaultsDeep({
           sidebarNavigation: {
-            isOpen: true,
+            isOpen: input.sidebarNavigation.isOpen || false,
           },
           sidebarContent: {
             isOpen: sidebarContentPanel !== PANELS.NONE,
@@ -403,7 +403,21 @@ const CustomLayout = () => {
 
     const cameraDockBounds = {};
 
-    if (cameraDockInput.numCameras > 0) {
+    if (input.cameraDock.numCameras > 0) {
+      if (fullscreen.group === 'webcams') {
+        cameraDockBounds.width = windowWidth();
+        cameraDockBounds.minWidth = windowWidth();
+        cameraDockBounds.maxWidth = windowWidth();
+        cameraDockBounds.height = windowHeight();
+        cameraDockBounds.minHeight = windowHeight();
+        cameraDockBounds.maxHeight = windowHeight();
+        cameraDockBounds.top = 0;
+        cameraDockBounds.left = 0;
+        cameraDockBounds.right = 0;
+        cameraDockBounds.zIndex = 99;
+        return cameraDockBounds;
+      }
+
       if (!isOpen) {
         cameraDockBounds.width = mediaAreaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
@@ -443,7 +457,7 @@ const CustomLayout = () => {
             cameraDockBounds.width = mediaAreaBounds.width;
             cameraDockBounds.maxWidth = mediaAreaBounds.width;
             cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
-            cameraDockBounds.height = cameraDockHeight - camerasMargin;
+            cameraDockBounds.height = cameraDockHeight;
             cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.8;
             break;
           }
@@ -468,10 +482,10 @@ const CustomLayout = () => {
             const sizeValue = presentationInput.isOpen
               ? (mediaAreaBounds.left + mediaAreaBounds.width) - cameraDockWidth
               : mediaAreaBounds.left;
-            cameraDockBounds.left = !isRTL ? sizeValue + camerasMargin : 0;
-            cameraDockBounds.right = isRTL ? sizeValue + sidebarSize + camerasMargin : null;
+            cameraDockBounds.left = !isRTL ? sizeValue - camerasMargin : 0;
+            cameraDockBounds.right = isRTL ? sizeValue + sidebarSize - camerasMargin : null;
             cameraDockBounds.minWidth = DEFAULT_VALUES.cameraDockMinWidth;
-            cameraDockBounds.width = cameraDockWidth - (camerasMargin * 2);
+            cameraDockBounds.width = cameraDockWidth;
             cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
             cameraDockBounds.presenterMaxWidth = mediaAreaBounds.width
               - DEFAULT_VALUES.presentationToolbarMinWidth
@@ -479,6 +493,8 @@ const CustomLayout = () => {
             cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
             cameraDockBounds.height = mediaAreaBounds.height;
             cameraDockBounds.maxHeight = mediaAreaBounds.height;
+            // button size in vertical position
+            cameraDockBounds.height -= 20;
             break;
           }
           case CAMERADOCK_POSITION.CONTENT_BOTTOM: {
@@ -508,7 +524,7 @@ const CustomLayout = () => {
             cameraDockBounds.width = mediaAreaBounds.width;
             cameraDockBounds.maxWidth = mediaAreaBounds.width;
             cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
-            cameraDockBounds.height = cameraDockHeight - camerasMargin;
+            cameraDockBounds.height = cameraDockHeight;
             cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.8;
             break;
           }
@@ -533,7 +549,7 @@ const CustomLayout = () => {
             cameraDockBounds.left = mediaAreaBounds.left + camerasMargin;
             cameraDockBounds.right = isRTL ? sidebarSize + (camerasMargin * 2) : null;
             cameraDockBounds.minWidth = DEFAULT_VALUES.cameraDockMinWidth;
-            cameraDockBounds.width = cameraDockWidth - (camerasMargin * 2);
+            cameraDockBounds.width = cameraDockWidth;
             cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
             cameraDockBounds.presenterMaxWidth = mediaAreaBounds.width
               - DEFAULT_VALUES.presentationToolbarMinWidth
@@ -541,6 +557,8 @@ const CustomLayout = () => {
             cameraDockBounds.minHeight = mediaAreaBounds.height;
             cameraDockBounds.height = mediaAreaBounds.height;
             cameraDockBounds.maxHeight = mediaAreaBounds.height;
+            // button size in vertical position
+            cameraDockBounds.height -= 20;
             break;
           }
           case CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM: {
@@ -571,6 +589,7 @@ const CustomLayout = () => {
             console.log('default');
           }
         }
+<<<<<<< HEAD
 
         if (fullscreen.group === 'webcams') {
           cameraDockBounds.width = windowWidth();
@@ -587,6 +606,9 @@ const CustomLayout = () => {
         }
 
         if (cameraDockInput.isDragging) cameraDockBounds.zIndex = 99;
+=======
+        if (input.cameraDock.isDragging) cameraDockBounds.zIndex = 99;
+>>>>>>> eraser_and_highlighter
         else cameraDockBounds.zIndex = 1;
       }
     } else {
@@ -640,7 +662,7 @@ const CustomLayout = () => {
           break;
         }
         case CAMERADOCK_POSITION.CONTENT_RIGHT: {
-          mediaBounds.width = mediaAreaWidth - cameraDockBounds.width - camerasMargin;
+          mediaBounds.width = mediaAreaWidth - cameraDockBounds.width - (camerasMargin * 2);
           mediaBounds.height = mediaAreaHeight;
           mediaBounds.top = navBarHeight + bannerAreaHeight();
           mediaBounds.left = !isRTL ? sidebarSize : null;
@@ -656,7 +678,7 @@ const CustomLayout = () => {
           break;
         }
         case CAMERADOCK_POSITION.CONTENT_LEFT: {
-          mediaBounds.width = mediaAreaWidth - cameraDockBounds.width - camerasMargin;
+          mediaBounds.width = mediaAreaWidth - cameraDockBounds.width - (camerasMargin * 2);
           mediaBounds.height = mediaAreaHeight;
           mediaBounds.top = navBarHeight + bannerAreaHeight();
           const sizeValue = sidebarNavWidth

@@ -78,7 +78,12 @@ class Base extends Component {
   }
 
   componentDidMount() {
-    const { animations } = this.props;
+    const { animations, usersVideo, layoutContextDispatch } = this.props;
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_NUM_CAMERAS,
+      value: usersVideo.length,
+    });
 
     const {
       userID: localUserId,

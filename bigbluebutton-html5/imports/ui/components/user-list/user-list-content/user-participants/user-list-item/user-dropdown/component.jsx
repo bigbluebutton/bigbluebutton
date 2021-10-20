@@ -642,8 +642,6 @@ class UserDropdown extends PureComponent {
               tabIndex={-1}
               onClick={() => this.setState({ selected: true })}
               className={cx(userItemContentsStyle)}
-              aria-controls="default-dropdown-menu"
-              aria-haspopup="true"
               style={{ width: '100%', marginLeft: '.5rem' }}
               onKeyPress={() => {}}
               role="button"

@@ -63,22 +63,24 @@ const AppContainer = (props) => {
     pushLayoutToEveryone,
     currentUserId,
     shouldShowPresentation: propsShouldShowPresentation,
+    presentationRestoreOnUpdate,
     ...otherProps
   } = props;
-
-  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
-  const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
-  const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
-  const captionsStyle = layoutSelectOutput((i) => i.captions);
-  const presentation = layoutSelectInput((i) => i.presentation);
-  const layoutType = layoutSelect((i) => i.layoutType);
-  const deviceType = layoutSelect((i) => i.deviceType);
-  const layoutContextDispatch = layoutDispatch();
-
-  const { sidebarContentPanel, isOpen: sidebarContentIsOpen } = sidebarContent;
-  const { sidebarNavPanel, isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
-  const { isOpen: presentationIsOpen } = presentation;
-  const shouldShowPresentation = propsShouldShowPresentation && presentationIsOpen;
+  const {
+    input,
+    output,
+    layoutType,
+    deviceType,
+  } = layoutContextState;
+  const { sidebarContent, sidebarNavigation, presentation } = input;
+  const { actionBar: actionsBarStyle, captions: captionsStyle } = output;
+  const { sidebarNavPanel } = sidebarNavigation;
+  const { sidebarContentPanel } = sidebarContent;
+  const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
+  const sidebarContentIsOpen = sidebarContent.isOpen;
+  const presentationIsOpen = presentation.isOpen;
+  const shouldShowPresentation = propsShouldShowPresentation
+    && (presentationIsOpen || presentationRestoreOnUpdate);
 
   return currentUserId
     ? (
@@ -165,15 +167,18 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   }).fetch();
 
   const AppSettings = Settings.application;
+  const { selectedLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
-    && (viewScreenshare || MediaService.isUserPresenter()) && !shouldShowExternalVideo;
+    && (viewScreenshare || MediaService.isUserPresenter());
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
 
   if (!customStyleUrl && CUSTOM_STYLE_URL) {
     customStyleUrl = CUSTOM_STYLE_URL;
   }
+
+  const LAYOUT_CONFIG = Meteor.settings.public.layout;
 
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
@@ -193,14 +198,19 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     currentUserId: currentUser?.userId,
     isPresenter: currentUser?.presenter,
     meetingLayout: layout,
-    settingsLayout: AppSettings.selectedLayout,
-    pushLayoutToEveryone: AppSettings.pushLayoutToEveryone,
+    settingsLayout: selectedLayout?.replace('Push', ''),
+    pushLayoutToEveryone: selectedLayout?.includes('Push'),
     audioAlertEnabled: AppSettings.chatAudioAlerts,
     pushAlertEnabled: AppSettings.chatPushAlerts,
     shouldShowScreenshare,
     shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo,
     shouldShowExternalVideo,
     isLargeFont: Session.get('isLargeFont'),
+    presentationRestoreOnUpdate: getFromUserSettings(
+      'bbb_force_restore_presentation_on_new_events',
+      Meteor.settings.public.presentation.restoreOnUpdate,
+    ),
+    hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
   };
 })(AppContainer)));
 

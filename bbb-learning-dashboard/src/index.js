@@ -5,6 +5,8 @@ import { IntlProvider } from 'react-intl';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+const RTL_LANGUAGES = ['ar', 'dv', 'fa', 'he'];
+
 function getLanguage() {
   let { language } = navigator;
 
@@ -27,6 +29,7 @@ class Dashboard extends React.Component {
     };
 
     this.setMessages();
+    this.setRtl();
   }
 
   setMessages() {
@@ -52,6 +55,14 @@ class Dashboard extends React.Component {
 
         this.setState({ intlMessages: mergedMessages });
       }).catch(() => {});
+  }
+
+  setRtl() {
+    const { intlLocale } = this.state;
+
+    if (RTL_LANGUAGES.includes(intlLocale)) {
+      document.body.parentNode.setAttribute('dir', 'rtl');
+    }
   }
 
   render() {

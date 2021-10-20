@@ -1,15 +1,11 @@
-const e = require('./elements');
-const { ELEMENT_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
+const e = require('../core/elements');
 
 async function createBreakoutRooms(page1, page2) {
-  await page1.click(e.manageUsers, true);
-  await page1.click(e.createBreakoutRooms, true);
-  await page1.waitForSelector(e.randomlyAssign, ELEMENT_WAIT_TIME);
-  await page1.click(e.randomlyAssign, true);
-  await page1.waitForSelector(e.modalConfirmButton, ELEMENT_WAIT_TIME);
-  await page1.click(e.modalConfirmButton, true);
-  await page2.waitForSelector(e.modalConfirmButton, ELEMENT_WAIT_TIME);
-  await page2.click(e.modalConfirmButton, true);
+  await page1.waitAndClick(e.manageUsers);
+  await page1.waitAndClick(e.createBreakoutRooms);
+  await page1.waitAndClick(e.randomlyAssign);
+  await page1.waitAndClick(e.modalConfirmButton);
+  await page2.waitAndClick(e.modalConfirmButton);
 }
 
 exports.createBreakoutRooms = createBreakoutRooms;

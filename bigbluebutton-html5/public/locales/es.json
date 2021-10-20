@@ -482,8 +482,6 @@
     "app.audioModal.playAudio.arialabel" : "Reproducir audio",
     "app.audioDial.tipIndicator": "Sugerencia",
     "app.audioDial.tipMessage": "Pulse la tecla '0' en su teléfono para silenciarse/activar el audio a si mismo.",
-    "app.audioModal.connecting": "Conectándose",
-    "app.audioModal.connectingEchoTest": "Conectándose a prueba de sonido",
     "app.audioManager.joinedAudio": "Has ingresado a la conferencia de audio",
     "app.audioManager.joinedEcho": "Has ingresado a la prueba de sonido",
     "app.audioManager.leftAudio": "Has abandonado la conferencia de audio",

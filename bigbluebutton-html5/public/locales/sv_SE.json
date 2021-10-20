@@ -376,8 +376,6 @@
     "app.audioModal.playAudio.arialabel" : "Spela ljud",
     "app.audioDial.tipIndicator": "Tips",
     "app.audioDial.tipMessage": "Tryck på '0' på din telefon för att stänga av/slå på dig själv.",
-    "app.audioModal.connecting": "Ansluter",
-    "app.audioModal.connectingEchoTest": "Anslutning till ekotest",
     "app.audioManager.joinedAudio": "Du har anslutit dig till ljudkonferensen",
     "app.audioManager.joinedEcho": "Du har anslutit dig till ekotestet",
     "app.audioManager.leftAudio": "Du har lämnat ljudkonferensen",

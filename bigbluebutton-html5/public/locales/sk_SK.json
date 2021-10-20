@@ -482,8 +482,6 @@
     "app.audioModal.playAudio.arialabel" : "Prehrať zvuk",
     "app.audioDial.tipIndicator": "Tip",
     "app.audioDial.tipMessage": "Stlačte klávesu '0' na Vašom telefóne pre zapnutie/vypnutie stlmenia Vášho hlasu.",
-    "app.audioModal.connecting": "Pripájanie",
-    "app.audioModal.connectingEchoTest": "Pripájanie k testu ozveny",
     "app.audioManager.joinedAudio": "Pripojili ste sa k audio konferencii",
     "app.audioManager.joinedEcho": "Pripojili ste sa k testu ozveny",
     "app.audioManager.leftAudio": "Opustili ste audio konferenciu",

@@ -1,5 +1,7 @@
 import _ from 'lodash';
 import React, { PureComponent } from 'react';
+import * as Sentry from '@sentry/react';
+import { Integrations } from '@sentry/tracing';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
@@ -7,10 +9,23 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
+import GradingSelect from '/imports/ui/components/modal/grading/component';
+import EffortSelect from '/imports/ui/components/modal/effort/component';
+import TekSelectContainer from '/imports/ui/components/modal/tek/container';
 import BBBMenu from '/imports/ui/components/menu/component';
 import cx from 'classnames';
 import { styles } from '../styles';
 import { PANELS, ACTIONS } from '../../layout/enums';
+
+Sentry.init({
+  dsn: 'https://2b68e950743448308dfe49f2c0b88d94@o1003357.ingest.sentry.io/5972780',
+  integrations: [new Integrations.BrowserTracing()],
+
+  // Set tracesSampleRate to 1.0 to capture 100%
+  // of transactions for performance monitoring.
+  // We recommend adjusting this value in production
+  tracesSampleRate: 1.0,
+});
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -74,6 +89,30 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopShareExternalVideo',
     description: 'Stop sharing external video button',
   },
+  gradingLabel: {
+    id: 'app.actionsBar.actionsDropdown.gradingLabel',
+    description: 'Label for starting a grade event',
+  },
+  gradingDesc: {
+    id: 'app.actionsBar.actionsDropdown.gradingDesc',
+    description: 'Description for starting a grade event',
+  },
+  effortLabel: {
+    id: 'app.actionsBar.actionsDropdown.effortLabel',
+    description: 'Label for starting a grade event',
+  },
+  effortDesc: {
+    id: 'app.actionsBar.actionsDropdown.effortDesc',
+    description: 'Description for starting a grade event',
+  },
+  tekLabel: {
+    id: 'app.actionsBar.actionsDropdown.tekLabel',
+    description: 'Label for starting a grade event',
+  },
+  tekDesc: {
+    id: 'app.actionsBar.actionsDropdown.tekDesc',
+    description: 'Description for starting a grade event',
+  },
   selectRandUserLabel: {
     id: 'app.actionsBar.actionsDropdown.selectRandUserLabel',
     description: 'Label for selecting a random user',
@@ -93,8 +132,12 @@ class ActionsDropdown extends PureComponent {
     this.presentationItemId = _.uniqueId('action-item-');
     this.pollId = _.uniqueId('action-item-');
     this.takePresenterId = _.uniqueId('action-item-');
+    this.gradingId = _.uniqueId('action-item-');
+    this.effortId = _.uniqueId('action-item-');
+    this.tekId = _.uniqueId('action-item-');
     this.selectUserRandId = _.uniqueId('action-item-');
 
+    // this.handleGradingClick = this.handleGradingClick.bind(this);
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
     this.makePresentationItems = this.makePresentationItems.bind(this);
   }
@@ -112,6 +155,11 @@ class ActionsDropdown extends PureComponent {
     mountModal(<ExternalVideoModal />);
   }
 
+//  handleGradingClick() {
+//    const { mountModal } = this.props;
+//    mountModal(<GradingModal />);
+//  }
+
   getAvailableActions() {
     const {
       intl,
@@ -124,6 +172,7 @@ class ActionsDropdown extends PureComponent {
       stopExternalVideoShare,
       mountModal,
       layoutContextDispatch,
+      hidePresentation,
     } = this.props;
 
     const {
@@ -138,7 +187,7 @@ class ActionsDropdown extends PureComponent {
 
     const actions = [];
 
-    if (amIPresenter) {
+    if (amIPresenter && !hidePresentation) {
       actions.push({
         icon: "presentation",
         dataTest: "uploadPresentation",
@@ -169,7 +218,7 @@ class ActionsDropdown extends PureComponent {
           });
           Session.set('forcePollOpen', true);
         },
-      })
+      });
     }
 
     if (!amIPresenter) {
@@ -180,15 +229,53 @@ class ActionsDropdown extends PureComponent {
         onClick: () => handleTakePresenter(),
       });
     }
-
+    /*
     if (amIPresenter && allowExternalVideo) {
       actions.push({
-        icon: "video",
+        icon: !isSharingVideo ? "external-video" : "external-video_off",
         label: !isSharingVideo ? intl.formatMessage(intlMessages.startExternalVideoLabel)
           : intl.formatMessage(intlMessages.stopExternalVideoLabel),
         key: "external-video",
         onClick: isSharingVideo ? stopExternalVideoShare : this.handleExternalVideoClick,
-      })
+      });
+    }
+    */
+
+    if (amIPresenter) {
+      actions.push({
+        icon: "user",
+        key: this.gradingId,
+        label: intl.formatMessage(intlMessages.gradingLabel),
+        onClick: () => {
+          mountModal(
+            <GradingSelect />,
+          );
+        },
+      });
+    }
+    if (amIPresenter) {
+      actions.push({
+        icon: "user",
+        key: this.effortId,
+        label: intl.formatMessage(intlMessages.effortLabel),
+        onClick: () => {
+          mountModal(
+            <EffortSelect />,
+          );
+        },
+      });
+    }
+    if (amIPresenter) {
+      actions.push({
+        icon: "user",
+        key: this.tekId,
+        label: intl.formatMessage(intlMessages.tekLabel),
+        onClick: () => {
+          mountModal(
+            <TekSelectContainer />,
+          );
+        },
+      });
     }
 
     if (amIPresenter && isSelectRandomUserEnabled) {
@@ -197,7 +284,7 @@ class ActionsDropdown extends PureComponent {
         label: intl.formatMessage(intlMessages.selectRandUserLabel),
         key: this.selectUserRandId,
         onClick: () => mountModal(<RandomUserSelectContainer isSelectedUser={false} />),
-      })
+      });
     }
 
     return actions;

@@ -168,7 +168,7 @@ export default class WhiteboardOverlay extends Component {
 
     const { tool } = drawSettings;
 
-    if (tool === 'triangle' || tool === 'rectangle' || tool === 'ellipse' || tool === 'line') {
+    if (tool === 'triangle' || tool === 'rectangle' || tool === 'ellipse' || tool === 'line' || tool === 'eraser') {
       if (window.PointerEvent) {
         return (
           <ShapePointerListener
@@ -188,7 +188,7 @@ export default class WhiteboardOverlay extends Component {
           whiteboardId={whiteboardId}
         />
       );
-    } if (tool === 'pencil') {
+    } if (tool === 'pencil' || tool === 'highlighter') {
       if (window.PointerEvent) {
         return (
           <PencilPointerListener

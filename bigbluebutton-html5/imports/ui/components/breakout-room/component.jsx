@@ -119,9 +119,13 @@ class BreakoutRoom extends PureComponent {
     };
   }
 
+  componentDidMount() {
+    if (this.panel) this.panel.firstChild.focus();
+  }
+
   componentDidUpdate() {
     const {
-      breakoutRoomUser,
+      getBreakoutRoomUrl,
       setBreakoutAudioTransferStatus,
       isMicrophoneUser,
       isReconnecting,
@@ -140,10 +144,10 @@ class BreakoutRoom extends PureComponent {
     }
 
     if (waiting && !generated) {
-      const breakoutUser = breakoutRoomUser(requestedBreakoutId);
+      const breakoutUrlData = getBreakoutRoomUrl(requestedBreakoutId);
 
-      if (!breakoutUser) return false;
-      if (breakoutUser.redirectToHtml5JoinURL !== '') {
+      if (!breakoutUrlData) return false;
+      if (breakoutUrlData.redirectToHtml5JoinURL !== '') {
         _.delay(() => this.setState({ generated: true, waiting: false }), 1000);
       }
     }
@@ -160,37 +164,38 @@ class BreakoutRoom extends PureComponent {
 
   getBreakoutURL(breakoutId) {
     Session.set('lastBreakoutOpened', breakoutId);
-    const { requestJoinURL, breakoutRoomUser } = this.props;
+    const { requestJoinURL, getBreakoutRoomUrl } = this.props;
     const { waiting } = this.state;
-    const hasUser = breakoutRoomUser(breakoutId);
-    if (!hasUser && !waiting) {
+    const breakoutRoomUrlData = getBreakoutRoomUrl(breakoutId);
+    if (!breakoutRoomUrlData && !waiting) {
       this.setState(
         {
           waiting: true,
+          generated: false,
           requestedBreakoutId: breakoutId,
         },
         () => requestJoinURL(breakoutId),
       );
     }
 
-    if (hasUser) {
-      window.open(hasUser.redirectToHtml5JoinURL, '_blank');
+    if (breakoutRoomUrlData) {
+      window.open(breakoutRoomUrlData.redirectToHtml5JoinURL, '_blank');
       this.setState({ waiting: false, generated: false });
     }
     return null;
   }
 
   getBreakoutLabel(breakoutId) {
-    const { intl, breakoutRoomUser } = this.props;
+    const { intl, getBreakoutRoomUrl } = this.props;
     const { requestedBreakoutId, generated } = this.state;
 
-    const hasUser = breakoutRoomUser(breakoutId);
+    const breakoutRoomUrlData = getBreakoutRoomUrl(breakoutId);
 
     if (generated && requestedBreakoutId === breakoutId) {
       return intl.formatMessage(intlMessages.generatedURL);
     }
 
-    if (hasUser) {
+    if (breakoutRoomUrlData) {
       return intl.formatMessage(intlMessages.breakoutJoin);
     }
 
@@ -309,7 +314,7 @@ class BreakoutRoom extends PureComponent {
               <Button
                 label={this.getBreakoutLabel(breakoutId)}
                 data-test="breakoutJoin"
-                aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
+                aria-label={`${this.getBreakoutLabel(breakoutId)} ${this.props.breakoutRooms[number - 1]?.shortName }`}
                 onClick={() => {
                   this.getBreakoutURL(breakoutId);
                   // leave main room's audio,
@@ -485,7 +490,7 @@ class BreakoutRoom extends PureComponent {
             messageDuration={intlMessages.breakoutDuration}
             breakoutRoom={breakoutRooms[0]}
           />
-          {!visibleExtendTimeForm
+          {amIModerator && !visibleExtendTimeForm
             ? (
               <Button
                 onClick={this.showExtendTimeForm}
@@ -513,7 +518,7 @@ class BreakoutRoom extends PureComponent {
       amIModerator,
     } = this.props;
     return (
-      <div className={styles.panel}>
+      <div className={styles.panel} ref={(n) => this.panel = n}>
         <Button
           icon="left_arrow"
           label={intl.formatMessage(intlMessages.breakoutTitle)}

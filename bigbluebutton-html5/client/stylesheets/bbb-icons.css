@@ -73,6 +73,12 @@
 .icon-bbb-text_tool:before {
   content: "\e920";
 }
+.icon-bbb-eraser_tool:before {
+  content: "\e95b";
+}
+.icon-bbb-highlighter_tool:before {
+  content: "\e95c";
+}
 .icon-bbb-plus:before {
   content: "\e921";
 }
@@ -319,4 +325,13 @@
 }
 .icon-bbb-device_list_selector:before {
   content: "\e95b";
+}
+.icon-bbb-presentation_off:before {
+  content: "\e95c";
+}
+.icon-bbb-external-video:before {
+  content: "\e95d";
+}
+.icon-bbb-external-video_off:before {
+  content: "\e95e";
 }

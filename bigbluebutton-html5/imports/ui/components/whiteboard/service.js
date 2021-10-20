@@ -14,7 +14,7 @@ const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 const ANNOTATION_TYPE_PENCIL = 'pencil';
-
+const ANNOTATION_TYPE_HIGHLIGHTER = 'highlighter';
 
 let annotationsStreamListener = null;
 
@@ -174,7 +174,7 @@ const sendAnnotation = (annotation) => {
     // the pencil draw update modifier so that it sets the whole array instead of pushing to
     // the end
     const { status, annotationType } = relevantAnotation;
-    if (status === DRAW_UPDATE && annotationType === ANNOTATION_TYPE_PENCIL) {
+    if (status === DRAW_UPDATE && (annotationType === ANNOTATION_TYPE_PENCIL || annotationType === ANNOTATION_TYPE_HIGHLIGHTER)) {
       delete queryFake.modifier.$push;
       queryFake.modifier.$set['annotationInfo.points'] = annotation.annotationInfo.points;
     }

@@ -33,13 +33,15 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     if (WhiteboardKeyUtil.DRAW_START_STATUS == annotation.status) {
       rtnAnnotation = liveMeeting.wbModel.addAnnotation(annotation.wbId, annotation.userId, annotation)
     } else if (WhiteboardKeyUtil.DRAW_UPDATE_STATUS == annotation.status) {
-      if (WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType) {
+      if (WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType ||
+          WhiteboardKeyUtil.HIGHLIGHTER_TYPE == annotation.annotationType) {
         rtnAnnotation = liveMeeting.wbModel.updateAnnotationPencil(annotation.wbId, annotation.userId, annotation)
       } else {
         rtnAnnotation = liveMeeting.wbModel.updateAnnotation(annotation.wbId, annotation.userId, annotation)
       }
     } else if (WhiteboardKeyUtil.DRAW_END_STATUS == annotation.status) {
-      if (WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType) {
+      if (WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType ||
+          WhiteboardKeyUtil.HIGHLIGHTER_TYPE == annotation.annotationType) {
         rtnAnnotation = liveMeeting.wbModel.endAnnotationPencil(annotation.wbId, annotation.userId, annotation, drawEndOnly)
       } else {
         rtnAnnotation = liveMeeting.wbModel.updateAnnotation(annotation.wbId, annotation.userId, annotation)

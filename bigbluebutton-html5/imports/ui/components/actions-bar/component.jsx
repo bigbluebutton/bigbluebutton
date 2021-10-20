@@ -21,6 +21,7 @@ class ActionsBar extends PureComponent {
       handleTakePresenter,
       intl,
       isSharingVideo,
+      hasScreenshare,
       stopExternalVideoShare,
       isCaptionsAvailable,
       isMeteorConnected,
@@ -80,15 +81,14 @@ class ActionsBar extends PureComponent {
           />
         </div>
         <div className={styles.right}>
-          {isLayoutSwapped && !isPresentationDisabled
-            ? (
-              <PresentationOptionsContainer
-                toggleSwapLayout={toggleSwapLayout}
-                layoutContextDispatch={layoutContextDispatch}
-                isThereCurrentPresentation={isThereCurrentPresentation}
-              />
-            )
-            : null}
+          <PresentationOptionsContainer
+            isLayoutSwapped={isLayoutSwapped}
+            toggleSwapLayout={toggleSwapLayout}
+            layoutContextDispatch={layoutContextDispatch}
+            hasPresentation={isThereCurrentPresentation}
+            hasExternalVideo={isSharingVideo}
+            hasScreenshare={hasScreenshare}
+          />
           {isRaiseHandButtonEnabled
             ? (
               <Button

@@ -1,12 +1,10 @@
-// Test: Cleaning a chat message
-
 const Page = require('../core/page');
-const e = require('./elements');
+const e = require('../core/elements');
 const util = require('./util');
 
 class Save extends Page {
   constructor() {
-    super('chat-save');
+    super();
   }
 
   async test(testName) {
@@ -14,10 +12,10 @@ class Save extends Page {
       await util.openChat(this);
       await this.screenshot(`${testName}`, `01-before-chat-options-click-[${this.meetingId}]`);
 
-      await this.click(e.chatOptions, true);
+      await this.waitAndClick(e.chatOptions);
       await this.screenshot(`${testName}`, `02-chat-options-clicked-[${this.meetingId}]`);
 
-      await this.click(e.chatSave, true);
+      await this.waitAndClick(e.chatSave);
       let clicked = '';
       clicked = await this.page.addListener('click', () => document.addEventListener('click'));
       return clicked !== '';

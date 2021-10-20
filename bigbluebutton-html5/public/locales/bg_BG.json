@@ -398,8 +398,6 @@
     "app.audioModal.playAudio.arialabel" : "Пусни аудио",
     "app.audioDial.tipIndicator": "Подсказка",
     "app.audioDial.tipMessage": "Натиснете `0` на вашия телефон за да вкл/изк микрофона си.",
-    "app.audioModal.connecting": "Свързване",
-    "app.audioModal.connectingEchoTest": "Свързване към ехо тест",
     "app.audioManager.joinedAudio": "Вие се присъединихте към аудио конференцията",
     "app.audioManager.joinedEcho": "Вие се присъединихте към ехо тест",
     "app.audioManager.leftAudio": "Вие напуснахте аудио конференцията",

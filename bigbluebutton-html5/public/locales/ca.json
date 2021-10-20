@@ -426,8 +426,6 @@
     "app.audioModal.playAudio.arialabel" : "Reproduïu àudio",
     "app.audioDial.tipIndicator": "Consell",
     "app.audioDial.tipMessage": "Premeu la tecla '0' del telèfon per silenciar/parlar.",
-    "app.audioModal.connecting": "Connectant",
-    "app.audioModal.connectingEchoTest": "Connectant al test d'eco",
     "app.audioManager.joinedAudio": "Us heu unit a la conferència d’àudio",
     "app.audioManager.joinedEcho": "Us heu sumat a la prova d'eco",
     "app.audioManager.leftAudio": "Heu deixat la conferència d’àudio",

@@ -390,8 +390,6 @@
     "app.audioModal.playAudio.arialabel" : "Atskaņot audio",
     "app.audioDial.tipIndicator": "Padoms",
     "app.audioDial.tipMessage": "Lai izslēgtu / ieslēgtu skaņu, tālrunī nospiediet taustiņu '0'.",
-    "app.audioModal.connecting": "Notiek savienošanās...",
-    "app.audioModal.connectingEchoTest": "Notiek savienošanās ar mikrofona (atbalss) testu",
     "app.audioManager.joinedAudio": "Jūs esat pievienojies sapulcei ar audio",
     "app.audioManager.joinedEcho": "Jūs esat pievienojies mikrofona (atbalss) pārbaudei",
     "app.audioManager.leftAudio": "Jūs esat pametis sapulces audio",

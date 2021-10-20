@@ -392,8 +392,6 @@
     "app.audioModal.playAudio.arialabel" : "ಆಡಿಯೊ ಪ್ಲೇ ಮಾಡಿ",
     "app.audioDial.tipIndicator": "ಸಲಹೆ",
     "app.audioDial.tipMessage": "ನಿಮ್ಮನ್ನು ಮ್ಯೂಟ್ ಮಾಡಲು / ಮ್ಯೂಟ್ ಮಾಡಲು ನಿಮ್ಮ ಫೋನ್‌ನಲ್ಲಿ '0' ಕೀಲಿಯನ್ನು ಒತ್ತಿ.",
-    "app.audioModal.connecting": "ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ",
-    "app.audioModal.connectingEchoTest": "ಪ್ರತಿಧ್ವನಿ ಪರೀಕ್ಷೆಗೆ ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ",
     "app.audioManager.joinedAudio": "ನೀವು ಆಡಿಯೋ ಸಮ್ಮೇಳನಕ್ಕೆ ಸೇರಿದ್ದೀರಿ",
     "app.audioManager.joinedEcho": "ನೀವು ಪ್ರತಿಧ್ವನಿ ಪರೀಕ್ಷೆಗೆ ಸೇರಿದ್ದೀರಿ",
     "app.audioManager.leftAudio": "ನೀವು ಆಡಿಯೋ ಸಮ್ಮೇಳನವನ್ನು ತೊರೆದಿದ್ದೀರಿ",

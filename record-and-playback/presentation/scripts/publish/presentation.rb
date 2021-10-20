@@ -200,6 +200,123 @@ def svg_render_shape_pencil(g, slide, shape)
   end
 end
 
+def svg_render_shape_eraser(g, slide, shape)
+  g['shape'] = "eraser#{shape[:shape_unique_id]}"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  if $version_atleast_2_0_0
+    g['style'] += ";stroke-linejoin:miter"
+  else
+    g['style'] += ";stroke-linejoin:round"
+  end
+
+  doc = g.document
+  data_points = shape[:data_points]
+  x1 = shape_scale_width(slide, data_points[0])
+  y1 = shape_scale_height(slide, data_points[1])
+  x2 = shape_scale_width(slide, data_points[2])
+  y2 = shape_scale_height(slide, data_points[3])
+
+  width = (x2 - x1).abs
+  height = (y2 - y1).abs
+
+  clip_path = doc.create_element('clipPath', id: g['id']+'-clip')
+  path = doc.create_element('path',
+          d: "M#{x1} #{y1}L#{x2} #{y1}L#{x2} #{y2}L#{x1} #{y2}Z")
+  clip_path << path
+
+  use = doc.create_element('use',
+          'clip-path': "url(##{g['id']+'-clip'})",
+          'xlink:href': "##{g['id'].sub(/-.*/,'')}")
+
+  g << clip_path
+  g << use
+end
+
+
+
+def svg_render_shape_highlighter(g, slide, shape)
+  g['shape'] = "marker#{shape[:shape_unique_id]}"
+
+  doc = g.document
+  if shape[:data_points].length < 2
+    BigBlueButton.logger.warn("Highlighter #{shape[:shape_unique_id]} doesn't have enough points")
+    return
+  end
+
+  line_cap = ""
+  if shape[:data_points].length == 2
+    BigBlueButton.logger.info("Highlighter #{shape[:shape_unique_id]}: Drawing single point")
+    path = []
+    data_points = shape[:data_points].each
+    x = shape_scale_width(slide, data_points.next)
+    y = shape_scale_height(slide, data_points.next)
+    path.push("M#{x} #{y}")
+    path.push("L#{x} #{y}")
+    line_cap = "square"
+  else
+    path = []
+    data_points = shape[:data_points].each
+
+    if !shape[:commands].nil?
+      BigBlueButton.logger.info("Highlighter #{shape[:shape_unique_id]}: Drawing from command string (#{shape[:commands].length} commands)")
+      shape[:commands].each do |command|
+        case command
+        when 1 # MOVE_TO
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path.push("M#{x} #{y}")
+        when 2 # LINE_TO
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path.push("L#{x} #{y}")
+        when 3 # Q_CURVE_TO
+          cx1 = shape_scale_width(slide, data_points.next)
+          cy1 = shape_scale_height(slide, data_points.next)
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path.push("Q#{cx1} #{cy2},#{x} #{y}")
+        when 4 # C_CURVE_TO
+          cx1 = shape_scale_width(slide, data_points.next)
+          cy1 = shape_scale_height(slide, data_points.next)
+          cx2 = shape_scale_width(slide, data_points.next)
+          cy2 = shape_scale_height(slide, data_points.next)
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path.push("C#{cx1} #{cy1},#{cx2} #{cy2},#{x} #{y}")
+        else
+          raise "Unknown highlighter command: #{command}"
+        end
+      end
+    else
+      BigBlueButton.logger.info("Highlighter #{shape[:shape_unique_id]}: Drawing simple line (#{shape[:data_points].length / 2} points)")
+      x = shape_scale_width(slide, data_points.next)
+      y = shape_scale_height(slide, data_points.next)
+      path << "M#{x} #{y}"
+      begin
+        while true
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path << "L#{x} #{y}"
+        end
+      rescue StopIteration
+      end
+    end
+    line_cap == "butt"
+  end
+    path = path.join('')
+    bg_path = doc.create_element('path', d: path, style: "stroke:##{shape[:color]};stroke-linecap:#{line_cap};stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};fill:none;shape-rendering:crispEdges")
+    mask = doc.create_element('mask', id: g['id']+'-mask')
+    mask_path = doc.create_element('path', d: path, style: "stroke:##{shape[:color] == "ffffff" ? "ffffff" : "a0a0a0"};stroke-linecap:#{line_cap};stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};fill:none;shape-rendering:crispEdges")
+    mask << mask_path
+    use = doc.create_element('use',
+            'mask': "url(##{g['id']+'-mask'})",
+            'xlink:href': "##{g['id'].sub(/-.*/,'')}")
+    g << bg_path
+    g << mask
+    g << use
+    g['style'] = ""
+end
+
 def svg_render_shape_line(g, slide, shape)
   g['shape'] = "line#{shape[:shape_unique_id]}"
   g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
@@ -417,6 +534,10 @@ def svg_render_shape(canvas, slide, shape, image_id)
     svg_render_shape_ellipse(g, slide, shape)
   when 'text'
     svg_render_shape_text(g, slide, shape)
+  when 'eraser'
+    svg_render_shape_eraser(g, slide, shape)
+  when 'highlighter'
+    svg_render_shape_highlighter(g, slide, shape)
   when 'poll_result'
     svg_render_shape_poll(g, slide, shape)
   else
@@ -595,7 +716,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   # Some shape-specific properties
   if shape[:type] == 'pencil' or shape[:type] == 'rectangle' or
       shape[:type] == 'ellipse' or shape[:type] == 'triangle' or
-      shape[:type] == 'line'
+      shape[:type] == 'line' or shape[:type] == 'highlighter'
     shape[:color] = color_to_hex(event.at_xpath('color').text)
     thickness = event.at_xpath('thickness')
     unless thickness
