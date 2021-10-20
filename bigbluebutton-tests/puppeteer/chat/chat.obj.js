@@ -4,6 +4,7 @@ const Clear = require('./clear');
 const Copy = require('./copy');
 const Save = require('./save');
 const MultiUsers = require('../user/multiusers');
+const { closePages } = require('../core/util');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
 const { MAX_CHAT_TEST_TIMEOUT } = require('../core/constants'); // core constants (Timeouts vars imported)
 
@@ -123,7 +124,7 @@ const chatTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(0.9, screenshot);
@@ -146,7 +147,7 @@ const chatTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(0.9, screenshot);

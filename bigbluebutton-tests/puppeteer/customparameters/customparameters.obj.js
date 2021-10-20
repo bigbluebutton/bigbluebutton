@@ -2,6 +2,7 @@ const Page = require('../core/page');
 const CustomParameters = require('./customparameters');
 const c = require('./constants');
 const util = require('./util');
+const { closePages } = require('../core/util');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
 const { MAX_CUSTOM_PARAMETERS_TEST_TIMEOUT } = require('../core/constants'); // core constants (Timeouts vars imported)
 
@@ -29,7 +30,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -52,7 +53,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -75,7 +76,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page2);
+      await test.page2.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -98,7 +99,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(53.18, screenshot);
@@ -121,7 +122,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(53.18, screenshot);
@@ -144,7 +145,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -167,7 +168,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -191,7 +192,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -215,7 +216,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -238,7 +239,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -261,7 +262,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -284,7 +285,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -308,7 +309,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -331,7 +332,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -355,7 +356,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -378,7 +379,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -401,7 +402,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -425,7 +426,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -448,7 +449,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -471,7 +472,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -495,7 +496,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -518,7 +519,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -543,7 +544,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -566,7 +567,7 @@ const customParametersTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -589,7 +590,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -612,7 +613,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -635,7 +636,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -659,7 +660,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);
@@ -682,7 +683,7 @@ const customParametersTest = () => {
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);

@@ -303,26 +303,6 @@ class MultiUsers {
       return false;
     }
   }
-
-  // Close all Pages
-  async close(page1, page2) {
-    try {
-      await page1.close();
-      await page2.close();
-    } catch (err) {
-      await this.page1.logger(err);
-      return false;
-    }
-  }
-
-  async closePage(page) {
-    try {
-      await page.close();
-    } catch (err) {
-      await this.page1.logger(err);
-      return false;
-    }
-  }
 }
 
 module.exports = exports = MultiUsers;

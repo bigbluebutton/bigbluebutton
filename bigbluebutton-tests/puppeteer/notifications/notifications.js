@@ -217,16 +217,6 @@ class Notifications extends MultiUsers {
       return false;
     }
   }
-
-  async closePages() {
-    try {
-      await this.page3.close();
-      await this.page4.close();
-    } catch (err) {
-      await this.page3.logger(err);
-      return false;
-    }
-  }
 }
 
 module.exports = exports = Notifications;
