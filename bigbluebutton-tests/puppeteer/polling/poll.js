@@ -52,6 +52,22 @@ class Polling {
     }
   }
 
+  async pollResultsOnWhiteboard(testName) {
+    try {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.screenshot(testName, '01-before-start-poll');
+      await util.startPoll(this.modPage, true);
+
+      // Check poll result on whiteboard
+      const resp = await this.modPage.hasElement(e.pollResults);
+
+      return resp === true;
+    } catch (err) {
+      await this.modPage.logger(err);
+      return false;
+    }
+  }
+
   async randomPoll(testName) {
     try {
       await this.modPage.startRecording(testName);
