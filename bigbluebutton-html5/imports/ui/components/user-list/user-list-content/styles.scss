@@ -159,12 +159,6 @@
   background-color: var(--unread-messages-bg);
 }
 
-.smallTitle {
-  @extend .smallTitle;
-  flex: 1;
-  margin: 0;
-}
-
 .separator {
   margin: 1rem auto;
   width: 2.2rem;

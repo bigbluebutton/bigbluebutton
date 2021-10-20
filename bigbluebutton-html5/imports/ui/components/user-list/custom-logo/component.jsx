@@ -6,7 +6,7 @@ const CustomLogo = props => (
     <Styled.Branding>
       <img src={props.CustomLogoUrl} alt="custom branding logo" />
     </Styled.Branding>
-    <Styled.Separator></Styled.Separator>
+    <Styled.Separator />
   </div>
 );
 
