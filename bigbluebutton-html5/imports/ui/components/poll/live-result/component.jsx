@@ -110,9 +110,14 @@ class LiveResult extends PureComponent {
 
     answers.reduce(caseInsensitiveReducer, []).map((obj) => {
       const formattedMessageIndex = obj.key.toLowerCase();
+<<<<<<< HEAD
       const pct = Math.round(obj.numVotes / numRespondents * 100);
       // const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
       const pctFotmatted = '';
+=======
+      const pct = Math.round(obj.numVotes / numResponders * 100);
+      const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
+>>>>>>> c68d5a0b3b54755a35253a36ea7c4e1f1dbb334e
 
       const calculatedWidth = {
         width: pctFotmatted,

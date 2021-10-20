@@ -40,6 +40,14 @@ else
   npm install --unsafe-perm --production
 fi
 
+# clean out stuff that is not required in the final package
+rm -rf node_modules/mediasoup/{rust,.github,test}
+rm -rf node_modules/mediasoup/worker/{deps,src,test,include,fuzzer}
+rm -rf node_modules/mediasoup/worker/out/Release/*.a
+rm -rf node_modules/mediasoup/worker/out/Release/.deps
+rm -rf node_modules/mediasoup/worker/out/Release/obj.target
+rm -rf node_modules/mediasoup/worker/out/deps
+
 popd
 
 cp webrtc-sfu.nginx staging/etc/bigbluebutton/nginx

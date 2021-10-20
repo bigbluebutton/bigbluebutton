@@ -293,7 +293,7 @@ class InputStreamLiveSelector extends Component {
               data-test="leaveAudio"
               hideLabel
               color="primary"
-              icon={isListenOnly ? 'listen' : 'audio_on'}
+              icon={isListenOnly ? 'listen' : 'volume_level_2'}
               size="lg"
               circle
               onClick={(e) => {

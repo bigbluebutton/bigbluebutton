@@ -3,13 +3,11 @@ exports.listenOnlyMode = 'userdata-bbb_listen_only_mode=false';
 exports.forceListenOnly = 'userdata-bbb_force_listen_only=true';
 exports.skipCheck = 'userdata-bbb_skip_check_audio=true';
 exports.skipCheckOnFirstJoin = 'userdata-bbb_skip_check_audio_on_first_join=true';
-const docTitle = 'puppeteer';
-exports.docTitle = docTitle;
-exports.clientTitle = `userdata-bbb_client_title=${docTitle}`;
+exports.docTitle = 'puppeteer';
+exports.clientTitle = `userdata-bbb_client_title=${this.docTitle}`;
 exports.askForFeedbackOnLogout = 'userdata-bbb_ask_for_feedback_on_logout=true';
 exports.displayBrandingArea = 'userdata-bbb_display_branding_area=true';
 exports.logo = 'logo=https://bigbluebutton.org/wp-content/themes/bigbluebutton/library/images/bigbluebutton-logo.png';
-exports.shortcuts = 'userdata-bbb_shortcuts=["openOptions", "toggleUserList", "toggleMute", "joinAudio", "leaveAudio", "togglePublicChat", "hidePrivateChat", "closePrivateChat", "openActions", "openStatus"]';
 exports.enableScreensharing = 'userdata-bbb_enable_screen_sharing=false';
 exports.enableVideo = 'userdata-bbb_enable_video=false';
 exports.autoShareWebcam = 'userdata-bbb_auto_share_webcam=true';
@@ -33,3 +31,35 @@ exports.skipVideoPreview = 'userdata-bbb_skip_video_preview=true';
 exports.skipVideoPreviewOnFirstJoin = 'userdata-bbb_skip_video_preview_on_first_join=true';
 exports.mirrorOwnWebcam = 'userdata-bbb_mirror_own_webcam=true';
 exports.showParticipantsOnLogin = 'userdata-bbb_show_participants_on_login=false';
+
+// Shortcuts
+exports.shortcuts = 'userdata-bbb_shortcuts=[$]';
+exports.initialShortcuts = [{
+  param: 'openOptions',
+  key: 'O'
+}, {
+  param: 'toggleUserList',
+  key: 'U'
+}, {
+  param: 'togglePublicChat',
+  key: 'P'
+}, {
+  param: 'openActions',
+  key: 'A'
+}, {
+  param: 'joinAudio',
+  key: 'J'
+}];
+exports.laterShortcuts = [{
+  param: 'toggleMute',
+  key: 'M'
+}, {
+  param: 'leaveAudio',
+  key: 'L'
+}, {
+  param: 'hidePrivateChat',
+  key: 'H'
+}, {
+  param: 'closePrivateChat',
+  key: 'G'
+}];

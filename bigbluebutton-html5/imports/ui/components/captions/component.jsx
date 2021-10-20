@@ -23,11 +23,11 @@ class Captions extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     const {
-      padId,
+      locale,
       revs,
     } = this.props;
 
-    if (padId === nextProps.padId) {
+    if (locale === nextProps.locale) {
       if (revs === nextProps.revs && !nextState.clear) return false;
     }
     return true;
@@ -124,7 +124,7 @@ class Captions extends React.Component {
 export default Captions;
 
 Captions.propTypes = {
-  padId: PropTypes.string.isRequired,
+  locale: PropTypes.string.isRequired,
   revs: PropTypes.number.isRequired,
   data: PropTypes.string.isRequired,
 };

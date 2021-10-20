@@ -26,20 +26,22 @@ export default function editCaptions(padId, data) {
       meetingId,
       ownerId,
       locale,
+      name,
       length,
     } = pad;
 
     check(meetingId, String);
     check(ownerId, String);
-    check(locale, { locale: String, name: String });
+    check(locale, String);
+    check(name, String);
     check(length, Number);
 
     const index = getIndex(data, length);
 
     const payload = {
       startIndex: index,
-      localeCode: locale.locale,
-      locale: locale.name,
+      localeCode: locale,
+      locale: name,
       endIndex: index,
       text: data,
     };

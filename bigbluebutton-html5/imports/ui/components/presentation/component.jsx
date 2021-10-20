@@ -630,6 +630,9 @@ class Presentation extends PureComponent {
       isMobile,
       layoutType,
       numCameras,
+      fullscreenElementId,
+      fullscreenContext,
+      layoutContextDispatch,
     } = this.props;
     const { zoom, fitToWidth } = this.state;
 
@@ -650,11 +653,15 @@ class Presentation extends PureComponent {
           podId,
           currentSlide,
           toolbarWidth,
+          fullscreenElementId,
+          layoutContextDispatch,
         }}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
         zoomChanger={this.zoomChanger}
         fitToWidthHandler={this.fitToWidthHandler}
+        isFullscreen={fullscreenContext}
+        fullscreenAction={ACTIONS.SET_FULLSCREEN_ELEMENT}
       />
     );
   }
@@ -849,7 +856,7 @@ class Presentation extends PureComponent {
             {showSlide && (userIsPresenter || multiUser)
               ? this.renderWhiteboardToolbar(svgDimensions)
               : null}
-            {showSlide && userIsPresenter && svgWidth > 0 && svgHeight > 0
+            {showSlide && userIsPresenter
               ? (
                 <div
                   className={styles.presentationToolbar}

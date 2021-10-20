@@ -1,22 +1,10 @@
 const e = require('../core/elements');
 const { sleep } = require('../core/helper');
-const { checkElement, checkElementLengthDifferentTo } = require('../core/util');
+const { checkElement } = require('../core/util');
 const {
   LOOP_INTERVAL,
-  VIDEO_LOADING_WAIT_TIME,
   ELEMENT_WAIT_LONGER_TIME,
 } = require('../core/constants');
-
-async function enableWebcam(test, videoPreviewTimeout) {
-  // Enabling webcam
-  await test.waitAndClick(e.joinVideo);
-  await test.waitForSelector(e.videoPreview, videoPreviewTimeout);
-  await test.waitAndClick(e.startSharingWebcam);
-  await test.waitForSelector(e.webcamConnecting);
-  await test.waitForSelector(e.webcamVideo, VIDEO_LOADING_WAIT_TIME);
-  await test.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
-  return test.page.evaluate(checkElementLengthDifferentTo, e.webcamVideo, 0);
-}
 
 async function evaluateCheck(test) {
   await test.waitForSelector(e.videoContainer);
@@ -69,4 +57,3 @@ async function webcamContentCheck(test) {
 exports.startAndCheckForWebcams = startAndCheckForWebcams;
 exports.webcamContentCheck = webcamContentCheck;
 exports.evaluateCheck = evaluateCheck;
-exports.enableWebcam = enableWebcam;

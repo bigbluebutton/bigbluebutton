@@ -43,17 +43,13 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.returnAudio',
     description: 'label for option to return audio',
   },
-  generateURL: {
-    id: 'app.createBreakoutRoom.generateURL',
+  askToJoin: {
+    id: 'app.createBreakoutRoom.askToJoin',
     description: 'label for generate breakout room url',
   },
   generatingURL: {
     id: 'app.createBreakoutRoom.generatingURL',
     description: 'label for generating breakout room url',
-  },
-  generatedURL: {
-    id: 'app.createBreakoutRoom.generatedURL',
-    description: 'label for generated breakout room url',
   },
   endAllBreakouts: {
     id: 'app.createBreakoutRoom.endAllBreakouts',
@@ -148,6 +144,7 @@ class BreakoutRoom extends PureComponent {
 
       if (!breakoutUrlData) return false;
       if (breakoutUrlData.redirectToHtml5JoinURL !== '') {
+        window.open(breakoutUrlData.redirectToHtml5JoinURL, '_blank');
         _.delay(() => this.setState({ generated: true, waiting: false }), 1000);
       }
     }
@@ -192,14 +189,14 @@ class BreakoutRoom extends PureComponent {
     const breakoutRoomUrlData = getBreakoutRoomUrl(breakoutId);
 
     if (generated && requestedBreakoutId === breakoutId) {
-      return intl.formatMessage(intlMessages.generatedURL);
+      return intl.formatMessage(intlMessages.breakoutJoin);
     }
 
     if (breakoutRoomUrlData) {
       return intl.formatMessage(intlMessages.breakoutJoin);
     }
 
-    return intl.formatMessage(intlMessages.generateURL);
+    return intl.formatMessage(intlMessages.askToJoin);
   }
 
   clearJoinedAudioOnly() {
@@ -539,6 +536,7 @@ class BreakoutRoom extends PureComponent {
                 size="lg"
                 label={intl.formatMessage(intlMessages.endAllBreakouts)}
                 className={styles.endButton}
+                data-test="endBreakoutRoomsButton"
                 onClick={() => {
                   this.closePanel();
                   endAllBreakouts();
