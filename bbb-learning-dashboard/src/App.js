@@ -17,6 +17,7 @@ class App extends React.Component {
       tab: 'overview',
       meetingId: '',
       learningDashboardAccessToken: '',
+      ldAccessTokenCopied: false,
       sessionToken: '',
     };
   }
@@ -101,9 +102,25 @@ class App extends React.Component {
     }
   }
 
+  copyPublicLink() {
+    const { learningDashboardAccessToken, meetingId, ldAccessTokenCopied } = this.state;
+    const { intl } = this.props;
+
+    let url = window.location.href.split('?')[0];
+    url += `?meeting=${meetingId}&report=${learningDashboardAccessToken}&lang=${intl.locale}`;
+    navigator.clipboard.writeText(url);
+    if (ldAccessTokenCopied === false) {
+      this.setState({ ldAccessTokenCopied: true });
+      setTimeout(() => {
+        this.setState({ ldAccessTokenCopied: false });
+      }, 3000);
+    }
+  }
+
   render() {
     const {
-      activitiesJson, tab, meetingId, learningDashboardAccessToken, sessionToken, loading,
+      activitiesJson, tab, sessionToken, loading,
+      learningDashboardAccessToken, ldAccessTokenCopied,
     } = this.state;
     const { intl } = this.props;
 
@@ -198,14 +215,6 @@ class App extends React.Component {
       return '';
     }
 
-    function copyPublicLink() {
-      let url = window.location.href.split('?')[0];
-      url += `?meeting=${meetingId}&report=${learningDashboardAccessToken}&lang=${intl.locale}`;
-      navigator.clipboard.writeText(url);
-      const copiedMessage = intl.formatMessage({ id: 'app.learningDashboard.linkCopied', defaultMessage: 'Link successfully copied' });
-      alert(copiedMessage);
-    }
-
     if (loading === false && getErrorMessage() !== '') return <ErrorMessage message={getErrorMessage()} />;
 
     return (
@@ -217,7 +226,7 @@ class App extends React.Component {
             {
               learningDashboardAccessToken !== ''
                 ? (
-                  <button type="button" onClick={() => { copyPublicLink(); }} className="text-sm font-medium text-blue-500 ease-out" name="teste">
+                  <button type="button" onClick={() => { this.copyPublicLink(); }} className="text-sm font-medium text-blue-500 ease-out">
                     (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -240,6 +249,15 @@ class App extends React.Component {
                 )
                 : null
             }
+            {
+              ldAccessTokenCopied === true
+                ? (
+                  <span className="text-xs text-gray-500 font-normal ml-2">
+                    <FormattedMessage id="app.learningDashboard.linkCopied" defaultMessage="Link successfully copied!" />
+                  </span>
+                )
+                : null
+}
             <br />
             <span className="text-sm font-medium">{activitiesJson.name || ''}</span>
           </h1>
