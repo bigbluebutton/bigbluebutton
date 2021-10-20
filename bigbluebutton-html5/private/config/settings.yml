@@ -526,6 +526,7 @@ public:
     allowDownloadable: true
     panZoomThrottle: 32
     restoreOnUpdate: false
+    oldMinimizeButton: false
     uploadEndpoint: '/bigbluebutton/presentation/upload'
     uploadValidMimeTypes:
       - extension: .pdf
