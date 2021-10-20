@@ -5,8 +5,8 @@ const userListBg = colorOffWhite;
 const userListText = colorGray;
 
 export {
-    colorOffWhite,
-    colorGray,
-    userListBg,
-    userListText,
+  colorOffWhite,
+  colorGray,
+  userListBg,
+  userListText,
 }
