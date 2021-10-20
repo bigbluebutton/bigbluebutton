@@ -253,8 +253,7 @@ class App extends React.Component {
               ldAccessTokenCopied === true
                 ? (
                   <span className="text-xs text-gray-500 font-normal ml-2">
-                    <FormattedMessage id="app.learningDashboard.linkCopied" defaultMessage="Link successfully copied" />
-                    !
+                    <FormattedMessage id="app.learningDashboard.linkCopied" defaultMessage="Link successfully copied!" />
                   </span>
                 )
                 : null
