@@ -72,9 +72,10 @@ class TekSelect extends Component {
       currentUser,
       meeting,
     } = this.props;
-    const subjects = ['Math', 'Reading', 'Science', 'Social Studies', 'Algebra', 'Biology', 'History', 'ELA 1', 'ELA 2'];
+    const subjects = ['Math', 'Reading', 'Science', 'Social Studies', 'Algebra', 'Biology', 'History', 'ELA 1', 'ELA 2', 'EnglishLanguageArts'];
     const grades = ['3', '4', '5', '6', '7', '8', 'HS'];
     const lessons = [];
+    lessons.push('HW');
     for (let i = 1; i <= 30; i += 1) {
       lessons.push(i.toString());
     }

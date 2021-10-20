@@ -34,6 +34,7 @@ export default withTracker(({ user }) => {
     toggleUserLock: UserListService.toggleUserLock,
     changeRole: UserListService.changeRole,
     assignPresenter: UserListService.assignPresenter,
+    assignGrade: UserListService.assignGrade,
     getAvailableActions: UserListService.getAvailableActions,
     normalizeEmojiName: UserListService.normalizeEmojiName,
     getGroupChatPrivate: UserListService.getGroupChatPrivate,

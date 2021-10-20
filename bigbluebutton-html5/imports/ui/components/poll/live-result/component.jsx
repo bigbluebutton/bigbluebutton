@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
+import Draggable from '../../modal/draggable/component';
 import { styles } from './styles';
 import Service from './service';
 
@@ -60,7 +61,7 @@ class LiveResult extends PureComponent {
     if (!currentPoll) return null;
 
     const {
-      answers, responses, users, numRespondents, pollType
+      answers, responses, users, numRespondents, pollType,
     } = currentPoll;
 
     const defaultPoll = isDefaultPoll(pollType);
@@ -241,18 +242,24 @@ class LiveResult extends PureComponent {
         <div className={styles.separator} />
         { currentPoll && !currentPoll.secretPoll
           ? (
-            <table>
-              <tbody>
-                <tr>
-                  <th className={styles.theading}>{intl.formatMessage(intlMessages.usersTitle)}</th>
-                  <th className={styles.theading}>{intl.formatMessage(intlMessages.responsesTitle)}</th>
-                </tr>
-                {userAnswers}
-              </tbody>
-            </table>
-          ) : (
+            <Draggable
+              title="Test Poll Title"
+            >
+              <p>Modal Message Here</p>
+              <table>
+                <tbody>
+                  <tr>
+                    <th className={styles.theading}>{intl.formatMessage(intlMessages.usersTitle)}</th>
+                    <th className={styles.theading}>{intl.formatMessage(intlMessages.responsesTitle)}</th>
+                  </tr>
+                  {userAnswers}
+                </tbody>
+              </table>
+            </Draggable>
+          )
+          : (
             currentPoll ? (<div>{intl.formatMessage(intlMessages.secretPollLabel)}</div>) : null
-        )}
+          )}
       </div>
     );
   }

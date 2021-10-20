@@ -49,6 +49,7 @@ class GradingSelectModal extends Component {
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   // componentDidMount() {
@@ -89,6 +90,7 @@ class GradingSelectModal extends Component {
 
     const gradetype = ['Lesson', 'IP'];
     const lessons = [];
+    const grades = this.props.grade ? [this.props.grade] : this.state.grades;
     for (let i = 0; i <= 99; i += 1) {
       if (i === 0) {
         lessons.push('GP');
@@ -141,7 +143,7 @@ class GradingSelectModal extends Component {
                     <col className={styles.cw10} />
                   </colgroup>
                   <tbody>
-                    {this.state.grades.map((gradeitem, index) => (
+                    {grades.map((gradeitem, index) => (
                       <tr>
                         <td className={styles.studentname}>
                           {gradeitem.name}
