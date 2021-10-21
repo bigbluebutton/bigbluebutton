@@ -1,25 +1,30 @@
-.userName {
+import styled from 'styled-components';
+
+import { smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
+import { colorGray, colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
+
+const UserName = styled.div`
   display: flex;
   flex-flow: column;
   min-width: 0;
   flex-grow: 1;
-  margin: 0 0 0 var(--sm-padding-x);
+  margin: 0 0 0 ${smPaddingX};
   justify-content: center;
   font-size: 90%;
 
   [dir="rtl"]  & {
-    margin: 0 var(--sm-padding-x) 0 0;
+    margin: 0 ${smPaddingX} 0 0;
   }
-}
+`;
 
-.userNameMain {
+const UserNameMain = styled.span`
   margin: 0;
   font-size: 90%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 400;
-  color: var(--color-gray-dark);
+  color: ${colorGrayDark};
   display: flex;
   flex-direction: row;
 
@@ -29,16 +34,15 @@
     overflow: hidden;
   }
 
-  :global(.animationsEnabled) & {
+  &.animationsEnabled {
     transition: all .3s;
-  }
-}
+  }`;
 
-.userNameSub {
+const UserNameSub = styled.span`
   margin: 0;
   font-size: 0.75rem;
   font-weight: 200;
-  color: var(--color-gray);
+  color: ${colorGray};
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -47,4 +51,10 @@
     line-height: 0;
     font-size: 75%;
   }
-}
+`;
+
+export default {
+  UserName,
+  UserNameMain,
+  UserNameSub,
+};
