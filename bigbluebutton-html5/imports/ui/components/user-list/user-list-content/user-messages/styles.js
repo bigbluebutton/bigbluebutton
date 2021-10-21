@@ -1,33 +1,13 @@
 import styled from 'styled-components';
 
 import Styled from '/imports/ui/components/user-list/styles';
-import {
-  colorPrimary,
-  colorGrayLighter,
-  userListBg,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import {
-  smPaddingX,
-  mdPaddingY,
-  lgPaddingY,
-  borderSize,
-} from '/imports/ui/stylesheets/styled-components/general';
-import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+import StyledContent from '/imports/ui/components/user-list/user-list-content/styles';
+import { colorGrayLighter } from '/imports/ui/stylesheets/styled-components/palette';
+import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
 
-const Messages = styled.div`
-  flex-grow: 0;
-  display: flex;
-  flex-flow: column;
-  flex-shrink: 0;
-  max-height: 30vh;
-`;
+const Messages = styled(Styled.Messages)``;
 
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: ${lgPaddingY};
-  margin-top: ${smPaddingX};
-`;
+const Container = styled(StyledContent.Container)``;
 
 const Separator = styled.hr`
   margin: 1rem auto;
@@ -41,41 +21,9 @@ const MessagesTitle = styled(Styled.SmallTitle)`
   margin: 0;
 `;
 
-const ScrollableList = styled(ScrollboxVertical)`
-  background: linear-gradient(${userListBg} 30%, rgba(255,255,255,0)),
-    linear-gradient(rgba(255,255,255,0), ${userListBg} 70%) 0 100%,
-    /* Shadows */
-    radial-gradient(farthest-side at 50% 0, rgba(0,0,0,.2), rgba(0,0,0,0)),
-    radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;
+const ScrollableList = styled(StyledContent.ScrollableList)``;
 
-  outline: none;
-  
-  &:hover {
-    /* Visible in Windows high-contrast themes */
-    outline: transparent;
-    outline-style: dotted;
-    outline-width: ${borderSize};
-  }
-
-  &:focus,
-  &:active {
-    border-radius: none;
-    box-shadow: inset 0 0 1px ${colorPrimary};
-    outline-style: transparent;
-  }
-
-  overflow-x: hidden;
-  padding-top: 1px;
-  padding-right: 1px;
-`;
-
-const List = styled.div`
-  margin: 0 0 1px ${mdPaddingY};
-
-  [dir="rtl"] & {
-    margin: 0 ${mdPaddingY} 1px 0;
-  }
-`;
+const List = styled(StyledContent.List)``;
 
 const ListTransition = styled.div`
   display: flex;
