@@ -16,6 +16,7 @@ import {
   colorOffWhite,
   colorGrayDark,
   colorGrayLight,
+  colorGrayLighter,
   listItemBgHover,
   itemFocusBorder,
   unreadMessagesBg,
@@ -155,6 +156,13 @@ const UnreadMessagesText = styled(FlexColumn)`
   background-color: ${unreadMessagesBg};
 `;
 
+const Separator = styled.hr`
+  margin: 1rem auto;
+  width: 2.2rem;
+  border: 0;
+  border-top: 1px solid ${colorGrayLighter};
+`;
+
 export default {
   Content,
   Container,
@@ -163,4 +171,5 @@ export default {
   ListItem,
   UnreadMessages,
   UnreadMessagesText,
+  Separator,
 };

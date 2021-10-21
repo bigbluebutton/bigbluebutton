@@ -2,19 +2,13 @@ import styled from 'styled-components';
 
 import Styled from '/imports/ui/components/user-list/styles';
 import StyledContent from '/imports/ui/components/user-list/user-list-content/styles';
-import { colorGrayLighter } from '/imports/ui/stylesheets/styled-components/palette';
 import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
 
 const Messages = styled(Styled.Messages)``;
 
 const Container = styled(StyledContent.Container)``;
 
-const Separator = styled.hr`
-  margin: 1rem auto;
-  width: 2.2rem;
-  border: 0;
-  border-top: 1px solid ${colorGrayLighter};
-`;
+const Separator = styled(StyledContent.Separator)``;
 
 const MessagesTitle = styled(Styled.SmallTitle)`
   flex: 1;
