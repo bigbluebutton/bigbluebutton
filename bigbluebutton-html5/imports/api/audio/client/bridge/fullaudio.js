@@ -10,8 +10,8 @@ import {
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
-const DEFAULT_LISTENONLY_MEDIA_SERVER = Meteor.settings.public.kurento.listenOnlyMediaServer;
 const MEDIA = Meteor.settings.public.media;
+const DEFAULT_FULLAUDIO_MEDIA_SERVER = MEDIA.audio.fullAudioMediaServer;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 const GLOBAL_AUDIO_PREFIX = 'GLOBAL_AUDIO_';
 const RECONNECT_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
@@ -43,8 +43,8 @@ const mapErrorCode = (error) => {
 
 // TODO Would be interesting to move this to a service along with the error mapping
 const getMediaServerAdapter = () => getFromMeetingSettings(
-  'media-server-listenonly',
-  DEFAULT_LISTENONLY_MEDIA_SERVER,
+  'media-server-fullaudio',
+  DEFAULT_FULLAUDIO_MEDIA_SERVER,
 );
 
 const getAudioSessionNumber = () => {

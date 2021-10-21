@@ -472,7 +472,14 @@ public:
       defaultFullAudioBridge: sipjs
       #
       #
-      # Same as above, but for listen only mechanism
+      # Server wide configuration to choose which bbb-webrtc-sfu
+      # media server adapter should be used for fullaudio.
+      # Default is undefined, which means the default setting in bbb-webrtc-sfu
+      # prevails (fullAudioMediaServer).
+      # fullAudioMediaServer: Kurento
+      #
+      #
+      # Default bridge to be used by listen only mechanism.
       defaultListenOnlyBridge: kurento
       #
       #
