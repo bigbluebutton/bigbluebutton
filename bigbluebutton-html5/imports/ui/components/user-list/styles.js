@@ -8,7 +8,7 @@ import {
   listItemBgHover,
   itemFocusBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { smPaddingX, lgPaddingX, borderSize } from '/imports/ui/stylesheets/styled-components/general';
+import { smPaddingX, borderSize } from '/imports/ui/stylesheets/styled-components/general';
 
 const UserList = styled(FlexColumn)`
   justify-content: flex-start;
@@ -22,8 +22,9 @@ const SmallTitle = styled.h2`
   font-weight: 600;
   text-transform: uppercase;
   padding: 0 ${smPaddingX};
-  margin: 0 0 (${lgPaddingX} / 2) 0;
   color: ${colorGray};
+  flex: 1;
+  margin: 0;
 `;
 
 const Messages = styled.div`
