@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Icon from '/imports/ui/components/icon/component';
 import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
+import Styled from './styles';
 import { PANELS, ACTIONS } from '../../layout/enums';
 
 const propTypes = {
@@ -62,18 +62,17 @@ const CaptionsListItem = (props) => {
   };
 
   return (
-    <div
+    <Styled.ListItem
       role="button"
       tabIndex={tabIndex}
       id={locale.locale}
-      className={styles.listItem}
       onClick={handleClickToggleCaptions}
       aria-label={`${locale.name} ${intl.formatMessage(intlMessages.captionLabel)}`}
       onKeyPress={() => {}}
     >
       <Icon iconName="closed_caption" />
       <span aria-hidden>{locale.name}</span>
-    </div>
+    </Styled.ListItem>
   );
 };
 
