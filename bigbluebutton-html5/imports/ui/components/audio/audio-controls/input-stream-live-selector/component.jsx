@@ -302,6 +302,7 @@ class InputStreamLiveSelector extends Component {
               }}
             />
             <ButtonEmoji
+              className={styles.audioDropdown}
               emoji="device_list_selector"
               label={intl.formatMessage(intlMessages.changeAudioDevice)}
               hideLabel
