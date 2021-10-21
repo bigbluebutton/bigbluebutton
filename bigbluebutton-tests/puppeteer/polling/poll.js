@@ -1,8 +1,8 @@
 const Page = require('../core/page');
 const e = require('../core/elements');
 const util = require('./util');
-const { ELEMENT_WAIT_TIME } = require('../core/constants')
-const { checkElementLengthEqualTo } = require('../core/util');
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
+const { checkElement, checkElementLengthEqualTo } = require('../core/util');
 
 class Polling {
   constructor() {
@@ -30,6 +30,24 @@ class Polling {
 
       const resp = this.modPage.page.evaluate(checkElementLengthEqualTo, e.pollMenuButton, 1);
       return resp;
+    } catch (err) {
+      await this.modPage.logger(err);
+      return false;
+    }
+  }
+
+  async pollAnonymous(testName) {
+    try {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.screenshot(testName, '01-before-start-anonymous-poll');
+      await util.startPoll(this.modPage, false, true);
+      await this.modPage.screenshot(testName, '02-after-start-anonymous-poll');
+      await this.modPage.waitForSelector(e.publishPollingLabel);
+      await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
+      await this.modPage.screenshot(testName, '03-after-receive-answer');
+      const resp = !await this.modPage.page.evaluate(checkElement, e.receivedAnswer);
+
+      return resp === true;
     } catch (err) {
       await this.modPage.logger(err);
       return false;

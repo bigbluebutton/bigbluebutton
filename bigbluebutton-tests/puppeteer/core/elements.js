@@ -142,6 +142,7 @@ exports.restartPoll = 'button[data-test="restartPoll"]';
 exports.receivedAnswer = 'td[data-test="receivedAnswer"]';
 exports.publishPollingLabel = 'button[data-test="publishPollingLabel"]';
 exports.pollResults = 'g[data-test="pollResultAria"]';
+exports.anonymousPoll = 'input[aria-label="Anonymous Poll"]';
 
 // Presentation
 exports.startScreenSharing = 'button[data-test="startScreenShare"]';
