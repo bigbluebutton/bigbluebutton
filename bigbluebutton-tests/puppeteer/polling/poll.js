@@ -84,6 +84,25 @@ class Polling {
     }
   }
 
+  async stopPoll(testName) {
+    try {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.screenshot(testName, '01-after-close-audio-modal');
+      await util.startPoll(this.modPage);
+      await this.modPage.screenshot(testName, '02-after-create-poll');
+      await this.userPage.waitForSelector(e.pollingContainer);
+      await this.userPage.screenshot(testName, '03-userPage-after-receive-polling-options');
+
+      await this.modPage.waitAndClick(e.closePollingMenu);
+      const resp = await this.userPage.wasRemoved(e.pollingContainer);
+
+      return resp === true;
+    } catch (err) {
+      await this.modPage.logger(err);
+      return false;
+    }
+  }
+
   async pollResultsOnChat(testName) {
     try {
       await this.modPage.screenshot(testName, '01-before-chat-message-send');
