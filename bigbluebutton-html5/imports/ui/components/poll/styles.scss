@@ -403,7 +403,6 @@
   position: relative;
   flex-flow: column;
   flex-grow: 1;
-  flex-basis: 0;
   
   &:last-child {
     padding-right: 0;
@@ -422,4 +421,14 @@
   [dir="rtl"] & {
     margin: 0 0 0 var(--sm-padding-x);
   }
+}
+
+.sectionHeading {
+  margin-top: 0;
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+.pollParagraph {
+  color: var(--color-text);
 }
