@@ -57,6 +57,29 @@ const pollingTest = () => {
     Page.checkRegression(0.9, screenshot);
   }, TEST_DURATION_TIME);
 
+  // Create quick poll
+  test('Create quick poll - from the slide', async () => {
+    const test = new Poll();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'createQuickPoll';
+      await test.modPage.logger('begin of ', testName);
+      await test.initPages(testName);
+      await test.modPage.startRecording(testName);
+      response = await test.quickPoll(testName);
+      await test.modPage.logger('end of ', testName);
+      await test.modPage.stopRecording();
+      screenshot = await test.modPage.page.screenshot();
+    } catch (err) {
+      await test.modPage.logger(err);
+    } finally {
+      await closePages(test.modPage, test.userPage);
+    }
+    expect(response).toBe(true);
+    Page.checkRegression(0.9, screenshot);
+  }, TEST_DURATION_TIME);
+
   // Check for Poll Results in chat message and return true when it appears
   test('Poll results in chat message', async () => {
     const test = new Poll();

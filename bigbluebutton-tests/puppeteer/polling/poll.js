@@ -1,8 +1,8 @@
 const Page = require('../core/page');
 const e = require('../core/elements');
 const util = require('./util');
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
-const { checkElement, checkElementLengthEqualTo } = require('../core/util');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { checkElement, checkElementLengthEqualTo, checkElementTextIncludes } = require('../core/util');
 
 class Polling {
   constructor() {
@@ -46,6 +46,36 @@ class Polling {
       await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
       await this.modPage.screenshot(testName, '03-after-receive-answer');
       const resp = !await this.modPage.page.evaluate(checkElement, e.receivedAnswer);
+
+      return resp === true;
+    } catch (err) {
+      await this.modPage.logger(err);
+      return false;
+    }
+  }
+
+  async quickPoll(testName) {
+    try {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.screenshot(testName, '01-after-close-audio-modal');
+      await this.modPage.waitAndClick(e.actions);
+      await this.modPage.waitAndClick(e.uploadPresentation);
+      await this.modPage.waitForSelector(e.fileUpload);
+
+      const fileUpload = await this.modPage.page.$(e.fileUpload);
+      await fileUpload.uploadFile(`${__dirname}/smart-poll-test.pdf`);
+      await this.modPage.screenshot(testName, '02-before-upload-presentation');
+      await this.modPage.waitAndClick(e.upload);
+      await this.modPage.page.waitForFunction(checkElementTextIncludes,
+        { timeout: ELEMENT_WAIT_LONGER_TIME },
+        'body', 'Current presentation'
+      );
+
+      await this.modPage.waitAndClick(e.quickPoll);
+      await this.modPage.screenshot(testName, '03-after-start-quick-poll');
+      await this.modPage.waitForSelector(e.pollMenuButton);
+      const resp = await this.userPage.hasElement(e.pollingContainer);
+      await this.userPage.screenshot(testName, '04-userPage-after-poll-created');
 
       return resp === true;
     } catch (err) {
