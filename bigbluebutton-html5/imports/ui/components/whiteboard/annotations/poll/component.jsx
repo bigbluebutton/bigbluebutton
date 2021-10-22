@@ -6,6 +6,7 @@ import { injectIntl, defineMessages } from 'react-intl';
 import styles from './styles';
 import {
   getSwapLayout,
+  shouldEnableSwapLayout,
 } from '/imports/ui/components/media/service';
 
 const intlMessages = defineMessages({
@@ -72,7 +73,7 @@ class PollDrawComponent extends Component {
   }
 
   componentDidMount() {
-    const isLayoutSwapped = getSwapLayout();
+    const isLayoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
     if (isLayoutSwapped) return;
 
     this.pollInitialCalculation();

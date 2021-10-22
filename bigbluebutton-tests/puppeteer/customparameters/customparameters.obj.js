@@ -207,14 +207,15 @@ const customParametersTest = () => {
     try {
       const testName = 'shortcuts';
       await page.logger('before ', testName);
-      response = await test.shortcuts(testName, util.encodeCustomParams(c.shortcuts));
+      const shortcutParam = util.getAllShortcutParams();
+      response = await test.shortcuts(testName, util.encodeCustomParams(shortcutParam));
       await test.page1.stopRecording();
       screenshot = await test.page1.page.screenshot();
       await page.logger('after ', testName);
     } catch (err) {
       await page.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(0.5, screenshot);

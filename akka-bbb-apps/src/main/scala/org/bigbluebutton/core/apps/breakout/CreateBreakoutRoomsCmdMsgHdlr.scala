@@ -15,7 +15,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
 
   def handleCreateBreakoutRoomsCmdMsg(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x): MeetingState2x = {
 
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) || liveMeeting.props.meetingProp.isBreakout) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to create breakout room for meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId,

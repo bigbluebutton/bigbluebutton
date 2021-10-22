@@ -45,7 +45,7 @@ export default withTracker((params) => {
 
   return {
     amIPresenter: Service.amIPresenter(),
-    layoutSwapped: MediaService.getSwapLayout(),
+    layoutSwapped: MediaService.getSwapLayout() && MediaService.shouldEnableSwapLayout(),
     userIsPresenter: PresentationService.isPresenter(podId),
     numberOfSlides: PresentationToolbarService.getNumberOfSlides(podId, presentationId),
     nextSlide: PresentationToolbarService.nextSlide,

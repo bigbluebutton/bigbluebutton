@@ -1,7 +1,5 @@
 const Page = require('../core/page');
-const util = require('./util');
 const e = require('../core/elements');
-const { checkElementLengthDifferentTo } = require('../core/util');
 const { VIDEO_LOADING_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
 
 class Share extends Page {
@@ -13,8 +11,9 @@ class Share extends Page {
     try {
       const parsedSettings = await this.getSettingsYaml();
       const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-      const response = await util.enableWebcam(this, videoPreviewTimeout);
-      return response;
+      await this.shareWebcam(true, videoPreviewTimeout);
+
+      return true;
     } catch (err) {
       await this.logger(err);
       return false;
@@ -26,7 +25,7 @@ class Share extends Page {
       await this.joinMicrophone();
       const parsedSettings = await this.getSettingsYaml();
       const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-      await util.enableWebcam(this, videoPreviewTimeout);
+      await this.shareWebcam(true, videoPreviewTimeout);
     } catch (err) {
       await this.logger(err);
     }
@@ -37,7 +36,7 @@ class Share extends Page {
       await this.waitForSelector(e.webcamVideo, VIDEO_LOADING_WAIT_TIME);
       await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
       await this.waitForSelector(e.isTalking);
-      const foundTestElement = await this.page.evaluate(checkElementLengthDifferentTo, e.webcamItemTalkingUser, 0);
+      const foundTestElement = await this.hasElement(e.webcamItemTalkingUser);
       if (foundTestElement === true) {
         await this.screenshot(`${testName}`, `success-${testName}`);
         this.logger(testName, ' passed');

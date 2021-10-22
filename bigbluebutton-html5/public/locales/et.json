@@ -411,6 +411,8 @@
     "app.switch.offLabel": "VÄLJAS",
     "app.talkingIndicator.ariaMuteDesc" : "Vali vaigistamiseks kasutaja",
     "app.talkingIndicator.isTalking" : "{0} räägib",
+    "app.talkingIndicator.moreThanMaxIndicatorsTalking" : "{0}+ räägivad",
+    "app.talkingIndicator.moreThanMaxIndicatorsWereTalking" : "{0}+ rääkisid",
     "app.talkingIndicator.wasTalking" : "{0} lõpetas rääkimise",
     "app.actionsBar.actionsDropdown.actionsLabel": "Tegevused",
     "app.actionsBar.actionsDropdown.presentationLabel": "Halda esitlusi",
