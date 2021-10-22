@@ -3,7 +3,8 @@ const MultiUsers = require('../user/multiusers');
 const Page = require('../core/page');
 const util = require('./util');
 const utilPolling = require('../polling/util');
-const utilScreenShare = require('../screenshare/util'); // utils imported from screenshare folder
+const utilScreenShare = require('../screenshare/util');
+const utilPresentation = require('../presentation/util');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME, UPLOAD_PDF_WAIT_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const { checkElementTextIncludes } = require('../core/util');
@@ -138,30 +139,10 @@ class Notifications extends MultiUsers {
     try {
       await this.initUser3(true, testName);
       await this.page3.startRecording(testName);
-      await this.page3.screenshot(`${testName}`, `01-page03-audio-modal-closed-${testName}`);
-      await util.uploadFileMenu(this.page3);
-      await this.page3.screenshot(`${testName}`, `02-page03-upload-file-menu-${testName}`);
-      await this.page3.waitForSelector(e.fileUpload);
-      const fileUpload = await this.page3.page.$(e.fileUpload);
-      await fileUpload.uploadFile(path.join(__dirname, `../media/${e.pdfFileName}.pdf`));
-      await this.page3.page.waitForFunction(checkElementTextIncludes,
-        { timeout: ELEMENT_WAIT_TIME },
-        'body', 'To be uploaded ...'
-      );
-      await this.page3.waitAndClick(e.upload);
-      await this.page3.page.waitForFunction(checkElementTextIncludes,
-        { timeout: ELEMENT_WAIT_TIME },
-        'body', 'Converting file'
-      );
-      await this.page3.screenshot(`${testName}`, `03-page03-file-uploaded-and-ready-${testName}`);
-      await this.page3.waitForSelector(e.smallToastMsg, UPLOAD_PDF_WAIT_TIME);
-      await this.page3.waitForSelector(e.whiteboard);
-      await this.page3.screenshot(`${testName}`, `04-page03-presentation-changed-${testName}`);
-      await this.page3.page.waitForFunction(checkElementTextIncludes,
-        { timeout: ELEMENT_WAIT_TIME },
-        'body', 'Current presentation'
-      );
-      await this.page3.screenshot(`${testName}`, `05-page03-presentation-change-toast-${testName}`);
+      await this.page3.screenshot(testName, '01-page03-audio-modal-closed');
+      await utilPresentation.uploadPresentation(this.page3, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
+      await this.page3.screenshot(testName, '02-page03-presentation-change-toast');
+
       return true;
     } catch (err) {
       await this.page3.logger(err);

@@ -149,6 +149,29 @@ const pollingTest = () => {
     Page.checkRegression(0.9, screenshot);
   }, TEST_DURATION_TIME);
 
+  // Check for Poll Results in whiteboard and return true when it appears
+  test('Poll results in a different presentation', async () => {
+    const test = new Poll();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'pollResultsInDifferentPresentation';
+      await test.modPage.logger('begin of ', testName);
+      await test.initModPage(true, testName);
+      await test.modPage.startRecording(testName);
+      response = await test.pollResultsInDifferentPresentation(testName);
+      await test.modPage.logger('end of ', testName);
+      await test.modPage.stopRecording();
+      screenshot = await test.modPage.page.screenshot();
+    } catch (err) {
+      await test.modPage.logger(err);
+    } finally {
+      await test.modPage.close();
+    }
+    expect(response).toBe(true);
+    Page.checkRegression(0.9, screenshot);
+  }, TEST_DURATION_TIME);
+
   // This Test chooses randomly a polling case, runs it
   // and expects having it answered by the other user
   test('Random Poll', async () => {

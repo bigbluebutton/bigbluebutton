@@ -1,6 +1,7 @@
 const Page = require('../core/page');
 const e = require('../core/elements');
 const util = require('./util');
+const utilPresentation = require('../presentation/util');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { checkElement, checkElementLengthEqualTo, checkElementTextIncludes } = require('../core/util');
 
@@ -62,20 +63,13 @@ class Polling {
       await this.modPage.waitAndClick(e.uploadPresentation);
       await this.modPage.waitForSelector(e.fileUpload);
 
-      const fileUpload = await this.modPage.page.$(e.fileUpload);
-      await fileUpload.uploadFile(`${__dirname}/smart-poll-test.pdf`);
-      await this.modPage.screenshot(testName, '02-before-upload-presentation');
-      await this.modPage.waitAndClick(e.upload);
-      await this.modPage.page.waitForFunction(checkElementTextIncludes,
-        { timeout: ELEMENT_WAIT_LONGER_TIME },
-        'body', 'Current presentation'
-      );
+      await utilPresentation.uploadPresentation(this.modPage, e.questionSlideFileName);
 
       await this.modPage.waitAndClick(e.quickPoll);
-      await this.modPage.screenshot(testName, '03-after-start-quick-poll');
+      await this.modPage.screenshot(testName, '02-after-start-quick-poll');
       await this.modPage.waitForSelector(e.pollMenuButton);
       const resp = await this.userPage.hasElement(e.pollingContainer);
-      await this.userPage.screenshot(testName, '04-userPage-after-poll-created');
+      await this.userPage.screenshot(testName, '03-userPage-after-poll-created');
 
       return resp === true;
     } catch (err) {
@@ -126,6 +120,27 @@ class Polling {
       await util.startPoll(this.modPage, true);
 
       // Check poll result on whiteboard
+      const resp = await this.modPage.hasElement(e.pollResults);
+
+      return resp === true;
+    } catch (err) {
+      await this.modPage.logger(err);
+      return false;
+    }
+  }
+
+  async pollResultsInDifferentPresentation(testName) {
+    try {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.screenshot(testName, '01-before-start-poll');
+      await util.startPoll(this.modPage);
+      await this.modPage.screenshot(testName, '02-after-start-poll');
+
+      await utilPresentation.uploadPresentation(this.modPage, e.questionSlideFileName);
+      await this.modPage.screenshot(testName, '03-after-upload-presentation');
+      await this.modPage.waitAndClick(e.publishPollingLabel);
+
+      // Check poll results
       const resp = await this.modPage.hasElement(e.pollResults);
 
       return resp === true;

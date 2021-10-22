@@ -62,19 +62,12 @@ async function privateChatMessageToast(page2) {
   return e.privateChatToast;
 }
 
-// File upload notification
-async function uploadFileMenu(test) {
-  await test.waitAndClick(e.actions);
-  await test.waitAndClick(e.uploadPresentation);
-}
-
 exports.privateChatMessageToast = privateChatMessageToast;
 exports.publicChatMessageToast = publicChatMessageToast;
 exports.enableUserJoinPopup = enableUserJoinPopup;
 exports.getOtherToastValue = getOtherToastValue;
 exports.getLastToastValue = getLastToastValue;
 exports.enableChatPopup = enableChatPopup;
-exports.uploadFileMenu = uploadFileMenu;
 exports.saveSettings = saveSettings;
 exports.waitForToast = waitForToast;
 exports.popupMenu = popupMenu;

@@ -16,7 +16,7 @@ exports.settings = 'li[data-test="settings"]';
 exports.settingsModal = 'div[aria-label="Settings"]';
 exports.title = '._imports_ui_components_nav_bar__styles__presentationTitle';
 exports.alerts = '.toastify-content';
-exports.pdfFileName = '100PagesFile';
+exports.pdfFileName = '100PagesFile.pdf';
 // Accesskey
 exports.chatButtonKey = '[accesskey="P"]';
 exports.userListButton = '[accesskey="U"]';
@@ -145,6 +145,7 @@ exports.pollResults = 'g[data-test="pollResultAria"]';
 exports.anonymousPoll = 'input[aria-label="Anonymous Poll"]';
 exports.quickPoll = 'button[aria-label="Quick Poll"]';
 exports.closePollingMenu = 'button[aria-label="Close Polling"]'
+exports.questionSlideFileName = 'mockPollSlide.pdf';
 
 // Presentation
 exports.startScreenSharing = 'button[data-test="startScreenShare"]';
@@ -168,6 +169,7 @@ exports.toastDownload = 'a[data-test="toastDownload"]';
 exports.confirmManagePresentation = 'button[data-test="confirmManagePresentation"]';
 exports.allowPresentationDownload = 'button[data-test="allowPresentationDownload"]';
 exports.disallowPresentationDownload = 'button[data-test="disallowPresentationDownload"]';
+exports.uploadPresentationFileName = 'uploadTest.png';
 
 // User
 exports.firstUser = '[data-test="userListItemCurrent"]';
