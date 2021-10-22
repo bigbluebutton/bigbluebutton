@@ -126,13 +126,13 @@ const pollingTest = () => {
     Page.checkRegression(0.9, screenshot);
   }, TEST_DURATION_TIME);
 
-  // Check for Poll Results in whiteboard and return true when it appears
-  test('Poll results in whiteboard', async () => {
+  // Check for Poll Results on the whiteboard and return true when it appears
+  test('Poll results on whiteboard', async () => {
     const test = new Poll();
     let response;
     let screenshot;
     try {
-      const testName = 'pollResultsInWhiteboard';
+      const testName = 'pollResultsOnWhiteboard';
       await test.modPage.logger('begin of ', testName);
       await test.initModPage(true, testName);
       await test.modPage.startRecording(testName);
