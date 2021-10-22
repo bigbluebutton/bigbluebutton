@@ -211,6 +211,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
       Meteor.settings.public.presentation.restoreOnUpdate,
     ),
     hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
+    hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
   };
 })(AppContainer)));
 

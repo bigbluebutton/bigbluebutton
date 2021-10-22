@@ -1056,6 +1056,120 @@ class ApiController {
     }
   }
 
+  /***********************************************
+   * LEARNING DASHBOARD DATA
+   ***********************************************/
+  def learningDashboard = {
+    String API_CALL = 'learningDashboard'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    String respMessage = ""
+    boolean reject = false
+
+    String sessionToken
+    UserSession us
+    Meeting meeting
+
+    Map.Entry<String, String> validationResponse = validateRequest(
+            ValidationService.ApiCall.LEARNING_DASHBOARD,
+            request.getParameterMap(),
+            request.getQueryString(),
+    )
+
+    //Validate Session
+    if(!(validationResponse == null)) {
+      respMessage = validationResponse.getValue()
+      reject = true
+    } else {
+      sessionToken = sanitizeSessionToken(params.sessionToken)
+      if (!hasValidSession(sessionToken)) {
+        reject = true
+        respMessage = "Invalid Session"
+      }
+    }
+
+    //Validate User
+    if(reject == false) {
+      us = getUserSession(sessionToken)
+
+      if(us == null) {
+        reject = true;
+        respMessage = "Access denied"
+      } else if(!us.role.equals(ROLE_MODERATOR)) {
+        reject = true
+        respMessage = "Access denied"
+      }
+    }
+
+    //Validate Meeting
+    if(reject == false) {
+      meeting = meetingService.getMeeting(us.meetingID)
+      boolean isRunning = meeting != null && meeting.isRunning();
+      if(!isRunning) {
+        reject = true
+        respMessage = "Meeting not found"
+      }
+
+      if(meeting.getLearningDashboardEnabled() == false) {
+        reject = true
+        respMessage = "Learning Dashboard disabled for this meeting"
+      }
+    }
+
+    //Validate File
+    File jsonDataFile
+    if(reject == false) {
+      jsonDataFile = meetingService.learningDashboardService.getJsonDataFile(us.meetingID,meeting.getLearningDashboardAccessToken());
+      if (!jsonDataFile.exists()) {
+        reject = true
+        respMessage = "Learning Dashboard data not found"
+      }
+    }
+
+    if (reject) {
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        json {
+          def builder = new JsonBuilder()
+          builder.response {
+            returncode RESP_CODE_FAILED
+            message respMessage
+            sessionToken
+          }
+          render(contentType: "application/json", text: builder.toPrettyString())
+        }
+      }
+    } else {
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingid", us.meetingID);
+      logData.put("extMeetingid", us.externMeetingID);
+      logData.put("name", us.fullname);
+      logData.put("userid", us.internalUserId);
+      logData.put("sessionToken", sessionToken);
+      logData.put("logCode", "learningDashboard");
+      logData.put("description", "Request Learning Dashboard data.");
+
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+
+      log.info(" --analytics-- data=" + logStr);
+
+      response.addHeader("Cache-Control", "no-cache")
+
+      withFormat {
+        json {
+          def builder = new JsonBuilder()
+          builder.response {
+            returncode RESP_CODE_SUCCESS
+            data jsonDataFile.getText()
+            sessionToken
+          }
+          render(contentType: "application/json", text: builder.toPrettyString())
+        }
+      }
+    }
+  }
+
   def uploadDocuments(conf) { //
     log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
 

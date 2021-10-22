@@ -28,6 +28,14 @@ public class LearningDashboardService {
     private static Logger log = LoggerFactory.getLogger(LearningDashboardService.class);
     private static String learningDashboardFilesDir = "/var/bigbluebutton/learning-dashboard";
 
+    public File getJsonDataFile(String meetingId, String learningDashboardAccessToken) {
+        File baseDir = new File(this.getDestinationBaseDirectoryName(meetingId,learningDashboardAccessToken));
+        if (!baseDir.exists()) baseDir.mkdirs();
+
+        File jsonFile = new File(baseDir.getAbsolutePath() + File.separatorChar + "learning_dashboard_data.json");
+        return jsonFile;
+    }
+
     public void writeJsonDataFile(String meetingId, String learningDashboardAccessToken, String activityJson) {
 
         try {
@@ -36,10 +44,7 @@ public class LearningDashboardService {
                 return;
             }
 
-            File baseDir = new File(this.getDestinationBaseDirectoryName(meetingId,learningDashboardAccessToken));
-            if (!baseDir.exists()) baseDir.mkdirs();
-
-            File jsonFile = new File(baseDir.getAbsolutePath() + File.separatorChar + "learning_dashboard_data.json");
+            File jsonFile = this.getJsonDataFile(meetingId,learningDashboardAccessToken);
 
             FileOutputStream fileOutput = new FileOutputStream(jsonFile);
             fileOutput.write(activityJson.getBytes());

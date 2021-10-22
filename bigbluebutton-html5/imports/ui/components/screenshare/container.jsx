@@ -2,7 +2,10 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Users from '/imports/api/users/';
 import Auth from '/imports/ui/services/auth';
-import MediaService, { getSwapLayout, } from '/imports/ui/components/media/service';
+import MediaService, {
+  getSwapLayout,
+  shouldEnableSwapLayout,
+} from '/imports/ui/components/media/service';
 import {
   isVideoBroadcasting,
   isGloballyBroadcasting,
@@ -46,6 +49,7 @@ export default withTracker(() => {
     isGloballyBroadcasting: isGloballyBroadcasting(),
     isPresenter: user.presenter,
     getSwapLayout,
+    shouldEnableSwapLayout,
     toggleSwapLayout: MediaService.toggleSwapLayout,
     hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
   };

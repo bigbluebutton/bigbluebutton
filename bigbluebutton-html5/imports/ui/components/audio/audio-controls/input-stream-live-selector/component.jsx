@@ -293,7 +293,7 @@ class InputStreamLiveSelector extends Component {
               data-test="leaveAudio"
               hideLabel
               color="primary"
-              icon={isListenOnly ? 'listen' : 'audio_on'}
+              icon={isListenOnly ? 'listen' : 'volume_level_2'}
               size="lg"
               circle
               onClick={(e) => {
@@ -302,6 +302,7 @@ class InputStreamLiveSelector extends Component {
               }}
             />
             <ButtonEmoji
+              className={styles.audioDropdown}
               emoji="device_list_selector"
               label={intl.formatMessage(intlMessages.changeAudioDevice)}
               hideLabel

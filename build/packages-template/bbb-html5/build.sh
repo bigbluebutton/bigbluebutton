@@ -91,6 +91,16 @@ if [ -f staging/usr/share/meteor/bundle/programs/web.browser/head.html ]; then
   sed -i "s/VERSION/$(($BUILD))/" staging/usr/share/meteor/bundle/programs/web.browser/head.html
 fi
 
+# Compress tensorflow WASM binaries used for virtual backgrounds. Keep the
+# uncompressed versions as well so it works with mismatched nginx location blocks
+if [ -f staging/usr/share/meteor/bundle/programs/web.browser/app/wasm/tflite-simd.wasm ]; then
+  gzip -k -f -9 staging/usr/share/meteor/bundle/programs/web.browser/app/wasm/tflite-simd.wasm
+fi
+
+if [ -f staging/usr/share/meteor/bundle/programs/web.browser/app/wasm/tflite.wasm ]; then
+  gzip -k -f -9 staging/usr/share/meteor/bundle/programs/web.browser/app/wasm/tflite.wasm
+fi
+
 mkdir -p staging/etc/nginx/sites-available
 cp bigbluebutton.nginx staging/etc/nginx/sites-available/bigbluebutton
 
