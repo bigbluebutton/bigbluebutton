@@ -607,10 +607,9 @@ class Poll extends Component {
                       )}
                     <div className={styles.row}>
                       <div className={styles.col} aria-hidden="true">
-                        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                        <label className={styles.label}>
+                        <h4 className={styles.sectionHeading}>
                           {intl.formatMessage(intlMessages.secretPollLabel)}
-                        </label>
+                        </h4>
                       </div>
                       <div className={styles.col}>
                         {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
