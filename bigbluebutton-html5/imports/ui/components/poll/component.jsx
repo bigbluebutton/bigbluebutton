@@ -493,7 +493,7 @@ class Poll extends Component {
           )}
         </div>
         <div data-test="responseTypes">
-          <h4>{intl.formatMessage(intlMessages.responseTypesLabel)}</h4>
+          <h4 className={styles.sectionHeading}>{intl.formatMessage(intlMessages.responseTypesLabel)}</h4>
           <div className={styles.responseType}>
             <Button
               label={intl.formatMessage(intlMessages.tf)}
@@ -573,7 +573,7 @@ class Poll extends Component {
         {type
           && (
             <div data-test="responseChoices">
-              <h4>{intl.formatMessage(intlMessages.responseChoices)}</h4>
+              <h4 className={styles.sectionHeading}>{intl.formatMessage(intlMessages.responseChoices)}</h4>
               {
                 type === pollTypes.Response
                 && (
@@ -697,7 +697,7 @@ class Poll extends Component {
     const { intl } = this.props;
     return (
       <div className={styles.noSlidePanelContainer}>
-        <h4>{intl.formatMessage(intlMessages.noPresentationSelected)}</h4>
+        <h4 className={styles.sectionHeading}>{intl.formatMessage(intlMessages.noPresentationSelected)}</h4>
         <Button
           label={intl.formatMessage(intlMessages.clickHereToSelect)}
           color="primary"
