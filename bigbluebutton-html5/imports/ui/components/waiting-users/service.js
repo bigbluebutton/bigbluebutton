@@ -1,10 +1,10 @@
-import Meetings from '/imports/api/meetings';
+import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
 import Auth from '/imports/ui/services/auth';
 import { makeCall } from '/imports/ui/services/api';
 
 const guestUsersCall = (guestsArray, status) => makeCall('allowPendingUsers', guestsArray, status);
 
-const changeGuestPolicy = policyRule => makeCall('changeGuestPolicy', policyRule);
+const changeGuestPolicy = (policyRule) => makeCall('changeGuestPolicy', policyRule);
 
 const getGuestPolicy = () => {
   const meeting = Meetings.findOne(
@@ -14,6 +14,8 @@ const getGuestPolicy = () => {
 
   return meeting.usersProp.guestPolicy;
 };
+
+const isWaitingRoomEnabled = () => getGuestPolicy() === 'ASK_MODERATOR';
 
 const isGuestLobbyMessageEnabled = Meteor.settings.public.app.enableGuestLobbyMessage;
 
@@ -37,6 +39,7 @@ export default {
   guestUsersCall,
   changeGuestPolicy,
   getGuestPolicy,
+  isWaitingRoomEnabled,
   isGuestLobbyMessageEnabled,
   getGuestLobbyMessage,
   setGuestLobbyMessage,

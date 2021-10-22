@@ -1,15 +1,15 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
-import GuestUsers from '/imports/api/guest-users/';
-import Meetings from '/imports/api/meetings';
+import GuestUsers from '/imports/ui/local-collections/guest-users-collection/guest-users';
+import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
 import Service from './service';
 import WaitingComponent from './component';
-import LayoutContext from '../layout/context';
+import { layoutDispatch } from '../layout/context';
 
 const WaitingContainer = (props) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextDispatch } = layoutContext;
+  const layoutContextDispatch = layoutDispatch();
+
   return <WaitingComponent {...{ layoutContextDispatch, ...props }} />;
 };
 
@@ -37,6 +37,7 @@ export default withTracker(() => {
     guestUsers,
     authenticatedUsers,
     guestUsersCall: Service.guestUsersCall,
+    isWaitingRoomEnabled: Service.isWaitingRoomEnabled(),
     changeGuestPolicy: Service.changeGuestPolicy,
     isGuestLobbyMessageEnabled: Service.isGuestLobbyMessageEnabled,
     setGuestLobbyMessage: Service.setGuestLobbyMessage,

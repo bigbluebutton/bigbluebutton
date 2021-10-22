@@ -8,14 +8,14 @@ import { Session } from 'meteor/session';
 import Service from './service';
 import Auth from '/imports/ui/services/auth';
 import { UsersContext } from '../components-data/users-context/context';
-import LayoutContext from '../layout/context';
+import { layoutDispatch } from '../layout/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
 const PollContainer = ({ ...props }) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextDispatch } = layoutContext;
+  const layoutContextDispatch = layoutDispatch();
+
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
 

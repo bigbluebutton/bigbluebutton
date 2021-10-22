@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Users from '/imports/api/users/';
 import Auth from '/imports/ui/services/auth';
@@ -11,16 +11,16 @@ import {
   isGloballyBroadcasting,
 } from './service';
 import ScreenshareComponent from './component';
-import LayoutContext from '../layout/context';
+import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const ScreenshareContainer = (props) => {
-  const fullscreenElementId = 'Screenshare';
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-  const { output, fullscreen } = layoutContextState;
-  const { screenShare } = output;
+  const screenShare = layoutSelectOutput((i) => i.screenShare);
+  const fullscreen = layoutSelect((i) => i.fullscreen);
+  const layoutContextDispatch = layoutDispatch();
+
   const { element } = fullscreen;
+  const fullscreenElementId = 'Screenshare';
   const fullscreenContext = (element === fullscreenElementId);
 
   if (isVideoBroadcasting()) {
