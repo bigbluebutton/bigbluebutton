@@ -59,7 +59,7 @@
 .button {
   border: none;
   overflow: visible;
-  display: inline-block;
+  display: flex;
   border-radius: var(--border-size);
   font-weight: var(--btn-font-weight);
   line-height: 1;
@@ -103,6 +103,10 @@
       }
     }
   }
+}
+
+.iconRight {
+  flex-direction: row-reverse;
 }
 
 .buttonWrapper {

@@ -96,6 +96,7 @@ export default class Button extends BaseButton {
       ghost,
       circle,
       block,
+      iconRight,
     } = this.props;
 
     const propClassNames = {};
@@ -106,6 +107,7 @@ export default class Button extends BaseButton {
     propClassNames[styles.ghost] = ghost;
     propClassNames[styles.circle] = circle;
     propClassNames[styles.block] = block;
+    propClassNames[styles.iconRight] = iconRight;
 
     return propClassNames;
   }
@@ -166,24 +168,18 @@ export default class Button extends BaseButton {
   renderDefault() {
     const {
       className,
-      iconRight,
       ...otherProps
     } = this.props;
 
     const remainingProps = this._cleanProps(otherProps);
-
-    /* TODO: We can change this and make the button with flexbox to avoid html
-      changes */
-    const renderLeftFuncName = !iconRight ? 'renderIcon' : 'renderLabel';
-    const renderRightFuncName = !iconRight ? 'renderLabel' : 'renderIcon';
 
     return (
       <BaseButton
         className={cx(this._getClassNames(), className)}
         {...remainingProps}
       >
-        {this[renderLeftFuncName]()}
-        {this[renderRightFuncName]()}
+        {this.renderIcon()}
+        {this.renderLabel()}
       </BaseButton>
     );
   }
