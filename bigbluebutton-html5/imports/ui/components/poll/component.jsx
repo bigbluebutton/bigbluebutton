@@ -577,7 +577,7 @@ class Poll extends Component {
               {
                 type === pollTypes.Response
                 && (
-                  <div>
+                  <div className={styles.pollParagraph}>
                     <span>{intl.formatMessage(intlMessages.typedResponseDesc)}</span>
                   </div>
                 )
@@ -627,7 +627,7 @@ class Poll extends Component {
                     </div>
                     {secretPoll
                       && (
-                        <div>
+                        <div className={styles.pollParagraph}>
                           { intl.formatMessage(intlMessages.isSecretPollLabel) }
                         </div>
                       )}
