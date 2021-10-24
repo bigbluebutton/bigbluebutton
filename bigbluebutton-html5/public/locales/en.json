@@ -880,6 +880,8 @@
     "app.layout.style.smart": "Smart layout",
     "app.layout.style.presentationFocus": "Focus on presentation",
     "app.layout.style.videoFocus": "Focus on video",
+    "app.layout.style.customPush": "Custom (push layout to all)",
+    "app.layout.style.smartPush": "Smart layout (push layout to all)",
     "app.layout.style.presentationFocusPush": "Focus on presentation (push layout to all)",
     "app.layout.style.videoFocusPush": "Focus on video (push layout to all)",
     "playback.button.about.aria": "About",
