@@ -87,6 +87,22 @@ fi
 popd
 # spandsp end
 
+
+
+# libks start
+if [ ! -d libks ]; then
+  git clone https://github.com/signalwire/libks.git
+fi
+cd libks/
+git pull
+
+cmake .
+make
+
+make install
+cd ..
+# libks end
+
 ldconfig
 
 # we already cloned the FS repo in freeswitch.placeholder.sh
