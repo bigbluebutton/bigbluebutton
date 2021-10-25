@@ -11,6 +11,7 @@ import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const DEFAULT_LISTENONLY_MEDIA_SERVER = Meteor.settings.public.kurento.listenOnlyMediaServer;
+const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 const GLOBAL_AUDIO_PREFIX = 'GLOBAL_AUDIO_';
@@ -265,6 +266,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
           iceServers,
           offering: OFFERING,
           mediaServer: getMediaServerAdapter(),
+          signalCandidates: SIGNAL_CANDIDATES,
         };
 
         this.broker = new ListenOnlyBroker(
@@ -303,3 +305,5 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
     return Promise.resolve();
   }
 }
+
+module.exports = KurentoAudioBridge;

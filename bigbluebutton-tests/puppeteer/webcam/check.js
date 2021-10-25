@@ -3,7 +3,7 @@ const util = require('./util');
 
 class Check extends Share {
   constructor() {
-    super('webcam-check-content-test');
+    super();
   }
 
   async compare() {
@@ -22,7 +22,7 @@ class Check extends Share {
       const parsedSettings = await this.getSettingsYaml();
       const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
 
-      await util.enableWebcam(this, videoPreviewTimeout);
+      await this.shareWebcam(true, videoPreviewTimeout);
       const respUser = await util.webcamContentCheck(this);
       return respUser === true;
     } catch (err) {

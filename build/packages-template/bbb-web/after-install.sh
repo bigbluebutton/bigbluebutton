@@ -101,6 +101,8 @@ bbb_config() {
   touch /var/log/bigbluebutton/bbb-web.log
   chown bigbluebutton:bigbluebutton /var/log/bigbluebutton/bbb-web.log
 
+  update-java-alternatives -s java-1.8.0-openjdk-amd64
+
   # Restart bbb-web to deploy new 
   startService bbb-web.service || echo "bbb-web.service could not be registered or started"
   # sed -i 's/8080/8090/g' /etc/bigbluebutton/nginx/web

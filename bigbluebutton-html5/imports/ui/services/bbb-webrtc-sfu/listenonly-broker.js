@@ -22,6 +22,7 @@ class ListenOnlyBroker extends BaseBroker {
     this.offering = true;
 
     // Optional parameters are: userName, caleeName, iceServers, offering, mediaServer
+    // signalCandidates
     Object.assign(this, options);
   }
 
@@ -32,9 +33,7 @@ class ListenOnlyBroker extends BaseBroker {
           audio: true,
           video: false,
         },
-        onicecandidate: (candidate) => {
-          this.onIceCandidate(candidate, this.role);
-        },
+        onicecandidate: this.signalCandidates ? this.onIceCandidate.bind(this) : null,
       };
 
       this.addIceServers(options);
@@ -179,10 +178,10 @@ class ListenOnlyBroker extends BaseBroker {
     this.sendStartReq(sdpOffer);
   }
 
-  onIceCandidate (candidate, role) {
+  onIceCandidate (candidate) {
     const message = {
       id: ON_ICE_CANDIDATE_MSG,
-      role,
+      role: this.role,
       type: this.sfuComponent,
       voiceBridge: this.voiceBridge,
       candidate,

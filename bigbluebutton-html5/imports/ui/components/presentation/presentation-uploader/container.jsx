@@ -21,14 +21,15 @@ const PresentationUploaderContainer = (props) => (
 export default withTracker(() => {
   const currentPresentations = Service.getPresentations();
   const {
-    dispatchDisableDownloadable,
-    dispatchEnableDownloadable,
-    dispatchTogglePresentationDownloadable,
-  } = Service;
+	  dispatchDisableDownloadable,
+	  dispatchEnableDownloadable,
+	  dispatchTogglePresentationDownloadable,
+        } = Service;
 
   return {
     presentations: currentPresentations,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
+    allowDownloadable: PRESENTATION_CONFIG.allowDownloadable,
     handleSave: (presentations) => Service.persistPresentationChanges(
       currentPresentations,
       presentations,

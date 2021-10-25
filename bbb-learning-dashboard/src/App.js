@@ -6,29 +6,45 @@ import Card from './components/Card';
 import UsersTable from './components/UsersTable';
 import StatusTable from './components/StatusTable';
 import PollsTable from './components/PollsTable';
+import ErrorMessage from './components/ErrorMessage';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      loading: true,
       activitiesJson: {},
       tab: 'overview',
+      meetingId: '',
+      learningDashboardAccessToken: '',
+      ldAccessTokenCopied: false,
+      sessionToken: '',
     };
   }
 
   componentDidMount() {
-    this.fetchActivitiesJson();
+    this.setDashboardParams();
     setInterval(() => {
       this.fetchActivitiesJson();
     }, 10000);
   }
 
-  fetchActivitiesJson() {
+  setDashboardParams() {
+    let learningDashboardAccessToken = '';
+    let meetingId = '';
+    let sessionToken = '';
+
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
-    if (typeof params.meeting === 'undefined') return;
 
-    let learningDashboardAccessToken = '';
+    if (typeof params.meeting !== 'undefined') {
+      meetingId = params.meeting;
+    }
+
+    if (typeof params.sessionToken !== 'undefined') {
+      sessionToken = params.sessionToken;
+    }
+
     if (typeof params.report !== 'undefined') {
       learningDashboardAccessToken = params.report;
     } else {
@@ -38,19 +54,74 @@ class App extends React.Component {
       cArr.forEach((val) => {
         if (val.indexOf(`${cookieName}=`) === 0) learningDashboardAccessToken = val.substring((`${cookieName}=`).length);
       });
+
+      // Extend AccessToken lifetime by 30d (in each access)
+      if (learningDashboardAccessToken !== '') {
+        const cookieExpiresDate = new Date();
+        cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 30));
+        document.cookie = `learningDashboardAccessToken-${meetingId}=${learningDashboardAccessToken}; expires=${cookieExpiresDate.toGMTString()}; path=/;SameSite=None;Secure`;
+      }
     }
 
+    this.setState({ learningDashboardAccessToken, meetingId, sessionToken },
+      this.fetchActivitiesJson);
+  }
+
+  fetchActivitiesJson() {
+    const { learningDashboardAccessToken, meetingId, sessionToken } = this.state;
+
     if (learningDashboardAccessToken !== '') {
-      fetch(`${params.meeting}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
+      fetch(`${meetingId}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
         .then((response) => response.json())
         .then((json) => {
-          this.setState({ activitiesJson: json });
+          this.setState({ activitiesJson: json, loading: false });
+          document.title = `Learning Dashboard - ${json.name}`;
+        }).catch(() => {
+          this.setState({ loading: false });
         });
+    } else if (sessionToken !== '') {
+      const url = new URL('/bigbluebutton/api/learningDashboard', window.location);
+      fetch(`${url}?sessionToken=${sessionToken}`)
+        .then((response) => response.json())
+        .then((json) => {
+          if (json.response.returncode === 'SUCCESS') {
+            const jsonData = JSON.parse(json.response.data);
+            this.setState({ activitiesJson: jsonData, loading: false });
+            document.title = `Learning Dashboard - ${jsonData.name}`;
+          } else {
+            // When meeting is ended the sessionToken stop working, check for new cookies
+            this.setDashboardParams();
+            this.setState({ loading: false });
+          }
+        })
+        .catch(() => {
+          this.setState({ loading: false });
+        });
+    } else {
+      this.setState({ loading: false });
+    }
+  }
+
+  copyPublicLink() {
+    const { learningDashboardAccessToken, meetingId, ldAccessTokenCopied } = this.state;
+    const { intl } = this.props;
+
+    let url = window.location.href.split('?')[0];
+    url += `?meeting=${meetingId}&report=${learningDashboardAccessToken}&lang=${intl.locale}`;
+    navigator.clipboard.writeText(url);
+    if (ldAccessTokenCopied === false) {
+      this.setState({ ldAccessTokenCopied: true });
+      setTimeout(() => {
+        this.setState({ ldAccessTokenCopied: false });
+      }, 3000);
     }
   }
 
   render() {
-    const { activitiesJson, tab } = this.state;
+    const {
+      activitiesJson, tab, sessionToken, loading,
+      learningDashboardAccessToken, ldAccessTokenCopied,
+    } = this.state;
     const { intl } = this.props;
 
     document.title = `${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Dashboard' })} - ${activitiesJson.name}`;
@@ -132,35 +203,93 @@ class App extends React.Component {
       return meetingAveragePoints;
     }
 
+    function getErrorMessage() {
+      if (learningDashboardAccessToken === '' && sessionToken === '') {
+        return intl.formatMessage({ id: 'app.learningDashboard.errors.invalidToken', defaultMessage: 'Invalid session token' });
+      }
+
+      if (activitiesJson === {} || typeof activitiesJson.name === 'undefined') {
+        return intl.formatMessage({ id: 'app.learningDashboard.errors.dataUnavailable', defaultMessage: 'Data is no longer available' });
+      }
+
+      return '';
+    }
+
+    if (loading === false && getErrorMessage() !== '') return <ErrorMessage message={getErrorMessage()} />;
+
     return (
       <div className="mx-10">
         <div className="flex items-start justify-between pb-3">
           <h1 className="mt-3 text-2xl font-semibold whitespace-nowrap inline-block">
             <FormattedMessage id="app.learningDashboard.dashboardTitle" defaultMessage="Learning Dashboard" />
+            &nbsp;
+            {
+              learningDashboardAccessToken !== ''
+                ? (
+                  <button type="button" onClick={() => { this.copyPublicLink(); }} className="text-sm font-medium text-blue-500 ease-out">
+                    (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 inline"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                      />
+                    </svg>
+                    &nbsp;
+                    <FormattedMessage id="app.learningDashboard.shareButton" defaultMessage="Share with others" />
+                    )
+                  </button>
+                )
+                : null
+            }
+            {
+              ldAccessTokenCopied === true
+                ? (
+                  <span className="text-xs text-gray-500 font-normal ml-2">
+                    <FormattedMessage id="app.learningDashboard.linkCopied" defaultMessage="Link successfully copied!" />
+                  </span>
+                )
+                : null
+}
             <br />
             <span className="text-sm font-medium">{activitiesJson.name || ''}</span>
           </h1>
-          <div className="mt-3 text-right px-4 py-1 text-gray-500 inline-block">
+          <div className="mt-3 col-text-right py-1 text-gray-500 inline-block">
             <p className="font-bold">
-              <FormattedDate
-                value={activitiesJson.createdOn}
-                year="numeric"
-                month="short"
-                day="numeric"
-              />
+              <div className="inline">
+                <FormattedDate
+                  value={activitiesJson.createdOn}
+                  year="numeric"
+                  month="short"
+                  day="numeric"
+                />
+              </div>
+              &nbsp;&nbsp;
               {
-                        activitiesJson.endedOn > 0
-                          ? (
-                            <span className="px-2 py-1 ml-3 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
-                              <FormattedMessage id="app.learningDashboard.indicators.meetingStatusEnded" defaultMessage="Ended" />
-                            </span>
-                          )
-                          : (
-                            <span className="px-2 py-1 ml-3 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
-                              <FormattedMessage id="app.learningDashboard.indicators.meetingStatusActive" defaultMessage="Active" />
-                            </span>
-                          )
-                    }
+                activitiesJson.endedOn > 0
+                  ? (
+                    <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
+                      <FormattedMessage id="app.learningDashboard.indicators.meetingStatusEnded" defaultMessage="Ended" />
+                    </span>
+                  )
+                  : null
+              }
+              {
+                activitiesJson.endedOn === 0
+                  ? (
+                    <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
+                      <FormattedMessage id="app.learningDashboard.indicators.meetingStatusActive" defaultMessage="Active" />
+                    </span>
+                  )
+                  : null
+              }
             </p>
             <p>
               <FormattedMessage id="app.learningDashboard.indicators.duration" defaultMessage="Duration" />
@@ -175,8 +304,8 @@ class App extends React.Component {
             <Card
               name={
                 activitiesJson.endedOn === 0
-                  ? intl.formatMessage({ id: 'app.learningDashboard.indicators.participantsOnline', defaultMessage: 'Active Participants' })
-                  : intl.formatMessage({ id: 'app.learningDashboard.indicators.participantsTotal', defaultMessage: 'Total Number Of Participants' })
+                  ? intl.formatMessage({ id: 'app.learningDashboard.indicators.usersOnline', defaultMessage: 'Active Users' })
+                  : intl.formatMessage({ id: 'app.learningDashboard.indicators.usersTotal', defaultMessage: 'Total Number Of Users' })
               }
               number={Object.values(activitiesJson.users || {})
                 .filter((u) => activitiesJson.endedOn > 0 || u.leftOn === 0).length}
@@ -283,7 +412,7 @@ class App extends React.Component {
         </div>
         <h1 className="block my-1 pr-2 text-xl font-semibold">
           { tab === 'overview' || tab === 'overview_activityscore'
-            ? <FormattedMessage id="app.learningDashboard.participantsTable.title" defaultMessage="Overview" />
+            ? <FormattedMessage id="app.learningDashboard.usersTable.title" defaultMessage="Overview" />
             : null }
           { tab === 'status_timeline'
             ? <FormattedMessage id="app.learningDashboard.statusTimelineTable.title" defaultMessage="Status Timeline" />

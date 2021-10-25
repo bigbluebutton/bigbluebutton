@@ -99,6 +99,7 @@ class SIPSession {
     this._hangupFlag = false;
     this._reconnecting = false;
     this._currentSessionState = null;
+    this._ignoreCallState = false;
   }
 
   get inputStream() {
@@ -227,6 +228,24 @@ class SIPSession {
     this._outputDeviceId = deviceId;
   }
 
+  /**
+   * This _ignoreCallState flag is set to true when we want to ignore SIP's
+   * call state retrieved directly from FreeSWITCH ESL, when doing some checks
+   * (for example , when checking  if call stopped).
+   * We need to ignore this , for example, when moderator is in
+   * breakout audio transfer ("Join Audio" button in breakout panel): in this
+   * case , we will monitor moderator's lifecycle in audio conference by
+   * using the SIP state taken from SIP.js only (ignoring the ESL's call state).
+   * @param {boolean} value true to ignore call state, false otherwise.
+   */
+  set ignoreCallState(value) {
+    this._ignoreCallState = value;
+  }
+
+  get ignoreCallState() {
+    return this._ignoreCallState;
+  }
+
   joinAudio({
     isListenOnly,
     extension,
@@ -236,6 +255,8 @@ class SIPSession {
   }, managerCallback) {
     return new Promise((resolve, reject) => {
       const callExtension = extension ? `${extension}${this.userData.voiceBridge}` : this.userData.voiceBridge;
+
+      this.ignoreCallState = false;
 
       const callback = (message) => {
         // There will sometimes we erroneous errors put out like timeouts and improper shutdowns,
@@ -1069,7 +1090,9 @@ class SIPSession {
       };
 
       const checkIfCallStopped = (message) => {
-        if (fsReady || !sessionTerminated) return null;
+        if ((!this.ignoreCallState && fsReady) || !sessionTerminated) {
+          return null;
+        }
 
         if (!message && !!this.userRequestedHangup) {
           return this.callback({
@@ -1351,6 +1374,20 @@ export default class SIPBridge extends BaseAudioBridge {
     return this.activeSession ? this.activeSession.inputStream : null;
   }
 
+  /**
+   * Wrapper for SIPSession's ignoreCallState flag
+   * @param {boolean} value
+   */
+  set ignoreCallState(value) {
+    if (this.activeSession) {
+      this.activeSession.ignoreCallState = value;
+    }
+  }
+
+  get ignoreCallState() {
+    return this.activeSession ? this.activeSession.ignoreCallState : false;
+  }
+
   joinAudio({ isListenOnly, extension, validIceCandidates }, managerCallback) {
     // this refetch of the username is needed in case of username change since start of the session
     const { userId } = this.user;
@@ -1500,3 +1537,5 @@ export default class SIPBridge extends BaseAudioBridge {
     return this.activeSession.updateAudioConstraints(constraints);
   }
 }
+
+module.exports = SIPBridge;

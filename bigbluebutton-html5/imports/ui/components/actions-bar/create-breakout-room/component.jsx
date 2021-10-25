@@ -127,7 +127,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.minimumDurationWarnBreakout',
     description: 'minimum duration warning message label',
   },
-
+  roomNameInputDesc: {
+    id: 'app.createBreakoutRoom.roomNameInputDesc',
+    description: 'aria description for room name change',
+  }
 });
 
 const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
@@ -224,7 +227,8 @@ class BreakoutRoom extends PureComponent {
   componentDidUpdate(prevProps, prevstate) {
     if (this.listOfUsers) {
       for (let i = 0; i < this.listOfUsers.children.length; i += 1) {
-        const roomList = this.listOfUsers.children[i].getElementsByTagName('div')[0];
+        const roomWrapperChildren = this.listOfUsers.children[i].getElementsByTagName('div');
+        const roomList = roomWrapperChildren[roomWrapperChildren.length > 1 ? 1 : 0];
         roomList.addEventListener('keydown', this.handleMoveEvent, true);
       }
     }
@@ -616,8 +620,8 @@ class BreakoutRoom extends PureComponent {
 
     return (
       <div className={styles.boxContainer} key="rooms-grid-" ref={(r) => { this.listOfUsers = r; }}>
-        <div className={!leastOneUserIsValid ? styles.changeToWarn : null}>
-          <p className={styles.freeJoinLabel}>
+        <div role="alert" className={!leastOneUserIsValid ? styles.changeToWarn : null}>
+          <span className={styles.freeJoinLabel}>
             <input
               type="text"
               readOnly
@@ -626,7 +630,7 @@ class BreakoutRoom extends PureComponent {
                 intl.formatMessage(intlMessages.notAssigned, { 0: this.getUserByRoom(0).length })
               }
             />
-          </p>
+          </span>
           <div className={styles.breakoutBox} onDrop={drop(0)} onDragOver={allowDrop} tabIndex={0}>
             {this.renderUserItemByRoom(0)}
           </div>
@@ -637,7 +641,7 @@ class BreakoutRoom extends PureComponent {
         {
           _.range(1, rooms + 1).map((value) => (
             <div key={`room-${value}`}>
-              <p className={styles.freeJoinLabel}>
+              <span className={styles.freeJoinLabel}>
                 <input
                   type="text"
                   maxLength="255"
@@ -647,9 +651,13 @@ class BreakoutRoom extends PureComponent {
                   value={this.getRoomName(value)}
                   onChange={changeRoomName(value)}
                   onBlur={changeRoomName(value)}
-                  aria-label={intl.formatMessage(intlMessages.duration)}
+                  aria-label={`${this.getRoomName(value)}`}
+                  aria-describedby={this.getRoomName(value).length === 0 ? `room-error-${value}` : `room-input-${value}`}
                 />
-              </p>
+                <div aria-hidden id={`room-input-${value}`} className={"sr-only"}>
+                  {intl.formatMessage(intlMessages.roomNameInputDesc)}
+                </div>
+              </span>
               <div className={styles.breakoutBox} onDrop={drop(value)} onDragOver={allowDrop} tabIndex={0}>
                 {this.renderUserItemByRoom(value)}
                 {isInvitation && this.renderJoinedUsers(value)}
@@ -660,7 +668,7 @@ class BreakoutRoom extends PureComponent {
                 </span>
               ) : null}
               {this.getRoomName(value).length === 0 ? (
-                <span className={styles.spanWarn}>
+                <span aria-hidden id={`room-error-${value}`} className={styles.spanWarn}>
                   {intl.formatMessage(intlMessages.roomNameEmptyIsValid)}
                 </span>
               ) : null}
@@ -786,7 +794,7 @@ class BreakoutRoom extends PureComponent {
         >
           {intl.formatMessage(intlMessages.numberOfRoomsIsValid)}
         </span>
-        <span id="randomlyAssignDesc" className="sr-only">
+        <span aria-hidden id="randomlyAssignDesc" className="sr-only">
           {intl.formatMessage(intlMessages.randomlyAssignDesc)}
         </span>
       </React.Fragment>

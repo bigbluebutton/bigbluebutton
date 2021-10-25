@@ -29,16 +29,11 @@ import PresentationAreaContainer from '../presentation/presentation-area/contain
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
 import { styles } from './styles';
-import {
-  LAYOUT_TYPE, DEVICE_TYPE, ACTIONS,
-} from '../layout/enums';
+import { DEVICE_TYPE, ACTIONS } from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 } from '../layout/utils';
-import CustomLayout from '../layout/layout-manager/customLayout';
-import SmartLayout from '../layout/layout-manager/smartLayout';
-import PresentationFocusLayout from '../layout/layout-manager/presentationFocusLayout';
-import VideoFocusLayout from '../layout/layout-manager/videoFocusLayout';
+import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
@@ -154,6 +149,7 @@ class App extends Component {
       meetingLayout,
       settingsLayout,
       isRTL,
+      hidePresentation,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -163,6 +159,11 @@ class App extends Component {
     layoutContextDispatch({
       type: ACTIONS.SET_IS_RTL,
       value: isRTL,
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+      value: !hidePresentation,
     });
 
     MediaService.setSwapLayout(layoutContextDispatch);
@@ -339,37 +340,6 @@ class App extends Component {
       && (isPhone || isLayeredView.matches);
   }
 
-  renderNavBar() {
-    const { navbar, isLargeFont } = this.props;
-
-    if (!navbar) return null;
-
-    const realNavbarHeight = isLargeFont ? LARGE_NAVBAR_HEIGHT : NAVBAR_HEIGHT;
-
-    return (
-      <header
-        className={styles.navbar}
-        style={{
-          height: realNavbarHeight,
-        }}
-      >
-        {navbar}
-      </header>
-    );
-  }
-
-  renderSidebar() {
-    const { sidebar } = this.props;
-
-    if (!sidebar) return null;
-
-    return (
-      <aside className={styles.sidebar}>
-        {sidebar}
-      </aside>
-    );
-  }
-
   renderCaptions() {
     const {
       captions,
@@ -400,9 +370,10 @@ class App extends Component {
       actionsbar,
       intl,
       actionsBarStyle,
+      hideActionsBar,
     } = this.props;
 
-    if (!actionsbar) return null;
+    if (!actionsbar || hideActionsBar) return null;
 
     return (
       <section
@@ -450,22 +421,6 @@ class App extends Component {
     ) : null);
   }
 
-  renderLayoutManager() {
-    const { layoutType } = this.props;
-    switch (layoutType) {
-      case LAYOUT_TYPE.CUSTOM_LAYOUT:
-        return <CustomLayout />;
-      case LAYOUT_TYPE.SMART_LAYOUT:
-        return <SmartLayout />;
-      case LAYOUT_TYPE.PRESENTATION_FOCUS:
-        return <PresentationFocusLayout />;
-      case LAYOUT_TYPE.VIDEO_FOCUS:
-        return <VideoFocusLayout />;
-      default:
-        return <CustomLayout />;
-    }
-  }
-
   render() {
     const {
       customStyle,
@@ -476,11 +431,12 @@ class App extends Component {
       shouldShowScreenshare,
       shouldShowExternalVideo,
       isPresenter,
+      layoutType,
     } = this.props;
 
     return (
       <>
-        {this.renderLayoutManager()}
+        <LayoutEngine layoutType={layoutType} />
         <div
           id="layout"
           className={styles.layout}

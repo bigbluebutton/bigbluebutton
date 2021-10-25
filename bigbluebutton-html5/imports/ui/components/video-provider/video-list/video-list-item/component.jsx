@@ -249,7 +249,7 @@ class VideoListItem extends Component {
               {enableVideoMenu && availableActions.length >= 1
                 ? (
                   <BBBMenu
-                    trigger={<div className={styles.dropdownTrigger}><span>{name}</span></div>}
+                    trigger={<div tabIndex={0} className={styles.dropdownTrigger}>{name}</div>}
                     actions={this.getAvailableActions()}
                     opts={{
                       id: "default-dropdown-menu",

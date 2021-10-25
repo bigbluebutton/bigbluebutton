@@ -3,14 +3,13 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import Button from '/imports/ui/components/button/component';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import CaptionsService from '/imports/ui/components/captions/service';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
 import BBBMenu from '/imports/ui/components/menu/component';
-import { styles } from './styles';
+import Styled from './styles';
 import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
 
@@ -214,7 +213,7 @@ class UserOptions extends PureComponent {
       hasBreakoutRoom,
       isBreakoutEnabled,
       getUsersNotAssigned,
-      learningDashboardAccessToken,
+      learningDashboardEnabled,
       openLearningDashboardUrl,
       amIModerator,
       users,
@@ -284,17 +283,6 @@ class UserOptions extends PureComponent {
           onClick: this.onSaveUserNames,
           icon: 'download',
         });
-
-        if (learningDashboardAccessToken != null) {
-          this.menuItems.push({
-            icon: 'multi_whiteboard',
-            iconRight: 'popout_window',
-            label: intl.formatMessage(intlMessages.learningDashboardLabel),
-            description: intl.formatMessage(intlMessages.learningDashboardDesc),
-            key: this.learningDashboardId,
-            onClick: () => { openLearningDashboardUrl(locale); },
-          });
-        }
       }
 
       this.menuItems.push({
@@ -320,6 +308,7 @@ class UserOptions extends PureComponent {
       if (canInviteUsers) {
         this.menuItems.push({
           icon: 'rooms',
+          dataTest: 'inviteBreakoutRooms',
           label: intl.formatMessage(intlMessages.invitationItem),
           key: this.createBreakoutId,
           onClick: this.onInvitationUsers,
@@ -333,8 +322,20 @@ class UserOptions extends PureComponent {
           // description: intl.formatMessage(intlMessages.captionsDesc),
           key: this.captionsId,
           onClick: this.handleCaptionsClick,
-          dataTest: 'inviteBreakoutRooms',
         });
+      }
+      if (amIModerator) {
+        if (learningDashboardEnabled === true) {
+          this.menuItems.push({
+            icon: 'multi_whiteboard',
+            iconRight: 'popout_window',
+            label: intl.formatMessage(intlMessages.learningDashboardLabel),
+            description: intl.formatMessage(intlMessages.learningDashboardDesc),
+            key: this.learningDashboardId,
+            onClick: () => { openLearningDashboardUrl(locale); },
+            dividerTop: true,
+          });
+        }
       }
     }
 
@@ -347,14 +348,13 @@ class UserOptions extends PureComponent {
     return (
       <BBBMenu
         trigger={(
-          <Button
+          <Styled.OptionsButton
             label={intl.formatMessage(intlMessages.optionsLabel)}
             data-test="manageUsers"
             icon="settings"
             ghost
             color="primary"
             hideLabel
-            className={styles.optionsButton}
             size="sm"
             onClick={() => null}
           />
