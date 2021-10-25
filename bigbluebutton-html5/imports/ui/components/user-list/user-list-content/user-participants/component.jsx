@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
-import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
+import Styled from './styles';
 import _ from 'lodash';
 import { findDOMNode } from 'react-dom';
 import {
-  List,
   AutoSizer,
   CellMeasurer,
   CellMeasurerCache,
@@ -194,17 +193,17 @@ class UserParticipants extends Component {
     const { isOpen, scrollArea } = this.state;
 
     return (
-      <div className={styles.userListColumn}>
+      <Styled.UserListColumn>
         {
           !compact
             ? (
-              <div className={styles.container}>
-                <h2 className={styles.smallTitle}>
+              <Styled.Container>
+                <Styled.SmallTitle>
                   {intl.formatMessage(intlMessages.usersTitle)}
                   &nbsp;(
                   {users.length}
                   )
-                </h2>
+                </Styled.SmallTitle>
                 {currentUser.role === ROLE_MODERATOR
                   ? (
                     <UserOptionsContainer {...{
@@ -216,15 +215,14 @@ class UserParticipants extends Component {
                   ) : null
                 }
 
-              </div>
+              </Styled.Container>
             )
-            : <hr className={styles.separator} />
+            : <Styled.Separator />
         }
-        <div
+        <Styled.VirtualizedScrollableList
           id={'user-list-virtualized-scroll'}
           aria-label="Users list"
           role="region"
-          className={styles.virtulizedScrollableList}
           tabIndex={0}
           ref={(ref) => {
             this.refScrollContainer = ref;
@@ -233,7 +231,7 @@ class UserParticipants extends Component {
           <span id="participants-destination" />
           <AutoSizer>
             {({ height, width }) => (
-              <List
+              <Styled.VirtualizedList
                 {...{
                   isOpen,
                   users,
@@ -252,15 +250,14 @@ class UserParticipants extends Component {
                 rowCount={users.length}
                 height={height - 1}
                 width={width - 1}
-                className={styles.scrollStyle}
                 overscanRowCount={30}
                 deferredMeasurementCache={this.cache}
                 tabIndex={-1}
               />
             )}
           </AutoSizer>
-        </div>
-      </div>
+        </Styled.VirtualizedScrollableList>
+      </Styled.UserListColumn>
     );
   }
 }
