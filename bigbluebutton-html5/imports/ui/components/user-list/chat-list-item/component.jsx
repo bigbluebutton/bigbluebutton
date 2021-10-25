@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import { styles } from './styles';
+import Styled from  './styles';
 import ChatAvatar from './chat-avatar/component';
 import ChatIcon from './chat-icon/component';
 import ChatUnreadCounter from './chat-unread-messages/component';
@@ -73,9 +72,6 @@ const ChatListItem = (props) => {
   const chatPanelOpen = sidebarContentIsOpen && sidebarContentPanel === PANELS.CHAT;
 
   const isCurrentChat = chat.chatId === activeChatId && chatPanelOpen;
-  const linkClasses = {};
-
-  linkClasses[styles.active] = isCurrentChat;
 
   const [stateUreadCount, setStateUreadCount] = useState(0);
 
@@ -137,11 +133,11 @@ const ChatListItem = (props) => {
   };
 
   return (
-    <div
+    <Styled.ChatListItem
       data-test="chatButton"
       role="button"
-      className={cx(styles.chatListItem, linkClasses)}
       aria-expanded={isCurrentChat}
+      active={isCurrentChat}
       tabIndex={tabIndex}
       accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
       onClick={handleClickToggleChat}
@@ -149,9 +145,8 @@ const ChatListItem = (props) => {
       aria-label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
       onKeyPress={() => {}}
     >
-
-      <div className={styles.chatListItemLink}>
-        <div className={styles.chatIcon}>
+      <Styled.ChatListItemLink>
+        <Styled.ChatIcon>
           {chat.icon
             ? <ChatIcon icon={chat.icon} />
             : (
@@ -162,16 +157,16 @@ const ChatListItem = (props) => {
                 name={chat.name.toLowerCase().slice(0, 2)}
               />
             )}
-        </div>
-        <div className={styles.chatName} aria-live="off">
+        </Styled.ChatIcon>
+        <Styled.ChatName aria-live="off">
           {!compact
             ? (
-              <span className={styles.chatNameMain}>
+              <Styled.ChatNameMain>
                 {isPublicChat(chat)
                   ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
-              </span>
+              </Styled.ChatNameMain>
             ) : null}
-        </div>
+        </Styled.ChatName>
         {(stateUreadCount > 0)
           ? (
             <ChatUnreadCounter
@@ -181,8 +176,8 @@ const ChatListItem = (props) => {
             />
           )
           : null}
-      </div>
-    </div>
+      </Styled.ChatListItemLink>
+    </Styled.ChatListItem>
   );
 };
 
