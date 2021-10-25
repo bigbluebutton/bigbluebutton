@@ -232,7 +232,7 @@ const LockIcon = styled.span`
 
   &:after {
     font-family: 'bbb-icons' !important;
-    content: "\E926";
+    content: '\\e926';
     color: var(--color-gray-light);
   }
 `;

@@ -501,7 +501,7 @@ class BreakoutRoom extends PureComponent {
   changeUserRoom(userId, room) {
     const { users, freeJoin } = this.state;
 
-    const idxUser = users.findIndex((user) => user.userId === userId);
+    const idxUser = users.findIndex((user) => user.userId === userId.replace('roomUserItem-', ''));
 
     const usersCopy = [...users];
 
