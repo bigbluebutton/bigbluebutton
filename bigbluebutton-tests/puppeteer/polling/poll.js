@@ -2,13 +2,14 @@ const Page = require('../core/page');
 const e = require('../core/elements');
 const util = require('./util');
 const utilPresentation = require('../presentation/util');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { checkElement, checkElementLengthEqualTo, checkElementTextIncludes } = require('../core/util');
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
+const { checkElement, checkElementText, checkElementLengthEqualTo, getElementLength } = require('../core/util');
 
 class Polling {
   constructor() {
     this.modPage = new Page();
     this.userPage = new Page();
+    this.newInputText = 'new option';
   }
 
   async initPages(testName) {
@@ -72,6 +73,44 @@ class Polling {
       await this.userPage.screenshot(testName, '03-userPage-after-poll-created');
 
       return resp === true;
+    } catch (err) {
+      await this.modPage.logger(err);
+      return false;
+    }
+  }
+
+  async pollUserResponse(testName) {
+    try {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.screenshot(testName, '01-after-close-audio-modal');
+      await util.openPoll(this.modPage);
+
+      await this.modPage.type(e.pollQuestionArea, e.pollQuestion);
+      await this.modPage.waitAndClick(e.userResponseBtn);
+      await this.modPage.screenshot(testName, '02-before-start-poll');
+      await this.modPage.waitAndClick(e.startPoll);
+
+      await this.userPage.waitForSelector(e.pollingContainer);
+      await this.userPage.type(e.pollAnswerOptionInput, e.answerMessage);
+      await this.userPage.screenshot(testName, '03-userPage-before-submit-answer');
+      await this.userPage.waitAndClick(e.pollSubmitAnswer);
+      try {
+        await this.modPage.page.waitForFunction(checkElementText,
+          { timeout: ELEMENT_WAIT_TIME },
+          e.receivedAnswer, e.answerMessage
+        );
+        await this.modPage.screenshot(testName, '04-success-to-receive-answer');
+      } catch (e) {
+        await this.modPage.screenshot(testName, '04-failed-to-receive-answer');
+        await this.modPage.logger(e);
+        return false;
+      }
+
+      await this.modPage.waitAndClick(e.publishPollingLabel);
+      await this.modPage.waitForSelector(e.restartPoll);
+      const isPollResultsPublished = await this.modPage.hasElement(e.pollResults);
+
+      return isPollResultsPublished === true;
     } catch (err) {
       await this.modPage.logger(err);
       return false;
@@ -150,87 +189,86 @@ class Polling {
     }
   }
 
-  async randomPoll(testName) {
+  async manageResponseChoices(testName) {
     try {
-      await this.modPage.startRecording(testName);
-      await this.userPage.startRecording(testName);
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.screenshot(testName, '01-after-close-audio-modal');
+      await this.startNewPoll();
+      await this.modPage.screenshot(testName, '02-after-open-polling-menu');
+      const initialRespCount = await this.modPage.page.evaluate(getElementLength, e.pollOptionItem);
 
-      await this.modPage.waitAndClick(e.actions);
-      await this.modPage.waitAndClick(e.polling);
-      await this.modPage.waitForSelector(e.pollQuestionArea);
-      await this.modPage.page.focus(e.pollQuestionArea);
-      await this.modPage.page.keyboard.type(e.pollQuestion);
-
-      const chosenRandomNb = await this.modPage.page.evaluate((responseTypes) => {
-        const responseTypesDiv = document.querySelector(responseTypes);
-        const buttons = responseTypesDiv.querySelectorAll('button');
-        const countButtons = buttons.length;
-        const randomNb = Math.floor(Math.random() * countButtons) + 1;
-        const chosenRandomNb = randomNb - 1;
-        responseTypesDiv.querySelectorAll('button')[chosenRandomNb].click();
-        return chosenRandomNb;
-      }, e.responseTypes);
-
-      const customs = {
-        0: e.uncertain,
-        1: 0,
-        2: 'ABSTENTION',
-        3: 'All good!',
-      };
-      switch (chosenRandomNb) {
-        case 0:
-          // Adding a poll option
-          await this.modPage.waitForSelector(e.responseChoices);
-          await this.modPage.waitAndClick(e.addItem);
-          await this.modPage.waitAndClick(e.pollOptionItem);
-          await this.modPage.tab(2);
-          await this.modPage.page.keyboard.type(customs[0]);
-          break;
-
-        case 1:
-          // Deleting a poll option
-          await this.modPage.waitForSelector(e.deletePollOption);
-          await this.modPage.clickNItem(e.deletePollOption, customs[1]);
-          break;
-
-        case 2:
-          // Editing a poll option
-          await this.modPage.waitForSelector(e.responseChoices);
-          await this.modPage.clickNItem(e.pollOptionItem, 2);
-          await this.modPage.hold('Control');
-          await this.modPage.press('KeyA');
-          await this.modPage.release('Control');
-          await this.modPage.page.keyboard.type(customs[2]);
-          await this.modPage.tab(1);
-          break;
-
-        case 3:
-          // Do nothing to let Users write their single response answer
-          await this.modPage.waitForSelector(e.responseChoices);
-          break;
-      }
-      const condition = chosenRandomNb === 0 || chosenRandomNb === 1 || chosenRandomNb === 2;
+      // Add
+      await this.modPage.waitAndClick(e.addPollItem);
+      await this.typeOnLastChoiceInput();
+      await this.modPage.screenshot(testName, '03-after-add-option');
       await this.modPage.waitAndClick(e.startPoll);
-      await this.userPage.waitForSelector(e.pollingContainer);
-      switch (condition) {
-        case true:
-          await this.userPage.clickNItem(e.pollAnswerOptionBtn, 2);
-          break;
-        case false:
-          await this.userPage.page.focus(e.pollAnswerOptionInput);
-          await this.userPage.page.keyboard.type(customs[3]);
-          await this.userPage.waitAndClick(e.pollSubmitAnswer);
-          break;
+      await this.userPage.screenshot(testName, '03-userPage-options-after-add');
+
+      const optionWasAdded = (initialRespCount + 1 == await this.getAnswerOptionCount()) && await this.checkLastOptionText();
+      if (!optionWasAdded) {
+        await this.modPage.logger('Cannot add choice option');
+        return false;
       }
-      const receivedAnswerFound = await this.modPage.hasElement(e.receivedAnswer, true);
-      await this.modPage.waitAndClick(e.publishPollingLabel, ELEMENT_WAIT_TIME, true);
-      await this.modPage.waitForSelector(e.restartPoll);
-      const isPollResultsPublished = await this.modPage.hasElement(e.pollResults, true);
-      return receivedAnswerFound && isPollResultsPublished;
+
+      // Delete
+      await this.startNewPoll();
+      await this.modPage.waitAndClick(e.deletePollOption);
+      await this.modPage.screenshot(testName, '04-after-delete-option');
+      await this.modPage.waitAndClick(e.startPoll);
+      await this.userPage.screenshot(testName, '04-userPage-options-after-delete');
+
+      const optionWasRemoved = initialRespCount - 1 == await this.getAnswerOptionCount();
+      if (!optionWasRemoved) {
+        await this.modPage.logger('Cannot delete choice option');
+        return false;
+      }
+
+      // Edit
+      await this.startNewPoll();
+      await this.typeOnLastChoiceInput();
+      await this.modPage.screenshot(testName, '05-after-edit-option');
+      await this.modPage.waitAndClick(e.startPoll);
+      await this.userPage.screenshot(testName, '05-userPage-options-after-edit');
+
+      const optionWasEdited = (initialRespCount == await this.getAnswerOptionCount()) && await this.checkLastOptionText();
+      if (!optionWasEdited) {
+        await this.modPage.logger('Cannot edit choice option');
+        return false;
+      }
+
+      return true;
     } catch (err) {
       await this.modPage.logger(err);
       return false;
     }
+  }
+
+  async startNewPoll() {
+    const hasPollStarted = await this.modPage.page.evaluate(checkElement, e.pollMenuButton);
+    if (hasPollStarted) {
+      await this.modPage.waitAndClick(e.closePollingMenu);
+      await this.userPage.waitForElementHandleToBeRemoved(e.pollingContainer);
+    }
+    await util.openPoll(this.modPage);
+  }
+
+  async getAnswerOptionCount() {
+    await this.userPage.waitForSelector(e.pollingContainer);
+    return this.userPage.page.evaluate(getElementLength, e.pollAnswerOptionBtn);
+  }
+
+  async typeOnLastChoiceInput() {
+    const allInputs = await this.modPage.page.$$(e.pollOptionItem);
+    const lastInput = allInputs[allInputs.length - 1];
+    await this.modPage.page.evaluate(el => el.value = '', lastInput);
+    await lastInput.type(this.newInputText);
+  }
+
+  async checkLastOptionText() {
+    await this.userPage.waitForSelector(e.pollingContainer);
+    const answerOptions = await this.userPage.page.$$(e.pollAnswerOptionBtn);
+    const lastOptionText = await this.userPage.page.evaluate(el => el.textContent, answerOptions[answerOptions.length - 1]);
+    return lastOptionText == this.newInputText;
   }
 }
 

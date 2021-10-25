@@ -80,6 +80,28 @@ const pollingTest = () => {
     Page.checkRegression(0.9, screenshot);
   }, TEST_DURATION_TIME);
 
+  test('Create poll with user response', async () => {
+    const test = new Poll();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'pollUserResponse';
+      await test.modPage.logger('begin of ', testName);
+      await test.initPages(testName);
+      response = await test.pollUserResponse(testName);
+      await test.modPage.logger('end of ', testName);
+      await test.modPage.stopRecording();
+      await test.userPage.stopRecording();
+      screenshot = await test.modPage.page.screenshot();
+    } catch (err) {
+      await test.modPage.logger(err);
+    } finally {
+      await closePages(test.modPage, test.userPage);
+    }
+    expect(response).toBe(true);
+    Page.checkRegression(0.5, screenshot);
+  }, TEST_DURATION_TIME);
+
   // Stop a poll manually
   test('Stop a poll manually', async () => {
     const test = new Poll();
@@ -172,17 +194,17 @@ const pollingTest = () => {
     Page.checkRegression(0.9, screenshot);
   }, TEST_DURATION_TIME);
 
-  // This Test chooses randomly a polling case, runs it
-  // and expects having it answered by the other user
-  test('Random Poll', async () => {
+  // This test check all possible actions with
+  // response choice: add, delete and edit
+  test('Manage response choices', async () => {
     const test = new Poll();
     let response;
     let screenshot;
     try {
-      const testName = 'randomPoll';
+      const testName = 'manageResponseChoices';
       await test.modPage.logger('begin of ', testName);
       await test.initPages(testName);
-      response = await test.randomPoll(testName);
+      response = await test.manageResponseChoices(testName);
       await test.modPage.logger('end of ', testName);
       await test.modPage.stopRecording();
       await test.userPage.stopRecording();
