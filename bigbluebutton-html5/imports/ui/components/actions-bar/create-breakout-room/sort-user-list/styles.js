@@ -2,6 +2,9 @@ import styled from 'styled-components';
 import Button from '/imports/ui/components/button/component';
 import { TextElipsis, TitleElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import Styled from '/imports/ui/components/actions-bar/create-breakout-room/styles';
+import { colorWhite, colorGrayLighter } from '/imports/ui/stylesheets/styled-components/palette';
+import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
+import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
 
 const SelectUserContainer = styled.div`
   margin: 1.5rem 1rem;
@@ -92,7 +95,7 @@ const SelectUserScreen = styled.div`
   display: block;
   height: 100vh;
   width: 100%;
-  background-color: var(--color-white);
+  background-color: ${colorWhite};
   z-index: 1002;
   top: 0;
   bottom: 0;
@@ -102,8 +105,8 @@ const SelectUserScreen = styled.div`
 
 const Header = styled.header`
   display: flex;
-  padding: var(--line-height-computed) 0;
-  border-bottom: var(--border-size) solid var(--color-gray-lighter);
+  padding: ${lineHeightComputed} 0;
+  border-bottom: ${borderSize} solid ${colorGrayLighter};
   margin: 0 1rem 0 1rem;
 `;
 

@@ -1,19 +1,27 @@
 import styled from 'styled-components';
 import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
+import { colorBackground, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  jumboPaddingY,
+  minModalHeight,
+  headingsFontWeight,
+  mdPaddingX,
+} from '/imports/ui/stylesheets/styled-components/general';
+import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
 
 const ScreenShareModal = styled(Modal)`
-  padding: var(--jumbo-padding-y);
-  min-height: var(--min-modal-height);
+  padding: ${jumboPaddingY};
+  min-height: ${minModalHeight};
   text-align: center;
 `;
 
 const Title = styled.h3`
-  font-weight: var(--headings-font-weight);
-  font-size: var(--font-size-large);
-  color: var(--color-background);
+  font-weight: ${headingsFontWeight};
+  font-size: ${fontSizeLarge};
+  color: ${colorBackground};
   white-space: normal;
-  padding-bottom: var(--md-padding-x);
+  padding-bottom: ${mdPaddingX};
 `;
 
 const ScreenShareButton = styled(Button)`
@@ -21,7 +29,7 @@ const ScreenShareButton = styled(Button)`
       span {
         box-shadow: none;
         background-color: transparent !important;
-        border-color: var(--color-white) !important;
+        border-color: ${colorWhite} !important;
       }
    `}
 `;

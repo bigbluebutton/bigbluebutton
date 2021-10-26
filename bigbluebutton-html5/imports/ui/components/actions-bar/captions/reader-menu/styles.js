@@ -1,6 +1,14 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Modal from '/imports/ui/components/modal/simple/component';
+import {
+  colorBackground,
+  colorWhite,
+  colorGrayLabel,
+  colorGrayLight,
+  colorPrimary,
+} from '/imports/ui/stylesheets/styled-components/palette';
+import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
 
 const ReaderMenuModal = styled(Modal)`
   padding: 1rem;
@@ -8,7 +16,7 @@ const ReaderMenuModal = styled(Modal)`
 
 const Title = styled.header`
   display: block;
-  color: var(--color-background);
+  color: ${colorBackground};
   font-size: 1.4rem;
   text-align: center;
 `;
@@ -41,9 +49,9 @@ const Label = styled.div`
 `;
 
 const Select = styled.select`
-  background-color: var(--color-white);
+  background-color: ${colorWhite};
   border-radius: 0.3rem;
-  color: var(--color-gray-label);
+  color: ${colorGrayLabel};
   height: 1.6rem;
   margin-top: 0.4rem;
   width: 50%;
@@ -51,23 +59,23 @@ const Select = styled.select`
 
 const Swatch = styled.div`
   flex: 1 0 0;
-  border-radius: var(--border-size);
-  border: var(--border-size) solid var(--color-gray-light);
+  border-radius: ${borderSize};
+  border: ${borderSize} solid ${colorGrayLight};
   display: inline-block;
   vertical-align: middle;
   cursor: pointer;
 
   &:focus {
     outline: none;
-    box-shadow: inset 0 0 0 var(--border-size-large) var(--color-primary);
-    border-radius: var(--border-size);
+    box-shadow: inset 0 0 0 ${borderSizeLarge} ${colorPrimary};
+    border-radius: ${borderSize};
   }
 `;
 
 const SwatchInner = styled.div`
   width: auto;
   height: 1.1rem;
-  border-radius: var(--border-size);
+  border-radius: ${borderSize};
 `;
 
 const ColorPickerPopover = styled.div`

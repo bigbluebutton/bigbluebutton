@@ -1,20 +1,23 @@
 import styled from 'styled-components';
 import Button from '/imports/ui/components/button/component';
+import { colorOffWhite, toolbarButtonColor } from '/imports/ui/stylesheets/styled-components/palette';
+import { whiteboardToolbarPadding, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
+import { headingsFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 
 const QuickPollButton = styled(Button)`
-  padding: var(--whiteboard-toolbar-padding);
-  background-color: var(--color-off-white) !important;
+  padding: ${whiteboardToolbarPadding};
+  background-color: ${colorOffWhite} !important;
   box-shadow: none !important;
 
   & > span:first-child {
-    border: 1px solid var(--toolbar-button-color);
-    border-radius: var(--border-size-large);
-    color: var(--toolbar-button-color);
+    border: 1px solid ${toolbarButtonColor};
+    border-radius: ${borderSizeLarge};
+    color: ${toolbarButtonColor};
     font-size: small;
-    font-weight: var(--headings-font-weight);
+    font-weight: ${headingsFontWeight};
     opacity: 1;
-    padding-right: var(--border-size-large);
-    padding-left: var(--border-size-large);
+    padding-right: ${borderSizeLarge};
+    padding-left: ${borderSizeLarge};
   }
 
   & > span:first-child:hover {

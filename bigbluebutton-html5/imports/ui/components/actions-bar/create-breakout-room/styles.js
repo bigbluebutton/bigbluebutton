@@ -4,6 +4,21 @@ import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scr
 import HoldButton from '/imports/ui/components/presentation/presentation-toolbar/zoom-tool/holdButton/component';
 import Button from '/imports/ui/components/button/component';
 import { FlexRow, FlexColumn } from '/imports/ui/stylesheets/styled-components/placeholders';
+import {
+  colorDanger,
+  colorGray,
+  colorGrayLight,
+  colorGrayLighter,
+  colorWhite,
+  colorPrimary,
+  colorBlueLight,
+} from '/imports/ui/stylesheets/styled-components/palette';
+import { fontSizeSmall, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
+import {
+  borderRadius,
+  borderSize,
+  lgPaddingX,
+} from '/imports/ui/stylesheets/styled-components/general';
 
 const BoxContainer = styled.div`
   display: grid;
@@ -19,18 +34,18 @@ const Alert = styled.div`
     position: relative;
 
     & > * {
-      border-color: var(--color-danger) !important;
-      color: var(--color-danger);
+      border-color: ${colorDanger} !important;
+      color: ${colorDanger};
     }
   `}
 `;
 
 const FreeJoinLabel = styled.label`
-  font-size: var(--font-size-small);
+  font-size: ${fontSizeSmall};
   font-weight: bolder;
   display: flex;
   align-items: center;
-  font-size: var(--font-size-small);
+  font-size: ${fontSizeSmall};
   margin-bottom: 0;
 
   & > * {
@@ -49,7 +64,7 @@ const BreakoutNameInput = styled.input`
   padding: .25rem;
   margin: 0;
   &::placeholder {
-    color: var(--color-gray);
+    color: ${colorGray};
     opacity: 1;
   }
 `;
@@ -59,8 +74,8 @@ const BreakoutBox = styled(ScrollboxVertical)`
   height: 80%;
   min-height: 4rem;
   max-height: 8rem;
-  border: 1px solid var(--color-gray-lighter);
-  border-radius: var(--border-radius); 
+  border: 1px solid ${colorGrayLighter};
+  border-radius: ${borderRadius}; 
 `;
 
 const SpanWarn = styled.span`
@@ -71,8 +86,8 @@ const SpanWarn = styled.span`
   ${({ valid }) => !valid && `
     margin: .25rem;
     position: absolute;
-    font-size: var(--font-size-small);
-    color: var(--color-danger);
+    font-size: ${fontSizeSmall};
+    color: ${colorDanger};
     font-weight: 200;
     white-space: nowrap;
   `}
@@ -80,11 +95,11 @@ const SpanWarn = styled.span`
 
 const RoomName = styled(BreakoutNameInput)`
   ${({ value }) => value.length === 0 && `
-    border-color: var(--color-danger) !important;
+    border-color: ${colorDanger} !important;
   `}
 
   ${({ duplicated }) => duplicated === 0 && `
-    border-color: var(--color-danger) !important;
+    border-color: ${colorDanger} !important;
   `}
 `;
 
@@ -102,41 +117,41 @@ const BreakoutSettings = styled.div`
 `;
 
 const FormLabel = styled.p`
-  color: var(--color-gray);
+  color: ${colorGray};
   white-space: nowrap;
   margin-bottom: .5rem;
 
   ${({ valid }) => !valid && `
-    color: var(--color-danger);
+    color: ${colorDanger};
   `}
 `;
 
 const InputRooms = styled.select`
-  background-color: var(--color-white);
-  color: var(--color-gray);
-  border: 1px solid var(--color-gray-lighter);
-  border-radius: var(--border-radius);
+  background-color: ${colorWhite};
+  color: ${colorGray};
+  border: 1px solid ${colorGrayLighter};
+  border-radius: ${borderRadius};
   width: 100%;
   padding-top: .25rem;
   padding-bottom: .25rem;
   padding: .25rem 0 .25rem .25rem;
 
   ${({ valid }) => !valid && `
-      border-color: var(--color-danger) !important;
+      border-color: ${colorDanger} !important;
   `}
 `;
 
 const DurationLabel = styled.label`
   ${({ valid }) => !valid && `
     & > * {
-      border-color: var(--color-danger) !important;
-      color: var(--color-danger);
+      border-color: ${colorDanger} !important;
+      color: ${colorDanger};
     }
   `}
 `;
 
 const LabelText = styled.p`
-  color: var(--color-gray);
+  color: ${colorGray};
   white-space: nowrap;
   margin-bottom: .5rem;
 `;
@@ -148,36 +163,36 @@ const DurationArea = styled.div`
 `;
 
 const DurationInput = styled.input`
-  background-color: var(--color-white);
-  color: var(--color-gray);
-  border: 1px solid var(--color-gray-lighter);
-  border-radius: var(--border-radius);
+  background-color: ${colorWhite};
+  color: ${colorGray};
+  border: 1px solid ${colorGrayLighter};
+  border-radius: ${borderRadius};
   width: 50%;
   text-align: center;
   padding: .25rem;
 
   &::placeholder {
-    color: var(--color-gray);
+    color: ${colorGray};
     opacity: 1;
   }
 `;
 
 const HoldButtonWrapper = styled(HoldButton)`
   & > button > span {
-    padding-bottom: var(--border-size);
+    padding-bottom: ${borderSize};
   }
 
   & > button > span > i {
-    color: var(--color-gray);
-    width: var(--lg-padding-x);
-    height: var(--lg-padding-x);
+    color: ${colorGray};
+    width: ${lgPaddingX};
+    height: ${lgPaddingX};
     font-size: 170% !important;
   }
 `;
 
 const RandomlyAssignBtn = styled(Button)`
-  color: var(--color-primary);
-  font-size: var(--font-size-small);
+  color: ${colorPrimary};
+  font-size: ${fontSizeSmall};
   white-space: nowrap;
   margin: 0 auto 0 0;
   align-self: flex-end;
@@ -203,20 +218,20 @@ const RoomUserItem = styled.p`
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
-  border-bottom: solid .5px var(--color-gray-lighter);
+  border-bottom: solid .5px ${colorGrayLighter};
 
   [dir="rtl"] & {
     padding: .25rem .25rem .25rem 0;
   }
 
   ${({ selected }) => selected && `
-    background-color: var(--color-primary);
-    color: var(--color-white)
+    background-color: ${colorPrimary};
+    color: ${colorWhite};
   `}
 
   ${({ disabled }) => disabled && `
     cursor: not-allowed;
-    color: var(--color-gray-lighter);
+    color: ${colorGrayLighter};
   `}
 `;
 
@@ -233,7 +248,7 @@ const LockIcon = styled.span`
   &:after {
     font-family: 'bbb-icons' !important;
     content: '\\e926';
-    color: var(--color-gray-light);
+    color: ${colorGrayLight};
   }
 `;
 
@@ -247,7 +262,7 @@ const RoomItem = styled.div`
 
 const ItemTitle = styled.h2`
   margin: 0;
-  color: var(--color-blue-light);
+  color: ${colorBlueLight};
 `;
 
 const ItemButton = styled(Button)`
@@ -255,18 +270,18 @@ const ItemButton = styled(Button)`
   outline: none !important;
 
   & > span {
-    color: var(--color-blue-light);
+    color: ${colorBlueLight};
   }
 `;
 
 const WithError = styled.span`
-  color: var(--color-danger);
+  color: ${colorDanger};
 `;
 
 const SubTitle = styled.p`
-  font-size: var(--font-size-base);
+  font-size: ${fontSizeBase};
   text-align: justify;
-  color: var(--color-gray);
+  color: ${colorGray};
 `;
 
 const Content = styled(FlexColumn)``;
