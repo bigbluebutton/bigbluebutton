@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
+import { Session } from 'meteor/session';
 import { styles } from './styles';
 import Service from './service';
 
@@ -19,6 +20,10 @@ const intlMessages = defineMessages({
   publishLabel: {
     id: 'app.poll.publishLabel',
     description: 'label for the publish button',
+  },
+  cancelPollLabel: {
+    id: 'app.poll.cancelPollLabel',
+    description: 'label for cancel poll button',
   },
   backLabel: {
     id: 'app.poll.backLabel',
@@ -198,18 +203,31 @@ class LiveResult extends PureComponent {
         </div>
         {currentPoll && currentPoll.answers.length > 0
           ? (
-            <Button
-              disabled={!isMeteorConnected}
-              onClick={() => {
-                Session.set('pollInitiated', false);
-                Service.publishPoll();
-                stopPoll();
-              }}
-              label={intl.formatMessage(intlMessages.publishLabel)}
-              data-test="publishPollingLabel"
-              color="primary"
-              className={styles.btn}
-            />
+            <div className={styles.buttonsActions}>
+              <Button
+                disabled={!isMeteorConnected}
+                onClick={() => {
+                  Session.set('pollInitiated', false);
+                  Service.publishPoll();
+                  stopPoll();
+                }}
+                label={intl.formatMessage(intlMessages.publishLabel)}
+                data-test="publishPollingLabel"
+                color="primary"
+                className={styles.publishBtn}
+              />
+              <Button
+                disabled={!isMeteorConnected}
+                onClick={() => {
+                  Session.set('pollInitiated', false);
+                  Session.set('resetPollPanel', true);
+                  stopPoll();
+                }}
+                label={intl.formatMessage(intlMessages.cancelPollLabel)}
+                data-test="cancelPollLabel"
+                className={styles.cancelBtn}
+              />
+            </div>
           ) : (
             <Button
               disabled={!isMeteorConnected}
