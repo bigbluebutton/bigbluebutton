@@ -596,7 +596,7 @@ class Poll extends Component {
                       && (
                         <Button
                           className={styles.addItemBtn}
-                          data-test="addItem"
+                          data-test="addPollItem"
                           label={intl.formatMessage(intlMessages.addOptionLabel)}
                           aria-describedby="add-item-button"
                           color="default"

@@ -1,5 +1,6 @@
 const Notifications = require('./notifications');
 const Page = require('../core/page');
+const { closePages } = require('../core/util');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
 const { MAX_NOTIFICATIONS_TEST_TIMEOUT } = require('../core/constants'); // core constants (Timeouts vars imported)
 
@@ -24,7 +25,7 @@ const notificationsTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
       await test.page1.logger('Save Setting notification !');
     }
     expect(response).toBe(true);
@@ -45,7 +46,7 @@ const notificationsTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
       await test.page1.logger('Public Chat notification !');
     }
     expect(response).toBe(true);
@@ -66,7 +67,7 @@ const notificationsTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
       await test.page1.logger('Private Chat notification !');
     }
     expect(response).toBe(true);
@@ -87,7 +88,7 @@ const notificationsTest = () => {
     } catch (err) {
       await test.page3.logger(err);
     } finally {
-      await test.closePages();
+      await closePages(test.page3, test.page4)
       await test.page3.logger('User join notification !');
     }
     expect(response).toBe(true);
@@ -108,7 +109,7 @@ const notificationsTest = () => {
     } catch (err) {
       await test.page3.logger(err);
     } finally {
-      await test.closePage(test.page3);
+      await test.page3.close();
       await test.page3.logger('Presentation upload notification !');
     }
     expect(response).toBe(true);
@@ -130,7 +131,7 @@ const notificationsTest = () => {
     } catch (err) {
       await test.page3.logger(err);
     } finally {
-      await test.closePage(test.page3);
+      await test.page3.close();
       await test.page3.logger('Poll results notification !');
     }
     expect(response).toContain('Poll results were published');
@@ -151,7 +152,7 @@ const notificationsTest = () => {
     } catch (err) {
       await test.page3.logger(err);
     } finally {
-      await test.closePage(test.page3);
+      await test.page3.close();
       await test.page3.logger('Screenshare notification !');
     }
     expect(response).toBe('Screenshare has started');
@@ -172,7 +173,7 @@ const notificationsTest = () => {
     } catch (err) {
       await test.page3.logger(err);
     } finally {
-      await test.closePage(test.page3);
+      await test.page3.close();
       await test.page3.logger('Audio notification !');
     }
     expect(response).toBe(true);

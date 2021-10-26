@@ -23,11 +23,6 @@ class Presentation {
     await this.userPage.init(false, true, testName, 'Attendee', this.modPage.meetingId);
   }
 
-  async closePages() {
-    if (this.modPage.page) await this.modPage.close();
-    if (this.userPage.page) await this.userPage.close();
-  }
-
   async skipSlide() {
     try {
       await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
@@ -61,38 +56,14 @@ class Presentation {
 
       const slides0 = await this.modPage.page.evaluate(util.getSvgOuterHtml);
 
-      await this.modPage.waitAndClick(e.actions);
-      await this.modPage.waitAndClick(e.uploadPresentation);
-
-      await this.modPage.screenshot(`${testName}`, `01-before-presentation-upload-[${testName}]`);
-
-      await this.modPage.waitForSelector(e.fileUpload);
-      const fileUpload = await this.modPage.page.$(e.fileUpload);
-      await fileUpload.uploadFile(`${__dirname}/upload-test.png`);
-      await this.modPage.page.waitForFunction(checkElementTextIncludes,
-        { timeout: ELEMENT_WAIT_TIME },
-        'body', 'To be uploaded ...'
-      );
-      await this.modPage.page.waitForSelector(e.upload);
-
-      await this.modPage.waitAndClick(e.upload);
-      await this.modPage.logger('\nWaiting for the new presentation to upload...');
-      await this.modPage.page.waitForFunction(checkElementTextIncludes,
-        { timeout: ELEMENT_WAIT_TIME },
-        'body', 'Converting file'
-      );
-      await this.modPage.logger('\nPresentation uploaded!');
-      await this.modPage.page.waitForFunction(checkElementTextIncludes,
-        { timeout: ELEMENT_WAIT_LONGER_TIME },
-        'body', 'Current presentation'
-      );
-      await this.modPage.screenshot(`${testName}`, `02-after-presentation-upload-[${testName}]`);
+      await util.uploadPresentation(this.modPage, e.uploadPresentationFileName);
+      await this.modPage.screenshot(testName, 'after-presentation-upload');
 
       const slides1 = await this.modPage.page.evaluate(async () => await document.querySelector('svg g g g').outerHTML);
 
-      await this.modPage.logger('\nSlides before presentation upload:');
+      await this.modPage.logger('Slides before presentation upload');
       await this.modPage.logger(slides0);
-      await this.modPage.logger('\nSlides after presentation upload:');
+      await this.modPage.logger('Slides after presentation upload');
       await this.modPage.logger(slides1);
 
       return slides0 !== slides1;

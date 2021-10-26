@@ -2,6 +2,7 @@ const { toMatchImageSnapshot } = require('jest-image-snapshot');
 const Page = require('../core/page');
 const Status = require('./status');
 const MultiUsers = require('./multiusers');
+const { closePages } = require('../core/util');
 const { MAX_MULTIUSERS_TEST_TIMEOUT, TEST_DURATION_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
 const { NETWORK_PRESETS } = require('../core/profiles');
 const devices = require('../core/devices');
@@ -80,7 +81,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -127,7 +128,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -199,7 +200,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -221,7 +222,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.userPage);
+      await closePages(test.page1, test.userPage);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -251,7 +252,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -274,7 +275,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.userPage);
+      await closePages(test.page1, test.userPage);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -297,7 +298,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.userPage);
+      await closePages(test.page1, test.userPage);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -320,7 +321,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.userPage);
+      await closePages(test.page1, test.userPage);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -347,7 +348,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -374,7 +375,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -401,7 +402,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -428,7 +429,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
