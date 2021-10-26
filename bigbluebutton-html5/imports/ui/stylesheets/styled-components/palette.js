@@ -8,6 +8,8 @@ const colorGrayLighter = '#A7B3BD';
 
 const colorBlueLighter = '#92BCEA';
 
+const colorTransparent = '#ff000000';
+
 const colorPrimary = '#0F70D7';
 const colorDanger = '#DF2721';
 
@@ -25,6 +27,7 @@ export {
   colorGrayDark,
   colorGrayLight,
   colorGrayLighter,
+  colorTransparent,
   colorPrimary,
   colorDanger,
   userListBg,
