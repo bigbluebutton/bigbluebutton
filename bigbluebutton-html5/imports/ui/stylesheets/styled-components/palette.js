@@ -19,6 +19,7 @@ const userListBg = colorOffWhite;
 const userListText = colorGray;
 const unreadMessagesBg = colorDanger;
 const colorGrayLabel = colorGray;
+const colorText = colorGray;
 
 const listItemBgHover = '#DCE4ED';
 const itemFocusBorder = colorBlueLighter;
@@ -44,6 +45,7 @@ export {
   userListText,
   unreadMessagesBg,
   colorGrayLabel,
+  colorText,
   listItemBgHover,
   itemFocusBorder,
   btnDefaultColor,
