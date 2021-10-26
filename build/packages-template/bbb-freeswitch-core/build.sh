@@ -52,7 +52,7 @@ if [ ! -d sofia-sip ]; then
   git clone https://github.com/freeswitch/sofia-sip.git
 fi
 cd sofia-sip/
-git pull
+git checkout v1.13.6
 ./bootstrap.sh
 ./configure
 
@@ -66,7 +66,7 @@ if [ ! -d spandsp ]; then
   git clone https://github.com/freeswitch/spandsp.git
 fi
 cd spandsp/
-git pull
+git checkout 284fe91dd068d0cf391139110fdc2811043972b9
 ./bootstrap.sh
 ./configure
 
@@ -79,6 +79,7 @@ if [ $DISTRO == "centos7" ] || [ $DISTRO == "amzn2" ]; then
 
   git clone https://github.com/xiph/libopusenc.git
   cd libopusenc/
+  git checkout dc6ab59ac41a96c5bf262056ea09fa5e2f776fe6
   ./autogen.sh
   ./configure
   make -j $(nproc)
@@ -94,7 +95,7 @@ if [ ! -d libks ]; then
   git clone https://github.com/signalwire/libks.git
 fi
 cd libks/
-git pull
+git checkout f43b85399f8fc840561566887e768fc877ba2583
 
 cmake .
 make
@@ -105,7 +106,7 @@ cd ..
 
 ldconfig
 
-# we already cloned the FS repo in freeswitch.placeholder.sh
+# we already cloned the FS repo in freeswitch.placeholder.sh and selected tag/branch
 
 patch -p0 < floor.patch
 
