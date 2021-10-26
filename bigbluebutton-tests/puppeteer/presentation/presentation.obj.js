@@ -98,5 +98,27 @@ const presentationTest = () => {
     expect(response).toBe(true);
     Page.checkRegression(24.62, screenshot);
   });
+
+  test('Hide/Restore presentation', async () => {
+    const test = new Presentation();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'hideAndRestorePresentation';
+      await test.modPage.logger('begin of ', testName);
+      await test.initModPage(testName);
+      await test.modPage.startRecording(testName);
+      response = await test.hideAndRestorePresentation(testName);
+      await test.modPage.stopRecording();
+      screenshot = await test.modPage.page.screenshot();
+      await test.modPage.logger('end of ', testName);
+    } catch (e) {
+      await test.modPage.logger(e);
+    } finally {
+      await test.modPage.close();
+    }
+    expect(response).toBe(true);
+    Page.checkRegression(24.62, screenshot);
+  });
 };
 module.exports = exports = presentationTest;

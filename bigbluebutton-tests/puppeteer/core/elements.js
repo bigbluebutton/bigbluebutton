@@ -174,6 +174,7 @@ exports.confirmManagePresentation = 'button[data-test="confirmManagePresentation
 exports.allowPresentationDownload = 'button[data-test="allowPresentationDownload"]';
 exports.disallowPresentationDownload = 'button[data-test="disallowPresentationDownload"]';
 exports.uploadPresentationFileName = 'uploadTest.png';
+exports.presentationContainer = 'div[class^="presentationContainer--"]';
 
 // User
 exports.firstUser = '[data-test="userListItemCurrent"]';

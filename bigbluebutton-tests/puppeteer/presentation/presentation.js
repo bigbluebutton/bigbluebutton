@@ -129,6 +129,25 @@ class Presentation {
       return false;
     }
   }
+
+  async hideAndRestorePresentation(testName) {
+    try {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.screenshot(testName, '01-after-close-audio-modal');
+      await this.modPage.waitAndClick(e.minimizePresentation);
+      const presentationWasRemoved = await this.modPage.wasRemoved(e.presentationContainer);
+      await this.modPage.screenshot(testName, '02-minimize-presentation');
+
+      await this.modPage.waitAndClick(e.restorePresentation);
+      const presentationWasRestored = await this.modPage.hasElement(e.presentationContainer);
+      await this.modPage.screenshot(testName, '03-restore-presentation');
+
+      return presentationWasRemoved && presentationWasRestored;
+    } catch (err) {
+      await this.modPage.logger(err);
+      return false;
+    }
+  }
 }
 
 module.exports = exports = Presentation;
