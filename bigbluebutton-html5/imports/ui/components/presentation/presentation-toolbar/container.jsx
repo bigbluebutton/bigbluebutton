@@ -40,7 +40,7 @@ export default withTracker((params) => {
     Session.set('forcePollOpen', true);
     window.dispatchEvent(new Event('panelChanged'));
 
-    makeCall('startPoll', PollService.pollTypes, type, id, false, '', answers);
+    makeCall('startPoll', PollService.pollTypes, type, id, false, '', false, answers);
   };
 
   return {
