@@ -752,7 +752,7 @@ private:
     - browser: chrome
       version: 72
     - browser: chromeMobileIOS
-      version: Infinity
+      version: 94
     - browser: firefox
       version: 68
     - browser: firefoxMobile
