@@ -24,6 +24,15 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.bbb-icon-card {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.bbb-icon-timeline {
+  font-weight: bold;
+}
+
 .icon-bbb-screenshare-fullscreen:before {
   content: "\e92a";
 }
