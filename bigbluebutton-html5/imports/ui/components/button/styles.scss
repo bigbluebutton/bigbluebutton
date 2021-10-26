@@ -256,6 +256,16 @@
   }
 }
 
+.emojiButtonSpace {
+  position: absolute;
+  height: 1.4em;
+  width: 1.4em;
+  background-color: var(--color-background);
+  right: -4px;
+  bottom: -3px;
+  border-radius: 50%;
+}
+
 /* Colors
  * ==========
  */
