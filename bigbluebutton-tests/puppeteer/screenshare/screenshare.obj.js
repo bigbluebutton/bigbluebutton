@@ -22,7 +22,7 @@ const screenShareTest = () => {
       await test.logger('begin of ', testName);
       await test.init(true, true, testName)
       await test.startRecording(testName);
-      response = await test.test();
+      response = await test.startSharing();
       await test.logger('end of ', testName);
       await test.stopRecording();
       screenshot = await test.page.screenshot();

@@ -53,7 +53,6 @@ class Status extends Page {
   async disableScreenshareFromConnectionStatus() {
     try {
       await utilScreenshare.startScreenshare(this);
-      await utilScreenshare.waitForScreenshareContainer(this);
       await util.connectionStatus(this);
       await this.waitAndClickElement(e.dataSavingScreenshare);
       await this.waitAndClickElement(e.closeConnectionStatusModal);
@@ -72,7 +71,6 @@ class Status extends Page {
       await this.joinMicrophone();
       await this.shareWebcam(true, ELEMENT_WAIT_LONGER_TIME);
       await utilScreenshare.startScreenshare(this);
-      await utilScreenshare.waitForScreenshareContainer(this);
       await util.connectionStatus(this);
       await sleep(5000);
       const connectionStatusItemEmpty = await this.page.evaluate(checkElementLengthEqualTo, e.connectionStatusItemEmpty, 0);

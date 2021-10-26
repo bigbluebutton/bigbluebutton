@@ -8,14 +8,12 @@ class ShareScreen extends Page {
     super();
   }
 
-  async test() {
+  async startSharing() {
     try {
       await util.startScreenshare(this);
-      await this.waitForSelector(e.screenshareConnecting);
-      await this.waitForSelector(e.screenShareVideo, VIDEO_LOADING_WAIT_TIME);
-      const response = await this.hasElement(e.isSharingScreen, true);
+      const resp = await this.hasElement(e.isSharingScreen);
 
-      return response === true;
+      return resp === true;
     } catch (err) {
       await this.logger(err);
       return false;
