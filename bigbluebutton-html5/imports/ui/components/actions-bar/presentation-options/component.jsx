@@ -1,10 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
-import MediaService from '/imports/ui/components/media/service';
-import cx from 'classnames';
-import { styles } from '../styles';
+import Styled from './styles';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -51,8 +48,7 @@ const PresentationOptionsContainer = ({
 
   const isThereCurrentPresentation = hasExternalVideo || hasScreenshare || hasPresentation;
   return (
-    <Button
-      className={cx(styles.button, !isLayoutSwapped || styles.btn)}
+    <Styled.RestorePresentationButton
       icon={`${buttonType}${isLayoutSwapped ? '_off' : ''}`}
       label={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
       aria-label={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
