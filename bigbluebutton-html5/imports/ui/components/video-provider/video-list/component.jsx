@@ -41,6 +41,12 @@ const intlMessages = defineMessages({
   mirrorDesc: {
     id: 'app.videoDock.webcamMirrorDesc',
   },
+  flipLabel: {
+    id: 'app.videoDock.webcamFlipLabel',
+  },
+  flipDesc: {
+    id: 'app.videoDock.webcamFlipDesc',
+  },
   autoplayBlockedDesc: {
     id: 'app.videoDock.autoplayBlockedDesc',
   },
@@ -79,6 +85,7 @@ const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItem
 const ASPECT_RATIO = 4 / 3;
 const ACTION_NAME_FOCUS = 'focus';
 const ACTION_NAME_MIRROR = 'mirror';
+const ACTION_NAME_FLIP = 'flip';
 // const ACTION_NAME_BACKGROUND = 'blurBackground';
 
 class VideoList extends Component {
@@ -94,6 +101,7 @@ class VideoList extends Component {
       },
       autoplayBlocked: false,
       mirroredCameras: [],
+      flippedCameras: [],
     };
 
     this.ticking = false;
@@ -267,6 +275,24 @@ class VideoList extends Component {
     return mirroredCameras.indexOf(stream) >= 0;
   }
 
+  flipCamera(stream) {
+    const { flippedCameras } = this.state;
+    if (this.cameraIsFlipped(stream)) {
+      this.setState({
+        flippedCameras: flippedCameras.filter((x) => x !== stream),
+      });
+    } else {
+      this.setState({
+        flippedCameras: flippedCameras.concat([stream]),
+      });
+    }
+  }
+
+  cameraIsFlipped(stream) {
+    const { flippedCameras } = this.state;
+    return flippedCameras.indexOf(stream) >= 0;
+  }
+
   displayPageButtons() {
     const { numberOfPages, cameraDock } = this.props;
     const { width: cameraDockWidth } = cameraDock;
@@ -364,11 +390,18 @@ class VideoList extends Component {
       const isFocused = focusedId === stream;
       const isFocusedIntlKey = !isFocused ? 'focus' : 'unfocus';
       const isMirrored = this.cameraIsMirrored(stream);
+      const isFlipped = this.cameraIsFlipped(stream);
       const actions = [{
         actionName: ACTION_NAME_MIRROR,
         label: intl.formatMessage(intlMessages.mirrorLabel),
         description: intl.formatMessage(intlMessages.mirrorDesc),
         onClick: () => this.mirrorCamera(stream),
+      },
+      {
+        actionName: ACTION_NAME_FLIP,
+        label: intl.formatMessage(intlMessages.flipLabel),
+        description: intl.formatMessage(intlMessages.flipDesc),
+        onClick: () => this.flipCamera(stream),
       }];
 
       if (numOfStreams > 2) {
@@ -394,6 +427,7 @@ class VideoList extends Component {
             userId={userId}
             name={name}
             mirrored={isMirrored}
+            flipped={isFlipped}
             actions={actions}
             onVideoItemMount={(videoRef) => {
               this.handleCanvasResize();

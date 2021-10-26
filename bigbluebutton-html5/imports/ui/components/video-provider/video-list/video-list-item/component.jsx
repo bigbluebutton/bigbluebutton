@@ -181,11 +181,14 @@ class VideoListItem extends Component {
       voiceUser,
       numOfStreams,
       mirrored,
+      flipped,
       isFullscreenContext,
     } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
     const shouldRenderReconnect = !isStreamHealthy && videoIsReady;
+    const isEffectivelyMirrored = (this.mirrorOwnWebcam && !mirrored)
+      || (!this.mirrorOwnWebcam && mirrored);
 
     const { isFirefox } = browserInfo;
 
@@ -229,8 +232,9 @@ class VideoListItem extends Component {
             data-test={this.mirrorOwnWebcam ? 'mirroredVideoContainer' : 'videoContainer'}
             className={cx({
               [styles.media]: true,
-              [styles.mirroredVideo]: (this.mirrorOwnWebcam && !mirrored)
-                || (!this.mirrorOwnWebcam && mirrored),
+              [styles.mirroredVideo]: isEffectivelyMirrored,
+              [styles.flippedVideo]: !isEffectivelyMirrored && flipped,
+              [styles.mirroredAndFlippedVideo]: isEffectivelyMirrored && flipped,
               [styles.unhealthyStream]: shouldRenderReconnect,
             })}
             ref={(ref) => { this.videoTag = ref; }}

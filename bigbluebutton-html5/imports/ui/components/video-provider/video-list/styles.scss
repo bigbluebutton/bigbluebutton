@@ -51,7 +51,15 @@
 }
 
 .mirroredVideo {
-  transform: scale(-1, 1);
+  transform: scaleX(-1);
+}
+
+.flippedVideo {
+  transform: rotate(180deg);
+}
+
+.mirroredAndFlippedVideo {
+  transform: scaleX(-1) rotate(180deg);
 }
 
 .content {
