@@ -11,6 +11,7 @@ const colorBlueLighter = '#92BCEA';
 
 const colorPrimary = '#0F70D7';
 const colorDanger = '#DF2721';
+const colorSuccess = '#008081';
 
 const colorBackground = colorGrayDark;
 const userListBg = colorOffWhite;
@@ -36,6 +37,7 @@ export {
   colorBlueLighter,
   colorPrimary,
   colorDanger,
+  colorSuccess,
   colorBackground,
   userListBg,
   userListText,
