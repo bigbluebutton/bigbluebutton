@@ -26,7 +26,6 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang.RandomStringUtils
 import org.apache.commons.lang.StringUtils
 import org.bigbluebutton.api.*
-import org.bigbluebutton.api.domain.Config
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
@@ -357,6 +356,8 @@ class ApiController {
 
     session[sessionToken] = sessionToken
     meetingService.addUserSession(sessionToken, us)
+
+    logSessionInfo()
 
     //Identify which of these to logs should be used. sessionToken or user-token
     log.info("Session sessionToken for " + us.fullname + " [" + session[sessionToken] + "]")
@@ -789,6 +790,8 @@ class ApiController {
   def enter = {
     String API_CALL = 'enter'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    logSessionInfo()
 
     String respMessage = "Session not found."
     boolean reject = false;
@@ -1432,6 +1435,15 @@ class ApiController {
       log.info("${attribute}: ${session[attribute]}")
     }
     log.info("--------------------------------------")
+  }
+
+  private void logSessionInfo() {
+    log.info("***** Session Info ****")
+    log.info("ID - ${session.getId()}")
+    log.info("Creation Time - ${session.getCreationTime()}")
+    log.info("Last Accessed Time - ${session.getLastAccessedTime()}")
+    log.info("Max Inactive Interval - ${session.getMaxInactiveInterval}")
+    log.info("***********************")
   }
 
   // Validate maxParticipants constraint
