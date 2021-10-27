@@ -50,7 +50,6 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
     private String createTimeString;
     private Long createTime;
 
-    @NotEmpty(key = "missingRoleParam", message = "Role parameter is missing")
     private String role;
 
     public JoinMeeting(Checksum checksum) {
@@ -139,7 +138,7 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
         if(params.containsKey(Params.GUEST.getValue())) setGuestString(params.get(Params.GUEST.getValue())[0]);
         if(params.containsKey(Params.AUTH.getValue())) setAuthString(params.get(Params.AUTH.getValue())[0]);
         if(params.containsKey(Params.CREATE_TIME.getValue())) setCreateTimeString(params.get(Params.CREATE_TIME.getValue())[0]);
-        if(params.containsKey(Params.ROLE.getValue())) setFullName(params.get(Params.ROLE.getValue())[0]);
+        if(params.containsKey(Params.ROLE.getValue())) setRole(params.get(Params.ROLE.getValue())[0]);
     }
 
     @Override
