@@ -333,9 +333,6 @@ class ApiController {
         guestStatusVal
     )
 
-    //Identify which of these to logs should be used. sessionToken or user-token
-    log.info("Session sessionToken for " + us.fullname + " [" + session[sessionToken] + "]")
-    log.info("Session user-token for " + us.fullname + " [" + session['user-token'] + "]")
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
 
     //check if exists the param redirect
@@ -359,7 +356,11 @@ class ApiController {
     us.clientUrl = clientURL + "?sessionToken=" + sessionToken
 
     session[sessionToken] = sessionToken
-    meetingService.addUserSession(sessionToken, us);
+    meetingService.addUserSession(sessionToken, us)
+
+    //Identify which of these to logs should be used. sessionToken or user-token
+    log.info("Session sessionToken for " + us.fullname + " [" + session[sessionToken] + "]")
+    log.info("Session user-token for " + us.fullname + " [" + session['user-token'] + "]")
 
     // Process if we send the user directly to the client or
     // have it wait for approval.
@@ -834,7 +835,7 @@ class ApiController {
           builder.response {
             returncode RESP_CODE_FAILED
             message respMessage
-            sessionToken
+            sessionToken sessionToken
             logoutURL logoutUrl
           }
           render(contentType: "application/json", text: builder.toPrettyString())
@@ -1400,6 +1401,14 @@ class ApiController {
     if (us == null) {
       return false
     }
+
+    Enumeration<String> e = session.getAttributeNames()
+    log.info("---------- Session attributes ----------")
+    while(e.hasMoreElements()) {
+      String attribute = (String) e.nextElement()
+      log.info("${attribute}: ${session[attribute]}")
+    }
+    log.info("--------------------------------------")
 
     if (!session[token]) {
       log.info("Session for token ${token} not found")
