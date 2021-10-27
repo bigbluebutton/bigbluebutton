@@ -10,8 +10,11 @@ import { UsersContext } from '/imports/ui/components/components-data/users-conte
 
 const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabled;
 
+//A value that is used by component to remember
+//whether it should be open or closed after a render
 let keepModalOpen = true;
 
+//A value that stores the previous indicator
 let updateIndicator = 1;
 
 const toggleKeepModalOpen = () => { keepModalOpen = ! keepModalOpen; }
@@ -25,12 +28,12 @@ const RandomUserSelectContainer = (props) => {
 
   const currentUser = { userId: Auth.userID, presenter: users[Auth.meetingID][Auth.userID].presenter };
 
-  if(!currentUser.presenter &&
-    (keepModalOpen == false) &&
-    (randomlySelectedUser[0][1] != updateIndicator)
-    ){ keepModalOpen = true; }
+  if(!currentUser.presenter && //this functionality does not bother presenter
+    (keepModalOpen == false) && //we only ween a change if modal has been closed before
+    (randomlySelectedUser[0][1] != updateIndicator)//if tey are different, a user was generated
+    ){ keepModalOpen = true; } //reopen modal
 
-  if(!currentUser.presenter){ updateIndicator = randomlySelectedUser[0][1]; }
+  if(!currentUser.presenter){ updateIndicator = randomlySelectedUser[0][1]; } //keep indicator up to date
 
   if (randomlySelectedUser) {
     mappedRandomlySelectedUsers = randomlySelectedUser.map((ui) => {

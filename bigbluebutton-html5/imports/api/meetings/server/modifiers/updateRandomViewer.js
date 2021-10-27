@@ -6,10 +6,16 @@ const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabl
 
 const SELECT_RANDOM_USER_COUNTDOWN = Meteor.settings.public.selectRandomUser.countdown;
 
-let intervals = [0, 200, 450, 750, 1100, 1500]; //time intervals in milliseconds for iteration in animation
+//Time intervals in milliseconds
+//for iteration in animation
+let intervals = [0, 200, 450, 750, 1100, 1500];
 
+//Used to togle to the first value of intervals to
+//differenciare whether this function has been called
 let updateIndicator = true;
 
+//A finction that toggles
+//the first interval on each call
 function toggleIndicator(){
   if(updateIndicator){
     intervals[0] = 1;
@@ -19,6 +25,8 @@ function toggleIndicator(){
   updateIndicator = !updateIndicator;
 }
 
+//All possible combinations of 3 elements
+//to to speed up randomizing
 const optionsFor3 = [ 
   [0, 1, 2],
   [0, 2, 1],
