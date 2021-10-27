@@ -9,6 +9,7 @@ import { ACTIONS } from '../layout/enums';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
+const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
 const getPresentationInfo = () => {
   const currentPresentation = Presentations.findOne({
@@ -72,6 +73,13 @@ const toggleSwapLayout = (layoutContextDispatch) => {
   });
 };
 
+export const shouldEnableSwapLayout = () => {
+  if (!PRESENTATION_CONFIG.oldMinimizeButton) {
+    return true;
+  }
+  return !shouldShowScreenshare() && !shouldShowExternalVideo();
+}
+
 export const getSwapLayout = () => {
   swapLayout.tracker.depend();
   return swapLayout.value;
@@ -86,6 +94,7 @@ export default {
   isUserPresenter,
   isVideoBroadcasting,
   toggleSwapLayout,
+  shouldEnableSwapLayout,
   getSwapLayout,
   setSwapLayout,
 };

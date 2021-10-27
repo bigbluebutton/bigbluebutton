@@ -23,6 +23,8 @@ const propTypes = {
   tabIndex: PropTypes.number,
 
   hideLabel: PropTypes.bool,
+
+  className: PropTypes.string,
 };
 
 const defaultProps = {
@@ -33,11 +35,13 @@ const defaultProps = {
   tabIndex: -1,
   hideLabel: false,
   onClick: null,
+  className: '',
 };
 
 const ButtonEmoji = (props) => {
   const {
     hideLabel,
+    className,
     ...newProps
   } = props;
 
@@ -62,7 +66,7 @@ const ButtonEmoji = (props) => {
           type="button"
           tabIndex={tabIndex}
           {...newProps}
-          className={styles.emojiButton}
+          className={[styles.emojiButton, className].join(' ')}
           aria-label={label}
           onClick={onClick}
         >

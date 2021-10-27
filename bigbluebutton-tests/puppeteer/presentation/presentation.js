@@ -116,7 +116,7 @@ class Presentation {
       await this.userPage.screenshot(testName, `3-userPage-after-allow-download-and-save-[${this.modPage.meetingId}]`);
       await this.userPage.waitForSelector(e.toastDownload);
       // check download button in presentation after ALLOW it - should be true
-      const hasPresentationDownloadBtnAfterAllow = await this.userPage.page.evaluate(checkElement, e.presentationDownloadBtn);
+      const hasPresentationDownloadBtnAfterAllow = await this.userPage.hasElement(e.presentationDownloadBtn);
 
       // disallow the presentation download
       await this.modPage.waitAndClick(e.actions);

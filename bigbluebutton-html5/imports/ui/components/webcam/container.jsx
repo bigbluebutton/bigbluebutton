@@ -2,8 +2,7 @@ import React, { useContext } from 'react';
 
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { withTracker } from 'meteor/react-meteor-data';
-import Settings from '/imports/ui/services/settings';
-import MediaService, { getSwapLayout, } from '/imports/ui/components/media/service';
+import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
 import Auth from '/imports/ui/services/auth';
 import breakoutService from '/imports/ui/components/breakout-room/service';
 import VideoService from '/imports/ui/components/video-provider/service';
@@ -20,7 +19,6 @@ const WebcamContainer = ({
   audioModalIsOpen,
   swapLayout,
   usersVideo,
-  disableVideo,
 }) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const isRTL = layoutSelect((i) => i.isRTL);
@@ -36,8 +34,7 @@ const WebcamContainer = ({
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
 
-  return !disableVideo
-    && !audioModalIsOpen
+  return !audioModalIsOpen
     && usersVideo.length > 0
     ? (
       <WebcamComponent
@@ -60,8 +57,6 @@ const WebcamContainer = ({
 let userWasInBreakout = false;
 
 export default withModalMounter(withTracker(() => {
-  const { dataSaving } = Settings;
-  const { viewParticipantsWebcams } = dataSaving;
   const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
   const data = {
     audioModalIsOpen: Session.get('audioModalIsOpen'),
@@ -95,8 +90,7 @@ export default withModalMounter(withTracker(() => {
 
   const { streams: usersVideo } = VideoService.getVideoStreams();
   data.usersVideo = usersVideo;
-  data.swapLayout = getSwapLayout() || !hasPresentation;
-  data.disableVideo = !viewParticipantsWebcams;
+  data.swapLayout = (getSwapLayout() || !hasPresentation) && shouldEnableSwapLayout();
 
   if (data.swapLayout) {
     data.floatingOverlay = true;

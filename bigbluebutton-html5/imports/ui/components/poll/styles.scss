@@ -58,7 +58,7 @@
 .customInputWrapper {
   width: 100%;
   margin-top: var(--md-padding-y);
-  
+
   > Button {
     width: 100%;
     margin-top: var(--sm-padding-y);
@@ -177,7 +177,7 @@
 
 .input {
     @include inputFocus(var(--color-blue-light));
- 
+
     &:hover,
     &:focus {
         @extend %highContrastOutline;
@@ -186,7 +186,7 @@
     &:focus {
         outline-style: solid !important;
     }
-    
+
     margin: 0;
     color: var(--color-text);
     background: var(--color-white);
@@ -199,6 +199,13 @@
     color: var(--color-gray-drak);
     text-align: center;
 }
+
+.checkbox {
+    display: inline-block;
+    margin-right: var(--poll-sm-margin);
+    margin-bottom: var(--poll-md-margin);
+}
+
 
 .responseType {
     display: flex;
@@ -279,7 +286,7 @@
     background-color: var(--color-gray-lightest);
     height: var(--lg-padding-y);
     border-radius: var(--border-radius);
-    width: 75%;  
+    width: 75%;
 }
 
 .addItemBtn {
@@ -403,7 +410,6 @@
   position: relative;
   flex-flow: column;
   flex-grow: 1;
-  flex-basis: 0;
   
   &:last-child {
     padding-right: 0;
@@ -422,4 +428,14 @@
   [dir="rtl"] & {
     margin: 0 0 0 var(--sm-padding-x);
   }
+}
+
+.sectionHeading {
+  margin-top: 0;
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+.pollParagraph {
+  color: var(--color-text);
 }

@@ -40,12 +40,12 @@ export default withTracker((params) => {
     Session.set('forcePollOpen', true);
     window.dispatchEvent(new Event('panelChanged'));
 
-    makeCall('startPoll', PollService.pollTypes, type, id, false, '', answers);
+    makeCall('startPoll', PollService.pollTypes, type, id, false, '', false, answers);
   };
 
   return {
     amIPresenter: Service.amIPresenter(),
-    layoutSwapped: MediaService.getSwapLayout(),
+    layoutSwapped: MediaService.getSwapLayout() && MediaService.shouldEnableSwapLayout(),
     userIsPresenter: PresentationService.isPresenter(podId),
     numberOfSlides: PresentationToolbarService.getNumberOfSlides(podId, presentationId),
     nextSlide: PresentationToolbarService.nextSlide,

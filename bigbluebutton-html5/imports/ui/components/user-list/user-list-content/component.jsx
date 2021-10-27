@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { styles } from './styles';
+import Styled from './styles';
 import UserParticipantsContainer from './user-participants/container';
 import UserMessages from './user-messages/container';
 import UserNotesContainer from './user-notes/container';
@@ -57,10 +57,7 @@ class UserContent extends PureComponent {
       || pendingUsers.length > 0;
 
     return (
-      <div
-        data-test="userListContent"
-        className={styles.content}
-      >
+      <Styled.Content data-test="userListContent">
         {CHAT_ENABLED
           ? (
             <UserMessages
@@ -126,7 +123,7 @@ class UserContent extends PureComponent {
             requestUserInformation,
           }}
         />
-      </div>
+      </Styled.Content>
     );
   }
 }
