@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { smPaddingX, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
-import { colorwhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/button/component';
 
 const ActionsBar = styled.div`
@@ -81,7 +81,7 @@ const RaiseHandButton = styled(Button)`
       span {
         box-shadow: none;
         background-color: transparent !important;
-        border-color: ${colorwhite} !important;
+        border-color: ${colorWhite} !important;
       }
    `}
 `;
