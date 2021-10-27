@@ -358,6 +358,8 @@ class ApiController {
     session[sessionToken] = sessionToken
     meetingService.addUserSession(sessionToken, us)
 
+    logSessionInfo()
+
     //Identify which of these to logs should be used. sessionToken or user-token
     log.info("Session sessionToken for " + us.fullname + " [" + session[sessionToken] + "]")
     log.info("Session user-token for " + us.fullname + " [" + session['user-token'] + "]")
@@ -789,6 +791,8 @@ class ApiController {
   def enter = {
     String API_CALL = 'enter'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    logSessionInfo()
 
     String respMessage = "Session not found."
     boolean reject = false;
@@ -1432,6 +1436,15 @@ class ApiController {
       log.info("${attribute}: ${session[attribute]}")
     }
     log.info("--------------------------------------")
+  }
+
+  private void logSessionInfo() {
+    log.info("***** Session Info ****")
+    log.info("ID - ${session.getId()}")
+    log.info("Creation Time - ${session.getCreationTime()}")
+    log.info("Last Accessed Time - ${session.getLastAccessedTime()}")
+    log.info("Max Inactive Interval - ${session.getMaxInactiveInterval}")
+    log.info("***********************")
   }
 
   // Validate maxParticipants constraint
