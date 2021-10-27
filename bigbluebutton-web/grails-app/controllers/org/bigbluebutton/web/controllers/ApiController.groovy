@@ -183,6 +183,11 @@ class ApiController {
             request.getQueryString()
     )
 
+    HashMap<String, String> roles = new HashMap<String, String>();
+
+    roles.put("moderator", ROLE_MODERATOR);
+    roles.put("viewer", ROLE_ATTENDEE);
+
     if(!(validationResponse == null)) {
       invalid(validationResponse.getKey(), validationResponse.getValue(), REDIRECT_RESPONSE)
       return
@@ -245,6 +250,10 @@ class ApiController {
       role = Meeting.ROLE_MODERATOR
     } else if (meeting.getViewerPassword().equals(attPW)) {
       role = Meeting.ROLE_ATTENDEE
+    }
+
+    if (!StringUtils.isEmpty(params.role) && roles.containsKey(params.role.toLowerCase())) {
+        role = roles.get(params.role.toLowerCase());
     }
 
     // We preprend "w_" to our internal meeting Id to indicate that this is a web user.
