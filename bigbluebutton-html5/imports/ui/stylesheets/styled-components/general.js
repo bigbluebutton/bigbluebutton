@@ -11,6 +11,7 @@ const jumboPaddingY = '1.5rem';
 
 const whiteboardToolbarPadding = '.5rem';
 const minModalHeight = '20rem';
+const navbarHeight = '3.9375rem';
 
 export {
   borderSize,
@@ -25,4 +26,5 @@ export {
   jumboPaddingY,
   whiteboardToolbarPadding,
   minModalHeight,
+  navbarHeight,
 };
