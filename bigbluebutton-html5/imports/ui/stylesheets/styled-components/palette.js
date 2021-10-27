@@ -23,6 +23,7 @@ const colorGrayLabel = colorGray;
 const colorText = colorGray;
 
 const listItemBgHover = '#DCE4ED';
+const colorTipBg = '#333333';
 const itemFocusBorder = colorBlueLighter;
 
 const btnDefaultColor = colorGray;
@@ -49,6 +50,7 @@ export {
   colorGrayLabel,
   colorText,
   listItemBgHover,
+  colorTipBg,
   itemFocusBorder,
   btnDefaultColor,
   toolbarButtonColor,
