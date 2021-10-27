@@ -10,12 +10,27 @@ import { UsersContext } from '/imports/ui/components/components-data/users-conte
 
 const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabled;
 
+let keepModalOpen = true;
+
+let updateIndicator = 1;
+
+const toggleKeepModalOpen = () => { keepModalOpen = ! keepModalOpen; }
+
 const RandomUserSelectContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const { randomlySelectedUser } = props;
 
   let mappedRandomlySelectedUsers = [];
+
+  const currentUser = { userId: Auth.userID, presenter: users[Auth.meetingID][Auth.userID].presenter };
+
+  if(!currentUser.presenter &&
+    (keepModalOpen == false) &&
+    (randomlySelectedUser[0][1] != updateIndicator)
+    ){ keepModalOpen = true; }
+
+  if(!currentUser.presenter){ updateIndicator = randomlySelectedUser[0][1]; }
 
   if (randomlySelectedUser) {
     mappedRandomlySelectedUsers = randomlySelectedUser.map((ui) => {
@@ -29,9 +44,12 @@ const RandomUserSelectContainer = (props) => {
     });
   }
 
-  const currentUser = { userId: Auth.userID, presenter: users[Auth.meetingID][Auth.userID].presenter };
-
-  return <RandomUserSelect {...props} mappedRandomlySelectedUsers={mappedRandomlySelectedUsers} currentUser={currentUser} />;
+  return <RandomUserSelect
+  {...props}
+  mappedRandomlySelectedUsers={mappedRandomlySelectedUsers}
+  currentUser={currentUser}
+  keepModalOpen={keepModalOpen}
+  />;
 };
 export default withModalMounter(withTracker(({ mountModal }) => {
   const viewerPool = Users.find({
@@ -56,6 +74,7 @@ export default withModalMounter(withTracker(({ mountModal }) => {
 
   return ({
     closeModal: () => mountModal(null),
+    toggleKeepModalOpen,
     numAvailableViewers: viewerPool.length,
     randomUserReq,
     clearRandomlySelectedUser,
