@@ -28,6 +28,7 @@ import NewWebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
+import styles from './styles.scss';
 import Styled from './styles';
 import { DEVICE_TYPE, ACTIONS } from '../layout/enums';
 import {
