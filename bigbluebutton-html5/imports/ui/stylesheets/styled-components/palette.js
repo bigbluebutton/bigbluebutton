@@ -5,6 +5,7 @@ const colorGray = '#4E5A66';
 const colorGrayDark = '#06172A';
 const colorGrayLight = '#8B9AA8';
 const colorGrayLighter = '#A7B3BD';
+const colorGrayLightest = '#D4D9DF';
 
 const colorBlueLight = '#54a1f3';
 const colorBlueLighter = '#92BCEA';
@@ -37,6 +38,7 @@ export {
   colorGrayDark,
   colorGrayLight,
   colorGrayLighter,
+  colorGrayLightest,
   colorTransparent,
   colorBlueLight,
   colorBlueLighter,
