@@ -9,6 +9,8 @@ const colorGrayLighter = '#A7B3BD';
 const colorBlueLight = '#54a1f3';
 const colorBlueLighter = '#92BCEA';
 
+const colorTransparent = '#ff000000';
+
 const colorPrimary = '#0F70D7';
 const colorDanger = '#DF2721';
 const colorSuccess = '#008081';
@@ -18,6 +20,7 @@ const userListBg = colorOffWhite;
 const userListText = colorGray;
 const unreadMessagesBg = colorDanger;
 const colorGrayLabel = colorGray;
+const colorText = colorGray;
 
 const listItemBgHover = '#DCE4ED';
 const itemFocusBorder = colorBlueLighter;
@@ -33,6 +36,7 @@ export {
   colorGrayDark,
   colorGrayLight,
   colorGrayLighter,
+  colorTransparent,
   colorBlueLight,
   colorBlueLighter,
   colorPrimary,
@@ -43,6 +47,7 @@ export {
   userListText,
   unreadMessagesBg,
   colorGrayLabel,
+  colorText,
   listItemBgHover,
   itemFocusBorder,
   btnDefaultColor,
