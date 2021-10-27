@@ -362,6 +362,9 @@ class ApiController {
     log.info("Session sessionToken for " + us.fullname + " [" + session[sessionToken] + "]")
     log.info("Session user-token for " + us.fullname + " [" + session['user-token'] + "]")
 
+    logSession()
+    log.info("Session token: ${sessionToken}")
+
     // Process if we send the user directly to the client or
     // have it wait for approval.
     String destUrl = clientURL + "?sessionToken=" + sessionToken
@@ -827,6 +830,9 @@ class ApiController {
       if(us != null) {
         logoutUrl = us.logoutUrl
       }
+
+      logSession()
+      log.info("Session token: ${sessionToken}")
 
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
@@ -1402,13 +1408,7 @@ class ApiController {
       return false
     }
 
-    Enumeration<String> e = session.getAttributeNames()
-    log.info("---------- Session attributes ----------")
-    while(e.hasMoreElements()) {
-      String attribute = (String) e.nextElement()
-      log.info("${attribute}: ${session[attribute]}")
-    }
-    log.info("--------------------------------------")
+    logSession()
 
     if (!session[token]) {
       log.info("Session for token ${token} not found")
@@ -1422,6 +1422,16 @@ class ApiController {
 
     log.info("Token ${token} is valid")
     return true
+  }
+
+  private void logSession() {
+    Enumeration<String> e = session.getAttributeNames()
+    log.info("---------- Session attributes ----------")
+    while(e.hasMoreElements()) {
+      String attribute = (String) e.nextElement()
+      log.info("${attribute}: ${session[attribute]}")
+    }
+    log.info("--------------------------------------")
   }
 
   // Validate maxParticipants constraint
