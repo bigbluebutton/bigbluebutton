@@ -841,7 +841,7 @@ class ApiController {
           builder.response {
             returncode RESP_CODE_FAILED
             message respMessage
-            sessionToken sessionToken
+            "sessionToken" sessionToken
             logoutURL logoutUrl
           }
           render(contentType: "application/json", text: builder.toPrettyString())
