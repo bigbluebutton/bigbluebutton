@@ -8,7 +8,7 @@ import AudioService from '../audio/service';
 import VideoService from '../video-provider/service';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 import UserListService from '/imports/ui/components/user-list/service';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   title: {
@@ -173,10 +173,9 @@ class BreakoutJoinConfirmation extends Component {
     const { breakouts, intl } = this.props;
     const { selectValue, waiting, } = this.state;
     return (
-      <div className={styles.selectParent}>
+      <Styled.SelectParent>
         {`${intl.formatMessage(intlMessages.freeJoinMessage)}`}
-        <select
-          className={styles.select}
+        <Styled.Select
           value={selectValue}
           onChange={this.handleSelectChange}
           disabled={waiting}
@@ -191,9 +190,9 @@ class BreakoutJoinConfirmation extends Component {
               </option>
             ))
           }
-        </select>
+        </Styled.Select>
         { waiting ? <span data-test="labelGeneratingURL">{intl.formatMessage(intlMessages.generatingURL)}</span> : null}
-      </div>
+      </Styled.SelectParent>
     );
   }
 
