@@ -24,8 +24,8 @@ rm -rf staging
 
 . ./opts-$DISTRO.sh
 
-#cp modules.conf freeswitch
-#cd freeswitch
+cp modules.conf freeswitch
+cd freeswitch
 
 #
 # Need to figure out how to build with mod_av
@@ -91,7 +91,7 @@ ldconfig
 
 # we already cloned the FS repo in freeswitch.placeholder.sh
 
-patch -p0 < floor.patch
+patch -p0 < ../floor.patch
 
 ./bootstrap.sh 
 
@@ -102,11 +102,13 @@ patch -p0 < floor.patch
 make -j $(nproc)
 make install
 
-DESTDIR=staging
+DESTDIR=$PWD/staging
 CONFDIR=$DESTDIR/opt/freeswitch/etc/freeswitch
 
 mkdir -p $DESTDIR/opt
 cp -r /opt/freeswitch staging/opt
+
+cd ..
 
 	mkdir -p $DESTDIR/lib/systemd/system
 	cp freeswitch.service.${DISTRO} $DESTDIR/lib/systemd/system/freeswitch.service
@@ -118,7 +120,7 @@ cp -r /opt/freeswitch staging/opt
 	echo "This directory holds *.wav files for FreeSWITCH" > $DESTDIR/var/freeswitch/meetings/readme.txt
 
 	rm -rf $CONFDIR/*
-	cp -r config/freeswitch/conf/* $CONFDIR
+	cp -r bbb-voice-conference/config/freeswitch/conf/* $CONFDIR
 
 	pushd $DESTDIR/opt/freeswitch
 	ln -s ./etc/freeswitch conf
