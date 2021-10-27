@@ -51,15 +51,31 @@
 }
 
 .mirroredVideo {
-  transform: scaleX(-1);
+  transform: scale(-1, 1);
 }
 
-.flippedVideo {
+.rotateVideo90 {
+  transform: rotate(90deg);
+}
+
+.rotateVideo180 {
   transform: rotate(180deg);
 }
 
-.mirroredAndFlippedVideo {
-  transform: scaleX(-1) rotate(180deg);
+.rotateVideo270 {
+  transform: rotate(270deg);
+}
+
+.rotateMirroredVideo90 {
+  transform: rotate(90deg) scale(-1, 1);
+}
+
+.rotateMirroredVideo180 {
+  transform: rotate(180deg) scale(-1, 1);
+}
+
+.rotateMirroredVideo270 {
+  transform: rotate(270deg) scale(-1, 1);
 }
 
 .content {

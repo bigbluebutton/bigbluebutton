@@ -181,7 +181,7 @@ class VideoListItem extends Component {
       voiceUser,
       numOfStreams,
       mirrored,
-      flipped,
+      rotationAngle,
       isFullscreenContext,
     } = this.props;
     const availableActions = this.getAvailableActions();
@@ -232,9 +232,13 @@ class VideoListItem extends Component {
             data-test={this.mirrorOwnWebcam ? 'mirroredVideoContainer' : 'videoContainer'}
             className={cx({
               [styles.media]: true,
-              [styles.mirroredVideo]: isEffectivelyMirrored,
-              [styles.flippedVideo]: !isEffectivelyMirrored && flipped,
-              [styles.mirroredAndFlippedVideo]: isEffectivelyMirrored && flipped,
+              [styles.mirroredVideo]: isEffectivelyMirrored && rotationAngle === 0,
+              [styles.rotateVideo90]: !isEffectivelyMirrored && rotationAngle === 90,
+              [styles.rotateVideo180]: !isEffectivelyMirrored && rotationAngle === 180,
+              [styles.rotateVideo270]: !isEffectivelyMirrored && rotationAngle === 270,
+              [styles.rotateMirroredVideo90]: isEffectivelyMirrored && rotationAngle === 90,
+              [styles.rotateMirroredVideo180]: isEffectivelyMirrored && rotationAngle === 180,
+              [styles.rotateMirroredVideo270]: isEffectivelyMirrored && rotationAngle === 270,
               [styles.unhealthyStream]: shouldRenderReconnect,
             })}
             ref={(ref) => { this.videoTag = ref; }}

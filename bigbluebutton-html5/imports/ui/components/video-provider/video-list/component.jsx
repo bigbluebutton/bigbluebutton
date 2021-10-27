@@ -41,11 +41,11 @@ const intlMessages = defineMessages({
   mirrorDesc: {
     id: 'app.videoDock.webcamMirrorDesc',
   },
-  flipLabel: {
-    id: 'app.videoDock.webcamFlipLabel',
+  rotateLabel: {
+    id: 'app.videoDock.webcamRotateLabel',
   },
-  flipDesc: {
-    id: 'app.videoDock.webcamFlipDesc',
+  rotateDesc: {
+    id: 'app.videoDock.webcamRotateDesc',
   },
   autoplayBlockedDesc: {
     id: 'app.videoDock.autoplayBlockedDesc',
@@ -85,7 +85,7 @@ const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItem
 const ASPECT_RATIO = 4 / 3;
 const ACTION_NAME_FOCUS = 'focus';
 const ACTION_NAME_MIRROR = 'mirror';
-const ACTION_NAME_FLIP = 'flip';
+const ACTION_NAME_ROTATE = 'rotate';
 // const ACTION_NAME_BACKGROUND = 'blurBackground';
 
 class VideoList extends Component {
@@ -100,8 +100,7 @@ class VideoList extends Component {
         filledArea: 0,
       },
       autoplayBlocked: false,
-      mirroredCameras: [],
-      flippedCameras: [],
+      cameraTransformations: [],
     };
 
     this.ticking = false;
@@ -257,40 +256,37 @@ class VideoList extends Component {
     });
   }
 
-  mirrorCamera(stream) {
-    const { mirroredCameras } = this.state;
-    if (this.cameraIsMirrored(stream)) {
-      this.setState({
-        mirroredCameras: mirroredCameras.filter((x) => x !== stream),
-      });
+  getCameraRotation(stream) {
+    const { cameraTransformations } = this.state;
+    return cameraTransformations[stream]?.rotationAngle || 0;
+  }
+
+  rotateCamera(stream) {
+    const { cameraTransformations } = this.state;
+    if (!Object.keys(cameraTransformations).some((x) => x === stream)) {
+      cameraTransformations[stream] = { rotationAngle: 90 };
     } else {
-      this.setState({
-        mirroredCameras: mirroredCameras.concat([stream]),
-      });
+      const rotationAngle = cameraTransformations[stream].rotationAngle || 0;
+      const newRotationAngle = rotationAngle === 270 ? 0 : rotationAngle + 90;
+      Object.assign(cameraTransformations[stream], { rotationAngle: newRotationAngle });
     }
+    this.setState({ cameraTransformations });
+  }
+
+  mirrorCamera(stream) {
+    const { cameraTransformations } = this.state;
+    if (!Object.keys(cameraTransformations).some((x) => x === stream)) {
+      cameraTransformations[stream] = { mirrored: true };
+    } else {
+      const isMirrored = cameraTransformations[stream].mirrored || false;
+      Object.assign(cameraTransformations[stream], { mirrored: !isMirrored });
+    }
+    this.setState({ cameraTransformations });
   }
 
   cameraIsMirrored(stream) {
-    const { mirroredCameras } = this.state;
-    return mirroredCameras.indexOf(stream) >= 0;
-  }
-
-  flipCamera(stream) {
-    const { flippedCameras } = this.state;
-    if (this.cameraIsFlipped(stream)) {
-      this.setState({
-        flippedCameras: flippedCameras.filter((x) => x !== stream),
-      });
-    } else {
-      this.setState({
-        flippedCameras: flippedCameras.concat([stream]),
-      });
-    }
-  }
-
-  cameraIsFlipped(stream) {
-    const { flippedCameras } = this.state;
-    return flippedCameras.indexOf(stream) >= 0;
+    const { cameraTransformations } = this.state;
+    return cameraTransformations[stream]?.mirrored || false;
   }
 
   displayPageButtons() {
@@ -390,7 +386,7 @@ class VideoList extends Component {
       const isFocused = focusedId === stream;
       const isFocusedIntlKey = !isFocused ? 'focus' : 'unfocus';
       const isMirrored = this.cameraIsMirrored(stream);
-      const isFlipped = this.cameraIsFlipped(stream);
+      const rotationAngle = this.getCameraRotation(stream);
       const actions = [{
         actionName: ACTION_NAME_MIRROR,
         label: intl.formatMessage(intlMessages.mirrorLabel),
@@ -398,10 +394,10 @@ class VideoList extends Component {
         onClick: () => this.mirrorCamera(stream),
       },
       {
-        actionName: ACTION_NAME_FLIP,
-        label: intl.formatMessage(intlMessages.flipLabel),
-        description: intl.formatMessage(intlMessages.flipDesc),
-        onClick: () => this.flipCamera(stream),
+        actionName: ACTION_NAME_ROTATE,
+        label: intl.formatMessage(intlMessages.rotateLabel),
+        description: intl.formatMessage(intlMessages.rotateDesc),
+        onClick: () => this.rotateCamera(stream),
       }];
 
       if (numOfStreams > 2) {
@@ -427,7 +423,7 @@ class VideoList extends Component {
             userId={userId}
             name={name}
             mirrored={isMirrored}
-            flipped={isFlipped}
+            rotationAngle={rotationAngle}
             actions={actions}
             onVideoItemMount={(videoRef) => {
               this.handleCanvasResize();
