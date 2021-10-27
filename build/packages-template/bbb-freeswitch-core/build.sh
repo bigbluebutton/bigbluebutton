@@ -7,25 +7,22 @@ PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 VERSION=$(echo $TARGET | cut -d'_' -f2)
 DISTRO=$(echo $TARGET | cut -d'_' -f3)
 
-#
-# Clear staging directory for build
-rm -rf staging
+BUILDDIR=$PWD
+DESTDIR=$BUILDDIR/staging
+CONFDIR=$DESTDIR/opt/freeswitch/etc/freeswitch
 
 #
-# Create directory for fpm to process
-#DIRS="/opt/freeswitch \
-#      /var/freeswitch/meetings"
-#for dir in $DIRS; do
-#  mkdir -p staging$dir
-#  DIRECTORIES="$DIRECTORIES --directories $dir"
-#done
+# Clear staging directory for build
+
+rm -rf $DESTDIR
+mkdir -p $DESTDIR
 
 ##
 
 . ./opts-$DISTRO.sh
 
-cp modules.conf freeswitch
-cd freeswitch
+cp modules.conf $BUILDDIR/freeswitch
+cd $BUILDDIR/freeswitch
 
 #
 # Need to figure out how to build with mod_av
@@ -38,12 +35,10 @@ else
 fi
 
 if [ "$DISTRO" == "bionic" ]; then
-	add-apt-repository ppa:bigbluebutton/support -y
+  add-apt-repository ppa:bigbluebutton/support -y
   apt-get update
   apt-get install -y libopusfile-dev opus-tools libopusenc-dev
 fi
-
-mkdir -p staging
 
 pushd .
 
@@ -91,7 +86,9 @@ ldconfig
 
 # we already cloned the FS repo in freeswitch.placeholder.sh
 
-patch -p0 < ../floor.patch
+cd $BUILDDIR/freeswitch
+
+patch -p0 < $BUILDDIR/floor.patch
 
 ./bootstrap.sh 
 
@@ -102,13 +99,10 @@ patch -p0 < ../floor.patch
 make -j $(nproc)
 make install
 
-DESTDIR=$PWD/staging
-CONFDIR=$DESTDIR/opt/freeswitch/etc/freeswitch
-
 mkdir -p $DESTDIR/opt
-cp -r /opt/freeswitch staging/opt
+cp -r /opt/freeswitch $DESTDIR/opt
 
-cd ..
+cd $BUILDDIR
 
 	mkdir -p $DESTDIR/lib/systemd/system
 	cp freeswitch.service.${DISTRO} $DESTDIR/lib/systemd/system/freeswitch.service
