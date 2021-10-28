@@ -32,6 +32,8 @@ const btnPrimaryBorder = colorPrimary;
 
 const toolbarButtonColor = btnDefaultColor;
 const userThumbnailBorder = colorGrayLight;
+const loaderBg = colorGrayDark;
+const loaderBullet = colorWhite;
 
 export {
   colorWhite,
@@ -60,4 +62,6 @@ export {
   btnPrimaryBorder,
   toolbarButtonColor,
   userThumbnailBorder,
+  loaderBg,
+  loaderBullet,
 };
