@@ -8,7 +8,7 @@ import PollContainer from '/imports/ui/components/poll/container';
 import CaptionsContainer from '/imports/ui/components/captions/pad/container';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import WaitingUsersPanel from '/imports/ui/components/waiting-users/container';
-import { styles } from '/imports/ui/components/app/styles';
+import Styled from './styles';
 
 const propTypes = {
   top: PropTypes.number.isRequired,
@@ -126,9 +126,9 @@ const SidebarContent = (props) => {
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
       {sidebarContentPanel === PANELS.POLL
         && (
-          <div className={styles.poll} style={{ minWidth, top: '0' }} id="pollPanel">
+          <Styled.Poll style={{ minWidth, top: '0' }} id="pollPanel">
             <PollContainer smallSidebar={smallSidebar} />
-          </div>
+          </Styled.Poll>
         )}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}

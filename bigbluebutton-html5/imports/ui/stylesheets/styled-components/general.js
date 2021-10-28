@@ -11,6 +11,10 @@ const jumboPaddingY = '1.5rem';
 
 const whiteboardToolbarPadding = '.5rem';
 const minModalHeight = '20rem';
+const navbarHeight = '3.9375rem';
+const barsPadding = '0.8rem'; // so user-list and chat title is aligned with the presentation title
+const pollHeaderOffset = '-0.875rem';
+const toastContentWidth = '98%';
 
 export {
   borderSize,
@@ -25,4 +29,8 @@ export {
   jumboPaddingY,
   whiteboardToolbarPadding,
   minModalHeight,
+  navbarHeight,
+  barsPadding,
+  pollHeaderOffset,
+  toastContentWidth,
 };

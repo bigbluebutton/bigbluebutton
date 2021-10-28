@@ -1,8 +1,8 @@
 import React from 'react';
 import Toggle from 'react-toggle';
-import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from './styles';
+import Settings from '/imports/ui/services/settings';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   on: {
@@ -24,7 +24,6 @@ class Switch extends Toggle {
   render() {
     const {
       intl,
-      className,
       icons: _icons,
       ariaLabelledBy,
       ariaDescribedBy,
@@ -36,46 +35,47 @@ class Switch extends Toggle {
       ...inputProps
     } = this.props;
 
+    const { animations } = Settings.application;
+
     const {
       checked,
       hasFocus,
     } = this.state;
 
-    const classes = cx('react-toggle', {
-      'react-toggle--checked': checked,
-      'react-toggle--focus': hasFocus,
-      'react-toggle--disabled': disabled,
-    }, className);
-
     return (
-      <div
-        className={cx(classes, styles.switch)}
+      <Styled.Switch
         onClick={this.handleClick}
         onTouchStart={this.handleTouchStart}
         onTouchMove={this.handleTouchMove}
         onTouchEnd={this.handleTouchEnd}
+        disabled={disabled}
+        animations={animations}
       >
-        <div
-          className={cx('react-toggle-track',
-            invertColors && styles.invertBackground,
-            checked && styles.checked)}
+        <Styled.ToggleTrack
           aria-hidden="true"
+          checked={checked}
+          invertColors={invertColors}
+          animations={animations}
         >
-          <div className="react-toggle-track-check">
+          <Styled.ToggleTrackCheck checked={checked} animations={animations}>
             {showToggleLabel ? intl.formatMessage(intlMessages.on) : null}
-          </div>
-          <div className="react-toggle-track-x">
+          </Styled.ToggleTrackCheck>
+          <Styled.ToggleTrackX checked={checked} animations={animations}>
             {showToggleLabel ? intl.formatMessage(intlMessages.off) : null}
-          </div>
-        </div>
-        <div className="react-toggle-thumb" />
+          </Styled.ToggleTrackX>
+        </Styled.ToggleTrack>
+        <Styled.ToggleThumb
+          checked={checked}
+          hasFocus={hasFocus}
+          disabled={disabled}
+          animations={animations}
+        />
 
-        <input
+        <Styled.ScreenreaderInput
           {...inputProps}
           ref={(ref) => { this.input = ref; }}
           onFocus={this.handleFocus}
           onBlur={this.handleBlur}
-          className="react-toggle-screenreader-only"
           type="checkbox"
           tabIndex="0"
           disabled={disabled}
@@ -83,7 +83,7 @@ class Switch extends Toggle {
           aria-describedby={ariaDescribedBy}
         />
         <div id={ariaDescribedBy} hidden>{ariaDesc}</div>
-      </div>
+      </Styled.Switch>
     );
   }
 }
