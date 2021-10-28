@@ -12,6 +12,7 @@ const jumboPaddingY = '1.5rem';
 
 const whiteboardToolbarPadding = '.5rem';
 const minModalHeight = '20rem';
+const descriptionMargin = '3.5rem';
 
 export {
   borderSizeSmall,
@@ -27,4 +28,5 @@ export {
   jumboPaddingY,
   whiteboardToolbarPadding,
   minModalHeight,
+  descriptionMargin,
 };
