@@ -7,7 +7,7 @@ import Auth from '/imports/ui/services/auth';
 import { MeetingTimeRemaining } from '/imports/api/meetings';
 import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
 import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
-import { styles } from './styles.scss';
+import Styled from './styles';
 import { layoutSelectInput, layoutDispatch } from '../layout/context';
 import { ACTIONS } from '../layout/enums';
 
@@ -155,9 +155,9 @@ export default injectIntl(withTracker(({ intl }) => {
         data.message = (
           <>
             {intl.formatMessage(intlMessages.waitingMessage, { 0: getRetrySeconds() })}
-            <button className={styles.retryButton} type="button" onClick={reconnect}>
+            <Styled.RetryButton type="button" onClick={reconnect}>
               {intl.formatMessage(intlMessages.retryNow)}
-            </button>
+            </Styled.RetryButton>
           </>
         );
         break;

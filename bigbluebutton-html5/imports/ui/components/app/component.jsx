@@ -28,7 +28,8 @@ import NewWebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
-import { styles } from './styles';
+import styles from './styles.scss';
+import Styled from './styles';
 import { DEVICE_TYPE, ACTIONS } from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
@@ -349,8 +350,7 @@ class App extends Component {
     if (!captions) return null;
 
     return (
-      <div
-        className={styles.captionsWrapper}
+      <Styled.CaptionsWrapper
         style={
           {
             position: 'absolute',
@@ -361,7 +361,7 @@ class App extends Component {
         }
       >
         {captions}
-      </div>
+      </Styled.CaptionsWrapper>
     );
   }
 
@@ -376,8 +376,7 @@ class App extends Component {
     if (!actionsbar || hideActionsBar) return null;
 
     return (
-      <section
-        className={styles.actionsbar}
+      <Styled.ActionsBar
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={this.shouldAriaHide()}
         style={
@@ -392,7 +391,7 @@ class App extends Component {
         }
       >
         {actionsbar}
-      </section>
+      </Styled.ActionsBar>
     );
   }
 
@@ -437,9 +436,8 @@ class App extends Component {
     return (
       <>
         <LayoutEngine layoutType={layoutType} />
-        <div
+        <Styled.Layout
           id="layout"
-          className={styles.layout}
           style={{
             width: '100%',
             height: '100%',
@@ -481,7 +479,7 @@ class App extends Component {
           {this.renderActionsBar()}
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
           {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
-        </div>
+        </Styled.Layout>
       </>
     );
   }

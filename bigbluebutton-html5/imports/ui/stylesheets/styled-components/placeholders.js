@@ -10,6 +10,14 @@ const FlexRow = styled.div`
   flex-flow: row;
 `;
 
+const DivElipsis = styled.div`
+  min-width: 0;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
 const TextElipsis = styled.span`
   min-width: 0;
   display: inline-block;
@@ -29,6 +37,7 @@ const TitleElipsis = styled.h2`
 export {
   FlexColumn,
   FlexRow,
+  DivElipsis,
   TextElipsis,
   TitleElipsis,
 };
