@@ -72,10 +72,6 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.layoutOptionLabel',
     description: 'layout options',
   },
-  pushLayoutOptionLabel: {
-    id: 'app.submenu.application.pushLayoutOptionLabel',
-    description: 'enable/disable push layout to all users',
-  },
   customLayout: {
     id: 'app.layout.style.custom',
     description: 'label for custom layout style',
@@ -91,6 +87,14 @@ const intlMessages = defineMessages({
   videoFocusLayout: {
     id: 'app.layout.style.videoFocus',
     description: 'label for videoFocus layout style',
+  },
+  presentationFocusPushLayout: {
+    id: 'app.layout.style.presentationFocusPush',
+    description: 'label for presentationFocus layout style (push to all)',
+  },
+  videoFocusPushLayout: {
+    id: 'app.layout.style.videoFocusPush',
+    description: 'label for videoFocus layout style (push to all)',
   },
 });
 
@@ -308,15 +312,21 @@ class ApplicationMenu extends BaseMenu {
   }
 
   renderChangeLayout() {
-    const {
-      intl, showToggleLabel, displaySettingsStatus, isModerator,
-    } = this.props;
+    const { intl, isModerator } = this.props;
     const { settings } = this.state;
+
+    if (isModerator) {
+      const pushLayouts = {
+        PRESENTATION_FOCUS_PUSH: 'presentationFocusPush',
+        VIDEO_FOCUS_PUSH: 'videoFocusPush',
+      };
+      Object.assign(LAYOUT_TYPE, pushLayouts);
+    }
 
     return (
       <>
         <div className={styles.row}>
-          <div className={styles.col} aria-hidden="true">
+          <div className={styles.col}>
             <div className={styles.formElement}>
               <label htmlFor="layoutList" className={styles.label}>
                 {intl.formatMessage(intlMessages.layoutOptionLabel)}
@@ -339,31 +349,6 @@ class ApplicationMenu extends BaseMenu {
             </div>
           </div>
         </div>
-
-        {isModerator ? (
-          <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
-              <div className={styles.formElement}>
-                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.pushLayoutOptionLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                {displaySettingsStatus(settings.pushLayoutToEveryone)}
-                <Toggle
-                  icons={false}
-                  defaultChecked={settings.pushLayoutToEveryone}
-                  onChange={() => this.handleToggle('pushLayoutToEveryone')}
-                  ariaLabel={intl.formatMessage(intlMessages.pushLayoutOptionLabel)}
-                  showToggleLabel={showToggleLabel}
-                />
-              </div>
-            </div>
-          </div>
-        ) : null}
       </>
     );
   }
@@ -427,7 +412,7 @@ class ApplicationMenu extends BaseMenu {
           {this.renderPaginationToggle()}
 
           <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
+            <div className={styles.col}>
               <div className={styles.formElement}>
                 <label
                   className={styles.label}

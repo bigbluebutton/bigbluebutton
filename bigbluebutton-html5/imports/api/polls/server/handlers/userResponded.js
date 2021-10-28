@@ -3,11 +3,11 @@ import Polls from '/imports/api/polls';
 import Logger from '/imports/startup/server/logger';
 
 export default function userResponded({ body }) {
-  const { pollId, userId, answerId } = body;
+  const { pollId, userId, answerIds } = body;
 
   check(pollId, String);
   check(userId, String);
-  check(answerId, Number);
+  check(answerIds, Array);
 
   const selector = {
     id: pollId,
@@ -18,7 +18,7 @@ export default function userResponded({ body }) {
       users: userId,
     },
     $push: {
-      responses: { userId, answerId },
+      responses: { userId, answerIds },
     },
   };
 
@@ -26,7 +26,7 @@ export default function userResponded({ body }) {
     const numberAffected = Polls.update(selector, modifier);
 
     if (numberAffected) {
-      Logger.info(`Updating Poll response (userId: ${userId}, response: ${answerId}, pollId: ${pollId})`);
+      Logger.info(`Updating Poll response (userId: ${userId}, response: ${JSON.stringify(answerIds)}, pollId: ${pollId})`);
     }
   } catch (err) {
     Logger.error(`Updating Poll responses: ${err}`);

@@ -1,6 +1,9 @@
 import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
+import MediaService, {
+  getSwapLayout,
+  shouldEnableSwapLayout,
+} from '/imports/ui/components/media/service';
 import { notify } from '/imports/ui/services/notification';
 import PresentationService from './service';
 import { Slides } from '/imports/api/slides';
@@ -8,7 +11,7 @@ import Presentation from '/imports/ui/components/presentation/component';
 import PresentationToolbarService from './presentation-toolbar/service';
 import { UsersContext } from '../components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
-import Meetings from '/imports/api/meetings';
+import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import {
   layoutSelect,

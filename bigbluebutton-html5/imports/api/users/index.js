@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 
 const Users = new Mongo.Collection('users');
+export const CurrentUser = new Mongo.Collection('current-user');
 
 if (Meteor.isServer) {
   // types of queries for the users:

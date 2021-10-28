@@ -1,8 +1,6 @@
-// Test: Cleaning a chat message
-
 const Page = require('../core/page');
 const e = require('../core/elements');
-const p = require('../params');
+const p = require('../core/params');
 const util = require('./util');
 
 class Copy extends Page {
@@ -28,7 +26,7 @@ class Copy extends Page {
       // enable access to browser context clipboard
       const context = await this.browser.defaultBrowserContext();
       await context.overridePermissions(process.env.BBB_SERVER_URL, ['clipboard-read']);
-      const copiedText = await this.page.evaluate(async () => await navigator.clipboard.readText());
+      const copiedText = await this.page.evaluate(async () => navigator.clipboard.readText());
       return copiedText.includes(`${p.fullName}: ${e.message}`);
     } catch (err) {
       await this.logger(err);

@@ -29,8 +29,6 @@ export default function handlePresenterAssigned({ body }, meetingId) {
     presenter: true,
   };
 
-  const prevPresenter = Users.findOne(selector);
-
   const defaultPodSelector = {
     meetingId,
     podId: 'DEFAULT_PRESENTATION_POD',
@@ -44,28 +42,23 @@ export default function handlePresenterAssigned({ body }, meetingId) {
     presenterId,
   };
 
-  // no previous presenters
-  // The below code is responsible for set Meeting presenter to be default pod presenter as well.
-  // It's been handled here because right now akka-apps don't handle all cases scenarios.
-  if (!prevPresenter) {
-    const { currentPresenterId } = currentDefaultPod;
+  const prevPresenter = Users.findOne(selector);
 
-    if (currentPresenterId === '') {
-      return setPresenterInPodReqMsg(setPresenterPayload);
-    }
-
-    const oldPresenter = Users.findOne({ meetingId, userId: currentPresenterId });
-
-    if (oldPresenter?.userId !== currentPresenterId) {
-      return setPresenterInPodReqMsg(setPresenterPayload);
-    }
-
-    return true;
+  if (prevPresenter) {
+    changePresenter(false, prevPresenter.userId, meetingId, assignedBy);
   }
 
-  if (currentDefaultPod && currentDefaultPod.currentPresenterId !== presenterId) {
+  /**
+   * In the cases where the first moderator joins the meeting or
+   * the current presenter left the meeting, akka-apps doesn't assign the new presenter
+   * to the default presentation pod. This step is done manually here.
+   */
+
+  if (currentDefaultPod.currentPresenterId !== presenterId) {
+    const presenterToBeAssigned = Users.findOne({ userId: presenterId });
+
+    if (!presenterToBeAssigned) setPresenterPayload.presenterId = '';
+
     setPresenterInPodReqMsg(setPresenterPayload);
   }
-
-  changePresenter(false, prevPresenter.userId, meetingId, assignedBy);
 }

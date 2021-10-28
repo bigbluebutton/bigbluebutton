@@ -1,4 +1,5 @@
 import Auth from '/imports/ui/services/auth';
+import { makeCall } from '/imports/ui/services/api';
 import Settings from '/imports/ui/services/settings';
 
 const NOTE_CONFIG = Meteor.settings.public.note;
@@ -21,18 +22,19 @@ const getPadParams = () => {
   return params.join('&');
 };
 
-const getPadURL = (padId, readOnlyPadId, ownerId) => {
-  const userId = Auth.userID;
-  const params = getPadParams();
-  let url;
-  if (!ownerId || userId === ownerId) {
-    url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${padId}?${params}`);
-  } else {
-    url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${readOnlyPadId}?${params}`);
+const getPadId = (locale) => makeCall('getPadId', locale);
+
+const buildPadURL = (padId) => {
+  if (padId) {
+    const params = getPadParams();
+    const url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${padId}?${params}`);
+    return url;
   }
-  return url;
+
+  return null;;
 };
 
 export default {
-  getPadURL,
+  getPadId,
+  buildPadURL,
 };

@@ -1,5 +1,3 @@
-// Test: Cleaning a chat message
-
 const Page = require('../core/page');
 const e = require('../core/elements');
 const util = require('./util');
@@ -31,7 +29,6 @@ class Clear extends Page {
       await this.waitAndClick(e.chatClear);
 
       await this.screenshot(`${testName}`, `04-chat-cleared-[${this.meetingId}]`);
-
 
       const chatResp = await this.waitForSelector(e.chatClearMessageText).then(() => true);
 

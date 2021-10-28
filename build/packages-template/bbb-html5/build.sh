@@ -35,13 +35,20 @@ mkdir -p staging/usr/share/meteor
 rm -rf /tmp/html5-build
 mkdir -p /tmp/html5-build
 
+meteor npm -v
+meteor node -v
+cat .meteor/release
+
+# meteor version control was moved to the Dockerfile of the image used in .gitlab-ci.yml
+# meteor update --allow-superuser --release 2.3.6
+
 # build the HTML5 client
-meteor npm install --production
-npm rebuild node-sass
+meteor npm ci --production
+
 METEOR_DISABLE_OPTIMISTIC_CACHING=1 meteor build /tmp/html5-build --architecture os.linux.x86_64 --allow-superuser
 
 # extract, install the npm dependencies, then copy to staging
-tar xvfz /tmp/html5-build/bbb-html5_${VERSION}_${DISTRO}.tar.gz -C /tmp/html5-build/
+tar xfz /tmp/html5-build/bbb-html5_${VERSION}_${DISTRO}.tar.gz -C /tmp/html5-build/
 cd /tmp/html5-build/bundle/programs/server/
 npm i --production
 cd -
@@ -82,6 +89,16 @@ cp node-v14.17.6-linux-x64.tar.gz staging/usr/share
 
 if [ -f staging/usr/share/meteor/bundle/programs/web.browser/head.html ]; then
   sed -i "s/VERSION/$(($BUILD))/" staging/usr/share/meteor/bundle/programs/web.browser/head.html
+fi
+
+# Compress tensorflow WASM binaries used for virtual backgrounds. Keep the
+# uncompressed versions as well so it works with mismatched nginx location blocks
+if [ -f staging/usr/share/meteor/bundle/programs/web.browser/app/wasm/tflite-simd.wasm ]; then
+  gzip -k -f -9 staging/usr/share/meteor/bundle/programs/web.browser/app/wasm/tflite-simd.wasm
+fi
+
+if [ -f staging/usr/share/meteor/bundle/programs/web.browser/app/wasm/tflite.wasm ]; then
+  gzip -k -f -9 staging/usr/share/meteor/bundle/programs/web.browser/app/wasm/tflite.wasm
 fi
 
 mkdir -p staging/etc/nginx/sites-available

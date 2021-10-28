@@ -41,7 +41,6 @@ const propTypes = {
   audioLocked: PropTypes.bool.isRequired,
   resolve: PropTypes.func,
   isMobileNative: PropTypes.bool.isRequired,
-  isIOSChrome: PropTypes.bool.isRequired,
   isIE: PropTypes.bool.isRequired,
   formattedTelVoice: PropTypes.string.isRequired,
   autoplayBlocked: PropTypes.bool.isRequired,
@@ -445,23 +444,9 @@ class AudioModal extends Component {
     const {
       isEchoTest,
       intl,
-      isIOSChrome,
     } = this.props;
 
     const { content } = this.state;
-
-    if (isIOSChrome) {
-      return (
-        <div>
-          <div className={styles.warning}>!</div>
-          <h4 className={styles.main}>{intl.formatMessage(intlMessages.iOSError)}</h4>
-          <div className={styles.text}>{intl.formatMessage(intlMessages.iOSErrorDescription)}</div>
-          <div className={styles.text}>
-            {intl.formatMessage(intlMessages.iOSErrorRecommendation)}
-          </div>
-        </div>
-      );
-    }
 
     if (this.skipAudioOptions()) {
       return (
@@ -554,7 +539,6 @@ class AudioModal extends Component {
     const {
       intl,
       showPermissionsOvelay,
-      isIOSChrome,
       closeModal,
       isIE,
     } = this.props;
@@ -590,16 +574,11 @@ class AudioModal extends Component {
                   data-test="audioModalHeader"
                   className={styles.header}
                 >
-                  {
-                    isIOSChrome ? null
-                      : (
-                        <h2 className={styles.title}>
-                          {content
-                            ? intl.formatMessage(this.contents[content].title)
-                            : intl.formatMessage(intlMessages.audioChoiceLabel)}
-                        </h2>
-                      )
-                  }
+                  <h2 className={styles.title}>
+                    {content
+                      ? intl.formatMessage(this.contents[content].title)
+                      : intl.formatMessage(intlMessages.audioChoiceLabel)}
+                  </h2>
                 </header>
               )
               : null

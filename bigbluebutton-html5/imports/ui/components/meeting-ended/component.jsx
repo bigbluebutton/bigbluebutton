@@ -11,8 +11,8 @@ import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 import Rating from './rating/component';
 import { styles } from './styles';
 import logger from '/imports/startup/client/logger';
-import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings';
+import Users from '/imports/ui/local-collections/users-collection/users';
+import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
@@ -266,7 +266,9 @@ class MeetingEnded extends PureComponent {
               <div>
                 {
                   LearningDashboardService.isModerator()
-                  && LearningDashboardService.getLearningDashboardAccessToken() != null
+                  && LearningDashboardService.isLearningDashboardEnabled() === true
+                  // Always set cookie in case Dashboard is already opened
+                  && LearningDashboardService.setLearningDashboardCookie() === true
                     ? (
                       <div className={styles.text}>
                         <Button

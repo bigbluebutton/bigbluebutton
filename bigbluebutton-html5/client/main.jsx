@@ -34,6 +34,11 @@ import ChatAdapter from '/imports/ui/components/components-data/chat-context/ada
 import UsersAdapter from '/imports/ui/components/components-data/users-context/adapter';
 import GroupChatAdapter from '/imports/ui/components/components-data/group-chat-context/adapter';
 
+import '/imports/ui/local-collections/meetings-collection/meetings';
+import '/imports/ui/local-collections/breakouts-collection/breakouts';
+import '/imports/ui/local-collections/guest-users-collection/guest-users';
+import '/imports/ui/local-collections/users-collection/users';
+
 import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
   // bridge loading
 });
