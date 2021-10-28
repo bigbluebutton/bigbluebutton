@@ -25,8 +25,10 @@ const listItemBgHover = '#DCE4ED';
 const itemFocusBorder = colorBlueLighter;
 
 const btnDefaultColor = colorGray;
+const btnPrimaryBorder = colorPrimary;
 
 const toolbarButtonColor = btnDefaultColor;
+const userThumbnailBorder = colorGrayLight;
 
 export {
   colorWhite,
@@ -49,5 +51,7 @@ export {
   listItemBgHover,
   itemFocusBorder,
   btnDefaultColor,
+  btnPrimaryBorder,
   toolbarButtonColor,
+  userThumbnailBorder,
 };
