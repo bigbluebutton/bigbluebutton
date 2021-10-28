@@ -103,7 +103,7 @@ class ExternalVideoModal extends Component {
         contentLabel={intl.formatMessage(intlMessages.title)}
         hideBorder
       >
-        <header data-test="videoModealHeader" className={styles.header}>
+        <header data-test="videoModalHeader" className={styles.header}>
           <h3 className={styles.title}>{intl.formatMessage(intlMessages.title)}</h3>
         </header>
 
