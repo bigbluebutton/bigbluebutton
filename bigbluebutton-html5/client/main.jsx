@@ -17,8 +17,6 @@
 */
 /* eslint no-unused-vars: 0 */
 
-import './wdyr';
-
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';

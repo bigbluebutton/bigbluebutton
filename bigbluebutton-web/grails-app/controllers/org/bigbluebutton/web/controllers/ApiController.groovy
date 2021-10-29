@@ -333,9 +333,6 @@ class ApiController {
         guestStatusVal
     )
 
-    //Identify which of these to logs should be used. sessionToken or user-token
-    log.info("Session sessionToken for " + us.fullname + " [" + session[sessionToken] + "]")
-    log.info("Session user-token for " + us.fullname + " [" + session['user-token'] + "]")
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
 
     //check if exists the param redirect
@@ -359,7 +356,16 @@ class ApiController {
     us.clientUrl = clientURL + "?sessionToken=" + sessionToken
 
     session[sessionToken] = sessionToken
-    meetingService.addUserSession(sessionToken, us);
+    meetingService.addUserSession(sessionToken, us)
+
+    logSessionInfo()
+
+    //Identify which of these to logs should be used. sessionToken or user-token
+    log.info("Session sessionToken for " + us.fullname + " [" + session[sessionToken] + "]")
+    log.info("Session user-token for " + us.fullname + " [" + session['user-token'] + "]")
+
+    logSession()
+    log.info("Session token: ${sessionToken}")
 
     // Process if we send the user directly to the client or
     // have it wait for approval.
@@ -786,6 +792,8 @@ class ApiController {
     String API_CALL = 'enter'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
+    logSessionInfo()
+
     String respMessage = "Session not found."
     boolean reject = false;
 
@@ -826,6 +834,9 @@ class ApiController {
       if(us != null) {
         logoutUrl = us.logoutUrl
       }
+
+      logSession()
+      log.info("Session token: ${sessionToken}")
 
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
@@ -1401,6 +1412,8 @@ class ApiController {
       return false
     }
 
+    logSession()
+
     if (!session[token]) {
       log.info("Session for token ${token} not found")
 
@@ -1413,6 +1426,25 @@ class ApiController {
 
     log.info("Token ${token} is valid")
     return true
+  }
+
+  private void logSession() {
+    Enumeration<String> e = session.getAttributeNames()
+    log.info("---------- Session attributes ----------")
+    while(e.hasMoreElements()) {
+      String attribute = (String) e.nextElement()
+      log.info("${attribute}: ${session[attribute]}")
+    }
+    log.info("--------------------------------------")
+  }
+
+  private void logSessionInfo() {
+    log.info("***** Session Info ****")
+    log.info("ID - ${session.getId()}")
+    log.info("Creation Time - ${session.getCreationTime()}")
+    log.info("Last Accessed Time - ${session.getLastAccessedTime()}")
+    log.info("Max Inactive Interval - ${session.getMaxInactiveInterval}")
+    log.info("***********************")
   }
 
   // Validate maxParticipants constraint

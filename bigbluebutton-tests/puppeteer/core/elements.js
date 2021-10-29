@@ -16,7 +16,7 @@ exports.settings = 'li[data-test="settings"]';
 exports.settingsModal = 'div[aria-label="Settings"]';
 exports.title = '._imports_ui_components_nav_bar__styles__presentationTitle';
 exports.alerts = '.toastify-content';
-exports.pdfFileName = '100PagesFile';
+exports.pdfFileName = '100PagesFile.pdf';
 // Accesskey
 exports.chatButtonKey = '[accesskey="P"]';
 exports.userListButton = '[accesskey="U"]';
@@ -118,9 +118,7 @@ exports.userJoinPushAlerts = '[aria-label="User Join Popup Alerts"]';
 exports.dropdownContent = '[data-test="dropdownContent"]';
 exports.fileUploadDropZone = '[data-test="fileUploadDropZone"]';
 exports.polling = 'li[data-test="polling"]';
-exports.pollYesNoAbstentionBtn = 'button[aria-label="Yes / No / Abstention"]';
 exports.yesBtn = 'button[aria-label="Yes"]';
-exports.publishPollingResults = 'button[aria-label="Publish polling results"]';
 exports.hidePollDesc = 'button[data-test="hidePollDesc"]';
 exports.joinAudioToast = 'You have joined the audio conference';
 exports.notificationsTab = 'span[id="notificationTab"]';
@@ -131,18 +129,26 @@ exports.pollQuestionArea = 'textarea[data-test="pollQuestionArea"]';
 exports.pollQuestion = 'Are we good ?';
 exports.responseTypes = 'div[data-test="responseTypes"]';
 exports.responseChoices = 'div[data-test="responseChoices"]';
-exports.addItem = 'button[data-test="addItem"]';
+exports.addPollItem = 'button[data-test="addPollItem"]';
+exports.pollYesNoAbstentionBtn = 'button[aria-label="Yes / No / Abstention"]';
+exports.pollLetterAlteratives = 'button[aria-label="A / B / C / D"]';
+exports.userResponseBtn = 'button[aria-label="User Response"]';
 exports.pollOptionItem = 'input[data-test="pollOptionItem"]';
 exports.uncertain = 'Uncertain';
 exports.deletePollOption = 'button[data-test="deletePollOption"]';
 exports.pollAnswerOptionBtn = 'button[data-test="pollAnswerOption"]';
 exports.pollAnswerOptionInput = 'input[data-test="pollAnswerOption"]';
+exports.answerMessage = 'All good!';
 exports.pollSubmitAnswer = 'button[data-test="submitAnswer"]';
 exports.startPoll = 'button[data-test="startPoll"]';
 exports.restartPoll = 'button[data-test="restartPoll"]';
 exports.receivedAnswer = 'td[data-test="receivedAnswer"]';
-exports.publishLabel = 'button[data-test="publishLabel"]';
+exports.publishPollingLabel = 'button[data-test="publishPollingLabel"]';
 exports.pollResults = 'g[data-test="pollResultAria"]';
+exports.anonymousPoll = 'input[aria-label="Anonymous Poll"]';
+exports.quickPoll = 'button[aria-label="Quick Poll"]';
+exports.closePollingMenu = 'button[aria-label="Close Polling"]'
+exports.questionSlideFileName = 'mockPollSlide.pdf';
 
 // Presentation
 exports.startScreenSharing = 'button[data-test="startScreenShare"]';
@@ -166,6 +172,7 @@ exports.toastDownload = 'a[data-test="toastDownload"]';
 exports.confirmManagePresentation = 'button[data-test="confirmManagePresentation"]';
 exports.allowPresentationDownload = 'button[data-test="allowPresentationDownload"]';
 exports.disallowPresentationDownload = 'button[data-test="disallowPresentationDownload"]';
+exports.uploadPresentationFileName = 'uploadTest.png';
 
 // User
 exports.firstUser = '[data-test="userListItemCurrent"]';
