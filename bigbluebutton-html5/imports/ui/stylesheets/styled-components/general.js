@@ -1,3 +1,4 @@
+const borderSizeSmall = '1px';
 const borderSize = '2px';
 const borderSizeLarge = '3px';
 const borderRadius = '.2rem';
@@ -19,6 +20,7 @@ const modalMargin = '3rem';
 const titlePositionLeft = '2.2rem';
 
 export {
+  borderSizeSmall,
   borderSize,
   borderSizeLarge,
   borderRadius,
