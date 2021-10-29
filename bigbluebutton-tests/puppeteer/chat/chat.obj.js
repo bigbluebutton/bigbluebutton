@@ -3,8 +3,8 @@ const Send = require('./send');
 const Clear = require('./clear');
 const Copy = require('./copy');
 const Save = require('./save');
-const Poll = require('./poll');
 const MultiUsers = require('../user/multiusers');
+const { closePages } = require('../core/util');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
 const { MAX_CHAT_TEST_TIMEOUT } = require('../core/constants'); // core constants (Timeouts vars imported)
 
@@ -124,7 +124,7 @@ const chatTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(0.9, screenshot);
@@ -147,33 +147,11 @@ const chatTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
-    }
-    expect(response).toBe(true);
-    Page.checkRegression(0.9, screenshot);
-  });
-
-  // Check for Poll Results chat message and return true when it appears
-  test('Poll Results chat message', async () => {
-    const test = new Poll();
-    let response;
-    let screenshot;
-    try {
-      const testName = 'pollResultsChatMessage';
-      await test.page3.logger('begin of ', testName);
-      await test.initUser3(testName);
-      await test.page3.startRecording(testName);
-      response = await test.test(testName);
-      await test.page3.startRecording();
-      screenshot = await test.page3.page.screenshot();
-      await test.page3.logger('end of ', testName);
-    } catch (err) {
-      await test.page3.logger(err);
-    } finally {
-      await test.closePage(test.page3);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(0.9, screenshot);
   });
 };
+
 module.exports = exports = chatTest;
