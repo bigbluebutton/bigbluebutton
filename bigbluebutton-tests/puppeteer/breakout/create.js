@@ -146,25 +146,6 @@ class Create {
       await this.modPage2.logger(err);
     }
   }
-
-  // Close pages
-  async close() {
-    try {
-      await this.modPage1.close();
-      await this.userPage1.close();
-    } catch (err) {
-      await this.modPage1.logger(err);
-    }
-  }
-
-  // Close page
-  async closePage(page) {
-    try {
-      await page.close();
-    } catch (err) {
-      await this.modPage1.logger(err);
-    }
-  }
 }
 
 module.exports = exports = Create;

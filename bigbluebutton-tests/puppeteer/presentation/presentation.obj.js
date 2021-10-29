@@ -1,5 +1,6 @@
 const Page = require('../core/page');
 const Presentation = require('./presentation');
+const { closePages } = require('../core/util');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
 const { MAX_PRESENTATION_TEST_TIMEOUT } = require('../core/constants'); // core constants (Timeouts vars imported)
 
@@ -26,7 +27,7 @@ const presentationTest = () => {
     } catch (err) {
       await test.modPage.logger(err);
     } finally {
-      await test.closePages();
+      await test.modPage.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(0.81, screenshot);
@@ -48,7 +49,7 @@ const presentationTest = () => {
     } catch (err) {
       await test.modPage.logger(err);
     } finally {
-      await test.closePages();
+      await test.modPage.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(24.62, screenshot);
@@ -70,7 +71,7 @@ const presentationTest = () => {
     } catch (e) {
       await test.modPage.logger(e);
     } finally {
-      await test.closePages();
+      await closePages(test.modPage, test.userPage);
     }
     expect(response).toBe(true);
     Page.checkRegression(24.62, screenshot);
@@ -92,7 +93,7 @@ const presentationTest = () => {
     } catch (e) {
       await test.modPage.logger(e);
     } finally {
-      await test.closePages();
+      await closePages(test.modPage, test.userPage);
     }
     expect(response).toBe(true);
     Page.checkRegression(24.62, screenshot);

@@ -1,5 +1,6 @@
 const Page = require('../core/page');
 const SharedNotes = require('./sharednotes');
+const { closePages } = require('../core/util');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
 const { MAX_SHARED_NOTES_TEST_TIMEOUT } = require('../core/constants'); // core constants (Timeouts vars imported)
 
@@ -28,7 +29,7 @@ const sharedNotesTest = () => {
     } catch (err) {
       await test.modPage1.logger(err);
     } finally {
-      await test.close();
+      await closePages(test.modPage1, test.userPage1);
     }
     expect(response).toBe(true);
     Page.checkRegression(0.1, screenshot);

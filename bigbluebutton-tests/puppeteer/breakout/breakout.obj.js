@@ -1,6 +1,7 @@
-const Join = require('./join');
-const Create = require('./create');
 const Page = require('../core/page');
+const Create = require('./create');
+const Join = require('./join');
+const { closePages } = require('../core/util');
 const { MAX_BREAKOUT_TEST_TIMEOUT } = require('../core/constants');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
 
@@ -31,7 +32,7 @@ const breakoutTest = () => {
     } catch (err) {
       await test.modPage1.logger(err);
     } finally {
-      await test.close();
+      await closePages(test.modPage1, test.userPage1);
     }
     expect(response).toBe(true);
     Page.checkRegression(8.0, screenshot);
@@ -58,7 +59,7 @@ const breakoutTest = () => {
     } catch (err) {
       await test.modPage1.logger(err);
     } finally {
-      await test.close();
+      await closePages(test.modPage1, test.modPage2, test.userPage1);
     }
     expect(response).toBe(true);
     Page.checkRegression(4.0, screenshot);
@@ -85,7 +86,7 @@ const breakoutTest = () => {
     } catch (err) {
       await test.modPage1.logger(err);
     } finally {
-      await test.close();
+      await closePages(test.modPage1, test.modPage2, test.userPage1);
     }
     expect(response).toBe(true);
     Page.checkRegression(0.6, screenshot);
@@ -112,7 +113,7 @@ const breakoutTest = () => {
     } catch (err) {
       await test.modPage1.logger(err);
     } finally {
-      await test.close();
+      await closePages(test.modPage1, test.modPage2, test.userPage1);
     }
     expect(response).toBe(true);
     Page.checkRegression(0.7, screenshot);
@@ -139,7 +140,7 @@ const breakoutTest = () => {
     } catch (err) {
       await test.modPage1.logger(err);
     } finally {
-      await test.close();
+      await closePages(test.modPage1, test.modPage2, test.userPage1);
     }
     expect(response).toBe(true);
     Page.checkRegression(3.6, screenshot);
