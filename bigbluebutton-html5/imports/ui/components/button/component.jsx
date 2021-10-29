@@ -12,7 +12,7 @@ const SIZES = [
 ];
 
 const COLORS = [
-  'default', 'primary', 'danger', 'warning', 'success', 'dark', 'offline',
+  'default', 'primary', 'danger', 'warning', 'success', 'dark', 'offline', 'muted',
 ];
 
 const propTypes = {

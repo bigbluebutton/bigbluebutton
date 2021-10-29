@@ -58,8 +58,6 @@ const propTypes = {
   locale: PropTypes.string.isRequired,
   ownerId: PropTypes.string.isRequired,
   currentUserId: PropTypes.string.isRequired,
-  padId: PropTypes.string.isRequired,
-  readOnlyPadId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -85,6 +83,7 @@ class Pad extends PureComponent {
 
     this.state = {
       listening: false,
+      url: null,
     };
 
     const { locale, intl } = props;
@@ -104,7 +103,13 @@ class Pad extends PureComponent {
     }
   }
 
-  componentDidUpdate() {
+  componentDidMount() {
+    const { locale } = this.props;
+
+    this.updatePadURL(locale);
+  }
+
+  componentDidUpdate(prevProps) {
     const {
       locale,
       ownerId,
@@ -122,6 +127,16 @@ class Pad extends PureComponent {
       }
       this.recognition.lang = locale;
     }
+
+    if (prevProps.ownerId !== ownerId || prevProps.locale !== locale) {
+      this.updatePadURL(locale);
+    }
+  }
+
+  updatePadURL(locale) {
+    PadService.getPadId(locale).then(response => {
+      this.setState({ url: PadService.buildPadURL(response) });
+    });
   }
 
   handleListen() {
@@ -212,16 +227,16 @@ class Pad extends PureComponent {
     const {
       locale,
       intl,
-      padId,
-      readOnlyPadId,
       ownerId,
       name,
       layoutContextDispatch,
       isResizing,
     } = this.props;
 
-    const { listening } = this.state;
-    const url = PadService.getPadURL(padId, readOnlyPadId, ownerId);
+    const {
+      listening,
+      url,
+    } = this.state;
 
     return (
       <div className={styles.pad}>

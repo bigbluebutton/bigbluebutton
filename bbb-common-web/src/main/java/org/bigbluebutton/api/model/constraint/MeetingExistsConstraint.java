@@ -16,7 +16,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface MeetingExistsConstraint {
 
-    String message() default "Invalid meeting ID: A meeting with that ID does not exist";
+    String key() default "notFound";
+    String message() default "A meeting with that ID does not exist";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

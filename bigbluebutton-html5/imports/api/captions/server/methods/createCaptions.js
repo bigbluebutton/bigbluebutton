@@ -35,7 +35,7 @@ export default function createCaptions(meetingId, instanceId) {
       const locales = response.data;
       locales.forEach((locale) => {
         const padId = withInstaceId(instanceId, generatePadId(meetingId, locale.locale));
-        addCaption(meetingId, padId, locale);
+        addCaption(meetingId, padId, locale.locale, locale.name);
         padIds.push(padId);
       });
       addCaptionsPads(meetingId, padIds);

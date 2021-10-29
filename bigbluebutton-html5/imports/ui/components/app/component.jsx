@@ -28,7 +28,8 @@ import NewWebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
-import { styles } from './styles';
+import styles from './styles.scss';
+import Styled from './styles';
 import { DEVICE_TYPE, ACTIONS } from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
@@ -149,6 +150,7 @@ class App extends Component {
       meetingLayout,
       settingsLayout,
       isRTL,
+      hidePresentation,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -158,6 +160,11 @@ class App extends Component {
     layoutContextDispatch({
       type: ACTIONS.SET_IS_RTL,
       value: isRTL,
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+      value: !hidePresentation,
     });
 
     MediaService.setSwapLayout(layoutContextDispatch);
@@ -334,37 +341,6 @@ class App extends Component {
       && (isPhone || isLayeredView.matches);
   }
 
-  renderNavBar() {
-    const { navbar, isLargeFont } = this.props;
-
-    if (!navbar) return null;
-
-    const realNavbarHeight = isLargeFont ? LARGE_NAVBAR_HEIGHT : NAVBAR_HEIGHT;
-
-    return (
-      <header
-        className={styles.navbar}
-        style={{
-          height: realNavbarHeight,
-        }}
-      >
-        {navbar}
-      </header>
-    );
-  }
-
-  renderSidebar() {
-    const { sidebar } = this.props;
-
-    if (!sidebar) return null;
-
-    return (
-      <aside className={styles.sidebar}>
-        {sidebar}
-      </aside>
-    );
-  }
-
   renderCaptions() {
     const {
       captions,
@@ -374,8 +350,7 @@ class App extends Component {
     if (!captions) return null;
 
     return (
-      <div
-        className={styles.captionsWrapper}
+      <Styled.CaptionsWrapper
         style={
           {
             position: 'absolute',
@@ -386,7 +361,7 @@ class App extends Component {
         }
       >
         {captions}
-      </div>
+      </Styled.CaptionsWrapper>
     );
   }
 
@@ -395,13 +370,13 @@ class App extends Component {
       actionsbar,
       intl,
       actionsBarStyle,
+      hideActionsBar,
     } = this.props;
 
-    if (!actionsbar) return null;
+    if (!actionsbar || hideActionsBar) return null;
 
     return (
-      <section
-        className={styles.actionsbar}
+      <Styled.ActionsBar
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={this.shouldAriaHide()}
         style={
@@ -416,7 +391,7 @@ class App extends Component {
         }
       >
         {actionsbar}
-      </section>
+      </Styled.ActionsBar>
     );
   }
 
@@ -461,9 +436,8 @@ class App extends Component {
     return (
       <>
         <LayoutEngine layoutType={layoutType} />
-        <div
+        <Styled.Layout
           id="layout"
-          className={styles.layout}
           style={{
             width: '100%',
             height: '100%',
@@ -505,7 +479,7 @@ class App extends Component {
           {this.renderActionsBar()}
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
           {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
-        </div>
+        </Styled.Layout>
       </>
     );
   }

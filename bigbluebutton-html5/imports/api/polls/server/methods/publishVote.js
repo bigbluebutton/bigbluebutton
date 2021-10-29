@@ -4,7 +4,7 @@ import Polls from '/imports/api/polls';
 import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function publishVote(pollId, pollAnswerId) {
+export default function publishVote(pollId, pollAnswerIds) {
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -13,7 +13,7 @@ export default function publishVote(pollId, pollAnswerId) {
 
     check(meetingId, String);
     check(requesterUserId, String);
-    check(pollAnswerId, Number);
+    check(pollAnswerIds, Array);
     check(pollId, String);
 
     const allowedToVote = Polls.findOne({
@@ -34,14 +34,14 @@ export default function publishVote(pollId, pollAnswerId) {
     const selector = {
       users: requesterUserId,
       meetingId,
-      'answers.id': pollAnswerId,
+      'answers.id': { $all: pollAnswerIds },
     };
 
     const payload = {
       requesterId: requesterUserId,
       pollId,
       questionId: 0,
-      answerId: pollAnswerId,
+      answerIds: pollAnswerIds,
     };
 
     /*

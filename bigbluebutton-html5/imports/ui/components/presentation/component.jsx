@@ -51,6 +51,7 @@ const intlMessages = defineMessages({
 });
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinimizeButton;
 
 class Presentation extends PureComponent {
   constructor() {
@@ -436,7 +437,8 @@ class Presentation extends PureComponent {
       isIphone,
     } = this.props;
 
-    if (!shouldEnableSwapLayout()
+    if (!OLD_MINIMIZE_BUTTON_ENABLED
+      || !shouldEnableSwapLayout()
       || isFullscreen
       || fullscreenContext
       || layoutType === LAYOUT_TYPE.PRESENTATION_FOCUS) {
@@ -657,6 +659,9 @@ class Presentation extends PureComponent {
       isMobile,
       layoutType,
       numCameras,
+      fullscreenElementId,
+      fullscreenContext,
+      layoutContextDispatch,
     } = this.props;
     const { zoom, fitToWidth } = this.state;
 
@@ -677,11 +682,15 @@ class Presentation extends PureComponent {
           podId,
           currentSlide,
           toolbarWidth,
+          fullscreenElementId,
+          layoutContextDispatch,
         }}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
         zoomChanger={this.zoomChanger}
         fitToWidthHandler={this.fitToWidthHandler}
+        isFullscreen={fullscreenContext}
+        fullscreenAction={ACTIONS.SET_FULLSCREEN_ELEMENT}
       />
     );
   }
@@ -730,7 +739,7 @@ class Presentation extends PureComponent {
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
         isFullscreen={isFullscreen}
-        color="primary"
+        color="muted"
         fullScreenStyle={false}
         className={styles.presentationFullscreen}
       />
@@ -823,7 +832,7 @@ class Presentation extends PureComponent {
     const { presentationToolbarMinWidth } = DEFAULT_VALUES;
 
     const isLargePresentation = (svgWidth > presentationToolbarMinWidth || isMobile)
-      && !(layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0);
+      && !(layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0 && !fullscreenContext);
 
     const containerWidth = isLargePresentation
       ? svgWidth
@@ -876,7 +885,7 @@ class Presentation extends PureComponent {
             {showSlide && (userIsPresenter || multiUser)
               ? this.renderWhiteboardToolbar(svgDimensions)
               : null}
-            {showSlide && userIsPresenter && svgWidth > 0 && svgHeight > 0
+            {showSlide && userIsPresenter
               ? (
                 <div
                   className={styles.presentationToolbar}
