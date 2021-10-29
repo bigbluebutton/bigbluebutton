@@ -126,6 +126,8 @@ class ApiController {
 
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params)
 
+    ApiErrors errors = new ApiErrors()
+
     if (meetingService.createMeeting(newMeeting)) {
       // See if the request came with pre-uploading of presentation.
       uploadDocuments(newMeeting);  //
