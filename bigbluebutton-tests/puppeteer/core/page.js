@@ -342,6 +342,7 @@ class Page {
   async type(element, text, relief = false) {
     if (relief) await helper.sleep(1000);
     await this.waitForSelector(element);
+    await this.page.focus(element);
     await this.page.type(element, text);
   }
 

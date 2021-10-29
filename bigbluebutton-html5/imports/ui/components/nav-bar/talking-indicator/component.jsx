@@ -56,7 +56,6 @@ class TalkingIndicator extends PureComponent {
       const {
         talking,
         color,
-        voiceUserId,
         muted,
         callerName,
       } = talkers[`${id}`];
@@ -82,7 +81,7 @@ class TalkingIndicator extends PureComponent {
         <Button
           key={_.uniqueId(`${callerName}-`)}
           className={cx(style)}
-          onClick={() => this.handleMuteUser(voiceUserId)}
+          onClick={() => this.handleMuteUser(id)}
           label={callerName}
           tooltipLabel={!muted && amIModerator
             ? `${intl.formatMessage(intlMessages.muteLabel)} ${callerName}`

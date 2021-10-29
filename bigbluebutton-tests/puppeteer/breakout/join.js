@@ -75,17 +75,6 @@ class Join extends Create {
       return false;
     }
   }
-
-  // Close pages
-  async close() {
-    try {
-      await this.modPage1.close();
-      await this.userPage1.close();
-      await this.modPage2.close();
-    } catch (err) {
-      await this.modPage2.logger(err);
-    }
-  }
 }
 
 module.exports = exports = Join;
