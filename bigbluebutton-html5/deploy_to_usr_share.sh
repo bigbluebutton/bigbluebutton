@@ -6,7 +6,7 @@ UPPER_DESTINATION_DIR=/usr/share/meteor
 DESTINATION_DIR=$UPPER_DESTINATION_DIR/bundle
 
 SERVICE_FILES_DIR=/usr/lib/systemd/system
-LOCAL_PACKAGING_DIR=/home/bigbluebutton/src/build/packages-template/bbb-html5
+LOCAL_PACKAGING_DIR=/home/bigbluebutton/dev/bigbluebutton/build/packages-template/bbb-html5
 
 if [ ! -d "$LOCAL_PACKAGING_DIR" ]; then
   echo "Did not find LOCAL_PACKAGING_DIR=$LOCAL_PACKAGING_DIR"
@@ -32,7 +32,6 @@ echo 'stage3'
 
 
 cd "$DESTINATION_DIR"/programs/server/ || exit
-
 sudo npm i
 
 echo "deployed to $DESTINATION_DIR/programs/server\n\n\n"
