@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh -ex
 
 # Please check bigbluebutton/bigbluebutton-html5/dev_local_deployment/README.md
 
@@ -6,7 +6,7 @@ UPPER_DESTINATION_DIR=/usr/share/meteor
 DESTINATION_DIR=$UPPER_DESTINATION_DIR/bundle
 
 SERVICE_FILES_DIR=/usr/lib/systemd/system
-LOCAL_PACKAGING_DIR=/home/bigbluebutton/dev/bigbluebutton/build/packages-template/bbb-html5
+LOCAL_PACKAGING_DIR=/home/bigbluebutton/src/build/packages-template/bbb-html5
 
 if [ ! -d "$LOCAL_PACKAGING_DIR" ]; then
   echo "Did not find LOCAL_PACKAGING_DIR=$LOCAL_PACKAGING_DIR"
@@ -22,21 +22,19 @@ if [ -d "node_modules" ]; then
    rm -r node_modules/
 fi
 meteor reset
-meteor npm install --production
-
+meteor npm ci --production
 
 sudo chmod 777 /usr/share/meteor
-METEOR_DISABLE_OPTIMISTIC_CACHING=1 meteor build $UPPER_DESTINATION_DIR --architecture os.linux.x86_64 --allow-superuser
+METEOR_DISABLE_OPTIMISTIC_CACHING=1 meteor build $UPPER_DESTINATION_DIR --architecture os.linux.x86_64 --allow-superuser --directory
 
 sudo chown -R meteor:meteor "$UPPER_DESTINATION_DIR"/
 echo 'stage3'
 
 
-tar -xzf $UPPER_DESTINATION_DIR/bigbluebutton-html5.tar.gz -C $UPPER_DESTINATION_DIR
-
-
 cd "$DESTINATION_DIR"/programs/server/ || exit
-sudo npm i --production
+
+sudo npm i
+
 echo "deployed to $DESTINATION_DIR/programs/server\n\n\n"
 
 echo "writing $DESTINATION_DIR/mongod_start_pre.sh"
