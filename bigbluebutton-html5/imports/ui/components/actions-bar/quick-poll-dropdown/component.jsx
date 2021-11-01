@@ -2,14 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import _ from 'lodash';
-import { makeCall } from '/imports/ui/services/api';
-import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
-import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
-import DropdownContent from '/imports/ui/components/dropdown/content/component';
-import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import { styles } from '../styles';
+import Styled from './styles';
+import { PANELS, ACTIONS } from '../../layout/enums';
+
+const POLL_SETTINGS = Meteor.settings.public.poll;
+const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
 
 const intlMessages = defineMessages({
   quickPollLabel: {
@@ -39,28 +37,50 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   parseCurrentSlideContent: PropTypes.func.isRequired,
   amIPresenter: PropTypes.bool.isRequired,
 };
 
-const handleClickQuickPoll = (slideId, poll) => {
-  const { type } = poll;
-  Session.set('openPanel', 'poll');
+const handleClickQuickPoll = (layoutContextDispatch) => {
+  layoutContextDispatch({
+    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+    value: true,
+  });
+  layoutContextDispatch({
+    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+    value: PANELS.POLL,
+  });
   Session.set('forcePollOpen', true);
   Session.set('pollInitiated', true);
-
-  makeCall('startPoll', type, slideId);
 };
 
-const getAvailableQuickPolls = (slideId, parsedSlides) => {
+const getAvailableQuickPolls = (
+  slideId, parsedSlides, startPoll, pollTypes, layoutContextDispatch,
+) => {
   const pollItemElements = parsedSlides.map((poll) => {
-    const { poll: label, type } = poll;
+    const { poll: label } = poll;
+    const { type } = poll;
     let itemLabel = label;
+    const letterAnswers = [];
 
-    if (type !== 'YN' && type !== 'YNA' && type !== 'TF') {
+    if (type !== pollTypes.YesNo
+      && type !== pollTypes.YesNoAbstention
+      && type !== pollTypes.TrueFalse) {
       const { options } = itemLabel;
       itemLabel = options.join('/').replace(/[\n.)]/g, '');
+      if (type === pollTypes.Custom) {
+        for (let i = 0; i < options.length; i += 1) {
+          const letterOption = options[i].replace(/[\r.)]/g, '').toUpperCase();
+          if (letterAnswers.length < MAX_CUSTOM_FIELDS) {
+            letterAnswers.push(letterOption);
+          } else {
+            break;
+          }
+        }
+      }
     }
 
     // removes any whitespace from the label
@@ -75,10 +95,14 @@ const getAvailableQuickPolls = (slideId, parsedSlides) => {
     }).join('');
 
     return (
-      <DropdownListItem
+      <Dropdown.DropdownListItem
         label={itemLabel}
         key={_.uniqueId('quick-poll-item')}
-        onClick={() => handleClickQuickPoll(slideId, poll)}
+        onClick={() => {
+          handleClickQuickPoll(layoutContextDispatch);
+          startPoll(type, slideId, letterAnswers);
+        }}
+        answers={letterAnswers}
       />
     );
   });
@@ -86,7 +110,7 @@ const getAvailableQuickPolls = (slideId, parsedSlides) => {
   const sizes = [];
   return pollItemElements.filter((el) => {
     const { label } = el.props;
-    if (label.length === sizes[sizes.length - 1]) return;
+    if (label.length === sizes[sizes.length - 1]) return false;
     sizes.push(label.length);
     return el;
   });
@@ -102,6 +126,8 @@ class QuickPollDropdown extends Component {
       currentSlide,
       activePoll,
       className,
+      layoutContextDispatch,
+      pollTypes,
     } = this.props;
 
     const parsedSlide = parseCurrentSlideContent(
@@ -113,14 +139,18 @@ class QuickPollDropdown extends Component {
     );
 
     const { slideId, quickPollOptions } = parsedSlide;
-    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions);
+    const quickPolls = getAvailableQuickPolls(
+      slideId, quickPollOptions, startPoll, pollTypes, layoutContextDispatch,
+    );
 
     if (quickPollOptions.length === 0) return null;
 
+    let answers = null;
     let quickPollLabel = '';
     if (quickPolls.length > 0) {
       const { props: pollProps } = quickPolls[0];
       quickPollLabel = pollProps.label;
+      answers = pollProps.answers;
     }
 
     let singlePollType = null;
@@ -130,12 +160,14 @@ class QuickPollDropdown extends Component {
     }
 
     let btn = (
-      <Button
+      <Styled.QuickPollButton
         aria-label={intl.formatMessage(intlMessages.quickPollLabel)}
-        className={styles.quickPollBtn}
         label={quickPollLabel}
         tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
-        onClick={() => startPoll(singlePollType, currentSlide.id)}
+        onClick={() => {
+          handleClickQuickPoll(layoutContextDispatch);
+          startPoll(singlePollType, currentSlide.id, answers);
+        }}
         size="lg"
         disabled={!!activePoll}
       />
@@ -146,9 +178,8 @@ class QuickPollDropdown extends Component {
 
     if (usePollDropdown) {
       btn = (
-        <Button
+        <Styled.QuickPollButton
           aria-label={intl.formatMessage(intlMessages.quickPollLabel)}
-          className={styles.quickPollBtn}
           label={quickPollLabel}
           tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
           onClick={() => null}
@@ -159,14 +190,14 @@ class QuickPollDropdown extends Component {
 
       dropdown = (
         <Dropdown className={className}>
-          <DropdownTrigger tabIndex={0}>
+          <Dropdown.DropdownTrigger tabIndex={0}>
             {btn}
-          </DropdownTrigger>
-          <DropdownContent placement="top left">
-            <DropdownList>
+          </Dropdown.DropdownTrigger>
+          <Dropdown.DropdownContent placement="top left">
+            <Dropdown.DropdownList>
               {quickPolls}
-            </DropdownList>
-          </DropdownContent>
+            </Dropdown.DropdownList>
+          </Dropdown.DropdownContent>
         </Dropdown>
       );
     }
@@ -178,7 +209,6 @@ class QuickPollDropdown extends Component {
     );
   }
 }
-
 
 QuickPollDropdown.propTypes = propTypes;
 

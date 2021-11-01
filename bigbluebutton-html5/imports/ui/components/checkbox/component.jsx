@@ -62,7 +62,7 @@ export default class Checkbox extends PureComponent {
 
   render() {
     const {
-      ariaLabel, ariaLabelledBy, ariaDesc, ariaDescribedBy,
+      ariaLabel, ariaDesc, ariaDescribedBy,
       className, checked, disabled,
     } = this.props;
 

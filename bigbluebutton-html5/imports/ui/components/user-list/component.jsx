@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import { styles } from './styles.scss';
+import Styled from './styles';
 import CustomLogo from './custom-logo/component';
 import UserContentContainer from './user-list-content/container';
 
@@ -14,6 +14,7 @@ const propTypes = {
   CustomLogoUrl: PropTypes.string.isRequired,
   isPublicChat: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
+  clearAllEmojiStatus: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   showBranding: PropTypes.bool.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
@@ -29,6 +30,7 @@ class UserList extends PureComponent {
       intl,
       compact,
       setEmojiStatus,
+      clearAllEmojiStatus,
       isPublicChat,
       roving,
       CustomLogoUrl,
@@ -38,7 +40,7 @@ class UserList extends PureComponent {
     } = this.props;
 
     return (
-      <div className={styles.userList}>
+      <Styled.UserList>
         {
           showBranding
             && !compact
@@ -50,6 +52,7 @@ class UserList extends PureComponent {
             intl,
             compact,
             setEmojiStatus,
+            clearAllEmojiStatus,
             isPublicChat,
             roving,
             hasBreakoutRoom,
@@ -57,7 +60,7 @@ class UserList extends PureComponent {
           }
           }
         />}
-      </div>
+      </Styled.UserList>
     );
   }
 }

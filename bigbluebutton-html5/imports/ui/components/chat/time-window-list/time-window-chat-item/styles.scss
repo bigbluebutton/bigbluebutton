@@ -34,10 +34,10 @@
   border-radius: var(--border-radius);
   font-weight: var(--btn-font-weight);
   padding: var(--font-size-base);
-  //margin-bottom: var(--line-height-computed);
   color: var(--systemMessage-font-color);
   margin-top: 0px;
   margin-bottom: 0px;
+  overflow-wrap: break-word;
 }
 
 .systemMessageNoBorder {
@@ -55,10 +55,6 @@
   [dir="rtl"] & {
     margin: 0 0 0 calc(var(--line-height-computed) / 2);
   }
-}
-
-.avatar {
-  font-size: .85rem;
 }
 
 .content {
@@ -125,7 +121,7 @@
   flex-shrink: 0;
   flex-grow: 0;
   flex-basis: 3.5rem;
-  color: var(--color-gray-light);
+  color: var(--palette-placeholder-text);
   text-transform: uppercase;
   font-size: 75%;
   margin: 0 0 0 calc(var(--line-height-computed) / 2);
@@ -160,7 +156,7 @@
 }
 
 .isPoll {
-  bottom: var(--border-size-large);
+  bottom: 1px;
 }
 
 .pollWrapper {
@@ -170,4 +166,8 @@
   padding: var(--chat-poll-margin-sm);
   padding-left: 1rem;
   margin-top: var(--chat-poll-margin-sm) !important;
+}
+
+.emphasizedMessage{
+  font-weight: bold;
 }

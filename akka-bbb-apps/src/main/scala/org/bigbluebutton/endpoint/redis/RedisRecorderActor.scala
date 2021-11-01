@@ -10,28 +10,40 @@ import akka.actor.Actor
 import akka.actor.ActorLogging
 import akka.actor.ActorSystem
 import akka.actor.Props
+import org.bigbluebutton.service.HealthzService
+
+import scala.concurrent.duration._
+import scala.concurrent._
+import ExecutionContext.Implicits.global
+
+case object CheckRecordingDBStatus
 
 object RedisRecorderActor {
   def props(
-      system:      ActorSystem,
-      redisConfig: RedisConfig
+      system:         ActorSystem,
+      redisConfig:    RedisConfig,
+      healthzService: HealthzService
   ): Props =
     Props(
       classOf[RedisRecorderActor],
       system,
-      redisConfig
+      redisConfig,
+      healthzService
     )
 }
 
 class RedisRecorderActor(
-    system:      ActorSystem,
-    redisConfig: RedisConfig
+    system:         ActorSystem,
+    redisConfig:    RedisConfig,
+    healthzService: HealthzService
 )
   extends RedisStorageProvider(
     system,
     "BbbAppsAkkaRecorder",
     redisConfig
   ) with Actor with ActorLogging {
+
+  system.scheduler.schedule(1.minutes, 1.minutes, self, CheckRecordingDBStatus)
 
   private def record(session: String, message: java.util.Map[java.lang.String, java.lang.String]): Unit = {
     redis.recordAndExpire(session, message)
@@ -41,7 +53,7 @@ class RedisRecorderActor(
     //=============================
     // 2x messages
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
-
+    case CheckRecordingDBStatus   => checkRecordingDBStatus()
     case _                        => // do nothing
   }
 
@@ -73,6 +85,7 @@ class RedisRecorderActor(
       case m: UserLeftMeetingEvtMsg                 => handleUserLeftMeetingEvtMsg(m)
       case m: PresenterAssignedEvtMsg               => handlePresenterAssignedEvtMsg(m)
       case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
+      case m: UserRoleChangedEvtMsg                 => handleUserRoleChangedEvtMsg(m)
       case m: UserBroadcastCamStartedEvtMsg         => handleUserBroadcastCamStartedEvtMsg(m)
       case m: UserBroadcastCamStoppedEvtMsg         => handleUserBroadcastCamStoppedEvtMsg(m)
 
@@ -87,6 +100,9 @@ class RedisRecorderActor(
 
       // Caption
       case m: EditCaptionHistoryEvtMsg              => handleEditCaptionHistoryEvtMsg(m)
+
+      // Pad
+      case m: AddPadEvtMsg                          => handleAddPadEvtMsg(m)
 
       // Screenshare
       case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
@@ -107,6 +123,11 @@ class RedisRecorderActor(
       case m: UserRespondedToPollRecordMsg          => handleUserRespondedToPollRecordMsg(m)
       case m: PollStoppedEvtMsg                     => handlePollStoppedEvtMsg(m)
       case m: PollShowResultEvtMsg                  => handlePollShowResultEvtMsg(m)
+
+      // ExternalVideo
+      case m: StartExternalVideoEvtMsg              => handleStartExternalVideoEvtMsg(m)
+      case m: UpdateExternalVideoEvtMsg             => handleUpdateExternalVideoEvtMsg(m)
+      case m: StopExternalVideoEvtMsg               => handleStopExternalVideoEvtMsg(m)
 
       case _                                        => // message not to be recorded.
     }
@@ -337,6 +358,10 @@ class RedisRecorderActor(
     handleUserStatusChange(msg.header.meetingId, msg.body.userId, "emojiStatus", msg.body.emoji)
   }
 
+  private def handleUserRoleChangedEvtMsg(msg: UserRoleChangedEvtMsg) {
+    handleUserStatusChange(msg.header.meetingId, msg.body.userId, "role", msg.body.role)
+  }
+
   private def handleUserBroadcastCamStartedEvtMsg(msg: UserBroadcastCamStartedEvtMsg) {
     handleUserStatusChange(msg.header.meetingId, msg.body.userId, "hasStream", "true,stream=" + msg.body.stream)
   }
@@ -429,6 +454,14 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
+  private def handleAddPadEvtMsg(msg: AddPadEvtMsg) {
+    val ev = new AddPadRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPadId(msg.body.padId)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
   private def handleScreenshareRtmpBroadcastStartedEvtMsg(msg: ScreenshareRtmpBroadcastStartedEvtMsg) {
     val ev = new DeskshareStartRtmpRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
@@ -455,6 +488,32 @@ class RedisRecorderActor(
     record(msg.header.meetingId, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
   }
   */
+
+  private def handleStartExternalVideoEvtMsg(msg: StartExternalVideoEvtMsg) {
+    val ev = new StartExternalVideoRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setExternalVideoUrl(msg.body.externalVideoUrl)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleUpdateExternalVideoEvtMsg(msg: UpdateExternalVideoEvtMsg) {
+    val ev = new UpdateExternalVideoRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setStatus(msg.body.status)
+    ev.setRate(msg.body.rate)
+    ev.setTime(msg.body.time)
+    ev.setState(msg.body.state)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleStopExternalVideoEvtMsg(msg: StopExternalVideoEvtMsg) {
+    val ev = new StopExternalVideoRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
 
   private def handleRecordingStatusChangedEvtMsg(msg: RecordingStatusChangedEvtMsg) {
     val ev = new RecordStatusRecordEvent()
@@ -501,7 +560,10 @@ class RedisRecorderActor(
   private def handlePollStartedEvtMsg(msg: PollStartedEvtMsg): Unit = {
     val ev = new PollStartedRecordEvent()
     ev.setPollId(msg.body.pollId)
+    ev.setQuestion(msg.body.question)
     ev.setAnswers(msg.body.poll.answers)
+    ev.setType(msg.body.pollType)
+    ev.setSecretPoll(msg.body.secretPoll)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
@@ -509,24 +571,40 @@ class RedisRecorderActor(
   private def handleUserRespondedToPollRecordMsg(msg: UserRespondedToPollRecordMsg): Unit = {
     val ev = new UserRespondedToPollRecordEvent()
     ev.setPollId(msg.body.pollId)
-    ev.setUserId(msg.header.userId)
+    if (msg.body.isSecret) {
+      ev.setUserId("")
+    } else {
+      ev.setUserId(msg.header.userId)
+    }
     ev.setAnswerId(msg.body.answerId)
+    ev.setAnswer(msg.body.answer)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
   private def handlePollStoppedEvtMsg(msg: PollStoppedEvtMsg): Unit = {
-    pollStoppedRecordHelper(msg.header.meetingId, msg.body.pollId)
+    val ev = new PollStoppedRecordEvent()
+    ev.setPollId(msg.body.pollId)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
   }
 
   private def handlePollShowResultEvtMsg(msg: PollShowResultEvtMsg): Unit = {
-    pollStoppedRecordHelper(msg.header.meetingId, msg.body.pollId)
+    val ev = new PollPublishedRecordEvent()
+    ev.setPollId(msg.body.pollId)
+    ev.setQuestion(msg.body.poll.questionText.getOrElse(""))
+    ev.setAnswers(msg.body.poll.answers)
+    ev.setNumRespondents(msg.body.poll.numRespondents)
+    ev.setNumResponders(msg.body.poll.numResponders)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def pollStoppedRecordHelper(meetingId: String, pollId: String): Unit = {
-    val ev = new PollStoppedRecordEvent()
-    ev.setPollId(pollId)
-
-    record(meetingId, ev.toMap.asJava)
+  private def checkRecordingDBStatus(): Unit = {
+    if (redis.checkConnectionStatusBasic)
+      healthzService.sendRecordingDBStatusMessage(System.currentTimeMillis())
+    else
+      log.error("recording database is not available.")
   }
+
 }

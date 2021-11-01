@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
 import NoteService from '/imports/ui/components/note/service';
-import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
+import Styled from './styles';
+import { PANELS } from '../../../layout/enums';
 
 const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   revs: PropTypes.number.isRequired,
-  isPanelOpened: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -27,7 +27,7 @@ const intlMessages = defineMessages({
     description: 'Aria label for notes unread content',
   },
   locked: {
-    id: 'app.userList.locked',
+    id: 'app.note.locked',
     description: '',
   },
   byModerator: {
@@ -43,6 +43,7 @@ class UserNotes extends Component {
     this.state = {
       unread: false,
     };
+    this.setUnread = this.setUnread.bind(this);
   }
 
   componentDidMount() {
@@ -50,86 +51,88 @@ class UserNotes extends Component {
 
     const lastRevs = NoteService.getLastRevs();
 
-    if (revs !== 0 && revs > lastRevs) this.setState({ unread: true });
+    if (revs !== 0 && revs > lastRevs) this.setUnread(true);
   }
 
   componentDidUpdate(prevProps) {
-    const { isPanelOpened, revs } = this.props;
+    const { sidebarContentPanel, revs } = this.props;
     const { unread } = this.state;
 
-    if (!isPanelOpened && !unread) {
-      if (prevProps.revs !== revs) this.setState({ unread: true });
+    if (sidebarContentPanel !== PANELS.SHARED_NOTES && !unread) {
+      if (prevProps.revs !== revs) this.setUnread(true);
     }
 
-    if (isPanelOpened && unread) {
-      this.setState({ unread: false });
+    if (sidebarContentPanel === PANELS.SHARED_NOTES && unread) {
+      this.setUnread(false);
     }
   }
 
+  setUnread(unread) {
+    this.setState({ unread });
+  }
+
   renderNotes() {
-    const { intl, disableNote } = this.props;
+    const {
+      intl, disableNote, sidebarContentPanel, layoutContextDispatch,
+    } = this.props;
     const { unread } = this.state;
 
     let notification = null;
     if (unread) {
       notification = (
-        <div
-          className={styles.unreadMessages}
-          aria-label={intl.formatMessage(intlMessages.unreadContent)}
-        >
-          <div className={styles.unreadMessagesText} aria-hidden="true">
+        <Styled.UnreadMessages aria-label={intl.formatMessage(intlMessages.unreadContent)}>
+          <Styled.UnreadMessagesText aria-hidden="true">
             ···
-          </div>
-        </div>
+          </Styled.UnreadMessagesText>
+        </Styled.UnreadMessages>
       );
     }
 
     return (
-      <div
+      <Styled.ListItem
         aria-label={intl.formatMessage(intlMessages.sharedNotes)}
         aria-describedby="lockedNote"
         role="button"
         tabIndex={0}
-        className={styles.listItem}
-        onClick={NoteService.toggleNotePanel}
+        onClick={() => NoteService.toggleNotePanel(sidebarContentPanel, layoutContextDispatch)}
+        onKeyPress={() => { }}
       >
         <Icon iconName="copy" />
         <div aria-hidden>
-          <div className={styles.noteTitle} data-test="sharedNotes">
+          <Styled.NoteTitle data-test="sharedNotes">
             {intl.formatMessage(intlMessages.sharedNotes)}
-          </div>
+          </Styled.NoteTitle>
           {disableNote
             ? (
-              <div className={styles.noteLock}>
+              <Styled.NoteLock>
                 <Icon iconName="lock" />
                 <span id="lockedNote">{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
-              </div>
-            ) : null
-          }
+              </Styled.NoteLock>
+            ) : null}
         </div>
         {notification}
-      </div>
+      </Styled.ListItem>
     );
   }
 
   render() {
-    const { intl, disableNote } = this.props;
+    const { intl } = this.props;
 
     if (!NoteService.isEnabled()) return null;
 
     return (
-      <div className={styles.messages}>
-        <div className={styles.container}>
-          <h2 className={styles.smallTitle}>
+      <Styled.Messages>
+        <Styled.Container>
+          <Styled.SmallTitle>
             {intl.formatMessage(intlMessages.title)}
-          </h2>
-        </div>
-        <div className={styles.scrollableList}>
-          <div className={styles.list}>
+          </Styled.SmallTitle>
+        </Styled.Container>
+        <Styled.ScrollableList>
+          <Styled.List>
             {this.renderNotes()}
-          </div>
-        </div>
-      </div>
+          </Styled.List>
+        </Styled.ScrollableList>
+      </Styled.Messages>
     );
   }
 }

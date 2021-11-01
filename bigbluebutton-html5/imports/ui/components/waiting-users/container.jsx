@@ -1,18 +1,17 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
-import GuestUsers from '/imports/api/guest-users/';
-import Meetings from '/imports/api/meetings';
+import GuestUsers from '/imports/ui/local-collections/guest-users-collection/guest-users';
+import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
 import Service from './service';
 import WaitingComponent from './component';
+import { layoutDispatch } from '../layout/context';
 
-class WaitingContainer extends PureComponent {
-  render() {
-    return (
-      <WaitingComponent {...this.props} />
-    );
-  }
-}
+const WaitingContainer = (props) => {
+  const layoutContextDispatch = layoutDispatch();
+
+  return <WaitingComponent {...{ layoutContextDispatch, ...props }} />;
+};
 
 export default withTracker(() => {
   const guestUsers = GuestUsers.find({
@@ -22,7 +21,6 @@ export default withTracker(() => {
     denied: false,
   }).fetch();
 
-
   const authenticatedUsers = GuestUsers.find({
     meetingId: Auth.meetingID,
     authenticated: true,
@@ -31,13 +29,20 @@ export default withTracker(() => {
     denied: false,
   }).fetch();
 
-  const authenticatedGuest = Meetings.findOne({ meetingId: Auth.meetingID }).usersProp.authenticatedGuest;
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+  const { usersProp } = meeting;
+  const { authenticatedGuest } = usersProp;
 
   return {
     guestUsers,
     authenticatedUsers,
     guestUsersCall: Service.guestUsersCall,
+    isWaitingRoomEnabled: Service.isWaitingRoomEnabled(),
     changeGuestPolicy: Service.changeGuestPolicy,
+    isGuestLobbyMessageEnabled: Service.isGuestLobbyMessageEnabled,
+    setGuestLobbyMessage: Service.setGuestLobbyMessage,
+    guestLobbyMessage: Service.getGuestLobbyMessage(),
     authenticatedGuest,
+    allowRememberChoice: Service.allowRememberChoice,
   };
 })(WaitingContainer);

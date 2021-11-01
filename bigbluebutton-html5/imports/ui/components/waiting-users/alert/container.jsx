@@ -1,21 +1,37 @@
-import React, { PureComponent } from 'react';
-import { Session } from 'meteor/session';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
-import GuestUsers from '/imports/api/guest-users/';
-import Users from '/imports/api/users/';
+import GuestUsers from '/imports/ui/local-collections/guest-users-collection/guest-users';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import WaitingComponent from './component';
+import { layoutSelectInput, layoutDispatch } from '../../layout/context';
+import { PANELS } from '../../layout/enums';
 
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 
-class WaitingContainer extends PureComponent {
-  render() {
-    return (
-      <WaitingComponent {...this.props} />
-    );
-  }
-}
+const WaitingContainer = (props) => {
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const { sidebarContentPanel } = sidebarContent;
+  const managementPanelIsOpen = sidebarContentPanel === PANELS.WAITING_USERS;
+  const layoutContextDispatch = layoutDispatch();
+
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const currentUser = users[Auth.meetingID][Auth.userID];
+  const currentUserIsModerator = currentUser.role === ROLE_MODERATOR;
+  const joinTime = currentUser.authTokenValidatedTime;
+  return (
+    <WaitingComponent {...{
+      layoutContextDispatch,
+      managementPanelIsOpen,
+      ...props,
+      currentUserIsModerator,
+      joinTime,
+    }}
+    />
+  );
+};
 
 export default withTracker(() => {
   const pendingUsers = GuestUsers.find({
@@ -23,14 +39,8 @@ export default withTracker(() => {
     approved: false,
     denied: false,
   }).fetch();
-  const managementPanelIsOpen = Session.get('openPanel') === 'waitingUsersPanel';
 
-  const currentUser = Users.findOne({ userId: Auth.userID },
-    { fields: { role: 1, loginTime: 1 } });
   return {
-    managementPanelIsOpen,
     pendingUsers,
-    currentUserIsModerator: currentUser.role === ROLE_MODERATOR,
-    joinTime: currentUser.loginTime,
   };
 })(WaitingContainer);

@@ -1,6 +1,6 @@
-import Users from '/imports/api/users';
+import Users from '/imports/ui/local-collections/users-collection/users';
 import Auth from '/imports/ui/services/auth';
-import Meetings from '/imports/api/meetings';
+import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
 
 const getMeetingTitle = () => {
   const meeting = Meetings.findOne({
@@ -13,6 +13,7 @@ const getMeetingTitle = () => {
 const getUsers = () => {
   const numUsers = Users.find({
     meetingId: Auth.meetingID,
+    userId: { $ne: Auth.userID },
   }, { fields: { _id: 1 } }).count();
 
   return numUsers;

@@ -1,5 +1,8 @@
 package org.bigbluebutton.core.apps
 
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
+
 object ScreenshareModel {
   def resetDesktopSharingParams(status: ScreenshareModel) = {
     status.broadcastingRTMP = false
@@ -10,6 +13,7 @@ object ScreenshareModel {
     status.voiceConf = ""
     status.screenshareConf = ""
     status.timestamp = ""
+    status.hasAudio = false
   }
 
   def getScreenshareStarted(status: ScreenshareModel): Boolean = {
@@ -79,6 +83,32 @@ object ScreenshareModel {
   def getTimestamp(status: ScreenshareModel): String = {
     status.timestamp
   }
+
+  def setHasAudio(status: ScreenshareModel, hasAudio: Boolean): Unit = {
+    status.hasAudio = hasAudio
+  }
+
+  def getHasAudio(status: ScreenshareModel): Boolean = {
+    status.hasAudio
+  }
+
+  def stop(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
+    if (isBroadcastingRTMP(liveMeeting.screenshareModel)) {
+      this.resetDesktopSharingParams(liveMeeting.screenshareModel)
+
+      val event = MsgBuilder.buildStopScreenshareRtmpBroadcastEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        getVoiceConf(liveMeeting.screenshareModel),
+        getScreenshareConf(liveMeeting.screenshareModel),
+        getRTMPBroadcastingUrl(liveMeeting.screenshareModel),
+        getScreenshareVideoWidth(liveMeeting.screenshareModel),
+        getScreenshareVideoHeight(liveMeeting.screenshareModel),
+        getTimestamp(liveMeeting.screenshareModel)
+      )
+      outGW.send(event)
+    }
+  }
+
 }
 
 class ScreenshareModel {
@@ -90,4 +120,5 @@ class ScreenshareModel {
   private var voiceConf: String = ""
   private var screenshareConf: String = ""
   private var timestamp: String = ""
+  private var hasAudio = false
 }

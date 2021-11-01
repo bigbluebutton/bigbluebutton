@@ -1,45 +1,66 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { makeCall } from '/imports/ui/services/api';
 import { withTracker } from 'meteor/react-meteor-data';
 import Presentations from '/imports/api/presentations';
-import PresentationAreaService from '/imports/ui/components/presentation/service';
+import PresentationService from '/imports/ui/components/presentation/service';
 import Poll from '/imports/ui/components/poll/component';
+import { Session } from 'meteor/session';
 import Service from './service';
+import Auth from '/imports/ui/services/auth';
+import { UsersContext } from '../components-data/users-context/context';
+import { layoutDispatch } from '../layout/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
-const PollContainer = ({ ...props }) => <Poll {...props} />;
+const PollContainer = ({ ...props }) => {
+  const layoutContextDispatch = layoutDispatch();
+
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+
+  const usernames = {};
+
+  Object.values(users[Auth.meetingID]).forEach((user) => {
+    usernames[user.userId] = { userId: user.userId, name: user.name };
+  });
+
+  return <Poll {...{ layoutContextDispatch, ...props }} usernames={usernames} />;
+};
 
 export default withTracker(() => {
-  Meteor.subscribe('current-poll');
+  const isPollSecret = Session.get('secretPoll') || false;
+  Meteor.subscribe('current-poll', isPollSecret);
 
   const currentPresentation = Presentations.findOne({
     current: true,
   }, { fields: { podId: 1 } }) || {};
 
-  const currentSlide = PresentationAreaService.getCurrentSlide(currentPresentation.podId);
+  const currentSlide = PresentationService.getCurrentSlide(currentPresentation.podId);
 
   const pollId = currentSlide ? currentSlide.id : PUBLIC_CHAT_KEY;
 
-  const startPoll = type => makeCall('startPoll', type, pollId);
+  const { pollTypes } = Service;
 
-  const startCustomPoll = (type, answers) => makeCall('startPoll', type, pollId, answers);
+  const startPoll = (type, secretPoll, question = '', isMultipleResponse) => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question, isMultipleResponse);
+
+  const startCustomPoll = (type, secretPoll, question = '', isMultipleResponse, answers) => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question, isMultipleResponse, answers);
 
   const stopPoll = () => makeCall('stopPoll');
 
   return {
     currentSlide,
     amIPresenter: Service.amIPresenter(),
-    pollTypes: Service.pollTypes,
+    pollTypes,
     startPoll,
     startCustomPoll,
     stopPoll,
     publishPoll: Service.publishPoll,
     currentPoll: Service.currentPoll(),
+    isDefaultPoll: Service.isDefaultPoll,
+    checkPollType: Service.checkPollType,
     resetPollPanel: Session.get('resetPollPanel') || false,
     pollAnswerIds: Service.pollAnswerIds,
     isMeteorConnected: Meteor.status().connected,
-    sendGroupMessage: Service.sendGroupMessage,
   };
 })(PollContainer);

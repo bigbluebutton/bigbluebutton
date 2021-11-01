@@ -14,4 +14,4 @@ mkdir -p /var/bigbluebutton/unpublished
 export JAVA_OPTS="${JAVA_OPTS} -Djava.security.egd=file:/dev/./urandom -DsecuritySalt=${SHARED_SECRET} -Dredis.host=redis -DredisHost=redis -Dbigbluebutton.web.serverURL=https://${SERVER_DOMAIN} -DsvgImagesRequired=true"
 sed -i "s|^securerandom\.source=.*|securerandom.source=file:/dev/urandom|g" ${JAVA_HOME}/lib/security/java.security
 
-catalina.sh run
+exec catalina.sh run

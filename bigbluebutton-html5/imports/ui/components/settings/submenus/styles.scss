@@ -94,12 +94,14 @@
   display: flex;
   justify-content: flex-end;
   flex-flow: row;
+  align-items: center;
 }
 
 .pullContentCenter {
   display: flex;
   justify-content: center;
   flex-flow: row;
+  align-items: center;
 }
 
 .separator {

@@ -12,7 +12,7 @@
   --fileLineWidth: 16.75rem;
   --itemActionsWidth:  68px; // size of the 2 icons (check/trash)
   --uploadListHeight: 30vh;
-  --modalInnerWidth: 37.5rem;
+  --modalInnerWidth: 40rem;
 }
 
 @keyframes bar-stripes {
@@ -101,6 +101,10 @@
   [dir="rtl"] & {
     text-align: right;
   }
+}
+
+.notDownloadable {
+	  min-width: 48px;
 }
 
 .tableItemIcon > i {
@@ -370,8 +374,6 @@
 .uploadRow {
   display: flex;
   flex-direction: column;
-  margin-bottom: var(--statusInfoHeight);
-  margin-top: var(--statusInfoHeight);
 }
 
 .textErr,
@@ -389,8 +391,6 @@
   bottom: var(--toast-md-margin);
   position: relative;
   left: var(--border-size-large);
-  max-height: var(--statusInfoHeight);
-  height: var(--statusInfoHeight);
   
   [dir="rtl"] & {
     right: var(--border-size-large);
@@ -475,7 +475,7 @@
 
 .confirm,
 .dismiss {
-  width: 6rem;
+  min-width: 6rem;
   height: 1.875rem;
 }
 
@@ -490,7 +490,7 @@
   height: 100%;
   max-height: var(--uploadListHeight);
   overflow-y: auto;
-  padding-right: 1rem;
+  padding-right: 1.5rem;
   box-sizing: content-box;
   background: none;
 }

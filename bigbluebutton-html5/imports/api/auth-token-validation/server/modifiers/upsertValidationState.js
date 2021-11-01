@@ -1,7 +1,7 @@
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation from '/imports/api/auth-token-validation';
 
-export default function upsertValidationState(meetingId, userId, validationStatus, connectionId) {
+export default function upsertValidationState(meetingId, userId, validationStatus, connectionId, reason = null) {
   const selector = {
     meetingId, userId, connectionId,
   };
@@ -12,18 +12,17 @@ export default function upsertValidationState(meetingId, userId, validationStatu
       connectionId,
       validationStatus,
       updatedAt: new Date().getTime(),
+      reason,
     },
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      Logger.error(`Could not upsert to collection AuthTokenValidation: ${err}`);
-      return;
-    }
-    if (numChanged) {
+  try {
+    const { numberAffected } = AuthTokenValidation.upsert(selector, modifier);
+
+    if (numberAffected) {
       Logger.info(`Upserted ${JSON.stringify(selector)} ${validationStatus} in AuthTokenValidation`);
     }
-  };
-
-  return AuthTokenValidation.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Could not upsert to collection AuthTokenValidation: ${err}`);
+  }
 }

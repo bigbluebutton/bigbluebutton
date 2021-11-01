@@ -8,6 +8,14 @@ object Users2x {
     users.toVector find (u => u.intId == intId)
   }
 
+  def findWithBreakoutRoomId(users: Users2x, breakoutRoomId: String): Option[UserState] = {
+    //userId + "-" + roomSequence
+    val userIdParts = breakoutRoomId.split("-")
+    val userExtId = userIdParts(0)
+
+    users.toVector find (u => u.extId == userExtId)
+  }
+
   def findAll(users: Users2x): Vector[UserState] = users.toVector
 
   def add(users: Users2x, user: UserState): Option[UserState] = {
@@ -42,7 +50,7 @@ object Users2x {
   def findAllExpiredUserLeftFlags(users: Users2x, meetingExpireWhenLastUserLeftInMs: Long): Vector[UserState] = {
     if (meetingExpireWhenLastUserLeftInMs > 0) {
       users.toVector filter (u => u.userLeftFlag.left && u.userLeftFlag.leftOn != 0 &&
-        System.currentTimeMillis() - u.userLeftFlag.leftOn > 1000)
+        System.currentTimeMillis() - u.userLeftFlag.leftOn > 30000)
     } else {
       // When meetingExpireWhenLastUserLeftInMs is set zero we need to
       // remove user right away to end the meeting as soon as possible.
@@ -53,6 +61,10 @@ object Users2x {
 
   def numUsers(users: Users2x): Int = {
     users.toVector.length
+  }
+
+  def numActiveModerators(users: Users2x): Int = {
+    users.toVector.filter(u => u.role == Roles.MODERATOR_ROLE && !u.userLeftFlag.left).length
   }
 
   def findNotPresenters(users: Users2x): Vector[UserState] = {
@@ -68,7 +80,13 @@ object Users2x {
   }
 
   def updateLastUserActivity(users: Users2x, u: UserState): UserState = {
-    val newUserState = modify(u)(_.lastActivityTime).setTo(TimeUtil.timeNowInMs())
+    val newUserState = modify(u)(_.lastActivityTime).setTo(System.currentTimeMillis())
+    users.save(newUserState)
+    newUserState
+  }
+
+  def updateLastInactivityInspect(users: Users2x, u: UserState): UserState = {
+    val newUserState = modify(u)(_.lastInactivityInspect).setTo(System.currentTimeMillis())
     users.save(newUserState)
     newUserState
   }
@@ -257,21 +275,22 @@ case class OldPresenter(userId: String, changedPresenterOn: Long)
 case class UserLeftFlag(left: Boolean, leftOn: Long)
 
 case class UserState(
-    intId:            String,
-    extId:            String,
-    name:             String,
-    role:             String,
-    guest:            Boolean,
-    authed:           Boolean,
-    guestStatus:      String,
-    emoji:            String,
-    locked:           Boolean,
-    presenter:        Boolean,
-    avatar:           String,
-    roleChangedOn:    Long         = System.currentTimeMillis(),
-    lastActivityTime: Long         = TimeUtil.timeNowInMs(),
-    clientType:       String,
-    userLeftFlag:     UserLeftFlag
+    intId:                 String,
+    extId:                 String,
+    name:                  String,
+    role:                  String,
+    guest:                 Boolean,
+    authed:                Boolean,
+    guestStatus:           String,
+    emoji:                 String,
+    locked:                Boolean,
+    presenter:             Boolean,
+    avatar:                String,
+    roleChangedOn:         Long         = System.currentTimeMillis(),
+    lastActivityTime:      Long         = System.currentTimeMillis(),
+    lastInactivityInspect: Long         = 0,
+    clientType:            String,
+    userLeftFlag:          UserLeftFlag
 )
 
 case class UserIdAndName(id: String, name: String)
@@ -300,11 +319,13 @@ object SystemUser {
 }
 
 object EjectReasonCode {
+  val NOT_EJECT = "not_eject_reason"
   val DUPLICATE_USER = "duplicate_user_in_meeting_eject_reason"
   val PERMISSION_FAILED = "not_enough_permission_eject_reason"
   val EJECT_USER = "user_requested_eject_reason"
   val SYSTEM_EJECT_USER = "system_requested_eject_reason"
   val VALIDATE_TOKEN = "validate_token_failed_eject_reason"
   val USER_INACTIVITY = "user_inactivity_eject_reason"
-  val EJECTED_USER_REJOINING = "ejected_user_rejoining_reason"
+  val BANNED_USER_REJOINING = "banned_user_rejoining_reason"
+  val USER_LOGGED_OUT = "user_logged_out_reason"
 }

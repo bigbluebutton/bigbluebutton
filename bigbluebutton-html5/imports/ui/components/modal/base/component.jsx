@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactModal from 'react-modal';
 import { styles } from './styles.scss';
+import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 
 const propTypes = {
   overlayClassName: PropTypes.string.isRequired,
@@ -19,11 +20,29 @@ const defaultProps = {
 };
 
 export default class ModalBase extends Component {
+
+  componentDidMount() {
+    registerTitleView(this.props.contentLabel);
+  }
+
+  componentWillUnmount() {
+    unregisterTitleView();
+  }
+
   render() {
     if (!this.props.isOpen) return null;
 
     return (
-      <ReactModal {...this.props}>
+      <ReactModal
+        {...this.props}
+        parentSelector={() => {
+          if (document.fullscreenElement &&
+            document.fullscreenElement.nodeName &&
+            document.fullscreenElement.nodeName.toLowerCase() === 'div')
+            return document.fullscreenElement;
+          else return document.body;
+        }}
+      >
         {this.props.children}
       </ReactModal>
     );
@@ -46,12 +65,12 @@ export const withModalState = ComponentToWrap =>
       this.show = this.show.bind(this);
     }
 
-    hide(cb = () => {}) {
+    hide(cb = () => { }) {
       Promise.resolve(cb())
         .then(() => this.setState({ isOpen: false }));
     }
 
-    show(cb = () => {}) {
+    show(cb = () => { }) {
       Promise.resolve(cb())
         .then(() => this.setState({ isOpen: true }));
     }

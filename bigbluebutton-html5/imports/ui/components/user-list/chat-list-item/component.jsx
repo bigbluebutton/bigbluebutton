@@ -1,24 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
-import { Session } from 'meteor/session';
 import _ from 'lodash';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import { styles } from './styles';
+import Styled from  './styles';
 import ChatAvatar from './chat-avatar/component';
 import ChatIcon from './chat-icon/component';
 import ChatUnreadCounter from './chat-unread-messages/component';
+import { ACTIONS, PANELS } from '../../layout/enums';
 
 const DEBOUNCE_TIME = 1000;
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
-let globalAppplyStateToProps = ()=>{};
+let globalAppplyStateToProps = () => {};
 
 const throttledFunc = _.debounce(() => {
   globalAppplyStateToProps();
-}, DEBOUNCE_TIME, { trailing: true, leading: false });
+}, DEBOUNCE_TIME, { trailing: true, leading: true });
 
 const intlMessages = defineMessages({
   titlePublic: {
@@ -41,14 +40,13 @@ const propTypes = {
     name: PropTypes.string.isRequired,
     unreadCounter: PropTypes.number.isRequired,
   }).isRequired,
-  activeChatId: PropTypes.string.isRequired,
+  idChatOpen: PropTypes.string.isRequired,
   compact: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   tabIndex: PropTypes.number.isRequired,
   isPublicChat: PropTypes.func.isRequired,
-  chatPanelOpen: PropTypes.bool.isRequired,
   shortcuts: PropTypes.string,
 };
 
@@ -56,37 +54,24 @@ const defaultProps = {
   shortcuts: '',
 };
 
-const handleClickToggleChat = (id) => {
-  Session.set(
-    'openPanel',
-    Session.get('openPanel') === 'chat' && Session.get('idChatOpen') === id
-      ? 'userlist' : 'chat',
-  );
-  if (Session.equals('openPanel', 'chat')) {
-    Session.set('idChatOpen', id);
-  } else {
-    Session.set('idChatOpen', '');
-  }
-  window.dispatchEvent(new Event('panelChanged'));
-};
-
 const ChatListItem = (props) => {
   const {
     chat,
     activeChatId,
+    idChatOpen,
     compact,
     intl,
     tabIndex,
     isPublicChat,
     shortcuts: TOGGLE_CHAT_PUB_AK,
-    chatPanelOpen,
+    sidebarContentIsOpen,
+    sidebarContentPanel,
+    layoutContextDispatch,
   } = props;
 
-  
+  const chatPanelOpen = sidebarContentIsOpen && sidebarContentPanel === PANELS.CHAT;
 
-  const isCurrentChat = chat.userId === activeChatId && chatPanelOpen;
-  const linkClasses = {};
-  linkClasses[styles.active] = isCurrentChat;
+  const isCurrentChat = chat.chatId === activeChatId && chatPanelOpen;
 
   const [stateUreadCount, setStateUreadCount] = useState(0);
 
@@ -100,26 +85,68 @@ const ChatListItem = (props) => {
   }
 
   useEffect(() => {
-    if (chat.userId !== PUBLIC_CHAT_KEY && chat.userId === activeChatId) {
-      Session.set('idChatOpen', chat.chatId);
+    if (chat.userId !== PUBLIC_CHAT_KEY && chat.userId === idChatOpen) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_ID_CHAT_OPEN,
+        value: chat.chatId,
+      });
     }
-  }, [activeChatId]);
+  }, [idChatOpen, sidebarContentIsOpen, sidebarContentPanel, chat]);
+
+  const handleClickToggleChat = () => {
+    // Verify if chat panel is open
+
+    if (sidebarContentIsOpen && sidebarContentPanel === PANELS.CHAT) {
+      if (idChatOpen === chat.chatId) {
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+          value: false,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+          value: PANELS.NONE,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_ID_CHAT_OPEN,
+          value: '',
+        });
+      } else {
+        layoutContextDispatch({
+          type: ACTIONS.SET_ID_CHAT_OPEN,
+          value: chat.chatId,
+        });
+      }
+    } else {
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+        value: true,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.CHAT,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_ID_CHAT_OPEN,
+        value: chat.chatId,
+      });
+    }
+  };
 
   return (
-    <div
+    <Styled.ChatListItem
       data-test="chatButton"
       role="button"
-      className={cx(styles.chatListItem, linkClasses)}
       aria-expanded={isCurrentChat}
+      active={isCurrentChat}
       tabIndex={tabIndex}
       accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
-      onClick={() => handleClickToggleChat(chat.chatId)}
+      onClick={handleClickToggleChat}
       id="chat-toggle-button"
       aria-label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
+      onKeyPress={() => {}}
     >
-
-      <div className={styles.chatListItemLink}>
-        <div className={styles.chatIcon}>
+      <Styled.ChatListItemLink>
+        <Styled.ChatIcon>
           {chat.icon
             ? <ChatIcon icon={chat.icon} />
             : (
@@ -130,25 +157,27 @@ const ChatListItem = (props) => {
                 name={chat.name.toLowerCase().slice(0, 2)}
               />
             )}
-        </div>
-        <div className={styles.chatName}>
+        </Styled.ChatIcon>
+        <Styled.ChatName aria-live="off">
           {!compact
             ? (
-              <span className={styles.chatNameMain}>
+              <Styled.ChatNameMain>
                 {isPublicChat(chat)
                   ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
-              </span>
+              </Styled.ChatNameMain>
             ) : null}
-        </div>
+        </Styled.ChatName>
         {(stateUreadCount > 0)
           ? (
             <ChatUnreadCounter
+              chat={chat}
+              isPublicChat={isPublicChat}
               counter={stateUreadCount}
             />
           )
           : null}
-      </div>
-    </div>
+      </Styled.ChatListItemLink>
+    </Styled.ChatListItem>
   );
 };
 

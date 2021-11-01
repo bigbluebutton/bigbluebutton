@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import fastdom from 'fastdom';
-import { defineMessages, injectIntl } from 'react-intl';
+import { injectIntl } from 'react-intl';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 
 const propTypes = {
@@ -30,18 +30,10 @@ const isElementInViewport = (el) => {
 
   return (
     rect.top >= 0
-    && rect.left >= 0
-    && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
-    && rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    // This condition is for large messages that are bigger than client height
+    || rect.top + rect.height >= 0
   );
 };
-
-const intlMessages = defineMessages({
-  legendTitle: {
-    id: 'app.polling.pollingTitle',
-    description: 'heading for chat poll legend',
-  },
-});
 
 class MessageChatItem extends PureComponent {
   constructor(props) {
@@ -50,8 +42,6 @@ class MessageChatItem extends PureComponent {
     this.ticking = false;
 
     this.handleMessageInViewport = _.debounce(this.handleMessageInViewport.bind(this), 50);
-
-    this.renderPollListItem = this.renderPollListItem.bind(this);
   }
 
   componentDidMount() {
@@ -87,7 +77,6 @@ class MessageChatItem extends PureComponent {
   }
 
   handleMessageInViewport() {
-    
     if (!this.ticking) {
       fastdom.measure(() => {
         const node = this.text;
@@ -102,7 +91,7 @@ class MessageChatItem extends PureComponent {
           return;
         }
 
-        if (isElementInViewport(node) && !read) {
+        if (isElementInViewport(node)) {
           handleReadMessage(time);
           this.removeScrollListeners();
         }
@@ -160,42 +149,6 @@ class MessageChatItem extends PureComponent {
     });
   }
 
-  renderPollListItem() {
-    const {
-      intl,
-      text,
-      className,
-      color,
-      isDefaultPoll,
-    } = this.props;
-
-    const formatBoldBlack = s => s.bold().fontcolor('black');
-
-    let _text = text.replace('bbb-published-poll-<br/>', '');
-
-    if (!isDefaultPoll) {
-      const entries = _text.split('<br/>');
-      const options = [];
-      entries.map((e) => { options.push([e.slice(0, e.indexOf(':'))]); return e; });
-      options.map((o, idx) => {
-        _text = formatBoldBlack(_text.replace(o, idx + 1));
-        return _text;
-      });
-      _text += formatBoldBlack(`<br/><br/>${intl.formatMessage(intlMessages.legendTitle)}`);
-      options.map((o, idx) => { _text += `<br/>${idx + 1}: ${o}`; return _text; });
-    }
-
-    return (
-      <p
-        className={className}
-        style={{ borderLeft: `3px ${color} solid` }}
-        ref={(ref) => { this.text = ref; }}
-        dangerouslySetInnerHTML={{ __html: isDefaultPoll ? formatBoldBlack(_text) : _text }}
-        data-test="chatPollMessageText"
-      />
-    );
-  }
-
   render() {
     const {
       text,
@@ -203,18 +156,30 @@ class MessageChatItem extends PureComponent {
       className,
       isSystemMessage,
       chatUserMessageItem,
+      systemMessageType,
+      color,
     } = this.props;
     ChatLogger.debug('MessageChatItem::render', this.props);
-    if (type === 'poll') return this.renderPollListItem();
-
-    return (
-      <p
-        className={className}
-        ref={(ref) => { this.text = ref; }}
-        dangerouslySetInnerHTML={{ __html: text }}
-        data-test={isSystemMessage ? 'chatWelcomeMessageText' : chatUserMessageItem ? 'chatUserMessageText' : 'chatClearMessageText'}
-      />
-    );
+    if (type === 'poll') {
+      return (
+        <p
+          className={className}
+          style={{ borderLeft: `3px ${color} solid`, whiteSpace: 'pre-wrap' }}
+          ref={(ref) => { this.text = ref; }}
+          dangerouslySetInnerHTML={{ __html: text }}
+          data-test="chatPollMessageText"
+        />
+      );
+    } else {
+      return (
+        <p
+          className={className}
+          ref={(ref) => { this.text = ref; }}
+          dangerouslySetInnerHTML={{ __html: text }}
+          data-test={isSystemMessage ? systemMessageType : chatUserMessageItem ? 'chatUserMessageText' : ''}
+        />
+      );
+    }
   }
 }
 

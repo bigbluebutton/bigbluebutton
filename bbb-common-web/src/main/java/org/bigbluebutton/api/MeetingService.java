@@ -40,6 +40,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.bigbluebutton.api.HTML5LoadBalancingService;
@@ -49,40 +50,19 @@ import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.RegisteredUser;
 import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.domain.UserSession;
+import org.bigbluebutton.api.domain.MeetingLayout;
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.PublishedRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.UnpublishedRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessage;
-import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
-import org.bigbluebutton.api.messaging.messages.CreateMeeting;
-import org.bigbluebutton.api.messaging.messages.EndMeeting;
-import org.bigbluebutton.api.messaging.messages.GuestPolicyChanged;
-import org.bigbluebutton.api.messaging.messages.GuestStatusChangedEventMsg;
-import org.bigbluebutton.api.messaging.messages.GuestsStatus;
-import org.bigbluebutton.api.messaging.messages.IMessage;
-import org.bigbluebutton.api.messaging.messages.MakePresentationDownloadableMsg;
-import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
-import org.bigbluebutton.api.messaging.messages.MeetingEnded;
-import org.bigbluebutton.api.messaging.messages.MeetingStarted;
-import org.bigbluebutton.api.messaging.messages.PresentationUploadToken;
-import org.bigbluebutton.api.messaging.messages.RecordChapterBreak;
-import org.bigbluebutton.api.messaging.messages.RegisterUser;
-import org.bigbluebutton.api.messaging.messages.UpdateRecordingStatus;
-import org.bigbluebutton.api.messaging.messages.UserJoined;
-import org.bigbluebutton.api.messaging.messages.UserJoinedVoice;
-import org.bigbluebutton.api.messaging.messages.UserLeft;
-import org.bigbluebutton.api.messaging.messages.UserLeftVoice;
-import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
-import org.bigbluebutton.api.messaging.messages.UserRoleChanged;
-import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
-import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
-import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
+import org.bigbluebutton.api.messaging.messages.*;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
+import org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier;
 import org.bigbluebutton.web.services.WaitingGuestCleanupTimerTask;
 import org.bigbluebutton.web.services.UserCleanupTimerTask;
 import org.bigbluebutton.web.services.EnteredUserCleanupTimerTask;
@@ -110,6 +90,7 @@ public class MeetingService implements MessageListener {
   private final ConcurrentMap<String, UserSession> sessions;
 
   private RecordingService recordingService;
+  private LearningDashboardService learningDashboardService;
   private WaitingGuestCleanupTimerTask waitingGuestCleaner;
   private UserCleanupTimerTask userCleaner;
   private EnteredUserCleanupTimerTask enteredUserCleaner;
@@ -117,7 +98,7 @@ public class MeetingService implements MessageListener {
   private RedisStorageService storeService;
   private CallbackUrlService callbackUrlService;
   private HTML5LoadBalancingService html5LoadBalancingService;
-  private boolean keepEvents;
+  private SwfSlidesGenerationProgressNotifier notifier;
 
   private long usersTimeout;
   private long enteredUsersTimeout;
@@ -138,7 +119,7 @@ public class MeetingService implements MessageListener {
   public void addUserSession(String token, UserSession user) {
     sessions.put(token, user);
   }
-  
+
   public String getTokenByUserId(String internalUserId) {
       String result = null;
       for (Entry<String, UserSession> e : sessions.entrySet()) {
@@ -162,6 +143,20 @@ public class MeetingService implements MessageListener {
     if (m != null) {
       RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus);
       m.userRegistered(ruser);
+    }
+  }
+
+  public Boolean isPadValid(String padId, String sessionToken) {
+    UserSession us = getUserSessionWithAuthToken(sessionToken);
+    if (us == null) return false;
+
+    Meeting m = getMeeting(us.meetingID);
+    if (m == null) return false;
+
+    if (m.hasPad(padId)) {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -298,6 +293,18 @@ public class MeetingService implements MessageListener {
     return valid;
   }
 
+  public PresentationUploadToken getPresentationUploadToken(String authzToken) {
+    if(uploadAuthzTokens.containsKey(authzToken)) {
+      return uploadAuthzTokens.get(authzToken);
+    } else {
+      return null;
+    }
+  }
+
+  public void sendPresentationUploadMaxFilesizeMessage(PresentationUploadToken presUploadToken, int uploadedFileSize, int maxUploadFileSize) {
+    notifier.sendUploadFileTooLargeMessage(presUploadToken, uploadedFileSize, maxUploadFileSize);
+  }
+
   private void removeUserSessions(String meetingId) {
     Iterator<Map.Entry<String, UserSession>> iterator = sessions.entrySet().iterator();
     while (iterator.hasNext()) {
@@ -339,7 +346,7 @@ public class MeetingService implements MessageListener {
   }
 
   private boolean storeEvents(Meeting m) {
-    return m.isRecord() || keepEvents;
+    return m.isRecord() || m.getMeetingKeepEvents();
   }
 
   private void handleCreateMeeting(Meeting m) {
@@ -387,6 +394,9 @@ public class MeetingService implements MessageListener {
     logData.put("logCode", "create_meeting");
     logData.put("description", "Create meeting.");
 
+    logData.put("meetingKeepEvents", m.getMeetingKeepEvents());
+    logData.put("meetingLayout", m.getMeetingLayout());
+
     Gson gson = new Gson();
     String logStr = gson.toJson(logData);
 
@@ -394,13 +404,15 @@ public class MeetingService implements MessageListener {
 
     gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.isRecord(),
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
-            m.getWebcamsOnlyForModerator(), m.getModeratorPassword(), m.getViewerPassword(), m.getCreateTime(),
+            m.getWebcamsOnlyForModerator(), m.getModeratorPassword(), m.getViewerPassword(),
+            m.getLearningDashboardEnabled(), m.getLearningDashboardAccessToken(), m.getCreateTime(),
             formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(),
-            m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
+            m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getMeetingLayout(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
             m.getDialNumber(), m.getMaxUsers(),
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
-            m.getUserActivitySignResponseDelayInMinutes(), m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), keepEvents,
+            m.getUserActivitySignResponseDelayInMinutes(), m.getEndWhenNoModerator(), m.getEndWhenNoModeratorDelayInMinutes(),
+            m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams,
             m.lockSettingsParams, m.getHtml5InstanceId());
   }
@@ -548,7 +560,7 @@ public class MeetingService implements MessageListener {
   public String getCaptionTrackInboxDir() {
   	return recordingService.getCaptionTrackInboxDir();
   }
-  
+
   public String getCaptionsDir() {
     return recordingService.getCaptionsDir();
   }
@@ -662,7 +674,7 @@ public class MeetingService implements MessageListener {
       log.error(" --analytics-- data={}", logStr);
     }
   }
-  
+
   private void processUpdateRecordingStatus(UpdateRecordingStatus message) {
     Meeting m = getMeeting(message.meetingId);
       // Set only once
@@ -680,7 +692,7 @@ public class MeetingService implements MessageListener {
     if (m != null) {
       m.setForciblyEnded(true);
       processRecording(m);
-      if (keepEvents) {
+      if (m.getMeetingKeepEvents()) {
         // The creation of the ended tag must occur after the creation of the
         // recorded tag to avoid concurrency issues at the recording scripts
         recordingService.markAsEnded(m.getInternalId());
@@ -847,6 +859,11 @@ public class MeetingService implements MessageListener {
         }
       }
 
+      //Remove Learning Dashboard files
+      if(m.getLearningDashboardCleanupDelayInMinutes() > 0) {
+        learningDashboardService.removeJsonDataFile(message.meetingId, m.getLearningDashboardCleanupDelayInMinutes());
+      }
+
       processRemoveEndedMeeting(message);
     }
   }
@@ -939,6 +956,26 @@ public class MeetingService implements MessageListener {
         user.setStatus(message.status, message.value);
       }
     }
+  }
+
+  public void processLearningDashboard(LearningDashboard message) {
+    //Get all data from Json instead of getMeeting(message.meetingId), to process messages received even after meeting ended
+    JsonObject activityJsonObject = new Gson().fromJson(message.activityJson, JsonObject.class).getAsJsonObject();
+    String learningDashboardAccessToken = activityJsonObject.get("learningDashboardAccessToken").getAsString();
+
+    Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("meetingId", activityJsonObject.get("intId").getAsString());
+    logData.put("externalMeetingId", activityJsonObject.get("extId").getAsString());
+    logData.put("name", activityJsonObject.get("name").getAsString());
+    logData.put("logCode", "update_activity_json");
+    logData.put("description", "Updating activities json.");
+
+    Gson gson = new Gson();
+    String logStr = gson.toJson(logData);
+
+    log.info(" --analytics-- data={}", logStr);
+
+    learningDashboardService.writeJsonDataFile(message.meetingId, learningDashboardAccessToken, message.activityJson);
   }
 
   @Override
@@ -1085,12 +1122,20 @@ public class MeetingService implements MessageListener {
           processGuestStatusChangedEventMsg((GuestStatusChangedEventMsg) message);
         } else if (message instanceof GuestPolicyChanged) {
           processGuestPolicyChanged((GuestPolicyChanged) message);
+        } else if (message instanceof GuestLobbyMessageChanged) {
+          processGuestLobbyMessageChanged((GuestLobbyMessageChanged) message);
         } else if (message instanceof RecordChapterBreak) {
           processRecordingChapterBreak((RecordChapterBreak) message);
+        } else if (message instanceof AddPad) {
+          processAddPad((AddPad) message);
+        } else if (message instanceof AddCaptionsPads) {
+          processAddCaptionsPads((AddCaptionsPads) message);
         } else if (message instanceof MakePresentationDownloadableMsg) {
           processMakePresentationDownloadableMsg((MakePresentationDownloadableMsg) message);
         } else if (message instanceof UpdateRecordingStatus) {
           processUpdateRecordingStatus((UpdateRecordingStatus) message);
+        } else if (message instanceof LearningDashboard) {
+          processLearningDashboard((LearningDashboard) message);
         }
       }
     };
@@ -1102,6 +1147,29 @@ public class MeetingService implements MessageListener {
     Meeting m = getMeeting(msg.meetingId);
     if (m != null) {
       m.setGuestPolicy(msg.policy);
+    }
+  }
+
+  public void processGuestLobbyMessageChanged(GuestLobbyMessageChanged msg) {
+    Meeting m = getMeeting(msg.meetingId);
+    if (m != null) {
+      m.setGuestLobbyMessage(msg.message);
+    }
+  }
+
+  public void processAddPad(AddPad msg) {
+    Meeting m = getMeeting(msg.meetingId);
+    if (m != null) {
+      m.addPad(msg.padId, msg.readOnlyId);
+    }
+  }
+
+  public void processAddCaptionsPads(AddCaptionsPads msg) {
+    Meeting m = getMeeting(msg.meetingId);
+    if (m != null) {
+      for (String padId : msg.padIds) {
+        m.addPad(padId, "undefined");
+      }
     }
   }
 
@@ -1153,6 +1221,10 @@ public class MeetingService implements MessageListener {
     recordingService = s;
   }
 
+  public void setLearningDashboardService(LearningDashboardService s) {
+    learningDashboardService = s;
+  }
+
   public void setRedisStorageService(RedisStorageService mess) {
     storeService = mess;
   }
@@ -1187,10 +1259,6 @@ public class MeetingService implements MessageListener {
     stunTurnService = s;
   }
 
-  public void setKeepEvents(boolean value) {
-    keepEvents = value;
-  }
-
   public void setUsersTimeout(long value) {
     usersTimeout = value;
   }
@@ -1198,4 +1266,9 @@ public class MeetingService implements MessageListener {
   public void setEnteredUsersTimeout(long value) {
     enteredUsersTimeout = value;
   }
+
+  public void setSwfSlidesGenerationProgressNotifier(SwfSlidesGenerationProgressNotifier notifier) {
+    this.notifier = notifier;
+  }
+
 }

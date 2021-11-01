@@ -5,7 +5,7 @@ import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   500: {
@@ -30,6 +30,15 @@ const intlMessages = defineMessages({
   },
   400: {
     id: 'app.error.400',
+  },
+  user_logged_out_reason: {
+    id: 'app.error.userLoggedOut',
+  },
+  validate_token_failed_eject_reason: {
+    id: 'app.error.ejectedUser',
+  },
+  banned_user_rejoining_reason: {
+    id: 'app.error.userBanned',
   },
 });
 
@@ -65,25 +74,32 @@ class ErrorScreen extends PureComponent {
       formatedMessage = intl.formatMessage(intlMessages[code]);
     }
 
+    let errorMessageDescription = Session.get('errorMessageDescription');
+
+    if (code === 403 && errorMessageDescription in intlMessages) {
+      errorMessageDescription = intl.formatMessage(intlMessages[errorMessageDescription]);
+    }
+
     return (
-      <div className={styles.background}>
-        <h1 className={styles.message}>
+      <Styled.Background>
+        <Styled.Message data-test="errorScreenMessage">
           {formatedMessage}
-        </h1>
+        </Styled.Message>
         {
-          !Session.get('errorMessageDescription') || (
-            <div className={styles.sessionMessage}>
-              {Session.get('errorMessageDescription')}
-            </div>)
+          !errorMessageDescription || (
+            <Styled.SessionMessage>
+              {errorMessageDescription}
+            </Styled.SessionMessage>
+          )
         }
-        <div className={styles.separator} />
-        <h1 className={styles.codeError}>
+        <Styled.Separator />
+        <Styled.CodeError>
           {code}
-        </h1>
+        </Styled.CodeError>
         <div>
           {children}
         </div>
-      </div>
+      </Styled.Background>
     );
   }
 }

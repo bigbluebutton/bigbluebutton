@@ -117,6 +117,15 @@
   @include presenterIndicator();
 }
 
+.whiteboardAccess {
+  &:before {
+    content: "\00a0\e925\00a0";
+    padding: var(--md-padding-y);
+    border-radius: 50% !important;
+  }
+  @include presenterIndicator();
+}
+
 .voice {
   &:after {
     content: "\00a0\e931\00a0";

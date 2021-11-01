@@ -19,7 +19,7 @@ case class GetGuestsWaitingApprovalRespMsg(
     body:   GetGuestsWaitingApprovalRespMsgBody
 ) extends BbbCoreMsg
 case class GetGuestsWaitingApprovalRespMsgBody(guests: Vector[GuestWaitingVO])
-case class GuestWaitingVO(intId: String, name: String, role: String, guest: Boolean, avatar: String, authenticated: Boolean)
+case class GuestWaitingVO(intId: String, name: String, role: String, guest: Boolean, avatar: String, authenticated: Boolean, registeredOn: Long)
 
 /**
  * Message sent to client for list of guest waiting for approval. This is sent when
@@ -102,6 +102,26 @@ case class GuestPolicyChangedEvtMsg(
     body:   GuestPolicyChangedEvtMsgBody
 ) extends BbbCoreMsg
 case class GuestPolicyChangedEvtMsgBody(policy: String, setBy: String)
+
+/**
+ * Message from user to set the guest lobby message.
+ */
+object SetGuestLobbyMessageCmdMsg { val NAME = "SetGuestLobbyMessageCmdMsg" }
+case class SetGuestLobbyMessageCmdMsg(
+    header: BbbClientMsgHeader,
+    body:   SetGuestLobbyMessageCmdMsgBody
+) extends StandardMsg
+case class SetGuestLobbyMessageCmdMsgBody(message: String)
+
+/**
+ * Message sent to all clients that guest lobby message has been changed.
+ */
+object GuestLobbyMessageChangedEvtMsg { val NAME = "GuestLobbyMessageChangedEvtMsg" }
+case class GuestLobbyMessageChangedEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   GuestLobbyMessageChangedEvtMsgBody
+) extends BbbCoreMsg
+case class GuestLobbyMessageChangedEvtMsgBody(message: String)
 
 /**
  * Message from user to get the guest policy.

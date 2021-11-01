@@ -23,14 +23,21 @@ public class HTML5ProcessLine {
     public int instanceId;
     public double percentageCPU;
 
+    public static final String BBB_HTML5_PROCESS_IDENTIFIER = "NODEJS_BACKEND_INSTANCE_ID";
+
     public HTML5ProcessLine(String input) {
-        // System.out.println("input:" + input);
-        //  0.1 /usr/share/node-v12.16.1-linux-x64/bin/node main.js INFO_INSTANCE_ID=3
+        // $ ps -u meteor -o pcpu,cmd= | grep NODEJS_BACKEND_INSTANCE_ID
+        // 1.1 /usr/share/node-v12.16.1-linux-x64/bin/node --max-old-space-size=2048 --max_semi_space_size=128 main.js NODEJS_BACKEND_INSTANCE_ID=1
+        // 1.0 /usr/share/node-v12.16.1-linux-x64/bin/node --max-old-space-size=2048 --max_semi_space_size=128 main.js NODEJS_BACKEND_INSTANCE_ID=2
 
         String[] a = input.trim().split(" ");
         this.percentageCPU = Double.parseDouble(a[0]);
-        String instanceIdInfo = a[3];
-        this.instanceId = Integer.parseInt(instanceIdInfo.replace("INFO_INSTANCE_ID=", ""));
+
+        for (int i = 0; i < a.length; i++) {
+            if (a[i].toString().indexOf(BBB_HTML5_PROCESS_IDENTIFIER) > -1) {
+                this.instanceId = Integer.parseInt(a[i].replace(BBB_HTML5_PROCESS_IDENTIFIER + "=", ""));
+            }
+        }
     }
 
     public String toString() {

@@ -1,16 +1,45 @@
 import { useContext, useEffect } from 'react';
-import Users from '/imports/api/users';
+import { CurrentUser } from '/imports/api/users';
+import Users from '/imports/ui/local-collections/users-collection/users';
+import UsersPersistentData from '/imports/api/users-persistent-data';
 import { UsersContext, ACTIONS } from './context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 
 const Adapter = () => {
   const usingUsersContext = useContext(UsersContext);
   const { dispatch } = usingUsersContext;
+
+  useEffect(() => {
+    const usersPersistentDataCursor = UsersPersistentData.find({}, { sort: { timestamp: 1 } });
+    usersPersistentDataCursor.observe({
+      added: (obj) => {
+        ChatLogger.debug('usersAdapter::observe::added_persistent_user', obj);
+        dispatch({
+          type: ACTIONS.ADDED_USER_PERSISTENT_DATA,
+          value: {
+            user: obj,
+          },
+        });
+      },
+      changed: (obj) => {
+        ChatLogger.debug('usersAdapter::observe::changed_persistent_user', obj);
+        dispatch({
+          type: ACTIONS.CHANGED_USER_PERSISTENT_DATA,
+          value: {
+            user: obj,
+          },
+        });
+      },
+      removed: () => {},
+    });
+  }, []);
+
   useEffect(() => {
     const usersCursor = Users.find({}, { sort: { timestamp: 1 } });
+    const CurrentUserCursor = CurrentUser.find({});
     usersCursor.observe({
       added: (obj) => {
-        ChatLogger.debug("usersAdapter::observe::added", obj);
+        ChatLogger.debug('usersAdapter::observe::added', obj);
         dispatch({
           type: ACTIONS.ADDED,
           value: {
@@ -26,9 +55,13 @@ const Adapter = () => {
           },
         });
       },
-      removed: (obj) => {
+    });
+
+    CurrentUserCursor.observe({
+      added: (obj) => {
+        ChatLogger.debug('usersAdapter::observe::current-user::added', obj);
         dispatch({
-          type: ACTIONS.REMOVED,
+          type: ACTIONS.ADDED,
           value: {
             user: obj,
           },

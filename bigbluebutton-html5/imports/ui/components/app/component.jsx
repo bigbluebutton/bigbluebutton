@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Modal from 'react-modal';
-import browser from 'browser-detect';
-import PanelManager from '/imports/ui/components/panel-manager/component';
+import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
 import UserInfoContainer from '/imports/ui/components/user-info/container';
 import BreakoutRoomInvitation from '/imports/ui/components/breakout-room/invitation/container';
+import { Meteor } from 'meteor/meteor';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -23,16 +24,32 @@ import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
-import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
-import { styles } from './styles';
+import NewWebcamContainer from '../webcam/container';
+import PresentationAreaContainer from '../presentation/presentation-area/container';
+import ScreenshareContainer from '../screenshare/container';
+import ExternalVideoContainer from '../external-video-player/container';
+import styles from './styles.scss';
+import Styled from './styles';
+import { DEVICE_TYPE, ACTIONS } from '../layout/enums';
+import {
+  isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
+} from '../layout/utils';
+import LayoutEngine from '../layout/layout-manager/layoutEngine';
+import NavBarContainer from '../nav-bar/container';
+import SidebarNavigationContainer from '../sidebar-navigation/container';
+import SidebarContentContainer from '../sidebar-content/container';
 import { makeCall } from '/imports/ui/services/api';
-import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
+import ConnectionStatusService from '/imports/ui/components/connection-status/service';
+import { NAVBAR_HEIGHT, LARGE_NAVBAR_HEIGHT } from '/imports/ui/components/layout/defaultValues';
+import Settings from '/imports/ui/services/settings';
+import LayoutService from '/imports/ui/components/layout/service';
+import { registerTitleView } from '/imports/utils/dom-utils';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
-const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
+const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -42,10 +59,6 @@ const intlMessages = defineMessages({
   chatLabel: {
     id: 'app.chat.label',
     description: 'Aria-label for Chat Section',
-  },
-  mediaLabel: {
-    id: 'app.media.label',
-    description: 'Aria-label for Media Section',
   },
   actionsBarLabel: {
     id: 'app.actionsBar.label',
@@ -63,6 +76,14 @@ const intlMessages = defineMessages({
     id: 'app.toast.setEmoji.label',
     description: 'message when a user emoji has been set',
   },
+  raisedHand: {
+    id: 'app.toast.setEmoji.raiseHand',
+    description: 'toast message for raised hand notification',
+  },
+  loweredHand: {
+    id: 'app.toast.setEmoji.lowerHand',
+    description: 'toast message for lowered hand notification',
+  },
   meetingMuteOn: {
     id: 'app.toast.meetingMuteOn.label',
     description: 'message used when meeting has been muted',
@@ -75,61 +96,102 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.annotations.poll',
     description: 'message displayed when a poll is published',
   },
+  defaultViewLabel: {
+    id: 'app.title.defaultViewLabel',
+    description: 'view name apended to document title',
+  },
 });
 
 const propTypes = {
   navbar: PropTypes.element,
   sidebar: PropTypes.element,
-  media: PropTypes.element,
   actionsbar: PropTypes.element,
   captions: PropTypes.element,
   locale: PropTypes.string,
-  intl: PropTypes.object.isRequired,
 };
 
 const defaultProps = {
   navbar: null,
   sidebar: null,
-  media: null,
   actionsbar: null,
   captions: null,
-  locale: 'en',
+  locale: OVERRIDE_LOCALE || navigator.language,
 };
 
 const LAYERED_BREAKPOINT = 640;
 const isLayeredView = window.matchMedia(`(max-width: ${LAYERED_BREAKPOINT}px)`);
 
 class App extends Component {
-  constructor() {
-    super();
+  static renderWebcamsContainer() {
+    return <NewWebcamContainer />;
+  }
+
+  constructor(props) {
+    super(props);
     this.state = {
       enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
     };
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
-    this.renderMedia = withDraggableContext(this.renderMedia.bind(this));
+    this.renderWebcamsContainer = App.renderWebcamsContainer.bind(this);
+
+    this.throttledDeviceType = throttle(() => this.setDeviceType(),
+      50, { trailing: true, leading: true }).bind(this);
   }
 
   componentDidMount() {
     const {
-      locale, notify, intl, validIOSVersion, startBandwidthMonitoring, handleNetworkConnection,
+      locale,
+      notify,
+      intl,
+      validIOSVersion,
+      layoutContextDispatch,
+      meetingLayout,
+      settingsLayout,
+      isRTL,
+      hidePresentation,
     } = this.props;
-    const BROWSER_RESULTS = browser();
-    const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
+    const { browserName } = browserInfo;
+    const { osName } = deviceInfo;
 
-    MediaService.setSwapLayout();
+    registerTitleView(intl.formatMessage(intlMessages.defaultViewLabel));
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_IS_RTL,
+      value: isRTL,
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+      value: !hidePresentation,
+    });
+
+    MediaService.setSwapLayout(layoutContextDispatch);
     Modal.setAppElement('#app');
+
+    const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
     document.getElementsByTagName('html')[0].lang = locale;
-    document.getElementsByTagName('html')[0].style.fontSize = isMobileBrowser ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
+    document.getElementsByTagName('html')[0].style.fontSize = fontSize;
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_FONT_SIZE,
+      value: parseInt(fontSize.slice(0, -2), 10),
+    });
+
+    const currentLayout = settingsLayout || meetingLayout;
+
+    Settings.application.selectedLayout = currentLayout;
+    Settings.save();
 
     const body = document.getElementsByTagName('body')[0];
-    if (BROWSER_RESULTS && BROWSER_RESULTS.name) {
-      body.classList.add(`browser-${BROWSER_RESULTS.name}`);
+
+    if (browserName) {
+      body.classList.add(`browser-${browserName.split(' ').pop()
+        .toLowerCase()}`);
     }
-    if (BROWSER_RESULTS && BROWSER_RESULTS.os) {
-      body.classList.add(`os-${BROWSER_RESULTS.os.split(' ').shift().toLowerCase()}`);
-    }
+
+    body.classList.add(`os-${osName.split(' ').shift().toLowerCase()}`);
 
     if (!validIOSVersion()) {
       notify(
@@ -139,19 +201,18 @@ class App extends Component {
 
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
-    window.ondragover = function (e) { e.preventDefault(); };
-    window.ondrop = function (e) { e.preventDefault(); };
+    window.addEventListener('localeChanged', () => {
+      layoutContextDispatch({
+        type: ACTIONS.SET_IS_RTL,
+        value: Settings.application.isRTL,
+      });
+    });
+    window.ondragover = (e) => { e.preventDefault(); };
+    window.ondrop = (e) => { e.preventDefault(); };
 
-    if (ENABLE_NETWORK_MONITORING) {
-      if (navigator.connection) {
-        handleNetworkConnection();
-        navigator.connection.addEventListener('change', handleNetworkConnection);
-      }
+    if (isMobile()) makeCall('setMobileUser');
 
-      startBandwidthMonitoring();
-    }
-
-    if (isMobileBrowser) makeCall('setMobileUser');
+    ConnectionStatusService.startRoundTripTime();
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
@@ -164,20 +225,59 @@ class App extends Component {
       intl,
       hasPublishedPoll,
       randomlySelectedUser,
-      currentUserId,
       mountModal,
+      deviceType,
+      isPresenter,
+      meetingLayout,
+      settingsLayout,
+      layoutType,
+      pushLayoutToEveryone,
+      layoutContextDispatch,
     } = this.props;
 
-    if (randomlySelectedUser === currentUserId) mountModal(<RandomUserSelectContainer />);
+    if (meetingLayout !== prevProps.meetingLayout) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_TYPE,
+        value: meetingLayout,
+      });
+
+      Settings.application.selectedLayout = meetingLayout;
+      Settings.save();
+    }
+
+    if (settingsLayout !== prevProps.settingsLayout
+      || settingsLayout !== layoutType) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_TYPE,
+        value: settingsLayout,
+      });
+
+      if (pushLayoutToEveryone) {
+        LayoutService.setMeetingLayout(settingsLayout);
+      }
+    }
+
+    if (!isPresenter && randomlySelectedUser.length > 0) mountModal(<RandomUserSelectContainer />);
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
-      || currentUserEmoji.status;
+        || currentUserEmoji.status;
+
+      const raisedHand = currentUserEmoji.status === 'raiseHand';
+
+      let statusLabel = '';
+      if (currentUserEmoji.status === 'none') {
+        statusLabel = prevProps.currentUserEmoji.status === 'raiseHand'
+          ? intl.formatMessage(intlMessages.loweredHand)
+          : intl.formatMessage(intlMessages.clearedEmoji);
+      } else {
+        statusLabel = raisedHand
+          ? intl.formatMessage(intlMessages.raisedHand)
+          : intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus }));
+      }
 
       notify(
-        currentUserEmoji.status === 'none'
-          ? intl.formatMessage(intlMessages.clearedEmoji)
-          : intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus })),
+        statusLabel,
         'info',
         currentUserEmoji.status === 'none'
           ? 'clear_status'
@@ -199,14 +299,13 @@ class App extends Component {
         intl.formatMessage(intlMessages.pollPublishedLabel), 'info', 'polling',
       );
     }
+
+    if (deviceType === null || prevProps.deviceType !== deviceType) this.throttledDeviceType();
   }
 
   componentWillUnmount() {
-    const { handleNetworkConnection } = this.props;
     window.removeEventListener('resize', this.handleWindowResize, false);
-    if (navigator.connection) {
-      navigator.connection.addEventListener('change', handleNetworkConnection, false);
-    }
+    ConnectionStatusService.stopRoundTripTime();
   }
 
   handleWindowResize() {
@@ -215,87 +314,54 @@ class App extends Component {
     if (enableResize === shouldEnableResize) return;
 
     this.setState({ enableResize: shouldEnableResize });
+    this.throttledDeviceType();
+  }
+
+  setDeviceType() {
+    const { deviceType, layoutContextDispatch } = this.props;
+    let newDeviceType = null;
+    if (isMobile()) newDeviceType = DEVICE_TYPE.MOBILE;
+    if (isTablet()) newDeviceType = DEVICE_TYPE.TABLET;
+    if (isTabletPortrait()) newDeviceType = DEVICE_TYPE.TABLET_PORTRAIT;
+    if (isTabletLandscape()) newDeviceType = DEVICE_TYPE.TABLET_LANDSCAPE;
+    if (isDesktop()) newDeviceType = DEVICE_TYPE.DESKTOP;
+
+    if (newDeviceType !== deviceType) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_DEVICE_TYPE,
+        value: newDeviceType,
+      });
+    }
   }
 
   shouldAriaHide() {
-    const { openPanel, isPhone } = this.props;
-    return openPanel !== '' && (isPhone || isLayeredView.matches);
-  }
-
-  renderPanel() {
-    const { enableResize } = this.state;
-    const { openPanel, isRTL } = this.props;
-
-    return (
-      <PanelManager
-        {...{
-          openPanel,
-          enableResize,
-          isRTL,
-        }}
-        shouldAriaHide={this.shouldAriaHide}
-      />
-    );
-  }
-
-  renderNavBar() {
-    const { navbar } = this.props;
-
-    if (!navbar) return null;
-
-    return (
-      <header
-        className={styles.navbar}
-        style={{
-          height: NAVBAR_HEIGHT,
-        }}
-      >
-        {navbar}
-      </header>
-    );
-  }
-
-  renderSidebar() {
-    const { sidebar } = this.props;
-
-    if (!sidebar) return null;
-
-    return (
-      <aside className={styles.sidebar}>
-        {sidebar}
-      </aside>
-    );
+    const { sidebarNavigationIsOpen, sidebarContentIsOpen, isPhone } = this.props;
+    return sidebarNavigationIsOpen
+      && sidebarContentIsOpen
+      && (isPhone || isLayeredView.matches);
   }
 
   renderCaptions() {
-    const { captions } = this.props;
+    const {
+      captions,
+      captionsStyle,
+    } = this.props;
 
     if (!captions) return null;
 
     return (
-      <div className={styles.captionsWrapper}>
-        {captions}
-      </div>
-    );
-  }
-
-  renderMedia() {
-    const {
-      media,
-      intl,
-    } = this.props;
-
-    if (!media) return null;
-
-    return (
-      <section
-        className={styles.media}
-        aria-label={intl.formatMessage(intlMessages.mediaLabel)}
-        aria-hidden={this.shouldAriaHide()}
+      <Styled.CaptionsWrapper
+        style={
+          {
+            position: 'absolute',
+            left: captionsStyle.left,
+            right: captionsStyle.right,
+            maxWidth: captionsStyle.maxWidth,
+          }
+        }
       >
-        {media}
-        {this.renderCaptions()}
-      </section>
+        {captions}
+      </Styled.CaptionsWrapper>
     );
   }
 
@@ -303,18 +369,29 @@ class App extends Component {
     const {
       actionsbar,
       intl,
+      actionsBarStyle,
+      hideActionsBar,
     } = this.props;
 
-    if (!actionsbar) return null;
+    if (!actionsbar || hideActionsBar) return null;
 
     return (
-      <section
-        className={styles.actionsbar}
+      <Styled.ActionsBar
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={this.shouldAriaHide()}
+        style={
+          {
+            position: 'absolute',
+            top: actionsBarStyle.top,
+            left: actionsBarStyle.left,
+            height: actionsBarStyle.height,
+            width: actionsBarStyle.width,
+            padding: actionsBarStyle.padding,
+          }
+        }
       >
         {actionsbar}
-      </section>
+      </Styled.ActionsBar>
     );
   }
 
@@ -327,7 +404,8 @@ class App extends Component {
       <ActivityCheckContainer
         inactivityCheck={inactivityCheck}
         responseDelay={responseDelay}
-      />) : null);
+      />
+    ) : null);
   }
 
   renderUserInformation() {
@@ -338,42 +416,71 @@ class App extends Component {
         UserInfo={UserInfo}
         requesterUserId={User.userId}
         meetingId={User.meetingId}
-      />) : null);
+      />
+    ) : null);
   }
 
   render() {
     const {
-      customStyle, customStyleUrl, openPanel, layoutContextState
+      customStyle,
+      customStyleUrl,
+      audioAlertEnabled,
+      pushAlertEnabled,
+      shouldShowPresentation,
+      shouldShowScreenshare,
+      shouldShowExternalVideo,
+      isPresenter,
+      layoutType,
     } = this.props;
+
     return (
-      <main className={styles.main}>
-        {this.renderActivityCheck()}
-        {this.renderUserInformation()}
-        <BannerBarContainer />
-        <NotificationsBarContainer />
-        <section className={styles.wrapper}>
-          <div className={openPanel ? styles.content : styles.noPanelContent}>
-            {this.renderNavBar()}
-            {this.renderMedia()}
-            {this.renderActionsBar()}
-          </div>
-          {this.renderPanel()}
-          {this.renderSidebar()}
-        </section>
-        <UploaderContainer />
-        <BreakoutRoomInvitation />
-        {!layoutContextState.presentationIsFullscreen && <PollingContainer />}
-        <ModalContainer />
-        <AudioContainer />
-        <ToastContainer rtl />
-        <ChatAlertContainer />
-        <WaitingNotifierContainer />
-        <LockNotifier />
-        <StatusNotifier status="raiseHand" />
-        <ManyWebcamsNotifier />
-        {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
-        {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
-      </main>
+      <>
+        <LayoutEngine layoutType={layoutType} />
+        <Styled.Layout
+          id="layout"
+          style={{
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          {this.renderActivityCheck()}
+          {this.renderUserInformation()}
+          <BannerBarContainer />
+          <NotificationsBarContainer />
+          <SidebarNavigationContainer />
+          <SidebarContentContainer />
+          <NavBarContainer main="new" />
+          {this.renderWebcamsContainer()}
+          {shouldShowPresentation ? <PresentationAreaContainer /> : null}
+          {shouldShowScreenshare ? <ScreenshareContainer /> : null}
+          {
+            shouldShowExternalVideo
+              ? <ExternalVideoContainer isPresenter={isPresenter} />
+              : null
+          }
+          {this.renderCaptions()}
+          <UploaderContainer />
+          <BreakoutRoomInvitation />
+          <AudioContainer />
+          <ToastContainer rtl />
+          {(audioAlertEnabled || pushAlertEnabled)
+            && (
+              <ChatAlertContainer
+                audioAlertEnabled={audioAlertEnabled}
+                pushAlertEnabled={pushAlertEnabled}
+              />
+            )}
+          <WaitingNotifierContainer />
+          <LockNotifier />
+          <StatusNotifier status="raiseHand" />
+          <ManyWebcamsNotifier />
+          <PollingContainer />
+          <ModalContainer />
+          {this.renderActionsBar()}
+          {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
+          {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
+        </Styled.Layout>
+      </>
     );
   }
 }

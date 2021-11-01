@@ -42,23 +42,30 @@ def parse_meeting_id(done_file)
   end
 end
 
-def keep_meeting_events(recording_dir, ended_done_file)
-  id = File.basename(ended_done_file, '.done')
-  BigBlueButton.logger.debug("Seen new ended done file for #{id}")
-  attrs = parse_meeting_id(id)
+def keep_meeting_events(recording_dir, file, from_archive)
+  # When keeping events from archive:
+  #   - <meeting_id>.done
+  #   - <meeting_id>.norecord
+  id = File.basename(file).split('.').first
+  attrs = parse_meeting_id("#{id}.done") # Inject .done to use the same parser
   return if attrs.nil?
 
-  # If a meeting was recorded, the events will be archived by the archive step, and
-  # the events script will be run after that (it'll grab the already archived events
-  # from the recording raw directory)
-  if File.exist?("#{recording_dir}/status/recorded/#{id}.done") || File.exist?("#{recording_dir}/raw/#{attrs[:meeting_id]}")
-    BigBlueButton.logger.info("Meeting #{id} had recording enabled, events will be handled after recording archive")
-    return
-  end
+  if from_archive
+    ended_done_file = "#{recording_dir}/status/ended/#{attrs[:meeting_id]}.done"
+    # Skip if keep events is not enabled for this meeting
+    return unless File.exist?(ended_done_file)
 
-  BigBlueButton.logger.info("Enqueueing job to keep events #{attrs.inspect}")
-  Resque.enqueue(BigBlueButton::Resque::EventsWorker, attrs)
-  FileUtils.rm_f(ended_done_file)
+    BigBlueButton.logger.info("Enqueueing job to keep events from archive #{attrs.inspect}")
+    Resque.enqueue(BigBlueButton::Resque::EventsWorker, attrs)
+  else
+    recorded_done_file = "#{recording_dir}/status/recorded/#{attrs[:meeting_id]}.done"
+    raw_dir = "#{recording_dir}/raw/#{attrs[:meeting_id]}"
+    # Skip if events will be archived
+    return if File.exist?(recorded_done_file) || File.exist?(raw_dir)
+
+    BigBlueButton.logger.info("Enqueueing job to keep events #{attrs.inspect}")
+    Resque.enqueue(BigBlueButton::Resque::EventsWorker, attrs)
+  end
 end
 
 def archive_recorded_meetings(recording_dir, done_file)
@@ -86,14 +93,7 @@ begin
   BigBlueButton.logger.debug('Running rap-starter...')
 
   recording_dir = props['recording_dir']
-  ended_status_dir = "#{recording_dir}/status/ended"
   recorded_status_dir = "#{recording_dir}/status/recorded"
-
-  # Check for missed "ended" .done files
-  ended_done_files = Dir.glob("#{ended_status_dir}/*.done")
-  ended_done_files.each do |ended_done_file|
-    keep_meeting_events(recording_dir, ended_done_file)
-  end
 
   # Check for missed "recorded" .done files
   recorded_done_files = Dir.glob("#{recorded_status_dir}/*.done")
@@ -101,14 +101,37 @@ begin
     archive_recorded_meetings(recording_dir, recorded_done_file)
   end
 
+  ended_status_dir = "#{recording_dir}/status/ended"
+
+  # Check for missed "ended" .done files
+  ended_done_files = Dir.glob("#{ended_status_dir}/*.done")
+  ended_done_files.each do |ended_done_file|
+    keep_meeting_events(recording_dir, ended_done_file, false)
+  end
+
   # Listen the directories for when new files are created
-  BigBlueButton.logger.info("Setting up inotify watch on #{ended_status_dir}")
   notifier = INotify::Notifier.new
+
+  # - record=false
+  # - events.xml will be created from redis records
+  BigBlueButton.logger.info("Setting up inotify watch on #{ended_status_dir}")
   notifier.watch(ended_status_dir, :moved_to, :create) do |event|
     next unless event.name.end_with?('.done')
 
-    keep_meeting_events(recording_dir, event.absolute_name)
+    keep_meeting_events(recording_dir, event.absolute_name, false)
   end
+
+  archived_status_dir = "#{recording_dir}/status/archived"
+
+  # - record=true
+  # - events.xml will be copied from archived
+  BigBlueButton.logger.info("Setting up inotify watch on #{archived_status_dir}")
+  notifier.watch(archived_status_dir, :moved_to, :create) do |event|
+    next if event.name.end_with?('.fail')
+
+    keep_meeting_events(recording_dir, event.absolute_name, true)
+  end
+
   BigBlueButton.logger.info("Setting up inotify watch on #{recorded_status_dir}")
   notifier.watch(recorded_status_dir, :moved_to, :create) do |event|
     next unless event.name.end_with?('.done')

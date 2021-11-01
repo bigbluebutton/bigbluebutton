@@ -84,6 +84,7 @@ trait HandlerHelpers extends SystemConfiguration {
             outGW.send(event)
             val newState = startRecordingIfAutoStart2x(outGW, liveMeeting, state)
             if (!Users2x.hasPresenter(liveMeeting.users2x)) {
+              // println(s"userJoinMeeting will trigger an automaticallyAssignPresenter for user=${newUser}")
               UsersApp.automaticallyAssignPresenter(outGW, liveMeeting)
             }
             newState.update(newState.expiryTracker.setUserHasJoined())
@@ -205,12 +206,12 @@ trait HandlerHelpers extends SystemConfiguration {
     outGW.send(event)
   }
 
-  def endAllBreakoutRooms(eventBus: InternalEventBus, liveMeeting: LiveMeeting, state: MeetingState2x): MeetingState2x = {
+  def endAllBreakoutRooms(eventBus: InternalEventBus, liveMeeting: LiveMeeting, state: MeetingState2x, reason: String): MeetingState2x = {
     for {
       model <- state.breakout
     } yield {
       model.rooms.values.foreach { room =>
-        eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(liveMeeting.props.breakoutProps.parentId, room.id)))
+        eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(liveMeeting.props.breakoutProps.parentId, room.id, reason)))
       }
     }
 

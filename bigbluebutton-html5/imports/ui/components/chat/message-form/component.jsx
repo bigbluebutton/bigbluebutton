@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import TextareaAutosize from 'react-autosize-textarea';
-import browser from 'browser-detect';
+import deviceInfo from '/imports/utils/deviceInfo';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import TypingIndicatorContainer from './typing-indicator/container';
@@ -80,8 +80,6 @@ class MessageForm extends PureComponent {
       hasErrors: false,
     };
 
-    this.BROWSER_RESULTS = browser();
-
     this.handleMessageChange = this.handleMessageChange.bind(this);
     this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -91,11 +89,11 @@ class MessageForm extends PureComponent {
   }
 
   componentDidMount() {
-    const { mobile } = this.BROWSER_RESULTS;
+    const { isMobile } = deviceInfo;
     this.setMessageState();
     this.setMessageHint();
 
-    if (!mobile) {
+    if (!isMobile) {
       if (this.textarea) this.textarea.focus();
     }
   }
@@ -108,9 +106,9 @@ class MessageForm extends PureComponent {
       partnerIsLoggedOut,
     } = this.props;
     const { message } = this.state;
-    const { mobile } = this.BROWSER_RESULTS;
+    const { isMobile } = deviceInfo;
 
-    if (prevProps.chatId !== chatId && !mobile) {
+    if (prevProps.chatId !== chatId && !isMobile) {
       if (this.textarea) this.textarea.focus();
     }
 
@@ -242,7 +240,7 @@ class MessageForm extends PureComponent {
     if (disabled
       || msg.length > maxMessageLength) {
       this.setState({ hasErrors: true });
-      return false;
+      return;
     }
 
     // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
@@ -253,13 +251,8 @@ class MessageForm extends PureComponent {
 
     const callback = this.typingIndicator ? stopUserTyping : null;
 
-    return (
-      handleSendMessage(msg),
-      this.setState({
-        message: '',
-        hasErrors: false,
-      }, callback)
-    );
+    handleSendMessage(msg);
+    this.setState({ message: '', hasErrors: false }, callback);
   }
 
   render() {
@@ -269,7 +262,8 @@ class MessageForm extends PureComponent {
       title,
       disabled,
       className,
-      chatAreaId,
+      idChatOpen,
+      partnerIsLoggedOut,
     } = this.props;
 
     const { hasErrors, error, message } = this.state;
@@ -286,17 +280,16 @@ class MessageForm extends PureComponent {
             id="message-input"
             innerRef={(ref) => { this.textarea = ref; return this.textarea; }}
             placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: title })}
-            aria-controls={chatAreaId}
             aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
             aria-invalid={hasErrors ? 'true' : 'false'}
-            aria-describedby={hasErrors ? 'message-input-error' : null}
             autoCorrect="off"
             autoComplete="off"
             spellCheck="true"
-            disabled={disabled}
+            disabled={disabled || partnerIsLoggedOut}
             value={message}
             onChange={this.handleMessageChange}
             onKeyDown={this.handleMessageKeyDown}
+            async
           />
           <Button
             hideLabel
@@ -304,15 +297,15 @@ class MessageForm extends PureComponent {
             className={styles.sendButton}
             aria-label={intl.formatMessage(messages.submitLabel)}
             type="submit"
-            disabled={disabled}
+            disabled={disabled || partnerIsLoggedOut}
             label={intl.formatMessage(messages.submitLabel)}
             color="primary"
             icon="send"
-            onClick={() => {}}
+            onClick={() => { }}
             data-test="sendMessageButton"
           />
         </div>
-        <TypingIndicatorContainer {...{ error }} />
+        <TypingIndicatorContainer {...{ idChatOpen, error }} />
       </form>
     ) : null;
   }

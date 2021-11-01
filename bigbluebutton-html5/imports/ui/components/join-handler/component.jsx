@@ -7,7 +7,7 @@ import { setCustomLogoUrl, setModeratorOnlyMessage } from '/imports/ui/component
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
-import Users from '/imports/api/users';
+import { CurrentUser } from '/imports/api/users';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -45,7 +45,6 @@ class JoinHandler extends Component {
 
       logger.debug(`Initial connection status change. status: ${status}, connected: ${connected}`);
       if (connected) {
-
         const msToConnect = (new Date() - this.firstJoinTime) / 1000;
         const secondsToConnect = parseFloat(msToConnect).toFixed(2);
 
@@ -163,7 +162,7 @@ class JoinHandler extends Component {
 
       return new Promise((resolve) => {
         if (customdata.length) {
-          makeCall('addUserSettings', customdata).then(r => resolve(r));
+          makeCall('addUserSettings', customdata).then((r) => resolve(r));
         }
         resolve(true);
       });
@@ -191,8 +190,8 @@ class JoinHandler extends Component {
       setModOnlyMessage(response);
 
       Tracker.autorun(async (cd) => {
-        const user = Users.findOne({ userId: Auth.userID, approved: true }, { fields: { _id: 1 } });
-
+        const user = CurrentUser
+          .findOne({ userId: Auth.userID, approved: true }, { fields: { _id: 1 } });
         if (user) {
           await setCustomData(response);
           cd.stop();

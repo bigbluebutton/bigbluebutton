@@ -11,22 +11,20 @@ import TimeWindowChatItem from './time-window-chat-item/container';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
+const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
 
 const propTypes = {
   scrollPosition: PropTypes.number,
   chatId: PropTypes.string.isRequired,
-  hasUnreadMessages: PropTypes.bool.isRequired,
   handleScrollUpdate: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   id: PropTypes.string.isRequired,
-  lastReadMessageTime: PropTypes.number,
 };
 
 const defaultProps = {
   scrollPosition: null,
-  lastReadMessageTime: 0,
 };
 
 const intlMessages = defineMessages({
@@ -45,12 +43,12 @@ class TimeWindowList extends PureComponent {
     this.cache = new CellMeasurerCache({
       fixedWidth: true,
       minHeight: 18,
-      keyMapper: (rowIndex, columnIndex) => {
+      keyMapper: (rowIndex) => {
         const { timeWindowsValues } = this.props;
         const timewindow = timeWindowsValues[rowIndex];
 
-        const key = timewindow.key;
-        const contentCount = timewindow.content.length;
+        const key = timewindow?.key;
+        const contentCount = timewindow?.content?.length;
         return `${key}-${contentCount}`;
       },
     });
@@ -65,23 +63,28 @@ class TimeWindowList extends PureComponent {
       scrollPosition: 0,
       userScrolledBack: false,
       lastMessage: {},
+      fontsLoaded: false,
     };
-    this.welcomeMessageIndex = -1;
+    this.systemMessageIndexes = [];
 
     this.listRef = null;
     this.virualRef = null;
 
     this.lastWidth = 0;
 
-    this.scrollInterval = null;
+    document.fonts.onloadingdone = () => this.setState({fontsLoaded: true});
   }
 
   componentDidMount() {
-    // TODO: re-implement scroll to position using virtualized list    
+    const { scrollPosition: scrollProps } = this.props;
+
+    this.setState({
+      scrollPosition: scrollProps,
+    });
   }
 
   componentDidUpdate(prevProps) {
-    ChatLogger.debug('TimeWindowList::componentDidUpdate', {...this.props}, {...prevProps});
+    ChatLogger.debug('TimeWindowList::componentDidUpdate', { ...this.props }, { ...prevProps });
     if (this.virualRef) {
       if (this.virualRef.style.direction !== document.documentElement.dir) {
         this.virualRef.style.direction = document.documentElement.dir;
@@ -93,35 +96,67 @@ class TimeWindowList extends PureComponent {
       setUserSentMessage,
       timeWindowsValues,
       chatId,
+      syncing,
+      syncedPercent,
+      lastTimeWindowValuesBuild,
+      scrollPosition: scrollProps,
+      count,
     } = this.props;
 
-    const {timeWindowsValues: prevTimeWindowsValues, chatId: prevChatId} = prevProps;
+    const { userScrolledBack } = this.state;
+
+    if((count > 0 && !userScrolledBack) || userSentMessage || !scrollProps) {
+      const lastItemIndex = timeWindowsValues.length - 1;
+
+      this.setState({
+        scrollPosition: lastItemIndex,
+      }, ()=> this.handleScrollUpdate(lastItemIndex));
+    }
+
+    const {
+      timeWindowsValues: prevTimeWindowsValues,
+      chatId: prevChatId,
+      syncing: prevSyncing,
+      syncedPercent: prevSyncedPercent
+    } = prevProps;
+
+    if (prevChatId !== chatId) {
+      this.setState({
+        scrollPosition: scrollProps,
+      });
+    }
 
     const prevTimeWindowsLength = prevTimeWindowsValues.length;
     const timeWindowsValuesLength = timeWindowsValues.length;
     const prevLastTimeWindow = prevTimeWindowsValues[prevTimeWindowsLength - 1];
     const lastTimeWindow = timeWindowsValues[prevTimeWindowsLength - 1];
 
-    if ((lastTimeWindow && (prevLastTimeWindow?.content.length !== lastTimeWindow?.content.length))) {
+    if ((lastTimeWindow
+      && (prevLastTimeWindow?.content.length !== lastTimeWindow?.content.length))) {
       if (this.listRef) {
-        this.cache.clear(timeWindowsValuesLength-1);
-        this.listRef.recomputeRowHeights(timeWindowsValuesLength-1);
-      }  
+        this.cache.clear(timeWindowsValuesLength - 1);
+        this.listRef.recomputeRowHeights(timeWindowsValuesLength - 1);
+      }
     }
 
-    if (lastTimeWindow && (chatId !== prevChatId)) {
-      this.listRef.recomputeGridSize();
-    }
-
-    if (userSentMessage && !prevProps.userSentMessage){
+    if (userSentMessage && !prevProps.userSentMessage) {
       this.setState({
         userScrolledBack: false,
-      }, ()=> setUserSentMessage(false));
+      }, () => setUserSentMessage(false));
     }
-  }
 
-  componentWillUnmount() {
-    clearInterval(this.scrollInterval);
+    // this condition exist to the case where the chat has a single message and the chat is cleared
+    // The component List from react-virtualized doesn't have a reference to the list of messages
+    // so I need force the update to fix it
+    if (
+      (lastTimeWindow?.id === `${SYSTEM_CHAT_TYPE}-${CHAT_CLEAR_MESSAGE}`)
+      || (prevSyncing && !syncing)
+      || (syncedPercent !== prevSyncedPercent)
+      || (chatId !== prevChatId)
+      || (lastTimeWindowValuesBuild !== prevProps.lastTimeWindowValuesBuild)
+    ) {
+      this.listRef.forceUpdateGrid();
+    }
   }
 
   handleScrollUpdate(position, target) {
@@ -160,23 +195,9 @@ class TimeWindowList extends PureComponent {
       dispatch,
       chatId,
     } = this.props;
-    
+
     const { scrollArea } = this.state;
     const message = timeWindowsValues[index];
-
-    if (message.key === `${SYSTEM_CHAT_TYPE}-welcome-msg`) {
-      if (index !== this.welcomeMessageIndex) {
-        this.welcomeMessageIndex = index;
-        [500, 1000, 2000, 3000, 4000, 5000].forEach((i)=>{
-          setTimeout(() => {
-            if (this.listRef) {
-              this.cache.clear(index);
-              this.listRef.recomputeRowHeights(index);
-            }
-          }, i);
-        })
-      }
-    }
 
     ChatLogger.debug('TimeWindowList::rowRender', this.props);
     return (
@@ -186,7 +207,6 @@ class TimeWindowList extends PureComponent {
         columnIndex={0}
         parent={parent}
         rowIndex={index}
-        
       >
         <span
           style={style}
@@ -210,6 +230,7 @@ class TimeWindowList extends PureComponent {
     const {
       intl,
       count,
+      timeWindowsValues,
     } = this.props;
     const { userScrolledBack } = this.state;
 
@@ -222,9 +243,15 @@ class TimeWindowList extends PureComponent {
           size="sm"
           key="unread-messages"
           label={intl.formatMessage(intlMessages.moreMessages)}
-          onClick={()=> this.setState({
-            userScrolledBack: false,
-          })}
+          onClick={() => {
+            const lastItemIndex = timeWindowsValues.length - 1;
+            this.handleScrollUpdate(lastItemIndex);
+
+            this.setState({
+              scrollPosition: lastItemIndex,
+              userScrolledBack: false,
+            });
+          }}
         />
       );
     }
@@ -238,74 +265,84 @@ class TimeWindowList extends PureComponent {
     } = this.props;
     const {
       scrollArea,
+      scrollPosition,
       userScrolledBack,
     } = this.state;
     ChatLogger.debug('TimeWindowList::render', {...this.props},  {...this.state}, new Date());
 
+    const shouldAutoScroll = !!(
+      scrollPosition
+      && timeWindowsValues.length >= scrollPosition
+      && !userScrolledBack
+    );
+
     return (
-      [<div 
-        onMouseDown={()=> {
-          this.setState({
-            userScrolledBack: true,
-          });
-        }}
-        onWheel={(e) => {
-          if (e.deltaY < 0) {
+      [
+        <div
+          onMouseDown={() => {
             this.setState({
               userScrolledBack: true,
             });
-            this.userScrolledBack = true
-          }
-        }}
-        className={styles.messageListWrapper}
-        key="chat-list"
-        data-test="chatMessages"
-        ref={node => this.messageListWrapper = node}
-      >
-        <AutoSizer>
-          {({ height, width }) => {
-            if (width !== this.lastWidth) {
-              this.lastWidth = width;
-              this.cache.clearAll();
-            }
-            
-            return (
-              <List
-                ref={(ref) => {
-                  if (ref !== null) {
-                    this.listRef = ref;
-
-                    if (!scrollArea) {
-                      this.setState({ scrollArea: findDOMNode(this.listRef) });
-                    }
-                  }
-                }}
-                isScrolling={true}
-                rowHeight={this.cache.rowHeight}
-                className={styles.messageList}
-                rowRenderer={this.rowRender}
-                rowCount={timeWindowsValues.length}
-                height={height}
-                width={width}
-                overscanRowCount={0}
-                deferredMeasurementCache={this.cache}
-                scrollToIndex={
-                  !userScrolledBack ? timeWindowsValues.length - 1 : undefined
-                }
-                onScroll={({ clientHeight, scrollHeight, scrollTop })=> {
-                  const scrollSize = scrollTop + clientHeight;
-                  if (scrollSize >= scrollHeight) {
-                    this.setState({
-                      userScrolledBack: false,
-                    });
-                  }
-                }}
-              />
-            );
           }}
-        </AutoSizer>
-      </div>,
-      this.renderUnreadNotification()]
+          onWheel={(e) => {
+            if (e.deltaY < 0) {
+              this.setState({
+                userScrolledBack: true,
+              });
+              this.userScrolledBack = true
+            }
+          }}
+          className={styles.messageListWrapper}
+          key="chat-list"
+          data-test="chatMessages"
+          aria-live="polite"
+          ref={node => this.messageListWrapper = node}
+        >
+          <AutoSizer>
+            {({ height, width }) => {
+              if (width !== this.lastWidth) {
+                this.lastWidth = width;
+                this.cache.clearAll();
+              }
+              return (
+                <List
+                  ref={(ref) => {
+                    if (ref !== null) {
+                      this.listRef = ref;
+
+                      if (!scrollArea) {
+                        this.setState({ scrollArea: findDOMNode(this.listRef) });
+                      }
+                    }
+                  }}
+                  isScrolling
+                  rowHeight={this.cache.rowHeight}
+                  className={styles.messageList}
+                  rowRenderer={this.rowRender}
+                  rowCount={timeWindowsValues.length}
+                  height={height}
+                  width={width}
+                  overscanRowCount={0}
+                  deferredMeasurementCache={this.cache}
+                  scrollToIndex={shouldAutoScroll ? scrollPosition : undefined}
+                  onRowsRendered={({ stopIndex }) => {
+                    this.handleScrollUpdate(stopIndex);
+                  }}
+                  onScroll={({ clientHeight, scrollHeight, scrollTop }) => {
+                    const scrollSize = scrollTop + clientHeight;
+                    if (scrollSize >= scrollHeight) {
+                      this.setState({
+                        userScrolledBack: false,
+                      });
+                    }
+                  }}
+                />
+              );
+            }}
+          </AutoSizer>
+        </div>,
+        this.renderUnreadNotification(),
+      ]
     );
   }
 }

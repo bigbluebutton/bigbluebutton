@@ -1,0 +1,180 @@
+{
+	"info": {
+		"_postman_id": "baad280f-33c2-4faf-8077-5db1b7338d70",
+		"name": "invalid_session_token",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "enter",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonResponse = pm.response.json();",
+							"",
+							"console.log(jsonResponse)",
+							"",
+							"pm.test(\"Return code is SUCCESS\", function () {",
+							"    pm.expect(jsonResponse.response.returncode).to.eql(\"FAILED\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/{{path}}/enter?{{param_session_token}}=",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{path}}",
+						"enter"
+					],
+					"query": [
+						{
+							"key": "{{param_session_token}}",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "guestWait",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonResponse = pm.response.json();",
+							"",
+							"console.log(jsonResponse)",
+							"",
+							"pm.test(\"Return code is SUCCESS\", function () {",
+							"    pm.expect(jsonResponse.response.returncode).to.eql(\"FAILED\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/{{path}}/guestWait?{{param_session_token}}=",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{path}}",
+						"guestWait"
+					],
+					"query": [
+						{
+							"key": "{{param_session_token}}",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "stuns",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonResponse = pm.response.json();",
+							"",
+							"console.log(jsonResponse)",
+							"",
+							"pm.test(\"Return code is SUCCESS\", function () {",
+							"    pm.expect(jsonResponse.response.returncode).to.eql(\"FAILED\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/{{path}}/stuns?{{param_session_token}}=",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{path}}",
+						"stuns"
+					],
+					"query": [
+						{
+							"key": "{{param_session_token}}",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "signOut",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/{{path}}/signOut?{{param_session_token}}=",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{path}}",
+						"signOut"
+					],
+					"query": [
+						{
+							"key": "{{param_session_token}}",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "learningDashboard",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/{{path}}/learningDashboard?{{param_session_token}}=",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{path}}",
+						"learningDashboard"
+					],
+					"query": [
+						{
+							"key": "{{param_session_token}}",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

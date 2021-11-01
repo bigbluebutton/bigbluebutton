@@ -1,8 +1,8 @@
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
+import Users from '/imports/ui/local-collections/users-collection/users';
 import { makeCall } from '/imports/ui/services/api';
-import Meetings from '/imports/api/meetings';
-import Breakouts from '/imports/api/breakouts';
+import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Breakouts from '/imports/ui/local-collections/breakouts-collection/breakouts';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 
 const USER_CONFIG = Meteor.settings.public.user;
@@ -52,6 +52,8 @@ export default {
   amIPresenter,
   amIModerator,
   isMe,
+  currentUser: () => Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID },
+    { fields: { userId: 1, emoji: 1 } }),
   meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'meetingProp.name': 1 } }).meetingProp.name,
   users: () => Users.find({
@@ -63,7 +65,7 @@ export default {
   isBreakoutRecordable: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'breakoutProps.record': 1 } }).breakoutProps.record,
   toggleRecording: () => makeCall('toggleRecording'),
-  createBreakoutRoom: (numberOfRooms, durationInMinutes, record = false) => makeCall('createBreakoutRoom', numberOfRooms, durationInMinutes, record),
+  createBreakoutRoom: (rooms, durationInMinutes, record = false) => makeCall('createBreakoutRoom', rooms, durationInMinutes, record),
   sendInvitation: (breakoutId, userId) => makeCall('requestJoinURL', { breakoutId, userId }),
   breakoutJoinedUsers: () => Breakouts.find({
     joinedUsers: { $exists: true },

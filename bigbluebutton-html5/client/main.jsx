@@ -16,6 +16,9 @@
     with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 */
 /* eslint no-unused-vars: 0 */
+
+import '../imports/ui/services/collection-hooks/collection-hooks';
+
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
@@ -29,6 +32,15 @@ import ContextProviders from '/imports/ui/components/context-providers/component
 import ChatAdapter from '/imports/ui/components/components-data/chat-context/adapter';
 import UsersAdapter from '/imports/ui/components/components-data/users-context/adapter';
 import GroupChatAdapter from '/imports/ui/components/components-data/group-chat-context/adapter';
+
+import '/imports/ui/local-collections/meetings-collection/meetings';
+import '/imports/ui/local-collections/breakouts-collection/breakouts';
+import '/imports/ui/local-collections/guest-users-collection/guest-users';
+import '/imports/ui/local-collections/users-collection/users';
+
+import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
+  // bridge loading
+});
 
 Meteor.startup(() => {
   // Logs all uncaught exceptions to the client logger

@@ -6,11 +6,13 @@ import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { makeCall } from '/imports/ui/services/api';
 
-import { styles } from './styles';
-import {Meteor} from "meteor/meteor";
+import { Meteor } from 'meteor/meteor';
+import Styled from './styles';
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   responseDelay: PropTypes.number.isRequired,
 };
 
@@ -64,6 +66,8 @@ class ActivityCheck extends Component {
     const { responseDelay } = this.state;
 
     return setInterval(() => {
+      if (responseDelay === 0) return;
+
       const remainingTime = responseDelay - 1;
 
       this.setState({
@@ -78,6 +82,7 @@ class ActivityCheck extends Component {
 
   playAudioAlert() {
     this.alert = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId}/resources/sounds/notify.mp3`);
+    this.alert.addEventListener('ended', () => { this.alert.src = null; });
     this.alert.play();
   }
 
@@ -93,7 +98,7 @@ class ActivityCheck extends Component {
         shouldCloseOnOverlayClick={false}
         shouldShowCloseButton={false}
       >
-        <div className={styles.activityModalContent}>
+        <Styled.ActivityModalContent>
           <h1>{intl.formatMessage(intlMessages.activityCheckTitle)}</h1>
           <p>{intl.formatMessage(intlMessages.activityCheckLabel, { 0: responseDelay })}</p>
           <Button
@@ -104,7 +109,7 @@ class ActivityCheck extends Component {
             role="button"
             size="lg"
           />
-        </div>
+        </Styled.ActivityModalContent>
       </Modal>
     );
   }

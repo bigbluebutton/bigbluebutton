@@ -6,33 +6,26 @@ import Settings from '/imports/ui/services/settings';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import _ from 'lodash';
+import { Session } from 'meteor/session';
+import Logger from '/imports/startup/client/logger';
 
 const propTypes = {
   locale: PropTypes.string,
+  overrideLocaleFromPassedParameter: PropTypes.string,
   children: PropTypes.element.isRequired,
 };
 
 const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
 
-const RTL_LANGUAGES = ['ar', 'he', 'fa'];
+const RTL_LANGUAGES = ['ar', 'dv', 'fa', 'he'];
+const LARGE_FONT_LANGUAGES = ['te', 'km'];
 
 const defaultProps = {
   locale: DEFAULT_LANGUAGE,
+  overrideLocaleFromPassedParameter: null,
 };
 
 class IntlStartup extends Component {
-  static saveLocale(localeName) {
-    Settings.application.locale = localeName;
-    if (RTL_LANGUAGES.includes(localeName.substring(0, 2))) {
-      document.body.parentNode.setAttribute('dir', 'rtl');
-      Settings.application.isRTL = true;
-    } else {
-      document.body.parentNode.setAttribute('dir', 'ltr');
-      Settings.application.isRTL = false;
-    }
-    Settings.save();
-  }
-
   constructor(props) {
     super(props);
 
@@ -55,34 +48,106 @@ class IntlStartup extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { fetching, messages } = this.state;
-    const { locale } = this.props;
-    const shouldFetch = (!fetching && _.isEmpty(messages)) || (locale !== prevProps.locale);
-    if (shouldFetch) this.fetchLocalizedMessages(locale);
+    const { fetching, messages, normalizedLocale } = this.state;
+    const { locale, overrideLocaleFromPassedParameter } = this.props;
+
+    if (overrideLocaleFromPassedParameter !== prevProps.overrideLocaleFromPassedParameter) {
+      this.fetchLocalizedMessages(overrideLocaleFromPassedParameter);
+    } else {
+      const shouldFetch = (!fetching && _.isEmpty(messages)) || ((locale !== prevProps.locale) && (normalizedLocale && (locale !== normalizedLocale)));
+      if (shouldFetch) this.fetchLocalizedMessages(locale);
+    }
   }
 
   fetchLocalizedMessages(locale, init = false) {
     const url = `./locale?locale=${locale}&init=${init}`;
+    const localesPath = 'locales';
 
     this.setState({ fetching: true }, () => {
       fetch(url)
         .then((response) => {
           if (!response.ok) {
-            return Promise.reject();
+            return false;
           }
-
           return response.json();
         })
-        .then(({ messages, normalizedLocale }) => {
-          const dasherizedLocale = normalizedLocale.replace('_', '-');
-          this.setState({ messages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
-            IntlStartup.saveLocale(dasherizedLocale);
+        .then(({ normalizedLocale, regionDefaultLocale }) => {
+          const fetchFallbackMessages = new Promise((resolve, reject) => {
+            fetch(`${localesPath}/${DEFAULT_LANGUAGE}.json`)
+              .then((response) => {
+                if (!response.ok) {
+                  return reject();
+                }
+                return resolve(response.json());
+              });
           });
-        })
-        .catch(() => {
-          this.setState({ fetching: false, normalizedLocale: null }, () => {
-            IntlStartup.saveLocale(DEFAULT_LANGUAGE);
+
+          const fetchRegionMessages = new Promise((resolve) => {
+            if (!regionDefaultLocale) {
+              return resolve(false);
+            }
+            fetch(`${localesPath}/${regionDefaultLocale}.json`)
+              .then((response) => {
+                if (!response.ok) {
+                  return resolve(false);
+                }
+                return response.json()
+                  .then((jsonResponse) => resolve(jsonResponse))
+                  .catch(() => {
+                    Logger.error({ logCode: 'intl_parse_locale_SyntaxError' }, `Could not parse locale file ${regionDefaultLocale}.json, invalid json`);
+                    resolve(false);
+                  });
+              });
           });
+
+          const fetchSpecificMessages = new Promise((resolve) => {
+            if (!normalizedLocale || normalizedLocale === DEFAULT_LANGUAGE || normalizedLocale === regionDefaultLocale) {
+              return resolve(false);
+            }
+            fetch(`${localesPath}/${normalizedLocale}.json`)
+              .then((response) => {
+                if (!response.ok) {
+                  return resolve(false);
+                }
+                return response.json()
+                  .then((jsonResponse) => resolve(jsonResponse))
+                  .catch(() => {
+                    Logger.error({ logCode: 'intl_parse_locale_SyntaxError' }, `Could not parse locale file ${normalizedLocale}.json, invalid json`);
+                    resolve(false);
+                  });
+              });
+          });
+
+          Promise.all([fetchFallbackMessages, fetchRegionMessages, fetchSpecificMessages])
+            .then((values) => {
+              let mergedMessages = Object.assign({}, values[0]);
+
+              if (!values[1] && !values[2]) {
+                normalizedLocale = DEFAULT_LANGUAGE;
+              } else {
+                if (values[1]) {
+                  mergedMessages = Object.assign(mergedMessages, values[1]);
+                }
+                if (values[2]) {
+                  mergedMessages = Object.assign(mergedMessages, values[2]);
+                }
+              }
+
+              const dasherizedLocale = normalizedLocale.replace('_', '-');
+              this.setState({ messages: mergedMessages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
+                Settings.application.locale = dasherizedLocale;
+                if (RTL_LANGUAGES.includes(dasherizedLocale.substring(0, 2))) {
+                  document.body.parentNode.setAttribute('dir', 'rtl');
+                  Settings.application.isRTL = true;
+                } else {
+                  document.body.parentNode.setAttribute('dir', 'ltr');
+                  Settings.application.isRTL = false;
+                }
+                Session.set('isLargeFont', LARGE_FONT_LANGUAGES.includes(dasherizedLocale.substring(0, 2)));
+                window.dispatchEvent(new Event('localeChanged'));
+                Settings.save();
+              });
+            });
         });
     });
   }

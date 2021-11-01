@@ -1,8 +1,0 @@
-if [ -f /tmp/application.conf ]; then
-  for KEY in bbbWebAPI sharedSecret; do
-    VALUE=$(grep $KEY /tmp/application.conf | sed 's/[^=]*=//')
-    if [ ! -z "$VALUE" ]; then
-      sed -i "/$KEY/s|=.*|=$VALUE|" /usr/share/bbb-apps-akka/conf/application.conf
-    fi
-  done
-fi

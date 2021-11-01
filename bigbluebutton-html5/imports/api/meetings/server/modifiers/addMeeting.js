@@ -4,13 +4,35 @@ import {
   Match,
 } from 'meteor/check';
 import SanitizeHTML from 'sanitize-html';
-import Meetings, { RecordMeetings } from '/imports/api/meetings';
+import Meetings, {
+  RecordMeetings,
+  ExternalVideoMeetings,
+} from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
-import createNote from '/imports/api/note/server/methods/createNote';
-import createCaptions from '/imports/api/captions/server/methods/createCaptions';
+import { initPads } from '/imports/api/common/server/etherpad';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
-import BannedUsers from '/imports/api/users/server/store/bannedUsers';
+import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
+import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+
+const addExternalVideo = (meetingId) => {
+  const selector = { meetingId };
+
+  const modifier = {
+    meetingId,
+    externalVideoUrl: null,
+  };
+
+  try {
+    const { numberAffected } = ExternalVideoMeetings.upsert(selector, modifier);
+
+    if (numberAffected) {
+      Logger.verbose(`Added external video meetingId=${meetingId}`);
+    }
+  } catch (err) {
+    Logger.error(`Adding external video: ${err}`);
+  }
+};
 
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
@@ -30,6 +52,7 @@ export default function addMeeting(meeting) {
       intId: String,
       extId: String,
       isBreakout: Boolean,
+      learningDashboardEnabled: Boolean,
       name: String,
     },
     usersProp: {
@@ -38,6 +61,7 @@ export default function addMeeting(meeting) {
       authenticatedGuest: Boolean,
       maxUsers: Number,
       allowModsToUnmuteUsers: Boolean,
+      meetingLayout: String,
     },
     durationProps: {
       createdTime: Number,
@@ -48,6 +72,8 @@ export default function addMeeting(meeting) {
       userInactivityInspectTimerInMinutes: Number,
       userInactivityThresholdInMinutes: Number,
       userActivitySignResponseDelayInMinutes: Number,
+      endWhenNoModerator: Boolean,
+      endWhenNoModeratorDelayInMinutes: Number,
       timeRemaining: Number,
     },
     welcomeProp: {
@@ -63,6 +89,7 @@ export default function addMeeting(meeting) {
     password: {
       viewerPass: String,
       moderatorPass: String,
+      learningDashboardAccessToken: String,
     },
     voiceProp: {
       voiceConf: String,
@@ -146,12 +173,25 @@ export default function addMeeting(meeting) {
     $set: Object.assign({
       meetingId,
       meetingEnded,
+      layout: LAYOUT_TYPE[meeting.usersProp.meetingLayout] || 'smart',
       publishedPoll: false,
-      randomlySelectedUser: '',
+      guestLobbyMessage: '',
+      randomlySelectedUser: [],
     }, flat(newMeeting, {
       safe: true,
     })),
   };
+
+  if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
+    addAnnotationsStreamer(meetingId);
+    addCursorStreamer(meetingId);
+    addExternalVideoStreamer(meetingId);
+
+    // we don't want to fully process the create meeting message in frontend since it can lead to duplication of meetings in mongo.
+    if (process.env.BBB_HTML5_ROLE === 'frontend') {
+      return;
+    }
+  }
 
   try {
     const { insertedId, numberAffected } = RecordMeetings.upsert(selector, { meetingId, ...recordProp });
@@ -165,19 +205,16 @@ export default function addMeeting(meeting) {
     Logger.error(`Adding record prop to collection: ${err}`);
   }
 
+  addExternalVideo(meetingId);
+
   try {
     const { insertedId, numberAffected } = Meetings.upsert(selector, modifier);
 
-    addAnnotationsStreamer(meetingId);
-    addCursorStreamer(meetingId);
-
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
-      // TODO: Here we call Etherpad API to create this meeting notes. Is there a
-      // better place we can run this post-creation routine?
-      createNote(meetingId);
-      createCaptions(meetingId);
-      BannedUsers.init(meetingId);
+
+      const { html5InstanceId } = meeting.systemProps;
+      initPads(meetingId, html5InstanceId);
     } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);
     }

@@ -1,24 +1,19 @@
 import React, { PureComponent } from 'react';
 import { defineMessages } from 'react-intl';
+import _ from 'lodash';
+import { Session } from 'meteor/session';
 import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/icon/component';
-import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
-import DropdownContent from '/imports/ui/components/dropdown/content/component';
-import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
-import Dropdown from '/imports/ui/components/dropdown/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import RemoveUserModal from '/imports/ui/components/modal/remove-user/component';
-import _ from 'lodash';
-import { Session } from 'meteor/session';
-import { styles } from './styles';
+import BBBMenu from '/imports/ui/components/menu/component';
+import Styled from './styles';
 import UserName from '../user-name/component';
-import UserIcons from '../user-icons/component';
-import Service from '../../../../service';
+import { PANELS, ACTIONS } from '../../../../../layout/enums';
+import WhiteboardService from '/imports/ui/components/whiteboard/service';
 
 const messages = defineMessages({
   presenter: {
@@ -64,6 +59,14 @@ const messages = defineMessages({
   makePresenterLabel: {
     id: 'app.userList.menu.makePresenter.label',
     description: 'label to make another user presenter',
+  },
+  giveWhiteboardAccess: {
+    id: 'app.userList.menu.giveWhiteboardAccess.label',
+    description: 'label to give user whiteboard access',
+  },
+  removeWhiteboardAccess: {
+    id: 'app.userList.menu.removeWhiteboardAccess.label',
+    description: 'label to remove user whiteboard access',
   },
   RemoveUserLabel: {
     id: 'app.userList.menu.removeUser.label',
@@ -146,10 +149,9 @@ class UserDropdown extends PureComponent {
 
     this.state = {
       isActionsOpen: false,
-      dropdownOffset: 0,
-      dropdownDirection: 'top',
       dropdownVisible: false,
       showNestedOptions: false,
+      selected: false,
     };
 
     this.handleScroll = this.handleScroll.bind(this);
@@ -158,14 +160,20 @@ class UserDropdown extends PureComponent {
     this.getDropdownMenuParent = this.getDropdownMenuParent.bind(this);
     this.renderUserAvatar = this.renderUserAvatar.bind(this);
     this.resetMenuState = this.resetMenuState.bind(this);
-    this.makeDropdownItem = this.makeDropdownItem.bind(this);
 
     this.title = _.uniqueId('dropdown-title-');
     this.seperator = _.uniqueId('action-separator-');
   }
 
-  componentDidUpdate() {
-    this.checkDropdownDirection();
+  handleScroll() {
+    this.setState({
+      isActionsOpen: false,
+      showNestedOptions: false,
+    });
+  }
+
+  handleClose() {
+    this.setState({ selected: null });
   }
 
   onActionsShow() {
@@ -175,16 +183,14 @@ class UserDropdown extends PureComponent {
     const scrollContainer = getScrollContainerRef();
 
     if (dropdown && scrollContainer) {
-      const dropdownTrigger = dropdown.children[0];
+      // eslint-disable-next-line react/no-find-dom-node
       const list = findDOMNode(this.list);
       const children = [].slice.call(list.children);
-      children.find(child => child.getAttribute('role') === 'menuitem').focus();
+      children.find((child) => child.getAttribute('role') === 'menuitem').focus();
 
       this.setState({
         isActionsOpen: true,
         dropdownVisible: false,
-        dropdownOffset: dropdownTrigger.offsetTop - scrollContainer.scrollTop,
-        dropdownDirection: 'top',
       });
 
       scrollContainer.addEventListener('scroll', this.handleScroll, false);
@@ -234,11 +240,17 @@ class UserDropdown extends PureComponent {
       meetingIsBreakout,
       mountModal,
       usersProp,
+      layoutContextDispatch,
     } = this.props;
     const { showNestedOptions } = this.state;
+    const { clientType } = user;
+    const isDialInUser = clientType === 'dial-in-user';
 
+    const amIPresenter = currentUser.presenter;
     const amIModerator = currentUser.role === ROLE_MODERATOR;
-    const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser, usersProp);
+    const actionPermissions = getAvailableActions(
+      amIModerator, meetingIsBreakout, user, voiceUser, usersProp, amIPresenter,
+    );
     const actions = [];
 
     const {
@@ -252,6 +264,7 @@ class UserDropdown extends PureComponent {
       allowedToDemote,
       allowedToChangeStatus,
       allowedToChangeUserLockStatus,
+      allowedToChangeWhiteboardAccess,
     } = actionPermissions;
 
     const { disablePrivateChat } = lockSettingsProps;
@@ -267,199 +280,222 @@ class UserDropdown extends PureComponent {
 
     if (showNestedOptions && isMeteorConnected) {
       if (allowedToChangeStatus) {
-        actions.push(this.makeDropdownItem(
-          'back',
-          intl.formatMessage(messages.backTriggerLabel),
-          () => this.setState(
-            {
-              showNestedOptions: false,
-              isActionsOpen: true,
-            }, Session.set('dropdownOpen', true),
-          ),
-          'left_arrow',
-        ));
+        actions.push({
+          key: 'back',
+          label: intl.formatMessage(messages.backTriggerLabel),
+          onClick: () => this.setState({ showNestedOptions: false }),
+          icon: 'left_arrow',
+          divider: true,
+        });
       }
 
-      actions.push(<DropdownListSeparator key={_.uniqueId('list-separator-')} />);
-
       const statuses = Object.keys(getEmojiList);
-      statuses.map(status => actions.push(this.makeDropdownItem(
-        status,
-        intl.formatMessage({ id: `app.actionsBar.emojiMenu.${status}Label` }),
-        () => { setEmojiStatus(user.userId, status); this.resetMenuState(); },
-        getEmojiList[status],
-      )));
 
+      statuses.forEach((s) => {
+        actions.push({
+          key: s,
+          label: intl.formatMessage({ id: `app.actionsBar.emojiMenu.${s}Label` }),
+          onClick: () => {
+            setEmojiStatus(user.userId, s);
+            this.resetMenuState();
+            this.handleClose();
+          },
+          icon: getEmojiList[s],
+        });
+      });
       return actions;
     }
 
     if (allowedToChangeStatus && isMeteorConnected) {
-      actions.push(this.makeDropdownItem(
-        'setstatus',
-        intl.formatMessage(messages.statusTriggerLabel),
-        () => this.setState(
-          {
-            showNestedOptions: true,
-            isActionsOpen: true,
-          }, () => {
-            Session.set('dropdownOpen', true);
-            Service.focusFirstDropDownItem();
-          },
-        ),
-        'user',
-        'right_arrow',
-      ));
+      actions.push({
+        key: 'setstatus',
+        label: intl.formatMessage(messages.statusTriggerLabel),
+        onClick: () => this.setState({ showNestedOptions: true }),
+        icon: 'user',
+        iconRight: 'right_arrow',
+      });
     }
 
     const showChatOption = CHAT_ENABLED
       && enablePrivateChat
-      && user.clientType !== 'dial-in-user'
+      && !isDialInUser
       && !meetingIsBreakout
       && isMeteorConnected;
 
     if (showChatOption) {
-      actions.push(this.makeDropdownItem(
-        'activeChat',
-        intl.formatMessage(messages.StartPrivateChat),
-        () => {
+      actions.push({
+        key: 'activeChat',
+        label: intl.formatMessage(messages.StartPrivateChat),
+        onClick: () => {
+          this.handleClose();
           getGroupChatPrivate(currentUser.userId, user);
-          Session.set('openPanel', 'chat');
-          Session.set('idChatOpen', user.userId);
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: true,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.CHAT,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_ID_CHAT_OPEN,
+            value: user.userId,
+          });
         },
-        'chat',
-      ));
+        icon: 'chat',
+      });
     }
 
     if (allowedToResetStatus && user.emoji !== 'none' && isMeteorConnected) {
-      actions.push(this.makeDropdownItem(
-        'clearStatus',
-        intl.formatMessage(messages.ClearStatusLabel),
-        () => this.onActionsHide(setEmojiStatus(user.userId, 'none')),
-        'clear_status',
-      ));
+      actions.push({
+        key: 'clearStatus',
+        label: intl.formatMessage(messages.ClearStatusLabel),
+        onClick: () => {
+          this.onActionsHide(setEmojiStatus(user.userId, 'none'));
+          this.handleClose();
+        },
+        icon: 'clear_status',
+      });
     }
 
     if (allowedToMuteAudio && isMeteorConnected && !meetingIsBreakout) {
-      actions.push(this.makeDropdownItem(
-        'mute',
-        intl.formatMessage(messages.MuteUserAudioLabel),
-        () => this.onActionsHide(toggleVoice(user.userId)),
-        'mute',
-      ));
+      actions.push({
+        key: 'mute',
+        label: intl.formatMessage(messages.MuteUserAudioLabel),
+        onClick: () => {
+          this.onActionsHide(toggleVoice(user.userId));
+          this.handleClose();
+        },
+        icon: 'mute',
+      });
     }
 
     if (allowedToUnmuteAudio && !userLocks.userMic && isMeteorConnected && !meetingIsBreakout) {
-      actions.push(this.makeDropdownItem(
-        'unmute',
-        intl.formatMessage(messages.UnmuteUserAudioLabel),
-        () => this.onActionsHide(toggleVoice(user.userId)),
-        'unmute',
-      ));
+      actions.push({
+        key: 'unmute',
+        label: intl.formatMessage(messages.UnmuteUserAudioLabel),
+        onClick: () => {
+          this.onActionsHide(toggleVoice(user.userId));
+          this.handleClose();
+        },
+        icon: 'unmute',
+      });
     }
 
-    if (allowedToSetPresenter && isMeteorConnected) {
-      actions.push(this.makeDropdownItem(
-        'setPresenter',
-        isMe(user.userId)
+    if (allowedToChangeWhiteboardAccess && !user.presenter && isMeteorConnected && !isDialInUser) {
+      const label = user.whiteboardAccess
+        ? intl.formatMessage(messages.removeWhiteboardAccess)
+        : intl.formatMessage(messages.giveWhiteboardAccess);
+
+      actions.push({
+        key: 'changeWhiteboardAccess',
+        label,
+        onClick: () => {
+          WhiteboardService.changeWhiteboardAccess(user.userId, !user.whiteboardAccess);
+          this.handleClose();
+        },
+        icon: 'pen_tool',
+      });
+    }
+
+    if (allowedToSetPresenter && isMeteorConnected && !isDialInUser) {
+      actions.push({
+        key: 'setPresenter',
+        label: isMe(user.userId)
           ? intl.formatMessage(messages.takePresenterLabel)
           : intl.formatMessage(messages.makePresenterLabel),
-        () => this.onActionsHide(assignPresenter(user.userId)),
-        'presentation',
-      ));
+        onClick: () => {
+          this.onActionsHide(assignPresenter(user.userId));
+          this.handleClose();
+        },
+        icon: 'presentation',
+      });
     }
 
     if (allowedToPromote && isMeteorConnected) {
-      actions.push(this.makeDropdownItem(
-        'promote',
-        intl.formatMessage(messages.PromoteUserLabel),
-        () => this.onActionsHide(changeRole(user.userId, 'MODERATOR')),
-        'promote',
-      ));
+      actions.push({
+        key: 'promote',
+        label: intl.formatMessage(messages.PromoteUserLabel),
+        onClick: () => {
+          this.onActionsHide(changeRole(user.userId, 'MODERATOR'));
+          this.handleClose();
+        },
+        icon: 'promote',
+      });
     }
 
     if (allowedToDemote && isMeteorConnected) {
-      actions.push(this.makeDropdownItem(
-        'demote',
-        intl.formatMessage(messages.DemoteUserLabel),
-        () => this.onActionsHide(changeRole(user.userId, 'VIEWER')),
-        'user',
-      ));
+      actions.push({
+        key: 'demote',
+        label: intl.formatMessage(messages.DemoteUserLabel),
+        onClick: () => {
+          this.onActionsHide(changeRole(user.userId, 'VIEWER'));
+          this.handleClose();
+        },
+        icon: 'user',
+      });
     }
 
     if (allowedToChangeUserLockStatus && isMeteorConnected) {
       const userLocked = user.locked && user.role !== ROLE_MODERATOR;
-      actions.push(this.makeDropdownItem(
-        'unlockUser',
-        userLocked ? intl.formatMessage(messages.UnlockUserLabel, { 0: user.name })
+
+      actions.push({
+        key: 'unlockUser',
+        label: userLocked ? intl.formatMessage(messages.UnlockUserLabel, { 0: user.name })
           : intl.formatMessage(messages.LockUserLabel, { 0: user.name }),
-        () => this.onActionsHide(toggleUserLock(user.userId, !userLocked)),
-        userLocked ? 'unlock' : 'lock',
-      ));
+        onClick: () => {
+          this.onActionsHide(toggleUserLock(user.userId, !userLocked));
+          this.handleClose();
+        },
+        icon: userLocked ? 'unlock' : 'lock',
+      });
     }
 
     if (allowUserLookup && isMeteorConnected) {
-      actions.push(this.makeDropdownItem(
-        'directoryLookup',
-        intl.formatMessage(messages.DirectoryLookupLabel),
-        () => this.onActionsHide(requestUserInformation(user.extId)),
-        'user',
-      ));
+      actions.push({
+        key: 'directoryLookup',
+        label: intl.formatMessage(messages.DirectoryLookupLabel),
+        onClick: () => {
+          this.onActionsHide(requestUserInformation(user.extId));
+          this.handleClose();
+        },
+        icon: 'user',
+      });
     }
 
     if (allowedToRemove && isMeteorConnected) {
-      actions.push(this.makeDropdownItem(
-        'remove',
-        intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
-        () => this.onActionsHide(mountModal(
-          <RemoveUserModal
-            intl={intl}
-            user={user}
-            onConfirm={removeUser}
-          />,
-        )),
-        'circle_close',
-      ));
+      actions.push({
+        key: 'remove',
+        label: intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
+        onClick: () => {
+          this.onActionsHide(mountModal(
+            <RemoveUserModal
+              intl={intl}
+              user={user}
+              onConfirm={removeUser}
+            />,
+          ));
+
+          this.handleClose();
+        },
+        icon: 'circle_close',
+      });
     }
 
     return actions;
   }
 
   getDropdownMenuParent() {
+    // eslint-disable-next-line react/no-find-dom-node
     return findDOMNode(this.dropdown);
-  }
-
-  makeDropdownItem(key, label, onClick, icon = null, iconRight = null) {
-    const { getEmoji } = this.props;
-    return (
-      <DropdownListItem
-        {...{
-          key,
-          label,
-          onClick,
-          icon,
-          iconRight,
-        }}
-        className={key === getEmoji ? styles.emojiSelected : null}
-        data-test={key}
-      />
-    );
   }
 
   resetMenuState() {
     return this.setState({
       isActionsOpen: false,
-      dropdownOffset: 0,
-      dropdownDirection: 'top',
       dropdownVisible: false,
       showNestedOptions: false,
-    });
-  }
-
-
-  handleScroll() {
-    this.setState({
-      isActionsOpen: false,
-      showNestedOptions: false,
+      selected: false,
     });
   }
 
@@ -467,28 +503,10 @@ class UserDropdown extends PureComponent {
    * Check if the dropdown is visible, if so, check if should be draw on top or bottom direction.
    */
   checkDropdownDirection() {
-    const { scrollArea } = this.props;
     if (this.isDropdownActivedByUser()) {
-      const dropdown = this.getDropdownMenuParent();
-      const dropdownTrigger = dropdown.children[0];
       const nextState = {
         dropdownVisible: true,
       };
-      const dropdownContent = findDOMNode(this.dropdownContent);
-      const dropdownBoundaries = dropdownContent.getBoundingClientRect();
-
-      const isDropdownVisible = UserDropdown.checkIfDropdownIsVisible(
-        dropdownBoundaries.y,
-        dropdownBoundaries.height,
-      );
-
-      if (!isDropdownVisible && scrollArea) {
-        const { offsetTop, offsetHeight } = dropdownTrigger;
-        const offsetPageTop = (offsetTop + offsetHeight) - scrollArea.scrollTop;
-
-        nextState.dropdownOffset = window.innerHeight - offsetPageTop;
-        nextState.dropdownDirection = 'bottom';
-      }
 
       this.setState(nextState);
     }
@@ -522,7 +540,7 @@ class UserDropdown extends PureComponent {
       ? (<Icon iconName={normalizeEmojiName(user.emoji)} />)
       : user.name.toLowerCase().slice(0, 2);
 
-    const iconVoiceOnlyUser = (<Icon iconName="audio_on" />);
+    const iconVoiceOnlyUser = (<Icon iconName="volume_level_2" />);
     const userIcon = isVoiceOnly ? iconVoiceOnlyUser : iconUser;
 
     return (
@@ -535,13 +553,15 @@ class UserDropdown extends PureComponent {
         voice={voiceUser.isVoiceUser}
         noVoice={!voiceUser.isVoiceUser}
         color={user.color}
+        whiteboardAccess={user.whiteboardAccess}
         emoji={user.emoji !== 'none'}
         avatar={user.avatar}
       >
         {
-        userInBreakout
-        && !meetingIsBreakout
-          ? breakoutSequence : userIcon}
+          userInBreakout
+            && !meetingIsBreakout
+            ? breakoutSequence : userIcon
+        }
       </UserAvatar>
     );
   }
@@ -549,28 +569,19 @@ class UserDropdown extends PureComponent {
   render() {
     const {
       compact,
-      currentUser,
       user,
       intl,
       isThisMeetingLocked,
       isMe,
+      isRTL,
     } = this.props;
 
     const {
       isActionsOpen,
-      dropdownVisible,
-      dropdownDirection,
-      dropdownOffset,
-      showNestedOptions,
+      selected,
     } = this.state;
 
     const actions = this.getUsersActions();
-
-    const userItemContentsStyle = {};
-
-    userItemContentsStyle[styles.dropdown] = true;
-    userItemContentsStyle[styles.userListItem] = !isActionsOpen;
-    userItemContentsStyle[styles.usertListItemWithMenu] = isActionsOpen;
 
     const you = isMe(user.userId) ? intl.formatMessage(messages.you) : '';
 
@@ -588,74 +599,65 @@ class UserDropdown extends PureComponent {
       },
     );
 
-    const contents = (
-      <div
-        data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
-        className={!actions.length ? styles.userListItem : null}
-        style={{ direction: document.documentElement.dir }}
-      >
-        <div className={styles.userItemContents}>
-          <div className={styles.userAvatar}>
-            {this.renderUserAvatar()}
-          </div>
-          {<UserName
-            {...{
-              user,
-              compact,
-              intl,
-              isThisMeetingLocked,
-              userAriaLabel,
-              isActionsOpen,
-              isMe,
-            }}
-          />}
-          {<UserIcons
-            {...{
-              user,
-              amIModerator: currentUser.role === ROLE_MODERATOR,
-            }}
-          />}
-        </div>
-      </div>
+    const innerContents = (
+      <Styled.UserItemInnerContents>
+        <Styled.UserAvatar>
+          {this.renderUserAvatar()}
+        </Styled.UserAvatar>
+        <UserName
+          {...{
+            user,
+            compact,
+            intl,
+            isThisMeetingLocked,
+            userAriaLabel,
+            isActionsOpen,
+            isMe,
+          }}
+        />
+      </Styled.UserItemInnerContents>
     );
 
-    if (!actions.length) return contents;
-    const placement = `right ${dropdownDirection}`;
-    return (
-      <Dropdown
-        ref={(ref) => { this.dropdown = ref; }}
-        keepOpen={isActionsOpen || showNestedOptions}
-        onShow={this.onActionsShow}
-        onHide={this.onActionsHide}
-        className={userItemContentsStyle}
-        autoFocus={false}
-        aria-haspopup="true"
-        aria-live="assertive"
-        aria-label={userAriaLabel}
-        aria-relevant="additions"
-        placement={placement}
-        getContent={dropdownContent => this.dropdownContent = dropdownContent}
-        tethered
-      >
-        <DropdownTrigger>
-          {contents}
-        </DropdownTrigger>
-        <DropdownContent
-          style={{
-            visibility: dropdownVisible ? 'visible' : 'hidden',
-          }}
-          className={styles.dropdownContent}
-          placement={placement}
+    const contents = !actions.length
+      ? (
+        <Styled.NoActionsListItem
+          data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
+          style={{ direction: isRTL ? 'rtl' : 'ltr' }}
         >
-          <DropdownList
-            ref={(ref) => { this.list = ref; }}
-            getDropdownMenuParent={this.getDropdownMenuParent}
-            onActionsHide={this.onActionsHide}
-          >
-            {actions}
-          </DropdownList>
-        </DropdownContent>
-      </Dropdown>
+          {innerContents}
+        </Styled.NoActionsListItem>
+      )
+      : (
+        <div
+          data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
+          style={{ direction: isRTL ? 'rtl' : 'ltr', width: '100%' }}
+        >
+          {innerContents}
+        </div>
+      );
+
+    if (!actions.length) return contents;
+
+    return (
+      <BBBMenu
+        trigger={
+          (
+            <Styled.UserItemContents
+              isActionsOpen={isActionsOpen}
+              selected={selected === true}
+              tabIndex={-1}
+              onClick={() => this.setState({ selected: true })}
+              onKeyPress={() => { }}
+              role="button"
+            >
+              {contents}
+            </Styled.UserItemContents>
+          )
+        }
+        actions={actions}
+        selectedEmoji={user.emoji}
+        onCloseCallback={() => this.setState({ selected: false, showNestedOptions: false })}
+      />
     );
   }
 }

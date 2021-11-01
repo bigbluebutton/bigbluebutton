@@ -1,9 +1,12 @@
-export default SFU_BROKER_ERRORS = {
+const SFU_CLIENT_SIDE_ERRORS = {
   // 13xx errors are client-side bbb-webrtc-sfu's base broker errors
   1301: "WEBSOCKET_DISCONNECTED",
   1302: "WEBSOCKET_CONNECTION_FAILED",
   1305: "PEER_NEGOTIATION_FAILED",
   1307: "ICE_STATE_FAILED",
+};
+
+const SFU_SERVER_SIDE_ERRORS = {
   // 2xxx codes are server-side bbb-webrtc-sfu errors
   2000: "MEDIA_SERVER_CONNECTION_ERROR",
   2001: "MEDIA_SERVER_OFFLINE",
@@ -22,4 +25,12 @@ export default SFU_BROKER_ERRORS = {
   2210: "MEDIA_CONNECT_ERROR",
   2211: "MEDIA_NOT_FLOWING",
   2300: "SFU_INVALID_REQUEST",
-}
+};
+
+const SFU_BROKER_ERRORS = { ...SFU_SERVER_SIDE_ERRORS, ...SFU_CLIENT_SIDE_ERRORS };
+
+export {
+  SFU_CLIENT_SIDE_ERRORS,
+  SFU_SERVER_SIDE_ERRORS,
+  SFU_BROKER_ERRORS,
+};

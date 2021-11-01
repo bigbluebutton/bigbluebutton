@@ -1,11 +1,10 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
 import { GithubPicker } from 'react-color';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import { styles } from './styles.scss';
+import Styled from './styles';
 
 const DEFAULT_VALUE = 'select';
 const DEFAULT_KEY = -1;
@@ -133,22 +132,6 @@ class ReaderMenu extends PureComponent {
     this.getPreviewStyle = this.getPreviewStyle.bind(this);
   }
 
-  getPreviewStyle() {
-    const {
-      backgroundColor,
-      fontColor,
-      fontFamily,
-      fontSize,
-    } = this.state;
-
-    return {
-      fontFamily,
-      fontSize,
-      color: fontColor,
-      background: backgroundColor,
-    };
-  }
-
   handleColorPickerClick(fieldname) {
     const obj = {};
     // eslint-disable-next-line react/destructuring-assignment
@@ -199,6 +182,22 @@ class ReaderMenu extends PureComponent {
     closeModal();
   }
 
+  getPreviewStyle() {
+    const {
+      backgroundColor,
+      fontColor,
+      fontFamily,
+      fontSize,
+    } = this.state;
+
+    return {
+      fontFamily,
+      fontSize,
+      color: fontColor,
+      background: backgroundColor,
+    };
+  }
+
   render() {
     const {
       intl,
@@ -224,26 +223,23 @@ class ReaderMenu extends PureComponent {
     const ariaSize = `${intl.formatMessage(intlMessages.captionsLabel)} ${intl.formatMessage(intlMessages.fontSize)}`;
 
     return (
-      <Modal
-        overlayClassName={styles.overlay}
-        className={styles.modal}
+      <Styled.ReaderMenuModal
         onRequestClose={closeModal}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.title)}
       >
-        <header className={styles.title}>
+        <Styled.Title>
           {intl.formatMessage(intlMessages.title)}
-        </header>
+        </Styled.Title>
         {!locale ? null : (
           <div>
-            <div className={styles.col}>
-              <div className={styles.row}>
-                <div aria-hidden className={styles.label}>
+            <Styled.Col>
+              <Styled.Row>
+                <Styled.Label aria-hidden>
                   {intl.formatMessage(intlMessages.ariaSelectLang)}
-                </div>
-                <select
+                </Styled.Label>
+                <Styled.Select
                   aria-label={intl.formatMessage(intlMessages.ariaSelectLang)}
-                  className={styles.select}
                   onChange={this.handleLocaleChange}
                   defaultValue={defaultLocale}
                   lang={locale}
@@ -255,84 +251,98 @@ class ReaderMenu extends PureComponent {
                   >
                     {intl.formatMessage(intlMessages.select)}
                   </option>
-                  {ownedLocales.map(loc => (
+                  {ownedLocales.map((loc) => (
                     <option
                       key={loc.locale}
                       value={loc.locale}
                       lang={loc.locale}
                     >
                       {loc.name}
-                    </option>))}
-                </select>
-              </div>
+                    </option>
+                  ))}
+                </Styled.Select>
+              </Styled.Row>
 
-              <div className={styles.row}>
-                <div aria-hidden className={styles.label}>
+              <Styled.Row>
+                <Styled.Label aria-hidden>
                   {intl.formatMessage(intlMessages.fontColor)}
-                </div>
-                <div
+                </Styled.Label>
+                <Styled.Swatch
                   aria-label={ariaTextColor}
                   tabIndex={DEFAULT_INDEX}
-                  className={styles.swatch}
                   onClick={this.handleColorPickerClick.bind(this, 'displayFontColorPicker')}
+                  onKeyPress={() => { }}
+                  role="button"
                 >
-                  <div className={styles.swatchInner} style={{ background: fontColor }} />
-                </div>
-                {displayFontColorPicker
-                  ? (
-                    <div className={styles.colorPickerPopover}>
-                      <div
-                        className={styles.colorPickerOverlay}
-                        onClick={this.handleCloseColorPicker.bind(this)}
-                      />
-                      <GithubPicker
-                        onChange={this.handleColorChange.bind(this, 'fontColor')}
-                        colors={COLORS}
-                        width="140px"
-                        triangle="hide"
-                      />
-                    </div>
-                  ) : null
-              }
-              </div>
+                  <Styled.SwatchInner style={{ background: fontColor }} />
+                </Styled.Swatch>
+                {
+                  displayFontColorPicker
+                    ? (
+                      <Styled.ColorPickerPopover>
+                        <Styled.ColorPickerOverlay
+                          onClick={this.handleCloseColorPicker.bind(this)}
+                          onKeyPress={() => { }}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={ariaTextColor}
+                        />
+                        <GithubPicker
+                          // eslint-disable-next-line react/jsx-no-bind
+                          onChange={this.handleColorChange.bind(this, 'fontColor')}
+                          colors={COLORS}
+                          width="140px"
+                          triangle="hide"
+                        />
+                      </Styled.ColorPickerPopover>
+                    )
+                    : null
+                }
+              </Styled.Row>
 
-              <div className={styles.row}>
-                <div aria-hidden className={styles.label}>
+              <Styled.Row>
+                <Styled.Label aria-hidden>
                   {intl.formatMessage(intlMessages.backgroundColor)}
-                </div>
-                <div
+                </Styled.Label>
+                <Styled.Swatch
                   aria-label={ariaBackgroundColor}
                   tabIndex={DEFAULT_INDEX}
-                  className={styles.swatch}
                   onClick={this.handleColorPickerClick.bind(this, 'displayBackgroundColorPicker')}
+                  role="button"
+                  onKeyPress={() => { }}
                 >
-                  <div className={styles.swatchInner} style={{ background: backgroundColor }} />
-                </div>
-                {displayBackgroundColorPicker
-                  ? (
-                    <div className={styles.colorPickerPopover}>
-                      <div
-                        className={styles.colorPickerOverlay}
-                        onClick={this.handleCloseColorPicker.bind(this)}
-                      />
-                      <GithubPicker
-                        onChange={this.handleColorChange.bind(this, 'backgroundColor')}
-                        colors={COLORS}
-                        width="140px"
-                        triangle="hide"
-                      />
-                    </div>
-                  ) : null
-              }
-              </div>
+                  <Styled.SwatchInner style={{ background: backgroundColor }} />
+                </Styled.Swatch>
+                {
+                  displayBackgroundColorPicker
+                    ? (
+                      <Styled.ColorPickerPopover>
+                        <Styled.ColorPickerOverlay
+                          aria-label={ariaBackgroundColor}
+                          onClick={this.handleCloseColorPicker.bind(this)}
+                          tabIndex={0}
+                          role="button"
+                          onKeyPress={() => { }}
+                        />
+                        <GithubPicker
+                          // eslint-disable-next-line react/jsx-no-bind
+                          onChange={this.handleColorChange.bind(this, 'backgroundColor')}
+                          colors={COLORS}
+                          width="140px"
+                          triangle="hide"
+                        />
+                      </Styled.ColorPickerPopover>
+                    )
+                    : null
+                }
+              </Styled.Row>
 
-              <div className={styles.row}>
-                <div aria-hidden className={styles.label}>
+              <Styled.Row>
+                <Styled.Label aria-hidden>
                   {intl.formatMessage(intlMessages.fontFamily)}
-                </div>
-                <select
+                </Styled.Label>
+                <Styled.Select
                   aria-label={ariaFont}
-                  className={styles.select}
                   defaultValue={FONT_FAMILIES.indexOf(fontFamily)}
                   onChange={this.handleSelectChange.bind(this, 'fontFamily', FONT_FAMILIES)}
                 >
@@ -344,16 +354,15 @@ class ReaderMenu extends PureComponent {
                       {family}
                     </option>
                   ))}
-                </select>
-              </div>
+                </Styled.Select>
+              </Styled.Row>
 
-              <div className={styles.row}>
-                <div aria-hidden className={styles.label}>
+              <Styled.Row>
+                <Styled.Label aria-hidden>
                   {intl.formatMessage(intlMessages.fontSize)}
-                </div>
-                <select
+                </Styled.Label>
+                <Styled.Select
                   aria-label={ariaSize}
-                  className={styles.select}
                   defaultValue={FONT_SIZES.indexOf(fontSize)}
                   onChange={this.handleSelectChange.bind(this, 'fontSize', FONT_SIZES)}
                 >
@@ -365,18 +374,18 @@ class ReaderMenu extends PureComponent {
                       {size}
                     </option>
                   ))}
-                </select>
-              </div>
+                </Styled.Select>
+              </Styled.Row>
 
-              <div className={styles.row}>
-                <div className={styles.label}>{intl.formatMessage(intlMessages.preview)}</div>
+              <Styled.Row>
+                <Styled.Label>{intl.formatMessage(intlMessages.preview)}</Styled.Label>
                 <span aria-hidden style={this.getPreviewStyle()}>AaBbCc</span>
-              </div>
-            </div>
+              </Styled.Row>
+            </Styled.Col>
           </div>
         )}
-        <div className={styles.footer}>
-          <div className={styles.actions}>
+        <Styled.Footer>
+          <Styled.Actions>
             <Button
               label={intl.formatMessage(intlMessages.cancelLabel)}
               onClick={closeModal}
@@ -387,9 +396,9 @@ class ReaderMenu extends PureComponent {
               onClick={() => this.handleStart()}
               disabled={locale == null}
             />
-          </div>
-        </div>
-      </Modal>
+          </Styled.Actions>
+        </Styled.Footer>
+      </Styled.ReaderMenuModal>
     );
   }
 }

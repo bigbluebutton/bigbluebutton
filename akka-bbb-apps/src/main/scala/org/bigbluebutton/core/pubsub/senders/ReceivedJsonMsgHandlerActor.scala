@@ -79,6 +79,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[EjectUserFromMeetingSysMsg](envelope, jsonNode)
       case ValidateConnAuthTokenSysMsg.NAME =>
         route[ValidateConnAuthTokenSysMsg](meetingManagerChannel, envelope, jsonNode)
+      case AddPadSysMsg.NAME =>
+        routeGenericMsg[AddPadSysMsg](envelope, jsonNode)
+      case AddCaptionsPadsSysMsg.NAME =>
+        routeGenericMsg[AddCaptionsPadsSysMsg](envelope, jsonNode)
 
       // Guests
       case GetGuestsWaitingApprovalReqMsg.NAME =>
@@ -91,6 +95,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SetGuestPolicyCmdMsg](envelope, jsonNode)
       case GetGuestPolicyReqMsg.NAME =>
         routeGenericMsg[GetGuestPolicyReqMsg](envelope, jsonNode)
+      case SetGuestLobbyMessageCmdMsg.NAME =>
+        routeGenericMsg[SetGuestLobbyMessageCmdMsg](envelope, jsonNode)
 
       // Users
       case GetUsersMeetingReqMsg.NAME =>
@@ -119,12 +125,18 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetCurrentPollReqMsg](envelope, jsonNode)
       case RespondToPollReqMsg.NAME =>
         routeGenericMsg[RespondToPollReqMsg](envelope, jsonNode)
+      case RespondToTypedPollReqMsg.NAME =>
+        routeGenericMsg[RespondToTypedPollReqMsg](envelope, jsonNode)
 
       // Webcam
       case UserBroadcastCamStartMsg.NAME =>
         routeGenericMsg[UserBroadcastCamStartMsg](envelope, jsonNode)
       case UserBroadcastCamStopMsg.NAME =>
         routeGenericMsg[UserBroadcastCamStopMsg](envelope, jsonNode)
+      case GetCamBroadcastPermissionReqMsg.NAME =>
+        routeGenericMsg[GetCamBroadcastPermissionReqMsg](envelope, jsonNode)
+      case GetCamSubscribePermissionReqMsg.NAME =>
+        routeGenericMsg[GetCamSubscribePermissionReqMsg](envelope, jsonNode)
 
       // Voice
       case RecordingStartedVoiceConfEvtMsg.NAME =>
@@ -155,12 +167,16 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[MuteMeetingCmdMsg](envelope, jsonNode)
       case IsMeetingMutedReqMsg.NAME =>
         routeGenericMsg[IsMeetingMutedReqMsg](envelope, jsonNode)
+      case AudioFloorChangedVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[AudioFloorChangedVoiceConfEvtMsg](envelope, jsonNode)
       case CheckRunningAndRecordingVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[CheckRunningAndRecordingVoiceConfEvtMsg](envelope, jsonNode)
       case UserStatusVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[UserStatusVoiceConfEvtMsg](envelope, jsonNode)
       case VoiceConfCallStateEvtMsg.NAME =>
         routeVoiceMsg[VoiceConfCallStateEvtMsg](envelope, jsonNode)
+      case GetGlobalAudioPermissionReqMsg.NAME =>
+        routeGenericMsg[GetGlobalAudioPermissionReqMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
@@ -173,6 +189,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[EndAllBreakoutRoomsMsg](envelope, jsonNode)
       case TransferUserToMeetingRequestMsg.NAME =>
         routeGenericMsg[TransferUserToMeetingRequestMsg](envelope, jsonNode)
+      case ExtendBreakoutRoomsTimeReqMsg.NAME =>
+        routeGenericMsg[ExtendBreakoutRoomsTimeReqMsg](envelope, jsonNode)
 
       // Layout
       case GetCurrentLayoutReqMsg.NAME =>
@@ -220,6 +238,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetAllPresentationPodsReqMsg](envelope, jsonNode)
       case PreuploadedPresentationsSysPubMsg.NAME =>
         routeGenericMsg[PreuploadedPresentationsSysPubMsg](envelope, jsonNode)
+      case PresentationUploadedFileTooLargeErrorSysPubMsg.NAME =>
+        routeGenericMsg[PresentationUploadedFileTooLargeErrorSysPubMsg](envelope, jsonNode)
       case PresentationConversionUpdateSysPubMsg.NAME =>
         routeGenericMsg[PresentationConversionUpdateSysPubMsg](envelope, jsonNode)
       case PresentationPageCountErrorSysPubMsg.NAME =>
@@ -306,6 +326,10 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[ScreenshareStartedVoiceConfEvtMsg](envelope, jsonNode)
       case ScreenshareStoppedVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[ScreenshareStoppedVoiceConfEvtMsg](envelope, jsonNode)
+      case GetScreenBroadcastPermissionReqMsg.NAME =>
+        routeGenericMsg[GetScreenBroadcastPermissionReqMsg](envelope, jsonNode)
+      case GetScreenSubscribePermissionReqMsg.NAME =>
+        routeGenericMsg[GetScreenSubscribePermissionReqMsg](envelope, jsonNode)
 
       // GroupChats
       case GetGroupChatsReqMsg.NAME =>
@@ -316,6 +340,14 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetGroupChatMsgsReqMsg](envelope, jsonNode)
       case CreateGroupChatReqMsg.NAME =>
         routeGenericMsg[CreateGroupChatReqMsg](envelope, jsonNode)
+
+      // ExternalVideo
+      case StartExternalVideoPubMsg.NAME =>
+        routeGenericMsg[StartExternalVideoPubMsg](envelope, jsonNode)
+      case UpdateExternalVideoPubMsg.NAME =>
+        routeGenericMsg[UpdateExternalVideoPubMsg](envelope, jsonNode)
+      case StopExternalVideoPubMsg.NAME =>
+        routeGenericMsg[StopExternalVideoPubMsg](envelope, jsonNode)
 
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)

@@ -4,10 +4,13 @@ import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import GroupChat from '/imports/api/group-chat';
 import Annotations from '/imports/api/annotations';
-import Users from '/imports/api/users';
+import Users, { localUsersSync } from '/imports/ui/local-collections/users-collection/users';
+import { localBreakoutsSync } from '/imports/ui/local-collections/breakouts-collection/breakouts';
+import { localGuestUsersSync } from '/imports/ui/local-collections/guest-users-collection/guest-users';
+import { localMeetingsSync } from '/imports/ui/local-collections/meetings-collection/meetings';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 import { Annotations as AnnotationsLocal } from '/imports/ui/components/whiteboard/service';
-
+import SubscriptionRegistry, { subscriptionReactivity } from '../../services/subscription-registry/subscriptionRegistry';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -18,15 +21,22 @@ const SUBSCRIPTIONS = [
   'users', 'meetings', 'polls', 'presentations', 'slides', 'slide-positions', 'captions',
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note', 'meeting-time-remaining',
-  'network-information', 'local-settings', 'users-typing', 'record-meetings', 'video-streams',
-  'connection-status', 'voice-call-states',
+  'local-settings', 'users-typing', 'record-meetings', 'video-streams',
+  'connection-status', 'voice-call-states', 'external-video-meetings', 'breakouts',
 ];
+
+const EVENT_NAME = 'bbb-group-chat-messages-subscription-has-stoppped';
+const EVENT_NAME_SUBSCRIPTION_READY = 'bbb-group-chat-messages-subscriptions-ready';
+
+let oldRole = '';
 
 class Subscriptions extends Component {
   componentDidUpdate() {
     const { subscriptionsReady } = this.props;
     if (subscriptionsReady) {
       Session.set('subscriptionsReady', true);
+      const event = new Event(EVENT_NAME_SUBSCRIPTION_READY);
+      window.dispatchEvent(event);
     }
   }
 
@@ -45,8 +55,6 @@ export default withTracker(() => {
     };
   }
 
-  const currentUser = Users.findOne({ intId: requesterUserId }, { fields: { role: 1 } });
-
   const subscriptionErrorHandler = {
     onError: (error) => {
       logger.error({
@@ -57,17 +65,47 @@ export default withTracker(() => {
     },
   };
 
-  let subscriptionsHandlers = SUBSCRIPTIONS.map((name) => {
-    if ((!TYPING_INDICATOR_ENABLED && name.indexOf('typing') !== -1)
-      || (!CHAT_ENABLED && name.indexOf('chat') !== -1)) return;
+  const currentUser = Users.findOne({ intId: requesterUserId }, { fields: { role: 1 } });
 
-    return Meteor.subscribe(name, subscriptionErrorHandler);
+  let subscriptionsHandlers = SUBSCRIPTIONS.map((name) => {
+    let subscriptionHandlers = subscriptionErrorHandler;
+    if ((!TYPING_INDICATOR_ENABLED && name.indexOf('typing') !== -1)
+      || (!CHAT_ENABLED && name.indexOf('chat') !== -1)) return null;
+
+    if (name === 'users') {
+      subscriptionHandlers = {
+        ...subscriptionHandlers,
+        onStop: () => {
+          const event = new Event(EVENT_NAME);
+          window.dispatchEvent(event);
+        },
+      };
+    }
+
+    return SubscriptionRegistry.createSubscription(name, subscriptionHandlers);
   });
 
-  if (currentUser) {
-    subscriptionsHandlers.push(Meteor.subscribe('meetings', currentUser.role, subscriptionErrorHandler));
-    subscriptionsHandlers.push(Meteor.subscribe('users', currentUser.role, subscriptionErrorHandler));
-    subscriptionsHandlers.push(Meteor.subscribe('breakouts', currentUser.role, subscriptionErrorHandler));
+  if (currentUser && (oldRole !== currentUser?.role)) {
+    // stop subscription from the client-side as the server-side only watch moderators
+    if (oldRole === 'VIEWER' && currentUser?.role === 'MODERATOR') {
+      // let this withTracker re-execute when a subscription is stopped
+      subscriptionReactivity.depend();
+      // Prevent data being removed by subscription stop
+      localBreakoutsSync.setIgnoreDeletes(true);
+      localGuestUsersSync.setIgnoreDeletes(true);
+      localMeetingsSync.setIgnoreDeletes(true);
+      localUsersSync.setIgnoreDeletes(true);
+      // stop role dependent subscriptions
+      [
+        SubscriptionRegistry.getSubscription('meetings'),
+        SubscriptionRegistry.getSubscription('users'),
+        SubscriptionRegistry.getSubscription('breakouts'),
+        SubscriptionRegistry.getSubscription('guestUser'),
+      ].forEach((item) => {
+        if (item) item.stop();
+      });
+    }
+    oldRole = currentUser?.role;
   }
 
   const annotationsHandler = Meteor.subscribe('annotations', {
@@ -103,7 +141,18 @@ export default withTracker(() => {
     }).fetch();
 
     const chatIds = chats.map(chat => chat.chatId);
-    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatIds, subscriptionErrorHandler);
+
+    const subHandler = {
+      ...subscriptionErrorHandler,
+    };
+
+    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatIds, subHandler);
+  }
+
+  // TODO: Refactor all the late subscribers
+  let usersPersistentDataHandler = {};
+  if (ready) {
+    usersPersistentDataHandler = Meteor.subscribe('users-persistent-data');
   }
 
   return {

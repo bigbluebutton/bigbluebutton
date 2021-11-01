@@ -3,12 +3,11 @@ package org.bigbluebutton.core2
 import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
-
 object AnalyticsActor {
-  def props(): Props = Props(classOf[AnalyticsActor])
+  def props(includeChat: Boolean): Props = Props(classOf[AnalyticsActor], includeChat)
 }
 
-class AnalyticsActor extends Actor with ActorLogging {
+class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
 
   val TAG = "-- analytics -- "
 
@@ -20,6 +19,12 @@ class AnalyticsActor extends Actor with ActorLogging {
   def logMessage(msg: BbbCommonEnvCoreMsg): Unit = {
     val json = JsonUtil.toJson(msg)
     log.info(TAG + json)
+  }
+
+  def logChatMessage(msg: BbbCommonEnvCoreMsg): Unit = {
+    if (includeChat) {
+      logMessage(msg)
+    }
   }
 
   def traceMessage(msg: BbbCommonEnvCoreMsg): Unit = {
@@ -55,6 +60,7 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: RequestBreakoutJoinURLReqMsg                   => logMessage(msg)
       case m: EndAllBreakoutRoomsMsg                         => logMessage(msg)
       case m: TransferUserToMeetingRequestMsg                => logMessage(msg)
+      case m: ExtendBreakoutRoomsTimeReqMsg                  => logMessage(msg)
       case m: UserLeftVoiceConfToClientEvtMsg                => logMessage(msg)
       case m: UserLeftVoiceConfEvtMsg                        => logMessage(msg)
       case m: RecordingStartedVoiceConfEvtMsg                => logMessage(msg)
@@ -120,16 +126,18 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: PresentationConversionUpdateEvtMsgBody => logMessage(msg)
       case m: PresentationPageCountErrorSysPubMsg => logMessage(msg)
       case m: PresentationPageCountErrorEvtMsg => logMessage(msg)
+      case m: PresentationUploadedFileTooLargeErrorSysPubMsg => logMessage(msg)
+      case m: PresentationUploadedFileTooLargeErrorEvtMsg => logMessage(msg)
 
       // Group Chats
-      case m: SendGroupChatMessageMsg => logMessage(msg)
-      case m: GroupChatMessageBroadcastEvtMsg => logMessage(msg)
-      case m: GetGroupChatMsgsReqMsg => logMessage(msg)
-      case m: GetGroupChatMsgsRespMsg => logMessage(msg)
-      case m: CreateGroupChatReqMsg => logMessage(msg)
-      case m: GroupChatCreatedEvtMsg => logMessage(msg)
-      case m: GetGroupChatsReqMsg => logMessage(msg)
-      case m: GetGroupChatsRespMsg => logMessage(msg)
+      case m: SendGroupChatMessageMsg => logChatMessage(msg)
+      case m: GroupChatMessageBroadcastEvtMsg => logChatMessage(msg)
+      case m: GetGroupChatMsgsReqMsg => logChatMessage(msg)
+      case m: GetGroupChatMsgsRespMsg => logChatMessage(msg)
+      case m: CreateGroupChatReqMsg => logChatMessage(msg)
+      case m: GroupChatCreatedEvtMsg => logChatMessage(msg)
+      case m: GetGroupChatsReqMsg => logChatMessage(msg)
+      case m: GetGroupChatsRespMsg => logChatMessage(msg)
 
       // Guest Management
       case m: GuestsWaitingApprovedMsg => logMessage(msg)
@@ -139,6 +147,8 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: GuestsWaitingForApprovalEvtMsg => logMessage(msg)
       case m: SetGuestPolicyCmdMsg => logMessage(msg)
       case m: GuestPolicyChangedEvtMsg => logMessage(msg)
+      case m: SetGuestLobbyMessageCmdMsg => logMessage(msg)
+      case m: GuestLobbyMessageChangedEvtMsg => logMessage(msg)
 
       // System
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
@@ -157,6 +167,11 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: ChangeLockSettingsInMeetingCmdMsg => logMessage(msg)
       case m: GetLockSettingsReqMsg => logMessage(msg)
       case m: LockSettingsNotInitializedRespMsg => logMessage(msg)
+      case m: MeetingInfoAnalyticsMsg => logMessage(msg)
+
+      // Layout
+      case m: BroadcastLayoutMsg => logMessage(msg)
+      case m: BroadcastLayoutEvtMsg => logMessage(msg)
 
       case _ => // ignore message
     }

@@ -9,6 +9,8 @@ export const ACTIONS = {
   ADDED: 'added',
   CHANGED: 'changed',
   REMOVED: 'removed',
+  ADDED_USER_PERSISTENT_DATA: 'added_user_persistent_data',
+  CHANGED_USER_PERSISTENT_DATA: 'changed_user_persistent_data',
 };
 
 export const UsersContext = createContext();
@@ -27,24 +29,58 @@ const reducer = (state, action) => {
       ChatLogger.debug('UsersContextProvider::reducer::added', { ...action });
       const { user } = action.value;
 
-      const newState = {
-        ...state,
-        [user.userId]: {
-          ...user,
-        },
+      const newState = { ...state };
+
+      if (!newState[user.meetingId]) {
+        newState[user.meetingId] = {};
+      }
+      newState[user.meetingId][user.userId] = {
+        ...user,
       };
       return newState;
     }
     case ACTIONS.REMOVED: {
       ChatLogger.debug('UsersContextProvider::reducer::removed', { ...action });
-      
+
       const { user } = action.value;
-      if (state[user.userId]) {
+      if (state[user.meetingId][user.userId]) {
         const newState = { ...state };
-        delete newState[user.userId];
+        delete newState[user.meetingId][user.userId];
         return newState;
       }
 
+      return state;
+    }
+
+    // USER PERSISTENT DATA
+    case ACTIONS.ADDED_USER_PERSISTENT_DATA: {
+      const { user } = action.value;
+      if (state[user.meetingId] && state[user.meetingId][user.userId]) {
+        return state;
+      }
+
+      const newState = { ...state };
+
+      if (!newState[user.meetingId]) {
+        newState[user.meetingId] = {};
+      }
+      newState[user.meetingId][user.userId] = {
+        ...user,
+      };
+      return newState;
+    }
+    case ACTIONS.CHANGED_USER_PERSISTENT_DATA: {
+      const { user } = action.value;
+      const stateUser = state[user.meetingId][user.userId];
+      if (stateUser) {
+        const newState = { ...state };
+        newState[user.meetingId][user.userId] = {
+          ...stateUser,
+          ...user,
+        };
+
+        return newState;
+      }
       return state;
     }
     default: {
@@ -76,8 +112,9 @@ export const UsersContextConsumer = Component => props => (
   </UsersContext.Consumer>
 );
 
+export const withUsersConsumer = Component => UsersContextConsumer(Component);
+
 export default {
   UsersContextConsumer,
   UsersContextProvider,
 };
-

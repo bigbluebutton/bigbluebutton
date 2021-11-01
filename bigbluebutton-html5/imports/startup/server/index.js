@@ -12,7 +12,16 @@ import Redis from './redis';
 import setMinBrowserVersions from './minBrowserVersion';
 
 let guestWaitHtml = '';
-const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
+
+const env = Meteor.isDevelopment ? 'development' : 'production';
+
+const meteorRoot = fs.realpathSync(`${process.cwd()}/../`);
+
+const applicationRoot = (env === 'development')
+  ? fs.realpathSync(`${meteorRoot}'/../../../../public/locales/`)
+  : fs.realpathSync(`${meteorRoot}/../programs/web.browser/app/locales/`);
+
+const AVAILABLE_LOCALES = fs.readdirSync(`${applicationRoot}`);
 const FALLBACK_LOCALES = JSON.parse(Assets.getText('config/fallbackLocales.json'));
 
 process.on('uncaughtException', (err) => {
@@ -27,11 +36,10 @@ process.on('uncaughtException', (err) => {
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
-  const env = Meteor.isDevelopment ? 'development' : 'production';
   const CDN_URL = APP_CONFIG.cdn;
-  const instanceId = APP_CONFIG.instanceId.slice(1); // remove the leading '/' character
+  const instanceId = parseInt(process.env.INSTANCE_ID, 10) || 1;
 
-  Logger.warn('Started bbb-html5 process with instanceId=' + instanceId);
+  Logger.warn(`Started bbb-html5 process with instanceId=${instanceId}`);
 
   const { customHeartbeat } = APP_CONFIG;
 
@@ -106,40 +114,48 @@ Meteor.startup(() => {
         session.bbbFixApplied = true;
       }
     }, 5000);
-
-    if (CDN_URL.trim()) {
-      // Add CDN
-      BrowserPolicy.content.disallowEval();
-      BrowserPolicy.content.allowInlineScripts();
-      BrowserPolicy.content.allowInlineStyles();
-      BrowserPolicy.content.allowImageDataUrl(CDN_URL);
-      BrowserPolicy.content.allowFontDataUrl(CDN_URL);
-      BrowserPolicy.content.allowOriginForAll(CDN_URL);
-      WebAppInternals.setBundledJsCssPrefix(CDN_URL + APP_CONFIG.basename + Meteor.settings.public.app.instanceId);
-
-      const fontRegExp = /\.(eot|ttf|otf|woff|woff2)$/;
-
-      WebApp.rawConnectHandlers.use('/', (req, res, next) => {
-        if (fontRegExp.test(req._parsedUrl.pathname)) {
-          res.setHeader('Access-Control-Allow-Origin', '*');
-          res.setHeader('Vary', 'Origin');
-          res.setHeader('Pragma', 'public');
-          res.setHeader('Cache-Control', '"public"');
-        }
-        return next();
-      });
-    }
-
-    setMinBrowserVersions();
-
-    Logger.warn(`SERVER STARTED.\nENV=${env},\nnodejs version=${process.version}\nCDN=${CDN_URL}\n`, APP_CONFIG);
   }
+  if (CDN_URL.trim()) {
+    // Add CDN
+    BrowserPolicy.content.disallowEval();
+    BrowserPolicy.content.allowInlineScripts();
+    BrowserPolicy.content.allowInlineStyles();
+    BrowserPolicy.content.allowImageDataUrl(CDN_URL);
+    BrowserPolicy.content.allowFontDataUrl(CDN_URL);
+    BrowserPolicy.content.allowOriginForAll(CDN_URL);
+    WebAppInternals.setBundledJsCssPrefix(CDN_URL + APP_CONFIG.basename + Meteor.settings.public.app.instanceId);
+
+    const fontRegExp = /\.(eot|ttf|otf|woff|woff2)$/;
+
+    WebApp.rawConnectHandlers.use('/', (req, res, next) => {
+      if (fontRegExp.test(req._parsedUrl.pathname)) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Vary', 'Origin');
+        res.setHeader('Pragma', 'public');
+        res.setHeader('Cache-Control', '"public"');
+      }
+      return next();
+    });
+  }
+
+  setMinBrowserVersions();
+
+  Logger.warn(`SERVER STARTED.
+  ENV=${env}
+  nodejs version=${process.version}
+  BBB_HTML5_ROLE=${process.env.BBB_HTML5_ROLE}
+  INSTANCE_ID=${instanceId}
+  PORT=${process.env.PORT}
+  CDN=${CDN_URL}\n`, APP_CONFIG);
 });
 
 
 const generateLocaleOptions = () => {
   try {
     Logger.warn('Calculating aggregateLocales (heavy)');
+
+
+    // remove duplicated locales (always remove more generic if same name)
     const tempAggregateLocales = AVAILABLE_LOCALES
       .map(file => file.replace('.json', ''))
       .map(file => file.replace('_', '-'))
@@ -151,8 +167,14 @@ const generateLocaleOptions = () => {
           locale,
           name: localeName,
         };
-      });
+      }).reverse()
+      .filter((item, index, self) => index === self.findIndex(i => (
+        i.name === item.name
+      )))
+      .reverse();
+
     Logger.warn(`Total locales: ${tempAggregateLocales.length}`, tempAggregateLocales);
+
     return tempAggregateLocales;
   } catch (e) {
     Logger.error(`'Could not process locales error: ${e}`);
@@ -177,7 +199,7 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   const browserLocale = override && req.query.init === 'true'
     ? override.split(/[-_]/g) : req.query.locale.split(/[-_]/g);
 
-  const localeList = [fallback];
+  let localeFile = fallback;
 
   const usableLocales = AVAILABLE_LOCALES
     .map(file => file.replace('.json', ''))
@@ -185,35 +207,43 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
       ? [...locales, locale]
       : locales), []);
 
+  let normalizedLocale;
+
   const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
 
-  if (regionDefault) localeList.push(regionDefault);
-  if (!regionDefault && usableLocales.length) localeList.push(usableLocales[0]);
-
-  let normalizedLocale;
-  let messages = {};
-
   if (browserLocale.length > 1) {
+    // browser asks for specific locale
     normalizedLocale = `${browserLocale[0]}_${browserLocale[1].toUpperCase()}`;
-    localeList.push(normalizedLocale);
+
+    const normDefault = usableLocales.find(locale => normalizedLocale === locale);
+    if (normDefault) {
+      localeFile = normDefault;
+    } else {
+      if (regionDefault) {
+        localeFile = regionDefault;
+      } else {
+        const specFallback = usableLocales.find(locale => browserLocale[0] === locale.split("_")[0]);
+        if (specFallback) localeFile = specFallback;
+      }
+    }
+  } else {
+    // browser asks for region default locale
+    if (regionDefault && localeFile === fallback && regionDefault !== localeFile) {
+      localeFile = regionDefault;
+    } else {
+      const normFallback = usableLocales.find(locale => browserLocale[0] === locale.split("_")[0]);
+      if (normFallback) localeFile = normFallback;
+    }
   }
 
-  localeList.forEach((locale) => {
-    try {
-      const data = Assets.getText(`locales/${locale}.json`);
-      messages = Object.assign(messages, JSON.parse(data));
-      normalizedLocale = locale;
-    } catch (e) {
-      Logger.info(`'Could not process locale ${locale}:${e}`);
-      // Getting here means the locale is not available in the current locale files.
-    }
-  });
-
   res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify({ normalizedLocale, messages }));
+  res.end(JSON.stringify({
+    normalizedLocale: localeFile,
+    regionDefaultLocale: (regionDefault && regionDefault !== localeFile) ? regionDefault : '',
+  }));
 });
 
-WebApp.connectHandlers.use('/locales', (req, res) => {
+WebApp.connectHandlers.use('/locale-list', (req, res) => {
   if (!avaibleLocalesNamesJSON) {
     avaibleLocalesNamesJSON = JSON.stringify(generateLocaleOptions());
   }
@@ -292,7 +322,6 @@ WebApp.connectHandlers.use('/guestWait', (req, res) => {
   res.writeHead(200);
   res.end(guestWaitHtml);
 });
-
 
 export const eventEmitter = Redis.emitter;
 

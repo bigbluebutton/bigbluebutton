@@ -3,9 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import VoiceUsers from '/imports/api/voice-users/';
-import _ from 'lodash';
-import SanitizeHTML from 'sanitize-html';
-
+import addUserPsersistentData from '/imports/api/users-persistent-data/server/modifiers/addUserPersistentData';
 import stringHash from 'string-hash';
 import flat from 'flat';
 
@@ -19,14 +17,6 @@ const COLOR_LIST = [
 
 export default function addUser(meetingId, userData) {
   const user = userData;
-  const sanitizedName = SanitizeHTML(userData.name, {
-    allowedTags: [],
-    allowedAttributes: {},
-  });
-  // if user typed only tags
-  user.name = sanitizedName.length === 0
-    ? _.escape(userData.name)
-    : sanitizedName;
 
   check(meetingId, String);
 
@@ -58,26 +48,26 @@ export default function addUser(meetingId, userData) {
     from a list based on the userId */
   const color = COLOR_LIST[stringHash(user.intId) % COLOR_LIST.length];
 
-  const modifier = {
-    $set: Object.assign(
-      {
-        meetingId,
-        sortName: user.name.trim().toLowerCase(),
-        color,
-        mobile: false,
-        breakoutProps: {
-          isBreakoutUser: Meeting.meetingProp.isBreakout,
-          parentId: Meeting.breakoutProps.parentId,
-        },
-        effectiveConnectionType: null,
-        inactivityCheck: false,
-        responseDelay: 0,
-        loggedOut: false,
-      },
-      flat(user),
-    ),
+  const userInfos = {
+    meetingId,
+    sortName: user.name.trim().toLowerCase(),
+    color,
+    mobile: false,
+    breakoutProps: {
+      isBreakoutUser: Meeting.meetingProp.isBreakout,
+      parentId: Meeting.breakoutProps.parentId,
+    },
+    effectiveConnectionType: null,
+    inactivityCheck: false,
+    responseDelay: 0,
+    loggedOut: false,
+    ...flat(user),
   };
 
+  const modifier = {
+    $set: userInfos,
+  };
+  addUserPsersistentData(userInfos);
   // Only add an empty VoiceUser if there isn't one already and if the user coming in isn't a
   // dial-in user. We want to avoid overwriting good data
   if (user.clientType !== 'dial-in-user' && !VoiceUsers.findOne({ meetingId, intId: userId })) {
@@ -93,6 +83,17 @@ export default function addUser(meetingId, userData) {
       voiceConf: '',
       joined: false,
     });
+  }
+
+  /**
+   * Add a verification to check if the user was set as presenter.
+   * In some cases the user information is set after the presenter is set
+   * causing the first moderator to join a meeting be marked as presenter: false
+   */
+  const partialUser = Users.findOne(selector);
+
+  if (partialUser?.presenter) {
+    modifier.$set.presenter = true;
   }
 
   try {

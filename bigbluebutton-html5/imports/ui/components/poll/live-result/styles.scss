@@ -4,6 +4,7 @@
   --poll-stats-element-width: 17%;
   
   --poll-sm-margin: 0.3125rem;
+  --poll-md-margin: 0.7rem;
   --poll-user-line-height: 1.75rem;
   --poll-result-width: 15rem;
 }
@@ -12,6 +13,22 @@
   width: 100%;
   margin-top: var(--sm-padding-y);
   margin-bottom: var(--sm-padding-y);
+  font-size: var(--font-size-base);
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.publishBtn,
+.cancelBtn {
+  width: 48%;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.buttonsActions {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
 }
 
 .main {
@@ -22,7 +39,7 @@
 
 .center {
   position: relative;
-  flex: 1 1 auto;
+  flex: 3;
   border-left: 1px solid var(--color-gray-lighter);
   border-right : none;
   width: 100%;
@@ -39,12 +56,14 @@
   max-width: var(--poll-result-width);
   min-width: var(--poll-stats-element-width);
   word-wrap: break-word;
+  flex: 6;
 }
 
 .right {
   text-align: right;
   max-width: var(--poll-stats-element-width);
   min-width: var(--poll-stats-element-width);
+  flex: 1;
 
   [dir="rtl"] & {
     text-align: left;
@@ -62,7 +81,6 @@
 
 .left,
 .right {
-  flex: 0 0 auto;
   position: relative;
 }
 
@@ -131,7 +149,6 @@
 }
 
 .status {
-  margin-top: .5rem;
   margin-bottom: .5rem;
 }
 
@@ -152,6 +169,23 @@
       animation: ellipsis steps(4,end) 900ms infinite;
     }
   }
+}
+
+.separator {
+  display: flex;
+  flex: 1 1 100%;
+  height: 1px;
+  min-height: 1px;
+  background-color: var(--color-gray-lightest);
+  padding: 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-weight: bold;
+  word-break: break-all;
+  white-space: pre-wrap;
 }
 
 @keyframes ellipsis {

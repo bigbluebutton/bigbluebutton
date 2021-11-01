@@ -17,15 +17,17 @@ public interface IBbbWebApiGWApp {
                      String parentMeetingID, String meetingName, Boolean recorded,
                      String voiceBridge, Integer duration, Boolean autoStartRecording,
                      Boolean allowStartStopRecording, Boolean webcamsOnlyForModerator,
-                     String moderatorPass, String viewerPass, Long createTime,
+                     String moderatorPass, String viewerPass, Boolean learningDashboardEnabled, String learningDashboardAccessToken, Long createTime,
                      String createDate, Boolean isBreakout, Integer sequence, Boolean freejoin, Map<String, String> metadata,
-                     String guestPolicy, Boolean authenticatedGuest, String welcomeMsgTemplate, String welcomeMsg, String modOnlyMessage,
+                     String guestPolicy, Boolean authenticatedGuest, String meetingLayout, String welcomeMsgTemplate, String welcomeMsg, String modOnlyMessage,
                      String dialNumber, Integer maxUsers,
                      Integer meetingExpireIfNoUserJoinedInMinutes,
                      Integer meetingExpireWhenLastUserLeftInMinutes,
                      Integer userInactivityInspectTimerInMinutes,
                      Integer userInactivityThresholdInMinutes,
                      Integer userActivitySignResponseDelayInMinutes,
+                     Boolean endWhenNoModerator,
+                     Integer endWhenNoModeratorDelayInMinutes,
                      Boolean muteOnStart,
                      Boolean allowModsToUnmuteUsers,
                      Boolean keepEvents,
@@ -42,7 +44,7 @@ public interface IBbbWebApiGWApp {
 
   void destroyMeeting(DestroyMeetingMessage msg);
   void endMeeting(EndMeetingMessage msg);
-  void sendKeepAlive(String system, Long timestamp);
+  void sendKeepAlive(String system, Long bbbWebTimestamp, Long akkaAppsTimestamp);
   void publishedRecording(PublishedRecordingMessage msg);
   void unpublishedRecording(UnpublishedRecordingMessage msg);
   void deletedRecording(DeletedRecordingMessage msg);

@@ -36,8 +36,31 @@ opts = Trollop::options do
 end
 meeting_id = opts[:meeting_id]
 
-processed_files = "/var/bigbluebutton/recording/process/presentation/#{meeting_id}"
-meeting_metadata = BigBlueButton::Events.get_meeting_metadata("/var/bigbluebutton/recording/raw/#{meeting_id}/events.xml")
+bbb_web_properties = "/etc/bigbluebutton/bbb-web.properties"
+events_xml = "/var/bigbluebutton/recording/raw/#{meeting_id}/events.xml"
+
+def get_metadata(key, meeting_metadata)
+  meeting_metadata.key?(key) ? meeting_metadata[key].value : nil
+end
+
+def get_callback_url(events_xml)
+  meeting_metadata = BigBlueButton::Events.get_meeting_metadata(events_xml)
+
+  meta_bbb_rec_ready_url = "bbb-recording-ready-url"
+
+  callback_url = get_metadata(meta_bbb_rec_ready_url, meeting_metadata)
+
+  # For compatibility with some 3rd party implementations, look up for
+  # bn-recording-ready-url or canvas-recording-ready, when bbb-recording-ready
+  # is not included.
+  meta_bn_rec_ready_url = "bn-recording-ready-url"
+  meta_canvas_rec_ready_url = "canvas-recording-ready-url"
+
+  callback_url ||= get_metadata(meta_bn_rec_ready_url, meeting_metadata)
+  callback_url ||= get_metadata(meta_canvas_rec_ready_url, meeting_metadata)
+
+  callback_url
+end
 
 #
 # Main code
@@ -45,18 +68,14 @@ meeting_metadata = BigBlueButton::Events.get_meeting_metadata("/var/bigbluebutto
 BigBlueButton.logger.info("Recording Ready Notify for [#{meeting_id}] starts")
 
 begin
-  callback_url = meeting_metadata.key?("bbb-recording-ready-url") ? meeting_metadata["bbb-recording-ready-url"].value : nil
-  # For compatibility with some 3rd party implementations, look up for bn-recording-ready-url or canvas-recording-ready, when bbb-recording-ready is not included.
-  callback_url ||= meeting_metadata.key?("bn-recording-ready-url") ? meeting_metadata["bn-recording-ready-url"].value : nil
-  callback_url ||= meeting_metadata.key?("canvas-recording-ready-url") ? meeting_metadata["canvas-recording-ready-url"].value : nil
-
+  callback_url = get_callback_url(events_xml)
 
   unless callback_url.nil?
     BigBlueButton.logger.info("Making callback for recording ready notification")
 
-    props = JavaProperties::Properties.new("/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties")
+    props = JavaProperties::Properties.new(bbb_web_properties)
     secret = props[:securitySalt]
-    external_meeting_id = meeting_metadata["meetingId"].value
+    external_meeting_id = BigBlueButton::Events.get_external_meeting_id(events_xml)
 
     payload = { meeting_id: external_meeting_id, record_id: meeting_id }
     payload_encoded = JWT.encode(payload, secret)

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   legendTitle: {
@@ -41,9 +41,9 @@ class Rating extends Component {
     const { intl } = this.props;
 
     return (
-      <div className={styles.starRating}>
+      <Styled.StarRating>
         <fieldset>
-          <legend className={styles.legend}>{intl.formatMessage(intlMessages.legendTitle)}</legend>
+          <Styled.Legend>{intl.formatMessage(intlMessages.legendTitle)}</Styled.Legend>
           {
             _.range(num)
               .map(i => [
@@ -67,7 +67,7 @@ class Rating extends Component {
               ]).reverse()
           }
         </fieldset>
-      </div>
+      </Styled.StarRating>
     );
   }
 
@@ -76,7 +76,7 @@ class Rating extends Component {
       total,
     } = this.props;
     return (
-      <div className={styles.father}>
+      <div>
         {
           this.renderStars(total)
         }

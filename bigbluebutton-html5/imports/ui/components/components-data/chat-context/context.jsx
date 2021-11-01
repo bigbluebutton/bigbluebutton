@@ -3,7 +3,7 @@ import React, {
   useReducer,
 } from 'react';
 
-import Users from '/imports/api/users';
+import Users from '/imports/ui/local-collections/users-collection/users';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
@@ -20,16 +20,24 @@ export const ACTIONS = {
   ADDED: 'added',
   CHANGED: 'changed',
   REMOVED: 'removed',
-  USER_STATUS_CHANGED: 'user_status_changed',
   LAST_READ_MESSAGE_TIMESTAMP_CHANGED: 'last_read_message_timestamp_changed',
   INIT: 'initial_structure',
+  SYNC_STATUS: 'sync_status',
+  HAS_MESSAGE_TO_SYNC: 'has_message_to_sync',
+  CLEAR_ALL: 'clear_all',
+  CLEAR_STREAM_MESSAGES: 'clear_stream_messages',
 };
 
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+export const MESSAGE_TYPES = {
+  //messages before user login, synced via makecall
+  HISTORY: 'history',
+  // messages after user login, synced via subscription
+  STREAM: 'stream',
+};
 
 export const getGroupingTime = () => Meteor.settings.public.chat.grouping_messages_window;
 export const getGroupChatId = () => Meteor.settings.public.chat.public_group_id;
-export const getLoginTime = () => (Users.findOne({ userId: Auth.userID }) || {}).loginTime || 0;
+export const getLoginTime = () => (Users.findOne({ userId: Auth.userID }) || {}).authTokenValidatedTime || 0;
 
 const generateTimeWindow = (timestamp) => {
   const groupingTime = getGroupingTime();
@@ -41,27 +49,21 @@ const generateTimeWindow = (timestamp) => {
 
 export const ChatContext = createContext();
 
-const generateStateWithNewMessage = ({ msg, senderData }, state) => {
+const removedMessagesReadState = {};
+
+const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY) => {
   
   const timeWindow = generateTimeWindow(msg.timestamp);
-  const userId = msg.sender.id;
+  const userId = msg.sender;
   const keyName = userId + '-' + timeWindow;
-  const msgBuilder = ({msg, senderData}, chat) => {
+  const msgBuilder = (msg, chat) => {
     const msgTimewindow = generateTimeWindow(msg.timestamp);
-    const key = msg.sender.id + '-' + msgTimewindow;
+    const key = msg.sender + '-' + msgTimewindow;
     const chatIndex = chat?.chatIndexes[key];
     const {
       _id,
       ...restMsg
     } = msg;
-    const senderInfo = {
-      id: senderData?.userId || msg.sender.id,
-      avatar: senderData?.avatar,
-      color: senderData?.color ,
-      isModerator: senderData?.role === ROLE_MODERATOR, // TODO: get isModerator from message
-      name: senderData?.name || msg.sender.name,
-      isOnline: !!senderData,
-    };
 
     const indexValue = chatIndex ? (chatIndex + 1) : 1;
     const messageKey = key + '-' + indexValue;
@@ -70,11 +72,10 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
         ...restMsg,
         key: messageKey,
         lastTimestamp: msg.timestamp,
-        read: msg.chatId === PUBLIC_CHAT_KEY && msg.timestamp <= getLoginTime() ? true : false,
+        read: msg.chatId === PUBLIC_CHAT_KEY && msg.timestamp <= getLoginTime() ? true : !!removedMessagesReadState[msg.id],
         content: [
-          { id: msg.id, name: msg.sender.name, text: msg.message, time: msg.timestamp },
+          { id: msg.id, text: msg.message, time: msg.timestamp },
         ],
-        sender: senderInfo,
       }
     };
   
@@ -90,6 +91,7 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
         chatIndexes: {},
         preJoinMessages: {},
         posJoinMessages: {},
+        synced:true,
         unreadTimeWindows: new Set(),
         unreadCount: 0,
       };
@@ -97,6 +99,7 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
       state[msg.chatId] = {
         count: 0,
         lastSender: '',
+        synced:true,
         chatIndexes: {},
         messageGroups: {},
         unreadTimeWindows: new Set(),
@@ -114,9 +117,8 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
   const timewindowIndex = stateMessages.chatIndexes[keyName];
   const groupMessage = messageGroups[keyName + '-' + timewindowIndex];
   
-  if (!groupMessage || (groupMessage && groupMessage.sender.id !== stateMessages.lastSender.id)) {
-
-    const [tempGroupMessage, sender, newIndex] = msgBuilder({msg, senderData}, stateMessages);
+  if (!groupMessage || (groupMessage && groupMessage.sender !== stateMessages.lastSender) || msg.id.startsWith(SYSTEM_CHAT_TYPE)) {
+    const [tempGroupMessage, sender, newIndex] = msgBuilder(msg, stateMessages);
     stateMessages.lastSender = sender;
     stateMessages.chatIndexes[keyName] = newIndex;
     stateMessages.lastTimewindow = keyName + '-' + newIndex;
@@ -126,13 +128,15 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
     messageGroupsKeys.forEach(key => {
       messageGroups[key] = tempGroupMessage[key];
       const message = tempGroupMessage[key];
-      if (message.sender.id !== Auth.userID && !message.id.startsWith(SYSTEM_CHAT_TYPE)) {
+      message.messageType = msgType;
+      const previousMessage = message.timestamp <= getLoginTime();
+      if (!previousMessage && message.sender !== Auth.userID && !message.id.startsWith(SYSTEM_CHAT_TYPE) && !message.read) {
         stateMessages.unreadTimeWindows.add(key);
       }
     });
   } else {
     if (groupMessage) {
-      if (groupMessage.sender.id === stateMessages.lastSender.id) {
+      if (groupMessage.sender === stateMessages.lastSender) {
         const previousMessage = msg.timestamp <= getLoginTime();
         const timeWindowKey = keyName + '-' + stateMessages.chatIndexes[keyName];
         messageGroups[timeWindowKey] = {
@@ -141,10 +145,10 @@ const generateStateWithNewMessage = ({ msg, senderData }, state) => {
           read: previousMessage ? true : false,
           content: [
             ...groupMessage.content,
-            { id: msg.id, name: groupMessage.sender.name, text: msg.message, time: msg.timestamp }
+            { id: msg.id, text: msg.message, time: msg.timestamp }
           ],
         };
-        if (!previousMessage && groupMessage.sender.id !== Auth.userID) {
+        if (!previousMessage && groupMessage.sender !== Auth.userID) {
           stateMessages.unreadTimeWindows.add(timeWindowKey);
         }
       }
@@ -171,7 +175,7 @@ const reducer = (state, action) => {
       const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
       const loginTime = getLoginTime();
       const newState = batchMsgs.reduce((acc, i)=> {
-        const message = i.msg;
+        const message = i;
         const chatId = message.chatId;
         if (
             chatId !== PUBLIC_GROUP_CHAT_KEY 
@@ -179,8 +183,7 @@ const reducer = (state, action) => {
             && currentClosedChats.includes(chatId) ){
           closedChatsToOpen.add(chatId)
         }
-
-        return generateStateWithNewMessage(i, acc);
+        return generateStateWithNewMessage(message, acc, action.messageType);
       }, state);
 
       if (closedChatsToOpen.size) {
@@ -203,6 +206,7 @@ const reducer = (state, action) => {
           count: 0,
           lastSender: '',
           chatIndexes: {},
+          syncing: false,
           preJoinMessages: {},
           posJoinMessages: {},
           unreadTimeWindows: new Set(),
@@ -210,37 +214,6 @@ const reducer = (state, action) => {
         };
       }
       return state;
-    }
-    case ACTIONS.USER_STATUS_CHANGED: {
-      ChatLogger.debug(ACTIONS.USER_STATUS_CHANGED);
-      const newState = {
-        ...state,
-      };
-      const affectedChats = [];
-      // select all groups of users
-      Object.keys(newState).forEach(chatId => {
-        const affectedGroups = Object.keys(newState[chatId])
-          .filter(groupId => groupId.startsWith(action.value.userId));
-        if (affectedGroups.length) {
-          affectedChats[chatId] = affectedGroups;
-        }
-      });
-
-      //Apply change to new state
-      Object.keys(affectedChats).forEach((chatId) => {
-        // force new reference
-        newState[chatId] = {
-          ...newState[chatId]
-        };
-        //Apply change
-        affectedChats[chatId].forEach(groupId => {
-          newState[chatId][groupId] = {
-            ...newState[chatId][groupId] //TODO: sort by time (for incromental loading)
-          };
-          newState[chatId][groupId].status = action.value.status;
-        });
-      });
-      return newState
     }
     case ACTIONS.LAST_READ_MESSAGE_TIMESTAMP_CHANGED: {
       ChatLogger.debug(ACTIONS.LAST_READ_MESSAGE_TIMESTAMP_CHANGED);
@@ -250,6 +223,7 @@ const reducer = (state, action) => {
       };
       const selectedChatId = chatId === PUBLIC_CHAT_KEY ? PUBLIC_GROUP_CHAT_KEY : chatId;
       const chat = state[selectedChatId];
+      if (!chat) return state;
       ['posJoinMessages','preJoinMessages','messageGroups'].forEach( messageGroupName => {
         const messageGroup = chat[messageGroupName];
         if (messageGroup){
@@ -300,6 +274,71 @@ const reducer = (state, action) => {
         };
       }
       return state;
+    }
+    case ACTIONS.SYNC_STATUS: {
+      ChatLogger.debug(ACTIONS.SYNC_STATUS);
+      const newState = { ...state };
+      newState[action.value.chatId].syncedPercent = action.value.percentage;
+      newState[action.value.chatId].syncing = action.value.percentage < 100 ? true : false;
+
+      return newState;
+    }
+    case ACTIONS.CLEAR_ALL: {
+      ChatLogger.debug(ACTIONS.CLEAR_ALL);
+      const newState = { ...state };
+      const chatIds = Object.keys(newState);
+      chatIds.forEach((chatId) => {
+        newState[chatId] = chatId === PUBLIC_GROUP_CHAT_KEY ? 
+        {
+          count: 0,
+          lastSender: '',
+          chatIndexes: {},
+          preJoinMessages: {},
+          posJoinMessages: {},
+          syncing: false,
+          syncedPercent: 0,
+          unreadTimeWindows: new Set(),
+          unreadCount: 0,
+        }
+        :  
+        {
+          count: 0,
+          lastSender: '',
+          chatIndexes: {},
+          messageGroups: {},
+          syncing: false,
+          syncedPercent: 0,
+          unreadTimeWindows: new Set(),
+          unreadCount: 0,
+        };
+      });
+      return newState;
+    }
+    // BBB don't remove individual messages, so when a message is removed it means the chat is cleared ( by admin, or for resync )
+    // considering it, we remove all messages from all chats
+    case ACTIONS.CLEAR_STREAM_MESSAGES: {
+      ChatLogger.debug(ACTIONS.CLEAR_STREAM_MESSAGES);
+      const newState = { ...state };
+      const chatIds = Object.keys(newState);
+      chatIds.forEach((chatId) => {
+        const chat = newState[chatId];
+        ['posJoinMessages','messageGroups'].forEach((group)=> {
+          const messages = chat[group];
+          if (messages) {
+            const timeWindowIds = Object.keys(messages);
+            timeWindowIds.forEach((timeWindowId)=> {
+              const timeWindow = messages[timeWindowId];
+              if (timeWindow.messageType === MESSAGE_TYPES.STREAM) {
+                chat.unreadTimeWindows.delete(timeWindowId);
+                removedMessagesReadState[newState[chatId][group][timeWindowId].id] = newState[chatId][group][timeWindowId].read;
+                delete newState[chatId][group][timeWindowId];
+              }
+            });
+          }
+        })
+      });
+
+      return newState;
     }
     default: {
       throw new Error(`Unexpected action: ${JSON.stringify(action)}`);

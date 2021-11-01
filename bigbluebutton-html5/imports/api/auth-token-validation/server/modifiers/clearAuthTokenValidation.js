@@ -8,7 +8,9 @@ export default function clearAuthTokenValidation(meetingId) {
       Logger.info(`Error when removing auth-token-validation for meeting=${meetingId}`);
     }
 
-    ClientConnections.removeMeeting(meetingId);
+    if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
+      ClientConnections.removeMeeting(meetingId);
+    }
     Logger.info(`Cleared AuthTokenValidation (${meetingId})`);
   });
 }

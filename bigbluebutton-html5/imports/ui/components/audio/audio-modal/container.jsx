@@ -1,10 +1,10 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import browser from 'browser-detect';
+import browserInfo from '/imports/utils/browserInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioModal from './component';
-import Meetings from '/imports/api/meetings';
+import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
 import Auth from '/imports/ui/services/auth';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import AudioError from '/imports/ui/services/audio-manager/error-codes';
@@ -14,13 +14,11 @@ import {
   closeModal,
   joinListenOnly,
   leaveEchoTest,
-  getcookieData,
 } from './service';
 import Storage from '/imports/ui/services/storage/session';
 import Service from '../service';
 
-const AudioModalContainer = props => <AudioModal {...props} />;
-
+const AudioModalContainer = (props) => <AudioModal {...props} />;
 
 const APP_CONFIG = Meteor.settings.public.app;
 
@@ -49,45 +47,50 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
   }
 
   const meetingIsBreakout = AppService.meetingIsBreakout();
-  const { joinedAudio } = getcookieData();
 
-  const joinFullAudioImmediately = (autoJoin && (skipCheck || skipCheckOnJoin))
-    || (skipCheck || skipCheckOnJoin && !getEchoTest);
-
-  const joinFullAudioEchoTest = joinFullAudioImmediately && getEchoTest;
+  const joinFullAudioImmediately = (
+    autoJoin
+    && (
+      skipCheck
+      || (skipCheckOnJoin && !getEchoTest)
+    ))
+    || (
+      skipCheck
+      || (skipCheckOnJoin && !getEchoTest)
+    );
 
   const forceListenOnlyAttendee = forceListenOnly && !Service.isUserModerator();
 
+  const { isIe } = browserInfo;
+
   return ({
-    joinedAudio,
     meetingIsBreakout,
     closeModal,
-    joinMicrophone: skipEchoTest => joinMicrophone(skipEchoTest || skipCheck),
+    joinMicrophone: (skipEchoTest) => joinMicrophone(skipEchoTest || skipCheck || skipCheckOnJoin),
     joinListenOnly,
     leaveEchoTest,
-    changeInputDevice: inputDeviceId => Service.changeInputDevice(inputDeviceId),
-    changeOutputDevice: outputDeviceId => Service.changeOutputDevice(outputDeviceId),
+    changeInputDevice: (inputDeviceId) => Service
+      .changeInputDevice(inputDeviceId),
+    changeOutputDevice: (outputDeviceId) => Service
+      .changeOutputDevice(outputDeviceId),
     joinEchoTest: () => Service.joinEchoTest(),
     exitAudio: () => Service.exitAudio(),
     isConnecting: Service.isConnecting(),
     isConnected: Service.isConnected(),
+    isUsingAudio: Service.isUsingAudio(),
     isEchoTest: Service.isEchoTest(),
     inputDeviceId: Service.inputDeviceId(),
     outputDeviceId: Service.outputDeviceId(),
     showPermissionsOvelay: Service.isWaitingPermissions(),
     listenOnlyMode,
-    skipCheck,
-    skipCheckOnJoin,
     formattedDialNum,
     formattedTelVoice,
     combinedDialInNum,
     audioLocked: userLocks.userMic,
     joinFullAudioImmediately,
-    joinFullAudioEchoTest,
     forceListenOnlyAttendee,
-    isIOSChrome: browser().name === 'crios',
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
-    isIEOrEdge: browser().name === 'edge' || browser().name === 'ie',
+    isIE: isIe,
     autoplayBlocked: Service.autoplayBlocked(),
     handleAllowAutoplay: () => Service.handleAllowAutoplay(),
     isRTL,

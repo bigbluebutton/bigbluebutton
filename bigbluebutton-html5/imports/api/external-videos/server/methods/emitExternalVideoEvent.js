@@ -1,20 +1,40 @@
-import Users from '/imports/api/users';
+import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
+import RedisPubSub from '/imports/startup/server/redis';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function emitExternalVideoEvent(messageName, ...rest) {
-  const { meetingId, requesterUserId: userId } = extractCredentials(this.userId);
+export default function emitExternalVideoEvent(options) {
+  const REDIS_CONFIG = Meteor.settings.private.redis;
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const EVENT_NAME = 'UpdateExternalVideoPubMsg';
 
-  const user = Users.findOne({ userId, meetingId });
+  try {
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  if (user && user.presenter) {
-    const streamerName = `external-videos-${meetingId}`;
-    const streamer = Meteor.StreamerCentral.instances[streamerName];
+    check(meetingId, String);
+    check(requesterUserId, String);
 
-    if (streamer) {
-      streamer.emit(messageName, ...rest);
-    } else {
-      Logger.error(`External Video Streamer not found for meetingId: ${meetingId} userId: ${userId}`);
-    }
+    const { status, playerStatus } = options;
+
+    check(status, String);
+    check(playerStatus, {
+      rate: Match.Maybe(Number),
+      time: Match.Maybe(Number),
+      state: Match.Maybe(Number),
+    });
+
+    const state = playerStatus.state || 0;
+
+    const payload = {
+      status,
+      rate: playerStatus.rate || 0,
+      time: playerStatus.time || 0,
+      state,
+    };
+
+    Logger.debug(`User id=${requesterUserId} sending ${EVENT_NAME} event:${state} for meeting ${meetingId}`);
+    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+  } catch (err) {
+    Logger.error(`Exception while invoking method emitExternalVideoEvent ${err.stack}`);
   }
 }

@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.running
 
 import java.io.{ PrintWriter, StringWriter }
-
 import akka.actor._
 import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.SystemConfiguration
@@ -16,28 +15,36 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.chat.ChatApp2x
+import org.bigbluebutton.core.apps.externalvideo.ExternalVideoApp2x
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.models._
+import org.bigbluebutton.core.models.{ Users2x, VoiceUsers, _ }
 import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.meeting._
+import org.bigbluebutton.core2.message.handlers.pads._
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.polls._
 import org.bigbluebutton.core.apps.voice._
-import akka.actor._
+import akka.actor.Props
+import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy.Resume
+import org.bigbluebutton.common2.msgs
 
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
+import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
+import org.bigbluebutton.core.models.Webcams.{ findAll, updateWebcamStream }
+import org.bigbluebutton.core2.MeetingStatus2x.{ hasAuthedUserJoined, isVoiceRecording }
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
+import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object MeetingActor {
@@ -73,20 +80,30 @@ class MeetingActor(
   with MuteAllExceptPresentersCmdMsgHdlr
   with MuteMeetingCmdMsgHdlr
   with IsMeetingMutedReqMsgHdlr
+  with GetGlobalAudioPermissionReqMsgHdlr
+  with GetScreenBroadcastPermissionReqMsgHdlr
+  with GetScreenSubscribePermissionReqMsgHdlr
+  with GetCamBroadcastPermissionReqMsgHdlr
+  with GetCamSubscribePermissionReqMsgHdlr
 
   with EjectUserFromVoiceCmdMsgHdlr
   with EndMeetingSysCmdMsgHdlr
   with DestroyMeetingSysCmdMsgHdlr
   with SendTimeRemainingUpdateHdlr
   with SendBreakoutTimeRemainingMsgHdlr
+  with SendBreakoutTimeRemainingInternalMsgHdlr
   with ChangeLockSettingsInMeetingCmdMsgHdlr
   with SyncGetMeetingInfoRespMsgHdlr
   with ClientToServerLatencyTracerMsgHdlr
   with ValidateConnAuthTokenSysMsgHdlr
+  with AddPadSysMsgHdlr
+  with AddCaptionsPadsSysMsgHdlr
   with UserActivitySignCmdMsgHdlr {
 
   object CheckVoiceRecordingInternalMsg
   object SyncVoiceUserStatusInternalMsg
+  object MeetingInfoAnalyticsMsg
+  object MeetingInfoAnalyticsLogMsg
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -113,6 +130,7 @@ class MeetingActor(
   val screenshareApp2x = new ScreenshareApp2x
   val captionApp2x = new CaptionApp2x
   val chatApp2x = new ChatApp2x
+  val externalVideoApp2x = new ExternalVideoApp2x
   val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
   val groupChatApp = new GroupChatHdlrs
   val presentationPodsApp = new PresentationPodHdlrs
@@ -124,14 +142,18 @@ class MeetingActor(
   val expiryTracker = new MeetingExpiryTracker(
     startedOnInMs = TimeUtil.timeNowInMs(),
     userHasJoined = false,
+    moderatorHasJoined = false,
     isBreakout = props.meetingProp.isBreakout,
     lastUserLeftOnInMs = None,
+    lastModeratorLeftOnInMs = 0,
     durationInMs = TimeUtil.minutesToMillis(props.durationProps.duration),
     meetingExpireIfNoUserJoinedInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireIfNoUserJoinedInMinutes),
     meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes),
     userInactivityInspectTimerInMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityInspectTimerInMinutes),
     userInactivityThresholdInMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityThresholdInMinutes),
-    userActivitySignResponseDelayInMs = TimeUtil.minutesToMillis(props.durationProps.userActivitySignResponseDelayInMinutes)
+    userActivitySignResponseDelayInMs = TimeUtil.minutesToMillis(props.durationProps.userActivitySignResponseDelayInMinutes),
+    endWhenNoModerator = props.durationProps.endWhenNoModerator,
+    endWhenNoModeratorDelayInMs = TimeUtil.minutesToMillis(props.durationProps.endWhenNoModeratorDelayInMinutes)
   )
 
   val recordingTracker = new MeetingRecordingTracker(startedOnInMs = 0L, previousDurationInMs = 0L, currentDurationInMs = 0L)
@@ -145,6 +167,10 @@ class MeetingActor(
   )
 
   var lastRttTestSentOn = System.currentTimeMillis()
+
+  // Send new 2x message
+  val msgEvent = MsgBuilder.buildMeetingCreatedEvtMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props)
+  outGW.send(msgEvent)
 
   // Create a default public group chat
   state = groupChatApp.handleCreateDefaultPublicGroupChat(state, liveMeeting, msgBus)
@@ -193,12 +219,32 @@ class MeetingActor(
     CheckVoiceRecordingInternalMsg
   )
 
+  context.system.scheduler.scheduleOnce(
+    10 seconds,
+    self,
+    MeetingInfoAnalyticsLogMsg
+  )
+
+  context.system.scheduler.schedule(
+    10 seconds,
+    30 seconds,
+    self,
+    MeetingInfoAnalyticsMsg
+  )
+
   def receive = {
     case SyncVoiceUserStatusInternalMsg =>
       checkVoiceConfUsersStatus()
     case CheckVoiceRecordingInternalMsg =>
       checkVoiceConfIsRunningAndRecording()
-
+    case MeetingInfoAnalyticsLogMsg =>
+      handleMeetingInfoAnalyticsLogging()
+    case MeetingInfoAnalyticsMsg =>
+      handleMeetingInfoAnalyticsService()
+    case msg: CamStreamSubscribeSysMsg =>
+      handleCamStreamSubscribeSysMsg(msg)
+    case msg: ScreenStreamSubscribeSysMsg =>
+      handleScreenStreamSubscribeSysMsg(msg)
     //=============================
 
     // 2x messages
@@ -224,16 +270,24 @@ class MeetingActor(
 
     case msg: ExtendMeetingDuration           => handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingAuditInternalMsg =>
-      state = handleSendTimeRemainingUpdate(msg, state)
+      if (!liveMeeting.props.meetingProp.isBreakout) {
+        // Update users of meeting remaining time.
+        state = handleSendTimeRemainingUpdate(msg, state)
+      }
+
+      // Update breakout rooms of remaining time
       state = handleSendBreakoutTimeRemainingMsg(msg, state)
     case msg: BreakoutRoomCreatedInternalMsg     => state = handleBreakoutRoomCreatedInternalMsg(msg, state)
     case msg: SendBreakoutUsersAuditInternalMsg  => handleSendBreakoutUsersUpdateInternalMsg(msg)
     case msg: BreakoutRoomUsersUpdateInternalMsg => state = handleBreakoutRoomUsersUpdateInternalMsg(msg, state)
     case msg: EndBreakoutRoomInternalMsg         => handleEndBreakoutRoomInternalMsg(msg)
+    case msg: ExtendBreakoutRoomTimeInternalMsg  => state = handleExtendBreakoutRoomTimeInternalMsgHdlr(msg, state)
     case msg: BreakoutRoomEndedInternalMsg       => state = handleBreakoutRoomEndedInternalMsg(msg, state)
+    case msg: SendBreakoutTimeRemainingInternalMsg =>
+      handleSendBreakoutTimeRemainingInternalMsg(msg)
 
     // Screenshare
-    case msg: DeskShareGetDeskShareInfoRequest   => handleDeskShareGetDeskShareInfoRequest(msg)
+    case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
 
     case msg: SendRecordingTimerInternalMsg =>
       state = usersApp.handleSendRecordingTimerInternalMsg(msg, state)
@@ -276,6 +330,32 @@ class MeetingActor(
     }
   }
 
+  private def updateModeratorsPresence() {
+    if (Users2x.numActiveModerators(liveMeeting.users2x) > 0) {
+      if (state.expiryTracker.moderatorHasJoined == false ||
+        state.expiryTracker.lastModeratorLeftOnInMs != 0) {
+        log.info("A moderator has joined. Setting setModeratorHasJoined(). meetingId=" + props.meetingProp.intId)
+        val tracker = state.expiryTracker.setModeratorHasJoined()
+        state = state.update(tracker)
+      }
+    } else {
+      if (state.expiryTracker.moderatorHasJoined == true &&
+        state.expiryTracker.lastModeratorLeftOnInMs == 0) {
+        log.info("All moderators have left. Setting setLastModeratorLeftOn(). meetingId=" + props.meetingProp.intId)
+        val tracker = state.expiryTracker.setLastModeratorLeftOn(TimeUtil.timeNowInMs())
+        state = state.update(tracker)
+      }
+    }
+  }
+
+  private def updateUserLastInactivityInspect(userId: String) {
+    for {
+      user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
+    } yield {
+      Users2x.updateLastInactivityInspect(liveMeeting.users2x, user)
+    }
+  }
+
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
       case m: ClientToServerLatencyTracerMsg => handleClientToServerLatencyTracerMsg(m)
@@ -287,17 +367,26 @@ class MeetingActor(
   private def handleMessageThatAffectsInactivity(msg: BbbCommonEnvCoreMsg): Unit = {
 
     msg.core match {
-      case m: EndMeetingSysCmdMsg                 => handleEndMeeting(m, state)
+      case m: EndMeetingSysCmdMsg     => handleEndMeeting(m, state)
 
       // Users
-      case m: ValidateAuthTokenReqMsg             => state = usersApp.handleValidateAuthTokenReqMsg(m, state)
-      case m: UserJoinMeetingReqMsg               => state = handleUserJoinMeetingReqMsg(m, state)
-      case m: UserJoinMeetingAfterReconnectReqMsg => state = handleUserJoinMeetingAfterReconnectReqMsg(m, state)
-      case m: UserLeaveReqMsg                     => state = handleUserLeaveReqMsg(m, state)
-      case m: UserBroadcastCamStartMsg            => handleUserBroadcastCamStartMsg(m)
-      case m: UserBroadcastCamStopMsg             => handleUserBroadcastCamStopMsg(m)
-      case m: UserJoinedVoiceConfEvtMsg           => handleUserJoinedVoiceConfEvtMsg(m)
-      case m: LogoutAndEndMeetingCmdMsg           => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
+      case m: ValidateAuthTokenReqMsg => state = usersApp.handleValidateAuthTokenReqMsg(m, state)
+      case m: UserJoinMeetingReqMsg =>
+        state = handleUserJoinMeetingReqMsg(m, state)
+        updateModeratorsPresence()
+      case m: UserJoinMeetingAfterReconnectReqMsg =>
+        state = handleUserJoinMeetingAfterReconnectReqMsg(m, state)
+        updateModeratorsPresence()
+      case m: UserLeaveReqMsg =>
+        state = handleUserLeaveReqMsg(m, state)
+        updateModeratorsPresence()
+      case m: UserBroadcastCamStartMsg        => handleUserBroadcastCamStartMsg(m)
+      case m: UserBroadcastCamStopMsg         => handleUserBroadcastCamStopMsg(m)
+      case m: GetCamBroadcastPermissionReqMsg => handleGetCamBroadcastPermissionReqMsg(m)
+      case m: GetCamSubscribePermissionReqMsg => handleGetCamSubscribePermissionReqMsg(m)
+
+      case m: UserJoinedVoiceConfEvtMsg       => handleUserJoinedVoiceConfEvtMsg(m)
+      case m: LogoutAndEndMeetingCmdMsg       => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
       case m: SetRecordingStatusCmdMsg =>
         state = usersApp.handleSetRecordingStatusCmdMsg(m, state)
         updateUserLastActivity(m.body.setBy)
@@ -321,6 +410,7 @@ class MeetingActor(
       case m: ChangeUserRoleCmdMsg =>
         usersApp.handleChangeUserRoleCmdMsg(m)
         updateUserLastActivity(m.body.changedBy)
+        updateModeratorsPresence()
 
       // Whiteboard
       case m: SendCursorPositionPubMsg       => wbApp.handle(m, liveMeeting, msgBus)
@@ -347,6 +437,9 @@ class MeetingActor(
       case m: RespondToPollReqMsg =>
         pollApp.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.body.requesterId)
+      case m: RespondToTypedPollReqMsg =>
+        pollApp.handle(m, liveMeeting, msgBus)
+        updateUserLastActivity(m.body.requesterId)
 
       // Breakout
       case m: BreakoutRoomsListMsg            => state = handleBreakoutRoomsListMsg(m, state)
@@ -354,6 +447,7 @@ class MeetingActor(
       case m: EndAllBreakoutRoomsMsg          => state = handleEndAllBreakoutRoomsMsg(m, state)
       case m: RequestBreakoutJoinURLReqMsg    => state = handleRequestBreakoutJoinURLReqMsg(m, state)
       case m: TransferUserToMeetingRequestMsg => state = handleTransferUserToMeetingRequestMsg(m, state)
+      case m: ExtendBreakoutRoomsTimeReqMsg   => state = handleExtendBreakoutRoomsTimeMsg(m, state)
 
       // Voice
       case m: UserLeftVoiceConfEvtMsg         => handleUserLeftVoiceConfEvtMsg(m)
@@ -361,9 +455,10 @@ class MeetingActor(
       case m: UserTalkingInVoiceConfEvtMsg =>
         updateVoiceUserLastActivity(m.body.voiceUserId)
         handleUserTalkingInVoiceConfEvtMsg(m)
-      case m: VoiceConfCallStateEvtMsg        => handleVoiceConfCallStateEvtMsg(m)
+      case m: VoiceConfCallStateEvtMsg         => handleVoiceConfCallStateEvtMsg(m)
 
-      case m: RecordingStartedVoiceConfEvtMsg => handleRecordingStartedVoiceConfEvtMsg(m)
+      case m: RecordingStartedVoiceConfEvtMsg  => handleRecordingStartedVoiceConfEvtMsg(m)
+      case m: AudioFloorChangedVoiceConfEvtMsg => handleAudioFloorChangedVoiceConfEvtMsg(m)
       case m: MuteUserCmdMsg =>
         usersApp.handleMuteUserCmdMsg(m)
         updateUserLastActivity(m.body.mutedBy)
@@ -380,6 +475,8 @@ class MeetingActor(
       case m: VoiceConfRunningEvtMsg             => handleVoiceConfRunningEvtMsg(m)
       case m: UserStatusVoiceConfEvtMsg =>
         handleUserStatusVoiceConfEvtMsg(m)
+      case m: GetGlobalAudioPermissionReqMsg =>
+        handleGetGlobalAudioPermissionReqMsg(m)
 
       // Layout
       case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
@@ -389,48 +486,50 @@ class MeetingActor(
       case m: ChangeLockSettingsInMeetingCmdMsg =>
         handleSetLockSettings(m)
         updateUserLastActivity(m.body.setBy)
-      case m: LockUserInMeetingCmdMsg                  => handleLockUserInMeetingCmdMsg(m)
-      case m: LockUsersInMeetingCmdMsg                 => handleLockUsersInMeetingCmdMsg(m)
-      case m: GetLockSettingsReqMsg                    => handleGetLockSettingsReqMsg(m)
+      case m: LockUserInMeetingCmdMsg                        => handleLockUserInMeetingCmdMsg(m)
+      case m: LockUsersInMeetingCmdMsg                       => handleLockUsersInMeetingCmdMsg(m)
+      case m: GetLockSettingsReqMsg                          => handleGetLockSettingsReqMsg(m)
 
       // Presentation
-      case m: PreuploadedPresentationsSysPubMsg        => presentationApp2x.handle(m, liveMeeting, msgBus)
-      case m: AssignPresenterReqMsg                    => state = handlePresenterChange(m, state)
+      case m: PreuploadedPresentationsSysPubMsg              => presentationApp2x.handle(m, liveMeeting, msgBus)
+      case m: AssignPresenterReqMsg                          => state = handlePresenterChange(m, state)
 
       // Presentation Pods
-      case m: CreateNewPresentationPodPubMsg           => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: RemovePresentationPodPubMsg              => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: GetAllPresentationPodsReqMsg             => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: SetCurrentPresentationPubMsg             => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationConversionCompletedSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PdfConversionInvalidErrorSysPubMsg       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: SetCurrentPagePubMsg                     => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: SetPresenterInPodReqMsg                  => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: RemovePresentationPubMsg                 => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: SetPresentationDownloadablePubMsg        => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationConversionUpdateSysPubMsg    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationPageGeneratedSysPubMsg       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationPageCountErrorSysPubMsg      => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationUploadTokenReqMsg            => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: ResizeAndMovePagePubMsg                  => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationPageConvertedSysMsg          => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationPageConversionStartedSysMsg  => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: PresentationConversionEndedSysMsg        => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: CreateNewPresentationPodPubMsg                 => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: RemovePresentationPodPubMsg                    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: GetAllPresentationPodsReqMsg                   => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetCurrentPresentationPubMsg                   => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationConversionCompletedSysPubMsg       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PdfConversionInvalidErrorSysPubMsg             => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetCurrentPagePubMsg                           => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetPresenterInPodReqMsg                        => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: RemovePresentationPubMsg                       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetPresentationDownloadablePubMsg              => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationConversionUpdateSysPubMsg          => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationUploadedFileTooLargeErrorSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationPageGeneratedSysPubMsg             => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationPageCountErrorSysPubMsg            => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationUploadTokenReqMsg                  => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: ResizeAndMovePagePubMsg                        => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationPageConvertedSysMsg                => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationPageConversionStartedSysMsg        => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationConversionEndedSysMsg              => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
 
       // Caption
-      case m: EditCaptionHistoryPubMsg                 => captionApp2x.handle(m, liveMeeting, msgBus)
-      case m: UpdateCaptionOwnerPubMsg                 => captionApp2x.handle(m, liveMeeting, msgBus)
-      case m: SendCaptionHistoryReqMsg                 => captionApp2x.handle(m, liveMeeting, msgBus)
+      case m: EditCaptionHistoryPubMsg                       => captionApp2x.handle(m, liveMeeting, msgBus)
+      case m: UpdateCaptionOwnerPubMsg                       => captionApp2x.handle(m, liveMeeting, msgBus)
+      case m: SendCaptionHistoryReqMsg                       => captionApp2x.handle(m, liveMeeting, msgBus)
 
       // Guests
-      case m: GetGuestsWaitingApprovalReqMsg           => handleGetGuestsWaitingApprovalReqMsg(m)
-      case m: SetGuestPolicyCmdMsg                     => handleSetGuestPolicyMsg(m)
-      case m: GuestsWaitingApprovedMsg                 => handleGuestsWaitingApprovedMsg(m)
-      case m: GuestWaitingLeftMsg                      => handleGuestWaitingLeftMsg(m)
-      case m: GetGuestPolicyReqMsg                     => handleGetGuestPolicyReqMsg(m)
+      case m: GetGuestsWaitingApprovalReqMsg                 => handleGetGuestsWaitingApprovalReqMsg(m)
+      case m: SetGuestPolicyCmdMsg                           => handleSetGuestPolicyMsg(m)
+      case m: SetGuestLobbyMessageCmdMsg                     => handleSetGuestLobbyMessageMsg(m)
+      case m: GuestsWaitingApprovedMsg                       => handleGuestsWaitingApprovedMsg(m)
+      case m: GuestWaitingLeftMsg                            => handleGuestWaitingLeftMsg(m)
+      case m: GetGuestPolicyReqMsg                           => handleGetGuestPolicyReqMsg(m)
 
       // Chat
-      case m: GetChatHistoryReqMsg                     => chatApp2x.handle(m, liveMeeting, msgBus)
+      case m: GetChatHistoryReqMsg                           => chatApp2x.handle(m, liveMeeting, msgBus)
       case m: SendPublicMessagePubMsg =>
         chatApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.body.message.fromUserId)
@@ -446,6 +545,8 @@ class MeetingActor(
       case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
       case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
       case m: GetScreenshareStatusReqMsg                     => screenshareApp2x.handle(m, liveMeeting, msgBus)
+      case m: GetScreenBroadcastPermissionReqMsg             => handleGetScreenBroadcastPermissionReqMsg(m)
+      case m: GetScreenSubscribePermissionReqMsg             => handleGetScreenSubscribePermissionReqMsg(m)
 
       // GroupChat
       case m: CreateGroupChatReqMsg =>
@@ -457,12 +558,112 @@ class MeetingActor(
         state = groupChatApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.body.msg.sender.id)
 
+      // ExternalVideo
+      case m: StartExternalVideoPubMsg    => externalVideoApp2x.handle(m, liveMeeting, msgBus)
+      case m: UpdateExternalVideoPubMsg   => externalVideoApp2x.handle(m, liveMeeting, msgBus)
+      case m: StopExternalVideoPubMsg     => externalVideoApp2x.handle(m, liveMeeting, msgBus)
+
       case m: ValidateConnAuthTokenSysMsg => handleValidateConnAuthTokenSysMsg(m)
+
+      case m: AddPadSysMsg                => handleAddPadSysMsg(m)
+      case m: AddCaptionsPadsSysMsg       => handleAddCaptionsPadsSysMsg(m)
 
       case m: UserActivitySignCmdMsg      => handleUserActivitySignCmdMsg(m)
 
       case _                              => log.warning("***** Cannot handle " + msg.envelope.name)
     }
+  }
+
+  private def handleCamStreamSubscribeSysMsg(msg: CamStreamSubscribeSysMsg): Unit = {
+    updateWebcamStream(liveMeeting.webcams, msg.body.streamId, msg.body.userId)
+  }
+
+  private def handleScreenStreamSubscribeSysMsg(msg: ScreenStreamSubscribeSysMsg): Unit = ???
+
+  private def handleMeetingInfoAnalyticsLogging(): Unit = {
+    val meetingInfoAnalyticsLogMsg: MeetingInfoAnalytics = prepareMeetingInfo()
+    val event = MsgBuilder.buildMeetingInfoAnalyticsMsg(meetingInfoAnalyticsLogMsg)
+    outGW.send(event)
+  }
+
+  private def handleMeetingInfoAnalyticsService(): Unit = {
+    val meetingInfoAnalyticsLogMsg: MeetingInfoAnalytics = prepareMeetingInfo()
+    val event2 = MsgBuilder.buildMeetingInfoAnalyticsServiceMsg(meetingInfoAnalyticsLogMsg)
+    outGW.send(event2)
+  }
+
+  private def prepareMeetingInfo(): MeetingInfoAnalytics = {
+    val meetingName: String = liveMeeting.props.meetingProp.name
+    val externalId: String = liveMeeting.props.meetingProp.extId
+    val internalId: String = liveMeeting.props.meetingProp.intId
+    val hasUserJoined: Boolean = hasAuthedUserJoined(liveMeeting.status)
+    val isMeetingRecorded = MeetingStatus2x.isRecording(liveMeeting.status)
+
+    // TODO: Placeholder values as required values not available
+    val screenshareStream: ScreenshareStream = ScreenshareStream(new User("", ""), List())
+    val screenshare: Screenshare = Screenshare(screenshareStream)
+
+    val listOfUsers: List[UserState] = Users2x.findAll(liveMeeting.users2x).toList
+    val breakoutRoomNames: List[String] = {
+      if (state.breakout.isDefined)
+        state.breakout.get.getRooms.map(_.name).toList
+      else
+        List()
+    }
+    val breakoutRoom: BreakoutRoom = BreakoutRoom(liveMeeting.props.breakoutProps.parentId, breakoutRoomNames)
+    MeetingInfoAnalytics(
+      meetingName, externalId, internalId, hasUserJoined, isMeetingRecorded, getMeetingInfoWebcamDetails, getMeetingInfoAudioDetails,
+      screenshare, listOfUsers.map(u => Participant(u.intId, u.name, u.role)), getMeetingInfoPresentationDetails, breakoutRoom
+    )
+  }
+
+  private def resolveUserName(userId: String): String = {
+    val userName: String = Users2x.findWithIntId(liveMeeting.users2x, userId).map(_.name).getOrElse("")
+    if (userName.isEmpty) log.error(s"Failed to map username for id $userId")
+    userName
+  }
+
+  private def getMeetingInfoWebcamDetails(): Webcam = {
+    val liveWebcams: Vector[org.bigbluebutton.core.models.WebcamStream] = findAll(liveMeeting.webcams)
+    val numOfLiveWebcams: Int = liveWebcams.length
+    val broadcasts: List[Broadcast] = liveWebcams.map(webcam => Broadcast(
+      webcam.stream.id,
+      User(webcam.stream.userId, resolveUserName(webcam.stream.userId)), 0L
+    )).toList
+    val viewers: Set[String] = liveWebcams.flatMap(_.stream.viewers).toSet
+    val webcamStream: msgs.WebcamStream = msgs.WebcamStream(broadcasts, viewers)
+    Webcam(numOfLiveWebcams, webcamStream)
+  }
+
+  private def getMeetingInfoAudioDetails(): Audio = {
+    val voiceUsers: Vector[VoiceUserState] = VoiceUsers.findAll(liveMeeting.voiceUsers)
+    val numOfVoiceUsers: Int = voiceUsers.length
+
+    val listenOnlyUsers: Vector[VoiceUserState] = findAllListenOnlyVoiceUsers(liveMeeting.voiceUsers)
+    val numOfListenOnlyUsers: Int = listenOnlyUsers.length
+    val listenOnlyAudio = ListenOnlyAudio(
+      numOfListenOnlyUsers,
+      listenOnlyUsers.map(voiceUserState => User(voiceUserState.voiceUserId, resolveUserName(voiceUserState.intId))).toList
+    )
+
+    val freeswitchUsers: Vector[VoiceUserState] = findAllFreeswitchCallers(liveMeeting.voiceUsers)
+    val numOfFreeswitchUsers: Int = freeswitchUsers.length
+    val twoWayAudio = TwoWayAudio(
+      numOfFreeswitchUsers,
+      freeswitchUsers.map(voiceUserState => User(voiceUserState.voiceUserId, resolveUserName(voiceUserState.intId))).toList
+    )
+
+    // TODO: Placeholder values
+    val phoneAudio = PhoneAudio(0, List())
+
+    Audio(numOfVoiceUsers, listenOnlyAudio, twoWayAudio, phoneAudio)
+  }
+
+  private def getMeetingInfoPresentationDetails(): PresentationInfo = {
+    val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
+    val presentationId: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.id)).mkString
+    val presentationName: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.name)).mkString
+    PresentationInfo(presentationId, presentationName)
   }
 
   def handleGetRunningMeetingStateReqMsg(msg: GetRunningMeetingStateReqMsg): Unit = {
@@ -515,7 +716,6 @@ class MeetingActor(
   }
 
   def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {
-
     log.info("handleDeskShareGetDeskShareInfoRequest: " + msg.conferenceName + "isBroadcasting="
       + ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel) + " URL:" +
       ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel))
@@ -532,16 +732,21 @@ class MeetingActor(
   def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
     state = removeUsersWithExpiredUserLeftFlag(liveMeeting, state)
 
-    val (newState, expireReason) = ExpiryTrackerHelper.processMeetingExpiryAudit(outGW, eventBus, liveMeeting, state)
-    state = newState
-    expireReason foreach (reason => log.info("Meeting {} expired with reason {}", props.meetingProp.intId, reason))
+    if (!liveMeeting.props.meetingProp.isBreakout) {
+      // Track expiry only for non-breakout rooms. The breakout room lifecycle is
+      // driven by the parent meeting.
+      val (newState, expireReason) = ExpiryTrackerHelper.processMeetingExpiryAudit(outGW, eventBus, liveMeeting, state)
+      state = newState
+      expireReason foreach (reason => log.info("Meeting {} expired with reason {}", props.meetingProp.intId, reason))
+    }
 
     sendRttTraceTest()
     setRecordingChapterBreak()
 
     processUserInactivityAudit()
     flagRegisteredUsersWhoHasNotJoined()
-    checkIfNeetToEndMeetingWhenNoAuthedUsers(liveMeeting)
+    checkIfNeedToEndMeetingWhenNoAuthedUsers(liveMeeting)
+    checkIfNeedToEndMeetingWhenNoModerators(liveMeeting)
   }
 
   def checkVoiceConfUsersStatus(): Unit = {
@@ -563,7 +768,7 @@ class MeetingActor(
   var lastRecBreakSentOn = expiryTracker.startedOnInMs
 
   def setRecordingChapterBreak(): Unit = {
-    val now = TimeUtil.timeNowInMs()
+    val now = System.currentTimeMillis()
     val elapsedInMs = now - lastRecBreakSentOn
     val elapsedInMin = TimeUtil.millisToMinutes(elapsedInMs)
 
@@ -608,7 +813,7 @@ class MeetingActor(
 
   }
 
-  private def checkIfNeetToEndMeetingWhenNoAuthedUsers(liveMeeting: LiveMeeting): Unit = {
+  private def checkIfNeedToEndMeetingWhenNoAuthedUsers(liveMeeting: LiveMeeting): Unit = {
     val authUserJoined = MeetingStatus2x.hasAuthedUserJoined(liveMeeting.status)
 
     if (endMeetingWhenNoMoreAuthedUsers &&
@@ -629,9 +834,29 @@ class MeetingActor(
     }
   }
 
-  def handleExtendMeetingDuration(msg: ExtendMeetingDuration) {
-
+  private def checkIfNeedToEndMeetingWhenNoModerators(liveMeeting: LiveMeeting): Unit = {
+    if (state.expiryTracker.endWhenNoModerator &&
+      !liveMeeting.props.meetingProp.isBreakout &&
+      state.expiryTracker.moderatorHasJoined &&
+      state.expiryTracker.lastModeratorLeftOnInMs != 0 &&
+      //Check if has moderator with leftFlag
+      Users2x.findModerator(liveMeeting.users2x).toVector.length == 0) {
+      val hasModeratorLeftRecently = (TimeUtil.timeNowInMs() - state.expiryTracker.endWhenNoModeratorDelayInMs) < state.expiryTracker.lastModeratorLeftOnInMs
+      if (!hasModeratorLeftRecently) {
+        log.info("Meeting will end due option endWhenNoModerator is enabled and all moderators have left the meeting. meetingId=" + props.meetingProp.intId)
+        sendEndMeetingDueToExpiry(
+          MeetingEndReason.ENDED_DUE_TO_NO_MODERATOR,
+          eventBus, outGW, liveMeeting,
+          "system"
+        )
+      } else {
+        val msToEndMeeting = state.expiryTracker.lastModeratorLeftOnInMs - (TimeUtil.timeNowInMs() - state.expiryTracker.endWhenNoModeratorDelayInMs)
+        log.info("All moderators have left. Meeting will end in " + TimeUtil.millisToSeconds(msToEndMeeting) + " seconds. meetingId=" + props.meetingProp.intId)
+      }
+    }
   }
+
+  def handleExtendMeetingDuration(msg: ExtendMeetingDuration) = ???
 
   def removeUsersWithExpiredUserLeftFlag(liveMeeting: LiveMeeting, state: MeetingState2x): MeetingState2x = {
     val leftUsers = Users2x.findAllExpiredUserLeftFlags(liveMeeting.users2x, expiryTracker.meetingExpireWhenLastUserLeftInMs)
@@ -648,6 +873,7 @@ class MeetingActor(
         outGW.send(userLeftMeetingEvent)
 
         if (u.presenter) {
+          log.info("removeUsersWithExpiredUserLeftFlag will cause an automaticallyAssignPresenter because user={} left", u)
           UsersApp.automaticallyAssignPresenter(outGW, liveMeeting)
 
           // request screenshare to end
@@ -676,34 +902,37 @@ class MeetingActor(
     }
   }
 
-  var lastUserInactivityInspectSentOn = TimeUtil.timeNowInMs()
-  var checkInactiveUsers = false
+  var lastUsersInactivityInspection = System.currentTimeMillis()
 
   def processUserInactivityAudit(): Unit = {
-    val now = TimeUtil.timeNowInMs()
+
+    val now = System.currentTimeMillis()
 
     // Check if user is inactive. We only do the check is user inactivity
     // is not disabled (0).
     if ((expiryTracker.userInactivityInspectTimerInMs > 0) &&
-      (now > lastUserInactivityInspectSentOn + expiryTracker.userInactivityInspectTimerInMs)) {
-      lastUserInactivityInspectSentOn = now
-      checkInactiveUsers = true
-      warnPotentiallyInactiveUsers()
-    }
+      (now > lastUsersInactivityInspection + expiryTracker.userInactivityInspectTimerInMs)) {
+      lastUsersInactivityInspection = now
 
-    if (checkInactiveUsers && now > lastUserInactivityInspectSentOn + expiryTracker.userActivitySignResponseDelayInMs) {
-      checkInactiveUsers = false
+      warnPotentiallyInactiveUsers()
       disconnectInactiveUsers()
     }
+
   }
 
   def warnPotentiallyInactiveUsers(): Unit = {
     log.info("Checking for inactive users.")
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
-      val active = (lastUserInactivityInspectSentOn - expiryTracker.userInactivityThresholdInMs) < u.lastActivityTime
-      if (!active) {
-        Sender.sendUserInactivityInspectMsg(liveMeeting.props.meetingProp.intId, u.intId, TimeUtil.minutesToSeconds(props.durationProps.userActivitySignResponseDelayInMinutes), outGW)
+      val hasActivityAfterWarning = u.lastInactivityInspect < u.lastActivityTime
+      val hasActivityRecently = (lastUsersInactivityInspection - expiryTracker.userInactivityThresholdInMs) < u.lastActivityTime
+
+      if (hasActivityAfterWarning && !hasActivityRecently) {
+        log.info("User has been inactive for " + TimeUnit.MILLISECONDS.toMinutes(expiryTracker.userInactivityThresholdInMs) + " minutes. Sending inactivity warning. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
+
+        val secsToDisconnect = TimeUnit.MILLISECONDS.toSeconds(expiryTracker.userActivitySignResponseDelayInMs);
+        Sender.sendUserInactivityInspectMsg(liveMeeting.props.meetingProp.intId, u.intId, secsToDisconnect, outGW)
+        updateUserLastInactivityInspect(u.intId)
       }
     }
   }
@@ -712,8 +941,13 @@ class MeetingActor(
     log.info("Check for users who haven't responded to user inactivity warning.")
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
-      val respondedOnTime = (lastUserInactivityInspectSentOn - expiryTracker.userInactivityThresholdInMs) < u.lastActivityTime && (lastUserInactivityInspectSentOn + expiryTracker.userActivitySignResponseDelayInMs) > u.lastActivityTime
-      if (!respondedOnTime) {
+      val hasInactivityWarningSent = u.lastInactivityInspect != 0
+      val hasActivityAfterWarning = u.lastInactivityInspect < u.lastActivityTime
+      val respondedOnTime = (lastUsersInactivityInspection - expiryTracker.userActivitySignResponseDelayInMs) < u.lastInactivityInspect
+
+      if (hasInactivityWarningSent && !hasActivityAfterWarning && !respondedOnTime) {
+        log.info("User didn't response the inactivity warning within " + TimeUnit.MILLISECONDS.toSeconds(expiryTracker.userActivitySignResponseDelayInMs) + " seconds. Ejecting from meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
+
         UsersApp.ejectUserFromMeeting(
           outGW,
           liveMeeting,

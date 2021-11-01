@@ -1,4 +1,3 @@
-import flat from 'flat';
 import { Match, check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import { GroupChatMsg } from '/imports/api/group-chat-msg';
@@ -28,8 +27,16 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     message: String,
     correlationId: Match.Maybe(String),
   });
+
+  const {
+    color,
+    sender,
+    ...restMsg
+  } = msg;
+
   const msgDocument = {
-    ...msg,
+    ...restMsg,
+    sender: sender.id,
     meetingId,
     chatId,
     message: parseMessage(msg.message),

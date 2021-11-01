@@ -24,12 +24,17 @@ object GuestsWaiting {
     guests.setGuestPolicy(policy)
   }
 
+  def setGuestLobbyMessage(guests: GuestsWaiting, message: String): Unit = {
+    guests.setGuestLobbyMessage(message)
+  }
 }
 
 class GuestsWaiting {
   private var guests: collection.immutable.HashMap[String, GuestWaiting] = new collection.immutable.HashMap[String, GuestWaiting]
 
   private var guestPolicy = GuestPolicy(GuestPolicyType.ALWAYS_ACCEPT, SystemUser.ID)
+
+  private var guestLobbyMessage = ""
 
   private def toVector: Vector[GuestWaiting] = guests.values.toVector
 
@@ -49,9 +54,11 @@ class GuestsWaiting {
 
   def getGuestPolicy(): GuestPolicy = guestPolicy
   def setGuestPolicy(policy: GuestPolicy) = guestPolicy = policy
+
+  def setGuestLobbyMessage(message: String) = guestLobbyMessage = message
 }
 
-case class GuestWaiting(intId: String, name: String, role: String, guest: Boolean, avatar: String, authenticated: Boolean)
+case class GuestWaiting(intId: String, name: String, role: String, guest: Boolean, avatar: String, authenticated: Boolean, registeredOn: Long)
 case class GuestPolicy(policy: String, setBy: String)
 
 object GuestPolicyType {

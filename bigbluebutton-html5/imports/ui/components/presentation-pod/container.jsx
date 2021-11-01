@@ -7,7 +7,7 @@ import PresentationPodService from './service';
 import PresentationPods from './component';
 
 // PresentationPods component will be the place to go once we have the presentation pods designs
-// it should give each PresentationAreaContainer some space
+// it should give each PresentationContainer some space
 // which it will fill with the uploaded presentation
 const PresentationPodsContainer = ({ presentationPodIds, ...props }) => {
   if (presentationPodIds && presentationPodIds.length > 0) {

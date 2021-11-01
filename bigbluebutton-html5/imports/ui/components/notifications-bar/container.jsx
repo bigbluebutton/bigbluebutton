@@ -1,15 +1,15 @@
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { Fragment } from 'react';
+import React, { useEffect } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
-import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
-import Users from '/imports/api/users';
+import { MeetingTimeRemaining } from '/imports/api/meetings';
+import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
 import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
-import SlowConnection from '/imports/ui/components/slow-connection/component';
-import ConnectionStatusService from '/imports/ui/components/connection-status/service';
-import { styles } from './styles.scss';
+import Styled from './styles';
+import { layoutSelectInput, layoutDispatch } from '../layout/context';
+import { ACTIONS } from '../layout/enums';
 
 import breakoutService from '/imports/ui/components/breakout-room/service';
 import NotificationsBar from './component';
@@ -24,11 +24,6 @@ const STATUS_FAILED = 'failed';
 const STATUS_WAITING = 'waiting';
 
 const METEOR_SETTINGS_APP = Meteor.settings.public.app;
-
-const SLOW_CONNECTIONS_TYPES = METEOR_SETTINGS_APP.effectiveConnection;
-const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
-
-const HELP_LINK = METEOR_SETTINGS_APP.helpLink;
 
 const REMAINING_TIME_THRESHOLD = METEOR_SETTINGS_APP.remainingTimeThreshold;
 const REMAINING_TIME_ALERT_THRESHOLD = METEOR_SETTINGS_APP.remainingTimeAlertThreshold;
@@ -78,22 +73,30 @@ const intlMessages = defineMessages({
     id: 'app.meeting.alertBreakoutEndsUnderMinutes',
     description: 'Alert that tells that the breakout ends under x minutes',
   },
-  slowEffectiveConnectionDetected: {
-    id: 'app.network.connection.effective.slow',
-    description: 'Alert for detected slow connections',
-  },
-  slowEffectiveConnectionHelpLink: {
-    id: 'app.network.connection.effective.slow.help',
-    description: 'Help link for slow connections',
-  },
 });
 
 const NotificationsBarContainer = (props) => {
   const { message, color } = props;
+
+  const notificationsBar = layoutSelectInput((i) => i.notificationsBar);
+  const layoutContextDispatch = layoutDispatch();
+
+  const { hasNotification } = notificationsBar;
+
+  useEffect(() => {
+    const localHasNotification = !!message;
+
+    if (localHasNotification !== hasNotification) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_HAS_NOTIFICATIONS_BAR,
+        value: localHasNotification,
+      });
+    }
+  }, [message, hasNotification]);
+
   if (_.isEmpty(message)) {
     return null;
   }
-
 
   return (
     <NotificationsBar color={color}>
@@ -134,38 +137,6 @@ export default injectIntl(withTracker(({ intl }) => {
   const { status, connected, retryTime } = Meteor.status();
   const data = {};
 
-  const user = Users.findOne({ userId: Auth.userID }, { fields: { effectiveConnectionType: 1 } });
-
-  if (user) {
-    const { effectiveConnectionType } = user;
-    if (ENABLE_NETWORK_MONITORING && SLOW_CONNECTIONS_TYPES.includes(effectiveConnectionType)) {
-      data.message = (
-        <SlowConnection effectiveConnectionType={effectiveConnectionType}>
-          {intl.formatMessage(intlMessages.slowEffectiveConnectionDetected)}
-          <a href={HELP_LINK} target="_blank" rel="noopener noreferrer">
-            {intl.formatMessage(intlMessages.slowEffectiveConnectionHelpLink)}
-          </a>
-        </SlowConnection>
-      );
-    }
-  }
-
-  if (ConnectionStatusService.isEnabled()) {
-    const stats = ConnectionStatusService.getAudioStats();
-    if (stats) {
-      if (ConnectionStatusService.getLevel().includes(stats)) {
-        data.message = (
-          <SlowConnection effectiveConnectionType={stats}>
-            {intl.formatMessage(intlMessages.slowEffectiveConnectionDetected)}{' '}
-            <a href={ConnectionStatusService.getHelp()} target="_blank" rel="noopener noreferrer">
-              {intl.formatMessage(intlMessages.slowEffectiveConnectionHelpLink)}
-            </a>
-          </SlowConnection>
-        );
-      }
-    }
-  }
-
   if (!connected) {
     data.color = 'primary';
     switch (status) {
@@ -182,12 +153,12 @@ export default injectIntl(withTracker(({ intl }) => {
         const sec = Math.round((retryTime - (new Date()).getTime()) / 1000);
         retryInterval = startCounter(sec, setRetrySeconds, getRetrySeconds, retryInterval);
         data.message = (
-          <Fragment>
+          <>
             {intl.formatMessage(intlMessages.waitingMessage, { 0: getRetrySeconds() })}
-            <button className={styles.retryButton} type="button" onClick={reconnect}>
+            <Styled.RetryButton type="button" onClick={reconnect}>
               {intl.formatMessage(intlMessages.retryNow)}
-            </button>
-          </Fragment>
+            </Styled.RetryButton>
+          </>
         );
         break;
       }
@@ -201,10 +172,10 @@ export default injectIntl(withTracker(({ intl }) => {
   const meetingId = Auth.meetingID;
   const breakouts = breakoutService.getBreakouts();
 
-  const msg = { id: `${intlMessages.alertBreakoutEndsUnderMinutes.id}${REMAINING_TIME_ALERT_THRESHOLD == 1 ? 'Singular' : 'Plural'}` };
+  let msg = { id: `${intlMessages.alertBreakoutEndsUnderMinutes.id}${REMAINING_TIME_ALERT_THRESHOLD === 1 ? 'Singular' : 'Plural'}` };
 
   if (breakouts.length > 0) {
-    const currentBreakout = breakouts.find(b => b.breakoutId === meetingId);
+    const currentBreakout = breakouts.find((b) => b.breakoutId === meetingId);
 
     if (currentBreakout) {
       data.message = (
@@ -213,7 +184,7 @@ export default injectIntl(withTracker(({ intl }) => {
           messageDuration={intlMessages.breakoutTimeRemaining}
           timeEndedMessage={intlMessages.breakoutWillClose}
           alertMessage={
-            intl.formatMessage(msg, {0: REMAINING_TIME_ALERT_THRESHOLD})
+            intl.formatMessage(msg, { 0: REMAINING_TIME_ALERT_THRESHOLD })
           }
           alertUnderMinutes={REMAINING_TIME_ALERT_THRESHOLD}
         />
@@ -230,7 +201,7 @@ export default injectIntl(withTracker(({ intl }) => {
     const { isBreakout } = Meeting.meetingProp;
     const underThirtyMin = timeRemaining && timeRemaining <= (REMAINING_TIME_THRESHOLD * 60);
 
-    const msg = { id: `${intlMessages.alertMeetingEndsUnderMinutes.id}${REMAINING_TIME_ALERT_THRESHOLD == 1 ? 'Singular' : 'Plural'}` };
+    msg = { id: `${intlMessages.alertMeetingEndsUnderMinutes.id}${REMAINING_TIME_ALERT_THRESHOLD === 1 ? 'Singular' : 'Plural'}` };
 
     if (underThirtyMin && !isBreakout) {
       data.message = (
@@ -239,7 +210,7 @@ export default injectIntl(withTracker(({ intl }) => {
           messageDuration={intlMessages.meetingTimeRemaining}
           timeEndedMessage={intlMessages.meetingWillClose}
           alertMessage={
-            intl.formatMessage(msg, {0: REMAINING_TIME_ALERT_THRESHOLD})
+            intl.formatMessage(msg, { 0: REMAINING_TIME_ALERT_THRESHOLD })
           }
           alertUnderMinutes={REMAINING_TIME_ALERT_THRESHOLD}
         />
