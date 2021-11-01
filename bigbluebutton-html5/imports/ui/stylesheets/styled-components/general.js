@@ -17,6 +17,7 @@ const navbarHeight = '3.9375rem';
 const barsPadding = '0.8rem'; // so user-list and chat title is aligned with the presentation title
 const pollHeaderOffset = '-0.875rem';
 const toastContentWidth = '98%';
+const modalMargin = '3rem';
 const titlePositionLeft = '2.2rem';
 const userIndicatorsOffset = '-5px';
 const indicatorPadding = '.45rem'; // used to center presenter indicator icon in Chrome / Firefox / Edge
@@ -40,6 +41,7 @@ export {
   barsPadding,
   pollHeaderOffset,
   toastContentWidth,
+  modalMargin,
   titlePositionLeft,
   userIndicatorsOffset,
   indicatorPadding,

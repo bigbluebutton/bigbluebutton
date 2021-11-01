@@ -1,19 +1,21 @@
-@import "/imports/ui/stylesheets/variables/breakpoints";
+import styled from 'styled-components';
+import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
-.starRating {
+const StarRating = styled.div`
   font-family: 'bbb-icons' !important;
-  > fieldset {
+  & > fieldset {
     border: none;
     display: inline-block;
 
     &:not(:checked) {
-      > input {
+      & > input {
         position: absolute;
         top: -9999px;
         clip: rect(0,0,0,0);
       }
 
-      > label {
+      & > label {
         float: right;
         width: 1em;
         padding: 0 .05em 0 .1rem;
@@ -28,42 +30,47 @@
           padding: 0 .1rem 0 .05em;
         }
 
-        @include mq($small-only) {
+        @media ${smallOnly} {
           font-size: 2rem;
         }
 
         &:before {
-          content: '\e951';
+          content: '\\e951';
         }
 
         &:hover,
         &:hover ~ label {
-          color: var(--color-primary);
-          text-shadow: 0 0 3px var(--color-primary);
+          color: ${colorPrimary};
+          text-shadow: 0 0 3px ${colorPrimary};
           &:before {
-            content: '\e951';
+            content: '\\e951';
           }
         }
       }
     }
 
-    > input:checked {
+    & > input:checked {
       & ~ label {
         &:before {
-          content: '\e952';
-          color: var(--color-primary);
+          content: '\\e952';
+          color: ${colorPrimary};
         }
       }
     }
 
-    > label:active {
+    & > label:active {
       position: relative;
       top: 2px;
     }
   }
-}
+`;
 
-.legend {
+const Legend = styled.legend`
   font-family: Arial, sans-serif;
   font-weight: normal;
-}
+`;
+
+export default {
+  StarRating,
+  Legend,
+};

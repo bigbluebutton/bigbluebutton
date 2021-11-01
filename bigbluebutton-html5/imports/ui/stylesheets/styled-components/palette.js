@@ -22,6 +22,7 @@ const userListText = colorGray;
 const unreadMessagesBg = colorDanger;
 const colorGrayLabel = colorGray;
 const colorText = colorGray;
+const colorLink = colorPrimary;
 
 const listItemBgHover = '#DCE4ED';
 const colorTipBg = '#333333';
@@ -55,6 +56,7 @@ export {
   unreadMessagesBg,
   colorGrayLabel,
   colorText,
+  colorLink,
   listItemBgHover,
   colorTipBg,
   itemFocusBorder,
