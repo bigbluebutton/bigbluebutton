@@ -138,7 +138,6 @@ class TimeWindowChatItem extends PureComponent {
         <div className={styles.wrapper}>
           <div className={styles.avatarWrapper}>
             <UserAvatar
-              className={styles.avatar}
               color={color}
               moderator={isModerator}
               avatar={avatar}
@@ -217,7 +216,6 @@ class TimeWindowChatItem extends PureComponent {
         <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
         <div className={styles.avatarWrapper}>
             <UserAvatar
-              className={styles.avatar}
               color={PollService.POLL_AVATAR_COLOR}
               moderator={true}
             >
