@@ -358,13 +358,10 @@ class ApiController {
     session[sessionToken] = sessionToken
     meetingService.addUserSession(sessionToken, us)
 
-    logSessionInfo()
-
     //Identify which of these to logs should be used. sessionToken or user-token
     log.info("Session sessionToken for " + us.fullname + " [" + session[sessionToken] + "]")
     log.info("Session user-token for " + us.fullname + " [" + session['user-token'] + "]")
 
-    logSession()
     log.info("Session token: ${sessionToken}")
 
     // Process if we send the user directly to the client or
@@ -792,8 +789,6 @@ class ApiController {
     String API_CALL = 'enter'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
-    logSessionInfo()
-
     String respMessage = "Session not found."
     boolean reject = false;
 
@@ -835,7 +830,6 @@ class ApiController {
         logoutUrl = us.logoutUrl
       }
 
-      logSession()
       log.info("Session token: ${sessionToken}")
 
       response.addHeader("Cache-Control", "no-cache")
@@ -1411,8 +1405,6 @@ class ApiController {
     if (us == null) {
       return false
     }
-
-    logSession()
 
     if (!session[token]) {
       log.info("Session for token ${token} not found")
