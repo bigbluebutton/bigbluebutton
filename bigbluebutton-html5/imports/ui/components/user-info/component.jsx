@@ -6,7 +6,7 @@ import Modal from '/imports/ui/components/modal/simple/component';
 
 import Service from './service';
 
-import { styles } from './styles';
+import Styled from './styles';
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
@@ -29,26 +29,26 @@ class UserInfoComponent extends Component {
         const key = Object.keys(info)[0];
         return (
           <tr key={key}>
-            <td className={styles.keyCell}>{key}</td>
-            <td className={styles.valueCell}>{info[key]}</td>
+            <Styled.KeyCell>{key}</Styled.KeyCell>
+            <Styled.ValueCell>{info[key]}</Styled.ValueCell>
           </tr>
         );
       });
       if (array.length > 1) {
         infoList.unshift(
           <tr key={infoList.length}>
-            <th className={styles.titleCell}>{`User ${index + 1}`}</th>
+            <th>{`User ${index + 1}`}</th>
           </tr>,
         );
       }
       return infoList;
     });
     return (
-      <table className={styles.userInfoTable}>
+      <Styled.UserInfoTable>
         <tbody>
           {userInfoList}
         </tbody>
-      </table>
+      </Styled.UserInfoTable>
     );
   }
 

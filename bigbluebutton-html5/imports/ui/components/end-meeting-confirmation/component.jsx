@@ -1,9 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
-import Modal from '/imports/ui/components/modal/simple/component';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   endMeetingTitle: {
@@ -51,15 +49,13 @@ class EndMeetingComponent extends PureComponent {
     } = this.props;
 
     return (
-      <Modal
-        overlayClassName={styles.overlay}
-        className={styles.modal}
+      <Styled.EndMeetingModal
         onRequestClose={closeModal}
         hideBorder
         title={intl.formatMessage(intlMessages.endMeetingTitle, { 0: meetingTitle })}
       >
-        <div className={styles.container}>
-          <div className={styles.description}>
+        <Styled.Container>
+          <Styled.Description>
             {
               users > 0
                 ? intl.formatMessage(intlMessages.endMeetingDescription, { 0: users })
@@ -73,23 +69,21 @@ class EndMeetingComponent extends PureComponent {
                   </p>
                 ) : null
             }
-          </div>
-          <div className={styles.footer}>
-            <Button
+          </Styled.Description>
+          <Styled.Footer>
+            <Styled.EndMeetingButton
               data-test="confirmEndMeeting"
               color="danger"
-              className={styles.button}
               label={intl.formatMessage(intlMessages.yesLabel)}
               onClick={endMeeting}
             />
-            <Button
+            <Styled.EndMeetingButton
               label={intl.formatMessage(intlMessages.noLabel)}
-              className={styles.button}
               onClick={closeModal}
             />
-          </div>
-        </div>
-      </Modal>
+          </Styled.Footer>
+        </Styled.Container>
+      </Styled.EndMeetingModal>
     );
   }
 }

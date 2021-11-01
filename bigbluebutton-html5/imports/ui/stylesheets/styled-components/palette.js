@@ -29,8 +29,12 @@ const colorTipBg = '#333333';
 const itemFocusBorder = colorBlueLighter;
 
 const btnDefaultColor = colorGray;
+const btnPrimaryBorder = colorPrimary;
 
 const toolbarButtonColor = btnDefaultColor;
+const userThumbnailBorder = colorGrayLight;
+const loaderBg = colorGrayDark;
+const loaderBullet = colorWhite;
 
 export {
   colorWhite,
@@ -57,5 +61,9 @@ export {
   colorTipBg,
   itemFocusBorder,
   btnDefaultColor,
+  btnPrimaryBorder,
   toolbarButtonColor,
+  userThumbnailBorder,
+  loaderBg,
+  loaderBullet,
 };
