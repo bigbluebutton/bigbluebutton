@@ -23,6 +23,14 @@ const userIndicatorsOffset = '-5px';
 const indicatorPadding = '.45rem'; // used to center presenter indicator icon in Chrome / Firefox / Edge
 const chatPollMarginSm = '.5rem';
 
+const talkerBorderRadius = '2rem';
+const talkerPaddingXsm = '.13rem';
+const talkerPaddingLg = '.75rem';
+const talkerPaddingXl = '1.62rem';
+const talkerMaxWidth = '10rem';
+const talkerMarginSm = '.5rem';
+const spokeOpacity = '.5';
+
 export {
   borderSizeSmall,
   borderSize,
@@ -47,4 +55,11 @@ export {
   userIndicatorsOffset,
   indicatorPadding,
   chatPollMarginSm,
+  talkerBorderRadius,
+  talkerPaddingXsm,
+  talkerPaddingLg,
+  talkerMaxWidth,
+  talkerMarginSm,
+  spokeOpacity,
+  talkerPaddingXl,
 };
