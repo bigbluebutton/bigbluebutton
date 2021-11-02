@@ -246,9 +246,9 @@ class MultiUsers {
         );
         await this.userPage.screenshot(testName, '04-connection-network-success');
         return true;
-      } catch (e) {
+      } catch (er) {
         await this.userPage.screenshot(testName, '04-connection-network-failed');
-        this.userPage.logger(e);
+        this.userPage.logger(er);
         return false;
       }
     } catch (err) {

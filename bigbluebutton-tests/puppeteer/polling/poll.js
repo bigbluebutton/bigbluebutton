@@ -100,9 +100,9 @@ class Polling {
           e.receivedAnswer, e.answerMessage
         );
         await this.modPage.screenshot(testName, '04-success-to-receive-answer');
-      } catch (e) {
+      } catch (er) {
         await this.modPage.screenshot(testName, '04-failed-to-receive-answer');
-        await this.modPage.logger(e);
+        await this.modPage.logger(er);
         return false;
       }
 
