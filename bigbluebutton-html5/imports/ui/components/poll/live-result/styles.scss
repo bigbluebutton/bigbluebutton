@@ -4,6 +4,7 @@
   --poll-stats-element-width: 17%;
   
   --poll-sm-margin: 0.3125rem;
+  --poll-md-margin: 0.7rem;
   --poll-user-line-height: 1.75rem;
   --poll-result-width: 15rem;
 }
@@ -15,6 +16,19 @@
   font-size: var(--font-size-base);
   overflow-wrap: break-word;
   white-space: pre-wrap;
+}
+
+.publishBtn,
+.cancelBtn {
+  width: 48%;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.buttonsActions {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
 }
 
 .main {

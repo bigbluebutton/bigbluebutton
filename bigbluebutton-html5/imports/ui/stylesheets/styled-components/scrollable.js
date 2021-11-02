@@ -40,7 +40,6 @@ const ScrollboxVertical = styled.div`
   &::-webkit-scrollbar-corner { background: 0 0; }
 `;
 
-
 const VirtualizedScrollboxVertical = styled(List)`
   overflow-y: auto;
   background: linear-gradient(white 30%, rgba(255,255,255,0)),
@@ -83,4 +82,4 @@ const VirtualizedScrollboxVertical = styled(List)`
 export {
   ScrollboxVertical,
   VirtualizedScrollboxVertical,
-}
+};
