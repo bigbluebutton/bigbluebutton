@@ -48,6 +48,7 @@ const toolbarButtonBorderColor = colorGrayLighter;
 const toolbarListColor = colorGray;
 const toolbarButtonBg = btnDefaultBg;
 const toolbarListBg = '#DDD';
+const toolbarListBgFocus = '#C6C6C6';
 
 export {
   colorWhite,
@@ -89,4 +90,5 @@ export {
   toolbarListColor,
   toolbarButtonBg,
   toolbarListBg,
+  toolbarListBgFocus,
 };

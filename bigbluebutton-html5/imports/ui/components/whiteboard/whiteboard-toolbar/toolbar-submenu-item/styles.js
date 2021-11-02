@@ -6,14 +6,13 @@ import {
   toolbarItemOutlineOffset,
   toolbarButtonBorder,
   toolbarButtonBorderRadius,
-  toolbarItemTrianglePadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   toolbarButtonBorderColor,
   toolbarListColor,
   toolbarButtonColor,
   toolbarButtonBg,
-  toolbarListBg,
+  toolbarListBgFocus,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { toolbarButtonFontSize } from '/imports/ui/stylesheets/styled-components/typography';
 import Button from '/imports/ui/components/button/component';
@@ -40,33 +39,9 @@ const ButtonWrapper = styled.div`
     border-bottom-left-radius: ${toolbarButtonBorderRadius};
     border-bottom-right-radius: ${toolbarButtonBorderRadius};
   }
-
-  ${({ showCornerTriangle }) => showCornerTriangle && `
-    &::before {
-      content: '';
-      position: absolute;
-      border-color: transparent;
-      border-style: solid;
-      z-index: 2;
-      border-radius: 0;
-      border-width: 0.35em;
-      bottom: ${toolbarItemTrianglePadding};
-      left: ${toolbarItemTrianglePadding};
-      border-left-color: ${toolbarListColor};
-      border-bottom-color: ${toolbarListColor};
-
-      [dir="rtl"] & {
-        left: auto;
-        right: ${toolbarItemTrianglePadding};
-
-        border-left-color: transparent;
-        border-right-color: ${toolbarListColor};
-      }
-    }
-  `}
 `;
 
-const ToolbarButton = styled(Button)`
+const SubmenuButton = styled(Button)`
   padding: 0;
   border: 0;
   width: 100%;
@@ -93,24 +68,20 @@ const ToolbarButton = styled(Button)`
     color: ${toolbarButtonColor};
   }
 
-  ${({ state }) => state === 'active' && `
-    background-color: ${toolbarListBg};
+  ${({ state }) => state === 'selected' && `
+    background-color: ${toolbarListColor} !important;
 
     & > i {
-      color: ${toolbarListColor};
+      color: ${toolbarListBgFocus} !important;
     }
 
-    border-top-left-radius: 0;
-    border-top-right-radius: ${toolbarButtonBorderRadius};
-
-    [dir="rtl"] & {
-      border-top-left-radius: ${toolbarButtonBorderRadius};
-      border-top-right-radius: 0;
+    & > svg {
+      fill: ${toolbarListBgFocus};
     }
   `}
 `;
 
 export default {
   ButtonWrapper,
-  ToolbarButton,
+  SubmenuButton,
 };
