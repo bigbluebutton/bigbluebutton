@@ -156,6 +156,7 @@ exports.stopScreenSharing = 'button[data-test="stopScreenShare"]';
 exports.presentationToolbarWrapper = '#presentationToolbarWrapper';
 exports.presentationTitle = '[class^="presentationTitle--"]';
 exports.hidePresentation = 'button[data-test="hidePresentationButton"]';
+exports.minimizePresentation = 'button[aria-label="Minimize presentation"]';
 exports.restorePresentation = 'button[data-test="restorePresentationButton"]';
 exports.nextSlide = '[data-test="nextSlide"]';
 exports.prevSlide = '[data-test="prevSlide"]';
@@ -173,6 +174,16 @@ exports.confirmManagePresentation = 'button[data-test="confirmManagePresentation
 exports.allowPresentationDownload = 'button[data-test="allowPresentationDownload"]';
 exports.disallowPresentationDownload = 'button[data-test="disallowPresentationDownload"]';
 exports.uploadPresentationFileName = 'uploadTest.png';
+exports.presentationContainer = 'div[class^="presentationContainer--"]';
+exports.externalVideoBtn = 'li[data-test="external-video"]';
+exports.externalVideoModalHeader = 'header[data-test="videoModalHeader"]';
+exports.videoModalInput = 'input[id="video-modal-input"]';
+exports.startShareVideoBtn = 'button[aria-label="Share a new video"]';
+exports.videoPlayer = 'div[data-test="videoPlayer"]';
+// YouTube frame
+exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
+exports.youtubeFrame = 'iframe[title^="YouTube"]';
+exports.ytFrameTitle = 'a[class^="ytp-title-link"]';
 
 // User
 exports.firstUser = '[data-test="userListItemCurrent"]';

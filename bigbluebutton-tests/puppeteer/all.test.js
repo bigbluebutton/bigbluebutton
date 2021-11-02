@@ -11,7 +11,6 @@ const stressTest = require('./stress/stress.obj');
 const userTest = require('./user/user.obj');
 const virtualizedListTest = require('./virtualizedlist/virtualizedlist.obj');
 const webcamTest = require('./webcam/webcam.obj');
-const webcamLayout = require('./webcam/webcamlayout.obj');
 const whiteboardTest = require('./whiteboard/whiteboard.obj');
 
 process.setMaxListeners(Infinity);
@@ -28,7 +27,6 @@ describe('Shared Notes ', sharedNotesTest);
 describe('User', userTest);
 describe('Virtualized List', virtualizedListTest);
 describe('Webcam', webcamTest);
-describe('Webcam Layout', webcamLayout);
 describe('Whiteboard', whiteboardTest);
 if (process.env.STRESS_TEST === 'true') {
   describe('Stress', stressTest);
