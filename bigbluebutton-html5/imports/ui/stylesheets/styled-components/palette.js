@@ -41,6 +41,7 @@ const systemMessageBorderColor = '#C5CDD4';
 const systemMessageFontColor = colorGrayDark;
 const colorHeading = colorGrayDark;
 const palettePlaceholderText = '#787675';
+const pollAnnotationGray = '#333333';
 
 export {
   colorWhite,
@@ -77,4 +78,5 @@ export {
   systemMessageFontColor,
   colorHeading,
   palettePlaceholderText,
+  pollAnnotationGray,
 };
