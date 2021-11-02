@@ -37,6 +37,7 @@ const toolbarItemOutlineOffset = '-.19rem';
 const toolbarButtonBorder = '1px';
 const toolbarButtonBorderRadius = '5px';
 const toolbarItemTrianglePadding = '2px';
+const toolbarMargin = '.8rem';
 
 export {
   borderSizeSmall,
@@ -75,4 +76,5 @@ export {
   toolbarButtonBorder,
   toolbarButtonBorderRadius,
   toolbarItemTrianglePadding,
+  toolbarMargin,
 };

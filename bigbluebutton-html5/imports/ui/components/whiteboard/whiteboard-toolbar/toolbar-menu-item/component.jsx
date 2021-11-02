@@ -71,7 +71,6 @@ export default class ToolbarMenuItem extends Component {
       icon,
       customIcon,
       onBlur,
-      toolbarActive,
       children,
       showCornerTriangle,
       expanded,
@@ -84,7 +83,7 @@ export default class ToolbarMenuItem extends Component {
         hidden={disabled}
       >
         <Styled.ToolbarButton
-          state={toolbarActive ? 'active' : 'inactive'}
+          state={expanded ? 'active' : 'inactive'}
           aria-expanded={expanded}
           aria-haspopup={haspopup}
           hideLabel

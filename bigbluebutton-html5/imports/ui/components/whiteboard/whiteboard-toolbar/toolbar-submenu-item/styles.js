@@ -11,7 +11,7 @@ import {
   toolbarButtonBorderColor,
   toolbarListColor,
   toolbarButtonColor,
-  toolbarButtonBg,
+  toolbarListBg,
   toolbarListBgFocus,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { toolbarButtonFontSize } from '/imports/ui/stylesheets/styled-components/typography';
@@ -31,13 +31,7 @@ const ButtonWrapper = styled.div`
 
   &:first-child > button {
     border-top-left-radius: ${toolbarButtonBorderRadius};
-    border-top-right-radius: ${toolbarButtonBorderRadius};
-  }
-
-  &:last-child > button {
-    border-bottom: 0;
     border-bottom-left-radius: ${toolbarButtonBorderRadius};
-    border-bottom-right-radius: ${toolbarButtonBorderRadius};
   }
 `;
 
@@ -56,8 +50,8 @@ const SubmenuButton = styled(Button)`
   z-index: 1;
   font-size: ${toolbarButtonFontSize};
   color: ${toolbarButtonColor};
-  background-color: ${toolbarButtonBg};
   border-color: ${toolbarButtonBorderColor};
+  background-color: ${toolbarListBg};
 
   &:focus,
   &:hover {
@@ -65,11 +59,12 @@ const SubmenuButton = styled(Button)`
   }
 
   & > i {
-    color: ${toolbarButtonColor};
+    color: ${toolbarListColor};
   }
 
   ${({ state }) => state === 'selected' && `
     background-color: ${toolbarListColor} !important;
+    background:red;
 
     & > i {
       color: ${toolbarListBgFocus} !important;

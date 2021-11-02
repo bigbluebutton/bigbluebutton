@@ -50,13 +50,13 @@ export default class ToolbarSubmenuItem extends Component {
       customIcon,
       icon,
       label,
-      selected,
+      toolbarActive,
     } = this.props;
 
     return (
       <Styled.ButtonWrapper>
         <Styled.SubmenuButton
-          state={selected ? 'selected' : 'unselected'}
+          state={toolbarActive ? 'selected' : 'unselected'}
           hideLabel
           role="button"
           color="default"
