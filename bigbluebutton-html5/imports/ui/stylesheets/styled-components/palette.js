@@ -36,6 +36,12 @@ const userThumbnailBorder = colorGrayLight;
 const loaderBg = colorGrayDark;
 const loaderBullet = colorWhite;
 
+const systemMessageBackgroundColor = '#F9FBFC';
+const systemMessageBorderColor = '#C5CDD4';
+const systemMessageFontColor = colorGrayDark;
+const colorHeading = colorGrayDark;
+const palettePlaceholderText = '#787675';
+
 export {
   colorWhite,
   colorOffWhite,
@@ -66,4 +72,9 @@ export {
   userThumbnailBorder,
   loaderBg,
   loaderBullet,
+  systemMessageBackgroundColor,
+  systemMessageBorderColor,
+  systemMessageFontColor,
+  colorHeading,
+  palettePlaceholderText,
 };

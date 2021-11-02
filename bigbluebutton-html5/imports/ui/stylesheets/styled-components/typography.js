@@ -9,6 +9,7 @@ const fontSizeXL = '1.75rem';
 const fontSizeMD = '0.95rem';
 
 const headingsFontWeight = '500';
+const btnFontWeight = '600';
 
 export {
   lineHeightComputed,
@@ -21,4 +22,5 @@ export {
   fontSizeXL,
   fontSizeMD,
   headingsFontWeight,
+  btnFontWeight,
 };

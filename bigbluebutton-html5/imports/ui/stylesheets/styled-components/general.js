@@ -21,6 +21,7 @@ const modalMargin = '3rem';
 const titlePositionLeft = '2.2rem';
 const userIndicatorsOffset = '-5px';
 const indicatorPadding = '.45rem'; // used to center presenter indicator icon in Chrome / Firefox / Edge
+const chatPollMarginSm = '.5rem';
 
 export {
   borderSizeSmall,
@@ -45,4 +46,5 @@ export {
   titlePositionLeft,
   userIndicatorsOffset,
   indicatorPadding,
+  chatPollMarginSm,
 };
