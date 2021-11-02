@@ -1,5 +1,5 @@
 {
-  "dependencies": {
+  "devDependencies": {
     "@playwright/test": "^1.16.3",
     "axios": "^0.24.0",
     "dotenv": "^10.0.0",
