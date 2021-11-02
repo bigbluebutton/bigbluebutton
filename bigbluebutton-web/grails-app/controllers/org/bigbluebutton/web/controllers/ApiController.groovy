@@ -83,7 +83,7 @@ class ApiController {
 
     withFormat {
       xml {
-        render(text: responseBuilder.buildMeetingVersion(paramsProcessorUtil.getApiVersion(), RESP_CODE_SUCCESS), contentType: "text/xml")
+        render(text: responseBuilder.buildMeetingVersion(paramsProcessorUtil.getApiVersion(), paramsProcessorUtil.getBbbVersion(), RESP_CODE_SUCCESS), contentType: "text/xml")
       }
     }
   }
