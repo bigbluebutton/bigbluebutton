@@ -31,6 +31,13 @@ const talkerMaxWidth = '10rem';
 const talkerMarginSm = '.5rem';
 const spokeOpacity = '.5';
 
+const toolbarButtonWidth = '3rem';
+const toolbarButtonHeight = '3rem';
+const toolbarItemOutlineOffset = '-.19rem';
+const toolbarButtonBorder = '1px';
+const toolbarButtonBorderRadius = '5px';
+const toolbarItemTrianglePadding = '2px';
+
 export {
   borderSizeSmall,
   borderSize,
@@ -62,4 +69,10 @@ export {
   talkerMarginSm,
   spokeOpacity,
   talkerPaddingXl,
+  toolbarButtonWidth,
+  toolbarButtonHeight,
+  toolbarItemOutlineOffset,
+  toolbarButtonBorder,
+  toolbarButtonBorderRadius,
+  toolbarItemTrianglePadding,
 };

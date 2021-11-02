@@ -30,6 +30,7 @@ const itemFocusBorder = colorBlueLighter;
 
 const btnDefaultColor = colorGray;
 const btnPrimaryBorder = colorPrimary;
+const btnDefaultBg = colorWhite;
 
 const toolbarButtonColor = btnDefaultColor;
 const userThumbnailBorder = colorGrayLight;
@@ -42,6 +43,11 @@ const systemMessageFontColor = colorGrayDark;
 const colorHeading = colorGrayDark;
 const palettePlaceholderText = '#787675';
 const pollAnnotationGray = '#333333';
+
+const toolbarButtonBorderColor = colorGrayLighter;
+const toolbarListColor = colorGray;
+const toolbarButtonBg = btnDefaultBg;
+const toolbarListBg = '#DDD';
 
 export {
   colorWhite,
@@ -79,4 +85,8 @@ export {
   colorHeading,
   palettePlaceholderText,
   pollAnnotationGray,
+  toolbarButtonBorderColor,
+  toolbarListColor,
+  toolbarButtonBg,
+  toolbarListBg,
 };

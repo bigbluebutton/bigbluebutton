@@ -11,6 +11,7 @@ const fontSizeMD = '0.95rem';
 const headingsFontWeight = '500';
 const btnFontWeight = '600';
 const talkerFontWeight = '400';
+const toolbarButtonFontSize = '1.75rem';
 
 export {
   lineHeightComputed,
@@ -25,4 +26,5 @@ export {
   headingsFontWeight,
   btnFontWeight,
   talkerFontWeight,
+  toolbarButtonFontSize,
 };
