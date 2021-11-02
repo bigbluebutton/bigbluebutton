@@ -10,7 +10,6 @@ export default async function addBulkGroupChatMsgs(msgs) {
     .map(({ chatId, meetingId, msg }) => {
       const {
         sender,
-        color,
         ...restMsg
       } = msg;
 

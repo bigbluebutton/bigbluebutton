@@ -23,13 +23,11 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     id: Match.Maybe(String),
     timestamp: Number,
     sender: Object,
-    color: String,
     message: String,
     correlationId: Match.Maybe(String),
   });
 
   const {
-    color,
     sender,
     ...restMsg
   } = msg;
