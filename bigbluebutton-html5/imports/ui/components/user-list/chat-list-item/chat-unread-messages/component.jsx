@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   unreadPlural: {
@@ -49,14 +49,11 @@ const ChatUnreadCounter = (props) => {
       : intl.formatMessage(intlMessages.unreadSingular)}`;
 
   return (
-    <div
-      className={styles.unreadMessages}
-      aria-label={arialabel}
-    >
-      <div className={styles.unreadMessagesText} aria-hidden="true">
+    <Styled.UnreadMessages aria-label={arialabel}>
+      <Styled.UnreadMessagesText aria-hidden="true">
         {counter}
-      </div>
-    </div>
+      </Styled.UnreadMessagesText>
+    </Styled.UnreadMessages>
   );
 };
 
