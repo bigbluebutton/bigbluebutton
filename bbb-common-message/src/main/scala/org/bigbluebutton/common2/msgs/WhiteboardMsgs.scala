@@ -1,5 +1,7 @@
 package org.bigbluebutton.common2.msgs
 
+import scala.collection.immutable.List
+
 case class AnnotationVO(id: String, status: String, annotationType: String,
                         annotationInfo: scala.collection.immutable.Map[String, Any], wbId: String, userId: String, position: Int)
 
@@ -27,6 +29,10 @@ case class SendCursorPositionPubMsgBody(whiteboardId: String, xPercent: Double, 
 object SendWhiteboardAnnotationPubMsg { val NAME = "SendWhiteboardAnnotationPubMsg" }
 case class SendWhiteboardAnnotationPubMsg(header: BbbClientMsgHeader, body: SendWhiteboardAnnotationPubMsgBody) extends StandardMsg
 case class SendWhiteboardAnnotationPubMsgBody(annotation: AnnotationVO, drawEndOnly: Boolean)
+
+object SendWhiteboardEraserPubMsg { val NAME = "SendWhiteboardEraserPubMsg" }
+case class SendWhiteboardEraserPubMsg(header: BbbClientMsgHeader, body: SendWhiteboardEraserPubMsgBody) extends StandardMsg
+case class SendWhiteboardEraserPubMsgBody(annotation: AnnotationVO, drawEndOnly: Boolean)
 
 object UndoWhiteboardPubMsg { val NAME = "UndoWhiteboardPubMsg" }
 case class UndoWhiteboardPubMsg(header: BbbClientMsgHeader, body: UndoWhiteboardPubMsgBody) extends StandardMsg
@@ -61,6 +67,10 @@ case class SendCursorPositionEvtMsgBody(whiteboardId: String, xPercent: Double, 
 object SendWhiteboardAnnotationEvtMsg { val NAME = "SendWhiteboardAnnotationEvtMsg" }
 case class SendWhiteboardAnnotationEvtMsg(header: BbbClientMsgHeader, body: SendWhiteboardAnnotationEvtMsgBody) extends BbbCoreMsg
 case class SendWhiteboardAnnotationEvtMsgBody(annotation: AnnotationVO)
+
+object SendWhiteboardEraserEvtMsg { val NAME = "SendWhiteboardEraserEvtMsg" }
+case class SendWhiteboardEraserEvtMsg(header: BbbClientMsgHeader, body: SendWhiteboardEraserEvtMsgBody) extends BbbCoreMsg
+case class SendWhiteboardEraserEvtMsgBody(whiteboardId: String, userId: String, eraserId: String, annotationsToAdd: List[AnnotationVO], idsToRemove: List[String])
 
 object UndoWhiteboardEvtMsg { val NAME = "UndoWhiteboardEvtMsg" }
 case class UndoWhiteboardEvtMsg(header: BbbClientMsgHeader, body: UndoWhiteboardEvtMsgBody) extends BbbCoreMsg

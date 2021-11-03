@@ -494,7 +494,6 @@ class WhiteboardToolbar extends Component {
     const { panMode, annotationSelected, currentSubmenuOpen } = this.state;
     const { intl, annotations } = this.props;
     const isDisabled = !annotations.length;
-
     return panMode
       ? (
         <ToolbarMenuItem
@@ -596,7 +595,7 @@ class WhiteboardToolbar extends Component {
       thicknessSelected,
     } = this.state;
 
-    const isDisabled = annotationSelected.value === 'hand' || annotationSelected.value === 'eraser' || !annotations.length;
+    const isDisabled = annotationSelected.value === 'hand' || !annotations.length;
     return (
       <ToolbarMenuItem
         disabled={isDisabled}

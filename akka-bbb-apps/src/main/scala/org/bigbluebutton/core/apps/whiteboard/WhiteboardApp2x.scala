@@ -6,6 +6,7 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 import scala.collection.immutable.{ Map, List }
+import scala.collection.immutable.HashMap
 
 case class Whiteboard(
     id:              String,
@@ -22,6 +23,7 @@ class WhiteboardApp2x(implicit val context: ActorContext)
   with UndoWhiteboardPubMsgHdlr
   with ModifyWhiteboardAccessPubMsgHdlr
   with SendWhiteboardAnnotationPubMsgHdlr
+  with SendWhiteboardEraserPubMsgHdlr
   with GetWhiteboardAnnotationsReqMsgHdlr {
 
   val log = Logging(context.system, getClass)
@@ -29,6 +31,7 @@ class WhiteboardApp2x(implicit val context: ActorContext)
   def sendWhiteboardAnnotation(annotation: AnnotationVO, drawEndOnly: Boolean, liveMeeting: LiveMeeting): AnnotationVO = {
     //    println("Received whiteboard annotation. status=[" + status + "], annotationType=[" + annotationType + "]")
     var rtnAnnotation: AnnotationVO = annotation
+    log.debug("Received whiteboard annotation. status=[" + annotation.status + "], annotationType=[" + annotation.annotationType + "], annotationInfo=[" + annotation.annotationInfo + "]")
 
     if (WhiteboardKeyUtil.DRAW_START_STATUS == annotation.status) {
       rtnAnnotation = liveMeeting.wbModel.addAnnotation(annotation.wbId, annotation.userId, annotation)
@@ -47,8 +50,27 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     } else {
       //	    println("Received UNKNOWN whiteboard annotation!!!!. status=[" + status + "], annotationType=[" + annotationType + "]")
     }
-
+    log.debug(rtnAnnotation.annotationInfo.map(_.productIterator.mkString(":")).mkString("|"))
     rtnAnnotation
+  }
+
+  def sendWhiteboardEraser(eraserAnnotation: AnnotationVO, drawEndOnly: Boolean, liveMeeting: LiveMeeting): Map[String, Any] = {
+    //    println("Received whiteboard annotation. status=[" + status + "], annotationType=[" + annotationType + "]")
+    var rtnInformation: Map[String, Any] = HashMap("whiteboardId" -> eraserAnnotation.wbId, "userId" -> eraserAnnotation.userId, "eraserId" -> eraserAnnotation.id, "annotationsToAdd" -> List(), "idsToRemove" -> List())
+    log.debug("Received whiteboard annotation. status=[" + eraserAnnotation.status + "], annotationType=[" + eraserAnnotation.annotationType + "], pos=[" + eraserAnnotation.position + "]")
+
+    if (WhiteboardKeyUtil.DRAW_START_STATUS == eraserAnnotation.status) {
+      //rtnInformation = liveMeeting.wbModel.addAnnotation(annotation.wbId, annotation.userId, annotation)
+    } else if (WhiteboardKeyUtil.DRAW_UPDATE_STATUS == eraserAnnotation.status) {
+      //TODO Eraser Update
+      //rtnInformation = liveMeeting.wbModel.updateAnnotationPencil(annotation.wbId, annotation.userId, annotation)
+    } else if (WhiteboardKeyUtil.DRAW_END_STATUS == eraserAnnotation.status) {
+      rtnInformation = liveMeeting.wbModel.endAnnotationEraser(eraserAnnotation.wbId, eraserAnnotation.userId, eraserAnnotation, drawEndOnly)
+    } else {
+      //	    println("Received UNKNOWN whiteboard annotation!!!!. status=[" + status + "], annotationType=[" + annotationType + "]")
+    }
+    log.debug("rtnInformation. toAdd=[" + rtnInformation("annotationsToAdd") + "], remove=[" + rtnInformation("idsToRemove") + "]")
+    rtnInformation
   }
 
   def getWhiteboardAnnotations(whiteboardId: String, liveMeeting: LiveMeeting): Array[AnnotationVO] = {

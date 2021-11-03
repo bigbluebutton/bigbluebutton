@@ -3,9 +3,11 @@ import { processForHTML5ServerOnly } from '/imports/api/common/server/helpers';
 import handleWhiteboardCleared from './handlers/whiteboardCleared';
 import handleWhiteboardUndo from './handlers/whiteboardUndo';
 import handleWhiteboardSend from './handlers/whiteboardSend';
+import handleWhiteboardErasedSend from './handlers/whiteboardErased';
 import handleWhiteboardAnnotations from './handlers/whiteboardAnnotations';
 
 RedisPubSub.on('ClearWhiteboardEvtMsg', handleWhiteboardCleared);
 RedisPubSub.on('UndoWhiteboardEvtMsg', handleWhiteboardUndo);
 RedisPubSub.on('SendWhiteboardAnnotationEvtMsg', handleWhiteboardSend);
+RedisPubSub.on('SendWhiteboardEraserEvtMsg', handleWhiteboardErasedSend);
 RedisPubSub.on('GetWhiteboardAnnotationsRespMsg', processForHTML5ServerOnly(handleWhiteboardAnnotations));
