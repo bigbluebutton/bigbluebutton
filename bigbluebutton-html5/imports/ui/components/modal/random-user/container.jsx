@@ -28,12 +28,20 @@ const RandomUserSelectContainer = (props) => {
 
   const currentUser = { userId: Auth.userID, presenter: users[Auth.meetingID][Auth.userID].presenter };
 
-  if(!currentUser.presenter && //this functionality does not bother presenter
-    (keepModalOpen == false) && //we only ween a change if modal has been closed before
-    (randomlySelectedUser[0][1] != updateIndicator)//if tey are different, a user was generated
-    ){ keepModalOpen = true; } //reopen modal
+  try{
+    if(!currentUser.presenter && //this functionality does not bother presenter
+      (!keepModalOpen) && //we only ween a change if modal has been closed before
+      (randomlySelectedUser[0][1] != updateIndicator)//if tey are different, a user was generated
+      ){ keepModalOpen = true; } //reopen modal
 
-  if(!currentUser.presenter){ updateIndicator = randomlySelectedUser[0][1]; } //keep indicator up to date
+    if(!currentUser.presenter){ updateIndicator = randomlySelectedUser[0][1]; } //keep indicator up to date
+  }catch(err){
+    console.error(
+      "Issue in Random User container caused by back-end crash\n" 
+    + "Value of 6 randomly selected users was passed as {" 
+    + randomlySelectedUser 
+    + "}\nHowever, it is handled.");
+  }
 
   if (randomlySelectedUser) {
     mappedRandomlySelectedUsers = randomlySelectedUser.map((ui) => {

@@ -79,23 +79,8 @@ export default function updateRandomUser(meetingId, userIds, choice, requesterId
   } 
   
   else { // We generate 5 users randomly, just for animation, and last one is the chosen one
-    const itrations = intervals.length -1;
-    let IDs = userIds.slice();
-    for(i = 0; i < itrations; i++ ){
-      if(IDs == 0) { // we used up all the options 
-        IDs = userIds.slice(); //start over
-        let userId = IDs.splice(0, 1);
-        if(userList[userList.length] == [userId, intervals[i]]){ //If we start over with the one we finnished, change it
-          IDs.push(userId);
-          userId = IDs.splice(0, 1)
-        }
-        userList.push([userId, intervals[i]]);
-      } else {
-        const userId = IDs.splice(Math.floor(Math.random() * IDs.length), 1);
-        userList.push([userId, intervals[i]]);
-      } 
-    }
-    userList.push([chosenUser, intervals[itrations + 1]]);
+    getFiveRandom(userList, userIds);
+    userList.push([chosenUser, intervals[intervals.length]]);
   }
 
   const modifier = {
@@ -112,4 +97,22 @@ export default function updateRandomUser(meetingId, userIds, choice, requesterId
   } catch (err) {
     Logger.error(`Setting randomly selected userId and interval = ${userList} by requesterId=${requesterId} in meetingId=${meetingId}`);
   }
+}
+
+function getFiveRandom(userList, userIds){
+  let IDs = userIds.slice();
+    for(let i = 0; i < intervals.length - 1; i++ ){
+      if(IDs == 0) { // we used up all the options 
+        IDs = userIds.slice(); //start over
+        let userId = IDs.splice(0, 1);
+        if(userList[userList.length] == [userId, intervals[i]]){ //If we start over with the one we finnished, change it
+          IDs.push(userId);
+          userId = IDs.splice(0, 1)
+        }
+        userList.push([userId, intervals[i]]);
+      } else {
+        const userId = IDs.splice(Math.floor(Math.random() * IDs.length), 1);
+        userList.push([userId, intervals[i]]);
+      } 
+    }
 }
