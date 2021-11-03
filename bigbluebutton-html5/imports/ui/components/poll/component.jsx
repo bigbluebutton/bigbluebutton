@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { Session } from 'meteor/session';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
+import Checkbox from '/imports/ui/components/checkbox/component';
 import Toggle from '/imports/ui/components/switch/component';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
@@ -74,12 +75,12 @@ const intlMessages = defineMessages({
     id: 'app.poll.optionDelete.label',
     description: '',
   },
-  pollPanelDesc: {
-    id: 'app.poll.panel.desc',
-    description: '',
-  },
   questionLabel: {
     id: 'app.poll.question.label',
+    description: '',
+  },
+  optionalQuestionLabel: {
+    id: 'app.poll.optionalQuestion.label',
     description: '',
   },
   userResponse: {
@@ -112,14 +113,6 @@ const intlMessages = defineMessages({
   },
   isSecretPollLabel: {
     id: 'app.poll.secretPoll.isSecretLabel',
-    description: '',
-  },
-  nonSecretPollLabel: {
-    id: 'app.poll.secretPoll.notSecretLabel',
-    description: 'label explaining that the presenter will see for which option everyone voted',
-  },
-  questionTitle: {
-    id: 'app.poll.question.title',
     description: '',
   },
   true: {
@@ -161,6 +154,10 @@ const intlMessages = defineMessages({
   abstention: {
     id: 'app.poll.abstention',
     description: '',
+  },
+  enableMultipleResponseLabel: {
+    id: 'app.poll.enableMultipleResponseLabel',
+    description: 'label for checkbox to enable multiple choice',
   },
   startPollDesc: {
     id: 'app.poll.startPollDesc',
@@ -218,6 +215,7 @@ class Poll extends Component {
       question: '',
       optList: [],
       error: null,
+      isMultipleResponse: false,
       secretPoll: false,
     };
 
@@ -226,6 +224,7 @@ class Poll extends Component {
     this.handleRemoveOption = this.handleRemoveOption.bind(this);
     this.handleTextareaChange = this.handleTextareaChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.toggleIsMultipleResponse = this.toggleIsMultipleResponse.bind(this);
     this.displayToggleStatus = this.displayToggleStatus.bind(this);
   }
 
@@ -287,6 +286,11 @@ class Poll extends Component {
     const clearError = validatedVal.length > 0 && type !== pollTypes.Response;
     list[index] = { val: validatedVal };
     this.setState({ optList: list, error: clearError ? null : error });
+  }
+
+  toggleIsMultipleResponse() {
+    const { isMultipleResponse } = this.state;
+    return this.setState({ isMultipleResponse: !isMultipleResponse });
   }
 
   handleTextareaChange(e) {
@@ -415,7 +419,7 @@ class Poll extends Component {
                   </span>
                 </>
               )
-              : <div style={{ width: '40px' }} />}
+              : <div style={{ width: '40px', flex: 'none' }} />}
           </div>
           {!hasVal && type !== pollTypes.Response && error ? (
             <div className={styles.inputError}>{error}</div>
@@ -460,7 +464,7 @@ class Poll extends Component {
 
   renderPollOptions() {
     const {
-      type, secretPoll, optList, question, error,
+      type, secretPoll, optList, question, error, isMultipleResponse
     } = this.state;
     const {
       startPoll,
@@ -469,34 +473,39 @@ class Poll extends Component {
       pollTypes,
       isDefaultPoll,
       checkPollType,
+      smallSidebar,
     } = this.props;
     const defaultPoll = isDefaultPoll(type);
+    const questionPlaceholder = (type === pollTypes.Response)
+      ? intlMessages.questionLabel
+      : intlMessages.optionalQuestionLabel;
+    const hasQuestionError = (type === pollTypes.Response && question.length === 0 && error);
     return (
       <div>
-        <div className={styles.instructions}>
-          {intl.formatMessage(intlMessages.pollPanelDesc)}
-        </div>
         <div>
-          <h4 aria-hidden>{intl.formatMessage(intlMessages.questionTitle)}</h4>
           <textarea
             data-test="pollQuestionArea"
-            className={styles.pollQuestion}
+            className={
+              cx(styles.pollQuestion, {
+                [styles.hasError]: hasQuestionError,
+              })
+            }
             value={question}
             onChange={(e) => this.handleTextareaChange(e)}
             rows="4"
             cols="35"
             maxLength={QUESTION_MAX_INPUT_CHARS}
-            aria-label={intl.formatMessage(intlMessages.questionTitle)}
-            placeholder={intl.formatMessage(intlMessages.questionLabel)}
+            aria-label={intl.formatMessage(questionPlaceholder)}
+            placeholder={intl.formatMessage(questionPlaceholder)}
           />
-          {(type === pollTypes.Response && question.length === 0 && error) ? (
+          {hasQuestionError ? (
             <div className={styles.inputError}>{error}</div>
           ) : (
             <div className={styles.errorSpacer}>&nbsp;</div>
           )}
         </div>
         <div data-test="responseTypes">
-          <h4>{intl.formatMessage(intlMessages.responseTypesLabel)}</h4>
+          <h4 className={styles.sectionHeading}>{intl.formatMessage(intlMessages.responseTypesLabel)}</h4>
           <div className={styles.responseType}>
             <Button
               label={intl.formatMessage(intlMessages.tf)}
@@ -513,7 +522,8 @@ class Poll extends Component {
               }}
               className={
                 cx(styles.pBtn, {
-                  [styles.selectedBtnBlue]: type === pollTypes.TrueFalse,
+                  [styles.selectedTypeBtn]: type === pollTypes.TrueFalse,
+                  [styles.smallBtn]: !smallSidebar,
                 })
               }
             />
@@ -534,7 +544,8 @@ class Poll extends Component {
               }}
               className={
                 cx(styles.pBtn, {
-                  [styles.selectedBtnBlue]: type === pollTypes.Letter,
+                  [styles.selectedTypeBtn]: type === pollTypes.Letter,
+                  [styles.smallBtn]: !smallSidebar,
                 })
               }
             />
@@ -554,7 +565,7 @@ class Poll extends Component {
               }}
               className={
               cx(styles.pBtn, styles.yna, {
-                [styles.selectedBtnBlue]: type === pollTypes.YesNoAbstention,
+                [styles.selectedTypeBtn]: type === pollTypes.YesNoAbstention,
               })
             }
             />
@@ -565,7 +576,7 @@ class Poll extends Component {
               onClick={() => { this.setState({ type: pollTypes.Response }); }}
               className={
               cx(styles.pBtn, styles.fullWidth, {
-                [styles.selectedBtnWhite]: type === pollTypes.Response,
+                [styles.selectedTypeBtn]: type === pollTypes.Response,
               })
             }
             />
@@ -574,35 +585,44 @@ class Poll extends Component {
         {type
           && (
             <div data-test="responseChoices">
-              <h4>{intl.formatMessage(intlMessages.responseChoices)}</h4>
+              <h4 className={styles.sectionHeading}>{intl.formatMessage(intlMessages.responseChoices)}</h4>
               {
                 type === pollTypes.Response
                 && (
-                  <div>
+                  <div className={styles.pollParagraph}>
                     <span>{intl.formatMessage(intlMessages.typedResponseDesc)}</span>
-                    <div className={styles.exampleResponse}>
-                      <div className={styles.exampleTitle} />
-                      <div className={styles.responseInput}>
-                        <div className={styles.rInput} />
-                      </div>
-                    </div>
                   </div>
                 )
               }
-              {
-                (defaultPoll || type === pollTypes.Response)
-                && (
-                  <div style={{
-                    display: 'flex',
-                    flexFlow: 'wrap',
-                  }}
-                  >
-                    {defaultPoll && this.renderInputs()}
-                    {defaultPoll
-                      && (
+                {
+                  (defaultPoll || type === pollTypes.Response)
+                    && (
+                    <div style={{
+                      display: 'flex',
+                      flexFlow: 'wrap',
+                      flexDirection: 'column',
+                    }}
+                    >
+                      {defaultPoll
+                        && (
+                        <div>
+                          <Checkbox
+                            onChange={this.toggleIsMultipleResponse}
+                            checked={isMultipleResponse}
+                            className={styles.checkbox}
+                            ariaLabelledBy="multipleResponseCheckboxLabel"
+                          />
+                          <label id="multipleResponseCheckboxLabel" className={styles.instructions}>
+                            {intl.formatMessage(intlMessages.enableMultipleResponseLabel)}
+                          </label>
+                        </div>
+                        )}
+                      {defaultPoll && this.renderInputs()}
+                      {defaultPoll
+                        && (
                         <Button
                           className={styles.addItemBtn}
-                          data-test="addItem"
+                          data-test="addPollItem"
                           label={intl.formatMessage(intlMessages.addOptionLabel)}
                           aria-describedby="add-item-button"
                           color="default"
@@ -613,10 +633,9 @@ class Poll extends Component {
                       )}
                     <div className={styles.row}>
                       <div className={styles.col} aria-hidden="true">
-                        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                        <label className={styles.label}>
+                        <h4 className={styles.sectionHeading}>
                           {intl.formatMessage(intlMessages.secretPollLabel)}
-                        </label>
+                        </h4>
                       </div>
                       <div className={styles.col}>
                         {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
@@ -632,13 +651,12 @@ class Poll extends Component {
                         </label>
                       </div>
                     </div>
-                    <div>
-                      {
-                        intl.formatMessage(secretPoll
-                          ? intlMessages.isSecretPollLabel
-                          : intlMessages.nonSecretPollLabel)
-                      }
-                    </div>
+                    {secretPoll
+                      && (
+                        <div className={styles.pollParagraph}>
+                          { intl.formatMessage(intlMessages.isSecretPollLabel) }
+                        </div>
+                      )}
                     <Button
                       className={styles.startPollBtn}
                       data-test="startPoll"
@@ -678,10 +696,11 @@ class Poll extends Component {
                               verifiedPollType,
                               secretPoll,
                               question,
+                              isMultipleResponse,
                               _.compact(verifiedOptions),
                             );
                           } else {
-                            startPoll(verifiedPollType, secretPoll, question);
+                            startPoll(verifiedPollType, secretPoll, question, isMultipleResponse);
                           }
                         });
                       }}
@@ -704,7 +723,7 @@ class Poll extends Component {
     const { intl } = this.props;
     return (
       <div className={styles.noSlidePanelContainer}>
-        <h4>{intl.formatMessage(intlMessages.noPresentationSelected)}</h4>
+        <h4 className={styles.sectionHeading}>{intl.formatMessage(intlMessages.noPresentationSelected)}</h4>
         <Button
           label={intl.formatMessage(intlMessages.clickHereToSelect)}
           color="primary"

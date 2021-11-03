@@ -9,13 +9,13 @@ const CaptionsContainer = props => (
 
 export default withTracker(() => {
   const {
-    padId,
+    locale,
     revs,
     data,
   } = CaptionsService.getCaptionsData();
 
   return {
-    padId,
+    locale,
     revs,
     data,
   };

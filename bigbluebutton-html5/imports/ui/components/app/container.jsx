@@ -3,9 +3,8 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
-import AuthTokenValidation from '/imports/api/auth-token-validation';
-import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings';
+import Users from '/imports/ui/local-collections/users-collection/users';
+import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
 import { notify } from '/imports/ui/services/notification';
 import CaptionsContainer from '/imports/ui/components/captions/container';
 import CaptionsService from '/imports/ui/components/captions/service';
@@ -120,9 +119,7 @@ const currentUserEmoji = (currentUser) => (currentUser
 );
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
-  const authTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });
-
-  if (authTokenValidation.connectionId !== Meteor.connection._lastSessionId) {
+  if (Auth.connectionID !== Meteor.connection._lastSessionId) {
     endMeeting('403');
   }
 
@@ -167,6 +164,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   }).fetch();
 
   const AppSettings = Settings.application;
+  const { selectedLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
@@ -176,6 +174,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   if (!customStyleUrl && CUSTOM_STYLE_URL) {
     customStyleUrl = CUSTOM_STYLE_URL;
   }
+
+  const LAYOUT_CONFIG = Meteor.settings.public.layout;
 
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
@@ -195,8 +195,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     currentUserId: currentUser?.userId,
     isPresenter: currentUser?.presenter,
     meetingLayout: layout,
-    settingsLayout: AppSettings.selectedLayout,
-    pushLayoutToEveryone: AppSettings.pushLayoutToEveryone,
+    settingsLayout: selectedLayout?.replace('Push', ''),
+    pushLayoutToEveryone: selectedLayout?.includes('Push'),
     audioAlertEnabled: AppSettings.chatAudioAlerts,
     pushAlertEnabled: AppSettings.chatPushAlerts,
     shouldShowScreenshare,
@@ -207,6 +207,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
       'bbb_force_restore_presentation_on_new_events',
       Meteor.settings.public.presentation.restoreOnUpdate,
     ),
+    hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
+    hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
   };
 })(AppContainer)));
 

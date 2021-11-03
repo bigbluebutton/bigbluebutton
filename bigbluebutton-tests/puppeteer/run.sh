@@ -6,7 +6,7 @@ usage() {
 BBB Health Check
 
 OPTIONS:
-  -t <test name: webcamlayout/whiteboard/webcam/virtualizedlist/user/trigger/sharednotes/screenshare/presentation/polling/notifications/customparameters/chat/breakout/audio/all>
+  -t <test name: whiteboard/webcam/virtualizedlist/user/trigger/sharednotes/screenshare/presentation/polling/notifications/customparameters/chat/breakout/audio/all>
 
   -u Print usage
 HERE

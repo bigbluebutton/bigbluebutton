@@ -121,9 +121,18 @@
   display: none;
 }
 
+.checkbox {
+  display: inline-block;
+  margin-right: var(--poll-sm-margin);
+}
+
+.checkboxContainer {
+  margin-bottom: var(--poll-sm-margin);
+}
+
 .qHeader {
   text-align: left;
-  position: relative; 
+  position: relative;
   left: var(--sm-padding-y);
 }
 
@@ -162,6 +171,14 @@
   margin-bottom: 1rem;
 }
 
+.multipleResponseAnswersTable {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.multipleResponseAnswersTableAnswerText {
+  text-align: left;
+}
 .pollingSecret {
   font-size: var(--font-size-small);
   max-width: var(--poll-width);

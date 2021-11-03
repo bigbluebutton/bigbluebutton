@@ -2,14 +2,14 @@ import _ from 'lodash';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import BBBMenu from '/imports/ui/components/menu/component';
 import cx from 'classnames';
-import { styles } from '../styles';
+import { styles } from '../styles.scss';
+import Styled from './styles'
 import { PANELS, ACTIONS } from '../../layout/enums';
 
 const propTypes = {
@@ -124,6 +124,7 @@ class ActionsDropdown extends PureComponent {
       stopExternalVideoShare,
       mountModal,
       layoutContextDispatch,
+      hidePresentation,
     } = this.props;
 
     const {
@@ -138,7 +139,7 @@ class ActionsDropdown extends PureComponent {
 
     const actions = [];
 
-    if (amIPresenter) {
+    if (amIPresenter && !hidePresentation) {
       actions.push({
         icon: "presentation",
         dataTest: "uploadPresentation",
@@ -183,7 +184,7 @@ class ActionsDropdown extends PureComponent {
 
     if (amIPresenter && allowExternalVideo) {
       actions.push({
-        icon: "video",
+        icon: !isSharingVideo ? "external-video" : "external-video_off",
         label: !isSharingVideo ? intl.formatMessage(intlMessages.startExternalVideoLabel)
           : intl.formatMessage(intlMessages.stopExternalVideoLabel),
         key: "external-video",
@@ -267,8 +268,8 @@ class ActionsDropdown extends PureComponent {
         classes={[styles.offsetBottom]}
         accessKey={OPEN_ACTIONS_AK}
         trigger={
-          <Button
-            className={isDropdownOpen ? styles.hideDropdownButton : ''}
+          <Styled.HideDropdownButton
+            open={isDropdownOpen}
             hideLabel
             aria-label={intl.formatMessage(intlMessages.actionsLabel)}
             label={intl.formatMessage(intlMessages.actionsLabel)}

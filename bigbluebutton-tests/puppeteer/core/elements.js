@@ -16,7 +16,7 @@ exports.settings = 'li[data-test="settings"]';
 exports.settingsModal = 'div[aria-label="Settings"]';
 exports.title = '._imports_ui_components_nav_bar__styles__presentationTitle';
 exports.alerts = '.toastify-content';
-exports.pdfFileName = '100PagesFile';
+exports.pdfFileName = '100PagesFile.pdf';
 // Accesskey
 exports.chatButtonKey = '[accesskey="P"]';
 exports.userListButton = '[accesskey="U"]';
@@ -49,9 +49,11 @@ exports.alreadyConnected = 'span[class^="alreadyConnected--"]';
 exports.breakoutJoin = '[data-test="breakoutJoin"]';
 exports.userJoined = 'div[aria-label^="Moderator3"]';
 exports.breakoutRoomsButton = 'div[aria-label="Breakout Rooms"]';
-exports.generateRoom1 = 'button[aria-label="Generate URL Room 1"]';
-exports.joinGeneratedRoom1 = 'button[aria-label="Generated Room 1"]';
+exports.askJoinRoom1 = 'button[aria-label="Ask to join Room 1"]';
 exports.joinRoom1 = 'button[aria-label="Join room Room 1"]';
+exports.allowChoiceRoom = 'input[id="freeJoinCheckbox"]';
+exports.labelGeneratingURL = 'span[data-test="labelGeneratingURL"]';
+exports.endBreakoutRoomsButton = 'button[data-test="endBreakoutRoomsButton"]';
 
 // Chat
 exports.chatButton = 'div[data-test="chatButton"]';
@@ -116,9 +118,7 @@ exports.userJoinPushAlerts = '[aria-label="User Join Popup Alerts"]';
 exports.dropdownContent = '[data-test="dropdownContent"]';
 exports.fileUploadDropZone = '[data-test="fileUploadDropZone"]';
 exports.polling = 'li[data-test="polling"]';
-exports.pollYesNoAbstentionBtn = 'button[aria-label="Yes / No / Abstention"]';
 exports.yesBtn = 'button[aria-label="Yes"]';
-exports.publishPollingResults = 'button[aria-label="Publish polling results"]';
 exports.hidePollDesc = 'button[data-test="hidePollDesc"]';
 exports.joinAudioToast = 'You have joined the audio conference';
 exports.notificationsTab = 'span[id="notificationTab"]';
@@ -129,18 +129,26 @@ exports.pollQuestionArea = 'textarea[data-test="pollQuestionArea"]';
 exports.pollQuestion = 'Are we good ?';
 exports.responseTypes = 'div[data-test="responseTypes"]';
 exports.responseChoices = 'div[data-test="responseChoices"]';
-exports.addItem = 'button[data-test="addItem"]';
+exports.addPollItem = 'button[data-test="addPollItem"]';
+exports.pollYesNoAbstentionBtn = 'button[aria-label="Yes / No / Abstention"]';
+exports.pollLetterAlteratives = 'button[aria-label="A / B / C / D"]';
+exports.userResponseBtn = 'button[aria-label="User Response"]';
 exports.pollOptionItem = 'input[data-test="pollOptionItem"]';
 exports.uncertain = 'Uncertain';
 exports.deletePollOption = 'button[data-test="deletePollOption"]';
 exports.pollAnswerOptionBtn = 'button[data-test="pollAnswerOption"]';
 exports.pollAnswerOptionInput = 'input[data-test="pollAnswerOption"]';
+exports.answerMessage = 'All good!';
 exports.pollSubmitAnswer = 'button[data-test="submitAnswer"]';
 exports.startPoll = 'button[data-test="startPoll"]';
 exports.restartPoll = 'button[data-test="restartPoll"]';
 exports.receivedAnswer = 'td[data-test="receivedAnswer"]';
-exports.publishLabel = 'button[data-test="publishLabel"]';
+exports.publishPollingLabel = 'button[data-test="publishPollingLabel"]';
 exports.pollResults = 'g[data-test="pollResultAria"]';
+exports.anonymousPoll = 'input[aria-label="Anonymous Poll"]';
+exports.quickPoll = 'button[aria-label="Quick Poll"]';
+exports.closePollingMenu = 'button[aria-label="Close Polling"]'
+exports.questionSlideFileName = 'mockPollSlide.pdf';
 
 // Presentation
 exports.startScreenSharing = 'button[data-test="startScreenShare"]';
@@ -148,6 +156,7 @@ exports.stopScreenSharing = 'button[data-test="stopScreenShare"]';
 exports.presentationToolbarWrapper = '#presentationToolbarWrapper';
 exports.presentationTitle = '[class^="presentationTitle--"]';
 exports.hidePresentation = 'button[data-test="hidePresentationButton"]';
+exports.minimizePresentation = 'button[aria-label="Minimize presentation"]';
 exports.restorePresentation = 'button[data-test="restorePresentationButton"]';
 exports.nextSlide = '[data-test="nextSlide"]';
 exports.prevSlide = '[data-test="prevSlide"]';
@@ -164,7 +173,17 @@ exports.toastDownload = 'a[data-test="toastDownload"]';
 exports.confirmManagePresentation = 'button[data-test="confirmManagePresentation"]';
 exports.allowPresentationDownload = 'button[data-test="allowPresentationDownload"]';
 exports.disallowPresentationDownload = 'button[data-test="disallowPresentationDownload"]';
-
+exports.uploadPresentationFileName = 'uploadTest.png';
+exports.presentationContainer = 'div[class^="presentationContainer--"]';
+exports.externalVideoBtn = 'li[data-test="external-video"]';
+exports.externalVideoModalHeader = 'header[data-test="videoModalHeader"]';
+exports.videoModalInput = 'input[id="video-modal-input"]';
+exports.startShareVideoBtn = 'button[aria-label="Share a new video"]';
+exports.videoPlayer = 'div[data-test="videoPlayer"]';
+// YouTube frame
+exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
+exports.youtubeFrame = 'iframe[title^="YouTube"]';
+exports.ytFrameTitle = 'a[class^="ytp-title-link"]';
 
 // User
 exports.firstUser = '[data-test="userListItemCurrent"]';
@@ -205,6 +224,8 @@ exports.chatPanel = 'section[data-test="chatPanel"]';
 exports.userListPanel = 'div[data-test="userListPanel"]';
 exports.multiWhiteboardTool = 'span[data-test="multiWhiteboardTool"]'
 exports.connectionStatusBtn = 'button[data-test="connectionStatusButton"]';
+exports.connectionDataContainer = '[class^=networkDataContainer--]';
+exports.connectionNetwordData = '[class^=networkData--]';
 
 // Webcam
 exports.joinVideo = 'button[data-test="joinVideo"]';

@@ -7,9 +7,9 @@
   line-height: 1;
   margin-right: 1.65rem;
   margin-left: .5rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  padding: .1rem 0;
 
   [dir="rtl"] & {
     margin-right: .5rem;
