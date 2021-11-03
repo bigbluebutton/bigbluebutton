@@ -246,9 +246,9 @@ class MultiUsers {
         );
         await this.userPage.screenshot(testName, '04-connection-network-success');
         return true;
-      } catch (e) {
+      } catch (er) {
         await this.userPage.screenshot(testName, '04-connection-network-failed');
-        this.userPage.logger(e);
+        this.userPage.logger(er);
         return false;
       }
     } catch (err) {
@@ -280,8 +280,8 @@ class MultiUsers {
       await this.page1.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.userListButton);
       await this.page2.waitAndClick(e.chatButtonKey);
-      const onUserListPanel = await this.page1.wasRemoved(e.hidePresentation);
-      const onChatPanel = await this.page2.wasRemoved(e.hidePresentation);
+      const onUserListPanel = await this.page1.wasRemoved(e.minimizePresentation);
+      const onChatPanel = await this.page2.wasRemoved(e.minimizePresentation);
 
       return onUserListPanel && onChatPanel;
     } catch (err) {
