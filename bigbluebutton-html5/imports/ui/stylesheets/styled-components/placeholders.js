@@ -34,10 +34,18 @@ const TitleElipsis = styled.h2`
   text-overflow: ellipsis;
 `;
 
+const HeaderElipsis = styled.h3`
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
 export {
   FlexColumn,
   FlexRow,
   DivElipsis,
   TextElipsis,
   TitleElipsis,
+  HeaderElipsis,
 };

@@ -303,7 +303,6 @@ class ConnectionStatusComponent extends PureComponent {
           <div className={styles.left}>
             <div className={styles.avatar}>
               <UserAvatar
-                className={cx({ [styles.initials]: conn.avatar.length === 0 })}
                 you={conn.you}
                 avatar={conn.avatar}
                 moderator={conn.moderator}

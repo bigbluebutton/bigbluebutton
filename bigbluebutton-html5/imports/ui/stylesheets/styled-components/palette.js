@@ -22,14 +22,19 @@ const userListText = colorGray;
 const unreadMessagesBg = colorDanger;
 const colorGrayLabel = colorGray;
 const colorText = colorGray;
+const colorLink = colorPrimary;
 
 const listItemBgHover = '#DCE4ED';
 const colorTipBg = '#333333';
 const itemFocusBorder = colorBlueLighter;
 
 const btnDefaultColor = colorGray;
+const btnPrimaryBorder = colorPrimary;
 
 const toolbarButtonColor = btnDefaultColor;
+const userThumbnailBorder = colorGrayLight;
+const loaderBg = colorGrayDark;
+const loaderBullet = colorWhite;
 
 export {
   colorWhite,
@@ -51,9 +56,14 @@ export {
   unreadMessagesBg,
   colorGrayLabel,
   colorText,
+  colorLink,
   listItemBgHover,
   colorTipBg,
   itemFocusBorder,
   btnDefaultColor,
+  btnPrimaryBorder,
   toolbarButtonColor,
+  userThumbnailBorder,
+  loaderBg,
+  loaderBullet,
 };
