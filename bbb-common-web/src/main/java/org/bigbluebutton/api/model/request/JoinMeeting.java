@@ -14,7 +14,8 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
         PASSWORD("password"),
         GUEST("guest"),
         AUTH("auth"),
-        CREATE_TIME("createTime");
+        CREATE_TIME("createTime"),
+        ROLE("role");
 
         private final String value;
 
@@ -48,6 +49,8 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
     @IsIntegralConstraint
     private String createTimeString;
     private Long createTime;
+
+    private String role;
 
     public JoinMeeting(Checksum checksum) {
         super(checksum);
@@ -115,6 +118,14 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
         this.createTime = createTime;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     @Override
     public void populateFromParamsMap(Map<String, String[]> params) {
         if(params.containsKey(Params.MEETING_ID.getValue())) {
@@ -127,6 +138,7 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
         if(params.containsKey(Params.GUEST.getValue())) setGuestString(params.get(Params.GUEST.getValue())[0]);
         if(params.containsKey(Params.AUTH.getValue())) setAuthString(params.get(Params.AUTH.getValue())[0]);
         if(params.containsKey(Params.CREATE_TIME.getValue())) setCreateTimeString(params.get(Params.CREATE_TIME.getValue())[0]);
+        if(params.containsKey(Params.ROLE.getValue())) setRole(params.get(Params.ROLE.getValue())[0]);
     }
 
     @Override

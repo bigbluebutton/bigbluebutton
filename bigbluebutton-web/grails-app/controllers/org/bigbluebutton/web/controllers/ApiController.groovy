@@ -83,7 +83,7 @@ class ApiController {
 
     withFormat {
       xml {
-        render(text: responseBuilder.buildMeetingVersion(paramsProcessorUtil.getApiVersion(), RESP_CODE_SUCCESS), contentType: "text/xml")
+        render(text: responseBuilder.buildMeetingVersion(paramsProcessorUtil.getApiVersion(), paramsProcessorUtil.getBbbVersion(), RESP_CODE_SUCCESS), contentType: "text/xml")
       }
     }
   }
@@ -125,6 +125,8 @@ class ApiController {
     params.html5InstanceId = html5LoadBalancingService.findSuitableHTML5ProcessByRoundRobin().toString()
 
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params)
+
+    ApiErrors errors = new ApiErrors()
 
     if (meetingService.createMeeting(newMeeting)) {
       // See if the request came with pre-uploading of presentation.
@@ -182,6 +184,11 @@ class ApiController {
             request.getParameterMap(),
             request.getQueryString()
     )
+
+    HashMap<String, String> roles = new HashMap<String, String>();
+
+    roles.put("moderator", ROLE_MODERATOR);
+    roles.put("viewer", ROLE_ATTENDEE);
 
     if(!(validationResponse == null)) {
       invalid(validationResponse.getKey(), validationResponse.getValue(), REDIRECT_RESPONSE)
@@ -245,6 +252,10 @@ class ApiController {
       role = Meeting.ROLE_MODERATOR
     } else if (meeting.getViewerPassword().equals(attPW)) {
       role = Meeting.ROLE_ATTENDEE
+    }
+
+    if (!StringUtils.isEmpty(params.role) && roles.containsKey(params.role.toLowerCase())) {
+        role = roles.get(params.role.toLowerCase());
     }
 
     // We preprend "w_" to our internal meeting Id to indicate that this is a web user.
@@ -358,13 +369,10 @@ class ApiController {
     session[sessionToken] = sessionToken
     meetingService.addUserSession(sessionToken, us)
 
-    logSessionInfo()
-
     //Identify which of these to logs should be used. sessionToken or user-token
     log.info("Session sessionToken for " + us.fullname + " [" + session[sessionToken] + "]")
     log.info("Session user-token for " + us.fullname + " [" + session['user-token'] + "]")
 
-    logSession()
     log.info("Session token: ${sessionToken}")
 
     // Process if we send the user directly to the client or
@@ -792,8 +800,6 @@ class ApiController {
     String API_CALL = 'enter'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
-    logSessionInfo()
-
     String respMessage = "Session not found."
     boolean reject = false;
 
@@ -835,7 +841,6 @@ class ApiController {
         logoutUrl = us.logoutUrl
       }
 
-      logSession()
       log.info("Session token: ${sessionToken}")
 
       response.addHeader("Cache-Control", "no-cache")
@@ -1411,8 +1416,6 @@ class ApiController {
     if (us == null) {
       return false
     }
-
-    logSession()
 
     if (!session[token]) {
       log.info("Session for token ${token} not found")

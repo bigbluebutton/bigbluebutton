@@ -202,6 +202,7 @@ class Page {
       '--window-size=1150,980',
       '--allow-file-access',
       '--lang=en-US',
+      '--disable-features=IsolateOrigins,site-per-process',
     ];
     return {
       headless: false,
