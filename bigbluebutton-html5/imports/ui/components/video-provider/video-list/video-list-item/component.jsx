@@ -7,7 +7,7 @@ import BBBMenu from '/imports/ui/components/menu/component';
 import Icon from '/imports/ui/components/icon/component';
 import FullscreenService from '/imports/ui/components/fullscreen-button/service';
 import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
-import { styles } from '../styles';
+import { styles } from '../styles.scss';
 import VideoService from '../../service';
 import {
   isStreamStateUnhealthy,
