@@ -9,19 +9,11 @@ export default function sendPollChatMsg({ body }, meetingId) {
   const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
   const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
-  const { answers, numRespondents } = poll;
-
-  let responded = 0;
-  let resultString = 'bbb-published-poll-\n';
-  answers.map((item) => {
-    responded += item.numVotes;
-    return item;
-  }).map((item) => {
-    const numResponded = responded === numRespondents ? numRespondents : responded;
-    const pct = Math.round(item.numVotes / numResponded * 100);
-    const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
-    resultString += `${item.key}: ${item.numVotes || 0} | ${pctFotmatted}\n`;
-  });
+  const pollResultData = poll;
+  const extra = {
+    type: 'poll',
+    pollResultData,
+  };
 
   const payload = {
     id: `${SYSTEM_CHAT_TYPE}-${CHAT_POLL_RESULTS_MESSAGE}`,
@@ -31,7 +23,8 @@ export default function sendPollChatMsg({ body }, meetingId) {
       id: PUBLIC_CHAT_SYSTEM_ID,
       name: '',
     },
-    message: resultString,
+    message: '',
+    extra,
   };
 
   return addSystemMsg(meetingId, PUBLIC_GROUP_CHAT_ID, payload);

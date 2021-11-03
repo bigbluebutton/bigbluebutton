@@ -1,9 +1,8 @@
 import React from 'react';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { withTracker } from 'meteor/react-meteor-data';
-import deviceInfo from '/imports/utils/deviceInfo';
-import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings';
+import Users from '/imports/ui/local-collections/users-collection/users';
+import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
 import Auth from '/imports/ui/services/auth';
 import Service from './service';
 import VideoPreview from './component';
@@ -35,8 +34,8 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
   stopSharing: (deviceId) => {
     mountModal(null);
     if (deviceId) {
-      const stream = VideoService.getMyStream(deviceId);
-      if (stream) VideoService.stopVideo(stream);
+      const streamId = VideoService.getMyStreamId(deviceId);
+      if (streamId) VideoService.stopVideo(streamId);
     } else {
       VideoService.exitVideo();
     }
@@ -44,9 +43,6 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
   sharedDevices: VideoService.getSharedDevices(),
   isCamLocked: isCamLocked(),
   closeModal: () => mountModal(null),
-  changeWebcam: deviceId => Service.changeWebcam(deviceId),
   webcamDeviceId: Service.webcamDeviceId(),
-  changeProfile: profileId => Service.changeProfile(profileId),
-  hasMediaDevices: deviceInfo.hasMediaDevices,
   hasVideoStream: VideoService.hasVideoStream(),
 }))(VideoPreviewContainer));

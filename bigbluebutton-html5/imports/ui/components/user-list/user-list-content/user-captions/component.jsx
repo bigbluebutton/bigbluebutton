@@ -3,22 +3,15 @@ import PropTypes from 'prop-types';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import CaptionsListItem from '/imports/ui/components/user-list/captions-list-item/component';
 import { defineMessages } from 'react-intl';
-import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
-
-const listTransition = {
-  enter: styles.enter,
-  enterActive: styles.enterActive,
-  appear: styles.appear,
-  appearActive: styles.appearActive,
-  leave: styles.leave,
-  leaveActive: styles.leaveActive,
-};
+import Styled from './styles';
 
 const propTypes = {
   ownedLocales: PropTypes.arrayOf(PropTypes.object).isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  sidebarContentPanel: PropTypes.string.isRequired,
+  layoutContextDispatch: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -29,38 +22,38 @@ const intlMessages = defineMessages({
 });
 
 class UserCaptions extends Component {
-  constructor(props) {
-    super(props);
-
-    this.updatedOwnledLocales = this.updatedOwnledLocales.bind(this);
-  }
-
   shouldComponentUpdate(nextProps) {
-    return this.updatedOwnledLocales(nextProps);
-  }
+    const { ownedLocales, sidebarContentPanel } = this.props;
 
-  updatedOwnledLocales(nextProps) {
-    const { ownedLocales } = this.props;
-    return ownedLocales.length !== nextProps.ownedLocales.length;
+    return ownedLocales.length !== nextProps.ownedLocales.length
+      || sidebarContentPanel !== nextProps.sidebarContentPanel;
   }
 
   renderCaptions() {
     const {
       ownedLocales,
+      sidebarContentPanel,
+      layoutContextDispatch,
     } = this.props;
 
-    return ownedLocales.map(locale => (
+    return ownedLocales.map((locale) => (
       <CSSTransition
-        classNames={listTransition}
+        classNames="transition"
         appear
         enter
         exit={false}
         timeout={0}
         component="div"
-        className={styles.captionsList}
         key={locale.locale}
       >
-        <CaptionsListItem locale={locale} tabIndex={-1} />
+        <Styled.ListTransition>
+          <CaptionsListItem
+            {...{
+              locale, layoutContextDispatch, sidebarContentPanel,
+            }}
+            tabIndex={-1}
+          />
+        </Styled.ListTransition>
       </CSSTransition>
     ));
   }
@@ -74,25 +67,24 @@ class UserCaptions extends Component {
     if (ownedLocales.length < 1) return null;
 
     return (
-      <div className={styles.messages}>
-        <div className={styles.container}>
-          <h2 className={styles.smallTitle}>
+      <Styled.Messages>
+        <Styled.Container>
+          <Styled.SmallTitle>
             {intl.formatMessage(intlMessages.title)}
-          </h2>
-        </div>
-        <div
+          </Styled.SmallTitle>
+        </Styled.Container>
+        <Styled.ScrollableList
           role="tabpanel"
           tabIndex={0}
-          className={styles.scrollableList}
           ref={(ref) => { this._msgsList = ref; }}
         >
-          <div className={styles.list}>
+          <Styled.List>
             <TransitionGroup ref={(ref) => { this._msgItems = ref; }}>
               {this.renderCaptions()}
             </TransitionGroup>
-          </div>
-        </div>
-      </div>
+          </Styled.List>
+        </Styled.ScrollableList>
+      </Styled.Messages>
     );
   }
 }

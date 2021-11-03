@@ -70,6 +70,7 @@ module BigBlueButton
             exitstatus = BigBlueButton.exec_ret(*cmd)
             raise "postprocess failed, exit code #{exitstatus}" if exitstatus != 0
           end
+          FileUtils.rm(lastoutput)
           lastoutput = ppoutput
         end
       end

@@ -1,19 +1,35 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormattedMessage } from 'react-intl';
 import hark from 'hark';
 import Icon from '/imports/ui/components/icon/component';
-import cx from 'classnames';
-import { styles } from './styles';
+import Styled from './styles';
+import { defineMessages, injectIntl } from 'react-intl';
+import { notify } from '/imports/ui/services/notification';
+import TooltipContainer from '/imports/ui/components/tooltip/container';
 
 const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
 
 const propTypes = {
-  inputStream: PropTypes.object.isRequired,
+  inputStream: PropTypes.objectOf(PropTypes.any).isRequired,
   isPresenter: PropTypes.bool.isRequired,
   isViewer: PropTypes.bool.isRequired,
   muted: PropTypes.bool.isRequired,
 };
+
+const intlMessages = defineMessages({
+  disableMessage: {
+    id: 'app.muteWarning.disableMessage',
+    description: 'Message used when mute alerts has been disabled',
+  },
+  tooltip: {
+    id: 'app.muteWarning.tooltip',
+    description: 'Tooltip message',
+  },
+  warningLabel: {
+    id: 'app.muteWarning.label',
+    description: 'Warning when someone speaks while muted',
+  },
+});
 
 class MutedAlert extends Component {
   constructor(props) {
@@ -29,10 +45,14 @@ class MutedAlert extends Component {
 
     this.cloneMediaStream = this.cloneMediaStream.bind(this);
     this.resetTimer = this.resetTimer.bind(this);
+    this.closeAlert = this.closeAlert.bind(this);
   }
 
   componentDidMount() {
     this._isMounted = true;
+
+    if (!this.hasValidInputStream()) return;
+
     this.cloneMediaStream();
     if (this.inputStream) {
       const { interval, threshold, duration } = MUTE_ALERT_CONFIG;
@@ -58,41 +78,79 @@ class MutedAlert extends Component {
   componentWillUnmount() {
     this._isMounted = false;
     if (this.speechEvents) this.speechEvents.stop();
+    if (this.inputStream) {
+      this.inputStream.getTracks().forEach((t) => t.stop());
+    }
     this.resetTimer();
   }
 
   cloneMediaStream() {
-    const { inputStream, muted } = this.props;
-    if (inputStream && !muted) this.inputStream = inputStream.clone();
+    if (this.inputStream) return;
+    const { inputStream } = this.props;
+
+    if (inputStream) {
+      this.inputStream = inputStream.clone();
+      this.enableInputStreamAudioTracks(this.inputStream);
+    }
   }
+
+  /* eslint-disable no-param-reassign */
+  enableInputStreamAudioTracks() {
+    if (!this.inputStream) return;
+    this.inputStream.getAudioTracks().forEach((t) => { t.enabled = true; });
+  }
+  /* eslint-enable no-param-reassign */
 
   resetTimer() {
     if (this.timer) clearTimeout(this.timer);
     this.timer = null;
   }
 
+  hasValidInputStream() {
+    const { inputStream } = this.props;
+
+    if (inputStream
+      && (typeof inputStream.getAudioTracks === 'function')
+      && (inputStream.getAudioTracks().length > 0)
+    ) return true;
+
+    return false;
+  }
+
+  closeAlert() {
+    const { intl } = this.props;
+
+    this.setState({ visible: false });
+    this.speechEvents.stop();
+
+    notify(intl.formatMessage(intlMessages.disableMessage), 'info', 'mute');
+  }
+
   render() {
-    const { isViewer, isPresenter, muted } = this.props;
+    const {
+      isViewer, isPresenter, muted, intl,
+    } = this.props;
     const { visible } = this.state;
-    const style = {};
-    style[styles.alignForMod] = !isViewer || isPresenter;
 
     return visible && muted ? (
-      <div className={cx(styles.muteWarning, style)}>
-        <span>
-          <FormattedMessage
-            id="app.muteWarning.label"
-            description="Warning when someone speaks while muted"
-            values={{
-              0: <Icon iconName="mute" />,
-            }}
-          />
-        </span>
-      </div>
+      <TooltipContainer
+        title={intl.formatMessage(intlMessages.tooltip)}
+        position="top"
+      >
+        <Styled.MuteWarning
+          alignForMod={!isViewer || isPresenter}
+          alignForViewer={isViewer}
+          onClick={() => this.closeAlert()}
+        >
+          <span>
+            {intl.formatMessage(intlMessages.warningLabel, { 0: <Icon iconName="mute" /> })}
+          </span>
+        </Styled.MuteWarning>
+      </TooltipContainer>
     ) : null;
   }
 }
 
 MutedAlert.propTypes = propTypes;
 
-export default MutedAlert;
+export default injectIntl(MutedAlert);

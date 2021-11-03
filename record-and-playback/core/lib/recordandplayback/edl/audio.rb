@@ -21,10 +21,10 @@ module BigBlueButton
   module EDL
     module Audio
       FFMPEG_AEVALSRC = "aevalsrc=s=48000:c=stereo:exprs=0|0"
-      FFMPEG_AFORMAT = "aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=stereo"
-      FFMPEG_WF_CODEC = 'flac'
-      FFMPEG_WF_ARGS = ['-c:a', FFMPEG_WF_CODEC, '-f', 'flac']
-      WF_EXT = 'flac'
+      FFMPEG_AFORMAT = "aresample=async=1000,aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=stereo"
+      FFMPEG_WF_CODEC = 'libvorbis'
+      FFMPEG_WF_ARGS = ['-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-f', 'ogg']
+      WF_EXT = 'ogg'
 
       def self.dump(edl)
         BigBlueButton.logger.debug "EDL Dump:"
@@ -41,8 +41,26 @@ module BigBlueButton
         end
       end
 
+      def self.mixer(inputs, output_basename)
+        BigBlueButton.logger.debug "Mixing audio files"
+
+        ffmpeg_cmd = [*FFMPEG]
+        inputs.each do |input|
+          ffmpeg_cmd += ['-i', input]
+        end
+        ffmpeg_cmd += ['-filter_complex', "amix=inputs=#{inputs.length}"]
+
+        output = "#{output_basename}.#{WF_EXT}"
+        ffmpeg_cmd += ['-vn', *FFMPEG_WF_ARGS, output]
+
+        BigBlueButton.logger.info "Running audio mixer..."
+        exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)
+        raise "ffmpeg failed, exit code #{exitstatus}" if exitstatus != 0
+
+        output
+      end
+
       def self.render(edl, output_basename)
-        sections = []
         audioinfo = {}
 
         corrupt_audios = Set.new
@@ -61,12 +79,14 @@ module BigBlueButton
         audioinfo.keys.each do |audiofile|
           BigBlueButton.logger.debug "  #{audiofile}"
           info = audio_info(audiofile)
-          BigBlueButton.logger.debug "    sample rate: #{info[:sample_rate]}, duration: #{info[:duration]}"
-
           if !info[:audio] || !info[:duration]
             BigBlueButton.logger.warn "    This audio file is corrupt! It will be removed from the output."
             corrupt_audios << audiofile
+            next
           end
+
+          BigBlueButton.logger.debug "    format: #{info[:format][:format_name]}, codec: #{info[:audio][:codec_name]}"
+          BigBlueButton.logger.debug "    sample rate: #{info[:sample_rate]}, duration: #{info[:duration]}"
 
           audioinfo[audiofile] = info
         end
@@ -82,70 +102,60 @@ module BigBlueButton
           dump(edl)
         end
 
-        input_index = 0
-        output_index = 0
         ffmpeg_inputs = []
-        ffmpeg_filters = []
+        ffmpeg_filter = ''
         BigBlueButton.logger.info "Generating ffmpeg command"
         for i in 0...(edl.length - 1)
           entry = edl[i]
           audio = entry[:audio]
           duration = entry[:next_timestamp] - entry[:timestamp]
 
-          # Check for and handle audio files with mismatched lengths (generated
-          # by buggy versions of freeswitch in old BigBlueButton
-          if audio and entry[:original_duration] and
-               (audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]) < 0.997 and
+          ffmpeg_filter << "[a_edl#{i}_prev];\n" if i > 0
+
+          if audio
+            BigBlueButton.logger.info "  Using input #{audio[:filename]}"
+
+            speed = 1
+            seek = audio[:timestamp]
+
+            # Check for and handle audio files with mismatched lengths (generated
+            # by buggy versions of freeswitch in old BigBlueButton
+            if entry[:original_duration] && (audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]) < 0.997 &&
                ((entry[:original_duration] - audioinfo[audio[:filename]][:duration]).to_f /
                       entry[:original_duration]).abs < 0.05
-            speed = audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]
-            BigBlueButton.logger.info "  Using input #{audio[:filename]}"
+              BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
+              speed = audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]
+              seek = 0
+            end
 
-            BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
+            # Skip this input and generate silence if the seekpoint is past the end of the audio, which can happen
+            # if events are slightly misaligned and you get unlucky with a start/stop or chapter break.
+            if audio[:timestamp] < (audioinfo[audio[:filename]][:duration] * speed)
+              input_index = ffmpeg_inputs.length
+              ffmpeg_inputs << {
+                filename: audio[:filename],
+                seek: seek
+              }
+              ffmpeg_filter << "[#{input_index}]#{FFMPEG_AFORMAT},apad"
+            else
+              ffmpeg_filter << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT}"
+            end
 
-            # Have to calculate the start point after the atempo filter in this case,
-            # since it can affect the audio start time.
-            # Also reset the pts to start at 0, so the duration trim works correctly.
-            filter = "[#{input_index}] "
-            filter << "atempo=#{speed},atrim=start=#{ms_to_s(audio[:timestamp])},"
-            filter << "asetpts=PTS-STARTPTS,"
-            filter << "#{FFMPEG_AFORMAT},apad,atrim=end=#{ms_to_s(duration)} [out#{output_index}]"
-            ffmpeg_filters << filter
+            ffmpeg_filter << ",atempo=#{speed},atrim=start=#{ms_to_s(audio[:timestamp])}" if speed != 1
 
-            ffmpeg_inputs << {
-              :filename => audio[:filename],
-              :seek => 0
-            }
-
-            input_index += 1
-            output_index += 1
-
-            # Normal audio input handling. Skip this input and generate silence
-            # if the seekpoint is past the end of the audio, which can happen
-            # if events are slightly misaligned and you get unlucky with a
-            # start/stop or chapter break.
-          elsif audio and audio[:timestamp] < audioinfo[audio[:filename]][:duration]
-            BigBlueButton.logger.info "  Using input #{audio[:filename]}"
-
-            filter = "[#{input_index}] "
-            filter << "#{FFMPEG_AFORMAT},apad,atrim=end=#{ms_to_s(duration)} [out#{output_index}]"
-            ffmpeg_filters << filter
-
-            ffmpeg_inputs << {
-              :filename => audio[:filename],
-              :seek => audio[:timestamp]
-            }
-
-            input_index += 1
-            output_index += 1
-
+            ffmpeg_filter << ",asetpts=N"
           else
             BigBlueButton.logger.info "  Generating silence"
 
-            ffmpeg_filters << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT},atrim=end=#{ms_to_s(duration)} [out#{output_index}]"
-
-            output_index += 1
+            ffmpeg_filter << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT}"
           end
+
+          if i > 0
+            ffmpeg_filter << "[a_edl#{i}];\n"
+            ffmpeg_filter << "[a_edl#{i}_prev][a_edl#{i}]concat=n=2:a=1:v=0"
+          end
+
+          ffmpeg_filter << ",atrim=end=#{ms_to_s(entry[:next_timestamp])}"
         end
 
         ffmpeg_cmd = [*FFMPEG]
@@ -155,24 +165,24 @@ module BigBlueButton
           if audioinfo[input[:filename]][:format][:format_name] == 'wav'
             ffmpeg_cmd += ['-ignore_length', '1']
           end
+          # Prefer using the libopus decoder for opus files, it handles discontinuities better
+          if audioinfo[input[:filename]][:audio][:codec_name] == 'opus'
+            ffmpeg_cmd << '-c:a' << 'libopus'
+          end
           ffmpeg_cmd += ['-i', input[:filename]]
         end
-        ffmpeg_filter = ffmpeg_filters.join(' ; ')
 
-        if output_index > 1
-          # Add the final concat filter
-          ffmpeg_filter << " ; "
-          (0...output_index).each { |i| ffmpeg_filter << "[out#{i}]" }
-          ffmpeg_filter << " concat=n=#{output_index}:a=1:v=0"
-        else
-          # Only one input, no need for concat filter
-          ffmpeg_filter << " ; [out0] anull"
+        BigBlueButton.logger.debug('  ffmpeg filter_complex_script:')
+        BigBlueButton.logger.debug(ffmpeg_filter)
+        filter_complex_script = "#{output_basename}.filter"
+        File.open(filter_complex_script, 'w') do |io|
+          io.write(ffmpeg_filter)
         end
 
-        ffmpeg_cmd += ['-filter_complex', ffmpeg_filter]
+        ffmpeg_cmd << '-filter_complex_script' << filter_complex_script
 
         output = "#{output_basename}.#{WF_EXT}"
-        ffmpeg_cmd += [*FFMPEG_WF_ARGS, output]
+        ffmpeg_cmd += ['-vn', *FFMPEG_WF_ARGS, output]
 
         BigBlueButton.logger.info "Running audio processing..."
         exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)

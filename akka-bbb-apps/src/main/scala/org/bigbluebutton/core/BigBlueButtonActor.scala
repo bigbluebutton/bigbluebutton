@@ -135,10 +135,6 @@ class BigBlueButtonActor(
 
         RunningMeetings.add(meetings, m)
 
-        // Send new 2x message
-        val msgEvent = MsgBuilder.buildMeetingCreatedEvtMsg(m.props.meetingProp.intId, msg.body.props)
-        m.outMsgRouter.send(msgEvent)
-
       case Some(m) =>
         log.info("Meeting already created. meetingID={}", msg.body.props.meetingProp.intId)
       // do nothing

@@ -1,9 +1,7 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
-import Modal from '/imports/ui/components/modal/simple/component';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   endMeetingTitle: {
@@ -18,6 +16,10 @@ const intlMessages = defineMessages({
     id: 'app.endMeeting.noUserDescription',
     description: 'end meeting description',
   },
+  contentWarning: {
+    id: 'app.endMeeting.contentWarning',
+    description: 'end meeting content warning',
+  },
   yesLabel: {
     id: 'app.endMeeting.yesLabel',
     description: 'label for yes button for end meeting',
@@ -27,6 +29,8 @@ const intlMessages = defineMessages({
     description: 'label for no button for end meeting',
   },
 });
+
+const { warnAboutUnsavedContentOnMeetingEnd } = Meteor.settings.public.app;
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -38,43 +42,48 @@ const propTypes = {
   users: PropTypes.number.isRequired,
 };
 
-class EndMeetingComponent extends React.PureComponent {
+class EndMeetingComponent extends PureComponent {
   render() {
     const {
       users, intl, closeModal, endMeeting, meetingTitle,
     } = this.props;
 
     return (
-      <Modal
-        overlayClassName={styles.overlay}
-        className={styles.modal}
+      <Styled.EndMeetingModal
         onRequestClose={closeModal}
         hideBorder
         title={intl.formatMessage(intlMessages.endMeetingTitle, { 0: meetingTitle })}
       >
-        <div className={styles.container}>
-          <div className={styles.description}>
-            {users > 0
-              ? intl.formatMessage(intlMessages.endMeetingDescription, { 0: users })
-              : intl.formatMessage(intlMessages.endMeetingNoUserDescription)
+        <Styled.Container>
+          <Styled.Description>
+            {
+              users > 0
+                ? intl.formatMessage(intlMessages.endMeetingDescription, { 0: users })
+                : intl.formatMessage(intlMessages.endMeetingNoUserDescription)
             }
-          </div>
-          <div className={styles.footer}>
-            <Button
+            {
+              warnAboutUnsavedContentOnMeetingEnd
+                ? (
+                  <p>
+                    {intl.formatMessage(intlMessages.contentWarning)}
+                  </p>
+                ) : null
+            }
+          </Styled.Description>
+          <Styled.Footer>
+            <Styled.EndMeetingButton
               data-test="confirmEndMeeting"
-              color="primary"
-              className={styles.button}
+              color="danger"
               label={intl.formatMessage(intlMessages.yesLabel)}
               onClick={endMeeting}
             />
-            <Button
+            <Styled.EndMeetingButton
               label={intl.formatMessage(intlMessages.noLabel)}
-              className={styles.button}
               onClick={closeModal}
             />
-          </div>
-        </div>
-      </Modal>
+          </Styled.Footer>
+        </Styled.Container>
+      </Styled.EndMeetingModal>
     );
   }
 }

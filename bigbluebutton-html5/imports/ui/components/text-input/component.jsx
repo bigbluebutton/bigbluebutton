@@ -1,10 +1,8 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import TextareaAutosize from 'react-autosize-textarea';
 import PropTypes from 'prop-types';
 import logger from '/imports/startup/client/logger';
-import Button from '/imports/ui/components/button/component';
-import { styles } from './styles.scss';
+import Styled from './styles';
 
 const propTypes = {
   placeholder: PropTypes.string,
@@ -35,6 +33,13 @@ class TextInput extends PureComponent {
     this.setState({ message });
   }
 
+  handleOnKeyDown(e) {
+    if (e.keyCode === 13 && e.shiftKey === false) {
+      e.preventDefault();
+      this.handleOnClick();
+    }
+  }
+
   handleOnClick() {
     const { send } = this.props;
     const { message } = this.state;
@@ -53,24 +58,23 @@ class TextInput extends PureComponent {
     const { message } = this.state;
 
     return (
-      <div className={styles.wrapper}>
-        <TextareaAutosize
-          className={styles.textarea}
+      <Styled.Wrapper>
+        <Styled.TextArea
           maxLength={maxLength}
           onChange={(e) => this.handleOnChange(e)}
+          onKeyDown={(e) => this.handleOnKeyDown(e)}
           placeholder={placeholder}
           value={message}
         />
-        <Button
+        <Styled.TextInputButton
           circle
-          className={styles.button}
           color="primary"
           hideLabel
           icon="send"
           label={intl.formatMessage(messages.sendLabel)}
           onClick={() => this.handleOnClick()}
         />
-      </div>
+      </Styled.Wrapper>
     );
   }
 }

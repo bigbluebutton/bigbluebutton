@@ -11,7 +11,6 @@ trait RespondToTypedPollReqMsgHdlr {
   this: PollApp2x =>
 
   def handle(msg: RespondToTypedPollReqMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-    log.debug("Received RespondToPollReqMsg {}", RespondToTypedPollReqMsg)
 
     def broadcastPollUpdatedEvent(msg: RespondToTypedPollReqMsg, pollId: String, poll: SimplePollResultOutVO): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)

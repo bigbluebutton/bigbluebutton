@@ -74,6 +74,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     [hidden]:not([hidden="false"]) {
       display: none !important;
     }
+
+    ::-webkit-input-placeholder {
+      color: var(--palette-placeholder-text);
+      opacity: 1;
+    }
+
+    :-moz-placeholder, /* Firefox 4 to 18 */
+    ::-moz-placeholder { /* Firefox 19+ */
+      color: var(--palette-placeholder-text);
+      opacity: 1;
+    }
   </style>
   <script>
     document.addEventListener('gesturestart', function (e) {
@@ -82,8 +93,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </script>
   <script src="compatibility/adapter.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/sip.js?v=VERSION" language="javascript"></script>
-  <script src="compatibility/kurento-extension.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/kurento-utils.js?v=VERSION" language="javascript"></script>
+  <script src="compatibility/tflite-simd.js?v=VERSION" language="javascript"></script>
+  <script src="compatibility/tflite.js?v=VERSION" language="javascript"></script>
+  <!-- fonts -->
+  <link rel="preload" href="fonts/BbbIcons/bbb-icons.woff?j1ntjp" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Light.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Regular.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Semibold.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Bold.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-LightItalic.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Italic.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-SemiboldItalic.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-BoldItalic.woff" as="font" crossorigin="anonymous"/>
+  <!-- fonts -->
 </head>
 <body style="background-color: #06172A">
   <div id="app" role="document"></div>

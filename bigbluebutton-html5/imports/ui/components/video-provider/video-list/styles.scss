@@ -1,5 +1,6 @@
 @import "/imports/ui/stylesheets/variables/breakpoints";
 @import "/imports/ui/stylesheets/variables/placeholders";
+@import "/imports/ui/components/media/styles";
 
 .videoCanvas {
   --cam-dropdown-width: 70%;
@@ -16,6 +17,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.videoCanvasLRPosition {
+  flex-wrap: wrap;
+  align-content: center;
+  order: 0;
 }
 
 .videoList {
@@ -103,13 +110,8 @@
   white-space: nowrap;
   z-index: 1;
   vertical-align: middle;
-  margin: 0 -0.25em 0 0;
   border-radius: 1px;
   opacity: 1;
-
-  [dir="rtl"] & {
-    margin: 0 0 0 -0.25em
-  }
 }
 
 .loadingText {
@@ -143,6 +145,13 @@
   @include mq($medium-up) {
     >[aria-expanded] {
       padding: .25rem;
+    }
+  }
+
+  @include mq($landscape) {
+    button {
+      width: calc(100vw - 4rem);
+      margin-left: 1rem;
     }
   }
 }
@@ -186,6 +195,11 @@
 
   [dir="rtl"] & {
     right: 2rem;
+  }
+
+  @include mq($small-only) {
+    height: 90%;
+    width: 100vw;
   }
 }
 
@@ -250,10 +264,45 @@
   }
 }
 
+.nextPageLRPosition {
+  order: 3;
+  margin-right: 2px;
+}
+
 .previousPage {
   margin-right: 1px;
 
   @include mq($medium-up) {
     margin-right: 2px;
   }
+}
+
+.previousPageLRPosition {
+  order: 2;
+  margin-left: 2px;
+}
+
+.unhealthyStream {
+  filter: grayscale(50%) opacity(50%);
+}
+
+.reconnecting {
+  @extend .connectingSpinner;
+  background-color: transparent;
+  color: var(--color-white);
+}
+
+.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99;
+}
+
+.break {
+  order: 1;
+  flex-basis: 100%;
+  height: 5px;
 }

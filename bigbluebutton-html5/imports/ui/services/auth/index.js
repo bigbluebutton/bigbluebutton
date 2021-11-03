@@ -3,12 +3,11 @@ import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
 
-import Users from '/imports/api/users';
-import logger from '/imports/startup/client/logger';
 import { makeCall } from '/imports/ui/services/api';
 import { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
 import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
 import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
+import SubscriptionRegistry from '/imports/ui/services/subscription-registry/subscriptionRegistry';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
@@ -34,6 +33,7 @@ class Auth {
     this._confname = Storage.getItem('confname');
     this._externUserID = Storage.getItem('externUserID');
     this._fullname = Storage.getItem('fullname');
+    this._connectionID = Storage.getItem('connectionID');
   }
 
   get meetingID() {
@@ -143,6 +143,15 @@ class Auth {
     };
   }
 
+  set _connectionID(connectionId) {
+    this._connectionID = connectionId;
+    Storage.setItem('sessionToken', this._connectionID);
+  }
+
+  get sessionToken() {
+    return this._sessionToken;
+  }
+
   set(
     meetingId,
     requesterUserId,
@@ -214,77 +223,29 @@ class Auth {
   }
 
   validateAuthToken() {
-    return new Promise(async (resolve, reject) => {
-      let computation = null;
-
+    return new Promise((resolve, reject) => {
+      SubscriptionRegistry.createSubscription('current-user');
       const validationTimeout = setTimeout(() => {
-        computation.stop();
         reject({
           error: 408,
           description: 'Authentication timeout',
         });
       }, CONNECTION_TIMEOUT);
 
-      Meteor.subscribe('auth-token-validation', { meetingId: this.meetingID, userId: this.userID });
-
-      const result = await makeCall('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID);
-
-      if (result && result.invalid) {
-        clearTimeout(validationTimeout);
-        reject({
-          error: 403,
-          description: result.reason,
-          type: result.error_type,
-        });
-        return;
-      }
-
-      Meteor.subscribe('current-user');
-
-      Tracker.autorun((c) => {
-        computation = c;
-
-        const selector = { meetingId: this.meetingID, userId: this.userID };
-        const fields = {
-          ejected: 1, intId: 1, validated: 1, userId: 1,
-        };
-        const User = Users.findOne(selector, { fields });
-        // Skip in case the user is not in the collection yet or is a dummy user
-        if (!User || !('intId' in User)) {
-          logger.info({ logCode: 'auth_service_resend_validateauthtoken' }, 're-send validateAuthToken for delayed authentication');
-          makeCall('validateAuthToken', this.meetingID, this.userID, this.token);
-
-          return;
-        }
-
-        if (User.ejected) {
-          computation.stop();
-          reject({
-            error: 403,
-            description: 'User has been ejected.',
-          });
-          return;
-        }
-
-        const authenticationTokenValidation = AuthTokenValidation.findOne();
-
+      Meteor.call('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID, (err, result) => {
+        const authenticationTokenValidation = result;
         if (!authenticationTokenValidation) return;
 
         switch (authenticationTokenValidation.validationStatus) {
           case ValidationStates.INVALID:
-            c.stop();
-            reject({ error: 401, description: 'User has been ejected.' });
+            reject({ error: 403, description: authenticationTokenValidation.reason });
             break;
           case ValidationStates.VALIDATED:
             initCursorStreamListener();
             initAnnotationsStreamListener();
-            c.stop();
             clearTimeout(validationTimeout);
+            this.connectionID = authenticationTokenValidation.connectionId;
             setTimeout(() => resolve(true), 100);
-            break;
-          case ValidationStates.VALIDATING:
-            break;
-          case ValidationStates.NOT_VALIDATED:
             break;
           default:
         }

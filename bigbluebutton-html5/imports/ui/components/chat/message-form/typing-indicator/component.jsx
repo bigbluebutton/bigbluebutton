@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
-import browser from 'browser-detect';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { styles } from '../styles.scss';
@@ -22,8 +21,6 @@ const messages = defineMessages({
 class TypingIndicator extends PureComponent {
   constructor(props) {
     super(props);
-
-    this.BROWSER_RESULTS = browser();
 
     this.renderTypingElement = this.renderTypingElement.bind(this);
   }

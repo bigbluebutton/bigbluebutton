@@ -16,7 +16,9 @@ import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   closeModal: PropTypes.func.isRequired,
   joinMicrophone: PropTypes.func.isRequired,
   joinListenOnly: PropTypes.func.isRequired,
@@ -28,6 +30,7 @@ const propTypes = {
   isEchoTest: PropTypes.bool.isRequired,
   isConnecting: PropTypes.bool.isRequired,
   isConnected: PropTypes.bool.isRequired,
+  isUsingAudio: PropTypes.bool.isRequired,
   inputDeviceId: PropTypes.string,
   outputDeviceId: PropTypes.string,
   formattedDialNum: PropTypes.string.isRequired,
@@ -38,8 +41,7 @@ const propTypes = {
   audioLocked: PropTypes.bool.isRequired,
   resolve: PropTypes.func,
   isMobileNative: PropTypes.bool.isRequired,
-  isIOSChrome: PropTypes.bool.isRequired,
-  isIEOrEdge: PropTypes.bool.isRequired,
+  isIE: PropTypes.bool.isRequired,
   formattedTelVoice: PropTypes.string.isRequired,
   autoplayBlocked: PropTypes.bool.isRequired,
   handleAllowAutoplay: PropTypes.func.isRequired,
@@ -60,6 +62,14 @@ const intlMessages = defineMessages({
   listenOnlyLabel: {
     id: 'app.audioModal.listenOnlyLabel',
     description: 'Join listen only audio button label',
+  },
+  listenOnlyDesc: {
+    id: 'app.audioModal.listenOnlyDesc',
+    description: 'Join listen only audio button description',
+  },
+  microphoneDesc: {
+    id: 'app.audioModal.microphoneDesc',
+    description: 'Join mic audio button description',
   },
   closeLabel: {
     id: 'app.audioModal.closeLabel',
@@ -100,10 +110,6 @@ const intlMessages = defineMessages({
   connecting: {
     id: 'app.audioModal.connecting',
     description: 'Message for audio connecting',
-  },
-  connectingEchoTest: {
-    id: 'app.audioModal.connectingEchoTest',
-    description: 'Message for echo test connecting',
   },
   ariaModalTitle: {
     id: 'app.audioModal.ariaTitle',
@@ -161,18 +167,29 @@ class AudioModal extends Component {
   componentDidMount() {
     const {
       forceListenOnlyAttendee,
+      joinFullAudioImmediately,
+      listenOnlyMode,
       audioLocked,
+      isUsingAudio,
     } = this.props;
 
-    if (forceListenOnlyAttendee) return this.handleJoinListenOnly();
-    if (audioLocked) return this.handleJoinMicrophone();
+    if (!isUsingAudio) {
+      if (forceListenOnlyAttendee || audioLocked) return this.handleJoinListenOnly();
+
+      if (joinFullAudioImmediately && !listenOnlyMode) return this.handleJoinMicrophone();
+    }
+    return false;
   }
 
   componentDidUpdate(prevProps) {
     const { autoplayBlocked, closeModal } = this.props;
 
     if (autoplayBlocked !== prevProps.autoplayBlocked) {
-      autoplayBlocked ? this.setState({ content: 'autoplayBlocked' }) : closeModal();
+      if (autoplayBlocked) {
+        this.setContent({ content: 'autoplayBlocked' });
+      } else {
+        closeModal();
+      }
     }
   }
 
@@ -237,7 +254,7 @@ class AudioModal extends Component {
       disableActions,
     } = this.state;
 
-    if (disableActions && isConnecting) return;
+    if (disableActions && isConnecting) return null;
 
     this.setState({
       hasError: false,
@@ -278,13 +295,14 @@ class AudioModal extends Component {
   handleJoinListenOnly() {
     const {
       joinListenOnly,
+      isConnecting,
     } = this.props;
 
     const {
       disableActions,
     } = this.state;
 
-    if (disableActions) return;
+    if (disableActions && isConnecting) return null;
 
     this.setState({
       disableActions: true,
@@ -306,13 +324,14 @@ class AudioModal extends Component {
   handleJoinMicrophone() {
     const {
       joinMicrophone,
+      isConnecting,
     } = this.props;
 
     const {
       disableActions,
     } = this.state;
 
-    if (disableActions) return;
+    if (disableActions && isConnecting) return;
 
     this.setState({
       hasError: false,
@@ -324,6 +343,10 @@ class AudioModal extends Component {
         disableActions: false,
       });
     }).catch(this.handleGoToAudioOptions);
+  }
+
+  setContent(content) {
+    this.setState(content);
   }
 
   skipAudioOptions() {
@@ -360,30 +383,44 @@ class AudioModal extends Component {
       <div>
         <span className={styles.audioOptions}>
           {!showMicrophone && !isMobileNative
-            ? (
-              <Button
-                className={styles.audioBtn}
-                label={intl.formatMessage(intlMessages.microphoneLabel)}
-                icon="unmute"
-                circle
-                size="jumbo"
-                disabled={audioLocked}
-                onClick={joinFullAudioImmediately ? this.handleJoinMicrophone : this.handleGoToEchoTest}
-              />
-            )
-            : null}
+              && (
+              <>
+                <Button
+                  className={styles.audioBtn}
+                  label={intl.formatMessage(intlMessages.microphoneLabel)}
+                  aria-describedby="mic-description"
+                  icon="unmute"
+                  circle
+                  size="jumbo"
+                  disabled={audioLocked}
+                  onClick={
+                    joinFullAudioImmediately
+                      ? this.handleJoinMicrophone
+                      : this.handleGoToEchoTest
+                  }
+                />
+                <span className="sr-only" id="mic-description">
+                  {intl.formatMessage(intlMessages.microphoneDesc)}
+                </span>
+              </>
+              )}
           {listenOnlyMode
-            ? (
-              <Button
-                className={styles.audioBtn}
-                label={intl.formatMessage(intlMessages.listenOnlyLabel)}
-                icon="listen"
-                circle
-                size="jumbo"
-                onClick={this.handleJoinListenOnly}
-              />
-            )
-            : null}
+              && (
+              <>
+                <Button
+                  className={styles.audioBtn}
+                  label={intl.formatMessage(intlMessages.listenOnlyLabel)}
+                  aria-describedby="listenOnly-description"
+                  icon="listen"
+                  circle
+                  size="jumbo"
+                  onClick={this.handleJoinListenOnly}
+                />
+                <span className="sr-only" id="listenOnly-description">
+                  {intl.formatMessage(intlMessages.listenOnlyDesc)}
+                </span>
+              </>
+              )}
         </span>
         {formattedDialNum ? (
           <Button
@@ -407,31 +444,15 @@ class AudioModal extends Component {
     const {
       isEchoTest,
       intl,
-      isIOSChrome,
     } = this.props;
 
     const { content } = this.state;
-
-    if (isIOSChrome) {
-      return (
-        <div>
-          <div className={styles.warning}>!</div>
-          <h4 className={styles.main}>{intl.formatMessage(intlMessages.iOSError)}</h4>
-          <div className={styles.text}>{intl.formatMessage(intlMessages.iOSErrorDescription)}</div>
-          <div className={styles.text}>
-            {intl.formatMessage(intlMessages.iOSErrorRecommendation)}
-          </div>
-        </div>);
-    }
 
     if (this.skipAudioOptions()) {
       return (
         <div className={styles.connecting} role="alert">
           <span data-test={!isEchoTest ? 'connecting' : 'connectingToEchoTest'}>
-            {!isEchoTest
-              ? intl.formatMessage(intlMessages.connecting)
-              : intl.formatMessage(intlMessages.connectingEchoTest)
-            }
+            {intl.formatMessage(intlMessages.connecting)}
           </span>
           <span className={styles.connectingAnimation} />
         </div>
@@ -518,9 +539,8 @@ class AudioModal extends Component {
     const {
       intl,
       showPermissionsOvelay,
-      isIOSChrome,
       closeModal,
-      isIEOrEdge,
+      isIE,
     } = this.props;
 
     const { content } = this.state;
@@ -535,7 +555,7 @@ class AudioModal extends Component {
           hideBorder
           contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         >
-          {isIEOrEdge ? (
+          {isIE ? (
             <p className={cx(styles.text, styles.browserWarning)}>
               <FormattedMessage
                 id="app.audioModal.unsupportedBrowserLabel"
@@ -547,25 +567,21 @@ class AudioModal extends Component {
               />
             </p>
           ) : null}
-          {!this.skipAudioOptions()
-            ? (
-              <header
-                data-test="audioModalHeader"
-                className={styles.header}
-              >
-                {
-                  isIOSChrome ? null
-                    : (
-                      <h3 className={styles.title}>
-                        {content
-                          ? intl.formatMessage(this.contents[content].title)
-                          : intl.formatMessage(intlMessages.audioChoiceLabel)}
-                      </h3>
-                    )
-                }
-              </header>
-            )
-            : null
+          {
+            !this.skipAudioOptions()
+              ? (
+                <header
+                  data-test="audioModalHeader"
+                  className={styles.header}
+                >
+                  <h2 className={styles.title}>
+                    {content
+                      ? intl.formatMessage(this.contents[content].title)
+                      : intl.formatMessage(intlMessages.audioChoiceLabel)}
+                  </h2>
+                </header>
+              )
+              : null
           }
           <div className={styles.content}>
             {this.renderContent()}

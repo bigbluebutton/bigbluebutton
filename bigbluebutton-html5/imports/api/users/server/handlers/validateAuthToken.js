@@ -25,6 +25,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     waitForApproval,
     registeredOn,
     authTokenValidatedOn,
+    reasonCode,
   } = body;
 
   check(userId, String);
@@ -33,9 +34,9 @@ export default function handleValidateAuthToken({ body }, meetingId) {
   check(waitForApproval, Boolean);
   check(registeredOn, Number);
   check(authTokenValidatedOn, Number);
+  check(reasonCode, String);
 
   const pendingAuths = pendingAuthenticationsStore.take(meetingId, userId, authToken);
-
   Logger.info(`PendingAuths length [${pendingAuths.length}]`);
   if (pendingAuths.length === 0) return;
 
@@ -46,7 +47,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
           const { methodInvocationObject } = pendingAuth;
           const connectionId = methodInvocationObject.connection.id;
 
-          upsertValidationState(meetingId, userId, ValidationStates.INVALID, connectionId);
+          upsertValidationState(meetingId, userId, ValidationStates.INVALID, connectionId, reasonCode);
 
           // Schedule socket disconnection for this user, giving some time for client receiving the reason of disconnection
           Meteor.setTimeout(() => {
@@ -63,33 +64,31 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     return;
   }
 
-  if (valid) {
-    // Define user ID on connections
-    pendingAuths.forEach(
-      (pendingAuth) => {
-        const { methodInvocationObject } = pendingAuth;
+  // Define user ID on connections
+  pendingAuths.forEach(
+    (pendingAuth) => {
+      const { methodInvocationObject } = pendingAuth;
 
-        /* Logic migrated from validateAuthToken method ( postponed to only run in case of success response ) - Begin */
-        const sessionId = `${meetingId}--${userId}`;
+      /* Logic migrated from validateAuthToken method ( postponed to only run in case of success response ) - Begin */
+      const sessionId = `${meetingId}--${userId}`;
 
-        methodInvocationObject.setUserId(sessionId);
+      methodInvocationObject.setUserId(sessionId);
 
-        const User = Users.findOne({
-          meetingId,
-          userId,
-        });
+      const User = Users.findOne({
+        meetingId,
+        userId,
+      });
 
-        if (!User) {
-          createDummyUser(meetingId, userId, authToken);
-        }
+      if (!User) {
+        createDummyUser(meetingId, userId, authToken);
+      }
 
-        ClientConnections.add(sessionId, methodInvocationObject.connection);
-        upsertValidationState(meetingId, userId, ValidationStates.VALIDATED, methodInvocationObject.connection.id);
+      ClientConnections.add(sessionId, methodInvocationObject.connection);
+      upsertValidationState(meetingId, userId, ValidationStates.VALIDATED, methodInvocationObject.connection.id);
 
-        /* End of logic migrated from validateAuthToken */
-      },
-    );
-  }
+      /* End of logic migrated from validateAuthToken */
+    },
+  );
 
   const selector = {
     meetingId,
@@ -103,7 +102,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
   if (!User) return;
 
   // Publish user join message
-  if (valid && !waitForApproval) {
+  if (!waitForApproval) {
     Logger.info('User=', User);
     userJoin(meetingId, userId, User.authToken);
   }
@@ -122,11 +121,9 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     const numberAffected = Users.update(selector, modifier);
 
     if (numberAffected) {
-      if (valid) {
-        const sessionUserId = `${meetingId}-${userId}`;
-        const currentConnectionId = User.connectionId ? User.connectionId : false;
-        clearOtherSessions(sessionUserId, currentConnectionId);
-      }
+      const sessionUserId = `${meetingId}-${userId}`;
+      const currentConnectionId = User.connectionId ? User.connectionId : false;
+      clearOtherSessions(sessionUserId, currentConnectionId);
 
       Logger.info(`Validated auth token as ${valid} user=${userId} meeting=${meetingId}`);
     } else {

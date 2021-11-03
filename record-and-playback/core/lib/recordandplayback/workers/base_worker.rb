@@ -25,6 +25,17 @@ require 'resque'
 
 module BigBlueButton
   module Resque
+    # Base class of exceptions specific to the worker/queue system
+    class WorkerError < StandardError; end
+
+    # Exceptions that should prevent the queue system from executing the next job, but which are not actually
+    # errors.
+    class WorkerHalt < WorkerError; end
+
+    # A meeting had recording enabled (record=true) but did not have recording marks and should not be automatically
+    # processed.
+    class WorkerNoRecordHalt < WorkerHalt; end
+
     class BaseWorker
       @queue = 'rap:base'
 
@@ -45,6 +56,9 @@ module BigBlueButton
         raise "Worker #{@step_name} for #{@meeting_id} failed with result #{success}" unless success
 
         schedule_next_step unless @single_step
+      rescue WorkerHalt => e
+        @logger.info(e.message)
+        @logger.info("Ended worker #{@step_name} for #{@meeting_id} with worker halt. Following steps will not be run.")
       rescue StandardError => e
         @logger.error(e.message)
         e.backtrace.each do |traceline|

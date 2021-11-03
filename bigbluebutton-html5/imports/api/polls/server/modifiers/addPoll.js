@@ -4,7 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import flat from 'flat';
 import { check } from 'meteor/check';
 
-export default function addPoll(meetingId, requesterId, poll, pollType, question = '') {
+export default function addPoll(meetingId, requesterId, poll, pollType, secretPoll, question = '') {
   check(requesterId, String);
   check(meetingId, String);
   check(poll, {
@@ -15,6 +15,7 @@ export default function addPoll(meetingId, requesterId, poll, pollType, question
         key: String,
       },
     ],
+    isMultipleResponse: Boolean,
   });
 
   const userSelector = {
@@ -37,7 +38,7 @@ export default function addPoll(meetingId, requesterId, poll, pollType, question
     { meetingId },
     { requester: requesterId },
     { users: userIds },
-    { question, pollType },
+    { question, pollType, secretPoll },
     flat(poll, { safe: true }),
   );
 

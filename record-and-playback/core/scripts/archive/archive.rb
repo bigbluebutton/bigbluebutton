@@ -45,14 +45,16 @@ def archive_events(meeting_id, redis_host, redis_port, redis_password, raw_archi
   end
 end
 
-def archive_notes(meeting_id, notes_endpoint, notes_formats, notes_apikey, raw_archive_dir)
+def archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
   BigBlueButton.logger.info("Archiving notes for #{meeting_id}")
+  events = Nokogiri::XML(File.open("#{raw_archive_dir}/#{meeting_id}/events.xml"))
+  notes_id = BigBlueButton::Events.get_notes_id(events)
+
   notes_dir = "#{raw_archive_dir}/#{meeting_id}/notes"
   FileUtils.mkdir_p(notes_dir)
-  notes_id = BigBlueButton.get_notes_id(meeting_id, notes_apikey)
 
   tmp_note = "#{notes_dir}/tmp_note.txt"
-  BigBlueButton.try_download("#{notes_endpoint}/#{notes_id}/export/txt", tmp_note)
+  BigBlueButton.try_download("#{notes_endpoint}/#{CGI.escape notes_id}/export/txt", tmp_note)
   if File.exist? tmp_note
     # If the notes are empty, do not archive them
     blank = false
@@ -71,7 +73,7 @@ def archive_notes(meeting_id, notes_endpoint, notes_formats, notes_apikey, raw_a
   end
 
   notes_formats.each do |format|
-    BigBlueButton.try_download("#{notes_endpoint}/#{notes_id}/export/#{format}", "#{notes_dir}/notes.#{format}")
+    BigBlueButton.try_download("#{notes_endpoint}/#{CGI.escape notes_id}/export/#{format}", "#{notes_dir}/notes.#{format}")
   end
 end
 
@@ -175,10 +177,11 @@ presentation_dir = props['raw_presentation_src']
 video_dir = props['raw_video_src']
 kurento_video_dir = props['kurento_video_src']
 kurento_screenshare_dir = props['kurento_screenshare_src']
+mediasoup_video_dir = props['mediasoup_video_src']
+mediasoup_screenshare_dir = props['mediasoup_screenshare_src']
 log_dir = props['log_dir']
 notes_endpoint = props['notes_endpoint']
 notes_formats = props['notes_formats']
-notes_apikey = props['notes_apikey']
 
 # Determine the filenames for the done and fail files
 if !break_timestamp.nil?
@@ -197,7 +200,7 @@ archive_events(meeting_id, redis_host, redis_port, redis_password, raw_archive_d
 # FreeSWITCH Audio files
 archive_audio(meeting_id, audio_dir, raw_archive_dir)
 # Etherpad notes
-archive_notes(meeting_id, notes_endpoint, notes_formats, notes_apikey, raw_archive_dir)
+archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
 # Presentation files
 archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}", "#{target_dir}/presentation")
 # Red5 media
@@ -206,6 +209,9 @@ archive_directory("#{video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_i
 # Kurento media
 archive_directory("#{kurento_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
 archive_directory("#{kurento_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")
+# mediasoup media
+archive_directory("#{mediasoup_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
+archive_directory("#{mediasoup_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")
 
 # If this was the last (or only) segment in a recording, delete the original media files
 if break_timestamp.nil?
@@ -220,6 +226,9 @@ if break_timestamp.nil?
   # Kurento media
   FileUtils.rm_rf("#{kurento_screenshare_dir}/#{meeting_id}")
   FileUtils.rm_rf("#{kurento_video_dir}/#{meeting_id}")
+  # mediasoup media
+  FileUtils.rm_rf("#{mediasoup_screenshare_dir}/#{meeting_id}")
+  FileUtils.rm_rf("#{mediasoup_video_dir}/#{meeting_id}")
 end
 
 if not archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp)

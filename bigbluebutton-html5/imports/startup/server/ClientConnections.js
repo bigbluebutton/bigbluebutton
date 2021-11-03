@@ -3,6 +3,7 @@ import userLeaving from '/imports/api/users/server/methods/userLeaving';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Users from '/imports/api/users';
+import { check } from 'meteor/check';
 
 const { enabled, syncInterval } = Meteor.settings.public.syncUsersWithConnectionManager;
 
@@ -38,8 +39,11 @@ class ClientConnections {
 
     const { meetingId, requesterUserId: userId } = extractCredentials(sessionId);
 
+    check(meetingId, String);
+    check(userId, String);
+      
     if (!meetingId) {
-      Logger.error('Error on add new client connection. sessionId=${sessionId} connection=${connection.id}',
+      Logger.error(`Error on add new client connection. sessionId=${sessionId} connection=${connection.id}`,
         { logCode: 'client_connections_add_error_meeting_id_null', extraInfo: { meetingId, userId } }
       );
       return false;
@@ -88,6 +92,9 @@ class ClientConnections {
   getConnectionsForClient(sessionId) {
     const { meetingId, requesterUserId: userId } = extractCredentials(sessionId);
 
+    check(meetingId, String);
+    check(userId, String);
+  
     return this.connections.get(meetingId)?.get(userId);
   }
 
@@ -108,6 +115,9 @@ class ClientConnections {
     Logger.info(`Removing connectionId for user. sessionId=${sessionId} connectionId=${connectionId}`);
     const { meetingId, requesterUserId: userId } = extractCredentials(sessionId);
 
+    check(meetingId, String);
+    check(userId, String);
+  
     const meetingConnections = this.connections.get(meetingId);
 
     if (meetingConnections?.has(userId)) {
@@ -161,6 +171,10 @@ class ClientConnections {
 
 }
 
-const ClientConnectionsSingleton = new ClientConnections();
+if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
+  Logger.info("ClientConnectionsSingleton was created")
 
-export default ClientConnectionsSingleton;
+  const ClientConnectionsSingleton = new ClientConnections();
+
+  export default ClientConnectionsSingleton;
+}

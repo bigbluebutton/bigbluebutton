@@ -49,7 +49,6 @@ trait SystemConfiguration {
 
   lazy val endMeetingWhenNoMoreAuthedUsers = Try(config.getBoolean("apps.endMeetingWhenNoMoreAuthedUsers")).getOrElse(false)
   lazy val endMeetingWhenNoMoreAuthedUsersAfterMinutes = Try(config.getInt("apps.endMeetingWhenNoMoreAuthedUsersAfterMinutes")).getOrElse(2)
-  lazy val multiUserWhiteboardDefault = Try(config.getBoolean("whiteboard.multiUserDefault")).getOrElse(false)
 
   // Redis server configuration
   lazy val redisHost = Try(config.getString("redis.host")).getOrElse("127.0.0.1")
@@ -74,6 +73,8 @@ trait SystemConfiguration {
   lazy val fromAkkaTranscodeRedisChannel = Try(config.getString("redis.fromAkkaTranscodeRedisChannel")).getOrElse("bigbluebutton:from-bbb-transcode:system")
   lazy val toAkkaTranscodeJsonChannel = Try(config.getString("eventBus.toAkkaTranscodeJsonChannel")).getOrElse("to-akka-transcode-json-channel")
   lazy val fromAkkaTranscodeJsonChannel = Try(config.getString("eventBus.fromAkkaTranscodeJsonChannel")).getOrElse("from-akka-transcode-json-channel")
+
+  lazy val analyticsIncludeChat = Try(config.getBoolean("analytics.includeChat")).getOrElse(true)
 
   // Grab the "interface" parameter from the http config
   val httpHost = config.getString("http.interface")

@@ -223,3 +223,13 @@ case class UnpublishedRecordingSysMsgBody(recordId: String)
 object DeletedRecordingSysMsg { val NAME = "DeletedRecordingSysMsg" }
 case class DeletedRecordingSysMsg(header: BbbCoreBaseHeader, body: DeletedRecordingSysMsgBody) extends BbbCoreMsg
 case class DeletedRecordingSysMsgBody(recordId: String)
+
+/**
+ * Sent from akka-apps to bbb-web to inform a summary of the meeting activities
+ */
+object LearningDashboardEvtMsg { val NAME = "LearningDashboardEvtMsg" }
+case class LearningDashboardEvtMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   LearningDashboardEvtMsgBody
+) extends BbbCoreMsg
+case class LearningDashboardEvtMsgBody(activityJson: String)

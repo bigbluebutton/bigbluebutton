@@ -1,8 +1,8 @@
-import Users from '/imports/api/users';
+import Users from '/imports/ui/local-collections/users-collection/users';
 import Auth from '/imports/ui/services/auth';
 import { debounce, throttle } from 'lodash';
 import AudioManager from '/imports/ui/services/audio-manager';
-import Meetings from '/imports/api/meetings';
+import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
 import { makeCall } from '/imports/ui/services/api';
 import VoiceUsers from '/imports/api/voice-users';
 import logger from '/imports/startup/client/logger';
@@ -104,9 +104,10 @@ export default {
   joinEchoTest: () => AudioManager.joinEchoTest(),
   toggleMuteMicrophone: debounce(toggleMuteMicrophone, 500, { leading: true, trailing: false }),
   changeInputDevice: inputDeviceId => AudioManager.changeInputDevice(inputDeviceId),
-  changeOutputDevice: (outputDeviceId) => {
+  liveChangeInputDevice: inputDeviceId => AudioManager.liveChangeInputDevice(inputDeviceId),
+  changeOutputDevice: (outputDeviceId, isLive) => {
     if (AudioManager.outputDeviceId !== outputDeviceId) {
-      AudioManager.changeOutputDevice(outputDeviceId);
+      AudioManager.changeOutputDevice(outputDeviceId, isLive);
     }
   },
   isConnected: () => AudioManager.isConnected,
@@ -130,10 +131,10 @@ export default {
   updateAudioConstraints:
     constraints => AudioManager.updateAudioConstraints(constraints),
   recoverMicState,
-  setReturningFromBreakoutAudioTransfer: (value) => {
-    AudioManager.returningFromBreakoutAudioTransfer = value;
-  },
-  isReturningFromBreakoutAudioTransfer:
-    () => AudioManager.returningFromBreakoutAudioTransfer,
   isReconnecting: () => AudioManager.isReconnecting,
+  setBreakoutAudioTransferStatus: status => AudioManager
+    .setBreakoutAudioTransferStatus(status),
+  getBreakoutAudioTransferStatus: () => AudioManager
+    .getBreakoutAudioTransferStatus(),
+  getStats: () => AudioManager.getStats(),
 };

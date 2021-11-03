@@ -9,8 +9,12 @@
 }
 
 .navbar {
+  position: absolute;
   display: flex;
   flex-direction: column;
+  text-align: center;
+  font-size: 1.5rem;
+  padding: var(--bars-padding) var(--bars-padding) 0 var(--bars-padding);
 }
 
 .top,
@@ -120,5 +124,23 @@
   }
 }
 
-.btnSettings {
+.dropdown{
+  z-index: 99;
+}
+
+.offsetTop {
+  :global(.MuiPaper-root) {
+    top: 4rem !important;
+    bottom: auto !important;
+  }
+}
+
+.hideDropdownButton {
+  @include mq($small-only) {
+    display: none;
+  }
+}
+
+.leaveMeetingButton {
+  color: var(--color-danger) !important;
 }

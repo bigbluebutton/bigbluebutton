@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
-import { styles } from './styles';
+import _ from 'lodash';
+import Styled from './styles';
 
 const messages = defineMessages({
   presenter: {
@@ -32,6 +33,10 @@ const messages = defineMessages({
   menuTitleContext: {
     id: 'app.userList.menuTitleContext',
     description: 'adds context to userListItem menu title',
+  },
+  sharingWebcam: {
+    id: 'app.userList.sharingWebcam',
+    description: 'Text for identifying who is sharing webcam',
   },
   userAriaLabel: {
     id: 'app.userList.userAriaLabel',
@@ -73,14 +78,21 @@ const UserName = (props) => {
 
   const userNameSub = [];
 
-  if (compact) {
-    return null;
+  if (user.isSharingWebcam && LABEL.sharingWebcam) {
+    userNameSub.push(
+      <span key={_.uniqueId('video-')}>
+        <Icon iconName="video" />
+        &nbsp;
+        {intl.formatMessage(messages.sharingWebcam)}
+      </span>,
+    );
   }
 
   if (isThisMeetingLocked && user.locked && user.role !== ROLE_MODERATOR) {
     userNameSub.push(
-      <span>
+      <span key={_.uniqueId('lock-')}>
         <Icon iconName="lock" />
+        &nbsp;
         {intl.formatMessage(messages.locked)}
       </span>,
     );
@@ -99,29 +111,31 @@ const UserName = (props) => {
   }
 
   return (
-    <div
-      className={styles.userName}
+    <Styled.UserName
       role="button"
       aria-label={userAriaLabel}
       aria-expanded={isActionsOpen}
     >
-      <span aria-hidden className={styles.userNameMain}>
+      <Styled.UserNameMain>
         <span>
           {user.name}
-&nbsp;
+          &nbsp;
         </span>
         <i>{(isMe(user.userId)) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
-      </span>
+      </Styled.UserNameMain>
       {
         userNameSub.length
           ? (
-            <span aria-hidden className={styles.userNameSub}>
+            <Styled.UserNameSub
+              aria-hidden
+              data-test={user.mobile ? 'mobileUser' : undefined}
+            >
               {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
-            </span>
+            </Styled.UserNameSub>
           )
           : null
       }
-    </div>
+    </Styled.UserName>
   );
 };
 

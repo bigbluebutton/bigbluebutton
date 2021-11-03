@@ -2,7 +2,7 @@
 name: Recording Issue
 about: Template for creating a recording issue
 title: ''
-labels: Recording
+labels: 'module: recording'
 assignees: ''
 
 ---

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { IntlProvider, FormattedMessage, addLocaleData } from 'react-intl';
-import { browserName } from 'react-device-detect';
+import { IntlProvider, FormattedMessage } from 'react-intl';
+import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 import './styles.css';
 
 
@@ -68,7 +69,7 @@ import './styles.css';
 const FETCHING = 'fetching';
 const FALLBACK = 'fallback';
 const READY = 'ready';
-const supportedBrowsers = ['chrome', 'firefox', 'safari', 'opera', 'edge', 'yandex'];
+const supportedBrowsers = ['Chrome', 'Firefox', 'Safari', 'Opera', 'Microsoft Edge', 'Yandex Browser'];
 const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
 
 export default class Legacy extends Component {
@@ -148,12 +149,15 @@ export default class Legacy extends Component {
   }
 
   render() {
+    const { browserName, isSafari } = browserInfo;
+    const { isIos } = deviceInfo;
+
     const { messages, normalizedLocale, viewState } = this.state;
     const isSupportedBrowser = supportedBrowsers.includes(browserName);
-    const isChromeIos = browserName === 'crios';
+    const isUnsupportedIos = isIos && !isSafari;
 
     let messageId = isSupportedBrowser ? 'app.legacy.upgradeBrowser' : 'app.legacy.unsupportedBrowser';
-    if (isChromeIos) messageId = 'app.legacy.criosBrowser';
+    if (isUnsupportedIos) messageId = 'app.legacy.criosBrowser';
 
     switch (viewState) {
       case READY:
@@ -174,7 +178,7 @@ export default class Legacy extends Component {
       case FALLBACK:
         return (
           <p className="browserWarning">
-            {isChromeIos ? (
+            {isUnsupportedIos ? (
               <span>Please use Safari on iOS for full support.</span>
             ) : (
               <span>

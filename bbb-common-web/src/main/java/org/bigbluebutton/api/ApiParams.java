@@ -1,13 +1,13 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-* 
+*
 * Copyright (c) 2017 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
 * Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-* 
+*
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
@@ -33,6 +33,7 @@ public class ApiParams {
     public static final String FREE_JOIN = "freeJoin";
     public static final String FULL_NAME = "fullName";
     public static final String GUEST_POLICY = "guestPolicy";
+    public static final String MEETING_LAYOUT = "meetingLayout";
     public static final String IS_BREAKOUT = "isBreakout";
     public static final String LOGO = "logo";
     public static final String LOGOUT_TIMER = "logoutTimer";
@@ -43,6 +44,7 @@ public class ApiParams {
     public static final String MODERATOR_ONLY_MESSAGE = "moderatorOnlyMessage";
     public static final String MODERATOR_PW = "moderatorPW";
     public static final String MUTE_ON_START = "muteOnStart";
+    public static final String MEETING_KEEP_EVENTS = "meetingKeepEvents";
     public static final String ALLOW_MODS_TO_UNMUTE_USERS = "allowModsToUnmuteUsers";
     public static final String NAME = "name";
     public static final String PARENT_MEETING_ID = "parentMeetingID";
@@ -53,6 +55,8 @@ public class ApiParams {
     public static final String SEQUENCE = "sequence";
     public static final String VOICE_BRIDGE = "voiceBridge";
     public static final String WEB_VOICE = "webVoice";
+    public static final String LEARNING_DASHBOARD_ENABLED = "learningDashboardEnabled";
+    public static final String LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES = "learningDashboardCleanupDelayInMinutes";
     public static final String WEBCAMS_ONLY_FOR_MODERATOR = "webcamsOnlyForModerator";
     public static final String WELCOME = "welcome";
     public static final String HTML5_INSTANCE_ID = "html5InstanceId";
@@ -80,6 +84,7 @@ public class ApiParams {
     // Needed for classes where teacher gets disconnected and can't get back in. Prevents
     // students from running amok.
     public static final String END_WHEN_NO_MODERATOR = "endWhenNoModerator";
+    public static final String END_WHEN_NO_MODERATOR_DELAY_IN_MINUTES = "endWhenNoModeratorDelayInMinutes";
 
     private ApiParams() {
         throw new IllegalStateException("ApiParams is a utility class. Instanciation is forbidden.");

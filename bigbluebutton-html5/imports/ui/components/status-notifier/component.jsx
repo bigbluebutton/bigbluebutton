@@ -20,7 +20,11 @@ const messages = defineMessages({
   },
   raisedHandDesc: {
     id: 'app.statusNotifier.raisedHandDesc',
-    description: 'label for user with raised hands',
+    description: 'label for multiple users with raised hands',
+  },
+  raisedHandDescOneUser: {
+    id: 'app.statusNotifier.raisedHandDescOneUser',
+    description: 'label for a single user with raised hand',
   },
   and: {
     id: 'app.statusNotifier.and',
@@ -45,10 +49,10 @@ class StatusNotifier extends Component {
 
   componentDidUpdate(prevProps) {
     const {
-      emojiUsers, raiseHandAudioAlert, raiseHandPushAlert, status, isViewer,
+      emojiUsers, raiseHandAudioAlert, raiseHandPushAlert, status, isViewer, isPresenter,
     } = this.props;
 
-    if (isViewer) {
+    if (isViewer && !isPresenter) {
       if (this.statusNotifierId) toast.dismiss(this.statusNotifierId);
       return false;
     }
@@ -110,7 +114,9 @@ class StatusNotifier extends Component {
         break;
     }
 
-    return intl.formatMessage(messages.raisedHandDesc, { 0: formattedNames });
+    const raisedHandMessageString
+        = length === 1 ? messages.raisedHandDescOneUser : messages.raisedHandDesc;
+    return intl.formatMessage(raisedHandMessageString, { 0: formattedNames });
   }
 
   raisedHandAvatars() {
@@ -127,6 +133,7 @@ class StatusNotifier extends Component {
         onClick={() => clearUserStatus(u.userId)}
         onKeyDown={e => (e.keyCode === ENTER ? clearUserStatus(u.userId) : null)}
         key={`statusToastAvatar-${u.userId}`}
+        data-test="avatarsWrapperAvatar"
       >
         {u.name.slice(0, 2)}
       </div>
@@ -156,7 +163,10 @@ class StatusNotifier extends Component {
             <Icon iconName="hand" />
           </div>
         </div>
-        <div className={styles.avatarsWrapper}>
+        <div
+          className={styles.avatarsWrapper}
+          data-test="avatarsWrapper"
+        >
           {this.raisedHandAvatars()}
         </div>
         <div className={styles.toastMessage}>

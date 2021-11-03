@@ -24,7 +24,7 @@ case class ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(
   extends VoiceStandardMsg
 case class ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String,
                                                               stream: String, vidWidth: Int, vidHeight: Int,
-                                                              timestamp: String)
+                                                              timestamp: String, hasAudio: Boolean)
 
 /**
  * Sent to clients to notify them of an RTMP stream starting.
@@ -37,7 +37,7 @@ case class ScreenshareRtmpBroadcastStartedEvtMsg(
   extends BbbCoreMsg
 case class ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf: String, screenshareConf: String,
                                                      stream: String, vidWidth: Int, vidHeight: Int,
-                                                     timestamp: String)
+                                                     timestamp: String, hasAudio: Boolean)
 
 /**
  * Send by FS that RTMP stream has stopped.
@@ -494,6 +494,24 @@ case class UserDisconnectedFromGlobalAudioMsgBody(userId: String, name: String)
 object SyncGetVoiceUsersRespMsg { val NAME = "SyncGetVoiceUsersRespMsg" }
 case class SyncGetVoiceUsersRespMsg(header: BbbClientMsgHeader, body: SyncGetVoiceUsersRespMsgBody) extends BbbCoreMsg
 case class SyncGetVoiceUsersRespMsgBody(voiceUsers: Vector[VoiceConfUser])
+
+/**
+ * Received from FS that a user has become a floor holder
+ */
+object AudioFloorChangedVoiceConfEvtMsg { val NAME = "AudioFloorChangedVoiceConfEvtMsg" }
+case class AudioFloorChangedVoiceConfEvtMsg(
+    header: BbbCoreVoiceConfHeader,
+    body:   AudioFloorChangedVoiceConfEvtMsgBody
+) extends VoiceStandardMsg
+case class AudioFloorChangedVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, oldVoiceUserId: String, floorTimestamp: String)
+
+/**
+ * Sent to a client that an user has become a floor holder
+ */
+
+object AudioFloorChangedEvtMsg { val NAME = "AudioFloorChangedEvtMsg" }
+case class AudioFloorChangedEvtMsg(header: BbbClientMsgHeader, body: AudioFloorChangedEvtMsgBody) extends BbbCoreMsg
+case class AudioFloorChangedEvtMsgBody(voiceConf: String, intId: String, voiceUserId: String, floor: Boolean, lastFloorTime: String)
 
 /**
  * Received from FS call state events.

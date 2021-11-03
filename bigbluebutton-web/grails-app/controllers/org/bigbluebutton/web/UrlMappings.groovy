@@ -55,9 +55,6 @@ class UrlMappings {
       action = [GET: 'downloadFile']
     }
 
-    "/bigbluebutton/api/setConfigXML"(controller: "api") {
-      action = [POST: 'setConfigXML']
-    }
 
     "/bigbluebutton/api/setPollXML"(controller: "api") {
       action = [POST: 'setPollXML']
@@ -71,11 +68,11 @@ class UrlMappings {
       action = [GET: 'getSessionsHandler', POST: 'getSessionsHandler']
     }
 
-    "/bigbluebutton/api/getRecordings"(controller: "api") {
+    "/bigbluebutton/api/getRecordings"(controller: "recording") {
       action = [GET: 'getRecordingsHandler', POST: 'getRecordingsHandler']
     }
 
-    "/bigbluebutton/api/updateRecordings"(controller: "api") {
+    "/bigbluebutton/api/updateRecordings"(controller: "recording") {
       action = [GET: 'updateRecordingsHandler', POST: 'updateRecordingsHandler']
     }
 
@@ -93,6 +90,14 @@ class UrlMappings {
 
     "/bigbluebutton/api/putRecordingTextTrack"(controller: "recording") {
       action = [POST: 'putRecordingTextTrack']
+    }
+
+    "/bigbluebutton/api/publishRecordings"(controller: "recording") {
+      action = [GET: 'publishRecordings']
+    }
+
+    "/bigbluebutton/api/deleteRecordings"(controller: "recording") {
+      action = [GET: 'deleteRecordings']
     }
 
     "/bigbluebutton/$controller/$action?/$id?(.${format})?" {

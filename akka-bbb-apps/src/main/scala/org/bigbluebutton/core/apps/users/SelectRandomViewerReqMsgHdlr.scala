@@ -15,12 +15,12 @@ trait SelectRandomViewerReqMsgHdlr extends RightsManagementTrait {
   def handleSelectRandomViewerReqMsg(msg: SelectRandomViewerReqMsg): Unit = {
     log.debug("Received SelectRandomViewerReqMsg {}", SelectRandomViewerReqMsg)
 
-    def broadcastEvent(msg: SelectRandomViewerReqMsg, selectedUser: UserState): Unit = {
+    def broadcastEvent(msg: SelectRandomViewerReqMsg, users: Vector[String], choice: Integer): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(SelectRandomViewerRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(SelectRandomViewerRespMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = SelectRandomViewerRespMsgBody(msg.header.userId, selectedUser.intId)
+      val body = SelectRandomViewerRespMsgBody(msg.header.userId, users, choice)
       val event = SelectRandomViewerRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       outGW.send(msgEvent)
@@ -34,9 +34,8 @@ trait SelectRandomViewerReqMsgHdlr extends RightsManagementTrait {
       val users = Users2x.findNotPresentersNorModerators(liveMeeting.users2x)
       val randNum = new scala.util.Random
 
-      if (users.size > 0) {
-        broadcastEvent(msg, users(randNum.nextInt(users.size)))
-      }
+      val userIds = users.map { case (v) => v.intId }
+      broadcastEvent(msg, userIds, if (users.size == 0) -1 else randNum.nextInt(users.size))
     }
   }
 }

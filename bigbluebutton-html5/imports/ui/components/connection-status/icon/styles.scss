@@ -1,0 +1,40 @@
+.signalBars {
+  align-items: flex-end;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+}
+
+.signalBars .bar {
+  width: 20%;
+}
+
+.signalBars .bar.firstBar  { height: 25%; }
+.signalBars .bar.secondBar { height: 50%; }
+.signalBars .bar.thirdBar  { height: 75%; }
+.signalBars .bar.fourthBar { height: 100%; }
+
+.critical .bar {
+  background-color: var(--color-danger);
+}
+
+.danger .bar {
+  background-color: var(--color-warning);
+}
+
+.warning .bar {
+  background-color: var(--color-success);
+}
+
+.normal .bar {
+  background-color: var(--color-white);
+}
+
+.fourBars .bar.fifthBar,
+.threeBars .bar.fifthBar,
+.threeBars .bar.fourthBar,
+.oneBar .bar:not(.firstBar),
+.twoBars .bar:not(.firstBar):not(.secondBar) {
+  opacity: .5;
+}

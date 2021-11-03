@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
-import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
+import Styled from './styles';
 import _ from 'lodash';
 import { findDOMNode } from 'react-dom';
 import {
-  List,
   AutoSizer,
   CellMeasurer,
   CellMeasurerCache,
 } from 'react-virtualized';
 import UserListItemContainer from './user-list-item/container';
 import UserOptionsContainer from './user-options/container';
+import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
   compact: PropTypes.bool,
@@ -21,21 +21,13 @@ const propTypes = {
   currentUser: PropTypes.shape({}).isRequired,
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
+  clearAllEmojiStatus: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   compact: false,
-};
-
-const listTransition = {
-  enter: styles.enter,
-  enterActive: styles.enterActive,
-  appear: styles.appear,
-  appearActive: styles.appearActive,
-  leave: styles.leave,
-  leaveActive: styles.leaveActive,
 };
 
 const intlMessages = defineMessages({
@@ -69,9 +61,12 @@ class UserParticipants extends Component {
     this.changeState = this.changeState.bind(this);
     this.rowRenderer = this.rowRenderer.bind(this);
     this.handleClickSelectedUser = this.handleClickSelectedUser.bind(this);
+    this.selectEl = this.selectEl.bind(this);
   }
 
   componentDidMount() {
+    document.getElementById('user-list-virtualized-scroll')?.getElementsByTagName('div')[0]?.firstElementChild?.setAttribute('aria-label', 'Users list');
+
     const { compact } = this.props;
     if (!compact) {
       this.refScrollContainer.addEventListener(
@@ -92,20 +87,19 @@ class UserParticipants extends Component {
     return !isPropsEqual || !isStateEqual;
   }
 
+  selectEl(el) {
+    if (!el) return null;
+    if (el.getAttribute('tabindex')) return el?.focus();
+    this.selectEl(el?.firstChild);
+  }
+
   componentDidUpdate(prevProps, prevState) {
-    const { compact } = this.props;
-    const { selectedUser,  scrollArea } = this.state;
-    if (!compact && (!prevState.scrollArea && scrollArea)) {
-      scrollArea.addEventListener(
-        'keydown',
-        this.rove,
-      );
-    }
+    const { selectedUser } = this.state;
 
     if (selectedUser) {
       const { firstChild } = selectedUser;
       if (!firstChild.isEqualNode(document.activeElement)) {
-        firstChild.focus();
+        this.selectEl(selectedUser);
       }
     }
   }
@@ -135,6 +129,7 @@ class UserParticipants extends Component {
     } = this.props;
     const { scrollArea } = this.state;
     const user = users[index];
+    const isRTL = Settings.application.isRTL;
 
     return (
       <CellMeasurer
@@ -157,6 +152,7 @@ class UserParticipants extends Component {
               currentUser,
               meetingIsBreakout,
               scrollArea,
+              isRTL,
             }}
             user={user}
             getScrollContainerRef={this.getScrollContainerRef}
@@ -178,7 +174,6 @@ class UserParticipants extends Component {
     const { roving } = this.props;
     const { selectedUser, scrollArea } = this.state;
     const usersItemsRef = findDOMNode(scrollArea.firstChild);
-
     roving(event, this.changeState, usersItemsRef, selectedUser);
   }
 
@@ -191,50 +186,52 @@ class UserParticipants extends Component {
       intl,
       users,
       compact,
-      setEmojiStatus,
+      clearAllEmojiStatus,
       currentUser,
       meetingIsBreakout,
     } = this.props;
     const { isOpen, scrollArea } = this.state;
 
     return (
-      <div className={styles.userListColumn}>
+      <Styled.UserListColumn>
         {
           !compact
             ? (
-              <div className={styles.container}>
-                <h2 className={styles.smallTitle}>
+              <Styled.Container>
+                <Styled.SmallTitle>
                   {intl.formatMessage(intlMessages.usersTitle)}
                   &nbsp;(
                   {users.length}
                   )
-                </h2>
+                </Styled.SmallTitle>
                 {currentUser.role === ROLE_MODERATOR
                   ? (
                     <UserOptionsContainer {...{
                       users,
-                      setEmojiStatus,
+                      clearAllEmojiStatus,
                       meetingIsBreakout,
                     }}
                     />
                   ) : null
                 }
 
-              </div>
+              </Styled.Container>
             )
-            : <hr className={styles.separator} />
+            : <Styled.Separator />
         }
-        <div
-          className={styles.virtulizedScrollableList}
+        <Styled.VirtualizedScrollableList
+          id={'user-list-virtualized-scroll'}
+          aria-label="Users list"
+          role="region"
           tabIndex={0}
           ref={(ref) => {
             this.refScrollContainer = ref;
           }}
         >
-          <span id="destination" />
+          <span id="participants-destination" />
           <AutoSizer>
             {({ height, width }) => (
-              <List
+              <Styled.VirtualizedList
                 {...{
                   isOpen,
                   users,
@@ -244,7 +241,7 @@ class UserParticipants extends Component {
                     this.listRef = ref;
                   }
 
-                  if (ref !== null && !scrollArea) {                    
+                  if (ref !== null && !scrollArea) {
                     this.setState({ scrollArea: findDOMNode(ref) });
                   }
                 }}
@@ -253,14 +250,14 @@ class UserParticipants extends Component {
                 rowCount={users.length}
                 height={height - 1}
                 width={width - 1}
-                className={styles.scrollStyle}
                 overscanRowCount={30}
                 deferredMeasurementCache={this.cache}
+                tabIndex={-1}
               />
             )}
           </AutoSizer>
-        </div>
-      </div>
+        </Styled.VirtualizedScrollableList>
+      </Styled.UserListColumn>
     );
   }
 }

@@ -23,10 +23,11 @@ require 'builder'
 require 'yaml'
 require 'fileutils'
 
-module BigBlueButton  
+module BigBlueButton
   $bbb_props = YAML::load(File.open(File.expand_path('../../../scripts/bigbluebutton.yml', __FILE__)))
   $recording_dir = $bbb_props['recording_dir']
   $raw_recording_dir = "#{$recording_dir}/raw"
+  $store_recording_status = $bbb_props['store_recording_status']
 
   # Class to wrap Redis so we can mock
   # for testing
@@ -39,23 +40,23 @@ module BigBlueButton
         @redis = Redis.new(:host => @host, :port => @port, :password => @password)
       end
     end
-    
-    def connect      
-      @redis.client.connect    
+
+    def connect
+      @redis.client.connect
     end
-    
+
     def disconnect
       @redis.client.disconnect
     end
-    
+
     def connected?
       @redis.client.connected?
     end
-    
+
     def metadata_for(meeting_id)
       @redis.hgetall("meeting:info:#{meeting_id}")
     end
-    
+
     def has_breakout_metadata_for(meeting_id)
       @redis.exists("meeting:breakout:#{meeting_id}")
     end
@@ -63,7 +64,7 @@ module BigBlueButton
     def breakout_metadata_for(meeting_id)
       @redis.hgetall("meeting:breakout:#{meeting_id}")
     end
-    
+
     def has_breakout_rooms_for(meeting_id)
       @redis.exists("meeting:breakout:rooms:#{meeting_id}")
     end
@@ -75,11 +76,11 @@ module BigBlueButton
     def num_events_for(meeting_id)
       @redis.llen("meeting:#{meeting_id}:recordings")
     end
-    
+
     def events_for(meeting_id)
       @redis.lrange("meeting:#{meeting_id}:recordings", 0, num_events_for(meeting_id))
     end
-    
+
     def event_info_for(meeting_id, event)
       @redis.hgetall("recording:#{meeting_id}:#{event}")
     end
@@ -135,6 +136,7 @@ module BigBlueButton
     end
 
     RECORDINGS_CHANNEL = "bigbluebutton:from-rap"
+    RAP_STATUS_LIST = "bigbluebutton:rap:status"
 
     def put_message(message_type, meeting_id, additional_payload = {})
       events_xml = "#{$raw_recording_dir}/#{meeting_id}/events.xml"
@@ -149,12 +151,21 @@ module BigBlueButton
         "meeting_id" => meeting_id
       })
       @redis.publish RECORDINGS_CHANNEL, msg.to_json
+
+      if $store_recording_status
+        @redis.lpush RAP_STATUS_LIST, msg.to_json
+      end
+
     end
 
     def put_message_workflow(message_type, workflow, meeting_id, additional_payload = {})
       put_message message_type, meeting_id, additional_payload.merge({
         "workflow" => workflow
       })
+    end
+
+    def put_archive_norecord(meeting_id, additional_payload = {})
+      put_message "archive_norecord", meeting_id, additional_payload
     end
 
     def put_archive_started(meeting_id, additional_payload = {})
@@ -221,7 +232,7 @@ module BigBlueButton
     MEETINGID = 'meetingId'
     MEETINGNAME = 'meetingName'
     ISBREAKOUT = 'isBreakout'
-    
+
     def initialize(redis)
       @redis = redis
     end
@@ -378,16 +389,16 @@ module BigBlueButton
     def delete_events(meeting_id)
       meeting_metadata = @redis.metadata_for(meeting_id)
       if (meeting_metadata != nil)
-        msgs = @redis.events_for(meeting_id)                      
+        msgs = @redis.events_for(meeting_id)
         msgs.each do |msg|
-          @redis.delete_event_info_for(meeting_id, msg) 
+          @redis.delete_event_info_for(meeting_id, msg)
         end
         @redis.delete_events_for(meeting_id)
       end
-      @redis.delete_metadata_for(meeting_id) 
-      @redis.delete_breakout_metadata_for(meeting_id) 
+      @redis.delete_metadata_for(meeting_id)
+      @redis.delete_breakout_metadata_for(meeting_id)
       @redis.delete_breakout_rooms_for(meeting_id)
     end
-    
+
   end
 end

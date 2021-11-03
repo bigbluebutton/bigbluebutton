@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { hashSHA1 } from '/imports/api/common/server/helpers';
+import { hashSHA1 } from '/imports/api/common/server/etherpad';
 import { check } from 'meteor/check';
 
 const ETHERPAD = Meteor.settings.private.etherpad;

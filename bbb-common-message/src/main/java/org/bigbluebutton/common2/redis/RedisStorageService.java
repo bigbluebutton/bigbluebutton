@@ -22,7 +22,6 @@ package org.bigbluebutton.common2.redis;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.lettuce.core.api.sync.BaseRedisCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

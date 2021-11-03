@@ -1,10 +1,12 @@
-@import "/imports/ui/stylesheets/variables/_all";
+@import '/imports/ui/stylesheets/variables/_all';
 @import '/imports/ui/stylesheets/mixins/_indicators';
 
 :root {
   --navbar-height: 3.9375rem; // TODO: Change to NavBar real height
   --actionsbar-height: 75px; // TODO: Change to ActionsBar real height
-  --bars-padding: calc(var(--lg-padding-x) - .45rem); // -.45 so user-list and chat title is aligned with the presentation title
+  --bars-padding: calc(
+    var(--lg-padding-x) - 0.45rem
+  ); // -.45 so user-list and chat title is aligned with the presentation title
   --userlist-handle-width: 5px; // 5px so user-list and chat resize handle render as the same size
   --poll-pane-min-width: 20em;
   --panel-margin-left: 0.1em;
@@ -13,15 +15,20 @@
 .main {
   @extend %flex-column;
   position: relative;
-  height: 100%;
+}
+
+.layout {
+  @extend %flex-column;
+  background-color: #06172a;
 }
 
 .navbar {
-  position: relative;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
   text-align: center;
   font-size: 1.5rem;
   padding: var(--bars-padding) var(--bars-padding) 0 var(--bars-padding);
-  height: 7rem;
 }
 
 .wrapper {
@@ -54,7 +61,8 @@
   }
 }
 
-.content, .noPanelContent {
+.content,
+.noPanelContent {
   @extend %full-page;
   order: 3;
 
@@ -69,18 +77,16 @@
     pointer-events: none;
 
     :global(.animationsEnabled) & {
-      transition: opacity .3s;
+      transition: opacity 0.3s;
     }
   }
 
   &:before {
     top: 0;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, .45) -20%, transparent 20%);
   }
 
   &:after {
     bottom: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, .45) -20%, transparent 20%);
   }
 
   @include mq($medium-up) {
@@ -89,11 +95,11 @@
   }
 }
 
-.content{
-  margin:0 0 0 var(--panel-margin-left);
+.content {
+  margin: 0 0 0 var(--panel-margin-left);
 
-  [dir="rtl"] & {
-    margin:0 var(--panel-margin-left) 0 0;
+  [dir='rtl'] & {
+    margin: 0 var(--panel-margin-left) 0 0;
   }
 }
 
@@ -102,7 +108,7 @@
   @extend %text-elipsis;
   @extend %highContrastOutline;
   outline-style: solid;
-  z-index: 3;
+  z-index: 5;
   overflow: visible;
   order: 1;
 
@@ -113,12 +119,12 @@
   @include mq($medium-up) {
     flex: 0 15vw;
     order: 1;
-    height: 100vh;
+    height: 100%;
   }
 
   @include mq($xlarge-up) {
     flex-basis: 10vw;
-    height: 100vh;
+    height: 100%;
   }
 }
 
@@ -142,7 +148,7 @@
   order: 2;
   height: 100%;
   @include mq($small-only) {
-    z-index: 4;
+    z-index: 5;
     height: auto;
     top: var(--navbar-height);
     overflow: visible;
@@ -162,6 +168,10 @@
   background-color: var(--color-white);
   min-width: var(--poll-pane-min-width);
   padding: 1rem;
+
+  @include mq($small-only) {
+    overflow: auto;
+  }
 }
 
 .breakoutRoom {
@@ -194,7 +204,7 @@
   overflow: hidden;
   z-index: 0;
 
-  [dir="rtl"] & {
+  [dir='rtl'] & {
     margin: 0 var(--panel-margin-right) 0 0;
   }
 
@@ -204,12 +214,10 @@
 }
 
 .captionsWrapper {
-  position: absolute;
-  width: auto;
   height: auto;
   bottom: 100px;
   left: 20%;
-  z-index: 2;
+  z-index: 5;
 }
 
 .actionsbar {

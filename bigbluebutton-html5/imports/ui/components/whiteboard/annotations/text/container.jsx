@@ -2,6 +2,7 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import TextShapeService from './service';
 import TextDrawComponent from './component';
+import WhiteboardService from '/imports/ui/components/whiteboard/service';
 
 const TextDrawContainer = props => (
   <TextDrawComponent {...props} />
@@ -10,7 +11,7 @@ const TextDrawContainer = props => (
 export default withTracker((params) => {
   const { whiteboardId } = params;
   const isPresenter = TextShapeService.isPresenter();
-  const isMultiUser = TextShapeService.getMultiUserStatus(whiteboardId);
+  const isMultiUser = WhiteboardService.isMultiUserActive(whiteboardId);
   const activeTextShapeId = TextShapeService.activeTextShapeId();
   let isActive = false;
 

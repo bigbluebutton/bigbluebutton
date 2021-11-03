@@ -10,6 +10,8 @@ const propTypes = {
   icon: PropTypes.string,
   label: PropTypes.string,
   description: PropTypes.string,
+  accessKey: PropTypes.string,
+  tabIndex: PropTypes.number,
 };
 
 const defaultProps = {
@@ -17,6 +19,7 @@ const defaultProps = {
   label: '',
   description: '',
   tabIndex: 0,
+  accessKey: null,
 };
 
 const messages = defineMessages({
@@ -33,24 +36,39 @@ class DropdownListItem extends Component {
   }
 
   renderDefault() {
-    const { icon, label, iconRight } = this.props;
+    const {
+      icon, label, iconRight, accessKey,
+    } = this.props;
 
     return [
       (icon ? <Icon iconName={icon} key="icon" className={styles.itemIcon} /> : null),
-      (<span className={styles.itemLabel} key="label">{label}</span>),
+      (
+        <span className={styles.itemLabel} key="label" accessKey={accessKey}>
+          {label}
+        </span>
+      ),
       (iconRight ? <Icon iconName={iconRight} key="iconRight" className={styles.iconRight} /> : null),
     ];
   }
 
   render() {
     const {
-      id, label, description, children, injectRef, tabIndex, onClick, onKeyDown,
-      className, style, intl,
+      id,
+      label,
+      description,
+      children,
+      injectRef,
+      tabIndex,
+      onClick,
+      onKeyDown,
+      className,
+      style,
+      intl,
+      'data-test': dataTest,
     } = this.props;
 
     const isSelected = className && className.includes('emojiSelected');
     const _label = isSelected ? `${label} (${intl.formatMessage(messages.activeAriaLabel)})` : label;
-
     return (
       <li
         id={id}
@@ -63,7 +81,7 @@ class DropdownListItem extends Component {
         className={cx(styles.item, className)}
         style={style}
         role="menuitem"
-        data-test={this.props['data-test']}
+        data-test={dataTest}
       >
         {
           children || this.renderDefault()

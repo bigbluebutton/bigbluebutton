@@ -22,9 +22,9 @@ export default function setPresenterInPod(meetingId, podId, nextPresenterId) {
     const { numberAffected } = PresentationPods.upsert(selector, modifier);
 
     if (numberAffected) {
-      Logger.info(`Set a new presenter in pod id=${podId} meeting=${meetingId}`);
+      Logger.info(`Set a new presenter in pod id=${podId} meeting=${meetingId} presenter=${nextPresenterId}`);
     }
   } catch (err) {
-    Logger.error(`Setting a presenter in pod: ${err}`);
+    Logger.error(`Error on setting a presenter in pod: ${err}`);
   }
 }
