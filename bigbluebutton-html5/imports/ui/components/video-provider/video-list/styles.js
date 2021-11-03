@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { mdPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 import { mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { actionsBarHeight, navbarHeight } from '/import/ui/stylesheets/styled-components/general';
+import { actionsBarHeight, navbarHeight } from '/imports/ui/stylesheets/styled-components/general';
 import Button from '/imports/ui/components/button/component';
 
 const NextPageButton = styled(Button)`

@@ -1,6 +1,8 @@
 const colorWhite = '#FFF';
 const colorOffWhite = '#F3F6F9';
 
+const colorBlack = '#000000';
+
 const colorGray = '#4E5A66';
 const colorGrayDark = '#06172A';
 const colorGrayLight = '#8B9AA8';
@@ -39,6 +41,7 @@ const loaderBullet = colorWhite;
 export {
   colorWhite,
   colorOffWhite,
+  colorBlack,
   colorGray,
   colorGrayDark,
   colorGrayLight,
