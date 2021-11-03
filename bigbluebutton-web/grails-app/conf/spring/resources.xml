@@ -186,6 +186,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>
         <property name="endWhenNoModeratorDelayInMinutes" value="${endWhenNoModeratorDelayInMinutes}"/>
         <property name="defaultKeepEvents" value="${defaultKeepEvents}"/>
+        <property name="allowRevealOfBBBVersion" value="${allowRevealOfBBBVersion}"/>
     </bean>
 
     <import resource="doc-conversion.xml"/>

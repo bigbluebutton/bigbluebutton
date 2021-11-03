@@ -32,11 +32,25 @@ const itemFocusBorder = colorBlueLighter;
 
 const btnDefaultColor = colorGray;
 const btnPrimaryBorder = colorPrimary;
+const btnDefaultBg = colorWhite;
 
 const toolbarButtonColor = btnDefaultColor;
 const userThumbnailBorder = colorGrayLight;
 const loaderBg = colorGrayDark;
 const loaderBullet = colorWhite;
+
+const systemMessageBackgroundColor = '#F9FBFC';
+const systemMessageBorderColor = '#C5CDD4';
+const systemMessageFontColor = colorGrayDark;
+const colorHeading = colorGrayDark;
+const palettePlaceholderText = '#787675';
+const pollAnnotationGray = '#333333';
+
+const toolbarButtonBorderColor = colorGrayLighter;
+const toolbarListColor = colorGray;
+const toolbarButtonBg = btnDefaultBg;
+const toolbarListBg = '#DDD';
+const toolbarListBgFocus = '#C6C6C6';
 
 export {
   colorWhite,
@@ -69,4 +83,15 @@ export {
   userThumbnailBorder,
   loaderBg,
   loaderBullet,
+  systemMessageBackgroundColor,
+  systemMessageBorderColor,
+  systemMessageFontColor,
+  colorHeading,
+  palettePlaceholderText,
+  pollAnnotationGray,
+  toolbarButtonBorderColor,
+  toolbarListColor,
+  toolbarButtonBg,
+  toolbarListBg,
+  toolbarListBgFocus,
 };

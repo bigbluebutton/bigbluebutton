@@ -24,6 +24,23 @@ const indicatorPadding = '.45rem'; // used to center presenter indicator icon in
 const actionsBarHeight = '75px'; // TODO: Change to ActionsBar real height
 const audioIndicatorWidth = '1.12rem';
 const audioIndicatorFs = '75%';
+const chatPollMarginSm = '.5rem';
+
+const talkerBorderRadius = '2rem';
+const talkerPaddingXsm = '.13rem';
+const talkerPaddingLg = '.75rem';
+const talkerPaddingXl = '1.62rem';
+const talkerMaxWidth = '10rem';
+const talkerMarginSm = '.5rem';
+const spokeOpacity = '.5';
+
+const toolbarButtonWidth = '3rem';
+const toolbarButtonHeight = '3rem';
+const toolbarItemOutlineOffset = '-.19rem';
+const toolbarButtonBorder = '1px';
+const toolbarButtonBorderRadius = '5px';
+const toolbarItemTrianglePadding = '2px';
+const toolbarMargin = '.8rem';
 
 export {
   borderSizeSmall,
@@ -51,4 +68,19 @@ export {
   actionsBarHeight,
   audioIndicatorWidth,
   audioIndicatorFs,
+  chatPollMarginSm,
+  talkerBorderRadius,
+  talkerPaddingXsm,
+  talkerPaddingLg,
+  talkerMaxWidth,
+  talkerMarginSm,
+  spokeOpacity,
+  talkerPaddingXl,
+  toolbarButtonWidth,
+  toolbarButtonHeight,
+  toolbarItemOutlineOffset,
+  toolbarButtonBorder,
+  toolbarButtonBorderRadius,
+  toolbarItemTrianglePadding,
+  toolbarMargin,
 };
