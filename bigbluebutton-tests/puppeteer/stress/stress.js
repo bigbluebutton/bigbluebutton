@@ -96,7 +96,7 @@ class Stress {
     }
   }
 
-  async closeUserPages() {
+  async closeUsersPages() {
     for (const page of this.userPages) {
       try {
         await page.close();

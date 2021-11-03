@@ -15,30 +15,12 @@ if [[ $meteor_owner != "root:root" ]] ; then
     chown -R root:root /usr/share/meteor
 fi
 
-if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
-  sed -i 's/^svgImagesRequired=.*/svgImagesRequired=true/' $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
-  if [ ! -f /.dockerenv ]; then
-    systemctl restart nginx
-  fi
-
-  if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep bigbluebutton.web.serverURL | grep -q https; then
-    PROTOCOL=https
-    sed -i 's/^ENVIRONMENT_TYPE=.*/ENVIRONMENT_TYPE=production/' /usr/share/meteor/bundle/systemd_start.sh
-  else
-    PROTOCOL=http
-    sed -i 's/^ENVIRONMENT_TYPE=.*/ENVIRONMENT_TYPE=development/' /usr/share/meteor/bundle/systemd_start.sh
-  fi
-
-fi
-
   SOURCE=/tmp/settings.yml
   TARGET=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
   if [ -f $SOURCE ]; then
 
     WSURL=$(yq r $SOURCE public.kurento.wsUrl)
-    CHROMEEXTENSIONKEY=$(yq r $SOURCE public.kurento.chromeExtensionKey)
-    CHROMEEXTENSIONLINK=$(yq r $SOURCE public.kurento.chromeExtensionLink)
     ENABLESCREENSHARING=$(yq r $SOURCE public.kurento.enableScreensharing)
     ENABLEVIDEO=$(yq r $SOURCE public.kurento.enableVideo)
 
@@ -46,8 +28,6 @@ fi
     ETHERPAD_URL=$(yq r $SOURCE public.note.url)
 
     yq w -i $TARGET public.kurento.wsUrl               "$WSURL"
-    yq w -i $TARGET public.kurento.chromeExtensionKey  "$CHROMEEXTENSIONKEY"
-    yq w -i $TARGET public.kurento.chromeExtensionLink "$CHROMEEXTENSIONLINK"
     yq w -i $TARGET public.kurento.enableScreensharing "$ENABLESCREENSHARING"
     yq w -i $TARGET public.kurento.enableVideo         "$ENABLEVIDEO"
 
@@ -106,16 +86,9 @@ fi
 
 
 source /etc/lsb-release
-if [ "$DISTRIB_RELEASE" == "16.04" ]; then
-  if [ ! -d /usr/share/node-v8.17.0-linux-x64 ]; then
-    cd /usr/share
-    tar xfz node-v8.17.0-linux-x64.tar.gz
-    chown -R meteor:meteor node-v8.17.0-linux-x64
-  fi
-fi
 
 if [ "$DISTRIB_RELEASE" == "18.04" ]; then
-  node_version="14.17.6"
+  node_version="14.18.1"
   if [[ ! -d /usr/share/node-v${node_version}-linux-x64 ]]; then
     cd /usr/share
     tar xfz "node-v${node_version}-linux-x64.tar.gz"

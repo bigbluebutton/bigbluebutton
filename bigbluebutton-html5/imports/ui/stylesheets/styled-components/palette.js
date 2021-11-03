@@ -22,14 +22,33 @@ const userListText = colorGray;
 const unreadMessagesBg = colorDanger;
 const colorGrayLabel = colorGray;
 const colorText = colorGray;
+const colorLink = colorPrimary;
 
 const listItemBgHover = '#DCE4ED';
 const colorTipBg = '#333333';
 const itemFocusBorder = colorBlueLighter;
 
 const btnDefaultColor = colorGray;
+const btnPrimaryBorder = colorPrimary;
+const btnDefaultBg = colorWhite;
 
 const toolbarButtonColor = btnDefaultColor;
+const userThumbnailBorder = colorGrayLight;
+const loaderBg = colorGrayDark;
+const loaderBullet = colorWhite;
+
+const systemMessageBackgroundColor = '#F9FBFC';
+const systemMessageBorderColor = '#C5CDD4';
+const systemMessageFontColor = colorGrayDark;
+const colorHeading = colorGrayDark;
+const palettePlaceholderText = '#787675';
+const pollAnnotationGray = '#333333';
+
+const toolbarButtonBorderColor = colorGrayLighter;
+const toolbarListColor = colorGray;
+const toolbarButtonBg = btnDefaultBg;
+const toolbarListBg = '#DDD';
+const toolbarListBgFocus = '#C6C6C6';
 
 export {
   colorWhite,
@@ -51,9 +70,25 @@ export {
   unreadMessagesBg,
   colorGrayLabel,
   colorText,
+  colorLink,
   listItemBgHover,
   colorTipBg,
   itemFocusBorder,
   btnDefaultColor,
+  btnPrimaryBorder,
   toolbarButtonColor,
+  userThumbnailBorder,
+  loaderBg,
+  loaderBullet,
+  systemMessageBackgroundColor,
+  systemMessageBorderColor,
+  systemMessageFontColor,
+  colorHeading,
+  palettePlaceholderText,
+  pollAnnotationGray,
+  toolbarButtonBorderColor,
+  toolbarListColor,
+  toolbarButtonBg,
+  toolbarListBg,
+  toolbarListBgFocus,
 };

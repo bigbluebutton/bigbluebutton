@@ -47,6 +47,7 @@ export default class RectangleDrawComponent extends Component {
   render() {
     const results = this.getCoordinates();
     const { annotation, slideWidth } = this.props;
+    const { fill } = annotation;
 
     return (
       <rect
@@ -54,7 +55,7 @@ export default class RectangleDrawComponent extends Component {
         y={results.y}
         width={results.width}
         height={results.height}
-        fill="none"
+        fill={ fill ? getFormattedColor(annotation.color) : "none" }
         stroke={getFormattedColor(annotation.color)}
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
@@ -72,6 +73,7 @@ RectangleDrawComponent.propTypes = {
     points: PropTypes.arrayOf(PropTypes.number).isRequired,
     color: PropTypes.number.isRequired,
     thickness: PropTypes.number.isRequired,
+    fill: PropTypes.bool.isRequired,
   }).isRequired,
   // Defines the width of the slide (svg coordinate system), which needed in calculations
   slideWidth: PropTypes.number.isRequired,

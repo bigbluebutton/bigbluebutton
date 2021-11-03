@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import Button from '/imports/ui/components/button/component';
 
 const FlexColumn = styled.div`
   display: flex;
@@ -34,10 +35,27 @@ const TitleElipsis = styled.h2`
   text-overflow: ellipsis;
 `;
 
+const HeaderElipsis = styled.h3`
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const ButtonElipsis = styled(Button)`
+  min-width: 0;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
 export {
   FlexColumn,
   FlexRow,
   DivElipsis,
   TextElipsis,
   TitleElipsis,
+  HeaderElipsis,
+  ButtonElipsis,
 };
