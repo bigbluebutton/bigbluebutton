@@ -14,4 +14,4 @@ throw new Error();
 
 /* eslint-disable no-unreachable */
 // BRIDGES LIST
-import('/imports/api/audio/client/bridge/fullaudio'); // NOSONAR
+import('/imports/api/audio/client/bridge/FullAudioBridge'); // NOSONAR
