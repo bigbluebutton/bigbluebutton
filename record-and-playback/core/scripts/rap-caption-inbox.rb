@@ -101,7 +101,7 @@ caption_file_notify = proc do |json_filename|
         'lang'   => langtag.to_s,
         'source' => 'upload',
         'localeName'  => new_caption_info['label'],
-		    'locale'      => new_caption_info['lang'],
+        'locale'      => new_caption_info['lang'],
       }
 
       captions_work = File.join(captions_work_base, record_id)
@@ -134,7 +134,7 @@ caption_file_notify = proc do |json_filename|
       presentation_dest_dir = "#{presentation_dir}/#{record_id}/caption_#{new_caption_info['lang']}.vtt"
       caption_json_file = "#{presentation_dir}/#{record_id}/captions.json"
       FileUtils.cp(final_dest, presentation_dest_dir)
-	    FileUtils.cp(index_filename, caption_json_file)
+      FileUtils.cp(index_filename, caption_json_file)
 
       Dir.glob(File.expand_path('captions/*', __dir__)) do |caption_script|
         next unless File.file?(caption_script) && File.executable?(caption_script)
