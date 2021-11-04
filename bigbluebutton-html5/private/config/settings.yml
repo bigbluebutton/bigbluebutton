@@ -502,7 +502,7 @@ public:
         - name: kurento
           path: 'bridge/kurento'
         - name: fullaudio
-          path: 'bridge/fullaudio'
+          path: 'bridge/FullAudioBridge'
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
