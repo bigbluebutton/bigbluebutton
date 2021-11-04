@@ -12,7 +12,7 @@ import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/componen
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import FullscreenService from '../../fullscreen-button/service';
 
-import { styles } from '../styles';
+import { styles } from '../styles.scss';
 
 const intlMessages = defineMessages({
   optionsLabel: {
