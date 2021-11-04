@@ -42,6 +42,10 @@ const toolbarButtonBorderRadius = '5px';
 const toolbarItemTrianglePadding = '2px';
 const toolbarMargin = '.8rem';
 
+const pollStatsElementWidth = '17%';
+const pollSmMargin = '0.3125rem';
+const pollResultWidth = '15rem';
+
 export {
   borderSizeSmall,
   borderSize,
@@ -83,4 +87,7 @@ export {
   toolbarButtonBorderRadius,
   toolbarItemTrianglePadding,
   toolbarMargin,
+  pollStatsElementWidth,
+  pollSmMargin,
+  pollResultWidth,
 };
