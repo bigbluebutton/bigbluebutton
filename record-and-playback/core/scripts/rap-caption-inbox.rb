@@ -100,6 +100,8 @@ caption_file_notify = proc do |json_filename|
         'label'  => new_caption_info['label'],
         'lang'   => langtag.to_s,
         'source' => 'upload',
+        'localeName'  => new_caption_info['label'],
+		    'locale'      => new_caption_info['lang'],
       }
 
       captions_work = File.join(captions_work_base, record_id)
@@ -108,22 +110,7 @@ caption_file_notify = proc do |json_filename|
       tmp_dest = File.join(captions_work, dest_filename)
       final_dest_dir = File.join(captions_dir, record_id)
       final_dest = File.join(final_dest_dir, dest_filename)
-        
-      presentation_dir = props['presentation_dir']
-      presentation_dest_dir = "#{presentation_dir}/#{record_id}/caption_en-US.vtt"
-      caption_json_file = "#{presentation_dir}/#{record_id}/captions.json"
-      
-      # en-US need by presentation 
-      new_caption_info['lang'] = new_caption_info['lang'].sub('_', '-')
-        
-      file =  File.open(caption_json_file, 'w')
-      file.puts "[{\"localeName\": \"#{new_caption_info['label']}\", \"locale\": \"#{new_caption_info['lang']}\"}]"
-      file.close
-        
-      # resetting en-US to en_US
-      new_caption_info['lang'] = new_caption_info['lang'].sub('-', '_')
-
-      
+            
       # Convert the received caption file to WebVTT
       ffmpeg_cmd = [
         'ffmpeg', '-y', '-v', 'warning', '-nostats', '-nostdin',
@@ -141,6 +128,13 @@ caption_file_notify = proc do |json_filename|
       File.open(index_filename, 'w') do |file|
         file.write(JSON.pretty_generate(captions_info))
       end
+      
+      # copy index and vtt to presentation dir
+      presentation_dir = props['presentation_dir']
+      presentation_dest_dir = "#{presentation_dir}/#{record_id}/caption_#{new_caption_info['lang']}.vtt"
+      caption_json_file = "#{presentation_dir}/#{record_id}/captions.json"
+      FileUtils.cp(final_dest, presentation_dest_dir)
+	    FileUtils.cp(index_filename, caption_json_file)
 
       Dir.glob(File.expand_path('captions/*', __dir__)) do |caption_script|
         next unless File.file?(caption_script) && File.executable?(caption_script)
