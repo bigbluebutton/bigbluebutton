@@ -52,7 +52,8 @@ const toolbarButtonBg = btnDefaultBg;
 const toolbarListBg = '#DDD';
 const toolbarListBgFocus = '#C6C6C6';
 
-const pollStatsBorderColor = '#d4d9df';
+const pollStatsBorderColor = '#D4D9DF';
+const pollBlue = '#1A73D4';
 
 export {
   colorWhite,
@@ -97,4 +98,5 @@ export {
   toolbarListBg,
   toolbarListBgFocus,
   pollStatsBorderColor,
+  pollBlue,
 };

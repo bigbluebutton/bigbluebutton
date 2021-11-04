@@ -44,7 +44,9 @@ const toolbarMargin = '.8rem';
 
 const pollStatsElementWidth = '17%';
 const pollSmMargin = '0.3125rem';
+const pollMdMargin = '0.7rem';
 const pollResultWidth = '15rem';
+const pollInputHeight = '2.5rem';
 
 export {
   borderSizeSmall,
@@ -89,5 +91,7 @@ export {
   toolbarMargin,
   pollStatsElementWidth,
   pollSmMargin,
+  pollMdMargin,
   pollResultWidth,
+  pollInputHeight,
 };
