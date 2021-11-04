@@ -9,6 +9,7 @@ const mdPaddingX = '1rem';
 const lgPaddingX = '1.25rem';
 const lgPaddingY = '0.6rem';
 const jumboPaddingY = '1.5rem';
+const jumboPaddingX = '3.025rem';
 
 const whiteboardToolbarPadding = '.5rem';
 const minModalHeight = '20rem';
@@ -47,6 +48,12 @@ const pollSmMargin = '0.3125rem';
 const pollMdMargin = '0.7rem';
 const pollResultWidth = '15rem';
 const pollInputHeight = '2.5rem';
+const pollWidth = '18rem';
+const overlayIndex = '9999';
+const overlayOpacity = '0.349';
+const pollIndex = '1016';
+const pollBottomOffset = '4.5rem';
+const pollColAmount = '2';
 
 export {
   borderSizeSmall,
@@ -60,6 +67,7 @@ export {
   lgPaddingX,
   lgPaddingY,
   jumboPaddingY,
+  jumboPaddingX,
   whiteboardToolbarPadding,
   minModalHeight,
   descriptionMargin,
@@ -94,4 +102,10 @@ export {
   pollMdMargin,
   pollResultWidth,
   pollInputHeight,
+  pollWidth,
+  overlayIndex,
+  overlayOpacity,
+  pollIndex,
+  pollBottomOffset,
+  pollColAmount,
 };
