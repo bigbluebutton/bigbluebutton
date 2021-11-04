@@ -72,7 +72,7 @@ class ScreenshareComponent extends React.Component {
     const {
       isPresenter,
     } = this.props;
-    if (isPresenter && !prevProps.isPresenter) {
+    if (prevProps.isPresenter && !isPresenter) {
       screenshareHasEnded();
     }
   }
