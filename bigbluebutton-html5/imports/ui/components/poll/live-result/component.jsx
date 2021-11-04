@@ -201,7 +201,7 @@ class LiveResult extends PureComponent {
           </div>
           {pollStats}
         </div>
-        {currentPoll && currentPoll.answers.length > 0
+        {currentPoll && currentPoll.answers.length >= 0
           ? (
             <div className={styles.buttonsActions}>
               <Button
