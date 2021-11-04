@@ -28,6 +28,18 @@
   display: flex;
   width: 100%;
   justify-content: space-between;
+  margin-bottom: .5rem;
+}
+
+.inputError {
+  color: var(--color-danger);
+  font-size: var(--font-size-small);
+}
+
+.inputError,
+.errorSpacer {
+  position: relative;
+  height: 1.25rem;
 }
 
 .main {

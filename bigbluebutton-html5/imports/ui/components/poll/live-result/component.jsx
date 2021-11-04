@@ -151,6 +151,7 @@ class LiveResult extends PureComponent {
       userAnswers: null,
       pollStats: null,
       currentPollQuestion: null,
+      publishError: null,
     };
   }
 
@@ -163,7 +164,7 @@ class LiveResult extends PureComponent {
       currentPoll,
     } = this.props;
 
-    const { userAnswers, pollStats, currentPollQuestion } = this.state;
+    const { userAnswers, pollStats, currentPollQuestion, publishError } = this.state;
 
     let waiting;
     let userCount = 0;
@@ -180,6 +181,12 @@ class LiveResult extends PureComponent {
 
       waiting = respondedCount !== userAnswers.length && currentPoll;
     }
+
+    let noAnswers = false;
+    let hasPublishError = false;
+
+    noAnswers = (currentPoll && currentPoll.answers.length === 0 ? true : false);
+    hasPublishError = (noAnswers && publishError);
 
     return (
       <div>
@@ -207,6 +214,8 @@ class LiveResult extends PureComponent {
               <Button
                 disabled={!isMeteorConnected}
                 onClick={() => {
+                  if (noAnswers) return this.setState({ publishError: 'No answers yet' });
+                  this.setState({ publishError: null });
                   Session.set('pollInitiated', false);
                   Service.publishPoll();
                   stopPoll();
@@ -241,6 +250,11 @@ class LiveResult extends PureComponent {
             />
           )
         }
+        { hasPublishError ? (
+          <div className={styles.inputError}>{publishError}</div>
+        ) : (
+          <div className={styles.errorSpacer}>&nbsp;</div>
+        )}
         <div className={styles.separator} />
         { currentPoll && !currentPoll.secretPoll
           ? (
