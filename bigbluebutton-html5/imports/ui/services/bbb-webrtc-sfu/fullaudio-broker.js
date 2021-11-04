@@ -182,7 +182,6 @@ class FullAudioBroker extends BaseBroker {
         },
       }, `Listen only offer generation failed`);
       // 1305: "PEER_NEGOTIATION_FAILED",
-      const normalizedError = BaseBroker.assembleError(1305);
       return this.onerror(error);
     }
 

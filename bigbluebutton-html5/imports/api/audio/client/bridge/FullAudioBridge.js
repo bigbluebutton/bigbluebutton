@@ -41,7 +41,6 @@ const mapErrorCode = (error) => {
   return error;
 };
 
-// TODO Would be interesting to move this to a service along with the error mapping
 const getMediaServerAdapter = () => getFromMeetingSettings(
   'media-server-fullaudio',
   DEFAULT_FULLAUDIO_MEDIA_SERVER,
