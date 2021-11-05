@@ -2,7 +2,11 @@ import styled from 'styled-components';
 import {
   colorGrayDark,
   colorGrayLabel,
+  colorPrimary,
+  colorWhite,
+  colorGrayLighter,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
 
 const Title = styled.h3`
   color: ${colorGrayDark};
@@ -77,6 +81,29 @@ const Label = styled.span`
   margin-bottom: 0.5rem;
 `;
 
+const Select = styled.select`
+  &:focus {
+    box-shadow: inset 0 0 0 ${borderSizeLarge} ${colorPrimary};
+    border-radius: ${borderSize};
+  }
+
+  background-color: ${colorWhite};
+  border: ${borderSize} solid ${colorWhite};
+  border-radius: ${borderSize};
+  border-bottom: 0.1rem solid ${colorGrayLighter};
+  color: ${colorGrayLabel};
+  width: 100%;
+  height: 1.75rem;
+  padding: 1px;
+
+  &:hover,
+  &:focus {
+    outline: transparent;
+    outline-style: dotted;
+    outline-width: ${borderSize};
+  }
+`;
+
 export default {
   Title,
   SubTitle,
@@ -87,4 +114,5 @@ export default {
   FormElementRight,
   FormElementCenter,
   Label,
+  Select,
 };

@@ -19,28 +19,7 @@ const Label = styled(Styled.Label)``;
 
 const FormElementRight = styled(Styled.FormElementRight)``;
 
-const Select = styled.select`
-  &:focus {
-    box-shadow: inset 0 0 0 ${borderSizeLarge} ${colorPrimary};
-    border-radius: ${borderSize};
-  }
-
-  background-color: ${colorWhite};
-  border: ${borderSize} solid ${colorWhite};
-  border-radius: ${borderSize};
-  border-bottom: 0.1rem solid ${colorGrayLighter};
-  color: ${colorGrayLabel};
-  width: 100%;
-  height: 1.75rem;
-  padding: 1px;
-
-  &:hover,
-  &:focus {
-    outline: transparent;
-    outline-style: dotted;
-    outline-width: ${borderSize};
-  }
-`;
+const Select = styled(Styled.Select)``;
 
 const Title = styled(Styled.Title)``;
 
