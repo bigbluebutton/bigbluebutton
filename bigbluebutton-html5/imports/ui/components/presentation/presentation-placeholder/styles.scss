@@ -1,0 +1,20 @@
+.presentationPlaceholder {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 2px var(--color-white) dashed;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-white);
+  overflow: hidden;
+
+  span {
+    margin: var(--sm-padding-x);
+    font-size: var(--font-size-larger);
+    text-align: center;
+  }
+}

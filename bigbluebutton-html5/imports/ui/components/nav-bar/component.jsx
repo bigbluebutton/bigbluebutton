@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Session } from 'meteor/session';
 import cx from 'classnames';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
@@ -14,6 +13,9 @@ import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-in
 import ConnectionStatusButton from '/imports/ui/components/connection-status/button/container';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import SettingsDropdownContainer from './settings-dropdown/container';
+import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
+import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -43,28 +45,38 @@ const defaultProps = {
 };
 
 class NavBar extends Component {
-  static handleToggleUserList() {
-    Session.set(
-      'openPanel',
-      Session.get('openPanel') !== ''
-        ? ''
-        : 'userlist',
-    );
-    Session.set('idChatOpen', '');
+  constructor(props) {
+    super(props);
 
-    window.dispatchEvent(new Event('panelChanged'));
+    this.handleToggleUserList = this.handleToggleUserList.bind(this);
   }
 
   componentDidMount() {
     const {
       processOutsideToggleRecording,
       connectRecordingObserver,
+      shortcuts: TOGGLE_USERLIST_AK,
     } = this.props;
+
+    const { isFirefox } = browserInfo;
+    const { isMacos } = deviceInfo;
 
     if (Meteor.settings.public.allowOutsideCommands.toggleRecording
       || getFromUserSettings('bbb_outside_toggle_recording', false)) {
       connectRecordingObserver();
       window.addEventListener('message', processOutsideToggleRecording);
+    }
+
+    // accessKey U does not work on firefox for macOS for some unknown reason
+    if (isMacos && isFirefox && TOGGLE_USERLIST_AK === 'U') {
+      document.addEventListener('keyup', (event) => {
+        const { key, code } = event;
+        const eventKey = key.toUpperCase();
+        const eventCode = code;
+        if (event.altKey && (eventKey === TOGGLE_USERLIST_AK || eventCode === `Key${TOGGLE_USERLIST_AK}`)) {
+          this.handleToggleUserList();
+        }
+      });
     }
   }
 
@@ -72,16 +84,62 @@ class NavBar extends Component {
     clearInterval(this.interval);
   }
 
+  handleToggleUserList() {
+    const {
+      sidebarNavigation,
+      sidebarContent,
+      layoutContextDispatch,
+    } = this.props;
+
+    if (sidebarNavigation.isOpen) {
+      if (sidebarContent.isOpen) {
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+          value: false,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+          value: PANELS.NONE,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_ID_CHAT_OPEN,
+          value: '',
+        });
+      }
+
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+        value: false,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
+        value: PANELS.NONE,
+      });
+    } else {
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+        value: true,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
+        value: PANELS.USERLIST,
+      });
+    }
+  }
+
   render() {
     const {
       hasUnreadMessages,
       hasUnreadNotes,
-      isExpanded,
+      // isExpanded,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
       mountModal,
       presentationTitle,
       amIModerator,
+      style,
+      main,
+      sidebarNavigation,
     } = this.props;
 
     const hasNotification = hasUnreadMessages || hasUnreadNotes;
@@ -92,22 +150,39 @@ class NavBar extends Component {
     let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
     ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
 
+    const isExpanded = sidebarNavigation.isOpen;
+
     return (
-      <div
+      <header
         className={styles.navbar}
+        style={
+          main === 'new'
+            ? {
+              position: 'absolute',
+              top: style.top,
+              left: style.left,
+              height: style.height,
+              width: style.width,
+            }
+            : {
+              position: 'relative',
+              height: style.height,
+              width: '100%',
+            }
+        }
       >
         <div className={styles.top}>
           <div className={styles.left}>
             {!isExpanded ? null
-              : <Icon iconName="left_arrow" className={styles.arrowLeft} />
-            }
+              : <Icon iconName="left_arrow" className={styles.arrowLeft} />}
             <Button
-              onClick={NavBar.handleToggleUserList}
+              onClick={this.handleToggleUserList}
               ghost
               circle
               hideLabel
               data-test={hasNotification ? 'hasUnreadMessages' : null}
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
+              tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
               aria-label={ariaLabel}
               icon="user"
               className={cx(toggleBtnClasses)}
@@ -115,8 +190,7 @@ class NavBar extends Component {
               accessKey={TOGGLE_USERLIST_AK}
             />
             {isExpanded ? null
-              : <Icon iconName="right_arrow" className={styles.arrowRight} />
-            }
+              : <Icon iconName="right_arrow" className={styles.arrowRight} />}
           </div>
           <div className={styles.center}>
             <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
@@ -134,7 +208,7 @@ class NavBar extends Component {
         <div className={styles.bottom}>
           <TalkingIndicatorContainer amIModerator={amIModerator} />
         </div>
-      </div>
+      </header>
     );
   }
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import VoiceUsers from '/imports/api/voice-users';
 import Auth from '/imports/ui/services/auth';
@@ -6,15 +6,35 @@ import { debounce } from 'lodash';
 import TalkingIndicator from './component';
 import { makeCall } from '/imports/ui/services/api';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
-import Service from './service';
+import LayoutContext from '../../layout/context';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const { enableTalkingIndicator } = APP_CONFIG;
 const TALKING_INDICATOR_MUTE_INTERVAL = 500;
+const TALKING_INDICATORS_MAX = 8;
 
 const TalkingIndicatorContainer = (props) => {
   if (!enableTalkingIndicator) return null;
-  return (<TalkingIndicator {...props} />);
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
+  const { input } = layoutContextState;
+  const { sidebarContent, sidebarNavigation } = input;
+  const { sidebarNavPanel } = sidebarNavigation;
+  const { sidebarContentPanel } = sidebarContent;
+  const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
+  const sidebarContentIsOpen = sidebarContent.isOpen;
+  return (
+    <TalkingIndicator
+      {...{
+        sidebarNavPanel,
+        sidebarNavigationIsOpen,
+        sidebarContentPanel,
+        sidebarContentIsOpen,
+        layoutContextDispatch,
+        ...props,
+      }}
+    />
+  );
 };
 
 export default withTracker(() => {
@@ -26,22 +46,28 @@ export default withTracker(() => {
       talking: 1,
       color: 1,
       startTime: 1,
-      voiceUserId: 1,
       muted: 1,
       intId: 1,
     },
-  }).fetch().sort(Service.sortVoiceUsers);
+    sort: {
+      startTime: 1,
+    },
+    limit: TALKING_INDICATORS_MAX + 1,
+  }).fetch();
 
   if (usersTalking) {
-    for (let i = 0; i < usersTalking.length; i += 1) {
+    const maxNumberVoiceUsersNotification = usersTalking.length < TALKING_INDICATORS_MAX
+      ? usersTalking.length
+      : TALKING_INDICATORS_MAX;
+
+    for (let i = 0; i < maxNumberVoiceUsersNotification; i += 1) {
       const {
-        callerName, talking, color, voiceUserId, muted, intId,
+        callerName, talking, color, muted, intId,
       } = usersTalking[i];
 
       talkers[`${intId}`] = {
         color,
         talking,
-        voiceUserId,
         muted,
         callerName,
       };
@@ -49,7 +75,7 @@ export default withTracker(() => {
   }
 
   const muteUser = debounce((id) => {
-    const user = VoiceUsers.findOne({ meetingId, voiceUserId: id }, {
+    const user = VoiceUsers.findOne({ meetingId, intId: id }, {
       fields: {
         muted: 1,
       },
@@ -61,7 +87,7 @@ export default withTracker(() => {
   return {
     talkers,
     muteUser,
-    openPanel: Session.get('openPanel'),
     isBreakoutRoom: meetingIsBreakout(),
+    moreThanMaxIndicators: usersTalking.length > TALKING_INDICATORS_MAX,
   };
 })(TalkingIndicatorContainer);

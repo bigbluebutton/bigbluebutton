@@ -12,8 +12,8 @@ const hasNoteAccess = (meetingId, userId) => {
       fields: {
         role: 1,
         locked: 1,
-      }
-    },
+      },
+    }
   );
 
   if (!user) return false;
@@ -21,7 +21,7 @@ const hasNoteAccess = (meetingId, userId) => {
   if (user.role === ROLE_VIEWER && user.locked) {
     const meeting = Meetings.findOne(
       { meetingId },
-      { fields: { 'lockSettingsProps.disableNote': 1 }},
+      { fields: { 'lockSettingsProps.disableNote': 1 } }
     );
 
     if (!meeting) return false;
@@ -47,20 +47,19 @@ export default function getNoteId() {
         fields: {
           noteId: 1,
           readOnlyNoteId: 1,
-        }
-      },
+        },
+      }
     );
 
     if (note) {
       if (hasNoteAccess(meetingId, requesterUserId)) {
         return note.noteId;
-      } else {
-        return note.readOnlyNoteId;
       }
+      return note.readOnlyNoteId;
     }
 
     return null;
   } catch (err) {
-    return null;;
+    return null;
   }
 }

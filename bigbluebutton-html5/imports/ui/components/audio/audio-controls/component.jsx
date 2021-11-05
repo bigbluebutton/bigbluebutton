@@ -79,9 +79,10 @@ class AudioControls extends PureComponent {
         hideLabel
         aria-label={intl.formatMessage(intlMessages.joinAudio)}
         label={intl.formatMessage(intlMessages.joinAudio)}
+        data-test="joinAudio"
         color="default"
         ghost
-        icon="audio_off"
+        icon="no_audio"
         size="lg"
         circle
         accessKey={shortcuts.joinaudio}
@@ -107,12 +108,12 @@ class AudioControls extends PureComponent {
       shortcuts,
     } = this.props;
 
-    let joinIcon = 'audio_off';
+    let joinIcon = 'no_audio';
     if (inAudio) {
       if (listenOnly) {
         joinIcon = 'listen';
       } else {
-        joinIcon = 'audio_on';
+        joinIcon = 'volume_level_2';
       }
     }
 

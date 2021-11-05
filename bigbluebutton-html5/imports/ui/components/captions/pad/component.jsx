@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
@@ -9,6 +8,8 @@ import PadService from './service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import { notify } from '/imports/ui/services/notification';
 import { styles } from './styles';
+import { PANELS, ACTIONS } from '../../layout/enums';
+import _ from 'lodash';
 
 const intlMessages = defineMessages({
   hide: {
@@ -50,7 +51,7 @@ const intlMessages = defineMessages({
   speechRecognitionStop: {
     id: 'app.captions.pad.speechRecognitionStop',
     description: 'Notification for stopped speech recognition',
-  },  
+  },
 });
 
 const propTypes = {
@@ -58,10 +59,15 @@ const propTypes = {
   ownerId: PropTypes.string.isRequired,
   currentUserId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  amIModerator: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+};
+
+const DEBOUNCE_TIMEOUT = 500;
+const DEBOUNCE_OPTIONS = {
+  leading: true,
+  trailing: false,
 };
 
 class Pad extends PureComponent {
@@ -83,9 +89,9 @@ class Pad extends PureComponent {
     const { locale, intl } = props;
     this.recognition = CaptionsService.initSpeechRecognition(locale);
 
-    this.toggleListen = this.toggleListen.bind(this);
+    this.toggleListen = _.debounce(this.toggleListen.bind(this), DEBOUNCE_TIMEOUT, DEBOUNCE_OPTIONS);
     this.handleListen = this.handleListen.bind(this);
-    
+
     if (this.recognition) {
       this.recognition.addEventListener('end', () => {
         const { listening } = this.state;
@@ -110,10 +116,12 @@ class Pad extends PureComponent {
       currentUserId,
     } = this.props;
 
+    const { listening } = this.state;
+
     if (this.recognition) {
       if (ownerId !== currentUserId) {
         this.recognition.stop();
-      } else if (this.state.listening && this.recognition.lang !== locale) {
+      } else if (listening && this.recognition.lang !== locale) {
         this.recognition.stop();
         this.stopListen();
       }
@@ -144,7 +152,14 @@ class Pad extends PureComponent {
       // Starts and stops the recognition when listening.
       // Throws an error if start() is called on a recognition that has already been started.
       if (listening) {
-        this.recognition.start();
+        try {
+          this.recognition.start();
+        } catch (e) {
+          logger.error({
+            logCode: 'captions_recognition',
+            extraInfo: { error: e.error },
+          }, 'Captions pad error when starting the recognition');
+        }
       } else {
         this.recognition.stop();
       }
@@ -203,7 +218,7 @@ class Pad extends PureComponent {
       listening: !listening,
     }, this.handleListen);
   }
-  
+
   stopListen() {
     this.setState({ listening: false });
   }
@@ -214,14 +229,9 @@ class Pad extends PureComponent {
       intl,
       ownerId,
       name,
-      amIModerator,
+      layoutContextDispatch,
+      isResizing,
     } = this.props;
-
-    if (!amIModerator) {
-      Session.set('openPanel', 'userlist');
-      window.dispatchEvent(new Event('panelChanged'));
-      return null;
-    }
 
     const {
       listening,
@@ -234,8 +244,14 @@ class Pad extends PureComponent {
           <div className={styles.title}>
             <Button
               onClick={() => {
-                Session.set('openPanel', 'userlist');
-                window.dispatchEvent(new Event('panelChanged'));
+                layoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                  value: false,
+                });
+                layoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                  value: PANELS.NONE,
+                });
               }}
               aria-label={intl.formatMessage(intlMessages.hide)}
               label={name}
@@ -289,6 +305,9 @@ class Pad extends PureComponent {
           title="etherpad"
           src={url}
           aria-describedby="padEscapeHint"
+          style={{
+            pointerEvents: isResizing ? 'none' : 'inherit',
+          }}
         />
         <span id="padEscapeHint" className={styles.hint} aria-hidden>
           {intl.formatMessage(intlMessages.tip)}
@@ -298,6 +317,5 @@ class Pad extends PureComponent {
   }
 }
 
-export default injectWbResizeEvent(injectIntl(Pad));
-
 Pad.propTypes = propTypes;
+export default injectWbResizeEvent(injectIntl(Pad));

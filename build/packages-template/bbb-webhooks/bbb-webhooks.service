@@ -1,0 +1,16 @@
+[Unit]
+Description=BigBlueButton Webhooks
+Wants=redis-server.service
+After=syslog.target network.target
+
+[Service]
+WorkingDirectory=/usr/local/bigbluebutton/bbb-webhooks
+ExecStart=/usr/bin/node app.js
+Restart=always
+SyslogIdentifier=bbb-webhooks
+User=bigbluebutton
+Group=bigbluebutton
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

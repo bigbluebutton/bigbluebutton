@@ -12,28 +12,53 @@ const intlMessages = defineMessages({
     id: 'app.userList.chatListItem.unreadSingular',
     description: 'plural aria label for new messages',
   },
+  publicChat: {
+    id: 'app.chat.titlePublic',
+    description: 'localized public chat name',
+  },
 });
 
 const propTypes = {
   counter: PropTypes.number.isRequired,
+  chat: PropTypes.shape({
+    userId: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    unreadCounter: PropTypes.number.isRequired,
+  }).isRequired,
+  isPublicChat: PropTypes.func.isRequired,
   intl: PropTypes.shape({ formatMessage: PropTypes.func.isRequired }).isRequired,
 };
 
-const defaultProps = {
-};
+const defaultProps = {};
 
-const ChatUnreadCounter = props => (
-  <div
-    className={styles.unreadMessages}
-    aria-label={props.counter > 0
-      ? props.intl.formatMessage(intlMessages.unreadSingular, { 0: props.counter })
-      : props.intl.formatMessage(intlMessages.unreadPlural, { 0: props.counter })}
-  >
-    <div className={styles.unreadMessagesText} aria-hidden="true">
-      {props.counter}
+const ChatUnreadCounter = (props) => {
+  const {
+    counter,
+    chat,
+    isPublicChat,
+    intl,
+  } = props;
+
+  const localizedChatName = isPublicChat(chat)
+    ? intl.formatMessage(intlMessages.publicChat)
+    : chat.name;
+
+  const arialabel = `${localizedChatName} ${
+    counter > 1
+      ? intl.formatMessage(intlMessages.unreadPlural, { 0: counter })
+      : intl.formatMessage(intlMessages.unreadSingular)}`;
+
+  return (
+    <div
+      className={styles.unreadMessages}
+      aria-label={arialabel}
+    >
+      <div className={styles.unreadMessagesText} aria-hidden="true">
+        {counter}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 ChatUnreadCounter.propTypes = propTypes;
 ChatUnreadCounter.defaultProps = defaultProps;

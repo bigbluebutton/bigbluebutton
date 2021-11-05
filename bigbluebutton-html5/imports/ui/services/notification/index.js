@@ -28,11 +28,23 @@ export function notify(message, type = 'default', icon, options, content, small)
   };
 
   if (!toast.isActive(lastToast.id) || !_.isEqual(lastToastProps, toastProps)) {
-    const id = toast(<Toast {...toastProps} />, settings);
+    if (toast.isActive(lastToast.id)
+      && _.isEqual(lastToastProps.key, toastProps.key) && options?.autoClose > 0) {
+      toast.update(
+        lastToast.id,
+        {
+          render: <div role="alert"><Toast {...toastProps} /></div>,
+          autoClose: options.autoClose,
+          ...toastProps,
+        },
+      );
+    } else {
+      const id = toast(<div role="alert"><Toast {...toastProps} /></div>, settings);
 
-    lastToast = { id, ...toastProps };
+      lastToast = { id, ...toastProps };
 
-    return id;
+      return id;
+    }
   }
   return null;
 }

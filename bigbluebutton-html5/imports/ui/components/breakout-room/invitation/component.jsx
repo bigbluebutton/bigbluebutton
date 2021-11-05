@@ -33,8 +33,6 @@ const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) => mou
   />,
 );
 
-const closeBreakoutJoinConfirmation = mountModal => mountModal(null);
-
 class BreakoutRoomInvitation extends Component {
   constructor(props) {
     super(props);
@@ -56,7 +54,6 @@ class BreakoutRoomInvitation extends Component {
   checkBreakouts(oldProps) {
     const {
       breakouts,
-      mountModal,
       currentBreakoutUrlData,
       getBreakoutByUrlData,
       breakoutUserIsIn,
@@ -66,11 +63,7 @@ class BreakoutRoomInvitation extends Component {
       didSendBreakoutInvite,
     } = this.state;
 
-    const hadBreakouts = oldProps.breakouts.length > 0;
     const hasBreakouts = breakouts.length > 0;
-    if (!hasBreakouts && hadBreakouts) {
-      closeBreakoutJoinConfirmation(mountModal);
-    }
 
     if (hasBreakouts && !breakoutUserIsIn && BreakoutService.checkInviteModerators()) {
       // Have to check for freeJoin breakouts first because currentBreakoutUrlData will
@@ -84,8 +77,8 @@ class BreakoutRoomInvitation extends Component {
         }
       } else if (currentBreakoutUrlData) {
         const currentInsertedTime = currentBreakoutUrlData.insertedTime;
-        const oldCurrentUser = oldProps.currentBreakoutUrlData || {};
-        const oldInsertedTime = oldCurrentUser.insertedTime;
+        const oldCurrentUrlData = oldProps.currentBreakoutUrlData || {};
+        const oldInsertedTime = oldCurrentUrlData.insertedTime;
         if (currentInsertedTime !== oldInsertedTime) {
           const breakoutId = Session.get('lastBreakoutOpened');
           if (breakoutRoom.breakoutId !== breakoutId) {

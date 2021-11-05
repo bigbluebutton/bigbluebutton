@@ -1,0 +1,28 @@
+From d8224580afd2b8dd6a685ac10a79ae223acf874a Mon Sep 17 00:00:00 2001
+From: Andrey Volk <andywolk@gmail.com>
+Date: Thu, 31 Oct 2019 20:11:36 +0400
+Subject: [PATCH] [sofia-sip] Fix crash in nta outgoing_create when NULL queue.
+
+---
+ libs/sofia-sip/.update                   | 2 +-
+ libs/sofia-sip/libsofia-sip-ua/nta/nta.c | 7 ++++++-
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/libs/sofia-sip/libsofia-sip-ua/nta/nta.c b/libs/sofia-sip/libsofia-sip-ua/nta/nta.c
+index 9b2e295007..8f5eb3b82e 100644
+--- a/libs/sofia-sip/libsofia-sip-ua/nta/nta.c
++++ b/libs/sofia-sip/libsofia-sip-ua/nta/nta.c
+@@ -8098,7 +8098,12 @@ nta_outgoing_t *outgoing_create(nta_agent_t *agent,
+     return retval;
+   }
+ 
+-  assert(orq->orq_queue);
++  if (!orq->orq_queue) {
++      SU_DEBUG_5(("nta outgoing create: orq->orq_queue is NULL.\n" VA_NONE));
++      outgoing_free(orq);
++      return NULL;
++  }
++  
+ 
+   outgoing_insert(agent, orq);
+ 

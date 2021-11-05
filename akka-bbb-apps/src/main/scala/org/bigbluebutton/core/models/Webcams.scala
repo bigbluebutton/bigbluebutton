@@ -30,6 +30,21 @@ object Webcams {
       removedStream <- webcams.remove(streamId)
     } yield removedStream
   }
+
+  def updateWebcamStream(webcams: Webcams, streamId: String, userId: String): Option[WebcamStream] = {
+    findWithStreamId(webcams, streamId) match {
+      case Some(value) => {
+        val mediaStream: MediaStream = MediaStream(value.stream.id, value.stream.url, userId, value.stream.attributes,
+          value.stream.viewers)
+        val webcamStream: WebcamStream = WebcamStream(streamId, mediaStream)
+        webcams.update(streamId, webcamStream)
+        Some(webcamStream)
+      }
+      case None => {
+        None
+      }
+    }
+  }
 }
 
 class Webcams {
@@ -46,6 +61,12 @@ class Webcams {
     val webcam = webcams.get(streamId)
     webcam foreach (u => webcams -= streamId)
     webcam
+  }
+
+  private def update(streamId: String, webcamStream: WebcamStream): WebcamStream = {
+    val webcam = remove(streamId)
+
+    save(webcamStream)
   }
 }
 

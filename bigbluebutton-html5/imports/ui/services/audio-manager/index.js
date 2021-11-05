@@ -424,7 +424,11 @@ class AudioManager {
     }
 
     if (!this.error && !this.isEchoTest) {
-      this.notify(this.intl.formatMessage(this.messages.info.LEFT_AUDIO), false, 'audio_off');
+      this.notify(
+        this.intl.formatMessage(this.messages.info.LEFT_AUDIO),
+        false,
+        'no_audio'
+      );
     }
     if (!this.isEchoTest) {
       this.playHangUpSound();
@@ -631,6 +635,14 @@ class AudioManager {
 
     if (typeof status === 'string') {
       currentStatus.status = status;
+
+      if (this.bridge && !this.isListenOnly) {
+        if (status !== BREAKOUT_AUDIO_TRANSFER_STATES.CONNECTED) {
+          this.bridge.ignoreCallState = false;
+        } else {
+          this.bridge.ignoreCallState = true;
+        }
+      }
     }
   }
 

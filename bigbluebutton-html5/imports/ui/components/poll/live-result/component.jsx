@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
+import { Session } from 'meteor/session';
 import { styles } from './styles';
 import Service from './service';
 
@@ -20,6 +21,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.publishLabel',
     description: 'label for the publish button',
   },
+  cancelPollLabel: {
+    id: 'app.poll.cancelPollLabel',
+    description: 'label for cancel poll button',
+  },
   backLabel: {
     id: 'app.poll.backLabel',
     description: 'label for the return to poll options button',
@@ -31,6 +36,10 @@ const intlMessages = defineMessages({
   waitingLabel: {
     id: 'app.poll.waitingLabel',
     description: 'label shown while waiting for responses',
+  },
+  secretPollLabel: {
+    id: 'app.poll.liveResult.secretLabel',
+    description: 'label shown instead of users in poll responses if poll is secret',
   },
 });
 
@@ -52,7 +61,7 @@ class LiveResult extends PureComponent {
     if (!currentPoll) return null;
 
     const {
-      answers, responses, users, numRespondents, pollType
+      answers, responses, users, numResponders, pollType
     } = currentPoll;
 
     const defaultPoll = isDefaultPoll(pollType);
@@ -101,7 +110,7 @@ class LiveResult extends PureComponent {
 
     answers.reduce(caseInsensitiveReducer, []).map((obj) => {
       const formattedMessageIndex = obj.key.toLowerCase();
-      const pct = Math.round(obj.numVotes / numRespondents * 100);
+      const pct = Math.round(obj.numVotes / numResponders * 100);
       const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
 
       const calculatedWidth = {
@@ -192,20 +201,33 @@ class LiveResult extends PureComponent {
           </div>
           {pollStats}
         </div>
-        {currentPoll && currentPoll.answers.length > 0
+        {currentPoll && currentPoll.answers.length >= 0
           ? (
-            <Button
-              disabled={!isMeteorConnected}
-              onClick={() => {
-                Session.set('pollInitiated', false);
-                Service.publishPoll();
-                stopPoll();
-              }}
-              label={intl.formatMessage(intlMessages.publishLabel)}
-              data-test="publishLabel"
-              color="primary"
-              className={styles.btn}
-            />
+            <div className={styles.buttonsActions}>
+              <Button
+                disabled={!isMeteorConnected}
+                onClick={() => {
+                  Session.set('pollInitiated', false);
+                  Service.publishPoll();
+                  stopPoll();
+                }}
+                label={intl.formatMessage(intlMessages.publishLabel)}
+                data-test="publishPollingLabel"
+                color="primary"
+                className={styles.publishBtn}
+              />
+              <Button
+                disabled={!isMeteorConnected}
+                onClick={() => {
+                  Session.set('pollInitiated', false);
+                  Session.set('resetPollPanel', true);
+                  stopPoll();
+                }}
+                label={intl.formatMessage(intlMessages.cancelPollLabel)}
+                data-test="cancelPollLabel"
+                className={styles.cancelBtn}
+              />
+            </div>
           ) : (
             <Button
               disabled={!isMeteorConnected}
@@ -214,20 +236,26 @@ class LiveResult extends PureComponent {
               }}
               label={intl.formatMessage(intlMessages.backLabel)}
               color="primary"
+              data-test="restartPoll"
               className={styles.btn}
             />
           )
         }
         <div className={styles.separator} />
-        <table>
-          <tbody>
-            <tr>
-              <th className={styles.theading}>{intl.formatMessage(intlMessages.usersTitle)}</th>
-              <th className={styles.theading}>{intl.formatMessage(intlMessages.responsesTitle)}</th>
-            </tr>
-            {userAnswers}
-          </tbody>
-        </table>
+        { currentPoll && !currentPoll.secretPoll
+          ? (
+            <table>
+              <tbody>
+                <tr>
+                  <th className={styles.theading}>{intl.formatMessage(intlMessages.usersTitle)}</th>
+                  <th className={styles.theading}>{intl.formatMessage(intlMessages.responsesTitle)}</th>
+                </tr>
+                {userAnswers}
+              </tbody>
+            </table>
+          ) : (
+            currentPoll ? (<div>{intl.formatMessage(intlMessages.secretPollLabel)}</div>) : null
+        )}
       </div>
     );
   }

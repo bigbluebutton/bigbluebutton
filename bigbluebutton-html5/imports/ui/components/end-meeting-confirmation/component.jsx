@@ -77,7 +77,7 @@ class EndMeetingComponent extends PureComponent {
           <div className={styles.footer}>
             <Button
               data-test="confirmEndMeeting"
-              color="primary"
+              color="danger"
               className={styles.button}
               label={intl.formatMessage(intlMessages.yesLabel)}
               onClick={endMeeting}

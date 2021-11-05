@@ -4,6 +4,11 @@
 .container {
   display: flex;
   flex-flow: row;
+  position: relative;
+
+  > div {
+    position: relative;
+  }
 
   .muteToggle {
     margin-right: var(--sm-padding-x);
@@ -94,5 +99,14 @@
 }
 
 .selectedDevice {
-  font-weight: bold;
+  font-weight: bold !important;
+}
+
+.audioDropdown {
+  span {
+    i {
+      width: 0px !important;
+      bottom: 1px;
+    }
+  }
 }

@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.screenshare
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.ScreenshareModel
+import org.bigbluebutton.core.apps.{ ScreenshareModel, ExternalVideoModel }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
 
@@ -34,6 +34,9 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
 
     // only valid if not broadcasting yet
     if (!ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
+      // Stop external video if it's running
+      ExternalVideoModel.stop(bus.outGW, liveMeeting)
+
       ScreenshareModel.setRTMPBroadcastingUrl(liveMeeting.screenshareModel, msg.body.stream)
       ScreenshareModel.broadcastingRTMPStarted(liveMeeting.screenshareModel)
       ScreenshareModel.setScreenshareVideoWidth(liveMeeting.screenshareModel, msg.body.vidWidth)

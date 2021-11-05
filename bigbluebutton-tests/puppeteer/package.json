@@ -1,0 +1,29 @@
+{
+  "scripts": {
+    "test": "jest --runInBand"
+  },
+  "jest": {
+    "verbose": false
+  },
+  "dependencies": {
+    "axios": "^0.21.4",
+    "babel-jest": "^27.0.6",
+    "child_process": "^1.0.2",
+    "dotenv": "^6.0.0",
+    "fs-extra": "^9.1.0",
+    "jest": "^26.6.3",
+    "jest-image-snapshot": "^4.4.0",
+    "jest-transform-css": "^2.1.0",
+    "jest-transform-file": "^1.1.1",
+    "js-yaml": "^4.0.0",
+    "moment": "^2.24.0",
+    "puppeteer-mass-screenshots": "^1.0.14",
+    "puppeteer-video-recorder": "^1.0.3",
+    "sha1": "^1.1.1",
+    "sleep-promise": "9.1.0",
+    "yaml": "^1.7.2"
+  },
+  "devDependencies": {
+    "clipboardy": "^2.1.0"
+  }
+}

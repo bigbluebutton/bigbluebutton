@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -12,7 +12,9 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
-import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
+import LayoutContext from '../layout/context';
+import Settings from '/imports/ui/services/settings';
+import MediaService from '/imports/ui/components/media/service';
 
 import {
   getFontSize,
@@ -23,22 +25,17 @@ import {
 import { withModalMounter } from '../modal/service';
 
 import App from './component';
-import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
-import MediaContainer from '../media/container';
 
 const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
 
 const propTypes = {
-  navbar: PropTypes.node,
   actionsbar: PropTypes.node,
-  media: PropTypes.node,
+  meetingLayout: PropTypes.string.isRequired,
 };
 
 const defaultProps = {
-  navbar: <NavBarContainer />,
   actionsbar: <ActionsBarContainer />,
-  media: <MediaContainer />,
 };
 
 const intlMessages = defineMessages({
@@ -54,34 +51,71 @@ const endMeeting = (code) => {
 };
 
 const AppContainer = (props) => {
+  const layoutContext = useContext(LayoutContext);
+  const { layoutContextState, layoutContextDispatch } = layoutContext;
+
   const {
-    navbar,
     actionsbar,
-    media,
+    meetingLayout,
+    settingsLayout,
+    pushLayoutToEveryone,
     currentUserId,
+    shouldShowPresentation: propsShouldShowPresentation,
+    presentationRestoreOnUpdate,
     ...otherProps
   } = props;
+  const {
+    input,
+    output,
+    layoutType,
+    deviceType,
+  } = layoutContextState;
+  const { sidebarContent, sidebarNavigation, presentation } = input;
+  const { actionBar: actionsBarStyle, captions: captionsStyle } = output;
+  const { sidebarNavPanel } = sidebarNavigation;
+  const { sidebarContentPanel } = sidebarContent;
+  const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
+  const sidebarContentIsOpen = sidebarContent.isOpen;
+  const presentationIsOpen = presentation.isOpen;
+  const shouldShowPresentation = propsShouldShowPresentation
+    && (presentationIsOpen || presentationRestoreOnUpdate);
 
   return currentUserId
     ? (
       <App
-        navbar={navbar}
-        actionsbar={actionsbar}
-        media={media}
-        currentUserId={currentUserId}
+        {...{
+          actionsbar,
+          actionsBarStyle,
+          captionsStyle,
+          currentUserId,
+          layoutType,
+          meetingLayout,
+          settingsLayout,
+          pushLayoutToEveryone,
+          deviceType,
+          layoutContextDispatch,
+          sidebarNavPanel,
+          sidebarNavigationIsOpen,
+          sidebarContentPanel,
+          sidebarContentIsOpen,
+          shouldShowPresentation,
+        }}
         {...otherProps}
       />
     )
     : null;
 };
 
-const currentUserEmoji = (currentUser) => (currentUser ? {
-  status: currentUser.emoji,
-  changedAt: currentUser.emojiTime,
-} : {
-  status: 'none',
-  changedAt: null,
-});
+const currentUserEmoji = (currentUser) => (currentUser
+  ? {
+    status: currentUser.emoji,
+    changedAt: currentUser.emojiTime,
+  }
+  : {
+    status: 'none',
+    changedAt: null,
+  }
+);
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const authTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });
@@ -96,14 +130,30 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   });
 
-  const currentUser = Users.findOne({ userId: Auth.userID }, {
-    fields: {
-      approved: 1, emoji: 1, userId: 1, presenter: 1,
+  const currentUser = Users.findOne(
+    { userId: Auth.userID },
+    {
+      fields:
+      {
+        approved: 1, emoji: 1, userId: 1, presenter: 1,
+      },
     },
-  });
+  );
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1 } });
-  const { publishedPoll, voiceProp, randomlySelectedUser } = currentMeeting;
+    {
+      fields: {
+        publishedPoll: 1,
+        voiceProp: 1,
+        randomlySelectedUser: 1,
+        layout: 1,
+      },
+    });
+  const {
+    publishedPoll,
+    voiceProp,
+    randomlySelectedUser,
+    layout,
+  } = currentMeeting;
 
   if (currentUser && !currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -114,11 +164,19 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     requesterUserId: Auth.userID,
   }).fetch();
 
+  const AppSettings = Settings.application;
+  const { selectedLayout } = AppSettings;
+  const { viewScreenshare } = Settings.dataSaving;
+  const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
+  const shouldShowScreenshare = MediaService.shouldShowScreenshare()
+    && (viewScreenshare || MediaService.isUserPresenter());
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
 
   if (!customStyleUrl && CUSTOM_STYLE_URL) {
     customStyleUrl = CUSTOM_STYLE_URL;
   }
+
+  const LAYOUT_CONFIG = Meteor.settings.public.layout;
 
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
@@ -126,7 +184,6 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     hasBreakoutRooms: getBreakoutRooms().length > 0,
     customStyle: getFromUserSettings('bbb_custom_style', false),
     customStyleUrl,
-    openPanel: Session.get('openPanel'),
     UserInfo,
     notify,
     validIOSVersion,
@@ -135,12 +192,24 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     meetingMuted: voiceProp.muteOnStart,
     currentUserEmoji: currentUserEmoji(currentUser),
     hasPublishedPoll: publishedPoll,
-    startBandwidthMonitoring,
-    handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
     isPresenter: currentUser?.presenter,
+    meetingLayout: layout,
+    settingsLayout: selectedLayout?.replace('Push', ''),
+    pushLayoutToEveryone: selectedLayout?.includes('Push'),
+    audioAlertEnabled: AppSettings.chatAudioAlerts,
+    pushAlertEnabled: AppSettings.chatPushAlerts,
+    shouldShowScreenshare,
+    shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo,
+    shouldShowExternalVideo,
     isLargeFont: Session.get('isLargeFont'),
+    presentationRestoreOnUpdate: getFromUserSettings(
+      'bbb_force_restore_presentation_on_new_events',
+      Meteor.settings.public.presentation.restoreOnUpdate,
+    ),
+    hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
+    hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
   };
 })(AppContainer)));
 

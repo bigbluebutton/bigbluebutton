@@ -29,37 +29,36 @@ export default function handlePresenterAssigned({ body }, meetingId) {
     presenter: true,
   };
 
+  const defaultPodSelector = {
+    meetingId,
+    podId: 'DEFAULT_PRESENTATION_POD',
+  };
+
+  const currentDefaultPod = PresentationPods.findOne(defaultPodSelector);
+
+  const setPresenterPayload = {
+    meetingId,
+    requesterUserId: assignedBy,
+    presenterId,
+  };
+
   const prevPresenter = Users.findOne(selector);
 
-  // no previous presenters
-  // The below code is responsible for set Meeting presenter to be default pod presenter as well.
-  // It's been handled here because right now akka-apps don't handle all cases scenarios.
-  if (!prevPresenter) {
-    const setPresenterPayload = {
-      meetingId,
-      requesterUserId: assignedBy,
-      presenterId,
-    };
-
-    const defaultPodSelector = {
-      meetingId,
-      podId: 'DEFAULT_PRESENTATION_POD',
-    };
-    const currentDefaultPodPresenter = PresentationPods.findOne(defaultPodSelector);
-    const { currentPresenterId } = currentDefaultPodPresenter;
-
-    if (currentPresenterId === '') {
-      return setPresenterInPodReqMsg(setPresenterPayload);
-    }
-
-    const oldPresenter = Users.findOne({ meetingId, userId: currentPresenterId });
-
-    if (oldPresenter?.userId !== currentPresenterId) {
-      return setPresenterInPodReqMsg(setPresenterPayload);
-    }
-
-    return true;
+  if (prevPresenter) {
+    changePresenter(false, prevPresenter.userId, meetingId, assignedBy);
   }
 
-  changePresenter(false, prevPresenter.userId, meetingId, assignedBy);
+  /**
+   * In the cases where the first moderator joins the meeting or
+   * the current presenter left the meeting, akka-apps doesn't assign the new presenter
+   * to the default presentation pod. This step is done manually here.
+   */
+
+  if (currentDefaultPod.currentPresenterId !== presenterId) {
+    const presenterToBeAssigned = Users.findOne({ userId: presenterId });
+
+    if (!presenterToBeAssigned) setPresenterPayload.presenterId = '';
+
+    setPresenterInPodReqMsg(setPresenterPayload);
+  }
 }

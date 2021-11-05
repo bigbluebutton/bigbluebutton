@@ -13,6 +13,8 @@ import { styles } from './styles';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
 const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
+const CHAT_PUBLIC_ID = CHAT_CONFIG.public_id;
+const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
 
 const propTypes = {
   user: PropTypes.shape({
@@ -128,6 +130,9 @@ class TimeWindowChatItem extends PureComponent {
     const regEx = /<a[^>]+>/i;
     ChatLogger.debug('TimeWindowChatItem::renderMessageItem', this.props);
     const defaultAvatarString = name?.toLowerCase().slice(0, 2) || "  ";
+    const emphasizedTextClass = isModerator && CHAT_EMPHASIZE_TEXT && chatId === CHAT_PUBLIC_ID ?
+      styles.emphasizedMessage : null;
+
     return (
       <div className={styles.item} key={`time-window-${messageKey}`}>
         <div className={styles.wrapper}>
@@ -160,7 +165,9 @@ class TimeWindowChatItem extends PureComponent {
             <div className={styles.messages}>
               {messages.map(message => (
                 <MessageChatItem
-                  className={(regEx.test(message.text) ? styles.hyperlink : styles.message)}
+                  className={regEx.test(message.text) ?
+                    cx(styles.hyperlink, emphasizedTextClass) :
+                    cx(styles.message, emphasizedTextClass)}
                   key={message.id}
                   text={message.text}
                   time={message.time}

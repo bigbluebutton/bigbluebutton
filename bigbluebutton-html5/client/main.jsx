@@ -16,6 +16,7 @@
     with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 */
 /* eslint no-unused-vars: 0 */
+
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';

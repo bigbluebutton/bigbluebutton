@@ -7,6 +7,8 @@ import { SCREENSHARING_ERRORS } from './errors';
 
 const SFU_CONFIG = Meteor.settings.public.kurento;
 const SFU_URL = SFU_CONFIG.wsUrl;
+const OFFERING = SFU_CONFIG.screenshare.subscriberOffering;
+const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
 
 const BRIDGE_NAME = 'kurento'
 const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
@@ -202,7 +204,7 @@ export default class KurentoScreenshareBridge {
         reconnecting: this.reconnecting,
         bridge: BRIDGE_NAME
       },
-    }, 'Screenshare broker failure');
+    }, `Screenshare broker failure: ${errorMessage}`);
 
     // Screensharing was already successfully negotiated and error occurred during
     // during call; schedule a reconnect
@@ -222,6 +224,9 @@ export default class KurentoScreenshareBridge {
       iceServers,
       userName: Auth.fullname,
       hasAudio,
+      offering: OFFERING,
+      mediaServer: BridgeService.getMediaServerAdapter(),
+      signalCandidates: SIGNAL_CANDIDATES,
     };
 
     this.broker = new ScreenshareBroker(
@@ -279,6 +284,9 @@ export default class KurentoScreenshareBridge {
         stream,
         hasAudio: this.hasAudio,
         bitrate: BridgeService.BASE_BITRATE,
+        offering: true,
+        mediaServer: BridgeService.getMediaServerAdapter(),
+        signalCandidates: SIGNAL_CANDIDATES,
       };
 
       this.broker = new ScreenshareBroker(
@@ -311,7 +319,9 @@ export default class KurentoScreenshareBridge {
       // If that's the case, clear the local sharing state in screen sharing UI
       // component tracker to be extra sure we won't have any client-side state
       // inconsistency - prlanzarin
-      if (this.broker.role === SEND_ROLE && !this.reconnecting) setSharingScreen(false);
+      if (this.broker && this.broker.role === SEND_ROLE && !this.reconnecting) {
+        setSharingScreen(false);
+      }
       this.broker = null;
     }
 

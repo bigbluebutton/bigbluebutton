@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
-import NoteService from './service';
+import NoteService from '/imports/ui/components/note/service';
 import { styles } from './styles';
+import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
   hideNoteLabel: {
@@ -33,19 +33,19 @@ const propTypes = {
 const Note = ({
   isLocked,
   intl,
-  isRTL
+  isRTL,
+  layoutContextDispatch,
+  isResizing,
 }) => {
   const [noteURL, setNoteURL] = useState();
 
   useEffect(() => {
-    NoteService.getNoteId().then(response => {
+    NoteService.getNoteId().then((response) => {
       setNoteURL(NoteService.buildNoteURL(response));
     });
   }, [isLocked, isRTL]);
 
-  useEffect(() => {
-    return () => NoteService.setLastRevs();
-  }, []);
+  useEffect(() => () => NoteService.setLastRevs(), []);
 
   return (
     <div
@@ -59,8 +59,14 @@ const Note = ({
         >
           <Button
             onClick={() => {
-              Session.set('openPanel', 'userlist');
-              window.dispatchEvent(new Event('panelChanged'));
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.NONE,
+              });
             }}
             data-test="hideNoteLabel"
             aria-label={intl.formatMessage(intlMessages.hideNoteLabel)}
@@ -74,12 +80,11 @@ const Note = ({
         title="etherpad"
         src={noteURL}
         aria-describedby="sharedNotesEscapeHint"
+        style={{
+          pointerEvents: isResizing ? 'none' : 'inherit',
+        }}
       />
-      <span
-        id="sharedNotesEscapeHint"
-        className={styles.hint}
-        aria-hidden
-      >
+      <span id="sharedNotesEscapeHint" className={styles.hint} aria-hidden>
         {intl.formatMessage(intlMessages.tipLabel)}
       </span>
     </div>

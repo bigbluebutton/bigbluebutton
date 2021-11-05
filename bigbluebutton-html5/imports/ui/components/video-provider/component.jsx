@@ -11,6 +11,12 @@ import {
 } from '/imports/utils/fetchStunTurnServers';
 import logger from '/imports/startup/client/logger';
 import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
+import VideoPreviewService from '../video-preview/service';
+import MediaStreamUtils from '/imports/utils/media-stream-utils';
+import { BBBVideoStream } from '/imports/ui/services/webrtc-base/bbb-video-stream';
+import {
+  getSessionVirtualBackgroundInfoWithDefault
+} from '/imports/ui/services/virtual-background/service'
 
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.
@@ -22,6 +28,7 @@ const {
 } = Meteor.settings.public.kurento.cameraTimeouts || {};
 const CAMERA_QUALITY_THRESHOLDS_ENABLED = Meteor.settings.public.kurento.cameraQualityThresholds.enabled;
 const PING_INTERVAL = 15000;
+const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
 
 const intlClientErrors = defineMessages({
   permissionError: {
@@ -35,6 +42,14 @@ const intlClientErrors = defineMessages({
   mediaFlowTimeout: {
     id: 'app.video.mediaFlowTimeout1020',
     description: 'Media flow timeout',
+  },
+  mediaTimedOutError: {
+    id: 'app.video.mediaTimedOutError',
+    description: 'Media was ejected by the server due to lack of valid media',
+  },
+  virtualBgGenericError: {
+    id: 'app.video.virtualBackground.genericError',
+    description: 'Failed to apply camera effect',
   },
 });
 
@@ -94,9 +109,11 @@ class VideoProvider extends Component {
   constructor(props) {
     super(props);
 
+    // socketOpen state is there to force update when the signaling socket opens or closes
     this.state = {
       socketOpen: false,
     };
+    this._isMounted = false;
 
     this.info = VideoService.getInfo();
 
@@ -127,6 +144,7 @@ class VideoProvider extends Component {
   }
 
   componentDidMount() {
+    this._isMounted = true;
     this.ws.onopen = this.onWsOpen;
     this.ws.onclose = this.onWsClose;
 
@@ -168,6 +186,7 @@ class VideoProvider extends Component {
 
     // Close websocket connection to prevent multiple reconnects from happening
     this.ws.close();
+    this._isMounted = false;
   }
 
   onWsMessage(message) {
@@ -323,6 +342,18 @@ class VideoProvider extends Component {
     }
   }
 
+  sendLocalAnswer (peer, stream, answer) {
+    const message = {
+      id: 'subscriberAnswer',
+      type: 'video',
+      role: VideoService.getRole(peer.isPublisher),
+      cameraId: stream,
+      answer,
+    };
+
+    this.sendMessage(message);
+  }
+
   startResponse(message) {
     const { cameraId: stream, role } = message;
     const peer = this.webRtcPeers[stream];
@@ -333,10 +364,14 @@ class VideoProvider extends Component {
     }, `Camera start request accepted by SFU. Role: ${role}`);
 
     if (peer) {
-      peer.processAnswer(message.sdpAnswer, (error) => {
+      const processorFunc = peer.isPublisher
+        ? peer.processAnswer.bind(peer)
+        : peer.processOffer.bind(peer);
+
+      processorFunc(message.sdpAnswer, (error, answer) => {
         if (error) {
           logger.error({
-            logCode: 'video_provider_peerconnection_processanswer_error',
+            logCode: 'video_provider_peerconnection_process_error',
             extraInfo: {
               cameraId: stream,
               role,
@@ -347,6 +382,8 @@ class VideoProvider extends Component {
 
           return;
         }
+
+        if (answer) this.sendLocalAnswer(peer, stream, answer);
 
         peer.didSDPAnswered = true;
         this.processOutboundIceQueue(peer, role, stream);
@@ -386,7 +423,7 @@ class VideoProvider extends Component {
     }
   }
 
-  clearRestartTimers (stream) {
+  clearRestartTimers(stream) {
     if (this.restartTimeout[stream]) {
       clearTimeout(this.restartTimeout[stream]);
       delete this.restartTimeout[stream];
@@ -441,9 +478,14 @@ class VideoProvider extends Component {
     const role = VideoService.getRole(isLocal);
 
     if (peer) {
+      if (peer && peer.bbbVideoStream) {
+        peer.bbbVideoStream.stop();
+      }
+
       if (typeof peer.dispose === 'function') {
         peer.dispose();
       }
+
       delete this.outboundIceQueues[stream];
       delete this.webRtcPeers[stream];
     } else {
@@ -454,9 +496,98 @@ class VideoProvider extends Component {
     }
   }
 
+  _createPublisher (stream, peerOptions) {
+    return new Promise((resolve, reject) => {
+      try {
+        const { id: profileId } = VideoService.getCameraProfile();
+        let bbbVideoStream = VideoService.getPreloadedStream();
+
+        if (bbbVideoStream) {
+          peerOptions.videoStream = bbbVideoStream.mediaStream;
+        }
+
+        const handlePubPeerCreation = (error) => {
+          const peer = this.webRtcPeers[stream];
+          peer.stream = stream;
+          peer.started = false;
+          peer.attached = false;
+          peer.didSDPAnswered = false;
+          peer.inboundIceQueue = [];
+          peer.isPublisher = true;
+          peer.originalProfileId = profileId;
+          peer.currentProfileId = profileId;
+
+          if (error) return reject(error);
+
+          // Store the media stream if necessary. The scenario here is one where
+          // there is no preloaded stream stored.
+          if (bbbVideoStream == null) {
+            bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
+            VideoPreviewService.storeStream(
+              MediaStreamUtils.extractVideoDeviceId(bbbVideoStream.mediaStream),
+              bbbVideoStream
+            );
+          }
+
+          peer.bbbVideoStream = bbbVideoStream;
+          bbbVideoStream.on('streamSwapped', ({ newStream }) => {
+            if (newStream && newStream instanceof MediaStream) {
+              this.replacePCVideoTracks(stream, newStream);
+            }
+          });
+
+          peer.generateOffer((errorGenOffer, offerSdp) => {
+            if (errorGenOffer) {
+              return reject(errorGenOffer);
+            }
+
+            return resolve(offerSdp);
+          });
+        }
+
+        this.webRtcPeers[stream] = new window.kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(
+          peerOptions,
+          handlePubPeerCreation,
+        );
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  }
+
+  _createSubscriber (stream, peerOptions) {
+    return new Promise((resolve, reject) => {
+      try {
+        const handleSubPeerCreation = (error) => {
+          const peer = this.webRtcPeers[stream];
+          peer.stream = stream;
+          peer.started = false;
+          peer.attached = false;
+          peer.didSDPAnswered = false;
+          peer.inboundIceQueue = [];
+          peer.isPublisher = false;
+
+          if (error) return reject(error);
+
+          return resolve();
+        };
+
+        this.webRtcPeers[stream] = new window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(
+          peerOptions,
+          handleSubPeerCreation,
+        );
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  }
+
   async createWebRTCPeer(stream, isLocal) {
     let iceServers = [];
     const role = VideoService.getRole(isLocal);
+    const peerBuilderFunc = isLocal
+      ? this._createPublisher.bind(this)
+      : this._createSubscriber.bind(this);
 
     // Check if the peer is already being processed
     if (this.webRtcPeers[stream]) {
@@ -464,6 +595,15 @@ class VideoProvider extends Component {
     }
 
     this.webRtcPeers[stream] = {};
+    this.outboundIceQueues[stream] = [];
+    const { constraints, bitrate, } = VideoService.getCameraProfile();
+    const peerOptions = {
+      mediaConstraints: {
+        audio: false,
+        video: constraints,
+      },
+      onicecandidate: this._getOnIceCandidateCallback(stream, isLocal),
+    };
 
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(this.info.sessionToken);
@@ -480,91 +620,54 @@ class VideoProvider extends Component {
       // Use fallback STUN server
       iceServers = getMappedFallbackStun();
     } finally {
-      const { constraints, bitrate, id: profileId } = VideoService.getCameraProfile();
-      this.outboundIceQueues[stream] = [];
-      const peerOptions = {
-        mediaConstraints: {
-          audio: false,
-          video: constraints,
-        },
-        onicecandidate: this._getOnIceCandidateCallback(stream, isLocal),
-      };
-
       if (iceServers.length > 0) {
         peerOptions.configuration = {};
         peerOptions.configuration.iceServers = iceServers;
       }
 
-      let WebRtcPeerObj;
-      if (isLocal) {
-        WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerSendonly;
-      } else {
-        WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
-      }
-
-      this.webRtcPeers[stream] = new WebRtcPeerObj(peerOptions, (error) => {
+      peerBuilderFunc(stream, peerOptions).then((offer) => {
+        if (!this._isMounted) {
+          return this.stopWebRTCPeer(stream, false);
+        }
         const peer = this.webRtcPeers[stream];
 
-        peer.stream = stream;
-        peer.started = false;
-        peer.attached = false;
-        peer.didSDPAnswered = false;
-        peer.isPublisher = isLocal;
-        peer.originalProfileId = profileId;
-        peer.currentProfileId = profileId;
-
-        if (peer.inboundIceQueue == null) {
-          peer.inboundIceQueue = [];
+        if (peer && peer.peerConnection) {
+          const conn = peer.peerConnection;
+          conn.onconnectionstatechange = () => {
+            this._handleIceConnectionStateChange(stream, isLocal);
+          };
         }
 
-        if (error) {
-          return this._onWebRTCError(error, stream, isLocal);
-        }
+        const message = {
+          id: 'start',
+          type: 'video',
+          cameraId: stream,
+          role,
+          sdpOffer: offer,
+          meetingId: this.info.meetingId,
+          voiceBridge: this.info.voiceBridge,
+          userId: this.info.userId,
+          userName: this.info.userName,
+          bitrate,
+          record: VideoService.getRecord(),
+          mediaServer: VideoService.getMediaServerAdapter(),
+        };
 
-        peer.generateOffer((errorGenOffer, offerSdp) => {
-          if (errorGenOffer) {
-            return this._onWebRTCError(errorGenOffer, stream, isLocal);
-          }
-
-          const message = {
-            id: 'start',
-            type: 'video',
+        logger.info({
+          logCode: 'video_provider_sfu_request_start_camera',
+          extraInfo: {
             cameraId: stream,
             role,
-            sdpOffer: offerSdp,
-            meetingId: this.info.meetingId,
-            voiceBridge: this.info.voiceBridge,
-            userId: this.info.userId,
-            userName: this.info.userName,
-            bitrate,
-            record: VideoService.getRecord(),
-          };
+          },
+        }, `Camera offer generated. Role: ${role}`);
 
-          logger.info({
-            logCode: 'video_provider_sfu_request_start_camera',
-            extraInfo: {
-              cameraId: stream,
-              cameraProfile: profileId,
-              role,
-            },
-          }, `Camera offer generated. Role: ${role}`);
+        this.sendMessage(message);
+        this.setReconnectionTimeout(stream, isLocal, false);
 
-          this.sendMessage(message);
-          this.setReconnectionTimeout(stream, isLocal, false);
-
-          return false;
-        });
-        return false;
+        return;
+      }).catch(error => {
+        return this._onWebRTCError(error, stream, isLocal);
       });
-
-      const peer = this.webRtcPeers[stream];
-      if (peer && peer.peerConnection) {
-        const conn = peer.peerConnection;
-        conn.onconnectionstatechange = () => {
-          this._handleIceConnectionStateChange(stream, isLocal);
-        };
-        VideoService.monitor(conn);
-      }
     }
   }
 
@@ -680,17 +783,21 @@ class VideoProvider extends Component {
   }
 
   _getOnIceCandidateCallback(stream, isLocal) {
-    return (candidate) => {
-      const peer = this.webRtcPeers[stream];
-      const role = VideoService.getRole(isLocal);
+    if (SIGNAL_CANDIDATES) {
+      return (candidate) => {
+        const peer = this.webRtcPeers[stream];
+        const role = VideoService.getRole(isLocal);
 
-      if (peer && !peer.didSDPAnswered) {
-        this.outboundIceQueues[stream].push(candidate);
-        return;
-      }
+        if (peer && !peer.didSDPAnswered) {
+          this.outboundIceQueues[stream].push(candidate);
+          return;
+        }
 
-      this.sendIceCandidateToSFU(peer, role, candidate, stream);
-    };
+        this.sendIceCandidateToSFU(peer, role, candidate, stream);
+      };
+    }
+
+    return null;
   }
 
   sendIceCandidateToSFU(peer, role, candidate, stream) {
@@ -704,7 +811,7 @@ class VideoProvider extends Component {
     this.sendMessage(message);
   }
 
-  _handleIceConnectionStateChange (stream, isLocal) {
+  _handleIceConnectionStateChange(stream, isLocal) {
     const { intl } = this.props;
     const peer = this.webRtcPeers[stream];
     const role = VideoService.getRole(isLocal);
@@ -739,8 +846,21 @@ class VideoProvider extends Component {
     }
   }
 
+  attach (peer, videoElement) {
+    if (peer && videoElement) {
+      const stream = peer.isPublisher ? peer.getLocalStream() : peer.getRemoteStream();
+      videoElement.pause();
+      videoElement.srcObject = stream;
+      videoElement.load();
+    }
+  }
+
+  getVideoElement(streamId) {
+    return this.videoTags[streamId];
+  }
+
   attachVideoStream(stream) {
-    const video = this.videoTags[stream];
+    const video = this.getVideoElement(stream);
 
     if (video == null) {
       logger.warn({
@@ -757,14 +877,6 @@ class VideoProvider extends Component {
       return; // Skip if the stream is already attached
     }
 
-    const attachVideoStreamHelper = () => {
-      const stream = isLocal ? peer.getLocalStream() : peer.getRemoteStream();
-      video.pause();
-      video.srcObject = stream;
-      video.load();
-      peer.attached = true;
-    };
-
     // Conditions to safely attach a stream to a video element in all browsers:
     // 1 - Peer exists
     // 2 - It hasn't been attached yet
@@ -774,7 +886,10 @@ class VideoProvider extends Component {
     // do so is waiting for the server to confirm that media has flown out of it
     // towards the remote end.
     const isAbleToAttach = peer && !peer.attached && (peer.started || isLocal);
-    if (isAbleToAttach) attachVideoStreamHelper();
+    if (isAbleToAttach) {
+      this.attach(peer, video);
+      peer.attached = true;
+    }
   }
 
   createVideoTag(stream, video) {
@@ -800,6 +915,7 @@ class VideoProvider extends Component {
   }
 
   handlePlayStop(message) {
+    const { intl } = this.props;
     const { cameraId: stream, role } = message;
 
     logger.info({
@@ -809,6 +925,8 @@ class VideoProvider extends Component {
         role,
       },
     }, `Received request from SFU to stop camera. Role: ${role}`);
+
+    VideoService.notify(intl.formatMessage(intlClientErrors.mediaTimedOutError));
     this.stopWebRTCPeer(stream, false);
   }
 
@@ -869,16 +987,58 @@ class VideoProvider extends Component {
     }
   }
 
+  replacePCVideoTracks (streamId, mediaStream) {
+    let replaced = false;
+    const peer = this.webRtcPeers[streamId];
+    const videoElement = this.getVideoElement(streamId);
+
+    if (peer == null || mediaStream == null || videoElement == null) return;
+
+    const pc = peer.peerConnection;
+    const newTracks = mediaStream.getVideoTracks();
+
+    if (pc) {
+      try {
+        pc.getSenders().forEach((sender, index) => {
+          if (sender.track && sender.track.kind === 'video') {
+            const newTrack = newTracks[index];
+            if (newTrack == null) return;
+            sender.replaceTrack(newTrack);
+            replaced = true;
+          }
+        });
+      } catch (error) {
+        logger.error({
+          logCode: 'video_provider_replacepc_error',
+          extraInfo: { errorMessage: error.message, cameraId: streamId },
+        }, `Failed to replace peer connection tracks: ${error.message}`);
+      }
+    }
+
+    if (replaced) {
+      peer.localStream = mediaStream;
+      this.attach(peer, videoElement);
+    }
+  }
+
   render() {
-    const { swapLayout, currentVideoPageIndex, streams } = this.props;
+    const {
+      swapLayout,
+      currentVideoPageIndex,
+      streams,
+      cameraDockBounds,
+    } = this.props;
 
     return (
       <VideoListContainer
-        streams={streams}
+        {...{
+          streams,
+          swapLayout,
+          currentVideoPageIndex,
+          cameraDockBounds,
+        }}
         onVideoItemMount={this.createVideoTag}
         onVideoItemUnmount={this.destroyVideoTag}
-        swapLayout={swapLayout}
-        currentVideoPageIndex={currentVideoPageIndex}
       />
     );
   }

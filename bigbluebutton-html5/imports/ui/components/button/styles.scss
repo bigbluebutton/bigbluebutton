@@ -34,6 +34,10 @@
   --btn-offline-bg: var(--color-offline);
   --btn-offline-border: var(--color-offline);
 
+  --btn-muted-color: var(--color-muted);
+  --btn-muted-bg: var(--color-muted-background);
+  --btn-muted-border: var(--color-muted-background);
+
   --btn-border-size: var(--border-size);
   --btn-border-radius: var(--border-radius);
   --btn-font-weight: 600;
@@ -190,7 +194,7 @@
   padding: 0 !important;
   overflow: hidden;
   display: none !important;
-  
+
 }
 
 .icon {
@@ -210,6 +214,45 @@
   }
   .buttonWrapper:hover & {
     opacity: .75;
+  }
+}
+
+.emojiButtonSibling {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+.emojiButton {
+  position: absolute;
+  border-radius: 50%;
+  width: 1em;
+  height: 1em;
+  right: -1px;
+  bottom: 0;
+  background-color: var(--btn-default-bg);
+  overflow: hidden;
+  z-index: 2;
+  border: none;
+
+  &:hover {
+    transform: scale(1.5);
+    transition-duration: 150ms;
+  }
+
+  .emojiButtonIcon {
+    position: absolute;
+    top: 0;
+    height: 60%;
+    left: 0;
+    width: 75%;
+    margin-left: 25%;
+    font-size: 50%;
+    margin-top: 40%;
+    color: var(--btn-default-color);
   }
 }
 
@@ -286,6 +329,10 @@
   @include button-variant(var(--btn-offline-color), var(--btn-offline-bg), var(--btn-offline-border));
 }
 
+.muted {
+  @include button-variant(var(--btn-muted-color), var(--btn-muted-bg), var(--btn-muted-border));
+}
+
 /* Styles
  * ==========
  */
@@ -322,6 +369,10 @@
 
   &.offline {
     @include button-ghost-variant(var(--btn-offline-bg), var(--btn-offline-color));
+  }
+
+  &.muted {
+    @include button-ghost-variant(var(--btn-muted-bg), var(--btn-muted-color));
   }
 }
 

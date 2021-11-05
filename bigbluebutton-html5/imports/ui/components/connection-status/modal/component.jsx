@@ -9,7 +9,8 @@ import Service from '../service';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { styles } from './styles';
 
-const NETWORK_MONITORING_INTERVAL_MS = 2000;
+const NETWORK_MONITORING_INTERVAL_MS = 2000; 
+const MIN_TIMEOUT = 3000;
 
 const intlMessages = defineMessages({
   ariaTitle: {
@@ -275,7 +276,7 @@ class ConnectionStatusComponent extends PureComponent {
 
     this.copyNetworkDataTimeout = setTimeout(() => {
       copyButton.innerHTML = intl.formatMessage(intlMessages.copy);
-    }, 1000);
+    }, MIN_TIMEOUT);
   }
 
   renderConnections() {
@@ -321,7 +322,7 @@ class ConnectionStatusComponent extends PureComponent {
                 {conn.offline ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
               </div>
             </div>
-            <div className={styles.status}>
+            <div aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.level}`} className={styles.status}>
               <div className={styles.icon}>
                 <Icon level={conn.level} />
               </div>
@@ -498,7 +499,7 @@ class ConnectionStatusComponent extends PureComponent {
 
     const { hasNetworkData } = this.state;
     return (
-      <div className={styles.copyContainer}>
+      <div aria-live="polite" className={styles.copyContainer}>
         <span
           className={cx(styles.copy, !hasNetworkData ? styles.disabled : '')}
           role="button"

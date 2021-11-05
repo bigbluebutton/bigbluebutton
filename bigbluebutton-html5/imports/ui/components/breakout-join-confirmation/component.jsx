@@ -192,7 +192,7 @@ class BreakoutJoinConfirmation extends Component {
             ))
           }
         </select>
-        { waiting ? <span>{intl.formatMessage(intlMessages.generatingURL)}</span> : null}
+        { waiting ? <span data-test="labelGeneratingURL">{intl.formatMessage(intlMessages.generatingURL)}</span> : null}
       </div>
     );
   }

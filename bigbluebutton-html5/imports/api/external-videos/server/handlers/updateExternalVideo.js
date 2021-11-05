@@ -1,24 +1,19 @@
 import { check } from 'meteor/check';
-import Logger from '/imports/startup/server/logger';
-import Users from '/imports/api/users';
-import ExternalVideoStreamer from '/imports/api/external-videos/server/streamer';
+import updateExternalVideo from '../modifiers/updateExternalVideo';
 
 export default function handleUpdateExternalVideo({ header, body }, meetingId) {
-  const { userId } = header;
+  check(header, Object);
   check(body, Object);
   check(meetingId, String);
-  check(userId, String);
 
-  const user = Users.findOne({ meetingId: meetingId, userId: userId })
+  const { userId } = header;
 
-  if (user && user.presenter) {
-    try {
-      Logger.info(`UpdateExternalVideoEvtMsg received for user ${userId} and meeting ${meetingId} event:${body.status}`);
-      ExternalVideoStreamer(meetingId).emit(body.status, { ...body, meetingId: meetingId, userId: userId });
-    } catch (err) {
-      Logger.error(`Error on setting shared external video update in Meetings collection: ${err}`);
-    }
+  const {
+    status,
+    rate,
+    time,
+    state,
+  } = body;
 
-  }
-
+  updateExternalVideo(meetingId, userId, status, rate, time, state);
 }

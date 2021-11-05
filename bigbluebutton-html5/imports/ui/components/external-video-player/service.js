@@ -1,4 +1,4 @@
-import Meetings from '/imports/api/meetings';
+import { ExternalVideoMeetings } from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 
 import { getStreamer } from '/imports/api/external-videos';
@@ -19,7 +19,7 @@ const startWatching = (url) => {
     externalVideoUrl = Panopto.getSocialUrl(url);
   }
 
-  makeCall('startWatchingExternalVideo', { externalVideoUrl });
+  makeCall('startWatchingExternalVideo', externalVideoUrl);
 };
 
 const stopWatching = () => {
@@ -43,6 +43,11 @@ const sendMessage = (event, data) => {
 
   lastMessage = { ...data, event };
 
+  // Use an integer for playing state
+  // 0: stopped 1: playing
+  // We might use more states in the future
+  data.state =  data.state ? 1 : 0;
+
   makeCall('emitExternalVideoEvent', { status: event, playerStatus: data });
 };
 
@@ -58,9 +63,17 @@ const removeAllListeners = (eventType) => {
 
 const getVideoUrl = () => {
   const meetingId = Auth.meetingID;
-  const meeting = Meetings.findOne({ meetingId }, { fields: { externalVideoUrl: 1 } });
+  const externalVideo = ExternalVideoMeetings
+    .findOne({ meetingId }, { fields: { externalVideoUrl: 1 } });
 
-  return meeting && meeting.externalVideoUrl;
+  return externalVideo && externalVideo.externalVideoUrl;
+};
+
+// Convert state (Number) to playing (Boolean)
+const getPlayingState = (state) => {
+  if (state === 1) return true;
+
+  return false;
 };
 
 export {
@@ -71,4 +84,5 @@ export {
   isUrlValid,
   startWatching,
   stopWatching,
+  getPlayingState,
 };

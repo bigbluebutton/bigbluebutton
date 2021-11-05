@@ -58,6 +58,13 @@
   }
 }
 
+.offsetBottom {
+  :global(.MuiPaper-root) {
+    top: auto !important;
+    bottom: 4rem !important;
+  }
+}
+
 .left {
   display: inherit;
   flex: 0;

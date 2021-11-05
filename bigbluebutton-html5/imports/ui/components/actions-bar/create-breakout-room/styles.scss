@@ -107,6 +107,7 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   display: flex;
   align-items: center;
   font-size: var(--font-size-small);
+  margin-bottom: 0;
   & > * {
     margin: 0 .5rem 0 0;
 
@@ -120,7 +121,7 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   display: grid;
   grid-template-columns: repeat(3, minmax(4rem, 16rem));
   grid-template-rows: repeat(auto-fill, minmax(4rem, 8rem));
-  grid-gap: 1.5rem 1rem;
+  grid-gap: 1.6rem 1rem;
   box-sizing: border-box;
   padding-bottom: 1rem;
 }
@@ -144,6 +145,19 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   }
 }
 
+
+.breakoutNameInput {
+  width: 100%;
+  text-align: left;
+  font-weight: normal;
+  padding: .25rem;
+  margin: 0;
+  &::placeholder {
+    color: var(--color-gray);
+    opacity: 1;
+  }
+}
+
 .breakoutBox {
   @include scrollbox-vertical();
   width: 100%;
@@ -159,7 +173,7 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   font-weight: bolder;
 }
 
-.leastOneWarn {
+.spanWarn {
   margin: .25rem;
   position: absolute;
   font-size: var(--font-size-small);

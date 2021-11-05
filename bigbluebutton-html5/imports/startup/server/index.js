@@ -331,7 +331,6 @@ WebApp.connectHandlers.use('/guestWait', (req, res) => {
   res.end(guestWaitHtml);
 });
 
-
 export const eventEmitter = Redis.emitter;
 
 export const redisPubSub = Redis;

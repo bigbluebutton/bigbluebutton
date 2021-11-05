@@ -203,9 +203,10 @@
 .responseType {
     display: flex;
     justify-content: space-between;
+    flex-flow: wrap;
+    overflow-wrap: break-word;
     position: relative;
     width: 100%;
-    height: var(--poll-input-height);
     margin-bottom: var(--lg-padding-x);
 
     button {
@@ -245,6 +246,11 @@
     box-shadow: 0 0 0 1px var(--color-gray-lighter);
 }
 
+.hasError {
+    border-color: var(--color-danger);
+    box-shadow: 0 0 0 1px var(--color-danger);
+}
+
 .exampleTitle {
     background-color: var(--color-gray-lightest);
     height: var(--sm-padding-x);
@@ -281,9 +287,12 @@
     position: relative;
     display: block;
     width: var(--poll-addItem-width);
-    padding-left: var(--md-padding-y);
-    padding-right: var(--md-padding-y);
+    text-align: left;
+    color: var(--color-primary);
+    padding-left: 0;
+    padding-right: 0;
     font-size: var(--font-size-base);
+    white-space: pre-wrap;
 
     &:hover {
         span {
@@ -295,9 +304,11 @@
 .startPollBtn {
     position: relative;
     width: 100%;
-    height: var(--poll-input-height);
+    min-height: var(--poll-input-height);
     margin-top: 1rem;
     font-size: var(--font-size-base);
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
 
     &:hover {
         span {
@@ -308,8 +319,9 @@
 
 .pBtn {
     border: solid var(--color-gray-light) 1px;
-    height: var(--poll-input-height);
+    min-height: var(--poll-input-height);
     font-size: var(--font-size-base);
+    white-space: pre-wrap;
     span {
         &:hover {
             opacity: 1;
@@ -317,25 +329,23 @@
     }
 }
 
-.btnML {
-    margin-left: 3%;
-}
-
-.btnMR {
-    margin-right: 3%;
-}
-
 .deleteBtn {
     font-size: var(--font-size-base);
+    flex: none;
+    width: 40px;
     position: relative;
     i {
         font-size: 150%;
     }
 }
 
-.yna {
+.pBtn {
     width: 100%;
     margin-bottom: 1rem;
+}
+
+.smallBtn {
+    width: 49% !important;
 }
 
 .selectedBtnBlue {
@@ -352,24 +362,73 @@
     }
 }
 
-.selectedBtnWhite {
-    background-color: var(--color-white);
-    color: var(--poll-blue);
+.selectedTypeBtn {
+    background-color: var(--color-gray-lightest);
     font-size: var(--font-size-base);
-    border-color: var(--poll-blue);
-    border-width: medium;
 
     &:hover,
     &:focus,
     &:active {
-        background-color: var(--color-white) !important;
+        background-color: var(--color-gray-lightest) !important;
         box-shadow: none !important;
-        color: var(--poll-blue) !important;
-        border-width: medium;
     }
 }
 
 .dragAndDropPollContainer {
     width: 200px !important;
     height: 200px !important;
+}
+
+.row {
+  display: flex;
+  flex-flow: wrap;
+  flex-grow: 1;
+  justify-content: space-between;
+  margin-top: 0.7rem;
+  margin-bottom: 0.7rem;
+}
+
+.label {
+    color: var(--color-text);
+}
+
+.toggle {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+
+.col {
+  display: flex;
+  position: relative;
+  flex-flow: column;
+  flex-grow: 1;
+  
+  &:last-child {
+    padding-right: 0;
+    padding-left: 1rem;
+
+    [dir="rtl"] & {
+      padding-right: 0.1rem;
+      padding-left: 0;
+    }
+  }
+}
+
+.toggleLabel {
+  margin-right: var(--sm-padding-x);
+
+  [dir="rtl"] & {
+    margin: 0 0 0 var(--sm-padding-x);
+  }
+}
+
+.sectionHeading {
+  margin-top: 0;
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+.pollParagraph {
+  color: var(--color-text);
 }

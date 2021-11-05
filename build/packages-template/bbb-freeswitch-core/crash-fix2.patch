@@ -1,0 +1,17 @@
+diff --git a/libs/sofia-sip/libsofia-sip-ua/nta/nta.c b/libs/sofia-sip/libsofia-sip-ua/nta/nta.c
+index 9b2e295..6665ec7 100644
+--- a/libs/sofia-sip/libsofia-sip-ua/nta/nta.c
++++ b/libs/sofia-sip/libsofia-sip-ua/nta/nta.c
+@@ -10869,7 +10869,10 @@ void outgoing_answer_a(sres_context_t *orq, sres_query_t *q,
+
+   sres_free_answers(orq->orq_agent->sa_resolver, answers);
+
+-  outgoing_query_results(orq, sq, results, found);
++  if (results)
++    outgoing_query_results(orq, sq, results, found);
++  else if (!q)
++    outgoing_resolving_error(orq, SIPDNS_503_ERROR);
+ }
+
+ /** Store A/AAAA query results */
+
