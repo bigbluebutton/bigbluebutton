@@ -3,14 +3,11 @@ import {
   collectDefaultMetrics,
 } from 'prom-client';
 
-import HTTPServer from 'http';
 import Logger from '../logger';
 const LOG_PREFIX = '[prom-scrape-agt]';
 
 class PrometheusScrapeAgent {
-  constructor(host, port, options) {
-    this.host = host;
-    this.port = port;
+  constructor(options) {
     this.metrics = {};
     this.started = false;
 
@@ -18,6 +15,10 @@ class PrometheusScrapeAgent {
     this.collectDefaultMetrics = options.collectDefaultMetrics || false;
     this.metricsPrefix = options.prefix || '';
     this.collectionTimeout = options.collectionTimeout || 10000;
+    this.roleAndInstanceLabels = 
+      options.role
+        ? { role: options.role, instanceId: options.instanceId }
+        : {};
   }
 
   async collect(response) {
@@ -33,27 +34,17 @@ class PrometheusScrapeAgent {
     }
   }
 
-  getMetricsHandler(request, response) {
-    switch (request.method) {
-      case 'GET':
-        if (request.url === this.path) return this.collect(response);
-        response.writeHead(404).end();
-        break;
-      default:
-        response.writeHead(501)
-        response.end();
-        break;
-    }
-  }
-
-  start(requestHandler = this.getMetricsHandler.bind(this)) {
+  start() {
     if (this.collectDefaultMetrics) collectDefaultMetrics({
       prefix: this.metricsPrefix,
       timeout: this.collectionTimeout,
+      labels: this.roleAndInstanceLabels,
     });
 
-    this.metricsServer = HTTPServer.createServer(requestHandler);
-    this.metricsServer.listen(this.port, this.host);
+    WebApp.connectHandlers.use(this.path, (req, res) => {
+      return this.collect(res);
+    });
+
     this.started = true;
   };
 
@@ -66,6 +57,7 @@ class PrometheusScrapeAgent {
 
     const metric = this.metrics[metricName];
     if (metric) {
+      labelsObject = { ...labelsObject, ...this.roleAndInstanceLabels };
       metric.inc(labelsObject)
     }
   }
@@ -75,6 +67,7 @@ class PrometheusScrapeAgent {
 
     const metric = this.metrics[metricName];
     if (metric) {
+      labelsObject = { ...labelsObject, ...this.roleAndInstanceLabels };
       metric.dec(labelsObject)
     }
   }
@@ -84,6 +77,7 @@ class PrometheusScrapeAgent {
 
     const metric = this.metrics[metricName];
     if (metric) {
+      labelsObject = { ...labelsObject, ...this.roleAndInstanceLabels };
       metric.set(labelsObject, value)
     }
   }

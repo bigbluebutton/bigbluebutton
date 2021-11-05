@@ -8,18 +8,18 @@ import {
 
 const {
     enabled: METRICS_ENABLED,
-    host: METRICS_HOST,
-    port: METRICS_PORT,
     path: METRICS_PATH,
     collectDefaultMetrics: COLLECT_DEFAULT_METRICS,
   } = Meteor.settings.private.prometheus
       ? Meteor.settings.private.prometheus
       : { enabled: false };
 
-const PrometheusAgent = new Agent(METRICS_HOST, METRICS_PORT, {
+const PrometheusAgent = new Agent({
   path: METRICS_PATH,
   prefix: METRICS_PREFIX,
   collectDefaultMetrics: COLLECT_DEFAULT_METRICS,
+  role: process.env.BBB_HTML5_ROLE,
+  instanceId: parseInt(process.env.INSTANCE_ID, 10) || 1,
 });
 
 if (METRICS_ENABLED) {

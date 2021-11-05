@@ -715,10 +715,6 @@ private:
   # EXPERIMENTAL, so disabled by default.
   prometheus:
     enabled: false
-    # Scrape route host
-    host: localhost
-    # Scrape route port
-    port: 3016
     # Metrics endpoint path
     path: '/metrics'
     # Whether default metrics for Node.js processes should be exported
