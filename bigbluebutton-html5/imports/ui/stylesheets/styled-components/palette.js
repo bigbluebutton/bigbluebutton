@@ -51,6 +51,8 @@ const toolbarListBg = '#DDD';
 const toolbarListBgFocus = '#C6C6C6';
 const colorContentBackground = '#1B2A3A';
 
+const dropdownBg = colorWhite;
+
 export {
   colorWhite,
   colorOffWhite,
@@ -93,4 +95,5 @@ export {
   toolbarListBg,
   toolbarListBgFocus,
   colorContentBackground,
+  dropdownBg,
 };
