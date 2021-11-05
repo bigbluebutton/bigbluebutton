@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import Button from '/imports/ui/components/button/component';
-import Checkbox from '/imports/ui/components/checkbox/component';
 import {
   smPaddingX,
   smPaddingY,
@@ -171,7 +170,7 @@ const PollParagraph = styled.div`
   color: ${colorText};
 `;
 
-const PollCheckbox = styled(Checkbox)`
+const PollCheckbox = styled.div`
   display: inline-block;
   margin-right: ${pollSmMargin};
   margin-bottom: ${pollMdMargin};

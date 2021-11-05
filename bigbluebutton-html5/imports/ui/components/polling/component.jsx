@@ -5,6 +5,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
 import Styled from './styles';
 import AudioService from '/imports/ui/components/audio/service';
+import Checkbox from '/imports/ui/components/checkbox/component';
 
 const MAX_INPUT_CHARS = Meteor.settings.public.poll.maxTypedAnswerLength;
 
@@ -245,14 +246,16 @@ class Polling extends Component {
                 key={pollAnswer.id}
               >
                 <td>
-                  <Styled.PollingCheckbox
-                    disabled={!isMeteorConnected}
-                    id={`answerInput${pollAnswer.key}`}
-                    onChange={() => this.handleCheckboxChange(poll.pollId, pollAnswer.id)}
-                    checked={checkedAnswers.includes(pollAnswer.id)}
-                    ariaLabelledBy={`pollAnswerLabel${pollAnswer.key}`}
-                    ariaDescribedBy={`pollAnswerDesc${pollAnswer.key}`}
-                  />
+                  <Styled.PollingCheckbox>
+                    <Checkbox
+                      disabled={!isMeteorConnected}
+                      id={`answerInput${pollAnswer.key}`}
+                      onChange={() => this.handleCheckboxChange(poll.pollId, pollAnswer.id)}
+                      checked={checkedAnswers.includes(pollAnswer.id)}
+                      ariaLabelledBy={`pollAnswerLabel${pollAnswer.key}`}
+                      ariaDescribedBy={`pollAnswerDesc${pollAnswer.key}`}
+                    />
+                  </Styled.PollingCheckbox>
                 </td>
                 <Styled.MultipleResponseAnswersTableAnswerText>
                   <label id={`pollAnswerLabel${pollAnswer.key}`}>

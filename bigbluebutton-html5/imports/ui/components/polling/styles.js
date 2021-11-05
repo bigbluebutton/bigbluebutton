@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import Checkbox from '/imports/ui/components/checkbox/component';
 import {
   mdPaddingY,
   smPaddingY,
@@ -100,7 +99,7 @@ const MultipleResponseAnswersTable = styled.table`
   margin-right: auto;
 `;
 
-const PollingCheckbox = styled(Checkbox)`
+const PollingCheckbox = styled.div`
   display: inline-block;
   margin-right: ${pollSmMargin};
 `;

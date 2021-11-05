@@ -4,6 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
+import Checkbox from '/imports/ui/components/checkbox/component';
 import Toggle from '/imports/ui/components/switch/component';
 import LiveResult from './live-result/component';
 import Styled from './styles';
@@ -589,11 +590,13 @@ class Poll extends Component {
                       {defaultPoll
                         && (
                         <div>
-                          <Styled.PollCheckbox
-                            onChange={this.toggleIsMultipleResponse}
-                            checked={isMultipleResponse}
-                            ariaLabelledBy="multipleResponseCheckboxLabel"
-                          />
+                          <Styled.PollCheckbox>
+                            <Checkbox
+                              onChange={this.toggleIsMultipleResponse}
+                              checked={isMultipleResponse}
+                              ariaLabelledBy="multipleResponseCheckboxLabel"
+                            />
+                          </Styled.PollCheckbox>
                           <Styled.InstructionsLabel id="multipleResponseCheckboxLabel">
                             {intl.formatMessage(intlMessages.enableMultipleResponseLabel)}
                           </Styled.InstructionsLabel>
