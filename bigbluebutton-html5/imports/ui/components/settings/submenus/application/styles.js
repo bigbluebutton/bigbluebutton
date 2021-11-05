@@ -62,14 +62,7 @@ const Separator = styled.hr`
   opacity: 0.25;
 `;
 
-const FormElementCenter = styled.div`
-  position: relative;
-  display: flex;
-  flex-grow: 1;
-  justify-content: center;
-  flex-flow: row;
-  align-items: center;
-`;
+const FormElementCenter = styled(Styled.FormElementCenter)``;
 
 const BoldLabel = styled.label`
   color: ${colorGrayLabel};
