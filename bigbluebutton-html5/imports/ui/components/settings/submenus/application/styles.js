@@ -4,56 +4,20 @@ import {
   colorPrimary,
   colorWhite,
   colorGrayLighter,
-  colorGrayDark,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
-import Styled from '/imports/ui/components/loading-screen/styles';
+import SpinnerStyles from '/imports/ui/components/loading-screen/styles';
+import Styled from '/imports/ui/components/settings/submenus/styles';
 
-const Row = styled.div`
-  display: flex;
-  flex-flow: row;
-  flex-grow: 1;
-  justify-content: space-between;
-  margin-bottom: 0.7rem;
-`;
+const Row = styled(Styled.Row)``;
 
-const Col = styled.div`
-  display: flex;
-  flex-grow: 1;
-  flex-basis: 0;
+const Col = styled(Styled.Col)``;
 
-  &:last-child {
-    padding-right: 0;
-    padding-left: 1rem;
+const FormElement = styled(Styled.FormElement)``;
 
-    [dir="rtl"] & {
-      padding-right: 0.1rem;
-      padding-left: 0;
-    }
-  }
-`;
+const Label = styled(Styled.Label)``;
 
-const FormElement = styled.div`
-  position: relative;
-  display: flex;
-  flex-flow: column;
-  flex-grow: 1;
-`;
-
-const Label = styled.span`
-  color: ${colorGrayLabel};
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-`;
-
-const FormElementRight = styled.div`
-  position: relative;
-  flex-grow: 1;
-  display: flex;
-  justify-content: flex-end;
-  flex-flow: row;
-  align-items: center;
-`;
+const FormElementRight = styled(Styled.FormElementRight)``;
 
 const Select = styled.select`
   &:focus {
@@ -78,28 +42,19 @@ const Select = styled.select`
   }
 `;
 
-const Title = styled.h3`
-  color: ${colorGrayDark};
-  font-weight: 400;
-  font-size: 1.3rem;
-  margin: 0;
-  margin-bottom: 1.5rem;
-`;
+const Title = styled(Styled.Title)``;
 
-const Form = styled.div`
-  display: flex;
-  flex-flow: column;
-`;
+const Form = styled(Styled.Form)``;
 
-const SpinnerOverlay = styled(Styled.Spinner)`
+const SpinnerOverlay = styled(SpinnerStyles.Spinner)`
   & > div {
     background-color: black;
   }
 `;
 
-const Bounce1 = styled(Styled.Bounce1)``;
+const Bounce1 = styled(SpinnerStyles.Bounce1)``;
 
-const Bounce2 = styled(Styled.Bounce2)``;
+const Bounce2 = styled(SpinnerStyles.Bounce2)``;
 
 const Separator = styled.hr`
   margin: 2.5rem 0;
