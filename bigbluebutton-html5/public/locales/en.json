@@ -769,6 +769,7 @@
     "app.meeting.endNotification.ok.label": "OK",
     "app.whiteboard.annotations.poll": "Poll results were published",
     "app.whiteboard.annotations.pollResult": "Poll Result",
+    "app.whiteboard.annotations.noResponses": "No responses",
     "app.whiteboard.toolbar.tools": "Tools",
     "app.whiteboard.toolbar.tools.hand": "Pan",
     "app.whiteboard.toolbar.tools.pencil": "Pencil",
