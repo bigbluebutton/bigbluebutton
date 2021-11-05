@@ -65,6 +65,19 @@ class BBBMenu extends React.Component {
 
       if (key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase())) itemClasses.push(styles.emojiSelected);
 
+      let customStyles = {
+        paddingLeft: '4px',
+        paddingRight: '4px',
+        paddingTop: '8px',
+        paddingBottom: '8px',
+        marginLeft: '4px',
+        marginRight: '4px'
+      };
+
+      if (a.customStyles) {
+        customStyles = { ...customStyles, ...a.customStyles };
+      }
+
       return [
         a.dividerTop && <Divider disabled />,
         <MenuItem
@@ -74,7 +87,7 @@ class BBBMenu extends React.Component {
           disableRipple={true}
           disableGutters={true}
           disabled={disabled}
-          style={{ paddingLeft: '4px',paddingRight: '4px',paddingTop: '8px', paddingBottom: '8px', marginLeft: '4px', marginRight: '4px' }}
+          style={customStyles}
           onClick={(event) => {
             onClick();
             const close = !key.includes('setstatus') && !key.includes('back');
@@ -94,11 +107,17 @@ class BBBMenu extends React.Component {
 
   render() {
     const { anchorEl } = this.state;
-    const { trigger, intl, wide, classes } = this.props;
+    const { trigger, intl, wide, classes, customStyles } = this.props;
     const actionsItems = this.makeMenuItems();
     const menuClasses = classes || [];
     menuClasses.push(styles.menu);
     if (wide) menuClasses.push(styles.wide);
+
+    let menuStyles = { zIndex: 9999 };
+
+    if (customStyles) {
+      menuStyles = { ...menuStyles, ...customStyles };
+    }
 
     return (
       <>
@@ -124,7 +143,7 @@ class BBBMenu extends React.Component {
           open={Boolean(anchorEl)}
           onClose={this.handleClose}
           className={menuClasses.join(' ')}
-          style={{ zIndex: 9999 }}
+          style={menuStyles}
         >
           {actionsItems}
           {anchorEl && window.innerWidth < MAX_WIDTH &&
