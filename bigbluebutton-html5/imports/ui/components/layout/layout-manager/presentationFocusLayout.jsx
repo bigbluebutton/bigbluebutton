@@ -452,7 +452,7 @@ class PresentationFocusLayout extends Component {
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
 
-    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
+    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare' || fullscreenElement === 'ExternalVideo') {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
       mediaBounds.top = 0;
