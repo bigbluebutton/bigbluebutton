@@ -246,6 +246,7 @@ class Dropdown extends Component {
     });
 
     const showCloseBtn = (isOpen && keepOpen) || (isOpen && keepOpen === null);
+    console.log({className})
     return (
       <div
         className={cx(styles.dropdown, className)}

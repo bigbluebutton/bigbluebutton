@@ -3,10 +3,9 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
 import Icon from '/imports/ui/components/icon/component';
-import Button from '/imports/ui/components/button/component';
 import { ENTER } from '/imports/utils/keyCodes';
 import toastStyles from '/imports/ui/components/toast/styles';
-import { styles } from './styles';
+import Styled from './styles';
 import {Meteor} from "meteor/meteor";
 
 const messages = defineMessages({
@@ -125,10 +124,9 @@ class StatusNotifier extends Component {
     if (emojiUsers.length > MAX_AVATAR_COUNT) users = users.slice(0, MAX_AVATAR_COUNT);
 
     const avatars = users.map(u => (
-      <div
+      <Styled.Avatar
         role="button"
         tabIndex={0}
-        className={styles.avatar}
         style={{ backgroundColor: `${u.color}` }}
         onClick={() => clearUserStatus(u.userId)}
         onKeyDown={e => (e.keyCode === ENTER ? clearUserStatus(u.userId) : null)}
@@ -136,17 +134,14 @@ class StatusNotifier extends Component {
         data-test="avatarsWrapperAvatar"
       >
         {u.name.slice(0, 2)}
-      </div>
+      </Styled.Avatar>
     ));
 
     if (emojiUsers.length > MAX_AVATAR_COUNT) {
       avatars.push(
-        <div
-          className={styles.avatarsExtra}
-          key={`statusToastAvatar-${emojiUsers.length}`}
-        >
+        <Styled.AvatarsExtra key={`statusToastAvatar-${emojiUsers.length}`}>
           {emojiUsers.length}
-        </div>,
+        </Styled.AvatarsExtra>,
       );
     }
 
@@ -158,24 +153,20 @@ class StatusNotifier extends Component {
     const formattedRaisedHands = this.getRaisedHandNames();
     return (
       <div>
-        <div className={styles.toastIcon}>
-          <div className={styles.iconWrapper}>
+        <Styled.ToastIcon>
+          <Styled.IconWrapper>
             <Icon iconName="hand" />
-          </div>
-        </div>
-        <div
-          className={styles.avatarsWrapper}
-          data-test="avatarsWrapper"
-        >
+          </Styled.IconWrapper>
+        </Styled.ToastIcon>
+        <Styled.AvatarsWrapper data-test="avatarsWrapper">
           {this.raisedHandAvatars()}
-        </div>
-        <div className={styles.toastMessage}>
+        </Styled.AvatarsWrapper>
+        <Styled.ToastMessage>
           <div>{intl.formatMessage(messages.raisedHandsTitle)}</div>
           {formattedRaisedHands}
-        </div>
+        </Styled.ToastMessage>
         <div className={toastStyles.separator} />
-        <Button
-          className={styles.clearBtn}
+        <Styled.ClearButton
           label={intl.formatMessage(messages.lowerHandsLabel)}
           color="default"
           size="md"

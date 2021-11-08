@@ -69,6 +69,11 @@ const pollIndex = '1016';
 const pollBottomOffset = '4.5rem';
 const pollColAmount = '2';
 
+const toastMargin = '.5rem';
+const avatarSide = '34px';
+const avatarWrapperOffset = '14px';
+const avatarInset = '-7px';
+
 export {
   borderSizeSmall,
   borderSize,
@@ -136,4 +141,8 @@ export {
   pollIndex,
   pollBottomOffset,
   pollColAmount,
+  toastMargin,
+  avatarSide,
+  avatarWrapperOffset,
+  avatarInset,
 };
