@@ -15,6 +15,7 @@ export default function addPoll(meetingId, requesterId, poll, pollType, secretPo
         key: String,
       },
     ],
+    isMultipleResponse: Boolean,
   });
 
   const userSelector = {

@@ -5,7 +5,7 @@ import { Session } from 'meteor/session';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { injectIntl, defineMessages } from 'react-intl';
 import _ from 'lodash';
-import Breakouts from '/imports/api/breakouts';
+import Breakouts from '/imports/ui/local-collections/breakouts-collection/breakouts';
 import AppService from '/imports/ui/components/app/service';
 import { notify } from '/imports/ui/services/notification';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -186,7 +186,7 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
 
     if (userMic && !Service.isMuted()) {
       Service.toggleMuteMicrophone();
-      notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'audio_on');
+      notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'volume_level_2');
     }
   }
 

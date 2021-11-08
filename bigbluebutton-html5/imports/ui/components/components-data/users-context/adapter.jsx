@@ -1,5 +1,6 @@
 import { useContext, useEffect } from 'react';
-import Users, { CurrentUser } from '/imports/api/users';
+import { CurrentUser } from '/imports/api/users';
+import Users from '/imports/ui/local-collections/users-collection/users';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import { UsersContext, ACTIONS } from './context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';

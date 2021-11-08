@@ -17,7 +17,6 @@ export default function clearGroupChatMsg(meetingId, chatId) {
         Logger.info(`Cleared GroupChatMsg (${meetingId}, ${chatId})`);
         const clearMsg = {
           id: `${SYSTEM_CHAT_TYPE}-${CHAT_CLEAR_MESSAGE}`,
-          color: '0',
           timestamp: Date.now(),
           correlationId: `${PUBLIC_CHAT_SYSTEM_ID}-${Date.now()}`,
           sender: {

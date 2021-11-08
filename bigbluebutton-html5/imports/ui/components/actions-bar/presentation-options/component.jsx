@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
+import Styled from './styles';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -11,6 +11,14 @@ const propTypes = {
 };
 
 const intlMessages = defineMessages({
+  minimizePresentationLabel: {
+    id: 'app.actionsBar.actionsDropdown.minimizePresentationLabel',
+    description: '',
+  },
+  minimizePresentationDesc: {
+    id: 'app.actionsBar.actionsDropdown.restorePresentationDesc',
+    description: '',
+  },
   restorePresentationLabel: {
     id: 'app.actionsBar.actionsDropdown.restorePresentationLabel',
     description: 'Restore Presentation option label',
@@ -23,24 +31,41 @@ const intlMessages = defineMessages({
 
 const PresentationOptionsContainer = ({
   intl,
+  isLayoutSwapped,
   toggleSwapLayout,
-  isThereCurrentPresentation,
   layoutContextDispatch,
-}) => (
-  <Button
-    icon="presentation"
-    data-test="restorePresentationButton"
-    label={intl.formatMessage(intlMessages.restorePresentationLabel)}
-    description={intl.formatMessage(intlMessages.restorePresentationDesc)}
-    color="primary"
-    hideLabel
-    circle
-    size="lg"
-    onClick={() => toggleSwapLayout(layoutContextDispatch)}
-    id="restore-presentation"
-    disabled={!isThereCurrentPresentation}
-  />
-);
+  hasPresentation,
+  hasExternalVideo,
+  hasScreenshare,
+}) => {
+  let buttonType = 'presentation';
+  if (hasExternalVideo) {
+    // hack until we have an external-video icon
+    buttonType = 'external-video';
+  } else if (hasScreenshare) {
+    buttonType = 'desktop';
+  }
+
+  const isThereCurrentPresentation = hasExternalVideo || hasScreenshare || hasPresentation;
+  return (
+    <Styled.RestorePresentationButton
+      icon={`${buttonType}${isLayoutSwapped ? '_off' : ''}`}
+      data-test="restorePresentationButton"
+      label={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
+      aria-label={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
+      aria-describedby={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationDesc : intlMessages.minimizePresentationDesc)}
+      description={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationDesc : intlMessages.minimizePresentationDesc)}
+      color={!isLayoutSwapped ? "primary" : "default"}
+      hideLabel
+      circle
+      size="lg"
+      onClick={() => toggleSwapLayout(layoutContextDispatch)}
+      id="restore-presentation"
+      ghost={isLayoutSwapped}
+      disabled={!isThereCurrentPresentation}
+    />
+  );
+};
 
 PresentationOptionsContainer.propTypes = propTypes;
 export default injectIntl(PresentationOptionsContainer);

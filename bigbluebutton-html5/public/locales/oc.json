@@ -129,7 +129,6 @@
     "app.presentationUploder.clearErrors": "Escafar las errors",
     "app.poll.quickPollTitle": "Sondatge rapid",
     "app.poll.closeLabel": "Tampar",
-    "app.poll.question.label" : "Escrivètz vòstra question.",
     "app.poll.userResponse.label" : "Responsa de l’utilizaire",
     "app.poll.responseTypes.label" : "Tipes de responsa",
     "app.poll.optionDelete.label" : "Supirmir",

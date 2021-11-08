@@ -15,7 +15,14 @@ function note() {
 
   Logger.info(`Publishing Note for ${meetingId} ${userId}`);
 
-  return Note.find({ meetingId });
+  const options = {
+    fields: {
+      noteId: 0,
+      readOnlyNoteId: 0,
+    },
+  };
+
+  return Note.find({ meetingId }, options);
 }
 
 function publish(...args) {

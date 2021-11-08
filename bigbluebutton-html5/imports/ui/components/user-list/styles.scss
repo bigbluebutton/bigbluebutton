@@ -40,14 +40,6 @@
  * ==========
  */
 
-.userList {
-  @extend %flex-column;
-  justify-content: flex-start;
-  background-color: var(--user-list-bg);
-  color: var(--user-list-text);
-  height: 100%;
-}
-
 .lists {
   @extend %flex-column;
   @extend %no-margin;
