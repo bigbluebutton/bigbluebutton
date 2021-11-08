@@ -1,10 +1,8 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
-import Button from '/imports/ui/components/button/component';
 import VideoService from '../service';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from './styles';
+import Styled from './styles';
 import { validIOSVersion } from '/imports/ui/components/app/service';
 import { debounce } from 'lodash';
 
@@ -70,10 +68,9 @@ const JoinVideoButton = ({
   if (disableReason) label = intl.formatMessage(intlMessages[disableReason]);
 
   return (
-    <Button
+    <Styled.VideoButton
       label={label}
       data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
-      className={cx(hasVideoStream || styles.btn)}
       onClick={handleOnClick}
       hideLabel
       color={hasVideoStream ? 'primary' : 'default'}

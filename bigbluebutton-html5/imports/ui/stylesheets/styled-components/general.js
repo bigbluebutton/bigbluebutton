@@ -9,6 +9,7 @@ const mdPaddingX = '1rem';
 const lgPaddingX = '1.25rem';
 const lgPaddingY = '0.6rem';
 const jumboPaddingY = '1.5rem';
+const jumboPaddingX = '3.025rem';
 
 const whiteboardToolbarPadding = '.5rem';
 const minModalHeight = '20rem';
@@ -21,6 +22,9 @@ const modalMargin = '3rem';
 const titlePositionLeft = '2.2rem';
 const userIndicatorsOffset = '-5px';
 const indicatorPadding = '.45rem'; // used to center presenter indicator icon in Chrome / Firefox / Edge
+const actionsBarHeight = '75px'; // TODO: Change to ActionsBar real height
+const audioIndicatorWidth = '1.12rem';
+const audioIndicatorFs = '75%';
 const chatPollMarginSm = '.5rem';
 
 const talkerBorderRadius = '2rem';
@@ -39,6 +43,18 @@ const toolbarButtonBorderRadius = '5px';
 const toolbarItemTrianglePadding = '2px';
 const toolbarMargin = '.8rem';
 
+const pollStatsElementWidth = '17%';
+const pollSmMargin = '0.3125rem';
+const pollMdMargin = '0.7rem';
+const pollResultWidth = '15rem';
+const pollInputHeight = '2.5rem';
+const pollWidth = '18rem';
+const overlayIndex = '9999';
+const overlayOpacity = '0.349';
+const pollIndex = '1016';
+const pollBottomOffset = '4.5rem';
+const pollColAmount = '2';
+
 export {
   borderSizeSmall,
   borderSize,
@@ -51,6 +67,7 @@ export {
   lgPaddingX,
   lgPaddingY,
   jumboPaddingY,
+  jumboPaddingX,
   whiteboardToolbarPadding,
   minModalHeight,
   descriptionMargin,
@@ -62,6 +79,9 @@ export {
   titlePositionLeft,
   userIndicatorsOffset,
   indicatorPadding,
+  actionsBarHeight,
+  audioIndicatorWidth,
+  audioIndicatorFs,
   chatPollMarginSm,
   talkerBorderRadius,
   talkerPaddingXsm,
@@ -77,4 +97,15 @@ export {
   toolbarButtonBorderRadius,
   toolbarItemTrianglePadding,
   toolbarMargin,
+  pollStatsElementWidth,
+  pollSmMargin,
+  pollMdMargin,
+  pollResultWidth,
+  pollInputHeight,
+  pollWidth,
+  overlayIndex,
+  overlayOpacity,
+  pollIndex,
+  pollBottomOffset,
+  pollColAmount,
 };

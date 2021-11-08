@@ -1,6 +1,8 @@
 const colorWhite = '#FFF';
 const colorOffWhite = '#F3F6F9';
 
+const colorBlack = '#000000';
+
 const colorGray = '#4E5A66';
 const colorGrayDark = '#06172A';
 const colorGrayLight = '#8B9AA8';
@@ -53,9 +55,13 @@ const colorContentBackground = '#1B2A3A';
 
 const dropdownBg = colorWhite;
 
+const pollStatsBorderColor = '#D4D9DF';
+const pollBlue = '#1A73D4';
+
 export {
   colorWhite,
   colorOffWhite,
+  colorBlack,
   colorGray,
   colorGrayDark,
   colorGrayLight,
@@ -94,6 +100,8 @@ export {
   toolbarButtonBg,
   toolbarListBg,
   toolbarListBgFocus,
+  pollStatsBorderColor,
+  pollBlue,
   colorContentBackground,
   dropdownBg,
 };
