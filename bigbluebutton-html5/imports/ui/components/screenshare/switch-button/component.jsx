@@ -1,9 +1,7 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
-import cx from 'classnames';
 import PropTypes from 'prop-types';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   switchButtonShrink: {
@@ -17,10 +15,11 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   dark: PropTypes.bool,
   bottom: PropTypes.bool,
-  className: PropTypes.string,
   handleSwitch: PropTypes.func,
   switched: PropTypes.bool,
 };
@@ -28,7 +27,6 @@ const propTypes = {
 const defaultProps = {
   dark: false,
   bottom: false,
-  className: '',
   handleSwitch: () => {},
   switched: false,
 };
@@ -38,7 +36,6 @@ const SwitchButtonComponent = (props) => {
     intl,
     dark,
     bottom,
-    className,
     handleSwitch,
     switched,
   } = props;
@@ -46,27 +43,18 @@ const SwitchButtonComponent = (props) => {
     ? intlMessages.switchButtonShrink
     : intlMessages.switchButtonExpand);
 
-  const wrapperClassName = cx({
-    [styles.wrapper]: true,
-    [styles.dark]: dark,
-    [styles.light]: !dark,
-    [styles.top]: !bottom,
-    [styles.bottom]: bottom,
-  });
-
   return (
-    <div className={wrapperClassName}>
-      <Button
+    <Styled.SwitchButtonWrapper dark={dark} bottom={bottom}>
+      <Styled.SwitchButton
         color="default"
         icon={switched ? 'screenshare-close-fullscreen' : 'screenshare-fullscreen'}
         size="sm"
         onClick={handleSwitch}
         label={formattedLabel}
         hideLabel
-        className={cx(styles.button, styles.switchButton, className)}
         data-test="switchButton"
       />
-    </div>
+    </Styled.SwitchButtonWrapper>
   );
 };
 

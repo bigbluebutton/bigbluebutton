@@ -1,6 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
 import Icon from '/imports/ui/components/icon/component';
-import Checkbox from '/imports/ui/components/checkbox/component';
 import Dropzone from 'react-dropzone';
 import Button from '/imports/ui/components/button/component';
 import {
@@ -294,14 +293,10 @@ const TableItemStatus = styled.td`
   }
 `;
 
-const ItemAction = styled(Checkbox)`
+const ItemAction = styled.div`
   margin-left: ${smPaddingX};
-  div > i {
+  &, & i {
     margin-top: .25rem;
-  }
-
-  &,
-  & > i {
     display: inline-block;
     border: 0;
     background: transparent;
@@ -309,16 +304,14 @@ const ItemAction = styled(Checkbox)`
     font-size: 1.35rem;
     color: ${colorGrayLight};
     padding: 0;
-
     ${({ animations }) => animations && `
       transition: all .25s;
     `}
-
     :hover, :focus {
       padding: unset !important;
     }
   }
-`;
+`; 
 
 const RemoveButton = styled(Button)`
   margin-left: ${smPaddingX};

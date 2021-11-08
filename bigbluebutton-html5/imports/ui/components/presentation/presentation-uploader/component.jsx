@@ -13,6 +13,7 @@ import _ from 'lodash';
 import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 import Styled from './styles';
 import Settings from '/imports/ui/services/settings';
+import Checkbox from '/imports/ui/components/checkbox/component';
 
 const { isMobile } = deviceInfo;
 
@@ -804,7 +805,9 @@ class PresentationUploader extends Component {
               />
               ) : null
             }
-            <Styled.ItemAction
+            <Styled.ItemAction>
+              <Checkbox
+              animations={animations}
               ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.filename}`}
               checked={item.isCurrent}
               keyValue={item.id}
@@ -812,6 +815,7 @@ class PresentationUploader extends Component {
               disabled={disableActions}
               animations={animations}
             />
+            </Styled.ItemAction>
             <Styled.RemoveButton
               disabled={disableActions}
               label={intl.formatMessage(intlMessages.removePresentation)}
