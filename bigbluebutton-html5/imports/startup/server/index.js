@@ -10,6 +10,7 @@ import Logger from './logger';
 import Redis from './redis';
 
 import setMinBrowserVersions from './minBrowserVersion';
+import { PrometheusAgent, METRIC_NAMES } from './prom-metrics/index.js'
 
 let guestWaitHtml = '';
 
@@ -139,6 +140,13 @@ Meteor.startup(() => {
   }
 
   setMinBrowserVersions();
+
+  Meteor.onMessage(event => {
+    const { method } = event;
+    if (method) {
+      PrometheusAgent.increment(METRIC_NAMES.METEOR_METHODS, { methodName: method });
+    }
+  });
 
   Logger.warn(`SERVER STARTED.
   ENV=${env}

@@ -747,3 +747,11 @@ private:
       version: 10
     - browser: YandexBrowser
       version: 19
+  # Direct Prometheus instrumentation.
+  # EXPERIMENTAL, so disabled by default.
+  prometheus:
+    enabled: false
+    # Metrics endpoint path
+    path: '/metrics'
+    # Whether default metrics for Node.js processes should be exported
+    collectDefaultMetrics: false
