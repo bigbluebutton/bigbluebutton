@@ -257,7 +257,7 @@ class VideoListItem extends Component {
                       anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
                       transformorigin: { vertical: 'bottom', horizontal: 'left' },
                     }}
-                  />                  
+                  />
                 )
                 : (
                   <div className={isFirefox ? styles.dropdownFireFox
