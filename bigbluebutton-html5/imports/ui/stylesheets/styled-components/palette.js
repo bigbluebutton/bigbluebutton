@@ -18,6 +18,7 @@ const colorTransparent = '#ff000000';
 const colorPrimary = '#0F70D7';
 const colorDanger = '#DF2721';
 const colorSuccess = '#008081';
+const colorWarning = 'purple';
 
 const colorBackground = colorGrayDark;
 const userListBg = colorOffWhite;
@@ -75,6 +76,7 @@ export {
   colorPrimary,
   colorDanger,
   colorSuccess,
+  colorWarning,
   colorBackground,
   userListBg,
   userListText,
