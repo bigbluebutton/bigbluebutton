@@ -41,6 +41,17 @@ const toolbarButtonBorderRadius = '5px';
 const toolbarItemTrianglePadding = '2px';
 const toolbarMargin = '.8rem';
 
+const fileLineWidth = '16.75rem';
+const iconPaddingMd = '.65rem';
+const statusIconSize = '16px';
+const toastMdMargin = '.5rem';
+const uploadListHeight = '30vh';
+const modalInnerWidth = '40rem';
+const statusInfoHeight = '8px';
+const itemActionsWidth = '68px'; // size of the 2 icons (check/trash)
+const uploadIconSize = '2.286rem';
+const iconLineHeight = '2.35rem';
+
 export {
   borderSizeSmall,
   borderSize,
@@ -81,4 +92,14 @@ export {
   toolbarItemTrianglePadding,
   toolbarMargin,
   whiteboardToolbarMargin,
+  fileLineWidth,
+  iconPaddingMd,
+  statusIconSize,
+  toastMdMargin,
+  uploadListHeight,
+  modalInnerWidth,
+  statusInfoHeight,
+  itemActionsWidth,
+  uploadIconSize,
+  iconLineHeight,
 };

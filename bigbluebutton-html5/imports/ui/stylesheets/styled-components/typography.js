@@ -13,6 +13,7 @@ const headingsFontWeight = '500';
 const btnFontWeight = '600';
 const talkerFontWeight = '400';
 const toolbarButtonFontSize = '1.75rem';
+const modalTitleFw = '400';
 
 export {
   lineHeightComputed,
@@ -29,4 +30,5 @@ export {
   btnFontWeight,
   talkerFontWeight,
   toolbarButtonFontSize,
+  modalTitleFw,
 };
