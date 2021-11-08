@@ -51,6 +51,8 @@ const statusInfoHeight = '8px';
 const itemActionsWidth = '68px'; // size of the 2 icons (check/trash)
 const uploadIconSize = '2.286rem';
 const iconLineHeight = '2.35rem';
+const innerToastWidth = '17rem';
+const toastIconSide = '40px';
 
 export {
   borderSizeSmall,
@@ -102,4 +104,6 @@ export {
   itemActionsWidth,
   uploadIconSize,
   iconLineHeight,
+  innerToastWidth,
+  toastIconSide,
 };
