@@ -11,6 +11,8 @@ const lgPaddingY = '0.6rem';
 const jumboPaddingY = '1.5rem';
 
 const whiteboardToolbarPadding = '.5rem';
+const whiteboardToolbarMargin = '.5rem';
+const whiteboardToolbarPaddingSm = '.3rem';
 const minModalHeight = '20rem';
 const descriptionMargin = '3.5rem';
 const navbarHeight = '3.9375rem';
@@ -52,6 +54,7 @@ export {
   lgPaddingY,
   jumboPaddingY,
   whiteboardToolbarPadding,
+  whiteboardToolbarPaddingSm,
   minModalHeight,
   descriptionMargin,
   navbarHeight,
@@ -77,4 +80,5 @@ export {
   toolbarButtonBorderRadius,
   toolbarItemTrianglePadding,
   toolbarMargin,
+  whiteboardToolbarMargin,
 };

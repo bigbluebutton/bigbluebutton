@@ -9,6 +9,7 @@ const colorGrayLightest = '#D4D9DF';
 
 const colorBlueLight = '#54a1f3';
 const colorBlueLighter = '#92BCEA';
+const colorBlueLightest = '#E4ECF2';
 
 const colorTransparent = '#ff000000';
 
@@ -61,6 +62,7 @@ export {
   colorTransparent,
   colorBlueLight,
   colorBlueLighter,
+  colorBlueLightest,
   colorPrimary,
   colorDanger,
   colorSuccess,
