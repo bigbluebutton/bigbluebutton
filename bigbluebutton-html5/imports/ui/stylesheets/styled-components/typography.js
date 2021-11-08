@@ -5,6 +5,7 @@ const fontSizeSmall = '0.875rem';
 const fontSizeSmaller = '.75rem';
 const fontSizeXS = '.575rem';
 const fontSizeLarge = '1.25rem';
+const fontSizeLarger = '1.5rem';
 const fontSizeXL = '1.75rem';
 const fontSizeMD = '0.95rem';
 
@@ -21,6 +22,7 @@ export {
   fontSizeSmaller,
   fontSizeXS,
   fontSizeLarge,
+  fontSizeLarger,
   fontSizeXL,
   fontSizeMD,
   headingsFontWeight,
