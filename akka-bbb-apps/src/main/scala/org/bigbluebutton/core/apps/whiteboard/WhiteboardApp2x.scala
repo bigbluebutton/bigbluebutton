@@ -22,9 +22,34 @@ class WhiteboardApp2x(implicit val context: ActorContext)
   with UndoWhiteboardPubMsgHdlr
   with ModifyWhiteboardAccessPubMsgHdlr
   with SendWhiteboardAnnotationPubMsgHdlr
-  with GetWhiteboardAnnotationsReqMsgHdlr {
+  with GetWhiteboardAnnotationsReqMsgHdlr
+  with ModifyWhiteboardAnnotationPubMsgHdlr {
 
   val log = Logging(context.system, getClass)
+
+  def sanitizeAnnotation(annotation: AnnotationVO): AnnotationVO = {
+    // Remove null values by wrapping value with Option. Null becomes None.
+    val shape = annotation.annotationInfo.collect {
+      case (key, value: Any) => key -> Option(value)
+    }
+
+    //printAnnotationShape(shape, annotation)
+
+    if (annotation.annotationInfo.values.exists(p => if (p == null) true else false)) {
+      log.warning("Whiteboard shape contains null values. " + annotation.toString)
+    }
+
+    // Unwrap the value wrapped as Option
+    val shape2 = shape.collect {
+      case (key, Some(value)) => key -> value
+    }
+
+    annotation.copy(annotationInfo = shape2)
+  }
+
+  def deleteWhiteboardAnnotation(annotation: AnnotationVO, liveMeeting: LiveMeeting): List[AnnotationVO] = {
+    liveMeeting.wbModel.deleteAnnotation(annotation)
+  }
 
   def sendWhiteboardAnnotation(annotation: AnnotationVO, drawEndOnly: Boolean, liveMeeting: LiveMeeting): AnnotationVO = {
     //    println("Received whiteboard annotation. status=[" + status + "], annotationType=[" + annotationType + "]")

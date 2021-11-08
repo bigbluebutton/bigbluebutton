@@ -52,12 +52,31 @@ class WhiteboardModel extends SystemConfiguration {
     rtnAnnotation
   }
 
+  /**
+   * @param annotationToDelete annotation that should be deleted
+   * @return Deleted annotations if delete was successful.
+   */
+  def deleteAnnotation(annotationToDelete: AnnotationVO): List[AnnotationVO] = {
+    val wb = getWhiteboard(annotationToDelete.wbId)
+    val deletedAnnotations = (for (annotationsMapEntry <- wb.annotationsMap)
+      yield annotationsMapEntry._2.filter(annotation => annotation.id == annotationToDelete.id)).flatten
+    val newAnnotationsMap = for (annotationsMapEntry <- wb.annotationsMap)
+      yield annotationsMapEntry.copy(_2 = annotationsMapEntry._2.filterNot(annotation => annotation.id == annotationToDelete.id))
+    val newWhiteboard = wb.copy(annotationsMap = newAnnotationsMap)
+    saveWhiteboard(newWhiteboard)
+    if (deletedAnnotations.size > 1) {
+      println("Warning multiple whiteboard annotations with same id!")
+    }
+    deletedAnnotations.toList
+    //wb.annotationsMap.collect(annotationsMapEntry => annotationsMapEntry.copy(_2 = annotationsMapEntry._2.filterNot(annotation => annotation.id == annotationToDelete.id)))
+  }
+
   def updateAnnotation(wbId: String, userId: String, annotation: AnnotationVO): AnnotationVO = {
     val wb = getWhiteboard(wbId)
     val usersAnnotations = getAnnotationsByUserId(wb, userId)
 
     //not empty and head id equals annotation id
-    if (!usersAnnotations.isEmpty && usersAnnotations.head.id == annotation.id) {
+    if (usersAnnotations.nonEmpty && usersAnnotations.head.id == annotation.id) {
       val rtnAnnotation = annotation.copy(position = usersAnnotations.head.position)
       val newAnnotationsMap = wb.annotationsMap + (userId -> (rtnAnnotation :: usersAnnotations.tail))
       //println("Annotation has position [" + usersAnnotations.head.position + "]")

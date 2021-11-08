@@ -1,5 +1,11 @@
 package org.bigbluebutton.common2.msgs
 
+import org.bigbluebutton.common2.msgs.AnnotationModificationAction.AnnotationModificationAction
+
+object AnnotationModificationAction extends Enumeration {
+  type AnnotationModificationAction = Value
+  val Delete, Move = Value
+}
 case class AnnotationVO(id: String, status: String, annotationType: String,
                         annotationInfo: scala.collection.immutable.Map[String, Any], wbId: String, userId: String, position: Int)
 
@@ -31,6 +37,10 @@ case class SendWhiteboardAnnotationPubMsgBody(annotation: AnnotationVO, drawEndO
 object UndoWhiteboardPubMsg { val NAME = "UndoWhiteboardPubMsg" }
 case class UndoWhiteboardPubMsg(header: BbbClientMsgHeader, body: UndoWhiteboardPubMsgBody) extends StandardMsg
 case class UndoWhiteboardPubMsgBody(whiteboardId: String)
+
+object ModifyWhiteboardAnnotationPubMsg { val NAME = "ModifyWhiteboardAnnotationPubMsg" }
+case class ModifyWhiteboardAnnotationPubMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAnnotationPubMsgBody) extends StandardMsg
+case class ModifyWhiteboardAnnotationPubMsgBody(annotation: List[AnnotationVO], userId: String, whiteBoardId: String, action: AnnotationModificationAction)
 // ------------ client to akka-apps ------------
 
 // ------------ akka-apps to client ------------
@@ -65,4 +75,8 @@ case class SendWhiteboardAnnotationEvtMsgBody(annotation: AnnotationVO)
 object UndoWhiteboardEvtMsg { val NAME = "UndoWhiteboardEvtMsg" }
 case class UndoWhiteboardEvtMsg(header: BbbClientMsgHeader, body: UndoWhiteboardEvtMsgBody) extends BbbCoreMsg
 case class UndoWhiteboardEvtMsgBody(whiteboardId: String, userId: String, annotationId: String)
+
+object ModifyWhiteboardAnnotationEvtMsg { val NAME = "ModifyWhiteboardAnnotationPubMsg" }
+case class ModifyWhiteboardAnnotationEvtMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAnnotationEvtMsgBody) extends StandardMsg
+case class ModifyWhiteboardAnnotationEvtMsgBody(annotation: List[AnnotationVO], userId: String, whiteBoardId: String, action: AnnotationModificationAction)
 // ------------ akka-apps to client ------------
