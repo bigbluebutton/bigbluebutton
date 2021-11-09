@@ -89,11 +89,11 @@ class AudioManager {
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
   }
 
-  init(userData, audioEventHandler) {
-    this.loadBridges(userData);
+  async init(userData, audioEventHandler) {
     this.userData = userData;
     this.initialized = true;
     this.audioEventHandler = audioEventHandler;
+    await this.loadBridges(userData);
   }
 
   /**
