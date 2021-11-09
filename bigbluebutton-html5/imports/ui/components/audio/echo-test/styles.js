@@ -1,11 +1,13 @@
-@import "/imports/ui/stylesheets/variables/breakpoints";
+import styled from 'styled-components';
+import Button from '/imports/ui/components/button/component';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
-.echoTest {
+const EchoTest = styled.span`
   margin-top: auto;
   margin-bottom: auto;
-}
+`;
 
-.button {
+const EchoTestButton = styled(Button)`
   &:focus {
     outline: none !important;
   }
@@ -17,7 +19,7 @@
       margin: 0 0 0 3rem;
     }
 
-    @include mq($small-only) {
+    @media ${smallOnly} {
       margin: 0 1rem 0 0;
 
       [dir="rtl"] & {
@@ -31,4 +33,9 @@
     font-size: 1rem;
     font-weight: 600;
   }
-}
+`;
+
+export default {
+  EchoTest,
+  EchoTestButton,
+};
