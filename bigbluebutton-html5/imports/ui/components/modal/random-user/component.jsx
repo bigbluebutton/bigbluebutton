@@ -8,6 +8,8 @@ import { styles } from './styles';
 
 const SELECT_RANDOM_USER_COUNTDOWN = Meteor.settings.public.selectRandomUser.countdown;
 
+let endTime = 0;
+
 const messages = defineMessages({
   noViewers: {
     id: 'app.modal.randomUser.noViewers.description',
@@ -29,6 +31,14 @@ const messages = defineMessages({
     id: 'app.modal.randomUser.alone',
     description: 'Label shown when only one viewer to be selected',
   },
+  allowRepeat: {
+    id: 'app.modal.randomUser.allowRepeat.label',
+    description: 'asks user whether they want to allow repetition in random user selection',
+  },
+  restart: {
+    id: 'app.modal.randomUser.restart.label',
+    description: 'suggest user to start non-repetitive selection again',
+  },
   reselect: {
     id: 'app.modal.randomUser.reselect.label',
     description: 'select new random user button label',
@@ -48,50 +58,63 @@ const propTypes = {
   randomUserReq: PropTypes.func.isRequired,
 };
 
+// Keeps track of whether the array
+// of users for animation contains
+// all same values
+let allSame = true;
+
 class RandomUserSelect extends Component {
   constructor(props) {
     super(props);
 
-    if (props.currentUser.presenter) {
-      props.randomUserReq();
-    }
+    this.state = {
+      allowRepeat: false,
+      count: 0,
+    };
 
     if (SELECT_RANDOM_USER_COUNTDOWN) {
-      this.state = {
-        count: 0,
-      };
       this.play = this.play.bind(this);
     }
   }
 
   iterateSelection() {
-    if (this.props.mappedRandomlySelectedUsers.length > 1) {
-      const that = this;
-      setTimeout(delay(that.props.mappedRandomlySelectedUsers, 1), that.props.mappedRandomlySelectedUsers[1][1]);
-      function delay(arr, num) {
-        that.setState({
-          count: num,
-        });
-        if (num < that.props.mappedRandomlySelectedUsers.length - 1) {
-          setTimeout(() => { delay(arr, num + 1); }, arr[num + 1][1]);
-        }
+    if ( !allSame ) {
+
+      const count = this.state.count;
+      const iterations = this.props.mappedRandomlySelectedUsers.length -1;
+      const delay = this.props.mappedRandomlySelectedUsers[count][1];
+
+      if (count < iterations ) {
+        setTimeout(() => { 
+          this.setState({ count: count + 1 }); 
+        }, delay);
       }
+
+      // In case timeouts use outdated values, fix
+      if (count === iterations + 1) this.setState({ count: iterations });
     }
   }
 
   componentDidMount() {
-    if (SELECT_RANDOM_USER_COUNTDOWN && !this.props.currentUser.presenter) {
+    allSame = (this.props.mappedRandomlySelectedUsers[0][1] === this.props.mappedRandomlySelectedUsers[1][1]);
+    if (SELECT_RANDOM_USER_COUNTDOWN) {
       this.iterateSelection();
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (SELECT_RANDOM_USER_COUNTDOWN) {
-      if (this.props.currentUser.presenter && this.state.count === 0) {
-        this.iterateSelection();
-      }
+    allSame = (this.props.mappedRandomlySelectedUsers[0][1] === this.props.mappedRandomlySelectedUsers[1][1]);
 
-      if ((prevState.count !== this.state.count) && this.props.keepModalOpen) {
+    if (SELECT_RANDOM_USER_COUNTDOWN) {
+      this.iterateSelection();
+
+      if (
+        // Use loose comparison in case number
+        // got reassigned to same value
+        (prevState.count != this.state.count)
+        && this.props.keepModalOpen
+        && !allSame
+      ) {
         this.play();
       }
     }
@@ -104,13 +127,37 @@ class RandomUserSelect extends Component {
       + '/resources/sounds/Poll.mp3');
   }
 
-  reselect() {
+  reselect(refresh) {
     if (SELECT_RANDOM_USER_COUNTDOWN) {
       this.setState({
         count: 0,
       });
     }
-    this.props.randomUserReq();
+    this.props.randomUserReq(this.state.allowRepeat, refresh);
+  }
+
+  getLabel(countDown, amISelectedUser, currentUser, numAvailableViewers, intl){
+    let label = ``;
+
+    // Inform the moderateor that there is only one user
+    if (numAvailableViewers === 1 && currentUser.presenter) {
+      label = `${intl.formatMessage(messages.onlyOneViewerTobeSelected)}`;
+    }
+
+    // Displayed during Animation
+    else if (SELECT_RANDOM_USER_COUNTDOWN && countDown !== 0) {
+      label = `${intl.formatMessage(messages.whollbeSelected)} ${ (!allSame) ? countDown : ''}`;
+    }
+
+    // Shown to the chosen one
+    else if (amISelectedUser && countDown === 0) {
+      label = `${intl.formatMessage(messages.selected)}`;
+    }
+
+    // Informs about choice
+    else label = `${intl.formatMessage(messages.randUserTitle)}`;
+
+    return label;
   }
 
   render() {
@@ -125,18 +172,19 @@ class RandomUserSelect extends Component {
       mappedRandomlySelectedUsers,
     } = this.props;
 
-    const counter = SELECT_RANDOM_USER_COUNTDOWN ? this.state.count : 0;
+    const counter = this.state.count;
     if (mappedRandomlySelectedUsers.length < counter + 1) return null;
 
     const selectedUser = mappedRandomlySelectedUsers[counter][0];
-    const countDown = SELECT_RANDOM_USER_COUNTDOWN ?
-      mappedRandomlySelectedUsers.length - this.state.count - 1 : 0;
+    const countDown = mappedRandomlySelectedUsers.length - this.state.count - 1;
 
     let viewElement;
 
-    const amISelectedUser = currentUser.userId === selectedUser.userId;
-    if (numAvailableViewers < 1 || (currentUser.presenter && amISelectedUser)) { // there's no viewers to select from,
-      // or when you are the presenter but selected, which happens when the presenter ability is passed to somebody
+    const amISelectedUser = (currentUser.userId === selectedUser.userId);
+    if (numAvailableViewers < 1 || (currentUser.presenter && amISelectedUser)) {
+      // there's no viewers to select from,
+      // or when you are the presenter but selected,
+      // which happens when the presenter ability is passed to somebody
       // and people are entering and leaving the meeting
       // display modal informing presenter that there's no viewers to select from
       viewElement = (
@@ -145,6 +193,14 @@ class RandomUserSelect extends Component {
             {intl.formatMessage(messages.randUserTitle)}
           </div>
           <div>{intl.formatMessage(messages.noViewers)}</div>
+          <br />
+          <Button
+            onClick={() => this.reselect(true)}
+            label={intl.formatMessage(messages.restart)}
+            color="primary"
+            size="md"
+            className={styles.selectBtn}
+          />
         </div>
       );
     } else { // viewers are available
@@ -154,13 +210,7 @@ class RandomUserSelect extends Component {
       viewElement = (
         <div className={styles.modalViewContainer}>
           <div className={styles.modalViewTitle}>
-            {countDown == 0
-              ? amISelectedUser
-                ? `${intl.formatMessage(messages.selected)}`
-                : numAvailableViewers == 1 && currentUser.presenter
-                  ? `${intl.formatMessage(messages.onlyOneViewerTobeSelected)}`
-                  : `${intl.formatMessage(messages.randUserTitle)}`
-              : `${intl.formatMessage(messages.whollbeSelected)} ${countDown}`}
+            {  this.getLabel(countDown, amISelectedUser, currentUser, numAvailableViewers, intl, this.state.count) }
           </div>
           <div aria-hidden className={styles.modalAvatar} style={{ backgroundColor: `${selectedUser.color}` }}>
             {selectedUser.name.slice(0, 2)}
@@ -168,17 +218,32 @@ class RandomUserSelect extends Component {
           <div className={styles.selectedUserName}>
             {selectedUser.name}
           </div>
-          {currentUser.presenter
-            && countDown === 0
-            && (
-            <Button
-              label={intl.formatMessage(messages.reselect)}
-              color="primary"
-              size="md"
-              className={styles.selectBtn}
-              onClick={() => this.reselect()}
-            />
-            )}
+          { (currentUser.presenter && (
+              countDown === 0 // Buttons are only available when the animation is not in process
+              || numAvailableViewers === 1 // When there is only one user we still want to shw the buttons
+              || !SELECT_RANDOM_USER_COUNTDOWN // If animations are off we always show buttons
+              ) )
+            ? (
+              <>
+                <div>
+                  <input
+                    type="checkbox"
+                    name="allowRepeat"
+                    onChange={() => this.setState({ allowRepeat: !this.state.allowRepeat })}
+                    defaultChecked={ this.state.allowRepeat }/>
+                  <label htmlFor="allowRepeat">{intl.formatMessage(messages.allowRepeat)}</label>
+                  <br />
+                </div>
+                <Button
+                  label={intl.formatMessage(messages.reselect)}
+                  color="primary"
+                  size="md"
+                  className={styles.selectBtn}
+                  onClick={() => this.reselect(false)}
+                />
+              </>
+            )
+            : null}
         </div>
       );
     }
@@ -204,3 +269,4 @@ class RandomUserSelect extends Component {
 
 RandomUserSelect.propTypes = propTypes;
 export default injectIntl(RandomUserSelect);
+
