@@ -74,6 +74,10 @@ const avatarSide = '34px';
 const avatarWrapperOffset = '14px';
 const avatarInset = '-7px';
 
+const dropdownCaretHeight = '8px';
+const dropdownCaretWidth = '12px';
+
+
 export {
   borderSizeSmall,
   borderSize,
@@ -145,4 +149,6 @@ export {
   avatarSide,
   avatarWrapperOffset,
   avatarInset,
+  dropdownCaretHeight,
+  dropdownCaretWidth,
 };
