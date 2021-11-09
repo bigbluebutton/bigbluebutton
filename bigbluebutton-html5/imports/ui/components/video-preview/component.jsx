@@ -812,7 +812,10 @@ class VideoPreview extends Component {
     return (
       <Modal
         overlayClassName={styles.overlay}
-        className={styles.modal}
+        className={cx({
+          [styles.modal]: true,
+          [styles.modalPhone]: deviceInfo.isPhone,
+        })}
         onRequestClose={this.handleProceed}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
