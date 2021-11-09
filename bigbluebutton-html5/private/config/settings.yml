@@ -464,6 +464,45 @@ public:
     hidePresentation: false
     showParticipantsOnLogin: true
   media:
+    audio:
+      #
+      #
+      # Default bridge to be used by full audio mechanism.
+      # This is the bridge's name as contained in 'bridges' array
+      defaultFullAudioBridge: sipjs
+      #
+      #
+      # Server wide configuration to choose which bbb-webrtc-sfu
+      # media server adapter should be used for fullaudio.
+      # Default is undefined, which means the default setting in bbb-webrtc-sfu
+      # prevails (fullAudioMediaServer).
+      # fullAudioMediaServer: Kurento
+      #
+      #
+      # Default bridge to be used by listen only mechanism.
+      defaultListenOnlyBridge: kurento
+      #
+      #
+      # Bridge array, here's where we list our bridges.
+      # To add new bridges, simply add the corresponding .js file in
+      # /imports/api/audio/client/bridge/ and add it to this list.
+      #
+      # Each bridge in this list, must have a name and path attribute.
+      # The name is the desired name/string you can set for your bridge, while
+      # the path specifies the file path, relative to
+      # '/imports/api/audio/client' dir.
+      #
+      bridges:
+          #
+          # The name of the bridge
+        - name: sipjs
+          #
+          # The bridge file path , relative to /imports/api/audio/client
+          path: 'bridge/sip'
+        - name: kurento
+          path: 'bridge/kurento'
+        - name: fullaudio
+          path: 'bridge/FullAudioBridge'
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''

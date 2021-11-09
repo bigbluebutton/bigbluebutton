@@ -22,6 +22,10 @@ try {
     Meteor.settings.public.app.instanceId = ''; // no longer use instanceId in URLs. Likely permanent change
     // Meteor.settings.public.app.instanceId = `/${INSTANCE_ID}`;
 
+    Meteor.settings.public.packages = {
+      'dynamic-import': { useLocationOrigin: true },
+    };
+
     __meteor_runtime_config__.PUBLIC_SETTINGS = SETTINGS.public;
   } else {
     throw new Error('File doesn\'t exists');
