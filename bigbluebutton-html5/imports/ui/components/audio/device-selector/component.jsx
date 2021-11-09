@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import logger from '/imports/startup/client/logger';
 import browserInfo from '/imports/utils/browserInfo';
-import { styles } from '../audio-modal/styles';
+import { styles } from '../audio-modal/styles.scss';
 
 const propTypes = {
   kind: PropTypes.oneOf(['audioinput', 'audiooutput', 'videoinput']),
