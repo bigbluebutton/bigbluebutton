@@ -10,12 +10,10 @@ const propTypes = {
   handleChange: PropTypes.func.isRequired,
   elementId: PropTypes.string.isRequired,
   selectMessage: PropTypes.string.isRequired,
-  elementClass: PropTypes.string,
 };
 
 const defaultProps = {
   value: null,
-  elementClass: null,
 };
 
 class LocalesDropdown extends PureComponent {
@@ -48,7 +46,7 @@ class LocalesDropdown extends PureComponent {
 
   render() {
     const {
-      value, handleChange, elementId, selectMessage, elementClass,
+      value, handleChange, elementId, selectMessage,
     } = this.props;
     const defaultLocale = value || DEFAULT_VALUE;
 
@@ -59,7 +57,6 @@ class LocalesDropdown extends PureComponent {
         id={elementId}
         onChange={handleChange}
         value={defaultLocale}
-        className={elementClass}
       >
         <option disabled key={DEFAULT_KEY} value={DEFAULT_VALUE}>
           {selectMessage}

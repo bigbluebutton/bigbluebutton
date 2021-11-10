@@ -6,13 +6,13 @@ import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-
 import { makeCall } from '/imports/ui/services/api';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
-import Button from '/imports/ui/components/button/component';
 import BBBMenu from '/imports/ui/components/menu/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import FullscreenService from '../../fullscreen-button/service';
-
-import { styles } from '../styles';
+import { colorDanger } from '/imports/ui/stylesheets/styled-components/palette';
+import deviceInfo from '/imports/utils/deviceInfo';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -252,6 +252,8 @@ class SettingsDropdown extends PureComponent {
     }
 
     if (allowLogoutSetting && isMeteorConnected) {
+      const customStyles = { color: colorDanger };
+
       this.menuItems.push(
         {
           key: 'list-item-logout',
@@ -259,7 +261,7 @@ class SettingsDropdown extends PureComponent {
           icon: 'logout',
           label: intl.formatMessage(intlMessages.leaveSessionLabel),
           // description: intl.formatMessage(intlMessages.leaveSessionDesc),
-          className: styles.leaveMeetingButton,
+          customStyles,
           onClick: () => this.leaveSession(),
         },
       );
@@ -275,19 +277,21 @@ class SettingsDropdown extends PureComponent {
       isDropdownOpen,
     } = this.props;
 
-    return (
+    const { isMobile } = deviceInfo;
+    const customStyles = { top: '4rem' };
 
+    return (
       <BBBMenu
-        classes={[styles.offsetTop]}
         accessKey={OPEN_OPTIONS_AK}
+        customStyles={!isMobile ? customStyles : null}
         trigger={(
-          <Button
+          <Styled.DropdownButton
+            state={isDropdownOpen ? 'open' : 'closed'}
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
             ghost
             circle
             hideLabel
-            className={isDropdownOpen ? styles.hideDropdownButton : styles.btn}
             // FIXME: Without onClick react proptypes keep warning
             // even after the DropdownTrigger inject an onClick handler
             onClick={() => null}
@@ -295,7 +299,6 @@ class SettingsDropdown extends PureComponent {
         )}
         actions={this.renderMenuItems()}
       />
-
     );
   }
 }
