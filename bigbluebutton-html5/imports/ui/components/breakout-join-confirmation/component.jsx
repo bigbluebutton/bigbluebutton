@@ -214,6 +214,7 @@ class BreakoutJoinConfirmation extends Component {
         dismiss={{
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
+          disabled: waiting,
         }}
       >
         { isFreeJoin ? this.renderSelectMeeting() : `${intl.formatMessage(intlMessages.message)} ${breakoutName}?`}

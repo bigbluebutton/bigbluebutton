@@ -34,14 +34,6 @@ const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) => mou
 );
 
 class BreakoutRoomInvitation extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      didSendBreakoutInvite: false,
-    };
-  }
-
   componentDidMount() {
     // use dummy old data on mount so it works if no data changes
     this.checkBreakouts({ breakouts: [] });
@@ -59,10 +51,6 @@ class BreakoutRoomInvitation extends Component {
       breakoutUserIsIn,
     } = this.props;
 
-    const {
-      didSendBreakoutInvite,
-    } = this.state;
-
     const hasBreakouts = breakouts.length > 0;
 
     if (hasBreakouts && !breakoutUserIsIn && BreakoutService.checkInviteModerators()) {
@@ -71,10 +59,7 @@ class BreakoutRoomInvitation extends Component {
       const breakoutRoom = getBreakoutByUrlData(currentBreakoutUrlData);
       const freeJoinBreakout = breakouts.find((breakout) => breakout.freeJoin);
       if (freeJoinBreakout) {
-        if (!didSendBreakoutInvite) {
-          this.inviteUserToBreakout(breakoutRoom || freeJoinBreakout);
-          this.setState({ didSendBreakoutInvite: true });
-        }
+        this.inviteUserToBreakout(breakoutRoom || freeJoinBreakout);
       } else if (currentBreakoutUrlData) {
         const currentInsertedTime = currentBreakoutUrlData.insertedTime;
         const oldCurrentUrlData = oldProps.currentBreakoutUrlData || {};
@@ -86,10 +71,6 @@ class BreakoutRoomInvitation extends Component {
           }
         }
       }
-    }
-
-    if (!hasBreakouts && didSendBreakoutInvite) {
-      this.setState({ didSendBreakoutInvite: false });
     }
   }
 
