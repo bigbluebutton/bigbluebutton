@@ -206,7 +206,6 @@
     "app.poll.hidePollDesc": "Kaŝas la enketmenuon",
     "app.poll.quickPollInstruction": "Elektu opcion sube por komenci vian enketon.",
     "app.poll.activePollInstruction": "Lasu ĉi tiun panelon malfermita por vidi realtempajn respondojn al via enketo. Kiam vi pretas, elektu 'Publikigi enketrezultojn' por publikigi la rezultojn kaj fini la enketon.",
-    "app.poll.publishLabel": "Publikigi enketrezultojn",
     "app.poll.backLabel": "Komenci enketon",
     "app.poll.closeLabel": "Fermi",
     "app.poll.waitingLabel": "Atendante respondojn ({0}/{1})",

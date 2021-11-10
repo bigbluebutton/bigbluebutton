@@ -236,7 +236,6 @@
     "app.poll.activePollInstruction": "Laissez cette fenêtre ouverte afin de voir en direct les réponses à votre sondage. Lorsque vous êtes prêt, sélectionnez « Publier les résultats du sondage » pour publier les résultats et terminer le sondage.",
     "app.poll.dragDropPollInstruction": "Pour renseigner les valeurs du sondage, faites glisser un fichier texte avec les valeurs sur le champ en surbrillance",
     "app.poll.customPollTextArea": "Renseigner les valeurs du sondage",
-    "app.poll.publishLabel": "Publier les résultats du sondage",
     "app.poll.backLabel": "Débuter un sondage",
     "app.poll.closeLabel": "Fermer",
     "app.poll.waitingLabel": "En attente des réponses ({0}/{1})",
