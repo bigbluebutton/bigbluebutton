@@ -104,6 +104,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-grow: 1;
 
   @include mq($small-only) {
     flex-direction: column;
@@ -132,6 +133,12 @@
   padding: 1rem;
   min-height: 25rem;
   max-height: 60vh;
+
+  & > [class^="content"] {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
 
   @include mq($small-only) {
     height: unset;
