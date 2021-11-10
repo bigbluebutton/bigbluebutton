@@ -24,10 +24,6 @@ class PublicChatRecordEvent extends AbstractChatRecordEvent {
 
   setEvent("PublicChatEvent")
 
-  def setSender(sender: String) {
-    eventMap.put(SENDER, sender)
-  }
-
   def setSenderId(senderId: String) {
     eventMap.put(SENDERID, senderId)
   }
@@ -35,15 +31,9 @@ class PublicChatRecordEvent extends AbstractChatRecordEvent {
   def setMessage(message: String) {
     eventMap.put(MESSAGE, message)
   }
-
-  def setColor(color: String) {
-    eventMap.put(COLOR, color)
-  }
 }
 
 object PublicChatRecordEvent {
-  private final val SENDER = "sender"
   private final val SENDERID = "senderId"
   private final val MESSAGE = "message"
-  private final val COLOR = "color"
 }

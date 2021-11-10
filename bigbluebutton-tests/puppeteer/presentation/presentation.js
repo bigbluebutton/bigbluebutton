@@ -1,8 +1,8 @@
 const Page = require('../core/page');
 const e = require('../core/elements');
 const util = require('./util');
-const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
-const { checkElement, checkElementTextIncludes, checkElementText } = require('../core/util');
+const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { checkElement, checkElementText } = require('../core/util');
 
 class Presentation {
   constructor() {
@@ -128,6 +128,59 @@ class Presentation {
       await this.modPage.logger(err);
       return false;
     }
+  }
+
+  async hideAndRestorePresentation(testName) {
+    try {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.screenshot(testName, '01-after-close-audio-modal');
+      await this.modPage.waitAndClick(e.minimizePresentation);
+      const presentationWasRemoved = await this.modPage.wasRemoved(e.presentationContainer);
+      await this.modPage.screenshot(testName, '02-minimize-presentation');
+
+      await this.modPage.waitAndClick(e.restorePresentation);
+      const presentationWasRestored = await this.modPage.hasElement(e.presentationContainer);
+      await this.modPage.screenshot(testName, '03-restore-presentation');
+
+      return presentationWasRemoved && presentationWasRestored;
+    } catch (err) {
+      await this.modPage.logger(err);
+      return false;
+    }
+  }
+
+  async startExternalVideo(testName) {
+    try {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.screenshot(testName, '01-after-close-audio-modal');
+      await this.modPage.waitAndClick(e.actions);
+      await this.modPage.waitAndClick(e.externalVideoBtn);
+      await this.modPage.waitForSelector(e.externalVideoModalHeader);
+      await this.modPage.type(e.videoModalInput, e.youtubeLink);
+      await this.modPage.screenshot(testName, '02-before-start-sharing-video');
+      await this.modPage.waitAndClick(e.startShareVideoBtn);
+
+      const modFrame = await this.getFrame(this.modPage, e.youtubeFrame);
+      await this.modPage.screenshot(testName, '03-modPage-after-rendering-frame');
+      const userFrame = await this.getFrame(this.userPage, e.youtubeFrame);
+      await this.userPage.screenshot(testName, '03-userPage-after-rendering-frame');
+
+      const resp = (await modFrame.hasElement('video')) && (await userFrame.hasElement('video'));
+
+      return resp === true;
+    } catch (err) {
+      await this.modPage.logger(err);
+      return false;
+    }
+  }
+
+  async getFrame(page, frameSelector) {
+    await page.waitForSelector(frameSelector);
+    const handleFrame = await page.page.$(frameSelector);
+    const contentFrame = await handleFrame.contentFrame();
+    const frame = new Page(contentFrame);
+    await frame.waitForSelector(e.ytFrameTitle);
+    return frame;
   }
 }
 

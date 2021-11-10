@@ -2,11 +2,11 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { Session } from 'meteor/session';
-import { styles } from './styles';
+import Styled from './styles';
 import Service from './service';
+import Settings from '/imports/ui/services/settings';
 
 const intlMessages = defineMessages({
   usersTitle: {
@@ -99,14 +99,14 @@ class LiveResult extends PureComponent {
           ...acc,
           (
             <tr key={_.uniqueId('stats-')}>
-              <td className={styles.resultLeft}>{user.name}</td>
-              <td data-test="receivedAnswer" className={styles.resultRight}>
+              <Styled.ResultLeft>{user.name}</Styled.ResultLeft>
+              <Styled.ResultRight data-test="receivedAnswer">
                 {
                   defaultPoll && pollAnswerIds[formattedMessageIndex]
                     ? intl.formatMessage(pollAnswerIds[formattedMessageIndex])
                     : user.answer
                 }
-              </td>
+              </Styled.ResultRight>
             </tr>
           ),
         ]);
@@ -124,22 +124,22 @@ class LiveResult extends PureComponent {
       };
 
       return pollStats.push(
-        <div className={styles.main} key={_.uniqueId('stats-')}>
-          <div className={styles.left}>
+        <Styled.Main key={_.uniqueId('stats-')}>
+          <Styled.Left>
             {
               defaultPoll && pollAnswerIds[formattedMessageIndex]
                 ? intl.formatMessage(pollAnswerIds[formattedMessageIndex])
                 : obj.key
             }
-          </div>
-          <div className={styles.center}>
-            <div className={styles.barShade} style={calculatedWidth} />
-            <div className={styles.barVal}>{obj.numVotes || 0}</div>
-          </div>
-          <div className={styles.right}>
+          </Styled.Left>
+          <Styled.Center>
+            <Styled.BarShade style={calculatedWidth} />
+            <Styled.BarVal>{obj.numVotes || 0}</Styled.BarVal>
+          </Styled.Center>
+          <Styled.Right>
             {pctFotmatted}
-          </div>
-        </div>,
+          </Styled.Right>
+        </Styled.Main>,
       );
     });
 
@@ -170,6 +170,7 @@ class LiveResult extends PureComponent {
     } = this.props;
 
     const { userAnswers, pollStats, currentPollQuestion } = this.state;
+    const { animations } = Settings.application;
 
     let waiting;
     let userCount = 0;
@@ -189,9 +190,9 @@ class LiveResult extends PureComponent {
 
     return (
       <div>
-        <div className={styles.stats}>
-          {currentPollQuestion ? <span className={styles.title}>{currentPollQuestion}</span> : null}
-          <div className={styles.status}>
+        <Styled.Stats>
+          {currentPollQuestion ? <Styled.Title>{currentPollQuestion}</Styled.Title> : null}
+          <Styled.Status>
             {waiting
               ? (
                 <span>
@@ -203,14 +204,14 @@ class LiveResult extends PureComponent {
               )
               : <span>{intl.formatMessage(intlMessages.doneLabel)}</span>}
             {waiting
-              ? <span className={styles.connectingAnimation} /> : null}
-          </div>
+              ? <Styled.ConnectingAnimation animations={animations}/> : null}
+          </Styled.Status>
           {pollStats}
-        </div>
+        </Styled.Stats>
         {currentPoll && currentPoll.answers.length > 0
           ? (
-            <div className={styles.buttonsActions}>
-              <Button
+            <Styled.ButtonsActions>
+              <Styled.PublishButton
                 disabled={!isMeteorConnected}
                 onClick={() => {
                   Session.set('pollInitiated', false);
@@ -220,9 +221,8 @@ class LiveResult extends PureComponent {
                 label={intl.formatMessage(intlMessages.publishLabel)}
                 data-test="publishPollingLabel"
                 color="primary"
-                className={styles.publishBtn}
               />
-              <Button
+              <Styled.CancelButton
                 disabled={!isMeteorConnected}
                 onClick={() => {
                   Session.set('pollInitiated', false);
@@ -231,11 +231,10 @@ class LiveResult extends PureComponent {
                 }}
                 label={intl.formatMessage(intlMessages.cancelPollLabel)}
                 data-test="cancelPollLabel"
-                className={styles.cancelBtn}
               />
-            </div>
+            </Styled.ButtonsActions>
           ) : (
-            <Button
+            <Styled.LiveResultButton
               disabled={!isMeteorConnected}
               onClick={() => {
                 handleBackClick();
@@ -243,18 +242,17 @@ class LiveResult extends PureComponent {
               label={intl.formatMessage(intlMessages.backLabel)}
               color="primary"
               data-test="restartPoll"
-              className={styles.btn}
             />
           )
         }
-        <div className={styles.separator} />
+        <Styled.Separator />
         { currentPoll && !currentPoll.secretPoll
           ? (
             <table>
               <tbody>
                 <tr>
-                  <th className={styles.theading}>{intl.formatMessage(intlMessages.usersTitle)}</th>
-                  <th className={styles.theading}>{intl.formatMessage(intlMessages.responsesTitle)}</th>
+                  <Styled.THeading>{intl.formatMessage(intlMessages.usersTitle)}</Styled.THeading>
+                  <Styled.THeading>{intl.formatMessage(intlMessages.responsesTitle)}</Styled.THeading>
                 </tr>
                 {userAnswers}
               </tbody>
