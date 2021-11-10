@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.presentationpod.PresentationPodsApp
 import org.bigbluebutton.core.apps.{ BreakoutModel, PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.domain.{ BreakoutRoom2x, MeetingState2x }
 import org.bigbluebutton.core.models.PresentationInPod
@@ -52,6 +53,9 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     }
 
     for (breakout <- rooms.values.toVector) {
+      // Generate token if breakout room is recorded
+      val presentationUploadToken = if (msg.body.record) (PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", msg.header.userId)) else null
+
       val roomDetail = new BreakoutRoomDetail(
         breakout.id, breakout.name,
         liveMeeting.props.meetingProp.intId,
@@ -65,15 +69,31 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         liveMeeting.props.password.moderatorPass,
         liveMeeting.props.password.viewerPass,
         presId, presSlide, msg.body.record,
-        liveMeeting.props.breakoutProps.privateChatEnabled
+        liveMeeting.props.breakoutProps.privateChatEnabled,
+        // Add generated presentationUploadToken
+        presentationUploadToken
       )
 
       val event = buildCreateBreakoutRoomSysCmdMsg(liveMeeting.props.meetingProp.intId, roomDetail)
-      outGW.send(event)
+      outGW.send(event) // Send message to bbb-web
+
+      // Informs bbb-web about the token so that when we use it to upload the presentation, it is able to look it up in the list of tokens
+      if (msg.body.record) {
+        outGW.send(buildPresentationUploadTokenSysPubMsg(parentId, msg.header.userId, presentationUploadToken, breakout.name))
+      }
     }
 
     val breakoutModel = new BreakoutModel(None, msg.body.durationInMinutes, rooms)
     state.update(Some(breakoutModel))
+  }
+
+  def buildPresentationUploadTokenSysPubMsg(parentId: String, userId: String, presentationUploadToken: String, filename: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(PresentationUploadTokenSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationUploadTokenSysPubMsg.NAME, parentId, userId)
+    val body = PresentationUploadTokenSysPubMsgBody("DEFAULT_PRESENTATION_POD", presentationUploadToken, filename, parentId)
+    val event = PresentationUploadTokenSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
   }
 
   def buildCreateBreakoutRoomSysCmdMsg(meetingId: String, breakout: BreakoutRoomDetail): BbbCommonEnvCoreMsg = {

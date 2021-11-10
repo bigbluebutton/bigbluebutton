@@ -378,6 +378,9 @@ public class MeetingService implements MessageListener {
         breakoutMetadata.put("sequence", m.getSequence().toString());
         breakoutMetadata.put("freeJoin", m.isFreeJoin().toString());
         breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
+
+        // Store the token in the breakout metadata
+        breakoutMetadata.put("presentationUploadToken", m.getPresentationUploadToken());
         storeService.recordBreakoutInfo(m.getInternalId(), breakoutMetadata);
       }
     }
@@ -646,6 +649,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.DURATION, message.durationInMinutes.toString());
       params.put(ApiParams.RECORD, message.record.toString());
       params.put(ApiParams.WELCOME, getMeeting(message.parentMeetingId).getWelcomeMessageTemplate());
+      params.put(ApiParams.PRESENTATION_UPLOAD_TOKEN, message.presentationUploadToken);
 
       Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();
 

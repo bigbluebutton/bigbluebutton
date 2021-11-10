@@ -36,13 +36,14 @@ public class Meeting {
 	public static final String ROLE_MODERATOR = "MODERATOR";
 	public static final String ROLE_ATTENDEE = "VIEWER";
 
+	private String presentationUploadToken;
 	private String name;
 	private String extMeetingId;
 	private String intMeetingId;
 	private String parentMeetingId = "bbb-none"; // Initialize so we don't send null in the json message.
 	private Integer sequence = 0;
 	private Boolean freeJoin = false;
-  private Integer duration = 0;
+  	private Integer duration = 0;
 	private long createdTime = 0;
 	private long startTime = 0;
 	private long endTime = 0;
@@ -106,6 +107,7 @@ public class Meeting {
 	private Integer html5InstanceId;
 
     public Meeting(Meeting.Builder builder) {
+		presentationUploadToken = builder.presentationUploadToken;
         name = builder.name;
         extMeetingId = builder.externalId;
         intMeetingId = builder.internalId;
@@ -135,7 +137,7 @@ public class Meeting {
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
         authenticatedGuest = builder.authenticatedGuest;
-				meetingLayout = builder.meetingLayout;
+		meetingLayout = builder.meetingLayout;
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
         allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
@@ -218,6 +220,10 @@ public class Meeting {
 		}
 
 		return GuestPolicy.DENY;
+	}
+
+	public String getPresentationUploadToken() {
+		return presentationUploadToken;
 	}
 
 	public int getHtml5InstanceId() { return html5InstanceId; }
@@ -722,6 +728,8 @@ public class Meeting {
 	 *
 	 */
 	public static class Builder {
+		private String presentationUploadToken;
+
     	private String name;
     	private String externalId;
     	private String internalId;
@@ -751,7 +759,7 @@ public class Meeting {
     	private boolean isBreakout;
     	private String guestPolicy;
     	private Boolean authenticatedGuest;
-			private String meetingLayout;
+		private String meetingLayout;
     	private BreakoutRoomsParams breakoutRoomsParams;
     	private LockSettingsParams lockSettingsParams;
 		private Boolean allowDuplicateExtUserid;
@@ -774,6 +782,11 @@ public class Meeting {
     		duration = minutes;
     		return this;
     	}
+
+		public Builder withPresentationUploadToken(String token){
+			presentationUploadToken = token;
+			return this;
+		}
 
     	public Builder withMaxUsers(int n) {
     		maxUsers = n;
