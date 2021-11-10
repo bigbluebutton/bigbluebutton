@@ -1,9 +1,20 @@
 import { createGlobalStyle } from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { borderRadius } from '/imports/ui/stylesheets/styled-components/general';
-import { dropdownBg } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  smPaddingX,
+  borderRadius,
+  borderSize,
+  borderSizeSmall,
+} from '/imports/ui/stylesheets/styled-components/general';
+import {
+  dropdownBg,
+  colorText,
+  colorWhite,
+  colorGrayLighter,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
 const GlobalStyle = createGlobalStyle`
+  // BBBMenu
   @media ${smallOnly} {
     .MuiPaper-root.MuiMenu-paper.MuiPopover-paper {
       top: 0 !important;
@@ -22,6 +33,7 @@ const GlobalStyle = createGlobalStyle`
     max-width: 16rem;
   }
 
+  // modal
   @keyframes fade-in {
     0% {
       opacity: 0;
@@ -67,6 +79,66 @@ const GlobalStyle = createGlobalStyle`
     right: 0;
     bottom: 0;
   }
+
+  // toast
+  .toastClass {
+    position: relative;
+    margin-bottom: ${smPaddingX};
+    padding: ${smPaddingX};
+    border-radius: ${borderRadius};
+    box-shadow: 0 ${borderSizeSmall} 10px 0 rgba(0, 0, 0, 0.1), 0 ${borderSize} 15px 0 rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    color: ${colorText};
+    -webkit-animation-duration: 0.75s;
+    animation-duration: 0.75s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+    max-width: 20rem !important;
+    min-width: 20rem !important;
+    width: 20rem !important;
+    cursor: pointer;
+    background-color: ${colorWhite};
+
+    &:hover,
+    &:focus {
+      background-color: #EEE;
+    }
+  }
+
+  .toastBodyClass {
+    margin: auto auto;
+    flex: 1;
+    background-color: inherit;
+    max-width: 17.75rem !important;
+  }
+
+  @keyframes track-progress {
+    0% {
+      width: 100%;
+    }
+    100% {
+      width: 0;
+    }
+  }
+
+  .toastProgressClass {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: auto;
+    width: 0;
+    height: 5px;
+    z-index: 9999;
+    animation: track-progress linear 1;
+    background-color: ${colorGrayLighter};
+    border-radius: ${borderRadius};
+
+    [dir="rtl"] & {
+      left: auto;
+      right: 0;
+    }
+  }
 `;
- 
+
 export default GlobalStyle;

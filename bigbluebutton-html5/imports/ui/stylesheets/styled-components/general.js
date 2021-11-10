@@ -80,6 +80,9 @@ const dropdownCaretWidth = '12px';
 const toastOffsetSm = '.325rem';
 const btnSpacing = '.35rem';
 
+const toastIconMd = '2rem';
+const toastIconSm = '1.2rem';
+
 export {
   borderSizeSmall,
   borderSize,
@@ -155,4 +158,6 @@ export {
   dropdownCaretWidth,
   toastOffsetSm,
   btnSpacing,
+  toastIconMd,
+  toastIconSm,
 };

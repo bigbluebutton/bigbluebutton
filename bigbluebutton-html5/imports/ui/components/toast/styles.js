@@ -1,11 +1,33 @@
 import styled from 'styled-components';
+import { ToastContainer as Toastify } from 'react-toastify';
 import Icon from '../icon/component';
 import {
   fontSizeSmallest,
   fontSizeSmaller,
+  fontSizeSmall,
+  lineHeightComputed,
 } from '/imports/ui/stylesheets/styled-components/typography';
-import { colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
-import { toastOffsetSm } from '/imports/ui/stylesheets/styled-components/general';
+import {
+  colorGrayDark,
+  toastDefaultColor,
+  toastDefaultBg,
+  toastInfoColor,
+  toastInfoBg,
+  toastSuccessColor,
+  toastSuccessBg,
+  toastErrorColor,
+  toastErrorBg,
+  toastWarningColor,
+  toastWarningBg,
+  colorGrayLighter,
+} from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  toastOffsetSm,
+  smPaddingX,
+  borderSizeSmall,
+  toastIconMd,
+  toastIconSm,
+} from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const CloseIcon = styled(Icon)`
@@ -50,6 +72,139 @@ const CloseIcon = styled(Icon)`
   }
 `;
 
+const ToastContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  ${({ small }) => small && `
+    background-color: inherit;
+  `}
+`;
+
+const ToastIcon = styled.div`
+  align-self: flex-start;
+  margin: 0 ${smPaddingX} auto 0;
+  width: ${toastIconMd};
+  height: ${toastIconMd};
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+
+  [dir="rtl"]  & {
+    margin: 0 0 auto ${smPaddingX};
+  }
+
+  & > i {
+    line-height: 0;
+    color: inherit;
+    position: absolute;
+    top: 50%;
+    width: 100%;
+  }
+
+  ${({ small }) => small && `
+    width: ${toastIconSm};
+    height: ${toastIconSm};
+    & > i {
+      font-size: 70%;
+    }
+  `}
+`;
+
+const ToastMessage = styled.div`
+  margin-top: auto;
+  margin-bottom: auto;
+  font-size: ${fontSizeSmall};
+  max-height: 15vh;
+  overflow: auto;
+
+  ${({ small }) => small && `
+    font-size: 80%;
+  `}
+`;
+
+const BackgroundColorInherit = styled.div`
+  position: relative;
+`;
+
+const Separator = styled.div`
+  position: relative;
+  width: 100%;
+  height: ${borderSizeSmall};
+  background-color: ${colorGrayLighter};
+  margin-top: calc(${lineHeightComputed} * .5);
+  margin-bottom: calc(${lineHeightComputed} * .5);
+`;
+
+const Toast = styled.div`
+  display: flex;
+
+  ${({ type }) => type === 'default' && `
+    & > i {
+      color: ${toastDefaultColor};
+      background-color: ${toastDefaultBg};
+    }
+  `}
+
+  ${({ type }) => type === 'error' && `
+    & > i {
+      color: ${toastErrorColor};
+      background-color: ${toastErrorBg};
+    }
+  `}
+
+  ${({ type }) => type === 'info' && `
+    & > i {
+      color: ${toastInfoColor};
+      background-color: ${toastInfoBg};
+    }
+  `}
+
+  ${({ type }) => type === 'success' && `
+    & > i {
+      color: ${toastSuccessColor};
+      background-color: ${toastSuccessBg};
+    }
+  `}
+
+  ${({ type }) => type === 'warning' && `
+    & > i {
+      color: ${toastWarningColor};
+      background-color: ${toastWarningBg};
+    }
+  `}
+`;
+
+const ToastifyContainer = styled(Toastify)`
+  z-index: 9998;
+  position: fixed;
+  padding: var(--sm-padding-y);
+  min-width: var(--toast-container-min-width);
+  max-width: var(--toast-container-max-width);
+  box-sizing: border-box;
+  right: var(--jumbo-padding-y);
+  left: auto;
+  top: var(--toast-offset);
+  max-height: 75vh;
+  overflow: hidden;
+
+  [dir="rtl"] & {
+    right: auto;
+    left: var(--jumbo-padding-y);
+  }
+
+  @media ${smallOnly} {
+    width: var(--toast-mobile-width);
+  }
+`;
+
 export default {
   CloseIcon,
+  ToastContainer,
+  ToastIcon,
+  ToastMessage,
+  BackgroundColorInherit,
+  Separator,
+  Toast,
+  ToastifyContainer,
 };

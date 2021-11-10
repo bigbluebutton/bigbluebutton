@@ -91,6 +91,21 @@ const dropdownBg = colorWhite;
 const pollStatsBorderColor = '#D4D9DF';
 const pollBlue = '#1A73D4';
 
+const toastDefaultColor = colorWhite;
+const toastDefaultBg = colorGray;
+
+const toastInfoColor = colorWhite;
+const toastInfoBg = colorPrimary;
+
+const toastSuccessColor = colorWhite;
+const toastSuccessBg = colorSuccess;
+
+const toastErrorColor = colorWhite;
+const toastErrorBg = colorDanger;
+
+const toastWarningColor = colorWhite;
+const toastWarningBg = colorWarning;
+
 export {
   colorWhite,
   colorOffWhite,
@@ -161,4 +176,14 @@ export {
   pollBlue,
   colorContentBackground,
   dropdownBg,
+  toastDefaultColor,
+  toastDefaultBg,
+  toastInfoColor,
+  toastInfoBg,
+  toastSuccessColor,
+  toastSuccessBg,
+  toastErrorColor,
+  toastErrorBg,
+  toastWarningColor,
+  toastWarningBg,
 };

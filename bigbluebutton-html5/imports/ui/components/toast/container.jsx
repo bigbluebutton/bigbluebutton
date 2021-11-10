@@ -1,7 +1,4 @@
 import React from 'react';
-import { ToastContainer as Toastify } from 'react-toastify';
-
-import { styles } from './styles.scss';
 import Styled from './styles';
 import Settings from '/imports/ui/services/settings';
 
@@ -15,13 +12,12 @@ class ToastContainer extends React.Component {
     const { animations } = Settings.application;
 
     return (
-      <Toastify
+      <Styled.ToastifyContainer
         closeButton={(<Styled.CloseIcon iconName="close" animations={animations} />)}
         autoClose={5000}
-        className={styles.container}
-        toastClassName={styles.toast}
-        bodyClassName={styles.body}
-        progressClassName={styles.progress}
+        toastClassName="toastClass"
+        bodyClassName="toastBodyClass"
+        progressClassName="toastProgressClass"
         newestOnTop={false}
         hideProgressBar={false}
         closeOnClick
