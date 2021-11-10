@@ -183,6 +183,7 @@ export {
   isVideoBroadcasting,
   screenshareHasEnded,
   screenshareHasStarted,
+  screenshareHasAudio,
   shareScreen,
   screenShareEndAlert,
   dataSavingSetting,
