@@ -230,7 +230,6 @@
     "app.poll.activePollInstruction": "Pozostaw to okno otwarte, by widzieć na żywo odpowiedzi. Naciśnij 'Publikuj wyniki ankiety', aby zakończyć ankietę i wyświetlić wyniki.",
     "app.poll.dragDropPollInstruction": "Aby wypełnić polaankiety, przeciągnij plik tekstowy z polami ankiety na podświetlone pole",
     "app.poll.customPollTextArea": "Wypełnij pola ankiety",
-    "app.poll.publishLabel": "Publikuj wyniki ankiety",
     "app.poll.backLabel": "Rozpocznij ankietę",
     "app.poll.closeLabel": "Zamknij",
     "app.poll.waitingLabel": "Oczekiwanie na odpowiedzi ({0}/{1})",

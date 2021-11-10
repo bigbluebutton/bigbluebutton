@@ -204,7 +204,6 @@
     "app.poll.hidePollDesc": "隐藏投票菜单 ",
     "app.poll.quickPollInstruction": "选择下面的选项，开始您的投票。",
     "app.poll.activePollInstruction": "此面板开着能查看实时投票。点“发布投票结果”可发布结果并结束投票。",
-    "app.poll.publishLabel": "发布投票结果 ",
     "app.poll.closeLabel": "关闭",
     "app.poll.waitingLabel": "正在等待响应 ({0}/{1})",
     "app.poll.ariaInputCount": "自定义投票选项 {0} of {1}",
