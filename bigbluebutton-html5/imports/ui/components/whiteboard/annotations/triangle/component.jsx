@@ -12,8 +12,6 @@ export default class TriangleDrawComponent extends Component {
     const { slideWidth, slideHeight, annotation } = this.props;
     const { points } = annotation;
 
-    // points[0] and points[1] are x and y coordinates of the top left corner of the annotation
-    // points[2] and points[3] are x and y coordinates of the bottom right corner of the annotation
     const xBottomLeft = points[0];
     const yBottomLeft = points[3];
     const xBottomRight = points[2];
