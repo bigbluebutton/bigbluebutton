@@ -34,7 +34,7 @@ BigBlueButton.logger = logger
 
 opts = Trollop.options do
   opt :meeting_id, 'Meeting id to archive', type: String
-  opt :format, "Playback format name", type: String
+  opt :format, 'Playback format name', type: String
 end
 
 # Breakout room meeting ID
@@ -45,11 +45,8 @@ props = JavaProperties::Properties.new('/etc/bigbluebutton/bbb-web.properties')
 published_files = "/var/bigbluebutton/published/presentation/#{meeting_id}"
 metadata = Nokogiri::XML(File.open("#{published_files}/metadata.xml"))
 
-#
-# Main code
-#
-
-BigBlueButton.logger.info("Breakout PDF upload for [#{meeting_id}] starts")
+# Only run script for breakout rooms
+exit(0) if metadata.xpath('recording/meeting/@breakout').to_s.eql? 'false'
 
 begin
   room_name = metadata.xpath('recording/meta/meetingName').text
@@ -59,7 +56,7 @@ begin
   callback_url = "#{props[:"bigbluebutton.web.serverURL"]}/bigbluebutton/presentation/#{presentation_upload_token}/upload"
 
   unless callback_url.nil?
-    BigBlueButton.logger.info('Making callback for PDF upload')
+    BigBlueButton.logger.info("Upload PDF callback for breakout room [#{meeting_id}]")
 
     file = "#{published_files}/#{room_name}.pdf"
 
@@ -82,23 +79,13 @@ begin
     request.set_form(params, 'multipart/form-data')
 
     response = http.request(request)
-    code = response.code.to_i
-
-    if code == 410
-      BigBlueButton.logger.info("Notified for deleted meeting: #{meeting_id}")
-    elsif code == 404
-      BigBlueButton.logger.info("404 error when notifying for PDF upload: #{meeting_id}, ignoring")
-    elsif code < 200 || code >= 300
-      BigBlueButton.logger.info("PDF upload HTTP request failed: #{response.code} #{response.message} (code #{code})")
-    else
-      BigBlueButton.logger.info("PDF upload successful: #{meeting_id} (code #{code})")
-    end
+    BigBlueButton.logger.info("PDF upload HTTP request for main room #{parent_meeting_id} returned: #{response.code} #{response.message}")
   end
 rescue StandardError => e
   BigBlueButton.logger.info('Rescued')
   BigBlueButton.logger.info(e.to_s)
 end
 
-BigBlueButton.logger.info('Breakout PDF export ready notify ends')
+BigBlueButton.logger.info('Breakout PDF upload ends')
 
-exit 0
+exit(0)
