@@ -41,6 +41,32 @@ const GlobalStyle = createGlobalStyle`
     background-color: rgba(0, 0, 0, .85);
     animation: fade-in .5s ease-in;
   }
+
+  .modalOverlay {
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(6, 23, 42, 0.75);
+  }
+
+  .fullscreenModalOverlay {
+    z-index: 1000;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
 `;
  
 export default GlobalStyle;
