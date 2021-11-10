@@ -107,11 +107,6 @@ const Bottom = styled.div`
 const NavbarToggleButton = styled(Button)`
   margin: 0;
 
-  span {
-    border: none;
-    box-shadow: none;
-  }
-
   z-index: 3;
 
   &:hover,

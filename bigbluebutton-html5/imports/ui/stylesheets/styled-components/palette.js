@@ -19,6 +19,9 @@ const colorPrimary = '#0F70D7';
 const colorDanger = '#DF2721';
 const colorSuccess = '#008081';
 const colorWarning = 'purple';
+const colorOffline = colorGrayLight;
+const colorMuted = '#586571';
+const colorMutedBackground = '#F3F6F9';
 
 const colorBackground = colorGrayDark;
 const userListBg = colorOffWhite;
@@ -33,8 +36,36 @@ const colorTipBg = '#333333';
 const itemFocusBorder = colorBlueLighter;
 
 const btnDefaultColor = colorGray;
-const btnPrimaryBorder = colorPrimary;
 const btnDefaultBg = colorWhite;
+const btnDefaultBorder = colorWhite;
+
+const btnPrimaryBorder = colorPrimary;
+const btnPrimaryColor = colorWhite;
+const btnPrimaryBg = colorPrimary;
+
+const btnSuccessBorder = colorSuccess;
+const btnSuccessColor = colorWhite;
+const btnSuccessBg = colorSuccess;
+
+const btnWarningBorder = colorWarning;
+const btnWarningColor = colorWhite;
+const btnWarningBg = colorWarning;
+
+const btnDangerBorder = colorDanger;
+const btnDangerColor = colorWhite;
+const btnDangerBg = colorDanger;
+
+const btnDarkBorder = colorDanger;
+const btnDarkColor = colorWhite;
+const btnDarkBg = colorGrayDark;
+
+const btnOfflineBorder = colorOffline;
+const btnOfflineColor = colorWhite;
+const btnOfflineBg = colorOffline;
+
+const btnMutedBorder = colorMutedBackground;
+const btnMutedColor = colorMuted;
+const btnMutedBg = colorMutedBackground;
 
 const toolbarButtonColor = btnDefaultColor;
 const userThumbnailBorder = colorGrayLight;
@@ -88,7 +119,29 @@ export {
   colorTipBg,
   itemFocusBorder,
   btnDefaultColor,
+  btnDefaultBg,
+  btnDefaultBorder,
   btnPrimaryBorder,
+  btnPrimaryColor,
+  btnPrimaryBg,
+  btnSuccessBorder,
+  btnSuccessColor,
+  btnSuccessBg,
+  btnWarningBorder,
+  btnWarningColor,
+  btnWarningBg,
+  btnDangerBorder,
+  btnDangerColor,
+  btnDangerBg,
+  btnDarkBorder,
+  btnDarkColor,
+  btnDarkBg,
+  btnOfflineBorder,
+  btnOfflineColor,
+  btnOfflineBg,
+  btnMutedBorder,
+  btnMutedColor,
+  btnMutedBg,
   toolbarButtonColor,
   userThumbnailBorder,
   loaderBg,
