@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import cx from 'classnames';
 import Icon from '../icon/component';
-import { styles } from './styles';
+import { styles } from './styles.scss';
 
 const propTypes = {
   icon: PropTypes.string,

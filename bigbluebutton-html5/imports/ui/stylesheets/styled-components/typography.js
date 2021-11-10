@@ -3,6 +3,7 @@ const lineHeightBase = '1.25';
 const fontSizeBase = '1rem';
 const fontSizeSmall = '0.875rem';
 const fontSizeSmaller = '.75rem';
+const fontSizeSmallest = '.35rem';
 const fontSizeXS = '.575rem';
 const fontSizeLarge = '1.25rem';
 const fontSizeLarger = '1.5rem';
@@ -21,6 +22,7 @@ export {
   fontSizeBase,
   fontSizeSmall,
   fontSizeSmaller,
+  fontSizeSmallest,
   fontSizeXS,
   fontSizeLarge,
   fontSizeLarger,

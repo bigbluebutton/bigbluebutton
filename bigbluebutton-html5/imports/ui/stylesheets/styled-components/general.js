@@ -77,6 +77,8 @@ const avatarInset = '-7px';
 const dropdownCaretHeight = '8px';
 const dropdownCaretWidth = '12px';
 
+const toastOffsetSm = '.325rem';
+const btnSpacing = '.35rem';
 
 export {
   borderSizeSmall,
@@ -151,4 +153,6 @@ export {
   avatarInset,
   dropdownCaretHeight,
   dropdownCaretWidth,
+  toastOffsetSm,
+  btnSpacing,
 };

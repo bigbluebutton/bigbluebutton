@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import TooltipContainer from '/imports/ui/components/tooltip/container';
-import { styles } from './styles';
-import Icon from '../icon/component';
+import { styles } from './styles.scss';
+import Styled from './styles';
 import BaseButton from './base/component';
 import ButtonEmoji from './button-emoji/ButtonEmoji';
 
@@ -201,7 +201,7 @@ export default class Button extends BaseButton {
 
     return (
       <BaseButton
-        className={cx(styles[size], styles.buttonWrapper, className)}
+        className={cx(styles[size], 'buttonWrapper', styles.buttonWrapper, className)}
         {...remainingProps}
       >
         {this.renderButtonEmojiSibling()}
@@ -230,7 +230,7 @@ export default class Button extends BaseButton {
     } = this.props;
 
     if (iconName) {
-      return (<Icon className={styles.icon} iconName={iconName} />);
+      return (<Styled.ButtonIcon iconName={iconName} />);
     } if (customIcon) {
       return customIcon;
     }
