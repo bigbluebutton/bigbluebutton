@@ -80,10 +80,12 @@ export default class ToolbarMenuItem extends Component {
     return (
       <Styled.ButtonWrapper
         showCornerTriangle={showCornerTriangle}
+        className={"toolbarButtonWrapper"}
         hidden={disabled}
       >
         <Styled.ToolbarButton
           state={expanded ? 'active' : 'inactive'}
+          className={expanded ? 'toolbarActive' : ''}
           aria-expanded={expanded}
           aria-haspopup={haspopup}
           hideLabel
