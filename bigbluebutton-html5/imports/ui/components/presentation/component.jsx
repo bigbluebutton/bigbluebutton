@@ -12,7 +12,6 @@ import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import Styled from './styles';
-import toastStyles from '/imports/ui/components/toast/styles';
 import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
@@ -187,7 +186,7 @@ class Presentation extends PureComponent {
           this.currentPresentationToastId = toast(this.renderCurrentPresentationToast(), {
             onClose: () => { this.currentPresentationToastId = null; },
             autoClose: shouldCloseToast,
-            className: toastStyles.actionToast,
+            className: "actionToast",
           });
         }
       }
@@ -765,7 +764,7 @@ class Presentation extends PureComponent {
         {downloadable && !userIsPresenter
           ? (
             <Styled.ToastDownload>
-              <div className={toastStyles.separator} />
+              <Styled.ToastSeparator />
               <a
                 data-test="toastDownload"
                 aria-label={`${intl.formatMessage(intlMessages.downloadLabel)} ${currentPresentation.name}`}

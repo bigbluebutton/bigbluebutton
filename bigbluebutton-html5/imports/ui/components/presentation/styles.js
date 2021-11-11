@@ -9,8 +9,11 @@ import {
   colorPrimary,
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeLarger } from '/imports/ui/stylesheets/styled-components/typography';
+import {
+  fontSizeLarger,
+} from '/imports/ui/stylesheets/styled-components/typography';
 import FullscreenButtonContainer from '../fullscreen-button/container';
+import ToastStyled from '/imports/ui/components/toast/styles';
 
 const VisuallyHidden = styled.span`
   position: absolute;
@@ -159,6 +162,8 @@ const PresentationToolbar = styled.div`
   bottom: 0;
 `;
 
+const ToastSeparator = styled(ToastStyled.Separator)``;
+
 export default {
   VisuallyHidden,
   PresentationSvg,
@@ -174,4 +179,5 @@ export default {
   SvgContainer,
   WhiteboardSizeAvailable,
   PresentationToolbar,
+  ToastSeparator,
 };

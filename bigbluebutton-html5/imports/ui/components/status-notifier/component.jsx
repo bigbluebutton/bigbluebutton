@@ -4,7 +4,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
 import Icon from '/imports/ui/components/icon/component';
 import { ENTER } from '/imports/utils/keyCodes';
-import toastStyles from '/imports/ui/components/toast/styles';
 import Styled from './styles';
 import {Meteor} from "meteor/meteor";
 
@@ -76,7 +75,7 @@ class StatusNotifier extends Component {
             autoClose: false,
             closeOnClick: false,
             closeButton: false,
-            className: toastStyles.actionToast,
+            className: "actionToast",
           });
         }
         break;
@@ -165,7 +164,7 @@ class StatusNotifier extends Component {
           <div>{intl.formatMessage(messages.raisedHandsTitle)}</div>
           {formattedRaisedHands}
         </Styled.ToastMessage>
-        <div className={toastStyles.separator} />
+        <Styled.ToastSeparator />
         <Styled.ClearButton
           label={intl.formatMessage(messages.lowerHandsLabel)}
           color="default"

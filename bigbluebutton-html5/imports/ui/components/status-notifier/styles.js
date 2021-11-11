@@ -20,6 +20,7 @@ import {
   fontSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import Button from '/imports/ui/components/button/component';
+import ToastStyled from '/imports/ui/components/toast/styles';
 
 const Avatar = styled.div`
   cursor: pointer;
@@ -121,6 +122,8 @@ const ClearButton = styled(Button)`
   }
 `;
 
+const ToastSeparator = styled(ToastStyled.Separator)``;
+
 export default {
   Avatar,
   AvatarsExtra,
@@ -129,4 +132,5 @@ export default {
   AvatarsWrapper,
   ToastMessage,
   ClearButton,
+  ToastSeparator,
 };

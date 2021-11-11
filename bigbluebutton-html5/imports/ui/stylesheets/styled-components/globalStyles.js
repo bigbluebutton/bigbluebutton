@@ -139,6 +139,14 @@ const GlobalStyle = createGlobalStyle`
       right: 0;
     }
   }
+
+  .actionToast {
+    background-color: ${colorWhite};
+
+    i.close {
+      left: none !important;
+    }
+  }
 `;
 
 export default GlobalStyle;
