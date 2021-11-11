@@ -27,6 +27,8 @@ import {
   borderSizeSmall,
   toastIconMd,
   toastIconSm,
+  smPaddingY,
+  jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
@@ -178,23 +180,23 @@ const Toast = styled.div`
 const ToastifyContainer = styled(Toastify)`
   z-index: 9998;
   position: fixed;
-  padding: var(--sm-padding-y);
-  min-width: var(--toast-container-min-width);
-  max-width: var(--toast-container-max-width);
+  padding: ${smPaddingY};
+  min-width: 20rem !important;
+  max-width: 23rem !important;
   box-sizing: border-box;
-  right: var(--jumbo-padding-y);
+  right: ${jumboPaddingY};
   left: auto;
-  top: var(--toast-offset);
+  top: 4.5rem;
   max-height: 75vh;
   overflow: hidden;
 
   [dir="rtl"] & {
     right: auto;
-    left: var(--jumbo-padding-y);
+    left: ${jumboPaddingY};
   }
 
   @media ${smallOnly} {
-    width: var(--toast-mobile-width);
+    width: 75%;
   }
 `;
 
