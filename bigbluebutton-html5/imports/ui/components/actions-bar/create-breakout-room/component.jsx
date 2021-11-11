@@ -270,7 +270,9 @@ class BreakoutRoom extends PureComponent {
     } else if (groups && groups.length > 0) {
       const changedNames = [];
       groups.forEach((group, idx) => {
-        changedNames[idx + 1] = group.name;
+        if (group.name.length > 0) {
+          changedNames[idx + 1] = group.name;
+        }
       });
 
       this.setState({

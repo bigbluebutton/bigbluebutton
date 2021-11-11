@@ -349,13 +349,12 @@ public class ParamsProcessorUtil {
 
             if(groupParamsJson != null && groupParamsJson.isJsonArray()) {
                 JsonArray groupsJson = groupParamsJson.getAsJsonArray();
-                int seq = 1;
                 for (JsonElement groupJson : groupsJson) {
                     if(groupJson.isJsonObject()) {
                         JsonObject groupJsonObj = groupJson.getAsJsonObject();
                         if(groupJsonObj.has("id")) {
                             String groupId = groupJsonObj.get("id").getAsString();
-                            String groupName = "Group " + seq++;
+                            String groupName = "";
                             if(groupJsonObj.has("name")) {
                                 groupName = groupJsonObj.get("name").getAsString();
                             }
