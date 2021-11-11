@@ -735,7 +735,7 @@ class VideoPreview extends Component {
     const { isIe } = browserInfo;
 
     return (
-      <div>
+      <>
         {isIe ? (
           <p className={styles.browserWarning}>
             <FormattedMessage
@@ -748,8 +748,10 @@ class VideoPreview extends Component {
             />
           </p>
         ) : null}
-        <div className={styles.title}>
-          {intl.formatMessage(intlMessages.webcamSettingsTitle)}
+        <div>
+          <div className={styles.title}>
+            {intl.formatMessage(intlMessages.webcamSettingsTitle)}
+          </div>
         </div>
 
         {this.renderContent()}
@@ -783,7 +785,7 @@ class VideoPreview extends Component {
             />
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
