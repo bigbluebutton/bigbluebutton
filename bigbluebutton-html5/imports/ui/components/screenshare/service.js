@@ -13,6 +13,8 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
 
+const MAX_GAIN = 2;
+
 /**
  * Screenshare status to be filtered in getStats()
  */
@@ -88,6 +90,12 @@ const screenshareHasEnded = () => {
 const getMediaElement = () => {
   return document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
 }
+
+const setVolume = (volume) => {
+  KurentoBridge.setVolume(volume);
+};
+
+const getVolume = () => KurentoBridge.getVolume() / MAX_GAIN;
 
 const attachLocalPreviewStream = (mediaElement) => {
   const stream = KurentoBridge.gdmStream;
@@ -193,4 +201,6 @@ export {
   attachLocalPreviewStream,
   isGloballyBroadcasting,
   getStats,
+  setVolume,
+  getVolume,
 };

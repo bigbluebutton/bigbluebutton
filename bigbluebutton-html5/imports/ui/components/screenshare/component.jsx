@@ -16,6 +16,8 @@ import {
   screenshareHasStarted,
   getMediaElement,
   attachLocalPreviewStream,
+  setVolume,
+  getVolume,
 } from '/imports/ui/components/screenshare/service';
 import {
   isStreamStateUnhealthy,
@@ -87,7 +89,7 @@ class ScreenshareComponent extends React.Component {
     this.handleOnMuted = this.handleOnMuted.bind(this);
 
     this.isMobile = isMobile() || isTablet();
-    this.volume = 1;
+    this.volume = 0.5;
   }
 
   componentDidMount() {
@@ -216,10 +218,15 @@ class ScreenshareComponent extends React.Component {
 
   handleOnVolumeChanged(volume) {
     this.volume = volume;
+    setVolume(volume);
   }
 
   handleOnMuted(muted) {
-    this.volume = 0;
+    if (muted) {
+      setVolume(0);
+    } else {
+      setVolume(this.volume);
+    }
   }
 
   renderFullscreenButton() {
@@ -267,13 +274,12 @@ class ScreenshareComponent extends React.Component {
   renderVolumeSlider() {
     const mobileHoverToolBarStyle = styles.showMobileHoverToolbar;
     const desktopHoverToolBarStyle = styles.hoverToolbar;
-
     const hoverToolbarStyle = this.isMobile ? mobileHoverToolBarStyle : desktopHoverToolBarStyle;
     return (
       <div className={hoverToolbarStyle}>
         <VolumeSlider
-          volume={this.volume}
-          muted={this.volume === 0}
+          volume={getVolume()}
+          muted={getVolume() === 0}
           onVolumeChanged={this.handleOnVolumeChanged}
           onMuted={this.handleOnMuted}
         />
