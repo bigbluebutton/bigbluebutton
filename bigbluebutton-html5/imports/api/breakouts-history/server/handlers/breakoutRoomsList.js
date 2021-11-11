@@ -21,10 +21,6 @@ export default function handleBreakoutRoomsList({ body }) {
     },
   };
 
-  console.log('handleBreakoutRoomsList');
-  console.log(selector);
-  console.log(modifier);
-
   try {
     const { insertedId } = BreakoutsHistory.upsert(selector, modifier);
 
