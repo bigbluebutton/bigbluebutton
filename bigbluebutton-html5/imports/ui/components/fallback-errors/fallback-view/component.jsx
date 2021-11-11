@@ -1,8 +1,7 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import Button from '/imports/ui/components/button/component';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   title: {
@@ -35,27 +34,26 @@ const defaultProps = {
 };
 
 const FallbackView = ({ error, intl }) => (
-  <div className={styles.background}>
-    <h1 className={styles.codeError}>
+  <Styled.Background>
+    <Styled.CodeError>
       {intl.formatMessage(intlMessages.title)}
-    </h1>
-    <h1 className={styles.message}>
+    </Styled.CodeError>
+    <Styled.Message>
       {intl.formatMessage(intlMessages.description)}
-    </h1>
-    <div className={styles.separator} />
-    <div className={styles.sessionMessage}>
+    </Styled.Message>
+    <Styled.Separator />
+    <Styled.SessionMessage>
       {error.message}
-    </div>
+    </Styled.SessionMessage>
     <div>
-      <Button
+      <Styled.ReloadButton
         size="sm"
         color="primary"
-        className={styles.button}
         onClick={() => window.location.reload()}
         label={intl.formatMessage(intlMessages.reloadButton)}
       />
     </div>
-  </div>
+  </Styled.Background>
 );
 
 FallbackView.propTypes = propTypes;

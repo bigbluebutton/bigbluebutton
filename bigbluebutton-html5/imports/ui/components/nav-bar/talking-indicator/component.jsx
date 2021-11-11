@@ -1,9 +1,8 @@
 import React, { PureComponent } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
-import { styles } from './styles';
+import Styled from './styles';
+import Service from './service';
 
 const intlMessages = defineMessages({
   wasTalking: {
@@ -22,6 +21,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.muteLabel',
     description: 'indicator mute label for moderators',
   },
+  moreThanMaxIndicatorsTalking: {
+    id: 'app.talkingIndicator.moreThanMaxIndicatorsTalking',
+    description: 'indicator label for all users who is talking but not visible',
+  },
+  moreThanMaxIndicatorsWereTalking: {
+    id: 'app.talkingIndicator.moreThanMaxIndicatorsWereTalking',
+    description: 'indicator label for all users who is not talking but not visible',
+  },
 });
 
 class TalkingIndicator extends PureComponent {
@@ -39,6 +46,7 @@ class TalkingIndicator extends PureComponent {
       amIModerator,
       sidebarNavigationIsOpen,
       sidebarContentIsOpen,
+      moreThanMaxIndicators,
     } = this.props;
     if (!talkers) return null;
 
@@ -46,19 +54,9 @@ class TalkingIndicator extends PureComponent {
       const {
         talking,
         color,
-        voiceUserId,
         muted,
         callerName,
       } = talkers[`${id}`];
-
-      const style = {
-        [styles.talker]: true,
-        [styles.spoke]: !talking,
-        [styles.muted]: muted,
-        [styles.mobileHide]: sidebarNavigationIsOpen
-          && sidebarContentIsOpen,
-        [styles.isViewer]: !amIModerator,
-      };
 
       const ariaLabel = intl.formatMessage(talking
         ? intlMessages.isTalking : intlMessages.wasTalking, {
@@ -69,15 +67,17 @@ class TalkingIndicator extends PureComponent {
       icon = muted ? 'mute' : icon;
 
       return (
-        <Button
+        <Styled.TalkingIndicatorButton
+          spoke={!talking}
+          muted={muted}
+          mobileHide={sidebarNavigationIsOpen && sidebarContentIsOpen}
+          isViewer={!amIModerator}
           key={_.uniqueId(`${callerName}-`)}
-          className={cx(style)}
-          onClick={() => this.handleMuteUser(voiceUserId)}
+          onClick={() => this.handleMuteUser(id)}
           label={callerName}
           tooltipLabel={!muted && amIModerator
             ? `${intl.formatMessage(intlMessages.muteLabel)} ${callerName}`
-            : null
-          }
+            : null}
           data-test={talking ? 'isTalking' : 'wasTalking'}
           aria-label={ariaLabel}
           aria-describedby={talking ? 'description' : null}
@@ -90,21 +90,55 @@ class TalkingIndicator extends PureComponent {
           }}
         >
           {talking ? (
-            <div id="description" className={styles.hidden}>
+            <Styled.Hidden id="description">
               {`${intl.formatMessage(intlMessages.ariaMuteDesc)}`}
-            </div>
-          ) : null
-          }
-        </Button>
+            </Styled.Hidden>
+          ) : null}
+        </Styled.TalkingIndicatorButton>
       );
     });
 
+    const maxIndicator = () => {
+      if (!moreThanMaxIndicators) return null;
+
+      const nobodyTalking = Service.nobodyTalking(talkers);
+
+      const { moreThanMaxIndicatorsTalking, moreThanMaxIndicatorsWereTalking } = intlMessages;
+
+      const ariaLabel = intl.formatMessage(nobodyTalking
+        ? moreThanMaxIndicatorsWereTalking : moreThanMaxIndicatorsTalking, {
+        0: Object.keys(talkers).length,
+      });
+
+      return (
+        <Styled.TalkingIndicatorButton
+          spoke={nobodyTalking}
+          muted={false}
+          mobileHide={sidebarNavigationIsOpen && sidebarContentIsOpen}
+          isViewer={false}
+          key={_.uniqueId('_has__More_')}
+          onClick={() => {}} // maybe add a dropdown to show the rest of the users
+          label="..."
+          tooltipLabel={ariaLabel}
+          aria-label={ariaLabel}
+          color="primary"
+          size="sm"
+          style={{
+            backgroundColor: '#4a148c',
+            border: 'solid 2px #4a148c',
+            cursor: 'default',
+          }}
+        />
+      );
+    };
+
     return (
-      <div className={styles.isTalkingWrapper}>
-        <div className={styles.speaking}>
+      <Styled.IsTalkingWrapper>
+        <Styled.Speaking>
           {talkingUserElements}
-        </div>
-      </div>
+          {maxIndicator()}
+        </Styled.Speaking>
+      </Styled.IsTalkingWrapper>
     );
   }
 }

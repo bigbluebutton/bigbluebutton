@@ -2,32 +2,28 @@ const Page = require('../core/page');
 const util = require('./util');
 const e = require('../core/elements');
 const { VIDEO_LOADING_WAIT_TIME } = require('../core/constants');
-const { checkElementLengthEqualTo } = require('../core/util');
 
 class ShareScreen extends Page {
   constructor() {
     super();
   }
 
-  async test() {
+  async startSharing() {
     try {
       await util.startScreenshare(this);
-      await this.waitForSelector(e.screenshareConnecting);
-      await this.waitForSelector(e.screenShareVideo, VIDEO_LOADING_WAIT_TIME);
-      const response = await this.hasElement(e.isSharingScreen, true);
+      const resp = await this.hasElement(e.isSharingScreen);
 
-      return response === true;
+      return resp === true;
     } catch (err) {
       await this.logger(err);
       return false;
     }
   }
 
-  async testMobileDevice(args, testName, deviceX) {
+  async testMobileDevice(testName, deviceX) {
     try {
-      await this.init(args, undefined, undefined, undefined, testName, undefined, deviceX);
+      await this.init(true, true, testName, undefined, undefined, undefined, undefined, deviceX);
       await this.startRecording(testName);
-      await this.closeAudioModal();
       return this.wasRemoved(e.startScreenSharing);
     } catch (err) {
       await this.logger(err);

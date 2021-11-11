@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
-import { styles } from '../styles';
+import Styled from './styles';
 
 const propTypes = {
   confirm: PropTypes.func.isRequired,
@@ -78,8 +77,8 @@ class SortUsers extends Component {
     const { users } = this.state;
     return users
       .map((user, idx) => (
-        <div id={user.userId} className={styles.selectUserContainer} key={`breakout-user-${user.userId}`}>
-          <span className={styles.round}>
+        <Styled.SelectUserContainer id={user.userId} key={`breakout-user-${user.userId}`}>
+          <Styled.Round>
             <input
               type="checkbox"
               id={`itemId${idx}`}
@@ -94,12 +93,12 @@ class SortUsers extends Component {
                 onChange={this.onChage(user.userId, room)}
               />
             </label>
-          </span>
-          <span className={styles.textName}>
+          </Styled.Round>
+          <Styled.TextName>
             {user.userName}
             {user.room && !(user.room === room) ? `\t[${user.room}]` : ''}
-          </span>
-        </div>
+          </Styled.TextName>
+        </Styled.SelectUserContainer>
       ));
   }
 
@@ -111,13 +110,13 @@ class SortUsers extends Component {
       .map((b) => b.joinedUsers.map((u) => ({ ...u, room: b.sequence })))
       .flat()
       .map((user) => (
-        <div className={styles.selectUserContainer}>
-          <span className={styles.lockIcon} />
-          <span className={styles.textName}>
+        <Styled.SelectUserContainer>
+          <Styled.LockIcon />
+          <Styled.TextName>
             {user.name}
             {`\t[${user.room}]`}
-          </span>
-        </div>
+          </Styled.TextName>
+        </Styled.SelectUserContainer>
       ));
   }
 
@@ -128,22 +127,21 @@ class SortUsers extends Component {
       confirm,
     } = this.props;
     return (
-      <div className={styles.selectUserScreen}>
-        <header className={styles.header}>
-          <h2 className={styles.title}>
+      <Styled.SelectUserScreen>
+        <Styled.Header>
+          <Styled.Title>
             {intl.formatMessage(intlMessages.breakoutRoomLabel, { 0: room })}
-          </h2>
-          <Button
-            className={styles.buttonAdd}
+          </Styled.Title>
+          <Styled.ButtonAdd
             size="md"
             label={intl.formatMessage(intlMessages.doneLabel)}
             color="primary"
             onClick={confirm}
           />
-        </header>
+        </Styled.Header>
         {this.renderUserItem()}
         {this.renderJoinedUserItem()}
-      </div>
+      </Styled.SelectUserScreen>
     );
   }
 }

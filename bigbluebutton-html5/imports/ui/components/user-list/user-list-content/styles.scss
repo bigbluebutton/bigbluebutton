@@ -4,12 +4,6 @@
 @import "/imports/ui/stylesheets/mixins/_indicators";
 @import "/imports/ui/stylesheets/variables/placeholders";
 
-.content {
-  @extend %flex-column;
-  flex-grow: 1;
-  overflow: hidden;
-}
-
 .container{
   display: flex;
   align-items: center;
@@ -163,12 +157,6 @@
   border-radius: 0.5rem/50%;
   font-size: 0.8rem;
   background-color: var(--unread-messages-bg);
-}
-
-.smallTitle {
-  @extend .smallTitle;
-  flex: 1;
-  margin: 0;
 }
 
 .separator {

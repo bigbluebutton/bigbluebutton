@@ -7,9 +7,10 @@ import logger from '/imports/startup/client/logger';
 import PadService from './service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import { notify } from '/imports/ui/services/notification';
-import { styles } from './styles';
+import Styled from './styles';
 import { PANELS, ACTIONS } from '../../layout/enums';
 import _ from 'lodash';
+import browserInfo from '/imports/utils/browserInfo';
 
 const intlMessages = defineMessages({
   hide: {
@@ -58,8 +59,6 @@ const propTypes = {
   locale: PropTypes.string.isRequired,
   ownerId: PropTypes.string.isRequired,
   currentUserId: PropTypes.string.isRequired,
-  padId: PropTypes.string.isRequired,
-  readOnlyPadId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -85,6 +84,7 @@ class Pad extends PureComponent {
 
     this.state = {
       listening: false,
+      url: null,
     };
 
     const { locale, intl } = props;
@@ -104,7 +104,13 @@ class Pad extends PureComponent {
     }
   }
 
-  componentDidUpdate() {
+  componentDidMount() {
+    const { locale } = this.props;
+
+    this.updatePadURL(locale);
+  }
+
+  componentDidUpdate(prevProps) {
     const {
       locale,
       ownerId,
@@ -122,6 +128,16 @@ class Pad extends PureComponent {
       }
       this.recognition.lang = locale;
     }
+
+    if (prevProps.ownerId !== ownerId || prevProps.locale !== locale) {
+      this.updatePadURL(locale);
+    }
+  }
+
+  updatePadURL(locale) {
+    PadService.getPadId(locale).then(response => {
+      this.setState({ url: PadService.buildPadURL(response) });
+    });
   }
 
   handleListen() {
@@ -212,22 +228,24 @@ class Pad extends PureComponent {
     const {
       locale,
       intl,
-      padId,
-      readOnlyPadId,
       ownerId,
       name,
       layoutContextDispatch,
       isResizing,
     } = this.props;
 
-    const { listening } = this.state;
-    const url = PadService.getPadURL(padId, readOnlyPadId, ownerId);
+    const {
+      listening,
+      url,
+    } = this.state;
+
+    const { isChrome } = browserInfo;
 
     return (
-      <div className={styles.pad}>
-        <header className={styles.header}>
-          <div className={styles.title}>
-            <Button
+      <Styled.Pad isChrome={isChrome}>
+        <Styled.Header>
+          <Styled.Title>
+            <Styled.HideBtn
               onClick={() => {
                 layoutContextDispatch({
                   type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -241,9 +259,8 @@ class Pad extends PureComponent {
               aria-label={intl.formatMessage(intlMessages.hide)}
               label={name}
               icon="left_arrow"
-              className={styles.hideBtn}
             />
-          </div>
+          </Styled.Title>
           {CaptionsService.canIDictateThisPad(ownerId)
             ? (
               <span>
@@ -274,16 +291,13 @@ class Pad extends PureComponent {
                 label={intl.formatMessage(intlMessages.takeOwnership)}
               />
             ) : null}
-        </header>
+        </Styled.Header>
         {listening ? (
           <div>
-            <span className={styles.interimTitle}>
+            <Styled.InterimTitle>
               {intl.formatMessage(intlMessages.interimResult)}
-            </span>
-            <div
-              className={styles.processing}
-              ref={(node) => { this.iterimResultContainer = node; }}
-            />
+            </Styled.InterimTitle>
+            <Styled.Processing ref={(node) => { this.iterimResultContainer = node; }} />
           </div>
         ) : null}
         <iframe
@@ -294,10 +308,10 @@ class Pad extends PureComponent {
             pointerEvents: isResizing ? 'none' : 'inherit',
           }}
         />
-        <span id="padEscapeHint" className={styles.hint} aria-hidden>
+        <Styled.Hint id="padEscapeHint" aria-hidden>
           {intl.formatMessage(intlMessages.tip)}
-        </span>
-      </div>
+        </Styled.Hint>
+      </Styled.Pad>
     );
   }
 }

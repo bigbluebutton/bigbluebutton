@@ -1,18 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { defineMessages, injectIntl } from 'react-intl';
-import Icon from '../icon/component';
-import { styles } from './styles.scss';
-import Button from '/imports/ui/components/button/component';
+import Styled from './styles';
 import RecordingIndicator from './recording-indicator/container';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
 import ConnectionStatusButton from '/imports/ui/components/connection-status/button/container';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import SettingsDropdownContainer from './settings-dropdown/container';
+import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
@@ -53,12 +52,28 @@ class NavBar extends Component {
     const {
       processOutsideToggleRecording,
       connectRecordingObserver,
+      shortcuts: TOGGLE_USERLIST_AK,
     } = this.props;
+
+    const { isFirefox } = browserInfo;
+    const { isMacos } = deviceInfo;
 
     if (Meteor.settings.public.allowOutsideCommands.toggleRecording
       || getFromUserSettings('bbb_outside_toggle_recording', false)) {
       connectRecordingObserver();
       window.addEventListener('message', processOutsideToggleRecording);
+    }
+
+    // accessKey U does not work on firefox for macOS for some unknown reason
+    if (isMacos && isFirefox && TOGGLE_USERLIST_AK === 'U') {
+      document.addEventListener('keyup', (event) => {
+        const { key, code } = event;
+        const eventKey = key.toUpperCase();
+        const eventCode = code;
+        if (event.altKey && (eventKey === TOGGLE_USERLIST_AK || eventCode === `Key${TOGGLE_USERLIST_AK}`)) {
+          this.handleToggleUserList();
+        }
+      });
     }
   }
 
@@ -113,7 +128,6 @@ class NavBar extends Component {
     const {
       hasUnreadMessages,
       hasUnreadNotes,
-      // isExpanded,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
       mountModal,
@@ -125,9 +139,6 @@ class NavBar extends Component {
     } = this.props;
 
     const hasNotification = hasUnreadMessages || hasUnreadNotes;
-    const toggleBtnClasses = {};
-    toggleBtnClasses[styles.btn] = true;
-    toggleBtnClasses[styles.btnWithNotificationDot] = hasNotification;
 
     let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
     ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
@@ -135,8 +146,7 @@ class NavBar extends Component {
     const isExpanded = sidebarNavigation.isOpen;
 
     return (
-      <header
-        className={styles.navbar}
+      <Styled.Navbar
         style={
           main === 'new'
             ? {
@@ -153,11 +163,11 @@ class NavBar extends Component {
             }
         }
       >
-        <div className={styles.top}>
-          <div className={styles.left}>
+        <Styled.Top>
+          <Styled.Left>
             {!isExpanded ? null
-              : <Icon iconName="left_arrow" className={styles.arrowLeft} />}
-            <Button
+              : <Styled.ArrowLeft iconName="left_arrow" />}
+            <Styled.NavbarToggleButton
               onClick={this.handleToggleUserList}
               ghost
               circle
@@ -167,30 +177,29 @@ class NavBar extends Component {
               tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
               aria-label={ariaLabel}
               icon="user"
-              className={cx(toggleBtnClasses)}
               aria-expanded={isExpanded}
               accessKey={TOGGLE_USERLIST_AK}
+              hasNotification={hasNotification}
             />
             {isExpanded ? null
-              : <Icon iconName="right_arrow" className={styles.arrowRight} />}
-          </div>
-          <div className={styles.center}>
-            <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
-
+              : <Styled.ArrowRight iconName="right_arrow" />}
+          </Styled.Left>
+          <Styled.Center>
+            <Styled.PresentationTitle>{presentationTitle}</Styled.PresentationTitle>
             <RecordingIndicator
               mountModal={mountModal}
               amIModerator={amIModerator}
             />
-          </div>
-          <div className={styles.right}>
+          </Styled.Center>
+          <Styled.Right>
             {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
             <SettingsDropdownContainer amIModerator={amIModerator} />
-          </div>
-        </div>
-        <div className={styles.bottom}>
+          </Styled.Right>
+        </Styled.Top>
+        <Styled.Bottom>
           <TalkingIndicatorContainer amIModerator={amIModerator} />
-        </div>
-      </header>
+        </Styled.Bottom>
+      </Styled.Navbar>
     );
   }
 }

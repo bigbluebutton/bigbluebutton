@@ -56,10 +56,8 @@ function meetings() {
     },
   };
 
-  if (User.role === ROLE_MODERATOR) {
-    delete options.fields.password;
-    options.fields['password.viewerPass'] = false;
-    options.fields['password.moderatorPass'] = false;
+  if (User.role !== ROLE_MODERATOR) {
+    options.fields.learningDashboardAccessToken = false;
   }
 
   return Meetings.find(selector, options);

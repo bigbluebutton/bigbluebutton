@@ -40,6 +40,10 @@ else
   npm install --unsafe-perm --production
 fi
 
+# clean out stuff that is not required in the final package. Most of this are object files from dependant libraries
+rm -rf node_modules/mediasoup/worker/out/Release/subprojects
+rm -rf node_modules/mediasoup/worker/out/Release/mediasoup-worker.p
+rm -rf node_modules/mediasoup/worker/out/Release/deps
 popd
 
 cp webrtc-sfu.nginx staging/etc/bigbluebutton/nginx

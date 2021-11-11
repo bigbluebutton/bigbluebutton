@@ -1,9 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
-import Modal from '/imports/ui/components/modal/simple/component';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   startTitle: {
@@ -75,40 +73,34 @@ class RecordingComponent extends PureComponent {
 
     if (!amIModerator) return null;
     return (
-      <Modal
-        overlayClassName={styles.overlay}
-        className={styles.modal}
+      <Styled.RecordingModal
         onRequestClose={closeModal}
         hideBorder
         contentLabel={title}
       >
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <div className={styles.title}>
-              {title}
-            </div>
-          </div>
-          <div className={styles.description}>
+        <Styled.Container>
+          <Styled.Header>
+            <Styled.Title>{title}</Styled.Title>
+          </Styled.Header>
+          <Styled.Description>
             {`${intl.formatMessage(!recordingStatus
               ? intlMessages.startDescription
               : intlMessages.stopDescription)}`}
-          </div>
-          <div className={styles.footer}>
-            <Button
+          </Styled.Description>
+          <Styled.Footer>
+            <Styled.RecordingButton
               color="primary"
-              className={styles.button}
               disabled={!isMeteorConnected}
               label={intl.formatMessage(intlMessages.yesLabel)}
               onClick={toggleRecording}
             />
-            <Button
+            <Styled.RecordingButton
               label={intl.formatMessage(intlMessages.noLabel)}
-              className={styles.button}
               onClick={closeModal}
             />
-          </div>
-        </div>
-      </Modal>
+          </Styled.Footer>
+        </Styled.Container>
+      </Styled.RecordingModal>
     );
   }
 }
