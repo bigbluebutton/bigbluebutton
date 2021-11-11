@@ -86,7 +86,11 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   justify-content: space-between;
 }
 
-.randomlyAssignBtn {
+.assignContainer {
+  margin-top: auto;
+}
+
+.assignBtns {
   color: var(--color-primary);
   font-size: var(--font-size-small);
   white-space: nowrap;

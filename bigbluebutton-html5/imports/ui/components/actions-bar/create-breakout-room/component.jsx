@@ -39,6 +39,14 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.durationInMinutes',
     description: 'duration time label',
   },
+  resetAssignments: {
+    id: 'app.createBreakoutRoom.resetAssignments',
+    description: 'reset assignments label',
+  },
+  resetAssignmentsDesc: {
+    id: 'app.createBreakoutRoom.resetAssignmentsDesc',
+    description: 'reset assignments label description',
+  },
   randomlyAssign: {
     id: 'app.createBreakoutRoom.randomlyAssign',
     description: 'randomly assign label',
@@ -130,7 +138,7 @@ const intlMessages = defineMessages({
   roomNameInputDesc: {
     id: 'app.createBreakoutRoom.roomNameInputDesc',
     description: 'aria description for room name change',
-  }
+  },
 });
 
 const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
@@ -167,6 +175,7 @@ class BreakoutRoom extends PureComponent {
     this.setFreeJoin = this.setFreeJoin.bind(this);
     this.getUserByRoom = this.getUserByRoom.bind(this);
     this.onAssignRandomly = this.onAssignRandomly.bind(this);
+    this.onAssignReset = this.onAssignReset.bind(this);
     this.onInviteBreakout = this.onInviteBreakout.bind(this);
     this.renderUserItemByRoom = this.renderUserItemByRoom.bind(this);
     this.renderRoomsGrid = this.renderRoomsGrid.bind(this);
@@ -212,7 +221,10 @@ class BreakoutRoom extends PureComponent {
   }
 
   componentDidMount() {
-    const { isInvitation, breakoutJoinedUsers } = this.props;
+    const {
+      isInvitation, breakoutJoinedUsers, getLastBreakouts, getBreakoutUserWasIn,
+      users, groups, intl,
+    } = this.props;
     this.setRoomUsers();
     if (isInvitation) {
       this.setInvitationConfig();
@@ -220,6 +232,63 @@ class BreakoutRoom extends PureComponent {
     if (isInvitation) {
       this.setState({
         breakoutJoinedUsers,
+      });
+    }
+
+    // Populate with data of last breakouts
+    const lastBreakouts = getLastBreakouts();
+    if (lastBreakouts.length > 0) {
+      const changedNames = [];
+      lastBreakouts.forEach((breakout) => {
+        if (breakout.isDefaultName === false) {
+          changedNames[breakout.sequence] = breakout.shortName;
+        }
+      });
+
+      this.setState({
+        roomNamesChanged: changedNames,
+        numberOfRooms: lastBreakouts.length,
+        roomNameDuplicatedIsValid: true,
+        roomNameEmptyIsValid: true,
+      }, () => {
+        const rooms = _.range(1, lastBreakouts.length + 1).map((seq) => this.getRoomName(seq));
+
+        users.forEach((u) => {
+          const lastUserBreakout = getBreakoutUserWasIn(u.userId, u.extId);
+          if (lastUserBreakout !== null) {
+            const lastUserBreakoutName = lastUserBreakout.isDefaultName === false
+              ? lastUserBreakout.shortName
+              : intl.formatMessage(intlMessages.breakoutRoom, { 0: lastUserBreakout.sequence });
+
+            if (rooms.indexOf(lastUserBreakoutName) !== false) {
+              this.changeUserRoom(u.userId, rooms.indexOf(lastUserBreakoutName) + 1);
+            }
+          }
+        });
+      });
+      // Populate with data of pre defined groups
+    } else if (groups && groups.length > 0) {
+      const changedNames = [];
+      groups.forEach((group, idx) => {
+        changedNames[idx + 1] = group.name;
+      });
+
+      this.setState({
+        roomNamesChanged: changedNames,
+        numberOfRooms: groups.length > 1 ? groups.length : 2,
+        roomNameDuplicatedIsValid: true,
+        roomNameEmptyIsValid: true,
+      }, () => {
+        groups.forEach((group, groupIdx) => {
+          const usersInGroup = group.usersExtId;
+          if (usersInGroup.length > 0) {
+            usersInGroup.forEach((groupUserExtId) => {
+              users.filter((u) => u.extId === groupUserExtId).forEach((foundUser) => {
+                this.changeUserRoom(foundUser.userId, groupIdx + 1);
+              });
+            });
+          }
+        });
       });
     }
   }
@@ -426,6 +495,16 @@ class BreakoutRoom extends PureComponent {
         viewers.splice(userIdx, 1);
       }
     }
+  }
+
+  onAssignReset() {
+    const { users } = this.state;
+
+    users.forEach((u) => {
+      if (u.room !== null && u.room > 0) {
+        this.changeUserRoom(u.userId, 0);
+      }
+    });
   }
 
   setInvitationConfig() {
@@ -653,7 +732,7 @@ class BreakoutRoom extends PureComponent {
                   aria-label={`${this.getRoomName(value)}`}
                   aria-describedby={this.getRoomName(value).length === 0 ? `room-error-${value}` : `room-input-${value}`}
                 />
-                <div aria-hidden id={`room-input-${value}`} className={"sr-only"}>
+                <div aria-hidden id={`room-input-${value}`} className="sr-only">
                   {intl.formatMessage(intlMessages.roomNameInputDesc)}
                 </div>
               </span>
@@ -777,16 +856,29 @@ class BreakoutRoom extends PureComponent {
             </span>
 
           </label>
-          <Button
-            data-test="randomlyAssign"
-            label={intl.formatMessage(intlMessages.randomlyAssign)}
-            aria-describedby="randomlyAssignDesc"
-            className={styles.randomlyAssignBtn}
-            onClick={this.onAssignRandomly}
-            size="sm"
-            color="default"
-            disabled={!numberOfRoomsIsValid}
-          />
+          <div className={styles.assignContainer}>
+            <Button
+              data-test="randomlyAssign"
+              label={intl.formatMessage(intlMessages.randomlyAssign)}
+              aria-describedby="randomlyAssignDesc"
+              className={styles.assignBtns}
+              onClick={this.onAssignRandomly}
+              size="sm"
+              color="default"
+              disabled={!numberOfRoomsIsValid}
+            />
+            <br />
+            <Button
+              data-test="randomlyAssign"
+              label={intl.formatMessage(intlMessages.resetAssignments)}
+              aria-describedby="resetAssignmentsDesc"
+              className={styles.assignBtns}
+              onClick={this.onAssignReset}
+              size="sm"
+              color="default"
+              disabled={!numberOfRoomsIsValid}
+            />
+          </div>
         </div>
         <span className={!numberOfRoomsIsValid
           ? styles.withError : styles.dontShow}

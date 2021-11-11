@@ -12,13 +12,22 @@ case class MeetingState2x(
     groupChats:             GroupChats,
     presentationPodManager: PresentationPodManager,
     breakout:               Option[BreakoutModel],
+    lastBreakout:           Option[BreakoutModel],
     expiryTracker:          MeetingExpiryTracker,
     recordingTracker:       MeetingRecordingTracker
 ) {
 
   def update(groupChats: GroupChats): MeetingState2x = copy(groupChats = groupChats)
   def update(presPodManager: PresentationPodManager): MeetingState2x = copy(presentationPodManager = presPodManager)
-  def update(breakout: Option[BreakoutModel]): MeetingState2x = copy(breakout = breakout)
+  def update(breakout: Option[BreakoutModel]): MeetingState2x = {
+    breakout match {
+      case Some(b) => {
+        if (b.hasAllStarted()) copy(breakout = breakout, lastBreakout = breakout)
+        else copy(breakout = breakout)
+      }
+      case None => copy(breakout = breakout)
+    }
+  }
   def update(expiry: MeetingExpiryTracker): MeetingState2x = copy(expiryTracker = expiry)
   def update(recordingTracker: MeetingRecordingTracker): MeetingState2x = copy(recordingTracker = recordingTracker)
 }

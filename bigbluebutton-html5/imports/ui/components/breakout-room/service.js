@@ -6,6 +6,7 @@ import Auth from '/imports/ui/services/auth';
 import Users from '/imports/ui/local-collections/users-collection/users';
 import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
+import UsersPersistentData from '../../../api/users-persistent-data';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -132,6 +133,33 @@ const getBreakoutsNoTime = () => Breakouts.find(
 
 const getBreakoutUserIsIn = userId => Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${userId}`) }, { fields: { sequence: 1 } });
 
+const getBreakoutUserWasIn = (userId, extId) => {
+  const selector = {
+    meetingId: Auth.meetingID,
+    lastBreakoutRoom: { $exists: 1 },
+  };
+
+  if (extId !== null) {
+    selector.extId = extId;
+  } else {
+    selector.userId = userId;
+  }
+
+  const users = UsersPersistentData.find(
+    selector,
+    { fields: { userId: 1, lastBreakoutRoom: 1 } },
+  ).fetch();
+
+  if (users.length > 0) {
+    const hasCurrUserId = users.filter((user) => user.userId === userId);
+    if (hasCurrUserId.length > 0) return hasCurrUserId.pop().lastBreakoutRoom;
+
+    return users.pop().lastBreakoutRoom;
+  }
+
+  return null;
+};
+
 const isUserInBreakoutRoom = (joinedUsers) => {
   const userId = Auth.userID;
 
@@ -155,6 +183,7 @@ export default {
   getBreakoutsNoTime,
   getBreakoutByUserId,
   getBreakoutUserIsIn,
+  getBreakoutUserWasIn,
   sortUsersByName: UserListService.sortUsersByName,
   isUserInBreakoutRoom,
   checkInviteModerators,

@@ -82,6 +82,7 @@ public class Meeting {
 	private final ConcurrentMap<String, Long> enteredUsers;
 	private final Boolean isBreakout;
 	private final List<String> breakoutRooms = new ArrayList<>();
+	private ArrayList<Group> groups = new ArrayList<Group>();
 	private String customLogoURL = "";
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
@@ -135,13 +136,14 @@ public class Meeting {
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
         authenticatedGuest = builder.authenticatedGuest;
-				meetingLayout = builder.meetingLayout;
+		meetingLayout = builder.meetingLayout;
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
         allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
         endWhenNoModerator = builder.endWhenNoModerator;
         endWhenNoModeratorDelayInMinutes = builder.endWhenNoModeratorDelayInMinutes;
         html5InstanceId = builder.html5InstanceId;
+		groups = builder.groups;
 
         /*
          * A pad is a pair of padId and readOnlyId that represents
@@ -223,6 +225,10 @@ public class Meeting {
 	public int getHtml5InstanceId() { return html5InstanceId; }
 
     public void setHtml5InstanceId(int instanceId) { html5InstanceId = instanceId; }
+
+	public ArrayList<Group> getGroups() { return groups; }
+
+	public void setGroups(ArrayList<Group> groups) { this.groups = groups; }
 
     public long getStartTime() {
 		return startTime;
@@ -751,13 +757,14 @@ public class Meeting {
     	private boolean isBreakout;
     	private String guestPolicy;
     	private Boolean authenticatedGuest;
-			private String meetingLayout;
+		private String meetingLayout;
     	private BreakoutRoomsParams breakoutRoomsParams;
     	private LockSettingsParams lockSettingsParams;
 		private Boolean allowDuplicateExtUserid;
 		private Boolean endWhenNoModerator;
 		private Integer endWhenNoModeratorDelayInMinutes;
 		private int html5InstanceId;
+		private ArrayList<Group> groups;
 
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -930,7 +937,12 @@ public class Meeting {
     		return this;
 		}
 
-    	public Meeting build() {
+		public Builder withGroups(ArrayList<Group> groups) {
+			this.groups = groups;
+			return this;
+		}
+
+		public Meeting build() {
     		return new Meeting(this);
     	}
     }
