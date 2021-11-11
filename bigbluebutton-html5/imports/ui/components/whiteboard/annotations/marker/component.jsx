@@ -85,8 +85,8 @@ export default class MarkerComponent extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    const { version } = this.props;
-    return version !== nextProps.version;
+    const { version, hidden } = this.props;
+    return version !== nextProps.version || hidden !== nextProps.hidden;
   }
 
   componentDidUpdate(prevProps) {
