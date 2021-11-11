@@ -15,8 +15,9 @@ import VideoPreviewService from '../video-preview/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { BBBVideoStream } from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import {
-  getSessionVirtualBackgroundInfoWithDefault
-} from '/imports/ui/services/virtual-background/service'
+  EFFECT_TYPES,
+  getSessionVirtualBackgroundInfo,
+} from '/imports/ui/services/virtual-background/service';
 
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.
@@ -889,6 +890,13 @@ class VideoProvider extends Component {
     if (isAbleToAttach) {
       this.attach(peer, video);
       peer.attached = true;
+
+      if (isLocal) {
+        const { type, name } = getSessionVirtualBackgroundInfo();
+        if (type !== EFFECT_TYPES.NONE_TYPE) {
+          peer.bbbVideoStream.startVirtualBackground(type, name);
+        }
+      }
     }
   }
 
