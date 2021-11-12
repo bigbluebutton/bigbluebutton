@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.apps.whiteboard
 
-
-import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
@@ -23,7 +22,6 @@ trait ModifyWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
     }
 
     def deleteAnnotation(): Unit = {
-      println("Delete Annotation")
       val sanitizedAnnotations = for (annotation <- msg.body.annotations) yield sanitizeAnnotation(annotation)
       if (filterWhiteboardMessage(msg.body.whiteBoardId, msg.header.userId, liveMeeting) && permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
         val meetingId = liveMeeting.props.meetingProp.intId

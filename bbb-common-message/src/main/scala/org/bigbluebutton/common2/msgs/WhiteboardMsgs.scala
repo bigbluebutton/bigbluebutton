@@ -1,11 +1,5 @@
 package org.bigbluebutton.common2.msgs
 
-import org.bigbluebutton.common2.msgs.AnnotationModificationAction.AnnotationModificationAction
-
-object AnnotationModificationAction extends Enumeration {
-  type AnnotationModificationAction = Value
-  val Delete, Move = Value
-}
 case class AnnotationVO(id: String, status: String, annotationType: String,
                         annotationInfo: scala.collection.immutable.Map[String, Any], wbId: String, userId: String, position: Int)
 
@@ -40,7 +34,7 @@ case class UndoWhiteboardPubMsgBody(whiteboardId: String)
 
 object ModifyWhiteboardAnnotationPubMsg { val NAME = "ModifyWhiteboardAnnotationPubMsg" }
 case class ModifyWhiteboardAnnotationPubMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAnnotationPubMsgBody) extends StandardMsg
-case class ModifyWhiteboardAnnotationPubMsgBody(annotation: List[AnnotationVO], userId: String, whiteBoardId: String, action: AnnotationModificationAction)
+case class ModifyWhiteboardAnnotationPubMsgBody(annotations: List[AnnotationVO], userId: String, whiteBoardId: String, action: String)
 // ------------ client to akka-apps ------------
 
 // ------------ akka-apps to client ------------
@@ -76,7 +70,7 @@ object UndoWhiteboardEvtMsg { val NAME = "UndoWhiteboardEvtMsg" }
 case class UndoWhiteboardEvtMsg(header: BbbClientMsgHeader, body: UndoWhiteboardEvtMsgBody) extends BbbCoreMsg
 case class UndoWhiteboardEvtMsgBody(whiteboardId: String, userId: String, annotationId: String)
 
-object ModifyWhiteboardAnnotationEvtMsg { val NAME = "ModifyWhiteboardAnnotationPubMsg" }
+object ModifyWhiteboardAnnotationEvtMsg { val NAME = "ModifyWhiteboardAnnotationEvtMsg" }
 case class ModifyWhiteboardAnnotationEvtMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAnnotationEvtMsgBody) extends StandardMsg
-case class ModifyWhiteboardAnnotationEvtMsgBody(annotation: List[AnnotationVO], userId: String, whiteBoardId: String, action: AnnotationModificationAction)
+case class ModifyWhiteboardAnnotationEvtMsgBody(annotations: List[AnnotationVO], userId: String, whiteBoardId: String, action: String)
 // ------------ akka-apps to client ------------
