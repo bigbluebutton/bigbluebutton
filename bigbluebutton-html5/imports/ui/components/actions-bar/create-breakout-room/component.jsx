@@ -220,76 +220,22 @@ class BreakoutRoom extends PureComponent {
 
   componentDidMount() {
     const {
-      isInvitation, breakoutJoinedUsers, getLastBreakouts, getBreakoutUserWasIn,
-      users, groups, intl,
+      isInvitation, breakoutJoinedUsers, getLastBreakouts, groups,
     } = this.props;
     this.setRoomUsers();
     if (isInvitation) {
       this.setInvitationConfig();
-    }
-    if (isInvitation) {
+
       this.setState({
         breakoutJoinedUsers,
       });
     }
 
-    // Populate with data of last breakouts
     const lastBreakouts = getLastBreakouts();
     if (lastBreakouts.length > 0) {
-      const changedNames = [];
-      lastBreakouts.forEach((breakout) => {
-        if (breakout.isDefaultName === false) {
-          changedNames[breakout.sequence] = breakout.shortName;
-        }
-      });
-
-      this.setState({
-        roomNamesChanged: changedNames,
-        numberOfRooms: lastBreakouts.length,
-        roomNameDuplicatedIsValid: true,
-        roomNameEmptyIsValid: true,
-      }, () => {
-        const rooms = _.range(1, lastBreakouts.length + 1).map((seq) => this.getRoomName(seq));
-
-        users.forEach((u) => {
-          const lastUserBreakout = getBreakoutUserWasIn(u.userId, u.extId);
-          if (lastUserBreakout !== null) {
-            const lastUserBreakoutName = lastUserBreakout.isDefaultName === false
-              ? lastUserBreakout.shortName
-              : intl.formatMessage(intlMessages.breakoutRoom, { 0: lastUserBreakout.sequence });
-
-            if (rooms.indexOf(lastUserBreakoutName) !== false) {
-              this.changeUserRoom(u.userId, rooms.indexOf(lastUserBreakoutName) + 1);
-            }
-          }
-        });
-      });
-      // Populate with data of pre defined groups
+      this.populateWithLastBreakouts(lastBreakouts);
     } else if (groups && groups.length > 0) {
-      const changedNames = [];
-      groups.forEach((group, idx) => {
-        if (group.name.length > 0) {
-          changedNames[idx + 1] = group.name;
-        }
-      });
-
-      this.setState({
-        roomNamesChanged: changedNames,
-        numberOfRooms: groups.length > 1 ? groups.length : 2,
-        roomNameDuplicatedIsValid: true,
-        roomNameEmptyIsValid: true,
-      }, () => {
-        groups.forEach((group, groupIdx) => {
-          const usersInGroup = group.usersExtId;
-          if (usersInGroup.length > 0) {
-            usersInGroup.forEach((groupUserExtId) => {
-              users.filter((u) => u.extId === groupUserExtId).forEach((foundUser) => {
-                this.changeUserRoom(foundUser.userId, groupIdx + 1);
-              });
-            });
-          }
-        });
-      });
+      this.populateWithGroups(groups);
     }
   }
 
@@ -662,6 +608,68 @@ class BreakoutRoom extends PureComponent {
     if (equals.length > 1) return true;
 
     return false;
+  }
+
+  populateWithLastBreakouts(lastBreakouts) {
+    const { getBreakoutUserWasIn, users, intl } = this.props;
+
+    const changedNames = [];
+    lastBreakouts.forEach((breakout) => {
+      if (breakout.isDefaultName === false) {
+        changedNames[breakout.sequence] = breakout.shortName;
+      }
+    });
+
+    this.setState({
+      roomNamesChanged: changedNames,
+      numberOfRooms: lastBreakouts.length,
+      roomNameDuplicatedIsValid: true,
+      roomNameEmptyIsValid: true,
+    }, () => {
+      const rooms = _.range(1, lastBreakouts.length + 1).map((seq) => this.getRoomName(seq));
+
+      users.forEach((u) => {
+        const lastUserBreakout = getBreakoutUserWasIn(u.userId, u.extId);
+        if (lastUserBreakout !== null) {
+          const lastUserBreakoutName = lastUserBreakout.isDefaultName === false
+            ? lastUserBreakout.shortName
+            : intl.formatMessage(intlMessages.breakoutRoom, { 0: lastUserBreakout.sequence });
+
+          if (rooms.indexOf(lastUserBreakoutName) !== false) {
+            this.changeUserRoom(u.userId, rooms.indexOf(lastUserBreakoutName) + 1);
+          }
+        }
+      });
+    });
+  }
+
+  populateWithGroups(groups) {
+    const { users } = this.props;
+
+    const changedNames = [];
+    groups.forEach((group, idx) => {
+      if (group.name.length > 0) {
+        changedNames[idx + 1] = group.name;
+      }
+    });
+
+    this.setState({
+      roomNamesChanged: changedNames,
+      numberOfRooms: groups.length > 1 ? groups.length : 2,
+      roomNameDuplicatedIsValid: true,
+      roomNameEmptyIsValid: true,
+    }, () => {
+      groups.forEach((group, groupIdx) => {
+        const usersInGroup = group.usersExtId;
+        if (usersInGroup.length > 0) {
+          usersInGroup.forEach((groupUserExtId) => {
+            users.filter((u) => u.extId === groupUserExtId).forEach((foundUser) => {
+              this.changeUserRoom(foundUser.userId, groupIdx + 1);
+            });
+          });
+        }
+      });
+    });
   }
 
   renderRoomsGrid() {
