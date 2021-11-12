@@ -267,60 +267,62 @@ const WaitingUsers = (props) => {
           />
         </div>
       </header>
-      {isGuestLobbyMessageEnabled ? (
-        <div className={styles.lobbyMessage}>
-          <TextInput
-            maxLength={128}
-            placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
-            send={setGuestLobbyMessage}
-          />
-          <p>
-            <i>
-              &quot;
-              {
-                guestLobbyMessage.length > 0
-                  ? guestLobbyMessage
-                  : intl.formatMessage(intlMessages.emptyMessage)
-              }
-              &quot;
-            </i>
-          </p>
-        </div>
-      ) : null}
-      <div>
-        <div>
-          <p className={styles.mainTitle}>{intl.formatMessage(intlMessages.optionTitle)}</p>
-          {
-            buttonsData.map((buttonData) => renderButton(
-              intl.formatMessage(buttonData.messageId),
-              buttonData,
-            ))
-          }
-        </div>
-
-        {allowRememberChoice ? (
-          <div className={styles.rememberContainer}>
-            <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
-            <label htmlFor="rememderCheckboxId">
-              {intl.formatMessage(intlMessages.rememberChoice)}
-            </label>
+      <div className={styles.scrollableArea}>
+        {isGuestLobbyMessageEnabled ? (
+          <div className={styles.lobbyMessage}>
+            <TextInput
+              maxLength={128}
+              placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
+              send={setGuestLobbyMessage}
+            />
+            <p>
+              <i>
+                &quot;
+                {
+                  guestLobbyMessage.length > 0
+                    ? guestLobbyMessage
+                    : intl.formatMessage(intlMessages.emptyMessage)
+                }
+                &quot;
+              </i>
+            </p>
           </div>
         ) : null}
+        <div>
+          <div>
+            <p className={styles.mainTitle}>{intl.formatMessage(intlMessages.optionTitle)}</p>
+            {
+              buttonsData.map((buttonData) => renderButton(
+                intl.formatMessage(buttonData.messageId),
+                buttonData,
+              ))
+            }
+          </div>
+
+          {allowRememberChoice ? (
+            <div className={styles.rememberContainer}>
+              <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
+              <label htmlFor="rememderCheckboxId">
+                {intl.formatMessage(intlMessages.rememberChoice)}
+              </label>
+            </div>
+          ) : null}
+        </div>
+        {renderPendingUsers(
+          intl.formatMessage(intlMessages.pendingUsers,
+            { 0: authenticatedUsers.length }),
+          authenticatedUsers,
+          guestUsersCall,
+          intl,
+        )}
+        {renderPendingUsers(
+          intl.formatMessage(intlMessages.pendingGuestUsers,
+            { 0: guestUsers.length }),
+          guestUsers,
+          guestUsersCall,
+          intl,
+        )}
       </div>
-      {renderPendingUsers(
-        intl.formatMessage(intlMessages.pendingUsers,
-          { 0: authenticatedUsers.length }),
-        authenticatedUsers,
-        guestUsersCall,
-        intl,
-      )}
-      {renderPendingUsers(
-        intl.formatMessage(intlMessages.pendingGuestUsers,
-          { 0: guestUsers.length }),
-        guestUsers,
-        guestUsersCall,
-        intl,
-      )}
     </div>
   );
 };
