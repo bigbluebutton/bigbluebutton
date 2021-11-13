@@ -1,6 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import deleteAnnotation from '../methods/modifyAnnotation';
+import removeAnnotation from '../modifiers/removeAnnotation';
 
 export default function handleWhiteboardModification({ body }, meetingId) {
   Logger.info('\nCalled handleWhiteboardModification:\n');
@@ -18,7 +18,7 @@ export default function handleWhiteboardModification({ body }, meetingId) {
     check(annotation.id, String);
     switch (action) {
       case 'delete':
-        deleteAnnotation(meetingId, whiteBoardId, annotation.id);
+        removeAnnotation(meetingId, whiteBoardId, annotation.id);
         break;
       default:
         Logger.warn(`Unknown action type: ${action}`);
