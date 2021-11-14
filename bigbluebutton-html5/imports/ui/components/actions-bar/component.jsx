@@ -92,46 +92,46 @@ class ActionsBar extends PureComponent {
 
   componentDidMount() {
 
-    if(AudioManager.isTranslationEnabled) {
-      AudioManager.registerMuteStateListener(() => this.forceUpdate());
-
-      if (TRANSLATOR_SPEAKING_ENABLED) {
-        setInterval(() => {
-          const meeting = Meetings.findOne(
-            {meetingId: Auth.meetingID},
-            {fields: {'languages': 1}});
-
-          if (meeting?.languages) {
-
-            let transaudio = document.getElementById("translation-media")
-
-            let result = false;
-            const languageExtension = AudioManager.translationLanguageExtension;
-            let meeting1 = meeting.languages.find(language => language.extension === languageExtension);
-            if (meeting1 !== undefined) {
-              if (meeting1.hasOwnProperty("translatorIsSpeaking")) {
-                result = meeting1.translatorIsSpeaking;
-                if (meeting1.hasOwnProperty("translatorSpeakingUtcTimestamp")) {
-                  if (meeting1.translatorSpeakingUtcTimestamp + TRANSLATOR_SPEAKING_DELAY > Date.now() && !result) {
-                    result = true;
-                  }
-                  if (meeting1.translatorSpeakingUtcTimestamp + TRANSLATOR_SPEAKING_TIMEOUT < Date.now()) {
-                    result = false;
-                  }
-                }
-              }
-            }
-            if (result) {
-              AudioManager.setTranslationFloorVolumeByExt(languageExtension);
-              // AudioManager.setFloorOutputVolume(FLOOR_TRANSLATION_VOLUME);
-              transaudio.volume = 1
-            } else {
-              AudioManager.setFloorOutputVolume(1.0);
-            }
-          }
-        }, 500);
-      }
-    }
+    // if(AudioManager.isTranslationEnabled) {
+    //   AudioManager.registerMuteStateListener(() => this.forceUpdate());
+    //
+    //   if (TRANSLATOR_SPEAKING_ENABLED) {
+    //     setInterval(() => {
+    //       const meeting = Meetings.findOne(
+    //         {meetingId: Auth.meetingID},
+    //         {fields: {'languages': 1}});
+    //
+    //       if (meeting?.languages) {
+    //
+    //         let transaudio = document.getElementById("translation-media")
+    //
+    //         let result = false;
+    //         const languageExtension = AudioManager.translationLanguageExtension;
+    //         let meeting1 = meeting.languages.find(language => language.extension === languageExtension);
+    //         if (meeting1 !== undefined) {
+    //           if (meeting1.hasOwnProperty("translatorIsSpeaking")) {
+    //             result = meeting1.translatorIsSpeaking;
+    //             if (meeting1.hasOwnProperty("translatorSpeakingUtcTimestamp")) {
+    //               if (meeting1.translatorSpeakingUtcTimestamp + TRANSLATOR_SPEAKING_DELAY > Date.now() && !result) {
+    //                 result = true;
+    //               }
+    //               if (meeting1.translatorSpeakingUtcTimestamp + TRANSLATOR_SPEAKING_TIMEOUT < Date.now()) {
+    //                 result = false;
+    //               }
+    //             }
+    //           }
+    //         }
+    //         if (result) {
+    //           AudioManager.setTranslationFloorVolumeByExt(languageExtension);
+    //           // AudioManager.setFloorOutputVolume(FLOOR_TRANSLATION_VOLUME);
+    //           // transaudio.volume = 1
+    //         } else {
+    //           AudioManager.setFloorOutputVolume(1.0);
+    //         }
+    //       }
+    //     }, 500);
+    //   }
+    // }
   }
 
   autoArrangeToggle() {
@@ -192,13 +192,14 @@ class ActionsBar extends PureComponent {
           return languageExtension;
         })
         .then((languageExtension) => {
-          if (!TRANSLATOR_SPEAKING_ENABLED) {
-            if (languageExtension === -1) {
-              AudioManager.setFloorOutputVolume(1.0);
-            } else {
-              AudioManager.setFloorOutputVolume(FLOOR_TRANSLATION_VOLUME);
-            }
-          }
+          AudioManager.setTranslationFloorVolumeByExt(languageExtension)
+        //   if (!TRANSLATOR_SPEAKING_ENABLED) {
+        //     if (languageExtension === -1) {
+        //       AudioManager.setFloorOutputVolume(1.0);
+        //     } else {
+        //       AudioManager.setFloorOutputVolume(FLOOR_TRANSLATION_VOLUME);
+        //     }
+        //   }
         });
     this.setState(this.state)
     this.forceUpdate()

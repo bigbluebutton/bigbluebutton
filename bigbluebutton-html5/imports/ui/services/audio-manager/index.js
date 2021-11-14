@@ -142,6 +142,7 @@ class AudioManager {
             pLang.hasOwnProperty("volume")
         ) {
           this.translationOriginalVolume[pLang.extension] = pLang.volume;
+          this.setTranslationFloorVolumeByExt(pLang.extension);
         }
     })
   }
@@ -1239,21 +1240,30 @@ class AudioManager {
   }
 
   getTranslationFloorVolumeByExt(pExt) {
-    let tIdx = parseInt((pExt+ '').charAt(2));
-    return Array.isArray(this.translationOriginalVolume) && typeof this.translationOriginalVolume[tIdx] !== 'undefined'
+    if(pExt === -1) return 1;
+    let tIdx = pExt;
+    if(pExt.toString().length === 3) {
+      tIdx = parseInt((pExt+ '').charAt(2));
+    }
+    let val = Array.isArray(this.translationOriginalVolume) && typeof this.translationOriginalVolume[tIdx] !== 'undefined'
       ? this.translationOriginalVolume[tIdx]
       : TRANSLATION_SETTINGS.hasOwnProperty('floorVolume')
         ? TRANSLATION_SETTINGS.floorVolume
         : 0.4;
+    return val;
   }
 
   setTranslationFloorVolumeByExt(pExt) {
-    this.setFloorOutputVolume(this.getTranslationFloorVolumeByExt(pExt));
+    let val = this.getTranslationFloorVolumeByExt(pExt)
+    this.setFloorOutputVolume(val);
   }
 
   setFloorOutputVolume(volume) {
     const floorMediaElement = document.querySelector(MEDIA_TAG);
+    const translationMediaElement = document.querySelector("#translation-media");
     floorMediaElement.volume = volume;
+    translationMediaElement.volume = 1 - volume;
+
   }
 
   isTranslationEnabled() {
