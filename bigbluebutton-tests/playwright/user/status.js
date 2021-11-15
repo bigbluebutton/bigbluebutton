@@ -1,23 +1,23 @@
 const Page = require('../page');
 const util = require('./util');
-const selectors = require('../selectors');
+const elements = require('../elements');
 
 class Status extends Page {
 
-  constructor(page, browser) {
-    super(page, browser);
+  constructor(browser, page) {
+    super(browser, page);
   }
 
   async test() {
     
-    await util.setStatus(this.page, selectors.applaud);
-    await this.page.waitForSelector(selectors.applauseIcon);
-    const applauseIconLocator = this.page.locator(selectors.applauseIcon);
+    await util.setStatus(this.page, elements.applaud);
+    await this.page.waitForSelector(elements.applauseIcon);
+    const applauseIconLocator = this.page.locator(elements.applauseIcon);
     await expect(applauseIconLocator).toBeVisible();
 
-    await util.setStatus(this.page, selectors.away);
-    await this.page.waitForSelector(selectors.awayIcon);
-    const awayIconLocator = this.page.locator(selectors.awayIcon);
+    await util.setStatus(this.page, elements.away);
+    await this.page.waitForSelector(elements.awayIcon);
+    const awayIconLocator = this.page.locator(elements.awayIcon);
     await expect(awayIconLocator).toBeVisible();
   }
 }
