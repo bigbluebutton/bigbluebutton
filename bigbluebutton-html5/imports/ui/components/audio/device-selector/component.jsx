@@ -1,22 +1,18 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 import logger from '/imports/startup/client/logger';
 import browserInfo from '/imports/utils/browserInfo';
-import { styles } from '../audio-modal/styles';
 
 const propTypes = {
   kind: PropTypes.oneOf(['audioinput', 'audiooutput', 'videoinput']),
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
-  className: PropTypes.string,
 };
 
 const defaultProps = {
   kind: 'audioinput',
   value: undefined,
-  className: null,
 };
 
 class DeviceSelector extends Component {
@@ -78,7 +74,7 @@ class DeviceSelector extends Component {
 
   render() {
     const {
-      kind, className, ...props
+      kind, ...props
     } = this.props;
 
     const { options, value } = this.state;
@@ -98,7 +94,6 @@ class DeviceSelector extends Component {
         value={value}
         onChange={this.handleSelectChange}
         disabled={!options.length}
-        className={cx(styles.select, className)}
       >
         {
           options.length

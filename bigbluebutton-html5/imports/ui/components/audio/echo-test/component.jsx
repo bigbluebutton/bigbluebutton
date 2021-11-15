@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
-import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   confirmLabel: {
@@ -59,9 +58,8 @@ class EchoTest extends Component {
       this.setState({ disabled: true }, callback);
     };
     return (
-      <span className={styles.echoTest}>
-        <Button
-          className={styles.button}
+      <Styled.EchoTest>
+        <Styled.EchoTestButton
           label={intl.formatMessage(intlMessages.confirmLabel)}
           aria-label={intl.formatMessage(intlMessages.confirmAriaLabel)}
           icon="thumbs_up"
@@ -71,8 +69,7 @@ class EchoTest extends Component {
           size="jumbo"
           onClick={disableYesButtonClicked(this.handleYes)}
         />
-        <Button
-          className={styles.button}
+        <Styled.EchoTestButton
           label={intl.formatMessage(intlMessages.disconfirmLabel)}
           aria-label={intl.formatMessage(intlMessages.disconfirmAriaLabel)}
           icon="thumbs_down"
@@ -81,7 +78,7 @@ class EchoTest extends Component {
           size="jumbo"
           onClick={this.handleNo}
         />
-      </span>
+      </Styled.EchoTest>
     );
   }
 }

@@ -193,7 +193,7 @@ class QuickPollDropdown extends Component {
           <Dropdown.DropdownTrigger tabIndex={0}>
             {btn}
           </Dropdown.DropdownTrigger>
-          <Dropdown.DropdownContent placement="top left">
+          <Dropdown.DropdownContent>
             <Dropdown.DropdownList>
               {quickPolls}
             </Dropdown.DropdownList>
