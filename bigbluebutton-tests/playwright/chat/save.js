@@ -1,18 +1,18 @@
 const Page = require('../page');
 const util = require('./util');
-const selectors = require('../selectors');
+const elements = require('../elements');
 
 class Save extends Page {
 
-  constructor(page, browser) {
-    super(page, browser);
+  constructor(browser, page) {
+    super(browser, page);
   }
 
   async test() {
     
     await util.openChat(this.page);
-    await this.waitAndClick(selectors.chatOptions);
-    await this.waitAndClick(selectors.chatSave);
+    await this.waitAndClick(elements.chatOptions);
+    await this.waitAndClick(elements.chatSave);
     await this.page.waitForEvent('click');
 
   }
