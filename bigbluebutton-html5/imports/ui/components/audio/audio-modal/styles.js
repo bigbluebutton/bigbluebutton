@@ -4,7 +4,7 @@ import Modal from '/imports/ui/components/modal/simple/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
   colorPrimary,
-  colorBackground,
+  colorGrayDark,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   mdPaddingY,
@@ -113,7 +113,7 @@ const Title = styled.h2`
   text-align: center;
   font-weight: 400;
   font-size: 1.3rem;
-  color: ${colorBackground};
+  color: ${colorGrayDark};
   white-space: normal;
 
   @media ${smallOnly} {
