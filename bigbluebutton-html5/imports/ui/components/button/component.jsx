@@ -163,10 +163,11 @@ export default class Button extends BaseButton {
         circle={circle}
         block={block}
         className={className}
+        iconRight={iconRight}
         {...remainingProps}
       >
-        {this[renderLeftFuncName]()}
-        {this[renderRightFuncName]()}
+        {this.renderIcon()}
+        {this.renderLabel()}
       </Styled.Button>
     );
   }

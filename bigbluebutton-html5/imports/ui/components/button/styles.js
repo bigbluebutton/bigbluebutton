@@ -967,6 +967,11 @@ const Button = styled(BaseButton)`
     display: block;
     width: 100%;
   `}
+
+  ${({ iconRight }) => iconRight && `
+    display: flex;
+    flex-direction: row-reverse;
+  `}
 `;
 
 export default {
