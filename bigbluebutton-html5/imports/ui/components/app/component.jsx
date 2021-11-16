@@ -28,17 +28,13 @@ import NewWebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
-import { styles } from './styles';
-import {
-  LAYOUT_TYPE, DEVICE_TYPE, ACTIONS,
-} from '../layout/enums';
+import styles from './styles.scss';
+import Styled from './styles';
+import { DEVICE_TYPE, ACTIONS } from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 } from '../layout/utils';
-import CustomLayout from '../layout/layout-manager/customLayout';
-import SmartLayout from '../layout/layout-manager/smartLayout';
-import PresentationFocusLayout from '../layout/layout-manager/presentationFocusLayout';
-import VideoFocusLayout from '../layout/layout-manager/videoFocusLayout';
+import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
@@ -48,6 +44,7 @@ import { NAVBAR_HEIGHT, LARGE_NAVBAR_HEIGHT } from '/imports/ui/components/layou
 import Settings from '/imports/ui/services/settings';
 import LayoutService from '/imports/ui/components/layout/service';
 import { registerTitleView } from '/imports/utils/dom-utils';
+import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -354,8 +351,7 @@ class App extends Component {
     if (!captions) return null;
 
     return (
-      <div
-        className={styles.captionsWrapper}
+      <Styled.CaptionsWrapper
         style={
           {
             position: 'absolute',
@@ -366,7 +362,7 @@ class App extends Component {
         }
       >
         {captions}
-      </div>
+      </Styled.CaptionsWrapper>
     );
   }
 
@@ -381,8 +377,7 @@ class App extends Component {
     if (!actionsbar || hideActionsBar) return null;
 
     return (
-      <section
-        className={styles.actionsbar}
+      <Styled.ActionsBar
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={this.shouldAriaHide()}
         style={
@@ -397,7 +392,7 @@ class App extends Component {
         }
       >
         {actionsbar}
-      </section>
+      </Styled.ActionsBar>
     );
   }
 
@@ -426,22 +421,6 @@ class App extends Component {
     ) : null);
   }
 
-  renderLayoutManager() {
-    const { layoutType } = this.props;
-    switch (layoutType) {
-      case LAYOUT_TYPE.CUSTOM_LAYOUT:
-        return <CustomLayout />;
-      case LAYOUT_TYPE.SMART_LAYOUT:
-        return <SmartLayout />;
-      case LAYOUT_TYPE.PRESENTATION_FOCUS:
-        return <PresentationFocusLayout />;
-      case LAYOUT_TYPE.VIDEO_FOCUS:
-        return <VideoFocusLayout />;
-      default:
-        return <CustomLayout />;
-    }
-  }
-
   render() {
     const {
       customStyle,
@@ -452,14 +431,15 @@ class App extends Component {
       shouldShowScreenshare,
       shouldShowExternalVideo,
       isPresenter,
+      layoutType,
     } = this.props;
 
     return (
       <>
-        {this.renderLayoutManager()}
-        <div
+        <LayoutEngine layoutType={layoutType} />
+        <GlobalStyles />
+        <Styled.Layout
           id="layout"
-          className={styles.layout}
           style={{
             width: '100%',
             height: '100%',
@@ -501,7 +481,7 @@ class App extends Component {
           {this.renderActionsBar()}
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
           {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
-        </div>
+        </Styled.Layout>
       </>
     );
   }

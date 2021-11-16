@@ -31,7 +31,7 @@ const stressTest = () => {
       await test.modPage.logger(err);
     } finally {
       await test.modPage.close();
-      await test.closeUserPages();
+      await test.closeUsersPages();
     }
     expect(response).toBe(true);
   });

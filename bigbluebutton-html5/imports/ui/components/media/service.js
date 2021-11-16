@@ -2,7 +2,7 @@ import Presentations from '/imports/api/presentations';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
+import Users from '/imports/ui/local-collections/users-collection/users';
 import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { ACTIONS } from '../layout/enums';

@@ -8,14 +8,14 @@ import { Session } from 'meteor/session';
 import Service from './service';
 import Auth from '/imports/ui/services/auth';
 import { UsersContext } from '../components-data/users-context/context';
-import LayoutContext from '../layout/context';
+import { layoutDispatch } from '../layout/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
 const PollContainer = ({ ...props }) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextDispatch } = layoutContext;
+  const layoutContextDispatch = layoutDispatch();
+
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
 
@@ -42,9 +42,9 @@ export default withTracker(() => {
 
   const { pollTypes } = Service;
 
-  const startPoll = (type, secretPoll, question = '') => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question);
+  const startPoll = (type, secretPoll, question = '', isMultipleResponse) => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question, isMultipleResponse);
 
-  const startCustomPoll = (type, secretPoll, question = '', answers) => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question, answers);
+  const startCustomPoll = (type, secretPoll, question = '', isMultipleResponse, answers) => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question, isMultipleResponse, answers);
 
   const stopPoll = () => makeCall('stopPoll');
 

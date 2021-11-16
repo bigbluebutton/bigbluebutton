@@ -8,18 +8,19 @@ import MeetingEnded from '/imports/ui/components/meeting-ended/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
-import Users from '/imports/api/users';
+import Users from '/imports/ui/local-collections/users-collection/users';
 import { Session } from 'meteor/session';
 import { FormattedMessage } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
-import Meetings, { RecordMeetings } from '../../api/meetings';
+import { RecordMeetings } from '../../api/meetings';
+import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
 import AppService from '/imports/ui/components/app/service';
-import Breakouts from '/imports/api/breakouts';
+import Breakouts from '/imports/ui/local-collections/breakouts-collection/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { LayoutContextFunc } from '../../ui/components/layout/context';
+import { layoutSelectInput, layoutDispatch } from '../../ui/components/layout/context';
 import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
@@ -183,17 +184,13 @@ class Base extends Component {
       isMeteorConnected,
       subscriptionsReady,
       layoutContextDispatch,
-      layoutContextState,
+      sidebarContentPanel,
       usersVideo,
     } = this.props;
     const {
       loading,
       meetingExisted,
     } = this.state;
-
-    const { input } = layoutContextState;
-    const { sidebarContent } = input;
-    const { sidebarContentPanel } = sidebarContent;
 
     if (usersVideo !== prevProps.usersVideo) {
       layoutContextDispatch({
@@ -377,7 +374,15 @@ class Base extends Component {
 Base.propTypes = propTypes;
 Base.defaultProps = defaultProps;
 
-const BaseContainer = withTracker(() => {
+const BaseContainer = (props) => {
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const { sidebarContentPanel } = sidebarContent;
+  const layoutContextDispatch = layoutDispatch();
+
+  return <Base {...{ sidebarContentPanel, layoutContextDispatch, ...props }} />;
+};
+
+export default withTracker(() => {
   const {
     animations,
   } = Settings.application;
@@ -510,6 +515,4 @@ const BaseContainer = withTracker(() => {
     codeError,
     usersVideo,
   };
-})(LayoutContextFunc.withContext(Base));
-
-export default BaseContainer;
+})(BaseContainer);

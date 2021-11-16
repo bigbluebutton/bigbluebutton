@@ -24,68 +24,10 @@
   padding-bottom: var(--md-padding-x);
 }
 
-.actionsbar,
-.center,
-.right {
-  display: flex;
-  flex-direction: row;
-}
-
-.right {
-  justify-content: center;
-  @include mq($small-only) {
-    position: relative;
-    right: 0;
-    left: 0;
-    display: contents;
-  }
-}
-
-.center {
-  flex: 1;
-  justify-content: center;
-}
-
-.left,
-.center,
-.right {
-  > * {
-    margin: 0 var(--sm-padding-x);
-
-    @include mq($small-only) {
-      margin: 0 var(--sm-padding-y);
-    }
-  }
-}
-
 .offsetBottom {
   :global(.MuiPaper-root) {
     top: auto !important;
     bottom: 4rem !important;
-  }
-}
-
-.left {
-  display: inherit;
-  flex: 0;
-  @include mq($small-only) {
-    bottom: var(--sm-padding-x);
-    left: var(--sm-padding-x);
-    right: auto;
-
-    [dir="rtl"] & {
-      left: auto;
-      right: var(--sm-padding-x);
-    }
-  }
-}
-
-.right {
-  position: relative;
-
-  [dir="rtl"] & {
-    right: auto;
-    left: var(--sm-padding-x);
   }
 }
 
@@ -120,12 +62,6 @@
 
 .dropdown{
   z-index: 4;
-}
-
-.hideDropdownButton {
-  @include mq($small-only) {
-    display:none;
-  }
 }
 
 .presentationItem {

@@ -7,8 +7,12 @@ import Auth from '/imports/ui/services/auth';
 import breakoutService from '/imports/ui/components/breakout-room/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { UsersContext } from '../components-data/users-context/context';
-
-import LayoutContext from '../layout/context';
+import {
+  layoutSelect,
+  layoutSelectInput,
+  layoutSelectOutput,
+  layoutDispatch,
+} from '../layout/context';
 import WebcamComponent from '/imports/ui/components/webcam/component';
 
 const WebcamContainer = ({
@@ -16,13 +20,13 @@ const WebcamContainer = ({
   swapLayout,
   usersVideo,
 }) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-  const {
-    fullscreen, output, input, isRTL,
-  } = layoutContextState;
-  const { cameraDock, presentation } = output;
-  const { cameraDock: cameraDockInput } = input;
+  const fullscreen = layoutSelect((i) => i.fullscreen);
+  const isRTL = layoutSelect((i) => i.isRTL);
+  const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
+  const presentation = layoutSelectOutput((i) => i.presentation);
+  const cameraDock = layoutSelectOutput((i) => i.cameraDock);
+  const layoutContextDispatch = layoutDispatch();
+
   const { cameraOptimalGridSize } = cameraDockInput;
   const { display: displayPresentation } = presentation;
 

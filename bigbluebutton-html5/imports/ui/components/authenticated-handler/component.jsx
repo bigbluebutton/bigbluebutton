@@ -94,5 +94,4 @@ class AuthenticatedHandler extends Component {
   }
 }
 
-
 export default AuthenticatedHandler;

@@ -221,12 +221,16 @@ class InputStreamLiveSelector extends Component {
         dividerTop: (!renderSeparator),
       },
     ];
+
+    const customStyles = { fontWeight: 'bold' };
+    const disableDeviceStyles = { pointerEvents: 'none' };
+
     const deviceList = (listLength > 0)
       ? list.map((device) => (
         {
           key: `${device.deviceId}-${deviceKind}`,
           label: InputStreamLiveSelector.truncateDeviceName(device.label),
-          className: (device.deviceId === currentDeviceId) ? styles.selectedDevice : '',
+          customStyles: (device.deviceId === currentDeviceId) ? customStyles : null,
           iconRight: (device.deviceId === currentDeviceId) ? 'check' : null,
           onClick: () => this.onDeviceListClick(device.deviceId, deviceKind, callback),
         }
@@ -237,7 +241,7 @@ class InputStreamLiveSelector extends Component {
           label: listLength < 0
             ? intl.formatMessage(intlMessages.loading)
             : intl.formatMessage(intlMessages.noDeviceFound),
-          className: styles.disableDeviceSelection,
+          customStyles: disableDeviceStyles,
         },
       ];
     return listTitle.concat(deviceList);

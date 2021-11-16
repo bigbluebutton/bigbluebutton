@@ -35,7 +35,6 @@ class PendingAuthentitcations {
 
     // find matches
     const matches = this.store.filter(e => e.key === key);
-
     // remove matches (if any)
     if (matches.length) {
       this.store = this.store.filter(e => e.key !== key);

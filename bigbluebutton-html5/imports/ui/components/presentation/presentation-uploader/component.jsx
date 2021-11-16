@@ -14,7 +14,9 @@ import { notify } from '/imports/ui/services/notification';
 import { toast } from 'react-toastify';
 import _ from 'lodash';
 import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
-import { styles } from './styles';
+import { styles } from './styles.scss';
+import Styled from './styles';
+import Settings from '/imports/ui/services/settings';
 
 const { isMobile } = deviceInfo;
 
@@ -774,6 +776,8 @@ class PresentationUploader extends Component {
       ? cx(styles.itemAction, styles.itemActionRemove, styles.checked)
       : cx(styles.itemAction, styles.itemActionRemove);
 
+    const { animations } = Settings.application;
+
     return (
       <tr
         key={item.id}
@@ -815,14 +819,16 @@ class PresentationUploader extends Component {
               />
               ) : null
             }
-            <Checkbox
+            <Styled.ItemAction>
+              <Checkbox
+              animations={animations}
               ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.filename}`}
               checked={item.isCurrent}
-              className={styles.itemAction}
               keyValue={item.id}
               onChange={() => this.handleCurrentChange(item.id)}
               disabled={disableActions}
             />
+            </Styled.ItemAction>
             <Button
               disabled={disableActions}
               className={cx(styles.itemAction, styles.itemActionRemove)}

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
-import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
+import Styled from './styles';
 import { ACTIONS, PANELS } from '../../../layout/enums';
 
 const intlMessages = defineMessages({
@@ -33,29 +33,28 @@ const BreakoutRoomItem = ({
 
   if (hasBreakoutRoom) {
     return (
-      <div className={styles.messages}>
-        <div className={styles.container}>
-          <h2 className={styles.smallTitle}>
+      <Styled.Messages>
+        <Styled.Container>
+          <Styled.SmallTitle>
             {intl.formatMessage(intlMessages.breakoutTitle)}
-          </h2>
-        </div>
-        <div className={styles.scrollableList}>
-          <div className={styles.list}>
-            <div
+          </Styled.SmallTitle>
+        </Styled.Container>
+        <Styled.ScrollableList>
+          <Styled.List>
+            <Styled.ListItem
               role="button"
               tabIndex={0}
               onClick={toggleBreakoutPanel}
               data-test="breakoutRoomsItem"
-              className={styles.listItem}
               aria-label={intl.formatMessage(intlMessages.breakoutTitle)}
               onKeyPress={() => {}}
             >
               <Icon iconName="rooms" />
               <span aria-hidden>{intl.formatMessage(intlMessages.breakoutTitle)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+            </Styled.ListItem>
+          </Styled.List>
+        </Styled.ScrollableList>
+      </Styled.Messages>
     );
   }
   return <span />;

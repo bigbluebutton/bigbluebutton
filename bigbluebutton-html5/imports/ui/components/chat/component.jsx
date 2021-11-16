@@ -6,13 +6,14 @@ import Button from '/imports/ui/components/button/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { Meteor } from 'meteor/meteor';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
-import { styles } from './styles.scss';
+import Styled from './styles';
 import MessageFormContainer from './message-form/container';
 import TimeWindowList from './time-window-list/container';
 import ChatDropdownContainer from './chat-dropdown/container';
 import { PANELS, ACTIONS } from '../layout/enums';
 import { UserSentMessageCollection } from './service';
 import Auth from '/imports/ui/services/auth';
+import browserInfo from '/imports/utils/browserInfo';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -55,21 +56,19 @@ const Chat = (props) => {
   } = props;
 
   const userSentMessage = UserSentMessageCollection.findOne({ userId: Auth.userID, sent: true });
+  const { isChrome } = browserInfo;
 
   const HIDE_CHAT_AK = shortcuts.hideprivatechat;
   const CLOSE_CHAT_AK = shortcuts.closeprivatechat;
   ChatLogger.debug('ChatComponent::render', props);
   return (
-    <div
+    <Styled.Chat
+      isChrome={isChrome}
       data-test={chatID !== PUBLIC_CHAT_ID ? 'privateChat' : 'publicChat'}
-      className={styles.chat}
     >
-      <header className={styles.header}>
-        <div
-          data-test="chatTitle"
-          className={styles.title}
-        >
-          <Button
+      <Styled.Header>
+        <Styled.Title data-test="chatTitle">
+          <Styled.HideChatButton
             onClick={() => {
               layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -88,9 +87,8 @@ const Chat = (props) => {
             accessKey={chatID !== 'public' ? HIDE_CHAT_AK : null}
             label={title}
             icon="left_arrow"
-            className={styles.hideBtn}
           />
-        </div>
+        </Styled.Title>
         {
           chatID !== PUBLIC_CHAT_ID
             ? (
@@ -127,7 +125,7 @@ const Chat = (props) => {
               />
             )
         }
-      </header>
+      </Styled.Header>
       <TimeWindowList
         id={ELEMENT_ID}
         chatId={chatID}
@@ -160,7 +158,7 @@ const Chat = (props) => {
         locked={isChatLocked}
         partnerIsLoggedOut={partnerIsLoggedOut}
       />
-    </div>
+    </Styled.Chat>
   );
 };
 

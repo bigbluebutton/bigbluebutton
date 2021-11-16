@@ -9,13 +9,13 @@ class GroupsChatTests extends UnitSpec {
     val gcId = "gc-id"
     val chatName = "Public"
     val userId = "uid-1"
-    val createBy = GroupChatUser("groupId", "groupname")
+    val createBy = GroupChatUser("groupId")
     val gc = GroupChatFactory.create(gcId, chatName, GroupChatAccess.PUBLIC, createBy, Vector.empty, Vector.empty)
-    val user = GroupChatUser(userId, "User 1")
+    val user = GroupChatUser(userId)
     val gc2 = gc.add(user)
     assert(gc2.users.size == 1)
 
-    val gc3 = gc2.add(GroupChatUser("user-2", "User 2"))
+    val gc3 = gc2.add(GroupChatUser("user-2"))
     assert(gc3.users.size == 2)
 
     val gc4 = gc3.remove(userId)
@@ -24,7 +24,7 @@ class GroupsChatTests extends UnitSpec {
   }
 
   "A GroupChat" should "be able to add, update, and remove msg" in {
-    val createBy = GroupChatUser("groupId", "groupname")
+    val createBy = GroupChatUser("groupId")
     val gcId = "gc-id"
     val chatName = "Public"
     val gc = GroupChatFactory.create(gcId, chatName, GroupChatAccess.PUBLIC, createBy, Vector.empty, Vector.empty)
@@ -33,7 +33,7 @@ class GroupsChatTests extends UnitSpec {
     val hello = "Hello World!"
 
     val msg1 = GroupChatMessage(id = msgId1, timestamp = ts, correlationId = "cordId1", createdOn = ts,
-      updatedOn = ts, sender = createBy, color = "red", message = hello)
+      updatedOn = ts, sender = createBy, message = hello)
     val gc2 = gc.add(msg1)
 
     assert(gc2.msgs.size == 1)
@@ -42,7 +42,7 @@ class GroupsChatTests extends UnitSpec {
     val foo = "Foo bar"
     val ts2 = System.currentTimeMillis()
     val msg2 = GroupChatMessage(id = msgId2, timestamp = ts2, correlationId = "cordId2", createdOn = ts2,
-      updatedOn = ts2, sender = createBy, color = "red", message = foo)
+      updatedOn = ts2, sender = createBy, message = foo)
     val gc3 = gc2.add(msg2)
 
     assert(gc3.msgs.size == 2)
@@ -51,7 +51,7 @@ class GroupsChatTests extends UnitSpec {
     val msgId3 = "msgid-3"
     val ts3 = System.currentTimeMillis()
     val msg3 = GroupChatMessage(id = msgId3, timestamp = ts3, correlationId = "cordId3", createdOn = ts3,
-      updatedOn = ts3, sender = createBy, color = "red", message = baz)
+      updatedOn = ts3, sender = createBy, message = baz)
     val gc4 = gc3.update(msg3)
 
     gc4.findMsgWithId(msgId3) match {

@@ -1,15 +1,14 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import UserCaptionsItem from './component';
 import CaptionsService from '/imports/ui/components/captions/service';
-import LayoutContext from '../../../layout/context';
+import { layoutSelectInput, layoutDispatch } from '../../../layout/context';
 
 const UserCaptionsItemContainer = (props) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-  const { input } = layoutContextState;
-  const { sidebarContent } = input;
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
+  const layoutContextDispatch = layoutDispatch();
+
   return <UserCaptionsItem {...{ sidebarContentPanel, layoutContextDispatch, ...props }} />;
 };
 
