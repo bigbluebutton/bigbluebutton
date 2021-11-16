@@ -15,10 +15,10 @@ class PollsTable extends React.Component {
     }
 
     return (
-      <table className="w-full whitespace-nowrap">
+      <table className="w-full">
         <thead>
           <tr className="text-xs font-semibold tracking-wide col-text-left text-gray-500 uppercase border-b bg-gray-100">
-            <th className="px-4 py-3">
+            <th className="px-3.5 2xl:px-4 py-3">
               <FormattedMessage id="app.learningDashboard.user" defaultMessage="User" />
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -31,11 +31,11 @@ class PollsTable extends React.Component {
               </svg>
             </th>
             {typeof polls === 'object' && Object.values(polls || {}).length > 0 ? (
-              Object.values(polls || {}).map((poll, index) => <th className="px-4 py-3 text-center">{poll.question || `Poll ${index + 1}`}</th>)
+              Object.values(polls || {}).map((poll, index) => <th className="px-3.5 2xl:px-4 py-3 text-center">{poll.question || `Poll ${index + 1}`}</th>)
             ) : null }
           </tr>
         </thead>
-        <tbody className="bg-white divide-y">
+        <tbody className="bg-white divide-y whitespace-nowrap">
           { typeof allUsers === 'object' && Object.values(allUsers || {}).length > 0 ? (
             Object.values(allUsers || {})
               .filter((user) => Object.values(user.answers).length > 0)
@@ -48,7 +48,7 @@ class PollsTable extends React.Component {
               })
               .map((user) => (
                 <tr className="text-gray-700">
-                  <td className="px-4 py-3">
+                  <td className="px-3.5 2xl:px-4 py-3">
                     <div className="flex items-center text-sm">
                       <div className="relative hidden w-8 h-8 rounded-full md:block">
                         <UserAvatar user={user} />
@@ -62,7 +62,7 @@ class PollsTable extends React.Component {
 
                   {typeof polls === 'object' && Object.values(polls || {}).length > 0 ? (
                     Object.values(polls || {}).map((poll) => (
-                      <td className="px-4 py-3 text-sm text-center">
+                      <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
                         { getUserAnswer(user, poll) }
                         { poll.anonymous
                           ? (
@@ -94,7 +94,7 @@ class PollsTable extends React.Component {
                 </tr>
               ))) : null }
           <tr className="text-gray-700">
-            <td className="px-4 py-3">
+            <td className="px-3.5 2xl:px-4 py-3">
               <div className="flex items-center text-sm">
                 <div className="relative hidden w-8 h-8 mr-3 rounded-full md:block">
                   {/* <img className="object-cover w-full h-full rounded-full" */}
@@ -128,7 +128,7 @@ class PollsTable extends React.Component {
             </td>
             {typeof polls === 'object' && Object.values(polls || {}).length > 0 ? (
               Object.values(polls || {}).map((poll) => (
-                <td className="px-4 py-3 text-sm text-center">
+                <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
                   { poll.anonymousAnswers.map((answer) => <p>{answer}</p>) }
                 </td>
               ))
