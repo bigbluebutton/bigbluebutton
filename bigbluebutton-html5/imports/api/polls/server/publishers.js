@@ -14,11 +14,11 @@ function currentPoll(secretPoll) {
   });
 
   if (
-    !tokenValidation ||
-    tokenValidation.validationStatus !== ValidationStates.VALIDATED
+    !tokenValidation
+    || tokenValidation.validationStatus !== ValidationStates.VALIDATED
   ) {
     Logger.warn(
-      `Publishing Polls was requested by unauth connection ${this.connection.id}`
+      `Publishing Polls was requested by unauth connection ${this.connection.id}`,
     );
     return Polls.find({ meetingId: '' });
   }
@@ -41,15 +41,16 @@ function currentPoll(secretPoll) {
     if ((hasPoll && hasPoll.secretPoll) || secretPoll) {
       options.fields.responses = 0;
     }
-
-    return Polls.find(selector, options);
+    Mongo.Collection._publishCursor(Polls.find(selector, options), this, 'current-poll');
+    return this.ready();
   }
 
   Logger.warn(
     'Publishing current-poll was requested by non-moderator connection',
     { meetingId, userId, connectionId: this.connection.id },
   );
-  return Polls.find({ meetingId: '' });
+  Mongo.Collection._publishCursor(Polls.find({ meetingId: '' }), this, 'current-poll');
+  return this.ready();
 }
 
 function publishCurrentPoll(...args) {
@@ -65,11 +66,11 @@ function polls() {
   });
 
   if (
-    !tokenValidation ||
-    tokenValidation.validationStatus !== ValidationStates.VALIDATED
+    !tokenValidation
+    || tokenValidation.validationStatus !== ValidationStates.VALIDATED
   ) {
     Logger.warn(
-      `Publishing Polls was requested by unauth connection ${this.connection.id}`
+      `Publishing Polls was requested by unauth connection ${this.connection.id}`,
     );
     return Polls.find({ meetingId: '' });
   }

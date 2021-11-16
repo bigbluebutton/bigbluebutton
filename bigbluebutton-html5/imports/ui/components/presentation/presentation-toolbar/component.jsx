@@ -3,13 +3,10 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import Button from '/imports/ui/components/button/component';
 import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtils';
-import cx from 'classnames';
-import { styles } from './styles.scss';
+import Styled from './styles';
 import ZoomTool from './zoom-tool/component';
 import TooltipContainer from '/imports/ui/components/tooltip/container';
-import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick-poll-dropdown/container';
 import KEY_CODES from '/imports/utils/keyCodes';
 
 const intlMessages = defineMessages({
@@ -85,6 +82,7 @@ class PresentationToolbar extends PureComponent {
     this.switchSlide = this.switchSlide.bind(this);
     this.nextSlideHandler = this.nextSlideHandler.bind(this);
     this.previousSlideHandler = this.previousSlideHandler.bind(this);
+    this.fullscreenToggleHandler = this.fullscreenToggleHandler.bind(this);
   }
 
   componentDidMount() {
@@ -108,6 +106,9 @@ class PresentationToolbar extends PureComponent {
         case KEY_CODES.ARROW_RIGHT:
         case KEY_CODES.PAGE_DOWN:
           this.nextSlideHandler();
+          break;
+        case KEY_CODES.ENTER:
+          this.fullscreenToggleHandler();
           break;
         default:
       }
@@ -142,6 +143,25 @@ class PresentationToolbar extends PureComponent {
     } = this.props;
 
     previousSlide(currentSlideNum, podId);
+  }
+
+  fullscreenToggleHandler() {
+    const {
+      fullscreenElementId,
+      isFullscreen,
+      layoutContextDispatch,
+      fullscreenAction,
+    } = this.props;
+
+    const newElement = isFullscreen ? '' : fullscreenElementId;
+
+    layoutContextDispatch({
+      type: fullscreenAction,
+      value: {
+        element: newElement,
+        group: '',
+      },
+    });
   }
 
   change(value) {
@@ -230,8 +250,8 @@ class PresentationToolbar extends PureComponent {
       : `${intl.formatMessage(intlMessages.nextSlideLabel)} (${currentSlideNum >= 1 ? (currentSlideNum + 1) : ''})`;
 
     return (
-      <div id="presentationToolbarWrapper"
-        className={styles.presentationToolbarWrapper}
+      <Styled.PresentationToolbarWrapper
+        id="presentationToolbarWrapper"
         style={
           {
             width: toolbarWidth,
@@ -242,7 +262,7 @@ class PresentationToolbar extends PureComponent {
           <div>
             {isPollingEnabled
               ? (
-                <QuickPollDropdownContainer
+                <Styled.QuickPollButton
                   {...{
                     currentSlidHasContent,
                     intl,
@@ -251,15 +271,14 @@ class PresentationToolbar extends PureComponent {
                     startPoll,
                     currentSlide,
                   }}
-                  className={styles.presentationBtn}
                 />
               ) : null
             }
           </div>
         }
         {
-          <div className={styles.presentationSlideControls}>
-            <Button
+          <Styled.PresentationSlideControls>
+            <Styled.PrevSlideButton
               role="button"
               aria-label={prevSlideAriaLabel}
               aria-describedby={startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'}
@@ -270,12 +289,11 @@ class PresentationToolbar extends PureComponent {
               onClick={this.previousSlideHandler}
               label={intl.formatMessage(intlMessages.previousSlideLabel)}
               hideLabel
-              className={cx(styles.prevSlide, styles.presentationBtn)}
               data-test="prevSlide"
             />
 
             <TooltipContainer title={intl.formatMessage(intlMessages.selectLabel)}>
-              <select
+              <Styled.SkipSlideSelect
                 id="skipSlide"
                 aria-label={intl.formatMessage(intlMessages.skipSlideLabel)}
                 aria-describedby="skipSlideDesc"
@@ -284,13 +302,12 @@ class PresentationToolbar extends PureComponent {
                 disabled={!isMeteorConnected}
                 value={currentSlideNum}
                 onChange={this.handleSkipToSlideChange}
-                className={styles.skipSlideSelect}
                 data-test="skipSlide"
               >
                 {this.renderSkipSlideOpts(numberOfSlides)}
-              </select>
+              </Styled.SkipSlideSelect>
             </TooltipContainer>
-            <Button
+            <Styled.NextSlideButton
               role="button"
               aria-label={nextSlideAriaLabel}
               aria-describedby={endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'}
@@ -301,13 +318,12 @@ class PresentationToolbar extends PureComponent {
               onClick={this.nextSlideHandler}
               label={intl.formatMessage(intlMessages.nextSlideLabel)}
               hideLabel
-              className={cx(styles.skipSlide, styles.presentationBtn)}
               data-test="nextSlide"
             />
-          </div>
+          </Styled.PresentationSlideControls>
         }
         {
-          <div className={styles.presentationZoomControls}>
+          <Styled.PresentationZoomControls>
             {
               !isMobile
                 ? (
@@ -324,7 +340,7 @@ class PresentationToolbar extends PureComponent {
                 )
                 : null
             }
-            <Button
+            <Styled.FitToWidthButton
               role="button"
               aria-describedby={fitToWidth ? 'fitPageDesc' : 'fitWidthDesc'}
               aria-label={fitToWidth
@@ -342,11 +358,10 @@ class PresentationToolbar extends PureComponent {
                 : intl.formatMessage(intlMessages.fitToWidth)
               }
               hideLabel
-              className={cx(styles.fitToWidth, styles.presentationBtn)}
             />
-          </div>
+          </Styled.PresentationZoomControls>
         }
-      </div>
+      </Styled.PresentationToolbarWrapper>
     );
   }
 }
@@ -370,6 +385,10 @@ PresentationToolbar.propTypes = {
   fitToWidth: PropTypes.bool.isRequired,
   zoom: PropTypes.number.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
+  fullscreenElementId: PropTypes.string.isRequired,
+  fullscreenAction: PropTypes.string.isRequired,
+  isFullscreen: PropTypes.bool.isRequired,
+  layoutContextDispatch: PropTypes.func.isRequired,
 };
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));

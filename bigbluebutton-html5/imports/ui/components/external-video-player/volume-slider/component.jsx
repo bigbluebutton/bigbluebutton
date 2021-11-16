@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { styles } from './styles';
+import Styled from './styles';
 
 class VolumeSlider extends Component {
   constructor(props) {
@@ -61,28 +61,29 @@ class VolumeSlider extends Component {
 
   render() {
     const { muted, volume } = this.state;
+    const { hideVolume } = this.props;
+
+    if (hideVolume) {
+      return null;
+    }
 
     return (
-      <div className={styles.slider}>
-        <span
-          className={styles.volume}
-          onClick={() => this.setMuted(!muted)}
-        >
+      <Styled.Slider>
+        <Styled.Volume onClick={() => this.setMuted(!muted)}>
           <i
             tabIndex="-1"
             className={`icon-bbb-${this.getVolumeIcon()}`}
           />
-        </span>
-        <input
-          className={styles.volumeSlider}
+        </Styled.Volume>
+        <Styled.VolumeSlider
           type="range"
           min={0}
           max={1}
           step={0.02}
           value={muted ? 0 : volume}
-          onChange={(e)=> this.handleOnChange(e.target.valueAsNumber)}
+          onChange={(e) => this.handleOnChange(e.target.valueAsNumber)}
         />
-      </div>
+      </Styled.Slider>
     );
   }
 }

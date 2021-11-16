@@ -1,4 +1,5 @@
 const e = require('../core/elements');
+const { sleep } = require('../core/helper');
 
 async function openChat(test) {
   await test.waitForSelector(e.chatBox);
@@ -20,6 +21,7 @@ async function openPrivateChatMessage(page1, page2) {
   await page1.waitAndClick(e.userListItem);
   await page2.waitAndClick(e.userListItem);
   await page1.waitAndClick(e.activeChat);
+  await sleep(500); // prevent a race condition when running on a deployed server
   await page2.waitAndClick(e.activeChat);
 }
 
@@ -45,7 +47,7 @@ async function checkForPublicMessageReception(page1, page2) {
   const checkPublicMessage2 = await publicChat2[1].evaluate(n => n.innerText);
 
   const response = checkPublicMessage1 == e.publicMessage1 && checkPublicMessage2 == e.publicMessage2;
-  return response;
+  return response == true;
 }
 
 async function checkForPrivateMessageReception(page1, page2) {
@@ -56,7 +58,7 @@ async function checkForPrivateMessageReception(page1, page2) {
   const checkPrivateMessage2 = await privateChat2[1].evaluate(n => n.innerText);
 
   const response = checkPrivateMessage1 == e.message1 && checkPrivateMessage2 == e.message2;
-  return response;
+  return response == true;
 }
 
 async function getTestElements(test) {

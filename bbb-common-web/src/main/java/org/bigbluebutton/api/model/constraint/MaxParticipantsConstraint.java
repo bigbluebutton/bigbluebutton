@@ -15,6 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface MaxParticipantsConstraint {
 
+    String key() default "maxParticipantsReached";
     String message() default "The maximum number of participants for the meeting has been reached";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};

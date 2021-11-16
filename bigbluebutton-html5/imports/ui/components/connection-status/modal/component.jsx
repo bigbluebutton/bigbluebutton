@@ -1,15 +1,14 @@
 import React, { PureComponent } from 'react';
 import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import Switch from '/imports/ui/components/switch/component';
 import Service from '../service';
-import Modal from '/imports/ui/components/modal/simple/component';
-import { styles } from './styles';
+import Styled from './styles';
 
-const NETWORK_MONITORING_INTERVAL_MS = 2000;
+const NETWORK_MONITORING_INTERVAL_MS = 2000; 
+const MIN_TIMEOUT = 3000;
 
 const intlMessages = defineMessages({
   ariaTitle: {
@@ -223,18 +222,15 @@ class ConnectionStatusComponent extends PureComponent {
     const { intl } = this.props;
 
     return (
-      <div
-        className={styles.item}
-        data-test="connectionStatusItemEmpty"
-      >
-        <div className={styles.left}>
-          <div className={styles.name}>
-            <div className={styles.text}>
+      <Styled.Item data-test="connectionStatusItemEmpty">
+        <Styled.Left>
+          <Styled.Name>
+            <Styled.Text>
               {intl.formatMessage(intlMessages.empty)}
-            </div>
-          </div>
-        </div>
-      </div>
+            </Styled.Text>
+          </Styled.Name>
+        </Styled.Left>
+      </Styled.Item>
     );
   }
 
@@ -242,10 +238,10 @@ class ConnectionStatusComponent extends PureComponent {
     const { intl } = this.props;
 
     return (
-      <span className={styles.toggleLabel}>
+      <Styled.ToggleLabel>
         {status ? intl.formatMessage(intlMessages.on)
           : intl.formatMessage(intlMessages.off)}
-      </span>
+      </Styled.ToggleLabel>
     );
   }
 
@@ -275,7 +271,7 @@ class ConnectionStatusComponent extends PureComponent {
 
     this.copyNetworkDataTimeout = setTimeout(() => {
       copyButton.innerHTML = intl.formatMessage(intlMessages.copy);
-    }, 1000);
+    }, MIN_TIMEOUT);
   }
 
   renderConnections() {
@@ -288,21 +284,16 @@ class ConnectionStatusComponent extends PureComponent {
 
     return connectionStatus.map((conn, index) => {
       const dateTime = new Date(conn.timestamp);
-      const itemStyle = {};
-      itemStyle[styles.even] = (index + 1) % 2 === 0;
 
-      const textStyle = {};
-      textStyle[styles.offline] = conn.offline;
       return (
-        <div
+        <Styled.Item
           key={index}
-          className={cx(styles.item, itemStyle)}
+          even={(index + 1) % 2 === 0}
           data-test="connectionStatusItemUser"
         >
-          <div className={styles.left}>
-            <div className={styles.avatar}>
+          <Styled.Left>
+            <Styled.Avatar>
               <UserAvatar
-                className={cx({ [styles.initials]: conn.avatar.length === 0 })}
                 you={conn.you}
                 avatar={conn.avatar}
                 moderator={conn.moderator}
@@ -310,31 +301,31 @@ class ConnectionStatusComponent extends PureComponent {
               >
                 {conn.name.toLowerCase().slice(0, 2)}
               </UserAvatar>
-            </div>
+            </Styled.Avatar>
 
-            <div className={styles.name}>
-              <div
-                className={cx(styles.text, textStyle)}
+            <Styled.Name>
+              <Styled.Text
+                offline={conn.offline}
                 data-test={conn.offline ? "offlineUser" : null}
               >
                 {conn.name}
                 {conn.offline ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
-              </div>
-            </div>
-            <div aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.level}`} className={styles.status}>
-              <div className={styles.icon}>
+              </Styled.Text>
+            </Styled.Name>
+            <Styled.Status aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.level}`}>
+              <Styled.Icon>
                 <Icon level={conn.level} />
-              </div>
-            </div>
-          </div>
-          <div className={styles.right}>
-            <div className={styles.time}>
+              </Styled.Icon>
+            </Styled.Status>
+          </Styled.Left>
+          <Styled.Right>
+            <Styled.Time>
               <time dateTime={dateTime}>
                 <FormattedTime value={dateTime} />
               </time>
-            </div>
-          </div>
-        </div>
+            </Styled.Time>
+          </Styled.Right>
+        </Styled.Item>
       );
     });
   }
@@ -351,21 +342,21 @@ class ConnectionStatusComponent extends PureComponent {
     } = dataSaving;
 
     return (
-      <div className={styles.dataSaving}>
-        <div className={styles.description}>
+      <Styled.DataSaving>
+        <Styled.Description>
           {intl.formatMessage(intlMessages.dataSaving)}
-        </div>
+        </Styled.Description>
 
-        <div className={styles.row}>
-          <div className={styles.col} aria-hidden="true">
-            <div className={styles.formElement}>
-              <span className={styles.label}>
+        <Styled.Row>
+          <Styled.Col aria-hidden="true">
+            <Styled.FormElement>
+              <Styled.Label>
                 {intl.formatMessage(intlMessages.webcam)}
-              </span>
-            </div>
-          </div>
-          <div className={styles.col}>
-            <div className={cx(styles.formElement, styles.pullContentRight)}>
+              </Styled.Label>
+            </Styled.FormElement>
+          </Styled.Col>
+          <Styled.Col>
+            <Styled.FormElementRight>
               {this.displaySettingsStatus(viewParticipantsWebcams)}
               <Switch
                 icons={false}
@@ -376,20 +367,20 @@ class ConnectionStatusComponent extends PureComponent {
                 data-test="dataSavingWebcams"
                 showToggleLabel={false}
               />
-            </div>
-          </div>
-        </div>
+            </Styled.FormElementRight>
+          </Styled.Col>
+        </Styled.Row>
 
-        <div className={styles.row}>
-          <div className={styles.col} aria-hidden="true">
-            <div className={styles.formElement}>
-              <span className={styles.label}>
+        <Styled.Row>
+          <Styled.Col aria-hidden="true">
+            <Styled.FormElement>
+              <Styled.Label>
                 {intl.formatMessage(intlMessages.screenshare)}
-              </span>
-            </div>
-          </div>
-          <div className={styles.col}>
-            <div className={cx(styles.formElement, styles.pullContentRight)}>
+              </Styled.Label>
+            </Styled.FormElement>
+          </Styled.Col>
+          <Styled.Col>
+            <Styled.FormElementRight>
               {this.displaySettingsStatus(viewScreenshare)}
               <Switch
                 icons={false}
@@ -400,10 +391,10 @@ class ConnectionStatusComponent extends PureComponent {
                 data-test="dataSavingScreenshare"
                 showToggleLabel={false}
               />
-            </div>
-          </div>
-        </div>
-      </div>
+            </Styled.FormElementRight>
+          </Styled.Col>
+        </Styled.Row>
+      </Styled.DataSaving>
     );
   }
 
@@ -457,29 +448,29 @@ class ConnectionStatusComponent extends PureComponent {
     }
 
     return (
-      <div className={styles.networkDataContainer}>
-        <div className={styles.networkData}>
+      <Styled.NetworkDataContainer>
+        <Styled.NetworkData>
           {`↑${audioLabel}: ${audioCurrentUploadRate} k`}
-        </div>
-        <div className={styles.networkData}>
+        </Styled.NetworkData>
+        <Styled.NetworkData>
           {`↓${audioLabel}: ${audioCurrentDownloadRate} k`}
-        </div>
-        <div className={styles.networkData}>
+        </Styled.NetworkData>
+        <Styled.NetworkData>
           {`↑${videoLabel}: ${videoCurrentUploadRate} k`}
-        </div>
-        <div className={styles.networkData}>
+        </Styled.NetworkData>
+        <Styled.NetworkData>
           {`↓${videoLabel}: ${videoCurrentDownloadRate} k`}
-        </div>
-        <div className={styles.networkData}>
+        </Styled.NetworkData>
+        <Styled.NetworkData>
           {`${intl.formatMessage(intlMessages.jitter)}: ${jitter} ms`}
-        </div>
-        <div className={styles.networkData}>
+        </Styled.NetworkData>
+        <Styled.NetworkData>
           {`${intl.formatMessage(intlMessages.lostPackets)}: ${packetsLost}`}
-        </div>
-        <div className={styles.networkData}>
+        </Styled.NetworkData>
+        <Styled.NetworkData>
           {`${intl.formatMessage(intlMessages.usingTurn)}: ${isUsingTurn}`}
-        </div>
-      </div>
+        </Styled.NetworkData>
+      </Styled.NetworkDataContainer>
     );
   }
 
@@ -498,17 +489,17 @@ class ConnectionStatusComponent extends PureComponent {
 
     const { hasNetworkData } = this.state;
     return (
-      <div className={styles.copyContainer}>
-        <span
-          className={cx(styles.copy, !hasNetworkData ? styles.disabled : '')}
+      <Styled.CopyContainer aria-live="polite">
+        <Styled.Copy
+          disabled={!hasNetworkData}
           role="button"
           onClick={this.copyNetworkData.bind(this)}
           onKeyPress={this.copyNetworkData.bind(this)}
           tabIndex={0}
         >
           {intl.formatMessage(intlMessages.copy)}
-        </span>
-      </div>
+        </Styled.Copy>
+      </Styled.CopyContainer>
     );
   }
 
@@ -521,20 +512,18 @@ class ConnectionStatusComponent extends PureComponent {
     const { dataSaving } = this.state;
 
     return (
-      <Modal
-        overlayClassName={styles.overlay}
-        className={styles.modal}
+      <Styled.ConnectionStatusModal
         onRequestClose={() => closeModal(dataSaving, intl)}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.ariaTitle)}
       >
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <h2 className={styles.title}>
+        <Styled.Container>
+          <Styled.Header>
+            <Styled.Title>
               {intl.formatMessage(intlMessages.title)}
-            </h2>
-          </div>
-          <div className={styles.description}>
+            </Styled.Title>
+          </Styled.Header>
+          <Styled.Description>
             {intl.formatMessage(intlMessages.description)}
             {' '}
             {this.help
@@ -544,17 +533,17 @@ class ConnectionStatusComponent extends PureComponent {
                 </a>
               )
             }
-          </div>
+          </Styled.Description>
           {this.renderNetworkData()}
           {this.renderCopyDataButton()}
           {this.renderDataSaving()}
-          <div className={styles.content}>
-            <div className={styles.wrapper}>
+          <Styled.Content>
+            <Styled.Wrapper>
               {this.renderConnections()}
-            </div>
-          </div>
-        </div>
-      </Modal>
+            </Styled.Wrapper>
+          </Styled.Content>
+        </Styled.Container>
+      </Styled.ConnectionStatusModal>
     );
   }
 }

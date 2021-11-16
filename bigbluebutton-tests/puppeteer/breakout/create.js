@@ -1,7 +1,5 @@
 const Page = require('../core/page');
-const params = require('../params');
 const e = require('../core/elements');
-const { checkElement } = require('../core/util');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 class Create {
@@ -12,21 +10,19 @@ class Create {
   }
 
   // Join BigBlueButton meeting with a Moderator and a Viewer
-  async init(meetingId, testName) {
-    await this.modPage1.init(Page.getArgs(), meetingId, { ...params, fullName: 'Moderator1' }, undefined, testName);
-    await this.userPage1.init(Page.getArgs(), this.modPage1.meetingId, { ...params, fullName: 'Viewer1', moderatorPW: '' }, undefined, testName);
+  async init(testName) {
+    await this.modPage1.init(true, true, testName, 'Moderator1');
+    await this.userPage1.init(false, true, testName, 'Viewer1', this.modPage1.meetingId);
   }
 
   // Join BigBlueButton meeting with a Viewer only
   async initViewer(testName) {
-    await this.userPage2.init(Page.getArgs(), this.modPage1.meetingId, { ...params, fullName: 'Viewer2', moderatorPW: '' }, undefined, testName);
+    await this.userPage1.init(false, true, testName, 'Viewer2', this.modPage1.meetingId);
   }
 
   // Create Breakoutrooms
   async create(testName) {
     try {
-      await this.modPage1.closeAudioModal();
-      await this.userPage1.closeAudioModal();
       await this.modPage1.screenshot(testName, '01-page01-initialized');
       await this.userPage1.screenshot(testName, '01-page02-initialized');
 
@@ -65,7 +61,7 @@ class Create {
   // Check if Breakoutrooms have been created
   async testCreatedBreakout(testName) {
     try {
-      const resp = await this.modPage1.page.evaluate(checkElement, e.breakoutRoomsItem);
+      const resp = await this.modPage1.hasElement(e.breakoutRoomsItem);
       if (resp === true) {
         await this.modPage1.screenshot(`${testName}`, `05-page01-success-${testName}`);
 
@@ -84,16 +80,14 @@ class Create {
   async joinWithMod2(testName) {
     try {
       if (testName === 'joinBreakoutroomsWithAudio') {
-        await this.modPage2.init(Page.getArgs(), this.modPage1.meetingId, { ...params, fullName: 'Moderator3' }, undefined, testName);
-        await this.modPage2.closeAudioModal();
+        await this.modPage2.init(true, true, testName, 'Moderator2', this.modPage1.meetingId);
         await this.modPage2.waitAndClick(e.breakoutRoomsButton);
 
         await this.modPage2.waitForSelector(e.breakoutRoomsItem);
         await this.modPage2.waitAndClick(e.chatButton);
         await this.modPage2.waitAndClick(e.breakoutRoomsItem);
 
-        await this.modPage2.waitAndClick(e.generateRoom1);
-        await this.modPage2.waitAndClick(e.joinGeneratedRoom1);
+        await this.modPage2.waitAndClick(e.askJoinRoom1);
         await this.modPage2.waitForSelector(e.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
 
         const breakoutModPage2 = await this.modPage2.getLastTargetPage();
@@ -109,11 +103,9 @@ class Create {
 
         await breakoutModPage2.screenshot(testName, '00-breakout-page03-user-joined-with-mic-before-check');
       } else if (testName === 'joinBreakoutroomsWithVideo') {
-        await this.modPage2.init(Page.getArgs(), this.modPage1.meetingId, { ...params, fullName: 'Moderator3' }, undefined, testName);
-        await this.modPage2.closeAudioModal();
+        await this.modPage2.init(true, true, testName, 'Moderator2', this.modPage1.meetingId);
         await this.modPage2.waitAndClick(e.breakoutRoomsButton);
-        await this.modPage2.waitAndClick(e.generateRoom1);
-        await this.modPage2.waitAndClick(e.joinGeneratedRoom1);
+        await this.modPage2.waitAndClick(e.askJoinRoom1);
         await this.modPage2.waitForSelector(e.alreadyConnected);
 
         const breakoutModPage2 = await this.modPage2.getLastTargetPage();
@@ -121,19 +113,15 @@ class Create {
 
         await breakoutModPage2.bringToFront();
         await breakoutModPage2.closeAudioModal();
-        await breakoutModPage2.waitAndClick(e.joinVideo);
         const parsedSettings = await this.modPage2.getSettingsYaml();
         const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-        await breakoutModPage2.waitAndClick(e.videoPreview, videoPreviewTimeout);
-        await breakoutModPage2.waitAndClick(e.startSharingWebcam);
+        await breakoutModPage2.shareWebcam(true, videoPreviewTimeout);
 
         await breakoutModPage2.screenshot(testName, '00-breakout-page03-user-joined-with-webcam-before-check');
       } else if (testName === 'joinBreakoutroomsAndShareScreen') {
-        await this.modPage2.init(Page.getArgs(), this.modPage1.meetingId, { ...params, fullName: 'Moderator3' }, undefined, testName);
-        await this.modPage2.closeAudioModal();
+        await this.modPage2.init(true, true, testName, 'Moderator2', this.modPage1.meetingId);
         await this.modPage2.waitAndClick(e.breakoutRoomsButton);
-        await this.modPage2.waitAndClick(e.generateRoom1);
-        await this.modPage2.waitAndClick(e.joinGeneratedRoom1);
+        await this.modPage2.waitAndClick(e.askJoinRoom1);
         await this.modPage2.waitForSelector(e.alreadyConnected);
         const breakoutModPage2 = await this.modPage2.getLastTargetPage();
 
@@ -152,30 +140,10 @@ class Create {
         });
         await breakoutModPage2.screenshot(testName, '00-breakout-page03-user-joined-with-screenshare-after-check');
       } else {
-        await this.modPage2.init(Page.getArgs(), this.modPage1.meetingId, { ...params, fullName: 'Moderator3' }, undefined, testName);
-        await this.modPage2.closeAudioModal();
+        await this.modPage2.init(true, true, testName, 'Moderator2', this.modPage1.meetingId);
       }
     } catch (err) {
       await this.modPage2.logger(err);
-    }
-  }
-
-  // Close pages
-  async close() {
-    try {
-      await this.modPage1.close();
-      await this.userPage1.close();
-    } catch (err) {
-      await this.modPage1.logger(err);
-    }
-  }
-
-  // Close page
-  async closePage(page) {
-    try {
-      await page.close();
-    } catch (err) {
-      await this.modPage1.logger(err);
     }
   }
 }

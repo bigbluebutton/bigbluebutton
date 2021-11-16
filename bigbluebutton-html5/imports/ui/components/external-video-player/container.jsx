@@ -5,6 +5,7 @@ import { getVideoUrl } from './service';
 import ExternalVideoComponent from './component';
 import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import MediaService, { getSwapLayout } from '/imports/ui/components/media/service';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const ExternalVideoContainer = (props) => {
   const externalVideo = layoutSelectOutput((i) => i.externalVideo);
@@ -26,6 +27,8 @@ const ExternalVideoContainer = (props) => {
   );
 };
 
+const LAYOUT_CONFIG = Meteor.settings.public.layout;
+
 export default withTracker(({ isPresenter }) => {
   const inEchoTest = Session.get('inEchoTest');
   return {
@@ -34,5 +37,6 @@ export default withTracker(({ isPresenter }) => {
     videoUrl: getVideoUrl(),
     getSwapLayout,
     toggleSwapLayout: MediaService.toggleSwapLayout,
+    hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
   };
 })(ExternalVideoContainer);

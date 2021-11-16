@@ -1,5 +1,5 @@
 import Storage from '/imports/ui/services/storage/session';
-import Users from '/imports/api/users';
+import Users from '/imports/ui/local-collections/users-collection/users';
 import Auth from '/imports/ui/services/auth';
 
 const DRAW_SETTINGS = 'drawSettings';

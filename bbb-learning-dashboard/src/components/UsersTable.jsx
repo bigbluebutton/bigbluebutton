@@ -101,7 +101,7 @@ class UsersTable extends React.Component {
     });
 
     return (
-      <table className="w-full whitespace-no-wrap">
+      <table className="w-full whitespace-nowrap">
         <thead>
           <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-100">
             <th className="px-4 py-3 col-text-left">

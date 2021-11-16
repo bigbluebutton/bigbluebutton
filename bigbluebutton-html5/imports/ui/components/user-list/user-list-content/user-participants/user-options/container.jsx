@@ -1,7 +1,7 @@
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
-import Meetings from '/imports/api/meetings';
+import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
 import ActionsBarService from '/imports/ui/components/actions-bar/service';
 import LearningDashboardService from '/imports/ui/components/learning-dashboard/service';
 import UserListService from '/imports/ui/components/user-list/service';
@@ -92,7 +92,7 @@ const UserOptionsContainer = withTracker((props) => {
     guestPolicy: WaitingUsersService.getGuestPolicy(),
     isMeteorConnected: Meteor.status().connected,
     meetingName: getMeetingName(),
-    learningDashboardAccessToken: LearningDashboardService.getLearningDashboardAccessToken(),
+    learningDashboardEnabled: LearningDashboardService.isLearningDashboardEnabled(),
     openLearningDashboardUrl: LearningDashboardService.openLearningDashboardUrl,
     dynamicGuestPolicy,
   };

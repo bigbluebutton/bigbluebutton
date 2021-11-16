@@ -7,8 +7,8 @@ const moment = require('moment');
 const path = require('path');
 const PuppeteerVideoRecorder = require('puppeteer-video-recorder');
 const helper = require('./helper');
-const params = require('../params');
-const { ELEMENT_WAIT_TIME } = require('./constants');
+const params = require('./params');
+const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('./constants');
 const { getElementLength } = require('./util');
 const e = require('./elements');
 const { NETWORK_PRESETS } = require('./profiles');
@@ -19,7 +19,6 @@ class Page {
   constructor(page) {
     this.page = page;
     this.screenshotIndex = 0;
-    this.meetingId;
     this.parentDir = this.getParentDir(__dirname);
     this.recorder = new PuppeteerVideoRecorder();
   }
@@ -40,10 +39,12 @@ class Page {
   }
 
   // Join BigBlueButton meeting
-  async init(args, meetingId, newParams, customParameter, testFolderName, connectionPreset, deviceX) {
+  async init(isModerator, shouldCloseAudioModal, testFolderName, fullName, meetingId, customParameter, connectionPreset, deviceX) {
     try {
-      this.effectiveParams = newParams || params;
-      const isModerator = this.effectiveParams.moderatorPW;
+      const args = this.getArgs();
+      this.effectiveParams = Object.assign({}, params);
+      if (!isModerator) this.effectiveParams.moderatorPW = '';
+      if (fullName) this.effectiveParams.fullName = fullName;
       if (process.env.BROWSERLESS_ENABLED === 'true') {
         this.browser = await puppeteer.connect({
           browserWSEndpoint: `ws://${process.env.BROWSERLESS_URL}?token=${process.env.BROWSERLESS_TOKEN}&${args.args.join('&')}`,
@@ -86,6 +87,7 @@ class Page {
         await this.waitForSelector(e.anyUser);
         await this.getMetrics(testFolderName);
       }
+      if (shouldCloseAudioModal) await this.closeAudioModal();
     } catch (err) {
       await this.logger(err);
     }
@@ -100,6 +102,17 @@ class Page {
     const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
     await this.waitAndClick(e.echoYesButton, listenOnlyCallTimeout);
     await this.waitForSelector(e.isTalking);
+  }
+
+  async shareWebcam(shouldConfirmSharing, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
+    await this.waitAndClick(e.joinVideo);
+    if (shouldConfirmSharing) {
+      await this.waitForSelector(e.videoPreview, videoPreviewTimeout);
+      await this.waitAndClick(e.startSharingWebcam);
+    }
+    await this.waitForSelector(e.webcamConnecting);
+    await this.waitForSelector(e.webcamVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
   }
 
   // Joining audio with microphone
@@ -167,7 +180,7 @@ class Page {
   }
 
   // Get the default arguments for creating a page
-  static getArgs() {
+  getArgs() {
     if (process.env.BROWSERLESS_ENABLED === 'true') {
       const args = [
         '--no-sandbox',
@@ -189,6 +202,7 @@ class Page {
       '--window-size=1150,980',
       '--allow-file-access',
       '--lang=en-US',
+      '--disable-features=IsolateOrigins,site-per-process',
     ];
     return {
       headless: false,
@@ -212,16 +226,6 @@ class Page {
     }
   }
 
-  async isNotVisible(element, timeout = ELEMENT_WAIT_TIME) {
-    try {
-      await this.hasElement(element, false, timeout);
-      return true;
-    } catch (err) {
-      await this.logger(err);
-      return false;
-    }
-  }
-
   // async emulateMobile(userAgent) {
   //   await this.page.setUserAgent(userAgent);
   // }
@@ -241,7 +245,7 @@ class Page {
     }
   }
 
-  async hasElement(element, visible = false, timeout = ELEMENT_WAIT_TIME) {
+  async hasElement(element, visible = true, timeout = ELEMENT_WAIT_TIME) {
     try {
       await this.page.waitForSelector(element, { visible, timeout });
       return true;
@@ -339,6 +343,7 @@ class Page {
   async type(element, text, relief = false) {
     if (relief) await helper.sleep(1000);
     await this.waitForSelector(element);
+    await this.page.focus(element);
     await this.page.type(element, text);
   }
 

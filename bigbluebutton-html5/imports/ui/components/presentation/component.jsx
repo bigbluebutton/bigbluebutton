@@ -11,13 +11,11 @@ import CursorWrapperContainer from './cursor/cursor-wrapper-container/container'
 import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
-import { styles } from './styles.scss';
-import toastStyles from '/imports/ui/components/toast/styles';
+import Styled from './styles';
 import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenService from '../fullscreen-button/service';
-import FullscreenButtonContainer from '../fullscreen-button/container';
 import Icon from '/imports/ui/components/icon/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
@@ -51,6 +49,7 @@ const intlMessages = defineMessages({
 });
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinimizeButton;
 
 class Presentation extends PureComponent {
   constructor() {
@@ -187,7 +186,7 @@ class Presentation extends PureComponent {
           this.currentPresentationToastId = toast(this.renderCurrentPresentationToast(), {
             onClose: () => { this.currentPresentationToastId = null; },
             autoClose: shouldCloseToast,
-            className: toastStyles.actionToast,
+            className: "actionToast",
           });
         }
       }
@@ -436,7 +435,8 @@ class Presentation extends PureComponent {
       isIphone,
     } = this.props;
 
-    if (!shouldEnableSwapLayout()
+    if (!OLD_MINIMIZE_BUTTON_ENABLED
+      || !shouldEnableSwapLayout()
       || isFullscreen
       || fullscreenContext
       || layoutType === LAYOUT_TYPE.PRESENTATION_FOCUS) {
@@ -587,11 +587,11 @@ class Presentation extends PureComponent {
           display: layoutSwapped ? 'none' : 'block',
         }}
       >
-        <span id="currentSlideText" className={styles.visuallyHidden}>{slideContent}</span>
+        <Styled.VisuallyHidden id="currentSlideText">{slideContent}</Styled.VisuallyHidden>
         {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
         {this.renderPresentationFullscreen()}
-        <svg
+        <Styled.PresentationSvg
           key={currentSlide.id}
           data-test="whiteboard"
           width={svgDimensions.width < 0 ? 0 : svgDimensions.width}
@@ -600,7 +600,6 @@ class Presentation extends PureComponent {
           viewBox={svgViewBox}
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
-          className={styles.svgStyles}
         >
           <defs>
             <clipPath id="viewBox">
@@ -645,7 +644,7 @@ class Presentation extends PureComponent {
             viewBoxDimensions,
             physicalDimensions,
           )}
-        </svg>
+        </Styled.PresentationSvg>
       </div>
     );
   }
@@ -657,6 +656,9 @@ class Presentation extends PureComponent {
       isMobile,
       layoutType,
       numCameras,
+      fullscreenElementId,
+      fullscreenContext,
+      layoutContextDispatch,
     } = this.props;
     const { zoom, fitToWidth } = this.state;
 
@@ -677,11 +679,15 @@ class Presentation extends PureComponent {
           podId,
           currentSlide,
           toolbarWidth,
+          fullscreenElementId,
+          layoutContextDispatch,
         }}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
         zoomChanger={this.zoomChanger}
         fitToWidthHandler={this.fitToWidthHandler}
+        isFullscreen={fullscreenContext}
+        fullscreenAction={ACTIONS.SET_FULLSCREEN_ELEMENT}
       />
     );
   }
@@ -725,14 +731,13 @@ class Presentation extends PureComponent {
     if (!ALLOW_FULLSCREEN) return null;
 
     return (
-      <FullscreenButtonContainer
+      <Styled.PresentationFullscreenButton
         fullscreenRef={this.refPresentationContainer}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
         isFullscreen={isFullscreen}
-        color="primary"
+        color="muted"
         fullScreenStyle={false}
-        className={styles.presentationFullscreen}
       />
     );
   }
@@ -744,25 +749,24 @@ class Presentation extends PureComponent {
     const { downloadable } = currentPresentation;
 
     return (
-      <div className={styles.innerToastWrapper}>
-        <div className={styles.toastIcon}>
-          <div className={styles.iconWrapper}>
+      <Styled.InnerToastWrapper>
+        <Styled.ToastIcon>
+          <Styled.IconWrapper>
             <Icon iconName="presentation" />
-          </div>
-        </div>
+          </Styled.IconWrapper>
+        </Styled.ToastIcon>
 
-        <div className={styles.toastTextContent} data-test="toastSmallMsg">
+        <Styled.ToastTextContent data-test="toastSmallMsg">
           <div>{`${intl.formatMessage(intlMessages.changeNotification)}`}</div>
-          <div className={styles.presentationName}>{`${currentPresentation.name}`}</div>
-        </div>
+          <Styled.PresentationName>{`${currentPresentation.name}`}</Styled.PresentationName>
+        </Styled.ToastTextContent>
 
         {downloadable && !userIsPresenter
           ? (
-            <span className={styles.toastDownload}>
-              <div className={toastStyles.separator} />
+            <Styled.ToastDownload>
+              <Styled.ToastSeparator />
               <a
                 data-test="toastDownload"
-                className={styles.downloadBtn}
                 aria-label={`${intl.formatMessage(intlMessages.downloadLabel)} ${currentPresentation.name}`}
                 href={downloadPresentationUri}
                 target="_blank"
@@ -770,9 +774,9 @@ class Presentation extends PureComponent {
               >
                 {intl.formatMessage(intlMessages.downloadLabel)}
               </a>
-            </span>
+            </Styled.ToastDownload>
           ) : null}
-      </div>
+      </Styled.InnerToastWrapper>
     );
   }
 
@@ -823,7 +827,7 @@ class Presentation extends PureComponent {
     const { presentationToolbarMinWidth } = DEFAULT_VALUES;
 
     const isLargePresentation = (svgWidth > presentationToolbarMinWidth || isMobile)
-      && !(layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0);
+      && !(layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0 && !fullscreenContext);
 
     const containerWidth = isLargePresentation
       ? svgWidth
@@ -841,9 +845,8 @@ class Presentation extends PureComponent {
     }
 
     return (
-      <div
+      <Styled.PresentationContainer
         ref={(ref) => { this.refPresentationContainer = ref; }}
-        className={styles.presentationContainer}
         style={{
           top: presentationBounds.top,
           left: presentationBounds.left,
@@ -856,16 +859,9 @@ class Presentation extends PureComponent {
       >
         {isFullscreen && <PollingContainer />}
 
-        <div
-          ref={(ref) => { this.refPresentation = ref; }}
-          className={styles.presentation}
-        >
-          <div
-            ref={(ref) => { this.refWhiteboardArea = ref; }}
-            className={styles.whiteboardSizeAvailable}
-          />
-          <div
-            className={styles.svgContainer}
+        <Styled.Presentation ref={(ref) => { this.refPresentation = ref; }}>
+          <Styled.WhiteboardSizeAvailable ref={(ref) => { this.refWhiteboardArea = ref; }} />
+          <Styled.SvgContainer
             style={{
               height: svgHeight + toolbarHeight,
             }}
@@ -876,10 +872,9 @@ class Presentation extends PureComponent {
             {showSlide && (userIsPresenter || multiUser)
               ? this.renderWhiteboardToolbar(svgDimensions)
               : null}
-            {showSlide && userIsPresenter && svgWidth > 0 && svgHeight > 0
+            {showSlide && userIsPresenter
               ? (
-                <div
-                  className={styles.presentationToolbar}
+                <Styled.PresentationToolbar
                   ref={(ref) => { this.refPresentationToolbar = ref; }}
                   style={
                     {
@@ -888,12 +883,12 @@ class Presentation extends PureComponent {
                   }
                 >
                   {this.renderPresentationToolbar(svgWidth)}
-                </div>
+                </Styled.PresentationToolbar>
               )
               : null}
-          </div>
-        </div>
-      </div>
+          </Styled.SvgContainer>
+        </Styled.Presentation>
+      </Styled.PresentationContainer>
     );
   }
 }
