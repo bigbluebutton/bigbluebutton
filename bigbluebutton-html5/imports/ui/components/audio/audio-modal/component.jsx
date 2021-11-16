@@ -1,19 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
-import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
-import { styles } from './styles';
+import Styled from './styles';
 import PermissionsOverlay from '../permissions-overlay/component';
 import AudioSettings from '../audio-settings/component';
 import EchoTest from '../echo-test/component';
 import Help from '../help/component';
 import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
+import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -381,12 +379,11 @@ class AudioModal extends Component {
 
     return (
       <div>
-        <span className={styles.audioOptions}>
+        <Styled.AudioOptions>
           {!showMicrophone && !isMobileNative
               && (
               <>
-                <Button
-                  className={styles.audioBtn}
+                <Styled.AudioModalButton
                   label={intl.formatMessage(intlMessages.microphoneLabel)}
                   aria-describedby="mic-description"
                   icon="unmute"
@@ -407,8 +404,7 @@ class AudioModal extends Component {
           {listenOnlyMode
               && (
               <>
-                <Button
-                  className={styles.audioBtn}
+                <Styled.AudioModalButton
                   label={intl.formatMessage(intlMessages.listenOnlyLabel)}
                   aria-describedby="listenOnly-description"
                   icon="listen"
@@ -421,10 +417,9 @@ class AudioModal extends Component {
                 </span>
               </>
               )}
-        </span>
+        </Styled.AudioOptions>
         {formattedDialNum ? (
-          <Button
-            className={styles.audioDial}
+          <Styled.AudioDial
             label={dialAudioLabel}
             size="md"
             color="primary"
@@ -447,15 +442,16 @@ class AudioModal extends Component {
     } = this.props;
 
     const { content } = this.state;
+    const { animations } = Settings.application;
 
     if (this.skipAudioOptions()) {
       return (
-        <div className={styles.connecting} role="alert">
+        <Styled.Connecting role="alert">
           <span data-test={!isEchoTest ? 'connecting' : 'connectingToEchoTest'}>
             {intl.formatMessage(intlMessages.connecting)}
           </span>
-          <span className={styles.connectingAnimation} />
-        </div>
+          <Styled.ConnectingAnimation animations={animations} />
+        </Styled.Connecting>
       );
     }
     return content ? this.contents[content].component() : this.renderAudioOptions();
@@ -548,15 +544,13 @@ class AudioModal extends Component {
     return (
       <span>
         {showPermissionsOvelay ? <PermissionsOverlay closeModal={closeModal} /> : null}
-        <Modal
-          overlayClassName={styles.overlay}
-          className={styles.modal}
+        <Styled.AudioModal
           onRequestClose={closeModal}
           hideBorder
           contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         >
           {isIE ? (
-            <p className={cx(styles.text, styles.browserWarning)}>
+            <Styled.BrowserWarning>
               <FormattedMessage
                 id="app.audioModal.unsupportedBrowserLabel"
                 description="Warning when someone joins with a browser that isnt supported"
@@ -565,28 +559,25 @@ class AudioModal extends Component {
                   1: <a href="https://getfirefox.com">Firefox</a>,
                 }}
               />
-            </p>
+            </Styled.BrowserWarning>
           ) : null}
           {
             !this.skipAudioOptions()
               ? (
-                <header
-                  data-test="audioModalHeader"
-                  className={styles.header}
-                >
-                  <h2 className={styles.title}>
+                <Styled.Header data-test="audioModalHeader">
+                  <Styled.Title>
                     {content
                       ? intl.formatMessage(this.contents[content].title)
                       : intl.formatMessage(intlMessages.audioChoiceLabel)}
-                  </h2>
-                </header>
+                  </Styled.Title>
+                </Styled.Header>
               )
               : null
           }
-          <div className={styles.content}>
+          <Styled.Content>
             {this.renderContent()}
-          </div>
-        </Modal>
+          </Styled.Content>
+        </Styled.AudioModal>
       </span>
     );
   }

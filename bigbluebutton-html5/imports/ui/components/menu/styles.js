@@ -56,7 +56,7 @@ const BBBMenuItem = styled(MenuItem)`
     background-color: ${colorPrimary} !important;
   }
 
-  ${({ emojiSelected }) => emojiSelected && `
+  ${({ emoji }) => emoji === 'yes' && `
     div,
     i {
       color: ${colorPrimary};

@@ -2,8 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import TooltipContainer from '/imports/ui/components/tooltip/container';
-import { styles } from './styles';
-import Icon from '../icon/component';
+import Styled from './styles';
 import BaseButton from './base/component';
 import ButtonEmoji from './button-emoji/ButtonEmoji';
 
@@ -89,29 +88,6 @@ const defaultProps = {
 };
 
 export default class Button extends BaseButton {
-  _getClassNames() {
-    const {
-      size,
-      color,
-      ghost,
-      circle,
-      block,
-      iconRight,
-    } = this.props;
-
-    const propClassNames = {};
-
-    propClassNames[styles.button] = true;
-    propClassNames[styles[size]] = true;
-    propClassNames[styles[color]] = true;
-    propClassNames[styles.ghost] = ghost;
-    propClassNames[styles.circle] = circle;
-    propClassNames[styles.block] = block;
-    propClassNames[styles.iconRight] = iconRight;
-
-    return propClassNames;
-  }
-
   _cleanProps(otherProps) {
     const remainingProps = Object.assign({}, otherProps);
     delete remainingProps.icon;
@@ -168,19 +144,30 @@ export default class Button extends BaseButton {
   renderDefault() {
     const {
       className,
+      iconRight,
+      size,
+      color,
+      ghost,
+      circle,
+      block,
       ...otherProps
     } = this.props;
 
     const remainingProps = this._cleanProps(otherProps);
 
     return (
-      <BaseButton
-        className={cx(this._getClassNames(), className)}
+      <Styled.Button
+        size={size}
+        color={color}
+        ghost={ghost}
+        circle={circle}
+        block={block}
+        className={className}
         {...remainingProps}
       >
-        {this.renderIcon()}
-        {this.renderLabel()}
-      </BaseButton>
+        {this[renderLeftFuncName]()}
+        {this[renderRightFuncName]()}
+      </Styled.Button>
     );
   }
 
@@ -190,24 +177,39 @@ export default class Button extends BaseButton {
       size,
       iconRight,
       children,
+      color,
+      ghost,
+      circle,
+      block,
       ...otherProps
     } = this.props;
 
     const remainingProps = this._cleanProps(otherProps);
 
     return (
-      <BaseButton
-        className={cx(styles[size], styles.buttonWrapper, className)}
+      <Styled.ButtonWrapper
+        size={size}
+        className={cx(size, 'buttonWrapper', className)}
+        color={color}
+        ghost={ghost}
+        circle={circle}
+        block={block}
         {...remainingProps}
       >
         {this.renderButtonEmojiSibling()}
         {!iconRight ? null : this.renderLabel()}
-        <span className={cx(this._getClassNames())}>
+        <Styled.ButtonSpan
+          size={size}
+          color={color}
+          ghost={ghost}
+          circle={circle}
+          block={block}
+        >
           {this.renderIcon()}
-        </span>
+        </Styled.ButtonSpan>
         {iconRight ? null : this.renderLabel()}
         {this.hasButtonEmojiComponent() ? children : null}
-      </BaseButton>
+      </Styled.ButtonWrapper>
     );
   }
 
@@ -216,7 +218,7 @@ export default class Button extends BaseButton {
       return null;
     }
 
-    return (<span className={styles.emojiButtonSibling} />);
+    return (<Styled.EmojiButtonSibling />);
   }
 
   renderIcon() {
@@ -226,7 +228,7 @@ export default class Button extends BaseButton {
     } = this.props;
 
     if (iconName) {
-      return (<Icon className={styles.icon} iconName={iconName} />);
+      return (<Styled.ButtonIcon iconName={iconName} />);
     } if (customIcon) {
       return customIcon;
     }
@@ -237,16 +239,11 @@ export default class Button extends BaseButton {
   renderLabel() {
     const { label, hideLabel } = this.props;
 
-    const classNames = {};
-
-    classNames[styles.label] = true;
-    classNames[styles.hideLabel] = hideLabel;
-
     return (
-      <span className={cx(classNames)}>
+      <Styled.ButtonLabel hideLabel={hideLabel}>
         {label}
         {!this.hasButtonEmojiComponent() ? this.props.children : null}
-      </span>
+      </Styled.ButtonLabel>
     );
   }
 }

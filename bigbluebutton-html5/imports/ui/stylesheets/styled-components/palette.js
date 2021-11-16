@@ -11,12 +11,17 @@ const colorGrayLightest = '#D4D9DF';
 
 const colorBlueLight = '#54a1f3';
 const colorBlueLighter = '#92BCEA';
+const colorBlueLightest = '#E4ECF2';
 
 const colorTransparent = '#ff000000';
 
 const colorPrimary = '#0F70D7';
 const colorDanger = '#DF2721';
 const colorSuccess = '#008081';
+const colorWarning = 'purple';
+const colorOffline = colorGrayLight;
+const colorMuted = '#586571';
+const colorMutedBackground = '#F3F6F9';
 
 const colorBackground = colorGrayDark;
 const userListBg = colorOffWhite;
@@ -31,8 +36,36 @@ const colorTipBg = '#333333';
 const itemFocusBorder = colorBlueLighter;
 
 const btnDefaultColor = colorGray;
-const btnPrimaryBorder = colorPrimary;
 const btnDefaultBg = colorWhite;
+const btnDefaultBorder = colorWhite;
+
+const btnPrimaryBorder = colorPrimary;
+const btnPrimaryColor = colorWhite;
+const btnPrimaryBg = colorPrimary;
+
+const btnSuccessBorder = colorSuccess;
+const btnSuccessColor = colorWhite;
+const btnSuccessBg = colorSuccess;
+
+const btnWarningBorder = colorWarning;
+const btnWarningColor = colorWhite;
+const btnWarningBg = colorWarning;
+
+const btnDangerBorder = colorDanger;
+const btnDangerColor = colorWhite;
+const btnDangerBg = colorDanger;
+
+const btnDarkBorder = colorDanger;
+const btnDarkColor = colorWhite;
+const btnDarkBg = colorGrayDark;
+
+const btnOfflineBorder = colorOffline;
+const btnOfflineColor = colorWhite;
+const btnOfflineBg = colorOffline;
+
+const btnMutedBorder = colorMutedBackground;
+const btnMutedColor = colorMuted;
+const btnMutedBg = colorMutedBackground;
 
 const toolbarButtonColor = btnDefaultColor;
 const userThumbnailBorder = colorGrayLight;
@@ -58,6 +91,21 @@ const dropdownBg = colorWhite;
 const pollStatsBorderColor = '#D4D9DF';
 const pollBlue = '#1A73D4';
 
+const toastDefaultColor = colorWhite;
+const toastDefaultBg = colorGray;
+
+const toastInfoColor = colorWhite;
+const toastInfoBg = colorPrimary;
+
+const toastSuccessColor = colorWhite;
+const toastSuccessBg = colorSuccess;
+
+const toastErrorColor = colorWhite;
+const toastErrorBg = colorDanger;
+
+const toastWarningColor = colorWhite;
+const toastWarningBg = colorWarning;
+
 export {
   colorWhite,
   colorOffWhite,
@@ -70,9 +118,11 @@ export {
   colorTransparent,
   colorBlueLight,
   colorBlueLighter,
+  colorBlueLightest,
   colorPrimary,
   colorDanger,
   colorSuccess,
+  colorWarning,
   colorBackground,
   userListBg,
   userListText,
@@ -84,7 +134,29 @@ export {
   colorTipBg,
   itemFocusBorder,
   btnDefaultColor,
+  btnDefaultBg,
+  btnDefaultBorder,
   btnPrimaryBorder,
+  btnPrimaryColor,
+  btnPrimaryBg,
+  btnSuccessBorder,
+  btnSuccessColor,
+  btnSuccessBg,
+  btnWarningBorder,
+  btnWarningColor,
+  btnWarningBg,
+  btnDangerBorder,
+  btnDangerColor,
+  btnDangerBg,
+  btnDarkBorder,
+  btnDarkColor,
+  btnDarkBg,
+  btnOfflineBorder,
+  btnOfflineColor,
+  btnOfflineBg,
+  btnMutedBorder,
+  btnMutedColor,
+  btnMutedBg,
   toolbarButtonColor,
   userThumbnailBorder,
   loaderBg,
@@ -104,4 +176,14 @@ export {
   pollBlue,
   colorContentBackground,
   dropdownBg,
+  toastDefaultColor,
+  toastDefaultBg,
+  toastInfoColor,
+  toastInfoBg,
+  toastSuccessColor,
+  toastSuccessBg,
+  toastErrorColor,
+  toastErrorBg,
+  toastWarningColor,
+  toastWarningBg,
 };
