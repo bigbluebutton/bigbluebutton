@@ -1,6 +1,6 @@
-const Page = require('../page');
-const util = require('./util');
-const elements = require('../elements');
+const Page = require('../core/page');
+const { openChat } = require('./util');
+const e = require('../core/elements');
 
 class Save extends Page {
 
@@ -9,12 +9,10 @@ class Save extends Page {
   }
 
   async test() {
-    
-    await util.openChat(this.page);
-    await this.waitAndClick(elements.chatOptions);
-    await this.waitAndClick(elements.chatSave);
+    await openChat(this.page);
+    await this.waitAndClick(e.chatOptions);
+    await this.waitAndClick(e.chatSave);
     await this.page.waitForEvent('click');
-
   }
 }
 

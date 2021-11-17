@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "test": "npx playwright test"
+  },
   "devDependencies": {
     "@playwright/test": "^1.16.3",
     "axios": "^0.24.0",

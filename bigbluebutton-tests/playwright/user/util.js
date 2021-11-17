@@ -1,12 +1,12 @@
-const elements = require('../elements');
+const e = require('../core/elements');
 
 async function setStatus(page, status) {
-    await page.waitForSelector(elements.firstUser);
-    await page.click(elements.firstUser);
-    await page.waitForSelector(elements.setStatus);
-    await page.click(elements.setStatus);
-    await page.waitForSelector(status);
-    await page.click(status);
+  await page.waitForSelector(e.firstUser);
+  await page.click(e.firstUser);
+  await page.waitForSelector(e.setStatus);
+  await page.click(e.setStatus);
+  await page.waitForSelector(status);
+  await page.click(status);
 }
 
 exports.setStatus = setStatus;

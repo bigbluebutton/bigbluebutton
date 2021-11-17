@@ -1,6 +1,6 @@
 const { expect } = require('@playwright/test');
-const Page = require('../page');
-const elements = require('../elements');
+const Page = require('../core/page');
+const e = require('../core/elements');
 
 class MultiUsers {
 
@@ -15,10 +15,10 @@ class MultiUsers {
   }
 
   async test() {
-    const firstUserOnPage1 = this.page1.page.locator(elements.firstUser);
-    const secondUserOnPage1 = this.page1.page.locator(elements.userListItem);
-    const firstUserOnPage2 = this.page2.page.locator(elements.firstUser);
-    const secondUserOnPage2 = this.page2.page.locator(elements.userListItem);
+    const firstUserOnPage1 = this.page1.page.locator(e.firstUser);
+    const secondUserOnPage1 = this.page1.page.locator(e.userListItem);
+    const firstUserOnPage2 = this.page2.page.locator(e.firstUser);
+    const secondUserOnPage2 = this.page2.page.locator(e.userListItem);
     await expect(firstUserOnPage1).toHaveCount(1);
     await expect(secondUserOnPage1).toHaveCount(1);
     await expect(firstUserOnPage2).toHaveCount(1);

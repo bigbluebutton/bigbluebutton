@@ -1,5 +1,5 @@
 require('dotenv').config();
-const parameters = require('./parameters');
+const parameters = require('./core/parameters');
 
 const config = {
     use: {

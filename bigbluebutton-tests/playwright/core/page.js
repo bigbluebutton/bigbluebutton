@@ -2,7 +2,7 @@ require('dotenv').config();
 const { expect } = require('@playwright/test');
 const parameters = require('./parameters');
 const helpers = require('./helpers');
-const elements = require('./elements');
+const e = require('./elements');
 
 class Page {
   constructor(browser, page) {
@@ -22,8 +22,8 @@ class Page {
   }
 
   async closeAudioModal() {
-    await this.page.waitForSelector(elements.audioModal);
-    await this.page.click(elements.closeAudioButton);
+    await this.page.waitForSelector(e.audioModal);
+    await this.page.click(e.closeAudioButton);
   }
 
   async type(selector, text) {

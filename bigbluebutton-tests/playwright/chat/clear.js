@@ -1,7 +1,7 @@
 const { expect } = require('@playwright/test');
-const Page = require('../page');
-const util = require('./util');
-const elements = require('../elements');
+const Page = require('../core/page');
+const { openChat } = require('./util');
+const e = require('../core/elements');
 
 class Clear extends Page {
 
@@ -11,21 +11,21 @@ class Clear extends Page {
 
   async test() {
     
-    await util.openChat(this.page);
-    const message = this.page.locator(elements.chatUserMessageText);
+    await openChat(this.page);
+    const message = this.page.locator(e.chatUserMessageText);
     
     // send a message
-    await this.type(elements.chatBox, elements.message);
-    await this.waitAndClick(elements.sendButton);
-    await this.page.waitForSelector(elements.chatUserMessageText);
+    await this.type(e.chatBox, e.message);
+    await this.waitAndClick(e.sendButton);
+    await this.page.waitForSelector(e.chatUserMessageText);
   
     // 1 message
     await expect(message).toHaveCount(1);
 
     // clear
-    await this.waitAndClick(elements.chatOptions);
-    await this.waitAndClick(elements.chatClear);
-    const clearMessage = this.page.locator(elements.chatClearMessageText);
+    await this.waitAndClick(e.chatOptions);
+    await this.waitAndClick(e.chatClear);
+    const clearMessage = this.page.locator(e.chatClearMessageText);
     await expect(clearMessage).toBeVisible();
   }
 }

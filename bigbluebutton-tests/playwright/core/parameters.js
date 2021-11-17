@@ -1,4 +1,4 @@
-module.exports = exports =
+module.exports = exports = 
 {
   server: process.env.BBB_URL,
   secret: process.env.BBB_SECRET,

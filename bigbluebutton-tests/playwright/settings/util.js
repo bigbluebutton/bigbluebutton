@@ -1,10 +1,10 @@
-const elements = require('../elements');
+const e = require('../core/elements');
 
 async function openSettings(page) {
-  await page.waitForSelector(elements.options);
-  await page.click(elements.options);
-  await page.waitForSelector(elements.settings);
-  await page.click(elements.settings);
+  await page.waitForSelector(e.options);
+  await page.click(e.options);
+  await page.waitForSelector(e.settings);
+  await page.click(e.settings);
 }
 
 exports.openSettings = openSettings;
