@@ -87,12 +87,10 @@ unless FileTest.directory?(target_dir)
     FileUtils.mkdir_p processed_pres_dir
 
     # Get the real-time start and end timestamp
-    @doc = Nokogiri::XML(File.read("#{target_dir}/events.xml")) 
+    @doc = Nokogiri::XML(File.read("#{target_dir}/events.xml"))
 
-    event_timestamps = @doc.xpath('recording/event/@timestamp')
-
-    meeting_start = event_timestamps.first.text.to_i
-    meeting_end = event_timestamps.last.text.to_i
+    meeting_start = BigBlueButton::Events.first_event_timestamp(@doc)
+    meeting_end = BigBlueButton::Events.last_event_timestamp(@doc)
     match = /.*-(\d+)$/.match(meeting_id)
     real_start_time = match[1].to_i
     real_end_time = real_start_time + (meeting_end - meeting_start)
