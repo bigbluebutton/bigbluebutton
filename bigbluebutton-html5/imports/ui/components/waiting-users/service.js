@@ -1,4 +1,4 @@
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import { makeCall } from '/imports/ui/services/api';
 

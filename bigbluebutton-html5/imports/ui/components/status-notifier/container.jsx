@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Users from '/imports/api/users';
 import Settings from '/imports/ui/services/settings';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import { makeCall } from '/imports/ui/services/api';

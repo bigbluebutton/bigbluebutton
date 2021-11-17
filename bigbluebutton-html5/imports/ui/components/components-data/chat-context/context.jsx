@@ -3,7 +3,7 @@ import React, {
   useReducer,
 } from 'react';
 
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';

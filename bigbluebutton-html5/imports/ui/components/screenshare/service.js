@@ -4,7 +4,7 @@ import BridgeService from '/imports/api/screenshare/client/bridge/service';
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import { stopWatching } from '/imports/ui/components/external-video-player/service';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UserListService from '/imports/ui/components/user-list/service';
 import AudioService from '/imports/ui/components/audio/service';
