@@ -13,6 +13,7 @@ class App extends React.Component {
     super(props);
     this.state = {
       loading: true,
+      invalidSessionCount: 0,
       activitiesJson: {},
       tab: 'overview',
       meetingId: '',
@@ -23,13 +24,12 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.setDashboardParams();
-    setInterval(() => {
+    this.setDashboardParams(() => {
       this.fetchActivitiesJson();
-    }, 10000);
+    });
   }
 
-  setDashboardParams() {
+  setDashboardParams(callback) {
     let learningDashboardAccessToken = '';
     let meetingId = '';
     let sessionToken = '';
@@ -63,21 +63,28 @@ class App extends React.Component {
       }
     }
 
-    this.setState({ learningDashboardAccessToken, meetingId, sessionToken },
-      this.fetchActivitiesJson);
+    this.setState({ learningDashboardAccessToken, meetingId, sessionToken }, () => {
+      if (typeof callback === 'function') callback();
+    });
   }
 
   fetchActivitiesJson() {
-    const { learningDashboardAccessToken, meetingId, sessionToken } = this.state;
+    const {
+      learningDashboardAccessToken, meetingId, sessionToken, invalidSessionCount,
+    } = this.state;
 
     if (learningDashboardAccessToken !== '') {
       fetch(`${meetingId}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
         .then((response) => response.json())
         .then((json) => {
-          this.setState({ activitiesJson: json, loading: false });
+          this.setState({
+            activitiesJson: json,
+            loading: false,
+            invalidSessionCount: 0,
+          });
           document.title = `Learning Dashboard - ${json.name}`;
         }).catch(() => {
-          this.setState({ loading: false });
+          this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
         });
     } else if (sessionToken !== '') {
       const url = new URL('/bigbluebutton/api/learningDashboard', window.location);
@@ -86,20 +93,28 @@ class App extends React.Component {
         .then((json) => {
           if (json.response.returncode === 'SUCCESS') {
             const jsonData = JSON.parse(json.response.data);
-            this.setState({ activitiesJson: jsonData, loading: false });
+            this.setState({
+              activitiesJson: jsonData,
+              loading: false,
+              invalidSessionCount: 0,
+            });
             document.title = `Learning Dashboard - ${jsonData.name}`;
           } else {
             // When meeting is ended the sessionToken stop working, check for new cookies
             this.setDashboardParams();
-            this.setState({ loading: false });
+            this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
           }
         })
         .catch(() => {
-          this.setState({ loading: false });
+          this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
         });
     } else {
       this.setState({ loading: false });
     }
+
+    setTimeout(() => {
+      this.fetchActivitiesJson();
+    }, 10000 * (2 ** invalidSessionCount));
   }
 
   copyPublicLink() {
