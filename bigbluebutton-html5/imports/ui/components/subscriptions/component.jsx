@@ -12,7 +12,7 @@ import {
   localGuestUsersSync,
   localMeetingsSync,
   localUsersSync,
-} from '/imports/ui/services/LocalCollectionSynchronizer/LocalCollectionSynchronizer';
+} from '/client/collection-mirror-initializer';
 import SubscriptionRegistry, { subscriptionReactivity } from '../../services/subscription-registry/subscriptionRegistry';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
