@@ -599,9 +599,55 @@ const ButtonSpan = styled.span`
 `;
 
 const Button = styled(BaseButton)`
+  border: none;
+  overflow: visible;
+  display: inline-block;
+  border-radius: ${borderSize};
   font-weight: ${btnFontWeight};
   line-height: 1;
   text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+
+  &:-moz-focusring {
+    outline: none;
+  }
+
+  &:hover,
+  &:focus {
+    outline: transparent;
+    outline-style: dotted;
+    outline-width: ${borderSize};
+    text-decoration: none;
+  }
+
+  &:active,
+  &:focus {
+    outline: transparent;
+    outline-width: ${borderSize};
+    outline-style: solid;
+  }
+
+  &:active {
+    background-image: none;
+  }
+
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: .65;
+    box-shadow: none;
+  }
+
+  &,
+  &:active {
+    &:focus {
+      span:first-of-type::before {
+        border-radius: ${borderSize};
+      }
+    }
+  }
 
   ${({ size }) => size === 'sm' && `
     font-size: calc(${fontSizeSmall} * .85);
