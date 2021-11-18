@@ -4,13 +4,13 @@ import './bbb-icons.css';
 import {
   FormattedMessage, FormattedDate, injectIntl, FormattedTime,
 } from 'react-intl';
-import { emojiConfigs, filterUserEmojis } from './services/EmojiService';
+import { emojiConfigs } from './services/EmojiService';
 import Card from './components/Card';
 import UsersTable from './components/UsersTable';
 import StatusTable from './components/StatusTable';
 import PollsTable from './components/PollsTable';
 import ErrorMessage from './components/ErrorMessage';
-import { getActivityScore, getSumOfTime, tsToHHmmss } from './services/UserService';
+import { makeUserCSVData, tsToHHmmss } from './services/UserService';
 
 class App extends React.Component {
   constructor(props) {
@@ -41,76 +41,11 @@ class App extends React.Component {
     const { activitiesJson } = this.state;
     const { users, polls } = activitiesJson;
     const link = document.createElement('a');
-    const userRecords = {};
-    const userValues = Object.values(users || {});
-    const pollValues = Object.values(polls || {});
-    const skipEmojis = Object
-      .keys(emojiConfigs)
-      .filter((emoji) => emoji !== 'raiseHand')
-      .join(',');
-
-    for (let i = 0; i < userValues.length; i += 1) {
-      const fields = [];
-      const webcam = getSumOfTime(userValues[i].webcams);
-      const duration = userValues[i].leftOn > 0
-        ? userValues[i].leftOn - userValues[i].registeredOn
-        : (new Date()).getTime() - userValues[i].registeredOn;
-
-      fields.push(userValues[i].name);
-      fields.push(userValues[i].isModerator.toString().toUpperCase());
-      fields.push(intl.formatNumber(
-        getActivityScore(userValues[i], userValues, Object.values(polls || {}).length),
-        {
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 1,
-        },
-      ));
-      fields.push(userValues[i].talk.totalTime > 0 ? tsToHHmmss(userValues[i].talk.totalTime) : '-');
-      fields.push(webcam > 0 ? tsToHHmmss(webcam) : '-');
-      fields.push(userValues[i].totalOfMessages);
-      fields.push(filterUserEmojis(userValues[i], 'raiseHand').length);
-      fields.push(Object.keys(userValues[i].answers).length);
-      fields.push(filterUserEmojis(userValues[i], skipEmojis).length);
-      fields.push(`"${intl.formatDate(userValues[i].registeredOn, {
-        year: 'numeric',
-        month: 'numeric',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      })}"`);
-      fields.push(`"${intl.formatDate(userValues[i].leftOn, {
-        year: 'numeric',
-        month: 'numeric',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      })}"`);
-      fields.push(tsToHHmmss(duration));
-      for (let j = 0; j < pollValues.length; j += 1) {
-        fields.push(`"${userValues[i].answers[pollValues[j].pollId] || '-'}"`);
-      }
-      userRecords[userValues[i].intId] = fields.join(',');
-    }
-
-    let header = 'Name,Moderator,Activity_Score,Talk_Time,Webcam_Time,Messages,Emojis,Poll_Votes,Raise_Hand,Join,Left,Duration';
-    let anonymousRecord = 'Anonymous';
-    for (let k = 0; k < header.split(',').length - 1; k += 1) {
-      // empty fields
-      anonymousRecord += ',""';
-    }
-    for (let i = 0; i < pollValues.length; i += 1) {
-      header += `,${pollValues[i].question || `Poll ${i + 1}`}`;
-      if (i === pollValues.length - 1) header += '\n';
-      anonymousRecord += `,"${pollValues[i].anonymousAnswers.join('\n')}"`;
-    }
-    userRecords.Anonymous = anonymousRecord;
-    const data = Object.values(userRecords).join('\n');
+    const data = makeUserCSVData(users, polls, intl);
 
     downloadButton.setAttribute('disabled', 'true');
     downloadButton.style.cursor = 'not-allowed';
-    link.setAttribute('href', `data:text/csv;charset=utf-8,${header}${data}`);
+    link.setAttribute('href', `data:text/csv;charset=utf-8,${data}`);
     link.setAttribute('download', 'session_data.csv');
     link.style.display = 'none';
     document.body.appendChild(link);
