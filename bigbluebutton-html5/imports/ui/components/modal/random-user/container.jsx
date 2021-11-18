@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
@@ -10,10 +10,23 @@ import { UsersContext } from '/imports/ui/components/components-data/users-conte
 
 const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabled;
 
+var keepModalOpen = true;
+
+var randomUser;
+
+const toggleKeepModalOpen = () => { keepModalOpen = ! keepModalOpen; }
+
 const RandomUserSelectContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const { randomlySelectedUser } = props;
+
+  useEffect(() => {
+    if(JSON.stringify(randomUser) != JSON.stringify(randomlySelectedUser)){
+      keepModalOpen = true;
+    }
+    randomUser = randomlySelectedUser;
+  },[randomlySelectedUser]);
 
   let mappedRandomlySelectedUsers = [];
 
@@ -57,6 +70,8 @@ export default withModalMounter(withTracker(({ mountModal }) => {
   return ({
     closeModal: () => mountModal(null),
     numAvailableViewers: viewerPool.length,
+    keepModalOpen,
+    toggleKeepModalOpen,
     randomUserReq,
     clearRandomlySelectedUser,
     randomlySelectedUser: meeting.randomlySelectedUser,
