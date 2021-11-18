@@ -124,7 +124,8 @@ class BbbWebApiGWApp(
                     recorded: java.lang.Boolean, voiceBridge: String, duration: java.lang.Integer,
                     autoStartRecording:      java.lang.Boolean,
                     allowStartStopRecording: java.lang.Boolean, webcamsOnlyForModerator: java.lang.Boolean,
-                    moderatorPass: String, viewerPass: String, learningDashboardEnabled: java.lang.Boolean, learningDashboardAccessToken: String,
+                    moderatorPass: String, viewerPass: String, learningDashboardEnabled: java.lang.Boolean,
+                    learningDashboardAccessToken: String, learningDashboardExcludeUserID: String,
                     createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean,
                     sequence: java.lang.Integer,
                     freeJoin: java.lang.Boolean,
@@ -145,8 +146,14 @@ class BbbWebApiGWApp(
                     lockSettingsParams:                     LockSettingsParams,
                     html5InstanceId:                        java.lang.Integer): Unit = {
 
-    val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
-      isBreakout = isBreakout.booleanValue(), learningDashboardEnabled = learningDashboardEnabled.booleanValue())
+    val meetingProp = MeetingProp(
+      name = meetingName,
+      extId = extMeetingId,
+      intId = meetingId,
+      isBreakout = isBreakout.booleanValue(),
+      learningDashboardEnabled = learningDashboardEnabled.booleanValue(),
+      learningDashboardExcludeUserID = learningDashboardExcludeUserID
+    )
     val durationProps = DurationProps(
       duration = duration.intValue(),
       createdTime = createTime.longValue(), createDate,

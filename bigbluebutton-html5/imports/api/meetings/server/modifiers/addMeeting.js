@@ -53,6 +53,7 @@ export default function addMeeting(meeting) {
       extId: String,
       isBreakout: Boolean,
       learningDashboardEnabled: Boolean,
+      learningDashboardExcludeUserID: String,
       name: String,
     },
     usersProp: {

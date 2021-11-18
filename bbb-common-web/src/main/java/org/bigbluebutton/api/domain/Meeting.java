@@ -53,6 +53,7 @@ public class Meeting {
 	private String viewerPass;
 	private Boolean learningDashboardEnabled;
 	private int learningDashboardCleanupDelayInMinutes;
+	private String learningDashboardExcludeUserID;
 	private String learningDashboardAccessToken;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
@@ -113,6 +114,7 @@ public class Meeting {
         moderatorPass = builder.moderatorPass;
 		learningDashboardEnabled = builder.learningDashboardEnabled;
 		learningDashboardCleanupDelayInMinutes = builder.learningDashboardCleanupDelayInMinutes;
+		learningDashboardExcludeUserID = builder.learningDashboardExcludeUserID;
 		learningDashboardAccessToken = builder.learningDashboardAccessToken;
         maxUsers = builder.maxUsers;
         bannerColor = builder.bannerColor;
@@ -338,6 +340,10 @@ public class Meeting {
 
 	public int getLearningDashboardCleanupDelayInMinutes() {
 		return learningDashboardCleanupDelayInMinutes;
+	}
+
+	public String getLearningDashboardExcludeUserID() {
+		return learningDashboardExcludeUserID;
 	}
 
 	public String getLearningDashboardAccessToken() {
@@ -734,6 +740,7 @@ public class Meeting {
     	private String viewerPass;
     	private Boolean learningDashboardEnabled;
     	private int learningDashboardCleanupDelayInMinutes;
+    	private String learningDashboardExcludeUserID;
     	private String learningDashboardAccessToken;
     	private int duration;
     	private String webVoice;
@@ -832,6 +839,11 @@ public class Meeting {
 
     	public Builder withLearningDashboardCleanupDelayInMinutes(int m) {
 	    	this.learningDashboardCleanupDelayInMinutes = m;
+	    	return this;
+	    }
+
+    	public Builder withLearningDashboardExcludeUserID(String excludeUserID) {
+	    	this.learningDashboardExcludeUserID = excludeUserID;
 	    	return this;
 	    }
 

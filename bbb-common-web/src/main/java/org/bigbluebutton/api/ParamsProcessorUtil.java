@@ -84,6 +84,7 @@ public class ParamsProcessorUtil {
     private boolean allowStartStopRecording;
     private boolean learningDashboardEnabled;
     private int learningDashboardCleanupDelayInMinutes;
+    private String learningDashboardExcludeUserID;
     private boolean webcamsOnlyForModerator;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
@@ -558,6 +559,7 @@ public class ParamsProcessorUtil {
                 .withHTML5InstanceId(html5InstanceId)
                 .withLearningDashboardEnabled(learningDashboardEn)
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
+                .withLearningDashboardExcludeUserID(learningDashboardExcludeUserID)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .build();
 
@@ -978,8 +980,12 @@ public class ParamsProcessorUtil {
         this.learningDashboardEnabled = learningDashboardEnabled;
     }
 
-    public void setlearningDashboardCleanupDelayInMinutes(int learningDashboardCleanupDelayInMinutes) {
+    public void setLearningDashboardCleanupDelayInMinutes(int learningDashboardCleanupDelayInMinutes) {
         this.learningDashboardCleanupDelayInMinutes = learningDashboardCleanupDelayInMinutes;
+    }
+
+    public void setLearningDashboardExcludeUserID(String learningDashboardExcludeUserID) {
+        this.learningDashboardExcludeUserID = learningDashboardExcludeUserID;
     }
 
     public void setWebcamsOnlyForModerator(boolean webcamsOnlyForModerator) {

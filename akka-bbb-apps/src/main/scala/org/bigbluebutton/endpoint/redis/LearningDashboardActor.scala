@@ -92,6 +92,7 @@ class LearningDashboardActor(
 
   private var meetings: Map[String, Meeting] = Map()
   private var meetingsLastJsonHash : Map[String,String] = Map()
+  private var meetingExcludedUserIds : Map[String,Vector[String]] = Map()
 
   system.scheduler.schedule(10.seconds, 10.seconds, self, SendPeriodicReport)
 
@@ -161,7 +162,7 @@ class LearningDashboardActor(
         )
       })
 
-      meetings += (meeting.intId -> meeting.copy(users = meeting.users + (user.intId -> user.copy(leftOn = 0))))
+      this.addUserToMeeting(meeting.intId, user);
     }
   }
 
@@ -241,12 +242,12 @@ class LearningDashboardActor(
           )
         })
 
-        meetings += (meeting.intId -> meeting.copy(users = meeting.users + (user.intId -> user.copy(leftOn = 0))))
+        this.addUserToMeeting(meeting.intId, user);
       }
     }
   }
 
-  private def handleUserLeftVoiceConfToClientEvtMsg(msg: UserLeftVoiceConfToClientEvtMsg) {
+    private def handleUserLeftVoiceConfToClientEvtMsg(msg: UserLeftVoiceConfToClientEvtMsg) {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
       user <- meeting.users.values.find(u => u.intId == msg.body.intId)
@@ -363,6 +364,13 @@ class LearningDashboardActor(
       )
 
       meetings += (newMeeting.intId -> newMeeting)
+      meetingExcludedUserIds += (msg.body.props.meetingProp.intId -> {
+        if(msg.body.props.meetingProp.learningDashboardExcludeUserID.length > 0) {
+          msg.body.props.meetingProp.learningDashboardExcludeUserID.split(',').toVector
+        } else {
+          Vector()
+        }
+      })
 
       log.info(" created for meeting {}.",msg.body.props.meetingProp.intId)
     } else {
@@ -404,7 +412,18 @@ class LearningDashboardActor(
       sendReport(updatedMeeting)
 
       meetings = meetings.-(updatedMeeting.intId)
+      meetingExcludedUserIds = meetingExcludedUserIds.-(updatedMeeting.intId)
       log.info(" removed for meeting {}.",updatedMeeting.intId)
+    }
+  }
+
+  private def addUserToMeeting(meetingIntId: String, user: User): Unit = {
+    for {
+      meeting <- meetings.values.find(m => m.intId == meetingIntId)
+    } yield {
+      if(!meetingExcludedUserIds.get(meeting.intId).getOrElse(Vector()).contains(user.extId)) {
+        meetings += (meeting.intId -> meeting.copy(users = meeting.users + (user.intId -> user.copy(leftOn = 0))))
+      }
     }
   }
 
