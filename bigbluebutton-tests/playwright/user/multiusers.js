@@ -10,8 +10,8 @@ class MultiUsers {
   }
 
   async init(testFolderName) {
-    await this.page1.init(true, true, 'User1');
-    await this.page2.init(true, true, 'User2', this.page1.meetingId); // joining the same meeting
+    await this.page1.init(true, true, { fullName: 'User1' });
+    await this.page2.init(true, true, { fullName: 'User1', meetingId: this.page1.meetingId }); // joining the same meeting
   }
 
   async test() {
