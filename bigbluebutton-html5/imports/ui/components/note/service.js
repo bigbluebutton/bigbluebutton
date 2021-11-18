@@ -1,5 +1,5 @@
-import Users from '/imports/ui/local-collections/users-collection/users';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 import Note from '/imports/api/note';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';

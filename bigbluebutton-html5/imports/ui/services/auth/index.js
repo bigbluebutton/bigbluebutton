@@ -3,12 +3,11 @@ import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
 
-import { makeCall } from '/imports/ui/services/api';
 import { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
 import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
 import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
 import SubscriptionRegistry from '/imports/ui/services/subscription-registry/subscriptionRegistry';
-import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
+import { ValidationStates } from '/imports/api/auth-token-validation';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -245,6 +244,7 @@ class Auth {
             initAnnotationsStreamListener();
             clearTimeout(validationTimeout);
             this.connectionID = authenticationTokenValidation.connectionId;
+            Session.set('userWillAuth', false);
             setTimeout(() => resolve(true), 100);
             break;
           default:

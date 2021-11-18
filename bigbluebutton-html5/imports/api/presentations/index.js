@@ -1,6 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 
-const Presentations = new Mongo.Collection('presentations');
+const collectionOptions = Meteor.isClient ? {
+  connection: null,
+} : {};
+
+const Presentations = new Mongo.Collection('presentations', collectionOptions);
 
 if (Meteor.isServer) {
   // types of queries for the presentations:

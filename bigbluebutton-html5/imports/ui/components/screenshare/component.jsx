@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import FullscreenButtonContainer from '../fullscreen-button/container';
 import SwitchButtonContainer from './switch-button/container';
-import { styles } from './styles';
+import Styled from './styles';
 import AutoplayOverlay from '../media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
@@ -22,6 +22,7 @@ import {
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
+import Settings from '/imports/ui/services/settings';
 
 const intlMessages = defineMessages({
   screenShareLabel: {
@@ -58,9 +59,9 @@ const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 class ScreenshareComponent extends React.Component {
   static renderScreenshareContainerInside(mainText) {
     return (
-      <div className={styles.screenshareContainerInside}>
-        <h1 className={styles.mainText}>{mainText}</h1>
-      </div>
+      <Styled.ScreenshareContainerInside>
+        <Styled.MainText>{mainText}</Styled.MainText>
+      </Styled.ScreenshareContainerInside>
     );
   }
 
@@ -120,7 +121,9 @@ class ScreenshareComponent extends React.Component {
   }
 
   componentWillUnmount() {
-    const { intl, fullscreenContext, layoutContextDispatch, hidePresentation } = this.props;
+    const {
+      intl, fullscreenContext, layoutContextDispatch, hidePresentation,
+    } = this.props;
     screenshareHasEnded();
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
@@ -251,13 +254,13 @@ class ScreenshareComponent extends React.Component {
     const { isGloballyBroadcasting } = this.props;
 
     return (
-      <video
+      <Styled.ScreenshareVideo
         id={SCREENSHARE_MEDIA_ELEMENT_NAME}
         key={SCREENSHARE_MEDIA_ELEMENT_NAME}
+        unhealthyStream={!isGloballyBroadcasting}
         style={switched
           ? { maxHeight: '100%', width: '100%', height: '100%' }
           : { maxHeight: '25%', width: '25%', height: '25%' }}
-        className={!isGloballyBroadcasting ? styles.unhealthyStream : null}
         playsInline
         onLoadedData={this.onLoadedData}
         ref={(ref) => {
@@ -273,8 +276,8 @@ class ScreenshareComponent extends React.Component {
     const { isGloballyBroadcasting, intl } = this.props;
 
     return (
-      <div
-        className={switched ? styles.screenshareContainer : styles.screenshareContainerPresenter}
+      <Styled.ScreenshareContainer
+        switched={switched}
         key="screenshareContainer"
         ref={(ref) => { this.screenshareContainer = ref; }}
       >
@@ -295,7 +298,7 @@ class ScreenshareComponent extends React.Component {
               intl.formatMessage(intlMessages.presenterLoadingLabel),
             )
         }
-      </div>
+      </Styled.ScreenshareContainer>
     );
   }
 
@@ -304,8 +307,8 @@ class ScreenshareComponent extends React.Component {
     const { loaded } = this.state;
 
     return (
-      <div
-        className={styles.screenshareContainer}
+      <Styled.ScreenshareContainer
+        switched
         key="screenshareContainer"
         ref={(ref) => {
           this.screenshareContainer = ref;
@@ -314,7 +317,7 @@ class ScreenshareComponent extends React.Component {
         {loaded && this.renderFullscreenButton()}
         {this.renderVideo(true)}
 
-        <div className={styles.screenshareContainerDefault}>
+        <Styled.ScreenshareContainerDefault>
           {
             !loaded
               ? ScreenshareComponent.renderScreenshareContainerInside(
@@ -322,8 +325,8 @@ class ScreenshareComponent extends React.Component {
               )
               : null
           }
-        </div>
-      </div>
+        </Styled.ScreenshareContainerDefault>
+      </Styled.ScreenshareContainer>
     );
   }
 
@@ -351,6 +354,7 @@ class ScreenshareComponent extends React.Component {
       || (!isStreamHealthy && loaded && isGloballyBroadcasting);
 
     const display = (width > 0 && height > 0) ? 'inherit' : 'none';
+    const { animations } = Settings.application;
 
     return (
       <div
@@ -370,17 +374,16 @@ class ScreenshareComponent extends React.Component {
       >
         {(shouldRenderConnectingState)
           && (
-            <div
+            <Styled.SpinnerWrapper
               key={_.uniqueId('screenshareArea-')}
-              className={styles.spinnerWrapper}
               data-test="screenshareConnecting"
             >
-              <div className={styles.spinner}>
-                <div className={styles.bounce1} />
-                <div className={styles.bounce2} />
+              <Styled.Spinner animations={animations}>
+                <Styled.Bounce1 animations={animations} />
+                <Styled.Bounce2 animations={animations} />
                 <div />
-              </div>
-            </div>
+              </Styled.Spinner>
+            </Styled.SpinnerWrapper>
           )}
         {autoplayBlocked ? this.renderAutoplayOverlay() : null}
         {isPresenter ? this.renderScreensharePresenter() : this.renderScreenshareDefault()}

@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
 import AudioService from '/imports/ui/components/audio/service';
-import { styles } from './styles';
+import Styled from './styles';
 
 const SELECT_RANDOM_USER_COUNTDOWN = Meteor.settings.public.selectRandomUser.countdown;
 
@@ -186,10 +185,10 @@ class RandomUserSelect extends Component {
       // and people are entering and leaving the meeting
       // display modal informing presenter that there's no viewers to select from
       viewElement = (
-        <div className={styles.modalViewContainer}>
-          <div className={styles.modalViewTitle}>
+        <Styled.ModalViewContainer>
+          <Styled.ModalViewTitle>
             {intl.formatMessage(messages.randUserTitle)}
-          </div>
+          </Styled.ModalViewTitle>
           <div>{intl.formatMessage(messages.noViewers)}</div>
           <br />
           <Button
@@ -199,23 +198,23 @@ class RandomUserSelect extends Component {
             size="md"
             className={styles.selectBtn}
           />
-        </div>
+        </Styled.ModalViewContainer>
       );
     } else { // viewers are available
       if (!selectedUser) return null; // rendering triggered before selectedUser is available
 
       // display modal with random user selection
       viewElement = (
-        <div className={styles.modalViewContainer}>
-          <div className={styles.modalViewTitle}>
+        <Styled.ModalViewContainer>
+        <Styled.ModalViewTitle>
             {  this.getLabel(countDown, amISelectedUser, currentUser, numAvailableViewers, intl, this.state.count) }
-          </div>
-          <div aria-hidden className={styles.modalAvatar} style={{ backgroundColor: `${selectedUser.color}` }}>
+        </Styled.ModalViewTitle>
+        <Styled.ModalAvatar aria-hidden style={{ backgroundColor: `${selectedUser.color}` }}>
             {selectedUser.name.slice(0, 2)}
-          </div>
-          <div className={styles.selectedUserName}>
+          </Styled.ModalAvatar>
+          <Styled.SelectedUserName>
             {selectedUser.name}
-          </div>
+          </Styled.SelectedUserName>
           { (currentUser.presenter && (
               countDown === 0 // Buttons are only available when the animation is not in process
               || numAvailableViewers === 1 // When there is only one user we still want to shw the buttons
@@ -242,7 +241,7 @@ class RandomUserSelect extends Component {
               </>
             )
             : null}
-        </div>
+        </Styled.ModalViewContainer>
       );
     }
     if (keepModalOpen) {

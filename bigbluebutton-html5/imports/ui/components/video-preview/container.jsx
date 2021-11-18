@@ -1,8 +1,8 @@
 import React from 'react';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { withTracker } from 'meteor/react-meteor-data';
-import Users from '/imports/ui/local-collections/users-collection/users';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import Service from './service';
 import VideoPreview from './component';
