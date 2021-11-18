@@ -50,7 +50,7 @@ const RandomUserSelectContainer = (props) => {
   // Populating viewerPool
   for (let meeting in users) {
     for (let id in users[meeting]) {
-      if(users[meeting][id].role == 'VIEWER') viewerPool.push(id);
+      if(users[meeting][id].role === 'VIEWER') viewerPool.push(id);
     }
   }
 

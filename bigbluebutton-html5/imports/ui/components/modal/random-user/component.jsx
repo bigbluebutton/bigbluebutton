@@ -8,8 +8,6 @@ import { styles } from './styles';
 
 const SELECT_RANDOM_USER_COUNTDOWN = Meteor.settings.public.selectRandomUser.countdown;
 
-let endTime = 0;
-
 const messages = defineMessages({
   noViewers: {
     id: 'app.modal.randomUser.noViewers.description',
