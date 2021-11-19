@@ -1,9 +1,8 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
-import cx from 'classnames';
 import PropTypes from 'prop-types';
-import { styles } from './styles';
+import Styled from './styles';
+import { ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
   fullscreenButton: {
@@ -17,15 +16,16 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
-  fullscreenRef: PropTypes.instanceOf(Element),
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   dark: PropTypes.bool,
   bottom: PropTypes.bool,
   isIphone: PropTypes.bool,
   isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
-  className: PropTypes.string,
-  handleToggleFullScreen: PropTypes.func.isRequired,
+  color: PropTypes.string,
+  fullScreenStyle: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -34,8 +34,8 @@ const defaultProps = {
   isIphone: false,
   isFullscreen: false,
   elementName: '',
-  className: '',
-  fullscreenRef: null,
+  color: 'default',
+  fullScreenStyle: true,
 };
 
 const FullscreenButtonComponent = ({
@@ -43,47 +43,58 @@ const FullscreenButtonComponent = ({
   dark,
   bottom,
   elementName,
-  className,
-  fullscreenRef,
-  handleToggleFullScreen,
+  elementId,
+  elementGroup,
   isIphone,
   isFullscreen,
+  layoutContextDispatch,
+  currentElement,
+  currentGroup,
+  color,
+  fullScreenStyle,
 }) => {
   if (isIphone) return null;
 
-  const formattedLabel = (isFullscreen) => {
-    return(isFullscreen ?
-      intl.formatMessage(
-        intlMessages.fullscreenUndoButton,
-        ({ 0: elementName || '' }),
-      ) :
-      intl.formatMessage(
-        intlMessages.fullscreenButton,
-        ({ 0: elementName || '' }),
-      ));
+  const formattedLabel = (fullscreen) => (fullscreen
+    ? intl.formatMessage(
+      intlMessages.fullscreenUndoButton,
+      ({ 0: elementName || '' }),
+    )
+    : intl.formatMessage(
+      intlMessages.fullscreenButton,
+      ({ 0: elementName || '' }),
+    )
+  );
+
+  const handleClick = () => {
+    const newElement = (elementId === currentElement) ? '' : elementId;
+    const newGroup = (elementGroup === currentGroup) ? '' : elementGroup;
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_FULLSCREEN_ELEMENT,
+      value: {
+        element: newElement,
+        group: newGroup,
+      },
+    });
   };
 
-  const wrapperClassName = cx({
-    [styles.wrapper]: true,
-    [styles.dark]: dark,
-    [styles.light]: !dark,
-    [styles.top]: !bottom,
-    [styles.bottom]: bottom,
-  });
-
   return (
-    <div className={wrapperClassName}>
-      <Button
-        color="default"
+    <Styled.FullscreenButtonWrapper
+      theme={dark ? 'dark' : 'light'}
+      position={bottom ? 'bottom' : 'top'}
+    >
+      <Styled.FullscreenButton
+        color={color || 'default'}
         icon={!isFullscreen ? 'fullscreen' : 'exit_fullscreen'}
         size="sm"
-        onClick={() => handleToggleFullScreen(fullscreenRef)}
+        onClick={() => handleClick()}
         label={formattedLabel(isFullscreen)}
         hideLabel
-        className={cx(styles.button, styles.fullScreenButton, className)}
+        isStyled={fullScreenStyle}
         data-test="presentationFullscreenButton"
       />
-    </div>
+    </Styled.FullscreenButtonWrapper>
   );
 };
 

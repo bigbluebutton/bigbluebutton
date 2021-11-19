@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ReactModal from 'react-modal';
-import { styles } from './styles.scss';
+import Styled from './styles';
+import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 
 const propTypes = {
   overlayClassName: PropTypes.string.isRequired,
@@ -11,30 +11,37 @@ const propTypes = {
 };
 
 const defaultProps = {
-  className: styles.modal,
-  overlayClassName: styles.overlay,
-  portalClassName: styles.portal,
+  overlayClassName: "modalOverlay",
   contentLabel: 'Modal',
   isOpen: true,
 };
 
 export default class ModalBase extends Component {
+
+  componentDidMount() {
+    registerTitleView(this.props.contentLabel);
+  }
+
+  componentWillUnmount() {
+    unregisterTitleView();
+  }
+
   render() {
     if (!this.props.isOpen) return null;
 
     return (
-      <ReactModal
+      <Styled.BaseModal
         {...this.props}
         parentSelector={() => {
           if (document.fullscreenElement &&
-              document.fullscreenElement.nodeName &&
-              document.fullscreenElement.nodeName.toLowerCase() === 'div')
+            document.fullscreenElement.nodeName &&
+            document.fullscreenElement.nodeName.toLowerCase() === 'div')
             return document.fullscreenElement;
           else return document.body;
         }}
       >
         {this.props.children}
-      </ReactModal>
+      </Styled.BaseModal>
     );
   }
 }
@@ -55,12 +62,12 @@ export const withModalState = ComponentToWrap =>
       this.show = this.show.bind(this);
     }
 
-    hide(cb = () => {}) {
+    hide(cb = () => { }) {
       Promise.resolve(cb())
         .then(() => this.setState({ isOpen: false }));
     }
 
-    show(cb = () => {}) {
+    show(cb = () => { }) {
       Promise.resolve(cb())
         .then(() => this.setState({ isOpen: true }));
     }

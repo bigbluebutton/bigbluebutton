@@ -6,11 +6,13 @@ import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { makeCall } from '/imports/ui/services/api';
 
-import { styles } from './styles';
-import { Meteor } from "meteor/meteor";
+import { Meteor } from 'meteor/meteor';
+import Styled from './styles';
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   responseDelay: PropTypes.number.isRequired,
 };
 
@@ -64,7 +66,7 @@ class ActivityCheck extends Component {
     const { responseDelay } = this.state;
 
     return setInterval(() => {
-      if(responseDelay == 0) return;
+      if (responseDelay === 0) return;
 
       const remainingTime = responseDelay - 1;
 
@@ -96,7 +98,7 @@ class ActivityCheck extends Component {
         shouldCloseOnOverlayClick={false}
         shouldShowCloseButton={false}
       >
-        <div className={styles.activityModalContent}>
+        <Styled.ActivityModalContent>
           <h1>{intl.formatMessage(intlMessages.activityCheckTitle)}</h1>
           <p>{intl.formatMessage(intlMessages.activityCheckLabel, { 0: responseDelay })}</p>
           <Button
@@ -107,7 +109,7 @@ class ActivityCheck extends Component {
             role="button"
             size="lg"
           />
-        </div>
+        </Styled.ActivityModalContent>
       </Modal>
     );
   }

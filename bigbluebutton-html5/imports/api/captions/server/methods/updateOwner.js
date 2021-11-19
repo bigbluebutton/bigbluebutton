@@ -4,7 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
-export default function updateOwner(meetingId, userId, padId) { // TODO
+export default function updateOwner(meetingId, userId, locale) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'UpdateCaptionOwnerPubMsg';
@@ -12,23 +12,19 @@ export default function updateOwner(meetingId, userId, padId) { // TODO
   try {
     check(meetingId, String);
     check(userId, String);
-    check(padId, String);
+    check(locale, String);
 
-    const pad = Captions.findOne({ meetingId, padId });
+    const pad = Captions.findOne({ meetingId, locale });
 
     if (!pad) {
       Logger.error(`Editing captions owner: ${padId}`);
       return;
     }
 
-    const { locale } = pad;
-
-    check(locale, { locale: String, name: String });
-
     const payload = {
       ownerId: userId,
-      locale: locale.name,
-      localeCode: locale.locale,
+      locale: pad.name,
+      localeCode: pad.locale,
     };
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);

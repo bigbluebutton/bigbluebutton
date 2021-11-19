@@ -1,22 +1,14 @@
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import Note from '/imports/api/note';
+import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import { Session } from 'meteor/session';
+import { ACTIONS, PANELS } from '../layout/enums';
 
 const NOTE_CONFIG = Meteor.settings.public.note;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-
-const getNoteId = () => {
-  const note = Note.findOne({ meetingId: Auth.meetingID }, { fields: { noteId: 1 } });
-  return note ? note.noteId : '';
-};
-
-const getReadOnlyNoteId = () => {
-  const note = Note.findOne({ meetingId: Auth.meetingID }, { fields: { readOnlyNoteId: 1 } });
-  return note ? note.readOnlyNoteId : '';
-};
 
 const getLang = () => {
   const { locale } = Settings.application;
@@ -30,40 +22,51 @@ const getNoteParams = () => {
   config.lang = getLang();
   config.rtl = document.documentElement.getAttribute('dir') === 'rtl';
 
-  const params = [];
-  Object.keys(config).forEach((k) => {
-    params.push(`${k}=${encodeURIComponent(config[k])}`);
-  });
-
-  return params.join('&');
+  const params = Object.keys(config)
+    .map((key) => `${key}=${encodeURIComponent(config[key])}`)
+    .join('&');
+  return params;
 };
 
 const isLocked = () => {
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { 'lockSettingsProps.disableNote': 1 } });
-  const user = Users.findOne({ userId: Auth.userID }, { fields: { locked: 1, role: 1 } });
+  const meeting = Meetings.findOne(
+    { meetingId: Auth.meetingID },
+    { fields: { 'lockSettingsProps.disableNote': 1 } }
+  );
+  const user = Users.findOne(
+    { userId: Auth.userID },
+    { fields: { locked: 1, role: 1 } }
+  );
 
-  if (meeting.lockSettingsProps && user.role !== ROLE_MODERATOR && user.locked) {
+  if (
+    meeting.lockSettingsProps &&
+    user.role !== ROLE_MODERATOR &&
+    user.locked
+  ) {
     return meeting.lockSettingsProps.disableNote;
   }
   return false;
 };
 
-const getReadOnlyURL = () => {
-  const readOnlyNoteId = getReadOnlyNoteId();
-  const params = getNoteParams();
-  const url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${readOnlyNoteId}?${params}`);
-  return url;
-};
+const getNoteId = () => makeCall('getNoteId');
 
-const getNoteURL = () => {
-  const noteId = getNoteId();
-  const params = getNoteParams();
-  const url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${noteId}?${params}`);
-  return url;
+const buildNoteURL = (noteId) => {
+  if (noteId) {
+    const params = getNoteParams();
+    const url = Auth.authenticateURL(
+      `${NOTE_CONFIG.url}/p/${noteId}?${params}`
+    );
+    return url;
+  }
+
+  return null;
 };
 
 const getRevs = () => {
-  const note = Note.findOne({ meetingId: Auth.meetingID }, { fields: { revs: 1 } });
+  const note = Note.findOne(
+    { meetingId: Auth.meetingID },
+    { fields: { revs: 1 } }
+  );
   return note ? note.revs : 0;
 };
 
@@ -74,7 +77,8 @@ const getLastRevs = () => {
   return lastRevs;
 };
 
-const setLastRevs = (revs) => {
+const setLastRevs = () => {
+  const revs = getRevs();
   const lastRevs = getLastRevs();
 
   if (revs !== 0 && revs > lastRevs) {
@@ -82,16 +86,13 @@ const setLastRevs = (revs) => {
   }
 };
 
-const isPanelOpened = () => Session.get('openPanel') === 'note';
-
-const hasUnreadNotes = () => {
-  const opened = isPanelOpened();
-  if (opened) return false;
+const hasUnreadNotes = (sidebarContentPanel) => {
+  if (sidebarContentPanel === PANELS.SHARED_NOTES) return false;
 
   const revs = getRevs();
   const lastRevs = getLastRevs();
 
-  return (revs !== 0 && revs > lastRevs);
+  return revs !== 0 && revs > lastRevs;
 };
 
 const isEnabled = () => {
@@ -99,21 +100,26 @@ const isEnabled = () => {
   return NOTE_CONFIG.enabled && note;
 };
 
-const toggleNotePanel = () => {
-  Session.set(
-    'openPanel',
-    isPanelOpened() ? 'userlist' : 'note',
-  );
-  window.dispatchEvent(new Event('panelChanged'));
+const toggleNotePanel = (sidebarContentPanel, layoutContextDispatch) => {
+  layoutContextDispatch({
+    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+    value: sidebarContentPanel !== PANELS.SHARED_NOTES,
+  });
+  layoutContextDispatch({
+    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+    value:
+      sidebarContentPanel === PANELS.SHARED_NOTES
+        ? PANELS.NONE
+        : PANELS.SHARED_NOTES,
+  });
 };
 
 export default {
-  getNoteURL,
-  getReadOnlyURL,
+  getNoteId,
+  buildNoteURL,
   toggleNotePanel,
   isLocked,
   isEnabled,
-  isPanelOpened,
   getRevs,
   setLastRevs,
   getLastRevs,

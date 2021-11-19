@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
@@ -8,7 +7,10 @@ import logger from '/imports/startup/client/logger';
 import PadService from './service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import { notify } from '/imports/ui/services/notification';
-import { styles } from './styles';
+import Styled from './styles';
+import { PANELS, ACTIONS } from '../../layout/enums';
+import _ from 'lodash';
+import browserInfo from '/imports/utils/browserInfo';
 
 const intlMessages = defineMessages({
   hide: {
@@ -50,20 +52,23 @@ const intlMessages = defineMessages({
   speechRecognitionStop: {
     id: 'app.captions.pad.speechRecognitionStop',
     description: 'Notification for stopped speech recognition',
-  },  
+  },
 });
 
 const propTypes = {
   locale: PropTypes.string.isRequired,
   ownerId: PropTypes.string.isRequired,
   currentUserId: PropTypes.string.isRequired,
-  padId: PropTypes.string.isRequired,
-  readOnlyPadId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  amIModerator: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+};
+
+const DEBOUNCE_TIMEOUT = 500;
+const DEBOUNCE_OPTIONS = {
+  leading: true,
+  trailing: false,
 };
 
 class Pad extends PureComponent {
@@ -79,14 +84,15 @@ class Pad extends PureComponent {
 
     this.state = {
       listening: false,
+      url: null,
     };
 
     const { locale, intl } = props;
     this.recognition = CaptionsService.initSpeechRecognition(locale);
 
-    this.toggleListen = this.toggleListen.bind(this);
+    this.toggleListen = _.debounce(this.toggleListen.bind(this), DEBOUNCE_TIMEOUT, DEBOUNCE_OPTIONS);
     this.handleListen = this.handleListen.bind(this);
-    
+
     if (this.recognition) {
       this.recognition.addEventListener('end', () => {
         const { listening } = this.state;
@@ -98,22 +104,40 @@ class Pad extends PureComponent {
     }
   }
 
-  componentDidUpdate() {
+  componentDidMount() {
+    const { locale } = this.props;
+
+    this.updatePadURL(locale);
+  }
+
+  componentDidUpdate(prevProps) {
     const {
       locale,
       ownerId,
       currentUserId,
     } = this.props;
 
+    const { listening } = this.state;
+
     if (this.recognition) {
       if (ownerId !== currentUserId) {
         this.recognition.stop();
-      } else if (this.state.listening && this.recognition.lang !== locale) {
+      } else if (listening && this.recognition.lang !== locale) {
         this.recognition.stop();
         this.stopListen();
       }
       this.recognition.lang = locale;
     }
+
+    if (prevProps.ownerId !== ownerId || prevProps.locale !== locale) {
+      this.updatePadURL(locale);
+    }
+  }
+
+  updatePadURL(locale) {
+    PadService.getPadId(locale).then(response => {
+      this.setState({ url: PadService.buildPadURL(response) });
+    });
   }
 
   handleListen() {
@@ -129,7 +153,14 @@ class Pad extends PureComponent {
       // Starts and stops the recognition when listening.
       // Throws an error if start() is called on a recognition that has already been started.
       if (listening) {
-        this.recognition.start();
+        try {
+          this.recognition.start();
+        } catch (e) {
+          logger.error({
+            logCode: 'captions_recognition',
+            extraInfo: { error: e.error },
+          }, 'Captions pad error when starting the recognition');
+        }
       } else {
         this.recognition.stop();
       }
@@ -188,7 +219,7 @@ class Pad extends PureComponent {
       listening: !listening,
     }, this.handleListen);
   }
-  
+
   stopListen() {
     this.setState({ listening: false });
   }
@@ -197,37 +228,39 @@ class Pad extends PureComponent {
     const {
       locale,
       intl,
-      padId,
-      readOnlyPadId,
       ownerId,
       name,
-      amIModerator,
+      layoutContextDispatch,
+      isResizing,
     } = this.props;
 
-    if (!amIModerator) {
-      Session.set('openPanel', 'userlist');
-      window.dispatchEvent(new Event('panelChanged'));
-      return null;
-    }
+    const {
+      listening,
+      url,
+    } = this.state;
 
-    const { listening } = this.state;
-    const url = PadService.getPadURL(padId, readOnlyPadId, ownerId);
+    const { isChrome } = browserInfo;
 
     return (
-      <div className={styles.pad}>
-        <header className={styles.header}>
-          <div className={styles.title}>
-            <Button
+      <Styled.Pad isChrome={isChrome}>
+        <Styled.Header>
+          <Styled.Title>
+            <Styled.HideBtn
               onClick={() => {
-                Session.set('openPanel', 'userlist');
-                window.dispatchEvent(new Event('panelChanged'));
+                layoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                  value: false,
+                });
+                layoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                  value: PANELS.NONE,
+                });
               }}
               aria-label={intl.formatMessage(intlMessages.hide)}
               label={name}
               icon="left_arrow"
-              className={styles.hideBtn}
             />
-          </div>
+          </Styled.Title>
           {CaptionsService.canIDictateThisPad(ownerId)
             ? (
               <span>
@@ -258,31 +291,30 @@ class Pad extends PureComponent {
                 label={intl.formatMessage(intlMessages.takeOwnership)}
               />
             ) : null}
-        </header>
+        </Styled.Header>
         {listening ? (
           <div>
-            <span className={styles.interimTitle}>
+            <Styled.InterimTitle>
               {intl.formatMessage(intlMessages.interimResult)}
-            </span>
-            <div
-              className={styles.processing}
-              ref={(node) => { this.iterimResultContainer = node; }}
-            />
+            </Styled.InterimTitle>
+            <Styled.Processing ref={(node) => { this.iterimResultContainer = node; }} />
           </div>
         ) : null}
         <iframe
           title="etherpad"
           src={url}
           aria-describedby="padEscapeHint"
+          style={{
+            pointerEvents: isResizing ? 'none' : 'inherit',
+          }}
         />
-        <span id="padEscapeHint" className={styles.hint} aria-hidden>
+        <Styled.Hint id="padEscapeHint" aria-hidden>
           {intl.formatMessage(intlMessages.tip)}
-        </span>
-      </div>
+        </Styled.Hint>
+      </Styled.Pad>
     );
   }
 }
 
-export default injectWbResizeEvent(injectIntl(Pad));
-
 Pad.propTypes = propTypes;
+export default injectWbResizeEvent(injectIntl(Pad));

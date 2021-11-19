@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.users
 import akka.actor.ActorContext
 import akka.event.Logging
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.{ ExternalVideoModel }
 import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
@@ -53,11 +54,15 @@ object UsersApp {
   }
 
   def automaticallyAssignPresenter(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
+    // Stop external video if it's running
+    ExternalVideoModel.stop(outGW, liveMeeting)
+
     val meetingId = liveMeeting.props.meetingProp.intId
     for {
       moderator <- Users2x.findModerator(liveMeeting.users2x)
       newPresenter <- Users2x.makePresenter(liveMeeting.users2x, moderator.intId)
     } yield {
+      // println(s"automaticallyAssignPresenter: moderator=${moderator} newPresenter=${newPresenter.intId}");
       sendPresenterAssigned(outGW, meetingId, newPresenter.intId, newPresenter.name, newPresenter.intId)
     }
   }
@@ -111,6 +116,7 @@ object UsersApp {
       sendUserEjectedMessageToClient(outGW, meetingId, userId, ejectedBy, reason, reasonCode)
       sendUserLeftMeetingToAllClients(outGW, meetingId, userId)
       if (user.presenter) {
+        // println(s"ejectUserFromMeeting will cause a automaticallyAssignPresenter for user=${user}")
         automaticallyAssignPresenter(outGW, liveMeeting)
       }
     }

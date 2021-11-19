@@ -1,14 +1,13 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
-import Button from '/imports/ui/components/button/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import InputStreamLiveSelectorContainer from './input-stream-live-selector/container';
 import MutedAlert from '/imports/ui/components/muted-alert/component';
-import { styles } from './styles';
+import Styled from './styles';
+import Settings from '/imports/ui/services/settings';
 import AudioManager from "../../../services/audio-manager";
 
 const intlMessages = defineMessages({
@@ -80,16 +79,16 @@ class AudioControls extends PureComponent {
     } = this.props;
 
     return (
-      <Button
-        className={styles.btn}
+      <Styled.AudioControlsButton
         onClick={handleJoinAudio}
         disabled={disable}
         hideLabel
         aria-label={intl.formatMessage(intlMessages.joinAudio)}
         label={intl.formatMessage(intlMessages.joinAudio)}
+        data-test="joinAudio"
         color="default"
         ghost
-        icon="audio_off"
+        icon="no_audio"
         size="lg"
         circle
         accessKey={shortcuts.joinaudio}
@@ -121,18 +120,17 @@ class AudioControls extends PureComponent {
       shortcuts,
     } = this.props;
 
-    let joinIcon = 'audio_off';
+    let joinIcon = 'no_audio';
     if (inAudio) {
       if (listenOnly) {
         joinIcon = 'listen';
       } else {
-        joinIcon = 'audio_on';
+        joinIcon = 'volume_level_2';
       }
     }
 
     return (
-      <Button
-        className={cx(inAudio || styles.btn)}
+      <Styled.LeaveButtonWithoutLiveStreamSelector
         onClick={inAudio ? handleLeaveAudio : handleJoinAudio}
         disabled={disable}
         data-test={inAudio ? 'leaveAudio' : 'joinAudio'}
@@ -206,9 +204,10 @@ class AudioControls extends PureComponent {
     const label = "Floor " + muted ? intl.formatMessage(intlMessages.unmuteAudio)
       : intl.formatMessage(intlMessages.muteAudio);
 
+    const { animations } = Settings.application;
+
     const toggleMuteBtn = (
-      <Button
-        className={cx(styles.muteToggle, !talking || styles.glow, !muted || styles.btn)}
+      <Styled.MuteToggleButton
         onClick={handleToggleMuteMicrophone}
         disabled={disable}
         hideLabel
@@ -220,14 +219,15 @@ class AudioControls extends PureComponent {
         size="lg"
         circle
         accessKey={shortcuts.togglemute}
+        talking={talking}
+        animations={animations}
       />
     );
 
     const amIAsTranslatorMuted = isTranslatorMuted();
 
     const translatorToggleMuteBtn = (
-      <Button
-          className={cx(styles.muteToggle, [amIAsTranslatorMuted ? styles.btnmuted: "", styles.translatorBtn ].join(" "))}
+      <Styled.TranslatorToggleButton
           onClick={this.handleMuteTranslator}
           hideLabel
           label={intl.formatMessage(intlMessages.translatorMicrophoneLabel)}
@@ -237,14 +237,15 @@ class AudioControls extends PureComponent {
           icon={amIAsTranslatorMuted ? 'mute' : AudioManager.$translatorSpeakingChanged.value ? "mute_filled": 'unmute'}
           size="lg"
           circle
-      />
+          animations={animations}
+       />
     );
 
     const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
     const {enabled: muteAlertEnabled} = MUTE_ALERT_CONFIG;
 
     return (
-      <span className={styles.container}>
+      <Styled.Container>
         {isVoiceUser && inputStream && muteAlertEnabled && !listenOnly && muted && showMute ? (
             <MutedAlert {...{
               muted, inputStream, isViewer, isPresenter,
@@ -256,9 +257,7 @@ class AudioControls extends PureComponent {
         {
           this.renderJoinLeaveButton()
         }
-
-      </span>
-
+      </Styled.Container>
     );
   }
 }

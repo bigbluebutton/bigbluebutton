@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { styles } from './styles';
+import Styled from './styles';
 import UserParticipantsContainer from './user-participants/container';
 import UserMessages from './user-messages/container';
 import UserNotesContainer from './user-notes/container';
@@ -8,7 +8,7 @@ import UserCaptionsContainer from './user-captions/container';
 import WaitingUsers from './waiting-users/component';
 import UserPolls from './user-polls/component';
 import BreakoutRoomItem from './breakout-room/component';
-import Translations from "./translations/component"
+import TranslationsContainer from "./translations/container"
 import TranslationSettings from "./translation-settings/component";
 
 const propTypes = {
@@ -46,8 +46,12 @@ class UserContent extends PureComponent {
       forcePollOpen,
       hasBreakoutRoom,
       pendingUsers,
+      isWaitingRoomEnabled,
+      isGuestLobbyMessageEnabled,
       requestUserInformation,
       currentClosedChats,
+      sidebarContentPanel,
+      layoutContextDispatch,
       startedChats,
       amIModerator,
       meetingIsBreakout,
@@ -55,24 +59,24 @@ class UserContent extends PureComponent {
       isTranslationEnabled
     } = this.props;
 
+    const showWaitingRoom = (isGuestLobbyMessageEnabled && isWaitingRoomEnabled)
+      || pendingUsers.length > 0;
+
     return (
-      <div
-        data-test="userListContent"
-        className={styles.content}
-      >
+      <Styled.Content data-test="userListContent">
         {CHAT_ENABLED
-          ? (<UserMessages
-            {...{
-              isPublicChat,
-              compact,
-              intl,
-              roving,
-              currentClosedChats,
-              startedChats,
-            }}
-          />
-          ) : null
-        }
+          ? (
+            <UserMessages
+              {...{
+                isPublicChat,
+                compact,
+                intl,
+                roving,
+                currentClosedChats,
+                startedChats,
+              }}
+            />
+          ) : null}
         {currentUser.role === ROLE_MODERATOR
           ? (
             <UserCaptionsContainer
@@ -80,19 +84,20 @@ class UserContent extends PureComponent {
                 intl,
               }}
             />
-          ) : null
-        }
+          ) : null}
         <UserNotesContainer
           {...{
             intl,
           }}
         />
-        {pendingUsers.length > 0 && currentUser.role === ROLE_MODERATOR
+        {showWaitingRoom && currentUser.role === ROLE_MODERATOR
           ? (
             <WaitingUsers
               {...{
                 intl,
                 pendingUsers,
+                sidebarContentPanel,
+                layoutContextDispatch,
               }}
             />
           ) : null
@@ -109,7 +114,7 @@ class UserContent extends PureComponent {
 
         {isTranslationEnabled && amIModerator && !meetingIsBreakout
             ? (
-                <Translations
+                <TranslationsContainer
                     {...{
                       intl,
                     }}
@@ -122,9 +127,18 @@ class UserContent extends PureComponent {
           {...{
             pollIsOpen,
             forcePollOpen,
+            sidebarContentPanel,
+            layoutContextDispatch,
           }}
         />
-        <BreakoutRoomItem isPresenter={currentUser.presenter} hasBreakoutRoom={hasBreakoutRoom} />
+        <BreakoutRoomItem
+          isPresenter={currentUser.presenter}
+          {...{
+            hasBreakoutRoom,
+            sidebarContentPanel,
+            layoutContextDispatch,
+          }}
+        />
         <UserParticipantsContainer
           {...{
             compact,
@@ -136,7 +150,7 @@ class UserContent extends PureComponent {
             requestUserInformation,
           }}
         />
-      </div>
+      </Styled.Content>
     );
   }
 }

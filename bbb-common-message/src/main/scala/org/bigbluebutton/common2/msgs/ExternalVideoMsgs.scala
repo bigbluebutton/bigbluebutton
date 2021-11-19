@@ -7,7 +7,7 @@ case class StartExternalVideoPubMsgBody(externalVideoUrl: String)
 
 object UpdateExternalVideoPubMsg { val NAME = "UpdateExternalVideoPubMsg" }
 case class UpdateExternalVideoPubMsg(header: BbbClientMsgHeader, body: UpdateExternalVideoPubMsgBody) extends StandardMsg
-case class UpdateExternalVideoPubMsgBody(status: String, rate: Double, time: Double, state: Boolean)
+case class UpdateExternalVideoPubMsgBody(status: String, rate: Double, time: Double, state: Int)
 
 object StopExternalVideoPubMsg { val NAME = "StopExternalVideoPubMsg" }
 case class StopExternalVideoPubMsg(header: BbbClientMsgHeader, body: StopExternalVideoPubMsgBody) extends StandardMsg
@@ -20,7 +20,7 @@ case class StartExternalVideoEvtMsgBody(externalVideoUrl: String)
 
 object UpdateExternalVideoEvtMsg { val NAME = "UpdateExternalVideoEvtMsg" }
 case class UpdateExternalVideoEvtMsg(header: BbbClientMsgHeader, body: UpdateExternalVideoEvtMsgBody) extends BbbCoreMsg
-case class UpdateExternalVideoEvtMsgBody(status: String, rate: Double, time: Double, state: Boolean)
+case class UpdateExternalVideoEvtMsgBody(status: String, rate: Double, time: Double, state: Int)
 
 object StopExternalVideoEvtMsg { val NAME = "StopExternalVideoEvtMsg" }
 case class StopExternalVideoEvtMsg(header: BbbClientMsgHeader, body: StopExternalVideoEvtMsgBody) extends BbbCoreMsg

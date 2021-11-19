@@ -1,10 +1,7 @@
 import React, { PureComponent } from 'react';
-import cx from 'classnames';
-import Button from '/imports/ui/components/button/component';
-import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager/component';
 import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import { styles } from './styles.scss';
+import Styled from './styles';
 import ActionsDropdown from './actions-dropdown/container';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import AudioControlsContainer from '../audio/audio-controls/container';
@@ -13,6 +10,7 @@ import PresentationOptionsContainer from './presentation-options/component';
 import Storage from '/imports/ui/services/storage/session';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { defineMessages, injectIntl } from 'react-intl';
+import Button from '/imports/ui/components/button/component';
 
 import Meetings from '/imports/api/meetings';
 import LanguageOverlay from '/imports/ui/components/LanguageOverlay/component'
@@ -215,6 +213,7 @@ class ActionsBar extends PureComponent {
       handleTakePresenter,
       intl,
       isSharingVideo,
+      hasScreenshare,
       stopExternalVideoShare,
       isCaptionsAvailable,
       isMeteorConnected,
@@ -227,18 +226,22 @@ class ActionsBar extends PureComponent {
       setEmojiStatus,
       currentUser,
       shortcuts,
+      layoutContextDispatch,
+      actionsBarStyle,
+      isOldMinimizeButtonEnabled,
       hasLanguages,
-      isTranslationEnabled
+      isTranslationEnabled,
     } = this.props;
 
     return (
-      <div
-        className={styles.actionsbar}
-        style={{
-          height: ACTIONSBAR_HEIGHT,
-        }}
+      <Styled.ActionsBar
+        style={
+          {
+            height: actionsBarStyle.innerHeight,
+          }
+        }
       >
-        <div className={styles.left}>
+        <Styled.Left>
           <ActionsDropdown {...{
             amIPresenter,
             amIModerator,
@@ -257,8 +260,8 @@ class ActionsBar extends PureComponent {
               <CaptionsButtonContainer {...{ intl }} />
             )
             : null}
-        </div>
-        <div className={styles.center}>
+        </Styled.Left>
+        <Styled.Center>
           <AudioControlsContainer
               currentLanguage={this.state.translationLanguage}
           />
@@ -274,7 +277,7 @@ class ActionsBar extends PureComponent {
           />
           { isTranslationEnabled && this.state.showLanguageChoice ?
               (
-                  <div className={["sailingShip", styles.languageOverlay, styles.translationLanguageOverlay].join(' ')}>
+                  <Styled.LanguageOverlay className={"sailingShip"}>
                     <LanguageOverlay
                         current={this.state.translationLanguage}
                         filteredLanguages={this.state.translatorLanguage ? [this.state.translatorLanguage] : []}
@@ -282,7 +285,7 @@ class ActionsBar extends PureComponent {
                         clickHandler={this.handleLanguageSelection.bind(this)}
                         intl={intl}
                     />
-                  </div>
+                  </Styled.LanguageOverlay>
               ):null
           }
           { isTranslationEnabled && hasLanguages
@@ -310,7 +313,7 @@ class ActionsBar extends PureComponent {
           { isTranslationEnabled && amIModerator && hasLanguages ?
               (
                   <div id={"translatorButton"}>
-                    <Button
+                    <Styled.TranslatorButton
                         customIcon={
                           <img
                               className="icon-bbb-languages"
@@ -323,14 +326,13 @@ class ActionsBar extends PureComponent {
                         hideLabel
                         size="lg"
                         onClick={this.toggleTranslatorSelection.bind(this)}
-                        className={ styles.translatorBtn }
                     />
                   </div>
               ) :null
           }
           { isTranslationEnabled && this.state.showTranslatorChoice ?
               (
-                  <div className={["sailingShip", styles.languageOverlay, styles.translatorLanguageOverlay].join(' ')}>
+                <Styled.LanguageOverlay className={"sailingShip"}>
                     <LanguageOverlay
                         translator={true}
                         current={this.state.translatorLanguage}
@@ -339,22 +341,27 @@ class ActionsBar extends PureComponent {
                         clickHandler={this.handleTranslatorLanguageSelection.bind(this)}
                         intl={intl}
                     />
-                  </div>
+                  </Styled.LanguageOverlay>
               ):null
           }
-        </div>
-        <div className={styles.right}>
-          {isLayoutSwapped && !isPresentationDisabled
+          </Styled.Center>
+        <Styled.Right>
+          {!isOldMinimizeButtonEnabled ||
+            (isOldMinimizeButtonEnabled && isLayoutSwapped && !isPresentationDisabled)
             ? (
               <PresentationOptionsContainer
+                isLayoutSwapped={isLayoutSwapped}
                 toggleSwapLayout={toggleSwapLayout}
-                isThereCurrentPresentation={isThereCurrentPresentation}
+                layoutContextDispatch={layoutContextDispatch}
+                hasPresentation={isThereCurrentPresentation}
+                hasExternalVideo={isSharingVideo}
+                hasScreenshare={hasScreenshare}
               />
             )
             : null}
           {isRaiseHandButtonEnabled
             ? (
-              <Button
+              <Styled.RaiseHandButton
                 icon="hand"
                 label={intl.formatMessage({
                   id: `app.actionsBar.emojiMenu.${
@@ -367,7 +374,7 @@ class ActionsBar extends PureComponent {
                 color={currentUser.emoji === 'raiseHand' ? 'primary' : 'default'}
                 data-test={currentUser.emoji === 'raiseHand' ? 'lowerHandLabel' : 'raiseHandLabel'}
                 ghost={currentUser.emoji !== 'raiseHand'}
-                className={cx(currentUser.emoji === 'raiseHand' || styles.btn)}
+                emoji={currentUser.emoji}
                 hideLabel
                 circle
                 size="lg"
@@ -380,8 +387,8 @@ class ActionsBar extends PureComponent {
               />
             )
             : null}
-        </div>
-      </div>
+        </Styled.Right>
+      </Styled.ActionsBar>
     );
   }
 }

@@ -3,13 +3,10 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
-import Button from '/imports/ui/components/button/component';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
-import cx from 'classnames';
-import Modal from '/imports/ui/components/modal/simple/component';
 import { withModalMounter } from '../../modal/service';
-import { styles } from '../styles';
+import Styled from './styles';
 import ScreenshareBridgeService from '/imports/api/screenshare/client/bridge/service';
 import {
   shareScreen,
@@ -112,7 +109,7 @@ const getErrorLocale = (errorCode) => {
     default:
       return intlMessages.retryError;
   }
-}
+};
 
 const ScreenshareButton = ({
   intl,
@@ -128,7 +125,7 @@ const ScreenshareButton = ({
   const handleFailure = (error) => {
     const {
       errorCode = SCREENSHARING_ERRORS.UNKNOWN_ERROR.errorCode,
-      errorMessage
+      errorMessage,
     } = error;
 
     logger.error({
@@ -141,22 +138,18 @@ const ScreenshareButton = ({
     screenshareHasEnded();
   };
 
-  const renderScreenshareUnavailableModal = () => {
-    return mountModal(
-      <Modal
-        overlayClassName={styles.overlay}
-        className={styles.modal}
-        onRequestClose={() => mountModal(null)}
-        hideBorder
-        contentLabel={intl.formatMessage(intlMessages.screenShareUnavailable)}
-      >
-        <h3 className={styles.title}>
-          {intl.formatMessage(intlMessages.screenShareUnavailable)}
-        </h3>
-        <p>{intl.formatMessage(intlMessages.screenShareNotSupported)}</p>
-      </Modal>
-    )
-  };
+  const renderScreenshareUnavailableModal = () => mountModal(
+    <Styled.ScreenShareModal
+      onRequestClose={() => mountModal(null)}
+      hideBorder
+      contentLabel={intl.formatMessage(intlMessages.screenShareUnavailable)}
+    >
+      <Styled.Title>
+        {intl.formatMessage(intlMessages.screenShareUnavailable)}
+      </Styled.Title>
+      <p>{intl.formatMessage(intlMessages.screenShareNotSupported)}</p>
+    </Styled.ScreenShareModal>,
+  );
 
   const screenshareLocked = screenshareDataSavingSetting
     ? intlMessages.desktopShareLabel : intlMessages.lockedDesktopShareLabel;
@@ -173,10 +166,10 @@ const ScreenshareButton = ({
 
   return shouldAllowScreensharing
     ? (
-      <Button
-        className={cx(isVideoBroadcasting || styles.btn)}
+      <Styled.ScreenShareButton
         disabled={(!isMeteorConnected && !isVideoBroadcasting) || !screenshareDataSavingSetting}
         icon={isVideoBroadcasting ? 'desktop' : 'desktop_off'}
+        data-test={isVideoBroadcasting ? 'stopScreenShare' : 'startScreenShare'}
         label={intl.formatMessage(vLabel)}
         description={intl.formatMessage(vDescr)}
         color={isVideoBroadcasting ? 'primary' : 'default'}
@@ -192,8 +185,7 @@ const ScreenshareButton = ({
             } else {
               shareScreen(handleFailure);
             }
-          }
-        }
+          }}
         id={isVideoBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
       />
     ) : null;

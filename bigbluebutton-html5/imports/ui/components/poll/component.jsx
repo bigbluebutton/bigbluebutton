@@ -4,11 +4,13 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
-import cx from 'classnames';
-import Button from '/imports/ui/components/button/component';
+import Checkbox from '/imports/ui/components/checkbox/component';
+import Toggle from '/imports/ui/components/switch/component';
 import LiveResult from './live-result/component';
-import { styles } from './styles.scss';
+import Styled from './styles';
+import { PANELS, ACTIONS } from '../layout/enums';
 import DragAndDrop from './dragAndDrop/component';
+import { alertScreenReader } from '/imports/utils/dom-utils';
 
 const intlMessages = defineMessages({
   pollPaneTitle: {
@@ -71,12 +73,12 @@ const intlMessages = defineMessages({
     id: 'app.poll.optionDelete.label',
     description: '',
   },
-  pollPanelDesc: {
-    id: 'app.poll.panel.desc',
-    description: '',
-  },
   questionLabel: {
     id: 'app.poll.question.label',
+    description: '',
+  },
+  optionalQuestionLabel: {
+    id: 'app.poll.optionalQuestion.label',
     description: '',
   },
   userResponse: {
@@ -103,8 +105,12 @@ const intlMessages = defineMessages({
     id: 'app.poll.start.label',
     description: '',
   },
-  questionTitle: {
-    id: 'app.poll.question.title',
+  secretPollLabel: {
+    id: 'app.poll.secretPoll.label',
+    description: '',
+  },
+  isSecretPollLabel: {
+    id: 'app.poll.secretPoll.isSecretLabel',
     description: '',
   },
   true: {
@@ -147,6 +153,42 @@ const intlMessages = defineMessages({
     id: 'app.poll.abstention',
     description: '',
   },
+  enableMultipleResponseLabel: {
+    id: 'app.poll.enableMultipleResponseLabel',
+    description: 'label for checkbox to enable multiple choice',
+  },
+  startPollDesc: {
+    id: 'app.poll.startPollDesc',
+    description: '',
+  },
+  showRespDesc: {
+    id: 'app.poll.showRespDesc',
+    description: '',
+  },
+  addRespDesc: {
+    id: 'app.poll.addRespDesc',
+    description: '',
+  },
+  deleteRespDesc: {
+    id: 'app.poll.deleteRespDesc',
+    description: '',
+  },
+  on: {
+    id: 'app.switch.onLabel',
+    description: 'label for toggle switch on state',
+  },
+  off: {
+    id: 'app.switch.offLabel',
+    description: 'label for toggle switch off state',
+  },
+  removePollOpt: {
+    id: 'app.poll.removePollOpt',
+    description: 'screen reader alert for removed poll option',
+  },
+  emptyPollOpt: {
+    id: 'app.poll.emptyPollOpt',
+    description: 'screen reader for blank poll option',
+  },
 });
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
@@ -171,6 +213,8 @@ class Poll extends Component {
       question: '',
       optList: [],
       error: null,
+      isMultipleResponse: false,
+      secretPoll: false,
     };
 
     this.handleBackClick = this.handleBackClick.bind(this);
@@ -178,6 +222,8 @@ class Poll extends Component {
     this.handleRemoveOption = this.handleRemoveOption.bind(this);
     this.handleTextareaChange = this.handleTextareaChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.toggleIsMultipleResponse = this.toggleIsMultipleResponse.bind(this);
+    this.displayToggleStatus = this.displayToggleStatus.bind(this);
   }
 
   componentDidMount() {
@@ -189,16 +235,21 @@ class Poll extends Component {
   }
 
   componentDidUpdate() {
-    const { amIPresenter } = this.props;
+    const { amIPresenter, layoutContextDispatch } = this.props;
 
     if (Session.equals('resetPollPanel', true)) {
       this.handleBackClick();
     }
 
     if (!amIPresenter) {
-      Session.set('openPanel', 'userlist');
-      Session.set('forcePollOpen', false);
-      window.dispatchEvent(new Event('panelChanged'));
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+        value: false,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.NONE,
+      });
     }
   }
 
@@ -235,6 +286,11 @@ class Poll extends Component {
     this.setState({ optList: list, error: clearError ? null : error });
   }
 
+  toggleIsMultipleResponse() {
+    const { isMultipleResponse } = this.state;
+    return this.setState({ isMultipleResponse: !isMultipleResponse });
+  }
+
   handleTextareaChange(e) {
     const { type, error } = this.state;
     const { pollTypes } = this.props;
@@ -250,15 +306,27 @@ class Poll extends Component {
   }
 
   handleRemoveOption(index) {
+    const { intl } = this.props;
     const { optList } = this.state;
     const list = [...optList];
+    const removed = list[index];
     list.splice(index, 1);
-    this.setState({ optList: list });
+    this.setState({ optList: list }, () => {
+      alertScreenReader(`${intl.formatMessage(intlMessages.removePollOpt,
+        { 0: removed.val || intl.formatMessage(intlMessages.emptyPollOpt) })}`);
+    });
   }
 
   handleAddOption() {
     const { optList } = this.state;
     this.setState({ optList: [...optList, { val: '' }] });
+  }
+
+  handleToggle() {
+    const { secretPoll } = this.state;
+    const toggledValue = !secretPoll;
+    Session.set('secretPoll', toggledValue);
+    this.setState({ secretPoll: toggledValue });
   }
 
   setOptListLength(len) {
@@ -277,6 +345,17 @@ class Poll extends Component {
         diff += 1;
       }
     }
+  }
+
+  displayToggleStatus(status) {
+    const { intl } = this.props;
+
+    return (
+      <Styled.ToggleLabel>
+        {status ? intl.formatMessage(intlMessages.on)
+          : intl.formatMessage(intlMessages.off)}
+      </Styled.ToggleLabel>
+    );
   }
 
   pushToCustomPollValues(text) {
@@ -307,36 +386,41 @@ class Poll extends Component {
               justifyContent: 'spaceBetween',
             }}
           >
-            <input
+            <Styled.PollOptionInput
               type="text"
               value={o.val}
               placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
               data-test="pollOptionItem"
-              className={styles.pollOption}
               onChange={(e) => this.handleInputChange(e, i)}
               maxLength={MAX_INPUT_CHARS}
             />
             {i > 1
               ? (
-                <Button
-                  className={styles.deleteBtn}
-                  label={intl.formatMessage(intlMessages.delete)}
-                  icon="delete"
-                  data-test="deletePollOption"
-                  hideLabel
-                  circle
-                  color="default"
-                  onClick={() => {
-                    this.handleRemoveOption(i);
-                  }}
-                />
+                <>
+                  <Styled.DeletePollOptionButton
+                    label={intl.formatMessage(intlMessages.delete)}
+                    aria-describedby={`option-${i}`}
+                    icon="delete"
+                    data-test="deletePollOption"
+                    hideLabel
+                    circle
+                    color="default"
+                    onClick={() => {
+                      this.handleRemoveOption(i);
+                    }}
+                  />
+                  <span className="sr-only" id={`option-${i}`}>
+                    {intl.formatMessage(intlMessages.deleteRespDesc,
+                      { 0: (o.val || intl.formatMessage(intlMessages.emptyPollOpt)) })}
+                  </span>
+                </>
               )
-              : <div style={{ width: '40px' }} />}
+              : <div style={{ width: '40px', flex: 'none' }} />}
           </div>
           {!hasVal && type !== pollTypes.Response && error ? (
-            <div className={styles.inputError}>{error}</div>
+            <Styled.InputError>{error}</Styled.InputError>
           ) : (
-            <div className={styles.errorSpacer}>&nbsp;</div>
+            <Styled.ErrorSpacer>&nbsp;</Styled.ErrorSpacer>
           )}
         </span>
       );
@@ -356,9 +440,9 @@ class Poll extends Component {
 
     return (
       <div>
-        <div className={styles.instructions}>
+        <Styled.Instructions>
           {intl.formatMessage(intlMessages.activePollInstruction)}
-        </div>
+        </Styled.Instructions>
         <LiveResult
           {...{
             isMeteorConnected,
@@ -376,38 +460,52 @@ class Poll extends Component {
 
   renderPollOptions() {
     const {
-      type, optList, question, error,
+      type, secretPoll, optList, question, error, isMultipleResponse
     } = this.state;
-    const { startPoll, startCustomPoll, intl, pollTypes, isDefaultPoll, checkPollType } = this.props;
+    const {
+      startPoll,
+      startCustomPoll,
+      intl,
+      pollTypes,
+      isDefaultPoll,
+      checkPollType,
+      smallSidebar,
+    } = this.props;
     const defaultPoll = isDefaultPoll(type);
+    const questionPlaceholder = (type === pollTypes.Response)
+      ? intlMessages.questionLabel
+      : intlMessages.optionalQuestionLabel;
+    const hasQuestionError = (type === pollTypes.Response && question.length === 0 && error);
     return (
       <div>
-        <div className={styles.instructions}>
-          {intl.formatMessage(intlMessages.pollPanelDesc)}
-        </div>
         <div>
-          <h4>{intl.formatMessage(intlMessages.questionTitle)}</h4>
-          <textarea
+          <Styled.PollQuestionArea
+            hasError={hasQuestionError}
             data-test="pollQuestionArea"
-            className={styles.pollQuestion}
             value={question}
             onChange={(e) => this.handleTextareaChange(e)}
             rows="4"
             cols="35"
             maxLength={QUESTION_MAX_INPUT_CHARS}
-            placeholder={intl.formatMessage(intlMessages.questionLabel)}
+            aria-label={intl.formatMessage(questionPlaceholder)}
+            placeholder={intl.formatMessage(questionPlaceholder)}
           />
-          {(type === pollTypes.Response && question.length === 0 && error) ? (
-            <div className={styles.inputError}>{error}</div>
+          {hasQuestionError ? (
+            <Styled.InputError>{error}</Styled.InputError>
           ) : (
-            <div className={styles.errorSpacer}>&nbsp;</div>
+            <Styled.ErrorSpacer>&nbsp;</Styled.ErrorSpacer>
           )}
         </div>
         <div data-test="responseTypes">
-          <h4>{intl.formatMessage(intlMessages.responseTypesLabel)}</h4>
-          <div className={styles.responseType}>
-            <Button
+          <Styled.SectionHeading>
+            {intl.formatMessage(intlMessages.responseTypesLabel)}
+          </Styled.SectionHeading>
+          <Styled.ResponseType>
+            <Styled.PollConfigButton
+              selected={type === pollTypes.TrueFalse}
+              small={!smallSidebar}
               label={intl.formatMessage(intlMessages.tf)}
+              aria-describedby="poll-config-button"
               color="default"
               onClick={() => {
                 this.setState({
@@ -418,10 +516,12 @@ class Poll extends Component {
                   ],
                 });
               }}
-              className={cx(styles.pBtn, styles.btnMR, { [styles.selectedBtnBlue]: type === pollTypes.TrueFalse })}
             />
-            <Button
+            <Styled.PollConfigButton
+              selected={type === pollTypes.Letter}
+              small={!smallSidebar}
               label={intl.formatMessage(intlMessages.a4)}
+              aria-describedby="poll-config-button"
               color="default"
               onClick={() => {
                 this.setState({
@@ -434,72 +534,114 @@ class Poll extends Component {
                   ],
                 });
               }}
-              className={cx(styles.pBtn, styles.btnML, { [styles.selectedBtnBlue]: type === pollTypes.Letter })}
             />
-          </div>
-          <Button
-            label={intl.formatMessage(intlMessages.yna)}
-            color="default"
-            onClick={() => {
-              this.setState({
-                type: pollTypes.YesNoAbstention,
-                optList: [
-                  { val: intl.formatMessage(intlMessages.yes) },
-                  { val: intl.formatMessage(intlMessages.no) },
-                  { val: intl.formatMessage(intlMessages.abstention) },
-                ],
-              });
-            }}
-            className={cx(styles.pBtn, styles.yna, { [styles.selectedBtnBlue]: type === pollTypes.YesNoAbstention })}
-          />
-          <Button
-            label={intl.formatMessage(intlMessages.userResponse)}
-            color="default"
-            onClick={() => { this.setState({ type: pollTypes.Response }); }}
-            className={cx(styles.pBtn, styles.fullWidth, { [styles.selectedBtnWhite]: type === pollTypes.Response })}
-          />
+            <Styled.PollConfigButton
+              selected={type === pollTypes.YesNoAbstention}
+              small={false}
+              full={true}
+              label={intl.formatMessage(intlMessages.yna)}
+              aria-describedby="poll-config-button"
+              color="default"
+              onClick={() => {
+                this.setState({
+                  type: pollTypes.YesNoAbstention,
+                  optList: [
+                    { val: intl.formatMessage(intlMessages.yes) },
+                    { val: intl.formatMessage(intlMessages.no) },
+                    { val: intl.formatMessage(intlMessages.abstention) },
+                  ],
+                });
+              }}
+            />
+            <Styled.PollConfigButton
+              selected={type === pollTypes.Response}
+              small={false}
+              full={true}
+              label={intl.formatMessage(intlMessages.userResponse)}
+              aria-describedby="poll-config-button"
+              color="default"
+              onClick={() => { this.setState({ type: pollTypes.Response }); }}
+            />
+          </Styled.ResponseType>
         </div>
-        { type
+        {type
           && (
             <div data-test="responseChoices">
-              <h4>{intl.formatMessage(intlMessages.responseChoices)}</h4>
+              <Styled.SectionHeading>
+                {intl.formatMessage(intlMessages.responseChoices)}
+              </Styled.SectionHeading>
               {
                 type === pollTypes.Response
                 && (
-                  <div>
+                  <Styled.PollParagraph>
                     <span>{intl.formatMessage(intlMessages.typedResponseDesc)}</span>
-                    <div className={styles.exampleResponse}>
-                      <div className={styles.exampleTitle} />
-                      <div className={styles.responseInput}>
-                        <div className={styles.rInput} />
-                      </div>
-                    </div>
-                  </div>
+                  </Styled.PollParagraph>
                 )
               }
-              {
-                (defaultPoll || type === pollTypes.Response)
-                && (
-                  <div style={{
-                    display: 'flex',
-                    flexFlow: 'column',
-                  }}
-                  >
-                    {defaultPoll && this.renderInputs()}
-                    {defaultPoll
-                      && (
-                        <Button
-                          className={styles.addItemBtn}
-                          data-test="addItem"
+                {
+                  (defaultPoll || type === pollTypes.Response)
+                    && (
+                    <div style={{
+                      display: 'flex',
+                      flexFlow: 'wrap',
+                      flexDirection: 'column',
+                    }}
+                    >
+                      {defaultPoll
+                        && (
+                        <div>
+                          <Styled.PollCheckbox>
+                            <Checkbox
+                              onChange={this.toggleIsMultipleResponse}
+                              checked={isMultipleResponse}
+                              ariaLabelledBy="multipleResponseCheckboxLabel"
+                            />
+                          </Styled.PollCheckbox>
+                          <Styled.InstructionsLabel id="multipleResponseCheckboxLabel">
+                            {intl.formatMessage(intlMessages.enableMultipleResponseLabel)}
+                          </Styled.InstructionsLabel>
+                        </div>
+                        )}
+                      {defaultPoll && this.renderInputs()}
+                      {defaultPoll
+                        && (
+                        <Styled.AddItemButton
+                          data-test="addPollItem"
                           label={intl.formatMessage(intlMessages.addOptionLabel)}
+                          aria-describedby="add-item-button"
                           color="default"
                           icon="add"
                           disabled={optList.length >= MAX_CUSTOM_FIELDS}
                           onClick={() => this.handleAddOption()}
                         />
                       )}
-                    <Button
-                      className={styles.startPollBtn}
+                    <Styled.Row>
+                      <Styled.Col aria-hidden="true">
+                        <Styled.SectionHeading>
+                          {intl.formatMessage(intlMessages.secretPollLabel)}
+                        </Styled.SectionHeading>
+                      </Styled.Col>
+                      <Styled.Col>
+                        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                        <Styled.Toggle>
+                          {this.displayToggleStatus(secretPoll)}
+                          <Toggle
+                            icons={false}
+                            defaultChecked={secretPoll}
+                            onChange={() => this.handleToggle()}
+                            ariaLabel={intl.formatMessage(intlMessages.secretPollLabel)}
+                            showToggleLabel={false}
+                          />
+                        </Styled.Toggle>
+                      </Styled.Col>
+                    </Styled.Row>
+                    {secretPoll
+                      && (
+                        <Styled.PollParagraph>
+                          { intl.formatMessage(intlMessages.isSecretPollLabel) }
+                        </Styled.PollParagraph>
+                      )}
+                    <Styled.StartPollBtn
                       data-test="startPoll"
                       label={intl.formatMessage(intlMessages.startPollLabel)}
                       color="primary"
@@ -510,8 +652,12 @@ class Poll extends Component {
                         });
 
                         let err = null;
-                        if (type === pollTypes.Response && question.length === 0) err = intl.formatMessage(intlMessages.questionErr);
-                        if (!hasVal && type !== pollTypes.Response) err = intl.formatMessage(intlMessages.optionErr);
+                        if (type === pollTypes.Response && question.length === 0) {
+                          err = intl.formatMessage(intlMessages.questionErr);
+                        }
+                        if (!hasVal && type !== pollTypes.Response) {
+                          err = intl.formatMessage(intlMessages.optionErr);
+                        }
                         if (err) return this.setState({ error: err });
 
                         return this.setState({ isPolling: true }, () => {
@@ -522,7 +668,7 @@ class Poll extends Component {
                             intl.formatMessage(intlMessages.no),
                             intl.formatMessage(intlMessages.abstention),
                             intl.formatMessage(intlMessages.true),
-                            intl.formatMessage(intlMessages.false)
+                            intl.formatMessage(intlMessages.false),
                           );
                           const verifiedOptions = optList.map((o) => {
                             if (o.val.length > 0) return o.val;
@@ -531,17 +677,21 @@ class Poll extends Component {
                           if (verifiedPollType === pollTypes.Custom) {
                             startCustomPoll(
                               verifiedPollType,
+                              secretPoll,
                               question,
+                              isMultipleResponse,
                               _.compact(verifiedOptions),
                             );
                           } else {
-                            startPoll(verifiedPollType, question);
+                            startPoll(verifiedPollType, secretPoll, question, isMultipleResponse);
                           }
                         });
                       }}
                     />
                     {
-                      FILE_DRAG_AND_DROP_ENABLED && type !== pollTypes.Response && this.renderDragDrop()
+                      FILE_DRAG_AND_DROP_ENABLED
+                      && type !== pollTypes.Response
+                      && this.renderDragDrop()
                     }
                   </div>
                 )
@@ -555,15 +705,16 @@ class Poll extends Component {
   renderNoSlidePanel() {
     const { intl } = this.props;
     return (
-      <div className={styles.noSlidePanelContainer}>
-        <h4>{intl.formatMessage(intlMessages.noPresentationSelected)}</h4>
-        <Button
+      <Styled.NoSlidePanelContainer>
+        <Styled.SectionHeading>
+          {intl.formatMessage(intlMessages.noPresentationSelected)}
+        </Styled.SectionHeading>
+        <Styled.PollButton
           label={intl.formatMessage(intlMessages.clickHereToSelect)}
           color="primary"
           onClick={() => Session.set('showUploadPresentationView', true)}
-          className={styles.pollBtn}
         />
-      </div>
+      </Styled.NoSlidePanelContainer>
     );
   }
 
@@ -576,7 +727,7 @@ class Poll extends Component {
 
     if (!currentSlide) return this.renderNoSlidePanel();
 
-    if (isPolling || (!isPolling && currentPoll)) {
+    if (isPolling || currentPoll) {
       return this.renderActivePollOptions();
     }
 
@@ -587,14 +738,14 @@ class Poll extends Component {
     const { intl } = this.props;
     return (
       <div>
-        <div className={styles.instructions}>
+        <Styled.Instructions>
           {intl.formatMessage(intlMessages.dragDropPollInstruction)}
-        </div>
+        </Styled.Instructions>
         <DragAndDrop
           {...{ intl, MAX_INPUT_CHARS }}
           handlePollValuesText={(e) => this.handlePollValuesText(e)}
         >
-          <div className={styles.dragAndDropPollContainer} />
+          <Styled.DragAndDropPollContainer />
         </DragAndDrop>
       </div>
     );
@@ -605,44 +756,55 @@ class Poll extends Component {
       intl,
       stopPoll,
       currentPoll,
-      amIPresenter,
+      layoutContextDispatch,
     } = this.props;
-
-    if (!amIPresenter) return null;
 
     return (
       <div>
-        <header className={styles.header}>
-          <Button
+        <Styled.Header>
+          <Styled.PollHideButton
             ref={(node) => { this.hideBtn = node; }}
             data-test="hidePollDesc"
             tabIndex={0}
             label={intl.formatMessage(intlMessages.pollPaneTitle)}
             icon="left_arrow"
             aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
-            className={styles.hideBtn}
             onClick={() => {
-              Session.set('openPanel', 'userlist');
-              window.dispatchEvent(new Event('panelChanged'));
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.NONE,
+              });
             }}
           />
-          <Button
+          <Styled.PollCloseButton
             label={intl.formatMessage(intlMessages.closeLabel)}
             aria-label={`${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`}
             onClick={() => {
               if (currentPoll) stopPoll();
-              Session.set('openPanel', 'userlist');
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.NONE,
+              });
               Session.set('forcePollOpen', false);
               Session.set('pollInitiated', false);
-              window.dispatchEvent(new Event('panelChanged'));
             }}
-            className={styles.closeBtn}
             icon="close"
             size="sm"
             hideLabel
           />
-        </header>
+        </Styled.Header>
         {this.renderPollPanel()}
+        <span className="sr-only" id="poll-config-button">{intl.formatMessage(intlMessages.showRespDesc)}</span>
+        <span className="sr-only" id="add-item-button">{intl.formatMessage(intlMessages.addRespDesc)}</span>
+        <span className="sr-only" id="start-poll-button">{intl.formatMessage(intlMessages.startPollDesc)}</span>
       </div>
     );
   }

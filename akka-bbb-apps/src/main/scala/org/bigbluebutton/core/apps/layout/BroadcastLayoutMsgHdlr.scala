@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.layout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.Layouts
+import org.bigbluebutton.core.models.{ Layouts, LayoutsType }
 import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
@@ -17,9 +17,13 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to broadcast layout to meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
-      Layouts.setCurrentLayout(liveMeeting.layouts, msg.body.layout, msg.header.userId)
+      if (LayoutsType.layoutsType.contains(msg.body.layout)) {
+        val newlayout = LayoutsType.layoutsType.getOrElse(msg.body.layout, "")
 
-      sendBroadcastLayoutEvtMsg(msg.header.userId)
+        Layouts.setCurrentLayout(liveMeeting.layouts, newlayout, msg.header.userId)
+
+        sendBroadcastLayoutEvtMsg(msg.header.userId)
+      }
     }
   }
 

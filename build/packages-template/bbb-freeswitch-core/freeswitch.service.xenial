@@ -1,0 +1,58 @@
+;;;;; Author: Travis Cross <tc@traviscross.com>
+
+[Unit]
+Description=freeswitch
+After=syslog.target network.target local-fs.target
+
+[Service]
+; service
+Type=forking
+PIDFile=/opt/freeswitch/var/run/freeswitch/freeswitch.pid
+Environment="DAEMON_OPTS=-nonat"
+EnvironmentFile=-/etc/default/freeswitch
+ExecStart=/opt/freeswitch/bin/freeswitch -u freeswitch -g daemon -ncwait $DAEMON_OPTS
+TimeoutSec=45s
+Restart=always
+; exec
+WorkingDirectory=/opt/freeswitch
+User=freeswitch
+Group=daemon
+
+LimitCORE=infinity
+LimitNOFILE=100000
+LimitNPROC=60000
+LimitSTACK=250000
+LimitRTPRIO=infinity
+LimitRTTIME=7000000
+IOSchedulingClass=realtime
+IOSchedulingPriority=2
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority=89
+
+#UMask=0007
+
+; alternatives which you can enforce by placing a unit drop-in into
+; /etc/systemd/system/freeswitch.service.d/*.conf:
+;
+; User=freeswitch
+; Group=freeswitch
+; ExecStart=
+; ExecStart=/usr/bin/freeswitch -ncwait -nonat -rp
+;
+; empty ExecStart is required to flush the list.
+;
+; if your filesystem supports extended attributes, execute
+;   setcap 'cap_net_bind_service,cap_sys_nice=+ep' /usr/bin/freeswitch
+; this will also allow socket binding on low ports
+;
+; otherwise, remove the -rp option from ExecStart and
+; add these lines to give real-time priority to the process:
+;
+; PermissionsStartOnly=true
+; ExecStartPost=/bin/chrt -f -p 1 $MAINPID
+;
+; execute "systemctl daemon-reload" after editing the unit files.
+
+[Install]
+WantedBy=multi-user.target
+

@@ -32,6 +32,7 @@ const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE = Meteor.settings
 const TRANSLATOR_SPEECH_DETECTION_THRESHOLD = MEDIA.translation.translator.speakDetection.threshold || -70;
 const TRANSLATION_SETTINGS = Meteor.settings.public.media.translation || {};
 
+const DEFAULT_AUDIO_BRIDGES_PATH = '/imports/api/audio/client/';
 const CALL_STATES = {
   STARTED: 'started',
   ENDED: 'ended',
@@ -148,7 +149,6 @@ class AudioManager {
   }
 
   init(userData, audioEventHandler) {
-    this.bridge = new SIPBridge(userData); // no alternative as of 2019-03-08
     this.translationBridge = new SIPBridge({...userData}, "#translation-media");
     this.translatorBridge = new SIPBridge({...userData},
         "#translator-media",
@@ -159,12 +159,51 @@ class AudioManager {
           },
         },
     );
-    if (this.useKurento) {
-      this.listenOnlyBridge = new KurentoBridge(userData);
-    }
+    this.loadBridges(userData);
     this.userData = userData;
     this.initialized = true;
     this.audioEventHandler = audioEventHandler;
+  }
+
+  /**
+   * Load audio bridges modules to be used the manager.
+   *
+   * Bridges can be configured in settings.yml file.
+   * @param {Object} userData The Object representing user data to be passed to
+   *                      the bridge.
+   */
+  async loadBridges(userData) {
+    let FullAudioBridge = SIPBridge;
+    let ListenOnlyBridge = KurentoBridge;
+
+    if (MEDIA.audio) {
+      const {
+        bridges,
+        defaultFullAudioBridge,
+        defaultListenOnlyBridge,
+      } = MEDIA.audio;
+
+      this.bridges = {};
+
+      await Promise.all(Object.values(bridges).map(async (bridge) => {
+        // eslint-disable-next-line import/no-dynamic-require, global-require
+        this.bridges[bridge.name] = (await import(DEFAULT_AUDIO_BRIDGES_PATH
+          + bridge.path) || {}).default;
+      }));
+
+      if (defaultFullAudioBridge && (this.bridges[defaultFullAudioBridge])) {
+        FullAudioBridge = this.bridges[defaultFullAudioBridge];
+      }
+
+      if (defaultListenOnlyBridge && (this.bridges[defaultListenOnlyBridge])) {
+        ListenOnlyBridge = this.bridges[defaultListenOnlyBridge];
+      }
+    }
+
+    this.bridge = new FullAudioBridge(userData);
+    if (this.useKurento) {
+      this.listenOnlyBridge = new ListenOnlyBridge(userData);
+    }
   }
 
   setAudioMessages(messages, intl) {
@@ -501,7 +540,11 @@ class AudioManager {
     }
 
     if (!this.error && !this.isEchoTest) {
-      this.notify(this.intl.formatMessage(this.messages.info.LEFT_AUDIO), false, 'audio_off');
+      this.notify(
+        this.intl.formatMessage(this.messages.info.LEFT_AUDIO),
+        false,
+        'no_audio'
+      );
     }
     if (!this.isEchoTest) {
       this.playHangUpSound();
@@ -726,6 +769,14 @@ class AudioManager {
 
     if (typeof status === 'string') {
       currentStatus.status = status;
+
+      if (this.bridge && !this.isListenOnly) {
+        if (status !== BREAKOUT_AUDIO_TRANSFER_STATES.CONNECTED) {
+          this.bridge.ignoreCallState = false;
+        } else {
+          this.bridge.ignoreCallState = true;
+        }
+      }
     }
   }
 

@@ -137,10 +137,8 @@ class RedisRecorderActor(
     if (msg.body.chatId == GroupChatApp.MAIN_PUBLIC_CHAT) {
       val ev = new PublicChatRecordEvent()
       ev.setMeetingId(msg.header.meetingId)
-      ev.setSender(msg.body.msg.sender.name)
       ev.setSenderId(msg.body.msg.sender.id)
       ev.setMessage(msg.body.msg.message)
-      ev.setColor(msg.body.msg.color)
 
       record(msg.header.meetingId, ev.toMap.asJava)
     }
@@ -563,6 +561,7 @@ class RedisRecorderActor(
     ev.setQuestion(msg.body.question)
     ev.setAnswers(msg.body.poll.answers)
     ev.setType(msg.body.pollType)
+    ev.setSecretPoll(msg.body.secretPoll)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
@@ -570,7 +569,11 @@ class RedisRecorderActor(
   private def handleUserRespondedToPollRecordMsg(msg: UserRespondedToPollRecordMsg): Unit = {
     val ev = new UserRespondedToPollRecordEvent()
     ev.setPollId(msg.body.pollId)
-    ev.setUserId(msg.header.userId)
+    if (msg.body.isSecret) {
+      ev.setUserId("")
+    } else {
+      ev.setUserId(msg.header.userId)
+    }
     ev.setAnswerId(msg.body.answerId)
     ev.setAnswer(msg.body.answer)
 

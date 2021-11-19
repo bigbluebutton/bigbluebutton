@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
-import {
-  Tab, Tabs, TabList, TabPanel,
-} from 'react-tabs';
 import { defineMessages, injectIntl } from 'react-intl';
 import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
 import Application from '/imports/ui/components/settings/submenus/application/component';
@@ -11,8 +8,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 
 import { withModalMounter } from '../modal/service';
-import Icon from '../icon/component';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   appTabLabel: {
@@ -85,6 +81,8 @@ const propTypes = {
     chatAudioAlerts: PropTypes.bool,
     chatPushAlerts: PropTypes.bool,
     userJoinAudioAlerts: PropTypes.bool,
+    userLeaveAudioAlerts: PropTypes.bool,
+    userLeavePushAlerts: PropTypes.bool,
     guestWaitingAudioAlerts: PropTypes.bool,
     guestWaitingPushAlerts: PropTypes.bool,
     paginationEnabled: PropTypes.bool,
@@ -153,10 +151,10 @@ class Settings extends Component {
     const { intl } = this.props;
 
     return (
-      <span className={styles.toggleLabel}>
+      <Styled.ToggleLabel>
         {status ? intl.formatMessage(intlMessages.on)
           : intl.formatMessage(intlMessages.off)}
-      </span>
+      </Styled.ToggleLabel>
     );
   }
 
@@ -166,6 +164,8 @@ class Settings extends Component {
       isModerator,
       showGuestNotification,
       showToggleLabel,
+      layoutContextDispatch,
+      selectedLayout,
     } = this.props;
 
     const {
@@ -175,48 +175,46 @@ class Settings extends Component {
     } = this.state;
 
     return (
-      <Tabs
-        className={styles.tabs}
+      <Styled.SettingsTabs
         onSelect={this.handleSelectTab}
         selectedIndex={selectedTab}
         role="presentation"
-        selectedTabPanelClassName={styles.selectedTab}
       >
-        <TabList className={styles.tabList}>
-          <Tab
-            className={styles.tabSelector}
+        <Styled.SettingsTabList>
+          <Styled.SettingsTabSelector
             aria-labelledby="appTab"
-            selectedClassName={styles.selected}
+            selectedClassName="is-selected"
           >
-            <Icon iconName="application" className={styles.icon} />
+            <Styled.SettingsIcon iconName="application" />
             <span id="appTab">{intl.formatMessage(intlMessages.appTabLabel)}</span>
-          </Tab>
-          <Tab
-            className={styles.tabSelector}
-            selectedClassName={styles.selected}
+          </Styled.SettingsTabSelector>
+          <Styled.SettingsTabSelector
+            selectedClassName="is-selected"
           >
-            <Icon iconName="alert" className={styles.icon} />
+            <Styled.SettingsIcon iconName="alert" />
             <span id="notificationTab">{intl.formatMessage(intlMessages.notificationLabel)}</span>
-          </Tab>
-          <Tab
-            className={styles.tabSelector}
+          </Styled.SettingsTabSelector>
+          <Styled.SettingsTabSelector
             aria-labelledby="dataSavingTab"
-            selectedClassName={styles.selected}
+            selectedClassName="is-selected"
           >
-            <Icon iconName="network" className={styles.icon} />
+            <Styled.SettingsIcon iconName="network" />
             <span id="dataSaving">{intl.formatMessage(intlMessages.dataSavingLabel)}</span>
-          </Tab>
-        </TabList>
-        <TabPanel className={styles.tabPanel}>
+          </Styled.SettingsTabSelector>
+        </Styled.SettingsTabList>
+        <Styled.SettingsTabPanel selectedClassName="is-selected">
           <Application
             allLocales={allLocales}
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
             showToggleLabel={showToggleLabel}
             displaySettingsStatus={this.displaySettingsStatus}
+            layoutContextDispatch={layoutContextDispatch}
+            selectedLayout={selectedLayout}
+            isModerator={isModerator}
           />
-        </TabPanel>
-        <TabPanel className={styles.tabPanel}>
+        </Styled.SettingsTabPanel>
+        <Styled.SettingsTabPanel selectedClassName="is-selected">
           <Notification
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
@@ -225,16 +223,16 @@ class Settings extends Component {
             displaySettingsStatus={this.displaySettingsStatus}
             {...{ isModerator }}
           />
-        </TabPanel>
-        <TabPanel className={styles.tabPanel}>
+        </Styled.SettingsTabPanel>
+        <Styled.SettingsTabPanel selectedClassName="is-selected">
           <DataSaving
             settings={current.dataSaving}
             handleUpdateSettings={this.handleUpdateSettings}
             showToggleLabel={showToggleLabel}
             displaySettingsStatus={this.displaySettingsStatus}
           />
-        </TabPanel>
-      </Tabs>
+        </Styled.SettingsTabPanel>
+      </Styled.SettingsTabs>
     );
   }
 

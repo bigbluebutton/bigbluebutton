@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-import { styles } from './styles';
+import Styled from './styles';
 
 const propTypes = {
   autoplayBlockedDesc: PropTypes.string.isRequired,
@@ -27,14 +27,14 @@ class AutoplayOverlay extends PureComponent {
       autoplayAllowLabel,
     } = this.props;
     return (
-      <div className={styles.autoplayOverlay}>
-        <div className={styles.title}>
+      <Styled.AutoplayOverlay>
+        <Styled.Title>
           { intl.formatMessage(intlMessages.autoplayAlertDesc) }
-        </div>
-        <div className={styles.autoplayOverlayContent}>
-          <div className={styles.label}>
+        </Styled.Title>
+        <Styled.AutoplayOverlayContent>
+          <Styled.Label>
             {autoplayBlockedDesc}
-          </div>
+          </Styled.Label>
           <Button
             color="primary"
             label={autoplayAllowLabel}
@@ -42,8 +42,8 @@ class AutoplayOverlay extends PureComponent {
             role="button"
             size="lg"
           />
-        </div>
-      </div>
+        </Styled.AutoplayOverlayContent>
+      </Styled.AutoplayOverlay>
     );
   }
 }

@@ -5,7 +5,7 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import CaptionsReaderMenuContainer from '/imports/ui/components/actions-bar/captions/reader-menu/container';
 import CaptionsButton from './component';
 
-const CaptionsButtonContainer = props => <CaptionsButton {...props} />;
+const CaptionsButtonContainer = (props) => <CaptionsButton {...props} />;
 
 export default withModalMounter(withTracker(({ mountModal }) => ({
   isActive: CaptionsService.isCaptionsActive(),

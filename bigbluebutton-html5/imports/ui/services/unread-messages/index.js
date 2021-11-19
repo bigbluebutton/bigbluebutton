@@ -31,7 +31,7 @@ class UnreadMessagesTracker {
 
     return this._unreadChats[chatID];
   }
-  
+
   getUnreadMessages(chatID, messages) {
     const isPublicChat = chatID === PUBLIC_GROUP_CHAT_ID;
 
@@ -41,7 +41,7 @@ class UnreadMessagesTracker {
       const contextChat = messages[chatID];
       const unreadTimewindows = contextChat.unreadTimeWindows;
       for (const unreadTimeWindowId of unreadTimewindows) {
-        unreadMessages.push(isPublicChat 
+        unreadMessages.push(isPublicChat
           ? contextChat?.preJoinMessages[unreadTimeWindowId] || contextChat?.posJoinMessages[unreadTimeWindowId]
           : contextChat?.messageGroups[unreadTimeWindowId]);
       }

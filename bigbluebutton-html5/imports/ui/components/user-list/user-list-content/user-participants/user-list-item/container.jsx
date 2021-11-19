@@ -5,9 +5,14 @@ import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UserListItem from './component';
 import UserListService from '/imports/ui/components/user-list/service';
+import { layoutDispatch } from '../../../../layout/context';
 
-const UserListItemContainer = props => <UserListItem {...props} />;
-const isMe = intId => intId === Auth.userID;
+const UserListItemContainer = (props) => {
+  const layoutContextDispatch = layoutDispatch();
+
+  return <UserListItem {...{ layoutContextDispatch, ...props }} />;
+};
+const isMe = (intId) => intId === Auth.userID;
 
 export default withTracker(({ user }) => {
   const findUserInBreakout = BreakoutService.getBreakoutUserIsIn(user.userId);

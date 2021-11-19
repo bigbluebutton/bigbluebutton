@@ -1,9 +1,7 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
-import cx from 'classnames';
 import PropTypes from 'prop-types';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   downloadPresentationButton: {
@@ -23,21 +21,25 @@ const defaultProps = {
 };
 
 const DownloadPresentationButton = ({
-  intl, handleDownloadPresentation, dark,
-}) => (
-  <div className={cx(styles.wrapper, dark ? styles.dark : styles.light)}>
-    <Button
-      color="default"
-      icon="template_download"
-      size="md"
-      onClick={handleDownloadPresentation}
-      label={intl.formatMessage(intlMessages.downloadPresentationButton)}
-      hideLabel
-      circle
-      className={styles.button}
-    />
-  </div>
-);
+  intl,
+  handleDownloadPresentation,
+  dark,
+}) => {
+
+  return (
+    <Styled.ButtonWrapper theme={dark ? 'dark' : 'light'}>
+      <Styled.DownloadButton
+        data-test="presentationDownload"
+        color="default"
+        icon="template_download"
+        size="sm"
+        onClick={handleDownloadPresentation}
+        label={intl.formatMessage(intlMessages.downloadPresentationButton)}
+        hideLabel
+      />
+    </Styled.ButtonWrapper>
+  );
+};
 
 DownloadPresentationButton.propTypes = propTypes;
 DownloadPresentationButton.defaultProps = defaultProps;

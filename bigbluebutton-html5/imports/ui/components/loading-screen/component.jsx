@@ -1,17 +1,20 @@
 import React from 'react';
-import { styles } from './styles.scss';
+import Styled from './styles';
+import Settings from '/imports/ui/services/settings';
+
+const { animations } = Settings.application;
 
 const LoadingScreen = ({ children }) => (
-  <div className={styles.background}>
-    <div className={styles.spinner}>
-      <div className={styles.bounce1} />
-      <div className={styles.bounce2} />
+  <Styled.Background>
+    <Styled.Spinner animations={animations}>
+      <Styled.Bounce1 animations={animations} />
+      <Styled.Bounce2 animations={animations} />
       <div />
-    </div>
-    <div className={styles.message}>
+    </Styled.Spinner>
+    <Styled.Message>
       {children}
-    </div>
-  </div>
+    </Styled.Message>
+  </Styled.Background>
 );
 
 export default LoadingScreen;

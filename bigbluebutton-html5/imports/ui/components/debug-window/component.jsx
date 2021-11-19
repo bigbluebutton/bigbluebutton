@@ -1,13 +1,7 @@
 import React, { Component } from 'react';
 import Draggable from 'react-draggable';
-import Resizable from 're-resizable';
-import { styles } from './styles.scss';
 import { defineMessages, injectIntl } from 'react-intl';
-import Icon from '/imports/ui/components/icon/component';
-import Button from '/imports/ui/components/button/component';
-import Toggle from '/imports/ui/components/switch/component';
-import Storage from '/imports/ui/services/storage/session';
-import { withLayoutConsumer } from '/imports/ui/components/layout/context';
+import Styled from './styles';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 
 const intlMessages = defineMessages({
@@ -30,14 +24,6 @@ const intlMessages = defineMessages({
   copyButtonLabel: {
     id: 'app.debugWindow.form.button.copy',
     description: 'User agent form copy button',
-  },
-  enableAutoarrangeLayoutLabel: {
-    id: 'app.debugWindow.form.enableAutoarrangeLayoutLabel',
-    description: 'Enable Autoarrange layout label',
-  },
-  enableAutoarrangeLayoutDescription: {
-    id: 'app.debugWindow.form.enableAutoarrangeLayoutDescription',
-    description: 'Enable Autoarrange layout description',
   },
   chatLoggerLabel: {
     id: 'app.debugWindow.form.chatLoggerLabel',
@@ -67,7 +53,6 @@ class DebugWindow extends Component {
     this.state = {
       showDebugWindow: false,
       logLevel: ChatLogger.getLogLevel(),
-      autoArrangeLayout: Storage.getItem('autoArrangeLayout'),
     };
   }
 
@@ -99,29 +84,11 @@ class DebugWindow extends Component {
     const { intl } = this.props;
 
     return (
-      <span className={styles.toggleLabel}>
+      <Styled.ToggleLabel>
         {status ? intl.formatMessage(intlMessages.on)
           : intl.formatMessage(intlMessages.off)}
-      </span>
+      </Styled.ToggleLabel>
     );
-  }
-
-  autoArrangeToggle() {
-    const { layoutContextDispatch } = this.props;
-    const autoArrangeLayout = Storage.getItem('autoArrangeLayout');
-
-    this.setState({
-      autoArrangeLayout: !autoArrangeLayout,
-    });
-
-    layoutContextDispatch(
-      {
-        type: 'setAutoArrangeLayout',
-        value: !autoArrangeLayout,
-      },
-    );
-
-    window.dispatchEvent(new Event('autoArrangeChanged'));
   }
 
   render() {
@@ -131,35 +98,16 @@ class DebugWindow extends Component {
     if (!DEBUG_WINDOW_ENABLED || !showDebugWindow) return false;
 
     const { intl } = this.props;
-    const { autoArrangeLayout } = this.state;
 
     return (
       <Draggable
         handle="#debugWindowHeader"
         bounds="body"
-        // onStart={}
-        // onStop={}
-        // disabled={}
-        // position={}
         enableUserSelectHack={false}
       >
-        <Resizable
-          className={styles.debugWindowWrapper}
+        <Styled.DebugWindowWrapper
           minWidth={window.innerWidth * 0.2}
           minHeight={window.innerHeight * 0.2}
-          // size={
-          //   {
-          //     width: sizeWidth,
-          //     height: sizeHeight,
-          //   }
-          // }
-          // lockAspectRatio
-          // handleWrapperClass="resizeWrapper"
-          // onResizeStart={}
-          // onResize={}
-          // onResizeStop={(e, direction, ref, d) => {
-          //   this.setWebcamsAreaResizable(d.width, d.height);
-          // }}
           enable={{
             top: false,
             bottom: false,
@@ -171,19 +119,13 @@ class DebugWindow extends Component {
             bottomRight: true,
           }}
         >
-          <div
-            className={styles.debugWindow}
-          >
-            <div
-              id="debugWindowHeader"
-              className={styles.header}
-            >
-              <Icon iconName="fit_to_screen" className={styles.moveIcon} />
-              <div className={styles.title}>
+          <Styled.DebugWindow>
+            <Styled.Header id="debugWindowHeader">
+              <Styled.MoveIcon iconName="fit_to_screen" />
+              <Styled.Title>
                 {intl.formatMessage(intlMessages.debugWindowTitle)}
-              </div>
-              <Button
-                className={styles.close}
+              </Styled.Title>
+              <Styled.CloseButton
                 label={intl.formatMessage(intlMessages.modalClose)}
                 aria-label={`${intl.formatMessage(intlMessages.modalClose)} ${intl.formatMessage(intlMessages.debugWindowTitle)}`}
                 icon="close"
@@ -191,16 +133,15 @@ class DebugWindow extends Component {
                 hideLabel
                 onClick={() => this.setShowDebugWindow(false)}
               />
-            </div>
-            <div className={styles.debugWindowContent}>
-              <div className={styles.table}>
-                <div className={styles.row}>
-                  <div className={styles.cell}>
+            </Styled.Header>
+            <Styled.DebugWindowContent>
+              <Styled.Table>
+                <Styled.TableRow>
+                  <Styled.TableCell>
                     {`${intl.formatMessage(intlMessages.userAgentLabel)}:`}
-                  </div>
-                  <div className={styles.cell}>
-                    <input
-                      className={styles.userAgentInput}
+                  </Styled.TableCell>
+                  <Styled.TableCell>
+                    <Styled.UserAgentInput
                       id="debugModalUserAgent"
                       type="text"
                       value={window.navigator.userAgent}
@@ -212,33 +153,14 @@ class DebugWindow extends Component {
                     >
                       {`${intl.formatMessage(intlMessages.copyButtonLabel)}`}
                     </button>
-                  </div>
-                </div>
-                <div className={styles.row}>
-                  <div className={styles.cell}>
-                    {`${intl.formatMessage(intlMessages.enableAutoarrangeLayoutLabel)}:`}
-                  </div>
-                  <div className={styles.cell}>
-                    <div className={styles.cellContent}>
-                      {this.displaySettingsStatus(autoArrangeLayout)}
-                      <Toggle
-                        className={styles.autoArrangeToggle}
-                        icons={false}
-                        defaultChecked={autoArrangeLayout}
-                        onChange={() => this.autoArrangeToggle()}
-                        ariaLabel={intl.formatMessage(intlMessages.enableAutoarrangeLayoutLabel)}
-                        showToggleLabel={false}
-                      />
-                      <p>{`${intl.formatMessage(intlMessages.enableAutoarrangeLayoutDescription)}`}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className={styles.row}>
-                  <div className={styles.cell}>
+                  </Styled.TableCell>
+                </Styled.TableRow>
+                <Styled.TableRow>
+                  <Styled.TableCell>
                     {`${intl.formatMessage(intlMessages.chatLoggerLabel)}:`}
-                  </div>
-                  <div className={styles.cell}>
-                    <div className={styles.cellContent}>
+                  </Styled.TableCell>
+                  <Styled.TableCell>
+                    <Styled.CellContent>
                       <select
                         style={{ marginRight: '1rem' }}
                         onChange={(ev) => {
@@ -249,7 +171,8 @@ class DebugWindow extends Component {
                       >
                         {
                           chatLoggerLevelsNames.map((i, index) => {
-                            return (<option key={`${i}-${index}`}>{i}</option>);
+                            const idx = index;
+                            return (<option key={`${i}-${idx}`}>{i}</option>);
                           })
                         }
                       </select>
@@ -265,16 +188,16 @@ class DebugWindow extends Component {
                       >
                         {`${intl.formatMessage(intlMessages.applyButtonLabel)}`}
                       </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Resizable>
+                    </Styled.CellContent>
+                  </Styled.TableCell>
+                </Styled.TableRow>
+              </Styled.Table>
+            </Styled.DebugWindowContent>
+          </Styled.DebugWindow>
+        </Styled.DebugWindowWrapper>
       </Draggable>
     );
   }
 }
 
-export default withLayoutConsumer(injectIntl(DebugWindow));
+export default injectIntl(DebugWindow);

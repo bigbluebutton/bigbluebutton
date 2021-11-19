@@ -17,6 +17,7 @@ trait SetPresenterInPodReqMsgHdlr {
   ): MeetingState2x = {
     if (msg.body.podId == PresentationPod.DEFAULT_PRESENTATION_POD) {
       // Swith presenter as default presenter pod has changed.
+      log.info("Presenter pod change will trigger a presenter change")
       AssignPresenterActionHandler.handleAction(liveMeeting, bus.outGW, msg.header.userId, msg.body.nextPresenterId)
     }
     SetPresenterInPodActionHandler.handleAction(state, liveMeeting, bus.outGW, msg.header.userId, msg.body.podId, msg.body.nextPresenterId)

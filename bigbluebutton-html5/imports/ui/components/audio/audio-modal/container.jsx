@@ -1,7 +1,6 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioModal from './component';
@@ -49,13 +48,20 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
 
   const meetingIsBreakout = AppService.meetingIsBreakout();
 
-  const joinFullAudioImmediately = (autoJoin && (skipCheck || skipCheckOnJoin && !getEchoTest))
-    || (skipCheck || skipCheckOnJoin && !getEchoTest);
+  const joinFullAudioImmediately = (
+    autoJoin
+    && (
+      skipCheck
+      || (skipCheckOnJoin && !getEchoTest)
+    ))
+    || (
+      skipCheck
+      || (skipCheckOnJoin && !getEchoTest)
+    );
 
   const forceListenOnlyAttendee = forceListenOnly && !Service.isUserModerator();
 
-  const { isIos } = deviceInfo;
-  const { isChrome, isIe } = browserInfo;
+  const { isIe } = browserInfo;
 
   return ({
     meetingIsBreakout,
@@ -83,7 +89,6 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     audioLocked: userLocks.userMic,
     joinFullAudioImmediately,
     forceListenOnlyAttendee,
-    isIOSChrome: isIos && isChrome,
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
     isIE: isIe,
     autoplayBlocked: Service.autoplayBlocked(),

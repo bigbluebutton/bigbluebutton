@@ -3,10 +3,9 @@ import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import PropTypes from 'prop-types';
-import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
 import LocalesDropdown from '/imports/ui/components/locales-dropdown/component';
-import { styles } from './styles';
+import Styled from './styles';
+import { PANELS, ACTIONS } from '../../layout/enums';
 
 const intlMessages = defineMessages({
   closeLabel: {
@@ -69,18 +68,31 @@ class WriterMenu extends PureComponent {
     this.handleStart = this.handleStart.bind(this);
   }
 
+  componentWillUnmount() {
+    const { closeModal } = this.props;
+
+    closeModal();
+  }
+
   handleChange(event) {
     this.setState({ locale: event.target.value });
   }
 
   handleStart() {
-    const { closeModal, takeOwnership } = this.props;
+    const { closeModal, takeOwnership, layoutContextDispatch } = this.props;
     const { locale } = this.state;
 
     takeOwnership(locale);
     Session.set('captionsLocale', locale);
-    Session.set('openPanel', 'captions');
-    window.dispatchEvent(new Event('panelChanged'));
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: true,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.CAPTIONS,
+    });
 
     closeModal();
   }
@@ -95,39 +107,37 @@ class WriterMenu extends PureComponent {
     const { locale } = this.state;
 
     return (
-      <Modal
-        overlayClassName={styles.overlay}
-        className={styles.modal}
+      <Styled.WriterMenuModal
         onRequestClose={closeModal}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.title)}
       >
-        <header className={styles.header}>
-          <h3 className={styles.title}>
+        <Styled.Header>
+          <Styled.Title>
             {intl.formatMessage(intlMessages.title)}
-          </h3>
-        </header>
-        <div className={styles.content}>
-          <label>
+          </Styled.Title>
+        </Styled.Header>
+        <Styled.Content>
+          <span>
             {intl.formatMessage(intlMessages.subtitle)}
-          </label>
+          </span>
+          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
           <label
             aria-hidden
             htmlFor="captionsLangSelector"
             aria-label={intl.formatMessage(intlMessages.ariaSelect)}
           />
 
-          <LocalesDropdown
-            allLocales={allLocales}
-            handleChange={this.handleChange}
-            value={locale}
-            elementId="captionsLangSelector"
-            elementClass={styles.select}
-            selectMessage={intl.formatMessage(intlMessages.select)}
-          />
-
-          <Button
-            className={styles.startBtn}
+          <Styled.WriterMenuSelect>
+            <LocalesDropdown
+              allLocales={allLocales}
+              handleChange={this.handleChange}
+              value={locale}
+              elementId="captionsLangSelector"
+              selectMessage={intl.formatMessage(intlMessages.select)}
+            />
+          </Styled.WriterMenuSelect>
+          <Styled.StartBtn
             label={intl.formatMessage(intlMessages.start)}
             aria-label={intl.formatMessage(intlMessages.ariaStart)}
             aria-describedby="descriptionStart"
@@ -135,8 +145,8 @@ class WriterMenu extends PureComponent {
             disabled={locale == null}
           />
           <div id="descriptionStart" hidden>{intl.formatMessage(intlMessages.ariaStartDesc)}</div>
-        </div>
-      </Modal>
+        </Styled.Content>
+      </Styled.WriterMenuModal>
     );
   }
 }

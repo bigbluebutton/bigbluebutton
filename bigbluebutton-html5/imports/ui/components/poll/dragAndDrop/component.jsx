@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from './styles.scss';
-import Button from '/imports/ui/components/button/component';
+import Styled from './styles';
 
 
 // src: https://medium.com/@650egor/simple-drag-and-drop-file-upload-in-react-2cb409d88929
@@ -110,25 +109,20 @@ class DragAndDrop extends Component {
     const { intl, children } = this.props;
     const { pollValueText, drag } = this.state;
     return (
-      <div
-        className={styles.dndContainer}
-        ref={this.dropRef}
-      >
-        <textarea
+      <Styled.DndContainer ref={this.dropRef}>
+        <Styled.DndTextArea
+          active={drag}
           value={pollValueText}
-          className={drag ? styles.dndActive : styles.dndInActive}
           onChange={e => this.handleTextInput(e)}
         />
-        <Button
+        <Styled.DndButton
           onClick={() => this.setPollValues()}
           label={intl.formatMessage(intlMessages.customPollTextArea)}
           color="primary"
           disabled={pollValueText < 1}
-          className={styles.btn}
         />
         {children}
-      </div>
-
+      </Styled.DndContainer>
     );
   }
 } export default withModalMounter(injectIntl(DragAndDrop));
