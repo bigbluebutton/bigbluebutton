@@ -1,9 +1,10 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.{ RegisteredUsers, Roles, Users2x }
+import org.bigbluebutton.core.models.{ RegisteredUsers, Roles, Users2x, UserState }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.LockSettingsUtil
 
 trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -36,9 +37,14 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
             msg.body.changedBy, Roles.MODERATOR_ROLE)
           outGW.send(event)
         } else if (msg.body.role == Roles.VIEWER_ROLE) {
-          Users2x.changeRole(liveMeeting.users2x, uvo, msg.body.role)
+          val newUvo: UserState = Users2x.changeRole(liveMeeting.users2x, uvo, msg.body.role)
           val event = buildUserRoleChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId,
             msg.body.changedBy, Roles.VIEWER_ROLE)
+
+          if (newUvo.locked) {
+            LockSettingsUtil.enforceCamLockSettingsForAllUsers(liveMeeting, outGW)
+          }
+
           outGW.send(event)
         }
       }

@@ -70,7 +70,9 @@ object Boot extends App with SystemConfiguration {
   val redisMessageHandlerActor = system.actorOf(ReceivedJsonMsgHandlerActor.props(bbbMsgBus, incomingJsonMessageBus))
   incomingJsonMessageBus.subscribe(redisMessageHandlerActor, toAkkaAppsJsonChannel)
 
-  val channelsToSubscribe = Seq(toAkkaAppsRedisChannel, fromVoiceConfRedisChannel)
+  val channelsToSubscribe = Seq(
+    toAkkaAppsRedisChannel, fromVoiceConfRedisChannel, fromSfuRedisChannel,
+  )
 
   val redisSubscriberActor = system.actorOf(
     AppsRedisSubscriberActor.props(
