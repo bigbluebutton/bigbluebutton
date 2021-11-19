@@ -12,20 +12,6 @@ const VideoPreviewContainer = props => <VideoPreview {...props} />;
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-const isCamLocked = () => {
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'lockSettingsProps.disableCam': 1 } });
-  const user = Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID },
-    { fields: { locked: 1, role: 1 } });
-
-  if (meeting.lockSettingsProps !== undefined) {
-    if (user.locked && user.role !== ROLE_MODERATOR) {
-      return meeting.lockSettingsProps.disableCam;
-    }
-  }
-  return false;
-};
-
 export default withModalMounter(withTracker(({ mountModal }) => ({
   startSharing: (deviceId) => {
     mountModal(null);
@@ -41,7 +27,7 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
     }
   },
   sharedDevices: VideoService.getSharedDevices(),
-  isCamLocked: isCamLocked(),
+  isCamLocked: VideoService.isUserLocked(),
   closeModal: () => mountModal(null),
   webcamDeviceId: Service.webcamDeviceId(),
   hasVideoStream: VideoService.hasVideoStream(),
