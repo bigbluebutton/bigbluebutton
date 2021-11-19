@@ -1,6 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 
-const BreakoutsHistory = new Mongo.Collection('breakouts-history');
+const collectionOptions = Meteor.isClient ? {
+  connection: null,
+} : {};
+
+const BreakoutsHistory = new Mongo.Collection('breakouts-history', collectionOptions);
 
 if (Meteor.isServer) {
   BreakoutsHistory._ensureIndex({ meetingId: 1 });

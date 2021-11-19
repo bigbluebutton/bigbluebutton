@@ -1,6 +1,6 @@
 import { check } from 'meteor/check';
 import BreakoutsHistory from '/imports/api/breakouts-history';
-import Logger from '../../../../startup/server/logger';
+import Logger from '/imports/startup/server/logger';
 
 export default function handleBreakoutRoomsList({ body }) {
   const {

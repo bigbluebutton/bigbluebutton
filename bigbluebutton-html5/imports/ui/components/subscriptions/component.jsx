@@ -9,6 +9,7 @@ import AnnotationsTextService from '/imports/ui/components/whiteboard/annotation
 import { Annotations as AnnotationsLocal } from '/imports/ui/components/whiteboard/service';
 import {
   localBreakoutsSync,
+  localBreakoutsHistorySync,
   localGuestUsersSync,
   localMeetingsSync,
   localUsersSync,
@@ -101,6 +102,7 @@ export default withTracker(() => {
       // let this withTracker re-execute when a subscription is stopped
       subscriptionReactivity.depend();
       localBreakoutsSync.setIgnoreDeletes(true);
+      localBreakoutsHistorySync.setIgnoreDeletes(true);
       localGuestUsersSync.setIgnoreDeletes(true);
       localMeetingsSync.setIgnoreDeletes(true);
       localUsersSync.setIgnoreDeletes(true);

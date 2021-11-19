@@ -2,9 +2,9 @@ import BreakoutsHistory from '/imports/api/breakouts-history';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import AuthTokenValidation, { ValidationStates } from '../../auth-token-validation';
-import Logger from '../../../startup/server/logger';
-import Meetings from '../../meetings';
-import Users from '../../users';
+import Logger from '/imports/startup/server/logger';
+import Meetings from '/imports/api/meetings';
+import Users from '/imports/api/users';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
