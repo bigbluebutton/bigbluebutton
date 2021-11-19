@@ -57,6 +57,7 @@ const AppContainer = (props) => {
   const {
     actionsbar,
     meetingLayout,
+    selectedLayout,
     settingsLayout,
     pushLayoutToEveryone,
     currentUserId,
@@ -90,6 +91,7 @@ const AppContainer = (props) => {
           currentUserId,
           layoutType,
           meetingLayout,
+          selectedLayout,
           settingsLayout,
           pushLayoutToEveryone,
           deviceType,
@@ -196,6 +198,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     currentUserId: currentUser?.userId,
     isPresenter: currentUser?.presenter,
     meetingLayout: layout,
+    selectedLayout,
     settingsLayout: selectedLayout?.replace('Push', ''),
     pushLayoutToEveryone: selectedLayout?.includes('Push'),
     audioAlertEnabled: AppSettings.chatAudioAlerts,

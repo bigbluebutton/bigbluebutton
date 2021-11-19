@@ -233,9 +233,10 @@ class App extends Component {
       deviceType,
       isPresenter,
       meetingLayout,
-      settingsLayout,
+      selectedLayout, // full layout name
+      settingsLayout, // shortened layout name (without Push)
       layoutType,
-      pushLayoutToEveryone,
+      pushLayoutToEveryone, // is layout pushed
       layoutContextDispatch,
     } = this.props;
 
@@ -249,7 +250,7 @@ class App extends Component {
       Settings.save();
     }
 
-    if (settingsLayout !== prevProps.settingsLayout
+    if (selectedLayout !== prevProps.selectedLayout
       || settingsLayout !== layoutType) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_TYPE,
