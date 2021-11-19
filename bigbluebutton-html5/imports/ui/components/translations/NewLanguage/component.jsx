@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
-import {styles} from "./styles.scss"
+import Styled from './styles';
 
 const intlMessages = defineMessages({
     newLanguagePlaceholder: {
@@ -32,10 +32,10 @@ class NewLanguage extends Component{
         } = this.props;
 
         return(
-            <div className={styles.languageContainer}>
+            <Styled.LanguageContainer>
                 <input placeholder={intl.formatMessage(intlMessages.newLanguagePlaceholder)} value={this.state.name} onChange={this.handleChange}/>
-                <button className={styles.check} onClick={this.creationHandler}>{intl.formatMessage(intlMessages.confirmLanguageLabel)}</button>
-            </div>
+                <Styled.CheckButton onClick={this.creationHandler}>{intl.formatMessage(intlMessages.confirmLanguageLabel)}</Styled.CheckButton>
+            </Styled.LanguageContainer>
         );
     }
 

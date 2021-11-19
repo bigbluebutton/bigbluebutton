@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
 import Meeting from "/imports/ui/services/meeting";
 import AudioManager from '/imports/ui/services/audio-manager';
-import styles from "./styles.scss"
+import Styled from './styles';
 
 const intlMessages = defineMessages({
     originLanguage: {
@@ -60,9 +60,7 @@ class LanguageOverlay extends Component{
         const filteredLanguageExtensions = new Set(this.props.filteredLanguages.map(language => language.extension));
 
         return(
-            <div
-                className={styles.languageOverlay}
-            >
+            <Styled.LanguageOverlay>
                 <ul>
                     {this.state.languages.map(function (language) {
                         let languageMarker = null;
@@ -77,8 +75,8 @@ class LanguageOverlay extends Component{
                         }
 
                         return (
-                            <li
-                                className={languageIsFiltered ? styles.filteredLanguageOption : styles.languageOption}
+                            <Styled.LanguageOption
+                                filtered={languageIsFiltered}
                                 key={language.extension}
                                 onClick={languageIsFiltered ? null : () => this.clickHandler(language)}
                             >
@@ -88,11 +86,11 @@ class LanguageOverlay extends Component{
                                 <span>
                                 {languageMarker}
                             </span>
-                            </li>
+                            </Styled.LanguageOption>
                         );
                     },this)}
                 </ul>
-            </div>);
+            </Styled.LanguageOverlay>);
     }
     componentDidMount() {
         const {
@@ -111,4 +109,4 @@ class LanguageOverlay extends Component{
     }
 }
 
-export default LanguageOverlay
+export default LanguageOverlay;

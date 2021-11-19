@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {styles} from "./styles.scss"
+import Styled from './styles';
 
 class Language extends Component{
 
@@ -11,13 +11,13 @@ class Language extends Component{
     render() {
         let del = "";
         if(!this.props.active){
-            del = <span className={styles.deleteButton} onClick={this.delete}> &#x1f5d1;</span>
+            del = <Styled.DeleteButton onClick={this.delete}> &#x1f5d1;</Styled.DeleteButton>
         }
         return(
-            <div className={styles.languageContainer}>
+            <Styled.LanguageContainer>
                 <p>{this.props.name} </p>
                 {del}
-            </div>
+            </Styled.LanguageContainer>
         );
     }
 

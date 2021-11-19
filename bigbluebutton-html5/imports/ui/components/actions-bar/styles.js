@@ -86,10 +86,27 @@ const RaiseHandButton = styled(Button)`
    `}
 `;
 
+const LanguageOverlay = styled.div`
+   position: fixed;
+   box-sizing: border-box;
+   border-radius: 1em;
+   margin: 0;
+   --anchor-bottom: #translatorButton top;
+   --anchor-horizontalCenter: #translatorButton horizontalCenter;
+ `;
+
+ const TranslatorButton = styled(Button)`
+   & > span{
+     background-color: mediumpurple;
+   }
+ `;
+
 export default {
   ActionsBar,
   Left,
   Center,
   Right,
   RaiseHandButton,
+  LanguageOverlay,
+  TranslatorButton,
 };

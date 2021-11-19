@@ -1,12 +1,12 @@
-import {styles} from "./styles.scss";
+import Styled from './styles';
 import NewLanguage from  "./NewLanguage/component"
 import Language from "./LanguageField/component";
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import { makeCall } from '/imports/ui/services/api';
 import Meeting from "/imports/ui/services/meeting";
-import Button from '/imports/ui/components/button/component';
 import AudioManager from '/imports/ui/services/audio-manager';
+import { PANELS, ACTIONS } from '../layout/enums';
+import browserInfo from '/imports/utils/browserInfo';
 
 const intlMessages = defineMessages({
     translationsTitle: {
@@ -144,29 +144,42 @@ class Translations extends Component{
     render() {
         const {
             intl,
+            layoutContextDispatch,
         } = this.props;
+
+        const { isChrome } = browserInfo;
 
         let button;
         let add = ""
         if(!this.state.active){
             button =  <button  onClick={this.startTranslation}>{intl.formatMessage(intlMessages.startTranslationLabel)}</button>;
-            add =     <div> <span className={styles.addLanguage} onClick={this.createEditForm}>{intl.formatMessage(intlMessages.addLanguageLabel)}</span></div>;
+            add = <div><Styled.AddLanguage onClick={this.createEditForm}>{intl.formatMessage(intlMessages.addLanguageLabel)}</Styled.AddLanguage></div>;
         }else{
             button =  <button  onClick={this.endTranslation}>{intl.formatMessage(intlMessages.endTranslationLabel)}</button>;
         }
         return (
-            <div key={"translation"} className={styles.translationPanel}>
-                <Button
-                    onClick={() => {
-                        Session.set('idChatOpen', '');
-                        Session.set('openPanel', 'userlist');
-                        window.dispatchEvent(new Event('panelChanged'));
-                    }}
-                    aria-label=""
-                    label={intl.formatMessage(intlMessages.translationsTitle)}
-                    icon="left_arrow"
-                    className={styles.hideBtn}
-                />
+            <Styled.TranslationPanel key={"translation"} isChrome={isChrome}>
+                <Styled.Header>
+                    <Styled.Title
+                    data-test="noteTitle"
+                    >
+                        <Styled.HideButton
+                            onClick={() => {
+                                layoutContextDispatch({
+                                    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                                    value: false,
+                                });
+                                layoutContextDispatch({
+                                    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                                    value: PANELS.NONE,
+                                });
+                            }}
+                            aria-label=""
+                            label={intl.formatMessage(intlMessages.translationsTitle)}
+                            icon="left_arrow"
+                        />
+                    </Styled.Title>
+                </Styled.Header>
                 {this.state.languages.map(function (language, index) {
                     if(language.edit){
                         return <NewLanguage
@@ -199,17 +212,17 @@ class Translations extends Component{
                         : null
                     }
                 </p>
-              <div className={styles.speechDetectionThresholdWrapper}>
+            <Styled.SpeechDetectionThresholdWrapper>
                 <div>{intl.formatMessage(intlMessages.speechDetectionThresholdInfo)}:</div>
                 <form onSubmit={this.handleSubmit}>
                     <input id="speechDetectionThreshold" type="number" value={this.state.speechDetectionThreshold} onChange={this.setThreshold.bind(this)} />
                     <input type="submit" onClick={ this.updateThreshold.bind(this) } value="Set" />
                 </form>
-                <div className={styles.speechDetectionThresholdExplanation}>
+                <Styled.SpeechDetectionThresholdExplanation>
                     {intl.formatMessage(intlMessages.speechDetectionThresholdExplanation)}
-                </div>
-              </div>
-            </div>
+                </Styled.SpeechDetectionThresholdExplanation>
+            </Styled.SpeechDetectionThresholdWrapper>
+            </Styled.TranslationPanel>
         );
     }
 }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { styles } from './styles.scss';
+import Styled from './styles';
 import { defineMessages } from 'react-intl';
-import cx from 'classnames';
+import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 
 const intlMessages = defineMessages({
     translationTitle: {
@@ -18,14 +18,24 @@ const intlMessages = defineMessages({
 
 class Translations extends Component{
     toggleLanguagesPanel = () => {
-        if (Session.get("openPanel") === "translations") {
-            Session.set('openPanel', "userlist")
-            window.dispatchEvent(new Event('panelChanged'));
-        } else {
-            Session.set('openPanel', 'translations');
-            window.dispatchEvent(new Event('panelChanged'));
-        }
+        const {
+            layoutContextDispatch,
+            sidebarContentPanel,
+        } = this.props;
+
+        layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: sidebarContentPanel !== PANELS.TRANSLATIONS,
+        });
+        layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value:
+            sidebarContentPanel === PANELS.TRANSLATIONS
+                ? PANELS.NONE
+                : PANELS.TRANSLATIONS,
+        });
     }
+
     componentDidMount() {
         window.addEventListener('panelChanged',()=>{
             this.forceUpdate()
@@ -38,24 +48,20 @@ class Translations extends Component{
             intl,
         } = this.props;
 
-        let active = ""
-        if(Session.get("openPanel") ===  "translations"){
-            active = styles.active
-        }
         return (
             <div key={"translation-options"}>
-                <h2 className={styles.smallTitle}>
+                <Styled.SmallTitle>
                     {intl.formatMessage(intlMessages.translationTitle)}
-                </h2>
-                <div className={cx(styles.translationContainer, active)}>
+                </Styled.SmallTitle>
+                <Styled.TranslationContainer active={Session.get("openPanel") ===  "translations"}>
                     <img
                         className="icon-bbb-languages"
                         src='/html5client/svgs/translations.svg'
                     />
-                    <span className={styles.optionName} onClick={this.toggleLanguagesPanel}>
+                    <Styled.OptionName onClick={this.toggleLanguagesPanel}>
                         {intl.formatMessage(intlMessages.languagesTitle)}
-                    </span>
-                </div>
+                    </Styled.OptionName>
+                </Styled.TranslationContainer>
             </div>
         );
     }

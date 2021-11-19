@@ -9,6 +9,7 @@ import CaptionsContainer from '/imports/ui/components/captions/pad/container';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import WaitingUsersPanel from '/imports/ui/components/waiting-users/container';
 import Styled from './styles';
+import TranslationsContainer from "../translations/container";
 
 const propTypes = {
   top: PropTypes.number.isRequired,
@@ -132,6 +133,7 @@ const SidebarContent = (props) => {
         )}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}
+      {sidebarContentPanel === PANELS.TRANSLATIONS && <TranslationsContainer />}
     </Resizable>
   );
 };

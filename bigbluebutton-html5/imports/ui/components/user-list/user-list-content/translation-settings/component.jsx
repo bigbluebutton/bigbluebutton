@@ -1,11 +1,9 @@
-import {styles} from "./styles.scss";
-import  {styles as cstyles} from '/imports/ui/components/user-list/user-list-content/styles';
+import Styled from './styles';
 
 import React, {Component} from 'react';
 import {defineMessages} from 'react-intl';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Meeting from "../../../../services/meeting";
-
 
 const intlMessages = defineMessages({
   originLanguage: {
@@ -79,24 +77,27 @@ class TranslationSettings extends Component {
 
     return (
       <div key={"translation-settings"}>
-        <div className={cstyles.container}>
-          <h2 className={cstyles.smallTitle}>
+        <Styled.Container>
+          <Styled.SmallTitle>
             { (this.state.selectedChannel >= 0) ? intl.formatMessage(intlMessages.interpretationVolumeHeader) : ""}
-          </h2>
-        </div>
+          </Styled.SmallTitle>
+        </Styled.Container>
         {this.state.languages.map(function (language, index) {
           if(language.extension >= 0 && language.extension === this.state.selectedChannel) return (
-            <div key={index} className={styles.translationOriginalVolumePanel}>
+            <Styled.TranslationOriginalVolumePanel key={index}>
               <div>{language.name}:</div>
               <input type="range" data-ext={index} name="volume" min="0" max="1" step=".01"
-                     defaultValue={1 - AudioManager.getTranslationFloorVolumeByExt(index)}
-                     onChange={this.setTranslationOriginalVolume.bind(this)}/>
-              <div className={styles.interpretationVolumeWrapper}>
-                <div className={styles.interpretationVolumeOriginal}>{intl.formatMessage(intlMessages.interpretationVolumeOriginal)}</div>
-                <div className={styles.interpretationVolumeInterpretation}>{intl.formatMessage(intlMessages.interpretationVolumeInterpretation)}</div>
-              </div>
-
-            </div>
+                    defaultValue={1 - AudioManager.getTranslationFloorVolumeByExt(index)}
+                    onChange={this.setTranslationOriginalVolume.bind(this)}/>
+              <Styled.InterpretationVolumeWrapper>
+                <Styled.InterpretationVolumeOriginal>
+                  {intl.formatMessage(intlMessages.interpretationVolumeOriginal)}
+                </Styled.InterpretationVolumeOriginal>
+                <Styled.InterpretationVolumeInterpretation>
+                  {intl.formatMessage(intlMessages.interpretationVolumeInterpretation)}
+                </Styled.InterpretationVolumeInterpretation>
+              </Styled.InterpretationVolumeWrapper>
+            </Styled.TranslationOriginalVolumePanel>
           )
         }, this)
         }
