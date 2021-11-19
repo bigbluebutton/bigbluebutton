@@ -18,6 +18,7 @@ import {
   EFFECT_TYPES,
   getSessionVirtualBackgroundInfo,
 } from '/imports/ui/services/virtual-background/service';
+import { notify } from '/imports/ui/services/notification';
 
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.
@@ -892,12 +893,42 @@ class VideoProvider extends Component {
       peer.attached = true;
 
       if (isLocal) {
-        const { type, name } = getSessionVirtualBackgroundInfo();
-        if (type !== EFFECT_TYPES.NONE_TYPE) {
-          peer.bbbVideoStream.startVirtualBackground(type, name);
-        }
+        const deviceId = MediaStreamUtils.extractVideoDeviceId(peer.bbbVideoStream.mediaStream);
+        const { type, name } = getSessionVirtualBackgroundInfo(deviceId);
+
+        this.restoreVirtualBackground(peer.bbbVideoStream, type, name).catch((error) => {
+          this.handleVirtualBgError(error, type, name);
+        });
       }
     }
+  }
+
+  restoreVirtualBackground(stream, type, name) {
+    return new Promise((resolve, reject) => {
+      if (type !== EFFECT_TYPES.NONE_TYPE) {
+        stream.startVirtualBackground(type, name).then(() => {
+          resolve();
+        }).catch((error) => {
+          reject(error);
+        });
+      }
+      resolve();
+    });
+  }
+
+  handleVirtualBgError(error, type, name) {
+    const { intl } = this.props;
+    logger.error({
+      logCode: `video_provider_virtualbg_error`,
+      extraInfo: {
+        errorName: error.name,
+        errorMessage: error.message,
+        virtualBgType: type,
+        virtualBgName: name,
+      },
+    }, `Failed to restore virtual background after reentering the room: ${error.message}`);
+
+    notify(intl.formatMessage(intlMessages.virtualBgGenericError), 'error', 'video');
   }
 
   createVideoTag(stream, video) {
