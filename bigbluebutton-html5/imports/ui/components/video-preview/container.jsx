@@ -1,16 +1,11 @@
 import React from 'react';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { withTracker } from 'meteor/react-meteor-data';
-import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings';
-import Auth from '/imports/ui/services/auth';
 import Service from './service';
 import VideoPreview from './component';
 import VideoService from '../video-provider/service';
 
-const VideoPreviewContainer = props => <VideoPreview {...props} />;
-
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const VideoPreviewContainer = (props) => <VideoPreview {...props} />;
 
 export default withModalMounter(withTracker(({ mountModal }) => ({
   startSharing: (deviceId) => {
