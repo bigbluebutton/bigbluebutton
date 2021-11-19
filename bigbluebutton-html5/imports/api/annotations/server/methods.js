@@ -3,10 +3,13 @@ import undoAnnotation from './methods/undoAnnotation';
 import clearWhiteboard from './methods/clearWhiteboard';
 import sendAnnotation from './methods/sendAnnotation';
 import sendBulkAnnotations from './methods/sendBulkAnnotations';
+import { deleteWhiteboardAnnotations, modifyWhiteboardAnnotations } from './methods/modifyWhiteboardAnnotations';
 
 Meteor.methods({
   undoAnnotation,
   clearWhiteboard,
   sendAnnotation,
   sendBulkAnnotations,
+  modifyWhiteboardAnnotations,
+  deleteWhiteboardAnnotations,
 });
