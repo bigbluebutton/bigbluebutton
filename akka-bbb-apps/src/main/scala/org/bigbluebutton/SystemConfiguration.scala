@@ -63,6 +63,9 @@ trait SystemConfiguration {
   lazy val toVoiceConfRedisChannel = Try(config.getString("redis.toVoiceConfRedisChannel")).getOrElse("to-voice-conf-redis-channel")
   lazy val fromVoiceConfRedisChannel = Try(config.getString("redis.fromVoiceConfRedisChannel")).getOrElse("from-voice-conf-redis-channel")
 
+  lazy val toSfuRedisChannel = Try(config.getString("redis.toSfuRedisChannel")).getOrElse("to-sfu-redis-channel")
+  lazy val fromSfuRedisChannel = Try(config.getString("redis.fromSfuRedisChannel")).getOrElse("from-sfu-redis-channel")
+
   lazy val fromAkkaAppsWbRedisChannel = Try(config.getString("redis.fromAkkaAppsWbRedisChannel")).getOrElse("from-akka-apps-wb-redis-channel")
   lazy val fromAkkaAppsChatRedisChannel = Try(config.getString("redis.fromAkkaAppsChatRedisChannel")).getOrElse("from-akka-apps-chat-redis-channel")
   lazy val fromAkkaAppsPresRedisChannel = Try(config.getString("redis.fromAkkaAppsPresRedisChannel")).getOrElse("from-akka-apps-pres-redis-channel")
