@@ -4,11 +4,10 @@ import Auth from '/imports/ui/services/auth';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
-import ButtonEmoji from '/imports/ui/components/button/button-emoji/ButtonEmoji';
 import BBBMenu from '/imports/ui/components/menu/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 
-import { styles } from '../styles';
+import Styled from './styles';
 
 const AUDIO_INPUT = 'audioinput';
 const AUDIO_OUTPUT = 'audiooutput';
@@ -305,8 +304,7 @@ class InputStreamLiveSelector extends Component {
                 handleLeaveAudio();
               }}
             />
-            <ButtonEmoji
-              className={styles.audioDropdown}
+            <Styled.AudioDropdown
               emoji="device_list_selector"
               label={intl.formatMessage(intlMessages.changeAudioDevice)}
               hideLabel

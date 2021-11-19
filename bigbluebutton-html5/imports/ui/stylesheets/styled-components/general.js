@@ -12,6 +12,8 @@ const jumboPaddingY = '1.5rem';
 const jumboPaddingX = '3.025rem';
 
 const whiteboardToolbarPadding = '.5rem';
+const whiteboardToolbarMargin = '.5rem';
+const whiteboardToolbarPaddingSm = '.3rem';
 const minModalHeight = '20rem';
 const descriptionMargin = '3.5rem';
 const navbarHeight = '3.9375rem';
@@ -43,6 +45,18 @@ const toolbarButtonBorderRadius = '5px';
 const toolbarItemTrianglePadding = '2px';
 const toolbarMargin = '.8rem';
 
+const fileLineWidth = '16.75rem';
+const iconPaddingMd = '.65rem';
+const statusIconSize = '16px';
+const toastMdMargin = '.5rem';
+const uploadListHeight = '30vh';
+const modalInnerWidth = '40rem';
+const statusInfoHeight = '8px';
+const itemActionsWidth = '68px'; // size of the 2 icons (check/trash)
+const uploadIconSize = '2.286rem';
+const iconLineHeight = '2.35rem';
+const innerToastWidth = '17rem';
+const toastIconSide = '40px';
 const pollStatsElementWidth = '17%';
 const pollSmMargin = '0.3125rem';
 const pollMdMargin = '0.7rem';
@@ -54,6 +68,20 @@ const overlayOpacity = '0.349';
 const pollIndex = '1016';
 const pollBottomOffset = '4.5rem';
 const pollColAmount = '2';
+
+const toastMargin = '.5rem';
+const avatarSide = '34px';
+const avatarWrapperOffset = '14px';
+const avatarInset = '-7px';
+
+const dropdownCaretHeight = '8px';
+const dropdownCaretWidth = '12px';
+
+const toastOffsetSm = '.325rem';
+const btnSpacing = '.35rem';
+
+const toastIconMd = '2rem';
+const toastIconSm = '1.2rem';
 
 export {
   borderSizeSmall,
@@ -69,6 +97,7 @@ export {
   jumboPaddingY,
   jumboPaddingX,
   whiteboardToolbarPadding,
+  whiteboardToolbarPaddingSm,
   minModalHeight,
   descriptionMargin,
   navbarHeight,
@@ -97,6 +126,19 @@ export {
   toolbarButtonBorderRadius,
   toolbarItemTrianglePadding,
   toolbarMargin,
+  whiteboardToolbarMargin,
+  fileLineWidth,
+  iconPaddingMd,
+  statusIconSize,
+  toastMdMargin,
+  uploadListHeight,
+  modalInnerWidth,
+  statusInfoHeight,
+  itemActionsWidth,
+  uploadIconSize,
+  iconLineHeight,
+  innerToastWidth,
+  toastIconSide,
   pollStatsElementWidth,
   pollSmMargin,
   pollMdMargin,
@@ -108,4 +150,14 @@ export {
   pollIndex,
   pollBottomOffset,
   pollColAmount,
+  toastMargin,
+  avatarSide,
+  avatarWrapperOffset,
+  avatarInset,
+  dropdownCaretHeight,
+  dropdownCaretWidth,
+  toastOffsetSm,
+  btnSpacing,
+  toastIconMd,
+  toastIconSm,
 };

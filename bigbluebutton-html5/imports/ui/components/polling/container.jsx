@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import PollingService from './service';
 import PollService from '/imports/ui/components/poll/service';

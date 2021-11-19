@@ -14,9 +14,6 @@ import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/str
 import VideoPreviewService from '../video-preview/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { BBBVideoStream } from '/imports/ui/services/webrtc-base/bbb-video-stream';
-import {
-  getSessionVirtualBackgroundInfoWithDefault
-} from '/imports/ui/services/virtual-background/service'
 
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.

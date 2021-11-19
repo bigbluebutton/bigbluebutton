@@ -1,8 +1,8 @@
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Users from '/imports/api/users';
 import { makeCall } from '/imports/ui/services/api';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
-import Breakouts from '/imports/ui/local-collections/breakouts-collection/breakouts';
+import Meetings from '/imports/api/meetings';
+import Breakouts from '/imports/api/breakouts';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 import BreakoutsHistory from '../../../api/breakouts-history';
 

@@ -1,6 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 
-const Breakouts = new Mongo.Collection('breakouts');
+const collectionOptions = Meteor.isClient ? {
+  connection: null,
+} : {};
+
+const Breakouts = new Mongo.Collection('breakouts', collectionOptions);
 
 if (Meteor.isServer) {
   // types of queries for the breakouts:
