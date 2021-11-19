@@ -3,6 +3,7 @@ const { expect } = require('@playwright/test');
 const parameters = require('./parameters');
 const helpers = require('./helpers');
 const e = require('./elements');
+const { ELEMENT_WAIT_TIME } = require('./constants');
 
 class Page {
   constructor(browser, page) {
@@ -29,14 +30,20 @@ class Page {
     await this.page.click(e.closeAudioButton);
   }
 
+  async waitForSelector(selector, timeout = ELEMENT_WAIT_TIME) {
+    await this.page.waitForSelector(selector, { timeout });
+  }
+
   async type(selector, text) {
-    await this.page.waitForSelector(selector);
+    await this.waitForSelector(selector);
     const handle = await this.page.$(selector);
+    await handle.focus();
     await handle.type(text);
   }
 
-  async waitAndClick(selector) {
-    await this.page.waitForSelector(selector);
+  async waitAndClick(selector, timeout = ELEMENT_WAIT_TIME) {
+    await this.waitForSelector(selector, timeout);
+    await this.page.focus(selector);
     await this.page.click(selector);
   }
 }
