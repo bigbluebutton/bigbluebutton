@@ -5,6 +5,8 @@ import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteb
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
+import Moveable from 'react-moveable';
+import Selecto from 'react-selecto';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationPlaceholder from './presentation-placeholder/component';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
@@ -22,6 +24,7 @@ import Icon from '/imports/ui/components/icon/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
+import Logger from '/imports/startup/client/logger';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -54,8 +57,8 @@ const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinimizeButton;
 
 class Presentation extends PureComponent {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this.state = {
       presentationWidth: 0,
@@ -81,6 +84,10 @@ class Presentation extends PureComponent {
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
     this.setPresentationRef = this.setPresentationRef.bind(this);
+
+    this.moveableRef = React.createRef();
+    this.selectoRef = React.createRef();
+    this.moveableTargets = [];
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -593,6 +600,7 @@ class Presentation extends PureComponent {
         {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
         {this.renderPresentationFullscreen()}
+
         <svg
           key={currentSlide.id}
           data-test="whiteboard"
@@ -648,6 +656,33 @@ class Presentation extends PureComponent {
             physicalDimensions,
           )}
         </svg>
+        <Moveable
+          ref={this.moveableRef}
+          target={this.moveableTargets}
+          origin
+          edge={false}
+          draggable
+          onDragStart={(x) => {
+            Logger.info(`DragEvent${x}`);
+          }}
+        />
+        <Selecto
+          ref={this.selectoRef}
+          selectByClick
+          selectableTargets={['.rect']}
+          onSelect={
+            (e) => {
+              Logger.info(`OnSelect: ${e.selected}`);
+              this.moveableTargets = e.selected;
+            }
+          }
+          onSelectEnd={
+           (e) => { Logger.info(`SelectEnd: ${e}`); }
+         }
+          onDragStart={
+           (e) => { Logger.info(`DragStart: ${e}`); }
+         }
+        />
       </div>
     );
   }
