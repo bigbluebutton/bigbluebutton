@@ -16,6 +16,10 @@ const makeSetter = key => (value) => {
   }
 };
 
+const deleteAnnotations = (annotations, whiteboardId) => {
+  makeCall('deleteAnnotations', annotations, whiteboardId);
+};
+
 const undoAnnotation = (whiteboardId) => {
   makeCall('undoAnnotation', whiteboardId);
 };
@@ -106,6 +110,7 @@ const filterAnnotationList = () => {
 };
 
 export default {
+  deleteAnnotations,
   undoAnnotation,
   clearWhiteboard,
   changeWhiteboardMode,
