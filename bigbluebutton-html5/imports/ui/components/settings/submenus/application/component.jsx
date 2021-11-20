@@ -96,6 +96,14 @@ const intlMessages = defineMessages({
     id: 'app.layout.style.videoFocusPush',
     description: 'label for videoFocus layout style (push to all)',
   },
+  smartPushLayout: {
+    id: 'app.layout.style.smartPush',
+    description: 'label for smart layout style (push to all)',
+  },
+  customPushLayout: {
+    id: 'app.layout.style.customPush',
+    description: 'label for custom layout style (push to all)',
+  },
 });
 
 class ApplicationMenu extends BaseMenu {
@@ -317,6 +325,8 @@ class ApplicationMenu extends BaseMenu {
 
     if (isModerator) {
       const pushLayouts = {
+        CUSTOM_PUSH: 'customPush',
+        SMART_PUSH: 'smartPush',
         PRESENTATION_FOCUS_PUSH: 'presentationFocusPush',
         VIDEO_FOCUS_PUSH: 'videoFocusPush',
       };
@@ -326,7 +336,7 @@ class ApplicationMenu extends BaseMenu {
     return (
       <>
         <div className={styles.row}>
-          <div className={styles.col} aria-hidden="true">
+          <div className={styles.col}>
             <div className={styles.formElement}>
               <label htmlFor="layoutList" className={styles.label}>
                 {intl.formatMessage(intlMessages.layoutOptionLabel)}
@@ -412,7 +422,7 @@ class ApplicationMenu extends BaseMenu {
           {this.renderPaginationToggle()}
 
           <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
+            <div className={styles.col}>
               <div className={styles.formElement}>
                 <label
                   className={styles.label}

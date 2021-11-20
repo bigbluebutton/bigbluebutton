@@ -173,8 +173,10 @@ class NavBar extends Component {
       >
         <div className={styles.top}>
           <div className={styles.left}>
-            {!isExpanded ? null
-              : <Icon iconName="left_arrow" className={styles.arrowLeft} />}
+            {isExpanded && document.dir === 'ltr'
+              && <Icon iconName="left_arrow" className={styles.arrowLeft} />}
+            {!isExpanded && document.dir === 'rtl'
+              && <Icon iconName="left_arrow" className={styles.arrowLeft} />}
             <Button
               onClick={this.handleToggleUserList}
               ghost
@@ -189,8 +191,10 @@ class NavBar extends Component {
               aria-expanded={isExpanded}
               accessKey={TOGGLE_USERLIST_AK}
             />
-            {isExpanded ? null
-              : <Icon iconName="right_arrow" className={styles.arrowRight} />}
+            {!isExpanded && document.dir === 'ltr'
+              && <Icon iconName="right_arrow" className={styles.arrowRight} />}
+            {isExpanded && document.dir === 'rtl'
+              && <Icon iconName="right_arrow" className={styles.arrowRight} />}
           </div>
           <div className={styles.center}>
             <h1 className={styles.presentationTitle}>{presentationTitle}</h1>

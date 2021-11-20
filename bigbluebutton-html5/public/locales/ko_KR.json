@@ -226,7 +226,6 @@
     "app.poll.activePollInstruction": "설문조사에 대한 실시간 반응을 보려면, 이 패널을 열어 놓으세요. 설문이 끝나면, 아래 '설문 결과 공개'를 클릭하고 결과를 알리세요.",
     "app.poll.dragDropPollInstruction": "설문 조사 값을 채우려면 설문 조사 값이 포함 된 텍스트 파일을 강조 표시된 필드로 드래그하세요.",
     "app.poll.customPollTextArea": "설문 조사 값 채우기",
-    "app.poll.publishLabel": "설문 결과 공개",
     "app.poll.backLabel": "설문 시작",
     "app.poll.closeLabel": "닫기",
     "app.poll.waitingLabel": "응답대기 ({0}/{1})",

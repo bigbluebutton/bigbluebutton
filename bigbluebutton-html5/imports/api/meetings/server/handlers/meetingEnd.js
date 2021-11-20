@@ -23,9 +23,18 @@ export default function handleMeetingEnd({ header, body }) {
     }
   };
 
-  Meetings.update({ meetingId },
-    { $set: { meetingEnded: true, meetingEndedBy: userId, meetingEndedReason: reason } },
-    (err, num) => { cb(err, num, 'Meeting'); });
+  Meetings.find({ meetingId }).forEach((doc) => {
+    Meetings.update({ meetingId },
+      {
+        $set: {
+          meetingEnded: true,
+          meetingEndedBy: userId,
+          meetingEndedReason: reason,
+          learningDashboardAccessToken: doc.password.learningDashboardAccessToken,
+        },
+      },
+      (err, num) => { cb(err, num, 'Meeting'); });
+  });
 
   Breakouts.update({ parentMeetingId: meetingId },
     { $set: { meetingEnded: true } },

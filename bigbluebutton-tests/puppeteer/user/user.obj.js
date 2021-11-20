@@ -2,6 +2,7 @@ const { toMatchImageSnapshot } = require('jest-image-snapshot');
 const Page = require('../core/page');
 const Status = require('./status');
 const MultiUsers = require('./multiusers');
+const { closePages } = require('../core/util');
 const { MAX_MULTIUSERS_TEST_TIMEOUT, TEST_DURATION_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
 const { NETWORK_PRESETS } = require('../core/profiles');
 const devices = require('../core/devices');
@@ -80,7 +81,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -112,22 +113,22 @@ const userTest = () => {
   // Open Connection Status Modal, start Webcam Share, disable Webcams in
   // Connection Status Modal and check if webcam sharing is still available
   test('Disable Webcams From Connection Status Modal', async () => {
-    const test = new Status();
+    const test = new MultiUsers();
     let response;
     let screenshot;
     try {
       const testName = 'disableWebcamsFromConnectionStatus';
-      await test.logger('begin of ', testName);
-      await test.init(true, true, testName);
-      await test.startRecording(testName);
+      await test.page1.logger('begin of ', testName);
+      await test.init(testName);
+      await test.page1.startRecording(testName);
       response = await test.disableWebcamsFromConnectionStatus();
-      await test.stopRecording();
-      screenshot = await test.page.screenshot();
-      await test.logger('end of ', testName);
+      await test.page1.stopRecording();
+      screenshot = await test.page1.screenshot();
+      await test.page1.logger('end of ', testName);
     } catch (err) {
-      await test.logger(err);
+      await test.page1.logger(err);
     } finally {
-      await test.close();
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -199,11 +200,34 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.closePage(test.page1);
+      await test.page1.close();
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
   }, TEST_DURATION_TIME);
+
+  test('Show network data in Connection Status', async () => {
+    const test = new MultiUsers();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'connectionNetworkStatus';
+      await test.page1.logger('begin of ', testName);
+      await test.initMod1(testName);
+      await test.page1.startRecording(testName);
+      response = await test.usersConnectionStatus(testName);
+      await test.page1.stopRecording();
+      screenshot = await test.page1.page.screenshot();
+      await test.page1.logger('end of ', testName);
+    } catch (err) {
+      await test.page1.logger(err);
+    } finally {
+      await closePages(test.page1, test.userPage);
+    }
+    expect(response).toBe(true);
+    Page.checkRegression(2.0, screenshot);
+  });
+
 
   // Raise and Lower Hand and make sure that the User2 Avatar color
   // and its avatar in raised hand toast are the same
@@ -228,7 +252,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -251,7 +275,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.userPage);
+      await closePages(test.page1, test.userPage);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -274,7 +298,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.userPage);
+      await closePages(test.page1, test.userPage);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -297,7 +321,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.userPage);
+      await closePages(test.page1, test.userPage);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -324,7 +348,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -351,7 +375,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -378,7 +402,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);
@@ -405,7 +429,7 @@ const userTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(2.0, screenshot);

@@ -10,6 +10,7 @@ import Logger from './logger';
 import Redis from './redis';
 
 import setMinBrowserVersions from './minBrowserVersion';
+import { PrometheusAgent, METRIC_NAMES } from './prom-metrics/index.js'
 
 let guestWaitHtml = '';
 
@@ -139,6 +140,13 @@ Meteor.startup(() => {
   }
 
   setMinBrowserVersions();
+
+  Meteor.onMessage(event => {
+    const { method } = event;
+    if (method) {
+      PrometheusAgent.increment(METRIC_NAMES.METEOR_METHODS, { methodName: method });
+    }
+  });
 
   Logger.warn(`SERVER STARTED.
   ENV=${env}
@@ -322,30 +330,6 @@ WebApp.connectHandlers.use('/guestWait', (req, res) => {
   res.writeHead(200);
   res.end(guestWaitHtml);
 });
-
-// WASM endpoint to be used to fetch the .wasm models for camera effects
-// (blur, virtual background).
-// See: /imports/ui/services/virtual-backgrounds/
-WebApp.connectHandlers.use('/wasm', (req, res) => {
-  const pathname = req._parsedUrl.pathname;
-  let file = "";
-  let hasError = false;
-  try {
-    file = Assets.getBinary(pathname.substr(1, pathname.length-1));
-  } catch (error) {
-    hasError = true;
-    Logger.warn(`Could not find WASM file: ${error}`);
-  }
-
-  res.setHeader('Content-Type', 'application/wasm');
-  if (hasError) {
-    res.writeHead(404);
-  } else {
-    res.writeHead(200);
-  }
-  res.end(file);
-});
-
 
 export const eventEmitter = Redis.emitter;
 

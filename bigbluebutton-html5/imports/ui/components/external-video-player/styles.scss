@@ -48,6 +48,15 @@
   }
 }
 
+.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99;
+}
+
 .autoPlayWarning {
   position: absolute;
   z-index: 100;

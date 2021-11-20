@@ -452,7 +452,7 @@ class VideoFocusLayout extends Component {
     const { element: fullscreenElement } = fullscreen;
     const sidebarSize = sidebarNavWidth + sidebarContentWidth;
 
-    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
+    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare' || fullscreenElement === 'ExternalVideo') {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
       mediaBounds.top = 0;

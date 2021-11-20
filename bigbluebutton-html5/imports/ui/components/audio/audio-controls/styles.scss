@@ -101,3 +101,12 @@
 .selectedDevice {
   font-weight: bold !important;
 }
+
+.audioDropdown {
+  span {
+    i {
+      width: 0px !important;
+      bottom: 1px;
+    }
+  }
+}
