@@ -150,7 +150,6 @@ export default class TextDrawComponent extends Component {
     return (
       <g>
         <foreignObject
-          clipPath={`url(#${annotation.id})`}
           x={results.x}
           y={results.y}
           width={results.width}
