@@ -6,7 +6,7 @@ import FullscreenService from './service';
 const FullscreenButtonContainer = (props) => <FullscreenButtonComponent {...props} />;
 
 export default (props) => {
-  const handleToggleFullScreen = ref => FullscreenService.toggleFullScreen(ref);
+  const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
 
   const layoutContext = useContext(LayoutContext);
