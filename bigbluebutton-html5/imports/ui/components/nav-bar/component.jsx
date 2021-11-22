@@ -71,9 +71,9 @@ class NavBar extends Component {
     if (isMacos && isFirefox && TOGGLE_USERLIST_AK === 'U') {
       document.addEventListener('keyup', (event) => {
         const { key, code } = event;
-        const eventKey = key.toUpperCase();
+        const eventKey = key?.toUpperCase();
         const eventCode = code;
-        if (event.altKey && (eventKey === TOGGLE_USERLIST_AK || eventCode === `Key${TOGGLE_USERLIST_AK}`)) {
+        if (event?.altKey && (eventKey === TOGGLE_USERLIST_AK || eventCode === `Key${TOGGLE_USERLIST_AK}`)) {
           this.handleToggleUserList();
         }
       });
