@@ -130,9 +130,9 @@ class Polling extends Component {
           {
             question.length > 0 && (
               <span className={styles.qHeader}>
-                <div className={styles.qTitle}>
+                <h2 className={styles.qTitle}>
                   {intl.formatMessage(intlMessages.pollQuestionTitle)}
-                </div>
+                </h2>
                 <div data-test="pollQuestion" className={styles.qText}>{question}</div>
               </span>
             )
