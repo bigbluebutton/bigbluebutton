@@ -13,7 +13,7 @@ test.describe.parallel('User test suite', () => {
     const page1 = await context.newPage();
     const page2 = await context.newPage();
     const multiusers = new MultiUsers(browser, page1, page2);
-    await multiusers.init(true, true);
-    await multiusers.test();
+    await multiusers.init();
+    await multiusers.userPresence();
   });
 });

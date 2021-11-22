@@ -31,6 +31,7 @@ exports.away = '[data-test="away"]';
 exports.applaud = '[data-test="applause"]';
 exports.userListItem = 'div[data-test="userListItem"]';
 exports.firstUser = '[data-test="userListItemCurrent"]';
+exports.multiWhiteboardTool = 'span[data-test="multiWhiteboardTool"]';
 
 // Common
 exports.options = 'button[aria-label="Options"]';
@@ -48,3 +49,8 @@ exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
 
 // Whiteboard
 exports.whiteboard = 'svg[data-test="whiteboard"]';
+exports.tools = 'button[aria-label="Tools"]';
+exports.rectangle = 'button[aria-label="Rectangle"]';
+exports.drawnRectangle = 'svg g[clip-path] > g:nth-child(2) rect[data-test="drawnRectangle"]';
+exports.whiteboardViewBox = 'svg g[clip-path="url(#viewBox)"]';
+exports.changeWhiteboardAccess = 'li[data-test="changeWhiteboardAccess"]';

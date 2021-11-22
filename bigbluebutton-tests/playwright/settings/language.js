@@ -4,7 +4,6 @@ const { openSettings } = require('./util');
 const e = require('../core/elements');
 
 class Language extends Page {
-
   constructor(browser, page) {
     super(browser, page);
   }
