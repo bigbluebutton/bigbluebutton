@@ -4,7 +4,7 @@ import handleBreakoutStarted from './handlers/breakoutStarted';
 import handleUpdateTimeRemaining from './handlers/updateTimeRemaining';
 import handleBreakoutClosed from './handlers/breakoutClosed';
 import joinedUsersChanged from './handlers/joinedUsersChanged';
-import handleBreakoutRoomsList from '../../breakouts-history/server/handlers/breakoutRoomsList';
+import handleBreakoutRoomsList from 'imports/api/breakouts-history/server/handlers/breakoutRoomsList';
 
 RedisPubSub.on('BreakoutRoomStartedEvtMsg', handleBreakoutStarted);
 RedisPubSub.on('BreakoutRoomJoinURLEvtMsg', handleBreakoutJoinURL);

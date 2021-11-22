@@ -2,7 +2,7 @@ import UsersPersistentData from '/imports/api/users-persistent-data';
 import { Meteor } from 'meteor/meteor';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
-import Users from '../../users';
+import Users from '/imposrts/api/users';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 

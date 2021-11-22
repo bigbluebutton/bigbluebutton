@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import Logger from '/imports/startup/server/logger';
-import Breakouts from '../../../breakouts';
+import Breakouts from '/imports/api/breakouts';
 
 export default function updateUserBreakoutRoom(meetingId, breakoutId, users) {
   check(meetingId, String);

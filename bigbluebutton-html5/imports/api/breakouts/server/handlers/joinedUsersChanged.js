@@ -1,5 +1,5 @@
 import Breakouts from '/imports/api/breakouts';
-import updateUserBreakoutRoom from '../../../users-persistent-data/server/modifiers/updateUserBreakoutRoom';
+import updateUserBreakoutRoom from '/imports/api/users-persistent-data/server/modifiers/updateUserBreakoutRoom';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 

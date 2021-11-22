@@ -1,12 +1,11 @@
 import Breakouts from '/imports/api/breakouts';
-import { MeetingTimeRemaining } from '/imports/api/meetings';
-import Meetings from '/imports/api/meetings';
+import { MeetingTimeRemaining, Meetings } from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
-import UsersPersistentData from '../../../api/users-persistent-data';
+import UsersPersistentData from '/imports/api/users-persistent-data';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
