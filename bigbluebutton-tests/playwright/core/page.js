@@ -1,4 +1,8 @@
 require('dotenv').config();
+const yaml = require('js-yaml');
+const path = require('path');
+const fs = require('fs');
+
 const { expect } = require('@playwright/test');
 const parameters = require('./parameters');
 const helpers = require('./helpers');
@@ -10,6 +14,14 @@ class Page {
     this.browser = browser;
     this.page = page;
     this.initParameters = Object.assign({}, parameters);
+  }
+
+  async getSettingsYaml() {
+    try {
+      return yaml.load(fs.readFileSync(path.join(__dirname, '../../../bigbluebutton-html5/private/config/settings.yml'), 'utf8'));
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   async init(isModerator, shouldCloseAudioModal, initOptions) {
@@ -45,6 +57,16 @@ class Page {
     await this.waitForSelector(selector, timeout);
     await this.page.focus(selector);
     await this.page.click(selector);
+  }
+
+  async wasRemoved(selector, timeout = ELEMENT_WAIT_TIME) {
+    const locator = this.page.locator(selector);
+    await expect(locator).toBeHidden({ timeout });
+  }
+
+  async hasElement(selector, timeout = ELEMENT_WAIT_TIME) {
+    const locator = this.page.locator(selector);
+    await expect(locator).toBeVisible({ timeout });
   }
 }
 

@@ -1,6 +1,12 @@
 // Audio
 exports.audioModal = 'div[aria-label="Join audio modal"]';
 exports.closeAudioButton = 'button[aria-label="Close Join audio modal"]';
+exports.listenOnlyButton = 'button[aria-label="Listen only"]';
+exports.connectingStatus = 'div[class^="connecting--"]';
+exports.leaveAudio = 'button[data-test="leaveAudio"]';
+exports.microphoneButton = 'button[aria-label="Microphone"]';
+exports.echoYesButton = 'button[aria-label="Echo is audible"]';
+exports.isTalking = '[data-test="isTalking"]';
 
 // Chat
 exports.chatBox = '#message-input';
@@ -17,6 +23,7 @@ exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
 exports.message = 'Hello World!';
 
 // User
+exports.userAvatar = 'div[data-test="userAvatar"]';
 exports.applauseIcon = `${this.userAvatar} > div > i[class="icon-bbb-applause"]`;
 exports.awayIcon = `${this.userAvatar} > div > i[class="icon-bbb-time"]`;
 exports.setStatus = '[data-test="setstatus"]';
@@ -38,3 +45,6 @@ exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
   'nb-NO', 'nl', 'oc', 'pl-PL', 'pt', 'pt-BR', 'ro-RO', 'ru', 'sk-SK', 'sl',
   'sr', 'sv-SE', 'ta', 'te', 'th', 'tr-TR', 'uk-UA', 'vi-VN', 'zh-CN', 'zh-TW'
 ];
+
+// Whiteboard
+exports.whiteboard = 'svg[data-test="whiteboard"]';
