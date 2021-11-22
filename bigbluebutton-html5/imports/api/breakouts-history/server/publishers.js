@@ -1,7 +1,7 @@
 import BreakoutsHistory from '/imports/api/breakouts-history';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import AuthTokenValidation, { ValidationStates } from '../../auth-token-validation';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
