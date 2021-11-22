@@ -221,7 +221,7 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 
   if (browserLocale.length > 1) {
     // browser asks for specific locale
-    normalizedLocale = `${browserLocale[0]}_${browserLocale[1].toUpperCase()}`;
+    normalizedLocale = `${browserLocale[0]}_${browserLocale[1]?.toUpperCase()}`;
 
     const normDefault = usableLocales.find(locale => normalizedLocale === locale);
     if (normDefault) {
