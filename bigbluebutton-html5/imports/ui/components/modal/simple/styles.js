@@ -45,6 +45,10 @@ const Title = styled.h1`
   font-size: ${fontSizeLarge};
   text-align: center;
   align-self: flex-end;
+
+  ${({ hasLeftMargin }) => hasLeftMargin && `
+    margin-left: 35px;
+  `}
 `;
 
 const DismissButton = styled(Button)`
