@@ -697,6 +697,8 @@
     "app.connection-status.connectionStats": "Connection Stats",
     "app.connection-status.myLogs": "My Logs",
     "app.connection-status.sessionLogs": "Session Logs",
+    "app.connection-status.next": "Next page",
+    "app.connection-status.prev": "Previous page",
     "app.learning-dashboard.label": "Learning Dashboard",
     "app.learning-dashboard.description": "Open dashboard with users activities",
     "app.learning-dashboard.clickHereToOpen": "Open Learning Dashboard",

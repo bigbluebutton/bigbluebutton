@@ -110,16 +110,24 @@ const intlMessages = defineMessages({
   },
   connectionStats: {
     id: 'app.connection-status.connectionStats',
-    description: 'Label for Connection Stats tab'
+    description: 'Label for Connection Stats tab',
   },
   myLogs: {
     id: 'app.connection-status.myLogs',
-    description: 'Label for My Logs tab'
+    description: 'Label for My Logs tab',
   },
   sessionLogs: {
     id: 'app.connection-status.sessionLogs',
-    description: 'Label for Session Logs tab'
-  }
+    description: 'Label for Session Logs tab',
+  },
+  next: {
+    id: 'app.connection-status.next',
+    description: 'Label for the next page of the connection stats tab',
+  },
+  prev: {
+    id: 'app.connection-status.prev',
+    description: 'Label for the previous page of the connection stats tab',
+  },
 });
 
 const propTypes = {
@@ -151,6 +159,7 @@ class ConnectionStatusComponent extends PureComponent {
     this.help = Service.getHelp();
     this.state = {
       selectedTab: '1',
+      dataPage: '1',
       dataSaving: props.dataSaving,
       hasNetworkData: false,
       networkData: {
@@ -458,7 +467,7 @@ class ConnectionStatusComponent extends PureComponent {
 
     const { intl, closeModal } = this.props;
 
-    const { networkData, dataSaving } = this.state;
+    const { networkData, dataSaving, dataPage } = this.state;
 
     const {
       audioCurrentUploadRate,
@@ -488,50 +497,104 @@ class ConnectionStatusComponent extends PureComponent {
       }
     }
 
+    function handlePaginationClick(action) {
+      if (action === 'next') {
+        this.setState({ dataPage: '2' });
+      }
+      else {
+        this.setState({ dataPage: '1' });
+      }
+    }
+
     return (
       <Styled.NetworkDataContainer>
-        <Styled.Helper>
+        <Styled.Prev>
+          <Styled.ButtonLeft
+            role="button"
+            disabled={dataPage === '1'}
+            label={intl.formatMessage(intlMessages.prev)}
+            aria-label={`${intl.formatMessage(intlMessages.prev)} ${intl.formatMessage(intlMessages.ariaTitle)}`}
+            onClick={handlePaginationClick.bind(this, 'prev')}
+          >
+            <Styled.Chevron
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </Styled.Chevron>
+          </Styled.ButtonLeft>
+        </Styled.Prev>
+        <Styled.Helper page={dataPage}>
           <ConnectionStatusHelper closeModal={() => closeModal(dataSaving, intl)} />
         </Styled.Helper>
-        <Styled.NetworkDataContent>
+        <Styled.NetworkDataContent page={dataPage}>
           <Styled.DataColumn>
             <Styled.NetworkData>
-              <div className="dataLabel">{`${audioUploadLabel}`}</div>
+              <div>{`${audioUploadLabel}`}</div>
               <div>{`${audioCurrentUploadRate}k ↑`}</div>
             </Styled.NetworkData>
             <Styled.NetworkData>
-              <div className="dataLabel">{`${videoUploadLabel}`}</div>
+              <div>{`${videoUploadLabel}`}</div>
               <div>{`${videoCurrentUploadRate}k ↑`}</div>
             </Styled.NetworkData>
             <Styled.NetworkData>
-              <div className="dataLabel">{`${intl.formatMessage(intlMessages.jitter)}`}</div>
+              <div>{`${intl.formatMessage(intlMessages.jitter)}`}</div>
               <div>{`${jitter} ms`}</div>
             </Styled.NetworkData>
             <Styled.NetworkData>
-              <div className="dataLabel">{`${intl.formatMessage(intlMessages.usingTurn)}`}</div>
+              <div>{`${intl.formatMessage(intlMessages.usingTurn)}`}</div>
               <div>{`${isUsingTurn}`}</div>
             </Styled.NetworkData>
           </Styled.DataColumn>
 
           <Styled.DataColumn>
             <Styled.NetworkData>
-              <div className="dataLabel">{`${audioDownloadLabel}`}</div>
+              <div>{`${audioDownloadLabel}`}</div>
               <div>{`${audioCurrentDownloadRate}k ↓`}</div>
             </Styled.NetworkData>
             <Styled.NetworkData>
-              <div className="dataLabel">{`${videoDownloadLabel}`}</div>
+              <div>{`${videoDownloadLabel}`}</div>
               <div>{`${videoCurrentDownloadRate}k ↓`}</div>
             </Styled.NetworkData>
             <Styled.NetworkData>
-              <div className="dataLabel">{`${intl.formatMessage(intlMessages.lostPackets)}`}</div>
+              <div>{`${intl.formatMessage(intlMessages.lostPackets)}`}</div>
               <div>{`${packetsLost}`}</div>
             </Styled.NetworkData>
             <Styled.NetworkData invisible>
-              <div className="dataLabel">Content Hidden</div>
+              <div>Content Hidden</div>
               <div>0</div>
             </Styled.NetworkData>
           </Styled.DataColumn>
         </Styled.NetworkDataContent>
+        <Styled.Next>
+          <Styled.ButtonRight
+            role="button"
+            disabled={dataPage === '2'}
+            aria-label={`${intl.formatMessage(intlMessages.next)} ${intl.formatMessage(intlMessages.ariaTitle)}`}
+            onClick={handlePaginationClick.bind(this, 'next')}
+          >
+            <Styled.Chevron
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </Styled.Chevron>
+          </Styled.ButtonRight>
+        </Styled.Next>
       </Styled.NetworkDataContainer>
     );
   }
@@ -582,14 +645,14 @@ class ConnectionStatusComponent extends PureComponent {
 
       target.classList.add('activeConnectionStatusTab');
       this.setState({
-        selectedTab: target.dataset.window,
+        selectedTab: target.dataset.tab,
       });
     }
 
     return (
       <Styled.Navigation>
         <div
-          data-window="1"
+          data-tab="1"
           className="activeConnectionStatusTab"
           onClick={handleTabClick}
           onKeyDown={handleTabClick}
@@ -598,7 +661,7 @@ class ConnectionStatusComponent extends PureComponent {
           {intl.formatMessage(intlMessages.connectionStats)}
         </div>
         <div
-          data-window="2"
+          data-tab="2"
           onClick={handleTabClick}
           onKeyDown={handleTabClick}
           role="button"
@@ -608,7 +671,7 @@ class ConnectionStatusComponent extends PureComponent {
         {Service.isModerator()
           && (
             <div
-              data-window="3"
+              data-tab="3"
               onClick={handleTabClick}
               onKeyDown={handleTabClick}
               role="button"

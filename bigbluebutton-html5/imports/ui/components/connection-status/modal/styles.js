@@ -22,7 +22,11 @@ import {
   fontSizeSmall,
   fontSizeXL,
 } from '/imports/ui/stylesheets/styled-components/typography';
-import { hasPhoneDimentions } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import {
+  hasPhoneDimentions,
+  mediumDown,
+  hasPhoneWidth,
+} from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const Item = styled.div`
   display: flex;
@@ -169,6 +173,10 @@ const NetworkDataContainer = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
+  
+  @media ${mediumDown} {
+    justify-content: space-between;
+  }
 `;
 
 const NetworkData = styled.div`
@@ -178,7 +186,7 @@ const NetworkData = styled.div`
     visibility: hidden;
   `}
 
-  & .dataLabel {
+  & :first-child {
     font-weight: 600;
   }
 `;
@@ -269,8 +277,10 @@ const Helper = styled.div`
   justify-content: center;
   align-items: center;
 
-  @media ${hasPhoneDimentions} {
-    display: none;
+  @media ${mediumDown} {
+    ${({ page }) => page === '1'
+    ? 'display: flex;'
+    : 'display: none;'}
   }
 `;
 
@@ -279,6 +289,12 @@ const NetworkDataContent = styled.div`
   display: flex;
   justify-content: space-around;
   flex-grow: 1;
+
+  @media ${mediumDown} {
+    ${({ page }) => page === '2'
+    ? 'display: flex;'
+    : 'display: none;'}
+  }
 `;
 
 const DataColumn = styled.div`
@@ -286,14 +302,13 @@ const DataColumn = styled.div`
   flex-direction: column;
   justify-content: space-between;
 
-  @media ${hasPhoneDimentions} {
+  @media ${hasPhoneWidth} {
     flex-grow: 1;
   }
 `;
 
 const Main = styled.div`
   height: 19.5rem;
-  overflow: auto;
   display: flex;
   flex-direction: column;
 `;
@@ -302,6 +317,8 @@ const Body = styled.div`
   padding: ${jumboPaddingY} 0;
   margin: 0;
   flex-grow: 1;
+  overflow: auto;
+  position: relative;
 `;
 
 const Navigation = styled.div`
@@ -340,6 +357,81 @@ const Navigation = styled.div`
   }
 `;
 
+const Prev = styled.div`
+  display: none;
+  margin: 0 .5rem 0 .25rem;
+
+  @media ${mediumDown} {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  @media ${hasPhoneWidth} {
+    margin: 0;
+  }
+`;
+
+const Next = styled(Prev)`
+  margin: 0 .25rem 0 .5rem;
+
+  @media ${hasPhoneWidth} {
+    margin: 0;
+  }
+`;
+
+const Button = styled.button`
+  flex: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  border-radius: 50%;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: .5;
+  }
+
+  &:hover {
+    opacity: .75;
+  }
+
+  @media ${hasPhoneWidth} {
+    position: absolute;
+    bottom: 0;
+    padding: .25rem;
+  }
+`;
+
+const ButtonLeft = styled(Button)`
+  left: calc(50% - 2rem);
+
+  [dir="rtl"] & {
+    left: calc(50%);
+  }
+`;
+
+const ButtonRight = styled(Button)`
+  right: calc(50% - 2rem);
+
+  [dir="rtl"] & {
+    right: calc(50%);
+  }
+`;
+
+const Chevron = styled.svg`
+  display: flex;
+  width: 1rem;
+  height: 1rem;
+
+  [dir="rtl"] & {
+    transform: rotate(180deg);
+  }
+`;
+
 export default {
   Item,
   Left,
@@ -375,4 +467,9 @@ export default {
   Navigation,
   FullName,
   DataColumn,
+  Prev,
+  Next,
+  ButtonLeft,
+  ButtonRight,
+  Chevron,
 };
