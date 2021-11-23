@@ -512,7 +512,6 @@ class ConnectionStatusComponent extends PureComponent {
           <Styled.ButtonLeft
             role="button"
             disabled={dataPage === '1'}
-            label={intl.formatMessage(intlMessages.prev)}
             aria-label={`${intl.formatMessage(intlMessages.prev)} ${intl.formatMessage(intlMessages.ariaTitle)}`}
             onClick={handlePaginationClick.bind(this, 'prev')}
           >
