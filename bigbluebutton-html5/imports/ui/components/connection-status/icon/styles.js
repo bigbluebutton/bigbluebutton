@@ -46,6 +46,7 @@ const SignalBars = styled.div`
 
 const Bar = styled.div`
   width: 20%;
+  border-radius: .46875em;
 `;
 
 const FirstBar = styled(Bar)`

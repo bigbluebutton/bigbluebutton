@@ -65,7 +65,7 @@ const Content = styled.div`
   overflow: auto;
   color: ${colorText};
   font-weight: normal;
-  padding: ${lineHeightComputed} 0;
+  padding: 0;
 `;
 
 export default {

@@ -570,6 +570,7 @@ const calculateBitsPerSecondFromMultipleData = (currentData, previousData) => {
 };
 
 export default {
+  isModerator,
   getConnectionStatus,
   getStats,
   getHelp,
