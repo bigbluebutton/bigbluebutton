@@ -164,7 +164,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
-    && (viewScreenshare || MediaService.isUserPresenter());
+    && (viewScreenshare || currentUser?.presenter);
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
 
   if (!customStyleUrl && CUSTOM_STYLE_URL) {

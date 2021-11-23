@@ -1,7 +1,5 @@
 import { makeCall } from '/imports/ui/services/api';
 import Storage from '/imports/ui/services/storage/session';
-import Users from '/imports/api/users';
-import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const DRAW_SETTINGS = 'drawSettings';
@@ -72,14 +70,8 @@ const getTextShapeActiveId = () => {
   return drawSettings ? drawSettings.textShape.textShapeActiveId : '';
 };
 
-const isPresenter = () => {
-  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } });
-  return currentUser ? currentUser.presenter : false;
-};
-
-const filterAnnotationList = () => {
+const filterAnnotationList = (amIPresenter) => {
   const multiUserPenOnly = getFromUserSettings('bbb_multi_user_pen_only', WHITEBOARD_TOOLBAR.multiUserPenOnly);
-  const amIPresenter = isPresenter();
 
   let filteredAnnotationList = WHITEBOARD_TOOLBAR.tools;
 
@@ -120,6 +112,5 @@ export default {
   setColor,
   setTextShapeObject,
   getTextShapeActiveId,
-  isPresenter,
   filterAnnotationList,
 };
