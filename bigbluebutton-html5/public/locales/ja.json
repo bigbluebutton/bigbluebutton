@@ -769,6 +769,7 @@
     "app.meeting.endNotification.ok.label": "OK",
     "app.whiteboard.annotations.poll": "投票結果が公開されました",
     "app.whiteboard.annotations.pollResult": "投票結果",
+    "app.whiteboard.annotations.noResponses": "無回答",
     "app.whiteboard.toolbar.tools": "ツール",
     "app.whiteboard.toolbar.tools.hand": "パン",
     "app.whiteboard.toolbar.tools.pencil": "ペン",
