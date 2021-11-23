@@ -8,9 +8,13 @@ import ClientConnections from '/imports/startup/server/ClientConnections';
 
 const clearAllSessions = (sessionUserId) => {
   const serverSessions = Meteor.server.sessions;
-  Object.keys(serverSessions)
-    .filter((i) => serverSessions[i].userId === sessionUserId)
-    .forEach((i) => serverSessions[i].close());
+  const interable = serverSessions.values();
+
+  for (const session of interable) {
+    if (session.userId === sessionUserId) {
+      session.close();
+    }
+  }
 };
 
 export default function removeUser(meetingId, userId) {
@@ -19,8 +23,8 @@ export default function removeUser(meetingId, userId) {
 
   try {
     if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
-      const sessionUserId = `${meetingId}-${userId}`;
-      ClientConnections.removeClientConnection(`${meetingId}--${userId}`);
+      const sessionUserId = `${meetingId}--${userId}`;
+      ClientConnections.removeClientConnection(sessionUserId);
       clearAllSessions(sessionUserId);
 
       // we don't want to fully process the redis message in frontend
