@@ -399,6 +399,10 @@ const Button = styled.button`
     opacity: .75;
   }
 
+  &:focus {
+    outline: none;
+  }
+
   @media ${hasPhoneWidth} {
     position: absolute;
     bottom: 0;
