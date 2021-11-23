@@ -25,7 +25,6 @@ class App extends React.Component {
       sessionToken: '',
       lastUpdated: null,
     };
-    this.downloadButtonRef = React.createRef();
   }
 
   componentDidMount() {
@@ -39,14 +38,17 @@ class App extends React.Component {
     const { target: downloadButton } = e;
     const { intl } = this.props;
     const { activitiesJson } = this.state;
-    const { users, polls } = activitiesJson;
+    const {
+      name: meetingName, createdOn, users, polls,
+    } = activitiesJson;
     const link = document.createElement('a');
     const data = makeUserCSVData(users, polls, intl);
+    const filename = `LearningDashboard_${meetingName}_${new Date(createdOn).toISOString().substr(0, 10)}.csv`.replace(/ /g, '-');
 
     downloadButton.setAttribute('disabled', 'true');
     downloadButton.style.cursor = 'not-allowed';
-    link.setAttribute('href', `data:text/csv;charset=utf-8,${data}`);
-    link.setAttribute('download', 'session_data.csv');
+    link.setAttribute('href', `data:application/octet-stream,${encodeURIComponent(data)}`);
+    link.setAttribute('download', filename);
     link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
@@ -55,7 +57,7 @@ class App extends React.Component {
       downloadButton.innerHTML = intl.formatMessage({ id: 'app.learningDashboard.downloadSessionDataLabel', defaultMessage: 'Download Session Data' });
       downloadButton.removeAttribute('disabled');
       downloadButton.style.cursor = 'pointer';
-      this.downloadButtonRef.current.focus();
+      downloadButton.focus();
     }, 3000);
     document.body.removeChild(link);
   }
@@ -519,7 +521,6 @@ class App extends React.Component {
             type="button"
             className="border-2 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50"
             onClick={this.handleSaveSessionData.bind(this)}
-            ref={this.downloadButtonRef}
           >
             <FormattedMessage
               id="app.learningDashboard.downloadSessionDataLabel"

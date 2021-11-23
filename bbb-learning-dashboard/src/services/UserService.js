@@ -116,48 +116,56 @@ export function makeUserCSVData(users, polls, intl) {
     .join(',');
 
   for (let i = 0; i < userValues.length; i += 1) {
-    const userFields = [];
-    const webcam = getSumOfTime(userValues[i].webcams);
-    const duration = userValues[i].leftOn > 0
-      ? userValues[i].leftOn - userValues[i].registeredOn
-      : (new Date()).getTime() - userValues[i].registeredOn;
+    const user = userValues[i];
+    const webcam = getSumOfTime(user.webcams);
+    const duration = user.leftOn > 0
+      ? user.leftOn - user.registeredOn
+      : (new Date()).getTime() - user.registeredOn;
 
-    userFields.push(userValues[i].name);
-    userFields.push(userValues[i].isModerator.toString().toUpperCase());
-    userFields.push(intl.formatNumber(
-      getActivityScore(userValues[i], userValues, Object.values(polls || {}).length),
-      {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 1,
-      },
-    ));
-    userFields.push(userValues[i].talk.totalTime > 0 ? tsToHHmmss(userValues[i].talk.totalTime) : '-');
-    userFields.push(webcam > 0 ? tsToHHmmss(webcam) : '-');
-    userFields.push(userValues[i].totalOfMessages);
-    userFields.push(filterUserEmojis(userValues[i], 'raiseHand').length);
-    userFields.push(Object.keys(userValues[i].answers).length);
-    userFields.push(filterUserEmojis(userValues[i], skipEmojis).length);
-    userFields.push(`"${intl.formatDate(userValues[i].registeredOn, {
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    })}"`);
-    userFields.push(`"${intl.formatDate(userValues[i].leftOn, {
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    })}"`);
-    userFields.push(tsToHHmmss(duration));
+    const userData = {
+      name: user.name,
+      moderator: user.isModerator.toString().toUpperCase(),
+      activityScore: intl.formatNumber(
+        getActivityScore(user, userValues, Object.values(polls || {}).length),
+        {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 1,
+        },
+      ),
+      talk: user.talk.totalTime > 0 ? tsToHHmmss(user.talk.totalTime) : '-',
+      webcam: webcam > 0 ? tsToHHmmss(webcam) : '-',
+      messages: user.totalOfMessages,
+      raiseHand: filterUserEmojis(user, 'raiseHand').length,
+      answers: Object.keys(user.answers).length,
+      emojis: filterUserEmojis(user, skipEmojis).length,
+      registeredOn: intl.formatDate(user.registeredOn, {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      }),
+      leftOn: intl.formatDate(user.leftOn, {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      }),
+      duration: tsToHHmmss(duration),
+    };
+
     for (let j = 0; j < pollValues.length; j += 1) {
-      userFields.push(`"${userValues[i].answers[pollValues[j].pollId] || '-'}"`);
+      userData[`Poll_${j}`] = user.answers[pollValues[j].pollId] || '-';
     }
-    userRecords[userValues[i].intId] = userFields.join(',');
+
+    const userFields = Object
+      .values(userData)
+      .map((data) => `"${data}"`);
+
+    userRecords[user.intId] = userFields.join(',');
   }
 
   const tableHeaderFieldsTranslated = tableHeaderFields
@@ -167,26 +175,28 @@ export function makeUserCSVData(users, polls, intl) {
     }));
 
   let header = tableHeaderFieldsTranslated.join(',');
-  let anonymousRecord = intl.formatMessage({
+  let anonymousRecord = `"${intl.formatMessage({
     id: 'app.learningDashboard.pollsTable.anonymousRowName',
     defaultMessage: 'Anonymous',
-  });
+  })}"`;
 
   // Skip the fields for the anonymous record
   for (let k = 0; k < header.split(',').length - 1; k += 1) {
-    // empty fields
+    // Empty fields
     anonymousRecord += ',""';
   }
 
-  // Adds the anonymous answers
   for (let i = 0; i < pollValues.length; i += 1) {
+    // Add the poll question headers
     header += `,${pollValues[i].question || `Poll ${i + 1}`}`;
-    anonymousRecord += `,"${pollValues[i].anonymousAnswers.join('\n')}"`;
+
+    // Add the anonymous answers
+    anonymousRecord += `,"${pollValues[i].anonymousAnswers.join('\r\n')}"`;
   }
   userRecords.Anonymous = anonymousRecord;
 
   return [
     header,
-    Object.values(userRecords).join('\n'),
-  ].join('\n');
+    Object.values(userRecords).join('\r\n'),
+  ].join('\r\n');
 }
