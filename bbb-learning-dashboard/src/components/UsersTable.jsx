@@ -101,10 +101,10 @@ class UsersTable extends React.Component {
     });
 
     return (
-      <table className="w-full whitespace-nowrap">
+      <table className="w-full">
         <thead>
           <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-100">
-            <th className="px-4 py-3 col-text-left">
+            <th className="px-3.5 2xl:px-4 py-3 col-text-left">
               <FormattedMessage id="app.learningDashboard.user" defaultMessage="User" />
               {
                 tab === 'overview'
@@ -122,26 +122,26 @@ class UsersTable extends React.Component {
                   : null
               }
             </th>
-            <th className="px-4 py-3 text-center">
+            <th className="px-3.5 2xl:px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.usersTable.colOnline" defaultMessage="Online time" />
             </th>
-            <th className="px-4 py-3 text-center">
+            <th className="px-3.5 2xl:px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.usersTable.colTalk" defaultMessage="Talk time" />
             </th>
-            <th className="px-4 py-3 text-center">
+            <th className="px-3.5 2xl:px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.usersTable.colWebcam" defaultMessage="Webcam Time" />
             </th>
-            <th className="px-4 py-3 text-center">
+            <th className="px-3.5 2xl:px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.usersTable.colMessages" defaultMessage="Messages" />
             </th>
-            <th className="px-4 py-3 col-text-left">
+            <th className="px-3.5 2xl:px-4 py-3 col-text-left">
               <FormattedMessage id="app.learningDashboard.usersTable.colEmojis" defaultMessage="Emojis" />
             </th>
-            <th className="px-4 py-3 text-center">
+            <th className="px-3.5 2xl:px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.usersTable.colRaiseHands" defaultMessage="Raise Hand" />
             </th>
             <th
-              className={`px-4 py-3 text-center ${tab === 'overview_activityscore' ? 'cursor-pointer' : ''}`}
+              className={`px-3.5 2xl:px-4 py-3 text-center ${tab === 'overview_activityscore' ? 'cursor-pointer' : ''}`}
               onClick={() => { if (tab === 'overview_activityscore') this.toggleActivityScoreOrder(); }}
             >
               <FormattedMessage id="app.learningDashboard.usersTable.colActivityScore" defaultMessage="Activity Score" />
@@ -166,12 +166,12 @@ class UsersTable extends React.Component {
                   : null
               }
             </th>
-            <th className="px-4 py-3 text-center">
+            <th className="px-3.5 2xl:px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.usersTable.colStatus" defaultMessage="Status" />
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y">
+        <tbody className="bg-white divide-y whitespace-nowrap">
           { typeof allUsers === 'object' && Object.values(allUsers || {}).length > 0 ? (
             Object.values(allUsers || {})
               .sort((a, b) => {
@@ -189,7 +189,7 @@ class UsersTable extends React.Component {
               })
               .map((user) => (
                 <tr key={user} className="text-gray-700">
-                  <td className="px-4 py-3 col-text-left text-sm">
+                  <td className="px-3.5 2xl:px-4 py-3 col-text-left text-sm">
                     <div className="inline-block relative w-8 h-8 rounded-full">
                       {/* <img className="object-cover w-full h-full rounded-full" */}
                       {/*     src="" */}
@@ -262,7 +262,7 @@ class UsersTable extends React.Component {
                         }
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-center items-center">
+                  <td className="px-3.5 2xl:px-4 py-3 text-sm text-center items-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-4 w-4 inline"
@@ -296,7 +296,7 @@ class UsersTable extends React.Component {
                       />
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-center">
+                  <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
                     { user.talk.totalTime > 0
                       ? (
                         <span className="text-center">
@@ -319,7 +319,7 @@ class UsersTable extends React.Component {
                         </span>
                       ) : null }
                   </td>
-                  <td className="px-4 py-3 text-sm text-center">
+                  <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
                     { getSumOfTime(user.webcams) > 0
                       ? (
                         <span className="text-center">
@@ -342,7 +342,7 @@ class UsersTable extends React.Component {
                         </span>
                       ) : null }
                   </td>
-                  <td className="px-4 py-3 text-sm text-center">
+                  <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
                     { user.totalOfMessages > 0
                       ? (
                         <span>
@@ -365,7 +365,7 @@ class UsersTable extends React.Component {
                         </span>
                       ) : null }
                   </td>
-                  <td className="px-4 py-3 text-sm col-text-left">
+                  <td className="px-3.5 2xl:px-4 py-3 text-sm col-text-left">
                     {
                       Object.keys(usersEmojisSummary[user.intId] || {}).map((emoji) => (
                         <div className="text-xs whitespace-nowrap">
@@ -381,7 +381,7 @@ class UsersTable extends React.Component {
                       ))
                     }
                   </td>
-                  <td className="px-4 py-3 text-sm text-center">
+                  <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
                     { user.emojis.filter((emoji) => emoji.name === 'raiseHand').length > 0
                       ? (
                         <span>
@@ -406,7 +406,7 @@ class UsersTable extends React.Component {
                   </td>
                   {
                       !user.isModerator ? (
-                        <td className="px-4 py-3 text-sm text-center items">
+                        <td className="px-3.5 2xl:px-4 py-3 text-sm text-center items">
                           <svg viewBox="0 0 82 12" width="82" height="12" className="flex-none m-auto inline">
                             <rect width="12" height="12" fill={usersActivityScore[user.intId] > 0 ? '#A7F3D0' : '#e4e4e7'} />
                             <rect width="12" height="12" x="14" fill={usersActivityScore[user.intId] > 2 ? '#6EE7B7' : '#e4e4e7'} />
@@ -422,7 +422,7 @@ class UsersTable extends React.Component {
                         </td>
                       ) : <td />
                     }
-                  <td className="px-4 py-3 text-xs text-center">
+                  <td className="px-3.5 2xl:px-4 py-3 text-xs text-center">
                     {
                                       user.leftOn > 0
                                         ? (
@@ -441,7 +441,7 @@ class UsersTable extends React.Component {
               ))
           ) : (
             <tr className="text-gray-700">
-              <td colSpan="8" className="px-4 py-3 text-sm text-center">
+              <td colSpan="8" className="px-3.5 2xl:px-4 py-3 text-sm text-center">
                 <FormattedMessage id="app.learningDashboard.usersTable.noUsers" defaultMessage="No users" />
               </td>
             </tr>
