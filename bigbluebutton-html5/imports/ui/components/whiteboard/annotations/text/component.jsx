@@ -179,7 +179,7 @@ export default class TextDrawComponent extends Component {
     const styles = TextDrawComponent.getPresenterStyles(results);
 
     return (
-      <g>
+      <g className="selectable" id={annotation.id}>
         <foreignObject
           x={results.x}
           y={results.y}

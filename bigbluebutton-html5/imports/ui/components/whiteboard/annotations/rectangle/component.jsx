@@ -59,7 +59,8 @@ export default class RectangleDrawComponent extends Component {
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
         data-test="drawnRectangle"
-        className="rect"
+        className="selectable"
+        id={annotation.id}
       />
     );
   }
