@@ -24,7 +24,7 @@ import Icon from '/imports/ui/components/icon/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
-import Logger from '/imports/startup/client/logger';
+import PresentationService from '/imports/ui/components/presentation/service';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -657,31 +657,21 @@ class Presentation extends PureComponent {
           )}
         </svg>
         <Moveable
+          rootContainer={document.body}
+          edge={false}
           ref={this.moveableRef}
           target={this.moveableTargets}
-          origin
-          edge={false}
-          draggable
-          onDragStart={(x) => {
-            Logger.info(`DragEvent${x}`);
-          }}
         />
         <Selecto
           ref={this.selectoRef}
           selectByClick
-          selectableTargets={['.rect']}
+          selectableTargets={['.selectable']}
           onSelect={
             (e) => {
-              Logger.info(`OnSelect: ${e.selected}`);
               this.moveableTargets = e.selected;
+              PresentationService.selectAnnotations(e.selected.map((target) => target.id));
             }
           }
-          onSelectEnd={
-           (e) => { Logger.info(`SelectEnd: ${e}`); }
-         }
-          onDragStart={
-           (e) => { Logger.info(`DragStart: ${e}`); }
-         }
         />
       </div>
     );
