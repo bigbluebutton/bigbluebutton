@@ -106,7 +106,7 @@ class Settings extends Component {
     super(props);
 
     const {
-      dataSaving, application,
+      dataSaving, application, selectedTab
     } = props;
 
     this.state = {
@@ -118,7 +118,9 @@ class Settings extends Component {
         dataSaving: _.clone(dataSaving),
         application: _.clone(application),
       },
-      selectedTab: 0,
+      selectedTab: _.isFinite(selectedTab) && selectedTab >=0 && selectedTab <= 2
+        ? selectedTab
+        : 0,
     };
 
     this.updateSettings = props.updateSettings;

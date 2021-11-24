@@ -69,7 +69,7 @@ const Footer = styled.div`
   display:flex;
 `;
 
-const ConfirmButtom = styled(Button)`
+const ConfirmButton = styled(Button)`
   padding-right: ${jumboPaddingY};
   padding-left: ${jumboPaddingY};
   margin: 0 ${smPaddingX} 0 0;
@@ -79,7 +79,7 @@ const ConfirmButtom = styled(Button)`
   }
 `;
 
-const DismissButtom = styled(ConfirmButtom)`
+const DismissButton = styled(ConfirmButton)`
   box-shadow: 0 0 0 1px ${colorGray};
 `;
 
@@ -91,6 +91,6 @@ export default {
   Description,
   BanUserCheckBox,
   Footer,
-  ConfirmButtom,
-  DismissButtom,
+  ConfirmButton,
+  DismissButton,
 };

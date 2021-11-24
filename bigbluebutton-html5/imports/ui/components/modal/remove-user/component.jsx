@@ -69,7 +69,7 @@ class RemoveUserModal extends Component {
           </Styled.Description>
 
           <Styled.Footer>
-            <Styled.ConfirmButtom
+            <Styled.ConfirmButton
               color="primary"
               label={intl.formatMessage(messages.yesLabel)}
               onClick={() => {
