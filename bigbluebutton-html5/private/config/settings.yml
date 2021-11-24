@@ -670,6 +670,8 @@ public:
           value: rectangle
         - icon: pen_tool
           value: pencil
+        - icon: selection
+          value: selection
         - icon: hand
           value: hand
       presenterTools:
@@ -679,6 +681,7 @@ public:
         - triangle
         - rectangle
         - pencil
+        - selection
         - hand
       multiUserTools:
         - text
@@ -687,6 +690,7 @@ public:
         - triangle
         - rectangle
         - pencil
+        - selection
   clientLog:
     server:
       enabled: false

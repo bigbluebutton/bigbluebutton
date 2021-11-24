@@ -3,6 +3,8 @@ import Storage from '/imports/ui/services/storage/session';
 import Users from '/imports/ui/local-collections/users-collection/users';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import PresentationOverlayService from '/imports/ui/components/presentation/service';
+import { Annotations } from '../service';
 
 const DRAW_SETTINGS = 'drawSettings';
 const PALM_REJECTION_MODE = 'palmRejectionMode';
@@ -16,8 +18,15 @@ const makeSetter = key => (value) => {
   }
 };
 
-const deleteAnnotations = (annotations, whiteboardId) => {
-  makeCall('deleteAnnotations', annotations, whiteboardId);
+const deleteAnnotations = (whiteboardId) => {
+  const selectedAnnotationIds = PresentationOverlayService.getSelectedAnnotations();
+  const selector = { id: { $in: selectedAnnotationIds } };
+  const selectedAnnotations = Annotations.find(selector, {
+    fields: {
+      _id: 0, meetingId: 0, whiteboardId: 0, 'annotationInfo.commands': 0, version: 0
+    },
+  }).fetch();
+  makeCall('deleteWhiteboardAnnotations', selectedAnnotations, whiteboardId);
 };
 
 const undoAnnotation = (whiteboardId) => {
