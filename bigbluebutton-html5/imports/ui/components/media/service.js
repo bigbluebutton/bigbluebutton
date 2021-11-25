@@ -1,8 +1,6 @@
 import Presentations from '/imports/api/presentations';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
-import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
 import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { ACTIONS } from '../layout/enums';
@@ -20,9 +18,6 @@ const getPresentationInfo = () => {
     current_presentation: (currentPresentation != null),
   };
 };
-
-const isUserPresenter = () => Users.findOne({ userId: Auth.userID },
-  { fields: { presenter: 1 } }).presenter;
 
 function shouldShowWhiteboard() {
   return true;
@@ -91,7 +86,6 @@ export default {
   shouldShowScreenshare,
   shouldShowExternalVideo,
   shouldShowOverlay,
-  isUserPresenter,
   isVideoBroadcasting,
   toggleSwapLayout,
   shouldEnableSwapLayout,

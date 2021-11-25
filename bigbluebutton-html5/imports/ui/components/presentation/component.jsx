@@ -694,13 +694,14 @@ class Presentation extends PureComponent {
   }
 
   renderWhiteboardToolbar(svgDimensions) {
-    const { currentSlide } = this.props;
+    const { currentSlide, userIsPresenter } = this.props;
     if (!this.isPresentationAccessible()) return null;
 
     return (
       <WhiteboardToolbarContainer
         whiteboardId={currentSlide.id}
         height={svgDimensions.height}
+        isPresenter={userIsPresenter}
       />
     );
   }

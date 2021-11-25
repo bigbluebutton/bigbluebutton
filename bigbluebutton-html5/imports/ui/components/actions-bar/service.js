@@ -24,26 +24,15 @@ const getLastBreakouts = () => {
   return [];
 };
 
-const currentBreakoutUsers = user => !Breakouts.findOne({
+const currentBreakoutUsers = (user) => !Breakouts.findOne({
   'joinedUsers.userId': new RegExp(`^${user.userId}`),
 });
 
-const filterBreakoutUsers = filter => users => users.filter(filter);
+const filterBreakoutUsers = (filter) => (users) => users.filter(filter);
 
 const getUsersNotAssigned = filterBreakoutUsers(currentBreakoutUsers);
 
 const takePresenterRole = () => makeCall('assignPresenter', Auth.userID);
-
-const amIPresenter = () => {
-  const currentUser = Users.findOne({ userId: Auth.userID },
-    { fields: { presenter: 1 } });
-
-  if (!currentUser) {
-    return false;
-  }
-
-  return currentUser.presenter;
-};
 
 const amIModerator = () => {
   const currentUser = Users.findOne({ userId: Auth.userID },
@@ -56,11 +45,9 @@ const amIModerator = () => {
   return currentUser.role === ROLE_MODERATOR;
 };
 
-const isMe = intId => intId === Auth.userID;
-
+const isMe = (intId) => intId === Auth.userID;
 
 export default {
-  amIPresenter,
   amIModerator,
   isMe,
   currentUser: () => Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID },

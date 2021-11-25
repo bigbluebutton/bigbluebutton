@@ -89,9 +89,10 @@ class ScreenshareComponent extends React.Component {
       layoutContextDispatch,
       intl,
       hidePresentation,
+      isPresenter,
     } = this.props;
 
-    screenshareHasStarted();
+    screenshareHasStarted(isPresenter);
     // Autoplay failure handling
     window.addEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     // Stream health state tracker to propagate UI changes on reconnections
