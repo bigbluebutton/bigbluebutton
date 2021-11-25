@@ -200,6 +200,89 @@ def svg_render_shape_pencil(g, slide, shape)
   end
 end
 
+def svg_render_shape_marker(g, slide, shape)
+  g['shape'] = "marker#{shape[:shape_unique_id]}"
+
+  doc = g.document
+  if shape[:data_points].length < 2
+    BigBlueButton.logger.warn("Marker #{shape[:shape_unique_id]} doesn't have enough points")
+    return
+  end
+
+  line_cap = ""
+  if shape[:data_points].length == 2
+    BigBlueButton.logger.info("Marker #{shape[:shape_unique_id]}: Drawing single point")
+    path = []
+    data_points = shape[:data_points].each
+    x = shape_scale_width(slide, data_points.next)
+    y = shape_scale_height(slide, data_points.next)
+    path.push("M#{x} #{y}")
+    path.push("L#{x} #{y}")
+    line_cap = "square"
+  else
+    path = []
+    data_points = shape[:data_points].each
+
+    if !shape[:commands].nil?
+      BigBlueButton.logger.info("Marker #{shape[:shape_unique_id]}: Drawing from command string (#{shape[:commands].length} commands)")
+      shape[:commands].each do |command|
+        case command
+        when 1 # MOVE_TO
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path.push("M#{x} #{y}")
+        when 2 # LINE_TO
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path.push("L#{x} #{y}")
+        when 3 # Q_CURVE_TO
+          cx1 = shape_scale_width(slide, data_points.next)
+          cy1 = shape_scale_height(slide, data_points.next)
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path.push("Q#{cx1} #{cy2},#{x} #{y}")
+        when 4 # C_CURVE_TO
+          cx1 = shape_scale_width(slide, data_points.next)
+          cy1 = shape_scale_height(slide, data_points.next)
+          cx2 = shape_scale_width(slide, data_points.next)
+          cy2 = shape_scale_height(slide, data_points.next)
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path.push("C#{cx1} #{cy1},#{cx2} #{cy2},#{x} #{y}")
+        else
+          raise "Unknown marker command: #{command}"
+        end
+      end
+    else
+      BigBlueButton.logger.info("Marker #{shape[:shape_unique_id]}: Drawing simple line (#{shape[:data_points].length / 2} points)")
+      x = shape_scale_width(slide, data_points.next)
+      y = shape_scale_height(slide, data_points.next)
+      path << "M#{x} #{y}"
+      begin
+        while true
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path << "L#{x} #{y}"
+        end
+      rescue StopIteration
+      end
+    end
+    line_cap == "butt"
+  end
+    path = path.join('')
+    bg_path = doc.create_element('path', d: path, style: "stroke:##{shape[:color]};stroke-linecap:#{line_cap};stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};fill:none;shape-rendering:crispEdges")
+    mask = doc.create_element('mask', id: g['id']+'-mask')
+    mask_path = doc.create_element('path', d: path, style: "stroke:##{shape[:color] == "ffffff" ? "ffffff" : "a0a0a0"};stroke-linecap:#{line_cap};stroke-linejoin:round;stroke-width:#{shape_thickness(slide,shape)};fill:none;shape-rendering:crispEdges")
+    mask << mask_path
+    use = doc.create_element('use',
+            'mask': "url(##{g['id']+'-mask'})",
+            'xlink:href': "##{g['id'].sub(/-.*/,'')}")
+    g << bg_path
+    g << mask
+    g << use
+    g['style'] = ""
+end
+
 def svg_render_shape_line(g, slide, shape)
   g['shape'] = "line#{shape[:shape_unique_id]}"
   g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
@@ -219,9 +302,41 @@ def svg_render_shape_line(g, slide, shape)
   g << line
 end
 
+def svg_render_shape_eraser(g, slide, shape)
+  g['shape'] = "eraser#{shape[:shape_unique_id]}"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  if $version_atleast_2_0_0
+    g['style'] += ";stroke-linejoin:miter"
+  else
+    g['style'] += ";stroke-linejoin:round"
+  end
+
+  doc = g.document
+  data_points = shape[:data_points]
+  x1 = shape_scale_width(slide, data_points[0])
+  y1 = shape_scale_height(slide, data_points[1])
+  x2 = shape_scale_width(slide, data_points[2])
+  y2 = shape_scale_height(slide, data_points[3])
+
+  width = (x2 - x1).abs
+  height = (y2 - y1).abs
+
+  clip_path = doc.create_element('clipPath', id: g['id']+'-clip')
+  path = doc.create_element('path',
+          d: "M#{x1} #{y1}L#{x2} #{y1}L#{x2} #{y2}L#{x1} #{y2}Z")
+  clip_path << path
+
+  use = doc.create_element('use',
+          'clip-path': "url(##{g['id']+'-clip'})",
+          'xlink:href': "##{g['id'].sub(/-.*/,'')}")
+
+  g << clip_path
+  g << use
+end
+
 def svg_render_shape_rect(g, slide, shape)
   g['shape'] = "rect#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:#{shape[:fill] ? '#'+shape[:color] : 'none'}"
   if $version_atleast_2_0_0
     g['style'] += ";stroke-linejoin:miter"
   else
@@ -256,7 +371,7 @@ end
 
 def svg_render_shape_triangle(g, slide, shape)
   g['shape'] = "triangle#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:#{shape[:fill] ? '#'+shape[:color] : 'none'}"
   if $version_atleast_2_0_0
     g['style'] += ";stroke-linejoin:miter;stroke-miterlimit:8"
   else
@@ -279,7 +394,7 @@ end
 
 def svg_render_shape_ellipse(g, slide, shape)
   g['shape'] = "ellipse#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:#{shape[:fill] ? '#'+shape[:color] : 'none'}"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -407,6 +522,8 @@ def svg_render_shape(canvas, slide, shape, image_id)
   case shape[:type]
   when 'pencil'
     svg_render_shape_pencil(g, slide, shape)
+  when 'marker'
+    svg_render_shape_marker(g, slide, shape)
   when 'line'
     svg_render_shape_line(g, slide, shape)
   when 'rectangle'
@@ -417,6 +534,8 @@ def svg_render_shape(canvas, slide, shape, image_id)
     svg_render_shape_ellipse(g, slide, shape)
   when 'text'
     svg_render_shape_text(g, slide, shape)
+  when 'eraser'
+    svg_render_shape_eraser(g, slide, shape)
   when 'poll_result'
     svg_render_shape_poll(g, slide, shape)
   else
@@ -581,6 +700,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   # Common properties
   shape[:in] = timestamp
   shape[:type] = event.at_xpath('type').text
+  shape[:position] = event.at_xpath('position').text.to_i
   shape[:data_points] = event.at_xpath('dataPoints').text.split(',').map { |p| p.to_f }
   # These can be missing in old BBB versions, there are fallbacks
   user_id = event.at_xpath('userId')
@@ -595,7 +715,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   # Some shape-specific properties
   if shape[:type] == 'pencil' or shape[:type] == 'rectangle' or
       shape[:type] == 'ellipse' or shape[:type] == 'triangle' or
-      shape[:type] == 'line'
+      shape[:type] == 'line' or shape[:type] == 'marker'
     shape[:color] = color_to_hex(event.at_xpath('color').text)
     thickness = event.at_xpath('thickness')
     unless thickness
@@ -607,6 +727,11 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
     else
       shape[:thickness] = thickness.text.to_i
     end
+  end
+  if  shape[:type] == 'rectangle' or
+      shape[:type] == 'ellipse' or shape[:type] == 'triangle'
+    fill = event.at_xpath('fill').text
+    shape[:fill] = fill =~ /true/ ? true : false
   end
   if shape[:type] == 'rectangle'
     square = event.at_xpath('square')
@@ -620,7 +745,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
       shape[:circle] = (circle.text == 'true')
     end
   end
-  if shape[:type] == 'pencil'
+  if shape[:type] == 'pencil' or shape[:type] == 'marker'
     commands = event.at_xpath('commands')
     if !commands.nil?
       shape[:commands] = commands.text.split(',').map { |c| c.to_i }
@@ -719,7 +844,7 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
     # all the shapes with that id.
     BigBlueButton.logger.info("Undo: removing shape with ID #{shape_id} at #{timestamp}")
     shapes.each do |shape|
-      if shape[:id] == shape_id
+      if shape[:id].sub(/_[\.\d]+$/,"") == shape_id
         if shape[:undo].nil? or shape[:undo] > timestamp
           shape[:undo] = timestamp
         end
@@ -745,6 +870,159 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
       BigBlueButton.logger.info("Undo: no applicable shapes found")
     end
   end
+end
+
+def events_parse_remove(shapes, event, current_presentation, current_slide, timestamp)
+  # Figure out what presentation+slide this remove is for
+  presentation = event.at_xpath('presentation').text
+  slide = event.at_xpath('pageNumber').text.to_i
+
+  # Remove messages have the shape id, making this a lot easier
+  shape_id = event.at_xpath('shapeId')
+  if !shape_id.nil?
+    shape_id = shape_id.text
+  end
+
+  # Set up the shapes data structures if needed
+  shapes[presentation] = {} if shapes[presentation].nil?
+  shapes[presentation][slide] = [] if shapes[presentation][slide].nil?
+
+  # We only need to deal with shapes for this slide
+  shapes = shapes[presentation][slide]
+
+  if !shape_id.nil?
+    # If we have the shape id, we simply have to update the undo time on
+    # all the shapes with that id.
+    BigBlueButton.logger.info("Remove: removing selected shape with ID #{shape_id} at #{timestamp}")
+    shapes.each do |shape|
+      if shape[:id].sub(/_[\.\d]+$/,"") == shape_id
+        if shape[:undo].nil? or shape[:undo] > timestamp
+          shape[:undo] = timestamp
+        end
+      end
+    end
+  end
+end
+
+def copyshape(s)
+  ns = s.dup
+  ns[:data_points] = s[:data_points].dup
+  if s[:successor]
+    ns[:successor] = s[:successor].dup
+  end
+  ns
+end
+
+def events_parse_reorder(shapes, event, current_presentation, current_slide, timestamp)
+  # Figure out what presentation+slide this remove is for
+  presentation = event.at_xpath('presentation').text
+  slide = event.at_xpath('pageNumber').text.to_i
+
+  # Set up the shapes data structures if needed
+  shapes[presentation] = {} if shapes[presentation].nil?
+  shapes[presentation][slide] = [] if shapes[presentation][slide].nil?
+
+  # We only need to deal with shapes for this slide
+  shapes = shapes[presentation][slide]
+
+  order = event.at_xpath('order')
+  order = eval(order.text) unless order.nil?
+
+  unless order.nil?
+    min_changed_position = order.values.max
+    shapes.each do |shape|
+      next if !shape[:undo].nil? && shape[:undo] <= timestamp
+      new_position = order[shape[:id].sub(/_[\.\d]+$/,"").to_sym]
+      if shape[:position] != new_position
+        min_changed_position = [min_changed_position, shape[:position], new_position].min
+      end
+    end
+
+    new_shapes = shapes.map{|s| copyshape(s)}
+    shapes.each do |shape|
+      next if shape[:position] < min_changed_position
+
+      if shape[:undo].nil? or shape[:undo] > timestamp
+        shape[:undo] = timestamp
+      end
+
+      if shape[:successor].nil?
+        shape[:successor] = []
+      end
+      shape[:successor] << "#{shape[:id].sub(/_[\.\d]+$/,"")}_#{timestamp}"
+    end
+
+    new_shapes.delete_if{|shape| (!shape[:undo].nil? && shape[:undo] <= timestamp) || shape[:position] < min_changed_position}
+    new_shapes.each do |shape|
+      shape[:id] = "#{shape[:id].sub(/_[\.\d]+$/,"")}_#{timestamp}"
+      shape[:position] = order[shape[:id].sub(/_[\.\d]+$/,"").to_sym]
+      shape[:in] = timestamp
+    end
+    new_shapes.sort!{|a, b| a[:position] <=> b[:position]}
+    shapes.concat(new_shapes)
+  end
+end
+
+def events_parse_move(shapes, event, current_presentation, current_slide, timestamp)
+  # Figure out what presentation+slide this remove is for
+  presentation = event.at_xpath('presentation').text
+  slide = event.at_xpath('pageNumber').text.to_i
+
+  # Move messages have the shape id, making this a lot easier
+  shape_id = event.at_xpath('shapeId')
+  if !shape_id.nil?
+    shape_id = shape_id.text
+  end
+
+  # Set up the shapes data structures if needed
+  shapes[presentation] = {} if shapes[presentation].nil?
+  shapes[presentation][slide] = [] if shapes[presentation][slide].nil?
+
+  # We only need to deal with shapes for this slide
+  shapes = shapes[presentation][slide]
+
+  xoffset = event.at_xpath('xOffset')
+  xoffset = xoffset.text.to_f unless xoffset.nil?
+  yoffset = event.at_xpath('yOffset')
+  yoffset = yoffset.text.to_f unless yoffset.nil?
+
+    shapes_alive = shapes.find_all{|shape| shape[:undo].nil? or shape[:undo] > timestamp}
+    shapes_alive_moved = shapes_alive.select{|shape| shape[:id].sub(/_[\.\d]+$/,"") == shape_id}
+    if shapes_alive_moved.size != 1
+      return
+    end
+    moved_position = shapes_alive_moved[0][:position]
+  
+    new_shapes = shapes.map{|s| copyshape(s)}
+
+    shapes.each do |shape|
+      next if shape[:position] < moved_position
+      if shape[:undo].nil? or shape[:undo] > timestamp
+        shape[:undo] = timestamp
+      end
+
+      if shape[:successor].nil?
+        shape[:successor] = []
+      end
+      shape[:successor] << "#{shape[:id].sub(/_[\.\d]+$/,"")}_#{timestamp}"
+    end
+
+    new_shapes.delete_if{|shape| (!shape[:undo].nil? && shape[:undo] <= timestamp) || shape[:position] < moved_position}
+    new_shapes.each do |shape|
+      shape_id_ori = shape[:id].sub(/_[\.\d]+$/,"")
+      shape[:id] = "#{shape_id_ori}_#{timestamp}"
+      shape[:in] = timestamp
+      if shape_id_ori == shape_id
+        if shape[:type] == "text"
+          shape[:data_points][0] += xoffset
+          shape[:data_points][1] += yoffset
+        else
+          shape[:data_points] = shape[:data_points].map.with_index{|d, i| i%2 == 0 ? d + xoffset : d + yoffset}
+        end
+      end
+    end
+    new_shapes.sort!{|a, b| a[:position] <=> b[:position]}
+    shapes.concat(new_shapes)
 end
 
 def events_parse_clear(shapes, event, current_presentation, current_slide, timestamp)
@@ -919,6 +1197,15 @@ def processPresentation(package_dir)
     elsif eventname == 'UndoShapeEvent' or eventname == 'UndoAnnotationEvent'
       events_parse_undo(shapes, event, current_presentation, current_slide, timestamp)
 
+    elsif eventname == 'RemoveAnnotationEvent'
+      events_parse_remove(shapes, event, current_presentation, current_slide, timestamp)
+
+    elsif eventname == 'MoveAnnotationEvent'
+      events_parse_move(shapes, event, current_presentation, current_slide, timestamp)
+
+    elsif eventname == 'ReorderAnnotationEvent'
+      events_parse_reorder(shapes, event, current_presentation, current_slide, timestamp)
+      
     elsif eventname == 'ClearPageEvent' or eventname == 'ClearWhiteboardEvent'
       events_parse_clear(shapes, event, current_presentation, current_slide, timestamp)
 
