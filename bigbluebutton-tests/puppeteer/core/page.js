@@ -310,7 +310,7 @@ class Page {
   }
 
   async bringToFront() {
-    await this.page.bringToFront();
+    await this.bringToFront();
   }
 
   async getLastTargetPage() {
