@@ -1,3 +1,7 @@
+// Common
+exports.actions = 'button[aria-label="Actions"]';
+exports.pollMenuButton = 'div[data-test="pollMenuButton"]';
+
 // Audio
 exports.audioModal = 'div[aria-label="Join audio modal"]';
 exports.closeAudioButton = 'button[aria-label="Close Join audio modal"]';
@@ -10,7 +14,9 @@ exports.isTalking = '[data-test="isTalking"]';
 
 // Chat
 exports.chatBox = '#message-input';
+exports.chatButton = 'div[data-test="chatButton"]';
 exports.sendButton = 'button[data-test="sendMessageButton"]';
+exports.chatPollMessageText = 'p[data-test="chatPollMessageText"]';
 exports.chatMessages = 'div[data-test="chatMessages"]';
 exports.chatOptions = 'button[data-test="chatOptionsMenu"]';
 exports.chatClear = 'li[data-test="chatClear"]';
@@ -21,6 +27,38 @@ exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
 
 // Messages
 exports.message = 'Hello World!';
+
+// Polling
+exports.polling = 'li[data-test="polling"]';
+exports.startPoll = 'button[data-test="startPoll"]';
+exports.restartPoll = 'button[data-test="restartPoll"]';
+exports.hidePollDesc = 'button[data-test="hidePollDesc"]';
+exports.pollingContainer = 'div[data-test="pollingContainer"]';
+exports.pollLetterAlteratives = 'button[aria-label="A / B / C / D"]';
+exports.pollOptionItem = 'input[data-test="pollOptionItem"]';
+exports.anonymousPoll = 'input[aria-label="Anonymous Poll"]';
+exports.publishPollingLabel = 'button[data-test="publishPollingLabel"]';
+exports.pollAnswerOptionBtn = 'button[data-test="pollAnswerOption"]';
+exports.receivedAnswer = 'td[data-test="receivedAnswer"]';
+exports.quickPoll = 'button[aria-label="Quick Poll"]';
+exports.pollQuestionArea = 'textarea[data-test="pollQuestionArea"]';
+exports.pollQuestion = 'Are we good ?';
+exports.userResponseBtn = 'button[aria-label="User Response"]';
+exports.pollAnswerOptionInput = 'input[data-test="pollAnswerOption"]';
+exports.answerMessage = 'All good!';
+exports.pollSubmitAnswer = 'button[data-test="submitAnswer"]';
+exports.pollResults = 'g[data-test="pollResultAria"]';
+exports.closePollingMenu = 'button[aria-label="Close Polling"]';
+exports.addPollItem = 'button[data-test="addPollItem"]';
+exports.deletePollOption = 'button[data-test="deletePollOption"]';
+exports.cancelPollBtn = 'button[data-test="cancelPollLabel"]';
+
+exports.questionSlideFileName = 'mockPollSlide.pdf';
+
+// Presentation
+exports.uploadPresentation = '[data-test="uploadPresentation"]';
+exports.fileUpload = 'input[type="file"]';
+exports.upload = 'button[aria-label="Upload"]';
 
 // User
 exports.userAvatar = 'div[data-test="userAvatar"]';

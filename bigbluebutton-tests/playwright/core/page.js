@@ -7,7 +7,7 @@ const { expect } = require('@playwright/test');
 const parameters = require('./parameters');
 const helpers = require('./helpers');
 const e = require('./elements');
-const { ELEMENT_WAIT_TIME } = require('./constants');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('./constants');
 
 class Page {
   constructor(browser, page) {
@@ -37,8 +37,21 @@ class Page {
     if (shouldCloseAudioModal) await this.closeAudioModal();
   }
 
+  async getLocator(selector, { timeout, hidden } = { timeout: ELEMENT_WAIT_TIME, hidden: false }) {
+    if (!hidden) {
+      await this.waitForSelector(selector, timeout);
+    }
+    return this.page.locator(selector);
+  }
+
+  async getSelectorCount(selector, timeout = ELEMENT_WAIT_TIME) {
+    const locator = await this.getLocator(selector, timeout);
+    const a = await locator.count();
+    return locator.count();
+  }
+
   async closeAudioModal() {
-    await this.page.waitForSelector(e.audioModal);
+    await this.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
     await this.page.click(e.closeAudioButton);
   }
 
@@ -53,6 +66,13 @@ class Page {
     await handle.type(text);
   }
 
+  async waitAndClickElement(element, index = 0, timeout = ELEMENT_WAIT_TIME) {
+    await this.waitForSelector(element, timeout);
+    await this.page.evaluate(([elem, i]) => {
+      document.querySelectorAll(elem)[i].click();
+    }, [element, index]);
+  }
+
   async waitAndClick(selector, timeout = ELEMENT_WAIT_TIME) {
     await this.waitForSelector(selector, timeout);
     await this.page.focus(selector);
@@ -60,13 +80,18 @@ class Page {
   }
 
   async wasRemoved(selector, timeout = ELEMENT_WAIT_TIME) {
-    const locator = this.page.locator(selector);
+    const locator = await this.getLocator(selector, { hidden: true });
     await expect(locator).toBeHidden({ timeout });
   }
 
   async hasElement(selector, timeout = ELEMENT_WAIT_TIME) {
-    const locator = this.page.locator(selector);
+    const locator = await this.getLocator(selector);
     await expect(locator).toBeVisible({ timeout });
+  }
+
+  async hasText(selector, text, timeout = ELEMENT_WAIT_TIME) {
+    const locator = await this.getLocator(selector);
+    await expect(locator).toContainText(text, { timeout });
   }
 }
 
