@@ -133,6 +133,7 @@ function runPopcorn() {
 
   // PROCESS SHAPES.SVG (in XML format).
   xmlhttp.open("GET", shapes_svg, false);
+  xmlhttp.overrideMimeType('text/xml');
   xmlhttp.send();
   var xmlDoc = xmlhttp.responseXML;
   //getting all the event tags
@@ -183,6 +184,7 @@ function runPopcorn() {
 
   // PROCESS PANZOOMS.XML
   xmlhttp.open("GET", events_xml, false);
+  xmlhttp.overrideMimeType('text/xml');
   xmlhttp.send();
   xmlDoc = xmlhttp.responseXML;
   //getting all the event tags

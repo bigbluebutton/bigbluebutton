@@ -242,6 +242,7 @@ function runPopcorn() {
   // PROCESS SHAPES.SVG (in XML format).
   console.log("** Getting shapes_svg");
   xmlhttp.open("GET", shapes_svg, false);
+  xmlhttp.overrideMimeType('text/xml');
   xmlhttp.send();
   var xmlDoc = xmlhttp.responseXML;
 
@@ -277,6 +278,7 @@ function runPopcorn() {
   // PROCESS PANZOOMS.XML
   console.log("** Getting panzooms.xml");
   xmlhttp.open("GET", events_xml, false);
+  xmlhttp.overrideMimeType('text/xml');
   xmlhttp.send();
   xmlDoc = xmlhttp.responseXML;
   //getting all the event tags
