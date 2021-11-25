@@ -290,6 +290,7 @@ case class UserState(
     lastActivityTime:      Long         = System.currentTimeMillis(),
     lastInactivityInspect: Long         = 0,
     clientType:            String,
+    excludeDashboard:      Boolean,
     userLeftFlag:          UserLeftFlag
 )
 

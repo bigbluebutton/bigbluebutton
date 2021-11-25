@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
+import UserSettings from '/imports/api/users-settings';
 
 export default function userJoin(meetingId, userId, authToken) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -10,10 +11,17 @@ export default function userJoin(meetingId, userId, authToken) {
 
   check(authToken, String);
 
+  const excludeDashboard = (UserSettings.findOne({
+    meetingId,
+    userId,
+    setting: 'exclude_from_dashboard',
+  }) || {}).value || false;
+
   const payload = {
     userId,
     authToken,
     clientType: 'HTML5',
+    excludeDashboard,
   };
 
   Logger.info(`User='${userId}' is joining meeting='${meetingId}' authToken='${authToken}'`);

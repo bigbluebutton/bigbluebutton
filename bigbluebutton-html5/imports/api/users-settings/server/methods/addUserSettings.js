@@ -1,7 +1,6 @@
 import { check } from 'meteor/check';
 import addUserSetting from '/imports/api/users-settings/server/modifiers/addUserSetting';
 import logger from '/imports/startup/server/logger';
-import { extractCredentials } from '/imports/api/common/server/helpers';
 
 const oldParameters = {
   askForFeedbackOnLogout: 'bbb_ask_for_feedback_on_logout',
@@ -70,6 +69,8 @@ const currentParameters = [
   // OUTSIDE COMMANDS
   'bbb_outside_toggle_self_voice',
   'bbb_outside_toggle_recording',
+  // LEARNING DASHBOARD
+  'exclude_from_dashboard',
 ];
 
 function valueParser(val) {
@@ -82,12 +83,9 @@ function valueParser(val) {
   }
 }
 
-export default function addUserSettings(settings) {
+export default function addUserSettings(meetingId, userId, settings) {
   try {
     check(settings, [Object]);
-
-    const { meetingId, requesterUserId: userId } = extractCredentials(this.userId);
-
     check(meetingId, String);
     check(userId, String);
 

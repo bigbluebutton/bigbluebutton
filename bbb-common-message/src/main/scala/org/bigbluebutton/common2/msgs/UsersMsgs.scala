@@ -91,7 +91,8 @@ case class UserJoinedMeetingEvtMsg(
 case class UserJoinedMeetingEvtMsgBody(intId: String, extId: String, name: String, role: String,
                                        guest: Boolean, authed: Boolean, guestStatus: String,
                                        emoji:     String,
-                                       presenter: Boolean, locked: Boolean, avatar: String, clientType: String)
+                                       presenter: Boolean, locked: Boolean, avatar: String, clientType: String,
+                                       excludeDashboard: Boolean)
 
 /**
  * Sent by client to get all users in a meeting.
@@ -288,7 +289,7 @@ case class LogoutAndEndMeetingCmdMsgBody(userId: String)
 
 object UserJoinMeetingReqMsg { val NAME = "UserJoinMeetingReqMsg" }
 case class UserJoinMeetingReqMsg(header: BbbClientMsgHeader, body: UserJoinMeetingReqMsgBody) extends StandardMsg
-case class UserJoinMeetingReqMsgBody(userId: String, authToken: String, clientType: String)
+case class UserJoinMeetingReqMsgBody(userId: String, authToken: String, clientType: String, excludeDashboard: Boolean)
 
 /**
  * Sent from Flash client to rejoin meeting after reconnection

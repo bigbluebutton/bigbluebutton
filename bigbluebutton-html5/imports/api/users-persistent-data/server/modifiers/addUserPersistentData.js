@@ -25,6 +25,7 @@ export default function addUserPersistentData(user) {
     locked: Boolean,
     avatar: String,
     clientType: String,
+    excludeDashboard: Boolean,
     effectiveConnectionType: null,
   });
 

@@ -24,7 +24,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
         }
         state
       case None =>
-        val newState = userJoinMeeting(outGW, msg.body.authToken, msg.body.clientType, liveMeeting, state)
+        val newState = userJoinMeeting(outGW, msg.body.authToken, msg.body.clientType, msg.body.excludeDashboard, liveMeeting, state)
 
         if (liveMeeting.props.meetingProp.isBreakout) {
           BreakoutHdlrHelpers.updateParentMeetingWithUsers(liveMeeting, eventBus)

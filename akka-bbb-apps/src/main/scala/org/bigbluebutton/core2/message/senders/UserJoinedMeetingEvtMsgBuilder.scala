@@ -13,7 +13,8 @@ object UserJoinedMeetingEvtMsgBuilder {
       guestStatus = userState.guestStatus,
       emoji = userState.emoji,
       presenter = userState.presenter, locked = userState.locked, avatar = userState.avatar,
-      clientType = userState.clientType)
+      clientType = userState.clientType,
+      excludeDashboard = userState.excludeDashboard)
 
     val event = UserJoinedMeetingEvtMsg(meetingId, userState.intId, body)
 

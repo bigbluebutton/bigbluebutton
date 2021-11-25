@@ -152,16 +152,18 @@ class LearningDashboardActor(
   }
 
   private def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
-    for {
-      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-    } yield {
-      val user: User = meeting.users.values.find(u => u.intId == msg.body.intId).getOrElse({
-        User(
-          msg.body.intId, msg.body.extId, msg.body.name, (msg.body.role == Roles.MODERATOR_ROLE)
-        )
-      })
+    if(msg.body.excludeDashboard == false) {
+      for {
+        meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      } yield {
+        val user: User = meeting.users.values.find(u => u.intId == msg.body.intId).getOrElse({
+          User(
+            msg.body.intId, msg.body.extId, msg.body.name, (msg.body.role == Roles.MODERATOR_ROLE)
+          )
+        })
 
-      meetings += (meeting.intId -> meeting.copy(users = meeting.users + (user.intId -> user.copy(leftOn = 0))))
+        meetings += (meeting.intId -> meeting.copy(users = meeting.users + (user.intId -> user.copy(leftOn = 0))))
+      }
     }
   }
 
