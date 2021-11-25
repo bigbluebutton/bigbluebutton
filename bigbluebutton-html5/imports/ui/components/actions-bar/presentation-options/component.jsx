@@ -52,8 +52,9 @@ const PresentationOptionsContainer = ({
   const isThereCurrentPresentation = hasExternalVideo || hasScreenshare || hasPresentation;
   return (
     <Button
-      className={cx(styles.button, !isLayoutSwapped || styles.btn)}
+      className={cx(!isLayoutSwapped || styles.btn)}
       icon={`${buttonType}${isLayoutSwapped ? '_off' : ''}`}
+      data-test="restorePresentationButton"
       label={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
       aria-label={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
       aria-describedby={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationDesc : intlMessages.minimizePresentationDesc)}

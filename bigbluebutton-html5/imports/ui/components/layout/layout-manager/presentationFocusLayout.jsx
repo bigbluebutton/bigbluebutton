@@ -452,7 +452,7 @@ class PresentationFocusLayout extends Component {
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
 
-    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
+    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare' || fullscreenElement === 'ExternalVideo') {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
       mediaBounds.top = 0;
@@ -479,6 +479,8 @@ class PresentationFocusLayout extends Component {
   calculatesLayout() {
     const { layoutContextState, layoutContextDispatch } = this.props;
     const { deviceType, input, isRTL } = layoutContextState;
+    const { presentation } = input;
+    const { isOpen } = presentation;
     const { captionsMargin } = DEFAULT_VALUES;
 
     const sidebarNavWidth = this.calculatesSidebarNavWidth();
@@ -654,7 +656,7 @@ class PresentationFocusLayout extends Component {
       type: ACTIONS.SET_SCREEN_SHARE_OUTPUT,
       value: {
         width: mediaBounds.width,
-        height: mediaBounds.height,
+        height: isOpen ? mediaBounds.height : 0,
         top: mediaBounds.top,
         left: mediaBounds.left,
         right: mediaBounds.right,
@@ -666,7 +668,7 @@ class PresentationFocusLayout extends Component {
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
       value: {
         width: mediaBounds.width,
-        height: mediaBounds.height,
+        height: isOpen ? mediaBounds.height : 0,
         top: mediaBounds.top,
         left: mediaBounds.left,
         right: mediaBounds.right,

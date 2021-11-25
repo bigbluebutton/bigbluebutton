@@ -66,18 +66,18 @@ const getVirtualBackgroundThumbnail = (name) => {
 //   type: <EFFECT_TYPES>,
 //   name: effect filename, if any
 // }
-const setSessionVirtualBackgroundInfo = (type, name) => {
-  return Session.set('VirtualBackgroundInfo', { type, name });
+const setSessionVirtualBackgroundInfo = (type, name, deviceId) => {
+  return Session.set(`VirtualBackgroundInfo_${deviceId}`, { type, name });
 }
 
-const getSessionVirtualBackgroundInfo = () => {
-  return Session.get('VirtualBackgroundInfo') || {
+const getSessionVirtualBackgroundInfo = (deviceId) => {
+  return Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
     type: EFFECT_TYPES.NONE_TYPE,
   };
 }
 
-const getSessionVirtualBackgroundInfoWithDefault = () => {
-  return Session.get('VirtualBackgroundInfo') || {
+const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => {
+  return Session.get(`VirtualBackgroundInfo_${deviceId}`) || {
     type: EFFECT_TYPES.BLUR_TYPE,
     name: BLUR_FILENAME,
   };

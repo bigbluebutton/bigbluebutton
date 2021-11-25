@@ -357,7 +357,7 @@ class SmartLayout extends Component {
     if (input.cameraDock.numCameras > 0) {
       cameraDockBounds.top = mediaAreaBounds.top;
       cameraDockBounds.left = mediaAreaBounds.left;
-      cameraDockBounds.right = isRTL ? sidebarSize + (camerasMargin * 2) : null;
+      cameraDockBounds.right = isRTL ? sidebarSize : null;
       cameraDockBounds.zIndex = 1;
 
       if (!isOpen) {
@@ -377,6 +377,7 @@ class SmartLayout extends Component {
         cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_LEFT;
         // button size in vertical position
         cameraDockBounds.height -= 20;
+        cameraDockBounds.right = isRTL ? sidebarSize + (camerasMargin * 2) : null;
       } else {
         cameraDockBounds.width = mediaAreaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
@@ -460,7 +461,7 @@ class SmartLayout extends Component {
       return mediaBounds;
     }
 
-    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
+    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare' || fullscreenElement === 'ExternalVideo') {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
       mediaBounds.top = 0;
