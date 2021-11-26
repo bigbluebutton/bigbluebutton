@@ -28,6 +28,9 @@ exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
 // Messages
 exports.message = 'Hello World!';
 
+// Notifications
+exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
+
 // Polling
 exports.polling = 'li[data-test="polling"]';
 exports.startPoll = 'button[data-test="startPoll"]';
@@ -52,13 +55,37 @@ exports.closePollingMenu = 'button[aria-label="Close Polling"]';
 exports.addPollItem = 'button[data-test="addPollItem"]';
 exports.deletePollOption = 'button[data-test="deletePollOption"]';
 exports.cancelPollBtn = 'button[data-test="cancelPollLabel"]';
-
 exports.questionSlideFileName = 'mockPollSlide.pdf';
 
 // Presentation
 exports.uploadPresentation = '[data-test="uploadPresentation"]';
 exports.fileUpload = 'input[type="file"]';
 exports.upload = 'button[aria-label="Upload"]';
+exports.presentationToolbarWrapper = '#presentationToolbarWrapper';
+exports.nextSlide = '[data-test="nextSlide"]';
+exports.prevSlide = '[data-test="prevSlide"]';
+exports.skipSlide = '[data-test="skipSlide"]';
+exports.uploadPresentationFileName = 'uploadTest.png';
+exports.allowPresentationDownload = 'button[data-test="allowPresentationDownload"]';
+exports.disallowPresentationDownload = 'button[data-test="disallowPresentationDownload"]';
+exports.confirmManagePresentation = 'button[data-test="confirmManagePresentation"]';
+exports.toastDownload = 'a[data-test="toastDownload"]';
+exports.presentationDownloadBtn = 'button[data-test="presentationDownload"]';
+exports.removePresentation = 'button[data-test="removePresentation"]';
+exports.presentationPlaceholder = 'div[data-test="presentationPlaceholder"]';
+exports.presentationPlaceholderLabel = 'Waiting for a presentation to be uploaded';
+exports.minimizePresentation = 'button[aria-label="Minimize presentation"]';
+exports.presentationContainer = 'div[class^="presentationContainer--"]';
+exports.restorePresentation = 'button[data-test="restorePresentationButton"]';
+exports.externalVideoBtn = 'li[data-test="external-video"]';
+exports.externalVideoModalHeader = 'header[data-test="videoModalHeader"]';
+exports.videoModalInput = 'input[id="video-modal-input"]';
+exports.startShareVideoBtn = 'button[aria-label="Share a new video"]';
+exports.videoPlayer = 'div[data-test="videoPlayer"]';
+// YouTube frame
+exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
+exports.youtubeFrame = 'iframe[title^="YouTube"]';
+exports.ytFrameTitle = 'a[class^="ytp-title-link"]';
 
 // User
 exports.userAvatar = 'div[data-test="userAvatar"]';

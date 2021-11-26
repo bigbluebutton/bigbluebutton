@@ -1,6 +1,18 @@
+const { expect } = require('@playwright/test');
 const path = require('path');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+
+async function checkSvgIndex(test, element) {
+  const check = await test.page.evaluate(([element]) => {
+    return document.querySelector('svg g g g').outerHTML.indexOf(element) !== -1;
+  }, [element]);
+  await expect(check).toBeTruthy();
+}
+
+function getSvgOuterHtml() {
+  return document.querySelector('svg g g g').outerHTML;
+}
 
 async function uploadPresentation(test, fileName, uploadTimeout = ELEMENT_WAIT_LONGER_TIME) {
   await test.waitAndClick(e.actions);
@@ -16,4 +28,6 @@ async function uploadPresentation(test, fileName, uploadTimeout = ELEMENT_WAIT_L
   await test.hasText('body', 'Current presentation', uploadTimeout);
 }
 
+exports.checkSvgIndex = checkSvgIndex;
+exports.getSvgOuterHtml = getSvgOuterHtml;
 exports.uploadPresentation = uploadPresentation;
