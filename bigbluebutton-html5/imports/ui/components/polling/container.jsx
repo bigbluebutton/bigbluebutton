@@ -31,13 +31,20 @@ export default withTracker(() => {
   const {
     pollExists, handleVote, poll, handleTypedVote,
   } = PollingService.mapPolls();
+  const { pollTypes } = PollService;
+
+  if(poll && poll?.pollType){
+    const isResponse = poll.pollType === pollTypes.Response;
+    Meteor.subscribe('polls', isResponse);
+  }
+
   return ({
     pollExists,
     handleVote,
     handleTypedVote,
     poll,
     pollAnswerIds: PollService.pollAnswerIds,
-    pollTypes: PollService.pollTypes,
+    pollTypes,
     isDefaultPoll: PollService.isDefaultPoll,
     isMeteorConnected: Meteor.status().connected,
   });

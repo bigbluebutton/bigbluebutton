@@ -5,6 +5,9 @@ import Polls from '/imports/api/polls';
 import AuthTokenValidation, {
   ValidationStates,
 } from '/imports/api/auth-token-validation';
+import { DDPServer } from 'meteor/ddp-server';
+
+Meteor.server.setPublicationStrategy('polls', DDPServer.publicationStrategies.NO_MERGE);
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -14,11 +17,11 @@ function currentPoll(secretPoll) {
   });
 
   if (
-    !tokenValidation ||
-    tokenValidation.validationStatus !== ValidationStates.VALIDATED
+    !tokenValidation
+    || tokenValidation.validationStatus !== ValidationStates.VALIDATED
   ) {
     Logger.warn(
-      `Publishing Polls was requested by unauth connection ${this.connection.id}`
+      `Publishing Polls was requested by unauth connection ${this.connection.id}`,
     );
     return Polls.find({ meetingId: '' });
   }
@@ -65,11 +68,11 @@ function polls() {
   });
 
   if (
-    !tokenValidation ||
-    tokenValidation.validationStatus !== ValidationStates.VALIDATED
+    !tokenValidation
+    || tokenValidation.validationStatus !== ValidationStates.VALIDATED
   ) {
     Logger.warn(
-      `Publishing Polls was requested by unauth connection ${this.connection.id}`
+      `Publishing Polls was requested by unauth connection ${this.connection.id}`,
     );
     return Polls.find({ meetingId: '' });
   }
@@ -81,7 +84,16 @@ function polls() {
     },
   };
 
+  const noKeyOptions = {
+    fields: {
+      'answers.numVotes': 0,
+      'answers.key': 0,
+      responses: 0,
+    },
+  };
+
   const { meetingId, userId } = tokenValidation;
+  const User = Users.findOne({ userId, meetingId }, { fields: { role: 1, presenter: 1 } });
 
   Logger.debug('Publishing polls', { meetingId, userId });
 
@@ -90,7 +102,15 @@ function polls() {
     users: userId,
   };
 
-  return Polls.find(selector, options);
+  if (User) {
+    const poll = Polls.findOne(selector, noKeyOptions);
+
+    if (User.role === ROLE_MODERATOR || poll?.pollType !== 'R-') {
+      return Polls.find(selector, options);
+    }
+  }
+
+  return Polls.find(selector, noKeyOptions);
 }
 
 function publish(...args) {
