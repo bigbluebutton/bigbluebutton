@@ -36,21 +36,10 @@ class ReorderAnnotationRecordEvent extends AbstractWhiteboardRecordEvent {
     ord += "}"
     eventMap.put(ORDER, ord)
   }
-
-  //def setPosition(position: String) {
-  //  eventMap.put(POSITION, position)
-  //}
-
-  //def setShapeId(shapeId: String) {
-  //  eventMap.put(SHAPE_ID, shapeId)
-  //}
-
 }
 
 object ReorderAnnotationRecordEvent {
   protected final val USER_ID = "userId"
   protected final val ORDER = "order"
-  //protected final val POSITION = "position"
-  //protected final val SHAPE_ID = "shapeId"
 }
 
