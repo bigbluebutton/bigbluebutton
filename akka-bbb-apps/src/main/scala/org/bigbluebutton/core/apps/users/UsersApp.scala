@@ -108,10 +108,9 @@ object UsersApp {
                            reasonCode: String, ban: Boolean): Unit = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
-
+    RegisteredUsers.eject(userId, liveMeeting.registeredUsers, ban)
     for {
       user <- Users2x.ejectFromMeeting(liveMeeting.users2x, userId)
-      reguser <- RegisteredUsers.eject(userId, liveMeeting.registeredUsers, ban)
     } yield {
       sendUserEjectedMessageToClient(outGW, meetingId, userId, ejectedBy, reason, reasonCode)
       sendUserLeftMeetingToAllClients(outGW, meetingId, userId)
