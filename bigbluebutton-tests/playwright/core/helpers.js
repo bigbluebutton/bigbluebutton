@@ -36,6 +36,13 @@ function getJoinURL(meetingID, params, moderator, customParameter) {
   return `${params.server}/join?${query}&checksum=${checksum}`;
 }
 
+function sleep(time) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, time);
+  });
+}
+
 exports.getRandomInt = getRandomInt;
 exports.createMeeting = createMeeting;
 exports.getJoinURL = getJoinURL;
+exports.sleep = sleep;

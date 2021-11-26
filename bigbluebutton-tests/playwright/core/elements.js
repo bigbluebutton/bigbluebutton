@@ -112,6 +112,16 @@ exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
   'sr', 'sv-SE', 'ta', 'te', 'th', 'tr-TR', 'uk-UA', 'vi-VN', 'zh-CN', 'zh-TW'
 ];
 
+// Webcam
+exports.joinVideo = 'button[data-test="joinVideo"]';
+exports.leaveVideo = 'button[data-test="leaveVideo"]';
+exports.videoPreview = 'video[data-test="videoPreview"]';
+exports.startSharingWebcam = 'button[data-test="startSharingWebcam"]';
+exports.webcamConnecting = 'div[data-test="webcamConnecting"]';
+exports.webcamVideo = 'video[data-test="videoContainer"]';
+exports.videoContainer = 'div[class^="videoListItem"]';
+exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';
+
 // Whiteboard
 exports.whiteboard = 'svg[data-test="whiteboard"]';
 exports.tools = 'button[aria-label="Tools"]';

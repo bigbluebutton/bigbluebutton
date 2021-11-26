@@ -7,7 +7,7 @@ const { expect } = require('@playwright/test');
 const parameters = require('./parameters');
 const helpers = require('./helpers');
 const e = require('./elements');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('./constants');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } = require('./constants');
 
 class Page {
   constructor(browser, page) {
@@ -37,10 +37,30 @@ class Page {
     if (shouldCloseAudioModal) await this.closeAudioModal();
   }
 
-  async getLocator(selector, { timeout, hidden } = { timeout: ELEMENT_WAIT_TIME, hidden: false }) {
-    if (!hidden) {
-      await this.waitForSelector(selector, timeout);
+  // Joining audio with microphone
+  async joinMicrophone() {
+    await this.waitForSelector(e.audioModal);
+    await this.waitAndClick(e.microphoneButton);
+    await this.waitForSelector(e.connectingStatus);
+    const parsedSettings = await this.getSettingsYaml();
+    const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
+    await this.waitAndClick(e.echoYesButton, listenOnlyCallTimeout);
+    await this.waitForSelector(e.isTalking);
+  }
+
+  async shareWebcam(shouldConfirmSharing, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
+    await this.waitAndClick(e.joinVideo);
+    if (shouldConfirmSharing) {
+      await this.waitForSelector(e.videoPreview, videoPreviewTimeout);
+      await this.waitAndClick(e.startSharingWebcam);
     }
+    await this.waitForSelector(e.webcamConnecting);
+    await this.waitForSelector(e.webcamVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
+  }
+
+  async getLocator(selector, { timeout, hidden } = { timeout: ELEMENT_WAIT_TIME, hidden: false }) {
+    if (!hidden) await this.waitForSelector(selector, timeout);
     return this.page.locator(selector);
   }
 
