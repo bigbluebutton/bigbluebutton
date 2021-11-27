@@ -85,8 +85,6 @@ export default class MarkerComponent extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    //const { version, hidden, selected } = this.props;
-    //return version !== nextProps.version || hidden !== nextProps.hidden || selected !== nextProps.selected;
     const { version, hidden, selected, annotation, slideWidth, slideHeight } = this.props;
     if (annotation.status == "DRAW_END"
         && (annotation.points[0] !== nextProps.annotation.points[0]
