@@ -184,11 +184,11 @@ export default class MarkerComponent extends Component {
     const lineCap = coord.length == 4 && coord[0] == coord[2] && coord[1] == coord[3] ? "square" : "butt";
 const bbox = selected ? this.getBBox() : {x:0, y:0, width:0, height:0};
     return (
-<g>
-{hidden ? null :
+     <g>
+     {hidden ? null :
       <g data-test="drawnMarker">
       <path
-id={annotation.id}
+        id={annotation.id}
         fill="none"
         stroke={getFormattedColor(annotation.color)}
         d={this.getCurrentPath()}
@@ -214,19 +214,19 @@ id={annotation.id}
         xlinkHref="#slideimg"
       />
       </g>}
-{selected &&
-  <rect
-    x={bbox.x}
-    y={bbox.y}
-    width={bbox.width}
-    height={bbox.height}
-    fill= "none"
-    stroke={isEditable ? Meteor.settings.public.whiteboard.selectColor : Meteor.settings.public.whiteboard.selectInertColor}
-    opacity="0.5"
-    strokeWidth={getStrokeWidth(annotation.thickness+1, slideWidth)}
-    style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
-  />}
-</g>
+     {selected &&
+      <rect
+        x={bbox.x}
+        y={bbox.y}
+        width={bbox.width}
+        height={bbox.height}
+        fill= "none"
+        stroke={isEditable ? Meteor.settings.public.whiteboard.selectColor : Meteor.settings.public.whiteboard.selectInertColor}
+        opacity="0.5"
+        strokeWidth={getStrokeWidth(annotation.thickness+1, slideWidth)}
+        style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
+      />}
+     </g>
     );
   }
 }
