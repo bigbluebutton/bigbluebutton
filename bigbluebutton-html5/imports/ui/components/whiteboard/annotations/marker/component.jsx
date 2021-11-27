@@ -153,8 +153,6 @@ export default class MarkerComponent extends Component {
       i += 2;
     }
 
-//    path = this.path + path;
-
     return { path, points };
   }
 
