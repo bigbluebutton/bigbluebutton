@@ -318,9 +318,6 @@ def svg_render_shape_eraser(g, slide, shape)
   x2 = shape_scale_width(slide, data_points[2])
   y2 = shape_scale_height(slide, data_points[3])
 
-  width = (x2 - x1).abs
-  height = (y2 - y1).abs
-
   clip_path = doc.create_element('clipPath', id: g['id']+'-clip')
   path = doc.create_element('path',
           d: "M#{x1} #{y1}L#{x2} #{y1}L#{x2} #{y2}L#{x1} #{y2}Z")
