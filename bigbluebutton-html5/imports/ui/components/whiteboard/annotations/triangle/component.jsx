@@ -82,6 +82,7 @@ TriangleDrawComponent.propTypes = {
     points: PropTypes.arrayOf(PropTypes.number).isRequired,
     color: PropTypes.number.isRequired,
     thickness: PropTypes.number.isRequired,
+    fill: PropTypes.bool.isRequired,
   }).isRequired,
   // Defines the width of the slide (svg coordinate system), which needed in calculations
   slideWidth: PropTypes.number.isRequired,
