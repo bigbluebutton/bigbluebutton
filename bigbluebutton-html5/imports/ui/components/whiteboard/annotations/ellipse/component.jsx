@@ -4,8 +4,8 @@ import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers'
 
 export default class EllipseDrawComponent extends Component {
   shouldComponentUpdate(nextProps) {
-    const { version } = this.props;
-    return version !== nextProps.version;
+    const { version, hidden, selected } = this.props;
+    return version !== nextProps.version || hidden !== nextProps.hidden || selected !== nextProps.selected;
   }
 
   getCoordinates() {
@@ -37,25 +37,56 @@ export default class EllipseDrawComponent extends Component {
     };
   }
 
+  getBBox() {
+    const { slideWidth, slideHeight, annotation } = this.props;
+    const { points } = annotation;
+
+    const x = denormalizeCoord(Math.min(points[0], points[2]), slideWidth)
+    const y = denormalizeCoord(Math.min(points[1], points[3]), slideHeight)
+    const width = denormalizeCoord(Math.max(points[0], points[2]), slideWidth) - x;
+    const height = denormalizeCoord(Math.max(points[1], points[3]), slideHeight) -y;
+
+    return {x, y, width, height};
+  }
+
   render() {
     const results = this.getCoordinates();
-    const { annotation, slideWidth } = this.props;
+    const { annotation, slideWidth, hidden, selected, isEditable } = this.props;
+    const { fill } = annotation;
     const {
       cx, cy, rx, ry,
     } = results;
 
+    const bbox  = this.getBBox();
     return (
+     <g>
+     {hidden ? null :
       <ellipse
+        id={annotation.id}
         cx={cx}
         cy={cy}
         rx={rx}
         ry={ry}
-        fill="none"
+        fill={ fill ? getFormattedColor(annotation.color) : "none" }
         stroke={getFormattedColor(annotation.color)}
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
         data-test="drawnEllipse"
-      />
+      />}
+     {selected &&
+      <rect
+        x={bbox.x}
+        y={bbox.y}
+        width={bbox.width}
+        height={bbox.height}
+        fill= "none"
+        stroke={isEditable ? Meteor.settings.public.whiteboard.selectColor : Meteor.settings.public.whiteboard.selectInertColor}
+        opacity="0.5"
+        strokeWidth={getStrokeWidth(annotation.thickness+1, slideWidth)}
+        style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
+        data-test="drawnEllipseSelection"
+      />}
+     </g>      
     );
   }
 }
@@ -68,6 +99,7 @@ EllipseDrawComponent.propTypes = {
     points: PropTypes.arrayOf(PropTypes.number).isRequired,
     color: PropTypes.number.isRequired,
     thickness: PropTypes.number.isRequired,
+    fill: PropTypes.bool.isRequired,
   }).isRequired,
   // Defines the width of the slide (svg coordinate system), which needed in calculations
   slideWidth: PropTypes.number.isRequired,
