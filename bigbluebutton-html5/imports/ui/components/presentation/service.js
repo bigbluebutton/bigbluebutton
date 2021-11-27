@@ -3,8 +3,7 @@ import Presentations from '/imports/api/presentations';
 import { Slides, SlidePositions } from '/imports/api/slides';
 import Auth from '/imports/ui/services/auth';
 import PollService from '/imports/ui/components/poll/service';
-import { Annotations } from '/imports/ui/components/whiteboard/service';
-import WhiteboardService from '/imports/ui/components/whiteboard/service';
+import { Annotations, WhiteboardService } from '/imports/ui/components/whiteboard/service';
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
