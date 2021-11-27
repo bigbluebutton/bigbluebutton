@@ -25,7 +25,6 @@ export default (props) => {
     <FullscreenButtonContainer
       {...props}
       {...{
-        handleToggleFullScreen,
         isIphone,
         isFullscreen,
         currentElement,
