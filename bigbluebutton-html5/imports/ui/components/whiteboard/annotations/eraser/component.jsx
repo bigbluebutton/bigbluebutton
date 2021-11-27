@@ -51,12 +51,12 @@ export default class EraserComponent extends Component {
     // Option 1. Using clipPath seems less CPU intensive, but a thin white line is drawn on a dark background.
     const clipId = "clip-" + annotation.id ;
     return (
-<g>
-{     hidden ? null :
+     <g>
+     {hidden ? null :
       <g data-test="eraser">
         <clipPath id ={clipId}>
           <rect
-id={annotation.id}
+            id={annotation.id}
             x={results.x}
             y={results.y}
             width={results.width}
@@ -70,19 +70,19 @@ id={annotation.id}
           xlinkHref="#slideimg"
         />
       </g>}
-{selected &&
-  <rect
-    x={results.x}
-    y={results.y}
-    width={results.width}
-    height={results.height}
-    fill= "none"
-    stroke={isEditable ? Meteor.settings.public.whiteboard.selectColor : Meteor.settings.public.whiteboard.selectInertColor}
-    opacity="0.5"
-    strokeWidth={getStrokeWidth(annotation.thickness+1, slideWidth)}
-    style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
-  />}
-</g>
+     {selected &&
+      <rect
+        x={results.x}
+        y={results.y}
+        width={results.width}
+        height={results.height}
+        fill= "none"
+        stroke={isEditable ? Meteor.settings.public.whiteboard.selectColor : Meteor.settings.public.whiteboard.selectInertColor}
+        opacity="0.5"
+        strokeWidth={getStrokeWidth(annotation.thickness+1, slideWidth)}
+        style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
+      />}
+     </g>
     );
 /*
     // Option2. Alternatively, SVG mask can be used. No edge line drawn. But it seems much slower than the clipPath method above
