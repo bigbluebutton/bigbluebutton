@@ -11,8 +11,6 @@ const StaticAnnotationContainer = (props) => {
       {...props}
     />
   );
-
-  return null;
 };
 
 export default withTracker((params) => {
