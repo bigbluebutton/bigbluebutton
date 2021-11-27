@@ -290,7 +290,7 @@ const currentUserID = () => {
 };
 
 const annotatorID = (annotation) => {
-  return annotation.id.replace(/-.*$/,'');
+  return annotation.id.replace(/-.+/,'');
 };
 
 const hideAnnotationsForAnnotator = () => {
