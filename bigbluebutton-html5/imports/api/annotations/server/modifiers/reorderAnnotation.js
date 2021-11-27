@@ -5,7 +5,6 @@ import Logger from '/imports/startup/server/logger';
 export default function reorderAnnotation(meetingId, whiteboardId, order) {
   check(meetingId, String);
   check(whiteboardId, String);
-  //check(shapeId, String);
   check(order, Array);
 
   for (const ac of order) {
