@@ -553,7 +553,6 @@ export default class PresentationOverlay extends Component {
 
   keyDownHandler(event) {
     const {
-      presentationWindow,
       slide,
     } = this.props;
 
@@ -648,7 +647,7 @@ export default class PresentationOverlay extends Component {
   }
 
   mouseUpHandler(event) {
-    const { presentationWindow, slide } = this.props;
+    const { slide } = this.props;
     
     const {
       pressed,
