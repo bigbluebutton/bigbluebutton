@@ -29,7 +29,6 @@ export default function moveAnnotation(meetingId, whiteboardId, shapeId, offset)
     newAnnotationInfo.points = newPoints;
   }
 
-//console.log("newannotation", newAnnotationInfo);
   const modifier = {
     $set: {
       annotationInfo: newAnnotationInfo,
