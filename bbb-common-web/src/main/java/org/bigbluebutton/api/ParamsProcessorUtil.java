@@ -101,6 +101,7 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsDisablePublicChat;
 		private boolean defaultLockSettingsDisableNote;
 		private boolean defaultLockSettingsHideUserList;
+	        private boolean defaultLockSettingsHideAnnotations;
 		private boolean defaultLockSettingsLockedLayout;
 		private boolean defaultLockSettingsLockOnJoin;
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
@@ -309,6 +310,12 @@ public class ParamsProcessorUtil {
 				lockSettingsHideUserList = Boolean.parseBoolean(lockSettingsHideUserListParam);
 			}
 
+			Boolean lockSettingsHideAnnotations = defaultLockSettingsHideAnnotations;
+			String lockSettingsHideAnnotationsParam = params.get(ApiParams.LOCK_SETTINGS_HIDE_ANNOTATIONS);
+			if (!StringUtils.isEmpty(lockSettingsHideAnnotationsParam)) {
+				lockSettingsHideAnnotations = Boolean.parseBoolean(lockSettingsHideAnnotationsParam);
+			}
+			
 			Boolean lockSettingsLockedLayout = defaultLockSettingsLockedLayout;
 			String lockSettingsLockedLayoutParam = params.get(ApiParams.LOCK_SETTINGS_LOCKED_LAYOUT);
 			if (!StringUtils.isEmpty(lockSettingsLockedLayoutParam)) {
@@ -333,6 +340,7 @@ public class ParamsProcessorUtil {
 							lockSettingsDisablePublicChat,
 							lockSettingsDisableNote,
 							lockSettingsHideUserList,
+						        lockSettingsHideAnnotations,
 							lockSettingsLockedLayout,
 							lockSettingsLockOnJoin,
 							lockSettingsLockOnJoinConfigurable);
@@ -1165,6 +1173,10 @@ public class ParamsProcessorUtil {
 		this.defaultLockSettingsHideUserList = lockSettingsHideUserList;
 	}
 
+	public void setLockSettingsHideAnnotations(Boolean lockSettingsHideAnnotations) {
+		this.defaultLockSettingsHideAnnotations = lockSettingsHideAnnotations;
+	}
+	
 	public void setLockSettingsLockedLayout(Boolean lockSettingsLockedLayout) {
 		this.defaultLockSettingsLockedLayout = lockSettingsLockedLayout;
 	}
