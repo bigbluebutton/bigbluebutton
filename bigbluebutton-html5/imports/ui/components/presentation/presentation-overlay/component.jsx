@@ -374,7 +374,6 @@ export default class PresentationOverlay extends Component {
 
   selectAnnotation(pointerX, pointerY, event){
     const {
-      annotationTool,
       slide,
       getSvgRef,
     } = this.props;
