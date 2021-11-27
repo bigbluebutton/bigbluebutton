@@ -623,6 +623,8 @@ public:
         start: DRAW_START
         update: DRAW_UPDATE
         end: DRAW_END
+    selectColor: '#0088ff'
+    selectInertColor: '#202020'
     toolbar:
       multiUserPenOnly: false
       colors:
@@ -667,6 +669,10 @@ public:
         - value: 20
         - value: 16
       tools:
+        - icon: eraser_tool
+          value: eraser
+        - icon: marker_tool
+          value: marker
         - icon: text_tool
           value: text
         - icon: line_tool
@@ -682,6 +688,8 @@ public:
         - icon: hand
           value: hand
       presenterTools:
+        - eraser
+        - marker
         - text
         - line
         - ellipse
@@ -690,12 +698,15 @@ public:
         - pencil
         - hand
       multiUserTools:
+        - eraser
+        - marker
         - text
         - line
         - ellipse
         - triangle
         - rectangle
         - pencil
+        - hand
   clientLog:
     server:
       enabled: false
