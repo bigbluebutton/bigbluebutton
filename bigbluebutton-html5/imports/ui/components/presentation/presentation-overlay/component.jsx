@@ -9,10 +9,14 @@ import {Meteor} from "meteor/meteor";
 // multiply the coordinates by 2. There's something I don't understand probably on the
 // canvas coordinate system. (ralam feb 22, 2012)
 
+import PresentationService from '../service';
+import { makeCall } from '/imports/ui/services/api';
+
 // maximum value of z-index to prevent other things from overlapping
 const MAX_Z_INDEX = (2 ** 31) - 1;
 const HAND_TOOL = 'hand';
 const MOUSE_INTERVAL = 32;
+const COS30 = 0.866;
 
 export default class PresentationOverlay extends Component {
   static calculateDistance(touches) {
@@ -38,6 +42,10 @@ export default class PresentationOverlay extends Component {
     this.currentMouseX = 0;
     this.currentMouseY = 0;
 
+    // Used only for dragging by a touch
+    this.currentTouchX = 0;
+    this.currentTouchY = 0;
+    
     this.prevZoom = props.zoom;
 
     this.state = {
@@ -56,11 +64,16 @@ export default class PresentationOverlay extends Component {
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
     this.mouseDownHandler = this.mouseDownHandler.bind(this);
+    this.keyDownHandler = this.keyDownHandler.bind(this);
     this.mouseMoveHandler = throttle(this.mouseMoveHandler.bind(this), MOUSE_INTERVAL);
     this.mouseUpHandler = this.mouseUpHandler.bind(this);
     this.mouseZoomHandler = this.mouseZoomHandler.bind(this);
 
     this.tapedTwice = false;
+    this.selectAnnotation = this.selectAnnotation.bind(this);
+    this.isPointInStroke = this.isPointInStroke.bind(this);
+    this.pointerBeforeDragX = 0;
+    this.pointerBeforeDragY = 0;
   }
 
   componentDidMount() {
@@ -81,6 +94,7 @@ export default class PresentationOverlay extends Component {
 
       this.pushSlideUpdate();
     }
+    window.addEventListener('keydown', this.keyDownHandler);
   }
 
   componentDidUpdate(prevProps) {
@@ -116,6 +130,7 @@ export default class PresentationOverlay extends Component {
   componentWillUnmount() {
     window.removeEventListener('mousemove', this.mouseMoveHandler);
     window.removeEventListener('mouseup', this.mouseUpHandler);
+    window.removeEventListener('keydown', this.keyDownHandler)
   }
 
   getTransformedSvgPoint(clientX, clientY) {
@@ -357,6 +372,84 @@ export default class PresentationOverlay extends Component {
     this.panSlide(mouseDeltaX, mouseDeltaY);
   }
 
+  selectAnnotation(pointerX, pointerY, event){
+    const {
+      annotationTool,
+      slide,
+      getSvgRef,
+    } = this.props;
+
+    const annotations = PresentationService.getCurrentAnnotationsId(slide.id);
+    const svgPosition = this.getTransformedSvgPoint(pointerX, pointerY);
+    const svgObject = getSvgRef();
+    const keys = [];
+    for (let i in annotations) {
+      keys.unshift(i);
+    }
+    let hitObj;
+    for (let key of keys) {
+      const elem = document.getElementById(annotations[key].id);
+      if (elem) { // can be negative for isolated whiteboard
+        const type = annotations[key].annotationType;
+        let bboxTL = svgObject.createSVGPoint();
+        let bboxBR = svgObject.createSVGPoint();
+        const strokeWidth =  elem.getAttribute('stroke-width');
+        const fill =  elem.getAttribute('fill');
+        const minStep = 20.0 ;
+        const step = strokeWidth / 2 / COS30 > minStep ? strokeWidth / 2 / COS30 : minStep;
+        if (type == 'text') {
+          const domBB = elem.getBoundingClientRect();
+          bboxTL = this.getTransformedSvgPoint(domBB.left, domBB.top);
+          bboxBR = this.getTransformedSvgPoint(domBB.right, domBB.bottom);
+        } else {
+          let svgBB =  elem.getBBox();
+          // For a point drawn by clicking with a pencil tool
+          if (svgBB.width == 0) { svgBB.width = strokeWidth; }
+          if (svgBB.height == 0) { svgBB.height = strokeWidth; }
+          bboxTL.x = svgBB.x;
+          bboxTL.y = svgBB.y;
+          bboxBR.x = svgBB.x + svgBB.width;
+          bboxBR.y = svgBB.y + svgBB.height;
+        }
+        if ( svgPosition.x > bboxTL.x - strokeWidth / 2 &&
+             svgPosition.x < bboxBR.x + strokeWidth / 2 &&
+             svgPosition.y > bboxTL.y - strokeWidth / 2 &&
+             svgPosition.y < bboxBR.y + strokeWidth / 2 ) {
+          if (type == 'text'){
+            hitObj = key;
+          } else {
+            if ( fill != "none"  && elem.isPointInFill(svgPosition) ) {
+              hitObj = key;
+            } else if (this.isPointInStroke(svgPosition, elem, step) ) {
+              //elem.isPointInStroke(svgPosition) can also be used, but we use a home-made method so that we can flexibly expand the hit region
+              hitObj = key;
+            }
+          }
+          if (hitObj) {
+            break;
+          }
+        }
+      }
+    }
+    if (hitObj) {
+      const isSelected = PresentationService.isAnnotationSelected(slide.id, annotations[hitObj].id);
+      if (!isSelected) {
+        if (! event.ctrlKey) {
+          PresentationService.handleUnselectAllAnnotations(slide.id);
+        }
+        PresentationService.handleSelectAnnotation(slide.id, annotations[hitObj].id);
+      } else {
+        if (event.ctrlKey) {
+          PresentationService.handleUnselectAnnotation(slide.id, annotations[hitObj].id);
+        }
+      }
+    } else {
+      if (! event.ctrlKey) {
+        PresentationService.handleUnselectAllAnnotations(slide.id);
+      }
+    }
+  }
+
   tapHandler(event) {
     const { annotationTool } = this.props;
 
@@ -398,6 +491,10 @@ export default class PresentationOverlay extends Component {
       this.pinchStartHandler(event);
     } else if (numberTouches === 1) {
       this.pinchGesture = false;
+      const touchCenterPoint = PresentationOverlay.touchCenterPoint(event.touches);
+      this.selectAnnotation(touchCenterPoint.x, touchCenterPoint.y, event);
+      this.currentTouchX = touchCenterPoint.x;
+      this.currentTouchY = touchCenterPoint.y;
       this.panStartHandler(event);
     }
 
@@ -413,12 +510,26 @@ export default class PresentationOverlay extends Component {
 
     if (annotationTool !== HAND_TOOL || !userIsPresenter) return;
 
+    const selectedAnnotations = PresentationService.getSelectedAnnotationsId(slide.id);
+    
     event.preventDefault();
 
     if (this.pinchGesture) {
       this.pinchMoveHandler(event);
     } else {
-      this.panMoveHandler(event);
+      if (selectedAnnotations.length == 0) {
+        this.panMoveHandler(event);
+      } else {
+        const touchCenterPoint = PresentationOverlay.touchCenterPoint(event.touches);
+        const newPoint = this.svgCoordinateToPercentages(this.getTransformedSvgPoint(touchCenterPoint.x, touchCenterPoint.y));
+        const oldPoint = this.svgCoordinateToPercentages(this.getTransformedSvgPoint(this.currentTouchX, this.currentTouchY));
+        const dx_percent = newPoint.x - oldPoint.x
+        const dy_percent = newPoint.y - oldPoint.y
+        this.currentTouchX = touchCenterPoint.x;
+        this.currentTouchY = touchCenterPoint.y;
+        this.draggedAnnotations = selectedAnnotations;
+        PresentationService.moveSelectedAnnotations(slide.id, selectedAnnotations, dx_percent, dy_percent);
+      }
     }
   }
 
@@ -441,13 +552,48 @@ export default class PresentationOverlay extends Component {
     window.removeEventListener('touchcancel', this.handleTouchCancel, true);
   }
 
+  keyDownHandler(event) {
+    const {
+      presentationWindow,
+      slide,
+    } = this.props;
+
+    const selectedAnnotations = PresentationService.getSelectedAnnotationsId(slide.id);
+    if (event.code == 'Backspace'|| event.code == 'Delete') {
+      makeCall('removeAnnotation', slide.id, selectedAnnotations);
+    } else if (event.code == 'KeyA' && event.altKey && event.shiftKey) {
+      PresentationService.selectAllAnnotation(slide.id);
+    } else if (event.key == ']') {
+      const orderContainer = PresentationService.bringAnnotations(slide.id, selectedAnnotations, true);
+      if (orderContainer) {
+        makeCall('reorderAnnotation', slide.id, selectedAnnotations, orderContainer);
+      }
+    } else if (event.key == '[') {
+      const orderContainer = PresentationService.bringAnnotations(slide.id, selectedAnnotations, false);
+      if (orderContainer) {
+        makeCall('reorderAnnotation', slide.id, selectedAnnotations, orderContainer);
+      }
+    }
+  }
+
+  isPointInStroke(point, pathElement, step){
+    const totalLen = pathElement.getTotalLength();
+    for (let i=0 ; i < totalLen / step + 1 ; i++) {
+      const posOnPath = pathElement.getPointAtLength(step * i);
+      const dist2 = (posOnPath.x - point.x)**2 + (posOnPath.y - point.y)**2;
+      if (dist2 < step**2) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   mouseDownHandler(event) {
     const {
       annotationTool,
-      userIsPresenter,
     } = this.props;
 
-    if (annotationTool !== HAND_TOOL || !userIsPresenter) return;
+    if (annotationTool !== HAND_TOOL) return;
 
     const isLeftClick = event.button === 0;
     if (isLeftClick) {
@@ -458,6 +604,10 @@ export default class PresentationOverlay extends Component {
         pressed: true,
       });
 
+      this.selectAnnotation(this.currentMouseX, this.currentMouseY, event);
+      this.pointerBeforeDragX = this.currentMouseX;
+      this.pointerBeforeDragY = this.currentMouseY;
+      
       window.addEventListener('mousemove', this.mouseMoveHandler, { passive: false });
       window.addEventListener('mouseup', this.mouseUpHandler, { passive: false });
     }
@@ -468,6 +618,7 @@ export default class PresentationOverlay extends Component {
       slideHeight,
       annotationTool,
       physicalSlideHeight,
+      slide,
     } = this.props;
 
     const {
@@ -476,17 +627,30 @@ export default class PresentationOverlay extends Component {
 
     if (annotationTool !== HAND_TOOL) return;
 
+    const selectedAnnotations = PresentationService.getSelectedAnnotationsId(slide.id);
+    
     if (pressed) {
       const mouseDeltaX = slideHeight / physicalSlideHeight * (this.currentMouseX - event.clientX);
       const mouseDeltaY = slideHeight / physicalSlideHeight * (this.currentMouseY - event.clientY);
 
+      if (selectedAnnotations.length == 0) {
+        this.panSlide(mouseDeltaX, mouseDeltaY);
+      } else {
+        const newPoint = this.svgCoordinateToPercentages(this.getTransformedSvgPoint(event.clientX, event.clientY));
+        const oldPoint = this.svgCoordinateToPercentages(this.getTransformedSvgPoint(this.currentMouseX, this.currentMouseY));
+        const dx_percent = newPoint.x - oldPoint.x
+        const dy_percent = newPoint.y - oldPoint.y
+        PresentationService.moveSelectedAnnotations(slide.id, selectedAnnotations, dx_percent, dy_percent);
+      }
+      
       this.currentMouseX = event.clientX;
       this.currentMouseY = event.clientY;
-      this.panSlide(mouseDeltaX, mouseDeltaY);
     }
   }
 
   mouseUpHandler(event) {
+    const { presentationWindow, slide } = this.props;
+    
     const {
       pressed,
     } = this.state;
@@ -498,6 +662,16 @@ export default class PresentationOverlay extends Component {
         pressed: false,
       });
 
+      const selectedAnnotations = PresentationService.getSelectedAnnotationsId(slide.id);
+      const newPoint = this.svgCoordinateToPercentages(this.getTransformedSvgPoint(event.clientX, event.clientY));
+      const oldPoint = this.svgCoordinateToPercentages(this.getTransformedSvgPoint(this.pointerBeforeDragX, this.pointerBeforeDragY));
+      const offset = {x: newPoint.x - oldPoint.x, y: newPoint.y - oldPoint.y};
+      this.pointerBeforeDragX = 0;
+      this.pointerBeforeDragY = 0;
+      if (offset.x != 0 || offset.y != 0){
+        makeCall('moveAnnotation', slide.id, selectedAnnotations, offset);
+      }
+      
       window.removeEventListener('mousemove', this.mouseMoveHandler);
       window.removeEventListener('mouseup', this.mouseUpHandler);
     }
