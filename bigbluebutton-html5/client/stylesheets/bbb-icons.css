@@ -59,13 +59,13 @@
   content: "\e929";
 }
 .icon-bbb-eraser_tool:before {
-  content: "\e95f";
+  content: "\e964";
 }
 .icon-bbb-line_tool:before {
   content: "\e91c";
 }
 .icon-bbb-marker_tool:before {
-  content: "\e960";
+  content: "\e965";
 }
 .icon-bbb-circle_tool:before {
   content: "\e91d";
@@ -267,7 +267,7 @@
   content: "\e93d";
 }
 .icon-bbb-multi_whiteboard_isolated:before {
-  content: "\e961";
+  content: "\e966";
 }
 .icon-bbb-whiteboard:before {
   content: "\e93e";
