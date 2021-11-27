@@ -103,7 +103,6 @@ const bringAnnotations = (whiteboardId, selected, up) => {
     for (const s of selected.slice().reverse()) {
       // Include only owned annotations in case of multiuser mode
       if (WhiteboardService.isMultiUserActive(whiteboardId) && s.userId != Auth.userID) { continue; }
-      var moved = 0;
       selectedAnnotationId2position.set(s.id, s.position);
       let newIdx = parseInt(id2idx.get(s.id)) + 1;
       if (newIdx >= sortedAnnotations.length) { newIdx = sortedAnnotations.length - 1; }
