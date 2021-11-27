@@ -22,7 +22,7 @@ class WhiteboardApp2x(implicit val context: ActorContext)
   with UndoWhiteboardPubMsgHdlr
   with RemoveWhiteboardAnnotationsPubMsgHdlr
   with ReorderWhiteboardAnnotationsPubMsgHdlr
-  with MoveWhiteboardAnnotationsPubMsgHdlr^
+  with MoveWhiteboardAnnotationsPubMsgHdlr
   with ModifyWhiteboardAccessPubMsgHdlr
   with SendWhiteboardAnnotationPubMsgHdlr
   with GetWhiteboardAnnotationsReqMsgHdlr {
