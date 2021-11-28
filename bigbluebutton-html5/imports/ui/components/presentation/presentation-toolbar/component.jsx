@@ -263,7 +263,6 @@ class PresentationToolbar extends PureComponent {
       fullscreenElementId,
       togglePresentationDetached,
       isPresentationDetached,
-      presentationWindow,
       toolbarWidth,
     } = this.props;
 
