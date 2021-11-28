@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers';
+import { denormalizeCoord } from '../helpers';
 
 export default class EraserComponent extends Component {
   shouldComponentUpdate(nextProps) {
