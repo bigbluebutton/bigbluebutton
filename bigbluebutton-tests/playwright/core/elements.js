@@ -28,6 +28,11 @@ exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
 // Messages
 exports.message = 'Hello World!';
 
+// Notes
+exports.sharedNotes = 'div[data-test="sharedNotes"]';
+exports.hideNoteLabel = 'button[data-test="hideNoteLabel"]';
+exports.etherpad = 'iframe[title="etherpad"]';
+
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
 
