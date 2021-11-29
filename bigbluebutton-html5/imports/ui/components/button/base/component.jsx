@@ -161,6 +161,7 @@ export default class ButtonBase extends React.Component {
       'animations',
       'small',
       'full',
+      'iconRight',
     ];
 
     return (

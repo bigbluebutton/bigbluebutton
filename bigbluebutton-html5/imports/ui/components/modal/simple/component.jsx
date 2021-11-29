@@ -81,7 +81,7 @@ class ModalSimple extends Component {
         {...otherProps}
       >
         <Styled.Header hideBorder={hideBorder}>
-          <Styled.Title>{title}</Styled.Title>
+          <Styled.Title hasLeftMargin={shouldShowCloseButton}>{title}</Styled.Title>
           {shouldShowCloseButton ? (
             <Styled.DismissButton
               label={intl.formatMessage(intlMessages.modalClose)}

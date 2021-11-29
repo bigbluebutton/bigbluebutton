@@ -1,4 +1,4 @@
-import styled, { css, keyframes } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components';
 import {
   borderSize,
   borderSizeLarge,
@@ -7,7 +7,7 @@ import {
   colorGrayLabel,
   colorWhite,
   colorGrayLighter,
-  colorBackground,
+  colorGrayDark,
   colorPrimary,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -117,7 +117,7 @@ const BrowserWarning = styled.p`
 
 const Title = styled.div`
   display: block;
-  color: ${colorBackground};
+  color: ${colorGrayDark};
   font-size: 1.4rem;
   text-align: center;
 `;
@@ -175,7 +175,7 @@ const ellipsis = keyframes`
   to {
     width: 1.5em;
   }
-`
+`;
 
 const FetchingAnimation = styled.span`
   margin: auto;

@@ -1,8 +1,8 @@
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Users from '/imports/api/users';
 import { makeCall } from '/imports/ui/services/api';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
-import Breakouts from '/imports/ui/local-collections/breakouts-collection/breakouts';
+import Meetings from '/imports/api/meetings';
+import Breakouts from '/imports/api/breakouts';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 
 const USER_CONFIG = Meteor.settings.public.user;
@@ -13,26 +13,15 @@ const getBreakouts = () => Breakouts.find({ parentMeetingId: Auth.meetingID })
   .fetch()
   .sort((a, b) => a.sequence - b.sequence);
 
-const currentBreakoutUsers = user => !Breakouts.findOne({
+const currentBreakoutUsers = (user) => !Breakouts.findOne({
   'joinedUsers.userId': new RegExp(`^${user.userId}`),
 });
 
-const filterBreakoutUsers = filter => users => users.filter(filter);
+const filterBreakoutUsers = (filter) => (users) => users.filter(filter);
 
 const getUsersNotAssigned = filterBreakoutUsers(currentBreakoutUsers);
 
 const takePresenterRole = () => makeCall('assignPresenter', Auth.userID);
-
-const amIPresenter = () => {
-  const currentUser = Users.findOne({ userId: Auth.userID },
-    { fields: { presenter: 1 } });
-
-  if (!currentUser) {
-    return false;
-  }
-
-  return currentUser.presenter;
-};
 
 const amIModerator = () => {
   const currentUser = Users.findOne({ userId: Auth.userID },
@@ -45,11 +34,9 @@ const amIModerator = () => {
   return currentUser.role === ROLE_MODERATOR;
 };
 
-const isMe = intId => intId === Auth.userID;
-
+const isMe = (intId) => intId === Auth.userID;
 
 export default {
-  amIPresenter,
   amIModerator,
   isMe,
   currentUser: () => Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID },

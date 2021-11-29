@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import Users from '/imports/api/users/';
 import Auth from '/imports/ui/services/auth';
 import MediaService, {
   getSwapLayout,
@@ -13,6 +12,7 @@ import {
 import ScreenshareComponent from './component';
 import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 
 const ScreenshareContainer = (props) => {
   const screenShare = layoutSelectOutput((i) => i.screenShare);
@@ -22,6 +22,11 @@ const ScreenshareContainer = (props) => {
   const { element } = fullscreen;
   const fullscreenElementId = 'Screenshare';
   const fullscreenContext = (element === fullscreenElementId);
+
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const currentUser = users[Auth.meetingID][Auth.userID];
+  const isPresenter = currentUser.presenter;
 
   if (isVideoBroadcasting()) {
     return (
@@ -33,6 +38,7 @@ const ScreenshareContainer = (props) => {
           ...screenShare,
           fullscreenContext,
           fullscreenElementId,
+          isPresenter,
         }
         }
       />
@@ -43,14 +49,10 @@ const ScreenshareContainer = (props) => {
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 
-export default withTracker(() => {
-  const user = Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } });
-  return {
-    isGloballyBroadcasting: isGloballyBroadcasting(),
-    isPresenter: user.presenter,
-    getSwapLayout,
-    shouldEnableSwapLayout,
-    toggleSwapLayout: MediaService.toggleSwapLayout,
-    hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
-  };
-})(ScreenshareContainer);
+export default withTracker(() => ({
+  isGloballyBroadcasting: isGloballyBroadcasting(),
+  getSwapLayout,
+  shouldEnableSwapLayout,
+  toggleSwapLayout: MediaService.toggleSwapLayout,
+  hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
+}))(ScreenshareContainer);

@@ -5,7 +5,7 @@ import { UsersContext } from '../users-context/context';
 import { makeCall } from '/imports/ui/services/api';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import Auth from '/imports/ui/services/auth';
-import CollectionEventsBroker from '/imports/ui/services/collection-hooks-callbacks/collection-hooks-callbacks';
+import CollectionEventsBroker from '/imports/ui/services/LiveDataEventBroker/LiveDataEventBroker';
 
 let prevUserData = {};
 let currentUserData = {};

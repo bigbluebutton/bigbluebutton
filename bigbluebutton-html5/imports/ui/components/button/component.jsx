@@ -155,11 +155,6 @@ export default class Button extends BaseButton {
 
     const remainingProps = this._cleanProps(otherProps);
 
-    /* TODO: We can change this and make the button with flexbox to avoid html
-      changes */
-    const renderLeftFuncName = !iconRight ? 'renderIcon' : 'renderLabel';
-    const renderRightFuncName = !iconRight ? 'renderLabel' : 'renderIcon';
-
     return (
       <Styled.Button
         size={size}
@@ -168,10 +163,11 @@ export default class Button extends BaseButton {
         circle={circle}
         block={block}
         className={className}
+        iconRight={iconRight}
         {...remainingProps}
       >
-        {this[renderLeftFuncName]()}
-        {this[renderRightFuncName]()}
+        {this.renderIcon()}
+        {this.renderLabel()}
       </Styled.Button>
     );
   }

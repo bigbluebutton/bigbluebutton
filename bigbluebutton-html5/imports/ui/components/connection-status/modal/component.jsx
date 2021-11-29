@@ -6,6 +6,7 @@ import Icon from '/imports/ui/components/connection-status/icon/component';
 import Switch from '/imports/ui/components/switch/component';
 import Service from '../service';
 import Styled from './styles';
+import ConnectionStatusHelper from '../status-helper/container';
 
 const NETWORK_MONITORING_INTERVAL_MS = 2000; 
 const MIN_TIMEOUT = 3000;
@@ -91,6 +92,42 @@ const intlMessages = defineMessages({
     id: 'app.connection-status.lostPackets',
     description: 'Number of lost packets',
   },
+  audioUploadRate: {
+    id: 'app.connection-status.audioUploadRate',
+    description: 'Label for audio current upload rate',
+  },
+  audioDownloadRate: {
+    id: 'app.connection-status.audioDownloadRate',
+    description: 'Label for audio current download rate',
+  },
+  videoUploadRate: {
+    id: 'app.connection-status.videoUploadRate',
+    description: 'Label for video current upload rate',
+  },
+  videoDownloadRate: {
+    id: 'app.connection-status.videoDownloadRate',
+    description: 'Label for video current download rate',
+  },
+  connectionStats: {
+    id: 'app.connection-status.connectionStats',
+    description: 'Label for Connection Stats tab',
+  },
+  myLogs: {
+    id: 'app.connection-status.myLogs',
+    description: 'Label for My Logs tab',
+  },
+  sessionLogs: {
+    id: 'app.connection-status.sessionLogs',
+    description: 'Label for Session Logs tab',
+  },
+  next: {
+    id: 'app.connection-status.next',
+    description: 'Label for the next page of the connection stats tab',
+  },
+  prev: {
+    id: 'app.connection-status.prev',
+    description: 'Label for the previous page of the connection stats tab',
+  },
 });
 
 const propTypes = {
@@ -121,6 +158,8 @@ class ConnectionStatusComponent extends PureComponent {
 
     this.help = Service.getHelp();
     this.state = {
+      selectedTab: '1',
+      dataPage: '1',
       dataSaving: props.dataSaving,
       hasNetworkData: false,
       networkData: {
@@ -142,9 +181,10 @@ class ConnectionStatusComponent extends PureComponent {
     };
     this.displaySettingsStatus = this.displaySettingsStatus.bind(this);
     this.rateInterval = null;
-
-    this.audioLabel = (intl.formatMessage(intlMessages.audioLabel)).charAt(0);
-    this.videoLabel = (intl.formatMessage(intlMessages.videoLabel)).charAt(0);
+    this.audioUploadLabel = intl.formatMessage(intlMessages.audioUploadRate);
+    this.audioDownloadLabel = intl.formatMessage(intlMessages.audioDownloadRate);
+    this.videoUploadLabel = intl.formatMessage(intlMessages.videoUploadRate);
+    this.videoDownloadLabel = intl.formatMessage(intlMessages.videoDownloadRate);
   }
 
   async componentDidMount() {
@@ -222,13 +262,13 @@ class ConnectionStatusComponent extends PureComponent {
     const { intl } = this.props;
 
     return (
-      <Styled.Item data-test="connectionStatusItemEmpty">
+      <Styled.Item last data-test="connectionStatusItemEmpty">
         <Styled.Left>
-          <Styled.Name>
+          <Styled.FullName>
             <Styled.Text>
               {intl.formatMessage(intlMessages.empty)}
             </Styled.Text>
-          </Styled.Name>
+          </Styled.FullName>
         </Styled.Left>
       </Styled.Item>
     );
@@ -280,15 +320,23 @@ class ConnectionStatusComponent extends PureComponent {
       intl,
     } = this.props;
 
+    const { selectedTab } = this.state;
+
     if (isConnectionStatusEmpty(connectionStatus)) return this.renderEmpty();
 
-    return connectionStatus.map((conn, index) => {
+    let connections = connectionStatus;
+    if (selectedTab === '2') {
+      connections = connections.filter(conn => conn.you);
+      if (isConnectionStatusEmpty(connections)) return this.renderEmpty();
+    }
+
+    return connections.map((conn, index) => {
       const dateTime = new Date(conn.timestamp);
 
       return (
         <Styled.Item
           key={index}
-          even={(index + 1) % 2 === 0}
+          last={(index + 1) === connections.length}
           data-test="connectionStatusItemUser"
         >
           <Styled.Left>
@@ -411,13 +459,15 @@ class ConnectionStatusComponent extends PureComponent {
     }
 
     const {
-      audioLabel,
-      videoLabel,
+      audioUploadLabel,
+      audioDownloadLabel,
+      videoUploadLabel,
+      videoDownloadLabel,
     } = this;
 
-    const { intl } = this.props;
+    const { intl, closeModal } = this.props;
 
-    const { networkData } = this.state;
+    const { networkData, dataSaving, dataPage } = this.state;
 
     const {
       audioCurrentUploadRate,
@@ -447,29 +497,103 @@ class ConnectionStatusComponent extends PureComponent {
       }
     }
 
+    function handlePaginationClick(action) {
+      if (action === 'next') {
+        this.setState({ dataPage: '2' });
+      }
+      else {
+        this.setState({ dataPage: '1' });
+      }
+    }
+
     return (
       <Styled.NetworkDataContainer>
-        <Styled.NetworkData>
-          {`↑${audioLabel}: ${audioCurrentUploadRate} k`}
-        </Styled.NetworkData>
-        <Styled.NetworkData>
-          {`↓${audioLabel}: ${audioCurrentDownloadRate} k`}
-        </Styled.NetworkData>
-        <Styled.NetworkData>
-          {`↑${videoLabel}: ${videoCurrentUploadRate} k`}
-        </Styled.NetworkData>
-        <Styled.NetworkData>
-          {`↓${videoLabel}: ${videoCurrentDownloadRate} k`}
-        </Styled.NetworkData>
-        <Styled.NetworkData>
-          {`${intl.formatMessage(intlMessages.jitter)}: ${jitter} ms`}
-        </Styled.NetworkData>
-        <Styled.NetworkData>
-          {`${intl.formatMessage(intlMessages.lostPackets)}: ${packetsLost}`}
-        </Styled.NetworkData>
-        <Styled.NetworkData>
-          {`${intl.formatMessage(intlMessages.usingTurn)}: ${isUsingTurn}`}
-        </Styled.NetworkData>
+        <Styled.Prev>
+          <Styled.ButtonLeft
+            role="button"
+            disabled={dataPage === '1'}
+            aria-label={`${intl.formatMessage(intlMessages.prev)} ${intl.formatMessage(intlMessages.ariaTitle)}`}
+            onClick={handlePaginationClick.bind(this, 'prev')}
+          >
+            <Styled.Chevron
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </Styled.Chevron>
+          </Styled.ButtonLeft>
+        </Styled.Prev>
+        <Styled.Helper page={dataPage}>
+          <ConnectionStatusHelper closeModal={() => closeModal(dataSaving, intl)} />
+        </Styled.Helper>
+        <Styled.NetworkDataContent page={dataPage}>
+          <Styled.DataColumn>
+            <Styled.NetworkData>
+              <div>{`${audioUploadLabel}`}</div>
+              <div>{`${audioCurrentUploadRate}k ↑`}</div>
+            </Styled.NetworkData>
+            <Styled.NetworkData>
+              <div>{`${videoUploadLabel}`}</div>
+              <div>{`${videoCurrentUploadRate}k ↑`}</div>
+            </Styled.NetworkData>
+            <Styled.NetworkData>
+              <div>{`${intl.formatMessage(intlMessages.jitter)}`}</div>
+              <div>{`${jitter} ms`}</div>
+            </Styled.NetworkData>
+            <Styled.NetworkData>
+              <div>{`${intl.formatMessage(intlMessages.usingTurn)}`}</div>
+              <div>{`${isUsingTurn}`}</div>
+            </Styled.NetworkData>
+          </Styled.DataColumn>
+
+          <Styled.DataColumn>
+            <Styled.NetworkData>
+              <div>{`${audioDownloadLabel}`}</div>
+              <div>{`${audioCurrentDownloadRate}k ↓`}</div>
+            </Styled.NetworkData>
+            <Styled.NetworkData>
+              <div>{`${videoDownloadLabel}`}</div>
+              <div>{`${videoCurrentDownloadRate}k ↓`}</div>
+            </Styled.NetworkData>
+            <Styled.NetworkData>
+              <div>{`${intl.formatMessage(intlMessages.lostPackets)}`}</div>
+              <div>{`${packetsLost}`}</div>
+            </Styled.NetworkData>
+            <Styled.NetworkData invisible>
+              <div>Content Hidden</div>
+              <div>0</div>
+            </Styled.NetworkData>
+          </Styled.DataColumn>
+        </Styled.NetworkDataContent>
+        <Styled.Next>
+          <Styled.ButtonRight
+            role="button"
+            disabled={dataPage === '2'}
+            aria-label={`${intl.formatMessage(intlMessages.next)} ${intl.formatMessage(intlMessages.ariaTitle)}`}
+            onClick={handlePaginationClick.bind(this, 'next')}
+          >
+            <Styled.Chevron
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </Styled.Chevron>
+          </Styled.ButtonRight>
+        </Styled.Next>
       </Styled.NetworkDataContainer>
     );
   }
@@ -503,13 +627,69 @@ class ConnectionStatusComponent extends PureComponent {
     );
   }
 
+  /**
+   * The navigation bar.
+   * @returns {Object} The component to be renderized.
+  */
+  renderNavigation() {
+    const { intl } = this.props;
+
+    const handleTabClick = (event) => {
+      const activeTabElement = document.querySelector('.activeConnectionStatusTab');
+      const { target } = event;
+
+      if (activeTabElement) {
+        activeTabElement.classList.remove('activeConnectionStatusTab');
+      }
+
+      target.classList.add('activeConnectionStatusTab');
+      this.setState({
+        selectedTab: target.dataset.tab,
+      });
+    }
+
+    return (
+      <Styled.Navigation>
+        <div
+          data-tab="1"
+          className="activeConnectionStatusTab"
+          onClick={handleTabClick}
+          onKeyDown={handleTabClick}
+          role="button"
+        >
+          {intl.formatMessage(intlMessages.connectionStats)}
+        </div>
+        <div
+          data-tab="2"
+          onClick={handleTabClick}
+          onKeyDown={handleTabClick}
+          role="button"
+        >
+          {intl.formatMessage(intlMessages.myLogs)}
+        </div>
+        {Service.isModerator()
+          && (
+            <div
+              data-tab="3"
+              onClick={handleTabClick}
+              onKeyDown={handleTabClick}
+              role="button"
+            >
+              {intl.formatMessage(intlMessages.sessionLogs)}
+            </div>
+          )
+        }
+      </Styled.Navigation>
+    );
+  }
+
   render() {
     const {
       closeModal,
       intl,
     } = this.props;
 
-    const { dataSaving } = this.state;
+    const { dataSaving, selectedTab } = this.state;
 
     return (
       <Styled.ConnectionStatusModal
@@ -523,25 +703,18 @@ class ConnectionStatusComponent extends PureComponent {
               {intl.formatMessage(intlMessages.title)}
             </Styled.Title>
           </Styled.Header>
-          <Styled.Description>
-            {intl.formatMessage(intlMessages.description)}
-            {' '}
-            {this.help
-              && (
-                <a href={this.help} target="_blank" rel="noopener noreferrer">
-                  {`(${intl.formatMessage(intlMessages.more)})`}
-                </a>
-              )
+          {this.renderNavigation()}
+          <Styled.Main>
+            <Styled.Body>
+              {selectedTab === '1'
+                ? this.renderNetworkData()
+                : this.renderConnections()
+              }
+            </Styled.Body>
+            {selectedTab === '1' &&
+              this.renderCopyDataButton()
             }
-          </Styled.Description>
-          {this.renderNetworkData()}
-          {this.renderCopyDataButton()}
-          {this.renderDataSaving()}
-          <Styled.Content>
-            <Styled.Wrapper>
-              {this.renderConnections()}
-            </Styled.Wrapper>
-          </Styled.Content>
+          </Styled.Main>
         </Styled.Container>
       </Styled.ConnectionStatusModal>
     );

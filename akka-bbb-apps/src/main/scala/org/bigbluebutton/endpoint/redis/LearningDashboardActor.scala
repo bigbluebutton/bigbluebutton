@@ -1,6 +1,7 @@
 package org.bigbluebutton.endpoint.redis
 
 import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import org.bigbluebutton.common2.domain.PresentationVO
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.OutMessageGateway
@@ -23,6 +24,7 @@ case class Meeting(
   users: Map[String, User] = Map(),
   polls: Map[String, Poll] = Map(),
   screenshares: Vector[Screenshare] = Vector(),
+  presentationSlides: Vector[PresentationSlide] = Vector(),
   createdOn: Long = System.currentTimeMillis(),
   endedOn: Long = 0,
 )
@@ -72,6 +74,12 @@ case class Screenshare(
   stoppedOn: Long = 0,
 )
 
+case class PresentationSlide(
+  presentationId: String,
+  pageNum: Long,
+  setOn: Long = System.currentTimeMillis(),
+)
+
 
 object LearningDashboardActor {
   def props(
@@ -92,6 +100,7 @@ class LearningDashboardActor(
 
   private var meetings: Map[String, Meeting] = Map()
   private var meetingsLastJsonHash : Map[String,String] = Map()
+  private var meetingPresentations : Map[String,Map[String,PresentationVO]] = Map()
 
   system.scheduler.schedule(10.seconds, 10.seconds, self, SendPeriodicReport)
 
@@ -107,6 +116,12 @@ class LearningDashboardActor(
     msg.core match {
       // Chat
       case m: GroupChatMessageBroadcastEvtMsg       => handleGroupChatMessageBroadcastEvtMsg(m)
+
+      // Presentation
+      case m: PresentationConversionCompletedEvtMsg => handlePresentationConversionCompletedEvtMsg(m)
+      case m: SetCurrentPageEvtMsg                  => handleSetCurrentPageEvtMsg(m)
+      case m: RemovePresentationEvtMsg              => handleRemovePresentationEvtMsg(m)
+      case m: SetCurrentPresentationEvtMsg          => handleSetCurrentPresentationEvtMsg(m)
 
       // User
       case m: UserJoinedMeetingEvtMsg => handleUserJoinedMeetingEvtMsg(m)
@@ -146,6 +161,77 @@ class LearningDashboardActor(
       } yield {
         val updatedUser = user.copy(totalOfMessages = user.totalOfMessages + 1)
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+        meetings += (updatedMeeting.intId -> updatedMeeting)
+      }
+    }
+  }
+
+  private def handlePresentationConversionCompletedEvtMsg(msg: PresentationConversionCompletedEvtMsg) {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+    } yield {
+      val updatedPresentations = meetingPresentations.get(meeting.intId).getOrElse(Map()) + (msg.body.presentation.id -> msg.body.presentation)
+      meetingPresentations += (meeting.intId -> updatedPresentations)
+      if(msg.body.presentation.current == true) {
+        for {
+          page <- msg.body.presentation.pages.find(p => p.current == true)
+        } yield {
+          this.setPresentationSlide(meeting.intId, msg.body.presentation.id,page.num)
+        }
+      }
+    }
+  }
+
+  private def handleSetCurrentPageEvtMsg(msg: SetCurrentPageEvtMsg) {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      presentations <- meetingPresentations.get(meeting.intId)
+      presentation <- presentations.get(msg.body.presentationId)
+      page <- presentation.pages.find(p => p.id == msg.body.pageId)
+    } yield {
+      this.setPresentationSlide(meeting.intId, msg.body.presentationId,page.num)
+    }
+  }
+
+  private def handleRemovePresentationEvtMsg(msg: RemovePresentationEvtMsg) {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+    } yield {
+      if(meeting.presentationSlides.last.presentationId == msg.body.presentationId) {
+        this.setPresentationSlide(meeting.intId, "",0)
+      }
+    }
+  }
+
+  private def handleSetCurrentPresentationEvtMsg(msg: SetCurrentPresentationEvtMsg) {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+    } yield {
+      val presPreviousSlides: Vector[PresentationSlide] = meeting.presentationSlides.filter(p => p.presentationId == msg.body.presentationId);
+      if(presPreviousSlides.length > 0) {
+        //Set last page showed for this presentation
+        this.setPresentationSlide(meeting.intId, msg.body.presentationId,presPreviousSlides.last.pageNum)
+      } else {
+        //If none page was showed yet, set the current page (page 1 by default)
+        for {
+          presentations <- meetingPresentations.get(meeting.intId)
+          presentation <- presentations.get(msg.body.presentationId)
+          page <- presentation.pages.find(s => s.current == true)
+        } yield  {
+          this.setPresentationSlide(meeting.intId, msg.body.presentationId,page.num)
+        }
+      }
+    }
+  }
+
+  private def setPresentationSlide(meetingId: String, presentationId: String, pageNum: Long) {
+    for {
+      meeting <- meetings.values.find(m => m.intId == meetingId)
+    } yield {
+      if (meeting.presentationSlides.length == 0 ||
+        meeting.presentationSlides.last.presentationId != presentationId ||
+        meeting.presentationSlides.last.pageNum != pageNum) {
+        val updatedMeeting = meeting.copy(presentationSlides = meeting.presentationSlides :+ PresentationSlide(presentationId, pageNum))
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
     }
@@ -403,6 +489,7 @@ class LearningDashboardActor(
       //Send report one last time
       sendReport(updatedMeeting)
 
+      meetingPresentations = meetingPresentations.-(updatedMeeting.intId)
       meetings = meetings.-(updatedMeeting.intId)
       log.info(" removed for meeting {}.",updatedMeeting.intId)
     }
@@ -426,7 +513,7 @@ class LearningDashboardActor(
 
       meetingsLastJsonHash += (meeting.intId -> activityJsonHash)
 
-      log.info("Activity Report sent for meeting {}",meeting.intId)
+      log.info("Learning Dashboard data sent for meeting {}",meeting.intId)
     }
   }
 

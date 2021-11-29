@@ -17,7 +17,8 @@ const SettingsContainer = (props) => {
   return <Settings {...props} layoutContextDispatch={layoutContextDispatch} />;
 };
 
-export default withTracker(() => ({
+export default withTracker((props) => ({
+  ...props,
   audio: SettingsService.audio,
   dataSaving: SettingsService.dataSaving,
   application: SettingsService.application,

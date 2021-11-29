@@ -4,7 +4,7 @@ import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-comp
 import {
   colorWhite,
   colorLink,
-  colorBackground,
+  colorGrayDark,
   colorGrayLighter,
   colorGrayLabel,
   colorPrimary,
@@ -29,7 +29,7 @@ const Title = styled(HeaderElipsis)`
   text-align: center;
   font-weight: 400;
   font-size: 1.3rem;
-  color: ${colorBackground};
+  color: ${colorGrayDark};
   white-space: normal;
   flex: 1;
   margin: 0;

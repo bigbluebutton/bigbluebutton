@@ -20,6 +20,7 @@ import Icon from '/imports/ui/components/icon/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
+import { colorBackground } from '/imports/ui/stylesheets/styled-components/palette';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -186,7 +187,7 @@ class Presentation extends PureComponent {
           this.currentPresentationToastId = toast(this.renderCurrentPresentationToast(), {
             onClose: () => { this.currentPresentationToastId = null; },
             autoClose: shouldCloseToast,
-            className: "actionToast",
+            className: 'actionToast',
           });
         }
       }
@@ -693,13 +694,14 @@ class Presentation extends PureComponent {
   }
 
   renderWhiteboardToolbar(svgDimensions) {
-    const { currentSlide } = this.props;
+    const { currentSlide, userIsPresenter } = this.props;
     if (!this.isPresentationAccessible()) return null;
 
     return (
       <WhiteboardToolbarContainer
         whiteboardId={currentSlide.id}
         height={svgDimensions.height}
+        isPresenter={userIsPresenter}
       />
     );
   }
@@ -854,7 +856,7 @@ class Presentation extends PureComponent {
           width: presentationBounds.width,
           height: presentationBounds.height,
           zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
-          backgroundColor: '#06172A',
+          backgroundColor: colorBackground,
         }}
       >
         {isFullscreen && <PollingContainer />}

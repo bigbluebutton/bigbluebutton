@@ -12,21 +12,15 @@ export default class TriangleDrawComponent extends Component {
     const { slideWidth, slideHeight, annotation } = this.props;
     const { points } = annotation;
 
-    // points[0] and points[1] are x and y coordinates of the top left corner of the annotation
-    // points[2] and points[3] are x and y coordinates of the bottom right corner of the annotation
-    const xBottomLeft = points[0];
-    const yBottomLeft = points[3];
-    const xBottomRight = points[2];
-    const yBottomRight = points[3];
-    const xTop = ((xBottomRight - xBottomLeft) / 2) + xBottomLeft;
-    const yTop = points[1];
+    const xApex = ((points[2] - points[0]) / 2) + points[0];
+    const yApex = points[1];
 
-    const path = `M${denormalizeCoord(xTop, slideWidth)
-    },${denormalizeCoord(yTop, slideHeight)
-    },${denormalizeCoord(xBottomLeft, slideWidth)
-    },${denormalizeCoord(yBottomLeft, slideHeight)
-    },${denormalizeCoord(xBottomRight, slideWidth)
-    },${denormalizeCoord(yBottomRight, slideHeight)
+    const path = `M${denormalizeCoord(xApex, slideWidth)
+    },${denormalizeCoord(yApex, slideHeight)
+    },${denormalizeCoord(points[0], slideWidth)
+    },${denormalizeCoord(points[3], slideHeight)
+    },${denormalizeCoord(points[2], slideWidth)
+    },${denormalizeCoord(points[3], slideHeight)
     }Z`;
 
     return path;

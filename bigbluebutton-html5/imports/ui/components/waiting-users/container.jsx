@@ -1,8 +1,8 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
-import GuestUsers from '/imports/ui/local-collections/guest-users-collection/guest-users';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import GuestUsers from '/imports/api/guest-users';
+import Meetings from '/imports/api/meetings';
 import Service from './service';
 import WaitingComponent from './component';
 import { layoutDispatch } from '../layout/context';
