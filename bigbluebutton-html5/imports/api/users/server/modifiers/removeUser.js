@@ -1,5 +1,6 @@
 import { check } from 'meteor/check';
 import Users from '/imports/api/users';
+import UsersPersistentData from '/imports/api/users-persistent-data';
 import VideoStreams from '/imports/api/video-streams';
 import Logger from '/imports/startup/server/logger';
 import setloggedOutStatus from '/imports/api/users-persistent-data/server/modifiers/setloggedOutStatus';
@@ -44,6 +45,12 @@ export default function removeUser(meetingId, userId) {
 
     clearUserInfoForRequester(meetingId, userId);
 
+    const currentUser = Users.findOne({ userId, meetingId });
+    const hasMessages = currentUser?.hasMessages;
+
+    if (!hasMessages) {
+      UsersPersistentData.remove(selector);
+    }
     Users.remove(selector);
 
     Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
