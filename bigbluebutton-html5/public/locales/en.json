@@ -587,7 +587,7 @@
     "app.guest.errorSeeConsole": "Error: more details in the console.",
     "app.guest.noModeratorResponse": "No response from Moderator.",
     "app.guest.noSessionToken": "No session Token received.",
-    "app.guest.windowTitle": "Guest Lobby",
+    "app.guest.windowTitle": "BigBlueButton - Guest Lobby",
     "app.guest.missingToken": "Guest missing session token.",
     "app.guest.missingSession": "Guest missing session.",
     "app.guest.missingMeeting": "Meeting does not exist.",
