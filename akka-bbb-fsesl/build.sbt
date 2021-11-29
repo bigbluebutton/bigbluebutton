@@ -28,8 +28,8 @@ val compileSettings = Seq(
 )
 
 resolvers ++= Seq(
-  "spray repo" at "http://repo.spray.io/",
-  "blindside-repos" at "http://blindside.googlecode.com/svn/repository/"
+  ("spray repo" at "http://repo.spray.io/").withAllowInsecureProtocol(true),
+  ("blindside-repos" at "http://blindside.googlecode.com/svn/repository/").withAllowInsecureProtocol(true)
 )
 
 resolvers += Resolver.sonatypeRepo("releases")
@@ -79,4 +79,4 @@ daemonGroup in Linux := group
 
 javaOptions in Universal ++= Seq("-J-Xms130m", "-J-Xmx256m", "-Dconfig.file=/etc/bigbluebutton/bbb-fsesl-akka.conf", "-Dlogback.configurationFile=conf/logback.xml")
 
-debianPackageDependencies in Debian ++= Seq("java8-runtime-headless", "bash", "bbb-freeswitch-core")
+debianPackageDependencies in Debian ++= Seq("java17-runtime-headless", "bash", "bbb-freeswitch-core")
