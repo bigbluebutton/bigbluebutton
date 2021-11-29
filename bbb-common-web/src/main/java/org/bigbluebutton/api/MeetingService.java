@@ -381,6 +381,7 @@ public class MeetingService implements MessageListener {
 
         // Store the token in the breakout metadata
         breakoutMetadata.put("presentationUploadToken", m.getPresentationUploadToken());
+        breakoutMetadata.put("record", m.isRecord() ? "true" : "false");
         storeService.recordBreakoutInfo(m.getInternalId(), breakoutMetadata);
       }
     }

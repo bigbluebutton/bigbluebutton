@@ -1,0 +1,8 @@
+# For PRODUCTION
+publish_dir: /var/bigbluebutton/published/breakout_pdf
+process_dir: /var/bigbluebutton/process/breakout_pdf
+
+# For DEVELOPMENT
+# publish_dir: /home/ubuntu/temp/published/breakout_pdf
+# process_dir: /home/ubuntu/temp/process/breakout_pdf
+

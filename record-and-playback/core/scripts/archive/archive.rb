@@ -123,6 +123,7 @@ def archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp)
 
   doc = Nokogiri::XML(File.open("#{raw_archive_dir}/#{meeting_id}/events.xml"))
 
+  isBreakout = doc.at_xpath('recording/metadata/@isBreakout').text == "true"
   # Find the start and stop timestamps for the current recording segment
   start_timestamp = BigBlueButton::Events.get_segment_start_timestamp(
           doc, break_timestamp)
@@ -134,6 +135,10 @@ def archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp)
   rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
           BigBlueButton::Events.get_start_and_stop_rec_events(doc, true))
   has_recording_marks = false
+
+  # Process recording if it is a breakout room created with recordings enabled in order to generate PDF
+  has_recording_marks = doc.at_xpath('recording/breakout/@record').text() == 'true' if isBreakout
+
   # Scan for a set of recording start/stop events which fits any of these cases:
   # - Recording started during segment
   # - Recording stopped during segment
