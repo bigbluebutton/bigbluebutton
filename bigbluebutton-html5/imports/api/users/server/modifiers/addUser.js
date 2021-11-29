@@ -33,6 +33,7 @@ export default function addUser(meetingId, userData) {
     presenter: Boolean,
     locked: Boolean,
     avatar: String,
+    pin: Boolean,
     clientType: String,
   });
 
