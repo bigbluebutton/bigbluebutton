@@ -34,7 +34,7 @@ const DEFAULT_VALUES = {
   actionBarTabOrder: 6,
 
   sidebarNavMaxWidth: 240,
-  sidebarNavMinWidth: 150,
+  sidebarNavMinWidth: 70,
   sidebarNavHeight: '100%',
   sidebarNavTop: 0,
   sidebarNavLeft: 0,
@@ -42,7 +42,7 @@ const DEFAULT_VALUES = {
   sidebarNavPanel: PANELS.USERLIST,
 
   sidebarContentMaxWidth: 800,
-  sidebarContentMinWidth: 150,
+  sidebarContentMinWidth: 70,
   sidebarContentMinHeight: 200,
   sidebarContentHeight: '100%',
   sidebarContentTop: 0,
