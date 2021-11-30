@@ -14,7 +14,7 @@ test.describe.parallel('Polling', () => {
     await test.pollAnonymous()
   });
 
-  test.only('Create quick poll - from the slide', async ({ browser, context, page }) => {
+  test('Create quick poll - from the slide', async ({ browser, context, page }) => {
     const test = new Polling(browser, context);
     await test.initPages(page);
     await test.quickPoll();
@@ -44,7 +44,7 @@ test.describe.parallel('Polling', () => {
     await test.pollResultsOnWhiteboard();
   });
 
-  test.only('Poll results in a different presentation', async ({ browser, page }) => {
+  test('Poll results in a different presentation', async ({ browser, page }) => {
     const test = new Polling(browser);
     await test.initModPage(page);
     await test.pollResultsInDifferentPresentation();
