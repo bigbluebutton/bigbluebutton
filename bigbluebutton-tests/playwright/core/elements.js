@@ -1,8 +1,15 @@
 // Common
 exports.actions = 'button[aria-label="Actions"]';
 exports.pollMenuButton = 'div[data-test="pollMenuButton"]';
+exports.options = 'button[aria-label="Options"]';
+exports.settings = 'li[data-test="settings"]';
+exports.modalConfirmButton = 'button[data-test="modalConfirmButton"]';
+exports.screenshareConnecting = 'div[data-test="screenshareConnecting"]';
+exports.screenShareVideo = 'video[id="screenshareVideo"]';
+exports.closeModal = 'button[data-test="modalDismissButton"]';
 
 // Audio
+exports.joinAudio = 'button[data-test="joinAudio"]';
 exports.audioModal = 'div[aria-label="Join audio modal"]';
 exports.closeAudioButton = 'button[aria-label="Close Join audio modal"]';
 exports.listenOnlyButton = 'button[aria-label="Listen only"]';
@@ -11,6 +18,16 @@ exports.leaveAudio = 'button[data-test="leaveAudio"]';
 exports.microphoneButton = 'button[aria-label="Microphone"]';
 exports.echoYesButton = 'button[aria-label="Echo is audible"]';
 exports.isTalking = '[data-test="isTalking"]';
+exports.talkingIndicator = 'div[class^="isTalkingWrapper--"] > div[class^="speaking--"]';
+
+// Breakout
+exports.createBreakoutRooms = 'li[data-test="createBreakoutRooms"]';
+exports.randomlyAssign = '[data-test="randomlyAssign"]';
+exports.breakoutRoomsItem = '[data-test="breakoutRoomsItem"]';
+exports.alreadyConnected = 'span[class^="alreadyConnected--"]';
+exports.askJoinRoom1 = 'button[aria-label="Ask to join Room 1"]';
+exports.joinRoom1 = 'button[aria-label="Join room Room 1"]';
+exports.breakoutRoomsButton = 'div[aria-label="Breakout Rooms"]';
 
 // Chat
 exports.chatBox = '#message-input';
@@ -63,6 +80,7 @@ exports.cancelPollBtn = 'button[data-test="cancelPollLabel"]';
 exports.questionSlideFileName = 'mockPollSlide.pdf';
 
 // Presentation
+exports.startScreenSharing = 'button[data-test="startScreenShare"]';
 exports.uploadPresentation = '[data-test="uploadPresentation"]';
 exports.fileUpload = 'input[type="file"]';
 exports.upload = 'button[aria-label="Upload"]';
@@ -102,11 +120,7 @@ exports.applaud = '[data-test="applause"]';
 exports.userListItem = 'div[data-test="userListItem"]';
 exports.firstUser = '[data-test="userListItemCurrent"]';
 exports.multiWhiteboardTool = 'span[data-test="multiWhiteboardTool"]';
-
-// Common
-exports.options = 'button[aria-label="Options"]';
-exports.settings = 'li[data-test="settings"]';
-exports.modalConfirmButton = 'button[data-test="modalConfirmButton"]';
+exports.manageUsers = 'button[data-test="manageUsers"]';
 
 // Locales
 exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',

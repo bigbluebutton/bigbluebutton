@@ -24,6 +24,15 @@ class Page {
     }
   }
 
+  async bringToFront() {
+    await this.page.bringToFront();
+  }
+
+  async getLastTargetPage(context) {
+    const contextPages = await context.pages();
+    return new Page(this.browser, contextPages[contextPages.length - 1]);
+  }
+
   async init(isModerator, shouldCloseAudioModal, initOptions) {
     const { fullName, meetingId, customParameter } = initOptions || {};
 
@@ -72,7 +81,7 @@ class Page {
 
   async closeAudioModal() {
     await this.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
-    await this.page.click(e.closeAudioButton);
+    await this.waitAndClick(e.closeAudioButton);
   }
 
   async waitForSelector(selector, timeout = ELEMENT_WAIT_TIME) {
