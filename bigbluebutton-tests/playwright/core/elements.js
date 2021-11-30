@@ -7,6 +7,7 @@ exports.modalConfirmButton = 'button[data-test="modalConfirmButton"]';
 exports.screenshareConnecting = 'div[data-test="screenshareConnecting"]';
 exports.screenShareVideo = 'video[id="screenshareVideo"]';
 exports.closeModal = 'button[data-test="modalDismissButton"]';
+exports.isSharingScreen = 'div[data-test="isSharingScreen"]';
 
 // Audio
 exports.joinAudio = 'button[data-test="joinAudio"]';
