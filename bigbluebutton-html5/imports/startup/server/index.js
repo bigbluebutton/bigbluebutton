@@ -4,6 +4,7 @@ import Langmap from 'langmap';
 import fs from 'fs';
 import Users from '/imports/api/users';
 import './settings';
+import './customVirtualBackground';
 import { lookup as lookupUserAgent } from 'useragent';
 import { check } from 'meteor/check';
 import Logger from './logger';
