@@ -830,7 +830,7 @@
     "app.createBreakoutRoom.returnAudio": "Audio zurückgeben",
     "app.createBreakoutRoom.alreadyConnected": "Bereits im Raum",
     "app.createBreakoutRoom.confirm": "Erstellen",
-    "app.createBreakoutRoom.record": "Aufzeichnen",
+    "app.createBreakoutRoom.record": "Kommentierte Präsentationen nach Ende der Teilgruppensitzung automatisch hochladen",
     "app.createBreakoutRoom.numberOfRooms": "Anzahl der Räume",
     "app.createBreakoutRoom.durationInMinutes": "Dauer (Minuten)",
     "app.createBreakoutRoom.randomlyAssign": "Zufällig zuordnen",

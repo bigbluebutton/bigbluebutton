@@ -832,7 +832,7 @@
     "app.createBreakoutRoom.returnAudio": "Return audio",
     "app.createBreakoutRoom.alreadyConnected": "Already in room",
     "app.createBreakoutRoom.confirm": "Create",
-    "app.createBreakoutRoom.record": "Record",
+    "app.createBreakoutRoom.record": "Automatically upload annotated presentations after breakout session ends",
     "app.createBreakoutRoom.numberOfRooms": "Number of rooms",
     "app.createBreakoutRoom.durationInMinutes": "Duration (minutes)",
     "app.createBreakoutRoom.randomlyAssign": "Randomly assign",

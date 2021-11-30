@@ -794,7 +794,7 @@
     "app.createBreakoutRoom.returnAudio": "Retornar áudio",
     "app.createBreakoutRoom.alreadyConnected": "Já está na sala",
     "app.createBreakoutRoom.confirm": "Criar",
-    "app.createBreakoutRoom.record": "Gravar",
+    "app.createBreakoutRoom.record": "Fazer upload automático das apresentações anotadas após o término da sessão",
     "app.createBreakoutRoom.numberOfRooms": "Número de salas",
     "app.createBreakoutRoom.durationInMinutes": "Duração (minutos)",
     "app.createBreakoutRoom.randomlyAssign": "Atribuir aleatoriamente",
