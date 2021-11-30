@@ -157,9 +157,9 @@ class ScreenshareBroker extends BaseBroker {
       const options = {
         onicecandidate: this.signalCandidates ? this.onIceCandidate.bind(this) : null,
         videoStream: this.stream,
+        configuration: this.populatePeerConfiguration(),
       };
 
-      this.addIceServers(options);
       this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, (error) => {
         if (error) {
           // 1305: "PEER_NEGOTIATION_FAILED",
@@ -226,9 +226,8 @@ class ScreenshareBroker extends BaseBroker {
           audio: !!this.hasAudio,
         },
         onicecandidate: this.signalCandidates ? this.onIceCandidate.bind(this) : null,
+        configuration: this.populatePeerConfiguration(),
       };
-
-      this.addIceServers(options);
 
       this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, (error) => {
         if (error) {

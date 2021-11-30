@@ -200,6 +200,7 @@ public:
     # Experiment(al). Controls whether ICE candidates should be signaled.
     # Applies to webcams, listen only and screen sharing. True is "stable behavior".
     signalCandidates: true
+    forceRelayOnFirefox: false
     cameraTimeouts:
       # Base camera timeout: used as the camera *sharing* timeout and
       # as the minimum camera subscribe reconnection timeout

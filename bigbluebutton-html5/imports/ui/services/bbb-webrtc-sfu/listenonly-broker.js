@@ -34,9 +34,8 @@ class ListenOnlyBroker extends BaseBroker {
           video: false,
         },
         onicecandidate: this.signalCandidates ? this.onIceCandidate.bind(this) : null,
+        configuration: this.populatePeerConfiguration(),
       };
-
-      this.addIceServers(options);
 
       this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, (error) => {
         if (error) {
