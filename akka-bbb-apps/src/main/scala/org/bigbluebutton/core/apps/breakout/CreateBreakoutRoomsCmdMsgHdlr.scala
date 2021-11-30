@@ -54,7 +54,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
 
     for (breakout <- rooms.values.toVector) {
       // Generate token if breakout room is recorded
-      val presentationUploadToken = if (msg.body.record) (PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", msg.header.userId)) else null
+      val presentationUploadToken = if (msg.body.record) (PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", msg.header.userId)) else "bbb-none"
 
       val roomDetail = new BreakoutRoomDetail(
         breakout.id, breakout.name,
