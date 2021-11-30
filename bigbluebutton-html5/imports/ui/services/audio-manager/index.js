@@ -393,8 +393,6 @@ class AudioManager {
         muteState = 'selfUnmuted';
         this.unmute();
       }
-
-      window.parent.postMessage({ response: muteState }, '*');
     }
 
     if (fields.talking !== undefined && fields.talking !== this.isTalking) {
@@ -431,7 +429,6 @@ class AudioManager {
     }
 
     if (!this.isEchoTest) {
-      window.parent.postMessage({ response: 'joinedAudio' }, '*');
       this.notify(this.intl.formatMessage(this.messages.info.JOINED_AUDIO));
       logger.info({ logCode: 'audio_joined' }, 'Audio Joined');
       this.inputStream = (this.bridge ? this.bridge.inputStream : null);
@@ -473,7 +470,6 @@ class AudioManager {
       this.playHangUpSound();
     }
 
-    window.parent.postMessage({ response: 'notInAudio' }, '*');
     window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
   }
 
