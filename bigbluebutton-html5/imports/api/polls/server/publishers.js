@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor';
+import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import Polls from '/imports/api/polls';
@@ -9,6 +10,7 @@ import AuthTokenValidation, {
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 function currentPoll(secretPoll) {
+  check(secretPoll, Boolean);
   const tokenValidation = AuthTokenValidation.findOne({
     connectionId: this.connection.id,
   });
