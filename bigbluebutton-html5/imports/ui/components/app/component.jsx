@@ -228,16 +228,15 @@ class App extends Component {
       currentUserEmoji,
       intl,
       hasPublishedPoll,
-      randomlySelectedUser,
       mountModal,
       deviceType,
-      isPresenter,
       meetingLayout,
       selectedLayout, // full layout name
       settingsLayout, // shortened layout name (without Push)
       layoutType,
       pushLayoutToEveryone, // is layout pushed
       layoutContextDispatch,
+      mountRandomUserModal,
     } = this.props;
 
     if (meetingLayout !== prevProps.meetingLayout) {
@@ -262,7 +261,7 @@ class App extends Component {
       }
     }
 
-    if (!isPresenter && randomlySelectedUser.length > 0) mountModal(<RandomUserSelectContainer />);
+    if (mountRandomUserModal) mountModal(<RandomUserSelectContainer />);
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
