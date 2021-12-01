@@ -114,6 +114,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.upload.401',
     description: 'error for failed upload token request.',
   },
+  uploadSuccessful: {
+    id: 'app.presentationUploder.upload.uploadSuccessful',
+    description: 'presentation upload token is valid',
+  },
   conversionProcessingSlides: {
     id: 'app.presentationUploder.conversion.conversionProcessingSlides',
     description: 'indicates how many slides were converted',
@@ -260,6 +264,12 @@ class PresentationUploader extends Component {
   componentDidUpdate(prevProps) {
     const { isOpen, presentations: propPresentations, intl } = this.props;
     const { presentations } = this.state;
+
+    // External upload occurred (e.g. from breakout rooms)
+    if(prevProps.presentations.length < propPresentations.length && !isOpen && !prevProps.isOpen){
+      let newFiles = propPresentations.filter(file => !prevProps.presentations.includes(file));
+      notify(intl.formatMessage(intlMessages.uploadSuccessful, {0: String(newFiles.pop().filename)}), 'success', 'upload');
+    }
 
     if (!isOpen && prevProps.isOpen) {
       unregisterTitleView();
