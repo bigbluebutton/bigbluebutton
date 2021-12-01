@@ -124,10 +124,12 @@ class PresentationToolbar extends PureComponent {
       podId,
     } = this.props;
     const requestedSlideNum = Number.parseInt(event.target.value, 10);
+
+    if (event) event.currentTarget.blur();
     skipToSlide(requestedSlideNum, podId);
   }
 
-  nextSlideHandler() {
+  nextSlideHandler(event) {
     const {
       nextSlide,
       currentSlideNum,
@@ -135,16 +137,18 @@ class PresentationToolbar extends PureComponent {
       podId,
     } = this.props;
 
+    if (event) event.currentTarget.blur();
     nextSlide(currentSlideNum, numberOfSlides, podId);
   }
 
-  previousSlideHandler() {
+  previousSlideHandler(event) {
     const {
       previousSlide,
       currentSlideNum,
       podId,
     } = this.props;
 
+    if (event) event.currentTarget.blur();
     previousSlide(currentSlideNum, podId);
   }
 
