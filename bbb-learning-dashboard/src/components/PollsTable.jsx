@@ -93,47 +93,52 @@ class PollsTable extends React.Component {
                   ) : null }
                 </tr>
               ))) : null }
-          <tr className="text-gray-700">
-            <td className="px-3.5 2xl:px-4 py-3">
-              <div className="flex items-center text-sm">
-                <div className="relative hidden w-8 h-8 mr-3 rounded-full md:block">
-                  {/* <img className="object-cover w-full h-full rounded-full" */}
-                  {/*     src="" */}
-                  {/*     alt="" loading="lazy" /> */}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="relative hidden w-8 h-8 mr-3 rounded-full md:block"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <div
-                    className="absolute inset-0 rounded-full shadow-inner"
-                    aria-hidden="true"
-                  />
-                </div>
-                <div>
-                  <p className="font-semibold">
-                    <FormattedMessage id="app.learningDashboard.pollsTable.anonymousRowName" defaultMessage="Anonymous" />
-                  </p>
-                </div>
-              </div>
-            </td>
-            {typeof polls === 'object' && Object.values(polls || {}).length > 0 ? (
-              Object.values(polls || {}).map((poll) => (
-                <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
-                  { poll.anonymousAnswers.map((answer) => <p>{answer}</p>) }
+          {typeof polls === 'object'
+            && Object.values(polls || {}).length > 0
+            && Object.values(polls).reduce((prev, poll) => ([
+              ...prev,
+              ...poll.anonymousAnswers,
+            ]), []).length > 0 ? (
+              <tr className="text-gray-700">
+                <td className="px-3.5 2xl:px-4 py-3">
+                  <div className="flex items-center text-sm">
+                    <div className="relative hidden w-8 h-8 mr-3 rounded-full md:block">
+                      {/* <img className="object-cover w-full h-full rounded-full" */}
+                      {/*     src="" */}
+                      {/*     alt="" loading="lazy" /> */}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="relative hidden w-8 h-8 mr-3 rounded-full md:block"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <div
+                        className="absolute inset-0 rounded-full shadow-inner"
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <div>
+                      <p className="font-semibold">
+                        <FormattedMessage id="app.learningDashboard.pollsTable.anonymousRowName" defaultMessage="Anonymous" />
+                      </p>
+                    </div>
+                  </div>
                 </td>
-              ))
-            ) : null }
-          </tr>
+                {Object.values(polls || {}).map((poll) => (
+                  <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
+                    { poll.anonymousAnswers.map((answer) => <p>{answer}</p>) }
+                  </td>
+                ))}
+              </tr>
+            ) : null}
         </tbody>
       </table>
     );
