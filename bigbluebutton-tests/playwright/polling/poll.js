@@ -40,9 +40,7 @@ class Polling {
     await util.startPoll(this.modPage, false, true);
     await this.modPage.waitForSelector(e.publishPollingLabel);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
-    const resp = !await this.modPage.page.evaluate(checkElement, e.receivedAnswer);
-
-    await expect(resp).toBeTruthy();
+    await this.userPage.wasRemoved(e.receivedAnswer);
   }
 
   async quickPoll() {

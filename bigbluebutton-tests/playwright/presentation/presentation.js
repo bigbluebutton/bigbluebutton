@@ -2,7 +2,6 @@ const Page = require('../core/page');
 const e = require('../core/elements');
 const util = require('./util.js');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { checkElement } = require('../core/util');
 const { expect } = require('@playwright/test');
 
 class Presentation {
@@ -83,7 +82,7 @@ class Presentation {
     await this.modPage.waitAndClick(e.confirmManagePresentation);
     await this.userPage.wasRemoved(e.toastDownload);
     // check download button in presentation after DISALLOW it - should be false
-    await this.userPage.page.evaluate(checkElement, e.presentationDownloadBtn);
+    await this.userPage.wasRemoved(e.presentationDownloadBtn);
   }
 
   async removeAllPresentation() {

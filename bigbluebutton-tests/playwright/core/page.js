@@ -8,6 +8,7 @@ const parameters = require('./parameters');
 const helpers = require('./helpers');
 const e = require('./elements');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } = require('./constants');
+const { checkElement } = require('./util');
 
 class Page {
   constructor(browser, page) {
@@ -106,6 +107,10 @@ class Page {
     await this.waitForSelector(selector, timeout);
     await this.page.focus(selector);
     await this.page.click(selector);
+  }
+
+  async checkElement(selector, index = 0) {
+    return this.page.evaluate(checkElement, [selector, index]);
   }
 
   async wasRemoved(selector, timeout = ELEMENT_WAIT_TIME) {
