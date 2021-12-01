@@ -226,7 +226,7 @@ class BbbWebApiGWApp(
   def registerUser(meetingId: String, intUserId: String, name: String,
                    role: String, extUserId: String, authToken: String, avatarURL: String,
                    guest: java.lang.Boolean, authed: java.lang.Boolean,
-                   guestStatus: String): Unit = {
+                   guestStatus: String, excludeFromDashboard: java.lang.Boolean): Unit = {
 
     //    meetingManagerActorRef ! new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
     //      role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
@@ -234,7 +234,8 @@ class BbbWebApiGWApp(
 
     val regUser = new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
       role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
-      guest = guest.booleanValue(), authed = authed.booleanValue(), guestStatus = guestStatus)
+      guest = guest.booleanValue(), authed = authed.booleanValue(), guestStatus = guestStatus,
+      excludeFromDashboard = excludeFromDashboard)
 
     val event = MsgBuilder.buildRegisterUserRequestToAkkaApps(regUser)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))

@@ -139,13 +139,13 @@ public class MeetingService implements MessageListener {
   public void registerUser(String meetingID, String internalUserId,
                            String fullname, String role, String externUserID,
                            String authToken, String avatarURL, Boolean guest,
-                           Boolean authed, String guestStatus) {
+                           Boolean authed, String guestStatus, Boolean excludeFromDashboard) {
     handle(new RegisterUser(meetingID, internalUserId, fullname, role,
-      externUserID, authToken, avatarURL, guest, authed, guestStatus));
+      externUserID, authToken, avatarURL, guest, authed, guestStatus, excludeFromDashboard));
 
     Meeting m = getMeeting(meetingID);
     if (m != null) {
-      RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus);
+      RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus, excludeFromDashboard);
       m.userRegistered(ruser);
     }
   }
@@ -460,7 +460,7 @@ public class MeetingService implements MessageListener {
     gw.registerUser(message.meetingID,
       message.internalUserId, message.fullname, message.role,
       message.externUserID, message.authToken, message.avatarURL, message.guest,
-            message.authed, message.guestStatus);
+            message.authed, message.guestStatus, message.excludeFromDashboard);
   }
 
     public Meeting getMeeting(String meetingId) {
