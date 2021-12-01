@@ -30,6 +30,9 @@ exports.alreadyConnected = 'span[class^="alreadyConnected--"]';
 exports.askJoinRoom1 = 'button[aria-label="Ask to join Room 1"]';
 exports.joinRoom1 = 'button[aria-label="Join room Room 1"]';
 exports.breakoutRoomsButton = 'div[aria-label="Breakout Rooms"]';
+exports.allowChoiceRoom = 'input[id="freeJoinCheckbox"]';
+exports.labelGeneratingURL = 'span[data-test="labelGeneratingURL"]';
+exports.endBreakoutRoomsButton = 'button[data-test="endBreakoutRoomsButton"]';
 
 // Chat
 exports.chatBox = '#message-input';
@@ -144,6 +147,7 @@ exports.userListItem = 'div[data-test="userListItem"]';
 exports.firstUser = '[data-test="userListItemCurrent"]';
 exports.multiWhiteboardTool = 'span[data-test="multiWhiteboardTool"]';
 exports.manageUsers = 'button[data-test="manageUsers"]';
+exports.presenterClassName = 'presenter--';
 
 // Locales
 exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
