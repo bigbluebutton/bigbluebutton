@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -13,6 +13,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
+import _ from 'lodash';
 
 import {
   getFontSize,
@@ -20,7 +21,7 @@ import {
   validIOSVersion,
 } from './service';
 
-import { withModalMounter } from '../modal/service';
+import { withModalMounter, getModal } from '../modal/service';
 
 import App from './component';
 import NavBarContainer from '../nav-bar/container';
@@ -54,13 +55,31 @@ const endMeeting = (code) => {
 };
 
 const AppContainer = (props) => {
+  function usePrevious(value) {
+    const ref = useRef();
+    useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
+  }
+
   const {
     navbar,
     actionsbar,
     media,
     currentUserId,
+    isPresenter,
+    randomlySelectedUser,
+    isModalOpen,
     ...otherProps
   } = props;
+
+  const prevRandomUser = usePrevious(randomlySelectedUser);
+
+  const mountRandomUserModal = !isPresenter
+  && !_.isEqual( prevRandomUser, randomlySelectedUser)
+  && randomlySelectedUser.length > 0
+  && !isModalOpen;
 
   return currentUserId
     ? (
@@ -69,6 +88,10 @@ const AppContainer = (props) => {
         actionsbar={actionsbar}
         media={media}
         currentUserId={currentUserId}
+        {...{
+          mountRandomUserModal,
+          isPresenter,
+        }}
         {...otherProps}
       />
     )
@@ -141,6 +164,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     currentUserId: currentUser?.userId,
     isPresenter: currentUser?.presenter,
     isLargeFont: Session.get('isLargeFont'),
+    isModalOpen: !!getModal(),
   };
 })(AppContainer)));
 
