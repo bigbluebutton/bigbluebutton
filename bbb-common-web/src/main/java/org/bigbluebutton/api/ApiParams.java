@@ -61,6 +61,7 @@ public class ApiParams {
     public static final String WELCOME = "welcome";
     public static final String HTML5_INSTANCE_ID = "html5InstanceId";
     public static final String ROLE = "role";
+    public static final String GROUPS = "groups";
 
     public static final String BREAKOUT_ROOMS_ENABLED = "breakoutRoomsEnabled";
     public static final String BREAKOUT_ROOMS_RECORD = "breakoutRoomsRecord";

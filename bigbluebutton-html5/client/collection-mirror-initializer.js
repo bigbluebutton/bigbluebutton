@@ -19,6 +19,7 @@ import Captions from '/imports/api/captions';
 import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Annotations from '/imports/api/annotations';
 import Breakouts from '/imports/api/breakouts';
+import BreakoutsHistory from '/imports/api/breakouts-history';
 import guestUsers from '/imports/api/guest-users';
 import Meetings, { RecordMeetings, ExternalVideoMeetings, MeetingTimeRemaining } from '/imports/api/meetings';
 import { UsersTyping } from '/imports/api/group-chat-msg';
@@ -52,6 +53,7 @@ export const localExternalVideoMeetingsSync = new AbstractCollection(ExternalVid
 export const localMeetingTimeRemainingSync = new AbstractCollection(MeetingTimeRemaining, MeetingTimeRemaining);
 export const localUsersTypingSync = new AbstractCollection(UsersTyping, UsersTyping);
 export const localBreakoutsSync = new AbstractCollection(Breakouts, Breakouts);
+export const localBreakoutsHistorySync = new AbstractCollection(BreakoutsHistory, BreakoutsHistory);
 export const localGuestUsersSync = new AbstractCollection(guestUsers, guestUsers);
 export const localMeetingsSync = new AbstractCollection(Meetings, Meetings);
 export const localUsersSync = new AbstractCollection(Users, Users);
@@ -83,6 +85,7 @@ const collectionMirrorInitializer = () => {
   localMeetingTimeRemainingSync.setupListeners();
   localUsersTypingSync.setupListeners();
   localBreakoutsSync.setupListeners();
+  localBreakoutsHistorySync.setupListeners();
   localGuestUsersSync.setupListeners();
   localMeetingsSync.setupListeners();
   localUsersSync.setupListeners();
