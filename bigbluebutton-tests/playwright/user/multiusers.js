@@ -3,21 +3,32 @@ const Page = require('../core/page');
 const e = require('../core/elements');
 
 class MultiUsers {
-  constructor(browser, page1, page2) {
-    this.modPage1 = new Page(browser, page1);
-    this.modPage2 = new Page(browser, page2);
+  constructor(browser, context) {
+    this.browser = browser;
+    this.context = context;
   }
 
-  async init(testFolderName) {
-    await this.modPage1.init(true, true, { fullName: 'Mod1' });
-    await this.modPage2.init(true, true, { fullName: 'Mod2', meetingId: this.modPage1.meetingId }); // joining the same meeting
+  async initPages(page1) {
+    await this.initModPage(page1);
+    await this.initUserPage();
+  }
+
+  async initModPage(page) {
+    this.modPage = new Page(this.browser, page);
+    await this.modPage.init(true, true, { fullName: 'Moderator' });
+  }
+
+  async initUserPage() {
+    const page = await this.context.newPage();
+    this.userPage = new Page(this.browser, page);
+    await this.userPage.init(false, true, { fullName: 'Attendee', meetingId: this.modPage.meetingId });
   }
 
   async userPresence() {
-    const firstUserOnPage1 = this.modPage1.page.locator(e.firstUser);
-    const secondUserOnPage1 = this.modPage1.page.locator(e.userListItem);
-    const firstUserOnPage2 = this.modPage2.page.locator(e.firstUser);
-    const secondUserOnPage2 = this.modPage2.page.locator(e.userListItem);
+    const firstUserOnPage1 = this.modPage.page.locator(e.firstUser);
+    const secondUserOnPage1 = this.modPage.page.locator(e.userListItem);
+    const firstUserOnPage2 = this.userPage.page.locator(e.firstUser);
+    const secondUserOnPage2 = this.userPage.page.locator(e.userListItem);
     await expect(firstUserOnPage1).toHaveCount(1);
     await expect(secondUserOnPage1).toHaveCount(1);
     await expect(firstUserOnPage2).toHaveCount(1);
