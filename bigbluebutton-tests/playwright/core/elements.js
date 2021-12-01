@@ -8,6 +8,7 @@ exports.screenshareConnecting = 'div[data-test="screenshareConnecting"]';
 exports.screenShareVideo = 'video[id="screenshareVideo"]';
 exports.closeModal = 'button[data-test="modalDismissButton"]';
 exports.isSharingScreen = 'div[data-test="isSharingScreen"]';
+exports.pdfFileName = '100PagesFile.pdf';
 
 // Audio
 exports.joinAudio = 'button[data-test="joinAudio"]';
@@ -40,6 +41,14 @@ exports.chatOptions = 'button[data-test="chatOptionsMenu"]';
 exports.chatClear = 'li[data-test="chatClear"]';
 exports.chatSave = 'li[data-test="chatSave"]';
 exports.chatCopy = 'li[data-test="chatCopy"]';
+exports.chatTitle = 'div[data-test="chatTitle"]';
+exports.activeChat = 'li[data-test="activeChat"]';
+// Messages
+exports.message = 'Hello World!';
+exports.message1 = 'Hello User2';
+exports.message2 = 'Hello User1';
+exports.publicMessage1 = 'This is a Public Message from User1';
+exports.publicMessage2 = 'This is a Public Message from User2';
 
 exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
 exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
@@ -54,6 +63,17 @@ exports.etherpad = 'iframe[title="etherpad"]';
 
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
+exports.savedSettingsToast = 'Settings have been saved';
+exports.notificationsTab = 'span[id="notificationTab"]';
+exports.chatPushAlerts = 'input[aria-label="Chat Message Popup Alerts"]';
+exports.hasUnreadMessages = 'button[data-test="hasUnreadMessages"]';
+exports.publicChatToast = 'New Public Chat message';
+exports.privateChatToast = 'New Private Chat message';
+exports.userJoinPushAlerts = '[aria-label="User Join Popup Alerts"]';
+exports.joinAudioToast = 'You have joined the audio conference';
+exports.pollPublishedToast = 'Poll results were published';
+exports.startScreenshareToast = 'Screenshare has started';
+exports.endScreenshareToast = 'Screenshare has ended';
 
 // Polling
 exports.polling = 'li[data-test="polling"]';
@@ -83,6 +103,7 @@ exports.questionSlideFileName = 'mockPollSlide.pdf';
 
 // Presentation
 exports.startScreenSharing = 'button[data-test="startScreenShare"]';
+exports.stopScreenSharing = 'button[data-test="stopScreenShare"]';
 exports.uploadPresentation = '[data-test="uploadPresentation"]';
 exports.fileUpload = 'input[type="file"]';
 exports.upload = 'button[aria-label="Upload"]';

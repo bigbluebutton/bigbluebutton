@@ -3,4 +3,9 @@ function checkElement(element, index = 0) {
   return document.querySelectorAll(element)[index] !== undefined;
 }
 
+function checkElementLengthEqualTo([element, count]) {
+  return document.querySelectorAll(element).length == count;
+}
+
 exports.checkElement = checkElement;
+exports.checkElementLengthEqualTo = checkElementLengthEqualTo;
