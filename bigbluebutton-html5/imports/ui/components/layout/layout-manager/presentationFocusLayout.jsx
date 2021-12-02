@@ -425,14 +425,14 @@ class PresentationFocusLayout extends Component {
               (windowHeight() - DEFAULT_VALUES.cameraDockMinHeight),
             );
           }
-          cameraDockBounds.top = windowHeight() - cameraDockHeight;
+          cameraDockBounds.top = windowHeight() - cameraDockHeight + this.bannerAreaHeight();
           cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
           cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
           cameraDockBounds.minWidth = sidebarContentWidth;
           cameraDockBounds.width = sidebarContentWidth;
           cameraDockBounds.maxWidth = sidebarContentWidth;
           cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
-          cameraDockBounds.height = cameraDockHeight;
+          cameraDockBounds.height = cameraDockHeight - this.bannerAreaHeight();
           cameraDockBounds.maxHeight = windowHeight() - sidebarContentHeight;
           cameraDockBounds.zIndex = 1;
         }
