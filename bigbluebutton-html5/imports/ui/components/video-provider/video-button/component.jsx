@@ -59,6 +59,7 @@ const JoinVideoButton = ({
 }) => {
   const { isMobile } = deviceInfo;
   const shouldEnableWebcamSelectorButton = ENABLE_WEBCAM_SELECTOR_BUTTON
+    && hasVideoStream
     && !isMobile;
   const exitVideo = () => hasVideoStream
     && !isMobile
@@ -93,7 +94,6 @@ const JoinVideoButton = ({
       <ButtonEmoji
         onClick={handleOpenAdvancedOptions}
         emoji="device_list_selector"
-        hidden={!hasVideoStream}
         hideLabel
         label={intl.formatMessage(intlMessages.advancedVideo)}
       />
