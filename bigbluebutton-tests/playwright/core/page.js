@@ -1,9 +1,8 @@
 require('dotenv').config();
+const { expect } = require('@playwright/test');
 const yaml = require('js-yaml');
 const path = require('path');
 const fs = require('fs');
-
-const { expect } = require('@playwright/test');
 const parameters = require('./parameters');
 const helpers = require('./helpers');
 const e = require('./elements');
@@ -47,7 +46,6 @@ class Page {
     if (shouldCloseAudioModal) await this.closeAudioModal();
   }
 
-  // Joining audio with microphone
   async joinMicrophone() {
     await this.waitForSelector(e.audioModal);
     await this.waitAndClick(e.microphoneButton);
@@ -76,7 +74,6 @@ class Page {
 
   async getSelectorCount(selector, timeout = ELEMENT_WAIT_TIME) {
     const locator = await this.getLocator(selector, timeout);
-    const a = await locator.count();
     return locator.count();
   }
 

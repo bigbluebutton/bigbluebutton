@@ -1,7 +1,7 @@
+const { expect } = require('@playwright/test');
 const Page = require('../core/page');
 const e = require('../core/elements');
 const { USER_LIST_VLIST_BOTS_LISTENING } = require('../core/constants');
-const { expect } = require('@playwright/test');
 
 class VirtualizeList {
   constructor(browser, page) {

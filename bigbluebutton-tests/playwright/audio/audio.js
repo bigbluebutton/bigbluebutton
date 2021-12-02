@@ -28,4 +28,4 @@ class Audio extends Page {
   }
 }
 
-module.exports = exports = Audio;
+exports.Audio = Audio;

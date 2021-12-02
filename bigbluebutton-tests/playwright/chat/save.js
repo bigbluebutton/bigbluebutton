@@ -3,7 +3,6 @@ const { openChat } = require('./util');
 const e = require('../core/elements');
 
 class Save extends Page {
-
   constructor(browser, page) {
     super(browser, page);
   }

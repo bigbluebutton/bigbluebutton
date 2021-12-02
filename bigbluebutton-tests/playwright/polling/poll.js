@@ -1,32 +1,14 @@
 const { expect } = require('@playwright/test');
-const Page = require('../core/page');
+const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const util = require('./util.js');
 const utilPresentation = require('../presentation/util');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { checkElement } = require('../core/util.js');
 
-class Polling {
+class Polling extends MultiUsers {
   constructor(browser, context) {
-    this.browser = browser;
-    this.context = context;
+    super(browser, context);
     this.newInputText = 'new option';
-  }
-
-  async initPages(page1) {
-    await this.initModPage(page1);
-    const page2 = await this.context.newPage();
-    await this.initUserPage(page2);
-  }
-
-  async initModPage(page) {
-    this.modPage = new Page(this.browser, page);
-    await this.modPage.init(true, true, { fullName: 'Moderator' });
-  }
-
-  async initUserPage(page) {
-    this.userPage = new Page(this.browser, page);
-    await this.userPage.init(false, true, { fullName: 'Attendee', meetingId: this.modPage.meetingId });
   }
 
   async createPoll() {
@@ -137,7 +119,7 @@ class Polling {
   }
 
   async startNewPoll() {
-    const hasPollStarted = await this.modPage.page.evaluate(checkElement, e.pollMenuButton);
+    const hasPollStarted = await this.modPage.checkElement(e.pollMenuButton);
     if (hasPollStarted) {
       await this.modPage.waitAndClick(e.cancelPollBtn);
       await this.userPage.wasRemoved(e.pollingContainer);

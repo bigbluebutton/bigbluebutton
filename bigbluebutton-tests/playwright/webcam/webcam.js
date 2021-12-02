@@ -1,7 +1,7 @@
 const { expect } = require('@playwright/test');
 const Page = require('../core/page');
 const e = require('../core/elements');
-const util = require('./util');
+const { webcamContentCheck } = require('./util');
 const { VIDEO_LOADING_WAIT_TIME } = require('../core/constants');
 
 class Webcam extends Page {
@@ -22,7 +22,7 @@ class Webcam extends Page {
     const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
 
     await this.shareWebcam(true, videoPreviewTimeout);
-    const respUser = await util.webcamContentCheck(this);
+    const respUser = await webcamContentCheck(this);
 
     await expect(respUser).toBeTruthy();
   }
@@ -44,4 +44,4 @@ class Webcam extends Page {
   }
 }
 
-module.exports = exports = Webcam;
+exports.Webcam = Webcam;

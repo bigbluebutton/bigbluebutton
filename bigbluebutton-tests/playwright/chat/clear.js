@@ -4,13 +4,11 @@ const { openChat } = require('./util');
 const e = require('../core/elements');
 
 class Clear extends Page {
-
   constructor(browser, page) {
     super(browser, page);
   }
 
   async test() {
-    
     await openChat(this.page);
     const message = this.page.locator(e.chatUserMessageText);
     

@@ -1,6 +1,5 @@
 const Page = require('../core/page');
-// const Create = require('../breakout/create');
-const util = require('./util');
+const { startSharedNotes } = require('./util');
 
 class SharedNotes extends Page {
   constructor(browser, page) {
@@ -8,8 +7,8 @@ class SharedNotes extends Page {
   }
 
   async openSharedNotes() {
-    await util.startSharedNotes(this);
+    await startSharedNotes(this);
   }
 }
 
-module.exports = exports = SharedNotes;
+exports.SharedNotes = SharedNotes;

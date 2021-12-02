@@ -1,4 +1,4 @@
-const Create = require('./create');
+const { Create } = require('./create');
 const utilScreenShare = require('../screenshare/util');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
@@ -9,28 +9,28 @@ class Join extends Create {
   }
 
   async joinRoom(shouldJoinAudio = false) {
-    await this.userPage1.bringToFront();
+    await this.userPage.bringToFront();
     if (shouldJoinAudio) {
-      await this.userPage1.waitAndClick(e.joinAudio);
-      await this.userPage1.joinMicrophone();
+      await this.userPage.waitAndClick(e.joinAudio);
+      await this.userPage.joinMicrophone();
     }
 
-    await this.userPage1.waitAndClick(e.breakoutRoomsItem);
-    await this.userPage1.waitAndClick(e.joinRoom1);
-    await this.userPage1.waitForSelector(e.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.waitAndClick(e.breakoutRoomsItem);
+    await this.userPage.waitAndClick(e.joinRoom1);
+    await this.userPage.waitForSelector(e.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
 
-    const breakoutUserPage1 = await this.userPage1.getLastTargetPage(this.context);
-    await breakoutUserPage1.bringToFront();
+    const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
+    await breakoutUserPage.bringToFront();
 
-    await breakoutUserPage1.hasElement(e.presentationPlaceholder);
-    if (!shouldJoinAudio) await breakoutUserPage1.closeAudioModal();
-    return breakoutUserPage1;
+    await breakoutUserPage.hasElement(e.presentationPlaceholder);
+    if (!shouldJoinAudio) await breakoutUserPage.closeAudioModal();
+    return breakoutUserPage;
   }
 
   async joinAndShareWebcam() {
     const breakoutPage = await this.joinRoom();
 
-    const parsedSettings = await this.userPage1.getSettingsYaml();
+    const parsedSettings = await this.userPage.getSettingsYaml();
     const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
     await breakoutPage.shareWebcam(true, videoPreviewTimeout);
     await breakoutPage.hasElement(e.presentationPlaceholder);
@@ -44,11 +44,11 @@ class Join extends Create {
   }
 
   async joinWithAudio() {
-    const breakoutUserPage1 = await this.joinRoom(true);
+    const breakoutUserPage = await this.joinRoom(true);
 
-    await breakoutUserPage1.waitForSelector(e.talkingIndicator);
-    await breakoutUserPage1.hasElement(e.isTalking);
+    await breakoutUserPage.waitForSelector(e.talkingIndicator);
+    await breakoutUserPage.hasElement(e.isTalking);
   }
 }
 
-module.exports = exports = Join;
+exports.Join = Join;

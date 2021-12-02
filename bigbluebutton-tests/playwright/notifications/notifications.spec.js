@@ -49,4 +49,4 @@ test.describe.parallel('Notifications', () => {
     await notification.initModPage(page);
     await notification.audioNotification();
   });
-})
+});

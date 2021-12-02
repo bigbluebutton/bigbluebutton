@@ -1,7 +1,7 @@
 const Page = require('../core/page');
 const e = require('../core/elements');
 const p = require('../core/parameters');
-const util = require('./util');
+const { openChat } = require('./util');
 const { expect } = require('@playwright/test');
 
 class Copy extends Page {
@@ -10,7 +10,7 @@ class Copy extends Page {
   }
 
   async test(context) {
-    await util.openChat(this);
+    await openChat(this);
 
     // sending a message
     await this.type(e.chatBox, e.message);

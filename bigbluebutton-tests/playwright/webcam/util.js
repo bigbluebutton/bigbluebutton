@@ -1,9 +1,6 @@
 const e = require('../core/elements');
 const { sleep } = require('../core/helpers');
-const {
-  LOOP_INTERVAL,
-  ELEMENT_WAIT_LONGER_TIME,
-} = require('../core/constants');
+const { LOOP_INTERVAL, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 async function webcamContentCheck(test) {
   await test.waitForSelector(e.videoContainer);

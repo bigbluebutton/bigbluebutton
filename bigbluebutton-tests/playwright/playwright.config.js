@@ -1,5 +1,4 @@
 require('dotenv').config();
-const parameters = require('./core/parameters');
 
 const config = {
   workers: 1,
@@ -16,7 +15,6 @@ const config = {
             '--no-sandbox',
             '--use-fake-ui-for-media-stream',
             '--use-fake-device-for-media-stream',
-            '--disable-features=IsolateOrigins,site-per-process',
           ]
         },
       },

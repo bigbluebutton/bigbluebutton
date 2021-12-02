@@ -9,6 +9,7 @@ test.describe.parallel('User test suite', () => {
     await status.init(true, true);
     await status.test();
   });
+
   test('User presence check (multiple users)', async ({ browser, context, page }) => {
     const multiusers = new MultiUsers(browser, context);
     await multiusers.initPages(page);

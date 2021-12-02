@@ -36,11 +36,11 @@ class MultiUsers {
   }
 
   async whiteboardAccess() {
-    await this.modPage1.waitForSelector(e.whiteboard);
-    await this.modPage1.waitAndClick(e.userListItem);
-    await this.modPage1.waitAndClick(e.changeWhiteboardAccess);
-    await this.modPage1.waitForSelector(e.multiWhiteboardTool);
-    const resp = await this.modPage1.page.evaluate((multiWhiteboardTool) => {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.changeWhiteboardAccess);
+    await this.modPage.waitForSelector(e.multiWhiteboardTool);
+    const resp = await this.modPage.page.evaluate((multiWhiteboardTool) => {
       return document.querySelector(multiWhiteboardTool).children[0].innerText === '1';
     }, e.multiWhiteboardTool);
     await expect(resp).toBeTruthy();

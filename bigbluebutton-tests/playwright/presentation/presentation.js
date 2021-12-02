@@ -1,59 +1,43 @@
+const { expect } = require('@playwright/test');
+const { MultiUsers } = require('../user/multiusers');
 const Page = require('../core/page');
 const e = require('../core/elements');
-const util = require('./util.js');
+const { checkSvgIndex, getSvgOuterHtml, uploadPresentation } = require('./util.js');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { expect } = require('@playwright/test');
 
-class Presentation {
+class Presentation extends MultiUsers {
   constructor(browser, context) {
-    this.browser = browser;
-    this.context = context;
-  }
-
-  async initPages(page1) {
-    await this.initModPage(page1);
-    const page2 = await this.context.newPage()
-    await this.initUserPage(page2);
-  }
-
-  async initModPage(page) {
-    this.modPage = new Page(this.browser, page);
-    await this.modPage.init(true, true, { fullName: 'Moderator' });
-  }
-
-  async initUserPage(page) {
-    this.userPage = new Page(this.browser, page);
-    await this.userPage.init(false, true, { fullName: 'Attendee', meetingId: this.modPage.meetingId });
+    super(browser, context);
   }
 
   async skipSlide() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitForSelector(e.presentationToolbarWrapper);
 
-    await util.checkSvgIndex(this.modPage, '/svg/1');
+    await checkSvgIndex(this.modPage, '/svg/1');
 
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.page.waitForTimeout(1000);
 
-    await util.checkSvgIndex(this.modPage, '/svg/2');
+    await checkSvgIndex(this.modPage, '/svg/2');
 
     await this.modPage.waitAndClick(e.prevSlide);
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.page.waitForTimeout(1000);
 
-    await util.checkSvgIndex(this.modPage, '/svg/1');
+    await checkSvgIndex(this.modPage, '/svg/1');
   }
 
-  async uploadPresentation() {
+  async uploadPresentationTest() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitForSelector(e.skipSlide);
 
-    const modSlides0 = await this.modPage.page.evaluate(util.getSvgOuterHtml);
-    const userSlides0 = await this.userPage.page.evaluate(util.getSvgOuterHtml);
+    const modSlides0 = await this.modPage.page.evaluate(getSvgOuterHtml);
+    const userSlides0 = await this.userPage.page.evaluate(getSvgOuterHtml);
     await expect(modSlides0).toEqual(userSlides0);
 
-    await util.uploadPresentation(this.modPage, e.uploadPresentationFileName);
+    await uploadPresentation(this.modPage, e.uploadPresentationFileName);
 
     const modSlides1 = await this.userPage.page.evaluate(async () => await document.querySelector('svg g g g').outerHTML);
     const userSlides1 = await this.modPage.page.evaluate(async () => await document.querySelector('svg g g g').outerHTML);
@@ -107,7 +91,7 @@ class Presentation {
     await this.modPage.hasElement(e.presentationContainer);
   }
 
-  async startExternalVideo(testName) {
+  async startExternalVideo() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.externalVideoBtn);
@@ -132,4 +116,4 @@ class Presentation {
   }
 }
 
-module.exports = exports = Presentation;
+exports.Presentation = Presentation;

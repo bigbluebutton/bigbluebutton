@@ -34,4 +34,4 @@ class Draw extends Page {
   }
 }
 
-module.exports = exports = Draw;
+exports.Draw = Draw;

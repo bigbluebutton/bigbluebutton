@@ -13,4 +13,4 @@ test.describe.parallel('Stress', () => {
     const stress = new Stress(browser, context, page);
     await stress.breakoutRoomInvitation();
   });
-})
+});
