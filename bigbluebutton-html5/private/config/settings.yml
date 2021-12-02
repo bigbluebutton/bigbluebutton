@@ -46,6 +46,10 @@ public:
     enableGuestLobbyMessage: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
+    # Allow users to open webcam video modal/preview when video is already
+    # active. This also allows to change virtual backgrounds without
+    # restarting webcam.
+    enableWebcamSelectorButton: true
     enableTalkingIndicator: true
     mirrorOwnWebcam: false
     viewersInWebcam: 8

@@ -42,6 +42,7 @@ const ButtonEmoji = (props) => {
   const {
     hideLabel,
     className,
+    hidden,
     ...newProps
   } = props;
 
@@ -61,6 +62,10 @@ const ButtonEmoji = (props) => {
 
   return (
     <span>
+      <div
+        className={styles.emojiButtonSpace}
+        hidden={hidden}
+      />
       <TooltipContainer title={label}>
         <button
           type="button"

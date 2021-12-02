@@ -231,7 +231,7 @@
   border-radius: 50%;
   width: 1em;
   height: 1em;
-  right: -1px;
+  right: -.2em;
   bottom: 0;
   background-color: var(--btn-default-bg);
   overflow: hidden;
@@ -248,12 +248,21 @@
     top: 0;
     height: 60%;
     left: 0;
-    width: 75%;
     margin-left: 25%;
     font-size: 50%;
     margin-top: 40%;
     color: var(--btn-default-color);
   }
+}
+
+.emojiButtonSpace {
+  position: absolute;
+  height: 1.4em;
+  width: 1.4em;
+  background-color: var(--color-background);
+  right: -.4em;
+  bottom: -.2em;
+  border-radius: 50%;
 }
 
 /* Colors
