@@ -21,19 +21,24 @@ package org.bigbluebutton.web.controllers
 import org.bigbluebutton.api.MeetingService
 import org.bigbluebutton.api.domain.UserSession
 import org.bigbluebutton.api.util.ParamsUtil
+import org.bigbluebutton.api.ParamsProcessorUtil
 
 class ConnectionController {
   MeetingService meetingService
+  ParamsProcessorUtil paramsProcessorUtil
 
   def checkAuthorization = {
     try {
       def uri = request.getHeader("x-original-uri")
       def sessionToken = ParamsUtil.getSessionToken(uri)
       UserSession userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
+      Boolean allowRequestsWithoutSession = paramsProcessorUtil.getAllowRequestsWithoutSession()
+      Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
 
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'plain/text'
-      if (userSession != null) {
+
+      if (userSession != null && !isSessionTokenInvalid) {
         response.setStatus(200)
         response.outputStream << 'authorized'
       } else {
