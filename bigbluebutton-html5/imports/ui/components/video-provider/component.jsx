@@ -19,6 +19,7 @@ import {
   getSessionVirtualBackgroundInfo,
 } from '/imports/ui/services/virtual-background/service';
 import { notify } from '/imports/ui/services/notification';
+import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.
@@ -605,6 +606,9 @@ class VideoProvider extends Component {
         video: constraints,
       },
       onicecandidate: this._getOnIceCandidateCallback(stream, isLocal),
+      configuration: {
+        iceTransportPolicy: shouldForceRelay() ? 'relay' : undefined,
+      }
     };
 
     try {
@@ -623,7 +627,6 @@ class VideoProvider extends Component {
       iceServers = getMappedFallbackStun();
     } finally {
       if (iceServers.length > 0) {
-        peerOptions.configuration = {};
         peerOptions.configuration.iceServers = iceServers;
       }
 
