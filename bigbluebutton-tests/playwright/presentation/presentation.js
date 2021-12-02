@@ -39,8 +39,8 @@ class Presentation extends MultiUsers {
 
     await uploadPresentation(this.modPage, e.uploadPresentationFileName);
 
-    const modSlides1 = await this.userPage.page.evaluate(async () => await document.querySelector('svg g g g').outerHTML);
-    const userSlides1 = await this.modPage.page.evaluate(async () => await document.querySelector('svg g g g').outerHTML);
+    const modSlides1 = await this.userPage.page.evaluate(async () => document.querySelector('svg g g g').outerHTML);
+    const userSlides1 = await this.modPage.page.evaluate(async () => document.querySelector('svg g g g').outerHTML);
     await expect(modSlides1).toEqual(userSlides1);
 
     await expect(modSlides0).not.toEqual(modSlides1);

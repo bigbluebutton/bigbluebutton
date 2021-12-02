@@ -4,8 +4,8 @@ const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 async function checkSvgIndex(test, element) {
-  const check = await test.page.evaluate(([element]) => {
-    return document.querySelector('svg g g g').outerHTML.indexOf(element) !== -1;
+  const check = await test.page.evaluate(([el]) => {
+    return document.querySelector('svg g g g').outerHTML.indexOf(el) !== -1;
   }, [element]);
   await expect(check).toBeTruthy();
 }

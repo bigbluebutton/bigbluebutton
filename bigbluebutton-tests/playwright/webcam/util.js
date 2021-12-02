@@ -9,7 +9,7 @@ async function webcamContentCheck(test) {
   let check;
   for (let i = repeats; i >= 1; i--) {
     console.log(`loop ${i}`);
-    const checkCameras = (i) => {
+    const checkCameras = () => {
       const videos = document.querySelectorAll('video');
       const lastVideoColor = document.lastVideoColor || {};
       document.lastVideoColor = lastVideoColor;

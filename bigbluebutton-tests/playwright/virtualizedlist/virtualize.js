@@ -21,7 +21,7 @@ class VirtualizeList {
       await viewerPage.init(false, true, { fullName, meetingId: this.page1.meetingId });
 
       console.log(`${fullName} joined`);
-      await this.pagesArray.push(viewerPage);
+      this.pagesArray.push(viewerPage);
     }
   }
 
