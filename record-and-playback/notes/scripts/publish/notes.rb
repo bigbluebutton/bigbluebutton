@@ -23,7 +23,7 @@ performance_start = Time.now
 
 require '../../core/lib/recordandplayback'
 require 'rubygems'
-require 'trollop'
+require 'optimist'
 require 'yaml'
 require 'builder'
 require 'fastimage' # require fastimage to get the image size of the slides (gem install fastimage)
@@ -33,7 +33,7 @@ require 'fastimage' # require fastimage to get the image size of the slides (gem
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 notes_props = YAML::load(File.open('notes.yml'))
 
-opts = Trollop::options do
+opts = Optimist::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
 end
 
