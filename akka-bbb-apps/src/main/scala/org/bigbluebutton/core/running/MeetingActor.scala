@@ -162,6 +162,7 @@ class MeetingActor(
     new GroupChats(Map.empty),
     new PresentationPodManager(Map.empty),
     None,
+    None,
     expiryTracker,
     recordingTracker
   )

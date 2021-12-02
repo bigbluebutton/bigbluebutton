@@ -411,9 +411,6 @@ public:
   syncUsersWithConnectionManager:
     enabled: false
     syncInterval: 60000
-  allowOutsideCommands:
-    toggleRecording: false
-    toggleSelfVoice: false
   poll:
     enabled: true
     maxCustom: 5
