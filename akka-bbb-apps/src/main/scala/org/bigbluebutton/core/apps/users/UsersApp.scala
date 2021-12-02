@@ -103,6 +103,18 @@ object UsersApp {
     outGW.send(ejectFromVoiceEvent)
   }
 
+  def sendEjectUserFromSfuSysMsg(
+    outGW: OutMsgRouter,
+    meetingId: String,
+    userId: String
+  ): Unit = {
+    val event = MsgBuilder.buildEjectUserFromSfuSysMsg(
+      meetingId,
+      userId,
+    )
+    outGW.send(event)
+  }
+
   def ejectUserFromMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting,
                            userId: String, ejectedBy: String, reason: String,
                            reasonCode: String, ban: Boolean): Unit = {
@@ -115,6 +127,7 @@ object UsersApp {
     } yield {
       sendUserEjectedMessageToClient(outGW, meetingId, userId, ejectedBy, reason, reasonCode)
       sendUserLeftMeetingToAllClients(outGW, meetingId, userId)
+      sendEjectUserFromSfuSysMsg(outGW, meetingId, userId)
       if (user.presenter) {
         // println(s"ejectUserFromMeeting will cause a automaticallyAssignPresenter for user=${user}")
         automaticallyAssignPresenter(outGW, liveMeeting)
