@@ -26,6 +26,7 @@ buildscript {
     classpath "org.grails:grails-gradle-plugin:$grailsVersion"
     classpath "org.grails.plugins:hibernate5:${gormVersion - ".RELEASE"}"
     classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.15.1"
+    classpath "gradle.plugin.com.energizedwork.webdriver-binaries:webdriver-binaries-gradle-plugin:$webdriverBinariesVersion"
   }
 }
 
@@ -38,6 +39,7 @@ apply plugin: "war"
 apply plugin: "org.grails.grails-web"
 apply plugin: "asset-pipeline"
 apply plugin: "org.grails.grails-gsp"
+apply plugin:"com.energizedwork.webdriver-binaries"
 
 task resolveDeps(type: Copy) {
   into('lib')
@@ -74,7 +76,24 @@ repositories {
   maven { url "https://jitpack.io" }
 }
 
+configurations {
+  developmentOnly
+  runtimeClasspath {
+    extendsFrom developmentOnly
+  }
+}
+
+
 dependencies {
+  testCompile "org.grails.plugins:geb"
+  testRuntime "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+  testRuntime "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+  testRuntime "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
+  testCompile "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
+  testCompile "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
+  testCompile "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+  developmentOnly("org.springframework.boot:spring-boot-devtools")
+  compile "org.codehaus.groovy:groovy-dateutil:3.0.4"
   compile "org.springframework.boot:spring-boot-starter-logging"
   compile "org.springframework.boot:spring-boot-autoconfigure"
   compile "org.grails:grails-core"
@@ -88,7 +107,7 @@ dependencies {
   compile "org.grails:grails-plugin-services"
   compile "org.grails:grails-plugin-url-mappings"
   compile "org.grails:grails-plugin-interceptors"
-  compile 'org.grails.plugins:external-config:1.2.2'
+//  compile 'org.grails.plugins:external-config:2.0.1'
   compile "org.grails.plugins:cache"
   compile "org.grails.plugins:async"
   compile "org.grails.plugins:scaffolding"
@@ -102,15 +121,17 @@ dependencies {
   testCompile "org.grails:grails-gorm-testing-support"
   testCompile "org.grails.plugins:geb"
   testCompile "org.grails:grails-web-testing-support"
-  testCompile "org.grails.plugins:geb:1.1.2"
-  testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
-  testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
   testRuntime "org.seleniumhq.selenium:selenium-chrome-driver:2.47.1"
+}
+
+webdriverBinaries {
+  chromedriver "$chromeDriverVersion"
+  geckodriver "$geckodriverVersion"
 }
 
 bootRun {
   jvmArgs('-Dspring.output.ansi.enabled=always')
-  addResources = true
+  sourceResources sourceSets.main
   String springProfilesActive = 'spring.profiles.active'
   systemProperty springProfilesActive, System.getProperty(springProfilesActive)
 }
@@ -125,4 +146,8 @@ tasks.withType(Test) {
 assets {
   minifyJs = true
   minifyCss = true
+}
+
+springBoot {
+  mainClassName = 'org.bigbluebuttoni.Application'
 }
