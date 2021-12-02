@@ -24,8 +24,8 @@ buildscript {
   }
   dependencies {
     classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-    classpath "org.grails.plugins:hibernate5:${gormVersion - ".RELEASE"}"
-    classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.15.1"
+    classpath "org.grails.plugins:hibernate5:${gormVersion}"
+    classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.1.0"
     classpath "gradle.plugin.com.energizedwork.webdriver-binaries:webdriver-binaries-gradle-plugin:$webdriverBinariesVersion"
   }
 }
@@ -85,43 +85,43 @@ configurations {
 
 
 dependencies {
-  testCompile "org.grails.plugins:geb"
-  testRuntime "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
-  testRuntime "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
-  testRuntime "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
-  testCompile "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
-  testCompile "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
-  testCompile "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+  implementation group: 'commons-codec', name: 'commons-codec', version: '1.15'
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
+  testImplementation "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
+  testImplementation "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
+  testImplementation "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
   developmentOnly("org.springframework.boot:spring-boot-devtools")
-  compile "org.codehaus.groovy:groovy-dateutil:3.0.4"
-  compile "org.springframework.boot:spring-boot-starter-logging"
-  compile "org.springframework.boot:spring-boot-autoconfigure"
-  compile "org.grails:grails-core"
-  compile "org.springframework.boot:spring-boot-starter-actuator"
-  compile "org.springframework.boot:spring-boot-starter-tomcat"
-  compile "org.grails:grails-web-boot"
-  compile "org.grails:grails-logging"
-  compile "org.grails:grails-plugin-rest"
-  compile "org.grails:grails-plugin-databinding"
-  compile "org.grails:grails-plugin-i18n"
-  compile "org.grails:grails-plugin-services"
-  compile "org.grails:grails-plugin-url-mappings"
-  compile "org.grails:grails-plugin-interceptors"
-//  compile 'org.grails.plugins:external-config:2.0.1'
-  compile "org.grails.plugins:cache"
-  compile "org.grails.plugins:async"
-  compile "org.grails.plugins:scaffolding"
-  compile "org.grails.plugins:events"
-  compile "org.grails.plugins:gsp"
-  compile 'com.github.blindsidenetworks:oauth:master-SNAPSHOT'
-  compile "org.json:json:20180813"
-  console "org.grails:grails-console"
+  implementation "org.codehaus.groovy:groovy-dateutil:3.0.4"
+  implementation "org.springframework.boot:spring-boot-starter-logging"
+  implementation "org.springframework.boot:spring-boot-autoconfigure"
+  implementation "org.grails:grails-core"
+  implementation "org.springframework.boot:spring-boot-starter-actuator"
+  implementation "org.springframework.boot:spring-boot-starter-tomcat"
+  implementation "org.grails:grails-web-boot"
+  implementation "org.grails:grails-logging"
+  implementation "org.grails:grails-plugin-rest"
+  implementation "org.grails:grails-plugin-databinding"
+  implementation "org.grails:grails-plugin-i18n"
+  implementation "org.grails:grails-plugin-services"
+  implementation "org.grails:grails-plugin-url-mappings"
+  implementation "org.grails:grails-plugin-interceptors"
+  implementation 'org.grails.plugins:external-config:1.2.2'
+  implementation "org.grails.plugins:cache"
+  implementation "org.grails.plugins:async"
+  implementation "org.grails.plugins:scaffolding"
+  implementation "org.grails.plugins:events"
+  implementation "org.grails.plugins:gsp"
+  implementation 'com.github.blindsidenetworks:oauth:master-SNAPSHOT'
+  implementation "org.json:json:20180813"
+  implementation "org.grails:grails-console"
   profile "org.grails.profiles:web"
-  runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.15.1"
-  testCompile "org.grails:grails-gorm-testing-support"
-  testCompile "org.grails.plugins:geb"
-  testCompile "org.grails:grails-web-testing-support"
-  testRuntime "org.seleniumhq.selenium:selenium-chrome-driver:2.47.1"
+  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.3.1"
+  testImplementation "org.grails:grails-gorm-testing-support"
+  testImplementation "org.grails.plugins:geb"
+  testImplementation "org.grails:grails-web-testing-support"
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:2.47.1"
 }
 
 webdriverBinaries {
