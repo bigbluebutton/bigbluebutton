@@ -1025,6 +1025,8 @@
     "app.video.dropZoneLabel": "Drop here",
     "app.fullscreenButton.label": "Make {0} fullscreen",
     "app.fullscreenUndoButton.label": "Undo {0} fullscreen",
+    "app.pictureInPictureButton.label": "Turn Picture-in-Picture on",
+    "app.pictureInPictureUndoButton.label": "Turn Picture-in-Picture off",
     "app.switchButton.expandLabel": "Expand screenshare video",
     "app.switchButton.shrinkLabel": "Shrink screenshare video",
     "app.sfu.mediaServerConnectionError2000": "Unable to connect to media server (error 2000)",

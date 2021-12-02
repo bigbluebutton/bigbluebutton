@@ -18,6 +18,27 @@ const isValidSafariVersion = Bowser.getParser(userAgent).satisfies({
 
 const isTabletApp =  !!(userAgent.match(/BigBlueButton-Tablet/i));
 
+const isValidSafariForPictureInPicture = Bowser
+  .getParser(window.navigator.userAgent)
+  .satisfies({
+    desktop: {
+      safari: '>=13.1',
+    },
+    mobile: {
+      safari: '>=13.4',
+    },
+  });
+
+const isAnotherValidBrowserForPictureInPicture = Bowser
+  .getParser(window.navigator.userAgent)
+  .satisfies({
+    desktop: {
+      chrome: '>=69',
+      edge: '>=79',
+      opera: '>=56',
+    },
+  });
+
 const browserInfo = {
   isChrome,
   isSafari,
@@ -27,7 +48,9 @@ const browserInfo = {
   browserName,
   versionNumber,
   isValidSafariVersion,
-  isTabletApp
+  isTabletApp,
+  isValidSafariForPictureInPicture,
+  isAnotherValidBrowserForPictureInPicture,
 };
 
 export default browserInfo;

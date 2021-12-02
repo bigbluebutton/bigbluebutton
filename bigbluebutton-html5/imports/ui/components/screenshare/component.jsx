@@ -30,6 +30,7 @@ import {
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
 import deviceInfo from '/imports/utils/deviceInfo';
+import PictureInPictureButtonContainer from '../pip-button/container';
 
 const intlMessages = defineMessages({
   screenShareLabel: {
@@ -345,6 +346,15 @@ class ScreenshareComponent extends React.Component {
     );
   }
 
+  renderPictureInPictureButton() {
+    return (
+      <PictureInPictureButtonContainer
+        videoTag={this.videoTag}
+        dark
+      />
+    );
+  }
+
   renderAutoplayOverlay() {
     const { intl } = this.props;
 
@@ -486,6 +496,7 @@ class ScreenshareComponent extends React.Component {
         id="screenshareContainer"
       >
         {loaded && this.renderFullscreenButton()}
+        {loaded && this.renderPictureInPictureButton()}
         {this.renderVideo(true)}
         {loaded && enableVolumeControl && this.renderVolumeSlider() }
 
