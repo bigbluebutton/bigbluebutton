@@ -1,6 +1,7 @@
 const Page = require('../core/page');
 const { setStatus } = require('./util');
 const e = require('../core/elements');
+const { clearNotification } = require('../notifications/util');
 
 class Status extends Page {
   constructor(browser, page) {
@@ -8,15 +9,14 @@ class Status extends Page {
   }
 
   async test() {
-    await setStatus(this.page, e.applaud);
-    await this.page.waitForSelector(e.applauseIcon);
-    const applauseIconLocator = this.page.locator(e.applauseIcon);
-    await expect(applauseIconLocator).toBeVisible();
+    await setStatus(this, e.applaud);
+    await this.waitForSelector(e.smallToastMsg);
+    await this.checkElement(e.applauseIcon);
 
-    await setStatus(this.page, e.away);
-    await this.page.waitForSelector(e.awayIcon);
-    const awayIconLocator = this.page.locator(e.awayIcon);
-    await expect(awayIconLocator).toBeVisible();
+    await clearNotification(this);
+    await setStatus(this, e.away);
+    await this.waitForSelector(e.smallToastMsg);
+    await this.checkElement(e.awayIcon);
   }
 }
 

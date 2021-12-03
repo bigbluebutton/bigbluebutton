@@ -4,7 +4,6 @@ const { MultiUsers } = require('./multiusers');
 
 test.describe.parallel('User test suite', () => {
   test('Change status', async ({ browser, page }) => {
-    test.fixme();
     const status = new Status(browser, page);
     await status.init(true, true);
     await status.test();
