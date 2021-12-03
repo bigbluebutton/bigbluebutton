@@ -1,9 +1,9 @@
 const { test } = require('@playwright/test');
 const { Language } = require('./language');
-const elements = require('../elements');
+const e = require('../core/elements');
 
 test.describe.parallel('Settings test suite', () => {
-  for(let locale of elements.locales) {
+  for(let locale of e.locales) {
     test.skip(`Test ${locale} locale`, async ({ browser, page }) => {
       console.log(browser);
       const language = new Language(browser, page);

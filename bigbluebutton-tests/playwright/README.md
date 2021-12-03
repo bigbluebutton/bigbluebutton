@@ -14,12 +14,16 @@ To run these tests with an existing BigBlueButton server, you need to find the s
 
 ## Run tests
 
-Tests can be executed using `npx`. You can run all tests in each of 3 supported environments (`chromium`, `firefox`, `webkit`) with the following command:
+Tests can be executed using `npx` and `npm test`. You can run all tests in each of 3 supported environments (`chromium`, `firefox`, `webkit`) with one of the following commands:
 ```bash
 $ npx playwright test
+or
+$ npm test
 ```
 
 You can also run a single test suite and limit the execution to only one browser:
 ```bash
 $ npx playwright test chat --browser=firefox
+or
+$ npm test chat -- --browser=firefox
 ```

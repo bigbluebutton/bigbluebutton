@@ -1,8 +1,8 @@
-const elements = require('../elements');
+const e = require('../core/elements');
 
 async function openChat(page) {
-  await page.waitForSelector(elements.chatBox);
-  await page.waitForSelector(elements.chatMessages);
+  await page.waitForSelector(e.chatBox);
+  await page.waitForSelector(e.chatMessages);
 }
 
 exports.openChat = openChat;
