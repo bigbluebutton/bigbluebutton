@@ -9,7 +9,6 @@ import { ChatContext } from '/imports/ui/components/components-data/chat-context
 import { GroupChatContext } from '/imports/ui/components/components-data/group-chat-context/context';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import NoteService from '/imports/ui/components/note/service';
-import Service from './service';
 import NavBar from './component';
 import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
 
@@ -100,12 +99,8 @@ export default withTracker(() => {
     document.title = titleString;
   }
 
-  const { connectRecordingObserver, processOutsideToggleRecording } = Service;
-
   return {
     currentUserId: Auth.userID,
-    processOutsideToggleRecording,
-    connectRecordingObserver,
     meetingId,
     presentationTitle: meetingTitle,
   };

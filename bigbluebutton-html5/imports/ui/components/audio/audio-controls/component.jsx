@@ -30,7 +30,6 @@ const intlMessages = defineMessages({
 
 const propTypes = {
   shortcuts: PropTypes.objectOf(PropTypes.string).isRequired,
-  processToggleMuteFromOutside: PropTypes.func.isRequired,
   handleToggleMuteMicrophone: PropTypes.func.isRequired,
   handleJoinAudio: PropTypes.func.isRequired,
   handleLeaveAudio: PropTypes.func.isRequired,
@@ -52,14 +51,6 @@ class AudioControls extends PureComponent {
       .renderLeaveButtonWithoutLiveStreamSelector.bind(this);
 
     this.renderJoinLeaveButton = this.renderJoinLeaveButton.bind(this);
-  }
-
-  componentDidMount() {
-    const { processToggleMuteFromOutside } = this.props;
-    if (Meteor.settings.public.allowOutsideCommands.toggleSelfVoice
-      || getFromUserSettings('bbb_outside_toggle_self_voice', false)) {
-      window.addEventListener('message', processToggleMuteFromOutside);
-    }
   }
 
   renderJoinButton() {
