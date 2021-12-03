@@ -35,6 +35,16 @@ public:
     lockOnJoin: true
     cdn: ''
     basename: '/html5client'
+    # the base location of the BBB API. If you use a cluster setup with a load
+    # balancer which hides the individual nodes, then this should be
+    # https://bbb-host/bigbluebutton
+    # If you run a traditional setup of multiple nodes behind scalelite and the
+    # users see the hostnames of the individual nodes, you can leave this at the
+    # default setting
+    bbbWebBase: '/bigbluebutton'
+    # If you run a cluster setup with a load balancer which hides the individual
+    # nodes, then this should be set to https://bbb-host/learning-dashboard
+    learningDashboardBase: '/learning-dashboard'
     # Use https URL of CSS file. Example: https://docs.bigbluebutton.org/admin/customize.html#examples
     customStyleUrl: null
     askForFeedbackOnLogout: false
@@ -526,6 +536,10 @@ public:
     #user activates microphone.
     iceGatheringTimeout: 5000
     sipjsHackViaWs: false
+    # the fqdn of this host.
+    # If you run a traditional setup of multiple nodes behind scalelite and the users see the hostnames of the
+    # individual nodes, you can leave this at the default setting
+    sip_ws_host: ''
     # Mute/umute toggle throttle time
     toggleMuteThrottleTime: 300
     #Websocket keepAlive interval (seconds). You may set this to prevent
