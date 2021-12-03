@@ -98,6 +98,7 @@ const toggleMuteMicrophone = throttle(() => {
 export default {
   init,
   exitAudio: () => AudioManager.exitAudio(),
+  forceExitAudio: () => AudioManager.forceExitAudio(),
   transferCall: () => AudioManager.transferCall(),
   joinListenOnly: () => AudioManager.joinListenOnly(),
   joinMicrophone: () => AudioManager.joinMicrophone(),
