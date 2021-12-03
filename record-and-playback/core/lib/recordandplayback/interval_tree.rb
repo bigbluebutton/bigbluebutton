@@ -41,9 +41,9 @@ module IntervalTree
       s_right = []
 
       intervals.each do |k|
-        if k.end.to_r < x_center
+        if k.end < x_center
           s_left << k
-        elsif k.begin.to_r > x_center
+        elsif k.begin > x_center
           s_right << k
         else
           s_center << k
@@ -92,8 +92,8 @@ module IntervalTree
 
     def center(intervals)
       (
-        intervals.map(&:begin).min.to_r +
-        intervals.map(&:end).max.to_r
+        intervals.map(&:begin).min +
+        intervals.map(&:end).max
       ) / 2
     end
 
