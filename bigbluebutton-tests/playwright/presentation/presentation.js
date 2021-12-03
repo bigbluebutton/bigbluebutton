@@ -4,6 +4,7 @@ const Page = require('../core/page');
 const e = require('../core/elements');
 const { checkSvgIndex, getSvgOuterHtml, uploadPresentation } = require('./util.js');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { sleep } = require('../core/helpers');
 
 class Presentation extends MultiUsers {
   constructor(browser, context) {
@@ -108,9 +109,9 @@ class Presentation extends MultiUsers {
 
   async getFrame(page, frameSelector) {
     await page.waitForSelector(frameSelector);
-    const handleFrame = await page.page.$(frameSelector);
-    const contentFrame = await handleFrame.contentFrame();
-    const frame = new Page(page.browser, contentFrame);
+    await sleep(1000);
+    const handleFrame = await page.page.frame({ url: /youtube/ });
+    const frame = new Page(page.browser, handleFrame);
     await frame.waitForSelector(e.ytFrameTitle);
     return frame;
   }

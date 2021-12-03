@@ -87,8 +87,7 @@ class Page {
   }
 
   async type(selector, text) {
-    await this.waitForSelector(selector);
-    const handle = await this.page.$(selector);
+    const handle = await this.getLocator(selector);
     await handle.focus();
     await handle.type(text);
   }

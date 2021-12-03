@@ -8,4 +8,4 @@ test.describe.parallel('Virtualize list', () => {
     await virtualizeList.init();
     await virtualizeList.test();
   });
-})
+});
