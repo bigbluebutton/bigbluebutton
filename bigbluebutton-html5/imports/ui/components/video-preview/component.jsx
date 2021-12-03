@@ -83,10 +83,6 @@ const intlMessages = defineMessages({
     id: 'app.videoPreview.quality.hd',
     description: 'High definition option label',
   },
-  cancelLabel: {
-    id: 'app.videoPreview.cancelLabel',
-    description: 'Cancel button label',
-  },
   startSharingLabel: {
     id: 'app.videoPreview.startSharingLabel',
     description: 'Start sharing button label',
@@ -758,7 +754,7 @@ class VideoPreview extends Component {
         {this.renderContent()}
 
         <div className={styles.footer}>
-          {hasVideoStream
+          {hasVideoStream && VideoService.isMultipleCamerasEnabled()
             ? (
               <div className={styles.extraActions}>
                 <Button
@@ -772,11 +768,6 @@ class VideoPreview extends Component {
             : null
           }
           <div className={styles.actions}>
-            <Button
-              label={intl.formatMessage(intlMessages.cancelLabel)}
-              onClick={this.handleProceed}
-              disabled={shouldDisableButtons}
-            />
             <Button
               data-test="startSharingWebcam"
               color={shared ? 'danger' : 'primary'}

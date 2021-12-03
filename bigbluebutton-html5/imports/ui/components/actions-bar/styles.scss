@@ -59,6 +59,7 @@
 }
 
 .offsetBottom {
+  position: relative
   :global(.MuiPaper-root) {
     top: auto !important;
     bottom: 4rem !important;

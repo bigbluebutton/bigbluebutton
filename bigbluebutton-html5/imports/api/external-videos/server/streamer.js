@@ -30,7 +30,11 @@ export function addExternalVideoStreamer(meetingId) {
   if (!Meteor.StreamerCentral.instances[streamName]) {
 
     const streamer = new Meteor.Streamer(streamName);
-    streamer.allowRead('all');
+    streamer.allowRead(function allowRead() {
+      if (!this.userId) return false;
+
+      return this.userId && this.userId.includes(meetingId);
+    });
     streamer.allowWrite('none');
     streamer.allowEmit(allowRecentMessages);
     Logger.info(`Created External Video streamer for ${streamName}`);

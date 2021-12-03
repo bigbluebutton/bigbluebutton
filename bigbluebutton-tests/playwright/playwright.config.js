@@ -1,11 +1,25 @@
 require('dotenv').config();
-const parameters = require('./parameters');
 
 const config = {
-    use: {
-      headless: true,
+  workers: 1,
+  use: {
+    headless: true,
+  },
+  projects: [
+    {
+      name: 'Chromium',
+      use: {
+        browserName: 'chromium',
+        launchOptions: {
+          args: [
+            '--no-sandbox',
+            '--use-fake-ui-for-media-stream',
+            '--use-fake-device-for-media-stream',
+          ]
+        },
+      },
     },
-    workers: 1,
+  ],
 };
-  
+
 module.exports = config;

@@ -1,28 +1,49 @@
 const { expect } = require('@playwright/test');
-const Page = require('../page');
-const elements = require('../elements');
+const Page = require('../core/page');
+const e = require('../core/elements');
 
 class MultiUsers {
-
-  constructor(browser, page1, page2) {
-    this.page1 = new Page(browser, page1);
-    this.page2 = new Page(browser, page2);
+  constructor(browser, context) {
+    this.browser = browser;
+    this.context = context;
   }
 
-  async init(testFolderName) {
-    await this.page1.init(true, true, 'User1');
-    await this.page2.init(true, true, 'User2', this.page1.meetingId); // joining the same meeting
+  async initPages(page1) {
+    await this.initModPage(page1);
+    await this.initUserPage();
   }
 
-  async test() {
-    const firstUserOnPage1 = this.page1.page.locator(elements.firstUser);
-    const secondUserOnPage1 = this.page1.page.locator(elements.userListItem);
-    const firstUserOnPage2 = this.page2.page.locator(elements.firstUser);
-    const secondUserOnPage2 = this.page2.page.locator(elements.userListItem);
+  async initModPage(page) {
+    this.modPage = new Page(this.browser, page);
+    await this.modPage.init(true, true, { fullName: 'Moderator' });
+  }
+
+  async initUserPage() {
+    const page = await this.context.newPage();
+    this.userPage = new Page(this.browser, page);
+    await this.userPage.init(false, true, { fullName: 'Attendee', meetingId: this.modPage.meetingId });
+  }
+
+  async userPresence() {
+    const firstUserOnPage1 = this.modPage.page.locator(e.firstUser);
+    const secondUserOnPage1 = this.modPage.page.locator(e.userListItem);
+    const firstUserOnPage2 = this.userPage.page.locator(e.firstUser);
+    const secondUserOnPage2 = this.userPage.page.locator(e.userListItem);
     await expect(firstUserOnPage1).toHaveCount(1);
     await expect(secondUserOnPage1).toHaveCount(1);
     await expect(firstUserOnPage2).toHaveCount(1);
     await expect(secondUserOnPage2).toHaveCount(1);
+  }
+
+  async whiteboardAccess() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.changeWhiteboardAccess);
+    await this.modPage.waitForSelector(e.multiWhiteboardTool);
+    const resp = await this.modPage.page.evaluate((multiWhiteboardTool) => {
+      return document.querySelector(multiWhiteboardTool).children[0].innerText === '1';
+    }, e.multiWhiteboardTool);
+    await expect(resp).toBeTruthy();
   }
 }
 
