@@ -27,7 +27,7 @@ public class DataStore {
 
     private void openConnection() {
         sessionFactory = new Configuration()
-                .configure("project/hibernate.cfg.xml")
+                .configure()
                 .addAnnotatedClass(Recording.class)
                 .addAnnotatedClass(Metadata.class)
                 .addAnnotatedClass(PlaybackFormat.class)
@@ -44,7 +44,7 @@ public class DataStore {
     }
 
     public <T> void save(T entity) {
-        logger.info("Attempting to save entity {}", entity);
+        logger.info("Attempting to save {}", entity);
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
 
@@ -70,14 +70,7 @@ public class DataStore {
 
         try {
             transaction = session.beginTransaction();
-            switch(entityClass.getSimpleName()) {
-                case "Recording":
-                    result = session.find(entityClass, id);
-                    break;
-                default:
-                    result = session.find(entityClass, Long.parseLong(id));
-                    break;
-            }
+            result = session.find(entityClass, Long.parseLong(id));
             transaction.commit();
         } catch(Exception e) {
             if(transaction != null) {
@@ -146,5 +139,36 @@ public class DataStore {
         }
 
         return result;
+    }
+
+    public <T> void delete(T entity) {
+        logger.info("Attempting to delete {}", entity);
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+
+        try {
+            transaction = session.beginTransaction();
+            session.delete(entity);
+            transaction.commit();
+        } catch(Exception e) {
+            if(transaction != null) {
+                transaction.rollback();
+                e.printStackTrace();
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    public void truncateTables() {
+        logger.info("Attempting to truncate tables");
+
+        List<Recording> recordings = findAll(Recording.class);
+
+        if(recordings != null) {
+            for(Recording recording: recordings) {
+                delete(recording);
+            }
+        }
     }
 }

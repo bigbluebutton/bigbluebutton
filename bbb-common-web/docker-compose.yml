@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      - "TZ=America/Toronto Canada/Eastern"
+      - "POSTGRES_USER=dev"
+      - "POSTGRES_PASSWORD=bbb-dev123"
+    ports:
+      - "5432:5432"
+    volumes:
+      - "./sql:/docker-entrypoint-initdb.d"

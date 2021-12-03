@@ -49,10 +49,10 @@ public class RecordingService {
 
     private static final Pattern PRESENTATION_ID_PATTERN = Pattern.compile("^[a-z0-9]{40}-[0-9]{13}\\.[0-9a-zA-Z]{3,4}$");
     
-    public static final String PROCESS_DIR = "/var/bigbluebutton/recording/process";
-    public static final String PUBLISHED_DIR = "/var/bigbluebutton/published";
-    public static final String UNPUBLISHED_DIR = "/var/bigbluebutton/unpublished";
-    public static final String DELETED_DIR = "/var/bigbluebutton/deleted";
+    private String PROCESS_DIR = "/var/bigbluebutton/recording/process";
+    private String PUBLISHED_DIR = "/var/bigbluebutton/published";
+    private String UNPUBLISHED_DIR = "/var/bigbluebutton/unpublished";
+    private String DELETED_DIR = "/var/bigbluebutton/deleted";
 
     private RecordingMetadataReaderHelper recordingServiceHelper;
     private String recordStatusDir;
