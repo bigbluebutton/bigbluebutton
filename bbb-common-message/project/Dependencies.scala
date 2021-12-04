@@ -13,15 +13,15 @@ object Dependencies {
     val scalactic = "3.0.3"
 
     // Libraries
-    val akkaVersion = "2.5.19"
-    val gson = "2.8.5"
-    val jackson = "2.9.7"
-    val sl4j = "1.7.25"
-    val red5 = "1.0.10-M9"
-    val pool = "2.8.0"
+    val akkaVersion = "2.6.17"
+    val gson = "2.8.9"
+    val jackson = "2.13.0"
+    val sl4j = "1.7.32"
+    val red5 = "1.2.10"
+    val pool = "2.11.1"
 
     // Redis
-    val lettuce = "5.1.3.RELEASE"
+    val lettuce = "6.1.5.RELEASE"
 
     // Test
     val scalaTest = "3.0.5"
