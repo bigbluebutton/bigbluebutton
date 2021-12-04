@@ -21,6 +21,7 @@ import { withDraggableConsumer } from '../media/webcam-draggable-overlay/context
 import Icon from '/imports/ui/components/icon/component';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import PollingContainer from '/imports/ui/components/polling/container';
+import browserInfo from '/imports/utils/browserInfo';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -50,6 +51,8 @@ const intlMessages = defineMessages({
 });
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const { isSafari } = browserInfo;
+const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
 class PresentationArea extends PureComponent {
   constructor() {
@@ -107,7 +110,7 @@ class PresentationArea extends PureComponent {
 
   componentDidMount() {
     this.getInitialPresentationSizes();
-    this.refPresentationContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
+    this.refPresentationContainer.addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     window.addEventListener('resize', this.onResize, false);
     window.addEventListener('layoutSizesSets', this.onResize, false);
     window.addEventListener('webcamAreaResize', this.handleResize, false);
@@ -256,7 +259,7 @@ class PresentationArea extends PureComponent {
   componentWillUnmount() {
     window.removeEventListener('resize', this.onResize, false);
     window.removeEventListener('layoutSizesSets', this.onResize, false);
-    this.refPresentationContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    this.refPresentationContainer.removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
   }
 
   onFullscreenChange() {
