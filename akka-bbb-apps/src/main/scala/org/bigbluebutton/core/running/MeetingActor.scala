@@ -387,7 +387,6 @@ class MeetingActor(
       case m: GetCamSubscribePermissionReqMsg  => handleGetCamSubscribePermissionReqMsg(m)
       case m: CamStreamSubscribedInSfuEvtMsg   => handleCamStreamSubscribedInSfuEvtMsg(m)
       case m: CamStreamUnsubscribedInSfuEvtMsg => handleCamStreamUnsubscribedInSfuEvtMsg(m)
-      case m: CamStreamUnsubscribedInSfuEvtMsg => handleCamStreamUnsubscribedInSfuEvtMsg(m)
       case m: CamBroadcastStoppedInSfuEvtMsg   => handleCamBroadcastStoppedInSfuEvtMsg(m)
 
       case m: UserJoinedVoiceConfEvtMsg        => handleUserJoinedVoiceConfEvtMsg(m)
