@@ -13,24 +13,24 @@ object Dependencies {
     val scalactic = "3.0.3"
 
     // Libraries
-    val akkaVersion = "2.5.19"
-    val gson = "2.8.5"
-    val jackson = "2.9.7"
-    val freemarker = "2.3.28"
-    val apacheHttp = "4.5.6"
+    val akkaVersion = "2.6.17"
+    val gson = "2.8.9"
+    val jackson = "2.13.0"
+    val freemarker = "2.3.31"
+    val apacheHttp = "4.5.13"
     val apacheHttpAsync = "4.1.4"
 
     // Office and document conversion
-    val apachePoi = "4.1.2"
-    val nuProcess = "1.2.4"
+    val apachePoi = "5.1.0"
+    val nuProcess = "2.0.2"
 
     // Server
-    val servlet = "3.1.0"
+    val servlet = "4.0.1"
 
     // Apache Commons
-    val lang = "3.9"
-    val io = "2.6"
-    val pool = "2.8.0"
+    val lang = "3.12.0"
+    val io = "2.11.0"
+    val pool = "2.11.1"
     val text = "1.9"
 
     // BigBlueButton
