@@ -34,7 +34,7 @@ playback_host: 10.0.3.203
    which recording to process.
 
 4. Before running the scripts, we have to make sure our scripts have the PATHs setup correctly.
-   Edit presentation/scripts/process/presentation.rb and uncomment the DEVELOPMENT PATH while
+   Edit presentation/scripts/process/presentation.rb, presentation/scripts/publish/presentation.rb, presentation/scripts/presentation.yml and uncomment the DEVELOPMENT PATH while
    commenting the PRODUCTION PATH. We need to do this so the script will be able to find the
    core library.
 
