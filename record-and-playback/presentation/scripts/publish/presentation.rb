@@ -44,7 +44,7 @@ bbb_props = BigBlueButton.read_props
 # by 2. This is just here to call out how spooky that is.
 @magic_mystery_number = 2
 
-def scaleToDeskshareVideo(width, height)
+def scale_to_deskshare_video(width, height)
   deskshare_video_height = @presentation_props['deskshare_output_height'].to_f
   deskshare_video_width = @presentation_props['deskshare_output_height'].to_f
 
@@ -55,14 +55,14 @@ def scaleToDeskshareVideo(width, height)
   [video_width.floor, video_height.floor]
 end
 
-def getDeskshareVideoDimension(deskshare_stream_name)
+def get_deskshare_video_dimension(deskshare_stream_name)
   video_width = @presentation_props['deskshare_output_height'].to_f
   video_height = @presentation_props['deskshare_output_height'].to_f
   deskshare_video_filename = "#{@deskshare_dir}/#{deskshare_stream_name}"
 
   if File.exist?(deskshare_video_filename)
     video_info = BigBlueButton::EDL::Video.video_info(deskshare_video_filename)
-    video_width, video_height = scaleToDeskshareVideo(video_info[:width], video_info[:height])
+    video_width, video_height = scale_to_deskshare_video(video_info[:width], video_info[:height])
   else
     BigBlueButton.logger.error("Could not find deskshare video: #{deskshare_video_filename}")
   end
@@ -74,7 +74,7 @@ end
 # Calculate the offsets based on the start and stop recording events, so it's easier
 # to translate the timestamps later based on these offsets
 #
-def calculateRecordEventsOffset
+def calculate_record_events_offset
   accumulated_duration = 0
   previous_stop_recording = @meeting_start.to_f
   @rec_events.each do |event|
@@ -91,8 +91,8 @@ end
 # Translated an arbitrary Unix timestamp to the recording timestamp. This is the
 # function that others will call
 #
-def translateTimestamp(timestamp)
-  new_timestamp = translateTimestamp_helper(timestamp.to_f).to_f
+def translate_timestamp(timestamp)
+  new_timestamp = translate_timestamp_helper(timestamp.to_f).to_f
   #	BigBlueButton.logger.info("Translating #{timestamp}, old value=#{timestamp.to_f-@meeting_start.to_f}, new value=#{new_timestamp}")
   new_timestamp
 end
@@ -100,7 +100,7 @@ end
 #
 # Translated an arbitrary Unix timestamp to the recording timestamp
 #
-def translateTimestamp_helper(timestamp)
+def translate_timestamp_helper(timestamp)
   @rec_events.each do |event|
     # if the timestamp comes before the start recording event, then the timestamp is translated to the moment it starts recording
     return event[:start_timestamp] - event[:offset] if timestamp <= event[:start_timestamp]
@@ -819,7 +819,7 @@ end
 
 # Create the shapes.svg, cursors.xml, and panzooms.xml files used for
 # rendering the presentation area
-def processPresentation(package_dir)
+def process_presentation(package_dir)
   shapes_doc = Nokogiri::XML::Document.new
   shapes_doc.create_internal_subset('svg', '-//W3C//DTD SVG 1.1//EN',
                                     'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd')
@@ -868,7 +868,7 @@ def processPresentation(package_dir)
   events_xml.xpath('/recording/event').each do |event|
     eventname = event['eventname']
     last_timestamp = timestamp =
-                       (translateTimestamp(event['timestamp']) / 1000.0).round(1)
+                       (translate_timestamp(event['timestamp']) / 1000.0).round(1)
 
     # Make sure to add initial entries to the slide & panzoom lists
     slide_changed = slides.empty?
@@ -1045,7 +1045,7 @@ def processPresentation(package_dir)
   File.write("#{package_dir}/#{@cursor_xml_filename}", cursors_doc.to_xml)
 end
 
-def processChatMessages(events, bbb_props)
+def process_chat_messages(events, bbb_props)
   BigBlueButton.logger.info('Processing chat events')
   # Create slides.xml and chat.
   Nokogiri::XML::Builder.new do |xml|
@@ -1065,7 +1065,7 @@ def processChatMessages(events, bbb_props)
   end
 end
 
-def processDeskshareEvents(events)
+def process_deskshare_events(events)
   BigBlueButton.logger.info('Processing deskshare events')
   deskshare_matched_events = BigBlueButton::Events.get_matched_start_and_stop_deskshare_events(events)
 
@@ -1073,15 +1073,15 @@ def processDeskshareEvents(events)
     @xml = xml
     @xml.recording('id' => 'deskshare_events') do
       deskshare_matched_events.each do |event|
-        start_timestamp = (translateTimestamp(event[:start_timestamp].to_f) / 1000).round(1)
-        stop_timestamp = (translateTimestamp(event[:stop_timestamp].to_f) / 1000).round(1)
+        start_timestamp = (translate_timestamp(event[:start_timestamp].to_f) / 1000).round(1)
+        stop_timestamp = (translate_timestamp(event[:stop_timestamp].to_f) / 1000).round(1)
         next unless start_timestamp != stop_timestamp
         video_info = BigBlueButton::EDL::Video.video_info("#{@deskshare_dir}/#{event[:stream]}")
         unless video_info[:video]
           BigBlueButton.logger.warn("#{event[:stream]} is not a valid video file, skipping...")
           next
         end
-        video_width, video_height = getDeskshareVideoDimension(event[:stream])
+        video_width, video_height = get_deskshare_video_dimension(event[:stream])
         @xml.event(start_timestamp: start_timestamp,
                    stop_timestamp: stop_timestamp,
                    video_width: video_width,
@@ -1091,47 +1091,47 @@ def processDeskshareEvents(events)
   end
 end
 
-def getPollQuestion(event)
+def get_poll_question(event)
   question = ''
   question = event.at_xpath('question').text unless event.at_xpath('question').nil?
 
   question
 end
 
-def getPollAnswers(event)
+def get_poll_answers(event)
   answers = []
   answers = JSON.parse(event.at_xpath('answers').content) unless event.at_xpath('answers').nil?
 
   answers
 end
 
-def getPollRespondents(event)
+def get_poll_respondents(event)
   respondents = 0
   respondents = event.at_xpath('numRespondents').text.to_i unless event.at_xpath('numRespondents').nil?
 
   respondents
 end
 
-def getPollResponders(event)
+def get_poll_responders(event)
   responders = 0
   responders = event.at_xpath('numResponders').text.to_i unless event.at_xpath('numResponders').nil?
 
   responders
 end
 
-def getPollId(event)
+def get_poll_id(event)
   id = ''
   id = event.at_xpath('pollId').text unless event.at_xpath('pollId').nil?
 
   id
 end
 
-def getPollType(events, published_poll_event)
-  published_poll_id = getPollId(published_poll_event)
+def get_poll_type(events, published_poll_event)
+  published_poll_id = get_poll_id(published_poll_event)
 
   type = ''
   events.xpath("//event[@eventname='PollStartedRecordEvent']").each do |event|
-    poll_id = getPollId(event)
+    poll_id = get_poll_id(event)
 
     if poll_id.eql?(published_poll_id)
       type = event.at_xpath('type').text
@@ -1142,7 +1142,7 @@ def getPollType(events, published_poll_event)
   type
 end
 
-def processPollEvents(events, package_dir)
+def process_poll_events(events, package_dir)
   BigBlueButton.logger.info('Processing poll events')
 
   published_polls = []
@@ -1150,12 +1150,12 @@ def processPollEvents(events, package_dir)
     events.xpath("//event[@eventname='PollPublishedRecordEvent']").each do |event|
       next unless (event[:timestamp].to_i >= re[:start_timestamp]) && (event[:timestamp].to_i <= re[:stop_timestamp])
       published_polls << {
-        timestamp: (translateTimestamp(event[:timestamp]) / 1000).to_i,
-        type: getPollType(events, event),
-        question: getPollQuestion(event),
-        answers: getPollAnswers(event),
-        respondents: getPollRespondents(event),
-        responders: getPollResponders(event)
+        timestamp: (translate_timestamp(event[:timestamp]) / 1000).to_i,
+        type: get_poll_type(events, event),
+        question: get_poll_question(event),
+        answers: get_poll_answers(event),
+        respondents: get_poll_respondents(event),
+        responders: get_poll_responders(event)
       }
     end
   end
@@ -1163,7 +1163,7 @@ def processPollEvents(events, package_dir)
   File.open("#{package_dir}/polls.json", 'w') { |f| f.puts(published_polls.to_json) } unless published_polls.empty?
 end
 
-def processExternalVideoEvents(_events, package_dir)
+def process_external_video_events(_events, package_dir)
   BigBlueButton.logger.info('Processing external video events')
 
   # Retrieve external video events
@@ -1175,7 +1175,7 @@ def processExternalVideoEvents(_events, package_dir)
   @rec_events.each do |re|
     external_video_events.each do |event|
       # BigBlueButton.logger.info("Processing rec event #{re} and external video event #{event}")
-      timestamp = (translateTimestamp(event[:start_timestamp]) / 1000).to_i
+      timestamp = (translate_timestamp(event[:start_timestamp]) / 1000).to_i
       # do not add same external_video twice
       next unless external_videos.find { |ev| ev[:timestamp] == timestamp }.nil?
       if ((event[:start_timestamp] >= re[:start_timestamp]) && (event[:start_timestamp] <= re[:stop_timestamp])) ||
@@ -1188,11 +1188,7 @@ def processExternalVideoEvents(_events, package_dir)
     end
   end
 
-  unless external_videos.empty?
-    File.open("#{package_dir}/external_videos.json", 'w') do |f|
-      f.puts(external_videos.to_json)
-    end
-  end
+  File.open("#{package_dir}/external_videos.json", 'w') { |f| f.puts(external_videos.to_json) } unless external_videos.empty?
 end
 
 @shapes_svg_filename = 'shapes.svg'
@@ -1372,19 +1368,19 @@ begin
         # Create slides.xml
         BigBlueButton.logger.info('Generating xml for slides and chat')
 
-        calculateRecordEventsOffset
+        calculate_record_events_offset
 
         # Write slides.xml to file
-        slides_doc = processChatMessages(@doc, bbb_props)
+        slides_doc = process_chat_messages(@doc, bbb_props)
         File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts slides_doc.to_xml }
 
-        processPresentation(package_dir)
+        process_presentation(package_dir)
 
-        processDeskshareEvents(@doc)
+        process_deskshare_events(@doc)
 
-        processPollEvents(@doc, package_dir)
+        process_poll_events(@doc, package_dir)
 
-        processExternalVideoEvents(@doc, package_dir)
+        process_external_video_events(@doc, package_dir)
 
         # Write deskshare.xml to file
         File.open("#{package_dir}/#{@deskshare_xml_filename}", 'w') { |f| f.puts @deskshare_xml.to_xml }
