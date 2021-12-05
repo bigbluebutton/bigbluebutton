@@ -38,15 +38,15 @@ require 'json'
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 bbb_props = BigBlueButton.read_props
-$presentation_props = YAML.safe_load(File.read('presentation.yml'))
+@presentation_props = YAML.safe_load(File.read('presentation.yml'))
 
 # There's a couple of places where stuff is mysteriously divided or multiplied
 # by 2. This is just here to call out how spooky that is.
-$magic_mystery_number = 2
+@magic_mystery_number = 2
 
 def scaleToDeskshareVideo(width, height)
-  deskshare_video_height = $presentation_props['deskshare_output_height'].to_f
-  deskshare_video_width = $presentation_props['deskshare_output_height'].to_f
+  deskshare_video_height = @presentation_props['deskshare_output_height'].to_f
+  deskshare_video_width = @presentation_props['deskshare_output_height'].to_f
 
   scale = [deskshare_video_width / width, deskshare_video_height / height]
   video_width = width * scale.min
@@ -56,9 +56,9 @@ def scaleToDeskshareVideo(width, height)
 end
 
 def getDeskshareVideoDimension(deskshare_stream_name)
-  video_width = $presentation_props['deskshare_output_height'].to_f
-  video_height = $presentation_props['deskshare_output_height'].to_f
-  deskshare_video_filename = "#{$deskshare_dir}/#{deskshare_stream_name}"
+  video_width = @presentation_props['deskshare_output_height'].to_f
+  video_height = @presentation_props['deskshare_output_height'].to_f
+  deskshare_video_filename = "#{@deskshare_dir}/#{deskshare_stream_name}"
 
   if File.exist?(deskshare_video_filename)
     video_info = BigBlueButton::EDL::Video.video_info(deskshare_video_filename)
@@ -76,8 +76,8 @@ end
 #
 def calculateRecordEventsOffset
   accumulated_duration = 0
-  previous_stop_recording = $meeting_start.to_f
-  $rec_events.each do |event|
+  previous_stop_recording = @meeting_start.to_f
+  @rec_events.each do |event|
     event[:offset] = event[:start_timestamp] - accumulated_duration
     event[:duration] = event[:stop_timestamp] - event[:start_timestamp]
     event[:accumulated_duration] = accumulated_duration
@@ -93,7 +93,7 @@ end
 #
 def translateTimestamp(timestamp)
   new_timestamp = translateTimestamp_helper(timestamp.to_f).to_f
-  #	BigBlueButton.logger.info("Translating #{timestamp}, old value=#{timestamp.to_f-$meeting_start.to_f}, new value=#{new_timestamp}")
+  #	BigBlueButton.logger.info("Translating #{timestamp}, old value=#{timestamp.to_f-@meeting_start.to_f}, new value=#{new_timestamp}")
   new_timestamp
 end
 
@@ -101,7 +101,7 @@ end
 # Translated an arbitrary Unix timestamp to the recording timestamp
 #
 def translateTimestamp_helper(timestamp)
-  $rec_events.each do |event|
+  @rec_events.each do |event|
     # if the timestamp comes before the start recording event, then the timestamp is translated to the moment it starts recording
     return event[:start_timestamp] - event[:offset] if timestamp <= event[:start_timestamp]
 
@@ -110,7 +110,7 @@ def translateTimestamp_helper(timestamp)
   end
 
   # if the timestamp comes after the last stop recording event, then the timestamp is translated to the last stop recording event timestamp
-  timestamp - $rec_events.last[:offset] + $rec_events.last[:duration]
+  timestamp - @rec_events.last[:offset] + @rec_events.last[:duration]
 end
 
 def color_to_hex(color)
@@ -211,7 +211,7 @@ end
 def svg_render_shape_line(g, slide, shape)
   g['shape'] = "line#{shape[:shape_unique_id]}"
   g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide, shape)};visibility:hidden;fill:none"
-  g['style'] += if $version_atleast_2_0_0
+  g['style'] += if @version_atleast_2_0_0
                   ';stroke-linecap:butt'
                 else
                   ';stroke-linecap:round'
@@ -230,7 +230,7 @@ end
 def svg_render_shape_rect(g, slide, shape)
   g['shape'] = "rect#{shape[:shape_unique_id]}"
   g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide, shape)};visibility:hidden;fill:#{shape[:fill] ? '#' + shape[:color] : 'none'}"
-  g['style'] += if $version_atleast_2_0_0
+  g['style'] += if @version_atleast_2_0_0
                   ';stroke-linejoin:miter'
                 else
                   ';stroke-linejoin:round'
@@ -265,7 +265,7 @@ end
 def svg_render_shape_triangle(g, slide, shape)
   g['shape'] = "triangle#{shape[:shape_unique_id]}"
   g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide, shape)};visibility:hidden;fill:#{shape[:fill] ? '#' + shape[:color] : 'none'}"
-  g['style'] += if $version_atleast_2_0_0
+  g['style'] += if @version_atleast_2_0_0
                   ';stroke-linejoin:miter;stroke-miterlimit:8'
                 else
                   ';stroke-linejoin:round'
@@ -376,8 +376,8 @@ def svg_render_shape_poll(g, slide, shape)
   num_responders = shape[:num_responders]
   presentation = slide[:presentation]
 
-  json_file = "#{$process_dir}/poll_result#{poll_id}.json"
-  svg_file = "#{$process_dir}/presentation/#{presentation}/poll_result#{poll_id}.svg"
+  json_file = "#{@process_dir}/poll_result#{poll_id}.json"
+  svg_file = "#{@process_dir}/presentation/#{presentation}/poll_result#{poll_id}.svg"
 
   # Save the poll json to a temp file
   IO.write(json_file, result)
@@ -434,15 +434,15 @@ def svg_render_shape(canvas, slide, shape, image_id)
   canvas << g unless g.element_children.empty?
 end
 
-$svg_image_id = 1
+@svg_image_id = 1
 def svg_render_image(svg, slide, shapes)
   if slide[:in] == slide[:out]
     BigBlueButton.logger.info("Presentation #{slide[:presentation]} Slide #{slide[:slide]} is never shown (duration rounds to 0)")
     return
   end
 
-  image_id = $svg_image_id
-  $svg_image_id += 1
+  image_id = @svg_image_id
+  @svg_image_id += 1
 
   BigBlueButton.logger.info("Image #{image_id}: Presentation #{slide[:presentation]} Slide #{slide[:slide]} Deskshare #{slide[:deskshare]} from #{slide[:in]} to #{slide[:out]}")
 
@@ -482,8 +482,8 @@ def panzoom_viewbox(panzoom)
     panzoom[:height_ratio] = 100.0
   end
 
-  x = (-panzoom[:x_offset] * $magic_mystery_number / 100.0 * panzoom[:width]).round(5)
-  y = (-panzoom[:y_offset] * $magic_mystery_number / 100.0 * panzoom[:height]).round(5)
+  x = (-panzoom[:x_offset] * @magic_mystery_number / 100.0 * panzoom[:width]).round(5)
+  y = (-panzoom[:y_offset] * @magic_mystery_number / 100.0 * panzoom[:height]).round(5)
   w = shape_scale_width(panzoom, panzoom[:width_ratio])
   h = shape_scale_height(panzoom, panzoom[:height_ratio])
 
@@ -521,12 +521,12 @@ def cursors_emit_event(rec, cursor)
 
   panzoom = cursor[:panzoom]
   if cursor[:visible]
-    if $version_atleast_2_0_0
+    if @version_atleast_2_0_0
       # In BBB 2.0, the cursor now uses the same coordinate system as annotations
       # Use the panzoom information to convert it to be relative to viewbox
-      x = (((cursor[:x] / 100.0) + (panzoom[:x_offset] * $magic_mystery_number / 100.0)) /
+      x = (((cursor[:x] / 100.0) + (panzoom[:x_offset] * @magic_mystery_number / 100.0)) /
            (panzoom[:width_ratio] / 100.0)).round(5)
-      y = (((cursor[:y] / 100.0) + (panzoom[:y_offset] * $magic_mystery_number / 100.0)) /
+      y = (((cursor[:y] / 100.0) + (panzoom[:y_offset] * @magic_mystery_number / 100.0)) /
            (panzoom[:height_ratio] / 100.0)).round(5)
       if x.negative? || (x > 1) || y.negative? || (y > 1)
         x = -1.0
@@ -551,8 +551,8 @@ def cursors_emit_event(rec, cursor)
   rec << event
 end
 
-$svg_shape_id = 1
-$svg_shape_unique_id = 1
+@svg_shape_id = 1
+@svg_shape_unique_id = 1
 def events_parse_shape(shapes, event, current_presentation, current_slide, timestamp)
   # Figure out what presentation+slide this shape is for, with fallbacks
   # for old BBB where this info isn't in the shape messages
@@ -567,7 +567,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
     slide = current_slide
   else
     slide = slide.text.to_i
-    slide -= 1 unless $version_atleast_0_9_0
+    slide -= 1 unless @version_atleast_0_9_0
   end
 
   # Set up the shapes data structures if needed
@@ -590,8 +590,8 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   shape[:id] = shape_id.text unless shape_id.nil?
   status = event.at_xpath('status')
   shape[:status] = status.text unless status.nil?
-  shape[:shape_id] = $svg_shape_id
-  $svg_shape_id += 1
+  shape[:shape_id] = @svg_shape_id
+  @svg_shape_id += 1
 
   # Some shape-specific properties
   if (shape[:type] == 'pencil') || (shape[:type] == 'rectangle') ||
@@ -603,7 +603,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
       BigBlueButton.logger.warn("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} ID #{shape[:id]} is missing thickness")
       return
     end
-    if $version_atleast_2_0_0
+    if @version_atleast_2_0_0
       shape[:thickness_percent] = thickness.text.to_f
     else
       shape[:thickness] = thickness.text.to_i
@@ -679,8 +679,8 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
       shape[:data_points] = prev_shape[:data_points] + shape[:data_points]
     end
   else
-    shape[:shape_unique_id] = $svg_shape_unique_id
-    $svg_shape_unique_id += 1
+    shape[:shape_unique_id] = @svg_shape_unique_id
+    @svg_shape_unique_id += 1
   end
 
   BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} ID #{shape[:id]} Type #{shape[:type]}")
@@ -701,7 +701,7 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
     slide = current_slide
   else
     slide = slide.text.to_i
-    slide -= 1 unless $version_atleast_0_9_0
+    slide -= 1 unless @version_atleast_0_9_0
   end
   # Newer undo messages have the shape id, making this a lot easier
   shape_id = event.at_xpath('shapeId')
@@ -755,7 +755,7 @@ def events_parse_clear(shapes, event, current_presentation, current_slide, times
     slide = current_slide
   else
     slide = slide.text.to_i
-    slide -= 1 unless $version_atleast_0_9_0
+    slide -= 1 unless @version_atleast_0_9_0
   end
 
   # BigBlueButton 2.0 per-user clear features
@@ -798,7 +798,7 @@ def events_get_image_info(slide)
     slide[:src] = "presentation/#{slide[:presentation]}/slide-#{slide[:slide] + 1}.png"
     slide[:text] = "presentation/#{slide[:presentation]}/textfiles/slide-#{slide[:slide] + 1}.txt"
   end
-  image_path = "#{$process_dir}/#{slide[:src]}"
+  image_path = "#{@process_dir}/#{slide[:src]}"
 
   unless File.exist?(image_path)
     BigBlueButton.logger.warn("Missing image file #{image_path}!")
@@ -806,7 +806,7 @@ def events_get_image_info(slide)
     FileUtils.mkdir_p(File.dirname(image_path))
     command = \
       if slide[:deskshare]
-        ['convert', '-size', "#{$presentation_props['deskshare_output_width']}x#{$presentation_props['deskshare_output_height']}", 'xc:transparent', '-background', 'transparent', image_path]
+        ['convert', '-size', "#{@presentation_props['deskshare_output_width']}x#{@presentation_props['deskshare_output_height']}", 'xc:transparent', '-background', 'transparent', image_path]
       else
         ['convert', '-size', '1600x1200', 'xc:transparent', '-background', 'transparent', '-quality', '90', '+dither', '-depth', '8', '-colors', '256', image_path]
       end
@@ -864,7 +864,7 @@ def processPresentation(package_dir)
   # Iterate through the events.xml and store the events, building the
   # xml files as we go
   last_timestamp = 0.0
-  events_xml = Nokogiri::XML(File.read("#{$process_dir}/events.xml"))
+  events_xml = Nokogiri::XML(File.read("#{@process_dir}/events.xml"))
   events_xml.xpath('/recording/event').each do |event|
     eventname = event['eventname']
     last_timestamp = timestamp =
@@ -895,11 +895,11 @@ def processPresentation(package_dir)
       current_height_ratio = event.at_xpath('heightRatio').text.to_f
       panzoom_changed = true
 
-    elsif $presentation_props['include_deskshare'] && ((eventname == 'DeskshareStartedEvent') || (eventname == 'StartWebRTCDesktopShareEvent'))
+    elsif @presentation_props['include_deskshare'] && ((eventname == 'DeskshareStartedEvent') || (eventname == 'StartWebRTCDesktopShareEvent'))
       deskshare = true
       slide_changed = true
 
-    elsif $presentation_props['include_deskshare'] && ((eventname == 'DeskshareStoppedEvent') || (eventname == 'StopWebRTCDesktopShareEvent'))
+    elsif @presentation_props['include_deskshare'] && ((eventname == 'DeskshareStoppedEvent') || (eventname == 'StopWebRTCDesktopShareEvent'))
       deskshare = false
       slide_changed = true
 
@@ -1040,9 +1040,9 @@ def processPresentation(package_dir)
   cursors_emit_event(cursors_rec, cursor)
 
   # And save the result
-  File.write("#{package_dir}/#{$shapes_svg_filename}", shapes_doc.to_xml)
-  File.write("#{package_dir}/#{$panzooms_xml_filename}", panzooms_doc.to_xml)
-  File.write("#{package_dir}/#{$cursor_xml_filename}", cursors_doc.to_xml)
+  File.write("#{package_dir}/#{@shapes_svg_filename}", shapes_doc.to_xml)
+  File.write("#{package_dir}/#{@panzooms_xml_filename}", panzooms_doc.to_xml)
+  File.write("#{package_dir}/#{@cursor_xml_filename}", cursors_doc.to_xml)
 end
 
 def processChatMessages(events, bbb_props)
@@ -1050,7 +1050,7 @@ def processChatMessages(events, bbb_props)
   # Create slides.xml and chat.
   Nokogiri::XML::Builder.new do |xml|
     xml.popcorn do
-      BigBlueButton::Events.get_chat_events(events, $meeting_start.to_i, $meeting_end.to_i, bbb_props).each do |chat|
+      BigBlueButton::Events.get_chat_events(events, @meeting_start.to_i, @meeting_end.to_i, bbb_props).each do |chat|
         chattimeline = {
           in: (chat[:in] / 1000.0).round(1),
           direction: 'down',
@@ -1069,20 +1069,20 @@ def processDeskshareEvents(events)
   BigBlueButton.logger.info('Processing deskshare events')
   deskshare_matched_events = BigBlueButton::Events.get_matched_start_and_stop_deskshare_events(events)
 
-  $deskshare_xml = Nokogiri::XML::Builder.new do |xml|
-    $xml = xml
-    $xml.recording('id' => 'deskshare_events') do
+  @deskshare_xml = Nokogiri::XML::Builder.new do |xml|
+    @xml = xml
+    @xml.recording('id' => 'deskshare_events') do
       deskshare_matched_events.each do |event|
         start_timestamp = (translateTimestamp(event[:start_timestamp].to_f) / 1000).round(1)
         stop_timestamp = (translateTimestamp(event[:stop_timestamp].to_f) / 1000).round(1)
         next unless start_timestamp != stop_timestamp
-        video_info = BigBlueButton::EDL::Video.video_info("#{$deskshare_dir}/#{event[:stream]}")
+        video_info = BigBlueButton::EDL::Video.video_info("#{@deskshare_dir}/#{event[:stream]}")
         unless video_info[:video]
           BigBlueButton.logger.warn("#{event[:stream]} is not a valid video file, skipping...")
           next
         end
         video_width, video_height = getDeskshareVideoDimension(event[:stream])
-        $xml.event(start_timestamp: start_timestamp,
+        @xml.event(start_timestamp: start_timestamp,
                    stop_timestamp: stop_timestamp,
                    video_width: video_width,
                    video_height: video_height)
@@ -1146,7 +1146,7 @@ def processPollEvents(events, package_dir)
   BigBlueButton.logger.info('Processing poll events')
 
   published_polls = []
-  $rec_events.each do |re|
+  @rec_events.each do |re|
     events.xpath("//event[@eventname='PollPublishedRecordEvent']").each do |event|
       next unless (event[:timestamp].to_i >= re[:start_timestamp]) && (event[:timestamp].to_i <= re[:stop_timestamp])
       published_polls << {
@@ -1172,7 +1172,7 @@ def processExternalVideoEvents(_events, package_dir)
   )
 
   external_videos = []
-  $rec_events.each do |re|
+  @rec_events.each do |re|
     external_video_events.each do |event|
       # BigBlueButton.logger.info("Processing rec event #{re} and external video event #{event}")
       timestamp = (translateTimestamp(event[:start_timestamp]) / 1000).to_i
@@ -1195,57 +1195,57 @@ def processExternalVideoEvents(_events, package_dir)
   end
 end
 
-$shapes_svg_filename = 'shapes.svg'
-$panzooms_xml_filename = 'panzooms.xml'
-$cursor_xml_filename = 'cursor.xml'
-$deskshare_xml_filename = 'deskshare.xml'
+@shapes_svg_filename = 'shapes.svg'
+@panzooms_xml_filename = 'panzooms.xml'
+@cursor_xml_filename = 'cursor.xml'
+@deskshare_xml_filename = 'deskshare.xml'
 
 opts = Trollop.options do
   opt :meeting_id, 'Meeting id to archive', default: '58f4a6b3-cd07-444d-8564-59116cb53974', type: String
 end
 
-$meeting_id = opts[:meeting_id]
-puts $meeting_id
-match = /(.*)-(.*)/.match $meeting_id
-$meeting_id = match[1]
-$playback = match[2]
+@meeting_id = opts[:meeting_id]
+puts @meeting_id
+match = /(.*)-(.*)/.match @meeting_id
+@meeting_id = match[1]
+@playback = match[2]
 
-puts $meeting_id
-puts $playback
+puts @meeting_id
+puts @playback
 
 begin
-  if $playback == 'presentation'
+  if @playback == 'presentation'
 
     log_dir = bbb_props['log_dir']
 
-    logger = Logger.new("#{log_dir}/presentation/publish-#{$meeting_id}.log", 'daily')
+    logger = Logger.new("#{log_dir}/presentation/publish-#{@meeting_id}.log", 'daily')
     BigBlueButton.logger = logger
 
     BigBlueButton.logger.info('Setting recording dir')
     recording_dir = bbb_props['recording_dir']
     BigBlueButton.logger.info('Setting process dir')
-    $process_dir = "#{recording_dir}/process/presentation/#{$meeting_id}"
+    @process_dir = "#{recording_dir}/process/presentation/#{@meeting_id}"
     BigBlueButton.logger.info('setting publish dir')
-    publish_dir = $presentation_props['publish_dir']
+    publish_dir = @presentation_props['publish_dir']
     BigBlueButton.logger.info('setting playback url info')
     playback_protocol = bbb_props['playback_protocol']
     playback_host = bbb_props['playback_host']
     BigBlueButton.logger.info('setting target dir')
-    target_dir = "#{recording_dir}/publish/presentation/#{$meeting_id}"
-    $deskshare_dir = "#{recording_dir}/raw/#{$meeting_id}/deskshare"
+    target_dir = "#{recording_dir}/publish/presentation/#{@meeting_id}"
+    @deskshare_dir = "#{recording_dir}/raw/#{@meeting_id}/deskshare"
 
     if !FileTest.directory?(target_dir)
       BigBlueButton.logger.info('Making dir target_dir')
       FileUtils.mkdir_p target_dir
 
-      package_dir = "#{target_dir}/#{$meeting_id}"
+      package_dir = "#{target_dir}/#{@meeting_id}"
       BigBlueButton.logger.info('Making dir package_dir')
       FileUtils.mkdir_p package_dir
 
       begin
-        video_formats = $presentation_props['video_formats']
+        video_formats = @presentation_props['video_formats']
 
-        video_files = Dir.glob("#{$process_dir}/webcams.{#{video_formats.join(',')}}")
+        video_files = Dir.glob("#{@process_dir}/webcams.{#{video_formats.join(',')}}")
         if !video_files.empty?
           BigBlueButton.logger.info('Making video dir')
           video_dir = "#{package_dir}/video"
@@ -1259,23 +1259,23 @@ begin
           audio_dir = "#{package_dir}/audio"
           BigBlueButton.logger.info('Making audio dir')
           FileUtils.mkdir_p audio_dir
-          BigBlueButton.logger.info("Made audio dir - copying: #{$process_dir}/audio.webm to -> #{audio_dir}")
-          FileUtils.cp("#{$process_dir}/audio.webm", audio_dir)
-          BigBlueButton.logger.info("Copied audio.webm file - copying: #{$process_dir}/audio.ogg to -> #{audio_dir}")
-          FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
+          BigBlueButton.logger.info("Made audio dir - copying: #{@process_dir}/audio.webm to -> #{audio_dir}")
+          FileUtils.cp("#{@process_dir}/audio.webm", audio_dir)
+          BigBlueButton.logger.info("Copied audio.webm file - copying: #{@process_dir}/audio.ogg to -> #{audio_dir}")
+          FileUtils.cp("#{@process_dir}/audio.ogg", audio_dir)
           BigBlueButton.logger.info('Copied audio.ogg file')
         end
 
-        if File.exist?("#{$process_dir}/captions.json")
+        if File.exist?("#{@process_dir}/captions.json")
           BigBlueButton.logger.info('Copying caption files')
-          FileUtils.cp("#{$process_dir}/captions.json", package_dir)
-          Dir.glob("#{$process_dir}/caption_*.vtt").each do |caption|
+          FileUtils.cp("#{@process_dir}/captions.json", package_dir)
+          Dir.glob("#{@process_dir}/caption_*.vtt").each do |caption|
             BigBlueButton.logger.debug(caption)
             FileUtils.cp(caption, package_dir)
           end
         end
 
-        video_files = Dir.glob("#{$process_dir}/deskshare.{#{video_formats.join(',')}}")
+        video_files = Dir.glob("#{@process_dir}/deskshare.{#{video_formats.join(',')}}")
         if !video_files.empty?
           BigBlueButton.logger.info('Making deskshare dir')
           deskshare_dir = "#{package_dir}/deskshare"
@@ -1289,44 +1289,44 @@ begin
           BigBlueButton.logger.info("Could not copy deskshares.webm: file doesn't exist")
         end
 
-        if File.exist?("#{$process_dir}/presentation_text.json")
-          FileUtils.cp("#{$process_dir}/presentation_text.json", package_dir)
+        if File.exist?("#{@process_dir}/presentation_text.json")
+          FileUtils.cp("#{@process_dir}/presentation_text.json", package_dir)
         end
 
-        FileUtils.cp("#{$process_dir}/notes/notes.html", package_dir) if File.exist?("#{$process_dir}/notes/notes.html")
+        FileUtils.cp("#{@process_dir}/notes/notes.html", package_dir) if File.exist?("#{@process_dir}/notes/notes.html")
 
-        processing_time = File.read("#{$process_dir}/processing_time")
+        processing_time = File.read("#{@process_dir}/processing_time")
 
-        @doc = Nokogiri::XML(File.read("#{$process_dir}/events.xml"))
+        @doc = Nokogiri::XML(File.read("#{@process_dir}/events.xml"))
 
         # Retrieve record events and calculate total recording duration.
-        $rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
+        @rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
           BigBlueButton::Events.get_start_and_stop_rec_events(@doc)
         )
 
         recording_time = BigBlueButton::Events.get_recording_length(@doc)
 
-        # presentation_url = "/slides/" + $meeting_id + "/presentation"
+        # presentation_url = "/slides/" + @meeting_id + "/presentation"
 
-        $meeting_start = @doc.xpath('//event')[0][:timestamp]
-        $meeting_end = @doc.xpath('//event').last[:timestamp]
+        @meeting_start = @doc.xpath('//event')[0][:timestamp]
+        @meeting_end = @doc.xpath('//event').last[:timestamp]
 
-        $version_atleast_0_9_0 = BigBlueButton::Events.bbb_version_compare(
+        @version_atleast_0_9_0 = BigBlueButton::Events.bbb_version_compare(
           @doc, 0, 9, 0
         )
-        $version_atleast_2_0_0 = BigBlueButton::Events.bbb_version_compare(
+        @version_atleast_2_0_0 = BigBlueButton::Events.bbb_version_compare(
           @doc, 2, 0, 0
         )
         BigBlueButton.logger.info('Creating metadata.xml')
 
         # Get the real-time start and end timestamp
-        # match = /.*-(\d+)$/.match($meeting_id)
+        # match = /.*-(\d+)@/.match(@meeting_id)
         # real_start_time = match[1]
-        # real_end_time = (real_start_time.to_i + ($meeting_end.to_i - $meeting_start.to_i)).to_s
+        # real_end_time = (real_start_time.to_i + (@meeting_end.to_i - @meeting_start.to_i)).to_s
 
         #### INSTEAD OF CREATING THE WHOLE metadata.xml FILE AGAIN, ONLY ADD <playback>
         # Copy metadata.xml from process_dir
-        FileUtils.cp("#{$process_dir}/metadata.xml", package_dir)
+        FileUtils.cp("#{@process_dir}/metadata.xml", package_dir)
         BigBlueButton.logger.info('Copied metadata.xml file')
 
         # Update state and add playback to metadata.xml
@@ -1341,11 +1341,11 @@ begin
         ## Remove empty playback
         metadata.search('//recording/playback').each(&:remove)
         ## Add the actual playback
-        presentation = BigBlueButton::Presentation.get_presentation_for_preview($process_dir.to_s)
+        presentation = BigBlueButton::Presentation.get_presentation_for_preview(@process_dir.to_s)
         Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
           xml.playback do
             xml.format('presentation')
-            xml.link("#{playback_protocol}://#{playback_host}/playback/presentation/2.3/#{$meeting_id}")
+            xml.link("#{playback_protocol}://#{playback_host}/playback/presentation/2.3/#{@meeting_id}")
             xml.processing_time(processing_time.to_s)
             xml.duration(recording_time.to_s)
             unless presentation.empty?
@@ -1354,7 +1354,7 @@ begin
                   xml.images do
                     presentation[:slides].each do |key, val|
                       attributes = { width: '176', height: '136', alt: !val[:alt].nil? ? (val[:alt]).to_s : '' }
-                      xml.image(attributes) { xml.text("#{playback_protocol}://#{playback_host}/presentation/#{$meeting_id}/presentation/#{presentation[:id]}/thumbnails/thumb-#{key}.png") }
+                      xml.image(attributes) { xml.text("#{playback_protocol}://#{playback_host}/presentation/#{@meeting_id}/presentation/#{presentation[:id]}/thumbnails/thumb-#{key}.png") }
                     end
                   end
                 end
@@ -1387,10 +1387,10 @@ begin
         processExternalVideoEvents(@doc, package_dir)
 
         # Write deskshare.xml to file
-        File.open("#{package_dir}/#{$deskshare_xml_filename}", 'w') { |f| f.puts $deskshare_xml.to_xml }
+        File.open("#{package_dir}/#{@deskshare_xml_filename}", 'w') { |f| f.puts @deskshare_xml.to_xml }
 
         BigBlueButton.logger.info('Copying files to package dir')
-        FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
+        FileUtils.cp_r("#{@process_dir}/presentation", package_dir)
         BigBlueButton.logger.info('Copied files to package dir')
 
         BigBlueButton.logger.info('Publishing slides')
@@ -1398,7 +1398,7 @@ begin
         FileUtils.mkdir_p publish_dir unless FileTest.directory?(publish_dir)
 
         # Get raw size of presentation files
-        raw_dir = "#{recording_dir}/raw/#{$meeting_id}"
+        raw_dir = "#{recording_dir}/raw/#{@meeting_id}"
         # After all the processing we'll add the published format and raw sizes to the metadata file
         BigBlueButton.add_raw_size_to_metadata(package_dir, raw_dir)
         BigBlueButton.add_playback_size_to_metadata(package_dir)
@@ -1408,7 +1408,7 @@ begin
 
         # TODO: remove comments
         # BigBlueButton.logger.info("Removing processed files.")
-        # FileUtils.rm_r(Dir.glob("#{$process_dir}/*"))
+        # FileUtils.rm_r(Dir.glob("#{@process_dir}/*"))
 
         BigBlueButton.logger.info('Removing published files.')
         FileUtils.rm_r(Dir.glob("#{target_dir}/*"))
@@ -1419,8 +1419,8 @@ begin
         end
         exit 1
       end
-      publish_done = File.new("#{recording_dir}/status/published/#{$meeting_id}-presentation.done", 'w')
-      publish_done.write("Published #{$meeting_id}")
+      publish_done = File.new("#{recording_dir}/status/published/#{@meeting_id}-presentation.done", 'w')
+      publish_done.write("Published #{@meeting_id}")
       publish_done.close
 
     else
@@ -1432,8 +1432,8 @@ rescue StandardError => e
   e.backtrace.each do |traceline|
     BigBlueButton.logger.error(traceline)
   end
-  publish_done = File.new("#{recording_dir}/status/published/#{$meeting_id}-presentation.fail", 'w')
-  publish_done.write("Failed Publishing #{$meeting_id}")
+  publish_done = File.new("#{recording_dir}/status/published/#{@meeting_id}-presentation.fail", 'w')
+  publish_done.write("Failed Publishing #{@meeting_id}")
   publish_done.close
 
   exit 1
