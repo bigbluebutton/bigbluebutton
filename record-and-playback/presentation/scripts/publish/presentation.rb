@@ -174,7 +174,7 @@ def svg_render_shape_pencil(g, slide, shape)
           cy1 = shape_scale_height(slide, data_points.next)
           x = shape_scale_width(slide, data_points.next)
           y = shape_scale_height(slide, data_points.next)
-          path.push("Q#{cx1} #{cy2},#{x} #{y}")
+          path.push("Q#{cx1} #{cy1},#{x} #{y}")
         when 4 # C_CURVE_TO
           cx1 = shape_scale_width(slide, data_points.next)
           cy1 = shape_scale_height(slide, data_points.next)
