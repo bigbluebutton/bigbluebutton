@@ -20,7 +20,7 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 
-performance_start = Time.now
+_performance_start = Time.now
 
 # For DEVELOPMENT
 # Allows us to run the script manually
@@ -103,13 +103,12 @@ end
 def translateTimestamp_helper(timestamp)
   $rec_events.each do |event|
     # if the timestamp comes before the start recording event, then the timestamp is translated to the moment it starts recording
-    if timestamp <= event[:start_timestamp]
-      return event[:start_timestamp] - event[:offset]
+    return event[:start_timestamp] - event[:offset] if timestamp <= event[:start_timestamp]
+
     # if the timestamp is during the recording period, it is just translated to the new one using the offset
-    elsif (timestamp > event[:start_timestamp]) && (timestamp <= event[:stop_timestamp])
-      return timestamp - event[:offset]
-    end
+    return timestamp - event[:offset] if (timestamp > event[:start_timestamp]) && (timestamp <= event[:stop_timestamp])
   end
+
   # if the timestamp comes after the last stop recording event, then the timestamp is translated to the last stop recording event timestamp
   timestamp - $rec_events.last[:offset] + $rec_events.last[:duration]
 end
@@ -245,7 +244,7 @@ def svg_render_shape_rect(g, slide, shape)
   y2 = shape_scale_height(slide, data_points[3])
 
   width = (x2 - x1).abs
-  height = (y2 - y1).abs
+  # height = (y2 - y1).abs
 
   if shape[:square]
     # Convert to a square, keeping aligned with the start point.
@@ -353,7 +352,7 @@ def svg_render_shape_text(g, slide, shape)
   p = doc.create_element('p',
                          xmlns: 'http://www.w3.org/1999/xhtml', style: 'margin:0;padding:0')
   shape[:text].each_line.with_index do |line, index|
-    p << doc.create_element('br') if index > 0
+    p << doc.create_element('br') if index.positive?
     p << doc.create_text_node(line.chomp)
   end
   fo << p
@@ -529,7 +528,7 @@ def cursors_emit_event(rec, cursor)
            (panzoom[:width_ratio] / 100.0)).round(5)
       y = (((cursor[:y] / 100.0) + (panzoom[:y_offset] * $magic_mystery_number / 100.0)) /
            (panzoom[:height_ratio] / 100.0)).round(5)
-      if (x < 0) || (x > 1) || (y < 0) || (y > 1)
+      if x.negative? || (x > 1) || y.negative? || (y > 1)
         x = -1.0
         y = -1.0
       end
@@ -945,7 +944,7 @@ def processPresentation(package_dir)
          (slide[:slide] == current_slide) &&
          (slide[:deskshare] == deskshare)
         BigBlueButton.logger.info('Presentation/Slide: skipping, no changes')
-        slide_changed = false
+        # slide_changed = false
       else
         unless slide.nil?
           slide[:out] = timestamp
@@ -1101,7 +1100,7 @@ end
 
 def getPollAnswers(event)
   answers = []
-  answers = JSON.load(event.at_xpath('answers').content) unless event.at_xpath('answers').nil?
+  answers = JSON.parse(event.at_xpath('answers').content) unless event.at_xpath('answers').nil?
 
   answers
 end
@@ -1161,11 +1160,7 @@ def processPollEvents(events, package_dir)
     end
   end
 
-  unless published_polls.empty?
-    File.open("#{package_dir}/polls.json", 'w') do |f|
-      f.puts(published_polls.to_json)
-    end
-  end
+  File.open("#{package_dir}/polls.json", 'w') { |f| f.puts(published_polls.to_json) } unless published_polls.empty?
 end
 
 def processExternalVideoEvents(_events, package_dir)
@@ -1325,9 +1320,9 @@ begin
         BigBlueButton.logger.info('Creating metadata.xml')
 
         # Get the real-time start and end timestamp
-        match = /.*-(\d+)$/.match($meeting_id)
-        real_start_time = match[1]
-        real_end_time = (real_start_time.to_i + ($meeting_end.to_i - $meeting_start.to_i)).to_s
+        # match = /.*-(\d+)$/.match($meeting_id)
+        # real_start_time = match[1]
+        # real_end_time = (real_start_time.to_i + ($meeting_end.to_i - $meeting_start.to_i)).to_s
 
         #### INSTEAD OF CREATING THE WHOLE metadata.xml FILE AGAIN, ONLY ADD <playback>
         # Copy metadata.xml from process_dir
@@ -1347,7 +1342,7 @@ begin
         metadata.search('//recording/playback').each(&:remove)
         ## Add the actual playback
         presentation = BigBlueButton::Presentation.get_presentation_for_preview($process_dir.to_s)
-        metadata_with_playback = Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
+        Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
           xml.playback do
             xml.format('presentation')
             xml.link("#{playback_protocol}://#{playback_host}/playback/presentation/2.3/#{$meeting_id}")
@@ -1417,7 +1412,7 @@ begin
 
         BigBlueButton.logger.info('Removing published files.')
         FileUtils.rm_r(Dir.glob("#{target_dir}/*"))
-      rescue Exception => e
+      rescue StandardError => e
         BigBlueButton.logger.error(e.message)
         e.backtrace.each do |traceline|
           BigBlueButton.logger.error(traceline)
@@ -1432,7 +1427,7 @@ begin
       BigBlueButton.logger.info("#{target_dir} is already there")
     end
   end
-rescue Exception => e
+rescue StandardError => e
   BigBlueButton.logger.error(e.message)
   e.backtrace.each do |traceline|
     BigBlueButton.logger.error(traceline)
