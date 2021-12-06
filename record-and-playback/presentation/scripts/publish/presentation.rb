@@ -643,7 +643,8 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   prev_shape = nil
   if !shape[:id].nil?
     # If we have a shape ID, look up the previous shape by ID
-    prev_shape = shapes.find_all { |s| s[:id] == shape[:id] }.last
+    prev_shape_pos = shapes.rindex { |s| s[:id] == shape[:id] }
+    prev_shape = prev_shape_pos.nil? ? nil : shapes[prev_shape_pos]
   else
     # No shape ID, so do heuristic matching. If the previous shape had the
     # same type and same first two data points, update it.
@@ -668,7 +669,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
     @svg_shape_unique_id += 1
   end
 
-  BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} ID #{shape[:id]} Type #{shape[:type]}")
+  # BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} ID #{shape[:id]} Type #{shape[:type]}")
   shapes << shape
 end
 
@@ -703,7 +704,8 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
   else
     # The undo command removes the most recently added shape that has not
     # already been removed by another undo or clear. Find that shape.
-    undo_shape = shapes.select { |s| s[:undo].nil? }.last
+    undo_pos = shapes.rindex { |s| s[:undo].nil? }
+    undo_shape = undo_pos.nil? ? nil : shapes[undo_pos]
     if !undo_shape.nil?
       BigBlueButton.logger.info("Undo: removing Shape #{undo_shape[:shape_unique_id]} at #{timestamp}")
       # We have an id number assigned to associate all the updated versions
@@ -728,14 +730,9 @@ def events_parse_clear(shapes, event, current_presentation, current_slide, times
   presentation = determine_presentation(presentation, current_presentation)
   slide = determine_slide_number(slide, current_slide)
 
-  # BigBlueButton 2.0 per-user clear features
+  # BigBlueButton 2.0 per-user clear features; default to full clear on older versions
   full_clear = event.at_xpath('fullClear')
-  full_clear = if !full_clear.nil?
-                 (full_clear.text == 'true')
-               else
-                 # Default to full clear on older versions
-                 true
-               end
+  full_clear = !full_clear.nil? ? (full_clear.text == 'true') : true
   user_id = event.at_xpath('userId')
   user_id = user_id.text unless user_id.nil?
 
@@ -746,11 +743,7 @@ def events_parse_clear(shapes, event, current_presentation, current_slide, times
   # We only need to deal with shapes for this slide
   shapes = shapes[presentation][slide]
 
-  if full_clear
-    BigBlueButton.logger.info('Clear: removing all shapes')
-  else
-    BigBlueButton.logger.info("Clear: removing shapes for User #{user_id}")
-  end
+  full_clear ? BigBlueButton.logger.info('Clear: removing all shapes') : BigBlueButton.logger.info("Clear: removing shapes for User #{user_id}")
 
   shapes.each do |shape|
     if full_clear || (user_id == shape[:user_id])
