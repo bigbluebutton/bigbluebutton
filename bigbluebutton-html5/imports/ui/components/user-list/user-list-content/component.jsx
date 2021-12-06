@@ -6,7 +6,7 @@ import UserMessages from './user-messages/container';
 import UserNotesContainer from './user-notes/container';
 import UserCaptionsContainer from './user-captions/container';
 import WaitingUsersContainer from './waiting-users/container';
-import UserPolls from './user-polls/component';
+import UserPollsContainer from './user-polls/container';
 import BreakoutRoomItem from './breakout-room/component';
 
 const propTypes = {
@@ -37,7 +37,7 @@ class UserContent extends PureComponent {
           ? (
             <WaitingUsersContainer {...{ pendingUsers }} />
           ) : null}
-        <UserPolls isPresenter={currentUser.presenter} />
+        <UserPollsContainer isPresenter={currentUser.presenter} />
         <BreakoutRoomItem isPresenter={currentUser.presenter} />
         <UserParticipantsContainer />
       </Styled.Content>
