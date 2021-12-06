@@ -210,7 +210,7 @@ end
 
 def svg_render_shape_line(g, slide, shape)
   g['shape'] = "line#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide, shape)};visibility:hidden;fill:none#{@version_atleast_2_0_0 ? ";stroke-linecap:butt" : ";stroke-linecap:round"}"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide, shape)};visibility:hidden;fill:none#{@version_atleast_2_0_0 ? ';stroke-linecap:butt' : ';stroke-linecap:round'}"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -228,7 +228,7 @@ end
 
 def svg_render_shape_rect(g, slide, shape)
   g['shape'] = "rect#{shape[:shape_unique_id]}"
-  g['style'] = "#{stroke_attributes(slide, shape)}#{@version_atleast_2_0_0 ? ";stroke-linejoin:miter" : ";stroke-linejoin:round"}"
+  g['style'] = "#{stroke_attributes(slide, shape)}#{@version_atleast_2_0_0 ? ';stroke-linejoin:miter' : ';stroke-linejoin:round'}"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -258,7 +258,7 @@ end
 
 def svg_render_shape_triangle(g, slide, shape)
   g['shape'] = "triangle#{shape[:shape_unique_id]}"
-  g['style'] = "#{stroke_attributes(slide, shape)}#{@version_atleast_2_0_0 ? ";stroke-linejoin:miter;stroke-miterlimit:8" : ";stroke-linejoin:round"}"
+  g['style'] = "#{stroke_attributes(slide, shape)}#{@version_atleast_2_0_0 ? ';stroke-linejoin:miter;stroke-miterlimit:8' : ';stroke-linejoin:round'}"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -1104,7 +1104,7 @@ def get_poll_type(events, published_poll_event)
   published_poll_id = get_poll_id(published_poll_event)
 
   type = ''
-  events.xpath("//event[@eventname='PollStartedRecordEvent']").each do |event|
+  events.xpath("recording/event[@eventname='PollStartedRecordEvent']").each do |event|
     poll_id = get_poll_id(event)
 
     if poll_id.eql?(published_poll_id)
@@ -1121,7 +1121,7 @@ def process_poll_events(events, package_dir)
 
   published_polls = []
   @rec_events.each do |re|
-    events.xpath("//event[@eventname='PollPublishedRecordEvent']").each do |event|
+    events.xpath("recording/event[@eventname='PollPublishedRecordEvent']").each do |event|
       next unless (event[:timestamp].to_i >= re[:start_timestamp]) && (event[:timestamp].to_i <= re[:stop_timestamp])
       published_polls << {
         timestamp: (translate_timestamp(event[:timestamp]) / 1000).to_i,
@@ -1278,8 +1278,8 @@ begin
 
         # presentation_url = "/slides/" + @meeting_id + "/presentation"
 
-        @meeting_start = @doc.xpath('//event')[0][:timestamp]
-        @meeting_end = @doc.xpath('//event').last[:timestamp]
+        @meeting_start = BigBlueButton::Events.first_event_timestamp(@doc)
+        @meeting_end = BigBlueButton::Events.last_event_timestamp(@doc)
 
         @version_atleast_0_9_0 = BigBlueButton::Events.bbb_version_compare(
           @doc, 0, 9, 0
@@ -1309,7 +1309,7 @@ begin
         published = recording.at_xpath('published')
         published.content = 'true'
         ## Remove empty playback
-        metadata.search('//recording/playback').each(&:remove)
+        metadata.search('recording/playback').each(&:remove)
         ## Add the actual playback
         presentation = BigBlueButton::Presentation.get_presentation_for_preview(@process_dir.to_s)
         Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
