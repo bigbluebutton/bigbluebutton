@@ -1,6 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 
-const AuthTokenValidation = new Mongo.Collection('auth-token-validation');
+const collectionOptions = Meteor.isClient ? {
+  connection: null,
+} : {};
+
+const AuthTokenValidation = new Mongo.Collection('auth-token-validation', collectionOptions);
 
 if (Meteor.isServer) {
   AuthTokenValidation._ensureIndex({ meetingId: 1, userId: 1 });

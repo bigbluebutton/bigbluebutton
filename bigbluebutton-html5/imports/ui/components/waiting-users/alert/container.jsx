@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
-import GuestUsers from '/imports/ui/local-collections/guest-users-collection/guest-users';
+import GuestUsers from '/imports/api/guest-users';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import WaitingComponent from './component';
 import { layoutSelectInput, layoutDispatch } from '../../layout/context';

@@ -2,12 +2,10 @@ import React, { Component } from 'react';
 import browserInfo from '/imports/utils/browserInfo';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 import BBBMenu from '/imports/ui/components/menu/component';
-import Icon from '/imports/ui/components/icon/component';
 import FullscreenService from '/imports/ui/components/fullscreen-button/service';
 import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
-import { styles } from '../styles';
+import Styled from './styles';
 import VideoService from '../../service';
 import {
   isStreamStateUnhealthy,
@@ -15,6 +13,7 @@ import {
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
+import Settings from '/imports/ui/services/settings';
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
@@ -188,64 +187,54 @@ class VideoListItem extends Component {
     const shouldRenderReconnect = !isStreamHealthy && videoIsReady;
 
     const { isFirefox } = browserInfo;
-
+    const { animations } = Settings.application;
+    
     return (
-      <div
+      <Styled.Content
+        talking={voiceUser.talking}
+        fullscreen={isFullscreenContext}
         data-test={voiceUser.talking ? 'webcamItemTalkingUser' : 'webcamItem'}
-        className={cx({
-          [styles.content]: true,
-          [styles.talking]: voiceUser.talking,
-          [styles.fullscreen]: isFullscreenContext,
-        })}
+        animations={animations}
       >
         {
           !videoIsReady
           && (
-            <div
+            <Styled.WebcamConnecting
               data-test="webcamConnecting"
-              className={cx({
-                [styles.connecting]: true,
-                [styles.content]: true,
-                [styles.talking]: voiceUser.talking,
-              })}
+              talking={voiceUser.talking}
+              animations={animations}
             >
-              <span className={styles.loadingText}>{name}</span>
-            </div>
+              <Styled.LoadingText>{name}</Styled.LoadingText>
+            </Styled.WebcamConnecting>
           )
 
         }
 
         {
           shouldRenderReconnect
-          && <div className={styles.reconnecting} />
+          && <Styled.Reconnecting />
         }
 
-        <div
-          className={styles.videoContainer}
-          ref={(ref) => { this.videoContainer = ref; }}
-        >
-          <video
+        <Styled.VideoContainer ref={(ref) => { this.videoContainer = ref; }}>
+          <Styled.Video
             muted
             data-test={this.mirrorOwnWebcam ? 'mirroredVideoContainer' : 'videoContainer'}
-            className={cx({
-              [styles.media]: true,
-              [styles.mirroredVideo]: (this.mirrorOwnWebcam && !mirrored)
-                || (!this.mirrorOwnWebcam && mirrored),
-              [styles.unhealthyStream]: shouldRenderReconnect,
-            })}
+            mirrored={(this.mirrorOwnWebcam && !mirrored)
+              || (!this.mirrorOwnWebcam && mirrored)}
+            unhealthyStream={shouldRenderReconnect}
             ref={(ref) => { this.videoTag = ref; }}
             autoPlay
             playsInline
           />
           {videoIsReady && this.renderFullscreenButton()}
-        </div>
+        </Styled.VideoContainer>
         {videoIsReady
           && (
-            <div className={styles.info}>
+            <Styled.Info>
               {enableVideoMenu && availableActions.length >= 1
                 ? (
                   <BBBMenu
-                    trigger={<div tabIndex={0} className={styles.dropdownTrigger}>{name}</div>}
+                    trigger={<Styled.DropdownTrigger tabIndex={0}>{name}</Styled.DropdownTrigger>}
                     actions={this.getAvailableActions()}
                     opts={{
                       id: "default-dropdown-menu",
@@ -257,27 +246,21 @@ class VideoListItem extends Component {
                       anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
                       transformorigin: { vertical: 'bottom', horizontal: 'left' },
                     }}
-                  />                  
+                  />
                 )
                 : (
-                  <div className={isFirefox ? styles.dropdownFireFox
-                    : styles.dropdown}
-                  >
-                    <span className={cx({
-                      [styles.userName]: true,
-                      [styles.noMenu]: numOfStreams < 3,
-                    })}
-                    >
+                  <Styled.Dropdown isFirefox={isFirefox}>
+                    <Styled.UserName noMenu={numOfStreams < 3}>
                       {name}
-                    </span>
-                  </div>
+                    </Styled.UserName>
+                  </Styled.Dropdown>
                 )}
-              {voiceUser.muted && !voiceUser.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
-              {voiceUser.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
-              {voiceUser.joined && !voiceUser.muted ? <Icon className={styles.voice} iconName="unmute" /> : null}
-            </div>
+              {voiceUser.muted && !voiceUser.listenOnly ? <Styled.Muted iconName="unmute_filled" /> : null}
+              {voiceUser.listenOnly ? <Styled.Voice iconName="listen" /> : null}
+              {voiceUser.joined && !voiceUser.muted ? <Styled.Voice iconName="unmute" /> : null}
+            </Styled.Info>
           )}
-      </div>
+      </Styled.Content>
     );
   }
 }

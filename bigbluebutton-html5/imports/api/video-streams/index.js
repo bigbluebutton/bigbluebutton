@@ -1,6 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 
-const VideoStreams = new Mongo.Collection('video-streams');
+const collectionOptions = Meteor.isClient ? {
+  connection: null,
+} : {};
+
+const VideoStreams = new Mongo.Collection('video-streams', collectionOptions);
 
 if (Meteor.isServer) {
   // types of queries for the video users:

@@ -24,6 +24,7 @@ class JoinHandler extends Component {
 
     this.state = {
       joined: false,
+      hasAlreadyJoined: false,
     };
   }
 
@@ -38,8 +39,8 @@ class JoinHandler extends Component {
         connected,
         status,
       } = Meteor.status();
-
-      if (status === 'connecting') {
+      const { hasAlreadyJoined } = this.state;
+      if (status === 'connecting' && !hasAlreadyJoined) {
         this.setState({ joined: false });
       }
 
@@ -83,6 +84,7 @@ class JoinHandler extends Component {
   }
 
   async fetchToken() {
+    const { hasAlreadyJoined } = this.state;
     if (!this._isMounted) return;
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -94,7 +96,9 @@ class JoinHandler extends Component {
     }
 
     // Old credentials stored in memory were being used when joining a new meeting
-    Auth.clearCredentials();
+    if (!hasAlreadyJoined) {
+      Auth.clearCredentials();
+    }
     const logUserInfo = () => {
       const userInfo = window.navigator;
 
@@ -215,7 +219,10 @@ class JoinHandler extends Component {
         },
       }, 'User faced an error on main.joinRouteHandler.');
     }
-    this.setState({ joined: true });
+    this.setState({
+      joined: true,
+      hasAlreadyJoined: true,
+    });
   }
 
   render() {

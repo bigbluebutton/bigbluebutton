@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Modal from '/imports/ui/components/modal/simple/component';
 import {
-  colorBackground,
+  colorGrayDark,
   colorWhite,
   colorGrayLabel,
   colorGrayLight,
@@ -16,7 +16,7 @@ const ReaderMenuModal = styled(Modal)`
 
 const Title = styled.header`
   display: block;
-  color: ${colorBackground};
+  color: ${colorGrayDark};
   font-size: 1.4rem;
   text-align: center;
 `;

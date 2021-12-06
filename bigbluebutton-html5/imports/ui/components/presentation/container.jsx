@@ -11,7 +11,7 @@ import Presentation from '/imports/ui/components/presentation/component';
 import PresentationToolbarService from './presentation-toolbar/service';
 import { UsersContext } from '../components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Meetings from '/imports/api/meetings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import {
   layoutSelect,
@@ -25,7 +25,7 @@ import { DEVICE_TYPE } from '../layout/enums';
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
 const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props }) => {
-  const { layoutSwapped, podId } = props;
+  const { layoutSwapped } = props;
 
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
   const presentation = layoutSelectOutput((i) => i.presentation);
@@ -44,8 +44,7 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
-
-  const userIsPresenter = (podId === 'DEFAULT_PRESENTATION_POD') ? currentUser.presenter : props.isPresenter;
+  const userIsPresenter = currentUser.presenter;
 
   return (
     <Presentation
@@ -123,7 +122,6 @@ export default withTracker(({ podId }) => {
     currentSlide,
     slidePosition,
     downloadPresentationUri: PresentationService.downloadPresentationUri(podId),
-    isPresenter: PresentationService.isPresenter(podId),
     multiUser: WhiteboardService.hasMultiUserAccess(currentSlide && currentSlide.id, Auth.userID)
       && !layoutSwapped,
     presentationIsDownloadable,

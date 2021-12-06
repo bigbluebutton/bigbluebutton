@@ -50,6 +50,12 @@ case class SystemProps(
     html5InstanceId: Int
 )
 
+case class GroupProps(
+    groupId:    String,
+    name:       String,
+    usersExtId: Vector[String]
+)
+
 case class DefaultProps(
     meetingProp:       MeetingProp,
     breakoutProps:     BreakoutProps,
@@ -62,7 +68,8 @@ case class DefaultProps(
     metadataProp:      MetadataProp,
     screenshareProps:  ScreenshareProps,
     lockSettingsProps: LockSettingsProps,
-    systemProps:       SystemProps
+    systemProps:       SystemProps,
+    groups:            Vector[GroupProps]
 )
 
 case class StartEndTimeStatus(startTime: Long, endTime: Long)

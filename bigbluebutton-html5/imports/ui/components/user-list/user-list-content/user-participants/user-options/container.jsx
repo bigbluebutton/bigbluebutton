@@ -1,7 +1,7 @@
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Meetings from '/imports/api/meetings';
 import ActionsBarService from '/imports/ui/components/actions-bar/service';
 import LearningDashboardService from '/imports/ui/components/learning-dashboard/service';
 import UserListService from '/imports/ui/components/user-list/service';

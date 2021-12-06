@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Meetings from '/imports/api/meetings';
+import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { makeCall } from '/imports/ui/services/api';
