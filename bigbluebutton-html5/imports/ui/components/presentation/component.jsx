@@ -22,6 +22,7 @@ import Icon from '/imports/ui/components/icon/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
+import browserInfo from '/imports/utils/browserInfo';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -52,6 +53,8 @@ const intlMessages = defineMessages({
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinimizeButton;
+const { isSafari } = browserInfo;
+const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
 class Presentation extends PureComponent {
   constructor() {
@@ -109,7 +112,7 @@ class Presentation extends PureComponent {
 
   componentDidMount() {
     this.getInitialPresentationSizes();
-    this.refPresentationContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
+    this.refPresentationContainer.addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     window.addEventListener('resize', this.onResize, false);
 
     const {
@@ -222,7 +225,7 @@ class Presentation extends PureComponent {
     const { fullscreenContext, layoutContextDispatch } = this.props;
 
     window.removeEventListener('resize', this.onResize, false);
-    this.refPresentationContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    this.refPresentationContainer.removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
 
     if (fullscreenContext) {
       layoutContextDispatch({
