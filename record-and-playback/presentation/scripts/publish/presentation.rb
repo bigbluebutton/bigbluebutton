@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+# frozen_string_literal: false
 # Set encoding to utf-8
 # encoding: UTF-8
 
@@ -210,12 +210,7 @@ end
 
 def svg_render_shape_line(g, slide, shape)
   g['shape'] = "line#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide, shape)};visibility:hidden;fill:none"
-  g['style'] += if @version_atleast_2_0_0
-                  ';stroke-linecap:butt'
-                else
-                  ';stroke-linecap:round'
-                end
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide, shape)};visibility:hidden;fill:none#{@version_atleast_2_0_0 ? ";stroke-linecap:butt" : ";stroke-linecap:round"}"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -233,12 +228,7 @@ end
 
 def svg_render_shape_rect(g, slide, shape)
   g['shape'] = "rect#{shape[:shape_unique_id]}"
-  g['style'] = stroke_attributes(slide, shape)
-  g['style'] += if @version_atleast_2_0_0
-                  ';stroke-linejoin:miter'
-                else
-                  ';stroke-linejoin:round'
-                end
+  g['style'] = "#{stroke_attributes(slide, shape)}#{@version_atleast_2_0_0 ? ";stroke-linejoin:miter" : ";stroke-linejoin:round"}"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -268,12 +258,7 @@ end
 
 def svg_render_shape_triangle(g, slide, shape)
   g['shape'] = "triangle#{shape[:shape_unique_id]}"
-  g['style'] = stroke_attributes(slide, shape)
-  g['style'] += if @version_atleast_2_0_0
-                  ';stroke-linejoin:miter;stroke-miterlimit:8'
-                else
-                  ';stroke-linejoin:round'
-                end
+  g['style'] = "#{stroke_attributes(slide, shape)}#{@version_atleast_2_0_0 ? ";stroke-linejoin:miter;stroke-miterlimit:8" : ";stroke-linejoin:round"}"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -326,11 +311,11 @@ def svg_render_shape_ellipse(g, slide, shape)
   # path element's elliptical arc code renders r_x or r_y
   # degenerate cases as line segments, so we can use that.
   path = "M#{x1} #{hy}"
-  path += "A#{width_r} #{height_r} 0 0 1 #{hx} #{y1}"
-  path += "A#{width_r} #{height_r} 0 0 1 #{x2} #{hy}"
-  path += "A#{width_r} #{height_r} 0 0 1 #{hx} #{y2}"
-  path += "A#{width_r} #{height_r} 0 0 1 #{x1} #{hy}"
-  path += 'Z'
+  path << "A#{width_r} #{height_r} 0 0 1 #{hx} #{y1}"
+  path << "A#{width_r} #{height_r} 0 0 1 #{x2} #{hy}"
+  path << "A#{width_r} #{height_r} 0 0 1 #{hx} #{y2}"
+  path << "A#{width_r} #{height_r} 0 0 1 #{x1} #{hy}"
+  path << 'Z'
 
   svg_path = doc.create_element('path', d: path)
   g << svg_path
