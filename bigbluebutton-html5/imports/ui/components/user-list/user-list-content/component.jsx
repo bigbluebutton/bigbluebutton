@@ -5,7 +5,7 @@ import UserParticipantsContainer from './user-participants/container';
 import UserMessages from './user-messages/container';
 import UserNotesContainer from './user-notes/container';
 import UserCaptionsContainer from './user-captions/container';
-import WaitingUsers from './waiting-users/component';
+import WaitingUsersContainer from './waiting-users/container';
 import UserPolls from './user-polls/component';
 import BreakoutRoomItem from './breakout-room/component';
 
@@ -33,7 +33,10 @@ class UserContent extends PureComponent {
         {CHAT_ENABLED ? <UserMessages /> : null}
         {currentUser.role === ROLE_MODERATOR ? <UserCaptionsContainer /> : null}
         <UserNotesContainer />
-        {showWaitingRoom && currentUser.role === ROLE_MODERATOR ? <WaitingUsers /> : null}
+        {showWaitingRoom && currentUser.role === ROLE_MODERATOR
+          ? (
+            <WaitingUsersContainer {...{ pendingUsers }} />
+          ) : null}
         <UserPolls isPresenter={currentUser.presenter} />
         <BreakoutRoomItem isPresenter={currentUser.presenter} />
         <UserParticipantsContainer />
