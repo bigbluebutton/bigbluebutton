@@ -5,6 +5,7 @@ import { defineMessages } from 'react-intl';
 import Styled from './styles';
 import { findDOMNode } from 'react-dom';
 import ChatListItemContainer from '../../chat-list-item/container';
+import { injectIntl } from 'react-intl';
 
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
@@ -140,4 +141,4 @@ class UserMessages extends PureComponent {
 UserMessages.propTypes = propTypes;
 UserMessages.defaultProps = defaultProps;
 
-export default UserMessages;
+export default injectIntl(UserMessages);
