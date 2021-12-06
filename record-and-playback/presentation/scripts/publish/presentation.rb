@@ -145,7 +145,7 @@ def svg_render_shape_pencil(g, slide, shape)
   end
 
   if shape[:data_points].length == 2
-    BigBlueButton.logger.info("Pencil #{shape[:shape_unique_id]}: Drawing single point")
+    # BigBlueButton.logger.info("Pencil #{shape[:shape_unique_id]}: Drawing single point")
     g['style'] = "stroke:none;fill:##{shape[:color]};visibility:hidden"
     circle = doc.create_element('circle',
                                 cx: shape_scale_width(slide, shape[:data_points][0]),
@@ -157,7 +157,7 @@ def svg_render_shape_pencil(g, slide, shape)
     data_points = shape[:data_points].each
 
     if !shape[:commands].nil?
-      BigBlueButton.logger.info("Pencil #{shape[:shape_unique_id]}: Drawing from command string (#{shape[:commands].length} commands)")
+      # BigBlueButton.logger.info("Pencil #{shape[:shape_unique_id]}: Drawing from command string (#{shape[:commands].length} commands)")
       shape[:commands].each do |command|
         case command
         when 1 # MOVE_TO
@@ -187,7 +187,7 @@ def svg_render_shape_pencil(g, slide, shape)
         end
       end
     else
-      BigBlueButton.logger.info("Pencil #{shape[:shape_unique_id]}: Drawing simple line (#{shape[:data_points].length / 2} points)")
+      # BigBlueButton.logger.info("Pencil #{shape[:shape_unique_id]}: Drawing simple line (#{shape[:data_points].length / 2} points)")
       x = shape_scale_width(slide, data_points.next)
       y = shape_scale_height(slide, data_points.next)
       path << "M#{x} #{y}"
@@ -332,7 +332,7 @@ def svg_render_shape_text(g, slide, shape)
   height = shape_scale_height(slide, shape[:text_box_height])
   font_size = shape_scale_height(slide, shape[:calced_font_size])
 
-  BigBlueButton.logger.info("Text #{shape[:shape_unique_id]} width #{width} height #{height} font size #{font_size}")
+  # BigBlueButton.logger.info("Text #{shape[:shape_unique_id]} width #{width} height #{height} font size #{font_size}")
   g['style'] = "color:##{shape[:font_color]};word-wrap:break-word;visibility:hidden;font-family:Arial;font-size:#{font_size}px"
 
   switch = doc.create_element('switch')
@@ -392,7 +392,7 @@ def svg_render_shape(canvas, slide, shape, image_id)
     return
   end
 
-  BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} Type #{shape[:type]} from #{shape[:in]} to #{shape[:out]} undo #{shape[:undo]}")
+  # BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} Type #{shape[:type]} from #{shape[:in]} to #{shape[:out]} undo #{shape[:undo]}")
 
   doc = canvas.document
   g = doc.create_element('g',
@@ -501,7 +501,7 @@ end
 
 def cursors_emit_event(rec, cursor)
   if cursor[:in] == cursor[:out]
-    BigBlueButton.logger.info('Cursor: not emitting, duration rounds to 0')
+    # BigBlueButton.logger.info('Cursor: not emitting, duration rounds to 0')
     return
   end
 
@@ -534,7 +534,7 @@ def cursors_emit_event(rec, cursor)
   cursor_e = doc.create_element('cursor')
   cursor_e.content = "#{x} #{y}"
 
-  BigBlueButton.logger.info("Cursor #{cursor_e.content} at #{cursor[:in]}")
+  # BigBlueButton.logger.info("Cursor #{cursor_e.content} at #{cursor[:in]}")
 
   event << cursor_e
   rec << event
@@ -983,7 +983,7 @@ def process_presentation(package_dir)
         cursor[:out] = timestamp
         cursors_emit_event(cursors_rec, cursor)
       end
-      BigBlueButton.logger.info("Cursor: visible #{cursor_visible}, #{cursor_x} #{cursor_y} (#{panzoom[:width]}x#{panzoom[:height]})")
+      # BigBlueButton.logger.info("Cursor: visible #{cursor_visible}, #{cursor_x} #{cursor_y} (#{panzoom[:width]}x#{panzoom[:height]})")
       cursor = {
         visible: cursor_visible,
         x: cursor_x,
@@ -1188,12 +1188,12 @@ begin
     recording_dir = bbb_props['recording_dir']
     BigBlueButton.logger.info('Setting process dir')
     @process_dir = "#{recording_dir}/process/presentation/#{@meeting_id}"
-    BigBlueButton.logger.info('setting publish dir')
+    BigBlueButton.logger.info('Setting publish dir')
     publish_dir = @presentation_props['publish_dir']
-    BigBlueButton.logger.info('setting playback url info')
+    BigBlueButton.logger.info('Setting playback url info')
     playback_protocol = bbb_props['playback_protocol']
     playback_host = bbb_props['playback_host']
-    BigBlueButton.logger.info('setting target dir')
+    BigBlueButton.logger.info('Setting target dir')
     target_dir = "#{recording_dir}/publish/presentation/#{@meeting_id}"
     @deskshare_dir = "#{recording_dir}/raw/#{@meeting_id}/deskshare"
 
@@ -1326,10 +1326,7 @@ begin
           end
         end
         ## Write the new metadata.xml
-        metadata_file = File.new("#{package_dir}/metadata.xml", 'w')
-        metadata = Nokogiri::XML(metadata.to_xml, &:noblanks)
-        metadata_file.write(metadata.root)
-        metadata_file.close
+        File.open("#{package_dir}/metadata.xml", 'w') { |file| file.write(Nokogiri::XML(metadata.to_xml, &:noblanks).root) }
         BigBlueButton.logger.info('Added playback to metadata.xml')
 
         # Create slides.xml
@@ -1382,9 +1379,7 @@ begin
         end
         exit 1
       end
-      publish_done = File.new("#{recording_dir}/status/published/#{@meeting_id}-presentation.done", 'w')
-      publish_done.write("Published #{@meeting_id}")
-      publish_done.close
+      File.open("#{recording_dir}/status/published/#{@meeting_id}-presentation.done", 'w') { |file| file.write("Published #{@meeting_id}") }
 
     else
       BigBlueButton.logger.info("#{target_dir} is already there")
@@ -1395,9 +1390,7 @@ rescue StandardError => e
   e.backtrace.each do |traceline|
     BigBlueButton.logger.error(traceline)
   end
-  publish_done = File.new("#{recording_dir}/status/published/#{@meeting_id}-presentation.fail", 'w')
-  publish_done.write("Failed Publishing #{@meeting_id}")
-  publish_done.close
+  File.open("#{recording_dir}/status/published/#{@meeting_id}-presentation.fail", 'w') { |file| file.write("Failed Publishing #{@meeting_id}") }
 
   exit 1
 end
