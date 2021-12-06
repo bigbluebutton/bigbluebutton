@@ -227,9 +227,13 @@ def svg_render_shape_line(g, slide, shape)
   g << line
 end
 
+def stroke_attributes(slide, shape)
+  "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide, shape)};visibility:hidden;fill:#{shape[:fill] ? '#' + shape[:color] : 'none'}"
+end
+
 def svg_render_shape_rect(g, slide, shape)
   g['shape'] = "rect#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide, shape)};visibility:hidden;fill:#{shape[:fill] ? '#' + shape[:color] : 'none'}"
+  g['style'] = stroke_attributes(slide, shape)
   g['style'] += if @version_atleast_2_0_0
                   ';stroke-linejoin:miter'
                 else
@@ -264,7 +268,7 @@ end
 
 def svg_render_shape_triangle(g, slide, shape)
   g['shape'] = "triangle#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide, shape)};visibility:hidden;fill:#{shape[:fill] ? '#' + shape[:color] : 'none'}"
+  g['style'] = stroke_attributes(slide, shape)
   g['style'] += if @version_atleast_2_0_0
                   ';stroke-linejoin:miter;stroke-miterlimit:8'
                 else
@@ -287,7 +291,7 @@ end
 
 def svg_render_shape_ellipse(g, slide, shape)
   g['shape'] = "ellipse#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide, shape)};visibility:hidden;fill:#{shape[:fill] ? '#' + shape[:color] : 'none'}"
+  g['style'] = stroke_attributes(slide, shape)
 
   doc = g.document
   data_points = shape[:data_points]
@@ -553,22 +557,27 @@ end
 
 @svg_shape_id = 1
 @svg_shape_unique_id = 1
+
+def determine_presentation(presentation, current_presentation)
+  return current_presentation if presentation.nil?
+  presentation.text
+end
+
+def determine_slide_number(slide, current_slide)
+  return current_slide if slide.nil?
+  slide = slide.text.to_i
+  slide -= 1 unless @version_atleast_0_9_0
+  slide
+end
+
 def events_parse_shape(shapes, event, current_presentation, current_slide, timestamp)
   # Figure out what presentation+slide this shape is for, with fallbacks
   # for old BBB where this info isn't in the shape messages
   presentation = event.at_xpath('presentation')
   slide = event.at_xpath('pageNumber')
-  presentation = if presentation.nil?
-                   current_presentation
-                 else
-                   presentation.text
-                 end
-  if slide.nil?
-    slide = current_slide
-  else
-    slide = slide.text.to_i
-    slide -= 1 unless @version_atleast_0_9_0
-  end
+
+  presentation = determine_presentation(presentation, current_presentation)
+  slide = determine_slide_number(slide, current_slide)
 
   # Set up the shapes data structures if needed
   shapes[presentation] = {} if shapes[presentation].nil?
@@ -594,9 +603,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   @svg_shape_id += 1
 
   # Some shape-specific properties
-  if (shape[:type] == 'pencil') || (shape[:type] == 'rectangle') ||
-     (shape[:type] == 'ellipse') || (shape[:type] == 'triangle') ||
-     (shape[:type] == 'line')
+  if %w[ellipse line pencil rectangle triangle].include?(shape[:type])
     shape[:color] = color_to_hex(event.at_xpath('color').text)
     thickness = event.at_xpath('thickness')
     unless thickness
@@ -609,31 +616,28 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
       shape[:thickness] = thickness.text.to_i
     end
   end
-  if  (shape[:type] == 'rectangle') ||
-      (shape[:type] == 'ellipse') || (shape[:type] == 'triangle')
+  if %w[ellipse rectangle triangle].include?(shape[:type])
     # TODO: uncomment this
     # fill = event.at_xpath('fill').text
     # shape[:fill] = fill =~ /true/ ? true : false
     shape[:fill] = false
   end
-  if shape[:type] == 'rectangle'
+
+  case shape[:type]
+  when 'rectangle'
     square = event.at_xpath('square')
     shape[:square] = (square.text == 'true') unless square.nil?
-  end
-  if shape[:type] == 'ellipse'
+  when 'ellipse'
     circle = event.at_xpath('circle')
     shape[:circle] = (circle.text == 'true') unless circle.nil?
-  end
-  if shape[:type] == 'pencil'
+  when 'pencil'
     commands = event.at_xpath('commands')
     shape[:commands] = commands.text.split(',').map(&:to_i) unless commands.nil?
-  end
-  if shape[:type] == 'poll_result'
+  when 'poll_result'
     shape[:num_responders] = event.at_xpath('num_responders').text.to_i
     shape[:num_respondents] = event.at_xpath('num_respondents').text.to_i
     shape[:result] = event.at_xpath('result').text
-  end
-  if shape[:type] == 'text'
+  when 'text'
     shape[:text_box_width] = event.at_xpath('textBoxWidth').text.to_f
     shape[:text_box_height] = event.at_xpath('textBoxHeight').text.to_f
 
@@ -647,11 +651,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
 
     shape[:font_color] = color_to_hex(event.at_xpath('fontColor').text)
     text = event.at_xpath('text')
-    shape[:text] = if !text.nil?
-                     text.text
-                   else
-                     ''
-                   end
+    shape[:text] = !text.nil? ? text.text : ''
   end
 
   # Find the previous shape, for updates
@@ -692,17 +692,10 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
   # for old BBB where this info isn't in the undo messages
   presentation = event.at_xpath('presentation')
   slide = event.at_xpath('pageNumber')
-  presentation = if presentation.nil?
-                   current_presentation
-                 else
-                   presentation.text
-                 end
-  if slide.nil?
-    slide = current_slide
-  else
-    slide = slide.text.to_i
-    slide -= 1 unless @version_atleast_0_9_0
-  end
+
+  presentation = determine_presentation(presentation, current_presentation)
+  slide = determine_slide_number(slide, current_slide)
+
   # Newer undo messages have the shape id, making this a lot easier
   shape_id = event.at_xpath('shapeId')
   shape_id = shape_id.text unless shape_id.nil?
@@ -746,17 +739,9 @@ def events_parse_clear(shapes, event, current_presentation, current_slide, times
   # for old BBB where this info isn't in the clear messages
   presentation = event.at_xpath('presentation')
   slide = event.at_xpath('pageNumber')
-  presentation = if presentation.nil?
-                   current_presentation
-                 else
-                   presentation.text
-                 end
-  if slide.nil?
-    slide = current_slide
-  else
-    slide = slide.text.to_i
-    slide -= 1 unless @version_atleast_0_9_0
-  end
+
+  presentation = determine_presentation(presentation, current_presentation)
+  slide = determine_slide_number(slide, current_slide)
 
   # BigBlueButton 2.0 per-user clear features
   full_clear = event.at_xpath('fullClear')
@@ -876,56 +861,61 @@ def process_presentation(package_dir)
     cursor_changed = cursors.empty?
 
     # Do event specific processing
-    if eventname == 'SharePresentationEvent'
+    case eventname
+    when 'SharePresentationEvent'
       current_presentation = event.at_xpath('presentationName').text
       current_slide = current_presentation_slide[current_presentation].to_i
       slide_changed = true
       panzoom_changed = true
 
-    elsif eventname == 'GotoSlideEvent'
+    when 'GotoSlideEvent'
       current_slide = event.at_xpath('slide').text.to_i
       current_presentation_slide[current_presentation] = current_slide
       slide_changed = true
       panzoom_changed = true
 
-    elsif eventname == 'ResizeAndMoveSlideEvent'
+    when 'ResizeAndMoveSlideEvent'
       current_x_offset = event.at_xpath('xOffset').text.to_f
       current_y_offset = event.at_xpath('yOffset').text.to_f
       current_width_ratio = event.at_xpath('widthRatio').text.to_f
       current_height_ratio = event.at_xpath('heightRatio').text.to_f
       panzoom_changed = true
 
-    elsif @presentation_props['include_deskshare'] && ((eventname == 'DeskshareStartedEvent') || (eventname == 'StartWebRTCDesktopShareEvent'))
-      deskshare = true
-      slide_changed = true
+    when 'DeskshareStartedEvent', 'StartWebRTCDesktopShareEvent'
+      if @presentation_props['include_deskshare']
+        deskshare = true
+        slide_changed = true
+      end
 
-    elsif @presentation_props['include_deskshare'] && ((eventname == 'DeskshareStoppedEvent') || (eventname == 'StopWebRTCDesktopShareEvent'))
-      deskshare = false
-      slide_changed = true
+    when 'DeskshareStoppedEvent', 'StopWebRTCDesktopShareEvent'
+      if @presentation_props['include_deskshare']
+        deskshare = false
+        slide_changed = true
+      end
 
-    elsif (eventname == 'AddShapeEvent') || (eventname == 'ModifyTextEvent')
+    when 'AddShapeEvent', 'ModifyTextEvent'
       events_parse_shape(shapes, event, current_presentation, current_slide, timestamp)
 
-    elsif (eventname == 'UndoShapeEvent') || (eventname == 'UndoAnnotationEvent')
+    when 'UndoShapeEvent', 'UndoAnnotationEvent'
       events_parse_undo(shapes, event, current_presentation, current_slide, timestamp)
 
-    elsif (eventname == 'ClearPageEvent') || (eventname == 'ClearWhiteboardEvent')
+    when 'ClearPageEvent', 'ClearWhiteboardEvent'
       events_parse_clear(shapes, event, current_presentation, current_slide, timestamp)
 
-    elsif eventname == 'AssignPresenterEvent'
+    when 'AssignPresenterEvent'
       # Move cursor offscreen on presenter switch, it'll reappear if the new
       # presenter moves it
       presenter = event.at_xpath('userid').text
       cursor_visible = false
       cursor_changed = true
 
-    elsif eventname == 'CursorMoveEvent'
+    when 'CursorMoveEvent'
       cursor_x = event.at_xpath('xOffset').text.to_f
       cursor_y = event.at_xpath('yOffset').text.to_f
       cursor_visible = true
       cursor_changed = true
 
-    elsif eventname == 'WhiteboardCursorMoveEvent'
+    when 'WhiteboardCursorMoveEvent'
       user_id = event.at_xpath('userId')
       # Only draw cursor for current presentor. TODO multi-cursor support
       if user_id.nil? || (user_id.text == presenter)
@@ -935,7 +925,6 @@ def process_presentation(package_dir)
         cursor_changed = true
       end
     end
-
     # Perform slide finalization
     if slide_changed
       slide = slides.last
