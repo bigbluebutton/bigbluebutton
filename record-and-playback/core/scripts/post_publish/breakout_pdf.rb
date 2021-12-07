@@ -25,11 +25,11 @@ require 'jwt'
 require 'net/http'
 require 'nokogiri'
 require 'trollop'
-require "builder"
-require "combine_pdf"
-require "csv"
-require "fileutils"
-require "loofah"
+require 'builder'
+require 'combine_pdf'
+require 'csv'
+require 'fileutils'
+require 'loofah'
 
 require File.expand_path('../../../lib/recordandplayback/interval_tree', __FILE__)
 require File.expand_path('../../../lib/recordandplayback', __FILE__)
@@ -57,11 +57,11 @@ metadata = Nokogiri::XML(File.open("#{@published_files}/metadata.xml"))
 BigBlueButton.logger.info("Metadata at: #{@published_files}/metadata.xml")
 
 # Only run script for breakout rooms
-exit(0) if metadata.xpath('recording/meeting/@breakout').to_s.eql? 'false'
+exit(0) unless @playback.eql?('breakout_pdf') && metadata.xpath('recording/meeting/@breakout').to_s.eql?('true')
 
 # Setting the SVGZ option to true will write less data on the disk.
 SVGZ_COMPRESSION = false
-FILE_EXTENSION = SVGZ_COMPRESSION ? "svgz" : "svg"
+FILE_EXTENSION = SVGZ_COMPRESSION ? 'svgz' : 'svg'
 
 # Leave it as false for BBB >= 2.3 as it stopped supporting live whiteboard
 REMOVE_REDUNDANT_SHAPES = false
@@ -71,56 +71,56 @@ WhiteboardSlide = Struct.new(:href, :begin, :end, :width, :height)
 
 def convert_whiteboard_shapes(whiteboard)
   # Find shape elements
-  whiteboard.xpath("svg/g/g").each do |annotation|
+  whiteboard.xpath('svg/g/g').each do |annotation|
     # Make all annotations visible
-    style = annotation.attr("style")
-    style.sub! "visibility:hidden", ""
-    annotation.set_attribute("style", style)
+    style = annotation.attr('style')
+    style.sub! 'visibility:hidden', ''
+    annotation.set_attribute('style', style)
 
-    shape = annotation.attribute("shape").to_s
+    shape = annotation.attribute('shape').to_s
 
-    if shape.include? "poll"
+    if shape.include? 'poll'
       poll = annotation.element_children.first
-      poll.remove_attribute("href")
-      poll.add_namespace_definition("xlink", "http://www.w3.org/1999/xlink")
+      poll.remove_attribute('href')
+      poll.add_namespace_definition('xlink', 'http://www.w3.org/1999/xlink')
 
-      poll.set_attribute("xlink:href", "#{@published_files}/#{poll.attribute('href')}")
+      poll.set_attribute('xlink:href', "#{@published_files}/#{poll.attribute('href')}")
     end
 
     # Convert XHTML to SVG so that text can be shown
-    next unless shape.include? "text"
+    next unless shape.include? 'text'
 
     # Turn style attributes into a hash
-    style_values = Hash[*CSV.parse(style, col_sep: ":", row_sep: ";").flatten]
+    style_values = Hash[*CSV.parse(style, col_sep: ':', row_sep: ';').flatten]
 
-    text_color = style_values["color"]
-    font_size = style_values["font-size"].to_f
+    text_color = style_values['color']
+    font_size = style_values['font-size'].to_f
 
-    annotation.set_attribute("style", "#{style};fill:currentcolor")
+    annotation.set_attribute('style', "#{style};fill:currentcolor")
 
-    foreign_object = annotation.xpath("switch/foreignObject")
+    foreign_object = annotation.xpath('switch/foreignObject')
 
     # Obtain X and Y coordinates of the text
-    x = foreign_object.attr("x").to_s
-    y = foreign_object.attr("y").to_s
-    text_box_width = foreign_object.attr("width").to_s.to_f
+    x = foreign_object.attr('x').to_s
+    y = foreign_object.attr('y').to_s
+    text_box_width = foreign_object.attr('width').to_s.to_f
 
     text = foreign_object.children.children
 
     builder = Builder::XmlMarkup.new
-    builder.text(x: x, y: y, fill: text_color, "xml:space" => "preserve") do
+    builder.text(x: x, y: y, fill: text_color, 'xml:space' => 'preserve') do
       text.each do |line|
         line = Loofah.fragment(line.to_s).scrub!(:strip).text.unicode_normalize
 
-        if line == "<br/>"
-          builder.tspan(x: x, dy: "0.9em") { builder << "<br/>" }
+        if line == '<br/>'
+          builder.tspan(x: x, dy: '0.9em') { builder << '<br/>' }
         else
           # Assumes a width to height aspect ratio of 0.52 for Arial
           line_breaks = line.chars.each_slice((text_box_width / (font_size * 0.52)).to_i).map(&:join)
 
           line_breaks.each do |row|
             safe_message = Loofah.fragment(row).scrub!(:escape)
-            builder.tspan(x: x, dy: "0.9em") { builder << safe_message }
+            builder.tspan(x: x, dy: '0.9em') { builder << safe_message }
           end
         end
       end
@@ -129,11 +129,11 @@ def convert_whiteboard_shapes(whiteboard)
     annotation.add_child(builder.target!)
 
     # Remove the <switch> tag
-    annotation.xpath("switch").remove
+    annotation.xpath('switch').remove
   end
 
   # Save new shapes.svg copy
-  File.open("#{@published_files}/shapes_modified.svg", "w", 0o600) do |file|
+  File.open("#{@published_files}/shapes_modified.svg", 'w', 0o600) do |file|
     file.write(whiteboard)
   end
 end
@@ -149,22 +149,22 @@ def parse_whiteboard_shapes(shape_reader)
     next unless node.node_type == Nokogiri::XML::Reader::TYPE_ELEMENT
 
     node_name = node.name
-    node_class = node.attribute("class")
+    node_class = node.attribute('class')
 
-    if node_name == "image" && node_class == "slide"
-      slide_in = node.attribute("in").to_f
-      slide_out = node.attribute("out").to_f
+    if node_name == 'image' && node_class == 'slide'
+      slide_in = node.attribute('in').to_f
+      slide_out = node.attribute('out').to_f
 
       path = "#{@published_files}/#{node.attribute('href')}"
       next if path.include?('deskshare')
 
-      slides << WhiteboardSlide.new(path, slide_in, slide_out, node.attribute("width").to_f, node.attribute("height"))
+      slides << WhiteboardSlide.new(path, slide_in, slide_out, node.attribute('width').to_f, node.attribute('height'))
     end
 
-    next unless node_name == "g" && node_class == "shape"
+    next unless node_name == 'g' && node_class == 'shape'
 
-    shape_timestamp = node.attribute("timestamp").to_f
-    shape_undo = node.attribute("undo").to_f
+    shape_timestamp = node.attribute('timestamp').to_f
+    shape_undo = node.attribute('undo').to_f
 
     shape_undo = slide_out if shape_undo.negative?
 
@@ -172,7 +172,7 @@ def parse_whiteboard_shapes(shape_reader)
     shape_leave = [[shape_undo, slide_in].max, slide_out].min
 
     xml = "<g style=\"#{node.attribute('style')}\">#{node.inner_xml}</g>"
-    id = node.attribute("shape").split("-").last
+    id = node.attribute('shape').split('-').last
 
     shapes << WhiteboardElement.new(shape_enter, shape_leave, xml, id)
   end
@@ -228,7 +228,7 @@ def svg_export(draw, slide_href, width, height, frame_number)
   builder = Builder::XmlMarkup.new
 
   builder.svg(width: width, height: height, viewBox: "0 0 #{width} #{height}",
-              "xmlns:xlink" => "http://www.w3.org/1999/xlink", 'xmlns' => 'http://www.w3.org/2000/svg') do
+              'xmlns:xlink' => 'http://www.w3.org/1999/xlink', 'xmlns' => 'http://www.w3.org/2000/svg') do
     # Display background image
     builder.image('xlink:href': slide_href, width: width, height: height)
 
@@ -238,7 +238,7 @@ def svg_export(draw, slide_href, width, height, frame_number)
     end
   end
 
-  File.open("#{@published_files}/presentation/frame#{frame_number}.#{FILE_EXTENSION}", "w", 0o600) do |svg|
+  File.open("#{@published_files}/presentation/frame#{frame_number}.#{FILE_EXTENSION}", 'w', 0o600) do |svg|
     if SVGZ_COMPRESSION
       svgz = Zlib::GzipWriter.new(svg, Zlib::BEST_SPEED)
       svgz.write(builder.target!)
@@ -271,7 +271,7 @@ def export_pdf(file_name)
   start = Time.now
 
   convert_whiteboard_shapes(Nokogiri::XML(File.open("#{@published_files}/shapes.svg")).remove_namespaces!)
-  
+
   shapes, slides = parse_whiteboard_shapes(Nokogiri::XML::Reader(File.open("#{@published_files}/shapes_modified.svg")))
   slides = unique_slides(slides)
 
@@ -281,7 +281,6 @@ def export_pdf(file_name)
 end
 
 begin
-
   room_name = metadata.xpath('recording/meta/meetingName').text
 
   export_pdf(room_name)
