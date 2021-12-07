@@ -12,11 +12,17 @@ class StatusTable extends React.Component {
       return (new Date(ts).toISOString().substr(11, 8));
     }
 
-    const usersRegisteredTimes = Object.values(allUsers || {}).map((user) => user.registeredOn);
-    const usersLeftTimes = Object.values(allUsers || {}).map((user) => {
-      if (user.leftOn === 0) return (new Date()).getTime();
-      return user.leftOn;
-    });
+    const usersRegisteredTimes = Object
+      .values(allUsers || {})
+      .map((user) => Object.values(user.intIds).map((intId) => intId.registeredOn))
+      .flat();
+    const usersLeftTimes = Object
+      .values(allUsers || {})
+      .map((user) => Object.values(user.intIds).map((intId) => {
+        if (intId.leftOn === 0) return (new Date()).getTime();
+        return intId.leftOn;
+      }))
+      .flat();
 
     const firstRegisteredOnTime = Math.min(...usersRegisteredTimes);
     const lastLeftOnTime = Math.max(...usersLeftTimes);
@@ -70,17 +76,13 @@ class StatusTable extends React.Component {
                       </div>
                     </div>
                   </td>
-                  { periods.map((period) => {
-                    const userEmojisInPeriod = getUserEmojisSummary(user,
-                      null,
-                      period,
-                      period + spanMinutes);
-                    return (
-                      <td className="px-3.5 2xl:px-4 py-3 text-sm col-text-left">
-                        {
-                          user.registeredOn > period && user.registeredOn < period + spanMinutes
+                  { periods.map((period) => (
+                    <td className="px-3.5 2xl:px-4 py-3 text-sm col-text-left">
+                      { Object.values(user.intIds).map(({ registeredOn, leftOn }) => (
+                        <>
+                          { registeredOn > period && registeredOn < period + spanMinutes
                             ? (
-                              <span title={intl.formatDate(user.registeredOn, {
+                              <span title={intl.formatDate(registeredOn, {
                                 month: 'short',
                                 day: 'numeric',
                                 hour: '2-digit',
@@ -103,25 +105,33 @@ class StatusTable extends React.Component {
                                   />
                                 </svg>
                               </span>
-                            ) : null
-                        }
-                        { Object.keys(userEmojisInPeriod)
-                          .map((emoji) => (
-                            <div className="text-sm text-gray-800">
-                              <i className={`${emojiConfigs[emoji].icon} text-sm`} />
-                            &nbsp;
-                              { userEmojisInPeriod[emoji] }
-                            &nbsp;
-                              <FormattedMessage
-                                id={emojiConfigs[emoji].intlId}
-                                defaultMessage={emojiConfigs[emoji].defaultMessage}
-                              />
-                            </div>
-                          )) }
-                        {
-                          user.leftOn > period && user.leftOn < period + spanMinutes
+                            ) : null }
+                          { (function getEmojis() {
+                            const userEmojisInPeriod = getUserEmojisSummary(user,
+                              null,
+                              registeredOn > period && registeredOn < period + spanMinutes
+                                ? registeredOn : period,
+                              leftOn > period && leftOn < period + spanMinutes
+                                ? leftOn : period + spanMinutes);
+
+                            return Object
+                              .keys(userEmojisInPeriod)
+                              .map((emoji) => (
+                                <div className="text-sm text-gray-800">
+                                  <i className={`${emojiConfigs[emoji].icon} text-sm`} />
+                                  &nbsp;
+                                  { userEmojisInPeriod[emoji] }
+                                  &nbsp;
+                                  <FormattedMessage
+                                    id={emojiConfigs[emoji].intlId}
+                                    defaultMessage={emojiConfigs[emoji].defaultMessage}
+                                  />
+                                </div>
+                              ));
+                          }()) }
+                          { leftOn > period && leftOn < period + spanMinutes
                             ? (
-                              <span title={intl.formatDate(user.leftOn, {
+                              <span title={intl.formatDate(leftOn, {
                                 month: 'short',
                                 day: 'numeric',
                                 hour: '2-digit',
@@ -144,11 +154,11 @@ class StatusTable extends React.Component {
                                   />
                                 </svg>
                               </span>
-                            ) : null
-                        }
-                      </td>
-                    );
-                  }) }
+                            ) : null }
+                        </>
+                      )) }
+                    </td>
+                  )) }
                 </tr>
               ))) : null }
         </tbody>

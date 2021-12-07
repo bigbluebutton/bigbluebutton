@@ -139,12 +139,17 @@ class App extends React.Component {
     }
 
     function totalOfActivity() {
-      const minTime = Object.values(activitiesJson.users || {}).reduce((prevVal, elem) => {
+      const usersTimes = Object.values(activitiesJson.users || {}).reduce((prev, user) => ([
+        ...prev,
+        ...Object.values(user.intIds),
+      ]), []);
+
+      const minTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
         if (prevVal === 0 || elem.registeredOn < prevVal) return elem.registeredOn;
         return prevVal;
       }, 0);
 
-      const maxTime = Object.values(activitiesJson.users || {}).reduce((prevVal, elem) => {
+      const maxTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
         if (elem.leftOn === 0) return (new Date()).getTime();
         if (elem.leftOn > prevVal) return elem.leftOn;
         return prevVal;
@@ -230,7 +235,7 @@ class App extends React.Component {
                   </span>
                 )
                 : null
-}
+            }
             <br />
             <span className="text-sm font-medium">{activitiesJson.name || ''}</span>
           </h1>
@@ -280,8 +285,11 @@ class App extends React.Component {
                   ? intl.formatMessage({ id: 'app.learningDashboard.indicators.usersOnline', defaultMessage: 'Active Users' })
                   : intl.formatMessage({ id: 'app.learningDashboard.indicators.usersTotal', defaultMessage: 'Total Number Of Users' })
               }
-              number={Object.values(activitiesJson.users || {})
-                .filter((u) => activitiesJson.endedOn > 0 || u.leftOn === 0).length}
+              number={Object
+                .values(activitiesJson.users || {})
+                .filter((u) => activitiesJson.endedOn > 0
+                  || Object.values(u.intIds)[Object.values(u.intIds).length - 1].leftOn === 0)
+                .length}
               cardClass="border-pink-500"
               iconClass="bg-pink-50 text-pink-500"
               onClick={() => {
