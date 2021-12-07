@@ -88,7 +88,7 @@ const UserOptionsContainer = withTracker((props) => {
     hasBreakoutRoom: UserListService.hasBreakoutRoom(),
     isBreakoutEnabled: ActionsBarService.isBreakoutEnabled(),
     isBreakoutRecordable: ActionsBarService.isBreakoutRecordable(),
-    users: ActionsBarService.users(),
+    users,
     guestPolicy: WaitingUsersService.getGuestPolicy(),
     isMeteorConnected: Meteor.status().connected,
     meetingName: getMeetingName(),

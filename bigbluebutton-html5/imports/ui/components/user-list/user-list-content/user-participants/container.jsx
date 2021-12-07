@@ -9,10 +9,11 @@ import { UsersContext } from '/imports/ui/components/components-data/users-conte
 
 const UserParticipantsContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
-  const { users } = usingUsersContext;
-  const currentUser = users[Auth.meetingID][Auth.userID];
+  const { users: contextUsers } = usingUsersContext;
+  const currentUser = contextUsers[Auth.meetingID][Auth.userID];
+  const users = Object.values(contextUsers[Auth.meetingID]);
 
-  return <UserParticipants {...{ currentUser, ...props }} />;
+  return <UserParticipants {...{ currentUser, users, ...props }} />;
 };
 
 export default withTracker(() => {
@@ -22,7 +23,6 @@ export default withTracker(() => {
   );
 
   return ({
-    users: UserListService.getUsers(),
     meetingIsBreakout: meetingIsBreakout(),
     setEmojiStatus: UserListService.setEmojiStatus,
     clearAllEmojiStatus: UserListService.clearAllEmojiStatus,
