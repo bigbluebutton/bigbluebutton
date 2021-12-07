@@ -71,8 +71,13 @@ object Users2x {
     users.toVector.filter(u => !u.presenter)
   }
 
-  def findNotPresentersNorModerators(users: Users2x): Vector[UserState] = {
-    users.toVector.filter(u => !u.presenter && u.role != Roles.MODERATOR_ROLE)
+  def getRandomlyPickableUsers(users: Users2x, reduceDup: Boolean): Vector[UserState] = {
+
+    if (reduceDup) {
+      users.toVector.filter(u => !u.presenter && u.role != Roles.MODERATOR_ROLE && !u.userLeftFlag.left && !u.pickExempted)
+    } else {
+      users.toVector.filter(u => !u.presenter && u.role != Roles.MODERATOR_ROLE && !u.userLeftFlag.left)
+    }
   }
 
   def findViewers(users: Users2x): Vector[UserState] = {
@@ -150,6 +155,16 @@ object Users2x {
     }
   }
 
+  def setUserExempted(users: Users2x, intId: String, exempted: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.pickExempted).setTo(exempted)
+      users.save(newUser)
+      newUser
+    }
+  }
+  
   def hasPresenter(users: Users2x): Boolean = {
     findPresenter(users) match {
       case Some(p) => true
@@ -294,6 +309,7 @@ case class UserState(
     lastActivityTime:      Long         = System.currentTimeMillis(),
     lastInactivityInspect: Long         = 0,
     clientType:            String,
+    pickExempted:          Boolean,
     userLeftFlag:          UserLeftFlag
 )
 
