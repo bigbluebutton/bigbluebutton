@@ -32,7 +32,8 @@ trait SelectRandomViewerReqMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to select random user."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
-      val users = Users2x.findNotPresentersNorModerators(liveMeeting.users2x, false)
+      val users = Users2x.getRandomlyPickableUsers(liveMeeting.users2x, false)
+
       val usersPicked = Users2x.findNotPresentersNorModerators(liveMeeting.users2x, reduceDuplicatedPick)
       val randNum = new scala.util.Random
       val pickedUser = if (usersPicked.size == 0) "" else usersPicked(randNum.nextInt(usersPicked.size)).intId
