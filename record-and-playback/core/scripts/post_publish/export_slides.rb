@@ -50,10 +50,10 @@ def add_greenlight_buttons(metadata)
 
   meeting_id = metadata.xpath('recording/id').inner_text
 
-  metadata.xpath('recording/playback/format').children.first.content = "video"
+  metadata.xpath('recording/playback/format').children.first.content = "document"
   metadata.xpath('recording/playback/link').children.first.content = "#{playback_protocol}://#{playback_host}/presentation/#{meeting_id}/meeting.mp4"
 
-  File.open("/var/bigbluebutton/published/video/#{meeting_id}/metadata.xml", "w") do |file|
+  File.open("/var/bigbluebutton/published/document/#{meeting_id}/metadata.xml", "w") do |file|
     file.write(metadata)
   end
 end
