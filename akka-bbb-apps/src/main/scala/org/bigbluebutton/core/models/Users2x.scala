@@ -71,7 +71,8 @@ object Users2x {
     users.toVector.filter(u => !u.presenter)
   }
 
-  def findNotPresentersNorModerators(users: Users2x, reduceDup: Boolean): Vector[UserState] = {
+  def getRandomlyPickableUsers(users: Users2x, reduceDup: Boolean): Vector[UserState] = {
+
     if (reduceDup) {
       users.toVector.filter(u => !u.presenter && u.role != Roles.MODERATOR_ROLE && !u.userLeftFlag.left && !u.pickExempted)
     } else {
