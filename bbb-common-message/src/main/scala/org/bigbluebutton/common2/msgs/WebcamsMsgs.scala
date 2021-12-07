@@ -1,5 +1,6 @@
 package org.bigbluebutton.common2.msgs
 
+// Broadcasting messages
 object UserBroadcastCamStartedEvtMsg { val NAME = "UserBroadcastCamStartedEvtMsg" }
 case class UserBroadcastCamStartedEvtMsg(
     header: BbbClientMsgHeader,
@@ -105,4 +106,80 @@ case class GetCamSubscribePermissionRespMsgBody(
     streamId:     String,
     sfuSessionId: String,
     allowed:      Boolean
+)
+
+/**
+ * Sent to bbb-webrtc-sfu to eject all media streams from #userId
+ */
+object EjectUserFromSfuSysMsg { val NAME = "EjectUserFromSfuSysMsg" }
+case class EjectUserFromSfuSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   EjectUserFromSfuSysMsgBody
+) extends BbbCoreMsg
+case class EjectUserFromSfuSysMsgBody(userId: String)
+
+/**
+ * Sent to bbb-webrtc-sfu to tear down broadcaster stream #streamId
+ */
+object CamBroadcastStopSysMsg { val NAME = "CamBroadcastStopSysMsg" }
+case class CamBroadcastStopSysMsg(
+    header: BbbCoreBaseHeader,
+    body:   CamBroadcastStopSysMsgBody
+) extends BbbCoreMsg
+case class CamBroadcastStopSysMsgBody(
+    meetingId: String,
+    userId:    String,
+    streamId:  String
+)
+
+/**
+ * Sent from bbb-webrtc-sfu to indicate that #userId unsubscribed from #streamId
+ */
+object CamBroadcastStoppedInSfuEvtMsg { val NAME = "CamBroadcastStoppedInSfuEvtMsg" }
+case class CamBroadcastStoppedInSfuEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   CamBroadcastStoppedInSfuEvtMsgBody
+) extends StandardMsg
+case class CamBroadcastStoppedInSfuEvtMsgBody(streamId: String)
+
+/**
+ * Sent to bbb-webrtc-sfu to detach #userId's subscribers from #streamId
+ */
+object CamStreamUnsubscribeSysMsg { val NAME = "CamStreamUnsubscribeSysMsg" }
+case class CamStreamUnsubscribeSysMsg(
+    header: BbbCoreBaseHeader,
+    body:   CamStreamUnsubscribeSysMsgBody
+) extends BbbCoreMsg
+case class CamStreamUnsubscribeSysMsgBody(
+    meetingId: String,
+    userId:    String,
+    streamId:  String
+)
+
+/**
+ * Sent from bbb-webrtc-sfu to indicate that #userId unsubscribed from #streamId
+ */
+object CamStreamUnsubscribedInSfuEvtMsg { val NAME = "CamStreamUnsubscribedInSfuEvtMsg" }
+case class CamStreamUnsubscribedInSfuEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   CamStreamUnsubscribedInSfuEvtMsgBody
+) extends StandardMsg
+case class CamStreamUnsubscribedInSfuEvtMsgBody(
+    streamId:           String, // Publisher's internal stream ID
+    subscriberStreamId: String,
+    sfuSessionId:       String // Subscriber's SFU session ID
+)
+
+/**
+ * Sent from bbb-webrtc-sfu to indicate that #userId subscribed to #streamId
+ */
+object CamStreamSubscribedInSfuEvtMsg { val NAME = "CamStreamSubscribedInSfuEvtMsg" }
+case class CamStreamSubscribedInSfuEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   CamStreamSubscribedInSfuEvtMsgBody
+) extends StandardMsg
+case class CamStreamSubscribedInSfuEvtMsgBody(
+    streamId:           String, // Publisher's internal stream ID
+    subscriberStreamId: String,
+    sfuSessionId:       String // Subscriber's SFU session ID
 )
