@@ -23,6 +23,7 @@ class UserContent extends PureComponent {
       pendingUsers,
       isWaitingRoomEnabled,
       isGuestLobbyMessageEnabled,
+      compact,
     } = this.props;
 
     const showWaitingRoom = (isGuestLobbyMessageEnabled && isWaitingRoomEnabled)
@@ -39,7 +40,7 @@ class UserContent extends PureComponent {
           ) : null}
         <UserPollsContainer isPresenter={currentUser.presenter} />
         <BreakoutRoomContainer />
-        <UserParticipantsContainer />
+        <UserParticipantsContainer compact={compact}/>
       </Styled.Content>
     );
   }

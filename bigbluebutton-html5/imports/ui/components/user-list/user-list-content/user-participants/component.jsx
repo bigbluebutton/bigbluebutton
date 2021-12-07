@@ -12,6 +12,7 @@ import {
 import UserListItemContainer from './user-list-item/container';
 import UserOptionsContainer from './user-options/container';
 import Settings from '/imports/ui/services/settings';
+import { injectIntl } from 'react-intl';
 
 const propTypes = {
   compact: PropTypes.bool,
@@ -265,4 +266,4 @@ class UserParticipants extends Component {
 UserParticipants.propTypes = propTypes;
 UserParticipants.defaultProps = defaultProps;
 
-export default UserParticipants;
+export default injectIntl(UserParticipants);
