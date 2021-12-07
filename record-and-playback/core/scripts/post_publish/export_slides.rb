@@ -44,13 +44,16 @@ WhiteboardElement = Struct.new(:begin, :end, :value, :id)
 WhiteboardSlide = Struct.new(:href, :begin, :end, :width, :height)
 
 def add_greenlight_buttons(metadata)
+  bbb_props = YAML.safe_load(File.open(File.join(__dir__, '../bigbluebutton.yml')))
+  playback_protocol = bbb_props['playback_protocol']
+  playback_host = bbb_props['playback_host']
+
   meeting_id = metadata.xpath('recording/id').inner_text
-  hostname = metadata.xpath('recording/meta/bbb-origin-server-name').inner_text
 
-  metadata.xpath('recording/playback/format').children.first.content = "slides"
-  metadata.xpath('recording/playback/link').children.first.content = "https://#{hostname}/presentation/#{meeting_id}/annotated_slides.pdf"
+  metadata.xpath('recording/playback/format').children.first.content = "video"
+  metadata.xpath('recording/playback/link').children.first.content = "#{playback_protocol}://#{playback_host}/presentation/#{meeting_id}/meeting.mp4"
 
-  File.open("/var/bigbluebutton/published/document/#{meeting_id}/metadata.xml", "w") do |file|
+  File.open("/var/bigbluebutton/published/video/#{meeting_id}/metadata.xml", "w") do |file|
     file.write(metadata)
   end
 end
@@ -259,8 +262,7 @@ def export_pdf
   convert_whiteboard_shapes(Nokogiri::XML(File.open("#{@published_files}/shapes.svg")).remove_namespaces!)
   metadata = Nokogiri::XML(File.open("#{@published_files}/metadata.xml"))
 
-  shapes, 
-  = parse_whiteboard_shapes(Nokogiri::XML::Reader(File.open("#{@published_files}/shapes_modified.svg")))
+  shapes, slides = parse_whiteboard_shapes(Nokogiri::XML::Reader(File.open("#{@published_files}/shapes_modified.svg")))
   slides = unique_slides(slides)
 
   render_whiteboard(slides, shapes)
