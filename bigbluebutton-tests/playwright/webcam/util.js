@@ -28,8 +28,8 @@ async function webcamContentCheck(test) {
           }
         }
         lastVideoColor[v] = pixelString;
-        return true;
       }
+      return true;
     };
 
     check = await test.page.evaluate(checkCameras, i);
