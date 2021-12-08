@@ -32,11 +32,12 @@ function currentPoll(secretPoll) {
 
   const User = Users.findOne({ userId, meetingId }, { fields: { role: 1, presenter: 1 } });
 
-  if (!!User && (User.role === ROLE_MODERATOR || User.presenter)) {
+  if (!!User && User.presenter) {
     Logger.debug('Publishing Polls', { meetingId, userId });
 
     const selector = {
       meetingId,
+      requester: userId,
     };
 
     const options = { fields: {} };
@@ -45,13 +46,16 @@ function currentPoll(secretPoll) {
 
     if ((hasPoll && hasPoll.secretPoll) || secretPoll) {
       options.fields.responses = 0;
+      selector.secretPoll = true;
+    } else {
+      selector.secretPoll = false;
     }
 
     return Polls.find(selector, options);
   }
 
   Logger.warn(
-    'Publishing current-poll was requested by non-moderator connection',
+    'Publishing current-poll was requested by non-presenter connection',
     { meetingId, userId, connectionId: this.connection.id },
   );
   return Polls.find({ meetingId: '' });
