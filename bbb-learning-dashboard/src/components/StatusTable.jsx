@@ -52,7 +52,7 @@ class StatusTable extends React.Component {
 
       const filteredSlides = slides.filter((slide) => {
         if (slide.presentationId === '') return false;
-        if (start == null && slide.setOn < end) return true;
+        if (start == null && slide.setOn <= end) return true;
         if (end == null && slide.setOn >= start) return true;
         if (slide.setOn >= start && slide.setOn < end) return true;
         return false;
@@ -80,7 +80,7 @@ class StatusTable extends React.Component {
           </tr>
         </thead>
         <tbody className="bg-white divide-y">
-          { slides && Array.isArray(slides) && slides.length > 0 ? (
+          { slides && Array.isArray(slides) && slides.shift() && slides.length > 0 ? (
             <tr>
               <td />
               { periods.map((period) => {
