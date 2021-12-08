@@ -23,7 +23,9 @@ class StatusTable extends React.Component {
 
   render() {
     const spanMinutes = 10 * 60000; // 10 minutes default
-    const { allUsers, intl } = this.props;
+    const {
+      allUsers, slides, meetingId, intl,
+    } = this.props;
 
     function tsToHHmmss(ts) {
       return (new Date(ts).toISOString().substr(11, 8));
@@ -43,6 +45,19 @@ class StatusTable extends React.Component {
     while (currPeriod < lastLeftOnTime) {
       periods.push(currPeriod);
       currPeriod += spanMinutes;
+    }
+
+    function getSlidesOnPeriod(start = null, end = null) {
+      if (start == null && end == null) return slides;
+
+      const filteredSlides = slides.filter((slide) => {
+        if (slide.presentationId === '') return false;
+        if (start == null && slide.setOn < end) return true;
+        if (end == null && slide.setOn >= start) return true;
+        if (slide.setOn >= start && slide.setOn < end) return true;
+        return false;
+      });
+      return filteredSlides;
     }
 
     return (
@@ -65,6 +80,34 @@ class StatusTable extends React.Component {
           </tr>
         </thead>
         <tbody className="bg-white divide-y">
+          { slides && Array.isArray(slides) && slides.length > 0 ? (
+            <tr>
+              <td />
+              { periods.map((period) => {
+                const slidesOnPeriod = getSlidesOnPeriod(period, period + spanMinutes);
+                const screenshots = slidesOnPeriod.map((slide) => (
+                  <div
+                    className="my-2"
+                    aria-label={`Slide set on ${tsToHHmmss(slide.setOn - firstRegisteredOnTime)}`}
+                  >
+                    <img
+                      src={`/bigbluebutton/presentation/${meetingId}/${meetingId}/${slide.presentationId}/svg/${slide.pageNum}`}
+                      alt="Slide"
+                      className="w-36 h-auto"
+                    />
+                    <div className="text-xs text-center m-1 text-gray-500">{tsToHHmmss(slide.setOn - firstRegisteredOnTime)}</div>
+                  </div>
+                ));
+                return (
+                  <td>
+                    <div className="flex">
+                      {screenshots}
+                    </div>
+                  </td>
+                );
+              }) }
+            </tr>
+          ) : null }
           { typeof allUsers === 'object' && Object.values(allUsers || {}).length > 0 ? (
             Object.values(allUsers || {})
               .sort((a, b) => {
