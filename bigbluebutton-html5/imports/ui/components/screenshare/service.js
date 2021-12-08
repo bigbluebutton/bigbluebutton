@@ -11,9 +11,8 @@ import AudioService from '/imports/ui/components/audio/service';
 import { Meteor } from "meteor/meteor";
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 
+const VOLUME_CONTROL_ENABLED = Meteor.settings.public.kurento.screenshare.enableVolumeControl;
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
-
-const MAX_GAIN = 2;
 
 /**
  * Screenshare status to be filtered in getStats()
@@ -95,7 +94,9 @@ const setVolume = (volume) => {
   KurentoBridge.setVolume(volume);
 };
 
-const getVolume = () => KurentoBridge.getVolume() / MAX_GAIN;
+const getVolume = () => KurentoBridge.getVolume();
+
+const shouldEnableVolumeControl = () => VOLUME_CONTROL_ENABLED && screenshareHasAudio();
 
 const attachLocalPreviewStream = (mediaElement) => {
   const stream = KurentoBridge.gdmStream;
@@ -203,4 +204,5 @@ export {
   getStats,
   setVolume,
   getVolume,
+  shouldEnableVolumeControl,
 };

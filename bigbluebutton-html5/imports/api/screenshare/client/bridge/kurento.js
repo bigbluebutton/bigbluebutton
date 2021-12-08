@@ -14,9 +14,7 @@ const BRIDGE_NAME = 'kurento'
 const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
 const SEND_ROLE = 'send';
 const RECV_ROLE = 'recv';
-
-const DEFAULT_GAIN = 1;
-const MAX_GAIN = 2;
+const DEFAULT_VOLUME = 1;
 
 // the error-code mapping is bridge specific; that's why it's not in the errors util
 const ERROR_MAP = {
@@ -184,48 +182,25 @@ export default class KurentoScreenshareBridge {
   }
 
   setVolume(volume) {
-    this.gainNode.gain.value = volume * MAX_GAIN;
+    const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
+
+    if (mediaElement) {
+      if (typeof volume === 'number' && volume >= 0 && volume <= 1) {
+        mediaElement.volume = volume;
+      }
+
+      return mediaElement.volume;
+    }
+
+    return DEFAULT_VOLUME;
   }
 
   getVolume() {
-    return this.gainNode ? this.gainNode.gain.value : DEFAULT_GAIN;
-  }
+    const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
 
-  addGainNode(audioStream) {
-    if (audioStream && this.gainNode == null) {
-      this.audioContext = new AudioContext();
-      this.contextSource = this.audioContext.createMediaStreamSource(audioStream);
-      this.gainNode = this.audioContext.createGain();
-      this.contextSource.connect(this.gainNode);
-      this.gainNode.connect(this.audioContext.destination);
-      this.gainNode.gain.value = this.getVolume();
-    }
-    if (!audioStream) {
-      logger.warn({
-        logCode: 'screenshare_stream_missing',
-        extraInfo: {
-          role: this.role,
-          bridge: BRIDGE_NAME,
-        },
-      }, 'Screenshare audio stream is missing');
-    }
-  }
+    if (mediaElement) return mediaElement.volume;
 
-  removeGainNode() {
-    if (this.gainNode) {
-      this.gainNode.disconnect();
-      this.gainNode = null;
-    }
-
-    if (this.contextSource) {
-      this.contextSource.disconnect();
-      this.contextSource = null;
-    }
-
-    if (this.audioContext) {
-      this.audioContext.close();
-      this.audioContext = null;
-    }
+    return DEFAULT_VOLUME;
   }
 
   handleViewerStart() {
@@ -233,10 +208,7 @@ export default class KurentoScreenshareBridge {
 
     if (mediaElement && this.broker && this.broker.webRtcPeer) {
       const stream = this.broker.webRtcPeer.getRemoteStream();
-      if (this.broker.hasAudio) {
-        this.addGainNode(stream);
-      }
-      BridgeService.screenshareLoadAndPlayMediaStream(stream, mediaElement, true);
+      BridgeService.screenshareLoadAndPlayMediaStream(stream, mediaElement, !this.broker.hasAudio);
     }
 
     this.clearReconnectionTimeout();
@@ -375,8 +347,6 @@ export default class KurentoScreenshareBridge {
       }
       this.broker = null;
     }
-
-    this.removeGainNode();
 
     if (mediaElement && typeof mediaElement.pause === 'function') {
       mediaElement.pause();

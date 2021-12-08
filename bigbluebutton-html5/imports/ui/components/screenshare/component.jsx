@@ -89,7 +89,7 @@ class ScreenshareComponent extends React.Component {
     this.handleOnMuted = this.handleOnMuted.bind(this);
 
     this.isMobile = isMobile() || isTablet();
-    this.volume = 0.5;
+    this.volume = getVolume();
   }
 
   componentDidMount() {
@@ -340,7 +340,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderScreenshareDefault() {
-    const { intl, hasAudio } = this.props;
+    const { intl, enableVolumeControl } = this.props;
     const { loaded } = this.state;
 
     return (
@@ -353,7 +353,7 @@ class ScreenshareComponent extends React.Component {
       >
         {loaded && this.renderFullscreenButton()}
         {this.renderVideo(true)}
-        {loaded && hasAudio && this.renderVolumeSlider() }
+        {loaded && enableVolumeControl && this.renderVolumeSlider() }
 
         <div className={styles.screenshareContainerDefault}>
           {
@@ -437,5 +437,5 @@ ScreenshareComponent.propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   isPresenter: PropTypes.bool.isRequired,
-  hasAudio: PropTypes.bool.isRequired,
+  enableVolumeControl: PropTypes.bool.isRequired,
 };
