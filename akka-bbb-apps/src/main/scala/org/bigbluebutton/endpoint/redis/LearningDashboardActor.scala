@@ -35,7 +35,7 @@ case class User(
   name:               String,
   isModerator:        Boolean,
   isDialIn:           Boolean = false,
-  answers:            Map[String,String] = Map(),
+  answers:            Map[String,Vector[String]] = Map(),
   talk:               Talk = Talk(),
   emojis:            Vector[Emoji] = Vector(),
   webcams:            Vector[Webcam] = Vector(),
@@ -47,7 +47,8 @@ case class User(
 case class Poll(
   pollId:     String,
   pollType:   String,
-  anonymous: Boolean,
+  anonymous:  Boolean,
+  multiple:   Boolean,
   question:   String,
   options:    Vector[String] = Vector(),
   anonymousAnswers: Vector[String] = Vector(),
@@ -390,7 +391,7 @@ class LearningDashboardActor(
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
     } yield {
       val options = msg.body.poll.answers.map(answer => answer.key)
-      val newPoll = Poll(msg.body.pollId, msg.body.pollType, msg.body.secretPoll, msg.body.question, options.toVector)
+      val newPoll = Poll(msg.body.pollId, msg.body.pollType, msg.body.secretPoll, msg.body.poll.isMultipleResponse, msg.body.question, options.toVector)
 
       val updatedMeeting = meeting.copy(polls = meeting.polls + (newPoll.pollId -> newPoll))
       meetings += (updatedMeeting.intId -> updatedMeeting)
@@ -413,7 +414,7 @@ class LearningDashboardActor(
         }
       } else {
         //Store Public Poll in `user.answers`
-        val updatedUser = user.copy(answers = user.answers + (msg.body.pollId -> msg.body.answer))
+        val updatedUser = user.copy(answers = user.answers + (msg.body.pollId -> (user.answers.get(msg.body.pollId).getOrElse(Vector()) :+ msg.body.answer)))
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
