@@ -21,7 +21,7 @@ const downloadPresentationUri = (podId) => {
   const presentationFileName = `${currentPresentation.id}.${currentPresentation.name.split('.').pop()}`;
 
   const APP = Meteor.settings.public.app;
-  const uri = `https://${APP.bbbWebBase}/presentation/download/`
+  const uri = `${APP.bbbWebBase}/presentation/download/`
     + `${currentPresentation.meetingId}/${currentPresentation.id}`
     + `?presFilename=${encodeURIComponent(presentationFileName)}`;
 
