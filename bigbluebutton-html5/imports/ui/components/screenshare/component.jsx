@@ -25,9 +25,7 @@ import {
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
-import {
-  isMobile, isTablet,
-} from '../layout/utils';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   screenShareLabel: {
@@ -60,6 +58,7 @@ const intlMessages = defineMessages({
 });
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const MOBILE_HOVER_TIMEOUT = 5000;
 
 class ScreenshareComponent extends React.Component {
   static renderScreenshareContainerInside(mainText) {
@@ -77,6 +76,8 @@ class ScreenshareComponent extends React.Component {
       autoplayBlocked: false,
       isStreamHealthy: false,
       switched: false,
+      // Volume control hover toolbar
+      showHoverToolBar: false,
     };
 
     this.onLoadedData = this.onLoadedData.bind(this);
@@ -88,8 +89,8 @@ class ScreenshareComponent extends React.Component {
     this.handleOnVolumeChanged = this.handleOnVolumeChanged.bind(this);
     this.handleOnMuted = this.handleOnMuted.bind(this);
 
-    this.isMobile = isMobile() || isTablet();
     this.volume = getVolume();
+    this.mobileHoverSetTimeout = null;
   }
 
   componentDidMount() {
@@ -271,12 +272,38 @@ class ScreenshareComponent extends React.Component {
     );
   }
 
-  renderVolumeSlider() {
-    const mobileHoverToolBarStyle = styles.showMobileHoverToolbar;
-    const desktopHoverToolBarStyle = styles.hoverToolbar;
-    const hoverToolbarStyle = this.isMobile ? mobileHoverToolBarStyle : desktopHoverToolBarStyle;
+  renderMobileVolumeControlOverlay () {
     return (
-      <div className={hoverToolbarStyle}>
+      <span
+        className={styles.mobileControlsOverlay}
+        key="mobile-overlay-screenshare"
+        ref={(ref) => { this.overlay = ref; }}
+        onTouchStart={() => {
+          clearTimeout(this.mobileHoverSetTimeout);
+          this.setState({ showHoverToolBar: true });
+        }}
+        onTouchEnd={() => {
+          this.mobileHoverSetTimeout = setTimeout(
+            () => this.setState({ showHoverToolBar: false }),
+            MOBILE_HOVER_TIMEOUT,
+          );
+        }}
+      />
+    );
+  }
+
+  renderVolumeSlider() {
+    const { showHoverToolBar } = this.state;
+    const mobileHoverToolBarStyle = showHoverToolBar
+      ? styles.showMobileHoverToolbar
+      : styles.dontShowMobileHoverToolbar;
+    const desktopHoverToolBarStyle = styles.hoverToolbar;
+    const hoverToolbarStyle = deviceInfo.isMobile
+      ? mobileHoverToolBarStyle
+      : desktopHoverToolBarStyle;
+
+    return [(
+      <div className={hoverToolbarStyle} key='hover-toolbar-screenshare'>
         <VolumeSlider
           volume={getVolume()}
           muted={getVolume() === 0}
@@ -284,7 +311,9 @@ class ScreenshareComponent extends React.Component {
           onMuted={this.handleOnMuted}
         />
       </div>
-    );
+      ),
+      (deviceInfo.isMobile) && this.renderMobileVolumeControlOverlay(),
+    ];
   }
 
   renderVideo(switched) {
