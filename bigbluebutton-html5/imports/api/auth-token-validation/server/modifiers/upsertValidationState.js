@@ -17,7 +17,6 @@ export default function upsertValidationState(meetingId, userId, validationStatu
   };
 
   try {
-    AuthTokenValidation.remove({ meetingId, userId, connectionId: { $ne: connectionId } });
     const { numberAffected } = AuthTokenValidation.upsert(selector, modifier);
 
     if (numberAffected) {
