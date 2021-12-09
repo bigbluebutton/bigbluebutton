@@ -79,7 +79,7 @@ const takeOwnership = (locale) => {
 const appendText = (text, locale) => {
   if (typeof text !== 'string' || text.length === 0) return;
 
-  const formattedText = `${text.trim().replace(/^\w/, (c) => c.toUpperCase())}\n\n`;
+  const formattedText = `${text.trim().replace(/^\w/, (c) => c?.toUpperCase())}\n\n`;
   makeCall('appendText', formattedText, locale);
 };
 

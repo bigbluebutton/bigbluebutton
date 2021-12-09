@@ -4,6 +4,7 @@ import BridgeService from './service';
 import ScreenshareBroker from '/imports/ui/services/bbb-webrtc-sfu/screenshare-broker';
 import { setSharingScreen, screenShareEndAlert } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from './errors';
+import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 
 const SFU_CONFIG = Meteor.settings.public.kurento;
 const SFU_URL = SFU_CONFIG.wsUrl;
@@ -227,6 +228,7 @@ export default class KurentoScreenshareBridge {
       offering: OFFERING,
       mediaServer: BridgeService.getMediaServerAdapter(),
       signalCandidates: SIGNAL_CANDIDATES,
+      forceRelay: shouldForceRelay(),
     };
 
     this.broker = new ScreenshareBroker(
@@ -287,6 +289,7 @@ export default class KurentoScreenshareBridge {
         offering: true,
         mediaServer: BridgeService.getMediaServerAdapter(),
         signalCandidates: SIGNAL_CANDIDATES,
+        forceRelay: shouldForceRelay(),
       };
 
       this.broker = new ScreenshareBroker(

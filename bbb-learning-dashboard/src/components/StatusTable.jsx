@@ -46,10 +46,14 @@ class StatusTable extends React.Component {
     }
 
     return (
-      <table className="w-full whitespace-nowrap">
+      <table className="w-full">
         <thead>
           <tr className="text-xs font-semibold tracking-wide text-gray-500 uppercase border-b bg-gray-100">
+<<<<<<< HEAD
             <th className="px-4 py-3 col-text-left sticky left-0 z-30 bg-inherit">
+=======
+            <th className="px-3.5 2xl:px-4 py-3 col-text-left">
+>>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
               <FormattedMessage id="app.learningDashboard.user" defaultMessage="User" />
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -61,10 +65,10 @@ class StatusTable extends React.Component {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
               </svg>
             </th>
-            { periods.map((period) => <th className="px-4 py-3 col-text-left">{ `${tsToHHmmss(period - firstRegisteredOnTime)}` }</th>) }
+            { periods.map((period) => <th className="px-3.5 2xl:px-4 py-3 col-text-left">{ `${tsToHHmmss(period - firstRegisteredOnTime)}` }</th>) }
           </tr>
         </thead>
-        <tbody className="bg-white divide-y">
+        <tbody className="bg-white divide-y whitespace-nowrap">
           { typeof allUsers === 'object' && Object.values(allUsers || {}).length > 0 ? (
             Object.values(allUsers || {})
               .sort((a, b) => {
@@ -75,8 +79,13 @@ class StatusTable extends React.Component {
                 return 0;
               })
               .map((user) => (
+<<<<<<< HEAD
                 <tr className="text-gray-700 bg-inherit">
                   <td className="bg-inherit sticky left-0 z-30 px-4 py-3">
+=======
+                <tr className="text-gray-700">
+                  <td className="px-3.5 2xl:px-4 py-3">
+>>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
                     <div className="flex items-center text-sm">
                       <div className="relative hidden w-8 h-8 rounded-full md:block">
                         <UserAvatar user={user} />
@@ -96,7 +105,11 @@ class StatusTable extends React.Component {
                     const boundaryLeft = period;
                     const boundaryRight = period + spanMinutes - 1;
                     return (
+<<<<<<< HEAD
                       <td className="relative px-4 py-3 text-sm col-text-left">
+=======
+                      <td className="px-3.5 2xl:px-4 py-3 text-sm col-text-left">
+>>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
                         {
                           (registeredOn >= boundaryLeft && registeredOn <= boundaryRight)
                           || (leftOn >= boundaryLeft && leftOn <= boundaryRight)

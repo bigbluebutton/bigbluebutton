@@ -101,7 +101,11 @@ class LearningDashboardActor(
 
   private var meetings: Map[String, Meeting] = Map()
   private var meetingsLastJsonHash : Map[String,String] = Map()
+<<<<<<< HEAD
   private var meetingPresentations : Map[String,Map[String,PresentationVO]] = Map()
+=======
+  private var meetingExcludedUserIds : Map[String,Vector[String]] = Map()
+>>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
 
   system.scheduler.schedule(10.seconds, 10.seconds, self, SendPeriodicReport)
 
@@ -125,6 +129,7 @@ class LearningDashboardActor(
       case m: SetCurrentPresentationEvtMsg          => handleSetCurrentPresentationEvtMsg(m)
 
       // User
+      case m: UserRegisteredRespMsg   => handleUserRegisteredRespMsg(m)
       case m: UserJoinedMeetingEvtMsg => handleUserJoinedMeetingEvtMsg(m)
       case m: UserLeftMeetingEvtMsg   => handleUserLeftMeetingEvtMsg(m)
       case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
@@ -167,6 +172,7 @@ class LearningDashboardActor(
     }
   }
 
+<<<<<<< HEAD
   private def handlePresentationConversionCompletedEvtMsg(msg: PresentationConversionCompletedEvtMsg) {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
@@ -235,6 +241,17 @@ class LearningDashboardActor(
         val updatedMeeting = meeting.copy(presentationSlides = meeting.presentationSlides :+ PresentationSlide(presentationId, pageNum))
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
+=======
+  private def handleUserRegisteredRespMsg(msg: UserRegisteredRespMsg): Unit = {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+    } yield {
+     if(msg.body.excludeFromDashboard == true) {
+       meetingExcludedUserIds += (meeting.intId -> {
+         meetingExcludedUserIds.get(meeting.intId).getOrElse(Vector()) :+ msg.body.userId
+       })
+     }
+>>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
     }
   }
 
@@ -248,7 +265,7 @@ class LearningDashboardActor(
         )
       })
 
-      meetings += (meeting.intId -> meeting.copy(users = meeting.users + (user.intId -> user.copy(leftOn = 0))))
+      this.addUserToMeeting(meeting.intId, user)
     }
   }
 
@@ -328,7 +345,7 @@ class LearningDashboardActor(
           )
         })
 
-        meetings += (meeting.intId -> meeting.copy(users = meeting.users + (user.intId -> user.copy(leftOn = 0))))
+        this.addUserToMeeting(meeting.intId, user)
       }
     }
   }
@@ -492,7 +509,18 @@ class LearningDashboardActor(
 
       meetingPresentations = meetingPresentations.-(updatedMeeting.intId)
       meetings = meetings.-(updatedMeeting.intId)
+      meetingExcludedUserIds = meetingExcludedUserIds.-(updatedMeeting.intId)
       log.info(" removed for meeting {}.",updatedMeeting.intId)
+    }
+  }
+
+  private def addUserToMeeting(meetingIntId: String, user: User): Unit = {
+    for {
+      meeting <- meetings.values.find(m => m.intId == meetingIntId)
+    } yield {
+      if(!meetingExcludedUserIds.get(meeting.intId).getOrElse(Vector()).contains(user.extId)) {
+        meetings += (meeting.intId -> meeting.copy(users = meeting.users + (user.intId -> user.copy(leftOn = 0))))
+      }
     }
   }
 

@@ -17,6 +17,7 @@ class App extends React.Component {
     super(props);
     this.state = {
       loading: true,
+      invalidSessionCount: 0,
       activitiesJson: {},
       tab: 'overview',
       meetingId: '',
@@ -28,12 +29,12 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.setDashboardParams();
-    setInterval(() => {
+    this.setDashboardParams(() => {
       this.fetchActivitiesJson();
-    }, 10000);
+    });
   }
 
+<<<<<<< HEAD
   handleSaveSessionData(e) {
     const { target: downloadButton } = e;
     const { intl } = this.props;
@@ -63,6 +64,9 @@ class App extends React.Component {
   }
 
   setDashboardParams() {
+=======
+  setDashboardParams(callback) {
+>>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
     let learningDashboardAccessToken = '';
     let meetingId = '';
     let sessionToken = '';
@@ -96,8 +100,9 @@ class App extends React.Component {
       }
     }
 
-    this.setState({ learningDashboardAccessToken, meetingId, sessionToken },
-      this.fetchActivitiesJson);
+    this.setState({ learningDashboardAccessToken, meetingId, sessionToken }, () => {
+      if (typeof callback === 'function') callback();
+    });
   }
 
   fetchMostUsedEmojis() {
@@ -134,16 +139,26 @@ class App extends React.Component {
   }
 
   fetchActivitiesJson() {
-    const { learningDashboardAccessToken, meetingId, sessionToken } = this.state;
+    const {
+      learningDashboardAccessToken, meetingId, sessionToken, invalidSessionCount,
+    } = this.state;
 
     if (learningDashboardAccessToken !== '') {
       fetch(`${meetingId}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
         .then((response) => response.json())
         .then((json) => {
+<<<<<<< HEAD
           this.setState({ activitiesJson: json, loading: false, lastUpdated: Date.now() });
+=======
+          this.setState({
+            activitiesJson: json,
+            loading: false,
+            invalidSessionCount: 0,
+          });
+>>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
           document.title = `Learning Dashboard - ${json.name}`;
         }).catch(() => {
-          this.setState({ loading: false });
+          this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
         });
     } else if (sessionToken !== '') {
       const url = new URL('/bigbluebutton/api/learningDashboard', window.location);
@@ -152,35 +167,32 @@ class App extends React.Component {
         .then((json) => {
           if (json.response.returncode === 'SUCCESS') {
             const jsonData = JSON.parse(json.response.data);
+<<<<<<< HEAD
             this.setState({ activitiesJson: jsonData, loading: false, lastUpdated: Date.now() });
+=======
+            this.setState({
+              activitiesJson: jsonData,
+              loading: false,
+              invalidSessionCount: 0,
+            });
+>>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
             document.title = `Learning Dashboard - ${jsonData.name}`;
           } else {
             // When meeting is ended the sessionToken stop working, check for new cookies
             this.setDashboardParams();
-            this.setState({ loading: false });
+            this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
           }
         })
         .catch(() => {
-          this.setState({ loading: false });
+          this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
         });
     } else {
       this.setState({ loading: false });
     }
-  }
 
-  copyPublicLink() {
-    const { learningDashboardAccessToken, meetingId, ldAccessTokenCopied } = this.state;
-    const { intl } = this.props;
-
-    let url = window.location.href.split('?')[0];
-    url += `?meeting=${meetingId}&report=${learningDashboardAccessToken}&lang=${intl.locale}`;
-    navigator.clipboard.writeText(url);
-    if (ldAccessTokenCopied === false) {
-      this.setState({ ldAccessTokenCopied: true });
-      setTimeout(() => {
-        this.setState({ ldAccessTokenCopied: false });
-      }, 3000);
-    }
+    setTimeout(() => {
+      this.fetchActivitiesJson();
+    }, 10000 * (2 ** invalidSessionCount));
   }
 
   render() {
@@ -284,33 +296,6 @@ class App extends React.Component {
         <div className="flex items-start justify-between pb-3">
           <h1 className="mt-3 text-2xl font-semibold whitespace-nowrap inline-block">
             <FormattedMessage id="app.learningDashboard.dashboardTitle" defaultMessage="Learning Dashboard" />
-            &nbsp;
-            {
-              learningDashboardAccessToken !== ''
-                ? (
-                  <button type="button" onClick={() => { this.copyPublicLink(); }} className="text-sm font-medium text-blue-500 ease-out">
-                    (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 inline"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                      />
-                    </svg>
-                    &nbsp;
-                    <FormattedMessage id="app.learningDashboard.shareButton" defaultMessage="Share with others" />
-                    )
-                  </button>
-                )
-                : null
-            }
             {
               ldAccessTokenCopied === true
                 ? (

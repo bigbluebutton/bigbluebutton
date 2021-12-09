@@ -59,9 +59,9 @@ class NavBar extends Component {
     if (isMacos && isFirefox && TOGGLE_USERLIST_AK === 'U') {
       document.addEventListener('keyup', (event) => {
         const { key, code } = event;
-        const eventKey = key.toUpperCase();
+        const eventKey = key?.toUpperCase();
         const eventCode = code;
-        if (event.altKey && (eventKey === TOGGLE_USERLIST_AK || eventCode === `Key${TOGGLE_USERLIST_AK}`)) {
+        if (event?.altKey && (eventKey === TOGGLE_USERLIST_AK || eventCode === `Key${TOGGLE_USERLIST_AK}`)) {
           this.handleToggleUserList();
         }
       });
@@ -154,11 +154,21 @@ class NavBar extends Component {
             }
         }
       >
+<<<<<<< HEAD
         <Styled.Top>
           <Styled.Left>
             {!isExpanded ? null
               : <Styled.ArrowLeft iconName="left_arrow" />}
             <Styled.NavbarToggleButton
+=======
+        <div className={styles.top}>
+          <div className={styles.left}>
+            {isExpanded && document.dir === 'ltr'
+              && <Icon iconName="left_arrow" className={styles.arrowLeft} />}
+            {!isExpanded && document.dir === 'rtl'
+              && <Icon iconName="left_arrow" className={styles.arrowLeft} />}
+            <Button
+>>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
               onClick={this.handleToggleUserList}
               ghost
               circle
@@ -172,11 +182,22 @@ class NavBar extends Component {
               accessKey={TOGGLE_USERLIST_AK}
               hasNotification={hasNotification}
             />
+<<<<<<< HEAD
             {isExpanded ? null
               : <Styled.ArrowRight iconName="right_arrow" />}
           </Styled.Left>
           <Styled.Center>
             <Styled.PresentationTitle>{presentationTitle}</Styled.PresentationTitle>
+=======
+            {!isExpanded && document.dir === 'ltr'
+              && <Icon iconName="right_arrow" className={styles.arrowRight} />}
+            {isExpanded && document.dir === 'rtl'
+              && <Icon iconName="right_arrow" className={styles.arrowRight} />}
+          </div>
+          <div className={styles.center}>
+            <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
+
+>>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
             <RecordingIndicator
               mountModal={mountModal}
               amIModerator={amIModerator}

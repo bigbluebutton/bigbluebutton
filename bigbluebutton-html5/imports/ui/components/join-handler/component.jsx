@@ -84,7 +84,11 @@ class JoinHandler extends Component {
   }
 
   async fetchToken() {
+<<<<<<< HEAD
     const { hasAlreadyJoined } = this.state;
+=======
+    const APP = Meteor.settings.public.app;
+>>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
     if (!this._isMounted) return;
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -178,8 +182,8 @@ class JoinHandler extends Component {
     };
 
     // use enter api to get params for the client
-    const url = `/bigbluebutton/api/enter?sessionToken=${sessionToken}`;
-    const fetchContent = await fetch(url, { credentials: 'same-origin' });
+    const url = `${APP.bbbWebBase}/api/enter?sessionToken=${sessionToken}`;
+    const fetchContent = await fetch(url, { credentials: 'include' });
     const parseToJson = await fetchContent.json();
     const { response } = parseToJson;
 

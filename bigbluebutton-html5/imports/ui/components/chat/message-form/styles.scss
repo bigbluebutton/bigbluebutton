@@ -1,0 +1,181 @@
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/placeholders";
+
+:root {
+  --max-chat-input-msg-height: .93rem;
+}
+
+.form {
+  flex-grow: 0;
+  flex-shrink: 0;
+  align-self: flex-end;
+  width: 100%;
+  position: relative;
+  margin-bottom: calc(-1 * var(--sm-padding-x));
+  margin-top: .2rem;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: row;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 0;
+  flex-shrink: 0;
+  border: var(--border-size) solid var(--color-gray-lighter);
+  background-color: #fff;
+  border-radius: var(--border-radius) 0 0 var(--border-radius);
+  color: var(--color-gray-light);
+  padding: var(--sm-padding-y) var(--sm-padding-x);
+  cursor: pointer;
+
+  :global(.animationsEnabled) & {
+    transition: all .3s;
+  }
+
+  --bg-faded: rgba(167,179,189,0.25);
+
+  &:hover,
+  &:focus {
+    background-color: var(--bg-faded);
+  }
+
+  &:disabled,
+  &[disabled] {
+    cursor: not-allowed;
+    opacity: .75;
+    background-color: var(--bg-faded);
+  }
+}
+
+.input {
+  @include inputFocus(var(--color-blue-light));
+
+  flex: 1;
+  background: #fff;
+  background-clip: padding-box;
+  margin: 0;
+  color: var(--color-text);
+  -webkit-appearance: none;
+  padding: calc(var(--sm-padding-y) * 2.5) calc(var(--sm-padding-x) * 1.25);
+  resize: none;
+  transition: none;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  line-height: 1;
+  min-height: 2.5rem;
+  max-height: 10rem;
+  border: 1px solid var(--color-gray-lighter);
+  box-shadow: 0 0 0 1px var(--color-gray-lighter);
+
+  &:disabled,
+  &[disabled] {
+    cursor: not-allowed;
+    opacity: .75;
+    background-color: rgba(167,179,189,0.25);
+  }
+
+  &:hover,
+  &:active,
+  &:focus {
+    @extend %highContrastOutline;
+  }
+}
+
+.sendButton {
+  margin:0 0 0 var(--sm-padding-x);
+  align-self: center;
+  font-size: 0.9rem;
+
+  [dir="rtl"]  & {
+    margin: 0 var(--sm-padding-x) 0 0;
+    -webkit-transform: scale(-1, 1);
+    -moz-transform: scale(-1, 1);
+    -ms-transform: scale(-1, 1);
+    -o-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+  }
+}
+
+.error,
+.info {
+  font-size: calc(var(--font-size-base) * .75);
+  color: var(--color-gray-dark);
+  text-align: left;
+  padding: var(--border-size) 0;
+  position: relative;
+}
+
+.error,
+.info,
+.spacer {
+  height: var(--max-chat-input-msg-height);
+  max-height: var(--max-chat-input-msg-height);
+}
+
+.coupleTyper,
+.singleTyper {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: bold;
+  font-size: var(--font-size-smaller);
+}
+
+.singleTyper {
+  max-width: 70%;
+}
+
+.coupleTyper {
+  max-width: 25%;
+}
+
+.typingIndicator {
+  display: flex;
+  flex-direction: row;
+
+  > span {
+    display: block;
+    margin-right: 0.05rem;
+    margin-left: 0.05rem;
+  }
+
+  text-align: left;
+  [dir="rtl"] & {
+    text-align: right;
+  }
+}
+
+.error {
+  color: var(--color-danger);
+}
+
+.connectingAnimation {
+  margin: auto;
+  display: inline-block;
+  width: 1.5em;
+
+  &:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    content: "\2026"; /* ascii code for the ellipsis character */
+    width: 0;
+    margin-left: 0.25em;
+
+    :global(.animationsEnabled) & {
+      animation: ellipsis steps(4, end) 900ms infinite;
+    }
+  }
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.5em;
+  }
+}

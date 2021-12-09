@@ -1,0 +1,71 @@
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/variables/_all";
+
+.hoverToolbar {
+  display: none;
+
+  :hover > & {
+    display: flex;
+  }
+}
+
+.mobileControlsOverlay {
+  position: absolute;
+  top:0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+}
+
+.showMobileHoverToolbar {
+  display: flex;
+  z-index: 2;
+}
+.dontShowMobileHoverToolbar {
+  display: none;
+}
+
+.videoPlayerWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.videoPlayer {
+  width: 100%;
+  height: 100%;
+  & iframe {
+    display: flex;
+    flex-flow: column;
+    flex-grow: 1;
+    flex-shrink: 1;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-style: none;
+    border-bottom: none;
+  }
+}
+
+.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99;
+}
+
+.autoPlayWarning {
+  position: absolute;
+  z-index: 100;
+  font-size: x-large;
+  color: white;
+  width: 100%;
+  background-color: rgba(6,23,42,0.5);
+  bottom: 20%;
+  vertical-align: middle;
+  text-align: center;
+  pointer-events: none;
+}

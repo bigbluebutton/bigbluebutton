@@ -207,8 +207,13 @@ class LiveResult extends PureComponent {
               ? <Styled.ConnectingAnimation animations={animations}/> : null}
           </Styled.Status>
           {pollStats}
+<<<<<<< HEAD
         </Styled.Stats>
         {currentPoll && currentPoll.answers.length > 0
+=======
+        </div>
+        {currentPoll && currentPoll.answers.length >= 0
+>>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
           ? (
             <Styled.ButtonsActions>
               <Styled.PublishButton

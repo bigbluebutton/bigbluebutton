@@ -1,0 +1,177 @@
+@import "/imports/ui/stylesheets/variables/breakpoints";
+@import "/imports/ui/components/modal/simple/styles";
+@import "/imports/ui/stylesheets/mixins/_scrollable";
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/placeholders";
+
+.modal {
+  @extend .modal;
+  padding: var(--jumbo-padding-y);
+  min-height: var(--min-modal-height);
+  text-align: center;
+}
+
+.overlay {
+  @extend .overlay;
+}
+
+.title {
+  font-weight: var(--headings-font-weight);
+  font-size: var(--font-size-large);
+  color: var(--color-background);
+  white-space: normal;
+  padding-bottom: var(--md-padding-x);
+}
+
+.actionsbar,
+.center,
+.right {
+  display: flex;
+  flex-direction: row;
+}
+
+.right {
+  justify-content: center;
+  @include mq($small-only) {
+    position: relative;
+    right: 0;
+    left: 0;
+    display: contents;
+  }
+}
+
+.center {
+  flex: 1;
+  justify-content: center;
+}
+
+.left,
+.center,
+.right {
+  > * {
+    margin: 0 var(--sm-padding-x);
+
+    @include mq($small-only) {
+      margin: 0 var(--sm-padding-y);
+    }
+  }
+}
+
+.offsetBottom {
+  position: relative
+  :global(.MuiPaper-root) {
+    top: auto !important;
+    bottom: 4rem !important;
+  }
+}
+
+.left {
+  display: inherit;
+  flex: 0;
+  @include mq($small-only) {
+    bottom: var(--sm-padding-x);
+    left: var(--sm-padding-x);
+    right: auto;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--sm-padding-x);
+    }
+  }
+}
+
+.right {
+  position: relative;
+
+  [dir="rtl"] & {
+    right: auto;
+    left: var(--sm-padding-x);
+  }
+}
+
+.quickPollBtn {
+  padding: var(--whiteboard-toolbar-padding);
+  background-color: var(--color-off-white) !important;
+  box-shadow: none !important;
+
+  span:first-child {
+    border: 1px solid var(--toolbar-button-color);
+    border-radius: var(--border-size-large);
+    color: var(--toolbar-button-color);
+    font-size: small;
+    font-weight: var(--headings-font-weight);
+    opacity: 1;
+    padding-right: var(--border-size-large);
+    padding-left: var(--border-size-large);
+  }
+
+  span:first-child:hover {
+    opacity: 1 !important;
+  }
+}
+
+.btn {
+  span {
+    box-shadow: none;
+    background-color: transparent !important;
+    border-color: var(--color-white) !important;
+  }
+}
+
+.dropdown{
+  z-index: 4;
+}
+
+.hideDropdownButton {
+  @include mq($small-only) {
+    display:none;
+  }
+}
+
+.presentationItem {
+  span {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 15rem;
+
+    @include mq($small-only) {
+      max-width: 100%;
+    }
+
+  }
+}
+
+.isCurrent {
+  i,
+  span {
+    color: var(--color-primary);
+  }
+}
+
+.scrollableList {
+  @include elementFocus(var(--list-item-bg-hover));
+  @include scrollbox-vertical();
+  @extend %highContrastOutline;
+
+  &:focus-within,
+  &:focus {
+    outline-style: solid;
+  }
+
+  &:active {
+    box-shadow: none;
+    border-radius: none;
+  }
+
+  overflow-x: hidden;
+  outline-width: 1px !important;
+  outline-color: transparent !important;
+  max-height: 50vh;
+  padding: 0.25rem;
+
+  @include mq($small-only) {
+    max-height: 100%;
+  }
+}

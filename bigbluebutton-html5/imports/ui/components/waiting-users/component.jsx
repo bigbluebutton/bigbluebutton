@@ -266,6 +266,7 @@ const WaitingUsers = (props) => {
             label={intl.formatMessage(intlMessages.title)}
             icon="left_arrow"
           />
+<<<<<<< HEAD
         </Styled.Title>
       </Styled.Header>
       {isGuestLobbyMessageEnabled ? (
@@ -307,8 +308,67 @@ const WaitingUsers = (props) => {
               {intl.formatMessage(intlMessages.rememberChoice)}
             </label>
           </Styled.RememberContainer>
+=======
+        </div>
+      </header>
+      <div className={styles.scrollableArea}>
+        {isGuestLobbyMessageEnabled ? (
+          <div className={styles.lobbyMessage}>
+            <TextInput
+              maxLength={128}
+              placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
+              send={setGuestLobbyMessage}
+            />
+            <p>
+              <i>
+                &quot;
+                {
+                  guestLobbyMessage.length > 0
+                    ? guestLobbyMessage
+                    : intl.formatMessage(intlMessages.emptyMessage)
+                }
+                &quot;
+              </i>
+            </p>
+          </div>
+>>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
         ) : null}
+        <div>
+          <div>
+            <p className={styles.mainTitle}>{intl.formatMessage(intlMessages.optionTitle)}</p>
+            {
+              buttonsData.map((buttonData) => renderButton(
+                intl.formatMessage(buttonData.messageId),
+                buttonData,
+              ))
+            }
+          </div>
+
+          {allowRememberChoice ? (
+            <div className={styles.rememberContainer}>
+              <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
+              <label htmlFor="rememderCheckboxId">
+                {intl.formatMessage(intlMessages.rememberChoice)}
+              </label>
+            </div>
+          ) : null}
+        </div>
+        {renderPendingUsers(
+          intl.formatMessage(intlMessages.pendingUsers,
+            { 0: authenticatedUsers.length }),
+          authenticatedUsers,
+          guestUsersCall,
+          intl,
+        )}
+        {renderPendingUsers(
+          intl.formatMessage(intlMessages.pendingGuestUsers,
+            { 0: guestUsers.length }),
+          guestUsers,
+          guestUsersCall,
+          intl,
+        )}
       </div>
+<<<<<<< HEAD
       )}
       {renderPendingUsers(
         intl.formatMessage(intlMessages.pendingUsers,
@@ -328,6 +388,9 @@ const WaitingUsers = (props) => {
         renderNoUserWaitingItem(intl.formatMessage(intlMessages.noPendingUsers))
       )}
     </Styled.Panel>
+=======
+    </div>
+>>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
   );
 };
 
