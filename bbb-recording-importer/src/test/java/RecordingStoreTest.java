@@ -2,11 +2,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.bigbluebutton.api.model.entity.Recording;
 import org.bigbluebutton.api.util.DataStore;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.*;
 
 import java.io.File;
 import java.util.List;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class RecordingStoreTest {
 
     private String metadataDirectory = "metadata/";
@@ -18,7 +19,9 @@ public class RecordingStoreTest {
         DataStore.getInstance().truncateTables();
     }
 
-
+    @Test
+    @DisplayName("Recordings should be properly persisted")
+    @Order(1)
     public void testPersist() {
         dataStore = DataStore.getInstance();
         handler.importRecordings(metadataDirectory, true);
@@ -29,6 +32,9 @@ public class RecordingStoreTest {
         assertEquals(entries.length, recordings.size());
     }
 
+    @Test
+    @DisplayName("Recording should be properly retrieved")
+    @Order(2)
     public void testFind() {
         dataStore = DataStore.getInstance();
         String[] entries = new File(metadataDirectory).list();
