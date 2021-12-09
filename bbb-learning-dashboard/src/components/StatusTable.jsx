@@ -45,6 +45,17 @@ class StatusTable extends React.Component {
       currPeriod += spanMinutes;
     }
 
+    const documentFontSize = Number(window
+      .getComputedStyle(document.body)
+      .fontSize
+      .replace(/px/g, ''));
+
+    // Emoji info
+    const emojiFontSize = documentFontSize * 0.875;
+    const emojiPadding = documentFontSize * 0.25;
+    const borderWidth = 2;
+    const emojiSize = emojiPadding * 2 + emojiFontSize + borderWidth * 2;
+
     return (
       <table className="w-full whitespace-nowrap">
         <thead>
@@ -95,73 +106,79 @@ class StatusTable extends React.Component {
                     const { registeredOn, leftOn } = user;
                     const boundaryLeft = period;
                     const boundaryRight = period + spanMinutes - 1;
+                    const emojiRegisters = [];
                     return (
                       <td className="relative px-4 py-3 text-sm col-text-left">
-                        {
-                          (registeredOn >= boundaryLeft && registeredOn <= boundaryRight)
+                        { (registeredOn >= boundaryLeft && registeredOn <= boundaryRight)
                           || (leftOn >= boundaryLeft && leftOn <= boundaryRight)
                           || (boundaryLeft > registeredOn && boundaryRight < leftOn)
-                          || (boundaryLeft >= registeredOn && leftOn === 0)
-                            ? (
-                              (function makeLineThrough() {
-                                let roundedLeft = registeredOn >= boundaryLeft
-                                  && registeredOn <= boundaryRight ? 'rounded-l' : '';
-                                let roundedRight = leftOn > boundaryLeft
-                                  && leftOn < boundaryRight ? 'rounded-r' : '';
-                                let offsetLeft = 0;
-                                let offsetRight = 0;
-                                if (registeredOn >= boundaryLeft && registeredOn <= boundaryRight) {
-                                  offsetLeft = ((registeredOn - boundaryLeft) * 100) / spanMinutes;
-                                }
-                                if (leftOn >= boundaryLeft && leftOn <= boundaryRight) {
-                                  offsetRight = ((boundaryRight - leftOn) * 100) / spanMinutes;
-                                }
-                                let width = '';
-                                if (offsetLeft === 0 && offsetRight >= 99) {
+                          || (boundaryLeft >= registeredOn && leftOn === 0) ? (
+                            (function makeLineThrough() {
+                              let roundedLeft = registeredOn >= boundaryLeft
+                                && registeredOn <= boundaryRight ? 'rounded-l' : '';
+                              let roundedRight = leftOn > boundaryLeft
+                                && leftOn < boundaryRight ? 'rounded-r' : '';
+                              let offsetLeft = 0;
+                              let offsetRight = 0;
+                              if (registeredOn >= boundaryLeft && registeredOn <= boundaryRight) {
+                                offsetLeft = ((registeredOn - boundaryLeft) * 100) / spanMinutes;
+                              }
+                              if (leftOn >= boundaryLeft && leftOn <= boundaryRight) {
+                                offsetRight = ((boundaryRight - leftOn) * 100) / spanMinutes;
+                              }
+                              let width = '';
+                              if (offsetLeft === 0 && offsetRight >= 99) {
+                                width = 'w-1.5';
+                              }
+                              if (offsetRight === 0 && offsetLeft >= 99) {
+                                width = 'w-1.5';
+                              }
+                              if (offsetLeft && offsetRight) {
+                                const variation = offsetLeft - offsetRight;
+                                if (
+                                  variation > -1 && variation < 1
+                                ) {
                                   width = 'w-1.5';
                                 }
-                                if (offsetRight === 0 && offsetLeft >= 99) {
-                                  width = 'w-1.5';
-                                }
-                                if (offsetLeft && offsetRight) {
-                                  const variation = offsetLeft - offsetRight;
-                                  if (
-                                    variation > -1 && variation < 1
-                                  ) {
-                                    width = 'w-1.5';
-                                  }
-                                }
-                                const isRTL = document.dir === 'rtl';
-                                if (isRTL) {
-                                  const aux = roundedRight;
+                              }
+                              const isRTL = document.dir === 'rtl';
+                              if (isRTL) {
+                                const aux = roundedRight;
 
-                                  if (roundedLeft !== '') roundedRight = 'rounded-r';
-                                  else roundedRight = '';
+                                if (roundedLeft !== '') roundedRight = 'rounded-r';
+                                else roundedRight = '';
 
-                                  if (aux !== '') roundedLeft = 'rounded-l';
-                                  else roundedLeft = '';
-                                }
-                                // height / 2
-                                const redress = '(0.375rem / 2)';
-                                return (
-                                  <div
-                                    className={`h-1.5 ${width} bg-gray-200 absolute inset-x-0 z-10 ${roundedLeft} ${roundedRight}`}
-                                    style={{
-                                      top: `calc(50% - ${redress})`,
-                                      left: `${isRTL ? offsetRight : offsetLeft}%`,
-                                      right: `${isRTL ? offsetLeft : offsetRight}%`,
-                                    }}
-                                  />
-                                );
-                              })()
-                            ) : null
-                        }
+                                if (aux !== '') roundedLeft = 'rounded-l';
+                                else roundedLeft = '';
+                              }
+                              // height / 2
+                              const redress = '(0.375rem / 2)';
+                              return (
+                                <div
+                                  className={`h-1.5 ${width} bg-gray-200 absolute inset-x-0 z-10 ${roundedLeft} ${roundedRight}`}
+                                  style={{
+                                    top: `calc(50% - ${redress})`,
+                                    left: `${isRTL ? offsetRight : offsetLeft}%`,
+                                    right: `${isRTL ? offsetLeft : offsetRight}%`,
+                                  }}
+                                />
+                              );
+                            })()
+                          ) : null }
                         { userEmojisInPeriod.map((emoji) => {
-                          const offset = ((emoji.sentOn - period) * 100) / spanMinutes;
+                          const redress = '(0.875rem / 2 + 0.25rem + 2px)';
                           const origin = document.dir === 'rtl' ? 'right' : 'left';
                           const onFirstCell = period === firstRegisteredOnTime;
-                          // font-size / 2 + padding right/left + border-width
-                          const redress = '(0.875rem / 2 + 0.25rem + 2px)';
+                          let offset = ((emoji.sentOn - period) * 100) / spanMinutes;
+                          emojiRegisters.forEach((register) => {
+                            if (offset >= register && offset <= register + emojiSize) {
+                              offset = register + emojiSize * 0.9;
+                            }
+                          });
+                          const offsetRedressed = offset - emojiFontSize / 2 - emojiPadding - 2;
+                          emojiRegisters.push(onFirstCell && offsetRedressed < 0
+                            ? 0
+                            : offsetRedressed);
                           return (
                             <div
                               className={`flex absolute p-1 border-white border-2 rounded-full text-sm z-20 bg-purple-500 text-purple-200 ${onFirstCell ? 'emojiOnFirstCell' : ''}`}
@@ -174,11 +191,15 @@ class StatusTable extends React.Component {
                                 id: emojiConfigs[emoji.name].intlId,
                                 defaultMessage: emojiConfigs[emoji.name].defaultMessage,
                               })}
+                              onMouseEnter={(e) => { e.target.style.zIndex = '1000'; }}
+                              onMouseLeave={(e) => { e.target.style.zIndex = '20'; }}
+                              onMouseOver={(e) => { e.currentTarget.style.zIndex = '1000'; }}
+                              onFocus={() => {}}
                             >
                               <i className={`${emojiConfigs[emoji.name].icon} text-sm bbb-icon-timeline`} />
                             </div>
                           );
-                        })}
+                        }) }
                       </td>
                     );
                   }) }
