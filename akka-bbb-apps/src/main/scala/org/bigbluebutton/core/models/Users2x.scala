@@ -50,7 +50,7 @@ object Users2x {
   def findAllExpiredUserLeftFlags(users: Users2x, meetingExpireWhenLastUserLeftInMs: Long): Vector[UserState] = {
     if (meetingExpireWhenLastUserLeftInMs > 0) {
       users.toVector filter (u => u.userLeftFlag.left && u.userLeftFlag.leftOn != 0 &&
-        System.currentTimeMillis() - u.userLeftFlag.leftOn > 30000)
+        System.currentTimeMillis() - u.userLeftFlag.leftOn > 10000)
     } else {
       // When meetingExpireWhenLastUserLeftInMs is set zero we need to
       // remove user right away to end the meeting as soon as possible.
