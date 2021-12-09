@@ -38,6 +38,7 @@ function deploy_format() {
 	done
 }
 
+deploy_format "breakout_pdf"
 deploy_format "presentation"
 
 CAPTIONS_DIR=/var/bigbluebutton/captions/
@@ -97,7 +98,7 @@ fi
 
 sudo mv /usr/local/bigbluebutton/core/scripts/*.nginx /etc/bigbluebutton/nginx/
 sudo service nginx reload
-sudo chown -R bigbluebutton:bigbluebutton /var/bigbluebutton/ /var/log/bigbluebutton/
+sudo chown -R bigbluebutton:bigbluebutton /var/bigbluebutton/ /var/log/bigbluebutton/ /usr/local/bigbluebutton/core/
 sudo chown -R red5:red5 /var/bigbluebutton/screenshare/
 
 #cd /usr/local/bigbluebutton/core/

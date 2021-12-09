@@ -41,23 +41,22 @@ BigBlueButton.logger = logger
 
 opts = Trollop.options do
   opt :meeting_id, 'Meeting id to archive', type: String
-  opt :format, 'Playback format name', type: String
 end
 
 # Breakout room meeting ID
 meeting_id = opts[:meeting_id]
-@playback = opts[:format]
 
 props = JavaProperties::Properties.new('/etc/bigbluebutton/bbb-web.properties')
 
-@published_files = "/var/bigbluebutton/published/#{@playback}/#{meeting_id}"
+@published_files = "/var/bigbluebutton/published/breakout_pdf/#{meeting_id}"
 
-metadata = Nokogiri::XML(File.open("#{@published_files}/metadata.xml"))
+metadata_file = "#{@published_files}/metadata.xml"
 
+# Only run script for recorded breakout rooms
+exit(0) unless File.file?(metadata_file) && metadata.xpath('recording/meeting/@breakout').to_s.eql?('true')
+
+metadata = Nokogiri::XML(File.open(metadata_file))
 BigBlueButton.logger.info("Metadata at: #{@published_files}/metadata.xml")
-
-# Only run script for breakout rooms
-exit(0) unless @playback.eql?('breakout_pdf') && metadata.xpath('recording/meeting/@breakout').to_s.eql?('true')
 
 # Setting the SVGZ option to true will write less data on the disk.
 SVGZ_COMPRESSION = false
