@@ -18,52 +18,50 @@ import {
 
 const blurValue = '25px';
 
-// Function to process image to cover container with Virtual background instead of stretch
 function drawImageProp(ctx, img, x, y, w, h, offsetX, offsetY) {
-	if (arguments.length === 2) {
-		x = y = 0;
-		w = ctx.canvas.width;
-		h = ctx.canvas.height;
-	}
+    if (arguments.length === 2) {
+        x = y = 0;
+        w = ctx.canvas.width;
+        h = ctx.canvas.height;
+    }
 
-	// default offset is center
-	offsetX = typeof offsetX === "number" ? offsetX : 0.5;
-	offsetY = typeof offsetY === "number" ? offsetY : 0.5;
+    // Default offset is center
+    offsetX = typeof offsetX === 'number' ? offsetX : 0.5;
+    offsetY = typeof offsetY === 'number' ? offsetY : 0.5;
 
-	// keep bounds [0.0, 1.0]
-	if (offsetX < 0) offsetX = 0;
-	if (offsetY < 0) offsetY = 0;
-	if (offsetX > 1) offsetX = 1;
-	if (offsetY > 1) offsetY = 1;
+    // Keep bounds [0.0, 1.0]
+    if (offsetX < 0) offsetX = 0;
+    if (offsetY < 0) offsetY = 0;
+    if (offsetX > 1) offsetX = 1;
+    if (offsetY > 1) offsetY = 1;
 
-	var iw = img.width,
-		ih = img.height,
-		r = Math.min(w / iw, h / ih),
-		nw = iw * r,   // new prop. width
-		nh = ih * r,   // new prop. height
-		cx, cy, cw, ch, ar = 1;
+    const iw = img.width,
+        ih = img.height,
+        r = Math.min(w / iw, h / ih);
 
-	// decide which gap to fill    
-	if (nw < w) ar = w / nw;                             
-	if (Math.abs(ar - 1) < 1e-14 && nh < h) ar = h / nh;  // updated
-	nw *= ar;
-	nh *= ar;
+    let nw = iw * r,
+        nh = ih * r,
+        cx, cy, cw, ch, ar = 1;
 
-	// calc source rectangle
-	cw = iw / (nw / w);
-	ch = ih / (nh / h);
+    // Decide which gap to fill
+    if (nw < w) ar = w / nw;
+    if (Math.abs(ar - 1) < 1e-14 && nh < h) ar = h / nh;
+    nw *= ar;
+    nh *= ar;
 
-	cx = (iw - cw) * offsetX;
-	cy = (ih - ch) * offsetY;
+    // Calc source rectangle
+    cw = iw / (nw / w);
+    ch = ih / (nh / h);
+    cx = (iw - cw) * offsetX;
+    cy = (ih - ch) * offsetY;
 
-	// make sure source rectangle is valid
-	if (cx < 0) cx = 0;
-	if (cy < 0) cy = 0;
-	if (cw > iw) cw = iw;
-	if (ch > ih) ch = ih;
+    // Make sure source rectangle is valid
+    if (cx < 0) cx = 0;
+    if (cy < 0) cy = 0;
+    if (cw > iw) cw = iw;
+    if (ch > ih) ch = ih;
 
-	// fill image in dest. rectangle
-	ctx.drawImage(img, cx, cy, cw, ch,  x, y, w, h);
+    ctx.drawImage(img, cx, cy, cw, ch, x, y, w, h);
 }
 
 class VirtualBackgroundService {
@@ -152,8 +150,16 @@ class VirtualBackgroundService {
 
         this._outputCanvasCtx.globalCompositeOperation = 'destination-over';
         if (this._options.virtualBackground.isVirtualBackground) {
-		// use drawImageProp to process image to cover container with Virtual background instead of stretch
-            drawImageProp(this._outputCanvasCtx, this._virtualImage, 0, 0, this._inputVideoElement.width, this._inputVideoElement.height, 0.5, 0.5);
+            drawImageProp(
+                this._outputCanvasCtx,
+                this._virtualImage,
+                0,
+                0,
+                this._inputVideoElement.width,
+                this._inputVideoElement.height,
+                0.5,
+                0.5,
+            );
         } else {
             this._outputCanvasCtx.filter = `blur(${blurValue})`;
             this._outputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
