@@ -546,6 +546,7 @@ class VideoPlayer extends Component {
     const desktopHoverToolBarStyle = styles.hoverToolbar;
 
     const hoverToolbarStyle = this.isMobile ? mobileHoverToolBarStyle : desktopHoverToolBarStyle;
+    const isMinimized = width === 0 && height === 0;
 
     return (
       <span
@@ -557,6 +558,7 @@ class VideoPlayer extends Component {
           height,
           width,
           pointerEvents: isResizing ? 'none' : 'inherit',
+          display: isMinimized && 'none',
         }}
       >
         <div
