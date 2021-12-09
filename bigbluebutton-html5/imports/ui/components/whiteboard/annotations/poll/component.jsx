@@ -225,7 +225,7 @@ class PollDrawComponent extends Component {
     const { slideWidth, slideHeight, intl } = this.props;
 
     // group duplicated responses and keep track of the number of removed items
-    const reducedResult = result.reduce(caseInsensitiveReducer, []);
+    const reducedResult = result.reduce(caseInsensitiveReducer, []).sort((a, b) => a.id - b.id);
     const reducedResultRatio = reducedResult.length * 100 / result.length;
 
     // x1 and y1 - coordinates of the top left corner of the annotation
