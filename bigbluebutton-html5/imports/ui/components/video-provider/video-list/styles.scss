@@ -126,13 +126,9 @@
 
 .info {
   position: absolute;
-  display: flex;
-  bottom: 5px;
-  left: 5px;
+  bottom: 1px;
+  left: 7px;
   right: 5px;
-  justify-content: space-between;
-  align-items: center;
-  height: 1.25rem;
   z-index: 2;
 }
 
@@ -164,6 +160,7 @@
 .userName {
   @extend %text-elipsis;
   position: relative;
+  max-width: 75%;
   // Keep the background with 0.5 opacity, but leave the text with 1
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 1px;
@@ -220,6 +217,9 @@
 .muted,
 .voice {
   display: inline-block;
+  position: absolute;
+  right: 7px;
+  bottom: 6px;
   width: var(--audio-indicator-width);
   height: var(--audio-indicator-width);
   min-width: var(--audio-indicator-width);
