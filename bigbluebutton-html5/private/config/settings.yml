@@ -214,6 +214,7 @@ public:
     # Experiment(al). Controls whether ICE candidates should be signaled.
     # Applies to webcams, listen only and screen sharing. True is "stable behavior".
     signalCandidates: true
+    # Forces relay usage only on Firefox. Applies to listen only, webcams and screenshare.
     forceRelayOnFirefox: false
     cameraTimeouts:
       # Base camera timeout: used as the camera *sharing* timeout and
@@ -521,6 +522,9 @@ public:
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
+    # Forces relay usage on all browsers, environments and media modules.
+    # If true, supersedes public.kurento.forceRelayOnFirefox
+    forceRelay: false
     mediaTag: '#remote-media'
     callTransferTimeout: 5000
     callHangupTimeout: 2000
