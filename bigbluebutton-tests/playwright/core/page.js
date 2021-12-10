@@ -67,13 +67,12 @@ class Page {
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
   }
 
-  async getLocator(selector, { timeout, hidden } = { timeout: ELEMENT_WAIT_TIME, hidden: false }) {
-    if (!hidden) await this.waitForSelector(selector, timeout);
+  async getLocator(selector) {
     return this.page.locator(selector);
   }
 
-  async getSelectorCount(selector, timeout = ELEMENT_WAIT_TIME) {
-    const locator = await this.getLocator(selector, timeout);
+  async getSelectorCount(selector) {
+    const locator = await this.getLocator(selector);
     return locator.count();
   }
 
@@ -102,7 +101,7 @@ class Page {
   async waitAndClick(selector, timeout = ELEMENT_WAIT_TIME) {
     await this.waitForSelector(selector, timeout);
     await this.page.focus(selector);
-    await this.page.click(selector);
+    await this.page.click(selector, { timeout });
   }
 
   async checkElement(selector, index = 0) {
@@ -110,7 +109,7 @@ class Page {
   }
 
   async wasRemoved(selector, timeout = ELEMENT_WAIT_TIME) {
-    const locator = await this.getLocator(selector, { hidden: true });
+    const locator = await this.getLocator(selector);
     await expect(locator).toBeHidden({ timeout });
   }
 

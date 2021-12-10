@@ -71,7 +71,7 @@ class Notifications extends MultiUsers {
   async screenshareToast() {
     await utilScreenShare.startScreenshare(this.modPage);
     await util.checkNotificationText(this.modPage, e.startScreenshareToast);
-    await util.clearNotification(this.modPage);
+    await util.waitAndClearNotification(this.modPage);
     await this.modPage.waitAndClick(e.stopScreenSharing);
     await util.checkNotificationText(this.modPage, e.endScreenshareToast);
   }

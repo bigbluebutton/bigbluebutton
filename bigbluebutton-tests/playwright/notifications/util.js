@@ -49,7 +49,7 @@ async function privateChatMessageToast(page2) {
   await page2.waitAndClick(e.sendButton);
 }
 
-async function clearNotification(test) {
+async function waitAndClearNotification(test) {
   await test.waitAndClick(e.smallToastMsg);
   await test.wasRemoved(e.smallToastMsg);
 }
@@ -61,4 +61,4 @@ exports.checkNotificationText = checkNotificationText;
 exports.enableChatPopup = enableChatPopup;
 exports.saveSettings = saveSettings;
 exports.popupMenu = popupMenu;
-exports.clearNotification = clearNotification;
+exports.waitAndClearNotification = waitAndClearNotification;
