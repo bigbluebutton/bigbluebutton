@@ -19,7 +19,6 @@ case class Meeting(
   intId: String,
   extId: String,
   name:  String,
-  learningDashboardAccessToken: String,
   users: Map[String, User] = Map(),
   polls: Map[String, Poll] = Map(),
   screenshares: Vector[Screenshare] = Vector(),
@@ -91,8 +90,9 @@ class LearningDashboardActor(
 ) extends Actor with ActorLogging {
 
   private var meetings: Map[String, Meeting] = Map()
-  private var meetingsLastJsonHash : Map[String,String] = Map()
-  private var meetingExcludedUserIds : Map[String,Vector[String]] = Map()
+  private var meetingAccessTokens: Map[String,String] = Map()
+  private var meetingsLastJsonHash: Map[String,String] = Map()
+  private var meetingExcludedUserIds: Map[String,Vector[String]] = Map()
 
   system.scheduler.schedule(10.seconds, 10.seconds, self, SendPeriodicReport)
 
@@ -373,10 +373,10 @@ class LearningDashboardActor(
         msg.body.props.meetingProp.intId,
         msg.body.props.meetingProp.extId,
         msg.body.props.meetingProp.name,
-        msg.body.props.password.learningDashboardAccessToken,
       )
 
       meetings += (newMeeting.intId -> newMeeting)
+      meetingAccessTokens += (newMeeting.intId -> msg.body.props.password.learningDashboardAccessToken)
 
       log.info(" created for meeting {}.",msg.body.props.meetingProp.intId)
     } else {
@@ -418,7 +418,9 @@ class LearningDashboardActor(
       sendReport(updatedMeeting)
 
       meetings = meetings.-(updatedMeeting.intId)
+      meetingAccessTokens = meetingAccessTokens.-(updatedMeeting.intId)
       meetingExcludedUserIds = meetingExcludedUserIds.-(updatedMeeting.intId)
+      meetingsLastJsonHash = meetingsLastJsonHash.-(updatedMeeting.intId)
       log.info(" removed for meeting {}.",updatedMeeting.intId)
     }
   }
@@ -446,12 +448,16 @@ class LearningDashboardActor(
     val activityJsonHash : String = MessageDigest.getInstance("MD5").digest(activityJson.getBytes).mkString
     if(!meetingsLastJsonHash.contains(meeting.intId) || meetingsLastJsonHash.get(meeting.intId).getOrElse("") != activityJsonHash) {
 
-      val event = MsgBuilder.buildLearningDashboardEvtMsg(meeting.intId, activityJson)
-      outGW.send(event)
+      for {
+        learningDashboardAccessToken <- meetingAccessTokens.get(meeting.intId)
+      } yield {
+        val event = MsgBuilder.buildLearningDashboardEvtMsg(meeting.intId, learningDashboardAccessToken, activityJson)
+        outGW.send(event)
 
-      meetingsLastJsonHash += (meeting.intId -> activityJsonHash)
+        meetingsLastJsonHash += (meeting.intId -> activityJsonHash)
 
-      log.info("Activity Report sent for meeting {}",meeting.intId)
+        log.info("Activity Report sent for meeting {}",meeting.intId)
+      }
     }
   }
 

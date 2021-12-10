@@ -550,10 +550,10 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildLearningDashboardEvtMsg(meetingId: String, activityJson: String): BbbCommonEnvCoreMsg = {
+  def buildLearningDashboardEvtMsg(meetingId: String, learningDashboardAccessToken: String, activityJson: String): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(LearningDashboardEvtMsg.NAME, routing)
-    val body = LearningDashboardEvtMsgBody(activityJson)
+    val body = LearningDashboardEvtMsgBody(learningDashboardAccessToken, activityJson)
     val header = BbbCoreHeaderWithMeetingId(LearningDashboardEvtMsg.NAME, meetingId)
     val event = LearningDashboardEvtMsg(header, body)
 
