@@ -193,10 +193,10 @@ class VideoListItem extends Component {
 
     return (
       <div
-        data-test={voiceUser.talking ? 'webcamItemTalkingUser' : 'webcamItem'}
+        data-test={voiceUser?.talking ? 'webcamItemTalkingUser' : 'webcamItem'}
         className={cx({
           [styles.content]: true,
-          [styles.talking]: voiceUser.talking,
+          [styles.talking]: voiceUser?.talking,
           [styles.fullscreen]: isFullscreenContext,
         })}
       >
@@ -208,7 +208,7 @@ class VideoListItem extends Component {
               className={cx({
                 [styles.connecting]: true,
                 [styles.content]: true,
-                [styles.talking]: voiceUser.talking,
+                [styles.talking]: voiceUser?.talking,
               })}
             >
               <span className={styles.loadingText}>{name}</span>
@@ -274,9 +274,9 @@ class VideoListItem extends Component {
                     </span>
                   </div>
                 )}
-              {voiceUser.muted && !voiceUser.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
-              {voiceUser.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
-              {voiceUser.joined && !voiceUser.muted ? <Icon className={styles.voice} iconName="unmute" /> : null}
+              {voiceUser?.muted && !voiceUser?.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
+              {voiceUser?.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
+              {voiceUser?.joined && !voiceUser?.muted ? <Icon className={styles.voice} iconName="unmute" /> : null}
             </div>
           )}
       </div>
