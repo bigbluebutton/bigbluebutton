@@ -101,11 +101,8 @@ class LearningDashboardActor(
 
   private var meetings: Map[String, Meeting] = Map()
   private var meetingsLastJsonHash : Map[String,String] = Map()
-<<<<<<< HEAD
   private var meetingPresentations : Map[String,Map[String,PresentationVO]] = Map()
-=======
   private var meetingExcludedUserIds : Map[String,Vector[String]] = Map()
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
 
   system.scheduler.schedule(10.seconds, 10.seconds, self, SendPeriodicReport)
 
@@ -172,7 +169,6 @@ class LearningDashboardActor(
     }
   }
 
-<<<<<<< HEAD
   private def handlePresentationConversionCompletedEvtMsg(msg: PresentationConversionCompletedEvtMsg) {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
@@ -241,7 +237,9 @@ class LearningDashboardActor(
         val updatedMeeting = meeting.copy(presentationSlides = meeting.presentationSlides :+ PresentationSlide(presentationId, pageNum))
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
-=======
+    }
+  }
+
   private def handleUserRegisteredRespMsg(msg: UserRegisteredRespMsg): Unit = {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
@@ -251,7 +249,6 @@ class LearningDashboardActor(
          meetingExcludedUserIds.get(meeting.intId).getOrElse(Vector()) :+ msg.body.userId
        })
      }
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
     }
   }
 
