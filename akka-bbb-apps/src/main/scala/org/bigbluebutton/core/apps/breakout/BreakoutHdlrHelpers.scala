@@ -18,6 +18,27 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
       breakoutId:        String
   ) {
     for {
+      (redirectToHtml5JoinURL, redirectJoinURL) <- getRedirectUrls(liveMeeting, userId, externalMeetingId, roomSequence)
+    } yield {
+      sendJoinURLMsg(
+        outGW,
+        liveMeeting.props.meetingProp.intId,
+        breakoutId,
+        externalMeetingId,
+        userId,
+        redirectJoinURL,
+        redirectToHtml5JoinURL
+      )
+    }
+  }
+
+  def getRedirectUrls(
+      liveMeeting:       LiveMeeting,
+      userId:            String,
+      externalMeetingId: String,
+      roomSequence:      String
+  ): Option[(String, String)] = {
+    for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
       apiCall = "join"
       (redirectParams, redirectToHtml5Params) = BreakoutRoomsUtil.joinParams(user.name, userId + "-" + roomSequence, true,
@@ -31,15 +52,7 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
       redirectToHtml5JoinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, redirectToHtml5BaseString,
         BreakoutRoomsUtil.calculateChecksum(apiCall, redirectToHtml5BaseString, bbbWebSharedSecret))
     } yield {
-      sendJoinURLMsg(
-        outGW,
-        liveMeeting.props.meetingProp.intId,
-        breakoutId,
-        externalMeetingId,
-        userId,
-        redirectJoinURL,
-        redirectToHtml5JoinURL
-      )
+      (redirectToHtml5JoinURL, redirectJoinURL)
     }
   }
 
