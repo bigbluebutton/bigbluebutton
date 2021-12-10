@@ -80,7 +80,7 @@ class StatusTable extends React.Component {
                     <td className="px-3.5 2xl:px-4 py-3 text-sm col-text-left">
                       { Object.values(user.intIds).map(({ registeredOn, leftOn }) => (
                         <>
-                          { registeredOn > period && registeredOn < period + spanMinutes ? (
+                          { registeredOn >= period && registeredOn < period + spanMinutes ? (
                             <span title={intl.formatDate(registeredOn, {
                               month: 'short',
                               day: 'numeric',
@@ -132,7 +132,7 @@ class StatusTable extends React.Component {
                                 ))
                             );
                           }()) }
-                          { leftOn > period && leftOn < period + spanMinutes ? (
+                          { leftOn >= period && leftOn < period + spanMinutes ? (
                             <span title={intl.formatDate(leftOn, {
                               month: 'short',
                               day: 'numeric',
