@@ -83,7 +83,7 @@ class UsersTable extends React.Component {
 
     const usersEmojisSummary = {};
     Object.values(allUsers || {}).forEach((user) => {
-      usersEmojisSummary[user.extId] = getUserEmojisSummary(user, 'raiseHand');
+      usersEmojisSummary[user.userKey] = getUserEmojisSummary(user, 'raiseHand');
     });
 
     function getOnlinePercentage(registeredOn, leftOn) {
@@ -97,7 +97,7 @@ class UsersTable extends React.Component {
 
     const usersActivityScore = {};
     Object.values(allUsers || {}).forEach((user) => {
-      usersActivityScore[user.extId] = getActivityScore(user);
+      usersActivityScore[user.userKey] = getActivityScore(user);
     });
 
     return (
@@ -175,10 +175,10 @@ class UsersTable extends React.Component {
           { typeof allUsers === 'object' && Object.values(allUsers || {}).length > 0 ? (
             Object.values(allUsers || {})
               .sort((a, b) => {
-                if (tab === 'overview_activityscore' && usersActivityScore[a.extId] < usersActivityScore[b.extId]) {
+                if (tab === 'overview_activityscore' && usersActivityScore[a.userKey] < usersActivityScore[b.userKey]) {
                   return activityscoreOrder === 'desc' ? 1 : -1;
                 }
-                if (tab === 'overview_activityscore' && usersActivityScore[a.extId] > usersActivityScore[b.extId]) {
+                if (tab === 'overview_activityscore' && usersActivityScore[a.userKey] > usersActivityScore[b.userKey]) {
                   return activityscoreOrder === 'desc' ? -1 : 1;
                 }
                 if (a.isModerator === false && b.isModerator === true) return 1;
@@ -385,11 +385,11 @@ class UsersTable extends React.Component {
                   </td>
                   <td className="px-3.5 2xl:px-4 py-3 text-sm col-text-left">
                     {
-                      Object.keys(usersEmojisSummary[user.extId] || {}).map((emoji) => (
+                      Object.keys(usersEmojisSummary[user.userKey] || {}).map((emoji) => (
                         <div className="text-xs whitespace-nowrap">
                           <i className={`${emojiConfigs[emoji].icon} text-sm`} />
                           &nbsp;
-                          { usersEmojisSummary[user.extId][emoji] }
+                          { usersEmojisSummary[user.userKey][emoji] }
                           &nbsp;
                           <FormattedMessage
                             id={emojiConfigs[emoji].intlId}
@@ -426,16 +426,16 @@ class UsersTable extends React.Component {
                     !user.isModerator ? (
                       <td className="px-3.5 2xl:px-4 py-3 text-sm text-center items">
                         <svg viewBox="0 0 82 12" width="82" height="12" className="flex-none m-auto inline">
-                          <rect width="12" height="12" fill={usersActivityScore[user.extId] > 0 ? '#A7F3D0' : '#e4e4e7'} />
-                          <rect width="12" height="12" x="14" fill={usersActivityScore[user.extId] > 2 ? '#6EE7B7' : '#e4e4e7'} />
-                          <rect width="12" height="12" x="28" fill={usersActivityScore[user.extId] > 4 ? '#34D399' : '#e4e4e7'} />
-                          <rect width="12" height="12" x="42" fill={usersActivityScore[user.extId] > 6 ? '#10B981' : '#e4e4e7'} />
-                          <rect width="12" height="12" x="56" fill={usersActivityScore[user.extId] > 8 ? '#059669' : '#e4e4e7'} />
-                          <rect width="12" height="12" x="70" fill={usersActivityScore[user.extId] === 10 ? '#047857' : '#e4e4e7'} />
+                          <rect width="12" height="12" fill={usersActivityScore[user.userKey] > 0 ? '#A7F3D0' : '#e4e4e7'} />
+                          <rect width="12" height="12" x="14" fill={usersActivityScore[user.userKey] > 2 ? '#6EE7B7' : '#e4e4e7'} />
+                          <rect width="12" height="12" x="28" fill={usersActivityScore[user.userKey] > 4 ? '#34D399' : '#e4e4e7'} />
+                          <rect width="12" height="12" x="42" fill={usersActivityScore[user.userKey] > 6 ? '#10B981' : '#e4e4e7'} />
+                          <rect width="12" height="12" x="56" fill={usersActivityScore[user.userKey] > 8 ? '#059669' : '#e4e4e7'} />
+                          <rect width="12" height="12" x="70" fill={usersActivityScore[user.userKey] === 10 ? '#047857' : '#e4e4e7'} />
                         </svg>
                         &nbsp;
                         <span className="text-xs bg-gray-200 rounded-full px-2">
-                          <FormattedNumber value={usersActivityScore[user.extId]} minimumFractionDigits="0" maximumFractionDigits="1" />
+                          <FormattedNumber value={usersActivityScore[user.userKey]} minimumFractionDigits="0" maximumFractionDigits="1" />
                         </span>
                       </td>
                     ) : <td />
