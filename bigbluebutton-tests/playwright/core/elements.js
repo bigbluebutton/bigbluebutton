@@ -9,6 +9,11 @@ exports.screenShareVideo = 'video[id="screenshareVideo"]';
 exports.closeModal = 'button[data-test="modalDismissButton"]';
 exports.isSharingScreen = 'div[data-test="isSharingScreen"]';
 exports.pdfFileName = '100PagesFile.pdf';
+exports.raiseHandLabel = 'button[data-test="raiseHandLabel"]';
+exports.lowerHandLabel = 'button[data-test="lowerHandLabel"]';
+// Accesskey
+exports.chatButtonKey = '[accesskey="P"]';
+exports.userListButton = '[accesskey="U"]';
 
 // Audio
 exports.joinAudio = 'button[data-test="joinAudio"]';
@@ -149,6 +154,26 @@ exports.multiWhiteboardTool = 'span[data-test="multiWhiteboardTool"]';
 exports.manageUsers = 'button[data-test="manageUsers"]';
 exports.presenterClassName = 'presenter--';
 exports.anyUser = '[data-test^="userListItem"]';
+exports.userList = 'button[aria-label="Users and messages toggle"]';
+exports.mobileUser = 'span[data-test="mobileUser"]';
+exports.connectionStatusBtn = 'button[data-test="connectionStatusButton"]';
+exports.connectionStatusModal = 'div[aria-label="Connection status modal"]';
+exports.dataSavingScreenshare = 'input[data-test="dataSavingScreenshare"]';
+exports.closeConnectionStatusModal = 'button[aria-label="Close Connection status modal"]';
+exports.screenshareLocked = 'button[aria-label="Screenshare locked"]';
+exports.connectionStatusItemEmpty = 'div[data-test="connectionStatusItemEmpty"]';
+exports.connectionStatusItemUser = 'div[data-test="connectionStatusItemUser"]';
+exports.dataSavingWebcams = 'input[data-test="dataSavingWebcams"]';
+exports.connectionStatusOfflineUser = 'div[data-test="offlineUser"]';
+exports.connectionDataContainer = '[class^=networkDataContainer--]';
+exports.connectionNetwordData = '[class^=networkData--]';
+exports.avatarsWrapperAvatar = 'div[data-test="avatarsWrapperAvatar"]';
+exports.guestPolicyLabel = 'li[data-test="guestPolicyLabel"]';
+exports.waitingUsersBtn = 'div[data-test="waitingUsersBtn"]';
+exports.joinMeetingDemoPage = 'div[class^="join-meeting"]';
+exports.askModerator = 'button[data-test="askModerator"]';
+exports.alwaysAccept = 'button[data-test="alwaysAccept"]';
+exports.alwaysDeny = 'button[data-test="alwaysDeny"]';
 
 // Locales
 exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
