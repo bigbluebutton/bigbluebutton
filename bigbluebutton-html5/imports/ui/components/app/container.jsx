@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import React from 'react';
-=======
-import React, { useContext, useEffect, useRef } from 'react';
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
+import React, { useEffect, useRef } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -17,16 +13,13 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
-<<<<<<< HEAD
 import {
   layoutSelect,
   layoutSelectInput,
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
-=======
 import _ from 'lodash';
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
 
 import {
   getFontSize,
@@ -63,11 +56,6 @@ const endMeeting = (code) => {
 };
 
 const AppContainer = (props) => {
-<<<<<<< HEAD
-=======
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-
   function usePrevious(value) {
     const ref = useRef();
     useEffect(() => {
@@ -76,7 +64,6 @@ const AppContainer = (props) => {
     return ref.current;
   }
 
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
   const {
     actionsbar,
     meetingLayout,

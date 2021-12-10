@@ -64,14 +64,13 @@ export default function updateRandomUser(meetingId, userIds, choice, requesterId
     meetingId,
   };
 
-<<<<<<< HEAD
   toggleIndicator();
 
   const numberOfUsers = userIds.length;
 
   const chosenUser = userIds[choice];
 
-  if (choice < 0) { // no viewer
+  if (choice == "") { // no viewer
     userList = [
       [requesterId, intervals[0]],
       [requesterId, 0],
@@ -89,23 +88,6 @@ export default function updateRandomUser(meetingId, userIds, choice, requesterId
       [userIds[0], 0],
       [userIds[0], 0],
     ];
-=======
-  const userList = [];
-  if (choice == "") { // no viewer
-    userList.push([requesterId,0]);
-  } else if (userIds.length == 1) {
-    userList.push([userIds[0],0]);
-  } else {
-    const intervals = [0, 200, 450, 750, 1100, 1500];
-    while (intervals.length > 0) {
-      const userId = userIds[Math.floor(Math.random() * userIds.length )];
-      if (userList.length != 0 && userList[userList.length-1][0] == userId) {// prevent same viewer from being selected sequentially
-        continue;
-      }
-      userList.push([userId, intervals.shift()]);
-    }
-    userList[userList.length-1][0] = choice; // last one should be chosen in akka-app
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
   }
 
   else if (!SELECT_RANDOM_USER_COUNTDOWN) { //  If animation is disabled, we only care about the chosen one

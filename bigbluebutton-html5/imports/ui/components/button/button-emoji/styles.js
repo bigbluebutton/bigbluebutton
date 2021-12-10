@@ -1,6 +1,10 @@
 import styled from 'styled-components';
 import Icon from '../../icon/component';
-import { btnDefaultColor, btnDefaultBg } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  btnDefaultColor,
+  btnDefaultBg,
+  colorBackground,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import { btnSpacing } from '/imports/ui/stylesheets/styled-components/general';
 
 const EmojiButtonIcon = styled(Icon)`
@@ -34,7 +38,7 @@ const EmojiButton = styled.button`
   border-radius: 50%;
   width: 1em;
   height: 1em;
-  right: -1px;
+  right: -.2em;
   bottom: 0;
   background-color: ${btnDefaultBg};
   overflow: hidden;
@@ -51,7 +55,6 @@ const EmojiButton = styled.button`
     top: 0;
     height: 60%;
     left: 0;
-    width: 75%;
     margin-left: 25%;
     font-size: 50%;
     margin-top: 40%;
@@ -59,8 +62,19 @@ const EmojiButton = styled.button`
   }
 `;
 
+const EmojiButtonSpace = styled.div`
+  position: absolute;
+  height: 1.4em;
+  width: 1.4em;
+  background-color: ${colorBackground};
+  right: -.4em;
+  bottom: -.2em;
+  border-radius: 50%;
+`;
+
 export default {
   EmojiButtonIcon,
   Label,
   EmojiButton,
+  EmojiButtonSpace,
 };

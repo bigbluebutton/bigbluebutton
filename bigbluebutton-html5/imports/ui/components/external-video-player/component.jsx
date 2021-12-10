@@ -2,12 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { defineMessages, injectIntl } from 'react-intl';
-<<<<<<< HEAD
-=======
-import ReactPlayer from 'react-player';
 import _ from 'lodash';
-import cx from 'classnames';
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
 import {
   sendMessage,
   onMessage,
@@ -557,11 +552,6 @@ class VideoPlayer extends Component {
       toolbarStyle = 'showMobileHoverToolbar';
     }
 
-<<<<<<< HEAD
-=======
-    const hoverToolbarStyle = this.isMobile ? mobileHoverToolBarStyle : desktopHoverToolBarStyle;
-
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
     return (
       <span
         style={{
@@ -577,13 +567,7 @@ class VideoPlayer extends Component {
         <Styled.VideoPlayerWrapper
           id="video-player"
           data-test="videoPlayer"
-<<<<<<< HEAD
-=======
-          className={cx({
-            [styles.videoPlayerWrapper]: true,
-            [styles.fullscreen]: fullscreenContext,
-          })}
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
+          fullscreen={fullscreenContext}
           ref={(ref) => { this.playerParent = ref; }}
         >
           {
@@ -633,12 +617,8 @@ class VideoPlayer extends Component {
                       handleReload={this.handleReload}
                       label={intl.formatMessage(intlMessages.refreshLabel)}
                     />
-<<<<<<< HEAD
-                  </Styled.HoverToolbar>
-=======
                     {this.renderFullscreenButton()}
-                  </div>
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
+                  </Styled.HoverToolbar>
                 ),
                 (this.isMobile && playing) && (
                   <Styled.MobileControlsOverlay

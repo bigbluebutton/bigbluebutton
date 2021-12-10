@@ -56,10 +56,7 @@ const ButtonEmoji = (props) => {
 
   return (
     <span>
-      <div
-        className={styles.emojiButtonSpace}
-        hidden={hidden}
-      />
+      <Styled.EmojiButtonSpace hidden={hidden} />
       <TooltipContainer title={label}>
         <Styled.EmojiButton
           type="button"

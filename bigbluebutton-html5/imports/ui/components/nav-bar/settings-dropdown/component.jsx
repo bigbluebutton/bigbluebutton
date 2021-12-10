@@ -12,7 +12,7 @@ import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import FullscreenService from '../../fullscreen-button/service';
 import { colorDanger } from '/imports/ui/stylesheets/styled-components/palette';
 import deviceInfo from '/imports/utils/deviceInfo';
-import Styles from './styles';
+import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 
 const intlMessages = defineMessages({
@@ -288,7 +288,7 @@ class SettingsDropdown extends PureComponent {
         accessKey={OPEN_OPTIONS_AK}
         customStyles={!isMobile ? customStyles : null}
         trigger={(
-          <Styles.DropdownButton
+          <Styled.DropdownButton
             state={isDropdownOpen ? 'open' : 'closed'}
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"

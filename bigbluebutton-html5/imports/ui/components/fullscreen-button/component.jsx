@@ -25,11 +25,7 @@ const propTypes = {
   isIphone: PropTypes.bool,
   isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
-<<<<<<< HEAD
-=======
-  className: PropTypes.string,
   handleToggleFullScreen: PropTypes.func.isRequired,
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
   color: PropTypes.string,
   fullScreenStyle: PropTypes.bool,
 };

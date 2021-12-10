@@ -84,11 +84,8 @@ class JoinHandler extends Component {
   }
 
   async fetchToken() {
-<<<<<<< HEAD
     const { hasAlreadyJoined } = this.state;
-=======
     const APP = Meteor.settings.public.app;
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
     if (!this._isMounted) return;
 
     const urlParams = new URLSearchParams(window.location.search);

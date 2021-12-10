@@ -154,21 +154,13 @@ class NavBar extends Component {
             }
         }
       >
-<<<<<<< HEAD
         <Styled.Top>
           <Styled.Left>
-            {!isExpanded ? null
-              : <Styled.ArrowLeft iconName="left_arrow" />}
-            <Styled.NavbarToggleButton
-=======
-        <div className={styles.top}>
-          <div className={styles.left}>
             {isExpanded && document.dir === 'ltr'
-              && <Icon iconName="left_arrow" className={styles.arrowLeft} />}
+              && <Styled.ArrowLeft iconName="left_arrow" />}
             {!isExpanded && document.dir === 'rtl'
-              && <Icon iconName="left_arrow" className={styles.arrowLeft} />}
-            <Button
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
+              && <Styled.ArrowLeft iconName="left_arrow" />}
+            <Styled.NavbarToggleButton
               onClick={this.handleToggleUserList}
               ghost
               circle
@@ -182,22 +174,13 @@ class NavBar extends Component {
               accessKey={TOGGLE_USERLIST_AK}
               hasNotification={hasNotification}
             />
-<<<<<<< HEAD
-            {isExpanded ? null
-              : <Styled.ArrowRight iconName="right_arrow" />}
+            {!isExpanded && document.dir === 'ltr'
+              && <Styled.ArrowRight iconName="right_arrow" />}
+            {isExpanded && document.dir === 'rtl'
+              && <Styled.ArrowRight iconName="right_arrow" />}
           </Styled.Left>
           <Styled.Center>
             <Styled.PresentationTitle>{presentationTitle}</Styled.PresentationTitle>
-=======
-            {!isExpanded && document.dir === 'ltr'
-              && <Icon iconName="right_arrow" className={styles.arrowRight} />}
-            {isExpanded && document.dir === 'rtl'
-              && <Icon iconName="right_arrow" className={styles.arrowRight} />}
-          </div>
-          <div className={styles.center}>
-            <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
-
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
             <RecordingIndicator
               mountModal={mountModal}
               amIModerator={amIModerator}

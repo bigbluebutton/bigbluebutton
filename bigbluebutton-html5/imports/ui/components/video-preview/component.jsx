@@ -741,7 +741,6 @@ class VideoPreview extends Component {
             />
           </Styled.BrowserWarning>
         ) : null}
-<<<<<<< HEAD
         <Styled.Title>
           {intl.formatMessage(intlMessages.webcamSettingsTitle)}
         </Styled.Title>
@@ -749,19 +748,7 @@ class VideoPreview extends Component {
         {this.renderContent()}
 
         <Styled.Footer>
-          {hasVideoStream
-=======
-        <div>
-          <div className={styles.title}>
-            {intl.formatMessage(intlMessages.webcamSettingsTitle)}
-          </div>
-        </div>
-
-        {this.renderContent()}
-
-        <div className={styles.footer}>
           {hasVideoStream && VideoService.isMultipleCamerasEnabled()
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
             ? (
               <Styled.ExtraActions>
                 <Button
@@ -782,15 +769,9 @@ class VideoPreview extends Component {
               onClick={shared ? this.handleStopSharing : this.handleStartSharing}
               disabled={isStartSharingDisabled || isStartSharingDisabled === null || shouldDisableButtons}
             />
-<<<<<<< HEAD
           </Styled.Actions>
         </Styled.Footer>
-      </div>
-=======
-          </div>
-        </div>
       </>
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
     );
   }
 
@@ -817,21 +798,13 @@ class VideoPreview extends Component {
     const allowCloseModal = !!(deviceError || previewError) || !PreviewService.getSkipVideoPreview();
 
     return (
-<<<<<<< HEAD
       <Styled.VideoPreviewModal
-=======
-      <Modal
-        overlayClassName={styles.overlay}
-        className={cx({
-          [styles.modal]: true,
-          [styles.modalPhone]: deviceInfo.isPhone,
-        })}
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
         onRequestClose={this.handleProceed}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
         shouldShowCloseButton={allowCloseModal}
         shouldCloseOnOverlayClick={allowCloseModal}
+        isPhone={deviceInfo.isPhone}
       >
         {deviceInfo.hasMediaDevices
           ? this.renderModalContent()

@@ -1,11 +1,6 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-<<<<<<< HEAD
-=======
-import cx from 'classnames';
-import Button from '/imports/ui/components/button/component';
 import ButtonEmoji from '/imports/ui/components/button/button-emoji/ButtonEmoji';
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
 import VideoService from '../service';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
@@ -104,25 +99,10 @@ const JoinVideoButton = ({
   );
 
   return (
-<<<<<<< HEAD
-    <Styled.VideoButton
-      label={label}
-      data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
-      onClick={handleOnClick}
-      hideLabel
-      color={hasVideoStream ? 'primary' : 'default'}
-      icon={hasVideoStream ? 'video' : 'video_off'}
-      ghost={!hasVideoStream}
-      size="lg"
-      circle
-      disabled={!!disableReason}
-    />
-=======
-    <div className={styles.offsetBottom}>
-      <Button
+    <Styled.OffsetBottom>
+      <Styled.VideoButton
         label={label}
         data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
-        className={cx(hasVideoStream || styles.btn)}
         onClick={handleOnClick}
         hideLabel
         color={hasVideoStream ? 'primary' : 'default'}
@@ -133,8 +113,7 @@ const JoinVideoButton = ({
         disabled={!!disableReason}
       />
       {renderEmojiButton()}
-    </div>
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
+    </Styled.OffsetBottom>
   );
 };
 

@@ -48,12 +48,7 @@ const PresentationOptionsContainer = ({
 
   const isThereCurrentPresentation = hasExternalVideo || hasScreenshare || hasPresentation;
   return (
-<<<<<<< HEAD
     <Styled.RestorePresentationButton
-=======
-    <Button
-      className={cx(!isLayoutSwapped || styles.btn)}
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
       icon={`${buttonType}${isLayoutSwapped ? '_off' : ''}`}
       data-test="restorePresentationButton"
       label={intl.formatMessage(isLayoutSwapped ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}

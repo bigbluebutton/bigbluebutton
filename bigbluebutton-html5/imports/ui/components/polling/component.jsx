@@ -133,29 +133,7 @@ class Polling extends Component {
     const defaultPoll = isDefaultPoll(pollType);
 
     return (
-<<<<<<< HEAD
       <div>
-=======
-      <div className={styles.overlay}>
-        <div
-          data-test="pollingContainer"
-          className={cx({
-            [styles.pollingContainer]: true,
-            [styles.autoWidth]: stackOptions,
-          })}
-          role="alert"
-        >
-          {
-            question.length > 0 && (
-              <span className={styles.qHeader}>
-                <h2 className={styles.qTitle}>
-                  {intl.formatMessage(intlMessages.pollQuestionTitle)}
-                </h2>
-                <div data-test="pollQuestion" className={styles.qText}>{question}</div>
-              </span>
-            )
-          }
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
           {
             poll.pollType !== pollTypes.Response && (
               <span>
@@ -166,15 +144,9 @@ class Polling extends Component {
                     </Styled.PollingTitle>
                   )
                 }
-<<<<<<< HEAD
                 <Styled.PollingAnswers removeColumns={answers.length === 1} stacked={stackOptions}>
                   {answers.map((pollAnswer) => {
-                    const formattedMessageIndex = pollAnswer.key.toLowerCase();
-=======
-                <div className={cx(pollAnswerStyles)}>
-                  {poll.answers.map((pollAnswer) => {
                     const formattedMessageIndex = pollAnswer?.key.toLowerCase();
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
                     let label = pollAnswer.key;
                     if (defaultPoll && pollAnswerIds[formattedMessageIndex]) {
                       label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);

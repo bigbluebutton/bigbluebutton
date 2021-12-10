@@ -157,7 +157,6 @@ const SmartLayout = (props) => {
       ? mediaBounds.width
       : presentationToolbarMinWidth;
 
-<<<<<<< HEAD
     cameraDockBounds.top = mediaAreaBounds.top;
     cameraDockBounds.left = mediaAreaBounds.left;
     cameraDockBounds.right = isRTL ? sidebarSize + (camerasMargin * 2) : null;
@@ -174,57 +173,6 @@ const SmartLayout = (props) => {
       cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_LEFT;
       // button size in vertical position
       cameraDockBounds.height -= 20;
-=======
-    if (input.cameraDock.numCameras > 0) {
-      cameraDockBounds.top = mediaAreaBounds.top;
-      cameraDockBounds.left = mediaAreaBounds.left;
-      cameraDockBounds.right = isRTL ? sidebarSize : null;
-      cameraDockBounds.zIndex = 1;
-
-      if (!isOpen) {
-        cameraDockBounds.width = mediaAreaBounds.width;
-        cameraDockBounds.maxWidth = mediaAreaBounds.width;
-        cameraDockBounds.height = mediaAreaBounds.height;
-        cameraDockBounds.maxHeight = mediaAreaBounds.height;
-        cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_TOP;
-      } else if (mediaBounds.width < mediaAreaBounds.width) {
-        cameraDockBounds.width = mediaAreaBounds.width - mediaBoundsWidth;
-        cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
-        cameraDockBounds.height = mediaAreaBounds.height;
-        cameraDockBounds.maxHeight = mediaAreaBounds.height;
-        cameraDockBounds.left += camerasMargin;
-        cameraDockBounds.width -= (camerasMargin * 2);
-        cameraDockBounds.isCameraHorizontal = true;
-        cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_LEFT;
-        // button size in vertical position
-        cameraDockBounds.height -= 20;
-        cameraDockBounds.right = isRTL ? sidebarSize + (camerasMargin * 2) : null;
-      } else {
-        cameraDockBounds.width = mediaAreaBounds.width;
-        cameraDockBounds.maxWidth = mediaAreaBounds.width;
-        cameraDockBounds.height = mediaAreaBounds.height - mediaBounds.height;
-        cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.8;
-        cameraDockBounds.top += camerasMargin;
-        cameraDockBounds.height -= (camerasMargin * 2);
-        cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_TOP;
-      }
-
-      cameraDockBounds.minWidth = cameraDockBounds.width;
-      cameraDockBounds.minHeight = cameraDockBounds.height;
-
-      if (fullscreen.group === 'webcams') {
-        cameraDockBounds.width = windowWidth();
-        cameraDockBounds.minWidth = windowWidth();
-        cameraDockBounds.maxWidth = windowWidth();
-        cameraDockBounds.height = windowHeight();
-        cameraDockBounds.minHeight = windowHeight();
-        cameraDockBounds.maxHeight = windowHeight();
-        cameraDockBounds.top = 0;
-        cameraDockBounds.left = 0;
-        cameraDockBounds.right = 0;
-        cameraDockBounds.zIndex = 99;
-      }
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
     } else {
       cameraDockBounds.width = mediaAreaBounds.width;
       cameraDockBounds.maxWidth = mediaAreaBounds.width;

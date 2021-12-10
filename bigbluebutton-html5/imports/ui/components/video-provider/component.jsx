@@ -14,15 +14,12 @@ import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/str
 import VideoPreviewService from '../video-preview/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { BBBVideoStream } from '/imports/ui/services/webrtc-base/bbb-video-stream';
-<<<<<<< HEAD
-=======
 import {
   EFFECT_TYPES,
   getSessionVirtualBackgroundInfo,
 } from '/imports/ui/services/virtual-background/service';
 import { notify } from '/imports/ui/services/notification';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
 
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.

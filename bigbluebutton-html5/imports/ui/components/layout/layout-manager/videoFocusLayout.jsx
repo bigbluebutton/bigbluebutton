@@ -237,13 +237,8 @@ const VideoFocusLayout = (props) => {
       mediaBounds.left = mediaAreaBounds.left;
       mediaBounds.top = mediaAreaBounds.top + cameraDockBounds.height;
       mediaBounds.width = mediaAreaBounds.width;
-<<<<<<< HEAD
     } else if (cameraDockInput.numCameras > 0) {
-      mediaBounds.height = windowHeight() - sidebarContentHeight;
-=======
-    } else if (input.cameraDock.numCameras > 0) {
       mediaBounds.height = windowHeight() - sidebarContentHeight - this.bannerAreaHeight();
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
       mediaBounds.left = !isRTL ? sidebarNavWidth : 0;
       mediaBounds.right = isRTL ? sidebarNavWidth : 0;
       mediaBounds.top = sidebarContentHeight + this.bannerAreaHeight();

@@ -201,57 +201,19 @@ const PresentationFocusLayout = (props) => {
           (windowHeight() - cameraDockMinHeight),
         );
       } else {
-<<<<<<< HEAD
         cameraDockHeight = min(
           max(cameraDockInput.height, cameraDockMinHeight),
           (windowHeight() - cameraDockMinHeight),
         );
-=======
-        let cameraDockHeight = 0;
-
-        if (deviceType === DEVICE_TYPE.MOBILE) {
-          cameraDockBounds.top = mediaAreaBounds.top + mediaBounds.height;
-          cameraDockBounds.left = 0;
-          cameraDockBounds.right = 0;
-          cameraDockBounds.minWidth = mediaAreaBounds.width;
-          cameraDockBounds.width = mediaAreaBounds.width;
-          cameraDockBounds.maxWidth = mediaAreaBounds.width;
-          cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
-          cameraDockBounds.height = mediaAreaBounds.height - mediaBounds.height;
-          cameraDockBounds.maxHeight = mediaAreaBounds.height - mediaBounds.height;
-        } else {
-          if (input.cameraDock.height === 0) {
-            cameraDockHeight = min(
-              max((windowHeight() - sidebarContentHeight), DEFAULT_VALUES.cameraDockMinHeight),
-              (windowHeight() - DEFAULT_VALUES.cameraDockMinHeight),
-            );
-          } else {
-            cameraDockHeight = min(
-              max(input.cameraDock.height, DEFAULT_VALUES.cameraDockMinHeight),
-              (windowHeight() - DEFAULT_VALUES.cameraDockMinHeight),
-            );
-          }
-          cameraDockBounds.top = windowHeight() - cameraDockHeight + this.bannerAreaHeight();
-          cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
-          cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
-          cameraDockBounds.minWidth = sidebarContentWidth;
-          cameraDockBounds.width = sidebarContentWidth;
-          cameraDockBounds.maxWidth = sidebarContentWidth;
-          cameraDockBounds.minHeight = DEFAULT_VALUES.cameraDockMinHeight;
-          cameraDockBounds.height = cameraDockHeight - this.bannerAreaHeight();
-          cameraDockBounds.maxHeight = windowHeight() - sidebarContentHeight;
-          cameraDockBounds.zIndex = 1;
-        }
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
       }
-      cameraDockBounds.top = windowHeight() - cameraDockHeight;
+      cameraDockBounds.top = windowHeight() - cameraDockHeight + this.bannerAreaHeight();
       cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.minWidth = sidebarContentWidth;
       cameraDockBounds.width = sidebarContentWidth;
       cameraDockBounds.maxWidth = sidebarContentWidth;
       cameraDockBounds.minHeight = cameraDockMinHeight;
-      cameraDockBounds.height = cameraDockHeight;
+      cameraDockBounds.height = cameraDockHeight - this.bannerAreaHeight();
       cameraDockBounds.maxHeight = windowHeight() - sidebarContentHeight;
       cameraDockBounds.zIndex = 1;
     }
@@ -286,7 +248,6 @@ const PresentationFocusLayout = (props) => {
     return mediaBounds;
   };
 
-<<<<<<< HEAD
   const calculatesLayout = () => {
     const {
       calculatesNavbarBounds,
@@ -299,13 +260,6 @@ const PresentationFocusLayout = (props) => {
       calculatesMediaAreaBounds,
       isTablet,
     } = props;
-=======
-  calculatesLayout() {
-    const { layoutContextState, layoutContextDispatch } = this.props;
-    const { deviceType, input, isRTL } = layoutContextState;
-    const { presentation } = input;
-    const { isOpen } = presentation;
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
     const { captionsMargin } = DEFAULT_VALUES;
 
     const sidebarNavWidth = calculatesSidebarNavWidth();
