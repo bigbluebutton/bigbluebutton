@@ -37,7 +37,6 @@ require 'json'
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 bbb_props = BigBlueButton.read_props
 
-
 # There's a couple of places where stuff is mysteriously divided or multiplied
 # by 2. This is just here to call out how spooky that is.
 $magic_mystery_number = 2
@@ -930,10 +929,10 @@ begin
     BigBlueButton.logger.info("Setting process dir")
     $process_dir = "#{recording_dir}/process/breakout_pdf/#{$meeting_id}"
 
-    BigBlueButton.logger.info("setting publish dir")
+    BigBlueButton.logger.info("Setting publish dir")
     publish_dir = $presentation_props['publish_dir']
 
-    BigBlueButton.logger.info("setting target dir")
+    BigBlueButton.logger.info("Setting target dir")
     target_dir = "#{recording_dir}/publish/breakout_pdf/#{$meeting_id}"
 
     if not FileTest.directory?(target_dir)
@@ -978,9 +977,6 @@ begin
 
         FileUtils.cp_r(package_dir, publish_dir) # Copy all the files.
         BigBlueButton.logger.info("Finished publishing script presentation.rb successfully.")
-
-        export_pdf = system("ruby /usr/local/bigbluebutton/core/scripts/post_publish/export_slides.rb -m #{$meeting_id}")
-        upload = system("ruby /usr/local/bigbluebutton/core/scripts/post_publish/upload_breakout_pdf_main_room.rb -m #{$meeting_id}")
         
         BigBlueButton.logger.info("Removing processed files.")
         FileUtils.rm_r(Dir.glob("#{$process_dir}/*"))
