@@ -80,7 +80,7 @@ class StatusTable extends React.Component {
           </tr>
         </thead>
         <tbody className="bg-white divide-y">
-          { slides && Array.isArray(slides) && slides.shift() && slides.length > 0 ? (
+          { slides && Array.isArray(slides) && slides.length > 0 ? (
             <tr>
               <td />
               { periods.map((period) => {
