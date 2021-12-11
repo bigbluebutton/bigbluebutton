@@ -411,6 +411,7 @@ public class ParamsProcessorUtil {
 
         // Get all the other relevant parameters and generate defaults if none
         // has been provided.
+		String presentationUploadToken = params.get(ApiParams.PRESENTATION_UPLOAD_TOKEN);
         String dialNumber = processDialNumber(params.get(ApiParams.DIAL_NUMBER));
         String logoutUrl = processLogoutUrl(params.get(ApiParams.LOGOUT_URL));
         boolean record = processRecordMeeting(params.get(ApiParams.RECORD));
@@ -581,7 +582,7 @@ public class ParamsProcessorUtil {
                 internalMeetingId, createTime).withName(meetingName)
                 .withMaxUsers(maxUsers).withModeratorPass(modPass)
                 .withViewerPass(viewerPass).withRecording(record)
-                .withDuration(meetingDuration).withLogoutUrl(logoutUrl)
+                .withDuration(meetingDuration).withLogoutUrl(logoutUrl).withPresentationUploadToken(presentationUploadToken)
                 .withLogoutTimer(logoutTimer)
                 .withBannerText(bannerText).withBannerColor(bannerColor)
                 .withTelVoice(telVoice).withWebVoice(webVoice)
