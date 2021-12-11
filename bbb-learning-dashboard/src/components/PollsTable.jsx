@@ -11,7 +11,42 @@ class PollsTable extends React.Component {
       if (typeof user.answers[poll.pollId] !== 'undefined') {
         return user.answers[poll.pollId];
       }
-      return '';
+      return [];
+    }
+
+    if (typeof polls === 'object' && Object.values(polls).length === 0) {
+      return (
+        <div className="flex flex-col items-center py-24">
+          <div className="mb-1 p-3 text-orange-500 rounded-full bg-blue-100 text-blue-500">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+              />
+            </svg>
+          </div>
+          <p className="text-lg font-semibold text-gray-700">
+            <FormattedMessage
+              id="app.learningDashboard.pollsTable.noPollsCreatedHeading"
+              defaultMessage="No polls have been created"
+            />
+          </p>
+          <p className="mb-2 text-sm font-medium text-gray-600">
+            <FormattedMessage
+              id="app.learningDashboard.pollsTable.noPollsCreatedMessage"
+              defaultMessage="Once a poll has been sent to users, their results will appear in this list."
+            />
+          </p>
+        </div>
+      );
     }
 
     return (
@@ -61,35 +96,37 @@ class PollsTable extends React.Component {
                   </td>
 
                   {typeof polls === 'object' && Object.values(polls || {}).length > 0 ? (
-                    Object.values(polls || {}).map((poll) => (
-                      <td className="px-4 py-3 text-sm text-center">
-                        { getUserAnswer(user, poll) }
-                        { poll.anonymous
-                          ? (
-                            <span title={intl.formatMessage({
-                              id: 'app.learningDashboard.pollsTable.anonymousAnswer',
-                              defaultMessage: 'Anonymous Poll (answers in the last row)',
-                            })}
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4 inline"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
+                    Object.values(polls || {})
+                      .sort((a, b) => ((a.createdOn > b.createdOn) ? 1 : -1))
+                      .map((poll) => (
+                        <td className="px-4 py-3 text-sm text-center">
+                          { getUserAnswer(user, poll).map((answer) => <p>{answer}</p>) }
+                          { poll.anonymous
+                            ? (
+                              <span title={intl.formatMessage({
+                                id: 'app.learningDashboard.pollsTable.anonymousAnswer',
+                                defaultMessage: 'Anonymous Poll (answers in the last row)',
+                              })}
                               >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                              </svg>
-                            </span>
-                          )
-                          : null }
-                      </td>
-                    ))
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4 inline"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                  />
+                                </svg>
+                              </span>
+                            )
+                            : null }
+                        </td>
+                      ))
                   ) : null }
                 </tr>
               ))) : null }
@@ -127,11 +164,13 @@ class PollsTable extends React.Component {
               </div>
             </td>
             {typeof polls === 'object' && Object.values(polls || {}).length > 0 ? (
-              Object.values(polls || {}).map((poll) => (
-                <td className="px-4 py-3 text-sm text-center">
-                  { poll.anonymousAnswers.map((answer) => <p>{answer}</p>) }
-                </td>
-              ))
+              Object.values(polls || {})
+                .sort((a, b) => ((a.createdOn > b.createdOn) ? 1 : -1))
+                .map((poll) => (
+                  <td className="px-4 py-3 text-sm text-center">
+                    { poll.anonymousAnswers.map((answer) => <p>{answer}</p>) }
+                  </td>
+                ))
             ) : null }
           </tr>
         </tbody>

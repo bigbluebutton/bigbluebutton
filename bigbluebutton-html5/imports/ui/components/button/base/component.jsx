@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 
 const propTypes = {
   /**
@@ -150,6 +151,19 @@ export default class ButtonBase extends React.Component {
     // Delete setRef callback if it exists
     delete remainingProps.setRef;
 
+    const styleProps = [
+      'ghost',
+      'circle',
+      'block',
+      'hasNotification',
+      'isStyled',
+      'isDownloadable',
+      'animations',
+      'small',
+      'full',
+      'iconRight',
+    ];
+
     return (
       <Component
         ref={this.props.setRef}
@@ -167,7 +181,8 @@ export default class ButtonBase extends React.Component {
         onKeyDown={this.internalKeyDownHandler}
         onKeyUp={this.internalKeyUpHandler}
 
-        {...remainingProps}
+        // remove props used in styled-components
+        {..._.omit(remainingProps, styleProps)}
       >
         {this.props.children}
       </Component>

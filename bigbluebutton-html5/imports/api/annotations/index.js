@@ -1,6 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 
-const Annotations = new Mongo.Collection('annotations');
+const collectionOptions = Meteor.isClient ? {
+  connection: null,
+} : {};
+
+const Annotations = new Mongo.Collection('annotations', collectionOptions);
 
 if (Meteor.isServer) {
   // types of queries for the annotations  (Total):

@@ -1,9 +1,26 @@
 import React from 'react';
 import { FormattedMessage, injectIntl } from 'react-intl';
-import { getUserEmojisSummary, emojiConfigs } from '../services/EmojiService';
+import { emojiConfigs, filterUserEmojis } from '../services/EmojiService';
 import UserAvatar from './UserAvatar';
 
 class StatusTable extends React.Component {
+  componentDidMount() {
+    // This code is needed to prevent the emoji in the first cell
+    // after the username from overflowing
+    const emojis = document.getElementsByClassName('emojiOnFirstCell');
+    for (let i = 0; i < emojis.length; i += 1) {
+      const emojiStyle = window.getComputedStyle(emojis[i]);
+      let offsetLeft = emojiStyle
+        .left
+        .replace(/px/g, '')
+        .trim();
+      offsetLeft = Number(offsetLeft);
+      if (offsetLeft < 0) {
+        emojis[i].style.offsetLeft = '0px';
+      }
+    }
+  }
+
   render() {
     const spanMinutes = 10 * 60000; // 10 minutes default
     const { allUsers, intl } = this.props;
@@ -32,7 +49,7 @@ class StatusTable extends React.Component {
       <table className="w-full whitespace-nowrap">
         <thead>
           <tr className="text-xs font-semibold tracking-wide text-gray-500 uppercase border-b bg-gray-100">
-            <th className="px-4 py-3 col-text-left">
+            <th className="px-4 py-3 col-text-left sticky left-0 z-30 bg-inherit">
               <FormattedMessage id="app.learningDashboard.user" defaultMessage="User" />
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -58,8 +75,8 @@ class StatusTable extends React.Component {
                 return 0;
               })
               .map((user) => (
-                <tr className="text-gray-700">
-                  <td className="px-4 py-3">
+                <tr className="text-gray-700 bg-inherit">
+                  <td className="bg-inherit sticky left-0 z-30 px-4 py-3">
                     <div className="flex items-center text-sm">
                       <div className="relative hidden w-8 h-8 rounded-full md:block">
                         <UserAvatar user={user} />
@@ -71,81 +88,97 @@ class StatusTable extends React.Component {
                     </div>
                   </td>
                   { periods.map((period) => {
-                    const userEmojisInPeriod = getUserEmojisSummary(user,
+                    const userEmojisInPeriod = filterUserEmojis(user,
                       null,
                       period,
                       period + spanMinutes);
+                    const { registeredOn, leftOn } = user;
+                    const boundaryLeft = period;
+                    const boundaryRight = period + spanMinutes - 1;
                     return (
-                      <td className="px-4 py-3 text-sm col-text-left">
+                      <td className="relative px-4 py-3 text-sm col-text-left">
                         {
-                          user.registeredOn > period && user.registeredOn < period + spanMinutes
+                          (registeredOn >= boundaryLeft && registeredOn <= boundaryRight)
+                          || (leftOn >= boundaryLeft && leftOn <= boundaryRight)
+                          || (boundaryLeft > registeredOn && boundaryRight < leftOn)
+                          || (boundaryLeft >= registeredOn && leftOn === 0)
                             ? (
-                              <span title={intl.formatDate(user.registeredOn, {
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                second: '2-digit',
-                              })}
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="h-4 w-4 text-xs text-green-400"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                              (function makeLineThrough() {
+                                let roundedLeft = registeredOn >= boundaryLeft
+                                  && registeredOn <= boundaryRight ? 'rounded-l' : '';
+                                let roundedRight = leftOn > boundaryLeft
+                                  && leftOn < boundaryRight ? 'rounded-r' : '';
+                                let offsetLeft = 0;
+                                let offsetRight = 0;
+                                if (registeredOn >= boundaryLeft && registeredOn <= boundaryRight) {
+                                  offsetLeft = ((registeredOn - boundaryLeft) * 100) / spanMinutes;
+                                }
+                                if (leftOn >= boundaryLeft && leftOn <= boundaryRight) {
+                                  offsetRight = ((boundaryRight - leftOn) * 100) / spanMinutes;
+                                }
+                                let width = '';
+                                if (offsetLeft === 0 && offsetRight >= 99) {
+                                  width = 'w-1.5';
+                                }
+                                if (offsetRight === 0 && offsetLeft >= 99) {
+                                  width = 'w-1.5';
+                                }
+                                if (offsetLeft && offsetRight) {
+                                  const variation = offsetLeft - offsetRight;
+                                  if (
+                                    variation > -1 && variation < 1
+                                  ) {
+                                    width = 'w-1.5';
+                                  }
+                                }
+                                const isRTL = document.dir === 'rtl';
+                                if (isRTL) {
+                                  const aux = roundedRight;
+
+                                  if (roundedLeft !== '') roundedRight = 'rounded-r';
+                                  else roundedRight = '';
+
+                                  if (aux !== '') roundedLeft = 'rounded-l';
+                                  else roundedLeft = '';
+                                }
+                                // height / 2
+                                const redress = '(0.375rem / 2)';
+                                return (
+                                  <div
+                                    className={`h-1.5 ${width} bg-gray-200 absolute inset-x-0 z-10 ${roundedLeft} ${roundedRight}`}
+                                    style={{
+                                      top: `calc(50% - ${redress})`,
+                                      left: `${isRTL ? offsetRight : offsetLeft}%`,
+                                      right: `${isRTL ? offsetLeft : offsetRight}%`,
+                                    }}
                                   />
-                                </svg>
-                              </span>
+                                );
+                              })()
                             ) : null
                         }
-                        { Object.keys(userEmojisInPeriod)
-                          .map((emoji) => (
-                            <div className="text-sm text-gray-800">
-                              <i className={`${emojiConfigs[emoji].icon} text-sm`} />
-                            &nbsp;
-                              { userEmojisInPeriod[emoji] }
-                            &nbsp;
-                              <FormattedMessage
-                                id={emojiConfigs[emoji].intlId}
-                                defaultMessage={emojiConfigs[emoji].defaultMessage}
-                              />
+                        { userEmojisInPeriod.map((emoji) => {
+                          const offset = ((emoji.sentOn - period) * 100) / spanMinutes;
+                          const origin = document.dir === 'rtl' ? 'right' : 'left';
+                          const onFirstCell = period === firstRegisteredOnTime;
+                          // font-size / 2 + padding right/left + border-width
+                          const redress = '(0.875rem / 2 + 0.25rem + 2px)';
+                          return (
+                            <div
+                              className={`flex absolute p-1 border-white border-2 rounded-full text-sm z-20 bg-purple-500 text-purple-200 ${onFirstCell ? 'emojiOnFirstCell' : ''}`}
+                              role="status"
+                              style={{
+                                top: `calc(50% - ${redress})`,
+                                [origin]: `calc(${offset}% - ${redress})`,
+                              }}
+                              title={intl.formatMessage({
+                                id: emojiConfigs[emoji.name].intlId,
+                                defaultMessage: emojiConfigs[emoji.name].defaultMessage,
+                              })}
+                            >
+                              <i className={`${emojiConfigs[emoji.name].icon} text-sm bbb-icon-timeline`} />
                             </div>
-                          )) }
-                        {
-                          user.leftOn > period && user.leftOn < period + spanMinutes
-                            ? (
-                              <span title={intl.formatDate(user.leftOn, {
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                second: '2-digit',
-                              })}
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="h-4 w-4 text-red-400"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                                  />
-                                </svg>
-                              </span>
-                            ) : null
-                        }
+                          );
+                        })}
                       </td>
                     );
                   }) }

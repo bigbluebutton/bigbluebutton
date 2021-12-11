@@ -48,7 +48,6 @@
     "lodash": "^4.17.21",
     "makeup-screenreader-trap": "0.0.5",
     "meteor-node-stubs": "^1.0.3",
-    "node-sass": "^6.0.1",
     "postcss-nested": "^5.0.5",
     "probe-image-size": "^4.1.1",
     "prop-types": "^15.7.2",
@@ -104,19 +103,6 @@
   },
   "resolutions": {
     "trim-newlines": "^4.0.1"
-  },
-  "cssModules": {
-    "cssClassNamingConvention": {
-      "template": "${name}--${shorthash.unique(scopedName)}"
-    },
-    "extensions": [
-      "scss"
-    ],
-    "postcssPlugins": {
-      "postcss-modules-local-by-default": {},
-      "postcss-modules-extract-imports": {},
-      "postcss-modules-scope": {}
-    }
   },
   "repository": {
     "type": "git",

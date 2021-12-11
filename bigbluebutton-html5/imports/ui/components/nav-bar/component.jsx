@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
 import RecordingIndicator from './recording-indicator/container';
@@ -50,19 +49,11 @@ class NavBar extends Component {
 
   componentDidMount() {
     const {
-      processOutsideToggleRecording,
-      connectRecordingObserver,
       shortcuts: TOGGLE_USERLIST_AK,
     } = this.props;
 
     const { isFirefox } = browserInfo;
     const { isMacos } = deviceInfo;
-
-    if (Meteor.settings.public.allowOutsideCommands.toggleRecording
-      || getFromUserSettings('bbb_outside_toggle_recording', false)) {
-      connectRecordingObserver();
-      window.addEventListener('message', processOutsideToggleRecording);
-    }
 
     // accessKey U does not work on firefox for macOS for some unknown reason
     if (isMacos && isFirefox && TOGGLE_USERLIST_AK === 'U') {

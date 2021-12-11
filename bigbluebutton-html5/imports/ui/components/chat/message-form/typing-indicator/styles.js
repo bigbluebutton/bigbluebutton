@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { colorDanger, colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
 import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
-import { fontSizeSmaller, fontSizeMD, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeSmaller, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 
 const SingleTyper = styled.span`
   overflow: hidden;
@@ -29,7 +29,6 @@ const TypingIndicator = styled.span`
     display: block;
     margin-right: 0.05rem;
     margin-left: 0.05rem;
-    line-height: ${fontSizeMD};
   }
 
   text-align: left;

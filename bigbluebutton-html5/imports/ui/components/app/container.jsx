@@ -3,8 +3,8 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/ui/local-collections/users-collection/users';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 import { notify } from '/imports/ui/services/notification';
 import CaptionsContainer from '/imports/ui/components/captions/container';
 import CaptionsService from '/imports/ui/components/captions/service';
@@ -13,11 +13,11 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
-import { 
-  layoutSelect, 
-  layoutSelectInput, 
-  layoutSelectOutput, 
-  layoutDispatch 
+import {
+  layoutSelect,
+  layoutSelectInput,
+  layoutSelectOutput,
+  layoutDispatch,
 } from '../layout/context';
 
 import {
@@ -119,10 +119,6 @@ const currentUserEmoji = (currentUser) => (currentUser
 );
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
-  if (Auth.connectionID !== Meteor.connection._lastSessionId) {
-    endMeeting('403');
-  }
-
   Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
     removed() {
       endMeeting('403');
@@ -168,7 +164,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
-    && (viewScreenshare || MediaService.isUserPresenter());
+    && (viewScreenshare || currentUser?.presenter);
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
 
   if (!customStyleUrl && CUSTOM_STYLE_URL) {

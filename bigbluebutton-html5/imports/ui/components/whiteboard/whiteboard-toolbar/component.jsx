@@ -4,7 +4,6 @@ import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
 import { defineMessages, injectIntl } from 'react-intl';
 import KEY_CODES from '/imports/utils/keyCodes';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import { styles } from './styles.scss';
 import Styled from './styles';
 import ToolbarMenuItem from './toolbar-menu-item/component';
 import ToolbarSubmenu from './toolbar-submenu/component';
@@ -825,7 +824,7 @@ class WhiteboardToolbar extends Component {
     const { isPresenter, intl } = this.props;
     return (
       <Styled.ToolbarContainer role="region" aria-label={intl.formatMessage(intlMessages.toolbarAriaLabel)}>
-        <div className={styles.toolbarWrapper}>
+        <Styled.ToolbarWrapper>
           {this.renderToolItem()}
           {annotationSelected.value === 'text' ? this.renderFontItem() : this.renderThicknessItem()}
           {this.renderColorItem()}
@@ -833,7 +832,7 @@ class WhiteboardToolbar extends Component {
           {this.renderClearAllItem()}
           {window.PointerEvent ? this.renderPalmRejectionItem() : null}
           {isPresenter ? this.renderMultiUserItem() : null}
-        </div>
+        </Styled.ToolbarWrapper>
       </Styled.ToolbarContainer>
     );
   }

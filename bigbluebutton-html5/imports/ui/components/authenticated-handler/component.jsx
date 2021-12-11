@@ -17,7 +17,7 @@ class AuthenticatedHandler extends Component {
   }
 
   static updateStatus(status, lastStatus) {
-    return status.retryCount > 0 && lastStatus !== STATUS_CONNECTING ? status.status : lastStatus;
+    return lastStatus !== STATUS_CONNECTING ? status.status : lastStatus;
   }
 
   static addReconnectObservable() {
@@ -27,6 +27,7 @@ class AuthenticatedHandler extends Component {
       lastStatus = AuthenticatedHandler.updateStatus(Meteor.status(), lastStatus);
 
       if (AuthenticatedHandler.shouldAuthenticate(Meteor.status(), lastStatus)) {
+        Session.set('userWillAuth', true);
         Auth.authenticate(true);
         lastStatus = Meteor.status().status;
       }
