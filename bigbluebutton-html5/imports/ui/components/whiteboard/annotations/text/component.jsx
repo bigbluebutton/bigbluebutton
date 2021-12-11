@@ -148,7 +148,7 @@ export default class TextDrawComponent extends Component {
     const styles = TextDrawComponent.getViewerStyles(results);
 
     return (
-      <g>
+      <g id={annotation.id} className="selectable">
         <RenderInBrowser only firefox>
           <clipPath id={annotation.id}>
             <rect
@@ -179,7 +179,7 @@ export default class TextDrawComponent extends Component {
     const styles = TextDrawComponent.getPresenterStyles(results);
 
     return (
-      <g className="selectable" id={annotation.id}>
+      <g>
         <foreignObject
           x={results.x}
           y={results.y}
