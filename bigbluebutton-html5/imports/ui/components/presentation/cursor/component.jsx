@@ -42,7 +42,6 @@ export default class Cursor extends Component {
     };
 
     if (presenter) {
-      obj.fill = 'red';
       obj.labelColor = cursorColorPresenter;
       obj.fillFg = cursorColorPresenter;
     }
@@ -69,7 +68,6 @@ export default class Cursor extends Component {
         }
         break;
     }
-
     return obj;
   }
 
