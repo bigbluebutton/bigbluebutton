@@ -308,7 +308,7 @@ export default class Cursor extends Component {
           cy={y}
           r={finalRadius}
         /> : null}
-        {this.displayLabel
+        {displayLabel
           ? (
             <g>
               <rect
