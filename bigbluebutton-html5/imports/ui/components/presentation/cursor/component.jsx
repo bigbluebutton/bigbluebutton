@@ -22,17 +22,52 @@ export default class Cursor extends Component {
   }
 
   static getFillAndLabel(presenter, isMultiUser) {
+    const wbConf = Meteor.settings.public.whiteboard;
+    const cursorColorNonPresenter = wbConf.cursorColorNonPresenter ? wbConf.cursorColorNonPresenter : '#00ff00';
+    const cursorColorPresenter = wbConf.cursorColor ? wbConf.cursorColor : '#ff0000';
+    const cursorColorNonPresenterXor = '#' + ('000000' + (('0xffffff' ^ '0x'+cursorColorNonPresenter.slice(-6)).toString(16))).slice(-6);
+    const cursorColorPresenterXor = '#' + ('000000' + (('0xffffff' ^ '0x'+cursorColorPresenter.slice(-6)).toString(16))).slice(-6);
+    
     const obj = {
-      fill: 'green',
+      labelColor: cursorColorNonPresenter,
+      showFg: true,
+      fillFg: cursorColorNonPresenter,
+      blendFg: 'normal',
+      opacityFg: 0.6,
+      showBg: false,
+      fillBg: '#ffffff',
+      blendBg: 'difference',
+      opacityBg: 1.0,
       displayLabel: false,
     };
 
     if (presenter) {
       obj.fill = 'red';
+      obj.labelColor = cursorColorPresenter;
+      obj.fillFg = cursorColorPresenter;
     }
 
     if (isMultiUser) {
       obj.displayLabel = true;
+    }
+
+    switch (wbConf.cursorMode) {
+      case 'border':
+        obj.showBg = true;
+        break;
+      case 'complementary':
+        obj.fillFg = '#ffffff';
+        obj.blendFg = 'difference';
+        obj.opacityFg = 1.0;
+        break;
+      case 'xorcolor':
+        obj.fillFg = cursorColorNonPresenterXor;
+        obj.blendFg = 'difference';
+        obj.opacityFg = 1.0;
+        if (presenter) {
+          obj.fillFg = cursorColorPresenterXor;
+        }
+        break;
     }
 
     return obj;
@@ -47,6 +82,7 @@ export default class Cursor extends Component {
       // Adjust the radius of the cursor according to zoom
       // and divide it by the physicalWidth ratio, so that svg scaling wasn't applied to the cursor
       finalRadius: props.radius * scaleFactor,
+      finalRadiusBg: props.radius * scaleFactor * 1.1,
       // scaling the properties for cursorLabel and the border (rect) around it
       cursorLabelText: {
         textDY: props.cursorLabelText.textDY * scaleFactor,
@@ -96,8 +132,28 @@ export default class Cursor extends Component {
       slideHeight,
     );
 
-    const { fill, displayLabel } = Cursor.getFillAndLabel(presenter, isMultiUser);
-    this.fill = fill;
+    const {
+      labelColor,
+      showFg,
+      fillFg,
+      blendFg,
+      opacityFg,
+      showBg,
+      fillBg,
+      blendBg,
+      opacityBg,
+      displayLabel,
+    } = Cursor.getFillAndLabel(presenter, isMultiUser);
+
+    this.labelColor = labelColor;
+    this.showFg = showFg;
+    this.fillFg = fillFg;
+    this.blendFg = blendFg;
+    this.opacityFg = opacityFg;
+    this.showBg = showBg;
+    this.fillBg = fillBg;
+    this.blendBg = blendBg;
+    this.opacityBg = opacityBg;
     this.displayLabel = displayLabel;
     // we need to find the BBox of the text, so that we could set a proper border box arount it
   }
@@ -131,12 +187,13 @@ export default class Cursor extends Component {
     } = prevState;
 
     if (presenter !== prevProps.presenter || isMultiUser !== prevProps.isMultiUser) {
-      const { fill, displayLabel } = Cursor.getFillAndLabel(
+      const { labelColor, fillFg, displayLabel } = Cursor.getFillAndLabel(
         presenter,
         isMultiUser,
       );
       this.displayLabel = displayLabel;
-      this.fill = fill;
+      this.fillFg = fillFg;
+      this.labelColor = labelColor;
     }
 
     if ((widthRatio !== prevProps.widthRatio
@@ -198,7 +255,16 @@ export default class Cursor extends Component {
     
     const {
       cursorCoordinate,
-      fill,
+      labelColor,
+      showFg,
+      fillFg,
+      blendFg,
+      opacityFg,
+      showBg,
+      fillBg,
+      blendBg,
+      opacityBg,
+      displayLabel,
     } = this;
     
     if (!scaledSizes) return null;
@@ -206,6 +272,7 @@ export default class Cursor extends Component {
       cursorLabelBox,
       cursorLabelText,
       finalRadius,
+      finalRadiusBg,
     } = scaledSizes;
 
     const {
@@ -221,13 +288,28 @@ export default class Cursor extends Component {
         x={x}
         y={y}
       >
+        {showBg ?
         <circle
+          style={{
+            mixBlendMode: blendBg,
+            fill: fillBg,
+            fillOpacity: opacityBg,
+          }}
+          cx={x}
+          cy={y}
+          r={finalRadiusBg}
+        /> : null}
+        {showFg ?
+        <circle
+          style={{
+            mixBlendMode: blendFg,
+            fill: fillFg,
+            fillOpacity: opacityFg,
+          }}
           cx={x}
           cy={y}
           r={finalRadius}
-          fill={fill}
-          fillOpacity="0.6"
-        />
+        /> : null}
         {this.displayLabel
           ? (
             <g>
@@ -239,7 +321,7 @@ export default class Cursor extends Component {
                 width={cursorLabelBox.width}
                 height={cursorLabelBox.height}
                 strokeWidth={cursorLabelBox.strokeWidth}
-                stroke={fill}
+                stroke={labelColor}
                 strokeOpacity="0.8"
               />
               <text
@@ -250,7 +332,7 @@ export default class Cursor extends Component {
                 dx={cursorLabelText.textDX}
                 fontFamily="Arial"
                 fontWeight="600"
-                fill={fill}
+                fill={labelColor}
                 fillOpacity="0.8"
                 fontSize={cursorLabelText.fontSize}
                 clipPath={`url(#${cursorId})`}
