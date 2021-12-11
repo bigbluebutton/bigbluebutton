@@ -53,9 +53,12 @@ props = JavaProperties::Properties.new('/etc/bigbluebutton/bbb-web.properties')
 metadata_file = "#{@published_files}/metadata.xml"
 
 # Only run script for recorded breakout rooms
-exit(0) unless File.file?(metadata_file) && metadata.xpath('recording/meeting/@breakout').to_s.eql?('true')
+exit(0) unless File.file?(metadata_file)
 
 metadata = Nokogiri::XML(File.open(metadata_file))
+
+exit(0) unless metadata.xpath('recording/meeting/@breakout').to_s.eql?('true')
+
 BigBlueButton.logger.info("Metadata at: #{@published_files}/metadata.xml")
 
 # Setting the SVGZ option to true will write less data on the disk.
