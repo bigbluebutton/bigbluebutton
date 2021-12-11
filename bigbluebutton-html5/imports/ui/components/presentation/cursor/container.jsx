@@ -11,10 +11,12 @@ class CursorContainer extends Component {
     const { cursorX, cursorY } = this.props;
 
     if (cursorX > 0 && cursorY > 0) {
+      const cursorSize = Meteor.settings.public.whiteboard.cursorSize;
       return (
         <Cursor
           cursorX={cursorX}
           cursorY={cursorY}
+          radius={cursorSize}
           setLabelBoxDimensions={this.setLabelBoxDimensions}
           {...this.props}
         />
