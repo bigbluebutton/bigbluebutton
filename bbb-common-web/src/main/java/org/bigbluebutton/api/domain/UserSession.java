@@ -44,6 +44,7 @@ public class UserSession {
   public String avatarURL;
   public String guestStatus = GuestPolicy.ALLOW;
   public String clientUrl = null;
+  public Boolean excludeFromDashboard = false;
 
   private AtomicInteger connections = new AtomicInteger(0);
   

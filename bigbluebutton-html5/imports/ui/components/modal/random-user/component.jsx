@@ -126,7 +126,8 @@ class RandomUserSelect extends Component {
     const counter = SELECT_RANDOM_USER_COUNTDOWN ? this.state.count : 0;
     if (mappedRandomlySelectedUsers.length < counter + 1) return null;
 
-    const selectedUser = mappedRandomlySelectedUsers[counter][0];
+    const selectedUser = SELECT_RANDOM_USER_COUNTDOWN ? mappedRandomlySelectedUsers[counter][0] :
+      mappedRandomlySelectedUsers[mappedRandomlySelectedUsers.length - 1][0];
     const countDown = SELECT_RANDOM_USER_COUNTDOWN ?
       mappedRandomlySelectedUsers.length - this.state.count - 1 : 0;
 

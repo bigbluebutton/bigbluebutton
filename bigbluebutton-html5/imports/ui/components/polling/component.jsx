@@ -149,7 +149,7 @@ class Polling extends Component {
                 }
                 <div className={cx(pollAnswerStyles)}>
                   {poll.answers.map((pollAnswer) => {
-                    const formattedMessageIndex = pollAnswer.key.toLowerCase();
+                    const formattedMessageIndex = pollAnswer?.key.toLowerCase();
                     let label = pollAnswer.key;
                     if (defaultPoll && pollAnswerIds[formattedMessageIndex]) {
                       label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
@@ -245,7 +245,7 @@ Polling.propTypes = {
     pollId: PropTypes.string.isRequired,
     answers: PropTypes.arrayOf(PropTypes.shape({
       id: PropTypes.number.isRequired,
-      key: PropTypes.string.isRequired,
+      key: PropTypes.string,
     }).isRequired).isRequired,
   }).isRequired,
 };

@@ -12,8 +12,8 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-async function createMeeting(params, meetingId, customParameter) {
-  const meetingID = meetingId || `random-${getRandomInt(1000000, 10000000).toString()}`;
+async function createMeeting(params, customParameter) {
+  const meetingID = `random-${getRandomInt(1000000, 10000000).toString()}`;
   const mp = params.moderatorPW;
   const ap = params.attendeePW;
   const query = customParameter !== undefined ? `name=${meetingID}&meetingID=${meetingID}&attendeePW=${ap}&moderatorPW=${mp}&joinViaHtml5=true`
@@ -36,6 +36,13 @@ function getJoinURL(meetingID, params, moderator, customParameter) {
   return `${params.server}/join?${query}&checksum=${checksum}`;
 }
 
+function sleep(time) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, time);
+  });
+}
+
 exports.getRandomInt = getRandomInt;
 exports.createMeeting = createMeeting;
 exports.getJoinURL = getJoinURL;
+exports.sleep = sleep;

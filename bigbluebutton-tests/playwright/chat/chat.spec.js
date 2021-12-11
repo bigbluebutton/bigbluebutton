@@ -1,6 +1,7 @@
 const { test } = require('@playwright/test');
 const { Send } = require('./send');
 const { Clear } = require('./clear');
+const { Copy } = require('./copy');
 const { Save } = require('./save');
 
 test.describe.parallel('Chat test suite', () => {
@@ -14,6 +15,13 @@ test.describe.parallel('Chat test suite', () => {
     const clear = new Clear(browser, page);
     await clear.init(true, true);
     await clear.test();
+  });
+
+  test('Copy chat', async ({ browser, context, page }) => {
+    test.fixme(true, 'Only works in headed mode');
+    const copy = new Copy(browser, page);
+    await copy.init(true, true);
+    await copy.test(context);
   });
 
   test('Save chat', async ({ browser, page }) => {

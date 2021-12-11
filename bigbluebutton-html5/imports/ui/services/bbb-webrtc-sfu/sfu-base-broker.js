@@ -25,6 +25,7 @@ class BaseBroker {
     this.started = false;
     this.signallingTransportOpen = false;
     this.logCodePrefix = `${this.sfuComponent}_broker`;
+    this.peerConfiguration = {};
 
     this.onbeforeunload = this.onbeforeunload.bind(this);
     window.addEventListener('beforeunload', this.onbeforeunload);
@@ -168,13 +169,23 @@ class BaseBroker {
     }
   }
 
-  addIceServers (options) {
-    if (this.iceServers && this.iceServers.length > 0) {
-      options.configuration = {};
-      options.configuration.iceServers = this.iceServers;
+  populatePeerConfiguration () {
+    this.addIceServers();
+    if (this.forceRelay) {
+      this.setRelayTransportPolicy();
     }
 
-    return options;
+    return this.peerConfiguration;
+  }
+
+  addIceServers () {
+    if (this.iceServers && this.iceServers.length > 0) {
+      this.peerConfiguration.iceServers = this.iceServers;
+    }
+  }
+
+  setRelayTransportPolicy () {
+    this.peerConfiguration.iceTransportPolicy = 'relay';
   }
 
   handleConnectionStateChange (eventIdentifier) {

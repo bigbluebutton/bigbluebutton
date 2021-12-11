@@ -382,6 +382,24 @@ class AudioManager {
     return bridge.exitAudio();
   }
 
+  forceExitAudio() {
+    this.isConnected = false;
+    this.isConnecting = false;
+    this.isHangingUp = false;
+
+    if (this.inputStream) {
+      this.inputStream.getTracks().forEach((track) => track.stop());
+      this.inputStream = null;
+      this.inputDevice = { id: 'default' };
+    }
+
+    window.parent.postMessage({ response: 'notInAudio' }, '*');
+    window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
+
+    const bridge = (this.useKurento && this.isListenOnly) ? this.listenOnlyBridge : this.bridge;
+    return bridge.exitAudio();
+  }
+
   transferCall() {
     this.onTransferStart();
     return this.bridge.transferCall(this.onAudioJoin.bind(this));
