@@ -470,9 +470,9 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   end
   if  shape[:type] == 'rectangle' or
       shape[:type] == 'ellipse' or shape[:type] == 'triangle'
-    fill = event.at_xpath('fill').text
-    fill = ""
-    shape[:fill] = fill =~ /true/ ? true : false
+      fill = event.at_xpath('fill')
+      fill = fill.nil? ? "false" : fill.text
+      shape[:fill] = fill =~ /true/ ? true : false
   end
   if shape[:type] == 'rectangle'
     square = event.at_xpath('square')
@@ -955,18 +955,17 @@ begin
                         @doc, 0, 9, 0)
         $version_atleast_2_0_0 = BigBlueButton::Events.bbb_version_compare(
                         @doc, 2, 0, 0)
-        BigBlueButton.logger.info("Creating metadata.xml")
         # Get the real-time start and end timestamp
         match = /.*-(\d+)$/.match($meeting_id)
         real_start_time = match[1]
         real_end_time = (real_start_time.to_i + ($meeting_end.to_i - $meeting_start.to_i)).to_s
 
-        metadata = Nokogiri::XML(File.read("#{$process_dir}/metadata.xml"))
-
         processPresentation(package_dir)
 
         BigBlueButton.logger.info("Copying files to package dir")
         FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
+        FileUtils.cp_r("#{$process_dir}/metadata.xml", package_dir)
+
         BigBlueButton.logger.info("Copied files to package dir")
 
         BigBlueButton.logger.info("Publishing slides")
