@@ -67,6 +67,7 @@ class Presentation extends PureComponent {
       zoom: 100,
       fitToWidth: false,
       isFullscreen: false,
+      moveableTargets: [],
     };
 
     this.currentPresentationToastId = null;
@@ -87,7 +88,6 @@ class Presentation extends PureComponent {
 
     this.moveableRef = React.createRef();
     this.selectoRef = React.createRef();
-    this.moveableTargets = [];
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -222,6 +222,9 @@ class Presentation extends PureComponent {
       }
 
       if (presentationBounds !== prevPresentationBounds) this.onResize();
+    }
+    if (this.moveableRef.current !== null) {
+      this.moveableRef.current.updateRect();
     }
   }
 
@@ -586,6 +589,7 @@ class Presentation extends PureComponent {
       ${content}
       ${intl.formatMessage(intlMessages.slideContentEnd)}` : intl.formatMessage(intlMessages.noSlideContent);
 
+    const { moveableTargets } = this.state;
     return (
       <div
         style={{
@@ -660,7 +664,7 @@ class Presentation extends PureComponent {
           rootContainer={document.body}
           edge={false}
           ref={this.moveableRef}
-          target={this.moveableTargets}
+          target={moveableTargets}
         />
         <Selecto
           ref={this.selectoRef}
@@ -668,7 +672,7 @@ class Presentation extends PureComponent {
           selectableTargets={['.selectable']}
           onSelect={
             (e) => {
-              this.moveableTargets = e.selected;
+              this.setState({ moveableTargets: e.selected });
               PresentationService.selectAnnotations(e.selected.map((target) => target.id));
             }
           }
