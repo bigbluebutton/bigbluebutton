@@ -31,7 +31,9 @@ class PollsTable extends React.Component {
               </svg>
             </th>
             {typeof polls === 'object' && Object.values(polls || {}).length > 0 ? (
-              Object.values(polls || {}).map((poll, index) => <th className="px-3.5 2xl:px-4 py-3 text-center">{poll.question || `Poll ${index + 1}`}</th>)
+              Object.values(polls || {})
+                .sort((a, b) => ((a.createdOn > b.createdOn) ? 1 : -1))
+                .map((poll, index) => <th className="px-3.5 2xl:px-4 py-3 text-center">{poll.question || `Poll ${index + 1}`}</th>)
             ) : null }
           </tr>
         </thead>
@@ -61,35 +63,37 @@ class PollsTable extends React.Component {
                   </td>
 
                   {typeof polls === 'object' && Object.values(polls || {}).length > 0 ? (
-                    Object.values(polls || {}).map((poll) => (
-                      <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
-                        { getUserAnswer(user, poll) }
-                        { poll.anonymous
-                          ? (
-                            <span title={intl.formatMessage({
-                              id: 'app.learningDashboard.pollsTable.anonymousAnswer',
-                              defaultMessage: 'Anonymous Poll (answers in the last row)',
-                            })}
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4 inline"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
+                    Object.values(polls || {})
+                      .sort((a, b) => ((a.createdOn > b.createdOn) ? 1 : -1))
+                      .map((poll) => (
+                        <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
+                          { getUserAnswer(user, poll) }
+                          { poll.anonymous
+                            ? (
+                              <span title={intl.formatMessage({
+                                id: 'app.learningDashboard.pollsTable.anonymousAnswer',
+                                defaultMessage: 'Anonymous Poll (answers in the last row)',
+                              })}
                               >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                              </svg>
-                            </span>
-                          )
-                          : null }
-                      </td>
-                    ))
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4 inline"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                  />
+                                </svg>
+                              </span>
+                            )
+                            : null }
+                        </td>
+                      ))
                   ) : null }
                 </tr>
               ))) : null }
@@ -132,11 +136,13 @@ class PollsTable extends React.Component {
                     </div>
                   </div>
                 </td>
-                {Object.values(polls || {}).map((poll) => (
-                  <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
-                    { poll.anonymousAnswers.map((answer) => <p>{answer}</p>) }
-                  </td>
-                ))}
+                {Object.values(polls || {})
+                  .sort((a, b) => ((a.createdOn > b.createdOn) ? 1 : -1))
+                  .map((poll) => (
+                    <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
+                      { poll.anonymousAnswers.map((answer) => <p>{answer}</p>) }
+                    </td>
+                  ))}
               </tr>
             ) : null}
         </tbody>
