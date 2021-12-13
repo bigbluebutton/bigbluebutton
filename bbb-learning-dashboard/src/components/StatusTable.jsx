@@ -5,7 +5,7 @@ import UserAvatar from './UserAvatar';
 
 class StatusTable extends React.Component {
   componentDidMount() {
-    // This code is needed to prevent the emojis from overflowing
+    // This code is needed to prevent emojis from overflowing
     const emojis = document.getElementsByClassName('timeline-emoji');
     for (let i = 0; i < emojis.length; i += 1) {
       const emojiStyle = window.getComputedStyle(emojis[i]);
@@ -21,7 +21,7 @@ class StatusTable extends React.Component {
   }
 
   componentDidUpdate() {
-    // This code is needed to prevent the emojis from overflowing
+    // This code is needed to prevent emojis from overflowing
     const emojis = document.getElementsByClassName('timeline-emoji');
     for (let i = 0; i < emojis.length; i += 1) {
       const emojiStyle = window.getComputedStyle(emojis[i]);
@@ -54,8 +54,8 @@ class StatusTable extends React.Component {
     const firstRegisteredOnTime = Math.min(...usersRegisteredTimes);
     const lastLeftOnTime = Math.max(...usersLeftTimes);
 
-    const hasSlides = slides && Array.isArray(slides) && slides.length > 0;
     const periods = [];
+    const hasSlides = slides && Array.isArray(slides) && slides.length > 0;
     if (hasSlides) {
       const filteredSlides = slides.filter((slide) => slide.presentationId !== '');
       if (firstRegisteredOnTime < slides[0].setOn) {
@@ -78,11 +78,13 @@ class StatusTable extends React.Component {
       });
     }
 
+    const isRTL = document.dir === 'rtl';
+
     return (
       <table className="w-full whitespace-nowrap">
         <thead>
           <tr className="text-xs font-semibold tracking-wide text-gray-500 uppercase border-b bg-gray-100">
-            <th className="px-4 py-3 col-text-left sticky left-0 z-30 bg-inherit">
+            <th className={`z-30 bg-inherit px-4 py-3 col-text-left sticky ${isRTL ? 'right-0' : 'left-0'}`}>
               <FormattedMessage id="app.learningDashboard.user" defaultMessage="User" />
             </th>
             <th
@@ -104,19 +106,20 @@ class StatusTable extends React.Component {
         <tbody className="bg-white divide-y">
           { hasSlides ? (
             <tr className="bg-inherit">
-              <td className="bg-inherit sticky left-0 z-30" />
+              <td className={`bg-inherit z-30 sticky ${isRTL ? 'right-0' : 'left-0'}`} />
               { periods.map((period) => {
                 const { slide, start, end } = period;
+                const padding = isRTL ? 'paddingLeft' : 'paddingRight';
                 return (
                   <td
                     style={{
-                      paddingRight: `${(end - start) / 1000}px`,
+                      [padding]: `${(end - start) / 1000}px`,
                     }}
                   >
                     <div className="flex">
                       <div
                         className="my-4"
-                        aria-label={`Slide set on ${tsToHHmmss(slide.setOn - periods[0].start)}`}
+                        aria-label={tsToHHmmss(slide.setOn - periods[0].start)}
                       >
                         <a
                           href={`/bigbluebutton/presentation/${meetingId}/${meetingId}/${slide.presentationId}/svg/${slide.pageNum}`}
@@ -126,7 +129,10 @@ class StatusTable extends React.Component {
                         >
                           <img
                             src={`/bigbluebutton/presentation/${meetingId}/${meetingId}/${slide.presentationId}/thumbnail/${slide.pageNum}`}
-                            alt="Slide"
+                            alt={intl.formatMessage({
+                              id: 'app.learningDashboard.statusTimelineTable.thumbnail',
+                              defaultMessage: 'Presentation thumbnail',
+                            })}
                             style={{
                               maxWidth: '150px',
                               width: '150px',
@@ -153,7 +159,7 @@ class StatusTable extends React.Component {
               })
               .map((user) => (
                 <tr className="text-gray-700 bg-inherit">
-                  <td className="bg-inherit sticky left-0 z-30 px-4 py-3">
+                  <td className={`z-30 px-4 py-3 bg-inherit sticky ${isRTL ? 'right-0' : 'left-0'}`}>
                     <div className="flex items-center text-sm">
                       <div className="relative hidden w-8 h-8 rounded-full md:block">
                         <UserAvatar user={user} />
@@ -187,10 +193,10 @@ class StatusTable extends React.Component {
                               let offsetLeft = 0;
                               let offsetRight = 0;
                               if (registeredOn >= boundaryLeft && registeredOn <= boundaryRight) {
-                                offsetLeft = ((registeredOn - boundaryLeft) * 100) / (interval);
+                                offsetLeft = ((registeredOn - boundaryLeft) * 100) / interval;
                               }
                               if (leftOn >= boundaryLeft && leftOn <= boundaryRight) {
-                                offsetRight = ((boundaryRight - leftOn) * 100) / (interval);
+                                offsetRight = ((boundaryRight - leftOn) * 100) / interval;
                               }
                               let width = '';
                               if (offsetLeft === 0 && offsetRight >= 99) {
@@ -205,7 +211,6 @@ class StatusTable extends React.Component {
                                   width = 'w-1.5';
                                 }
                               }
-                              const isRTL = document.dir === 'rtl';
                               if (isRTL) {
                                 const aux = roundedRight;
 
@@ -230,8 +235,8 @@ class StatusTable extends React.Component {
                           ) : null }
                         { userEmojisInPeriod.map((emoji) => {
                           const offset = ((emoji.sentOn - period.start) * 100)
-                            / (period.end - period.start);
-                          const origin = document.dir === 'rtl' ? 'right' : 'left';
+                            / (interval);
+                          const origin = isRTL ? 'right' : 'left';
                           const redress = '(0.875rem / 2 + 0.25rem + 2px)';
                           return (
                             <div
