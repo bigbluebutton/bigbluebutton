@@ -57,7 +57,7 @@ exit(0) unless File.file?(metadata_file)
 
 metadata = Nokogiri::XML(File.open(metadata_file))
 
-exit(0) unless metadata.xpath('recording/meeting/@breakout').to_s.eql?('true')
+exit(0) unless metadata.xpath('recording/meta/isBreakout').text.eql?('true')
 
 BigBlueButton.logger.info("Metadata at: #{@published_files}/metadata.xml")
 
