@@ -355,6 +355,7 @@ class App extends Component {
 
     return (
       <div
+        role="region"
         className={styles.captionsWrapper}
         style={
           {
@@ -382,6 +383,7 @@ class App extends Component {
 
     return (
       <section
+        role="region"
         className={styles.actionsbar}
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={this.shouldAriaHide()}
