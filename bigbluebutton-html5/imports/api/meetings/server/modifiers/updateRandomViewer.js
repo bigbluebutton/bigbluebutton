@@ -55,7 +55,7 @@ const optionsFor3 = [
 export default function updateRandomUser(meetingId, userIds, choice, requesterId) {
   check(meetingId, String);
   check(userIds, Array);
-  check(choice, Number);
+  check(choice, String);
   check(requesterId, String);
 
   let userList = [];
@@ -70,7 +70,7 @@ export default function updateRandomUser(meetingId, userIds, choice, requesterId
 
   const chosenUser = userIds[choice];
 
-  if (choice < 0) { // no viewer
+  if (choice == "") { // no viewer
     userList = [
       [requesterId, intervals[0]],
       [requesterId, 0],

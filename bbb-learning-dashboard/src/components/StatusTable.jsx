@@ -46,7 +46,7 @@ class StatusTable extends React.Component {
     }
 
     return (
-      <table className="w-full whitespace-nowrap">
+      <table className="w-full">
         <thead>
           <tr className="text-xs font-semibold tracking-wide text-gray-500 uppercase border-b bg-gray-100">
             <th className="px-4 py-3 col-text-left sticky left-0 z-30 bg-inherit">
@@ -61,10 +61,10 @@ class StatusTable extends React.Component {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
               </svg>
             </th>
-            { periods.map((period) => <th className="px-4 py-3 col-text-left">{ `${tsToHHmmss(period - firstRegisteredOnTime)}` }</th>) }
+            { periods.map((period) => <th className="px-3.5 2xl:px-4 py-3 col-text-left">{ `${tsToHHmmss(period - firstRegisteredOnTime)}` }</th>) }
           </tr>
         </thead>
-        <tbody className="bg-white divide-y">
+        <tbody className="bg-white divide-y whitespace-nowrap">
           { typeof allUsers === 'object' && Object.values(allUsers || {}).length > 0 ? (
             Object.values(allUsers || {})
               .sort((a, b) => {
@@ -96,7 +96,7 @@ class StatusTable extends React.Component {
                     const boundaryLeft = period;
                     const boundaryRight = period + spanMinutes - 1;
                     return (
-                      <td className="relative px-4 py-3 text-sm col-text-left">
+                      <td className="relative px-3.5 2xl:px-4 py-3 text-sm col-text-left">
                         {
                           (registeredOn >= boundaryLeft && registeredOn <= boundaryRight)
                           || (leftOn >= boundaryLeft && leftOn <= boundaryRight)

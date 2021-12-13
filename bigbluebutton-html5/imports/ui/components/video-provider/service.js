@@ -584,6 +584,7 @@ class VideoService {
 
   isUserLocked() {
     return !!Users.findOne({
+      meetingId: Auth.meetingID,
       userId: Auth.userID,
       locked: true,
       role: { $ne: ROLE_MODERATOR },

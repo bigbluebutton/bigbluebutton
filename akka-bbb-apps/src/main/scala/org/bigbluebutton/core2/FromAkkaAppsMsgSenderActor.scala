@@ -64,6 +64,14 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case GetUsersStatusToVoiceConfSysMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
 
+      // Sent to SFU
+      case EjectUserFromSfuSysMsg.NAME =>
+        msgSender.send(toSfuRedisChannel, json)
+      case CamBroadcastStopSysMsg.NAME =>
+        msgSender.send(toSfuRedisChannel, json)
+      case CamStreamUnsubscribeSysMsg.NAME =>
+        msgSender.send(toSfuRedisChannel, json)
+
       //==================================================================
       // Send chat, presentation, and whiteboard in different channels so as not to
       // flood other applications (e.g. bbb-web) with unnecessary messages

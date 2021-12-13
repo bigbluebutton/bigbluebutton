@@ -176,7 +176,6 @@
     "app.poll.quickPollTitle": "ស្ទង់មតិរហ័ស",
     "app.poll.hidePollDesc": "បិទផ្ទាំងម៉ឺនុយស្ទង់មតិ",
     "app.poll.quickPollInstruction": "ជ្រើសជម្រើសខាងក្រោមដើម្បីចាប់ផ្តើមការស្ទង់មតិ។",
-    "app.poll.publishLabel": "ប្រកាសលទ្ធផលស្ទង់មតិ",
     "app.poll.closeLabel": "បិទ",
     "app.poll.waitingLabel": "រង់ចាំចម្លើយ ({0}/{1})",
     "app.poll.ariaInputCount": "ជម្រើស {0} នៃ {1} ក្នុងការស្ទង់មតិថ្មី",

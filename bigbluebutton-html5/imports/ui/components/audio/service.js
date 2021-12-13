@@ -42,7 +42,7 @@ const audioEventHandler = (event) => {
 
 const init = (messages, intl) => {
   AudioManager.setAudioMessages(messages, intl);
-  if (AudioManager.initialized) return;
+  if (AudioManager.initialized) return Promise.resolve(false);
   const meetingId = Auth.meetingID;
   const userId = Auth.userID;
   const { sessionToken } = Auth;
@@ -63,7 +63,7 @@ const init = (messages, intl) => {
     microphoneLockEnforced,
   };
 
-  AudioManager.init(userData, audioEventHandler);
+  return AudioManager.init(userData, audioEventHandler);
 };
 
 const isVoiceUser = () => {
@@ -98,6 +98,7 @@ const toggleMuteMicrophone = throttle(() => {
 export default {
   init,
   exitAudio: () => AudioManager.exitAudio(),
+  forceExitAudio: () => AudioManager.forceExitAudio(),
   transferCall: () => AudioManager.transferCall(),
   joinListenOnly: () => AudioManager.joinListenOnly(),
   joinMicrophone: () => AudioManager.joinMicrophone(),

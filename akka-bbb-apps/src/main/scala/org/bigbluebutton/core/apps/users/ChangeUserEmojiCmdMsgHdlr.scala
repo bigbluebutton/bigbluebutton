@@ -12,25 +12,37 @@ trait ChangeUserEmojiCmdMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleChangeUserEmojiCmdMsg(msg: ChangeUserEmojiCmdMsg) {
-    // Usually only moderators are allowed to change someone else's emoji status
-    // Exceptional case: Viewers who are presenter are allowed to lower someone else's raised hand:
-    val isViewerProhibitedFromLoweringOthersHand =
-      !(Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId).get.emoji.equals("raiseHand") &&
-        msg.body.emoji.equals("none")) ||
-        permissionFailed(PermissionCheck.VIEWER_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)
+    val isUserSettingOwnEmoji = (msg.header.userId == msg.body.userId)
 
-    if (msg.header.userId != msg.body.userId &&
-      permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) &&
-      isViewerProhibitedFromLoweringOthersHand) {
-      val meetingId = liveMeeting.props.meetingProp.intId
-      val reason = "No permission to clear change user emoji status."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
-    } else {
+    val isUserModerator = !permissionFailed(
+      PermissionCheck.MOD_LEVEL,
+      PermissionCheck.VIEWER_LEVEL,
+      liveMeeting.users2x,
+      msg.header.userId
+    )
+
+    val isUserPresenter = !permissionFailed(
+      PermissionCheck.VIEWER_LEVEL,
+      PermissionCheck.PRESENTER_LEVEL,
+      liveMeeting.users2x,
+      msg.header.userId
+    )
+
+    val initialEmojiState = Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId).get.emoji
+    val nextEmojiState = msg.body.emoji
+
+    if (isUserSettingOwnEmoji
+      || isUserModerator && nextEmojiState.equals("none")
+      || isUserPresenter && initialEmojiState.equals("raiseHand") && nextEmojiState.equals("none")) {
       for {
         uvo <- Users2x.setEmojiStatus(liveMeeting.users2x, msg.body.userId, msg.body.emoji)
       } yield {
         sendUserEmojiChangedEvtMsg(outGW, liveMeeting.props.meetingProp.intId, msg.body.userId, msg.body.emoji)
       }
+    } else {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to clear change user emoji status."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     }
   }
 

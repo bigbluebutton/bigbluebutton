@@ -37,8 +37,10 @@ import collectionMirrorInitializer from './collection-mirror-initializer';
 import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
   // bridge loading
 });
+
 collectionMirrorInitializer();
 liveDataEventBrokerInitializer();
+
 Meteor.startup(() => {
   // Logs all uncaught exceptions to the client logger
   window.addEventListener('error', (e) => {
