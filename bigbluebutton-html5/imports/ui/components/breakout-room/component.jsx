@@ -103,6 +103,7 @@ class BreakoutRoom extends PureComponent {
     this.renderUserActions = this.renderUserActions.bind(this);
     this.returnBackToMeeeting = this.returnBackToMeeeting.bind(this);
     this.closePanel = this.closePanel.bind(this);
+    this.requestAllBreakoutURL = this.requestAllBreakoutURL.bind(this);
     this.state = {
       requestedBreakoutId: '',
       waiting: false,
@@ -117,6 +118,9 @@ class BreakoutRoom extends PureComponent {
 
   componentDidMount() {
     if (this.panel) this.panel.firstChild.focus();
+
+    const { breakoutRooms } = this.props;
+    this.requestAllBreakoutURL(breakoutRooms);
   }
 
   componentDidUpdate() {
@@ -138,6 +142,8 @@ class BreakoutRoom extends PureComponent {
     if (breakoutRooms.length === 0) {
       return this.closePanel();
     }
+
+    this.requestAllBreakoutURL(breakoutRooms);
 
     if (waiting && !generated) {
       const breakoutUrlData = getBreakoutRoomUrl(requestedBreakoutId);
@@ -199,6 +205,21 @@ class BreakoutRoom extends PureComponent {
     return intl.formatMessage(intlMessages.askToJoin);
   }
 
+  requestAllBreakoutURL(breakoutRooms) {
+    const {
+      getBreakoutRoomUrl,
+      requestJoinURL,
+    } = this.props;
+
+    breakoutRooms.forEach(room => {
+      const breakoutRoomUrlData = getBreakoutRoomUrl(room.breakoutId);
+
+      if(!breakoutRoomUrlData){
+        requestJoinURL(room.breakoutId);
+      }
+    });
+  }
+
   clearJoinedAudioOnly() {
     this.setState({ joinedAudioOnly: false });
   }
@@ -254,6 +275,7 @@ class BreakoutRoom extends PureComponent {
       exitAudio,
       setBreakoutAudioTransferStatus,
       getBreakoutAudioTransferStatus,
+      getBreakoutRoomUrl,
     } = this.props;
 
     const {
@@ -261,8 +283,9 @@ class BreakoutRoom extends PureComponent {
       breakoutId: _stateBreakoutId,
       requestedBreakoutId,
       waiting,
-      generated,
     } = this.state;
+
+    if (!getBreakoutRoomUrl(breakoutId)) return null;
 
     const {
       breakoutMeetingId: currentAudioTransferBreakoutId,
