@@ -3,13 +3,10 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
-import Button from '/imports/ui/components/button/component';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
-import cx from 'classnames';
-import Modal from '/imports/ui/components/modal/simple/component';
 import { withModalMounter } from '../../modal/service';
-import { styles } from '../styles';
+import Styled from './styles';
 import ScreenshareBridgeService from '/imports/api/screenshare/client/bridge/service';
 import {
   shareScreen,
@@ -142,18 +139,16 @@ const ScreenshareButton = ({
   };
 
   const renderScreenshareUnavailableModal = () => mountModal(
-    <Modal
-      overlayClassName={styles.overlay}
-      className={styles.modal}
+    <Styled.ScreenShareModal
       onRequestClose={() => mountModal(null)}
       hideBorder
       contentLabel={intl.formatMessage(intlMessages.screenShareUnavailable)}
     >
-      <h3 className={styles.title}>
+      <Styled.Title>
         {intl.formatMessage(intlMessages.screenShareUnavailable)}
-      </h3>
+      </Styled.Title>
       <p>{intl.formatMessage(intlMessages.screenShareNotSupported)}</p>
-    </Modal>,
+    </Styled.ScreenShareModal>,
   );
 
   const screenshareLocked = screenshareDataSavingSetting
@@ -171,8 +166,7 @@ const ScreenshareButton = ({
 
   return shouldAllowScreensharing
     ? (
-      <Button
-        className={cx(isVideoBroadcasting || styles.btn)}
+      <Styled.ScreenShareButton
         disabled={(!isMeteorConnected && !isVideoBroadcasting) || !screenshareDataSavingSetting}
         icon={isVideoBroadcasting ? 'desktop' : 'desktop_off'}
         data-test={isVideoBroadcasting ? 'stopScreenShare' : 'startScreenShare'}
@@ -189,7 +183,7 @@ const ScreenshareButton = ({
             if (isSafari && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
               renderScreenshareUnavailableModal();
             } else {
-              shareScreen(handleFailure);
+              shareScreen(amIPresenter, handleFailure);
             }
           }}
         id={isVideoBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}

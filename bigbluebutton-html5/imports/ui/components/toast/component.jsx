@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
-import cx from 'classnames';
 import Icon from '../icon/component';
-import { styles } from './styles';
+import Styled from './styles';
 
 const propTypes = {
   icon: PropTypes.string,
@@ -30,28 +29,25 @@ const Toast = ({
   content,
   small,
 }) => (
-  <div
-    className={cx(styles.toastContainer, small ? styles.smallToastContainer : null)}
-  >
-    <div className={styles[type]}>
-      <div className={cx(styles.icon, small ? styles.smallIcon : null)}>
+  <Styled.ToastContainer small={small}>
+    <Styled.Toast type={type}>
+      <Styled.ToastIcon small={small}>
         <Icon iconName={icon || defaultIcons[type]} />
-      </div>
-      <div data-test="toastSmallMsg" className={cx(styles.message, small ? styles.smallMessage : null)}>
+      </Styled.ToastIcon>
+      <Styled.ToastMessage data-test="toastSmallMsg">
         <span>{message}</span>
-      </div>
-    </div>
+      </Styled.ToastMessage>
+    </Styled.Toast>
     {content
       ? (
-        <div className={styles.backgroundColorInherit}>
-          <div className={styles.separator} />
-          <div className={styles.backgroundColorInherit}>
+        <Styled.BackgroundColorInherit>
+          <Styled.Separator />
+          <Styled.BackgroundColorInherit>
             {content}
-          </div>
-        </div>
-      ) : null
-    }
-  </div>
+          </Styled.BackgroundColorInherit>
+        </Styled.BackgroundColorInherit>
+      ) : null}
+  </Styled.ToastContainer>
 );
 
 export default Toast;

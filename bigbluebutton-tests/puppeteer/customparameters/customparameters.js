@@ -574,7 +574,7 @@ class CustomParameters {
       await this.page2.startRecording(testName);
       await this.page1.screenshot(`${testName}`, `01-page1-${testName}`);
       await this.page2.screenshot(`${testName}`, `01-page2-${testName}`);
-      await this.page2.waitAndClick(e.hidePresentation);
+      await this.page2.waitAndClick(e.minimizePresentation);
       await this.page2.screenshot(`${testName}`, `02-page2-${testName}`);
       const zoomInCase = await util.zoomIn(this.page1);
       await this.page1.screenshot(`${testName}`, `02-page1-${testName}`);
@@ -619,7 +619,7 @@ class CustomParameters {
       await this.page2.startRecording(testName);
       await this.page1.screenshot(`${testName}`, `01-page1-${testName}`);
       await this.page2.screenshot(`${testName}`, `01-page2-${testName}`);
-      await this.page2.waitAndClick(e.hidePresentation);
+      await this.page2.waitAndClick(e.minimizePresentation);
       await this.page2.screenshot(`${testName}`, `02-page2-${testName}`);
       const pollCase = await util.poll(this.page1, this.page2) === true;
       await this.page2.waitForSelector(e.smallToastMsg);
@@ -751,25 +751,6 @@ class CustomParameters {
       await this.page1.logger(testName, ' passed');
 
       return resp === true;
-    } catch (err) {
-      await this.page1.logger(err);
-      return false;
-    }
-  }
-
-  async closePage(page) {
-    try {
-      await page.close();
-    } catch (err) {
-      await this.page1.logger(err);
-      return false;
-    }
-  }
-
-  async close(page1, page2) {
-    try {
-      await page1.close();
-      await page2.close();
     } catch (err) {
       await this.page1.logger(err);
       return false;

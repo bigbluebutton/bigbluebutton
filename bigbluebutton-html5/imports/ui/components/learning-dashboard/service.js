@@ -1,6 +1,6 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import Meetings from '../../../api/meetings';
+import Meetings from '/imports/api/meetings';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -48,10 +48,11 @@ const setLearningDashboardCookie = () => {
 };
 
 const openLearningDashboardUrl = (lang) => {
+  const APP = Meteor.settings.public.app;
   if (getLearningDashboardAccessToken() && setLearningDashboardCookie()) {
-    window.open(`/learning-dashboard/?meeting=${Auth.meetingID}&lang=${lang}`, '_blank');
+    window.open(`${APP.learningDashboardBase}/?meeting=${Auth.meetingID}&lang=${lang}`, '_blank');
   } else {
-    window.open(`/learning-dashboard/?meeting=${Auth.meetingID}&sessionToken=${Auth.sessionToken}&lang=${lang}`, '_blank');
+    window.open(`${APP.learningDashboardBase}/?meeting=${Auth.meetingID}&sessionToken=${Auth.sessionToken}&lang=${lang}`, '_blank');
   }
 };
 

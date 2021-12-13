@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import ReactPlayer from 'react-player';
+import _ from 'lodash';
 import {
   sendMessage,
   onMessage,
@@ -17,12 +18,13 @@ import logger from '/imports/startup/client/logger';
 
 import VolumeSlider from './volume-slider/component';
 import ReloadButton from '/imports/ui/components/reload-button/component';
+import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
 
 import ArcPlayer from '/imports/ui/components/external-video-player/custom-players/arc-player';
 import PeerTubePlayer from '/imports/ui/components/external-video-player/custom-players/peertube';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   autoPlayWarning: {
@@ -32,14 +34,18 @@ const intlMessages = defineMessages({
   refreshLabel: {
     id: 'app.externalVideo.refreshLabel',
   },
+  fullscreenLabel: {
+    id: 'app.externalVideo.fullscreenLabel',
+  },
 });
 
 const SYNC_INTERVAL_SECONDS = 5;
 const THROTTLE_INTERVAL_SECONDS = 0.5;
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
-ReactPlayer.addCustomPlayer(PeerTubePlayer);
-ReactPlayer.addCustomPlayer(ArcPlayer);
+Styled.VideoPlayer.addCustomPlayer(PeerTubePlayer);
+Styled.VideoPlayer.addCustomPlayer(ArcPlayer);
 
 class VideoPlayer extends Component {
   static clearVideoListeners() {
@@ -200,7 +206,11 @@ class VideoPlayer extends Component {
   }
 
   componentWillUnmount() {
-    const { hidePresentation } = this.props;
+    const {
+      layoutContextDispatch,
+      hidePresentation,
+    } = this.props;
+
     window.removeEventListener('beforeunload', this.onBeforeUnload);
 
     VideoPlayer.clearVideoListeners();
@@ -331,7 +341,7 @@ class VideoPlayer extends Component {
     const intPlayer = this.player && this.player.getInternalPlayer();
     const rate = (intPlayer && intPlayer.getPlaybackRate && intPlayer.getPlaybackRate());
 
-    return typeof(rate) == 'number' ? rate : 1;
+    return typeof (rate) === 'number' ? rate : 1;
   }
 
   setPlaybackRate(rate) {
@@ -492,6 +502,23 @@ class VideoPlayer extends Component {
     return true;
   }
 
+  renderFullscreenButton() {
+    const { intl, fullscreenElementId, fullscreenContext } = this.props;
+
+    if (!ALLOW_FULLSCREEN) return null;
+
+    return (
+      <FullscreenButtonContainer
+        key={_.uniqueId('fullscreenButton-')}
+        elementName={intl.formatMessage(intlMessages.fullscreenLabel)}
+        fullscreenRef={this.playerParent}
+        elementId={fullscreenElementId}
+        isFullscreen={fullscreenContext}
+        dark
+      />
+    );
+  }
+
   render() {
     const {
       videoUrl,
@@ -502,6 +529,7 @@ class VideoPlayer extends Component {
       right,
       height,
       width,
+      fullscreenContext,
       isResizing,
     } = this.props;
 
@@ -514,12 +542,16 @@ class VideoPlayer extends Component {
     const playerName = this.player && this.player.player
       && this.player.player.player && this.player.player.player.constructor.name;
 
-    const mobileHoverToolBarStyle = showHoverToolBar
-      ? styles.showMobileHoverToolbar
-      : styles.dontShowMobileHoverToolbar;
-    const desktopHoverToolBarStyle = styles.hoverToolbar;
+    let toolbarStyle = 'hoverToolbar';
 
-    const hoverToolbarStyle = this.isMobile ? mobileHoverToolBarStyle : desktopHoverToolBarStyle;
+    if (this.isMobile && !showHoverToolBar) {
+      toolbarStyle = 'dontShowMobileHoverToolbar';
+    }
+
+    if (this.isMobile && showHoverToolBar) {
+      toolbarStyle = 'showMobileHoverToolbar';
+    }
+
     return (
       <span
         style={{
@@ -532,24 +564,23 @@ class VideoPlayer extends Component {
           pointerEvents: isResizing ? 'none' : 'inherit',
         }}
       >
-        <div
+        <Styled.VideoPlayerWrapper
           id="video-player"
           data-test="videoPlayer"
-          className={styles.videoPlayerWrapper}
+          fullscreen={fullscreenContext}
           ref={(ref) => { this.playerParent = ref; }}
         >
           {
             autoPlayBlocked
               ? (
-                <p className={styles.autoPlayWarning}>
+                <Styled.AutoPlayWarning>
                   {intl.formatMessage(intlMessages.autoPlayWarning)}
-                </p>
+                </Styled.AutoPlayWarning>
               )
               : ''
           }
 
-          <ReactPlayer
-            className={styles.videoPlayer}
+          <Styled.VideoPlayer
             url={videoUrl}
             config={this.opts}
             volume={(muted || mutedByEchoTest) ? 0 : volume}
@@ -570,7 +601,10 @@ class VideoPlayer extends Component {
             !isPresenter
               ? [
                 (
-                  <div className={hoverToolbarStyle} key="hover-toolbar-external-video">
+                  <Styled.HoverToolbar
+                    toolbarStyle={toolbarStyle}
+                    key="hover-toolbar-external-video"
+                  >
                     <VolumeSlider
                       hideVolume={this.hideVolume[playerName]}
                       volume={volume}
@@ -583,11 +617,11 @@ class VideoPlayer extends Component {
                       handleReload={this.handleReload}
                       label={intl.formatMessage(intlMessages.refreshLabel)}
                     />
-                  </div>
+                    {this.renderFullscreenButton()}
+                  </Styled.HoverToolbar>
                 ),
                 (this.isMobile && playing) && (
-                  <span
-                    className={styles.mobileControlsOverlay}
+                  <Styled.MobileControlsOverlay
                     key="mobile-overlay-external-video"
                     ref={(ref) => { this.overlay = ref; }}
                     onTouchStart={() => {
@@ -605,10 +639,18 @@ class VideoPlayer extends Component {
               ]
               : null
           }
-        </div>
+        </Styled.VideoPlayerWrapper>
       </span>
     );
   }
 }
+
+VideoPlayer.propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  fullscreenElementId: PropTypes.string.isRequired,
+  fullscreenContext: PropTypes.bool.isRequired,
+};
 
 export default injectIntl(injectWbResizeEvent(VideoPlayer));

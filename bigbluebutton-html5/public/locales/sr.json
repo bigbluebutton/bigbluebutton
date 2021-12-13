@@ -194,7 +194,6 @@
     "app.poll.hidePollDesc": "Sklonite meni ankete",
     "app.poll.quickPollInstruction": "Odaberite tipove odgovora kako biste započeli anketu.",
     "app.poll.activePollInstruction": "Ostavite ovaj panel otvorenim kako biste videli rezultate ankete u realnom vremenu. Kada ste spremni, odaberite 'Objavite rezultate ankete' kako biste objavili rezultate i završili anketu.",
-    "app.poll.publishLabel": "Objavite rezultate ankete",
     "app.poll.closeLabel": "Zatvorite",
     "app.poll.waitingLabel": "Čekanje na odgovore ({0}/{1})",
     "app.poll.ariaInputCount": "Opcija posebne ankete {0} od {1}",

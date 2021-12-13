@@ -6,12 +6,10 @@ import {
 import Button from '/imports/ui/components/button/component';
 import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-background/component'
 import logger from '/imports/startup/client/logger';
-import Modal from '/imports/ui/components/modal/simple/component';
 import browserInfo from '/imports/utils/browserInfo';
-import cx from 'classnames';
 import PreviewService from './service';
 import VideoService from '../video-provider/service';
-import { styles } from './styles';
+import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { notify } from '/imports/ui/services/notification';
@@ -22,6 +20,7 @@ import {
   isVirtualBackgroundEnabled,
   getSessionVirtualBackgroundInfo,
 } from '/imports/ui/services/virtual-background/service'
+import Settings from '/imports/ui/services/settings';
 
 const VIEW_STATES = {
   finding: 'finding',
@@ -82,10 +81,6 @@ const intlMessages = defineMessages({
   hd: {
     id: 'app.videoPreview.quality.hd',
     description: 'High definition option label',
-  },
-  cancelLabel: {
-    id: 'app.videoPreview.cancelLabel',
-    description: 'Cancel button label',
   },
   startSharingLabel: {
     id: 'app.videoPreview.startSharingLabel',
@@ -368,6 +363,7 @@ class VideoPreview extends Component {
     setSessionVirtualBackgroundInfo(
       this.currentVideoStream.virtualBgType,
       this.currentVideoStream.virtualBgName,
+      webcamDeviceId,
     );
     this.cleanupStreamAndVideo();
     startSharing(webcamDeviceId);
@@ -536,12 +532,12 @@ class VideoPreview extends Component {
 
     return (
       <div>
-        <div className={styles.warning}>!</div>
-        <h4 className={styles.main}>{intl.formatMessage(intlMessages.iOSError)}</h4>
-        <div className={styles.text}>{intl.formatMessage(intlMessages.iOSErrorDescription)}</div>
-        <div className={styles.text}>
+        <Styled.Warning>!</Styled.Warning>
+        <Styled.Main>{intl.formatMessage(intlMessages.iOSError)}</Styled.Main>
+        <Styled.Text>{intl.formatMessage(intlMessages.iOSErrorDescription)}</Styled.Text>
+        <Styled.Text>
           {intl.formatMessage(intlMessages.iOSErrorRecommendation)}
-        </div>
+        </Styled.Text>
       </div>
     );
   }
@@ -566,16 +562,15 @@ class VideoPreview extends Component {
     const shared = sharedDevices.includes(webcamDeviceId);
 
     return (
-      <div className={styles.col}>
-        <label className={styles.label} htmlFor="setCam">
+      <Styled.Col>
+        <Styled.Label htmlFor="setCam">
           {intl.formatMessage(intlMessages.cameraLabel)}
-        </label>
+        </Styled.Label>
         { availableWebcams && availableWebcams.length > 0
           ? (
-            <select
+            <Styled.Select
               id="setCam"
               value={webcamDeviceId || ''}
-              className={styles.select}
               onChange={this.handleSelectWebcam}
             >
               {availableWebcams.map((webcam, index) => (
@@ -583,7 +578,7 @@ class VideoPreview extends Component {
                   {webcam.label || this.getFallbackLabel(webcam, index)}
                 </option>
               ))}
-            </select>
+            </Styled.Select>
           )
           : (
             <span>
@@ -593,21 +588,20 @@ class VideoPreview extends Component {
         }
         { shared
           ? (
-            <span className={styles.label}>
+            <Styled.Label>
               {intl.formatMessage(intlMessages.sharedCameraLabel)}
-            </span>
+            </Styled.Label>
           )
           : (
             <>
-              <label className={styles.label} htmlFor="setQuality">
+              <Styled.Label htmlFor="setQuality">
                 {intl.formatMessage(intlMessages.qualityLabel)}
-              </label>
+              </Styled.Label>
               {PreviewService.PREVIEW_CAMERA_PROFILES.length > 0
                 ? (
-                  <select
+                  <Styled.Select
                     id="setQuality"
                     value={selectedProfile || ''}
-                    className={styles.select}
                     onChange={this.handleSelectProfile}
                   >
                     {PreviewService.PREVIEW_CAMERA_PROFILES.map((profile) => {
@@ -621,7 +615,7 @@ class VideoPreview extends Component {
                         </option>
                       );
                     })}
-                  </select>
+                  </Styled.Select>
                 )
                 : (
                   <span>
@@ -633,16 +627,16 @@ class VideoPreview extends Component {
           )
         }
         {isVirtualBackgroundEnabled() && this.renderVirtualBgSelector()}
-      </div>
+      </Styled.Col>
     );
   }
 
   renderVirtualBgSelector() {
-    const { isStartSharingDisabled } = this.state;
+    const { isStartSharingDisabled, webcamDeviceId } = this.state;
     const initialVirtualBgState = this.currentVideoStream ? {
       type: this.currentVideoStream.virtualBgType,
       name: this.currentVideoStream.virtualBgName
-    } : getSessionVirtualBackgroundInfo();
+    } : getSessionVirtualBackgroundInfo(webcamDeviceId);
 
     return (
       <VirtualBgSelector
@@ -665,42 +659,41 @@ class VideoPreview extends Component {
       previewError,
     } = this.state;
 
+    const { animations } = Settings.application;
+
     switch (viewState) {
       case VIEW_STATES.finding:
         return (
-          <div className={styles.content}>
-            <div className={styles.videoCol}>
+          <Styled.Content>
+            <Styled.VideoCol>
               <div>
                 <span>{intl.formatMessage(intlMessages.findingWebcamsLabel)}</span>
-                <span className={styles.fetchingAnimation} />
+                <Styled.FetchingAnimation animations={animations} />
               </div>
-            </div>
-          </div>
+            </Styled.VideoCol>
+          </Styled.Content>
         );
       case VIEW_STATES.error:
         return (
-          <div className={styles.content}>
-            <div className={styles.videoCol}><div>{deviceError}</div></div>
-          </div>
+          <Styled.Content>
+            <Styled.VideoCol><div>{deviceError}</div></Styled.VideoCol>
+          </Styled.Content>
         );
       case VIEW_STATES.found:
       default:
         return (
-          <div className={styles.content}>
-            <div className={styles.videoCol}>
+          <Styled.Content>
+            <Styled.VideoCol>
               {
                 previewError
                   ? (
                     <div>{previewError}</div>
                   )
                   : (
-                    <video
+                    <Styled.VideoPreview
+                      mirroredVideo={VideoService.mirrorOwnWebcam()}
                       id="preview"
                       data-test={VideoService.mirrorOwnWebcam() ? 'mirroredVideoPreview' : 'videoPreview'}
-                      className={cx({
-                        [styles.preview]: true,
-                        [styles.mirroredVideo]: VideoService.mirrorOwnWebcam(),
-                      })}
                       ref={(ref) => { this.video = ref; }}
                       autoPlay
                       playsInline
@@ -708,9 +701,9 @@ class VideoPreview extends Component {
                     />
                   )
               }
-            </div>
+            </Styled.VideoCol>
             {this.renderDeviceSelectors()}
-          </div>
+          </Styled.Content>
         );
     }
   }
@@ -735,9 +728,9 @@ class VideoPreview extends Component {
     const { isIe } = browserInfo;
 
     return (
-      <div>
+      <>
         {isIe ? (
-          <p className={styles.browserWarning}>
+          <Styled.BrowserWarning>
             <FormattedMessage
               id="app.audioModal.unsupportedBrowserLabel"
               description="Warning when someone joins with a browser that isnt supported"
@@ -746,34 +739,29 @@ class VideoPreview extends Component {
                 1: <a href="https://getfirefox.com">Firefox</a>,
               }}
             />
-          </p>
+          </Styled.BrowserWarning>
         ) : null}
-        <div className={styles.title}>
+        <Styled.Title>
           {intl.formatMessage(intlMessages.webcamSettingsTitle)}
-        </div>
+        </Styled.Title>
 
         {this.renderContent()}
 
-        <div className={styles.footer}>
-          {hasVideoStream
+        <Styled.Footer>
+          {hasVideoStream && VideoService.isMultipleCamerasEnabled()
             ? (
-              <div className={styles.extraActions}>
+              <Styled.ExtraActions>
                 <Button
                   color="danger"
                   label={intl.formatMessage(intlMessages.stopSharingAllLabel)}
                   onClick={this.handleStopSharingAll}
                   disabled={shouldDisableButtons}
                 />
-              </div>
+              </Styled.ExtraActions>
             )
             : null
           }
-          <div className={styles.actions}>
-            <Button
-              label={intl.formatMessage(intlMessages.cancelLabel)}
-              onClick={this.handleProceed}
-              disabled={shouldDisableButtons}
-            />
+          <Styled.Actions>
             <Button
               data-test="startSharingWebcam"
               color={shared ? 'danger' : 'primary'}
@@ -781,9 +769,9 @@ class VideoPreview extends Component {
               onClick={shared ? this.handleStopSharing : this.handleStartSharing}
               disabled={isStartSharingDisabled || isStartSharingDisabled === null || shouldDisableButtons}
             />
-          </div>
-        </div>
-      </div>
+          </Styled.Actions>
+        </Styled.Footer>
+      </>
     );
   }
 
@@ -810,20 +798,19 @@ class VideoPreview extends Component {
     const allowCloseModal = !!(deviceError || previewError) || !PreviewService.getSkipVideoPreview();
 
     return (
-      <Modal
-        overlayClassName={styles.overlay}
-        className={styles.modal}
+      <Styled.VideoPreviewModal
         onRequestClose={this.handleProceed}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
         shouldShowCloseButton={allowCloseModal}
         shouldCloseOnOverlayClick={allowCloseModal}
+        isPhone={deviceInfo.isPhone}
       >
         {deviceInfo.hasMediaDevices
           ? this.renderModalContent()
           : this.supportWarning()
         }
-      </Modal>
+      </Styled.VideoPreviewModal>
     );
   }
 }

@@ -19,7 +19,7 @@
 
 require File.expand_path('../../../lib/recordandplayback', __FILE__)
 require 'logger'
-require 'trollop'
+require 'optimist'
 require 'yaml'
 
 AUDIO_ARCHIVE_FORMAT = {
@@ -155,11 +155,11 @@ end
 
 ################## START ################################
 
-opts = Trollop::options do
+opts = Optimist::options do
   opt :meeting_id, "Meeting id to archive", type: :string
   opt :break_timestamp, "Chapter break end timestamp", type: :integer
 end
-Trollop::die :meeting_id, "must be provided" if opts[:meeting_id].nil?
+Optimist::die :meeting_id, "must be provided" if opts[:meeting_id].nil?
 
 meeting_id = opts[:meeting_id]
 break_timestamp = opts[:break_timestamp]

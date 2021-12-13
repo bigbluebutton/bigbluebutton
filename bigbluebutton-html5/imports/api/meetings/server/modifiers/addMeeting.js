@@ -118,6 +118,7 @@ export default function addMeeting(meeting) {
     systemProps: {
       html5InstanceId: Number,
     },
+    groups: Array,
   });
 
   const {

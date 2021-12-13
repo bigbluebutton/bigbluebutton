@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import _ from 'lodash';
-import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
-import { styles } from '../styles';
+import Styled from './styles';
 import { PANELS, ACTIONS } from '../../layout/enums';
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
@@ -74,7 +73,7 @@ const getAvailableQuickPolls = (
       itemLabel = options.join('/').replace(/[\n.)]/g, '');
       if (type === pollTypes.Custom) {
         for (let i = 0; i < options.length; i += 1) {
-          const letterOption = options[i].replace(/[\r.)]/g, '').toUpperCase();
+          const letterOption = options[i]?.replace(/[\r.)]/g, '').toUpperCase();
           if (letterAnswers.length < MAX_CUSTOM_FIELDS) {
             letterAnswers.push(letterOption);
           } else {
@@ -85,7 +84,7 @@ const getAvailableQuickPolls = (
     }
 
     // removes any whitespace from the label
-    itemLabel = itemLabel.replace(/\s+/g, '').toUpperCase();
+    itemLabel = itemLabel?.replace(/\s+/g, '').toUpperCase();
 
     const numChars = {
       1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E',
@@ -161,9 +160,8 @@ class QuickPollDropdown extends Component {
     }
 
     let btn = (
-      <Button
+      <Styled.QuickPollButton
         aria-label={intl.formatMessage(intlMessages.quickPollLabel)}
-        className={styles.quickPollBtn}
         label={quickPollLabel}
         tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
         onClick={() => {
@@ -180,9 +178,8 @@ class QuickPollDropdown extends Component {
 
     if (usePollDropdown) {
       btn = (
-        <Button
+        <Styled.QuickPollButton
           aria-label={intl.formatMessage(intlMessages.quickPollLabel)}
-          className={styles.quickPollBtn}
           label={quickPollLabel}
           tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
           onClick={() => null}
@@ -196,7 +193,7 @@ class QuickPollDropdown extends Component {
           <Dropdown.DropdownTrigger tabIndex={0}>
             {btn}
           </Dropdown.DropdownTrigger>
-          <Dropdown.DropdownContent placement="top left">
+          <Dropdown.DropdownContent>
             <Dropdown.DropdownList>
               {quickPolls}
             </Dropdown.DropdownList>

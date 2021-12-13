@@ -4,9 +4,10 @@ import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import TextInput from '/imports/ui/components/text-input/component';
-import Button from '/imports/ui/components/button/component';
-import { styles } from './styles';
+import Styled from './styles';
 import { PANELS, ACTIONS } from '../layout/enums';
+import Settings from '/imports/ui/services/settings';
+import browserInfo from '/imports/utils/browserInfo';
 
 const intlMessages = defineMessages({
   waitingUsersTitle: {
@@ -73,6 +74,7 @@ const intlMessages = defineMessages({
 
 const ALLOW_STATUS = 'ALLOW';
 const DENY_STATUS = 'DENY';
+const { animations } = Settings.application;
 
 const getNameInitials = (name) => {
   const nameInitials = name.slice(0, 2);
@@ -83,9 +85,9 @@ const getNameInitials = (name) => {
 const renderGuestUserItem = (
   name, color, handleAccept, handleDeny, role, sequence, userId, avatar, intl,
 ) => (
-  <div key={`userlist-item-${userId}`} className={styles.listItem}>
-    <div key={`user-content-container-${userId}`} className={styles.userContentContainer}>
-      <div key={`user-avatar-container-${userId}`} className={styles.userAvatar}>
+  <Styled.ListItem key={`userlist-item-${userId}`} animations={animations}>
+    <Styled.UserContentContainer key={`user-content-container-${userId}`}>
+      <Styled.UserAvatarContainer key={`user-avatar-container-${userId}`}>
         <UserAvatar
           key={`user-avatar-${userId}`}
           moderator={role === 'MODERATOR'}
@@ -94,16 +96,15 @@ const renderGuestUserItem = (
         >
           {getNameInitials(name)}
         </UserAvatar>
-      </div>
-      <p key={`user-name-${userId}`} className={styles.userName}>
+      </Styled.UserAvatarContainer>
+      <Styled.UserName key={`user-name-${userId}`}>
         {`[${sequence}] ${name}`}
-      </p>
-    </div>
+      </Styled.UserName>
+    </Styled.UserContentContainer>
 
-    <div key={`userlist-btns-${userId}`} className={styles.buttonContainer}>
-      <Button
+    <Styled.ButtonContainer key={`userlist-btns-${userId}`}>
+      <Styled.WaitingUsersButton
         key={`userbtn-accept-${userId}`}
-        className={styles.button}
         color="primary"
         size="lg"
         ghost
@@ -111,34 +112,33 @@ const renderGuestUserItem = (
         onClick={handleAccept}
       />
       |
-      <Button
+      <Styled.WaitingUsersButton
         key={`userbtn-deny-${userId}`}
-        className={styles.button}
         color="primary"
         size="lg"
         ghost
         label={intl.formatMessage(intlMessages.deny)}
         onClick={handleDeny}
       />
-    </div>
-  </div>
+    </Styled.ButtonContainer>
+  </Styled.ListItem>
 );
 
 const renderNoUserWaitingItem = (message) => (
-  <div className={styles.pendingUsers}>
-    <p className={styles.noPendingUsers}>
+  <Styled.PendingUsers>
+    <Styled.NoPendingUsers>
       {message}
-    </p>
-  </div>
+    </Styled.NoPendingUsers>
+  </Styled.PendingUsers>
 );
 
 const renderPendingUsers = (message, usersArray, action, intl) => {
   if (!usersArray.length) return null;
   return (
-    <div className={styles.pendingUsers}>
-      <p className={styles.mainTitle}>{message}</p>
-      <div className={styles.usersWrapper}>
-        <div className={styles.users}>
+    <Styled.PendingUsers>
+      <Styled.MainTitle>{message}</Styled.MainTitle>
+      <Styled.UsersWrapper>
+        <Styled.Users>
           {usersArray.map((user, idx) => renderGuestUserItem(
             user.name,
             user.color,
@@ -150,9 +150,9 @@ const renderPendingUsers = (message, usersArray, action, intl) => {
             user.avatar,
             intl,
           ))}
-        </div>
-      </div>
-    </div>
+        </Styled.Users>
+      </Styled.UsersWrapper>
+    </Styled.PendingUsers>
   );
 };
 
@@ -209,13 +209,12 @@ const WaitingUsers = (props) => {
   };
 
   const renderButton = (message, { key, policy, action }) => (
-    <Button
+    <Styled.CustomButton
       key={key}
       color="primary"
       label={message}
       size="lg"
       onClick={changePolicy(rememberChoice, policy, action)}
-      className={styles.customBtn}
     />
   );
 
@@ -256,84 +255,81 @@ const WaitingUsers = (props) => {
     ? _.concat(authGuestButtonsData, guestButtonsData)
     : guestButtonsData;
 
+  const { isChrome } = browserInfo;
+
   return (
-    <div
-      data-test="note"
-      className={styles.panel}
-    >
-      <header className={styles.header}>
-        <div
-          data-test="noteTitle"
-          className={styles.title}
-        >
-          <Button
+    <Styled.Panel data-test="note" isChrome={isChrome}>
+      <Styled.Header>
+        <Styled.Title data-test="noteTitle">
+          <Styled.HideButton
             onClick={() => closePanel()}
             label={intl.formatMessage(intlMessages.title)}
             icon="left_arrow"
-            className={styles.hideBtn}
           />
-        </div>
-      </header>
-      {isGuestLobbyMessageEnabled ? (
-        <div className={styles.lobbyMessage}>
-          <TextInput
-            maxLength={128}
-            placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
-            send={setGuestLobbyMessage}
-          />
-          <p>
-            <i>
-              &quot;
-              {
+        </Styled.Title>
+      </Styled.Header>
+      <Styled.ScrollableArea>
+        {isGuestLobbyMessageEnabled ? (
+          <Styled.LobbyMessage>
+            <TextInput
+              maxLength={128}
+              placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
+              send={setGuestLobbyMessage}
+            />
+            <p>
+              <i>
+                &quot;
+                {
                 guestLobbyMessage.length > 0
                   ? guestLobbyMessage
                   : intl.formatMessage(intlMessages.emptyMessage)
               }
-              &quot;
-            </i>
-          </p>
-        </div>
-      ) : null}
-      {existPendingUsers && (
-      <div>
+                &quot;
+              </i>
+            </p>
+          </Styled.LobbyMessage>
+        ) : null}
+        {existPendingUsers && (
         <div>
-          <p className={styles.mainTitle}>{intl.formatMessage(intlMessages.optionTitle)}</p>
-          {
+          <div>
+            <Styled.MainTitle>{intl.formatMessage(intlMessages.optionTitle)}</Styled.MainTitle>
+            {
             buttonsData.map((buttonData) => renderButton(
               intl.formatMessage(buttonData.messageId),
               buttonData,
             ))
           }
-        </div>
-
-        {allowRememberChoice ? (
-          <div className={styles.rememberContainer}>
-            <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
-            <label htmlFor="rememderCheckboxId">
-              {intl.formatMessage(intlMessages.rememberChoice)}
-            </label>
           </div>
-        ) : null}
-      </div>
-      )}
-      {renderPendingUsers(
-        intl.formatMessage(intlMessages.pendingUsers,
-          { 0: authenticatedUsers.length }),
-        authenticatedUsers,
-        guestUsersCall,
-        intl,
-      )}
-      {renderPendingUsers(
-        intl.formatMessage(intlMessages.pendingGuestUsers,
-          { 0: guestUsers.length }),
-        guestUsers,
-        guestUsersCall,
-        intl,
-      )}
-      {!existPendingUsers && (
-        renderNoUserWaitingItem(intl.formatMessage(intlMessages.noPendingUsers))
-      )}
-    </div>
+
+          {allowRememberChoice ? (
+            <Styled.RememberContainer>
+              <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
+              <label htmlFor="rememderCheckboxId">
+                {intl.formatMessage(intlMessages.rememberChoice)}
+              </label>
+            </Styled.RememberContainer>
+          ) : null}
+        </div>
+        )}
+        {renderPendingUsers(
+          intl.formatMessage(intlMessages.pendingUsers,
+            { 0: authenticatedUsers.length }),
+          authenticatedUsers,
+          guestUsersCall,
+          intl,
+        )}
+        {renderPendingUsers(
+          intl.formatMessage(intlMessages.pendingGuestUsers,
+            { 0: guestUsers.length }),
+          guestUsers,
+          guestUsersCall,
+          intl,
+        )}
+        {!existPendingUsers && (
+          renderNoUserWaitingItem(intl.formatMessage(intlMessages.noPendingUsers))
+        )}
+      </Styled.ScrollableArea>
+    </Styled.Panel>
   );
 };
 

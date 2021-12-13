@@ -2,9 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import cx from 'classnames';
-import Icon from '/imports/ui/components/icon/component';
-import { styles } from '../styles';
+import Styled from './styles';
 
 const propTypes = {
   icon: PropTypes.string,
@@ -41,13 +39,13 @@ class DropdownListItem extends Component {
     } = this.props;
 
     return [
-      (icon ? <Icon iconName={icon} key="icon" className={styles.itemIcon} /> : null),
+      (icon ? <Styled.ItemIcon iconName={icon} key="icon" /> : null),
       (
-        <span className={styles.itemLabel} key="label" accessKey={accessKey}>
+        <Styled.ItemLabel key="label" accessKey={accessKey}>
           {label}
-        </span>
+        </Styled.ItemLabel>
       ),
-      (iconRight ? <Icon iconName={iconRight} key="iconRight" className={styles.iconRight} /> : null),
+      (iconRight ? <Styled.IconRight iconName={iconRight} key="iconRight" /> : null),
     ];
   }
 
@@ -70,7 +68,7 @@ class DropdownListItem extends Component {
     const isSelected = className && className.includes('emojiSelected');
     const _label = isSelected ? `${label} (${intl.formatMessage(messages.activeAriaLabel)})` : label;
     return (
-      <li
+      <Styled.Item
         id={id}
         ref={injectRef}
         onClick={onClick}
@@ -78,7 +76,6 @@ class DropdownListItem extends Component {
         tabIndex={tabIndex}
         aria-labelledby={this.labelID}
         aria-describedby={this.descID}
-        className={cx(styles.item, className)}
         style={style}
         role="menuitem"
         data-test={dataTest}
@@ -92,7 +89,7 @@ class DropdownListItem extends Component {
             : null
         }
         <span id={this.descID} key="describedby" hidden>{description}</span>
-      </li>
+      </Styled.Item>
     );
   }
 }

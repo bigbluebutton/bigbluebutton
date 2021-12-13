@@ -1,5 +1,5 @@
-import Breakouts from '/imports/ui/local-collections/breakouts-collection/breakouts';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Breakouts from '/imports/api/breakouts';
+import Meetings from '/imports/api/meetings';
 import Settings from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth/index';
 import deviceInfo from '/imports/utils/deviceInfo';

@@ -28,7 +28,7 @@ import NewWebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
-import { styles } from './styles';
+import Styled from './styles';
 import { DEVICE_TYPE, ACTIONS } from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
@@ -39,10 +39,10 @@ import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
-import { NAVBAR_HEIGHT, LARGE_NAVBAR_HEIGHT } from '/imports/ui/components/layout/defaultValues';
 import Settings from '/imports/ui/services/settings';
 import LayoutService from '/imports/ui/components/layout/service';
 import { registerTitleView } from '/imports/utils/dom-utils';
+import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -223,15 +223,15 @@ class App extends Component {
       currentUserEmoji,
       intl,
       hasPublishedPoll,
-      randomlySelectedUser,
       mountModal,
       deviceType,
-      isPresenter,
       meetingLayout,
-      settingsLayout,
+      selectedLayout, // full layout name
+      settingsLayout, // shortened layout name (without Push)
       layoutType,
-      pushLayoutToEveryone,
+      pushLayoutToEveryone, // is layout pushed
       layoutContextDispatch,
+      mountRandomUserModal,
     } = this.props;
 
     if (meetingLayout !== prevProps.meetingLayout) {
@@ -244,7 +244,7 @@ class App extends Component {
       Settings.save();
     }
 
-    if (settingsLayout !== prevProps.settingsLayout
+    if (selectedLayout !== prevProps.selectedLayout
       || settingsLayout !== layoutType) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_TYPE,
@@ -256,7 +256,7 @@ class App extends Component {
       }
     }
 
-    if (!isPresenter && randomlySelectedUser.length > 0) mountModal(<RandomUserSelectContainer />);
+    if (mountRandomUserModal) mountModal(<RandomUserSelectContainer />);
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
@@ -349,8 +349,7 @@ class App extends Component {
     if (!captions) return null;
 
     return (
-      <div
-        className={styles.captionsWrapper}
+      <Styled.CaptionsWrapper
         style={
           {
             position: 'absolute',
@@ -361,7 +360,7 @@ class App extends Component {
         }
       >
         {captions}
-      </div>
+      </Styled.CaptionsWrapper>
     );
   }
 
@@ -376,8 +375,7 @@ class App extends Component {
     if (!actionsbar || hideActionsBar) return null;
 
     return (
-      <section
-        className={styles.actionsbar}
+      <Styled.ActionsBar
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={this.shouldAriaHide()}
         style={
@@ -392,7 +390,7 @@ class App extends Component {
         }
       >
         {actionsbar}
-      </section>
+      </Styled.ActionsBar>
     );
   }
 
@@ -437,9 +435,9 @@ class App extends Component {
     return (
       <>
         <LayoutEngine layoutType={layoutType} />
-        <div
+        <GlobalStyles />
+        <Styled.Layout
           id="layout"
-          className={styles.layout}
           style={{
             width: '100%',
             height: '100%',
@@ -481,7 +479,7 @@ class App extends Component {
           {this.renderActionsBar()}
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
           {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
-        </div>
+        </Styled.Layout>
       </>
     );
   }

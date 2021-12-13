@@ -5,7 +5,7 @@ import { Session } from 'meteor/session';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { injectIntl, defineMessages } from 'react-intl';
 import _ from 'lodash';
-import Breakouts from '/imports/ui/local-collections/breakouts-collection/breakouts';
+import Breakouts from '/imports/api/breakouts';
 import AppService from '/imports/ui/components/app/service';
 import { notify } from '/imports/ui/services/notification';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -82,11 +82,11 @@ class AudioContainer extends PureComponent {
   componentDidMount() {
     const { meetingIsBreakout } = this.props;
 
-    this.init();
-
-    if (meetingIsBreakout && !Service.isUsingAudio()) {
-      this.joinAudio();
-    }
+    this.init().then(() => {
+      if (meetingIsBreakout && !Service.isUsingAudio()) {
+        this.joinAudio();
+      }
+    });
   }
 
   componentDidUpdate(prevProps) {
@@ -217,15 +217,15 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
     meetingIsBreakout,
     userSelectedMicrophone,
     userSelectedListenOnly,
-    init: () => {
-      Service.init(messages, intl);
+    init: async () => {
+      await Service.init(messages, intl);
       const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
       const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
       if ((!autoJoin || didMountAutoJoin)) {
         if (enableVideo && autoShareWebcam) {
           openVideoPreviewModal();
         }
-        return;
+        return Promise.resolve(false);
       }
       Session.set('audioModalIsOpen', true);
       if (enableVideo && autoShareWebcam) {
@@ -237,6 +237,7 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
         openAudioModal();
         didMountAutoJoin = true;
       }
+      return Promise.resolve(true);
     },
   };
 })(AudioContainer))));

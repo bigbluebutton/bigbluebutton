@@ -1,9 +1,7 @@
 import React, { PureComponent } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
-import { styles } from './styles';
+import Styled from './styles';
 import Service from './service';
 
 const intlMessages = defineMessages({
@@ -56,19 +54,9 @@ class TalkingIndicator extends PureComponent {
       const {
         talking,
         color,
-        voiceUserId,
         muted,
         callerName,
       } = talkers[`${id}`];
-
-      const style = {
-        [styles.talker]: true,
-        [styles.spoke]: !talking,
-        [styles.muted]: muted,
-        [styles.mobileHide]: sidebarNavigationIsOpen
-          && sidebarContentIsOpen,
-        [styles.isViewer]: !amIModerator,
-      };
 
       const ariaLabel = intl.formatMessage(talking
         ? intlMessages.isTalking : intlMessages.wasTalking, {
@@ -79,10 +67,13 @@ class TalkingIndicator extends PureComponent {
       icon = muted ? 'mute' : icon;
 
       return (
-        <Button
+        <Styled.TalkingIndicatorButton
+          spoke={!talking}
+          muted={muted}
+          mobileHide={sidebarNavigationIsOpen && sidebarContentIsOpen}
+          isViewer={!amIModerator}
           key={_.uniqueId(`${callerName}-`)}
-          className={cx(style)}
-          onClick={() => this.handleMuteUser(voiceUserId)}
+          onClick={() => this.handleMuteUser(id)}
           label={callerName}
           tooltipLabel={!muted && amIModerator
             ? `${intl.formatMessage(intlMessages.muteLabel)} ${callerName}`
@@ -99,11 +90,11 @@ class TalkingIndicator extends PureComponent {
           }}
         >
           {talking ? (
-            <div id="description" className={styles.hidden}>
+            <Styled.Hidden id="description">
               {`${intl.formatMessage(intlMessages.ariaMuteDesc)}`}
-            </div>
+            </Styled.Hidden>
           ) : null}
-        </Button>
+        </Styled.TalkingIndicatorButton>
       );
     });
 
@@ -111,14 +102,6 @@ class TalkingIndicator extends PureComponent {
       if (!moreThanMaxIndicators) return null;
 
       const nobodyTalking = Service.nobodyTalking(talkers);
-
-      const style = {
-        [styles.talker]: true,
-        [styles.spoke]: nobodyTalking,
-        // [styles.muted]: false,
-        [styles.mobileHide]: sidebarNavigationIsOpen
-          && sidebarContentIsOpen,
-      };
 
       const { moreThanMaxIndicatorsTalking, moreThanMaxIndicatorsWereTalking } = intlMessages;
 
@@ -128,9 +111,12 @@ class TalkingIndicator extends PureComponent {
       });
 
       return (
-        <Button
+        <Styled.TalkingIndicatorButton
+          spoke={nobodyTalking}
+          muted={false}
+          mobileHide={sidebarNavigationIsOpen && sidebarContentIsOpen}
+          isViewer={false}
           key={_.uniqueId('_has__More_')}
-          className={cx(style)}
           onClick={() => {}} // maybe add a dropdown to show the rest of the users
           label="..."
           tooltipLabel={ariaLabel}
@@ -147,12 +133,12 @@ class TalkingIndicator extends PureComponent {
     };
 
     return (
-      <div className={styles.isTalkingWrapper}>
-        <div className={styles.speaking}>
+      <Styled.IsTalkingWrapper>
+        <Styled.Speaking>
           {talkingUserElements}
           {maxIndicator()}
-        </div>
-      </div>
+        </Styled.Speaking>
+      </Styled.IsTalkingWrapper>
     );
   }
 }

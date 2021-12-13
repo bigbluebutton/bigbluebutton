@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import PollingService from './service';
 import PollService from '/imports/ui/components/poll/service';
@@ -31,13 +31,20 @@ export default withTracker(() => {
   const {
     pollExists, handleVote, poll, handleTypedVote,
   } = PollingService.mapPolls();
+  const { pollTypes } = PollService;
+
+  if(poll && poll?.pollType){
+    const isResponse = poll.pollType === pollTypes.Response;
+    Meteor.subscribe('polls', isResponse);
+  }
+
   return ({
     pollExists,
     handleVote,
     handleTypedVote,
     poll,
     pollAnswerIds: PollService.pollAnswerIds,
-    pollTypes: PollService.pollTypes,
+    pollTypes,
     isDefaultPoll: PollService.isDefaultPoll,
     isMeteorConnected: Meteor.status().connected,
   });

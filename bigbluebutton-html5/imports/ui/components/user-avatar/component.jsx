@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
-
-import { styles } from './styles';
+import Settings from '/imports/ui/services/settings';
+import Styled from './styles';
+import browserInfo from '/imports/utils/browserInfo';
 
 const propTypes = {
   children: PropTypes.node.isRequired,
@@ -16,11 +16,9 @@ const propTypes = {
   color: PropTypes.string,
   emoji: PropTypes.bool,
   avatar: PropTypes.string,
-  className: PropTypes.string,
 };
 
 const defaultProps = {
-  moderator: false,
   presenter: false,
   talking: false,
   muted: false,
@@ -30,8 +28,10 @@ const defaultProps = {
   color: '#000',
   emoji: false,
   avatar: '',
-  className: null,
 };
+
+const { animations } = Settings.application;
+const { isChrome, isFirefox, isEdge } = browserInfo;
 
 const UserAvatar = ({
   children,
@@ -45,51 +45,43 @@ const UserAvatar = ({
   emoji,
   avatar,
   noVoice,
-  className,
   whiteboardAccess,
 }) => (
-
-  <div
+  <Styled.Avatar
     aria-hidden="true"
     data-test="userAvatar"
-    className={cx(styles.avatar, {
-      [styles.moderator]: moderator,
-      [styles.presenter]: presenter,
-      [styles.whiteboardAccess]: whiteboardAccess && !presenter,
-      [styles.muted]: muted,
-      [styles.listenOnly]: listenOnly,
-      [styles.voice]: voice,
-      [styles.noVoice]: noVoice && !listenOnly,
-    }, className)}
+    moderator={moderator}
+    presenter={presenter}
+    whiteboardAccess={whiteboardAccess && !presenter}
+    muted={muted}
+    listenOnly={listenOnly}
+    voice={voice}
+    noVoice={noVoice && !listenOnly}
+    isChrome={isChrome}
+    isFirefox={isFirefox}
+    isEdge={isEdge}
     style={{
       backgroundColor: color,
       color, // We need the same color on both for the border
     }}
   >
 
-    <div className={cx({
-      [styles.talking]: (talking && !muted && avatar.length === 0),
-    })}
-    />
+    <Styled.Talking talking={talking && !muted && avatar.length === 0} animations={animations} />
 
     {avatar.length !== 0 && !emoji
       ? (
-        <div className={styles.image}>
-          <img
-            className={cx(styles.img, {
-              [styles.circle]: !moderator,
-              [styles.square]: moderator,
-            })}
+        <Styled.Image>
+          <Styled.Img
+            moderator={moderator}
             src={avatar}
           />
-        </div>
+        </Styled.Image>
       ) : (
-        <div className={styles.content}>
+        <Styled.Content>
           {children}
-        </div>
-      )
-    }
-  </div>
+        </Styled.Content>
+      )}
+  </Styled.Avatar>
 );
 
 UserAvatar.propTypes = propTypes;

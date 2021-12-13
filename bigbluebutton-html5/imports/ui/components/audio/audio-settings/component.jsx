@@ -3,10 +3,8 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
 import AudioTestContainer from '/imports/ui/components/audio/audio-test/container';
-import cx from 'classnames';
-import { styles } from './styles';
+import Styled from './styles';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -99,68 +97,56 @@ class AudioSettings extends React.Component {
     const { inputDeviceId, outputDeviceId } = this.state;
 
     return (
-      <div className={styles.formWrapper}>
-        <div className={styles.form}>
-          <div className={styles.row}>
-            <div className={styles.audioNote}>
+      <Styled.FormWrapper>
+        <Styled.Form>
+          <Styled.Row>
+            <Styled.AudioNote>
               {intl.formatMessage(intlMessages.descriptionLabel)}
-            </div>
-          </div>
+            </Styled.AudioNote>
+          </Styled.Row>
 
-          <div className={styles.row}>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label
-                  htmlFor="inputDeviceSelector"
-                  className={cx(styles.label, styles.labelSmall)}
-                >
+          <Styled.Row>
+            <Styled.Col>
+              <Styled.FormElement>
+                <Styled.LabelSmall htmlFor="inputDeviceSelector">
                   {intl.formatMessage(intlMessages.micSourceLabel)}
-                  <DeviceSelector
+                  <Styled.DeviceSelectorSelect
                     id="inputDeviceSelector"
                     value={inputDeviceId}
-                    className={styles.select}
                     kind="audioinput"
                     onChange={this.handleInputChange}
                   />
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={styles.formElement}>
-                <label
-                  htmlFor="outputDeviceSelector"
-                  className={cx(styles.label, styles.labelSmall)}
-                >
+                </Styled.LabelSmall>
+              </Styled.FormElement>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElement>
+                <Styled.LabelSmall htmlFor="outputDeviceSelector">
                   {intl.formatMessage(intlMessages.speakerSourceLabel)}
-                  <DeviceSelector
+                  <Styled.DeviceSelectorSelect
                     id="outputDeviceSelector"
                     value={outputDeviceId}
-                    className={styles.select}
                     kind="audiooutput"
                     onChange={this.handleOutputChange}
                   />
-                </label>
-              </div>
-            </div>
-          </div>
+                </Styled.LabelSmall>
+              </Styled.FormElement>
+            </Styled.Col>
+          </Styled.Row>
 
-          <div className={styles.row}>
-            <div className={cx(styles.col, styles.spacedLeft)}>
+          <Styled.Row>
+            <Styled.SpacedLeftCol>
               {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-              <label
-                htmlFor="audioTest"
-                className={styles.labelSmall}
-              >
+              <Styled.LabelSmall htmlFor="audioTest">
                 Test your speaker volume
                 <AudioTestContainer id="audioTest" />
-              </label>
-            </div>
-          </div>
-        </div>
+              </Styled.LabelSmall>
+            </Styled.SpacedLeftCol>
+          </Styled.Row>
+        </Styled.Form>
 
-        <div className={styles.enterAudio}>
-          <Button
-            className={styles.backBtn}
+        <Styled.EnterAudio>
+          <Styled.BackButton
             label={intl.formatMessage(intlMessages.backLabel)}
             size="md"
             color="primary"
@@ -174,8 +160,8 @@ class AudioSettings extends React.Component {
             label={intl.formatMessage(intlMessages.retryLabel)}
             onClick={handleRetry}
           />
-        </div>
-      </div>
+        </Styled.EnterAudio>
+      </Styled.FormWrapper>
     );
   }
 }

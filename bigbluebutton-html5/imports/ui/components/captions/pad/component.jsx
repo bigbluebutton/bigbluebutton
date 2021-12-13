@@ -7,9 +7,10 @@ import logger from '/imports/startup/client/logger';
 import PadService from './service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import { notify } from '/imports/ui/services/notification';
-import { styles } from './styles';
+import Styled from './styles';
 import { PANELS, ACTIONS } from '../../layout/enums';
 import _ from 'lodash';
+import browserInfo from '/imports/utils/browserInfo';
 
 const intlMessages = defineMessages({
   hide: {
@@ -238,11 +239,13 @@ class Pad extends PureComponent {
       url,
     } = this.state;
 
+    const { isChrome } = browserInfo;
+
     return (
-      <div className={styles.pad}>
-        <header className={styles.header}>
-          <div className={styles.title}>
-            <Button
+      <Styled.Pad isChrome={isChrome}>
+        <Styled.Header>
+          <Styled.Title>
+            <Styled.HideBtn
               onClick={() => {
                 layoutContextDispatch({
                   type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -256,9 +259,8 @@ class Pad extends PureComponent {
               aria-label={intl.formatMessage(intlMessages.hide)}
               label={name}
               icon="left_arrow"
-              className={styles.hideBtn}
             />
-          </div>
+          </Styled.Title>
           {CaptionsService.canIDictateThisPad(ownerId)
             ? (
               <span>
@@ -289,16 +291,13 @@ class Pad extends PureComponent {
                 label={intl.formatMessage(intlMessages.takeOwnership)}
               />
             ) : null}
-        </header>
+        </Styled.Header>
         {listening ? (
           <div>
-            <span className={styles.interimTitle}>
+            <Styled.InterimTitle>
               {intl.formatMessage(intlMessages.interimResult)}
-            </span>
-            <div
-              className={styles.processing}
-              ref={(node) => { this.iterimResultContainer = node; }}
-            />
+            </Styled.InterimTitle>
+            <Styled.Processing ref={(node) => { this.iterimResultContainer = node; }} />
           </div>
         ) : null}
         <iframe
@@ -309,10 +308,10 @@ class Pad extends PureComponent {
             pointerEvents: isResizing ? 'none' : 'inherit',
           }}
         />
-        <span id="padEscapeHint" className={styles.hint} aria-hidden>
+        <Styled.Hint id="padEscapeHint" aria-hidden>
           {intl.formatMessage(intlMessages.tip)}
-        </span>
-      </div>
+        </Styled.Hint>
+      </Styled.Pad>
     );
   }
 }

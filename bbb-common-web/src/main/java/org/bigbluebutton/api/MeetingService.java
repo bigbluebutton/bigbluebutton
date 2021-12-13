@@ -74,6 +74,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.InputStream;
+
 public class MeetingService implements MessageListener {
   private static Logger log = LoggerFactory.getLogger(MeetingService.class);
 
@@ -135,13 +139,13 @@ public class MeetingService implements MessageListener {
   public void registerUser(String meetingID, String internalUserId,
                            String fullname, String role, String externUserID,
                            String authToken, String avatarURL, Boolean guest,
-                           Boolean authed, String guestStatus) {
+                           Boolean authed, String guestStatus, Boolean excludeFromDashboard) {
     handle(new RegisterUser(meetingID, internalUserId, fullname, role,
-      externUserID, authToken, avatarURL, guest, authed, guestStatus));
+      externUserID, authToken, avatarURL, guest, authed, guestStatus, excludeFromDashboard));
 
     Meeting m = getMeeting(meetingID);
     if (m != null) {
-      RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus);
+      RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus, excludeFromDashboard);
       m.userRegistered(ruser);
     }
   }
@@ -415,7 +419,7 @@ public class MeetingService implements MessageListener {
             m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getAllowModsToChangeUsernames(),
             m.getMeetingKeepEvents(),
             m.breakoutRoomsParams,
-            m.lockSettingsParams, m.getHtml5InstanceId());
+            m.lockSettingsParams, m.getHtml5InstanceId(), m.getGroups());
   }
 
   private String formatPrettyDate(Long timestamp) {
@@ -457,7 +461,7 @@ public class MeetingService implements MessageListener {
     gw.registerUser(message.meetingID,
       message.internalUserId, message.fullname, message.role,
       message.externUserID, message.authToken, message.avatarURL, message.guest,
-            message.authed, message.guestStatus);
+            message.authed, message.guestStatus, message.excludeFromDashboard);
   }
 
     public Meeting getMeeting(String meetingId) {
@@ -1214,6 +1218,13 @@ public class MeetingService implements MessageListener {
     log.info("Starting Meeting Service.");
     try {
       processMessage = true;
+      Process p = Runtime.getRuntime().exec(new String[]{"/bin/sh", "-c", "cat /etc/bigbluebutton/bigbluebutton-release | cut -d '=' -f2"});
+
+      BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+      String apiVersionFromFile = reader.readLine();
+
+      paramsProcessorUtil.setBbbVersion(apiVersionFromFile);
       Runnable messageReceiver = new Runnable() {
         public void run() {
           while (processMessage) {

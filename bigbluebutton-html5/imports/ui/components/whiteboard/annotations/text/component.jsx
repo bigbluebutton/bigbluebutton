@@ -149,18 +149,7 @@ export default class TextDrawComponent extends Component {
 
     return (
       <g>
-        <RenderInBrowser only firefox>
-          <clipPath id={annotation.id}>
-            <rect
-              x={results.x}
-              y={results.y}
-              width={results.width}
-              height={results.height}
-            />
-          </clipPath>
-        </RenderInBrowser>
         <foreignObject
-          clipPath={`url(#${annotation.id})`}
           x={results.x}
           y={results.y}
           width={results.width}

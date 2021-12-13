@@ -1,5 +1,5 @@
 import Auth from '/imports/ui/services/auth';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Meetings from '/imports/api/meetings';
 
 export default function getFromMeetingSettings(setting, defaultValue) {
   const prop = Meetings.findOne(

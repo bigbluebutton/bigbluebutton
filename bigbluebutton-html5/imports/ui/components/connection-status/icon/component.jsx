@@ -1,39 +1,30 @@
-import React, { Fragment } from 'react';
-import cx from 'classnames';
-import { styles } from './styles';
+import React from 'react';
+import Styled from './styles';
 
 const STATS = {
   critical: {
-    color: styles.critical,
-    bars: styles.oneBar,
+    bars: 1,
   },
   danger: {
-    color: styles.danger,
-    bars: styles.twoBars,
+    bars: 2,
   },
   warning: {
-    color: styles.warning,
-    bars: styles.threeBars,
+    bars: 3,
   },
   normal: {
-    color: styles.normal,
-    bars: styles.fourBars,
+    bars: 4,
   },
 };
 
-const Icon = ({ level, grayscale }) => {
-  const color = grayscale ? styles.normal : STATS[level].color;
-
-  return (
-    <Fragment>
-      <div className={cx(styles.signalBars, color, STATS[level].bars)}>
-        <div className={cx(styles.firstBar, styles.bar)} />
-        <div className={cx(styles.secondBar, styles.bar)} />
-        <div className={cx(styles.thirdBar, styles.bar)} />
-        <div className={cx(styles.fourthBar, styles.bar)} />
-      </div>
-    </Fragment>
-  );
-};
+const Icon = ({ level, grayscale }) => (
+  <>
+    <Styled.SignalBars level={level} grayscale={grayscale}>
+      <Styled.FirstBar />
+      <Styled.SecondBar active={STATS[level].bars >= 2} />
+      <Styled.ThirdBar active={STATS[level].bars >= 3} />
+      <Styled.FourthBar active={STATS[level].bars >= 4} />
+    </Styled.SignalBars>
+  </>
+);
 
 export default Icon;

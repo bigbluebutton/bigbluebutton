@@ -1,6 +1,7 @@
 const Page = require('../core/page');
 const Draw = require('./draw');
 const Multiusers = require('../user/multiusers');
+const { closePages } = require('../core/util');
 const { toMatchImageSnapshot } = require('jest-image-snapshot');
 const { MAX_WHITEBOARD_TEST_TIMEOUT } = require('../core/constants');
 
@@ -55,7 +56,7 @@ const whiteboardTest = () => {
     } catch (err) {
       await test.page1.logger(err);
     } finally {
-      await test.close(test.page1, test.page2);
+      await closePages(test.page1, test.page2);
     }
     expect(response).toBe(true);
     Page.checkRegression(0.9, screenshot);

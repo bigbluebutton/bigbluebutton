@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
-import AuthTokenValidation from '/imports/api/auth-token-validation';
-import Users from '/imports/ui/local-collections/users-collection/users';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 import { notify } from '/imports/ui/services/notification';
 import CaptionsContainer from '/imports/ui/components/captions/container';
 import CaptionsService from '/imports/ui/components/captions/service';
@@ -14,12 +13,13 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
-import { 
-  layoutSelect, 
-  layoutSelectInput, 
-  layoutSelectOutput, 
-  layoutDispatch 
+import {
+  layoutSelect,
+  layoutSelectInput,
+  layoutSelectOutput,
+  layoutDispatch,
 } from '../layout/context';
+
 import Storage from '/imports/ui/services/storage/session';
 
 import {
@@ -28,7 +28,7 @@ import {
   validIOSVersion,
 } from './service';
 
-import { withModalMounter } from '../modal/service';
+import { withModalMounter, getModal } from '../modal/service';
 
 import App from './component';
 import ActionsBarContainer from '../actions-bar/container';
@@ -57,14 +57,26 @@ const endMeeting = (code) => {
 };
 
 const AppContainer = (props) => {
+  function usePrevious(value) {
+    const ref = useRef();
+    useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
+  }
+
   const {
     actionsbar,
     meetingLayout,
+    selectedLayout,
     settingsLayout,
     pushLayoutToEveryone,
     currentUserId,
     shouldShowPresentation: propsShouldShowPresentation,
     presentationRestoreOnUpdate,
+    isPresenter,
+    randomlySelectedUser,
+    isModalOpen,
     ...otherProps
   } = props;
 
@@ -83,6 +95,13 @@ const AppContainer = (props) => {
   const shouldShowPresentation = propsShouldShowPresentation
     && (presentationIsOpen || presentationRestoreOnUpdate);
 
+  const prevRandomUser = usePrevious(randomlySelectedUser);
+
+  const mountRandomUserModal = !isPresenter
+  && !_.isEqual( prevRandomUser, randomlySelectedUser)
+  && randomlySelectedUser.length > 0
+  && !isModalOpen;
+
   return currentUserId
     ? (
       <App
@@ -93,6 +112,7 @@ const AppContainer = (props) => {
           currentUserId,
           layoutType,
           meetingLayout,
+          selectedLayout,
           settingsLayout,
           pushLayoutToEveryone,
           deviceType,
@@ -102,6 +122,8 @@ const AppContainer = (props) => {
           sidebarContentPanel,
           sidebarContentIsOpen,
           shouldShowPresentation,
+          mountRandomUserModal,
+          isPresenter,
         }}
         {...otherProps}
       />
@@ -121,12 +143,6 @@ const currentUserEmoji = (currentUser) => (currentUser
 );
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
-  const authTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });
-
-  if (authTokenValidation.connectionId !== Meteor.connection._lastSessionId) {
-    endMeeting('403');
-  }
-
   Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
     removed() {
       endMeeting('403');
@@ -178,7 +194,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
-    && (viewScreenshare || MediaService.isUserPresenter());
+    && (viewScreenshare || currentUser?.presenter);
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
 
   if (!customStyleUrl && CUSTOM_STYLE_URL) {
@@ -205,6 +221,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     currentUserId: currentUser?.userId,
     isPresenter: currentUser?.presenter,
     meetingLayout: layout,
+    selectedLayout,
     settingsLayout: selectedLayout?.replace('Push', ''),
     pushLayoutToEveryone: selectedLayout?.includes('Push'),
     audioAlertEnabled: AppSettings.chatAudioAlerts,
@@ -219,6 +236,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     ),
     hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
+    isModalOpen: !!getModal(),
   };
 })(AppContainer)));
 

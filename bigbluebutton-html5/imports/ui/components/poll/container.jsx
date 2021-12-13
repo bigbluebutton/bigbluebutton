@@ -18,6 +18,7 @@ const PollContainer = ({ ...props }) => {
 
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
+  const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
 
   const usernames = {};
 
@@ -25,7 +26,13 @@ const PollContainer = ({ ...props }) => {
     usernames[user.userId] = { userId: user.userId, name: user.name };
   });
 
-  return <Poll {...{ layoutContextDispatch, ...props }} usernames={usernames} />;
+  return (
+    <Poll
+      {...{ layoutContextDispatch, ...props }}
+      usernames={usernames}
+      amIPresenter={amIPresenter}
+    />
+  );
 };
 
 export default withTracker(() => {
@@ -42,15 +49,14 @@ export default withTracker(() => {
 
   const { pollTypes } = Service;
 
-  const startPoll = (type, secretPoll, question = '') => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question);
+  const startPoll = (type, secretPoll, question = '', isMultipleResponse) => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question, isMultipleResponse);
 
-  const startCustomPoll = (type, secretPoll, question = '', answers) => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question, answers);
+  const startCustomPoll = (type, secretPoll, question = '', isMultipleResponse, answers) => makeCall('startPoll', pollTypes, type, pollId, secretPoll, question, isMultipleResponse, answers);
 
   const stopPoll = () => makeCall('stopPoll');
 
   return {
     currentSlide,
-    amIPresenter: Service.amIPresenter(),
     pollTypes,
     startPoll,
     startCustomPoll,

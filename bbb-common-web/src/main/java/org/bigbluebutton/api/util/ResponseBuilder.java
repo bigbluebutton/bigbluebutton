@@ -52,12 +52,14 @@ public class ResponseBuilder {
         return new Date(timestamp).toString();
     }
 
-    public String buildMeetingVersion(String version, String returnCode) {
+    public String buildMeetingVersion(String apiVersion, String bbbVersion, String returnCode) {
         StringWriter xmlText = new StringWriter();
 
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("returnCode", returnCode);
-        data.put("version", version);
+        data.put("version", apiVersion);
+        data.put("apiVersion", apiVersion);
+        data.put("bbbVersion", bbbVersion);
 
         processData(getTemplate("api-version.ftlx"), data, xmlText);
 
