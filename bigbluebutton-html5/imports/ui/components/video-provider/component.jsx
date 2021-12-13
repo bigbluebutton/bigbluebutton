@@ -14,6 +14,12 @@ import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/str
 import VideoPreviewService from '../video-preview/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { BBBVideoStream } from '/imports/ui/services/webrtc-base/bbb-video-stream';
+import {
+  EFFECT_TYPES,
+  getSessionVirtualBackgroundInfo,
+} from '/imports/ui/services/virtual-background/service';
+import { notify } from '/imports/ui/services/notification';
+import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.
@@ -600,6 +606,9 @@ class VideoProvider extends Component {
         video: constraints,
       },
       onicecandidate: this._getOnIceCandidateCallback(stream, isLocal),
+      configuration: {
+        iceTransportPolicy: shouldForceRelay() ? 'relay' : undefined,
+      }
     };
 
     try {
@@ -618,7 +627,6 @@ class VideoProvider extends Component {
       iceServers = getMappedFallbackStun();
     } finally {
       if (iceServers.length > 0) {
-        peerOptions.configuration = {};
         peerOptions.configuration.iceServers = iceServers;
       }
 
@@ -886,7 +894,44 @@ class VideoProvider extends Component {
     if (isAbleToAttach) {
       this.attach(peer, video);
       peer.attached = true;
+
+      if (isLocal) {
+        const deviceId = MediaStreamUtils.extractVideoDeviceId(peer.bbbVideoStream.mediaStream);
+        const { type, name } = getSessionVirtualBackgroundInfo(deviceId);
+
+        this.restoreVirtualBackground(peer.bbbVideoStream, type, name).catch((error) => {
+          this.handleVirtualBgError(error, type, name);
+        });
+      }
     }
+  }
+
+  restoreVirtualBackground(stream, type, name) {
+    return new Promise((resolve, reject) => {
+      if (type !== EFFECT_TYPES.NONE_TYPE) {
+        stream.startVirtualBackground(type, name).then(() => {
+          resolve();
+        }).catch((error) => {
+          reject(error);
+        });
+      }
+      resolve();
+    });
+  }
+
+  handleVirtualBgError(error, type, name) {
+    const { intl } = this.props;
+    logger.error({
+      logCode: `video_provider_virtualbg_error`,
+      extraInfo: {
+        errorName: error.name,
+        errorMessage: error.message,
+        virtualBgType: type,
+        virtualBgName: name,
+      },
+    }, `Failed to restore virtual background after reentering the room: ${error.message}`);
+
+    notify(intl.formatMessage(intlMessages.virtualBgGenericError), 'error', 'video');
   }
 
   createVideoTag(stream, video) {

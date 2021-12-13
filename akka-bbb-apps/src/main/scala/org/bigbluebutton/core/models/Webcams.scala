@@ -1,5 +1,7 @@
 package org.bigbluebutton.core.models
 
+import com.softwaremill.quicklens._
+
 object Webcams {
   def findWithStreamId(webcams: Webcams, streamId: String): Option[WebcamStream] = {
     webcams.toVector.find(w => w.stream.id == streamId)
@@ -31,17 +33,38 @@ object Webcams {
     } yield removedStream
   }
 
-  def updateWebcamStream(webcams: Webcams, streamId: String, userId: String): Option[WebcamStream] = {
+  def addViewer(webcams: Webcams, streamId: String, subscriberId: String): Unit = {
+    for {
+      webcamStream <- findWithStreamId(webcams, streamId)
+    } yield {
+      val mediaStream = webcamStream.stream
+      if (!mediaStream.viewers.contains(subscriberId)) {
+        val newViewers = mediaStream.viewers + subscriberId
+        webcams.updateViewers(webcamStream, newViewers)
+      }
+    }
+  }
+
+  def removeViewer(webcams: Webcams, streamId: String, subscriberId: String): Unit = {
+    for {
+      webcamStream <- findWithStreamId(webcams, streamId)
+    } yield {
+      val mediaStream = webcamStream.stream
+      if (mediaStream.viewers.contains(subscriberId)) {
+        val newViewers = mediaStream.viewers - subscriberId
+        webcams.updateViewers(webcamStream, newViewers)
+      }
+    }
+  }
+
+  def isViewingWebcam(webcams: Webcams, userId: String, streamId: String): Boolean = {
     findWithStreamId(webcams, streamId) match {
-      case Some(value) => {
-        val mediaStream: MediaStream = MediaStream(value.stream.id, value.stream.url, userId, value.stream.attributes,
-          value.stream.viewers)
-        val webcamStream: WebcamStream = WebcamStream(streamId, mediaStream)
-        webcams.update(streamId, webcamStream)
-        Some(webcamStream)
+      case Some(webcam) => {
+        val viewing = webcam.stream.viewers contains userId
+        viewing
       }
       case None => {
-        None
+        false
       }
     }
   }
@@ -63,10 +86,11 @@ class Webcams {
     webcam
   }
 
-  private def update(streamId: String, webcamStream: WebcamStream): WebcamStream = {
-    val webcam = remove(streamId)
-
-    save(webcamStream)
+  private def updateViewers(webcamStream: WebcamStream, viewers: Set[String]): WebcamStream = {
+    val mediaStream: MediaStream = webcamStream.stream
+    val newMediaStream = mediaStream.modify(_.viewers).setTo(viewers)
+    val newWebcamStream = webcamStream.modify(_.stream).setTo(newMediaStream)
+    save(newWebcamStream)
   }
 }
 

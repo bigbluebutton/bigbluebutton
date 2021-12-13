@@ -81,7 +81,7 @@ class StatusTable extends React.Component {
     const isRTL = document.dir === 'rtl';
 
     return (
-      <table className="w-full whitespace-nowrap">
+      <table className="w-full">
         <thead>
           <tr className="text-xs font-semibold tracking-wide text-gray-500 uppercase border-b bg-gray-100">
             <th className={`z-30 bg-inherit px-4 py-3 col-text-left sticky ${isRTL ? 'right-0' : 'left-0'}`}>
@@ -103,7 +103,7 @@ class StatusTable extends React.Component {
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y">
+        <tbody className="bg-white divide-y whitespace-nowrap">
           { hasSlides ? (
             <tr className="bg-inherit">
               <td className={`bg-inherit z-30 sticky ${isRTL ? 'right-0' : 'left-0'}`} />
@@ -180,7 +180,7 @@ class StatusTable extends React.Component {
                     const boundaryRight = period.end;
                     const interval = period.end - period.start;
                     return (
-                      <td className="relative px-4 py-3 text-sm col-text-left">
+                      <td className="relative px-3.5 2xl:px-4 py-3 text-sm col-text-left">
                         { (registeredOn >= boundaryLeft && registeredOn <= boundaryRight)
                           || (leftOn >= boundaryLeft && leftOn <= boundaryRight)
                           || (boundaryLeft > registeredOn && boundaryRight < leftOn)
