@@ -77,6 +77,8 @@ const intlMessages = defineMessages({
   },
 });
 
+let prevBreakoutData = {};
+
 class BreakoutRoom extends PureComponent {
   static sortById(a, b) {
     if (a.userId > b.userId) {
@@ -143,7 +145,9 @@ class BreakoutRoom extends PureComponent {
       const breakoutUrlData = getBreakoutRoomUrl(requestedBreakoutId);
 
       if (!breakoutUrlData) return false;
-      if (breakoutUrlData.redirectToHtml5JoinURL !== '') {
+      if (breakoutUrlData.redirectToHtml5JoinURL !== ''
+        && breakoutUrlData.redirectToHtml5JoinURL !== prevBreakoutData.redirectToHtml5JoinURL) {
+        prevBreakoutData = breakoutUrlData;
         window.open(breakoutUrlData.redirectToHtml5JoinURL, '_blank');
         _.delay(() => this.setState({ generated: true, waiting: false }), 1000);
       }
