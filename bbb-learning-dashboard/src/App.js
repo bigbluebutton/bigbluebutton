@@ -34,7 +34,6 @@ class App extends React.Component {
     });
   }
 
-<<<<<<< HEAD
   handleSaveSessionData(e) {
     const { target: downloadButton } = e;
     const { intl } = this.props;
@@ -63,10 +62,7 @@ class App extends React.Component {
     document.body.removeChild(link);
   }
 
-  setDashboardParams() {
-=======
   setDashboardParams(callback) {
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
     let learningDashboardAccessToken = '';
     let meetingId = '';
     let sessionToken = '';
@@ -147,15 +143,12 @@ class App extends React.Component {
       fetch(`${meetingId}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
         .then((response) => response.json())
         .then((json) => {
-<<<<<<< HEAD
-          this.setState({ activitiesJson: json, loading: false, lastUpdated: Date.now() });
-=======
           this.setState({
             activitiesJson: json,
             loading: false,
             invalidSessionCount: 0,
+            lastUpdated: Date.now(),
           });
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
           document.title = `Learning Dashboard - ${json.name}`;
         }).catch(() => {
           this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
@@ -167,15 +160,12 @@ class App extends React.Component {
         .then((json) => {
           if (json.response.returncode === 'SUCCESS') {
             const jsonData = JSON.parse(json.response.data);
-<<<<<<< HEAD
-            this.setState({ activitiesJson: jsonData, loading: false, lastUpdated: Date.now() });
-=======
             this.setState({
               activitiesJson: jsonData,
               loading: false,
               invalidSessionCount: 0,
+              lastUpdated: Date.now(),
             });
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
             document.title = `Learning Dashboard - ${jsonData.name}`;
           } else {
             // When meeting is ended the sessionToken stop working, check for new cookies

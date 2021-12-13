@@ -96,7 +96,6 @@ class PollsTable extends React.Component {
                   </td>
 
                   {typeof polls === 'object' && Object.values(polls || {}).length > 0 ? (
-<<<<<<< HEAD
                     Object.values(polls || {})
                       .sort((a, b) => ((a.createdOn > b.createdOn) ? 1 : -1))
                       .map((poll) => (
@@ -108,24 +107,6 @@ class PollsTable extends React.Component {
                                 id: 'app.learningDashboard.pollsTable.anonymousAnswer',
                                 defaultMessage: 'Anonymous Poll (answers in the last row)',
                               })}
-=======
-                    Object.values(polls || {}).map((poll) => (
-                      <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
-                        { getUserAnswer(user, poll) }
-                        { poll.anonymous
-                          ? (
-                            <span title={intl.formatMessage({
-                              id: 'app.learningDashboard.pollsTable.anonymousAnswer',
-                              defaultMessage: 'Anonymous Poll (answers in the last row)',
-                            })}
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4 inline"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
                               >
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -149,51 +130,6 @@ class PollsTable extends React.Component {
                   ) : null }
                 </tr>
               ))) : null }
-<<<<<<< HEAD
-          <tr className="text-gray-700">
-            <td className="px-4 py-3">
-              <div className="flex items-center text-sm">
-                <div className="relative hidden w-8 h-8 mr-3 rounded-full md:block">
-                  {/* <img className="object-cover w-full h-full rounded-full" */}
-                  {/*     src="" */}
-                  {/*     alt="" loading="lazy" /> */}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="relative hidden w-8 h-8 mr-3 rounded-full md:block"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <div
-                    className="absolute inset-0 rounded-full shadow-inner"
-                    aria-hidden="true"
-                  />
-                </div>
-                <div>
-                  <p className="font-semibold">
-                    <FormattedMessage id="app.learningDashboard.pollsTable.anonymousRowName" defaultMessage="Anonymous" />
-                  </p>
-                </div>
-              </div>
-            </td>
-            {typeof polls === 'object' && Object.values(polls || {}).length > 0 ? (
-              Object.values(polls || {})
-                .sort((a, b) => ((a.createdOn > b.createdOn) ? 1 : -1))
-                .map((poll) => (
-                  <td className="px-4 py-3 text-sm text-center">
-                    { poll.anonymousAnswers.map((answer) => <p>{answer}</p>) }
-                  </td>
-                ))
-            ) : null }
-          </tr>
-=======
           {typeof polls === 'object'
             && Object.values(polls || {}).length > 0
             && Object.values(polls).reduce((prev, poll) => ([
@@ -240,7 +176,6 @@ class PollsTable extends React.Component {
                 ))}
               </tr>
             ) : null}
->>>>>>> 07cfcd376a44aceb543bcb8f098cf34d73b6b8bf
         </tbody>
       </table>
     );
