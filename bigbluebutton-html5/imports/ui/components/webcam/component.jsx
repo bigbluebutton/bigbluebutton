@@ -249,6 +249,7 @@ const WebcamComponent = ({
         >
           <div
             id="cameraDock"
+            role="region"
             className={draggableClassName}
             draggable={cameraDock.isDraggable && !isFullscreen ? 'true' : undefined}
             style={{
