@@ -963,10 +963,9 @@ public class MeetingService implements MessageListener {
   }
 
   public void processLearningDashboard(LearningDashboard message) {
+
     //Get all data from Json instead of getMeeting(message.meetingId), to process messages received even after meeting ended
     JsonObject activityJsonObject = new Gson().fromJson(message.activityJson, JsonObject.class).getAsJsonObject();
-    String learningDashboardAccessToken = activityJsonObject.get("learningDashboardAccessToken").getAsString();
-
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingId", activityJsonObject.get("intId").getAsString());
     logData.put("externalMeetingId", activityJsonObject.get("extId").getAsString());
@@ -979,7 +978,7 @@ public class MeetingService implements MessageListener {
 
     log.info(" --analytics-- data={}", logStr);
 
-    learningDashboardService.writeJsonDataFile(message.meetingId, learningDashboardAccessToken, message.activityJson);
+    learningDashboardService.writeJsonDataFile(message.meetingId, message.learningDashboardAccessToken, message.activityJson);
   }
 
   @Override

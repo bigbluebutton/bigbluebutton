@@ -48,18 +48,18 @@ class App extends React.Component {
     if (typeof params.report !== 'undefined') {
       learningDashboardAccessToken = params.report;
     } else {
-      const cookieName = `learningDashboardAccessToken-${params.meeting}`;
+      const cookieName = `ld-${params.meeting}`;
       const cDecoded = decodeURIComponent(document.cookie);
       const cArr = cDecoded.split('; ');
       cArr.forEach((val) => {
         if (val.indexOf(`${cookieName}=`) === 0) learningDashboardAccessToken = val.substring((`${cookieName}=`).length);
       });
 
-      // Extend AccessToken lifetime by 30d (in each access)
+      // Extend AccessToken lifetime by 7d (in each access)
       if (learningDashboardAccessToken !== '') {
         const cookieExpiresDate = new Date();
-        cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 30));
-        document.cookie = `learningDashboardAccessToken-${meetingId}=${learningDashboardAccessToken}; expires=${cookieExpiresDate.toGMTString()}; path=/;SameSite=None;Secure`;
+        cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 7));
+        document.cookie = `ld-${meetingId}=${learningDashboardAccessToken}; expires=${cookieExpiresDate.toGMTString()}; path=/;SameSite=None;Secure`;
       }
     }
 
