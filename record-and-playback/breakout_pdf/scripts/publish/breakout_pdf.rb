@@ -975,7 +975,7 @@ begin
         end
 
         FileUtils.cp_r(package_dir, publish_dir) # Copy all the files.
-        BigBlueButton.logger.info("Finished publishing script presentation.rb successfully.")
+        BigBlueButton.logger.info("Finished publishing script breakout_pdf.rb successfully.")
         
         BigBlueButton.logger.info("Removing processed files.")
         FileUtils.rm_r(Dir.glob("#{$process_dir}/*"))
@@ -989,7 +989,7 @@ begin
         end
         exit 1
       end
-      publish_done = File.new("#{recording_dir}/status/published/#{$meeting_id}-presentation.done", "w")
+      publish_done = File.new("#{recording_dir}/status/published/#{$meeting_id}-breakout_pdf.done", "w")
       publish_done.write("Published #{$meeting_id}")
       publish_done.close
 
