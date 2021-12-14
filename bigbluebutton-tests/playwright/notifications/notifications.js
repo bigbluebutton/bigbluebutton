@@ -35,6 +35,7 @@ class Notifications extends MultiUsers {
     await util.popupMenu(this.modPage);
     await util.enableChatPopup(this.modPage);
     await util.saveSettings(this.modPage);
+    await util.waitAndClearNotification(this.modPage);
     await util.privateChatMessageToast(this.userPage);
     await this.modPage.waitForSelector(e.smallToastMsg);
     await this.modPage.waitForSelector(e.hasUnreadMessages);

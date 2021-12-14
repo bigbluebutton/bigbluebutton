@@ -42,7 +42,6 @@ class Page {
     this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, customParameter);
     const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, customParameter);
     await this.page.goto(joinUrl);
-
     if (shouldCloseAudioModal) await this.closeAudioModal();
   }
 
@@ -54,6 +53,16 @@ class Page {
     const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
     await this.waitAndClick(e.echoYesButton, listenOnlyCallTimeout);
     await this.waitForSelector(e.isTalking);
+  }
+
+  async leaveAudio() {
+    await this.waitAndClick(e.leaveAudio);
+    await this.waitForSelector(e.joinAudio);
+  }
+
+  async logoutFromMeeting() {
+    await this.waitAndClick(e.options);
+    await this.waitAndClick(e.logout);
   }
 
   async shareWebcam(shouldConfirmSharing, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
