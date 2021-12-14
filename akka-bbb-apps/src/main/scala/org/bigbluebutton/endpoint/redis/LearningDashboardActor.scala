@@ -28,18 +28,25 @@ case class Meeting(
 )
 
 case class User(
-  intId:              String,
+  userKey:            String,
   extId:              String,
+  intIds:             Map[String,UserId] = Map(),
   name:               String,
   isModerator:        Boolean,
   isDialIn:           Boolean = false,
+  currentIntId:       String = null,
   answers:            Map[String,String] = Map(),
   talk:               Talk = Talk(),
-  emojis:            Vector[Emoji] = Vector(),
+  emojis:             Vector[Emoji] = Vector(),
   webcams:            Vector[Webcam] = Vector(),
   totalOfMessages:    Long = 0,
-  registeredOn:       Long = System.currentTimeMillis(),
-  leftOn:             Long = 0,
+)
+
+case class UserId(
+  intId:         String,
+  registeredOn:  Long = System.currentTimeMillis(),
+  leftOn:        Long = 0,
+  userLeftFlag:  Boolean = false,
 )
 
 case class Poll(
@@ -110,9 +117,11 @@ class LearningDashboardActor(
       case m: GroupChatMessageBroadcastEvtMsg       => handleGroupChatMessageBroadcastEvtMsg(m)
 
       // User
-      case m: UserRegisteredRespMsg   => handleUserRegisteredRespMsg(m)
-      case m: UserJoinedMeetingEvtMsg => handleUserJoinedMeetingEvtMsg(m)
-      case m: UserLeftMeetingEvtMsg   => handleUserLeftMeetingEvtMsg(m)
+      case m: UserRegisteredRespMsg                 => handleUserRegisteredRespMsg(m)
+      case m: UserJoinedMeetingEvtMsg               => handleUserJoinedMeetingEvtMsg(m)
+      case m: UserJoinMeetingReqMsg                 => handleUserJoinMeetingReqMsg(m)
+      case m: UserLeaveReqMsg                       => handleUserLeaveReqMsg(m)
+      case m: UserLeftMeetingEvtMsg                 => handleUserLeftMeetingEvtMsg(m)
       case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
       case m: UserRoleChangedEvtMsg                 => handleUserRoleChangedEvtMsg(m)
       case m: UserBroadcastCamStartedEvtMsg         => handleUserBroadcastCamStartedEvtMsg(m)
@@ -144,10 +153,10 @@ class LearningDashboardActor(
     if (msg.body.chatId == GroupChatApp.MAIN_PUBLIC_CHAT) {
       for {
         meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-        user <- meeting.users.values.find(u => u.intId == msg.header.userId)
+        user <- findUserByIntId(meeting, msg.header.userId)
       } yield {
         val updatedUser = user.copy(totalOfMessages = user.totalOfMessages + 1)
-        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
     }
@@ -165,40 +174,95 @@ class LearningDashboardActor(
     }
   }
 
-  private def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
+  private def findUserByIntId(meeting: Meeting, intId: String): Option[User] = {
+    meeting.users.values.find(u => u.currentIntId == intId ||  (u.currentIntId == null && u.intIds.exists(uId => uId._2.intId == intId && uId._2.leftOn == 0)))
+  }
+
+  private def findUserByExtId(meeting: Meeting, extId: String, filterUserLeft: Boolean = false): Option[User] = {
+    meeting.users.values.find(u => {
+      u.extId == extId && (filterUserLeft == false || !u.intIds.exists(uId => uId._2.leftOn == 0 && uId._2.userLeftFlag == false))
+    })
+  }
+
+  private def getNextKey(meeting: Meeting, extId: String): String = {
+    extId + "-" + (meeting.users.values.filter(u => u.extId == extId).toVector.size + 1).toString
+  }
+
+  private def handleUserJoinMeetingReqMsg(msg: UserJoinMeetingReqMsg): Unit = {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
     } yield {
-      val user: User = meeting.users.values.find(u => u.intId == msg.body.intId).getOrElse({
-        User(
-          msg.body.intId, msg.body.extId, msg.body.name, (msg.body.role == Roles.MODERATOR_ROLE)
-        )
-      })
+      val user = findUserByIntId(meeting, msg.body.userId).getOrElse(null)
 
-      this.addUserToMeeting(meeting.intId, user)
+      if(user != null) {
+        for {
+          userId <- user.intIds.get(msg.body.userId)
+        } yield {
+          val updatedUser = user.copy(currentIntId = userId.intId, intIds = user.intIds + (userId.intId -> userId.copy(leftOn = 0, userLeftFlag = false)))
+          val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+
+          meetings += (updatedMeeting.intId -> updatedMeeting)
+        }
+      } else {
+        val userLeftFlagged = meeting.users.values.filter(u => u.intIds.exists(uId => {
+          uId._2.intId == msg.body.userId && uId._2.userLeftFlag == true && uId._2.leftOn == 0
+        }))
+
+        //Flagged user must be reactivated, once UserJoinedMeetingEvtMsg won't be sent
+        if(userLeftFlagged.size > 0) {
+          this.addUserToMeeting(
+            msg.header.meetingId,
+            msg.body.userId,
+            userLeftFlagged.last.extId,
+            userLeftFlagged.last.name,
+            userLeftFlagged.last.isModerator,
+            userLeftFlagged.last.isDialIn)
+        }
+      }
+    }
+  }
+
+  private def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
+    this.addUserToMeeting(msg.header.meetingId, msg.body.intId, msg.body.extId, msg.body.name, (msg.body.role == Roles.MODERATOR_ROLE), false)
+  }
+
+  private def handleUserLeaveReqMsg(msg: UserLeaveReqMsg): Unit = {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      user <- findUserByIntId(meeting, msg.body.userId)
+      userId <- user.intIds.get(msg.body.userId)
+    } yield {
+      val updatedUser = user.copy(currentIntId = null, intIds = user.intIds + (userId.intId -> userId.copy(userLeftFlag = true)))
+      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+
+      meetings += (updatedMeeting.intId -> updatedMeeting)
     }
   }
 
   private def handleUserLeftMeetingEvtMsg(msg: UserLeftMeetingEvtMsg): Unit = {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-      user <- meeting.users.values.find(u => u.intId == msg.body.intId)
+      user <- meeting.users.values.find(u => u.intIds.exists(uId => uId._2.intId == msg.body.intId && uId._2.leftOn == 0))
+      userId <- user.intIds.get(msg.body.intId)
     } yield {
-      val updatedUser = user.copy(leftOn = System.currentTimeMillis())
-      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+      val updatedUser = user.copy(
+        currentIntId = if(user.currentIntId == userId.intId) null else user.currentIntId,
+        intIds = user.intIds + (userId.intId -> userId.copy(leftOn = System.currentTimeMillis()))
+      )
+      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
 
       meetings += (updatedMeeting.intId -> updatedMeeting)
     }
   }
 
-  private def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg) {
+  private def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg): Unit = {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-      user <- meeting.users.values.find(u => u.intId == msg.body.userId)
+      user <- findUserByIntId(meeting, msg.body.userId)
     } yield {
       if (msg.body.emoji != "none") {
         val updatedUser = user.copy(emojis = user.emojis :+ Emoji(msg.body.emoji))
-        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
 
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
@@ -209,10 +273,10 @@ class LearningDashboardActor(
     if(msg.body.role == Roles.MODERATOR_ROLE) {
       for {
         meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-        user <- meeting.users.values.find(u => u.intId == msg.body.userId)
+        user <- findUserByIntId(meeting, msg.body.userId)
       } yield {
         val updatedUser = user.copy(isModerator = true)
-        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
 
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
@@ -222,11 +286,11 @@ class LearningDashboardActor(
   private def handleUserBroadcastCamStartedEvtMsg(msg: UserBroadcastCamStartedEvtMsg) {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-      user <- meeting.users.values.find(u => u.intId == msg.body.userId)
+      user <- findUserByIntId(meeting, msg.body.userId)
     } yield {
 
       val updatedUser = user.copy(webcams = user.webcams :+ Webcam())
-      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
       meetings += (updatedMeeting.intId -> updatedMeeting)
     }
   }
@@ -234,11 +298,11 @@ class LearningDashboardActor(
   private def handleUserBroadcastCamStoppedEvtMsg(msg: UserBroadcastCamStoppedEvtMsg) {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-      user <- meeting.users.values.find(u => u.intId == msg.body.userId)
+      user <- findUserByIntId(meeting, msg.body.userId)
     } yield {
       val lastWebcam: Webcam = user.webcams.last.copy(stoppedOn = System.currentTimeMillis())
       val updatedUser = user.copy(webcams = user.webcams.dropRight(1) :+ lastWebcam)
-      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
       meetings += (updatedMeeting.intId -> updatedMeeting)
     }
   }
@@ -246,30 +310,21 @@ class LearningDashboardActor(
   private def handleUserJoinedVoiceConfToClientEvtMsg(msg: UserJoinedVoiceConfToClientEvtMsg): Unit = {
     //Create users for Dial-in connections
     if(msg.body.intId.startsWith("v_")) {
-      for {
-        meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-      } yield {
-        val user: User = meeting.users.values.find(u => u.intId == msg.body.intId).getOrElse({
-          User(
-            msg.body.intId, msg.body.callerNum, msg.body.callerName, false, true
-          )
-        })
-
-        this.addUserToMeeting(meeting.intId, user)
-      }
+      this.addUserToMeeting(msg.header.meetingId, msg.body.intId, msg.body.callerName, msg.body.callerName, false, true)
     }
   }
 
   private def handleUserLeftVoiceConfToClientEvtMsg(msg: UserLeftVoiceConfToClientEvtMsg) {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-      user <- meeting.users.values.find(u => u.intId == msg.body.intId)
+      user <- findUserByIntId(meeting, msg.body.intId)
+      userId <- user.intIds.get(msg.body.intId)
     } yield {
       endUserTalk(meeting, user)
 
       if(user.isDialIn) {
-        val updatedUser = user.copy(leftOn = System.currentTimeMillis())
-        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+        val updatedUser = user.copy(intIds = user.intIds + (userId.intId -> userId.copy(leftOn = System.currentTimeMillis())))
+        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
 
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
@@ -279,7 +334,7 @@ class LearningDashboardActor(
   private def handleUserMutedVoiceEvtMsg(msg: UserMutedVoiceEvtMsg) {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-      user <- meeting.users.values.find(u => u.intId == msg.body.intId)
+      user <- findUserByIntId(meeting, msg.body.intId)
     } yield {
       endUserTalk(meeting, user)
     }
@@ -288,11 +343,11 @@ class LearningDashboardActor(
   private def handleUserTalkingVoiceEvtMsg(msg: UserTalkingVoiceEvtMsg) {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-      user <- meeting.users.values.find(u => u.intId == msg.body.intId)
+      user <- findUserByIntId(meeting, msg.body.intId)
     } yield {
       if(msg.body.talking) {
         val updatedUser = user.copy(talk = user.talk.copy(lastTalkStartedOn = System.currentTimeMillis()))
-        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
         meetings += (updatedMeeting.intId -> updatedMeeting)
       } else {
         endUserTalk(meeting, user)
@@ -308,7 +363,7 @@ class LearningDashboardActor(
           totalTime = user.talk.totalTime + (System.currentTimeMillis() - user.talk.lastTalkStartedOn)
         )
       )
-      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
       meetings += (updatedMeeting.intId -> updatedMeeting)
     }
   }
@@ -328,7 +383,7 @@ class LearningDashboardActor(
   private def handleUserRespondedToPollRecordMsg(msg: UserRespondedToPollRecordMsg): Unit = {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-      user <- meeting.users.values.find(u => u.intId == msg.header.userId)
+      user <- findUserByIntId(meeting, msg.header.userId)
     } yield {
       if(msg.body.isSecret) {
         //Store Anonymous Poll in `poll.anonymousAnswers`
@@ -342,7 +397,7 @@ class LearningDashboardActor(
       } else {
         //Store Public Poll in `user.answers`
         val updatedUser = user.copy(answers = user.answers + (msg.body.pollId -> msg.body.answer))
-        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.intId -> updatedUser))
+        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
     }
@@ -397,18 +452,7 @@ class LearningDashboardActor(
           else screenshare.copy(stoppedOn = endedOn)
         }),
         users = meeting.users.map(user => {
-          (user._1 ->
-            user._2.copy(
-              leftOn = if(user._2.leftOn > 0) user._2.leftOn else endedOn,
-              talk = user._2.talk.copy(
-                totalTime = user._2.talk.totalTime + (if (user._2.talk.lastTalkStartedOn > 0) (endedOn - user._2.talk.lastTalkStartedOn) else 0),
-                lastTalkStartedOn = 0
-              ),
-              webcams = user._2.webcams.map(webcam => {
-                if(webcam.stoppedOn > 0) webcam
-                else webcam.copy(stoppedOn = endedOn)
-              })
-          ))
+          (user._1 -> userWithLeftProps(user._2, endedOn))
       })
       )
 
@@ -423,12 +467,67 @@ class LearningDashboardActor(
     }
   }
 
-  private def addUserToMeeting(meetingIntId: String, user: User): Unit = {
+  private def userWithLeftProps(user: User, endedOn: Long, forceFlaggedIdsToLeft: Boolean = true): User = {
+    user.copy(
+      currentIntId = null,
+      intIds = user.intIds.map(uId => {
+        if(uId._2.leftOn > 0) (uId._1 -> uId._2)
+        else if(forceFlaggedIdsToLeft == false && uId._2.userLeftFlag == true) (uId._1 -> uId._2)
+        else (uId._1 -> uId._2.copy(leftOn = endedOn))
+      }),
+      talk = user.talk.copy(
+        totalTime = user.talk.totalTime + (if (user.talk.lastTalkStartedOn > 0) (endedOn - user.talk.lastTalkStartedOn) else 0),
+        lastTalkStartedOn = 0
+      ),
+      webcams = user.webcams.map(webcam => {
+        if(webcam.stoppedOn > 0) webcam
+        else webcam.copy(stoppedOn = endedOn)
+      })
+    )
+  }
+
+  private def addUserToMeeting(meetingIntId: String, intId: String, extId: String, name: String, isModerator: Boolean, isDialIn: Boolean): Unit = {
     for {
       meeting <- meetings.values.find(m => m.intId == meetingIntId)
     } yield {
-      if(!meetingExcludedUserIds.get(meeting.intId).getOrElse(Vector()).contains(user.extId)) {
-        meetings += (meeting.intId -> meeting.copy(users = meeting.users + (user.intId -> user.copy(leftOn = 0))))
+
+      if(!meetingExcludedUserIds.get(meeting.intId).getOrElse(Vector()).contains(extId)) {
+        val currentTime = System.currentTimeMillis();
+
+        val user: User = userWithLeftProps(
+          findUserByIntId(meeting, intId).getOrElse(
+            findUserByExtId(meeting, extId, true).getOrElse({
+              User(
+                getNextKey(meeting, extId),
+                extId,
+                Map(),
+                name,
+                isModerator,
+                isDialIn,
+                currentIntId = intId,
+              )
+            })
+          )
+        , currentTime, false)
+
+        meetings += (meeting.intId -> meeting.copy(
+          //Set leftOn to same intId in past user records
+          users = meeting.users.map(u => {
+            (u._1 -> u._2.copy(
+              intIds = u._2.intIds.map(uId => {
+                (uId._1 -> {
+                  if(uId._2.intId == intId && uId._2.leftOn == 0) uId._2.copy(leftOn = currentTime)
+                  else uId._2
+                })
+            })))
+          }) + (user.userKey -> user.copy(
+            currentIntId = intId,
+            intIds = user.intIds + (intId -> user.intIds.get(intId).getOrElse(UserId(intId,currentTime)).copy(
+              leftOn = 0,
+              userLeftFlag = false
+            ))
+          ))
+        ))
       }
     }
   }
