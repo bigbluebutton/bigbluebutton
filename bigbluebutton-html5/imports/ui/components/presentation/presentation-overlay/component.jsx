@@ -505,30 +505,29 @@ export default class PresentationOverlay extends Component {
     const {
       annotationTool,
       userIsPresenter,
+      slide,
     } = this.props;
 
-    if (annotationTool !== HAND_TOOL || !userIsPresenter) return;
+    if (annotationTool !== HAND_TOOL) return;
 
     const selectedAnnotations = PresentationService.getSelectedAnnotationsId(slide.id);
     
     event.preventDefault();
 
-    if (this.pinchGesture) {
+    if (userIsPresenter && this.pinchGesture) {
       this.pinchMoveHandler(event);
-    } else {
-      if (selectedAnnotations.length == 0) {
-        this.panMoveHandler(event);
-      } else {
-        const touchCenterPoint = PresentationOverlay.touchCenterPoint(event.touches);
-        const newPoint = this.svgCoordinateToPercentages(this.getTransformedSvgPoint(touchCenterPoint.x, touchCenterPoint.y));
-        const oldPoint = this.svgCoordinateToPercentages(this.getTransformedSvgPoint(this.currentTouchX, this.currentTouchY));
-        const dx_percent = newPoint.x - oldPoint.x
-        const dy_percent = newPoint.y - oldPoint.y
-        this.currentTouchX = touchCenterPoint.x;
-        this.currentTouchY = touchCenterPoint.y;
-        this.draggedAnnotations = selectedAnnotations;
-        PresentationService.moveSelectedAnnotations(slide.id, selectedAnnotations, dx_percent, dy_percent);
-      }
+    } else if (userIsPresenter && selectedAnnotations.length == 0) {
+      this.panMoveHandler(event);
+    } else  (selectedAnnotations.length > 0) {
+      const touchCenterPoint = PresentationOverlay.touchCenterPoint(event.touches);
+      const newPoint = this.svgCoordinateToPercentages(this.getTransformedSvgPoint(touchCenterPoint.x, touchCenterPoint.y));
+      const oldPoint = this.svgCoordinateToPercentages(this.getTransformedSvgPoint(this.currentTouchX, this.currentTouchY));
+      const dx_percent = newPoint.x - oldPoint.x
+      const dy_percent = newPoint.y - oldPoint.y
+      this.currentTouchX = touchCenterPoint.x;
+      this.currentTouchY = touchCenterPoint.y;
+      this.draggedAnnotations = selectedAnnotations;
+      PresentationService.moveSelectedAnnotations(slide.id, selectedAnnotations, dx_percent, dy_percent);
     }
   }
 
