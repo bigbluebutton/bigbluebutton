@@ -317,6 +317,14 @@ class ApiController {
       us.avatarURL = meeting.defaultAvatarURL
     }
 
+    if (!StringUtils.isEmpty(params.excludeFromDashboard)) {
+      try {
+        us.excludeFromDashboard = Boolean.parseBoolean(params.excludeFromDashboard)
+      } catch (Exception e) {
+        // Do nothing, prop excludeFromDashboard was already initialized
+      }
+    }
+
     String meetingId = meeting.getInternalId()
 
     if (hasReachedMaxParticipants(meeting, us)) {
@@ -341,7 +349,8 @@ class ApiController {
         us.avatarURL,
         us.guest,
         us.authed,
-        guestStatusVal
+        guestStatusVal,
+        us.excludeFromDashboard
     )
 
     session.setMaxInactiveInterval(SESSION_TIMEOUT);

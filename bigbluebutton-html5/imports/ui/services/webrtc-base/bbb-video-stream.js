@@ -83,6 +83,8 @@ export class BBBVideoStream extends EventEmitter2 {
         name,
         isVirtualBackground: this.isVirtualBackground(type),
       });
+      this.virtualBgType = type;
+      this.virtualBgName = name;
       return Promise.resolve();
     } catch (error) {
       return Promise.reject(error);
@@ -114,8 +116,8 @@ export class BBBVideoStream extends EventEmitter2 {
       this.virtualBgService = null;
     }
 
-    this.virtualBgType = EFFECT_TYPES.BLUR_TYPE;
-    this.virtualBgName = BLUR_FILENAME;
+    this.virtualBgType = EFFECT_TYPES.NONE_TYPE;
+    this.virtualBgName = undefined;
     this.mediaStream = this.originalStream;
     this.isVirtualBackgroundEnabled = false;
   }

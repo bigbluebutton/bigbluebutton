@@ -226,7 +226,6 @@
     "app.poll.activePollInstruction": "Deje este panel abierto para ver las respuestas en tiempo real de su encuesta. Cuando esté listo presione 'Publicar resultados de encuesta' para publicar los resultados y finalizar la encuesta.",
     "app.poll.dragDropPollInstruction": "Para completar los valores de la encuesta, arrastre un archivo de texto con los valores de la encuesta al campo resaltado",
     "app.poll.customPollTextArea": "Completar valores de la votación/encuesta",
-    "app.poll.publishLabel": "Publicar resultados de la encuesta",
     "app.poll.backLabel": "Iniciar una votación/encuesta",
     "app.poll.closeLabel": "Cerrar",
     "app.poll.waitingLabel": "Esperando respuestas ({0}/{1})",

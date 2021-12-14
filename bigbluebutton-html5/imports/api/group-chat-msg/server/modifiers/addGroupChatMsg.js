@@ -2,6 +2,7 @@ import { Match, check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import { BREAK_LINE } from '/imports/utils/lineEndings';
+import changeHasMessages from '/imports/api/users/server/modifiers/changeHasMessages';
 
 export function parseMessage(message) {
   let parsedMessage = message || '';
@@ -45,6 +46,8 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
 
     if (insertedId) {
       Logger.info(`Added group-chat-msg msgId=${msg.id} chatId=${chatId} meetingId=${meetingId}`);
+
+      changeHasMessages(true, sender.id, meetingId);
     }
   } catch (err) {
     Logger.error(`Error on adding group-chat-msg to collection: ${err}`);

@@ -62,7 +62,7 @@ const DismissButton = styled(Button)`
 `;
 
 const Content = styled.div`
-  overflow: auto;
+  overflow: visible;
   color: ${colorText};
   font-weight: normal;
   padding: 0;

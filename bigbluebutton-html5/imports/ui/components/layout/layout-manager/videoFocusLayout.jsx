@@ -222,7 +222,7 @@ const VideoFocusLayout = (props) => {
     const { element: fullscreenElement } = fullscreen;
     const sidebarSize = sidebarNavWidth + sidebarContentWidth;
 
-    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
+    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare' || fullscreenElement === 'ExternalVideo') {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
       mediaBounds.top = 0;
@@ -238,10 +238,10 @@ const VideoFocusLayout = (props) => {
       mediaBounds.top = mediaAreaBounds.top + cameraDockBounds.height;
       mediaBounds.width = mediaAreaBounds.width;
     } else if (cameraDockInput.numCameras > 0) {
-      mediaBounds.height = windowHeight() - sidebarContentHeight;
+      mediaBounds.height = windowHeight() - sidebarContentHeight - this.bannerAreaHeight();
       mediaBounds.left = !isRTL ? sidebarNavWidth : 0;
       mediaBounds.right = isRTL ? sidebarNavWidth : 0;
-      mediaBounds.top = sidebarContentHeight;
+      mediaBounds.top = sidebarContentHeight + this.bannerAreaHeight();
       mediaBounds.width = sidebarContentWidth;
       mediaBounds.zIndex = 1;
     } else {

@@ -217,7 +217,6 @@
     "app.poll.quickPollInstruction": "Válassz egy beállítást a szavazás indításához",
     "app.poll.activePollInstruction": "Ennek a panelnek a megnyitásával megtekintheted szavazásod élő állását. Amikor készen állsz, nyomd meg a szavazás lezárásához és a végeredmény közzétételéhez a 'Szavazás eredményének közzététele' gombot.",
     "app.poll.dragDropPollInstruction": "A szavazáshoz húzz egy szöveges fájlt a a kiemelt mezőre",
-    "app.poll.publishLabel": "Szavazás eredményének közzététele",
     "app.poll.backLabel": "Új szavazás indítása",
     "app.poll.closeLabel": "Bezárás",
     "app.poll.waitingLabel": "Várakozás a válaszokra ({0}/{1})",
