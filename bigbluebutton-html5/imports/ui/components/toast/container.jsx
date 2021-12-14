@@ -1,8 +1,6 @@
 import React from 'react';
-import { ToastContainer as Toastify } from 'react-toastify';
-
-import Icon from '../icon/component';
-import { styles } from './styles';
+import Styled from './styles';
+import Settings from '/imports/ui/services/settings';
 
 class ToastContainer extends React.Component {
   // we never want this component to update since will break Toastify
@@ -11,14 +9,15 @@ class ToastContainer extends React.Component {
   }
 
   render() {
+    const { animations } = Settings.application;
+
     return (
-      <Toastify
-        closeButton={(<Icon className={styles.close} iconName="close" />)}
+      <Styled.ToastifyContainer
+        closeButton={(<Styled.CloseIcon iconName="close" animations={animations} />)}
         autoClose={5000}
-        className={styles.container}
-        toastClassName={styles.toast}
-        bodyClassName={styles.body}
-        progressClassName={styles.progress}
+        toastClassName="toastClass"
+        bodyClassName="toastBodyClass"
+        progressClassName="toastProgressClass"
         newestOnTop={false}
         hideProgressBar={false}
         closeOnClick

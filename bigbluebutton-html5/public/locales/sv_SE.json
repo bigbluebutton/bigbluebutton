@@ -181,7 +181,6 @@
     "app.poll.quickPollTitle": "Snabb undersökning",
     "app.poll.hidePollDesc": "Döljer enkät menyfönstret",
     "app.poll.quickPollInstruction": "Välj ett alternativ nedan för att starta din undersökning.",
-    "app.poll.publishLabel": "Publicera omröstningsresultatet",
     "app.poll.closeLabel": "Stäng",
     "app.poll.waitingLabel": "Väntar på svar ({0}/{1})",
     "app.poll.ariaInputCount": "Anpassad omröstningsalternativ {0} av {1}",

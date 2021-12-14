@@ -12,7 +12,7 @@ import javax.validation.ConstraintValidatorContext;
 
 public class ModeratorPasswordValidator implements ConstraintValidator<ModeratorPasswordConstraint, ModeratorPassword> {
 
-    private static Logger log = LoggerFactory.getLogger(MeetingExistsValidator.class);
+    private static Logger log = LoggerFactory.getLogger(ModeratorPasswordValidator.class);
 
 
     @Override

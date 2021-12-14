@@ -3,15 +3,13 @@ import PropTypes from "prop-types";
 import { defineMessages, injectIntl } from "react-intl";
 
 import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
 import { Divider } from "@material-ui/core";
 
 import Icon from "/imports/ui/components/icon/component";
-import Button from "/imports/ui/components/button/component";
 
-import { ENTER, SPACE } from "/imports/utils/keyCodes";
+import { ENTER } from "/imports/utils/keyCodes";
 
-import { styles } from "./styles";
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   close: {
@@ -61,20 +59,32 @@ class BBBMenu extends React.Component {
 
     return actions?.map(a => {
       const { dataTest, label, onClick, key, disabled } = a;
-      const itemClasses = [styles.menuitem, a?.className];
 
-      if (key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase())) itemClasses.push(styles.emojiSelected);
+      const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
+
+      let customStyles = {
+        paddingLeft: '4px',
+        paddingRight: '4px',
+        paddingTop: '8px',
+        paddingBottom: '8px',
+        marginLeft: '4px',
+        marginRight: '4px'
+      };
+
+      if (a.customStyles) {
+        customStyles = { ...customStyles, ...a.customStyles };
+      }
 
       return [
         a.dividerTop && <Divider disabled />,
-        <MenuItem
+        <Styled.BBBMenuItem
+          emoji={emojiSelected ? 'yes' : 'no'}
           key={label}
           data-test={dataTest || key}
-          className={itemClasses.join(' ')}
           disableRipple={true}
           disableGutters={true}
           disabled={disabled}
-          style={{ paddingLeft: '4px',paddingRight: '4px',paddingTop: '8px', paddingBottom: '8px', marginLeft: '4px', marginRight: '4px' }}
+          style={customStyles}
           onClick={(event) => {
             onClick();
             const close = !key.includes('setstatus') && !key.includes('back');
@@ -83,10 +93,10 @@ class BBBMenu extends React.Component {
           }}>
           <div style={{ display: 'flex', flexFlow: 'row', width: '100%' }}>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
-            <div className={styles.option}>{label}</div>
-            {a.iconRight ? <Icon iconName={a.iconRight} key="iconRight" className={styles.iRight} /> : null}
+            <Styled.Option>{label}</Styled.Option>
+            {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" /> : null}
           </div>
-        </MenuItem>,
+        </Styled.BBBMenuItem>,
         a.divider && <Divider disabled />
       ];
     });
@@ -94,11 +104,14 @@ class BBBMenu extends React.Component {
 
   render() {
     const { anchorEl } = this.state;
-    const { trigger, intl, wide, classes } = this.props;
+    const { trigger, intl, customStyles } = this.props;
     const actionsItems = this.makeMenuItems();
-    const menuClasses = classes || [];
-    menuClasses.push(styles.menu);
-    if (wide) menuClasses.push(styles.wide);
+
+    let menuStyles = { zIndex: 9999 };
+
+    if (customStyles) {
+      menuStyles = { ...menuStyles, ...customStyles };
+    }
 
     return (
       <>
@@ -123,13 +136,11 @@ class BBBMenu extends React.Component {
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={this.handleClose}
-          className={menuClasses.join(' ')}
-          style={{ zIndex: 9999 }}
+          style={menuStyles}
         >
           {actionsItems}
           {anchorEl && window.innerWidth < MAX_WIDTH &&
-            <Button
-              className={styles.closeBtn}
+            <Styled.CloseButton
               label={intl.formatMessage(intlMessages.close)}
               size="lg"
               color="default"
@@ -157,7 +168,6 @@ BBBMenu.defaultProps = {
     transformorigin: { vertical: 'top', horizontal: 'right' },
   },
   onCloseCallback: () => { },
-  wide: false,
 };
 
 BBBMenu.propTypes = {
@@ -180,6 +190,4 @@ BBBMenu.propTypes = {
   })).isRequired,
 
   onCloseCallback: PropTypes.func,
-
-  wide: PropTypes.bool,
 };

@@ -1,4 +1,4 @@
-import styled, { css, keyframes } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components';
 import {
   borderSize,
   borderSizeLarge,
@@ -7,7 +7,7 @@ import {
   colorGrayLabel,
   colorWhite,
   colorGrayLighter,
-  colorBackground,
+  colorGrayDark,
   colorPrimary,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -16,7 +16,7 @@ import {
   lineHeightComputed,
   headingsFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { smallOnly, landscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Modal from '/imports/ui/components/modal/simple/component';
 
 const Warning = styled.div`
@@ -53,6 +53,10 @@ const Col = styled.div`
 
 const VideoCol = styled(Col)`
   align-items: center;
+
+  @media ${landscape} {
+     width: 33.3%;
+   }
 `;
 
 const Label = styled.label`
@@ -88,8 +92,6 @@ const Select = styled.select`
 
 const Content = styled.div`
   display: flex;
-  min-height: 14rem;
-  max-height: 50vh;
   justify-content: center;
   align-items: center;
   overflow: auto;
@@ -99,10 +101,7 @@ const Content = styled.div`
 
   @media ${smallOnly} {
     flex-direction: column;
-    height: unset;
     margin: 0;
-    min-height: 12rem;
-    max-height: unset;
   }
 `;
 
@@ -117,7 +116,7 @@ const BrowserWarning = styled.p`
 
 const Title = styled.div`
   display: block;
-  color: ${colorBackground};
+  color: ${colorGrayDark};
   font-size: 1.4rem;
   text-align: center;
 `;
@@ -169,13 +168,27 @@ const ExtraActions = styled.div`
 
 const VideoPreviewModal = styled(Modal)`
   padding: 1rem;
+  min-height: 25rem;
+  max-height: 60vh;
+
+  @media ${smallOnly} {
+    height: unset;
+    min-height: 22.5rem;
+    max-height: unset;
+  }
+
+  ${({ isPhone }) => isPhone && `
+    min-height: 100%;
+    min-width: 100%;
+    border-radius: 0;
+  `}
 `;
 
 const ellipsis = keyframes`
   to {
     width: 1.5em;
   }
-`
+`;
 
 const FetchingAnimation = styled.span`
   margin: auto;

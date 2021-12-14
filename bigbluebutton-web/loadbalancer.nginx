@@ -1,0 +1,4 @@
+# If you run this BBB node behind a proxy loadbalancer set the hostname of
+# the loadbalancer here. This will be used to add CORS headers so requesting
+# slides and API calls won't fail
+set $bbb_loadbalancer_node '';

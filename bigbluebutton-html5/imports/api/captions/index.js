@@ -1,6 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 
-const Captions = new Mongo.Collection('captions');
+const collectionOptions = Meteor.isClient ? {
+  connection: null,
+} : {};
+
+const Captions = new Mongo.Collection('captions', collectionOptions);
 
 if (Meteor.isServer) {
   Captions._ensureIndex({ meetingId: 1, padId: 1 });

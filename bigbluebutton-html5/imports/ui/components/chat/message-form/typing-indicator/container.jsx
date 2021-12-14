@@ -2,8 +2,8 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import { UsersTyping } from '/imports/api/group-chat-msg';
-import Users from '/imports/ui/local-collections/users-collection/users';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 import TypingIndicator from './component';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;

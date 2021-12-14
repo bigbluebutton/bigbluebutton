@@ -239,7 +239,6 @@
     "app.poll.activePollInstruction": "Chọn 'Công khai kết quả' để công khai kết quả và kết thúc cuộc thăm dò.",
     "app.poll.dragDropPollInstruction": "Để điền các giá trị của khảo sát, hãy kéo một tệp văn bản có các giá trị khảo sát vào trường được đánh dấu",
     "app.poll.customPollTextArea": "Điền vào các giá trị khảo sát",
-    "app.poll.publishLabel": "Công khai kết quả",
     "app.poll.backLabel": "Quay lại các tùy chọn",
     "app.poll.closeLabel": "Đóng",
     "app.poll.waitingLabel": "Chờ phản hồi ({0}/{1})",

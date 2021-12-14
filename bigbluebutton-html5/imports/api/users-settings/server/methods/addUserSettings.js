@@ -19,8 +19,6 @@ const oldParameters = {
   listenOnlyMode: 'bbb_listen_only_mode',
   multiUserPenOnly: 'bbb_multi_user_pen_only',
   multiUserTools: 'bbb_multi_user_tools',
-  outsideToggleRecording: 'bbb_outside_toggle_recording',
-  outsideToggleSelfVoice: 'bbb_outside_toggle_self_voice',
   presenterTools: 'bbb_presenter_tools',
   shortcuts: 'bbb_shortcuts',
   skipCheck: 'bbb_skip_check_audio',
@@ -67,9 +65,6 @@ const currentParameters = [
   'bbb_show_public_chat_on_login',
   'bbb_hide_actions_bar',
   'bbb_hide_nav_bar',
-  // OUTSIDE COMMANDS
-  'bbb_outside_toggle_self_voice',
-  'bbb_outside_toggle_recording',
 ];
 
 function valueParser(val) {

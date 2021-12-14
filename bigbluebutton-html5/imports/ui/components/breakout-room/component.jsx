@@ -10,7 +10,6 @@ import BreakoutRoomContainer from './breakout-remaining-time/container';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { PANELS, ACTIONS } from '../layout/enums';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
-import UserListService from '/imports/ui/components/user-list/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Settings from '/imports/ui/services/settings';
 
@@ -249,6 +248,7 @@ class BreakoutRoom extends PureComponent {
     const {
       isMicrophoneUser,
       amIModerator,
+      amIPresenter,
       intl,
       isUserInBreakoutRoom,
       exitAudio,
@@ -323,7 +323,7 @@ class BreakoutRoom extends PureComponent {
                   }, 'joining breakout room closed audio in the main room');
                   VideoService.storeDeviceIds();
                   VideoService.exitVideo();
-                  if (UserListService.amIPresenter()) screenshareHasEnded();
+                  if (amIPresenter) screenshareHasEnded();
                 }}
                 disabled={disable}
               />

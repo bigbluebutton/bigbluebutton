@@ -29,6 +29,8 @@ const ActionsBarContainer = (props) => {
 
   const currentUser = { userId: Auth.userID, emoji: users[Auth.meetingID][Auth.userID].emoji };
 
+  const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
+
   return (
     <ActionsBar {
       ...{
@@ -36,6 +38,7 @@ const ActionsBarContainer = (props) => {
         currentUser,
         layoutContextDispatch,
         actionsBarStyle,
+        amIPresenter,
       }
     }
     />
@@ -49,11 +52,10 @@ const RAISE_HAND_BUTTON_ENABLED = Meteor.settings.public.app.raiseHandActionButt
 const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinimizeButton;
 
 export default withTracker(() => ({
-  amIPresenter: Service.amIPresenter(),
   amIModerator: Service.amIModerator(),
   stopExternalVideoShare: ExternalVideoService.stopWatching,
   enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
-  isLayoutSwapped: getSwapLayout()&& shouldEnableSwapLayout(),
+  isLayoutSwapped: getSwapLayout() && shouldEnableSwapLayout(),
   toggleSwapLayout: MediaService.toggleSwapLayout,
   handleTakePresenter: Service.takePresenterRole,
   currentSlidHasContent: PresentationService.currentSlidHasContent(),

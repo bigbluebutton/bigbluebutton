@@ -1,6 +1,6 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import styles from './styles.scss';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   dropZoneLabel: {
@@ -11,9 +11,8 @@ const intlMessages = defineMessages({
 
 const DropArea = ({ id, style, intl }) => (
   <>
-    <div
+    <Styled.DropZoneArea
       id={id}
-      className={styles.dropZoneArea}
       style={
         {
           ...style,
@@ -21,8 +20,7 @@ const DropArea = ({ id, style, intl }) => (
         }
       }
     />
-    <div
-      className={styles.dropZoneBg}
+    <Styled.DropZoneBg
       style={
         {
           ...style,
@@ -31,7 +29,7 @@ const DropArea = ({ id, style, intl }) => (
       }
     >
       {intl.formatMessage(intlMessages.dropZoneLabel)}
-    </div>
+    </Styled.DropZoneBg>
   </>
 );
 

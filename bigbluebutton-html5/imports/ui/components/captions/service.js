@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import Captions from '/imports/api/captions';
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import { makeCall } from '/imports/ui/services/api';
 import { Meteor } from 'meteor/meteor';
@@ -79,7 +79,7 @@ const takeOwnership = (locale) => {
 const appendText = (text, locale) => {
   if (typeof text !== 'string' || text.length === 0) return;
 
-  const formattedText = `${text.trim().replace(/^\w/, (c) => c.toUpperCase())}\n\n`;
+  const formattedText = `${text.trim().replace(/^\w/, (c) => c?.toUpperCase())}\n\n`;
   makeCall('appendText', formattedText, locale);
 };
 

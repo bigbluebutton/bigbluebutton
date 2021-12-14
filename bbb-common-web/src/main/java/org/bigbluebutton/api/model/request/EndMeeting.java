@@ -6,6 +6,7 @@ import org.bigbluebutton.api.model.constraint.NotEmpty;
 import org.bigbluebutton.api.model.constraint.PasswordConstraint;
 import org.bigbluebutton.api.model.shared.Checksum;
 import org.bigbluebutton.api.model.shared.ModeratorPassword;
+import org.bigbluebutton.api.model.shared.Password;
 
 import javax.validation.Valid;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class EndMeeting extends RequestWithChecksum<EndMeeting.Params> {
     private String password;
 
     @Valid
-    private ModeratorPassword moderatorPassword;
+    private Password moderatorPassword;
 
     public EndMeeting(Checksum checksum) {
         super(checksum);

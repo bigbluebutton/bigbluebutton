@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.breakout
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.BreakoutRoomUsersUpdateInternalMsg
 import org.bigbluebutton.core.domain.{ BreakoutRoom2x, MeetingState2x }
-import org.bigbluebutton.core.models.Users2x
+import org.bigbluebutton.core.models.{ RegisteredUsers, Users2x }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 
 trait BreakoutRoomUsersUpdateMsgHdlr {
@@ -37,6 +37,16 @@ trait BreakoutRoomUsersUpdateMsgHdlr {
         breakoutRoomUser <- updatedRoom.users
         user <- Users2x.findWithBreakoutRoomId(liveMeeting.users2x, breakoutRoomUser.id)
       } yield Users2x.updateLastUserActivity(liveMeeting.users2x, user)
+
+      //Update lastBreakout in registeredUsers to avoid lose this info when the user leaves
+      for {
+        breakoutRoomUser <- updatedRoom.users
+        u <- RegisteredUsers.findWithBreakoutRoomId(breakoutRoomUser.id, liveMeeting.registeredUsers)
+      } yield {
+        if (room != null && (u.lastBreakoutRoom == null || u.lastBreakoutRoom.id != room.id)) {
+          RegisteredUsers.updateUserLastBreakoutRoom(liveMeeting.registeredUsers, u, room)
+        }
+      }
 
       model.update(updatedRoom)
     }

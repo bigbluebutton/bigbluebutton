@@ -5,7 +5,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
 import { MeetingTimeRemaining } from '/imports/api/meetings';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Meetings from '/imports/api/meetings';
 import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
 import Styled from './styles';
 import { layoutSelectInput, layoutDispatch } from '../layout/context';

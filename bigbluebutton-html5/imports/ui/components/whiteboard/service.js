@@ -1,4 +1,4 @@
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';

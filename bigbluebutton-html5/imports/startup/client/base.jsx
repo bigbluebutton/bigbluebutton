@@ -8,14 +8,14 @@ import MeetingEnded from '/imports/ui/components/meeting-ended/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Users from '/imports/api/users';
 import { Session } from 'meteor/session';
 import { FormattedMessage } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
 import { RecordMeetings } from '../../api/meetings';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Meetings from '/imports/api/meetings';
 import AppService from '/imports/ui/components/app/service';
-import Breakouts from '/imports/ui/local-collections/breakouts-collection/breakouts';
+import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -57,17 +57,6 @@ const fullscreenChangedEvents = [
 ];
 
 class Base extends Component {
-  static handleFullscreenChange() {
-    if (document.fullscreenElement
-      || document.webkitFullscreenElement
-      || document.mozFullScreenElement
-      || document.msFullscreenElement) {
-      Session.set('isFullscreen', true);
-    } else {
-      Session.set('isFullscreen', false);
-    }
-  }
-
   constructor(props) {
     super(props);
 
@@ -76,6 +65,27 @@ class Base extends Component {
       meetingExisted: false,
     };
     this.updateLoadingState = this.updateLoadingState.bind(this);
+    this.handleFullscreenChange = this.handleFullscreenChange.bind(this);
+  }
+
+  handleFullscreenChange() {
+    const { layoutContextDispatch } = this.props;
+
+    if (document.fullscreenElement
+      || document.webkitFullscreenElement
+      || document.mozFullScreenElement
+      || document.msFullscreenElement) {
+      Session.set('isFullscreen', true);
+    } else {
+      layoutContextDispatch({
+        type: ACTIONS.SET_FULLSCREEN_ELEMENT,
+        value: {
+          element: '',
+          group: '',
+        },
+      });
+      Session.set('isFullscreen', false);
+    }
   }
 
   componentDidMount() {
@@ -94,7 +104,7 @@ class Base extends Component {
     if (!animations) HTML.classList.add('animationsDisabled');
 
     fullscreenChangedEvents.forEach((event) => {
-      document.addEventListener(event, Base.handleFullscreenChange);
+      document.addEventListener(event, this.handleFullscreenChange);
     });
     Session.set('isFullscreen', false);
 
@@ -218,6 +228,7 @@ class Base extends Component {
     if (approved && loading) this.updateLoadingState(false);
 
     if (prevProps.ejected || ejected) {
+      console.log(' if (prevProps.ejected || ejected) {');
       Session.set('codeError', '403');
       Session.set('isMeetingEnded', true);
     }
@@ -225,6 +236,10 @@ class Base extends Component {
     // In case the meteor restart avoid error log
     if (isMeteorConnected && (prevState.meetingExisted !== meetingExisted)) {
       this.setMeetingExisted(false);
+    }
+
+    if ((prevProps.isMeteorConnected !== isMeteorConnected) && !isMeteorConnected) {
+      Session.set('globalIgnoreDeletes', true);
     }
 
     const enabled = HTML.classList.contains('animationsEnabled');
@@ -288,7 +303,7 @@ class Base extends Component {
 
   componentWillUnmount() {
     fullscreenChangedEvents.forEach((event) => {
-      document.removeEventListener(event, Base.handleFullscreenChange);
+      document.removeEventListener(event, this.handleFullscreenChange);
     });
   }
 

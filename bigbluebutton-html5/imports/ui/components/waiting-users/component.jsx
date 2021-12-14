@@ -268,65 +268,67 @@ const WaitingUsers = (props) => {
           />
         </Styled.Title>
       </Styled.Header>
-      {isGuestLobbyMessageEnabled ? (
-        <Styled.LobbyMessage>
-          <TextInput
-            maxLength={128}
-            placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
-            send={setGuestLobbyMessage}
-          />
-          <p>
-            <i>
-              &quot;
-              {
+      <Styled.ScrollableArea>
+        {isGuestLobbyMessageEnabled ? (
+          <Styled.LobbyMessage>
+            <TextInput
+              maxLength={128}
+              placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
+              send={setGuestLobbyMessage}
+            />
+            <p>
+              <i>
+                &quot;
+                {
                 guestLobbyMessage.length > 0
                   ? guestLobbyMessage
                   : intl.formatMessage(intlMessages.emptyMessage)
               }
-              &quot;
-            </i>
-          </p>
-        </Styled.LobbyMessage>
-      ) : null}
-      {existPendingUsers && (
-      <div>
+                &quot;
+              </i>
+            </p>
+          </Styled.LobbyMessage>
+        ) : null}
+        {existPendingUsers && (
         <div>
-          <Styled.MainTitle>{intl.formatMessage(intlMessages.optionTitle)}</Styled.MainTitle>
-          {
+          <div>
+            <Styled.MainTitle>{intl.formatMessage(intlMessages.optionTitle)}</Styled.MainTitle>
+            {
             buttonsData.map((buttonData) => renderButton(
               intl.formatMessage(buttonData.messageId),
               buttonData,
             ))
           }
-        </div>
+          </div>
 
-        {allowRememberChoice ? (
-          <Styled.RememberContainer>
-            <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
-            <label htmlFor="rememderCheckboxId">
-              {intl.formatMessage(intlMessages.rememberChoice)}
-            </label>
-          </Styled.RememberContainer>
-        ) : null}
-      </div>
-      )}
-      {renderPendingUsers(
-        intl.formatMessage(intlMessages.pendingUsers,
-          { 0: authenticatedUsers.length }),
-        authenticatedUsers,
-        guestUsersCall,
-        intl,
-      )}
-      {renderPendingUsers(
-        intl.formatMessage(intlMessages.pendingGuestUsers,
-          { 0: guestUsers.length }),
-        guestUsers,
-        guestUsersCall,
-        intl,
-      )}
-      {!existPendingUsers && (
-        renderNoUserWaitingItem(intl.formatMessage(intlMessages.noPendingUsers))
-      )}
+          {allowRememberChoice ? (
+            <Styled.RememberContainer>
+              <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
+              <label htmlFor="rememderCheckboxId">
+                {intl.formatMessage(intlMessages.rememberChoice)}
+              </label>
+            </Styled.RememberContainer>
+          ) : null}
+        </div>
+        )}
+        {renderPendingUsers(
+          intl.formatMessage(intlMessages.pendingUsers,
+            { 0: authenticatedUsers.length }),
+          authenticatedUsers,
+          guestUsersCall,
+          intl,
+        )}
+        {renderPendingUsers(
+          intl.formatMessage(intlMessages.pendingGuestUsers,
+            { 0: guestUsers.length }),
+          guestUsers,
+          guestUsersCall,
+          intl,
+        )}
+        {!existPendingUsers && (
+          renderNoUserWaitingItem(intl.formatMessage(intlMessages.noPendingUsers))
+        )}
+      </Styled.ScrollableArea>
     </Styled.Panel>
   );
 };
