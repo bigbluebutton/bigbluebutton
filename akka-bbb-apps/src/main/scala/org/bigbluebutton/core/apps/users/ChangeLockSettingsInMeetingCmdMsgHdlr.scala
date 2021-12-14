@@ -44,6 +44,10 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           LockSettingsUtil.enforceLockSettingsForAllVoiceUsers(liveMeeting, outGW)
         }
 
+        if (!oldPermissions.disableCam && settings.disableCam) {
+          LockSettingsUtil.enforceCamLockSettingsForAllUsers(liveMeeting, outGW)
+        }
+
         val routing = Routing.addMsgToClientRouting(
           MessageTypes.BROADCAST_TO_MEETING,
           props.meetingProp.intId,

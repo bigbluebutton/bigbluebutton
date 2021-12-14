@@ -10,8 +10,8 @@ import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 import Rating from './rating/component';
 import Styled from './styles';
 import logger from '/imports/startup/client/logger';
-import Users from '/imports/ui/local-collections/users-collection/users';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 

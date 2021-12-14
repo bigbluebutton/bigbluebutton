@@ -1,4 +1,3 @@
-import Users from '/imports/ui/local-collections/users-collection/users';
 import Auth from '/imports/ui/services/auth';
 import { CurrentPoll } from '/imports/api/polls';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
@@ -212,10 +211,6 @@ const checkPollType = (
 };
 
 export default {
-  amIPresenter: () => Users.findOne(
-    { userId: Auth.userID },
-    { fields: { presenter: 1 } },
-  ).presenter,
   pollTypes,
   currentPoll: () => CurrentPoll.findOne({ meetingId: Auth.meetingID }),
   pollAnswerIds,

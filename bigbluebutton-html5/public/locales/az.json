@@ -206,7 +206,6 @@
     "app.poll.hidePollDesc": "Anket menyu bölməsini gizlədir",
     "app.poll.quickPollInstruction": "Anketə başlamaq üçün aşağıda bir seçim seçin.",
     "app.poll.activePollInstruction": "Anketinizə canlı cavabları görmək üçün bu paneli açıq buraxın. Hazır olduğunuzda, nəticələri dərc etmək və anketi bitirmək üçün 'Anket nəticələrini dərc et' seçin.",
-    "app.poll.publishLabel": "Anket nəticələrini dərc edin",
     "app.poll.closeLabel": "Bağla",
     "app.poll.waitingLabel": "Cavab gözlənilir ({0}/{1})",
     "app.poll.ariaInputCount": "Xüsusi anket seçimi {0} / {1}",

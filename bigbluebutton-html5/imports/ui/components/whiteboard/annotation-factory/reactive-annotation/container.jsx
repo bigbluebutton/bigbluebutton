@@ -5,7 +5,7 @@ import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui
 import ReactiveAnnotationService from './service';
 import ReactiveAnnotation from './component';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Users from '/imports/api/users';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;

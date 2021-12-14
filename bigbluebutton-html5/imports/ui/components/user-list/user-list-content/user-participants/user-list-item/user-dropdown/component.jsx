@@ -572,6 +572,7 @@ class UserDropdown extends PureComponent {
       user,
       intl,
       isThisMeetingLocked,
+      userLastBreakout,
       isMe,
       isRTL,
     } = this.props;
@@ -612,6 +613,7 @@ class UserDropdown extends PureComponent {
             isThisMeetingLocked,
             userAriaLabel,
             isActionsOpen,
+            userLastBreakout,
             isMe,
           }}
         />

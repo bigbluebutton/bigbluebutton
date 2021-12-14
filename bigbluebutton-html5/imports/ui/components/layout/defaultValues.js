@@ -3,8 +3,6 @@ import { LAYOUT_TYPE, CAMERADOCK_POSITION, PANELS } from './enums';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
-const NAVBAR_HEIGHT = 112;
-const LARGE_NAVBAR_HEIGHT = 170;
 
 const DEFAULT_VALUES = {
   layoutType: LAYOUT_TYPE.CUSTOM_LAYOUT,
@@ -34,15 +32,15 @@ const DEFAULT_VALUES = {
   actionBarTabOrder: 6,
 
   sidebarNavMaxWidth: 240,
-  sidebarNavMinWidth: 150,
+  sidebarNavMinWidth: 70,
   sidebarNavHeight: '100%',
   sidebarNavTop: 0,
   sidebarNavLeft: 0,
   sidebarNavTabOrder: 1,
   sidebarNavPanel: PANELS.USERLIST,
 
-  sidebarContentMaxWidth: 350,
-  sidebarContentMinWidth: 150,
+  sidebarContentMaxWidth: 800,
+  sidebarContentMinWidth: 70,
   sidebarContentMinHeight: 200,
   sidebarContentHeight: '100%',
   sidebarContentTop: 0,
@@ -54,6 +52,4 @@ export default DEFAULT_VALUES;
 export {
   LAYOUT_TYPE,
   CAMERADOCK_POSITION,
-  NAVBAR_HEIGHT,
-  LARGE_NAVBAR_HEIGHT,
 };

@@ -190,7 +190,11 @@ const HoldButtonWrapper = styled(HoldButton)`
   }
 `;
 
-const RandomlyAssignBtn = styled(Button)`
+const AssignBtnsContainer = styled.div`
+  margin-top: auto;
+`;
+
+const AssignBtns = styled(Button)`
   color: ${colorPrimary};
   font-size: ${fontSizeSmall};
   white-space: nowrap;
@@ -302,7 +306,8 @@ export default {
   DurationArea,
   DurationInput,
   HoldButtonWrapper,
-  RandomlyAssignBtn,
+  AssignBtnsContainer,
+  AssignBtns,
   CheckBoxesContainer,
   FreeJoinCheckbox,
   RoomUserItem,

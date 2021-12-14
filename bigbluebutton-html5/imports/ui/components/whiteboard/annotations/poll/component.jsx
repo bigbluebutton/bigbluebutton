@@ -14,6 +14,10 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.annotations.pollResult',
     description: 'aria label used in poll result string',
   },
+  noResponsesFromUserResponsePoll: {
+    id: 'app.whiteboard.annotations.noResponses',
+    description: 'aria label used when there is no responses',
+  },
 });
 
 const MAX_DISPLAYED_CHARS = 15;
@@ -73,6 +77,10 @@ class PollDrawComponent extends Component {
   }
 
   componentDidMount() {
+    const { annotation } = this.props;
+    const { pollType, numResponders } = annotation;
+    if (pollType === PollService.pollTypes.Response && numResponders === 0) return;
+
     const isLayoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
     if (isLayoutSwapped) return;
 
@@ -216,7 +224,7 @@ class PollDrawComponent extends Component {
     const { slideWidth, slideHeight, intl } = this.props;
 
     // group duplicated responses and keep track of the number of removed items
-    const reducedResult = result.reduce(caseInsensitiveReducer, []);
+    const reducedResult = result.reduce(caseInsensitiveReducer, []).sort((a, b) => a.id - b.id);
     const reducedResultRatio = reducedResult.length * 100 / result.length;
 
     // x1 and y1 - coordinates of the top left corner of the annotation
@@ -615,11 +623,21 @@ class PollDrawComponent extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, annotation } = this.props;
     const { prepareToDisplay, textArray } = this.state;
+    let ariaResultLabel;
 
-    let ariaResultLabel = `${intl.formatMessage(intlMessages.pollResultAria)}: `;
-    textArray.forEach((t, idx) => {
+    const { pollType, numResponders } = annotation;
+    if (pollType === PollService.pollTypes.Response && numResponders === 0) {
+      const noResponseLabel = intl.formatMessage(intlMessages.noResponsesFromUserResponsePoll);
+      ariaResultLabel = `${intl.formatMessage(intlMessages.pollResultAria)}: ${noResponseLabel}}`;
+      return (
+        <g aria-label={ariaResultLabel} data-test="pollResultAria"></g>
+      );
+    }
+
+    ariaResultLabel = `${intl.formatMessage(intlMessages.pollResultAria)}: `;
+    textArray.map((t, idx) => {
       const pollLine = t.slice(0, -1);
       ariaResultLabel += `${idx > 0 ? ' |' : ''} ${pollLine.join(' | ')}`;
     });

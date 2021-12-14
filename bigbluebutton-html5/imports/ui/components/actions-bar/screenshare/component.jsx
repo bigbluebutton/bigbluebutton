@@ -183,7 +183,7 @@ const ScreenshareButton = ({
             if (isSafari && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
               renderScreenshareUnavailableModal();
             } else {
-              shareScreen(handleFailure);
+              shareScreen(amIPresenter, handleFailure);
             }
           }}
         id={isVideoBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}

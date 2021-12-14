@@ -189,7 +189,6 @@
     "app.poll.hidePollDesc": "הסתרת תפריט הסקר",
     "app.poll.quickPollInstruction": "בחירת אפשרות להתחלת הסקר.",
     "app.poll.activePollInstruction": "יציאה ממסך זה על מנת לראות את התשובות לסקר בזמן אמת, כשאת/ה מוכן - יש לבחור 'פרסום תוצאות סקר' כדי לפרסם את תוצאותיו לשאר המשתתפים",
-    "app.poll.publishLabel": "פרסום תוצאות סקר",
     "app.poll.backLabel": "התחלת סקר",
     "app.poll.closeLabel": "סגירה",
     "app.poll.waitingLabel": "מחכה למענה ({0}/{1})",

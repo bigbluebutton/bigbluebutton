@@ -1,6 +1,6 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from './styles.scss';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   presentationPlacholderText: {
@@ -20,9 +20,8 @@ const PresentationPlaceholder = ({
   width,
   zIndex,
 }) => (
-  <div
+  <Styled.Placeholder
     ref={(ref) => setPresentationRef(ref)}
-    className={styles.presentationPlaceholder}
     data-test="presentationPlaceholder"
     style={{
       top,
@@ -37,7 +36,7 @@ const PresentationPlaceholder = ({
     <span>
       { intl.formatMessage(intlMessages.presentationPlacholderText) }
     </span>
-  </div>
+  </Styled.Placeholder>
 );
 
 export default injectIntl(PresentationPlaceholder);

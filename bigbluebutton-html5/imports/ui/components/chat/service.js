@@ -1,5 +1,5 @@
 import Users from '/imports/api/users';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Meetings from '/imports/api/meetings';
 import GroupChat from '/imports/api/group-chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';

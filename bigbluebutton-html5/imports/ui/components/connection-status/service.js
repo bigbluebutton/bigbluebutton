@@ -1,6 +1,6 @@
 import { defineMessages } from 'react-intl';
 import ConnectionStatus from '/imports/api/connection-status';
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Users from '/imports/api/users';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
@@ -570,6 +570,7 @@ const calculateBitsPerSecondFromMultipleData = (currentData, previousData) => {
 };
 
 export default {
+  isModerator,
   getConnectionStatus,
   getStats,
   getHelp,

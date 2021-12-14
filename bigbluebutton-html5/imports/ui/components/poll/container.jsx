@@ -18,6 +18,7 @@ const PollContainer = ({ ...props }) => {
 
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
+  const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
 
   const usernames = {};
 
@@ -25,7 +26,13 @@ const PollContainer = ({ ...props }) => {
     usernames[user.userId] = { userId: user.userId, name: user.name };
   });
 
-  return <Poll {...{ layoutContextDispatch, ...props }} usernames={usernames} />;
+  return (
+    <Poll
+      {...{ layoutContextDispatch, ...props }}
+      usernames={usernames}
+      amIPresenter={amIPresenter}
+    />
+  );
 };
 
 export default withTracker(() => {
@@ -50,7 +57,6 @@ export default withTracker(() => {
 
   return {
     currentSlide,
-    amIPresenter: Service.amIPresenter(),
     pollTypes,
     startPoll,
     startCustomPoll,

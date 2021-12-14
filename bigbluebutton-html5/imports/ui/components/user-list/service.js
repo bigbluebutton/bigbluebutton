@@ -1,8 +1,8 @@
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Users from '/imports/api/users';
 import VoiceUsers from '/imports/api/voice-users';
 import GroupChat from '/imports/api/group-chat';
-import Breakouts from '/imports/ui/local-collections/breakouts-collection/breakouts';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Breakouts from '/imports/api/breakouts';
+import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
@@ -595,8 +595,6 @@ const isUserPresenter = (userId) => {
   return user ? user.presenter : false;
 };
 
-const amIPresenter = () => isUserPresenter(Auth.userID);
-
 export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
   const mimeType = 'text/plain';
   const userNamesObj = getUsers()
@@ -666,7 +664,6 @@ export default {
   requestUserInformation,
   focusFirstDropDownItem,
   isUserPresenter,
-  amIPresenter,
   getUsersProp,
   getUserCount,
   sortUsersByCurrent,

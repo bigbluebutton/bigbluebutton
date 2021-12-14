@@ -1,5 +1,4 @@
 import { check } from 'meteor/check';
-import Captions from '/imports/api/captions';
 import updateOwnerId from '/imports/api/captions/server/modifiers/updateOwnerId';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import Logger from '/imports/startup/server/logger';
