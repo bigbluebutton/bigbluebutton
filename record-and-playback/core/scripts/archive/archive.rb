@@ -122,8 +122,8 @@ def archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp)
   BigBlueButton.logger.info("Fetching the recording marks for #{meeting_id}.")
 
   doc = Nokogiri::XML(File.open("#{raw_archive_dir}/#{meeting_id}/events.xml"))
-
   isBreakout = doc.at_xpath('recording/metadata/@isBreakout').text == "true"
+
   # Find the start and stop timestamps for the current recording segment
   start_timestamp = BigBlueButton::Events.get_segment_start_timestamp(
           doc, break_timestamp)

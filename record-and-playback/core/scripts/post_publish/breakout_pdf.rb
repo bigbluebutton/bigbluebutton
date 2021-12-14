@@ -24,7 +24,7 @@ require 'java_properties'
 require 'jwt'
 require 'net/http'
 require 'nokogiri'
-require 'trollop'
+require 'optimist'
 require 'builder'
 require 'combine_pdf'
 require 'csv'
@@ -39,7 +39,7 @@ logger = Logger.new('/var/log/bigbluebutton/post_publish.log', 'weekly')
 logger.level = Logger::INFO
 BigBlueButton.logger = logger
 
-opts = Trollop.options do
+opts = Optimist.options do
   opt :meeting_id, 'Meeting id to archive', type: String
 end
 

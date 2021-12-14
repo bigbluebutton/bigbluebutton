@@ -28,7 +28,7 @@ require File.expand_path('../../../lib/recordandplayback', __FILE__)
 # require File.expand_path('../../../../core/lib/recordandplayback', __FILE__)
 
 require 'rubygems'
-require 'trollop'
+require 'optimist'
 require 'yaml'
 require 'builder'
 require 'fastimage' # require fastimage to get the image size of the slides (gem install fastimage)
@@ -904,7 +904,7 @@ end
 
 $shapes_svg_filename = 'shapes.svg'
 
-opts = Trollop::options do
+opts = Optimist::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
 end
 
