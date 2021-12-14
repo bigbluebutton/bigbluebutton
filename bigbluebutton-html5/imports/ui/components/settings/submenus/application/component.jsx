@@ -72,6 +72,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.layoutOptionLabel',
     description: 'layout options',
   },
+  pushLayoutLabel: {
+    id: 'app.submenu.application.pushLayoutLabel',
+    description: 'push layout togle',
+  },
   customLayout: {
     id: 'app.layout.style.custom',
     description: 'label for custom layout style',
@@ -320,18 +324,8 @@ class ApplicationMenu extends BaseMenu {
   }
 
   renderChangeLayout() {
-    const { intl, isModerator } = this.props;
+    const { intl, isModerator, showToggleLabel, displaySettingsStatus } = this.props;
     const { settings } = this.state;
-
-    if (isModerator) {
-      const pushLayouts = {
-        CUSTOM_PUSH: 'customPush',
-        SMART_PUSH: 'smartPush',
-        PRESENTATION_FOCUS_PUSH: 'presentationFocusPush',
-        VIDEO_FOCUS_PUSH: 'videoFocusPush',
-      };
-      Object.assign(LAYOUT_TYPE, pushLayouts);
-    }
 
     return (
       <>
@@ -359,6 +353,29 @@ class ApplicationMenu extends BaseMenu {
             </div>
           </div>
         </div>
+        { isModerator ?
+          (<div className={styles.row}>
+            <div className={styles.col}>
+              <div className={styles.formElement}>
+                <label className={styles.label}>
+                  {intl.formatMessage(intlMessages.pushLayoutLabel)}
+                </label>
+              </div>
+            </div>
+            <div className={styles.col}>
+              <div className={cx(styles.formElement, styles.pullContentRight)}>
+                {displaySettingsStatus(settings.pushLayout)}
+                <Toggle
+                  icons={false}
+                  defaultChecked={settings.pushLayout}
+                  onChange={() => this.handleToggle('pushLayout')}
+                  ariaLabel={intl.formatMessage(intlMessages.pushLayoutLabel)}
+                  showToggleLabel={showToggleLabel}
+                />
+              </div>
+            </div>
+          </div>
+        ) : null }
       </>
     );
   }
