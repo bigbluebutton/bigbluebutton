@@ -77,6 +77,20 @@ case class UserLeftMeetingEvtMsg(
 ) extends BbbCoreMsg
 case class UserLeftMeetingEvtMsgBody(intId: String)
 
+object UserLeftFlagEvtMsg {
+  val NAME = "UserLeftFlagEvtMsg"
+  def apply(meetingId: String, userId: String, body: UserLeftFlagEvtMsgBody): UserLeftFlagEvtMsg = {
+    val header = BbbClientMsgHeader(UserLeftFlagEvtMsg.NAME, meetingId, userId)
+    UserLeftFlagEvtMsg(header, body)
+  }
+}
+
+case class UserLeftFlagEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   UserLeftFlagEvtMsgBody
+) extends BbbCoreMsg
+case class UserLeftFlagEvtMsgBody(intId: String, userLeftFlag: Boolean)
+
 object UserJoinedMeetingEvtMsg {
   val NAME = "UserJoinedMeetingEvtMsg"
   def apply(meetingId: String, userId: String, body: UserJoinedMeetingEvtMsgBody): UserJoinedMeetingEvtMsg = {

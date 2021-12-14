@@ -2,6 +2,7 @@ package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
 import org.bigbluebutton.core.util.TimeUtil
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object Users2x {
   def findWithIntId(users: Users2x, intId: String): Option[UserState] = {
@@ -33,6 +34,8 @@ object Users2x {
     } yield {
       val newUser = u.copy(userLeftFlag = UserLeftFlag(true, System.currentTimeMillis()))
       users.save(newUser)
+      val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(, u.intId)
+      outGW.send(userLeftMeetingEvent)
       newUser
     }
   }
@@ -50,7 +53,7 @@ object Users2x {
   def findAllExpiredUserLeftFlags(users: Users2x, meetingExpireWhenLastUserLeftInMs: Long): Vector[UserState] = {
     if (meetingExpireWhenLastUserLeftInMs > 0) {
       users.toVector filter (u => u.userLeftFlag.left && u.userLeftFlag.leftOn != 0 &&
-        System.currentTimeMillis() - u.userLeftFlag.leftOn > 10000)
+        System.currentTimeMillis() - u.userLeftFlag.leftOn > 30000)
     } else {
       // When meetingExpireWhenLastUserLeftInMs is set zero we need to
       // remove user right away to end the meeting as soon as possible.
@@ -164,7 +167,7 @@ object Users2x {
       newUser
     }
   }
-  
+
   def hasPresenter(users: Users2x): Boolean = {
     findPresenter(users) match {
       case Some(p) => true
