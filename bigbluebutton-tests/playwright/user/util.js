@@ -14,7 +14,7 @@ async function connectionStatus(test) {
 function checkNetworkStatus({ dataContainer, networdData }) {
   const values = Array.from(document.querySelectorAll(`${dataContainer} > ${networdData}`));
   values.splice(4, values.length - 4);
-  const check = values.filter(e => e.textContent.includes(' 0 k'))[0];
+  const check = values.filter(elem => elem.textContent.includes(' 0 k'))[0];
 
   if (!check) return true;
 }

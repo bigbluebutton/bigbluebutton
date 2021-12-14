@@ -18,9 +18,9 @@ function hexToRgb(hex) {
 
 async function zoomIn(test) {
   try {
-    await test.page.evaluate((zoomIn) => {
+    await test.page.evaluate((selector) => {
       setInterval(() => {
-        document.querySelector(zoomIn).scrollBy(0, 10);
+        document.querySelector(selector).scrollBy(0, 10);
       }, 100);
     }, e.zoomIn);
     return true;
@@ -32,9 +32,9 @@ async function zoomIn(test) {
 
 async function zoomOut(test) {
   try {
-    await test.page.evaluate((zoomIn) => {
+    await test.page.evaluate((selector) => {
       setInterval(() => {
-        document.querySelector(zoomIn).scrollBy(10, 0);
+        document.querySelector(selector).scrollBy(10, 0);
       }, 100);
     }, e.zoomIn);
     return true;
@@ -86,7 +86,7 @@ function encodeCustomParams(param) {
 
 function getAllShortcutParams() {
   const getParams = (shortcutArray) => {
-    return Object.values(shortcutArray.map(e => `"${e.param}"`));
+    return Object.values(shortcutArray.map(elem => `"${elem.param}"`));
   }
   return c.shortcuts.replace('$', [...getParams(c.initialShortcuts), ...getParams(c.laterShortcuts)]);
 }
