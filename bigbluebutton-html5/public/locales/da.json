@@ -226,7 +226,6 @@
     "app.poll.activePollInstruction": "Lad dette panel være åbent for at se live svar på din afstemning. Når du er klar, skal du vælge 'Udgiv afstemningsresultater' for at offentliggøre resultaterne og afslutte afstemningen.",
     "app.poll.dragDropPollInstruction": "For at udfylde afstemningsresultaterne skal du trække en tekstfil med afstemningsresultaterne til det fremhævede felt",
     "app.poll.customPollTextArea": "Udfyld afstemningsværdierne",
-    "app.poll.publishLabel": "Udgiv afstemningsresultater",
     "app.poll.backLabel": "Start en afstemning",
     "app.poll.closeLabel": "Luk",
     "app.poll.waitingLabel": "Afventer svar ({0}/{1})",

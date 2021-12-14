@@ -59,9 +59,9 @@ class NavBar extends Component {
     if (isMacos && isFirefox && TOGGLE_USERLIST_AK === 'U') {
       document.addEventListener('keyup', (event) => {
         const { key, code } = event;
-        const eventKey = key.toUpperCase();
+        const eventKey = key?.toUpperCase();
         const eventCode = code;
-        if (event.altKey && (eventKey === TOGGLE_USERLIST_AK || eventCode === `Key${TOGGLE_USERLIST_AK}`)) {
+        if (event?.altKey && (eventKey === TOGGLE_USERLIST_AK || eventCode === `Key${TOGGLE_USERLIST_AK}`)) {
           this.handleToggleUserList();
         }
       });
@@ -156,8 +156,10 @@ class NavBar extends Component {
       >
         <Styled.Top>
           <Styled.Left>
-            {!isExpanded ? null
-              : <Styled.ArrowLeft iconName="left_arrow" />}
+            {isExpanded && document.dir === 'ltr'
+              && <Styled.ArrowLeft iconName="left_arrow" />}
+            {!isExpanded && document.dir === 'rtl'
+              && <Styled.ArrowLeft iconName="left_arrow" />}
             <Styled.NavbarToggleButton
               onClick={this.handleToggleUserList}
               ghost
@@ -172,8 +174,10 @@ class NavBar extends Component {
               accessKey={TOGGLE_USERLIST_AK}
               hasNotification={hasNotification}
             />
-            {isExpanded ? null
-              : <Styled.ArrowRight iconName="right_arrow" />}
+            {!isExpanded && document.dir === 'ltr'
+              && <Styled.ArrowRight iconName="right_arrow" />}
+            {isExpanded && document.dir === 'rtl'
+              && <Styled.ArrowRight iconName="right_arrow" />}
           </Styled.Left>
           <Styled.Center>
             <Styled.PresentationTitle>{presentationTitle}</Styled.PresentationTitle>

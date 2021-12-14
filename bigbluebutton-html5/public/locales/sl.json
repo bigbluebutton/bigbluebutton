@@ -206,7 +206,6 @@
     "app.poll.hidePollDesc": "Skrije pano menija ankete",
     "app.poll.quickPollInstruction": "Izberite eno od spodnjih možnosti za začetek anketiranja.",
     "app.poll.activePollInstruction": "Za spremljanje odzivov na anketo 'v živo',  pustite to okno odprto. Ko ste pripravljeni, izberite »Objavite rezultate ankete«, da objavite rezultate in končate z anketiranjem.",
-    "app.poll.publishLabel": "Objavi rezultate ankete",
     "app.poll.closeLabel": "Zapri",
     "app.poll.waitingLabel": "Čakanje na odzive ({0}/{1})",
     "app.poll.ariaInputCount": "Možnost lastne ankete {0} od {1}",

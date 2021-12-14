@@ -253,6 +253,10 @@ class Poll extends Component {
     }
   }
 
+  componentWillUnmount() {
+    Session.set('secretPoll', false);
+  }
+
   handleBackClick() {
     const { stopPoll } = this.props;
     this.setState({

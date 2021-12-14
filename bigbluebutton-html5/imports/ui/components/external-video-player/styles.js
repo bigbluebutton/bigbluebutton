@@ -5,6 +5,15 @@ const VideoPlayerWrapper = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
+
+  ${({ fullscreen }) => fullscreen && `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 99;
+  `}
 `;
 
 const AutoPlayWarning = styled.p`
