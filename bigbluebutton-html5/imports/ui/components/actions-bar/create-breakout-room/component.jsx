@@ -37,6 +37,14 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.durationInMinutes',
     description: 'duration time label',
   },
+  resetAssignments: {
+    id: 'app.createBreakoutRoom.resetAssignments',
+    description: 'reset assignments label',
+  },
+  resetAssignmentsDesc: {
+    id: 'app.createBreakoutRoom.resetAssignmentsDesc',
+    description: 'reset assignments label description',
+  },
   randomlyAssign: {
     id: 'app.createBreakoutRoom.randomlyAssign',
     description: 'randomly assign label',
@@ -165,6 +173,7 @@ class BreakoutRoom extends PureComponent {
     this.setFreeJoin = this.setFreeJoin.bind(this);
     this.getUserByRoom = this.getUserByRoom.bind(this);
     this.onAssignRandomly = this.onAssignRandomly.bind(this);
+    this.onAssignReset = this.onAssignReset.bind(this);
     this.onInviteBreakout = this.onInviteBreakout.bind(this);
     this.renderUserItemByRoom = this.renderUserItemByRoom.bind(this);
     this.renderRoomsGrid = this.renderRoomsGrid.bind(this);
@@ -210,15 +219,23 @@ class BreakoutRoom extends PureComponent {
   }
 
   componentDidMount() {
-    const { isInvitation, breakoutJoinedUsers } = this.props;
+    const {
+      isInvitation, breakoutJoinedUsers, getLastBreakouts, groups,
+    } = this.props;
     this.setRoomUsers();
     if (isInvitation) {
       this.setInvitationConfig();
-    }
-    if (isInvitation) {
+
       this.setState({
         breakoutJoinedUsers,
       });
+    }
+
+    const lastBreakouts = getLastBreakouts();
+    if (lastBreakouts.length > 0) {
+      this.populateWithLastBreakouts(lastBreakouts);
+    } else if (groups && groups.length > 0) {
+      this.populateWithGroups(groups);
     }
   }
 
@@ -427,6 +444,16 @@ class BreakoutRoom extends PureComponent {
     }
   }
 
+  onAssignReset() {
+    const { users } = this.state;
+
+    users.forEach((u) => {
+      if (u.room !== null && u.room > 0) {
+        this.changeUserRoom(u.userId, 0);
+      }
+    });
+  }
+
   setInvitationConfig() {
     const { getBreakouts } = this.props;
     this.setState({
@@ -581,6 +608,68 @@ class BreakoutRoom extends PureComponent {
     if (equals.length > 1) return true;
 
     return false;
+  }
+
+  populateWithLastBreakouts(lastBreakouts) {
+    const { getBreakoutUserWasIn, users, intl } = this.props;
+
+    const changedNames = [];
+    lastBreakouts.forEach((breakout) => {
+      if (breakout.isDefaultName === false) {
+        changedNames[breakout.sequence] = breakout.shortName;
+      }
+    });
+
+    this.setState({
+      roomNamesChanged: changedNames,
+      numberOfRooms: lastBreakouts.length,
+      roomNameDuplicatedIsValid: true,
+      roomNameEmptyIsValid: true,
+    }, () => {
+      const rooms = _.range(1, lastBreakouts.length + 1).map((seq) => this.getRoomName(seq));
+
+      users.forEach((u) => {
+        const lastUserBreakout = getBreakoutUserWasIn(u.userId, u.extId);
+        if (lastUserBreakout !== null) {
+          const lastUserBreakoutName = lastUserBreakout.isDefaultName === false
+            ? lastUserBreakout.shortName
+            : intl.formatMessage(intlMessages.breakoutRoom, { 0: lastUserBreakout.sequence });
+
+          if (rooms.indexOf(lastUserBreakoutName) !== false) {
+            this.changeUserRoom(u.userId, rooms.indexOf(lastUserBreakoutName) + 1);
+          }
+        }
+      });
+    });
+  }
+
+  populateWithGroups(groups) {
+    const { users } = this.props;
+
+    const changedNames = [];
+    groups.forEach((group, idx) => {
+      if (group.name.length > 0) {
+        changedNames[idx + 1] = group.name;
+      }
+    });
+
+    this.setState({
+      roomNamesChanged: changedNames,
+      numberOfRooms: groups.length > 1 ? groups.length : 2,
+      roomNameDuplicatedIsValid: true,
+      roomNameEmptyIsValid: true,
+    }, () => {
+      groups.forEach((group, groupIdx) => {
+        const usersInGroup = group.usersExtId;
+        if (usersInGroup.length > 0) {
+          usersInGroup.forEach((groupUserExtId) => {
+            users.filter((u) => u.extId === groupUserExtId).forEach((foundUser) => {
+              this.changeUserRoom(foundUser.userId, groupIdx + 1);
+            });
+          });
+        }
+      });
+    });
   }
 
   renderRoomsGrid() {
@@ -764,15 +853,26 @@ class BreakoutRoom extends PureComponent {
               }
             </Styled.SpanWarn>
           </Styled.DurationLabel>
-          <Styled.RandomlyAssignBtn
-            data-test="randomlyAssign"
-            label={intl.formatMessage(intlMessages.randomlyAssign)}
-            aria-describedby="randomlyAssignDesc"
-            onClick={this.onAssignRandomly}
-            size="sm"
-            color="default"
-            disabled={!numberOfRoomsIsValid}
-          />
+          <Styled.AssignBtnsContainer>
+            <Styled.AssignBtns
+              data-test="randomlyAssign"
+              label={intl.formatMessage(intlMessages.randomlyAssign)}
+              aria-describedby="randomlyAssignDesc"
+              onClick={this.onAssignRandomly}
+              size="sm"
+              color="default"
+              disabled={!numberOfRoomsIsValid}
+            />
+            <Styled.AssignBtns
+              data-test="resetAssignments"
+              label={intl.formatMessage(intlMessages.resetAssignments)}
+              aria-describedby="resetAssignmentsDesc"
+              onClick={this.onAssignReset}
+              size="sm"
+              color="default"
+              disabled={!numberOfRoomsIsValid}
+            />
+          </Styled.AssignBtnsContainer>
         </Styled.BreakoutSettings>
         <Styled.SpanWarn valid={numberOfRoomsIsValid}>
           {intl.formatMessage(intlMessages.numberOfRoomsIsValid)}

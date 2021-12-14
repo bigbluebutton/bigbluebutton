@@ -176,7 +176,6 @@
     "app.poll.hidePollDesc": "Ascunde panoul meniului de sondaj",
     "app.poll.quickPollInstruction": "Selectati o optiune de mai jos pentru a incepe procesul de sondaj.",
     "app.poll.activePollInstruction": "Lasati acest panou deschis pentru a vedea raspunsuri in direct la sondajul dvs. Cand sunteti gata, selectati „Publicati rezultatele sondajului” pentru a publica rezultatele si incheiati sondajul.",
-    "app.poll.publishLabel": "Publicare rezultate sondaj",
     "app.poll.closeLabel": "Inchide",
     "app.poll.waitingLabel": "Asteptati pentru raspunsuri ({0}/{1})",
     "app.poll.ariaInputCount": "Optiune sondaj custom {0} of {1}",

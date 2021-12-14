@@ -6,6 +6,7 @@ import Meeting from '/imports/ui/services/meeting';
 import Breakouts from '/imports/api/breakouts';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
+import BreakoutsHistory from '/imports/api/breakouts-history';
 
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
@@ -15,9 +16,15 @@ const getBreakouts = () => Breakouts.find({ parentMeetingId: Auth.meetingID })
   .fetch()
   .sort((a, b) => a.sequence - b.sequence);
 
-const hasBreakouts = () => Breakouts
-    .find( { parentMeetingId: Auth.meetingID }, { fields: {} })
-    .count() > 0;
+const getLastBreakouts = () => {
+  const lastBreakouts = BreakoutsHistory.findOne({ meetingId: Auth.meetingID });
+  if (lastBreakouts) {
+    return lastBreakouts.rooms
+      .sort((a, b) => a.sequence - b.sequence);
+  }
+
+  return [];
+};
 
 const currentBreakoutUsers = (user) => !Breakouts.findOne({
   'joinedUsers.userId': new RegExp(`^${user.userId}`),
@@ -74,6 +81,8 @@ export default {
     meetingId: Auth.meetingID,
     clientType: { $ne: DIAL_IN_USER },
   }).fetch(),
+  groups: () => Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { groups: 1 } }).groups,
   isBreakoutEnabled: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'breakoutProps.enabled': 1 } }).breakoutProps.enabled,
   isBreakoutRecordable: () => Meetings.findOne({ meetingId: Auth.meetingID },
@@ -85,7 +94,7 @@ export default {
     joinedUsers: { $exists: true },
   }, { fields: { joinedUsers: 1, breakoutId: 1, sequence: 1 }, sort: { sequence: 1 } }).fetch(),
   getBreakouts,
-  hasBreakouts,
+  getLastBreakouts,
   getUsersNotAssigned,
   takePresenterRole,
   isSharingVideo: () => getVideoUrl(),

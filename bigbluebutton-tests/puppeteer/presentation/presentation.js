@@ -10,17 +10,17 @@ class Presentation {
     this.userPage = new Page();
   }
 
-  async initPages(testName) {
-    await this.initModPage(testName);
-    await this.initUserPage(testName);
+  async initPages(testName, extraFlags) {
+    await this.initModPage(testName, extraFlags);
+    await this.initUserPage(testName, extraFlags);
   }
 
-  async initModPage(testName) {
-    await this.modPage.init(true, true, testName, 'Mod');
+  async initModPage(testName, extraFlags) {
+    await this.modPage.init(true, true, testName, 'Mod', undefined, undefined, undefined, undefined, extraFlags);
   }
 
-  async initUserPage(testName) {
-    await this.userPage.init(false, true, testName, 'Attendee', this.modPage.meetingId);
+  async initUserPage(testName, extraFlags) {
+    await this.userPage.init(false, true, testName, 'Attendee', this.modPage.meetingId, undefined, undefined, undefined, extraFlags);
   }
 
   async skipSlide() {

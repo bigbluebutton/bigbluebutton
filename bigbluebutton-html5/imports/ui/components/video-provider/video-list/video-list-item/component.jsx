@@ -16,6 +16,8 @@ import { ACTIONS } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const { isSafari } = browserInfo;
+const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
 class VideoListItem extends Component {
   constructor(props) {
@@ -40,7 +42,7 @@ class VideoListItem extends Component {
 
     onVideoItemMount(this.videoTag);
     this.videoTag.addEventListener('loadeddata', this.setVideoIsReady);
-    this.videoContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
+    this.videoContainer.addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     subscribeToStreamStateChange(cameraId, this.onStreamStateChange);
   }
 
@@ -74,7 +76,7 @@ class VideoListItem extends Component {
     } = this.props;
 
     this.videoTag.removeEventListener('loadeddata', this.setVideoIsReady);
-    this.videoContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    this.videoContainer.removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     unsubscribeFromStreamStateChange(cameraId, this.onStreamStateChange);
     onVideoItemUnmount(cameraId);
 

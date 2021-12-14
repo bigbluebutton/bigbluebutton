@@ -1319,7 +1319,11 @@ export default class SIPBridge extends BaseAudioBridge {
     this.userMediaConstraints = userMediaConstraints;
 
     this.protocol = window.document.location.protocol;
-    this.hostname = window.document.location.hostname;
+    if (MEDIA['sip_ws_host'] != null && MEDIA['sip_ws_host'] != '') {
+      this.hostname = MEDIA.sip_ws_host;
+    } else {
+      this.hostname = window.document.location.hostname;
+    }
 
     // SDP conversion utilitary methods to be used inside SIP.js
     window.isUnifiedPlan = isUnifiedPlan;

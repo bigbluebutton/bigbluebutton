@@ -9,6 +9,7 @@ import AnnotationsTextService from '/imports/ui/components/whiteboard/annotation
 import { Annotations as AnnotationsLocal } from '/imports/ui/components/whiteboard/service';
 import {
   localBreakoutsSync,
+  localBreakoutsHistorySync,
   localGuestUsersSync,
   localMeetingsSync,
   localUsersSync,
@@ -25,7 +26,7 @@ const SUBSCRIPTIONS = [
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note', 'meeting-time-remaining',
   'local-settings', 'users-typing', 'record-meetings', 'video-streams',
-  'connection-status', 'voice-call-states', 'external-video-meetings', 'breakouts',
+  'connection-status', 'voice-call-states', 'external-video-meetings', 'breakouts', 'breakouts-history',
 ];
 
 const EVENT_NAME = 'bbb-group-chat-messages-subscription-has-stoppped';
@@ -101,6 +102,7 @@ export default withTracker(() => {
       // let this withTracker re-execute when a subscription is stopped
       subscriptionReactivity.depend();
       localBreakoutsSync.setIgnoreDeletes(true);
+      localBreakoutsHistorySync.setIgnoreDeletes(true);
       localGuestUsersSync.setIgnoreDeletes(true);
       localMeetingsSync.setIgnoreDeletes(true);
       localUsersSync.setIgnoreDeletes(true);
@@ -110,6 +112,7 @@ export default withTracker(() => {
         SubscriptionRegistry.getSubscription('meetings'),
         SubscriptionRegistry.getSubscription('users'),
         SubscriptionRegistry.getSubscription('breakouts'),
+        SubscriptionRegistry.getSubscription('breakouts-history'),
         SubscriptionRegistry.getSubscription('guestUser'),
       ].forEach((item) => {
         if (item) item.stop();
@@ -139,7 +142,7 @@ export default withTracker(() => {
   let groupChatMessageHandler = {};
 
   if (CHAT_ENABLED && ready) {
-    const chats = GroupChat.find({
+    const chatsCount = GroupChat.find({
       $or: [
         {
           meetingId,
@@ -148,15 +151,13 @@ export default withTracker(() => {
         },
         { meetingId, users: { $all: [requesterUserId] } },
       ],
-    }).fetch();
-
-    const chatIds = chats.map(chat => chat.chatId);
+    }).count();
 
     const subHandler = {
       ...subscriptionErrorHandler,
     };
 
-    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatIds, subHandler);
+    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatsCount, subHandler);
   }
 
   // TODO: Refactor all the late subscribers

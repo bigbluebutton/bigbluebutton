@@ -211,7 +211,6 @@
     "app.poll.hidePollDesc": "Anket menüsü panosunu gizler",
     "app.poll.quickPollInstruction": "Anketinize başlamak için aşağıdan bir seçim yapın.",
     "app.poll.activePollInstruction": "Anketinize verilen yanıtları canlı olarak görüntülemek için bu panoyu açık bırakın. Sonuçları yayınlayıp anketi bitirmek için 'Anket sonuçlarını yayınla' üzerine tıklayın.",
-    "app.poll.publishLabel": " Anket sonuçlarını yayınla",
     "app.poll.closeLabel": "Kapat",
     "app.poll.waitingLabel": "Yanıtlar bekleniyor ({0}/{1})",
     "app.poll.ariaInputCount": "Özel anket seçeneği {0} / {1}",

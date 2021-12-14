@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
 import RecordingIndicator from './recording-indicator/container';
@@ -50,27 +49,19 @@ class NavBar extends Component {
 
   componentDidMount() {
     const {
-      processOutsideToggleRecording,
-      connectRecordingObserver,
       shortcuts: TOGGLE_USERLIST_AK,
     } = this.props;
 
     const { isFirefox } = browserInfo;
     const { isMacos } = deviceInfo;
 
-    if (Meteor.settings.public.allowOutsideCommands.toggleRecording
-      || getFromUserSettings('bbb_outside_toggle_recording', false)) {
-      connectRecordingObserver();
-      window.addEventListener('message', processOutsideToggleRecording);
-    }
-
     // accessKey U does not work on firefox for macOS for some unknown reason
     if (isMacos && isFirefox && TOGGLE_USERLIST_AK === 'U') {
       document.addEventListener('keyup', (event) => {
         const { key, code } = event;
-        const eventKey = key.toUpperCase();
+        const eventKey = key?.toUpperCase();
         const eventCode = code;
-        if (event.altKey && (eventKey === TOGGLE_USERLIST_AK || eventCode === `Key${TOGGLE_USERLIST_AK}`)) {
+        if (event?.altKey && (eventKey === TOGGLE_USERLIST_AK || eventCode === `Key${TOGGLE_USERLIST_AK}`)) {
           this.handleToggleUserList();
         }
       });
@@ -165,8 +156,10 @@ class NavBar extends Component {
       >
         <Styled.Top>
           <Styled.Left>
-            {!isExpanded ? null
-              : <Styled.ArrowLeft iconName="left_arrow" />}
+            {isExpanded && document.dir === 'ltr'
+              && <Styled.ArrowLeft iconName="left_arrow" />}
+            {!isExpanded && document.dir === 'rtl'
+              && <Styled.ArrowLeft iconName="left_arrow" />}
             <Styled.NavbarToggleButton
               onClick={this.handleToggleUserList}
               ghost
@@ -181,8 +174,10 @@ class NavBar extends Component {
               accessKey={TOGGLE_USERLIST_AK}
               hasNotification={hasNotification}
             />
-            {isExpanded ? null
-              : <Styled.ArrowRight iconName="right_arrow" />}
+            {!isExpanded && document.dir === 'ltr'
+              && <Styled.ArrowRight iconName="right_arrow" />}
+            {isExpanded && document.dir === 'rtl'
+              && <Styled.ArrowRight iconName="right_arrow" />}
           </Styled.Left>
           <Styled.Center>
             <Styled.PresentationTitle>{presentationTitle}</Styled.PresentationTitle>

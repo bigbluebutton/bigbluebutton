@@ -49,7 +49,7 @@ module BigBlueButton
       BigBlueButton.logger.info("Task: Getting meeting metadata")
       doc = Nokogiri::XML(File.open(events_xml))
       metadata = {}
-      doc.xpath("//metadata").each do |e|
+      doc.xpath("recording/metadata").each do |e|
         e.keys.each do |k|
           metadata[k] = e.attribute(k)
         end
@@ -613,7 +613,7 @@ module BigBlueButton
     def self.get_record_status_events(events_xml)
       BigBlueButton.logger.info "Getting record status events"
       rec_events = []
-      events_xml.xpath("//event[@eventname='RecordStatusEvent']").each do |event|
+      events_xml.xpath("recording/event[@eventname='RecordStatusEvent']").each do |event|
         s = { :timestamp => event['timestamp'].to_i }
         rec_events << s
       end
@@ -623,14 +623,14 @@ module BigBlueButton
     def self.get_external_video_events(events_xml)
       BigBlueButton.logger.info "Getting external video events"
       external_videos_events = []
-      events_xml.xpath("//event[@eventname='StartExternalVideoRecordEvent']").each do |event|
+      events_xml.xpath("recording/event[@eventname='StartExternalVideoRecordEvent']").each do |event|
         s = {
           :timestamp => event['timestamp'].to_i,
           :external_video_url => event.at_xpath("externalVideoUrl").text
         }
         external_videos_events << s
       end
-      events_xml.xpath("//event[@eventname='StopExternalVideoRecordEvent']").each do |event|
+      events_xml.xpath("recording/event[@eventname='StopExternalVideoRecordEvent']").each do |event|
         s = { :timestamp => event['timestamp'].to_i }
         external_videos_events << s
       end

@@ -83,6 +83,7 @@ const SidebarContent = (props) => {
   };
 
   const smallSidebar = width < (maxWidth / 2);
+  const pollDisplay = sidebarContentPanel === PANELS.POLL ? 'inherit' : 'none';
 
   return (
     <Resizable
@@ -125,15 +126,12 @@ const SidebarContent = (props) => {
       {sidebarContentPanel === PANELS.CHAT && <ChatContainer />}
       {sidebarContentPanel === PANELS.SHARED_NOTES && <NoteContainer />}
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
-      {sidebarContentPanel === PANELS.POLL
-        && (
-          <Styled.Poll style={{ minWidth, top: '0' }} id="pollPanel">
-            <PollContainer smallSidebar={smallSidebar} />
-          </Styled.Poll>
-        )}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}
       {sidebarContentPanel === PANELS.TRANSLATIONS && <TranslationsContainer />}
+      <Styled.Poll style={{ minWidth, top: '0', display: pollDisplay }} id="pollPanel">
+        <PollContainer smallSidebar={smallSidebar} />
+      </Styled.Poll>
     </Resizable>
   );
 };

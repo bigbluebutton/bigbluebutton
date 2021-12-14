@@ -18,7 +18,7 @@ public interface IPublisherService {
     void endMeeting(String meetingId);
     void send(String channel, String message);
     void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID,
-                      String authToken, String avatarURL, Boolean guest, Boolean authed);
+                      String authToken, String avatarURL, Boolean guest, Boolean excludeFromDashboard, Boolean authed);
     void sendKeepAlive(String system, Long bbbWebTimestamp, Long akkaAppsTimestamp);
     void sendStunTurnInfo(String meetingId, String internalUserId, Set<StunServer> stuns, Set<TurnEntry> turns);
 }

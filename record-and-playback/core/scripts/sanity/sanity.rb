@@ -20,7 +20,7 @@
 
 require File.expand_path('../../../lib/recordandplayback', __FILE__)
 require 'logger'
-require 'trollop'
+require 'optimist'
 require 'yaml'
 require "nokogiri"
 require "redis"
@@ -35,11 +35,11 @@ redis_host = props['redis_host']
 redis_port = props['redis_port']
 redis_password = props['redis_password']
 
-opts = Trollop::options do
+opts = Optimist::options do
   opt :meeting_id, "Meeting id to archive", type: :string
   opt :break_timestamp, "Chapter break end timestamp", type: :string
 end
-Trollop::die :meeting_id, "must be provided" if opts[:meeting_id].nil?
+Optimist::die :meeting_id, "must be provided" if opts[:meeting_id].nil?
 
 meeting_id = opts[:meeting_id]
 break_timestamp = opts[:break_timestamp]
