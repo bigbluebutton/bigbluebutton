@@ -55,22 +55,25 @@ class StatusTable extends React.Component {
     const lastLeftOnTime = Math.max(...usersLeftTimes);
 
     const periods = [];
-    const hasSlides = slides && Array.isArray(slides) && slides.length > 0;
-    if (hasSlides) {
+    let hasSlides = false;
+    if (slides && Array.isArray(slides) && slides.length > 0) {
       const filteredSlides = slides.filter((slide) => slide.presentationId !== '');
-      if (firstRegisteredOnTime < slides[0].setOn) {
-        periods.push({
-          start: firstRegisteredOnTime,
-          end: slides[0].setOn - 1,
+      if (filteredSlides.length > 0) {
+        hasSlides = true;
+        if (firstRegisteredOnTime < filteredSlides[0].setOn) {
+          periods.push({
+            start: firstRegisteredOnTime,
+            end: filteredSlides[0].setOn - 1,
+          });
+        }
+        filteredSlides.forEach((slide, index, slidesArray) => {
+          periods.push({
+            slide,
+            start: slide.setOn,
+            end: slidesArray[index + 1]?.setOn - 1 || lastLeftOnTime,
+          });
         });
       }
-      filteredSlides.forEach((slide, index, slidesArray) => {
-        periods.push({
-          slide,
-          start: slide.setOn,
-          end: slidesArray[index + 1]?.setOn - 1 || lastLeftOnTime,
-        });
-      });
     } else {
       periods.push({
         start: firstRegisteredOnTime,
@@ -116,33 +119,35 @@ class StatusTable extends React.Component {
                       [padding]: `${(end - start) / 1000}px`,
                     }}
                   >
-                    <div className="flex">
-                      <div
-                        className="my-4"
-                        aria-label={tsToHHmmss(slide.setOn - periods[0].start)}
-                      >
-                        <a
-                          href={`/bigbluebutton/presentation/${meetingId}/${meetingId}/${slide.presentationId}/svg/${slide.pageNum}`}
-                          className="block border-2 border-gray-300"
-                          target="_blank"
-                          rel="noreferrer"
+                    { slide && (
+                      <div className="flex">
+                        <div
+                          className="my-4"
+                          aria-label={tsToHHmmss(start - periods[0].start)}
                         >
-                          <img
-                            src={`/bigbluebutton/presentation/${meetingId}/${meetingId}/${slide.presentationId}/thumbnail/${slide.pageNum}`}
-                            alt={intl.formatMessage({
-                              id: 'app.learningDashboard.statusTimelineTable.thumbnail',
-                              defaultMessage: 'Presentation thumbnail',
-                            })}
-                            style={{
-                              maxWidth: '150px',
-                              width: '150px',
-                              height: 'auto',
-                            }}
-                          />
-                        </a>
-                        <div className="text-xs text-center mt-1 text-gray-500">{tsToHHmmss(slide.setOn - periods[0].start)}</div>
+                          <a
+                            href={`/bigbluebutton/presentation/${meetingId}/${meetingId}/${slide.presentationId}/svg/${slide.pageNum}`}
+                            className="block border-2 border-gray-300"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <img
+                              src={`/bigbluebutton/presentation/${meetingId}/${meetingId}/${slide.presentationId}/thumbnail/${slide.pageNum}`}
+                              alt={intl.formatMessage({
+                                id: 'app.learningDashboard.statusTimelineTable.thumbnail',
+                                defaultMessage: 'Presentation thumbnail',
+                              })}
+                              style={{
+                                maxWidth: '150px',
+                                width: '150px',
+                                height: 'auto',
+                              }}
+                            />
+                          </a>
+                          <div className="text-xs text-center mt-1 text-gray-500">{tsToHHmmss(slide.setOn - periods[0].start)}</div>
+                        </div>
                       </div>
-                    </div>
+                    ) }
                   </td>
                 );
               }) }
