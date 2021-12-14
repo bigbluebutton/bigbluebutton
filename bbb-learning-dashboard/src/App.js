@@ -458,7 +458,13 @@ class App extends React.Component {
               )
               : null }
             { (tab === 'status_timeline')
-              ? <StatusTable allUsers={activitiesJson.users} />
+              ? (
+                <StatusTable
+                  allUsers={activitiesJson.users}
+                  slides={activitiesJson.presentationSlides}
+                  meetingId={activitiesJson.intId}
+                />
+              )
               : null }
             { tab === 'polling'
               ? <PollsTable polls={activitiesJson.polls} allUsers={activitiesJson.users} />

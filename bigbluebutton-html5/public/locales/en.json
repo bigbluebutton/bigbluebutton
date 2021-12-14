@@ -968,6 +968,7 @@
     "app.learningDashboard.pollsTable.noPollsCreatedHeading": "No polls have been created",
     "app.learningDashboard.pollsTable.noPollsCreatedMessage": "Once a poll has been sent to users, their results will appear in this list.",
     "app.learningDashboard.statusTimelineTable.title": "Timeline",
+    "app.learningDashboard.statusTimelineTable.thumbnail": "Presentation thumbnail",
     "app.learningDashboard.errors.invalidToken": "Invalid session token",
     "app.learningDashboard.errors.dataUnavailable": "Data is no longer available"
 }
