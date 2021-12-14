@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS thumbnails (
 CREATE INDEX index_thumbnails_on_playback_format_id ON thumbnails(playback_format_id);
 
 
-CREATE TABLE callback_data (
+CREATE TABLE IF NOT EXISTS callback_data (
 	id BIGSERIAL PRIMARY KEY,
 	recording_id BIGINT,
 	meeting_id VARCHAR(256),
