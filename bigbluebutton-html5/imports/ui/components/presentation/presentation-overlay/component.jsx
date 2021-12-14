@@ -518,7 +518,7 @@ export default class PresentationOverlay extends Component {
       this.pinchMoveHandler(event);
     } else if (userIsPresenter && selectedAnnotations.length == 0) {
       this.panMoveHandler(event);
-    } else  (selectedAnnotations.length > 0) {
+    } else (selectedAnnotations.length > 0) {
       const touchCenterPoint = PresentationOverlay.touchCenterPoint(event.touches);
       const newPoint = this.svgCoordinateToPercentages(this.getTransformedSvgPoint(touchCenterPoint.x, touchCenterPoint.y));
       const oldPoint = this.svgCoordinateToPercentages(this.getTransformedSvgPoint(this.currentTouchX, this.currentTouchY));
