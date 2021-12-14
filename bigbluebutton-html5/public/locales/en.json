@@ -381,6 +381,7 @@
     "app.submenu.application.noLocaleOptionLabel": "No active locales",
     "app.submenu.application.paginationEnabledLabel": "Video pagination",
     "app.submenu.application.layoutOptionLabel": "Layout type",
+    "app.submenu.application.pushLayoutLabel": "Push layout",
     "app.submenu.notification.SectionTitle": "Notifications",
     "app.submenu.notification.Desc": "Define how and what you will be notified.",
     "app.submenu.notification.audioAlertLabel": "Audio Alerts",

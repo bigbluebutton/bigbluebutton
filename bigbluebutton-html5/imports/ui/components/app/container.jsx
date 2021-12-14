@@ -184,7 +184,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   }).fetch();
 
   const AppSettings = Settings.application;
-  const { selectedLayout } = AppSettings;
+  const { selectedLayout, pushLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
@@ -217,8 +217,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     isPresenter: currentUser?.presenter,
     meetingLayout: layout,
     selectedLayout,
-    settingsLayout: selectedLayout?.replace('Push', ''),
-    pushLayoutToEveryone: selectedLayout?.includes('Push'),
+    pushLayoutToEveryone: pushLayout,
     audioAlertEnabled: AppSettings.chatAudioAlerts,
     pushAlertEnabled: AppSettings.chatPushAlerts,
     shouldShowScreenshare,

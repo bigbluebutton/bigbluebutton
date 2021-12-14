@@ -376,6 +376,7 @@
     "app.submenu.application.noLocaleOptionLabel": "Não existem esquemas de idiomas disponíveis",
     "app.submenu.application.paginationEnabledLabel": "Paginação de vídeo",
     "app.submenu.application.layoutOptionLabel": "Tipo de layout",
+    "app.submenu.application.pushLayoutLabel": "Replicar layout",
     "app.submenu.notification.SectionTitle": "Notificações",
     "app.submenu.notification.Desc": "Defina suas notificações.",
     "app.submenu.notification.audioAlertLabel": "Alertas de áudio",

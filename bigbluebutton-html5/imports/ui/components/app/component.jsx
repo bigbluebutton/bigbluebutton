@@ -263,8 +263,12 @@ class App extends Component {
       });
 
       if (pushLayoutToEveryone) {
-        LayoutService.setMeetingLayout(settingsLayout);
+        LayoutService.setMeetingLayout(selectedLayout);
       }
+    }
+
+    if (pushLayoutToEveryone && !prevProps.pushLayoutToEveryone) {
+      LayoutService.setMeetingLayout(selectedLayout);
     }
 
     if (mountRandomUserModal) mountModal(<RandomUserSelectContainer />);
