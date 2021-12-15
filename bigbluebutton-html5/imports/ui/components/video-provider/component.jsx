@@ -251,14 +251,23 @@ class VideoProvider extends Component {
     this.setState({ socketOpen: true });
   }
 
-  updateThreshold(numberOfPublishers) {
+  findAllPrivilegedStreams () {
+    const { streams } = this.props;
+    // Privileged streams are: floor holders
+    return streams.filter(stream => stream.floor);
+  }
+
+  updateQualityThresholds(numberOfPublishers) {
     const { threshold, profile } = VideoService.getThreshold(numberOfPublishers);
     if (profile) {
-      const publishers = Object.values(this.webRtcPeers)
+      const privilegedStreams = this.findAllPrivilegedStreams();
+      Object.values(this.webRtcPeers)
         .filter(peer => peer.isPublisher)
         .forEach((peer) => {
-          // 0 means no threshold in place. Reapply original one if needed
-          const profileToApply = (threshold === 0) ? peer.originalProfileId : profile;
+          // 1) Threshold 0 means original profile/inactive constraint
+          // 2) Privileged streams are: floor holders
+          const exempt = threshold === 0 || privilegedStreams.some(vs => vs.stream === peer.stream)
+          const profileToApply = exempt ? peer.originalProfileId : profile;
           VideoService.applyCameraProfile(peer, profileToApply);
         });
     }
@@ -302,7 +311,7 @@ class VideoProvider extends Component {
     this.disconnectStreams(streamsToDisconnect);
 
     if (CAMERA_QUALITY_THRESHOLDS_ENABLED) {
-      this.updateThreshold(this.props.totalNumberOfStreams);
+      this.updateQualityThresholds(this.props.totalNumberOfStreams);
     }
   }
 
