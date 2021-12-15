@@ -36,6 +36,7 @@ import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 } from '../layout/utils';
 import LayoutEngine from '../layout/layout-manager/layoutEngine';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
@@ -186,9 +187,9 @@ class App extends Component {
       value: parseInt(fontSize.slice(0, -2), 10),
     });
 
-    const currentLayout = settingsLayout || meetingLayout;
-
-    Settings.application.selectedLayout = currentLayout;
+    Settings.application.selectedLayout = settingsLayout
+      || getFromUserSettings('bbb_change_layout', false)
+      || meetingLayout;
     Settings.save();
 
     const body = document.getElementsByTagName('body')[0];
