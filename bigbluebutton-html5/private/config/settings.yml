@@ -636,6 +636,7 @@ public:
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
+    cursorIntervalDrawer: undefined
     annotations:
       status:
         start: DRAW_START
