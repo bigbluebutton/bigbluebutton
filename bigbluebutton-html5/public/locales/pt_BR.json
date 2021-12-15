@@ -440,6 +440,7 @@
     "app.actionsBar.actionsDropdown.takePresenterDesc": "Assume o papel de apresentador",
     "app.actionsBar.actionsDropdown.selectRandUserLabel": "Selecione um participante aleatoriamente",
     "app.actionsBar.actionsDropdown.selectRandUserDesc": "Escolhe aleatoriamente um participante da lista",
+    "app.actionsBar.actionsDropdown.propagateLayoutLabel": "Propagar layout",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Definir status",
     "app.actionsBar.emojiMenu.awayLabel": "Ausente",
     "app.actionsBar.emojiMenu.awayDesc": "Mudar seu status para ausente",

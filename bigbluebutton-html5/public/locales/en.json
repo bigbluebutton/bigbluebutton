@@ -445,6 +445,7 @@
     "app.actionsBar.actionsDropdown.takePresenterDesc": "Assign yourself as the new presenter",
     "app.actionsBar.actionsDropdown.selectRandUserLabel": "Select random user",
     "app.actionsBar.actionsDropdown.selectRandUserDesc": "Chooses a user from available viewers at random",
+    "app.actionsBar.actionsDropdown.propagateLayoutLabel": "Propagate layout",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Set status",
     "app.actionsBar.emojiMenu.awayLabel": "Away",
     "app.actionsBar.emojiMenu.awayDesc": "Change your status to away",
