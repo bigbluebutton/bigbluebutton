@@ -82,7 +82,7 @@ trait SendGroupChatMessageMsgHdlr {
         case Some(ns) => ns
         case None     => state
       }
-    }
+    } else { state }
   }
 
 }
