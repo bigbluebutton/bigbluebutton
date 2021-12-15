@@ -1,9 +1,25 @@
 import Storage from '/imports/ui/services/storage/session';
 import Auth from '/imports/ui/services/auth';
 import { sendAnnotation, clearPreview } from '/imports/ui/components/whiteboard/service';
-import { publishCursorUpdate } from '/imports/ui/components/cursor/service';
+import Cursor, { publishCursorUpdate } from '/imports/ui/components/cursor/service';
 
 const DRAW_SETTINGS = 'drawSettings';
+
+const updatePresenterCursor = (whiteboardId, xPercent, yPercent) => {
+  const selector = {
+    whiteboardId,
+    userId: Auth.userID,
+  };
+
+  const modifier = {
+    $set: {
+      xPercent,
+      yPercent,
+    },
+  };
+
+  Cursor.upsert(selector, modifier);
+}
 
 const getWhiteboardToolbarValues = () => {
   const drawSettings = Storage.getItem(DRAW_SETTINGS);
@@ -62,5 +78,6 @@ export default {
   getCurrentUserId,
   contextMenuHandler,
   updateCursor,
+  updatePresenterCursor,
   clearPreview,
 };
