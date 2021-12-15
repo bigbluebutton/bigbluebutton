@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { throttle } from 'lodash';
 import PropTypes from 'prop-types';
+import WhiteboardOverlayService from '../service';
 
-const { cursorInterval: CURSOR_INTERVAL } = Meteor.settings.public.whiteboard;
+const { cursorInterval: CURSOR_INTERVAL, cursorIntervalDrawer: CURSOR_INTERVAL_DRAWER } = Meteor.settings.public.whiteboard;
 
 // maximum value of z-index to prevent other things from overlapping
 const MAX_Z_INDEX = (2 ** 31) - 1;
@@ -39,6 +40,7 @@ export default class CursorListener extends Component {
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
 
     this.checkCursor = throttle(this.checkCursor, CURSOR_INTERVAL);
+    this.updateMyCursor = throttle(this.updateMyCursor, CURSOR_INTERVAL_DRAWER);
   }
 
   componentWillUnmount() {
@@ -103,6 +105,16 @@ export default class CursorListener extends Component {
     }
   }
 
+  updateMyCursor(x, y) {
+    const {
+      actions,
+      whiteboardId,
+    } = this.props;
+
+    const newPoint = actions.svgCoordinateToPercentages(actions.getTransformedSvgPoint(x, y));
+    WhiteboardOverlayService.updatePresenterCursor(whiteboardId, newPoint.x, newPoint.y);
+  }
+
   removeTouchListeners() {
     window.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
     window.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
@@ -112,6 +124,10 @@ export default class CursorListener extends Component {
   handleMouseEnter(event) {
     if (this.touchStarted) {
       return;
+    }
+
+    if (Number.isInteger(CURSOR_INTERVAL_DRAWER)) {
+      this.updateMyCursor(event.clientX, event.clientY);
     }
 
     this.checkCursor(event.clientX, event.clientY);
@@ -153,6 +169,10 @@ export default class CursorListener extends Component {
     event.preventDefault();
 
     const midPoint = CursorListener.touchCenterPoint(event.touches);
+
+    if (Number.isInteger(CURSOR_INTERVAL_DRAWER)) {
+      this.updateMyCursor(midPoint.x, midPoint.y);
+    }
 
     this.checkCursor(midPoint.x, midPoint.y);
   }
