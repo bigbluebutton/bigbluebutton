@@ -171,7 +171,7 @@ class StatusTable extends React.Component {
                       </div>
                       &nbsp;&nbsp;
                       <div>
-                        <p className="font-semibold">{user.name}</p>
+                        <p className="font-semibold truncate xl:max-w-sm max-w-xs">{user.name}</p>
                       </div>
                     </div>
                   </td>

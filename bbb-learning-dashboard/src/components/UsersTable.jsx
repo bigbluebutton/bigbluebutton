@@ -147,7 +147,7 @@ class UsersTable extends React.Component {
                       </div>
                       &nbsp;&nbsp;&nbsp;
                       <div className="inline-block">
-                        <p className="font-semibold">
+                        <p className="font-semibold truncate xl:max-w-sm max-w-xs">
                           {user.name}
                         </p>
                         <p className="text-xs text-gray-600 dark:text-gray-400">
