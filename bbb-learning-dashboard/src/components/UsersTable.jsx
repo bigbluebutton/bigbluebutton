@@ -202,7 +202,7 @@ class UsersTable extends React.Component {
                     </div>
                     &nbsp;&nbsp;&nbsp;
                     <div className="inline-block">
-                      <p className="font-semibold">
+                      <p className="font-semibold truncate xl:max-w-sm max-w-xs">
                         {user.name}
                       </p>
                       { Object.values(user.intIds || {}).map((intId, index) => (
