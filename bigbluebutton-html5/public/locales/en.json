@@ -90,6 +90,7 @@
     "app.userList.menu.unmuteUserAudio.label": "Unmute user",
     "app.userList.menu.giveWhiteboardAccess.label" : "Give whiteboard access",
     "app.userList.menu.removeWhiteboardAccess.label": "Remove whiteboard access",
+    "app.userList.menu.ejectUserCameras.label": "Close cameras",
     "app.userList.userAriaLabel": "{0} {1} {2}  Status {3}",
     "app.userList.menu.promoteUser.label": "Promote to moderator",
     "app.userList.menu.demoteUser.label": "Demote to viewer",

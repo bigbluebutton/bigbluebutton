@@ -69,6 +69,10 @@ const messages = defineMessages({
     id: 'app.userList.menu.removeWhiteboardAccess.label',
     description: 'label to remove user whiteboard access',
   },
+  ejectUserCamerasLabel: {
+    id: 'app.userList.menu.ejectUserCameras.label',
+    description: 'label to eject user cameras',
+  },
   RemoveUserLabel: {
     id: 'app.userList.menu.removeUser.label',
     description: 'Forcefully remove this user from the meeting',
@@ -231,6 +235,7 @@ class UserDropdown extends PureComponent {
       removeUser,
       toggleVoice,
       changeRole,
+      ejectUserCameras,
       lockSettingsProps,
       hasPrivateChatBetweenUsers,
       toggleUserLock,
@@ -266,6 +271,7 @@ class UserDropdown extends PureComponent {
       allowedToChangeStatus,
       allowedToChangeUserLockStatus,
       allowedToChangeWhiteboardAccess,
+      allowedToEjectCameras,
     } = actionPermissions;
 
     const { disablePrivateChat } = lockSettingsProps;
@@ -480,6 +486,22 @@ class UserDropdown extends PureComponent {
           this.handleClose();
         },
         icon: 'circle_close',
+      });
+    }
+
+    if (allowedToEjectCameras
+      && user.isSharingWebcam
+      && isMeteorConnected
+      && !meetingIsBreakout
+    ) {
+      actions.push({
+        key: 'ejectUserCameras',
+        label: intl.formatMessage(messages.ejectUserCamerasLabel),
+        onClick: () => {
+          this.onActionsHide(ejectUserCameras(user.userId));
+          this.handleClose();
+        },
+        icon: 'video_off',
       });
     }
 

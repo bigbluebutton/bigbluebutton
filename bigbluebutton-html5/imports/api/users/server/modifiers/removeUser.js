@@ -10,9 +10,13 @@ import VoiceUsers from '/imports/api/voice-users/';
 
 const clearAllSessions = (sessionUserId) => {
   const serverSessions = Meteor.server.sessions;
-  Object.keys(serverSessions)
-    .filter((i) => serverSessions[i].userId === sessionUserId)
-    .forEach((i) => serverSessions[i].close());
+  const interable = serverSessions.values();
+
+  for (const session of interable) {
+    if (session.userId === sessionUserId) {
+      session.close();
+    }
+  }
 };
 
 export default function removeUser(meetingId, userId) {
@@ -20,36 +24,34 @@ export default function removeUser(meetingId, userId) {
   check(userId, String);
 
   try {
-    if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
-      const sessionUserId = `${meetingId}-${userId}`;
-      ClientConnections.removeClientConnection(`${meetingId}--${userId}`);
-      clearAllSessions(sessionUserId);
+    // we don't want to fully process the redis message in frontend
+    // since the backend is supposed to update Mongo
+    if ((process.env.BBB_HTML5_ROLE !== 'frontend')) {
+      const selector = {
+        meetingId,
+        userId,
+      };
 
-      // we don't want to fully process the redis message in frontend
-      // since the backend is supposed to update Mongo
-      if (process.env.BBB_HTML5_ROLE === 'frontend') {
-        return;
+      setloggedOutStatus(userId, meetingId, true);
+      VideoStreams.remove({ meetingId, userId });
+
+      clearUserInfoForRequester(meetingId, userId);
+
+      const currentUser = Users.findOne({ userId, meetingId });
+      const hasMessages = currentUser?.hasMessages;
+  
+      if (!hasMessages) {
+        UsersPersistentData.remove(selector);
       }
+      Users.remove(selector);
+      VoiceUsers.remove({ intId: userId, meetingId });
     }
 
-    const selector = {
-      meetingId,
-      userId,
-    };
-
-    setloggedOutStatus(userId, meetingId, true);
-    VideoStreams.remove({ meetingId, userId });
-
-    clearUserInfoForRequester(meetingId, userId);
-
-    const currentUser = Users.findOne({ userId, meetingId });
-    const hasMessages = currentUser?.hasMessages;
-
-    if (!hasMessages) {
-      UsersPersistentData.remove(selector);
+    if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
+      const sessionUserId = `${meetingId}--${userId}`;
+      ClientConnections.removeClientConnection(sessionUserId);
+      clearAllSessions(sessionUserId);
     }
-    Users.remove(selector);
-    VoiceUsers.remove({ intId: userId, meetingId });
 
     Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
   } catch (err) {

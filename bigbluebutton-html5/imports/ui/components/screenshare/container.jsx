@@ -13,6 +13,7 @@ import {
 import ScreenshareComponent from './component';
 import LayoutContext from '../layout/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { shouldEnableVolumeControl } from './service';
 
 const ScreenshareContainer = (props) => {
   const fullscreenElementId = 'Screenshare';
@@ -52,5 +53,6 @@ export default withTracker(() => {
     shouldEnableSwapLayout,
     toggleSwapLayout: MediaService.toggleSwapLayout,
     hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
+    enableVolumeControl: shouldEnableVolumeControl(),
   };
 })(ScreenshareContainer);
