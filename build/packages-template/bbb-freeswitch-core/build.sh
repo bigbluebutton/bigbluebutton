@@ -37,17 +37,8 @@ else
   add-apt-repository -y ppa:bigbluebutton/support
 fi
 
-if [ "$DISTRO" == "xenial" ]; then
-  apt-get update
-  apt-get install -y libopusfile-dev opus-tools libopusenc-dev
-fi
-
 if [ "$DISTRO" == "bionic" ]; then
-	  add-apt-repository ppa:bigbluebutton/support -y
-#  cat > /etc/apt/sources.list.d/kepstin-ubuntu-opus-bionic.list << HERE
-#deb http://ppa.launchpad.net/kepstin/opus/ubuntu xenial main
-# deb-src http://ppa.launchpad.net/kepstin/opus/ubuntu xenial main
-#HERE
+	add-apt-repository ppa:bigbluebutton/support -y
   apt-get update
   apt-get install -y libopusfile-dev opus-tools libopusenc-dev
 fi
@@ -55,23 +46,27 @@ fi
 mkdir -p staging
 
 pushd .
+
+# sofia-sip start
 if [ ! -d sofia-sip ]; then
   git clone https://github.com/freeswitch/sofia-sip.git
 fi
 cd sofia-sip/
-git pull
+git checkout v1.13.6
 ./bootstrap.sh
 ./configure
-#make DESTDIR=/var/tmp/bbb-freeswitch-core_2.3.0_bionic_develop/staging install
+
 make -j $(nproc)
 make install
 cd ..
+# sofia-sip end
 
+# spandsp start
 if [ ! -d spandsp ]; then
   git clone https://github.com/freeswitch/spandsp.git
 fi
 cd spandsp/
-git pull
+git checkout 284fe91dd068d0cf391139110fdc2811043972b9
 ./bootstrap.sh
 ./configure
 
@@ -84,68 +79,42 @@ if [ $DISTRO == "centos7" ] || [ $DISTRO == "amzn2" ]; then
 
   git clone https://github.com/xiph/libopusenc.git
   cd libopusenc/
+  git checkout dc6ab59ac41a96c5bf262056ea09fa5e2f776fe6
   ./autogen.sh
   ./configure
   make -j $(nproc)
   make install
 fi
-
 popd
+# spandsp end
 
-#cat > /etc/ld.so.conf.d/myapp.conf << HERE
-#/var/tmp/bbb-freeswitch-core_2.3.0_bionic_develop/staging/usr/local/lib
-#HERE
+
+
+# libks start
+if [ ! -d libks ]; then
+  git clone https://github.com/signalwire/libks.git
+fi
+cd libks/
+git checkout f43b85399f8fc840561566887e768fc877ba2583
+
+cmake .
+make
+
+make install
+cd ..
+# libks end
+
 ldconfig
 
-#pushd /tmp
-#git clone https://git.xiph.org/libopusenc.git
-#cd libopusenc
-#./autogen.sh
-#./configure
-#make install
-#popd
-
-# Checkout the latest release in 1.6.x branch
-
-git fetch
-git fetch --tags
-git reset --hard
-#git checkout v1.8.5
-#git checkout master
-git checkout tags/v1.10.6
-#git pull
-#git checkout e1f63ce5b18a83793c0af4bfe85e9de05a00e18a
-#git checkout 4bef44b7b0aca79c27b6b208b5e0011e048a30c1
-# 
-# good
-#git checkout 6d8e8f35b4b2e2de6aad27b4d5f3b1bc2a4b9e11
-#git checkout 89379c3
-#git checkout v1.10.5
-#git checkout master
-
-#git apply ../crash-fix2.patch
-
-# Fix websocket lock
-#cp ../websocket-fix/tport.c libs/sofia-sip/libsofia-sip-ua/tport/tport.c
-#cp ../websocket-fix/tport_type_ws.c libs/sofia-sip/libsofia-sip-ua/tport/tport_type_ws.c
-
-
-#cp ../opus-fix/mod_opusfile.c src/mod/formats/mod_opusfile/mod_opusfile.c
-#cp ../opus-fix/Makefile.am src/mod/formats/mod_opusfile/Makefile.am
-
-
-#if [ "$DISTRO" == "bionic" ];then
-#  sed -i 's/formats\/mod_opusfile//g' modules.conf
-#  sed -i 's/<load module="mod_opusfile"\/>//g' ../conf/modules.conf.xml
-#fi
+# we already cloned the FS repo in freeswitch.placeholder.sh and selected tag/branch
 
 patch -p0 < floor.patch
 
 ./bootstrap.sh 
+
 ./configure --disable-core-odbc-support --disable-core-pgsql-support \
     --without-python --without-erlang --without-java \
     --prefix=/opt/freeswitch CFLAGS="-Wno-error -Og -ggdb" CXXFLAGS="-Wno-error -Og -ggdb"
-#    --prefix=/opt/freeswitch CFLAGS="-Wno-error -O3 -ggdb" CXXFLAGS="-Wno-error -Og -ggdb"
 
 make -j $(nproc)
 make install
@@ -165,52 +134,8 @@ cp -r /opt/freeswitch staging/opt
         mkdir -p $DESTDIR/var/freeswitch/meetings
 	echo "This directory holds *.wav files for FreeSWITCH" > $DESTDIR/var/freeswitch/meetings/readme.txt
 
-        #mkdir -p $DESTDIR/etc/default
-	#cp freeswitch.default $DESTDIR/etc/default/freeswitch
-
-   if [ 1 == 0 ]; then
-	cp conf/acl.conf.xml $CONFDIR/autoload_configs
-	cp conf/opus.conf.xml $CONFDIR/autoload_configs
-	
-	# Leave these here in case administrator wants to try other settings for Opus
-	#
-	# find $(DESTDIR)/opt/freeswitch/sounds -type d -name 32000 -exec rm -rf '{}' \;
-	# find $(DESTDIR)/opt/freeswitch/sounds -type d -name 48000 -exec rm -rf '{}' \;
-
-	cp conf/vars.xml $CONFDIR
-
-	cp conf/external.xml $CONFDIR/sip_profiles
-	cp conf/external-ipv6.xml $CONFDIR/sip_profiles
-	cp conf/internal-ipv6.xml $CONFDIR/sip_profiles
-	cp conf/internal.xml $CONFDIR/sip_profiles
-	cp conf/public.xml $CONFDIR/dialplan
-
-	rm -rf $CONFDIR/directory/default/*
-	cp conf/bbbuser.xml $CONFDIR/directory/default
-
-	cp conf/modules.conf.xml $CONFDIR/autoload_configs
-	cp conf/conference.conf.xml $CONFDIR/autoload_configs
-	cp conf/switch.conf.xml $CONFDIR/autoload_configs
-	# cp conf/verto.conf.xml $CONFDIR/autoload_configs
-
-	rm -rf $CONFDIR/dialplan/default/*
-	rm -rf $CONFDIR/dialplan/public/*
-
-	cp conf/bbb_conference.xml $CONFDIR/dialplan/default
-	cp conf/bbb_echo_test.xml $CONFDIR/dialplan/default
-	cp conf/bbb_echo_to_conference.xml $CONFDIR/dialplan/default
-
-	cp conf/default.xml $CONFDIR/dialplan
-
-	cp conf/bbb_sip.xml $CONFDIR/dialplan/public
-	cp conf/bbb_webrtc.xml $CONFDIR/dialplan/public
-
-        mkdir -p $CONFDIR/tls
-
-  else 
 	rm -rf $CONFDIR/*
 	cp -r config/freeswitch/conf/* $CONFDIR
-  fi
 
 	pushd $DESTDIR/opt/freeswitch
 	ln -s ./etc/freeswitch conf

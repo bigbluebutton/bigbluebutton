@@ -6,9 +6,6 @@ const axios = require('axios');
 const httpPath = path.join(path.dirname(require.resolve('axios')), 'lib/adapters/http');
 const http = require(httpPath);
 
-const params = require('../params');
-const e = require('./elements');
-
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -27,7 +24,7 @@ async function createMeeting(params, meetingId, customParameter) {
   const checksum = sha1(apicall);
   const url = `${params.server}/create?${query}&checksum=${checksum}`;
 
-  const response = await axios.get(url, { adapter: http });
+  await axios.get(url, { adapter: http });
   return meetingID;
 }
 
@@ -37,8 +34,7 @@ function getJoinURL(meetingID, params, moderator, customParameter) {
     : `fullName=${params.fullName}&joinViaHtml5=true&meetingID=${meetingID}&password=${pw}`;
   const apicall = `join${query}${params.secret}`;
   const checksum = sha1(apicall);
-  const url = `${params.server}/join?${query}&checksum=${checksum}`;
-  return url;
+  return `${params.server}/join?${query}&checksum=${checksum}`;
 }
 
 function sleep(time) {

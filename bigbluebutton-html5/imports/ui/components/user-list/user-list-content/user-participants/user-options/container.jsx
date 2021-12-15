@@ -92,7 +92,7 @@ const UserOptionsContainer = withTracker((props) => {
     guestPolicy: WaitingUsersService.getGuestPolicy(),
     isMeteorConnected: Meteor.status().connected,
     meetingName: getMeetingName(),
-    learningDashboardAccessToken: LearningDashboardService.getLearningDashboardAccessToken(),
+    learningDashboardEnabled: LearningDashboardService.isLearningDashboardEnabled(),
     openLearningDashboardUrl: LearningDashboardService.openLearningDashboardUrl,
     dynamicGuestPolicy,
   };

@@ -124,6 +124,7 @@ class ActionsDropdown extends PureComponent {
       stopExternalVideoShare,
       mountModal,
       layoutContextDispatch,
+      hidePresentation,
     } = this.props;
 
     const {
@@ -138,7 +139,7 @@ class ActionsDropdown extends PureComponent {
 
     const actions = [];
 
-    if (amIPresenter) {
+    if (amIPresenter && !hidePresentation) {
       actions.push({
         icon: "presentation",
         dataTest: "uploadPresentation",
@@ -183,7 +184,7 @@ class ActionsDropdown extends PureComponent {
 
     if (amIPresenter && allowExternalVideo) {
       actions.push({
-        icon: "video",
+        icon: !isSharingVideo ? "external-video" : "external-video_off",
         label: !isSharingVideo ? intl.formatMessage(intlMessages.startExternalVideoLabel)
           : intl.formatMessage(intlMessages.stopExternalVideoLabel),
         key: "external-video",
@@ -281,7 +282,6 @@ class ActionsDropdown extends PureComponent {
         }
         actions={children}
         opts={{
-          disablePortal: true,
           id: "default-dropdown-menu",
           keepMounted: true,
           transitionDuration: 0,

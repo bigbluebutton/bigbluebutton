@@ -36,6 +36,8 @@
   overflow-x: auto;
   overflow-y: hidden;
   max-height: var(--talker-padding-xl);
+  scrollbar-width: 0; // firefox
+  scrollbar-color: transparent;
 }
 
 .speaking::-webkit-scrollbar {

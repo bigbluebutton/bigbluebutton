@@ -154,6 +154,7 @@ class App extends Component {
       meetingLayout,
       settingsLayout,
       isRTL,
+      hidePresentation,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -163,6 +164,11 @@ class App extends Component {
     layoutContextDispatch({
       type: ACTIONS.SET_IS_RTL,
       value: isRTL,
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+      value: !hidePresentation,
     });
 
     MediaService.setSwapLayout(layoutContextDispatch);
@@ -222,15 +228,15 @@ class App extends Component {
       currentUserEmoji,
       intl,
       hasPublishedPoll,
-      randomlySelectedUser,
       mountModal,
       deviceType,
-      isPresenter,
       meetingLayout,
-      settingsLayout,
+      selectedLayout, // full layout name
+      settingsLayout, // shortened layout name (without Push)
       layoutType,
-      pushLayoutToEveryone,
+      pushLayoutToEveryone, // is layout pushed
       layoutContextDispatch,
+      mountRandomUserModal,
     } = this.props;
 
     if (meetingLayout !== prevProps.meetingLayout) {
@@ -243,7 +249,7 @@ class App extends Component {
       Settings.save();
     }
 
-    if (settingsLayout !== prevProps.settingsLayout
+    if (selectedLayout !== prevProps.selectedLayout
       || settingsLayout !== layoutType) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_TYPE,
@@ -255,7 +261,7 @@ class App extends Component {
       }
     }
 
-    if (!isPresenter && randomlySelectedUser.length > 0) mountModal(<RandomUserSelectContainer />);
+    if (mountRandomUserModal) mountModal(<RandomUserSelectContainer />);
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
@@ -339,37 +345,6 @@ class App extends Component {
       && (isPhone || isLayeredView.matches);
   }
 
-  renderNavBar() {
-    const { navbar, isLargeFont } = this.props;
-
-    if (!navbar) return null;
-
-    const realNavbarHeight = isLargeFont ? LARGE_NAVBAR_HEIGHT : NAVBAR_HEIGHT;
-
-    return (
-      <header
-        className={styles.navbar}
-        style={{
-          height: realNavbarHeight,
-        }}
-      >
-        {navbar}
-      </header>
-    );
-  }
-
-  renderSidebar() {
-    const { sidebar } = this.props;
-
-    if (!sidebar) return null;
-
-    return (
-      <aside className={styles.sidebar}>
-        {sidebar}
-      </aside>
-    );
-  }
-
   renderCaptions() {
     const {
       captions,
@@ -380,6 +355,7 @@ class App extends Component {
 
     return (
       <div
+        role="region"
         className={styles.captionsWrapper}
         style={
           {
@@ -400,12 +376,14 @@ class App extends Component {
       actionsbar,
       intl,
       actionsBarStyle,
+      hideActionsBar,
     } = this.props;
 
-    if (!actionsbar) return null;
+    if (!actionsbar || hideActionsBar) return null;
 
     return (
       <section
+        role="region"
         className={styles.actionsbar}
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={this.shouldAriaHide()}

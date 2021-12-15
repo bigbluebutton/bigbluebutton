@@ -5,6 +5,7 @@ import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.models.{ UserState, Users2x }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.SystemConfiguration
 import scala.util.Random
 
 trait SelectRandomViewerReqMsgHdlr extends RightsManagementTrait {
@@ -15,7 +16,7 @@ trait SelectRandomViewerReqMsgHdlr extends RightsManagementTrait {
   def handleSelectRandomViewerReqMsg(msg: SelectRandomViewerReqMsg): Unit = {
     log.debug("Received SelectRandomViewerReqMsg {}", SelectRandomViewerReqMsg)
 
-    def broadcastEvent(msg: SelectRandomViewerReqMsg, users: Vector[String], choice: Integer): Unit = {
+    def broadcastEvent(msg: SelectRandomViewerReqMsg, users: Vector[String], choice: String): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(SelectRandomViewerRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(SelectRandomViewerRespMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
@@ -31,11 +32,27 @@ trait SelectRandomViewerReqMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to select random user."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
-      val users = Users2x.findNotPresentersNorModerators(liveMeeting.users2x)
-      val randNum = new scala.util.Random
+      val users = Users2x.getRandomlyPickableUsers(liveMeeting.users2x, false)
 
+      val usersPicked = Users2x.getRandomlyPickableUsers(liveMeeting.users2x, reduceDuplicatedPick)
+
+      val randNum = new scala.util.Random
+      val pickedUser = if (usersPicked.size == 0) "" else usersPicked(randNum.nextInt(usersPicked.size)).intId
+
+      if (reduceDuplicatedPick) {
+        if (usersPicked.size == 1) {
+          // Initialise the exemption
+          val usersToUnexempt = Users2x.findAll(liveMeeting.users2x)
+          usersToUnexempt foreach { u =>
+            Users2x.setUserExempted(liveMeeting.users2x, u.intId, false)
+          }
+        } else if (usersPicked.size > 1) {
+          Users2x.setUserExempted(liveMeeting.users2x, pickedUser, true)
+        }
+      }
+      
       val userIds = users.map { case (v) => v.intId }
-      broadcastEvent(msg, userIds, if (users.size == 0) -1 else randNum.nextInt(users.size))
+      broadcastEvent(msg, userIds, pickedUser)
     }
   }
 }

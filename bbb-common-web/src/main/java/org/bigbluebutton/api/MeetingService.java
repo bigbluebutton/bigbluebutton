@@ -74,6 +74,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.InputStream;
+
 public class MeetingService implements MessageListener {
   private static Logger log = LoggerFactory.getLogger(MeetingService.class);
 
@@ -135,13 +139,13 @@ public class MeetingService implements MessageListener {
   public void registerUser(String meetingID, String internalUserId,
                            String fullname, String role, String externUserID,
                            String authToken, String avatarURL, Boolean guest,
-                           Boolean authed, String guestStatus) {
+                           Boolean authed, String guestStatus, Boolean excludeFromDashboard) {
     handle(new RegisterUser(meetingID, internalUserId, fullname, role,
-      externUserID, authToken, avatarURL, guest, authed, guestStatus));
+      externUserID, authToken, avatarURL, guest, authed, guestStatus, excludeFromDashboard));
 
     Meeting m = getMeeting(meetingID);
     if (m != null) {
-      RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus);
+      RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus, excludeFromDashboard);
       m.userRegistered(ruser);
     }
   }
@@ -456,7 +460,7 @@ public class MeetingService implements MessageListener {
     gw.registerUser(message.meetingID,
       message.internalUserId, message.fullname, message.role,
       message.externUserID, message.authToken, message.avatarURL, message.guest,
-            message.authed, message.guestStatus);
+            message.authed, message.guestStatus, message.excludeFromDashboard);
   }
 
     public Meeting getMeeting(String meetingId) {
@@ -959,10 +963,9 @@ public class MeetingService implements MessageListener {
   }
 
   public void processLearningDashboard(LearningDashboard message) {
+
     //Get all data from Json instead of getMeeting(message.meetingId), to process messages received even after meeting ended
     JsonObject activityJsonObject = new Gson().fromJson(message.activityJson, JsonObject.class).getAsJsonObject();
-    String learningDashboardAccessToken = activityJsonObject.get("learningDashboardAccessToken").getAsString();
-
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingId", activityJsonObject.get("intId").getAsString());
     logData.put("externalMeetingId", activityJsonObject.get("extId").getAsString());
@@ -975,7 +978,7 @@ public class MeetingService implements MessageListener {
 
     log.info(" --analytics-- data={}", logStr);
 
-    learningDashboardService.writeJsonDataFile(message.meetingId, learningDashboardAccessToken, message.activityJson);
+    learningDashboardService.writeJsonDataFile(message.meetingId, message.learningDashboardAccessToken, message.activityJson);
   }
 
   @Override
@@ -1189,6 +1192,13 @@ public class MeetingService implements MessageListener {
     log.info("Starting Meeting Service.");
     try {
       processMessage = true;
+      Process p = Runtime.getRuntime().exec(new String[]{"/bin/sh", "-c", "cat /etc/bigbluebutton/bigbluebutton-release | cut -d '=' -f2"});
+
+      BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+      String apiVersionFromFile = reader.readLine();
+
+      paramsProcessorUtil.setBbbVersion(apiVersionFromFile);
       Runnable messageReceiver = new Runnable() {
         public void run() {
           while (processMessage) {

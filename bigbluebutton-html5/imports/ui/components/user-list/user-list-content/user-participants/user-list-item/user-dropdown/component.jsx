@@ -541,7 +541,7 @@ class UserDropdown extends PureComponent {
       ? (<Icon iconName={normalizeEmojiName(user.emoji)} />)
       : user.name.toLowerCase().slice(0, 2);
 
-    const iconVoiceOnlyUser = (<Icon iconName="audio_on" />);
+    const iconVoiceOnlyUser = (<Icon iconName="volume_level_2" />);
     const userIcon = isVoiceOnly ? iconVoiceOnlyUser : iconUser;
 
     return (
@@ -642,8 +642,6 @@ class UserDropdown extends PureComponent {
               tabIndex={-1}
               onClick={() => this.setState({ selected: true })}
               className={cx(userItemContentsStyle)}
-              aria-controls="default-dropdown-menu"
-              aria-haspopup="true"
               style={{ width: '100%', marginLeft: '.5rem' }}
               onKeyPress={() => {}}
               role="button"

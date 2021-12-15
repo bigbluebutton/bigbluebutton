@@ -18,6 +18,21 @@ export default function publishTypedVote(id, pollAnswer) {
     check(pollAnswer, String);
     check(id, String);
 
+    const allowedToVote = Polls.findOne({
+      id,
+      users: { $in: [requesterUserId] },
+      meetingId,
+    }, {
+      fields: {
+        users: 1,
+      },
+    });
+
+    if (!allowedToVote) {
+      Logger.info(`Poll User={${requesterUserId}} has already voted in PollId={${id}}`);
+      return null;
+    }
+
     const activePoll = Polls.findOne({ meetingId, id }, {
       fields: {
         answers: 1,

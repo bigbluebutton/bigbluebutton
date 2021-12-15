@@ -34,6 +34,10 @@
   --btn-offline-bg: var(--color-offline);
   --btn-offline-border: var(--color-offline);
 
+  --btn-muted-color: var(--color-muted);
+  --btn-muted-bg: var(--color-muted-background);
+  --btn-muted-border: var(--color-muted-background);
+
   --btn-border-size: var(--border-size);
   --btn-border-radius: var(--border-radius);
   --btn-font-weight: 600;
@@ -227,7 +231,7 @@
   border-radius: 50%;
   width: 1em;
   height: 1em;
-  right: -1px;
+  right: -.2em;
   bottom: 0;
   background-color: var(--btn-default-bg);
   overflow: hidden;
@@ -244,12 +248,21 @@
     top: 0;
     height: 60%;
     left: 0;
-    width: 75%;
     margin-left: 25%;
     font-size: 50%;
     margin-top: 40%;
     color: var(--btn-default-color);
   }
+}
+
+.emojiButtonSpace {
+  position: absolute;
+  height: 1.4em;
+  width: 1.4em;
+  background-color: var(--color-background);
+  right: -.4em;
+  bottom: -.2em;
+  border-radius: 50%;
 }
 
 /* Colors
@@ -325,6 +338,10 @@
   @include button-variant(var(--btn-offline-color), var(--btn-offline-bg), var(--btn-offline-border));
 }
 
+.muted {
+  @include button-variant(var(--btn-muted-color), var(--btn-muted-bg), var(--btn-muted-border));
+}
+
 /* Styles
  * ==========
  */
@@ -361,6 +378,10 @@
 
   &.offline {
     @include button-ghost-variant(var(--btn-offline-bg), var(--btn-offline-color));
+  }
+
+  &.muted {
+    @include button-ghost-variant(var(--btn-muted-bg), var(--btn-muted-color));
   }
 }
 

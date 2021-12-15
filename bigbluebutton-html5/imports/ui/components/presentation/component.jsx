@@ -22,6 +22,7 @@ import Icon from '/imports/ui/components/icon/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
+import browserInfo from '/imports/utils/browserInfo';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -51,6 +52,9 @@ const intlMessages = defineMessages({
 });
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinimizeButton;
+const { isSafari } = browserInfo;
+const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
 class Presentation extends PureComponent {
   constructor() {
@@ -108,7 +112,7 @@ class Presentation extends PureComponent {
 
   componentDidMount() {
     this.getInitialPresentationSizes();
-    this.refPresentationContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
+    this.refPresentationContainer.addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     window.addEventListener('resize', this.onResize, false);
 
     const {
@@ -221,7 +225,7 @@ class Presentation extends PureComponent {
     const { fullscreenContext, layoutContextDispatch } = this.props;
 
     window.removeEventListener('resize', this.onResize, false);
-    this.refPresentationContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    this.refPresentationContainer.removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
 
     if (fullscreenContext) {
       layoutContextDispatch({
@@ -436,7 +440,8 @@ class Presentation extends PureComponent {
       isIphone,
     } = this.props;
 
-    if (!shouldEnableSwapLayout()
+    if (!OLD_MINIMIZE_BUTTON_ENABLED
+      || !shouldEnableSwapLayout()
       || isFullscreen
       || fullscreenContext
       || layoutType === LAYOUT_TYPE.PRESENTATION_FOCUS) {
@@ -657,6 +662,9 @@ class Presentation extends PureComponent {
       isMobile,
       layoutType,
       numCameras,
+      fullscreenElementId,
+      fullscreenContext,
+      layoutContextDispatch,
     } = this.props;
     const { zoom, fitToWidth } = this.state;
 
@@ -677,11 +685,15 @@ class Presentation extends PureComponent {
           podId,
           currentSlide,
           toolbarWidth,
+          fullscreenElementId,
+          layoutContextDispatch,
         }}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
         zoomChanger={this.zoomChanger}
         fitToWidthHandler={this.fitToWidthHandler}
+        isFullscreen={fullscreenContext}
+        fullscreenAction={ACTIONS.SET_FULLSCREEN_ELEMENT}
       />
     );
   }
@@ -730,7 +742,7 @@ class Presentation extends PureComponent {
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
         isFullscreen={isFullscreen}
-        color="primary"
+        color="muted"
         fullScreenStyle={false}
         className={styles.presentationFullscreen}
       />
@@ -823,7 +835,7 @@ class Presentation extends PureComponent {
     const { presentationToolbarMinWidth } = DEFAULT_VALUES;
 
     const isLargePresentation = (svgWidth > presentationToolbarMinWidth || isMobile)
-      && !(layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0);
+      && !(layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0 && !fullscreenContext);
 
     const containerWidth = isLargePresentation
       ? svgWidth
@@ -842,6 +854,7 @@ class Presentation extends PureComponent {
 
     return (
       <div
+        role="region"
         ref={(ref) => { this.refPresentationContainer = ref; }}
         className={styles.presentationContainer}
         style={{
@@ -876,7 +889,7 @@ class Presentation extends PureComponent {
             {showSlide && (userIsPresenter || multiUser)
               ? this.renderWhiteboardToolbar(svgDimensions)
               : null}
-            {showSlide && userIsPresenter && svgWidth > 0 && svgHeight > 0
+            {showSlide && userIsPresenter
               ? (
                 <div
                   className={styles.presentationToolbar}

@@ -3,8 +3,8 @@
 :root {
   --mobile-nav-height: 5rem;
   --mobile-margin-top: .25rem;
-  --arrow-l-left: 	1.1rem;
-  --arrow-r-left: 2.5rem;
+  --arrow-l-offset: .25rem;
+  --arrow-r-offset: .0125rem;
   --arrow-size: 40%;
 }
 
@@ -79,6 +79,10 @@
   }
 }
 
+.left {
+  position: relative;
+}
+
 .arrowRight,
 .arrowLeft {
   position: absolute;
@@ -87,21 +91,11 @@
 }
 
 .arrowLeft {
-  width: var(--lg-padding-y);
-  left: var(--arrow-l-left);
-  [dir="rtl"] & {
-    right: var(--arrow-r-left);
-    left: 0;
-  }
+  left: var(--arrow-l-offset);
 }
 
 .arrowRight {
-  width: var(--md-padding-x);
-  left: var(--arrow-r-left);
-  [dir="rtl"] & {
-    right: .5rem;
-    left: 0;
-  }
+  right: var(--arrow-r-offset);
 }
 
 .btn {
@@ -139,4 +133,8 @@
   @include mq($small-only) {
     display: none;
   }
+}
+
+.leaveMeetingButton {
+  color: var(--color-danger) !important;
 }

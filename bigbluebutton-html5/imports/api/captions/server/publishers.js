@@ -14,7 +14,14 @@ function captions() {
   const { meetingId, userId } = tokenValidation;
   Logger.debug('Publishing Captions', { meetingId, requestedBy: userId });
 
-  return Captions.find({ meetingId });
+  const options = {
+    fields: {
+      padId: 0,
+      readOnlyPadId: 0,
+    },
+  };
+
+  return Captions.find({ meetingId }, options);
 }
 
 function publish(...args) {

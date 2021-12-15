@@ -15,7 +15,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
 
   def handleSetLockSettings(msg: ChangeLockSettingsInMeetingCmdMsg): Unit = {
 
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) || liveMeeting.props.meetingProp.isBreakout) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to change lock settings"
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
@@ -42,6 +42,10 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         if (!oldPermissions.disableMic && settings.disableMic) {
           // Apply lock settings when disableMic from false to true.
           LockSettingsUtil.enforceLockSettingsForAllVoiceUsers(liveMeeting, outGW)
+        }
+
+        if (!oldPermissions.disableCam && settings.disableCam) {
+          LockSettingsUtil.enforceCamLockSettingsForAllUsers(liveMeeting, outGW)
         }
 
         val routing = Routing.addMsgToClientRouting(

@@ -1,16 +1,12 @@
 const path = require('path');
-const ne = require('../notifications/elements');
-const pe = require('../presentation/elements');
-const ce = require('../customparameters/elements');
-const we = require('../whiteboard/elements');
-const poe = require('../polling/elemens');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { checkElementLengthEqualTo, checkElementLengthDifferentTo, checkElementText } = require('../core/util');
+const c = require('./constants');
+const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { checkElementLengthEqualTo, checkElementLengthDifferentTo, checkElementText, checkElement } = require('../core/util');
 
 async function autoJoinTest(test) {
   try {
-    const resp = await test.page.evaluate(checkElementLengthEqualTo, e.audioDialog, 0);
+    const resp = await test.page.evaluate(checkElementLengthEqualTo, e.audioModal, 0);
     return resp === true;
   } catch (err) {
     console.log(err);
@@ -21,10 +17,10 @@ async function autoJoinTest(test) {
 async function listenOnlyMode(test) {
   // maybe not used
   try {
-    const resp = await test.page.evaluate(async (connectionSelector, echoYes) => {
+    const resp = await test.page.evaluate(async (connectionSelector, echoYesButton) => {
       await document.querySelectorAll(connectionSelector)[0];
-      return document.querySelectorAll(echoYes).length !== 0;
-    }, e.connectingStatus, e.echoYes);
+      return document.querySelectorAll(echoYesButton).length !== 0;
+    }, e.connectingStatus, e.echoYesButton);
     return resp === true;
   } catch (err) {
     console.log(err);
@@ -33,9 +29,9 @@ async function listenOnlyMode(test) {
 
 async function forceListenOnly(test) {
   try {
-    const checkEchoYes = await test.page.evaluate(checkElementLengthEqualTo, e.echoYes, 0);
+    const checkEchoYes = await test.page.evaluate(checkElementLengthEqualTo, e.echoYesButton, 0);
     if (!checkEchoYes) return false;
-    const resp = await test.page.evaluate(checkElementText, ce.toastContainer, 'You have joined the audio conference');
+    const resp = await test.page.evaluate(checkElementText, e.toastContainer, 'You have joined the audio conference');
 
     return resp === true;
   } catch (err) {
@@ -47,10 +43,10 @@ async function forceListenOnly(test) {
 async function skipCheck(test) {
   // maybe not used
   try {
-    await test.waitForSelector(ce.toastContainer, ELEMENT_WAIT_TIME);
+    await test.waitForSelector(e.toastContainer);
     const resp1 = await test.page.evaluate(checkElementLengthDifferentTo, e.toastContainer, 0);
-    await test.waitForSelector(ce.muteBtn, ELEMENT_WAIT_TIME);
-    const resp2 = await test.page.evaluate(checkElementLengthDifferentTo, ce.muteBtn, 0);
+    await test.waitForSelector(e.muteMicrophoneBtn);
+    const resp2 = await test.page.evaluate(checkElementLengthDifferentTo, e.muteMicrophoneBtn, 0);
     return resp1 === true && resp2 === true;
   } catch (err) {
     console.log(err);
@@ -96,19 +92,14 @@ async function zoomOut(test) {
 
 async function poll(page1, page2) {
   try {
-    await page1.page.waitForSelector(ce.whiteboard, { visible: true, timeout: ELEMENT_WAIT_LONGER_TIME });
-    await page1.click(e.actions);
-    await page1.waitForSelector(ne.polling, ELEMENT_WAIT_TIME);
-    await page1.click(ne.polling, true);
-    await page1.waitForSelector(ne.pollYesNoAbstentionBtn, ELEMENT_WAIT_TIME);
-    await page1.click(ne.pollYesNoAbstentionBtn, true);
-    await page1.waitForSelector(ne.startPoll, ELEMENT_WAIT_TIME);
-    await page1.click(ne.startPoll, true);
-    await page2.waitForSelector(poe.pollingContainer, ELEMENT_WAIT_TIME);
-    await page2.waitForSelector(ne.yesBtn, ELEMENT_WAIT_TIME);
-    await page2.click(ne.yesBtn, true);
-    await page1.waitForSelector(ne.publishPollingResults, ELEMENT_WAIT_TIME);
-    await page1.click(ne.publishPollingResults, true);
+    await page1.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await page1.waitAndClick(e.actions);
+    await page1.waitAndClick(e.polling);
+    await page1.waitAndClick(e.pollYesNoAbstentionBtn);
+    await page1.waitAndClick(e.startPoll);
+    await page2.waitForSelector(e.pollingContainer);
+    await page2.waitAndClick(e.yesBtn);
+    await page1.waitAndClick(e.publishPollingLabel);
     return true;
   } catch (err) {
     console.log(err);
@@ -118,8 +109,7 @@ async function poll(page1, page2) {
 
 async function previousSlide(test) {
   try {
-    await test.waitForSelector(pe.prevSlide, ELEMENT_WAIT_TIME);
-    await test.click(pe.prevSlide, true);
+    await test.waitAndClick(e.prevSlide);
     return true;
   } catch (err) {
     console.log(err);
@@ -129,8 +119,7 @@ async function previousSlide(test) {
 
 async function nextSlide(test) {
   try {
-    await test.waitForSelector(pe.nextSlide, ELEMENT_WAIT_TIME);
-    await test.click(pe.nextSlide, true);
+    await test.waitAndClick(e.nextSlide);
     return true;
   } catch (err) {
     console.log(err);
@@ -139,11 +128,9 @@ async function nextSlide(test) {
 }
 
 async function annotation(test) {
-  await test.waitForSelector(ce.tools, ELEMENT_WAIT_TIME);
-  await test.click(ce.tools, true);
-  await test.waitForSelector(we.pencil, ELEMENT_WAIT_TIME);
-  await test.click(we.pencil, true);
-  await test.click(ce.whiteboard, true);
+  await test.waitAndClick(e.tools);
+  await test.waitAndClick(e.pencil);
+  await test.waitAndClick(e.whiteboard);
   const annoted = await test.page.evaluate((whiteboard) => {
     return document.querySelectorAll(`${whiteboard} > g > g`)[1].innerHTML !== '';
   }, e.whiteboard);
@@ -152,13 +139,11 @@ async function annotation(test) {
 
 async function presetationUpload(test) {
   try {
-    await test.waitForSelector(ce.actions, ELEMENT_WAIT_TIME);
-    await test.click(ce.actions, true);
-    await test.waitForSelector(pe.uploadPresentation, ELEMENT_WAIT_TIME);
-    await test.click(pe.uploadPresentation, true);
-    const elementHandle = await test.page.$(pe.fileUpload);
+    await test.waitAndClick(e.actions);
+    await test.waitAndClick(e.uploadPresentation);
+    const elementHandle = await test.page.$(e.fileUpload);
     await elementHandle.uploadFile(path.join(__dirname, `../media/${e.pdfFileName}.pdf`));
-    await test.click(ce.confirmBtn, true);
+    await test.waitAndClick(e.confirmBtn);
     return true;
   } catch (err) {
     console.log(err);
@@ -176,6 +161,28 @@ function encodeCustomParams(param) {
   }
 }
 
+function getAllShortcutParams() {
+  const getParams = (shortcutArray) => {
+    return Object.values(shortcutArray.map(e => `"${e.param}"`));
+  }
+  return c.shortcuts.replace('$', [...getParams(c.initialShortcuts), ...getParams(c.laterShortcuts)]);
+}
+
+async function checkAccesskey(test, key) {
+  return test.page.evaluate(checkElement, `[accesskey="${key}"]`);
+}
+
+async function checkShortcutsArray(test, shortcut) {
+  for (const { param, key } of shortcut) {
+    const resp = await checkAccesskey(test, key);
+    if (!resp) {
+      await test.logger(`${param} shortcut failed`)
+      return false;
+    }
+  }
+  return true;
+}
+
 exports.zoomIn = zoomIn;
 exports.zoomOut = zoomOut;
 exports.poll = poll;
@@ -189,3 +196,6 @@ exports.listenOnlyMode = listenOnlyMode;
 exports.forceListenOnly = forceListenOnly;
 exports.skipCheck = skipCheck;
 exports.encodeCustomParams = encodeCustomParams;
+exports.getAllShortcutParams = getAllShortcutParams;
+exports.checkAccesskey = checkAccesskey;
+exports.checkShortcutsArray = checkShortcutsArray;

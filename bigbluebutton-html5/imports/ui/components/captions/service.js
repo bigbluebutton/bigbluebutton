@@ -19,24 +19,24 @@ const getActiveCaptions = () => {
 
 const getCaptions = locale => Captions.findOne({
   meetingId: Auth.meetingID,
-  padId: { $regex: `${CAPTIONS_TOKEN}${locale}$` },
+  locale,
 });
 
 const getCaptionsData = () => {
   const activeCaptions = getActiveCaptions();
-  let padId = '';
+  let locale = '';
   let revs = 0;
   let data = '';
   if (activeCaptions) {
     const captions = getCaptions(activeCaptions);
     if (!_.isEmpty(captions)) {
-      padId = captions.padId; // eslint-disable-line prefer-destructuring
+      locale = activeCaptions;
       revs = captions.revs; // eslint-disable-line prefer-destructuring
       data = captions.data; // eslint-disable-line prefer-destructuring
     }
   }
 
-  return { padId, revs, data };
+  return { locale, revs, data };
 };
 
 const getAvailableLocales = () => {
@@ -44,10 +44,13 @@ const getAvailableLocales = () => {
   const locales = [];
   Captions.find({ meetingId: meetingID },
     { sort: { locale: 1 } },
-    { fields: { ownerId: 1, locale: 1 } })
+    { fields: { ownerId: 1, locale: 1, name: 1 } })
     .forEach((caption) => {
       if (caption.ownerId === '') {
-        locales.push(caption.locale);
+        locales.push({
+          locale: caption.locale,
+          name: caption.name,
+        });
       }
     });
   return locales;
@@ -56,10 +59,14 @@ const getAvailableLocales = () => {
 const getOwnedLocales = () => {
   const { meetingID } = Auth;
   const locales = [];
-  Captions.find({ meetingId: meetingID }, { fields: { ownerId: 1, locale: 1 } })
+  Captions.find({ meetingId: meetingID },
+    { fields: { ownerId: 1, locale: 1, name: 1 } })
     .forEach((caption) => {
       if (caption.ownerId !== '') {
-        locales.push(caption.locale);
+        locales.push({
+          locale: caption.locale,
+          name: caption.name,
+        });
       }
     });
   return locales;
@@ -72,7 +79,7 @@ const takeOwnership = (locale) => {
 const appendText = (text, locale) => {
   if (typeof text !== 'string' || text.length === 0) return;
 
-  const formattedText = `${text.trim().replace(/^\w/, (c) => c.toUpperCase())}\n\n`;
+  const formattedText = `${text.trim().replace(/^\w/, (c) => c?.toUpperCase())}\n\n`;
   makeCall('appendText', formattedText, locale);
 };
 

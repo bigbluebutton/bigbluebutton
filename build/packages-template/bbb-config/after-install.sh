@@ -108,9 +108,28 @@ if [ -f /usr/lib/systemd/system/red5.service ]; then
   chown root:root /usr/lib/systemd/system/red5.service
 fi
 
+# Verify mediasoup raw media directories ownership and perms
+if [ -d /var/mediasoup ]; then
+  chown bigbluebutton:bigbluebutton /var/mediasoup
+  chmod 0700 /var/mediasoup
+fi
+
+if [ -d /var/mediasoup/recordings ]; then
+  chmod 0700 /var/mediasoup/recordings
+fi
+
+if [ -d /var/mediasoup/screenshare ]; then
+  chmod 0700 /var/mediasoup/screenshare
+fi
+
 sed -i 's/worker_connections 768/worker_connections 4000/g' /etc/nginx/nginx.conf
 
-if ! grep "worker_rlimit_nofile 10000;" /etc/nginx/nginx.conf; then
+if grep "worker_rlimit_nofile" /etc/nginx/nginx.conf; then
+  num=$(grep worker_rlimit_nofile /etc/nginx/nginx.conf | grep -o '[0-9]*')
+  if [[ "$num" -lt 10000 ]]; then
+    sed -i 's/worker_rlimit_nofile [0-9 ]*;/worker_rlimit_nofile 10000;/g' /etc/nginx/nginx.conf
+  fi
+else
   sed -i 's/events {/worker_rlimit_nofile 10000;\n\nevents {/g' /etc/nginx/nginx.conf
 fi
 

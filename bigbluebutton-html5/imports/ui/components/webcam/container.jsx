@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { withTracker } from 'meteor/react-meteor-data';
-import Settings from '/imports/ui/services/settings';
 import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
 import Auth from '/imports/ui/services/auth';
 import breakoutService from '/imports/ui/components/breakout-room/service';
@@ -16,11 +15,12 @@ const WebcamContainer = ({
   audioModalIsOpen,
   swapLayout,
   usersVideo,
-  disableVideo,
 }) => {
   const layoutContext = useContext(LayoutContext);
   const { layoutContextState, layoutContextDispatch } = layoutContext;
-  const { fullscreen, output, input, isRTL } = layoutContextState;
+  const {
+    fullscreen, output, input, isRTL,
+  } = layoutContextState;
   const { cameraDock, presentation } = output;
   const { cameraDock: cameraDockInput } = input;
   const { cameraOptimalGridSize } = cameraDockInput;
@@ -30,8 +30,7 @@ const WebcamContainer = ({
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
 
-  return !disableVideo
-    && !audioModalIsOpen
+  return !audioModalIsOpen
     && usersVideo.length > 0
     ? (
       <WebcamComponent
@@ -54,8 +53,6 @@ const WebcamContainer = ({
 let userWasInBreakout = false;
 
 export default withModalMounter(withTracker(() => {
-  const { dataSaving } = Settings;
-  const { viewParticipantsWebcams } = dataSaving;
   const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
   const data = {
     audioModalIsOpen: Session.get('audioModalIsOpen'),
@@ -90,7 +87,6 @@ export default withModalMounter(withTracker(() => {
   const { streams: usersVideo } = VideoService.getVideoStreams();
   data.usersVideo = usersVideo;
   data.swapLayout = (getSwapLayout() || !hasPresentation) && shouldEnableSwapLayout();
-  data.disableVideo = !viewParticipantsWebcams;
 
   if (data.swapLayout) {
     data.floatingOverlay = true;

@@ -17,6 +17,19 @@
   white-space: pre-wrap;
 }
 
+.publishBtn,
+.cancelBtn {
+  width: 48%;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.buttonsActions {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
 .main {
   display: flex;
   justify-content: space-between;

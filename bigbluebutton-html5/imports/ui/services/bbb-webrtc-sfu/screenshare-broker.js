@@ -23,8 +23,10 @@ class ScreenshareBroker extends BaseBroker {
     this.webRtcPeer = null;
     this.hasAudio = false;
     this.offering = true;
+    this.signalCandidates = true;
 
-    // Optional parameters are: userName, caleeName, iceServers, hasAudio, bitrate, offering, mediaServer
+    // Optional parameters are: userName, caleeName, iceServers, hasAudio,
+    // bitrate, offering, mediaServer, signalCandidates
     Object.assign(this, options);
   }
 
@@ -153,13 +155,11 @@ class ScreenshareBroker extends BaseBroker {
   startScreensharing () {
     return new Promise((resolve, reject) => {
       const options = {
-        onicecandidate: (candidate) => {
-          this.onIceCandidate(candidate, this.role);
-        },
+        onicecandidate: this.signalCandidates ? this.onIceCandidate.bind(this) : null,
         videoStream: this.stream,
+        configuration: this.populatePeerConfiguration(),
       };
 
-      this.addIceServers(options);
       this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, (error) => {
         if (error) {
           // 1305: "PEER_NEGOTIATION_FAILED",
@@ -206,10 +206,10 @@ class ScreenshareBroker extends BaseBroker {
     });
   }
 
-  onIceCandidate (candidate, role) {
+  onIceCandidate (candidate) {
     const message = {
       id: ON_ICE_CANDIDATE_MSG,
-      role,
+      role: this.role,
       type: this.sfuComponent,
       voiceBridge: this.voiceBridge,
       candidate,
@@ -225,12 +225,9 @@ class ScreenshareBroker extends BaseBroker {
         mediaConstraints: {
           audio: !!this.hasAudio,
         },
-        onicecandidate: (candidate) => {
-          this.onIceCandidate(candidate, this.role);
-        },
+        onicecandidate: this.signalCandidates ? this.onIceCandidate.bind(this) : null,
+        configuration: this.populatePeerConfiguration(),
       };
-
-      this.addIceServers(options);
 
       this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, (error) => {
         if (error) {

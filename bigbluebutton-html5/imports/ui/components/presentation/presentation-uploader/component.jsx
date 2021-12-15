@@ -639,16 +639,25 @@ class PresentationUploader extends Component {
     const { presentations } = this.state;
     const { intl } = this.props;
 
-    const presentationsSorted = presentations
-      .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp)
-      .sort((a, b) => a.filename.localeCompare(b.filename))
-      .sort((a, b) => b.upload.progress - a.upload.progress)
-      .sort((a, b) => b.conversion.done - a.conversion.done)
-      .sort((a, b) => {
-        const aUploadNotTriggeredYet = !a.upload.done && a.upload.progress === 0;
-        const bUploadNotTriggeredYet = !b.upload.done && b.upload.progress === 0;
-        return bUploadNotTriggeredYet - aUploadNotTriggeredYet;
-      });
+    let presentationsSorted = presentations;
+
+    try {
+      presentationsSorted = presentations
+        .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp)
+        .sort((a, b) => a.filename.localeCompare(b.filename))
+        .sort((a, b) => b.upload.progress - a.upload.progress)
+        .sort((a, b) => b.conversion.done - a.conversion.done)
+        .sort((a, b) => {
+          const aUploadNotTriggeredYet = !a.upload.done && a.upload.progress === 0;
+          const bUploadNotTriggeredYet = !b.upload.done && b.upload.progress === 0;
+          return bUploadNotTriggeredYet - aUploadNotTriggeredYet;
+        });
+    } catch (error) {
+      logger.error({
+        logCode: 'presentationuploader_component_render_error',
+        extraInfo: { error },
+      }, 'Presentation uploader catch error on render presentation list');
+    }
 
     return (
       <div className={styles.fileList}>
@@ -739,6 +748,7 @@ class PresentationUploader extends Component {
     const {
       intl,
       selectedToBeNextCurrent,
+      allowDownloadable
     } = this.props;
 
     const isActualCurrent = selectedToBeNextCurrent ? item.id === selectedToBeNextCurrent : item.isCurrent;
@@ -757,6 +767,10 @@ class PresentationUploader extends Component {
       [styles.tableItemConverting]: isConverting,
       [styles.tableItemError]: hasError,
       [styles.tableItemAnimated]: isProcessing,
+    };
+	
+    const itemActions = {
+        [styles.notDownloadable]: !allowDownloadable,
     };
 
     const formattedDownloadableLabel = !item.isDownloadable
@@ -795,18 +809,21 @@ class PresentationUploader extends Component {
           {this.renderPresentationItemStatus(item)}
         </td>
         {hasError ? null : (
-          <td className={styles.tableItemActions}>
-            <Button
-              disabled={disableActions}
-              className={isDownloadableStyle}
-              label={formattedDownloadableLabel}
-              data-test={item.isDownloadable ? 'disallowPresentationDownload' : 'allowPresentationDownload'}
-              aria-label={formattedDownloadableAriaLabel}
-              hideLabel
-              size="sm"
-              icon={item.isDownloadable ? 'download' : 'download-off'}
-              onClick={() => this.handleToggleDownloadable(item)}
-            />
+          <td className={cx(styles.tableItemActions, itemActions)}>
+            {allowDownloadable ? (
+              <Button
+                disabled={disableActions}
+                className={isDownloadableStyle}
+                label={formattedDownloadableLabel}
+                data-test={item.isDownloadable ? 'disallowPresentationDownload' : 'allowPresentationDownload'}
+                aria-label={formattedDownloadableAriaLabel}
+                hideLabel
+                size="sm"
+                icon={item.isDownloadable ? 'download' : 'download-off'}
+                onClick={() => this.handleToggleDownloadable(item)}
+              />
+              ) : null
+            }
             <Checkbox
               ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.filename}`}
               checked={item.isCurrent}

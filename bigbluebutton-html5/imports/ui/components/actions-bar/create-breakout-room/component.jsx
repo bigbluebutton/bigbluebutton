@@ -227,7 +227,8 @@ class BreakoutRoom extends PureComponent {
   componentDidUpdate(prevProps, prevstate) {
     if (this.listOfUsers) {
       for (let i = 0; i < this.listOfUsers.children.length; i += 1) {
-        const roomList = this.listOfUsers.children[i].getElementsByTagName('div')[0];
+        const roomWrapperChildren = this.listOfUsers.children[i].getElementsByTagName('div');
+        const roomList = roomWrapperChildren[roomWrapperChildren.length > 1 ? 1 : 0];
         roomList.addEventListener('keydown', this.handleMoveEvent, true);
       }
     }

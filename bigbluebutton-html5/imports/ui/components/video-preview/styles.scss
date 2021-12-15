@@ -94,21 +94,21 @@
 .videoCol {
   @extend .col;
   align-items: center;
+
+  @include mq($landscape) {
+    width: 33.3%;
+  }
 }
 
 .content {
   display: flex;
-  height: 14rem;
-  max-height: 40vh;
   justify-content: center;
   align-items: center;
+  flex-grow: 1;
 
   @include mq($small-only) {
     flex-direction: column;
-    height: unset;
     margin: 0;
-    min-height: 12rem;
-    max-height: unset;
   }
 }
 
@@ -129,8 +129,28 @@
 }
 
 .modal {
-  padding: 1rem;
   @extend .modal;
+  padding: 1rem;
+  min-height: 25rem;
+  max-height: 60vh;
+
+  & > [class^="content"] {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  @include mq($small-only) {
+    height: unset;
+    min-height: 22.5rem;
+    max-height: unset;
+  }
+}
+
+.modalPhone {
+  min-height: 100%;
+  min-width: 100%;
+  border-radius: 0;
 }
 
 .overlay {

@@ -6,10 +6,29 @@ import { getUserEmojisSummary, emojiConfigs } from '../services/EmojiService';
 import UserAvatar from './UserAvatar';
 
 class UsersTable extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      activityscoreOrder: 'desc',
+    };
+  }
+
+  toggleActivityScoreOrder() {
+    const { activityscoreOrder } = this.state;
+
+    if (activityscoreOrder === 'asc') {
+      this.setState({ activityscoreOrder: 'desc' });
+    } else {
+      this.setState({ activityscoreOrder: 'asc' });
+    }
+  }
+
   render() {
     const {
       allUsers, totalOfActivityTime, totalOfPolls, tab,
     } = this.props;
+
+    const { activityscoreOrder } = this.state;
 
     function getSumOfTime(eventsArr) {
       return eventsArr.reduce((prevVal, elem) => {
@@ -64,7 +83,7 @@ class UsersTable extends React.Component {
 
     const usersEmojisSummary = {};
     Object.values(allUsers || {}).forEach((user) => {
-      usersEmojisSummary[user.intId] = getUserEmojisSummary(user, 'raiseHand');
+      usersEmojisSummary[user.userKey] = getUserEmojisSummary(user, 'raiseHand');
     });
 
     function getOnlinePercentage(registeredOn, leftOn) {
@@ -78,14 +97,14 @@ class UsersTable extends React.Component {
 
     const usersActivityScore = {};
     Object.values(allUsers || {}).forEach((user) => {
-      usersActivityScore[user.intId] = getActivityScore(user);
+      usersActivityScore[user.userKey] = getActivityScore(user);
     });
 
     return (
-      <table className="w-full whitespace-no-wrap">
+      <table className="w-full">
         <thead>
           <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-100">
-            <th className="px-4 py-3 col-text-left">
+            <th className="px-3.5 2xl:px-4 py-3 col-text-left">
               <FormattedMessage id="app.learningDashboard.user" defaultMessage="User" />
               {
                 tab === 'overview'
@@ -103,25 +122,28 @@ class UsersTable extends React.Component {
                   : null
               }
             </th>
-            <th className="px-4 py-3 text-center">
+            <th className="px-3.5 2xl:px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.usersTable.colOnline" defaultMessage="Online time" />
             </th>
-            <th className="px-4 py-3 text-center">
+            <th className="px-3.5 2xl:px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.usersTable.colTalk" defaultMessage="Talk time" />
             </th>
-            <th className="px-4 py-3 text-center">
+            <th className="px-3.5 2xl:px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.usersTable.colWebcam" defaultMessage="Webcam Time" />
             </th>
-            <th className="px-4 py-3 text-center">
+            <th className="px-3.5 2xl:px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.usersTable.colMessages" defaultMessage="Messages" />
             </th>
-            <th className="px-4 py-3 col-text-left">
+            <th className="px-3.5 2xl:px-4 py-3 col-text-left">
               <FormattedMessage id="app.learningDashboard.usersTable.colEmojis" defaultMessage="Emojis" />
             </th>
-            <th className="px-4 py-3 text-center">
+            <th className="px-3.5 2xl:px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.usersTable.colRaiseHands" defaultMessage="Raise Hand" />
             </th>
-            <th className="px-4 py-3 text-center">
+            <th
+              className={`px-3.5 2xl:px-4 py-3 text-center ${tab === 'overview_activityscore' ? 'cursor-pointer' : ''}`}
+              onClick={() => { if (tab === 'overview_activityscore') this.toggleActivityScoreOrder(); }}
+            >
               <FormattedMessage id="app.learningDashboard.usersTable.colActivityScore" defaultMessage="Activity Score" />
               {
                 tab === 'overview_activityscore'
@@ -133,23 +155,32 @@ class UsersTable extends React.Component {
                       viewBox="0 0 24 24"
                       stroke="currentColor"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d={activityscoreOrder === 'asc' ? 'M17 13l-5 5m0 0l-5-5m5 5V6' : 'M7 11l5-5m0 0l5 5m-5-5v12'}
+                      />
                     </svg>
                   )
                   : null
               }
             </th>
-            <th className="px-4 py-3 text-center">
+            <th className="px-3.5 2xl:px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.usersTable.colStatus" defaultMessage="Status" />
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y">
+        <tbody className="bg-white divide-y whitespace-nowrap">
           { typeof allUsers === 'object' && Object.values(allUsers || {}).length > 0 ? (
             Object.values(allUsers || {})
               .sort((a, b) => {
-                if (tab === 'overview_activityscore' && usersActivityScore[a.intId] < usersActivityScore[b.intId]) return 1;
-                if (tab === 'overview_activityscore' && usersActivityScore[a.intId] > usersActivityScore[b.intId]) return -1;
+                if (tab === 'overview_activityscore' && usersActivityScore[a.userKey] < usersActivityScore[b.userKey]) {
+                  return activityscoreOrder === 'desc' ? 1 : -1;
+                }
+                if (tab === 'overview_activityscore' && usersActivityScore[a.userKey] > usersActivityScore[b.userKey]) {
+                  return activityscoreOrder === 'desc' ? -1 : 1;
+                }
                 if (a.isModerator === false && b.isModerator === true) return 1;
                 if (a.isModerator === true && b.isModerator === false) return -1;
                 if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
@@ -158,7 +189,7 @@ class UsersTable extends React.Component {
               })
               .map((user) => (
                 <tr key={user} className="text-gray-700">
-                  <td className="px-4 py-3 col-text-left text-sm">
+                  <td className="flex items-center px-3.5 2xl:px-4 py-3 col-text-left text-sm">
                     <div className="inline-block relative w-8 h-8 rounded-full">
                       {/* <img className="object-cover w-full h-full rounded-full" */}
                       {/*     src="" */}
@@ -174,32 +205,33 @@ class UsersTable extends React.Component {
                       <p className="font-semibold">
                         {user.name}
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 inline"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-                          />
-                        </svg>
-                        <FormattedDate
-                          value={user.registeredOn}
-                          month="short"
-                          day="numeric"
-                          hour="2-digit"
-                          minute="2-digit"
-                          second="2-digit"
-                        />
-                      </p>
-                      {
-                          user.leftOn > 0
+                      { Object.values(user.intIds || {}).map((intId, index) => (
+                        <>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4 inline"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                              />
+                            </svg>
+                            <FormattedDate
+                              value={intId.registeredOn}
+                              month="short"
+                              day="numeric"
+                              hour="2-digit"
+                              minute="2-digit"
+                              second="2-digit"
+                            />
+                          </p>
+                          { intId.leftOn > 0
                             ? (
                               <p className="text-xs text-gray-600 dark:text-gray-400">
                                 <svg
@@ -218,7 +250,7 @@ class UsersTable extends React.Component {
                                 </svg>
 
                                 <FormattedDate
-                                  value={user.leftOn}
+                                  value={intId.leftOn}
                                   month="short"
                                   day="numeric"
                                   hour="2-digit"
@@ -227,11 +259,17 @@ class UsersTable extends React.Component {
                                 />
                               </p>
                             )
-                            : null
-                        }
+                            : null }
+                          { index === Object.values(user.intIds).length - 1
+                            ? null
+                            : (
+                              <hr className="my-1" />
+                            ) }
+                        </>
+                      )) }
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-center items-center">
+                  <td className="px-3.5 2xl:px-4 py-3 text-sm text-center items-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-4 w-4 inline"
@@ -247,25 +285,36 @@ class UsersTable extends React.Component {
                       />
                     </svg>
                     &nbsp;
-                    { tsToHHmmss(
-                      (user.leftOn > 0
-                        ? user.leftOn
-                        : (new Date()).getTime()) - user.registeredOn,
-                    ) }
+                    { tsToHHmmss(Object.values(user.intIds).reduce((prev, intId) => (
+                      prev + ((intId.leftOn > 0
+                        ? intId.leftOn
+                        : (new Date()).getTime()) - intId.registeredOn)
+                    ), 0)) }
                     <br />
-                    <div
-                      className="bg-gray-200 transition-colors duration-500 rounded-full overflow-hidden"
-                      title={`${getOnlinePercentage(user.registeredOn, user.leftOn).toString()}%`}
-                    >
-                      <div
-                        aria-label=" "
-                        className="bg-gradient-to-br from-green-100 to-green-600 transition-colors duration-900 h-1.5"
-                        style={{ width: `${getOnlinePercentage(user.registeredOn, user.leftOn).toString()}%` }}
-                        role="progressbar"
-                      />
-                    </div>
+                    {
+                      (function getPercentage() {
+                        const { intIds } = user;
+                        const percentage = Object.values(intIds || {}).reduce((prev, intId) => (
+                          prev + getOnlinePercentage(intId.registeredOn, intId.leftOn)
+                        ), 0);
+
+                        return (
+                          <div
+                            className="bg-gray-200 transition-colors duration-500 rounded-full overflow-hidden"
+                            title={`${percentage.toString()}%`}
+                          >
+                            <div
+                              aria-label=" "
+                              className="bg-gradient-to-br from-green-100 to-green-600 transition-colors duration-900 h-1.5"
+                              style={{ width: `${percentage.toString()}%` }}
+                              role="progressbar"
+                            />
+                          </div>
+                        );
+                      }())
+                    }
                   </td>
-                  <td className="px-4 py-3 text-sm text-center">
+                  <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
                     { user.talk.totalTime > 0
                       ? (
                         <span className="text-center">
@@ -288,7 +337,7 @@ class UsersTable extends React.Component {
                         </span>
                       ) : null }
                   </td>
-                  <td className="px-4 py-3 text-sm text-center">
+                  <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
                     { getSumOfTime(user.webcams) > 0
                       ? (
                         <span className="text-center">
@@ -311,7 +360,7 @@ class UsersTable extends React.Component {
                         </span>
                       ) : null }
                   </td>
-                  <td className="px-4 py-3 text-sm text-center">
+                  <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
                     { user.totalOfMessages > 0
                       ? (
                         <span>
@@ -334,13 +383,13 @@ class UsersTable extends React.Component {
                         </span>
                       ) : null }
                   </td>
-                  <td className="px-4 py-3 text-sm col-text-left">
+                  <td className="px-3.5 2xl:px-4 py-3 text-sm col-text-left">
                     {
-                      Object.keys(usersEmojisSummary[user.intId] || {}).map((emoji) => (
+                      Object.keys(usersEmojisSummary[user.userKey] || {}).map((emoji) => (
                         <div className="text-xs whitespace-nowrap">
                           <i className={`${emojiConfigs[emoji].icon} text-sm`} />
                           &nbsp;
-                          { usersEmojisSummary[user.intId][emoji] }
+                          { usersEmojisSummary[user.userKey][emoji] }
                           &nbsp;
                           <FormattedMessage
                             id={emojiConfigs[emoji].intlId}
@@ -350,7 +399,7 @@ class UsersTable extends React.Component {
                       ))
                     }
                   </td>
-                  <td className="px-4 py-3 text-sm text-center">
+                  <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
                     { user.emojis.filter((emoji) => emoji.name === 'raiseHand').length > 0
                       ? (
                         <span>
@@ -374,43 +423,43 @@ class UsersTable extends React.Component {
                       ) : null }
                   </td>
                   {
-                      !user.isModerator ? (
-                        <td className="px-4 py-3 text-sm text-center items">
-                          <svg viewBox="0 0 82 12" width="82" height="12" className="flex-none m-auto inline">
-                            <rect width="12" height="12" fill={usersActivityScore[user.intId] > 0 ? '#A7F3D0' : '#e4e4e7'} />
-                            <rect width="12" height="12" x="14" fill={usersActivityScore[user.intId] > 2 ? '#6EE7B7' : '#e4e4e7'} />
-                            <rect width="12" height="12" x="28" fill={usersActivityScore[user.intId] > 4 ? '#34D399' : '#e4e4e7'} />
-                            <rect width="12" height="12" x="42" fill={usersActivityScore[user.intId] > 6 ? '#10B981' : '#e4e4e7'} />
-                            <rect width="12" height="12" x="56" fill={usersActivityScore[user.intId] > 8 ? '#059669' : '#e4e4e7'} />
-                            <rect width="12" height="12" x="70" fill={usersActivityScore[user.intId] === 10 ? '#047857' : '#e4e4e7'} />
-                          </svg>
-                          &nbsp;
-                          <span className="text-xs bg-gray-200 rounded-full px-2">
-                            <FormattedNumber value={usersActivityScore[user.intId]} minimumFractionDigits="0" maximumFractionDigits="1" />
-                          </span>
-                        </td>
-                      ) : <td />
-                    }
-                  <td className="px-4 py-3 text-xs text-center">
+                    !user.isModerator ? (
+                      <td className="px-3.5 2xl:px-4 py-3 text-sm text-center items">
+                        <svg viewBox="0 0 82 12" width="82" height="12" className="flex-none m-auto inline">
+                          <rect width="12" height="12" fill={usersActivityScore[user.userKey] > 0 ? '#A7F3D0' : '#e4e4e7'} />
+                          <rect width="12" height="12" x="14" fill={usersActivityScore[user.userKey] > 2 ? '#6EE7B7' : '#e4e4e7'} />
+                          <rect width="12" height="12" x="28" fill={usersActivityScore[user.userKey] > 4 ? '#34D399' : '#e4e4e7'} />
+                          <rect width="12" height="12" x="42" fill={usersActivityScore[user.userKey] > 6 ? '#10B981' : '#e4e4e7'} />
+                          <rect width="12" height="12" x="56" fill={usersActivityScore[user.userKey] > 8 ? '#059669' : '#e4e4e7'} />
+                          <rect width="12" height="12" x="70" fill={usersActivityScore[user.userKey] === 10 ? '#047857' : '#e4e4e7'} />
+                        </svg>
+                        &nbsp;
+                        <span className="text-xs bg-gray-200 rounded-full px-2">
+                          <FormattedNumber value={usersActivityScore[user.userKey]} minimumFractionDigits="0" maximumFractionDigits="1" />
+                        </span>
+                      </td>
+                    ) : <td />
+                  }
+                  <td className="px-3.5 2xl:px-4 py-3 text-xs text-center">
                     {
-                                      user.leftOn > 0
-                                        ? (
-                                          <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
-                                            <FormattedMessage id="app.learningDashboard.usersTable.userStatusOffline" defaultMessage="Offline" />
-                                          </span>
-                                        )
-                                        : (
-                                          <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
-                                            <FormattedMessage id="app.learningDashboard.usersTable.userStatusOnline" defaultMessage="Online" />
-                                          </span>
-                                        )
-                                  }
+                      Object.values(user.intIds)[Object.values(user.intIds).length - 1].leftOn > 0
+                        ? (
+                          <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
+                            <FormattedMessage id="app.learningDashboard.usersTable.userStatusOffline" defaultMessage="Offline" />
+                          </span>
+                        )
+                        : (
+                          <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
+                            <FormattedMessage id="app.learningDashboard.usersTable.userStatusOnline" defaultMessage="Online" />
+                          </span>
+                        )
+                    }
                   </td>
                 </tr>
               ))
           ) : (
             <tr className="text-gray-700">
-              <td colSpan="8" className="px-4 py-3 text-sm text-center">
+              <td colSpan="8" className="px-3.5 2xl:px-4 py-3 text-sm text-center">
                 <FormattedMessage id="app.learningDashboard.usersTable.noUsers" defaultMessage="No users" />
               </td>
             </tr>

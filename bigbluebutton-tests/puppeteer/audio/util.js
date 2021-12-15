@@ -1,36 +1,25 @@
-const ae = require('./elements');
-const { clickElement, getElementLength } = require('../core/util');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const e = require('../core/elements');
+const { getElementLength } = require('../core/util');
+const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 async function joinAudio(test) {
-  await test.waitForSelector(ae.joinAudio, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickElement, ae.joinAudio);
-  await test.waitForSelector(ae.listen, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickElement, ae.listen);
-  await test.waitForSelector(ae.connectingStatus, ELEMENT_WAIT_TIME);
-  await test.waitForElementHandleToBeRemoved(ae.connectingStatus, ELEMENT_WAIT_LONGER_TIME);
+  await test.waitAndClick(e.listenOnlyButton);
+  await test.waitForElementHandleToBeRemoved(e.connectingStatus);
   const parsedSettings = await test.getSettingsYaml();
   const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
-  await test.waitForSelector(ae.leaveAudio, listenOnlyCallTimeout);
-  await test.waitForSelector(ae.whiteboard, ELEMENT_WAIT_TIME);
-  const resp = await test.page.evaluate(getElementLength, ae.leaveAudio) >= 1;
-  return resp;
+  await test.waitForSelector(e.leaveAudio, listenOnlyCallTimeout);
+  await test.waitForSelector(e.whiteboard);
+  return test.hasElement(e.leaveAudio);
 }
 
 async function joinMicrophone(test) {
-  await test.waitForSelector(ae.joinAudio, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickElement, ae.joinAudio);
-  await test.waitForSelector(ae.microphone, ELEMENT_WAIT_TIME);
-  await test.page.evaluate(clickElement, ae.microphone);
-  await test.waitForSelector(ae.connectingStatus, ELEMENT_WAIT_TIME);
-  await test.waitForElementHandleToBeRemoved(ae.connectingStatus, ELEMENT_WAIT_LONGER_TIME);
+  await test.waitAndClick(e.microphoneButton);
+  await test.waitForElementHandleToBeRemoved(e.connectingStatus, ELEMENT_WAIT_LONGER_TIME);
   const parsedSettings = await test.getSettingsYaml();
   const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
-  await test.waitForSelector(ae.audioAudible, listenOnlyCallTimeout);
-  await test.click(ae.audioAudible, true);
-  await test.waitForSelector(ae.whiteboard, ELEMENT_WAIT_TIME);
-  const resp = await test.page.evaluate(getElementLength, ae.audioAudible) >= 1;
-  return resp;
+  await test.waitAndClick(e.echoYesButton, listenOnlyCallTimeout);
+  await test.waitForSelector(e.whiteboard);
+  return test.hasElement(e.echoYesButton);
 }
 
 exports.joinAudio = joinAudio;

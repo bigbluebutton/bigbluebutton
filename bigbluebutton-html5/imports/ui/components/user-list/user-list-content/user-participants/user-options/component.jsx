@@ -214,7 +214,7 @@ class UserOptions extends PureComponent {
       hasBreakoutRoom,
       isBreakoutEnabled,
       getUsersNotAssigned,
-      learningDashboardAccessToken,
+      learningDashboardEnabled,
       openLearningDashboardUrl,
       amIModerator,
       users,
@@ -309,6 +309,7 @@ class UserOptions extends PureComponent {
       if (canInviteUsers) {
         this.menuItems.push({
           icon: 'rooms',
+          dataTest: 'inviteBreakoutRooms',
           label: intl.formatMessage(intlMessages.invitationItem),
           key: this.createBreakoutId,
           onClick: this.onInvitationUsers,
@@ -322,11 +323,10 @@ class UserOptions extends PureComponent {
           // description: intl.formatMessage(intlMessages.captionsDesc),
           key: this.captionsId,
           onClick: this.handleCaptionsClick,
-          dataTest: 'inviteBreakoutRooms',
         });
       }
       if (amIModerator) {
-        if (learningDashboardAccessToken != null) {
+        if (learningDashboardEnabled === true) {
           this.menuItems.push({
             icon: 'multi_whiteboard',
             iconRight: 'popout_window',
@@ -336,7 +336,7 @@ class UserOptions extends PureComponent {
             onClick: () => { openLearningDashboardUrl(locale); },
             dividerTop: true,
           });
-         }
+        }
       }
     }
 

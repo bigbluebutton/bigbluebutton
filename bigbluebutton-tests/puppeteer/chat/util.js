@@ -1,45 +1,42 @@
-const e = require('./elements');
-const ule = require('../user/elements');
-const { clickElement } = require('../core/util');
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
+const e = require('../core/elements');
+const { sleep } = require('../core/helper');
 
 async function openChat(test) {
-  await test.waitForSelector(e.chatBox, ELEMENT_WAIT_TIME);
-  await test.waitForSelector(e.chatMessages, ELEMENT_WAIT_TIME);
+  await test.waitForSelector(e.chatBox);
+  await test.waitForSelector(e.chatMessages);
 }
 
-async function sendPublicChatMessage(page1, page2) {
+async function sendPublicChatMessage(page1, page2, testName) {
   // send a public message
-  await page1.page.type(e.publicChat, e.publicMessage1);
-  await page1.page.click(e.sendButton, true);
-  await page1.page.screenshot(true);
-  await page2.page.type(e.publicChat, e.publicMessage2);
-  await page2.page.click(e.sendButton, true);
-  await page2.page.screenshot(true);
+  await page1.type(e.chatBox, e.publicMessage1);
+  await page1.screenshot(testName, '01-before-User1-sends-message');
+  await page1.waitAndClick(e.sendButton);
+  await page2.type(e.chatBox, e.publicMessage2);
+  await page2.screenshot(testName, '02-before-User2-sends-message');
+  await page2.waitAndClick(e.sendButton);
 }
 
 async function openPrivateChatMessage(page1, page2) {
   // Open private Chat with the other User
-  Object.values(arguments).forEach(async argument => await argument.waitForSelector(ule.userListItem, ELEMENT_WAIT_TIME));
-  await page1.page.evaluate(clickElement, ule.userListItem);
-  await page2.page.evaluate(clickElement, ule.userListItem);
-  await page1.page.waitForSelector(e.activeChat, ELEMENT_WAIT_TIME);
-  await page1.page.evaluate(clickElement, e.activeChat);
-  await page2.page.waitForSelector(e.activeChat, ELEMENT_WAIT_TIME);
-  await page2.page.evaluate(clickElement, e.activeChat);
+  await page1.waitAndClick(e.userListItem);
+  await page2.waitAndClick(e.userListItem);
+  await page1.waitAndClick(e.activeChat);
+  await sleep(500); // prevent a race condition when running on a deployed server
+  await page2.waitAndClick(e.activeChat);
 }
 
-async function sendPrivateChatMessage(page1, page2) {
+async function sendPrivateChatMessage(page1, page2, testName) {
   // send a private message
-  await page1.page.$$('[aria-label="Hide Private Chat with User2]');
-  await page2.page.$$('[aria-label="Hide Private Chat with User1]');
+  await page1.waitForSelector(e.hidePrivateChat);
+  await page2.waitForSelector(e.hidePrivateChat);
 
-  await page1.page.type(e.privateChat, e.message1);
-  await page1.page.click(e.sendButton, true);
-  await page1.page.screenshot(true);
-  await page2.page.type(e.privateChat, e.message2);
-  await page2.page.click(e.sendButton, true);
-  await page2.page.screenshot(true);
+  await page1.type(e.chatBox, e.message1);
+  await page1.screenshot(testName, '01-before-User1-sends-message');
+  await page1.waitAndClick(e.sendButton);
+  await page2.type(e.chatBox, e.message2);
+  await page2.waitForSelector(e.chatUserMessageText);
+  await page2.screenshot(testName, '02-before-User2-sends-message');
+  await page2.waitAndClick(e.sendButton);
 }
 
 async function checkForPublicMessageReception(page1, page2) {
@@ -50,7 +47,7 @@ async function checkForPublicMessageReception(page1, page2) {
   const checkPublicMessage2 = await publicChat2[1].evaluate(n => n.innerText);
 
   const response = checkPublicMessage1 == e.publicMessage1 && checkPublicMessage2 == e.publicMessage2;
-  return response;
+  return response == true;
 }
 
 async function checkForPrivateMessageReception(page1, page2) {
@@ -61,7 +58,7 @@ async function checkForPrivateMessageReception(page1, page2) {
   const checkPrivateMessage2 = await privateChat2[1].evaluate(n => n.innerText);
 
   const response = checkPrivateMessage1 == e.message1 && checkPrivateMessage2 == e.message2;
-  return response;
+  return response == true;
 }
 
 async function getTestElements(test) {

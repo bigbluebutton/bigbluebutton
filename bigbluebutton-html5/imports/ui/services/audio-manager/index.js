@@ -12,6 +12,7 @@ import { monitorAudioConnection } from '/imports/utils/stats';
 import AudioErrors from './error-codes';
 import {Meteor} from "meteor/meteor";
 import browserInfo from '/imports/utils/browserInfo';
+import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 
 const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
@@ -24,6 +25,7 @@ const DEFAULT_OUTPUT_DEVICE_ID = 'default';
 const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE = Meteor.settings
   .public.app.experimentalUseKmsTrickleIceForMicrophone;
 
+const DEFAULT_AUDIO_BRIDGES_PATH = '/imports/api/audio/client/';
 const CALL_STATES = {
   STARTED: 'started',
   ENDED: 'ended',
@@ -87,14 +89,57 @@ class AudioManager {
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
   }
 
-  init(userData, audioEventHandler) {
-    this.bridge = new SIPBridge(userData); // no alternative as of 2019-03-08
-    if (this.useKurento) {
-      this.listenOnlyBridge = new KurentoBridge(userData);
-    }
+  async init(userData, audioEventHandler) {
     this.userData = userData;
     this.initialized = true;
     this.audioEventHandler = audioEventHandler;
+    await this.loadBridges(userData);
+  }
+
+  /**
+   * Load audio bridges modules to be used the manager.
+   *
+   * Bridges can be configured in settings.yml file.
+   * @param {Object} userData The Object representing user data to be passed to
+   *                      the bridge.
+   */
+  async loadBridges(userData) {
+    let FullAudioBridge = SIPBridge;
+    let ListenOnlyBridge = KurentoBridge;
+
+    if (MEDIA.audio) {
+      const {
+        bridges,
+        defaultFullAudioBridge,
+        defaultListenOnlyBridge,
+      } = MEDIA.audio;
+
+      const _fullAudioBridge = getFromMeetingSettings(
+        'fullaudio-bridge',
+        defaultFullAudioBridge,
+      );
+
+      this.bridges = {};
+
+      await Promise.all(Object.values(bridges).map(async (bridge) => {
+        // eslint-disable-next-line import/no-dynamic-require, global-require
+        this.bridges[bridge.name] = (await import(DEFAULT_AUDIO_BRIDGES_PATH
+          + bridge.path) || {}).default;
+      }));
+
+      if (_fullAudioBridge && (this.bridges[_fullAudioBridge])) {
+        FullAudioBridge = this.bridges[_fullAudioBridge];
+      }
+
+      if (defaultListenOnlyBridge && (this.bridges[defaultListenOnlyBridge])) {
+        ListenOnlyBridge = this.bridges[defaultListenOnlyBridge];
+      }
+    }
+
+    this.bridge = new FullAudioBridge(userData);
+    if (this.useKurento) {
+      this.listenOnlyBridge = new ListenOnlyBridge(userData);
+    }
   }
 
   setAudioMessages(messages, intl) {
@@ -337,6 +382,24 @@ class AudioManager {
     return bridge.exitAudio();
   }
 
+  forceExitAudio() {
+    this.isConnected = false;
+    this.isConnecting = false;
+    this.isHangingUp = false;
+
+    if (this.inputStream) {
+      this.inputStream.getTracks().forEach((track) => track.stop());
+      this.inputStream = null;
+      this.inputDevice = { id: 'default' };
+    }
+
+    window.parent.postMessage({ response: 'notInAudio' }, '*');
+    window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
+
+    const bridge = (this.useKurento && this.isListenOnly) ? this.listenOnlyBridge : this.bridge;
+    return bridge.exitAudio();
+  }
+
   transferCall() {
     this.onTransferStart();
     return this.bridge.transferCall(this.onAudioJoin.bind(this));
@@ -424,7 +487,11 @@ class AudioManager {
     }
 
     if (!this.error && !this.isEchoTest) {
-      this.notify(this.intl.formatMessage(this.messages.info.LEFT_AUDIO), false, 'audio_off');
+      this.notify(
+        this.intl.formatMessage(this.messages.info.LEFT_AUDIO),
+        false,
+        'no_audio'
+      );
     }
     if (!this.isEchoTest) {
       this.playHangUpSound();
@@ -631,6 +698,14 @@ class AudioManager {
 
     if (typeof status === 'string') {
       currentStatus.status = status;
+
+      if (this.bridge && !this.isListenOnly) {
+        if (status !== BREAKOUT_AUDIO_TRANSFER_STATES.CONNECTED) {
+          this.bridge.ignoreCallState = false;
+        } else {
+          this.bridge.ignoreCallState = true;
+        }
+      }
     }
   }
 

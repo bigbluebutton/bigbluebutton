@@ -2,13 +2,18 @@ import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Users from '/imports/api/users/';
 import Auth from '/imports/ui/services/auth';
-import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
+import MediaService, {
+  getSwapLayout,
+  shouldEnableSwapLayout,
+} from '/imports/ui/components/media/service';
 import {
   isVideoBroadcasting,
   isGloballyBroadcasting,
 } from './service';
 import ScreenshareComponent from './component';
 import LayoutContext from '../layout/context';
+import getFromUserSettings from '/imports/ui/services/users-settings';
+import { shouldEnableVolumeControl } from './service';
 
 const ScreenshareContainer = (props) => {
   const fullscreenElementId = 'Screenshare';
@@ -37,6 +42,8 @@ const ScreenshareContainer = (props) => {
   return null;
 };
 
+const LAYOUT_CONFIG = Meteor.settings.public.layout;
+
 export default withTracker(() => {
   const user = Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } });
   return {
@@ -45,5 +52,7 @@ export default withTracker(() => {
     getSwapLayout,
     shouldEnableSwapLayout,
     toggleSwapLayout: MediaService.toggleSwapLayout,
+    hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
+    enableVolumeControl: shouldEnableVolumeControl(),
   };
 })(ScreenshareContainer);

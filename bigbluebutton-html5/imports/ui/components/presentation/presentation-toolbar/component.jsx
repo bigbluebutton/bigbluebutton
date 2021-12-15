@@ -85,6 +85,7 @@ class PresentationToolbar extends PureComponent {
     this.switchSlide = this.switchSlide.bind(this);
     this.nextSlideHandler = this.nextSlideHandler.bind(this);
     this.previousSlideHandler = this.previousSlideHandler.bind(this);
+    this.fullscreenToggleHandler = this.fullscreenToggleHandler.bind(this);
   }
 
   componentDidMount() {
@@ -109,6 +110,9 @@ class PresentationToolbar extends PureComponent {
         case KEY_CODES.PAGE_DOWN:
           this.nextSlideHandler();
           break;
+        case KEY_CODES.ENTER:
+          this.fullscreenToggleHandler();
+          break;
         default:
       }
     }
@@ -120,10 +124,12 @@ class PresentationToolbar extends PureComponent {
       podId,
     } = this.props;
     const requestedSlideNum = Number.parseInt(event.target.value, 10);
+
+    if (event) event.currentTarget.blur();
     skipToSlide(requestedSlideNum, podId);
   }
 
-  nextSlideHandler() {
+  nextSlideHandler(event) {
     const {
       nextSlide,
       currentSlideNum,
@@ -131,17 +137,38 @@ class PresentationToolbar extends PureComponent {
       podId,
     } = this.props;
 
+    if (event) event.currentTarget.blur();
     nextSlide(currentSlideNum, numberOfSlides, podId);
   }
 
-  previousSlideHandler() {
+  previousSlideHandler(event) {
     const {
       previousSlide,
       currentSlideNum,
       podId,
     } = this.props;
 
+    if (event) event.currentTarget.blur();
     previousSlide(currentSlideNum, podId);
+  }
+
+  fullscreenToggleHandler() {
+    const {
+      fullscreenElementId,
+      isFullscreen,
+      layoutContextDispatch,
+      fullscreenAction,
+    } = this.props;
+
+    const newElement = isFullscreen ? '' : fullscreenElementId;
+
+    layoutContextDispatch({
+      type: fullscreenAction,
+      value: {
+        element: newElement,
+        group: '',
+      },
+    });
   }
 
   change(value) {
@@ -370,6 +397,10 @@ PresentationToolbar.propTypes = {
   fitToWidth: PropTypes.bool.isRequired,
   zoom: PropTypes.number.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
+  fullscreenElementId: PropTypes.string.isRequired,
+  fullscreenAction: PropTypes.string.isRequired,
+  isFullscreen: PropTypes.bool.isRequired,
+  layoutContextDispatch: PropTypes.func.isRequired,
 };
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));

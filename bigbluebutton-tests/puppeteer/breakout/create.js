@@ -1,154 +1,59 @@
-const moment = require('moment');
-const path = require('path');
 const Page = require('../core/page');
-const params = require('../params');
-const be = require('./elements'); // breakout elements
-const we = require('../webcam/elements'); // webcam elements
-const ae = require('../audio/elements'); // audio elements
-const ue = require('../user/elements'); // user elements
-const ce = require('../customparameters/elements'); // customparameters elements
-const e = require('../core/elements'); // page base elements
-const { checkElement, clickElement } = require('../core/util');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-
-const today = moment().format('DD-MM-YYYY');
+const e = require('../core/elements');
+const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 class Create {
   constructor() {
-    this.page1 = new Page();
-    this.page2 = new Page();
-    this.page3 = new Page();
+    this.modPage1 = new Page();
+    this.modPage2 = new Page();
+    this.userPage1 = new Page();
   }
 
   // Join BigBlueButton meeting with a Moderator and a Viewer
-  async init(meetingId, testName) {
-    await this.page1.init(Page.getArgs(), meetingId, { ...params, fullName: 'Moderator1' }, undefined, testName);
-    await this.page2.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Viewer1', moderatorPW: '' }, undefined, testName);
+  async init(testName) {
+    await this.modPage1.init(true, true, testName, 'Moderator1');
+    await this.userPage1.init(false, true, testName, 'Viewer1', this.modPage1.meetingId);
   }
 
   // Join BigBlueButton meeting with a Viewer only
   async initViewer(testName) {
-    await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Viewer2', moderatorPW: '' }, undefined, testName);
-  }
-
-  async askModeratorGuestPolicy(testName) {
-    try {
-      await this.page1.screenshot(`${testName}`, `01-before-closing-audio-modal-[${this.page1.meetingId}]`);
-      await this.page1.closeAudioModal();
-      await this.page2.closeAudioModal();
-      await this.page1.screenshot(`${testName}`, `02-after-closing-audio-modal-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(ue.manageUsers, ELEMENT_WAIT_TIME);
-      await this.page1.click(ue.manageUsers, true);
-      await this.page1.screenshot(`${testName}`, `03-opened-users-managing-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(ue.guestPolicyLabel, ELEMENT_WAIT_TIME);
-      await this.page1.click(ue.guestPolicyLabel, true);
-      await this.page1.screenshot(`${testName}`, `04-opened-guest-policy-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(ue.askModerator, ELEMENT_WAIT_TIME);
-      await this.page1.click(ue.askModerator, true);
-      await this.page1.screenshot(`${testName}`, `05-clicked-askModerator-[${this.page1.meetingId}]`);
-      await this.initViewer(testName);
-      const responseLoggedIn = await this.page1.page.evaluate(checkElement, ue.waitingUsersBtn);
-      await this.page1.screenshot(`${testName}`, `06-after-viewer-acceptance-[${this.page1.meetingId}]`);
-      return responseLoggedIn;
-    } catch (err) {
-      await this.page1.logger(err);
-      return false;
-    }
-  }
-
-  async alwaysAcceptGuestPolicy(testName) {
-    try {
-      await this.page1.screenshot(`${testName}`, `01-before-closing-audio-modal-[${this.page1.meetingId}]`);
-      await this.page1.closeAudioModal();
-      await this.page2.closeAudioModal();
-      await this.page1.screenshot(`${testName}`, `02-after-closing-audio-modal-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(ue.manageUsers, ELEMENT_WAIT_TIME);
-      await this.page1.click(ue.manageUsers, true);
-      await this.page1.screenshot(`${testName}`, `03-opened-users-managing-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(ue.guestPolicyLabel, ELEMENT_WAIT_TIME);
-      await this.page1.click(ue.guestPolicyLabel, true);
-      await this.page1.screenshot(`${testName}`, `04-opened-guest-policy-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(ue.alwaysAccept, ELEMENT_WAIT_TIME);
-      await this.page1.click(ue.alwaysAccept, true);
-      await this.page1.screenshot(`${testName}`, `05-clicked-alwaysAccept-[${this.page1.meetingId}]`);
-      await this.initViewer(testName);
-      await this.page3.closeAudioModal();
-      const responseLoggedIn = await this.page3.page.evaluate(checkElement, e.whiteboard);
-      await this.page3.screenshot(`${testName}`, `06-after-viewer-connection-[${this.page1.meetingId}]`);
-      return responseLoggedIn;
-    } catch (err) {
-      await this.page1.logger(err);
-      return false;
-    }
-  }
-
-  async alwaysDenyGuestPolicy(testName) {
-    try {
-      await this.page1.screenshot(`${testName}`, `01-before-closing-audio-modal-[${this.page1.meetingId}]`);
-      await this.page1.closeAudioModal();
-      await this.page2.closeAudioModal();
-      await this.page1.screenshot(`${testName}`, `02-after-closing-audio-modal-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(ue.manageUsers, ELEMENT_WAIT_TIME);
-      await this.page1.click(ue.manageUsers, true);
-      await this.page1.screenshot(`${testName}`, `03-opened-users-managing-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(ue.guestPolicyLabel, ELEMENT_WAIT_TIME);
-      await this.page1.click(ue.guestPolicyLabel, true);
-      await this.page1.screenshot(`${testName}`, `04-opened-guest-policy-[${this.page1.meetingId}]`);
-      await this.page1.waitForSelector(ue.alwaysAccept, ELEMENT_WAIT_TIME);
-      await this.page1.click(ue.alwaysAccept, true);
-      await this.page1.screenshot(`${testName}`, `05-clicked-alwaysAccept-[${this.page1.meetingId}]`);
-      await this.initViewer(testName);
-      const responseLoggedIn = await this.page3.page.evaluate(checkElement, ue.joinMeetingDemoPage);
-      await this.page3.screenshot(`${testName}`, `06-after-viewer-gets-denied-[${this.page1.meetingId}]`);
-      return responseLoggedIn;
-    } catch (err) {
-      await this.page1.logger(err);
-      return false;
-    }
+    await this.userPage1.init(false, true, testName, 'Viewer2', this.modPage1.meetingId);
   }
 
   // Create Breakoutrooms
   async create(testName) {
     try {
-      await this.page1.closeAudioModal();
-      await this.page2.closeAudioModal();
-      await this.page1.screenshot(`${testName}`, `01-page01-initialized-${testName}`);
-      await this.page2.screenshot(`${testName}`, `01-page02-initialized-${testName}`);
+      await this.modPage1.screenshot(testName, '01-page01-initialized');
+      await this.userPage1.screenshot(testName, '01-page02-initialized');
 
-      await this.page1.page.evaluate(clickElement, be.manageUsers);
-      await this.page1.page.evaluate(clickElement, be.createBreakoutRooms);
-      await this.page1.screenshot(`${testName}`, `02-page01-creating-breakoutrooms-${testName}`);
+      await this.modPage1.waitAndClick(e.manageUsers);
+      await this.modPage1.waitAndClick(e.createBreakoutRooms);
+      await this.modPage1.screenshot(testName, '02-page01-creating-breakoutrooms');
 
-      await this.page1.waitForSelector(be.randomlyAssign, ELEMENT_WAIT_TIME);
-      await this.page1.page.evaluate(clickElement, be.randomlyAssign);
-      await this.page1.screenshot(`${testName}`, `03-page01-randomly-assign-user-${testName}`);
+      await this.modPage1.waitAndClick(e.randomlyAssign);
+      await this.modPage1.screenshot(testName, '03-page01-randomly-assign-user');
 
-      await this.page1.waitForSelector(be.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
-      await this.page1.page.evaluate(clickElement, be.modalConfirmButton);
-      await this.page1.screenshot(`${testName}`, `04-page01-confirm-breakoutrooms-creation-${testName}`);
+      await this.modPage1.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+      await this.modPage1.screenshot(testName, '04-page01-confirm-breakoutrooms-creation');
 
-      await this.page2.waitForSelector(be.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
-      await this.page2.page.evaluate(clickElement, be.modalConfirmButton);
-      await this.page2.screenshot(`${testName}`, `02-page02-accept-invite-breakoutrooms-${testName}`);
+      // Join breakout room
+      await this.userPage1.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+      await this.userPage1.screenshot(testName, '02-page02-accept-invite-breakoutrooms');
 
-      await this.page2.page.bringToFront();
-      await this.page2.waitForSelector(be.breakoutRoomsItem, ELEMENT_WAIT_TIME);
-      await this.page2.waitForSelector(be.chatButton, ELEMENT_WAIT_TIME);
-      await this.page2.click(be.chatButton, true);
-      await this.page2.click(be.breakoutRoomsItem, true);
-      await this.page2.waitForSelector(be.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
-      const page2 = await this.page2.browser.pages();
-      await page2[2].bringToFront();
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/03-breakout-page02-before-closing-audio-modal.png`) });
-      }
-      await page2[2].waitForSelector(e.closeAudio, { timeout: ELEMENT_WAIT_TIME });
-      await page2[2].click(e.closeAudio);
-      if (process.env.GENERATE_EVIDENCES === 'true') {
-        await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/04-breakout-page02-after-closing-audio-modal.png`) });
-      }
+      await this.userPage1.bringToFront();
+      await this.userPage1.waitAndClick(e.chatButton);
+      await this.userPage1.waitAndClick(e.breakoutRoomsItem);
+      await this.userPage1.waitForSelector(e.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
+
+      const breakoutUserPage1 = await this.userPage1.getLastTargetPage();
+      await breakoutUserPage1.bringToFront();
+
+      await breakoutUserPage1.screenshot(testName, '03-breakout-page02-before-closing-audio-modal');
+      await breakoutUserPage1.closeAudioModal();
+
+      await breakoutUserPage1.screenshot(testName, '04-breakout-page02-after-closing-audio-modal');
     } catch (err) {
-      await this.page1.logger(err);
+      await this.modPage1.logger(err);
       return false;
     }
   }
@@ -156,150 +61,89 @@ class Create {
   // Check if Breakoutrooms have been created
   async testCreatedBreakout(testName) {
     try {
-      const resp = await this.page1.page.evaluate(checkElement, be.breakoutRoomsItem);
+      const resp = await this.modPage1.hasElement(e.breakoutRoomsItem);
       if (resp === true) {
-        await this.page1.screenshot(`${testName}`, `05-page01-success-${testName}`);
+        await this.modPage1.screenshot(`${testName}`, `05-page01-success-${testName}`);
 
         return true;
       }
-      await this.page1.screenshot(`${testName}`, `05-page01-fail-${testName}`);
+      await this.modPage1.screenshot(`${testName}`, `05-page01-fail-${testName}`);
 
       return false;
     } catch (err) {
-      await this.page1.logger(err);
+      await this.modPage1.logger(err);
       return false;
     }
   }
 
   // Initialize a Moderator session
-  async joinWithUser3(testName) {
+  async joinWithMod2(testName) {
     try {
       if (testName === 'joinBreakoutroomsWithAudio') {
-        await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined, testName);
-        await this.page3.closeAudioModal();
-        await this.page3.waitForSelector(be.breakoutRoomsButton, ELEMENT_WAIT_TIME);
-        await this.page3.click(be.breakoutRoomsButton, true);
+        await this.modPage2.init(true, true, testName, 'Moderator2', this.modPage1.meetingId);
+        await this.modPage2.waitAndClick(e.breakoutRoomsButton);
 
-        await this.page3.waitForSelector(be.breakoutRoomsItem, ELEMENT_WAIT_TIME);
-        await this.page3.waitForSelector(be.chatButton, ELEMENT_WAIT_TIME);
-        await this.page3.click(be.chatButton, true);
-        await this.page3.click(be.breakoutRoomsItem, true);
+        await this.modPage2.waitForSelector(e.breakoutRoomsItem);
+        await this.modPage2.waitAndClick(e.chatButton);
+        await this.modPage2.waitAndClick(e.breakoutRoomsItem);
 
-        await this.page3.waitForSelector(be.joinRoom1, ELEMENT_WAIT_TIME);
-        await this.page3.click(be.joinRoom1);
-        // wait to generate URL and click again to join
-        await this.page3.click(be.joinRoom1, true);
-        await this.page3.waitForSelector(be.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
+        await this.modPage2.waitAndClick(e.askJoinRoom1);
+        await this.modPage2.waitForSelector(e.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
 
-        const page3 = await this.page3.browser.pages();
+        const breakoutModPage2 = await this.modPage2.getLastTargetPage();
+        await breakoutModPage2.screenshot(testName, `00-breakout-page03-user-joined-no-mic-before-check`);
 
-        if (process.env.GENERATE_EVIDENCES === 'true') {
-          await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-no-mic-before-check-${testName}.png`) });
-        }
-        await page3[2].bringToFront();
-        await page3[2].waitForSelector(ae.microphone, { timeout: ELEMENT_WAIT_TIME });
-        await page3[2].click(ae.microphone);
-        await page3[2].waitForSelector(ae.connectingStatus, { timeout: ELEMENT_WAIT_TIME });
-        const parsedSettings = await this.page1.getSettingsYaml();
+        await breakoutModPage2.bringToFront();
+        await breakoutModPage2.waitAndClick(e.microphoneButton);
+        await breakoutModPage2.waitForSelector(e.connectingStatus);
+        const parsedSettings = await this.modPage1.getSettingsYaml();
         const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
-        await page3[2].waitForSelector(ae.audioAudible, { timeout: listenOnlyCallTimeout });
-        await page3[2].click(ae.audioAudible);
-        await page3[2].waitForSelector(e.whiteboard, { timeout: ELEMENT_WAIT_TIME });
+        await breakoutModPage2.waitAndClick(e.echoYesButton, listenOnlyCallTimeout);
+        await breakoutModPage2.waitForSelector(e.whiteboard);
 
-        if (process.env.GENERATE_EVIDENCES === 'true') {
-          await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-with-mic-before-check-${testName}.png`) });
-        }
+        await breakoutModPage2.screenshot(testName, '00-breakout-page03-user-joined-with-mic-before-check');
       } else if (testName === 'joinBreakoutroomsWithVideo') {
-        await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined, testName);
-        await this.page3.closeAudioModal();
-        await this.page3.waitForSelector(be.breakoutRoomsButton, ELEMENT_WAIT_TIME);
-        await this.page3.click(be.breakoutRoomsButton, true);
-        await this.page3.waitForSelector(be.joinRoom1, ELEMENT_WAIT_TIME);
-        await this.page3.click(be.joinRoom1);
-        // wait to generate URL and click again to join
-        await this.page3.click(be.joinRoom1, true);
-        await this.page3.waitForSelector(be.alreadyConnected, ELEMENT_WAIT_TIME);
+        await this.modPage2.init(true, true, testName, 'Moderator2', this.modPage1.meetingId);
+        await this.modPage2.waitAndClick(e.breakoutRoomsButton);
+        await this.modPage2.waitAndClick(e.askJoinRoom1);
+        await this.modPage2.waitForSelector(e.alreadyConnected);
 
-        const page3 = await this.page3.browser.pages();
+        const breakoutModPage2 = await this.modPage2.getLastTargetPage();
+        await breakoutModPage2.screenshot(testName, '00-breakout-page03-user-joined-no-webcam-before-check');
 
-        if (process.env.GENERATE_EVIDENCES === 'true') {
-          await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-no-webcam-before-check-${testName}.png`) });
-        }
-        await page3[2].bringToFront();
-        await page3[2].waitForSelector(e.audioDialog, { timeout: ELEMENT_WAIT_TIME });
-        await page3[2].waitForSelector(e.closeAudio, { timeout: ELEMENT_WAIT_TIME });
-        await page3[2].click(e.closeAudio);
-        await page3[2].waitForSelector(we.joinVideo, { timeout: ELEMENT_WAIT_TIME });
-        await page3[2].click(we.joinVideo);
-        const parsedSettings = await this.page3.getSettingsYaml();
+        await breakoutModPage2.bringToFront();
+        await breakoutModPage2.closeAudioModal();
+        const parsedSettings = await this.modPage2.getSettingsYaml();
         const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-        await page3[2].waitForSelector(we.videoPreview, { timeout: videoPreviewTimeout });
-        await page3[2].click(we.videoPreview);
-        await page3[2].waitForSelector(we.startSharingWebcam, { timeout: ELEMENT_WAIT_TIME });
-        await page3[2].click(we.startSharingWebcam);
-        if (process.env.GENERATE_EVIDENCES === 'true') {
-          await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-with-webcam-before-check-${testName}.png`) });
-        }
-      } else if (testName === 'joinBreakoutroomsAndShareScreen') {
-        await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined, testName);
-        await this.page3.closeAudioModal();
-        await this.page3.waitForSelector(be.breakoutRoomsButton, ELEMENT_WAIT_TIME);
-        await this.page3.click(be.breakoutRoomsButton, true);
-        await this.page3.waitForSelector(be.joinRoom1, ELEMENT_WAIT_TIME);
-        await this.page3.click(be.joinRoom1);
-        // wait to generate URL and click again to join
-        await this.page3.click(be.joinRoom1, true);
-        await this.page3.waitForSelector(be.alreadyConnected, ELEMENT_WAIT_TIME);
-        const page3 = await this.page3.browser.pages();
+        await breakoutModPage2.shareWebcam(true, videoPreviewTimeout);
 
-        if (process.env.GENERATE_EVIDENCES === 'true') {
-          await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-with-screenshare-before-check-${testName}.png`) });
-        }
-        await page3[2].bringToFront();
-        await page3[2].waitForSelector(e.audioDialog, { timeout: ELEMENT_WAIT_TIME });
-        await page3[2].waitForSelector(e.closeAudio, { timeout: ELEMENT_WAIT_TIME });
-        await page3[2].click(e.closeAudio);
+        await breakoutModPage2.screenshot(testName, '00-breakout-page03-user-joined-with-webcam-before-check');
+      } else if (testName === 'joinBreakoutroomsAndShareScreen') {
+        await this.modPage2.init(true, true, testName, 'Moderator2', this.modPage1.meetingId);
+        await this.modPage2.waitAndClick(e.breakoutRoomsButton);
+        await this.modPage2.waitAndClick(e.askJoinRoom1);
+        await this.modPage2.waitForSelector(e.alreadyConnected);
+        const breakoutModPage2 = await this.modPage2.getLastTargetPage();
+
+        await breakoutModPage2.screenshot(testName, '00-breakout-page03-user-joined-with-screenshare-before-check');
+        await breakoutModPage2.bringToFront();
+        await breakoutModPage2.closeAudioModal();
 
         // Take Presenter
-        await page3[2].waitForSelector(ue.firstUser, { timeout: ELEMENT_WAIT_TIME });
-        await page3[2].click(ue.firstUser);
-        await page3[2].waitForSelector(ue.setPresenter, { timeout: ELEMENT_WAIT_TIME });
-        await page3[2].click(ue.setPresenter);
+        await breakoutModPage2.waitAndClick(e.firstUser);
+        await breakoutModPage2.waitAndClick(e.setPresenter);
 
         // Start Share Screen
-        await page3[2].waitForSelector(ce.screenShareButton, { timeout: ELEMENT_WAIT_TIME });
-        await page3[2].click(ce.screenShareButton);
-        await page3[2].on('dialog', async (dialog) => {
+        await breakoutModPage2.waitAndClick(e.startScreenSharing);
+        await breakoutModPage2.page.on('dialog', async (dialog) => {
           await dialog.accept();
         });
-        if (process.env.GENERATE_EVIDENCES === 'true') {
-          await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-with-screenshare-after-check-${testName}.png`) });
-        }
+        await breakoutModPage2.screenshot(testName, '00-breakout-page03-user-joined-with-screenshare-after-check');
       } else {
-        await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined, testName);
-        await this.page3.closeAudioModal();
+        await this.modPage2.init(true, true, testName, 'Moderator2', this.modPage1.meetingId);
       }
     } catch (err) {
-      await this.page3.logger(err);
-    }
-  }
-
-  // Close pages
-  async close() {
-    try {
-      await this.page1.close();
-      await this.page2.close();
-    } catch (err) {
-      await this.page1.logger(err);
-    }
-  }
-
-  // Close page
-  async closePage(page) {
-    try {
-      await page.close();
-    } catch (err) {
-      await this.page1.logger(err);
+      await this.modPage2.logger(err);
     }
   }
 }

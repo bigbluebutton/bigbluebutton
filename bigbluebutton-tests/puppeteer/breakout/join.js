@@ -1,110 +1,78 @@
-const path = require('path');
-const moment = require('moment');
 const Create = require('./create');
 const utilScreenShare = require('../screenshare/util');
-const e = require('./elements');
-const pe = require('../core/elements');
-const we = require('../webcam/elements');
-const ae = require('../audio/elements');
-const { checkElement } = require('../core/util');
-const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
-
-const today = moment().format('DD-MM-YYYY');
+const e = require('../core/elements');
+const { VIDEO_LOADING_WAIT_TIME } = require('../core/constants'); // core constants (Timeouts vars imported)
 
 class Join extends Create {
   constructor() {
-    super('join-breakout');
+    super();
   }
 
   // Join Existing Breakoutrooms
   async join(testName) {
-    await this.joinWithUser3(testName);
+    await this.joinWithMod2(testName);
   }
 
   // Check if User Joined in Breakoutrooms
   async testJoined(testName) {
-    await this.page3.logger('Now executing: ', testName);
+    await this.modPage2.logger('Now executing: ', testName);
     try {
       if (testName === 'joinBreakoutroomsWithAudio') {
-        await this.page3.logger('logged in to breakout with audio');
+        await this.modPage2.logger('logged in to breakout with audio');
 
-        const page2 = await this.page2.browser.pages();
-
-        await page2[2].bringToFront();
+        const breakoutUserPage1 = await this.userPage1.getLastTargetPage();
+        await breakoutUserPage1.bringToFront();
 
         // Talking indicator bar
-        await page2[2].waitForSelector(ae.talkingIndicator, { timeout: ELEMENT_WAIT_TIME });
+        await breakoutUserPage1.waitForSelector(e.talkingIndicator);
+        await breakoutUserPage1.screenshot(testName, '05-breakout-page02-user-joined-with-audio-before-check');
 
-        if (process.env.GENERATE_EVIDENCES === 'true') {
-          await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-with-audio-before-check-${testName}.png`) });
-        }
-        await this.page3.logger('before pages check');
+        await this.modPage2.logger('before pages check');
 
-        const resp = await page2[2].evaluate(checkElement, pe.isTalking);
+        const resp = await breakoutUserPage1.hasElement(e.isTalking);
+        await breakoutUserPage1.screenshot(testName, '06-breakout-page02-user-joined-with-audio-after-check');
 
-        if (process.env.GENERATE_EVIDENCES === 'true') {
-          await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/06-breakout-page02-user-joined-with-audio-after-check-${testName}.png`) });
-        }
-        await this.page3.logger('after pages check');
+        await this.modPage2.logger('after pages check');
         return resp === true;
       } else if (testName === 'joinBreakoutroomsWithVideo') {
-        await this.page3.logger('logged in to breakout with video');
+        await this.modPage2.logger('logged in to breakout with video');
 
-        const page2 = await this.page2.browser.pages();
-        await page2[2].waitForSelector(we.videoContainer, { timeout: VIDEO_LOADING_WAIT_TIME });
-        if (process.env.GENERATE_EVIDENCES === 'true') {
-          await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-with-webcam-success-${testName}.png`) });
-        }
-        await this.page3.logger('before pages check');
+        const breakoutUserPage1 = await this.userPage1.getLastTargetPage();
+        await breakoutUserPage1.bringToFront();
+        await breakoutUserPage1.screenshot(testName, '05-breakout-page02-user-joined-with-webcam-success');
+        await this.modPage2.logger('before pages check');
 
-        const resp = await page2[2].evaluate(checkElement, we.videoContainer);
+        const resp = await breakoutUserPage1.hasElement(e.videoContainer, true, VIDEO_LOADING_WAIT_TIME);
 
-        if (process.env.GENERATE_EVIDENCES === 'true') {
-          await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/06-breakout-page02-user-joined-webcam-before-check-${testName}.png`) });
-        }
-        await this.page3.logger('after pages check');
+        await breakoutUserPage1.screenshot(testName, '06-breakout-page02-user-joined-webcam-before-check');
+        await this.modPage2.logger('after pages check');
+
         return resp === true;
       } else if (testName === 'joinBreakoutroomsAndShareScreen') {
-        await this.page3.logger('logged in to breakout with screenshare');
-        const page2 = await this.page2.browser.pages();
-        const page3 = await this.page3.browser.pages();
+        await this.modPage2.logger('logged in to breakout with screenshare');
+        const breakoutUserPage1 = await this.userPage1.getLastTargetPage();
+        await breakoutUserPage1.bringToFront();
 
-        if (process.env.GENERATE_EVIDENCES === 'true') {
-          await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-screenshare-before-check-${testName}.png`) });
-        }
-        await this.page3.logger('before pages check');
-        const resp = await utilScreenShare.getScreenShareBreakoutContainer(page2[2]);
+        await breakoutUserPage1.screenshot(testName, '05-breakout-page02-user-joined-screenshare-before-check');
+        await this.modPage2.logger('before pages check');
+        const resp = await utilScreenShare.getScreenShareBreakoutContainer(breakoutUserPage1);
 
-        if (process.env.GENERATE_EVIDENCES === 'true') {
-          await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/06-breakout-page02-user-joined-screenshare-after-check-${testName}.png`) });
-        }
+        await breakoutUserPage1.screenshot(testName, '06-breakout-page02-user-joined-screenshare-after-check');
+        this.userPage1.logger('after pages check');
 
-        this.page2.logger('after pages check');
         return resp === true;
       } else {
-        await this.page3.page.bringToFront();
-        await this.page3.waitForSelector(e.breakoutRoomsItem, ELEMENT_WAIT_TIME);
-        await this.page3.waitForSelector(e.chatButton, ELEMENT_WAIT_TIME);
-        await this.page3.click(e.chatButton, true);
-        await this.page3.click(e.breakoutRoomsItem, true);
-        const resp = await this.page3.page.evaluate(checkElement, e.alreadyConnected);
+        await this.userPage1.page.bringToFront();
+        await this.userPage1.waitForSelector(e.breakoutRoomsItem);
+        await this.userPage1.waitAndClick(e.chatButton);
+        await this.userPage1.waitAndClick(e.breakoutRoomsItem);
+        await this.userPage1.waitForSelector(e.alreadyConnected);
 
-        return resp === true;
+        return true;
       }
     } catch (err) {
-      await this.page3.logger(err);
+      await this.modPage2.logger(err);
       return false;
-    }
-  }
-
-  // Close pages
-  async close() {
-    try {
-      await this.page1.close();
-      await this.page2.close();
-      await this.page3.close();
-    } catch (err) {
-      await this.page3.logger(err);
     }
   }
 }

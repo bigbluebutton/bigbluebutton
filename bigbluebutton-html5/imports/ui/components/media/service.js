@@ -9,6 +9,7 @@ import { ACTIONS } from '../layout/enums';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
+const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
 const getPresentationInfo = () => {
   const currentPresentation = Presentations.findOne({
@@ -48,13 +49,17 @@ const swapLayout = {
 };
 
 const setSwapLayout = (layoutContextDispatch) => {
+  const hidePresentation = getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation);
+
   swapLayout.value = getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout);
   swapLayout.tracker.changed();
 
-  layoutContextDispatch({
-    type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-    value: !swapLayout.value,
-  });
+  if (!hidePresentation) {
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+      value: !swapLayout.value,
+    });
+  }
 };
 
 const toggleSwapLayout = (layoutContextDispatch) => {
@@ -68,7 +73,12 @@ const toggleSwapLayout = (layoutContextDispatch) => {
   });
 };
 
-export const shouldEnableSwapLayout = () => !shouldShowScreenshare() && !shouldShowExternalVideo();
+export const shouldEnableSwapLayout = () => {
+  if (!PRESENTATION_CONFIG.oldMinimizeButton) {
+    return true;
+  }
+  return !shouldShowScreenshare() && !shouldShowExternalVideo();
+}
 
 export const getSwapLayout = () => {
   swapLayout.tracker.depend();

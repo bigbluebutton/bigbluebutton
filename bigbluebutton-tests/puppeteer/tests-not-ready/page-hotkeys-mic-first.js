@@ -1,6 +1,6 @@
 const Page = require('./page');
 const helper = require('./helper');
-const e = require('./elements');
+const e = require('../core/elements');
 
 class HotkeysMicFirstTestPage extends Page {
   constructor() {
@@ -24,7 +24,7 @@ class HotkeysMicFirstTestPage extends Page {
     await this.page.waitFor(e.leaveAudio);
     await this.page.waitFor(e.chatButton);
     await this.page.waitFor(e.firstUser);
-    await this.page.waitFor(e.screenShare);
+    await this.page.waitFor(e.startScreenSharing);
     await this.page.waitFor(e.videoMenu);
     await this.page.waitFor(e.actions);
     await this.page.waitFor(e.nextSlide);
@@ -36,10 +36,10 @@ class HotkeysMicFirstTestPage extends Page {
     await this.tab(this.tabCounts.audioMic);
     await this.enter();
     await this.enter();
-    await this.page.waitFor(e.listenButton);
+    await this.page.waitFor(e.listenOnlyButton);
     await this.tab(3);
     await this.enter();
-    await this.elementRemoved(e.audioDialog);
+    await this.elementRemoved(e.audioModal);
     await helper.sleep(500);
     await this.page.screenshot({ path: 'screenshots/test-hotkeys-mic-first-1.png' });
 
@@ -52,11 +52,11 @@ class HotkeysMicFirstTestPage extends Page {
     await this.page.waitFor(e.microphoneButton);
     await this.tab(2);
     await this.enter();
-    await this.page.waitFor(e.echoYes);
+    await this.page.waitFor(e.echoYesButton);
     await helper.sleep(500); // Echo test confirmation sometimes fails without this
     await this.tab(1);
     await this.enter();
-    await this.elementRemoved(e.audioDialog);
+    await this.elementRemoved(e.audioModal);
     await helper.sleep(500);
     await this.page.screenshot({ path: 'screenshots/test-hotkeys-mic-first-2.png' });
   }

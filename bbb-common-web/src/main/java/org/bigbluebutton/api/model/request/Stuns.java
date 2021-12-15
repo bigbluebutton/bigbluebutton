@@ -3,7 +3,6 @@ package org.bigbluebutton.api.model.request;
 import org.bigbluebutton.api.model.constraint.*;
 import org.bigbluebutton.api.service.SessionService;
 
-import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 public class Stuns implements Request<Stuns.Params> {
@@ -18,7 +17,6 @@ public class Stuns implements Request<Stuns.Params> {
         public String getValue() { return value; }
     }
 
-    @NotNull(message = "You must provide a session token")
     @UserSessionConstraint
     private String sessionToken;
 

@@ -83,10 +83,6 @@ const intlMessages = defineMessages({
     id: 'app.videoPreview.quality.hd',
     description: 'High definition option label',
   },
-  cancelLabel: {
-    id: 'app.videoPreview.cancelLabel',
-    description: 'Cancel button label',
-  },
   startSharingLabel: {
     id: 'app.videoPreview.startSharingLabel',
     description: 'Start sharing button label',
@@ -368,6 +364,7 @@ class VideoPreview extends Component {
     setSessionVirtualBackgroundInfo(
       this.currentVideoStream.virtualBgType,
       this.currentVideoStream.virtualBgName,
+      webcamDeviceId,
     );
     this.cleanupStreamAndVideo();
     startSharing(webcamDeviceId);
@@ -638,11 +635,11 @@ class VideoPreview extends Component {
   }
 
   renderVirtualBgSelector() {
-    const { isStartSharingDisabled } = this.state;
+    const { isStartSharingDisabled, webcamDeviceId } = this.state;
     const initialVirtualBgState = this.currentVideoStream ? {
       type: this.currentVideoStream.virtualBgType,
       name: this.currentVideoStream.virtualBgName
-    } : getSessionVirtualBackgroundInfo();
+    } : getSessionVirtualBackgroundInfo(webcamDeviceId);
 
     return (
       <VirtualBgSelector
@@ -735,7 +732,7 @@ class VideoPreview extends Component {
     const { isIe } = browserInfo;
 
     return (
-      <div>
+      <>
         {isIe ? (
           <p className={styles.browserWarning}>
             <FormattedMessage
@@ -748,14 +745,16 @@ class VideoPreview extends Component {
             />
           </p>
         ) : null}
-        <div className={styles.title}>
-          {intl.formatMessage(intlMessages.webcamSettingsTitle)}
+        <div>
+          <div className={styles.title}>
+            {intl.formatMessage(intlMessages.webcamSettingsTitle)}
+          </div>
         </div>
 
         {this.renderContent()}
 
         <div className={styles.footer}>
-          {hasVideoStream
+          {hasVideoStream && VideoService.isMultipleCamerasEnabled()
             ? (
               <div className={styles.extraActions}>
                 <Button
@@ -770,11 +769,6 @@ class VideoPreview extends Component {
           }
           <div className={styles.actions}>
             <Button
-              label={intl.formatMessage(intlMessages.cancelLabel)}
-              onClick={this.handleProceed}
-              disabled={shouldDisableButtons}
-            />
-            <Button
               data-test="startSharingWebcam"
               color={shared ? 'danger' : 'primary'}
               label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
@@ -783,7 +777,7 @@ class VideoPreview extends Component {
             />
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -812,7 +806,10 @@ class VideoPreview extends Component {
     return (
       <Modal
         overlayClassName={styles.overlay}
-        className={styles.modal}
+        className={cx({
+          [styles.modal]: true,
+          [styles.modalPhone]: deviceInfo.isPhone,
+        })}
         onRequestClose={this.handleProceed}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}

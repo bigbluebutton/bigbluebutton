@@ -1178,7 +1178,7 @@ check_state() {
         echo "#"
     fi
 
-    if [ "$(echo "$HTML5_CONFIG" | yq r - public.media.sipjsHackViaWs)" == "false" ]; then
+    if [ "$(echo "$HTML5_CONFIG" | yq r - public.media.sipjsHackViaWs)" != "true" ]; then
       if [ "$PROTOCOL" == "https" ]; then
         if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q https; then
           echo "# Warning: You have this server defined for https, but in"
@@ -1412,7 +1412,6 @@ if [ $CHECK ]; then
         echo "                        kurento.ip: $(echo "$KURENTO_CONFIG" | yq r - kurento[0].ip)"
         echo "                       kurento.url: $(echo "$KURENTO_CONFIG" | yq r - kurento[0].url)"
         echo "                    kurento.sip_ip: $(echo "$KURENTO_CONFIG" | yq r - freeswitch.sip_ip)"
-        echo "                    localIpAddress: $(echo "$KURENTO_CONFIG" | yq r - localIpAddress)"
         echo "               recordScreenSharing: $(echo "$KURENTO_CONFIG" | yq r - recordScreenSharing)"
         echo "                     recordWebcams: $(echo "$KURENTO_CONFIG" | yq r - recordWebcams)"
         echo "                  codec_video_main: $(echo "$KURENTO_CONFIG" | yq r - conference-media-specs.codec_video_main)"
@@ -1664,22 +1663,14 @@ if [ -n "$HOST" ]; then
     for metadata in $(find /var/bigbluebutton/published /var/bigbluebutton/unpublished -name metadata.xml); do
         echo -n "."
         # Ensure we update both types of URLs
-        sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/http:\/\/$HOST\/playback\/$type\2/g}" $metadata
-        sed -i "/<link>/{s/https:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/https:\/\/$HOST\/playback\/$type\2/g}" $metadata
-
-        sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/http:\/\/$HOST\/playback\/$type\2/g}" $metadata
-        sed -i "/<link>/{s/https:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/https:\/\/$HOST\/playback\/$type\2/g}" $metadata
-        sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/podcast\/$type\([^<]\)/http:\/\/$HOST\/podcast\/$type\2/g}" $metadata
-        sed -i "/<link>/{s/https:\/\/\([^\"\/]*\)\/podcast\/$type\([^<]\)/https:\/\/$HOST\/podcast\/$type\2/g}" $metadata
-        sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/notes\/$type\([^<]\)/http:\/\/$HOST\/notes\/$type\2/g}" $metadata
-        sed -i "/<link>/{s/https:\/\/\([^\"\/]*\)\/notes\/$type\([^<]\)/https:\/\/$HOST\/notes\/$type\2/g}" $metadata
-        sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/recording\/$type\([^<]\)/htts:\/\/$HOST\/recording\/$type\2/g}" $metadata
-        sed -i "/<link>/{s/https:\/\/\([^\"\/]*\)\/recording\/$type\([^<]\)/https:\/\/$HOST\/recording\/$type\2/g}" $metadata
+        xmlstarlet edit --inplace --update '//link[starts-with(normalize-space(), "https://")]' --expr "concat(\"https://\", \"$HOST/\", substring-after(substring-after(., \"https://\"),\"/\"))" $metadata
+        xmlstarlet edit --inplace --update '//link[starts-with(normalize-space(), "http://")]' --expr "concat(\"http://\", \"$HOST/\", substring-after(substring-after(., \"http://\"),\"/\"))" $metadata
 
         #
         # Update thumbnail links
         #
-        sed -i "s/<image width=\"\([0-9]*\)\" height=\"\([0-9]*\)\" alt=\"\([^\"]*\)\">\(http[s]*\):\/\/[^\/]*\/\(.*\)/<image width=\"\1\" height=\"\2\" alt=\"\3\">\4:\/\/$HOST\/\5/g" $metadata
+        xmlstarlet edit --inplace --update '//images/image[starts-with(normalize-space(), "https://")]' --expr "concat(\"https://\", \"$HOST/\", substring-after(substring-after(., \"https://\"),\"/\"))" $metadata
+        xmlstarlet edit --inplace --update '//images/image[starts-with(normalize-space(), "http://")]' --expr "concat(\"http://\", \"$HOST/\", substring-after(substring-after(., \"http://\"),\"/\"))" $metadata
     done
     echo
 

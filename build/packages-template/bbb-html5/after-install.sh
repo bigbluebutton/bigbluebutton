@@ -115,7 +115,7 @@ if [ "$DISTRIB_RELEASE" == "16.04" ]; then
 fi
 
 if [ "$DISTRIB_RELEASE" == "18.04" ]; then
-  node_version="12.16.1"
+  node_version="14.18.1"
   if [[ ! -d /usr/share/node-v${node_version}-linux-x64 ]]; then
     cd /usr/share
     tar xfz "node-v${node_version}-linux-x64.tar.gz"
