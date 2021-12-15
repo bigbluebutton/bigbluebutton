@@ -610,7 +610,8 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   end
   if  shape[:type] == 'rectangle' or
       shape[:type] == 'ellipse' or shape[:type] == 'triangle'
-    fill = event.at_xpath('fill').text
+    fill = event.at_xpath('fill')
+    fill = fill.nil? ? "false" : fill.text
     shape[:fill] = fill =~ /true/ ? true : false
   end
   if shape[:type] == 'rectangle'
