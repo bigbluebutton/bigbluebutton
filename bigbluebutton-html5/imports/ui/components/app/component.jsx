@@ -231,10 +231,8 @@ class App extends Component {
       mountModal,
       deviceType,
       meetingLayout,
-      selectedLayout, // full layout name
-      settingsLayout, // shortened layout name (without Push)
-      layoutType,
-      pushLayoutToEveryone, // is layout pushed
+      selectedLayout, // layout name
+      pushLayout, // is layout pushed
       layoutContextDispatch,
       mountRandomUserModal,
     } = this.props;
@@ -249,19 +247,18 @@ class App extends Component {
       Settings.save();
     }
 
-    if (selectedLayout !== prevProps.selectedLayout
-      || settingsLayout !== layoutType) {
+    if (selectedLayout !== prevProps.selectedLayout) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_TYPE,
-        value: settingsLayout,
+        value: selectedLayout,
       });
 
-      if (pushLayoutToEveryone) {
+      if (pushLayout) {
         LayoutService.setMeetingLayout(selectedLayout);
       }
     }
 
-    if (pushLayoutToEveryone && !prevProps.pushLayoutToEveryone) {
+    if (pushLayout && !prevProps.pushLayout) {
       LayoutService.setMeetingLayout(selectedLayout);
     }
 
@@ -433,8 +430,8 @@ class App extends Component {
   }
 
   renderLayoutManager() {
-    const { layoutType } = this.props;
-    switch (layoutType) {
+    const { selectedLayout } = this.props;
+    switch (selectedLayout) {
       case LAYOUT_TYPE.CUSTOM_LAYOUT:
         return <CustomLayout />;
       case LAYOUT_TYPE.SMART_LAYOUT:
