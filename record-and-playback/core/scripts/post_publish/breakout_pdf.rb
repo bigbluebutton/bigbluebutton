@@ -31,8 +31,14 @@ require 'csv'
 require 'fileutils'
 require 'loofah'
 
+# For PRODUCTION
 require File.expand_path('../../../lib/recordandplayback/interval_tree', __FILE__)
 require File.expand_path('../../../lib/recordandplayback', __FILE__)
+
+# For DEVELOPMENT
+# require File.expand_path('../../../../core/lib/recordandplayback', __FILE__)
+# require File.expand_path('../../../../core/lib/recordandplayback/interval_tree', __FILE__)
+
 include IntervalTree
 
 logger = Logger.new('/var/log/bigbluebutton/post_publish.log', 'weekly')
@@ -41,6 +47,7 @@ BigBlueButton.logger = logger
 
 opts = Optimist.options do
   opt :meeting_id, 'Meeting id to archive', type: String
+  opt :format, 'Playback format name', type: String
 end
 
 # Breakout room meeting ID
@@ -53,13 +60,13 @@ props = JavaProperties::Properties.new('/etc/bigbluebutton/bbb-web.properties')
 metadata_file = "#{@published_files}/metadata.xml"
 
 # Only run script for recorded breakout rooms
-exit(0) unless File.file?(metadata_file)
+exit(0) unless File.file?(metadata_file) && opts[:format].eql?('breakout_pdf')
 
-metadata = Nokogiri::XML(File.open(metadata_file))
+metadata = File.open(metadata_file) { |f| Nokogiri::XML(f) }
 
 exit(0) unless metadata.xpath('recording/meta/isBreakout').text.eql?('true')
 
-BigBlueButton.logger.info("Metadata at: #{@published_files}/metadata.xml")
+BigBlueButton.logger.info('Starting breakout room PDF export')
 
 # Setting the SVGZ option to true will write less data on the disk.
 SVGZ_COMPRESSION = false
@@ -258,6 +265,7 @@ def unique_slides(slides)
   (0..slides_size).each do |i|
     ((i + 1)..slides_size).each do |j|
       next if slides[i].nil? || slides[j].nil?
+
       if slides[i].href == slides[j].href
         slides[i] = slides[j]
         slides[j] = nil
