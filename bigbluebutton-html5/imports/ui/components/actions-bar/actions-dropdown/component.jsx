@@ -8,7 +8,7 @@ import ExternalVideoModal from '/imports/ui/components/external-video-player/mod
 import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles'
-import { PANELS, ACTIONS } from '../../layout/enums';
+import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 
@@ -23,10 +23,13 @@ const propTypes = {
   handleTakePresenter: PropTypes.func.isRequired,
   allowExternalVideo: PropTypes.bool.isRequired,
   stopExternalVideoShare: PropTypes.func.isRequired,
+  settingsLayout: PropTypes.string,
+  pushLayout: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   shortcuts: '',
+  settingsLayout: LAYOUT_TYPE.SMART_LAYOUT,
 };
 
 const intlMessages = defineMessages({
@@ -82,6 +85,10 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.selectRandUserDesc',
     description: 'Description for select random user option',
   },
+  propagateLayoutLabel: {
+    id: 'app.actionsBar.actionsDropdown.propagateLayoutLabel',
+    description: 'Label for propagate layout button',
+  },
 });
 
 const handlePresentationClick = () => Session.set('showUploadPresentationView', true);
@@ -125,6 +132,8 @@ class ActionsDropdown extends PureComponent {
       mountModal,
       layoutContextDispatch,
       hidePresentation,
+      settingsLayout,
+      pushLayout,
     } = this.props;
 
     const {
@@ -200,6 +209,15 @@ class ActionsDropdown extends PureComponent {
         key: this.selectUserRandId,
         onClick: () => mountModal(<RandomUserSelectContainer isSelectedUser={false} />),
       })
+    }
+
+    if (amIPresenter) {
+      actions.push({
+        icon: 'send',
+        label: intl.formatMessage(intlMessages.propagateLayoutLabel),
+        key: 'propagate layout',
+        onClick: () => pushLayout(settingsLayout),
+      });
     }
 
     return actions;
