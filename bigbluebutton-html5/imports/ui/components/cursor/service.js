@@ -28,7 +28,9 @@ export function publishCursorUpdate(payload) {
     throttledEmit('publish', payload);
   }
 
-  return updateCursor(Auth.userID, payload);
+  if (!Meteor.settings.public.whiteboard.cursorPrecision_presenter) {
+    return updateCursor(Auth.userID, payload);
+  }
 }
 
 export function initCursorStreamListener() {
