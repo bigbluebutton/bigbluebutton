@@ -33,7 +33,7 @@ class UsersTable extends React.Component {
 
     const usersEmojisSummary = {};
     Object.values(allUsers || {}).forEach((user) => {
-      usersEmojisSummary[user.intId] = getUserEmojisSummary(user, 'raiseHand');
+      usersEmojisSummary[user.userKey] = getUserEmojisSummary(user, 'raiseHand');
     });
 
     function getOnlinePercentage(registeredOn, leftOn) {
@@ -43,7 +43,7 @@ class UsersTable extends React.Component {
 
     const usersActivityScore = {};
     Object.values(allUsers || {}).forEach((user) => {
-      usersActivityScore[user.intId] = getActivityScore(user, allUsers, totalOfPolls);
+      usersActivityScore[user.userKey] = getActivityScore(user, allUsers, totalOfPolls);
     });
 
     return (
@@ -121,10 +121,10 @@ class UsersTable extends React.Component {
           { typeof allUsers === 'object' && Object.values(allUsers || {}).length > 0 ? (
             Object.values(allUsers || {})
               .sort((a, b) => {
-                if (tab === 'overview_activityscore' && usersActivityScore[a.intId] < usersActivityScore[b.intId]) {
+                if (tab === 'overview_activityscore' && usersActivityScore[a.userKey] < usersActivityScore[b.userKey]) {
                   return activityscoreOrder === 'desc' ? 1 : -1;
                 }
-                if (tab === 'overview_activityscore' && usersActivityScore[a.intId] > usersActivityScore[b.intId]) {
+                if (tab === 'overview_activityscore' && usersActivityScore[a.userKey] > usersActivityScore[b.userKey]) {
                   return activityscoreOrder === 'desc' ? -1 : 1;
                 }
                 if (a.isModerator === false && b.isModerator === true) return 1;
@@ -137,7 +137,7 @@ class UsersTable extends React.Component {
                 const opacity = user.leftOn > 0 ? 'opacity-75' : '';
                 return (
                   <tr key={user} className="text-gray-700">
-                    <td className={`px-4 py-3 col-text-left text-sm ${opacity}`}>
+                    <td className={`flex items-center px-4 py-3 col-text-left text-sm ${opacity}`}>
                       <div className="inline-block relative w-8 h-8 rounded-full">
                         <UserAvatar user={user} />
                         <div
@@ -150,61 +150,68 @@ class UsersTable extends React.Component {
                         <p className="font-semibold truncate xl:max-w-sm max-w-xs">
                           {user.name}
                         </p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 inline"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-                            />
-                          </svg>
-                          <FormattedDate
-                            value={user.registeredOn}
-                            month="short"
-                            day="numeric"
-                            hour="2-digit"
-                            minute="2-digit"
-                            second="2-digit"
-                          />
-                        </p>
-                        {
-                          user.leftOn > 0
-                            ? (
-                              <p className="text-xs text-gray-600 dark:text-gray-400">
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="h-4 w-4 inline"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                                  />
-                                </svg>
-
-                                <FormattedDate
-                                  value={user.leftOn}
-                                  month="short"
-                                  day="numeric"
-                                  hour="2-digit"
-                                  minute="2-digit"
-                                  second="2-digit"
+                        { Object.values(user.intIds || {}).map((intId, index) => (
+                          <>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4 inline"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
                                 />
-                              </p>
-                            )
-                            : null
-                          }
+                              </svg>
+                              <FormattedDate
+                                value={intId.registeredOn}
+                                month="short"
+                                day="numeric"
+                                hour="2-digit"
+                                minute="2-digit"
+                                second="2-digit"
+                              />
+                            </p>
+                            { intId.leftOn > 0
+                              ? (
+                                <p className="text-xs text-gray-600 dark:text-gray-400">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-4 w-4 inline"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth="2"
+                                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                                    />
+                                  </svg>
+
+                                  <FormattedDate
+                                    value={intId.leftOn}
+                                    month="short"
+                                    day="numeric"
+                                    hour="2-digit"
+                                    minute="2-digit"
+                                    second="2-digit"
+                                  />
+                                </p>
+                              )
+                              : null }
+                            { index === Object.values(user.intIds).length - 1
+                              ? null
+                              : (
+                                <hr className="my-1" />
+                              ) }
+                          </>
+                        )) }
                       </div>
                     </td>
                     <td className={`px-4 py-3 text-sm text-center items-center ${opacity}`}>
@@ -223,23 +230,34 @@ class UsersTable extends React.Component {
                         />
                       </svg>
                       &nbsp;
-                      { tsToHHmmss(
-                        (user.leftOn > 0
-                          ? user.leftOn
-                          : (new Date()).getTime()) - user.registeredOn,
-                      ) }
+                      { tsToHHmmss(Object.values(user.intIds).reduce((prev, intId) => (
+                        prev + ((intId.leftOn > 0
+                          ? intId.leftOn
+                          : (new Date()).getTime()) - intId.registeredOn)
+                      ), 0)) }
                       <br />
-                      <div
-                        className="bg-gray-200 transition-colors duration-500 rounded-full overflow-hidden"
-                        title={`${getOnlinePercentage(user.registeredOn, user.leftOn).toString()}%`}
-                      >
-                        <div
-                          aria-label=" "
-                          className="bg-gradient-to-br from-green-100 to-green-600 transition-colors duration-900 h-1.5"
-                          style={{ width: `${getOnlinePercentage(user.registeredOn, user.leftOn).toString()}%` }}
-                          role="progressbar"
-                        />
-                      </div>
+                      {
+                        (function getPercentage() {
+                          const { intIds } = user;
+                          const percentage = Object.values(intIds || {}).reduce((prev, intId) => (
+                            prev + getOnlinePercentage(intId.registeredOn, intId.leftOn)
+                          ), 0);
+
+                          return (
+                            <div
+                              className="bg-gray-200 transition-colors duration-500 rounded-full overflow-hidden"
+                              title={`${percentage.toString()}%`}
+                            >
+                              <div
+                                aria-label=" "
+                                className="bg-gradient-to-br from-green-100 to-green-600 transition-colors duration-900 h-1.5"
+                                style={{ width: `${percentage.toString()}%` }}
+                                role="progressbar"
+                              />
+                            </div>
+                          );
+                        }())
+                      }
                     </td>
                     <td className={`px-4 py-3 text-sm text-center items-center ${opacity}`}>
                       { user.talk.totalTime > 0
@@ -312,11 +330,11 @@ class UsersTable extends React.Component {
                     </td>
                     <td className={`px-4 py-3 text-sm col-text-left ${opacity}`}>
                       {
-                        Object.keys(usersEmojisSummary[user.intId] || {}).map((emoji) => (
+                        Object.keys(usersEmojisSummary[user.userKey] || {}).map((emoji) => (
                           <div className="text-xs whitespace-nowrap">
                             <i className={`${emojiConfigs[emoji].icon} text-sm`} />
                             &nbsp;
-                            { usersEmojisSummary[user.intId][emoji] }
+                            { usersEmojisSummary[user.userKey][emoji] }
                             &nbsp;
                             <FormattedMessage
                               id={emojiConfigs[emoji].intlId}
@@ -353,23 +371,23 @@ class UsersTable extends React.Component {
                       !user.isModerator ? (
                         <td className={`px-4 py-3 text-sm text-center items ${opacity}`}>
                           <svg viewBox="0 0 82 12" width="82" height="12" className="flex-none m-auto inline">
-                            <rect width="12" height="12" fill={usersActivityScore[user.intId] > 0 ? '#A7F3D0' : '#e4e4e7'} />
-                            <rect width="12" height="12" x="14" fill={usersActivityScore[user.intId] > 2 ? '#6EE7B7' : '#e4e4e7'} />
-                            <rect width="12" height="12" x="28" fill={usersActivityScore[user.intId] > 4 ? '#34D399' : '#e4e4e7'} />
-                            <rect width="12" height="12" x="42" fill={usersActivityScore[user.intId] > 6 ? '#10B981' : '#e4e4e7'} />
-                            <rect width="12" height="12" x="56" fill={usersActivityScore[user.intId] > 8 ? '#059669' : '#e4e4e7'} />
-                            <rect width="12" height="12" x="70" fill={usersActivityScore[user.intId] === 10 ? '#047857' : '#e4e4e7'} />
+                            <rect width="12" height="12" fill={usersActivityScore[user.userKey] > 0 ? '#A7F3D0' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="14" fill={usersActivityScore[user.userKey] > 2 ? '#6EE7B7' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="28" fill={usersActivityScore[user.userKey] > 4 ? '#34D399' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="42" fill={usersActivityScore[user.userKey] > 6 ? '#10B981' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="56" fill={usersActivityScore[user.userKey] > 8 ? '#059669' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="70" fill={usersActivityScore[user.userKey] === 10 ? '#047857' : '#e4e4e7'} />
                           </svg>
                           &nbsp;
                           <span className="text-xs bg-gray-200 rounded-full px-2">
-                            <FormattedNumber value={usersActivityScore[user.intId]} minimumFractionDigits="0" maximumFractionDigits="1" />
+                            <FormattedNumber value={usersActivityScore[user.userKey]} minimumFractionDigits="0" maximumFractionDigits="1" />
                           </span>
                         </td>
                       ) : <td />
                     }
                     <td className="px-3.5 2xl:px-4 py-3 text-xs text-center">
                       {
-                        user.leftOn > 0
+                        Object.values(user.intIds)[Object.values(user.intIds).length - 1].leftOn > 0
                           ? (
                             <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
                               <FormattedMessage id="app.learningDashboard.usersTable.userStatusOffline" defaultMessage="Offline" />

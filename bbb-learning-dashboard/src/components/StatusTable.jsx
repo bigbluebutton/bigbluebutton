@@ -5,15 +5,14 @@ import UserAvatar from './UserAvatar';
 
 class StatusTable extends React.Component {
   componentDidMount() {
-    // This code is needed to prevent emojis from overflowing
+    // This code is needed to prevent emojis from overflowing.
     const emojis = document.getElementsByClassName('timeline-emoji');
     for (let i = 0; i < emojis.length; i += 1) {
       const emojiStyle = window.getComputedStyle(emojis[i]);
-      let offsetLeft = emojiStyle
+      const offsetLeft = Number(emojiStyle
         .left
         .replace(/px/g, '')
-        .trim();
-      offsetLeft = Number(offsetLeft);
+        .trim());
       if (offsetLeft < 0) {
         emojis[i].style.left = '0';
       }
@@ -21,15 +20,14 @@ class StatusTable extends React.Component {
   }
 
   componentDidUpdate() {
-    // This code is needed to prevent emojis from overflowing
+    // This code is needed to prevent emojis from overflowing.
     const emojis = document.getElementsByClassName('timeline-emoji');
     for (let i = 0; i < emojis.length; i += 1) {
       const emojiStyle = window.getComputedStyle(emojis[i]);
-      let offsetLeft = emojiStyle
+      const offsetLeft = Number(emojiStyle
         .left
         .replace(/px/g, '')
-        .trim();
-      offsetLeft = Number(offsetLeft);
+        .trim());
       if (offsetLeft < 0) {
         emojis[i].style.left = '0';
       }
@@ -45,11 +43,34 @@ class StatusTable extends React.Component {
       return (new Date(ts).toISOString().substr(11, 8));
     }
 
-    const usersRegisteredTimes = Object.values(allUsers || {}).map((user) => user.registeredOn);
-    const usersLeftTimes = Object.values(allUsers || {}).map((user) => {
-      if (user.leftOn === 0) return (new Date()).getTime();
-      return user.leftOn;
+    const usersPeriods = {};
+    Object.values(allUsers || {}).forEach((user) => {
+      usersPeriods[user.userKey] = [];
+      Object.values(user.intIds || {}).forEach((intId, index, intIdsArray) => {
+        let { leftOn } = intId;
+        const nextPeriod = intIdsArray[index + 1];
+        if (nextPeriod && Math.abs(leftOn - nextPeriod.registeredOn) <= 30000) {
+          leftOn = nextPeriod.leftOn;
+          intIdsArray.splice(index + 1, 1);
+        }
+        usersPeriods[user.userKey].push({
+          registeredOn: intId.registeredOn,
+          leftOn,
+        });
+      });
     });
+
+    const usersRegisteredTimes = Object
+      .values(allUsers || {})
+      .map((user) => Object.values(user.intIds).map((intId) => intId.registeredOn))
+      .flat();
+    const usersLeftTimes = Object
+      .values(allUsers || {})
+      .map((user) => Object.values(user.intIds).map((intId) => {
+        if (intId.leftOn === 0) return (new Date()).getTime();
+        return intId.leftOn;
+      }))
+      .flat();
 
     const firstRegisteredOnTime = Math.min(...usersRegisteredTimes);
     const lastLeftOnTime = Math.max(...usersLeftTimes);
@@ -176,95 +197,107 @@ class StatusTable extends React.Component {
                     </div>
                   </td>
                   { periods.map((period) => {
-                    const userEmojisInPeriod = filterUserEmojis(user,
-                      null,
-                      period.start,
-                      period.end);
-                    const { registeredOn, leftOn } = user;
                     const boundaryLeft = period.start;
                     const boundaryRight = period.end;
                     const interval = period.end - period.start;
                     return (
                       <td className="relative px-3.5 2xl:px-4 py-3 text-sm col-text-left">
-                        { (registeredOn >= boundaryLeft && registeredOn <= boundaryRight)
-                          || (leftOn >= boundaryLeft && leftOn <= boundaryRight)
-                          || (boundaryLeft > registeredOn && boundaryRight < leftOn)
-                          || (boundaryLeft >= registeredOn && leftOn === 0) ? (
-                            (function makeLineThrough() {
-                              let roundedLeft = registeredOn >= boundaryLeft
-                                && registeredOn <= boundaryRight ? 'rounded-l' : '';
-                              let roundedRight = leftOn > boundaryLeft
-                                && leftOn < boundaryRight ? 'rounded-r' : '';
-                              let offsetLeft = 0;
-                              let offsetRight = 0;
-                              if (registeredOn >= boundaryLeft && registeredOn <= boundaryRight) {
-                                offsetLeft = ((registeredOn - boundaryLeft) * 100) / interval;
-                              }
-                              if (leftOn >= boundaryLeft && leftOn <= boundaryRight) {
-                                offsetRight = ((boundaryRight - leftOn) * 100) / interval;
-                              }
-                              let width = '';
-                              if (offsetLeft === 0 && offsetRight >= 99) {
-                                width = 'w-1.5';
-                              }
-                              if (offsetRight === 0 && offsetLeft >= 99) {
-                                width = 'w-1.5';
-                              }
-                              if (offsetLeft && offsetRight) {
-                                const variation = offsetLeft - offsetRight;
-                                if (variation > -1 && variation < 1) {
-                                  width = 'w-1.5';
-                                }
-                              }
-                              if (isRTL) {
-                                const aux = roundedRight;
+                        { usersPeriods[user.userKey].length > 0 ? (
+                          usersPeriods[user.userKey].map((userPeriod) => {
+                            const { registeredOn, leftOn } = userPeriod;
+                            const userEmojisInPeriod = filterUserEmojis(user,
+                              null,
+                              registeredOn >= boundaryLeft && registeredOn <= boundaryRight
+                                ? registeredOn : boundaryLeft,
+                              leftOn >= boundaryLeft && leftOn <= boundaryRight
+                                ? leftOn : boundaryRight);
+                            return (
+                              <>
+                                { (registeredOn >= boundaryLeft && registeredOn <= boundaryRight)
+                                  || (leftOn >= boundaryLeft && leftOn <= boundaryRight)
+                                  || (boundaryLeft > registeredOn && boundaryRight < leftOn)
+                                  || (boundaryLeft >= registeredOn && leftOn === 0) ? (
+                                    (function makeLineThrough() {
+                                      let roundedLeft = registeredOn >= boundaryLeft
+                                        && registeredOn <= boundaryRight ? 'rounded-l' : '';
+                                      let roundedRight = leftOn >= boundaryLeft
+                                        && leftOn <= boundaryRight ? 'rounded-r' : '';
+                                      let offsetLeft = 0;
+                                      let offsetRight = 0;
+                                      if (registeredOn >= boundaryLeft
+                                        && registeredOn <= boundaryRight) {
+                                        offsetLeft = ((registeredOn - boundaryLeft) * 100)
+                                          / interval;
+                                      }
+                                      if (leftOn >= boundaryLeft && leftOn <= boundaryRight) {
+                                        offsetRight = ((boundaryRight - leftOn) * 100) / interval;
+                                      }
+                                      let width = '';
+                                      if (offsetLeft === 0 && offsetRight >= 99) {
+                                        width = 'w-1.5';
+                                      }
+                                      if (offsetRight === 0 && offsetLeft >= 99) {
+                                        width = 'w-1.5';
+                                      }
+                                      if (offsetLeft && offsetRight) {
+                                        const variation = offsetLeft - offsetRight;
+                                        if (variation > -1 && variation < 1) {
+                                          width = 'w-1.5';
+                                        }
+                                      }
+                                      if (isRTL) {
+                                        const aux = roundedRight;
 
-                                if (roundedLeft !== '') roundedRight = 'rounded-r';
-                                else roundedRight = '';
+                                        if (roundedLeft !== '') roundedRight = 'rounded-r';
+                                        else roundedRight = '';
 
-                                if (aux !== '') roundedLeft = 'rounded-l';
-                                else roundedLeft = '';
-                              }
-                              const redress = '(0.375rem / 2)';
-                              return (
-                                <div
-                                  className={`h-1.5 ${width} bg-gray-200 absolute inset-x-0 z-10 ${roundedLeft} ${roundedRight}`}
-                                  style={{
-                                    top: `calc(50% - ${redress})`,
-                                    left: `${isRTL ? offsetRight : offsetLeft}%`,
-                                    right: `${isRTL ? offsetLeft : offsetRight}%`,
-                                  }}
-                                />
-                              );
-                            })()
-                          ) : null }
-                        { userEmojisInPeriod.map((emoji) => {
-                          const offset = ((emoji.sentOn - period.start) * 100)
-                            / (interval);
-                          const origin = isRTL ? 'right' : 'left';
-                          const redress = '(0.875rem / 2 + 0.25rem + 2px)';
-                          return (
-                            <div
-                              className="flex absolute p-1 border-white border-2 rounded-full text-sm z-20 bg-purple-500 text-purple-200 timeline-emoji"
-                              role="status"
-                              style={{
-                                top: `calc(50% - ${redress})`,
-                                [origin]: `calc(${offset}% - ${redress})`,
-                              }}
-                              title={intl.formatMessage({
-                                id: emojiConfigs[emoji.name].intlId,
-                                defaultMessage: emojiConfigs[emoji.name].defaultMessage,
-                              })}
-                            >
-                              <i className={`${emojiConfigs[emoji.name].icon} text-sm bbb-icon-timeline`} />
-                            </div>
-                          );
-                        }) }
+                                        if (aux !== '') roundedLeft = 'rounded-l';
+                                        else roundedLeft = '';
+                                      }
+                                      const redress = '(0.375rem / 2)';
+                                      return (
+                                        <div
+                                          className={`h-1.5 ${width} bg-gray-200 absolute inset-x-0 z-10 ${roundedLeft} ${roundedRight}`}
+                                          style={{
+                                            top: `calc(50% - ${redress})`,
+                                            left: `${isRTL ? offsetRight : offsetLeft}%`,
+                                            right: `${isRTL ? offsetLeft : offsetRight}%`,
+                                          }}
+                                        />
+                                      );
+                                    })()
+                                  ) : null }
+                                { userEmojisInPeriod.map((emoji) => {
+                                  const offset = ((emoji.sentOn - period.start) * 100)
+                                    / (interval);
+                                  const origin = isRTL ? 'right' : 'left';
+                                  const redress = '(0.875rem / 2 + 0.25rem + 2px)';
+                                  return (
+                                    <div
+                                      className="flex absolute p-1 border-white border-2 rounded-full text-sm z-20 bg-purple-500 text-purple-200 timeline-emoji"
+                                      role="status"
+                                      style={{
+                                        top: `calc(50% - ${redress})`,
+                                        [origin]: `calc(${offset}% - ${redress})`,
+                                      }}
+                                      title={intl.formatMessage({
+                                        id: emojiConfigs[emoji.name].intlId,
+                                        defaultMessage: emojiConfigs[emoji.name].defaultMessage,
+                                      })}
+                                    >
+                                      <i className={`${emojiConfigs[emoji.name].icon} text-sm bbb-icon-timeline`} />
+                                    </div>
+                                  );
+                                }) }
+                              </>
+                            );
+                          })
+                        ) : null }
                       </td>
                     );
                   }) }
                 </tr>
-              ))) : null }
+              )).flat()) : null }
         </tbody>
       </table>
     );
