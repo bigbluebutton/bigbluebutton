@@ -35,6 +35,16 @@ public:
     lockOnJoin: true
     cdn: ''
     basename: '/html5client'
+    # the base location of the BBB API. If you use a cluster setup with a load
+    # balancer which hides the individual nodes, then this should be
+    # https://bbb-host/bigbluebutton
+    # If you run a traditional setup of multiple nodes behind scalelite and the
+    # users see the hostnames of the individual nodes, you can leave this at the
+    # default setting
+    bbbWebBase: '/bigbluebutton'
+    # If you run a cluster setup with a load balancer which hides the individual
+    # nodes, then this should be set to https://bbb-host/learning-dashboard
+    learningDashboardBase: '/learning-dashboard'
     # Use https URL of CSS file. Example: https://docs.bigbluebutton.org/admin/customize.html#examples
     customStyleUrl: null
     askForFeedbackOnLogout: false
@@ -46,6 +56,10 @@ public:
     enableGuestLobbyMessage: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
+    # Allow users to open webcam video modal/preview when video is already
+    # active. This also allows to change virtual backgrounds without
+    # restarting webcam.
+    enableWebcamSelectorButton: true
     enableTalkingIndicator: true
     mirrorOwnWebcam: false
     viewersInWebcam: 8
@@ -200,6 +214,7 @@ public:
     # Experiment(al). Controls whether ICE candidates should be signaled.
     # Applies to webcams, listen only and screen sharing. True is "stable behavior".
     signalCandidates: true
+    forceRelayOnFirefox: false
     cameraTimeouts:
       # Base camera timeout: used as the camera *sharing* timeout and
       # as the minimum camera subscribe reconnection timeout
@@ -469,7 +484,14 @@ public:
       defaultFullAudioBridge: sipjs
       #
       #
-      # Same as above, but for listen only mechanism
+      # Server wide configuration to choose which bbb-webrtc-sfu
+      # media server adapter should be used for fullaudio.
+      # Default is undefined, which means the default setting in bbb-webrtc-sfu
+      # prevails (fullAudioMediaServer).
+      # fullAudioMediaServer: Kurento
+      #
+      #
+      # Default bridge to be used by listen only mechanism.
       defaultListenOnlyBridge: kurento
       #
       #
@@ -483,14 +505,16 @@ public:
       # '/imports/api/audio/client' dir.
       #
       bridges:
-          #
-          # The name of the bridge
+        #
+        # The name of the bridge
         - name: sipjs
           #
           # The bridge file path , relative to /imports/api/audio/client
           path: 'bridge/sip'
         - name: kurento
           path: 'bridge/kurento'
+        - name: fullaudio
+          path: 'bridge/FullAudioBridge'
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
@@ -499,7 +523,6 @@ public:
     callHangupTimeout: 2000
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
-    relayOnlyOnReconnect: false
     listenOnlyCallTimeout: 25000
     # Experimental. True is the canonical behavior. Flip to false to reverse
     # the negotiation flow for LO subscribers.
@@ -510,6 +533,10 @@ public:
     #user activates microphone.
     iceGatheringTimeout: 5000
     sipjsHackViaWs: false
+    # the fqdn of this host.
+    # If you run a traditional setup of multiple nodes behind scalelite and the users see the hostnames of the
+    # individual nodes, you can leave this at the default setting
+    sip_ws_host: ''
     # Mute/umute toggle throttle time
     toggleMuteThrottleTime: 300
     #Websocket keepAlive interval (seconds). You may set this to prevent
@@ -774,3 +801,11 @@ private:
       version: 10
     - browser: YandexBrowser
       version: 19
+  # Direct Prometheus instrumentation.
+  # EXPERIMENTAL, so disabled by default.
+  prometheus:
+    enabled: false
+    # Metrics endpoint path
+    path: '/metrics'
+    # Whether default metrics for Node.js processes should be exported
+    collectDefaultMetrics: false

@@ -181,7 +181,6 @@
     "app.poll.hidePollDesc": "Paslēpj balsošanas/aptaujas izvēlnes paneli",
     "app.poll.quickPollInstruction": "Lai sāktu balsošanu/aptauju, izvēlieties zemāk redzamo opciju.",
     "app.poll.activePollInstruction": "Lai nekavējoši redzētu atbildes uz šo aptauju/balsojumu, atstājiet šo paneli atvērtu. Kad esiet gatavi publiskot rezultātus un beigt balsojumu/aptauju, nospiediet “Publicēt balsošanas/aptaujas rezultātus”.",
-    "app.poll.publishLabel": "Publiskot balsojuma/aptaujas rezultātus",
     "app.poll.closeLabel": "Aizvērt",
     "app.poll.waitingLabel": "Gaidām atbildes/balsojumu ({0}/{1})",
     "app.poll.ariaInputCount": "Pielāgotas aptaujas iespēja {0} no {1}",

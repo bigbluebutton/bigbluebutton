@@ -35,6 +35,8 @@ trait LockUserInMeetingCmdMsgHdlr extends RightsManagementTrait {
           VoiceUsers.findWithIntId(liveMeeting.voiceUsers, uvo.intId).foreach { vu =>
             LockSettingsUtil.enforceLockSettingsForVoiceUser(vu, liveMeeting, outGW)
           }
+
+          LockSettingsUtil.enforceCamLockSettingsForUser(uvo, liveMeeting, outGW)
         }
 
         log.info("Lock user.  meetingId=" + props.meetingProp.intId + " userId=" + uvo.intId + " locked=" + uvo.locked)

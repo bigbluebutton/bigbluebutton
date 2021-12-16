@@ -64,6 +64,7 @@ trait HandlerHelpers extends SystemConfiguration {
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = regUser.avatarURL,
         clientType = clientType,
+        pickExempted = false,
         userLeftFlag = UserLeftFlag(false, 0)
       )
     }

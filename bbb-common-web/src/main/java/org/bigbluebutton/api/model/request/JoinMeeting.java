@@ -2,7 +2,10 @@ package org.bigbluebutton.api.model.request;
 
 import org.bigbluebutton.api.model.constraint.*;
 import org.bigbluebutton.api.model.shared.Checksum;
+import org.bigbluebutton.api.model.shared.JoinPassword;
+import org.bigbluebutton.api.model.shared.Password;
 
+import javax.validation.Valid;
 import java.util.Map;
 
 public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
@@ -52,8 +55,12 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
 
     private String role;
 
+    @Valid
+    private Password joinPassword;
+
     public JoinMeeting(Checksum checksum) {
         super(checksum);
+        joinPassword = new JoinPassword();
     }
 
     public String getMeetingID() {
@@ -130,11 +137,18 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
     public void populateFromParamsMap(Map<String, String[]> params) {
         if(params.containsKey(Params.MEETING_ID.getValue())) {
             setMeetingID(params.get(Params.MEETING_ID.getValue())[0]);
+            joinPassword.setMeetingID(meetingID);
         }
 
         if(params.containsKey(Params.USER_ID.getValue())) setUserID(params.get(Params.USER_ID.getValue())[0]);
         if(params.containsKey(Params.FULL_NAME.getValue())) setFullName(params.get(Params.FULL_NAME.getValue())[0]);
-        if(params.containsKey(Params.PASSWORD.getValue())) setPassword(params.get(Params.PASSWORD.getValue())[0]);
+
+        if(params.containsKey(Params.PASSWORD.getValue())) {
+            setPassword(params.get(Params.PASSWORD.getValue())[0]);
+            joinPassword.setPassword(password);
+        }
+
+
         if(params.containsKey(Params.GUEST.getValue())) setGuestString(params.get(Params.GUEST.getValue())[0]);
         if(params.containsKey(Params.AUTH.getValue())) setAuthString(params.get(Params.AUTH.getValue())[0]);
         if(params.containsKey(Params.CREATE_TIME.getValue())) setCreateTimeString(params.get(Params.CREATE_TIME.getValue())[0]);

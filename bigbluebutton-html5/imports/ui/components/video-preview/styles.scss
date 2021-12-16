@@ -1,0 +1,234 @@
+@import "/imports/ui/stylesheets/variables/breakpoints";
+@import "/imports/ui/components/modal/simple/styles";
+@import '/imports/ui/stylesheets/mixins/focus';
+@import '/imports/ui/stylesheets/mixins/_indicators';
+@import '/imports/ui/components/loading-screen/styles';
+@import "/imports/ui/stylesheets/variables/placeholders";
+
+.warning {
+  text-align: center;
+  font-weight: var(--headings-font-weight);
+  font-size: 5rem;
+  white-space: normal;
+}
+.text {
+  margin: var(--line-height-computed);
+  text-align: center;
+}
+
+.main {
+  margin: var(--line-height-computed);
+  text-align: center;
+  font-size: var(--font-size-large);
+}
+
+.actions {
+  margin-left: auto;
+  margin-right: var(--border-size-large);
+
+
+  [dir="rtl"] & {
+    margin-right: auto;
+    margin-left: var(--border-size-large);
+  }
+
+  :first-child {
+    margin-right: var(--border-size-large);
+    margin-left: inherit;
+
+    [dir="rtl"] & {
+      margin-right: inherit;
+      margin-left: var(--border-size-large);
+    }
+  }
+}
+
+.extraActions {
+  margin-right: auto;
+  margin-left: var(--border-size-large);
+
+  [dir="rtl"] & {
+    margin-left: auto;
+    margin-right: var(--border-size-large);
+  }
+
+  :first-child {
+    margin-left: var(--border-size-large);
+    margin-right: inherit;
+
+    [dir="rtl"] & {
+      margin-left: inherit;
+      margin-right: var(--border-size-large);
+    }
+  }
+}
+
+.closeBtn {
+  i {
+    color: var(--color-gray-light);
+  }
+
+  margin-left: auto;
+  margin-right: 0;
+
+  [dir="rtl"] & {
+    margin-left: 0;
+    margin-right: auto;
+  }
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  margin: 0 0.5rem 0 0.5rem;
+
+  width: 50%;
+  @include mq($small-only) {
+    width: 90%;
+    height: unset;
+  }
+}
+
+.videoCol {
+  @extend .col;
+  align-items: center;
+
+  @include mq($landscape) {
+    width: 33.3%;
+  }
+}
+
+.content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+
+  @include mq($small-only) {
+    flex-direction: column;
+    margin: 0;
+  }
+}
+
+.footer {
+  display: flex;
+}
+
+.header {
+  display: flex;
+  border: none;
+}
+
+.label {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--color-gray-label);
+}
+
+.modal {
+  @extend .modal;
+  padding: 1rem;
+  min-height: 25rem;
+  max-height: 60vh;
+
+  & > [class^="content"] {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  @include mq($small-only) {
+    height: unset;
+    min-height: 22.5rem;
+    max-height: unset;
+  }
+}
+
+.modalPhone {
+  min-height: 100%;
+  min-width: 100%;
+  border-radius: 0;
+}
+
+.overlay {
+  @extend .overlay;
+}
+
+.preview {
+  height: 100%;
+  width: 100%;
+
+  @include mq($small-only) {
+    height: 10rem;
+  }
+}
+
+.mirroredVideo {
+  transform: scale(-1, 1);
+}
+
+.row {
+  display: flex;
+}
+
+.select {
+  @include elementFocus(var(--color-primary));
+
+  background-color: var(--color-white);
+  border: var(--border-size) solid var(--color-white);
+  border-radius: var(--border-size);
+  border-bottom: 0.1rem solid var(--color-gray-lighter);
+  color: var(--color-gray-label);
+  width: 100%;
+  height: 1.75rem;
+  padding: 1px;
+
+  &:hover,
+  &:focus {
+    @extend %highContrastOutline;
+  }
+}
+
+.title {
+  display: block;
+  color: var(--color-background);
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+.browserWarning {
+  padding: 0.5rem;
+  border-width: var(--border-size-large);
+  border-style: solid;
+  border-radius: 0.25rem;
+  margin: var(--line-height-computed);
+  text-align: center;
+}
+
+.fetchingAnimation {
+  margin: auto;
+  display: inline-block;
+  width: 1.5em;
+
+  &:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    content: "\2026"; /* ascii code for the ellipsis character */
+    width: 0;
+    margin-left: 0.25em;
+
+    :global(.animationsEnabled) & {
+      animation: ellipsis steps(4, end) 900ms infinite;
+    }
+  }
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.5em;
+  }
+}

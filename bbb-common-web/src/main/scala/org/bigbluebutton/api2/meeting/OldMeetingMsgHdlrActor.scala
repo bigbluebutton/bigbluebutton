@@ -182,7 +182,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
   }
 
   def handleLearningDashboardEvtMsg(msg: LearningDashboardEvtMsg): Unit = {
-    olgMsgGW.handle(new LearningDashboard(msg.header.meetingId, msg.body.activityJson))
+    olgMsgGW.handle(new LearningDashboard(msg.header.meetingId, msg.body.learningDashboardAccessToken, msg.body.activityJson))
   }
 
 }

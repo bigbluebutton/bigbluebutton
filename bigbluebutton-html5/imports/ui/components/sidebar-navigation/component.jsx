@@ -78,6 +78,11 @@ const SidebarNavigation = (props) => {
         bottom: isResizable && resizableEdge.bottom,
         right: isResizable && resizableEdge.right,
       }}
+      handleStyles={{
+        right: {
+          right: '-8px',
+        },
+      }}
       handleWrapperClass="resizeSidebarNavWrapper"
       onResizeStart={() => {
         setIsResizing(true);

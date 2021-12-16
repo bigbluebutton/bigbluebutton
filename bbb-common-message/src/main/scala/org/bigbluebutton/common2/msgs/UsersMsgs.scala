@@ -15,14 +15,15 @@ case class RegisterUserReqMsg(
 ) extends BbbCoreMsg
 case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: String, role: String,
                                   extUserId: String, authToken: String, avatarURL: String,
-                                  guest: Boolean, authed: Boolean, guestStatus: String)
+                                  guest: Boolean, authed: Boolean, guestStatus: String, excludeFromDashboard: Boolean)
 
 object UserRegisteredRespMsg { val NAME = "UserRegisteredRespMsg" }
 case class UserRegisteredRespMsg(
     header: BbbCoreHeaderWithMeetingId,
     body:   UserRegisteredRespMsgBody
 ) extends BbbCoreMsg
-case class UserRegisteredRespMsgBody(meetingId: String, userId: String, name: String, role: String, registeredOn: Long)
+case class UserRegisteredRespMsgBody(meetingId: String, userId: String, name: String,
+                                     role: String, excludeFromDashboard: Boolean, registeredOn: Long)
 
 object RegisteredUserJoinTimeoutMsg { val NAME = "RegisteredUserJoinTimeoutMsg" }
 case class RegisteredUserJoinTimeoutMsg(
@@ -408,4 +409,4 @@ case class SelectRandomViewerReqMsgBody(requestedBy: String)
  */
 object SelectRandomViewerRespMsg { val NAME = "SelectRandomViewerRespMsg" }
 case class SelectRandomViewerRespMsg(header: BbbClientMsgHeader, body: SelectRandomViewerRespMsgBody) extends StandardMsg
-case class SelectRandomViewerRespMsgBody(requestedBy: String, userIds: Vector[String], choice: Integer)
+case class SelectRandomViewerRespMsgBody(requestedBy: String, userIds: Vector[String], choice: String)

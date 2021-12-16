@@ -13,6 +13,7 @@ import FullscreenService from '../../fullscreen-button/service';
 import { colorDanger } from '/imports/ui/stylesheets/styled-components/palette';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from './styles';
+import browserInfo from '/imports/utils/browserInfo';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -108,6 +109,8 @@ const defaultProps = {
 };
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const { isSafari } = browserInfo;
+const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
 class SettingsDropdown extends PureComponent {
   constructor(props) {
@@ -125,11 +128,11 @@ class SettingsDropdown extends PureComponent {
   }
 
   componentDidMount() {
-    document.documentElement.addEventListener('fullscreenchange', this.onFullscreenChange);
+    document.documentElement.addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
   }
 
   componentWillUnmount() {
-    document.documentElement.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    document.documentElement.removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
   }
 
   onFullscreenChange() {

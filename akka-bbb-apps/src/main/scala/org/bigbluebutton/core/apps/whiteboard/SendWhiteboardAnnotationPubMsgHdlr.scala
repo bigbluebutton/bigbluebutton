@@ -66,22 +66,20 @@ trait SendWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
     }
 
     def excludedWbMsg(annotation: AnnotationVO): Boolean = {
-      WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType &&
-        (WhiteboardKeyUtil.DRAW_END_STATUS == annotation.status ||
-          WhiteboardKeyUtil.DRAW_UPDATE_STATUS == annotation.status)
+      WhiteboardKeyUtil.DRAW_END_STATUS == annotation.status ||
+        WhiteboardKeyUtil.DRAW_UPDATE_STATUS == annotation.status
     }
 
-    if (!excludedWbMsg(msg.body.annotation) && filterWhiteboardMessage(msg.body.annotation.wbId, msg.header.userId, liveMeeting) && permissionFailed(
+    val isMessageOfAllowedType = excludedWbMsg(msg.body.annotation)
+
+    val isUserOneOfPermited = !filterWhiteboardMessage(msg.body.annotation.wbId, msg.header.userId, liveMeeting)
+
+    val isUserAmongPresenters = !permissionFailed(
       PermissionCheck.GUEST_LEVEL,
       PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId
-    )) {
-      //val meetingId = liveMeeting.props.meetingProp.intId
-      //val reason = "No permission to send a whiteboard annotation."
+    )
 
-      // Just drop messages as these might be delayed messages from multi-user whiteboard. Don't want to
-      // eject user unnecessarily when switching from multi-user to single user. (ralam feb 7, 2018)
-      // PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
-    } else {
+    if (isMessageOfAllowedType && (isUserOneOfPermited || isUserAmongPresenters)) {
       //val dirtyAnn = testInsertSomeNoneValues(msg.body.annotation)
       //println(">>>>>>>>>>>>> Printing Dirty annotation >>>>>>>>>>>>>>")
       //val dirtyAnn2 = printAnnotationInfo(dirtyAnn)
@@ -97,6 +95,13 @@ trait SendWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
       //println("============= Printed Sanitized annotation  ============")
       val annotation = sendWhiteboardAnnotation(sanitizedShape, msg.body.drawEndOnly, liveMeeting)
       broadcastEvent(msg, annotation)
+    } else {
+      //val meetingId = liveMeeting.props.meetingProp.intId
+      //val reason = "No permission to send a whiteboard annotation."
+
+      // Just drop messages as these might be delayed messages from multi-user whiteboard. Don't want to
+      // eject user unnecessarily when switching from multi-user to single user. (ralam feb 7, 2018)
+      // PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     }
   }
 }

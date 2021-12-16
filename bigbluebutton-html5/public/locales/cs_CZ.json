@@ -226,7 +226,6 @@
     "app.poll.activePollInstruction": "Ponechte tento panel otevřený, uvidíte zde živý náhled odpovědi na Vaší anketu (hlasování). Až budete chtít, vyberte 'Publikovat výsledky ankety', čímž se ukončí hlasování a výsledky se zveřejní. ",
     "app.poll.dragDropPollInstruction": "K vyplnění hodnot ankety, prosím přetáhněte textový soubor s hodnotami ankety do vyznačeného pole.",
     "app.poll.customPollTextArea": "Vyplnit hodnoty ankety",
-    "app.poll.publishLabel": "Publikovat výsledky ankety",
     "app.poll.backLabel": "Začátek hlasování",
     "app.poll.closeLabel": "Zavřít",
     "app.poll.waitingLabel": "Čekám na odpovědi ({0}/{1})",

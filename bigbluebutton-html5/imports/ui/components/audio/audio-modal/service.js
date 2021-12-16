@@ -73,7 +73,10 @@ export const leaveEchoTest = () => {
 };
 
 export const closeModal = () => {
-  if (!Service.isConnecting()) showModal(null);
+  if (Service.isConnecting()) {
+    Service.forceExitAudio();
+  }
+  showModal(null);
 };
 
 export default {

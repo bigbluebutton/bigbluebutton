@@ -30,7 +30,7 @@ require File.expand_path('../../../../core/lib/recordandplayback', __FILE__)
 # require File.expand_path('../../../lib/recordandplayback', __FILE__)
 
 require 'rubygems'
-require 'trollop'
+require 'optimist'
 require 'yaml'
 require 'builder'
 require 'fastimage' # require fastimage to get the image size of the slides (gem install fastimage)
@@ -602,10 +602,9 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
     end
   end
   if %w[ellipse rectangle triangle].include?(shape[:type])
-    # TODO: uncomment this
-    # fill = event.at_xpath('fill').text
-    # shape[:fill] = fill =~ /true/ ? true : false
-    shape[:fill] = false
+    fill = event.at_xpath('fill')
+    fill = fill.nil? ? "false" : fill.text
+    shape[:fill] = fill =~ /true/ ? true : false
   end
 
   case shape[:type]
@@ -1163,8 +1162,8 @@ end
 @cursor_xml_filename = 'cursor.xml'
 @deskshare_xml_filename = 'deskshare.xml'
 
-opts = Trollop.options do
-  opt :meeting_id, 'Meeting id to archive', default: '58f4a6b3-cd07-444d-8564-59116cb53974', type: String
+opts = Optimist::options do
+  opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
 end
 
 @meeting_id = opts[:meeting_id]
