@@ -37,8 +37,8 @@ export default withTracker(() => {
     setPresentation: PresentationUploaderService.setPresentation,
     podIds: PresentationPodService.getPresentationPodIds(),
     hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
-    settingsLayout: selectedLayout?.replace('Push', ''),
-    pushLayout: LayoutService.setMeetingLayout,
+    settingsLayout: selectedLayout,
+    setMeetingLayout: LayoutService.setMeetingLayout,
     showPushLayout: LAYOUT_CONFIG.layoutControlInActionsMenu,
   });
 })(ActionsDropdownContainer);

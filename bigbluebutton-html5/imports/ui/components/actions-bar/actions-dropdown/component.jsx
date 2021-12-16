@@ -24,7 +24,7 @@ const propTypes = {
   allowExternalVideo: PropTypes.bool.isRequired,
   stopExternalVideoShare: PropTypes.func.isRequired,
   settingsLayout: PropTypes.string,
-  pushLayout: PropTypes.func.isRequired,
+  setMeetingLayout: PropTypes.func.isRequired,
   showPushLayout: PropTypes.bool.isRequired,
 };
 
@@ -134,7 +134,7 @@ class ActionsDropdown extends PureComponent {
       layoutContextDispatch,
       hidePresentation,
       settingsLayout,
-      pushLayout,
+      setMeetingLayout,
       showPushLayout,
     } = this.props;
 
@@ -218,7 +218,7 @@ class ActionsDropdown extends PureComponent {
         icon: 'send',
         label: intl.formatMessage(intlMessages.propagateLayoutLabel),
         key: 'propagate layout',
-        onClick: () => pushLayout(settingsLayout),
+        onClick: () => setMeetingLayout(settingsLayout),
       });
     }
 
