@@ -78,7 +78,11 @@ class VideoService {
       }
       this.updateNumberOfDevices();
     }
-    this.webRtcPeers = {};
+
+    // FIXME this is abhorrent. Remove when peer lifecycle is properly decoupled
+    // from the React component's lifecycle. Any attempt at a half-baked
+    // decoupling will most probably generate problems - prlanzarin Dec 16 2021
+    this.webRtcPeersRef = {};
   }
 
   defineProperties(obj) {
@@ -831,14 +835,6 @@ class VideoService {
   }
 
   /**
-   * Getter for webRtcPeers hash, which stores a reference for all
-   * RTCPeerConnection objects.
-   */
-  getWebRtcPeers() {
-    return this.webRtcPeers;
-  }
-
-  /**
    * Get all active video peers.
    * @returns An Object containing the reference for all active peers peers
    */
@@ -851,13 +847,11 @@ class VideoService {
 
     if (!activeVideoStreams) return null;
 
-    const peers = this.getWebRtcPeers();
-
     const activePeers = {};
 
     activeVideoStreams.forEach((stream) => {
-      if (peers[stream.stream]) {
-        activePeers[stream.stream] = peers[stream.stream].peerConnection;
+      if (this.webRtcPeersRef[stream.stream]) {
+        activePeers[stream.stream] = this.webRtcPeersRef[stream.stream].peerConnection;
       }
     });
 
@@ -902,6 +896,10 @@ class VideoService {
 
     return stats;
   }
+
+  updatePeerDictionaryReference(newRef) {
+    this.webRtcPeersRef = newRef;
+  }
 }
 
 const videoService = new VideoService();
@@ -945,6 +943,6 @@ export default {
   getUsersIdFromVideoStreams: () => videoService.getUsersIdFromVideoStreams(),
   shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
   getPreloadedStream: () => videoService.getPreloadedStream(),
-  getWebRtcPeers: () => videoService.getWebRtcPeers(),
   getStats: () => videoService.getStats(),
+  updatePeerDictionaryReference: (newRef) => videoService.updatePeerDictionaryReference(newRef),
 };
