@@ -39,5 +39,6 @@ export default withTracker(() => {
     hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
     settingsLayout: selectedLayout?.replace('Push', ''),
     pushLayout: LayoutService.setMeetingLayout,
+    showPushLayout: LAYOUT_CONFIG.layoutControlInActionsMenu,
   });
 })(ActionsDropdownContainer);

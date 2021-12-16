@@ -481,6 +481,7 @@ public:
     autoSwapLayout: false
     hidePresentation: false
     showParticipantsOnLogin: true
+    layoutControlInActionsMenu: true
   pads:
     url: ETHERPAD_HOST
     cookie:

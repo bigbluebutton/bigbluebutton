@@ -25,6 +25,7 @@ const propTypes = {
   stopExternalVideoShare: PropTypes.func.isRequired,
   settingsLayout: PropTypes.string,
   pushLayout: PropTypes.func.isRequired,
+  showPushLayout: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -134,6 +135,7 @@ class ActionsDropdown extends PureComponent {
       hidePresentation,
       settingsLayout,
       pushLayout,
+      showPushLayout,
     } = this.props;
 
     const {
@@ -211,7 +213,7 @@ class ActionsDropdown extends PureComponent {
       })
     }
 
-    if (amIPresenter) {
+    if (amIPresenter && showPushLayout) {
       actions.push({
         icon: 'send',
         label: intl.formatMessage(intlMessages.propagateLayoutLabel),
