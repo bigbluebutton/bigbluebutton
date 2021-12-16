@@ -129,7 +129,7 @@ class VideoProvider extends Component {
     this.wsQueue = [];
     this.restartTimeout = {};
     this.restartTimer = {};
-    this.webRtcPeers = VideoService.getWebRtcPeers();
+    this.webRtcPeers = {};
     this.outboundIceQueues = {};
     this.videoTags = {};
 
@@ -148,9 +148,10 @@ class VideoProvider extends Component {
 
   componentDidMount() {
     this._isMounted = true;
+    VideoService.updatePeerDictionaryReference(this.webRtcPeers);
+
     this.ws.onopen = this.onWsOpen;
     this.ws.onclose = this.onWsClose;
-
     window.addEventListener('online', this.openWs);
     window.addEventListener('offline', this.onWsClose);
 
@@ -172,6 +173,8 @@ class VideoProvider extends Component {
   }
 
   componentWillUnmount() {
+    VideoService.updatePeerDictionaryReference({});
+
     this.ws.onmessage = null;
     this.ws.onopen = null;
     this.ws.onclose = null;
