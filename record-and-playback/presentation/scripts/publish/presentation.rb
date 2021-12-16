@@ -485,18 +485,11 @@ def panzooms_emit_event(rec, panzoom)
     return
   end
 
-  doc = rec.document
-  event = doc.create_element('event', timestamp: panzoom[:in])
-
-  x, y, w, h = panzoom_viewbox(panzoom)
-
-  viewbox = doc.create_element('viewBox')
-  viewbox.content = "#{x} #{y} #{w} #{h}"
-
-  BigBlueButton.logger.info("Panzoom viewbox #{viewbox.content} at #{panzoom[:in]}")
-
-  event << viewbox
-  rec << event
+  rec.event(timestamp: panzoom[:in]) {
+    x, y, w, h = panzoom_viewbox(panzoom)
+    rec.viewBox("#{x} #{y} #{w} #{h}")
+    # BigBlueButton.logger.info("Panzoom viewbox #{x} #{y} #{w} #{h}" at #{panzoom[:in]}")
+  }
 end
 
 def cursors_emit_event(rec, cursor)
@@ -505,39 +498,34 @@ def cursors_emit_event(rec, cursor)
     return
   end
 
-  doc = rec.document
-  event = doc.create_element('event', timestamp: cursor[:in])
-
-  panzoom = cursor[:panzoom]
-  if cursor[:visible]
-    if @version_atleast_2_0_0
-      # In BBB 2.0, the cursor now uses the same coordinate system as annotations
-      # Use the panzoom information to convert it to be relative to viewbox
-      x = (((cursor[:x] / 100.0) + (panzoom[:x_offset] * @magic_mystery_number / 100.0)) /
-           (panzoom[:width_ratio] / 100.0)).round(5)
-      y = (((cursor[:y] / 100.0) + (panzoom[:y_offset] * @magic_mystery_number / 100.0)) /
-           (panzoom[:height_ratio] / 100.0)).round(5)
-      if x.negative? || (x > 1) || y.negative? || (y > 1)
-        x = -1.0
-        y = -1.0
+  rec.event(timestamp: cursor[:in]){
+    panzoom = cursor[:panzoom]
+    if cursor[:visible]
+      if @version_atleast_2_0_0
+        # In BBB 2.0, the cursor now uses the same coordinate system as annotations
+        # Use the panzoom information to convert it to be relative to viewbox
+        x = (((cursor[:x] / 100.0) + (panzoom[:x_offset] * @magic_mystery_number / 100.0)) /
+             (panzoom[:width_ratio] / 100.0)).round(5)
+        y = (((cursor[:y] / 100.0) + (panzoom[:y_offset] * @magic_mystery_number / 100.0)) /
+             (panzoom[:height_ratio] / 100.0)).round(5)
+        if x.negative? || (x > 1) || y.negative? || (y > 1)
+          x = -1.0
+          y = -1.0
+        end
+      else
+        # Cursor position is relative to the visible area
+        x = cursor[:x].round(5)
+        y = cursor[:y].round(5)
       end
     else
-      # Cursor position is relative to the visible area
-      x = cursor[:x].round(5)
-      y = cursor[:y].round(5)
+      x = -1.0
+      y = -1.0
     end
-  else
-    x = -1.0
-    y = -1.0
-  end
-
-  cursor_e = doc.create_element('cursor')
-  cursor_e.content = "#{x} #{y}"
+    
+    rec.cursor("#{x} #{y}")
+  }
 
   # BigBlueButton.logger.info("Cursor #{cursor_e.content} at #{cursor[:in]}")
-
-  event << cursor_e
-  rec << event
 end
 
 @svg_shape_id = 1
@@ -793,13 +781,8 @@ def process_presentation(package_dir)
                                                     version: '1.1',
                                                     viewBox: '0 0 800 600')
 
-  panzooms_doc = Nokogiri::XML::Document.new
-  panzooms_rec = panzooms_doc.root = panzooms_doc.create_element('recording',
-                                                                 id: 'panzoom_events')
-
-  cursors_doc = Nokogiri::XML::Document.new
-  cursors_rec = cursors_doc.root = cursors_doc.create_element('recording',
-                                                              id: 'cursor_events')
+  panzooms_rec = Builder::XmlMarkup.new(:indent => 2, margin: 1)
+  cursors_rec = Builder::XmlMarkup.new(:indent => 2, margin: 1)
 
   # Current presentation/slide state
   current_presentation_slide = {}
@@ -1005,56 +988,66 @@ def process_presentation(package_dir)
   cursor[:out] = last_timestamp
   cursors_emit_event(cursors_rec, cursor)
 
+  cursors_doc = Builder::XmlMarkup.new(indent: 2)
+  cursors_doc.instruct!
+  cursors_doc.recording(id: 'cursor_events') { |xml| xml << cursors_rec.target! }
+
+  panzooms_doc = Builder::XmlMarkup.new(indent: 2)
+  panzooms_doc.instruct!
+  panzooms_doc.recording(id: 'panzoom_events') { |xml| xml << panzooms_rec.target! }
+
   # And save the result
   File.write("#{package_dir}/#{@shapes_svg_filename}", shapes_doc.to_xml)
-  File.write("#{package_dir}/#{@panzooms_xml_filename}", panzooms_doc.to_xml)
-  File.write("#{package_dir}/#{@cursor_xml_filename}", cursors_doc.to_xml)
+  File.write("#{package_dir}/#{@panzooms_xml_filename}", panzooms_doc.target!)
+  File.write("#{package_dir}/#{@cursor_xml_filename}", cursors_doc.target!)
 end
 
 def process_chat_messages(events, bbb_props)
   BigBlueButton.logger.info('Processing chat events')
   # Create slides.xml and chat.
-  Nokogiri::XML::Builder.new do |xml|
-    xml.popcorn do
-      BigBlueButton::Events.get_chat_events(events, @meeting_start.to_i, @meeting_end.to_i, bbb_props).each do |chat|
-        chattimeline = {
-          in: (chat[:in] / 1000.0).round(1),
-          direction: 'down',
-          name: chat[:sender],
-          message: chat[:message],
-          target: 'chat'
-        }
-        chattimeline[:out] = (chat[:out] / 1000.0).round(1) unless chat[:out].nil?
-        xml.chattimeline(**chattimeline)
-      end
+  xml = Builder::XmlMarkup.new(:indent => 2)
+  xml.instruct!
+  xml.popcorn do
+    BigBlueButton::Events.get_chat_events(events, @meeting_start.to_i, @meeting_end.to_i, bbb_props).each do |chat|
+      chattimeline = {
+        in: (chat[:in] / 1000.0).round(1),
+        direction: 'down',
+        name: chat[:sender],
+        message: chat[:message],
+        target: 'chat'
+      }
+      chattimeline[:out] = (chat[:out] / 1000.0).round(1) unless chat[:out].nil?
+      xml.chattimeline(**chattimeline)
     end
   end
+
+  xml
 end
 
 def process_deskshare_events(events)
   BigBlueButton.logger.info('Processing deskshare events')
   deskshare_matched_events = BigBlueButton::Events.get_matched_start_and_stop_deskshare_events(events)
 
-  @deskshare_xml = Nokogiri::XML::Builder.new do |xml|
-    @xml = xml
-    @xml.recording('id' => 'deskshare_events') do
-      deskshare_matched_events.each do |event|
-        start_timestamp = (translate_timestamp(event[:start_timestamp].to_f) / 1000).round(1)
-        stop_timestamp = (translate_timestamp(event[:stop_timestamp].to_f) / 1000).round(1)
-        next unless start_timestamp != stop_timestamp
-        video_info = BigBlueButton::EDL::Video.video_info("#{@deskshare_dir}/#{event[:stream]}")
-        unless video_info[:video]
-          BigBlueButton.logger.warn("#{event[:stream]} is not a valid video file, skipping...")
-          next
-        end
-        video_width, video_height = get_deskshare_video_dimension(event[:stream])
-        @xml.event(start_timestamp: start_timestamp,
-                   stop_timestamp: stop_timestamp,
-                   video_width: video_width,
-                   video_height: video_height)
+  @deskshare_xml = Builder::XmlMarkup.new(:indent => 2)
+  @deskshare_xml.instruct!
+
+  @deskshare_xml.recording('id' => 'deskshare_events') {
+    deskshare_matched_events.each do |event|
+      start_timestamp = (translate_timestamp(event[:start_timestamp].to_f) / 1000).round(1)
+      stop_timestamp = (translate_timestamp(event[:stop_timestamp].to_f) / 1000).round(1)
+      next unless start_timestamp != stop_timestamp
+      video_info = BigBlueButton::EDL::Video.video_info("#{@deskshare_dir}/#{event[:stream]}")
+      unless video_info[:video]
+        BigBlueButton.logger.warn("#{event[:stream]} is not a valid video file, skipping...")
+        next
       end
+      video_width, video_height = get_deskshare_video_dimension(event[:stream])
+      @deskshare_xml.event(start_timestamp: start_timestamp,
+                 stop_timestamp: stop_timestamp,
+                 video_width: video_width,
+                 video_height: video_height)
     end
-  end
+  }
 end
 
 def get_poll_question(event)
@@ -1177,9 +1170,7 @@ puts @playback
 
 begin
   if @playback == 'presentation'
-
     log_dir = bbb_props['log_dir']
-
     logger = Logger.new("#{log_dir}/presentation/publish-#{@meeting_id}.log", 'daily')
     BigBlueButton.logger = logger
 
@@ -1335,7 +1326,7 @@ begin
 
         # Write slides.xml to file
         slides_doc = process_chat_messages(@doc, bbb_props)
-        File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts slides_doc.to_xml }
+        File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts slides_doc.target! }
 
         process_presentation(package_dir)
 
@@ -1346,7 +1337,7 @@ begin
         process_external_video_events(@doc, package_dir)
 
         # Write deskshare.xml to file
-        File.open("#{package_dir}/#{@deskshare_xml_filename}", 'w') { |f| f.puts @deskshare_xml.to_xml }
+        File.open("#{package_dir}/#{@deskshare_xml_filename}", 'w') { |f| f.puts @deskshare_xml.target! }
 
         BigBlueButton.logger.info('Copying files to package dir')
         FileUtils.cp_r("#{@process_dir}/presentation", package_dir)
@@ -1371,12 +1362,12 @@ begin
 
         BigBlueButton.logger.info('Removing published files.')
         FileUtils.rm_r(Dir.glob("#{target_dir}/*"))
-      rescue StandardError => e
-        BigBlueButton.logger.error(e.message)
-        e.backtrace.each do |traceline|
-          BigBlueButton.logger.error(traceline)
-        end
-        exit 1
+      #rescue StandardError => e
+        #BigBlueButton.logger.error(e.message)
+        #e.backtrace.each do |traceline|
+          #BigBlueButton.logger.error(traceline)
+        #end
+        #exit 1
       end
       File.open("#{recording_dir}/status/published/#{@meeting_id}-presentation.done", 'w') { |file| file.write("Published #{@meeting_id}") }
 
@@ -1384,12 +1375,12 @@ begin
       BigBlueButton.logger.info("#{target_dir} is already there")
     end
   end
-rescue StandardError => e
-  BigBlueButton.logger.error(e.message)
-  e.backtrace.each do |traceline|
-    BigBlueButton.logger.error(traceline)
-  end
-  File.open("#{recording_dir}/status/published/#{@meeting_id}-presentation.fail", 'w') { |file| file.write("Failed Publishing #{@meeting_id}") }
+#rescue StandardError => e
+  #BigBlueButton.logger.error(e.message)
+  #e.backtrace.each do |traceline|
+  #  BigBlueButton.logger.error(traceline)
+  #end
+  #File.open("#{recording_dir}/status/published/#{@meeting_id}-presentation.fail", 'w') { |file| file.write("Failed Publishing #{@meeting_id}") }
 
-  exit 1
+  #exit 1
 end
