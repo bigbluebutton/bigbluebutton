@@ -236,7 +236,6 @@
     "app.poll.activePollInstruction": "Deixe este painel aberto para ver as respostas da enquete em tempo real. Selecione 'Publicar resultados da enquete' para publicar os resultados e encerrar a enquete.",
     "app.poll.dragDropPollInstruction": "Para preencher as opções da enquete automaticamente, arraste e solte um arquivo de texto com as opções da enquete no campo destacado",
     "app.poll.customPollTextArea": "Preencha as opções da enquete",
-    "app.poll.publishLabel": "Publicar resultados da enquete",
     "app.poll.backLabel": "Iniciar uma enquete",
     "app.poll.closeLabel": "Fechar",
     "app.poll.waitingLabel": "Aguardando respostas ({0}/{1})",

@@ -39,9 +39,9 @@ class Page {
   }
 
   // Join BigBlueButton meeting
-  async init(isModerator, shouldCloseAudioModal, testFolderName, fullName, meetingId, customParameter, connectionPreset, deviceX) {
+  async init(isModerator, shouldCloseAudioModal, testFolderName, fullName, meetingId, customParameter, connectionPreset, deviceX, extraFlags) {
     try {
-      const args = this.getArgs();
+      const args = this.getArgs(extraFlags?.length > 0 ? extraFlags : null);
       this.effectiveParams = Object.assign({}, params);
       if (!isModerator) this.effectiveParams.moderatorPW = '';
       if (fullName) this.effectiveParams.fullName = fullName;
@@ -180,7 +180,7 @@ class Page {
   }
 
   // Get the default arguments for creating a page
-  getArgs() {
+  getArgs(extraFlags) {
     if (process.env.BROWSERLESS_ENABLED === 'true') {
       const args = [
         '--no-sandbox',
@@ -189,6 +189,7 @@ class Page {
         '--window-size=1024,720',
         '--lang=en-US',
       ];
+      if (extraFlags) args.push(...extraFlags);
       return {
         headless: true,
         args,
@@ -202,8 +203,8 @@ class Page {
       '--window-size=1150,980',
       '--allow-file-access',
       '--lang=en-US',
-      '--disable-features=IsolateOrigins,site-per-process',
     ];
+    if (extraFlags) args.push(...extraFlags);
     return {
       headless: false,
       args,

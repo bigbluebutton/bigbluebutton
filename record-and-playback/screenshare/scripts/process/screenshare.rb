@@ -21,16 +21,16 @@
 require File.expand_path('../../../lib/recordandplayback', __FILE__)
 require File.expand_path('../../../lib/recordandplayback/edl', __FILE__)
 
-require 'trollop'
+require 'optimist'
 require 'yaml'
 require 'nokogiri'
 require 'erb'
 
-opts = Trollop::options do
+opts = Optimist::options do
   opt :meeting_id, "Meeting id to process", :type => String
   opt :stderr, "Log output to stderr"
 end
-Trollop::die :meeting_id, "must be provided" unless opts[:meeting_id]
+Optimist::die :meeting_id, "must be provided" unless opts[:meeting_id]
 meeting_id = opts[:meeting_id]
 
 start_real_time = nil

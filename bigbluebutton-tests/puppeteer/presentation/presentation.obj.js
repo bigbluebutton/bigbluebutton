@@ -128,7 +128,7 @@ const presentationTest = () => {
     try {
       const testName = 'startExternalVideo';
       await test.modPage.logger('begin of ', testName);
-      await test.initPages(testName);
+      await test.initPages(testName, ['--disable-features=IsolateOrigins,site-per-process']);
       await test.modPage.startRecording(testName);
       response = await test.startExternalVideo(testName);
       await test.modPage.stopRecording();

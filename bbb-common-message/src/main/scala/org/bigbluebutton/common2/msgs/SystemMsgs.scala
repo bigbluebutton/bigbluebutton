@@ -232,4 +232,4 @@ case class LearningDashboardEvtMsg(
     header: BbbCoreHeaderWithMeetingId,
     body:   LearningDashboardEvtMsgBody
 ) extends BbbCoreMsg
-case class LearningDashboardEvtMsgBody(activityJson: String)
+case class LearningDashboardEvtMsgBody(learningDashboardAccessToken: String, activityJson: String)

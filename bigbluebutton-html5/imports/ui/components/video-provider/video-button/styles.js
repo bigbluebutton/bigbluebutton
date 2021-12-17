@@ -11,6 +11,12 @@ const VideoButton = styled(Button)`
   `}
 `;
 
+const OffsetBottom = styled.div`
+  top: auto !important;
+  bottom: 4rem !important;
+`;
+
 export default {
   VideoButton,
+  OffsetBottom,
 };

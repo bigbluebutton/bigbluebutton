@@ -206,14 +206,14 @@ const PresentationFocusLayout = (props) => {
           (windowHeight() - cameraDockMinHeight),
         );
       }
-      cameraDockBounds.top = windowHeight() - cameraDockHeight;
+      cameraDockBounds.top = windowHeight() - cameraDockHeight + this.bannerAreaHeight();
       cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.minWidth = sidebarContentWidth;
       cameraDockBounds.width = sidebarContentWidth;
       cameraDockBounds.maxWidth = sidebarContentWidth;
       cameraDockBounds.minHeight = cameraDockMinHeight;
-      cameraDockBounds.height = cameraDockHeight;
+      cameraDockBounds.height = cameraDockHeight - this.bannerAreaHeight();
       cameraDockBounds.maxHeight = windowHeight() - sidebarContentHeight;
       cameraDockBounds.zIndex = 1;
     }
@@ -224,7 +224,7 @@ const PresentationFocusLayout = (props) => {
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
 
-    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare') {
+    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare' || fullscreenElement === 'ExternalVideo') {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
       mediaBounds.top = 0;
@@ -429,7 +429,7 @@ const PresentationFocusLayout = (props) => {
       type: ACTIONS.SET_SCREEN_SHARE_OUTPUT,
       value: {
         width: mediaBounds.width,
-        height: mediaBounds.height,
+        height: isOpen ? mediaBounds.height : 0,
         top: mediaBounds.top,
         left: mediaBounds.left,
         right: mediaBounds.right,
@@ -441,7 +441,7 @@ const PresentationFocusLayout = (props) => {
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
       value: {
         width: mediaBounds.width,
-        height: mediaBounds.height,
+        height: isOpen ? mediaBounds.height : 0,
         top: mediaBounds.top,
         left: mediaBounds.left,
         right: mediaBounds.right,

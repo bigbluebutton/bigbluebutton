@@ -4,6 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core.models.{ Users2x, Webcams }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.LockSettingsUtil
 
 trait GetCamSubscribePermissionReqMsgHdlr {
   this: MeetingActor =>
@@ -15,17 +16,14 @@ trait GetCamSubscribePermissionReqMsgHdlr {
 
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
+      stream <- Webcams.findWithStreamId(liveMeeting.webcams, msg.body.streamId)
     } yield {
+      val camSubscribeLocked = LockSettingsUtil.isCameraSubscribeLocked(user, stream, liveMeeting)
+
       if (!user.userLeftFlag.left
-        && liveMeeting.props.meetingProp.intId == msg.body.meetingId) {
-        Webcams.findWithStreamId(liveMeeting.webcams, msg.body.streamId) match {
-          case Some(stream) => {
-            allowed = true
-          }
-          case None => {
-            allowed = false
-          }
-        }
+        && liveMeeting.props.meetingProp.intId == msg.body.meetingId
+        && (applyPermissionCheck && !camSubscribeLocked)) {
+        allowed = true
       }
     }
 

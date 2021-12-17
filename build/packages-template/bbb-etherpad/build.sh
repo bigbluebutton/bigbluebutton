@@ -20,7 +20,7 @@ set +e
 bin/installDeps.sh
 set -e
 
-git clone https://github.com/pedrobmarin/ep_pad_ttl.git
+git clone https://github.com/mconf/ep_pad_ttl.git
 npm pack ./ep_pad_ttl
 npm install ./ep_pad_ttl-*.tgz
 

@@ -10,6 +10,7 @@ import Logger from './logger';
 import Redis from './redis';
 
 import setMinBrowserVersions from './minBrowserVersion';
+import { PrometheusAgent, METRIC_NAMES } from './prom-metrics/index.js'
 
 let guestWaitHtml = '';
 
@@ -140,6 +141,13 @@ Meteor.startup(() => {
 
   setMinBrowserVersions();
 
+  Meteor.onMessage(event => {
+    const { method } = event;
+    if (method) {
+      PrometheusAgent.increment(METRIC_NAMES.METEOR_METHODS, { methodName: method });
+    }
+  });
+
   Logger.warn(`SERVER STARTED.
   ENV=${env}
   nodejs version=${process.version}
@@ -213,7 +221,7 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 
   if (browserLocale.length > 1) {
     // browser asks for specific locale
-    normalizedLocale = `${browserLocale[0]}_${browserLocale[1].toUpperCase()}`;
+    normalizedLocale = `${browserLocale[0]}_${browserLocale[1]?.toUpperCase()}`;
 
     const normDefault = usableLocales.find(locale => normalizedLocale === locale);
     if (normDefault) {

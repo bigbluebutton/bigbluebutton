@@ -116,7 +116,7 @@ class ScreenshareComponent extends React.Component {
     const {
       isPresenter,
     } = this.props;
-    if (isPresenter && !prevProps.isPresenter) {
+    if (prevProps.isPresenter && !isPresenter) {
       screenshareHasEnded();
     }
   }
@@ -342,6 +342,7 @@ class ScreenshareComponent extends React.Component {
       width,
       height,
       zIndex,
+      fullscreenContext,
     } = this.props;
 
     // Conditions to render the (re)connecting dots and the unhealthy stream
@@ -368,7 +369,7 @@ class ScreenshareComponent extends React.Component {
             right,
             height,
             width,
-            zIndex,
+            zIndex: fullscreenContext ? zIndex : undefined,
             backgroundColor: '#06172A',
           }
         }
