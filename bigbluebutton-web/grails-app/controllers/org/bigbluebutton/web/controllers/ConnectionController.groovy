@@ -53,6 +53,26 @@ class ConnectionController {
     }
   }
 
+  def legacyCheckAuthorization = {
+    try {
+      def uri = request.getHeader("x-original-uri")
+      def sessionToken = ParamsUtil.getSessionToken(uri)
+      UserSession userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
+
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      if (userSession != null) {
+        response.setStatus(200)
+        response.outputStream << 'authorized'
+      } else {
+        response.setStatus(401)
+        response.outputStream << 'unauthorized'
+      }
+    } catch (IOException e) {
+      log.error("Error while authenticating connection.\n" + e.getMessage())
+    }
+  }
+
   def validatePad = {
     try {
       String uri = request.getHeader("x-original-uri")
