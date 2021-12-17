@@ -276,7 +276,10 @@ class Indicator extends Component {
 
   render() {
     const { isTimerActive } = this.props;
-    if (!isTimerActive) return null;
+    if (!isTimerActive) {
+      this.stopMusic();
+      return null;
+    }
 
     const {
       isModerator,
