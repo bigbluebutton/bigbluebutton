@@ -17,9 +17,9 @@ async function createMeeting(params, customParameter) {
   const mp = params.moderatorPW;
   const ap = params.attendeePW;
   const query = customParameter !== undefined ? `name=${meetingID}&meetingID=${meetingID}&attendeePW=${ap}&moderatorPW=${mp}&joinViaHtml5=true`
-    + `&record=false&allowStartStopRecording=true&${customParameter}&autoStartRecording=false&welcome=${params.welcome}`
+    + `&allowStartStopRecording=true&${customParameter}&autoStartRecording=false&welcome=${params.welcome}`
     : `name=${meetingID}&meetingID=${meetingID}&attendeePW=${ap}&moderatorPW=${mp}&joinViaHtml5=true`
-    + `&record=false&allowStartStopRecording=true&autoStartRecording=false&welcome=${params.welcome}`;
+    + `&allowStartStopRecording=true&autoStartRecording=false&welcome=${params.welcome}`;
   const apicall = `create${query}${params.secret}`;
   const checksum = sha1(apicall);
   const url = `${params.server}/create?${query}&checksum=${checksum}`;
