@@ -23,10 +23,11 @@ buildscript {
     maven { url "https://repo.grails.org/grails/core" }
   }
   dependencies {
-    classpath "org.grails:grails-gradle-plugin:$grailsVersion"
+    classpath "org.grails:grails-gradle-plugin:${grailsGradlePluginVersion}"
     classpath "org.grails.plugins:hibernate5:${gormVersion}"
-    classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.1.0"
-    classpath "gradle.plugin.com.energizedwork.webdriver-binaries:webdriver-binaries-gradle-plugin:$webdriverBinariesVersion"
+    classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.3.4"
+    classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:2.6"
+    classpath "org.grails.plugins:views-gradle:2.1.0"
   }
 }
 
@@ -37,9 +38,10 @@ apply plugin: "eclipse"
 apply plugin: "idea"
 apply plugin: "war"
 apply plugin: "org.grails.grails-web"
-apply plugin: "asset-pipeline"
+apply plugin:"com.bertramlabs.asset-pipeline"
 apply plugin: "org.grails.grails-gsp"
-apply plugin:"com.energizedwork.webdriver-binaries"
+apply plugin:"com.github.erdi.webdriver-binaries"
+apply plugin:"org.grails.plugins.views-json"
 
 task resolveDeps(type: Copy) {
   into('lib')
@@ -83,17 +85,11 @@ configurations {
   }
 }
 
-
 dependencies {
+  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.3.4"
   implementation group: 'commons-codec', name: 'commons-codec', version: '1.15'
-  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
-  testRuntimeOnly "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
-  testRuntimeOnly "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
-  testImplementation "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
-  testImplementation "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
-  testImplementation "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
   developmentOnly("org.springframework.boot:spring-boot-devtools")
-  implementation "org.codehaus.groovy:groovy-dateutil:3.0.4"
+  implementation "org.codehaus.groovy:groovy-dateutil:3.0.9"
   implementation "org.springframework.boot:spring-boot-starter-logging"
   implementation "org.springframework.boot:spring-boot-autoconfigure"
   implementation "org.grails:grails-core"
@@ -107,7 +103,6 @@ dependencies {
   implementation "org.grails:grails-plugin-services"
   implementation "org.grails:grails-plugin-url-mappings"
   implementation "org.grails:grails-plugin-interceptors"
-  implementation 'org.grails.plugins:external-config:1.2.2'
   implementation "org.grails.plugins:cache"
   implementation "org.grails.plugins:async"
   implementation "org.grails.plugins:scaffolding"
@@ -115,22 +110,25 @@ dependencies {
   implementation "org.grails.plugins:gsp"
   implementation 'com.github.blindsidenetworks:oauth:master-SNAPSHOT'
   implementation "org.json:json:20180813"
-  implementation "org.grails:grails-console"
+  console "org.grails:grails-console"
   profile "org.grails.profiles:web"
-  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.3.1"
   testImplementation "org.grails:grails-gorm-testing-support"
   testImplementation "org.grails.plugins:geb"
   testImplementation "org.grails:grails-web-testing-support"
-  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:2.47.1"
-}
-
-webdriverBinaries {
-  chromedriver "$chromeDriverVersion"
-  geckodriver "$geckodriverVersion"
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
+  testImplementation "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
+  testImplementation "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
+  testImplementation "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
 }
 
 bootRun {
-  jvmArgs('-Dspring.output.ansi.enabled=always')
+  jvmArgs(
+          '-Dspring.output.ansi.enabled=always',
+          '-noverify',
+          '-XX:TieredStopAtLevel=1',
+          '-Xmx1024m')
   sourceResources sourceSets.main
   String springProfilesActive = 'spring.profiles.active'
   systemProperty springProfilesActive, System.getProperty(springProfilesActive)
