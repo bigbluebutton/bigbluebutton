@@ -854,6 +854,7 @@ class Presentation extends PureComponent {
 
     return (
       <div
+        role="region"
         ref={(ref) => { this.refPresentationContainer = ref; }}
         className={styles.presentationContainer}
         style={{

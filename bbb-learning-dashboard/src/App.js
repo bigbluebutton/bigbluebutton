@@ -48,18 +48,18 @@ class App extends React.Component {
     if (typeof params.report !== 'undefined') {
       learningDashboardAccessToken = params.report;
     } else {
-      const cookieName = `learningDashboardAccessToken-${params.meeting}`;
+      const cookieName = `ld-${params.meeting}`;
       const cDecoded = decodeURIComponent(document.cookie);
       const cArr = cDecoded.split('; ');
       cArr.forEach((val) => {
         if (val.indexOf(`${cookieName}=`) === 0) learningDashboardAccessToken = val.substring((`${cookieName}=`).length);
       });
 
-      // Extend AccessToken lifetime by 30d (in each access)
+      // Extend AccessToken lifetime by 7d (in each access)
       if (learningDashboardAccessToken !== '') {
         const cookieExpiresDate = new Date();
-        cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 30));
-        document.cookie = `learningDashboardAccessToken-${meetingId}=${learningDashboardAccessToken}; expires=${cookieExpiresDate.toGMTString()}; path=/;SameSite=None;Secure`;
+        cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 7));
+        document.cookie = `ld-${meetingId}=${learningDashboardAccessToken}; expires=${cookieExpiresDate.toGMTString()}; path=/;SameSite=None;Secure`;
       }
     }
 
@@ -139,12 +139,17 @@ class App extends React.Component {
     }
 
     function totalOfActivity() {
-      const minTime = Object.values(activitiesJson.users || {}).reduce((prevVal, elem) => {
+      const usersTimes = Object.values(activitiesJson.users || {}).reduce((prev, user) => ([
+        ...prev,
+        ...Object.values(user.intIds),
+      ]), []);
+
+      const minTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
         if (prevVal === 0 || elem.registeredOn < prevVal) return elem.registeredOn;
         return prevVal;
       }, 0);
 
-      const maxTime = Object.values(activitiesJson.users || {}).reduce((prevVal, elem) => {
+      const maxTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
         if (elem.leftOn === 0) return (new Date()).getTime();
         if (elem.leftOn > prevVal) return elem.leftOn;
         return prevVal;
@@ -230,7 +235,7 @@ class App extends React.Component {
                   </span>
                 )
                 : null
-}
+            }
             <br />
             <span className="text-sm font-medium">{activitiesJson.name || ''}</span>
           </h1>
@@ -280,8 +285,11 @@ class App extends React.Component {
                   ? intl.formatMessage({ id: 'app.learningDashboard.indicators.usersOnline', defaultMessage: 'Active Users' })
                   : intl.formatMessage({ id: 'app.learningDashboard.indicators.usersTotal', defaultMessage: 'Total Number Of Users' })
               }
-              number={Object.values(activitiesJson.users || {})
-                .filter((u) => activitiesJson.endedOn > 0 || u.leftOn === 0).length}
+              number={Object
+                .values(activitiesJson.users || {})
+                .filter((u) => activitiesJson.endedOn > 0
+                  || Object.values(u.intIds)[Object.values(u.intIds).length - 1].leftOn === 0)
+                .length}
               cardClass="border-pink-500"
               iconClass="bg-pink-50 text-pink-500"
               onClick={() => {
