@@ -630,8 +630,11 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   prev_shape = nil
   if !shape[:id].nil?
     # If we have a shape ID, look up the previous shape by ID
-    prev_shape_pos = shapes.rindex { |s| s[:id] == shape[:id] }
-    prev_shape = prev_shape_pos.nil? ? nil : shapes[prev_shape_pos]
+    # Don't look for updates if the drawing has ended
+    unless shape[:status] == 'DRAW_END'
+      prev_shape_pos = shapes.rindex { |s| s[:id] == shape[:id] }
+      prev_shape = prev_shape_pos.nil? ? nil : shapes[prev_shape_pos]
+    end
   else
     # No shape ID, so do heuristic matching. If the previous shape had the
     # same type and same first two data points, update it.
