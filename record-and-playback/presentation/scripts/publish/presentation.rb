@@ -1,6 +1,5 @@
-# frozen_string_literal: false
 # Set encoding to utf-8
-# encoding: UTF-8
+# frozen_string_literal: false
 
 #
 # BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
@@ -24,7 +23,7 @@ _performance_start = Time.now
 
 # For DEVELOPMENT
 # Allows us to run the script manually
-require File.expand_path('../../../../core/lib/recordandplayback', __FILE__)
+require File.expand_path('../../../core/lib/recordandplayback', __dir__)
 
 # For PRODUCTION
 # require File.expand_path('../../../lib/recordandplayback', __FILE__)
@@ -93,7 +92,7 @@ end
 #
 def translate_timestamp(timestamp)
   new_timestamp = translate_timestamp_helper(timestamp.to_f).to_f
-  #	BigBlueButton.logger.info("Translating #{timestamp}, old value=#{timestamp.to_f-@meeting_start.to_f}, new value=#{new_timestamp}")
+  BigBlueButton.logger.info("Translating #{timestamp}, old value=#{timestamp.to_f - @meeting_start.to_f}, new value=#{new_timestamp}")
   new_timestamp
 end
 
@@ -202,7 +201,9 @@ def svg_render_shape_pencil(g, slide, shape)
     end
 
     path = path.join('')
-    g['style'] = "stroke:##{shape[:color]};stroke-linecap:round;stroke-linejoin:round;stroke-width:#{shape_thickness(slide, shape)};visibility:hidden;fill:none"
+    g['style'] =
+      "stroke:##{shape[:color]};stroke-linecap:round;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,
+                                                                                                          shape)};visibility:hidden;fill:none"
     svg_path = doc.create_element('path', d: path)
     g << svg_path
   end
@@ -210,7 +211,9 @@ end
 
 def svg_render_shape_line(g, slide, shape)
   g['shape'] = "line#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide, shape)};visibility:hidden;fill:none#{@version_atleast_2_0_0 ? ';stroke-linecap:butt' : ';stroke-linecap:round'}"
+  g['style'] =
+    "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,
+                                                             shape)};visibility:hidden;fill:none#{@version_atleast_2_0_0 ? ';stroke-linecap:butt' : ';stroke-linecap:round'}"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -223,12 +226,14 @@ def svg_render_shape_line(g, slide, shape)
 end
 
 def stroke_attributes(slide, shape)
-  "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide, shape)};visibility:hidden;fill:#{shape[:fill] ? '#' + shape[:color] : 'none'}"
+  "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,
+                                                           shape)};visibility:hidden;fill:#{shape[:fill] ? "##{shape[:color]}" : 'none'}"
 end
 
 def svg_render_shape_rect(g, slide, shape)
   g['shape'] = "rect#{shape[:shape_unique_id]}"
-  g['style'] = "#{stroke_attributes(slide, shape)}#{@version_atleast_2_0_0 ? ';stroke-linejoin:miter' : ';stroke-linejoin:round'}"
+  g['style'] =
+    "#{stroke_attributes(slide, shape)}#{@version_atleast_2_0_0 ? ';stroke-linejoin:miter' : ';stroke-linejoin:round'}"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -258,7 +263,9 @@ end
 
 def svg_render_shape_triangle(g, slide, shape)
   g['shape'] = "triangle#{shape[:shape_unique_id]}"
-  g['style'] = "#{stroke_attributes(slide, shape)}#{@version_atleast_2_0_0 ? ';stroke-linejoin:miter;stroke-miterlimit:8' : ';stroke-linejoin:round'}"
+  g['style'] =
+    "#{stroke_attributes(slide,
+                         shape)}#{@version_atleast_2_0_0 ? ';stroke-linejoin:miter;stroke-miterlimit:8' : ';stroke-linejoin:round'}"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -310,12 +317,12 @@ def svg_render_shape_ellipse(g, slide, shape)
   # we want to display a line segment in that case. But the SVG
   # path element's elliptical arc code renders r_x or r_y
   # degenerate cases as line segments, so we can use that.
-  path = "M#{x1} #{hy}"
-  path << "A#{width_r} #{height_r} 0 0 1 #{hx} #{y1}"
-  path << "A#{width_r} #{height_r} 0 0 1 #{x2} #{hy}"
-  path << "A#{width_r} #{height_r} 0 0 1 #{hx} #{y2}"
-  path << "A#{width_r} #{height_r} 0 0 1 #{x1} #{hy}"
-  path << 'Z'
+  path = "M#{x1} #{hy}" \
+          "A#{width_r} #{height_r} 0 0 1 #{hx} #{y1}" \
+          "A#{width_r} #{height_r} 0 0 1 #{x2} #{hy}" \
+          "A#{width_r} #{height_r} 0 0 1 #{hx} #{y2}" \
+          "A#{width_r} #{height_r} 0 0 1 #{x1} #{hy}" \
+          'Z'
 
   svg_path = doc.create_element('path', d: path)
   g << svg_path
@@ -371,7 +378,8 @@ def svg_render_shape_poll(g, slide, shape)
   # Save the poll json to a temp file
   IO.write(json_file, result)
   # Render the poll svg
-  ret = BigBlueButton.exec_ret('utils/gen_poll_svg', '-i', json_file, '-w', width.round.to_s, '-h', height.round.to_s, '-n', num_responders.to_s, '-o', svg_file)
+  ret = BigBlueButton.exec_ret('utils/gen_poll_svg', '-i', json_file, '-w', width.round.to_s, '-h', height.round.to_s, '-n',
+                               num_responders.to_s, '-o', svg_file)
   raise 'Failed to generate poll svg' if ret != 0
 
   # Poll image
@@ -450,6 +458,7 @@ def svg_render_image(svg, slide, shapes)
      shapes[slide[:presentation]][slide[:slide]].nil?
     return
   end
+
   shapes = shapes[slide[:presentation]][slide[:slide]]
 
   canvas = doc.create_element('g',
@@ -485,11 +494,11 @@ def panzooms_emit_event(rec, panzoom)
     return
   end
 
-  rec.event(timestamp: panzoom[:in]) {
+  rec.event(timestamp: panzoom[:in]) do
     x, y, w, h = panzoom_viewbox(panzoom)
     rec.viewBox("#{x} #{y} #{w} #{h}")
     # BigBlueButton.logger.info("Panzoom viewbox #{x} #{y} #{w} #{h}" at #{panzoom[:in]}")
-  }
+  end
 end
 
 def cursors_emit_event(rec, cursor)
@@ -498,7 +507,7 @@ def cursors_emit_event(rec, cursor)
     return
   end
 
-  rec.event(timestamp: cursor[:in]){
+  rec.event(timestamp: cursor[:in]) do
     panzoom = cursor[:panzoom]
     if cursor[:visible]
       if @version_atleast_2_0_0
@@ -521,9 +530,9 @@ def cursors_emit_event(rec, cursor)
       x = -1.0
       y = -1.0
     end
-    
+
     rec.cursor("#{x} #{y}")
-  }
+  end
 
   # BigBlueButton.logger.info("Cursor #{cursor_e.content} at #{cursor[:in]}")
 end
@@ -533,11 +542,13 @@ end
 
 def determine_presentation(presentation, current_presentation)
   return current_presentation if presentation.nil?
+
   presentation.text
 end
 
 def determine_slide_number(slide, current_slide)
   return current_slide if slide.nil?
+
   slide = slide.text.to_i
   slide -= 1 unless @version_atleast_0_9_0
   slide
@@ -565,6 +576,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   shape[:in] = timestamp
   shape[:type] = event.at_xpath('type').text
   shape[:data_points] = event.at_xpath('dataPoints').text.split(',').map(&:to_f)
+
   # These can be missing in old BBB versions, there are fallbacks
   user_id = event.at_xpath('userId')
   shape[:user_id] = user_id.text unless user_id.nil?
@@ -591,7 +603,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   end
   if %w[ellipse rectangle triangle].include?(shape[:type])
     fill = event.at_xpath('fill')
-    fill = fill.nil? ? "false" : fill.text
+    fill = fill.nil? ? 'false' : fill.text
     shape[:fill] = fill =~ /true/ ? true : false
   end
 
@@ -689,6 +701,7 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
     BigBlueButton.logger.info("Undo: removing shape with ID #{shape_id} at #{timestamp}")
     shapes.each do |shape|
       next unless shape[:id] == shape_id
+
       shape[:undo] = timestamp if shape[:undo].nil? || (shape[:undo] > timestamp)
     end
   else
@@ -703,6 +716,7 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
       # times to.
       shapes.each do |shape|
         next unless shape[:shape_unique_id] == undo_shape[:shape_unique_id]
+
         shape[:undo] = timestamp if shape[:undo].nil? || (shape[:undo] > timestamp)
       end
     else
@@ -736,8 +750,8 @@ def events_parse_clear(shapes, event, current_presentation, current_slide, times
   full_clear ? BigBlueButton.logger.info('Clear: removing all shapes') : BigBlueButton.logger.info("Clear: removing shapes for User #{user_id}")
 
   shapes.each do |shape|
-    if full_clear || (user_id == shape[:user_id])
-      shape[:undo] = timestamp if shape[:undo].nil? || (shape[:undo] > timestamp)
+    if (full_clear || (user_id == shape[:user_id])) && (shape[:undo].nil? || (shape[:undo] > timestamp))
+      shape[:undo] = timestamp
     end
   end
 end
@@ -759,9 +773,11 @@ def events_get_image_info(slide)
     FileUtils.mkdir_p(File.dirname(image_path))
     command = \
       if slide[:deskshare]
-        ['convert', '-size', "#{@presentation_props['deskshare_output_width']}x#{@presentation_props['deskshare_output_height']}", 'xc:transparent', '-background', 'transparent', image_path]
+        ['convert', '-size',
+         "#{@presentation_props['deskshare_output_width']}x#{@presentation_props['deskshare_output_height']}", 'xc:transparent', '-background', 'transparent', image_path,]
       else
-        ['convert', '-size', '1600x1200', 'xc:transparent', '-background', 'transparent', '-quality', '90', '+dither', '-depth', '8', '-colors', '256', image_path]
+        ['convert', '-size', '1600x1200', 'xc:transparent', '-background', 'transparent', '-quality', '90', '+dither',
+         '-depth', '8', '-colors', '256', image_path,]
       end
     BigBlueButton.exec_ret(*command) || raise("Unable to generate blank image for #{image_path}")
   end
@@ -784,8 +800,8 @@ def process_presentation(package_dir)
                                                     version: '1.1',
                                                     viewBox: '0 0 800 600')
 
-  panzooms_rec = Builder::XmlMarkup.new(:indent => 2, margin: 1)
-  cursors_rec = Builder::XmlMarkup.new(:indent => 2, margin: 1)
+  panzooms_rec = Builder::XmlMarkup.new(indent: 2, margin: 1)
+  cursors_rec = Builder::XmlMarkup.new(indent: 2, margin: 1)
 
   # Current presentation/slide state
   current_presentation_slide = {}
@@ -816,7 +832,7 @@ def process_presentation(package_dir)
   events_xml.xpath('/recording/event').each do |event|
     eventname = event['eventname']
     last_timestamp = timestamp =
-                       (translate_timestamp(event['timestamp']) / 1000.0).round(1)
+      (translate_timestamp(event['timestamp']) / 1000.0).round(1)
 
     # Make sure to add initial entries to the slide & panzoom lists
     slide_changed = slides.empty?
@@ -908,7 +924,7 @@ def process_presentation(package_dir)
           presentation: current_presentation,
           slide: current_slide,
           in: timestamp,
-          deskshare: deskshare
+          deskshare: deskshare,
         }
         events_get_image_info(slide)
         slides << slide
@@ -943,7 +959,7 @@ def process_presentation(package_dir)
           width: slide[:width],
           height: slide[:height],
           in: timestamp,
-          deskshare: deskshare
+          deskshare: deskshare,
         }
         panzooms << panzoom
       end
@@ -951,6 +967,7 @@ def process_presentation(package_dir)
 
     # Perform cursor finalization
     next unless cursor_changed || panzoom_changed
+
     unless (cursor_x >= 0) && (cursor_x <= 100) &&
            cursor_y >= 0 && (cursor_y <= 100)
       cursor_visible = false
@@ -974,7 +991,7 @@ def process_presentation(package_dir)
         x: cursor_x,
         y: cursor_y,
         panzoom: panzoom,
-        in: timestamp
+        in: timestamp,
       }
       cursors << cursor
     end
@@ -1008,7 +1025,7 @@ end
 def process_chat_messages(events, bbb_props)
   BigBlueButton.logger.info('Processing chat events')
   # Create slides.xml and chat.
-  xml = Builder::XmlMarkup.new(:indent => 2)
+  xml = Builder::XmlMarkup.new(indent: 2)
   xml.instruct!
   xml.popcorn do
     BigBlueButton::Events.get_chat_events(events, @meeting_start.to_i, @meeting_end.to_i, bbb_props).each do |chat|
@@ -1017,7 +1034,7 @@ def process_chat_messages(events, bbb_props)
         direction: 'down',
         name: chat[:sender],
         message: chat[:message],
-        target: 'chat'
+        target: 'chat',
       }
       chattimeline[:out] = (chat[:out] / 1000.0).round(1) unless chat[:out].nil?
       xml.chattimeline(**chattimeline)
@@ -1031,14 +1048,15 @@ def process_deskshare_events(events)
   BigBlueButton.logger.info('Processing deskshare events')
   deskshare_matched_events = BigBlueButton::Events.get_matched_start_and_stop_deskshare_events(events)
 
-  @deskshare_xml = Builder::XmlMarkup.new(:indent => 2)
+  @deskshare_xml = Builder::XmlMarkup.new(indent: 2)
   @deskshare_xml.instruct!
 
-  @deskshare_xml.recording('id' => 'deskshare_events') {
+  @deskshare_xml.recording('id' => 'deskshare_events') do
     deskshare_matched_events.each do |event|
       start_timestamp = (translate_timestamp(event[:start_timestamp].to_f) / 1000).round(1)
       stop_timestamp = (translate_timestamp(event[:stop_timestamp].to_f) / 1000).round(1)
       next unless start_timestamp != stop_timestamp
+
       video_info = BigBlueButton::EDL::Video.video_info("#{@deskshare_dir}/#{event[:stream]}")
       unless video_info[:video]
         BigBlueButton.logger.warn("#{event[:stream]} is not a valid video file, skipping...")
@@ -1046,11 +1064,11 @@ def process_deskshare_events(events)
       end
       video_width, video_height = get_deskshare_video_dimension(event[:stream])
       @deskshare_xml.event(start_timestamp: start_timestamp,
-                 stop_timestamp: stop_timestamp,
-                 video_width: video_width,
-                 video_height: video_height)
+                           stop_timestamp: stop_timestamp,
+                           video_width: video_width,
+                           video_height: video_height)
     end
-  }
+  end
 end
 
 def get_poll_question(event)
@@ -1111,13 +1129,14 @@ def process_poll_events(events, package_dir)
   @rec_events.each do |re|
     events.xpath("recording/event[@eventname='PollPublishedRecordEvent']").each do |event|
       next unless (event[:timestamp].to_i >= re[:start_timestamp]) && (event[:timestamp].to_i <= re[:stop_timestamp])
+
       published_polls << {
         timestamp: (translate_timestamp(event[:timestamp]) / 1000).to_i,
         type: get_poll_type(events, event),
         question: get_poll_question(event),
         answers: get_poll_answers(event),
         respondents: get_poll_respondents(event),
-        responders: get_poll_responders(event)
+        responders: get_poll_responders(event),
       }
     end
   end
@@ -1140,13 +1159,14 @@ def process_external_video_events(_events, package_dir)
       timestamp = (translate_timestamp(event[:start_timestamp]) / 1000).to_i
       # do not add same external_video twice
       next unless external_videos.find { |ev| ev[:timestamp] == timestamp }.nil?
-      if ((event[:start_timestamp] >= re[:start_timestamp]) && (event[:start_timestamp] <= re[:stop_timestamp])) ||
-         ((event[:start_timestamp] < re[:start_timestamp]) && (event[:stop_timestamp] >= re[:start_timestamp]))
-        external_videos << {
-          timestamp: timestamp,
-          external_video_url: event[:external_video_url]
-        }
-      end
+
+      next unless ((event[:start_timestamp] >= re[:start_timestamp]) && (event[:start_timestamp] <= re[:stop_timestamp])) ||
+                  ((event[:start_timestamp] < re[:start_timestamp]) && (event[:stop_timestamp] >= re[:start_timestamp]))
+
+      external_videos << {
+        timestamp: timestamp,
+        external_video_url: event[:external_video_url],
+      }
     end
   end
 
@@ -1158,8 +1178,8 @@ end
 @cursor_xml_filename = 'cursor.xml'
 @deskshare_xml_filename = 'deskshare.xml'
 
-opts = Optimist::options do
-  opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
+opts = Optimist.options do
+  opt :meeting_id, 'Meeting id to archive', default: '58f4a6b3-cd07-444d-8564-59116cb53974', type: String
 end
 
 @meeting_id = opts[:meeting_id]
@@ -1310,7 +1330,9 @@ begin
                   xml.images do
                     presentation[:slides].each do |key, val|
                       attributes = { width: '176', height: '136', alt: !val[:alt].nil? ? (val[:alt]).to_s : '' }
-                      xml.image(attributes) { xml.text("#{playback_protocol}://#{playback_host}/presentation/#{@meeting_id}/presentation/#{presentation[:id]}/thumbnails/thumb-#{key}.png") }
+                      xml.image(attributes) do
+                        xml.text("#{playback_protocol}://#{playback_host}/presentation/#{@meeting_id}/presentation/#{presentation[:id]}/thumbnails/thumb-#{key}.png")
+                      end
                     end
                   end
                 end
@@ -1359,31 +1381,34 @@ begin
         FileUtils.cp_r(package_dir, publish_dir) # Copy all the files.
         BigBlueButton.logger.info('Finished publishing script presentation.rb successfully.')
 
-        # TODO: remove comments
-        # BigBlueButton.logger.info("Removing processed files.")
-        # FileUtils.rm_r(Dir.glob("#{@process_dir}/*"))
+        BigBlueButton.logger.info('Removing processed files.')
+        FileUtils.rm_r(Dir.glob("#{@process_dir}/*"))
 
         BigBlueButton.logger.info('Removing published files.')
         FileUtils.rm_r(Dir.glob("#{target_dir}/*"))
-      #rescue StandardError => e
-        #BigBlueButton.logger.error(e.message)
-        #e.backtrace.each do |traceline|
-          #BigBlueButton.logger.error(traceline)
-        #end
-        #exit 1
+      rescue StandardError => e
+        BigBlueButton.logger.error(e.message)
+        e.backtrace.each do |traceline|
+          BigBlueButton.logger.error(traceline)
+        end
+        exit 1
       end
-      File.open("#{recording_dir}/status/published/#{@meeting_id}-presentation.done", 'w') { |file| file.write("Published #{@meeting_id}") }
+      File.open("#{recording_dir}/status/published/#{@meeting_id}-presentation.done", 'w') do |file|
+        file.write("Published #{@meeting_id}")
+      end
 
     else
       BigBlueButton.logger.info("#{target_dir} is already there")
     end
   end
-#rescue StandardError => e
-  #BigBlueButton.logger.error(e.message)
-  #e.backtrace.each do |traceline|
-  #  BigBlueButton.logger.error(traceline)
-  #end
-  #File.open("#{recording_dir}/status/published/#{@meeting_id}-presentation.fail", 'w') { |file| file.write("Failed Publishing #{@meeting_id}") }
+rescue StandardError => e
+  BigBlueButton.logger.error(e.message)
+  e.backtrace.each do |traceline|
+    BigBlueButton.logger.error(traceline)
+  end
+  File.open("#{recording_dir}/status/published/#{@meeting_id}-presentation.fail", 'w') do |file|
+    file.write("Failed Publishing #{@meeting_id}")
+  end
 
-  #exit 1
+  exit 1
 end
