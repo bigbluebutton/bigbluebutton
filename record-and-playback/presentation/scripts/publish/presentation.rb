@@ -1,4 +1,3 @@
-# Set encoding to utf-8
 # frozen_string_literal: false
 
 #
@@ -23,10 +22,10 @@ _performance_start = Time.now
 
 # For DEVELOPMENT
 # Allows us to run the script manually
-# require File.expand_path('../../../core/lib/recordandplayback', __dir__)
+# require File.expand_path('../../../core/lib/recordandplayback', __FILE__)
 
 # For PRODUCTION
-require File.expand_path('../../../lib/recordandplayback', __dir__)
+require File.expand_path('../../../lib/recordandplayback', __FILE__)
 
 require 'rubygems'
 require 'optimist'
@@ -164,14 +163,10 @@ def svg_render_shape_pencil(g, slide, shape)
       # BigBlueButton.logger.info("Pencil #{shape_unique_id}: Drawing from command string (#{shape_commands.length} commands)")
       shape_commands.each do |command|
         case command
-        when 1 # MOVE_TO
+        when 1, 2 # MOVE_TO, LINE_TO
           x = shape_scale_width(slide, data_points.next)
           y = shape_scale_height(slide, data_points.next)
-          path.push("M#{x} #{y}")
-        when 2 # LINE_TO
-          x = shape_scale_width(slide, data_points.next)
-          y = shape_scale_height(slide, data_points.next)
-          path.push("L#{x} #{y}")
+          path.push("#{command.eql?(1) ? 'M' : 'L'}#{x} #{y}")
         when 3 # Q_CURVE_TO
           cx1 = shape_scale_width(slide, data_points.next)
           cy1 = shape_scale_height(slide, data_points.next)
@@ -232,7 +227,7 @@ end
 
 def stroke_attributes(slide, shape)
   "stroke:##{shape_color = shape[:color]};stroke-width:#{shape_thickness(slide,
-                                                           shape)};visibility:hidden;fill:#{shape[:fill] ? "##{shape_color}" : 'none'}"
+                                                                         shape)};visibility:hidden;fill:#{shape[:fill] ? "##{shape_color}" : 'none'}"
 end
 
 def svg_render_shape_rect(g, slide, shape)
@@ -508,6 +503,10 @@ def panzooms_emit_event(rec, panzoom)
   end
 end
 
+def convert_cursor_coordinate(cursor_coord, panzoom_offset, panzoom_ratio)
+  (((cursor_coord / 100.0) + (panzoom_offset * @magic_mystery_number / 100.0)) / (panzoom_ratio / 100.0)).round(5)
+end
+
 def cursors_emit_event(rec, cursor)
   if (cursor_in = cursor[:in]) == cursor[:out]
     # BigBlueButton.logger.info('Cursor: not emitting, duration rounds to 0')
@@ -520,10 +519,8 @@ def cursors_emit_event(rec, cursor)
       if @version_atleast_2_0_0
         # In BBB 2.0, the cursor now uses the same coordinate system as annotations
         # Use the panzoom information to convert it to be relative to viewbox
-        x = (((cursor[:x] / 100.0) + (panzoom[:x_offset] * @magic_mystery_number / 100.0)) /
-             (panzoom[:width_ratio] / 100.0)).round(5)
-        y = (((cursor[:y] / 100.0) + (panzoom[:y_offset] * @magic_mystery_number / 100.0)) /
-             (panzoom[:height_ratio] / 100.0)).round(5)
+        x = convert_cursor_coordinate(cursor[:x], panzoom[:x_offset], panzoom[:width_ratio])
+        y = convert_cursor_coordinate(cursor[:y], panzoom[:y_offset], panzoom[:height_ratio])
         x = y = -1.0 if x.negative? || (x > 1) || y.negative? || (y > 1)
       else
         # Cursor position is relative to the visible area
@@ -583,7 +580,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   # These can be missing in old BBB versions, there are fallbacks
   user_id = event.at_xpath('userId')
   shape[:user_id] = user_id.text unless user_id.nil?
-  
+
   unless (shape_id = event.at_xpath('id').text).nil?
     shape[:id] = shape_id
   end
@@ -682,6 +679,14 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   shapes << shape
 end
 
+def set_undo_helper(shapes, key, id, timestamp)
+  shapes.each do |shape|
+    next unless shape[key] == id
+
+    shape[:undo] = timestamp if (shape_undo = shape[:undo]).nil? || (shape_undo > timestamp)
+  end
+end
+
 def events_parse_undo(shapes, event, current_presentation, current_slide, timestamp)
   # Figure out what presentation+slide this undo is for, with fallbacks
   # for old BBB where this info isn't in the undo messages
@@ -694,7 +699,7 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
   # Newer undo messages have the shape id, making this a lot easier
   shape_id = event.at_xpath('shapeId')
   shape_id_nil = shape_id.nil?
-  shape_id = shape_id.text unless shape_id_nil 
+  shape_id = shape_id.text unless shape_id_nil
 
   # Set up the shapes data structures if needed
   shapes[presentation] = {} if shapes[presentation].nil?
@@ -707,11 +712,8 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
     # If we have the shape id, we simply have to update the undo time on
     # all the shapes with that id.
     BigBlueButton.logger.info("Undo: removing shape with ID #{shape_id} at #{timestamp}")
-    shapes.each do |shape|
-      next unless shape[:id] == shape_id
 
-      shape[:undo] = timestamp if (shape_undo = shape[:undo]).nil? || (shape_undo > timestamp)
-    end
+    set_undo_helper(shapes, :id, shape_id, timestamp)
   else
     # The undo command removes the most recently added shape that has not
     # already been removed by another undo or clear. Find that shape.
@@ -723,11 +725,7 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
       # We have an id number assigned to associate all the updated versions
       # of the same shape. Use that to determine which shapes to apply undo
       # times to.
-      shapes.each do |shape|
-        next unless shape[:shape_unique_id] == undo_shape_unique_id
-
-        shape[:undo] = timestamp if (shape_undo = shape[:undo]).nil? || (shape_undo > timestamp)
-      end
+      set_undo_helper(shapes, :shape_unique_id, undo_shape_unique_id, timestamp)
     else
       BigBlueButton.logger.info('Undo: no applicable shapes found')
     end
@@ -1101,7 +1099,7 @@ end
 def get_poll_answers(event)
   answers = []
   unless (answers_event = event.at_xpath('answers')).nil?
-    answers = JSON.parse(answers_event.content) 
+    answers = JSON.parse(answers_event.content)
   end
 
   answers
@@ -1110,7 +1108,7 @@ end
 def get_poll_respondents(event)
   respondents = 0
   unless (num_respondents = event.at_xpath('numRespondents')).nil?
-    respondents = num_respondents.text.to_i 
+    respondents = num_respondents.text.to_i
   end
 
   respondents
@@ -1119,7 +1117,7 @@ end
 def get_poll_responders(event)
   responders = 0
   unless (num_responders = event.at_xpath('numResponders')).nil?
-    responders = num_responders.text.to_i 
+    responders = num_responders.text.to_i
   end
 
   responders
@@ -1128,7 +1126,7 @@ end
 def get_poll_id(event)
   id = ''
   unless (poll_id_event = event.at_xpath('pollId')).nil?
-    id = poll_id_event.text 
+    id = poll_id_event.text
   end
 
   id
@@ -1150,6 +1148,10 @@ def get_poll_type(events, published_poll_event)
   type
 end
 
+def generate_json_file(package_dir, filename, contents)
+  File.open("#{package_dir}/#{filename}", 'w') { |f| f.puts(contents.to_json) } unless contents.empty?
+end
+
 def process_poll_events(events, package_dir)
   BigBlueButton.logger.info('Processing poll events')
 
@@ -1169,7 +1171,7 @@ def process_poll_events(events, package_dir)
     end
   end
 
-  File.open("#{package_dir}/polls.json", 'w') { |f| f.puts(published_polls.to_json) } unless published_polls.empty?
+  generate_json_file(package_dir, 'polls.json', published_polls)
 end
 
 def process_external_video_events(_events, package_dir)
@@ -1201,7 +1203,24 @@ def process_external_video_events(_events, package_dir)
     end
   end
 
-  File.open("#{package_dir}/external_videos.json", 'w') { |f| f.puts(external_videos.to_json) } unless external_videos.empty?
+  generate_json_file(package_dir, 'external_videos.json', external_videos)
+end
+
+def generate_done_or_fail_file(success)
+  File.open("#{@recording_dir}/status/published/#{@meeting_id}-presentation#{success ? '.done' : '.fail'}", 'w') do |file|
+    file.write("#{success ? 'Published' : 'Failed publishing'} #{@meeting_id}")
+  end
+end
+
+def copy_media_files_helper(media, media_files, package_dir)
+  BigBlueButton.logger.info("Making #{media} dir")
+  FileUtils.mkdir_p(media_dir = "#{package_dir}/#{media}")
+
+  media_files.each do |media_file|
+    BigBlueButton.logger.info("Made #{media} dir - copying: #{media_file} to -> #{media_dir}")
+    FileUtils.cp(media_file, media_dir)
+    BigBlueButton.logger.info("Copied #{File.extname(media_file)} file")
+  end
 end
 
 @shapes_svg_filename = 'shapes.svg'
@@ -1229,21 +1248,21 @@ begin
     BigBlueButton.logger = logger
 
     BigBlueButton.logger.info('Setting recording dir')
-    recording_dir = bbb_props['recording_dir']
+    @recording_dir = bbb_props['recording_dir']
 
     BigBlueButton.logger.info('Setting process dir')
-    @process_dir = "#{recording_dir}/process/presentation/#{@meeting_id}"
-    
+    @process_dir = "#{@recording_dir}/process/presentation/#{@meeting_id}"
+
     BigBlueButton.logger.info('Setting publish dir')
     publish_dir = @presentation_props['publish_dir']
-    
+
     BigBlueButton.logger.info('Setting playback url info')
     playback_protocol = bbb_props['playback_protocol']
     playback_host = bbb_props['playback_host']
-    
+
     BigBlueButton.logger.info('Setting target dir')
-    target_dir = "#{recording_dir}/publish/presentation/#{@meeting_id}"
-    @deskshare_dir = "#{recording_dir}/raw/#{@meeting_id}/deskshare"
+    target_dir = "#{@recording_dir}/publish/presentation/#{@meeting_id}"
+    @deskshare_dir = "#{@recording_dir}/raw/#{@meeting_id}/deskshare"
 
     if !FileTest.directory?(target_dir)
       BigBlueButton.logger.info('Making dir target_dir')
@@ -1258,27 +1277,21 @@ begin
 
         video_files = Dir.glob("#{@process_dir}/webcams.{#{video_formats.join(',')}}")
         if !video_files.empty?
-          BigBlueButton.logger.info('Making video dir')
-          video_dir = "#{package_dir}/video"
-          FileUtils.mkdir_p video_dir
-          video_files.each do |video_file|
-            BigBlueButton.logger.info("Made video dir - copying: #{video_file} to -> #{video_dir}")
-            FileUtils.cp(video_file, video_dir)
-            BigBlueButton.logger.info("Copied #{File.extname(video_file)} file")
-          end
+          copy_media_files_helper('video', video_files, package_dir)
         else
-          audio_dir = "#{package_dir}/audio"
-          BigBlueButton.logger.info('Making audio dir')
-          FileUtils.mkdir_p audio_dir
-          BigBlueButton.logger.info("Made audio dir - copying: #{@process_dir}/audio.webm to -> #{audio_dir}")
-          FileUtils.cp("#{@process_dir}/audio.webm", audio_dir)
-          BigBlueButton.logger.info("Copied audio.webm file - copying: #{@process_dir}/audio.ogg to -> #{audio_dir}")
-          FileUtils.cp("#{@process_dir}/audio.ogg", audio_dir)
-          BigBlueButton.logger.info('Copied audio.ogg file')
+          copy_media_files_helper('audio', ["#{@process_dir}/audio.webm", "#{@process_dir}/audio.ogg"], package_dir)
+        end
+
+        video_files = Dir.glob("#{@process_dir}/deskshare.{#{video_formats.join(',')}}")
+        if !video_files.empty?
+          copy_media_files_helper('deskshare', video_files, package_dir)
+        else
+          BigBlueButton.logger.info("Could not copy deskshares.webm: file doesn't exist")
         end
 
         if File.exist?("#{@process_dir}/captions.json")
           BigBlueButton.logger.info('Copying caption files')
+
           FileUtils.cp("#{@process_dir}/captions.json", package_dir)
           Dir.glob("#{@process_dir}/caption_*.vtt").each do |caption|
             BigBlueButton.logger.debug(caption)
@@ -1286,25 +1299,13 @@ begin
           end
         end
 
-        video_files = Dir.glob("#{@process_dir}/deskshare.{#{video_formats.join(',')}}")
-        if !video_files.empty?
-          BigBlueButton.logger.info('Making deskshare dir')
-          deskshare_dir = "#{package_dir}/deskshare"
-          FileUtils.mkdir_p deskshare_dir
-          video_files.each do |video_file|
-            BigBlueButton.logger.info("Made deskshare dir - copying: #{video_file} to -> #{deskshare_dir}")
-            FileUtils.cp(video_file, deskshare_dir)
-            BigBlueButton.logger.info("Copied #{File.extname(video_file)} file")
-          end
-        else
-          BigBlueButton.logger.info("Could not copy deskshares.webm: file doesn't exist")
+        if File.exist?(presentation_text = "#{@process_dir}/presentation_text.json")
+          FileUtils.cp(presentation_text, package_dir)
         end
 
-        if File.exist?("#{@process_dir}/presentation_text.json")
-          FileUtils.cp("#{@process_dir}/presentation_text.json", package_dir)
+        if File.exist?(notes = "#{@process_dir}/notes/notes.html")
+          FileUtils.cp(notes, package_dir)
         end
-
-        FileUtils.cp("#{@process_dir}/notes/notes.html", package_dir) if File.exist?("#{@process_dir}/notes/notes.html")
 
         processing_time = File.read("#{@process_dir}/processing_time")
 
@@ -1408,7 +1409,7 @@ begin
         FileUtils.mkdir_p publish_dir unless FileTest.directory?(publish_dir)
 
         # Get raw size of presentation files
-        raw_dir = "#{recording_dir}/raw/#{@meeting_id}"
+        raw_dir = "#{@recording_dir}/raw/#{@meeting_id}"
         # After all the processing we'll add the published format and raw sizes to the metadata file
         BigBlueButton.add_raw_size_to_metadata(package_dir, raw_dir)
         BigBlueButton.add_playback_size_to_metadata(package_dir)
@@ -1428,10 +1429,7 @@ begin
         end
         exit 1
       end
-      File.open("#{recording_dir}/status/published/#{@meeting_id}-presentation.done", 'w') do |file|
-        file.write("Published #{@meeting_id}")
-      end
-
+      generate_done_or_fail_file(true)
     else
       BigBlueButton.logger.info("#{target_dir} is already there")
     end
@@ -1441,9 +1439,7 @@ rescue StandardError => e
   e.backtrace.each do |traceline|
     BigBlueButton.logger.error(traceline)
   end
-  File.open("#{recording_dir}/status/published/#{@meeting_id}-presentation.fail", 'w') do |file|
-    file.write("Failed Publishing #{@meeting_id}")
-  end
+  generate_done_or_fail_file(false)
 
   exit 1
 end
