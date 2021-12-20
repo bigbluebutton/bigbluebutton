@@ -32,7 +32,6 @@ const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
 
 const propTypes = {
   actionsbar: PropTypes.node,
-  meetingLayout: PropTypes.string.isRequired,
 };
 
 const defaultProps = {

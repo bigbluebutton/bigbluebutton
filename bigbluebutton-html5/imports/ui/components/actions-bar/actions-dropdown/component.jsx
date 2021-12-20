@@ -10,7 +10,7 @@ import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/
 import BBBMenu from '/imports/ui/components/menu/component';
 import cx from 'classnames';
 import { styles } from '../styles';
-import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
+import { PANELS, ACTIONS } from '../../layout/enums';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -30,7 +30,6 @@ const propTypes = {
 
 const defaultProps = {
   shortcuts: '',
-  settingsLayout: LAYOUT_TYPE.SMART_LAYOUT,
 };
 
 const intlMessages = defineMessages({
