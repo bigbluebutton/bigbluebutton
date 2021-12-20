@@ -124,6 +124,9 @@ public:
         guestWaitingPushAlerts: true
         paginationEnabled: true
         pushLayoutToEveryone: false
+        # Default Meeting Layout
+        # Valid values are CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS
+        defaultLayout: SMART_LAYOUT
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
         # specified in fallbackLocale. Note that fallbackLocale should be a

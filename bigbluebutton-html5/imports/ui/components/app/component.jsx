@@ -184,8 +184,10 @@ class App extends Component {
       value: parseInt(fontSize.slice(0, -2), 10),
     });
 
+    const userLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', false)];
+
     Settings.application.selectedLayout = settingsLayout
-      || getFromUserSettings('bbb_change_layout', false)
+      || userLayout
       || meetingLayout;
     Settings.save();
 

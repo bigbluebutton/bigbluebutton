@@ -15,6 +15,8 @@ import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
 import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
+const APP_CONFIG = Meteor.settings.public.app.defaultSettings.application;
+
 const addExternalVideo = (meetingId) => {
   const selector = { meetingId };
 
@@ -169,11 +171,14 @@ export default function addMeeting(meeting) {
   // At the moment `modOnlyMessage` is obtained from client side as a response to Enter API
   newMeeting.welcomeProp.modOnlyMessage = sanitizeTextInChat(newMeeting.welcomeProp.modOnlyMessage);
 
+  const { defaultLayout } = APP_CONFIG;
+  const { meetinglayout } = meeting.metadataProp.metadata;
+
   const modifier = {
     $set: Object.assign({
       meetingId,
       meetingEnded,
-      layout: LAYOUT_TYPE[meeting.metadataProp.meetingLayout],
+      layout: LAYOUT_TYPE[meetinglayout] || LAYOUT_TYPE[defaultLayout],
       publishedPoll: false,
       guestLobbyMessage: '',
       randomlySelectedUser: [],
