@@ -172,13 +172,13 @@ export default function addMeeting(meeting) {
   newMeeting.welcomeProp.modOnlyMessage = sanitizeTextInChat(newMeeting.welcomeProp.modOnlyMessage);
 
   const { defaultLayout } = APP_CONFIG;
-  const { meetinglayout } = meeting.metadataProp.metadata;
+  const meetingLayout = meeting.metadataProp.metadata['meeting-layout'];
 
   const modifier = {
     $set: Object.assign({
       meetingId,
       meetingEnded,
-      layout: LAYOUT_TYPE[meetinglayout] || LAYOUT_TYPE[defaultLayout],
+      layout: LAYOUT_TYPE[meetingLayout] || LAYOUT_TYPE[defaultLayout],
       publishedPoll: false,
       guestLobbyMessage: '',
       randomlySelectedUser: [],
