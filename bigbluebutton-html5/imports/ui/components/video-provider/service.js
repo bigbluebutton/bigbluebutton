@@ -6,6 +6,7 @@ import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import VideoStreams from '/imports/api/video-streams';
 import UserListService from '/imports/ui/components/user-list/service';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { makeCall } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -28,6 +29,7 @@ const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 const MIRROR_WEBCAM = Meteor.settings.public.app.mirrorOwnWebcam;
+const PIN_WEBCAM = Meteor.settings.public.kurento.enableVideoPin;
 const CAMERA_QUALITY_THRESHOLDS = Meteor.settings.public.kurento.cameraQualityThresholds.thresholds || [];
 const {
   paginationToggleEnabled: PAGINATION_TOGGLE_ENABLED,
@@ -246,13 +248,15 @@ class VideoService {
 
     // Page size refers only to the number of subscribers. Publishers are always
     // shown, hence not accounted for
-    const nofPages = Math.ceil((numberOfSubscribers || numberOfPublishers) / pageSize);
+    const nofPages = Math.ceil(numberOfSubscribers / pageSize);
 
     if (nofPages !== this.numberOfPages) {
       this.numberOfPages = nofPages;
       // Check if we have to page back on the current video page index due to a
       // page ceasing to exist
-      if ((this.currentVideoPageIndex + 1) > this.numberOfPages) {
+      if (nofPages === 0) {
+        this.currentVideoPageIndex = 0;
+      } else if ((this.currentVideoPageIndex + 1) > this.numberOfPages) {
         this.getPreviousVideoPage();
       }
     }
@@ -368,11 +372,14 @@ class VideoService {
 
   getVideoPage (streams, pageSize) {
     // Publishers are taken into account for the page size calculations. They
-    // also appear on every page.
-    const [mine, others] = _.partition(streams, (vs => { return Auth.userID === vs.userId; }));
+    // also appear on every page. Same for pinned user.
+    const [filtered, others] = _.partition(streams, (vs) => Auth.userID === vs.userId || vs.pin);
+
+    // Separate pin from local cameras
+    const [pin, mine] = _.partition(filtered, (vs) => vs.pin);
 
     // Recalculate total number of pages
-    this.setNumberOfPages(mine.length, others.length, pageSize);
+    this.setNumberOfPages(filtered.length, others.length, pageSize);
     const chunkIndex = this.currentVideoPageIndex * pageSize;
 
     // This is an extra check because pagination is globally in effect (hard
@@ -383,10 +390,9 @@ class VideoService {
       .slice(chunkIndex, (chunkIndex + pageSize)) || [];
 
     if (getSortingMethod(sortingMethod).localFirst) {
-      return [...mine, ...paginatedStreams];
+      return [...pin, ...mine, ...paginatedStreams];
     }
-
-    return [...paginatedStreams, ...mine];
+    return [...pin, ...paginatedStreams, ...mine];
   }
 
   getUsersIdFromVideoStreams() {
@@ -396,6 +402,16 @@ class VideoService {
     ).fetch().map(user => user.userId);
 
     return usersId;
+  }
+
+  getVideoPinByUser(userId) {
+    const user = Users.findOne({ userId }, { fields: { pin: 1 } });
+
+    return user.pin;
+  }
+
+  toggleVideoPin(userId, userIsPinned) {
+    makeCall('changePin', userId, !userIsPinned);
   }
 
   getVideoStreams() {
@@ -573,6 +589,24 @@ class VideoService {
     const isOwnWebcam = userId ? Auth.userID === userId : true;
     const isEnabledMirroring = getFromUserSettings('bbb_mirror_own_webcam', MIRROR_WEBCAM);
     return isOwnWebcam && isEnabledMirroring;
+  }
+
+  isPinEnabled() {
+    return PIN_WEBCAM;
+  }
+
+  // In user-list it is necessary to check if the user is sharing his webcam
+  isVideoPinEnabledForCurrentUser() {
+    const currentUser = Users.findOne({ userId: Auth.userID },
+      { fields: { role: 1 } });
+
+    const isModerator = currentUser.role === 'MODERATOR';
+    const isBreakout = meetingIsBreakout();
+    const isPinEnabled = this.isPinEnabled();
+
+    return !!(isModerator
+      && isPinEnabled
+      && !isBreakout);
   }
 
   getMyStreamId(deviceId) {
@@ -942,6 +976,10 @@ export default {
   getPageChangeDebounceTime: () => { return PAGE_CHANGE_DEBOUNCE_TIME },
   getUsersIdFromVideoStreams: () => videoService.getUsersIdFromVideoStreams(),
   shouldRenderPaginationToggle: () => videoService.shouldRenderPaginationToggle(),
+  toggleVideoPin: (userId, pin) => videoService.toggleVideoPin(userId, pin),
+  getVideoPinByUser: (userId) => videoService.getVideoPinByUser(userId),
+  isVideoPinEnabledForCurrentUser: () => videoService.isVideoPinEnabledForCurrentUser(),
+  isPinEnabled: () => videoService.isPinEnabled(),
   getPreloadedStream: () => videoService.getPreloadedStream(),
   getStats: () => videoService.getStats(),
   updatePeerDictionaryReference: (newRef) => videoService.updatePeerDictionaryReference(newRef),
