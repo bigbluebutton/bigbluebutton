@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
+import { setDeselectHandle } from '/imports/ui/components/whiteboard/service';
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
@@ -74,6 +75,7 @@ class Presentation extends PureComponent {
 
     this.getSvgRef = this.getSvgRef.bind(this);
     this.setFitToWidth = this.setFitToWidth.bind(this);
+    this.deselect = this.deselect.bind(this);
     this.zoomChanger = this.zoomChanger.bind(this);
     this.updateLocalPosition = this.updateLocalPosition.bind(this);
     this.panAndZoomChanger = this.panAndZoomChanger.bind(this);
@@ -118,6 +120,7 @@ class Presentation extends PureComponent {
     this.getInitialPresentationSizes();
     this.refPresentationContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
     window.addEventListener('resize', this.onResize, false);
+    setDeselectHandle(this.deselect);
 
     const {
       currentSlide, slidePosition, layoutContextDispatch,
@@ -135,6 +138,9 @@ class Presentation extends PureComponent {
           height: slidePosition.height,
         },
       });
+    }
+    if (this.moveableRef.current !== null) {
+      this.moveableRef.current.updateRect();
     }
   }
 
@@ -381,6 +387,13 @@ class Presentation extends PureComponent {
       width: svgWidth,
       height: svgHeight,
     };
+  }
+
+  deselect(selection) {
+    this.setState((state) => ({
+      moveableTargets: state.moveableTargets
+        .filter((selected) => !selection.includes(selected.id)),
+    }));
   }
 
   zoomChanger(incomingZoom) {

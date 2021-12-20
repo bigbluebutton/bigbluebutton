@@ -15,6 +15,9 @@ const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 const ANNOTATION_TYPE_PENCIL = 'pencil';
 
+let deselectHandle = null;
+
+const setDeselectHandle = (handle) => { deselectHandle = handle; };
 
 let annotationsStreamListener = null;
 
@@ -52,6 +55,9 @@ function handleRemovedAnnotation({
     query.id = shapeId;
   }
 
+  if (deselectHandle) {
+    deselectHandle(shapeId);
+  }
   Annotations.remove(query);
 }
 
@@ -299,4 +305,5 @@ export {
   addIndividualAccess,
   removeGlobalAccess,
   removeIndividualAccess,
+  setDeselectHandle,
 };
