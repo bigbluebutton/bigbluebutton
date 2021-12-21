@@ -30,6 +30,7 @@ public interface IBbbWebApiGWApp {
                      Integer endWhenNoModeratorDelayInMinutes,
                      Boolean muteOnStart,
                      Boolean allowModsToUnmuteUsers,
+                     Boolean allowModsToEjectCameras,
                      Boolean keepEvents,
                      BreakoutRoomsParams breakoutParams,
                      LockSettingsParams lockSettingsParams,

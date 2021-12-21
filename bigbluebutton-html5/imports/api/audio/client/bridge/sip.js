@@ -42,6 +42,7 @@ const TRACE_SIP = MEDIA.traceSip || false;
 const AUDIO_MICROPHONE_CONSTRAINTS = Meteor.settings.public.app.defaultSettings
   .application.microphoneConstraints;
 const SDP_SEMANTICS = MEDIA.sdpSemantics;
+const FORCE_RELAY = MEDIA.forceRelay;
 
 const DEFAULT_INPUT_DEVICE_ID = 'default';
 const DEFAULT_OUTPUT_DEVICE_ID = 'default';
@@ -557,6 +558,7 @@ class SIPSession {
           peerConnectionConfiguration: {
             iceServers,
             sdpSemantics: SDP_SEMANTICS,
+            iceTransportPolicy: FORCE_RELAY ? 'relay' : undefined,
           },
         },
         displayName: callerIdName,

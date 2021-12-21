@@ -75,7 +75,10 @@ export const sortLocalPresenterAlphabetical = (s1, s2) => {
 //     1.1.: the sorting function has the same behaviour as a regular .sort callback
 //   2 - add an entry to SORTING_METHODS, the key being the name to be used
 //   in settings.yml and the value object like the aforementioned
-const MANDATORY_DATA_TYPES = { userId: 1, stream: 1, name: 1, deviceId: 1, };
+const MANDATORY_DATA_TYPES = {
+  userId: 1, stream: 1, name: 1, deviceId: 1, floor: 1,
+};
+
 const SORTING_METHODS = Object.freeze({
   // Default
   LOCAL_ALPHABETICAL: {
@@ -120,5 +123,6 @@ export const sortVideoStreams = (streams, mode) => {
     stream: videoStream.stream,
     userId: videoStream.userId,
     name: videoStream.name,
+    floor: videoStream.floor,
   }));
 };

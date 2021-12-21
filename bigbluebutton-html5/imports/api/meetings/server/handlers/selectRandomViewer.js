@@ -8,7 +8,7 @@ export default function randomlySelectedUser({ header, body }) {
   check(meetingId, String);
   check(requestedBy, String);
   check(userIds, Array);
-  check(choice, Number);
+  check(choice, String);
 
   updateRandomViewer(meetingId, userIds, choice, requestedBy);
 }

@@ -581,7 +581,6 @@
     "app.guest.errorSeeConsole": "Lỗi: xem thêm ở console",
     "app.guest.noModeratorResponse": "Không có phản hồi từ Điều hành viên",
     "app.guest.noSessionToken": "Không có Mã thông báo phiên nào nhận được.",
-    "app.guest.windowTitle": "Phòng chờ của khách",
     "app.guest.missingToken": "Khách bị thiếu mã thông báo phiên.",
     "app.guest.missingSession": "Khách bỏ lỡ phiên.",
     "app.guest.missingMeeting": "Phòng họp này không tồn tại",

@@ -61,6 +61,7 @@ export default function addMeeting(meeting) {
       authenticatedGuest: Boolean,
       maxUsers: Number,
       allowModsToUnmuteUsers: Boolean,
+      allowModsToEjectCameras: Boolean,
       meetingLayout: String,
     },
     durationProps: {

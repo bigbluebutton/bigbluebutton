@@ -39,6 +39,29 @@ class ConnectionController {
       response.contentType = 'plain/text'
 
       if (userSession != null && !isSessionTokenInvalid) {
+        response.addHeader("User-Id", userSession.internalUserId)
+        response.addHeader("Meeting-Id", userSession.meetingID)
+        response.addHeader("Voice-Bridge", userSession.voicebridge )
+        response.setStatus(200)
+        response.outputStream << 'authorized'
+      } else {
+        response.setStatus(401)
+        response.outputStream << 'unauthorized'
+      }
+    } catch (IOException e) {
+      log.error("Error while authenticating connection.\n" + e.getMessage())
+    }
+  }
+
+  def legacyCheckAuthorization = {
+    try {
+      def uri = request.getHeader("x-original-uri")
+      def sessionToken = ParamsUtil.getSessionToken(uri)
+      UserSession userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
+
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      if (userSession != null) {
         response.setStatus(200)
         response.outputStream << 'authorized'
       } else {

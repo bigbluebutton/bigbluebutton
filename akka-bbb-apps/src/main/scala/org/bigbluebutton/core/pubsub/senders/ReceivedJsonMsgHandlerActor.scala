@@ -143,6 +143,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[CamStreamUnsubscribedInSfuEvtMsg](envelope, jsonNode)
       case CamBroadcastStoppedInSfuEvtMsg.NAME =>
         routeGenericMsg[CamBroadcastStoppedInSfuEvtMsg](envelope, jsonNode)
+      case EjectUserCamerasCmdMsg.NAME =>
+        routeGenericMsg[EjectUserCamerasCmdMsg](envelope, jsonNode)
 
       // Voice
       case RecordingStartedVoiceConfEvtMsg.NAME =>

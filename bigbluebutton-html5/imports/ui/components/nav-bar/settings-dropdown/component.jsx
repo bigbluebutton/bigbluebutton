@@ -11,6 +11,7 @@ import BBBMenu from '/imports/ui/components/menu/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import FullscreenService from '../../fullscreen-button/service';
+import browserInfo from '/imports/utils/browserInfo';
 
 import { styles } from '../styles';
 
@@ -108,6 +109,8 @@ const defaultProps = {
 };
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const { isSafari } = browserInfo;
+const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
 class SettingsDropdown extends PureComponent {
   constructor(props) {
@@ -125,11 +128,11 @@ class SettingsDropdown extends PureComponent {
   }
 
   componentDidMount() {
-    document.documentElement.addEventListener('fullscreenchange', this.onFullscreenChange);
+    document.documentElement.addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
   }
 
   componentWillUnmount() {
-    document.documentElement.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    document.documentElement.removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
   }
 
   onFullscreenChange() {
