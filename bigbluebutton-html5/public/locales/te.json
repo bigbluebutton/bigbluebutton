@@ -585,7 +585,6 @@
     "app.guest.errorSeeConsole": "లోపం: కన్సోల్‌లో మరిన్ని వివరాలు.",
     "app.guest.noModeratorResponse": "మోడరేటర్ నుండి ప్రతిస్పందన లేదు.",
     "app.guest.noSessionToken": "టోకెన్ రాలేదు.",
-    "app.guest.windowTitle": "అతిథి లాబీ",
     "app.guest.missingToken": "అతిథి సెషన్ టోకెన్ లేదు.",
     "app.guest.missingSession": "అతిథి సెషన్ లేదు.",
     "app.guest.missingMeeting": "సమావేశం ఉనికిలో లేదు.",
