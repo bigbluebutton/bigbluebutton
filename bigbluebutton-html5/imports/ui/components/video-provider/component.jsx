@@ -257,7 +257,7 @@ class VideoProvider extends Component {
   findAllPrivilegedStreams () {
     const { streams } = this.props;
     // Privileged streams are: floor holders
-    return streams.filter(stream => stream.floor);
+    return streams.filter(stream => stream.floor || stream.pin);
   }
 
   updateQualityThresholds(numberOfPublishers) {

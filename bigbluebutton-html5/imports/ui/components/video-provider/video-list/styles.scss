@@ -306,3 +306,52 @@
   flex-basis: 100%;
   height: 5px;
 }
+
+.wrapper {
+  position: absolute;
+  top: 0;
+  left: auto;
+  background-color: var(--color-transparent);
+  cursor: pointer;
+  border: 0;
+  z-index: 2;
+  margin: 2px;
+
+  [dir="rtl"] & {
+    right: auto;
+    left :0;
+  }
+
+  [class*="presentationZoomControls"] & {
+    position: relative !important;
+  }
+}
+
+.button {
+  padding: 5px;
+  &,
+  &:active,
+  &:hover,
+  &:focus {
+    background-color: var(--color-transparent) !important;
+    border: none !important;
+
+    i {
+      border: none !important;
+      color: var(--color-white);
+      font-size: 1rem;
+      background-color: var(--color-transparent) !important;
+    }
+  }
+}
+
+.dark {
+  background-color: rgba(0,0,0,.3);
+}
+
+.pinIcon {
+  position: absolute;
+  left: 2px;
+  font-size: 2rem;
+  top: 2px;
+}
