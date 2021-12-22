@@ -564,8 +564,8 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   slide = determine_slide_number(slide, current_slide)
 
   # Set up the shapes data structures if needed
-  shapes[presentation] = {} if shapes[presentation].nil?
-  shapes[presentation][slide] = [] if shapes[presentation][slide].nil?
+  shapes[presentation] ||= {}
+  shapes[presentation][slide] ||= []
 
   # We only need to deal with shapes for this slide
   shapes = shapes[presentation][slide]
@@ -1124,12 +1124,7 @@ def get_poll_responders(event)
 end
 
 def get_poll_id(event)
-  id = ''
-  unless (poll_id_event = event.at_xpath('pollId')).nil?
-    id = poll_id_event.text
-  end
-
-  id
+  event.at_xpath('pollId')&.text || ''
 end
 
 def get_poll_type(events, published_poll_event)
@@ -1417,11 +1412,8 @@ begin
         FileUtils.cp_r(package_dir, publish_dir) # Copy all the files.
         BigBlueButton.logger.info('Finished publishing script presentation.rb successfully.')
 
-        BigBlueButton.logger.info('Removing processed files.')
-        FileUtils.rm_r(Dir.glob("#{@process_dir}/*"))
-
-        BigBlueButton.logger.info('Removing published files.')
-        FileUtils.rm_r(Dir.glob("#{target_dir}/*"))
+        BigBlueButton.logger.info('Removing processed and published files.')
+        FileUtils.rm_r([Dir.glob("#{@process_dir}/*"), Dir.glob("#{target_dir}/*")])
       rescue StandardError => e
         BigBlueButton.logger.error(e.message)
         e.backtrace.each do |traceline|
