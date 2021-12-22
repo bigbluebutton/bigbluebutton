@@ -22,10 +22,10 @@ _performance_start = Time.now
 
 # For DEVELOPMENT
 # Allows us to run the script manually
-# require File.expand_path('../../../core/lib/recordandplayback', __FILE__)
+# require File.expand_path('../../core/lib/recordandplayback', __dir__)
 
 # For PRODUCTION
-require File.expand_path('../../../lib/recordandplayback', __FILE__)
+require File.expand_path('../../lib/recordandplayback', __dir__)
 
 require 'rubygems'
 require 'optimist'
@@ -87,31 +87,22 @@ def calculate_record_events_offset
 end
 
 #
-# Translated an arbitrary Unix timestamp to the recording timestamp. This is the
-# function that others will call
-#
-def translate_timestamp(timestamp)
-  new_timestamp = translate_timestamp_helper(timestamp.to_f).to_f
-  # BigBlueButton.logger.info("Translating #{timestamp}, old value=#{timestamp.to_f - @meeting_start.to_f}, new value=#{new_timestamp}")
-  new_timestamp
-end
-
-#
 # Translated an arbitrary Unix timestamp to the recording timestamp
 #
-def translate_timestamp_helper(timestamp)
+def translate_timestamp(timestamp)
+  timestamp = timestamp.to_f
   @rec_events.each do |event|
     start_timestamp = event[:start_timestamp]
     # if the timestamp comes before the start recording event, then the timestamp is translated to the moment it starts recording
-    return start_timestamp - event[:offset] if timestamp <= start_timestamp
+    return (start_timestamp - event[:offset]).to_f if timestamp <= start_timestamp
 
     # if the timestamp is during the recording period, it is just translated to the new one using the offset
-    return timestamp - event[:offset] if (timestamp > start_timestamp) && (timestamp <= event[:stop_timestamp])
+    return (timestamp - event[:offset]).to_f if (timestamp > start_timestamp) && (timestamp <= event[:stop_timestamp])
   end
 
   # if the timestamp comes after the last stop recording event, then the timestamp is translated to the last stop recording event timestamp
   last_rec_event = @rec_events.last
-  timestamp - last_rec_event[:offset] + last_rec_event[:duration]
+  (timestamp - last_rec_event[:offset] + last_rec_event[:duration]).to_f
 end
 
 def color_to_hex(color)
