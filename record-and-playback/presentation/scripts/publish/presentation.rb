@@ -466,10 +466,8 @@ end
 
 def panzoom_viewbox(panzoom)
   if panzoom[:deskshare]
-    panzoom[:x_offset] = 0.0
-    panzoom[:y_offset] = 0.0
-    panzoom[:width_ratio] = 100.0
-    panzoom[:height_ratio] = 100.0
+    panzoom[:x_offset] = panzoom[:y_offset] = 0.0
+    panzoom[:width_ratio] = panzoom[:height_ratio] = 100.0
   end
 
   x = (-panzoom[:x_offset] * @magic_mystery_number / 100.0 * panzoom[:width]).round(5)
@@ -627,8 +625,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
     shape[:calced_font_size] = calced_font_size.text.to_f
 
     shape[:font_color] = color_to_hex(event.at_xpath('fontColor').text)
-    text = event.at_xpath('text')
-    shape[:text] = !text.nil? ? text.text : ''
+    shape[:text] = event.at_xpath('text')&.text || ''
   end
 
   # Find the previous shape, for updates
@@ -692,8 +689,8 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
   shape_id = shape_id.text unless shape_id_nil
 
   # Set up the shapes data structures if needed
-  shapes[presentation] = {} if shapes[presentation].nil?
-  shapes[presentation][slide] = [] if shapes[presentation][slide].nil?
+  shapes[presentation] ||= {}
+  shapes[presentation][slide] ||= []
 
   # We only need to deal with shapes for this slide
   shapes = shapes[presentation][slide]
@@ -738,8 +735,8 @@ def events_parse_clear(shapes, event, current_presentation, current_slide, times
   user_id = user_id.text unless user_id.nil?
 
   # Set up the shapes data structures if needed
-  shapes[presentation] = {} if shapes[presentation].nil?
-  shapes[presentation][slide] = [] if shapes[presentation][slide].nil?
+  shapes[presentation] ||= {}
+  shapes[presentation][slide] ||= []
 
   # We only need to deal with shapes for this slide
   shapes = shapes[presentation][slide]
@@ -805,13 +802,10 @@ def process_presentation(package_dir)
   current_presentation = ''
   current_slide = 0
   # Current pan/zoom state
-  current_x_offset = 0.0
-  current_y_offset = 0.0
-  current_width_ratio = 100.0
-  current_height_ratio = 100.0
+  current_x_offset = current_y_offset = 0.0
+  current_width_ratio = current_height_ratio = 100.0
   # Current cursor status
-  cursor_x = -1.0
-  cursor_y = -1.0
+  cursor_x = cursor_y = -1.0
   cursor_visible = false
   presenter = nil
   # Current deskshare state (affects presentation and pan/zoom)
@@ -841,14 +835,12 @@ def process_presentation(package_dir)
     when 'SharePresentationEvent'
       current_presentation = event.at_xpath('presentationName').text
       current_slide = current_presentation_slide[current_presentation].to_i
-      slide_changed = true
-      panzoom_changed = true
+      slide_changed = panzoom_changed = true
 
     when 'GotoSlideEvent'
       current_slide = event.at_xpath('slide').text.to_i
       current_presentation_slide[current_presentation] = current_slide
-      slide_changed = true
-      panzoom_changed = true
+      slide_changed = panzoom_changed = true
 
     when 'ResizeAndMoveSlideEvent'
       current_x_offset = event.at_xpath('xOffset').text.to_f
@@ -858,10 +850,7 @@ def process_presentation(package_dir)
       panzoom_changed = true
 
     when 'DeskshareStartedEvent', 'StartWebRTCDesktopShareEvent'
-      if @presentation_props['include_deskshare']
-        deskshare = true
-        slide_changed = true
-      end
+      deskshare = slide_changed = true if @presentation_props['include_deskshare']
 
     when 'DeskshareStoppedEvent', 'StopWebRTCDesktopShareEvent'
       if @presentation_props['include_deskshare']
@@ -888,8 +877,7 @@ def process_presentation(package_dir)
     when 'CursorMoveEvent'
       cursor_x = event.at_xpath('xOffset').text.to_f
       cursor_y = event.at_xpath('yOffset').text.to_f
-      cursor_visible = true
-      cursor_changed = true
+      cursor_visible = cursor_changed = true
 
     when 'WhiteboardCursorMoveEvent'
       user_id = event.at_xpath('userId')
@@ -897,8 +885,7 @@ def process_presentation(package_dir)
       if user_id.nil? || (user_id.text == presenter)
         cursor_x = event.at_xpath('xOffset').text.to_f
         cursor_y = event.at_xpath('yOffset').text.to_f
-        cursor_visible = true
-        cursor_changed = true
+        cursor_visible = cursor_changed = true
       end
     end
     # Perform slide finalization
@@ -911,7 +898,6 @@ def process_presentation(package_dir)
          (slide[:slide] == current_slide) &&
          (slide[:deskshare] == deskshare)
         BigBlueButton.logger.info('Presentation/Slide: skipping, no changes')
-        # slide_changed = false
       else
         unless slide_nil
           slide[:out] = timestamp
@@ -1078,12 +1064,7 @@ def process_deskshare_events(events)
 end
 
 def get_poll_question(event)
-  question = ''
-  unless (question_event = event.at_xpath('question')).nil?
-    question = question_event.text
-  end
-
-  question
+  event.at_xpath('question')&.text || ''
 end
 
 def get_poll_answers(event)
@@ -1096,21 +1077,11 @@ def get_poll_answers(event)
 end
 
 def get_poll_respondents(event)
-  respondents = 0
-  unless (num_respondents = event.at_xpath('numRespondents')).nil?
-    respondents = num_respondents.text.to_i
-  end
-
-  respondents
+  event.at_xpath('numRespondents')&.text.to_i || 0
 end
 
 def get_poll_responders(event)
-  responders = 0
-  unless (num_responders = event.at_xpath('numResponders')).nil?
-    responders = num_responders.text.to_i
-  end
-
-  responders
+  event.at_xpath('numResponders')&.text.to_i || 0
 end
 
 def get_poll_id(event)
