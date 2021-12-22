@@ -2,6 +2,7 @@
 exports.actions = 'button[aria-label="Actions"]';
 exports.pollMenuButton = 'div[data-test="pollMenuButton"]';
 exports.options = 'button[aria-label="Options"]';
+exports.optionsButton = 'button[data-test="optionsButton"]';
 exports.settings = 'li[data-test="settings"]';
 exports.modalConfirmButton = 'button[data-test="modalConfirmButton"]';
 exports.screenshareConnecting = 'div[data-test="screenshareConnecting"]';
