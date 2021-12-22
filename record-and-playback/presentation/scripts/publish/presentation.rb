@@ -22,7 +22,7 @@ _performance_start = Time.now
 
 # For DEVELOPMENT
 # Allows us to run the script manually
-# require File.expand_path('../../core/lib/recordandplayback', __dir__)
+# require File.expand_path('../../../core/lib/recordandplayback', __dir__)
 
 # For PRODUCTION
 require File.expand_path('../../lib/recordandplayback', __dir__)
@@ -395,7 +395,7 @@ def svg_render_shape(canvas, slide, shape, image_id)
   doc = canvas.document
   g = doc.create_element('g',
                          id: "image#{image_id}-draw#{shape[:shape_id]}", class: 'shape',
-                         timestamp: shape_in, undo: (shape[:undo].nil? ? -1 : shape[:undo]))
+                         timestamp: shape_in, undo: shape[:undo] || -1)
 
   case shape[:type]
   when 'pencil'
@@ -529,9 +529,7 @@ end
 @svg_shape_unique_id = 1
 
 def determine_presentation(presentation, current_presentation)
-  return current_presentation if presentation.nil?
-
-  presentation.text
+  presentation&.text || current_presentation
 end
 
 def determine_slide_number(slide, current_slide)
@@ -593,8 +591,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
     end
   end
   if %w[ellipse rectangle triangle].include?(shape_type)
-    fill = event.at_xpath('fill')
-    fill = fill.nil? ? 'false' : fill.text
+    fill = event.at_xpath('fill')&.text || 'false'
     shape[:fill] = fill =~ /true/ ? true : false
   end
 
@@ -731,8 +728,7 @@ def events_parse_clear(shapes, event, current_presentation, current_slide, times
   # BigBlueButton 2.0 per-user clear features; default to full clear on older versions
   full_clear = event.at_xpath('fullClear')
   full_clear = !full_clear.nil? ? (full_clear.text == 'true') : true
-  user_id = event.at_xpath('userId')
-  user_id = user_id.text unless user_id.nil?
+  user_id = event.at_xpath('userId')&.text
 
   # Set up the shapes data structures if needed
   shapes[presentation] ||= {}
@@ -1310,7 +1306,7 @@ begin
                 xml.preview do
                   xml.images do
                     presentation[:slides].each do |key, val|
-                      attributes = { width: '176', height: '136', alt: !val[:alt].nil? ? (val[:alt]).to_s : '' }
+                      attributes = { width: '176', height: '136', alt: val[:alt]&.to_s || '' }
                       xml.image(attributes) do
                         xml.text("#{playback_protocol}://#{playback_host}/presentation/#{@meeting_id}/presentation/#{presentation[:id]}/thumbnails/thumb-#{key}.png")
                       end
