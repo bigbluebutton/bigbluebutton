@@ -22,10 +22,10 @@ _performance_start = Time.now
 
 # For DEVELOPMENT
 # Allows us to run the script manually
-# require File.expand_path('../../../core/lib/recordandplayback', __FILE__)
+# require File.expand_path('../../core/lib/recordandplayback', __dir__)
 
 # For PRODUCTION
-require File.expand_path('../../../lib/recordandplayback', __FILE__)
+require File.expand_path('../../lib/recordandplayback', __dir__)
 
 require 'rubygems'
 require 'optimist'
@@ -87,31 +87,22 @@ def calculate_record_events_offset
 end
 
 #
-# Translated an arbitrary Unix timestamp to the recording timestamp. This is the
-# function that others will call
-#
-def translate_timestamp(timestamp)
-  new_timestamp = translate_timestamp_helper(timestamp.to_f).to_f
-  # BigBlueButton.logger.info("Translating #{timestamp}, old value=#{timestamp.to_f - @meeting_start.to_f}, new value=#{new_timestamp}")
-  new_timestamp
-end
-
-#
 # Translated an arbitrary Unix timestamp to the recording timestamp
 #
-def translate_timestamp_helper(timestamp)
+def translate_timestamp(timestamp)
+  timestamp = timestamp.to_f
   @rec_events.each do |event|
     start_timestamp = event[:start_timestamp]
     # if the timestamp comes before the start recording event, then the timestamp is translated to the moment it starts recording
-    return start_timestamp - event[:offset] if timestamp <= start_timestamp
+    return (start_timestamp - event[:offset]).to_f if timestamp <= start_timestamp
 
     # if the timestamp is during the recording period, it is just translated to the new one using the offset
-    return timestamp - event[:offset] if (timestamp > start_timestamp) && (timestamp <= event[:stop_timestamp])
+    return (timestamp - event[:offset]).to_f if (timestamp > start_timestamp) && (timestamp <= event[:stop_timestamp])
   end
 
   # if the timestamp comes after the last stop recording event, then the timestamp is translated to the last stop recording event timestamp
   last_rec_event = @rec_events.last
-  timestamp - last_rec_event[:offset] + last_rec_event[:duration]
+  (timestamp - last_rec_event[:offset] + last_rec_event[:duration]).to_f
 end
 
 def color_to_hex(color)
@@ -243,7 +234,6 @@ def svg_render_shape_rect(g, slide, shape)
   y2 = shape_scale_height(slide, data_points[3])
 
   width = (x2 - x1).abs
-  # height = (y2 - y1).abs
 
   if shape[:square]
     # Convert to a square, keeping aligned with the start point.
@@ -459,9 +449,9 @@ def svg_render_image(svg, slide, shapes)
   end
   svg << image
 
-  if slide_deskshare || (presentation_shapes = shapes[presentation]).nil? || (shapes = presentation_shapes[slide_number]).nil?
-    return
-  end
+  return if slide_deskshare || shapes.dig(presentation, slide_number).nil?
+
+  shapes = shapes[presentation][slide_number]
 
   canvas = doc.create_element('g',
                               class: 'canvas', id: "canvas#{image_id}",
@@ -1228,13 +1218,9 @@ opts = Optimist.options do
 end
 
 @meeting_id = opts[:meeting_id]
-# puts "Meeting ID + Playback: #{@meeting_id}"
 match = /(.*)-(.*)/.match @meeting_id
 @meeting_id = match[1]
 @playback = match[2]
-
-# puts "Meeting ID: #{@meeting_id}"
-# puts "Playback format: #{@playback}"
 
 begin
   if @playback == 'presentation'
@@ -1313,8 +1299,6 @@ begin
 
         recording_time = BigBlueButton::Events.get_recording_length(@doc)
 
-        # presentation_url = "/slides/" + @meeting_id + "/presentation"
-
         @meeting_start = BigBlueButton::Events.first_event_timestamp(@doc)
         @meeting_end = BigBlueButton::Events.last_event_timestamp(@doc)
 
@@ -1325,11 +1309,6 @@ begin
           @doc, 2, 0, 0
         )
         BigBlueButton.logger.info('Creating metadata.xml')
-
-        # Get the real-time start and end timestamp
-        # match = /.*-(\d+)@/.match(@meeting_id)
-        # real_start_time = match[1]
-        # real_end_time = (real_start_time.to_i + (@meeting_end.to_i - @meeting_start.to_i)).to_s
 
         #### INSTEAD OF CREATING THE WHOLE metadata.xml FILE AGAIN, ONLY ADD <playback>
         # Copy metadata.xml from process_dir
