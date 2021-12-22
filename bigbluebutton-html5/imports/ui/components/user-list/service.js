@@ -511,7 +511,7 @@ const setEmojiStatus = throttle({ interval: 1000 }, (userId, emoji) => {
   return statusAvailable
     ? makeCall('setEmojiStatus', Auth.userID, emoji)
     : makeCall('setEmojiStatus', userId, 'none');
-});
+}, 250, { leading: false, trailing: true });
 
 const clearAllEmojiStatus = (users) => {
   users.forEach((user) => makeCall('setEmojiStatus', user.userId, 'none'));
