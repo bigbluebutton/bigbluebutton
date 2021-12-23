@@ -119,12 +119,7 @@ def shape_scale_height(slide, y)
 end
 
 def shape_thickness(slide, shape)
-  if !(shape_thickness_percent = shape[:thickness_percent]).nil?
-    shape_scale_width(slide,
-                      shape_thickness_percent)
-  else
-    shape[:thickness]
-  end
+  (shape_thickness_percent = shape[:thickness_percent]) ? shape_scale_width(slide, shape_thickness_percent) : shape[:thickness]
 end
 
 def svg_render_shape_pencil(g, slide, shape)
@@ -150,7 +145,7 @@ def svg_render_shape_pencil(g, slide, shape)
     path = []
     data_points = data_points.each
 
-    if !(shape_commands = shape[:commands]).nil?
+    if (shape_commands = shape[:commands])
       # BigBlueButton.logger.info("Pencil #{shape_unique_id}: Drawing from command string (#{shape_commands.length} commands)")
       shape_commands.each do |command|
         case command
@@ -384,8 +379,7 @@ def svg_render_shape(canvas, slide, shape, image_id)
     return
   end
 
-  if (shape_in >= slide[:out]) ||
-     (!shape_out.nil? && (shape_out <= slide[:in]))
+  if (shape_in >= slide[:out]) || (shape_out && (shape_out <= slide[:in]))
     BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} is not visible during image time span")
     return
   end
@@ -444,12 +438,12 @@ def svg_render_image(svg, slide, shapes)
                              'xlink:href' => slide[:src],
                              width: slide[:width], height: slide[:height], x: 0, y: 0,
                              style: 'visibility:hidden')
-  unless (slide_text = slide[:text]).nil?
+  if (slide_text = slide[:text])
     image['text'] = slide_text
   end
   svg << image
 
-  return if slide_deskshare || shapes.dig(presentation, slide_number).nil?
+  return if slide_deskshare || !shapes.dig(presentation, slide_number)
 
   shapes = shapes[presentation][slide_number]
 
@@ -533,7 +527,7 @@ def determine_presentation(presentation, current_presentation)
 end
 
 def determine_slide_number(slide, current_slide)
-  return current_slide if slide.nil?
+  return current_slide if !slide
 
   slide = slide.text.to_i
   slide -= 1 unless @version_atleast_0_9_0
@@ -564,23 +558,22 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   shape_data_points = shape[:data_points] = event.at_xpath('dataPoints').text.split(',').map(&:to_f)
 
   # These can be missing in old BBB versions, there are fallbacks
-  user_id = event.at_xpath('userId')
-  shape[:user_id] = user_id.text unless user_id.nil?
+  user_id = event.at_xpath('userId')&.text
+  shape[:user_id] = user_id if user_id
 
-  unless (shape_id = event.at_xpath('id').text).nil?
+  if (shape_id = event.at_xpath('id')&.text)
     shape[:id] = shape_id
   end
 
-  status = event.at_xpath('status')
-  shape_status = shape[:status] = status.text unless status.nil?
+  status = event.at_xpath('status')&.text
+  shape_status = shape[:status] = status if status
   draw_id = shape[:shape_id] = @svg_shape_id
   @svg_shape_id += 1
 
   # Some shape-specific properties
   if %w[ellipse line pencil rectangle triangle].include?(shape_type)
     shape[:color] = color_to_hex(event.at_xpath('color').text)
-    thickness = event.at_xpath('thickness')
-    unless thickness
+    unless (thickness = event.at_xpath('thickness'))
       BigBlueButton.logger.warn("Draw #{draw_id} Shape #{shape[:shape_unique_id]} ID #{shape_id} is missing thickness")
       return
     end
@@ -597,14 +590,14 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
 
   case shape_type
   when 'rectangle'
-    square = event.at_xpath('square')
-    shape[:square] = (square.text == 'true') unless square.nil?
+    square = event.at_xpath('square')&.text
+    shape[:square] = (square == 'true') if square
   when 'ellipse'
-    circle = event.at_xpath('circle')
-    shape[:circle] = (circle.text == 'true') unless circle.nil?
+    circle = event.at_xpath('circle')&.text
+    shape[:circle] = (circle == 'true') if circle
   when 'pencil'
-    commands = event.at_xpath('commands')
-    shape[:commands] = commands.text.split(',').map(&:to_i) unless commands.nil?
+    commands = event.at_xpath('commands')&.text
+    shape[:commands] = commands.split(',').map(&:to_i) if commands
   when 'poll_result'
     shape[:num_responders] = event.at_xpath('num_responders').text.to_i
     shape[:num_respondents] = event.at_xpath('num_respondents').text.to_i
@@ -613,8 +606,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
     shape[:text_box_width] = event.at_xpath('textBoxWidth').text.to_f
     shape[:text_box_height] = event.at_xpath('textBoxHeight').text.to_f
 
-    calced_font_size = event.at_xpath('calcedFontSize')
-    unless calced_font_size
+    unless (calced_font_size = event.at_xpath('calcedFontSize'))
       BigBlueButton.logger.warn("Draw #{draw_id} Shape #{shape[:shape_unique_id]} ID #{shape_id} is missing calcedFontSize")
       return
     end
@@ -627,12 +619,12 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
 
   # Find the previous shape, for updates
   prev_shape = nil
-  if !shape_id.nil?
+  if shape_id
     # If we have a shape ID, look up the previous shape by ID
     # Don't look for updates if the drawing has ended
     unless shape_status == 'DRAW_END'
       prev_shape_pos = shapes.rindex { |s| s[:id] == shape_id }
-      prev_shape = prev_shape_pos.nil? ? nil : shapes[prev_shape_pos]
+      prev_shape = prev_shape_pos ? shapes[prev_shape_pos] : nil
     end
   else
     # No shape ID, so do heuristic matching. If the previous shape had the
@@ -645,7 +637,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
       prev_shape = last_shape
     end
   end
-  if !prev_shape.nil?
+  if prev_shape
     prev_shape[:out] = timestamp
     shape[:shape_unique_id] = prev_shape[:shape_unique_id]
 
@@ -667,23 +659,18 @@ def set_undo_helper(shapes, key, id, timestamp)
   shapes.each do |shape|
     next unless shape[key] == id
 
-    shape[:undo] = timestamp if (shape_undo = shape[:undo]).nil? || (shape_undo > timestamp)
+    shape[:undo] = timestamp if !(shape_undo = shape[:undo]) || (shape_undo > timestamp)
   end
 end
 
 def events_parse_undo(shapes, event, current_presentation, current_slide, timestamp)
   # Figure out what presentation+slide this undo is for, with fallbacks
   # for old BBB where this info isn't in the undo messages
-  presentation = event.at_xpath('presentation')
-  slide = event.at_xpath('pageNumber')
-
-  presentation = determine_presentation(presentation, current_presentation)
-  slide = determine_slide_number(slide, current_slide)
+  presentation = determine_presentation(event.at_xpath('presentation'), current_presentation)
+  slide = determine_slide_number(event.at_xpath('pageNumber'), current_slide)
 
   # Newer undo messages have the shape id, making this a lot easier
-  shape_id = event.at_xpath('shapeId')
-  shape_id_nil = shape_id.nil?
-  shape_id = shape_id.text unless shape_id_nil
+  shape_id = event.at_xpath('shapeId')&.text
 
   # Set up the shapes data structures if needed
   shapes[presentation] ||= {}
@@ -692,18 +679,17 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
   # We only need to deal with shapes for this slide
   shapes = shapes[presentation][slide]
 
-  if !shape_id_nil
+  if shape_id
     # If we have the shape id, we simply have to update the undo time on
     # all the shapes with that id.
     BigBlueButton.logger.info("Undo: removing shape with ID #{shape_id} at #{timestamp}")
-
     set_undo_helper(shapes, :id, shape_id, timestamp)
   else
     # The undo command removes the most recently added shape that has not
     # already been removed by another undo or clear. Find that shape.
-    undo_pos = shapes.rindex { |s| s[:undo].nil? }
-    undo_shape = undo_pos.nil? ? nil : shapes[undo_pos]
-    if !undo_shape.nil?
+    undo_pos = shapes.rindex { |s| !s[:undo] }
+    undo_shape = undo_pos ? shapes[undo_pos] : nil
+    if undo_shape
       undo_shape_unique_id = undo_shape[:shape_unique_id]
       BigBlueButton.logger.info("Undo: removing Shape #{undo_shape_unique_id} at #{timestamp}")
       # We have an id number assigned to associate all the updated versions
@@ -719,15 +705,12 @@ end
 def events_parse_clear(shapes, event, current_presentation, current_slide, timestamp)
   # Figure out what presentation+slide this clear is for, with fallbacks
   # for old BBB where this info isn't in the clear messages
-  presentation = event.at_xpath('presentation')
-  slide = event.at_xpath('pageNumber')
-
-  presentation = determine_presentation(presentation, current_presentation)
-  slide = determine_slide_number(slide, current_slide)
+  presentation = determine_presentation(event.at_xpath('presentation'), current_presentation)
+  slide = determine_slide_number(event.at_xpath('pageNumber'), current_slide)
 
   # BigBlueButton 2.0 per-user clear features; default to full clear on older versions
   full_clear = event.at_xpath('fullClear')
-  full_clear = !full_clear.nil? ? (full_clear.text == 'true') : true
+  full_clear = full_clear ? (full_clear.text == 'true') : true
   user_id = event.at_xpath('userId')&.text
 
   # Set up the shapes data structures if needed
@@ -740,7 +723,7 @@ def events_parse_clear(shapes, event, current_presentation, current_slide, times
   full_clear ? BigBlueButton.logger.info('Clear: removing all shapes') : BigBlueButton.logger.info("Clear: removing shapes for User #{user_id}")
 
   shapes.each do |shape|
-    if (full_clear || (user_id == shape[:user_id])) && ((shape_undo = shape[:undo]).nil? || (shape_undo > timestamp))
+    if (full_clear || (user_id == shape[:user_id])) && (!(shape_undo = shape[:undo]) || (shape_undo > timestamp))
       shape[:undo] = timestamp
     end
   end
@@ -806,7 +789,6 @@ def process_presentation(package_dir)
   presenter = nil
   # Current deskshare state (affects presentation and pan/zoom)
   deskshare = false
-
   slides = []
   panzooms = []
   cursors = []
@@ -876,9 +858,9 @@ def process_presentation(package_dir)
       cursor_visible = cursor_changed = true
 
     when 'WhiteboardCursorMoveEvent'
-      user_id = event.at_xpath('userId')
+      user_id = event.at_xpath('userId')&.text
       # Only draw cursor for current presentor. TODO multi-cursor support
-      if user_id.nil? || (user_id.text == presenter)
+      if (!user_id || user_id == presenter)
         cursor_x = event.at_xpath('xOffset').text.to_f
         cursor_y = event.at_xpath('yOffset').text.to_f
         cursor_visible = cursor_changed = true
@@ -887,15 +869,14 @@ def process_presentation(package_dir)
     # Perform slide finalization
     if slide_changed
       slide = slides.last
-      slide_nil = slide.nil?
 
-      if !slide_nil &&
+      if slide &&
          (slide[:presentation] == current_presentation) &&
          (slide[:slide] == current_slide) &&
          (slide[:deskshare] == deskshare)
         BigBlueButton.logger.info('Presentation/Slide: skipping, no changes')
       else
-        unless slide_nil
+        if slide
           slide[:out] = timestamp
           svg_render_image(svg, slide, shapes)
         end
@@ -916,10 +897,9 @@ def process_presentation(package_dir)
     if panzoom_changed
       slide = slides.last
       panzoom = panzooms.last
-      panzoom_nil = panzoom.nil?
       slide_width = slide[:width]
       slide_height = slide[:height]
-      if !panzoom_nil &&
+      if panzoom &&
          (panzoom[:x_offset] == current_x_offset) &&
          (panzoom[:y_offset] == current_y_offset) &&
          (panzoom[:width_ratio] == current_width_ratio) &&
@@ -930,7 +910,7 @@ def process_presentation(package_dir)
         BigBlueButton.logger.info('Panzoom: skipping, no changes')
         panzoom_changed = false
       else
-        unless panzoom_nil
+        if panzoom
           panzoom[:out] = timestamp
           panzooms_emit_event(panzooms_rec, panzoom)
         end
@@ -959,14 +939,13 @@ def process_presentation(package_dir)
 
     panzoom = panzooms.last
     cursor = cursors.last
-    cursor_nil = cursor.nil?
-    if !cursor_nil &&
+    if cursor &&
        ((!cursor[:visible] && !cursor_visible) ||
         ((cursor[:x] == cursor_x) && (cursor[:y] == cursor_y))) &&
        !panzoom_changed
       BigBlueButton.logger.info('Cursor: skipping, no changes')
     else
-      unless cursor_nil
+      if cursor
         cursor[:out] = timestamp
         cursors_emit_event(cursors_rec, cursor)
       end
@@ -1021,7 +1000,7 @@ def process_chat_messages(events, bbb_props)
         message: chat[:message],
         target: 'chat',
       }
-      unless (chat_out = chat[:out]).nil?
+      if (chat_out = chat[:out])
         chattimeline[:out] = (chat_out / 1000.0).round(1)
       end
 
@@ -1065,7 +1044,7 @@ end
 
 def get_poll_answers(event)
   answers = []
-  unless (answers_event = event.at_xpath('answers')).nil?
+  if (answers_event = event.at_xpath('answers'))
     answers = JSON.parse(answers_event.content)
   end
 
@@ -1141,7 +1120,7 @@ def process_external_video_events(_events, package_dir)
       start_timestamp = event[:start_timestamp]
       timestamp = (translate_timestamp(start_timestamp) / 1000).to_i
       # do not add same external_video twice
-      next unless external_videos.find { |ev| ev[:timestamp] == timestamp }.nil?
+      next if external_videos.find { |ev| ev[:timestamp] == timestamp }
 
       re_start_timestamp = re[:start_timestamp]
       re_stop_timestamp = re[:stop_timestamp]
