@@ -174,9 +174,10 @@ class VideoListItem extends Component {
       focused,
     } = this.props;
 
-    const { userId, pin } = user;
+    const pinned = user?.pin;
+    const userId = user?.userId;
 
-    const isPinnedIntlKey = !pin ? 'pin' : 'unpin';
+    const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';
 
     const menuItems = [{
@@ -200,7 +201,7 @@ class VideoListItem extends Component {
         key: `${cameraId}-pin`,
         label: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Desc`]),
-        onClick: () => VideoService.toggleVideoPin(userId, pin),
+        onClick: () => VideoService.toggleVideoPin(userId, pinned),
       });
     }
 
@@ -233,8 +234,12 @@ class VideoListItem extends Component {
 
   renderPinButton() {
     const { user, intl } = this.props;
-    const { pin: isPinned, userId } = user;
-    const isVideoPinEnabledForCurrentUser = VideoService.isVideoPinEnabledForCurrentUser();
+    const pinned = user?.pin;
+    const userId = user?.userId;
+    const shouldRenderPinButton = pinned && userId;
+    const videoPinActionAvailable = VideoService.isVideoPinEnabledForCurrentUser();
+
+    if (!shouldRenderPinButton) return null;
 
     const wrapperClassName = cx({
       [styles.wrapper]: true,
@@ -245,14 +250,14 @@ class VideoListItem extends Component {
       <div className={wrapperClassName}>
         <Button
           color="default"
-          icon={!isPinned ? 'pin-video_on' : 'pin-video_off'}
+          icon={!pinned ? 'pin-video_on' : 'pin-video_off'}
           size="sm"
           onClick={() => VideoService.toggleVideoPin(userId, true)}
-          label={isVideoPinEnabledForCurrentUser
+          label={videoPinActionAvailable
             ? intl.formatMessage(intlMessages.unpinLabel)
             : intl.formatMessage(intlMessages.unpinLabelDisabled)}
           hideLabel
-          disabled={!isVideoPinEnabledForCurrentUser}
+          disabled={!videoPinActionAvailable}
           className={styles.button}
           data-test="pinVideoButton"
         />
@@ -276,16 +281,19 @@ class VideoListItem extends Component {
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
     const shouldRenderReconnect = !isStreamHealthy && videoIsReady;
-    const userIsPinned = user.pin;
 
     const { isFirefox } = browserInfo;
+    const talking = voiceUser?.talking;
+    const listenOnly = voiceUser?.listenOnly;
+    const muted = voiceUser?.muted;
+    const voiceUserJoined = voiceUser?.joined;
 
     return (
       <div
-        data-test={voiceUser.talking ? 'webcamItemTalkingUser' : 'webcamItem'}
+        data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
         className={cx({
           [styles.content]: true,
-          [styles.talking]: voiceUser.talking,
+          [styles.talking]: talking,
           [styles.fullscreen]: isFullscreenContext,
         })}
       >
@@ -297,7 +305,7 @@ class VideoListItem extends Component {
               className={cx({
                 [styles.connecting]: true,
                 [styles.content]: true,
-                [styles.talking]: voiceUser.talking,
+                [styles.talking]: talking,
               })}
             >
               <span className={styles.loadingText}>{name}</span>
@@ -328,7 +336,7 @@ class VideoListItem extends Component {
             playsInline
           />
           {videoIsReady && this.renderFullscreenButton()}
-          {videoIsReady && userIsPinned && this.renderPinButton()}
+          {videoIsReady && this.renderPinButton()}
         </div>
         {videoIsReady
           && (
@@ -348,7 +356,7 @@ class VideoListItem extends Component {
                       anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
                       transformorigin: { vertical: 'bottom', horizontal: 'left' },
                     }}
-                  />                  
+                  />
                 )
                 : (
                   <div className={isFirefox ? styles.dropdownFireFox
@@ -363,9 +371,9 @@ class VideoListItem extends Component {
                     </span>
                   </div>
                 )}
-              {voiceUser.muted && !voiceUser.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
-              {voiceUser.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
-              {voiceUser.joined && !voiceUser.muted ? <Icon className={styles.voice} iconName="unmute" /> : null}
+              {muted && !listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
+              {listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
+              {voiceUserJoined && !muted ? <Icon className={styles.voice} iconName="unmute" /> : null}
             </div>
           )}
       </div>
@@ -391,6 +399,11 @@ VideoListItem.propTypes = {
   user: PropTypes.shape({
     pin: PropTypes.bool.isRequired,
     userId: PropTypes.string.isRequired,
-  }),
+  }).isRequired,
+  voiceUser:  PropTypes.shape({
+    muted: PropTypes.bool.isRequired,
+    listenOnly: PropTypes.bool.isRequired,
+    talking: PropTypes.bool.isRequired,
+  }).isRequired,
   focused: PropTypes.bool.isRequired,
 };

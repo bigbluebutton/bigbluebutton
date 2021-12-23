@@ -34,7 +34,7 @@ export default withTracker((props) => {
     voiceUser: VoiceUsers.findOne({ intId: userId },
       { fields: { muted: 1, listenOnly: 1, talking: 1 } }),
     user: Users.findOne({ intId: userId },
-      { fields: { pin: 1, role: 1, userId: 1 } }),
+      { fields: { pin: 1, userId: 1 } }),
   };
 })(VideoListItemContainer);
 
