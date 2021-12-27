@@ -56,7 +56,12 @@ function handleRemovedAnnotation({
   }
 
   if (deselectHandle) {
-    deselectHandle(shapeId);
+    if (shapeId) {
+      deselectHandle(shapeId);
+    } else {
+      PresentationService.getSelectedAnnotations()
+        .map((annotationId) => deselectHandle(annotationId));
+    }
   }
   Annotations.remove(query);
 }
