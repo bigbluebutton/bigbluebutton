@@ -10,12 +10,12 @@ trait UndoWhiteboardPubMsgHdlr extends RightsManagementTrait {
 
   def handle(msg: UndoWhiteboardPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
-    def broadcastEvent(msg: UndoWhiteboardPubMsg, removedAnnotationId: String): Unit = {
+    def broadcastEvent(msg: UndoWhiteboardPubMsg, removedAnnotationIds: List[String], addedAnnotations: List[AnnotationVO]): Unit = {
       val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, liveMeeting.props.systemProps.html5InstanceId.toString)
       val envelope = BbbCoreEnvelope(UndoWhiteboardEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(UndoWhiteboardEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = UndoWhiteboardEvtMsgBody(msg.body.whiteboardId, msg.header.userId, removedAnnotationId)
+      val body = UndoWhiteboardEvtMsgBody(msg.body.whiteboardId, msg.header.userId, removedAnnotationIds, addedAnnotations)
       val event = UndoWhiteboardEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
@@ -26,10 +26,11 @@ trait UndoWhiteboardPubMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to undo an annotation."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
-      for {
-        lastAnnotation <- undoWhiteboard(msg.body.whiteboardId, msg.header.userId, liveMeeting)
-      } yield {
-        broadcastEvent(msg, lastAnnotation.id)
+      undoWhiteboard(msg.body.whiteboardId, msg.header.userId, liveMeeting) match {
+        case Some(ann: AnnotationVO) => broadcastEvent(msg, List(ann.id), List())
+        //remove addedAnnotations and add removed Annotations because of undo
+        case Some(mod: ModificationVO) => broadcastEvent(msg, mod.addedAnnotations.map{ case a => a.id}, mod.removedAnnotations)
+        case _ => 
       }
     }
   }

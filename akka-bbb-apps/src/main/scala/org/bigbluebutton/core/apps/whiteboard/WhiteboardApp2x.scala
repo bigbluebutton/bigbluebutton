@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.whiteboard
 import akka.actor.ActorContext
 import akka.event.Logging
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.common2.msgs.AnnotationVO
+import org.bigbluebutton.common2.msgs.{ AnnotationEvent, AnnotationVO}
 import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 import scala.collection.immutable.{ Map, List }
 
@@ -13,7 +13,7 @@ case class Whiteboard(
     oldMultiUser:    Array[String],
     changedModeOn:   Long,
     annotationCount: Int,
-    annotationsMap:  Map[String, List[AnnotationVO]]
+    annotationsMap:  Map[String, List[AnnotationEvent]]
 )
 
 class WhiteboardApp2x(implicit val context: ActorContext)
@@ -22,9 +22,34 @@ class WhiteboardApp2x(implicit val context: ActorContext)
   with UndoWhiteboardPubMsgHdlr
   with ModifyWhiteboardAccessPubMsgHdlr
   with SendWhiteboardAnnotationPubMsgHdlr
-  with GetWhiteboardAnnotationsReqMsgHdlr {
+  with GetWhiteboardAnnotationsReqMsgHdlr
+  with ModifyWhiteboardAnnotationPubMsgHdlr {
 
   val log = Logging(context.system, getClass)
+
+  def sanitizeAnnotation(annotation: AnnotationVO): AnnotationVO = {
+     // Remove null values by wrapping value with Option. Null becomes None.
+     val shape = annotation.annotationInfo.collect {
+       case (key, value: Any) => key -> Option(value)
+     }
+
+     //printAnnotationShape(shape, annotation)
+
+     if (annotation.annotationInfo.values.exists(p => if (p == null) true else false)) {
+       log.warning("Whiteboard shape contains null values. " + annotation.toString)
+     }
+
+     // Unwrap the value wrapped as Option
+     val shape2 = shape.collect {
+       case (key, Some(value)) => key -> value
+     }
+
+     annotation.copy(annotationInfo = shape2)
+   }
+
+   def removeWhiteboardAnnotations(annotationIds: List[String], wbId: String, liveMeeting: LiveMeeting): List[AnnotationVO] = {
+     liveMeeting.wbModel.removeAnnotations(annotationIds, wbId)
+   }
 
   def sendWhiteboardAnnotation(annotation: AnnotationVO, drawEndOnly: Boolean, liveMeeting: LiveMeeting): AnnotationVO = {
     //    println("Received whiteboard annotation. status=[" + status + "], annotationType=[" + annotationType + "]")
@@ -60,7 +85,7 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     liveMeeting.wbModel.clearWhiteboard(whiteboardId, requesterId)
   }
 
-  def undoWhiteboard(whiteboardId: String, requesterId: String, liveMeeting: LiveMeeting): Option[AnnotationVO] = {
+  def undoWhiteboard(whiteboardId: String, requesterId: String, liveMeeting: LiveMeeting): Option[AnnotationEvent] = {
     liveMeeting.wbModel.undoWhiteboard(whiteboardId, requesterId)
   }
 
