@@ -148,8 +148,6 @@ class NavBar extends Component {
       hasUnreadNotes,
       // isExpanded,
       activeChats,
-      chat,
-      isPublicChat,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
       mountModal,
