@@ -15,6 +15,7 @@ import ConnectionStatusService from '/imports/ui/components/connection-status/se
 import SettingsDropdownContainer from './settings-dropdown/container';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
+import {alertScreenReader} from '/imports/utils/dom-utils';
 import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
@@ -29,6 +30,10 @@ const intlMessages = defineMessages({
   newMessages: {
     id: 'app.navBar.toggleUserList.newMessages',
     description: 'label for toggleUserList btn when showing red notification',
+  },
+  newMsgAria: {
+    id: 'app.navBar.toggleUserList.newMsgAria',
+    description: 'label for new message screen reader alert',
   },
 });
 
@@ -47,6 +52,10 @@ const defaultProps = {
 class NavBar extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+        acs: props.activeChats,
+    }
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
   }
@@ -77,6 +86,12 @@ class NavBar extends Component {
           this.handleToggleUserList();
         }
       });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (JSON.stringify(prevProps.activeChats) !== JSON.stringify(this.props.activeChats)) {
+      this.setState({ acs: this.props.activeChats})
     }
   }
 
@@ -132,6 +147,9 @@ class NavBar extends Component {
       hasUnreadMessages,
       hasUnreadNotes,
       // isExpanded,
+      activeChats,
+      chat,
+      isPublicChat,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
       mountModal,
@@ -142,6 +160,15 @@ class NavBar extends Component {
       sidebarNavigation,
     } = this.props;
 
+  //   const localizedChatName = isPublicChat(chat)
+  //   ? intl.formatMessage(intlMessages.publicChat)
+  //   : chat.name;
+
+  // const arialabel = `${localizedChatName} ${
+  //   counter > 1
+  //     ? intl.formatMessage(intlMessages.unreadPlural, { 0: counter })
+  //     : intl.formatMessage(intlMessages.unreadSingular)}`;
+
     const hasNotification = hasUnreadMessages || hasUnreadNotes;
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
@@ -151,6 +178,14 @@ class NavBar extends Component {
     ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
 
     const isExpanded = sidebarNavigation.isOpen;
+
+    const { acs } = this.state;
+
+    activeChats.map((c, i) => {
+      if (c?.unreadCounter > 0 && c?.unreadCounter !== acs[i]?.unreadCounter) {
+        alertScreenReader(`${intl.formatMessage(intlMessages.newMsgAria, { 0: c.name })}`)
+      }
+    });
 
     return (
       <header
