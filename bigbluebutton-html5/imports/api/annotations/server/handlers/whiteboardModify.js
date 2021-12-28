@@ -31,8 +31,10 @@ const process = () => {
 };
 
 export default function handleWhiteboardModify({ body }, meetingId) {
-  const {whiteboardId, userId, annotations, idsToRemove} = body
-  check(whiteboardId, String);
+  const {
+    whiteBoardId, userId, annotations, idsToRemove,
+  } = body;
+  check(whiteBoardId, String);
   check(userId, String);
   check(annotations, [Object]);
   check(idsToRemove, [String]);
@@ -41,14 +43,16 @@ export default function handleWhiteboardModify({ body }, meetingId) {
     annotationsQueue[meetingId] = [];
   }
   annotations.forEach((annotation) => {
-    var annotationUserId = annotation.userId;
+    const annotationUserId = annotation.userId;
     check(annotationUserId, String);
-    annotationsQueue[meetingId].push({ meetingId, whiteboardId, annotationUserId, annotation });
+    annotationsQueue[meetingId].push({
+      meetingId, whiteBoardId, annotationUserId, annotation,
+    });
   });
 
   idsToRemove.forEach((shapeId) => {
     check(shapeId, String);
-    removeAnnotation(meetingId, whiteboardId, shapeId);
+    removeAnnotation(meetingId, whiteBoardId, shapeId);
   });
 
   if (queueMetrics) {
@@ -57,7 +61,6 @@ export default function handleWhiteboardModify({ body }, meetingId) {
   if (!annotationsRecieverIsRunning) process();
 
   annotations.forEach((annotation) => {
-    addAnnotation(meetingId, whiteboardId, annotation.userId, annotation);
+    addAnnotation(meetingId, whiteBoardId, annotation.userId, annotation);
   });
-  return 
-} 
+}
