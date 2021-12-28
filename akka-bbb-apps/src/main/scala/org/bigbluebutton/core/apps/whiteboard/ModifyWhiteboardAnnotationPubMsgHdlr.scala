@@ -22,25 +22,15 @@ trait ModifyWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(msgEvent)
     }
 
-    def deleteAnnotation(): Unit = {
-      val sanitizedAnnotations = for (annotation <- msg.body.annotations) yield sanitizeAnnotation(annotation)
-      if (filterWhiteboardMessage(msg.body.whiteBoardId, msg.header.userId, liveMeeting) && permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
-        val meetingId = liveMeeting.props.meetingProp.intId
-        val reason = "No permission to remove an annotation."
-      } else {
-        val deletedAnnotations = for {
-          annotationToDelete <- msg.body.annotations
-        } yield {
-          removeWhiteboardAnnotations(annotationToDelete, liveMeeting)
-        }
-        val filteredDeletedAnnotations = deletedAnnotations.filterNot(p => p.isEmpty).flatten
-        broadcastEvent(msg, filteredDeletedAnnotations, msg.header.userId, msg.body.whiteBoardId, msg.body.action)
-      }
-    }
-
-    msg.body.action match {
-      case MODYFY_WHITEBOARD_ACTION_DELETE => deleteAnnotation()
-      case MODYFY_WHITEBOARD_ACTION_MOVE   => ()
+    val sanitizedAnnotations = for (annotation <- msg.body.annotations) yield sanitizeAnnotation(annotation)
+    if (filterWhiteboardMessage(msg.body.whiteBoardId, msg.header.userId, liveMeeting) && permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to remove an annotation."
+    } else {
+      val modification = modifyWhiteboardAnnotations(msg.body.annotations, msg.body.idsToRemove, msg.body.whiteBoardId, msg.body.userId, liveMeeting)
+      
+      
+      broadcastEvent(msg, modification.addedAnnotations, modification.removedAnnotations.map{ case (ann, ind) => ann.id}, msg.header.userId, msg.body.whiteBoardId, msg.body.action)
     }
 
   }

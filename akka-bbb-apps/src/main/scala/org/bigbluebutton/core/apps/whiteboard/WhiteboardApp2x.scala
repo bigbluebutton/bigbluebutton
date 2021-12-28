@@ -3,9 +3,11 @@ package org.bigbluebutton.core.apps.whiteboard
 import akka.actor.ActorContext
 import akka.event.Logging
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.common2.msgs.{ AnnotationEvent, AnnotationVO}
+import org.bigbluebutton.common2.msgs.{ AnnotationEvent, AnnotationVO, ModificationVO}
 import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 import scala.collection.immutable.{ Map, List }
+import java.lang.annotation.Annotation
+import scala.collection.immutable.TreeSeqMap.OrderBy.Modification
 
 case class Whiteboard(
     id:              String,
@@ -45,6 +47,14 @@ class WhiteboardApp2x(implicit val context: ActorContext)
      }
 
      annotation.copy(annotationInfo = shape2)
+   }
+
+   def modifyWhiteboardAnnotations(annotations: List[AnnotationVO], idsToRemove: List[String], wbId: String, userId:String, liveMeeting: LiveMeeting) = {
+      val removedAnnotations = liveMeeting.wbModel.removeAnnotations(modify.idsToRemove, wbId)
+      val addedAnnotations = for (ann <- annotations) yield liveMeeting.wbModel.addAnnotation(wbId, userId, ann)
+      val modVO = ModificationVO(removedAnnotations = removedAnnotations, addedAnnotations = addedAnnotations, wbId = wbId, userId = userId)
+      liveMeeting.wbModel.addModifyAnnotation(modVO)
+      modVO
    }
 
    def removeWhiteboardAnnotations(annotationIds: List[String], wbId: String, liveMeeting: LiveMeeting): List[AnnotationVO] = {
@@ -93,7 +103,7 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     liveMeeting.wbModel.getWhiteboardAccess(whiteboardId)
   }
 
-  def modifyWhiteboardAccess(whiteboardId: String, multiUser: Array[String], liveMeeting: LiveMeeting) {
+  def modifyWhiteboardAccess(whiteboardId: String, multiUser: Array[String], liveMeeting: LiveMeeting) = {
     liveMeeting.wbModel.modifyWhiteboardAccess(whiteboardId, multiUser)
   }
 

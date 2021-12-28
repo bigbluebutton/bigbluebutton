@@ -12,7 +12,7 @@ import org.bigbluebutton.SystemConfiguration
 class WhiteboardModel extends SystemConfiguration {
   private var _whiteboards = new HashMap[String, Whiteboard]()
 
-  private def saveWhiteboard(wb: Whiteboard) {
+  private def saveWhiteboard(wb: Whiteboard) = {
     _whiteboards += wb.id -> wb
   }
 
@@ -54,20 +54,28 @@ class WhiteboardModel extends SystemConfiguration {
 
   /**
   * @param annotationToRemove annotation that should be deleted
-  * @return Deleted annotations if delete was successful.
+  * @return removed annotations with zipped Index
   */
-  def removeAnnotations(annotationIds: List[String], wbID: String): List[AnnotationVO] = {
-    val deletedAnnotations = (for (annotationsMapEntry <- wb.annotationsMap)
-      yield annotationsMapEntry._2.filter(annotation => annotation.id == annotationToDelete.id)).flatten
-    val newAnnotationsMap = for (annotationsMapEntry <- wb.annotationsMap)
-      yield annotationsMapEntry.copy(_2 = annotationsMapEntry._2.filterNot(annotation => annotation.id == annotationToDelete.id))
+  def removeAnnotations(annotationIds: List[String], wbID: String, userId: String): List[Tuple2[AnnotationVO, Int]] = {
+    val wb = getWhiteboard(wbID)
+    val annotationList = getAnnotationsByUserId(wb, userId)
+    val removedAnnotationsWithPos = annotationList.zipWithIndex.filter{ case (annotation, _) => annotationIds.contains(annotation.id) }
+
+    val newAnnotationList = annotationList.filterNot{ case annotation => annotationIds.contains(annotation.id)}
+    val newAnnotationsMap = if (newAnnotationList.isEmpty) wb.annotationsMap - userId else wb.annotationsMap + (userId -> newAnnotationList)
     val newWhiteboard = wb.copy(annotationsMap = newAnnotationsMap)
     saveWhiteboard(newWhiteboard)
-    if (deletedAnnotations.size > 1) {
-      println("Warning multiple whiteboard annotations with same id!")
-    }
-    deletedAnnotations.toList
-    //wb.annotationsMap.collect(annotationsMapEntry => annotationsMapEntry.copy(_2 = annotationsMapEntry._2.filterNot(annotation => annotation.id == annotationToDelete.id)))
+
+    removedAnnotationsWithPos
+  }
+
+  def addModifyAnnotation(modify: ModificationVO) = {
+    val wb = getWhiteboard(modify.wbId)
+    val userId = modify.userId
+
+    val newAnnotationsMap = wb.annotationsMap + (userId -> modify :: getAnnotationsByUserId(wb, userId))
+    val newWb = wb.copy(annotationsMap = newAnnotationsMap)
+    saveWhiteboard(newWb)
   }
 
   def updateAnnotation(wbId: String, userId: String, annotation: AnnotationVO): AnnotationVO = {
@@ -283,13 +291,16 @@ class WhiteboardModel extends SystemConfiguration {
       }
     }
 
-    if(modification.removedAnnotations.isEmpty) {
-      newAnnotationList = usersAnnotationsWithoutAdded
-    } else {
-      var currentindex = 0
-      for (Tuple2(ann, index) <- modification.removedAnnotations) {
-        newAnnotationList = ann :: usersAnnotationsWithoutAdded.drop(currentindex).take(index - currentindex) ::: newAnnotationList
-        currentindex = index+1
+    def insert[T](list: List[T], i: Int, value: T) = {
+      val (front, back) = list.splitAt(i)
+      front ++ List(value) ++ back
+    }
+
+    newAnnotationList = usersAnnotationsWithoutAdded
+
+    if(modification.removedAnnotations.nonEmpty) {
+      for ((ann, index) <- modification.removedAnnotations) {
+        newAnnotationList = insert(newAnnotationList, index, ann)
       }
     }
 
@@ -297,7 +308,7 @@ class WhiteboardModel extends SystemConfiguration {
     wb.copy(annotationsMap = newAnnotationsMap)
   }
 
-  def modifyWhiteboardAccess(wbId: String, multiUser: Array[String]) {
+  def modifyWhiteboardAccess(wbId: String, multiUser: Array[String]) = {
     val wb = getWhiteboard(wbId)
     val newWb = wb.copy(multiUser = multiUser, oldMultiUser = wb.multiUser, changedModeOn = System.currentTimeMillis())
     saveWhiteboard(newWb)
