@@ -45,6 +45,8 @@ export default class TriangleDrawComponent extends Component {
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         strokeLinejoin="miter"
         data-test="drawnTriangle"
+        className="selectable"
+        id={annotation.id}
       />
     );
   }
@@ -58,7 +60,7 @@ TriangleDrawComponent.propTypes = {
     points: PropTypes.arrayOf(PropTypes.number).isRequired,
     color: PropTypes.number.isRequired,
     thickness: PropTypes.number.isRequired,
-    fill: PropTypes.bool.isRequired,
+    id: PropTypes.string.isRequired,
   }).isRequired,
   // Defines the width of the slide (svg coordinate system), which needed in calculations
   slideWidth: PropTypes.number.isRequired,

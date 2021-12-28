@@ -20,6 +20,10 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.tools',
     description: 'Whiteboard toolbar tools menu',
   },
+  toolbarDeleteSelection: {
+    id: 'app.whiteboard.toolbar.deleteSelection',
+    description: 'Whiteboard toolbar delete selection menu',
+  },
   toolbarLineThickness: {
     id: 'app.whiteboard.toolbar.thickness',
     description: 'Whiteboard toolbar thickness menu',
@@ -134,6 +138,7 @@ class WhiteboardToolbar extends Component {
     this.handleSwitchWhiteboardMode = this.handleSwitchWhiteboardMode.bind(this);
     this.handleSwitchPalmRejectionMode = this.handleSwitchPalmRejectionMode.bind(this);
     this.handleAnnotationChange = this.handleAnnotationChange.bind(this);
+    this.handleDeleteSelection = this.handleDeleteSelection.bind(this);
     this.handleThicknessChange = this.handleThicknessChange.bind(this);
     this.handleFontSizeChange = this.handleFontSizeChange.bind(this);
     this.handleColorChange = this.handleColorChange.bind(this);
@@ -430,6 +435,16 @@ class WhiteboardToolbar extends Component {
     this.setState(obj);
   }
 
+  // deletes all items selected in current session
+  handleDeleteSelection() {
+    const {
+      actions,
+      whiteboardId,
+    } = this.props;
+
+    actions.deleteAnnotations(whiteboardId);
+  }
+
   // changes a current selected thickness both in the state and in the session
   // and closes the thickness list
   handleThicknessChange(incomingThickness) {
@@ -634,6 +649,21 @@ class WhiteboardToolbar extends Component {
     );
   }
 
+  //TODO introduce new item icon!
+  renderDeleteSelectionIcon() {
+    const { intl, isMeteorConnected } = this.props;
+
+    return (
+      <ToolbarMenuItem
+        disabled={!isMeteorConnected}
+        label={intl.formatMessage(intlMessages.toolbarDeleteSelection)}
+        icon="delete"
+        onItemClick={this.handleDeleteSelection}
+        className={styles.toolbarButton}
+      />
+    );
+  }
+
   renderThicknessItemIcon() {
     const {
       colorSelected,
@@ -819,7 +849,7 @@ class WhiteboardToolbar extends Component {
       />
     );
   }
- 
+
   render() {
     const { annotationSelected } = this.state;
     const { isPresenter, intl } = this.props;
@@ -827,6 +857,7 @@ class WhiteboardToolbar extends Component {
       <Styled.ToolbarContainer role="region" aria-label={intl.formatMessage(intlMessages.toolbarAriaLabel)}>
         <div className={styles.toolbarWrapper}>
           {this.renderToolItem()}
+          {annotationSelected.value === 'selection' ? this.renderDeleteSelectionIcon() : null }
           {annotationSelected.value === 'text' ? this.renderFontItem() : this.renderThicknessItem()}
           {this.renderColorItem()}
           {this.renderUndoItem()}

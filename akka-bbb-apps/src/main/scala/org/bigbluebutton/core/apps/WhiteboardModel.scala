@@ -83,7 +83,7 @@ class WhiteboardModel extends SystemConfiguration {
     val usersAnnotations = getAnnotationsByUserId(wb, userId)
 
     //not empty and head id equals annotation id
-    if (!usersAnnotations.isEmpty && usersAnnotations.head.id == annotation.id) {
+    if (usersAnnotations.nonEmpty && usersAnnotations.head.id == annotation.id) {
       val rtnAnnotation = annotation.copy(position = usersAnnotations.head.position)
       val newAnnotationsMap = wb.annotationsMap + (userId -> (rtnAnnotation :: usersAnnotations.tail))
       //println("Annotation has position [" + usersAnnotations.head.position + "]")

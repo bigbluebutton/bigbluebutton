@@ -2,9 +2,12 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
+import { setDeselectHandle } from '/imports/ui/components/whiteboard/service';
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
+import Moveable from 'react-moveable';
+import Selecto from 'react-selecto';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationPlaceholder from './presentation-placeholder/component';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
@@ -22,6 +25,7 @@ import Icon from '/imports/ui/components/icon/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
+import PresentationService from '/imports/ui/components/presentation/service';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -54,8 +58,8 @@ const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinimizeButton;
 
 class Presentation extends PureComponent {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this.state = {
       presentationWidth: 0,
@@ -64,12 +68,14 @@ class Presentation extends PureComponent {
       zoom: 100,
       fitToWidth: false,
       isFullscreen: false,
+      moveableTargets: [],
     };
 
     this.currentPresentationToastId = null;
 
     this.getSvgRef = this.getSvgRef.bind(this);
     this.setFitToWidth = this.setFitToWidth.bind(this);
+    this.deselect = this.deselect.bind(this);
     this.zoomChanger = this.zoomChanger.bind(this);
     this.updateLocalPosition = this.updateLocalPosition.bind(this);
     this.panAndZoomChanger = this.panAndZoomChanger.bind(this);
@@ -81,6 +87,9 @@ class Presentation extends PureComponent {
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
     this.setPresentationRef = this.setPresentationRef.bind(this);
+
+    this.moveableRef = React.createRef();
+    this.selectoRef = React.createRef();
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -111,6 +120,7 @@ class Presentation extends PureComponent {
     this.getInitialPresentationSizes();
     this.refPresentationContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
     window.addEventListener('resize', this.onResize, false);
+    setDeselectHandle(this.deselect);
 
     const {
       currentSlide, slidePosition, layoutContextDispatch,
@@ -128,6 +138,9 @@ class Presentation extends PureComponent {
           height: slidePosition.height,
         },
       });
+    }
+    if (this.moveableRef.current !== null) {
+      this.moveableRef.current.updateRect();
     }
   }
 
@@ -215,6 +228,9 @@ class Presentation extends PureComponent {
       }
 
       if (presentationBounds !== prevPresentationBounds) this.onResize();
+    }
+    if (this.moveableRef.current !== null) {
+      this.moveableRef.current.updateRect();
     }
   }
 
@@ -371,6 +387,13 @@ class Presentation extends PureComponent {
       width: svgWidth,
       height: svgHeight,
     };
+  }
+
+  deselect(selection) {
+    this.setState((state) => ({
+      moveableTargets: state.moveableTargets
+        .filter((selected) => !selection.includes(selected.id)),
+    }));
   }
 
   zoomChanger(incomingZoom) {
@@ -579,6 +602,7 @@ class Presentation extends PureComponent {
       ${content}
       ${intl.formatMessage(intlMessages.slideContentEnd)}` : intl.formatMessage(intlMessages.noSlideContent);
 
+    const { moveableTargets } = this.state;
     return (
       <div
         style={{
@@ -593,6 +617,7 @@ class Presentation extends PureComponent {
         {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
         {this.renderPresentationFullscreen()}
+
         <svg
           key={currentSlide.id}
           data-test="whiteboard"
@@ -648,6 +673,23 @@ class Presentation extends PureComponent {
             physicalDimensions,
           )}
         </svg>
+        <Moveable
+          rootContainer={document.body}
+          edge={false}
+          ref={this.moveableRef}
+          target={moveableTargets}
+        />
+        <Selecto
+          ref={this.selectoRef}
+          selectByClick
+          selectableTargets={['.selectable']}
+          onSelect={
+            (e) => {
+              this.setState({ moveableTargets: e.selected });
+              PresentationService.selectAnnotations(e.selected.map((target) => target.id));
+            }
+          }
+        />
       </div>
     );
   }
