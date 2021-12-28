@@ -160,15 +160,6 @@ class NavBar extends Component {
       sidebarNavigation,
     } = this.props;
 
-  //   const localizedChatName = isPublicChat(chat)
-  //   ? intl.formatMessage(intlMessages.publicChat)
-  //   : chat.name;
-
-  // const arialabel = `${localizedChatName} ${
-  //   counter > 1
-  //     ? intl.formatMessage(intlMessages.unreadPlural, { 0: counter })
-  //     : intl.formatMessage(intlMessages.unreadSingular)}`;
-
     const hasNotification = hasUnreadMessages || hasUnreadNotes;
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
