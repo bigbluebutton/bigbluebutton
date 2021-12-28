@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.models
 
-import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.util.RandomStringGenerator
 

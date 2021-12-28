@@ -27,10 +27,10 @@ trait UndoWhiteboardPubMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       undoWhiteboard(msg.body.whiteboardId, msg.header.userId, liveMeeting) match {
-        case Some(ann: AnnotationVO) => broadcastEvent(msg, List(ann.id), List())
+        case Some(ann: AnnotationVO)   => broadcastEvent(msg, List(ann.id), List())
         //remove addedAnnotations and add removed Annotations because of undo
-        case Some(mod: ModificationVO) => broadcastEvent(msg, mod.addedAnnotations.map{ case a => a.id}, mod.removedAnnotations)
-        case _ => 
+        case Some(mod: ModificationVO) => broadcastEvent(msg, mod.addedAnnotations.map { case a => a.id }, mod.removedAnnotations.map { case (a, _) => a })
+        case _                         =>
       }
     }
   }

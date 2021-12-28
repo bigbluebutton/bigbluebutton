@@ -4,7 +4,6 @@ import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 
 trait ModifyWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
   this: WhiteboardApp2x =>
@@ -27,10 +26,9 @@ trait ModifyWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to remove an annotation."
     } else {
-      val modification = modifyWhiteboardAnnotations(msg.body.annotations, msg.body.idsToRemove, msg.body.whiteBoardId, msg.body.userId, liveMeeting)
-      
-      
-      broadcastEvent(msg, modification.addedAnnotations, modification.removedAnnotations.map{ case (ann, ind) => ann.id}, msg.header.userId, msg.body.whiteBoardId, msg.body.action)
+      val modification = modifyWhiteboardAnnotations(sanitizedAnnotations, msg.body.idsToRemove, msg.body.whiteBoardId, msg.body.userId, liveMeeting)
+
+      broadcastEvent(msg, modification.addedAnnotations, modification.removedAnnotations.map { case (ann, ind) => ann.id }, msg.header.userId, msg.body.whiteBoardId, msg.body.action)
     }
 
   }

@@ -221,7 +221,7 @@ class ReceivedJsonMsgHandlerActor(
       case ClientToServerLatencyTracerMsg.NAME =>
         routeGenericMsg[ClientToServerLatencyTracerMsg](envelope, jsonNode)
       case ModifyWhiteboardAnnotationPubMsg.NAME =>
-         routeGenericMsg[ModifyWhiteboardAnnotationPubMsg](envelope, jsonNode)
+        routeGenericMsg[ModifyWhiteboardAnnotationPubMsg](envelope, jsonNode)
 
       // Presentation
       case SetCurrentPresentationPubMsg.NAME =>

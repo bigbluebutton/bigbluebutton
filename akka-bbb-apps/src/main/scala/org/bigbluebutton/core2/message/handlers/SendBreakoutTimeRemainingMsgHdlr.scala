@@ -1,7 +1,7 @@
 package org.bigbluebutton.core2.message.handlers
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ EndBreakoutRoomInternalMsg, SendBreakoutTimeRemainingInternalMsg, SendTimeRemainingAuditInternalMsg }
+import org.bigbluebutton.core.api.{ SendBreakoutTimeRemainingInternalMsg, SendTimeRemainingAuditInternalMsg }
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.domain.{ MeetingEndReason, MeetingState2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }

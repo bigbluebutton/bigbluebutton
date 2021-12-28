@@ -78,11 +78,7 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case UndoWhiteboardEvtMsg.NAME =>
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
       case ModifyWhiteboardAnnotationEvtMsg.NAME =>
-<<<<<<< HEAD
-         msgSender.send("from-akka-apps-frontend-redis-channel", json)
-=======
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
->>>>>>> ReactMovable
 
       // Chat
       case SendPublicMessageEvtMsg.NAME =>

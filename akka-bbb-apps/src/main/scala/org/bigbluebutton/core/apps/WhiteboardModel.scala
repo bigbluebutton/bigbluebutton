@@ -5,7 +5,7 @@ import org.bigbluebutton.core.util.jhotdraw.BezierWrapper
 import scala.collection.immutable.List
 import scala.collection.immutable.HashMap
 import scala.collection.JavaConverters._
-import org.bigbluebutton.common2.msgs.{ AnnotationEvent, AnnotationVO, ModificationVO}
+import org.bigbluebutton.common2.msgs.{ AnnotationEvent, AnnotationVO, ModificationVO }
 import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 import org.bigbluebutton.SystemConfiguration
 
@@ -39,8 +39,9 @@ class WhiteboardModel extends SystemConfiguration {
     wb.annotationsMap.get(id).getOrElse(List[AnnotationEvent]())
   }
 
-  def addAnnotation(wbId: String, userId: String, annotation: AnnotationVO): AnnotationVO = {
+  def addAnnotation(wbId: String, annotation: AnnotationVO): AnnotationVO = {
     val wb = getWhiteboard(wbId)
+    val userId = annotation.userId
     val usersAnnotations = getAnnotationsByUserId(wb, userId)
     val rtnAnnotation = cleansePointsInAnnotation(annotation).copy(position = wb.annotationCount)
     val newAnnotationsMap = wb.annotationsMap + (userId -> (rtnAnnotation :: usersAnnotations))
@@ -53,38 +54,47 @@ class WhiteboardModel extends SystemConfiguration {
   }
 
   /**
-  * @param annotationToRemove annotation that should be deleted
-  * @return removed annotations with zipped Index
-  */
-  def removeAnnotations(annotationIds: List[String], wbID: String, userId: String): List[Tuple2[AnnotationVO, Int]] = {
+   * @param annotationToRemove annotation that should be deleted
+   * @return removed annotations with zipped Index
+   */
+  def removeAnnotations(annotationIds: List[String], wbID: String): List[Tuple2[AnnotationVO, Int]] = {
+    //TODO Update positions
     val wb = getWhiteboard(wbID)
-    val annotationList = getAnnotationsByUserId(wb, userId)
-    val removedAnnotationsWithPos = annotationList.zipWithIndex.filter{ case (annotation, _) => annotationIds.contains(annotation.id) }
+    val removedAnnotationsWithPos = wb.annotationsMap.values.map { case list => list.zipWithIndex }.flatten.filter {
+      case (annotation: AnnotationVO, _)     => annotationIds.contains(annotation.id)
+      case (modification: ModificationVO, _) => false
+    }.asInstanceOf[Iterable[(AnnotationVO, Int)]]
 
-    val newAnnotationList = annotationList.filterNot{ case annotation => annotationIds.contains(annotation.id)}
-    val newAnnotationsMap = if (newAnnotationList.isEmpty) wb.annotationsMap - userId else wb.annotationsMap + (userId -> newAnnotationList)
+    val newAnnotationsMap = wb.annotationsMap.mapValues {
+      case list => list.filterNot {
+        case annotation: AnnotationVO     => annotationIds.contains(annotation.id)
+        case modification: ModificationVO => false
+      }
+    }.filter { case (userId, list) => list.nonEmpty }
+
     val newWhiteboard = wb.copy(annotationsMap = newAnnotationsMap)
     saveWhiteboard(newWhiteboard)
 
-    removedAnnotationsWithPos
+    removedAnnotationsWithPos.toList
   }
 
-  def addModifyAnnotation(modify: ModificationVO) = {
-    val wb = getWhiteboard(modify.wbId)
-    val userId = modify.userId
+  def addModifyAnnotation(modification: ModificationVO) = {
+    val wb = getWhiteboard(modification.wbId)
+    val userId = modification.userId
 
-    val newAnnotationsMap = wb.annotationsMap + (userId -> modify :: getAnnotationsByUserId(wb, userId))
-    val newWb = wb.copy(annotationsMap = newAnnotationsMap)
+    val newAnnotationsMap = wb.annotationsMap + (userId -> (modification.copy(position = wb.annotationCount) :: getAnnotationsByUserId(wb, userId)))
+    val newWb = wb.copy(annotationCount = wb.annotationCount + 1, annotationsMap = newAnnotationsMap)
     saveWhiteboard(newWb)
   }
 
-  def updateAnnotation(wbId: String, userId: String, annotation: AnnotationVO): AnnotationVO = {
+  def updateAnnotation(wbId: String, annotation: AnnotationVO): AnnotationVO = {
     val wb = getWhiteboard(wbId)
+    val userId = annotation.userId
     val usersAnnotations = getAnnotationsByUserId(wb, userId)
 
     //not empty and head id equals annotation id
-    if (usersAnnotations.nonEmpty && usersAnnotations.head.id == annotation.id) {
-      val rtnAnnotation = annotation.copy(position = usersAnnotations.head.position)
+    if (usersAnnotations.nonEmpty && usersAnnotations.head.isInstanceOf[AnnotationVO] && usersAnnotations.head.asInstanceOf[AnnotationVO].id == annotation.id) {
+      val rtnAnnotation = annotation.copy(position = usersAnnotations.head.asInstanceOf[AnnotationVO].position)
       val newAnnotationsMap = wb.annotationsMap + (userId -> (rtnAnnotation :: usersAnnotations.tail))
       //println("Annotation has position [" + usersAnnotations.head.position + "]")
       val newWb = wb.copy(annotationsMap = newAnnotationsMap)
@@ -92,17 +102,18 @@ class WhiteboardModel extends SystemConfiguration {
       saveWhiteboard(newWb)
       rtnAnnotation
     } else {
-      addAnnotation(wbId, userId, annotation)
+      addAnnotation(wbId, annotation)
     }
   }
 
-  def updateAnnotationPencil(wbId: String, userId: String, annotation: AnnotationVO): AnnotationVO = {
+  def updateAnnotationPencil(wbId: String, annotation: AnnotationVO): AnnotationVO = {
     val wb = getWhiteboard(wbId)
+    val userId = annotation.userId
     val usersAnnotations = getAnnotationsByUserId(wb, userId)
 
     //not empty and head id equals annotation id
-    if (!usersAnnotations.isEmpty && usersAnnotations.head.id == annotation.id) {
-      val oldAnnotation = usersAnnotations.head
+    if (!usersAnnotations.isEmpty && usersAnnotations.head.isInstanceOf[AnnotationVO] && usersAnnotations.head.asInstanceOf[AnnotationVO].id == annotation.id) {
+      val oldAnnotation = usersAnnotations.head.asInstanceOf[AnnotationVO]
       var oldPoints: List[Float] = List[Float]()
       oldAnnotation.annotationInfo.get("points").foreach(a => {
         a match {
@@ -126,14 +137,15 @@ class WhiteboardModel extends SystemConfiguration {
 
       annotation
     } else {
-      addAnnotation(wbId, userId, annotation)
+      addAnnotation(wbId, annotation)
     }
   }
 
-  def endAnnotationPencil(wbId: String, userId: String, annotation: AnnotationVO, drawEndOnly: Boolean): AnnotationVO = {
+  def endAnnotationPencil(wbId: String, annotation: AnnotationVO, drawEndOnly: Boolean): AnnotationVO = {
     var rtnAnnotation: AnnotationVO = annotation
 
     val wb = getWhiteboard(wbId)
+    val userId = annotation.userId
     val usersAnnotations = getAnnotationsByUserId(wb, userId)
 
     //not empty and head id equals annotation id
@@ -149,7 +161,10 @@ class WhiteboardModel extends SystemConfiguration {
     //println("dimensions.size(): " + dimensions.size());
     if (dimensions.length == 2) {
       var oldPoints: List[Float] = List[Float]()
-      val oldAnnotationOption: Option[AnnotationVO] = usersAnnotations.headOption
+      val oldAnnotationOption: Option[AnnotationVO] = usersAnnotations.headOption match {
+        case Some(a: AnnotationVO) => Some(a)
+        case _                     => None
+      }
       if (!oldAnnotationOption.isEmpty) {
         val oldAnnotation = oldAnnotationOption.get
         if (oldAnnotation.id == annotation.id) {
@@ -185,7 +200,7 @@ class WhiteboardModel extends SystemConfiguration {
 
       val updatedAnnotation = annotation.copy(position = newPosition, annotationInfo = updatedAnnotationData)
 
-      var newUsersAnnotations: List[AnnotationVO] = oldAnnotationOption match {
+      var newUsersAnnotations: List[AnnotationEvent] = oldAnnotationOption match {
         //As part of the whiteboard improvments for the HTML5 client it no longer sends
         //DRAW_START and DRAW_UPDATE events (#9019). Client now sends drawEndOnly in the
         //SendWhiteboardAnnotationPubMsg so akka knows not to expect usersAnnotations to be accumulating.
@@ -208,11 +223,11 @@ class WhiteboardModel extends SystemConfiguration {
 
   def getHistory(wbId: String): Array[AnnotationVO] = {
     val wb = getWhiteboard(wbId)
-    //Update for working Undo in recording
-    wb.annotationsMap.values.flatten.filter{ 
-      case a : AnnotationVO => True
-      case _ => False
-    }.toArray.sortBy(_.position);
+    //TODO Update for working Undo in recording
+    wb.annotationsMap.values.flatten.filter {
+      case a: AnnotationVO => true
+      case _               => false
+    }.asInstanceOf[List[AnnotationVO]].toArray.sortBy(_.position);
   }
 
   def clearWhiteboard(wbId: String, userId: String): Option[Boolean] = {
@@ -280,14 +295,15 @@ class WhiteboardModel extends SystemConfiguration {
 
   private def revokeModification(modification: ModificationVO): Whiteboard = {
     var newAnnotationList: List[AnnotationEvent] = List()
-    val addedAnnotationIds = modification.addedAnnotations.map{ case ann: AnnotationVO => ann.id}
-    val usersAnnotationsWithoutAdded = getAnnotationsByUserId(modification.wbId, modification.userId).filter{
-      case mod: ModificationVO => True
+    val wb = getWhiteboard(modification.wbId)
+    val addedAnnotationIds = modification.addedAnnotations.map { case ann: AnnotationVO => ann.id }
+    val usersAnnotationsWithoutAdded = getAnnotationsByUserId(wb, modification.userId).filter {
+      case mod: ModificationVO => true
       case ann: AnnotationVO => {
         if (addedAnnotationIds.contains(ann.id)) {
-          return False
+          false
         }
-        return True
+        true
       }
     }
 
@@ -298,7 +314,7 @@ class WhiteboardModel extends SystemConfiguration {
 
     newAnnotationList = usersAnnotationsWithoutAdded
 
-    if(modification.removedAnnotations.nonEmpty) {
+    if (modification.removedAnnotations.nonEmpty) {
       for ((ann, index) <- modification.removedAnnotations) {
         newAnnotationList = insert(newAnnotationList, index, ann)
       }

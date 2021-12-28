@@ -4,13 +4,14 @@ import java.lang.annotation.Annotation
 import javax.lang.model.element.AnnotationValueVisitor
 
 abstract class AnnotationEvent {
-  def wbId:    String
-  def userId:  String
+  def wbId: String
+  def userId: String
+  def position: Int
 }
 
 case class AnnotationVO(id: String, status: String, annotationType: String,
                         annotationInfo: scala.collection.immutable.Map[String, Any], wbId: String, userId: String, position: Int) extends AnnotationEvent
-case class ModificationVO(removedAnnotations: List[Tuple2[AnnotationVO, Int]], addedAnnotations: List[AnnotationVO], wbId: String, userId: String) extends AnnotationEvent
+case class ModificationVO(removedAnnotations: List[Tuple2[AnnotationVO, Int]], addedAnnotations: List[AnnotationVO], wbId: String, userId: String, position: Int) extends AnnotationEvent
 
 // ------------ client to akka-apps ------------
 object ClientToServerLatencyTracerMsg { val NAME = "ClientToServerLatencyTracerMsg" }

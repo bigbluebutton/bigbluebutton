@@ -64,8 +64,7 @@ class Webcams {
   }
 
   private def update(streamId: String, webcamStream: WebcamStream): WebcamStream = {
-    val webcam = remove(streamId)
-
+    remove(streamId)
     save(webcamStream)
   }
 }
