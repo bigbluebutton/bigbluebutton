@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class RecordingImportHandlerTest {
 
-    private String metadataDirectory = "metadata/";
+    private String metadataDirectory = "";
     private RecordingImportHandler handler = RecordingImportHandler.getInstance();
 
     @Test
@@ -19,7 +19,7 @@ public class RecordingImportHandlerTest {
         String[] entries = new File(metadataDirectory).list();
         Set<String> ids = new HashSet<>();
 
-        for(String entry: entries) {
+        for (String entry : entries) {
             String path = metadataDirectory + "/" + entry + "/metadata.xml";
             Recording recording = handler.importRecording(path, entry);
             ids.add(recording.getRecordId());

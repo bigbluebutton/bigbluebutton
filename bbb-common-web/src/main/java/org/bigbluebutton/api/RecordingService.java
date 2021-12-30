@@ -48,11 +48,11 @@ public class RecordingService {
     private static Logger log = LoggerFactory.getLogger(RecordingService.class);
 
     private static final Pattern PRESENTATION_ID_PATTERN = Pattern.compile("^[a-z0-9]{40}-[0-9]{13}\\.[0-9a-zA-Z]{3,4}$");
-    
-    private String PROCESS_DIR = "/var/bigbluebutton/recording/process";
-    private String PUBLISHED_DIR = "/var/bigbluebutton/published";
-    private String UNPUBLISHED_DIR = "/var/bigbluebutton/unpublished";
-    private String DELETED_DIR = "/var/bigbluebutton/deleted";
+
+    private String processDir = "/var/bigbluebutton/recording/process";
+    private String publishedDir = "/var/bigbluebutton/published";
+    private String unpublishedDir = "/var/bigbluebutton/unpublished";
+    private String deletedDir = "/var/bigbluebutton/deleted";
 
     private RecordingMetadataReaderHelper recordingServiceHelper;
     private String recordStatusDir;
@@ -248,11 +248,11 @@ public class RecordingService {
     }
 
     private ArrayList<File> getAllRecordingsFor(String recordId) {
-        String[] format = getPlaybackFormats(PUBLISHED_DIR);
+        String[] format = getPlaybackFormats(publishedDir);
         ArrayList<File> ids = new ArrayList<File>();
 
         for (int i = 0; i < format.length; i++) {
-            List<File> recordings = getDirectories(PUBLISHED_DIR + File.separatorChar + format[i]);
+            List<File> recordings = getDirectories(publishedDir + File.separatorChar + format[i]);
             for (int f = 0; f < recordings.size(); f++) {
                 if (recordId.equals(recordings.get(f).getName()))
                     ids.add(recordings.get(f));
@@ -263,8 +263,8 @@ public class RecordingService {
     }
 
     public boolean isRecordingExist(String recordId) {
-        List<String> publishList = getAllRecordingIds(PUBLISHED_DIR);
-        List<String> unpublishList = getAllRecordingIds(UNPUBLISHED_DIR);
+        List<String> publishList = getAllRecordingIds(publishedDir);
+        List<String> unpublishList = getAllRecordingIds(unpublishedDir);
         if (publishList.contains(recordId) || unpublishList.contains(recordId)) {
             return true;
         }
@@ -273,8 +273,8 @@ public class RecordingService {
     }
 
     public boolean existAnyRecording(List<String> idList) {
-        List<String> publishList = getAllRecordingIds(PUBLISHED_DIR);
-        List<String> unpublishList = getAllRecordingIds(UNPUBLISHED_DIR);
+        List<String> publishList = getAllRecordingIds(publishedDir);
+        List<String> unpublishList = getAllRecordingIds(unpublishedDir);
 
         for (String id : idList) {
             if (publishList.contains(id) || unpublishList.contains(id)) {
@@ -397,7 +397,7 @@ public class RecordingService {
     }
 
     public void setUnpublishedDir(String dir) {
-        UNPUBLISHED_DIR = dir;
+        unpublishedDir = dir;
     }
 
     public void setPresentationBaseDir(String dir) {
@@ -413,7 +413,7 @@ public class RecordingService {
     }
 
     public void setPublishedDir(String dir) {
-        PUBLISHED_DIR = dir;
+        publishedDir = dir;
     }
 
     public void setCaptionsDir(String dir) {
@@ -457,14 +457,14 @@ public class RecordingService {
         boolean succeeded = false;
         if (state.equals(Recording.STATE_PUBLISHED)) {
             // It can only be published if it is unpublished
-            succeeded |= changeState(UNPUBLISHED_DIR, recordingId, state);
+            succeeded |= changeState(unpublishedDir, recordingId, state);
         } else if (state.equals(Recording.STATE_UNPUBLISHED)) {
             // It can only be unpublished if it is published
-            succeeded |= changeState(PUBLISHED_DIR, recordingId, state);
+            succeeded |= changeState(publishedDir, recordingId, state);
         } else if (state.equals(Recording.STATE_DELETED)) {
             // It can be deleted from any state
-            succeeded |= changeState(PUBLISHED_DIR, recordingId, state);
-            succeeded |= changeState(UNPUBLISHED_DIR, recordingId, state);
+            succeeded |= changeState(publishedDir, recordingId, state);
+            succeeded |= changeState(unpublishedDir, recordingId, state);
         }
         return succeeded;
     }
@@ -480,13 +480,13 @@ public class RecordingService {
                     exists = true;
                     File dest;
                     if (state.equals(Recording.STATE_PUBLISHED)) {
-                       dest = new File(PUBLISHED_DIR + File.separatorChar + aFormat);
+                       dest = new File(publishedDir + File.separatorChar + aFormat);
                        succeeded &= publishRecording(dest, recordingId, recording, aFormat);
                     } else if (state.equals(Recording.STATE_UNPUBLISHED)) {
-                       dest = new File(UNPUBLISHED_DIR + File.separatorChar + aFormat);
+                       dest = new File(unpublishedDir + File.separatorChar + aFormat);
                        succeeded &= unpublishRecording(dest, recordingId, recording, aFormat);
                     } else if (state.equals(Recording.STATE_DELETED)) {
-                       dest = new File(DELETED_DIR + File.separatorChar + aFormat);
+                       dest = new File(deletedDir + File.separatorChar + aFormat);
                        succeeded &= deleteRecording(dest, recordingId, recording, aFormat);
                     } else {
                        log.debug(String.format("State: %s, is not supported", state));
@@ -687,15 +687,15 @@ public class RecordingService {
         String baseDir = null;
 
         if ( state.equals(Recording.STATE_PROCESSING) || state.equals(Recording.STATE_PROCESSED) )
-            baseDir = PROCESS_DIR;
+            baseDir = processDir;
         else if ( state.equals(Recording.STATE_PUBLISHED) )
-            baseDir = PUBLISHED_DIR;
+            baseDir = publishedDir;
         else if ( state.equals(Recording.STATE_UNPUBLISHED) )
-            baseDir = UNPUBLISHED_DIR;
+            baseDir = unpublishedDir;
         else if ( state.equals(Recording.STATE_DELETED) )
-            baseDir = DELETED_DIR;
+            baseDir = deletedDir;
         else if ( forceDefault )
-            baseDir = PUBLISHED_DIR;
+            baseDir = publishedDir;
 
         return baseDir;
     }

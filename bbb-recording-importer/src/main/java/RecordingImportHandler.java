@@ -30,7 +30,7 @@ public class RecordingImportHandler {
     }
 
     public static RecordingImportHandler getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new RecordingImportHandler();
         }
         return instance;
@@ -39,15 +39,16 @@ public class RecordingImportHandler {
     public void importRecordings(String directory, boolean persist) {
         String[] entries = new File(directory).list();
 
-        for(String entry: entries) {
+        for (String entry : entries) {
             Recording recording = dataStore.findRecordingByRecordId(entry);
-            if(recording != null) {
+            if (recording != null) {
                 continue;
             }
 
             String path = directory + "/" + entry + "/metadata.xml";
             recording = importRecording(path, entry);
-            if(persist) dataStore.save(recording);
+            if (persist)
+                dataStore.save(recording);
         }
     }
 
@@ -57,14 +58,14 @@ public class RecordingImportHandler {
         try {
             byte[] encoded = Files.readAllBytes(Paths.get(path));
             content = new String(encoded, StandardCharsets.UTF_8);
-        } catch(IOException e) {
+        } catch (IOException e) {
             logger.error("Failed to import {}", path);
             e.printStackTrace();
         }
 
         Recording recording = null;
 
-        if(content != null) {
+        if (content != null) {
             logger.info("File content: {}", content);
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -75,14 +76,15 @@ public class RecordingImportHandler {
                 logger.info("Constructing new XML document from XML content");
                 builder = factory.newDocumentBuilder();
                 document = builder.parse(new InputSource(new StringReader(content)));
-            } catch(Exception e) {
+            } catch (Exception e) {
                 logger.error("Failed to construct XML document from file content");
                 e.printStackTrace();
             }
 
             recording = parseRecordingData(document);
 
-            if(recording.getRecordId() == null || recording.getRecordId().equals("")) recording.setRecordId(recordId);
+            if (recording.getRecordId() == null || recording.getRecordId().equals(""))
+                recording.setRecordId(recordId);
         }
 
         return recording;
@@ -98,6 +100,14 @@ public class RecordingImportHandler {
         String externalId = getNodeData(recordingDocument, "externalId");
         String name = getNodeData(recordingDocument, "name");
 
+        if (tagExists(recordingDocument, "meeting")) {
+            Element meeting = (Element) recordingDocument.getElementsByTagName("meeting").item(0);
+            externalId = meeting.getAttribute("externalId");
+            name = meeting.getAttribute("name");
+            if (id == null || id.equals(""))
+                id = meeting.getAttribute("id");
+        }
+
         Recording recording = new Recording();
         recording.setRecordId(id);
         recording.setMeetingId(externalId);
@@ -106,11 +116,12 @@ public class RecordingImportHandler {
         recording.setState(state);
 
         try {
-            recording.setStartTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(startTime)), ZoneId.systemDefault()));
-            recording.setEndTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(endTime)), ZoneId.systemDefault()));
+            recording.setStartTime(
+                    LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(startTime)), ZoneId.systemDefault()));
+            recording.setEndTime(
+                    LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(endTime)), ZoneId.systemDefault()));
             recording.setParticipants(Integer.parseInt(participants));
-        } catch(NumberFormatException e) {
-
+        } catch (NumberFormatException e) {
         }
 
         parseMetadata(recordingDocument, recording);
@@ -127,10 +138,11 @@ public class RecordingImportHandler {
         Node meta = recordingDocument.getElementsByTagName("meta").item(0);
         NodeList children = meta.getChildNodes();
 
-        for(int i = 0; i < children.getLength(); i++) {
+        for (int i = 0; i < children.getLength(); i++) {
             Node node = children.item(i);
 
-            if(!(node instanceof  Element)) continue;
+            if (!(node instanceof Element))
+                continue;
 
             String key = node.getNodeName();
             String value = node.getTextContent();
@@ -150,25 +162,25 @@ public class RecordingImportHandler {
         PlaybackFormat playback = new PlaybackFormat();
         Element playbackElement = (Element) playbackNode;
 
-        String format = getElementTagContent(playbackElement, "format");
+        String format = getNodeData(recordingDocument, "format");
         playback.setFormat(format);
 
-        String url = getElementTagContent(playbackElement, "link");
+        String url = getNodeData(recordingDocument, "link");
         playback.setUrl(url);
 
-        String length = getElementTagContent(playbackElement, "duration");
-        String processingTime = getElementTagContent(playbackElement, "processingTime");
+        String length = getNodeData(recordingDocument, "duration");
+        String processingTime = getNodeData(recordingDocument, "processingTime");
 
         try {
             playback.setLength(Integer.parseInt(length));
             playback.setProcessingTime(Integer.parseInt(processingTime));
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
 
         }
 
         NodeList images = recordingDocument.getElementsByTagName("image");
 
-        for(int i = 0; i < images.getLength(); i++) {
+        for (int i = 0; i < images.getLength(); i++) {
             Element image = (Element) images.item(i);
 
             String height = image.getAttribute("height");
@@ -177,8 +189,13 @@ public class RecordingImportHandler {
             String src = image.getTextContent();
 
             Thumbnail thumbnail = new Thumbnail();
-            thumbnail.setHeight(Integer.parseInt(height));
-            thumbnail.setWidth(Integer.parseInt(width));
+
+            try {
+                thumbnail.setHeight(Integer.parseInt(height));
+                thumbnail.setWidth(Integer.parseInt(width));
+            } catch (NumberFormatException e) {
+            }
+
             thumbnail.setAlt(alt);
             thumbnail.setUrl(src);
             thumbnail.setSequence(i);
@@ -193,32 +210,27 @@ public class RecordingImportHandler {
         return playback;
     }
 
-    private String getNodeData(Document document, String tag) {
+    private boolean tagExists(Document document, String tag) {
         NodeList node = document.getElementsByTagName(tag);
+        if (node == null || node.getLength() == 0)
+            return false;
+        return true;
+    }
 
+    private String getNodeData(Document document, String tag) {
         String data = "";
-        if(node == null || node.getLength() == 0) return data;
+        if (!tagExists(document, tag))
+            return data;
 
+        NodeList node = document.getElementsByTagName(tag);
         Element element = (Element) node.item(0);
         Node child = element.getFirstChild();
 
-        if(child instanceof CharacterData) {
+        if (child instanceof CharacterData) {
             CharacterData characterData = (CharacterData) child;
             data = characterData.getData();
         }
 
         return data;
     }
-
-    private String getElementTagContent(Element element, String tag) {
-        Node node = element.getElementsByTagName(tag).item(0);
-        String content = "";
-
-        if(node != null) {
-            content = node.getTextContent();
-        }
-
-        return content;
-    }
 }
-

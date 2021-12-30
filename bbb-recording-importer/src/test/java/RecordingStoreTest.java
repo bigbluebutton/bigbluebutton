@@ -10,7 +10,7 @@ import java.util.List;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class RecordingStoreTest {
 
-    private String metadataDirectory = "metadata/";
+    private String metadataDirectory = "";
     private RecordingImportHandler handler = RecordingImportHandler.getInstance();
     private DataStore dataStore;
 
@@ -39,7 +39,7 @@ public class RecordingStoreTest {
         dataStore = DataStore.getInstance();
         String[] entries = new File(metadataDirectory).list();
 
-        for(String entry: entries) {
+        for (String entry : entries) {
             Recording recording = dataStore.findRecordingByRecordId(entry);
             assertTrue(recording != null);
         }
