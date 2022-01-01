@@ -619,6 +619,7 @@ class Presentation extends PureComponent {
         {this.renderPresentationFullscreen()}
 
         <svg
+          id="slideSVG"
           key={currentSlide.id}
           data-test="whiteboard"
           width={svgDimensions.width < 0 ? 0 : svgDimensions.width}
@@ -674,12 +675,14 @@ class Presentation extends PureComponent {
           )}
         </svg>
         <Moveable
+          customClipPath="#viewBox"
           rootContainer={document.body}
           edge={false}
           ref={this.moveableRef}
           target={moveableTargets}
         />
         <Selecto
+          boundContainer="#slideSVG"
           ref={this.selectoRef}
           selectByClick
           selectableTargets={['.selectable']}
