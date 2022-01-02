@@ -13,9 +13,11 @@ export default function modifyWhiteboardAccess(meetingId, whiteboardId, multiUse
   };
 
   const modifier = {
-    meetingId,
-    whiteboardId,
-    multiUser,
+    $set: {
+      meetingId,
+      whiteboardId,
+      multiUser,
+    },
   };
 
   try {
