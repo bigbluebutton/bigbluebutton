@@ -145,20 +145,20 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
   }).filter(({
     options,
   }) => options.length > 1 && options.length < 99).forEach((poll) => {
-    if (poll.options.length <= 5 || MAX_CUSTOM_FIELDS <= 5) {
-      const maxAnswer = poll.options.length > MAX_CUSTOM_FIELDS
-        ? MAX_CUSTOM_FIELDS
-        : poll.options.length;
-      quickPollOptions.push({
-        type: `${pollTypes.Letter}${maxAnswer}`,
-        poll,
-      });
-    } else {
+    //if (poll.options.length <= 5 || MAX_CUSTOM_FIELDS <= 5) {
+    //  const maxAnswer = poll.options.length > MAX_CUSTOM_FIELDS
+    //    ? MAX_CUSTOM_FIELDS
+    //    : poll.options.length;
+    //  quickPollOptions.push({
+    //    type: `${pollTypes.Letter}${maxAnswer}`,
+    //    poll,
+    //  });
+    //} else {
       quickPollOptions.push({
         type: pollTypes.Custom,
         poll,
       });
-    }
+    //}
   });
 
   if (quickPollOptions.length > 0) {
