@@ -15,9 +15,7 @@ export default function setWhiteboardMode(whiteboardMode) {
 
     check(meetingId, String);
     check(requesterUserId, String);
-//    check(whiteboardId, String);
 
-    //const whiteboardMode = {synchronizeWBUpdate: synchronize };
     const payload = {
       whiteboardMode,
       meetingId,
