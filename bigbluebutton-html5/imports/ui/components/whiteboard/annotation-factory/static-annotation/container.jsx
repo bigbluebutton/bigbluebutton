@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import StaticAnnotation from './component';
 import StaticAnnotationService from './service';
-import ReactiveAnnotationService from '../reactive-annotation/service';
 
 const StaticAnnotationContainer = (props) => {
   return (
