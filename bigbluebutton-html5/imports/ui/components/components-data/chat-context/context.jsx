@@ -67,15 +67,17 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
 
     const indexValue = chatIndex ? (chatIndex + 1) : 1;
     const messageKey = key + '-' + indexValue;
+    const content = [{ id: msg.id, text: msg.message, time: msg.timestamp }];
+    if (msg.upload) {
+      content[0].upload = msg.upload;
+    }
     const tempGroupMessage = {
       [messageKey]: {
         ...restMsg,
         key: messageKey,
         lastTimestamp: msg.timestamp,
         read: msg.chatId === PUBLIC_CHAT_KEY && msg.timestamp <= getLoginTime() ? true : !!removedMessagesReadState[msg.id],
-        content: [
-          { id: msg.id, text: msg.message, time: msg.timestamp },
-        ],
+        content,
       }
     };
   

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import StaticAnnotation from './static-annotation/component';
+import StaticAnnotationContainer from './static-annotation/container';
 import ReactiveAnnotationContainer from './reactive-annotation/container';
 import Ellipse from '../annotations/ellipse/component';
 import Line from '../annotations/line/component';
@@ -9,6 +9,8 @@ import Rectangle from '../annotations/rectangle/component';
 import Text from '../annotations/text/container';
 import Triangle from '../annotations/triangle/component';
 import Pencil from '../annotations/pencil/component';
+import Eraser from '../annotations/eraser/component';
+import Marker from '../annotations/marker/component';
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
@@ -16,7 +18,7 @@ const DRAW_END = ANNOTATION_CONFIG.status.end;
 export default class AnnotationFactory extends Component {
   static renderStaticAnnotation(annotationInfo, slideWidth, slideHeight, drawObject, whiteboardId) {
     return (
-      <StaticAnnotation
+      <StaticAnnotationContainer
         key={annotationInfo._id}
         shapeId={annotationInfo._id}
         drawObject={drawObject}
@@ -97,8 +99,10 @@ AnnotationFactory.defaultProps = {
     line: Line,
     poll_result: Poll,
     rectangle: Rectangle,
+    eraser: Eraser,
     text: Text,
     triangle: Triangle,
     pencil: Pencil,
+    marker: Marker,
   },
 };

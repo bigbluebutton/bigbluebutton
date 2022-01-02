@@ -11,6 +11,7 @@ import ActionsBar from './component';
 import Service from './service';
 import UserListService from '/imports/ui/components/user-list/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
+import MediaUploadService from '/imports/ui/components/upload/media/service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import LayoutContext from '../layout/context';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
@@ -70,6 +71,7 @@ export default withTracker(() => ({
   isOldMinimizeButtonEnabled: OLD_MINIMIZE_BUTTON_ENABLED,
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
+  isMediaUploadEnabled: MediaUploadService.isEnabled(),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
   setEmojiStatus: UserListService.setEmojiStatus,
 }))(injectIntl(ActionsBarContainer));

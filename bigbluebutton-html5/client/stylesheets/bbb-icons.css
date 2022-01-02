@@ -58,8 +58,14 @@
 .icon-bbb-fit_to_screen:before {
   content: "\e929";
 }
+.icon-bbb-eraser_tool:before {
+  content: "\e95f";
+}
 .icon-bbb-line_tool:before {
   content: "\e91c";
+}
+.icon-bbb-marker_tool:before {
+  content: "\e960";
 }
 .icon-bbb-circle_tool:before {
   content: "\e91d";
@@ -260,6 +266,9 @@
 }
 .icon-bbb-multi_whiteboard:before {
   content: "\e93d";
+}
+.icon-bbb-multi_whiteboard_isolated:before {
+  content: "\e961";
 }
 .icon-bbb-whiteboard:before {
   content: "\e93e";

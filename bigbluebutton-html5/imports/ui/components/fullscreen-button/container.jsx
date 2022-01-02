@@ -7,7 +7,7 @@ const FullscreenButtonContainer = (props) => <FullscreenButtonComponent {...prop
 
 export default (props) => {
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
-  const { isFullscreen } = props;
+  var { isFullscreen } = props;
 
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
 
@@ -15,7 +15,12 @@ export default (props) => {
   const { layoutContextState, layoutContextDispatch } = layoutContext;
   const { fullscreen } = layoutContextState;
   const { element: currentElement, group: currentGroup } = fullscreen;
-
+  const {isPresentationDetached, presentationWindow } = props;
+  
+  if (isPresentationDetached) {
+    isFullscreen = FullscreenService.isFullScreen(presentationWindow.document.documentElement);
+  }
+  
   return (
     <FullscreenButtonContainer
       {...props}
@@ -26,6 +31,7 @@ export default (props) => {
         currentElement,
         currentGroup,
         layoutContextDispatch,
+        handleToggleFullScreen,
       }}
     />
   );
