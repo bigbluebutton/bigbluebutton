@@ -164,6 +164,7 @@ export default class WhiteboardOverlay extends Component {
       physicalSlideHeight,
       slideWidth,
       slideHeight,
+      synchronizeWBUpdate,
     } = this.props;
 
     const { tool } = drawSettings;
@@ -176,6 +177,7 @@ export default class WhiteboardOverlay extends Component {
             actions={actions}
             drawSettings={drawSettings}
             whiteboardId={whiteboardId}
+            synchronizeWBUpdate={synchronizeWBUpdate}
           />
         );
       }
@@ -186,6 +188,7 @@ export default class WhiteboardOverlay extends Component {
           actions={actions}
           drawSettings={drawSettings}
           whiteboardId={whiteboardId}
+          synchronizeWBUpdate={synchronizeWBUpdate}
         />
       );
     } if (tool === 'pencil') {
@@ -198,6 +201,7 @@ export default class WhiteboardOverlay extends Component {
             actions={actions}
             physicalSlideWidth={physicalSlideWidth}
             physicalSlideHeight={physicalSlideHeight}
+            synchronizeWBUpdate={synchronizeWBUpdate}
           />
         );
       }
@@ -210,6 +214,7 @@ export default class WhiteboardOverlay extends Component {
           actions={actions}
           physicalSlideWidth={physicalSlideWidth}
           physicalSlideHeight={physicalSlideHeight}
+          synchronizeWBUpdate={synchronizeWBUpdate}
         />
       );
     } if (tool === 'text') {
@@ -221,6 +226,7 @@ export default class WhiteboardOverlay extends Component {
           actions={actions}
           slideWidth={slideWidth}
           slideHeight={slideHeight}
+          synchronizeWBUpdate={synchronizeWBUpdate}
         />
       );
     }
