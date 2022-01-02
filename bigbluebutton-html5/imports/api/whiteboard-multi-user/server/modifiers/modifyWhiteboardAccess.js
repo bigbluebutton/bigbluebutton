@@ -12,6 +12,7 @@ export default function modifyWhiteboardAccess(meetingId, whiteboardId, multiUse
     whiteboardId,
   };
 
+  //we need to $set them in order not to delete other parameters just in case
   const modifier = {
     $set: {
       meetingId,
