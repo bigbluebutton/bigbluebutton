@@ -64,7 +64,6 @@ const FullscreenButtonComponent = ({
   color,
   fullScreenStyle,
   fullscreenRef,
-  handleToggleFullScreen,
 }) => {
   if (isIphone) return null;
 
