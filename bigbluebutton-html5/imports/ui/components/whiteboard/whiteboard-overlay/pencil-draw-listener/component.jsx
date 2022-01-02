@@ -10,6 +10,7 @@ const DRAW_END = ANNOTATION_CONFIG.status.end;
 // maximum value of z-index to prevent other things from overlapping
 const MAX_Z_INDEX = (2 ** 31) - 1;
 const POINTS_TO_BUFFER = 2;
+const POINTS_TO_BUFFER_SYNC = Meteor.settings.public.app.defaultSettings.dataSaving.syncPencilPointsToBuffer;
 
 export default class PencilDrawListener extends Component {
   constructor() {
@@ -18,6 +19,7 @@ export default class PencilDrawListener extends Component {
     // to track the status of drawing
     this.isDrawing = false;
     this.points = [];
+    this.updateBeforeEnd = false; //for drawing a point by a single click by synchronously updating pencil
 
     this.mouseDownHandler = this.mouseDownHandler.bind(this);
     this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
@@ -73,6 +75,7 @@ export default class PencilDrawListener extends Component {
     if (this.isDrawing) {
       const {
         actions,
+        synchronizeWBUpdate,
       } = this.props;
 
       const {
@@ -94,7 +97,7 @@ export default class PencilDrawListener extends Component {
       this.points.push(transformedSvgPoint.x);
       this.points.push(transformedSvgPoint.y);
 
-      if (this.points.length > POINTS_TO_BUFFER) {
+      if (this.points.length > (synchronizeWBUpdate ? POINTS_TO_BUFFER_SYNC : POINTS_TO_BUFFER)) {
         this.sendCoordinates();
       }
     }
@@ -170,16 +173,19 @@ export default class PencilDrawListener extends Component {
       } = this.props;
 
       const { getCurrentShapeId } = actions;
+      this.updateBeforeEnd = true;
       this.handleDrawPencil(this.points, DRAW_UPDATE, getCurrentShapeId());
+      this.points = []; // only new points will be sent
     }
   }
 
-  handleDrawPencil(points, status, id, dimensions) {
+  handleDrawPencil(points, status, id, dimensions, updateBeforeEnd) {
     const {
       whiteboardId,
       userId,
       actions,
       drawSettings,
+      synchronizeWBUpdate,
     } = this.props;
 
     const {
@@ -191,6 +197,11 @@ export default class PencilDrawListener extends Component {
       thickness,
       color,
     } = drawSettings;
+
+    var pencilPoint = undefined;
+    if (status == DRAW_END) {
+      pencilPoint = updateBeforeEnd ? false : true;
+    }
 
     const annotation = {
       id,
@@ -208,6 +219,7 @@ export default class PencilDrawListener extends Component {
       wbId: whiteboardId,
       userId,
       position: 0,
+      pencilPoint,
     };
 
     // dimensions are added to the 'DRAW_END', last message
@@ -215,7 +227,7 @@ export default class PencilDrawListener extends Component {
       annotation.annotationInfo.dimensions = dimensions;
     }
 
-    sendAnnotation(annotation, whiteboardId);
+    sendAnnotation(annotation, synchronizeWBUpdate); //whiteboardId seems unnecessary
   }
 
   sendLastMessage() {
@@ -233,7 +245,9 @@ export default class PencilDrawListener extends Component {
         DRAW_END,
         getCurrentShapeId(),
         [Math.round(physicalSlideWidth), Math.round(physicalSlideHeight)],
+        this.updateBeforeEnd,
       );
+      this.updateBeforeEnd = false;
       this.resetState();
     }
   }
