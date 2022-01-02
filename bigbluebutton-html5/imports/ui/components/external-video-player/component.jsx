@@ -517,8 +517,8 @@ class VideoPlayer extends Component {
 
   renderExternalVideoClose() {
     const { isPresenter } = this.props;
-    const { playing } = this.state;
-    if (isPresenter && playing) {
+    //const { playing } = this.state;
+    if (isPresenter /*&& playing*/) {
       return <ExternalVideoCloseButton />;
     } else {
       return null;
