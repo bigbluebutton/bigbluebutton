@@ -404,6 +404,8 @@
     "app.settings.dataSavingTab.label": "Data savings",
     "app.settings.dataSavingTab.webcam": "Enable other participants webcams",
     "app.settings.dataSavingTab.screenShare": "Enable desktop sharing",
+    "app.settings.dataSavingTab.synchronizeWBUpdate": "Synchronize whiteboard update",
+    "app.settings.dataSavingTab.simplifyPencil": "Simplify pencil drawing",
     "app.settings.dataSavingTab.description": "To save your bandwidth adjust what's currently being displayed.",
     "app.settings.save-notification.label": "Settings have been saved",
     "app.statusNotifier.lowerHands": "Lower Hands",
