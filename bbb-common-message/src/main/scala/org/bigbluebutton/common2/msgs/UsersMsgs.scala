@@ -92,6 +92,7 @@ case class UserJoinedMeetingEvtMsg(
 case class UserJoinedMeetingEvtMsgBody(intId: String, extId: String, name: String, role: String,
                                        guest: Boolean, authed: Boolean, guestStatus: String,
                                        emoji:     String,
+                                       pin:       Boolean,
                                        presenter: Boolean, locked: Boolean, avatar: String, clientType: String)
 
 /**
@@ -200,6 +201,16 @@ object AssignPresenterReqMsg { val NAME = "AssignPresenterReqMsg" }
 case class AssignPresenterReqMsg(header: BbbClientMsgHeader, body: AssignPresenterReqMsgBody) extends StandardMsg
 case class AssignPresenterReqMsgBody(requesterId: String, newPresenterId: String, newPresenterName: String, assignedBy: String)
 
+/**
+ * Sent from client to change the video pin of the user in the meeting.
+ */
+object ChangeUserPinStateReqMsg { val NAME = "ChangeUserPinStateReqMsg" }
+case class ChangeUserPinStateReqMsg(header: BbbClientMsgHeader, body: ChangeUserPinStateReqMsgBody) extends StandardMsg
+case class ChangeUserPinStateReqMsgBody(userId: String, pin: Boolean, changedBy: String)
+
+object UserPinStateChangedEvtMsg { val NAME = "UserPinStateChangedEvtMsg" }
+case class UserPinStateChangedEvtMsg(header: BbbClientMsgHeader, body: UserPinStateChangedEvtMsgBody) extends BbbCoreMsg
+case class UserPinStateChangedEvtMsgBody(userId: String, pin: Boolean, changedBy: String)
 /**
  * Sent from client to change the role of the user in the meeting.
  */
