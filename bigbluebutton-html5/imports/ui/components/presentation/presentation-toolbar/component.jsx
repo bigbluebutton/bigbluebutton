@@ -326,6 +326,10 @@ class PresentationToolbar extends PureComponent {
                 }}
               />
           }
+          </div>
+        }
+        {
+          <div>
             <Button
               role="button"
               aria-label={isPresentationDetached
