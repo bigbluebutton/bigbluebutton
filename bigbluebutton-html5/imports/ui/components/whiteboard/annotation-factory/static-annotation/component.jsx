@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import StaticAnnotationService from './service';
 
 export default class StaticAnnotation extends React.Component {
-  // completed annotations should never update
-  shouldComponentUpdate() {
-    return false;
+  // completed annotations can be updated for synchronized drawing
+  shouldComponentUpdate(nextProps) {
+    const { version } = this.props;
+    return version !== nextProps.version;
   }
 
   render() {
