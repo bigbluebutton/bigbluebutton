@@ -220,6 +220,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendCursorPositionPubMsg](envelope, jsonNode)
       case ModifyWhiteboardAccessPubMsg.NAME =>
         routeGenericMsg[ModifyWhiteboardAccessPubMsg](envelope, jsonNode)
+      case ModifyWBModePubMsg.NAME =>
+        routeGenericMsg[ModifyWBModePubMsg](envelope, jsonNode)
       case ClearWhiteboardPubMsg.NAME =>
         routeGenericMsg[ClearWhiteboardPubMsg](envelope, jsonNode)
       case UndoWhiteboardPubMsg.NAME =>
