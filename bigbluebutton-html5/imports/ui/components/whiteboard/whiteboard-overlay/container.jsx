@@ -3,6 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import WhiteboardOverlayService from './service';
 import WhiteboardOverlay from './component';
+import WhiteboardService from '../service';
 
 const WhiteboardOverlayContainer = (props) => {
   const { drawSettings } = props;
@@ -23,6 +24,7 @@ export default withTracker(() => ({
   drawSettings: WhiteboardOverlayService.getWhiteboardToolbarValues(),
   userId: WhiteboardOverlayService.getCurrentUserId(),
   updateCursor: WhiteboardOverlayService.updateCursor,
+  synchronizeWBUpdate: WhiteboardService.getWhiteboardMode().synchronizeWBUpdate,
 }))(WhiteboardOverlayContainer);
 
 
