@@ -164,6 +164,9 @@ export default function addMeeting(meeting) {
   }
 
   newMeeting.welcomeProp.welcomeMsg = welcomeMsg;
+  
+  const dataSavingSettings = Meteor.settings.public.app.defaultSettings.dataSaving;
+  const { synchronizeWBUpdate = false, simplifyPencil = true } = dataSavingSettings;
 
   // note: as of July 2020 `modOnlyMessage` is not published to the client side.
   // We are sanitizing this data simply to prevent future potential usage
@@ -174,6 +177,8 @@ export default function addMeeting(meeting) {
     $set: Object.assign({
       meetingId,
       meetingEnded,
+      synchronizeWBUpdate,
+      simplifyPencil,
       layout: LAYOUT_TYPE[meeting.usersProp.meetingLayout] || 'smart',
       publishedPoll: false,
       guestLobbyMessage: '',
