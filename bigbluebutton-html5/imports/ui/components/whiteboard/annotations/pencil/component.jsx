@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import WhiteboardService from '../../service';
 import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers';
 
 export default class PencilDrawComponent extends Component {
@@ -78,6 +79,8 @@ export default class PencilDrawComponent extends Component {
 
     const { annotation, slideWidth, slideHeight } = this.props;
 
+    this.whiteboardMode = WhiteboardService.getWhiteboardMode();
+
     this.path = this.getCoordinates(annotation, slideWidth, slideHeight);
 
     this.getCurrentPath = this.getCurrentPath.bind(this);
@@ -85,30 +88,30 @@ export default class PencilDrawComponent extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    const { version } = this.props;
+    const { version, annotation, slideWidth, slideHeight } = this.props;
+    const { points } = annotation;
+    if (points.length !== nextProps.annotation.points.length) {
+      // this has been transferred from componentDidUpdate to reach to the last point
+      this.path = this.getCoordinates(nextProps.annotation, slideWidth, slideHeight);
+    }
     return version !== nextProps.version;
   }
 
-  componentDidUpdate(prevProps) {
-    const { annotation: prevAnnotation } = prevProps;
-    const { points: prevPoints } = prevAnnotation;
-    const { annotation, slideWidth, slideHeight } = this.props;
-    const { points } = annotation;
-    if (prevPoints.length !== points.length) {
-      this.path = this.getCoordinates(annotation, slideWidth, slideHeight);
-    }
-  }
-
   getCoordinates(annotation, slideWidth, slideHeight) {
-    if ((!annotation || annotation.points.length === 0)
-        || (annotation.status === 'DRAW_END' && !annotation.commands)) {
+    if (!annotation || annotation.points.length === 0) {
       return undefined;
     }
 
+    // When the screen is reloaded, whiteboard mode can differ from what was set when the annotation was initially drawn,
+    //  thus we judge if the drawing is bezier similified by the presence of annotation.commands
     let data;
     // Final message, display smoothes coordinates
     if (annotation.status === 'DRAW_END') {
-      data = PencilDrawComponent.getFinalCoordinates(annotation, slideWidth, slideHeight);
+      if (annotation.commands) {
+        data = PencilDrawComponent.getFinalCoordinates(annotation, slideWidth, slideHeight);
+      } else {
+        data = PencilDrawComponent.getInitialCoordinates(annotation, slideWidth, slideHeight);
+      }
     // Not a final message, but rendering it for the first time, creating a new path
     } else if (!this.path) {
       data = PencilDrawComponent.getInitialCoordinates(annotation, slideWidth, slideHeight);
