@@ -20,6 +20,10 @@ object ModifyWhiteboardAccessPubMsg { val NAME = "ModifyWhiteboardAccessPubMsg" 
 case class ModifyWhiteboardAccessPubMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAccessPubMsgBody) extends StandardMsg
 case class ModifyWhiteboardAccessPubMsgBody(whiteboardId: String, multiUser: Array[String])
 
+object ModifyWBModePubMsg { val NAME = "ModifyWBModePubMsg" }
+case class ModifyWBModePubMsg(header: BbbClientMsgHeader, body: ModifyWBModePubMsgBody) extends StandardMsg
+case class ModifyWBModePubMsgBody(meetingId: String, whiteboardMode: Map[String, Boolean])
+
 object SendCursorPositionPubMsg { val NAME = "SendCursorPositionPubMsg" }
 case class SendCursorPositionPubMsg(header: BbbClientMsgHeader, body: SendCursorPositionPubMsgBody) extends StandardMsg
 case class SendCursorPositionPubMsgBody(whiteboardId: String, xPercent: Double, yPercent: Double)
@@ -53,6 +57,10 @@ case class GetWhiteboardAnnotationsRespMsgBody(whiteboardId: String, annotations
 object ModifyWhiteboardAccessEvtMsg { val NAME = "ModifyWhiteboardAccessEvtMsg" }
 case class ModifyWhiteboardAccessEvtMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAccessEvtMsgBody) extends BbbCoreMsg
 case class ModifyWhiteboardAccessEvtMsgBody(whiteboardId: String, multiUser: Array[String])
+
+object ModifyWBModeEvtMsg { val NAME = "ModifyWBModeEvtMsg" }
+case class ModifyWBModeEvtMsg(header: BbbClientMsgHeader, body: ModifyWBModeEvtMsgBody) extends BbbCoreMsg
+case class ModifyWBModeEvtMsgBody(whiteboardMode: Map[String, Boolean])
 
 object SendCursorPositionEvtMsg { val NAME = "SendCursorPositionEvtMsg" }
 case class SendCursorPositionEvtMsg(header: BbbClientMsgHeader, body: SendCursorPositionEvtMsgBody) extends BbbCoreMsg
