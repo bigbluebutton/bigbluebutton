@@ -160,6 +160,9 @@ public:
       dataSaving:
         viewParticipantsWebcams: true
         viewScreenshare: true
+        synchronizeWBUpdate: false
+        simplifyPencil: true
+        syncPencilPointsToBuffer: 5
     shortcuts:
       openOptions:
         accesskey: O
