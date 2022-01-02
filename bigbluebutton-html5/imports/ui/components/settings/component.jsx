@@ -80,6 +80,8 @@ const propTypes = {
   dataSaving: PropTypes.shape({
     viewParticipantsWebcams: PropTypes.bool,
     viewScreenshare: PropTypes.bool,
+    synchronizeWBUpdate: PropTypes.bool,
+    simplifyPencil: PropTypes.bool,
   }).isRequired,
   application: PropTypes.shape({
     chatAudioAlerts: PropTypes.bool,
