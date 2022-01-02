@@ -21,6 +21,7 @@ class WhiteboardApp2x(implicit val context: ActorContext)
   with ClearWhiteboardPubMsgHdlr
   with UndoWhiteboardPubMsgHdlr
   with ModifyWhiteboardAccessPubMsgHdlr
+  with ModifyWBModePubMsgHdlr
   with SendWhiteboardAnnotationPubMsgHdlr
   with GetWhiteboardAnnotationsReqMsgHdlr {
 
@@ -31,6 +32,7 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     var rtnAnnotation: AnnotationVO = annotation
 
     if (WhiteboardKeyUtil.DRAW_START_STATUS == annotation.status) {
+      //This does not happen anymore since 2.3
       rtnAnnotation = liveMeeting.wbModel.addAnnotation(annotation.wbId, annotation.userId, annotation)
     } else if (WhiteboardKeyUtil.DRAW_UPDATE_STATUS == annotation.status) {
       if (WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType) {
@@ -72,6 +74,10 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     liveMeeting.wbModel.modifyWhiteboardAccess(whiteboardId, multiUser)
   }
 
+  def modifyWBMode(meetingId: String, whiteboardMode: Map[String, Boolean], liveMeeting: LiveMeeting) {
+    liveMeeting.wbModel.modifyWBMode(meetingId, whiteboardMode)
+  }
+      
   def filterWhiteboardMessage(whiteboardId: String, userId: String, liveMeeting: LiveMeeting): Boolean = {
     // Need to check if the wb mode change from multi-user to single-user. Give 5sec allowance to
     // allow delayed messages to be handled as clients may have been sending messages while the wb
