@@ -74,7 +74,7 @@ const getAvailableQuickPolls = (
       itemLabel = options.join('/').replace(/[\n.)]/g, '');
       if (type === pollTypes.Custom) {
         for (let i = 0; i < options.length; i += 1) {
-          const letterOption = options[i].replace(/[\r.)]/g, '');
+          const letterOption = options[i]?.replace(/[\r.)]/g, '');
           if (letterAnswers.length < MAX_CUSTOM_FIELDS) {
             letterAnswers.push(letterOption);
           } else {
@@ -86,7 +86,7 @@ const getAvailableQuickPolls = (
     }
 
     // removes any whitespace from the label
-    itemLabel = itemLabel.replace(/\s+/g, '');
+    itemLabel = itemLabel?.replace(/\s+/g, '');
 
     /*
     const numChars = {

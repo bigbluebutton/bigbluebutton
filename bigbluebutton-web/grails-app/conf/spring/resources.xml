@@ -172,6 +172,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="clientLogoutTimerInMinutes" value="${clientLogoutTimerInMinutes}"/>
         <property name="muteOnStart" value="${muteOnStart}"/>
         <property name="allowModsToUnmuteUsers" value="${allowModsToUnmuteUsers}"/>
+        <property name="allowModsToEjectCameras" value="${allowModsToEjectCameras}"/>
         <property name="breakoutRoomsEnabled" value="${breakoutRoomsEnabled}"/>
         <property name="breakoutRoomsRecord" value="${breakoutRoomsRecord}"/>
         <property name="breakoutRoomsPrivateChatEnabled" value="${breakoutRoomsPrivateChatEnabled}"/>
@@ -188,6 +189,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>
         <property name="endWhenNoModeratorDelayInMinutes" value="${endWhenNoModeratorDelayInMinutes}"/>
         <property name="defaultKeepEvents" value="${defaultKeepEvents}"/>
+        <property name="allowRevealOfBBBVersion" value="${allowRevealOfBBBVersion}"/>
     </bean>
 
     <import resource="doc-conversion.xml"/>

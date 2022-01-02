@@ -158,7 +158,6 @@
     "app.poll.quickPollTitle": "Pikakysely",
     "app.poll.hidePollDesc": "Piilota kyselyvalikon paneeli",
     "app.poll.quickPollInstruction": "Valitse asetus alapuolelta käynnistääksesi kyselyn",
-    "app.poll.publishLabel": "Julkista kyselyn tulokset",
     "app.poll.closeLabel": "Sulje",
     "app.poll.waitingLabel": "Odotetaan vastauksia ({0}/{1})",
     "app.poll.ariaInputCount": "Räätälöidyn kyselyn vaihtoehto {0} / {1}",

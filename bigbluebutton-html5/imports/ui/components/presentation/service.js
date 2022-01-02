@@ -9,7 +9,7 @@ const isUrlValid = url => ReactPlayer.canPlay(url);
 const POLL_SETTINGS = Meteor.settings.public.poll;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
 
-const getCurrentPresentation = podId => Presentations.findOne({
+const getCurrentPresentation = (podId) => Presentations.findOne({
   podId,
   current: true,
 });
@@ -22,7 +22,8 @@ const downloadPresentationUri = (podId) => {
 
   const presentationFileName = `${currentPresentation.id}.${currentPresentation.name.split('.').pop()}`;
 
-  const uri = `https://${window.document.location.hostname}/bigbluebutton/presentation/download/`
+  const APP = Meteor.settings.public.app;
+  const uri = `${APP.bbbWebBase}/presentation/download/`
     + `${currentPresentation.meetingId}/${currentPresentation.id}`
     + `?presFilename=${encodeURIComponent(presentationFileName)}`;
 
@@ -77,7 +78,7 @@ const currentSlidHasContent = () => {
 };
 
 const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue, falseValue) => {
-  const pollTypes = PollService.pollTypes;
+  const { pollTypes } = PollService;
   const currentSlide = getCurrentSlide('DEFAULT_PRESENTATION_POD');
   const quickPollOptions = [];
   if (!currentSlide) return quickPollOptions;
@@ -143,11 +144,21 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     return poll;
   }).filter(({
     options,
-  }) => options.length > 1 && options.length < 99).forEach(poll => {
+  }) => options.length > 1 && options.length < 99).forEach((poll) => {
+    if (poll.options.length <= 5 || MAX_CUSTOM_FIELDS <= 5) {
+      const maxAnswer = poll.options.length > MAX_CUSTOM_FIELDS
+        ? MAX_CUSTOM_FIELDS
+        : poll.options.length;
+      quickPollOptions.push({
+        type: `${pollTypes.Letter}${maxAnswer}`,
+        poll,
+      });
+    } else {
       quickPollOptions.push({
         type: pollTypes.Custom,
         poll,
-      })
+      });
+    }
   });
 
   if (quickPollOptions.length > 0) {
@@ -158,17 +169,17 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
   const ynaPoll = PollService.matchYesNoAbstentionPoll(yesValue, noValue, abstentionValue, content);
   const tfPoll = PollService.matchTrueFalsePoll(trueValue, falseValue, content);
 
-  ynPoll.forEach(poll => quickPollOptions.push({
+  ynPoll.forEach((poll) => quickPollOptions.push({
     type: pollTypes.YesNo,
     poll,
   }));
 
-  ynaPoll.forEach(poll => quickPollOptions.push({
+  ynaPoll.forEach((poll) => quickPollOptions.push({
     type: pollTypes.YesNoAbstention,
     poll,
   }));
 
-  tfPoll.forEach(poll => quickPollOptions.push({
+  tfPoll.forEach((poll) => quickPollOptions.push({
     type: pollTypes.TrueFalse,
     poll,
   }));

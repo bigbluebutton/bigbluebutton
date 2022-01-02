@@ -2,7 +2,10 @@ import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Users from '/imports/api/users/';
 import Auth from '/imports/ui/services/auth';
-import MediaService, { getSwapLayout, } from '/imports/ui/components/media/service';
+import MediaService, {
+  getSwapLayout,
+  shouldEnableSwapLayout,
+} from '/imports/ui/components/media/service';
 import {
   isVideoBroadcasting,
   isGloballyBroadcasting,
@@ -10,6 +13,7 @@ import {
 import ScreenshareComponent from './component';
 import LayoutContext from '../layout/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { shouldEnableVolumeControl } from './service';
 
 const ScreenshareContainer = (props) => {
   const fullscreenElementId = 'Screenshare';
@@ -46,7 +50,9 @@ export default withTracker(() => {
     isGloballyBroadcasting: isGloballyBroadcasting(),
     isPresenter: user.presenter,
     getSwapLayout,
+    shouldEnableSwapLayout,
     toggleSwapLayout: MediaService.toggleSwapLayout,
     hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
+    enableVolumeControl: shouldEnableVolumeControl(),
   };
 })(ScreenshareContainer);

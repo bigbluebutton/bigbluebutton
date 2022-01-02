@@ -47,6 +47,24 @@ const triggerTest = () => {
     expect(response).toBe(true);
     Page.checkRegression(0.1, screenshot);
   });
+
+  test('Meteor Reconnection', async () => {
+    const test = new Trigger();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'MeteorReconnection';
+      await test.logger('begin of ', testName);
+      response = await test.meteorReconnection(testName);
+      screenshot = await test.page.screenshot();
+    } catch (err) {
+      await test.logger(err);
+    } finally {
+      await test.close();
+    }
+    expect(response).toBe(true);
+    Page.checkRegression(0.1, screenshot);
+  });
 };
 
 module.exports = exports = triggerTest;

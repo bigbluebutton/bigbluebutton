@@ -1,4 +1,5 @@
 @import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/mixins/_scrollable";
 @import "/imports/ui/stylesheets/variables/_all";
 
 .panel {
@@ -12,7 +13,6 @@
   display: flex;
   flex-grow: 1;
   flex-direction: column;
-  justify-content: space-around;
   overflow: hidden;
   height: 100%;
 
@@ -41,6 +41,12 @@
   & > button, button:hover {
     max-width: var(--toast-content-width);
   }
+}
+
+.scrollableArea {
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  @include scrollbox-vertical();
 }
 
 .hideBtn {
@@ -151,31 +157,11 @@
   }
 }
 
-.pendingUsers {
-  display: flex;
-  height: 100%;
-  width: 100%;
-  flex-direction: column;
-}
-
-.usersWrapper {
-  display: flex;
-  height: 100%;
-  width: 100%;
-  flex-direction: column;
-  position: relative;
-}
-
+.pendingUsers,
+.usersWrapper,
 .users {
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
-  overflow-y: auto;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  height: 100%;
-  width: 100%;
 }
 
 .userName {

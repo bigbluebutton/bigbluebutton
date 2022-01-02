@@ -83,7 +83,7 @@ class ApiController {
 
     withFormat {
       xml {
-        render(text: responseBuilder.buildMeetingVersion(paramsProcessorUtil.getApiVersion(), RESP_CODE_SUCCESS), contentType: "text/xml")
+        render(text: responseBuilder.buildMeetingVersion(paramsProcessorUtil.getApiVersion(), paramsProcessorUtil.getBbbVersion(), RESP_CODE_SUCCESS), contentType: "text/xml")
       }
     }
   }
@@ -96,6 +96,22 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
     log.debug request.getParameterMap().toMapString()
     log.debug request.getQueryString()
+
+    String[] ap = request.getParameterMap().get("attendeePW")
+    String attendeePW
+    if(ap == null) log.info("No attendeePW provided")
+    else attendeePW = ap[0]
+
+    String[] mp = request.getParameterMap().get("moderatorPW")
+    String moderatorPW
+    if(mp == null) log.info("No moderatorPW provided")
+    else moderatorPW = mp[0]
+
+    log.info("attendeePW [${attendeePW}]")
+    log.info("moderatorPW [${moderatorPW}]")
+
+    if(attendeePW.equals("")) log.info("attendeePW is empty")
+    if(moderatorPW.equals("")) log.info("moderatorPW is empty")
 
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.CREATE,
@@ -125,6 +141,8 @@ class ApiController {
     params.html5InstanceId = html5LoadBalancingService.findSuitableHTML5ProcessByRoundRobin().toString()
 
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params)
+
+    ApiErrors errors = new ApiErrors()
 
     if (meetingService.createMeeting(newMeeting)) {
       // See if the request came with pre-uploading of presentation.
@@ -182,6 +200,11 @@ class ApiController {
             request.getParameterMap(),
             request.getQueryString()
     )
+
+    HashMap<String, String> roles = new HashMap<String, String>();
+
+    roles.put("moderator", ROLE_MODERATOR);
+    roles.put("viewer", ROLE_ATTENDEE);
 
     if(!(validationResponse == null)) {
       invalid(validationResponse.getKey(), validationResponse.getValue(), REDIRECT_RESPONSE)
@@ -247,6 +270,10 @@ class ApiController {
       role = Meeting.ROLE_ATTENDEE
     }
 
+    if (!StringUtils.isEmpty(params.role) && roles.containsKey(params.role.toLowerCase())) {
+        role = roles.get(params.role.toLowerCase());
+    }
+
     // We preprend "w_" to our internal meeting Id to indicate that this is a web user.
     // For users joining using the phone, we will prepend "v_" so it will be easier
     // to distinguish users who doesn't have a web client. (ralam june 12, 2017)
@@ -306,6 +333,14 @@ class ApiController {
       us.avatarURL = meeting.defaultAvatarURL
     }
 
+    if (!StringUtils.isEmpty(params.excludeFromDashboard)) {
+      try {
+        us.excludeFromDashboard = Boolean.parseBoolean(params.excludeFromDashboard)
+      } catch (Exception e) {
+        // Do nothing, prop excludeFromDashboard was already initialized
+      }
+    }
+
     String meetingId = meeting.getInternalId()
 
     if (hasReachedMaxParticipants(meeting, us)) {
@@ -330,12 +365,10 @@ class ApiController {
         us.avatarURL,
         us.guest,
         us.authed,
-        guestStatusVal
+        guestStatusVal,
+        us.excludeFromDashboard
     )
 
-    //Identify which of these to logs should be used. sessionToken or user-token
-    log.info("Session sessionToken for " + us.fullname + " [" + session[sessionToken] + "]")
-    log.info("Session user-token for " + us.fullname + " [" + session['user-token'] + "]")
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
 
     //check if exists the param redirect
@@ -359,7 +392,13 @@ class ApiController {
     us.clientUrl = clientURL + "?sessionToken=" + sessionToken
 
     session[sessionToken] = sessionToken
-    meetingService.addUserSession(sessionToken, us);
+    meetingService.addUserSession(sessionToken, us)
+
+    //Identify which of these to logs should be used. sessionToken or user-token
+    log.info("Session sessionToken for " + us.fullname + " [" + session[sessionToken] + "]")
+    log.info("Session user-token for " + us.fullname + " [" + session['user-token'] + "]")
+
+    log.info("Session token: ${sessionToken}")
 
     // Process if we send the user directly to the client or
     // have it wait for approval.
@@ -827,6 +866,8 @@ class ApiController {
         logoutUrl = us.logoutUrl
       }
 
+      log.info("Session token: ${sessionToken}")
+
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         json {
@@ -1052,6 +1093,120 @@ class ApiController {
       xml {
         // No need to use the response builder here until we have a more complex response
         render(text: "<response><returncode>$RESP_CODE_SUCCESS</returncode></response>", contentType: "text/xml")
+      }
+    }
+  }
+
+  /***********************************************
+   * LEARNING DASHBOARD DATA
+   ***********************************************/
+  def learningDashboard = {
+    String API_CALL = 'learningDashboard'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    String respMessage = ""
+    boolean reject = false
+
+    String sessionToken
+    UserSession us
+    Meeting meeting
+
+    Map.Entry<String, String> validationResponse = validateRequest(
+            ValidationService.ApiCall.LEARNING_DASHBOARD,
+            request.getParameterMap(),
+            request.getQueryString(),
+    )
+
+    //Validate Session
+    if(!(validationResponse == null)) {
+      respMessage = validationResponse.getValue()
+      reject = true
+    } else {
+      sessionToken = sanitizeSessionToken(params.sessionToken)
+      if (!hasValidSession(sessionToken)) {
+        reject = true
+        respMessage = "Invalid Session"
+      }
+    }
+
+    //Validate User
+    if(reject == false) {
+      us = getUserSession(sessionToken)
+
+      if(us == null) {
+        reject = true;
+        respMessage = "Access denied"
+      } else if(!us.role.equals(ROLE_MODERATOR)) {
+        reject = true
+        respMessage = "Access denied"
+      }
+    }
+
+    //Validate Meeting
+    if(reject == false) {
+      meeting = meetingService.getMeeting(us.meetingID)
+      boolean isRunning = meeting != null && meeting.isRunning();
+      if(!isRunning) {
+        reject = true
+        respMessage = "Meeting not found"
+      }
+
+      if(meeting.getLearningDashboardEnabled() == false) {
+        reject = true
+        respMessage = "Learning Dashboard disabled for this meeting"
+      }
+    }
+
+    //Validate File
+    File jsonDataFile
+    if(reject == false) {
+      jsonDataFile = meetingService.learningDashboardService.getJsonDataFile(us.meetingID,meeting.getLearningDashboardAccessToken());
+      if (!jsonDataFile.exists()) {
+        reject = true
+        respMessage = "Learning Dashboard data not found"
+      }
+    }
+
+    if (reject) {
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        json {
+          def builder = new JsonBuilder()
+          builder.response {
+            returncode RESP_CODE_FAILED
+            message respMessage
+            sessionToken
+          }
+          render(contentType: "application/json", text: builder.toPrettyString())
+        }
+      }
+    } else {
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingid", us.meetingID);
+      logData.put("extMeetingid", us.externMeetingID);
+      logData.put("name", us.fullname);
+      logData.put("userid", us.internalUserId);
+      logData.put("sessionToken", sessionToken);
+      logData.put("logCode", "learningDashboard");
+      logData.put("description", "Request Learning Dashboard data.");
+
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+
+      log.info(" --analytics-- data=" + logStr);
+
+      response.addHeader("Cache-Control", "no-cache")
+
+      withFormat {
+        json {
+          def builder = new JsonBuilder()
+          builder.response {
+            returncode RESP_CODE_SUCCESS
+            data jsonDataFile.getText()
+            sessionToken
+          }
+          render(contentType: "application/json", text: builder.toPrettyString())
+        }
       }
     }
   }
@@ -1299,6 +1454,25 @@ class ApiController {
 
     log.info("Token ${token} is valid")
     return true
+  }
+
+  private void logSession() {
+    Enumeration<String> e = session.getAttributeNames()
+    log.info("---------- Session attributes ----------")
+    while(e.hasMoreElements()) {
+      String attribute = (String) e.nextElement()
+      log.info("${attribute}: ${session[attribute]}")
+    }
+    log.info("--------------------------------------")
+  }
+
+  private void logSessionInfo() {
+    log.info("***** Session Info ****")
+    log.info("ID - ${session.getId()}")
+    log.info("Creation Time - ${session.getCreationTime()}")
+    log.info("Last Accessed Time - ${session.getLastAccessedTime()}")
+    log.info("Max Inactive Interval - ${session.getMaxInactiveInterval}")
+    log.info("***********************")
   }
 
   // Validate maxParticipants constraint

@@ -105,7 +105,7 @@ export default withTracker(() => {
   let groupChatMessageHandler = {};
 
   if (CHAT_ENABLED && ready) {
-    const chats = GroupChat.find({
+    const chatsCount = GroupChat.find({
       $or: [
         {
           meetingId,
@@ -114,15 +114,13 @@ export default withTracker(() => {
         },
         { meetingId, users: { $all: [requesterUserId] } },
       ],
-    }).fetch();
-
-    const chatIds = chats.map(chat => chat.chatId);
+    }).count();
 
     const subHandler = {
       ...subscriptionErrorHandler,
     };
 
-    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatIds, subHandler);
+    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatsCount, subHandler);
   }
 
   // TODO: Refactor all the late subscribers

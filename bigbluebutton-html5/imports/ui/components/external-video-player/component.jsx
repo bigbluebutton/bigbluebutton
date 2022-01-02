@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import ReactPlayer from 'react-player';
+import _ from 'lodash';
+import cx from 'classnames';
 import {
   sendMessage,
   onMessage,
   removeAllListeners,
   getPlayingState,
 } from './service';
-
-import {
-  isMobile, isTablet,
-} from '../layout/utils';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 import logger from '/imports/startup/client/logger';
 import ExternalVideoCloseButton from './externalvideo-close-button/component';
@@ -19,6 +19,7 @@ import Service from './service';
 
 import VolumeSlider from './volume-slider/component';
 import ReloadButton from '/imports/ui/components/reload-button/component';
+import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
 
 import ArcPlayer from '/imports/ui/components/external-video-player/custom-players/arc-player';
 import PeerTubePlayer from '/imports/ui/components/external-video-player/custom-players/peertube';
@@ -34,11 +35,15 @@ const intlMessages = defineMessages({
   refreshLabel: {
     id: 'app.externalVideo.refreshLabel',
   },
+  fullscreenLabel: {
+    id: 'app.externalVideo.fullscreenLabel',
+  },
 });
 
 const SYNC_INTERVAL_SECONDS = 5;
 const THROTTLE_INTERVAL_SECONDS = 0.5;
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
 ReactPlayer.addCustomPlayer(PeerTubePlayer);
 ReactPlayer.addCustomPlayer(ArcPlayer);
@@ -145,7 +150,6 @@ class VideoPlayer extends Component {
     this.setPlaybackRate = this.setPlaybackRate.bind(this);
     this.onBeforeUnload = this.onBeforeUnload.bind(this);
 
-    this.isMobile = isMobile() || isTablet();
     this.mobileHoverSetTimeout = null;
   }
 
@@ -494,6 +498,23 @@ class VideoPlayer extends Component {
     return true;
   }
 
+  renderFullscreenButton() {
+    const { intl, fullscreenElementId, fullscreenContext } = this.props;
+
+    if (!ALLOW_FULLSCREEN) return null;
+
+    return (
+      <FullscreenButtonContainer
+        key={_.uniqueId('fullscreenButton-')}
+        elementName={intl.formatMessage(intlMessages.fullscreenLabel)}
+        fullscreenRef={this.playerParent}
+        elementId={fullscreenElementId}
+        isFullscreen={fullscreenContext}
+        dark
+      />
+    );
+  }
+
   renderExternalVideoClose() {
     const { isPresenter } = this.props;
     const { playing } = this.state;
@@ -514,6 +535,7 @@ class VideoPlayer extends Component {
       right,
       height,
       width,
+      fullscreenContext,
       isResizing,
     } = this.props;
 
@@ -531,7 +553,9 @@ class VideoPlayer extends Component {
       : styles.dontShowMobileHoverToolbar;
     const desktopHoverToolBarStyle = styles.hoverToolbar;
 
-    const hoverToolbarStyle = this.isMobile ? mobileHoverToolBarStyle : desktopHoverToolBarStyle;
+    const hoverToolbarStyle = deviceInfo.isMobile ? mobileHoverToolBarStyle : desktopHoverToolBarStyle;
+    const isMinimized = width === 0 && height === 0;
+
     return (
       <span
         style={{
@@ -542,12 +566,16 @@ class VideoPlayer extends Component {
           height,
           width,
           pointerEvents: isResizing ? 'none' : 'inherit',
+          display: isMinimized && 'none',
         }}
       >
         <div
           id="video-player"
           data-test="videoPlayer"
-          className={styles.videoPlayerWrapper}
+          className={cx({
+            [styles.videoPlayerWrapper]: true,
+            [styles.fullscreen]: fullscreenContext,
+          })}
           ref={(ref) => { this.playerParent = ref; }}
         >
           {
@@ -595,9 +623,10 @@ class VideoPlayer extends Component {
                       handleReload={this.handleReload}
                       label={intl.formatMessage(intlMessages.refreshLabel)}
                     />
+                    {this.renderFullscreenButton()}
                   </div>
                 ),
-                (this.isMobile && playing) && (
+                (deviceInfo.isMobile && playing) && (
                   <span
                     className={styles.mobileControlsOverlay}
                     key="mobile-overlay-external-video"
@@ -623,5 +652,13 @@ class VideoPlayer extends Component {
     );
   }
 }
+
+VideoPlayer.propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  fullscreenElementId: PropTypes.string.isRequired,
+  fullscreenContext: PropTypes.bool.isRequired,
+};
 
 export default injectIntl(injectWbResizeEvent(VideoPlayer));

@@ -19,7 +19,6 @@ const webcamTest = () => {
       const testName = 'shareWebcam';
       await test.logger('begin of ', testName);
       await test.init(true, true, testName);
-      await test.closeAudioModal();
       await test.startRecording(testName);
       response = await test.test();
       await test.stopRecording();
@@ -42,7 +41,6 @@ const webcamTest = () => {
       const testName = 'checkWebcamContent';
       await test.logger('begin of ', testName);
       await test.init(true, true, testName);
-      await test.closeAudioModal();
       await test.startRecording(testName);
       response = await test.test();
       await test.stopRecording();
@@ -55,6 +53,29 @@ const webcamTest = () => {
     }
     expect(response).toBe(true);
     Page.checkRegression(7.5, screenshot);
+  });
+
+  test('Checks webcam talking indicator', async () => {
+    const test = new Share();
+    let response;
+    let screenshot;
+    try {
+      const testName = 'joinWebcamAndMicrophone';
+      await test.logger('begin of ', testName);
+      await test.init(true, false, testName);
+      await test.startRecording(testName);
+      await test.webcamLayoutStart();
+      response = await test.webcamLayoutTest(testName);
+      await test.logger('end of ', testName);
+      await test.stopRecording();
+      screenshot = await test.page.screenshot();
+    } catch (err) {
+      await test.logger(err);
+    } finally {
+      await test.close();
+    }
+    expect(response).toBe(true);
+    Page.checkRegression(10.83, screenshot);
   });
 };
 module.exports = exports = webcamTest;

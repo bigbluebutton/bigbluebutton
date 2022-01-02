@@ -86,6 +86,7 @@ public class Meeting {
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
 	private Boolean allowModsToUnmuteUsers = false;
+	private Boolean allowModsToEjectCameras = false;
 	private Boolean meetingKeepEvents;
 
 	private  HashMap<String, UploadRequest> uploadRequests = new HashMap<String, UploadRequest>();
@@ -549,6 +550,14 @@ public class Meeting {
 	public Boolean getAllowModsToUnmuteUsers() {
 		return allowModsToUnmuteUsers;
 	}
+
+  public void setAllowModsToEjectCameras(Boolean value) {
+    allowModsToEjectCameras = value;
+  }
+
+  public Boolean getAllowModsToEjectCameras() {
+    return allowModsToEjectCameras;
+  }
 
 	public void userJoined(User user) {
 		User u = getUserById(user.getInternalUserId());

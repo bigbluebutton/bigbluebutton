@@ -14,6 +14,8 @@ import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import { styles } from './styles.scss';
 import toastStyles from '/imports/ui/components/toast/styles';
+import MediaService, { shouldEnableSwapLayout } from '../media/service';
+import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';
@@ -21,6 +23,7 @@ import Icon from '/imports/ui/components/icon/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
+import browserInfo from '/imports/utils/browserInfo';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -50,6 +53,9 @@ const intlMessages = defineMessages({
 });
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinimizeButton;
+const { isSafari } = browserInfo;
+const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
 function copyStyles(sourceDoc, targetDoc) {
   //To be fair, I declare that this was copied from https://medium.com/hackernoon/using-a-react-16-portal-to-do-something-cool-2a2d627b0202
@@ -180,7 +186,7 @@ class Presentation extends PureComponent {
 
   componentDidMount() {
     this.getInitialPresentationSizes();
-    this.refPresentationContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
+    this.refPresentationContainer.addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     window.addEventListener('resize', this.onResize, false);
 
     const {
@@ -293,7 +299,7 @@ class Presentation extends PureComponent {
     const { fullscreenContext, layoutContextDispatch } = this.props;
 
     window.removeEventListener('resize', this.onResize, false);
-    this.refPresentationContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    this.refPresentationContainer.removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
 
     if (fullscreenContext) {
       layoutContextDispatch({
@@ -526,6 +532,31 @@ class Presentation extends PureComponent {
     zoomSlide(currentSlide.num, podId, w, h, x, y);
   }
 
+  renderPresentationClose() {
+    const { isFullscreen } = this.state;
+    const {
+      layoutType,
+      fullscreenContext,
+      layoutContextDispatch,
+      isIphone,
+    } = this.props;
+
+    if (!OLD_MINIMIZE_BUTTON_ENABLED
+      || !shouldEnableSwapLayout()
+      || isFullscreen
+      || fullscreenContext
+      || layoutType === LAYOUT_TYPE.PRESENTATION_FOCUS) {
+      return null;
+    }
+    return (
+      <PresentationCloseButton
+        toggleSwapLayout={MediaService.toggleSwapLayout}
+        layoutContextDispatch={layoutContextDispatch}
+        isIphone={isIphone}
+      />
+    );
+  }
+
   renderOverlays(slideObj, svgDimensions, viewBoxPosition, viewBoxDimensions, physicalDimensions) {
     const {
       userIsPresenter,
@@ -676,6 +707,7 @@ class Presentation extends PureComponent {
         style={presentationStyle}
       >
         <span id="currentSlideText" className={styles.visuallyHidden}>{slideContent}</span>
+        {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
         {this.renderPresentationFullscreen()}
         <svg
@@ -993,6 +1025,7 @@ class Presentation extends PureComponent {
     
     return (
       <div
+        role="region"
         ref={(ref) => { this.refPresentationContainer = ref; }}
         className={styles.presentationContainer}
         style={{

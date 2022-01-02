@@ -13,23 +13,26 @@ class App extends React.Component {
     super(props);
     this.state = {
       loading: true,
+      invalidSessionCount: 0,
       activitiesJson: {},
       tab: 'overview',
       meetingId: '',
       learningDashboardAccessToken: '',
+      ldAccessTokenCopied: false,
+      sessionToken: '',
     };
   }
 
   componentDidMount() {
-    this.setDashboardParams();
-    setInterval(() => {
+    this.setDashboardParams(() => {
       this.fetchActivitiesJson();
-    }, 10000);
+    });
   }
 
-  setDashboardParams() {
+  setDashboardParams(callback) {
     let learningDashboardAccessToken = '';
     let meetingId = '';
+    let sessionToken = '';
 
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
@@ -38,47 +41,86 @@ class App extends React.Component {
       meetingId = params.meeting;
     }
 
+    if (typeof params.sessionToken !== 'undefined') {
+      sessionToken = params.sessionToken;
+    }
+
     if (typeof params.report !== 'undefined') {
       learningDashboardAccessToken = params.report;
     } else {
-      const cookieName = `learningDashboardAccessToken-${params.meeting}`;
+      const cookieName = `ld-${params.meeting}`;
       const cDecoded = decodeURIComponent(document.cookie);
       const cArr = cDecoded.split('; ');
       cArr.forEach((val) => {
         if (val.indexOf(`${cookieName}=`) === 0) learningDashboardAccessToken = val.substring((`${cookieName}=`).length);
       });
 
-      // Extend AccessToken lifetime by 30d (in each access)
+      // Extend AccessToken lifetime by 7d (in each access)
       if (learningDashboardAccessToken !== '') {
         const cookieExpiresDate = new Date();
-        cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 30));
-        document.cookie = `learningDashboardAccessToken-${meetingId}=${learningDashboardAccessToken}; expires=${cookieExpiresDate.toGMTString()}; path=/;SameSite=None;Secure`;
+        cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 7));
+        document.cookie = `ld-${meetingId}=${learningDashboardAccessToken}; expires=${cookieExpiresDate.toGMTString()}; path=/;SameSite=None;Secure`;
       }
     }
 
-    this.setState({ learningDashboardAccessToken, meetingId }, this.fetchActivitiesJson);
+    this.setState({ learningDashboardAccessToken, meetingId, sessionToken }, () => {
+      if (typeof callback === 'function') callback();
+    });
   }
 
   fetchActivitiesJson() {
-    const { learningDashboardAccessToken, meetingId } = this.state;
+    const {
+      learningDashboardAccessToken, meetingId, sessionToken, invalidSessionCount,
+    } = this.state;
 
     if (learningDashboardAccessToken !== '') {
       fetch(`${meetingId}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
         .then((response) => response.json())
         .then((json) => {
-          this.setState({ activitiesJson: json, loading: false });
+          this.setState({
+            activitiesJson: json,
+            loading: false,
+            invalidSessionCount: 0,
+          });
           document.title = `Learning Dashboard - ${json.name}`;
         }).catch(() => {
-          this.setState({ loading: false });
+          this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
+        });
+    } else if (sessionToken !== '') {
+      const url = new URL('/bigbluebutton/api/learningDashboard', window.location);
+      fetch(`${url}?sessionToken=${sessionToken}`)
+        .then((response) => response.json())
+        .then((json) => {
+          if (json.response.returncode === 'SUCCESS') {
+            const jsonData = JSON.parse(json.response.data);
+            this.setState({
+              activitiesJson: jsonData,
+              loading: false,
+              invalidSessionCount: 0,
+            });
+            document.title = `Learning Dashboard - ${jsonData.name}`;
+          } else {
+            // When meeting is ended the sessionToken stop working, check for new cookies
+            this.setDashboardParams();
+            this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
+          }
+        })
+        .catch(() => {
+          this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
         });
     } else {
       this.setState({ loading: false });
     }
+
+    setTimeout(() => {
+      this.fetchActivitiesJson();
+    }, 10000 * (2 ** invalidSessionCount));
   }
 
   render() {
     const {
-      activitiesJson, tab, learningDashboardAccessToken, loading,
+      activitiesJson, tab, sessionToken, loading,
+      learningDashboardAccessToken, ldAccessTokenCopied,
     } = this.state;
     const { intl } = this.props;
 
@@ -97,12 +139,17 @@ class App extends React.Component {
     }
 
     function totalOfActivity() {
-      const minTime = Object.values(activitiesJson.users || {}).reduce((prevVal, elem) => {
+      const usersTimes = Object.values(activitiesJson.users || {}).reduce((prev, user) => ([
+        ...prev,
+        ...Object.values(user.intIds),
+      ]), []);
+
+      const minTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
         if (prevVal === 0 || elem.registeredOn < prevVal) return elem.registeredOn;
         return prevVal;
       }, 0);
 
-      const maxTime = Object.values(activitiesJson.users || {}).reduce((prevVal, elem) => {
+      const maxTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
         if (elem.leftOn === 0) return (new Date()).getTime();
         if (elem.leftOn > prevVal) return elem.leftOn;
         return prevVal;
@@ -162,19 +209,33 @@ class App extends React.Component {
     }
 
     function getErrorMessage() {
-      if (learningDashboardAccessToken === '') {
+      if (learningDashboardAccessToken === '' && sessionToken === '') {
         return intl.formatMessage({ id: 'app.learningDashboard.errors.invalidToken', defaultMessage: 'Invalid session token' });
       }
-      return intl.formatMessage({ id: 'app.learningDashboard.errors.dataUnavailable', defaultMessage: 'Data is no longer available' });
+
+      if (activitiesJson === {} || typeof activitiesJson.name === 'undefined') {
+        return intl.formatMessage({ id: 'app.learningDashboard.errors.dataUnavailable', defaultMessage: 'Data is no longer available' });
+      }
+
+      return '';
     }
 
-    if (loading === false && typeof activitiesJson.name === 'undefined') return <ErrorMessage message={getErrorMessage()} />;
+    if (loading === false && getErrorMessage() !== '') return <ErrorMessage message={getErrorMessage()} />;
 
     return (
       <div className="mx-10">
         <div className="flex items-start justify-between pb-3">
           <h1 className="mt-3 text-2xl font-semibold whitespace-nowrap inline-block">
             <FormattedMessage id="app.learningDashboard.dashboardTitle" defaultMessage="Learning Dashboard" />
+            {
+              ldAccessTokenCopied === true
+                ? (
+                  <span className="text-xs text-gray-500 font-normal ml-2">
+                    <FormattedMessage id="app.learningDashboard.linkCopied" defaultMessage="Link successfully copied!" />
+                  </span>
+                )
+                : null
+            }
             <br />
             <span className="text-sm font-medium">{activitiesJson.name || ''}</span>
           </h1>
@@ -224,8 +285,11 @@ class App extends React.Component {
                   ? intl.formatMessage({ id: 'app.learningDashboard.indicators.usersOnline', defaultMessage: 'Active Users' })
                   : intl.formatMessage({ id: 'app.learningDashboard.indicators.usersTotal', defaultMessage: 'Total Number Of Users' })
               }
-              number={Object.values(activitiesJson.users || {})
-                .filter((u) => activitiesJson.endedOn > 0 || u.leftOn === 0).length}
+              number={Object
+                .values(activitiesJson.users || {})
+                .filter((u) => activitiesJson.endedOn > 0
+                  || Object.values(u.intIds)[Object.values(u.intIds).length - 1].leftOn === 0)
+                .length}
               cardClass="border-pink-500"
               iconClass="bg-pink-50 text-pink-500"
               onClick={() => {

@@ -151,6 +151,30 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "learningDashboard",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/{{path}}/learningDashboard?{{param_session_token}}=",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{path}}",
+						"learningDashboard"
+					],
+					"query": [
+						{
+							"key": "{{param_session_token}}",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }

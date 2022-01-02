@@ -20,6 +20,13 @@
   }
 }
 
+.offsetBottom {
+  :global(.MuiPaper-root) {
+    top: auto !important;
+    bottom: 4rem !important;
+  }
+}
+
 .item {
   display: flex;
   justify-content: flex-start;
@@ -29,4 +36,8 @@
   @include mq($small-only) {
     flex-direction: row;
   }
+}
+
+.button {
+  position: relative;
 }

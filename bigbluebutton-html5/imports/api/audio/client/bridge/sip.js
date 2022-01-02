@@ -42,6 +42,7 @@ const TRACE_SIP = MEDIA.traceSip || false;
 const AUDIO_MICROPHONE_CONSTRAINTS = Meteor.settings.public.app.defaultSettings
   .application.microphoneConstraints;
 const SDP_SEMANTICS = MEDIA.sdpSemantics;
+const FORCE_RELAY = MEDIA.forceRelay;
 
 const DEFAULT_INPUT_DEVICE_ID = 'default';
 const DEFAULT_OUTPUT_DEVICE_ID = 'default';
@@ -557,6 +558,7 @@ class SIPSession {
           peerConnectionConfiguration: {
             iceServers,
             sdpSemantics: SDP_SEMANTICS,
+            iceTransportPolicy: FORCE_RELAY ? 'relay' : undefined,
           },
         },
         displayName: callerIdName,
@@ -1304,7 +1306,11 @@ export default class SIPBridge extends BaseAudioBridge {
     };
 
     this.protocol = window.document.location.protocol;
-    this.hostname = window.document.location.hostname;
+    if (MEDIA['sip_ws_host'] != null && MEDIA['sip_ws_host'] != '') {
+      this.hostname = MEDIA.sip_ws_host;
+    } else {
+      this.hostname = window.document.location.hostname;
+    }
 
     // SDP conversion utilitary methods to be used inside SIP.js
     window.isUnifiedPlan = isUnifiedPlan;
@@ -1532,3 +1538,5 @@ export default class SIPBridge extends BaseAudioBridge {
     return this.activeSession.updateAudioConstraints(constraints);
   }
 }
+
+module.exports = SIPBridge;

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -15,6 +15,7 @@ import UserInfos from '/imports/api/users-infos';
 import LayoutContext from '../layout/context';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
+import _ from 'lodash';
 
 import {
   getFontSize,
@@ -22,7 +23,7 @@ import {
   validIOSVersion,
 } from './service';
 
-import { withModalMounter } from '../modal/service';
+import { withModalMounter, getModal } from '../modal/service';
 
 import App from './component';
 import ActionsBarContainer from '../actions-bar/container';
@@ -54,14 +55,26 @@ const AppContainer = (props) => {
   const layoutContext = useContext(LayoutContext);
   const { layoutContextState, layoutContextDispatch } = layoutContext;
 
+  function usePrevious(value) {
+    const ref = useRef();
+    useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
+  }
+
   const {
     actionsbar,
     meetingLayout,
+    selectedLayout,
     settingsLayout,
     pushLayoutToEveryone,
     currentUserId,
     shouldShowPresentation: propsShouldShowPresentation,
     presentationRestoreOnUpdate,
+    isPresenter,
+    randomlySelectedUser,
+    isModalOpen,
     ...otherProps
   } = props;
   const {
@@ -80,6 +93,13 @@ const AppContainer = (props) => {
   const shouldShowPresentation = propsShouldShowPresentation
     && (presentationIsOpen || presentationRestoreOnUpdate);
 
+  const prevRandomUser = usePrevious(randomlySelectedUser);
+
+  const mountRandomUserModal = !isPresenter
+  && !_.isEqual( prevRandomUser, randomlySelectedUser)
+  && randomlySelectedUser.length > 0
+  && !isModalOpen;
+
   return currentUserId
     ? (
       <App
@@ -90,6 +110,7 @@ const AppContainer = (props) => {
           currentUserId,
           layoutType,
           meetingLayout,
+          selectedLayout,
           settingsLayout,
           pushLayoutToEveryone,
           deviceType,
@@ -99,6 +120,8 @@ const AppContainer = (props) => {
           sidebarContentPanel,
           sidebarContentIsOpen,
           shouldShowPresentation,
+          mountRandomUserModal,
+          isPresenter,
         }}
         {...otherProps}
       />
@@ -196,6 +219,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     currentUserId: currentUser?.userId,
     isPresenter: currentUser?.presenter,
     meetingLayout: layout,
+    selectedLayout,
     settingsLayout: selectedLayout?.replace('Push', ''),
     pushLayoutToEveryone: selectedLayout?.includes('Push'),
     audioAlertEnabled: AppSettings.chatAudioAlerts,
@@ -209,6 +233,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
       Meteor.settings.public.presentation.restoreOnUpdate,
     ),
     hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
+    hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
+    isModalOpen: !!getModal(),
   };
 })(AppContainer)));
 

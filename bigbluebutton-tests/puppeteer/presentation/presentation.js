@@ -1,8 +1,8 @@
 const Page = require('../core/page');
 const e = require('../core/elements');
 const util = require('./util');
-const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
-const { checkElement, checkElementTextIncludes, checkElementText } = require('../core/util');
+const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { checkElement, checkElementText } = require('../core/util');
 
 class Presentation {
   constructor() {
@@ -10,22 +10,17 @@ class Presentation {
     this.userPage = new Page();
   }
 
-  async initPages(testName) {
-    await this.initModPage(testName);
-    await this.initUserPage(testName);
+  async initPages(testName, extraFlags) {
+    await this.initModPage(testName, extraFlags);
+    await this.initUserPage(testName, extraFlags);
   }
 
-  async initModPage(testName) {
-    await this.modPage.init(true, true, testName, 'Mod');
+  async initModPage(testName, extraFlags) {
+    await this.modPage.init(true, true, testName, 'Mod', undefined, undefined, undefined, undefined, extraFlags);
   }
 
-  async initUserPage(testName) {
-    await this.userPage.init(false, true, testName, 'Attendee', this.modPage.meetingId);
-  }
-
-  async closePages() {
-    if (this.modPage.page) await this.modPage.close();
-    if (this.userPage.page) await this.userPage.close();
+  async initUserPage(testName, extraFlags) {
+    await this.userPage.init(false, true, testName, 'Attendee', this.modPage.meetingId, undefined, undefined, undefined, extraFlags);
   }
 
   async skipSlide() {
@@ -61,38 +56,14 @@ class Presentation {
 
       const slides0 = await this.modPage.page.evaluate(util.getSvgOuterHtml);
 
-      await this.modPage.waitAndClick(e.actions);
-      await this.modPage.waitAndClick(e.uploadPresentation);
-
-      await this.modPage.screenshot(`${testName}`, `01-before-presentation-upload-[${testName}]`);
-
-      await this.modPage.waitForSelector(e.fileUpload);
-      const fileUpload = await this.modPage.page.$(e.fileUpload);
-      await fileUpload.uploadFile(`${__dirname}/upload-test.png`);
-      await this.modPage.page.waitForFunction(checkElementTextIncludes,
-        { timeout: ELEMENT_WAIT_TIME },
-        'body', 'To be uploaded ...'
-      );
-      await this.modPage.page.waitForSelector(e.upload);
-
-      await this.modPage.waitAndClick(e.upload);
-      await this.modPage.logger('\nWaiting for the new presentation to upload...');
-      await this.modPage.page.waitForFunction(checkElementTextIncludes,
-        { timeout: ELEMENT_WAIT_TIME },
-        'body', 'Converting file'
-      );
-      await this.modPage.logger('\nPresentation uploaded!');
-      await this.modPage.page.waitForFunction(checkElementTextIncludes,
-        { timeout: ELEMENT_WAIT_LONGER_TIME },
-        'body', 'Current presentation'
-      );
-      await this.modPage.screenshot(`${testName}`, `02-after-presentation-upload-[${testName}]`);
+      await util.uploadPresentation(this.modPage, e.uploadPresentationFileName);
+      await this.modPage.screenshot(testName, 'after-presentation-upload');
 
       const slides1 = await this.modPage.page.evaluate(async () => await document.querySelector('svg g g g').outerHTML);
 
-      await this.modPage.logger('\nSlides before presentation upload:');
+      await this.modPage.logger('Slides before presentation upload');
       await this.modPage.logger(slides0);
-      await this.modPage.logger('\nSlides after presentation upload:');
+      await this.modPage.logger('Slides after presentation upload');
       await this.modPage.logger(slides1);
 
       return slides0 !== slides1;
@@ -116,7 +87,7 @@ class Presentation {
       await this.userPage.screenshot(testName, `3-userPage-after-allow-download-and-save-[${this.modPage.meetingId}]`);
       await this.userPage.waitForSelector(e.toastDownload);
       // check download button in presentation after ALLOW it - should be true
-      const hasPresentationDownloadBtnAfterAllow = await this.userPage.page.evaluate(checkElement, e.presentationDownloadBtn);
+      const hasPresentationDownloadBtnAfterAllow = await this.userPage.hasElement(e.presentationDownloadBtn);
 
       // disallow the presentation download
       await this.modPage.waitAndClick(e.actions);
@@ -157,6 +128,59 @@ class Presentation {
       await this.modPage.logger(err);
       return false;
     }
+  }
+
+  async hideAndRestorePresentation(testName) {
+    try {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.screenshot(testName, '01-after-close-audio-modal');
+      await this.modPage.waitAndClick(e.minimizePresentation);
+      const presentationWasRemoved = await this.modPage.wasRemoved(e.presentationContainer);
+      await this.modPage.screenshot(testName, '02-minimize-presentation');
+
+      await this.modPage.waitAndClick(e.restorePresentation);
+      const presentationWasRestored = await this.modPage.hasElement(e.presentationContainer);
+      await this.modPage.screenshot(testName, '03-restore-presentation');
+
+      return presentationWasRemoved && presentationWasRestored;
+    } catch (err) {
+      await this.modPage.logger(err);
+      return false;
+    }
+  }
+
+  async startExternalVideo(testName) {
+    try {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.screenshot(testName, '01-after-close-audio-modal');
+      await this.modPage.waitAndClick(e.actions);
+      await this.modPage.waitAndClick(e.externalVideoBtn);
+      await this.modPage.waitForSelector(e.externalVideoModalHeader);
+      await this.modPage.type(e.videoModalInput, e.youtubeLink);
+      await this.modPage.screenshot(testName, '02-before-start-sharing-video');
+      await this.modPage.waitAndClick(e.startShareVideoBtn);
+
+      const modFrame = await this.getFrame(this.modPage, e.youtubeFrame);
+      await this.modPage.screenshot(testName, '03-modPage-after-rendering-frame');
+      const userFrame = await this.getFrame(this.userPage, e.youtubeFrame);
+      await this.userPage.screenshot(testName, '03-userPage-after-rendering-frame');
+
+      const resp = (await modFrame.hasElement('video')) && (await userFrame.hasElement('video'));
+
+      return resp === true;
+    } catch (err) {
+      await this.modPage.logger(err);
+      return false;
+    }
+  }
+
+  async getFrame(page, frameSelector) {
+    await page.waitForSelector(frameSelector);
+    const handleFrame = await page.page.$(frameSelector);
+    const contentFrame = await handleFrame.contentFrame();
+    const frame = new Page(contentFrame);
+    await frame.waitForSelector(e.ytFrameTitle);
+    return frame;
   }
 }
 

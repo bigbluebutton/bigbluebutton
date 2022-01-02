@@ -21,12 +21,14 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  fullscreenRef: PropTypes.instanceOf(Element),
   dark: PropTypes.bool,
   bottom: PropTypes.bool,
   isIphone: PropTypes.bool,
   isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
   className: PropTypes.string,
+  handleToggleFullScreen: PropTypes.func.isRequired,
   color: PropTypes.string,
   fullScreenStyle: PropTypes.bool,
 };
@@ -40,6 +42,7 @@ const defaultProps = {
   className: '',
   color: 'default',
   fullScreenStyle: true,
+  fullscreenRef: null,
 };
 
 const FullscreenButtonComponent = ({
@@ -60,6 +63,8 @@ const FullscreenButtonComponent = ({
   currentGroup,
   color,
   fullScreenStyle,
+  fullscreenRef,
+  handleToggleFullScreen,
 }) => {
   if (isIphone) return null;
 
@@ -85,6 +90,7 @@ const FullscreenButtonComponent = ({
   //const newFullscreenRef = isPresentationDetached ? presentationWindow.document.documentElement : fullscreenRef;
 
   const handleClick = () => {
+    handleToggleFullScreen(fullscreenRef);
     const newElement = (elementId === currentElement) ? '' : elementId;
     const newGroup = (elementGroup === currentGroup) ? '' : elementGroup;
 

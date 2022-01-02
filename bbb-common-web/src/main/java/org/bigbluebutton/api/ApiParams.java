@@ -46,6 +46,7 @@ public class ApiParams {
     public static final String MUTE_ON_START = "muteOnStart";
     public static final String MEETING_KEEP_EVENTS = "meetingKeepEvents";
     public static final String ALLOW_MODS_TO_UNMUTE_USERS = "allowModsToUnmuteUsers";
+    public static final String ALLOW_MODS_TO_EJECT_CAMERAS = "allowModsToEjectCameras";
     public static final String NAME = "name";
     public static final String PARENT_MEETING_ID = "parentMeetingID";
     public static final String PASSWORD = "password";
@@ -60,6 +61,7 @@ public class ApiParams {
     public static final String WEBCAMS_ONLY_FOR_MODERATOR = "webcamsOnlyForModerator";
     public static final String WELCOME = "welcome";
     public static final String HTML5_INSTANCE_ID = "html5InstanceId";
+    public static final String ROLE = "role";
 
     public static final String BREAKOUT_ROOMS_ENABLED = "breakoutRoomsEnabled";
     public static final String BREAKOUT_ROOMS_RECORD = "breakoutRoomsRecord";

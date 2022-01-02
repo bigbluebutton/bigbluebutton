@@ -23,7 +23,7 @@ const mapPolls = () => {
 
   answers.map((obj) => {
     if (stackOptions) return obj;
-    if (obj.key.length > MAX_CHAR_LENGTH) {
+    if (obj.key && obj.key.length > MAX_CHAR_LENGTH) {
       stackOptions = true;
     }
     return obj;

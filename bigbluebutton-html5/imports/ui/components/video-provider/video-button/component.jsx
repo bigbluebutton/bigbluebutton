@@ -2,11 +2,15 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
+import ButtonEmoji from '/imports/ui/components/button/button-emoji/ButtonEmoji';
 import VideoService from '../service';
 import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles';
 import { validIOSVersion } from '/imports/ui/components/app/service';
+import deviceInfo from '/imports/utils/deviceInfo';
 import { debounce } from 'lodash';
+
+const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app.enableWebcamSelectorButton;
 
 const intlMessages = defineMessages({
   joinVideo: {
@@ -16,6 +20,10 @@ const intlMessages = defineMessages({
   leaveVideo: {
     id: 'app.video.leaveVideo',
     description: 'Leave video button label',
+  },
+  advancedVideo: {
+    id: 'app.video.advancedVideo',
+    description: 'Open advanced video label',
   },
   videoLocked: {
     id: 'app.video.videoLocked',
@@ -49,7 +57,13 @@ const JoinVideoButton = ({
   disableReason,
   mountVideoPreview,
 }) => {
-  const exitVideo = () => hasVideoStream && !VideoService.isMultipleCamerasEnabled();
+  const { isMobile } = deviceInfo;
+  const shouldEnableWebcamSelectorButton = ENABLE_WEBCAM_SELECTOR_BUTTON
+    && hasVideoStream
+    && !isMobile;
+  const exitVideo = () => hasVideoStream
+    && !isMobile
+    && (!VideoService.isMultipleCamerasEnabled() || shouldEnableWebcamSelectorButton);
 
   const handleOnClick = debounce(() => {
     if (!validIOSVersion()) {
@@ -63,26 +77,46 @@ const JoinVideoButton = ({
     }
   }, JOIN_VIDEO_DELAY_MILLISECONDS);
 
+  const handleOpenAdvancedOptions = (e) => {
+    e.stopPropagation();
+    mountVideoPreview();
+  };
+
   let label = exitVideo()
     ? intl.formatMessage(intlMessages.leaveVideo)
     : intl.formatMessage(intlMessages.joinVideo);
 
   if (disableReason) label = intl.formatMessage(intlMessages[disableReason]);
 
+  const renderEmojiButton = () => (
+    shouldEnableWebcamSelectorButton
+      && (
+      <ButtonEmoji
+        onClick={handleOpenAdvancedOptions}
+        emoji="device_list_selector"
+        hideLabel
+        label={intl.formatMessage(intlMessages.advancedVideo)}
+      />
+      )
+  );
+
   return (
-    <Button
-      label={label}
-      data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
-      className={cx(hasVideoStream || styles.btn)}
-      onClick={handleOnClick}
-      hideLabel
-      color={hasVideoStream ? 'primary' : 'default'}
-      icon={hasVideoStream ? 'video' : 'video_off'}
-      ghost={!hasVideoStream}
-      size="lg"
-      circle
-      disabled={!!disableReason}
-    />
+    <div className={styles.offsetBottom}>
+      <Button
+        label={label}
+        data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
+        className={cx(hasVideoStream || styles.btn)}
+        onClick={handleOnClick}
+        hideLabel
+        color={hasVideoStream ? 'primary' : 'default'}
+        icon={hasVideoStream ? 'video' : 'video_off'}
+        ghost={!hasVideoStream}
+        size="lg"
+        circle
+        disabled={!!disableReason}
+      />
+      {renderEmojiButton()}
+    </div>
   );
 };
 

@@ -248,6 +248,10 @@ class Poll extends Component {
     }
   }
 
+  componentWillUnmount() {
+    Session.set('secretPoll', false);
+  }
+
   handleBackClick() {
     const { stopPoll } = this.props;
     this.setState({
@@ -493,7 +497,7 @@ class Poll extends Component {
           )}
         </div>
         <div data-test="responseTypes">
-          <h4>{intl.formatMessage(intlMessages.responseTypesLabel)}</h4>
+          <h4 className={styles.sectionHeading}>{intl.formatMessage(intlMessages.responseTypesLabel)}</h4>
           <div className={styles.responseType}>
             <Button
               label={intl.formatMessage(intlMessages.tf)}
@@ -573,11 +577,11 @@ class Poll extends Component {
         {type
           && (
             <div data-test="responseChoices">
-              <h4>{intl.formatMessage(intlMessages.responseChoices)}</h4>
+              <h4 className={styles.sectionHeading}>{intl.formatMessage(intlMessages.responseChoices)}</h4>
               {
                 type === pollTypes.Response
                 && (
-                  <div>
+                  <div className={styles.pollParagraph}>
                     <span>{intl.formatMessage(intlMessages.typedResponseDesc)}</span>
                   </div>
                 )
@@ -596,7 +600,7 @@ class Poll extends Component {
                       && (
                         <Button
                           className={styles.addItemBtn}
-                          data-test="addItem"
+                          data-test="addPollItem"
                           label={intl.formatMessage(intlMessages.addOptionLabel)}
                           aria-describedby="add-item-button"
                           color="default"
@@ -607,10 +611,9 @@ class Poll extends Component {
                       )}
                     <div className={styles.row}>
                       <div className={styles.col} aria-hidden="true">
-                        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                        <label className={styles.label}>
+                        <h4 className={styles.sectionHeading}>
                           {intl.formatMessage(intlMessages.secretPollLabel)}
-                        </label>
+                        </h4>
                       </div>
                       <div className={styles.col}>
                         {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
@@ -628,7 +631,7 @@ class Poll extends Component {
                     </div>
                     {secretPoll
                       && (
-                        <div>
+                        <div className={styles.pollParagraph}>
                           { intl.formatMessage(intlMessages.isSecretPollLabel) }
                         </div>
                       )}
@@ -697,7 +700,7 @@ class Poll extends Component {
     const { intl } = this.props;
     return (
       <div className={styles.noSlidePanelContainer}>
-        <h4>{intl.formatMessage(intlMessages.noPresentationSelected)}</h4>
+        <h4 className={styles.sectionHeading}>{intl.formatMessage(intlMessages.noPresentationSelected)}</h4>
         <Button
           label={intl.formatMessage(intlMessages.clickHereToSelect)}
           color="primary"

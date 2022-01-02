@@ -1,6 +1,5 @@
 const Page = require('../core/page');
 const e = require('../core/elements');
-const { checkElement } = require('../core/util');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 class Create {
@@ -62,7 +61,7 @@ class Create {
   // Check if Breakoutrooms have been created
   async testCreatedBreakout(testName) {
     try {
-      const resp = await this.modPage1.page.evaluate(checkElement, e.breakoutRoomsItem);
+      const resp = await this.modPage1.hasElement(e.breakoutRoomsItem);
       if (resp === true) {
         await this.modPage1.screenshot(`${testName}`, `05-page01-success-${testName}`);
 
@@ -88,8 +87,7 @@ class Create {
         await this.modPage2.waitAndClick(e.chatButton);
         await this.modPage2.waitAndClick(e.breakoutRoomsItem);
 
-        await this.modPage2.waitAndClick(e.generateRoom1);
-        await this.modPage2.waitAndClick(e.joinGeneratedRoom1);
+        await this.modPage2.waitAndClick(e.askJoinRoom1);
         await this.modPage2.waitForSelector(e.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
 
         const breakoutModPage2 = await this.modPage2.getLastTargetPage();
@@ -107,8 +105,7 @@ class Create {
       } else if (testName === 'joinBreakoutroomsWithVideo') {
         await this.modPage2.init(true, true, testName, 'Moderator2', this.modPage1.meetingId);
         await this.modPage2.waitAndClick(e.breakoutRoomsButton);
-        await this.modPage2.waitAndClick(e.generateRoom1);
-        await this.modPage2.waitAndClick(e.joinGeneratedRoom1);
+        await this.modPage2.waitAndClick(e.askJoinRoom1);
         await this.modPage2.waitForSelector(e.alreadyConnected);
 
         const breakoutModPage2 = await this.modPage2.getLastTargetPage();
@@ -116,18 +113,15 @@ class Create {
 
         await breakoutModPage2.bringToFront();
         await breakoutModPage2.closeAudioModal();
-        await breakoutModPage2.waitAndClick(e.joinVideo);
         const parsedSettings = await this.modPage2.getSettingsYaml();
         const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-        await breakoutModPage2.waitAndClick(e.videoPreview, videoPreviewTimeout);
-        await breakoutModPage2.waitAndClick(e.startSharingWebcam);
+        await breakoutModPage2.shareWebcam(true, videoPreviewTimeout);
 
         await breakoutModPage2.screenshot(testName, '00-breakout-page03-user-joined-with-webcam-before-check');
       } else if (testName === 'joinBreakoutroomsAndShareScreen') {
         await this.modPage2.init(true, true, testName, 'Moderator2', this.modPage1.meetingId);
         await this.modPage2.waitAndClick(e.breakoutRoomsButton);
-        await this.modPage2.waitAndClick(e.generateRoom1);
-        await this.modPage2.waitAndClick(e.joinGeneratedRoom1);
+        await this.modPage2.waitAndClick(e.askJoinRoom1);
         await this.modPage2.waitForSelector(e.alreadyConnected);
         const breakoutModPage2 = await this.modPage2.getLastTargetPage();
 
@@ -150,25 +144,6 @@ class Create {
       }
     } catch (err) {
       await this.modPage2.logger(err);
-    }
-  }
-
-  // Close pages
-  async close() {
-    try {
-      await this.modPage1.close();
-      await this.userPage1.close();
-    } catch (err) {
-      await this.modPage1.logger(err);
-    }
-  }
-
-  // Close page
-  async closePage(page) {
-    try {
-      await page.close();
-    } catch (err) {
-      await this.modPage1.logger(err);
     }
   }
 }

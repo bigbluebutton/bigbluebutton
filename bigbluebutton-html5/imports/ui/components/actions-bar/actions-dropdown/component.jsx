@@ -316,7 +316,6 @@ class ActionsDropdown extends PureComponent {
         }
         actions={children}
         opts={{
-          disablePortal: true,
           id: "default-dropdown-menu",
           keepMounted: true,
           transitionDuration: 0,

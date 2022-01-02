@@ -8,12 +8,15 @@ import MediaService, { getSwapLayout } from '/imports/ui/components/media/servic
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const ExternalVideoContainer = (props) => {
+  const fullscreenElementId = 'ExternalVideo';
   const layoutManager = useContext(LayoutContext);
   const { layoutContextState, layoutContextDispatch } = layoutManager;
-  const { output, input } = layoutContextState;
+  const { output, input, fullscreen } = layoutContextState;
   const { externalVideo } = output;
   const { cameraDock } = input;
   const { isResizing } = cameraDock;
+  const { element } = fullscreen;
+  const fullscreenContext = (element === fullscreenElementId);
   return (
     <ExternalVideoComponent
       {
@@ -22,6 +25,8 @@ const ExternalVideoContainer = (props) => {
         ...props,
         ...externalVideo,
         isResizing,
+        fullscreenElementId,
+        fullscreenContext,
       }
       }
     />
