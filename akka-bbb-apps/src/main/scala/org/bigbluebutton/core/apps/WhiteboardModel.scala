@@ -93,8 +93,7 @@ class WhiteboardModel extends SystemConfiguration {
         }
       }) //newPoints = a.asInstanceOf[ArrayList[Float]])
       val updatedAnnotationData = annotation.annotationInfo + ("points" -> (oldPoints ::: newPoints))
-      val updatedAnnotation = annotation.copy(position = oldAnnotation.position, annotationInfo = updatedAnnotationData)
-
+      
       val newPosition = wb.annotationCount
       val updatedAnnotation = annotation.copy(position = newPosition, annotationInfo = updatedAnnotationData)
       
