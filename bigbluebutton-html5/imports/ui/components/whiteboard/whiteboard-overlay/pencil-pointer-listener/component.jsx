@@ -22,7 +22,6 @@ export default class PencilPointerListener extends Component {
     this.isDrawing = false;
     this.palmRejectionActivated = Storage.getItem(PALM_REJECTION_MODE);
     this.points = [];
-    this.updateBeforeEnd = false;
 
     this.handlePointerDown = this.handlePointerDown.bind(this);
     this.handlePointerUp = this.handlePointerUp.bind(this);
@@ -111,13 +110,12 @@ export default class PencilPointerListener extends Component {
       } = this.props;
 
       const { getCurrentShapeId } = actions;
-      this.updateBeforeEnd = true;
       this.handleDrawPencil(this.points, DRAW_UPDATE, getCurrentShapeId());
       this.points = [];
     }
   }
 
-  handleDrawPencil(points, status, id, dimensions, updateBeforeEnd) {
+  handleDrawPencil(points, status, id, dimensions) {
     const {
       whiteboardId,
       userId,
@@ -136,9 +134,8 @@ export default class PencilPointerListener extends Component {
       color,
     } = drawSettings;
 
-    var pencilPoint = undefined;
-    if (status == DRAW_END) {
-      pencilPoint = updateBeforeEnd ? false : true;
+    if (status == DRAW_END && synchronizeWBUpdate && points.length === 2) {
+      points = points.concat(points);
     }
 
     const annotation = {
@@ -157,7 +154,6 @@ export default class PencilPointerListener extends Component {
       wbId: whiteboardId,
       userId,
       position: 0,
-      pencilPoint,
     };
 
     // dimensions are added to the 'DRAW_END', last message
@@ -183,9 +179,7 @@ export default class PencilPointerListener extends Component {
         DRAW_END,
         getCurrentShapeId(),
         [Math.round(physicalSlideWidth), Math.round(physicalSlideHeight)],
-        this.updateBeforeEnd,
       );
-      this.updateBeforeEnd = false;
       this.resetState();
     }
   }
