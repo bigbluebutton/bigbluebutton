@@ -117,7 +117,7 @@ class WhiteboardModel extends SystemConfiguration {
 
     //not empty and head id equals annotation id
     //println("!usersAnnotations.isEmpty: " + (!usersAnnotations.isEmpty) + ", usersAnnotations.head.id == annotation.id: " + (usersAnnotations.head.id == annotation.id));
-    
+
     var dimensions: List[Int] = List[Int]()
     annotation.annotationInfo.get("dimensions").foreach(d => {
       d match {
