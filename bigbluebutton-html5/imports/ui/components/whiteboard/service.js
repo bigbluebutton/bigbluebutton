@@ -34,7 +34,7 @@ function handleAddedAnnotation({
   const isOwn = Auth.meetingID === meetingId && Auth.userID === userId;
   let query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
 
-  if (!Annotations.findOne(query.selector) && annotation.status == 'DRAW_UPDATE') { // Can we remove REALTIMEUPDATE condition here??? - need to check.
+  if (!Annotations.findOne(query.selector) && annotation.status == 'DRAW_UPDATE') {
     // When DRAW_UPDATE arrives for the first time (without DRAW_START), this dirty solution is necessary..
     const statusOriginal = annotation.status;
     annotation.status = 'DRAW_START';
