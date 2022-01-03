@@ -7,7 +7,7 @@ export default function sendAnnotationHelper(annotation, meetingId, requesterUse
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'SendWhiteboardAnnotationPubMsg';
-  
+
   try {
     const whiteboardId = annotation.wbId;
 
