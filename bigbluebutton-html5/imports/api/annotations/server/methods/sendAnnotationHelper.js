@@ -2,14 +2,11 @@ import RedisPubSub from '/imports/startup/server/redis';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import Meetings from '/imports/api/meetings';
 
 export default function sendAnnotationHelper(annotation, meetingId, requesterUserId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'SendWhiteboardAnnotationPubMsg';
-
-  const whiteboardMode = Meetings.findOne({ meetingId }, { fields: {synchronizeWBUpdate: 1} } )
   
   try {
     const whiteboardId = annotation.wbId;
@@ -61,7 +58,7 @@ export default function sendAnnotationHelper(annotation, meetingId, requesterUse
         position: Number,
       });
     }
-    
+
     const payload = {
       annotation,
       drawEndOnly: true,
