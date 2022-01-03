@@ -196,6 +196,12 @@ export default class PencilDrawListener extends Component {
       color,
     } = drawSettings;
 
+    if (status == DRAW_END && synchronizeWBUpdate && points.length === 2) {
+      //to ensure a point is drawn by a single click,
+      // with a risk of unnecessary point added also for a normal drawing
+      points = points.concat(points);
+    }
+    
     const annotation = {
       id,
       status,
