@@ -59,17 +59,12 @@ export default function sendAnnotationHelper(annotation, meetingId, requesterUse
         wbId: String,
         userId: String,
         position: Number,
-        pencilPoint: Match.Maybe(Boolean),
       });
     }
-
-    //drawEndOnly is true when a point is drawn by pencil tool
-    const drawEndOnly = whiteboardMode.synchronizeWBUpdate ? (annotation.pencilPoint == undefined ? true : annotation.pencilPoint) : true;
-    delete annotation.pencilPoint; //unnecessary for akka-apps
     
     const payload = {
       annotation,
-      drawEndOnly,
+      drawEndOnly: true,
     };
 
     return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
