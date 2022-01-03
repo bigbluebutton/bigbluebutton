@@ -162,7 +162,7 @@ public:
         viewScreenshare: true
         synchronizeWBUpdate: false
         simplifyPencil: true
-        syncPencilPointsToBuffer: 5
+        syncPencilPointsToBuffer: 4
     shortcuts:
       openOptions:
         accesskey: O
