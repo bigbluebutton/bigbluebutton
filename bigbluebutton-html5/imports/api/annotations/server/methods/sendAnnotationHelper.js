@@ -63,8 +63,11 @@ export default function sendAnnotationHelper(annotation, meetingId, requesterUse
       });
     }
 
-    //drawEndOnly is true when a point is drawn by pencil tool
-    const drawEndOnly = whiteboardMode.synchronizeWBUpdate ? (annotation.pencilPoint == undefined ? true : annotation.pencilPoint) : true;
+    //drawEndOnly is true when a point is drawn by pencil tool even in the synchronized mode. PencilPoint can be undefined.
+    let drawEndOnly = true;
+    if (whiteboardMode.synchronizeWBUpdate && annotation.pencilPoint == false) {
+      drawEndOnly = false;
+    }
     delete annotation.pencilPoint; //unnecessary for akka-apps
     
     const payload = {
