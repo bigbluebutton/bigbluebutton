@@ -11,9 +11,11 @@ import logger from '/imports/startup/client/logger';
 const Annotations = new Mongo.Collection(null);
 const UnsentAnnotations = new Mongo.Collection(null);
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
+const DATASAVING_CONFIG = Meteor.settings.public.app.defaultSettings.dataSaving;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
 const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
+const DRAW_NONE = ANNOTATION_CONFIG.status.none;
 
 const ANNOTATION_TYPE_PENCIL = 'pencil';
 
@@ -34,7 +36,7 @@ function handleAddedAnnotation({
   const isOwn = Auth.meetingID === meetingId && Auth.userID === userId;
   let query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
 
-  if (!Annotations.findOne(query.selector) && annotation.status == 'DRAW_UPDATE') {
+  if ( Annotations.find(query.selector, {limit: 1}).count() === 0 && annotation.status == 'DRAW_UPDATE' ) {
     // When DRAW_UPDATE arrives for the first time (without DRAW_START), this dirty solution is necessary..
     const statusOriginal = annotation.status;
     annotation.status = 'DRAW_START';
@@ -130,6 +132,10 @@ const annotationsBufferTimeMin = 30; // can be larger for the synchronized updat
 const annotationsBufferTimeMax = 200;
 // Time before running 'sendBulkAnnotations' again if user is offline
 const annotationsRetryDelay = 1000;
+// Resevoir of annotations for throttling synchronous update
+let annotationsReservoir = [];
+// Last time we drained the reservoir
+let lastDrain = 0;
 
 let annotationsSenderIsRunning = false;
 
@@ -159,6 +165,28 @@ const proccessAnnotationsQueue = async () => {
   }
 };
 
+const annotationWithNewPoints = (annotation, points) => {
+  const newAnnotationInfo = {
+    ...annotation.annotationInfo,
+    points,
+  };
+  const newAnnotation = {
+    ...annotation,
+    annotationInfo: newAnnotationInfo,
+  };
+  return newAnnotation;
+}
+
+const sendEmptyAnnotation = (an, sync) => {
+  const emptyAnnotation = {
+    status: DRAW_NONE,
+    userId: an.userId,
+    id: an.id,
+    annotationType: an.annotationType,
+  };
+  setTimeout(function(){ sendAnnotation(emptyAnnotation, sync)}, DATASAVING_CONFIG.intervalDrainResevoir * 1.1);
+}
+
 const sendAnnotation = (annotation, synchronizeWBUpdate) => {
   // Prevent sending annotations while disconnected
   // TODO: Change this to add the annotation, but delay the send until we're
@@ -170,14 +198,85 @@ const sendAnnotation = (annotation, synchronizeWBUpdate) => {
       // take the accumulated points from UnsentAnnotation and send them altogether.
       const fakeAnnotation = UnsentAnnotations.findOne({meetingId: Auth.meetingID, whiteboardId: annotation.wbId, userId: Auth.userID, id: annotation.id});
       annotation.annotationInfo.points.unshift(...fakeAnnotation.annotationInfo.points)
+      annotationsQueue.push(annotation);
+    } else if (synchronizeWBUpdate && annotation.annotationType === ANNOTATION_TYPE_PENCIL) {
+     // collect all the updates (points) since the last drain and merge them to the latest annotation
+     let accumulatedPoints = [];
+     for (const a of annotationsReservoir) {
+       accumulatedPoints.push(...a.annotationInfo.points);
+     }
+      const newAnnotation = annotationWithNewPoints(annotation, accumulatedPoints.concat(...annotation.annotationInfo.points));
+      annotationsQueue.push(newAnnotation);
+    } else { // shapes or text
+      //send the lastest annotation, ignoring the reservoir
+      annotationsQueue.push(annotation);   
     }
-    annotationsQueue.push(annotation);
+    annotationsReservoir = [];
     if (!annotationsSenderIsRunning) setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
   } else {
     if (synchronizeWBUpdate) {
       // send also DRAW_UPDATE to akka-apps for synchronous updating
-      annotationsQueue.push(annotation);
-      if (!annotationsSenderIsRunning) setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
+      const timeNow = Date.now();
+      if (timeNow - lastDrain > DATASAVING_CONFIG.intervalDrainResevoir) {
+        if (annotation.annotationType === ANNOTATION_TYPE_PENCIL) {
+          let accumulatedPoints = [];
+          for (const a of annotationsReservoir) {
+            accumulatedPoints.push(...a.annotationInfo.points);
+          }
+          let newAnnotation = null;
+          if (annotation.status === DRAW_NONE) {
+            // send all accumulated points in the reservoir
+            if (annotationsReservoir.length > 0) {
+              newAnnotation = annotationWithNewPoints(annotationsReservoir[annotationsReservoir.length -1], accumulatedPoints);
+            }
+          } else {
+            // send all accumulated points in the reservoir plus the new points,
+            newAnnotation = annotationWithNewPoints(annotation, accumulatedPoints.concat(...annotation.annotationInfo.points));
+            // To drain the first path left in the reservoir after a while
+            //  (e.g. when we pause drawing after the first stroke),
+            //  judging if it's the first one by looking at the UnsentAnnotations being empty
+            const isDrawingStart = UnsentAnnotations.find({meetingId: Auth.meetingID, userId: Auth.userID, id: annotation.id}, {limit: 1}).count() === 0;
+            if (isDrawingStart) {
+              sendEmptyAnnotation(annotation, synchronizeWBUpdate);
+            }
+          }
+          annotationsQueue.push(newAnnotation);
+        } else { // shape or text drawing
+          if (annotation.status === DRAW_NONE) {
+            if (annotationsReservoir.length > 0) {
+              annotationsQueue.push(annotationsReservoir[annotationsReservoir.length-1]);
+            }
+          } else {
+            // send only the latest one, ignoring the reservoir
+            annotationsQueue.push(annotation);
+            const isDrawingStart = UnsentAnnotations.find({meetingId: Auth.meetingID, userId: Auth.userID, id: annotation.id}, {limit: 1}).count() === 0;
+            if (isDrawingStart) {
+              sendEmptyAnnotation(annotation, synchronizeWBUpdate);
+            }
+          }
+        }
+        if (!annotationsSenderIsRunning) setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
+
+        // We do this in order to drain the reservoir after a while (to draw even when we pause)
+        // After sending an empty annotation, we don't send another,
+        //  which will make an infinite loop until the drawing ends
+        const isStillDrawing = UnsentAnnotations.find({meetingId: Auth.meetingID, userId: Auth.userID, id: annotation.id}, {limit: 1}).count();
+        if (isStillDrawing && annotation.status !== DRAW_NONE) {
+          sendEmptyAnnotation(annotation, synchronizeWBUpdate);
+        }
+        // drain the reservoir
+        annotationsReservoir = []; lastDrain = Date.now();
+      } else {
+        // store the annotation to the reservoir until the draining time comes
+        if (annotation.status !== DRAW_NONE) {
+          annotationsReservoir.push(annotation);
+        }
+      }
+    }
+
+    if (annotation.status === DRAW_NONE) {
+      //don't proceed to the fake annotation drawing below
+      return;
     }
 
     const { position, ...relevantAnotation } = annotation;
@@ -197,7 +296,8 @@ const sendAnnotation = (annotation, synchronizeWBUpdate) => {
     const { status, annotationType } = relevantAnotation;
 
     if (synchronizeWBUpdate && annotationType === ANNOTATION_TYPE_PENCIL) {
-      //for drawing a point DRAW_START must be included
+      // For drawing a point by pencil, DRAW_START must be included,
+      //  but it will be used only for the fake annotations (i.e. those in the presenter's screen)
       queryFake.modifier['$push'] = {'annotationInfo.points' : { '$each': annotation.annotationInfo.points } };
     }
 
