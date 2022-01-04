@@ -5,7 +5,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import { styles } from '../styles';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
-//import PresentationService from '/imports/ui/components/presentation/service';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const intlMessages = defineMessages({
