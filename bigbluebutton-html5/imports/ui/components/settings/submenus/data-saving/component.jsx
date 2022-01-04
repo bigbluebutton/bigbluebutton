@@ -6,6 +6,7 @@ import BaseMenu from '../base/component';
 import { styles } from '../styles';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 //import PresentationService from '/imports/ui/components/presentation/service';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const intlMessages = defineMessages({
   dataSavingLabel: {
@@ -73,6 +74,8 @@ class DataSaving extends BaseMenu {
     //const isPresenter = PresentationService.isPresenter('DEFAULT_PRESENTATION_POD');
     // -> replace isModerator with isPresenter in case we want only the presenter be able to change the whiteboard setting
 
+    const hiddenForBreakout = meetingIsBreakout() && !Meteor.settings.public.app.defaultSettings.dataSaving.changeWBModeBreakout;
+    
     return (
       <div>
         <div>
@@ -124,7 +127,7 @@ class DataSaving extends BaseMenu {
               </div>
             </div>
           </div>
-          {isModerator ?
+          {isModerator && !hiddenForBreakout ?
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
@@ -147,7 +150,7 @@ class DataSaving extends BaseMenu {
               </div>
             </div>
           </div> : null}
-          {isModerator && synchronizeWBUpdate ?
+          {isModerator && !hiddenForBreakout && synchronizeWBUpdate ?
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
