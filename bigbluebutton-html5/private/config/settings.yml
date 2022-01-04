@@ -162,6 +162,7 @@ public:
         viewScreenshare: true
         synchronizeWBUpdate: false
         simplifyPencil: true
+        changeWBModeBreakout: false
         syncPencilPointsToBuffer: 2
         intervalDrainResevoir: 500
     shortcuts:
