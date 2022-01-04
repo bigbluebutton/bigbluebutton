@@ -227,10 +227,12 @@ const sendAnnotation = (annotation, synchronizeWBUpdate) => {
             // send all accumulated points in the reservoir
             if (annotationsReservoir.length > 0) {
               newAnnotation = annotationWithNewPoints(annotationsReservoir[annotationsReservoir.length -1], accumulatedPoints);
+              annotationsQueue.push(newAnnotation);
             }
           } else {
             // send all accumulated points in the reservoir plus the new points,
             newAnnotation = annotationWithNewPoints(annotation, accumulatedPoints.concat(...annotation.annotationInfo.points));
+            annotationsQueue.push(newAnnotation);
             // To drain the first path left in the reservoir after a while
             //  (e.g. when we pause drawing after the first stroke),
             //  judging if it's the first one by looking at the UnsentAnnotations being empty
@@ -239,7 +241,6 @@ const sendAnnotation = (annotation, synchronizeWBUpdate) => {
               sendEmptyAnnotation(annotation, synchronizeWBUpdate);
             }
           }
-          annotationsQueue.push(newAnnotation);
         } else { // shape or text drawing
           if (annotation.status === DRAW_NONE) {
             if (annotationsReservoir.length > 0) {
