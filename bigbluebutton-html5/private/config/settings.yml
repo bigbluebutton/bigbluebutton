@@ -162,7 +162,8 @@ public:
         viewScreenshare: true
         synchronizeWBUpdate: false
         simplifyPencil: true
-        syncPencilPointsToBuffer: 4
+        syncPencilPointsToBuffer: 2
+        intervalDrainResevoir: 500
     shortcuts:
       openOptions:
         accesskey: O
@@ -651,6 +652,7 @@ public:
         start: DRAW_START
         update: DRAW_UPDATE
         end: DRAW_END
+        none: DRAW_NONE
     toolbar:
       multiUserPenOnly: false
       colors:
