@@ -170,11 +170,10 @@ const annotationWithNewPoints = (annotation, points) => {
     ...annotation.annotationInfo,
     points,
   };
-  const newAnnotation = {
+  return {
     ...annotation,
     annotationInfo: newAnnotationInfo,
   };
-  return newAnnotation;
 }
 
 const sendEmptyAnnotation = (an, sync) => {
