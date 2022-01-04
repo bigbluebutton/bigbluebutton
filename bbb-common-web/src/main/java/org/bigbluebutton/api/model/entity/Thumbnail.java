@@ -28,7 +28,7 @@ public class Thumbnail {
     private Integer sequence;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "playback_format_id")
+    @JoinColumn(name = "playback_format_id", referencedColumnName = "id")
     private PlaybackFormat playbackFormat;
 
     public Long getId() { return id; }

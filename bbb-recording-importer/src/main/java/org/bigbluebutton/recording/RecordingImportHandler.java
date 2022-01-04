@@ -1,3 +1,5 @@
+package org.bigbluebutton.recording;
+
 import org.bigbluebutton.api.model.entity.*;
 import org.bigbluebutton.api.util.DataStore;
 import org.slf4j.Logger;
@@ -37,7 +39,14 @@ public class RecordingImportHandler {
     }
 
     public void importRecordings(String directory, boolean persist) {
+        logger.info("Attempting to import recordings from {}", directory);
+
         String[] entries = new File(directory).list();
+
+        if (entries == null || entries.length == 0) {
+            logger.info("No recordings were found in the provided directory");
+            return;
+        }
 
         for (String entry : entries) {
             Recording recording = dataStore.findRecordingByRecordId(entry);
@@ -54,6 +63,7 @@ public class RecordingImportHandler {
 
     public Recording importRecording(String path, String recordId) {
         logger.info("Attempting to import {}", path);
+
         String content = null;
         try {
             byte[] encoded = Files.readAllBytes(Paths.get(path));

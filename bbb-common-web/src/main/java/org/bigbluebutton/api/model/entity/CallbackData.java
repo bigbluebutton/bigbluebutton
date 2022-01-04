@@ -25,7 +25,7 @@ public class CallbackData {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "recording_id", referencedColumnName = "id")
     private Recording recording;
 

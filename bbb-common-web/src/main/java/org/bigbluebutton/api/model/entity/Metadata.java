@@ -18,7 +18,7 @@ public class Metadata {
     @Column(name = "value")
     private String value;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "recording_id", referencedColumnName = "id")
     private Recording recording;
 

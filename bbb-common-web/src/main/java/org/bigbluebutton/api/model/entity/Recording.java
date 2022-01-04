@@ -48,7 +48,7 @@ public class Recording {
     @Column(name = "protected")
     private Boolean isProtected;
 
-    @OneToMany(mappedBy = "recording", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "recording", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Metadata> metadata;
 
     @OneToOne(mappedBy = "recording", cascade = CascadeType.ALL)

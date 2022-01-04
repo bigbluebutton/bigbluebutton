@@ -1,4 +1,4 @@
-import static org.junit.jupiter.api.Assertions.*;
+package org.bigbluebutton.recording;
 
 import org.bigbluebutton.api.model.entity.Recording;
 import org.bigbluebutton.api.util.DataStore;
@@ -7,11 +7,14 @@ import org.junit.jupiter.api.*;
 import java.io.File;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class RecordingStoreTest {
 
-    private String metadataDirectory = "";
-    private RecordingImportHandler handler = RecordingImportHandler.getInstance();
+    private String metadataDirectory = "./metadata";
+    private final RecordingImportHandler handler = RecordingImportHandler.getInstance();
     private DataStore dataStore;
 
     @BeforeAll

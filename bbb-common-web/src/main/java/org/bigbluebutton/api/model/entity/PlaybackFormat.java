@@ -26,11 +26,11 @@ public class PlaybackFormat {
     @Column(name = "processing_time")
     private Integer processingTime;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "recording_id", referencedColumnName = "id")
     private Recording recording;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "playbackFormat")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "playbackFormat", fetch = FetchType.EAGER)
     private Set<Thumbnail> thumbnails;
 
     public Long getId() { return id; }

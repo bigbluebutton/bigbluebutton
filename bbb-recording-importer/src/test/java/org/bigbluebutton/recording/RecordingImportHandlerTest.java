@@ -1,4 +1,4 @@
-import static org.junit.jupiter.api.Assertions.*;
+package org.bigbluebutton.recording;
 
 import org.bigbluebutton.api.model.entity.Recording;
 import org.junit.jupiter.api.DisplayName;
@@ -8,14 +8,17 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class RecordingImportHandlerTest {
 
-    private String metadataDirectory = "";
-    private RecordingImportHandler handler = RecordingImportHandler.getInstance();
+    private final RecordingImportHandler handler = RecordingImportHandler.getInstance();
 
     @Test
     @DisplayName("RecordIDs should be properly parsed")
     public void testParseRecordId() {
+        String metadataDirectory = "./metadata";
+
         String[] entries = new File(metadataDirectory).list();
         Set<String> ids = new HashSet<>();
 
