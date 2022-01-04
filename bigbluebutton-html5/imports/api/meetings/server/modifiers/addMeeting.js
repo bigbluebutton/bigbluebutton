@@ -164,9 +164,16 @@ export default function addMeeting(meeting) {
   }
 
   newMeeting.welcomeProp.welcomeMsg = welcomeMsg;
-  
-  const dataSavingSettings = Meteor.settings.public.app.defaultSettings.dataSaving;
-  const { synchronizeWBUpdate = false, simplifyPencil = true } = dataSavingSettings;
+
+  let synchronizeWBUpdate = false;
+  let simplifyPencil = true;
+  if (restProps.meetingProp.isBreakout) {
+    const parentMeeting = Meetings.findOne({meetingId: restProps.breakoutProps.parentId});
+    ({ synchronizeWBUpdate, simplifyPencil } = parentMeeting);
+  } else {
+    const dataSavingSettings = Meteor.settings.public.app.defaultSettings.dataSaving;
+    ({ synchronizeWBUpdate, simplifyPencil } = dataSavingSettings);
+  }
 
   // note: as of July 2020 `modOnlyMessage` is not published to the client side.
   // We are sanitizing this data simply to prevent future potential usage
