@@ -241,6 +241,7 @@ class Settings extends Component {
             handleUpdateSettings={this.handleUpdateSettings}
             showToggleLabel={showToggleLabel}
             displaySettingsStatus={this.displaySettingsStatus}
+            isModerator={isModerator}
           />
         </TabPanel>
       </Tabs>
