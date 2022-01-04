@@ -5,7 +5,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import { styles } from '../styles';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
-import PresentationService from '/imports/ui/components/presentation/service';
+//import PresentationService from '/imports/ui/components/presentation/service';
 
 const intlMessages = defineMessages({
   dataSavingLabel: {
@@ -66,11 +66,12 @@ class DataSaving extends BaseMenu {
   }
 
   render() {
-    const { intl, showToggleLabel, displaySettingsStatus } = this.props;
+    const { intl, showToggleLabel, displaySettingsStatus, isModerator } = this.props;
 
     const { viewParticipantsWebcams, viewScreenshare, synchronizeWBUpdate, simplifyPencil } = this.state.settings;
 
-    const isPresenter = PresentationService.isPresenter('DEFAULT_PRESENTATION_POD');
+    //const isPresenter = PresentationService.isPresenter('DEFAULT_PRESENTATION_POD');
+    // -> replace isModerator with isPresenter in case we want only the presenter be able to change the whiteboard setting
 
     return (
       <div>
@@ -123,7 +124,7 @@ class DataSaving extends BaseMenu {
               </div>
             </div>
           </div>
-          {isPresenter ?
+          {isModerator ?
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
@@ -146,7 +147,7 @@ class DataSaving extends BaseMenu {
               </div>
             </div>
           </div> : null}
-          {isPresenter && synchronizeWBUpdate ?
+          {isModerator && synchronizeWBUpdate ?
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
