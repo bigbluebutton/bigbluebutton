@@ -37,7 +37,7 @@ function handleAddedAnnotation({
   let query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
 
   if ( Annotations.find(query.selector, {limit: 1}).count() === 0 && annotation.status == 'DRAW_UPDATE' ) {
-    // When DRAW_UPDATE arrives for the first time (without DRAW_START), this dirty solution is necessary..
+    // When DRAW_UPDATE arrives for the first time, this dirty solution is necessary due to the lack of DRAW_START
     const statusOriginal = annotation.status;
     annotation.status = 'DRAW_START';
     query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
@@ -127,7 +127,7 @@ const annotationsQueue = [];
 // How many packets we need to have to use annotationsBufferTimeMax
 const annotationsMaxDelayQueueSize = 60;
 // Minimum bufferTime
-const annotationsBufferTimeMin = 30; // can be larger for the synchronized updating?
+const annotationsBufferTimeMin = 30; // can be a different value for the synchronized updating?
 // Maximum bufferTime
 const annotationsBufferTimeMax = 200;
 // Time before running 'sendBulkAnnotations' again if user is offline
