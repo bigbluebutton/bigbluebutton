@@ -155,15 +155,23 @@ const WebcamComponent = ({
     });
   };
 
+  const horizontalResizeIcon = () => (
+    <>
+      <div className={styles.horizontalResizeIcon} />
+      <div className={styles.horizontalResizeIcon} />
+    </>
+  );
+
+  const verticalResizeIcon = () => (
+    <>
+      <div className={styles.verticalResizeIcon} />
+      <div className={styles.verticalResizeIcon} />
+    </>
+  );
+
   const draggableClassName = cx({
     [styles.draggable]: cameraDock.isDraggable && !isFullscreen && !isDragging,
     [styles.draggingBg]: isDragging,
-  });
-  const resizableClassName = cx({
-    [styles.resizeWrapperH]: cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP
-      || cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM,
-    [styles.resizeWrapperV]: cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT
-      || cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT,
   });
 
   let draggableOffset = {
@@ -206,7 +214,6 @@ const WebcamComponent = ({
             width: isDragging ? cameraSize.width : cameraDock.width,
             height: isDragging ? cameraSize.height : cameraDock.height,
           }}
-          handleWrapperClass={resizableClassName}
           onResizeStart={() => {
             setIsResizing(true);
             setResizeStart({ width: cameraDock.width, height: cameraDock.height });
@@ -246,6 +253,22 @@ const WebcamComponent = ({
             position: 'absolute',
             zIndex: cameraDock.zIndex,
           }}
+          handleClasses={
+            {
+              bottom: styles.bottomHandle,
+              top: styles.topHandle,
+              right: styles.rightHandle,
+              left: styles.leftHandle,
+            }
+          }
+          handleComponent={
+            {
+              bottom: horizontalResizeIcon,
+              top: horizontalResizeIcon,
+              right: verticalResizeIcon,
+              left: verticalResizeIcon,
+            }
+          }
         >
           <div
             id="cameraDock"

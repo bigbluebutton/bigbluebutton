@@ -1,6 +1,6 @@
 %resizable {
   &:hover {
-    background-color: rgba(255, 255, 255, .3);
+    background-color: var(--color-primary);
   }
 }
 
@@ -26,4 +26,50 @@
 
 .draggingBg {
   background-color: rgba(200, 200, 200, 0.5);
+}
+
+.bottomHandle {
+  @extend %resizable;
+  bottom: -10px !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.topHandle {
+  @extend %resizable;
+  top: -10px !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.rightHandle {
+  @extend %resizable;
+  right: -10px !important;
+  display: flex;
+  align-items: center;
+}
+
+.leftHandle {
+  @extend %resizable;
+  left: -10px !important;
+  display: flex;
+  align-items: center;
+}
+
+%resizeIcon {
+  background: white;
+  border-radius: 10px;
+  margin: auto;
+}
+
+.horizontalResizeIcon {
+  @extend %resizeIcon;
+  width: 30px;
+  height: 2px;
+}
+
+.verticalResizeIcon {
+  @extend %resizeIcon;
+  width: 2px;
+  height: 30px;
 }
