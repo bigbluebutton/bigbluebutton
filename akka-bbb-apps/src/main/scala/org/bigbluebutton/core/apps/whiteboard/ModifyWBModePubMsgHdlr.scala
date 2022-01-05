@@ -26,7 +26,6 @@ trait ModifyWBModePubMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to modify the whiteboard style."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
-      println("ModifyWBModePubMsgHdlr " + msg.body.whiteboardMode)
       modifyWBMode(msg.body.meetingId, msg.body.whiteboardMode, liveMeeting)
       broadcastEvent(msg)
     }
