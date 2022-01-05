@@ -197,8 +197,9 @@ export default class PencilDrawListener extends Component {
     } = drawSettings;
 
     if (status == DRAW_END && synchronizeWBUpdate && points.length === 2) {
-      //to ensure a point is drawn by a single click,
-      // with a risk of unnecessary point added also for a normal drawing
+      // To ensure a point is drawn by a single click,
+      //  with a risk of unnecessary point added also for a normal drawing
+      // If we simply revive sending DRAW_START to akka-apps, this would not be necessary (see whiteboard/service.js).
       points = points.concat(points);
     }
     
