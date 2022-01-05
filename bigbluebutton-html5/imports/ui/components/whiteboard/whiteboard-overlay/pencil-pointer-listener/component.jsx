@@ -135,6 +135,7 @@ export default class PencilPointerListener extends Component {
     } = drawSettings;
 
     if (status == DRAW_END && synchronizeWBUpdate && points.length === 2) {
+      // see the comment in pencil-draw-listner
       points = points.concat(points);
     }
 
