@@ -297,7 +297,9 @@ const sendAnnotation = (annotation, synchronizeWBUpdate) => {
 
     if (synchronizeWBUpdate && annotationType === ANNOTATION_TYPE_PENCIL) {
       // For drawing a point by pencil, DRAW_START must be included,
-      //  but it will be used only for the fake annotations (i.e. those in the presenter's screen)
+      //  but it will be used only for the fake annotations (i.e. those in the presenter's screen).
+      //  - I decided not to send DRAW_START, which is not essential, to akka-apps to slightly reduce the traffic.
+      //  However the code would be more straight if we simply revive DRAW_START in akka-apps.
       queryFake.modifier['$push'] = {'annotationInfo.points' : { '$each': annotation.annotationInfo.points } };
     }
 
