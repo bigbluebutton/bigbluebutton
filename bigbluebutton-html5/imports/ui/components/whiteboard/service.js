@@ -258,10 +258,11 @@ const sendAnnotation = (annotation, synchronizeWBUpdate) => {
         if (!annotationsSenderIsRunning) setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
 
         // We do this in order to drain the reservoir after a while (to draw even when we pause)
-        // After sending an empty annotation, we don't send another,
-        //  which will make an infinite loop until the drawing ends
-        const isStillDrawing = UnsentAnnotations.find({meetingId: Auth.meetingID, userId: Auth.userID, id: annotation.id}, {limit: 1}).count();
-        if (isStillDrawing && annotation.status !== DRAW_NONE) {
+        // This will make a sendAnnotation loop until the drawing ends,
+        //  which will not matter as it is just a internal process.
+        const isStillDrawing = UnsentAnnotations.find({meetingId: Auth.meetingID, userId: Auth.userID, id: annotation.id}, {limit: 1}).count() > 0;
+
+        if (isStillDrawing) {
           sendEmptyAnnotation(annotation, synchronizeWBUpdate);
         }
         // drain the reservoir
