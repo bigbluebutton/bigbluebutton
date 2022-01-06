@@ -47,9 +47,11 @@ BASE=/var/bigbluebutton/recording
 STATUS=$BASE/status
 source /etc/bigbluebutton/bigbluebutton-release
 
+BBB_USER=bigbluebutton
 BBB_WEB=$(cat /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 
 RECORDING_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(recording_dir\)/{s/.*recording_dir:[ ]*//;s/;//;p}')
+LOG_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(log_dir\)/{s/.*log_dir:[ ]*//;s/;//;p}' | head -1)
 PUBLISHED_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(published_dir\)/{s/.*published_dir:[ ]*//;s/;//;p}')
 RAW_AUDIO_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_audio_src\)/{s/.*raw_audio_src:[ ]*//;s/;//;p}')
 RAW_VIDEO_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_video_src\)/{s/.*raw_video_src:[ ]*//;s/;//;p}')
@@ -126,6 +128,31 @@ print_header() {
       echo
       echo "** Potential problems described below **"
       HEADER=1
+   fi
+}
+
+# Checks if the passed file/directory exists, and if they are owned by BBB's user
+# $1: Path to directory or file
+# $2: -d or -f
+# $3: -R flag for chown
+check_path_owner_group() {
+   if [ $2 $1 ]; then
+      if [ $(stat -c "%U:%G" $1) != "$BBB_USER:$BBB_USER" ]; then
+         echo "#"
+         echo "# Warning: owner:group of $1 not $BBB_USER:$BBB_USER."
+         if [ $3 ]; then
+            echo "# chown -R $BBB_USER:$BBB_USER $1"
+         else 
+            echo "# chown $BBB_USER:$BBB_USER $1"
+         fi
+         echo "#"
+         echo
+      fi
+   else
+      echo "#"
+      echo "# Warning: $1 is missing."
+      echo "#"
+      echo
    fi
 }
 
@@ -711,11 +738,11 @@ fi
 #fi
 
 if [ $CHECK ]; then
-
-   if [ -f /var/bigbluebutton/recording/process/slides ]; then
+   print_header
+   echo
+   if [ -d /var/bigbluebutton/recording/process/slides ]; then
       if [ ! -w  /var/bigbluebutton/recording/process/slides ]; then
-         print_header
-         echo "# Error: The output director for slides"
+         echo "# Error: The output directory for slides"
          echo "#"
          echo "# /var/bigbluebutton/recording/process/slides"
          echo "#"
@@ -723,7 +750,58 @@ if [ $CHECK ]; then
          echo
       fi
    fi
+   
+   if [ -d $LOG_DIR ]; then
+ 
+      if [ $(stat -c %a $LOG_DIR) != "755" ]; then
+         echo "#"
+         echo "# Warning: access rights of BigBlueButton's log directory should be set to rwxr-xr-x, not $(stat -c %A $LOG_DIR):"
+         echo "# chmod 755 $LOG_DIR"
+         echo "#"
+         echo
+      fi
 
+      check_path_owner_group $LOG_DIR "-d" "-R"
+      check_path_owner_group "$LOG_DIR/bbb-rap-worker.log" "-f"
+      check_path_owner_group "$LOG_DIR/sanity.log" "-f"
+      check_path_owner_group "$LOG_DIR/post_process.log" "-f"
+      check_path_owner_group "$LOG_DIR/bbb-recording-cleanup.log" "-f"
+
+   else
+      echo "# Error: Recording log directory $LOG_DIR is missing."
+      echo
+   fi
+
+   check_path_owner_group "/var/bigbluebutton/captions" "-d" "-R"
+   check_path_owner_group "/var/bigbluebutton/events" "-d"
+   check_path_owner_group "/var/bigbluebutton/recording" "-d" "-R"
+
+   check_path_owner_group "/var/bigbluebutton/recording/status" "-d"
+   check_path_owner_group "/var/bigbluebutton/recording/process" "-d"
+   check_path_owner_group "/var/bigbluebutton/recording/publish" "-d"
+   check_path_owner_group "/var/bigbluebutton/recording/status/recorded" "-d"
+   check_path_owner_group "/var/bigbluebutton/recording/status/archived" "-d"
+   check_path_owner_group "/var/bigbluebutton/recording/status/processed" "-d"
+   check_path_owner_group "/var/bigbluebutton/recording/status/sanity" "-d"
+   check_path_owner_group "/var/bigbluebutton/recording/status/published" "-d"
+
+   check_path_owner_group "/var/bigbluebutton/published" "-d"
+   check_path_owner_group "/var/bigbluebutton/deleted" "-d"
+   check_path_owner_group "/var/bigbluebutton/unpublished" "-d"
+   check_path_owner_group "/var/bigbluebutton/basic_stats" "-d"
+
+   for type in $TYPES; do
+      check_path_owner_group "$LOG_DIR/$type" "-d" "-R"
+      
+      if [ $(find $LOG_DIR/$type \! -user $BBB_USER \! -group $BBB_USER | wc -l) -gt 0 ]; then
+         echo "#"
+         echo "# Some recording log files in $LOG_DIR/$type may not be writeable."
+         echo "# Consider running 'chown -hR $BBB_USER:$BBB_USER $LOG_DIR/$type'"
+         echo "# if recording processing is not automatically starting."
+         echo "#"
+         echo
+      fi
+   done
 fi
 
 if [ $DEBUG ]; then
