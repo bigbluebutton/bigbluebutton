@@ -15,6 +15,7 @@ import ConnectionStatusService from '/imports/ui/components/connection-status/se
 import SettingsDropdownContainer from './settings-dropdown/container';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
+import _ from "lodash";
 import {alertScreenReader} from '/imports/utils/dom-utils';
 import { PANELS, ACTIONS } from '../layout/enums';
 
@@ -90,7 +91,7 @@ class NavBar extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (JSON.stringify(prevProps.activeChats) !== JSON.stringify(this.props.activeChats)) {
+    if (!_.isEqual(prevProps.activeChats, this.props.activeChats)) {
       this.setState({ acs: this.props.activeChats})
     }
   }
