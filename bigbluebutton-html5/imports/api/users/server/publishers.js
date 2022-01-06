@@ -59,6 +59,7 @@ function users(role) {
       { meetingId },
     ],
     intId: { $exists: true },
+    left: false,
   };
 
   const User = Users.findOne({ userId, meetingId }, { fields: { role: 1 } });

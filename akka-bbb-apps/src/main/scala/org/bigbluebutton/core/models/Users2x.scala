@@ -34,8 +34,6 @@ object Users2x {
     } yield {
       val newUser = u.copy(userLeftFlag = UserLeftFlag(true, System.currentTimeMillis()))
       users.save(newUser)
-      val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(, u.intId)
-      outGW.send(userLeftMeetingEvent)
       newUser
     }
   }

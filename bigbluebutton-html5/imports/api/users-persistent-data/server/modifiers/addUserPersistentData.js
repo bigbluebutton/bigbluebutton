@@ -25,9 +25,9 @@ export default function addUserPersistentData(user) {
     locked: Boolean,
     avatar: String,
     clientType: String,
+    left: Boolean,
     effectiveConnectionType: null,
   });
-
 
   const {
     intId,
