@@ -7,6 +7,7 @@ import toggleWebcamsOnlyForModerator from './methods/toggleWebcamsOnlyForModerat
 import clearRandomlySelectedUser from './methods/clearRandomlySelectedUser';
 import changeLayout from './methods/changeLayout';
 import setWhiteboardMode from './methods/setWhiteboardMode';
+import setVisited from './methods/setVisited';
 
 Meteor.methods({
   endMeeting,
@@ -17,4 +18,5 @@ Meteor.methods({
   clearRandomlySelectedUser,
   changeLayout,
   setWhiteboardMode,
+  setVisited,
 });
