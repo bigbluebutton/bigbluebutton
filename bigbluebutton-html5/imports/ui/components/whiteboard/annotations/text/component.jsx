@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import RenderInBrowser from 'react-render-in-browser';
-import { getFormattedColor, denormalizeCoord } from '../helpers';
+import { getFormattedColor, denormalizeCoord, getStrokeWidth } from '../helpers';
 
 const DRAW_END = Meteor.settings.public.whiteboard.annotations.status.end;
 
@@ -83,12 +83,13 @@ export default class TextDrawComponent extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    const { version, isActive, annotation, hidden } = this.props;
+    const { version, isActive, annotation, hidden, selected } = this.props;
     return version !== nextProps.version
       || isActive !== nextProps.isActive
       || annotation.x !== nextProps.annotation.x
       || annotation.y !== nextProps.annotation.y
-      || hidden !== nextProps.hidden;
+      || hidden !== nextProps.hidden
+      || selected !== nextProps.selected;
   }
 
   // If the user is drawing a text shape and clicks Undo - reset textShapeId
@@ -177,34 +178,40 @@ export default class TextDrawComponent extends Component {
   }
 
   renderViewerTextShape(results) {
-    const { annotation, hidden } = this.props;
+    const { annotation, hidden, selected, slideWidth, isEditable } = this.props;
     const styles = TextDrawComponent.getViewerStyles(results);
 
     return (
-      hidden ? null :
+     <g>
+     {hidden ? null :
       <g>
-        <RenderInBrowser only firefox>
-          <clipPath id={annotation.id}>
-            <rect
-              x={results.x}
-              y={results.y}
-              width={results.width}
-              height={results.height}
-            />
-          </clipPath>
-        </RenderInBrowser>
         <foreignObject
-          clipPath={`url(#${annotation.id})`}
           x={results.x}
           y={results.y}
           width={results.width}
           height={results.height}
         >
-          <p style={styles}>
+          <p
+            id={annotation.id}
+            style={styles}
+          >
             {results.text}
           </p>
         </foreignObject>
-      </g>
+      </g>}
+     {selected &&
+      <rect
+        x={results.x}
+        y={results.y}
+        width={results.width}
+        height={results.height}
+        fill= "none"
+        stroke={isEditable ? Meteor.settings.public.whiteboard.selectColor : Meteor.settings.public.whiteboard.selectInertColor}
+        opacity="0.5"
+        strokeWidth={getStrokeWidth(1, slideWidth)}
+        style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
+      />}
+     </g>
     );
   }
 

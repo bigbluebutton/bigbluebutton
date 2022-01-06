@@ -26,9 +26,14 @@ export default withTracker((params) => {
   const haveWhiteboardAccess = WhiteboardService.hasAccessToWhiteboard(whiteboardId);
   const isAnnotationByPresenter = WhiteboardService.isHePresenter(annotatorID);
   const isMyAnnotation = WhiteboardService.currentUserID() == annotatorID;
+  const isEditable = isMyAnnotation || (isPresenter && !WhiteboardService.isMultiUserActive(whiteboardId));
 
   return {
     hidden: hideAnnotationsForAnnotator && !isPresenter && haveWhiteboardAccess && !isAnnotationByPresenter && !isMyAnnotation,
+selected: annotation.selected ? annotation.selected : false,
+    isEditable,
+    // This is necessary to real-time update the movement. Otherwise the prop.version is undefined in the component.jsx
+    version: annotation.version,
   };
 })(StaticAnnotationContainer);
 

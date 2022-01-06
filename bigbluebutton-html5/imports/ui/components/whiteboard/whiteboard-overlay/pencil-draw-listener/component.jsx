@@ -333,6 +333,10 @@ export default class PencilDrawListener extends Component {
       tool,
     } = drawSettings;
 
+    const {
+      tool,
+    } = drawSettings;
+    
     let baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
     const hostUri = `https://${window.document.location.hostname}`;
     if (isPresentationDetached) {

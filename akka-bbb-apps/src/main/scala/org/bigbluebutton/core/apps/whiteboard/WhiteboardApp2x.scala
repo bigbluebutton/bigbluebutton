@@ -20,6 +20,9 @@ class WhiteboardApp2x(implicit val context: ActorContext)
   extends SendCursorPositionPubMsgHdlr
   with ClearWhiteboardPubMsgHdlr
   with UndoWhiteboardPubMsgHdlr
+  with RemoveWhiteboardAnnotationsPubMsgHdlr
+  with ReorderWhiteboardAnnotationsPubMsgHdlr
+  with MoveWhiteboardAnnotationsPubMsgHdlr
   with ModifyWhiteboardAccessPubMsgHdlr
   with SendWhiteboardAnnotationPubMsgHdlr
   with GetWhiteboardAnnotationsReqMsgHdlr {
@@ -66,6 +69,18 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     liveMeeting.wbModel.undoWhiteboard(whiteboardId, requesterId)
   }
 
+  def removeWhiteboardAnnotations(whiteboardId: String, selectedAnnotations: Array[Map[String, String]], requesterId: String, liveMeeting: LiveMeeting): List[AnnotationVO] = {
+      liveMeeting.wbModel.removeWhiteboardAnnotations(whiteboardId, selectedAnnotations, requesterId)
+  }
+      
+  def reorderWhiteboardAnnotations(whiteboardId: String, selectedAnnotations: Array[Map[String, String]], order: Array[Map[String, String]], requesterId: String, liveMeeting: LiveMeeting) = {
+      liveMeeting.wbModel.reorderWhiteboardAnnotations(whiteboardId, selectedAnnotations, order, requesterId)
+  }
+
+  def moveWhiteboardAnnotations(whiteboardId: String, selectedAnnotations: Array[Map[String, String]], offset: Map[String, Float], requesterId: String, liveMeeting: LiveMeeting): List[AnnotationVO] = {
+      liveMeeting.wbModel.moveWhiteboardAnnotations(whiteboardId, selectedAnnotations, offset, requesterId)
+  }
+      
   def getWhiteboardAccess(whiteboardId: String, liveMeeting: LiveMeeting): Array[String] = {
     liveMeeting.wbModel.getWhiteboardAccess(whiteboardId)
   }

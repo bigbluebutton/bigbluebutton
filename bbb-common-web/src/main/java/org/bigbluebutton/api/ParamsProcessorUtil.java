@@ -319,6 +319,12 @@ public class ParamsProcessorUtil {
 				lockSettingsHideAnnotations = Boolean.parseBoolean(lockSettingsHideAnnotationsParam);
 			}
 
+			Boolean lockSettingsHideAnnotations = defaultLockSettingsHideAnnotations;
+			String lockSettingsHideAnnotationsParam = params.get(ApiParams.LOCK_SETTINGS_HIDE_ANNOTATIONS);
+			if (!StringUtils.isEmpty(lockSettingsHideAnnotationsParam)) {
+				lockSettingsHideAnnotations = Boolean.parseBoolean(lockSettingsHideAnnotationsParam);
+			}
+			
 			Boolean lockSettingsLockedLayout = defaultLockSettingsLockedLayout;
 			String lockSettingsLockedLayoutParam = params.get(ApiParams.LOCK_SETTINGS_LOCKED_LAYOUT);
 			if (!StringUtils.isEmpty(lockSettingsLockedLayoutParam)) {

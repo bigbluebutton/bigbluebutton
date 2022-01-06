@@ -85,8 +85,15 @@ export default class MarkerComponent extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    const { version, hidden } = this.props;
-    return version !== nextProps.version || hidden !== nextProps.hidden;
+    const { version, hidden, selected, annotation, slideWidth, slideHeight } = this.props;
+    if (annotation.status == "DRAW_END"
+        && (annotation.points[0] !== nextProps.annotation.points[0]
+         || annotation.points[1] !== nextProps.annotation.points[1])) {
+      const data = MarkerComponent.getFinalCoordinates(nextProps.annotation, slideWidth, slideHeight);
+      this.points = data.points;
+      this.path = data.path;
+    }
+    return version !== nextProps.version || hidden !== nextProps.hidden || selected !== nextProps.selected;
   }
 
   componentDidUpdate(prevProps) {
@@ -110,7 +117,7 @@ export default class MarkerComponent extends Component {
     let data;
     // Final message, display smoothes coordinates
     if (annotation.status === 'DRAW_END') {
-      data = MarkerComponent.getFinalCoordinates(annotation, slideWidth, slideHeight);
+      data = MarkerComponent.getFinalCoordinates(annotation, slideWidth, slideHeight, fullUpdate);
     // Not a final message, but rendering it for the first time, creating a new path
     } else if (!this.path) {
       data = MarkerComponent.getInitialCoordinates(annotation, slideWidth, slideHeight);
@@ -148,15 +155,36 @@ export default class MarkerComponent extends Component {
 
     return { path, points };
   }
+
+  getBBox() {
+    const { slideWidth, slideHeight, annotation } = this.props;
+
+    const oddPoints = this.points.filter((a,i)=>i%2===0);
+    const evenPoints = this.points.filter((a,i)=>i%2===1);
+    let x = denormalizeCoord(Math.min(...oddPoints), slideWidth)
+    let y = denormalizeCoord(Math.min(...evenPoints), slideHeight)
+    let width = denormalizeCoord(Math.max(...oddPoints), slideWidth) - x;
+    let height = denormalizeCoord(Math.max(...evenPoints), slideHeight) -y;
+
+    const strokeWidth = getStrokeWidth(annotation.thickness, slideWidth)
+    if (width == 0 ) { width = strokeWidth ; x -= strokeWidth/2 }
+    if (height== 0 ) { height= strokeWidth ; y -= strokeWidth/2 }
+
+    return {x, y, width, height};
+  }
+
   render() {
-    const { annotation, slideWidth, hidden } = this.props;
+    const { annotation, slideWidth, hidden, selected, isEditable } = this.props;
     const maskId = "mask-" + annotation.id;
     const coord = this.getCurrentPath().replace(/^\s+/,'').split(' ').map(x => parseFloat(x.replace(/[ML]/,'')));
     const lineCap = coord.length == 4 && coord[0] == coord[2] && coord[1] == coord[3] ? "square" : "butt";
+    const bbox = selected ? this.getBBox() : {x:0, y:0, width:0, height:0};
     return (
-      hidden ? null :
+     <g>
+     {hidden ? null :
       <g data-test="drawnMarker">
       <path
+        id={annotation.id}
         fill="none"
         stroke={getFormattedColor(annotation.color)}
         d={this.getCurrentPath()}
@@ -181,7 +209,20 @@ export default class MarkerComponent extends Component {
         y="0"
         xlinkHref="#slideimg"
       />
-      </g>
+      </g>}
+     {selected &&
+      <rect
+        x={bbox.x}
+        y={bbox.y}
+        width={bbox.width}
+        height={bbox.height}
+        fill= "none"
+        stroke={isEditable ? Meteor.settings.public.whiteboard.selectColor : Meteor.settings.public.whiteboard.selectInertColor}
+        opacity="0.5"
+        strokeWidth={getStrokeWidth(annotation.thickness+1, slideWidth)}
+        style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
+      />}
+     </g>
     );
   }
 }

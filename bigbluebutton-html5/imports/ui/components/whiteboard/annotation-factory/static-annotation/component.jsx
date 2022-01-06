@@ -4,13 +4,15 @@ import StaticAnnotationService from './service';
 
 export default class StaticAnnotation extends React.Component {
   shouldComponentUpdate(nextProps) {
-    const { hidden } = this.props;
-    return hidden !== nextProps.hidden;
+    const { hidden, selected, version } = this.props;
+    return hidden !== nextProps.hidden || selected != nextProps.selected || version !== nextProps.version;
   }
 
   render() {
     const {
       hidden,
+      selected,
+      isEditable,
     } = this.props;
     const annotation = StaticAnnotationService.getAnnotationById(this.props.shapeId);
     const Component = this.props.drawObject;
@@ -23,6 +25,8 @@ export default class StaticAnnotation extends React.Component {
         slideHeight={this.props.slideHeight}
         whiteboardId={this.props.whiteboardId}
         hidden={hidden}
+        selected={selected}
+        isEditable={isEditable}
       />
     );
   }

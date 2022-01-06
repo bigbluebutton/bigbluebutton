@@ -4,8 +4,8 @@ import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers'
 
 export default class RectangleDrawComponent extends Component {
   shouldComponentUpdate(nextProps) {
-    const { version, hidden } = this.props;
-    return version !== nextProps.version || hidden !== nextProps.hidden;
+    const { version, hidden, selected } = this.props;
+    return version !== nextProps.version || hidden !== nextProps.hidden || selected !== nextProps.selected;
   }
 
   getCoordinates() {
@@ -46,22 +46,38 @@ export default class RectangleDrawComponent extends Component {
 
   render() {
     const results = this.getCoordinates();
-    const { annotation, slideWidth, hidden } = this.props;
+    const { annotation, slideWidth, hidden, selected, isEditable } = this.props;
     const { fill } = annotation;
 
     return (
-      hidden ? null :
+     <g>
+     {hidden ? null :
+      <rect
+        id={annotation.id}
+        x={results.x}
+        y={results.y}
+        width={results.width}
+        height={results.height}
+        fill={ fill ? getFormattedColor(annotation.color) : "none"}
+        stroke={getFormattedColor(annotation.color)}
+        strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
+        style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
+        data-test="drawnRectangle"
+      />}
+     {selected &&
       <rect
         x={results.x}
         y={results.y}
         width={results.width}
         height={results.height}
-        fill={ fill ? getFormattedColor(annotation.color) : "none" }
-        stroke={getFormattedColor(annotation.color)}
-        strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
+        fill= "none"
+        stroke={isEditable ? Meteor.settings.public.whiteboard.selectColor : Meteor.settings.public.whiteboard.selectInertColor}
+        opacity="0.5"
+        strokeWidth={getStrokeWidth(annotation.thickness+1, slideWidth)}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
-        data-test="drawnRectangle"
-      />
+        data-test="drawnRectangleSelection"
+      />}
+     </g>
     );
   }
 }
