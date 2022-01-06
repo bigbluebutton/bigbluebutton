@@ -48,7 +48,7 @@ class WhiteboardApp2x(implicit val context: ActorContext)
   }
 
   def modifyWhiteboardAnnotations(annotations: List[AnnotationVO], idsToRemove: List[String], wbId: String, userId: String, liveMeeting: LiveMeeting) = {
-    val removedAnnotations = liveMeeting.wbModel.removeAnnotations(idsToRemove, wbId)
+    val removedAnnotations = liveMeeting.wbModel.removeAnnotations(idsToRemove, wbId, userId)
     val addedAnnotations = for (ann <- annotations) yield liveMeeting.wbModel.addAnnotation(wbId, ann)
     val modVO = ModificationVO(removedAnnotations = removedAnnotations, addedAnnotations = addedAnnotations, wbId = wbId, userId = userId, position = 0)
     liveMeeting.wbModel.addModifyAnnotation(modVO)

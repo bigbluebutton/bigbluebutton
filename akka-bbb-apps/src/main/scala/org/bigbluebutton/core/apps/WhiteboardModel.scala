@@ -57,17 +57,26 @@ class WhiteboardModel extends SystemConfiguration {
    * @param annotationToRemove annotation that should be deleted
    * @return removed annotations with zipped Index
    */
-  def removeAnnotations(annotationIds: List[String], wbID: String): List[Tuple2[AnnotationVO, Int]] = {
+  def removeAnnotations(annotationIds: List[String], wbID: String, userId: String): List[Tuple2[AnnotationVO, Int]] = {
     //TODO Update positions
+    var idsToRemove = annotationIds
     val wb = getWhiteboard(wbID)
+    if (wb.multiUser.contains(userId)) {
+      val usersAnnotations = getAnnotationsByUserId(wb, userId)
+      idsToRemove = annotationIds.filter(annotationToRemove =>
+        usersAnnotations.exists {
+          case userAnnotation: AnnotationVO => userAnnotation.id.equals(annotationToRemove)
+          case _                            => false
+        })
+    }
     val removedAnnotationsWithPos = wb.annotationsMap.values.map { case list => list.zipWithIndex }.flatten.filter {
-      case (annotation: AnnotationVO, _)     => annotationIds.contains(annotation.id)
+      case (annotation: AnnotationVO, _)     => idsToRemove.contains(annotation.id)
       case (modification: ModificationVO, _) => false
     }.asInstanceOf[Iterable[(AnnotationVO, Int)]]
 
     val newAnnotationsMap = wb.annotationsMap.mapValues {
       case list => list.filterNot {
-        case annotation: AnnotationVO     => annotationIds.contains(annotation.id)
+        case annotation: AnnotationVO     => idsToRemove.contains(annotation.id)
         case modification: ModificationVO => false
       }
     }.filter { case (userId, list) => list.nonEmpty }
