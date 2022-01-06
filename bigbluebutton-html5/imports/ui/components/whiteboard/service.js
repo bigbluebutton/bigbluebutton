@@ -261,7 +261,6 @@ const sendAnnotation = (annotation, synchronizeWBUpdate) => {
         // This will make a sendAnnotation loop until the drawing ends,
         //  which will not matter as it is just a internal process.
         const isStillDrawing = UnsentAnnotations.find({meetingId: Auth.meetingID, userId: Auth.userID, id: annotation.id}, {limit: 1}).count() > 0;
-
         if (isStillDrawing) {
           sendEmptyAnnotation(annotation, synchronizeWBUpdate);
         }
