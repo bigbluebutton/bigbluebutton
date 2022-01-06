@@ -108,6 +108,8 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
+    private Long maxUploadSize = 30000000L; // 30MB
+    private String uploadDir;
 
     private Integer clientLogoutTimerInMinutes = 0;
   	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
@@ -309,6 +311,12 @@ public class ParamsProcessorUtil {
 			String lockSettingsHideUserListParam = params.get(ApiParams.LOCK_SETTINGS_HIDE_USER_LIST);
 			if (!StringUtils.isEmpty(lockSettingsHideUserListParam)) {
 				lockSettingsHideUserList = Boolean.parseBoolean(lockSettingsHideUserListParam);
+			}
+			
+			Boolean lockSettingsHideAnnotations = defaultLockSettingsHideAnnotations;
+			String lockSettingsHideAnnotationsParam = params.get(ApiParams.LOCK_SETTINGS_HIDE_ANNOTATIONS);
+			if (!StringUtils.isEmpty(lockSettingsHideAnnotationsParam)) {
+				lockSettingsHideAnnotations = Boolean.parseBoolean(lockSettingsHideAnnotationsParam);
 			}
 
 			Boolean lockSettingsHideAnnotations = defaultLockSettingsHideAnnotations;
@@ -1068,6 +1076,22 @@ public class ParamsProcessorUtil {
 	public Long getMaxPresentationFileUpload() {
 		return maxPresentationFileUpload;
 	}
+	
+	public void setMaxUploadSize(Long maxUploadSize) {
+               this.maxUploadSize = maxUploadSize;
+       }
+
+       public Long getMaxUploadSize() {
+               return maxUploadSize;
+       }
+
+       public void setUploadDir(String uploadDir) {
+               this.uploadDir = uploadDir;
+       }
+
+       public String getUploadDir() {
+               return uploadDir;
+       }
 
 	public void setMuteOnStart(Boolean mute) {
 		defaultMuteOnStart = mute;

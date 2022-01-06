@@ -44,15 +44,18 @@ export default class ShapeDrawListener extends Component {
     this.handleTouchMove = this.handleTouchMove.bind(this);
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
   componentDidMount() {
+    const { presentationWindow } = this.props;
     // to send the last message if the user refreshes the page while drawing
-    window.addEventListener('beforeunload', this.sendLastMessage);
+    presentationWindow.addEventListener('beforeunload', this.sendLastMessage);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('beforeunload', this.sendLastMessage);
+    const { presentationWindow } = this.props;
+    presentationWindow.removeEventListener('beforeunload', this.sendLastMessage);
 
     // sending the last message on componentDidUnmount
     this.sendLastMessage();
@@ -127,13 +130,40 @@ export default class ShapeDrawListener extends Component {
     this.sendCoordinates();
   }
 
+  handleKeyDown(event) {
+    const {
+      physicalSlideWidth,
+      physicalSlideHeight,
+    } = this.props;
+
+    const d = {
+      x: 1.0 * physicalSlideHeight / (physicalSlideWidth + physicalSlideHeight),
+      y: 1.0 * physicalSlideWidth  / (physicalSlideWidth + physicalSlideHeight),
+    };
+
+    if        (event.keyCode == '38') { // up arrow
+      this.initialCoordinate.y -= d.y;
+    } else if (event.keyCode == '40') { // down arrow
+      this.initialCoordinate.y += d.y;
+    } else if (event.keyCode == '37') { // left arrow
+      this.initialCoordinate.x -= d.x;
+    } else if (event.keyCode == '39') { // right arrow
+      this.initialCoordinate.x += d.x;
+    }
+    event.stopPropagation();
+    this.lastSentCoordinate = {x:undefined, y:undefined}; // a hacky solution; to avoid skipping the update in sendCoordinates().
+    this.sendCoordinates();
+  }
+
   handleTouchStart(event) {
+    const { presentationWindow } = this.props;
     event.preventDefault();
 
     if (!this.isDrawing) {
-      window.addEventListener('touchend', this.handleTouchEnd, { passive: false });
-      window.addEventListener('touchmove', this.handleTouchMove, { passive: false });
-      window.addEventListener('touchcancel', this.handleTouchCancel, true);
+      presentationWindow.addEventListener('touchend', this.handleTouchEnd, { passive: false });
+      presentationWindow.addEventListener('touchmove', this.handleTouchMove, { passive: false });
+      presentationWindow.addEventListener('touchcancel', this.handleTouchCancel, true);
+      presentationWindow.addEventListener('keydown', this.handleKeyDown, true);
 
       const { clientX, clientY } = event.changedTouches[0];
       this.commonDrawStartHandler(clientX, clientY);
@@ -165,13 +195,15 @@ export default class ShapeDrawListener extends Component {
 
   // main mouse down handler
   handleMouseDown(event) {
+    const { presentationWindow } = this.props;
     const isLeftClick = event.button === 0;
     const isRightClick = event.button === 2;
 
     if (!this.isDrawing) {
       if (isLeftClick) {
-        window.addEventListener('mouseup', this.handleMouseUp);
-        window.addEventListener('mousemove', this.handleMouseMove, true);
+        presentationWindow.addEventListener('mouseup', this.handleMouseUp);
+        presentationWindow.addEventListener('mousemove', this.handleMouseMove, true);
+        presentationWindow.addEventListener('keydown', this.handleKeyDown, true);
 
         const { clientX, clientY } = event;
         this.commonDrawStartHandler(clientX, clientY);
@@ -261,13 +293,15 @@ export default class ShapeDrawListener extends Component {
   }
 
   resetState() {
+    const { presentationWindow } = this.props;
     // resetting the current drawing state
-    window.removeEventListener('mouseup', this.handleMouseUp);
-    window.removeEventListener('mousemove', this.handleMouseMove, true);
+    presentationWindow.removeEventListener('mouseup', this.handleMouseUp);
+    presentationWindow.removeEventListener('mousemove', this.handleMouseMove, true);
+    presentationWindow.removeEventListener('keydown', this.handleKeyDown, true);
     // touchend, touchmove and touchcancel are removed on devices
-    window.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
-    window.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
-    window.removeEventListener('touchcancel', this.handleTouchCancel, true);
+    presentationWindow.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
+    presentationWindow.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
+    presentationWindow.removeEventListener('touchcancel', this.handleTouchCancel, true);
     this.isDrawing = false;
     this.currentStatus = undefined;
     this.initialCoordinate = {
@@ -349,6 +383,7 @@ export default class ShapeDrawListener extends Component {
     const {
       actions,
       drawSettings,
+      isPresentationDetached,
     } = this.props;
 
     const {
@@ -359,7 +394,11 @@ export default class ShapeDrawListener extends Component {
       tool,
     } = drawSettings;
 
-    const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
+    let baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
+    const hostUri = `https://${window.document.location.hostname}`;
+    if (isPresentationDetached) {
+      baseName = hostUri + baseName ;
+    }
     const shapeDrawStyle = {
       width: '100%',
       height: '100%',

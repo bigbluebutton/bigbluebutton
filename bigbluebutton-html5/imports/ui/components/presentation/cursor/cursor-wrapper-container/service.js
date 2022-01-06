@@ -50,7 +50,6 @@ const getCurrentCursorIds = (podId, whiteboardId) => {
         Array.prototype.push.apply(selector._id.$nin, multiUserHiddenCursor);
       }
     }
-
     data.multiUserCursorIds = Cursor.find(selector, filter).fetch();
   } else {
     // it's not multi-user, assigning an empty array

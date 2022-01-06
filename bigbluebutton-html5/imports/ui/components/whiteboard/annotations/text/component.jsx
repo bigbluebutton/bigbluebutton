@@ -52,9 +52,13 @@ export default class TextDrawComponent extends Component {
   constructor() {
     super();
 
+    this.textBoxMoveX = 0.0;
+    this.textBoxMoveY = 0.0;
+    
     this.handleFocus = this.handleFocus.bind(this);
     this.handleOnBlur = this.handleOnBlur.bind(this);
     this.onChangeHandler = this.onChangeHandler.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
   componentDidMount() {
@@ -79,9 +83,11 @@ export default class TextDrawComponent extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    const { version, isActive, hidden, selected } = this.props;
+    const { version, isActive, annotation, hidden, selected } = this.props;
     return version !== nextProps.version
       || isActive !== nextProps.isActive
+      || annotation.x !== nextProps.annotation.x
+      || annotation.y !== nextProps.annotation.y
       || hidden !== nextProps.hidden
       || selected !== nextProps.selected;
   }
@@ -92,6 +98,31 @@ export default class TextDrawComponent extends Component {
     if (isActive) {
       resetTextShapeActiveId();
     }
+  }
+
+  handleKeyDown(event) {
+    const { slideWidth, slideHeight, setTextShapeOffset } = this.props;
+
+    const d = {
+      x: 1.0 * slideHeight / (slideWidth + slideHeight),
+      y: 1.0 * slideWidth  / (slideWidth + slideHeight),
+    };
+
+    if        (event.keyCode == '38' && event.ctrlKey) { // up arrow
+      event.preventDefault();
+      this.textBoxMoveY -= d.y;
+    } else if (event.keyCode == '40' && event.ctrlKey) { // down arrow
+      event.preventDefault();
+      this.textBoxMoveY += d.y;
+    } else if (event.keyCode == '37' && event.ctrlKey) { // left arrow
+      event.preventDefault();
+      this.textBoxMoveX -= d.x;
+    } else if (event.keyCode == '39' && event.ctrlKey) { // right arrow
+      event.preventDefault();
+      this.textBoxMoveX += d.x;
+    }
+    event.stopPropagation();
+    setTextShapeOffset({x: this.textBoxMoveX, y: this.textBoxMoveY});
   }
 
   onChangeHandler(event) {
@@ -205,6 +236,7 @@ export default class TextDrawComponent extends Component {
             onBlur={this.handleOnBlur}
             style={styles}
             spellCheck="false"
+            onKeyDown={this.handleKeyDown}
           />
         </foreignObject>
       </g>
@@ -249,4 +281,6 @@ TextDrawComponent.propTypes = {
   // Defines a function that resets the textShape active Id in case if a user clicks Undo
   // while drawing a shape
   resetTextShapeActiveId: PropTypes.func.isRequired,
+  // Defines a function that sets the textShape offset when arrow buttons are pushed with control key
+  setTextShapeOffset: PropTypes.func.isRequired,
 };

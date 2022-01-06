@@ -23,6 +23,7 @@ import '/imports/api/users-infos/server';
 import '/imports/api/users-persistent-data/server';
 import '/imports/api/connection-status/server';
 import '/imports/api/note/server';
+import '/imports/api/upload/server';
 import '/imports/api/external-videos/server';
 import '/imports/api/guest-users/server';
 import '/imports/api/local-settings/server';

@@ -11,4 +11,5 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
   activateCaptions: (locale, settings) => CaptionsService.activateCaptions(locale, settings),
   getCaptionsSettings: () => CaptionsService.getCaptionsSettings(),
   ownedLocales: CaptionsService.getOwnedLocales(),
+  allAvailableLocales: CaptionsService.getAllAvailableLocales(),
 }))(ReaderMenuContainer));

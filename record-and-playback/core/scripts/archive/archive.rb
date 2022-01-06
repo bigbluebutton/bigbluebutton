@@ -169,6 +169,8 @@ audio_dir = props['raw_audio_src']
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw"
 deskshare_dir = props['raw_deskshare_src']
+# Note: modify directly /usr/local/bigbluebutton/core/scripts/archive/archive.rb
+upload_dir = props['raw_upload_src']
 screenshare_dir = props['raw_screenshare_src']
 redis_host = props['redis_host']
 redis_port = props['redis_port']
@@ -209,6 +211,9 @@ archive_directory("#{video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_i
 # Kurento media
 archive_directory("#{kurento_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
 archive_directory("#{kurento_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")
+# Note: modify directly /usr/local/bigbluebutton/core/scripts/archive/archive.rb
+# Uploaded media
+archive_directory("#{upload_dir}/#{meeting_id}", "#{target_dir}/upload")
 # mediasoup media
 archive_directory("#{mediasoup_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
 archive_directory("#{mediasoup_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")

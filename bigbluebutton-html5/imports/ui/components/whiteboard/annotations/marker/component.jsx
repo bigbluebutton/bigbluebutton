@@ -178,7 +178,7 @@ export default class MarkerComponent extends Component {
     const maskId = "mask-" + annotation.id;
     const coord = this.getCurrentPath().replace(/^\s+/,'').split(' ').map(x => parseFloat(x.replace(/[ML]/,'')));
     const lineCap = coord.length == 4 && coord[0] == coord[2] && coord[1] == coord[3] ? "square" : "butt";
-const bbox = selected ? this.getBBox() : {x:0, y:0, width:0, height:0};
+    const bbox = selected ? this.getBBox() : {x:0, y:0, width:0, height:0};
     return (
      <g>
      {hidden ? null :

@@ -8,6 +8,8 @@ mediasoup_screenshare_src: /var/mediasoup/screenshare
 raw_screenshare_src: /usr/share/red5/webapps/screenshare/streams
 raw_webrtc_deskshare_src: /usr/share/red5/webapps/video-broadcast/streams
 raw_deskshare_src: /var/bigbluebutton/deskshare
+# Note: modify directly /usr/local/bigbluebutton/core/scripts/archive/archive.rb
+raw_upload_src: /var/bigbluebutton/meetings
 raw_presentation_src: /var/bigbluebutton
 notes_endpoint: http://127.0.0.1:9001/p
 # Specify the notes formats we archive

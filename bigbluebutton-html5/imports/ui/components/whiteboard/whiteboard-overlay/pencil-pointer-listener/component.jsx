@@ -31,15 +31,18 @@ export default class PencilPointerListener extends Component {
     this.sendLastMessage = this.sendLastMessage.bind(this);
     this.sendCoordinates = this.sendCoordinates.bind(this);
     this.discardAnnotation = this.discardAnnotation.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
   componentDidMount() {
+    const { presentationWindow } = this.props;
     // to send the last DRAW_END message in case if a user reloads the page while drawing
-    window.addEventListener('beforeunload', this.sendLastMessage);
+    presentationWindow.addEventListener('beforeunload', this.sendLastMessage);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('beforeunload', this.sendLastMessage);
+    const { presentationWindow } = this.props;
+    presentationWindow.removeEventListener('beforeunload', this.sendLastMessage);
 
     // sending the last message on componentDidUnmount
     this.sendLastMessage();
@@ -181,13 +184,16 @@ export default class PencilPointerListener extends Component {
   }
 
   resetState() {
+    const { presentationWindow } = this.props;
     // resetting the current info
     this.points = [];
     this.isDrawing = false;
     // remove event listener
-    window.removeEventListener('pointerup', this.handlePointerUp);
-    window.removeEventListener('pointermove', this.handlePointerMove);
-    window.removeEventListener('pointercancel', this.handlePointerCancel, true);
+    presentationWindow.removeEventListener('pointerup', this.handlePointerUp);
+    presentationWindow.removeEventListener('pointermove', this.handlePointerMove);
+    presentationWindow.removeEventListener('pointercancel', this.handlePointerCancel, true);
+    presentationWindow.removeEventListener('keydown', this.handleKeyDown, true);
+    
   }
 
   discardAnnotation() {
@@ -205,6 +211,7 @@ export default class PencilPointerListener extends Component {
   }
 
   handlePointerDown(event) {
+    const { presentationWindow } = this.props;
     this.palmRejectionActivated = Storage.getItem(PALM_REJECTION_MODE);
     switch (event.pointerType) {
       case 'mouse': {
@@ -213,8 +220,9 @@ export default class PencilPointerListener extends Component {
 
         if (!this.isDrawing) {
           if (isLeftClick) {
-            window.addEventListener('pointerup', this.handlePointerUp);
-            window.addEventListener('pointermove', this.handlePointerMove);
+            presentationWindow.addEventListener('pointerup', this.handlePointerUp);
+            presentationWindow.addEventListener('pointermove', this.handlePointerMove);
+            presentationWindow.addEventListener('keydown', this.handleKeyDown, true);
 
             const { clientX, clientY } = event;
             this.commonDrawStartHandler(clientX, clientY);
@@ -243,13 +251,57 @@ export default class PencilPointerListener extends Component {
     }
   }
 
+  handleKeyDown(event) {
+    const {
+      physicalSlideWidth,
+      physicalSlideHeight,
+    } = this.props;
+
+    const iter = this.points.length / 2;
+
+    const d = {
+      x: 1.0 * physicalSlideHeight /(physicalSlideWidth + physicalSlideHeight),
+      y: 1.0 * physicalSlideWidth  /(physicalSlideWidth + physicalSlideHeight),
+    };
+
+    if        (event.keyCode == '38') { // up arrow
+      for (let i = 0; i < iter; i++) {
+        const move = -d.y * (this.points[i * 2 + 0] - this.points[this.points.length - 2]) /
+                            (this.points[        0] - this.points[this.points.length - 2]);
+        this.points[i * 2 + 1] += move;
+      }
+    } else if (event.keyCode == '40') { // down arrow
+      for (let i = 0; i < iter; i++) {
+        const move =  d.y * (this.points[i * 2 + 0] - this.points[this.points.length - 2]) /
+                            (this.points[        0] - this.points[this.points.length - 2]);
+        this.points[i * 2 + 1] += move;
+      }
+    } else if (event.keyCode == '37') { // left arrow
+      for (let i = 0; i < iter; i++) {
+        const move = -d.x * (this.points[i * 2 + 1] - this.points[this.points.length - 1]) /
+                            (this.points[        1] - this.points[this.points.length - 1]);
+        this.points[i * 2    ] += move;
+      }
+    } else if (event.keyCode == '39') { // right arrow
+      for (let i = 0; i < iter; i++) {
+        const move =  d.x * (this.points[i * 2 + 1] - this.points[this.points.length - 1]) /
+                            (this.points[        1] - this.points[this.points.length - 1]);
+        this.points[i * 2    ] += move;
+      }
+    }
+    event.stopPropagation();
+    this.sendCoordinates();
+  }
+
   // handler for finger touch and pencil touch
   touchPenDownHandler(event) {
+    const { presentationWindow } = this.props;
     event.preventDefault();
     if (!this.isDrawing) {
-      window.addEventListener('pointerup', this.handlePointerUp);
-      window.addEventListener('pointermove', this.handlePointerMove);
-      window.addEventListener('pointercancel', this.handlePointerCancel, true);
+      presentationWindow.addEventListener('pointerup', this.handlePointerUp);
+      presentationWindow.addEventListener('pointermove', this.handlePointerMove);
+      presentationWindow.addEventListener('pointercancel', this.handlePointerCancel, true);
+      presentationWindow.addEventListener('keydown', this.handleKeyDown, true);
 
       const { clientX, clientY } = event;
       this.commonDrawStartHandler(clientX, clientY);
@@ -332,6 +384,7 @@ export default class PencilPointerListener extends Component {
     const {
       actions,
       drawSettings,
+      isPresentationDetached,
     } = this.props;
 
     const { contextMenuHandler } = actions;
@@ -339,8 +392,12 @@ export default class PencilPointerListener extends Component {
     const {
       tool,
     } = drawSettings;
-    
-    const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
+
+    let baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
+    const hostUri = `https://${window.document.location.hostname}`;
+    if (isPresentationDetached) {
+      baseName = hostUri + baseName ;
+    }
     const pencilDrawStyle = {
       width: '100%',
       height: '100%',
