@@ -1,10 +1,34 @@
 @import "/imports/ui/components/media/styles";
 @import '/imports/ui/components/loading-screen/styles';
 
-.screenshareContainer {
+.hoverToolbar {
+  display: none;
+
+  :hover > & {
+    display: flex;
+  }
+}
+
+.mobileControlsOverlay {
+  position: absolute;
+  top:0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+}
+
+.showMobileHoverToolbar {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  z-index: 2;
+}
+
+.dontShowMobileHoverToolbar {
+  display: none;
+}
+
+.screenshareContainer {
+  position: relative;
   background-color: var(--color-content-background);
   width: 100%;
   height: 100%;

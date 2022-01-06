@@ -3,6 +3,18 @@ import Auth from '/imports/ui/services/auth';
 
 const DEFAULT_SORTING_MODE = 'LOCAL_ALPHABETICAL';
 
+// pin first
+export const sortPin = (s1, s2) => {
+  if (s1.pin) {
+    return -1;
+  } if (s2.pin) {
+    return 1;
+  }
+  return 0;
+};
+
+export const mandatorySorting = (s1, s2) => sortPin(s1, s2);
+
 // lastFloorTime, descending
 export const sortVoiceActivity = (s1, s2) => {
   if (s2.lastFloorTime < s1.lastFloorTime) {
@@ -12,7 +24,7 @@ export const sortVoiceActivity = (s1, s2) => {
   } else return 0;
 };
 
-// lastFloorTime (descending) -> alphabetical -> local
+// pin -> lastFloorTime (descending) -> alphabetical -> local
 export const sortVoiceActivityLocal = (s1, s2) => {
   if (s1.userId === Auth.userID) {
     return 1;
@@ -20,22 +32,21 @@ export const sortVoiceActivityLocal = (s1, s2) => {
     return -1;
   }
 
-  return sortVoiceActivity(s1, s2)
-    || UserListService.sortUsersByName(s1, s2);
-}
-
-// local -> lastFloorTime (descending) -> alphabetical
-export const sortLocalVoiceActivity = (s1, s2) => {
-  return UserListService.sortUsersByCurrent(s1, s2)
+  return mandatorySorting(s1, s2)
     || sortVoiceActivity(s1, s2)
     || UserListService.sortUsersByName(s1, s2);
-}
-
-// local -> alphabetic
-export const sortLocalAlphabetical = (s1, s2) => {
-  return UserListService.sortUsersByCurrent(s1, s2)
-    || UserListService.sortUsersByName(s1, s2);
 };
+
+// pin -> local -> lastFloorTime (descending) -> alphabetical
+export const sortLocalVoiceActivity = (s1, s2) => mandatorySorting(s1, s2)
+    || UserListService.sortUsersByCurrent(s1, s2)
+    || sortVoiceActivity(s1, s2)
+    || UserListService.sortUsersByName(s1, s2);
+
+// pin -> local -> alphabetic
+export const sortLocalAlphabetical = (s1, s2) => mandatorySorting(s1, s2)
+    || UserListService.sortUsersByCurrent(s1, s2)
+    || UserListService.sortUsersByName(s1, s2);
 
 export const sortPresenter = (s1, s2) => {
   if (UserListService.isUserPresenter(s1.userId)) {
@@ -45,12 +56,11 @@ export const sortPresenter = (s1, s2) => {
   } else return 0;
 };
 
-// local -> presenter -> alphabetical
-export const sortLocalPresenterAlphabetical = (s1, s2) => {
-  return UserListService.sortUsersByCurrent(s1, s2)
+// pin -> local -> presenter -> alphabetical
+export const sortLocalPresenterAlphabetical = (s1, s2) => mandatorySorting(s1, s2)
+    || UserListService.sortUsersByCurrent(s1, s2)
     || sortPresenter(s1, s2)
     || UserListService.sortUsersByName(s1, s2);
-};
 
 // SORTING_METHODS: registrar of configurable video stream sorting modes
 // Keys are the method name (String) which are to be configured in settings.yml
@@ -75,7 +85,9 @@ export const sortLocalPresenterAlphabetical = (s1, s2) => {
 //     1.1.: the sorting function has the same behaviour as a regular .sort callback
 //   2 - add an entry to SORTING_METHODS, the key being the name to be used
 //   in settings.yml and the value object like the aforementioned
-const MANDATORY_DATA_TYPES = { userId: 1, stream: 1, name: 1, deviceId: 1, };
+const MANDATORY_DATA_TYPES = {
+  userId: 1, stream: 1, name: 1, deviceId: 1, floor: 1, pin: 1,
+};
 const SORTING_METHODS = Object.freeze({
   // Default
   LOCAL_ALPHABETICAL: {
@@ -120,5 +132,7 @@ export const sortVideoStreams = (streams, mode) => {
     stream: videoStream.stream,
     userId: videoStream.userId,
     name: videoStream.name,
+    floor: videoStream.floor,
+    pin: videoStream.pin,
   }));
 };

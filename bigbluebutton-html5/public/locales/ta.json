@@ -544,7 +544,6 @@
     "app.guest.errorSeeConsole": "பிழை: கன்சோலில் கூடுதல் விவரங்கள்.",
     "app.guest.noModeratorResponse": "மதிப்பீட்டாளரிடமிருந்து எந்த பதிலும் இல்லை.",
     "app.guest.noSessionToken": "டோக்கன் எதுவும் பெறப்படவில்லை.",
-    "app.guest.windowTitle": "விருந்தினர் லாபி",
     "app.guest.missingToken": "விருந்தினர் அமர்வு டோக்கனைக் காணவில்லை.",
     "app.guest.missingSession": "விருந்தினர் காணாமல் போன அமர்வு.",
     "app.guest.missingMeeting": "கூட்டம் இல்லை.",

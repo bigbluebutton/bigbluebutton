@@ -214,7 +214,7 @@ class App extends Component {
     window.ondragover = (e) => { e.preventDefault(); };
     window.ondrop = (e) => { e.preventDefault(); };
 
-    if (isMobile()) makeCall('setMobileUser');
+    if (deviceInfo.isMobile) makeCall('setMobileUser');
 
     ConnectionStatusService.startRoundTripTime();
 
@@ -355,6 +355,7 @@ class App extends Component {
 
     return (
       <div
+        role="region"
         className={styles.captionsWrapper}
         style={
           {
@@ -382,6 +383,7 @@ class App extends Component {
 
     return (
       <section
+        role="region"
         className={styles.actionsbar}
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={this.shouldAriaHide()}
