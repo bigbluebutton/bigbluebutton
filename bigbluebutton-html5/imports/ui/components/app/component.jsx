@@ -214,7 +214,7 @@ class App extends Component {
     window.ondragover = (e) => { e.preventDefault(); };
     window.ondrop = (e) => { e.preventDefault(); };
 
-    if (isMobile()) makeCall('setMobileUser');
+    if (deviceInfo.isMobile) makeCall('setMobileUser');
 
     ConnectionStatusService.startRoundTripTime();
 

@@ -332,6 +332,7 @@ public:
     enableScreensharing: true
     enableVideo: true
     enableVideoMenu: true
+    enableVideoPin: false
     enableListenOnly: true
     # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
     # media server adapter should be used for listen only.
