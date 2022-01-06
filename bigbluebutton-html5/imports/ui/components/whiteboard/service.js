@@ -440,6 +440,7 @@ export {
   changeWhiteboardAccess,
   addGlobalAccess,
   addIndividualAccess,
+  setVisited,
   setWhiteboardMode,
   getWhiteboardMode,
   removeGlobalAccess,
