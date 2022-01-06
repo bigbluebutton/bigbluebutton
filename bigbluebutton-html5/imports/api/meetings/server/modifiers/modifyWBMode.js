@@ -16,7 +16,7 @@ export default function modifyWBMode(meetingId, whiteboardMode) {
 
   try {
     Meetings.update(selector, modifier);
-    Logger.info(`Updated whiteboard style flag=${whiteboardMode} for meeting=${meetingId}`);
+    Logger.info(`Updated whiteboard style sync=${whiteboardMode.synchronizeWBUpdate} simplify=${whiteboardMode.simplifyPencil} for meeting=${meetingId}`);
   } catch (err) {
     Logger.error(`Error while adding an entry to whiteboard style collection: ${err}`);
   }
