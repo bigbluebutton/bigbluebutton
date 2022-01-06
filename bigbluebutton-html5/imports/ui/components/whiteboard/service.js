@@ -400,16 +400,25 @@ const addIndividualAccess = (whiteboardId, userId) => {
   makeCall('addIndividualAccess', whiteboardId, userId);
 };
 
-const setWhiteboardMode = (whiteboardMode) => {
-  makeCall('setWhiteboardMode', whiteboardMode);
-}
-
-const getWhiteboardMode = () => {
-  const style = Meetings.findOne({meetingId: Auth.meetingID}, { fields: {synchronizeWBUpdate:1, simplifyPencil:1}});
-  delete style._id;
-  return style;
+const setVisited = (visited) => {
+  makeCall('setVisited', visited);
 };
 
+const setWhiteboardMode = (whiteboardMode, credentials) => {
+  makeCall('setWhiteboardMode', whiteboardMode, credentials);
+};
+
+const getWhiteboardMode = (meetingId) => {
+  const mid = meetingId ? meetingId : Auth.meetingID;
+  const style = Meetings.findOne({meetingId: mid}, { fields: {synchronizeWBUpdate:1, simplifyPencil:1}});
+  if (style) {
+    delete style._id;
+    return style;
+  } else {
+    return {};
+  }
+};
+  
 const removeGlobalAccess = (whiteboardId) => {
   makeCall('removeGlobalAccess', whiteboardId);
 };
