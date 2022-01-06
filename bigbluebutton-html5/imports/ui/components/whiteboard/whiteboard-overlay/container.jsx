@@ -6,7 +6,6 @@ import WhiteboardOverlay from './component';
 import WhiteboardService from '../service';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
-import { makeCall } from '/imports/ui/services/api';
 
 const WhiteboardOverlayContainer = (props) => {
   const { drawSettings } = props;
