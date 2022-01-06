@@ -9,6 +9,7 @@ import toggleUserLock from './methods/toggleUserLock';
 import setUserEffectiveConnectionType from './methods/setUserEffectiveConnectionType';
 import userActivitySign from './methods/userActivitySign';
 import userLeftMeeting from './methods/userLeftMeeting';
+import changePin from './methods/changePin';
 import setRandomUser from './methods/setRandomUser';
 
 Meteor.methods({
@@ -22,5 +23,6 @@ Meteor.methods({
   setUserEffectiveConnectionType,
   userActivitySign,
   userLeftMeeting,
+  changePin,
   setRandomUser,
 });
