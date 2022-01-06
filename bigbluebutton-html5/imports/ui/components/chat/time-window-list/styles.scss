@@ -39,12 +39,6 @@
     margin: 0 0 0 auto;
     padding: 0 0 0 var(--md-padding-x);
   }
-
-  &:after {
-    content: "";
-    display: block;
-    height: var(--md-padding-x);
-  }
 }
 
 .unreadButton {
