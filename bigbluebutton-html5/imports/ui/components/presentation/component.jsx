@@ -611,6 +611,7 @@ class Presentation extends PureComponent {
           height: svgDimensions.height < 0 ? 0 : svgDimensions.height,
           textAlign: 'center',
           display: layoutSwapped ? 'none' : 'block',
+          overflow: 'hidden',
         }}
       >
         <span id="currentSlideText" className={styles.visuallyHidden}>{slideContent}</span>
@@ -675,7 +676,7 @@ class Presentation extends PureComponent {
           )}
         </svg>
         <Moveable
-          customClipPath="#viewBox"
+          origin={false}
           rootContainer={document.body}
           edge={false}
           ref={this.moveableRef}
