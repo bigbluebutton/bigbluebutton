@@ -20,6 +20,7 @@ object Dependencies {
     val logback = "1.2.3"
     val quicklens = "1.4.11"
     val spray = "1.3.4"
+    val scalaj = "2.4.2"
 
     // Apache Commons
     val lang = "3.9"
@@ -56,6 +57,8 @@ object Dependencies {
 
     val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.12" % Versions.bbbCommons excludeAll (
       ExclusionRule(organization = "org.red5"))
+
+    val scalaj = "org.scalaj" %% "scalaj-http" % Versions.scalaj
   }
 
   object Test {
@@ -88,5 +91,6 @@ object Dependencies {
     Compile.apacheLang,
     Compile.akkaHttp,
     Compile.akkaHttpSprayJson,
-    Compile.bbbCommons) ++ testing
+    Compile.bbbCommons,
+    Compile.scalaj) ++ testing
 }

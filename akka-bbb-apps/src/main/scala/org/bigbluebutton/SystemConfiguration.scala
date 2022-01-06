@@ -7,7 +7,7 @@ trait SystemConfiguration {
   val config = ConfigFactory.load()
 
   lazy val bbbWebHost = Try(config.getString("services.bbbWebHost")).getOrElse("localhost")
-  lazy val bbbWebPort = Try(config.getInt("services.bbbWebPort")).getOrElse(8888)
+  lazy val bbbWebPort = Try(config.getInt("services.bbbWebPort")).getOrElse(8090)
   lazy val bbbWebAPI = Try(config.getString("services.bbbWebAPI")).getOrElse("localhost")
   lazy val bbbWebSharedSecret = Try(config.getString("services.sharedSecret")).getOrElse("changeme")
   lazy val bbbWebModeratorPassword = Try(config.getString("services.moderatorPassword")).getOrElse("changeme")

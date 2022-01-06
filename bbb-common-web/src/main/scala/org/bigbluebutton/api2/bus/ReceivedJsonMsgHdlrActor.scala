@@ -108,6 +108,8 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[RecordingStatusChangedEvtMsg](envelope, jsonNode)
       case LearningDashboardEvtMsg.NAME =>
         route[LearningDashboardEvtMsg](envelope, jsonNode)
+      case ConvertAndUploadSharedNotesReqMsg.NAME =>
+        route[ConvertAndUploadSharedNotesReqMsg](envelope, jsonNode)
 
       case _ =>
       //log.debug("************ Cannot route envelope name " + envelope.name)

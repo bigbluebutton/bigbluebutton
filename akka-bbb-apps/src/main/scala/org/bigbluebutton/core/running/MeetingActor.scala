@@ -46,6 +46,8 @@ import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
+import scalaj.http._
+import scala.io.Source
 
 object MeetingActor {
   def props(
@@ -498,6 +500,7 @@ class MeetingActor(
       // Presentation
       case m: PreuploadedPresentationsSysPubMsg              => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg                          => state = handlePresenterChange(m, state)
+      case m: ConvertAndUploadSharedNotesReqMsg              => handleConvertAndUploadSharedNotesReqMsg(m, liveMeeting)
 
       // Presentation Pods
       case m: CreateNewPresentationPodPubMsg                 => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
@@ -1008,4 +1011,47 @@ class MeetingActor(
     }
   }
 
+  def buildPresentationUploadTokenSysPubMsg(parentId: String, userId: String, presentationUploadToken: String, filename: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(PresentationUploadTokenSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationUploadTokenSysPubMsg.NAME, parentId, userId)
+    val body = PresentationUploadTokenSysPubMsgBody("DEFAULT_PRESENTATION_POD", presentationUploadToken, filename, parentId)
+    val event = PresentationUploadTokenSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def handleConvertAndUploadSharedNotesReqMsg(msg: ConvertAndUploadSharedNotesReqMsg, liveMeeting: LiveMeeting): Unit = {
+    val userId = msg.header.userId
+    val meetingId = msg.header.meetingId
+    val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
+
+    val callbackUrl = s"http://${bbbWebHost}:${bbbWebPort}/bigbluebutton/presentation/${presentationUploadToken}/upload"
+    val fileUrl: String = msg.body.sharedNotesData
+    val filename = s"SharedNotes-${liveMeeting.props.meetingProp.name}"
+    val format = "pdf"
+
+    // Inform BBB-Web about the token
+    outGW.send(buildPresentationUploadTokenSysPubMsg(meetingId, userId, presentationUploadToken, filename))
+
+    // Get the PDF file from the response JSON
+    val request: HttpResponse[Array[Byte]] = Http(fileUrl)
+      .param("Content-Type", "application/json")
+      .option(HttpOptions.connTimeout(1000))
+      .option(HttpOptions.readTimeout(10000))
+      .asBytes
+
+    val file: Array[Byte] = request.body
+
+    Http(callbackUrl)
+      .header("Accept", "*/*")
+      .postMulti(MultiPart("fileUpload", s"${filename}.${format}", "application/octet-stream", file))
+      .params(Seq(
+        "presentation_name" -> s"${filename}.${format}",
+        "Filename" -> s"${filename}.${format}",
+        "conference" -> meetingId,
+        "room" -> meetingId,
+        "pod_id" -> "DEFAULT_PRESENTATION_POD",
+        "is_downloadable" -> "false"
+      )).asString.body
+  }
 }

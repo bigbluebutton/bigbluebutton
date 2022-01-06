@@ -52,6 +52,8 @@
     "app.captions.pad.speechRecognitionStop": "由於瀏覽器不相容或一段時間的靜音，語音辨識停止",
     "app.textInput.sendLabel": "送出",
     "app.note.title": "共享筆記",
+    "app.note.convertAndUpload": "上傳共享筆記",
+    "app.note.uploadSharedNotes": "共享筆記上傳中...",
     "app.note.label": "筆記",
     "app.note.hideNoteLabel": "隱藏筆記",
     "app.note.tipLabel": "按下 Esc 鍵以聚焦到編輯器工具列",

@@ -5,6 +5,9 @@ import org.bigbluebutton.common2.domain.PresentationVO
 // ------------ client to akka-apps ------------
 
 // ------------ client to akka-apps ------------
+object ConvertAndUploadSharedNotesReqMsg { val NAME = "ConvertAndUploadSharedNotesReqMsg" }
+case class ConvertAndUploadSharedNotesReqMsg(header: BbbClientMsgHeader, body: ConvertAndUploadSharedNotesReqMsgBody) extends StandardMsg
+case class ConvertAndUploadSharedNotesReqMsgBody(sharedNotesData: String)
 
 // ------------ bbb-common-web to akka-apps ------------
 object PreuploadedPresentationsSysPubMsg { val NAME = "PreuploadedPresentationsSysPubMsg" }

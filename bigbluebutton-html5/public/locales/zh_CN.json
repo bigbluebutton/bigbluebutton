@@ -52,6 +52,8 @@
     "app.textInput.sendLabel": "发送",
     "app.title.defaultViewLabel": "默认演讲视图",
     "app.note.title": "分享笔记",
+    "app.note.convertAndUpload": "上传共享笔记",
+    "app.note.uploadSharedNotes": "共享笔记上传中...",
     "app.note.label": "笔记",
     "app.note.hideNoteLabel": "隐藏笔记面板",
     "app.note.tipLabel": "按Esc键定位到编辑器工具栏",

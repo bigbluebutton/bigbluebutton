@@ -52,6 +52,8 @@
     "app.captions.pad.speechRecognitionStop": "O reconhecimento de voz parou devido à incompatibilidade do navegador ou algum tempo de silêncio",
     "app.textInput.sendLabel": "Enviar",
     "app.note.title": "Notas compartilhadas",
+    "app.note.convertAndUpload": "Adicionar notas compartilhadas como apresentação",
+    "app.note.uploadSharedNotes": "Carregando notas compartilhadas...",
     "app.note.label": "Nota",
     "app.note.hideNoteLabel": "Ocultar nota",
     "app.note.tipLabel": "Pressione Esc para focar na barra de ferramentas do editor",

@@ -38,6 +38,7 @@
     "browser-bunyan": "^1.6.3",
     "classnames": "^2.2.6",
     "crypto-js": "^4.0.0",
+    "etherpad-lite-client": "^0.9.0",
     "eventemitter2": "~5.0.1",
     "fastdom": "^1.0.10",
     "fibers": "^4.0.2",

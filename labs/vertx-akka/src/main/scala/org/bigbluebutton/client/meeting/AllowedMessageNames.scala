@@ -62,6 +62,9 @@ object AllowedMessageNames {
     RemovePresentationPodPubMsg.NAME,
     SetPresenterInPodReqMsg.NAME,
 
+    // Shared Notes messages
+    ConvertAndUploadSharedNotesReqMsg.NAME
+
     // Whiteboard Messages
     ModifyWhiteboardAccessPubMsg.NAME,
     UndoWhiteboardPubMsg.NAME,

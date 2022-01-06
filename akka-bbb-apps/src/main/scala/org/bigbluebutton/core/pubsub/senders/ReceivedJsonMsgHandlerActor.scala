@@ -267,6 +267,10 @@ class ReceivedJsonMsgHandlerActor(
       case AssignPresenterReqMsg.NAME =>
         routeGenericMsg[AssignPresenterReqMsg](envelope, jsonNode)
 
+      // Shared notes
+      case ConvertAndUploadSharedNotesReqMsg.NAME =>
+        routeGenericMsg[ConvertAndUploadSharedNotesReqMsg](envelope, jsonNode)
+
       // Presentation Pods
       case CreateNewPresentationPodPubMsg.NAME =>
         routeGenericMsg[CreateNewPresentationPodPubMsg](envelope, jsonNode)

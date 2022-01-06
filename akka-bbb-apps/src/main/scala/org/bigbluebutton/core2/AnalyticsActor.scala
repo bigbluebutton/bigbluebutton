@@ -128,6 +128,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: PresentationPageCountErrorEvtMsg => logMessage(msg)
       case m: PresentationUploadedFileTooLargeErrorSysPubMsg => logMessage(msg)
       case m: PresentationUploadedFileTooLargeErrorEvtMsg => logMessage(msg)
+      // case m: ConvertAndUploadSharedNotesReqMsg => logMessage(msg)
 
       // Group Chats
       case m: SendGroupChatMessageMsg => logChatMessage(msg)
