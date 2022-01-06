@@ -12,7 +12,7 @@ import org.bigbluebutton.SystemConfiguration
 class WhiteboardModel extends SystemConfiguration {
   private var _whiteboards = new HashMap[String, Whiteboard]()
   private var SYNCUPDATE = false
-  private var SIMPLIFYPENCIL = true
+  private var SIMPLEPEN = true
   
   private def saveWhiteboard(wb: Whiteboard) {
     _whiteboards += wb.id -> wb
@@ -153,7 +153,7 @@ class WhiteboardModel extends SystemConfiguration {
       //println("****class = " + oldPointsJava.getClass())
       
       var updatedAnnotationData: Map[String, Any] = Map[String, Any]()
-      if (!SYNCUPDATE || (SYNCUPDATE && SIMPLIFYPENCIL)) {
+      if (!SYNCUPDATE || (SYNCUPDATE && SIMPLEPEN)) {
         val pathData = BezierWrapper.lineSimplifyAndCurve((oldPoints ::: newPoints).asJava.asInstanceOf[java.util.List[java.lang.Float]], dimensions(0), dimensions(1))
         //println("Path data: pointssize " + pathData.points.size() + " commandssize " + pathData.commands.size())
         updatedAnnotationData = annotation.annotationInfo + ("points" -> pathData.points.asScala.toList) + ("commands" -> pathData.commands.asScala.toList)
@@ -268,7 +268,7 @@ class WhiteboardModel extends SystemConfiguration {
       SYNCUPDATE = wbMode.get("synchronizeWBUpdate").get
     }
     if (wbMode.isDefinedAt("simplifyPencil")) {
-      SIMPLIFYPENCIL = wbMode.get("simplifyPencil").get
+      SIMPLEYPEN = wbMode.get("simplifyPencil").get
     }
   }
   
