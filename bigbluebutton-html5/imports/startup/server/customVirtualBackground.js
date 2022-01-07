@@ -26,19 +26,24 @@ function cleanProgramJson() {
   const programJsonPath = realpathSync(`${meteorRoot}/../programs/web.browser/program.json`);
 
   if (existsSync(programJsonPath)) {
-    Logger.debug('Cleaning program.json...');
-    const { mode } = statSync(programJsonPath);
-    chmodSync(programJsonPath, 0o700);
-    const programJsonData = readFileSync(programJsonPath);
-    const programJson = JSON.parse(programJsonData);
-    programJson.manifest = programJson.manifest.filter((config) => !config.custom);
-    writeFileSync(programJsonPath, JSON.stringify(programJson));
-    chmodSync(programJsonPath, mode);
-    Logger.debug('program.json cleaned!');
+    try {
+      Logger.debug('Cleaning program.json...');
+      const { mode } = statSync(programJsonPath);
+      chmodSync(programJsonPath, 0o700);
+      const programJsonData = readFileSync(programJsonPath);
+      const programJson = JSON.parse(programJsonData);
+      programJson.manifest = programJson.manifest.filter((config) => !config.custom);
+      writeFileSync(programJsonPath, JSON.stringify(programJson));
+      chmodSync(programJsonPath, mode);
+      Logger.debug('program.json cleaned!');
+    } catch (error) {
+      Logger.debug('Failed to clean program.json!');
+    }
   }
 }
 
 function cleanNonDefaultVirtualBackgrounds() {
+  if (!existsSync(virtualBackgroundDir)) return;
   Logger.debug('Removing non-default virtual backgrounds...');
 
   readdirSync(virtualBackgroundDir, { withFileTypes: true })
