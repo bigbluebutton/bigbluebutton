@@ -20,6 +20,7 @@
 #       Fred Dixon <ffdixon@bigbluebutton.org>
 #       Gustavo Salazar <guga.salazar.loor@gmail.com>
 #       Ghazi Triki <ghazi.nocturne@gmail.com>
+#       Daniel Petri Rocha <danielpetrirocha@gmail.com>
 #
 # Changelog:
 #   2011-08-18 FFD  Inital Version
@@ -38,6 +39,7 @@
 #   2019-05-13 GTR  Delete caption files
 #   2019-08-30 GTR  Count SVG slides fallaback
 #   2020-10-22 AGG  Remove traces of red5 apps
+#   2022-01-07 DPR  Added more checks for recording configuration and option to list workflows
 
 
 #set -e
@@ -163,6 +165,9 @@ usage() {
    echo
    echo "Reporting:"
    echo "   --list                             List all recordings"
+   echo "   --list-recent                      List recent recordings"
+   echo "   --list-recent --withDesc           List recent recordings and show their description"
+   echo "   --list-workflows                   List available recording workflows"
    echo
    echo "Monitoring:"
    echo "   --watch                            Watch processing of recordings"
@@ -202,6 +207,11 @@ while [ $# -gt 0 ]; do
    fi
    if [ "$1" = "-list" -o "$1" = "--list" ]; then
       LIST=1
+      shift
+      continue
+   fi
+   if [ "$1" = "-list-workflows" -o "$1" = "--list-workflows" ]; then
+      LISTWORKFLOWS=1
       shift
       continue
    fi
@@ -736,6 +746,17 @@ fi
 #      echo "The meeting you want to re archive has not failed in sanity check."
 #   fi
 #fi
+
+if [ $LISTWORKFLOWS ]; then
+   echo
+   echo "# Available workflows:"
+   echo "#"
+   for type in $TYPES; do
+      echo "# $type"
+   done
+   echo "#"
+   echo
+fi
 
 if [ $CHECK ]; then
    print_header
