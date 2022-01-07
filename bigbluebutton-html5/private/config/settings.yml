@@ -43,8 +43,8 @@ public:
     # default setting
     bbbWebBase: '/bigbluebutton'
     # If you run a cluster setup with a load balancer which hides the individual
-    # nodes, then this should be set to https://bbb-host/learning-dashboard
-    learningDashboardBase: '/learning-dashboard'
+    # nodes, then this should be set to https://bbb-host/learning-analytics-dashboard
+    learningDashboardBase: '/learning-analytics-dashboard'
     # Use https URL of CSS file. Example: https://docs.bigbluebutton.org/admin/customize.html#examples
     customStyleUrl: null
     askForFeedbackOnLogout: false

@@ -1,6 +1,6 @@
 {
-  "name": "learning-dashboard",
-  "homepage": "/learning-dashboard/",
+  "name": "learning-analytics-dashboard",
+  "homepage": "/learning-analytics-dashboard/",
   "version": "0.1.0",
   "private": true,
   "lint-staged": {
