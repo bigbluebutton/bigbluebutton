@@ -1,5 +1,5 @@
-location /learning-dashboard/ {
-    alias /var/bigbluebutton/learning-dashboard/;
+location /learning-analytics-dashboard/ {
+    alias /var/bigbluebutton/learning-analytics-dashboard/;
     autoindex off;
 }
 
