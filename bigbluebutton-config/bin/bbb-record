@@ -49,7 +49,7 @@ source /etc/bigbluebutton/bigbluebutton-release
 
 BBB_USER=bigbluebutton
 BBB_WEB=$(cat /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-
+PLAYBACK_PROTOCOL=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(playback_protocol\)/{s/.*playback_protocol:[ ]*//;s/;//;p}')
 RECORDING_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(recording_dir\)/{s/.*recording_dir:[ ]*//;s/;//;p}')
 LOG_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(log_dir\)/{s/.*log_dir:[ ]*//;s/;//;p}' | head -1)
 PUBLISHED_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(published_dir\)/{s/.*published_dir:[ ]*//;s/;//;p}')
@@ -751,6 +751,13 @@ if [ $CHECK ]; then
       fi
    fi
    
+   if [ $PLAYBACK_PROTOCOL != "https" ]; then
+      echo "#"
+      echo "# Info: playback protocol set to $PLAYBACK_PROTOCOL instead of https"
+      echo "#"
+      echo
+   fi
+
    if [ -d $LOG_DIR ]; then
  
       if [ $(stat -c %a $LOG_DIR) != "755" ]; then
