@@ -30,7 +30,7 @@ export default withTracker((props) => {
   const { status } = props;
   const emojiUsers = Users.find({ meetingId: Auth.meetingID, emoji: status }, {
     fields: {
-      emojiTime: 1, emoji: 1, userId: 1, name: 1, color: 1,
+      emojiTime: 1, emoji: 1, userId: 1, name: 1, color: 1, role: 1, avatar: 1,
     },
     sort: { emojiTime: 1 },
   })
