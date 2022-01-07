@@ -15,7 +15,6 @@ const DEFAULT_FULLAUDIO_MEDIA_SERVER = MEDIA.audio.fullAudioMediaServer;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 const GLOBAL_AUDIO_PREFIX = 'GLOBAL_AUDIO_';
 const RECONNECT_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
-const OFFERING = MEDIA.listenOnlyOffering;
 const SENDRECV_ROLE = 'sendrecv';
 const RECV_ROLE = 'recv';
 const BRIDGE_NAME = 'fullaudio';
@@ -263,7 +262,6 @@ export default class FullAudioBridge extends BaseAudioBridge {
         userName: this.name,
         caleeName: callerIdName,
         iceServers: this.iceServers,
-        offering: OFFERING,
         mediaServer: getMediaServerAdapter(),
       };
 

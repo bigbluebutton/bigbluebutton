@@ -136,6 +136,16 @@ object Users2x {
     }
   }
 
+  def changePin(users: Users2x, intId: String, pin: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.pin).setTo(pin)
+      users.save(newUser)
+      newUser
+    }
+  }
+
   def setEmojiStatus(users: Users2x, intId: String, emoji: String): Option[UserState] = {
     for {
       u <- findWithIntId(users, intId)
@@ -182,6 +192,24 @@ object Users2x {
 
   def findPresenter(users: Users2x): Option[UserState] = {
     users.toVector.find(u => u.presenter)
+  }
+
+  def hasPin(users: Users2x): Boolean = {
+    findPin(users) match {
+      case Some(p) => true
+      case None    => false
+    }
+  }
+
+  def isPin(intId: String, users: Users2x): Boolean = {
+    findWithIntId(users, intId) match {
+      case Some(u) => u.pin
+      case None    => false
+    }
+  }
+
+  def findPin(users: Users2x): Option[UserState] = {
+    users.toVector.find(u => u.pin)
   }
 
   def findModerator(users: Users2x): Option[UserState] = {
@@ -300,6 +328,7 @@ case class UserState(
     name:                  String,
     role:                  String,
     guest:                 Boolean,
+    pin:                   Boolean,
     authed:                Boolean,
     guestStatus:           String,
     emoji:                 String,

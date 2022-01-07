@@ -10,6 +10,7 @@ import Icon from '/imports/ui/components/icon/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import RemoveUserModal from '/imports/ui/components/modal/remove-user/component';
+import VideoService from '/imports/ui/components/video-provider/service';
 import BBBMenu from '/imports/ui/components/menu/component';
 import { styles } from './styles';
 import UserName from '../user-name/component';
@@ -49,6 +50,14 @@ const messages = defineMessages({
     id: 'app.userList.menu.chat.label',
     description: 'label for option to start a new private chat',
   },
+  PinUserWebcam: {
+    id: 'app.userList.menu.webcamPin.label',
+    description: 'label for pin user webcam',
+  },
+  UnpinUserWebcam: {
+    id: 'app.userList.menu.webcamUnpin.label',
+    description: 'label for pin user webcam',
+  },
   ClearStatusLabel: {
     id: 'app.userList.menu.clearStatus.label',
     description: 'Clear the emoji status of this user',
@@ -68,6 +77,10 @@ const messages = defineMessages({
   removeWhiteboardAccess: {
     id: 'app.userList.menu.removeWhiteboardAccess.label',
     description: 'label to remove user whiteboard access',
+  },
+  ejectUserCamerasLabel: {
+    id: 'app.userList.menu.ejectUserCameras.label',
+    description: 'label to eject user cameras',
   },
   RemoveUserLabel: {
     id: 'app.userList.menu.removeUser.label',
@@ -121,7 +134,9 @@ const messages = defineMessages({
 
 const propTypes = {
   compact: PropTypes.bool.isRequired,
-  user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({
+    userId: PropTypes.string.isRequired,
+  }).isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -231,6 +246,7 @@ class UserDropdown extends PureComponent {
       removeUser,
       toggleVoice,
       changeRole,
+      ejectUserCameras,
       lockSettingsProps,
       hasPrivateChatBetweenUsers,
       toggleUserLock,
@@ -244,7 +260,7 @@ class UserDropdown extends PureComponent {
       layoutContextDispatch,
     } = this.props;
     const { showNestedOptions } = this.state;
-    const { clientType } = user;
+    const { clientType, isSharingWebcam, pin: userIsPinned } = user;
     const isDialInUser = clientType === 'dial-in-user';
 
     const amIPresenter = currentUser.presenter;
@@ -266,6 +282,7 @@ class UserDropdown extends PureComponent {
       allowedToChangeStatus,
       allowedToChangeUserLockStatus,
       allowedToChangeWhiteboardAccess,
+      allowedToEjectCameras,
     } = actionPermissions;
 
     const { disablePrivateChat } = lockSettingsProps;
@@ -314,6 +331,21 @@ class UserDropdown extends PureComponent {
         onClick: () => this.setState({ showNestedOptions: true }),
         icon: 'user',
         iconRight: 'right_arrow',
+      });
+    }
+
+    if (isSharingWebcam
+      && isMeteorConnected
+      && VideoService.isVideoPinEnabledForCurrentUser()) {
+      actions.push({
+        key: 'pinVideo',
+        label: userIsPinned
+          ? intl.formatMessage(messages.UnpinUserWebcam)
+          : intl.formatMessage(messages.PinUserWebcam),
+        onClick: () => {
+          VideoService.toggleVideoPin(user.userId, userIsPinned);
+        },
+        icon: userIsPinned ? 'pin-video_off' : 'pin-video_on',
       });
     }
 
@@ -480,6 +512,22 @@ class UserDropdown extends PureComponent {
           this.handleClose();
         },
         icon: 'circle_close',
+      });
+    }
+
+    if (allowedToEjectCameras
+      && user.isSharingWebcam
+      && isMeteorConnected
+      && !meetingIsBreakout
+    ) {
+      actions.push({
+        key: 'ejectUserCameras',
+        label: intl.formatMessage(messages.ejectUserCamerasLabel),
+        onClick: () => {
+          this.onActionsHide(ejectUserCameras(user.userId));
+          this.handleClose();
+        },
+        icon: 'video_off',
       });
     }
 

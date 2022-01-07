@@ -46,7 +46,22 @@ const intlMessages = defineMessages({
   camBgAriaDesc: {
     id: 'app.video.virtualBackground.camBgAriaDesc',
     description: 'Label for virtual background button aria',
-  }
+  },
+  background: {
+    id: 'app.video.virtualBackground.background',
+    description: 'Label for the background word',
+  },
+  ...IMAGE_NAMES.reduce((prev, imageName) => {
+    const id = imageName.split('.').shift();
+    return {
+      ...prev,
+      [id]: {
+        id: `app.video.virtualBackground.${id}`,
+        description: `Label for the ${id} camera option`,
+        defaultMessage: '{background} {index}',
+      },
+    };
+  }, {})
 });
 
 const VirtualBgSelector = ({
@@ -168,15 +183,20 @@ const VirtualBgSelector = ({
           </>
 
           {IMAGE_NAMES.map((imageName, index) => {
+            const label = intl.formatMessage(intlMessages[imageName.split('.').shift()], {
+              index: index + 2,
+              background: intl.formatMessage(intlMessages.background),
+            });
+
             return (
               <div key={`${imageName}-${index}`} style={{ position: 'relative' }}>
                 <Button
                   id={`${imageName}-${index}`}
-                  label={capitalizeFirstLetter(imageName.split('.').shift())}
+                  label={label}
                   tabIndex={disabled ? -1 : 0}
                   role="button"
                   className={thumbnailStyles.join(' ')}
-                  aria-label={capitalizeFirstLetter(imageName.split('.').shift())}
+                  aria-label={label}
                   aria-describedby={`vr-cam-btn-${index}`}
                   aria-pressed={currentVirtualBg?.name?.includes(imageName.split('.').shift())}
                   hideLabel
@@ -190,7 +210,7 @@ const VirtualBgSelector = ({
                   node.click();
                 }} aria-hidden className={styles.thumbnail} src={getVirtualBackgroundThumbnail(imageName)} />
                 <div aria-hidden className="sr-only" id={`vr-cam-btn-${index}`}>
-                  {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: capitalizeFirstLetter(imageName.split('.').shift()) })}
+                  {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: label })}
                 </div>
               </div>
             )

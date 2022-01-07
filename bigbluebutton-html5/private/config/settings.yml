@@ -214,6 +214,7 @@ public:
     # Experiment(al). Controls whether ICE candidates should be signaled.
     # Applies to webcams, listen only and screen sharing. True is "stable behavior".
     signalCandidates: true
+    # Forces relay usage only on Firefox. Applies to listen only, webcams and screenshare.
     forceRelayOnFirefox: false
     cameraTimeouts:
       # Base camera timeout: used as the camera *sharing* timeout and
@@ -223,6 +224,8 @@ public:
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
     screenshare:
+      # Whether volume control should be allowed if screen sharing has audio
+      enableVolumeControl: false
       # Experimental. True is the canonical behavior. Flip to false to reverse
       # the negotiation flow for subscribers.
       subscriberOffering: false
@@ -329,6 +332,7 @@ public:
     enableScreensharing: true
     enableVideo: true
     enableVideoMenu: true
+    enableVideoPin: false
     enableListenOnly: true
     # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
     # media server adapter should be used for listen only.
@@ -521,6 +525,9 @@ public:
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
+    # Forces relay usage on all browsers, environments and media modules.
+    # If true, supersedes public.kurento.forceRelayOnFirefox
+    forceRelay: false
     mediaTag: '#remote-media'
     callTransferTimeout: 5000
     callHangupTimeout: 2000
