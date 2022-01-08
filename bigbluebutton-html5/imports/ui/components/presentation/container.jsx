@@ -21,7 +21,6 @@ import {
 } from '../layout/context';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { DEVICE_TYPE } from '../layout/enums';
-import WhiteboardToolbarService from '../whiteboard/whiteboard-toolbar/service';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
@@ -77,7 +76,6 @@ export default withTracker(({ podId }) => {
   const currentSlide = PresentationService.getCurrentSlide(podId);
   const presentationIsDownloadable = PresentationService.isPresentationDownloadable(podId);
   const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
-  const drawSettings = WhiteboardToolbarService.getCurrentDrawSettings();
 
   let slidePosition;
   if (currentSlide) {
@@ -145,6 +143,5 @@ export default withTracker(({ podId }) => {
       'bbb_force_restore_presentation_on_new_events',
       Meteor.settings.public.presentation.restoreOnUpdate,
     ),
-    tool: drawSettings ? drawSettings.whiteboardAnnotationTool : '',
   };
 })(PresentationContainer);

@@ -6,13 +6,6 @@ import PollService from '/imports/ui/components/poll/service';
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
-let selectedAnnotations = [];
-
-const selectAnnotations = (annotationIds) => {
-  selectedAnnotations = annotationIds;
-};
-
-const getSelectedAnnotations = () => selectedAnnotations;
 
 const getCurrentPresentation = (podId) => Presentations.findOne({
   podId,
@@ -186,8 +179,6 @@ const isPresenter = (podId) => {
 };
 
 export default {
-  getSelectedAnnotations,
-  selectAnnotations,
   getCurrentSlide,
   getSlidePosition,
   isPresenter,

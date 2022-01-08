@@ -3,7 +3,7 @@ import Storage from '/imports/ui/services/storage/session';
 import Users from '/imports/ui/local-collections/users-collection/users';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import PresentationOverlayService from '/imports/ui/components/presentation/service';
+import SelectionService from '/imports/ui/components/whiteboard/annotation-selection-modification/service';
 import { Annotations } from '../service';
 
 const DRAW_SETTINGS = 'drawSettings';
@@ -19,11 +19,11 @@ const makeSetter = key => (value) => {
 };
 
 const deleteAnnotations = (whiteboardId) => {
-  const selectedAnnotationIds = PresentationOverlayService.getSelectedAnnotations();
+  const selectedAnnotationIds = SelectionService.getSelectedAnnotations();
   const selector = { id: { $in: selectedAnnotationIds } };
   const selectedAnnotations = Annotations.find(selector, {
     fields: {
-      _id: 0, meetingId: 0, whiteboardId: 0, 'annotationInfo.commands': 0, version: 0
+      _id: 0, meetingId: 0, whiteboardId: 0, 'annotationInfo.commands': 0, version: 0,
     },
   }).fetch();
   makeCall('deleteWhiteboardAnnotations', selectedAnnotations, whiteboardId);
