@@ -32,7 +32,7 @@ export default class PencilPointerListener extends Component {
     this.sendLastMessage = this.sendLastMessage.bind(this);
     this.sendCoordinates = this.sendCoordinates.bind(this);
     this.discardAnnotation = this.discardAnnotation.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
+    //this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
   componentDidMount() {
@@ -201,7 +201,7 @@ export default class PencilPointerListener extends Component {
     presentationWindow.removeEventListener('pointerup', this.handlePointerUp);
     presentationWindow.removeEventListener('pointermove', this.handlePointerMove);
     presentationWindow.removeEventListener('pointercancel', this.handlePointerCancel, true);
-    presentationWindow.removeEventListener('keydown', this.handleKeyDown, true);
+    //presentationWindow.removeEventListener('keydown', this.handleKeyDown, true);
     
   }
 
@@ -231,7 +231,7 @@ export default class PencilPointerListener extends Component {
           if (isLeftClick) {
             presentationWindow.addEventListener('pointerup', this.handlePointerUp);
             presentationWindow.addEventListener('pointermove', this.handlePointerMove);
-            presentationWindow.addEventListener('keydown', this.handleKeyDown, true);
+            //presentationWindow.addEventListener('keydown', this.handleKeyDown, true);
 
             const { clientX, clientY } = event;
             this.commonDrawStartHandler(clientX, clientY);
@@ -259,7 +259,7 @@ export default class PencilPointerListener extends Component {
       }
     }
   }
-
+/*
   handleKeyDown(event) {
     const {
       physicalSlideWidth,
@@ -301,7 +301,7 @@ export default class PencilPointerListener extends Component {
     event.stopPropagation();
     this.sendCoordinates();
   }
-
+*/
   // handler for finger touch and pencil touch
   touchPenDownHandler(event) {
     const { presentationWindow } = this.props;
@@ -310,7 +310,7 @@ export default class PencilPointerListener extends Component {
       presentationWindow.addEventListener('pointerup', this.handlePointerUp);
       presentationWindow.addEventListener('pointermove', this.handlePointerMove);
       presentationWindow.addEventListener('pointercancel', this.handlePointerCancel, true);
-      presentationWindow.addEventListener('keydown', this.handleKeyDown, true);
+      //presentationWindow.addEventListener('keydown', this.handleKeyDown, true);
 
       const { clientX, clientY } = event;
       this.commonDrawStartHandler(clientX, clientY);
