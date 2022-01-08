@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import WhiteboardService from '../../service';
+//import WhiteboardService from '../../service';
 import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers';
 
 export default class PencilDrawComponent extends Component {
@@ -79,7 +79,7 @@ export default class PencilDrawComponent extends Component {
 
     const { annotation, slideWidth, slideHeight } = this.props;
 
-    this.whiteboardMode = WhiteboardService.getWhiteboardMode();
+    //this.whiteboardMode = WhiteboardService.getWhiteboardMode();
 
     this.path = this.getCoordinates(annotation, slideWidth, slideHeight/*, false*/);
 
