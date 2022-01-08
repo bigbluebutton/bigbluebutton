@@ -368,7 +368,7 @@ class WhiteboardModel extends SystemConfiguration {
       SYNCUPDATE = wbMode.get("synchronizeWBUpdate").get
     }
     if (wbMode.isDefinedAt("simplifyPencil")) {
-      SIMPLEYPEN = wbMode.get("simplifyPencil").get
+      SIMPLEPEN = wbMode.get("simplifyPencil").get
     }
   }
   
