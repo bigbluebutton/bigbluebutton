@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+//import WhiteboardService from '../../service';
 import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers';
 
 export default class MarkerComponent extends Component {
@@ -77,8 +78,10 @@ export default class MarkerComponent extends Component {
     super(props);
 
     const { annotation, slideWidth, slideHeight } = this.props;
+    
+    //this.whiteboardMode = WhiteboardService.getWhiteboardMode();
 
-    this.path = this.getCoordinates(annotation, slideWidth, slideHeight, false);
+    this.path = this.getCoordinates(annotation, slideWidth, slideHeight/*, false*/);
 
     this.getCurrentPath = this.getCurrentPath.bind(this);
     this.getCoordinates = this.getCoordinates.bind(this);
@@ -86,16 +89,27 @@ export default class MarkerComponent extends Component {
 
   shouldComponentUpdate(nextProps) {
     const { version, hidden, selected, annotation, slideWidth, slideHeight } = this.props;
+    const { points } = annotation;
+
+    if (points.length !== nextProps.annotation.points.length) {
+      this.path = this.getCoordinates(nextProps.annotation, slideWidth, slideHeight/*, false*/);
+    }
+
     if (annotation.status == "DRAW_END"
         && (annotation.points[0] !== nextProps.annotation.points[0]
          || annotation.points[1] !== nextProps.annotation.points[1])) {
-      const data = MarkerComponent.getFinalCoordinates(nextProps.annotation, slideWidth, slideHeight);
+      let data;
+      if (annotation.commands) {
+        data = MarkerComponent.getFinalCoordinates(nextProps.annotation, slideWidth, slideHeight);
+      } else {
+        data = MarkerComponent.getInitialCoordinates(nextProps.annotation, slideWidth, slideHeight);
+      }
       this.points = data.points;
       this.path = data.path;
     }
     return version !== nextProps.version || hidden !== nextProps.hidden || selected !== nextProps.selected;
   }
-
+/*
   componentDidUpdate(prevProps) {
     const { annotation: prevAnnotation } = prevProps;
     const { points: prevPoints } = prevAnnotation;
@@ -107,23 +121,28 @@ export default class MarkerComponent extends Component {
       this.path = this.getCoordinates(annotation, slideWidth, slideHeight, false);
     }
   }
-
-  getCoordinates(annotation, slideWidth, slideHeight, fullUpdate) {
-    if ((!annotation || annotation.points.length === 0)
-        || (annotation.status === 'DRAW_END' && !annotation.commands)) {
+*/
+  getCoordinates(annotation, slideWidth, slideHeight/*, fullUpdate*/) {
+    //if ((!annotation || annotation.points.length === 0)
+    //    || (annotation.status === 'DRAW_END' && !annotation.commands)) {
+    if (!annotation || annotation.points.length === 0) {
       return undefined;
     }
 
     let data;
     // Final message, display smoothes coordinates
     if (annotation.status === 'DRAW_END') {
-      data = MarkerComponent.getFinalCoordinates(annotation, slideWidth, slideHeight, fullUpdate);
+      if (annotation.commands) {
+        data = MarkerComponent.getFinalCoordinates(annotation, slideWidth, slideHeight/*, fullUpdate*/);
+      } else {
+        data = MarkerComponent.getInitialCoordinates(annotation, slideWidth, slideHeight);
+      }
     // Not a final message, but rendering it for the first time, creating a new path
     } else if (!this.path) {
       data = MarkerComponent.getInitialCoordinates(annotation, slideWidth, slideHeight);
     // If it's not the first 2 cases - means we just got an update, updating the coordinates
     } else {
-      data = this.updateCoordinates(annotation, slideWidth, slideHeight, fullUpdate);
+      data = this.updateCoordinates(annotation, slideWidth, slideHeight/*, fullUpdate*/);
     }
 
     this.points = data.points;
@@ -134,18 +153,19 @@ export default class MarkerComponent extends Component {
     return this.path ? this.path : 'M -1 -1';
   }
 
-  updateCoordinates(annotation, slideWidth, slideHeight, fullUpdate) {
+  updateCoordinates(annotation, slideWidth, slideHeight/*, fullUpdate*/) {
     const { points } = annotation;
 
-    let i;
+    let i = this.points.length;
+    //let i;
     let path = '';
-    if (fullUpdate) {
+    /*if (fullUpdate) {
       i = 2
       path += `M${denormalizeCoord(points[0], slideWidth)}, ${denormalizeCoord(points[1], slideHeight)}`;
     } else {
       i = this.points.length;
       path += this.path;
-    }
+    }*/
 
     while (i < points.length) {
       path = `${path} L${denormalizeCoord(points[i], slideWidth)
@@ -153,6 +173,8 @@ export default class MarkerComponent extends Component {
       i += 2;
     }
 
+    path = this.path + path;
+    
     return { path, points };
   }
 
