@@ -430,6 +430,7 @@ class MeetingActor(
       case m: ReorderWhiteboardAnnotationsPubMsg => wbApp.handle(m, liveMeeting, msgBus)
       case m: MoveWhiteboardAnnotationsPubMsg    => wbApp.handle(m, liveMeeting, msgBus)
       case m: ModifyWhiteboardAccessPubMsg       => wbApp.handle(m, liveMeeting, msgBus)
+      case m: ModifyWBModePubMsg             => wbApp.handle(m, liveMeeting, msgBus)
       case m: SendWhiteboardAnnotationPubMsg     => wbApp.handle(m, liveMeeting, msgBus)
       case m: GetWhiteboardAnnotationsReqMsg     => wbApp.handle(m, liveMeeting, msgBus)
 

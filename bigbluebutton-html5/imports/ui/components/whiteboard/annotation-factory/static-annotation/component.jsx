@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import StaticAnnotationService from './service';
 
 export default class StaticAnnotation extends React.Component {
+  // completed annotations can be updated for synchronized drawing
   shouldComponentUpdate(nextProps) {
     const { hidden, selected, version } = this.props;
     return hidden !== nextProps.hidden || selected != nextProps.selected || version !== nextProps.version;

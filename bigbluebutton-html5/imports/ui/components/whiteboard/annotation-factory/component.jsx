@@ -14,6 +14,7 @@ import Marker from '../annotations/marker/component';
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
+const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 
 export default class AnnotationFactory extends Component {
   static renderStaticAnnotation(annotationInfo, slideWidth, slideHeight, drawObject, whiteboardId) {
@@ -50,7 +51,7 @@ export default class AnnotationFactory extends Component {
   renderAnnotation(annotationInfo) {
     const drawObject = this.props.annotationSelector[annotationInfo.annotationType];
 
-    if (annotationInfo.status === DRAW_END) {
+    if (this.props.published) {
       return AnnotationFactory.renderStaticAnnotation(
         annotationInfo,
         this.props.slideWidth,
@@ -58,14 +59,15 @@ export default class AnnotationFactory extends Component {
         drawObject,
         this.props.whiteboardId,
       );
+    } else {
+      return AnnotationFactory.renderReactiveAnnotation(
+        annotationInfo,
+        this.props.slideWidth,
+        this.props.slideHeight,
+        drawObject,
+        this.props.whiteboardId,
+      );
     }
-    return AnnotationFactory.renderReactiveAnnotation(
-      annotationInfo,
-      this.props.slideWidth,
-      this.props.slideHeight,
-      drawObject,
-      this.props.whiteboardId,
-    );
   }
 
   render() {

@@ -80,6 +80,8 @@ const propTypes = {
   dataSaving: PropTypes.shape({
     viewParticipantsWebcams: PropTypes.bool,
     viewScreenshare: PropTypes.bool,
+    synchronizeWBUpdate: PropTypes.bool,
+    simplifyPencil: PropTypes.bool,
   }).isRequired,
   application: PropTypes.shape({
     chatAudioAlerts: PropTypes.bool,
@@ -239,6 +241,7 @@ class Settings extends Component {
             handleUpdateSettings={this.handleUpdateSettings}
             showToggleLabel={showToggleLabel}
             displaySettingsStatus={this.displaySettingsStatus}
+            isModerator={isModerator}
           />
         </TabPanel>
       </Tabs>

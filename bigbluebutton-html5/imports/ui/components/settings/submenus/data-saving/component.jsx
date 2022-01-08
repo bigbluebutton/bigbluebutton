@@ -4,6 +4,8 @@ import Toggle from '/imports/ui/components/switch/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import { styles } from '../styles';
+import WhiteboardService from '/imports/ui/components/whiteboard/service';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const intlMessages = defineMessages({
   dataSavingLabel: {
@@ -17,6 +19,14 @@ const intlMessages = defineMessages({
   screenShareLabel: {
     id: 'app.settings.dataSavingTab.screenShare',
     description: 'screenshare toggle',
+  },
+  synchronizeWBUpdateLabel: {
+    id: 'app.settings.dataSavingTab.synchronizeWBUpdate',
+    description: 'whiteboard update synchronization toggle',
+  },
+  simplifyPencilLabel: {
+    id: 'app.settings.dataSavingTab.simplifyPencil',
+    description: 'pencil simplification toggle',
   },
   dataSavingDesc: {
     id: 'app.settings.dataSavingTab.description',
@@ -32,13 +42,39 @@ class DataSaving extends BaseMenu {
       settingsName: 'dataSaving',
       settings: props.settings,
     };
+    
+    const whiteboardMode = WhiteboardService.getWhiteboardMode();
+    if (Object.keys(whiteboardMode).length > 0) {//should be the case
+      if (whiteboardMode.synchronizeWBUpdate != undefined) {
+        this.state.settings.synchronizeWBUpdate = whiteboardMode.synchronizeWBUpdate
+      }
+      if (whiteboardMode.simplifyPencil != undefined) {
+        this.state.settings.simplifyPencil = whiteboardMode.simplifyPencil;
+      }
+    }
+
+    this.handleSyncWBUpdate = this.handleSyncWBUpdate.bind(this);
+    this.handleSimplifyPencil = this.handleSimplifyPencil.bind(this);
+  }
+
+  handleSyncWBUpdate() {
+    this.handleToggle('synchronizeWBUpdate');
+  }
+
+  handleSimplifyPencil() {
+    this.handleToggle('simplifyPencil');
   }
 
   render() {
-    const { intl, showToggleLabel, displaySettingsStatus } = this.props;
+    const { intl, showToggleLabel, displaySettingsStatus, isModerator } = this.props;
 
-    const { viewParticipantsWebcams, viewScreenshare } = this.state.settings;
+    const { viewParticipantsWebcams, viewScreenshare, synchronizeWBUpdate, simplifyPencil } = this.state.settings;
 
+    //const isPresenter = PresentationService.isPresenter('DEFAULT_PRESENTATION_POD');
+    // -> replace isModerator with isPresenter in case we want only the presenter be able to change the whiteboard setting
+
+    const hiddenForBreakout = meetingIsBreakout() && !Meteor.settings.public.app.defaultSettings.dataSaving.changeWBModeBreakout;
+    
     return (
       <div>
         <div>
@@ -90,6 +126,52 @@ class DataSaving extends BaseMenu {
               </div>
             </div>
           </div>
+          {isModerator && !hiddenForBreakout ?
+          <div className={styles.row}>
+            <div className={styles.col} aria-hidden="true">
+              <div className={styles.formElement}>
+                <label className={styles.label}>
+                  {intl.formatMessage(intlMessages.synchronizeWBUpdateLabel)}
+                </label>
+              </div>
+            </div>
+            <div className={styles.col}>
+              <div className={cx(styles.formElement, styles.pullContentRight)}>
+                {displaySettingsStatus(synchronizeWBUpdate)}
+                <Toggle
+                  icons={false}
+                  defaultChecked={synchronizeWBUpdate}
+                  onChange={this.handleSyncWBUpdate}
+                  ariaLabelledBy="syncWB"
+                  ariaLabel={intl.formatMessage(intlMessages.synchronizeWBUpdateLabel)}
+                  showToggleLabel={showToggleLabel}
+                />
+              </div>
+            </div>
+          </div> : null}
+          {isModerator && !hiddenForBreakout && synchronizeWBUpdate ?
+          <div className={styles.row}>
+            <div className={styles.col} aria-hidden="true">
+              <div className={styles.formElement}>
+                <label className={styles.label}>
+                  {intl.formatMessage(intlMessages.simplifyPencilLabel)}
+                </label>
+              </div>
+            </div>
+            <div className={styles.col}>
+              <div className={cx(styles.formElement, styles.pullContentRight)}>
+                {displaySettingsStatus(simplifyPencil)}
+                <Toggle
+                  icons={false}
+                  defaultChecked={simplifyPencil}
+                  onChange={this.handleSimplifyPencil}
+                  ariaLabelledBy="simplifyPencil"
+                  ariaLabel={intl.formatMessage(intlMessages.simplifyPencilLabel)}
+                  showToggleLabel={showToggleLabel}
+                />
+              </div>
+            </div>
+          </div> : null}
         </div>
       </div>
     );

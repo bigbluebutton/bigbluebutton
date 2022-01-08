@@ -172,6 +172,7 @@ export default class WhiteboardOverlay extends Component {
       physicalSlideHeight,
       slideWidth,
       slideHeight,
+      synchronizeWBUpdate,
       presentationWindow,
       isPresentationDetached,
     } = this.props;
@@ -186,6 +187,7 @@ export default class WhiteboardOverlay extends Component {
             actions={actions}
             drawSettings={drawSettings}
             whiteboardId={whiteboardId}
+            synchronizeWBUpdate={synchronizeWBUpdate}
             physicalSlideWidth={physicalSlideWidth}
             physicalSlideHeight={physicalSlideHeight}
             presentationWindow={presentationWindow}
@@ -200,6 +202,7 @@ export default class WhiteboardOverlay extends Component {
           actions={actions}
           drawSettings={drawSettings}
           whiteboardId={whiteboardId}
+          synchronizeWBUpdate={synchronizeWBUpdate}
           physicalSlideWidth={physicalSlideWidth}
           physicalSlideHeight={physicalSlideHeight}
         />
@@ -214,6 +217,7 @@ export default class WhiteboardOverlay extends Component {
             actions={actions}
             physicalSlideWidth={physicalSlideWidth}
             physicalSlideHeight={physicalSlideHeight}
+            synchronizeWBUpdate={synchronizeWBUpdate}
             presentationWindow={presentationWindow}
             isPresentationDetached={isPresentationDetached}
           />
@@ -228,6 +232,7 @@ export default class WhiteboardOverlay extends Component {
           actions={actions}
           physicalSlideWidth={physicalSlideWidth}
           physicalSlideHeight={physicalSlideHeight}
+          synchronizeWBUpdate={synchronizeWBUpdate}
           presentationWindow={presentationWindow}
           isPresentationDetached={isPresentationDetached}
         />
@@ -241,6 +246,7 @@ export default class WhiteboardOverlay extends Component {
           actions={actions}
           slideWidth={slideWidth}
           slideHeight={slideHeight}
+          synchronizeWBUpdate={synchronizeWBUpdate}
           presentationWindow={presentationWindow}
           isPresentationDetached={isPresentationDetached}
         />

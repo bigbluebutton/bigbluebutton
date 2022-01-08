@@ -13,10 +13,13 @@ export default function modifyWhiteboardAccess(meetingId, whiteboardId, multiUse
     whiteboardId,
   };
 
+  //we need to $set them in order not to delete other parameters just in case
   const modifier = {
-    meetingId,
-    whiteboardId,
-    multiUser,
+    $set: {
+      meetingId,
+      whiteboardId,
+      multiUser,
+    },
   };
 
   AnnotationsStreamer(meetingId).emit('deselected', { meetingId, whiteboardId });

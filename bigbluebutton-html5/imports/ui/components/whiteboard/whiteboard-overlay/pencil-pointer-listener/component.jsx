@@ -12,6 +12,7 @@ const PALM_REJECTION_MODE = 'palmRejectionMode';
 // maximum value of z-index to prevent other things from overlapping
 const MAX_Z_INDEX = (2 ** 31) - 1;
 const POINTS_TO_BUFFER = 2;
+const POINTS_TO_BUFFER_SYNC = Meteor.settings.public.app.defaultSettings.dataSaving.syncPencilPointsToBuffer;
 
 export default class PencilPointerListener extends Component {
   constructor() {
@@ -78,6 +79,7 @@ export default class PencilPointerListener extends Component {
     if (this.isDrawing) {
       const {
         actions,
+        synchronizeWBUpdate,
       } = this.props;
 
       const {
@@ -99,7 +101,7 @@ export default class PencilPointerListener extends Component {
       this.points.push(transformedSvgPoint.x);
       this.points.push(transformedSvgPoint.y);
 
-      if (this.points.length > POINTS_TO_BUFFER) {
+      if (this.points.length > (synchronizeWBUpdate ? POINTS_TO_BUFFER_SYNC : POINTS_TO_BUFFER)) {
         this.sendCoordinates();
       }
     }
@@ -114,6 +116,7 @@ export default class PencilPointerListener extends Component {
 
       const { getCurrentShapeId } = actions;
       this.handleDrawPencil(this.points, DRAW_UPDATE, getCurrentShapeId(), undefined, drawSettings.tool);
+      this.points = [];
     }
   }
 
@@ -123,6 +126,7 @@ export default class PencilPointerListener extends Component {
       userId,
       actions,
       drawSettings,
+      synchronizeWBUpdate,
     } = this.props;
 
     const {
@@ -134,6 +138,11 @@ export default class PencilPointerListener extends Component {
       thickness,
       color,
     } = drawSettings;
+
+    if (status == DRAW_END && synchronizeWBUpdate && points.length === 2) {
+      // see the comment in pencil-draw-listner
+      points = points.concat(points);
+    }
 
     const annotation = {
       id,
@@ -158,7 +167,7 @@ export default class PencilPointerListener extends Component {
       annotation.annotationInfo.dimensions = dimensions;
     }
 
-    sendAnnotation(annotation, whiteboardId);
+    sendAnnotation(annotation, synchronizeWBUpdate);
   }
 
   sendLastMessage() {

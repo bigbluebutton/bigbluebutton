@@ -106,6 +106,7 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
       };
       break;
     case DRAW_UPDATE:
+      //setting annotationType seems necessary when a user joins during drawing
       baseModifier = {
         $push: {
           'annotationInfo.points': { $each: annotationInfo.points },

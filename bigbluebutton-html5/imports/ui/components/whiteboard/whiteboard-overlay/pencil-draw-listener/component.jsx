@@ -10,6 +10,7 @@ const DRAW_END = ANNOTATION_CONFIG.status.end;
 // maximum value of z-index to prevent other things from overlapping
 const MAX_Z_INDEX = (2 ** 31) - 1;
 const POINTS_TO_BUFFER = 2;
+const POINTS_TO_BUFFER_SYNC = Meteor.settings.public.app.defaultSettings.dataSaving.syncPencilPointsToBuffer;
 
 export default class PencilDrawListener extends Component {
   constructor() {
@@ -77,6 +78,7 @@ export default class PencilDrawListener extends Component {
     if (this.isDrawing) {
       const {
         actions,
+        synchronizeWBUpdate,
       } = this.props;
 
       const {
@@ -98,7 +100,7 @@ export default class PencilDrawListener extends Component {
       this.points.push(transformedSvgPoint.x);
       this.points.push(transformedSvgPoint.y);
 
-      if (this.points.length > POINTS_TO_BUFFER) {
+      if (this.points.length > (synchronizeWBUpdate ? POINTS_TO_BUFFER_SYNC : POINTS_TO_BUFFER)) {
         this.sendCoordinates();
       }
     }
@@ -222,6 +224,7 @@ export default class PencilDrawListener extends Component {
 
       const { getCurrentShapeId } = actions;
       this.handleDrawPencil(this.points, DRAW_UPDATE, getCurrentShapeId(), undefined, drawSettings.tool);
+      this.points = []; // only new points will be sent
     }
   }
 
@@ -231,6 +234,7 @@ export default class PencilDrawListener extends Component {
       userId,
       actions,
       drawSettings,
+      synchronizeWBUpdate,
     } = this.props;
 
     const {
@@ -243,6 +247,13 @@ export default class PencilDrawListener extends Component {
       color,
     } = drawSettings;
 
+    if (status == DRAW_END && synchronizeWBUpdate && points.length === 2) {
+      // To ensure a point is drawn by a single click,
+      //  with a risk of unnecessary point added also for a normal drawing
+      // If we simply revive sending DRAW_START to akka-apps, this would not be necessary (see whiteboard/service.js).
+      points = points.concat(points);
+    }
+    
     const annotation = {
       id,
       status,
@@ -266,7 +277,7 @@ export default class PencilDrawListener extends Component {
       annotation.annotationInfo.dimensions = dimensions;
     }
 
-    sendAnnotation(annotation, whiteboardId);
+    sendAnnotation(annotation, synchronizeWBUpdate); //whiteboardId seems unnecessary
   }
 
   sendLastMessage() {
