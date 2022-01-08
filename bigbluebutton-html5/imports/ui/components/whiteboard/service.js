@@ -269,12 +269,12 @@ const sendAnnotation = (annotation, synchronizeWBUpdate) => {
   if (!Meteor.status().connected) return;
 
   if (annotation.status === DRAW_END) {
-    if (!synchronizeWBUpdate && annotation.annotationType === ANNOTATION_TYPE_PENCIL) {
+    if (!synchronizeWBUpdate && (annotation.annotationType === ANNOTATION_TYPE_PENCIL|| annotation.annotationType === ANNOTATION_TYPE_MARKER)) {
       // take the accumulated points from UnsentAnnotation and send them altogether.
       const fakeAnnotation = UnsentAnnotations.findOne({meetingId: Auth.meetingID, whiteboardId: annotation.wbId, userId: Auth.userID, id: annotation.id});
       annotation.annotationInfo.points.unshift(...fakeAnnotation.annotationInfo.points)
       annotationsQueue.push(annotation);
-    } else if (synchronizeWBUpdate && annotation.annotationType === ANNOTATION_TYPE_PENCIL) {
+    } else if (synchronizeWBUpdate && (annotation.annotationType === ANNOTATION_TYPE_PENCIL || annotation.annotationType === ANNOTATION_TYPE_MARKER)) {
      // collect all the updates (points) since the last drain and merge them to the latest annotation
      let accumulatedPoints = [];
      for (const a of annotationsReservoir) {
@@ -293,7 +293,7 @@ const sendAnnotation = (annotation, synchronizeWBUpdate) => {
       // send also DRAW_UPDATE to akka-apps for synchronous updating
       const timeNow = Date.now();
       if (timeNow - lastDrain > DATASAVING_CONFIG.intervalDrainResevoir) {
-        if (annotation.annotationType === ANNOTATION_TYPE_PENCIL) {
+        if (annotation.annotationType === ANNOTATION_TYPE_PENCIL || annotation.annotationType === ANNOTATION_TYPE_MARKER) {
           let accumulatedPoints = [];
           for (const a of annotationsReservoir) {
             accumulatedPoints.push(...a.annotationInfo.points);
@@ -371,7 +371,7 @@ const sendAnnotation = (annotation, synchronizeWBUpdate) => {
 
     const { status, annotationType } = relevantAnotation;
 
-    if (synchronizeWBUpdate && annotationType === ANNOTATION_TYPE_PENCIL || annotationType === ANNOTATION_TYPE_MARKER) {
+    if (synchronizeWBUpdate && (annotationType === ANNOTATION_TYPE_PENCIL || annotationType === ANNOTATION_TYPE_MARKER)) {
       // For drawing a point by pencil, DRAW_START must be included,
       //  but it will be used only for the fake annotations (i.e. those in the presenter's screen).
       //  - I decided not to send DRAW_START, which is not essential, to akka-apps to slightly reduce the traffic.
