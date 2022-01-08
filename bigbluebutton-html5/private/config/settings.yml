@@ -590,7 +590,7 @@ public:
   upload:
     endpoint: /bigbluebutton/upload
     timeout: 5000
-    notification: true
+    notification: false
     media:
       enabled: true
       maxSize: 900000000
