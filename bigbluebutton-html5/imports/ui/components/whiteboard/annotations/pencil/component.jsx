@@ -101,7 +101,12 @@ export default class PencilDrawComponent extends Component {
         && (annotation.points[0] !== nextProps.annotation.points[0]
          || annotation.points[1] !== nextProps.annotation.points[1])) {
       // Pencil drawing was moved by dragging
-      const data = PencilDrawComponent.getFinalCoordinates(nextProps.annotation, slideWidth, slideHeight);
+      let data;
+      if (annotation.commands) {
+        data = PencilDrawComponent.getFinalCoordinates(nextProps.annotation, slideWidth, slideHeight);
+      } else {
+        data = PencilDrawComponent.getInitialCoordinates(nextProps.annotation, slideWidth, slideHeight);
+      }
       this.points = data.points;
       this.path = data.path;
     }
