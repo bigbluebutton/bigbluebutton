@@ -81,7 +81,7 @@ export default class PencilDrawComponent extends Component {
 
     this.whiteboardMode = WhiteboardService.getWhiteboardMode();
 
-    this.path = this.getCoordinates(annotation, slideWidth, slideHeight, false);
+    this.path = this.getCoordinates(annotation, slideWidth, slideHeight/*, false*/);
 
     this.getCurrentPath = this.getCurrentPath.bind(this);
     this.getCoordinates = this.getCoordinates.bind(this);
@@ -90,11 +90,11 @@ export default class PencilDrawComponent extends Component {
   shouldComponentUpdate(nextProps) {
     const { version, hidden, selected, annotation, slideWidth, slideHeight } = this.props;
     const { points } = annotation;
-    if (nextProps.annotation.points[0] != points[0] || nextProps.annotation.points[1] != points[1]) {
+    /*if (nextProps.annotation.points[0] != points[0] || nextProps.annotation.points[1] != points[1]) {
       this.path = this.getCoordinates(nextProps.annotation, slideWidth, slideHeight, true);
-    } else if (points.length !== nextProps.annotation.points.length) {
+    } else */if (points.length !== nextProps.annotation.points.length) {
       // this has been transferred from componentDidUpdate to reach to the last point
-      this.path = this.getCoordinates(nextProps.annotation, slideWidth, slideHeight, false);
+      this.path = this.getCoordinates(nextProps.annotation, slideWidth, slideHeight/*, false*/);
     }
     
     if (annotation.status == "DRAW_END"
@@ -114,7 +114,7 @@ export default class PencilDrawComponent extends Component {
     return version !== nextProps.version || hidden !== nextProps.hidden || selected !== nextProps.selected;
   }
 
-  getCoordinates(annotation, slideWidth, slideHeight, fullUpdate) {
+  getCoordinates(annotation, slideWidth, slideHeight/*, fullUpdate*/) {
     if (!annotation || annotation.points.length === 0) {
       return undefined;
     }
@@ -134,7 +134,7 @@ export default class PencilDrawComponent extends Component {
       data = PencilDrawComponent.getInitialCoordinates(annotation, slideWidth, slideHeight);
     // If it's not the first 2 cases - means we just got an update, updating the coordinates
     } else {
-      data = this.updateCoordinates(annotation, slideWidth, slideHeight, fullUpdate);
+      data = this.updateCoordinates(annotation, slideWidth, slideHeight/*, fullUpdate*/);
     }
 
     this.points = data.points;
@@ -145,18 +145,19 @@ export default class PencilDrawComponent extends Component {
     return this.path ? this.path : 'M -1 -1';
   }
 
-  updateCoordinates(annotation, slideWidth, slideHeight, fullUpdate) {
+  updateCoordinates(annotation, slideWidth, slideHeight/*, fullUpdate*/) {
     const { points } = annotation;
 
-    let i;
+    let i = this.points.length;
+    //let i;
     let path = '';
-    if (fullUpdate) {
+    /*if (fullUpdate) {
       i = 2
       path += `M${denormalizeCoord(points[0], slideWidth)}, ${denormalizeCoord(points[1], slideHeight)}`;
     } else {
       i = this.points.length;
       path += this.path;
-    }
+    }*/
     
     while (i < points.length) {
       path = `${path} L${denormalizeCoord(points[i], slideWidth)
@@ -164,6 +165,8 @@ export default class PencilDrawComponent extends Component {
       i += 2;
     }
 
+    path = this.path + path;
+    
     return { path, points };
   }
 
