@@ -102,11 +102,14 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsDisablePublicChat;
 		private boolean defaultLockSettingsDisableNote;
 		private boolean defaultLockSettingsHideUserList;
+	        private boolean defaultLockSettingsHideAnnotations;
 		private boolean defaultLockSettingsLockedLayout;
 		private boolean defaultLockSettingsLockOnJoin;
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
+    private Long maxUploadSize = 30000000L; // 30MB
+    private String uploadDir;
 
     private Integer clientLogoutTimerInMinutes = 0;
   	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
@@ -309,7 +312,13 @@ public class ParamsProcessorUtil {
 			if (!StringUtils.isEmpty(lockSettingsHideUserListParam)) {
 				lockSettingsHideUserList = Boolean.parseBoolean(lockSettingsHideUserListParam);
 			}
-
+			
+			Boolean lockSettingsHideAnnotations = defaultLockSettingsHideAnnotations;
+			String lockSettingsHideAnnotationsParam = params.get(ApiParams.LOCK_SETTINGS_HIDE_ANNOTATIONS);
+			if (!StringUtils.isEmpty(lockSettingsHideAnnotationsParam)) {
+				lockSettingsHideAnnotations = Boolean.parseBoolean(lockSettingsHideAnnotationsParam);
+			}
+			
 			Boolean lockSettingsLockedLayout = defaultLockSettingsLockedLayout;
 			String lockSettingsLockedLayoutParam = params.get(ApiParams.LOCK_SETTINGS_LOCKED_LAYOUT);
 			if (!StringUtils.isEmpty(lockSettingsLockedLayoutParam)) {
@@ -334,6 +343,7 @@ public class ParamsProcessorUtil {
 							lockSettingsDisablePublicChat,
 							lockSettingsDisableNote,
 							lockSettingsHideUserList,
+						        lockSettingsHideAnnotations,
 							lockSettingsLockedLayout,
 							lockSettingsLockOnJoin,
 							lockSettingsLockOnJoinConfigurable);
@@ -1060,6 +1070,22 @@ public class ParamsProcessorUtil {
 	public Long getMaxPresentationFileUpload() {
 		return maxPresentationFileUpload;
 	}
+	
+	public void setMaxUploadSize(Long maxUploadSize) {
+               this.maxUploadSize = maxUploadSize;
+       }
+
+       public Long getMaxUploadSize() {
+               return maxUploadSize;
+       }
+
+       public void setUploadDir(String uploadDir) {
+               this.uploadDir = uploadDir;
+       }
+
+       public String getUploadDir() {
+               return uploadDir;
+       }
 
 	public void setMuteOnStart(Boolean mute) {
 		defaultMuteOnStart = mute;
@@ -1180,6 +1206,10 @@ public class ParamsProcessorUtil {
 		this.defaultLockSettingsHideUserList = lockSettingsHideUserList;
 	}
 
+	public void setLockSettingsHideAnnotations(Boolean lockSettingsHideAnnotations) {
+		this.defaultLockSettingsHideAnnotations = lockSettingsHideAnnotations;
+	}
+	
 	public void setLockSettingsLockedLayout(Boolean lockSettingsLockedLayout) {
 		this.defaultLockSettingsLockedLayout = lockSettingsLockedLayout;
 	}

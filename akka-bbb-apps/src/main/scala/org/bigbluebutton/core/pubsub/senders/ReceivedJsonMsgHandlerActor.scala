@@ -226,6 +226,12 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ClearWhiteboardPubMsg](envelope, jsonNode)
       case UndoWhiteboardPubMsg.NAME =>
         routeGenericMsg[UndoWhiteboardPubMsg](envelope, jsonNode)
+      case RemoveWhiteboardAnnotationsPubMsg.NAME =>
+        routeGenericMsg[RemoveWhiteboardAnnotationsPubMsg](envelope, jsonNode)
+      case ReorderWhiteboardAnnotationsPubMsg.NAME =>
+        routeGenericMsg[ReorderWhiteboardAnnotationsPubMsg](envelope, jsonNode)
+      case MoveWhiteboardAnnotationsPubMsg.NAME =>
+        routeGenericMsg[MoveWhiteboardAnnotationsPubMsg](envelope, jsonNode)
       case SendWhiteboardAnnotationPubMsg.NAME =>
         routeGenericMsg[SendWhiteboardAnnotationPubMsg](envelope, jsonNode)
       case GetWhiteboardAnnotationsReqMsg.NAME =>
@@ -318,6 +324,12 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetWebcamsOnlyForModeratorReqMsg](envelope, jsonNode)
       case UpdateWebcamsOnlyForModeratorCmdMsg.NAME =>
         routeGenericMsg[UpdateWebcamsOnlyForModeratorCmdMsg](envelope, jsonNode)
+
+      // Upload
+      case UploadRequestReqMsg.NAME =>
+        routeGenericMsg[UploadRequestReqMsg](envelope, jsonNode)
+      case FileUploadedSysMsg.NAME =>
+        routeGenericMsg[FileUploadedSysMsg](envelope, jsonNode)
 
       // Lock settings
       case LockUserInMeetingCmdMsg.NAME =>

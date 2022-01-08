@@ -4,47 +4,72 @@ import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers'
 
 export default class TriangleDrawComponent extends Component {
   shouldComponentUpdate(nextProps) {
-    const { version } = this.props;
-    return version !== nextProps.version;
+    const { version, hidden, selected } = this.props;
+    return version !== nextProps.version || hidden !== nextProps.hidden || selected !== nextProps.selected;
   }
 
   getCoordinates() {
     const { slideWidth, slideHeight, annotation } = this.props;
     const { points } = annotation;
 
-    // points[0] and points[1] are x and y coordinates of the top left corner of the annotation
-    // points[2] and points[3] are x and y coordinates of the bottom right corner of the annotation
-    const xBottomLeft = points[0];
-    const yBottomLeft = points[3];
-    const xBottomRight = points[2];
-    const yBottomRight = points[3];
-    const xTop = ((xBottomRight - xBottomLeft) / 2) + xBottomLeft;
-    const yTop = points[1];
+    const xApex = ((points[2] - points[0]) / 2) + points[0];
+    const yApex = points[1];
 
-    const path = `M${denormalizeCoord(xTop, slideWidth)
-    },${denormalizeCoord(yTop, slideHeight)
-    },${denormalizeCoord(xBottomLeft, slideWidth)
-    },${denormalizeCoord(yBottomLeft, slideHeight)
-    },${denormalizeCoord(xBottomRight, slideWidth)
-    },${denormalizeCoord(yBottomRight, slideHeight)
+    const path = `M${denormalizeCoord(xApex, slideWidth)
+    },${denormalizeCoord(yApex, slideHeight)
+    },${denormalizeCoord(points[0], slideWidth)
+    },${denormalizeCoord(points[3], slideHeight)
+    },${denormalizeCoord(points[2], slideWidth)
+    },${denormalizeCoord(points[3], slideHeight)
     }Z`;
-
+    
     return path;
+  }
+
+  getBBox() {
+    const { slideWidth, slideHeight, annotation } = this.props;
+    const { points } = annotation;
+
+    const x = denormalizeCoord(Math.min(points[0], points[2]), slideWidth)
+    const y = denormalizeCoord(Math.min(points[1], points[3]), slideHeight)
+    const width = denormalizeCoord(Math.max(points[0], points[2]), slideWidth) - x;
+    const height = denormalizeCoord(Math.max(points[1], points[3]), slideHeight) -y;
+
+    return {x, y, width, height};
   }
 
   render() {
     const path = this.getCoordinates();
-    const { annotation, slideWidth } = this.props;
+    const { annotation, slideWidth, hidden, selected, isEditable } = this.props;
+    const { fill } = annotation;
+    const bbox = selected ? this.getBBox() : {x:0, y:0, width:0, height:0};
     return (
+     <g>
+     {hidden ? null :
       <path
+        id={annotation.id}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
-        fill="none"
+        fill={ fill ? getFormattedColor(annotation.color) : "none" }
         stroke={getFormattedColor(annotation.color)}
         d={path}
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         strokeLinejoin="miter"
         data-test="drawnTriangle"
-      />
+      />}
+     {selected &&
+      <rect
+        x={bbox.x}
+        y={bbox.y}
+        width={bbox.width}
+        height={bbox.height}
+        fill= "none"
+        stroke={isEditable ? Meteor.settings.public.whiteboard.selectColor : Meteor.settings.public.whiteboard.selectInertColor}
+        opacity="0.5"
+        strokeWidth={getStrokeWidth(annotation.thickness+1, slideWidth)}
+        style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
+        data-test="drawnTriangleSelection"
+      />}
+     </g>
     );
   }
 }
@@ -57,6 +82,7 @@ TriangleDrawComponent.propTypes = {
     points: PropTypes.arrayOf(PropTypes.number).isRequired,
     color: PropTypes.number.isRequired,
     thickness: PropTypes.number.isRequired,
+    fill: PropTypes.bool.isRequired,
   }).isRequired,
   // Defines the width of the slide (svg coordinate system), which needed in calculations
   slideWidth: PropTypes.number.isRequired,

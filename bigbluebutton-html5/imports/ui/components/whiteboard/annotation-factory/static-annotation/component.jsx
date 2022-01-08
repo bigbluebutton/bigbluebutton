@@ -5,11 +5,16 @@ import StaticAnnotationService from './service';
 export default class StaticAnnotation extends React.Component {
   // completed annotations can be updated for synchronized drawing
   shouldComponentUpdate(nextProps) {
-    const { version } = this.props;
-    return version !== nextProps.version;
+    const { hidden, selected, version } = this.props;
+    return hidden !== nextProps.hidden || selected != nextProps.selected || version !== nextProps.version;
   }
 
   render() {
+    const {
+      hidden,
+      selected,
+      isEditable,
+    } = this.props;
     const annotation = StaticAnnotationService.getAnnotationById(this.props.shapeId);
     const Component = this.props.drawObject;
 
@@ -20,6 +25,9 @@ export default class StaticAnnotation extends React.Component {
         slideWidth={this.props.slideWidth}
         slideHeight={this.props.slideHeight}
         whiteboardId={this.props.whiteboardId}
+        hidden={hidden}
+        selected={selected}
+        isEditable={isEditable}
       />
     );
   }

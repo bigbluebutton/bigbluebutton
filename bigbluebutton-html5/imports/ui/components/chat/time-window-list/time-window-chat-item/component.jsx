@@ -6,6 +6,7 @@ import UserAvatar from '/imports/ui/components/user-avatar/component';
 import cx from 'classnames';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import MessageChatItem from './message-chat-item/component';
+import UploadService from '/imports/ui/components/upload/service';
 import PollService from '/imports/ui/components/poll/service';
 import Icon from '/imports/ui/components/icon/component';
 import { styles } from './styles';
@@ -88,21 +89,30 @@ class TimeWindowChatItem extends PureComponent {
     return (
       <div className={styles.item} key={`time-window-chat-item-${messageKey}`}>
         <div className={styles.messages}>
-          {messages.map(message => (
-            message.text !== ''
-              ? (
+          {messages.map(message => {
+          const {
+            id,
+            time,
+            upload,
+          } = message;
+
+          const text = upload ? UploadService.getNotification(upload, intl) : message.text;
+
+          if (text === '') return null;
+          
+              return (
                 <MessageChatItem
                   className={(message.id ? styles.systemMessage : styles.systemMessageNoBorder)}
                   key={message.id ? message.id : _.uniqueId('id-')}
-                  text={intlMessages[message.text] ? intl.formatMessage(intlMessages[message.text]) : message.text }
+                  text={intlMessages[text] ? intl.formatMessage(intlMessages[text]) : text }
                   time={message.time}
                   isSystemMessage={message.id ? true : false}
                   systemMessageType={message.text === CHAT_CLEAR_MESSAGE ? 'chatClearMessageText' : 'chatWelcomeMessageText'}
                   chatAreaId={chatAreaId}
                   handleReadMessage={handleReadMessage}
                 />
-              ) : null
-          ))}
+              );
+          })}
         </div>
       </div>
     );

@@ -7,6 +7,7 @@ import { makeCall } from '/imports/ui/services/api';
 import PresentationService from '/imports/ui/components/presentation/service';
 import Meetings from '/imports/api/meetings';
 import logger from '/imports/startup/client/logger';
+import Meetings from '/imports/api/meetings';
 
 const Annotations = new Mongo.Collection(null);
 const UnsentAnnotations = new Mongo.Collection(null);
@@ -18,7 +19,7 @@ const DRAW_END = ANNOTATION_CONFIG.status.end;
 const DRAW_NONE = ANNOTATION_CONFIG.status.none;
 
 const ANNOTATION_TYPE_PENCIL = 'pencil';
-
+const ANNOTATION_TYPE_MARKER = 'marker';
 
 let annotationsStreamListener = null;
 
@@ -70,6 +71,79 @@ function handleRemovedAnnotation({
   Annotations.remove(query);
 }
 
+const moveAndUpdateOneAnnotation = (whiteboardId, shapeId, offset) => {
+  const selector = { whiteboardId, id: shapeId };
+  const newAnnotationInfo = Annotations.findOne(selector).annotationInfo;
+
+  if (newAnnotationInfo.type == "text") {
+    newAnnotationInfo.x += offset.x;
+    newAnnotationInfo.y += offset.y;
+  } else {
+    const newPoints = newAnnotationInfo.points.map( function(val, idx) {
+      if( idx % 2 !== 0 ) {
+        return val + offset.y;
+      } else {
+        return val + offset.x;
+      }
+    });
+    newAnnotationInfo.points = newPoints;
+  }
+
+  const modifier = {
+    $set: {
+      annotationInfo: newAnnotationInfo,
+    },
+    $inc: {
+      version: 1,
+    },
+  };
+
+  Annotations.update(selector, modifier);
+}
+
+function handleMovedAnnotation({
+  meetingId, whiteboardId, userId, shapeId, offset
+}) {
+  // If you are an annotator, your annotations should have already been moved.
+  if ((isPresenter() || hasMultiUserAccess(whiteboardId, userId)) && userId == Auth.userID) return;
+
+  moveAndUpdateOneAnnotation(whiteboardId, shapeId, offset);
+}
+
+function handleReorderedAnnotation({
+  meetingId, whiteboardId, userId, order
+}) {
+  // If you are an annotator, your annotations should have already been moved.
+  if ((isPresenter() || hasMultiUserAccess(whiteboardId, userId)) && userId == Auth.userID) return;
+
+  for (const ac of order) {
+    // doesn't specify userId for the multi-user whiteboard
+    const selector = { meetingId, whiteboardId, id: ac.id };
+
+    const modifier = {
+      $set: {
+        position: ac.position,
+      },
+    };
+
+    Annotations.update(selector, modifier);
+  }
+}
+
+function handleDeselectedAnnotation({
+  meetingId, whiteboardId
+}) {
+  const selector = { meetingId, whiteboardId, selected: true };
+
+  const modifier = {
+    $set: {
+      selected: false,
+    },
+  };
+
+  Annotations.update(selector, modifier, { multi: true });
+}
+
 export function initAnnotationsStreamListener() {
   logger.info({ logCode: 'init_annotations_stream_listener' }, 'initAnnotationsStreamListener called');
   /**
@@ -95,6 +169,9 @@ export function initAnnotationsStreamListener() {
     logger.debug({ logCode: 'annotations_stream_handler_attach' }, 'Attaching handlers for annotations stream');
 
     annotationsStreamListener.on('removed', handleRemovedAnnotation);
+    annotationsStreamListener.on('reordered', handleReorderedAnnotation);
+    annotationsStreamListener.on('deselected', handleDeselectedAnnotation);
+    annotationsStreamListener.on('moved', handleMovedAnnotation);
 
     annotationsStreamListener.on('added', ({ annotations }) => {
       annotations.forEach(annotation => handleAddedAnnotation(annotation));
@@ -295,7 +372,7 @@ const sendAnnotation = (annotation, synchronizeWBUpdate) => {
 
     const { status, annotationType } = relevantAnotation;
 
-    if (synchronizeWBUpdate && annotationType === ANNOTATION_TYPE_PENCIL) {
+    if (synchronizeWBUpdate && annotationType === ANNOTATION_TYPE_PENCIL || annotationType === ANNOTATION_TYPE_MARKER) {
       // For drawing a point by pencil, DRAW_START must be included,
       //  but it will be used only for the fake annotations (i.e. those in the presenter's screen).
       //  - I decided not to send DRAW_START, which is not essential, to akka-apps to slightly reduce the traffic.
@@ -427,6 +504,35 @@ const removeIndividualAccess = (whiteboardId, userId) => {
   makeCall('removeIndividualAccess', whiteboardId, userId);
 };
 
+const currentUserID = () => {
+  return Auth.userID ;
+};
+
+const annotatorID = (annotation) => {
+  return annotation.id.replace(/-.+/,'');
+};
+
+const hideAnnotationsForAnnotator = () => {
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { 'lockSettingsProps.hideAnnotations': 1 } });
+  return meeting && meeting.lockSettingsProps ? meeting.lockSettingsProps.hideAnnotations : false;
+};
+
+const isPresenter = () => {
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } });
+  return currentUser ? currentUser.presenter : false;
+};
+
+const isHePresenter = (somebody) => {
+  const he = Users.findOne({ userId: somebody }, { fields: { presenter: 1 } });
+  return he ? he.presenter : false;
+};
+
+const hasAccessToWhiteboard = (whiteboardId) => {
+  const multiUser = getMultiUser(whiteboardId);
+  return multiUser.includes(Auth.userID) ? true : false;
+};
+
 export {
   Annotations,
   UnsentAnnotations,
@@ -445,4 +551,11 @@ export {
   getWhiteboardMode,
   removeGlobalAccess,
   removeIndividualAccess,
+  currentUserID,
+  annotatorID,
+  hideAnnotationsForAnnotator,
+  isPresenter,
+  isHePresenter,
+  hasAccessToWhiteboard,
+  moveAndUpdateOneAnnotation,
 };

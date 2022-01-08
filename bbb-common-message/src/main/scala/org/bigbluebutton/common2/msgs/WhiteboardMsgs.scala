@@ -35,6 +35,18 @@ case class SendWhiteboardAnnotationPubMsgBody(annotation: AnnotationVO, drawEndO
 object UndoWhiteboardPubMsg { val NAME = "UndoWhiteboardPubMsg" }
 case class UndoWhiteboardPubMsg(header: BbbClientMsgHeader, body: UndoWhiteboardPubMsgBody) extends StandardMsg
 case class UndoWhiteboardPubMsgBody(whiteboardId: String)
+
+object RemoveWhiteboardAnnotationsPubMsg { val NAME = "RemoveWhiteboardAnnotationsPubMsg" }
+case class RemoveWhiteboardAnnotationsPubMsg(header: BbbClientMsgHeader, body: RemoveWhiteboardAnnotationsPubMsgBody) extends StandardMsg
+case class RemoveWhiteboardAnnotationsPubMsgBody(whiteboardId: String, selectedAnnotations: Array[Map[String, String]])
+
+object MoveWhiteboardAnnotationsPubMsg { val NAME = "MoveWhiteboardAnnotationsPubMsg" }
+case class MoveWhiteboardAnnotationsPubMsg(header: BbbClientMsgHeader, body: MoveWhiteboardAnnotationsPubMsgBody) extends StandardMsg
+case class MoveWhiteboardAnnotationsPubMsgBody(whiteboardId: String, selectedAnnotations: Array[Map[String, String]], offset: Map[String, Float])
+
+object ReorderWhiteboardAnnotationsPubMsg { val NAME = "ReorderWhiteboardAnnotationsPubMsg" }
+case class ReorderWhiteboardAnnotationsPubMsg(header: BbbClientMsgHeader, body: ReorderWhiteboardAnnotationsPubMsgBody) extends StandardMsg
+case class ReorderWhiteboardAnnotationsPubMsgBody(whiteboardId: String, selectedAnnotations: Array[Map[String, String]], order: Array[Map[String, String]])
 // ------------ client to akka-apps ------------
 
 // ------------ akka-apps to client ------------
@@ -73,4 +85,16 @@ case class SendWhiteboardAnnotationEvtMsgBody(annotation: AnnotationVO)
 object UndoWhiteboardEvtMsg { val NAME = "UndoWhiteboardEvtMsg" }
 case class UndoWhiteboardEvtMsg(header: BbbClientMsgHeader, body: UndoWhiteboardEvtMsgBody) extends BbbCoreMsg
 case class UndoWhiteboardEvtMsgBody(whiteboardId: String, userId: String, annotationId: String)
+
+object RemoveWhiteboardAnnotationsEvtMsg { val NAME = "RemoveWhiteboardAnnotationsEvtMsg" }
+case class RemoveWhiteboardAnnotationsEvtMsg(header: BbbClientMsgHeader, body: RemoveWhiteboardAnnotationsEvtMsgBody) extends BbbCoreMsg
+case class RemoveWhiteboardAnnotationsEvtMsgBody(whiteboardId: String, selectedAnnotations: Array[Map[String, String]], userId: String, annotationId: String)
+
+object MoveWhiteboardAnnotationsEvtMsg { val NAME = "MoveWhiteboardAnnotationsEvtMsg" }
+case class MoveWhiteboardAnnotationsEvtMsg(header: BbbClientMsgHeader, body: MoveWhiteboardAnnotationsEvtMsgBody) extends BbbCoreMsg
+case class MoveWhiteboardAnnotationsEvtMsgBody(whiteboardId: String, selectedAnnotations: Array[Map[String, String]], offset: Map[String, Float], userId: String, movedAnnotationId: String)
+
+object ReorderWhiteboardAnnotationsEvtMsg { val NAME = "ReorderWhiteboardAnnotationsEvtMsg" }
+case class ReorderWhiteboardAnnotationsEvtMsg(header: BbbClientMsgHeader, body: ReorderWhiteboardAnnotationsEvtMsgBody) extends BbbCoreMsg
+case class ReorderWhiteboardAnnotationsEvtMsgBody(whiteboardId: String, selectedAnnotations: Array[Map[String, String]], order: Array[Map[String, String]], userId: String)
 // ------------ akka-apps to client ------------

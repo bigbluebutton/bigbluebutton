@@ -4,8 +4,8 @@ import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers'
 
 export default class LineDrawComponent extends Component {
   shouldComponentUpdate(nextProps) {
-    const { version } = this.props;
-    return version !== nextProps.version;
+    const { version, hidden, selected } = this.props;
+    return version !== nextProps.version || hidden !== nextProps.hidden  || selected !== nextProps.selected;
   }
 
   getCoordinates() {
@@ -27,13 +27,16 @@ export default class LineDrawComponent extends Component {
 
   render() {
     const results = this.getCoordinates();
-    const { annotation, slideWidth } = this.props;
+    const { annotation, slideWidth, hidden, selected, isEditable } = this.props;
     const {
       x1, y1, x2, y2,
     } = results;
 
     return (
+     <g>
+     {hidden ? null :
       <line
+        id={annotation.id}
         x1={x1}
         y1={y1}
         x2={x2}
@@ -43,7 +46,21 @@ export default class LineDrawComponent extends Component {
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
         data-test="drawnLine"
-      />
+      />}
+     {selected &&
+      <rect
+        x={Math.min(x1,x2)}
+        y={Math.min(y1,y2)}
+        width={Math.abs(x1-x2)}
+        height={Math.abs(y1-y2)}
+        fill= "none"
+        stroke={isEditable ? Meteor.settings.public.whiteboard.selectColor : Meteor.settings.public.whiteboard.selectInertColor}
+        opacity="0.5"
+        strokeWidth={getStrokeWidth(annotation.thickness+1, slideWidth)}
+        style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
+        data-test="drawnEllipseSelection"
+      />}
+     </g>
     );
   }
 }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import RenderInBrowser from 'react-render-in-browser';
-import { getFormattedColor, denormalizeCoord } from '../helpers';
+import { getFormattedColor, denormalizeCoord, getStrokeWidth } from '../helpers';
 
 const DRAW_END = Meteor.settings.public.whiteboard.annotations.status.end;
 
@@ -41,6 +41,7 @@ export default class TextDrawComponent extends Component {
       resize: 'none',
       overflow: 'hidden',
       outline: 'none',
+      backgroundColor: 'rgba(128, 128, 128, 0.2)',
       color: results.fontColor,
       fontSize: results.calcedFontSize,
       padding: '0',
@@ -51,9 +52,13 @@ export default class TextDrawComponent extends Component {
   constructor() {
     super();
 
+    this.textBoxMoveX = 0.0;
+    this.textBoxMoveY = 0.0;
+    
     this.handleFocus = this.handleFocus.bind(this);
     this.handleOnBlur = this.handleOnBlur.bind(this);
     this.onChangeHandler = this.onChangeHandler.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
   componentDidMount() {
@@ -78,9 +83,13 @@ export default class TextDrawComponent extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    const { version, isActive } = this.props;
+    const { version, isActive, annotation, hidden, selected } = this.props;
     return version !== nextProps.version
-      || isActive !== nextProps.isActive;
+      || isActive !== nextProps.isActive
+      || annotation.x !== nextProps.annotation.x
+      || annotation.y !== nextProps.annotation.y
+      || hidden !== nextProps.hidden
+      || selected !== nextProps.selected;
   }
 
   // If the user is drawing a text shape and clicks Undo - reset textShapeId
@@ -89,6 +98,31 @@ export default class TextDrawComponent extends Component {
     if (isActive) {
       resetTextShapeActiveId();
     }
+  }
+
+  handleKeyDown(event) {
+    const { slideWidth, slideHeight, setTextShapeOffset } = this.props;
+
+    const d = {
+      x: 1.0 * slideHeight / (slideWidth + slideHeight),
+      y: 1.0 * slideWidth  / (slideWidth + slideHeight),
+    };
+
+    if        (event.keyCode == '38' && event.ctrlKey) { // up arrow
+      event.preventDefault();
+      this.textBoxMoveY -= d.y;
+    } else if (event.keyCode == '40' && event.ctrlKey) { // down arrow
+      event.preventDefault();
+      this.textBoxMoveY += d.y;
+    } else if (event.keyCode == '37' && event.ctrlKey) { // left arrow
+      event.preventDefault();
+      this.textBoxMoveX -= d.x;
+    } else if (event.keyCode == '39' && event.ctrlKey) { // right arrow
+      event.preventDefault();
+      this.textBoxMoveX += d.x;
+    }
+    event.stopPropagation();
+    setTextShapeOffset({x: this.textBoxMoveX, y: this.textBoxMoveY});
   }
 
   onChangeHandler(event) {
@@ -144,33 +178,40 @@ export default class TextDrawComponent extends Component {
   }
 
   renderViewerTextShape(results) {
-    const { annotation } = this.props;
+    const { annotation, hidden, selected, slideWidth, isEditable } = this.props;
     const styles = TextDrawComponent.getViewerStyles(results);
 
     return (
+     <g>
+     {hidden ? null :
       <g>
-        <RenderInBrowser only firefox>
-          <clipPath id={annotation.id}>
-            <rect
-              x={results.x}
-              y={results.y}
-              width={results.width}
-              height={results.height}
-            />
-          </clipPath>
-        </RenderInBrowser>
         <foreignObject
-          clipPath={`url(#${annotation.id})`}
           x={results.x}
           y={results.y}
           width={results.width}
           height={results.height}
         >
-          <p style={styles}>
+          <p
+            id={annotation.id}
+            style={styles}
+          >
             {results.text}
           </p>
         </foreignObject>
-      </g>
+      </g>}
+     {selected &&
+      <rect
+        x={results.x}
+        y={results.y}
+        width={results.width}
+        height={results.height}
+        fill= "none"
+        stroke={isEditable ? Meteor.settings.public.whiteboard.selectColor : Meteor.settings.public.whiteboard.selectInertColor}
+        opacity="0.5"
+        strokeWidth={getStrokeWidth(1, slideWidth)}
+        style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
+      />}
+     </g>
     );
   }
 
@@ -195,6 +236,7 @@ export default class TextDrawComponent extends Component {
             onBlur={this.handleOnBlur}
             style={styles}
             spellCheck="false"
+            onKeyDown={this.handleKeyDown}
           />
         </foreignObject>
       </g>
@@ -239,4 +281,6 @@ TextDrawComponent.propTypes = {
   // Defines a function that resets the textShape active Id in case if a user clicks Undo
   // while drawing a shape
   resetTextShapeActiveId: PropTypes.func.isRequired,
+  // Defines a function that sets the textShape offset when arrow buttons are pushed with control key
+  setTextShapeOffset: PropTypes.func.isRequired,
 };

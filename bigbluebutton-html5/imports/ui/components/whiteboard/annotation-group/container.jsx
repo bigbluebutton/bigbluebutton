@@ -23,7 +23,7 @@ export default withTracker((params) => {
   } = params;
 
   const fetchFunc = published
-    ? AnnotationGroupService.getCurrentAnnotationsInfo : AnnotationGroupService.getUnsetAnnotations;
+    ? AnnotationGroupService.getCurrentAnnotationsInfo : AnnotationGroupService.getUnsentAnnotations;
 
   const annotationsInfo = fetchFunc(whiteboardId);
   return {

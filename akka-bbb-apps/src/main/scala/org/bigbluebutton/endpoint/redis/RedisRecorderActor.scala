@@ -79,6 +79,9 @@ class RedisRecorderActor(
       case m: SendCursorPositionEvtMsg              => handleSendCursorPositionEvtMsg(m)
       case m: ClearWhiteboardEvtMsg                 => handleClearWhiteboardEvtMsg(m)
       case m: UndoWhiteboardEvtMsg                  => handleUndoWhiteboardEvtMsg(m)
+      case m: RemoveWhiteboardAnnotationsEvtMsg     => handleRemoveWhiteboardAnnotationsEvtMsg(m)
+      case m: ReorderWhiteboardAnnotationsEvtMsg    => handleReorderWhiteboardAnnotationsEvtMsg(m)
+      case m: MoveWhiteboardAnnotationsEvtMsg       => handleMoveWhiteboardAnnotationsEvtMsg(m)
 
       // User
       case m: UserJoinedMeetingEvtMsg               => handleUserJoinedMeetingEvtMsg(m)
@@ -115,6 +118,9 @@ class RedisRecorderActor(
       case m: WebcamsOnlyForModeratorChangedEvtMsg  => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
       case m: MeetingEndingEvtMsg                   => handleEndAndKickAllSysMsg(m)
 
+      // Upload
+      case m: FileUploadedEvtMsg                    => handleFileUploadedEvtMsg(m)
+      
       // Recording
       case m: RecordingChapterBreakSysMsg           => handleRecordingChapterBreakSysMsg(m)
 
@@ -326,6 +332,41 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
+  private def handleRemoveWhiteboardAnnotationsEvtMsg(msg: RemoveWhiteboardAnnotationsEvtMsg) {
+    val ev = new RemoveAnnotationRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPresentation(getPresentationId(msg.body.whiteboardId))
+    ev.setPageNumber(getPageNum(msg.body.whiteboardId))
+    ev.setWhiteboardId(msg.body.whiteboardId)
+    ev.setUserId(msg.body.userId)
+    ev.setShapeId(msg.body.annotationId)
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleMoveWhiteboardAnnotationsEvtMsg(msg: MoveWhiteboardAnnotationsEvtMsg) {
+    val ev = new MoveAnnotationRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPresentation(getPresentationId(msg.body.whiteboardId))
+    ev.setPageNumber(getPageNum(msg.body.whiteboardId))
+    ev.setWhiteboardId(msg.body.whiteboardId)
+    ev.setUserId(msg.body.userId)
+    ev.setShapeId(msg.body.movedAnnotationId)
+    ev.setXOffset(msg.body.offset("x").toString.toFloat)
+    ev.setYOffset(msg.body.offset("y").toString.toFloat)
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleReorderWhiteboardAnnotationsEvtMsg(msg: ReorderWhiteboardAnnotationsEvtMsg) {
+    val ev = new ReorderAnnotationRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPresentation(getPresentationId(msg.body.whiteboardId))
+    ev.setPageNumber(getPageNum(msg.body.whiteboardId))
+    ev.setWhiteboardId(msg.body.whiteboardId)
+    ev.setUserId(msg.body.userId)
+    ev.setOrder(msg.body.order)
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+    
   private def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
     val ev = new ParticipantJoinRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
@@ -546,6 +587,16 @@ class RedisRecorderActor(
     val ev = new EndAndKickAllRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setReason(msg.body.reason)
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleFileUploadedEvtMsg(msg: FileUploadedEvtMsg): Unit = {
+    val ev = new FileUploadedRecordEvent()
+    ev.setUserId(msg.header.userId)
+    ev.setUploadId(msg.body.uploadId)
+    ev.setSource(msg.body.source)
+    ev.setFilename(msg.body.filename)
+
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 

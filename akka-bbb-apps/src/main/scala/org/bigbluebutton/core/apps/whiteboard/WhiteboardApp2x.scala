@@ -20,6 +20,9 @@ class WhiteboardApp2x(implicit val context: ActorContext)
   extends SendCursorPositionPubMsgHdlr
   with ClearWhiteboardPubMsgHdlr
   with UndoWhiteboardPubMsgHdlr
+  with RemoveWhiteboardAnnotationsPubMsgHdlr
+  with ReorderWhiteboardAnnotationsPubMsgHdlr
+  with MoveWhiteboardAnnotationsPubMsgHdlr
   with ModifyWhiteboardAccessPubMsgHdlr
   with ModifyWBModePubMsgHdlr
   with SendWhiteboardAnnotationPubMsgHdlr
@@ -35,13 +38,15 @@ class WhiteboardApp2x(implicit val context: ActorContext)
       //This does not happen anymore since 2.3
       rtnAnnotation = liveMeeting.wbModel.addAnnotation(annotation.wbId, annotation.userId, annotation)
     } else if (WhiteboardKeyUtil.DRAW_UPDATE_STATUS == annotation.status) {
-      if (WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType) {
+      if (WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType ||
+         WhiteboardKeyUtil.MARKER_TYPE == annotation.annotationType) {
         rtnAnnotation = liveMeeting.wbModel.updateAnnotationPencil(annotation.wbId, annotation.userId, annotation)
       } else {
         rtnAnnotation = liveMeeting.wbModel.updateAnnotation(annotation.wbId, annotation.userId, annotation)
       }
     } else if (WhiteboardKeyUtil.DRAW_END_STATUS == annotation.status) {
-      if (WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType) {
+      if (WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType ||
+         WhiteboardKeyUtil.MARKER_TYPE == annotation.annotationType) {
         rtnAnnotation = liveMeeting.wbModel.endAnnotationPencil(annotation.wbId, annotation.userId, annotation, drawEndOnly)
       } else {
         rtnAnnotation = liveMeeting.wbModel.updateAnnotation(annotation.wbId, annotation.userId, annotation)
@@ -66,6 +71,18 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     liveMeeting.wbModel.undoWhiteboard(whiteboardId, requesterId)
   }
 
+  def removeWhiteboardAnnotations(whiteboardId: String, selectedAnnotations: Array[Map[String, String]], requesterId: String, liveMeeting: LiveMeeting): List[AnnotationVO] = {
+    liveMeeting.wbModel.removeWhiteboardAnnotations(whiteboardId, selectedAnnotations, requesterId)
+  }
+
+  def reorderWhiteboardAnnotations(whiteboardId: String, selectedAnnotations: Array[Map[String, String]], order: Array[Map[String, String]], requesterId: String, liveMeeting: LiveMeeting) = {
+    liveMeeting.wbModel.reorderWhiteboardAnnotations(whiteboardId, selectedAnnotations, order, requesterId)
+  }
+
+  def moveWhiteboardAnnotations(whiteboardId: String, selectedAnnotations: Array[Map[String, String]], offset: Map[String, Float], requesterId: String, liveMeeting: LiveMeeting): List[AnnotationVO] = {
+    liveMeeting.wbModel.moveWhiteboardAnnotations(whiteboardId, selectedAnnotations, offset, requesterId)
+  }
+    
   def getWhiteboardAccess(whiteboardId: String, liveMeeting: LiveMeeting): Array[String] = {
     liveMeeting.wbModel.getWhiteboardAccess(whiteboardId)
   }

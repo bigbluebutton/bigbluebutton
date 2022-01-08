@@ -81,23 +81,35 @@ export default class PencilDrawComponent extends Component {
 
     this.whiteboardMode = WhiteboardService.getWhiteboardMode();
 
-    this.path = this.getCoordinates(annotation, slideWidth, slideHeight);
+    this.path = this.getCoordinates(annotation, slideWidth, slideHeight, false);
 
     this.getCurrentPath = this.getCurrentPath.bind(this);
     this.getCoordinates = this.getCoordinates.bind(this);
   }
 
   shouldComponentUpdate(nextProps) {
-    const { version, annotation, slideWidth, slideHeight } = this.props;
+    const { version, hidden, selected, annotation, slideWidth, slideHeight } = this.props;
     const { points } = annotation;
-    if (points.length !== nextProps.annotation.points.length) {
+    if (nextProps.annotation.points[0] != points[0] || nextProps.annotation.points[1] != points[1]) {
+      this.path = this.getCoordinates(nextProps.annotation, slideWidth, slideHeight, true);
+    } else if (points.length !== nextProps.annotation.points.length) {
       // this has been transferred from componentDidUpdate to reach to the last point
-      this.path = this.getCoordinates(nextProps.annotation, slideWidth, slideHeight);
+      this.path = this.getCoordinates(nextProps.annotation, slideWidth, slideHeight, false);
     }
-    return version !== nextProps.version;
+    
+    if (annotation.status == "DRAW_END"
+        && (annotation.points[0] !== nextProps.annotation.points[0]
+         || annotation.points[1] !== nextProps.annotation.points[1])) {
+      // Pencil drawing was moved by dragging
+      const data = PencilDrawComponent.getFinalCoordinates(nextProps.annotation, slideWidth, slideHeight);
+      this.points = data.points;
+      this.path = data.path;
+    }
+      
+    return version !== nextProps.version || hidden !== nextProps.hidden || selected !== nextProps.selected;
   }
 
-  getCoordinates(annotation, slideWidth, slideHeight) {
+  getCoordinates(annotation, slideWidth, slideHeight, fullUpdate) {
     if (!annotation || annotation.points.length === 0) {
       return undefined;
     }
@@ -117,7 +129,7 @@ export default class PencilDrawComponent extends Component {
       data = PencilDrawComponent.getInitialCoordinates(annotation, slideWidth, slideHeight);
     // If it's not the first 2 cases - means we just got an update, updating the coordinates
     } else {
-      data = this.updateCoordinates(annotation, slideWidth, slideHeight);
+      data = this.updateCoordinates(annotation, slideWidth, slideHeight, fullUpdate);
     }
 
     this.points = data.points;
@@ -128,26 +140,54 @@ export default class PencilDrawComponent extends Component {
     return this.path ? this.path : 'M -1 -1';
   }
 
-  updateCoordinates(annotation, slideWidth, slideHeight) {
+  updateCoordinates(annotation, slideWidth, slideHeight, fullUpdate) {
     const { points } = annotation;
 
-    let i = this.points.length;
+    let i;
     let path = '';
+    if (fullUpdate) {
+      i = 2
+      path += `M${denormalizeCoord(points[0], slideWidth)}, ${denormalizeCoord(points[1], slideHeight)}`;
+    } else {
+      i = this.points.length;
+      path += this.path;
+    }
+    
     while (i < points.length) {
       path = `${path} L${denormalizeCoord(points[i], slideWidth)
       }, ${denormalizeCoord(points[i + 1], slideHeight)}`;
       i += 2;
     }
 
-    path = this.path + path;
-
     return { path, points };
   }
 
+  getBBox() {
+    const { slideWidth, slideHeight, annotation } = this.props;
+
+    const oddPoints = this.points.filter((a,i)=>i%2===0);
+    const evenPoints = this.points.filter((a,i)=>i%2===1);
+    let x = denormalizeCoord(Math.min(...oddPoints), slideWidth)
+    let y = denormalizeCoord(Math.min(...evenPoints), slideHeight)
+    let width = denormalizeCoord(Math.max(...oddPoints), slideWidth) - x;
+    let height = denormalizeCoord(Math.max(...evenPoints), slideHeight) -y;
+
+    const strokeWidth = getStrokeWidth(annotation.thickness, slideWidth)
+    if (width == 0 ) { width = strokeWidth ; x -= strokeWidth/2 }
+    if (height== 0 ) { height= strokeWidth ; y -= strokeWidth/2 }
+
+    return {x, y, width, height};
+  }
+
   render() {
-    const { annotation, slideWidth } = this.props;
+    const { annotation, slideWidth, hidden, selected, isEditable } = this.props;
+    const bbox = selected ? this.getBBox() : {x:0, y:0, width:0, height:0};
+    
     return (
+     <g>
+     {hidden ? null :
       <path
+        id={annotation.id}
         fill="none"
         stroke={getFormattedColor(annotation.color)}
         d={this.getCurrentPath()}
@@ -156,7 +196,21 @@ export default class PencilDrawComponent extends Component {
         strokeLinecap="round"
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
         data-test="pencilDraw"
-      />
+      />}
+     {selected &&
+      <rect
+        x={bbox.x}
+        y={bbox.y}
+        width={bbox.width}
+        height={bbox.height}
+        fill= "none"
+        stroke={isEditable ? Meteor.settings.public.whiteboard.selectColor : Meteor.settings.public.whiteboard.selectInertColor}
+        opacity="0.5"
+        strokeWidth={getStrokeWidth(annotation.thickness+1, slideWidth)}
+        style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
+        data-test="pencilDrawSelection"
+      />}
+     </g>
     );
   }
 }

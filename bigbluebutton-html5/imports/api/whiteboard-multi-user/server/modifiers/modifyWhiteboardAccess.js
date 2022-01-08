@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
+import AnnotationsStreamer from '/imports/api/annotations/server/streamer';
 
 export default function modifyWhiteboardAccess(meetingId, whiteboardId, multiUser) {
   check(meetingId, String);
@@ -21,6 +22,8 @@ export default function modifyWhiteboardAccess(meetingId, whiteboardId, multiUse
     },
   };
 
+  AnnotationsStreamer(meetingId).emit('deselected', { meetingId, whiteboardId });
+  
   try {
     const { insertedId } = WhiteboardMultiUser.upsert(selector, modifier);
     if (insertedId) {
