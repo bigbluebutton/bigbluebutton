@@ -552,6 +552,7 @@ class Presentation extends PureComponent {
       slidePosition,
       userIsPresenter,
       layoutSwapped,
+      tool,
     } = this.props;
 
     const {
@@ -683,6 +684,7 @@ class Presentation extends PureComponent {
           target={moveableTargets}
         />
         <Selecto
+          dragCondition={(_) => tool === 'selection'}
           boundContainer="#slideSVG"
           ref={this.selectoRef}
           selectByClick
@@ -690,9 +692,12 @@ class Presentation extends PureComponent {
           onSelect={
             (e) => {
               this.setState({ moveableTargets: e.selected });
-              PresentationService.selectAnnotations(e.selected.map((target) => target.id));
             }
           }
+          onSelectEnd={(e) => {
+            this.setState({ moveableTargets: e.selected });
+            PresentationService.selectAnnotations(e.selected.map((target) => target.id));
+          }}
         />
       </div>
     );
@@ -976,6 +981,7 @@ Presentation.propTypes = {
   }),
   // current multi-user status
   multiUser: PropTypes.bool.isRequired,
+  tool: PropTypes.string.isRequired,
 };
 
 Presentation.defaultProps = {
