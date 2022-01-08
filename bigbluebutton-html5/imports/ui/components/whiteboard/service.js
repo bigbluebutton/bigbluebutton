@@ -7,7 +7,6 @@ import { makeCall } from '/imports/ui/services/api';
 import PresentationService from '/imports/ui/components/presentation/service';
 import Meetings from '/imports/api/meetings';
 import logger from '/imports/startup/client/logger';
-import Meetings from '/imports/api/meetings';
 
 const Annotations = new Mongo.Collection(null);
 const UnsentAnnotations = new Mongo.Collection(null);
