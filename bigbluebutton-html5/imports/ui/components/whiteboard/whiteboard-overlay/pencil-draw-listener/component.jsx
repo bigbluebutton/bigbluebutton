@@ -31,7 +31,7 @@ export default class PencilDrawListener extends Component {
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
     this.discardAnnotation = this.discardAnnotation.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
+    //this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
   componentDidMount() {
@@ -105,7 +105,7 @@ export default class PencilDrawListener extends Component {
       }
     }
   }
-
+/*
   handleKeyDown(event) {
     const {
       physicalSlideWidth,
@@ -147,7 +147,7 @@ export default class PencilDrawListener extends Component {
     event.stopPropagation();
     this.sendCoordinates();
   }
-
+*/
   handleTouchStart(event) {
     const { presentationWindow } = this.props;
     event.preventDefault();
@@ -155,7 +155,7 @@ export default class PencilDrawListener extends Component {
       presentationWindow.addEventListener('touchend', this.handleTouchEnd, { passive: false });
       presentationWindow.addEventListener('touchmove', this.handleTouchMove, { passive: false });
       presentationWindow.addEventListener('touchcancel', this.handleTouchCancel, true);
-      presentationWindow.addEventListener('keydown', this.handleKeyDown, true);
+      //presentationWindow.addEventListener('keydown', this.handleKeyDown, true);
 
       const { clientX, clientY } = event.changedTouches[0];
       this.commonDrawStartHandler(clientX, clientY);
@@ -191,7 +191,7 @@ export default class PencilDrawListener extends Component {
       if (isLeftClick) {
         presentationWindow.addEventListener('mouseup', this.mouseUpHandler);
         presentationWindow.addEventListener('mousemove', this.mouseMoveHandler, true);
-        presentationWindow.addEventListener('keydown', this.handleKeyDown, true);
+        //presentationWindow.addEventListener('keydown', this.handleKeyDown, true);
 
         const { clientX, clientY } = event;
         this.commonDrawStartHandler(clientX, clientY);
@@ -310,7 +310,7 @@ export default class PencilDrawListener extends Component {
     // mouseup and mousemove are removed on desktop
     presentationWindow.removeEventListener('mouseup', this.mouseUpHandler);
     presentationWindow.removeEventListener('mousemove', this.mouseMoveHandler, true);
-    presentationWindow.removeEventListener('keydown', this.handleKeyDown, true);
+    //presentationWindow.removeEventListener('keydown', this.handleKeyDown, true);
     // touchend, touchmove and touchcancel are removed on devices
     presentationWindow.removeEventListener('touchend', this.handleTouchEnd, { passive: false });
     presentationWindow.removeEventListener('touchmove', this.handleTouchMove, { passive: false });
