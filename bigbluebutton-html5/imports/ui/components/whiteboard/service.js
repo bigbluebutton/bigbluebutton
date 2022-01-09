@@ -278,7 +278,9 @@ const sendAnnotation = (annotation, synchronizeWBUpdate) => {
       //don't proceed to the fake annotation drawing below
       return;
     }
-
+    
+    // DRAW_START will be used for the fake annotation in the presenter's screen, but not for the true annotation (above).
+    // I decided not to send it to akka-apps because 1) it's not essential anyway and 2) network traffic is slightly reduced. 
     const { position, ...relevantAnotation } = annotation;
     const queryFake = addAnnotationQuery(
       Auth.meetingID, annotation.wbId, Auth.userID,
@@ -292,17 +294,6 @@ const sendAnnotation = (annotation, synchronizeWBUpdate) => {
         },
       },
     );
-
-    const { status, annotationType } = relevantAnotation;
-
-    if (synchronizeWBUpdate && annotationType === ANNOTATION_TYPE_PENCIL) {
-      // For drawing a point by pencil, DRAW_START must be included,
-      //  but it will be used only for the fake annotations (i.e. those in the presenter's screen).
-      //  - I decided not to send DRAW_START, which is not essential, to akka-apps to slightly reduce the traffic.
-      //  However the code would be more straight if we simply revive DRAW_START in akka-apps.
-      queryFake.modifier['$push'] = {'annotationInfo.points' : { '$each': annotation.annotationInfo.points } };
-    }
-
     UnsentAnnotations.upsert(queryFake.selector, queryFake.modifier);
   }
 };
