@@ -300,7 +300,13 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
   let {
     content,
   } = currentSlide;
-
+  
+  const urlRegex = /((http|https):\/\/[a-zA-Z0-9\-.:]+(\/\S*)?)/g;
+  const optionsUrls = content.match(urlRegex) || [];
+  const videoUrls = optionsUrls.filter(value => isUrlValid(value));
+  const urls = optionsUrls.filter(i => videoUrls.indexOf(i) == -1);
+  content = content.replace(new RegExp(urlRegex), '');
+  
   const pollRegex = /(\d{1,2}|[A-Za-z])[.)].*/g;
   let optionsPoll = content.match(pollRegex) || [];
   let optionsPollStrings = [];
@@ -397,11 +403,6 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     type: pollTypes.TrueFalse,
     poll,
   }));
-
-  const urlRegex = /((http|https):\/\/[a-zA-Z0-9\-.:]+(\/\S*)?)/g;
-  const optionsUrls = content.match(urlRegex) || [];
-  const videoUrls = optionsUrls.filter(value => isUrlValid(value));
-  const urls = optionsUrls.filter(i => videoUrls.indexOf(i) == -1);
   
   return {
     slideId: currentSlide.id,
