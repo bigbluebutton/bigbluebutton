@@ -55,7 +55,7 @@ function cleanNonDefaultVirtualBackgrounds() {
           rmSync(`${virtualBackgroundDir}/thumbnails/${entry.name}`, { force: true });
         }
       } catch (error) {
-        Logger.error('Error on remove non-default virtual backgrounds.',
+        Logger.error('Error on remove non-default virtual background.',
           { logCode: 'custom_virtual_background_cleaning', extraInfo: { error } });
       }
     });
@@ -65,7 +65,7 @@ function cleanNonDefaultVirtualBackgrounds() {
 }
 
 function updateProgramJson(configs) {
-  if (configs.length > 0 && env === 'production') {
+  if (configs.length > 0) {
     const programJsonPath = realpathSync(`${meteorRoot}/../programs/web.browser/program.json`);
 
     if (existsSync(programJsonPath)) {
@@ -88,7 +88,7 @@ function updateProgramJson(configs) {
   }
 }
 
-function addCustomBackgrounds() {
+function addCustomVirtualBackgrounds() {
   if (existsSync(CUSTOM_BACKGROUND_DIR)) {
     const files = readdirSync(CUSTOM_BACKGROUND_DIR, { withFileTypes: true })
       .filter((file) => !file.isDirectory());
@@ -96,69 +96,68 @@ function addCustomBackgrounds() {
     if (files.length > 0) {
       const configs = files.map((file) => {
         try {
-          // Background
           const bgPath = `${CUSTOM_BACKGROUND_DIR}/${file.name}`;
           copyFileSync(bgPath, `${virtualBackgroundDir}/${file.name}`);
-          const bgData = readFileSync(`${virtualBackgroundDir}/${file.name}`, 'utf-8');
-          const bgStats = statSync(`${virtualBackgroundDir}/${file.name}`);
-          const bgHash = createHash('sha256')
-            .update(bgData)
-            .digest('hex');
+
+          const thumbPath = `${CUSTOM_BACKGROUND_DIR}/thumbnails/${file.name}`;
+          copyFileSync(thumbPath, `${virtualBackgroundDir}/thumbnails/${file.name}`);
 
           Meteor.settings.public.virtualBackgrounds.fileNames.push(file.name);
 
-          // Thumbnail
-          const thumbPath = `${CUSTOM_BACKGROUND_DIR}/thumbnails/${file.name}`;
-          copyFileSync(thumbPath, `${virtualBackgroundDir}/thumbnails/${file.name}`);
-          const thumbData = readFileSync(`${virtualBackgroundDir}/thumbnails/${file.name}`, 'utf-8');
-          const thumbStats = statSync(`${virtualBackgroundDir}/thumbnails/${file.name}`);
-          const thumbHash = createHash('sha256')
-            .update(thumbData)
-            .digest('hex');
+          if (env === 'production') {
+            const bgData = readFileSync(`${virtualBackgroundDir}/${file.name}`, 'utf-8');
+            const bgStats = statSync(`${virtualBackgroundDir}/${file.name}`);
+            const bgHash = createHash('sha256')
+              .update(bgData)
+              .digest('hex');
 
-          // Config
-          return [
-            {
-              custom: true,
-              path: `app/resources/images/virtual-backgrounds/thumbnails/${file.name}`,
-              where: 'client',
-              type: 'asset',
-              cacheable: false,
-              url: `/resources/images/virtual-backgrounds/thumbnails/${file.name}`,
-              size: thumbStats.size,
-              hash: thumbHash,
-              sri: null,
-            },
-            {
-              custom: true,
-              path: `app/resources/images/virtual-backgrounds/${file.name}`,
-              where: 'client',
-              type: 'asset',
-              cacheable: false,
-              url: `/resources/images/virtual-backgrounds/${file.name}`,
-              size: bgStats.size,
-              hash: bgHash,
-              sri: null,
-            },
-          ];
+            const thumbData = readFileSync(`${virtualBackgroundDir}/thumbnails/${file.name}`, 'utf-8');
+            const thumbStats = statSync(`${virtualBackgroundDir}/thumbnails/${file.name}`);
+            const thumbHash = createHash('sha256')
+              .update(thumbData)
+              .digest('hex');
+
+            return [
+              {
+                custom: true,
+                path: `app/resources/images/virtual-backgrounds/thumbnails/${file.name}`,
+                where: 'client',
+                type: 'asset',
+                cacheable: false,
+                url: `/resources/images/virtual-backgrounds/thumbnails/${file.name}`,
+                size: thumbStats.size,
+                hash: thumbHash,
+                sri: null,
+              },
+              {
+                custom: true,
+                path: `app/resources/images/virtual-backgrounds/${file.name}`,
+                where: 'client',
+                type: 'asset',
+                cacheable: false,
+                url: `/resources/images/virtual-backgrounds/${file.name}`,
+                size: bgStats.size,
+                hash: bgHash,
+                sri: null,
+              },
+            ];
+          }
+          return null;
         } catch (error) {
+          Logger.error('Error on add custom virtual background.',
+            { logCode: 'custom_virtual_background_add', extraInfo: { error } });
+          rmSync(`${virtualBackgroundDir}/${file.name}`, { force: true });
+          rmSync(`${virtualBackgroundDir}/thumbnails/${file.name}`, { force: true });
+          Logger.warn(`Files of ${file.name} were removed.`);
           const fileIndex = Meteor.settings.public.virtualBackgrounds.fileNames.indexOf(file.name);
           if (fileIndex !== -1) {
             Meteor.settings.public.virtualBackgrounds.fileNames.splice(fileIndex, 1);
           }
-          rmSync(`${virtualBackgroundDir}/${file.name}`, { force: true });
-          rmSync(`${virtualBackgroundDir}/thumbnails/${file.name}`, { force: true });
-          Logger.error('Error on add custom virtual background.',
-            {
-              logCode: 'custom_virtual_background_add',
-              extraInfo: { file: `${CUSTOM_BACKGROUND_DIR}/${file.name}`, error },
-            });
-          Logger.info(`Files of ${file.name} were removed.`);
           return null;
         }
       });
 
-      updateProgramJson(configs);
+      if (env === 'production') updateProgramJson(configs);
       Logger.info('Custom virtual backgrounds updated!');
     } else {
       Logger.info('No custom virtual background found!');
@@ -169,4 +168,4 @@ function addCustomBackgrounds() {
 }
 
 cleanNonDefaultVirtualBackgrounds();
-addCustomBackgrounds();
+addCustomVirtualBackgrounds();
