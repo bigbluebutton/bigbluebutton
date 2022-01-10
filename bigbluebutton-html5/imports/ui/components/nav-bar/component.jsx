@@ -15,6 +15,8 @@ import ConnectionStatusService from '/imports/ui/components/connection-status/se
 import SettingsDropdownContainer from './settings-dropdown/container';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
+import _ from "lodash";
+import {alertScreenReader} from '/imports/utils/dom-utils';
 import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
@@ -29,6 +31,10 @@ const intlMessages = defineMessages({
   newMessages: {
     id: 'app.navBar.toggleUserList.newMessages',
     description: 'label for toggleUserList btn when showing red notification',
+  },
+  newMsgAria: {
+    id: 'app.navBar.toggleUserList.newMsgAria',
+    description: 'label for new message screen reader alert',
   },
 });
 
@@ -47,6 +53,10 @@ const defaultProps = {
 class NavBar extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+        acs: props.activeChats,
+    }
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
   }
@@ -77,6 +87,12 @@ class NavBar extends Component {
           this.handleToggleUserList();
         }
       });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (!_.isEqual(prevProps.activeChats, this.props.activeChats)) {
+      this.setState({ acs: this.props.activeChats})
     }
   }
 
@@ -132,6 +148,7 @@ class NavBar extends Component {
       hasUnreadMessages,
       hasUnreadNotes,
       // isExpanded,
+      activeChats,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
       mountModal,
@@ -151,6 +168,14 @@ class NavBar extends Component {
     ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
 
     const isExpanded = sidebarNavigation.isOpen;
+
+    const { acs } = this.state;
+
+    activeChats.map((c, i) => {
+      if (c?.unreadCounter > 0 && c?.unreadCounter !== acs[i]?.unreadCounter) {
+        alertScreenReader(`${intl.formatMessage(intlMessages.newMsgAria, { 0: c.name })}`)
+      }
+    });
 
     return (
       <header

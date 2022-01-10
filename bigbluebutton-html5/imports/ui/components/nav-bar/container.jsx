@@ -9,6 +9,7 @@ import { ChatContext } from '/imports/ui/components/components-data/chat-context
 import { GroupChatContext } from '/imports/ui/components/components-data/group-chat-context/context';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import NoteService from '/imports/ui/components/note/service';
+import UserlsitService from '/imports/ui/components/user-list/service';
 import Service from './service';
 import NavBar from './component';
 import LayoutContext from '../layout/context';
@@ -36,6 +37,7 @@ const NavBarContainer = ({ children, ...props }) => {
   const { chats: groupChatsMessages } = usingChatContext;
   const { users } = usingUsersContext;
   const { groupChat: groupChats } = usingGroupChatContext;
+  const activeChats = UserlsitService.getActiveChats({ groupChatsMessages, groupChats, users:users[Auth.meetingID] });
   const { ...rest } = props;
   const {
     input, output,
@@ -70,6 +72,7 @@ const NavBarContainer = ({ children, ...props }) => {
         sidebarContent,
         layoutContextDispatch,
         isExpanded,
+        activeChats,
         ...rest,
       }}
       style={{ ...navBar }}

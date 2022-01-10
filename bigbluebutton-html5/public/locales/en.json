@@ -333,6 +333,7 @@
     "app.navBar.userListToggleBtnLabel": "User list toggle",
     "app.navBar.toggleUserList.ariaLabel": "Users and messages toggle",
     "app.navBar.toggleUserList.newMessages": "with new message notification",
+    "app.navBar.toggleUserList.newMsgAria": "New message from {0}",
     "app.navBar.recording": "This session is being recorded",
     "app.navBar.recording.on": "Recording",
     "app.navBar.recording.off": "Not recording",
