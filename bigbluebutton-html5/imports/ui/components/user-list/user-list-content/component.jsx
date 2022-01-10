@@ -82,17 +82,16 @@ class UserContent extends PureComponent {
             intl,
           }}
         />
-        {pendingUsers.length > 0 && currentUser.role === ROLE_MODERATOR
-          ? (
-            <WaitingUsers
-              {...{
-                intl,
-                pendingUsers,
-                sidebarContentPanel,
-                layoutContextDispatch,
-              }}
-            />
-          ) : null}
+        {pendingUsers.length > 0 && currentUser.role === ROLE_MODERATOR ? (
+          <WaitingUsers
+            {...{
+              intl,
+              pendingUsers,
+              sidebarContentPanel,
+              layoutContextDispatch,
+            }}
+          />
+        ) : null}
         <UserPolls
           isPresenter={currentUser.presenter}
           {...{
