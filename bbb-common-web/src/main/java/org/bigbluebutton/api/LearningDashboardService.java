@@ -58,6 +58,14 @@ public class LearningDashboardService {
     }
 
     public void removeJsonDataFile(String meetingId, int cleanUpDelayMinutes) {
+
+        //Avoid big cleanUpDelayMinutes numbers once Java can't handle with it
+        int maxMinutesAllowed = Integer.MAX_VALUE / 60000;
+        if(cleanUpDelayMinutes > maxMinutesAllowed) {
+            log.warn("Learning Dashboard availability time reduced from {} to {} minutes for meeting {}.", cleanUpDelayMinutes, maxMinutesAllowed ,meetingId);
+            cleanUpDelayMinutes = maxMinutesAllowed;
+        }
+
         //Delay `cleanUpDelayMinutes` then moderators can open the Dashboard before files has been removed
         new java.util.Timer().schedule(
                 new java.util.TimerTask() {
