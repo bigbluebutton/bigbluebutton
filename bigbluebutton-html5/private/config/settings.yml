@@ -542,6 +542,14 @@ public:
     #so far. Increasing this value might help avoiding 1004 error when
     #user activates microphone.
     iceGatheringTimeout: 5000
+    # Timeout (ms) for connecting to the audio's signaling websocket.
+    audioConnectionTimeout: 5000
+    # Delay (ms) between each reconnection attempt of the audio's signaling
+    # websocket.
+    audioReconnectionDelay: 5000
+    # Number of reconnection attempts of the signaling websocket, before
+    # showing to the user there's an audio error.
+    audioReconnectionAttempts: 3
     sipjsHackViaWs: false
     # the fqdn of this host.
     # If you run a traditional setup of multiple nodes behind scalelite and the users see the hostnames of the
