@@ -804,18 +804,20 @@ if [ $CHECK ]; then
       echo
    fi
 
+   check_path_owner_group "$RECORDING_DIR" "-d" "-R"
+   check_path_owner_group "$RECORDING_DIR/raw" "-d" "-R"
+   check_path_owner_group "$RECORDING_DIR/process" "-d" "-R"
+   check_path_owner_group "$RECORDING_DIR/publish" "-d" "-R"
+   
+   check_path_owner_group "$STATUS" "-d" "-R"
+   check_path_owner_group "$STATUS/recorded" "-d" "-R"
+   check_path_owner_group "$STATUS/archived" "-d" "-R"
+   check_path_owner_group "$STATUS/processed" "-d" "-R"
+   check_path_owner_group "$STATUS/sanity" "-d" "-R"
+   check_path_owner_group "$STATUS/published" "-d" "-R"
+
    check_path_owner_group "$RAW_PRESENTATION_SRC/captions" "-d" "-R"
    check_path_owner_group "$RAW_PRESENTATION_SRC/events" "-d"
-   check_path_owner_group "$RECORDING_DIR" "-d" "-R"
-
-   check_path_owner_group "$STATUS" "-d"
-   check_path_owner_group "$RECORDING_DIR/process" "-d"
-   check_path_owner_group "$RECORDING_DIR/publish" "-d"
-   check_path_owner_group "$STATUS/recorded" "-d"
-   check_path_owner_group "$STATUS/archived" "-d"
-   check_path_owner_group "$STATUS/processed" "-d"
-   check_path_owner_group "$STATUS/sanity" "-d"
-   check_path_owner_group "$STATUS/published" "-d"
 
    check_path_owner_group "$PUBLISHED_DIR" "-d"
    check_path_owner_group "$RAW_PRESENTATION_SRC/deleted" "-d"
