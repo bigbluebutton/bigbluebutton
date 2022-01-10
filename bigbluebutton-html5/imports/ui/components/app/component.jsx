@@ -197,6 +197,8 @@ class App extends Component {
 
     body.classList.add(`os-${osName.split(' ').shift().toLowerCase()}`);
 
+    body.classList.add(`lang-${locale.split('-')[0]}`);
+
     if (!validIOSVersion()) {
       notify(
         intl.formatMessage(intlMessages.iOSWarning), 'error', 'warning',
