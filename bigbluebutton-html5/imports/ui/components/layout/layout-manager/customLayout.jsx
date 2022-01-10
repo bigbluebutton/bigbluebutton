@@ -884,8 +884,9 @@ class CustomLayout extends Component {
         isDraggable: deviceType !== DEVICE_TYPE.MOBILE
           && deviceType !== DEVICE_TYPE.TABLET,
         resizableEdge: {
-          top: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM
-            || input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM,
+          top: (input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM
+            || input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM)
+            && input.sidebarContent.isOpen,
           right: (!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT)
             || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT),
           bottom: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP,
