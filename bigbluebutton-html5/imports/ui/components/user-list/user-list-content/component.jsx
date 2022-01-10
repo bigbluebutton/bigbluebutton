@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
 import UserParticipantsContainer from './user-participants/container';
-import UserMessages from './user-messages/container';
+import UserMessagesContainer from './user-messages/container';
 import UserNotesContainer from './user-notes/container';
 import UserCaptionsContainer from './user-captions/container';
 import WaitingUsers from './waiting-users/component';
@@ -52,47 +52,41 @@ class UserContent extends PureComponent {
     } = this.props;
 
     return (
-      <div
-        data-test="userListContent"
-        className={styles.content}
-      >
-        {CHAT_ENABLED
-          ? (
-            <UserMessages
-              {...{
-                isPublicChat,
-                compact,
-                intl,
-                roving,
-                currentClosedChats,
-                startedChats,
-              }}
-            />
-          ) : null}
-        {currentUser.role === ROLE_MODERATOR
-          ? (
-            <UserCaptionsContainer
-              {...{
-                intl,
-              }}
-            />
-          ) : null}
+      <div data-test="userListContent" className={styles.content}>
+        {CHAT_ENABLED ? (
+          <UserMessagesContainer
+            {...{
+              isPublicChat,
+              compact,
+              intl,
+              roving,
+              currentClosedChats,
+              startedChats,
+            }}
+          />
+        ) : null}
+        {currentUser.role === ROLE_MODERATOR ? (
+          <UserCaptionsContainer
+            {...{
+              intl,
+            }}
+          />
+        ) : null}
         <UserNotesContainer
           {...{
             intl,
           }}
         />
-        {pendingUsers.length > 0 && currentUser.role === ROLE_MODERATOR
-          ? (
-            <WaitingUsers
-              {...{
-                intl,
-                pendingUsers,
-                sidebarContentPanel,
-                layoutContextDispatch,
-              }}
-            />
-          ) : null}
+        {pendingUsers.length > 0 && currentUser.role === ROLE_MODERATOR ? (
+          <WaitingUsers
+            {...{
+              intl,
+              pendingUsers,
+              sidebarContentPanel,
+              layoutContextDispatch,
+            }}
+          />
+        ) : null}
         <UserPolls
           isPresenter={currentUser.presenter}
           {...{
