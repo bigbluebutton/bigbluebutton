@@ -91,7 +91,12 @@ function updateProgramJson(configs) {
 function addCustomVirtualBackgrounds() {
   if (existsSync(CUSTOM_BACKGROUND_DIR)) {
     const files = readdirSync(CUSTOM_BACKGROUND_DIR, { withFileTypes: true })
-      .filter((file) => !file.isDirectory());
+      .filter((file) => !file.isDirectory())
+      .slice(0, 10);
+
+    if (files.length === 10) {
+      Logger.info('Maximum background number reached. Skipping others...');
+    }
 
     if (files.length > 0) {
       const configs = files.map((file) => {
