@@ -49,6 +49,8 @@ const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
+const VIEWER = Meteor.settings.public.user.role_viewer;
+const MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -99,19 +101,23 @@ const intlMessages = defineMessages({
     id: 'app.title.defaultViewLabel',
     description: 'view name apended to document title',
   },
+  promotedLabel: {
+    id: 'app.toast.promotedLabel',
+    description: 'notification message when promoted',
+  },
+  demotedLabel: {
+    id: 'app.toast.demotedLabel',
+    description: 'notification message when demoted',
+  },
 });
 
 const propTypes = {
-  navbar: PropTypes.element,
-  sidebar: PropTypes.element,
   actionsbar: PropTypes.element,
   captions: PropTypes.element,
   locale: PropTypes.string,
 };
 
 const defaultProps = {
-  navbar: null,
-  sidebar: null,
   actionsbar: null,
   captions: null,
   locale: OVERRIDE_LOCALE || navigator.language,
@@ -221,6 +227,7 @@ class App extends Component {
       meetingMuted,
       notify,
       currentUserEmoji,
+      currentUserRole,
       intl,
       hasPublishedPoll,
       mountModal,
@@ -296,6 +303,16 @@ class App extends Component {
     if (!prevProps.hasPublishedPoll && hasPublishedPoll) {
       notify(
         intl.formatMessage(intlMessages.pollPublishedLabel), 'info', 'polling',
+      );
+    }
+    if (prevProps.currentUserRole === VIEWER && currentUserRole === MODERATOR) {
+      notify(
+        intl.formatMessage(intlMessages.promotedLabel), 'info', 'user',
+      );
+    }
+    if (prevProps.currentUserRole === MODERATOR && currentUserRole === VIEWER) {
+      notify(
+        intl.formatMessage(intlMessages.demotedLabel), 'info', 'user',
       );
     }
 
