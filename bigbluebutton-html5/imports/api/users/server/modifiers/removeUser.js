@@ -14,7 +14,7 @@ const clearAllSessions = (sessionUserId) => {
 
   for (const session of interable) {
     if (session.userId === sessionUserId) {
-      session.close();
+      setTimeout(session.close, 1000);
     }
   }
 };
@@ -22,38 +22,35 @@ const clearAllSessions = (sessionUserId) => {
 export default function removeUser(meetingId, userId) {
   check(meetingId, String);
   check(userId, String);
-
   try {
-    if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
-      const sessionUserId = `${meetingId}--${userId}`;
-      ClientConnections.removeClientConnection(sessionUserId);
-      clearAllSessions(sessionUserId);
-
-      // we don't want to fully process the redis message in frontend
-      // since the backend is supposed to update Mongo
-      if (process.env.BBB_HTML5_ROLE === 'frontend') {
-        return;
-      }
-    }
-
     const selector = {
       meetingId,
       userId,
     };
 
-    setloggedOutStatus(userId, meetingId, true);
-    VideoStreams.remove({ meetingId, userId });
+     // we don't want to fully process the redis message in frontend
+     // since the backend is supposed to update Mongo
+    if (process.env.BBB_HTML5_ROLE !== 'frontend') {
+      setloggedOutStatus(userId, meetingId, true);
+      VideoStreams.remove({ meetingId, userId });
 
-    clearUserInfoForRequester(meetingId, userId);
+      clearUserInfoForRequester(meetingId, userId);
 
-    const currentUser = Users.findOne({ userId, meetingId });
-    const hasMessages = currentUser?.hasMessages;
+      const currentUser = Users.findOne({ userId, meetingId });
+      const hasMessages = currentUser?.hasMessages;
 
-    if (!hasMessages) {
-      UsersPersistentData.remove(selector);
+      if (!hasMessages) {
+        UsersPersistentData.remove(selector);
+      }
+      Users.remove(selector);
+      VoiceUsers.remove({ intId: userId, meetingId })
     }
-    Users.remove(selector);
-    VoiceUsers.remove({ intId: userId, meetingId })
+
+    if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
+      const sessionUserId = `${meetingId}--${userId}`;
+      ClientConnections.removeClientConnection(sessionUserId);
+      clearAllSessions(sessionUserId);      
+    }
 
     Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
   } catch (err) {
