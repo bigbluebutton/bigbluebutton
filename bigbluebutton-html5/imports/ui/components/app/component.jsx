@@ -99,19 +99,23 @@ const intlMessages = defineMessages({
     id: 'app.title.defaultViewLabel',
     description: 'view name apended to document title',
   },
+  promotedLabel: {
+    id: 'app.toast.promotedLabel',
+    description: 'notification message when promoted',
+  },
+  demotedLabel: {
+    id: 'app.toast.demotedLabel',
+    description: 'notification message when demoted',
+  },
 });
 
 const propTypes = {
-  navbar: PropTypes.element,
-  sidebar: PropTypes.element,
   actionsbar: PropTypes.element,
   captions: PropTypes.element,
   locale: PropTypes.string,
 };
 
 const defaultProps = {
-  navbar: null,
-  sidebar: null,
   actionsbar: null,
   captions: null,
   locale: OVERRIDE_LOCALE || navigator.language,
@@ -221,6 +225,7 @@ class App extends Component {
       meetingMuted,
       notify,
       currentUserEmoji,
+      currentUserRole,
       intl,
       hasPublishedPoll,
       mountModal,
@@ -296,6 +301,16 @@ class App extends Component {
     if (!prevProps.hasPublishedPoll && hasPublishedPoll) {
       notify(
         intl.formatMessage(intlMessages.pollPublishedLabel), 'info', 'polling',
+      );
+    }
+    if (prevProps.currentUserRole === 'VIEWER' && currentUserRole === 'MODERATOR') {
+      notify(
+        intl.formatMessage(intlMessages.promotedLabel), 'info', 'user',
+      );
+    }
+    if (prevProps.currentUserRole === 'MODERATOR' && currentUserRole === 'VIEWER') {
+      notify(
+        intl.formatMessage(intlMessages.demotedLabel), 'info', 'user',
       );
     }
 
