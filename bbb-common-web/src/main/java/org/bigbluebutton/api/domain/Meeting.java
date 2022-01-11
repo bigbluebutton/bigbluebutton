@@ -77,6 +77,7 @@ public class Meeting {
 	private Map<String, String> pads;
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
+	private Map<String, Long> guestUsersWithArrivalTime;
 	private final ConcurrentMap<String, User> users;
 	private final ConcurrentMap<String, RegisteredUser> registeredUsers;
 	private final ConcurrentMap<String, Long> enteredUsers;
@@ -153,6 +154,7 @@ public class Meeting {
          */
         pads = new HashMap<>();
         userCustomData = new HashMap<>();
+		guestUsersWithArrivalTime = new HashMap<>();
 
         users = new ConcurrentHashMap<>();
         registeredUsers = new ConcurrentHashMap<>();
@@ -376,6 +378,23 @@ public class Meeting {
 
 	public String getGuestLobbyMessage() {
 		return guestLobbyMessage;
+	}
+
+	public void setArrivalTime(String guestId, String arrivalTime) {
+		Long timeOfArrival = Long.parseLong(arrivalTime);
+		if (guestUsersWithArrivalTime.containsKey(guestId)) {
+			guestUsersWithArrivalTime.replace(guestId, timeOfArrival);
+		} else {
+			guestUsersWithArrivalTime.put(guestId, timeOfArrival);
+		}
+	}
+
+	public Long getArrivalTime(String guestId) {
+		if (guestUsersWithArrivalTime.containsKey(guestId)) {
+			return guestUsersWithArrivalTime.get(guestId);
+		} else {
+			return -1L;
+		}
 	}
 
 	public void setAuthenticatedGuest(Boolean authGuest) {

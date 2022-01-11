@@ -731,6 +731,8 @@ class ApiController {
     String status = us.guestStatus
     destURL = us.clientUrl
     String lobbyMsg = meeting.getGuestLobbyMessage()
+    Long arriveTime = meeting.getArrivalTime(us.internalUserId)
+
 
     Boolean redirectClient = true
     if (!StringUtils.isEmpty(params.redirect)) {
@@ -794,6 +796,7 @@ class ApiController {
             session_token session[sessionToken]
             guestStatus status
             lobbyMessage lobbyMsg
+            arrivalTime arriveTime
             url destURL
           }
           render(contentType: "application/json", text: builder.toPrettyString())

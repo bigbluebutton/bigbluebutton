@@ -1127,6 +1127,8 @@ public class MeetingService implements MessageListener {
           processGuestPolicyChanged((GuestPolicyChanged) message);
         } else if (message instanceof GuestLobbyMessageChanged) {
           processGuestLobbyMessageChanged((GuestLobbyMessageChanged) message);
+        } else if (message instanceof AddNotifyWaitingTime) {
+          processAddNotifyWaitingTime((AddNotifyWaitingTime) message);
         } else if (message instanceof RecordChapterBreak) {
           processRecordingChapterBreak((RecordChapterBreak) message);
         } else if (message instanceof AddPad) {
@@ -1164,6 +1166,13 @@ public class MeetingService implements MessageListener {
     Meeting m = getMeeting(msg.meetingId);
     if (m != null) {
       m.addPad(msg.padId, msg.readOnlyId);
+    }
+  }
+
+  public void processAddNotifyWaitingTime(AddNotifyWaitingTime msg) {
+    Meeting m = getMeeting(msg.meetingId);
+    if (m != null) {
+      m.setArrivalTime(msg.guestId, msg.arrivalTime);
     }
   }
 

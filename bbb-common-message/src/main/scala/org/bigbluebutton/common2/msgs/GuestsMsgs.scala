@@ -33,6 +33,28 @@ case class GuestsWaitingForApprovalEvtMsg(
 case class GuestsWaitingForApprovalEvtMsgBody(guests: Vector[GuestWaitingVO])
 
 /**
+ * Message triggered, when a user enters the guest lobby.
+ * It updates the arrival time of the guest user.
+ */
+object NotifyWaitingTimeReqMsg { val NAME = "NotifyWaitingTimeReqMsg" }
+case class NotifyWaitingTimeReqMsg(
+    header: BbbClientMsgHeader,
+    body:   NotifyWaitingTimeReqMsgBody
+) extends StandardMsg
+case class NotifyWaitingTimeReqMsgBody(guestId: String)
+
+/**
+ * Message to bbb-web. A user in the guest lobby, gets notified
+ * about his waiting time.
+ */
+object NotifyWaitingTimeRespMsg { val NAME = "NotifyWaitingTimeRespMsg" }
+case class NotifyWaitingTimeRespMsg(
+    header: BbbClientMsgHeader,
+    body:   NotifyWaitingTimeRespMsgBody
+) extends BbbCoreMsg
+case class NotifyWaitingTimeRespMsgBody(guestId: String, arrivalTime: String)
+
+/**
  * Message from client when a guest had been approved to be accepted into the meeting.
  */
 object GuestsWaitingApprovedMsg { val NAME = "GuestsWaitingApprovedMsg" }

@@ -27,12 +27,18 @@ object GuestsWaiting {
   def setGuestLobbyMessage(guests: GuestsWaiting, message: String): Unit = {
     guests.setGuestLobbyMessage(message)
   }
+
+  def setTimeArrivedAtTheGuestLobby(guests: GuestsWaiting, guestId: String, arrivalTime: Long): Unit = {
+    guests.setTimeArrivedAtTheGuestLobby(guestId, arrivalTime);
+  }
 }
 
 class GuestsWaiting {
   private var guests: collection.immutable.HashMap[String, GuestWaiting] = new collection.immutable.HashMap[String, GuestWaiting]
 
   private var guestPolicy = GuestPolicy(GuestPolicyType.ALWAYS_ACCEPT, SystemUser.ID)
+
+  private var guestsWithArrivalTime: collection.mutable.HashMap[String, Long] = new collection.mutable.HashMap[String, Long]
 
   private var guestLobbyMessage = ""
 
@@ -56,6 +62,15 @@ class GuestsWaiting {
   def setGuestPolicy(policy: GuestPolicy) = guestPolicy = policy
 
   def setGuestLobbyMessage(message: String) = guestLobbyMessage = message
+
+  def setTimeArrivedAtTheGuestLobby(guestId: String, arrivalTime: Long): Unit = {
+    if (guestsWithArrivalTime.contains(guestId)) {
+      guestsWithArrivalTime.remove(guestId);
+      guestsWithArrivalTime.put(guestId, arrivalTime);
+    } else {
+      guestsWithArrivalTime.put(guestId, arrivalTime);
+    }
+  }
 }
 
 case class GuestWaiting(intId: String, name: String, role: String, guest: Boolean, avatar: String, authenticated: Boolean, registeredOn: Long)

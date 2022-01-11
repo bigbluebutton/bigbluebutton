@@ -74,6 +74,28 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildNotifyWaitingTimeReqMsg(meetingId: String, guestId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, guestId)
+    val envelope = BbbCoreEnvelope(NotifyWaitingTimeReqMsg.NAME, routing)
+    val header = BbbClientMsgHeader(NotifyWaitingTimeReqMsg.NAME, meetingId, guestId)
+
+    val body = NotifyWaitingTimeReqMsgBody(guestId)
+    val event = NotifyWaitingTimeReqMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildNotifyWaitingTimeRespMsg(meetingId: String, guestId: String, arrivalTime: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, guestId)
+    val envelope = BbbCoreEnvelope(NotifyWaitingTimeRespMsg.NAME, routing)
+    val header = BbbClientMsgHeader(NotifyWaitingTimeRespMsg.NAME, meetingId, guestId)
+
+    val body = NotifyWaitingTimeRespMsgBody(guestId, arrivalTime)
+    val event = NotifyWaitingTimeRespMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildValidateConnAuthTokenSysRespMsg(meetingId: String, userId: String,
                                            authzed: Boolean, connId: String, app: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)

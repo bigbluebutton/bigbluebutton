@@ -41,6 +41,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: GuestPolicyChangedEvtMsg          => handleGuestPolicyChangedEvtMsg(m)
       case m: GuestLobbyMessageChangedEvtMsg    => handleGuestLobbyMessageChangedEvtMsg(m)
       case m: AddCaptionsPadsEvtMsg             => handleAddCaptionsPadsEvtMsg(m)
+      case m: NotifyWaitingTimeRespMsg          => handleNotifyWaitingTimeRespMsg(m)
       case m: AddPadEvtMsg                      => handleAddPadEvtMsg(m)
       case m: RecordingChapterBreakSysMsg       => handleRecordingChapterBreakSysMsg(m)
       case m: SetPresentationDownloadableEvtMsg => handleSetPresentationDownloadableEvtMsg(m)
@@ -56,6 +57,10 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handleGuestLobbyMessageChangedEvtMsg(msg: GuestLobbyMessageChangedEvtMsg): Unit = {
     olgMsgGW.handle(new GuestLobbyMessageChanged(msg.header.meetingId, msg.body.message))
+  }
+
+  def handleNotifyWaitingTimeRespMsg(msg: NotifyWaitingTimeRespMsg): Unit = {
+    olgMsgGW.handle(new AddNotifyWaitingTime(msg.header.meetingId, msg.body.guestId, msg.body.arrivalTime))
   }
 
   def handleAddPadEvtMsg(msg: AddPadEvtMsg): Unit = {

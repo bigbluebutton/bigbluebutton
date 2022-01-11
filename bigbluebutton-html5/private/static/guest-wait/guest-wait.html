@@ -81,6 +81,11 @@
       animation: sk-bouncedelay calc(var(--enableAnimation) * 1.4s) infinite ease-in-out both;
     }
 
+    #waitingTime {
+      align-items: center;
+      text-align: center;
+    }
+
     @-webkit-keyframes sk-bouncedelay {
 
       0%,
@@ -119,6 +124,7 @@
 
     const REDIRECT_TIMEOUT = 15000;
     const MESSAGE_TIMEOUT = 3000;
+    const UPDATE_WAITING_TIME_INTERVAL = 1000;
 
     function updateMessage(message) {
       document.querySelector('#content > p').innerHTML = message;
@@ -134,6 +140,43 @@
           updateMessage(_('app.guest.guestWait'));
         }
       }
+    }
+
+    function updateWaitingTimeOnPage(message, elapsedTime) {
+      document.querySelector('#waitingTime > p').innerHTML = message + elapsedTime;
+    }
+
+    let arrivalTimeFetched = false;
+    let currentWaitingTime;
+    let running;
+
+    function updateWaitingTime(arrivalTime) {
+        running = setInterval(() => {
+          currentWaitingTime = getElapsedTime(arrivalTime);
+          updateWaitingTimeOnPage(_('app.guest.waitingTime'), currentWaitingTime); 
+        }, UPDATE_WAITING_TIME_INTERVAL);
+    }
+
+    function stopWaitingTime() {
+      clearInterval(running);
+      updateWaitingTimeOnPage(_('app.guest.totalWaitingTime'), currentWaitingTime);
+    }
+
+    function getElapsedTime(arrivalTime) {
+        let currentTimeStamp = Date.now();
+        let differenceInSeconds = (currentTimeStamp - arrivalTime) / 1000;
+        let secondsUnit = Math.floor(differenceInSeconds % 60);
+        let differenceInMinutes = Math.floor(differenceInSeconds / 60);
+        let minutesUnit = differenceInMinutes % 60; 
+        if (minutesUnit < 10 && secondsUnit < 10) {
+          return "0" + minutesUnit + ":" + "0" + secondsUnit;
+        } else if (minutesUnit < 10 && secondsUnit >= 10) {
+          return "0" + minutesUnit + ":" + secondsUnit;
+        } else if (minutesUnit >= 10 && secondsUnit < 10) {
+          return minutesUnit + ":" + "0" + secondsUnit;
+        } else {
+          return minutesUnit + ":" + secondsUnit;
+        }
     }
 
     function getSearchParam(name) {
@@ -292,16 +335,19 @@
             const code = data.response.returncode;
 
             if (code === 'FAILED') {
+              stopWaitingTime();
               return redirect(_('app.guest.' + data.response.messageKey), data.response.url);
             }
 
             const status = data.response.guestStatus;
 
             if (status === 'DENY') {
+              stopWaitingTime();
               return redirect(_('app.guest.' + data.response.messageKey), data.response.url);
             }
 
             if (status === 'ALLOW') {
+              stopWaitingTime();
               updateLobbyMessage(_('app.guest.allow'));
               // Timeout is required by accessibility to allow viewing of the message for a minimum of 3 seconds
               // before redirecting.
@@ -313,6 +359,11 @@
             }
 
             updateLobbyMessage(data.response.lobbyMessage);
+
+            if (!arrivalTimeFetched) {
+              updateWaitingTime(data.response.arrivalTime);
+              arrivalTimeFetched=true;
+            }
 
             return pollGuestStatus(token, attempt + 1, limit, everyMs);
           });
@@ -342,6 +393,9 @@
       <div class="bounce3"></div>
     </div>
     <p aria-live="polite">Please wait for a moderator to approve you joining the meeting.</p>
+    <div id="waitingTime">
+      <p aria-live="polite">Calculating waiting time</p>
+    </div>
   </div>
 </body>
 

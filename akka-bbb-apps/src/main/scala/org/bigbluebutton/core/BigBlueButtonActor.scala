@@ -102,6 +102,8 @@ class BigBlueButtonActor(
     } yield {
       log.debug("FORWARDING Register user message")
       m.actorRef forward (msg)
+      val eventWaitingTime = MsgBuilder.buildNotifyWaitingTimeReqMsg(msg.header.meetingId, msg.body.intUserId)
+      m.actorRef forward (eventWaitingTime)
     }
   }
 
