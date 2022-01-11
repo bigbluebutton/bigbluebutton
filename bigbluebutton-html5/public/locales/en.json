@@ -623,7 +623,7 @@
     "app.toast.meetingMuteOn.label": "All users have been muted",
     "app.toast.meetingMuteOff.label": "Meeting mute turned off",
     "app.toast.setEmoji.raiseHand": "You have raised your hand",
-    "app.toast.setEmoji.lowerHand": "You have lowered your hand",
+    "app.toast.setEmoji.lowerHand": "Your hand has been lowered",
     "app.toast.promotedLabel": "You have been promoted to Moderator",
     "app.toast.demotedLabel": "You have been demoted to Viewer",
     "app.notification.recordingStart": "This session is now being recorded",
