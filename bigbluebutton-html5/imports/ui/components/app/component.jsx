@@ -49,6 +49,8 @@ const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
+const VIEWER = Meteor.settings.public.user.role_viewer;
+const MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -303,12 +305,12 @@ class App extends Component {
         intl.formatMessage(intlMessages.pollPublishedLabel), 'info', 'polling',
       );
     }
-    if (prevProps.currentUserRole === 'VIEWER' && currentUserRole === 'MODERATOR') {
+    if (prevProps.currentUserRole === VIEWER && currentUserRole === MODERATOR) {
       notify(
         intl.formatMessage(intlMessages.promotedLabel), 'info', 'user',
       );
     }
-    if (prevProps.currentUserRole === 'MODERATOR' && currentUserRole === 'VIEWER') {
+    if (prevProps.currentUserRole === MODERATOR && currentUserRole === VIEWER) {
       notify(
         intl.formatMessage(intlMessages.demotedLabel), 'info', 'user',
       );
