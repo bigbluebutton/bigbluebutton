@@ -13,6 +13,7 @@ import {
 } from 'fs';
 import Logger from './logger';
 
+const extensions = ['jpg', 'png'];
 const DEFAULT_VIRTUAL_BACKGROUNDS = Meteor.settings.public.virtualBackgrounds.fileNames;
 const meteorRoot = realpathSync(`${process.cwd()}/../`);
 const env = Meteor.isDevelopment ? 'development' : 'production';
@@ -91,7 +92,7 @@ function updateProgramJson(configs) {
 function addCustomVirtualBackgrounds() {
   if (existsSync(CUSTOM_BACKGROUND_DIR)) {
     const files = readdirSync(CUSTOM_BACKGROUND_DIR, { withFileTypes: true })
-      .filter((file) => !file.isDirectory())
+      .filter((file) => !file.isDirectory() && extensions.includes(file.name.split('.').pop()))
       .slice(0, 10);
 
     if (files.length === 10) {
