@@ -13,6 +13,13 @@ function AutoClose() {
     window.close();
 }
 
+function removeErrorElement(){
+    let msgs = document.getElementById('messages');
+    while (msgs.firstChild) {
+        msgs.removeChild(msgs.firstChild);
+    }
+}
+
 function escapeHTML(text) {
   if (text != null) {
     return text.replace(/&/g, '').
@@ -23,23 +30,35 @@ function escapeHTML(text) {
   }
 }
 
-$(document).ready(function() {
-    var sClose = GetURLParameter('close');
-    var sErrors = GetURLParameter('errors');
-
-    if (typeof sClose != 'undefined') {
-        if ( sClose.toLowerCase() === "true" ) {
-            AutoClose();
-        }
-    } else if (typeof sErrors != 'undefined') {
-        var errors = $.parseJSON(sErrors);
-        //Validate if the json object is correct
-
-        // Render error messages
-        $.each(errors, function( index, error ) {
-            error.message = escapeHTML(error.message);
-            $("#messages").append("<div class='alert alert-danger fade in' style='margin-top:18px;'><a href='#' class='close' data-dismiss='alert' aria-label='close' title='close'>&times;</a><strong><span id='error-key'>Error:</span></strong>&nbsp;<span id='error-message'>"+error.message+"</span></div>");
-        });
-        $('#messages').removeClass('hidden');
+var sClose = GetURLParameter('close');
+var sErrors = GetURLParameter('errors');
+if (typeof sClose != 'undefined') {
+    if ( sClose.toLowerCase() === "true" ) {
+        AutoClose();
     }
-});
+} else if (typeof sErrors != 'undefined') {
+    let errors = [];
+    try {
+        errors = JSON.parse(sErrors);
+    } catch(err) {
+        errors = [{
+            message: "Error message could not be read (" + err + ")",
+            key: "unreadbleErrorMessage"
+        }];
+    }
+
+    //Render error message
+    for(errorObj of errors){
+        if(errorObj.message){
+            let errorElement = document.createElement('div');
+
+            errorElement.innerHTML =
+            "<div class='alert alert-danger fade in' style='margin-top:18px;'><a href='#' class='close' data-dismiss='alert' aria-label='close' title='close' onClick=removeErrorElement()>&times;</a><strong><span id='error-key'>Error:</span></strong>&nbsp;<span id='error-message'>"
+            + errorObj.message
+            + "</span></div>";
+
+            let msgs = document.getElementById('messages');
+            msgs.appendChild(errorElement);
+        }
+    }  
+}
