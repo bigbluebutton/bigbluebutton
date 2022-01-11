@@ -128,13 +128,15 @@ class TimeWindowList extends PureComponent {
     }
 
     const prevTimeWindowsLength = prevTimeWindowsValues.length;
+    const timeWindowsValuesLength = timeWindowsValues.length;
     const prevLastTimeWindow = prevTimeWindowsValues[prevTimeWindowsLength - 1];
     const lastTimeWindow = timeWindowsValues[prevTimeWindowsLength - 1];
 
     if ((lastTimeWindow
       && (prevLastTimeWindow?.content.length !== lastTimeWindow?.content.length))) {
       if (this.listRef) {
-        this.forceCacheUpdate();
+        this.cache.clear(timeWindowsValuesLength - 1);
+        this.listRef.recomputeRowHeights(timeWindowsValuesLength - 1);
       }
     }
 
@@ -182,12 +184,11 @@ class TimeWindowList extends PureComponent {
     }
   }
 
-  forceCacheUpdate() {
-    const { timeWindowsValues } = this.props;
-    const { length } = timeWindowsValues;
-
-    this.cache.clear(length - 1);
-    this.listRef.recomputeRowHeights(length - 1);
+  forceCacheUpdate(index) {
+    if (index >= 0) {
+      this.cache.clear(index);
+      this.listRef.recomputeRowHeights(index);
+    }
   }
 
   rowRender({
@@ -228,7 +229,8 @@ class TimeWindowList extends PureComponent {
             dispatch={dispatch}
             chatId={chatId}
             height={style.height}
-            forceCacheUpdate={() => this.forceCacheUpdate()}
+            index={index}
+            forceCacheUpdate={this.forceCacheUpdate}
           />
         </span>
       </CellMeasurer>
