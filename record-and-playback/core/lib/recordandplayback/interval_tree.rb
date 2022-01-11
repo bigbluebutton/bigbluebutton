@@ -105,9 +105,10 @@ module IntervalTree
         node_left_node = node.left_node
         node_right_node = node.right_node
         node_x_center = node.x_center
+        node_s_center_end = node.s_center_end
         traverse_left = (point < node_x_center)
 
-        if point < node.s_center_end
+        if node_s_center_end && point < node_s_center_end
           node.s_center.each do |k|
             break if k.begin > point
 
