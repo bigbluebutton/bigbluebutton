@@ -47,11 +47,12 @@
 
 source /etc/bigbluebutton/bigbluebutton-release
 
-BBB_USER=bigbluebutton
-BBB_YML=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
+declare -r BBB_USER=bigbluebutton
+declare -r BBB_YML=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 
-# BBB_PROPERTIES=/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
+# declare -r BBB_PROPERTIES=/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
 # SERVER_URL=$(sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' < $BBB_PROPERTIES)
+# readonly SERVER_URL
 
 # $1: Desired property
 # Only returns 'PRODUCTION' values
@@ -60,18 +61,36 @@ get_yml_value(){
 }
 
 PLAYBACK_PROTOCOL=$(get_yml_value playback_protocol)
-RECORDING_DIR=$(get_yml_value recording_dir)
-LOG_DIR=$(get_yml_value log_dir)
-PUBLISHED_DIR=$(get_yml_value published_dir)
-RAW_AUDIO_SRC=$(get_yml_value raw_audio_src)
-RAW_VIDEO_SRC=$(get_yml_value raw_video_src)
-RAW_SCREENSHARE_SRC=$(get_yml_value raw_screenshare_src)
-RAW_PRESENTATION_SRC=$(get_yml_value raw_presentation_src)
+readonly PLAYBACK_PROTOCOL
 
-BASE=$RAW_PRESENTATION_SRC/recording
-STATUS=$BASE/status
+RECORDING_DIR=$(get_yml_value recording_dir)
+readonly RECORDING_DIR
+
+LOG_DIR=$(get_yml_value log_dir)
+readonly LOG_DIR
+
+PUBLISHED_DIR=$(get_yml_value published_dir)
+readonly PUBLISHED_DIR
+
+RAW_AUDIO_SRC=$(get_yml_value raw_audio_src)
+readonly RAW_AUDIO_SRC
+
+RAW_VIDEO_SRC=$(get_yml_value raw_video_src)
+readonly RAW_VIDEO_SRC
+
+RAW_SCREENSHARE_SRC=$(get_yml_value raw_screenshare_src)
+readonly RAW_SCREENSHARE_SRC
+
+RAW_PRESENTATION_SRC=$(get_yml_value raw_presentation_src)
+readonly RAW_PRESENTATION_SRC
+
+declare -r BASE=$RAW_PRESENTATION_SRC/recording
+declare -r STATUS=$BASE/status
 
 TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process || exit; find -- *.rb | sed s/.rb//g)
+readonly TYPES
+
+declare -r MEETING_PATTERN="^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"
 
 mark_for_rebuild() {
    MEETING_ID=$1
@@ -461,7 +480,7 @@ if [ $DELETEALL ]; then
    rm -f "$RAW_AUDIO_SRC"/*.wav
    rm -f "$RAW_AUDIO_SRC"/*.opus
 
-   for meeting in $(ls "$RAW_PRESENTATION_SRC" | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"); do
+   for meeting in $(ls "$RAW_PRESENTATION_SRC" | grep "$MEETING_PATTERN"); do
       echo "deleting: $meeting"
       rm -rf "${RAW_PRESENTATION_SRC:?}"/"$meeting"
       rm -rf "$RAW_PRESENTATION_SRC"/captions/"$meeting"
@@ -502,10 +521,9 @@ if [ $LIST ]; then
    fi
 
    tmp_file=$(mktemp)
-   ls -t "$RAW_PRESENTATION_SRC" | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$" | head -n $HEAD > "$tmp_file"
-   ls -t "$RECORDING_DIR"/raw | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$" | head -n $HEAD >> "$tmp_file"
-
-   #for meeting in $(ls -t $RAW_PRESENTATION_SRC | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$" | head -n $HEAD); do
+   ls -t "$RAW_PRESENTATION_SRC" | grep "$MEETING_PATTERN" -m $HEAD > "$tmp_file"
+   ls -t "$RECORDING_DIR"/raw | grep "$MEETING_PATTERN" -m $HEAD >> "$tmp_file"
+   #for meeting in $(ls -t $RAW_PRESENTATION_SRC | grep $MEETING_PATTERN -m $HEAD); do
    for meeting in $(sort -t - -k 2 -r < "$tmp_file" | uniq); do
       echo -n "$meeting"
       timestamp=${meeting//[0-9a-f]*-/}
@@ -816,6 +834,7 @@ if [ $CHECK ]; then
    check_path_owner_group "$STATUS/sanity" "-d" "-R"
    check_path_owner_group "$STATUS/published" "-d" "-R"
 
+   check_path_owner_group "$RAW_PRESENTATION_SRC" "-d" "-R"
    check_path_owner_group "$RAW_PRESENTATION_SRC/captions" "-d" "-R"
    check_path_owner_group "$RAW_PRESENTATION_SRC/events" "-d"
 
