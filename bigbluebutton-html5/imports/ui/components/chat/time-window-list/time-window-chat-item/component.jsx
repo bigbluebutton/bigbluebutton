@@ -58,11 +58,11 @@ const intlMessages = defineMessages({
 
 class TimeWindowChatItem extends PureComponent {
   componentDidUpdate(prevProps, prevState) {
-    const { height, forceCacheUpdate, systemMessage } = this.props;
+    const { height, forceCacheUpdate, systemMessage, index } = this.props;
     const elementHeight = this.itemRef ? this.itemRef.clientHeight : null;
 
     if (systemMessage && elementHeight && height !== 'auto' && elementHeight !== height) {
-      forceCacheUpdate();
+      forceCacheUpdate(index);
     }
 
     ChatLogger.debug('TimeWindowChatItem::componentDidUpdate::props', { ...this.props }, { ...prevProps });
