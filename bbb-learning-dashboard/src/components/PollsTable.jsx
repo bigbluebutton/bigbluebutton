@@ -101,13 +101,8 @@ class PollsTable extends React.Component {
                     Object.values(polls || {})
                       .sort((a, b) => ((a.createdOn > b.createdOn) ? 1 : -1))
                       .map((poll) => (
-<<<<<<< HEAD
                         <td className="px-4 py-3 text-sm text-center">
                           { getUserAnswer(user, poll).map((answer) => <p>{answer}</p>) }
-=======
-                        <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
-                          { getUserAnswer(user, poll) }
->>>>>>> upstream/v2.4.x-release
                           { poll.anonymous
                             ? (
                               <span title={intl.formatMessage({

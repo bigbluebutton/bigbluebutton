@@ -36,11 +36,7 @@ case class User(
   isModerator:        Boolean,
   isDialIn:           Boolean = false,
   currentIntId:       String = null,
-<<<<<<< HEAD
   answers:            Map[String,Vector[String]] = Map(),
-=======
-  answers:            Map[String,String] = Map(),
->>>>>>> upstream/v2.4.x-release
   talk:               Talk = Talk(),
   emojis:             Vector[Emoji] = Vector(),
   webcams:            Vector[Webcam] = Vector(),
@@ -111,14 +107,9 @@ class LearningDashboardActor(
 
   private var meetings: Map[String, Meeting] = Map()
   private var meetingAccessTokens: Map[String,String] = Map()
-<<<<<<< HEAD
   private var meetingsLastJsonHash : Map[String,String] = Map()
   private var meetingPresentations : Map[String,Map[String,PresentationVO]] = Map()
   private var meetingExcludedUserIds : Map[String,Vector[String]] = Map()
-=======
-  private var meetingsLastJsonHash: Map[String,String] = Map()
-  private var meetingExcludedUserIds: Map[String,Vector[String]] = Map()
->>>>>>> upstream/v2.4.x-release
 
   system.scheduler.schedule(10.seconds, 10.seconds, self, SendPeriodicReport)
 
@@ -182,7 +173,7 @@ class LearningDashboardActor(
       } yield {
         val updatedUser = user.copy(totalOfMessages = user.totalOfMessages + 1)
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
-<<<<<<< HEAD
+
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
     }
@@ -254,8 +245,7 @@ class LearningDashboardActor(
         meeting.presentationSlides.last.presentationId != presentationId ||
         meeting.presentationSlides.last.pageNum != pageNum) {
         val updatedMeeting = meeting.copy(presentationSlides = meeting.presentationSlides :+ PresentationSlide(presentationId, pageNum))
-=======
->>>>>>> upstream/v2.4.x-release
+
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
     }
@@ -495,11 +485,7 @@ class LearningDashboardActor(
         }
       } else {
         //Store Public Poll in `user.answers`
-<<<<<<< HEAD
         val updatedUser = user.copy(answers = user.answers + (msg.body.pollId -> (user.answers.get(msg.body.pollId).getOrElse(Vector()) :+ msg.body.answer)))
-=======
-        val updatedUser = user.copy(answers = user.answers + (msg.body.pollId -> msg.body.answer))
->>>>>>> upstream/v2.4.x-release
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
@@ -565,10 +551,7 @@ class LearningDashboardActor(
       sendReport(updatedMeeting)
 
       meetings = meetings.-(updatedMeeting.intId)
-<<<<<<< HEAD
       meetingPresentations = meetingPresentations.-(updatedMeeting.intId)
-=======
->>>>>>> upstream/v2.4.x-release
       meetingAccessTokens = meetingAccessTokens.-(updatedMeeting.intId)
       meetingExcludedUserIds = meetingExcludedUserIds.-(updatedMeeting.intId)
       meetingsLastJsonHash = meetingsLastJsonHash.-(updatedMeeting.intId)
@@ -599,10 +582,6 @@ class LearningDashboardActor(
     for {
       meeting <- meetings.values.find(m => m.intId == meetingIntId)
     } yield {
-<<<<<<< HEAD
-=======
-
->>>>>>> upstream/v2.4.x-release
       if(!meetingExcludedUserIds.get(meeting.intId).getOrElse(Vector()).contains(extId)) {
         val currentTime = System.currentTimeMillis();
 
@@ -620,11 +599,7 @@ class LearningDashboardActor(
               )
             })
           )
-<<<<<<< HEAD
           , currentTime, false)
-=======
-        , currentTime, false)
->>>>>>> upstream/v2.4.x-release
 
         meetings += (meeting.intId -> meeting.copy(
           //Set leftOn to same intId in past user records
@@ -632,7 +607,6 @@ class LearningDashboardActor(
             (u._1 -> u._2.copy(
               intIds = u._2.intIds.map(uId => {
                 (uId._1 -> {
-<<<<<<< HEAD
                   if (uId._2.intId == intId && uId._2.leftOn == 0) uId._2.copy(leftOn = currentTime)
                   else uId._2
                 })
@@ -640,15 +614,6 @@ class LearningDashboardActor(
           }) + (user.userKey -> user.copy(
             currentIntId = intId,
             intIds = user.intIds + (intId -> user.intIds.get(intId).getOrElse(UserId(intId, currentTime)).copy(
-=======
-                  if(uId._2.intId == intId && uId._2.leftOn == 0) uId._2.copy(leftOn = currentTime)
-                  else uId._2
-                })
-            })))
-          }) + (user.userKey -> user.copy(
-            currentIntId = intId,
-            intIds = user.intIds + (intId -> user.intIds.get(intId).getOrElse(UserId(intId,currentTime)).copy(
->>>>>>> upstream/v2.4.x-release
               leftOn = 0,
               userLeftFlag = false
             ))
@@ -677,19 +642,16 @@ class LearningDashboardActor(
         outGW.send(event)
         meetingsLastJsonHash += (meeting.intId -> activityJsonHash)
 
-<<<<<<< HEAD
-        log.info("Learning Dashboard data sent for meeting {}", meeting.intId)
-=======
-      for {
-        learningDashboardAccessToken <- meetingAccessTokens.get(meeting.intId)
-      } yield {
-        val event = MsgBuilder.buildLearningDashboardEvtMsg(meeting.intId, learningDashboardAccessToken, activityJson)
-        outGW.send(event)
+        for {
+          learningDashboardAccessToken <- meetingAccessTokens.get(meeting.intId)
+        } yield {
+          val event = MsgBuilder.buildLearningDashboardEvtMsg(meeting.intId, learningDashboardAccessToken, activityJson)
+          outGW.send(event)
 
-        meetingsLastJsonHash += (meeting.intId -> activityJsonHash)
+          meetingsLastJsonHash += (meeting.intId -> activityJsonHash)
 
-        log.info("Activity Report sent for meeting {}",meeting.intId)
->>>>>>> upstream/v2.4.x-release
+          log.info("Learning Dashboard data sent for meeting {}", meeting.intId)
+        }
       }
     }
   }

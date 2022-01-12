@@ -354,11 +354,7 @@ class App extends React.Component {
                 .filter((u) => activitiesJson.endedOn > 0
                   || Object.values(u.intIds)[Object.values(u.intIds).length - 1].leftOn === 0)
                 .length}
-<<<<<<< HEAD
-              cardClass={tab === 'overview' ? 'border-pink-500' : 'hover:border-pink-500'}
-=======
-              cardClass="border-pink-500"
->>>>>>> upstream/v2.4.x-release
+              cardClass={tab === 'overview' ? 'border-pink-500' : 'hover:border-pink-500 border-white'}
               iconClass="bg-pink-50 text-pink-500"
               onClick={() => {
                 this.setState({ tab: 'overview' });
@@ -387,7 +383,7 @@ class App extends React.Component {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 1,
               })}
-              cardClass={tab === 'overview_activityscore' ? 'border-green-500' : 'hover:border-green-500'}
+              cardClass={tab === 'overview_activityscore' ? 'border-green-500' : 'hover:border-green-500 border-white'}
               iconClass="bg-green-200 text-green-500"
             >
               <svg
@@ -416,7 +412,7 @@ class App extends React.Component {
             <Card
               name={intl.formatMessage({ id: 'app.learningDashboard.indicators.timeline', defaultMessage: 'Timeline' })}
               number={totalOfEmojis()}
-              cardClass={tab === 'status_timeline' ? 'border-purple-500' : 'hover:border-purple-500'}
+              cardClass={tab === 'status_timeline' ? 'border-purple-500' : 'hover:border-purple-500 border-white'}
               iconClass="bg-purple-200 text-purple-500"
             >
               {this.fetchMostUsedEmojis()}
@@ -426,7 +422,7 @@ class App extends React.Component {
             <Card
               name={intl.formatMessage({ id: 'app.learningDashboard.indicators.polls', defaultMessage: 'Polls' })}
               number={Object.values(activitiesJson.polls || {}).length}
-              cardClass={tab === 'polling' ? 'border-blue-500' : 'hover:border-blue-500'}
+              cardClass={tab === 'polling' ? 'border-blue-500' : 'hover:border-blue-500 border-white'}
               iconClass="bg-blue-100 text-blue-500"
             >
               <svg
