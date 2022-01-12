@@ -632,6 +632,8 @@
     "app.toast.meetingMuteOff.label": "Meeting mute turned off",
     "app.toast.setEmoji.raiseHand": "You have raised your hand",
     "app.toast.setEmoji.lowerHand": "Your hand has been lowered",
+    "app.toast.promotedLabel": "You have been promoted to Moderator",
+    "app.toast.demotedLabel": "You have been demoted to Viewer",
     "app.notification.recordingStart": "This session is now being recorded",
     "app.notification.recordingStop": "This session is not being recorded",
     "app.notification.recordingPaused": "This session is not being recorded anymore",
@@ -976,6 +978,7 @@
     "app.learningDashboard.pollsTable.noPollsCreatedHeading": "No polls have been created",
     "app.learningDashboard.pollsTable.noPollsCreatedMessage": "Once a poll has been sent to users, their results will appear in this list.",
     "app.learningDashboard.statusTimelineTable.title": "Timeline",
+    "app.learningDashboard.statusTimelineTable.thumbnail": "Presentation thumbnail",
     "app.learningDashboard.errors.invalidToken": "Invalid session token",
     "app.learningDashboard.errors.dataUnavailable": "Data is no longer available"
 }
