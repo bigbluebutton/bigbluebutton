@@ -44,7 +44,7 @@ case class UserRespondedToPollRespMsgBody(pollId: String, userId: String, answer
 
 object UserRespondedToTypedPollRespMsg { val NAME = "UserRespondedToTypedPollRespMsg" }
 case class UserRespondedToTypedPollRespMsg(header: BbbClientMsgHeader, body: UserRespondedToTypedPollRespMsgBody) extends BbbCoreMsg
-case class UserRespondedToTypedPollRespMsgBody(pollId: String, userId: String, answer: String)
+case class UserRespondedToTypedPollRespMsgBody(pollId: String, userId: String, answerId: Int)
 
 object ShowPollResultReqMsg { val NAME = "ShowPollResultReqMsg" }
 case class ShowPollResultReqMsg(header: BbbClientMsgHeader, body: ShowPollResultReqMsgBody) extends StandardMsg
