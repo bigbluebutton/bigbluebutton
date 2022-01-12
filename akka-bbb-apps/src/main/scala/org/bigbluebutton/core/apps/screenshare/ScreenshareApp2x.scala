@@ -8,7 +8,8 @@ class ScreenshareApp2x(implicit val context: ActorContext)
   with ScreenshareStoppedVoiceConfEvtMsgHdlr
   with GetScreenshareStatusReqMsgHdlr
   with ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr
-  with ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr {
+  with ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr
+  with SyncGetScreenshareInfoRespMsgHdlr {
 
   val log = Logging(context.system, getClass)
 
