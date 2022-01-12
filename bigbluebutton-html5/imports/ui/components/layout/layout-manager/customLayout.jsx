@@ -450,9 +450,9 @@ class CustomLayout extends Component {
       if (!isOpen) {
         cameraDockBounds.width = mediaAreaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
-        cameraDockBounds.height = mediaAreaBounds.height;
+        cameraDockBounds.height = mediaAreaBounds.height - bannerAreaHeight;
         cameraDockBounds.maxHeight = mediaAreaBounds.height;
-        cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
+        cameraDockBounds.top = DEFAULT_VALUES.navBarHeight + bannerAreaHeight;
         cameraDockBounds.left = !isRTL ? mediaAreaBounds.left : 0;
         cameraDockBounds.right = isRTL ? sidebarSize : null;
       } else {

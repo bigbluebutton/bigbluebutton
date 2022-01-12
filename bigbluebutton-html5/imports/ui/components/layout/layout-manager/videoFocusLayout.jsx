@@ -400,23 +400,26 @@ class VideoFocusLayout extends Component {
       if (!isOpen) {
         cameraDockBounds.width = mediaAreaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
-        cameraDockBounds.height = mediaAreaBounds.height;
+        cameraDockBounds.height = mediaAreaBounds.height - this.bannerAreaHeight();
         cameraDockBounds.maxHeight = mediaAreaBounds.height;
-        cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
+        cameraDockBounds.top = DEFAULT_VALUES.navBarHeight + this.bannerAreaHeight();
         cameraDockBounds.left = !isRTL ? mediaAreaBounds.left : 0;
         cameraDockBounds.right = isRTL ? sidebarSize : null;
       } else {
+        const mobileCameraHeight = mediaAreaBounds.height * 0.7 - this.bannerAreaHeight();
+        const cameraHeight = mediaAreaBounds.height - this.bannerAreaHeight();
+
         if (deviceType === DEVICE_TYPE.MOBILE) {
-          cameraDockBounds.minHeight = mediaAreaBounds.height * 0.7;
-          cameraDockBounds.height = mediaAreaBounds.height * 0.7;
-          cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.7;
+          cameraDockBounds.minHeight = mobileCameraHeight;
+          cameraDockBounds.height = mobileCameraHeight;
+          cameraDockBounds.maxHeight = mobileCameraHeight;
         } else {
-          cameraDockBounds.minHeight = mediaAreaBounds.height;
-          cameraDockBounds.height = mediaAreaBounds.height;
-          cameraDockBounds.maxHeight = mediaAreaBounds.height;
+          cameraDockBounds.minHeight = cameraHeight;
+          cameraDockBounds.height = cameraHeight;
+          cameraDockBounds.maxHeight = cameraHeight;
         }
 
-        cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
+        cameraDockBounds.top = DEFAULT_VALUES.navBarHeight + this.bannerAreaHeight();
         cameraDockBounds.left = !isRTL ? mediaAreaBounds.left : null;
         cameraDockBounds.right = isRTL ? sidebarSize : null;
         cameraDockBounds.minWidth = mediaAreaBounds.width;
