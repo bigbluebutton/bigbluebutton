@@ -676,6 +676,9 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
       # include newly added points, rather than the full list.
       shape[:data_points] = prev_shape[:data_points] + shape[:data_points]
     end
+    if shape[:status] == 'DRAW_UPDATE' or shape[:status] == 'DRAW_END'
+      prev_shape[:undo] = shape[:in]
+    end
   else
     shape[:shape_unique_id] = $svg_shape_unique_id
     $svg_shape_unique_id += 1
