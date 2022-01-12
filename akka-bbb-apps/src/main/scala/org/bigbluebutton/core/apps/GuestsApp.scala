@@ -8,6 +8,7 @@ trait GuestsApp extends GetGuestsWaitingApprovalReqMsgHdlr
   with GuestWaitingLeftMsgHdlr
   with SetGuestPolicyMsgHdlr
   with SetGuestLobbyMessageMsgHdlr
+  with SetPrivateGuestLobbyMessageCmdMsgHdlr
   with GetGuestPolicyReqMsgHdlr {
 
   this: MeetingActor =>

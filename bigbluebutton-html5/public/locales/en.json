@@ -611,6 +611,8 @@
     "app.userList.guest.rememberChoice": "Remember choice",
     "app.userList.guest.emptyMessage": "There is currently no message",
     "app.userList.guest.inputPlaceholder": "Message to the guests' lobby",
+    "app.userList.guest.privateInputPlaceholder": "Message to {0}",
+    "app.userList.guest.privateMessageLabel": "Message",
     "app.userList.guest.acceptLabel": "Accept",
     "app.userList.guest.denyLabel": "Deny",
     "app.user-info.title": "Directory Lookup",

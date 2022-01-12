@@ -27,6 +27,10 @@ object GuestsWaiting {
   def setGuestLobbyMessage(guests: GuestsWaiting, message: String): Unit = {
     guests.setGuestLobbyMessage(message)
   }
+
+  def setPrivateGuestLobbyMessage(guests: GuestsWaiting, guestId: String, message: String): Unit = {
+    guests.setPrivateGuestLobbyMessage(guestId, message)
+  }
 }
 
 class GuestsWaiting {
@@ -35,6 +39,8 @@ class GuestsWaiting {
   private var guestPolicy = GuestPolicy(GuestPolicyType.ALWAYS_ACCEPT, SystemUser.ID)
 
   private var guestLobbyMessage = ""
+
+  private var guestsWithPrivateGuestLobbyMessages: collection.mutable.HashMap[String, String] = new collection.mutable.HashMap[String, String]
 
   private def toVector: Vector[GuestWaiting] = guests.values.toVector
 
@@ -56,6 +62,15 @@ class GuestsWaiting {
   def setGuestPolicy(policy: GuestPolicy) = guestPolicy = policy
 
   def setGuestLobbyMessage(message: String) = guestLobbyMessage = message
+
+  def setPrivateGuestLobbyMessage(intId: String, message: String): Unit = {
+    if (guestsWithPrivateGuestLobbyMessages.contains(intId)) {
+      guestsWithPrivateGuestLobbyMessages.remove(intId);
+      guestsWithPrivateGuestLobbyMessages.put(intId, message);
+    } else {
+      guestsWithPrivateGuestLobbyMessages.put(intId, message);
+    }
+  }
 }
 
 case class GuestWaiting(intId: String, name: String, role: String, guest: Boolean, avatar: String, authenticated: Boolean, registeredOn: Long)
