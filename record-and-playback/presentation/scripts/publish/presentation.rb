@@ -793,7 +793,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
     prev_shape[:out] = timestamp
     shape[:shape_unique_id] = prev_shape[:shape_unique_id]
 
-    if shape[:type] == 'pencil' and shape[:status] == 'DRAW_UPDATE'
+    if (shape[:type] == 'pencil' or shape[:type] == 'marker') and shape[:status] == 'DRAW_UPDATE'
       # BigBlueButton 2.0 quirk - 'DRAW_UPDATE' events on pencil tool only
       # include newly added points, rather than the full list.
       shape[:data_points] = prev_shape[:data_points] + shape[:data_points]
