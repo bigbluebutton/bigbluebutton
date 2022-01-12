@@ -40,6 +40,25 @@ case class ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf: String, screensh
                                                      timestamp: String, hasAudio: Boolean)
 
 /**
+ * Sync screenshare state with bbb-html5
+ */
+object SyncGetScreenshareInfoRespMsg { val NAME = "SyncGetScreenshareInfoRespMsg" }
+case class SyncGetScreenshareInfoRespMsg(
+    header: BbbClientMsgHeader,
+    body:   SyncGetScreenshareInfoRespMsgBody
+) extends BbbCoreMsg
+case class SyncGetScreenshareInfoRespMsgBody(
+    isBroadcasting:  Boolean,
+    voiceConf:       String,
+    screenshareConf: String,
+    stream:          String,
+    vidWidth:        Int,
+    vidHeight:       Int,
+    timestamp:       String,
+    hasAudio:        Boolean
+)
+
+/**
  * Send by FS that RTMP stream has stopped.
  */
 object ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg { val NAME = "ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg" }
@@ -166,6 +185,7 @@ case class GetScreenSubscribePermissionRespMsgBody(
     sfuSessionId: String,
     allowed:      Boolean
 )
+
 /**
  * Sent to FS to eject all users from the voice conference.
  */
