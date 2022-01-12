@@ -74,6 +74,7 @@ public class Meeting {
 	private Boolean authenticatedGuest = false;
 	private String meetingLayout = MeetingLayout.SMART_LAYOUT;
 	private boolean userHasJoined = false;
+	private Map<String, String> guestUsersWithPositionInWaitingLine;
 	private Map<String, String> pads;
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
@@ -151,6 +152,7 @@ public class Meeting {
          *  - shared notes
          *  - closed captions
          */
+		guestUsersWithPositionInWaitingLine = new HashMap<>();
         pads = new HashMap<>();
         userCustomData = new HashMap<>();
 
@@ -360,6 +362,22 @@ public class Meeting {
 
 	public String getDefaultAvatarURL() {
 		return defaultAvatarURL;
+	}
+
+	public void setWaitingPositionsInWaitingQueue(String userId, String idx) {
+		if (guestUsersWithPositionInWaitingLine.containsKey(userId)) {
+			guestUsersWithPositionInWaitingLine.replace(userId,idx);
+		} else {
+			guestUsersWithPositionInWaitingLine.put(userId,idx);
+		}
+	}
+
+	public String getWaitingPositionsInWaitingQueue(String userId) {
+		if (guestUsersWithPositionInWaitingLine.containsKey(userId)) {
+			return guestUsersWithPositionInWaitingLine.get(userId);
+		} else {
+			return null;
+		}
 	}
 
 	public void setGuestPolicy(String policy) {
