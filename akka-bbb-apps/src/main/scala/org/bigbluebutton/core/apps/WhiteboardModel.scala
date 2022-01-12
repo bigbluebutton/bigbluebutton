@@ -285,10 +285,14 @@ class WhiteboardModel extends SystemConfiguration {
                     case a2: List[_] => oldPoints = a2.asInstanceOf[List[Float]]
                   }
                 })
-                var newPoints: List[Float] = List[Float]()
-                oldPoints.zipWithIndex.foreach(
-                  (a) => if (a._2 % 2 == 0) newPoints :+= (a._1 + offset("x").toString.toFloat) else newPoints :+= (a._1 + offset("y").toString.toFloat)
-                )
+                val newPoints = oldPoints.zipWithIndex.map {
+                  case (a) =>
+                    if (a._2 % 2 == 0) {
+                      a._1.toString.toFloat + offset("x").toString.toFloat
+                    } else {
+                      a._1.toString.toFloat + offset("y").toString.toFloat
+                    }
+                }
                 updatedAnnotationData = oldAnnotation.annotationInfo + ("points" -> (newPoints))
               }
               val updatedAnnotation = oldAnnotation.copy(annotationInfo = updatedAnnotationData)
