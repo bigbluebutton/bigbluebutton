@@ -109,6 +109,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetPresenterGroupReqMsg](envelope, jsonNode)
       case UserActivitySignCmdMsg.NAME =>
         routeGenericMsg[UserActivitySignCmdMsg](envelope, jsonNode)
+      case ChangeUserPinStateReqMsg.NAME =>
+        routeGenericMsg[ChangeUserPinStateReqMsg](envelope, jsonNode)
       case SelectRandomViewerReqMsg.NAME =>
         routeGenericMsg[SelectRandomViewerReqMsg](envelope, jsonNode)
 
@@ -143,6 +145,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[CamStreamUnsubscribedInSfuEvtMsg](envelope, jsonNode)
       case CamBroadcastStoppedInSfuEvtMsg.NAME =>
         routeGenericMsg[CamBroadcastStoppedInSfuEvtMsg](envelope, jsonNode)
+      case EjectUserCamerasCmdMsg.NAME =>
+        routeGenericMsg[EjectUserCamerasCmdMsg](envelope, jsonNode)
 
       // Voice
       case RecordingStartedVoiceConfEvtMsg.NAME =>

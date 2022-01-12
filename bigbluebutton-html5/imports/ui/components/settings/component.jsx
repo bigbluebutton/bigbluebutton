@@ -253,6 +253,8 @@ class Settings extends Component {
         confirm={{
           callback: () => {
             this.updateSettings(current, intl.formatMessage(intlMessages.savedAlertLabel));
+            document.body.classList.remove(`lang-${saved.application.locale.split('-')[0]}`)
+            document.body.classList.add(`lang-${current.application.locale.split('-')[0]}`);
             document.getElementsByTagName('html')[0].lang = current.application.locale;
             /* We need to use mountModal(null) here to prevent submenu state updates,
             *  from re-opening the modal.

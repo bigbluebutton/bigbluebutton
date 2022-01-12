@@ -561,7 +561,6 @@
     "app.guest.errorSeeConsole": "錯誤：控制台中有更多詳細信息。",
     "app.guest.noModeratorResponse": "沒有主持人的回應。",
     "app.guest.noSessionToken": "未收到session Token。",
-    "app.guest.windowTitle": "訪客大廳",
     "app.guest.missingToken": "訪客缺少session token.",
     "app.guest.missingSession": "訪客缺少session.",
     "app.guest.missingMeeting": "會議不存在。",

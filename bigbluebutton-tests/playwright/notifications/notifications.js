@@ -4,7 +4,7 @@ const utilPolling = require('../polling/util');
 const utilScreenShare = require('../screenshare/util');
 const utilPresentation = require('../presentation/util');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME, UPLOAD_PDF_WAIT_TIME, NOTIFICATION_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
 
 class Notifications extends MultiUsers {
   constructor(browser, context) {
@@ -35,6 +35,7 @@ class Notifications extends MultiUsers {
     await util.popupMenu(this.modPage);
     await util.enableChatPopup(this.modPage);
     await util.saveSettings(this.modPage);
+    await util.waitAndClearNotification(this.modPage);
     await util.privateChatMessageToast(this.userPage);
     await this.modPage.waitForSelector(e.smallToastMsg);
     await this.modPage.waitForSelector(e.hasUnreadMessages);
@@ -71,7 +72,7 @@ class Notifications extends MultiUsers {
   async screenshareToast() {
     await utilScreenShare.startScreenshare(this.modPage);
     await util.checkNotificationText(this.modPage, e.startScreenshareToast);
-    await this.modPage.wasRemoved(e.smallToastMsg, NOTIFICATION_WAIT_TIME);
+    await util.waitAndClearNotification(this.modPage);
     await this.modPage.waitAndClick(e.stopScreenSharing);
     await util.checkNotificationText(this.modPage, e.endScreenshareToast);
   }

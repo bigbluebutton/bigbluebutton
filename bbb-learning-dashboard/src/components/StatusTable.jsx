@@ -43,6 +43,7 @@ class StatusTable extends React.Component {
       return (new Date(ts).toISOString().substr(11, 8));
     }
 
+<<<<<<< HEAD
     const usersPeriods = {};
     Object.values(allUsers || {}).forEach((user) => {
       usersPeriods[user.userKey] = [];
@@ -59,6 +60,19 @@ class StatusTable extends React.Component {
         });
       });
     });
+=======
+    const usersRegisteredTimes = Object
+      .values(allUsers || {})
+      .map((user) => Object.values(user.intIds).map((intId) => intId.registeredOn))
+      .flat();
+    const usersLeftTimes = Object
+      .values(allUsers || {})
+      .map((user) => Object.values(user.intIds).map((intId) => {
+        if (intId.leftOn === 0) return (new Date()).getTime();
+        return intId.leftOn;
+      }))
+      .flat();
+>>>>>>> upstream/v2.4.x-release
 
     const usersRegisteredTimes = Object
       .values(allUsers || {})
@@ -196,6 +210,7 @@ class StatusTable extends React.Component {
                       </div>
                     </div>
                   </td>
+<<<<<<< HEAD
                   { periods.map((period) => {
                     const boundaryLeft = period.start;
                     const boundaryRight = period.end;
@@ -296,6 +311,93 @@ class StatusTable extends React.Component {
                       </td>
                     );
                   }) }
+=======
+                  { periods.map((period) => (
+                    <td className="px-3.5 2xl:px-4 py-3 text-sm col-text-left">
+                      { Object.values(user.intIds).map(({ registeredOn, leftOn }) => (
+                        <>
+                          { registeredOn >= period && registeredOn < period + spanMinutes ? (
+                            <span title={intl.formatDate(registeredOn, {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              second: '2-digit',
+                            })}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4 text-xs text-green-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                                />
+                              </svg>
+                            </span>
+                          ) : null }
+                          { (function getEmojis() {
+                            const userEmojisInPeriod = getUserEmojisSummary(
+                              user,
+                              null,
+                              registeredOn > period && registeredOn < period + spanMinutes
+                                ? registeredOn : period,
+                              leftOn > period && leftOn < period + spanMinutes
+                                ? leftOn : period + spanMinutes,
+                            );
+
+                            return (
+                              Object
+                                .keys(userEmojisInPeriod)
+                                .map((emoji) => (
+                                  <div className="text-sm text-gray-800">
+                                    <i className={`${emojiConfigs[emoji].icon} text-sm`} />
+                                    &nbsp;
+                                    { userEmojisInPeriod[emoji] }
+                                    &nbsp;
+                                    <FormattedMessage
+                                      id={emojiConfigs[emoji].intlId}
+                                      defaultMessage={emojiConfigs[emoji].defaultMessage}
+                                    />
+                                  </div>
+                                ))
+                            );
+                          }()) }
+                          { leftOn >= period && leftOn < period + spanMinutes ? (
+                            <span title={intl.formatDate(leftOn, {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              second: '2-digit',
+                            })}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4 text-red-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                                />
+                              </svg>
+                            </span>
+                          ) : null }
+                        </>
+                      )) }
+                    </td>
+                  )) }
+>>>>>>> upstream/v2.4.x-release
                 </tr>
               )).flat()) : null }
         </tbody>

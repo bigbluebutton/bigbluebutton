@@ -43,7 +43,13 @@ function Card(props) {
           { name }
         </p>
       </div>
+<<<<<<< HEAD
       {icons}
+=======
+      <div className={`p-3 mr-4 rounded-full ${iconClass || 'text-orange-500'}`}>
+        { children }
+      </div>
+>>>>>>> upstream/v2.4.x-release
     </div>
   );
 }

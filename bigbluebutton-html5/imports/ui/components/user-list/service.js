@@ -311,6 +311,7 @@ const isMeetingLocked = (id) => {
       || lockSettings.disablePrivateChat
       || lockSettings.disablePublicChat
       || lockSettings.disableNote
+      || lockSettings.hideUserList
       || usersProp.webcamsOnlyForModerator) {
       isLocked = true;
     }
@@ -325,6 +326,7 @@ const getUsersProp = () => {
     {
       fields: {
         'usersProp.allowModsToUnmuteUsers': 1,
+        'usersProp.allowModsToEjectCameras': 1,
         'usersProp.authenticatedGuest': 1,
       },
     },
@@ -334,6 +336,7 @@ const getUsersProp = () => {
 
   return {
     allowModsToUnmuteUsers: false,
+    allowModsToEjectCameras: false,
     authenticatedGuest: false,
   };
 };
@@ -405,6 +408,10 @@ const getAvailableActions = (
   const allowedToChangeWhiteboardAccess = amIPresenter
     && !amISubjectUser;
 
+  const allowedToEjectCameras = amIModerator
+    && !amISubjectUser
+    && usersProp.allowModsToEjectCameras;
+
   return {
     allowedToChatPrivately,
     allowedToMuteAudio,
@@ -417,6 +424,7 @@ const getAvailableActions = (
     allowedToChangeStatus,
     allowedToChangeUserLockStatus,
     allowedToChangeWhiteboardAccess,
+    allowedToEjectCameras,
   };
 };
 
@@ -455,6 +463,10 @@ const toggleVoice = (userId) => {
       extraInfo: { logType: 'moderator_action', userId },
     }, 'moderator muted user microphone');
   }
+};
+
+const ejectUserCameras = (userId) => {
+  makeCall('ejectUserCameras', userId);
 };
 
 const getEmoji = () => {
@@ -667,4 +679,5 @@ export default {
   getUsersProp,
   getUserCount,
   sortUsersByCurrent,
+  ejectUserCameras,
 };

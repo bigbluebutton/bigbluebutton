@@ -354,7 +354,11 @@ class App extends React.Component {
                 .filter((u) => activitiesJson.endedOn > 0
                   || Object.values(u.intIds)[Object.values(u.intIds).length - 1].leftOn === 0)
                 .length}
+<<<<<<< HEAD
               cardClass={tab === 'overview' ? 'border-pink-500' : 'hover:border-pink-500'}
+=======
+              cardClass="border-pink-500"
+>>>>>>> upstream/v2.4.x-release
               iconClass="bg-pink-50 text-pink-500"
               onClick={() => {
                 this.setState({ tab: 'overview' });

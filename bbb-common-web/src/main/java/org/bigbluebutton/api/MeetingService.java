@@ -416,7 +416,7 @@ public class MeetingService implements MessageListener {
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
             m.getUserActivitySignResponseDelayInMinutes(), m.getEndWhenNoModerator(), m.getEndWhenNoModeratorDelayInMinutes(),
-            m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getMeetingKeepEvents(),
+            m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getAllowModsToEjectCameras(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams,
             m.lockSettingsParams, m.getHtml5InstanceId(), m.getGroups());
   }
@@ -963,9 +963,13 @@ public class MeetingService implements MessageListener {
   }
 
   public void processLearningDashboard(LearningDashboard message) {
+
     //Get all data from Json instead of getMeeting(message.meetingId), to process messages received even after meeting ended
     JsonObject activityJsonObject = new Gson().fromJson(message.activityJson, JsonObject.class).getAsJsonObject();
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/v2.4.x-release
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingId", activityJsonObject.get("intId").getAsString());
     logData.put("externalMeetingId", activityJsonObject.get("extId").getAsString());

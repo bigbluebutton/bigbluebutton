@@ -92,6 +92,7 @@ public class ParamsProcessorUtil {
     private boolean webcamsOnlyForModerator;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
+    private boolean defaultAllowModsToEjectCameras = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
     private String defaultLogoURL;
@@ -668,6 +669,12 @@ public class ParamsProcessorUtil {
         }
         meeting.setAllowModsToUnmuteUsers(allowModsToUnmuteUsers);
 
+    Boolean allowModsToEjectCameras = defaultAllowModsToEjectCameras;
+    if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_MODS_TO_EJECT_CAMERAS))) {
+      allowModsToEjectCameras = Boolean.parseBoolean(params.get(ApiParams.ALLOW_MODS_TO_EJECT_CAMERAS));
+    }
+    meeting.setAllowModsToEjectCameras(allowModsToEjectCameras);
+
         return meeting;
     }
 
@@ -1118,6 +1125,14 @@ public class ParamsProcessorUtil {
 	public Boolean getAllowModsToUnmuteUsers() {
 		return defaultAllowModsToUnmuteUsers;
 	}
+
+  public void setAllowModsToEjectCameras(Boolean value) {
+    defaultAllowModsToEjectCameras = value;
+  }
+
+  public Boolean getAllowModsToEjectCameras() {
+    return defaultAllowModsToEjectCameras;
+  }
 
 	public List<String> decodeIds(String encodeid) {
 		ArrayList<String> ids=new ArrayList<>();
