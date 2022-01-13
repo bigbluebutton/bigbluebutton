@@ -377,6 +377,7 @@ export default class PresentationOverlay extends Component {
     const {
       slide,
       getSvgRef,
+      presentationWindow,
     } = this.props;
 
     const annotations = PresentationService.getCurrentAnnotationsId(slide.id);
@@ -388,7 +389,7 @@ export default class PresentationOverlay extends Component {
     }
     let hitObj;
     for (let key of keys) {
-      const elem = document.getElementById(annotations[key].id);
+      const elem = presentationWindow.document.getElementById(annotations[key].id);
       if (elem) { // can be negative for isolated whiteboard
         const type = annotations[key].annotationType;
         let bboxTL = svgObject.createSVGPoint();
