@@ -815,6 +815,7 @@ if [ $CHECK ]; then
       check_path_owner_group "$LOG_DIR/bbb-rap-worker.log" "-f"
       check_path_owner_group "$LOG_DIR/sanity.log" "-f"
       check_path_owner_group "$LOG_DIR/post_process.log" "-f"
+      check_path_owner_group "$LOG_DIR/post_publish.log" "-f"
       check_path_owner_group "$LOG_DIR/bbb-recording-cleanup.log" "-f"
 
    else
