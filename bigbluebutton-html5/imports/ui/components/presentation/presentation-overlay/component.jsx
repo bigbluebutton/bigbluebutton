@@ -83,6 +83,7 @@ export default class PresentationOverlay extends Component {
       svgWidth,
       svgHeight,
       userIsPresenter,
+      presentationWindow,
     } = this.props;
 
     if (userIsPresenter) {
@@ -94,7 +95,7 @@ export default class PresentationOverlay extends Component {
 
       this.pushSlideUpdate();
     }
-    window.addEventListener('keydown', this.keyDownHandler);
+    presentationWindow.addEventListener('keydown', this.keyDownHandler);
   }
 
   componentDidUpdate(prevProps) {
