@@ -49,6 +49,7 @@ const propTypes = {
   intl: PropTypes.object.isRequired,
   hasVideoStream: PropTypes.bool.isRequired,
   mountVideoPreview: PropTypes.func.isRequired,
+  forceMountVideoPreview: PropTypes.func.isRequired,
 };
 
 const JoinVideoButton = ({
@@ -56,6 +57,7 @@ const JoinVideoButton = ({
   hasVideoStream,
   disableReason,
   mountVideoPreview,
+  forceMountVideoPreview,
 }) => {
   const { isMobile } = deviceInfo;
   const shouldEnableWebcamSelectorButton = ENABLE_WEBCAM_SELECTOR_BUTTON
@@ -79,7 +81,7 @@ const JoinVideoButton = ({
 
   const handleOpenAdvancedOptions = (e) => {
     e.stopPropagation();
-    mountVideoPreview();
+    forceMountVideoPreview();
   };
 
   let label = exitVideo()
