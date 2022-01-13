@@ -166,6 +166,7 @@ class UsersApp(
   with SelectRandomViewerReqMsgHdlr
   with GetWebcamsOnlyForModeratorReqMsgHdlr
   with AssignPresenterReqMsgHdlr
+  with MoveUserToGuestLobbyCmdMsgHdlr
   with ChangeUserPinStateReqMsgHdlr
   with EjectDuplicateUserReqMsgHdlr
   with EjectUserFromMeetingCmdMsgHdlr

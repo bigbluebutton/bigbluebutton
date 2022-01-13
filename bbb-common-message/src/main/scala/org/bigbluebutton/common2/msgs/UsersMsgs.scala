@@ -211,6 +211,14 @@ case class ChangeUserPinStateReqMsgBody(userId: String, pin: Boolean, changedBy:
 object UserPinStateChangedEvtMsg { val NAME = "UserPinStateChangedEvtMsg" }
 case class UserPinStateChangedEvtMsg(header: BbbClientMsgHeader, body: UserPinStateChangedEvtMsgBody) extends BbbCoreMsg
 case class UserPinStateChangedEvtMsgBody(userId: String, pin: Boolean, changedBy: String)
+
+/**
+ * Sent from client to move user to the guest lobby.
+ */
+object MoveUserToGuestLobbyCmdMsg { val NAME = "MoveUserToGuestLobbyCmdMsg" }
+case class MoveUserToGuestLobbyCmdMsg(header: BbbClientMsgHeader, body: MoveUserToGuestLobbyCmdMsgBody) extends StandardMsg
+case class MoveUserToGuestLobbyCmdMsgBody(userMovedToGuestLobbyId: String, userMovedToGuestLobbyName: String, movedToGuestLobbyBy: String)
+
 /**
  * Sent from client to change the role of the user in the meeting.
  */

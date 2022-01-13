@@ -113,6 +113,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ChangeUserPinStateReqMsg](envelope, jsonNode)
       case SelectRandomViewerReqMsg.NAME =>
         routeGenericMsg[SelectRandomViewerReqMsg](envelope, jsonNode)
+      case MoveUserToGuestLobbyCmdMsg.NAME =>
+        routeGenericMsg[MoveUserToGuestLobbyCmdMsg](envelope, jsonNode)
 
       // Poll
       case StartCustomPollReqMsg.NAME =>

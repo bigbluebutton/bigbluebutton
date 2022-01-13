@@ -96,6 +96,10 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[GuestPolicyChangedEvtMsg](envelope, jsonNode)
       case GuestLobbyMessageChangedEvtMsg.NAME =>
         route[GuestLobbyMessageChangedEvtMsg](envelope, jsonNode)
+      case StatusOfMovedUserChangedEvtMsg.NAME =>
+        route[StatusOfMovedUserChangedEvtMsg](envelope, jsonNode)
+      case RegisterMovedUserAnewEvtMsg.NAME =>
+        route[RegisterMovedUserAnewEvtMsg](envelope, jsonNode)
       case AddPadEvtMsg.NAME =>
         route[AddPadEvtMsg](envelope, jsonNode)
       case AddCaptionsPadsEvtMsg.NAME =>

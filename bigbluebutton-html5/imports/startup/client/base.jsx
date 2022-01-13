@@ -5,6 +5,7 @@ import Auth from '/imports/ui/services/auth';
 import AppContainer from '/imports/ui/components/app/container';
 import ErrorScreen from '/imports/ui/components/error-screen/component';
 import MeetingEnded from '/imports/ui/components/meeting-ended/component';
+import MovedToGuestLobbyScreen from '/imports/ui/components/moved-to-guest-lobby/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
@@ -356,10 +357,13 @@ class Base extends Component {
 
     if (codeError && !meetingHasEnded) {
       // 680 is set for the codeError when the user requests a logout
-      if (codeError !== '680') {
-        return (<ErrorScreen code={codeError} />);
+      if (codeError === '680') {
+        return (<MeetingEnded code={codeError} />);  
       }
-      return (<MeetingEnded code={codeError} />);
+      if (!ejected) {
+        return (<MovedToGuestLobbyScreen />)
+      } 
+      return (<ErrorScreen code={codeError} />);
     }
 
     return (<AppContainer {...this.props} baseControls={stateControls} />);
