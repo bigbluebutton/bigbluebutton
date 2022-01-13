@@ -33,6 +33,7 @@ const NavBarContainer = ({ children, ...props }) => {
   const { chats: groupChatsMessages } = usingChatContext;
   const { users } = usingUsersContext;
   const { groupChat: groupChats } = usingGroupChatContext;
+  const activeChats = userListService.getActiveChats({ groupChatsMessages, groupChats, users:users[Auth.meetingID] });
   const { ...rest } = props;
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -69,6 +70,7 @@ const NavBarContainer = ({ children, ...props }) => {
         sidebarContent,
         layoutContextDispatch,
         isExpanded,
+        activeChats,
         ...rest,
       }}
       style={{ ...navBar }}

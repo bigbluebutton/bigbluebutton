@@ -40,6 +40,7 @@ trait AppsTestFixtures {
   val maxUsers = 25
   val guestPolicy = "ALWAYS_ASK"
   val allowModsToUnmuteUsers = false
+  val allowModsToEjectCameras = false
   val authenticatedGuest = false
 
   val red5DeskShareIPTestFixture = "127.0.0.1"
@@ -60,7 +61,7 @@ trait AppsTestFixtures {
     modOnlyMessage = modOnlyMessage)
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
-    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, authenticatedGuest = authenticatedGuest)
+    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, allowModsToEjectCameras = allowModsToEjectCameras, authenticatedGuest = authenticatedGuest)
   val metadataProp = new MetadataProp(metadata)
 
   val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,

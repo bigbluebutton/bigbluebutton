@@ -12,6 +12,7 @@
     "test-visual-regression": "export REGRESSION_TESTING=true;env $(cat ../bigbluebutton-tests/puppeteer/.env | xargs)  jest all.test.js --color --detectOpenHandles --forceExit",
     "test-visual-regression:recording": "export WITH_RECORD=true;export REGRESSION_TESTING=true;env $(cat ../bigbluebutton-tests/puppeteer/.env | xargs)  jest all.test.js --color --detectOpenHandles --forceExit",
     "lint": "eslint . --ext .jsx,.js",
+    "lint:file": "eslint",
     "preinstall": "npx npm-force-resolutions"
   },
   "meteor": {

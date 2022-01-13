@@ -173,6 +173,7 @@ class LearningDashboardActor(
       } yield {
         val updatedUser = user.copy(totalOfMessages = user.totalOfMessages + 1)
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
     }
@@ -244,6 +245,7 @@ class LearningDashboardActor(
         meeting.presentationSlides.last.presentationId != presentationId ||
         meeting.presentationSlides.last.pageNum != pageNum) {
         val updatedMeeting = meeting.copy(presentationSlides = meeting.presentationSlides :+ PresentationSlide(presentationId, pageNum))
+
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
     }
@@ -640,7 +642,16 @@ class LearningDashboardActor(
         outGW.send(event)
         meetingsLastJsonHash += (meeting.intId -> activityJsonHash)
 
-        log.info("Learning Dashboard data sent for meeting {}", meeting.intId)
+        for {
+          learningDashboardAccessToken <- meetingAccessTokens.get(meeting.intId)
+        } yield {
+          val event = MsgBuilder.buildLearningDashboardEvtMsg(meeting.intId, learningDashboardAccessToken, activityJson)
+          outGW.send(event)
+
+          meetingsLastJsonHash += (meeting.intId -> activityJsonHash)
+
+          log.info("Learning Dashboard data sent for meeting {}", meeting.intId)
+        }
       }
     }
   }
