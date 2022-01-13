@@ -19,7 +19,9 @@ export default function modifyWhiteboardAccess(meetingId, whiteboardId, multiUse
     multiUser,
   };
 
-  AnnotationsStreamer(meetingId).emit('deselected', { meetingId, whiteboardId });
+  if (AnnotationsStreamer(meetingId)) {
+    AnnotationsStreamer(meetingId).emit('deselected', { meetingId, whiteboardId });
+  }
   
   try {
     const { insertedId } = WhiteboardMultiUser.upsert(selector, modifier);
