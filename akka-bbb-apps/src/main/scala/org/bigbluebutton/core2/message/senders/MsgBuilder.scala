@@ -555,4 +555,32 @@ object MsgBuilder {
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
+
+  def buildStopScreenshareRtmpBroadcastEvtMsg(
+      meetingId: String,
+      voiceConf: String, screenshareConf: String,
+      stream: String, vidWidth: Int, vidHeight: Int,
+      timestamp: String
+  ): BbbCommonEnvCoreMsg = {
+
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
+    val envelope = BbbCoreEnvelope(ScreenshareRtmpBroadcastStoppedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(ScreenshareRtmpBroadcastStoppedEvtMsg.NAME, meetingId, "not-used")
+    val body = ScreenshareRtmpBroadcastStoppedEvtMsgBody(voiceConf, screenshareConf, stream, vidWidth, vidHeight, timestamp)
+    val event = ScreenshareRtmpBroadcastStoppedEvtMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildScreenBroadcastStopSysMsg(
+      meetingId: String,
+      streamId:  String
+  ): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(ScreenBroadcastStopSysMsg.NAME, routing)
+    val body = ScreenBroadcastStopSysMsgBody(meetingId, streamId)
+    val header = BbbCoreBaseHeader(ScreenBroadcastStopSysMsg.NAME)
+    val event = ScreenBroadcastStopSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
 }
