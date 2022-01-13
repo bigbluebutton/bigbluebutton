@@ -187,6 +187,19 @@ case class GetScreenSubscribePermissionRespMsgBody(
 )
 
 /**
+ * Sent to bbb-webrtc-sfu to tear down screen stream #streamId
+ */
+object ScreenBroadcastStopSysMsg { val NAME = "ScreenBroadcastStopSysMsg" }
+case class ScreenBroadcastStopSysMsg(
+    header: BbbCoreBaseHeader,
+    body:   ScreenBroadcastStopSysMsgBody
+) extends BbbCoreMsg
+case class ScreenBroadcastStopSysMsgBody(
+    meetingId: String,
+    streamId:  String
+)
+
+/**
  * Sent to FS to eject all users from the voice conference.
  */
 object EjectAllFromVoiceConfMsg { val NAME = "EjectAllFromVoiceConfMsg" }
