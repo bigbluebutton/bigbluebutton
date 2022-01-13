@@ -66,6 +66,7 @@ const JoinVideoButton = ({
   const exitVideo = () => hasVideoStream
     && !isMobile
     && (!VideoService.isMultipleCamerasEnabled() || shouldEnableWebcamSelectorButton);
+  const isMobileSharingCamera = hasVideoStream && isMobile;
 
   const handleOnClick = debounce(() => {
     if (!validIOSVersion()) {
@@ -74,6 +75,8 @@ const JoinVideoButton = ({
 
     if (exitVideo()) {
       VideoService.exitVideo();
+    } else if (isMobileSharingCamera) {
+      forceMountVideoPreview();
     } else {
       mountVideoPreview();
     }
