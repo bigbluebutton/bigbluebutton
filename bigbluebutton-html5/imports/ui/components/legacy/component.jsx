@@ -71,6 +71,7 @@ const FALLBACK = 'fallback';
 const READY = 'ready';
 const supportedBrowsers = ['Chrome', 'Firefox', 'Safari', 'Opera', 'Microsoft Edge', 'Yandex Browser'];
 const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
+const CLIENT_VERSION = Meteor.settings.public.app.html5ClientBuild;
 
 export default class Legacy extends Component {
   constructor(props) {
@@ -93,7 +94,7 @@ export default class Legacy extends Component {
         return response.json();
       })
       .then(({ normalizedLocale, regionDefaultLocale }) => {
-        fetch(`${localesPath}/${DEFAULT_LANGUAGE}.json`)
+        fetch(`${localesPath}/${DEFAULT_LANGUAGE}.json?v=${CLIENT_VERSION}`)
           .then((response) => {
             if (!response.ok) {
               return Promise.reject();
@@ -102,7 +103,7 @@ export default class Legacy extends Component {
           })
           .then((messages) => {
             if (regionDefaultLocale !== '') {
-              fetch(`${localesPath}/${regionDefaultLocale}.json`)
+              fetch(`${localesPath}/${regionDefaultLocale}.json?v=${CLIENT_VERSION}`)
                 .then((response) => {
                   if (!response.ok) {
                     return Promise.resolve();
@@ -116,7 +117,7 @@ export default class Legacy extends Component {
             }
 
             if (normalizedLocale && normalizedLocale !== DEFAULT_LANGUAGE && normalizedLocale !== regionDefaultLocale) {
-              fetch(`${localesPath}/${normalizedLocale}.json`)
+              fetch(`${localesPath}/${normalizedLocale}.json?v=${CLIENT_VERSION}`)
                 .then((response) => {
                   if (!response.ok) {
                     return Promise.reject();
