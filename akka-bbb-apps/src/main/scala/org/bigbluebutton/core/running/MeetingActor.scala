@@ -418,13 +418,14 @@ class MeetingActor(
         updateModeratorsPresence()
 
       // Whiteboard
-      case m: SendCursorPositionPubMsg       => wbApp.handle(m, liveMeeting, msgBus)
-      case m: ClearWhiteboardPubMsg          => wbApp.handle(m, liveMeeting, msgBus)
-      case m: UndoWhiteboardPubMsg           => wbApp.handle(m, liveMeeting, msgBus)
-      case m: ModifyWhiteboardAccessPubMsg   => wbApp.handle(m, liveMeeting, msgBus)
-      case m: SendWhiteboardAnnotationPubMsg => wbApp.handle(m, liveMeeting, msgBus)
+      case m: SendCursorPositionPubMsg     => wbApp.handle(m, liveMeeting, msgBus)
+      case m: ClearWhiteboardPubMsg        => wbApp.handle(m, liveMeeting, msgBus)
+      case m: UndoWhiteboardPubMsg         => wbApp.handle(m, liveMeeting, msgBus)
+      case m: ModifyWhiteboardAccessPubMsg => wbApp.handle(m, liveMeeting, msgBus)
+      case m: SendWhiteboardAnnotationPubMsg =>
+        handleMakePresentationWithAnnotationDownloadReqMsg(liveMeeting)
+        wbApp.handle(m, liveMeeting, msgBus)
       case m: GetWhiteboardAnnotationsReqMsg => wbApp.handle(m, liveMeeting, msgBus)
-
       // Poll
       case m: StartPollReqMsg =>
         pollApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
@@ -498,6 +499,8 @@ class MeetingActor(
       // Presentation
       case m: PreuploadedPresentationsSysPubMsg              => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg                          => state = handlePresenterChange(m, state)
+      case m: MakePresentationWithAnnotationDownloadReqMsg   => handleMakePresentationWithAnnotationDownloadReqMsg(liveMeeting)
+      case m: ExportPresentationWithAnnotationReqMsg         => handleExportPresentationWithAnnotationReqMsg(liveMeeting)
 
       // Presentation Pods
       case m: CreateNewPresentationPodPubMsg                 => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
@@ -714,6 +717,29 @@ class MeetingActor(
 
     newState
 
+  }
+
+  def handleMakePresentationWithAnnotationDownloadReqMsg(liveMeeting: LiveMeeting): Unit = {
+    log.warning("*** Hello World! ***")
+
+    liveMeeting.presModel.getPresentations foreach println
+
+    val presentationId = getMeetingInfoPresentationDetails()._1 // current presentationId = whiteboardId
+    // log.warning(liveMeeting.wbModel.getHistory())
+
+    println(presentationId)
+
+    log.warning("*****")
+
+    // 1) Insert Export Job to Redis
+    // 2) Export Annotations to Redis
+
+  }
+
+  def handleExportPresentationWithAnnotationReqMsg(liveMeeting: LiveMeeting): Unit = {
+    log.warning("***** Hello World 2! ")
+    // 1) Insert Export Job to Redis
+    // 2) Export Annotations to Redis
   }
 
   def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {

@@ -3,13 +3,21 @@ package org.bigbluebutton.common2.msgs
 import org.bigbluebutton.common2.domain.PresentationVO
 
 // ------------ client to akka-apps ------------
-
 // ------------ client to akka-apps ------------
 
 // ------------ bbb-common-web to akka-apps ------------
 object PreuploadedPresentationsSysPubMsg { val NAME = "PreuploadedPresentationsSysPubMsg" }
 case class PreuploadedPresentationsSysPubMsg(header: BbbClientMsgHeader, body: PreuploadedPresentationsSysPubMsgBody) extends StandardMsg
 case class PreuploadedPresentationsSysPubMsgBody(presentations: Vector[PresentationVO])
+
+object MakePresentationWithAnnotationDownloadReqMsg { val NAME = "MakePresentationWithAnnotationDownloadReqMsg" }
+case class MakePresentationWithAnnotationDownloadReqMsg(header: BbbClientMsgHeader, body: MakePresentationWithAnnotationDownloadReqMsgBody)
+case class MakePresentationWithAnnotationDownloadReqMsgBody(presId: String, allPages: Boolean, pages: List[Int])
+
+object ExportPresentationWithAnnotationReqMsg { val NAME = "ExportPresentationWithAnnotationReqMsg" }
+case class ExportPresentationWithAnnotationReqMsg(header: BbbClientMsgHeader, body: ExportPresentationWithAnnotationReqMsgBody)
+case class ExportPresentationWithAnnotationReqMsgBody(parentMeetingId: String, allPages: Boolean)
+
 // ------------ bbb-common-web to akka-apps ------------
 
 // ------------ akka-apps to client ------------
