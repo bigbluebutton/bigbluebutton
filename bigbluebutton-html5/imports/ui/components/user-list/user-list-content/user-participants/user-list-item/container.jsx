@@ -22,7 +22,6 @@ export default withTracker(({ user }) => {
     { fields: { lockSettingsProps: 1 } });
 
   return {
-    user,
     isMe,
     userInBreakout: !!findUserInBreakout,
     userLastBreakout: findUserLastBreakout,
