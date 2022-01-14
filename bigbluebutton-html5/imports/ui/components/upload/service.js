@@ -112,7 +112,8 @@ const post = (source, file, token, intl) => {
   axios.post(url, data, config).then(resp => {
     notify(intl.formatMessage(intlMessages.completed, ({ 0: file.filename })), 'info', 'upload');
   }).catch(error => {
-    notify('Upload error: ' + error.response, 'error', 'upload');
+    console.log("Upload error", error.message);
+    notify('Upload error' + error.message, 'error', 'upload');
   });
 };
 
