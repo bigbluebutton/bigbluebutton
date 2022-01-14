@@ -14,6 +14,12 @@ import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/str
 import VideoPreviewService from '../video-preview/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { BBBVideoStream } from '/imports/ui/services/webrtc-base/bbb-video-stream';
+import {
+  EFFECT_TYPES,
+  getSessionVirtualBackgroundInfo,
+} from '/imports/ui/services/virtual-background/service';
+import { notify } from '/imports/ui/services/notification';
+import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.
@@ -123,7 +129,7 @@ class VideoProvider extends Component {
     this.wsQueue = [];
     this.restartTimeout = {};
     this.restartTimer = {};
-    this.webRtcPeers = VideoService.getWebRtcPeers();
+    this.webRtcPeers = {};
     this.outboundIceQueues = {};
     this.videoTags = {};
 
@@ -142,9 +148,10 @@ class VideoProvider extends Component {
 
   componentDidMount() {
     this._isMounted = true;
+    VideoService.updatePeerDictionaryReference(this.webRtcPeers);
+
     this.ws.onopen = this.onWsOpen;
     this.ws.onclose = this.onWsClose;
-
     window.addEventListener('online', this.openWs);
     window.addEventListener('offline', this.onWsClose);
 
@@ -166,6 +173,8 @@ class VideoProvider extends Component {
   }
 
   componentWillUnmount() {
+    VideoService.updatePeerDictionaryReference({});
+
     this.ws.onmessage = null;
     this.ws.onopen = null;
     this.ws.onclose = null;
@@ -245,14 +254,23 @@ class VideoProvider extends Component {
     this.setState({ socketOpen: true });
   }
 
-  updateThreshold(numberOfPublishers) {
+  findAllPrivilegedStreams () {
+    const { streams } = this.props;
+    // Privileged streams are: floor holders
+    return streams.filter(stream => stream.floor || stream.pin);
+  }
+
+  updateQualityThresholds(numberOfPublishers) {
     const { threshold, profile } = VideoService.getThreshold(numberOfPublishers);
     if (profile) {
-      const publishers = Object.values(this.webRtcPeers)
+      const privilegedStreams = this.findAllPrivilegedStreams();
+      Object.values(this.webRtcPeers)
         .filter(peer => peer.isPublisher)
         .forEach((peer) => {
-          // 0 means no threshold in place. Reapply original one if needed
-          const profileToApply = (threshold === 0) ? peer.originalProfileId : profile;
+          // 1) Threshold 0 means original profile/inactive constraint
+          // 2) Privileged streams are: floor holders
+          const exempt = threshold === 0 || privilegedStreams.some(vs => vs.stream === peer.stream)
+          const profileToApply = exempt ? peer.originalProfileId : profile;
           VideoService.applyCameraProfile(peer, profileToApply);
         });
     }
@@ -296,7 +314,7 @@ class VideoProvider extends Component {
     this.disconnectStreams(streamsToDisconnect);
 
     if (CAMERA_QUALITY_THRESHOLDS_ENABLED) {
-      this.updateThreshold(this.props.totalNumberOfStreams);
+      this.updateQualityThresholds(this.props.totalNumberOfStreams);
     }
   }
 
@@ -600,6 +618,9 @@ class VideoProvider extends Component {
         video: constraints,
       },
       onicecandidate: this._getOnIceCandidateCallback(stream, isLocal),
+      configuration: {
+        iceTransportPolicy: shouldForceRelay() ? 'relay' : undefined,
+      }
     };
 
     try {
@@ -618,7 +639,6 @@ class VideoProvider extends Component {
       iceServers = getMappedFallbackStun();
     } finally {
       if (iceServers.length > 0) {
-        peerOptions.configuration = {};
         peerOptions.configuration.iceServers = iceServers;
       }
 
@@ -886,7 +906,44 @@ class VideoProvider extends Component {
     if (isAbleToAttach) {
       this.attach(peer, video);
       peer.attached = true;
+
+      if (isLocal) {
+        const deviceId = MediaStreamUtils.extractVideoDeviceId(peer.bbbVideoStream.mediaStream);
+        const { type, name } = getSessionVirtualBackgroundInfo(deviceId);
+
+        this.restoreVirtualBackground(peer.bbbVideoStream, type, name).catch((error) => {
+          this.handleVirtualBgError(error, type, name);
+        });
+      }
     }
+  }
+
+  restoreVirtualBackground(stream, type, name) {
+    return new Promise((resolve, reject) => {
+      if (type !== EFFECT_TYPES.NONE_TYPE) {
+        stream.startVirtualBackground(type, name).then(() => {
+          resolve();
+        }).catch((error) => {
+          reject(error);
+        });
+      }
+      resolve();
+    });
+  }
+
+  handleVirtualBgError(error, type, name) {
+    const { intl } = this.props;
+    logger.error({
+      logCode: `video_provider_virtualbg_error`,
+      extraInfo: {
+        errorName: error.name,
+        errorMessage: error.message,
+        virtualBgType: type,
+        virtualBgName: name,
+      },
+    }, `Failed to restore virtual background after reentering the room: ${error.message}`);
+
+    notify(intl.formatMessage(intlMessages.virtualBgGenericError), 'error', 'video');
   }
 
   createVideoTag(stream, video) {

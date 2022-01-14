@@ -26,9 +26,7 @@ const ScreenshareVideo = styled.video`
 `;
 
 const ScreenshareContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
   background-color: ${colorContentBackground};
   width: 100%;
   height: 100%;
@@ -61,6 +59,34 @@ const Bounce1 = styled(SpinnerStyles.Bounce1)``;
 
 const Bounce2 = styled(SpinnerStyles.Bounce2)``;
 
+const MobileControlsOverlay = styled.span`
+  position: absolute;
+  top:0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+`;
+
+const HoverToolbar = styled.div`
+  ${({ toolbarStyle }) => toolbarStyle === 'hoverToolbar' && `
+    display: none;
+
+    :hover > & {
+      display: flex;
+    }
+  `}
+
+  ${({ toolbarStyle }) => toolbarStyle === 'dontShowMobileHoverToolbar' && `
+    display: none;
+  `}
+
+  ${({ toolbarStyle }) => toolbarStyle === 'showMobileHoverToolbar' && `
+    display: flex;
+    z-index: 2;
+  `}
+`;
+
 export default {
   ScreenshareContainerInside,
   MainText,
@@ -71,4 +97,6 @@ export default {
   Spinner,
   Bounce1,
   Bounce2,
+  MobileControlsOverlay,
+  HoverToolbar,
 };

@@ -39,19 +39,20 @@ const getLearningDashboardAccessToken = () => ((
 const setLearningDashboardCookie = () => {
   const learningDashboardAccessToken = getLearningDashboardAccessToken();
   if (learningDashboardAccessToken !== null) {
-    const cookieExpiresDate = new Date();
-    cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 30)); // keep cookie 30d
-    document.cookie = `learningDashboardAccessToken-${Auth.meetingID}=${getLearningDashboardAccessToken()}; expires=${cookieExpiresDate.toGMTString()}; path=/`;
+    const lifetime = new Date();
+    lifetime.setTime(lifetime.getTime() + (3600000)); // 1h (extends 7d when open Dashboard)
+    document.cookie = `ld-${Auth.meetingID}=${getLearningDashboardAccessToken()}; expires=${lifetime.toGMTString()}; path=/`;
     return true;
   }
   return false;
 };
 
 const openLearningDashboardUrl = (lang) => {
+  const APP = Meteor.settings.public.app;
   if (getLearningDashboardAccessToken() && setLearningDashboardCookie()) {
-    window.open(`/learning-dashboard/?meeting=${Auth.meetingID}&lang=${lang}`, '_blank');
+    window.open(`${APP.learningDashboardBase}/?meeting=${Auth.meetingID}&lang=${lang}`, '_blank');
   } else {
-    window.open(`/learning-dashboard/?meeting=${Auth.meetingID}&sessionToken=${Auth.sessionToken}&lang=${lang}`, '_blank');
+    window.open(`${APP.learningDashboardBase}/?meeting=${Auth.meetingID}&sessionToken=${Auth.sessionToken}&lang=${lang}`, '_blank');
   }
 };
 

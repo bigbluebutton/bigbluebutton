@@ -16,8 +16,9 @@ import {
   lineHeightComputed,
   headingsFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { smallOnly, landscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Modal from '/imports/ui/components/modal/simple/component';
+import ModalStyles from '/imports/ui/components/modal/simple/styles';
 
 const Warning = styled.div`
   text-align: center;
@@ -53,6 +54,10 @@ const Col = styled.div`
 
 const VideoCol = styled(Col)`
   align-items: center;
+
+  @media ${landscape} {
+     width: 33.3%;
+   }
 `;
 
 const Label = styled.label`
@@ -88,8 +93,6 @@ const Select = styled.select`
 
 const Content = styled.div`
   display: flex;
-  min-height: 14rem;
-  max-height: 50vh;
   justify-content: center;
   align-items: center;
   overflow: auto;
@@ -99,10 +102,7 @@ const Content = styled.div`
 
   @media ${smallOnly} {
     flex-direction: column;
-    height: unset;
     margin: 0;
-    min-height: 12rem;
-    max-height: unset;
   }
 `;
 
@@ -169,6 +169,27 @@ const ExtraActions = styled.div`
 
 const VideoPreviewModal = styled(Modal)`
   padding: 1rem;
+  min-height: 25rem;
+  max-height: 60vh;
+
+  @media ${smallOnly} {
+    height: unset;
+    min-height: 22.5rem;
+    max-height: unset;
+  }
+
+  ${({ isPhone }) => isPhone && `
+    min-height: 100%;
+    min-width: 100%;
+    border-radius: 0;
+  `}
+
+  ${ModalStyles.Content} {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
 `;
 
 const ellipsis = keyframes`

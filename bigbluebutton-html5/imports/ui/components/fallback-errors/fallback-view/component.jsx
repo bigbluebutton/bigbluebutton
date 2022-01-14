@@ -5,15 +5,15 @@ import Styled from './styles';
 
 const intlMessages = defineMessages({
   title: {
-    id: 'app.error.fallback.view.title',
+    id: 'app.error.fallback.presentation.title',
     description: 'title for presentation when fallback is showed',
   },
   description: {
-    id: 'app.error.fallback.view.description',
+    id: 'app.error.fallback.presentation.description',
     description: 'description for presentation when fallback is showed',
   },
   reloadButton: {
-    id: 'app.error.fallback.view.reloadButton',
+    id: 'app.error.fallback.presentation.reloadButton',
     description: 'Button label when fallback is showed',
   },
 });

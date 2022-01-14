@@ -185,7 +185,6 @@
     "app.poll.hidePollDesc": "Skjuler menyvalget for spørsmål",
     "app.poll.quickPollInstruction": "Velg ett av valgene under for å starte spørrerunden",
     "app.poll.activePollInstruction": "Lukk dette panelet for å se svarene på spørsmålet ditt. Når du er klar kan du trykke på 'Publiser resultater' for å se de endelige svarene og avslutte spørsmålsrunden.",
-    "app.poll.publishLabel": "Publiser spørsmålsresultater",
     "app.poll.closeLabel": "Lukk",
     "app.poll.waitingLabel": "Venter på svar ({0}/{1})",
     "app.poll.ariaInputCount": "Tilpasset spørsmålsvalg {0} av {1}",

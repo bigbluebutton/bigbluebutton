@@ -49,6 +49,8 @@ const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
+const VIEWER = Meteor.settings.public.user.role_viewer;
+const MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -99,19 +101,23 @@ const intlMessages = defineMessages({
     id: 'app.title.defaultViewLabel',
     description: 'view name apended to document title',
   },
+  promotedLabel: {
+    id: 'app.toast.promotedLabel',
+    description: 'notification message when promoted',
+  },
+  demotedLabel: {
+    id: 'app.toast.demotedLabel',
+    description: 'notification message when demoted',
+  },
 });
 
 const propTypes = {
-  navbar: PropTypes.element,
-  sidebar: PropTypes.element,
   actionsbar: PropTypes.element,
   captions: PropTypes.element,
   locale: PropTypes.string,
 };
 
 const defaultProps = {
-  navbar: null,
-  sidebar: null,
   actionsbar: null,
   captions: null,
   locale: OVERRIDE_LOCALE || navigator.language,
@@ -192,6 +198,8 @@ class App extends Component {
 
     body.classList.add(`os-${osName.split(' ').shift().toLowerCase()}`);
 
+    body.classList.add(`lang-${locale.split('-')[0]}`);
+
     if (!validIOSVersion()) {
       notify(
         intl.formatMessage(intlMessages.iOSWarning), 'error', 'warning',
@@ -209,7 +217,7 @@ class App extends Component {
     window.ondragover = (e) => { e.preventDefault(); };
     window.ondrop = (e) => { e.preventDefault(); };
 
-    if (isMobile()) makeCall('setMobileUser');
+    if (deviceInfo.isMobile) makeCall('setMobileUser');
 
     ConnectionStatusService.startRoundTripTime();
 
@@ -221,17 +229,18 @@ class App extends Component {
       meetingMuted,
       notify,
       currentUserEmoji,
+      currentUserRole,
       intl,
       hasPublishedPoll,
-      randomlySelectedUser,
       mountModal,
       deviceType,
-      isPresenter,
       meetingLayout,
-      settingsLayout,
+      selectedLayout, // full layout name
+      settingsLayout, // shortened layout name (without Push)
       layoutType,
-      pushLayoutToEveryone,
+      pushLayoutToEveryone, // is layout pushed
       layoutContextDispatch,
+      mountRandomUserModal,
     } = this.props;
 
     if (meetingLayout !== prevProps.meetingLayout) {
@@ -244,7 +253,7 @@ class App extends Component {
       Settings.save();
     }
 
-    if (settingsLayout !== prevProps.settingsLayout
+    if (selectedLayout !== prevProps.selectedLayout
       || settingsLayout !== layoutType) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_TYPE,
@@ -256,7 +265,7 @@ class App extends Component {
       }
     }
 
-    if (!isPresenter && randomlySelectedUser.length > 0) mountModal(<RandomUserSelectContainer />);
+    if (mountRandomUserModal) mountModal(<RandomUserSelectContainer />);
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
@@ -296,6 +305,16 @@ class App extends Component {
     if (!prevProps.hasPublishedPoll && hasPublishedPoll) {
       notify(
         intl.formatMessage(intlMessages.pollPublishedLabel), 'info', 'polling',
+      );
+    }
+    if (prevProps.currentUserRole === VIEWER && currentUserRole === MODERATOR) {
+      notify(
+        intl.formatMessage(intlMessages.promotedLabel), 'info', 'user',
+      );
+    }
+    if (prevProps.currentUserRole === MODERATOR && currentUserRole === VIEWER) {
+      notify(
+        intl.formatMessage(intlMessages.demotedLabel), 'info', 'user',
       );
     }
 
@@ -350,6 +369,7 @@ class App extends Component {
 
     return (
       <Styled.CaptionsWrapper
+        role="region"
         style={
           {
             position: 'absolute',
@@ -376,6 +396,7 @@ class App extends Component {
 
     return (
       <Styled.ActionsBar
+        role="region"
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={this.shouldAriaHide()}
         style={

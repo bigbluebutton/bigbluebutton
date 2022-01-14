@@ -8,6 +8,7 @@ import {
   getMappedFallbackStun
 } from '/imports/utils/fetchStunTurnServers';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
+import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const DEFAULT_LISTENONLY_MEDIA_SERVER = Meteor.settings.public.kurento.listenOnlyMediaServer;
@@ -267,6 +268,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
           offering: OFFERING,
           mediaServer: getMediaServerAdapter(),
           signalCandidates: SIGNAL_CANDIDATES,
+          forceRelay: shouldForceRelay(),
         };
 
         this.broker = new ListenOnlyBroker(

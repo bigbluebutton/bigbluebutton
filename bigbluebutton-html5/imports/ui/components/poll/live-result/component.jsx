@@ -208,7 +208,7 @@ class LiveResult extends PureComponent {
           </Styled.Status>
           {pollStats}
         </Styled.Stats>
-        {currentPoll && currentPoll.answers.length > 0
+        {currentPoll && currentPoll.answers.length >= 0
           ? (
             <Styled.ButtonsActions>
               <Styled.PublishButton

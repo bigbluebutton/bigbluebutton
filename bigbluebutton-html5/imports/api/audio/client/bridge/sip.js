@@ -31,9 +31,9 @@ const IPV4_FALLBACK_DOMAIN = Meteor.settings.public.app.ipv4FallbackDomain;
 const CALL_CONNECT_TIMEOUT = 20000;
 const ICE_NEGOTIATION_TIMEOUT = 20000;
 const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
-const USER_AGENT_RECONNECTION_ATTEMPTS = 3;
-const USER_AGENT_RECONNECTION_DELAY_MS = 5000;
-const USER_AGENT_CONNECTION_TIMEOUT_MS = 5000;
+const USER_AGENT_RECONNECTION_ATTEMPTS = MEDIA.audioReconnectionAttempts || 3;
+const USER_AGENT_RECONNECTION_DELAY_MS = MEDIA.audioReconnectionDelay || 5000;
+const USER_AGENT_CONNECTION_TIMEOUT_MS = MEDIA.audioConnectionTimeout || 5000;
 const ICE_GATHERING_TIMEOUT = MEDIA.iceGatheringTimeout || 5000;
 const BRIDGE_NAME = 'sip';
 const WEBSOCKET_KEEP_ALIVE_INTERVAL = MEDIA.websocketKeepAliveInterval || 0;
@@ -42,6 +42,7 @@ const TRACE_SIP = MEDIA.traceSip || false;
 const AUDIO_MICROPHONE_CONSTRAINTS = Meteor.settings.public.app.defaultSettings
   .application.microphoneConstraints;
 const SDP_SEMANTICS = MEDIA.sdpSemantics;
+const FORCE_RELAY = MEDIA.forceRelay;
 
 const DEFAULT_INPUT_DEVICE_ID = 'default';
 const DEFAULT_OUTPUT_DEVICE_ID = 'default';
@@ -557,6 +558,7 @@ class SIPSession {
           peerConnectionConfiguration: {
             iceServers,
             sdpSemantics: SDP_SEMANTICS,
+            iceTransportPolicy: FORCE_RELAY ? 'relay' : undefined,
           },
         },
         displayName: callerIdName,
@@ -1304,7 +1306,11 @@ export default class SIPBridge extends BaseAudioBridge {
     };
 
     this.protocol = window.document.location.protocol;
-    this.hostname = window.document.location.hostname;
+    if (MEDIA['sip_ws_host'] != null && MEDIA['sip_ws_host'] != '') {
+      this.hostname = MEDIA.sip_ws_host;
+    } else {
+      this.hostname = window.document.location.hostname;
+    }
 
     // SDP conversion utilitary methods to be used inside SIP.js
     window.isUnifiedPlan = isUnifiedPlan;

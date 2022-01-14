@@ -1,11 +1,13 @@
 import { GroupChatMsg, UsersTyping } from '/imports/api/group-chat-msg';
 import Users from '/imports/api/users';
 import { Meteor } from 'meteor/meteor';
-
+import { check } from 'meteor/check';
+import GroupChat from '/imports/api/group-chat';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-function groupChatMsg(chatsIds) {
+function groupChatMsg(chatCount) {
+  check(chatCount, Number);
   const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
@@ -19,6 +21,14 @@ function groupChatMsg(chatsIds) {
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
   Logger.debug('Publishing group-chat-msg', { meetingId, userId });
+
+  const chats = GroupChat.find({
+    $or: [
+      { meetingId, users: { $all: [userId] } },
+    ],
+  }).fetch();
+
+  const chatsIds = chats.map((ct) => ct.chatId);
 
   const User = Users.findOne({ userId, meetingId });
   const selector = {

@@ -103,18 +103,30 @@ object UsersApp {
     outGW.send(ejectFromVoiceEvent)
   }
 
+  def sendEjectUserFromSfuSysMsg(
+    outGW: OutMsgRouter,
+    meetingId: String,
+    userId: String
+  ): Unit = {
+    val event = MsgBuilder.buildEjectUserFromSfuSysMsg(
+      meetingId,
+      userId,
+    )
+    outGW.send(event)
+  }
+
   def ejectUserFromMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting,
                            userId: String, ejectedBy: String, reason: String,
                            reasonCode: String, ban: Boolean): Unit = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
-
+    RegisteredUsers.eject(userId, liveMeeting.registeredUsers, ban)
     for {
       user <- Users2x.ejectFromMeeting(liveMeeting.users2x, userId)
-      reguser <- RegisteredUsers.eject(userId, liveMeeting.registeredUsers, ban)
     } yield {
       sendUserEjectedMessageToClient(outGW, meetingId, userId, ejectedBy, reason, reasonCode)
       sendUserLeftMeetingToAllClients(outGW, meetingId, userId)
+      sendEjectUserFromSfuSysMsg(outGW, meetingId, userId)
       if (user.presenter) {
         // println(s"ejectUserFromMeeting will cause a automaticallyAssignPresenter for user=${user}")
         automaticallyAssignPresenter(outGW, liveMeeting)
@@ -154,6 +166,7 @@ class UsersApp(
   with SelectRandomViewerReqMsgHdlr
   with GetWebcamsOnlyForModeratorReqMsgHdlr
   with AssignPresenterReqMsgHdlr
+  with ChangeUserPinStateReqMsgHdlr
   with EjectDuplicateUserReqMsgHdlr
   with EjectUserFromMeetingCmdMsgHdlr
   with EjectUserFromMeetingSysMsgHdlr

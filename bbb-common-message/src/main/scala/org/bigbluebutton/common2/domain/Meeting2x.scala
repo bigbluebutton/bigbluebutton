@@ -28,7 +28,7 @@ case class WelcomeProp(welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMe
 
 case class VoiceProp(telVoice: String, voiceConf: String, dialNumber: String, muteOnStart: Boolean)
 
-case class UsersProp(maxUsers: Int, webcamsOnlyForModerator: Boolean, guestPolicy: String, meetingLayout: String, allowModsToUnmuteUsers: Boolean, authenticatedGuest: Boolean)
+case class UsersProp(maxUsers: Int, webcamsOnlyForModerator: Boolean, guestPolicy: String, meetingLayout: String, allowModsToUnmuteUsers: Boolean, allowModsToEjectCameras: Boolean, authenticatedGuest: Boolean)
 
 case class MetadataProp(metadata: collection.immutable.Map[String, String])
 

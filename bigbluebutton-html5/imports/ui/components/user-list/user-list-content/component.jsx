@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Styled from './styles';
 import UserParticipantsContainer from './user-participants/container';
-import UserMessages from './user-messages/container';
+import UserMessagesContainer from './user-messages/container';
 import UserNotesContainer from './user-notes/container';
 import UserCaptionsContainer from './user-captions/container';
 import WaitingUsersContainer from './waiting-users/container';
@@ -31,7 +31,7 @@ class UserContent extends PureComponent {
 
     return (
       <Styled.Content data-test="userListContent">
-        {CHAT_ENABLED ? <UserMessages /> : null}
+        {CHAT_ENABLED ? <UserMessagesContainer /> : null}
         {currentUser.role === ROLE_MODERATOR ? <UserCaptionsContainer /> : null}
         <UserNotesContainer />
         {showWaitingRoom && currentUser.role === ROLE_MODERATOR

@@ -85,7 +85,7 @@ class Settings {
             [item]: values[item],
           }), {});
 
-        if (_.isEmpty(changedValues)) return;
+        if (_.isEmpty(changedValues)) Storage.removeItem(`${settings}${k}`);
         Storage.setItem(`${settings}${k}`, changedValues);
       });
     } else {

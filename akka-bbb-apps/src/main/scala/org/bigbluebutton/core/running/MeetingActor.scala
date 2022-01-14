@@ -40,7 +40,7 @@ import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
-import org.bigbluebutton.core.models.Webcams.{ findAll, updateWebcamStream }
+import org.bigbluebutton.core.models.Webcams.{ findAll }
 import org.bigbluebutton.core2.MeetingStatus2x.{ hasAuthedUserJoined, isVoiceRecording }
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
@@ -85,6 +85,10 @@ class MeetingActor(
   with GetScreenSubscribePermissionReqMsgHdlr
   with GetCamBroadcastPermissionReqMsgHdlr
   with GetCamSubscribePermissionReqMsgHdlr
+  with CamStreamSubscribedInSfuEvtMsgHdlr
+  with CamStreamUnsubscribedInSfuEvtMsgHdlr
+  with CamBroadcastStoppedInSfuEvtMsgHdlr
+  with EjectUserCamerasCmdMsgHdlr
 
   with EjectUserFromVoiceCmdMsgHdlr
   with EndMeetingSysCmdMsgHdlr
@@ -242,8 +246,6 @@ class MeetingActor(
       handleMeetingInfoAnalyticsLogging()
     case MeetingInfoAnalyticsMsg =>
       handleMeetingInfoAnalyticsService()
-    case msg: CamStreamSubscribeSysMsg =>
-      handleCamStreamSubscribeSysMsg(msg)
     case msg: ScreenStreamSubscribeSysMsg =>
       handleScreenStreamSubscribeSysMsg(msg)
     //=============================
@@ -381,13 +383,17 @@ class MeetingActor(
       case m: UserLeaveReqMsg =>
         state = handleUserLeaveReqMsg(m, state)
         updateModeratorsPresence()
-      case m: UserBroadcastCamStartMsg        => handleUserBroadcastCamStartMsg(m)
-      case m: UserBroadcastCamStopMsg         => handleUserBroadcastCamStopMsg(m)
-      case m: GetCamBroadcastPermissionReqMsg => handleGetCamBroadcastPermissionReqMsg(m)
-      case m: GetCamSubscribePermissionReqMsg => handleGetCamSubscribePermissionReqMsg(m)
+      case m: UserBroadcastCamStartMsg         => handleUserBroadcastCamStartMsg(m)
+      case m: UserBroadcastCamStopMsg          => handleUserBroadcastCamStopMsg(m)
+      case m: GetCamBroadcastPermissionReqMsg  => handleGetCamBroadcastPermissionReqMsg(m)
+      case m: GetCamSubscribePermissionReqMsg  => handleGetCamSubscribePermissionReqMsg(m)
+      case m: CamStreamSubscribedInSfuEvtMsg   => handleCamStreamSubscribedInSfuEvtMsg(m)
+      case m: CamStreamUnsubscribedInSfuEvtMsg => handleCamStreamUnsubscribedInSfuEvtMsg(m)
+      case m: CamBroadcastStoppedInSfuEvtMsg   => handleCamBroadcastStoppedInSfuEvtMsg(m)
+      case m: EjectUserCamerasCmdMsg           => handleEjectUserCamerasCmdMsg(m)
 
-      case m: UserJoinedVoiceConfEvtMsg       => handleUserJoinedVoiceConfEvtMsg(m)
-      case m: LogoutAndEndMeetingCmdMsg       => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
+      case m: UserJoinedVoiceConfEvtMsg        => handleUserJoinedVoiceConfEvtMsg(m)
+      case m: LogoutAndEndMeetingCmdMsg        => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
       case m: SetRecordingStatusCmdMsg =>
         state = usersApp.handleSetRecordingStatusCmdMsg(m, state)
         updateUserLastActivity(m.body.setBy)
@@ -399,6 +405,7 @@ class MeetingActor(
       case m: GetRecordingStatusReqMsg            => usersApp.handleGetRecordingStatusReqMsg(m)
       case m: ChangeUserEmojiCmdMsg               => handleChangeUserEmojiCmdMsg(m)
       case m: SelectRandomViewerReqMsg            => usersApp.handleSelectRandomViewerReqMsg(m)
+      case m: ChangeUserPinStateReqMsg            => usersApp.handleChangeUserPinStateReqMsg(m)
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
@@ -573,10 +580,6 @@ class MeetingActor(
 
       case _                              => log.warning("***** Cannot handle " + msg.envelope.name)
     }
-  }
-
-  private def handleCamStreamSubscribeSysMsg(msg: CamStreamSubscribeSysMsg): Unit = {
-    updateWebcamStream(liveMeeting.webcams, msg.body.streamId, msg.body.userId)
   }
 
   private def handleScreenStreamSubscribeSysMsg(msg: ScreenStreamSubscribeSysMsg): Unit = ???

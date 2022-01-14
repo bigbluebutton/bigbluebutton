@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import Icon from '/imports/ui/components/icon/component';
+import Button from '/imports/ui/components/button/component';
 import {
   colorPrimary,
   colorBlack,
@@ -7,6 +8,7 @@ import {
   colorOffWhite,
   colorDanger,
   colorSuccess,
+  colorTransparent,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { TextElipsis, DivElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import { landscape, mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
@@ -161,13 +163,9 @@ const Video = styled.video`
 
 const Info = styled.div`
   position: absolute;
-  display: flex;
-  bottom: 5px;
-  left: 5px;
+  bottom: 1px;
+  left: 7px;
   right: 5px;
-  justify-content: space-between;
-  align-items: center;
-  height: 1.25rem;
   z-index: 2;
 `;
 
@@ -196,6 +194,7 @@ const Dropdown = styled.div`
 
 const UserName = styled(TextElipsis)`
   position: relative;
+  max-width: 75%;
   // Keep the background with 0.5 opacity, but leave the text with 1
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 1px;
@@ -210,6 +209,9 @@ const UserName = styled(TextElipsis)`
 
 const Muted = styled(Icon)`
   display: inline-block;
+  position: absolute;
+  right: 7px;
+  bottom: 6px;
   width: ${audioIndicatorWidth};
   height: ${audioIndicatorWidth};
   min-width: ${audioIndicatorWidth};
@@ -226,6 +228,9 @@ const Muted = styled(Icon)`
 
 const Voice = styled(Icon)`
   display: inline-block;
+  position: absolute;
+  right: 7px;
+  bottom: 6px;
   width: ${audioIndicatorWidth};
   height: ${audioIndicatorWidth};
   min-width: ${audioIndicatorWidth};
@@ -242,6 +247,7 @@ const Voice = styled(Icon)`
 
 const DropdownTrigger = styled(DivElipsis)`
   position: relative;
+  max-width: 75%;
   // Keep the background with 0.5 opacity, but leave the text with 1
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 1px;
@@ -262,6 +268,44 @@ const DropdownTrigger = styled(DivElipsis)`
   }
 `;
 
+const PinButtonWrapper = styled.div`
+  position: absolute;
+  top: 0;
+  left: auto;
+  background-color: rgba(0,0,0,.3);
+  cursor: pointer;
+  border: 0;
+  z-index: 2;
+  margin: 2px;
+
+  [dir="rtl"] & {
+    right: auto;
+    left :0;
+  }
+
+  [class*="presentationZoomControls"] & {
+    position: relative !important;
+  }
+`;
+
+const PinButton = styled(Button)`
+  padding: 5px;
+  &,
+  &:active,
+  &:hover,
+  &:focus {
+    background-color: ${colorTransparent} !important;
+    border: none !important;
+
+    & > i {
+      border: none !important;
+      color: ${colorWhite};
+      font-size: 1rem;
+      background-color: ${colorTransparent} !important;
+    }
+  }
+`;
+
 export default {
   Content,
   WebcamConnecting,
@@ -275,4 +319,6 @@ export default {
   Muted,
   Voice,
   DropdownTrigger,
+  PinButtonWrapper,
+  PinButton,
 };

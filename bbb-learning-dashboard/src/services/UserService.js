@@ -165,7 +165,7 @@ export function makeUserCSVData(users, polls, intl) {
       .values(userData)
       .map((data) => `"${data}"`);
 
-    userRecords[user.intId] = userFields.join(',');
+    userRecords[user.userKey] = userFields.join(',');
   }
 
   const tableHeaderFieldsTranslated = tableHeaderFields

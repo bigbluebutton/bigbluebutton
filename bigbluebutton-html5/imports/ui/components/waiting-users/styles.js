@@ -21,6 +21,7 @@ import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typograp
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { DivElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import Button from '/imports/ui/components/button/component';
+import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 
 const ListItem = styled.div`
   display: flex;
@@ -238,6 +239,11 @@ const RememberContainer = styled.div`
   }
 `;
 
+const ScrollableArea = styled(ScrollboxVertical)`
+  overflow-y: auto;
+  padding-right: 0.25rem;
+`;
+
 export default {
   ListItem,
   UserContentContainer,
@@ -257,4 +263,5 @@ export default {
   HideButton,
   LobbyMessage,
   RememberContainer,
+  ScrollableArea,
 };

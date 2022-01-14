@@ -206,7 +206,6 @@
     "app.poll.hidePollDesc": "Ocultar menu de sondagem",
     "app.poll.quickPollInstruction": "Selecione uma opção abaixo para iniciar a sua sondagem.",
     "app.poll.activePollInstruction": "Deixe este painel aberto de forma a ver as respostas à sua sondagem, em tempo real. Quando estiver pronto, escolha 'Publicar resultado da sondagem' para publicar os resultados e fechar a sondagem.",
-    "app.poll.publishLabel": "Publicar resultados de sondagem",
     "app.poll.closeLabel": "Fechar",
     "app.poll.waitingLabel": "A aguardar respostas ({0}/{1}) ",
     "app.poll.ariaInputCount": "Opção de sondagem customizada {0} of {1} ",
