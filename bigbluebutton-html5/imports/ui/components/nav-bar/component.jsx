@@ -36,6 +36,10 @@ const intlMessages = defineMessages({
     id: 'app.navBar.toggleUserList.newMsgAria',
     description: 'label for new message screen reader alert',
   },
+  defaultBreakoutName: {
+    id: 'app.createBreakoutRoom.room',
+    description: 'default breakout room name',
+  },
 });
 
 const propTypes = {
@@ -66,7 +70,23 @@ class NavBar extends Component {
       processOutsideToggleRecording,
       connectRecordingObserver,
       shortcuts: TOGGLE_USERLIST_AK,
+      intl,
+      breakoutNum,
+      breakoutName,
+      meetingName,
     } = this.props;
+
+    if (breakoutNum && breakoutNum > 0) {
+      const defaultBreakoutName = intl.formatMessage(intlMessages.defaultBreakoutName, {
+        0: breakoutNum,
+      });
+
+      if (breakoutName === defaultBreakoutName) {
+        document.title = `${breakoutNum} - ${meetingName}`;
+      } else {
+        document.title = `${breakoutName} - ${meetingName}`;
+      }
+    }
 
     const { isFirefox } = browserInfo;
     const { isMacos } = deviceInfo;
