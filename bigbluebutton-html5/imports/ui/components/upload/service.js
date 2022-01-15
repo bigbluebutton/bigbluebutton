@@ -105,7 +105,7 @@ const post = (source, file, token, intl) => {
       'Content-Type': 'multipart/form-data',
       'X-Meeting-ID': meetingId,
       'X-User-ID': userId,
-      'X-Filename': file.filename,
+      'X-Filename': encodeURI(file.filename),
     },
   };
 
