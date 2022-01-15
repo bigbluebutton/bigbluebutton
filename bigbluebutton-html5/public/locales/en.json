@@ -59,6 +59,7 @@
     "app.upload.notification.header": "A file was uploaded",
     "app.upload.notification.disclaimer": "Note that your browser might not support this type of file.",
     "app.upload.media.title": "Media upload",
+    "app.upload.media.note": "Uploaded media can be shared from the external video sharing modal",
     "app.upload.media.message": "Drag or select media files to be uploaded",
     "app.upload.media.filename": "Media filename",
     "app.upload.media.options": "Media options",
