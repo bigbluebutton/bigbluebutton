@@ -16,6 +16,10 @@ const intlMessages = defineMessages({
     id: 'app.upload.media.title',
     description: 'Media upload modal title',
   },
+  note: {
+    id: 'app.upload.media.note',
+    description: 'Media upload modal note',
+  },
   message: {
     id: 'app.upload.media.message',
     description: 'Media upload modal message',
@@ -162,6 +166,9 @@ class MediaUpload extends Component {
             {intl.formatMessage(intlMessages.title)}
           </h3>
         </header>
+        <h4 className={styles.content}>
+          {intl.formatMessage(intlMessages.note)}
+        </h4>
         <div className={styles.content}>
           {this.renderFiles()}
           <Dropzone
