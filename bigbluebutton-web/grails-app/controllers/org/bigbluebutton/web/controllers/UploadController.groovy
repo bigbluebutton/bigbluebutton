@@ -13,7 +13,7 @@ class UploadController {
   def check = {
     def meetingId = request.getHeader("x-meeting-id")
     def source = request.getHeader("x-source")
-    def filename = request.getHeader("x-filename")
+    def filename = URLDecoder.decode(request.getHeader("x-filename"), 'utf-8')
     def userId = request.getHeader("x-user-id")
     def token = request.getHeader("x-token")
     def contentLength = request.getHeader("x-content-length")
