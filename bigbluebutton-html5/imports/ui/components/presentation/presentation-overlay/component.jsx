@@ -17,6 +17,7 @@ const MAX_Z_INDEX = (2 ** 31) - 1;
 const HAND_TOOL = 'hand';
 const MOUSE_INTERVAL = 32;
 const COS30 = 0.866;
+const FLICKTHRES = 30;
 
 export default class PresentationOverlay extends Component {
   static calculateDistance(touches) {
@@ -74,6 +75,8 @@ export default class PresentationOverlay extends Component {
     this.isPointInStroke = this.isPointInStroke.bind(this);
     this.pointerBeforeDragX = 0;
     this.pointerBeforeDragY = 0;
+    this.time = Date.now();
+    this.flick = 0;
   }
 
   componentDidMount() {
@@ -487,6 +490,7 @@ export default class PresentationOverlay extends Component {
     presentationWindow.addEventListener('touchcancel', this.handleTouchCancel, true);
 
     this.touchStarted = true;
+    this.time = Date.now();
 
     const numberTouches = event.touches.length;
     if (numberTouches === 2) {
@@ -524,6 +528,9 @@ export default class PresentationOverlay extends Component {
       this.panMoveHandler(event);
     } else if (selectedAnnotations.length > 0) {
       const touchCenterPoint = PresentationOverlay.touchCenterPoint(event.touches);
+      const interval = Date.now() - this.time;
+      this.time = Date.now();
+      this.flick = ((touchCenterPoint.x - this.currentTouchX)**2 + (touchCenterPoint.y - this.currentTouchY)**2) / interval;
       const newPoint = this.svgCoordinateToPercentages(this.getTransformedSvgPoint(touchCenterPoint.x, touchCenterPoint.y));
       const oldPoint = this.svgCoordinateToPercentages(this.getTransformedSvgPoint(this.currentTouchX, this.currentTouchY));
       const dx_percent = newPoint.x - oldPoint.x
@@ -536,9 +543,19 @@ export default class PresentationOverlay extends Component {
   }
 
   handleTouchEnd(event) {
-    const { presentationWindow } = this.props;
+    const { 
+      presentationWindow,
+      slide,
+    } = this.props;
+    
     event.preventDefault();
-
+    
+    if (this.flick > FLICKTHRES) {
+      const selectedAnnotations = PresentationService.getSelectedAnnotationsId(slide.id);
+      makeCall('removeAnnotation', slide.id, selectedAnnotations);
+      this.flick = 0;
+    }
+    
     // resetting the touchStarted flag
     this.touchStarted = false;
 
