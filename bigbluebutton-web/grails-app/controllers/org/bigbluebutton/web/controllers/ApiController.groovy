@@ -97,6 +97,22 @@ class ApiController {
     log.debug request.getParameterMap().toMapString()
     log.debug request.getQueryString()
 
+    String[] ap = request.getParameterMap().get("attendeePW")
+    String attendeePW
+    if(ap == null) log.info("No attendeePW provided")
+    else attendeePW = ap[0]
+
+    String[] mp = request.getParameterMap().get("moderatorPW")
+    String moderatorPW
+    if(mp == null) log.info("No moderatorPW provided")
+    else moderatorPW = mp[0]
+
+    log.info("attendeePW [${attendeePW}]")
+    log.info("moderatorPW [${moderatorPW}]")
+
+    if(attendeePW.equals("")) log.info("attendeePW is empty")
+    if(moderatorPW.equals("")) log.info("moderatorPW is empty")
+
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.CREATE,
             request.getParameterMap(),

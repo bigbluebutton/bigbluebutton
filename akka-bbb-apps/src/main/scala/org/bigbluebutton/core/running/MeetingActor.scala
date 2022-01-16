@@ -88,6 +88,7 @@ class MeetingActor(
   with CamStreamSubscribedInSfuEvtMsgHdlr
   with CamStreamUnsubscribedInSfuEvtMsgHdlr
   with CamBroadcastStoppedInSfuEvtMsgHdlr
+  with EjectUserCamerasCmdMsgHdlr
 
   with EjectUserFromVoiceCmdMsgHdlr
   with EndMeetingSysCmdMsgHdlr
@@ -389,6 +390,7 @@ class MeetingActor(
       case m: CamStreamSubscribedInSfuEvtMsg   => handleCamStreamSubscribedInSfuEvtMsg(m)
       case m: CamStreamUnsubscribedInSfuEvtMsg => handleCamStreamUnsubscribedInSfuEvtMsg(m)
       case m: CamBroadcastStoppedInSfuEvtMsg   => handleCamBroadcastStoppedInSfuEvtMsg(m)
+      case m: EjectUserCamerasCmdMsg           => handleEjectUserCamerasCmdMsg(m)
 
       case m: UserJoinedVoiceConfEvtMsg        => handleUserJoinedVoiceConfEvtMsg(m)
       case m: LogoutAndEndMeetingCmdMsg        => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
@@ -403,6 +405,7 @@ class MeetingActor(
       case m: GetRecordingStatusReqMsg            => usersApp.handleGetRecordingStatusReqMsg(m)
       case m: ChangeUserEmojiCmdMsg               => handleChangeUserEmojiCmdMsg(m)
       case m: SelectRandomViewerReqMsg            => usersApp.handleSelectRandomViewerReqMsg(m)
+      case m: ChangeUserPinStateReqMsg            => usersApp.handleChangeUserPinStateReqMsg(m)
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
