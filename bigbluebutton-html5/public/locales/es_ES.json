@@ -544,7 +544,6 @@
     "app.guest.errorSeeConsole": "Error: más detalles en la consola.",
     "app.guest.noModeratorResponse": "Sin respuesta del moderador.",
     "app.guest.noSessionToken": "No se recibió ningún token de sesión.",
-    "app.guest.windowTitle": "Vestíbulo de invitados",
     "app.guest.missingToken": "Token de sesión faltante del invitado.",
     "app.guest.missingSession": "Sesión perdida de invitado.",
     "app.guest.missingMeeting": "La reunión no existe.",

@@ -55,6 +55,13 @@ const intlMessages = defineMessages({
 
 class TimeWindowChatItem extends PureComponent {
   componentDidUpdate(prevProps, prevState) {
+    const { height, forceCacheUpdate, systemMessage, index } = this.props;
+    const elementHeight = this.itemRef ? this.itemRef.clientHeight : null;
+
+    if (systemMessage && elementHeight && height !== 'auto' && elementHeight !== height) {
+      forceCacheUpdate(index);
+    }
+
     ChatLogger.debug('TimeWindowChatItem::componentDidUpdate::props', { ...this.props }, { ...prevProps });
     ChatLogger.debug('TimeWindowChatItem::componentDidUpdate::state', { ...this.state }, { ...prevState });
   }
@@ -83,7 +90,9 @@ class TimeWindowChatItem extends PureComponent {
     }
 
     return (
-      <Styled.Item key={`time-window-chat-item-${messageKey}`}>
+      <Styled.Item
+        key={`time-window-chat-item-${messageKey}`}
+        ref={element => this.itemRef = element} >
         <Styled.Messages>
           {messages.map(message => (
             message.text !== ''

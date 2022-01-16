@@ -73,6 +73,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: UserJoinedVoiceConfToClientEvtMsg              => logMessage(msg)
       case m: UserDisconnectedFromGlobalAudioMsg             => logMessage(msg)
       case m: AssignPresenterReqMsg                          => logMessage(msg)
+      case m: ChangeUserPinStateReqMsg                       => logMessage(msg)
       case m: ScreenshareStartedVoiceConfEvtMsg              => logMessage(msg)
       case m: ScreenshareStoppedVoiceConfEvtMsg              => logMessage(msg)
       case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => logMessage(msg)

@@ -15,6 +15,7 @@ const BRIDGE_NAME = 'kurento'
 const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
 const SEND_ROLE = 'send';
 const RECV_ROLE = 'recv';
+const DEFAULT_VOLUME = 1;
 
 // the error-code mapping is bridge specific; that's why it's not in the errors util
 const ERROR_MAP = {
@@ -179,6 +180,28 @@ export default class KurentoScreenshareBridge {
       clearTimeout(this.reconnectionTimeout);
       this.reconnectionTimeout = null;
     }
+  }
+
+  setVolume(volume) {
+    const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
+
+    if (mediaElement) {
+      if (typeof volume === 'number' && volume >= 0 && volume <= 1) {
+        mediaElement.volume = volume;
+      }
+
+      return mediaElement.volume;
+    }
+
+    return DEFAULT_VOLUME;
+  }
+
+  getVolume() {
+    const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
+
+    if (mediaElement) return mediaElement.volume;
+
+    return DEFAULT_VOLUME;
   }
 
   handleViewerStart() {
