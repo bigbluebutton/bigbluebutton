@@ -9,12 +9,6 @@ fi
 
 cd /usr/share/meteor
 
-# meteor code should be owned by root, config file by meteor user
-meteor_owner=$(stat -c %U:%G /usr/share/meteor)
-if [[ $meteor_owner != "root:root" ]] ; then
-    chown -R root:root /usr/share/meteor
-fi
-
 if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
   sed -i 's/^svgImagesRequired=.*/svgImagesRequired=true/' $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
   if [ ! -f /.dockerenv ]; then
