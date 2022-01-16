@@ -423,8 +423,8 @@ class MeetingActor(
       case m: UndoWhiteboardPubMsg         => wbApp.handle(m, liveMeeting, msgBus)
       case m: ModifyWhiteboardAccessPubMsg => wbApp.handle(m, liveMeeting, msgBus)
       case m: SendWhiteboardAnnotationPubMsg =>
-        handleMakePresentationWithAnnotationDownloadReqMsg(liveMeeting)
         wbApp.handle(m, liveMeeting, msgBus)
+        handleMakePresentationWithAnnotationDownloadReqMsg(liveMeeting)
       case m: GetWhiteboardAnnotationsReqMsg => wbApp.handle(m, liveMeeting, msgBus)
       // Poll
       case m: StartPollReqMsg =>
@@ -720,16 +720,31 @@ class MeetingActor(
   }
 
   def handleMakePresentationWithAnnotationDownloadReqMsg(liveMeeting: LiveMeeting): Unit = {
-    log.warning("*** Hello World! ***")
+    println("*** Current Whiteboard State ***")
 
     liveMeeting.presModel.getPresentations foreach println
 
-    val presentationId = getMeetingInfoPresentationDetails()._1 // current presentationId = whiteboardId
-    // log.warning(liveMeeting.wbModel.getHistory())
+    val pageNumber: String = "1"
+    val whiteboardId: String = getMeetingInfoPresentationDetails().id + s"/$pageNumber"
 
-    println(presentationId)
+    println("Whiteboard ID is: " + whiteboardId)
 
-    log.warning("*****")
+    val whiteboardHistory = liveMeeting.wbModel.getHistory(whiteboardId)
+
+    println("Whiteboard history length: " + whiteboardHistory.length)
+    println("============================")
+
+    for (drawing <- whiteboardHistory) {
+      println(drawing.id)
+      println(drawing.status)
+      println(drawing.annotationType)
+      println(drawing.annotationInfo)
+      println(drawing.wbId)
+      println(drawing.userId)
+      println(drawing.position)
+    }
+
+    println("*****")
 
     // 1) Insert Export Job to Redis
     // 2) Export Annotations to Redis

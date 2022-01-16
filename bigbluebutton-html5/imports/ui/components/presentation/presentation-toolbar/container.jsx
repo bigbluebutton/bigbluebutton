@@ -53,6 +53,7 @@ export default withTracker((params) => {
     nextSlide: PresentationToolbarService.nextSlide,
     previousSlide: PresentationToolbarService.previousSlide,
     skipToSlide: PresentationToolbarService.skipToSlide,
+    downloadAnnotatedSlides: PresentationToolbarService.downloadAnnotatedSlides,
     isMeteorConnected: Meteor.status().connected,
     isPollingEnabled: POLLING_ENABLED,
     currentSlidHasContent: PresentationService.currentSlidHasContent(),
@@ -74,4 +75,5 @@ PresentationToolbarContainer.propTypes = {
   nextSlide: PropTypes.func.isRequired,
   previousSlide: PropTypes.func.isRequired,
   skipToSlide: PropTypes.func.isRequired,
+  downloadAnnotatedSlides: PropTypes.func.isRequired,
 };
