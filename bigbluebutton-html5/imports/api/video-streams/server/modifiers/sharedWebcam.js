@@ -6,6 +6,7 @@ import {
   getUserName,
 } from '/imports/api/video-streams/server/helpers';
 import VoiceUsers from '/imports/api/voice-users/';
+import Users from '/imports/api/users/';
 
 const BASE_FLOOR_TIME = "0";
 
@@ -20,7 +21,13 @@ export default function sharedWebcam(meetingId, userId, stream) {
     { meetingId, intId: userId },
     { fields: { floor: 1, lastFloorTime: 1 }}
   ) || {};
+  const u = Users.findOne(
+    { meetingId, intId: userId },
+    { fields: { pin: 1 } },
+  ) || {};
   const floor = vu.floor || false;
+  const pin = u.pin || false;
+
   const lastFloorTime = vu.lastFloorTime || BASE_FLOOR_TIME;
 
   const selector = {
@@ -35,6 +42,7 @@ export default function sharedWebcam(meetingId, userId, stream) {
       name,
       lastFloorTime,
       floor,
+      pin,
     },
   };
 

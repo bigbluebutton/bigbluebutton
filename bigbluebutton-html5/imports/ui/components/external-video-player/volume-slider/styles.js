@@ -6,7 +6,7 @@ const Slider = styled.div`
   position: relative;
   bottom: 3.5em;
   left: 1em;
-
+  padding: 0.25rem 0.5rem;
   min-width: 200px;
   background-color: rgba(0,0,0,0.5);
   border-radius: 32px;

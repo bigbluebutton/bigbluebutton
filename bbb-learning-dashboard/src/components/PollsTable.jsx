@@ -66,7 +66,9 @@ class PollsTable extends React.Component {
               </svg>
             </th>
             {typeof polls === 'object' && Object.values(polls || {}).length > 0 ? (
-              Object.values(polls || {}).map((poll, index) => <th className="px-3.5 2xl:px-4 py-3 text-center">{poll.question || `Poll ${index + 1}`}</th>)
+              Object.values(polls || {})
+                .sort((a, b) => ((a.createdOn > b.createdOn) ? 1 : -1))
+                .map((poll, index) => <th className="px-3.5 2xl:px-4 py-3 text-center">{poll.question || `Poll ${index + 1}`}</th>)
             ) : null }
           </tr>
         </thead>
@@ -169,11 +171,13 @@ class PollsTable extends React.Component {
                     </div>
                   </div>
                 </td>
-                {Object.values(polls || {}).map((poll) => (
-                  <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
-                    { poll.anonymousAnswers.map((answer) => <p>{answer}</p>) }
-                  </td>
-                ))}
+                {Object.values(polls || {})
+                  .sort((a, b) => ((a.createdOn > b.createdOn) ? 1 : -1))
+                  .map((poll) => (
+                    <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
+                      { poll.anonymousAnswers.map((answer) => <p>{answer}</p>) }
+                    </td>
+                  ))}
               </tr>
             ) : null}
         </tbody>

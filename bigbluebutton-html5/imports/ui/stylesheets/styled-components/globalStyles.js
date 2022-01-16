@@ -30,7 +30,7 @@ const GlobalStyle = createGlobalStyle`
     border-radius: ${borderRadius};
     border: 0;
     z-index: 9999;
-    max-width: 16rem;
+    max-width: 22rem;
   }
 
   // modal

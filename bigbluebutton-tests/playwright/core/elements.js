@@ -2,6 +2,7 @@
 exports.actions = 'button[aria-label="Actions"]';
 exports.pollMenuButton = 'div[data-test="pollMenuButton"]';
 exports.options = 'button[aria-label="Options"]';
+exports.optionsButton = 'button[data-test="optionsButton"]';
 exports.settings = 'li[data-test="settings"]';
 exports.modalConfirmButton = 'button[data-test="modalConfirmButton"]';
 exports.screenshareConnecting = 'div[data-test="screenshareConnecting"]';
@@ -9,18 +10,29 @@ exports.screenShareVideo = 'video[id="screenshareVideo"]';
 exports.closeModal = 'button[data-test="modalDismissButton"]';
 exports.isSharingScreen = 'div[data-test="isSharingScreen"]';
 exports.pdfFileName = '100PagesFile.pdf';
+exports.raiseHandLabel = 'button[data-test="raiseHandLabel"]';
+exports.lowerHandLabel = 'button[data-test="lowerHandLabel"]';
+exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
+exports.logout = 'li[data-test="logout"]';
+exports.rating = 'div[data-test="rating"]';
+// Accesskey
+exports.chatButtonKey = '[accesskey="P"]';
+exports.userListButton = '[accesskey="U"]';
 
 // Audio
 exports.joinAudio = 'button[data-test="joinAudio"]';
 exports.audioModal = 'div[aria-label="Join audio modal"]';
 exports.closeAudioButton = 'button[aria-label="Close Join audio modal"]';
 exports.listenOnlyButton = 'button[aria-label="Listen only"]';
+exports.connecting = 'span[data-test="connecting"]';
 exports.connectingStatus = 'div[class^="connecting--"]';
 exports.leaveAudio = 'button[data-test="leaveAudio"]';
 exports.microphoneButton = 'button[aria-label="Microphone"]';
 exports.echoYesButton = 'button[aria-label="Echo is audible"]';
+exports.connectingToEchoTest = 'span[data-test="connectingToEchoTest"]';
 exports.isTalking = '[data-test="isTalking"]';
 exports.talkingIndicator = 'div[class^="isTalkingWrapper--"] > div[class^="speaking--"]';
+exports.audioModalHeader = '[data-test="audioModalHeader"]';
 
 // Breakout
 exports.createBreakoutRooms = 'li[data-test="createBreakoutRooms"]';
@@ -46,6 +58,7 @@ exports.chatSave = 'li[data-test="chatSave"]';
 exports.chatCopy = 'li[data-test="chatCopy"]';
 exports.chatTitle = 'div[data-test="chatTitle"]';
 exports.activeChat = 'li[data-test="activeChat"]';
+exports.hidePrivateChat = 'button[aria-label^="Hide Private Chat with"]';
 // Messages
 exports.message = 'Hello World!';
 exports.message1 = 'Hello User2';
@@ -56,8 +69,19 @@ exports.publicMessage2 = 'This is a Public Message from User2';
 exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
 exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
 
-// Messages
-exports.message = 'Hello World!';
+// CustomParameters
+exports.audioOptionsButtons = '[class^="audioOptions"] > button';
+exports.userListContent = 'div[data-test="userListContent"]';
+exports.brandingAreaLogo = 'div[class^="branding--"]';
+exports.multiUsersWhiteboard = 'button[aria-label="Turn multi-user whiteboard on"]';
+exports.toolbarListClass = '[class^="toolbarList--"]';
+exports.notificationBar = 'div[class^="notificationsBar--"]';
+exports.chat = 'section[aria-label="Chat"]';
+exports.defaultContent = 'div[class^="defaultContent--"]';
+exports.zoomIn = 'button[aria-label="Zoom in"]';
+exports.recordingIndicator = 'div[class^="recordingIndicator--"]';
+exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"]';
+exports.userslistContainer = 'div[aria-label="User list"]';
 
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';
@@ -77,6 +101,8 @@ exports.joinAudioToast = 'You have joined the audio conference';
 exports.pollPublishedToast = 'Poll results were published';
 exports.startScreenshareToast = 'Screenshare has started';
 exports.endScreenshareToast = 'Screenshare has ended';
+exports.toastContainer = 'div[class^="toastContainer--"]';
+exports.joiningMessageLabel = 'You have joined the audio conference';
 
 // Polling
 exports.polling = 'li[data-test="polling"]';
@@ -103,6 +129,8 @@ exports.addPollItem = 'button[data-test="addPollItem"]';
 exports.deletePollOption = 'button[data-test="deletePollOption"]';
 exports.cancelPollBtn = 'button[data-test="cancelPollLabel"]';
 exports.questionSlideFileName = 'mockPollSlide.pdf';
+exports.pollYesNoAbstentionBtn = 'button[aria-label="Yes / No / Abstention"]';
+exports.yesBtn = 'button[aria-label="Yes"]';
 
 // Presentation
 exports.startScreenSharing = 'button[data-test="startScreenShare"]';
@@ -131,6 +159,7 @@ exports.externalVideoModalHeader = 'header[data-test="videoModalHeader"]';
 exports.videoModalInput = 'input[id="video-modal-input"]';
 exports.startShareVideoBtn = 'button[aria-label="Share a new video"]';
 exports.videoPlayer = 'div[data-test="videoPlayer"]';
+exports.presentationTitle = '[class^="presentationTitle--"]';
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
 exports.youtubeFrame = 'iframe[title^="YouTube"]';
@@ -149,6 +178,26 @@ exports.multiWhiteboardTool = 'span[data-test="multiWhiteboardTool"]';
 exports.manageUsers = 'button[data-test="manageUsers"]';
 exports.presenterClassName = 'presenter--';
 exports.anyUser = '[data-test^="userListItem"]';
+exports.userList = 'button[aria-label="Users and messages toggle"]';
+exports.mobileUser = 'span[data-test="mobileUser"]';
+exports.connectionStatusBtn = 'button[data-test="connectionStatusButton"]';
+exports.connectionStatusModal = 'div[aria-label="Connection status modal"]';
+exports.dataSavingScreenshare = 'input[data-test="dataSavingScreenshare"]';
+exports.closeConnectionStatusModal = 'button[aria-label="Close Connection status modal"]';
+exports.screenshareLocked = 'button[aria-label="Screenshare locked"]';
+exports.connectionStatusItemEmpty = 'div[data-test="connectionStatusItemEmpty"]';
+exports.connectionStatusItemUser = 'div[data-test="connectionStatusItemUser"]';
+exports.dataSavingWebcams = 'input[data-test="dataSavingWebcams"]';
+exports.connectionStatusOfflineUser = 'div[data-test="offlineUser"]';
+exports.connectionDataContainer = '[class^=networkDataContainer--]';
+exports.connectionNetwordData = '[class^=networkData--]';
+exports.avatarsWrapperAvatar = 'div[data-test="avatarsWrapperAvatar"]';
+exports.guestPolicyLabel = 'li[data-test="guestPolicyLabel"]';
+exports.waitingUsersBtn = 'div[data-test="waitingUsersBtn"]';
+exports.joinMeetingDemoPage = 'div[class^="join-meeting"]';
+exports.askModerator = 'button[data-test="askModerator"]';
+exports.alwaysAccept = 'button[data-test="alwaysAccept"]';
+exports.alwaysDeny = 'button[data-test="alwaysDeny"]';
 
 // Locales
 exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
@@ -168,6 +217,8 @@ exports.webcamConnecting = 'div[data-test="webcamConnecting"]';
 exports.webcamVideo = 'video[data-test="videoContainer"]';
 exports.videoContainer = 'div[class^="videoListItem"]';
 exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';
+exports.webcamSettingsModal = 'div[aria-label="Webcam settings"]';
+exports.webcamMirroredVideoPreview = 'video[data-test="mirroredVideoPreview"]';
 
 // Whiteboard
 exports.whiteboard = 'svg[data-test="whiteboard"]';
@@ -176,3 +227,4 @@ exports.rectangle = 'button[aria-label="Rectangle"]';
 exports.drawnRectangle = 'svg g[clip-path] > g:nth-child(2) rect[data-test="drawnRectangle"]';
 exports.whiteboardViewBox = 'svg g[clip-path="url(#viewBox)"]';
 exports.changeWhiteboardAccess = 'li[data-test="changeWhiteboardAccess"]';
+exports.pencil = 'button[aria-label="Pencil"]';

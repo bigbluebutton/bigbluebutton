@@ -198,6 +198,8 @@ class App extends Component {
 
     body.classList.add(`os-${osName.split(' ').shift().toLowerCase()}`);
 
+    body.classList.add(`lang-${locale.split('-')[0]}`);
+
     if (!validIOSVersion()) {
       notify(
         intl.formatMessage(intlMessages.iOSWarning), 'error', 'warning',
@@ -215,7 +217,7 @@ class App extends Component {
     window.ondragover = (e) => { e.preventDefault(); };
     window.ondrop = (e) => { e.preventDefault(); };
 
-    if (isMobile()) makeCall('setMobileUser');
+    if (deviceInfo.isMobile) makeCall('setMobileUser');
 
     ConnectionStatusService.startRoundTripTime();
 
@@ -367,6 +369,7 @@ class App extends Component {
 
     return (
       <Styled.CaptionsWrapper
+        role="region"
         style={
           {
             position: 'absolute',
@@ -393,6 +396,7 @@ class App extends Component {
 
     return (
       <Styled.ActionsBar
+        role="region"
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={this.shouldAriaHide()}
         style={
