@@ -124,7 +124,6 @@ class PresentationToolbar extends PureComponent {
     const {
       downloadAnnotatedSlides 
     } = this.props;
-    
     downloadAnnotatedSlides()
   }
 
