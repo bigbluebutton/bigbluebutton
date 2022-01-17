@@ -46,8 +46,10 @@ export function getActivityScore(user, allUsers, totalOfPolls) {
 
 export function getSumOfTime(eventsArr) {
   return eventsArr.reduce((prevVal, elem) => {
-    if (elem.stoppedOn > 0) return prevVal + (elem.stoppedOn - elem.startedOn);
-    return prevVal + (new Date().getTime() - elem.startedOn);
+    if ((elem.stoppedOn || elem.registeredOn) > 0) {
+      return prevVal + ((elem.stoppedOn || elem.leftOn) - (elem.startedOn || elem.registeredOn));
+    }
+    return prevVal + (new Date().getTime() - (elem.startedOn || elem.registeredOn));
   }, 0);
 }
 
@@ -118,9 +120,7 @@ export function makeUserCSVData(users, polls, intl) {
   for (let i = 0; i < userValues.length; i += 1) {
     const user = userValues[i];
     const webcam = getSumOfTime(user.webcams);
-    const duration = user.leftOn > 0
-      ? user.leftOn - user.registeredOn
-      : (new Date()).getTime() - user.registeredOn;
+    const duration = getSumOfTime(Object.values(user.intIds));
 
     const userData = {
       name: user.name,
