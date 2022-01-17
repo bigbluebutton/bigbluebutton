@@ -477,6 +477,11 @@ class VideoFocusLayout extends Component {
       mediaBounds.top = sidebarContentHeight + this.bannerAreaHeight();
       mediaBounds.width = sidebarContentWidth;
       mediaBounds.zIndex = 1;
+    } else if (!input.presentation.isOpen) {
+      mediaBounds.width = 0;
+      mediaBounds.height = 0;
+      mediaBounds.top = 0;
+      mediaBounds.left = 0;
     } else {
       mediaBounds.height = mediaAreaBounds.height;
       mediaBounds.width = mediaAreaBounds.width;
