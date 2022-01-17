@@ -10,7 +10,35 @@ import { layoutDispatch } from '../../../../layout/context';
 const UserListItemContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
 
-  return <UserListItem {...{ layoutContextDispatch, ...props }} />;
+  const {
+    toggleVoice,
+    removeUser,
+    toggleUserLock,
+    changeRole,
+    ejectUserCameras,
+    assignPresenter,
+    getAvailableActions,
+    normalizeEmojiName,
+    getGroupChatPrivate,
+    hasPrivateChatBetweenUsers,
+  } = UserListService;
+
+  return <UserListItem {
+    ...{
+      layoutContextDispatch,
+      toggleVoice,
+      removeUser,
+      toggleUserLock,
+      changeRole,
+      ejectUserCameras,
+      assignPresenter,
+      getAvailableActions,
+      normalizeEmojiName,
+      getGroupChatPrivate,
+      hasPrivateChatBetweenUsers,
+      ...props,
+    }
+  } />;
 };
 const isMe = (intId) => intId === Auth.userID;
 
@@ -30,18 +58,8 @@ export default withTracker(({ user }) => {
     isMeteorConnected: Meteor.status().connected,
     isThisMeetingLocked: UserListService.isMeetingLocked(Auth.meetingID),
     voiceUser: UserListService.curatedVoiceUser(user.userId),
-    toggleVoice: UserListService.toggleVoice,
-    removeUser: UserListService.removeUser,
-    toggleUserLock: UserListService.toggleUserLock,
-    changeRole: UserListService.changeRole,
-    ejectUserCameras: UserListService.ejectUserCameras,
-    assignPresenter: UserListService.assignPresenter,
-    getAvailableActions: UserListService.getAvailableActions,
-    normalizeEmojiName: UserListService.normalizeEmojiName,
-    getGroupChatPrivate: UserListService.getGroupChatPrivate,
     getEmojiList: UserListService.getEmojiList(),
     getEmoji: UserListService.getEmoji(),
     usersProp: UserListService.getUsersProp(),
-    hasPrivateChatBetweenUsers: UserListService.hasPrivateChatBetweenUsers,
   };
 })(UserListItemContainer);

@@ -8,13 +8,30 @@ import Auth from '/imports/ui/services/auth';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 
 const UserParticipantsContainer = (props) => {
-  const { formatUsers } = props;
+  const {
+    getUsers: formatUsers,
+    setEmojiStatus,
+    clearAllEmojiStatus,
+    roving,
+    requestUserInformation,
+  } = UserListService;
+
   const usingUsersContext = useContext(UsersContext);
   const { users: contextUsers } = usingUsersContext;
   const currentUser = contextUsers[Auth.meetingID][Auth.userID];
   const users = formatUsers(Object.values(contextUsers[Auth.meetingID]));
 
-  return <UserParticipants {...{ currentUser, users, ...props }} />;
+  return <UserParticipants {
+    ...{
+      currentUser,
+      users,
+      setEmojiStatus,
+      clearAllEmojiStatus,
+      roving,
+      requestUserInformation,
+      ...props,
+    }
+  } />;
 };
 
 export default withTracker(() => {
@@ -24,11 +41,6 @@ export default withTracker(() => {
   );
 
   return ({
-    formatUsers: UserListService.getUsers,
     meetingIsBreakout: meetingIsBreakout(),
-    setEmojiStatus: UserListService.setEmojiStatus,
-    clearAllEmojiStatus: UserListService.clearAllEmojiStatus,
-    roving: UserListService.roving,
-    requestUserInformation: UserListService.requestUserInformation,
   });
 })(UserParticipantsContainer);

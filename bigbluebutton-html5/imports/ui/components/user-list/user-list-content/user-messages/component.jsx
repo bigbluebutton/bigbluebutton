@@ -13,7 +13,6 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  isPublicChat: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
 };
 
@@ -65,7 +64,6 @@ class UserMessages extends PureComponent {
     const {
       activeChats,
       compact,
-      isPublicChat,
     } = this.props;
 
     let index = -1;
@@ -82,7 +80,6 @@ class UserMessages extends PureComponent {
       >
         <Styled.ListTransition ref={(node) => { this.activeChatRefs[index += 1] = node; }}>
           <ChatListItemContainer
-            isPublicChat={isPublicChat}
             compact={compact}
             chat={chat}
             tabIndex={-1}

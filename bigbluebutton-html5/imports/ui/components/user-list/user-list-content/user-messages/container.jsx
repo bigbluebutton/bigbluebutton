@@ -5,9 +5,8 @@ import { GroupChatContext } from '/imports/ui/components/components-data/group-c
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import Service from '/imports/ui/components/user-list/service';
 import Auth from '/imports/ui/services/auth';
-import { withTracker } from 'meteor/react-meteor-data';
 
-const UserMessagesContainer = ({ isPublicChat, roving }) => {
+const UserMessagesContainer = () => {
   const usingChatContext = useContext(ChatContext);
   const usingUsersContext = useContext(UsersContext);
   const usingGroupChatContext = useContext(GroupChatContext);
@@ -15,11 +14,9 @@ const UserMessagesContainer = ({ isPublicChat, roving }) => {
   const { users } = usingUsersContext;
   const { groupChat: groupChats } = usingGroupChatContext;
   const activeChats = Service.getActiveChats({ groupChatsMessages, groupChats, users:users[Auth.meetingID] });
+  const { roving } = Service;
 
-  return <UserMessages {...{ activeChats, isPublicChat, roving }} />;
+  return <UserMessages {...{ activeChats, roving }} />;
 };
 
-export default withTracker(() => ({
-  isPublicChat: Service.isPublicChat,
-  roving: Service.roving,
-}))(UserMessagesContainer);
+export default UserMessagesContainer;
