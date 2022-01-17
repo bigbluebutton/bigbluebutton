@@ -864,7 +864,6 @@ class Presentation extends PureComponent {
           width: presentationBounds.width,
           height: presentationBounds.height,
           zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
-          backgroundColor: '#06172A',
         }}
       >
         {isFullscreen && <PollingContainer />}
