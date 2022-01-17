@@ -292,7 +292,6 @@ class UserListItem extends PureComponent {
     const actionPermissions = getAvailableActions(
       amIModerator, meetingIsBreakout, user, voiceUser, usersProp, amIPresenter,
     );
-    const actions = [];
 
     const {
       allowedToChatPrivately,
@@ -319,49 +318,30 @@ class UserListItem extends PureComponent {
         || user.role === ROLE_MODERATOR) && isMeteorConnected;
 
     const { allowUserLookup } = Meteor.settings.public.app;
+    const userLocked = user.locked && user.role !== ROLE_MODERATOR;
 
-    if (showNestedOptions && isMeteorConnected) {
-      if (allowedToChangeStatus) {
-        actions.push({
-          key: 'back',
-          label: intl.formatMessage(messages.backTriggerLabel),
-          onClick: () => this.setState({ showNestedOptions: false }),
-          icon: 'left_arrow',
-          divider: true,
-        });
-      }
-
-      const statuses = Object.keys(getEmojiList);
-
-      statuses.forEach((s) => {
-        actions.push({
-          key: s,
-          label: intl.formatMessage({ id: `app.actionsBar.emojiMenu.${s}Label` }),
-          onClick: () => {
-            setEmojiStatus(user.userId, s);
-            this.resetMenuState();
-            this.handleClose();
-          },
-          icon: getEmojiList[s],
-        });
-      });
-      return actions;
-    }
-
-    if (allowedToChangeStatus && isMeteorConnected) {
-      actions.push({
+    const availableActions = [
+      {
+        allowed: allowedToChangeStatus && !showNestedOptions && isMeteorConnected,
         key: 'setstatus',
         label: intl.formatMessage(messages.statusTriggerLabel),
         onClick: () => this.setState({ showNestedOptions: true }),
         icon: 'user',
         iconRight: 'right_arrow',
-      });
-    }
-
-    if (isSharingWebcam
-      && isMeteorConnected
-      && VideoService.isVideoPinEnabledForCurrentUser()) {
-      actions.push({
+      },
+      {
+        allowed: showNestedOptions && isMeteorConnected && allowedToChangeStatus,
+        key: 'back',
+        label: intl.formatMessage(messages.backTriggerLabel),
+        onClick: () => this.setState({ showNestedOptions: false }),
+        icon: 'left_arrow',
+        divider: true,
+      },
+      {
+        allowed: isSharingWebcam
+        && isMeteorConnected
+        && VideoService.isVideoPinEnabledForCurrentUser()
+        && !showNestedOptions,
         key: 'pinVideo',
         label: userIsPinned
           ? intl.formatMessage(messages.UnpinUserWebcam)
@@ -370,17 +350,14 @@ class UserListItem extends PureComponent {
           VideoService.toggleVideoPin(user.userId, userIsPinned);
         },
         icon: userIsPinned ? 'pin-video_off' : 'pin-video_on',
-      });
-    }
-
-    const showChatOption = CHAT_ENABLED
-      && enablePrivateChat
-      && !isDialInUser
-      && !meetingIsBreakout
-      && isMeteorConnected;
-
-    if (showChatOption) {
-      actions.push({
+      },
+      {
+        allowed: CHAT_ENABLED
+        && enablePrivateChat
+        && !isDialInUser
+        && !meetingIsBreakout
+        && isMeteorConnected
+        && !showNestedOptions,
         key: 'activeChat',
         label: intl.formatMessage(messages.StartPrivateChat),
         onClick: () => {
@@ -400,11 +377,12 @@ class UserListItem extends PureComponent {
           });
         },
         icon: 'chat',
-      });
-    }
-
-    if (allowedToResetStatus && user.emoji !== 'none' && isMeteorConnected) {
-      actions.push({
+      },
+      {
+        allowed: allowedToResetStatus
+        && user.emoji !== 'none'
+        && isMeteorConnected
+        && !showNestedOptions,
         key: 'clearStatus',
         label: intl.formatMessage(messages.ClearStatusLabel),
         onClick: () => {
@@ -412,11 +390,12 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'clear_status',
-      });
-    }
-
-    if (allowedToMuteAudio && isMeteorConnected && !meetingIsBreakout) {
-      actions.push({
+      },
+      {
+        allowed: allowedToMuteAudio
+        && isMeteorConnected
+        && !meetingIsBreakout
+        && !showNestedOptions,
         key: 'mute',
         label: intl.formatMessage(messages.MuteUserAudioLabel),
         onClick: () => {
@@ -424,11 +403,13 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'mute',
-      });
-    }
-
-    if (allowedToUnmuteAudio && !userLocks.userMic && isMeteorConnected && !meetingIsBreakout) {
-      actions.push({
+      },
+      {
+        allowed: allowedToUnmuteAudio
+        && !userLocks.userMic
+        && isMeteorConnected
+        && !meetingIsBreakout
+        && !showNestedOptions,
         key: 'unmute',
         label: intl.formatMessage(messages.UnmuteUserAudioLabel),
         onClick: () => {
@@ -436,27 +417,25 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'unmute',
-      });
-    }
-
-    if (allowedToChangeWhiteboardAccess && !user.presenter && isMeteorConnected && !isDialInUser) {
-      const label = user.whiteboardAccess
-        ? intl.formatMessage(messages.removeWhiteboardAccess)
-        : intl.formatMessage(messages.giveWhiteboardAccess);
-
-      actions.push({
+      },
+      {
+        allowed: allowedToChangeWhiteboardAccess
+        && !user.presenter
+        && isMeteorConnected
+        && !isDialInUser
+        && !showNestedOptions,
         key: 'changeWhiteboardAccess',
-        label,
+        label: user.whiteboardAccess
+        ? intl.formatMessage(messages.removeWhiteboardAccess)
+        : intl.formatMessage(messages.giveWhiteboardAccess),
         onClick: () => {
           WhiteboardService.changeWhiteboardAccess(user.userId, !user.whiteboardAccess);
           this.handleClose();
         },
         icon: 'pen_tool',
-      });
-    }
-
-    if (allowedToSetPresenter && isMeteorConnected && !isDialInUser) {
-      actions.push({
+      },
+      {
+        allowed: allowedToSetPresenter && isMeteorConnected && !isDialInUser && !showNestedOptions,
         key: 'setPresenter',
         label: isMe(user.userId)
           ? intl.formatMessage(messages.takePresenterLabel)
@@ -466,11 +445,9 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'presentation',
-      });
-    }
-
-    if (allowedToPromote && isMeteorConnected) {
-      actions.push({
+      },
+      {
+        allowed: allowedToPromote && isMeteorConnected && !showNestedOptions,
         key: 'promote',
         label: intl.formatMessage(messages.PromoteUserLabel),
         onClick: () => {
@@ -478,11 +455,9 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'promote',
-      });
-    }
-
-    if (allowedToDemote && isMeteorConnected) {
-      actions.push({
+      },
+      {
+        allowed: allowedToDemote && isMeteorConnected && !showNestedOptions,
         key: 'demote',
         label: intl.formatMessage(messages.DemoteUserLabel),
         onClick: () => {
@@ -490,13 +465,9 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'user',
-      });
-    }
-
-    if (allowedToChangeUserLockStatus && isMeteorConnected) {
-      const userLocked = user.locked && user.role !== ROLE_MODERATOR;
-
-      actions.push({
+      },
+      {
+        allowed: allowedToChangeUserLockStatus && isMeteorConnected && !showNestedOptions,
         key: 'unlockUser',
         label: userLocked ? intl.formatMessage(messages.UnlockUserLabel, { 0: user.name })
           : intl.formatMessage(messages.LockUserLabel, { 0: user.name }),
@@ -505,11 +476,9 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: userLocked ? 'unlock' : 'lock',
-      });
-    }
-
-    if (allowUserLookup && isMeteorConnected) {
-      actions.push({
+      },
+      {
+        allowed: allowUserLookup && isMeteorConnected && !showNestedOptions,
         key: 'directoryLookup',
         label: intl.formatMessage(messages.DirectoryLookupLabel),
         onClick: () => {
@@ -517,11 +486,9 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'user',
-      });
-    }
-
-    if (allowedToRemove && isMeteorConnected) {
-      actions.push({
+      },
+      {
+        allowed: allowedToRemove && isMeteorConnected && !showNestedOptions,
         key: 'remove',
         label: intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
         onClick: () => {
@@ -536,15 +503,13 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'circle_close',
-      });
-    }
-
-    if (allowedToEjectCameras
-      && user.isSharingWebcam
-      && isMeteorConnected
-      && !meetingIsBreakout
-    ) {
-      actions.push({
+      },
+      {
+        allowed: allowedToEjectCameras
+        && user.isSharingWebcam
+        && isMeteorConnected
+        && !meetingIsBreakout
+        && !showNestedOptions,
         key: 'ejectUserCameras',
         label: intl.formatMessage(messages.ejectUserCamerasLabel),
         onClick: () => {
@@ -552,10 +517,26 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'video_off',
-      });
-    }
+      }
+    ];
 
-    return actions;
+    const statuses = Object.keys(getEmojiList);
+
+    statuses.forEach((s) => {
+      availableActions.push({
+        allowed: showNestedOptions && isMeteorConnected,
+        key: s,
+        label: intl.formatMessage({ id: `app.actionsBar.emojiMenu.${s}Label` }),
+        onClick: () => {
+          setEmojiStatus(user.userId, s);
+          this.resetMenuState();
+          this.handleClose();
+        },
+        icon: getEmojiList[s],
+      })
+    });
+
+    return availableActions.filter(action => action.allowed);
   }
 
   getDropdownMenuParent() {
