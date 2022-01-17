@@ -59,6 +59,7 @@ const ChatAlert = (props) => {
     unreadMessagesByChat,
     intl,
     layoutContextDispatch,
+    chatsTracker,
   } = props;
 
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
@@ -93,6 +94,20 @@ const ChatAlert = (props) => {
       setAlertEnabledTimestamp(new Date().getTime());
     }
   }, [pushAlertEnabled]);
+
+  useEffect(() => {
+    if (audioAlertEnabled) {
+      const keys = Object.keys(chatsTracker);
+      keys.forEach((key) => {
+        if (chatsTracker[key]?.shouldNotify) {
+          AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+            + Meteor.settings.public.app.basename
+            + Meteor.settings.public.app.instanceId}`
+            + '/resources/sounds/notify.mp3');
+        }
+      });
+    }
+  }, [chatsTracker]);
 
   useEffect(() => {
     if (pushAlertEnabled) {

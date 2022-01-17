@@ -16,6 +16,15 @@ const propTypes = {
   pushAlertEnabled: PropTypes.bool.isRequired,
 };
 
+// custom hook for getting previous value
+function usePrevious(value) {
+  const ref = React.useRef();
+  React.useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
 const ChatAlertContainer = (props) => {
   const layoutContext = useContext(LayoutContext);
   const { layoutContextState, layoutContextDispatch } = layoutContext;
@@ -54,9 +63,37 @@ const ChatAlertContainer = (props) => {
     })
     : null;
 
+  const chatsTracker = {};
+
+  if (usingChatContext.chats) {
+    const chatsActive = Object.entries(usingChatContext.chats);
+    chatsActive.forEach((c) => {
+      chatsTracker[c[0]] = {};
+      if (c[1]?.posJoinMessages || c[1]?.messageGroups) {
+        const m = Object.entries(c[1]?.posJoinMessages || c[1]?.messageGroups);
+        chatsTracker[c[0]].count = m?.length;
+        if (m[m.length - 1]) {
+          chatsTracker[c[0]].content = m[m.length - 1][1]?.message;
+        }
+      }
+    });
+
+    const prevTracker = usePrevious(chatsTracker);
+
+    if (prevTracker) {
+      const keys = Object.keys(prevTracker);
+      keys.forEach((key) => {
+        if (chatsTracker[key].count > prevTracker[key].count) {
+          chatsTracker[key].shouldNotify = true;
+        }
+      });
+    }
+  }
+
   return (
     <ChatAlert
       {...props}
+      chatsTracker={chatsTracker}
       layoutContextDispatch={layoutContextDispatch}
       unreadMessagesCountByChat={unreadMessagesCountByChat}
       unreadMessagesByChat={unreadMessagesByChat}
