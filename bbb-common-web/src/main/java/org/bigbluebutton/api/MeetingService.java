@@ -774,9 +774,11 @@ public class MeetingService implements MessageListener {
           // Custom data is stored indexed by user's external id
           Map<String, Object> customData = parentMeeting.getUserCustomData(parentUser.getExternalUserId());
 
-          for (String key : customData.keySet()) {
-            if (!resp.containsKey(key)) {
-              resp.put(key, String.valueOf(customData.get(key)));
+          if (customData != null) {
+            for (String key : customData.keySet()) {
+              if (!resp.containsKey(key)) {
+                resp.put(key, String.valueOf(customData.get(key)));
+              }
             }
           }
         }
