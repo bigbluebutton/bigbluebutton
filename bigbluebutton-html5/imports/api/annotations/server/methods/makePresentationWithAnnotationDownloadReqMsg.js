@@ -9,26 +9,30 @@ export default function makePresentationWithAnnotationDownloadReqMsg() {
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'MakePresentationWithAnnotationDownloadReqMsg';
 
-  Logger.warn(`IVE GOTTEN ALL THE WAY HERE! LELLL`);
-
   try {
-
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-    Logger.warn(`ok!`); 
     check(meetingId, String);
     check(requesterUserId, String);
-    // check(whiteboardId, String);
-    Logger.warn(`ok2`);
+
+    presentationId = "placeholder-val";
+    allPages = true;
+    pages = [];
+
     const payload = {
-      // whiteboardId
+      presentationId,
+      allPages,
+      pages,
     };
+
     Logger.warn('************');
     Logger.warn(CHANNEL)
     Logger.warn(EVENT_NAME)
     Logger.warn(meetingId)
     Logger.warn(requesterUserId)
-    Logger.warn(payload)
+    Logger.warn(presentationId)
+    Logger.warn(allPages)
+    Logger.warn(pages)
     Logger.warn('************');
     
     return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

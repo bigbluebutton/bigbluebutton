@@ -8,7 +8,6 @@ import Styled from './styles';
 import ZoomTool from './zoom-tool/component';
 import TooltipContainer from '/imports/ui/components/tooltip/container';
 import KEY_CODES from '/imports/utils/keyCodes';
-import { ThemeConsumer } from 'styled-components';
 
 const intlMessages = defineMessages({
   downloadAnnotatedSlidesLabel: {
@@ -122,8 +121,9 @@ class PresentationToolbar extends PureComponent {
 
   handleDownloadAnnotatedSlides() {
     const {
-      downloadAnnotatedSlides 
+      downloadAnnotatedSlides
     } = this.props;
+
     downloadAnnotatedSlides()
   }
 
