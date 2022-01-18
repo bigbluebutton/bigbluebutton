@@ -424,7 +424,6 @@ class MeetingActor(
       case m: ModifyWhiteboardAccessPubMsg => wbApp.handle(m, liveMeeting, msgBus)
       case m: SendWhiteboardAnnotationPubMsg =>
         wbApp.handle(m, liveMeeting, msgBus)
-      // handleMakePresentationWithAnnotationDownloadReqMsg(liveMeeting)
       case m: GetWhiteboardAnnotationsReqMsg => wbApp.handle(m, liveMeeting, msgBus)
       // Poll
       case m: StartPollReqMsg =>
@@ -499,7 +498,7 @@ class MeetingActor(
       // Presentation
       case m: PreuploadedPresentationsSysPubMsg              => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg                          => state = handlePresenterChange(m, state)
-      case m: MakePresentationWithAnnotationDownloadReqMsg   => handleMakePresentationWithAnnotationDownloadReqMsg(liveMeeting)
+      case m: MakePresentationWithAnnotationDownloadReqMsg   => handleMakePresentationWithAnnotationDownloadReqMsg(m, liveMeeting)
       case m: ExportPresentationWithAnnotationReqMsg         => handleExportPresentationWithAnnotationReqMsg(liveMeeting)
 
       // Presentation Pods
@@ -719,7 +718,7 @@ class MeetingActor(
 
   }
 
-  def handleMakePresentationWithAnnotationDownloadReqMsg(liveMeeting: LiveMeeting): Unit = {
+  def handleMakePresentationWithAnnotationDownloadReqMsg(m: MakePresentationWithAnnotationDownloadReqMsg, liveMeeting: LiveMeeting): Unit = {
     println("*** Current Whiteboard State ***")
 
     liveMeeting.presModel.getPresentations foreach println
@@ -727,6 +726,11 @@ class MeetingActor(
     val pageNumber: String = "1"
     val whiteboardId: String = getMeetingInfoPresentationDetails().id + s"/$pageNumber"
 
+    println("")
+    println(m)
+    println("")
+
+    println("")
     println("Whiteboard ID is: " + whiteboardId)
 
     val whiteboardHistory = liveMeeting.wbModel.getHistory(whiteboardId)

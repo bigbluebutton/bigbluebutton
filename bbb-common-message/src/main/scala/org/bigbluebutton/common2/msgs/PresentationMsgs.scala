@@ -11,11 +11,11 @@ case class PreuploadedPresentationsSysPubMsg(header: BbbClientMsgHeader, body: P
 case class PreuploadedPresentationsSysPubMsgBody(presentations: Vector[PresentationVO])
 
 object MakePresentationWithAnnotationDownloadReqMsg { val NAME = "MakePresentationWithAnnotationDownloadReqMsg" }
-case class MakePresentationWithAnnotationDownloadReqMsg(header: BbbClientMsgHeader, body: MakePresentationWithAnnotationDownloadReqMsgBody)
+case class MakePresentationWithAnnotationDownloadReqMsg(header: BbbClientMsgHeader, body: MakePresentationWithAnnotationDownloadReqMsgBody) extends StandardMsg
 case class MakePresentationWithAnnotationDownloadReqMsgBody(presId: String, allPages: Boolean, pages: List[Int])
 
 object ExportPresentationWithAnnotationReqMsg { val NAME = "ExportPresentationWithAnnotationReqMsg" }
-case class ExportPresentationWithAnnotationReqMsg(header: BbbClientMsgHeader, body: ExportPresentationWithAnnotationReqMsgBody)
+case class ExportPresentationWithAnnotationReqMsg(header: BbbClientMsgHeader, body: ExportPresentationWithAnnotationReqMsgBody) extends StandardMsg
 case class ExportPresentationWithAnnotationReqMsgBody(parentMeetingId: String, allPages: Boolean)
 
 // ------------ bbb-common-web to akka-apps ------------

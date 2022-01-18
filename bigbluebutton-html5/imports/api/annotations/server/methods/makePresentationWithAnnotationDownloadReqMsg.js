@@ -15,14 +15,10 @@ export default function makePresentationWithAnnotationDownloadReqMsg() {
     check(meetingId, String);
     check(requesterUserId, String);
 
-    presentationId = "placeholder-val";
-    allPages = true;
-    pages = [];
-
     const payload = {
-      presentationId,
-      allPages,
-      pages,
+      presId: "placeholder-val",
+      allPages: true,
+      pages: [],
     };
 
     Logger.warn('************');
@@ -30,9 +26,6 @@ export default function makePresentationWithAnnotationDownloadReqMsg() {
     Logger.warn(EVENT_NAME)
     Logger.warn(meetingId)
     Logger.warn(requesterUserId)
-    Logger.warn(presentationId)
-    Logger.warn(allPages)
-    Logger.warn(pages)
     Logger.warn('************');
     
     return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
