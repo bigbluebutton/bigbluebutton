@@ -21,7 +21,7 @@ class ErrorBoundary extends Component {
     logger.error({
       logCode: 'Error_Boundary_wrapper',
       extraInfo: { error, errorInfo },
-    }, 'Encountered error while trying to authenticate');
+    }, 'generic error boundary logger');
   }
 
   render() {
