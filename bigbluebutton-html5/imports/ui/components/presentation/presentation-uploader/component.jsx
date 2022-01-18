@@ -622,7 +622,7 @@ class PresentationUploader extends Component {
             <Icon iconName="file" />
           </span>
           <span className={styles.toastFileName}>
-            <span>{item.filename}</span>
+            <span>{decodeURI(item.filename)}</span>
           </span>
           <span className={styles.statusIcon}>
             <Icon iconName={icon} className={cx(itemClassName)} />
