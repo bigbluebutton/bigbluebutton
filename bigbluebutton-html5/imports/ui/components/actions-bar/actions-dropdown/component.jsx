@@ -229,7 +229,7 @@ class ActionsDropdown extends PureComponent {
             className: cx(itemStyles),
             icon: "file",
             iconRight: p.current ? 'check' : null,
-            label: p.name,
+            label: decodeURI(p.name),
             description: "uploaded presentation file",
             key: `uploaded-presentation-${p.id}`,
             onClick: () => {
