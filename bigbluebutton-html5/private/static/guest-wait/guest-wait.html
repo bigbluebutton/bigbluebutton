@@ -247,7 +247,7 @@
                   return;
                 }
 
-                pollGuestStatus(sessionToken, 0, ATTEMPT_LIMIT, ATTEMPT_EVERY_MS);
+                pollGuestStatus(sessionToken, ATTEMPT_EVERY_MS);
               } catch (e) {
                 disableAnimation();
                 console.error(e);
@@ -277,15 +277,9 @@
       }, REDIRECT_TIMEOUT);
     };
 
-    function pollGuestStatus(token, attempt, limit, everyMs) {
+    function pollGuestStatus(token, everyMs) {
 
       setTimeout(function () {
-        if (attempt >= limit) {
-          disableAnimation();
-          updateMessage(_('app.guest.noModeratorResponse'));
-          return;
-        }
-
         fetchGuestWait(token)
           .then(async (resp) => await resp.json())
           .then((data) => {
@@ -314,7 +308,7 @@
 
             updateLobbyMessage(data.response.lobbyMessage);
 
-            return pollGuestStatus(token, attempt + 1, limit, everyMs);
+            return pollGuestStatus(token, everyMs);
           });
       }, everyMs);
     };
