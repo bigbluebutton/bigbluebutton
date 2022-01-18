@@ -152,10 +152,7 @@ class WhiteboardModel extends SystemConfiguration {
       val updatedAnnotationData = annotation.annotationInfo + ("points" -> pathData.points.asScala.toList) + ("commands" -> pathData.commands.asScala.toList)
       //println("oldAnnotation value = " + oldAnnotationOption.getOrElse("Empty"))
 
-      var newPosition: Int = oldAnnotationOption match {
-        case Some(annotation) => annotation.position
-        case None             => wb.annotationCount
-      }
+      var newPosition: Int = wb.annotationCount
 
       val updatedAnnotation = annotation.copy(position = newPosition, annotationInfo = updatedAnnotationData)
 
@@ -170,7 +167,7 @@ class WhiteboardModel extends SystemConfiguration {
 
       val newAnnotationsMap = wb.annotationsMap + (userId -> (updatedAnnotation :: newUsersAnnotations))
       //println("Annotation has position [" + usersAnnotations.head.position + "]")
-      val newWb = wb.copy(annotationsMap = newAnnotationsMap)
+      val newWb = wb.copy(annotationCount = wb.annotationCount + 1, annotationsMap = newAnnotationsMap)
       //println("Updating annotation on page [" + wb.id + "]. After numAnnotations=[" + getAnnotationsByUserId(wb, userId).length + "].")
       saveWhiteboard(newWb)
 

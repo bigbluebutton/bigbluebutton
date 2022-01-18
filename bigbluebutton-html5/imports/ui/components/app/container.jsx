@@ -13,13 +13,13 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
+import _ from 'lodash';
 import {
   layoutSelect,
   layoutSelectInput,
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
-import _ from 'lodash';
 
 import {
   getFontSize,
@@ -97,7 +97,7 @@ const AppContainer = (props) => {
   const prevRandomUser = usePrevious(randomlySelectedUser);
 
   const mountRandomUserModal = !isPresenter
-  && !_.isEqual( prevRandomUser, randomlySelectedUser)
+  && !_.isEqual(prevRandomUser, randomlySelectedUser)
   && randomlySelectedUser.length > 0
   && !isModalOpen;
 
@@ -153,10 +153,11 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     {
       fields:
       {
-        approved: 1, emoji: 1, userId: 1, presenter: 1,
+        approved: 1, emoji: 1, userId: 1, presenter: 1, role: 1,
       },
     },
   );
+
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
     {
       fields: {
@@ -212,6 +213,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     hasPublishedPoll: publishedPoll,
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
+    currentUserRole: currentUser?.role,
     isPresenter: currentUser?.presenter,
     meetingLayout: layout,
     selectedLayout,

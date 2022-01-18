@@ -81,18 +81,18 @@ class App extends React.Component {
     if (typeof params.report !== 'undefined') {
       learningDashboardAccessToken = params.report;
     } else {
-      const cookieName = `learningDashboardAccessToken-${params.meeting}`;
+      const cookieName = `ld-${params.meeting}`;
       const cDecoded = decodeURIComponent(document.cookie);
       const cArr = cDecoded.split('; ');
       cArr.forEach((val) => {
         if (val.indexOf(`${cookieName}=`) === 0) learningDashboardAccessToken = val.substring((`${cookieName}=`).length);
       });
 
-      // Extend AccessToken lifetime by 30d (in each access)
+      // Extend AccessToken lifetime by 7d (in each access)
       if (learningDashboardAccessToken !== '') {
         const cookieExpiresDate = new Date();
-        cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 30));
-        document.cookie = `learningDashboardAccessToken-${meetingId}=${learningDashboardAccessToken}; expires=${cookieExpiresDate.toGMTString()}; path=/;SameSite=None;Secure`;
+        cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 7));
+        document.cookie = `ld-${meetingId}=${learningDashboardAccessToken}; expires=${cookieExpiresDate.toGMTString()}; path=/;SameSite=None;Secure`;
       }
     }
 
@@ -203,12 +203,17 @@ class App extends React.Component {
     }
 
     function totalOfActivity() {
-      const minTime = Object.values(activitiesJson.users || {}).reduce((prevVal, elem) => {
+      const usersTimes = Object.values(activitiesJson.users || {}).reduce((prev, user) => ([
+        ...prev,
+        ...Object.values(user.intIds),
+      ]), []);
+
+      const minTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
         if (prevVal === 0 || elem.registeredOn < prevVal) return elem.registeredOn;
         return prevVal;
       }, 0);
 
-      const maxTime = Object.values(activitiesJson.users || {}).reduce((prevVal, elem) => {
+      const maxTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
         if (elem.leftOn === 0) return (new Date()).getTime();
         if (elem.leftOn > prevVal) return elem.leftOn;
         return prevVal;
@@ -223,6 +228,8 @@ class App extends React.Component {
       const allUsers = Object.values(activitiesJson.users || {})
         .filter((currUser) => !currUser.isModerator);
       const nrOfUsers = allUsers.length;
+
+      if (nrOfUsers === 0) return meetingAveragePoints;
 
       // Calculate points of Talking
       const usersTalkTime = allUsers.map((currUser) => currUser.talk.totalTime);
@@ -245,7 +252,7 @@ class App extends React.Component {
       const maxRaiseHand = Math.max(...usersRaiseHand);
       const totalRaiseHand = usersRaiseHand.reduce((prev, val) => prev + val, 0);
       if (maxRaiseHand > 0) {
-        meetingAveragePoints += ((totalRaiseHand / nrOfUsers) / maxMessages) * 2;
+        meetingAveragePoints += ((totalRaiseHand / nrOfUsers) / maxRaiseHand) * 2;
       }
 
       // Calculate points of Emojis
@@ -344,9 +351,12 @@ class App extends React.Component {
                   ? intl.formatMessage({ id: 'app.learningDashboard.indicators.usersOnline', defaultMessage: 'Active Users' })
                   : intl.formatMessage({ id: 'app.learningDashboard.indicators.usersTotal', defaultMessage: 'Total Number Of Users' })
               }
-              number={Object.values(activitiesJson.users || {})
-                .filter((u) => activitiesJson.endedOn > 0 || u.leftOn === 0).length}
-              cardClass={tab === 'overview' ? 'border-pink-500' : 'hover:border-pink-500'}
+              number={Object
+                .values(activitiesJson.users || {})
+                .filter((u) => activitiesJson.endedOn > 0
+                  || Object.values(u.intIds)[Object.values(u.intIds).length - 1].leftOn === 0)
+                .length}
+              cardClass={tab === 'overview' ? 'border-pink-500' : 'hover:border-pink-500 border-white'}
               iconClass="bg-pink-50 text-pink-500"
               onClick={() => {
                 this.setState({ tab: 'overview' });
@@ -375,7 +385,7 @@ class App extends React.Component {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 1,
               })}
-              cardClass={tab === 'overview_activityscore' ? 'border-green-500' : 'hover:border-green-500'}
+              cardClass={tab === 'overview_activityscore' ? 'border-green-500' : 'hover:border-green-500 border-white'}
               iconClass="bg-green-200 text-green-500"
             >
               <svg
@@ -404,7 +414,7 @@ class App extends React.Component {
             <Card
               name={intl.formatMessage({ id: 'app.learningDashboard.indicators.timeline', defaultMessage: 'Timeline' })}
               number={totalOfEmojis()}
-              cardClass={tab === 'status_timeline' ? 'border-purple-500' : 'hover:border-purple-500'}
+              cardClass={tab === 'status_timeline' ? 'border-purple-500' : 'hover:border-purple-500 border-white'}
               iconClass="bg-purple-200 text-purple-500"
             >
               {this.fetchMostUsedEmojis()}
@@ -414,7 +424,7 @@ class App extends React.Component {
             <Card
               name={intl.formatMessage({ id: 'app.learningDashboard.indicators.polls', defaultMessage: 'Polls' })}
               number={Object.values(activitiesJson.polls || {}).length}
-              cardClass={tab === 'polling' ? 'border-blue-500' : 'hover:border-blue-500'}
+              cardClass={tab === 'polling' ? 'border-blue-500' : 'hover:border-blue-500 border-white'}
               iconClass="bg-blue-100 text-blue-500"
             >
               <svg

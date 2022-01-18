@@ -119,6 +119,16 @@ case class EjectUserFromSfuSysMsg(
 case class EjectUserFromSfuSysMsgBody(userId: String)
 
 /**
+ * Sent by the client to eject all cameras from user #userId
+ */
+object EjectUserCamerasCmdMsg { val NAME = "EjectUserCamerasCmdMsg" }
+case class EjectUserCamerasCmdMsg(
+    header: BbbClientMsgHeader,
+    body:   EjectUserCamerasCmdMsgBody
+) extends StandardMsg
+case class EjectUserCamerasCmdMsgBody(userId: String)
+
+/**
  * Sent to bbb-webrtc-sfu to tear down broadcaster stream #streamId
  */
 object CamBroadcastStopSysMsg { val NAME = "CamBroadcastStopSysMsg" }

@@ -20,7 +20,7 @@ set +e
 bin/installDeps.sh
 set -e
 
-git clone https://github.com/pedrobmarin/ep_pad_ttl.git
+git clone https://github.com/mconf/ep_pad_ttl.git
 npm pack ./ep_pad_ttl
 npm install ./ep_pad_ttl-*.tgz
 
@@ -32,9 +32,7 @@ git clone https://github.com/mconf/ep_redis_publisher.git
 npm pack ./ep_redis_publisher
 npm install ./ep_redis_publisher-*.tgz
 
-# npm install ep_cursortrace
-# using mconf's fork due to https://github.com/ether/ep_cursortrace/pull/25 not being accepted upstream
-npm install git+https://github.com/mconf/ep_cursortrace.git
+npm install ep_cursortrace
 npm install ep_disable_chat
 
 # For some reason installing from github using npm 7.5.2 gives

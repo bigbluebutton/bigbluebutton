@@ -10,7 +10,7 @@ function Card(props) {
   try {
     React.Children.only(children);
     icons = (
-      <div className={`p-2 text-orange-500 rounded-full ${iconClass}`}>
+      <div className={`p-2 rounded-full ${iconClass || 'text-orange-500'}`}>
         { children }
       </div>
     );
@@ -23,7 +23,7 @@ function Card(props) {
             offset = index === (React.Children.count(children) - 1) ? 0 : offset;
 
             return (
-              <div className={`flex justify-center transform translate-x-${offset} border-2 border-white p-2 text-orange-500 rounded-full z-${index * 10} ${iconClass}`}>
+              <div className={`flex justify-center transform translate-x-${offset} border-2 border-white p-2 rounded-full z-${index * 10} ${iconClass || 'text-orange-500'}`}>
                 { child }
               </div>
             );
@@ -34,7 +34,7 @@ function Card(props) {
   }
 
   return (
-    <div className={`flex items-start justify-between p-3 bg-white rounded shadow border-l-4 border-white ${cardClass}`}>
+    <div className={`flex items-start justify-between p-3 bg-white rounded shadow border-l-4 ${cardClass}`}>
       <div className="w-70">
         <p className="text-lg font-semibold text-gray-700">
           { number }

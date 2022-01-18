@@ -579,7 +579,6 @@
     "app.guest.errorSeeConsole": "Galat: lebih banyak rincian dalam konsol.",
     "app.guest.noModeratorResponse": "Tidak ada respon dari Moderator.",
     "app.guest.noSessionToken": "Tidak ada Token sesi yang diterima.",
-    "app.guest.windowTitle": "Lobi Tamu",
     "app.guest.missingToken": "Tamu kehilangan token sesi.",
     "app.guest.missingSession": "Tamu kehilangan sesi.",
     "app.guest.missingMeeting": "Pertemuan tidak ada.",
