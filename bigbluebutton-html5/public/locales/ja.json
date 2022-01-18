@@ -58,7 +58,7 @@
     "app.upload.notification.header": "ファイルがアップロードされました",
     "app.upload.notification.disclaimer": "ブラウザが、このファイルタイプをサポートしていない可能性もあります。注意してください",
     "app.upload.media.title": "メディアアップロード",
-    "app.upload.media.note": "アップロードされたファイルは外部動画共有モーダルから共有できます",
+    "app.upload.media.note": "500MBまでアップロード可能です。アップロードされたファイルは外部動画共有モーダルから共有できます",
     "app.upload.media.message": "アップロードするメディアファイルをドラッグまたは選択してください",
     "app.upload.media.filename": "メディアファイル名",
     "app.upload.media.options": "メディアオプション",
