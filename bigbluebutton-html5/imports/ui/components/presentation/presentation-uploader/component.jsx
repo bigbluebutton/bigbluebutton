@@ -622,7 +622,7 @@ class PresentationUploader extends Component {
             <Icon iconName="file" />
           </span>
           <span className={styles.toastFileName}>
-            <span>{decodeURI(item.filename)}</span>
+            <span>{item.filename}</span>
           </span>
           <span className={styles.statusIcon}>
             <Icon iconName={icon} className={cx(itemClassName)} />
@@ -803,7 +803,7 @@ class PresentationUploader extends Component {
             : null
         }
         <th className={styles.tableItemName} colSpan={!isActualCurrent ? 2 : 0}>
-          <span>{item.filename}</span>
+          <span>{decodeURI(item.filename)}</span>
         </th>
         <td className={styles.tableItemStatus} colSpan={hasError ? 2 : 0}>
           {this.renderPresentationItemStatus(item)}
