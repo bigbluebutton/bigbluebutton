@@ -5,7 +5,7 @@ services:
     image: postgres:${POSTGRES_VERSION}
     container_name: postgres
     environment:
-      - "TZ=${TZ}"
+      - "TZ=UTC"
       - "POSTGRES_USER=${POSTGRES_USER}"
       - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
     ports:
