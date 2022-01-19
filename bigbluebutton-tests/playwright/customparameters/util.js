@@ -5,7 +5,7 @@ const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constan
 
 async function forceListenOnly(test) {
   await test.wasRemoved(e.echoYesButton);
-  await test.hasText(e.toastContainer, e.joiningMessageLabel);
+  await test.hasText(e.toastContainer, e.joiningMessageToast);
 }
 
 function hexToRgb(hex) {

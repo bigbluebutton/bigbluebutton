@@ -4,34 +4,22 @@ const c = require('./constants');
 const { encodeCustomParams, getAllShortcutParams, hexToRgb } = require('./util');
 
 test.describe.parallel('CustomParameters', () => {
-  test('Auto join', async ({ browser, context, page }) => {
+  test('Show Public Chat On Login', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, false, { customParameter: c.autoJoin });
-    await customParam.autoJoin();
+    await customParam.initModPage(page, true, { customParameter: c.showPublicChatOnLogin });
+    await customParam.showPublicChatOnLogin();
   });
 
-  test('Listen Only Mode', async ({ browser, context, page }) => {
+  test('Record Meeting', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, false, { customParameter: c.listenOnlyMode });
-    await customParam.listenOnlyMode();
+    await customParam.initModPage(page, true, { customParameter: c.recordMeeting });
+    await customParam.recordMeeting();
   });
 
-  test('Force Listen Only', async ({ browser, context, page }) => {
+  test('Show Participants on Login', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
-    await customParam.initUserPage(false, context, { useModMeetingId: false, customParameter: c.forceListenOnly });
-    await customParam.forceListenOnly(page);
-  });
-
-  test('Skip audio check', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, false, { customParameter: c.skipCheck });
-    await customParam.skipCheck();
-  });
-
-  test('Skip audio check on first join', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, false, { customParameter: c.skipCheckOnFirstJoin });
-    await customParam.skipCheckOnFirstJoin();
+    await customParam.initModPage(page, true, { customParameter: c.showParticipantsOnLogin });
+    await customParam.showParticipantsOnLogin();
   });
 
   test('Client title', async ({ browser, context, page }) => {
@@ -60,38 +48,6 @@ test.describe.parallel('CustomParameters', () => {
     await customParam.shortcuts();
   });
 
-  test('Disable screensharing', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { customParameter: c.enableScreensharing });
-    await customParam.disableScreensharing();
-  });
-
-  test('Disable Webcam Sharing', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { customParameter: c.enableVideo });
-    await customParam.enableVideo();
-  });
-
-  test('Multi Users Pen Only', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { customParameter: c.multiUserPenOnly });
-    await customParam.initUserPage(true, context, { useModMeetingId: true, customParameter: c.multiUserPenOnly });
-    await customParam.multiUserPenOnly();
-  });
-
-  test('Presenter Tools', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.presenterTools) });
-    await customParam.presenterTools();
-  });
-
-  test('Multi Users Tools', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.multiUserTools) });
-    await customParam.initUserPage(true, context, { useModMeetingId: true, customParameter: encodeCustomParams(c.multiUserTools) });
-    await customParam.multiUserTools();
-  });
-
   test('Custom Styles: CSS code', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.customStyle) });
@@ -111,72 +67,126 @@ test.describe.parallel('CustomParameters', () => {
     await customParam.autoSwapLayout();
   });
 
-  test('Hide Presentation', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.hidePresentation) });
-    await customParam.hidePresentation();
+  test.describe.parallel('Audio', () => {
+    test('Auto join', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, false, { customParameter: c.autoJoin });
+      await customParam.autoJoin();
+    });
+
+    test('Listen Only Mode', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, false, { customParameter: c.listenOnlyMode });
+      await customParam.listenOnlyMode();
+    });
+
+    test('Force Listen Only', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initUserPage(false, context, { useModMeetingId: false, customParameter: c.forceListenOnly });
+      await customParam.forceListenOnly(page);
+    });
+
+    test('Skip audio check', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, false, { customParameter: c.skipCheck });
+      await customParam.skipCheck();
+    });
+
+    test('Skip audio check on first join', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, false, { customParameter: c.skipCheckOnFirstJoin });
+      await customParam.skipCheckOnFirstJoin();
+    });
   });
 
-  test('Banner Text', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.bannerText) });
-    await customParam.bannerText();
+  test.describe.parallel('Banner', () => {
+    test('Banner Text', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.bannerText) });
+      await customParam.bannerText();
+    });
+
+    test('Banner Color', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      const colorToRGB = hexToRgb(c.color);
+      await customParam.initModPage(page, true, { customParameter: `${c.bannerColor}&${encodeCustomParams(c.bannerText)}` });
+      await customParam.bannerColor(colorToRGB);
+    });
+  })
+
+  test.describe.parallel('Presentation', () => {
+    test('Disable screensharing', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.enableScreensharing });
+      await customParam.disableScreensharing();
+    });
+
+    test('Hide Presentation', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.hidePresentation) });
+      await customParam.hidePresentation();
+    });
+
+    test('Force Restore Presentation On New Events', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      const customParameter = c.forceRestorePresentationOnNewEvents;
+      await customParam.initModPage(page, true, { customParameter });
+      await customParam.forceRestorePresentationOnNewEvents(customParameter);
+    });
+
+    test('Force Restore Presentation On New Poll Result', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      const customParameter = c.forceRestorePresentationOnNewEvents;
+      await customParam.initModPage(page, true, { customParameter });
+      await customParam.forceRestorePresentationOnNewPollResult(customParameter);
+    });
   });
 
-  test('Banner Color', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    const colorToRGB = hexToRgb(c.color);
-    await customParam.initModPage(page, true, { customParameter: `${c.bannerColor}&${encodeCustomParams(c.bannerText)}` });
-    await customParam.bannerColor(colorToRGB);
+  test.describe.parallel('Webcam', () => {
+    test('Disable Webcam Sharing', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.enableVideo });
+      await customParam.enableVideo();
+    });
+
+    test('Skip Video Preview', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.skipVideoPreview });
+      await customParam.skipVideoPreview();
+    });
+
+    test('Skip Video Preview on First Join', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.skipVideoPreviewOnFirstJoin });
+      await customParam.skipVideoPreviewOnFirstJoin();
+    });
+
+    test('Mirror Own Webcam', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.mirrorOwnWebcam });
+      await customParam.mirrorOwnWebcam();
+    });
   });
 
-  test('Show Public Chat On Login', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { customParameter: c.showPublicChatOnLogin });
-    await customParam.showPublicChatOnLogin();
-  });
+  test.describe.parallel('Whiteboard', () => {
+    test('Multi Users Pen Only', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.multiUserPenOnly });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, customParameter: c.multiUserPenOnly });
+      await customParam.multiUserPenOnly();
+    });
 
-  test('Force Restore Presentation On New Events', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    const customParameter = c.forceRestorePresentationOnNewEvents;
-    await customParam.initModPage(page, true, { customParameter });
-    await customParam.forceRestorePresentationOnNewEvents(customParameter);
-  });
+    test('Presenter Tools', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.presenterTools) });
+      await customParam.presenterTools();
+    });
 
-  test('Force Restore Presentation On New Poll Result', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    const customParameter = c.forceRestorePresentationOnNewEvents;
-    await customParam.initModPage(page, true, { customParameter });
-    await customParam.forceRestorePresentationOnNewPollResult(customParameter);
-  });
-
-  test('Record Meeting', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { customParameter: c.recordMeeting });
-    await customParam.recordMeeting();
-  });
-
-  test('Skip Video Preview', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { customParameter: c.skipVideoPreview });
-    await customParam.skipVideoPreview();
-  });
-
-  test('Skip Video Preview on First Join', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { customParameter: c.skipVideoPreviewOnFirstJoin });
-    await customParam.skipVideoPreviewOnFirstJoin();
-  });
-
-  test('Mirror Own Webcam', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { customParameter: c.mirrorOwnWebcam });
-    await customParam.mirrorOwnWebcam();
-  });
-
-  test('Show Participants on Login', async ({ browser, context, page }) => {
-    const customParam = new CustomParameters(browser, context);
-    await customParam.initModPage(page, true, { customParameter: c.showParticipantsOnLogin });
-    await customParam.showParticipantsOnLogin();
+    test('Multi Users Tools', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.multiUserTools) });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, customParameter: encodeCustomParams(c.multiUserTools) });
+      await customParam.multiUserTools();
+    });
   });
 });

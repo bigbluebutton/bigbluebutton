@@ -5,7 +5,6 @@ const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constan
 const { connectionStatus, checkNetworkStatus } = require('./util');
 const { checkElementLengthEqualTo } = require('../core/util');
 const { waitAndClearNotification } = require('../notifications/util');
-const { sleep } = require('../core/helpers');
 
 class MultiUsers {
   constructor(browser, context) {
@@ -41,10 +40,10 @@ class MultiUsers {
   }
 
   async userPresence() {
-    const firstUserOnModPage = await this.modPage.getLocator(e.firstUser);
-    const secondUserOnModPage = await this.modPage.getLocator(e.userListItem);
-    const firstUserOnUserPage = await this.userPage.getLocator(e.firstUser);
-    const secondUserOnUserPage = await this.userPage.getLocator(e.userListItem);
+    const firstUserOnModPage = this.modPage.getLocator(e.firstUser);
+    const secondUserOnModPage = this.modPage.getLocator(e.userListItem);
+    const firstUserOnUserPage = this.userPage.getLocator(e.firstUser);
+    const secondUserOnUserPage = this.userPage.getLocator(e.userListItem);
     await expect(firstUserOnModPage).toHaveCount(1);
     await expect(secondUserOnModPage).toHaveCount(1);
     await expect(firstUserOnUserPage).toHaveCount(1);
@@ -86,8 +85,8 @@ class MultiUsers {
   async getAvatarColorAndCompareWithUserListItem() {
     const getBackgroundColorComputed = (locator) => locator.evaluate((elem) => getComputedStyle(elem).backgroundColor);
 
-    const avatarInToastElementColor = await this.modPage.getLocator(e.avatarsWrapperAvatar);
-    const avatarInUserListColor = await this.modPage.getLocator(`${e.userListItem} > div ${e.userAvatar}`);
+    const avatarInToastElementColor = this.modPage.getLocator(e.avatarsWrapperAvatar);
+    const avatarInUserListColor = this.modPage.getLocator(`${e.userListItem} > div ${e.userAvatar}`);
     await expect(getBackgroundColorComputed(avatarInToastElementColor)).toStrictEqual(getBackgroundColorComputed(avatarInUserListColor));
   }
 
@@ -95,52 +94,6 @@ class MultiUsers {
     await waitAndClearNotification(this.userPage);
     await this.userPage.waitAndClick(e.lowerHandLabel);
     await this.userPage.hasElement(e.raiseHandLabel);
-  }
-
-  async askModeratorGuestPolicy() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.guestPolicyLabel);
-    await this.modPage.waitAndClick(e.askModerator);
-    await this.initUserPage(false);
-    await this.modPage.hasElement(e.waitingUsersBtn);
-  }
-
-  async alwaysAcceptGuestPolicy() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.guestPolicyLabel);
-    await this.modPage.waitAndClick(e.alwaysAccept);
-    await this.initUserPage(false);
-    await this.userPage.hasElement(e.audioModal);
-  }
-
-  async alwaysDenyGuestPolicy() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.guestPolicyLabel);
-    await this.modPage.waitAndClick(e.alwaysDeny);
-    await sleep(1500);
-    await this.initUserPage(false);
-    await this.userPage.hasElement(e.joinMeetingDemoPage);
-  }
-
-  async whiteboardNotAppearOnMobile() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.waitAndClick(e.userListButton);
-    await this.userPage.waitAndClick(e.userListButton);
-    await this.userPage.waitAndClick(e.chatButtonKey);
-    await this.modPage.wasRemoved(e.whiteboard);
-    await this.userPage.wasRemoved(e.whiteboard);
-  }
-
-  async userlistNotAppearOnMobile() {
-    await this.modPage.wasRemoved(e.userListItem);
-    await this.userPage.wasRemoved(e.userListItem);
-  }
-
-  async chatPanelNotAppearOnMobile() {
-    await this.modPage.wasRemoved(e.chatButtonKey);
-    await this.userPage.waitAndClick(e.userListButton);
-    await this.userPage.waitAndClick(e.chatButtonKey);
-    await this.userPage.hasElement(e.chatButtonKey);
   }
 
   async whiteboardAccess() {

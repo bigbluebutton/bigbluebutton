@@ -30,6 +30,30 @@ class Presentation extends MultiUsers {
     await checkSvgIndex(this.modPage, '/svg/1');
   }
 
+  async hideAndRestorePresentation() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await this.modPage.wasRemoved(e.presentationContainer);
+
+    await this.modPage.waitAndClick(e.restorePresentation);
+    await this.modPage.hasElement(e.presentationContainer);
+  }
+
+  async startExternalVideo() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.externalVideoBtn);
+    await this.modPage.waitForSelector(e.externalVideoModalHeader);
+    await this.modPage.type(e.videoModalInput, e.youtubeLink);
+    await this.modPage.waitAndClick(e.startShareVideoBtn);
+
+    const modFrame = await this.getFrame(this.modPage, e.youtubeFrame);
+    const userFrame = await this.getFrame(this.userPage, e.youtubeFrame);
+
+    await modFrame.hasElement('video');
+    await userFrame.hasElement('video');
+  }
+
   async uploadPresentationTest() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitForSelector(e.skipSlide);
@@ -81,30 +105,6 @@ class Presentation extends MultiUsers {
     await this.modPage.hasText(e.presentationPlaceholder, e.presentationPlaceholderLabel);
     await this.userPage.waitForSelector(e.presentationPlaceholder);
     await this.userPage.hasText(e.presentationPlaceholder, e.presentationPlaceholderLabel);
-  }
-
-  async hideAndRestorePresentation() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.waitAndClick(e.minimizePresentation);
-    await this.modPage.wasRemoved(e.presentationContainer);
-
-    await this.modPage.waitAndClick(e.restorePresentation);
-    await this.modPage.hasElement(e.presentationContainer);
-  }
-
-  async startExternalVideo() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.externalVideoBtn);
-    await this.modPage.waitForSelector(e.externalVideoModalHeader);
-    await this.modPage.type(e.videoModalInput, e.youtubeLink);
-    await this.modPage.waitAndClick(e.startShareVideoBtn);
-
-    const modFrame = await this.getFrame(this.modPage, e.youtubeFrame);
-    const userFrame = await this.getFrame(this.userPage, e.youtubeFrame);
-
-    await modFrame.hasElement('video');
-    await userFrame.hasElement('video');
   }
 
   async getFrame(page, frameSelector) {

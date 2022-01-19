@@ -60,19 +60,16 @@ exports.chatTitle = 'div[data-test="chatTitle"]';
 exports.activeChat = 'li[data-test="activeChat"]';
 exports.hidePrivateChat = 'button[aria-label^="Hide Private Chat with"]';
 exports.typingIndicator = 'span[data-test="typingIndicator"]';
+exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
+exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
 // Messages
 exports.message = 'Hello World!';
 exports.message1 = 'Hello User2';
 exports.message2 = 'Hello User1';
 exports.publicMessage1 = 'This is a Public Message from User1';
 exports.publicMessage2 = 'This is a Public Message from User2';
-
-// Long messages
 exports.longMessage5000 = '01234567890123456789012345678901234567890123456789'.repeat(100);
 exports.longMessage5001 = '01234567890123456789012345678901234567890123456789'.repeat(100) + '0';
-
-exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
-exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
 
 // CustomParameters
 exports.audioOptionsButtons = '[class^="audioOptions"] > button';
@@ -107,7 +104,8 @@ exports.pollPublishedToast = 'Poll results were published';
 exports.startScreenshareToast = 'Screenshare has started';
 exports.endScreenshareToast = 'Screenshare has ended';
 exports.toastContainer = 'div[class^="toastContainer--"]';
-exports.joiningMessageLabel = 'You have joined the audio conference';
+exports.joiningMessageToast = 'You have joined the audio conference';
+exports.attendeeJoinedToast = 'Attendee joined the session';
 
 // Polling
 exports.polling = 'li[data-test="polling"]';

@@ -2,11 +2,6 @@ const e = require('../core/elements');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { checkElementLengthEqualTo } = require('../core/util');
 
-async function popupMenu(test) {
-  await test.waitAndClick(e.optionsButton);
-  await test.waitAndClick(e.settings);
-}
-
 async function enableChatPopup(test) {
   await test.waitAndClick(e.notificationsTab);
   await test.waitAndClickElement(e.chatPushAlerts);
@@ -60,5 +55,4 @@ exports.enableUserJoinPopup = enableUserJoinPopup;
 exports.checkNotificationText = checkNotificationText;
 exports.enableChatPopup = enableChatPopup;
 exports.saveSettings = saveSettings;
-exports.popupMenu = popupMenu;
 exports.waitAndClearNotification = waitAndClearNotification;
