@@ -22,6 +22,7 @@ import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models.{ Users2x, VoiceUsers, _ }
+import org.bigbluebutton.core.util.RandomStringGenerator
 import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.meeting._
@@ -498,7 +499,7 @@ class MeetingActor(
       // Presentation
       case m: PreuploadedPresentationsSysPubMsg              => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg                          => state = handlePresenterChange(m, state)
-      case m: MakePresentationWithAnnotationDownloadReqMsg   => handleMakePresentationWithAnnotationDownloadReqMsg(m, liveMeeting)
+      case m: MakePresentationWithAnnotationDownloadReqMsg   => handleMakePresentationWithAnnotationDownloadReqMsg(m, state, liveMeeting)
       case m: ExportPresentationWithAnnotationReqMsg         => handleExportPresentationWithAnnotationReqMsg(liveMeeting)
 
       // Presentation Pods
@@ -718,7 +719,7 @@ class MeetingActor(
 
   }
 
-  def handleMakePresentationWithAnnotationDownloadReqMsg(m: MakePresentationWithAnnotationDownloadReqMsg, liveMeeting: LiveMeeting): Unit = {
+  def handleMakePresentationWithAnnotationDownloadReqMsg(m: MakePresentationWithAnnotationDownloadReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
     println("*** Current Whiteboard State ***")
 
     liveMeeting.presModel.getPresentations foreach println
@@ -726,11 +727,13 @@ class MeetingActor(
     val pageNumber: String = "1"
     val whiteboardId: String = getMeetingInfoPresentationDetails().id + s"/$pageNumber"
 
-    println("")
-    println(m)
-    println("")
+    val presId = m.body.presId // Whiteboard Id
+    val allPages = m.body.allPages
+    val pages = m.body.pages
 
-    println("")
+    val jobId = RandomStringGenerator.randomAlphanumericString(16)
+
+    println(jobId)
     println("Whiteboard ID is: " + whiteboardId)
 
     val whiteboardHistory = liveMeeting.wbModel.getHistory(whiteboardId)
@@ -749,6 +752,26 @@ class MeetingActor(
     }
 
     println("*****")
+
+    // Determine page amount
+    val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
+    val currentPres = presentationPods.flatMap(_.getCurrentPresentation())
+
+    val pageCount = currentPres(0).pages.size
+    println("There are " + pageCount + " pages!")
+    println("---------")
+
+    // val presentationId: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.id)).mkString
+    // val presentationName: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.name)).mkString
+
+    println(presentationPods)
+    println(currentPres)
+
+    if (allPages) {
+
+    } else {
+
+    }
 
     // 1) Insert Export Job to Redis
     // 2) Export Annotations to Redis
