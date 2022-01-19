@@ -1307,7 +1307,7 @@ class ApiController {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
     String presOrigFilename;
     if (StringUtils.isEmpty(fileName)) {
-      presOrigFilename = address.tokenize("/")[-1];
+      presOrigFilename = URLDecoder.decode(address.tokenize("/")[-1]);
     } else {
       presOrigFilename = fileName;
     }
