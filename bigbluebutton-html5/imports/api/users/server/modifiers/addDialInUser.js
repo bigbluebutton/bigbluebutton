@@ -1,7 +1,6 @@
 import { check } from 'meteor/check';
 import addUser from '/imports/api/users/server/modifiers/addUser';
 
-
 export default function addDialInUser(meetingId, voiceUser) {
   check(meetingId, String);
   check(voiceUser, Object);
@@ -16,10 +15,10 @@ export default function addDialInUser(meetingId, voiceUser) {
     extId: intId, // TODO
     name: callerName,
     role: ROLE_VIEWER.toLowerCase(),
-    guest: false,
+    guest: true,
     authed: true,
-    waitingForAcceptance: false,
-    guestStatus: 'ALLOW',
+    waitingForAcceptance: true,
+    guestStatus: 'WAIT',
     emoji: 'none',
     presenter: false,
     locked: false, // TODO
