@@ -14,13 +14,13 @@ class CharacterLimit extends Page {
 
     await this.type(e.chatBox, e.longMessage5000);
     await this.waitAndClick(e.sendButton);
-    await this.page.waitForSelector(e.chatUserMessageText);
+    await this.waitForSelector(e.chatUserMessageText);
     await expect(messageLocator).toHaveCount(1);
 
     await this.type(e.chatBox, e.longMessage5001);
-    await this.page.waitForSelector(e.typingIndicator);
+    await this.waitForSelector(e.typingIndicator);
     await this.waitAndClick(e.sendButton);
-    await this.page.waitForSelector(e.chatUserMessageText);
+    await this.waitForSelector(e.chatUserMessageText);
     await expect(messageLocator).toHaveCount(1);
   }
 }

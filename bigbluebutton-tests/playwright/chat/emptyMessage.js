@@ -10,7 +10,7 @@ class EmptyMessage extends Page {
 
   async test() {
     await openChat(this.page);
-    const messageLocator = this.page.locator(e.chatUserMessageText);
+    const messageLocator = this.getLocator(e.chatUserMessageText);
 
     await this.waitAndClick(e.sendButton);
     await expect(messageLocator).toHaveCount(0);
