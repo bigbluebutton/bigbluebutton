@@ -722,58 +722,48 @@ class MeetingActor(
   def handleMakePresentationWithAnnotationDownloadReqMsg(m: MakePresentationWithAnnotationDownloadReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
     println("*** Current Whiteboard State ***")
 
-    liveMeeting.presModel.getPresentations foreach println
+    val presId: String = m.body.presId // Whiteboard Id
+    val allPages: Boolean = m.body.allPages
+    val pages: List[Int] = m.body.pages
 
-    val pageNumber: String = "1"
-    val whiteboardId: String = getMeetingInfoPresentationDetails().id + s"/$pageNumber"
-
-    val presId = m.body.presId // Whiteboard Id
-    val allPages = m.body.allPages
-    val pages = m.body.pages
-
-    val jobId = RandomStringGenerator.randomAlphanumericString(16)
-
-    println(jobId)
-    println("Whiteboard ID is: " + whiteboardId)
-
-    val whiteboardHistory = liveMeeting.wbModel.getHistory(whiteboardId)
-
-    println("Whiteboard history length: " + whiteboardHistory.length)
-    println("============================")
-
-    for (drawing <- whiteboardHistory) {
-      println(drawing.id)
-      println(drawing.status)
-      println(drawing.annotationType)
-      println(drawing.annotationInfo)
-      println(drawing.wbId)
-      println(drawing.userId)
-      println(drawing.position)
-    }
-
-    println("*****")
+    var whiteboardId: String = getMeetingInfoPresentationDetails().id // TODO: set as var whiteboardId: String only
 
     // Determine page amount
     val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
     val currentPres = presentationPods.flatMap(_.getCurrentPresentation())
 
-    val pageCount = currentPres(0).pages.size
-    println("There are " + pageCount + " pages!")
-    println("---------")
+    val pageCount = currentPres.head.pages.size
 
-    // val presentationId: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.id)).mkString
-    // val presentationName: String = presentationPods.flatMap(_.getCurrentPresentation.map(_.name)).mkString
+    // println(presentationPods)
+    // println(currentPres)
 
-    println(presentationPods)
-    println(currentPres)
+    val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else pages
 
-    if (allPages) {
+    println(pagesRange)
 
-    } else {
+    for (pageNumber <- pagesRange) {
+      // whiteboardId = s"${presId}/${pageNumber.toString}" // TODO: use this
+      whiteboardId = s"${getMeetingInfoPresentationDetails().id}/${pageNumber.toString}"
 
+      val whiteboardHistory = liveMeeting.wbModel.getHistory(whiteboardId)
+
+      for (drawing <- whiteboardHistory) {
+        println(drawing.id)
+        println(drawing.status)
+        println(drawing.annotationType)
+        println(drawing.annotationInfo)
+        println(drawing.wbId)
+        println(drawing.userId)
+        println(drawing.position)
+      }
+
+      println("*****")
+      println("")
     }
 
     // 1) Insert Export Job to Redis
+    val jobId = RandomStringGenerator.randomAlphanumericString(16)
+
     // 2) Export Annotations to Redis
 
   }
