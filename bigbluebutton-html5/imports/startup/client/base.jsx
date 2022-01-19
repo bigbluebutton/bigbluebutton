@@ -337,6 +337,9 @@ class Base extends Component {
     }
 
     if (ejected) {
+      if (ejectedReason === 'moved_to_guest_lobby_reason') {
+        return (<MovedToGuestLobbyScreen />)
+      } 
       return (<MeetingEnded code="403" ejectedReason={ejectedReason} />);
     }
 
@@ -357,13 +360,10 @@ class Base extends Component {
 
     if (codeError && !meetingHasEnded) {
       // 680 is set for the codeError when the user requests a logout
-      if (codeError === '680') {
-        return (<MeetingEnded code={codeError} />);  
+      if (codeError !== '680') {
+        return (<ErrorScreen code={codeError} />);
       }
-      if (!ejected) {
-        return (<MovedToGuestLobbyScreen />)
-      } 
-      return (<ErrorScreen code={codeError} />);
+      return (<MeetingEnded code={codeError} />);
     }
 
     return (<AppContainer {...this.props} baseControls={stateControls} />);

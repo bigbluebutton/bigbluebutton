@@ -23,27 +23,6 @@ export default function moveUserToGuestLobby(userId) {
       userId,
     });
 
-    const selector = {
-      meetingId,
-      userId,
-    };
-
-    const modifier = {
-      $set: {
-        approved: false,
-        denied: false,
-      },
-    };
-
-    GuestUsers.update(selector, modifier);
-
-    /*
-     * Removes the user already here, so that after disconnecting from the conference
-     * it doesn't trigger immediate 'ValidateAuthTokenReqMsg'
-     */
-    Users.remove(selector);
-
-
     const payload = {
       userMovedToGuestLobbyId: userId,
       userMovedToGuestLobbyName: User.name,
