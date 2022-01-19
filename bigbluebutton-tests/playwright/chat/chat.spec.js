@@ -1,5 +1,6 @@
 const { test } = require('@playwright/test');
 const { Chat } = require('./chat');
+const { PrivateChat } = require('./privateChat');
 
 test.describe.parallel('Chat', () => {
   test('Send public message', async ({ browser, page }) => {
@@ -7,7 +8,13 @@ test.describe.parallel('Chat', () => {
     await chat.init(true, true);
     await chat.sendPublicMessage();
   });
-  
+
+  test('Send private message', async ({ browser, context, page }) => {
+    const privateChat = new PrivateChat(browser, context);
+    await privateChat.initPages(page);
+    await privateChat.sendPrivateMessage();
+  });
+
   test('Clear chat', async ({ browser, page }) => {
     const chat = new Chat(browser, page);
     await chat.init(true, true);

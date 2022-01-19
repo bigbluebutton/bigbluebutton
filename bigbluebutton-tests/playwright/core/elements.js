@@ -58,6 +58,7 @@ exports.chatSave = 'li[data-test="chatSave"]';
 exports.chatCopy = 'li[data-test="chatCopy"]';
 exports.chatTitle = 'div[data-test="chatTitle"]';
 exports.activeChat = 'li[data-test="activeChat"]';
+exports.privateChat = 'div[data-test="privateChat"]';
 exports.hidePrivateChat = 'button[aria-label^="Hide Private Chat with"]';
 exports.typingIndicator = 'span[data-test="typingIndicator"]';
 exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
