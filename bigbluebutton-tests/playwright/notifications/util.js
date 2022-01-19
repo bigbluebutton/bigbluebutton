@@ -1,3 +1,4 @@
+const { expect } = require('@playwright/test');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { checkElementLengthEqualTo } = require('../core/util');
@@ -18,6 +19,11 @@ async function saveSettings(page) {
 
 async function checkNotificationText(test, text) {
   await test.hasText(e.smallToastMsg, text);
+}
+
+async function checkNotificationIcon(test, icon) {
+  const check = await test.checkElement(`${e.toastContainer} ${icon}`);
+  expect(check).toBeTruthy();
 }
 
 async function publicChatMessageToast(page1, page2) {
@@ -53,6 +59,7 @@ exports.privateChatMessageToast = privateChatMessageToast;
 exports.publicChatMessageToast = publicChatMessageToast;
 exports.enableUserJoinPopup = enableUserJoinPopup;
 exports.checkNotificationText = checkNotificationText;
+exports.checkNotificationIcon = checkNotificationIcon;
 exports.enableChatPopup = enableChatPopup;
 exports.saveSettings = saveSettings;
 exports.waitAndClearNotification = waitAndClearNotification;

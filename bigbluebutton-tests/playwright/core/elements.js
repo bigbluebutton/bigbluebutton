@@ -109,6 +109,10 @@ exports.joiningMessageToast = 'You have joined the audio conference';
 exports.attendeeJoinedToast = 'Attendee joined the session';
 exports.raisingHandToast = 'You have raised your hand';
 exports.loweringHandToast = 'You have lowered your hand';
+// Icons
+const baseBbbIcon = 'i.icon-bbb-';
+exports.unmuteIcon = `${baseBbbIcon}unmute`;
+exports.listenOnlyIcon = `${baseBbbIcon}listen`;
 
 // Polling
 exports.polling = 'li[data-test="polling"]';

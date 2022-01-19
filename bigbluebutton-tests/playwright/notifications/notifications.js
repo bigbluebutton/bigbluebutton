@@ -26,6 +26,15 @@ class Notifications extends MultiUsers {
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.joinMicrophone();
     await util.checkNotificationText(this.modPage, e.joinAudioToast);
+    await util.checkNotificationIcon(this.modPage, e.unmuteIcon);
+    await util.waitAndClearNotification(this.modPage);
+    await this.modPage.waitAndClick(e.leaveAudio);
+    await util.waitAndClearNotification(this.modPage);
+    await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.waitAndClick(e.listenOnlyButton);
+    await this.modPage.wasRemoved(e.connectingStatus);
+    await util.checkNotificationText(this.modPage, e.joinAudioToast);
+    await util.checkNotificationIcon(this.modPage, e.listenOnlyIcon);
   }
 
   async getUserJoinPopupResponse() {
