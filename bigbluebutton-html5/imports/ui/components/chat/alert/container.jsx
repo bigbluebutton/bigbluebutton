@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
+import logger from '/imports/startup/client/logger';
 import ChatAlert from './component';
 import LayoutContext from '../../layout/context';
 import { PANELS } from '../../layout/enums';
@@ -68,15 +69,21 @@ const ChatAlertContainer = (props) => {
   if (usingChatContext.chats) {
     const chatsActive = Object.entries(usingChatContext.chats);
     chatsActive.forEach((c) => {
-      if (c[0] === idChat || (c[0] === 'MAIN-PUBLIC-GROUP-CHAT' && idChat === 'public')) {
-        chatsTracker[c[0]] = {};
-        if (c[1]?.posJoinMessages || c[1]?.messageGroups) {
-          const m = Object.entries(c[1]?.posJoinMessages || c[1]?.messageGroups);
-          chatsTracker[c[0]].count = m?.length;
-          if (m[m.length - 1]) {
-            chatsTracker[c[0]].content = m[m.length - 1][1]?.message;
+      try {
+        if (c[0] === idChat || (c[0] === 'MAIN-PUBLIC-GROUP-CHAT' && idChat === 'public')) {
+          chatsTracker[c[0]] = {};
+          if (c[1]?.posJoinMessages || c[1]?.messageGroups) {
+            const m = Object.entries(c[1]?.posJoinMessages || c[1]?.messageGroups);
+            chatsTracker[c[0]].count = m?.length;
+            if (m[m.length - 1]) {
+              chatsTracker[c[0]].content = m[m.length - 1][1]?.message;
+            }
           }
         }
+      } catch (e) {
+        logger.error({
+          logCode: 'chat_alert_component_error',
+        }, 'Error : ', e.error);
       }
     });
 
