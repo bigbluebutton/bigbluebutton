@@ -103,7 +103,7 @@ class TypingIndicator extends PureComponent {
 
     return (
       <div className={cx(style)}>
-        <span className={styles.typingIndicator}>{error || typingElement}</span>
+        <span className={styles.typingIndicator} data-test="typingIndicator">{error || typingElement}</span>
       </div>
     );
   }
