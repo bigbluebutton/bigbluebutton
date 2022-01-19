@@ -15,10 +15,17 @@ class Notifications extends MultiUsers {
     await util.checkNotificationText(this.modPage, e.savedSettingsToast);
   }
 
-  async userJoinNotification(page) {
-    await openSettings(page);
-    await util.enableUserJoinPopup(page);
-    await util.saveSettings(page);
+  async saveConnectionStatusSettingsNotification() {
+    await this.modPage.waitAndClick(e.connectionStatusBtn);
+    await this.modPage.waitAndClickElement(e.dataSavingWebcams);
+    await this.modPage.waitAndClick(e.closeConnectionStatusModal);
+    await util.checkNotificationText(this.modPage, e.savedSettingsToast);
+  }
+
+  async audioNotification() {
+    await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.joinMicrophone();
+    await util.checkNotificationText(this.modPage, e.joinAudioToast);
   }
 
   async getUserJoinPopupResponse() {
@@ -28,10 +35,19 @@ class Notifications extends MultiUsers {
     await util.checkNotificationText(this.modPage, e.attendeeJoinedToast);
   }
 
-  async audioNotification() {
-    await this.modPage.waitAndClick(e.joinAudio);
-    await this.modPage.joinMicrophone();
-    await util.checkNotificationText(this.modPage, e.joinAudioToast);
+  async raiseAndLowerHandNotification() {
+    await this.modPage.waitAndClick(e.raiseHandBtn);
+    await this.modPage.waitForSelector(e.smallToastMsg);
+    await util.checkNotificationText(this.modPage, e.raisingHandToast);
+    await util.waitAndClearNotification(this.modPage);
+    await this.modPage.waitAndClick(e.lowerHandBtn);
+    await util.checkNotificationText(this.modPage, e.loweringHandToast);
+  }
+
+  async userJoinNotification(page) {
+    await openSettings(page);
+    await util.enableUserJoinPopup(page);
+    await util.saveSettings(page);
   }
 }
 

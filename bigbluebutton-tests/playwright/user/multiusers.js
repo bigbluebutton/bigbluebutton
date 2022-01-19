@@ -78,8 +78,8 @@ class MultiUsers {
   }
 
   async raiseHandTest() {
-    await this.userPage.waitAndClick(e.raiseHandLabel);
-    await this.userPage.hasElement(e.lowerHandLabel);
+    await this.userPage.waitAndClick(e.raiseHandBtn);
+    await this.userPage.hasElement(e.lowerHandBtn);
   }
 
   async getAvatarColorAndCompareWithUserListItem() {
@@ -92,8 +92,8 @@ class MultiUsers {
 
   async lowerHandTest() {
     await waitAndClearNotification(this.userPage);
-    await this.userPage.waitAndClick(e.lowerHandLabel);
-    await this.userPage.hasElement(e.raiseHandLabel);
+    await this.userPage.waitAndClick(e.lowerHandBtn);
+    await this.userPage.hasElement(e.raiseHandBtn);
   }
 
   async whiteboardAccess() {

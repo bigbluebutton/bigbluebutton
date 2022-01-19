@@ -10,8 +10,8 @@ exports.screenShareVideo = 'video[id="screenshareVideo"]';
 exports.closeModal = 'button[data-test="modalDismissButton"]';
 exports.isSharingScreen = 'div[data-test="isSharingScreen"]';
 exports.pdfFileName = '100PagesFile.pdf';
-exports.raiseHandLabel = 'button[data-test="raiseHandLabel"]';
-exports.lowerHandLabel = 'button[data-test="lowerHandLabel"]';
+exports.raiseHandBtn = 'button[data-test="raiseHandLabel"]';
+exports.lowerHandBtn = 'button[data-test="lowerHandLabel"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
 exports.logout = 'li[data-test="logout"]';
 exports.rating = 'div[data-test="rating"]';
@@ -92,20 +92,23 @@ exports.etherpad = 'iframe[title="etherpad"]';
 
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
-exports.savedSettingsToast = 'Settings have been saved';
 exports.notificationsTab = 'span[id="notificationTab"]';
 exports.chatPushAlerts = 'input[aria-label="Chat Message Popup Alerts"]';
 exports.hasUnreadMessages = 'button[data-test="hasUnreadMessages"]';
+exports.userJoinPushAlerts = '[aria-label="User Join Popup Alerts"]';
+exports.toastContainer = 'div[class^="toastContainer--"]';
+// Toasts
+exports.savedSettingsToast = 'Settings have been saved';
 exports.publicChatToast = 'New Public Chat message';
 exports.privateChatToast = 'New Private Chat message';
-exports.userJoinPushAlerts = '[aria-label="User Join Popup Alerts"]';
 exports.joinAudioToast = 'You have joined the audio conference';
 exports.pollPublishedToast = 'Poll results were published';
 exports.startScreenshareToast = 'Screenshare has started';
 exports.endScreenshareToast = 'Screenshare has ended';
-exports.toastContainer = 'div[class^="toastContainer--"]';
 exports.joiningMessageToast = 'You have joined the audio conference';
 exports.attendeeJoinedToast = 'Attendee joined the session';
+exports.raisingHandToast = 'You have raised your hand';
+exports.loweringHandToast = 'You have lowered your hand';
 
 // Polling
 exports.polling = 'li[data-test="polling"]';
