@@ -3,7 +3,7 @@ const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { checkElementLengthEqualTo } = require('../core/util');
 
 async function popupMenu(test) {
-  await test.waitAndClick(e.options);
+  await test.waitAndClick(e.optionsButton);
   await test.waitAndClick(e.settings);
 }
 

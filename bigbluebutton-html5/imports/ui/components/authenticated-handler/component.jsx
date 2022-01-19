@@ -41,7 +41,9 @@ class AuthenticatedHandler extends Component {
     AuthenticatedHandler.addReconnectObservable();
 
     const setReason = (reason) => {
-      logger.error({
+      const log = reason.error === 403 ? 'warn' : 'error';
+      
+      logger[log]({
         logCode: 'authenticatedhandlercomponent_setreason',
         extraInfo: { reason },
       }, 'Encountered error while trying to authenticate');
