@@ -79,7 +79,7 @@ case class EndBreakoutRoomInternalMsg(parentId: String, breakoutId: String, reas
  * Sent by parent meeting to breakout room to extend time.
  * @param parentId
  * @param breakoutId
- * @param extendTimeInMinutes
+ * @param durationInSeconds
  */
 case class UpdateBreakoutRoomTimeInternalMsg(parentId: String, breakoutId: String, durationInSeconds: Int) extends InMessage
 
