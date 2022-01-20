@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import logger from '/imports/startup/client/logger';
+import Auth from '/imports/ui/services/auth';
 import ChatAlert from './component';
 import LayoutContext from '../../layout/context';
 import { PANELS } from '../../layout/enums';
@@ -72,6 +73,7 @@ const ChatAlertContainer = (props) => {
       try {
         if (c[0] === idChat || (c[0] === 'MAIN-PUBLIC-GROUP-CHAT' && idChat === 'public')) {
           chatsTracker[c[0]] = {};
+          chatsTracker[c[0]].lastSender = users[Auth.meetingID][c[1]?.lastSender]?.name;
           if (c[1]?.posJoinMessages || c[1]?.messageGroups) {
             const m = Object.entries(c[1]?.posJoinMessages || c[1]?.messageGroups);
             chatsTracker[c[0]].count = m?.length;
