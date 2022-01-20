@@ -8,7 +8,7 @@ import { validIOSVersion } from '/imports/ui/components/app/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { debounce } from 'lodash';
 
-const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app;
+const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app.enableWebcamSelectorButton;
 
 const intlMessages = defineMessages({
   joinVideo: {

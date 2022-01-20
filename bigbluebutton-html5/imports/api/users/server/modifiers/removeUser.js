@@ -1,12 +1,12 @@
 import { check } from 'meteor/check';
 import Users from '/imports/api/users';
-import UsersPersistentData from '/imports/api/users-persistent-data';
-import VoiceUsers from '/imports/api/voice-users/';
 import VideoStreams from '/imports/api/video-streams';
 import Logger from '/imports/startup/server/logger';
 import setloggedOutStatus from '/imports/api/users-persistent-data/server/modifiers/setloggedOutStatus';
 import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
 import ClientConnections from '/imports/startup/server/ClientConnections';
+import VoiceUsers from '/imports/api/voice-users';
+import UsersPersistentData from '/imports/api/users-persistent-data';
 
 const clearAllSessions = (sessionUserId) => {
   const serverSessions = Meteor.server.sessions;
@@ -28,8 +28,8 @@ export default function removeUser(meetingId, userId) {
       userId,
     };
 
-     // we don't want to fully process the redis message in frontend
-     // since the backend is supposed to update Mongo
+    // we don't want to fully process the redis message in frontend
+    // since the backend is supposed to update Mongo
     if (process.env.BBB_HTML5_ROLE !== 'frontend') {
       setloggedOutStatus(userId, meetingId, true);
       VideoStreams.remove({ meetingId, userId });
@@ -49,7 +49,7 @@ export default function removeUser(meetingId, userId) {
     if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
       const sessionUserId = `${meetingId}--${userId}`;
       ClientConnections.removeClientConnection(sessionUserId);
-      clearAllSessions(sessionUserId);      
+      clearAllSessions(sessionUserId);
     }
 
     Logger.info(`Removed user id=${userId} meeting=${meetingId}`);

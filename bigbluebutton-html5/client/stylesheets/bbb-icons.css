@@ -346,3 +346,9 @@
 .icon-bbb-external-video_off:before {
   content: "\e95e";
 }
+.icon-bbb-pin-video_on:before {
+  content: "\e964";
+}
+.icon-bbb-pin-video_off:before {
+  content: "\e965";
+}
