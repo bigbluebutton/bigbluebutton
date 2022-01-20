@@ -385,11 +385,7 @@ public class Meeting {
 	}
 
 	public void setPrivateGuestLobbyMessage(String guestId, String message) {
-		if (usersWithGuestLobbyMessages.containsKey(guestId)) {
-			usersWithGuestLobbyMessages.replace(guestId, message);
-		} else {
-			usersWithGuestLobbyMessages.put(guestId, message);
-		}
+		usersWithGuestLobbyMessages.put(guestId, message);
 	}
 
 	public void setAuthenticatedGuest(Boolean authGuest) {
