@@ -20,7 +20,7 @@ export default function endAllBreakouts() {
       delayTimeInSeconds: 0,
     };
 
-    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   } catch (err) {
     Logger.error(`Exception while invoking method endAllBreakouts ${err.stack}`);
   }
