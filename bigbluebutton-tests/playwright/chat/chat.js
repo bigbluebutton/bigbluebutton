@@ -67,12 +67,12 @@ class Chat extends Page {
     await openChat(this.page);
     const messageLocator = this.page.locator(e.chatUserMessageText);
 
-    await this.type(e.chatBox, e.longMessage5000);
+    await this.page.fill(e.chatBox, e.longMessage5000);
     await this.waitAndClick(e.sendButton);
     await this.waitForSelector(e.chatUserMessageText);
     await expect(messageLocator).toHaveCount(1);
 
-    await this.type(e.chatBox, e.longMessage5001);
+    await this.page.fill(e.chatBox, e.longMessage5001);
     await this.waitForSelector(e.typingIndicator);
     await this.waitAndClick(e.sendButton);
     await this.waitForSelector(e.chatUserMessageText);
