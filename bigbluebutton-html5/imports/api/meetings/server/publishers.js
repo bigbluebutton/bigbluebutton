@@ -3,6 +3,7 @@ import Meetings, {
   RecordMeetings,
   MeetingTimeRemaining,
   ExternalVideoMeetings,
+  LayoutMeetings,
 } from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
@@ -90,6 +91,28 @@ function recordPublish(...args) {
 }
 
 Meteor.publish('record-meetings', recordPublish);
+
+function layoutMeetings() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing LayoutMeetings was requested by unauth connection ${this.connection.id}`);
+    return LayoutMeetings.find({ meetingId: '' });
+  }
+
+  const { meetingId, userId } = tokenValidation;
+
+  Logger.debug(`Publishing LayoutMeetings for ${meetingId} ${userId}`);
+
+  return LayoutMeetings.find({ meetingId });
+}
+
+function layoutPublish(...args) {
+  const boundLayoutMeetings = layoutMeetings.bind(this);
+  return boundLayoutMeetings(...args);
+}
+
+Meteor.publish('layout-meetings', layoutPublish);
 
 function externalVideoMeetings() {
   const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });

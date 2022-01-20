@@ -4,7 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings';
+import Meetings, { LayoutMeetings } from '/imports/api/meetings';
 import { notify } from '/imports/ui/services/notification';
 import CaptionsContainer from '/imports/ui/components/captions/live/container';
 import CaptionsService from '/imports/ui/components/captions/service';
@@ -171,6 +171,9 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     layout,
   } = currentMeeting;
 
+  const meetingLayout = LayoutMeetings.findOne({ meetingId: Auth.meetingID });
+  const { layout, layoutUpdatedAt } = meetingLayout;
+
   if (currentUser && !currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
   }
@@ -213,6 +216,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     currentUserRole: currentUser?.role,
     isPresenter: currentUser?.presenter,
     meetingLayout: layout,
+    meetingLayoutUpdatedAt: layoutUpdatedAt,
     selectedLayout,
     pushLayout,
     audioAlertEnabled: AppSettings.chatAudioAlerts,
