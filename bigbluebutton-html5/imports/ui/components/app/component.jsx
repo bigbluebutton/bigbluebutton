@@ -22,6 +22,7 @@ import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
 import StatusNotifier from '/imports/ui/components/status-notifier/container';
 import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import NewWebcamContainer from '../webcam/container';
@@ -457,6 +458,7 @@ class App extends Component {
       shouldShowExternalVideo,
       isPresenter,
     } = this.props;
+    const enableAudio = getFromUserSettings('bbb_enable_audio', true);
 
     return (
       <>
@@ -487,7 +489,7 @@ class App extends Component {
           {this.renderCaptions()}
           <UploaderContainer />
           <BreakoutRoomInvitation />
-          <AudioContainer />
+          { enableAudio ? <AudioContainer /> : ''}
           <ToastContainer rtl />
           {(audioAlertEnabled || pushAlertEnabled)
             && (
