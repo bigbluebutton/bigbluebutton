@@ -39,7 +39,8 @@
 #   2019-05-13 GTR  Delete caption files
 #   2019-08-30 GTR  Count SVG slides fallaback
 #   2020-10-22 AGG  Remove traces of red5 apps
-#   2022-01-07 DPR  Added more checks for recording configuration and option to list workflows
+#   2022-01-07 DPR  Refactoring with shellcheck; more checks for recording configuration;
+#                   option to list workflows
 
 
 #set -e
@@ -50,14 +51,10 @@ source /etc/bigbluebutton/bigbluebutton-release
 declare -r BBB_USER=bigbluebutton
 declare -r BBB_YML=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 
-# declare -r BBB_PROPERTIES=/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
-# SERVER_URL=$(sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' < $BBB_PROPERTIES)
-# readonly SERVER_URL
-
 # $1: Desired property
 # Only returns 'PRODUCTION' values
 get_yml_value(){
-   sed -n '/\('"$1"'\)/{s/.*'"$1"':[ ]*//;s/;//;p}' < $BBB_YML | head -1
+   yq read "$BBB_YML" "$1" --prettyPrint
 }
 
 PLAYBACK_PROTOCOL=$(get_yml_value playback_protocol)
@@ -771,12 +768,23 @@ fi
 
 if [ $LISTWORKFLOWS ]; then
    echo
-   echo "# Available workflows:"
+   echo "# Enabled recording processing steps:"
+   echo "#"
+   prev_workflow=""
+   for workflow in $(get_yml_value steps); do
+      # Remove trailing : if present
+      workflow=$(sed "s/:$//" <<< $workflow)
+      if [ "$prev_workflow" != "$workflow" ]; then
+         echo "# $workflow"
+      fi
+      prev_workflow=$workflow
+   done
+   echo "#"
+   echo "# Available processing scripts: "
    echo "#"
    for type in $TYPES; do
       echo "# $type"
    done
-   echo "#"
    echo
 fi
 
