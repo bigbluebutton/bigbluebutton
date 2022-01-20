@@ -21,24 +21,17 @@ export default function setGuestStatus(meetingId, intId, status, approvedBy = nu
       denied: status === GUEST_STATUS_DENY,
       approvedBy,
     },
-  };
-
-  /** Update position of waiting users after user has been
-   *  approved or denied by the moderator 
-   */
-  const callback = (err) => {
-    if (err) {      
-      Logger.error(`Updating position in waiting queue: ${err}`);
-    }
-    
-    updatePositionInWaitingQueue(meetingId);  
-  }
+  }; 
 
   try {
-    const numberAffected = GuestUsers.update(selector, modifier, callback);
+    const numberAffected = GuestUsers.update(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Updated status=${status} user=${intId} meeting=${meetingId}`);
+      /** Update position of waiting users after user has been
+      *  approved or denied by the moderator 
+      */
+      updatePositionInWaitingQueue(meetingId); 
     }
   } catch (err) {
     Logger.error(`Updating status=${status} user=${intId}: ${err}`);

@@ -1159,9 +1159,7 @@ public class MeetingService implements MessageListener {
     Meeting m = getMeeting(msg.meetingId);
     HashMap<String,String> guestUsers = msg.guests;
     if (m != null) {
-     for (String guestId : guestUsers.keySet()) {
-       m.setWaitingPositionsInWaitingQueue(guestId, guestUsers.get(guestId));
-      }
+      m.setWaitingPositionsInWaitingQueue(guestUsers);
     }
   }
 

@@ -365,20 +365,12 @@ public class Meeting {
 		return defaultAvatarURL;
 	}
 
-	public void setWaitingPositionsInWaitingQueue(String userId, String idx) {
-		if (guestUsersWithPositionInWaitingLine.containsKey(userId)) {
-			guestUsersWithPositionInWaitingLine.replace(userId,idx);
-		} else {
-			guestUsersWithPositionInWaitingLine.put(userId,idx);
-		}
+	public void setWaitingPositionsInWaitingQueue(HashMap<String, String> guestUsersWithPositionInWaitingLine) {
+		this.guestUsersWithPositionInWaitingLine = guestUsersWithPositionInWaitingLine;
 	}
 
 	public String getWaitingPositionsInWaitingQueue(String userId) {
-		if (guestUsersWithPositionInWaitingLine.containsKey(userId)) {
-			return guestUsersWithPositionInWaitingLine.get(userId);
-		} else {
-			return null;
-		}
+		return guestUsersWithPositionInWaitingLine.get(userId);
 	}
 
 	public void setGuestPolicy(String policy) {
