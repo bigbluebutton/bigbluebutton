@@ -18,8 +18,6 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 
-_performance_start = Time.now
-
 # For DEVELOPMENT
 # Allows us to run the script manually
 # require File.expand_path('../../../core/lib/recordandplayback', __dir__)
@@ -40,13 +38,13 @@ bbb_props = BigBlueButton.read_props
 
 # There's a couple of places where stuff is mysteriously divided or multiplied
 # by 2. This is just here to call out how spooky that is.
-@magic_mystery_number = 2
+MAGIC_MYSTERY_NUMBER = 2
 
 def scale_to_deskshare_video(width, height)
   deskshare_video_height = deskshare_video_width = @presentation_props['deskshare_output_height'].to_f
 
-  scale = [deskshare_video_width / width, deskshare_video_height / height]
-  video_width = width * (scale_min = scale.min)
+  scale_min = [deskshare_video_width / width, deskshare_video_height / height].min
+  video_width = width * scale_min
   video_height = height * scale_min
 
   [video_width.floor, video_height.floor]
@@ -107,7 +105,7 @@ end
 
 def color_to_hex(color)
   color = color.to_i.to_s(16)
-  '0' * (6 - color.length) + color
+  ('0' * (6 - color.length)) + color
 end
 
 def shape_scale_width(slide, x)
@@ -119,11 +117,17 @@ def shape_scale_height(slide, y)
 end
 
 def shape_thickness(slide, shape)
-  (shape_thickness_percent = shape[:thickness_percent]) ? shape_scale_width(slide, shape_thickness_percent) : shape[:thickness]
+  shape_thickness_percent = shape[:thickness_percent]
+  if shape_thickness_percent
+    shape_scale_width(slide, shape[:thickness_percent])
+  else
+    shape[:thickness]
+  end
 end
 
 def svg_render_shape_pencil(g, slide, shape)
-  g['shape'] = "pencil#{shape_unique_id = shape[:shape_unique_id]}"
+  shape_unique_id = shape[:shape_unique_id]
+  g['shape'] = "pencil#{shape_unique_id}"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -134,7 +138,6 @@ def svg_render_shape_pencil(g, slide, shape)
   end
 
   if data_points_length == 2
-    # BigBlueButton.logger.info("Pencil #{shape_unique_id}: Drawing single point")
     g['style'] = "stroke:none;fill:##{shape[:color]};visibility:hidden"
     circle = doc.create_element('circle',
                                 cx: shape_scale_width(slide, data_points[0]),
@@ -144,21 +147,18 @@ def svg_render_shape_pencil(g, slide, shape)
   else
     path = []
     data_points = data_points.each
-
-    if (shape_commands = shape[:commands])
-      # BigBlueButton.logger.info("Pencil #{shape_unique_id}: Drawing from command string (#{shape_commands.length} commands)")
+    shape_commands = shape[:commands]
+    if shape_commands
       shape_commands.each do |command|
         case command
-        when 1, 2 # MOVE_TO, LINE_TO
+        when 1 # MOVE_TO
           x = shape_scale_width(slide, data_points.next)
           y = shape_scale_height(slide, data_points.next)
-          path.push("#{command.eql?(1) ? 'M' : 'L'}#{x} #{y}")
-        when 3 # Q_CURVE_TO
-          cx1 = shape_scale_width(slide, data_points.next)
-          cy1 = shape_scale_height(slide, data_points.next)
+          path.push("M#{x} #{y}")
+        when 2 # LINE_TO
           x = shape_scale_width(slide, data_points.next)
           y = shape_scale_height(slide, data_points.next)
-          path.push("Q#{cx1} #{cy1},#{x} #{y}")
+          path.push("L#{x} #{y}")
         when 4 # C_CURVE_TO
           cx1 = shape_scale_width(slide, data_points.next)
           cy1 = shape_scale_height(slide, data_points.next)
@@ -186,10 +186,9 @@ def svg_render_shape_pencil(g, slide, shape)
       end
     end
 
-    path = path.join('')
-    g['style'] =
-      "stroke:##{shape[:color]};stroke-linecap:round;stroke-linejoin:round;stroke-width:#{shape_thickness(slide,
-                                                                                                          shape)};visibility:hidden;fill:none"
+    path = path.join
+    g['style'] = "stroke:##{shape[:color]};stroke-linecap:round;stroke-linejoin:round;" \
+                 "stroke-width:#{shape_thickness(slide, shape)};visibility:hidden;fill:none"
     svg_path = doc.create_element('path', d: path)
     g << svg_path
   end
@@ -198,8 +197,8 @@ end
 def svg_render_shape_line(g, slide, shape)
   g['shape'] = "line#{shape[:shape_unique_id]}"
   g['style'] =
-    "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,
-                                                             shape)};visibility:hidden;fill:none#{@version_atleast_2_0_0 ? ';stroke-linecap:butt' : ';stroke-linecap:round'}"
+    "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide, shape)};" \
+    "visibility:hidden;fill:none;stroke-linecap:#{@version_atleast_2_0_0 ? 'butt' : 'round'}"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -212,14 +211,13 @@ def svg_render_shape_line(g, slide, shape)
 end
 
 def stroke_attributes(slide, shape)
-  "stroke:##{shape_color = shape[:color]};stroke-width:#{shape_thickness(slide,
-                                                                         shape)};visibility:hidden;fill:#{shape[:fill] ? "##{shape_color}" : 'none'}"
+  "stroke:##{shape_color = shape[:color]};stroke-width:#{shape_thickness(slide, shape)};" \
+    "visibility:hidden;fill:#{shape[:fill] ? "##{shape_color}" : 'none'}"
 end
 
 def svg_render_shape_rect(g, slide, shape)
   g['shape'] = "rect#{shape[:shape_unique_id]}"
-  g['style'] =
-    "#{stroke_attributes(slide, shape)}#{@version_atleast_2_0_0 ? ';stroke-linejoin:miter' : ';stroke-linejoin:round'}"
+  g['style'] = "#{stroke_attributes(slide, shape)};stroke-linejoin:#{@version_atleast_2_0_0 ? 'miter' : 'round'}"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -241,16 +239,14 @@ def svg_render_shape_rect(g, slide, shape)
     end
   end
 
-  path = doc.create_element('path',
-                            d: "M#{x1} #{y1}L#{x2} #{y1}L#{x2} #{y2}L#{x1} #{y2}Z")
+  path = doc.create_element('path', d: "M#{x1} #{y1}L#{x2} #{y1}L#{x2} #{y2}L#{x1} #{y2}Z")
   g << path
 end
 
 def svg_render_shape_triangle(g, slide, shape)
   g['shape'] = "triangle#{shape[:shape_unique_id]}"
-  g['style'] =
-    "#{stroke_attributes(slide,
-                         shape)}#{@version_atleast_2_0_0 ? ';stroke-linejoin:miter;stroke-miterlimit:8' : ';stroke-linejoin:round'}"
+  g['style'] = "#{stroke_attributes(slide, shape)};" \
+               "stroke-linejoin:#{@version_atleast_2_0_0 ? 'miter;stroke-miterlimit:8' : 'round'}"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -261,8 +257,7 @@ def svg_render_shape_triangle(g, slide, shape)
 
   px = ((x1 + x2) / 2.0).round(5)
 
-  path = doc.create_element('path',
-                            d: "M#{px} #{y1}L#{x2} #{y2}L#{x1} #{y2}Z")
+  path = doc.create_element('path', d: "M#{px} #{y1}L#{x2} #{y2}L#{x1} #{y2}Z")
   g << path
 end
 
@@ -303,11 +298,11 @@ def svg_render_shape_ellipse(g, slide, shape)
   # path element's elliptical arc code renders r_x or r_y
   # degenerate cases as line segments, so we can use that.
   path = "M#{x1} #{hy}" \
-          "A#{width_r} #{height_r} 0 0 1 #{hx} #{y1}" \
-          "A#{width_r} #{height_r} 0 0 1 #{x2} #{hy}" \
-          "A#{width_r} #{height_r} 0 0 1 #{hx} #{y2}" \
-          "A#{width_r} #{height_r} 0 0 1 #{x1} #{hy}" \
-          'Z'
+         "A#{width_r} #{height_r} 0 0 1 #{hx} #{y1}" \
+         "A#{width_r} #{height_r} 0 0 1 #{x2} #{hy}" \
+         "A#{width_r} #{height_r} 0 0 1 #{hx} #{y2}" \
+         "A#{width_r} #{height_r} 0 0 1 #{x1} #{hy}" \
+         'Z'
 
   svg_path = doc.create_element('path', d: path)
   g << svg_path
@@ -324,7 +319,6 @@ def svg_render_shape_text(g, slide, shape)
   height = shape_scale_height(slide, shape[:text_box_height])
   font_size = shape_scale_height(slide, shape[:calced_font_size])
 
-  # BigBlueButton.logger.info("Text #{shape[:shape_unique_id]} width #{width} height #{height} font size #{font_size}")
   g['style'] = "color:##{shape[:font_color]};word-wrap:break-word;visibility:hidden;font-family:Arial;font-size:#{font_size}px"
 
   switch = doc.create_element('switch')
@@ -361,10 +355,10 @@ def svg_render_shape_poll(g, slide, shape)
   svg_file = "#{@process_dir}/presentation/#{presentation}/poll_result#{poll_id}.svg"
 
   # Save the poll json to a temp file
-  IO.write(json_file, result)
+  File.open(json_file, 'w') { |f| f.write result }
   # Render the poll svg
-  ret = BigBlueButton.exec_ret('utils/gen_poll_svg', '-i', json_file, '-w', width.round.to_s, '-h', height.round.to_s, '-n',
-                               num_responders.to_s, '-o', svg_file)
+  ret = BigBlueButton.exec_ret('utils/gen_poll_svg', '-i', json_file, '-w', width.round.to_s, '-h', height.round.to_s,
+                               '-n', num_responders.to_s, '-o', svg_file)
   raise 'Failed to generate poll svg' if ret != 0
 
   # Poll image
@@ -374,7 +368,10 @@ def svg_render_shape_poll(g, slide, shape)
 end
 
 def svg_render_shape(canvas, slide, shape, image_id)
-  if (shape_in = shape[:in]) == (shape_out = shape[:out])
+  shape_in = shape[:in]
+  shape_out = shape[:out]
+
+  if shape_in == shape_out
     BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} is never shown (duration rounds to 0)")
     return
   end
@@ -383,8 +380,6 @@ def svg_render_shape(canvas, slide, shape, image_id)
     BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} is not visible during image time span")
     return
   end
-
-  # BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} Type #{shape[:type]} from #{shape_in} to #{shape_out} undo #{shape[:undo]}")
 
   doc = canvas.document
   g = doc.create_element('g',
@@ -419,8 +414,10 @@ end
 def svg_render_image(svg, slide, shapes)
   slide_number = slide[:slide]
   presentation = slide[:presentation]
+  slide_in = slide[:in]
+  slide_out = slide[:out]
 
-  if (slide_in = slide[:in]) == (slide_out = slide[:out])
+  if slide_in == slide_out
     BigBlueButton.logger.info("Presentation #{presentation} Slide #{slide_number} is never shown (duration rounds to 0)")
     return
   end
@@ -438,9 +435,9 @@ def svg_render_image(svg, slide, shapes)
                              'xlink:href' => slide[:src],
                              width: slide[:width], height: slide[:height], x: 0, y: 0,
                              style: 'visibility:hidden')
-  if (slide_text = slide[:text])
-    image['text'] = slide_text
-  end
+
+  slide_text = slide[:text]
+  image['text'] = slide_text if slide_text
   svg << image
 
   return if slide_deskshare || !shapes.dig(presentation, slide_number)
@@ -464,8 +461,8 @@ def panzoom_viewbox(panzoom)
     panzoom[:width_ratio] = panzoom[:height_ratio] = 100.0
   end
 
-  x = (-panzoom[:x_offset] * @magic_mystery_number / 100.0 * panzoom[:width]).round(5)
-  y = (-panzoom[:y_offset] * @magic_mystery_number / 100.0 * panzoom[:height]).round(5)
+  x = (-panzoom[:x_offset] * MAGIC_MYSTERY_NUMBER / 100.0 * panzoom[:width]).round(5)
+  y = (-panzoom[:y_offset] * MAGIC_MYSTERY_NUMBER / 100.0 * panzoom[:height]).round(5)
   w = shape_scale_width(panzoom, panzoom[:width_ratio])
   h = shape_scale_height(panzoom, panzoom[:height_ratio])
 
@@ -473,10 +470,8 @@ def panzoom_viewbox(panzoom)
 end
 
 def panzooms_emit_event(rec, panzoom)
-  if (panzoom_in = panzoom[:in]) == panzoom[:out]
-    BigBlueButton.logger.info('Panzoom: not emitting, duration rounds to 0')
-    return
-  end
+  panzoom_in = panzoom[:in]
+  return if panzoom_in == panzoom[:out]
 
   rec.event(timestamp: panzoom_in) do
     x, y, w, h = panzoom_viewbox(panzoom)
@@ -486,14 +481,12 @@ def panzooms_emit_event(rec, panzoom)
 end
 
 def convert_cursor_coordinate(cursor_coord, panzoom_offset, panzoom_ratio)
-  (((cursor_coord / 100.0) + (panzoom_offset * @magic_mystery_number / 100.0)) / (panzoom_ratio / 100.0)).round(5)
+  (((cursor_coord / 100.0) + (panzoom_offset * MAGIC_MYSTERY_NUMBER / 100.0)) / (panzoom_ratio / 100.0)).round(5)
 end
 
 def cursors_emit_event(rec, cursor)
-  if (cursor_in = cursor[:in]) == cursor[:out]
-    # BigBlueButton.logger.info('Cursor: not emitting, duration rounds to 0')
-    return
-  end
+  cursor_in = cursor[:in]
+  return if cursor_in == cursor[:out]
 
   rec.event(timestamp: cursor_in) do
     panzoom = cursor[:panzoom]
@@ -515,8 +508,6 @@ def cursors_emit_event(rec, cursor)
 
     rec.cursor("#{x} #{y}")
   end
-
-  # BigBlueButton.logger.info("Cursor #{cursor_e.content} at #{cursor[:in]}")
 end
 
 @svg_shape_id = 1
@@ -527,7 +518,7 @@ def determine_presentation(presentation, current_presentation)
 end
 
 def determine_slide_number(slide, current_slide)
-  return current_slide if !slide
+  return current_slide unless slide
 
   slide = slide.text.to_i
   slide -= 1 unless @version_atleast_0_9_0
@@ -561,9 +552,8 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   user_id = event.at_xpath('userId')&.text
   shape[:user_id] = user_id if user_id
 
-  if (shape_id = event.at_xpath('id')&.text)
-    shape[:id] = shape_id
-  end
+  shape_id = event.at_xpath('id')&.text
+  shape[:id] = shape_id if shape_id
 
   status = event.at_xpath('status')&.text
   shape_status = shape[:status] = status if status
@@ -860,7 +850,7 @@ def process_presentation(package_dir)
     when 'WhiteboardCursorMoveEvent'
       user_id = event.at_xpath('userId')&.text
       # Only draw cursor for current presentor. TODO multi-cursor support
-      if (!user_id || user_id == presenter)
+      if !user_id || user_id == presenter
         cursor_x = event.at_xpath('xOffset').text.to_f
         cursor_y = event.at_xpath('yOffset').text.to_f
         cursor_visible = cursor_changed = true
@@ -1191,7 +1181,9 @@ begin
     target_dir = "#{@recording_dir}/publish/presentation/#{@meeting_id}"
     @deskshare_dir = "#{@recording_dir}/raw/#{@meeting_id}/deskshare"
 
-    if !FileTest.directory?(target_dir)
+    if FileTest.directory?(target_dir)
+      BigBlueButton.logger.info("#{target_dir} is already there")
+    else
       BigBlueButton.logger.info('Making dir target_dir')
       FileUtils.mkdir_p target_dir
 
@@ -1203,17 +1195,17 @@ begin
         video_formats = @presentation_props['video_formats']
 
         video_files = Dir.glob("#{@process_dir}/webcams.{#{video_formats.join(',')}}")
-        if !video_files.empty?
-          copy_media_files_helper('video', video_files, package_dir)
-        else
+        if video_files.empty?
           copy_media_files_helper('audio', ["#{@process_dir}/audio.webm", "#{@process_dir}/audio.ogg"], package_dir)
+        else
+          copy_media_files_helper('video', video_files, package_dir)
         end
 
         video_files = Dir.glob("#{@process_dir}/deskshare.{#{video_formats.join(',')}}")
-        if !video_files.empty?
-          copy_media_files_helper('deskshare', video_files, package_dir)
-        else
+        if video_files.empty?
           BigBlueButton.logger.info("Could not copy deskshares.webm: file doesn't exist")
+        else
+          copy_media_files_helper('deskshare', video_files, package_dir)
         end
 
         if File.exist?("#{@process_dir}/captions.json")
@@ -1347,8 +1339,6 @@ begin
         exit 1
       end
       generate_done_or_fail_file(true)
-    else
-      BigBlueButton.logger.info("#{target_dir} is already there")
     end
   end
 rescue StandardError => e
