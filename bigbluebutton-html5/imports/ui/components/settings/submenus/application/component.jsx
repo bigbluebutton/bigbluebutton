@@ -353,7 +353,7 @@ class ApplicationMenu extends BaseMenu {
             </Styled.FormElementRight>
           </Styled.Col>
         </Styled.Row>
-        { isModerator ?
+        { isPresenter ?
           (<Styled.Row>
             <Styled.Col>
               <Styled.FormElement>
