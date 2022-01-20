@@ -82,24 +82,6 @@ if [ -f /etc/systemd/system/mongod.service.d/override-mongo.conf ] \
   systemctl daemon-reload
 fi
 
-# Setup specific version of node
-
-
-source /etc/lsb-release
-
-if [ "$DISTRIB_RELEASE" == "18.04" ]; then
-  node_version="14.18.1"
-  if [[ ! -d /usr/share/node-v${node_version}-linux-x64 ]]; then
-    cd /usr/share
-    tar xfz "node-v${node_version}-linux-x64.tar.gz"
-  fi
-  node_owner=$(stat -c %U:%G "/usr/share/node-v${node_version}-linux-x64")
-  if [[ $node_owner != root:root ]] ; then
-    chown -R root:root "/usr/share/node-v${node_version}-linux-x64"
-  fi
-fi
-
-
 # Enable Listen Only support in FreeSWITCH
 
 if [ -f /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml ]; then
