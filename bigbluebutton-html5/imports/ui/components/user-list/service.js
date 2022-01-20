@@ -201,6 +201,8 @@ const getUsers = (contextUsers) => {
         meetingId: Auth.meetingID,
       }, userFindSorting)
       .fetch();
+  } else {
+    users = users.filter((user) => !user.loggedOut);
   }
 
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
