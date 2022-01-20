@@ -12,7 +12,7 @@ class CustomParameters extends MultiUsers {
 
   async showPublicChatOnLogin() {
     await this.modPage.waitForSelector(e.actions);
-    await this.modPage.wasRemoved(e.chat);
+    await this.modPage.wasRemoved(e.publicChat);
   }
 
   async recordMeeting() {
@@ -20,7 +20,7 @@ class CustomParameters extends MultiUsers {
   }
 
   async showParticipantsOnLogin() {
-    await this.modPage.wasRemoved(e.userslistContainer);
+    await this.modPage.wasRemoved(e.userslist);
   }
 
   async clientTitle() {
@@ -47,7 +47,7 @@ class CustomParameters extends MultiUsers {
     await this.modPage.joinMicrophone();
     // Open private chat
     await this.modPage.waitAndClick(e.userListItem);
-    await this.modPage.waitAndClick(e.activeChat);
+    await this.modPage.waitAndClick(e.startPrivateChat);
     await this.modPage.waitForSelector(e.hidePrivateChat);
     // Check the later shortcuts that can be used after joining audio and opening private chat
     await util.checkShortcutsArray(this.modPage, c.laterShortcuts);
@@ -81,15 +81,15 @@ class CustomParameters extends MultiUsers {
   }
 
   async forceListenOnly() {
-    await this.userPage.wasRemoved(e.audioModalHeader);
+    await this.userPage.wasRemoved(e.audioModal);
     await this.userPage.waitForSelector(e.toastContainer);
     await util.forceListenOnly(this.userPage);
   }
 
   async skipCheck() {
     await this.modPage.waitAndClick(e.microphoneButton);
-    await this.modPage.waitForSelector(e.connectingStatus);
-    await this.modPage.wasRemoved(e.connectingStatus, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.connecting);
+    await this.modPage.wasRemoved(e.connecting, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.wasRemoved(e.echoYesButton);
     await this.modPage.hasElement(e.smallToastMsg);
     await this.modPage.hasElement(e.isTalking);
@@ -106,15 +106,15 @@ class CustomParameters extends MultiUsers {
 
   async bannerText() {
     await this.modPage.waitForSelector(e.actions);
-    await this.modPage.hasElement(e.notificationBar);
+    await this.modPage.hasElement(e.notificationBannerBar);
   }
 
   async bannerColor(colorToRGB) {
-    await this.modPage.waitForSelector(e.notificationBar);
-    const notificationLocator = this.modPage.getLocator(e.notificationBar);
+    await this.modPage.waitForSelector(e.notificationBannerBar);
+    const notificationLocator = this.modPage.getLocator(e.notificationBannerBar);
     const notificationBarColor = await notificationLocator.evaluate((elem) => {
       return getComputedStyle(elem).backgroundColor;
-    }, e.notificationBar);
+    }, e.notificationBannerBar);
     await expect(notificationBarColor).toBe(colorToRGB);
   }
 
@@ -176,29 +176,29 @@ class CustomParameters extends MultiUsers {
   }
 
   async multiUserPenOnly() {
-    await this.modPage.waitAndClick(e.multiUsersWhiteboard);
-    await this.userPage.waitAndClick(e.tools);
+    await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
+    await this.userPage.waitAndClick(e.toolsButton);
     const resp = await this.userPage.page.evaluate((toolsElement) => {
       return document.querySelectorAll(toolsElement)[0].parentElement.childElementCount === 1;
-    }, e.tools);
+    }, e.toolsButton);
     await expect(resp).toBeTruthy();
   }
 
   async presenterTools() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.waitAndClick(e.tools);
+    await this.modPage.waitAndClick(e.toolsButton);
     const resp = await this.modPage.page.evaluate(([toolsElement, toolbarListSelector]) => {
       return document.querySelectorAll(toolsElement)[0].parentElement.querySelector(toolbarListSelector).childElementCount === 2;
-    }, [e.tools, e.toolbarListClass]);
+    }, [e.toolsButton, e.toolbarToolsList]);
     await expect(resp).toBeTruthy();
   }
 
   async multiUserTools() {
-    await this.modPage.waitAndClick(e.multiUsersWhiteboard);
-    await this.userPage.waitAndClick(e.tools);
+    await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
+    await this.userPage.waitAndClick(e.toolsButton);
     const resp = await this.userPage.page.evaluate(([toolsElement, toolbarListSelector]) => {
       return document.querySelectorAll(toolsElement)[0].parentElement.querySelector(toolbarListSelector).childElementCount === 2;
-    }, [e.tools, e.toolbarListClass]);
+    }, [e.toolsButton, e.toolbarToolsList]);
     await expect(resp).toBeTruthy();
   }
 

@@ -4,7 +4,7 @@ async function openPoll(test) {
   await test.waitAndClick(e.actions);
   await test.waitAndClick(e.polling);
   await test.waitForSelector(e.hidePollDesc);
-  await test.waitAndClick(e.pollLetterAlteratives);
+  await test.waitAndClick(e.pollLetterAlternatives);
   await test.waitForSelector(e.pollOptionItem);
 }
 

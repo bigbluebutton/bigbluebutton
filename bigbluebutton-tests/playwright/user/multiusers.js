@@ -1,9 +1,6 @@
 const { expect } = require('@playwright/test');
 const Page = require('../core/page');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { connectionStatus, checkNetworkStatus } = require('./util');
-const { checkElementLengthEqualTo } = require('../core/util');
 const { waitAndClearNotification } = require('../notifications/util');
 
 class MultiUsers {
@@ -48,33 +45,6 @@ class MultiUsers {
     await expect(secondUserOnModPage).toHaveCount(1);
     await expect(firstUserOnUserPage).toHaveCount(1);
     await expect(secondUserOnUserPage).toHaveCount(1);
-  }
-
-  async disableWebcamsFromConnectionStatus() {
-    await this.modPage.shareWebcam(true, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.shareWebcam(true, ELEMENT_WAIT_LONGER_TIME);
-    await connectionStatus(this.modPage);
-    await this.modPage.waitAndClickElement(e.dataSavingWebcams);
-    await this.modPage.waitAndClickElement(e.closeConnectionStatusModal);
-    await waitAndClearNotification(this.modPage);
-    const checkUserWhoHasDisabled = await this.modPage.page.evaluate(checkElementLengthEqualTo, [e.videoContainer, 1]);
-    const checkSecondUser = await this.userPage.page.evaluate(checkElementLengthEqualTo, [e.videoContainer, 2]);
-    await expect(checkUserWhoHasDisabled).toBeTruthy();
-    await expect(checkSecondUser).toBeTruthy();
-  }
-
-  async usersConnectionStatus() {
-    await this.modPage.shareWebcam(true);
-    await this.initUserPage();
-    await this.userPage.waitAndClick(e.joinAudio);
-    await this.userPage.joinMicrophone();
-    await this.userPage.shareWebcam(true);
-    await this.userPage.waitAndClick(e.connectionStatusBtn);
-
-    await this.userPage.page.waitForFunction(checkNetworkStatus,
-      { dataContainer: e.connectionDataContainer, networdData: e.connectionNetwordData },
-      { timeout: ELEMENT_WAIT_TIME },
-    );
   }
 
   async raiseHandTest() {

@@ -42,7 +42,7 @@ class Presentation extends MultiUsers {
   async startExternalVideo() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.externalVideoBtn);
+    await this.modPage.waitAndClick(e.shareExternalVideoBtn);
     await this.modPage.waitForSelector(e.externalVideoModalHeader);
     await this.modPage.type(e.videoModalInput, e.youtubeLink);
     await this.modPage.waitAndClick(e.startShareVideoBtn);
@@ -76,7 +76,7 @@ class Presentation extends MultiUsers {
     // allow the presentation download
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.uploadPresentation);
+    await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.allowPresentationDownload);
     await this.userPage.wasRemoved(e.smallToastMsg);
     await this.modPage.waitAndClick(e.confirmManagePresentation);
@@ -86,7 +86,7 @@ class Presentation extends MultiUsers {
 
     // disallow the presentation download
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.uploadPresentation);
+    await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.disallowPresentationDownload);
     await this.modPage.waitAndClick(e.confirmManagePresentation);
     await this.userPage.wasRemoved(e.toastDownload);
@@ -97,7 +97,7 @@ class Presentation extends MultiUsers {
   async removeAllPresentation() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.uploadPresentation);
+    await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.removePresentation);
     await this.modPage.waitAndClick(e.confirmManagePresentation);
 

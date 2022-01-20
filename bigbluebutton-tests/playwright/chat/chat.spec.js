@@ -47,4 +47,3 @@ test.describe.parallel('Chat', () => {
     await chat.emptyMessage();
   });
 });
-

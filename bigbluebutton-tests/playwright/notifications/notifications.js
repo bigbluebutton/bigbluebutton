@@ -18,7 +18,7 @@ class Notifications extends MultiUsers {
   async saveConnectionStatusSettingsNotification() {
     await this.modPage.waitAndClick(e.connectionStatusBtn);
     await this.modPage.waitAndClickElement(e.dataSavingWebcams);
-    await this.modPage.waitAndClick(e.closeConnectionStatusModal);
+    await this.modPage.waitAndClick(e.closeModal);
     await util.checkNotificationText(this.modPage, e.savedSettingsToast);
   }
 
@@ -32,7 +32,7 @@ class Notifications extends MultiUsers {
     await util.waitAndClearNotification(this.modPage);
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.waitAndClick(e.listenOnlyButton);
-    await this.modPage.wasRemoved(e.connectingStatus);
+    await this.modPage.wasRemoved(e.connecting);
     await util.checkNotificationText(this.modPage, e.joinAudioToast);
     await util.checkNotificationIcon(this.modPage, e.listenOnlyIcon);
   }

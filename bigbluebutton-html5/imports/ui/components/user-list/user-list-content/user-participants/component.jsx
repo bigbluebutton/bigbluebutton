@@ -194,7 +194,7 @@ class UserParticipants extends Component {
     const { isOpen, scrollArea } = this.state;
 
     return (
-      <div className={styles.userListColumn}>
+      <div className={styles.userListColumn} data-test="userList">
         {
           !compact
             ? (

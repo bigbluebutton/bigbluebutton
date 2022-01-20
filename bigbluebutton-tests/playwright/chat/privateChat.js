@@ -11,7 +11,7 @@ class PrivateChat extends MultiUsers {
 
   async sendPrivateMessage() {
     await this.modPage.waitAndClick(e.userListItem);
-    await this.modPage.waitAndClick(e.activeChat);
+    await this.modPage.waitAndClick(e.startPrivateChat);
     await this.modPage.waitForSelector(e.hidePrivateChat);
     await sleep(500); // prevent a race condition when running on a deployed server
     // modPage send message

@@ -22,7 +22,7 @@ class ConnectionStatus extends MultiUsers {
     await startScreenshare(this.modPage);
     await openConnectionStatus(this.modPage);
     await this.modPage.waitAndClickElement(e.dataSavingScreenshare);
-    await this.modPage.waitAndClickElement(e.closeConnectionStatusModal);
+    await this.modPage.waitAndClickElement(e.closeModal);
     await this.modPage.hasElement(e.screenshareLocked);
   }
 
@@ -31,7 +31,7 @@ class ConnectionStatus extends MultiUsers {
     await this.userPage.shareWebcam(true, ELEMENT_WAIT_LONGER_TIME);
     await openConnectionStatus(this.modPage);
     await this.modPage.waitAndClickElement(e.dataSavingWebcams);
-    await this.modPage.waitAndClickElement(e.closeConnectionStatusModal);
+    await this.modPage.waitAndClickElement(e.closeModal);
     await waitAndClearNotification(this.modPage);
     const checkUserWhoHasDisabled = await this.modPage.page.evaluate(checkElementLengthEqualTo, [e.videoContainer, 1]);
     const checkSecondUser = await this.userPage.page.evaluate(checkElementLengthEqualTo, [e.videoContainer, 2]);
@@ -48,7 +48,7 @@ class ConnectionStatus extends MultiUsers {
     await this.userPage.waitAndClick(e.connectionStatusBtn);
 
     await this.userPage.page.waitForFunction(checkNetworkStatus,
-      { dataContainer: e.connectionDataContainer, networdData: e.connectionNetwordData },
+      e.connectionDataContainer,
       { timeout: ELEMENT_WAIT_TIME },
     );
   }

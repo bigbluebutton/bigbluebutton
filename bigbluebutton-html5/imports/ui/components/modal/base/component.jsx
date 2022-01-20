@@ -30,7 +30,12 @@ export default class ModalBase extends Component {
   }
 
   render() {
-    if (!this.props.isOpen) return null;
+    const {
+      isOpen,
+      'data-test': dataTest
+    } = this.props;
+
+    if (!isOpen) return null;
 
     return (
       <ReactModal
@@ -41,6 +46,9 @@ export default class ModalBase extends Component {
             document.fullscreenElement.nodeName.toLowerCase() === 'div')
             return document.fullscreenElement;
           else return document.body;
+        }}
+        data={{
+          test: dataTest ?? null
         }}
       >
         {this.props.children}

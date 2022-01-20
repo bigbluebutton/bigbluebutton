@@ -57,7 +57,7 @@ test.describe.parallel('Notifications', () => {
 
     test('Presentation upload notification', async ({ browser, context, page }) => {
       const presenterNotifications = new PresenterNotifications(browser, context);
-      await presenterNotifications.initModPage(page);
+      await presenterNotifications.initPages(page);
       await presenterNotifications.fileUploaderNotification();
     });
 

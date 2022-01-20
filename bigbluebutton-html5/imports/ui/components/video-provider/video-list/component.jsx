@@ -331,6 +331,7 @@ class VideoList extends Component {
             [styles.videoListItem]: true,
             [styles.focused]: focusedId === stream && numOfStreams > 2,
           })}
+          data-test="webcamList"
         >
           <VideoListItemContainer
             numOfStreams={numOfStreams}

@@ -52,6 +52,7 @@ export default class ToolbarSubmenuItem extends Component {
       customIcon,
       icon,
       label,
+      'data-test': dataTest,
     } = this.props;
 
     return (
@@ -69,6 +70,7 @@ export default class ToolbarSubmenuItem extends Component {
           onKeyPress={this.handleOnMouseUp}
           className={className}
           setRef={this.setRef}
+          data-test={dataTest}
         />
       </div>
     );
