@@ -76,6 +76,11 @@ class CustomParameters extends MultiUsers {
 
   async listenOnlyMode() {
     await this.modPage.waitForSelector(e.audioModal);
+    await this.modPage.waitForSelector(e.connectingToEchoTest);
+    await this.modPage.wasRemoved(e.connecting);
+    await this.modPage.waitForSelector(e.echoYesButton);
+    await this.modPage.waitAndClick(e.closeModal);
+    await this.modPage.waitAndClick(e.joinAudio);
     const audioOptionsCount = await this.modPage.getSelectorCount(e.audioOptionsButtons);
     await expect(audioOptionsCount).toBe(1);
   }
