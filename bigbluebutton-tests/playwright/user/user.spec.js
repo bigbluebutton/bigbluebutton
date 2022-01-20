@@ -7,43 +7,49 @@ const motoG4 = devices['Moto G4'];
 const iPhone11 = devices['iPhone 11'];
 
 test.describe.parallel('User', () => {
-  test('Change user status', async ({ browser, page }) => {
-    const status = new Status(browser, page);
-    await status.init(true, true);
-    await status.changeUserStatus();
+  test.describe.parallel('Actions', () => {
+    test('Raise and lower Hand Toast', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initPages(page);
+      await multiusers.raiseHandTest();
+      await multiusers.getAvatarColorAndCompareWithUserListItem();
+      await multiusers.lowerHandTest();
+    });
   });
 
-  test('User presence check (multiple users)', async ({ browser, context, page }) => {
-    const multiusers = new MultiUsers(browser, context);
-    await multiusers.initPages(page);
-    await multiusers.userPresence();
-  });
-
-  test('Raise and lower Hand Toast', async ({ browser, context, page }) => {
-    const multiusers = new MultiUsers(browser, context);
-    await multiusers.initPages(page);
-    await multiusers.raiseHandTest();
-    await multiusers.getAvatarColorAndCompareWithUserListItem();
-    await multiusers.lowerHandTest();
-  });
-
-  test.describe.parallel('Guest policy', () => {
-    test('Guest policy: ASK_MODERATOR', async ({ browser, context, page }) => {
-      const guestPolicy = new GuestPolicy(browser, context);
-      await guestPolicy.initModPage(page);
-      await guestPolicy.askModerator();
+  test.describe.parallel('List', () => {
+    test('Change user status', async ({ browser, page }) => {
+      const status = new Status(browser, page);
+      await status.init(true, true);
+      await status.changeUserStatus();
     });
 
-    test('Guest policy: ALWAYS_ACCEPT', async ({ browser, context, page }) => {
-      const guestPolicy = new GuestPolicy(browser, context);
-      await guestPolicy.initModPage(page);
-      await guestPolicy.alwaysAccept();
+    test('User presence check (multiple users)', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initPages(page);
+      await multiusers.userPresence();
     });
+  });
 
-    test('Guest policy: ALWAYS_DENY', async ({ browser, context, page }) => {
-      const guestPolicy = new GuestPolicy(browser, context);
-      await guestPolicy.initModPage(page);
-      await guestPolicy.alwaysDeny();
+  test.describe.parallel('Manage', () => {
+    test.describe.parallel('Guest policy', () => {
+      test('ASK_MODERATOR', async ({ browser, context, page }) => {
+        const guestPolicy = new GuestPolicy(browser, context);
+        await guestPolicy.initModPage(page);
+        await guestPolicy.askModerator();
+      });
+
+      test('ALWAYS_ACCEPT', async ({ browser, context, page }) => {
+        const guestPolicy = new GuestPolicy(browser, context);
+        await guestPolicy.initModPage(page);
+        await guestPolicy.alwaysAccept();
+      });
+
+      test('ALWAYS_DENY', async ({ browser, context, page }) => {
+        const guestPolicy = new GuestPolicy(browser, context);
+        await guestPolicy.initModPage(page);
+        await guestPolicy.alwaysDeny();
+      });
     });
   });
 
