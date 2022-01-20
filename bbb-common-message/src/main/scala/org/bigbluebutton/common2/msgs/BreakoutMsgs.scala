@@ -72,7 +72,7 @@ case class BreakoutRoomMsgBody(name: String, sequence: Int, shortName: String, i
 // Sent by user to request ending all the breakout rooms
 object EndAllBreakoutRoomsMsg { val NAME = "EndAllBreakoutRoomsMsg" }
 case class EndAllBreakoutRoomsMsg(header: BbbClientMsgHeader, body: EndAllBreakoutRoomsMsgBody) extends StandardMsg
-case class EndAllBreakoutRoomsMsgBody(meetingId: String)
+case class EndAllBreakoutRoomsMsgBody(meetingId: String, delayTimeInSeconds: Int)
 
 /**
  * Sent by client to request a join URL for the breakout room.

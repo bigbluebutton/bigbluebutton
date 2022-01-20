@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ ExtendBreakoutRoomTimeInternalMsg, SendTimeRemainingAuditInternalMsg }
+import org.bigbluebutton.core.api.{ UpdateBreakoutRoomTimeInternalMsg, SendTimeRemainingAuditInternalMsg }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.domain.MeetingState2x
@@ -28,7 +28,7 @@ trait ExtendBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {
         breakoutModel <- state.breakout
         startedOn <- breakoutModel.startedOn
       } yield {
-        val breakoutRoomEndTime = TimeUtil.millisToSeconds(startedOn) + TimeUtil.minutesToSeconds(breakoutModel.durationInMinutes)
+        val breakoutRoomEndTime = TimeUtil.millisToSeconds(startedOn) + breakoutModel.durationInSeconds
         val breakoutRoomSecsRemaining = breakoutRoomEndTime - TimeUtil.millisToSeconds(System.currentTimeMillis())
 
         var isExtendTimeHigherThanMeetingRemaining = false
@@ -49,11 +49,12 @@ trait ExtendBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {
         if (isExtendTimeHigherThanMeetingRemaining) {
           breakoutModel
         } else {
+          val newDurationInSeconds = breakoutModel.durationInSeconds + (msg.body.extendTimeInMinutes * 60)
           breakoutModel.rooms.values.foreach { room =>
-            eventBus.publish(BigBlueButtonEvent(room.id, ExtendBreakoutRoomTimeInternalMsg(props.breakoutProps.parentId, room.id, msg.body.extendTimeInMinutes)))
+            eventBus.publish(BigBlueButtonEvent(room.id, UpdateBreakoutRoomTimeInternalMsg(props.breakoutProps.parentId, room.id, newDurationInSeconds)))
           }
           log.debug("Extending {} minutes for breakout rooms time in meeting {}", msg.body.extendTimeInMinutes, props.meetingProp.intId)
-          breakoutModel.extendTime(msg.body.extendTimeInMinutes)
+          breakoutModel.setTime(newDurationInSeconds)
         }
       }
 

@@ -18,7 +18,7 @@ trait SendBreakoutTimeRemainingMsgHdlr {
       model <- state.breakout
       startedOn <- model.startedOn
     } yield {
-      val endMeetingTime = TimeUtil.millisToSeconds(startedOn) + TimeUtil.minutesToSeconds(model.durationInMinutes)
+      val endMeetingTime = TimeUtil.millisToSeconds(startedOn) + model.durationInSeconds
       val timeRemaining = endMeetingTime - TimeUtil.millisToSeconds(System.currentTimeMillis())
 
       if (!liveMeeting.props.meetingProp.isBreakout) {

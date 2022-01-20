@@ -6,8 +6,8 @@ object BreakoutRooms {
   def breakoutRoomsStartedOn(status: BreakoutRooms) = status.breakoutRoomsStartedOn
   def breakoutRoomsStartedOn(status: BreakoutRooms, startedOn: Long) = status.breakoutRoomsStartedOn = startedOn
 
-  def breakoutRoomsdurationInMinutes(status: BreakoutRooms) = status.breakoutRoomsdurationInMinutes
-  def breakoutRoomsdurationInMinutes(status: BreakoutRooms, duration: Int) = status.breakoutRoomsdurationInMinutes = duration
+  def breakoutRoomsdurationInSeconds(status: BreakoutRooms) = status.breakoutRoomsdurationInSeconds
+  def breakoutRoomsdurationInSeconds(status: BreakoutRooms, duration: Int) = status.breakoutRoomsdurationInSeconds = duration
 
   def newBreakoutRoom(parentRoomId: String, id: String, externalMeetingId: String, name: String, sequence: Integer, freeJoin: Boolean,
                       voiceConfId: String, assignedUsers: Vector[String], breakoutRooms: BreakoutRooms): Option[BreakoutRoomVO] = {
@@ -53,7 +53,7 @@ object BreakoutRooms {
 
 class BreakoutRooms {
   private var breakoutRoomsStartedOn: Long = 0
-  private var breakoutRoomsdurationInMinutes: Int = 0
+  private var breakoutRoomsdurationInSeconds: Int = 0
 
   private var rooms = new collection.immutable.HashMap[String, BreakoutRoomVO]
 

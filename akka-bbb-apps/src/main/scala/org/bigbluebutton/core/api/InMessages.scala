@@ -81,7 +81,7 @@ case class EndBreakoutRoomInternalMsg(parentId: String, breakoutId: String, reas
  * @param breakoutId
  * @param extendTimeInMinutes
  */
-case class ExtendBreakoutRoomTimeInternalMsg(parentId: String, breakoutId: String, extendTimeInMinutes: Int) extends InMessage
+case class UpdateBreakoutRoomTimeInternalMsg(parentId: String, breakoutId: String, durationInSeconds: Int) extends InMessage
 
 // DeskShare
 case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage

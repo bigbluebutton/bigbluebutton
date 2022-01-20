@@ -15,7 +15,12 @@ export default function endAllBreakouts() {
     check(meetingId, String);
     check(requesterUserId, String);
 
-    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, null);
+    const payload = {
+      meetingId,
+      delayTimeInSeconds: 0,
+    };
+
+    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   } catch (err) {
     Logger.error(`Exception while invoking method endAllBreakouts ${err.stack}`);
   }

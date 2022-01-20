@@ -22,7 +22,7 @@ object BreakoutModel {
 
 case class BreakoutModel(
     startedOn:         Option[Long],
-    durationInMinutes: Int,
+    durationInSeconds: Int,
     rooms:             Map[String, BreakoutRoom2x]
 ) {
 
@@ -78,8 +78,8 @@ case class BreakoutModel(
     copy(rooms = rooms - id)
   }
 
-  def extendTime(timeToExtendInMinutes: Int): BreakoutModel = {
-    copy(durationInMinutes = durationInMinutes + timeToExtendInMinutes)
+  def setTime(newDurationInSeconds: Int): BreakoutModel = {
+    copy(durationInSeconds = newDurationInSeconds)
   }
 
 }
