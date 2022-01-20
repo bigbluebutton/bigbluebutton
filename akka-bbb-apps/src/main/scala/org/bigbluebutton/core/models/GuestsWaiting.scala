@@ -64,12 +64,7 @@ class GuestsWaiting {
   def setGuestLobbyMessage(message: String) = guestLobbyMessage = message
 
   def setPrivateGuestLobbyMessage(intId: String, message: String): Unit = {
-    if (guestsWithPrivateGuestLobbyMessages.contains(intId)) {
-      guestsWithPrivateGuestLobbyMessages.remove(intId);
-      guestsWithPrivateGuestLobbyMessages.put(intId, message);
-    } else {
-      guestsWithPrivateGuestLobbyMessages.put(intId, message);
-    }
+    guestsWithPrivateGuestLobbyMessages.put(intId, message);
   }
 }
 
