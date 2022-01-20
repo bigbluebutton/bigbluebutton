@@ -64,12 +64,7 @@ class GuestsWaiting {
   def setGuestLobbyMessage(message: String) = guestLobbyMessage = message
 
   def setTimeArrivedAtTheGuestLobby(guestId: String, arrivalTime: Long): Unit = {
-    if (guestsWithArrivalTime.contains(guestId)) {
-      guestsWithArrivalTime.remove(guestId);
-      guestsWithArrivalTime.put(guestId, arrivalTime);
-    } else {
-      guestsWithArrivalTime.put(guestId, arrivalTime);
-    }
+    guestsWithArrivalTime.put(guestId, arrivalTime);
   }
 }
 

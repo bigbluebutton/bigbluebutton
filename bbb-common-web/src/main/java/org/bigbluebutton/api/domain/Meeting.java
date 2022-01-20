@@ -383,11 +383,7 @@ public class Meeting {
 
 	public void setArrivalTime(String guestId, String arrivalTime) {
 		Long timeOfArrival = Long.parseLong(arrivalTime);
-		if (guestUsersWithArrivalTime.containsKey(guestId)) {
-			guestUsersWithArrivalTime.replace(guestId, timeOfArrival);
-		} else {
-			guestUsersWithArrivalTime.put(guestId, timeOfArrival);
-		}
+		guestUsersWithArrivalTime.put(guestId, timeOfArrival);
 	}
 
 	public Long getArrivalTime(String guestId) {
