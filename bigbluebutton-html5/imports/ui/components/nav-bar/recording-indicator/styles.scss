@@ -10,8 +10,7 @@
 }
 
 %recordingControl {
-  display: flex;
-  border-radius: 2em 2em;
+  display: flex;  
   align-items: center;
 
   span {
@@ -35,9 +34,10 @@
 .recordingControlON {
   @extend %recordingControl;
 
+  border-radius: 10px;
   padding: 5px;
-  background-color: var(--color-primary);
-  border: var(--border-size-large) solid var(--color-primary);
+  background-color: var(--color-danger);
+  border: var(--border-size-large) solid var(--color-danger);
 
   &:focus {
     background-clip: padding-box;
@@ -48,6 +48,7 @@
 .recordingControlOFF {
   @extend %recordingControl;
 
+  border-radius: 2em 2em;
   padding: 7px;
   border: var(--border-size-small) solid var(--color-white);
   

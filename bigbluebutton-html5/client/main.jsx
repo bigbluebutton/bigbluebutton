@@ -31,6 +31,9 @@ import ChatAdapter from '/imports/ui/components/components-data/chat-context/ada
 import UsersAdapter from '/imports/ui/components/components-data/users-context/adapter';
 import GroupChatAdapter from '/imports/ui/components/components-data/group-chat-context/adapter';
 
+
+
+
 import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
   // bridge loading
 });
@@ -61,11 +64,14 @@ Meteor.startup(() => {
   // TODO make this a Promise
   render(
     <ContextProviders>
+  
+      
       <React.Fragment>
         <JoinHandler>
           <AuthenticatedHandler>
             <Subscriptions>
-              <IntlStartup>
+              <IntlStartup>   
+                     
                 <Base />
               </IntlStartup>
             </Subscriptions>

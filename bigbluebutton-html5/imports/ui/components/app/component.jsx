@@ -48,6 +48,7 @@ import { NAVBAR_HEIGHT, LARGE_NAVBAR_HEIGHT } from '/imports/ui/components/layou
 import Settings from '/imports/ui/services/settings';
 import LayoutService from '/imports/ui/components/layout/service';
 import { registerTitleView } from '/imports/utils/dom-utils';
+import ModalConsentContainer from '../modal-consent/container';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -469,6 +470,7 @@ class App extends Component {
             height: '100%',
           }}
         >
+          <ModalConsentContainer/>
           {this.renderActivityCheck()}
           {this.renderUserInformation()}
           <BannerBarContainer />
