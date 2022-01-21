@@ -235,13 +235,13 @@ class Poll extends Component {
   }
 
   componentDidUpdate() {
-    const { amIPresenter, layoutContextDispatch } = this.props;
+    const { amIPresenter, layoutContextDispatch, sidebarContentPanel } = this.props;
 
     if (Session.equals('resetPollPanel', true)) {
       this.handleBackClick();
     }
 
-    if (!amIPresenter) {
+    if (!amIPresenter && sidebarContentPanel === PANELS.POLL) {
       layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
         value: false,
