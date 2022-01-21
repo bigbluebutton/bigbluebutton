@@ -222,6 +222,15 @@ class ActionsDropdown extends PureComponent {
       });
     }
 
+    if (amIPresenter) {
+      actions.push({
+        icon: 'send',
+        label: intl.formatMessage(intlMessages.layouts),
+        key: 'layouts',
+        onClick: () => mountModal(<SettingsMenuContainer highlightLayoutSubMenu />),
+      });
+    }
+
     return actions;
   }
 
