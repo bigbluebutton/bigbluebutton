@@ -864,6 +864,9 @@ class Presentation extends PureComponent {
           width: presentationBounds.width,
           height: presentationBounds.height,
           zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
+          background: layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0 && !fullscreenContext
+            ? 'var(--color-content-background)'
+            : null,
         }}
       >
         {isFullscreen && <PollingContainer />}
