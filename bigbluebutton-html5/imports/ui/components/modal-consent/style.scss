@@ -62,7 +62,7 @@
 }
 
 
-.divBottons{
+.divButtons{
     width: 100%;
     display: flex;
     flex-wrap: wrap;
@@ -70,11 +70,11 @@
     justify-content: space-evenly;
 }
 
-.divBottons button{
+.divButtons button{
     cursor: pointer;
 }
 
-.divBottons button:hover{
+.divButtons button:hover{
     transform: scale3d(1.05, 1.05, 1);
 }
 
@@ -86,13 +86,13 @@
     font-size: 24px;
    }
 
-   .divBottons{
+   .divButtons{
        flex-direction: column;
        justify-content: center;
        align-items: center;
    }
 
-   .divBottons button{
+   .divButtons button{
        width: 100%;
        margin: 5px;
        padding: 10px 30px 10px 30px;
