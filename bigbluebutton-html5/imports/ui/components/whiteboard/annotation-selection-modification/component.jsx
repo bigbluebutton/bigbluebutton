@@ -9,13 +9,13 @@ function SelectionModification(props) {
   const moveableRef = React.useRef(null);
   const selectoRef = React.useRef(null);
   const [moveableTargets, setMoveableTargets] = React.useState([]);
-  const { zoom, tool } = props;
+  const { zoom, tool, userIsPresenter } = props;
 
   useEffect(() => {
     if (moveableRef.current) {
       moveableRef.current.updateRect();
     }
-  }, [zoom]);
+  }, [zoom, userIsPresenter]);
 
   function deselect(selection) {
     setMoveableTargets(moveableTargets.filter((selected) => !selection.includes(selected.id)));
@@ -72,16 +72,19 @@ function SelectionModification(props) {
 
   return (
     <>
-      <Moveable
-        origin={false}
-        draggable={false}
-        rootContainer={document.body}
-        edge={false}
-        ref={moveableRef}
-        target={moveableTargets}
-      />
+      {userIsPresenter ? (
+        <Moveable
+          origin={false}
+          draggable={false}
+          rootContainer={document.body}
+          edge={false}
+          ref={moveableRef}
+          target={moveableTargets}
+        />
+      ) : null}
       <Selecto
-        dragCondition={() => tool === 'selection'}
+        // disable selecto on other tools and if user is presenter
+        dragCondition={() => tool === 'selection' && userIsPresenter}
         boundContainer="#slideSVG"
         ref={selectoRef}
         selectByClick
@@ -102,8 +105,9 @@ function SelectionModification(props) {
 
 SelectionModification.propTypes = {
   tool: PropTypes.string.isRequired,
-  //
+  // for rerendering of selection rectangle on zoom
   zoom: PropTypes.number.isRequired,
+  userIsPresenter: PropTypes.bool.isRequired,
 };
 
 export default SelectionModification;
