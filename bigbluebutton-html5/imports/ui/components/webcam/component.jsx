@@ -256,6 +256,7 @@ const WebcamComponent = ({
               width: isDragging ? cameraSize.width : cameraDock.width,
               height: isDragging ? cameraSize.height : cameraDock.height,
               opacity: isDragging ? 0.5 : undefined,
+              background: isCameraSidebar ? 'var(--color-content-background)' : null,
             }}
           >
             <VideoProviderContainer
