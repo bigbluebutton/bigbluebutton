@@ -12,7 +12,7 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleBroadcastLayoutMsg(msg: BroadcastLayoutMsg): Unit = {
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to broadcast layout to meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
