@@ -1,0 +1,104 @@
+.overlay{
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.322);
+    z-index: 10000;
+    overflow: visible;
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+@keyframes up_modal {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+
+.modal {
+    padding: 10px 50px 10px 50px;
+    width: 60%;
+    height: 300px;
+    background-color: rgb(250, 252, 255);
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    animation: up_modal 0.3s ease 
+   
+}
+
+.modal p{
+    padding: 0px;
+    margin: 0px;
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+.continue{
+    padding: 10px 30px 10px 30px;
+    background-color: #185AD8;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 18px;
+
+}
+
+.skip{
+    padding: 10px 30px 10px 30px;
+    background-color: #c8d4eb;
+    border: none;
+    border-radius: 5px;
+    color: rgb(9, 9, 10);
+    font-size: 18px;
+}
+
+
+.divBottons{
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.divBottons button{
+    cursor: pointer;
+}
+
+.divBottons button:hover{
+    transform: scale3d(1.05, 1.05, 1);
+}
+
+
+@media (max-width: 940px)
+{
+  .modal h1
+   {
+    font-size: 24px;
+   }
+
+   .divBottons{
+       flex-direction: column;
+       justify-content: center;
+       align-items: center;
+   }
+
+   .divBottons button{
+       width: 100%;
+       margin: 5px;
+       padding: 10px 30px 10px 30px;
+   }
+   .modal{
+       width: 70%;
+       height: 90vh;
+   }
+}
