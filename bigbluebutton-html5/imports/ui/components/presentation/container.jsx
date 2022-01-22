@@ -123,6 +123,8 @@ export default withTracker(({ podId }) => {
     presentationIsDownloadable,
     mountPresentation: !!currentSlide,
     currentPresentation: PresentationService.getCurrentPresentation(podId),
+    setFitToWidth: PresentationService.setFitToWidth,
+    getFitToWidth: PresentationService.getFitToWidth,
     notify,
     zoomSlide: PresentationToolbarService.zoomSlide,
     podId,
