@@ -9,7 +9,7 @@ const POLL_SETTINGS = Meteor.settings.public.poll;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
 
 const setFitToWidth = (presentationId, currentSlideNum, podId, fitToWidth) => {
-  makeCall('fitToWidth', presentationId, currentSlideNum, podId, fitToWidth);
+  makeCall('addFitToWidth', presentationId, currentSlideNum, podId, fitToWidth);
 };
 
 const getFitToWidth = (presentationId, currentSlideNum, podId) => {
