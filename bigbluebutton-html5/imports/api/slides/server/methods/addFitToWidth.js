@@ -29,6 +29,6 @@ export default function addFitToWidth(presentationId, slideNumber, podId, fitToW
     Slides.upsert(selector, modifier);
 
   } catch (err) {
-    Logger.error(`Exception while invoking method fitToWidth ${err.stack}`);
+    Logger.error(`Exception while invoking method addFitToWidth ${err.stack}`);
   }
 }
