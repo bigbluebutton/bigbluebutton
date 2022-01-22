@@ -25,8 +25,8 @@ export default function fitToWidth(presentationId, slideNumber, podId, fitToWidt
         fitToWidth,
       }
     }
-
-    const Slide = Slides.upsert(selector, modifier);
+    
+    Slides.upsert(selector, modifier);
 
   } catch (err) {
     Logger.error(`Exception while invoking method fitToWidth ${err.stack}`);
