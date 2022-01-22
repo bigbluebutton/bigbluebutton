@@ -1,10 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 import switchSlide from './methods/switchSlide';
 import zoomSlide from './methods/zoomSlide';
-import fitToWidth from './methods/fitToWidth';
+import addFitToWidth from './methods/addFitToWidth';
 
 Meteor.methods({
   switchSlide,
   zoomSlide,
-  fitToWidth,
+  addFitToWidth,
 });
