@@ -322,10 +322,6 @@ class Presentation extends PureComponent {
     }
   }
 
-  setFitToWidth(fitToWidth) {
-    this.setState({ fitToWidth });
-  }
-
   calculateSize(viewBoxDimensions) {
     const {
       presentationHeight,
