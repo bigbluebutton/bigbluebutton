@@ -3,7 +3,7 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 
-export default function fitToWidth(presentationId, slideNumber, podId, fitToWidth) {
+export default function addFitToWidth(presentationId, slideNumber, podId, fitToWidth) {
 
   try {
     const { meetingId } = extractCredentials(this.userId);
