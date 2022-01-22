@@ -3,9 +3,25 @@ import Presentations from '/imports/api/presentations';
 import { Slides, SlidePositions } from '/imports/api/slides';
 import Auth from '/imports/ui/services/auth';
 import PollService from '/imports/ui/components/poll/service';
+import { makeCall } from '/imports/ui/services/api';
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
+
+const setFitToWidth = (presentationId, currentSlideNum, podId, fitToWidth) => {
+  makeCall('fitToWidth', presentationId, currentSlideNum, podId, fitToWidth);
+};
+
+const getFitToWidth = (presentationId, currentSlideNum, podId) => {
+  const slide = Slides.findOne(
+    {
+      podId,
+      presentationId,
+      num: currentSlideNum,
+    }
+  );
+  return(slide.fitToWidth ? true : false);
+}
 
 const getCurrentPresentation = (podId) => Presentations.findOne({
   podId,
@@ -182,6 +198,8 @@ const isPresenter = (podId) => {
 export default {
   getCurrentSlide,
   getSlidePosition,
+  getFitToWidth,
+  setFitToWidth,
   isPresenter,
   isPresentationDownloadable,
   downloadPresentationUri,
