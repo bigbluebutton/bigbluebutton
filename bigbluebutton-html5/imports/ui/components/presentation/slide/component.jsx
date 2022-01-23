@@ -7,7 +7,7 @@ const Slide = ({ imageUri, svgWidth, svgHeight }) => (
       // some pdfs lose a white background color during the conversion to svg
       // their background color is transparent
       // that's why we have a white rectangle covering the whole slide area by default
-      <g>
+      <g id="slideimg">
         <rect
           x="0"
           y="0"
@@ -16,7 +16,6 @@ const Slide = ({ imageUri, svgWidth, svgHeight }) => (
           fill="white"
         />
         <image
-          id="slideimg"
           x="0"
           y="0"
           width={svgWidth}
