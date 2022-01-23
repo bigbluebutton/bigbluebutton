@@ -1,5 +1,9 @@
 #!/bin/bash -e
 
+# avoid missing directories for fresh install
+mkdir -p /usr/share/etherpad-lite/.config
+mkdir -p /usr/share/etherpad-lite/node_modules
+
 chown etherpad:etherpad /usr/share/etherpad-lite/APIKEY.txt
 # minified assets
 chown -R etherpad:etherpad /usr/share/etherpad-lite/var
