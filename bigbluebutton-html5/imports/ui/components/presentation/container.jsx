@@ -128,6 +128,8 @@ export default withTracker(({ podId }) => {
     podId,
     layoutSwapped,
     toggleSwapLayout: MediaService.toggleSwapLayout,
+    setFitToWidth: PresentationService.setFitToWidth,
+    getFitToWidth: PresentationService.getFitToWidth,
     publishedPoll: Meetings.findOne({ meetingId: Auth.meetingID }, {
       fields: {
         publishedPoll: 1,
