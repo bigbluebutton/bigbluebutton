@@ -57,22 +57,25 @@ const { isSafari } = browserInfo;
 const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
 class Presentation extends PureComponent {
-  constructor() {
+  constructor(props) {
     super();
+
+    const {
+      getFitToWidth,
+    } = props;
 
     this.state = {
       presentationWidth: 0,
       presentationHeight: 0,
       showSlide: false,
       zoom: 100,
-      fitToWidth: false,
+      fitToWidth: getFitToWidth(),
       isFullscreen: false,
     };
 
     this.currentPresentationToastId = null;
 
     this.getSvgRef = this.getSvgRef.bind(this);
-    this.setFitToWidth = this.setFitToWidth.bind(this);
     this.zoomChanger = this.zoomChanger.bind(this);
     this.updateLocalPosition = this.updateLocalPosition.bind(this);
     this.panAndZoomChanger = this.panAndZoomChanger.bind(this);
@@ -315,10 +318,6 @@ class Presentation extends PureComponent {
     }
   }
 
-  setFitToWidth(fitToWidth) {
-    this.setState({ fitToWidth });
-  }
-
   calculateSize(viewBoxDimensions) {
     const {
       presentationHeight,
@@ -396,6 +395,11 @@ class Presentation extends PureComponent {
     const {
       fitToWidth,
     } = this.state;
+
+    const {
+      setFitToWidth,
+    } = this.props;
+    setFitToWidth(!fitToWidth);
 
     this.setState({
       fitToWidth: !fitToWidth,
