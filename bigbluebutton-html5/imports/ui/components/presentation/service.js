@@ -1,11 +1,22 @@
 import PresentationPods from '/imports/api/presentation-pods';
 import Presentations from '/imports/api/presentations';
+import Meetings from '/imports/api/meetings';
 import { Slides, SlidePositions } from '/imports/api/slides';
 import Auth from '/imports/ui/services/auth';
 import PollService from '/imports/ui/components/poll/service';
+import { makeCall } from '/imports/ui/services/api';
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
+
+const setFitToWidth = (fitToWidth) => {
+  makeCall('setFitToWidth', fitToWidth);
+};
+
+const getFitToWidth = () => {
+  const meeting = Meetings.findOne({ meeringId: Auth.meetingId });
+  return(meeting.fitToWidth ? true : false);
+};
 
 const getCurrentPresentation = (podId) => Presentations.findOne({
   podId,
@@ -188,4 +199,6 @@ export default {
   currentSlidHasContent,
   parseCurrentSlideContent,
   getCurrentPresentation,
+  getFitToWidth,
+  setFitToWidth,
 };
