@@ -1,6 +1,7 @@
 
 const TITLE_WITH_VIEW = 3;
 const ARIA_ALERT_TIMEOUT = 3000;
+const ARIA_ALERT_EXT_TIMEOUT = 15000;
 
 const getTitleData = () => {
     const title = document.getElementsByTagName('title')[0];
@@ -37,4 +38,12 @@ export const alertScreenReader = (s = '') => {
     }, ARIA_ALERT_TIMEOUT);
 };
 
-export default { registerTitleView, unregisterTitleView, alertScreenReader };
+export const politeSRAlert = (s = '') => {
+    const liveArea = document.getElementById('aria-polite-alert')
+    if (liveArea) liveArea.innerHTML = s;
+    setTimeout(() => {
+        if (liveArea) liveArea.innerHTML = '';
+    }, ARIA_ALERT_EXT_TIMEOUT);
+};
+
+export default { registerTitleView, unregisterTitleView, alertScreenReader, politeSRAlert };

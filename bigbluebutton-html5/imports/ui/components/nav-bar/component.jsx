@@ -16,7 +16,7 @@ import SettingsDropdownContainer from './settings-dropdown/container';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import _ from "lodash";
-import {alertScreenReader} from '/imports/utils/dom-utils';
+import { politeSRAlert } from '/imports/utils/dom-utils';
 import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
@@ -193,7 +193,7 @@ class NavBar extends Component {
 
     activeChats.map((c, i) => {
       if (c?.unreadCounter > 0 && c?.unreadCounter !== acs[i]?.unreadCounter) {
-        alertScreenReader(`${intl.formatMessage(intlMessages.newMsgAria, { 0: c.name })}`)
+        politeSRAlert(`${intl.formatMessage(intlMessages.newMsgAria, { 0: c.name })}`)
       }
     });
 
