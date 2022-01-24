@@ -221,6 +221,18 @@ const LobbyMessage = styled.div`
   }
 `;
 
+const PrivateLobbyMessage = styled.div`
+  border-bottom: 1px solid ${colorGrayLightest};
+  display: none;
+  & > p {
+    background-color: ${colorOffWhite};
+    box-sizing: border-box;
+    color: ${colorGray};
+    padding: 1rem;
+    text-align: center;
+  }
+`;
+
 const RememberContainer = styled.div`
   margin: 1rem 1rem;
   height: 2rem;
@@ -248,6 +260,7 @@ export default {
   ListItem,
   UserContentContainer,
   UserAvatarContainer,
+  PrivateLobbyMessage,
   UserName,
   ButtonContainer,
   WaitingUsersButton,

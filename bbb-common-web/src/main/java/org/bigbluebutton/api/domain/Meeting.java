@@ -71,6 +71,7 @@ public class Meeting {
 	private String defaultAvatarURL;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
 	private String guestLobbyMessage = "";
+	private Map<String,String> usersWithGuestLobbyMessages;
 	private Boolean authenticatedGuest = false;
 	private String meetingLayout = MeetingLayout.SMART_LAYOUT;
 	private boolean userHasJoined = false;
@@ -154,6 +155,7 @@ public class Meeting {
          */
         pads = new HashMap<>();
         userCustomData = new HashMap<>();
+		usersWithGuestLobbyMessages = new HashMap<>();
 
         users = new ConcurrentHashMap<>();
         registeredUsers = new ConcurrentHashMap<>();
@@ -375,8 +377,15 @@ public class Meeting {
 		guestLobbyMessage = message;
 	}
 
-	public String getGuestLobbyMessage() {
+	public String getGuestLobbyMessage(String guestId) {
+		if (usersWithGuestLobbyMessages.containsKey(guestId) && usersWithGuestLobbyMessages.get(guestId) != "") {
+			return usersWithGuestLobbyMessages.get(guestId);
+		}
 		return guestLobbyMessage;
+	}
+
+	public void setPrivateGuestLobbyMessage(String guestId, String message) {
+		usersWithGuestLobbyMessages.put(guestId, message);
 	}
 
 	public void setAuthenticatedGuest(Boolean authGuest) {
