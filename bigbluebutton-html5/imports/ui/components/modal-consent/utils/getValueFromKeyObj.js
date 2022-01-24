@@ -1,11 +1,8 @@
-export default function getValueFromKeyObj(chaveObj, obj){
-    let existKey = Object.keys(obj).filter(function(key){    
-        return key === chaveObj
-    })    
+export default function getValueFromKeyObj(keyObj, obj) {
+  const existKey = Object.keys(obj).filter((key) => key === keyObj);
 
-    if(existKey){
-        return obj[existKey]
-    } else {
-        return null
-    }
+  if (existKey) {
+    return obj[existKey];
+  }
+  return null;
 }
