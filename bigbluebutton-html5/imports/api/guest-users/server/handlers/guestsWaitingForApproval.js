@@ -26,6 +26,7 @@ export default function handleGuestsWaitingForApproval({ body }, meetingId) {
         ...guest,
         meetingId,
         loginTime: guest.registeredOn,
+        privateGuestLobbyMessage: '',
         color: COLOR_LIST[stringHash(guest.intId) % COLOR_LIST.length],
       });
 

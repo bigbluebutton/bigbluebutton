@@ -147,6 +147,26 @@ case class GuestLobbyMessageChangedEvtMsg(
 case class GuestLobbyMessageChangedEvtMsgBody(message: String)
 
 /**
+ * Message from moderator to set the guest lobby message for a specific user.
+ */
+object SetPrivateGuestLobbyMessageCmdMsg { val NAME = "SetPrivateGuestLobbyMessageCmdMsg" }
+case class SetPrivateGuestLobbyMessageCmdMsg(
+    header: BbbClientMsgHeader,
+    body:   SetPrivateGuestLobbyMessageCmdMsgBody
+) extends StandardMsg
+case class SetPrivateGuestLobbyMessageCmdMsgBody(guestId: String, message: String)
+
+/**
+ * Message sent to a specific client that guest lobby message has been changed for him.
+ */
+object PrivateGuestLobbyMsgChangedEvtMsg { val NAME = "PrivateGuestLobbyMsgChangedEvtMsg" }
+case class PrivateGuestLobbyMsgChangedEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   PrivateGuestLobbyMsgChangedEvtMsgBody
+) extends BbbCoreMsg
+case class PrivateGuestLobbyMsgChangedEvtMsgBody(guestId: String, message: String)
+
+/**
  * Message from user to get the guest policy.
  */
 object GetGuestPolicyReqMsg { val NAME = "GetGuestPolicyReqMsg" }

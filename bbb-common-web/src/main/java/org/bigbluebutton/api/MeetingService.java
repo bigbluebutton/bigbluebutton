@@ -1129,6 +1129,8 @@ public class MeetingService implements MessageListener {
           processGuestPolicyChanged((GuestPolicyChanged) message);
         } else if (message instanceof GuestLobbyMessageChanged) {
           processGuestLobbyMessageChanged((GuestLobbyMessageChanged) message);
+        } else if (message instanceof PrivateGuestLobbyMessageChanged) {
+          processPrivateGuestLobbyMessageChanged((PrivateGuestLobbyMessageChanged) message); 
         } else if (message instanceof RecordChapterBreak) {
           processRecordingChapterBreak((RecordChapterBreak) message);
         } else if (message instanceof AddPad) {
@@ -1167,6 +1169,13 @@ public class MeetingService implements MessageListener {
     Meeting m = getMeeting(msg.meetingId);
     if (m != null) {
       m.setGuestLobbyMessage(msg.message);
+    }
+  }
+
+  public void processPrivateGuestLobbyMessageChanged(PrivateGuestLobbyMessageChanged msg) {
+    Meeting m = getMeeting(msg.meetingId);
+    if (m != null) {
+      m.setPrivateGuestLobbyMessage(msg.guestId, msg.message);
     }
   }
 

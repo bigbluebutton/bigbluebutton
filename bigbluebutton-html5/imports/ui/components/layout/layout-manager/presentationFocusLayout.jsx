@@ -282,6 +282,7 @@ const PresentationFocusLayout = (props) => {
       sidebarContentWidth.width,
       sidebarContentHeight.height,
     );
+    const { isOpen } = presentationInput;
 
     layoutContextDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,

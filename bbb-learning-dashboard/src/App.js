@@ -229,6 +229,8 @@ class App extends React.Component {
         .filter((currUser) => !currUser.isModerator);
       const nrOfUsers = allUsers.length;
 
+      if (nrOfUsers === 0) return meetingAveragePoints;
+
       // Calculate points of Talking
       const usersTalkTime = allUsers.map((currUser) => currUser.talk.totalTime);
       const maxTalkTime = Math.max(...usersTalkTime);
@@ -250,7 +252,7 @@ class App extends React.Component {
       const maxRaiseHand = Math.max(...usersRaiseHand);
       const totalRaiseHand = usersRaiseHand.reduce((prev, val) => prev + val, 0);
       if (maxRaiseHand > 0) {
-        meetingAveragePoints += ((totalRaiseHand / nrOfUsers) / maxMessages) * 2;
+        meetingAveragePoints += ((totalRaiseHand / nrOfUsers) / maxRaiseHand) * 2;
       }
 
       // Calculate points of Emojis
