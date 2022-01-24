@@ -91,6 +91,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GuestsWaitingApprovedMsg](envelope, jsonNode)
       case GuestWaitingLeftMsg.NAME =>
         routeGenericMsg[GuestWaitingLeftMsg](envelope, jsonNode)
+      case UpdatePositionInWaitingQueueReqMsg.NAME =>
+        routeGenericMsg[UpdatePositionInWaitingQueueReqMsg](envelope, jsonNode)
       case SetGuestPolicyCmdMsg.NAME =>
         routeGenericMsg[SetGuestPolicyCmdMsg](envelope, jsonNode)
       case GetGuestPolicyReqMsg.NAME =>

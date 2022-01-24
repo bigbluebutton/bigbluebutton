@@ -746,6 +746,7 @@ class ApiController {
     Meeting meeting = meetingService.getMeeting(us.meetingID)
     String status = us.guestStatus
     destURL = us.clientUrl
+    String posInWaitingQueue = meeting.getWaitingPositionsInWaitingQueue(us.internalUserId)
     String lobbyMsg = meeting.getGuestLobbyMessage(us.internalUserId)
 
     Boolean redirectClient = true
@@ -811,6 +812,7 @@ class ApiController {
             guestStatus status
             lobbyMessage lobbyMsg
             url destURL
+            positionInWaitingQueue posInWaitingQueue
           }
           render(contentType: "application/json", text: builder.toPrettyString())
         }
