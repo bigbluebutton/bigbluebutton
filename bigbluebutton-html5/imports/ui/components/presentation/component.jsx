@@ -166,7 +166,11 @@ class Presentation extends PureComponent {
       this.onResize();
     }
 
-    if (currentSlide.num !== prevProps.currentSlide.num) {
+    if (
+      currentSlide?.num != null &&
+      prevProps?.currentSlide?.num != null &&
+      currentSlide?.num !== prevProps.currentSlide?.num
+    ) {
       politeSRAlert(intl.formatMessage(intlMessages.slideContentChanged, { 0: currentSlide.num }));
     }
 
