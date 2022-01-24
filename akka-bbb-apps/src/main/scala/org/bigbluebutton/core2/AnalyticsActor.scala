@@ -146,10 +146,14 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: GuestWaitingLeftMsg => logMessage(msg)
       case m: GuestWaitingLeftEvtMsg => logMessage(msg)
       case m: GuestsWaitingForApprovalEvtMsg => logMessage(msg)
+      case m: UpdatePositionInWaitingQueueReqMsg => logMessage(msg)
+      case m: PosInWaitingQueueUpdatedRespMsg => logMessage(msg)
       case m: SetGuestPolicyCmdMsg => logMessage(msg)
       case m: GuestPolicyChangedEvtMsg => logMessage(msg)
       case m: SetGuestLobbyMessageCmdMsg => logMessage(msg)
       case m: GuestLobbyMessageChangedEvtMsg => logMessage(msg)
+      case m: SetPrivateGuestLobbyMessageCmdMsg => logMessage(msg)
+      case m: PrivateGuestLobbyMsgChangedEvtMsg => logMessage(msg)
 
       // System
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
