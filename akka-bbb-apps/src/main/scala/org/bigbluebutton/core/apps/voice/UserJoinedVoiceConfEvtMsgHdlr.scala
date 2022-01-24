@@ -2,13 +2,11 @@ package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.VoiceUsers
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.apps.users.UsersApp
-import org.bigbluebutton.core.models.UserLeftFlag
+import org.bigbluebutton.core2.MeetingStatus2x
 
 trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
   this: MeetingActor =>
@@ -19,7 +17,54 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
   def handleUserJoinedVoiceConfEvtMsg(msg: UserJoinedVoiceConfEvtMsg): Unit = {
 
     val guestPolicy = GuestsWaiting.getGuestPolicy(liveMeeting.guestsWaiting)
-    val currentTime = System.currentTimeMillis()
+
+    def notifyModeratorsOfGuestWaiting(guest: GuestWaiting, users: Users2x, meetingId: String): Unit = {
+      val moderators = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE)
+      moderators foreach { mod =>
+        val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, mod.intId, Vector(guest))
+        outGW.send(event)
+      }
+      // bbb-html should only listen for this single message
+      val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, "nodeJSapp", Vector(guest))
+      outGW.send(event)
+    }
+
+    def registerUserInRegisteredUsers() = {
+      val regUser = RegisteredUsers.create(msg.body.intId, msg.body.voiceUserId,
+        msg.body.callerIdName, Roles.VIEWER_ROLE, "",
+        "", true, true, GuestStatus.WAIT, true, false)
+      RegisteredUsers.add(liveMeeting.registeredUsers, regUser)
+    }
+
+    def registerUserInUsers2x() = {
+      val newUser = UserState(
+        intId = msg.body.intId,
+        extId = msg.body.voiceUserId,
+        name = msg.body.callerIdName,
+        role = Roles.VIEWER_ROLE,
+        guest = true,
+        authed = true,
+        guestStatus = GuestStatus.WAIT,
+        emoji = "none",
+        pin = false,
+        presenter = false,
+        locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
+        avatar = "",
+        clientType = "",
+        pickExempted = false,
+        userLeftFlag = UserLeftFlag(false, 0)
+      )
+      Users2x.add(liveMeeting.users2x, newUser)
+    }
+
+    def registerUserAsGuest() = {
+      if (GuestsWaiting.findWithIntId(liveMeeting.guestsWaiting, msg.body.intId) == None) {
+        val guest = GuestWaiting(msg.body.intId, msg.body.callerIdName, Roles.VIEWER_ROLE, true, "", true, System.currentTimeMillis())
+        GuestsWaiting.add(liveMeeting.guestsWaiting, guest)
+        notifyModeratorsOfGuestWaiting(guest, liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
+      }
+    }
+
     def letUserEnter() = {
       VoiceApp.handleUserJoinedVoiceConfEvtMsg(
         liveMeeting,
@@ -37,23 +82,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
       )
     }
 
-    def notifyModeratorsOfGuestWaiting(guests: Vector[GuestWaiting], users: Users2x, meetingId: String): Unit = {
-      val mods = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE && p.clientType == ClientType.FLASH)
-      mods foreach { m =>
-        val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, m.intId, guests)
-        outGW.send(event)
-      }
-      // Meteor should only listen for this single message
-      val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, "nodeJSapp", guests)
-      outGW.send(event)
-    }
-
-    def denyUser() = {
-      val g = GuestApprovedVO(msg.body.voiceUserId, GuestStatus.DENY)
-      UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)
-      val event = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf, msg.body.voiceUserId)
-      outGW.send(event)
-    }
+    //Firs of all we check whether the user is banned from the meeting
     if (VoiceUsers.isCallerBanned(msg.body.callerIdNum, liveMeeting.voiceUsers)) {
       log.info("Ejecting banned voice user " + msg)
       val event = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(
@@ -63,18 +92,16 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
       )
       outGW.send(event)
     } else {
+      if (msg.body.intId.startsWith("v_")) { // Dial-in user (v_*)
+        registerUserInRegisteredUsers()
+        registerUserInUsers2x()
+      }
       guestPolicy match {
         case GuestPolicy(policy, setBy) => {
           policy match {
             case GuestPolicyType.ALWAYS_ACCEPT => letUserEnter()
-            case GuestPolicyType.ALWAYS_DENY   => denyUser()
-            case GuestPolicyType.ASK_MODERATOR => {
-              if (GuestsWaiting.findWithIntId(liveMeeting.guestsWaiting, msg.body.intId) == None) {
-                val guest = GuestWaiting(msg.body.voiceUserId, msg.body.callerIdName, Roles.VIEWER_ROLE, true, "", true, currentTime)
-                GuestsWaiting.add(liveMeeting.guestsWaiting, guest)
-                notifyModeratorsOfGuestWaiting(Vector(guest), liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
-              }
-            }
+            case GuestPolicyType.ALWAYS_DENY   => VoiceApp.removeUserFromVoiceConf(liveMeeting, outGW, msg.body.voiceUserId)
+            case GuestPolicyType.ASK_MODERATOR => registerUserAsGuest()
           }
         }
       }
