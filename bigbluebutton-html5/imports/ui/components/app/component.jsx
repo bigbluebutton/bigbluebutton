@@ -187,9 +187,16 @@ class App extends Component {
       value: parseInt(fontSize.slice(0, -2), 10),
     });
 
+    const userLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', false)];
     Settings.application.selectedLayout = settingsLayout
-      || getFromUserSettings('bbb_change_layout', false)
+      || userLayout
       || meetingLayout;
+
+    let selectedLayout = Settings.application.selectedLayout;
+    if (isMobile()) {
+      selectedLayout = selectedLayout === 'custom' ? 'smart' : selectedLayout;
+      Settings.application.selectedLayout = selectedLayout;
+    }
     Settings.save();
 
     const body = document.getElementsByTagName('body')[0];
@@ -244,13 +251,20 @@ class App extends Component {
       mountRandomUserModal,
     } = this.props;
 
-    if (meetingLayout !== prevProps.meetingLayout) {
+    if (meetingLayout !== prevProps.meetingLayout
+      || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+
+      let contextLayout = meetingLayout;
+      if (isMobile()) {
+        contextLayout = meetingLayout === 'custom' ? 'smart' : meetingLayout;
+      }
+
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_TYPE,
-        value: meetingLayout,
+        value: contextLayout,
       });
 
-      Settings.application.selectedLayout = meetingLayout;
+      Settings.application.selectedLayout = contextLayout;
       Settings.save();
     }
 
