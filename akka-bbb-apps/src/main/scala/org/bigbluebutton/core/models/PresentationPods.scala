@@ -3,6 +3,7 @@ package org.bigbluebutton.core.models
 import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.util.RandomStringGenerator
+import org.bigbluebutton.common2.msgs.AnnotationVO
 
 object PresentationPodFactory {
   private def genId(): String = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8)
@@ -28,6 +29,31 @@ case class PresentationPage(
     yOffset:     Double              = 0,
     widthRatio:  Double              = 100D,
     heightRatio: Double              = 100D
+)
+
+case class PresentationPageForExport(
+  page: Int,
+  xOffset: Double,
+  yOffset: Double,
+  widthRatio: Double,
+  heightRatio: Double,
+  annotations: Array[AnnotationVO],
+)
+
+case class StoredAnnotations(
+  presId: String,
+  pages: Array[PresentationPageForExport],
+)
+
+case class ExportJob(
+  jobId: String,
+  jobType: String,
+  presId: String,
+  presLocation: String,
+  allPages: Boolean,
+  pages: Array[PresentationPageForExport],
+  parentMeetingId: String,
+  presUploadToken: String,
 )
 
 object PresentationInPod {
