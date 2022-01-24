@@ -1445,7 +1445,7 @@ class ApiController {
     if (!session[token]) {
       log.info("Session for token ${token} not found")
 
-      Boolean allowRequestsWithoutSession = paramsProcessorUtil.getAllowRequestsWithoutSession()
+      Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(token)
       if (!allowRequestsWithoutSession) {
         log.info("Meeting related to ${token} doesn't allow requests without session")
         return false

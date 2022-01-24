@@ -72,7 +72,7 @@ public class ParamsProcessorUtil {
     private int defaultNumDigitsForTelVoice;
     private String defaultHTML5ClientUrl;
     private String defaultGuestWaitURL;
-    private Boolean allowRequestsWithoutSession;
+    private Boolean allowRequestsWithoutSession = false;
     private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
     private String defaultGuestPolicy;
@@ -560,6 +560,7 @@ public class ParamsProcessorUtil {
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
                 .withAuthenticatedGuest(authenticatedGuest)
+                .withAllowRequestsWithoutSession(allowRequestsWithoutSession)
                 .withMeetingLayout(meetingLayout)
 				.withBreakoutRoomsParams(breakoutParams)
 				.withLockSettingsParams(lockSettingsParams)
@@ -632,6 +633,10 @@ public class ParamsProcessorUtil {
             allowModsToUnmuteUsers = Boolean.parseBoolean(params.get(ApiParams.ALLOW_MODS_TO_UNMUTE_USERS));
         }
         meeting.setAllowModsToUnmuteUsers(allowModsToUnmuteUsers);
+
+        if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_REQUESTS_WITHOUT_SESSION))) {
+            meeting.setAllowRequestsWithoutSession(Boolean.parseBoolean(params.get(ApiParams.ALLOW_REQUESTS_WITHOUT_SESSION)));
+        }
 
     Boolean allowModsToEjectCameras = defaultAllowModsToEjectCameras;
     if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_MODS_TO_EJECT_CAMERAS))) {

@@ -87,6 +87,7 @@ public class Meeting {
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
 	private Boolean allowModsToUnmuteUsers = false;
+	private Boolean allowRequestsWithoutSession = false;
 	private Boolean allowModsToEjectCameras = false;
 	private Boolean meetingKeepEvents;
 
@@ -138,6 +139,7 @@ public class Meeting {
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
         authenticatedGuest = builder.authenticatedGuest;
+        allowRequestsWithoutSession = builder.allowRequestsWithoutSession;
 				meetingLayout = builder.meetingLayout;
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
@@ -521,6 +523,14 @@ public class Meeting {
 		return allowModsToUnmuteUsers;
 	}
 
+	public void setAllowRequestsWithoutSession(Boolean value) {
+		allowRequestsWithoutSession = value;
+	}
+
+	public Boolean getAllowRequestsWithoutSession() {
+		return allowRequestsWithoutSession;
+	}
+
   public void setAllowModsToEjectCameras(Boolean value) {
     allowModsToEjectCameras = value;
   }
@@ -767,6 +777,7 @@ public class Meeting {
     	private boolean isBreakout;
     	private String guestPolicy;
     	private Boolean authenticatedGuest;
+    	private Boolean allowRequestsWithoutSession;
 			private String meetingLayout;
     	private BreakoutRoomsParams breakoutRoomsParams;
     	private LockSettingsParams lockSettingsParams;
@@ -913,6 +924,11 @@ public class Meeting {
 
     	public Builder withAuthenticatedGuest(Boolean authGuest) {
     		authenticatedGuest = authGuest;
+    		return this;
+    	}
+
+    	public Builder withAllowRequestsWithoutSession(Boolean value) {
+    		allowRequestsWithoutSession = value;
     		return this;
     	}
 
