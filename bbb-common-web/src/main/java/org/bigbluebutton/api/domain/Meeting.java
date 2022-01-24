@@ -54,6 +54,7 @@ public class Meeting {
 	private Boolean learningDashboardEnabled;
 	private int learningDashboardCleanupDelayInMinutes;
 	private String learningDashboardAccessToken;
+	private Boolean virtualBackgroundsDisabled;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
 	private String modOnlyMessage = "";
@@ -113,6 +114,7 @@ public class Meeting {
         viewerPass = builder.viewerPass;
         moderatorPass = builder.moderatorPass;
 		learningDashboardEnabled = builder.learningDashboardEnabled;
+		virtualBackgroundsDisabled = builder.virtualBackgroundsDisabled;
 		learningDashboardCleanupDelayInMinutes = builder.learningDashboardCleanupDelayInMinutes;
 		learningDashboardAccessToken = builder.learningDashboardAccessToken;
         maxUsers = builder.maxUsers;
@@ -343,6 +345,10 @@ public class Meeting {
 
 	public String getLearningDashboardAccessToken() {
 		return learningDashboardAccessToken;
+	}
+
+	public Boolean getVirtualBackgroundsDisabled() {
+		return virtualBackgroundsDisabled;
 	}
 
   public String getWelcomeMessageTemplate() {
@@ -744,6 +750,7 @@ public class Meeting {
     	private Boolean learningDashboardEnabled;
     	private int learningDashboardCleanupDelayInMinutes;
     	private String learningDashboardAccessToken;
+		private Boolean virtualBackgroundsDisabled;
     	private int duration;
     	private String webVoice;
     	private String telVoice;
@@ -848,6 +855,11 @@ public class Meeting {
 	    	this.learningDashboardAccessToken = t;
 	    	return this;
 	    }
+
+		public Builder withVirtualBackgroundsDisabled(Boolean d) {
+			this.virtualBackgroundsDisabled = d;
+			return this;
+		}
 
     	public Builder withWelcomeMessage(String w) {
     		welcomeMsg = w;
