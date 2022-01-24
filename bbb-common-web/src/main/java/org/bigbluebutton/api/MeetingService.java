@@ -764,6 +764,41 @@ public class MeetingService implements MessageListener {
     }
   }
 
+  public Map<String, String> getUserCustomData(
+      Meeting meeting,
+      String externUserID,
+      Map<String, String> params) {
+    Map<String, String> resp = paramsProcessorUtil.getUserCustomData(params);
+
+    // If is breakout room, merge with user's parent meeting userdata
+    if (meeting.isBreakout()) {
+      String parentMeetingId = meeting.getParentMeetingId();
+      Meeting parentMeeting = getMeeting(parentMeetingId);
+
+      if (parentMeeting != null) {
+        // Get parent meeting user's internal id from it's breakout external id
+        // parentUserInternalId-breakoutRoomNumber
+        String parentUserId = externUserID.split("-")[0];
+        User parentUser = parentMeeting.getUserById(parentUserId);
+
+        if (parentUser != null) {
+          // Custom data is stored indexed by user's external id
+          Map<String, Object> customData = parentMeeting.getUserCustomData(parentUser.getExternalUserId());
+
+          if (customData != null) {
+            for (String key : customData.keySet()) {
+              if (!resp.containsKey(key)) {
+                resp.put(key, String.valueOf(customData.get(key)));
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return resp;
+  }
+
   private void meetingStarted(MeetingStarted message) {
     Meeting m = getMeeting(message.meetingId);
     if (m != null) {
