@@ -32,10 +32,16 @@ const ModalConsent = ({ recMeetingsCollection, intl, meetingsCollection }) => {
     recMeetingsCollection[0],
   );
 
-  const { isBreakout } = getValueFromKeyObj(
+  const meetingProp = getValueFromKeyObj(
     'meetingProp',
     meetingsCollection[0],
   );
+
+  if (!allowRecord || !meetingProp) {
+    return null;
+  }
+
+  const { isBreakout } = meetingProp;
 
   if (
     !allowRecord// if meeting is not able to record
