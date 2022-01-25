@@ -482,7 +482,7 @@ display_bigbluebutton_status () {
         units="$units bbb-lti"
     fi
 
-    if [ -f /lib/systemd/system/bbb-pads.service ]; then
+    if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
         units="$units bbb-pads"
     fi
 
