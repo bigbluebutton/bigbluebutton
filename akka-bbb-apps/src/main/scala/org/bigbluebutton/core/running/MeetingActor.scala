@@ -719,8 +719,27 @@ class MeetingActor(
 
   }
 
+  def buildStoreAnnotationsInRedisSysMsg(annotations: StoredAnnotations): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(StoreAnnotationsInRedisSysMsg.NAME, routing)
+    val body = StoreAnnotationsInRedisSysMsgBody(annotations)
+    val header = BbbCoreBaseHeader(StoreAnnotationsInRedisSysMsg.NAME)
+    val event = StoreAnnotationsInRedisSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildStoreExportJobInRedisSysMsg(exportJob: ExportJob): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(StoreExportJobInRedisSysMsg.NAME, routing)
+    val body = StoreExportJobInRedisSysMsgBody(exportJob)
+    val header = BbbCoreBaseHeader(StoreExportJobInRedisSysMsg.NAME)
+    val event = StoreExportJobInRedisSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def handleMakePresentationWithAnnotationDownloadReqMsg(m: MakePresentationWithAnnotationDownloadReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
-    println("*** Current Whiteboard State ***")
 
     val presId: String = m.body.presId // Whiteboard ID
     val allPages: Boolean = m.body.allPages // Whether or not all pages of the presentation should be exported
@@ -741,8 +760,6 @@ class MeetingActor(
       // whiteboardId = s"${presId}/${pageNumber.toString}" // TODO: use this
       whiteboardId = s"${getMeetingInfoPresentationDetails().id}/${pageNumber.toString}"
 
-      println(currentPres.pages(whiteboardId))
-
       val presentationPage: PresentationPage = currentPres.pages(whiteboardId)
       val xOffset: Double = presentationPage.xOffset
       val yOffset: Double = presentationPage.yOffset
@@ -750,36 +767,30 @@ class MeetingActor(
       val heightRatio: Double = presentationPage.heightRatio
       val whiteboardHistory: Array[AnnotationVO] = liveMeeting.wbModel.getHistory(whiteboardId)
 
-      println("*****")
-      println("")
-
       storeAnnotationPages(index) = new PresentationPageForExport(index + 1, xOffset, yOffset, widthRatio, heightRatio, whiteboardHistory)
       index += 1
     }
 
-    // 1) Export Annotations to Redis
+    // 1) Send Annotations to Redis
     var annotations = new StoredAnnotations(presId, storeAnnotationPages)
-    println(annotations)
+    outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations))
 
-    // val event = MsgBuilder.buildStoreAnnotationsInRedisMsg(
-    //  props.meetingProp.intId,
-    //  props.voiceProp.voiceConf
-    // )
-    // outGW.send(event)
-
-    // 2) Insert Export Job to Redis
+    // 2) Insert Export Job in Redis
     val jobId = RandomStringGenerator.randomAlphanumericString(16)
     val jobType = "PresentationWithAnnotationDownloadJob"
     val presLocation = s"/var/bigbluebutton/${presId}"
-    val exportJob = new ExportJob(jobId, jobType, presLocation, allPages, storeAnnotationPages, "", "")
-
+    val exportJob = new ExportJob(jobId, jobType, presId, presLocation, allPages, storeAnnotationPages, "", "")
+    var job = buildStoreExportJobInRedisSysMsg(exportJob)
+    outGW.send(job)
   }
 
   def handleExportPresentationWithAnnotationReqMsg(liveMeeting: LiveMeeting): Unit = {
-    log.warning("***** Hello World 2! ")
     val jobType = "PresentationWithAnnotationExportJob"
+
     // 1) Insert Export Job to Redis
+
     // 2) Export Annotations to Redis
+
   }
 
   def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {

@@ -31,31 +31,6 @@ case class PresentationPage(
     heightRatio: Double              = 100D
 )
 
-case class PresentationPageForExport(
-  page: Int,
-  xOffset: Double,
-  yOffset: Double,
-  widthRatio: Double,
-  heightRatio: Double,
-  annotations: Array[AnnotationVO],
-)
-
-case class StoredAnnotations(
-  presId: String,
-  pages: Array[PresentationPageForExport],
-)
-
-case class ExportJob(
-  jobId: String,
-  jobType: String,
-  presId: String,
-  presLocation: String,
-  allPages: Boolean,
-  pages: Array[PresentationPageForExport],
-  parentMeetingId: String,
-  presUploadToken: String,
-)
-
 object PresentationInPod {
   def addPage(pres: PresentationInPod, page: PresentationPage): PresentationInPod = {
     val newPages = pres.pages + (page.id -> page)

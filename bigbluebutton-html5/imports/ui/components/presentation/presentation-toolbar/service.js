@@ -30,9 +30,8 @@ const nextSlide = (currentSlideNum, numberOfSlides, podId) => {
 };
 
 const downloadAnnotatedSlides = () => {
-  makeCall('makePresentationWithAnnotationDownloadReqMsg')
-  makeCall('userActivitySign')
-}
+  makeCall('makePresentationWithAnnotationDownloadReqMsg');
+};
 
 const zoomSlide = throttle((currentSlideNum, podId, widthRatio, heightRatio, xOffset, yOffset) => {
   makeCall('zoomSlide', currentSlideNum, podId, widthRatio, heightRatio, xOffset, yOffset);

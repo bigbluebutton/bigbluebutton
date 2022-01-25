@@ -73,6 +73,8 @@ class RedisRecorderActor(
       case m: CreateNewPresentationPodEvtMsg        => handleCreateNewPresentationPodEvtMsg(m)
       case m: RemovePresentationPodEvtMsg           => handleRemovePresentationPodEvtMsg(m)
       case m: SetPresenterInPodRespMsg              => handleSetPresenterInPodRespMsg(m)
+      case m: StoreAnnotationsInRedisSysMsg         => handleStoreAnnotationsInRedisSysMsg(m)
+      case m: StoreExportJobInRedisSysMsg           => handleStoreExportJobInRedisSysMsg(m)
 
       // Whiteboard
       case m: SendWhiteboardAnnotationEvtMsg        => handleSendWhiteboardAnnotationEvtMsg(m)
@@ -131,6 +133,16 @@ class RedisRecorderActor(
 
       case _                                        => // message not to be recorded.
     }
+  }
+
+  private def handleStoreAnnotationsInRedisSysMsg(msg: StoreAnnotationsInRedisSysMsg) {
+    println("These are the annotations lmao")
+    println(msg)
+  }
+
+  private def handleStoreExportJobInRedisSysMsg(msg: StoreExportJobInRedisSysMsg) {
+    println("This is the export message lol")
+    println(msg)
   }
 
   private def handleGroupChatMessageBroadcastEvtMsg(msg: GroupChatMessageBroadcastEvtMsg) {

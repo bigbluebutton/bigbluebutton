@@ -3,6 +3,31 @@ package org.bigbluebutton.common2.msgs
 case class AnnotationVO(id: String, status: String, annotationType: String,
                         annotationInfo: scala.collection.immutable.Map[String, Any], wbId: String, userId: String, position: Int)
 
+case class PresentationPageForExport(
+  page: Int,
+  xOffset: Double,
+  yOffset: Double,
+  widthRatio: Double,
+  heightRatio: Double,
+  annotations: Array[AnnotationVO],
+)
+
+case class StoredAnnotations(
+  presId: String,
+  pages: Array[PresentationPageForExport],
+)
+
+case class ExportJob(
+  jobId: String,
+  jobType: String,
+  presId: String,
+  presLocation: String,
+  allPages: Boolean,
+  pages: Array[PresentationPageForExport],
+  parentMeetingId: String,
+  presUploadToken: String,
+)
+
 // ------------ client to akka-apps ------------
 object ClientToServerLatencyTracerMsg { val NAME = "ClientToServerLatencyTracerMsg" }
 case class ClientToServerLatencyTracerMsg(header: BbbClientMsgHeader, body: ClientToServerLatencyTracerMsgBody) extends StandardMsg
@@ -65,4 +90,12 @@ case class SendWhiteboardAnnotationEvtMsgBody(annotation: AnnotationVO)
 object UndoWhiteboardEvtMsg { val NAME = "UndoWhiteboardEvtMsg" }
 case class UndoWhiteboardEvtMsg(header: BbbClientMsgHeader, body: UndoWhiteboardEvtMsgBody) extends BbbCoreMsg
 case class UndoWhiteboardEvtMsgBody(whiteboardId: String, userId: String, annotationId: String)
+
 // ------------ akka-apps to client ------------
+object StoreAnnotationsInRedisSysMsg { val NAME = "StoreAnnotationsInRedisSysMsg" }
+case class StoreAnnotationsInRedisSysMsg(header: BbbCoreBaseHeader, body:   StoreAnnotationsInRedisSysMsgBody) extends BbbCoreMsg
+case class StoreAnnotationsInRedisSysMsgBody(annotations: StoredAnnotations)
+
+object StoreExportJobInRedisSysMsg { val NAME = "StoreExportJobInRedisSysMsg" }
+case class StoreExportJobInRedisSysMsg(header: BbbCoreBaseHeader, body:   StoreExportJobInRedisSysMsgBody) extends BbbCoreMsg
+case class StoreExportJobInRedisSysMsgBody(exportJob: ExportJob)
