@@ -3,6 +3,7 @@ import BaseBroker from '/imports/ui/services/bbb-webrtc-sfu/sfu-base-broker';
 
 const ON_ICE_CANDIDATE_MSG = 'iceCandidate';
 const SUBSCRIBER_ANSWER = 'subscriberAnswer';
+const DTMF = 'dtmf';
 
 const SFU_COMPONENT_NAME = 'fullaudio';
 
@@ -22,7 +23,8 @@ class FullAudioBroker extends BaseBroker {
     this.role = role;
     this.offering = true;
 
-    // Optional parameters are: userName, caleeName, iceServers, offering, mediaServer
+    // Optional parameters are: userName, caleeName, iceServers, offering,
+    // mediaServer, extension
     Object.assign(this, options);
   }
 
@@ -43,8 +45,6 @@ class FullAudioBroker extends BaseBroker {
       const WebRTCPeer = (this.role === 'sendrecv')
         ? kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv
         : kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
-
-      window.kurento = kurentoUtils.WebRtcPeer;
 
       this.webRtcPeer = WebRTCPeer(options, (error) => {
         if (error) {
@@ -162,6 +162,7 @@ class FullAudioBroker extends BaseBroker {
       userName: this.userName,
       sdpOffer: offer,
       mediaServer: this.mediaServer,
+      extension: this.extension,
     };
 
     logger.debug({
@@ -186,6 +187,16 @@ class FullAudioBroker extends BaseBroker {
     }
 
     this.sendStartReq(sdpOffer);
+  }
+
+  dtmf (tones) {
+    const message = {
+      id: DTMF,
+      type: this.sfuComponent,
+      tones,
+    };
+
+    this.sendMessage(message);
   }
 
   onIceCandidate (candidate, role) {

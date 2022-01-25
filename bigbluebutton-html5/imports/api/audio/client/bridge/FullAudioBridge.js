@@ -70,6 +70,8 @@ export default class FullAudioBridge extends BaseAudioBridge {
     this.broker = null;
     this.reconnecting = false;
     this.iceServers = [];
+    this.inEchoTest = false;
+    this.bridgeName = BRIDGE_NAME;
   }
 
   async changeOutputDevice(value) {
@@ -81,7 +83,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
       } catch (error) {
         logger.error({
           logCode: 'fullaudio_changeoutputdevice_error',
-          extraInfo: { error, bridge: BRIDGE_NAME },
+          extraInfo: { error, bridge: this.bridgeName },
         }, 'Audio bridge failed to change output device');
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);
       }
@@ -99,7 +101,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
   }
 
   handleTermination() {
-    return this.callback({ status: this.baseCallStates.ended, bridge: BRIDGE_NAME });
+    return this.callback({ status: this.baseCallStates.ended, bridge: this.bridgeName });
   }
 
   clearReconnectionTimeout() {
@@ -112,7 +114,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
 
   reconnect() {
     this.broker.stop();
-    this.callback({ status: this.baseCallStates.reconnecting, bridge: BRIDGE_NAME });
+    this.callback({ status: this.baseCallStates.reconnecting, bridge: this.bridgeName });
     this.reconnecting = true;
     // Set up a reconnectionTimeout in case the server is unresponsive
     // for some reason. If it gets triggered, end the session and stop
@@ -122,7 +124,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
         status: this.baseCallStates.failed,
         error: 1010,
         bridgeError: 'Reconnection timeout',
-        bridge: BRIDGE_NAME,
+        bridge: this.bridgeName,
       });
       this.broker.stop();
       this.clearReconnectionTimeout();
@@ -137,7 +139,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
         extraInfo: {
           errorMessage: error.errorMessage,
           reconnecting: this.reconnecting,
-          bridge: BRIDGE_NAME,
+          bridge: this.bridgeName,
         },
       }, 'Fullaudio reconnect failed');
     });
@@ -155,7 +157,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
             errorMessage,
             errorCode,
             errorCause,
-            bridge: BRIDGE_NAME,
+            bridge: this.bridgeName,
           },
         }, 'Fullaudio failed, try to reconnect');
         this.reconnect();
@@ -171,7 +173,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
           errorCode,
           errorCause,
           reconnecting: this.reconnecting,
-          bridge: BRIDGE_NAME,
+          bridge: this.bridgeName,
         },
       }, 'Fullaudio failed');
       this.clearReconnectionTimeout();
@@ -180,7 +182,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
         status: this.baseCallStates.failed,
         error: errorCode,
         bridgeError: errorMessage,
-        bridge: BRIDGE_NAME,
+        bridge: this.bridgeName,
       });
       return reject(error);
     });
@@ -191,7 +193,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
       detail: { mediaElement },
     });
     window.dispatchEvent(tagFailedEvent);
-    this.callback({ status: this.baseCallStates.autoplayBlocked, bridge: BRIDGE_NAME });
+    this.callback({ status: this.baseCallStates.autoplayBlocked, bridge: this.bridgeName });
   }
 
   handleStart() {
@@ -201,14 +203,14 @@ export default class FullAudioBridge extends BaseAudioBridge {
     return loadAndPlayMediaStream(stream, mediaElement, false).then(() => this
       .callback({
         status: this.baseCallStates.started,
-        bridge: BRIDGE_NAME,
+        bridge: this.bridgeName,
       })).catch((error) => {
       // NotAllowedError equals autoplay issues, fire autoplay handling event.
       // This will be handled in audio-manager.
       if (error.name === 'NotAllowedError') {
         logger.error({
           logCode: 'fullaudio_error_autoplay',
-          extraInfo: { errorName: error.name, bridge: BRIDGE_NAME },
+          extraInfo: { errorName: error.name, bridge: this.bridgeName },
         }, 'Fullaudio media play failed due to autoplay error');
         this.dispatchAutoplayHandlingEvent(mediaElement);
       } else {
@@ -220,7 +222,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
           status: this.baseCallStates.failed,
           error: normalizedError.errorCode,
           bridgeError: normalizedError.errorMessage,
-          bridge: BRIDGE_NAME,
+          bridge: this.bridgeName,
         });
         throw normalizedError;
       }
@@ -247,9 +249,10 @@ export default class FullAudioBridge extends BaseAudioBridge {
     });
   }
 
-  async _startBroker(_options) {
+  async _startBroker(options) {
     try {
-      const { isListenOnly } = _options;
+      const { isListenOnly, extension } = options;
+      this.inEchoTest = !!extension;
       this.isListenOnly = isListenOnly;
 
       const callerIdName = [
@@ -258,9 +261,10 @@ export default class FullAudioBridge extends BaseAudioBridge {
         isListenOnly ? `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}` : this.name,
       ].join('-').replace(/"/g, "'");
 
-      const options = {
+      const brokerOptions = {
         userName: this.name,
         caleeName: callerIdName,
+        extension,
         iceServers: this.iceServers,
         mediaServer: getMediaServerAdapter(),
       };
@@ -271,7 +275,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
         this.userId,
         this.internalMeetingID,
         isListenOnly ? RECV_ROLE : SENDRECV_ROLE,
-        options,
+        brokerOptions,
       );
 
       const initBrokerEventsPromise = this._initBrokerEventsPromise();
@@ -289,7 +293,6 @@ export default class FullAudioBridge extends BaseAudioBridge {
   async joinAudio(options, callback) {
     try {
       this.callback = callback;
-
       this.iceServers = await fetchWebRTCMappedStunTurnServers(this.sessionToken);
     } catch (error) {
       logger.error({ logCode: 'fullaudio_stun-turn_fetch_failed' },
@@ -304,6 +307,17 @@ export default class FullAudioBridge extends BaseAudioBridge {
   async updateAudioConstraints() {
     // TO BE IMPLEMENTED
     return true;
+  }
+
+  sendDtmf(tones) {
+    if (this.broker) {
+      this.broker.dtmf(tones);
+    }
+  }
+
+  transferCall(onTransferSuccess) {
+    this.inEchoTest = false;
+    return this.trackTransferState(onTransferSuccess);
   }
 
   exitAudio() {
