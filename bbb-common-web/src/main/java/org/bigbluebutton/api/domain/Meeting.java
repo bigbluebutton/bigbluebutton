@@ -54,6 +54,7 @@ public class Meeting {
 	private Boolean learningDashboardEnabled;
 	private int learningDashboardCleanupDelayInMinutes;
 	private String learningDashboardAccessToken;
+	private Boolean virtualBackgroundsDisabled;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
 	private String modOnlyMessage = "";
@@ -88,6 +89,7 @@ public class Meeting {
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
 	private Boolean allowModsToUnmuteUsers = false;
+	private Boolean allowRequestsWithoutSession = false;
 	private Boolean allowModsToEjectCameras = false;
 	private Boolean meetingKeepEvents;
 
@@ -115,6 +117,7 @@ public class Meeting {
         viewerPass = builder.viewerPass;
         moderatorPass = builder.moderatorPass;
 		learningDashboardEnabled = builder.learningDashboardEnabled;
+		virtualBackgroundsDisabled = builder.virtualBackgroundsDisabled;
 		learningDashboardCleanupDelayInMinutes = builder.learningDashboardCleanupDelayInMinutes;
 		learningDashboardAccessToken = builder.learningDashboardAccessToken;
         maxUsers = builder.maxUsers;
@@ -138,7 +141,12 @@ public class Meeting {
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
         authenticatedGuest = builder.authenticatedGuest;
+<<<<<<< HEAD
 		meetingLayout = builder.meetingLayout;
+=======
+        allowRequestsWithoutSession = builder.allowRequestsWithoutSession;
+				meetingLayout = builder.meetingLayout;
+>>>>>>> upstream/v2.4.x-release
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
         allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
@@ -342,6 +350,10 @@ public class Meeting {
 		return learningDashboardAccessToken;
 	}
 
+	public Boolean getVirtualBackgroundsDisabled() {
+		return virtualBackgroundsDisabled;
+	}
+
   public String getWelcomeMessageTemplate() {
     return welcomeMsgTemplate;
   }
@@ -525,6 +537,14 @@ public class Meeting {
 
 	public Boolean getAllowModsToUnmuteUsers() {
 		return allowModsToUnmuteUsers;
+	}
+
+	public void setAllowRequestsWithoutSession(Boolean value) {
+		allowRequestsWithoutSession = value;
+	}
+
+	public Boolean getAllowRequestsWithoutSession() {
+		return allowRequestsWithoutSession;
 	}
 
   public void setAllowModsToEjectCameras(Boolean value) {
@@ -748,6 +768,7 @@ public class Meeting {
     	private Boolean learningDashboardEnabled;
     	private int learningDashboardCleanupDelayInMinutes;
     	private String learningDashboardAccessToken;
+		private Boolean virtualBackgroundsDisabled;
     	private int duration;
     	private String webVoice;
     	private String telVoice;
@@ -764,7 +785,12 @@ public class Meeting {
     	private boolean isBreakout;
     	private String guestPolicy;
     	private Boolean authenticatedGuest;
+<<<<<<< HEAD
 		private String meetingLayout;
+=======
+    	private Boolean allowRequestsWithoutSession;
+			private String meetingLayout;
+>>>>>>> upstream/v2.4.x-release
     	private BreakoutRoomsParams breakoutRoomsParams;
     	private LockSettingsParams lockSettingsParams;
 		private Boolean allowDuplicateExtUserid;
@@ -854,6 +880,11 @@ public class Meeting {
 	    	return this;
 	    }
 
+		public Builder withVirtualBackgroundsDisabled(Boolean d) {
+			this.virtualBackgroundsDisabled = d;
+			return this;
+		}
+
     	public Builder withWelcomeMessage(String w) {
     		welcomeMsg = w;
     		return this;
@@ -906,6 +937,11 @@ public class Meeting {
 
     	public Builder withAuthenticatedGuest(Boolean authGuest) {
     		authenticatedGuest = authGuest;
+    		return this;
+    	}
+
+    	public Builder withAllowRequestsWithoutSession(Boolean value) {
+    		allowRequestsWithoutSession = value;
     		return this;
     	}
 

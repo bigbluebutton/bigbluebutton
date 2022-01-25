@@ -9,10 +9,27 @@ fi
 
 cd /usr/share/meteor
 
+<<<<<<< HEAD
 # meteor code should be owned by root, config file by meteor user
 meteor_owner=$(stat -c %U:%G /usr/share/meteor)
 if [[ $meteor_owner != "root:root" ]] ; then
     chown -R root:root /usr/share/meteor
+=======
+if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
+  sed -i 's/^svgImagesRequired=.*/svgImagesRequired=true/' $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
+  if [ ! -f /.dockerenv ]; then
+    systemctl restart nginx
+  fi
+
+  if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep bigbluebutton.web.serverURL | grep -q https; then
+    PROTOCOL=https
+    sed -i 's/^ENVIRONMENT_TYPE=.*/ENVIRONMENT_TYPE=production/' /usr/share/meteor/bundle/systemd_start.sh
+  else
+    PROTOCOL=http
+    sed -i 's/^ENVIRONMENT_TYPE=.*/ENVIRONMENT_TYPE=development/' /usr/share/meteor/bundle/systemd_start.sh
+  fi
+
+>>>>>>> upstream/v2.4.x-release
 fi
 
   SOURCE=/tmp/settings.yml

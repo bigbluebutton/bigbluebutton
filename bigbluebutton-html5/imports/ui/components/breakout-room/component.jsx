@@ -286,7 +286,7 @@ class BreakoutRoom extends PureComponent {
           status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.RETURNING,
         });
         this.returnBackToMeeeting(breakoutId);
-        return logger.debug({
+        return logger.info({
           logCode: 'breakoutroom_return_main_audio',
           extraInfo: { logType: 'user_action' },
         }, 'Returning to main audio (breakout room audio closed)');
@@ -297,7 +297,7 @@ class BreakoutRoom extends PureComponent {
           status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.CONNECTED,
         });
         this.transferUserToBreakoutRoom(breakoutId);
-        return logger.debug({
+        return logger.info({
           logCode: 'breakoutroom_join_audio_from_main_room',
           extraInfo: { logType: 'user_action' },
         }, 'joining breakout room audio (main room audio closed)');
@@ -321,7 +321,7 @@ class BreakoutRoom extends PureComponent {
                   // leave main room's audio,
                   // and stops video and screenshare when joining a breakout room
                   exitAudio();
-                  logger.debug({
+                  logger.info({
                     logCode: 'breakoutroom_join',
                     extraInfo: { logType: 'user_action' },
                   }, 'joining breakout room closed audio in the main room');

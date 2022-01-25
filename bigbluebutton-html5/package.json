@@ -98,9 +98,9 @@
     "lint-staged": "11.0.0",
     "postcss": "^8.2.15",
     "postcss-modules-extract-imports": "^3.0.0",
-    "postcss-modules-local-by-default": "1.2.0",
-    "postcss-modules-scope": "1.1.0",
-    "postcss-modules-values": "1.3.0",
+    "postcss-modules-local-by-default": "^4.0.0",
+    "postcss-modules-scope": "^3.0.0",
+    "postcss-modules-values": "^4.0.0",
     "sha1": "^1.1.1"
   },
   "resolutions": {

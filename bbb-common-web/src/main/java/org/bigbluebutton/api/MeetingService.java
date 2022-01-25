@@ -164,6 +164,17 @@ public class MeetingService implements MessageListener {
     return sessions.get(token);
   }
 
+  public Boolean getAllowRequestsWithoutSession(String token) {
+    UserSession us = getUserSessionWithAuthToken(token);
+    if (us == null) {
+      return false;
+    } else {
+      Meeting meeting = getMeeting(us.meetingID);
+      if (meeting == null || meeting.isForciblyEnded()) return false;
+      return meeting.getAllowRequestsWithoutSession();
+    }
+  }
+
   public UserSession removeUserSessionWithAuthToken(String token) {
     UserSession user = sessions.remove(token);
     if (user != null) {
@@ -404,7 +415,11 @@ public class MeetingService implements MessageListener {
             m.getUserActivitySignResponseDelayInMinutes(), m.getEndWhenNoModerator(), m.getEndWhenNoModeratorDelayInMinutes(),
             m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getAllowModsToEjectCameras(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams,
+<<<<<<< HEAD
             m.lockSettingsParams, m.getHtml5InstanceId(), m.getGroups());
+=======
+            m.lockSettingsParams, m.getHtml5InstanceId(), m.getVirtualBackgroundsDisabled());
+>>>>>>> upstream/v2.4.x-release
   }
 
   private String formatPrettyDate(Long timestamp) {
@@ -737,6 +752,41 @@ public class MeetingService implements MessageListener {
     if (m != null) {
       m.addUserCustomData(userID, userCustomData);
     }
+  }
+
+  public Map<String, String> getUserCustomData(
+      Meeting meeting,
+      String externUserID,
+      Map<String, String> params) {
+    Map<String, String> resp = paramsProcessorUtil.getUserCustomData(params);
+
+    // If is breakout room, merge with user's parent meeting userdata
+    if (meeting.isBreakout()) {
+      String parentMeetingId = meeting.getParentMeetingId();
+      Meeting parentMeeting = getMeeting(parentMeetingId);
+
+      if (parentMeeting != null) {
+        // Get parent meeting user's internal id from it's breakout external id
+        // parentUserInternalId-breakoutRoomNumber
+        String parentUserId = externUserID.split("-")[0];
+        User parentUser = parentMeeting.getUserById(parentUserId);
+
+        if (parentUser != null) {
+          // Custom data is stored indexed by user's external id
+          Map<String, Object> customData = parentMeeting.getUserCustomData(parentUser.getExternalUserId());
+
+          if (customData != null) {
+            for (String key : customData.keySet()) {
+              if (!resp.containsKey(key)) {
+                resp.put(key, String.valueOf(customData.get(key)));
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return resp;
   }
 
   private void meetingStarted(MeetingStarted message) {

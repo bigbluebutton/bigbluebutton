@@ -36,8 +36,12 @@ public interface IBbbWebApiGWApp {
                      Boolean keepEvents,
                      BreakoutRoomsParams breakoutParams,
                      LockSettingsParams lockSettingsParams,
+<<<<<<< HEAD
                      Integer html5InstanceId,
                      ArrayList<Group> groups);
+=======
+                     Integer html5InstanceId, Boolean virtualBackgroundsDisabled);
+>>>>>>> upstream/v2.4.x-release
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String avatarURL,

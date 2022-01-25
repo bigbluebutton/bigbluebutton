@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import Meetings from '/imports/api/meetings';
+import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import userListService from '/imports/ui/components/user-list/service';
@@ -83,27 +84,35 @@ const NavBarContainer = ({ children, ...props }) => {
 export default withTracker(() => {
   const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
 
-  let meetingTitle;
+  let meetingTitle, breakoutNum, breakoutName, meetingName;
   const meetingId = Auth.meetingID;
   const meetingObject = Meetings.findOne({
     meetingId,
-  }, { fields: { 'meetingProp.name': 1, 'breakoutProps.sequence': 1 } });
+  }, { fields: { 'meetingProp.name': 1, 'breakoutProps.sequence': 1, meetingId: 1 } });
 
   if (meetingObject != null) {
     meetingTitle = meetingObject.meetingProp.name;
     let titleString = `${CLIENT_TITLE} - ${meetingTitle}`;
+    document.title = titleString;
+
     if (meetingObject.breakoutProps) {
-      const breakoutNum = meetingObject.breakoutProps.sequence;
+      breakoutNum = meetingObject.breakoutProps.sequence;
       if (breakoutNum > 0) {
-        titleString = `${breakoutNum} - ${titleString}`;
+        const breakoutObject = Breakouts.findOne({
+          breakoutId: meetingObject.meetingId,
+        }, { fields: { shortName: 1 } });
+        breakoutName = breakoutObject.shortName;
+        meetingName = meetingTitle.replace(`(${breakoutName})`, '').trim();
       }
     }
-    document.title = titleString;
   }
 
   return {
     currentUserId: Auth.userID,
     meetingId,
     presentationTitle: meetingTitle,
+    breakoutNum,
+    breakoutName,
+    meetingName,
   };
 })(NavBarContainer);

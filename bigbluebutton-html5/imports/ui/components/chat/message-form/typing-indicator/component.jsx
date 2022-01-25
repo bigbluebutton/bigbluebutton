@@ -101,7 +101,7 @@ class TypingIndicator extends PureComponent {
         info={!error}
         spacer={!!typingElement}
       >
-        <Styled.TypingIndicator>{error || typingElement}</Styled.TypingIndicator>
+        <Styled.TypingIndicator data-test="typingIndicator">{error || typingElement}</Styled.TypingIndicator>
       </Styled.TypingIndicatorWrapper>
     );
   }

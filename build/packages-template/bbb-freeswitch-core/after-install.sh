@@ -46,7 +46,9 @@ case "$1" in
 
 
     chown freeswitch:daemon /var/freeswitch/meetings
-    chown -R freeswitch:daemon /opt/freeswitch
+    chown -R freeswitch:daemon /opt/freeswitch/var
+    chown -R freeswitch:daemon /opt/freeswitch/etc
+    chmod -R g-rwx,o-rwx /opt/freeswitch/etc
   ;;
 
   abort-upgrade|abort-remove|abort-deconfigure)

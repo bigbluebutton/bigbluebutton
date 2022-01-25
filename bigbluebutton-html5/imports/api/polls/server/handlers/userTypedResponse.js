@@ -1,5 +1,4 @@
 import { check } from 'meteor/check';
-import Polls from '/imports/api/polls';
 import RedisPubSub from '/imports/startup/server/redis';
 
 export default function userTypedResponse({ header, body }) {
@@ -7,21 +6,13 @@ export default function userTypedResponse({ header, body }) {
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'RespondToPollReqMsg';
 
-  const { pollId, userId, answer } = body;
+  const { pollId, userId, answerId } = body;
   const { meetingId } = header;
 
   check(pollId, String);
   check(meetingId, String);
   check(userId, String);
-  check(answer, String);
-
-  const poll = Polls.findOne({ meetingId, id: pollId });
-
-  let answerId = 0;
-  poll.answers.forEach((a) => {
-    const { id, key } = a;
-    if (key === answer) answerId = id;
-  });
+  check(answerId, Number);
 
   const payload = {
     requesterId: userId,

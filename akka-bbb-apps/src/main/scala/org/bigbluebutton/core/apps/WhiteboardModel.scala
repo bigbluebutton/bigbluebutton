@@ -246,12 +246,15 @@ class WhiteboardModel extends SystemConfiguration {
 
   def getWhiteboardAccess(wbId: String): Array[String] = getWhiteboard(wbId).multiUser
 
+  def isNonEjectionGracePeriodOver(wbId: String, userId: String): Boolean = {
+    val wb = getWhiteboard(wbId)
+    val lastChange = System.currentTimeMillis() - wb.changedModeOn
+    !(wb.oldMultiUser.contains(userId) && lastChange < 5000)
+  }
+
   def hasWhiteboardAccess(wbId: String, userId: String): Boolean = {
     val wb = getWhiteboard(wbId)
-    wb.multiUser.contains(userId) || {
-      val lastChange = System.currentTimeMillis() - wb.changedModeOn
-      wb.oldMultiUser.contains(userId) && lastChange < 5000
-    }
+    wb.multiUser.contains(userId)
   }
 
   def getChangedModeOn(wbId: String): Long = getWhiteboard(wbId).changedModeOn
