@@ -404,6 +404,11 @@
   width: var(--fileLineWidth);
 } 
 
+.extraHint {
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
 .statusIcon {
   margin-left: auto;
   [dir="rtl"] & {

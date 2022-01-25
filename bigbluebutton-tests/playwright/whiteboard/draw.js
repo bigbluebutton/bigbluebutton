@@ -10,7 +10,7 @@ class Draw extends Page {
 
   async test() {
     await this.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await this.waitAndClick(e.tools);
+    await this.waitAndClick(e.toolsButton);
     await this.waitAndClick(e.rectangle);
 
     const shapes1 = await this.getTestElements();

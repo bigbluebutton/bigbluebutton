@@ -405,6 +405,7 @@ class MeetingActor(
       case m: GetRecordingStatusReqMsg            => usersApp.handleGetRecordingStatusReqMsg(m)
       case m: ChangeUserEmojiCmdMsg               => handleChangeUserEmojiCmdMsg(m)
       case m: SelectRandomViewerReqMsg            => usersApp.handleSelectRandomViewerReqMsg(m)
+      case m: ChangeUserPinStateReqMsg            => usersApp.handleChangeUserPinStateReqMsg(m)
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
@@ -696,7 +697,8 @@ class MeetingActor(
     // sync all lock settings
     handleSyncGetLockSettingsMsg(state, liveMeeting, msgBus)
 
-    // TODO send all screen sharing info
+    // send all screen sharing info
+    screenshareApp2x.handleSyncGetScreenshareInfoRespMsg(liveMeeting, msgBus)
   }
 
   def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {

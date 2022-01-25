@@ -115,6 +115,7 @@ class NotificationMenu extends BaseMenu {
                     onChange={() => this.handleToggle('chatPushAlerts')}
                     ariaLabel={`${intl.formatMessage(intlMessages.messagesLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
                     showToggleLabel={showToggleLabel}
+                    data-test="chatPopupAlertsBtn"
                   />
                 </div>
               </div>
@@ -148,6 +149,7 @@ class NotificationMenu extends BaseMenu {
                   onChange={() => this.handleToggle('userJoinPushAlerts')}
                   ariaLabel={`${intl.formatMessage(intlMessages.userJoinLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
                   showToggleLabel={showToggleLabel}
+                  data-test="userJoinPopupAlerts"
                 />
               </div>
             </div>

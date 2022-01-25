@@ -1,86 +1,62 @@
 const { MultiUsers } = require('../user/multiusers');
-const util = require('./util');
-const utilPolling = require('../polling/util');
-const utilScreenShare = require('../screenshare/util');
-const utilPresentation = require('../presentation/util');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME, UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
+const util = require('./util');
+const { openSettings } = require('../settings/util');
+const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 class Notifications extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
 
-  // Save Settings toast notification
   async saveSettingsNotification() {
-    await util.popupMenu(this.modPage);
+    await openSettings(this.modPage);
     await util.saveSettings(this.modPage);
     await util.checkNotificationText(this.modPage, e.savedSettingsToast);
   }
 
-  // Public chat toast notification
-  async publicChatNotification() {
-    await util.popupMenu(this.modPage);
-    await util.enableChatPopup(this.modPage);
-    await util.saveSettings(this.modPage);
-    await util.publicChatMessageToast(this.modPage, this.userPage);
-    await this.modPage.waitAndClick(e.chatTitle);
-    await this.modPage.waitForSelector(e.smallToastMsg);
-    await this.modPage.waitForSelector(e.hasUnreadMessages);
-    await util.checkNotificationText(this.modPage, e.publicChatToast);
-  }
-
-  // Private chat toast notification
-  async privateChatNotification() {
-    await util.popupMenu(this.modPage);
-    await util.enableChatPopup(this.modPage);
-    await util.saveSettings(this.modPage);
-    await util.waitAndClearNotification(this.modPage);
-    await util.privateChatMessageToast(this.userPage);
-    await this.modPage.waitForSelector(e.smallToastMsg);
-    await this.modPage.waitForSelector(e.hasUnreadMessages);
-    await util.checkNotificationText(this.modPage, e.privateChatToast);
-  }
-
-  // User join toast notification
-  async userJoinNotification(page) {
-    await util.popupMenu(page);
-    await util.enableUserJoinPopup(page);
-    await util.saveSettings(page);
-  }
-
-  async getUserJoinPopupResponse() {
-    await this.userJoinNotification(this.modPage);
-    await this.initUserPage();
-    await this.modPage.waitForSelector(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-    await util.checkNotificationText(this.modPage, 'Attendee joined the session');
-  }
-
-  // File upload notification
-  async fileUploaderNotification() {
-    await utilPresentation.uploadPresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
-  }
-
-  // Publish Poll Results notification
-  async publishPollResults() {
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await utilPolling.startPoll(this.modPage, true);
-    await this.modPage.waitForSelector(e.smallToastMsg);
-    await util.checkNotificationText(this.modPage, e.pollPublishedToast);
-  }
-
-  async screenshareToast() {
-    await utilScreenShare.startScreenshare(this.modPage);
-    await util.checkNotificationText(this.modPage, e.startScreenshareToast);
-    await util.waitAndClearNotification(this.modPage);
-    await this.modPage.waitAndClick(e.stopScreenSharing);
-    await util.checkNotificationText(this.modPage, e.endScreenshareToast);
+  async saveConnectionStatusSettingsNotification() {
+    await this.modPage.waitAndClick(e.connectionStatusBtn);
+    await this.modPage.waitAndClickElement(e.dataSavingWebcams);
+    await this.modPage.waitAndClick(e.closeModal);
+    await util.checkNotificationText(this.modPage, e.savedSettingsToast);
   }
 
   async audioNotification() {
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.joinMicrophone();
     await util.checkNotificationText(this.modPage, e.joinAudioToast);
+    await util.checkNotificationIcon(this.modPage, e.unmuteIcon);
+    await util.waitAndClearNotification(this.modPage);
+    await this.modPage.waitAndClick(e.leaveAudio);
+    await util.waitAndClearNotification(this.modPage);
+    await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.waitAndClick(e.listenOnlyButton);
+    await this.modPage.wasRemoved(e.connecting);
+    await util.checkNotificationText(this.modPage, e.joinAudioToast);
+    await util.checkNotificationIcon(this.modPage, e.listenOnlyIcon);
+  }
+
+  async getUserJoinPopupResponse() {
+    await this.userJoinNotification(this.modPage);
+    await this.initUserPage();
+    await this.modPage.waitForSelector(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
+    await util.checkNotificationText(this.modPage, e.attendeeJoinedToast);
+  }
+
+  async raiseAndLowerHandNotification() {
+    await this.modPage.waitAndClick(e.raiseHandBtn);
+    await this.modPage.waitForSelector(e.smallToastMsg);
+    await util.checkNotificationText(this.modPage, e.raisingHandToast);
+    await util.waitAndClearNotification(this.modPage);
+    await this.modPage.waitAndClick(e.lowerHandBtn);
+    await util.checkNotificationText(this.modPage, e.loweringHandToast);
+  }
+
+  async userJoinNotification(page) {
+    await openSettings(page);
+    await util.enableUserJoinPopup(page);
+    await util.saveSettings(page);
   }
 }
 

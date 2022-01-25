@@ -32,6 +32,7 @@ const Toast = ({
 }) => (
   <div
     className={cx(styles.toastContainer, small ? styles.smallToastContainer : null)}
+    data-test="toastContainer"
   >
     <div className={styles[type]}>
       <div className={cx(styles.icon, small ? styles.smallIcon : null)}>

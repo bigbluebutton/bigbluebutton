@@ -266,6 +266,7 @@ class ToolbarSubmenu extends Component {
         onMouseLeave={this.handleMouseLeave}
         className={ToolbarSubmenu.getWrapperClassNames(type)}
         ref={(node) => { this.submenuItems = node; }}
+        data-test="toolbarToolsList"
       >
         {objectsToRender ? objectsToRender.map(obj => (
           <ToolbarSubmenuItem
@@ -279,6 +280,7 @@ class ToolbarSubmenu extends Component {
               objectSelected.value === obj.value ? styles.selectedListButton : '',
             )}
             key={obj.value}
+            data-test={`${obj.value}Tool`}
           />
         )) : null}
       </div>

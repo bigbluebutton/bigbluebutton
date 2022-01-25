@@ -197,6 +197,8 @@ class App extends Component {
 
     body.classList.add(`os-${osName.split(' ').shift().toLowerCase()}`);
 
+    body.classList.add(`lang-${locale.split('-')[0]}`);
+
     if (!validIOSVersion()) {
       notify(
         intl.formatMessage(intlMessages.iOSWarning), 'error', 'warning',
@@ -214,7 +216,7 @@ class App extends Component {
     window.ondragover = (e) => { e.preventDefault(); };
     window.ondrop = (e) => { e.preventDefault(); };
 
-    if (isMobile()) makeCall('setMobileUser');
+    if (deviceInfo.isMobile) makeCall('setMobileUser');
 
     ConnectionStatusService.startRoundTripTime();
 

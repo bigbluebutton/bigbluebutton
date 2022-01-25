@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Calendar;
 
 public class LearningDashboardService {
     private static Logger log = LoggerFactory.getLogger(LearningDashboardService.class);
@@ -58,6 +59,10 @@ public class LearningDashboardService {
     }
 
     public void removeJsonDataFile(String meetingId, int cleanUpDelayMinutes) {
+
+        Calendar cleanUpDelayCalendar = Calendar.getInstance();
+        cleanUpDelayCalendar.add(Calendar.MINUTE, cleanUpDelayMinutes);
+
         //Delay `cleanUpDelayMinutes` then moderators can open the Dashboard before files has been removed
         new java.util.Timer().schedule(
                 new java.util.TimerTask() {
@@ -67,8 +72,7 @@ public class LearningDashboardService {
                         LearningDashboardService.deleteDirectory(ldMeetingFilesDir);
                         log.info("Learning Dashboard files removed for meeting {}.",meetingId);
                     }
-                },
-                (cleanUpDelayMinutes * 60) * 1000
+                }, cleanUpDelayCalendar.getTime()
         );
     }
 

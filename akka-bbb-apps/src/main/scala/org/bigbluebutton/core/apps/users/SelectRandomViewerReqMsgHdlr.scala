@@ -50,7 +50,7 @@ trait SelectRandomViewerReqMsgHdlr extends RightsManagementTrait {
           Users2x.setUserExempted(liveMeeting.users2x, pickedUser, true)
         }
       }
-      
+
       val userIds = users.map { case (v) => v.intId }
       broadcastEvent(msg, userIds, pickedUser)
     }

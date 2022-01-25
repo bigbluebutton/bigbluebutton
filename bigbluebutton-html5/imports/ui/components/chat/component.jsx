@@ -58,10 +58,11 @@ const Chat = (props) => {
 
   const HIDE_CHAT_AK = shortcuts.hideprivatechat;
   const CLOSE_CHAT_AK = shortcuts.closeprivatechat;
+  const isPublicChat = chatID === PUBLIC_CHAT_ID;
   ChatLogger.debug('ChatComponent::render', props);
   return (
     <div
-      data-test={chatID !== PUBLIC_CHAT_ID ? 'privateChat' : 'publicChat'}
+      data-test={isPublicChat ? 'publicChat' : 'privateChat'}
       className={styles.chat}
     >
       <header className={styles.header}>
@@ -86,13 +87,14 @@ const Chat = (props) => {
             }}
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
             accessKey={chatID !== 'public' ? HIDE_CHAT_AK : null}
+            data-test={isPublicChat ? 'hidePublicChat' : 'hidePrivateChat'}
             label={title}
             icon="left_arrow"
             className={styles.hideBtn}
           />
         </div>
         {
-          chatID !== PUBLIC_CHAT_ID
+          !isPublicChat
             ? (
               <Button
                 icon="close"

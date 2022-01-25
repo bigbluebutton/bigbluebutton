@@ -519,6 +519,7 @@ class WhiteboardToolbar extends Component {
           onBlur={this.closeSubMenu}
           className={cx(styles.toolbarButton, currentSubmenuOpen === 'annotationList' ? styles.toolbarActive : null)}
           showCornerTriangle
+          data-test="toolsBtn"
         >
           {currentSubmenuOpen === 'annotationList' && annotations.length > 1
             ? (
@@ -804,6 +805,11 @@ class WhiteboardToolbar extends Component {
             ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
             : intl.formatMessage(intlMessages.toolbarMultiUserOn)
           }
+          data-test={multiUser ?
+            'turnMultiUsersWhiteboardOff'
+            : hideAnnotationsForAnnotator
+                ? 'turnIsolatedMultiUsersWhiteboardOn'
+                : 'turnMultiUsersWhiteboardOn'}
           icon={multiUser
             ? hideAnnotationsForAnnotator
                 ? 'multi_whiteboard_isolated'

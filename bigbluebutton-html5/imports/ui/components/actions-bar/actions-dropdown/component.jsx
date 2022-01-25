@@ -142,7 +142,7 @@ class ActionsDropdown extends PureComponent {
     if (amIPresenter && !hidePresentation) {
       actions.push({
         icon: "presentation",
-        dataTest: "uploadPresentation",
+        dataTest: "managePresentations",
         label: formatMessage(presentationLabel),
         key: this.presentationItemId,
         onClick: handlePresentationClick,
@@ -189,6 +189,7 @@ class ActionsDropdown extends PureComponent {
           : intl.formatMessage(intlMessages.stopExternalVideoLabel),
         key: "external-video",
         onClick: isSharingVideo ? stopExternalVideoShare : this.handleExternalVideoClick,
+        dataTest: "shareExternalVideo",
       })
     }
 
@@ -272,6 +273,7 @@ class ActionsDropdown extends PureComponent {
             className={isDropdownOpen ? styles.hideDropdownButton : ''}
             hideLabel
             aria-label={intl.formatMessage(intlMessages.actionsLabel)}
+            data-test="actionsButton"
             label={intl.formatMessage(intlMessages.actionsLabel)}
             icon="plus"
             color="primary"

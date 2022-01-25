@@ -27,6 +27,7 @@ const NotificationsBar = (props) => {
 
   return (
     <div
+      data-test="notificationBannerBar"
       role={alert ? 'alert' : ''}
       aria-live="off"
       style={

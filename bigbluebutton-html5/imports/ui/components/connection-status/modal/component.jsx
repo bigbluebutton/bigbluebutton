@@ -458,7 +458,7 @@ class ConnectionStatusComponent extends PureComponent {
     }
 
     return (
-      <div className={styles.networkDataContainer}>
+      <div className={styles.networkDataContainer} data-test="networkDataContainer">
         <div className={styles.networkData}>
           {`↑${audioLabel}: ${audioCurrentUploadRate} k`}
         </div>
@@ -528,6 +528,7 @@ class ConnectionStatusComponent extends PureComponent {
         onRequestClose={() => closeModal(dataSaving, intl)}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.ariaTitle)}
+        data-test="connectionStatusModal"
       >
         <div className={styles.container}>
           <div className={styles.header}>
