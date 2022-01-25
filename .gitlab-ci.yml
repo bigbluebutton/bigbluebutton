@@ -46,6 +46,7 @@ get_external_dependencies:
       - bbb-etherpad
       - bbb-webrtc-sfu
       - freeswitch
+      - bbb-pads
       - bbb-playback
     expire_in: 1h 30min
     
@@ -121,6 +122,11 @@ bbb-mkclean-build:
   extends: .build_job
   script:
     - build/setup-inside-docker.sh bbb-mkclean
+
+bbb-pads-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-pads
 
 bbb-playback-build:
   extends: .build_job

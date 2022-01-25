@@ -196,22 +196,6 @@ case class ValidateConnAuthTokenSysRespMsg(
 case class ValidateConnAuthTokenSysRespMsgBody(meetingId: String, userId: String,
                                                connId: String, authzed: Boolean, app: String)
 
-object AddPadSysMsg { val NAME = "AddPadSysMsg" }
-case class AddPadSysMsg(header: BbbClientMsgHeader, body: AddPadSysMsgBody) extends StandardMsg
-case class AddPadSysMsgBody(padId: String, readOnlyId: String)
-
-object AddCaptionsPadsSysMsg { val NAME = "AddCaptionsPadsSysMsg" }
-case class AddCaptionsPadsSysMsg(header: BbbClientMsgHeader, body: AddCaptionsPadsSysMsgBody) extends StandardMsg
-case class AddCaptionsPadsSysMsgBody(padIds: Array[String])
-
-object AddPadEvtMsg { val NAME = "AddPadEvtMsg" }
-case class AddPadEvtMsg(header: BbbCoreHeaderWithMeetingId, body: AddPadEvtMsgBody) extends BbbCoreMsg
-case class AddPadEvtMsgBody(padId: String, readOnlyId: String)
-
-object AddCaptionsPadsEvtMsg { val NAME = "AddCaptionsPadsEvtMsg" }
-case class AddCaptionsPadsEvtMsg(header: BbbCoreHeaderWithMeetingId, body: AddCaptionsPadsEvtMsgBody) extends BbbCoreMsg
-case class AddCaptionsPadsEvtMsgBody(padIds: Array[String])
-
 object PublishedRecordingSysMsg { val NAME = "PublishedRecordingSysMsg" }
 case class PublishedRecordingSysMsg(header: BbbCoreBaseHeader, body: PublishedRecordingSysMsgBody) extends BbbCoreMsg
 case class PublishedRecordingSysMsgBody(recordId: String)

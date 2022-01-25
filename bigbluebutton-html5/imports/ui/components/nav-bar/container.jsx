@@ -8,7 +8,7 @@ import userListService from '/imports/ui/components/user-list/service';
 import { ChatContext } from '/imports/ui/components/components-data/chat-context/context';
 import { GroupChatContext } from '/imports/ui/components/components-data/group-chat-context/context';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
-import NoteService from '/imports/ui/components/note/service';
+import NotesService from '/imports/ui/components/notes/service';
 import NavBar from './component';
 import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
 
@@ -44,7 +44,7 @@ const NavBarContainer = ({ children, ...props }) => {
   const { sidebarContentPanel } = sidebarContent;
   const { sidebarNavPanel } = sidebarNavigation;
 
-  const hasUnreadNotes = NoteService.hasUnreadNotes(sidebarContentPanel);
+  const hasUnreadNotes = NotesService.hasUnreadNotes(sidebarContentPanel);
   const hasUnreadMessages = checkUnreadMessages(
     { groupChatsMessages, groupChats, users: users[Auth.meetingID] },
   );

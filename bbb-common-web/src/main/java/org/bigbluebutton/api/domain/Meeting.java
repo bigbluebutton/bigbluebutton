@@ -76,7 +76,6 @@ public class Meeting {
 	private String meetingLayout = MeetingLayout.SMART_LAYOUT;
 	private boolean userHasJoined = false;
 	private Map<String, String> guestUsersWithPositionInWaitingLine;
-	private Map<String, String> pads;
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users;
@@ -147,15 +146,7 @@ public class Meeting {
         endWhenNoModeratorDelayInMinutes = builder.endWhenNoModeratorDelayInMinutes;
         html5InstanceId = builder.html5InstanceId;
 		groups = builder.groups;
-
-        /*
-         * A pad is a pair of padId and readOnlyId that represents
-         * valid etherpads instances for this meeting. They can be:
-         *  - shared notes
-         *  - closed captions
-         */
 		guestUsersWithPositionInWaitingLine = new HashMap<>();
-        pads = new HashMap<>();
         userCustomData = new HashMap<>();
 		usersWithGuestLobbyMessages = new HashMap<>();
 
@@ -170,10 +161,6 @@ public class Meeting {
 
 	public List<String> getBreakoutRooms() {
 		return breakoutRooms;
-	}
-
-	public Map<String, String> getPads() {
-		return pads;
 	}
 
 	public Map<String, String> getMetadata() {
@@ -634,14 +621,6 @@ public class Meeting {
         }
         return sum;
     }
-
-	public void addPad(String padId, String readOnlyId) {
-		pads.put(padId, readOnlyId);
-	}
-
-	public Boolean hasPad(String id) {
-		return pads.containsKey(id) || pads.containsValue(id);
-	}
 
 	public void addUserCustomData(String userID, Map<String, String> data) {
 		userCustomData.put(userID, data);

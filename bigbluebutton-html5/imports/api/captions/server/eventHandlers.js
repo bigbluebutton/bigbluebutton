@@ -1,7 +1,4 @@
 import RedisPubSub from '/imports/startup/server/redis';
-import { processForCaptionsPadOnly } from '/imports/api/captions/server/helpers';
-import handlePadCreate from './handlers/padCreate';
-import handlePadUpdate from './handlers/padUpdate';
+import captionsOwnerUpdated from './handlers/captionsOwnerUpdated';
 
-RedisPubSub.on('PadCreateSysMsg', processForCaptionsPadOnly(handlePadCreate));
-RedisPubSub.on('PadUpdateSysMsg', processForCaptionsPadOnly(handlePadUpdate));
+RedisPubSub.on('UpdateCaptionOwnerEvtMsg', captionsOwnerUpdated);
