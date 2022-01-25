@@ -1307,7 +1307,13 @@ class ApiController {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
     String presOrigFilename;
     if (StringUtils.isEmpty(fileName)) {
-      presOrigFilename = URLDecoder.decode(address.tokenize("/")[-1]);
+      try {
+        presOrigFilename = URLDecoder.decode(address.tokenize("/")[-1], "UTF-8");
+      } catch (UnsupportedEncodingException e) {
+        log.error "Couldn't decode the uploaded file name.", e
+        invalid("fileNameError", "Cannot decode the uploaded file name")
+        return;
+      }
     } else {
       presOrigFilename = fileName;
     }
