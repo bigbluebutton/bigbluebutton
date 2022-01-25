@@ -23,7 +23,6 @@ import browserInfo from '/imports/utils/browserInfo';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
-const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
 const SIPJS_HACK_VIA_WS = MEDIA.sipjsHackViaWs;
@@ -94,6 +93,7 @@ class SIPSession {
     this.reconnectAttempt = reconnectAttempt;
     this.currentSession = null;
     this.remoteStream = null;
+    this.bridgeName = BRIDGE_NAME;
     this._inputDeviceId = null;
     this._outputDeviceId = null;
     this._hangupFlag = false;
@@ -341,57 +341,6 @@ class SIPSession {
       .then(this.inviteUserAgent.bind(this));
   }
 
-  transferCall(onTransferSuccess) {
-    return new Promise((resolve, reject) => {
-      this.inEchoTest = false;
-
-      let trackerControl = null;
-
-      const timeout = setTimeout(() => {
-        trackerControl.stop();
-        logger.warn({ logCode: 'sip_js_transfer_timed_out' },
-          'Timeout on transferring from echo test to conference');
-        this.callback({
-          status: this.baseCallStates.failed,
-          error: 1008,
-          bridgeError: 'Timeout on call transfer',
-          bridge: BRIDGE_NAME,
-        });
-
-        this.exitAudio();
-
-        reject(this.baseErrorCodes.REQUEST_TIMEOUT);
-      }, CALL_TRANSFER_TIMEOUT);
-
-      // This is is the call transfer code ask @chadpilkey
-      logger.debug({
-        logCode: 'sip_js_rtp_payload_send_dtmf',
-        extraInfo: {
-          callerIdName: this.user.callerIdName,
-        },
-      }, 'Sending DTMF INFO to transfer user');
-      this.sendDtmf(1);
-
-      Tracker.autorun((c) => {
-        trackerControl = c;
-        const selector = { meetingId: Auth.meetingID, userId: Auth.userID };
-        const query = VoiceCallStates.find(selector);
-
-        query.observeChanges({
-          changed: (id, fields) => {
-            if (fields.callState === CallStateOptions.IN_CONFERENCE) {
-              clearTimeout(timeout);
-              onTransferSuccess();
-
-              c.stop();
-              resolve();
-            }
-          },
-        });
-      });
-    });
-  }
-
   /**
     *
     * sessionSupportRTPPayloadDtmf
@@ -477,7 +426,7 @@ class SIPSession {
               status: this.baseCallStates.failed,
               error: 1006,
               bridgeError: 'Timeout on call hangup',
-              bridge: BRIDGE_NAME,
+              bridge: this.bridgeName,
             });
             return reject(this.baseErrorCodes.REQUEST_TIMEOUT);
           }
@@ -622,7 +571,7 @@ class SIPSession {
                 status: this.baseCallStates.failed,
                 error,
                 bridgeError,
-                bridge: BRIDGE_NAME,
+                bridge: this.bridgeName,
               });
               reject(this.baseErrorCodes.CONNECTION_ERROR);
             });
@@ -662,7 +611,7 @@ class SIPSession {
             status: this.baseCallStates.failed,
             error: 1002,
             bridgeError: 'Websocket failed to connect',
-            bridge: BRIDGE_NAME,
+            bridge: this.bridgeName,
           });
           return reject({
             type: this.baseErrorCodes.CONNECTION_ERROR,
@@ -693,7 +642,7 @@ class SIPSession {
             status: this.baseCallStates.failed,
             error: 1002,
             bridgeError: 'Websocket failed to connect',
-            bridge: BRIDGE_NAME,
+            bridge: this.bridgeName,
           });
 
           reject({
@@ -915,7 +864,7 @@ class SIPSession {
             },
           }, 'Audio call - setup remote media');
 
-          this.callback({ status: this.baseCallStates.started, bridge: BRIDGE_NAME });
+          this.callback({ status: this.baseCallStates.started, bridge: this.bridgeName });
           resolve();
         }
       };
@@ -927,7 +876,7 @@ class SIPSession {
           status: this.baseCallStates.failed,
           error: 1006,
           bridgeError: `Call timed out on start after ${CALL_CONNECT_TIMEOUT / 1000}s`,
-          bridge: BRIDGE_NAME,
+          bridge: this.bridgeName,
         });
 
         this.exitAudio();
@@ -947,7 +896,7 @@ class SIPSession {
               error: 1010,
               bridgeError: 'ICE negotiation timeout after '
                 + `${ICE_NEGOTIATION_TIMEOUT / 1000}s`,
-              bridge: BRIDGE_NAME,
+              bridge: this.bridgeName,
             });
 
             this.exitAudio();
@@ -983,7 +932,7 @@ class SIPSession {
           error: 1007,
           bridgeError: 'ICE negotiation failed. Current state '
             + `- ${peer.iceConnectionState}`,
-          bridge: BRIDGE_NAME,
+          bridge: this.bridgeName,
         });
       };
 
@@ -1002,7 +951,7 @@ class SIPSession {
           error: 1012,
           bridgeError: 'ICE connection closed. Current state -'
             + `${peer.iceConnectionState}`,
-          bridge: BRIDGE_NAME,
+          bridge: this.bridgeName,
         });
       };
 
@@ -1098,7 +1047,7 @@ class SIPSession {
         if (!message && !!this.userRequestedHangup) {
           return this.callback({
             status: this.baseCallStates.ended,
-            bridge: BRIDGE_NAME,
+            bridge: this.bridgeName,
           });
         }
 
@@ -1126,7 +1075,7 @@ class SIPSession {
           status: this.baseCallStates.failed,
           error: mappedCause,
           bridgeError: cause,
-          bridge: BRIDGE_NAME,
+          bridge: this.bridgeName,
         });
       }
 
@@ -1312,6 +1261,8 @@ export default class SIPBridge extends BaseAudioBridge {
       this.hostname = window.document.location.hostname;
     }
 
+    this.bridgeName = BRIDGE_NAME;
+
     // SDP conversion utilitary methods to be used inside SIP.js
     window.isUnifiedPlan = isUnifiedPlan;
     window.toUnifiedPlan = toUnifiedPlan;
@@ -1412,7 +1363,7 @@ export default class SIPBridge extends BaseAudioBridge {
           if (this.activeSession.webrtcConnected) {
             // webrtc was able to connect so just try again
             message.silenceNotifications = true;
-            callback({ status: this.baseCallStates.reconnecting, bridge: BRIDGE_NAME, });
+            callback({ status: this.baseCallStates.reconnecting, bridge: this.bridgeName, });
             shouldTryReconnect = true;
           } else if (hasFallbackDomain === true && hostname !== IPV4_FALLBACK_DOMAIN) {
             message.silenceNotifications = true;
@@ -1463,7 +1414,19 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   transferCall(onTransferSuccess) {
-    return this.activeSession.transferCall(onTransferSuccess);
+    this.activeSession.inEchoTest = false;
+    logger.debug({
+      logCode: 'sip_js_rtp_payload_send_dtmf',
+      extraInfo: {
+        callerIdName: this.activeSession.user.callerIdName,
+      },
+    }, 'Sending DTMF INFO to transfer user');
+
+    return this.trackTransferState(onTransferSuccess);
+  }
+
+  sendDtmf(tones) {
+    this.activeSession.sendDtmf(tones);
   }
 
   getPeerConnection() {
