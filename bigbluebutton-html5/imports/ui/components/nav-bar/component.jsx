@@ -227,7 +227,7 @@ class NavBar extends Component {
               ghost
               circle
               hideLabel
-              data-test={hasNotification ? 'hasUnreadMessages' : null}
+              data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
               tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
               aria-label={ariaLabel}
@@ -242,7 +242,9 @@ class NavBar extends Component {
               && <Icon iconName="right_arrow" className={styles.arrowRight} />}
           </div>
           <div className={styles.center}>
-            <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
+            <h1 className={styles.presentationTitle} data-test="presentationTitle">
+              {presentationTitle}
+            </h1>
 
             <RecordingIndicator
               mountModal={mountModal}

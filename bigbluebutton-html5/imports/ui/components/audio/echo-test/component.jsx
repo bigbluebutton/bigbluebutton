@@ -64,6 +64,7 @@ class EchoTest extends Component {
           className={styles.button}
           label={intl.formatMessage(intlMessages.confirmLabel)}
           aria-label={intl.formatMessage(intlMessages.confirmAriaLabel)}
+          data-test="echoYesBtn"
           icon="thumbs_up"
           disabled={disabled}
           circle
