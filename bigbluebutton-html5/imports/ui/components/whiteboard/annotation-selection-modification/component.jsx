@@ -4,12 +4,16 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import SelectionService from '/imports/ui/components/whiteboard/annotation-selection-modification/service';
 import { setDeselectHandle } from '/imports/ui/components/whiteboard/service';
+import ToolbarService from '/imports/ui/components/whiteboard/whiteboard-toolbar/service';
 
 function SelectionModification(props) {
   const moveableRef = React.useRef(null);
   const selectoRef = React.useRef(null);
   const [moveableTargets, setMoveableTargets] = React.useState([]);
-  const { zoom, tool, userIsPresenter } = props;
+
+  const {
+    zoom, tool, userIsPresenter, whiteboardId,
+  } = props;
 
   useEffect(() => {
     if (moveableRef.current) {
@@ -52,6 +56,17 @@ function SelectionModification(props) {
     }
   }
 
+  function deleteAnnotations(event) {
+    const { target, key } = event;
+
+    const targetIsInputArea = ['TEXTAREA', 'INPUT'].includes(target.nodeName);
+    const keyIsDeleteKey = ['Delete', 'Backspace'].includes(key);
+
+    if (!targetIsInputArea && keyIsDeleteKey) {
+      ToolbarService.deleteAnnotations(whiteboardId);
+    }
+  }
+
   useEffect(() => {
     setDeselectHandle(deselect);
   });
@@ -67,6 +82,13 @@ function SelectionModification(props) {
       events.forEach(
         (eventType) => window.removeEventListener(eventType, forwardEventOnSelectableToSelecto),
       );
+    };
+  });
+
+  useEffect(() => {
+    window.addEventListener('keyup', deleteAnnotations);
+    return () => {
+      window.removeEventListener('keyup', deleteAnnotations);
     };
   });
 
@@ -108,6 +130,7 @@ SelectionModification.propTypes = {
   // for rerendering of selection rectangle on zoom
   zoom: PropTypes.number.isRequired,
   userIsPresenter: PropTypes.bool.isRequired,
+  whiteboardId: PropTypes.string.isRequired,
 };
 
 export default SelectionModification;

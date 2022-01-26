@@ -653,7 +653,11 @@ class Presentation extends PureComponent {
             physicalDimensions,
           )}
         </svg>
-        <SelectionModificationContainer zoom={zoom} userIsPresenter={userIsPresenter} />
+        <SelectionModificationContainer
+          zoom={zoom}
+          userIsPresenter={userIsPresenter}
+          whiteboardId={currentSlide.id}
+        />
       </div>
     );
   }
