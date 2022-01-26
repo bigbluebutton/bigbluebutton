@@ -56,17 +56,17 @@ function SelectionModification(props) {
     setDeselectHandle(deselect);
   });
 
+  // Workaround to inject mousedown events into Selecto.
+  // Otherwise, events get consumed by whiteboard / presentation overlay.
   useEffect(() => {
     const events = ['mousedown', 'touchstart'];
     events.forEach(
       (eventType) => window.addEventListener(eventType, forwardEventOnSelectableToSelecto),
     );
-    // window.addEventListener('touchstart', forwardEventOnSelectableToSelecto);
     return () => {
       events.forEach(
         (eventType) => window.removeEventListener(eventType, forwardEventOnSelectableToSelecto),
       );
-      // window.removeEventListener('touchstart', forwardEventOnSelectableToSelecto);
     };
   });
 
