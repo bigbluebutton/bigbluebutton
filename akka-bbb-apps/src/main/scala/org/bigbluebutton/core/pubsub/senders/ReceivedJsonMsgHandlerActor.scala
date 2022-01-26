@@ -268,6 +268,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[AssignPresenterReqMsg](envelope, jsonNode)
       case MakePresentationWithAnnotationDownloadReqMsg.NAME =>
         routeGenericMsg[MakePresentationWithAnnotationDownloadReqMsg](envelope, jsonNode)
+      case ExportPresentationWithAnnotationReqMsg.NAME =>
+        routeGenericMsg[ExportPresentationWithAnnotationReqMsg](envelope, jsonNode)
 
       // Presentation Pods
       case CreateNewPresentationPodPubMsg.NAME =>
