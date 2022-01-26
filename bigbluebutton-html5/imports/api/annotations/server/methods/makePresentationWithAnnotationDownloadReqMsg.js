@@ -8,6 +8,7 @@ export default function makePresentationWithAnnotationDownloadReqMsg() {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'MakePresentationWithAnnotationDownloadReqMsg';
+  const SECOND_EVENT_NAME = 'ExportPresentationWithAnnotationReqMsg';
 
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
@@ -16,9 +17,14 @@ export default function makePresentationWithAnnotationDownloadReqMsg() {
     check(requesterUserId, String);
 
     const payload = {
-      presId: "placeholder-val",
+      presId: "placeholder-pres-id",
       allPages: true,
       pages: [],
+    };
+
+    const payload2 = {
+      parentMeetingId: "placeholder-parent-meeting-id",
+      allPages: false,
     };
 
     Logger.warn('************');
@@ -28,7 +34,9 @@ export default function makePresentationWithAnnotationDownloadReqMsg() {
     Logger.warn(requesterUserId)
     Logger.warn('************');
     
-    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+    return RedisPubSub.publishUserMessage(CHANNEL, SECOND_EVENT_NAME, meetingId, requesterUserId, payload2);
+
+    // return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   } catch (err) {
     Logger.error(`Exception while invoking method makePresentationWithAnnotationDownloadReqMsg ${err.stack}`);
   }
