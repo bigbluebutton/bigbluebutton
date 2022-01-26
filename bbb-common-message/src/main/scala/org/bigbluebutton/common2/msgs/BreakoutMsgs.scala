@@ -102,6 +102,10 @@ object ExtendBreakoutRoomsTimeEvtMsg { val NAME = "ExtendBreakoutRoomsTimeEvtMsg
 case class ExtendBreakoutRoomsTimeEvtMsg(header: BbbClientMsgHeader, body: ExtendBreakoutRoomsTimeEvtMsgBody) extends BbbCoreMsg
 case class ExtendBreakoutRoomsTimeEvtMsgBody(meetingId: String, extendTimeInMinutes: Int)
 
+object SendMessageToAllBreakoutRoomsMsg { val NAME = "SendMessageToAllBreakoutRoomsMsg" }
+case class SendMessageToAllBreakoutRoomsMsg(header: BbbClientMsgHeader, body: SendMessageToAllBreakoutRoomsMsgBody) extends StandardMsg
+case class SendMessageToAllBreakoutRoomsMsgBody(meetingId: String, msg: String)
+
 // Common Value objects
 case class BreakoutUserVO(id: String, name: String)
 

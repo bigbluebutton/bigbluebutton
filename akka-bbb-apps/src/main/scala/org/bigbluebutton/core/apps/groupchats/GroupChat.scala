@@ -34,7 +34,7 @@ object GroupChatApp {
 
   def findGroupChatUser(userId: String, users: Users2x): Option[GroupChatUser] = {
     Users2x.findWithIntId(users, userId) match {
-      case Some(u) => Some(GroupChatUser(u.intId))
+      case Some(u) => Some(GroupChatUser(u.intId, u.name))
       case None =>
         if (userId == SystemUser.ID) {
           Some(GroupChatUser(SystemUser.ID))

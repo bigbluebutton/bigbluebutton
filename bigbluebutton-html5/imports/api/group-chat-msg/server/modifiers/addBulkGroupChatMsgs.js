@@ -20,6 +20,7 @@ export default async function addBulkGroupChatMsgs(msgs) {
         chatId,
         message: parseMessage(msg.message),
         sender: sender.id,
+        senderName: sender.name,
       };
     })
     .map(el => flat(el, { safe: true }));

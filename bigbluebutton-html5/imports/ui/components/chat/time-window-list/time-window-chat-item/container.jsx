@@ -19,13 +19,21 @@ const TimeWindowChatItemContainer = (props) => {
   const { users } = usingUsersContext;
   const {
     sender,
+    senderName,
     key,
     timestamp,
     content,
     extra,
   } = message;
   const messages = content;
-  const user = users[Auth.meetingID][sender];
+
+  const user = (sender === 'SYSTEM') ? {
+    name: senderName,
+    color: '#01579b',
+    avatar: '',
+    role: '',
+    loggedOut: false,
+  } : users[Auth.meetingID][sender];
   const messageKey = key;
   const handleReadMessage = (tstamp) => ChatService.updateUnreadMessage(tstamp, idChatOpen);
   return (

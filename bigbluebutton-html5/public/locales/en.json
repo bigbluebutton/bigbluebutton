@@ -867,6 +867,7 @@
     "app.createBreakoutRoom.resetAssignments": "Reset assignments",
     "app.createBreakoutRoom.resetAssignmentsDesc": "Reset all user room assignments",
     "app.createBreakoutRoom.endAllBreakouts": "End all breakout rooms",
+    "app.createBreakoutRoom.chatTitleMsgAllRooms": "all rooms TODAs",
     "app.createBreakoutRoom.roomName": "{0} (Room - {1})",
     "app.createBreakoutRoom.doneLabel": "Done",
     "app.createBreakoutRoom.nextLabel": "Next",
