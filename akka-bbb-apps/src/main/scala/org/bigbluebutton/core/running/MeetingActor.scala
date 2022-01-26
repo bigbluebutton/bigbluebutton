@@ -723,7 +723,7 @@ class MeetingActor(
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(StoreAnnotationsInRedisSysMsg.NAME, routing)
     val body = StoreAnnotationsInRedisSysMsgBody(annotations)
-    val header = BbbCoreBaseHeader(StoreAnnotationsInRedisSysMsg.NAME)
+    val header = BbbCoreHeaderWithMeetingId(StoreAnnotationsInRedisSysMsg.NAME, liveMeeting.props.meetingProp.intId)
     val event = StoreAnnotationsInRedisSysMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
@@ -733,7 +733,7 @@ class MeetingActor(
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(StoreExportJobInRedisSysMsg.NAME, routing)
     val body = StoreExportJobInRedisSysMsgBody(exportJob)
-    val header = BbbCoreBaseHeader(StoreExportJobInRedisSysMsg.NAME)
+    val header = BbbCoreHeaderWithMeetingId(StoreExportJobInRedisSysMsg.NAME, liveMeeting.props.meetingProp.intId)
     val event = StoreExportJobInRedisSysMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
@@ -755,7 +755,7 @@ class MeetingActor(
     val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else pages
 
     var storeAnnotationPages = new Array[PresentationPageForExport](pagesRange.size)
-    var index = 0
+    var resultingPage = 0
     for (pageNumber <- pagesRange) {
       // whiteboardId = s"${presId}/${pageNumber.toString}" // TODO: use this
       whiteboardId = s"${getMeetingInfoPresentationDetails().id}/${pageNumber.toString}"
@@ -767,8 +767,8 @@ class MeetingActor(
       val heightRatio: Double = presentationPage.heightRatio
       val whiteboardHistory: Array[AnnotationVO] = liveMeeting.wbModel.getHistory(whiteboardId)
 
-      storeAnnotationPages(index) = new PresentationPageForExport(index + 1, xOffset, yOffset, widthRatio, heightRatio, whiteboardHistory)
-      index += 1
+      storeAnnotationPages(resultingPage) = new PresentationPageForExport(resultingPage + 1, xOffset, yOffset, widthRatio, heightRatio, whiteboardHistory)
+      resultingPage += 1
     }
 
     // 1) Send Annotations to Redis

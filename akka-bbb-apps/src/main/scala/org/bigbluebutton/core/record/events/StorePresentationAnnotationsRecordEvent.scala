@@ -19,30 +19,25 @@
 
 package org.bigbluebutton.core.record.events
 
-trait AbstractWhiteboardRecordEvent extends RecordEvent {
-  import AbstractWhiteboardRecordEvent._
+import org.bigbluebutton.common2.msgs.{ AnnotationVO, ExportJob, StoredAnnotations, PresentationPageForExport }
+import org.bigbluebutton.common2.util.JsonUtil
 
-  setModule("WHITEBOARD")
+class StorePresentationAnnotationsRecordEvent extends AbstractPresentationWithAnnotations {
+  import StorePresentationAnnotationsRecordEvent._
 
-  def setPresentation(name: String) {
-    eventMap.put(PRESENTATION, name)
+  setEvent("StorePresentationAnnotationsRecordEvent")
+
+  def setPresId(presId: String) {
+    eventMap.put(PRES_ID, presId)
   }
 
-  def setPageNumber(num: Integer) {
-    /*
-		 * Subtract 1 from the page number to be zero-based to be
-		 * compatible with 0.81 and earlier. (ralam Sept 2, 2014)
-		 */
-    eventMap.put(PAGE_NUM, (num - 1).toString)
-  }
-
-  def setWhiteboardId(id: String) {
-    eventMap.put(WHITEBOARD_ID, id)
+  def setPages(pages: Array[PresentationPageForExport]) {
+    eventMap.put(PAGES, JsonUtil.toJson(pages))
   }
 }
 
-object AbstractWhiteboardRecordEvent {
-  protected final val PRESENTATION = "presentation"
-  protected final val PAGE_NUM = "pageNumber"
-  protected final val WHITEBOARD_ID = "whiteboardId"
+object StorePresentationAnnotationsRecordEvent {
+  protected final val PRES_ID = "presId"
+  protected final val PAGES = "pages"
 }
+

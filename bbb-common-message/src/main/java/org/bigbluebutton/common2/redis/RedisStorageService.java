@@ -112,6 +112,15 @@ public class RedisStorageService extends RedisAwareCommunicator {
         commands.exec();
     }
 
+    public void storePresentationAnnotations(String meetingId, Map<String, String> event, String msgType) {
+        RedisCommands<String, String> commands = connection.sync();
+        Long msgid = commands.incr("global:nextRecordedMsgId");
+        commands.multi();
+        commands.hmset("store" + msgType + ":" + meetingId + ":" + msgid, event);
+        commands.rpush("meeting:" + meetingId + ":" + "store" + msgType, Long.toString(msgid));
+        commands.exec();
+    }
+
     // @fixme: not used anywhere
     public void removeMeeting(String meetingId) {
         RedisCommands<String, String> commands = connection.sync();

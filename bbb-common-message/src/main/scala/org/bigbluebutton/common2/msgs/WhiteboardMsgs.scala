@@ -93,9 +93,9 @@ case class UndoWhiteboardEvtMsgBody(whiteboardId: String, userId: String, annota
 
 // ------------ akka-apps to client ------------
 object StoreAnnotationsInRedisSysMsg { val NAME = "StoreAnnotationsInRedisSysMsg" }
-case class StoreAnnotationsInRedisSysMsg(header: BbbCoreBaseHeader, body:   StoreAnnotationsInRedisSysMsgBody) extends BbbCoreMsg
+case class StoreAnnotationsInRedisSysMsg(header: BbbCoreHeaderWithMeetingId, body:   StoreAnnotationsInRedisSysMsgBody) extends BbbCoreMsg
 case class StoreAnnotationsInRedisSysMsgBody(annotations: StoredAnnotations)
 
 object StoreExportJobInRedisSysMsg { val NAME = "StoreExportJobInRedisSysMsg" }
-case class StoreExportJobInRedisSysMsg(header: BbbCoreBaseHeader, body:   StoreExportJobInRedisSysMsgBody) extends BbbCoreMsg
+case class StoreExportJobInRedisSysMsg(header: BbbCoreHeaderWithMeetingId, body:   StoreExportJobInRedisSysMsgBody) extends BbbCoreMsg
 case class StoreExportJobInRedisSysMsgBody(exportJob: ExportJob)

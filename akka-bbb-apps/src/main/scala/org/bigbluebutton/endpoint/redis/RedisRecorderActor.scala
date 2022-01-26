@@ -49,6 +49,10 @@ class RedisRecorderActor(
     redis.recordAndExpire(session, message)
   }
 
+  private def storePresentationAnnotations(session: String, message: java.util.Map[java.lang.String, java.lang.String], messageType: String): Unit = {
+    redis.storePresentationAnnotations(session, message, messageType)
+  }
+
   def receive = {
     //=============================
     // 2x messages
@@ -136,13 +140,27 @@ class RedisRecorderActor(
   }
 
   private def handleStoreAnnotationsInRedisSysMsg(msg: StoreAnnotationsInRedisSysMsg) {
-    println("These are the annotations lmao")
-    println(msg)
+    val ev = new StorePresentationAnnotationsRecordEvent()
+
+    ev.setPresId(msg.body.annotations.presId)
+    ev.setPages(msg.body.annotations.pages)
+
+    storePresentationAnnotations(msg.header.meetingId, ev.toMap.asJava, "Annotations")
   }
 
   private def handleStoreExportJobInRedisSysMsg(msg: StoreExportJobInRedisSysMsg) {
-    println("This is the export message lol")
-    println(msg)
+    val ev = new StoreExportJobInRedisRecordEvent()
+
+    ev.setJobId(msg.body.exportJob.jobId)
+    ev.setJobType(msg.body.exportJob.jobType)
+    ev.setPresId(msg.body.exportJob.presId)
+    ev.setPresLocation(msg.body.exportJob.presLocation)
+    ev.setAllPages(msg.body.exportJob.allPages.toString)
+    ev.setPages(msg.body.exportJob.pages)
+    ev.setParentMeetingId(msg.body.exportJob.parentMeetingId)
+    ev.setPresentationUploadToken(msg.body.exportJob.presUploadToken)
+
+    storePresentationAnnotations(msg.header.meetingId, ev.toMap.asJava, "ExportJob")
   }
 
   private def handleGroupChatMessageBroadcastEvtMsg(msg: GroupChatMessageBroadcastEvtMsg) {
