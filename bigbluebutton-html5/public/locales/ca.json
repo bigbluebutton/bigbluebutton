@@ -206,7 +206,6 @@
     "app.poll.hidePollDesc": "Amaga el panell d'enquesta",
     "app.poll.quickPollInstruction": "Seleccioneu una opció de sota i inicieu l'enquesta.",
     "app.poll.activePollInstruction": "Deixeu aquest panell obert per veure en viu les respostes de l'enquesta. Quan estigueu llestos/es, seleccioneu «Publica els resultats de l'enquesta» i finalitzeu-la.",
-    "app.poll.publishLabel": "Publica els resultats de l'enquesta",
     "app.poll.closeLabel": "Tanca",
     "app.poll.waitingLabel": "Esperant les respostes ({0}/{1})",
     "app.poll.ariaInputCount": "Opció d'enquesta personalitzada {0} de {1}",

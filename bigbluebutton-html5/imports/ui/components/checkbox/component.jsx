@@ -1,16 +1,13 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 import { findDOMNode } from 'react-dom';
 import KEY_CODES from '/imports/utils/keyCodes';
-import Icon from '../icon/component';
-import { styles } from './styles';
+import Styled from './styles';
 
 const propTypes = {
   disabled: PropTypes.bool,
   checked: PropTypes.bool,
   onChange: PropTypes.func.isRequired,
-  className: PropTypes.string,
   ariaLabelledBy: PropTypes.string,
   ariaLabel: PropTypes.string,
   ariaDescribedBy: PropTypes.string,
@@ -20,7 +17,6 @@ const propTypes = {
 const defaultProps = {
   disabled: false,
   checked: false,
-  className: null,
   ariaLabelledBy: null,
   ariaLabel: null,
   ariaDescribedBy: null,
@@ -61,24 +57,18 @@ export default class Checkbox extends PureComponent {
   }
 
   render() {
-    const {
-      ariaLabel, ariaDesc, ariaDescribedBy,
-      className, checked, disabled,
-    } = this.props;
+    const { ariaLabel, ariaDesc, ariaDescribedBy, checked, disabled } = this.props;
 
     return (
-      <div
-        className={cx({
-          [styles.disabled]: !!disabled,
-        }, className)}
+      <Styled.CheckboxWrapper
+        disabled={!!disabled}
         tabIndex={0}
         ref={(node) => { this.checkbox = node; }}
       >
-        <input
+        <Styled.CheckboxInput
           type="checkbox"
           onChange={this.handleChange}
           checked={checked}
-          className={styles.input}
           aria-label={ariaLabel}
           aria-describedby={ariaDescribedBy}
           disabled={disabled}
@@ -86,12 +76,12 @@ export default class Checkbox extends PureComponent {
         />
         <div role="presentation" onClick={this.handleChange}>
           { checked
-            ? <Icon iconName="check" className={cx(styles.icon, styles.checked)} />
-            : <Icon iconName="circle" className={styles.icon} />
+            ? <Styled.CheckboxIconChecked iconName="check" />
+            : <Styled.CheckboxIcon iconName="circle" />
           }
         </div>
         <div id={ariaDescribedBy} hidden>{ariaDesc}</div>
-      </div>
+      </Styled.CheckboxWrapper>
     );
   }
 }

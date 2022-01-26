@@ -1,35 +1,68 @@
 import React from 'react';
 import './App.css';
 import './bbb-icons.css';
-import { FormattedMessage, FormattedDate, injectIntl } from 'react-intl';
+import {
+  FormattedMessage, FormattedDate, injectIntl, FormattedTime,
+} from 'react-intl';
+import { emojiConfigs } from './services/EmojiService';
 import Card from './components/Card';
 import UsersTable from './components/UsersTable';
 import StatusTable from './components/StatusTable';
 import PollsTable from './components/PollsTable';
 import ErrorMessage from './components/ErrorMessage';
+import { makeUserCSVData, tsToHHmmss } from './services/UserService';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       loading: true,
+      invalidSessionCount: 0,
       activitiesJson: {},
       tab: 'overview',
       meetingId: '',
       learningDashboardAccessToken: '',
       ldAccessTokenCopied: false,
       sessionToken: '',
+      lastUpdated: null,
     };
   }
 
   componentDidMount() {
-    this.setDashboardParams();
-    setInterval(() => {
+    this.setDashboardParams(() => {
       this.fetchActivitiesJson();
-    }, 10000);
+    });
   }
 
-  setDashboardParams() {
+  handleSaveSessionData(e) {
+    const { target: downloadButton } = e;
+    const { intl } = this.props;
+    const { activitiesJson } = this.state;
+    const {
+      name: meetingName, createdOn, users, polls,
+    } = activitiesJson;
+    const link = document.createElement('a');
+    const data = makeUserCSVData(users, polls, intl);
+    const filename = `LearningDashboard_${meetingName}_${new Date(createdOn).toISOString().substr(0, 10)}.csv`.replace(/ /g, '-');
+
+    downloadButton.setAttribute('disabled', 'true');
+    downloadButton.style.cursor = 'not-allowed';
+    link.setAttribute('href', `data:application/octet-stream,${encodeURIComponent(data)}`);
+    link.setAttribute('download', filename);
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    downloadButton.innerHTML = intl.formatMessage({ id: 'app.learningDashboard.sessionDataDownloadedLabel', defaultMessage: 'Downloaded!' });
+    setTimeout(() => {
+      downloadButton.innerHTML = intl.formatMessage({ id: 'app.learningDashboard.downloadSessionDataLabel', defaultMessage: 'Download Session Data' });
+      downloadButton.removeAttribute('disabled');
+      downloadButton.style.cursor = 'pointer';
+      downloadButton.focus();
+    }, 3000);
+    document.body.removeChild(link);
+  }
+
+  setDashboardParams(callback) {
     let learningDashboardAccessToken = '';
     let meetingId = '';
     let sessionToken = '';
@@ -48,36 +81,77 @@ class App extends React.Component {
     if (typeof params.report !== 'undefined') {
       learningDashboardAccessToken = params.report;
     } else {
-      const cookieName = `learningDashboardAccessToken-${params.meeting}`;
+      const cookieName = `ld-${params.meeting}`;
       const cDecoded = decodeURIComponent(document.cookie);
       const cArr = cDecoded.split('; ');
       cArr.forEach((val) => {
         if (val.indexOf(`${cookieName}=`) === 0) learningDashboardAccessToken = val.substring((`${cookieName}=`).length);
       });
 
-      // Extend AccessToken lifetime by 30d (in each access)
+      // Extend AccessToken lifetime by 7d (in each access)
       if (learningDashboardAccessToken !== '') {
         const cookieExpiresDate = new Date();
-        cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 30));
-        document.cookie = `learningDashboardAccessToken-${meetingId}=${learningDashboardAccessToken}; expires=${cookieExpiresDate.toGMTString()}; path=/;SameSite=None;Secure`;
+        cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 7));
+        document.cookie = `ld-${meetingId}=${learningDashboardAccessToken}; expires=${cookieExpiresDate.toGMTString()}; path=/;SameSite=None;Secure`;
       }
     }
 
-    this.setState({ learningDashboardAccessToken, meetingId, sessionToken },
-      this.fetchActivitiesJson);
+    this.setState({ learningDashboardAccessToken, meetingId, sessionToken }, () => {
+      if (typeof callback === 'function') callback();
+    });
+  }
+
+  fetchMostUsedEmojis() {
+    const { activitiesJson } = this.state;
+    if (!activitiesJson) { return []; }
+
+    // Icon elements
+    const emojis = [...Object.keys(emojiConfigs)];
+    const icons = {};
+    emojis.forEach((emoji) => {
+      icons[emoji] = (<i className={`${emojiConfigs[emoji].icon} bbb-icon-card`} />);
+    });
+
+    // Count each emoji
+    const emojiCount = {};
+    emojis.forEach((emoji) => {
+      emojiCount[emoji] = 0;
+    });
+    const allEmojisUsed = Object
+      .values(activitiesJson.users || {})
+      .map((user) => user.emojis || [])
+      .flat(1);
+    allEmojisUsed.forEach((emoji) => {
+      emojiCount[emoji.name] += 1;
+    });
+
+    // Get the three most used
+    const mostUsedEmojis = Object
+      .entries(emojiCount)
+      .sort(([, countA], [, countB]) => countA - countB)
+      .reverse()
+      .slice(0, 3);
+    return mostUsedEmojis.map(([emoji]) => icons[emoji]);
   }
 
   fetchActivitiesJson() {
-    const { learningDashboardAccessToken, meetingId, sessionToken } = this.state;
+    const {
+      learningDashboardAccessToken, meetingId, sessionToken, invalidSessionCount,
+    } = this.state;
 
     if (learningDashboardAccessToken !== '') {
       fetch(`${meetingId}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
         .then((response) => response.json())
         .then((json) => {
-          this.setState({ activitiesJson: json, loading: false });
+          this.setState({
+            activitiesJson: json,
+            loading: false,
+            invalidSessionCount: 0,
+            lastUpdated: Date.now(),
+          });
           document.title = `Learning Dashboard - ${json.name}`;
         }).catch(() => {
-          this.setState({ loading: false });
+          this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
         });
     } else if (sessionToken !== '') {
       const url = new URL('/bigbluebutton/api/learningDashboard', window.location);
@@ -86,65 +160,60 @@ class App extends React.Component {
         .then((json) => {
           if (json.response.returncode === 'SUCCESS') {
             const jsonData = JSON.parse(json.response.data);
-            this.setState({ activitiesJson: jsonData, loading: false });
+            this.setState({
+              activitiesJson: jsonData,
+              loading: false,
+              invalidSessionCount: 0,
+              lastUpdated: Date.now(),
+            });
             document.title = `Learning Dashboard - ${jsonData.name}`;
           } else {
             // When meeting is ended the sessionToken stop working, check for new cookies
             this.setDashboardParams();
-            this.setState({ loading: false });
+            this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
           }
         })
         .catch(() => {
-          this.setState({ loading: false });
+          this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
         });
     } else {
       this.setState({ loading: false });
     }
-  }
 
-  copyPublicLink() {
-    const { learningDashboardAccessToken, meetingId, ldAccessTokenCopied } = this.state;
-    const { intl } = this.props;
-
-    let url = window.location.href.split('?')[0];
-    url += `?meeting=${meetingId}&report=${learningDashboardAccessToken}&lang=${intl.locale}`;
-    navigator.clipboard.writeText(url);
-    if (ldAccessTokenCopied === false) {
-      this.setState({ ldAccessTokenCopied: true });
-      setTimeout(() => {
-        this.setState({ ldAccessTokenCopied: false });
-      }, 3000);
-    }
+    setTimeout(() => {
+      this.fetchActivitiesJson();
+    }, 10000 * (2 ** invalidSessionCount));
   }
 
   render() {
     const {
-      activitiesJson, tab, sessionToken, loading,
+      activitiesJson, tab, sessionToken, loading, lastUpdated,
       learningDashboardAccessToken, ldAccessTokenCopied,
     } = this.state;
     const { intl } = this.props;
 
     document.title = `${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Dashboard' })} - ${activitiesJson.name}`;
 
-    function totalOfRaiseHand() {
+    function totalOfEmojis() {
       if (activitiesJson && activitiesJson.users) {
         return Object.values(activitiesJson.users)
-          .reduce((prevVal, elem) => prevVal + elem.emojis.filter((emoji) => emoji.name === 'raiseHand').length, 0);
+          .reduce((prevVal, elem) => prevVal + elem.emojis.length, 0);
       }
       return 0;
     }
 
-    function tsToHHmmss(ts) {
-      return (new Date(ts).toISOString().substr(11, 8));
-    }
-
     function totalOfActivity() {
-      const minTime = Object.values(activitiesJson.users || {}).reduce((prevVal, elem) => {
+      const usersTimes = Object.values(activitiesJson.users || {}).reduce((prev, user) => ([
+        ...prev,
+        ...Object.values(user.intIds),
+      ]), []);
+
+      const minTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
         if (prevVal === 0 || elem.registeredOn < prevVal) return elem.registeredOn;
         return prevVal;
       }, 0);
 
-      const maxTime = Object.values(activitiesJson.users || {}).reduce((prevVal, elem) => {
+      const maxTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
         if (elem.leftOn === 0) return (new Date()).getTime();
         if (elem.leftOn > prevVal) return elem.leftOn;
         return prevVal;
@@ -159,6 +228,8 @@ class App extends React.Component {
       const allUsers = Object.values(activitiesJson.users || {})
         .filter((currUser) => !currUser.isModerator);
       const nrOfUsers = allUsers.length;
+
+      if (nrOfUsers === 0) return meetingAveragePoints;
 
       // Calculate points of Talking
       const usersTalkTime = allUsers.map((currUser) => currUser.talk.totalTime);
@@ -181,7 +252,7 @@ class App extends React.Component {
       const maxRaiseHand = Math.max(...usersRaiseHand);
       const totalRaiseHand = usersRaiseHand.reduce((prev, val) => prev + val, 0);
       if (maxRaiseHand > 0) {
-        meetingAveragePoints += ((totalRaiseHand / nrOfUsers) / maxMessages) * 2;
+        meetingAveragePoints += ((totalRaiseHand / nrOfUsers) / maxRaiseHand) * 2;
       }
 
       // Calculate points of Emojis
@@ -222,33 +293,6 @@ class App extends React.Component {
         <div className="flex items-start justify-between pb-3">
           <h1 className="mt-3 text-2xl font-semibold whitespace-nowrap inline-block">
             <FormattedMessage id="app.learningDashboard.dashboardTitle" defaultMessage="Learning Dashboard" />
-            &nbsp;
-            {
-              learningDashboardAccessToken !== ''
-                ? (
-                  <button type="button" onClick={() => { this.copyPublicLink(); }} className="text-sm font-medium text-blue-500 ease-out">
-                    (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 inline"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                      />
-                    </svg>
-                    &nbsp;
-                    <FormattedMessage id="app.learningDashboard.shareButton" defaultMessage="Share with others" />
-                    )
-                  </button>
-                )
-                : null
-            }
             {
               ldAccessTokenCopied === true
                 ? (
@@ -257,7 +301,7 @@ class App extends React.Component {
                   </span>
                 )
                 : null
-}
+            }
             <br />
             <span className="text-sm font-medium">{activitiesJson.name || ''}</span>
           </h1>
@@ -307,9 +351,12 @@ class App extends React.Component {
                   ? intl.formatMessage({ id: 'app.learningDashboard.indicators.usersOnline', defaultMessage: 'Active Users' })
                   : intl.formatMessage({ id: 'app.learningDashboard.indicators.usersTotal', defaultMessage: 'Total Number Of Users' })
               }
-              number={Object.values(activitiesJson.users || {})
-                .filter((u) => activitiesJson.endedOn > 0 || u.leftOn === 0).length}
-              cardClass="border-pink-500"
+              number={Object
+                .values(activitiesJson.users || {})
+                .filter((u) => activitiesJson.endedOn > 0
+                  || Object.values(u.intIds)[Object.values(u.intIds).length - 1].leftOn === 0)
+                .length}
+              cardClass={tab === 'overview' ? 'border-pink-500' : 'hover:border-pink-500 border-white'}
               iconClass="bg-pink-50 text-pink-500"
               onClick={() => {
                 this.setState({ tab: 'overview' });
@@ -331,52 +378,6 @@ class App extends React.Component {
               </svg>
             </Card>
           </div>
-          <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'polling' }); }}>
-            <Card
-              name={intl.formatMessage({ id: 'app.learningDashboard.indicators.polls', defaultMessage: 'Polls' })}
-              number={Object.values(activitiesJson.polls || {}).length}
-              cardClass="border-blue-500"
-              iconClass="bg-blue-100 text-blue-500"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                />
-              </svg>
-            </Card>
-          </div>
-          <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'status_timeline' }); }}>
-            <Card
-              name={intl.formatMessage({ id: 'app.learningDashboard.indicators.raiseHand', defaultMessage: 'Raise Hand' })}
-              number={totalOfRaiseHand()}
-              cardClass="border-purple-500"
-              iconClass="bg-purple-200 text-purple-500"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"
-                />
-              </svg>
-            </Card>
-          </div>
           <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'overview_activityscore' }); }}>
             <Card
               name={intl.formatMessage({ id: 'app.learningDashboard.indicators.activityScore', defaultMessage: 'Activity Score' })}
@@ -384,7 +385,7 @@ class App extends React.Component {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 1,
               })}
-              cardClass="border-green-500"
+              cardClass={tab === 'overview_activityscore' ? 'border-green-500' : 'hover:border-green-500 border-white'}
               iconClass="bg-green-200 text-green-500"
             >
               <svg
@@ -409,13 +410,46 @@ class App extends React.Component {
               </svg>
             </Card>
           </div>
+          <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'status_timeline' }); }}>
+            <Card
+              name={intl.formatMessage({ id: 'app.learningDashboard.indicators.timeline', defaultMessage: 'Timeline' })}
+              number={totalOfEmojis()}
+              cardClass={tab === 'status_timeline' ? 'border-purple-500' : 'hover:border-purple-500 border-white'}
+              iconClass="bg-purple-200 text-purple-500"
+            >
+              {this.fetchMostUsedEmojis()}
+            </Card>
+          </div>
+          <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'polling' }); }}>
+            <Card
+              name={intl.formatMessage({ id: 'app.learningDashboard.indicators.polls', defaultMessage: 'Polls' })}
+              number={Object.values(activitiesJson.polls || {}).length}
+              cardClass={tab === 'polling' ? 'border-blue-500' : 'hover:border-blue-500 border-white'}
+              iconClass="bg-blue-100 text-blue-500"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                />
+              </svg>
+            </Card>
+          </div>
         </div>
-        <h1 className="block my-1 pr-2 text-xl font-semibold">
+        <h1 className="block my-2 pr-2 text-xl font-semibold">
           { tab === 'overview' || tab === 'overview_activityscore'
             ? <FormattedMessage id="app.learningDashboard.usersTable.title" defaultMessage="Overview" />
             : null }
           { tab === 'status_timeline'
-            ? <FormattedMessage id="app.learningDashboard.statusTimelineTable.title" defaultMessage="Status Timeline" />
+            ? <FormattedMessage id="app.learningDashboard.statusTimelineTable.title" defaultMessage="Timeline" />
             : null }
           { tab === 'polling'
             ? <FormattedMessage id="app.learningDashboard.pollsTable.title" defaultMessage="Polling" />
@@ -434,12 +468,56 @@ class App extends React.Component {
               )
               : null }
             { (tab === 'status_timeline')
-              ? <StatusTable allUsers={activitiesJson.users} />
+              ? (
+                <StatusTable
+                  allUsers={activitiesJson.users}
+                  slides={activitiesJson.presentationSlides}
+                  meetingId={activitiesJson.intId}
+                />
+              )
               : null }
             { tab === 'polling'
               ? <PollsTable polls={activitiesJson.polls} allUsers={activitiesJson.users} />
               : null }
           </div>
+        </div>
+        <hr className="my-8" />
+        <div className="flex justify-between mb-8 text-xs text-gray-700 dark:text-gray-400 whitespace-nowrap flex-col sm:flex-row">
+          <div className="flex flex-col justify-center mb-4 sm:mb-0">
+            <p>
+              {
+                lastUpdated && (
+                  <>
+                    <FormattedMessage
+                      id="app.learningDashboard.lastUpdatedLabel"
+                      defaultMessage="Last updated at"
+                    />
+                    &nbsp;
+                    <FormattedTime
+                      value={lastUpdated}
+                    />
+                    &nbsp;
+                    <FormattedDate
+                      value={lastUpdated}
+                      year="numeric"
+                      month="long"
+                      day="numeric"
+                    />
+                  </>
+                )
+              }
+            </p>
+          </div>
+          <button
+            type="button"
+            className="border-2 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50"
+            onClick={this.handleSaveSessionData.bind(this)}
+          >
+            <FormattedMessage
+              id="app.learningDashboard.downloadSessionDataLabel"
+              defaultMessage="Download Session Data"
+            />
+          </button>
         </div>
       </div>
     );

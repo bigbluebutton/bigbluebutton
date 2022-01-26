@@ -57,6 +57,7 @@ public class ResponseBuilder {
 
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("returnCode", returnCode);
+        data.put("version", apiVersion);
         data.put("apiVersion", apiVersion);
         data.put("bbbVersion", bbbVersion);
 

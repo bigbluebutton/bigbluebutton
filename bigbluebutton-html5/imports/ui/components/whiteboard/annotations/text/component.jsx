@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import RenderInBrowser from 'react-render-in-browser';
 import { getFormattedColor, denormalizeCoord } from '../helpers';
 
 const DRAW_END = Meteor.settings.public.whiteboard.annotations.status.end;
@@ -149,18 +148,7 @@ export default class TextDrawComponent extends Component {
 
     return (
       <g id={annotation.id} className="selectable">
-        <RenderInBrowser only firefox>
-          <clipPath id={annotation.id}>
-            <rect
-              x={results.x}
-              y={results.y}
-              width={results.width}
-              height={results.height}
-            />
-          </clipPath>
-        </RenderInBrowser>
         <foreignObject
-          clipPath={`url(#${annotation.id})`}
           x={results.x}
           y={results.y}
           width={results.width}

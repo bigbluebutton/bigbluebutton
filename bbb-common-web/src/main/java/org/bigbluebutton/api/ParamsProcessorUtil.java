@@ -29,6 +29,10 @@ import java.text.DecimalFormatSymbols;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -42,6 +46,7 @@ import org.apache.http.util.EntityUtils;
 import org.bigbluebutton.api.domain.BreakoutRoomsParams;
 import org.bigbluebutton.api.domain.LockSettingsParams;
 import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.domain.Group;
 import org.bigbluebutton.api.util.ParamsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +92,7 @@ public class ParamsProcessorUtil {
     private boolean webcamsOnlyForModerator;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
+    private boolean defaultAllowModsToEjectCameras = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
     private String defaultLogoURL;
@@ -99,7 +105,7 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsDisableMic;
 		private boolean defaultLockSettingsDisablePrivateChat;
 		private boolean defaultLockSettingsDisablePublicChat;
-		private boolean defaultLockSettingsDisableNote;
+		private boolean defaultLockSettingsDisableNotes;
 		private boolean defaultLockSettingsHideUserList;
 		private boolean defaultLockSettingsLockedLayout;
 		private boolean defaultLockSettingsLockOnJoin;
@@ -297,10 +303,17 @@ public class ParamsProcessorUtil {
 				lockSettingsDisablePublicChat = Boolean.parseBoolean(lockSettingsDisablePublicChatParam);
 			}
 
-			Boolean lockSettingsDisableNote = defaultLockSettingsDisableNote;
-			String lockSettingsDisableNoteParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_NOTE);
-			if (!StringUtils.isEmpty(lockSettingsDisableNoteParam)) {
-				lockSettingsDisableNote = Boolean.parseBoolean(lockSettingsDisableNoteParam);
+			Boolean lockSettingsDisableNotes = defaultLockSettingsDisableNotes;
+			String lockSettingsDisableNotesParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_NOTES);
+			if (!StringUtils.isEmpty(lockSettingsDisableNotesParam)) {
+				lockSettingsDisableNotes = Boolean.parseBoolean(lockSettingsDisableNotesParam);
+			} else {
+				// To be removed after deprecation period
+				lockSettingsDisableNotesParam = params.get(ApiParams.DEPRECATED_LOCK_SETTINGS_DISABLE_NOTES);
+				if (!StringUtils.isEmpty(lockSettingsDisableNotesParam)) {
+					log.warn("[DEPRECATION] use lockSettingsDisableNotes instead of lockSettingsDisableNote");
+					lockSettingsDisableNotes = Boolean.parseBoolean(lockSettingsDisableNotesParam);
+				}
 			}
 
 			Boolean lockSettingsHideUserList = defaultLockSettingsHideUserList;
@@ -331,12 +344,49 @@ public class ParamsProcessorUtil {
 							lockSettingsDisableMic,
 							lockSettingsDisablePrivateChat,
 							lockSettingsDisablePublicChat,
-							lockSettingsDisableNote,
+							lockSettingsDisableNotes,
 							lockSettingsHideUserList,
 							lockSettingsLockedLayout,
 							lockSettingsLockOnJoin,
 							lockSettingsLockOnJoinConfigurable);
 		}
+
+    private ArrayList<Group> processGroupsParams(Map<String, String> params) {
+        ArrayList<Group> groups = new ArrayList<Group>();
+
+        String groupsParam = params.get(ApiParams.GROUPS);
+        if (!StringUtils.isEmpty(groupsParam)) {
+            JsonElement groupParamsJson = new Gson().fromJson(groupsParam, JsonElement.class);
+
+            if(groupParamsJson != null && groupParamsJson.isJsonArray()) {
+                JsonArray groupsJson = groupParamsJson.getAsJsonArray();
+                for (JsonElement groupJson : groupsJson) {
+                    if(groupJson.isJsonObject()) {
+                        JsonObject groupJsonObj = groupJson.getAsJsonObject();
+                        if(groupJsonObj.has("id")) {
+                            String groupId = groupJsonObj.get("id").getAsString();
+                            String groupName = "";
+                            if(groupJsonObj.has("name")) {
+                                groupName = groupJsonObj.get("name").getAsString();
+                            }
+
+                            Vector<String> groupUsers = new Vector<>();
+                            if(groupJsonObj.has("roster") && groupJsonObj.get("roster").isJsonArray()) {
+                                for (JsonElement jsonElementUser : groupJsonObj.get("roster").getAsJsonArray()) {
+                                    if(jsonElementUser.isJsonObject() && jsonElementUser.getAsJsonObject().has("id")) {
+                                        groupUsers.add(jsonElementUser.getAsJsonObject().get("id").getAsString());
+                                    }
+                                }
+                            }
+                            groups.add(new Group(groupId,groupName,groupUsers));
+                        }
+                    }
+                }
+            }
+        }
+
+        return groups;
+    }
 
     public Meeting processCreateParams(Map<String, String> params) {
 
@@ -496,6 +546,8 @@ public class ParamsProcessorUtil {
 
         String meetingLayout = defaultMeetingLayout;
 
+        ArrayList<Group> groups = processGroupsParams(params);
+
         if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_LAYOUT))) {
             meetingLayout = params.get(ApiParams.MEETING_LAYOUT);
         }
@@ -559,6 +611,7 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardEnabled(learningDashboardEn)
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
+                .withGroups(groups)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
@@ -622,6 +675,12 @@ public class ParamsProcessorUtil {
             allowModsToUnmuteUsers = Boolean.parseBoolean(params.get(ApiParams.ALLOW_MODS_TO_UNMUTE_USERS));
         }
         meeting.setAllowModsToUnmuteUsers(allowModsToUnmuteUsers);
+
+    Boolean allowModsToEjectCameras = defaultAllowModsToEjectCameras;
+    if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_MODS_TO_EJECT_CAMERAS))) {
+      allowModsToEjectCameras = Boolean.parseBoolean(params.get(ApiParams.ALLOW_MODS_TO_EJECT_CAMERAS));
+    }
+    meeting.setAllowModsToEjectCameras(allowModsToEjectCameras);
 
         return meeting;
     }
@@ -1074,6 +1133,14 @@ public class ParamsProcessorUtil {
 		return defaultAllowModsToUnmuteUsers;
 	}
 
+  public void setAllowModsToEjectCameras(Boolean value) {
+    defaultAllowModsToEjectCameras = value;
+  }
+
+  public Boolean getAllowModsToEjectCameras() {
+    return defaultAllowModsToEjectCameras;
+  }
+
 	public List<String> decodeIds(String encodeid) {
 		ArrayList<String> ids=new ArrayList<>();
 		try {
@@ -1157,8 +1224,8 @@ public class ParamsProcessorUtil {
 		this.defaultLockSettingsDisablePublicChat = lockSettingsDisablePublicChat;
 	}
 
-	public void setLockSettingsDisableNote(Boolean lockSettingsDisableNote) {
-		this.defaultLockSettingsDisableNote = lockSettingsDisableNote;
+	public void setLockSettingsDisableNotes(Boolean lockSettingsDisableNotes) {
+		this.defaultLockSettingsDisableNotes = lockSettingsDisableNotes;
 	}
 
 	public void setLockSettingsHideUserList(Boolean lockSettingsHideUserList) {

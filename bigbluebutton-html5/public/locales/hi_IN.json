@@ -151,7 +151,6 @@
     "app.poll.quickPollTitle": "तुर्रन्त पोल",
     "app.poll.hidePollDesc": "पोल मेनू छुपाती है",
     "app.poll.quickPollInstruction": "अपना मतदान शुरू करने के लिए नीचे एक विकल्प चुनें।",
-    "app.poll.publishLabel": "मतदान के परिणाम प्रकाशित करें",
     "app.poll.closeLabel": "बंद करे",
     "app.poll.waitingLabel": "प्रतिक्रियाओं की प्रतीक्षा में ({0} / {1})",
     "app.poll.customPlaceholder": "पोल विकल्प जोड़ें",

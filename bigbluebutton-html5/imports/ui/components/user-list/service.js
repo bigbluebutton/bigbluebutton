@@ -1,8 +1,8 @@
-import Users from '/imports/ui/local-collections/users-collection/users';
+import Users from '/imports/api/users';
 import VoiceUsers from '/imports/api/voice-users';
 import GroupChat from '/imports/api/group-chat';
-import Breakouts from '/imports/ui/local-collections/breakouts-collection/breakouts';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Breakouts from '/imports/api/breakouts';
+import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
@@ -310,7 +310,8 @@ const isMeetingLocked = (id) => {
       || lockSettings.disableMic
       || lockSettings.disablePrivateChat
       || lockSettings.disablePublicChat
-      || lockSettings.disableNote
+      || lockSettings.disableNotes
+      || lockSettings.hideUserList
       || usersProp.webcamsOnlyForModerator) {
       isLocked = true;
     }
@@ -325,6 +326,7 @@ const getUsersProp = () => {
     {
       fields: {
         'usersProp.allowModsToUnmuteUsers': 1,
+        'usersProp.allowModsToEjectCameras': 1,
         'usersProp.authenticatedGuest': 1,
       },
     },
@@ -334,6 +336,7 @@ const getUsersProp = () => {
 
   return {
     allowModsToUnmuteUsers: false,
+    allowModsToEjectCameras: false,
     authenticatedGuest: false,
   };
 };
@@ -405,6 +408,10 @@ const getAvailableActions = (
   const allowedToChangeWhiteboardAccess = amIPresenter
     && !amISubjectUser;
 
+  const allowedToEjectCameras = amIModerator
+    && !amISubjectUser
+    && usersProp.allowModsToEjectCameras;
+
   return {
     allowedToChatPrivately,
     allowedToMuteAudio,
@@ -417,6 +424,7 @@ const getAvailableActions = (
     allowedToChangeStatus,
     allowedToChangeUserLockStatus,
     allowedToChangeWhiteboardAccess,
+    allowedToEjectCameras,
   };
 };
 
@@ -455,6 +463,10 @@ const toggleVoice = (userId) => {
       extraInfo: { logType: 'moderator_action', userId },
     }, 'moderator muted user microphone');
   }
+};
+
+const ejectUserCameras = (userId) => {
+  makeCall('ejectUserCameras', userId);
 };
 
 const getEmoji = () => {
@@ -595,8 +607,6 @@ const isUserPresenter = (userId) => {
   return user ? user.presenter : false;
 };
 
-const amIPresenter = () => isUserPresenter(Auth.userID);
-
 export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
   const mimeType = 'text/plain';
   const userNamesObj = getUsers()
@@ -666,8 +676,8 @@ export default {
   requestUserInformation,
   focusFirstDropDownItem,
   isUserPresenter,
-  amIPresenter,
   getUsersProp,
   getUserCount,
   sortUsersByCurrent,
+  ejectUserCameras,
 };

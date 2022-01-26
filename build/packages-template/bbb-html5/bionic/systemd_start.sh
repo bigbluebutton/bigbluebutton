@@ -41,7 +41,11 @@ echo "instanceId = $INSTANCE_ID   and port = $PORT   and role is backend (in bac
 
 export INSTANCE_ID=$INSTANCE_ID
 export BBB_HTML5_ROLE=backend
-export ROOT_URL=http://127.0.0.1/html5client
+# this might be already set by a systemd unit override in case this node is run
+# behind a load balancer proxy node
+if [[ -z $ROOT_URL ]] ; then
+  export ROOT_URL=http://127.0.0.1/html5client
+fi
 export MONGO_OPLOG_URL=mongodb://127.0.1.1/local
 export MONGO_URL=mongodb://127.0.1.1/meteor
 export NODE_ENV=production

@@ -21,6 +21,7 @@ import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typograp
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { DivElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import Button from '/imports/ui/components/button/component';
+import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 
 const ListItem = styled.div`
   display: flex;
@@ -220,6 +221,18 @@ const LobbyMessage = styled.div`
   }
 `;
 
+const PrivateLobbyMessage = styled.div`
+  border-bottom: 1px solid ${colorGrayLightest};
+  display: none;
+  & > p {
+    background-color: ${colorOffWhite};
+    box-sizing: border-box;
+    color: ${colorGray};
+    padding: 1rem;
+    text-align: center;
+  }
+`;
+
 const RememberContainer = styled.div`
   margin: 1rem 1rem;
   height: 2rem;
@@ -238,10 +251,16 @@ const RememberContainer = styled.div`
   }
 `;
 
+const ScrollableArea = styled(ScrollboxVertical)`
+  overflow-y: auto;
+  padding-right: 0.25rem;
+`;
+
 export default {
   ListItem,
   UserContentContainer,
   UserAvatarContainer,
+  PrivateLobbyMessage,
   UserName,
   ButtonContainer,
   WaitingUsersButton,
@@ -257,4 +276,5 @@ export default {
   HideButton,
   LobbyMessage,
   RememberContainer,
+  ScrollableArea,
 };

@@ -1,15 +1,14 @@
 import React, { useContext } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import userListService from '/imports/ui/components/user-list/service';
 import { ChatContext } from '/imports/ui/components/components-data/chat-context/context';
 import { GroupChatContext } from '/imports/ui/components/components-data/group-chat-context/context';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
-import NoteService from '/imports/ui/components/note/service';
-import Service from './service';
+import NotesService from '/imports/ui/components/notes/service';
 import NavBar from './component';
 import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
 
@@ -34,6 +33,7 @@ const NavBarContainer = ({ children, ...props }) => {
   const { chats: groupChatsMessages } = usingChatContext;
   const { users } = usingUsersContext;
   const { groupChat: groupChats } = usingGroupChatContext;
+  const activeChats = userListService.getActiveChats({ groupChatsMessages, groupChats, users:users[Auth.meetingID] });
   const { ...rest } = props;
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -44,7 +44,7 @@ const NavBarContainer = ({ children, ...props }) => {
   const { sidebarContentPanel } = sidebarContent;
   const { sidebarNavPanel } = sidebarNavigation;
 
-  const hasUnreadNotes = NoteService.hasUnreadNotes(sidebarContentPanel);
+  const hasUnreadNotes = NotesService.hasUnreadNotes(sidebarContentPanel);
   const hasUnreadMessages = checkUnreadMessages(
     { groupChatsMessages, groupChats, users: users[Auth.meetingID] },
   );
@@ -70,6 +70,7 @@ const NavBarContainer = ({ children, ...props }) => {
         sidebarContent,
         layoutContextDispatch,
         isExpanded,
+        activeChats,
         ...rest,
       }}
       style={{ ...navBar }}
@@ -100,12 +101,8 @@ export default withTracker(() => {
     document.title = titleString;
   }
 
-  const { connectRecordingObserver, processOutsideToggleRecording } = Service;
-
   return {
     currentUserId: Auth.userID,
-    processOutsideToggleRecording,
-    connectRecordingObserver,
     meetingId,
     presentationTitle: meetingTitle,
   };

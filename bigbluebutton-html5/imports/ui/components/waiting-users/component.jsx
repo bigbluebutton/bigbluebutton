@@ -62,6 +62,14 @@ const intlMessages = defineMessages({
     id: 'app.userList.guest.inputPlaceholder',
     description: 'Placeholder to guest lobby message input',
   },
+  privateMessageLabel: {
+    id: 'app.userList.guest.privateMessageLabel',
+    description: 'Private message button label',
+  },  
+  privateInputPlaceholder: {
+    id: 'app.userList.guest.privateInputPlaceholder',
+    description: 'Private input placeholder',
+  },
   accept: {
     id: 'app.userList.guest.acceptLabel',
     description: 'Accept guest button label',
@@ -84,7 +92,9 @@ const getNameInitials = (name) => {
 
 const renderGuestUserItem = (
   name, color, handleAccept, handleDeny, role, sequence, userId, avatar, intl,
+  privateMessageVisible, setPrivateGuestLobbyMessage, privateGuestLobbyMessage, isGuestLobbyMessageEnabled,
 ) => (
+  <>
   <Styled.ListItem key={`userlist-item-${userId}`} animations={animations}>
     <Styled.UserContentContainer key={`user-content-container-${userId}`}>
       <Styled.UserAvatarContainer key={`user-avatar-container-${userId}`}>
@@ -103,6 +113,17 @@ const renderGuestUserItem = (
     </Styled.UserContentContainer>
 
     <Styled.ButtonContainer key={`userlist-btns-${userId}`}>
+    { isGuestLobbyMessageEnabled ? ( 
+      <Styled.WaitingUsersButton
+        key={`userbtn-message-${userId}`}
+        color="primary"
+        size="lg"
+        ghost
+        label={intl.formatMessage(intlMessages.privateMessageLabel)}
+        onClick={privateMessageVisible} 
+      />
+    ) : null}
+        |
       <Styled.WaitingUsersButton
         key={`userbtn-accept-${userId}`}
         color="primary"
@@ -122,6 +143,26 @@ const renderGuestUserItem = (
       />
     </Styled.ButtonContainer>
   </Styled.ListItem>
+  { isGuestLobbyMessageEnabled ? (
+    <Styled.PrivateLobbyMessage
+      id={`privateMessage-${userId}`}>
+        <TextInput
+          maxLength={128}
+          placeholder={intl.formatMessage(intlMessages.privateInputPlaceholder,
+                                         { 0: name })}
+          send={setPrivateGuestLobbyMessage} />
+        <p>
+          <i>
+            &quot;
+            {privateGuestLobbyMessage.length > 0
+              ? privateGuestLobbyMessage
+              : intl.formatMessage(intlMessages.emptyMessage)}
+            &quot;
+          </i>
+        </p>
+    </Styled.PrivateLobbyMessage>
+  ) : null}
+  </>
 );
 
 const renderNoUserWaitingItem = (message) => (
@@ -132,7 +173,10 @@ const renderNoUserWaitingItem = (message) => (
   </Styled.PendingUsers>
 );
 
-const renderPendingUsers = (message, usersArray, action, intl) => {
+const renderPendingUsers = (message, usersArray, action, intl,
+  privateMessageVisible, setPrivateGuestLobbyMessage, 
+  privateGuestLobbyMessage, isGuestLobbyMessageEnabled
+) => { 
   if (!usersArray.length) return null;
   return (
     <Styled.PendingUsers>
@@ -149,6 +193,10 @@ const renderPendingUsers = (message, usersArray, action, intl) => {
             user.intId,
             user.avatar,
             intl,
+            () => privateMessageVisible(`privateMessage-${user.intId}`),
+            (message) => setPrivateGuestLobbyMessage(message, user.intId),
+            privateGuestLobbyMessage(user.intId),
+            isGuestLobbyMessageEnabled,
           ))}
         </Styled.Users>
       </Styled.UsersWrapper>
@@ -162,12 +210,15 @@ const WaitingUsers = (props) => {
   const {
     intl,
     authenticatedUsers,
+    privateMessageVisible,
     guestUsers,
     guestUsersCall,
     changeGuestPolicy,
     isGuestLobbyMessageEnabled,
     setGuestLobbyMessage,
     guestLobbyMessage,
+    setPrivateGuestLobbyMessage,
+    privateGuestLobbyMessage,
     authenticatedGuest,
     layoutContextDispatch,
     allowRememberChoice,
@@ -268,65 +319,75 @@ const WaitingUsers = (props) => {
           />
         </Styled.Title>
       </Styled.Header>
-      {isGuestLobbyMessageEnabled ? (
-        <Styled.LobbyMessage>
-          <TextInput
-            maxLength={128}
-            placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
-            send={setGuestLobbyMessage}
-          />
-          <p>
-            <i>
-              &quot;
-              {
+      <Styled.ScrollableArea>
+        {isGuestLobbyMessageEnabled ? (
+          <Styled.LobbyMessage>
+            <TextInput
+              maxLength={128}
+              placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
+              send={setGuestLobbyMessage}
+            />
+            <p>
+              <i>
+                &quot;
+                {
                 guestLobbyMessage.length > 0
                   ? guestLobbyMessage
                   : intl.formatMessage(intlMessages.emptyMessage)
               }
-              &quot;
-            </i>
-          </p>
-        </Styled.LobbyMessage>
-      ) : null}
-      {existPendingUsers && (
-      <div>
+                &quot;
+              </i>
+            </p>
+          </Styled.LobbyMessage>
+        ) : null}
+        {existPendingUsers && (
         <div>
-          <Styled.MainTitle>{intl.formatMessage(intlMessages.optionTitle)}</Styled.MainTitle>
-          {
+          <div>
+            <Styled.MainTitle>{intl.formatMessage(intlMessages.optionTitle)}</Styled.MainTitle>
+            {
             buttonsData.map((buttonData) => renderButton(
               intl.formatMessage(buttonData.messageId),
               buttonData,
             ))
           }
-        </div>
+          </div>
 
-        {allowRememberChoice ? (
-          <Styled.RememberContainer>
-            <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
-            <label htmlFor="rememderCheckboxId">
-              {intl.formatMessage(intlMessages.rememberChoice)}
-            </label>
-          </Styled.RememberContainer>
-        ) : null}
-      </div>
-      )}
-      {renderPendingUsers(
-        intl.formatMessage(intlMessages.pendingUsers,
-          { 0: authenticatedUsers.length }),
-        authenticatedUsers,
-        guestUsersCall,
-        intl,
-      )}
-      {renderPendingUsers(
-        intl.formatMessage(intlMessages.pendingGuestUsers,
-          { 0: guestUsers.length }),
-        guestUsers,
-        guestUsersCall,
-        intl,
-      )}
-      {!existPendingUsers && (
-        renderNoUserWaitingItem(intl.formatMessage(intlMessages.noPendingUsers))
-      )}
+          {allowRememberChoice ? (
+            <Styled.RememberContainer>
+              <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
+              <label htmlFor="rememderCheckboxId">
+                {intl.formatMessage(intlMessages.rememberChoice)}
+              </label>
+            </Styled.RememberContainer>
+          ) : null}
+        </div>
+        )}
+        {renderPendingUsers(
+          intl.formatMessage(intlMessages.pendingUsers,
+            { 0: authenticatedUsers.length }),
+          authenticatedUsers,
+          guestUsersCall,
+          intl,
+          privateMessageVisible,
+          setPrivateGuestLobbyMessage,
+          privateGuestLobbyMessage,
+          isGuestLobbyMessageEnabled,
+        )}
+        {renderPendingUsers(
+          intl.formatMessage(intlMessages.pendingGuestUsers,
+            { 0: guestUsers.length }),
+          guestUsers,
+          guestUsersCall,
+          intl,
+          privateMessageVisible,
+          setPrivateGuestLobbyMessage,
+          privateGuestLobbyMessage,
+          isGuestLobbyMessageEnabled,
+        )}
+        {!existPendingUsers && (
+          renderNoUserWaitingItem(intl.formatMessage(intlMessages.noPendingUsers))
+        )}
+      </Styled.ScrollableArea>
     </Styled.Panel>
   );
 };

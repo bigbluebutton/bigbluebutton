@@ -3,7 +3,8 @@ package org.bigbluebutton.api2
 import scala.collection.JavaConverters._
 import akka.actor.ActorSystem
 import akka.event.Logging
-import org.bigbluebutton.api.domain.{ BreakoutRoomsParams, LockSettingsParams }
+import java.util
+import org.bigbluebutton.api.domain.{ BreakoutRoomsParams, Group, LockSettingsParams }
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.WebRedisSubscriberActor
@@ -140,10 +141,12 @@ class BbbWebApiGWApp(
                     endWhenNoModeratorDelayInMinutes:       java.lang.Integer,
                     muteOnStart:                            java.lang.Boolean,
                     allowModsToUnmuteUsers:                 java.lang.Boolean,
+                    allowModsToEjectCameras:                java.lang.Boolean,
                     keepEvents:                             java.lang.Boolean,
                     breakoutParams:                         BreakoutRoomsParams,
                     lockSettingsParams:                     LockSettingsParams,
-                    html5InstanceId:                        java.lang.Integer): Unit = {
+                    html5InstanceId:                        java.lang.Integer,
+                    groups:                                 java.util.ArrayList[Group]): Unit = {
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
       isBreakout = isBreakout.booleanValue(), learningDashboardEnabled = learningDashboardEnabled.booleanValue())
@@ -177,7 +180,9 @@ class BbbWebApiGWApp(
       modOnlyMessage = modOnlyMessage)
     val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber, muteOnStart = muteOnStart.booleanValue())
     val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
-      guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(), authenticatedGuest = authenticatedGuest.booleanValue())
+      guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
+      allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
+      authenticatedGuest = authenticatedGuest.booleanValue())
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
     val screenshareProps = ScreenshareProps(
       screenshareConf = voiceBridge + screenshareConfSuffix,
@@ -190,7 +195,7 @@ class BbbWebApiGWApp(
       disableMic = lockSettingsParams.disableMic.booleanValue(),
       disablePrivateChat = lockSettingsParams.disablePrivateChat.booleanValue(),
       disablePublicChat = lockSettingsParams.disablePublicChat.booleanValue(),
-      disableNote = lockSettingsParams.disableNote.booleanValue(),
+      disableNotes = lockSettingsParams.disableNotes.booleanValue(),
       hideUserList = lockSettingsParams.hideUserList.booleanValue(),
       lockedLayout = lockSettingsParams.lockedLayout.booleanValue(),
       lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
@@ -200,6 +205,8 @@ class BbbWebApiGWApp(
     val systemProps = SystemProps(
       html5InstanceId
     )
+
+    val groupsAsVector: Vector[GroupProps] = groups.asScala.toVector.map(g => GroupProps(g.getGroupId(), g.getName(), g.getUsersExtId().asScala.toVector))
 
     val defaultProps = DefaultProps(
       meetingProp,
@@ -213,7 +220,8 @@ class BbbWebApiGWApp(
       metadataProp,
       screenshareProps,
       lockSettingsProps,
-      systemProps
+      systemProps,
+      groupsAsVector
     )
 
     //meetingManagerActorRef ! new CreateMeetingMsg(defaultProps)
@@ -226,7 +234,7 @@ class BbbWebApiGWApp(
   def registerUser(meetingId: String, intUserId: String, name: String,
                    role: String, extUserId: String, authToken: String, avatarURL: String,
                    guest: java.lang.Boolean, authed: java.lang.Boolean,
-                   guestStatus: String): Unit = {
+                   guestStatus: String, excludeFromDashboard: java.lang.Boolean): Unit = {
 
     //    meetingManagerActorRef ! new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
     //      role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
@@ -234,7 +242,8 @@ class BbbWebApiGWApp(
 
     val regUser = new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
       role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
-      guest = guest.booleanValue(), authed = authed.booleanValue(), guestStatus = guestStatus)
+      guest = guest.booleanValue(), authed = authed.booleanValue(), guestStatus = guestStatus,
+      excludeFromDashboard = excludeFromDashboard)
 
     val event = MsgBuilder.buildRegisterUserRequestToAkkaApps(regUser)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))

@@ -50,6 +50,8 @@ trait SystemConfiguration {
   lazy val endMeetingWhenNoMoreAuthedUsers = Try(config.getBoolean("apps.endMeetingWhenNoMoreAuthedUsers")).getOrElse(false)
   lazy val endMeetingWhenNoMoreAuthedUsersAfterMinutes = Try(config.getInt("apps.endMeetingWhenNoMoreAuthedUsersAfterMinutes")).getOrElse(2)
 
+  lazy val reduceDuplicatedPick = Try(config.getBoolean("apps.reduceDuplicatedPick")).getOrElse(false)
+
   // Redis server configuration
   lazy val redisHost = Try(config.getString("redis.host")).getOrElse("127.0.0.1")
   lazy val redisPort = Try(config.getInt("redis.port")).getOrElse(6379)
@@ -62,6 +64,9 @@ trait SystemConfiguration {
 
   lazy val toVoiceConfRedisChannel = Try(config.getString("redis.toVoiceConfRedisChannel")).getOrElse("to-voice-conf-redis-channel")
   lazy val fromVoiceConfRedisChannel = Try(config.getString("redis.fromVoiceConfRedisChannel")).getOrElse("from-voice-conf-redis-channel")
+
+  lazy val toSfuRedisChannel = Try(config.getString("redis.toSfuRedisChannel")).getOrElse("to-sfu-redis-channel")
+  lazy val fromSfuRedisChannel = Try(config.getString("redis.fromSfuRedisChannel")).getOrElse("from-sfu-redis-channel")
 
   lazy val fromAkkaAppsWbRedisChannel = Try(config.getString("redis.fromAkkaAppsWbRedisChannel")).getOrElse("from-akka-apps-wb-redis-channel")
   lazy val fromAkkaAppsChatRedisChannel = Try(config.getString("redis.fromAkkaAppsChatRedisChannel")).getOrElse("from-akka-apps-chat-redis-channel")

@@ -125,7 +125,6 @@
     "app.poll.quickPollTitle": "Encuesta rápida",
     "app.poll.hidePollDesc": "Ocultar el menu de la encuesta",
     "app.poll.quickPollInstruction": "Selecciona una de las siguientes opciones para iniciar tu encuesta. ",
-    "app.poll.publishLabel": "Publicar resultados de encuesta",
     "app.poll.closeLabel": "Cerrar",
     "app.poll.customPlaceholder": "Agregar respuesta de encuesta",
     "app.poll.noPresentationSelected": "No se ha seleccionado la presentación. Selecciona una.",

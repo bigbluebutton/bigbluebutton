@@ -30,7 +30,6 @@ function fullscreenRequest(element) {
     element.mozRequestFullScreen();
   } else if (element.webkitRequestFullscreen) {
     element.webkitRequestFullscreen();
-    element.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
   } else if (element.msRequestFullscreen) {
     element.msRequestFullscreen();
   } else {

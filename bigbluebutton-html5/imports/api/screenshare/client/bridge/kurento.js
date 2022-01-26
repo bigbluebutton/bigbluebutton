@@ -4,6 +4,7 @@ import BridgeService from './service';
 import ScreenshareBroker from '/imports/ui/services/bbb-webrtc-sfu/screenshare-broker';
 import { setSharingScreen, screenShareEndAlert } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from './errors';
+import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 
 const SFU_CONFIG = Meteor.settings.public.kurento;
 const SFU_URL = SFU_CONFIG.wsUrl;
@@ -14,6 +15,7 @@ const BRIDGE_NAME = 'kurento'
 const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
 const SEND_ROLE = 'send';
 const RECV_ROLE = 'recv';
+const DEFAULT_VOLUME = 1;
 
 // the error-code mapping is bridge specific; that's why it's not in the errors util
 const ERROR_MAP = {
@@ -180,6 +182,28 @@ export default class KurentoScreenshareBridge {
     }
   }
 
+  setVolume(volume) {
+    const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
+
+    if (mediaElement) {
+      if (typeof volume === 'number' && volume >= 0 && volume <= 1) {
+        mediaElement.volume = volume;
+      }
+
+      return mediaElement.volume;
+    }
+
+    return DEFAULT_VOLUME;
+  }
+
+  getVolume() {
+    const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
+
+    if (mediaElement) return mediaElement.volume;
+
+    return DEFAULT_VOLUME;
+  }
+
   handleViewerStart() {
     const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
 
@@ -227,6 +251,7 @@ export default class KurentoScreenshareBridge {
       offering: OFFERING,
       mediaServer: BridgeService.getMediaServerAdapter(),
       signalCandidates: SIGNAL_CANDIDATES,
+      forceRelay: shouldForceRelay(),
     };
 
     this.broker = new ScreenshareBroker(
@@ -287,6 +312,7 @@ export default class KurentoScreenshareBridge {
         offering: true,
         mediaServer: BridgeService.getMediaServerAdapter(),
         signalCandidates: SIGNAL_CANDIDATES,
+        forceRelay: shouldForceRelay(),
       };
 
       this.broker = new ScreenshareBroker(

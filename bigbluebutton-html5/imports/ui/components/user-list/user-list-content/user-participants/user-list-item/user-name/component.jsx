@@ -42,11 +42,16 @@ const messages = defineMessages({
     id: 'app.userList.userAriaLabel',
     description: 'aria label for each user in the userlist',
   },
+  breakoutRoom: {
+    id: 'app.createBreakoutRoom.room',
+    description: 'breakout room',
+  },
 });
 
 const propTypes = {
   user: PropTypes.shape({
     name: PropTypes.string.isRequired,
+    pin: PropTypes.bool.isRequired,
   }).isRequired,
   compact: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
@@ -68,6 +73,7 @@ const UserName = (props) => {
     isThisMeetingLocked,
     userAriaLabel,
     isActionsOpen,
+    userLastBreakout,
     isMe,
     user,
   } = props;
@@ -81,7 +87,9 @@ const UserName = (props) => {
   if (user.isSharingWebcam && LABEL.sharingWebcam) {
     userNameSub.push(
       <span key={_.uniqueId('video-')}>
-        <Icon iconName="video" />
+        { user.pin === true
+          ? <Icon iconName="pin-video_on" />
+          : <Icon iconName="video" /> }
         &nbsp;
         {intl.formatMessage(messages.sharingWebcam)}
       </span>,
@@ -108,6 +116,18 @@ const UserName = (props) => {
 
   if (user.guest) {
     if (LABEL.guest) userNameSub.push(intl.formatMessage(messages.guest));
+  }
+
+  if (userLastBreakout) {
+    userNameSub.push(
+      <span key={_.uniqueId('breakout-')}>
+        <Icon iconName="rooms" />
+        &nbsp;
+        {userLastBreakout.isDefaultName
+          ? intl.formatMessage(messages.breakoutRoom, { 0: userLastBreakout.sequence })
+          : userLastBreakout.shortName}
+      </span>,
+    );
   }
 
   return (

@@ -401,14 +401,17 @@ const reducer = (state, action) => {
 
     // SIDEBAR CONTENT
     case ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN: {
-      const { sidebarContent } = state.input;
+      const { sidebarContent, sidebarNavigation } = state.input;
       if (sidebarContent.isOpen === action.value) {
         return state;
       }
+      // When opening content sidebar, the navigation sidebar should be opened as well
+      if (action.value === true) sidebarNavigation.isOpen = true;
       return {
         ...state,
         input: {
           ...state.input,
+          sidebarNavigation,
           sidebarContent: {
             ...sidebarContent,
             isOpen: action.value,

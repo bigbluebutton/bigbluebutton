@@ -49,7 +49,7 @@ object Users2x {
   def findAllExpiredUserLeftFlags(users: Users2x, meetingExpireWhenLastUserLeftInMs: Long): Vector[UserState] = {
     if (meetingExpireWhenLastUserLeftInMs > 0) {
       users.toVector filter (u => u.userLeftFlag.left && u.userLeftFlag.leftOn != 0 &&
-        System.currentTimeMillis() - u.userLeftFlag.leftOn > 30000)
+        System.currentTimeMillis() - u.userLeftFlag.leftOn > 10000)
     } else {
       // When meetingExpireWhenLastUserLeftInMs is set zero we need to
       // remove user right away to end the meeting as soon as possible.
@@ -70,12 +70,21 @@ object Users2x {
     users.toVector.filter(u => !u.presenter)
   }
 
-  def findNotPresentersNorModerators(users: Users2x): Vector[UserState] = {
-    users.toVector.filter(u => !u.presenter && u.role != Roles.MODERATOR_ROLE)
+  def getRandomlyPickableUsers(users: Users2x, reduceDup: Boolean): Vector[UserState] = {
+
+    if (reduceDup) {
+      users.toVector.filter(u => !u.presenter && u.role != Roles.MODERATOR_ROLE && !u.userLeftFlag.left && !u.pickExempted)
+    } else {
+      users.toVector.filter(u => !u.presenter && u.role != Roles.MODERATOR_ROLE && !u.userLeftFlag.left)
+    }
   }
 
   def findViewers(users: Users2x): Vector[UserState] = {
     users.toVector.filter(u => u.role == Roles.VIEWER_ROLE)
+  }
+
+  def findLockedViewers(users: Users2x): Vector[UserState] = {
+    users.toVector.filter(u => u.role == Roles.VIEWER_ROLE && u.locked)
   }
 
   def updateLastUserActivity(users: Users2x, u: UserState): UserState = {
@@ -125,6 +134,16 @@ object Users2x {
     }
   }
 
+  def changePin(users: Users2x, intId: String, pin: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.pin).setTo(pin)
+      users.save(newUser)
+      newUser
+    }
+  }
+
   def setEmojiStatus(users: Users2x, intId: String, emoji: String): Option[UserState] = {
     for {
       u <- findWithIntId(users, intId)
@@ -140,6 +159,16 @@ object Users2x {
       u <- findWithIntId(users, intId)
     } yield {
       val newUser = u.modify(_.locked).setTo(locked)
+      users.save(newUser)
+      newUser
+    }
+  }
+
+  def setUserExempted(users: Users2x, intId: String, exempted: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.pickExempted).setTo(exempted)
       users.save(newUser)
       newUser
     }
@@ -161,6 +190,24 @@ object Users2x {
 
   def findPresenter(users: Users2x): Option[UserState] = {
     users.toVector.find(u => u.presenter)
+  }
+
+  def hasPin(users: Users2x): Boolean = {
+    findPin(users) match {
+      case Some(p) => true
+      case None    => false
+    }
+  }
+
+  def isPin(intId: String, users: Users2x): Boolean = {
+    findWithIntId(users, intId) match {
+      case Some(u) => u.pin
+      case None    => false
+    }
+  }
+
+  def findPin(users: Users2x): Option[UserState] = {
+    users.toVector.find(u => u.pin)
   }
 
   def findModerator(users: Users2x): Option[UserState] = {
@@ -279,6 +326,7 @@ case class UserState(
     name:                  String,
     role:                  String,
     guest:                 Boolean,
+    pin:                   Boolean,
     authed:                Boolean,
     guestStatus:           String,
     emoji:                 String,
@@ -289,6 +337,7 @@ case class UserState(
     lastActivityTime:      Long         = System.currentTimeMillis(),
     lastInactivityInspect: Long         = 0,
     clientType:            String,
+    pickExempted:          Boolean,
     userLeftFlag:          UserLeftFlag
 )
 

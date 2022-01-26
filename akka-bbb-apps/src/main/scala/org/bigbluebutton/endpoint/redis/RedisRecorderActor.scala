@@ -101,8 +101,8 @@ class RedisRecorderActor(
       // Caption
       case m: EditCaptionHistoryEvtMsg              => handleEditCaptionHistoryEvtMsg(m)
 
-      // Pad
-      case m: AddPadEvtMsg                          => handleAddPadEvtMsg(m)
+      // Pads
+      case m: PadCreatedRespMsg                     => handlePadCreatedRespMsg(m)
 
       // Screenshare
       case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
@@ -133,7 +133,7 @@ class RedisRecorderActor(
     }
   }
 
-  private def handleGroupChatMessageBroadcastEvtMsg(msg: GroupChatMessageBroadcastEvtMsg) = {
+  private def handleGroupChatMessageBroadcastEvtMsg(msg: GroupChatMessageBroadcastEvtMsg) {
     if (msg.body.chatId == GroupChatApp.MAIN_PUBLIC_CHAT) {
       val ev = new PublicChatRecordEvent()
       ev.setMeetingId(msg.header.meetingId)
@@ -144,14 +144,14 @@ class RedisRecorderActor(
     }
   }
 
-  private def handleClearPublicChatHistoryEvtMsg(msg: ClearPublicChatHistoryEvtMsg) = {
+  private def handleClearPublicChatHistoryEvtMsg(msg: ClearPublicChatHistoryEvtMsg) {
     val ev = new ClearPublicChatRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handlePresentationConversionCompletedEvtMsg(msg: PresentationConversionCompletedEvtMsg) = {
+  private def handlePresentationConversionCompletedEvtMsg(msg: PresentationConversionCompletedEvtMsg) {
     val ev = new ConversionCompletedPresentationRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
@@ -165,7 +165,7 @@ class RedisRecorderActor(
     }
   }
 
-  private def handleSetCurrentPageEvtMsg(msg: SetCurrentPageEvtMsg) = {
+  private def handleSetCurrentPageEvtMsg(msg: SetCurrentPageEvtMsg) {
     val ev = new GotoSlideRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
@@ -176,7 +176,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleResizeAndMovePageEvtMsg(msg: ResizeAndMovePageEvtMsg) = {
+  private def handleResizeAndMovePageEvtMsg(msg: ResizeAndMovePageEvtMsg) {
     val ev = new ResizeAndMoveSlideRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
@@ -190,7 +190,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleRemovePresentationEvtMsg(msg: RemovePresentationEvtMsg) = {
+  private def handleRemovePresentationEvtMsg(msg: RemovePresentationEvtMsg) {
     val ev = new RemovePresentationRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
@@ -199,7 +199,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleSetPresentationDownloadableEvtMsg(msg: SetPresentationDownloadableEvtMsg) = {
+  private def handleSetPresentationDownloadableEvtMsg(msg: SetPresentationDownloadableEvtMsg) {
     val ev = new SetPresentationDownloadable()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
@@ -209,11 +209,11 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleSetCurrentPresentationEvtMsg(msg: SetCurrentPresentationEvtMsg) = {
+  private def handleSetCurrentPresentationEvtMsg(msg: SetCurrentPresentationEvtMsg) {
     recordSharePresentationEvent(msg.header.meetingId, msg.body.podId, msg.body.presentationId)
   }
 
-  private def handleCreateNewPresentationPodEvtMsg(msg: CreateNewPresentationPodEvtMsg) = {
+  private def handleCreateNewPresentationPodEvtMsg(msg: CreateNewPresentationPodEvtMsg) {
     val ev = new CreatePresentationPodRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
@@ -222,7 +222,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleRemovePresentationPodEvtMsg(msg: RemovePresentationPodEvtMsg) = {
+  private def handleRemovePresentationPodEvtMsg(msg: RemovePresentationPodEvtMsg) {
     val ev = new RemovePresentationPodRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
@@ -230,7 +230,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleSetPresenterInPodRespMsg(msg: SetPresenterInPodRespMsg) = {
+  private def handleSetPresenterInPodRespMsg(msg: SetPresenterInPodRespMsg) {
     val ev = new SetPresenterInPodRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
@@ -239,7 +239,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def recordSharePresentationEvent(meetingId: String, podId: String, presentationId: String) = {
+  private def recordSharePresentationEvent(meetingId: String, podId: String, presentationId: String) {
     val ev = new SharePresentationRecordEvent()
     ev.setMeetingId(meetingId)
     ev.setPodId(podId)
@@ -272,7 +272,7 @@ class RedisRecorderActor(
     presId
   }
 
-  private def handleSendWhiteboardAnnotationEvtMsg(msg: SendWhiteboardAnnotationEvtMsg) = {
+  private def handleSendWhiteboardAnnotationEvtMsg(msg: SendWhiteboardAnnotationEvtMsg) {
     val annotation = msg.body.annotation
 
     val ev = new AddShapeWhiteboardRecordEvent()
@@ -288,7 +288,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleSendCursorPositionEvtMsg(msg: SendCursorPositionEvtMsg) = {
+  private def handleSendCursorPositionEvtMsg(msg: SendCursorPositionEvtMsg) {
     val ev = new WhiteboardCursorMoveRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPresentation(getPresentationId(msg.body.whiteboardId))
@@ -301,7 +301,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleClearWhiteboardEvtMsg(msg: ClearWhiteboardEvtMsg) = {
+  private def handleClearWhiteboardEvtMsg(msg: ClearWhiteboardEvtMsg) {
     val ev = new ClearWhiteboardRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPresentation(getPresentationId(msg.body.whiteboardId))
@@ -313,7 +313,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleUndoWhiteboardEvtMsg(msg: UndoWhiteboardEvtMsg) = {
+  private def handleUndoWhiteboardEvtMsg(msg: UndoWhiteboardEvtMsg) {
     val ev = new UndoAnnotationRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPresentation(getPresentationId(msg.body.whiteboardId))
@@ -355,19 +355,19 @@ class RedisRecorderActor(
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
-  private def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg) = {
+  private def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg) {
     handleUserStatusChange(msg.header.meetingId, msg.body.userId, "emojiStatus", msg.body.emoji)
   }
 
-  private def handleUserRoleChangedEvtMsg(msg: UserRoleChangedEvtMsg) = {
+  private def handleUserRoleChangedEvtMsg(msg: UserRoleChangedEvtMsg) {
     handleUserStatusChange(msg.header.meetingId, msg.body.userId, "role", msg.body.role)
   }
 
-  private def handleUserBroadcastCamStartedEvtMsg(msg: UserBroadcastCamStartedEvtMsg) = {
+  private def handleUserBroadcastCamStartedEvtMsg(msg: UserBroadcastCamStartedEvtMsg) {
     handleUserStatusChange(msg.header.meetingId, msg.body.userId, "hasStream", "true,stream=" + msg.body.stream)
   }
 
-  private def handleUserBroadcastCamStoppedEvtMsg(msg: UserBroadcastCamStoppedEvtMsg) = {
+  private def handleUserBroadcastCamStoppedEvtMsg(msg: UserBroadcastCamStoppedEvtMsg) {
     handleUserStatusChange(msg.header.meetingId, msg.body.userId, "hasStream", "false,stream=" + msg.body.stream)
   }
 
@@ -381,7 +381,7 @@ class RedisRecorderActor(
     record(meetingId, ev.toMap.asJava)
   }
 
-  private def handleUserJoinedVoiceConfToClientEvtMsg(msg: UserJoinedVoiceConfToClientEvtMsg) = {
+  private def handleUserJoinedVoiceConfToClientEvtMsg(msg: UserJoinedVoiceConfToClientEvtMsg) {
     val ev = new ParticipantJoinedVoiceRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setBridge(msg.body.voiceConf)
@@ -394,7 +394,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleUserLeftVoiceConfToClientEvtMsg(msg: UserLeftVoiceConfToClientEvtMsg) = {
+  private def handleUserLeftVoiceConfToClientEvtMsg(msg: UserLeftVoiceConfToClientEvtMsg) {
     val ev = new ParticipantLeftVoiceRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setBridge(msg.body.voiceConf)
@@ -403,7 +403,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleUserMutedVoiceEvtMsg(msg: UserMutedVoiceEvtMsg) = {
+  private def handleUserMutedVoiceEvtMsg(msg: UserMutedVoiceEvtMsg) {
     val ev = new ParticipantMutedVoiceRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setBridge(msg.body.voiceConf)
@@ -413,7 +413,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleUserTalkingVoiceEvtMsg(msg: UserTalkingVoiceEvtMsg) = {
+  private def handleUserTalkingVoiceEvtMsg(msg: UserTalkingVoiceEvtMsg) {
     val ev = new ParticipantTalkingVoiceRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setBridge(msg.body.voiceConf)
@@ -423,7 +423,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleVoiceRecordingStartedEvtMsg(msg: VoiceRecordingStartedEvtMsg) = {
+  private def handleVoiceRecordingStartedEvtMsg(msg: VoiceRecordingStartedEvtMsg) {
     val ev = new StartRecordingVoiceRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setBridge(msg.body.voiceConf)
@@ -433,7 +433,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleVoiceRecordingStoppedEvtMsg(msg: VoiceRecordingStoppedEvtMsg) = {
+  private def handleVoiceRecordingStoppedEvtMsg(msg: VoiceRecordingStoppedEvtMsg) {
     val ev = new StopRecordingVoiceRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setBridge(msg.body.voiceConf)
@@ -443,27 +443,27 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleEditCaptionHistoryEvtMsg(msg: EditCaptionHistoryEvtMsg) = {
+  private def handleEditCaptionHistoryEvtMsg(msg: EditCaptionHistoryEvtMsg) {
     val ev = new EditCaptionHistoryRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setStartIndex(msg.body.startIndex)
     ev.setEndIndex(msg.body.endIndex)
+    ev.setName(msg.body.name)
     ev.setLocale(msg.body.locale)
-    ev.setLocaleCode(msg.body.localeCode)
     ev.setText(msg.body.text)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleAddPadEvtMsg(msg: AddPadEvtMsg) = {
-    val ev = new AddPadRecordEvent()
+  private def handlePadCreatedRespMsg(msg: PadCreatedRespMsg) {
+    val ev = new PadCreatedRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPadId(msg.body.padId)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleScreenshareRtmpBroadcastStartedEvtMsg(msg: ScreenshareRtmpBroadcastStartedEvtMsg) = {
+  private def handleScreenshareRtmpBroadcastStartedEvtMsg(msg: ScreenshareRtmpBroadcastStartedEvtMsg) {
     val ev = new DeskshareStartRtmpRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setStreamPath(msg.body.stream)
@@ -471,7 +471,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleScreenshareRtmpBroadcastStoppedEvtMsg(msg: ScreenshareRtmpBroadcastStoppedEvtMsg) = {
+  private def handleScreenshareRtmpBroadcastStoppedEvtMsg(msg: ScreenshareRtmpBroadcastStoppedEvtMsg) {
     val ev = new DeskshareStopRtmpRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setStreamPath(msg.body.stream)
@@ -490,7 +490,7 @@ class RedisRecorderActor(
   }
   */
 
-  private def handleStartExternalVideoEvtMsg(msg: StartExternalVideoEvtMsg) = {
+  private def handleStartExternalVideoEvtMsg(msg: StartExternalVideoEvtMsg) {
     val ev = new StartExternalVideoRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setExternalVideoUrl(msg.body.externalVideoUrl)
@@ -498,7 +498,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleUpdateExternalVideoEvtMsg(msg: UpdateExternalVideoEvtMsg) = {
+  private def handleUpdateExternalVideoEvtMsg(msg: UpdateExternalVideoEvtMsg) {
     val ev = new UpdateExternalVideoRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setStatus(msg.body.status)
@@ -509,14 +509,14 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleStopExternalVideoEvtMsg(msg: StopExternalVideoEvtMsg) = {
+  private def handleStopExternalVideoEvtMsg(msg: StopExternalVideoEvtMsg) {
     val ev = new StopExternalVideoRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleRecordingStatusChangedEvtMsg(msg: RecordingStatusChangedEvtMsg) = {
+  private def handleRecordingStatusChangedEvtMsg(msg: RecordingStatusChangedEvtMsg) {
     val ev = new RecordStatusRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setUserId(msg.body.setBy)
@@ -525,7 +525,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleRecordStatusResetSysMsg(msg: RecordStatusResetSysMsg) = {
+  private def handleRecordStatusResetSysMsg(msg: RecordStatusResetSysMsg) {
     val ev = new RecordStatusResetEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setUserId(msg.body.setBy)
@@ -534,7 +534,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleWebcamsOnlyForModeratorChangedEvtMsg(msg: WebcamsOnlyForModeratorChangedEvtMsg) = {
+  private def handleWebcamsOnlyForModeratorChangedEvtMsg(msg: WebcamsOnlyForModeratorChangedEvtMsg) {
     val ev = new WebcamsOnlyForModeratorRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setUserId(msg.body.setBy)

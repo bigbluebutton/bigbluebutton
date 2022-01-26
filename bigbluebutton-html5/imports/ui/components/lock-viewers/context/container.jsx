@@ -1,5 +1,5 @@
 import { withTracker } from 'meteor/react-meteor-data';
-import Meetings from '/imports/ui/local-collections/meetings-collection/meetings';
+import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import { LockStruct } from './context';
 import { withUsersConsumer } from '/imports/ui/components/components-data/users-context/context';
@@ -19,7 +19,7 @@ const lockContextContainer = component => withUsersConsumer(withTracker(({ users
   lockSetting.lockSettings = lockSettings;
   lockSetting.userLocks.userWebcam = userIsLocked && lockSettings.disableCam;
   lockSetting.userLocks.userMic = userIsLocked && lockSettings.disableMic;
-  lockSetting.userLocks.userNote = userIsLocked && lockSettings.disableNote;
+  lockSetting.userLocks.userNotes = userIsLocked && lockSettings.disableNotes;
   lockSetting.userLocks.userPrivateChat = userIsLocked && lockSettings.disablePrivateChat;
   lockSetting.userLocks.userPublicChat = userIsLocked && lockSettings.disablePublicChat;
   lockSetting.userLocks.userLockedLayout = userIsLocked && lockSettings.lockedLayout;

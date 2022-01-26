@@ -10,7 +10,6 @@ import BreakoutRoomContainer from './breakout-remaining-time/container';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { PANELS, ACTIONS } from '../layout/enums';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
-import UserListService from '/imports/ui/components/user-list/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Settings from '/imports/ui/services/settings';
 
@@ -76,6 +75,8 @@ const intlMessages = defineMessages({
     description: 'Label for error when extend breakout rooms time would be higher than remaining time in parent meeting',
   },
 });
+
+let prevBreakoutData = {};
 
 class BreakoutRoom extends PureComponent {
   static sortById(a, b) {
@@ -143,7 +144,9 @@ class BreakoutRoom extends PureComponent {
       const breakoutUrlData = getBreakoutRoomUrl(requestedBreakoutId);
 
       if (!breakoutUrlData) return false;
-      if (breakoutUrlData.redirectToHtml5JoinURL !== '') {
+      if (breakoutUrlData.redirectToHtml5JoinURL !== ''
+        && breakoutUrlData.redirectToHtml5JoinURL !== prevBreakoutData.redirectToHtml5JoinURL) {
+        prevBreakoutData = breakoutUrlData;
         window.open(breakoutUrlData.redirectToHtml5JoinURL, '_blank');
         _.delay(() => this.setState({ generated: true, waiting: false }), 1000);
       }
@@ -249,6 +252,7 @@ class BreakoutRoom extends PureComponent {
     const {
       isMicrophoneUser,
       amIModerator,
+      amIPresenter,
       intl,
       isUserInBreakoutRoom,
       exitAudio,
@@ -261,7 +265,6 @@ class BreakoutRoom extends PureComponent {
       breakoutId: _stateBreakoutId,
       requestedBreakoutId,
       waiting,
-      generated,
     } = this.state;
 
     const {
@@ -323,7 +326,7 @@ class BreakoutRoom extends PureComponent {
                   }, 'joining breakout room closed audio in the main room');
                   VideoService.storeDeviceIds();
                   VideoService.exitVideo();
-                  if (UserListService.amIPresenter()) screenshareHasEnded();
+                  if (amIPresenter) screenshareHasEnded();
                 }}
                 disabled={disable}
               />

@@ -1,9 +1,11 @@
 package org.bigbluebutton.api2;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.bigbluebutton.api.domain.BreakoutRoomsParams;
 import org.bigbluebutton.api.domain.LockSettingsParams;
+import org.bigbluebutton.api.domain.Group;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.PublishedRecordingMessage;
@@ -30,14 +32,16 @@ public interface IBbbWebApiGWApp {
                      Integer endWhenNoModeratorDelayInMinutes,
                      Boolean muteOnStart,
                      Boolean allowModsToUnmuteUsers,
+                     Boolean allowModsToEjectCameras,
                      Boolean keepEvents,
                      BreakoutRoomsParams breakoutParams,
                      LockSettingsParams lockSettingsParams,
-                     Integer html5InstanceId);
+                     Integer html5InstanceId,
+                     ArrayList<Group> groups);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String avatarURL,
-                    Boolean guest, Boolean authed, String guestStatus);
+                    Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard);
   void ejectDuplicateUser(String meetingID, String internalUserId, String fullname,
                     String externUserID);
   void guestWaitingLeft(String meetingID, String internalUserId);

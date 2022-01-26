@@ -1,7 +1,5 @@
-import PresentationPods from '/imports/api/presentation-pods';
 import Presentations from '/imports/api/presentations';
 import { Slides, SlidePositions } from '/imports/api/slides';
-import Auth from '/imports/ui/services/auth';
 import PollService from '/imports/ui/components/poll/service';
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
@@ -20,7 +18,8 @@ const downloadPresentationUri = (podId) => {
 
   const presentationFileName = `${currentPresentation.id}.${currentPresentation.name.split('.').pop()}`;
 
-  const uri = `https://${window.document.location.hostname}/bigbluebutton/presentation/download/`
+  const APP = Meteor.settings.public.app;
+  const uri = `${APP.bbbWebBase}/presentation/download/`
     + `${currentPresentation.meetingId}/${currentPresentation.id}`
     + `?presFilename=${encodeURIComponent(presentationFileName)}`;
 
@@ -169,19 +168,9 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
   };
 };
 
-const isPresenter = (podId) => {
-  const selector = {
-    meetingId: Auth.meetingID,
-    podId,
-  };
-  const pod = PresentationPods.findOne(selector);
-  return pod?.currentPresenterId === Auth.userID;
-};
-
 export default {
   getCurrentSlide,
   getSlidePosition,
-  isPresenter,
   isPresentationDownloadable,
   downloadPresentationUri,
   currentSlidHasContent,

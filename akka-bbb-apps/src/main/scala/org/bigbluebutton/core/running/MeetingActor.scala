@@ -16,6 +16,7 @@ import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.chat.ChatApp2x
 import org.bigbluebutton.core.apps.externalvideo.ExternalVideoApp2x
+import org.bigbluebutton.core.apps.pads.PadsApp2x
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
@@ -25,7 +26,6 @@ import org.bigbluebutton.core.models.{ Users2x, VoiceUsers, _ }
 import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.meeting._
-import org.bigbluebutton.core2.message.handlers.pads._
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.polls._
@@ -40,8 +40,8 @@ import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
-import org.bigbluebutton.core.models.Webcams.{ findAll, updateWebcamStream }
-import org.bigbluebutton.core2.MeetingStatus2x.{ hasAuthedUserJoined }
+import org.bigbluebutton.core.models.Webcams.{ findAll }
+import org.bigbluebutton.core2.MeetingStatus2x.{ hasAuthedUserJoined, isVoiceRecording }
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
 import java.util.concurrent.TimeUnit
@@ -85,6 +85,10 @@ class MeetingActor(
   with GetScreenSubscribePermissionReqMsgHdlr
   with GetCamBroadcastPermissionReqMsgHdlr
   with GetCamSubscribePermissionReqMsgHdlr
+  with CamStreamSubscribedInSfuEvtMsgHdlr
+  with CamStreamUnsubscribedInSfuEvtMsgHdlr
+  with CamBroadcastStoppedInSfuEvtMsgHdlr
+  with EjectUserCamerasCmdMsgHdlr
 
   with EjectUserFromVoiceCmdMsgHdlr
   with EndMeetingSysCmdMsgHdlr
@@ -96,8 +100,6 @@ class MeetingActor(
   with SyncGetMeetingInfoRespMsgHdlr
   with ClientToServerLatencyTracerMsgHdlr
   with ValidateConnAuthTokenSysMsgHdlr
-  with AddPadSysMsgHdlr
-  with AddCaptionsPadsSysMsgHdlr
   with UserActivitySignCmdMsgHdlr {
 
   object CheckVoiceRecordingInternalMsg
@@ -131,6 +133,7 @@ class MeetingActor(
   val captionApp2x = new CaptionApp2x
   val chatApp2x = new ChatApp2x
   val externalVideoApp2x = new ExternalVideoApp2x
+  val padsApp2x = new PadsApp2x
   val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
   val groupChatApp = new GroupChatHdlrs
   val presentationPodsApp = new PresentationPodHdlrs
@@ -161,6 +164,7 @@ class MeetingActor(
   var state = new MeetingState2x(
     new GroupChats(Map.empty),
     new PresentationPodManager(Map.empty),
+    None,
     None,
     expiryTracker,
     recordingTracker
@@ -241,8 +245,6 @@ class MeetingActor(
       handleMeetingInfoAnalyticsLogging()
     case MeetingInfoAnalyticsMsg =>
       handleMeetingInfoAnalyticsService()
-    case msg: CamStreamSubscribeSysMsg =>
-      handleCamStreamSubscribeSysMsg(msg)
     case msg: ScreenStreamSubscribeSysMsg =>
       handleScreenStreamSubscribeSysMsg(msg)
     //=============================
@@ -301,7 +303,7 @@ class MeetingActor(
       disableMic = lockSettingsProp.disableMic,
       disablePrivChat = lockSettingsProp.disablePrivateChat,
       disablePubChat = lockSettingsProp.disablePublicChat,
-      disableNote = lockSettingsProp.disableNote,
+      disableNotes = lockSettingsProp.disableNotes,
       hideUserList = lockSettingsProp.hideUserList,
       lockedLayout = lockSettingsProp.lockedLayout,
       lockOnJoin = lockSettingsProp.lockOnJoin,
@@ -314,7 +316,7 @@ class MeetingActor(
 
   }
 
-  private def updateVoiceUserLastActivity(userId: String) = {
+  private def updateVoiceUserLastActivity(userId: String) {
     for {
       vu <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, userId)
     } yield {
@@ -322,7 +324,7 @@ class MeetingActor(
     }
   }
 
-  private def updateUserLastActivity(userId: String) = {
+  private def updateUserLastActivity(userId: String) {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
     } yield {
@@ -330,7 +332,7 @@ class MeetingActor(
     }
   }
 
-  private def updateModeratorsPresence() = {
+  private def updateModeratorsPresence() {
     if (Users2x.numActiveModerators(liveMeeting.users2x) > 0) {
       if (state.expiryTracker.moderatorHasJoined == false ||
         state.expiryTracker.lastModeratorLeftOnInMs != 0) {
@@ -348,7 +350,7 @@ class MeetingActor(
     }
   }
 
-  private def updateUserLastInactivityInspect(userId: String) = {
+  private def updateUserLastInactivityInspect(userId: String) {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
     } yield {
@@ -380,13 +382,17 @@ class MeetingActor(
       case m: UserLeaveReqMsg =>
         state = handleUserLeaveReqMsg(m, state)
         updateModeratorsPresence()
-      case m: UserBroadcastCamStartMsg        => handleUserBroadcastCamStartMsg(m)
-      case m: UserBroadcastCamStopMsg         => handleUserBroadcastCamStopMsg(m)
-      case m: GetCamBroadcastPermissionReqMsg => handleGetCamBroadcastPermissionReqMsg(m)
-      case m: GetCamSubscribePermissionReqMsg => handleGetCamSubscribePermissionReqMsg(m)
+      case m: UserBroadcastCamStartMsg         => handleUserBroadcastCamStartMsg(m)
+      case m: UserBroadcastCamStopMsg          => handleUserBroadcastCamStopMsg(m)
+      case m: GetCamBroadcastPermissionReqMsg  => handleGetCamBroadcastPermissionReqMsg(m)
+      case m: GetCamSubscribePermissionReqMsg  => handleGetCamSubscribePermissionReqMsg(m)
+      case m: CamStreamSubscribedInSfuEvtMsg   => handleCamStreamSubscribedInSfuEvtMsg(m)
+      case m: CamStreamUnsubscribedInSfuEvtMsg => handleCamStreamUnsubscribedInSfuEvtMsg(m)
+      case m: CamBroadcastStoppedInSfuEvtMsg   => handleCamBroadcastStoppedInSfuEvtMsg(m)
+      case m: EjectUserCamerasCmdMsg           => handleEjectUserCamerasCmdMsg(m)
 
-      case m: UserJoinedVoiceConfEvtMsg       => handleUserJoinedVoiceConfEvtMsg(m)
-      case m: LogoutAndEndMeetingCmdMsg       => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
+      case m: UserJoinedVoiceConfEvtMsg        => handleUserJoinedVoiceConfEvtMsg(m)
+      case m: LogoutAndEndMeetingCmdMsg        => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
       case m: SetRecordingStatusCmdMsg =>
         state = usersApp.handleSetRecordingStatusCmdMsg(m, state)
         updateUserLastActivity(m.body.setBy)
@@ -398,6 +404,7 @@ class MeetingActor(
       case m: GetRecordingStatusReqMsg            => usersApp.handleGetRecordingStatusReqMsg(m)
       case m: ChangeUserEmojiCmdMsg               => handleChangeUserEmojiCmdMsg(m)
       case m: SelectRandomViewerReqMsg            => usersApp.handleSelectRandomViewerReqMsg(m)
+      case m: ChangeUserPinStateReqMsg            => usersApp.handleChangeUserPinStateReqMsg(m)
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
@@ -480,8 +487,21 @@ class MeetingActor(
         handleGetGlobalAudioPermissionReqMsg(m)
 
       // Layout
-      case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
-      case m: BroadcastLayoutMsg     => handleBroadcastLayoutMsg(m)
+      case m: GetCurrentLayoutReqMsg  => handleGetCurrentLayoutReqMsg(m)
+      case m: BroadcastLayoutMsg      => handleBroadcastLayoutMsg(m)
+
+      // Pads
+      case m: PadCreateGroupReqMsg    => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadGroupCreatedEvtMsg   => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadCreateReqMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadCreatedEvtMsg        => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadCreateSessionReqMsg  => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadSessionCreatedEvtMsg => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadSessionDeletedSysMsg => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadUpdatedSysMsg        => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadContentSysMsg        => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadPatchSysMsg          => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadUpdatePubMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
 
       // Lock Settings
       case m: ChangeLockSettingsInMeetingCmdMsg =>
@@ -528,6 +548,8 @@ class MeetingActor(
       case m: GuestsWaitingApprovedMsg                       => handleGuestsWaitingApprovedMsg(m)
       case m: GuestWaitingLeftMsg                            => handleGuestWaitingLeftMsg(m)
       case m: GetGuestPolicyReqMsg                           => handleGetGuestPolicyReqMsg(m)
+      case m: UpdatePositionInWaitingQueueReqMsg             => handleUpdatePositionInWaitingQueueReqMsg(m)
+      case m: SetPrivateGuestLobbyMessageCmdMsg              => handleSetPrivateGuestLobbyMessageCmdMsg(m)
 
       // Chat
       case m: GetChatHistoryReqMsg                           => chatApp2x.handle(m, liveMeeting, msgBus)
@@ -566,17 +588,10 @@ class MeetingActor(
 
       case m: ValidateConnAuthTokenSysMsg => handleValidateConnAuthTokenSysMsg(m)
 
-      case m: AddPadSysMsg                => handleAddPadSysMsg(m)
-      case m: AddCaptionsPadsSysMsg       => handleAddCaptionsPadsSysMsg(m)
-
       case m: UserActivitySignCmdMsg      => handleUserActivitySignCmdMsg(m)
 
       case _                              => log.warning("***** Cannot handle " + msg.envelope.name)
     }
-  }
-
-  private def handleCamStreamSubscribeSysMsg(msg: CamStreamSubscribeSysMsg): Unit = {
-    updateWebcamStream(liveMeeting.webcams, msg.body.streamId, msg.body.userId)
   }
 
   private def handleScreenStreamSubscribeSysMsg(msg: ScreenStreamSubscribeSysMsg): Unit = ???
@@ -730,7 +745,7 @@ class MeetingActor(
     }
   }
 
-  def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) = {
+  def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
     state = removeUsersWithExpiredUserLeftFlag(liveMeeting, state)
 
     if (!liveMeeting.props.meetingProp.isBreakout) {

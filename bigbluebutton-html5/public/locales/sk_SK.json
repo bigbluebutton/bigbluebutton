@@ -226,7 +226,6 @@
     "app.poll.activePollInstruction": "Ponechajte tento panel otvorený, ak chcete sledovať vývoj výsledkov. Pre zverejnenie výsledkov a ukončenie hlasovania kliknite na tlačidlo Publikovať výsledky.",
     "app.poll.dragDropPollInstruction": "Ak chcete vyplniť hodnoty ankety, presuňte textový súbor s hodnotami ankety do zvýrazneného poľa",
     "app.poll.customPollTextArea": "Vložte hodnoty",
-    "app.poll.publishLabel": "Publikovať výsledky ankety",
     "app.poll.backLabel": "Spustiť anketu",
     "app.poll.closeLabel": "Zatvoriť",
     "app.poll.waitingLabel": "Čaká sa na odpovede ({0}/{1})",

@@ -40,6 +40,7 @@ class UserListItem extends PureComponent {
       toggleUserLock,
       requestUserInformation,
       userInBreakout,
+      userLastBreakout,
       breakoutSequence,
       meetingIsBreakout,
       isMeteorConnected,
@@ -52,6 +53,7 @@ class UserListItem extends PureComponent {
       raiseHandPushAlert,
       layoutContextDispatch,
       isRTL,
+      ejectUserCameras,
     } = this.props;
 
     const contents = (
@@ -78,6 +80,7 @@ class UserListItem extends PureComponent {
           toggleUserLock,
           requestUserInformation,
           userInBreakout,
+          userLastBreakout,
           breakoutSequence,
           meetingIsBreakout,
           isMeteorConnected,
@@ -90,6 +93,7 @@ class UserListItem extends PureComponent {
           raiseHandPushAlert,
           layoutContextDispatch,
           isRTL,
+          ejectUserCameras,
         }}
       />
     );

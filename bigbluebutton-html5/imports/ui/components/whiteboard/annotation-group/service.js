@@ -16,7 +16,7 @@ const getCurrentAnnotationsInfo = (whiteboardId) => {
   ).fetch();
 };
 
-const getUnsetAnnotations = (whiteboardId) => {
+const getUnsentAnnotations = (whiteboardId) => {
   if (!whiteboardId) {
     return null;
   }
@@ -34,5 +34,5 @@ const getUnsetAnnotations = (whiteboardId) => {
 
 export default {
   getCurrentAnnotationsInfo,
-  getUnsetAnnotations,
+  getUnsentAnnotations,
 };

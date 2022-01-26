@@ -12,8 +12,6 @@ export default class EllipseDrawComponent extends Component {
     const { slideWidth, slideHeight, annotation } = this.props;
     const { points } = annotation;
 
-    // x1 and y1 - coordinates of the ellipse's top left corner
-    // x2 and y2 - coordinates of the ellipse's bottom right corner
     const x1 = points[0];
     const y1 = points[1];
     const x2 = points[2];

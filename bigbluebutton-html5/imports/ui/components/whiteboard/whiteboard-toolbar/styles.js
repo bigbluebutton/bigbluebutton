@@ -6,6 +6,7 @@ import {
   colorDanger,
   colorWhite,
   colorGrayDark,
+  colorGrayLighter,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   toolbarButtonWidth,
@@ -14,6 +15,7 @@ import {
   borderSizeLarge,
   smPaddingX,
   toolbarMargin,
+  toolbarButtonBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
@@ -74,9 +76,57 @@ const ToolbarContainer = styled.div`
   }
 `;
 
+const ToolbarWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px -2px rgba(0, 0, 0, .25);
+  border-radius: 5px;
+  pointer-events: all;
+
+  .toolbarButtonWrapper > button {
+    outline-offset: -.19rem;
+    border-bottom: 1px solid ${colorGrayLighter};
+  }
+
+  .toolbarButtonWrapper:first-child > button {
+    border-top-left-radius: ${toolbarButtonBorderRadius};
+    border-top-right-radius: ${toolbarButtonBorderRadius};
+
+    &.toolbarActive {
+      border-top-left-radius: 0;
+      border-top-right-radius: ${toolbarButtonBorderRadius};
+
+      [dir="rtl"] & {
+        border-top-left-radius: ${toolbarButtonBorderRadius};
+        border-top-right-radius: 0;
+      }
+    }
+  }
+
+  .toolbarButtonWrapper:last-child > button {
+    border-bottom: 0;
+    border-bottom-left-radius: ${toolbarButtonBorderRadius};
+    border-bottom-right-radius: ${toolbarButtonBorderRadius};
+
+    &.toolbarActive {
+      border-bottom-left-radius: 0;
+      border-top-right-radius: ${toolbarButtonBorderRadius};
+
+      [dir="rtl"] & {
+        border-bottom-left-radius: ${toolbarButtonBorderRadius};
+        border-top-right-radius: 0;
+      }
+    }
+  }
+`;
+
 export default {
   TextThickness,
   CustomSvgIcon,
   MultiUserTool,
   ToolbarContainer,
+  ToolbarWrapper,
 };
