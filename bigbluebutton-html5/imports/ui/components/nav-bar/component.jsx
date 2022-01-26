@@ -40,10 +40,6 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.room',
     description: 'default breakout room name',
   },
-  breakoutEnded: {
-    id: 'app.breakoutEnded',
-    description: 'window title for breakouts that ended',
-  },
 });
 
 const propTypes = {
