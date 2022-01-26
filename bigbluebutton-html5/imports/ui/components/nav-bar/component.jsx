@@ -40,12 +40,19 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.room',
     description: 'default breakout room name',
   },
+  breakoutEnded: {
+    id: 'app.breakoutEnded',
+    description: 'window title for breakouts that ended',
+  },
 });
 
 const propTypes = {
   presentationTitle: PropTypes.string,
   hasUnreadMessages: PropTypes.bool,
   shortcuts: PropTypes.string,
+  breakoutNum: PropTypes.number,
+  breakoutName: PropTypes.string,
+  meetingName: PropTypes.string,
 };
 
 const defaultProps = {
@@ -77,14 +84,16 @@ class NavBar extends Component {
     } = this.props;
 
     if (breakoutNum && breakoutNum > 0) {
-      const defaultBreakoutName = intl.formatMessage(intlMessages.defaultBreakoutName, {
-        0: breakoutNum,
-      });
+      if (breakoutName && meetingName) {
+        const defaultBreakoutName = intl.formatMessage(intlMessages.defaultBreakoutName, {
+          0: breakoutNum,
+        });
 
-      if (breakoutName === defaultBreakoutName) {
-        document.title = `${breakoutNum} - ${meetingName}`;
-      } else {
-        document.title = `${breakoutName} - ${meetingName}`;
+        if (breakoutName === defaultBreakoutName) {
+          document.title = `${breakoutNum} - ${meetingName}`;
+        } else {
+          document.title = `${breakoutName} - ${meetingName}`;
+        }
       }
     }
 
