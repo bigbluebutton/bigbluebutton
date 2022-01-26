@@ -20,7 +20,7 @@ const MainText = styled.h1`
 `;
 
 const ScreenshareVideo = styled.video`
-  ${({ unhealthy }) => unhealthy && `
+  ${({ unhealthyStream }) => unhealthyStream && `
     filter: grayscale(50%) opacity(50%);
   `}
 `;
@@ -32,6 +32,9 @@ const ScreenshareContainer = styled.div`
   height: 100%;
 
   ${({ switched }) => !switched && `
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-direction: column;
   `}
 `;
