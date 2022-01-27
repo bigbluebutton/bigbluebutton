@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.whiteboard
 import akka.actor.ActorContext
 import akka.event.Logging
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.common2.msgs.AnnotationVO
+import org.bigbluebutton.common2.msgs.{ AnnotationEvent, AnnotationVO, ModificationVO }
 import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 import scala.collection.immutable.{ Map, List }
 
@@ -13,7 +13,7 @@ case class Whiteboard(
     oldMultiUser:    Array[String],
     changedModeOn:   Long,
     annotationCount: Int,
-    annotationsMap:  Map[String, List[AnnotationVO]]
+    annotationsMap:  Map[String, List[AnnotationEvent]]
 )
 
 class WhiteboardApp2x(implicit val context: ActorContext)
@@ -22,27 +22,56 @@ class WhiteboardApp2x(implicit val context: ActorContext)
   with UndoWhiteboardPubMsgHdlr
   with ModifyWhiteboardAccessPubMsgHdlr
   with SendWhiteboardAnnotationPubMsgHdlr
-  with GetWhiteboardAnnotationsReqMsgHdlr {
+  with GetWhiteboardAnnotationsReqMsgHdlr
+  with ModifyWhiteboardAnnotationPubMsgHdlr {
 
   val log = Logging(context.system, getClass)
+
+  def sanitizeAnnotation(annotation: AnnotationVO): AnnotationVO = {
+    // Remove null values by wrapping value with Option. Null becomes None.
+    val shape = annotation.annotationInfo.collect {
+      case (key, value: Any) => key -> Option(value)
+    }
+
+    //printAnnotationShape(shape, annotation)
+
+    if (annotation.annotationInfo.values.exists(p => if (p == null) true else false)) {
+      log.warning("Whiteboard shape contains null values. " + annotation.toString)
+    }
+
+    // Unwrap the value wrapped as Option
+    val shape2 = shape.collect {
+      case (key, Some(value)) => key -> value
+    }
+
+    annotation.copy(annotationInfo = shape2)
+  }
+
+  def modifyWhiteboardAnnotations(annotations: List[AnnotationVO], idsToRemove: List[String], wbId: String, userId: String, liveMeeting: LiveMeeting) = {
+    val removedAnnotations = liveMeeting.wbModel.removeAnnotations(idsToRemove, wbId, userId)
+    val addedAnnotations = for (ann <- annotations) yield liveMeeting.wbModel.addAnnotation(wbId, ann)
+    val modVO = ModificationVO(removedAnnotations = removedAnnotations, addedAnnotations = addedAnnotations, wbId = wbId, userId = userId, position = 0)
+    liveMeeting.wbModel.addModifyAnnotation(modVO)
+    modVO
+  }
 
   def sendWhiteboardAnnotation(annotation: AnnotationVO, drawEndOnly: Boolean, liveMeeting: LiveMeeting): AnnotationVO = {
     //    println("Received whiteboard annotation. status=[" + status + "], annotationType=[" + annotationType + "]")
     var rtnAnnotation: AnnotationVO = annotation
 
     if (WhiteboardKeyUtil.DRAW_START_STATUS == annotation.status) {
-      rtnAnnotation = liveMeeting.wbModel.addAnnotation(annotation.wbId, annotation.userId, annotation)
+      rtnAnnotation = liveMeeting.wbModel.addAnnotation(annotation.wbId, annotation)
     } else if (WhiteboardKeyUtil.DRAW_UPDATE_STATUS == annotation.status) {
       if (WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType) {
-        rtnAnnotation = liveMeeting.wbModel.updateAnnotationPencil(annotation.wbId, annotation.userId, annotation)
+        rtnAnnotation = liveMeeting.wbModel.updateAnnotationPencil(annotation.wbId, annotation)
       } else {
-        rtnAnnotation = liveMeeting.wbModel.updateAnnotation(annotation.wbId, annotation.userId, annotation)
+        rtnAnnotation = liveMeeting.wbModel.updateAnnotation(annotation.wbId, annotation)
       }
     } else if (WhiteboardKeyUtil.DRAW_END_STATUS == annotation.status) {
       if (WhiteboardKeyUtil.PENCIL_TYPE == annotation.annotationType) {
-        rtnAnnotation = liveMeeting.wbModel.endAnnotationPencil(annotation.wbId, annotation.userId, annotation, drawEndOnly)
+        rtnAnnotation = liveMeeting.wbModel.endAnnotationPencil(annotation.wbId, annotation, drawEndOnly)
       } else {
-        rtnAnnotation = liveMeeting.wbModel.updateAnnotation(annotation.wbId, annotation.userId, annotation)
+        rtnAnnotation = liveMeeting.wbModel.updateAnnotation(annotation.wbId, annotation)
       }
     } else {
       //	    println("Received UNKNOWN whiteboard annotation!!!!. status=[" + status + "], annotationType=[" + annotationType + "]")
@@ -60,7 +89,7 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     liveMeeting.wbModel.clearWhiteboard(whiteboardId, requesterId)
   }
 
-  def undoWhiteboard(whiteboardId: String, requesterId: String, liveMeeting: LiveMeeting): Option[AnnotationVO] = {
+  def undoWhiteboard(whiteboardId: String, requesterId: String, liveMeeting: LiveMeeting): Option[AnnotationEvent] = {
     liveMeeting.wbModel.undoWhiteboard(whiteboardId, requesterId)
   }
 
@@ -68,7 +97,7 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     liveMeeting.wbModel.getWhiteboardAccess(whiteboardId)
   }
 
-  def modifyWhiteboardAccess(whiteboardId: String, multiUser: Array[String], liveMeeting: LiveMeeting) {
+  def modifyWhiteboardAccess(whiteboardId: String, multiUser: Array[String], liveMeeting: LiveMeeting) = {
     liveMeeting.wbModel.modifyWhiteboardAccess(whiteboardId, multiUser)
   }
 

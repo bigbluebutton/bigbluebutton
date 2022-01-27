@@ -1,7 +1,17 @@
 package org.bigbluebutton.common2.msgs
 
+import java.lang.annotation.Annotation
+import javax.lang.model.element.AnnotationValueVisitor
+
+abstract class AnnotationEvent {
+  def wbId: String
+  def userId: String
+  def position: Int
+}
+
 case class AnnotationVO(id: String, status: String, annotationType: String,
-                        annotationInfo: scala.collection.immutable.Map[String, Any], wbId: String, userId: String, position: Int)
+                        annotationInfo: scala.collection.immutable.Map[String, Any], wbId: String, userId: String, position: Int) extends AnnotationEvent
+case class ModificationVO(removedAnnotations: List[Tuple2[AnnotationVO, Int]], addedAnnotations: List[AnnotationVO], wbId: String, userId: String, position: Int) extends AnnotationEvent
 
 // ------------ client to akka-apps ------------
 object ClientToServerLatencyTracerMsg { val NAME = "ClientToServerLatencyTracerMsg" }
@@ -31,6 +41,10 @@ case class SendWhiteboardAnnotationPubMsgBody(annotation: AnnotationVO, drawEndO
 object UndoWhiteboardPubMsg { val NAME = "UndoWhiteboardPubMsg" }
 case class UndoWhiteboardPubMsg(header: BbbClientMsgHeader, body: UndoWhiteboardPubMsgBody) extends StandardMsg
 case class UndoWhiteboardPubMsgBody(whiteboardId: String)
+
+object ModifyWhiteboardAnnotationPubMsg { val NAME = "ModifyWhiteboardAnnotationPubMsg" }
+case class ModifyWhiteboardAnnotationPubMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAnnotationPubMsgBody) extends StandardMsg
+case class ModifyWhiteboardAnnotationPubMsgBody(annotations: List[AnnotationVO], idsToRemove: List[String], userId: String, whiteBoardId: String, action: String)
 // ------------ client to akka-apps ------------
 
 // ------------ akka-apps to client ------------
@@ -64,5 +78,9 @@ case class SendWhiteboardAnnotationEvtMsgBody(annotation: AnnotationVO)
 
 object UndoWhiteboardEvtMsg { val NAME = "UndoWhiteboardEvtMsg" }
 case class UndoWhiteboardEvtMsg(header: BbbClientMsgHeader, body: UndoWhiteboardEvtMsgBody) extends BbbCoreMsg
-case class UndoWhiteboardEvtMsgBody(whiteboardId: String, userId: String, annotationId: String)
+case class UndoWhiteboardEvtMsgBody(whiteboardId: String, userId: String, removedAnnotationIds: List[String], addedAnnotations: List[AnnotationVO])
+
+object ModifyWhiteboardAnnotationEvtMsg { val NAME = "ModifyWhiteboardAnnotationEvtMsg" }
+case class ModifyWhiteboardAnnotationEvtMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAnnotationEvtMsgBody) extends StandardMsg
+case class ModifyWhiteboardAnnotationEvtMsgBody(annotations: List[AnnotationVO], idsToRemove: List[String], userId: String, whiteBoardId: String, action: String)
 // ------------ akka-apps to client ------------
