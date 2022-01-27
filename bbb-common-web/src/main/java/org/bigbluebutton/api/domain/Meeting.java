@@ -141,12 +141,8 @@ public class Meeting {
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
         authenticatedGuest = builder.authenticatedGuest;
-<<<<<<< HEAD
 		meetingLayout = builder.meetingLayout;
-=======
         allowRequestsWithoutSession = builder.allowRequestsWithoutSession;
-				meetingLayout = builder.meetingLayout;
->>>>>>> upstream/v2.4.x-release
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
         allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
@@ -785,12 +781,8 @@ public class Meeting {
     	private boolean isBreakout;
     	private String guestPolicy;
     	private Boolean authenticatedGuest;
-<<<<<<< HEAD
-		private String meetingLayout;
-=======
     	private Boolean allowRequestsWithoutSession;
-			private String meetingLayout;
->>>>>>> upstream/v2.4.x-release
+		private String meetingLayout;
     	private BreakoutRoomsParams breakoutRoomsParams;
     	private LockSettingsParams lockSettingsParams;
 		private Boolean allowDuplicateExtUserid;
