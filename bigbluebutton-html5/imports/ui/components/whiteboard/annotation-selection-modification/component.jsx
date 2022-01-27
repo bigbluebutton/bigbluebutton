@@ -98,6 +98,9 @@ function SelectionModification(props) {
         <Moveable
           origin={false}
           draggable={false}
+          // pass pointer events on drag area temporarily until moving is implemented
+          // this allows keeping presentation / whiteboard overlay active when mouse is over selection group
+          passDragArea
           rootContainer={document.body}
           edge={false}
           ref={moveableRef}
