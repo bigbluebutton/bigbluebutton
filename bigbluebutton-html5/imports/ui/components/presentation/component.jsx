@@ -592,6 +592,7 @@ class Presentation extends PureComponent {
           height: svgDimensions.height < 0 ? 0 : svgDimensions.height,
           textAlign: 'center',
           display: layoutSwapped ? 'none' : 'block',
+          // hidden overflow hides control boxes of Moveable outside of presentation area
           overflow: 'hidden',
         }}
       >
