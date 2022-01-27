@@ -12,7 +12,7 @@ import SettingsDropdownContainer from './settings-dropdown/container';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import _ from "lodash";
-import {alertScreenReader} from '/imports/utils/dom-utils';
+import { politeSRAlert } from '/imports/utils/dom-utils';
 import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
@@ -31,6 +31,10 @@ const intlMessages = defineMessages({
   newMsgAria: {
     id: 'app.navBar.toggleUserList.newMsgAria',
     description: 'label for new message screen reader alert',
+  },
+  defaultBreakoutName: {
+    id: 'app.createBreakoutRoom.room',
+    description: 'default breakout room name',
   },
 });
 
@@ -60,7 +64,23 @@ class NavBar extends Component {
   componentDidMount() {
     const {
       shortcuts: TOGGLE_USERLIST_AK,
+      intl,
+      breakoutNum,
+      breakoutName,
+      meetingName,
     } = this.props;
+
+    if (breakoutNum && breakoutNum > 0) {
+      const defaultBreakoutName = intl.formatMessage(intlMessages.defaultBreakoutName, {
+        0: breakoutNum,
+      });
+
+      if (breakoutName === defaultBreakoutName) {
+        document.title = `${breakoutNum} - ${meetingName}`;
+      } else {
+        document.title = `${breakoutName} - ${meetingName}`;
+      }
+    }
 
     const { isFirefox } = browserInfo;
     const { isMacos } = deviceInfo;
@@ -157,7 +177,7 @@ class NavBar extends Component {
 
     activeChats.map((c, i) => {
       if (c?.unreadCounter > 0 && c?.unreadCounter !== acs[i]?.unreadCounter) {
-        alertScreenReader(`${intl.formatMessage(intlMessages.newMsgAria, { 0: c.name })}`)
+        politeSRAlert(`${intl.formatMessage(intlMessages.newMsgAria, { 0: c.name })}`)
       }
     });
 

@@ -4,7 +4,7 @@ import RedisPubSub from '/imports/startup/server/redis';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import Logger from '/imports/startup/server/logger';
 
-export default function ejectUserFromVoice(userId) {
+export default function ejectUserFromVoice(userId, banUser) {
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -15,10 +15,12 @@ export default function ejectUserFromVoice(userId) {
     check(meetingId, String);
     check(requesterUserId, String);
     check(userId, String);
+    check(banUser, Boolean);
 
     const payload = {
       userId,
       ejectedBy: requesterUserId,
+      banUser,
     };
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

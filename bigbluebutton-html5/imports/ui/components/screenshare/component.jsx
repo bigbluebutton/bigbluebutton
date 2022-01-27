@@ -73,6 +73,7 @@ class ScreenshareComponent extends React.Component {
   constructor() {
     super();
     this.state = {
+      restoreOnUnmount: true,
       loaded: false,
       autoplayBlocked: false,
       isStreamHealthy: false,
@@ -114,7 +115,10 @@ class ScreenshareComponent extends React.Component {
 
     notify(intl.formatMessage(intlMessages.screenshareStarted), 'info', 'desktop');
 
-    if (getSwapLayout()) toggleSwapLayout(layoutContextDispatch);
+    if (getSwapLayout()) {
+      toggleSwapLayout(layoutContextDispatch)
+      this.setState({ restoreOnUnmount: false });
+    };
 
     if (hidePresentation) {
       layoutContextDispatch({
@@ -135,8 +139,13 @@ class ScreenshareComponent extends React.Component {
 
   componentWillUnmount() {
     const {
-      intl, fullscreenContext, layoutContextDispatch, hidePresentation,
+      intl,
+      fullscreenContext,
+      layoutContextDispatch,
+      hidePresentation,
+      toggleSwapLayout,
     } = this.props;
+    const { restoreOnUnmount } = this.state;
     screenshareHasEnded();
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
@@ -153,11 +162,12 @@ class ScreenshareComponent extends React.Component {
       });
     }
 
-    if (hidePresentation) {
+    if (hidePresentation || !restoreOnUnmount) {
       layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_IS_OPEN,
         value: false,
       });
+      toggleSwapLayout(layoutContextDispatch);
     }
   }
 

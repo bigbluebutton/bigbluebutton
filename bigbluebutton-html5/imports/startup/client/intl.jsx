@@ -16,6 +16,7 @@ const propTypes = {
 };
 
 const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
+const CLIENT_VERSION = Meteor.settings.public.app.html5ClientBuild;
 
 const RTL_LANGUAGES = ['ar', 'dv', 'fa', 'he'];
 const LARGE_FONT_LANGUAGES = ['te', 'km'];
@@ -73,7 +74,7 @@ class IntlStartup extends Component {
         })
         .then(({ normalizedLocale, regionDefaultLocale }) => {
           const fetchFallbackMessages = new Promise((resolve, reject) => {
-            fetch(`${localesPath}/${DEFAULT_LANGUAGE}.json`)
+            fetch(`${localesPath}/${DEFAULT_LANGUAGE}.json?v=${CLIENT_VERSION}`)
               .then((response) => {
                 if (!response.ok) {
                   return reject();
@@ -86,7 +87,7 @@ class IntlStartup extends Component {
             if (!regionDefaultLocale) {
               return resolve(false);
             }
-            fetch(`${localesPath}/${regionDefaultLocale}.json`)
+            fetch(`${localesPath}/${regionDefaultLocale}.json?v=${CLIENT_VERSION}`)
               .then((response) => {
                 if (!response.ok) {
                   return resolve(false);
@@ -104,7 +105,7 @@ class IntlStartup extends Component {
             if (!normalizedLocale || normalizedLocale === DEFAULT_LANGUAGE || normalizedLocale === regionDefaultLocale) {
               return resolve(false);
             }
-            fetch(`${localesPath}/${normalizedLocale}.json`)
+            fetch(`${localesPath}/${normalizedLocale}.json?v=${CLIENT_VERSION}`)
               .then((response) => {
                 if (!response.ok) {
                   return resolve(false);

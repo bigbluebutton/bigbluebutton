@@ -556,8 +556,6 @@
     "app.connection-status.title": "连接状态",
     "app.connection-status.description": "查看用户的连接状态",
     "app.connection-status.more": "更多",
-    "app.learning-dashboard.label": "学习面板",
-    "app.learning-dashboard.clickHereToOpen": "打开学习面板",
     "app.recording.startTitle": "开始录制",
     "app.recording.stopTitle": "暂停录制",
     "app.recording.resumeTitle": "恢复录制",

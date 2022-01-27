@@ -78,4 +78,8 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     // mode was changed. (ralam nov 22, 2017)
     !liveMeeting.wbModel.hasWhiteboardAccess(whiteboardId, userId)
   }
+
+  def isNonEjectionGracePeriodOver(wbId: String, userId: String, liveMeeting: LiveMeeting): Boolean = {
+    liveMeeting.wbModel.isNonEjectionGracePeriodOver(wbId, userId)
+  }
 }

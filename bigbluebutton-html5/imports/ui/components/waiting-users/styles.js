@@ -211,6 +211,7 @@ const HideButton = styled(Button)`
 
 const LobbyMessage = styled.div`
   border-bottom: 1px solid ${colorGrayLightest};
+  margin: 2px 2px 0 2px;
 
   & > p {
     background-color: ${colorOffWhite};
