@@ -272,6 +272,7 @@ class ActionsDropdown extends PureComponent {
             open={isDropdownOpen}
             hideLabel
             aria-label={intl.formatMessage(intlMessages.actionsLabel)}
+            data-test="actionsButton"
             label={intl.formatMessage(intlMessages.actionsLabel)}
             icon="plus"
             color="primary"
@@ -282,7 +283,6 @@ class ActionsDropdown extends PureComponent {
         }
         actions={children}
         opts={{
-          disablePortal: true,
           id: "default-dropdown-menu",
           keepMounted: true,
           transitionDuration: 0,

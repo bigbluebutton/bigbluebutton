@@ -8,5 +8,4 @@ build.sh
 kurento-media-server.service
 opts-bionic.sh
 opts-centos7.sh
-opts-xenial.sh
 webrtc-sfu.nginx

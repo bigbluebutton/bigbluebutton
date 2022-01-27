@@ -76,6 +76,8 @@ const intlMessages = defineMessages({
   },
 });
 
+let prevBreakoutData = {};
+
 class BreakoutRoom extends PureComponent {
   static sortById(a, b) {
     if (a.userId > b.userId) {
@@ -142,7 +144,9 @@ class BreakoutRoom extends PureComponent {
       const breakoutUrlData = getBreakoutRoomUrl(requestedBreakoutId);
 
       if (!breakoutUrlData) return false;
-      if (breakoutUrlData.redirectToHtml5JoinURL !== '') {
+      if (breakoutUrlData.redirectToHtml5JoinURL !== ''
+        && breakoutUrlData.redirectToHtml5JoinURL !== prevBreakoutData.redirectToHtml5JoinURL) {
+        prevBreakoutData = breakoutUrlData;
         window.open(breakoutUrlData.redirectToHtml5JoinURL, '_blank');
         _.delay(() => this.setState({ generated: true, waiting: false }), 1000);
       }
@@ -261,7 +265,6 @@ class BreakoutRoom extends PureComponent {
       breakoutId: _stateBreakoutId,
       requestedBreakoutId,
       waiting,
-      generated,
     } = this.state;
 
     const {
@@ -282,7 +285,7 @@ class BreakoutRoom extends PureComponent {
           status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.RETURNING,
         });
         this.returnBackToMeeeting(breakoutId);
-        return logger.debug({
+        return logger.info({
           logCode: 'breakoutroom_return_main_audio',
           extraInfo: { logType: 'user_action' },
         }, 'Returning to main audio (breakout room audio closed)');
@@ -293,7 +296,7 @@ class BreakoutRoom extends PureComponent {
           status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.CONNECTED,
         });
         this.transferUserToBreakoutRoom(breakoutId);
-        return logger.debug({
+        return logger.info({
           logCode: 'breakoutroom_join_audio_from_main_room',
           extraInfo: { logType: 'user_action' },
         }, 'joining breakout room audio (main room audio closed)');
@@ -317,7 +320,7 @@ class BreakoutRoom extends PureComponent {
                   // leave main room's audio,
                   // and stops video and screenshare when joining a breakout room
                   exitAudio();
-                  logger.debug({
+                  logger.info({
                     logCode: 'breakoutroom_join',
                     extraInfo: { logType: 'user_action' },
                   }, 'joining breakout room closed audio in the main room');

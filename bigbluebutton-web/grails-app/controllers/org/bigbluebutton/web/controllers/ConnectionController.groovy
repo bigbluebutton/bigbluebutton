@@ -32,7 +32,7 @@ class ConnectionController {
       def uri = request.getHeader("x-original-uri")
       def sessionToken = ParamsUtil.getSessionToken(uri)
       UserSession userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
-      Boolean allowRequestsWithoutSession = paramsProcessorUtil.getAllowRequestsWithoutSession()
+      Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
       Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
 
       response.addHeader("Cache-Control", "no-cache")
@@ -53,16 +53,15 @@ class ConnectionController {
     }
   }
 
-  def validatePad = {
+  def legacyCheckAuthorization = {
     try {
-      String uri = request.getHeader("x-original-uri")
-      String sessionToken = ParamsUtil.getSessionToken(uri)
-      String padId = ParamsUtil.getPadId(uri)
-      Boolean valid = meetingService.isPadValid(padId, sessionToken)
+      def uri = request.getHeader("x-original-uri")
+      def sessionToken = ParamsUtil.getSessionToken(uri)
+      UserSession userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
 
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'plain/text'
-      if (valid) {
+      if (userSession != null) {
         response.setStatus(200)
         response.outputStream << 'authorized'
       } else {

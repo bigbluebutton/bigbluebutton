@@ -1,11 +1,6 @@
 import styled from 'styled-components';
 import Icon from '../icon/component';
-import {
-  barsPadding,
-  lgPaddingY,
-  mdPaddingX,
-  borderSize,
-} from '/imports/ui/stylesheets/styled-components/general';
+import { barsPadding, borderSize } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
   colorDanger,

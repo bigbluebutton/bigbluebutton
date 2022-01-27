@@ -32,16 +32,8 @@ git clone https://github.com/mconf/ep_redis_publisher.git
 npm pack ./ep_redis_publisher
 npm install ./ep_redis_publisher-*.tgz
 
-# npm install ep_cursortrace
-# using mconf's fork due to https://github.com/ether/ep_cursortrace/pull/25 not being accepted upstream
-npm install git+https://github.com/mconf/ep_cursortrace.git
+npm install ep_cursortrace
 npm install ep_disable_chat
-
-# For some reason installing from github using npm 7.5.2 gives
-# fatal: could not create leading directories of '/root/.npm/_cacache/tmp/git-clone-76b94572': Permission denied
-#
-# npm install git+https://git@github.com/alangecker/bbb-etherpad-plugin.git
-# npm install git+https://git@github.com/mconf/ep_redis_publisher.git
 
 mkdir -p staging/usr/share/etherpad-lite
 

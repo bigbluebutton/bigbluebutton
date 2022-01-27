@@ -198,7 +198,7 @@
 
   "dbType": "redis",
   "dbSettings": {
-    "host": "localhost",
+    "host": "127.0.0.1",
     "port": 6379
   },
 
@@ -211,7 +211,7 @@
   /*
   "dbType" : "redis",
   "dbSettings" : {
-    "host": "localhost",
+    "host": "127.0.0.1",
     "port": 6379,
     "client_options": {
       "password": "PASSWORD"
@@ -240,7 +240,7 @@
     "rtl":              false,
     "alwaysShowChat":   false,
     "chatAndUsers":     false,
-    "lang":             "en-gb"
+    "lang":             "en"
   },
 
   /*
@@ -280,7 +280,7 @@
    * If this option is enabled, a user must have a session to access pads.
    * This effectively allows only group pads to be accessed.
    */
-  "requireSession": false,
+  "requireSession": true,
 
   /*
    * Users may edit pads but not create new ones.
@@ -288,7 +288,7 @@
    * Pad creation is only via the API.
    * This applies both to group pads and regular pads.
    */
-  "editOnly": false,
+  "editOnly": true,
 
   /*
    * If true, all css & js will be minified before sending to the client.
@@ -521,7 +521,7 @@
    */
 
   "ep_redis_publisher": {
-    "host": "localhost",
+    "host": "127.0.0.1",
     "port": 6379
   },
 
