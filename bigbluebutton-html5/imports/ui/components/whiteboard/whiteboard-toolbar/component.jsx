@@ -658,7 +658,6 @@ class WhiteboardToolbar extends Component {
         label={intl.formatMessage(intlMessages.toolbarDeleteSelection)}
         icon="delete"
         onItemClick={this.handleDeleteSelection}
-        className={styles.toolbarButton}
       />
     );
   }
