@@ -110,6 +110,7 @@ function SelectionModification(props) {
         boundContainer="#slideSVG"
         ref={selectoRef}
         selectByClick
+        toggleContinueSelect="shift"
         selectableTargets={['.selectable']}
         onSelect={
           (e) => {
