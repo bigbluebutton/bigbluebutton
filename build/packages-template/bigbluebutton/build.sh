@@ -23,6 +23,7 @@ bbb-html5
 bbb-learning-dashboard
 bbb-libreoffice-docker
 bbb-mkclean
+bbb-pads
 bbb-playback
 bbb-playback-presentation
 bbb-record-core
