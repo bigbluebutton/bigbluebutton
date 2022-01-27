@@ -42,7 +42,6 @@ class Page {
     this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, customParameter);
     const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, customParameter);
     await this.page.goto(joinUrl);
-
     if (shouldCloseAudioModal) await this.closeAudioModal();
   }
 
@@ -56,6 +55,16 @@ class Page {
     await this.waitForSelector(e.isTalking);
   }
 
+  async leaveAudio() {
+    await this.waitAndClick(e.leaveAudio);
+    await this.waitForSelector(e.joinAudio);
+  }
+
+  async logoutFromMeeting() {
+    await this.waitAndClick(e.optionsButton);
+    await this.waitAndClick(e.logout);
+  }
+
   async shareWebcam(shouldConfirmSharing, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
     await this.waitAndClick(e.joinVideo);
     if (shouldConfirmSharing) {
@@ -67,13 +76,12 @@ class Page {
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
   }
 
-  async getLocator(selector, { timeout, hidden } = { timeout: ELEMENT_WAIT_TIME, hidden: false }) {
-    if (!hidden) await this.waitForSelector(selector, timeout);
+  async getLocator(selector) {
     return this.page.locator(selector);
   }
 
-  async getSelectorCount(selector, timeout = ELEMENT_WAIT_TIME) {
-    const locator = await this.getLocator(selector, timeout);
+  async getSelectorCount(selector) {
+    const locator = await this.getLocator(selector);
     return locator.count();
   }
 
@@ -102,7 +110,7 @@ class Page {
   async waitAndClick(selector, timeout = ELEMENT_WAIT_TIME) {
     await this.waitForSelector(selector, timeout);
     await this.page.focus(selector);
-    await this.page.click(selector);
+    await this.page.click(selector, { timeout });
   }
 
   async checkElement(selector, index = 0) {
@@ -110,7 +118,7 @@ class Page {
   }
 
   async wasRemoved(selector, timeout = ELEMENT_WAIT_TIME) {
-    const locator = await this.getLocator(selector, { hidden: true });
+    const locator = await this.getLocator(selector);
     await expect(locator).toBeHidden({ timeout });
   }
 

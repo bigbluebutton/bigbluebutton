@@ -9,10 +9,11 @@ We actively support BigBlueButton through the community forums and through secur
 | 2.0.x (or earlier)  | :x:                |
 | 2.2.x   | :x:  |
 | 2.3.x   | :white_check_mark: |
+| 2.4.x   | :white_check_mark: |
 
-We have released 2.3 to the community and all our support efforts are now transitioned to 2.3.  Also, BigBlueButton 2.2 is running on Ubuntu 16.04 which is now end of life.
+We have released 2.4 to the community and are going to support both 2.4 and 2.3 together for the coming months (while we're actively developing the next release).  Also, BigBlueButton 2.2 is running on Ubuntu 16.04 which is now end of life.
 
-As such, we highly recommend that all administrators deploy 2.3 going forward as it is built upon Ubuntu 18.04.  You'll find [many improvements](https://docs.bigbluebutton.org/2.3/new.html) in this newer version.
+As such, we recommend that all administrators deploy 2.4 going forward.  You'll find [many improvements](https://docs.bigbluebutton.org/2.4/new.html) in this newer version.
 
 ## Reporting a Vulnerability
 

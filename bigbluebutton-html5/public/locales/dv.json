@@ -545,7 +545,6 @@
     "app.guest.errorSeeConsole": "އެރޮރ: އިތުރު މައުލޫމާތު ކޮންސޯލް ގައި",
     "app.guest.noModeratorResponse": "މޮޑަރޭޓަރ ފަރާތުން އެއްވެސް ޖަވާބެއް ނުލިބުން",
     "app.guest.noSessionToken": "އެއްވެސް ސެޝަން ޓޮކަންއެއް ލިބިފައި ނުވޭ",
-    "app.guest.windowTitle": "ގެސްޓް ލޮބީ",
     "app.guest.missingToken": "ސެޝަން ޓޮކަން ގެސްޓް ކިބައިގައި ނެތް",
     "app.guest.missingSession": "ގެސްޓް ކިބައިގައި ސެޝަން ނެތް",
     "app.guest.missingMeeting": "ތިޔަ ބައްދަލުވުމެއް ނެތް",

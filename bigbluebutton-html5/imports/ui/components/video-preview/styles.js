@@ -18,6 +18,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly, landscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Modal from '/imports/ui/components/modal/simple/component';
+import ModalStyles from '/imports/ui/components/modal/simple/styles';
 
 const Warning = styled.div`
   text-align: center;
@@ -182,6 +183,13 @@ const VideoPreviewModal = styled(Modal)`
     min-width: 100%;
     border-radius: 0;
   `}
+
+  ${ModalStyles.Content} {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
 `;
 
 const ellipsis = keyframes`

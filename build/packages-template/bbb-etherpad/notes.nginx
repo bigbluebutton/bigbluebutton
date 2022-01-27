@@ -13,7 +13,7 @@ location /pad/p/ {
     proxy_set_header X-Forwarded-Proto $scheme; # for EP to set secure cookie flag when https is used
     proxy_http_version 1.1;
 
-    auth_request /bigbluebutton/connection/validatePad;
+    auth_request /bigbluebutton/connection/checkAuthorization;
     auth_request_set $auth_status $upstream_status;
 }
 

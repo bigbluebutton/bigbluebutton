@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import logger from '/imports/startup/client/logger';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -17,6 +18,10 @@ class ErrorBoundary extends Component {
       error,
       errorInfo,
     });
+    logger.error({
+      logCode: 'Error_Boundary_wrapper',
+      extraInfo: { error, errorInfo },
+    }, 'generic error boundary logger');
   }
 
   render() {
@@ -29,7 +34,7 @@ class ErrorBoundary extends Component {
 
 ErrorBoundary.propTypes = propTypes;
 
-export const withErrorBoundary = (WrappedComponent, FallbackComponent) => props => (
+export const withErrorBoundary = (WrappedComponent, FallbackComponent) => (props) => (
   <ErrorBoundary Fallback={FallbackComponent}>
     <WrappedComponent {...props} />
   </ErrorBoundary>

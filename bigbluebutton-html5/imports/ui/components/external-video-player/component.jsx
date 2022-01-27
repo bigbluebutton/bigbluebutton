@@ -9,10 +9,7 @@ import {
   removeAllListeners,
   getPlayingState,
 } from './service';
-
-import {
-  isMobile, isTablet,
-} from '../layout/utils';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 import logger from '/imports/startup/client/logger';
 
@@ -149,7 +146,6 @@ class VideoPlayer extends Component {
     this.setPlaybackRate = this.setPlaybackRate.bind(this);
     this.onBeforeUnload = this.onBeforeUnload.bind(this);
 
-    this.isMobile = isMobile() || isTablet();
     this.mobileHoverSetTimeout = null;
   }
 
@@ -544,13 +540,14 @@ class VideoPlayer extends Component {
 
     let toolbarStyle = 'hoverToolbar';
 
-    if (this.isMobile && !showHoverToolBar) {
+    if (deviceInfo.isMobile && !showHoverToolBar) {
       toolbarStyle = 'dontShowMobileHoverToolbar';
     }
 
-    if (this.isMobile && showHoverToolBar) {
+    if (deviceInfo.isMobile && showHoverToolBar) {
       toolbarStyle = 'showMobileHoverToolbar';
     }
+    const isMinimized = width === 0 && height === 0;
 
     return (
       <span
@@ -562,6 +559,7 @@ class VideoPlayer extends Component {
           height,
           width,
           pointerEvents: isResizing ? 'none' : 'inherit',
+          display: isMinimized && 'none',
         }}
       >
         <Styled.VideoPlayerWrapper
@@ -620,7 +618,7 @@ class VideoPlayer extends Component {
                     {this.renderFullscreenButton()}
                   </Styled.HoverToolbar>
                 ),
-                (this.isMobile && playing) && (
+                (deviceInfo.isMobile && playing) && (
                   <Styled.MobileControlsOverlay
                     key="mobile-overlay-external-video"
                     ref={(ref) => { this.overlay = ref; }}

@@ -35,6 +35,7 @@ export default withTracker(({ user }) => {
     removeUser: UserListService.removeUser,
     toggleUserLock: UserListService.toggleUserLock,
     changeRole: UserListService.changeRole,
+    ejectUserCameras: UserListService.ejectUserCameras,
     assignPresenter: UserListService.assignPresenter,
     getAvailableActions: UserListService.getAvailableActions,
     normalizeEmojiName: UserListService.normalizeEmojiName,

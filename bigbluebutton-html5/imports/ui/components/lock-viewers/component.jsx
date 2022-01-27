@@ -2,7 +2,7 @@ import React, { Fragment, Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Toggle from '/imports/ui/components/switch/component';
-import NoteService from '/imports/ui/components/note/service';
+import NotesService from '/imports/ui/components/notes/service';
 import Button from '/imports/ui/components/button/component';
 import Styled from './styles';
 
@@ -303,7 +303,7 @@ class LockViewersComponent extends Component {
               </Fragment>
             ) : null
             }
-            {NoteService.isEnabled()
+            {NotesService.isEnabled()
               ? (
                 <Styled.Row>
                   <Styled.Col aria-hidden="true">
@@ -315,12 +315,12 @@ class LockViewersComponent extends Component {
                   </Styled.Col>
                   <Styled.Col>
                     <Styled.FormElementRight>
-                      {this.displayLockStatus(lockSettingsProps.disableNote)}
+                      {this.displayLockStatus(lockSettingsProps.disableNotes)}
                       <Toggle
                         icons={false}
-                        defaultChecked={lockSettingsProps.disableNote}
+                        defaultChecked={lockSettingsProps.disableNotes}
                         onChange={() => {
-                          this.toggleLockSettings('disableNote');
+                          this.toggleLockSettings('disableNotes');
                         }}
                         ariaLabel={intl.formatMessage(intlMessages.notesLabel)}
                         showToggleLabel={showToggleLabel}

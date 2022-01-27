@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import VoiceUsers from '/imports/api/voice-users/';
+import Users from '/imports/api/users/';
 import VideoListItem from './component';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 
@@ -32,6 +33,8 @@ export default withTracker((props) => {
   return {
     voiceUser: VoiceUsers.findOne({ intId: userId },
       { fields: { muted: 1, listenOnly: 1, talking: 1 } }),
+    user: Users.findOne({ intId: userId },
+      { fields: { pin: 1, userId: 1 } }),
   };
 })(VideoListItemContainer);
 

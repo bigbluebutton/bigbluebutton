@@ -1,10 +1,12 @@
 import { Meteor } from 'meteor/meteor';
-import takeOwnership from '/imports/api/captions/server/methods/takeOwnership';
-import appendText from '/imports/api/captions/server/methods/appendText';
-import getPadId from '/imports/api/captions/server/methods/getPadId';
+import updateCaptionsOwner from '/imports/api/captions/server/methods/updateCaptionsOwner';
+import startDictation from '/imports/api/captions/server/methods/startDictation';
+import stopDictation from '/imports/api/captions/server/methods/stopDictation';
+import pushSpeechTranscript from '/imports/api/captions/server/methods/pushSpeechTranscript';
 
 Meteor.methods({
-  takeOwnership,
-  appendText,
-  getPadId,
+  updateCaptionsOwner,
+  startDictation,
+  stopDictation,
+  pushSpeechTranscript,
 });

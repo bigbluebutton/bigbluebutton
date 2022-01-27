@@ -216,6 +216,7 @@ class VideoPreview extends Component {
   componentDidMount() {
     const {
       webcamDeviceId,
+      forceOpen,
     } = this.props;
 
     this._isMounted = true;
@@ -224,7 +225,7 @@ class VideoPreview extends Component {
       navigator.mediaDevices.enumerateDevices().then((devices) => {
         VideoService.updateNumberOfDevices(devices);
         // Video preview skip is activated, short circuit via a simpler procedure
-        if (PreviewService.getSkipVideoPreview()) return this.skipVideoPreview();
+        if (PreviewService.getSkipVideoPreview() && !forceOpen) return this.skipVideoPreview();
         // Late enumerateDevices resolution, stop.
         if (!this._isMounted) return;
 
@@ -713,6 +714,7 @@ class VideoPreview extends Component {
       intl,
       sharedDevices,
       hasVideoStream,
+      forceOpen,
     } = this.props;
 
     const {
@@ -721,7 +723,9 @@ class VideoPreview extends Component {
       deviceError,
       previewError,
     } = this.state;
-    const shouldDisableButtons = PreviewService.getSkipVideoPreview() && !(deviceError || previewError);
+    const shouldDisableButtons = PreviewService.getSkipVideoPreview()
+    && !forceOpen
+    && !(deviceError || previewError);
 
     const shared = sharedDevices.includes(webcamDeviceId);
 
@@ -779,6 +783,7 @@ class VideoPreview extends Component {
     const {
       intl,
       isCamLocked,
+      forceOpen,
     } = this.props;
 
     if (isCamLocked === true) {
@@ -786,7 +791,7 @@ class VideoPreview extends Component {
       return null;
     }
 
-    if (PreviewService.getSkipVideoPreview()) {
+    if (PreviewService.getSkipVideoPreview() && !forceOpen) {
       return null;
     }
 
@@ -795,7 +800,9 @@ class VideoPreview extends Component {
       previewError,
     } = this.state;
 
-    const allowCloseModal = !!(deviceError || previewError) || !PreviewService.getSkipVideoPreview();
+    const allowCloseModal = !!(deviceError || previewError)
+    || !PreviewService.getSkipVideoPreview()
+    || forceOpen;
 
     return (
       <Styled.VideoPreviewModal
