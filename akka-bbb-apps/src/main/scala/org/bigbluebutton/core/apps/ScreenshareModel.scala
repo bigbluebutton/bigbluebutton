@@ -91,24 +91,6 @@ object ScreenshareModel {
   def getHasAudio(status: ScreenshareModel): Boolean = {
     status.hasAudio
   }
-
-  def stop(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
-    if (isBroadcastingRTMP(liveMeeting.screenshareModel)) {
-      this.resetDesktopSharingParams(liveMeeting.screenshareModel)
-
-      val event = MsgBuilder.buildStopScreenshareRtmpBroadcastEvtMsg(
-        liveMeeting.props.meetingProp.intId,
-        getVoiceConf(liveMeeting.screenshareModel),
-        getScreenshareConf(liveMeeting.screenshareModel),
-        getRTMPBroadcastingUrl(liveMeeting.screenshareModel),
-        getScreenshareVideoWidth(liveMeeting.screenshareModel),
-        getScreenshareVideoHeight(liveMeeting.screenshareModel),
-        getTimestamp(liveMeeting.screenshareModel)
-      )
-      outGW.send(event)
-    }
-  }
-
 }
 
 class ScreenshareModel {

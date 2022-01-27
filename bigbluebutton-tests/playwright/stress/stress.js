@@ -2,7 +2,7 @@ const { expect } = require('@playwright/test');
 const Page = require('../core/page');
 const e = require('../core/elements');
 const c = require('../core/constants');
-const { checkIncludeClass } = require('./util');
+const { checkIncludeClass } = require('../core/util');
 
 class Stress {
   constructor(browser, context, page) {

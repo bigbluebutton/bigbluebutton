@@ -15,7 +15,7 @@ function Card(props) {
           { name }
         </p>
       </div>
-      <div className={`p-3 mr-4 text-orange-500 rounded-full ${iconClass}`}>
+      <div className={`p-3 mr-4 rounded-full ${iconClass || 'text-orange-500'}`}>
         { children }
       </div>
     </div>

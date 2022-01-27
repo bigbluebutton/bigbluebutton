@@ -693,7 +693,8 @@ class MeetingActor(
     // sync all lock settings
     handleSyncGetLockSettingsMsg(state, liveMeeting, msgBus)
 
-    // TODO send all screen sharing info
+    // send all screen sharing info
+    screenshareApp2x.handleSyncGetScreenshareInfoRespMsg(liveMeeting, msgBus)
   }
 
   def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
