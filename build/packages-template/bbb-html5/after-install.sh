@@ -15,8 +15,8 @@ if [[ $meteor_owner != "root:root" ]] ; then
     chown -R root:root /usr/share/meteor
 fi
 
-  SOURCE=/tmp/settings.yml
-  TARGET=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+SOURCE=/tmp/settings.yml
+TARGET=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
   if [ -f $SOURCE ]; then
 

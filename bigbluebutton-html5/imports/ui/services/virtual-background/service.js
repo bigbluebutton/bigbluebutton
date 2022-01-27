@@ -1,6 +1,8 @@
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import { createVirtualBackgroundService } from '/imports/ui/services/virtual-background';
+import Meetings from '/imports/api/meetings';
+import Auth from '/imports/ui/services/auth';
 
 const BLUR_FILENAME = 'blur.jpg';
 const EFFECT_TYPES = {
@@ -84,6 +86,13 @@ const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => {
 }
 
 const isVirtualBackgroundEnabled = () => {
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { 'usersProp.virtualBackgroundsDisabled': 1 } });
+
+  if (meeting?.usersProp && meeting.usersProp.virtualBackgroundsDisabled === true) {
+    return false;
+  }
+
   return VIRTUAL_BACKGROUND_ENABLED;
 }
 

@@ -9,6 +9,8 @@ import CaptionsContainer from '/imports/ui/components/captions/container';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import WaitingUsersPanel from '/imports/ui/components/waiting-users/container';
 import Styled from './styles';
+import ErrorBoundary from '/imports/ui/components/error-boundary/component';
+import FallbackView from '/imports/ui/components/fallback-errors/fallback-view/component';
 
 const propTypes = {
   top: PropTypes.number.isRequired,
@@ -122,7 +124,14 @@ const SidebarContent = (props) => {
         height,
       }}
     >
-      {sidebarContentPanel === PANELS.CHAT && <ChatContainer />}
+      {sidebarContentPanel === PANELS.CHAT
+      && (
+      <ErrorBoundary
+        Fallback={FallbackView}
+      >
+        <ChatContainer />
+      </ErrorBoundary>
+      )}
       {sidebarContentPanel === PANELS.SHARED_NOTES && <NotesContainer />}
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
