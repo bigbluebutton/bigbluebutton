@@ -146,11 +146,8 @@ class BbbWebApiGWApp(
                     breakoutParams:                         BreakoutRoomsParams,
                     lockSettingsParams:                     LockSettingsParams,
                     html5InstanceId:                        java.lang.Integer,
-<<<<<<< HEAD
-                    groups:                                 java.util.ArrayList[Group]): Unit = {
-=======
+                    groups:                                 java.util.ArrayList[Group],
                     virtualBackgroundsDisabled:             java.lang.Boolean): Unit = {
->>>>>>> upstream/v2.4.x-release
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
       isBreakout = isBreakout.booleanValue(), learningDashboardEnabled = learningDashboardEnabled.booleanValue())

@@ -620,11 +620,8 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardEnabled(learningDashboardEn)
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
-<<<<<<< HEAD
                 .withGroups(groups)
-=======
                 .withVirtualBackgroundsDisabled(virtualBackgroundsDisabled)
->>>>>>> upstream/v2.4.x-release
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
