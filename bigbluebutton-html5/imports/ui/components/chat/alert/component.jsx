@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
+import injectNotify from '/imports/ui/components/toast/inject-notify/component';
 import AudioService from '/imports/ui/components/audio/service';
 import ChatPushAlert from './push-alert/component';
 import Service from '../service';
@@ -45,6 +46,14 @@ const intlMessages = defineMessages({
     id: 'app.chat.clearPublicChatMessage',
     description: 'message of when clear the public chat',
   },
+  publicChatMsg: {
+    id: 'app.toast.chat.public',
+    description: 'public chat toast message title',
+  },
+  privateChatMsg: {
+    id: 'app.toast.chat.private',
+    description: 'private chat toast message title',
+  },
 });
 
 const ALERT_INTERVAL = 5000; // 5 seconds
@@ -59,6 +68,8 @@ const ChatAlert = (props) => {
     unreadMessagesByChat,
     intl,
     layoutContextDispatch,
+    chatsTracker,
+    notify,
   } = props;
 
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
@@ -93,6 +104,35 @@ const ChatAlert = (props) => {
       setAlertEnabledTimestamp(new Date().getTime());
     }
   }, [pushAlertEnabled]);
+
+  useEffect(() => {
+    const keys = Object.keys(chatsTracker);
+    keys.forEach((key) => {
+      if (chatsTracker[key]?.shouldNotify) {
+        if (audioAlertEnabled) {
+          AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+            + Meteor.settings.public.app.basename
+            + Meteor.settings.public.app.instanceId}`
+            + '/resources/sounds/notify.mp3');
+        }
+        if (pushAlertEnabled) {
+          notify(
+            key === 'MAIN-PUBLIC-GROUP-CHAT'
+              ? intl.formatMessage(intlMessages.publicChatMsg)
+              : intl.formatMessage(intlMessages.privateChatMsg),
+            'info',
+            'chat',
+            { autoClose: 3000 },
+            <div>
+              <div style={{ fontWeight: 700 }}>{chatsTracker[key].lastSender}</div>
+              <div>{chatsTracker[key].content}</div>
+            </div>,
+            true,
+          );
+        }
+      }
+    });
+  }, [chatsTracker]);
 
   useEffect(() => {
     if (pushAlertEnabled) {
@@ -198,4 +238,4 @@ const ChatAlert = (props) => {
 ChatAlert.propTypes = propTypes;
 ChatAlert.defaultProps = defaultProps;
 
-export default injectIntl(ChatAlert);
+export default injectNotify(injectIntl(ChatAlert));

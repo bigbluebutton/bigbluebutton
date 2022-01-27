@@ -16,7 +16,7 @@ import SettingsDropdownContainer from './settings-dropdown/container';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import _ from "lodash";
-import {alertScreenReader} from '/imports/utils/dom-utils';
+import { politeSRAlert } from '/imports/utils/dom-utils';
 import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
@@ -193,7 +193,7 @@ class NavBar extends Component {
 
     activeChats.map((c, i) => {
       if (c?.unreadCounter > 0 && c?.unreadCounter !== acs[i]?.unreadCounter) {
-        alertScreenReader(`${intl.formatMessage(intlMessages.newMsgAria, { 0: c.name })}`)
+        politeSRAlert(`${intl.formatMessage(intlMessages.newMsgAria, { 0: c.name })}`)
       }
     });
 
@@ -227,7 +227,7 @@ class NavBar extends Component {
               ghost
               circle
               hideLabel
-              data-test={hasNotification ? 'hasUnreadMessages' : null}
+              data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
               tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
               aria-label={ariaLabel}
@@ -242,7 +242,9 @@ class NavBar extends Component {
               && <Icon iconName="right_arrow" className={styles.arrowRight} />}
           </div>
           <div className={styles.center}>
-            <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
+            <h1 className={styles.presentationTitle} data-test="presentationTitle">
+              {presentationTitle}
+            </h1>
 
             <RecordingIndicator
               mountModal={mountModal}
