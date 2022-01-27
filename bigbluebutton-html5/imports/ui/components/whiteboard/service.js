@@ -5,6 +5,7 @@ import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
 import { Slides } from '/imports/api/slides';
 import { makeCall } from '/imports/ui/services/api';
 import PresentationService from '/imports/ui/components/presentation/service';
+import SelectionModificationToolService from '/imports/ui/components/whiteboard/annotation-selection-modification/service';
 import logger from '/imports/startup/client/logger';
 
 const Annotations = new Mongo.Collection(null);
@@ -59,7 +60,7 @@ function handleRemovedAnnotation({
     if (shapeId) {
       deselectHandle(shapeId);
     } else {
-      PresentationService.getSelectedAnnotations()
+      SelectionModificationToolService.getSelectedAnnotations()
         .map((annotationId) => deselectHandle(annotationId));
     }
   }
