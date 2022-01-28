@@ -31,7 +31,7 @@ const TimeWindowChatItemContainer = (props) => {
     name: senderName,
     color: '#01579b',
     avatar: '',
-    role: '',
+    role: ROLE_MODERATOR,
     loggedOut: false,
   } : users[Auth.meetingID][sender];
   const messageKey = key;
@@ -42,6 +42,7 @@ const TimeWindowChatItemContainer = (props) => {
       ...{
         color: user?.color,
         isModerator: user?.role === ROLE_MODERATOR,
+        isSystemSender: sender === 'SYSTEM',
         isOnline: !user?.loggedOut,
         avatar: user?.avatar,
         name: user?.name,

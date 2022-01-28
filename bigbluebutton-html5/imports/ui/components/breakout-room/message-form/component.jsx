@@ -3,9 +3,12 @@ import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import PropTypes from 'prop-types';
 import Styled from './styles';
+import { notify } from '/imports/ui/services/notification';
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   chatId: PropTypes.string.isRequired,
   disabled: PropTypes.bool.isRequired,
   minMessageLength: PropTypes.number.isRequired,
@@ -38,6 +41,10 @@ const messages = defineMessages({
   },
   errorChatLocked: {
     id: 'app.chat.locked',
+  },
+  msgToBreakoutsSent: {
+    id: 'app.createBreakoutRoom.msgToBreakoutsSent',
+    description: 'Message for chat sent successfully',
   },
 });
 
@@ -74,16 +81,23 @@ class MessageForm extends PureComponent {
     const {
       connected,
       locked,
+      userMessagesTooAllBreakouts,
+      intl,
     } = this.props;
     const { message } = this.state;
 
+    // Check for new messages sent and notify user
+    if (prevProps.userMessagesTooAllBreakouts.length < userMessagesTooAllBreakouts.length) {
+      for (let i = prevProps.userMessagesTooAllBreakouts.length;
+        i < userMessagesTooAllBreakouts.length;
+        i += 1) {
+        notify(
+          intl.formatMessage(messages.msgToBreakoutsSent, { 0: userMessagesTooAllBreakouts[i].totalOfRooms }), 'info', 'group_chat',
+        );
+      }
+    }
+
     this.updateUnsentMessagesCollection(prevProps.chatId, message);
-    this.setState(
-      {
-        error: null,
-        hasErrors: false,
-      }, this.setMessageState(),
-    );
 
     if (
       connected !== prevProps.connected
@@ -98,47 +112,6 @@ class MessageForm extends PureComponent {
     const { message } = this.state;
     this.updateUnsentMessagesCollection(chatId, message);
     this.setMessageState();
-  }
-
-  setMessageHint() {
-    const {
-      connected,
-      disabled,
-      intl,
-      locked,
-    } = this.props;
-
-    let chatDisabledHint = null;
-
-    if (disabled) {
-      if (connected) {
-        if (locked) {
-          chatDisabledHint = messages.errorChatLocked;
-        }
-      } else {
-        chatDisabledHint = messages.errorServerDisconnected;
-      }
-    }
-
-    this.setState({
-      hasErrors: disabled,
-      error: chatDisabledHint ? intl.formatMessage(chatDisabledHint) : null,
-    });
-  }
-
-  setMessageState() {
-    const { chatId, UnsentMessagesCollection } = this.props;
-    const unsentMessageByChat = UnsentMessagesCollection.findOne({ chatId },
-      { fields: { message: 1 } });
-    this.setState({ message: unsentMessageByChat ? unsentMessageByChat.message : '' });
-  }
-
-  updateUnsentMessagesCollection(chatId, message) {
-    const { UnsentMessagesCollection } = this.props;
-    UnsentMessagesCollection.upsert(
-      { chatId },
-      { $set: { message } },
-    );
   }
 
   handleMessageKeyDown(e) {
@@ -192,7 +165,7 @@ class MessageForm extends PureComponent {
     if (msg.length < minMessageLength) return;
 
     if (disabled
-      || msg.length > maxMessageLength) {
+        || msg.length > maxMessageLength) {
       this.setState({ hasErrors: true });
       return;
     }
@@ -205,6 +178,47 @@ class MessageForm extends PureComponent {
 
     handleSendMessage(msg);
     this.setState({ message: '', hasErrors: false });
+  }
+
+  setMessageHint() {
+    const {
+      connected,
+      disabled,
+      intl,
+      locked,
+    } = this.props;
+
+    let chatDisabledHint = null;
+
+    if (disabled) {
+      if (connected) {
+        if (locked) {
+          chatDisabledHint = messages.errorChatLocked;
+        }
+      } else {
+        chatDisabledHint = messages.errorServerDisconnected;
+      }
+    }
+
+    this.setState({
+      hasErrors: disabled,
+      error: chatDisabledHint ? intl.formatMessage(chatDisabledHint) : null,
+    });
+  }
+
+  setMessageState() {
+    const { chatId, UnsentMessagesCollection } = this.props;
+    const unsentMessageByChat = UnsentMessagesCollection.findOne({ chatId },
+      { fields: { message: 1 } });
+    this.setState({ message: unsentMessageByChat ? unsentMessageByChat.message : '' });
+  }
+
+  updateUnsentMessagesCollection(chatId, message) {
+    const { UnsentMessagesCollection } = this.props;
+    UnsentMessagesCollection.upsert(
+      { chatId },
+      { $set: { message } },
+    );
   }
 
   render() {

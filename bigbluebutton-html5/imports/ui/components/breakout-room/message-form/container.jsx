@@ -1,4 +1,5 @@
 import React from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
 import MessageForm from './component';
 import BreakoutService from '/imports/ui/components/breakout-room/service';
 import ChatService from '/imports/ui/components/chat/service';
@@ -20,4 +21,12 @@ const MessageFormContainer = (props) => {
   );
 };
 
-export default MessageFormContainer;
+export default withTracker((props) => {
+  const userMessagesTooAllBreakouts = BreakoutService.getUserMessagesToAllBreakouts();
+
+  return {
+    ...props,
+    userMessagesTooAllBreakouts,
+  };
+})(MessageFormContainer);
+// export default MessageFormContainer;

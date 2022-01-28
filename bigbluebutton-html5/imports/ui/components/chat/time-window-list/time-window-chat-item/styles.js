@@ -9,6 +9,8 @@ import {
   systemMessageBackgroundColor,
   systemMessageBorderColor,
   systemMessageFontColor,
+  highlightedMessageBackgroundColor,
+  highlightedMessageBorderColor,
   colorHeading,
   colorGrayLight,
   palettePlaceholderText,
@@ -63,6 +65,13 @@ const Wrapper = styled.div`
   position: relative;
   margin: ${borderSize} 0 0 ${borderSize};
 
+  ${({ isSystemSender }) => isSystemSender && `
+    background-color: ${highlightedMessageBackgroundColor};
+    border-left: 2px solid ${highlightedMessageBorderColor};
+    border-radius: 0px 3px 3px 0px;
+    padding: 8px 2px;
+  `}
+  
   [dir="rtl"] & {
     margin: ${borderSize} ${borderSize} 0 0;
   }

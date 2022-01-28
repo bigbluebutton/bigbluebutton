@@ -201,8 +201,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[TransferUserToMeetingRequestMsg](envelope, jsonNode)
       case ExtendBreakoutRoomsTimeReqMsg.NAME =>
         routeGenericMsg[ExtendBreakoutRoomsTimeReqMsg](envelope, jsonNode)
-      case SendMessageToAllBreakoutRoomsMsg.NAME =>
-        routeGenericMsg[SendMessageToAllBreakoutRoomsMsg](envelope, jsonNode)
+      case SendMessageToAllBreakoutRoomsReqMsg.NAME =>
+        routeGenericMsg[SendMessageToAllBreakoutRoomsReqMsg](envelope, jsonNode)
 
       // Layout
       case GetCurrentLayoutReqMsg.NAME =>

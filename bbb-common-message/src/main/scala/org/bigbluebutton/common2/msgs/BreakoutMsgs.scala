@@ -102,9 +102,13 @@ object ExtendBreakoutRoomsTimeEvtMsg { val NAME = "ExtendBreakoutRoomsTimeEvtMsg
 case class ExtendBreakoutRoomsTimeEvtMsg(header: BbbClientMsgHeader, body: ExtendBreakoutRoomsTimeEvtMsgBody) extends BbbCoreMsg
 case class ExtendBreakoutRoomsTimeEvtMsgBody(meetingId: String, extendTimeInMinutes: Int)
 
-object SendMessageToAllBreakoutRoomsMsg { val NAME = "SendMessageToAllBreakoutRoomsMsg" }
-case class SendMessageToAllBreakoutRoomsMsg(header: BbbClientMsgHeader, body: SendMessageToAllBreakoutRoomsMsgBody) extends StandardMsg
-case class SendMessageToAllBreakoutRoomsMsgBody(meetingId: String, msg: String)
+object SendMessageToAllBreakoutRoomsReqMsg { val NAME = "SendMessageToAllBreakoutRoomsReqMsg" }
+case class SendMessageToAllBreakoutRoomsReqMsg(header: BbbClientMsgHeader, body: SendMessageToAllBreakoutRoomsReqMsgBody) extends StandardMsg
+case class SendMessageToAllBreakoutRoomsReqMsgBody(meetingId: String, msg: String)
+
+object SendMessageToAllBreakoutRoomsEvtMsg { val NAME = "SendMessageToAllBreakoutRoomsEvtMsg" }
+case class SendMessageToAllBreakoutRoomsEvtMsg(header: BbbClientMsgHeader, body: SendMessageToAllBreakoutRoomsEvtMsgBody) extends BbbCoreMsg
+case class SendMessageToAllBreakoutRoomsEvtMsgBody(meetingId: String, senderId: String, msg: String, totalOfRooms: Int)
 
 // Common Value objects
 case class BreakoutUserVO(id: String, name: String)

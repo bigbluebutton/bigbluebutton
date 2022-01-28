@@ -30,6 +30,6 @@ export default function handleBreakoutRoomsList({ body }) {
       Logger.info(`Upserted rooms to breakout-history Data: meeting=${meetingId}`);
     }
   } catch (err) {
-    Logger.error(`Adding note to the collection breakout-history: ${err}`);
+    Logger.error(`Adding rooms to the collection breakout-history: ${err}`);
   }
 }

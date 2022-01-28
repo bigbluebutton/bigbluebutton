@@ -450,17 +450,17 @@ class MeetingActor(
         updateUserLastActivity(m.body.requesterId)
 
       // Breakout
-      case m: BreakoutRoomsListMsg             => state = handleBreakoutRoomsListMsg(m, state)
-      case m: CreateBreakoutRoomsCmdMsg        => state = handleCreateBreakoutRoomsCmdMsg(m, state)
-      case m: EndAllBreakoutRoomsMsg           => state = handleEndAllBreakoutRoomsMsg(m, state)
-      case m: RequestBreakoutJoinURLReqMsg     => state = handleRequestBreakoutJoinURLReqMsg(m, state)
-      case m: TransferUserToMeetingRequestMsg  => state = handleTransferUserToMeetingRequestMsg(m, state)
-      case m: ExtendBreakoutRoomsTimeReqMsg    => state = handleExtendBreakoutRoomsTimeMsg(m, state)
-      case m: SendMessageToAllBreakoutRoomsMsg => state = handleSendMessageToAllBreakoutRoomsMsg(m, state)
+      case m: BreakoutRoomsListMsg                => state = handleBreakoutRoomsListMsg(m, state)
+      case m: CreateBreakoutRoomsCmdMsg           => state = handleCreateBreakoutRoomsCmdMsg(m, state)
+      case m: EndAllBreakoutRoomsMsg              => state = handleEndAllBreakoutRoomsMsg(m, state)
+      case m: RequestBreakoutJoinURLReqMsg        => state = handleRequestBreakoutJoinURLReqMsg(m, state)
+      case m: TransferUserToMeetingRequestMsg     => state = handleTransferUserToMeetingRequestMsg(m, state)
+      case m: ExtendBreakoutRoomsTimeReqMsg       => state = handleExtendBreakoutRoomsTimeMsg(m, state)
+      case m: SendMessageToAllBreakoutRoomsReqMsg => state = handleSendMessageToAllBreakoutRoomsMsg(m, state)
 
       // Voice
-      case m: UserLeftVoiceConfEvtMsg          => handleUserLeftVoiceConfEvtMsg(m)
-      case m: UserMutedInVoiceConfEvtMsg       => handleUserMutedInVoiceConfEvtMsg(m)
+      case m: UserLeftVoiceConfEvtMsg             => handleUserLeftVoiceConfEvtMsg(m)
+      case m: UserMutedInVoiceConfEvtMsg          => handleUserMutedInVoiceConfEvtMsg(m)
       case m: UserTalkingInVoiceConfEvtMsg =>
         updateVoiceUserLastActivity(m.body.voiceUserId)
         handleUserTalkingInVoiceConfEvtMsg(m)

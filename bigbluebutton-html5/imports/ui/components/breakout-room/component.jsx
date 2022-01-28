@@ -482,19 +482,6 @@ class BreakoutRoom extends PureComponent {
             />
           </Styled.ExtendTimeContainer>
         ) : null}
-        {amIModerator
-          ? (
-            <MessageFormContainer
-              {...{
-                title: intl.formatMessage(intlMessages.chatTitleMsgAllRooms),
-              }}
-              chatId="breakouts"
-              chatTitle={intl.formatMessage(intlMessages.chatTitleMsgAllRooms)}
-              disabled={!isMeteorConnected}
-              connected={isMeteorConnected}
-              locked={false}
-            />
-          ) : null }
         <Styled.Duration>
           <BreakoutRoomContainer
             messageDuration={intlMessages.breakoutDuration}
@@ -537,6 +524,20 @@ class BreakoutRoom extends PureComponent {
             this.closePanel();
           }}
         />
+        {amIModerator
+          ? (
+            <MessageFormContainer
+              {...{
+                title: intl.formatMessage(intlMessages.chatTitleMsgAllRooms),
+              }}
+              chatId="breakouts"
+              chatTitle={intl.formatMessage(intlMessages.chatTitleMsgAllRooms)}
+              disabled={!isMeteorConnected}
+              connected={isMeteorConnected}
+              locked={false}
+            />
+          ) : null }
+        {amIModerator ? <Styled.Separator /> : null }
         {this.renderBreakoutRooms()}
         {this.renderDuration()}
         {

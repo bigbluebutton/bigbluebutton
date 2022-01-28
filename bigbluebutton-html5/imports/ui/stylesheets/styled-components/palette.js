@@ -75,6 +75,8 @@ const loaderBullet = `var(--loader-bullet, ${colorWhite})`;
 const systemMessageBackgroundColor = 'var(--system-message-background-color, #F9FBFC)';
 const systemMessageBorderColor = 'var(--system-message-border-color, #C5CDD4)';
 const systemMessageFontColor = `var(--system-message-font-color, ${colorGrayDark})`;
+const highlightedMessageBackgroundColor = 'var(--system-message-background-color, #fef9f1)';
+const highlightedMessageBorderColor = 'var(--system-message-border-color, #f5c67f)';
 const colorHeading = `var(--color-heading, ${colorGrayDark})`;
 const palettePlaceholderText = 'var(--palette-placeholder-text, #787675)';
 const pollAnnotationGray = 'var(--poll-annotation-gray, #333333)';
@@ -164,6 +166,8 @@ export {
   systemMessageBackgroundColor,
   systemMessageBorderColor,
   systemMessageFontColor,
+  highlightedMessageBackgroundColor,
+  highlightedMessageBorderColor,
   colorHeading,
   palettePlaceholderText,
   pollAnnotationGray,

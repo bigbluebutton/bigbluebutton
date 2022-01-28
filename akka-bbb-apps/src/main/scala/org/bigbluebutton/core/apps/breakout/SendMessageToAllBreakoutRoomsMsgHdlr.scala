@@ -15,8 +15,7 @@ trait SendMessageToAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
 
   val outGW: OutMsgRouter
 
-  def handleSendMessageToAllBreakoutRoomsMsg(msg: SendMessageToAllBreakoutRoomsMsg, state: MeetingState2x): MeetingState2x = {
-    log.debug("handleSendMessageToAllBreakoutRoomsMsg {} in meeting {}", msg.body.msg, props.meetingProp.intId)
+  def handleSendMessageToAllBreakoutRoomsMsg(msg: SendMessageToAllBreakoutRoomsReqMsg, state: MeetingState2x): MeetingState2x = {
     if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to send message to all breakout rooms for meeting."
@@ -30,11 +29,25 @@ trait SendMessageToAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
         breakoutModel.rooms.values.foreach { room =>
           eventBus.publish(BigBlueButtonEvent(room.id, SendMessageToBreakoutRoomInternalMsg(props.breakoutProps.parentId, room.id, senderUser.name, msg.body.msg)))
         }
+
+        val event = buildSendMessageToAllBreakoutRoomsEvtMsg(msg.header.userId, msg.body.msg, breakoutModel.rooms.size)
+        outGW.send(event)
+
         log.debug("Sending message '{}' for breakout rooms in meeting {}", msg.body.msg, props.meetingProp.intId)
       }
 
       state
     }
+  }
+
+  def buildSendMessageToAllBreakoutRoomsEvtMsg(senderId: String, msg: String, totalOfRooms: Int): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(SendMessageToAllBreakoutRoomsEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(SendMessageToAllBreakoutRoomsEvtMsg.NAME, liveMeeting.props.meetingProp.intId, "not-used")
+
+    val body = SendMessageToAllBreakoutRoomsEvtMsgBody(props.meetingProp.intId, senderId, msg, totalOfRooms)
+    val event = SendMessageToAllBreakoutRoomsEvtMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
   }
 
 }

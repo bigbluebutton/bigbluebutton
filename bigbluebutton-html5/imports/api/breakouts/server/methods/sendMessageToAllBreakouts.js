@@ -7,7 +7,7 @@ import Logger from '/imports/startup/server/logger';
 export default function sendMessageToAllBreakouts({ msg }) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-  const EVENT_NAME = 'SendMessageToAllBreakoutRoomsMsg';
+  const EVENT_NAME = 'SendMessageToAllBreakoutRoomsReqMsg';
 
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
