@@ -22,43 +22,43 @@
 }
 
 .modal {
-    padding: 10px 50px 10px 50px;
+    padding: 0.625em 3.125em 0.625em 3.125em;
     width: 60%;
-    height: 300px;
+    height: 18.75em;
     background-color: rgb(250, 252, 255);
-    border-radius: 5px;
+    background-color: var( --color-off-white);
+    border-radius: 0.3125em;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
     animation: up_modal 0.3s ease 
-   
 }
 
 .modal p{
-    padding: 0px;
-    margin: 0px;
-    margin-bottom: 20px;
-    font-size: 20px;
+    padding: 0em;
+    margin: 0em;
+    margin-bottom: 1.25em;
+    font-size: 1.25em;
 }
-.continue{
-    padding: 10px 30px 10px 30px;
-    background-color: #185AD8;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    font-size: 18px;
 
+.continue{
+    padding: 0.625em 1.875em 0.625em 1.875em;
+    background-color: var(--color-primary);
+    border: none;
+    border-radius: 0.3125em;
+    color: white;
+    font-size: 1.1em;
+    margin-right: 0.7em;
 }
 
 .skip{
-    padding: 10px 30px 10px 30px;
-    background-color: #c8d4eb;
+    padding: 0.625em 1.875em 0.625em 1.875em;
+    background-color: var(--color-blue-lightest);
     border: none;
-    border-radius: 5px;
-    color: rgb(9, 9, 10);
-    font-size: 18px;
+    border-radius: 0.3125em;
+    color: var(--color-gray);
+    font-size: 1.1em;
 }
 
 
@@ -67,7 +67,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: center; 
 }
 
 .divButtons button{
@@ -81,24 +81,28 @@
 
 @media (max-width: 940px)
 {
-  .modal h1
-   {
-    font-size: 24px;
-   }
+    .modal h1
+    {
+        font-size: 1.5em;
+    }
 
-   .divButtons{
-       flex-direction: column;
-       justify-content: center;
-       align-items: center;
-   }
+    .divButtons{
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
 
-   .divButtons button{
-       width: 100%;
-       margin: 5px;
-       padding: 10px 30px 10px 30px;
-   }
-   .modal{
-       width: 70%;
-       height: 90vh;
-   }
+    .divButtons button{
+        width: 100%;
+        margin: 0.3125em;
+        padding: 0.625em 1.875em 0.625em 1.875em;
+    }
+    .modal{
+        width: 70%;
+        height: 90vh;
+    }
+
+    .continue{
+        margin-right: 03em;
+    }
 }

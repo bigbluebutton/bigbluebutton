@@ -52,7 +52,6 @@ const ModalConsent = ({ recMeetingsCollection, intl, meetingsCollection }) => {
   }
 
   return (
-
     <div>
       <div className={style.overlay}>
         <div className={style.modal}>
@@ -71,7 +70,6 @@ const ModalConsent = ({ recMeetingsCollection, intl, meetingsCollection }) => {
         </div>
       </div>
     </div>
-
   );
 };
 
