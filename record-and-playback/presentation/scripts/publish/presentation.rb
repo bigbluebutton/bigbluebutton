@@ -1071,7 +1071,8 @@ def processChatMessages(events, bbb_props)
           direction: 'down',
           name: chat[:sender],
           message: chat[:message],
-          target: 'chat'
+          target: 'chat',
+          emphasised: chat[:emphasised]
         }
         chattimeline[:out] = (chat[:out] / 1000.0).round(1) unless chat[:out].nil?
         xml.chattimeline(**chattimeline)

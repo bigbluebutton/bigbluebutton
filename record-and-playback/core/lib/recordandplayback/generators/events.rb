@@ -552,11 +552,15 @@ module BigBlueButton
       anonymize_moderators = bbb_props['anonymize_chat_moderators'] if anonymize_moderators.nil?
       anonymize_moderators = anonymize_moderators.to_s.casecmp?('true')
 
+      # Verifying time-stamp of the period that Users have been moderators.
+      list_moderators_period = create_moderators_period(events, initial_timestamp)
+
       user_map = anonymize_senders ? anonymous_user_map(events, moderators: anonymize_moderators) : {}
 
       chats = []
       events.xpath('/recording/event').each do |event|
-        timestamp = event[:timestamp].to_i - initial_timestamp
+        absolute_timestamp = event[:timestamp].to_i
+        timestamp = absolute_timestamp - initial_timestamp
         break if timestamp >= end_time
 
         case [event[:module], event[:eventname]]
@@ -572,6 +576,11 @@ module BigBlueButton
           else
             text_color = color.to_i
           end
+          emphasised = false
+          if(is_message_in_period(sender_id, absolute_timestamp, list_moderators_period))
+            emphasised = true
+            BigBlueButton.logger.info("Teste do IsEmphasised: " + event.at_xpath('./message').content.strip)
+          end
 
           chats << {
             in: timestamp - offset,
@@ -582,6 +591,7 @@ module BigBlueButton
             avatar_color: avatar_color,
             text_color: text_color,
             date: date,
+            emphasised: emphasised,
           }
         when %w[CHAT ClearPublicChatEvent]
           next if timestamp < start_time
@@ -603,6 +613,72 @@ module BigBlueButton
       end
 
       chats
+    end
+
+    def self.create_moderators_period(events, initial_timestamp)
+      list_moderators_period = []
+
+      events.xpath('/recording/event').each do |event|
+        # BigBlueButton.logger.info("Teste aqui com: " + event.inspect)
+
+        absolute_timestamp = event[:timestamp].to_i
+        user_id = event.at_xpath('./userId')&.content
+
+        case [event[:module], event[:eventname]]
+        when %w[PARTICIPANT ParticipantStatusChangeEvent]
+          # Case where participant status changed to moderator or viewer.
+          process_moderator_in_list(list_moderators_period, user_id, absolute_timestamp)
+
+        when %w[PARTICIPANT ParticipantJoinEvent]
+          # Case where participant joined already as a moderator.
+          is_moderator = "MODERATOR" == event.at_xpath('./role')&.content
+          if (is_moderator)
+            list_moderators_period.push({'user_id': user_id, 'periods': [{'begin': event[:timestamp], 'end': -1}]})
+          end
+
+        end
+      end
+      return list_moderators_period
+    end
+
+    def self.process_moderator_in_list(list_moderator, user_id, absolute_timestamp)
+      #Verify if moderator is already set in the array.
+      list_moderator.each_with_index do |moderator, index|
+
+        if (moderator != nil and moderator[:user_id] == user_id)
+          final_period = moderator[:periods][-1]
+          if(final_period[:end] == -1 and final_period[:begin] < absolute_timestamp)
+            final_period[:end] = absolute_timestamp
+            moderator[:periods][-1] = final_period
+
+          else
+            moderator[:periods].push({'begin': absolute_timestamp, 'end': -1})
+          end
+          list_moderator[index] = moderator
+          return nil
+        end
+      end
+      list_moderator.push({"user_id": user_id, "periods": [{'begin': absolute_timestamp, 'end': -1}]})
+    end
+
+    def self.is_message_in_period(sender_id, message_timestamp, list_moderators_period)
+      list_moderators_period.each do |moderator|
+        if (moderator[:user_id] == sender_id)
+          moderator[:periods].each do |period|
+            if (period[:end] == -1)
+              return message_timestamp >= period[:begin].to_i
+
+            else
+              is_in_period = ((message_timestamp >= period[:begin].to_i) and (message_timestamp < period[:end].to_i))
+              if (is_in_period)
+                return true
+              end
+            end
+
+          end
+        end
+      end
+      return false
     end
 
     def self.get_record_status_events(events_xml)
