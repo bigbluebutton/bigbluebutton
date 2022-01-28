@@ -2,6 +2,7 @@ const { test, devices } = require('@playwright/test');
 const { Status } = require('./status');
 const { MultiUsers } = require('./multiusers');
 const { GuestPolicy } = require('./guestPolicy');
+const { LockViewers } = require('./lockViewers');
 const { MobileDevices } = require('./mobileDevices');
 const motoG4 = devices['Moto G4'];
 const iPhone11 = devices['iPhone 11'];
@@ -93,4 +94,54 @@ test.describe.parallel('User', () => {
       await mobileDevices.chatPanelNotAppearOnMobile();
     });
   });
+
+  test.describe.parallel('Lock viewers', () => {
+    test('Lock Share webcam', async ({ browser, context, page }) => {
+      const lockViewers = new LockViewers(browser, context);
+      await lockViewers.initPages(page);
+      await lockViewers.initUserPage2();
+      await lockViewers.lockShareWebcam();
+    });
+
+    test('Lock See other viewers webcams', async ({ browser, context, page }) => {
+      const lockViewers = new LockViewers(browser, context);
+      await lockViewers.initPages(page);
+      await lockViewers.initUserPage2();
+      await lockViewers.lockSeeOtherViewersWebcams();
+    });
+
+    test('Lock Share microphone', async ({ browser, context, page }) => {
+      const lockViewers = new LockViewers(browser, context);
+      await lockViewers.initPages(page);
+      await lockViewers.initUserPage2();
+      await lockViewers.lockShareMicrophone();
+    });
+
+    test('Lock Send public chat messages', async ({ browser, context, page }) => {
+      const lockViewers = new LockViewers(browser, context);
+      await lockViewers.initPages(page);
+      await lockViewers.initUserPage2();
+      await lockViewers.lockSendPublicChatMessages();
+    });
+
+    test('Lock Send private chat messages', async ({ browser, context, page }) => {
+      const lockViewers = new LockViewers(browser, context);
+      await lockViewers.initPages(page);
+      await lockViewers.initUserPage2();
+      await lockViewers.lockSendPrivateChatMessages();
+    });
+
+    test('Lock Edit Shared Notes', async ({ browser, context, page }) => {
+      const lockViewers = new LockViewers(browser, context);
+      await lockViewers.initPages(page);
+      await lockViewers.lockEditSharedNotes();
+    });
+
+    test('Lock See other viewers in the Users list', async ({ browser, context, page }) => {
+      const lockViewers = new LockViewers(browser, context);
+      await lockViewers.initPages(page);
+      await lockViewers.initUserPage2();
+      await lockViewers.lockSeeOtherViewersUserList();
+    });
+  })
 });

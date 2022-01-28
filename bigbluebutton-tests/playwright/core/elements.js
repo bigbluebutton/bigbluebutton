@@ -30,6 +30,7 @@ exports.echoYesButton = 'button[data-test="echoYesBtn"]';
 exports.connectingToEchoTest = 'span[data-test="connectingToEchoTest"]';
 exports.isTalking = 'button[data-test="isTalking"]';
 exports.talkingIndicator = 'div[data-test="talkingIndicator"]';
+exports.toggleMicrophoneButton = 'button[data-test="toggleMicrophoneButton"]';
 
 // Breakout
 exports.createBreakoutRooms = 'li[data-test="createBreakoutRooms"]';
@@ -62,6 +63,7 @@ exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
 exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
 // Messages
 exports.message = 'Hello World!';
+exports.testMessage = 'Just a test';
 exports.message1 = 'Hello User2';
 exports.message2 = 'Hello User1';
 exports.publicMessage1 = 'This is a Public Message from User1';
@@ -86,6 +88,12 @@ exports.userslist = 'div[data-test="userList"]';
 exports.sharedNotes = 'div[data-test="sharedNotes"]';
 exports.hideNoteLabel = 'button[data-test="hideNoteLabel"]';
 exports.etherpad = 'iframe[title="etherpad"]';
+exports.ether = 'iframe[title="Ether"]';
+exports.pad = 'iframe[title="pad"]';
+exports.etherpadFrame = 'iframe[title="etherpad"]';
+exports.etherpadOuter = 'iframe[title="Ether"]';
+exports.etherpadInner = 'iframe[title="pad"]';
+exports.etherpadEditable = 'body[id="innerdocbody"]';
 
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
@@ -205,6 +213,16 @@ exports.joinMeetingDemoPage = 'div[class^="join-meeting"]';
 exports.askModerator = 'button[data-test="askModerator"]';
 exports.alwaysAccept = 'button[data-test="alwaysAccept"]';
 exports.alwaysDeny = 'button[data-test="alwaysDeny"]';
+// Lock Viewers
+exports.lockViewersButton = 'li[data-test="lockViewersButton"]';
+exports.applyLockSettings ='button[data-test="applyLockSettings"]';
+exports.lockShareWebcam = 'input[data-test="lockShareWebcam"]';
+exports.lockSeeOtherViewersWebcam = 'input[data-test="lockSeeOtherViewersWebcam"]';
+exports.lockShareMicrophone = 'input[data-test="lockShareMicrophone"]';
+exports.lockPublicChat = 'input[data-test="lockPublicChat"]';
+exports.lockPrivateChat = 'input[data-test="lockPrivateChat"]';
+exports.lockEditSharedNotes = 'input[data-test="lockEditSharedNotes"]';
+exports.lockUserList = 'input[data-test="lockUserList"]';
 
 // Locales
 exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
@@ -225,6 +243,7 @@ exports.webcamVideo = 'video[data-test="videoContainer"]';
 exports.videoContainer = 'div[data-test="webcamList"]';
 exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';
 exports.webcamSettingsModal = 'div[data-test="webcamSettingsModal"]';
+exports.dropdownWebcamButton = 'div[data-test="dropdownWebcamButton"]';
 exports.webcamMirroredVideoPreview = 'video[data-test="mirroredVideoPreview"]';
 
 // Whiteboard

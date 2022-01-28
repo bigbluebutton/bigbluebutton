@@ -38,6 +38,7 @@ class Page {
 
     if (!isModerator) this.initParameters.moderatorPW = '';
     if (fullName) this.initParameters.fullName = fullName;
+    this.username = this.initParameters.fullName;
 
     this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, customParameter);
     const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, customParameter);
@@ -65,7 +66,7 @@ class Page {
     await this.waitAndClick(e.logout);
   }
 
-  async shareWebcam(shouldConfirmSharing, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
+  async shareWebcam(shouldConfirmSharing = true, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
     await this.waitAndClick(e.joinVideo);
     if (shouldConfirmSharing) {
       await this.waitForSelector(e.videoPreview, videoPreviewTimeout);
@@ -125,6 +126,11 @@ class Page {
   async hasElement(selector, timeout = ELEMENT_WAIT_TIME) {
     const locator = this.getLocator(selector);
     await expect(locator).toBeVisible({ timeout });
+  }
+
+  async hasElementDisabled(selector, timeout = ELEMENT_WAIT_TIME) {
+    const locator = this.getLocator(selector);
+    await expect(locator).toBeDisabled({ timeout });
   }
 
   async hasText(selector, text, timeout = ELEMENT_WAIT_TIME) {
