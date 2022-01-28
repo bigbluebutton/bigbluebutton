@@ -217,7 +217,7 @@ case class EjectUserFromVoiceCmdMsg(
     header: BbbClientMsgHeader,
     body:   EjectUserFromVoiceCmdMsgBody
 ) extends StandardMsg
-case class EjectUserFromVoiceCmdMsgBody(userId: String, ejectedBy: String)
+case class EjectUserFromVoiceCmdMsgBody(userId: String, ejectedBy: String, banUser: Boolean)
 
 /**
  * Sent by client to mute all users except presenters in the voice conference.

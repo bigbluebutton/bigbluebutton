@@ -146,7 +146,7 @@ class TalkingIndicator extends PureComponent {
     };
 
     return (
-      <div className={styles.isTalkingWrapper}>
+      <div className={styles.isTalkingWrapper} data-test="talkingIndicator">
         <div className={styles.speaking}>
           {talkingUserElements}
           {maxIndicator()}

@@ -16,16 +16,16 @@ function getSvgOuterHtml() {
 
 async function uploadPresentation(test, fileName, uploadTimeout = ELEMENT_WAIT_LONGER_TIME) {
   await test.waitAndClick(e.actions);
-  await test.waitAndClick(e.uploadPresentation);
+  await test.waitAndClick(e.managePresentations);
   await test.waitForSelector(e.fileUpload);
 
   await test.page.setInputFiles(e.fileUpload, path.join(__dirname, `../media/${fileName}`));
-  await test.hasText('body', 'To be uploaded ...');
+  await test.hasText('body', e.statingUploadPresentationToast);
 
-  await test.waitAndClick(e.upload);
-  await test.hasText('body', 'Converting file');
+  await test.waitAndClick(e.confirmManagePresentation);
+  await test.hasText('body', e.convertingPresentationFileToast);
 
-  await test.hasText('body', 'Current presentation', uploadTimeout);
+  await test.hasText('body', e.presentationUploadedToast, uploadTimeout);
 }
 
 exports.checkSvgIndex = checkSvgIndex;

@@ -16,7 +16,7 @@ class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
 
     await this.userPage.hasElement(e.modalConfirmButton);
-    await this.userPage.waitAndClick(e.closeModal);
+    await this.userPage.waitAndClick(e.modalDismissButton);
     await this.modPage.hasElement(e.breakoutRoomsItem);
   }
 }

@@ -46,6 +46,7 @@ public class ApiParams {
     public static final String MUTE_ON_START = "muteOnStart";
     public static final String MEETING_KEEP_EVENTS = "meetingKeepEvents";
     public static final String ALLOW_MODS_TO_UNMUTE_USERS = "allowModsToUnmuteUsers";
+    public static final String ALLOW_REQUESTS_WITHOUT_SESSION = "allowRequestsWithoutSession";
     public static final String ALLOW_MODS_TO_EJECT_CAMERAS = "allowModsToEjectCameras";
     public static final String NAME = "name";
     public static final String PARENT_MEETING_ID = "parentMeetingID";
@@ -58,6 +59,7 @@ public class ApiParams {
     public static final String WEB_VOICE = "webVoice";
     public static final String LEARNING_DASHBOARD_ENABLED = "learningDashboardEnabled";
     public static final String LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES = "learningDashboardCleanupDelayInMinutes";
+    public static final String VIRTUAL_BACKGROUNDS_DISABLED = "virtualBackgroundsDisabled";
     public static final String WEBCAMS_ONLY_FOR_MODERATOR = "webcamsOnlyForModerator";
     public static final String WELCOME = "welcome";
     public static final String HTML5_INSTANCE_ID = "html5InstanceId";

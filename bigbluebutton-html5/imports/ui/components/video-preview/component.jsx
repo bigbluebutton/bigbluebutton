@@ -822,6 +822,7 @@ class VideoPreview extends Component {
         contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
         shouldShowCloseButton={allowCloseModal}
         shouldCloseOnOverlayClick={allowCloseModal}
+        data-test="webcamSettingsModal"
       >
         {deviceInfo.hasMediaDevices
           ? this.renderModalContent()

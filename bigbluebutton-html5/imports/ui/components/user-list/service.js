@@ -30,9 +30,9 @@ const STARTED_CHAT_LIST_KEY = 'startedChatList';
 
 const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
 
-export const setCustomLogoUrl = path => Storage.setItem(CUSTOM_LOGO_URL_KEY, path);
+export const setCustomLogoUrl = (path) => Storage.setItem(CUSTOM_LOGO_URL_KEY, path);
 
-export const setModeratorOnlyMessage = msg => Storage.setItem('ModeratorOnlyMessage', msg);
+export const setModeratorOnlyMessage = (msg) => Storage.setItem('ModeratorOnlyMessage', msg);
 
 const getCustomLogoUrl = () => Storage.getItem(CUSTOM_LOGO_URL_KEY);
 
@@ -304,7 +304,7 @@ const isMeetingLocked = (id) => {
   let isLocked = false;
 
   if (meeting.lockSettingsProps !== undefined) {
-    const {lockSettingsProps:lockSettings, usersProp} = meeting;
+    const { lockSettingsProps: lockSettings, usersProp } = meeting;
 
     if (lockSettings.disableCam
       || lockSettings.disableMic
@@ -447,7 +447,7 @@ const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
 const removeUser = (userId, banUser) => {
   if (isVoiceOnlyUser(userId)) {
-    makeCall('ejectUserFromVoice', userId);
+    makeCall('ejectUserFromVoice', userId, banUser);
   } else {
     makeCall('removeUser', userId, banUser);
   }
