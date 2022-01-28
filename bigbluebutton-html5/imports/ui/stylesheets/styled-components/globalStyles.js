@@ -147,6 +147,10 @@ const GlobalStyle = createGlobalStyle`
       left: none !important;
     }
   }
+  
+  .moveable-control-box{
+    z-index: 1000!important;
+  }
 `;
 
 export default GlobalStyle;
