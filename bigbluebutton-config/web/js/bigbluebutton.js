@@ -1,8 +1,8 @@
 function GetURLParameter(sParam) {
-    var sPageURL = decodeURIComponent(window.location.search.substring(1));
-    var sURLVariables = sPageURL.split('&');
-    for (var i = 0; i < sURLVariables.length; i++) {
-        var sParameterName = sURLVariables[i].split('=');
+    const sPageURL = decodeURIComponent(window.location.search.substring(1));
+    const sURLVariables = sPageURL.split('&');
+    for (let i = 0; i < sURLVariables.length; i++) {
+        const sParameterName = sURLVariables[i].split('=');
         if (sParameterName[0] == sParam) {
             return sParameterName[1];
         }
@@ -30,8 +30,8 @@ function escapeHTML(text) {
   }
 }
 
-var sClose = GetURLParameter('close');
-var sErrors = GetURLParameter('errors');
+const sClose = GetURLParameter('close');
+const sErrors = GetURLParameter('errors');
 if (typeof sClose != 'undefined') {
     if ( sClose.toLowerCase() === "true" ) {
         AutoClose();
