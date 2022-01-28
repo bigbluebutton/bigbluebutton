@@ -137,7 +137,7 @@ class MeetingMessageQueue {
 
     // We're limiting concurrency on presentation events in order to prevent
     // a potential race codition that messes up the conversion info.
-    if (presentationEvts.includes(args[0].eventName)) {
+    if (presentationEvts.includes(args[0]?.eventName)) {
       this.presentationQueue.push(function (next) {
         taskHandler(...args, next);
       })
