@@ -1,14 +1,12 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ ExtendBreakoutRoomTimeInternalMsg, SendMessageToBreakoutRoomInternalMsg, SendTimeRemainingAuditInternalMsg }
-import org.bigbluebutton.core.apps.groupchats.GroupChatApp
+import org.bigbluebutton.core.api.{ SendMessageToBreakoutRoomInternalMsg }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.{ GroupChatMessage, RegisteredUsers }
+import org.bigbluebutton.core.models.{ RegisteredUsers }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
-import org.bigbluebutton.core.util.TimeUtil
 
 trait SendMessageToAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -33,7 +31,7 @@ trait SendMessageToAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
         val event = buildSendMessageToAllBreakoutRoomsEvtMsg(msg.header.userId, msg.body.msg, breakoutModel.rooms.size)
         outGW.send(event)
 
-        log.debug("Sending message '{}' for breakout rooms in meeting {}", msg.body.msg, props.meetingProp.intId)
+        log.debug("Sending message '{}' to all breakout rooms in meeting {}", msg.body.msg, props.meetingProp.intId)
       }
 
       state
