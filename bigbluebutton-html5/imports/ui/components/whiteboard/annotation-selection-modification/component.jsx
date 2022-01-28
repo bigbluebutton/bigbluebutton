@@ -12,14 +12,14 @@ function SelectionModification(props) {
   const [moveableTargets, setMoveableTargets] = React.useState([]);
 
   const {
-    zoom, tool, userIsPresenter, whiteboardId,
+    tool, userIsPresenter, whiteboardId, localPosition,
   } = props;
 
   useEffect(() => {
     if (moveableRef.current) {
       moveableRef.current.updateRect();
     }
-  }, [zoom, userIsPresenter]);
+  }, [localPosition, userIsPresenter]);
 
   function deselect(selection) {
     setMoveableTargets(moveableTargets.filter((selected) => !selection.includes(selected.id)));
@@ -131,8 +131,11 @@ function SelectionModification(props) {
 
 SelectionModification.propTypes = {
   tool: PropTypes.string.isRequired,
-  // for rerendering of selection rectangle on zoom
-  zoom: PropTypes.number.isRequired,
+  // Track local position to trigger rerender of
+  // selection rectangle (Moveable control box) on zoom.
+  // Zoom itself does not work as trigger prop because
+  // sometimes it gets updated prior to rerendering.
+  localPosition: PropTypes.objectOf(PropTypes.number).isRequired,
   userIsPresenter: PropTypes.bool.isRequired,
   whiteboardId: PropTypes.string.isRequired,
 };

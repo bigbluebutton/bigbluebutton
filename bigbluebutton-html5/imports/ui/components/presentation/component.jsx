@@ -537,7 +537,6 @@ class Presentation extends PureComponent {
 
     const {
       localPosition,
-      zoom,
     } = this.state;
 
     if (!this.isPresentationAccessible()) {
@@ -656,7 +655,7 @@ class Presentation extends PureComponent {
           )}
         </Styled.PresentationSvg>
         <SelectionModificationContainer
-          zoom={zoom}
+          localPosition={localPosition}
           userIsPresenter={userIsPresenter}
           whiteboardId={currentSlide.id}
         />
