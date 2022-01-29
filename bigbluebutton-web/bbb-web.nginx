@@ -37,7 +37,7 @@
 			}
 
 			# high limit for presentation as bbb-web will reject upload if larger than configured
-			client_max_body_size       1000m;
+			client_max_body_size       100m;
 			client_body_buffer_size    128k;
 
 			proxy_connect_timeout      90;
@@ -89,7 +89,7 @@
 			proxy_set_header	X-Original-Content-Length $http_content_length;
 
 			# high limit for presentation as bbb-web will reject upload if larger than configured
-			client_max_body_size       1000m;
+			client_max_body_size       100m;
 			client_body_buffer_size    128k;
 
 			proxy_pass_request_body off;
@@ -134,7 +134,7 @@
             }
 
             # Allow 30M uploaded presentation document.
-            client_max_body_size       30m;
+            client_max_body_size       100m;
             client_body_buffer_size    128k;
 
             proxy_connect_timeout      90;
