@@ -28,6 +28,9 @@ export default withTracker(() => {
 
   return {
     presentations: currentPresentations,
+    fileUploadConstraintsHint: PRESENTATION_CONFIG.fileUploadConstraintsHint,
+    fileSizeMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadSizeMax,
+    filePagesMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
     allowDownloadable: PRESENTATION_CONFIG.allowDownloadable,
     handleSave: (presentations) => Service.persistPresentationChanges(

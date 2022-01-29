@@ -174,7 +174,7 @@ object Users2x {
       newUser
     }
   }
-  
+
   def hasPresenter(users: Users2x): Boolean = {
     findPresenter(users) match {
       case Some(p) => true

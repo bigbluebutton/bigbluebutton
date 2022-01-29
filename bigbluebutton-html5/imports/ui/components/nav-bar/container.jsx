@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import Meetings from '/imports/api/meetings';
+import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import userListService from '/imports/ui/components/user-list/service';
@@ -9,6 +10,7 @@ import { ChatContext } from '/imports/ui/components/components-data/chat-context
 import { GroupChatContext } from '/imports/ui/components/components-data/group-chat-context/context';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import NoteService from '/imports/ui/components/note/service';
+import UserlsitService from '/imports/ui/components/user-list/service';
 import Service from './service';
 import NavBar from './component';
 import LayoutContext from '../layout/context';
@@ -36,6 +38,7 @@ const NavBarContainer = ({ children, ...props }) => {
   const { chats: groupChatsMessages } = usingChatContext;
   const { users } = usingUsersContext;
   const { groupChat: groupChats } = usingGroupChatContext;
+  const activeChats = UserlsitService.getActiveChats({ groupChatsMessages, groupChats, users:users[Auth.meetingID] });
   const { ...rest } = props;
   const {
     input, output,
@@ -70,6 +73,7 @@ const NavBarContainer = ({ children, ...props }) => {
         sidebarContent,
         layoutContextDispatch,
         isExpanded,
+        activeChats,
         ...rest,
       }}
       style={{ ...navBar }}
@@ -82,22 +86,27 @@ const NavBarContainer = ({ children, ...props }) => {
 export default withTracker(() => {
   const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
 
-  let meetingTitle;
+  let meetingTitle, breakoutNum, breakoutName, meetingName;
   const meetingId = Auth.meetingID;
   const meetingObject = Meetings.findOne({
     meetingId,
-  }, { fields: { 'meetingProp.name': 1, 'breakoutProps.sequence': 1 } });
+  }, { fields: { 'meetingProp.name': 1, 'breakoutProps.sequence': 1, meetingId: 1 } });
 
   if (meetingObject != null) {
     meetingTitle = meetingObject.meetingProp.name;
     let titleString = `${CLIENT_TITLE} - ${meetingTitle}`;
+    document.title = titleString;
+
     if (meetingObject.breakoutProps) {
-      const breakoutNum = meetingObject.breakoutProps.sequence;
+      breakoutNum = meetingObject.breakoutProps.sequence;
       if (breakoutNum > 0) {
-        titleString = `${breakoutNum} - ${titleString}`;
+        const breakoutObject = Breakouts.findOne({
+          breakoutId: meetingObject.meetingId,
+        }, { fields: { shortName: 1 } });
+        breakoutName = breakoutObject.shortName;
+        meetingName = meetingTitle.replace(`(${breakoutName})`, '').trim();
       }
     }
-    document.title = titleString;
   }
 
   const { connectRecordingObserver, processOutsideToggleRecording } = Service;
@@ -108,5 +117,8 @@ export default withTracker(() => {
     connectRecordingObserver,
     meetingId,
     presentationTitle: meetingTitle,
+    breakoutNum,
+    breakoutName,
+    meetingName,
   };
 })(NavBarContainer);

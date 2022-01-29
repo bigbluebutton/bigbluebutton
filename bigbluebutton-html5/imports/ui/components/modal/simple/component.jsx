@@ -89,6 +89,7 @@ class ModalSimple extends Component {
               className={styles.dismiss}
               label={intl.formatMessage(intlMessages.modalClose)}
               aria-label={`${intl.formatMessage(intlMessages.modalClose)} ${title || contentLabel}`}
+              data-test="closeModal"
               icon="close"
               circle
               hideLabel

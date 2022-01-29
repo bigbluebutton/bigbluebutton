@@ -8,6 +8,8 @@ import PollContainer from '/imports/ui/components/poll/container';
 import CaptionsContainer from '/imports/ui/components/captions/pad/container';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import WaitingUsersPanel from '/imports/ui/components/waiting-users/container';
+import ErrorBoundary from '/imports/ui/components/error-boundary/component';
+import FallbackView from '/imports/ui/components/fallback-errors/fallback-view/component';
 import { styles } from '/imports/ui/components/app/styles';
 
 const propTypes = {
@@ -121,7 +123,14 @@ const SidebarContent = (props) => {
         height,
       }}
     >
-      {sidebarContentPanel === PANELS.CHAT && <ChatContainer />}
+      {sidebarContentPanel === PANELS.CHAT
+      && (
+      <ErrorBoundary
+        Fallback={FallbackView}
+      >
+        <ChatContainer />
+      </ErrorBoundary>
+      )}
       {sidebarContentPanel === PANELS.SHARED_NOTES && <NoteContainer />}
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
       {sidebarContentPanel === PANELS.POLL
