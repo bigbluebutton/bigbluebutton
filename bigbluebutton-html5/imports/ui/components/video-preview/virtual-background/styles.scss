@@ -31,6 +31,7 @@
 .virtualBackgroundItem {
   outline: none;
   display: flex;
+  flex-shrink: 0;
   position: relative;
   justify-content: center;
   align-items: center;
@@ -71,4 +72,5 @@
   border-radius: var(--border-size-large);
   height: var(--thumbnail-btn-md);
   width: var(--thumbnail-btn-md);
+  flex-shrink: 0;
 }
