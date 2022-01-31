@@ -336,6 +336,12 @@ def svg_render_shape_text(g, slide, shape)
 end
 
 def svg_render_shape_poll(g, slide, shape)
+  result = shape[:result]
+  if result == "[]"
+    BigBlueButton.logger.info("Poll #{shape[:shape_unique_id]} result is empty (no options/answers), ignoring...")
+    return
+  end
+  
   poll_id = shape[:shape_unique_id]
   g['shape'] = "poll#{poll_id}"
   g['style'] = 'visibility:hidden'
@@ -347,7 +353,6 @@ def svg_render_shape_poll(g, slide, shape)
   width = shape_scale_width(slide, data_points[2])
   height = shape_scale_height(slide, data_points[3])
 
-  result = shape[:result]
   num_responders = shape[:num_responders]
   presentation = slide[:presentation]
 
@@ -376,7 +381,7 @@ def svg_render_shape(canvas, slide, shape, image_id)
     return
   end
 
-  if (shape_in >= slide[:out]) || (shape_out && (shape_out <= slide[:in]))
+  if (shape_in >= slide[:out]) || (!shape[:out].nil? && shape[:out] <= slide[:in])
     BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} is not visible during image time span")
     return
   end
@@ -384,7 +389,7 @@ def svg_render_shape(canvas, slide, shape, image_id)
   doc = canvas.document
   g = doc.create_element('g',
                          id: "image#{image_id}-draw#{shape[:shape_id]}", class: 'shape',
-                         timestamp: shape_in, undo: shape[:undo] || -1)
+                         timestamp: shape_in, undo: (shape[:undo].nil? ? -1 : shape[:undo]))
 
   case shape[:type]
   when 'pencil'
@@ -436,8 +441,7 @@ def svg_render_image(svg, slide, shapes)
                              width: slide[:width], height: slide[:height], x: 0, y: 0,
                              style: 'visibility:hidden')
 
-  slide_text = slide[:text]
-  image['text'] = slide_text if slide_text
+  image['text'] = slide[:text] if slide[:text]
   svg << image
 
   return if slide_deskshare || !shapes.dig(presentation, slide_number)
@@ -496,7 +500,7 @@ def cursors_emit_event(rec, cursor)
         # Use the panzoom information to convert it to be relative to viewbox
         x = convert_cursor_coordinate(cursor[:x], panzoom[:x_offset], panzoom[:width_ratio])
         y = convert_cursor_coordinate(cursor[:y], panzoom[:y_offset], panzoom[:height_ratio])
-        x = y = -1.0 if x.negative? || (x > 1) || y.negative? || (y > 1)
+        x = y = -1.0 if (x < 0) || (x > 1) || (y < 0) || (y > 1)
       else
         # Cursor position is relative to the visible area
         x = cursor[:x].round(5)
@@ -509,9 +513,6 @@ def cursors_emit_event(rec, cursor)
     rec.cursor("#{x} #{y}")
   end
 end
-
-@svg_shape_id = 1
-@svg_shape_unique_id = 1
 
 def determine_presentation(presentation, current_presentation)
   presentation&.text || current_presentation
@@ -563,7 +564,8 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   # Some shape-specific properties
   if %w[ellipse line pencil rectangle triangle].include?(shape_type)
     shape[:color] = color_to_hex(event.at_xpath('color').text)
-    unless (thickness = event.at_xpath('thickness'))
+    thickness = event.at_xpath('thickness')
+    unless thickness
       BigBlueButton.logger.warn("Draw #{draw_id} Shape #{shape[:shape_unique_id]} ID #{shape_id} is missing thickness")
       return
     end
@@ -596,7 +598,8 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
     shape[:text_box_width] = event.at_xpath('textBoxWidth').text.to_f
     shape[:text_box_height] = event.at_xpath('textBoxHeight').text.to_f
 
-    unless (calced_font_size = event.at_xpath('calcedFontSize'))
+    calced_font_size = event.at_xpath('calcedFontSize')
+    unless calced_font_size
       BigBlueButton.logger.warn("Draw #{draw_id} Shape #{shape[:shape_unique_id]} ID #{shape_id} is missing calcedFontSize")
       return
     end
@@ -612,10 +615,8 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   if shape_id
     # If we have a shape ID, look up the previous shape by ID
     # Don't look for updates if the drawing has ended
-    unless shape_status == 'DRAW_END'
-      prev_shape_pos = shapes.rindex { |s| s[:id] == shape_id }
-      prev_shape = prev_shape_pos ? shapes[prev_shape_pos] : nil
-    end
+    prev_shape_pos = shapes.rindex { |s| s[:id] == shape_id }
+    prev_shape = prev_shape_pos ? shapes[prev_shape_pos] : nil
   else
     # No shape ID, so do heuristic matching. If the previous shape had the
     # same type and same first two data points, update it.
@@ -641,7 +642,6 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
     @svg_shape_unique_id += 1
   end
 
-  # BigBlueButton.logger.info("Draw #{draw_id} Shape #{shape[:shape_unique_id]} ID #{shape_id} Type #{shape[:type]}")
   shapes << shape
 end
 
@@ -649,7 +649,7 @@ def set_undo_helper(shapes, key, id, timestamp)
   shapes.each do |shape|
     next unless shape[key] == id
 
-    shape[:undo] = timestamp if !(shape_undo = shape[:undo]) || (shape_undo > timestamp)
+    shape[:undo] = timestamp if !shape[:undo] || (shape[:undo] > timestamp)
   end
 end
 
@@ -710,22 +710,32 @@ def events_parse_clear(shapes, event, current_presentation, current_slide, times
   # We only need to deal with shapes for this slide
   shapes = shapes[presentation][slide]
 
-  full_clear ? BigBlueButton.logger.info('Clear: removing all shapes') : BigBlueButton.logger.info("Clear: removing shapes for User #{user_id}")
+  if full_clear
+    BigBlueButton.logger.info("Clear: removing all shapes")
+  else
+    BigBlueButton.logger.info("Clear: removing shapes for User #{user_id}")
+  end
 
   shapes.each do |shape|
-    if (full_clear || (user_id == shape[:user_id])) && (!(shape_undo = shape[:undo]) || (shape_undo > timestamp))
-      shape[:undo] = timestamp
+    if full_clear || user_id == shape[:user_id]
+      if !shape[:undo] || shape[:undo] > timestamp
+        shape[:undo] = timestamp
+      end
     end
   end
 end
 
 def events_get_image_info(slide)
-  if (slide_deskshare = slide[:deskshare])
+  slide_deskshare = slide[:deskshare]
+  slide_presentation = slide[:presentation]
+
+  if slide_deskshare
     slide[:src] = 'presentation/deskshare.png'
-  elsif (slide_presentation = slide[:presentation]) == ''
+  elsif slide_presentation == ''
     slide[:src] = 'presentation/logo.png'
   else
-    slide[:src] = "presentation/#{slide_presentation}/slide-#{slide_nr = slide[:slide] + 1}.png"
+    slide_nr = slide[:slide] + 1
+    slide[:src] = "presentation/#{slide_presentation}/slide-#{slide_nr}.png"
     slide[:text] = "presentation/#{slide_presentation}/textfiles/slide-#{slide_nr}.txt"
   end
   image_path = "#{@process_dir}/#{slide[:src]}"
@@ -920,34 +930,33 @@ def process_presentation(package_dir)
     end
 
     # Perform cursor finalization
-    next unless cursor_changed || panzoom_changed
-
-    unless (cursor_x >= 0) && (cursor_x <= 100) &&
-           cursor_y >= 0 && (cursor_y <= 100)
-      cursor_visible = false
-    end
-
-    panzoom = panzooms.last
-    cursor = cursors.last
-    if cursor &&
-       ((!cursor[:visible] && !cursor_visible) ||
-        ((cursor[:x] == cursor_x) && (cursor[:y] == cursor_y))) &&
-       !panzoom_changed
-      BigBlueButton.logger.info('Cursor: skipping, no changes')
-    else
-      if cursor
-        cursor[:out] = timestamp
-        cursors_emit_event(cursors_rec, cursor)
+    if cursor_changed || panzoom_changed
+      unless cursor_x >= 0 && cursor_x <= 100 &&
+          cursor_y >= 0 && cursor_y <= 100
+        cursor_visible = false
       end
-      # BigBlueButton.logger.info("Cursor: visible #{cursor_visible}, #{cursor_x} #{cursor_y} (#{panzoom[:width]}x#{panzoom[:height]})")
-      cursor = {
-        visible: cursor_visible,
-        x: cursor_x,
-        y: cursor_y,
-        panzoom: panzoom,
-        in: timestamp,
-      }
-      cursors << cursor
+
+      panzoom = panzooms.last
+      cursor = cursors.last
+      if cursor &&
+          ((!cursor[:visible] && !cursor_visible) ||
+           (cursor[:x] == cursor_x && cursor[:y] == cursor_y)) &&
+          !panzoom_changed
+        BigBlueButton.logger.info('Cursor: skipping, no changes')
+      else
+        if cursor
+          cursor[:out] = timestamp
+          cursors_emit_event(cursors_rec, cursor)
+        end
+        cursor = {
+          visible: cursor_visible,
+          x: cursor_x,
+          y: cursor_y,
+          panzoom: panzoom,
+          in: timestamp,
+        }
+        cursors << cursor
+      end
     end
   end
 
@@ -1079,7 +1088,8 @@ def process_poll_events(events, package_dir)
   published_polls = []
   @rec_events.each do |re|
     events.xpath("recording/event[@eventname='PollPublishedRecordEvent']").each do |event|
-      next unless ((timestamp = event[:timestamp]).to_i >= re[:start_timestamp]) && (timestamp.to_i <= re[:stop_timestamp])
+      timestamp = event[:timestamp]
+      next unless (timestamp.to_i >= re[:start_timestamp]) && (timestamp.to_i <= re[:stop_timestamp])
 
       published_polls << {
         timestamp: (translate_timestamp(timestamp) / 1000).to_i,
@@ -1106,7 +1116,7 @@ def process_external_video_events(_events, package_dir)
   external_videos = []
   @rec_events.each do |re|
     external_video_events.each do |event|
-      # BigBlueButton.logger.info("Processing rec event #{re} and external video event #{event}")
+      BigBlueButton.logger.info("Processing rec event #{re} and external video event #{event}")
       start_timestamp = event[:start_timestamp]
       timestamp = (translate_timestamp(start_timestamp) / 1000).to_i
       # do not add same external_video twice
@@ -1148,6 +1158,8 @@ end
 @panzooms_xml_filename = 'panzooms.xml'
 @cursor_xml_filename = 'cursor.xml'
 @deskshare_xml_filename = 'deskshare.xml'
+@svg_shape_id = 1
+@svg_shape_unique_id = 1
 
 opts = Optimist.options do
   opt :meeting_id, 'Meeting id to archive', default: '58f4a6b3-cd07-444d-8564-59116cb53974', type: String
