@@ -24,15 +24,52 @@ class FullAudioBroker extends BaseBroker {
     this.offering = true;
 
     // Optional parameters are: userName, caleeName, iceServers, offering,
-    // mediaServer, extension
+    // mediaServer, extension, constraints
     Object.assign(this, options);
+  }
+
+  getLocalStream() {
+    if (this.webRtcPeer.peerConnection) {
+      return this.webRtcPeer.peerConnection.getLocalStreams()[0];
+    }
+
+    return null;
+  }
+
+  setLocalStream(stream) {
+    if (this.webRtcPeer == null || this.webRtcPeer.peerConnection == null) {
+      throw new Error('Missing peer connection');
+    }
+
+    const { peerConnection } = this.webRtcPeer;
+    const newTracks = stream.getAudioTracks();
+    const localStream = this.getLocalStream();
+    const oldTracks = localStream ? localStream.getAudioTracks() : [];
+
+    peerConnection.getSenders().forEach((sender, index) => {
+      if (sender.track && sender.track.kind === 'audio') {
+        const newTrack = newTracks[index];
+        if (newTrack == null) return;
+
+        // Cleanup old tracks in the local MediaStream
+        const oldTrack = oldTracks[index];
+        sender.replaceTrack(newTrack);
+        if (oldTrack) {
+          oldTrack.stop();
+          localStream.removeTrack(oldTrack);
+        }
+        localStream.addTrack(newTrack);
+      }
+    });
+
+    return Promise.resolve();
   }
 
   joinAudio() {
     return new Promise((resolve, reject) => {
       const options = {
         mediaConstraints: {
-          audio: true,
+          audio: this.constraints ? this.constraints : true,
           video: false,
         },
         onicecandidate: (candidate) => {

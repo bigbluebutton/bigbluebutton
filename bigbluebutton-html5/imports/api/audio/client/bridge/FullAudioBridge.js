@@ -8,6 +8,15 @@ import {
   getMappedFallbackStun,
 } from '/imports/utils/fetchStunTurnServers';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
+import Storage from '/imports/ui/services/storage/session';
+import {
+  DEFAULT_INPUT_DEVICE_ID,
+  DEFAULT_OUTPUT_DEVICE_ID,
+  INPUT_DEVICE_ID_KEY,
+  OUTPUT_DEVICE_ID_KEY,
+  getAudioSessionNumber,
+  getAudioConstraints,
+} from '/imports/api/audio/client/bridge/service';
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const MEDIA = Meteor.settings.public.media;
@@ -18,7 +27,6 @@ const RECONNECT_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
 const SENDRECV_ROLE = 'sendrecv';
 const RECV_ROLE = 'recv';
 const BRIDGE_NAME = 'fullaudio';
-const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
 
 // SFU's base broker has distinct error codes so that it can be reused by different
 // modules. Errors that have a valid, localized counterpart in audio manager are
@@ -45,17 +53,6 @@ const getMediaServerAdapter = () => getFromMeetingSettings(
   DEFAULT_FULLAUDIO_MEDIA_SERVER,
 );
 
-const getAudioSessionNumber = () => {
-  let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
-  if (!currItem) {
-    currItem = 0;
-  }
-
-  currItem += 1;
-  sessionStorage.setItem(AUDIO_SESSION_NUM_KEY, currItem);
-  return currItem;
-};
-
 export default class FullAudioBridge extends BaseAudioBridge {
   constructor(userData) {
     super();
@@ -74,22 +71,69 @@ export default class FullAudioBridge extends BaseAudioBridge {
     this.bridgeName = BRIDGE_NAME;
   }
 
-  async changeOutputDevice(value) {
-    const audioContext = document.querySelector(`#${MEDIA_TAG}`);
-    if (audioContext.setSinkId) {
-      try {
-        await audioContext.setSinkId(value);
-        this.media.outputDeviceId = value;
-      } catch (error) {
-        logger.error({
-          logCode: 'fullaudio_changeoutputdevice_error',
-          extraInfo: { error, bridge: this.bridgeName },
-        }, 'Audio bridge failed to change output device');
-        throw new Error(this.baseErrorCodes.MEDIA_ERROR);
-      }
+  get inputDeviceId() {
+    const sessionInputDeviceId = Storage.getItem(INPUT_DEVICE_ID_KEY);
+
+    if (sessionInputDeviceId) {
+      return sessionInputDeviceId;
     }
 
-    return this.media.outputDeviceId || value;
+    if (this.media.inputDeviceId) {
+      return this.media.inputDeviceId;
+    }
+
+    return null;
+  }
+
+  set inputDeviceId(deviceId) {
+    Storage.setItem(INPUT_DEVICE_ID_KEY, deviceId);
+    this.media.inputDeviceId = deviceId;
+  }
+
+  get outputDeviceId() {
+    const sessionOutputDeviceId = Storage.getItem(OUTPUT_DEVICE_ID_KEY);
+    if (sessionOutputDeviceId) {
+      return sessionOutputDeviceId;
+    }
+
+    if (this.media.outputDeviceId) {
+      return this.media.outputDeviceId;
+    }
+
+    return DEFAULT_OUTPUT_DEVICE_ID;
+  }
+
+  set outputDeviceId(deviceId) {
+    Storage.setItem(OUTPUT_DEVICE_ID_KEY, deviceId);
+    this.media.outputDeviceId = deviceId;
+  }
+
+  get inputStream() {
+    if (this.broker) {
+      return this.broker.getLocalStream();
+    }
+
+    return null;
+  }
+
+  async setInputStream(stream) {
+    try {
+      if (this.broker == null) return null;
+
+      await this.broker.setLocalStream(stream);
+
+      return stream;
+    } catch (error) {
+      logger.warn({
+        logCode: 'fullaudio_setinputstream_error',
+        extraInfo: {
+          errorCode: error.code,
+          errorMessage: error.message,
+          bridgeName: this.bridgeName,
+        },
+      }, 'Failed to set input stream (mic)');
+      return null;
+    }
   }
 
   getPeerConnection() {
@@ -267,6 +311,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
         extension,
         iceServers: this.iceServers,
         mediaServer: getMediaServerAdapter(),
+        constraints: getAudioConstraints({ deviceId: this.inputDeviceId }),
       };
 
       this.broker = new FullAudioBroker(
@@ -318,6 +363,31 @@ export default class FullAudioBridge extends BaseAudioBridge {
   transferCall(onTransferSuccess) {
     this.inEchoTest = false;
     return this.trackTransferState(onTransferSuccess);
+  }
+
+  async liveChangeInputDevice(deviceId) {
+    try {
+      const constraints = {
+        audio: getAudioConstraints({ deviceId }),
+      };
+
+      this.inputStream.getAudioTracks().forEach((t) => t.stop());
+      const updatedStream = await navigator.mediaDevices.getUserMedia(constraints);
+      await this.setInputStream(updatedStream);
+      this.inputDeviceId = deviceId;
+
+      return updatedStream;
+    } catch (error) {
+      logger.warn({
+        logCode: 'fullaudio_livechangeinputdevice_error',
+        extraInfo: {
+          errorCode: error.code,
+          errorMessage: error.message,
+          bridgeName: this.bridgeName,
+        },
+      }, 'Failed to change input device (mic)');
+      return null;
+    }
   }
 
   exitAudio() {
