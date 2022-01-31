@@ -12,12 +12,12 @@ require 'optimist'
 require 'yaml'
 
 # For PRODUCTION
-require File.expand_path('../../lib/recordandplayback/interval_tree', __FILE__)
-require File.expand_path('../../lib/recordandplayback', __FILE__)
+require File.expand_path('../../lib/recordandplayback/interval_tree', __dir__)
+require File.expand_path('../../lib/recordandplayback', __dir__)
 
 # For DEVELOPMENT
-# require File.expand_path('../../../../core/lib/recordandplayback', __FILE__)
-# require File.expand_path('../../../../core/lib/recordandplayback/interval_tree', __FILE__)
+# require File.expand_path('../../../core/lib/recordandplayback', __dir__)
+# require File.expand_path('../../../core/lib/recordandplayback/interval_tree', __dir__)
 
 include IntervalTree
 
@@ -216,7 +216,7 @@ def parse_whiteboard_shapes(shape_reader)
       slide_out = node.attribute('out').to_f
 
       path = "#{@published_files}/#{node.attribute('href')}"
-      next if path.include?('deskshare')
+      next if path.include?('deskshare') || path.include?('logo.png')
 
       slides << WhiteboardSlide.new(path, slide_in, slide_out, node.attribute('width').to_f, node.attribute('height'))
     end
