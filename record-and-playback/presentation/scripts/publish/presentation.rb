@@ -479,7 +479,6 @@ def panzooms_emit_event(rec, panzoom)
   rec.event(timestamp: panzoom_in) do
     x, y, w, h = panzoom_viewbox(panzoom)
     rec.viewBox("#{x} #{y} #{w} #{h}")
-    # BigBlueButton.logger.info("Panzoom viewbox #{x} #{y} #{w} #{h}" at #{panzoom[:in]}")
   end
 end
 
