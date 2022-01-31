@@ -3,7 +3,11 @@ import _ from 'lodash';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
-import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import {
+  ACTIONS,
+  PANELS,
+  CAMERADOCK_POSITION,
+} from '/imports/ui/components/layout/enums';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -100,7 +104,7 @@ const PresentationFocusLayout = (props) => {
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: _.defaultsDeep({
           sidebarNavigation: {
-            isOpen: input.sidebarNavigation.isOpen || false,
+            isOpen: input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
           },
           sidebarContent: {
             isOpen: sidebarContentPanel !== PANELS.NONE,
@@ -206,14 +210,14 @@ const PresentationFocusLayout = (props) => {
           (windowHeight() - cameraDockMinHeight),
         );
       }
-      cameraDockBounds.top = windowHeight() - cameraDockHeight + this.bannerAreaHeight();
+      cameraDockBounds.top = windowHeight() - cameraDockHeight;
       cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.minWidth = sidebarContentWidth;
       cameraDockBounds.width = sidebarContentWidth;
       cameraDockBounds.maxWidth = sidebarContentWidth;
       cameraDockBounds.minHeight = cameraDockMinHeight;
-      cameraDockBounds.height = cameraDockHeight - this.bannerAreaHeight();
+      cameraDockBounds.height = cameraDockHeight;
       cameraDockBounds.maxHeight = windowHeight() - sidebarContentHeight;
       cameraDockBounds.zIndex = 1;
     }
@@ -282,6 +286,7 @@ const PresentationFocusLayout = (props) => {
       sidebarContentWidth.width,
       sidebarContentHeight.height,
     );
+    const { isOpen } = presentationInput;
 
     layoutContextDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,
@@ -389,6 +394,7 @@ const PresentationFocusLayout = (props) => {
       type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
       value: {
         display: cameraDockInput.numCameras > 0,
+        position: CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM,
         minWidth: cameraDockBounds.minWidth,
         width: cameraDockBounds.width,
         maxWidth: cameraDockBounds.maxWidth,

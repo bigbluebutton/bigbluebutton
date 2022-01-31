@@ -8,7 +8,7 @@ import { validIOSVersion } from '/imports/ui/components/app/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { debounce } from 'lodash';
 
-const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app;
+const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app.enableWebcamSelectorButton;
 
 const intlMessages = defineMessages({
   joinVideo: {
@@ -47,6 +47,7 @@ const propTypes = {
   intl: PropTypes.object.isRequired,
   hasVideoStream: PropTypes.bool.isRequired,
   mountVideoPreview: PropTypes.func.isRequired,
+  forceMountVideoPreview: PropTypes.func.isRequired,
 };
 
 const JoinVideoButton = ({
@@ -54,6 +55,7 @@ const JoinVideoButton = ({
   hasVideoStream,
   disableReason,
   mountVideoPreview,
+  forceMountVideoPreview,
 }) => {
   const { isMobile } = deviceInfo;
   const shouldEnableWebcamSelectorButton = ENABLE_WEBCAM_SELECTOR_BUTTON
@@ -62,6 +64,7 @@ const JoinVideoButton = ({
   const exitVideo = () => hasVideoStream
     && !isMobile
     && (!VideoService.isMultipleCamerasEnabled() || shouldEnableWebcamSelectorButton);
+  const isMobileSharingCamera = hasVideoStream && isMobile;
 
   const handleOnClick = debounce(() => {
     if (!validIOSVersion()) {
@@ -70,6 +73,8 @@ const JoinVideoButton = ({
 
     if (exitVideo()) {
       VideoService.exitVideo();
+    } else if (isMobileSharingCamera) {
+      forceMountVideoPreview();
     } else {
       mountVideoPreview();
     }
@@ -77,7 +82,7 @@ const JoinVideoButton = ({
 
   const handleOpenAdvancedOptions = (e) => {
     e.stopPropagation();
-    mountVideoPreview();
+    forceMountVideoPreview();
   };
 
   let label = exitVideo()

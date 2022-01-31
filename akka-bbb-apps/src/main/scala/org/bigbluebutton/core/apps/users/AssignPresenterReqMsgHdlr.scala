@@ -7,6 +7,7 @@ import org.bigbluebutton.core.models.{ PresentationPod, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.{ requestBroadcastStop }
 
 trait AssignPresenterReqMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -72,6 +73,9 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
         if (oldPres.intId != newPresenterId) {
           // Stop external video if it's running
           ExternalVideoModel.stop(outGW, liveMeeting)
+          // Request a screen broadcast stop (goes to SFU, comes back through
+          // ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg)
+          requestBroadcastStop(outGW, liveMeeting)
 
           Users2x.makeNotPresenter(liveMeeting.users2x, oldPres.intId)
           broadcastOldPresenterChange(oldPres)

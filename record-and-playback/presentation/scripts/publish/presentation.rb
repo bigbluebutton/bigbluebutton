@@ -341,7 +341,6 @@ def svg_render_shape_poll(g, slide, shape)
     BigBlueButton.logger.info("Poll #{shape[:shape_unique_id]} result is empty (no options/answers), ignoring...")
     return
   end
-  
   poll_id = shape[:shape_unique_id]
   g['shape'] = "poll#{poll_id}"
   g['style'] = 'visibility:hidden'

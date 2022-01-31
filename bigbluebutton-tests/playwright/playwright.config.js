@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const config = {
   workers: 1,
+  timeout: 3 * 60 * 1000,
   use: {
     headless: true,
   },

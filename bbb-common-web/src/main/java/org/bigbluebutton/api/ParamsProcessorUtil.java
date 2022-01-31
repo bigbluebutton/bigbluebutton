@@ -77,7 +77,7 @@ public class ParamsProcessorUtil {
     private int defaultNumDigitsForTelVoice;
     private String defaultHTML5ClientUrl;
     private String defaultGuestWaitURL;
-    private Boolean allowRequestsWithoutSession;
+    private Boolean allowRequestsWithoutSession = false;
     private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
     private String defaultGuestPolicy;
@@ -92,6 +92,7 @@ public class ParamsProcessorUtil {
     private boolean webcamsOnlyForModerator;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
+    private boolean defaultAllowModsToEjectCameras = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
     private String defaultLogoURL;
@@ -104,7 +105,7 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsDisableMic;
 		private boolean defaultLockSettingsDisablePrivateChat;
 		private boolean defaultLockSettingsDisablePublicChat;
-		private boolean defaultLockSettingsDisableNote;
+		private boolean defaultLockSettingsDisableNotes;
 		private boolean defaultLockSettingsHideUserList;
 		private boolean defaultLockSettingsLockedLayout;
 		private boolean defaultLockSettingsLockOnJoin;
@@ -302,10 +303,17 @@ public class ParamsProcessorUtil {
 				lockSettingsDisablePublicChat = Boolean.parseBoolean(lockSettingsDisablePublicChatParam);
 			}
 
-			Boolean lockSettingsDisableNote = defaultLockSettingsDisableNote;
-			String lockSettingsDisableNoteParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_NOTE);
-			if (!StringUtils.isEmpty(lockSettingsDisableNoteParam)) {
-				lockSettingsDisableNote = Boolean.parseBoolean(lockSettingsDisableNoteParam);
+			Boolean lockSettingsDisableNotes = defaultLockSettingsDisableNotes;
+			String lockSettingsDisableNotesParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_NOTES);
+			if (!StringUtils.isEmpty(lockSettingsDisableNotesParam)) {
+				lockSettingsDisableNotes = Boolean.parseBoolean(lockSettingsDisableNotesParam);
+			} else {
+				// To be removed after deprecation period
+				lockSettingsDisableNotesParam = params.get(ApiParams.DEPRECATED_LOCK_SETTINGS_DISABLE_NOTES);
+				if (!StringUtils.isEmpty(lockSettingsDisableNotesParam)) {
+					log.warn("[DEPRECATION] use lockSettingsDisableNotes instead of lockSettingsDisableNote");
+					lockSettingsDisableNotes = Boolean.parseBoolean(lockSettingsDisableNotesParam);
+				}
 			}
 
 			Boolean lockSettingsHideUserList = defaultLockSettingsHideUserList;
@@ -336,7 +344,7 @@ public class ParamsProcessorUtil {
 							lockSettingsDisableMic,
 							lockSettingsDisablePrivateChat,
 							lockSettingsDisablePublicChat,
-							lockSettingsDisableNote,
+							lockSettingsDisableNotes,
 							lockSettingsHideUserList,
 							lockSettingsLockedLayout,
 							lockSettingsLockOnJoin,
@@ -501,6 +509,14 @@ public class ParamsProcessorUtil {
             learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
         }
 
+
+        // Check if VirtualBackgrounds is disabled
+        boolean virtualBackgroundsDisabled = false;
+        if (!StringUtils.isEmpty(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED))) {
+            virtualBackgroundsDisabled = Boolean.valueOf(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED));
+        }
+
+
         boolean webcamsOnlyForMod = webcamsOnlyForModerator;
         if (!StringUtils.isEmpty(params.get(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR))) {
             try {
@@ -595,6 +611,7 @@ public class ParamsProcessorUtil {
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
                 .withAuthenticatedGuest(authenticatedGuest)
+                .withAllowRequestsWithoutSession(allowRequestsWithoutSession)
                 .withMeetingLayout(meetingLayout)
 				.withBreakoutRoomsParams(breakoutParams)
 				.withLockSettingsParams(lockSettingsParams)
@@ -604,6 +621,7 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
+                .withVirtualBackgroundsDisabled(virtualBackgroundsDisabled)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
@@ -667,6 +685,16 @@ public class ParamsProcessorUtil {
             allowModsToUnmuteUsers = Boolean.parseBoolean(params.get(ApiParams.ALLOW_MODS_TO_UNMUTE_USERS));
         }
         meeting.setAllowModsToUnmuteUsers(allowModsToUnmuteUsers);
+
+        if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_REQUESTS_WITHOUT_SESSION))) {
+            meeting.setAllowRequestsWithoutSession(Boolean.parseBoolean(params.get(ApiParams.ALLOW_REQUESTS_WITHOUT_SESSION)));
+        }
+
+    Boolean allowModsToEjectCameras = defaultAllowModsToEjectCameras;
+    if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_MODS_TO_EJECT_CAMERAS))) {
+      allowModsToEjectCameras = Boolean.parseBoolean(params.get(ApiParams.ALLOW_MODS_TO_EJECT_CAMERAS));
+    }
+    meeting.setAllowModsToEjectCameras(allowModsToEjectCameras);
 
         return meeting;
     }
@@ -1119,6 +1147,14 @@ public class ParamsProcessorUtil {
 		return defaultAllowModsToUnmuteUsers;
 	}
 
+  public void setAllowModsToEjectCameras(Boolean value) {
+    defaultAllowModsToEjectCameras = value;
+  }
+
+  public Boolean getAllowModsToEjectCameras() {
+    return defaultAllowModsToEjectCameras;
+  }
+
 	public List<String> decodeIds(String encodeid) {
 		ArrayList<String> ids=new ArrayList<>();
 		try {
@@ -1202,8 +1238,8 @@ public class ParamsProcessorUtil {
 		this.defaultLockSettingsDisablePublicChat = lockSettingsDisablePublicChat;
 	}
 
-	public void setLockSettingsDisableNote(Boolean lockSettingsDisableNote) {
-		this.defaultLockSettingsDisableNote = lockSettingsDisableNote;
+	public void setLockSettingsDisableNotes(Boolean lockSettingsDisableNotes) {
+		this.defaultLockSettingsDisableNotes = lockSettingsDisableNotes;
 	}
 
 	public void setLockSettingsHideUserList(Boolean lockSettingsHideUserList) {

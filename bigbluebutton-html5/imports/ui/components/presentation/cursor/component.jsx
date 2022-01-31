@@ -102,6 +102,20 @@ export default class Cursor extends Component {
     // we need to find the BBox of the text, so that we could set a proper border box arount it
   }
 
+  shouldComponentUpdate(nextProps) {
+    const { cursorX, cursorY, slideWidth, slideHeight } = this.props;
+    if (cursorX !== nextProps.cursorX || cursorY !== nextProps.cursorY) {
+      const cursorCoordinate = Cursor.getCursorCoordinates(
+        nextProps.cursorX,
+        nextProps.cursorY,
+        slideWidth,
+        slideHeight,
+      );
+      this.cursorCoordinate = cursorCoordinate;
+    }
+    return true;
+  }
+  
   componentDidUpdate(prevProps, prevState) {
     const {
       scaledSizes,
@@ -146,16 +160,6 @@ export default class Cursor extends Component {
             this.setState({
               scaledSizes: Cursor.getScaledSizes(this.props, this.state),
             });
-    }
-
-    if (cursorX !== prevProps.cursorX || cursorY !== prevProps.cursorY) {
-      const cursorCoordinate = Cursor.getCursorCoordinates(
-        cursorX,
-        cursorY,
-        slideWidth,
-        slideHeight,
-      );
-      this.cursorCoordinate = cursorCoordinate;
     }
   }
 

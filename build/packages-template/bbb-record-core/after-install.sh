@@ -121,12 +121,6 @@ case "$1" in
     else
       echo "Error: FreeSWITCH not installed"
     fi
-
-    if [ -f /usr/share/etherpad-lite/APIKEY.txt ]; then
-      APIKEY=$(cat /usr/share/etherpad-lite/APIKEY.txt)
-      sed -i "s/ETHERPAD_APIKEY/$APIKEY/g" /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
-    fi
-
   ;;
   
   *)

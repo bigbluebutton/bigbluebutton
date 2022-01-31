@@ -20,7 +20,7 @@ trait GetLockSettingsReqMsgHdlr {
       disableMic = settings.disableMic,
       disablePrivChat = settings.disablePrivChat,
       disablePubChat = settings.disablePubChat,
-      disableNote = settings.disableNote,
+      disableNotes = settings.disableNotes,
       hideUserList = settings.hideUserList,
       lockedLayout = settings.lockedLayout,
       lockOnJoin = settings.lockOnJoin,

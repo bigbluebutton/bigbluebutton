@@ -24,6 +24,7 @@ export default function addDialInUser(meetingId, voiceUser) {
     presenter: false,
     locked: false, // TODO
     avatar: '',
+    pin: false,
     clientType: 'dial-in-user',
   };
 
