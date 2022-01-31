@@ -3,11 +3,16 @@ import VoiceCallStates from '/imports/api/voice-call-states';
 import CallStateOptions from '/imports/api/voice-call-states/utils/callStates';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
+import {
+  DEFAULT_INPUT_DEVICE_ID,
+  reloadAudioElement
+} from '/imports/api/audio/client/bridge/service';
 
 const MEDIA = Meteor.settings.public.media;
 const BASE_BRIDGE_NAME = 'base';
 const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const TRANSFER_TONE = '1';
+const MEDIA_TAG = MEDIA.mediaTag;
 
 export default class BaseAudioBridge {
   constructor(userData) {
@@ -50,12 +55,52 @@ export default class BaseAudioBridge {
     console.error('The Bridge must implement changeInputDevice');
   }
 
-  changeOutputDevice() {
-    console.error('The Bridge must implement changeOutputDevice');
-  }
-
   sendDtmf() {
     console.error('The Bridge must implement sendDtmf');
+  }
+
+  setDefaultInputDevice() {
+    this.inputDeviceId = DEFAULT_INPUT_DEVICE_ID;
+  }
+
+  async changeInputDeviceId(inputDeviceId) {
+    if (!inputDeviceId) {
+      throw new Error();
+    }
+
+    this.inputDeviceId = inputDeviceId;
+    return inputDeviceId;
+  }
+
+  async changeOutputDevice(value, isLive) {
+    const audioElement = document.querySelector(MEDIA_TAG);
+
+    if (audioElement.setSinkId) {
+      try {
+        if (!isLive) {
+          audioElement.srcObject = null;
+        }
+
+        await audioElement.setSinkId(value);
+        reloadAudioElement(audioElement);
+        logger.debug({
+          logCode: 'audio_reload_audio_element',
+          extraInfo: {
+            bridgeName: this.bridgeName,
+          },
+        }, 'Audio element reloaded after changing output device');
+
+        this.outputDeviceId = value;
+      } catch (error) {
+        logger.error({
+          logCode: 'audio_changeoutputdevice_error',
+          extraInfo: { error, callerIdName: this.user.callerIdName },
+        }, 'Change Output Device error');
+        throw new Error(this.baseErrorCodes.MEDIA_ERROR);
+      }
+    }
+
+    return this.outputDeviceId;
   }
 
   trackTransferState(transferCallback) {
