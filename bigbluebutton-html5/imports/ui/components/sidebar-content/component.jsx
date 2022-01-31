@@ -9,6 +9,7 @@ import CaptionsContainer from '/imports/ui/components/captions/container';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import WaitingUsersPanel from '/imports/ui/components/waiting-users/container';
 import Styled from './styles';
+import TranslationsContainer from "../translations/container";
 import ErrorBoundary from '/imports/ui/components/error-boundary/component';
 import FallbackView from '/imports/ui/components/fallback-errors/fallback-view/component';
 
@@ -136,6 +137,7 @@ const SidebarContent = (props) => {
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}
+      {sidebarContentPanel === PANELS.TRANSLATIONS && <TranslationsContainer />}
       <Styled.Poll style={{ minWidth, top: '0', display: pollDisplay }} id="pollPanel">
         <PollContainer smallSidebar={smallSidebar} />
       </Styled.Poll>

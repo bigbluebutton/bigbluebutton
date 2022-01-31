@@ -5,6 +5,8 @@ import transferUser from './methods/transferUser';
 import toggleLockSettings from './methods/toggleLockSettings';
 import toggleWebcamsOnlyForModerator from './methods/toggleWebcamsOnlyForModerator';
 import clearRandomlySelectedUser from './methods/clearRandomlySelectedUser';
+import setLanguages from "./methods/setLanguages";
+import translatorSpeakStateChange from './methods/translatorSpeakStateChange';
 import changeLayout from './methods/changeLayout';
 
 Meteor.methods({
@@ -14,5 +16,7 @@ Meteor.methods({
   transferUser,
   toggleWebcamsOnlyForModerator,
   clearRandomlySelectedUser,
+  setLanguages,
+  translatorSpeakStateChange,
   changeLayout,
 });

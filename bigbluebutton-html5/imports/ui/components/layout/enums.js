@@ -100,5 +100,6 @@ export const PANELS = {
   BREAKOUT: 'breakoutroom',
   SHARED_NOTES: 'shared-notes',
   WAITING_USERS: 'waiting-users',
+  TRANSLATIONS: 'translations',
   NONE: 'none',
 };

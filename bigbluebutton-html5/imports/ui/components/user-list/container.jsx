@@ -4,6 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Service from '/imports/ui/components/user-list/service';
 import UserList from './component';
+import Meeting from '/imports/ui/services/meeting'
 
 const propTypes = {
   isPublicChat: PropTypes.func.isRequired,
@@ -19,6 +20,7 @@ UserListContainer.propTypes = propTypes;
 
 export default withTracker(({ compact }) => (
   {
+    amIModerator: Service.amIModerator(),
     hasBreakoutRoom: Service.hasBreakoutRoom(),
     isPublicChat: Service.isPublicChat,
     setEmojiStatus: Service.setEmojiStatus,
@@ -34,5 +36,6 @@ export default withTracker(({ compact }) => (
     hasPrivateChatBetweenUsers: Service.hasPrivateChatBetweenUsers,
     toggleUserLock: Service.toggleUserLock,
     requestUserInformation: Service.requestUserInformation,
+    meetingIsBreakout: Meeting.isBreakout(),
   }
 ))(UserListContainer);

@@ -7,6 +7,8 @@ import UserContent from './component';
 import GuestUsers from '/imports/api/guest-users';
 import { layoutSelectInput, layoutDispatch } from '../../layout/context';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
+import ActionsBarService from "../../actions-bar/service";
+import AudioManager from "../../../services/audio-manager";
 import WaitingUsersService from '/imports/ui/components/waiting-users/service';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
@@ -51,5 +53,7 @@ export default withTracker(() => ({
     approved: false,
     denied: false,
   }).fetch(),
+  hasLanguages: ActionsBarService.hasLanguages(),
+  isTranslationEnabled: AudioManager.isTranslationEnabled(),
   isWaitingRoomEnabled: WaitingUsersService.isWaitingRoomEnabled(),
 }))(UserContentContainer);

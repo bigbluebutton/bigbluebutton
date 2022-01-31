@@ -30,6 +30,7 @@ import ContextProviders from '/imports/ui/components/context-providers/component
 import ChatAdapter from '/imports/ui/components/components-data/chat-context/adapter';
 import UsersAdapter from '/imports/ui/components/components-data/users-context/adapter';
 import GroupChatAdapter from '/imports/ui/components/components-data/group-chat-context/adapter';
+import AudioManager from '/imports/ui/services/audio-manager'
 import { liveDataEventBrokerInitializer } from '/imports/ui/services/LiveDataEventBroker/LiveDataEventBroker';
 
 import collectionMirrorInitializer from './collection-mirror-initializer';
@@ -62,6 +63,18 @@ Meteor.startup(() => {
         stackTrace: stack,
       },
     }, message);
+  });
+
+  window.addEventListener('keydown', (event) => {
+    if(AudioManager.initialized && event.key == 'm') {
+      AudioManager.muteTranslator("keybord-mute");
+    }
+  });
+
+  window.addEventListener('keyup', (event) => {
+    if(AudioManager.initialized && event.key == 'm') {
+      AudioManager.unmuteTranslator("keybord-mute");
+    }
   });
 
   // TODO make this a Promise

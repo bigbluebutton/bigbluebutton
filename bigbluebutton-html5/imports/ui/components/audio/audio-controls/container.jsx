@@ -10,6 +10,7 @@ import Storage from '/imports/ui/services/storage/session';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioControls from './component';
 import AudioModalContainer from '../audio-modal/container';
+import ActionsBarService from '/imports/ui/components/actions-bar/service';
 import {
   setUserSelectedMicrophone,
   setUserSelectedListenOnly,
@@ -59,6 +60,7 @@ const {
   isTalking,
   toggleMuteMicrophone,
   joinListenOnly,
+  translatorChannelOpen
 } = Service;
 
 export default withUsersConsumer(
@@ -93,6 +95,14 @@ export default withUsersConsumer(
         inputStream: AudioManager.inputStream,
         isViewer,
         isPresenter,
+        translatorChannelOpen: AudioManager.translatorChannelOpen,
+        hasBreakouts: Service.hasBreakouts,
+        isTranslatorTalking: Service.isTranslatorTalking(),
+        isTranslatorMuted: Service.isTranslatorMuted,
+        showTranslatorMicButton: Service.showTranslatorMicButton(),
+        hasLanguages: Service.hasLanguages(),
+        amIModerator: ActionsBarService.amIModerator(),
+        isTranslationEnabled: Service.isTranslationEnabled()
       });
     })(AudioControlsContainer)),
   ),

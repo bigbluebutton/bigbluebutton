@@ -102,7 +102,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </script>
   <script src="compatibility/adapter.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/sip.js?v=VERSION" language="javascript"></script>
+  <script src="compatibility/harbor.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/kurento-utils.js?v=VERSION" language="javascript"></script>
+  <script src="compatibility/hark.bundle.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/tflite-simd.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/tflite.js?v=VERSION" language="javascript"></script>
   <!-- fonts -->
@@ -132,5 +134,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </div>
   <span id="destination"></span>
   <audio id="remote-media" autoplay>
+  </audio>
+  <audio id="translation-media" autoPlay="autoplay">
+      <track kind="captions" /> {/* These captions are brought to you by eslint */}
+  </audio>
+  <audio id="translator-media" autoPlay="autoplay">
+      <track kind="captions" /> {/* These captions are brought to you by eslint */}
   </audio>
 </body>

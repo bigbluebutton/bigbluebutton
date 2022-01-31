@@ -2,7 +2,9 @@ import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
+import Meeting from '/imports/ui/services/meeting';
 import Breakouts from '/imports/api/breakouts';
+import AudioManager from '/imports/ui/services/audio-manager';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 import BreakoutsHistory from '/imports/api/breakouts-history';
 
@@ -47,6 +49,27 @@ const amIModerator = () => {
 
 const isMe = (intId) => intId === Auth.userID;
 
+const muteMicrophone = () => {
+  if (!AudioManager.isMuted) {
+    makeCall('toggleVoice');
+  }
+}
+
+const unmuteMicrophone = () => {
+  if (AudioManager.isMuted) {
+    makeCall('toggleVoice');
+  }
+}
+
+const isTranslatorTalking = () => {
+  const translationLanguageExtension = AudioManager.translationLanguageExtension;
+  let isTranslatorTalking = false;
+  if(translationLanguageExtension >= 0) {
+    isTranslatorTalking = Meeting.isTranslatorSpeaking(translationLanguageExtension);
+  }
+  return isTranslatorTalking;
+}
+
 export default {
   amIModerator,
   isMe,
@@ -75,4 +98,11 @@ export default {
   getUsersNotAssigned,
   takePresenterRole,
   isSharingVideo: () => getVideoUrl(),
+  muteMicrophone,
+  unmuteMicrophone,
+  isTranslatorTalking,
+  isTranslatorMuted: () => AudioManager.isTranslatorMuted(),
+  hasLanguages: () => Meeting.hasLanguages(),
+  showTranslatorMicButton: () => AudioManager.translatorChannelOpen && Meeting.hasLanguages(),
+  isTranslationEnabled: () => AudioManager.isTranslationEnabled()
 };

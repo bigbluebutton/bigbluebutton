@@ -105,9 +105,57 @@ const Container = styled.span`
   }
 `;
 
+const TranslatorToggleButton = styled(Button)`
+  margin-right: ${smPaddingX};
+  margin-left: 0;
+  @media ${smallOnly} {
+    margin-right: ${smPaddingY};
+  }
+  [dir="rtl"] & {
+    margin-left: ${smPaddingX};
+    margin-right: 0;
+    @media ${smallOnly} {
+      margin-left: ${smPaddingY};
+    }
+  }
+  & > span {
+    background-color: mediumpurple;
+  }
+  ${({ ghost }) => ghost && `
+    span {
+      box-shadow: none;
+      background-color: transparent !important;
+      border-color: ${colorWhite} !important;
+    }
+  `}
+  ${({ ghost }) => !ghost && `
+    &:focus {
+      & > span {
+        background-color: mediumpurple !important;
+      }
+    }
+  `}
+  ${({ talking }) => talking && `
+    border-radius: 50%;
+  `}
+    
+  ${({ talking, animations }) => talking && animations && css`
+    animation: ${pulse} 1s infinite ease-in;
+  `}
+  ${({ talking, animations }) => talking && !animations && css`
+    & span {
+      content: '';
+      outline: none !important;
+      background-clip: padding-box;
+      box-shadow: 0 0 0 4px rgba(255,255,255,.5);
+    }
+  `}
+`;
+
 export default {
   AudioControlsButton,
   LeaveButtonWithoutLiveStreamSelector,
   MuteToggleButton,
   Container,
+  TranslatorToggleButton,
 };

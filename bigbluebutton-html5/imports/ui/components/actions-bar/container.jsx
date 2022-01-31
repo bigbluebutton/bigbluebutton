@@ -73,4 +73,13 @@ export default withTracker(() => ({
     { fields: {} }),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
   setEmojiStatus: UserListService.setEmojiStatus,
+  hasBreakouts: Service.hasBreakouts,
+  isTranslatorTalking: Service.isTranslatorTalking(),
+  isTranslatorMuted: Service.isTranslatorMuted,
+  hasLanguages: Service.hasLanguages(),
+  showTranslatorMicButton: Service.showTranslatorMicButton(),
+  isTranslationEnabled: Service.isTranslationEnabled()
+
 }))(injectIntl(ActionsBarContainer));
+
+

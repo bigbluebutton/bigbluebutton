@@ -199,9 +199,9 @@ public:
     connectionTimeout: 60000
     showHelpButton: true
     effectiveConnection:
-      - critical
-      - danger
-      - warning
+    - critical
+    - danger
+    - warning
   externalVideoPlayer:
     enabled: true
   kurento:
@@ -573,6 +573,15 @@ public:
     traceSip: false
     # SDP semantics: plan-b|unified-plan
     sdpSemantics: 'unified-plan'
+    translation:
+      enabled: true
+      floorVolume: 0.2
+      translator:
+        speakDetection:
+          enabled: true
+          timeout: 60000
+          delay: 5000
+          threshold: -70
   stats:
     enabled: true
     interval: 10000

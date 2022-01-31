@@ -37,6 +37,8 @@ class UserList extends PureComponent {
       showBranding,
       hasBreakoutRoom,
       requestUserInformation,
+      amIModerator,
+      meetingIsBreakout,
     } = this.props;
 
     return (
@@ -57,6 +59,8 @@ class UserList extends PureComponent {
             roving,
             hasBreakoutRoom,
             requestUserInformation,
+            amIModerator,
+            meetingIsBreakout,
           }
           }
         />}
