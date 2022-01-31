@@ -129,7 +129,7 @@ class VideoProvider extends Component {
     this.wsQueue = [];
     this.restartTimeout = {};
     this.restartTimer = {};
-    this.webRtcPeers = VideoService.getWebRtcPeers();
+    this.webRtcPeers = {};
     this.outboundIceQueues = {};
     this.videoTags = {};
 
@@ -148,9 +148,10 @@ class VideoProvider extends Component {
 
   componentDidMount() {
     this._isMounted = true;
+    VideoService.updatePeerDictionaryReference(this.webRtcPeers);
+
     this.ws.onopen = this.onWsOpen;
     this.ws.onclose = this.onWsClose;
-
     window.addEventListener('online', this.openWs);
     window.addEventListener('offline', this.onWsClose);
 
@@ -172,6 +173,8 @@ class VideoProvider extends Component {
   }
 
   componentWillUnmount() {
+    VideoService.updatePeerDictionaryReference({});
+
     this.ws.onmessage = null;
     this.ws.onopen = null;
     this.ws.onclose = null;
@@ -251,14 +254,23 @@ class VideoProvider extends Component {
     this.setState({ socketOpen: true });
   }
 
-  updateThreshold(numberOfPublishers) {
+  findAllPrivilegedStreams () {
+    const { streams } = this.props;
+    // Privileged streams are: floor holders
+    return streams.filter(stream => stream.floor || stream.pin);
+  }
+
+  updateQualityThresholds(numberOfPublishers) {
     const { threshold, profile } = VideoService.getThreshold(numberOfPublishers);
     if (profile) {
-      const publishers = Object.values(this.webRtcPeers)
+      const privilegedStreams = this.findAllPrivilegedStreams();
+      Object.values(this.webRtcPeers)
         .filter(peer => peer.isPublisher)
         .forEach((peer) => {
-          // 0 means no threshold in place. Reapply original one if needed
-          const profileToApply = (threshold === 0) ? peer.originalProfileId : profile;
+          // 1) Threshold 0 means original profile/inactive constraint
+          // 2) Privileged streams are: floor holders
+          const exempt = threshold === 0 || privilegedStreams.some(vs => vs.stream === peer.stream)
+          const profileToApply = exempt ? peer.originalProfileId : profile;
           VideoService.applyCameraProfile(peer, profileToApply);
         });
     }
@@ -302,7 +314,7 @@ class VideoProvider extends Component {
     this.disconnectStreams(streamsToDisconnect);
 
     if (CAMERA_QUALITY_THRESHOLDS_ENABLED) {
-      this.updateThreshold(this.props.totalNumberOfStreams);
+      this.updateQualityThresholds(this.props.totalNumberOfStreams);
     }
   }
 
@@ -510,42 +522,46 @@ class VideoProvider extends Component {
         }
 
         const handlePubPeerCreation = (error) => {
-          const peer = this.webRtcPeers[stream];
-          peer.stream = stream;
-          peer.started = false;
-          peer.attached = false;
-          peer.didSDPAnswered = false;
-          peer.inboundIceQueue = [];
-          peer.isPublisher = true;
-          peer.originalProfileId = profileId;
-          peer.currentProfileId = profileId;
+          try {
+            const peer = this.webRtcPeers[stream];
+            peer.stream = stream;
+            peer.started = false;
+            peer.attached = false;
+            peer.didSDPAnswered = false;
+            peer.inboundIceQueue = [];
+            peer.isPublisher = true;
+            peer.originalProfileId = profileId;
+            peer.currentProfileId = profileId;
 
-          if (error) return reject(error);
+            if (error) return reject(error);
 
-          // Store the media stream if necessary. The scenario here is one where
-          // there is no preloaded stream stored.
-          if (bbbVideoStream == null) {
-            bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
-            VideoPreviewService.storeStream(
-              MediaStreamUtils.extractVideoDeviceId(bbbVideoStream.mediaStream),
-              bbbVideoStream
-            );
+            // Store the media stream if necessary. The scenario here is one where
+            // there is no preloaded stream stored.
+            if (bbbVideoStream == null) {
+              bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
+              VideoPreviewService.storeStream(
+                MediaStreamUtils.extractVideoDeviceId(bbbVideoStream.mediaStream),
+                bbbVideoStream
+              );
+            }
+
+            peer.bbbVideoStream = bbbVideoStream;
+            bbbVideoStream.on('streamSwapped', ({ newStream }) => {
+              if (newStream && newStream instanceof MediaStream) {
+                this.replacePCVideoTracks(stream, newStream);
+              }
+            });
+
+            peer.generateOffer((errorGenOffer, offerSdp) => {
+              if (errorGenOffer) {
+                return reject(errorGenOffer);
+              }
+
+              return resolve(offerSdp);
+            });
+          } catch (error) {
+            return reject(error);
           }
-
-          peer.bbbVideoStream = bbbVideoStream;
-          bbbVideoStream.on('streamSwapped', ({ newStream }) => {
-            if (newStream && newStream instanceof MediaStream) {
-              this.replacePCVideoTracks(stream, newStream);
-            }
-          });
-
-          peer.generateOffer((errorGenOffer, offerSdp) => {
-            if (errorGenOffer) {
-              return reject(errorGenOffer);
-            }
-
-            return resolve(offerSdp);
-          });
         }
 
         this.webRtcPeers[stream] = new window.kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(
@@ -562,17 +578,21 @@ class VideoProvider extends Component {
     return new Promise((resolve, reject) => {
       try {
         const handleSubPeerCreation = (error) => {
-          const peer = this.webRtcPeers[stream];
-          peer.stream = stream;
-          peer.started = false;
-          peer.attached = false;
-          peer.didSDPAnswered = false;
-          peer.inboundIceQueue = [];
-          peer.isPublisher = false;
+          try {
+            const peer = this.webRtcPeers[stream];
+            peer.stream = stream;
+            peer.started = false;
+            peer.attached = false;
+            peer.didSDPAnswered = false;
+            peer.inboundIceQueue = [];
+            peer.isPublisher = false;
 
-          if (error) return reject(error);
+            if (error) return reject(error);
 
-          return resolve();
+            return resolve();
+          } catch (error) {
+            return reject(error);
+          }
         };
 
         this.webRtcPeers[stream] = new window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(

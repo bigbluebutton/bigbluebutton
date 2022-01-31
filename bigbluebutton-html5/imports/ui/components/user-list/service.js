@@ -30,9 +30,9 @@ const STARTED_CHAT_LIST_KEY = 'startedChatList';
 
 const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
 
-export const setCustomLogoUrl = path => Storage.setItem(CUSTOM_LOGO_URL_KEY, path);
+export const setCustomLogoUrl = (path) => Storage.setItem(CUSTOM_LOGO_URL_KEY, path);
 
-export const setModeratorOnlyMessage = msg => Storage.setItem('ModeratorOnlyMessage', msg);
+export const setModeratorOnlyMessage = (msg) => Storage.setItem('ModeratorOnlyMessage', msg);
 
 const getCustomLogoUrl = () => Storage.getItem(CUSTOM_LOGO_URL_KEY);
 
@@ -304,13 +304,14 @@ const isMeetingLocked = (id) => {
   let isLocked = false;
 
   if (meeting.lockSettingsProps !== undefined) {
-    const {lockSettingsProps:lockSettings, usersProp} = meeting;
+    const { lockSettingsProps: lockSettings, usersProp } = meeting;
 
     if (lockSettings.disableCam
       || lockSettings.disableMic
       || lockSettings.disablePrivateChat
       || lockSettings.disablePublicChat
-      || lockSettings.disableNote
+      || lockSettings.disableNotes
+      || lockSettings.hideUserList
       || usersProp.webcamsOnlyForModerator) {
       isLocked = true;
     }
@@ -325,6 +326,7 @@ const getUsersProp = () => {
     {
       fields: {
         'usersProp.allowModsToUnmuteUsers': 1,
+        'usersProp.allowModsToEjectCameras': 1,
         'usersProp.authenticatedGuest': 1,
       },
     },
@@ -334,6 +336,7 @@ const getUsersProp = () => {
 
   return {
     allowModsToUnmuteUsers: false,
+    allowModsToEjectCameras: false,
     authenticatedGuest: false,
   };
 };
@@ -405,6 +408,10 @@ const getAvailableActions = (
   const allowedToChangeWhiteboardAccess = amIPresenter
     && !amISubjectUser;
 
+  const allowedToEjectCameras = amIModerator
+    && !amISubjectUser
+    && usersProp.allowModsToEjectCameras;
+
   return {
     allowedToChatPrivately,
     allowedToMuteAudio,
@@ -417,6 +424,7 @@ const getAvailableActions = (
     allowedToChangeStatus,
     allowedToChangeUserLockStatus,
     allowedToChangeWhiteboardAccess,
+    allowedToEjectCameras,
   };
 };
 
@@ -439,7 +447,7 @@ const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
 const removeUser = (userId, banUser) => {
   if (isVoiceOnlyUser(userId)) {
-    makeCall('ejectUserFromVoice', userId);
+    makeCall('ejectUserFromVoice', userId, banUser);
   } else {
     makeCall('removeUser', userId, banUser);
   }
@@ -455,6 +463,10 @@ const toggleVoice = (userId) => {
       extraInfo: { logType: 'moderator_action', userId },
     }, 'moderator muted user microphone');
   }
+};
+
+const ejectUserCameras = (userId) => {
+  makeCall('ejectUserCameras', userId);
 };
 
 const getEmoji = () => {
@@ -667,4 +679,5 @@ export default {
   getUsersProp,
   getUserCount,
   sortUsersByCurrent,
+  ejectUserCameras,
 };

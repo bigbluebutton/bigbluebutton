@@ -336,6 +336,11 @@ def svg_render_shape_text(g, slide, shape)
 end
 
 def svg_render_shape_poll(g, slide, shape)
+  result = shape[:result]
+  if result == "[]"
+    BigBlueButton.logger.info("Poll #{shape[:shape_unique_id]} result is empty (no options/answers), ignoring...")
+    return
+  end
   poll_id = shape[:shape_unique_id]
   g['shape'] = "poll#{poll_id}"
   g['style'] = 'visibility:hidden'
@@ -347,7 +352,6 @@ def svg_render_shape_poll(g, slide, shape)
   width = shape_scale_width(slide, data_points[2])
   height = shape_scale_height(slide, data_points[3])
 
-  result = shape[:result]
   num_responders = shape[:num_responders]
   presentation = slide[:presentation]
 

@@ -46,7 +46,7 @@ BigBlueButton.logger = logger
 
 options = {}
 OptionParser.new do |opts|
-  opts.banner = 'Usage: ruby post_events/post_events.rb -m <meeting_id>'
+  opts.banner = 'Usage: ruby post_events/post_events_analytics_callback.rb -m <meeting_id>'
 
   opts.on('-m', '--meeting-id MEETING_ID', 'meeting_id (required)') do |m|
     options[:meeting_id] = m

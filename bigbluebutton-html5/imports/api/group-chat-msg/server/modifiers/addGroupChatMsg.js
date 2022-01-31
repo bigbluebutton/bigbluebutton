@@ -45,9 +45,8 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     const insertedId = GroupChatMsg.insert(msgDocument);
 
     if (insertedId) {
-      Logger.info(`Added group-chat-msg msgId=${msg.id} chatId=${chatId} meetingId=${meetingId}`);
-
       changeHasMessages(true, sender.id, meetingId);
+      Logger.info(`Added group-chat-msg msgId=${msg.id} chatId=${chatId} meetingId=${meetingId}`);
     }
   } catch (err) {
     Logger.error(`Error on adding group-chat-msg to collection: ${err}`);

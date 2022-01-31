@@ -29,7 +29,7 @@ public:
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: 2.4
-    copyright: '©2021 BigBlueButton Inc.'
+    copyright: '©2022 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
@@ -43,8 +43,8 @@ public:
     # default setting
     bbbWebBase: '/bigbluebutton'
     # If you run a cluster setup with a load balancer which hides the individual
-    # nodes, then this should be set to https://bbb-host/learning-dashboard
-    learningDashboardBase: '/learning-dashboard'
+    # nodes, then this should be set to https://bbb-host/learning-analytics-dashboard
+    learningDashboardBase: '/learning-analytics-dashboard'
     # Use https URL of CSS file. Example: https://docs.bigbluebutton.org/admin/customize.html#examples
     customStyleUrl: null
     askForFeedbackOnLogout: false
@@ -214,6 +214,7 @@ public:
     # Experiment(al). Controls whether ICE candidates should be signaled.
     # Applies to webcams, listen only and screen sharing. True is "stable behavior".
     signalCandidates: true
+    # Forces relay usage only on Firefox. Applies to listen only, webcams and screenshare.
     forceRelayOnFirefox: false
     cameraTimeouts:
       # Base camera timeout: used as the camera *sharing* timeout and
@@ -223,6 +224,8 @@ public:
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
     screenshare:
+      # Whether volume control should be allowed if screen sharing has audio
+      enableVolumeControl: true
       # Experimental. True is the canonical behavior. Flip to false to reverse
       # the negotiation flow for subscribers.
       subscriberOffering: false
@@ -329,6 +332,7 @@ public:
     enableScreensharing: true
     enableVideo: true
     enableVideoMenu: true
+    enableVideoPin: true
     enableListenOnly: true
     # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
     # media server adapter should be used for listen only.
@@ -434,12 +438,13 @@ public:
     chatMessage: true
   captions:
     enabled: true
-    enableDictation: false
-    backgroundColor: '#000000'
-    fontColor: '#FFFFFF'
-    fontFamily: Calibri
-    fontSize: 24px
-    takeOwnership: true
+    id: captions
+    dictation: false
+    background: '#000000'
+    font:
+      color: '#ffffff'
+      family: Calibri
+      size: 24px
     lines: 2
     time: 5000
   chat:
@@ -468,13 +473,19 @@ public:
     typingIndicator:
       enabled: true
     moderatorChatEmphasized: true
-  note:
+  notes:
     enabled: true
-    url: ETHERPAD_HOST
+    id: notes
   layout:
     autoSwapLayout: false
     hidePresentation: false
     showParticipantsOnLogin: true
+  pads:
+    url: ETHERPAD_HOST
+    cookie:
+      path: /
+      sameSite: None
+      secure: true
   media:
     audio:
       #
@@ -518,6 +529,9 @@ public:
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
+    # Forces relay usage on all browsers, environments and media modules.
+    # If true, supersedes public.kurento.forceRelayOnFirefox
+    forceRelay: false
     mediaTag: '#remote-media'
     callTransferTimeout: 5000
     callHangupTimeout: 2000
@@ -532,6 +546,14 @@ public:
     #so far. Increasing this value might help avoiding 1004 error when
     #user activates microphone.
     iceGatheringTimeout: 5000
+    # Timeout (ms) for connecting to the audio's signaling websocket.
+    audioConnectionTimeout: 5000
+    # Delay (ms) between each reconnection attempt of the audio's signaling
+    # websocket.
+    audioReconnectionDelay: 5000
+    # Number of reconnection attempts of the signaling websocket, before
+    # showing to the user there's an audio error.
+    audioReconnectionAttempts: 3
     sipjsHackViaWs: false
     # the fqdn of this host.
     # If you run a traditional setup of multiple nodes behind scalelite and the users see the hostnames of the
@@ -582,6 +604,11 @@ public:
     restoreOnUpdate: false
     oldMinimizeButton: false
     uploadEndpoint: '/bigbluebutton/presentation/upload'
+    fileUploadConstraintsHint: false
+    # mirroredFromBBBCore are values controlled in bbb-web properties file. We include a copy here for notification purposes
+    mirroredFromBBBCore:
+      uploadSizeMax: 30000000
+      uploadPagesMax: 200
     uploadValidMimeTypes:
       - extension: .pdf
         mime: application/pdf
@@ -744,11 +771,6 @@ private:
     localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
-  etherpad:
-    apikey: ETHERPAD_APIKEY
-    version: 1.2.13
-    host: 127.0.0.1
-    port: 9001
   redis:
     host: 127.0.0.1
     port: '6379'

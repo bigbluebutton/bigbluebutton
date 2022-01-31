@@ -170,6 +170,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="clientLogoutTimerInMinutes" value="${clientLogoutTimerInMinutes}"/>
         <property name="muteOnStart" value="${muteOnStart}"/>
         <property name="allowModsToUnmuteUsers" value="${allowModsToUnmuteUsers}"/>
+        <property name="allowModsToEjectCameras" value="${allowModsToEjectCameras}"/>
         <property name="breakoutRoomsEnabled" value="${breakoutRoomsEnabled}"/>
         <property name="breakoutRoomsRecord" value="${breakoutRoomsRecord}"/>
         <property name="breakoutRoomsPrivateChatEnabled" value="${breakoutRoomsPrivateChatEnabled}"/>
@@ -177,7 +178,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsDisableMic" value="${lockSettingsDisableMic}"/>
         <property name="lockSettingsDisablePrivateChat" value="${lockSettingsDisablePrivateChat}"/>
         <property name="lockSettingsDisablePublicChat" value="${lockSettingsDisablePublicChat}"/>
-        <property name="lockSettingsDisableNote" value="${lockSettingsDisableNote}"/>
+        <property name="lockSettingsDisableNotes" value="${lockSettingsDisableNotes}"/>
         <property name="lockSettingsHideUserList" value="${lockSettingsHideUserList}"/>
         <property name="lockSettingsLockedLayout" value="${lockSettingsLockedLayout}"/>
         <property name="lockSettingsLockOnJoin" value="${lockSettingsLockOnJoin}"/>

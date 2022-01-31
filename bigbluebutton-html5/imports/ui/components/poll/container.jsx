@@ -8,13 +8,15 @@ import { Session } from 'meteor/session';
 import Service from './service';
 import Auth from '/imports/ui/services/auth';
 import { UsersContext } from '../components-data/users-context/context';
-import { layoutDispatch } from '../layout/context';
+import { layoutDispatch, layoutSelectInput } from '../layout/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 
 const PollContainer = ({ ...props }) => {
   const layoutContextDispatch = layoutDispatch();
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const { sidebarContentPanel } = sidebarContent;
 
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
@@ -28,7 +30,7 @@ const PollContainer = ({ ...props }) => {
 
   return (
     <Poll
-      {...{ layoutContextDispatch, ...props }}
+      {...{ layoutContextDispatch, sidebarContentPanel, ...props }}
       usernames={usernames}
       amIPresenter={amIPresenter}
     />
