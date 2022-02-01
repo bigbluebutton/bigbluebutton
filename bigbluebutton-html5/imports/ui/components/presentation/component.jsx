@@ -67,6 +67,7 @@ class Presentation extends PureComponent {
       zoom: 100,
       fitToWidth: false,
       isFullscreen: false,
+      isUnmonted: false,
     };
 
     this.currentPresentationToastId = null;
@@ -112,7 +113,10 @@ class Presentation extends PureComponent {
 
   componentDidMount() {
     this.getInitialPresentationSizes();
-    this.refPresentationContainer.addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
+    this.refPresentationContainer.addEventListener(
+      FULLSCREEN_CHANGE_EVENT,
+      this.onFullscreenChange,
+    );
     window.addEventListener('resize', this.onResize, false);
 
     const {
@@ -222,10 +226,14 @@ class Presentation extends PureComponent {
   }
 
   componentWillUnmount() {
+    this.setState((state) => ({ ...state, isUnmonted: true }));
     const { fullscreenContext, layoutContextDispatch } = this.props;
 
     window.removeEventListener('resize', this.onResize, false);
-    this.refPresentationContainer.removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
+    this.refPresentationContainer.removeEventListener(
+      FULLSCREEN_CHANGE_EVENT,
+      this.onFullscreenChange,
+    );
 
     if (fullscreenContext) {
       layoutContextDispatch({
@@ -242,10 +250,13 @@ class Presentation extends PureComponent {
     const presentationSizes = this.getPresentationSizesAvailable();
     if (Object.keys(presentationSizes).length > 0) {
       // updating the size of the space available for the slide
-      this.setState({
-        presentationHeight: presentationSizes.presentationHeight,
-        presentationWidth: presentationSizes.presentationWidth,
-      });
+      const { isUnmonted } = this.state;
+      if (isUnmonted) {
+        this.setState({
+          presentationHeight: presentationSizes.presentationHeight,
+          presentationWidth: presentationSizes.presentationWidth,
+        });
+      }
     }
   }
 
