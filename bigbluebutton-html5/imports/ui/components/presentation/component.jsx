@@ -72,7 +72,7 @@ class Presentation extends PureComponent {
       zoom: 100,
       fitToWidth: false,
       isFullscreen: false,
-      isUnmonted: false,
+      isUnmounted: false,
     };
 
     this.currentPresentationToastId = null;
@@ -170,9 +170,9 @@ class Presentation extends PureComponent {
     }
 
     if (
-      currentSlide?.num != null &&
-      prevProps?.currentSlide?.num != null &&
-      currentSlide?.num !== prevProps.currentSlide?.num
+      currentSlide?.num != null
+      && prevProps?.currentSlide?.num != null
+      && currentSlide?.num !== prevProps.currentSlide?.num
     ) {
       politeSRAlert(intl.formatMessage(intlMessages.slideContentChanged, { 0: currentSlide.num }));
     }
@@ -240,7 +240,7 @@ class Presentation extends PureComponent {
   }
 
   componentWillUnmount() {
-    this.setState((state) => ({ ...state, isUnmonted: true }));
+    this.setState((state) => ({ ...state, isUnmounted: true }));
     const { fullscreenContext, layoutContextDispatch } = this.props;
 
     window.removeEventListener('resize', this.onResize, false);
@@ -264,8 +264,8 @@ class Presentation extends PureComponent {
     const presentationSizes = this.getPresentationSizesAvailable();
     if (Object.keys(presentationSizes).length > 0) {
       // updating the size of the space available for the slide
-      const { isUnmonted } = this.state;
-      if (isUnmonted) {
+      const { isUnmounted } = this.state;
+      if (isUnmounted) {
         this.setState({
           presentationHeight: presentationSizes.presentationHeight,
           presentationWidth: presentationSizes.presentationWidth,
