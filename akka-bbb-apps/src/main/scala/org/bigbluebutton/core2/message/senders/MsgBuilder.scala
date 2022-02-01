@@ -613,11 +613,12 @@ object MsgBuilder {
 
   def buildScreenBroadcastStopSysMsg(
       meetingId: String,
+      voiceConf: String,
       streamId:  String
   ): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(ScreenBroadcastStopSysMsg.NAME, routing)
-    val body = ScreenBroadcastStopSysMsgBody(meetingId, streamId)
+    val body = ScreenBroadcastStopSysMsgBody(meetingId, voiceConf, streamId)
     val header = BbbCoreBaseHeader(ScreenBroadcastStopSysMsg.NAME)
     val event = ScreenBroadcastStopSysMsg(header, body)
 
