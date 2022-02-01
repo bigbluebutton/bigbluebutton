@@ -103,8 +103,10 @@ export default withTracker(() => {
         const breakoutObject = Breakouts.findOne({
           breakoutId: meetingObject.meetingId,
         }, { fields: { shortName: 1 } });
-        breakoutName = breakoutObject.shortName;
-        meetingName = meetingTitle.replace(`(${breakoutName})`, '').trim();
+        if (breakoutObject) {
+          breakoutName = breakoutObject.shortName;
+          meetingName = meetingTitle.replace(`(${breakoutName})`, '').trim();
+        }
       }
     }
   }
