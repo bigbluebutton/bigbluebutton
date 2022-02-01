@@ -66,8 +66,8 @@ trait SendWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
     }
 
     def excludedWbMsg(annotation: AnnotationVO): Boolean = {
-        WhiteboardKeyUtil.DRAW_END_STATUS == annotation.status ||
-          WhiteboardKeyUtil.DRAW_UPDATE_STATUS == annotation.status
+      WhiteboardKeyUtil.DRAW_END_STATUS == annotation.status ||
+        WhiteboardKeyUtil.DRAW_UPDATE_STATUS == annotation.status
     }
 
     val isMessageOfAllowedType = excludedWbMsg(msg.body.annotation)
@@ -93,12 +93,14 @@ trait SendWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
       //println("============= Printed Sanitized annotation  ============")
       val annotation = sendWhiteboardAnnotation(sanitizedShape, msg.body.drawEndOnly, liveMeeting)
       broadcastEvent(msg, annotation)
-    } else 
+    } else {
       //val meetingId = liveMeeting.props.meetingProp.intId
       //val reason = "No permission to send a whiteboard annotation."
 
       // Just drop messages as these might be delayed messages from multi-user whiteboard. Don't want to
       // eject user unnecessarily when switching from multi-user to single user. (ralam feb 7, 2018)
       // PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+    }
+
   }
 }
