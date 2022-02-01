@@ -15,18 +15,6 @@ const NO_MEETING_ID = '_';
 
 const { queueMetrics } = Meteor.settings.private.redis.metrics;
 
-const presentationEvts = [
-  'PdfConversionInvalidErrorEvtMsg',
-  'PresentationPageGeneratedEvtMsg',
-  'PresentationPageCountErrorEvtMsg',
-  'PresentationConversionUpdateEvtMsg',
-  'PresentationUploadedFileTooLargeErrorEvtMsg',
-  'PresentationConversionCompletedEvtMsg',
-  'RemovePresentationEvtMsg',
-  'SetCurrentPresentationEvtMsg',
-  'SetPresentationDownloadableEvtMsg',
-];
-
 const makeEnvelope = (channel, eventName, header, body, routing) => {
   const envelope = {
     envelope: {
@@ -62,7 +50,6 @@ class MeetingMessageQueue {
     this.asyncMessages = asyncMessages;
     this.emitter = eventEmitter;
     this.queue = queue({ autostart: true });
-    this.presentationQueue = queue({ autostart: true, concurrency: 1 });
     this.redisDebugEnabled = redisDebugEnabled;
 
     this.handleTask = this.handleTask.bind(this);
@@ -134,15 +121,6 @@ class MeetingMessageQueue {
 
   add(...args) {
     const { taskHandler } = this.queue;
-
-    // We're limiting concurrency on presentation events in order to prevent
-    // a potential race codition that messes up the conversion info.
-    if (presentationEvts.includes(args[0]?.eventName)) {
-      this.presentationQueue.push(function (next) {
-        taskHandler(...args, next);
-      })
-      return;
-    }
 
     this.queue.push(function (next) {
       taskHandler(...args, next);
