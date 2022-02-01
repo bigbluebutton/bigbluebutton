@@ -109,52 +109,6 @@ class Timer extends Component {
     clearInterval(this.interval);
   }
 
-  updateInterval(prevTimer, timer) {
-    const { running } = timer;
-    const { running: prevRunning } = prevTimer;
-
-    if (!prevRunning && running) {
-      this.interval = setInterval(this.updateTime, Service.getInterval());
-    }
-
-    if (prevRunning && !running) {
-      clearInterval(this.interval);
-    }
-  }
-
-  getTime() {
-    const {
-      timer,
-      timeOffset,
-    } = this.props;
-
-    const {
-      stopwatch,
-      running,
-      time,
-      accumulated,
-      timestamp,
-    } = timer;
-
-    const elapsedTime = Service.getElapsedTime(running, timestamp, timeOffset, accumulated);
-
-    let updatedTime;
-    if (stopwatch) {
-      updatedTime = elapsedTime;
-    } else {
-      updatedTime = Math.max(time - elapsedTime, 0);
-    }
-
-    return Service.getTimeAsString(updatedTime, stopwatch);
-  }
-
-  updateTime() {
-    const { current } = this.timeRef;
-    if (current) {
-      current.textContent = this.getTime();
-    }
-  }
-
   handleControlClick() {
     const { timer } = this.props;
 
@@ -208,6 +162,52 @@ class Timer extends Component {
 
     if (timer.stopwatch) {
       Service.switchTimer(false);
+    }
+  }
+
+  getTime() {
+    const {
+      timer,
+      timeOffset,
+    } = this.props;
+
+    const {
+      stopwatch,
+      running,
+      time,
+      accumulated,
+      timestamp,
+    } = timer;
+
+    const elapsedTime = Service.getElapsedTime(running, timestamp, timeOffset, accumulated);
+
+    let updatedTime;
+    if (stopwatch) {
+      updatedTime = elapsedTime;
+    } else {
+      updatedTime = Math.max(time - elapsedTime, 0);
+    }
+
+    return Service.getTimeAsString(updatedTime, stopwatch);
+  }
+
+  updateTime() {
+    const { current } = this.timeRef;
+    if (current) {
+      current.textContent = this.getTime();
+    }
+  }
+
+  updateInterval(prevTimer, timer) {
+    const { running } = timer;
+    const { running: prevRunning } = prevTimer;
+
+    if (!prevRunning && running) {
+      this.interval = setInterval(this.updateTime, Service.getInterval());
+    }
+
+    if (prevRunning && !running) {
+      clearInterval(this.interval);
     }
   }
 
@@ -403,7 +403,7 @@ class Timer extends Component {
       </Styled.TimerSidebarContent>
     );
   }
-};
+}
 
 Timer.propTypes = propTypes;
 
