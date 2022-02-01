@@ -262,9 +262,18 @@ class Timer extends Component {
         >
           <Styled.TimerSongsContainer>
             {Service.TRACKS.map((track) => (
-              <Styled.TimerRow>
+              <Styled.TimerRow
+                key={track}
+              >
                 <label htmlFor={track}>
-                  <input type="radio" name="track" id={track} value={track} checked={currentTrack === track} onChange={Timer.handleOnTrackChange} />
+                  <input
+                    type="radio"
+                    name="track"
+                    id={track}
+                    value={track}
+                    checked={currentTrack === track}
+                    onChange={Timer.handleOnTrackChange}
+                  />
                   {intl.formatMessage(intlMessages[track])}
                 </label>
               </Styled.TimerRow>
