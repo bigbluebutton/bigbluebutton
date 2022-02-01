@@ -9,6 +9,7 @@ import {
 } from '/imports/utils/fetchStunTurnServers';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 import Storage from '/imports/ui/services/storage/session';
+import browserInfo from '/imports/utils/browserInfo';
 import {
   DEFAULT_INPUT_DEVICE_ID,
   DEFAULT_OUTPUT_DEVICE_ID,
@@ -16,7 +17,9 @@ import {
   OUTPUT_DEVICE_ID_KEY,
   getAudioSessionNumber,
   getAudioConstraints,
+  filterSupportedConstraints,
 } from '/imports/api/audio/client/bridge/service';
+
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const MEDIA = Meteor.settings.public.media;
@@ -27,6 +30,7 @@ const RECONNECT_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
 const SENDRECV_ROLE = 'sendrecv';
 const RECV_ROLE = 'recv';
 const BRIDGE_NAME = 'fullaudio';
+const IS_CHROME = browserInfo.isChrome;
 
 // SFU's base broker has distinct error codes so that it can be reused by different
 // modules. Errors that have a valid, localized counterpart in audio manager are
@@ -348,12 +352,6 @@ export default class FullAudioBridge extends BaseAudioBridge {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  async updateAudioConstraints() {
-    // TO BE IMPLEMENTED
-    return true;
-  }
-
   sendDtmf(tones) {
     if (this.broker) {
       this.broker.dtmf(tones);
@@ -387,6 +385,33 @@ export default class FullAudioBridge extends BaseAudioBridge {
         },
       }, 'Failed to change input device (mic)');
       return null;
+    }
+  }
+
+  async updateAudioConstraints(constraints) {
+    try {
+      if (typeof constraints !== 'object') return;
+
+      const matchConstraints = filterSupportedConstraints(constraints);
+
+      if (IS_CHROME) {
+        matchConstraints.deviceId = this.inputDeviceId;
+        const stream = await navigator.mediaDevices.getUserMedia(
+          { audio: matchConstraints },
+        );
+        this.setInputStream(stream);
+      } else {
+        this.inputStream.getAudioTracks().forEach((track) => track.applyConstraints(matchConstraints));
+      }
+    } catch (error) {
+      logger.error({
+        logCode: 'fullaudio_audio_constraint_error',
+        extraInfo: {
+          errorCode: error.code,
+          errorMessage: error.message,
+          bridgeName: this.bridgeName,
+        },
+      }, 'Failed to update audio constraint');
     }
   }
 
