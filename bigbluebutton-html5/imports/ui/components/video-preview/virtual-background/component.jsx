@@ -167,7 +167,7 @@ const VirtualBgSelector = ({
               style={{ backgroundImage: `url('${getVirtualBackgroundThumbnail(BLUR_FILENAME)}')` }}
               className={thumbnailStyles.join(' ')}
               aria-label={intl.formatMessage(intlMessages.blurLabel)}
-              label={intl.formatMessage(intlMessages.blurLabel))}
+              label={intl.formatMessage(intlMessages.blurLabel)}
               aria-describedby={`vr-cam-btn-blur`}
               tabIndex={disabled ? -1 : 0}
               hideLabel
