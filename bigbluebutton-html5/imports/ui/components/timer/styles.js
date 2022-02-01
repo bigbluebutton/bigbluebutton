@@ -158,7 +158,7 @@ const TimerControlButton = styled(Button)`
 const TimerSongsWrapper = styled.div`
   display: flex;
   flex-flow: column;
-  margin-top: 2rem;
+  margin-top: 4rem;
   margin-bottom: -2rem;
 `;
 
@@ -168,12 +168,40 @@ const TimerRow = styled.div`
   flex-grow: 1;
 `;
 
-const TimerCol = styled.div`
+const TimerCol = `
   display: flex;
   flex-grow: 1;
   flex-basis: 0;
   justify-content: center;
-  ${({ disabled }) => disabled && 'opacity: 50%'}
+  align-items: center;
+`;
+
+const TimerSongTitle = styled.div`
+  ${TimerCol}
+  font-weight: bold;
+  font-size: 1.1rem;
+  opacity: ${({ disabled }) => (disabled ? '50%' : '100%')}
+`;
+
+const TimerOptionsWrapper = styled.div`
+  ${TimerCol}
+  display: flex;
+  flex-flow: column;
+  margin-top: 0.8rem;
+  margin-bottom: 2rem;
+
+  label {
+    display: flex;
+  }
+  
+  input {
+    margin: auto 0.5rem;
+  }
+  opacity: ${({ disabled }) => (disabled ? '50%' : '100%')}
+`;
+
+const TimerSongsContainer = styled.div`
+  width: 15rem;
 `;
 
 export default {
@@ -193,6 +221,9 @@ export default {
   TimerControls,
   TimerControlButton,
   TimerSongsWrapper,
+  TimerSongTitle,
   TimerRow,
   TimerCol,
+  TimerOptionsWrapper,
+  TimerSongsContainer,
 };

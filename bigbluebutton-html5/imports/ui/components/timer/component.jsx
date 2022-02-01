@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Service from './service';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import Toggle from '/imports/ui/components/common/switch/component';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -47,9 +46,25 @@ const intlMessages = defineMessages({
     id: 'app.timer.seconds',
     description: 'Timer seconds label',
   },
-  music: {
-    id: 'app.timer.music',
-    description: 'Music toggle label',
+  songs: {
+    id: 'app.timer.songs',
+    description: 'Songs title label',
+  },
+  noTrack: {
+    id: 'app.timer.noTrack',
+    description: 'No track radio label',
+  },
+  track1: {
+    id: 'app.timer.track1',
+    description: 'Track 1 radio label',
+  },
+  track2: {
+    id: 'app.timer.track2',
+    description: 'Track 2 radio label',
+  },
+  track3: {
+    id: 'app.timer.track3',
+    description: 'Track 3 radio label',
   },
 });
 
@@ -60,6 +75,10 @@ const propTypes = {
 };
 
 class Timer extends Component {
+  static handleOnTrackChange(event) {
+    Service.setTrack(event.target.value);
+  }
+
   constructor(props) {
     super(props);
 
@@ -192,11 +211,6 @@ class Timer extends Component {
     }
   }
 
-  handleOnMusicChange() {
-    const { isMusicActive } = this.props;
-    Service.setMusic(!isMusicActive);
-  }
-
   renderControls() {
     const {
       intl,
@@ -223,11 +237,11 @@ class Timer extends Component {
     );
   }
 
-  renderToggle() {
+  renderSongSelectorRadios() {
     const {
       intl,
       timer,
-      isMusicActive,
+      currentTrack,
     } = this.props;
 
     const {
@@ -237,20 +251,27 @@ class Timer extends Component {
     return (
       <Styled.TimerSongsWrapper>
         <Styled.TimerRow>
-          <Styled.TimerCol
+          <Styled.TimerSongTitle
             disabled={stopwatch}
           >
-            {intl.formatMessage(intlMessages.music)}
-          </Styled.TimerCol>
-          <Styled.TimerCol>
-            <Toggle
-              onChange={() => this.handleOnMusicChange()}
-              icons={false}
-              disabled={stopwatch}
-              checked={isMusicActive}
-            />
-          </Styled.TimerCol>
+            {intl.formatMessage(intlMessages.songs)}
+          </Styled.TimerSongTitle>
         </Styled.TimerRow>
+        <Styled.TimerOptionsWrapper
+          disabled={stopwatch}
+        >
+          <Styled.TimerSongsContainer>
+            {Service.TRACKS.map((track) => (
+              <Styled.TimerRow>
+                <label htmlFor={track}>
+                  <input type="radio" name="track" id={track} value={track} checked={currentTrack === track} onChange={Timer.handleOnTrackChange} />
+                  {intl.formatMessage(intlMessages[track])}
+                </label>
+              </Styled.TimerRow>
+            ))
+            }
+          </Styled.TimerSongsContainer>
+        </Styled.TimerOptionsWrapper>
       </Styled.TimerSongsWrapper>
     );
   }
@@ -308,7 +329,7 @@ class Timer extends Component {
           />
         </Styled.StopwatchTime>
         { Service.isMusicEnabled()
-          ? this.renderToggle() : null}
+          ? this.renderSongSelectorRadios() : null}
         {this.renderControls()}
       </div>
     );

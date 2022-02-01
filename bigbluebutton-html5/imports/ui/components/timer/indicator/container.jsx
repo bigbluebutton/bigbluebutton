@@ -13,5 +13,6 @@ export default withTracker(() => ({
   isModerator: TimerService.isModerator(),
   isTimerActive: TimerService.isActive(),
   isMusicActive: TimerService.isMusicActive(),
+  currentTrack: TimerService.getCurrentTrack(),
   hidden: Session.get('openPanel') !== '',
 }))(IndicatorContainer);

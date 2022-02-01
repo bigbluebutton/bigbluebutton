@@ -519,7 +519,9 @@ public:
     music:
       enabled: false
       volume: 0.4
-      track: "pianoChords"
+      track1: "pianoChords"
+      track2: "littleBossa"
+      track3: "aristocratDrums"
     interval:
       clock: 100
       offset: 60000

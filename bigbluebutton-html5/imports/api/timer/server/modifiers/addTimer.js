@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import Timer from '/imports/api/timer';
 import Logger from '/imports/startup/server/logger';
-import { getDefaultTime } from '/imports/api/timer/server/helpers';
+import { TRACKS, getDefaultTime } from '/imports/api/timer/server/helpers';
 
 // This method should only be used by the server
 export default function addTimer(meetingId) {
@@ -22,7 +22,7 @@ export default function addTimer(meetingId) {
     time,
     accumulated: 0,
     timestamp: 0,
-    music: false,
+    track: TRACKS[0],
     ended: 0,
   };
 

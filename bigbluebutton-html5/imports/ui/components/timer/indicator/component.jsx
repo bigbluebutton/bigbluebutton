@@ -6,7 +6,7 @@ import Styled from './styles';
 const CDN = Meteor.settings.public.app.cdn;
 const BASENAME = Meteor.settings.public.app.basename;
 const HOST = CDN + BASENAME;
-const trackName = Meteor.settings.public.timer.music.track;
+const trackName = Meteor.settings.public.timer.music;
 
 class Indicator extends Component {
   constructor(props) {
@@ -71,12 +71,21 @@ class Indicator extends Component {
   }
 
   setUpMusic() {
-    this.music = new Audio(`${HOST}/resources/sounds/${trackName}.mp3`);
-    this.music.volume = TimerService.getMusicVolume();
-    this.music.addEventListener('ended', () => {
-      this.music.currentTime = 0;
-      this.music.play();
-    }, false);
+    const { currentTrack } = this.props;
+
+    if (trackName[currentTrack] !== undefined) {
+      this.music = new Audio(`${HOST}/resources/sounds/${trackName[currentTrack]}.mp3`);
+      this.music.track = currentTrack;
+      this.music.volume = TimerService.getMusicVolume();
+      this.music.addEventListener('timeupdate', () => {
+        const buffer = 0.19;
+        // Start playing the music before it ends to make the loop gapless
+        if (this.music.currentTime > this.music.duration - buffer) {
+          this.music.currentTime = 0;
+          this.music.play();
+        }
+      });
+    }
   }
 
   updateAlarmTrigger(prevTimer, timer) {
@@ -196,19 +205,22 @@ class Indicator extends Component {
   }
 
   shouldStopMusic(time) {
-    const { timer } = this.props;
+    const {
+      timer,
+      isMusicActive,
+    } = this.props;
+
     const {
       running,
       stopwatch,
     } = timer;
 
-    const isActive = TimerService.isMusicActive();
     const zero = time === 0;
     const validMusic = this.music != null;
 
     const reachedZeroOrStopped = (running && zero) || (!running);
 
-    return !isActive || !validMusic || stopwatch || reachedZeroOrStopped;
+    return !isMusicActive || !validMusic || stopwatch || reachedZeroOrStopped;
   }
 
   shoulNotifyTimerEnded(time) {
@@ -275,10 +287,15 @@ class Indicator extends Component {
   }
 
   render() {
-    const { isTimerActive } = this.props;
+    const { isTimerActive, currentTrack } = this.props;
     if (!isTimerActive) {
       this.stopMusic();
       return null;
+    }
+
+    if (this.music?.track !== currentTrack) {
+      this.stopMusic();
+      this.setUpMusic();
     }
 
     const {

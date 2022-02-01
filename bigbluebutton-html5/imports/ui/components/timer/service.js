@@ -22,11 +22,20 @@ const MAX_TIME = 999
   + (59 * MILLI_IN_MINUTE)
   + (MAX_HOURS * MILLI_IN_HOUR);
 
+const TRACKS = [
+  'noTrack',
+  'track1',
+  'track2',
+  'track3',
+];
+
 const getMaxHours = () => MAX_HOURS;
 
 const isAlarmEnabled = () => isEnabled() && TIMER_CONFIG.alarm;
 
 const isMusicEnabled = () => TIMER_CONFIG.music.enabled;
+
+const isMusicActive = () => getCurrentTrack() !== TRACKS[0];
 
 const getMusicVolume = () => TIMER_CONFIG.music.volume;
 
@@ -42,13 +51,13 @@ const isActive = () => {
   return false;
 };
 
-const isMusicActive = () => {
+const getCurrentTrack = () => {
   const timer = Timer.findOne(
     { meetingId: Auth.meetingID },
-    { fields: { music: 1 } },
+    { fields: { track: 1 } },
   );
 
-  if (timer) return isMusicEnabled() && timer.music;
+  if (timer) return isMusicEnabled() && timer.track;
 
   return false;
 };
@@ -104,8 +113,8 @@ const deactivateTimer = () => makeCall('deactivateTimer');
 
 const timerEnded = () => makeCall('timerEnded');
 
-const setMusic = (music) => {
-  makeCall('setMusic', music);
+const setTrack = (track) => {
+  makeCall('setTrack', track);
 };
 
 const fetchTimeOffset = () => {
@@ -302,10 +311,12 @@ const setSeconds = (seconds, time) => {
 
 export default {
   OFFSET_INTERVAL,
+  TRACKS,
   isActive,
   isEnabled,
   isMusicEnabled,
   isMusicActive,
+  getCurrentTrack,
   getMusicVolume,
   getMusicTrack,
   isRunning,
@@ -321,7 +332,7 @@ export default {
   activateTimer,
   deactivateTimer,
   fetchTimeOffset,
-  setMusic,
+  setTrack,
   getTimeOffset,
   getElapsedTime,
   getInterval,

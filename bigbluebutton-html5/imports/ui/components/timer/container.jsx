@@ -21,6 +21,6 @@ export default withTracker(() => {
     isModerator: Service.isModerator(),
     timeOffset: Service.getTimeOffset(),
     timer: Service.getTimer(),
-    isMusicActive: Service.isMusicActive(),
+    currentTrack: Service.getCurrentTrack(),
   };
 })(TimerContainer);

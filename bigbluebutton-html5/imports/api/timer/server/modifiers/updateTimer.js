@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Timer from '/imports/api/timer';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
-import { getDefaultTime } from '/imports/api/timer/server/helpers';
+import { TRACKS, getDefaultTime } from '/imports/api/timer/server/helpers';
 
 const getActivateModifier = () => {
   const time = getDefaultTime();
@@ -16,7 +16,7 @@ const getActivateModifier = () => {
       time,
       accumulated: 0,
       timestamp: 0,
-      music: false,
+      track: TRACKS[0],
       ended: 0,
     },
   };
@@ -103,7 +103,7 @@ const getSwitchModifier = (stopwatch) => {
       running: false,
       accumulated: 0,
       timestamp: 0,
-      music: false,
+      track: TRACKS[0],
       ended: 0,
     },
   };
@@ -120,10 +120,10 @@ const getSetModifier = (time) => {
   };
 };
 
-const getMusicModifier = (music) => {
+const getTrackModifier = (track) => {
   return {
     $set: {
-      music,
+      track,
     },
   };
 };
@@ -136,13 +136,13 @@ const getEndedModifier = () => {
   };
 };
 
-export default function updateTimer(action, meetingId, time = 0, stopwatch = true, accumulated = 0, music = false) {
+export default function updateTimer(action, meetingId, time = 0, stopwatch = true, accumulated = 0, track = TRACKS[0]) {
   check(action, String);
   check(meetingId, String);
   check(time, Number);
   check(stopwatch, Boolean);
   check(accumulated, Number);
-  check(music, Boolean);
+  check(track, String);
 
   const selector = {
     meetingId,
@@ -173,8 +173,8 @@ export default function updateTimer(action, meetingId, time = 0, stopwatch = tru
     case 'set':
       modifier = getSetModifier(time);
       break;
-    case 'music':
-      modifier = getMusicModifier(music);
+    case 'track':
+      modifier = getTrackModifier(track);
       break;
     case 'ended':
       modifier = getEndedModifier();
