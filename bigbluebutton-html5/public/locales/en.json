@@ -164,6 +164,7 @@
     "app.presentation.slideContent": "Slide Content",
     "app.presentation.startSlideContent": "Slide content start",
     "app.presentation.endSlideContent": "Slide content end",
+    "app.presentation.changedSlideContent": "Presentation changed to slide: {0}",
     "app.presentation.emptySlideContent": "No content for current slide",
     "app.presentation.presentationToolbar.noNextSlideDesc": "End of presentation",
     "app.presentation.presentationToolbar.noPrevSlideDesc": "Start of presentation",

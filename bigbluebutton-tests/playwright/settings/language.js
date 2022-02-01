@@ -7,10 +7,10 @@ class Language extends Page {
     super(browser, page);
   }
 
-  async test(locale) {
+  async test() {
     for(let locale of e.locales) {
       console.log(`Testing ${locale} locale`);
-      await openSettings(this.page);
+      await openSettings(this);
       await this.page.waitForSelector('#langSelector');
       const langDropdown = await this.page.$('#langSelector');
       const langOptions = await langDropdown.$$('option');

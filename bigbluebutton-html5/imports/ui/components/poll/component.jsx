@@ -531,6 +531,7 @@ class Poll extends Component {
             <Button
               label={intl.formatMessage(intlMessages.a4)}
               aria-describedby="poll-config-button"
+              data-test="pollLetterAlternatives"
               color="default"
               onClick={() => {
                 this.setState({
@@ -553,6 +554,7 @@ class Poll extends Component {
             <Button
               label={intl.formatMessage(intlMessages.yna)}
               aria-describedby="poll-config-button"
+              data-test="pollYesNoAbstentionBtn"
               color="default"
               onClick={() => {
                 this.setState({
@@ -573,6 +575,7 @@ class Poll extends Component {
             <Button
               label={intl.formatMessage(intlMessages.userResponse)}
               aria-describedby="poll-config-button"
+              data-test="userResponseBtn"
               color="default"
               onClick={() => { this.setState({ type: pollTypes.Response }); }}
               className={
@@ -634,6 +637,7 @@ class Poll extends Component {
                             onChange={() => this.handleToggle()}
                             ariaLabel={intl.formatMessage(intlMessages.secretPollLabel)}
                             showToggleLabel={false}
+                            data-test="anonymousPollBtn"
                           />
                         </label>
                       </div>
@@ -803,6 +807,7 @@ class Poll extends Component {
             icon="close"
             size="sm"
             hideLabel
+            data-test="closePolling"
           />
         </header>
         {this.renderPollPanel()}

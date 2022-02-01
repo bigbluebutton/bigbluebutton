@@ -5,6 +5,7 @@ import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteb
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
+import { politeSRAlert } from '/imports/utils/dom-utils';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationPlaceholder from './presentation-placeholder/component';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
@@ -44,6 +45,10 @@ const intlMessages = defineMessages({
   slideContentEnd: {
     id: 'app.presentation.endSlideContent',
     description: 'Indicate the slide content end',
+  },
+  slideContentChanged: {
+    id: 'app.presentation.changedSlideContent',
+    description: 'Indicate the slide content has changed',
   },
   noSlideContent: {
     id: 'app.presentation.emptySlideContent',
@@ -152,6 +157,7 @@ class Presentation extends PureComponent {
       userIsPresenter,
       presentationBounds,
       numCameras,
+      intl,
     } = this.props;
 
     const {
@@ -161,6 +167,14 @@ class Presentation extends PureComponent {
 
     if (numCameras !== prevNumCameras) {
       this.onResize();
+    }
+
+    if (
+      currentSlide?.num != null &&
+      prevProps?.currentSlide?.num != null &&
+      currentSlide?.num !== prevProps.currentSlide?.num
+    ) {
+      politeSRAlert(intl.formatMessage(intlMessages.slideContentChanged, { 0: currentSlide.num }));
     }
 
     if (prevProps?.slidePosition && slidePosition) {

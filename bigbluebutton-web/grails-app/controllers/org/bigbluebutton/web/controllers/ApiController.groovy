@@ -293,7 +293,7 @@ class ApiController {
     }
 
     //Return a Map with the user custom data
-    Map<String, String> userCustomData = paramsProcessorUtil.getUserCustomData(params);
+    Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);
 
     //Currently, it's associated with the externalUserID
     if (userCustomData.size() > 0)
@@ -1445,7 +1445,7 @@ class ApiController {
     if (!session[token]) {
       log.info("Session for token ${token} not found")
 
-      Boolean allowRequestsWithoutSession = paramsProcessorUtil.getAllowRequestsWithoutSession()
+      Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(token)
       if (!allowRequestsWithoutSession) {
         log.info("Meeting related to ${token} doesn't allow requests without session")
         return false
