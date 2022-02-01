@@ -8,6 +8,7 @@ import scala.collection.JavaConverters._
 import org.bigbluebutton.common2.msgs.{ AnnotationEvent, AnnotationVO, ModificationVO }
 import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 import org.bigbluebutton.SystemConfiguration
+import scala.collection.mutable.Set
 
 class WhiteboardModel extends SystemConfiguration {
   private var _whiteboards = new HashMap[String, Whiteboard]()
@@ -55,28 +56,32 @@ class WhiteboardModel extends SystemConfiguration {
 
   /**
    * @param annotationToRemove annotation that should be deleted
-   * @return removed annotations with zipped Index
+   * @return removed annotations zipped with their position 
    */
   def removeAnnotations(annotationIds: List[String], wbID: String, userId: String): List[Tuple2[AnnotationVO, Int]] = {
     //TODO Update positions
-    var idsToRemove = annotationIds
+    var removedIds: Set[String] = Set()
     val wb = getWhiteboard(wbID)
-    if (wb.multiUser.contains(userId)) {
-      val usersAnnotations = getAnnotationsByUserId(wb, userId)
-      idsToRemove = annotationIds.filter(annotationToRemove =>
-        usersAnnotations.exists {
-          case userAnnotation: AnnotationVO => userAnnotation.id.equals(annotationToRemove)
-          case _                            => false
-        })
+    // Extract UserId from annotationId
+    val groupedIdsToRemove = annotationIds.sorted.groupBy(s => s.substring(0, s.indexOf("-")))
+    for ((extractedUserId, idsToRemove) <- groupedIdsToRemove) {
+      if (wb.multiUser.contains(extractedUserId)) {
+        var usersAnnotations = getAnnotationsByUserId(wb, userId)
+        removedIds ++= annotationIds.filter(annotationToRemove =>
+          usersAnnotations.exists {
+            case userAnnotation: AnnotationVO => userAnnotation.id.equals(annotationToRemove)
+            case _                            => false
+          })
+      }
     }
     val removedAnnotationsWithPos = wb.annotationsMap.values.map { case list => list.zipWithIndex }.flatten.filter {
-      case (annotation: AnnotationVO, _)     => idsToRemove.contains(annotation.id)
+      case (annotation: AnnotationVO, _)     => removedIds.contains(annotation.id)
       case (modification: ModificationVO, _) => false
     }.asInstanceOf[Iterable[(AnnotationVO, Int)]]
 
     val newAnnotationsMap = wb.annotationsMap.mapValues {
       case list => list.filterNot {
-        case annotation: AnnotationVO     => idsToRemove.contains(annotation.id)
+        case annotation: AnnotationVO     => removedIds.contains(annotation.id)
         case modification: ModificationVO => false
       }
     }.filter { case (userId, list) => list.nonEmpty }
@@ -87,7 +92,7 @@ class WhiteboardModel extends SystemConfiguration {
     removedAnnotationsWithPos.toList
   }
 
-  def addModifyAnnotation(modification: ModificationVO) = {
+  def addModificationVO(modification: ModificationVO) = {
     val wb = getWhiteboard(modification.wbId)
     val userId = modification.userId
 
@@ -232,7 +237,6 @@ class WhiteboardModel extends SystemConfiguration {
 
   def getHistory(wbId: String): Array[AnnotationVO] = {
     val wb = getWhiteboard(wbId)
-    //TODO Update for working Undo in recording
     wb.annotationsMap.values.flatten.filter {
       case a: AnnotationVO => true
       case _               => false
@@ -310,9 +314,9 @@ class WhiteboardModel extends SystemConfiguration {
       case mod: ModificationVO => true
       case ann: AnnotationVO => {
         if (addedAnnotationIds.contains(ann.id)) {
-          false
+          return false
         }
-        true
+        return true
       }
     }
 
@@ -322,14 +326,21 @@ class WhiteboardModel extends SystemConfiguration {
     }
 
     newAnnotationList = usersAnnotationsWithoutAdded
+    var newAnnotationsMap = wb.annotationsMap
+    var currentUserId = modification.userId
 
     if (modification.removedAnnotations.nonEmpty) {
       for ((ann, index) <- modification.removedAnnotations) {
+        if (ann.userId != currentUserId) {
+          newAnnotationsMap = if (newAnnotationList.isEmpty) newAnnotationsMap - currentUserId else newAnnotationsMap + (currentUserId -> newAnnotationList)
+          currentUserId = ann.userId
+          newAnnotationList = getAnnotationsByUserId(wb, currentUserId)
+        }
         newAnnotationList = insert(newAnnotationList, index, ann)
       }
     }
 
-    val newAnnotationsMap = if (newAnnotationList.isEmpty) wb.annotationsMap - modification.userId else wb.annotationsMap + (modification.userId -> newAnnotationList)
+    newAnnotationsMap = if (newAnnotationList.isEmpty) newAnnotationsMap - currentUserId else newAnnotationsMap + (currentUserId -> newAnnotationList)
     wb.copy(annotationsMap = newAnnotationsMap)
   }
 
