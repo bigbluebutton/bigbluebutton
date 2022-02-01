@@ -170,7 +170,7 @@ class Timer extends Component {
     const { target } = event;
 
     if (target && target.value) {
-      const hours = parseInt(target.value);
+      const hours = parseInt(target.value, 10);
       Service.setHours(hours, timer.time);
     }
   }
@@ -180,7 +180,7 @@ class Timer extends Component {
     const { target } = event;
 
     if (target && target.value) {
-      const minutes = parseInt(target.value);
+      const minutes = parseInt(target.value, 10);
       Service.setMinutes(minutes, timer.time);
     }
   }
@@ -190,7 +190,7 @@ class Timer extends Component {
     const { target } = event;
 
     if (target && target.value) {
-      const seconds = parseInt(target.value);
+      const seconds = parseInt(target.value, 10);
       Service.setSeconds(seconds, timer.time);
     }
   }
