@@ -142,6 +142,7 @@ class RedisRecorderActor(
   private def handleStoreAnnotationsInRedisSysMsg(msg: StoreAnnotationsInRedisSysMsg) {
     val ev = new StorePresentationAnnotationsRecordEvent()
 
+    ev.setJobId(msg.body.annotations.jobId)
     ev.setPresId(msg.body.annotations.presId)
     ev.setPages(msg.body.annotations.pages)
 

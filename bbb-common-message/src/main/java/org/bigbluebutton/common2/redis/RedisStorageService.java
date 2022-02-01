@@ -21,6 +21,8 @@ package org.bigbluebutton.common2.redis;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import io.lettuce.core.api.sync.BaseRedisCommands;
 import org.slf4j.Logger;
@@ -113,11 +115,29 @@ public class RedisStorageService extends RedisAwareCommunicator {
     }
 
     public void storePresentationAnnotations(String meetingId, Map<String, String> event, String msgType) {
-        RedisCommands<String, String> commands = connection.sync();
-        Long msgid = commands.incr("global:nextRecordedMsgId");
+        RedisCommands<String, String> commands = connection.sync();      
+        
         commands.multi();
-        commands.hmset("store" + msgType + ":" + meetingId + ":" + msgid, event);
-        commands.rpush("meeting:" + meetingId + ":" + "store" + msgType, Long.toString(msgid));
+        
+        switch (msgType) {
+            case "Annotations": {
+                commands.hmset(event.get("jobId"), event);
+                break;
+            }
+
+            case "ExportJob": {
+                Gson gson = new Gson();
+                String exportJobAsJson = gson.toJson(event);
+                commands.rpush("exportJobs", exportJobAsJson.toString());
+                break;
+            }
+
+            default: {
+                log.error("Attempted to store PresentationAnnotations message of type: {} (expected 'Annotations' or 'ExportJob')", clientName);
+                break;
+            }
+        }
+
         commands.exec();
     }
 

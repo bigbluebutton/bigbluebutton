@@ -778,12 +778,13 @@ class MeetingActor(
       resultingPage += 1
     }
 
+    val jobId = RandomStringGenerator.randomAlphanumericString(16)
+
     // 1) Send Annotations to Redis
-    var annotations = new StoredAnnotations(presId, storeAnnotationPages)
+    var annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
     outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations))
 
     // 2) Insert Export Job in Redis
-    val jobId = RandomStringGenerator.randomAlphanumericString(16)
     val jobType = "PresentationWithAnnotationDownloadJob"
     val presLocation = s"/var/bigbluebutton/${presId}"
     val exportJob = new ExportJob(jobId, jobType, presId, presLocation, allPages, storeAnnotationPages, "", "")
@@ -823,16 +824,16 @@ class MeetingActor(
     }
 
     val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
+    val jobId = RandomStringGenerator.randomAlphanumericString(16)
 
     // Informs bbb-web about the token so that when we use it to upload the presentation, it is able to look it up in the list of tokens
     outGW.send(buildPresentationUploadTokenSysPubMsg(parentMeetingId, userId, presentationUploadToken, currentPres.name))
 
     // 1) Send Annotations to Redis
-    var annotations = new StoredAnnotations(presId, storeAnnotationPages)
+    var annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
     outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations))
 
     // 2) Insert Export Job in Redis
-    val jobId = RandomStringGenerator.randomAlphanumericString(16)
     val jobType: String = "PresentationWithAnnotationExportJob"
     val presLocation = s"/var/bigbluebutton/${presId}"
     val exportJob = new ExportJob(jobId, jobType, presId, presLocation, allPages, storeAnnotationPages, parentMeetingId, presentationUploadToken)

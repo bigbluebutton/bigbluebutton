@@ -13,6 +13,7 @@ case class PresentationPageForExport(
 )
 
 case class StoredAnnotations(
+  jobId: String,
   presId: String,
   pages: Array[PresentationPageForExport],
 )

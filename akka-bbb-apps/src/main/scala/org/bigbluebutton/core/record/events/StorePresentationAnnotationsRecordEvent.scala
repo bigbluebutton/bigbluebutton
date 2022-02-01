@@ -27,6 +27,10 @@ class StorePresentationAnnotationsRecordEvent extends AbstractPresentationWithAn
 
   setEvent("StorePresentationAnnotationsRecordEvent")
 
+  def setJobId(jobId: String) {
+    eventMap.put(JOB_ID, jobId)
+  }
+
   def setPresId(presId: String) {
     eventMap.put(PRES_ID, presId)
   }
@@ -37,6 +41,7 @@ class StorePresentationAnnotationsRecordEvent extends AbstractPresentationWithAn
 }
 
 object StorePresentationAnnotationsRecordEvent {
+  protected final val JOB_ID = "jobId"
   protected final val PRES_ID = "presId"
   protected final val PAGES = "pages"
 }
