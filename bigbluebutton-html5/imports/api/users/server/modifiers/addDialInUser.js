@@ -17,8 +17,8 @@ export default function addDialInUser(meetingId, voiceUser) {
     role: ROLE_VIEWER.toLowerCase(),
     guest: true,
     authed: true,
-    waitingForAcceptance: true,
-    guestStatus: 'WAIT',
+    waitingForAcceptance: false,
+    guestStatus: 'ALLOW',
     emoji: 'none',
     presenter: false,
     locked: false, // TODO
