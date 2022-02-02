@@ -1,7 +1,7 @@
 import Logger from '/imports/startup/server/logger';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 
-export default function changeHasMessages(hasMessages, userId, meetingId) {
+export default function changeHasConnectionStatus(hasConnectionStatus, userId, meetingId) {
   const selector = {
     meetingId,
     userId,
@@ -9,7 +9,7 @@ export default function changeHasMessages(hasMessages, userId, meetingId) {
 
   const modifier = {
     $set: {
-      'shouldPersist.hasMessages': hasMessages,
+      'shouldPersist.hasConnectionStatus': hasConnectionStatus,
     },
   };
 
@@ -17,9 +17,9 @@ export default function changeHasMessages(hasMessages, userId, meetingId) {
     const numberAffected = UsersPersistentData.update(selector, modifier);
 
     if (numberAffected) {
-      Logger.info(`Changed hasMessages=${hasMessages} id=${userId} meeting=${meetingId}`);
+      Logger.info(`Changed hasConnectionStatus=${hasConnectionStatus} id=${userId} meeting=${meetingId}`);
     }
   } catch (err) {
-    Logger.error(`Change hasMessages error: ${err}`);
+    Logger.error(`Change hasConnectionStatus error: ${err}`);
   }
 }

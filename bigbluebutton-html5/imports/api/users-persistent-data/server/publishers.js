@@ -27,7 +27,7 @@ function usersPersistentData() {
       meetingId,
       $or: [
         {
-          hasMessages: true,
+          'shouldPersist.hasMessages': true,
         },
         {
           loggedOut: false,
