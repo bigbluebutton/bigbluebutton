@@ -22,27 +22,51 @@ package org.bigbluebutton.core.record.events
 import org.bigbluebutton.common2.msgs.{ AnnotationVO, ExportJob, StoredAnnotations, PresentationPageForExport }
 import org.bigbluebutton.common2.util.JsonUtil
 
-class StorePresentationAnnotationsRecordEvent extends AbstractPresentationWithAnnotations {
-  import StorePresentationAnnotationsRecordEvent._
+class StoreExportJobInRedisPresAnnEvent extends AbstractPresentationWithAnnotations {
+  import StoreExportJobInRedisPresAnnEvent._
 
-  setEvent("StorePresentationAnnotationsRecordEvent")
+  setEvent("StoreExportJobInRedisPresAnnEvent")
 
   def setJobId(jobId: String) {
     eventMap.put(JOB_ID, jobId)
+  }
+
+  def setJobType(jobType: String) {
+    eventMap.put(JOB_TYPE, jobType)
   }
 
   def setPresId(presId: String) {
     eventMap.put(PRES_ID, presId)
   }
 
+  def setPresLocation(presLocation: String) {
+    eventMap.put(PRES_LOCATION, presLocation)
+  }
+
+  def setAllPages(allPages: String) {
+    eventMap.put(ALL_PAGES, allPages)
+  }
+
   def setPages(pages: Array[PresentationPageForExport]) {
     eventMap.put(PAGES, JsonUtil.toJson(pages))
   }
+
+  def setParentMeetingId(parentMeetingId: String) {
+    eventMap.put(PARENT_MEETING_ID, parentMeetingId)
+  }
+
+  def setPresentationUploadToken(presentationUploadToken: String) {
+    eventMap.put(PRESENTATION_UPLOAD_TOKEN, presentationUploadToken)
+  }
 }
 
-object StorePresentationAnnotationsRecordEvent {
+object StoreExportJobInRedisPresAnnEvent {
   protected final val JOB_ID = "jobId"
+  protected final val JOB_TYPE = "jobType"
   protected final val PRES_ID = "presId"
+  protected final val PRES_LOCATION = "presLocation"
+  protected final val ALL_PAGES = "allPages"
   protected final val PAGES = "pages"
+  protected final val PARENT_MEETING_ID = "parentMeetingId"
+  protected final val PRESENTATION_UPLOAD_TOKEN = "presentationUploadToken"
 }
-
