@@ -32,9 +32,30 @@ const intlMessages = defineMessages({
     id: 'app.about.dismissDesc',
     description: 'adds descriptive context to dissmissLabel',
   },
+  version_bbb: {
+    id: 'app.about.version_bbb',
+    description: 'label for version bbb',
+  },
 });
 
-const AboutComponent = ({ intl, clientBuild, copyright }) => (
+const showVersion = ({ displayBbbServerVersion, bbbServerVersion, intl }) => {
+  if (!displayBbbServerVersion) return null;
+
+  return (
+    <>
+      <br />
+      {`${intl.formatMessage(intlMessages.version_bbb)} ${bbbServerVersion}`}
+    </>
+  );
+};
+
+const AboutComponent = ({
+  intl,
+  clientBuild,
+  copyright,
+  bbbServerVersion,
+  displayBbbServerVersion,
+}) => (
   <Modal
     title={intl.formatMessage(intlMessages.title)}
     dismiss={{
@@ -45,6 +66,7 @@ const AboutComponent = ({ intl, clientBuild, copyright }) => (
     {`${intl.formatMessage(intlMessages.copyright)} ${copyright}`}
     <br />
     {`${intl.formatMessage(intlMessages.version)} ${clientBuild}`}
+    {showVersion({ bbbServerVersion, displayBbbServerVersion, intl })}
   </Modal>
 );
 

@@ -16,6 +16,8 @@ const getClientBuildInfo = () => (
   {
     clientBuild: Meteor.settings.public.app.html5ClientBuild,
     copyright: Meteor.settings.public.app.copyright,
+    bbbServerVersion: Meteor.settings.public.app.bbbServerVersion,
+    displayBbbServerVersion: Meteor.settings.public.app.displayBbbServerVersion,
   }
 );
 
