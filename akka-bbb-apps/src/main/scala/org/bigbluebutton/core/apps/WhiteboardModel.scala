@@ -56,7 +56,7 @@ class WhiteboardModel extends SystemConfiguration {
 
   /**
    * @param annotationToRemove annotation that should be deleted
-   * @return removed annotations zipped with their position 
+   * @return removed annotations zipped with their position
    */
   def removeAnnotations(annotationIds: List[String], wbID: String, userId: String): List[Tuple2[AnnotationVO, Int]] = {
     //TODO Update positions
@@ -314,9 +314,9 @@ class WhiteboardModel extends SystemConfiguration {
       case mod: ModificationVO => true
       case ann: AnnotationVO => {
         if (addedAnnotationIds.contains(ann.id)) {
-          return false
+          false
         }
-        return true
+        true
       }
     }
 

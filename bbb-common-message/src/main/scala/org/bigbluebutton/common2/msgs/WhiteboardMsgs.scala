@@ -11,8 +11,10 @@ abstract class AnnotationEvent {
 
 case class AnnotationVO(id: String, status: String, annotationType: String,
                         annotationInfo: scala.collection.immutable.Map[String, Any], wbId: String, userId: String, position: Int) extends AnnotationEvent
-case class ModificationVO(removedAnnotations: List[Tuple2[AnnotationVO, Int]],
-                          addedAnnotations: List[AnnotationVO], wbId: String, userId: String, position: Int) extends AnnotationEvent
+case class ModificationVO(
+    removedAnnotations: List[Tuple2[AnnotationVO, Int]],
+    addedAnnotations:   List[AnnotationVO], wbId: String, userId: String, position: Int
+) extends AnnotationEvent
 
 // ------------ client to akka-apps ------------
 object ClientToServerLatencyTracerMsg { val NAME = "ClientToServerLatencyTracerMsg" }
@@ -83,5 +85,5 @@ case class UndoWhiteboardEvtMsgBody(whiteboardId: String, userId: String, remove
 
 object ModifyWhiteboardAnnotationEvtMsg { val NAME = "ModifyWhiteboardAnnotationEvtMsg" }
 case class ModifyWhiteboardAnnotationEvtMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAnnotationEvtMsgBody) extends StandardMsg
-case class ModifyWhiteboardAnnotationEvtMsgBody(annotations: List[AnnotationVO], idsToRemove: List[String], userId: String, whiteBoardId: String, action: String)
+case class ModifyWhiteboardAnnotationEvtMsgBody(annotations: List[AnnotationVO], idsToRemove: List[String], userId: String, whiteboardId: String, action: String)
 // ------------ akka-apps to client ------------

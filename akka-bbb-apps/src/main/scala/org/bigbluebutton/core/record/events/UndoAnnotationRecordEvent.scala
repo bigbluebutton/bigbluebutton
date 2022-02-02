@@ -19,21 +19,29 @@
 
 package org.bigbluebutton.core.record.events
 
+import java.lang.annotation.Annotation
+
 class UndoAnnotationRecordEvent extends AbstractWhiteboardRecordEvent {
   import UndoAnnotationRecordEvent._
 
   setEvent("UndoAnnotationEvent")
 
-  def setUserId(userId: String) {
+  def setUserId(userId: String) = {
     eventMap.put(USER_ID, userId)
   }
 
-  def setShapeId(shapeId: String) {
-    eventMap.put(SHAPE_ID, shapeId)
+  def setRemovedShapeIds(shapeIds: List[String]) = {
+    eventMap.put(REMOVED_SHAPE_ID, listToString(shapeIds))
+  }
+
+  // def setAddedAnnotations(annotations: List[AnnotationVO])
+
+  private def listToString(list: List[_]): String = {
+    list.map(f => f.toString).mkString(",")
   }
 }
 
 object UndoAnnotationRecordEvent {
   protected final val USER_ID = "userId"
-  protected final val SHAPE_ID = "shapeId"
+  protected final val REMOVED_SHAPE_ID = "removedShapeIds"
 }
