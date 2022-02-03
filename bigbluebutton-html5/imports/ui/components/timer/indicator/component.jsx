@@ -300,8 +300,9 @@ class Indicator extends Component {
 
     const {
       isModerator,
-      hidden,
       timer,
+      sidebarNavigationIsOpen,
+      sidebarContentIsOpen,
     } = this.props;
     const { running } = timer;
 
@@ -315,7 +316,7 @@ class Indicator extends Component {
             tabIndex={0}
             running={running}
             disabled={!isModerator}
-            hide={hidden}
+            hide={sidebarNavigationIsOpen && sidebarContentIsOpen}
             onClick={isModerator ? onClick : null}
           >
             <Styled.TimerContent>
