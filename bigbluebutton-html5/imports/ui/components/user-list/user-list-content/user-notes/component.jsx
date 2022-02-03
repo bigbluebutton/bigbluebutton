@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
 import NotesService from '/imports/ui/components/notes/service';
 import Styled from './styles';
@@ -144,4 +144,4 @@ class UserNotes extends Component {
 
 UserNotes.propTypes = propTypes;
 
-export default UserNotes;
+export default injectIntl(UserNotes);
