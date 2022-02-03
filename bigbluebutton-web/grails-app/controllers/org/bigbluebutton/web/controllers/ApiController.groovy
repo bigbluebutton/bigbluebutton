@@ -146,7 +146,7 @@ class ApiController {
 
     if (meetingService.createMeeting(newMeeting)) {
       // See if the request came with pre-uploading of presentation.
-      uploadDocuments(newMeeting);  //
+      uploadDocuments(newMeeting, false);  //
       respondWithConference(newMeeting, null, null)
     } else {
       // Translate the external meeting id into an internal meeting id.
@@ -1097,6 +1097,53 @@ class ApiController {
     }
   }
 
+  /*************************************************
+   * INSERT_DOCUMENT API
+   *************************************************/
+
+  def insertDocument = {
+    String API_CALL = 'insertDocument'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    Map.Entry<String, String> validationResponse = validateRequest(
+            ValidationService.ApiCall.INSERT_DOCUMENT,
+            request.getParameterMap(),
+            request.getQueryString()
+    )
+
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
+      return
+    }
+
+    String externalMeetingId = params.meetingID
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId)
+    log.info("Retrieving meeting ${internalMeetingId}")
+    Meeting meeting = meetingService.getMeeting(internalMeetingId)
+
+    if (meeting != null){
+      uploadDocuments(meeting, true);
+//      Here is the other form!
+//      uploadDocumentsAtInsertAPI(meeting);
+      withFormat {
+        xml {
+          render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
+                  , contentType: "text/xml")
+        }
+      }
+    }else {
+      log.warn("Meeting with externalID ${externalMeetingId} and internalID ${internalMeetingId} " +
+              "doesn't exist.")
+      withFormat {
+        xml {
+          render(text: responseBuilder.buildInsertDocumentResponse(
+                  "The meeting with id \"${externalMeetingId}\" doesn't exist.", RESP_CODE_FAILED),
+                  contentType: "text/xml")
+        }
+      }
+    }
+  }
+
   /***********************************************
    * LEARNING DASHBOARD DATA
    ***********************************************/
@@ -1211,7 +1258,55 @@ class ApiController {
     }
   }
 
-  def uploadDocuments(conf) { //
+//  Here is the alternative code, should you guys prefer to create another function other than change the
+//  already existing one
+//  def uploadDocumentsAtInsertAPI(conf) {
+//    log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
+//    def listOfPresentation = presentationService.listPresentations(conf.getInternalId(), conf.getInternalId());
+//
+//    //sanitizeInput
+//    params.each {
+//      key, value -> params[key] = sanitizeInput(value)
+//    }
+//
+//    String requestBody = request.inputStream == null ? null : request.inputStream.text;
+//    requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
+//
+//    if (requestBody == null) {
+//      return null
+//    } else {
+//      def xml = new XmlSlurper().parseText(requestBody);
+//      xml.children().each { module ->
+//        log.debug("module config found: [${module.@name}]");
+//
+//        if ("presentation".equals(module.@name.toString())) {
+//          // need to iterate over presentation files and process them
+//          Boolean current = false;
+//          module.children().each { document ->
+//            if (!StringUtils.isEmpty(document.@url.toString())) {
+//              def fileName;
+//              if (!StringUtils.isEmpty(document.@filename.toString())) {
+//                log.debug("user provided filename: [${module.@filename}]");
+//                fileName = document.@filename.toString();
+//              }
+//              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), current /* default presentation */, fileName);
+//              current = false;
+//            } else if (!StringUtils.isEmpty(document.@name.toString())) {
+//              def b64 = new Base64()
+//              def decodedBytes = b64.decode(document.text().getBytes())
+//              processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
+//                      conf.getInternalId(), current /* default presentation */);
+//              current = false;
+//            } else {
+//              log.debug("presentation module config found, but it did not contain url or name attributes");
+//            }
+//          }
+//        }
+//      }
+//    }
+//  }
+
+  def uploadDocuments(conf, isFromInsertAPI) { //
     log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
 
     //sanitizeInput
@@ -1223,6 +1318,9 @@ class ApiController {
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
 
     if (requestBody == null) {
+      if (isFromInsertAPI){
+        return;
+      }
       downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), true /* default presentation */, '');
     } else {
       def xml = new XmlSlurper().parseText(requestBody);
@@ -1231,7 +1329,7 @@ class ApiController {
 
         if ("presentation".equals(module.@name.toString())) {
           // need to iterate over presentation files and process them
-          Boolean current = true;
+          Boolean current = !isFromInsertAPI;
           module.children().each { document ->
             if (!StringUtils.isEmpty(document.@url.toString())) {
               def fileName;
