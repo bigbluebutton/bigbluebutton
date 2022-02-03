@@ -259,15 +259,14 @@ const ButtonSpan = styled.span`
     border: ${borderSizeLarge} solid transparent;
 
     &:focus,
-    .buttonWrapper:focus:not([aria-disabled="true"]) & {
+    &:focus:not([aria-disabled="true"]) & {
       color: ${btnDefaultColor};
       background-color: ${btnDefaultBg};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBorder};
     }
 
-    &:hover,
-    .buttonWrapper:hover & {
+    &:hover & {
       color: ${btnDefaultBg};
     }
   `}
