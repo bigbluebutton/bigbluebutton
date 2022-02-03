@@ -218,6 +218,19 @@ public class ResponseBuilder {
         return xmlText.toString();
     }
 
+    public String buildInsertDocumentResponse(String message, String returnCode) {
+
+        StringWriter xmlText = new StringWriter();
+
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("returnCode", returnCode);
+        data.put("info", message);
+
+        processData(getTemplate("get-meeting-info.ftlx"), data, xmlText);
+
+        return xmlText.toString();
+    }
+
     private Template getTemplate(String templateName) {
         Template ftl = null;
         try {
