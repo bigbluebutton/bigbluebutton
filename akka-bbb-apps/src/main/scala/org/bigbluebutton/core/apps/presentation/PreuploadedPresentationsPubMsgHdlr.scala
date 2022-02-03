@@ -26,7 +26,7 @@ trait PreuploadedPresentationsPubMsgHdlr {
       }
 
       val pr = new Presentation(pres.id, pres.name, pres.current,
-        pages.toMap, pres.downloadable)
+        pages.toMap, pres.downloadable, pres.removable)
       presos += pres.id -> pr
     }
 

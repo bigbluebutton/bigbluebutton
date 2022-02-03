@@ -29,6 +29,7 @@ trait PresentationPageConversionStartedSysMsgHdlr {
         current = msg.body.current,
         presName = msg.body.presName,
         downloadable = msg.body.downloadable,
+        removable = msg.body.removable,
         authzToken = msg.body.authzToken,
         numPages = msg.body.numPages
       )
@@ -38,10 +39,11 @@ trait PresentationPageConversionStartedSysMsgHdlr {
     }
 
     val downloadable = msg.body.downloadable
+    val removable = msg.body.removable
     val presentationId = msg.body.presentationId
     val podId = msg.body.podId
 
-    val pres = new PresentationInPod(presentationId, msg.body.presName, msg.body.current, Map.empty, downloadable)
+    val pres = new PresentationInPod(presentationId, msg.body.presName, msg.body.current, Map.empty, downloadable, removable)
 
     val newState = for {
       pod <- PresentationPodsApp.getPresentationPod(state, podId)
