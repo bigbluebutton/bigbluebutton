@@ -192,18 +192,12 @@ const addIsSharingWebcam = (users) => {
   });
 };
 
-const getUsers = (contextUsers) => {
-  let users = contextUsers;
-
-  if (!contextUsers) {
-    users = Users
-      .find({
-        meetingId: Auth.meetingID,
-      }, userFindSorting)
-      .fetch();
-  } else {
-    users = users.filter((user) => !user.loggedOut);
-  }
+const getUsers = () => {
+  let users = Users
+    .find({
+      meetingId: Auth.meetingID,
+    }, userFindSorting)
+    .fetch();
 
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
   if (currentUser && currentUser.role === ROLE_VIEWER && currentUser.locked) {
@@ -216,6 +210,31 @@ const getUsers = (contextUsers) => {
   }
 
   return addIsSharingWebcam(addWhiteboardAccess(users)).sort(sortUsers);
+};
+
+const formatUsers = (contextUsers, videoUsers, whiteboardUsers) => {
+  let users = contextUsers.filter((user) => !user.loggedOut);
+
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
+  if (currentUser && currentUser.role === ROLE_VIEWER && currentUser.locked) {
+    const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'lockSettingsProps.hideUserList': 1 } });
+    if (meeting && meeting.lockSettingsProps && meeting.lockSettingsProps.hideUserList) {
+      const moderatorOrCurrentUser = (u) => u.role === ROLE_MODERATOR || u.userId === Auth.userID;
+      users = users.filter(moderatorOrCurrentUser);
+    }
+  }
+
+  return users.map((user) => {
+    const isSharingWebcam = videoUsers?.includes(user.userId);
+    const whiteboardAccess = whiteboardUsers?.includes(user.userId);
+
+    return {
+      ...user,
+      isSharingWebcam,
+      whiteboardAccess,
+    };
+  }).sort(sortUsers);
 };
 
 const getUserCount = () => Users.find({ meetingId: Auth.meetingID }).count();
@@ -665,6 +684,7 @@ export default {
   muteAllExceptPresenter,
   changeRole,
   getUsers,
+  formatUsers,
   getActiveChats,
   getAvailableActions,
   curatedVoiceUser,
