@@ -65,7 +65,7 @@ class VideoListItem extends Component {
       videoIsReady: false,
       isFullscreen: false,
       isStreamHealthy: false,
-      isMirrored: false,
+      isMirrored: VideoService.mirrorOwnWebcam(props.userId),
     };
 
     this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam(props.userId);

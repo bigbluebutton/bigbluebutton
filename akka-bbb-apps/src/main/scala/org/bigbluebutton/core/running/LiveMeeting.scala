@@ -12,6 +12,7 @@ class LiveMeeting(
     val chatModel:          ChatModel,
     val externalVideoModel: ExternalVideoModel,
     val layouts:            Layouts,
+    val pads:               Pads,
     val registeredUsers:    RegisteredUsers,
     val polls:              Polls, // 2x
     val wbModel:            WhiteboardModel,

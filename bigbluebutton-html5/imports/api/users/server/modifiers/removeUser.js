@@ -38,7 +38,6 @@ export default function removeUser(meetingId, userId) {
 
       const currentUser = Users.findOne({ userId, meetingId });
       const hasMessages = currentUser?.hasMessages;
-
       if (!hasMessages) {
         UsersPersistentData.remove(selector);
       }

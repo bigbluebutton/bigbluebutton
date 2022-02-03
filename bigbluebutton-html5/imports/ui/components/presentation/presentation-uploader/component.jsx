@@ -19,6 +19,9 @@ const { isMobile } = deviceInfo;
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
+  fileUploadConstraintsHint: PropTypes.bool.isRequired,
+  fileSizeMax: PropTypes.number.isRequired,
+  filePagesMax: PropTypes.number.isRequired,
   handleSave: PropTypes.func.isRequired,
   dispatchTogglePresentationDownloadable: PropTypes.func.isRequired,
   fileValidMimeTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -86,6 +89,10 @@ const intlMessages = defineMessages({
   fileToUpload: {
     id: 'app.presentationUploder.fileToUpload',
     description: 'message used in the file selected for upload',
+  },
+  extraHint: {
+    id: 'app.presentationUploder.extraHint',
+    description: 'message used to indicate upload file max sizes',
   },
   rejectedError: {
     id: 'app.presentationUploder.rejectedError',
@@ -629,6 +636,25 @@ class PresentationUploader extends Component {
     );
   }
 
+  renderExtraHint() {
+    const {
+      intl,
+      fileSizeMax,
+      filePagesMax,
+    } = this.props;
+
+    const options = {
+      0: fileSizeMax/1000000,
+      1: filePagesMax,
+    };
+
+    return (
+      <Styled.ExtraHint>
+        {intl.formatMessage(intlMessages.extraHint, options)}
+      </Styled.ExtraHint>
+    );
+  }
+
   renderPresentationList() {
     const { presentations } = this.state;
     const { intl } = this.props;
@@ -986,7 +1012,10 @@ class PresentationUploader extends Component {
 
   render() {
     const {
-      isOpen, isPresenter, intl,
+      isOpen,
+      isPresenter,
+      intl,
+      fileUploadConstraintsHint,
     } = this.props;
     if (!isPresenter) return null;
     const { presentations, disableActions } = this.state;
@@ -1023,6 +1052,7 @@ class PresentationUploader extends Component {
 
           <Styled.ModalHint>
             {`${intl.formatMessage(intlMessages.message)}`}
+            {fileUploadConstraintsHint ? this.renderExtraHint() : null}
           </Styled.ModalHint>
           {this.renderPresentationList()}
           {isMobile ? this.renderPicDropzone() : null}

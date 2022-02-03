@@ -6,6 +6,7 @@ import { ACTIONS, CAMERADOCK_POSITION } from '../layout/enums';
 import DropAreaContainer from './drop-areas/container';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import Storage from '/imports/ui/services/storage/session';
+import { colorContentBackground } from '/imports/ui/stylesheets/styled-components/palette';
 
 const WebcamComponent = ({
   cameraDock,
@@ -250,6 +251,7 @@ const WebcamComponent = ({
                 width: isDragging ? cameraSize.width : cameraDock.width,
                 height: isDragging ? cameraSize.height : cameraDock.height,
                 opacity: isDragging ? 0.5 : undefined,
+                background: isCameraSidebar ? colorContentBackground : null,
               }}
             >
               <VideoProviderContainer
