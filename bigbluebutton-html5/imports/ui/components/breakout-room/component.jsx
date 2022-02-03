@@ -7,6 +7,7 @@ import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import Service from './service';
 import BreakoutRoomContainer from './breakout-remaining-time/container';
+import MessageFormContainer from './message-form/container';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { PANELS, ACTIONS } from '../layout/enums';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
@@ -53,6 +54,10 @@ const intlMessages = defineMessages({
   endAllBreakouts: {
     id: 'app.createBreakoutRoom.endAllBreakouts',
     description: 'Button label to end all breakout rooms',
+  },
+  chatTitleMsgAllRooms: {
+    id: 'app.createBreakoutRoom.chatTitleMsgAllRooms',
+    description: 'chat title for send message to all rooms',
   },
   alreadyConnected: {
     id: 'app.createBreakoutRoom.alreadyConnected',
@@ -518,6 +523,20 @@ class BreakoutRoom extends PureComponent {
             this.closePanel();
           }}
         />
+        {amIModerator
+          ? (
+            <MessageFormContainer
+              {...{
+                title: intl.formatMessage(intlMessages.chatTitleMsgAllRooms),
+              }}
+              chatId="breakouts"
+              chatTitle={intl.formatMessage(intlMessages.chatTitleMsgAllRooms)}
+              disabled={!isMeteorConnected}
+              connected={isMeteorConnected}
+              locked={false}
+            />
+          ) : null }
+        {amIModerator ? <Styled.Separator /> : null }
         {this.renderBreakoutRooms()}
         {this.renderDuration()}
         {

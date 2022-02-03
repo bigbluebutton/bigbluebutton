@@ -279,17 +279,17 @@ class MeetingActor(
 
       // Update breakout rooms of remaining time
       state = handleSendBreakoutTimeRemainingMsg(msg, state)
-    case msg: BreakoutRoomCreatedInternalMsg     => state = handleBreakoutRoomCreatedInternalMsg(msg, state)
-    case msg: SendBreakoutUsersAuditInternalMsg  => handleSendBreakoutUsersUpdateInternalMsg(msg)
-    case msg: BreakoutRoomUsersUpdateInternalMsg => state = handleBreakoutRoomUsersUpdateInternalMsg(msg, state)
-    case msg: EndBreakoutRoomInternalMsg         => handleEndBreakoutRoomInternalMsg(msg)
-    case msg: ExtendBreakoutRoomTimeInternalMsg  => state = handleExtendBreakoutRoomTimeInternalMsgHdlr(msg, state)
-    case msg: BreakoutRoomEndedInternalMsg       => state = handleBreakoutRoomEndedInternalMsg(msg, state)
-    case msg: SendBreakoutTimeRemainingInternalMsg =>
-      handleSendBreakoutTimeRemainingInternalMsg(msg)
+    case msg: BreakoutRoomCreatedInternalMsg       => state = handleBreakoutRoomCreatedInternalMsg(msg, state)
+    case msg: SendBreakoutUsersAuditInternalMsg    => handleSendBreakoutUsersUpdateInternalMsg(msg)
+    case msg: BreakoutRoomUsersUpdateInternalMsg   => state = handleBreakoutRoomUsersUpdateInternalMsg(msg, state)
+    case msg: EndBreakoutRoomInternalMsg           => handleEndBreakoutRoomInternalMsg(msg)
+    case msg: ExtendBreakoutRoomTimeInternalMsg    => state = handleExtendBreakoutRoomTimeInternalMsgHdlr(msg, state)
+    case msg: BreakoutRoomEndedInternalMsg         => state = handleBreakoutRoomEndedInternalMsg(msg, state)
+    case msg: SendMessageToBreakoutRoomInternalMsg => state = handleSendMessageToBreakoutRoomInternalMsg(msg, state, liveMeeting, msgBus)
+    case msg: SendBreakoutTimeRemainingInternalMsg => handleSendBreakoutTimeRemainingInternalMsg(msg)
 
     // Screenshare
-    case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
+    case msg: DeskShareGetDeskShareInfoRequest     => handleDeskShareGetDeskShareInfoRequest(msg)
 
     case msg: SendRecordingTimerInternalMsg =>
       state = usersApp.handleSendRecordingTimerInternalMsg(msg, state)
@@ -449,16 +449,17 @@ class MeetingActor(
         updateUserLastActivity(m.body.requesterId)
 
       // Breakout
-      case m: BreakoutRoomsListMsg            => state = handleBreakoutRoomsListMsg(m, state)
-      case m: CreateBreakoutRoomsCmdMsg       => state = handleCreateBreakoutRoomsCmdMsg(m, state)
-      case m: EndAllBreakoutRoomsMsg          => state = handleEndAllBreakoutRoomsMsg(m, state)
-      case m: RequestBreakoutJoinURLReqMsg    => state = handleRequestBreakoutJoinURLReqMsg(m, state)
-      case m: TransferUserToMeetingRequestMsg => state = handleTransferUserToMeetingRequestMsg(m, state)
-      case m: ExtendBreakoutRoomsTimeReqMsg   => state = handleExtendBreakoutRoomsTimeMsg(m, state)
+      case m: BreakoutRoomsListMsg                => state = handleBreakoutRoomsListMsg(m, state)
+      case m: CreateBreakoutRoomsCmdMsg           => state = handleCreateBreakoutRoomsCmdMsg(m, state)
+      case m: EndAllBreakoutRoomsMsg              => state = handleEndAllBreakoutRoomsMsg(m, state)
+      case m: RequestBreakoutJoinURLReqMsg        => state = handleRequestBreakoutJoinURLReqMsg(m, state)
+      case m: TransferUserToMeetingRequestMsg     => state = handleTransferUserToMeetingRequestMsg(m, state)
+      case m: ExtendBreakoutRoomsTimeReqMsg       => state = handleExtendBreakoutRoomsTimeMsg(m, state)
+      case m: SendMessageToAllBreakoutRoomsReqMsg => state = handleSendMessageToAllBreakoutRoomsMsg(m, state)
 
       // Voice
-      case m: UserLeftVoiceConfEvtMsg         => handleUserLeftVoiceConfEvtMsg(m)
-      case m: UserMutedInVoiceConfEvtMsg      => handleUserMutedInVoiceConfEvtMsg(m)
+      case m: UserLeftVoiceConfEvtMsg             => handleUserLeftVoiceConfEvtMsg(m)
+      case m: UserMutedInVoiceConfEvtMsg          => handleUserMutedInVoiceConfEvtMsg(m)
       case m: UserTalkingInVoiceConfEvtMsg =>
         updateVoiceUserLastActivity(m.body.voiceUserId)
         handleUserTalkingInVoiceConfEvtMsg(m)
