@@ -1,6 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 
-const VoiceUsers = new Mongo.Collection('voiceUsers');
+const collectionOptions = Meteor.isClient ? {
+  connection: null,
+} : {};
+
+const VoiceUsers = new Mongo.Collection('voiceUsers', collectionOptions);
 
 if (Meteor.isServer) {
   // types of queries for the voice users:

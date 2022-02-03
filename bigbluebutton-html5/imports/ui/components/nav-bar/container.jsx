@@ -9,11 +9,9 @@ import userListService from '/imports/ui/components/user-list/service';
 import { ChatContext } from '/imports/ui/components/components-data/chat-context/context';
 import { GroupChatContext } from '/imports/ui/components/components-data/group-chat-context/context';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
-import NoteService from '/imports/ui/components/note/service';
-import UserlsitService from '/imports/ui/components/user-list/service';
-import Service from './service';
+import NotesService from '/imports/ui/components/notes/service';
 import NavBar from './component';
-import LayoutContext from '../layout/context';
+import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
 
 const PUBLIC_CONFIG = Meteor.settings.public;
 const ROLE_MODERATOR = PUBLIC_CONFIG.user.role_moderator;
@@ -30,24 +28,24 @@ const checkUnreadMessages = ({
 };
 
 const NavBarContainer = ({ children, ...props }) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
   const usingChatContext = useContext(ChatContext);
   const usingUsersContext = useContext(UsersContext);
   const usingGroupChatContext = useContext(GroupChatContext);
   const { chats: groupChatsMessages } = usingChatContext;
   const { users } = usingUsersContext;
   const { groupChat: groupChats } = usingGroupChatContext;
-  const activeChats = UserlsitService.getActiveChats({ groupChatsMessages, groupChats, users:users[Auth.meetingID] });
+  const activeChats = userListService.getActiveChats({ groupChatsMessages, groupChats, users:users[Auth.meetingID] });
   const { ...rest } = props;
-  const {
-    input, output,
-  } = layoutContextState;
-  const { sidebarContent, sidebarNavigation } = input;
-  const { sidebarNavPanel } = sidebarNavigation;
+
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
+  const navBar = layoutSelectOutput((i) => i.navBar);
+  const layoutContextDispatch = layoutDispatch();
+
   const { sidebarContentPanel } = sidebarContent;
-  const { navBar } = output;
-  const hasUnreadNotes = NoteService.hasUnreadNotes(sidebarContentPanel);
+  const { sidebarNavPanel } = sidebarNavigation;
+
+  const hasUnreadNotes = NotesService.hasUnreadNotes(sidebarContentPanel);
   const hasUnreadMessages = checkUnreadMessages(
     { groupChatsMessages, groupChats, users: users[Auth.meetingID] },
   );
@@ -109,12 +107,8 @@ export default withTracker(() => {
     }
   }
 
-  const { connectRecordingObserver, processOutsideToggleRecording } = Service;
-
   return {
     currentUserId: Auth.userID,
-    processOutsideToggleRecording,
-    connectRecordingObserver,
     meetingId,
     presentationTitle: meetingTitle,
     breakoutNum,

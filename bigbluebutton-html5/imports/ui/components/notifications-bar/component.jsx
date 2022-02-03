@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import { styles } from './styles.scss';
+import Styled from './styles';
 
 const COLORS = [
   'default', 'primary', 'danger', 'success',
@@ -26,18 +25,18 @@ const NotificationsBar = (props) => {
   const hasColor = COLORS.includes(color);
 
   return (
-    <div
+    <Styled.NotificationsBar
       role={alert ? 'alert' : ''}
       aria-live="off"
       style={
         !hasColor ? {
           backgroundColor: `${color}`,
         } : {}
-    }
-      className={cx(styles.notificationsBar, hasColor ? styles[color] : null)}
+      }
+      color={color}
     >
       {children}
-    </div>
+    </Styled.NotificationsBar>
   );
 };
 

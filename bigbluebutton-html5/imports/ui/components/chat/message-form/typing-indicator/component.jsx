@@ -3,8 +3,7 @@ import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
-import { styles } from '../styles.scss';
+import Styled from './styles';
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
@@ -46,10 +45,10 @@ class TypingIndicator extends PureComponent {
           id="app.chat.one.typing"
           description="label used when one user is typing"
           values={{
-            0: <span className={styles.singleTyper}>
+            0: <Styled.SingleTyper>
               {`${name}`}
 &nbsp;
-            </span>,
+            </Styled.SingleTyper>,
           }}
         />
       );
@@ -63,15 +62,15 @@ class TypingIndicator extends PureComponent {
           id="app.chat.two.typing"
           description="label used when two users are typing"
           values={{
-            0: <span className={styles.coupleTyper}>
+            0: <Styled.CoupleTyper>
               {`${name}`}
 &nbsp;
-            </span>,
-            1: <span className={styles.coupleTyper}>
+            </Styled.CoupleTyper>,
+            1: <Styled.CoupleTyper>
 &nbsp;
               {`${name2}`}
 &nbsp;
-            </span>,
+            </Styled.CoupleTyper>,
           }}
         />
       );
@@ -96,15 +95,14 @@ class TypingIndicator extends PureComponent {
 
     const typingElement = indicatorEnabled ? this.renderTypingElement() : null;
 
-    const style = {};
-    style[styles.error] = !!error;
-    style[styles.info] = !error;
-    style[styles.spacer] = !!typingElement;
-
     return (
-      <div className={cx(style)}>
-        <span className={styles.typingIndicator} data-test="typingIndicator">{error || typingElement}</span>
-      </div>
+      <Styled.TypingIndicatorWrapper
+        error={!!error}
+        info={!error}
+        spacer={!!typingElement}
+      >
+        <Styled.TypingIndicator data-test="typingIndicator">{error || typingElement}</Styled.TypingIndicator>
+      </Styled.TypingIndicatorWrapper>
     );
   }
 }

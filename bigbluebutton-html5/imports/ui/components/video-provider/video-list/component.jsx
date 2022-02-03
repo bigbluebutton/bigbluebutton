@@ -1,15 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import cx from 'classnames';
 import _ from 'lodash';
-import { styles } from './styles';
+import Styled from './styles';
 import VideoListItemContainer from './video-list-item/container';
 import AutoplayOverlay from '../../media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import VideoService from '/imports/ui/components/video-provider/service';
-import Button from '/imports/ui/components/button/component';
 import { ACTIONS } from '../../layout/enums';
 
 const propTypes = {
@@ -256,7 +254,7 @@ class VideoList extends Component {
     const nextPageDetailedLabel = `${nextPageLabel} (${currentPage}/${numberOfPages})`;
 
     return (
-      <Button
+      <Styled.NextPageButton
         role="button"
         aria-label={nextPageLabel}
         color="primary"
@@ -265,12 +263,7 @@ class VideoList extends Component {
         onClick={VideoService.getNextVideoPage}
         label={nextPageDetailedLabel}
         hideLabel
-        className={
-          cx({
-            [styles.nextPage]: true,
-            [styles.nextPageLRPosition]: position === 'contentRight' || position === 'contentLeft',
-          })
-        }
+        position={position}
       />
     );
   }
@@ -291,7 +284,7 @@ class VideoList extends Component {
     const prevPageDetailedLabel = `${prevPageLabel} (${currentPage}/${numberOfPages})`;
 
     return (
-      <Button
+      <Styled.PreviousPageButton
         role="button"
         aria-label={prevPageLabel}
         color="primary"
@@ -300,12 +293,7 @@ class VideoList extends Component {
         onClick={VideoService.getPreviousVideoPage}
         label={prevPageDetailedLabel}
         hideLabel
-        className={
-          cx({
-            [styles.previousPage]: true,
-            [styles.previousPageLRPosition]: position === 'contentRight' || position === 'contentLeft',
-          })
-        }
+        position={position}
       />
     );
   }
@@ -325,12 +313,9 @@ class VideoList extends Component {
       const isFocused = focusedId === stream && numOfStreams > 2;
 
       return (
-        <div
+        <Styled.VideoListItem
           key={stream}
-          className={cx({
-            [styles.videoListItem]: true,
-            [styles.focused]: focusedId === stream && numOfStreams > 2,
-          })}
+          focused={focusedId === stream && numOfStreams > 2}
         >
           <VideoListItemContainer
             numOfStreams={numOfStreams}
@@ -346,7 +331,7 @@ class VideoList extends Component {
             onVideoItemUnmount={onVideoItemUnmount}
             swapLayout={swapLayout}
           />
-        </div>
+        </Styled.VideoListItem>
       );
     });
   }
@@ -360,21 +345,12 @@ class VideoList extends Component {
     const { optimalGrid, autoplayBlocked } = this.state;
     const { position } = cameraDock;
 
-    const canvasClassName = cx({
-      [styles.videoCanvas]: true,
-      [styles.videoCanvasLRPosition]: position === 'contentRight' || position === 'contentLeft',
-    });
-
-    const videoListClassName = cx({
-      [styles.videoList]: true,
-    });
-
     return (
-      <div
+      <Styled.VideoCanvas
+        position={position}
         ref={(ref) => {
           this.canvas = ref;
         }}
-        className={canvasClassName}
         style={{
           minHeight: 'inherit',
         }}
@@ -382,11 +358,10 @@ class VideoList extends Component {
         {this.renderPreviousPageButton()}
 
         {!streams.length ? null : (
-          <div
+          <Styled.VideoList
             ref={(ref) => {
               this.grid = ref;
             }}
-            className={videoListClassName}
             style={{
               width: `${optimalGrid.width}px`,
               height: `${optimalGrid.height}px`,
@@ -395,7 +370,7 @@ class VideoList extends Component {
             }}
           >
             {this.renderVideoList()}
-          </div>
+          </Styled.VideoList>
         )}
         {!autoplayBlocked ? null : (
           <AutoplayOverlay
@@ -407,11 +382,11 @@ class VideoList extends Component {
 
         {
           (position === 'contentRight' || position === 'contentLeft')
-          && <div className={styles.break} />
+          && <Styled.Break />
         }
 
         {this.renderNextPageButton()}
-      </div>
+      </Styled.VideoCanvas>
     );
   }
 }

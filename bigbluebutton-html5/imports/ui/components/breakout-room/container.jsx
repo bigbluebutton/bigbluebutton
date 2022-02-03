@@ -4,12 +4,20 @@ import AudioService from '/imports/ui/components/audio/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import BreakoutComponent from './component';
 import Service from './service';
-import LayoutContext from '../layout/context';
+import { layoutDispatch } from '../layout/context';
+import Auth from '/imports/ui/services/auth';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 
 const BreakoutContainer = (props) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextDispatch } = layoutContext;
-  return <BreakoutComponent {...{ layoutContextDispatch, ...props }} />;
+  const layoutContextDispatch = layoutDispatch();
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
+
+  return <BreakoutComponent
+    amIPresenter={amIPresenter}
+    {...{ layoutContextDispatch, ...props }} 
+  />;
 };
 
 export default withTracker((props) => {

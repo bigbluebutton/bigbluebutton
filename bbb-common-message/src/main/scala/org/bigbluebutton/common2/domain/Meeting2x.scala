@@ -28,7 +28,16 @@ case class WelcomeProp(welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMe
 
 case class VoiceProp(telVoice: String, voiceConf: String, dialNumber: String, muteOnStart: Boolean)
 
-case class UsersProp(maxUsers: Int, webcamsOnlyForModerator: Boolean, guestPolicy: String, meetingLayout: String, allowModsToUnmuteUsers: Boolean, allowModsToEjectCameras: Boolean, authenticatedGuest: Boolean)
+case class UsersProp(
+    maxUsers:                   Int,
+    webcamsOnlyForModerator:    Boolean,
+    guestPolicy:                String,
+    meetingLayout:              String,
+    allowModsToUnmuteUsers:     Boolean,
+    allowModsToEjectCameras:    Boolean,
+    authenticatedGuest:         Boolean,
+    virtualBackgroundsDisabled: Boolean
+)
 
 case class MetadataProp(metadata: collection.immutable.Map[String, String])
 
@@ -39,7 +48,7 @@ case class LockSettingsProps(
     disableMic:             Boolean,
     disablePrivateChat:     Boolean,
     disablePublicChat:      Boolean,
-    disableNote:            Boolean,
+    disableNotes:           Boolean,
     hideUserList:           Boolean,
     lockedLayout:           Boolean,
     lockOnJoin:             Boolean,
@@ -48,6 +57,12 @@ case class LockSettingsProps(
 
 case class SystemProps(
     html5InstanceId: Int
+)
+
+case class GroupProps(
+    groupId:    String,
+    name:       String,
+    usersExtId: Vector[String]
 )
 
 case class DefaultProps(
@@ -62,7 +77,8 @@ case class DefaultProps(
     metadataProp:      MetadataProp,
     screenshareProps:  ScreenshareProps,
     lockSettingsProps: LockSettingsProps,
-    systemProps:       SystemProps
+    systemProps:       SystemProps,
+    groups:            Vector[GroupProps]
 )
 
 case class StartEndTimeStatus(startTime: Long, endTime: Long)
@@ -75,7 +91,7 @@ case class MeetingStatus(startEndTimeStatus: StartEndTimeStatus, recordingStatus
 case class Meeting2x(defaultProps: DefaultProps, meetingStatus: MeetingStatus)
 
 case class SimpleAnswerOutVO(id: Int, key: String)
-case class SimplePollOutVO(id: String, answers: Array[SimpleAnswerOutVO])
+case class SimplePollOutVO(id: String, isMultipleResponse: Boolean, answers: Array[SimpleAnswerOutVO])
 case class SimpleVoteOutVO(id: Int, key: String, numVotes: Int)
 case class SimplePollResultOutVO(id: String, questionType: String, questionText: Option[String], answers: Array[SimpleVoteOutVO], numRespondents: Int, numResponders: Int)
 case class Responder(userId: String, name: String)

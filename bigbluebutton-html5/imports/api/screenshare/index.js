@@ -1,6 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 
-const Screenshare = new Mongo.Collection('screenshare');
+const collectionOptions = Meteor.isClient ? {
+  connection: null,
+} : {};
+
+const Screenshare = new Mongo.Collection('screenshare', collectionOptions);
 
 if (Meteor.isServer) {
   // types of queries for the screenshare:

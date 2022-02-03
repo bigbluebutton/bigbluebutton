@@ -1,7 +1,7 @@
 import Users from '/imports/api/users';
 import VoiceUsers from '/imports/api/voice-users';
 import GroupChat from '/imports/api/group-chat';
-import Breakouts from '/imports/api/breakouts/';
+import Breakouts from '/imports/api/breakouts';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
@@ -30,9 +30,9 @@ const STARTED_CHAT_LIST_KEY = 'startedChatList';
 
 const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
 
-export const setCustomLogoUrl = path => Storage.setItem(CUSTOM_LOGO_URL_KEY, path);
+export const setCustomLogoUrl = (path) => Storage.setItem(CUSTOM_LOGO_URL_KEY, path);
 
-export const setModeratorOnlyMessage = msg => Storage.setItem('ModeratorOnlyMessage', msg);
+export const setModeratorOnlyMessage = (msg) => Storage.setItem('ModeratorOnlyMessage', msg);
 
 const getCustomLogoUrl = () => Storage.getItem(CUSTOM_LOGO_URL_KEY);
 
@@ -304,13 +304,13 @@ const isMeetingLocked = (id) => {
   let isLocked = false;
 
   if (meeting.lockSettingsProps !== undefined) {
-    const {lockSettingsProps:lockSettings, usersProp} = meeting;
+    const { lockSettingsProps: lockSettings, usersProp } = meeting;
 
     if (lockSettings.disableCam
       || lockSettings.disableMic
       || lockSettings.disablePrivateChat
       || lockSettings.disablePublicChat
-      || lockSettings.disableNote
+      || lockSettings.disableNotes
       || lockSettings.hideUserList
       || usersProp.webcamsOnlyForModerator) {
       isLocked = true;
@@ -447,7 +447,7 @@ const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
 const removeUser = (userId, banUser) => {
   if (isVoiceOnlyUser(userId)) {
-    makeCall('ejectUserFromVoice', userId);
+    makeCall('ejectUserFromVoice', userId, banUser);
   } else {
     makeCall('removeUser', userId, banUser);
   }
@@ -607,8 +607,6 @@ const isUserPresenter = (userId) => {
   return user ? user.presenter : false;
 };
 
-const amIPresenter = () => isUserPresenter(Auth.userID);
-
 export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
   const mimeType = 'text/plain';
   const userNamesObj = getUsers()
@@ -678,7 +676,6 @@ export default {
   requestUserInformation,
   focusFirstDropDownItem,
   isUserPresenter,
-  amIPresenter,
   getUsersProp,
   getUserCount,
   sortUsersByCurrent,

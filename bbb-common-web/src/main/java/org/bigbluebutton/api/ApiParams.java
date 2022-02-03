@@ -46,6 +46,7 @@ public class ApiParams {
     public static final String MUTE_ON_START = "muteOnStart";
     public static final String MEETING_KEEP_EVENTS = "meetingKeepEvents";
     public static final String ALLOW_MODS_TO_UNMUTE_USERS = "allowModsToUnmuteUsers";
+    public static final String ALLOW_REQUESTS_WITHOUT_SESSION = "allowRequestsWithoutSession";
     public static final String ALLOW_MODS_TO_EJECT_CAMERAS = "allowModsToEjectCameras";
     public static final String NAME = "name";
     public static final String PARENT_MEETING_ID = "parentMeetingID";
@@ -58,10 +59,12 @@ public class ApiParams {
     public static final String WEB_VOICE = "webVoice";
     public static final String LEARNING_DASHBOARD_ENABLED = "learningDashboardEnabled";
     public static final String LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES = "learningDashboardCleanupDelayInMinutes";
+    public static final String VIRTUAL_BACKGROUNDS_DISABLED = "virtualBackgroundsDisabled";
     public static final String WEBCAMS_ONLY_FOR_MODERATOR = "webcamsOnlyForModerator";
     public static final String WELCOME = "welcome";
     public static final String HTML5_INSTANCE_ID = "html5InstanceId";
     public static final String ROLE = "role";
+    public static final String GROUPS = "groups";
 
     public static final String BREAKOUT_ROOMS_ENABLED = "breakoutRoomsEnabled";
     public static final String BREAKOUT_ROOMS_RECORD = "breakoutRoomsRecord";
@@ -71,7 +74,8 @@ public class ApiParams {
     public static final String LOCK_SETTINGS_DISABLE_MIC = "lockSettingsDisableMic";
     public static final String LOCK_SETTINGS_DISABLE_PRIVATE_CHAT = "lockSettingsDisablePrivateChat";
     public static final String LOCK_SETTINGS_DISABLE_PUBLIC_CHAT = "lockSettingsDisablePublicChat";
-    public static final String LOCK_SETTINGS_DISABLE_NOTE = "lockSettingsDisableNote";
+    public static final String DEPRECATED_LOCK_SETTINGS_DISABLE_NOTES = "lockSettingsDisableNote";
+    public static final String LOCK_SETTINGS_DISABLE_NOTES = "lockSettingsDisableNotes";
     public static final String LOCK_SETTINGS_HIDE_USER_LIST = "lockSettingsHideUserList";
     public static final String LOCK_SETTINGS_LOCKED_LAYOUT = "lockSettingsLockedLayout";
     public static final String LOCK_SETTINGS_LOCK_ON_JOIN = "lockSettingsLockOnJoin";

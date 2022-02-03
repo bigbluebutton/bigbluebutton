@@ -293,7 +293,7 @@ class ApiController {
     }
 
     //Return a Map with the user custom data
-    Map<String, String> userCustomData = paramsProcessorUtil.getUserCustomData(params);
+    Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);
 
     //Currently, it's associated with the externalUserID
     if (userCustomData.size() > 0)
@@ -746,7 +746,8 @@ class ApiController {
     Meeting meeting = meetingService.getMeeting(us.meetingID)
     String status = us.guestStatus
     destURL = us.clientUrl
-    String lobbyMsg = meeting.getGuestLobbyMessage()
+    String posInWaitingQueue = meeting.getWaitingPositionsInWaitingQueue(us.internalUserId)
+    String lobbyMsg = meeting.getGuestLobbyMessage(us.internalUserId)
 
     Boolean redirectClient = true
     if (!StringUtils.isEmpty(params.redirect)) {
@@ -811,6 +812,7 @@ class ApiController {
             guestStatus status
             lobbyMessage lobbyMsg
             url destURL
+            positionInWaitingQueue posInWaitingQueue
           }
           render(contentType: "application/json", text: builder.toPrettyString())
         }
@@ -1319,7 +1321,13 @@ class ApiController {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
     String presOrigFilename;
     if (StringUtils.isEmpty(fileName)) {
-      presOrigFilename = address.tokenize("/")[-1];
+      try {
+        presOrigFilename = URLDecoder.decode(address.tokenize("/")[-1], "UTF-8");
+      } catch (UnsupportedEncodingException e) {
+        log.error "Couldn't decode the uploaded file name.", e
+        invalid("fileNameError", "Cannot decode the uploaded file name")
+        return;
+      }
     } else {
       presOrigFilename = fileName;
     }
@@ -1466,7 +1474,7 @@ class ApiController {
     if (!session[token]) {
       log.info("Session for token ${token} not found")
 
-      Boolean allowRequestsWithoutSession = paramsProcessorUtil.getAllowRequestsWithoutSession()
+      Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(token)
       if (!allowRequestsWithoutSession) {
         log.info("Meeting related to ${token} doesn't allow requests without session")
         return false

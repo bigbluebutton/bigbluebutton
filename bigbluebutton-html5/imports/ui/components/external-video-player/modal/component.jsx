@@ -1,12 +1,9 @@
 import React, { Component } from 'react';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
-
 import { defineMessages, injectIntl } from 'react-intl';
 import { isUrlValid } from '../service';
-
-import { styles } from './styles';
+import Settings from '/imports/ui/services/settings';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   start: {
@@ -75,15 +72,16 @@ class ExternalVideoModal extends Component {
   renderUrlError() {
     const { intl } = this.props;
     const { url } = this.state;
+    const { animations } = Settings.application;
 
     const valid = (!url || url.length <= 3) || isUrlValid(url);
 
     return (
       !valid
         ? (
-          <div className={styles.urlError}>
+          <Styled.UrlError animations={animations}>
             {intl.formatMessage(intlMessages.urlError)}
-          </div>
+          </Styled.UrlError>
         )
         : null
     );
@@ -92,23 +90,22 @@ class ExternalVideoModal extends Component {
   render() {
     const { intl, closeModal } = this.props;
     const { url, sharing } = this.state;
+    const { animations } = Settings.application;
 
     const startDisabled = !isUrlValid(url);
 
     return (
-      <Modal
-        overlayClassName={styles.overlay}
-        className={styles.modal}
+      <Styled.ExternalVideoModal
         onRequestClose={closeModal}
         contentLabel={intl.formatMessage(intlMessages.title)}
         hideBorder
       >
-        <header data-test="videoModalHeader" className={styles.header}>
-          <h3 className={styles.title}>{intl.formatMessage(intlMessages.title)}</h3>
-        </header>
+        <Styled.Header data-test="videoModalHeader">
+          <Styled.Title>{intl.formatMessage(intlMessages.title)}</Styled.Title>
+        </Styled.Header>
 
-        <div className={styles.content}>
-          <div className={styles.videoUrl}>
+        <Styled.Content>
+          <Styled.VideoUrl animations={animations}>
             <label htmlFor="video-modal-input">
               {intl.formatMessage(intlMessages.input)}
               <input
@@ -120,23 +117,22 @@ class ExternalVideoModal extends Component {
                 aria-describedby="exernal-video-note"
               />
             </label>
-            <div className={styles.externalVideoNote} id="external-video-note">
+            <Styled.ExternalVideoNote id="external-video-note">
               {intl.formatMessage(intlMessages.note)}
-            </div>
-          </div>
+            </Styled.ExternalVideoNote>
+          </Styled.VideoUrl>
 
           <div>
             {this.renderUrlError()}
           </div>
 
-          <Button
-            className={styles.startBtn}
+          <Styled.StartButton
             label={intl.formatMessage(intlMessages.start)}
             onClick={this.startWatchingHandler}
             disabled={startDisabled}
           />
-        </div>
-      </Modal>
+        </Styled.Content>
+      </Styled.ExternalVideoModal>
     );
   }
 }

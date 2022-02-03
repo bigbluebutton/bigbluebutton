@@ -4,7 +4,6 @@ import _ from 'lodash';
 import { Session } from 'meteor/session';
 import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
-import cx from 'classnames';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/icon/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
@@ -12,7 +11,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import RemoveUserModal from '/imports/ui/components/modal/remove-user/component';
 import VideoService from '/imports/ui/components/video-provider/service';
 import BBBMenu from '/imports/ui/components/menu/component';
-import { styles } from './styles';
+import Styled from './styles';
 import UserName from '../user-name/component';
 import { PANELS, ACTIONS } from '../../../../../layout/enums';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
@@ -621,6 +620,7 @@ class UserDropdown extends PureComponent {
       user,
       intl,
       isThisMeetingLocked,
+      userLastBreakout,
       isMe,
       isRTL,
     } = this.props;
@@ -631,13 +631,6 @@ class UserDropdown extends PureComponent {
     } = this.state;
 
     const actions = this.getUsersActions();
-
-    const userItemContentsStyle = {};
-
-    userItemContentsStyle[styles.selected] = selected === true;
-    userItemContentsStyle[styles.dropdown] = true;
-    userItemContentsStyle[styles.userListItem] = !isActionsOpen;
-    userItemContentsStyle[styles.usertListItemWithMenu] = isActionsOpen;
 
     const you = isMe(user.userId) ? intl.formatMessage(messages.you) : '';
 
@@ -655,30 +648,43 @@ class UserDropdown extends PureComponent {
       },
     );
 
-    const contents = (
-      <div
-        data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
-        className={!actions.length ? styles.noActionsListItem : null}
-        style={{ direction: isRTL ? 'rtl' : 'ltr', width: '100%' }}
-      >
-        <div className={styles.userItemContents}>
-          <div className={styles.userAvatar}>
-            {this.renderUserAvatar()}
-          </div>
-          <UserName
-            {...{
-              user,
-              compact,
-              intl,
-              isThisMeetingLocked,
-              userAriaLabel,
-              isActionsOpen,
-              isMe,
-            }}
-          />
-        </div>
-      </div>
+    const innerContents = (
+      <Styled.UserItemInnerContents>
+        <Styled.UserAvatar>
+          {this.renderUserAvatar()}
+        </Styled.UserAvatar>
+        <UserName
+          {...{
+            user,
+            compact,
+            intl,
+            isThisMeetingLocked,
+            userAriaLabel,
+            isActionsOpen,
+            userLastBreakout,
+            isMe,
+          }}
+        />
+      </Styled.UserItemInnerContents>
     );
+
+    const contents = !actions.length
+      ? (
+        <Styled.NoActionsListItem
+          data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
+          style={{ direction: isRTL ? 'rtl' : 'ltr' }}
+        >
+          {innerContents}
+        </Styled.NoActionsListItem>
+      )
+      : (
+        <div
+          data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
+          style={{ direction: isRTL ? 'rtl' : 'ltr', width: '100%' }}
+        >
+          {innerContents}
+        </div>
+      );
 
     if (!actions.length) return contents;
 
@@ -686,16 +692,16 @@ class UserDropdown extends PureComponent {
       <BBBMenu
         trigger={
           (
-            <div
+            <Styled.UserItemContents
+              isActionsOpen={isActionsOpen}
+              selected={selected === true}
               tabIndex={-1}
               onClick={() => this.setState({ selected: true })}
-              className={cx(userItemContentsStyle)}
-              style={{ width: '100%', marginLeft: '.5rem' }}
-              onKeyPress={() => {}}
+              onKeyPress={() => { }}
               role="button"
             >
               {contents}
-            </div>
+            </Styled.UserItemContents>
           )
         }
         actions={actions}

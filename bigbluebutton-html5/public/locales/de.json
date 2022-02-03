@@ -238,6 +238,7 @@
     "app.presentationUploder.clearErrorsDesc": "Löscht fehlgeschlagene Präsentationsuploads",
     "app.presentationUploder.uploadViewTitle": "Präsentation hochladen",
     "app.poll.pollPaneTitle": "Umfrage",
+    "app.poll.enableMultipleResponseLabel": "Mehrere Antworten pro Teilnehmer zulassen?",
     "app.poll.quickPollTitle": "Schnellumfrage",
     "app.poll.hidePollDesc": "Versteckt das Umfragemenü",
     "app.poll.quickPollInstruction": "Wählen Sie eine der unten stehenden Optionen, um die Umfrage zu starten.",

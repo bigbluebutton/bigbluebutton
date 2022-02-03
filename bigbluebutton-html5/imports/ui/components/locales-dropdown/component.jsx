@@ -10,13 +10,11 @@ const propTypes = {
   handleChange: PropTypes.func.isRequired,
   elementId: PropTypes.string.isRequired,
   selectMessage: PropTypes.string.isRequired,
-  elementClass: PropTypes.string.isRequired,
 };
 
 const defaultProps = {
   value: null,
 };
-
 
 class LocalesDropdown extends PureComponent {
   // returns an array with the base language list + variations of currently selected language
@@ -31,7 +29,7 @@ class LocalesDropdown extends PureComponent {
       const splitValue = (value) ? value.split('-')[0] : '';
 
       const allLocaleCodes = [];
-      allLocales.map(item => allLocaleCodes.push(item.locale));
+      allLocales.map((item) => allLocaleCodes.push(item.locale));
 
       /*
         locales show if:
@@ -40,7 +38,7 @@ class LocalesDropdown extends PureComponent {
         3. it is a specific version of a locale with no general locale
       */
       return allLocales.filter(
-        locale => (!locale.locale.includes('-') || locale.locale.split('-')[0] === splitValue || !allLocaleCodes.includes(locale.locale.split('-')[0])),
+        (locale) => (!locale.locale.includes('-') || locale.locale.split('-')[0] === splitValue || !allLocaleCodes.includes(locale.locale.split('-')[0])),
       );
     }
     return [];
@@ -48,7 +46,7 @@ class LocalesDropdown extends PureComponent {
 
   render() {
     const {
-      value, handleChange, elementId, selectMessage, elementClass,
+      value, handleChange, elementId, selectMessage,
     } = this.props;
     const defaultLocale = value || DEFAULT_VALUE;
 
@@ -59,12 +57,11 @@ class LocalesDropdown extends PureComponent {
         id={elementId}
         onChange={handleChange}
         value={defaultLocale}
-        className={elementClass}
       >
         <option disabled key={DEFAULT_KEY} value={DEFAULT_VALUE}>
           {selectMessage}
         </option>
-        {availableLocales.map(localeItem => (
+        {availableLocales.map((localeItem) => (
           <option key={localeItem.locale} value={localeItem.locale}>
             {localeItem.name}
           </option>

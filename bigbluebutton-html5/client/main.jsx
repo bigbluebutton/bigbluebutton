@@ -30,10 +30,16 @@ import ContextProviders from '/imports/ui/components/context-providers/component
 import ChatAdapter from '/imports/ui/components/components-data/chat-context/adapter';
 import UsersAdapter from '/imports/ui/components/components-data/users-context/adapter';
 import GroupChatAdapter from '/imports/ui/components/components-data/group-chat-context/adapter';
+import { liveDataEventBrokerInitializer } from '/imports/ui/services/LiveDataEventBroker/LiveDataEventBroker';
+
+import collectionMirrorInitializer from './collection-mirror-initializer';
 
 import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
   // bridge loading
 });
+
+collectionMirrorInitializer();
+liveDataEventBrokerInitializer();
 
 Meteor.startup(() => {
   // Logs all uncaught exceptions to the client logger

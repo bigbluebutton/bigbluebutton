@@ -4,19 +4,20 @@ import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import UserContent from './component';
-import GuestUsers from '/imports/api/guest-users/';
-import LayoutContext from '../../layout/context';
+import GuestUsers from '/imports/api/guest-users';
+import { layoutSelectInput, layoutDispatch } from '../../layout/context';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
+import WaitingUsersService from '/imports/ui/components/waiting-users/service';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const STARTED_CHAT_LIST_KEY = 'startedChatList';
 
 const UserContentContainer = (props) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-  const { input } = layoutContextState;
-  const { sidebarContent } = input;
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const layoutContextDispatch = layoutDispatch();
+
   const { sidebarContentPanel } = sidebarContent;
+
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const currentUser = {
@@ -25,11 +26,14 @@ const UserContentContainer = (props) => {
     locked: users[Auth.meetingID][Auth.userID].locked,
     role: users[Auth.meetingID][Auth.userID].role,
   };
+  const { isGuestLobbyMessageEnabled } = WaitingUsersService;
+
   return (
     <UserContent
       {...{
         layoutContextDispatch,
         sidebarContentPanel,
+        isGuestLobbyMessageEnabled,
         ...props,
       }}
       currentUser={currentUser}
@@ -47,4 +51,5 @@ export default withTracker(() => ({
     approved: false,
     denied: false,
   }).fetch(),
+  isWaitingRoomEnabled: WaitingUsersService.isWaitingRoomEnabled(),
 }))(UserContentContainer);

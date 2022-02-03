@@ -32,7 +32,7 @@ class ConnectionController {
       def uri = request.getHeader("x-original-uri")
       def sessionToken = ParamsUtil.getSessionToken(uri)
       UserSession userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
-      Boolean allowRequestsWithoutSession = paramsProcessorUtil.getAllowRequestsWithoutSession()
+      Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
       Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
 
       response.addHeader("Cache-Control", "no-cache")
@@ -62,27 +62,6 @@ class ConnectionController {
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'plain/text'
       if (userSession != null) {
-        response.setStatus(200)
-        response.outputStream << 'authorized'
-      } else {
-        response.setStatus(401)
-        response.outputStream << 'unauthorized'
-      }
-    } catch (IOException e) {
-      log.error("Error while authenticating connection.\n" + e.getMessage())
-    }
-  }
-
-  def validatePad = {
-    try {
-      String uri = request.getHeader("x-original-uri")
-      String sessionToken = ParamsUtil.getSessionToken(uri)
-      String padId = ParamsUtil.getPadId(uri)
-      Boolean valid = meetingService.isPadValid(padId, sessionToken)
-
-      response.addHeader("Cache-Control", "no-cache")
-      response.contentType = 'plain/text'
-      if (valid) {
         response.setStatus(200)
         response.outputStream << 'authorized'
       } else {

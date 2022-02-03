@@ -1,9 +1,7 @@
 import React, { PureComponent } from 'react';
-import cx from 'classnames';
-import Button from '/imports/ui/components/button/component';
-import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
+import CaptionsButtonContainer from '/imports/ui/components/captions/button/container';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import { styles } from './styles.scss';
+import Styled from './styles';
 import ActionsDropdown from './actions-dropdown/container';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import AudioControlsContainer from '../audio/audio-controls/container';
@@ -40,15 +38,14 @@ class ActionsBar extends PureComponent {
     } = this.props;
 
     return (
-      <div
-        className={styles.actionsbar}
+      <Styled.ActionsBar
         style={
           {
             height: actionsBarStyle.innerHeight,
           }
         }
       >
-        <div className={styles.left}>
+        <Styled.Left>
           <ActionsDropdown {...{
             amIPresenter,
             amIModerator,
@@ -67,8 +64,8 @@ class ActionsBar extends PureComponent {
               <CaptionsButtonContainer {...{ intl }} />
             )
             : null}
-        </div>
-        <div className={styles.center}>
+        </Styled.Left>
+        <Styled.Center>
           <AudioControlsContainer />
           {enableVideo
             ? (
@@ -80,8 +77,8 @@ class ActionsBar extends PureComponent {
             isMeteorConnected,
           }}
           />
-        </div>
-        <div className={styles.right}>
+        </Styled.Center>
+        <Styled.Right>
           {!isOldMinimizeButtonEnabled ||
             (isOldMinimizeButtonEnabled && isLayoutSwapped && !isPresentationDisabled)
             ? (
@@ -97,7 +94,7 @@ class ActionsBar extends PureComponent {
             : null}
           {isRaiseHandButtonEnabled
             ? (
-              <Button
+              <Styled.RaiseHandButton
                 icon="hand"
                 label={intl.formatMessage({
                   id: `app.actionsBar.emojiMenu.${
@@ -110,7 +107,7 @@ class ActionsBar extends PureComponent {
                 color={currentUser.emoji === 'raiseHand' ? 'primary' : 'default'}
                 data-test={currentUser.emoji === 'raiseHand' ? 'lowerHandLabel' : 'raiseHandLabel'}
                 ghost={currentUser.emoji !== 'raiseHand'}
-                className={cx(currentUser.emoji === 'raiseHand' || styles.btn)}
+                emoji={currentUser.emoji}
                 hideLabel
                 circle
                 size="lg"
@@ -123,8 +120,8 @@ class ActionsBar extends PureComponent {
               />
             )
             : null}
-        </div>
-      </div>
+        </Styled.Right>
+      </Styled.ActionsBar>
     );
   }
 }

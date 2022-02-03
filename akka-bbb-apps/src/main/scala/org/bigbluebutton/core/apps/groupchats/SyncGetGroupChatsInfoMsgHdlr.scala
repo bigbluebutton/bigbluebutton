@@ -37,7 +37,7 @@ trait SyncGetGroupChatsInfoMsgHdlr {
     val allChats = chats map (pc => {
 
       val msgs = pc.msgs.toVector map (m => GroupChatMsgToUser(m.id, m.createdOn, m.correlationId,
-        m.sender, m.color, m.message))
+        m.sender, m.message))
       val respMsg = buildSyncGetGroupChatMsgsRespMsg(msgs, pc.id)
       bus.outGW.send(respMsg)
 

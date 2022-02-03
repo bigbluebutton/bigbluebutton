@@ -1,13 +1,10 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import cx from 'classnames';
-import TextareaAutosize from 'react-autosize-textarea';
 import deviceInfo from '/imports/utils/deviceInfo';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import TypingIndicatorContainer from './typing-indicator/container';
-import { styles } from './styles.scss';
-import Button from '../../button/component';
+import Styled from './styles';
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
@@ -16,7 +13,6 @@ const propTypes = {
   minMessageLength: PropTypes.number.isRequired,
   maxMessageLength: PropTypes.number.isRequired,
   chatTitle: PropTypes.string.isRequired,
-  className: PropTypes.string,
   chatAreaId: PropTypes.string.isRequired,
   handleSendMessage: PropTypes.func.isRequired,
   UnsentMessagesCollection: PropTypes.objectOf(Object).isRequired,
@@ -25,10 +21,6 @@ const propTypes = {
   partnerIsLoggedOut: PropTypes.bool.isRequired,
   stopUserTyping: PropTypes.func.isRequired,
   startUserTyping: PropTypes.func.isRequired,
-};
-
-const defaultProps = {
-  className: '',
 };
 
 const messages = defineMessages({
@@ -261,7 +253,6 @@ class MessageForm extends PureComponent {
       chatTitle,
       title,
       disabled,
-      className,
       idChatOpen,
       partnerIsLoggedOut,
     } = this.props;
@@ -269,14 +260,12 @@ class MessageForm extends PureComponent {
     const { hasErrors, error, message } = this.state;
 
     return CHAT_ENABLED ? (
-      <form
+      <Styled.Form
         ref={(ref) => { this.form = ref; }}
-        className={cx(className, styles.form)}
         onSubmit={this.handleSubmit}
       >
-        <div className={styles.wrapper}>
-          <TextareaAutosize
-            className={styles.input}
+        <Styled.Wrapper>
+          <Styled.Input
             id="message-input"
             innerRef={(ref) => { this.textarea = ref; return this.textarea; }}
             placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: title })}
@@ -291,10 +280,9 @@ class MessageForm extends PureComponent {
             onKeyDown={this.handleMessageKeyDown}
             async
           />
-          <Button
+          <Styled.SendButton
             hideLabel
             circle
-            className={styles.sendButton}
             aria-label={intl.formatMessage(messages.submitLabel)}
             type="submit"
             disabled={disabled || partnerIsLoggedOut}
@@ -304,14 +292,13 @@ class MessageForm extends PureComponent {
             onClick={() => { }}
             data-test="sendMessageButton"
           />
-        </div>
+        </Styled.Wrapper>
         <TypingIndicatorContainer {...{ idChatOpen, error }} />
-      </form>
+      </Styled.Form>
     ) : null;
   }
 }
 
 MessageForm.propTypes = propTypes;
-MessageForm.defaultProps = defaultProps;
 
 export default injectIntl(MessageForm);

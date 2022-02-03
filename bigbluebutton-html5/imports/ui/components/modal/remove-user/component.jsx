@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
-import { styles } from './styles';
+import Styled from './styles';
 
 const messages = defineMessages({
   yesLabel: {
@@ -46,23 +44,20 @@ class RemoveUserModal extends Component {
     } = this.state;
 
     return (
-      <Modal
-        overlayClassName={styles.overlay}
-        className={styles.modal}
+      <Styled.RemoveUserModal
         onRequestClose={() => mountModal(null)}
         hideBorder
         contentLabel={title}
       >
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <div className={styles.title}>
+        <Styled.Container>
+          <Styled.Header>
+            <Styled.Title>
               {intl.formatMessage(messages.removeConfirmTitle, { 0: user.name })}
-            </div>
-          </div>
-          <div className={styles.description}>
+            </Styled.Title>
+          </Styled.Header>
+          <Styled.Description>
             <label htmlFor="banUserCheckbox" key="eject-or-ban-user">
-              <input
-                className={styles.banUserCheckBox}
+              <Styled.BanUserCheckBox
                 type="checkbox"
                 id="banUserCheckbox"
                 onChange={() => this.setState({ checked: !checked })}
@@ -71,26 +66,24 @@ class RemoveUserModal extends Component {
               />
               <span aria-hidden>{intl.formatMessage(messages.removeConfirmDesc)}</span>
             </label>
-          </div>
+          </Styled.Description>
 
-          <div className={styles.footer}>
-            <Button
+          <Styled.Footer>
+            <Styled.ConfirmButton
               color="primary"
-              className={styles.confirmBtn}
               label={intl.formatMessage(messages.yesLabel)}
               onClick={() => {
                 onConfirm(user.userId, checked);
                 mountModal(null);
               }}
             />
-            <Button
+            <Styled.DismissButton
               label={intl.formatMessage(messages.noLabel)}
-              className={styles.dismissBtn}
               onClick={() => mountModal(null)}
             />
-          </div>
-        </div>
-      </Modal>
+          </Styled.Footer>
+        </Styled.Container>
+      </Styled.RemoveUserModal>
     );
   }
 }

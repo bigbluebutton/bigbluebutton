@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ReactModal from 'react-modal';
-import { styles } from './styles.scss';
+import Styled from './styles';
 import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 
 const propTypes = {
@@ -12,9 +11,7 @@ const propTypes = {
 };
 
 const defaultProps = {
-  className: styles.modal,
-  overlayClassName: styles.overlay,
-  portalClassName: styles.portal,
+  overlayClassName: "modalOverlay",
   contentLabel: 'Modal',
   isOpen: true,
 };
@@ -33,7 +30,7 @@ export default class ModalBase extends Component {
     if (!this.props.isOpen) return null;
 
     return (
-      <ReactModal
+      <Styled.BaseModal
         {...this.props}
         parentSelector={() => {
           if (document.fullscreenElement &&
@@ -44,7 +41,7 @@ export default class ModalBase extends Component {
         }}
       >
         {this.props.children}
-      </ReactModal>
+      </Styled.BaseModal>
     );
   }
 }

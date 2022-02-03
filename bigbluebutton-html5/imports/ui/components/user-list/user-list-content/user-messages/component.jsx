@@ -2,8 +2,7 @@ import React, { PureComponent } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
-import cx from 'classnames';
-import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
+import Styled from './styles';
 import { findDOMNode } from 'react-dom';
 import ChatListItemContainer from '../../chat-list-item/container';
 
@@ -19,15 +18,6 @@ const propTypes = {
 
 const defaultProps = {
   compact: false,
-};
-
-const listTransition = {
-  enter: styles.enter,
-  enterActive: styles.enterActive,
-  appear: styles.appear,
-  appearActive: styles.appearActive,
-  leave: styles.leave,
-  leaveActive: styles.leaveActive,
 };
 
 const intlMessages = defineMessages({
@@ -81,23 +71,22 @@ class UserMessages extends PureComponent {
 
     return activeChats.map(chat => (
       <CSSTransition
-        classNames={listTransition}
+        classNames={"transition"}
         appear
         enter
         exit={false}
         timeout={0}
         component="div"
-        className={cx(styles.chatsList)}
         key={chat.userId}
       >
-        <div ref={(node) => { this.activeChatRefs[index += 1] = node; }}>
+        <Styled.ListTransition ref={(node) => { this.activeChatRefs[index += 1] = node; }}>
           <ChatListItemContainer
             isPublicChat={isPublicChat}
             compact={compact}
             chat={chat}
             tabIndex={-1}
           />
-        </div>
+        </Styled.ListTransition>
       </CSSTransition>
     ));
   }
@@ -120,31 +109,30 @@ class UserMessages extends PureComponent {
     } = this.props;
 
     return (
-      <div className={styles.messages}>
-        <div className={styles.container}>
+      <Styled.Messages>
+        <Styled.Container>
           {
             !compact ? (
-              <h2 className={styles.smallTitle}>
+              <Styled.MessagesTitle>
                 {intl.formatMessage(intlMessages.messagesTitle)}
-              </h2>
+              </Styled.MessagesTitle>
             ) : (
-              <hr className={styles.separator} />
+              <Styled.Separator />
             )
           }
-        </div>
-        <div
+        </Styled.Container>
+        <Styled.ScrollableList
           role="tabpanel"
           tabIndex={0}
-          className={styles.scrollableList}
           ref={(ref) => { this._msgsList = ref; }}
         >
-          <div className={styles.list} aria-live="polite">
+          <Styled.List aria-live="polite">
             <TransitionGroup ref={(ref) => { this._msgItems = ref; }}>
               {this.getActiveChats()}
             </TransitionGroup>
-          </div>
-        </div>
-      </div>
+          </Styled.List>
+        </Styled.ScrollableList>
+      </Styled.Messages>
     );
   }
 }

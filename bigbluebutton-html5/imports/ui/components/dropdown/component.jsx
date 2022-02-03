@@ -2,13 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import TetherComponent from 'react-tether';
-import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
-import Button from '/imports/ui/components/button/component';
 import screenreaderTrap from 'makeup-screenreader-trap';
 import { Session } from 'meteor/session';
-import { styles } from './styles';
+import Styled from './styles';
 
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
@@ -199,7 +197,6 @@ class Dropdown extends Component {
   render() {
     const {
       children,
-      className,
       intl,
       keepOpen,
       tethered,
@@ -247,8 +244,7 @@ class Dropdown extends Component {
 
     const showCloseBtn = (isOpen && keepOpen) || (isOpen && keepOpen === null);
     return (
-      <div
-        className={cx(styles.dropdown, className)}
+      <Styled.Dropdown
         aria-live={otherProps['aria-live']}
         aria-relevant={otherProps['aria-relevant']}
         aria-haspopup={otherProps['aria-haspopup']}
@@ -289,8 +285,7 @@ class Dropdown extends Component {
                     {content}
                     {showCloseBtn
                       ? (
-                        <Button
-                          className={styles.close}
+                        <Styled.CloseButton
                           label={intl.formatMessage(intlMessages.close)}
                           size="lg"
                           color="default"
@@ -308,8 +303,7 @@ class Dropdown extends Component {
                 {content}
                 {showCloseBtn
                   ? (
-                    <Button
-                      className={styles.close}
+                    <Styled.CloseButton
                       label={intl.formatMessage(intlMessages.close)}
                       size="lg"
                       color="default"
@@ -319,7 +313,7 @@ class Dropdown extends Component {
               </>
             )
         }
-      </div>
+      </Styled.Dropdown>
     );
   }
 }

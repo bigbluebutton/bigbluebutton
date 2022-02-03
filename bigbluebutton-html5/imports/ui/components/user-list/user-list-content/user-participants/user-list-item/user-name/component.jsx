@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
 import _ from 'lodash';
-import { styles } from './styles';
+import Styled from './styles';
 
 const messages = defineMessages({
   presenter: {
@@ -42,6 +42,10 @@ const messages = defineMessages({
     id: 'app.userList.userAriaLabel',
     description: 'aria label for each user in the userlist',
   },
+  breakoutRoom: {
+    id: 'app.createBreakoutRoom.room',
+    description: 'breakout room',
+  },
 });
 
 const propTypes = {
@@ -69,6 +73,7 @@ const UserName = (props) => {
     isThisMeetingLocked,
     userAriaLabel,
     isActionsOpen,
+    userLastBreakout,
     isMe,
     user,
   } = props;
@@ -113,34 +118,44 @@ const UserName = (props) => {
     if (LABEL.guest) userNameSub.push(intl.formatMessage(messages.guest));
   }
 
+  if (userLastBreakout) {
+    userNameSub.push(
+      <span key={_.uniqueId('breakout-')}>
+        <Icon iconName="rooms" />
+        &nbsp;
+        {userLastBreakout.isDefaultName
+          ? intl.formatMessage(messages.breakoutRoom, { 0: userLastBreakout.sequence })
+          : userLastBreakout.shortName}
+      </span>,
+    );
+  }
+
   return (
-    <div
-      className={styles.userName}
+    <Styled.UserName
       role="button"
       aria-label={userAriaLabel}
       aria-expanded={isActionsOpen}
     >
-      <span aria-hidden className={styles.userNameMain}>
+      <Styled.UserNameMain>
         <span>
           {user.name}
           &nbsp;
         </span>
         <i>{(isMe(user.userId)) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
-      </span>
+      </Styled.UserNameMain>
       {
         userNameSub.length
           ? (
-            <span
+            <Styled.UserNameSub
               aria-hidden
-              className={styles.userNameSub}
               data-test={user.mobile ? 'mobileUser' : undefined}
             >
               {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
-            </span>
+            </Styled.UserNameSub>
           )
           : null
       }
-    </div>
+    </Styled.UserName>
   );
 };
 

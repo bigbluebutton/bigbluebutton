@@ -7,7 +7,7 @@ import { setCustomLogoUrl, setModeratorOnlyMessage } from '/imports/ui/component
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
-import Users from '/imports/api/users';
+import { CurrentUser } from '/imports/api/users';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -24,6 +24,7 @@ class JoinHandler extends Component {
 
     this.state = {
       joined: false,
+      hasAlreadyJoined: false,
     };
   }
 
@@ -38,8 +39,8 @@ class JoinHandler extends Component {
         connected,
         status,
       } = Meteor.status();
-
-      if (status === 'connecting') {
+      const { hasAlreadyJoined } = this.state;
+      if (status === 'connecting' && !hasAlreadyJoined) {
         this.setState({ joined: false });
       }
 
@@ -83,6 +84,7 @@ class JoinHandler extends Component {
   }
 
   async fetchToken() {
+    const { hasAlreadyJoined } = this.state;
     const APP = Meteor.settings.public.app;
     if (!this._isMounted) return;
 
@@ -95,7 +97,9 @@ class JoinHandler extends Component {
     }
 
     // Old credentials stored in memory were being used when joining a new meeting
-    Auth.clearCredentials();
+    if (!hasAlreadyJoined) {
+      Auth.clearCredentials();
+    }
     const logUserInfo = () => {
       const userInfo = window.navigator;
 
@@ -191,8 +195,8 @@ class JoinHandler extends Component {
       setModOnlyMessage(response);
 
       Tracker.autorun(async (cd) => {
-        const user = Users.findOne({ userId: Auth.userID, approved: true }, { fields: { _id: 1 } });
-
+        const user = CurrentUser
+          .findOne({ userId: Auth.userID, approved: true }, { fields: { _id: 1 } });
         if (user) {
           await setCustomData(response);
           cd.stop();
@@ -216,7 +220,10 @@ class JoinHandler extends Component {
         },
       }, 'User faced an error on main.joinRouteHandler.');
     }
-    this.setState({ joined: true });
+    this.setState({
+      joined: true,
+      hasAlreadyJoined: true,
+    });
   }
 
   render() {

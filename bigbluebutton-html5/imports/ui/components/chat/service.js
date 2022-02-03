@@ -171,7 +171,7 @@ const sendGroupMessage = (message, idChatOpen) => {
 
   let destinationChatId = PUBLIC_GROUP_CHAT_ID;
 
-  const { fullname: senderName, userID: senderUserId } = Auth;
+  const { userID: senderUserId } = Auth;
   const receiverId = { id: chatID };
 
   if (!isPublicChat) {
@@ -185,14 +185,10 @@ const sendGroupMessage = (message, idChatOpen) => {
     }
   }
 
-  const userAvatarColor = Users.findOne({ userId: senderUserId }, { fields: { color: 1 } });
-
   const payload = {
-    color: userAvatarColor?.color || '0',
     correlationId: `${senderUserId}-${Date.now()}`,
     sender: {
       id: senderUserId,
-      name: senderName,
     },
     message,
   };

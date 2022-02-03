@@ -12,8 +12,6 @@ export default class EllipseDrawComponent extends Component {
     const { slideWidth, slideHeight, annotation } = this.props;
     const { points } = annotation;
 
-    // x1 and y1 - coordinates of the ellipse's top left corner
-    // x2 and y2 - coordinates of the ellipse's bottom right corner
     const x1 = points[0];
     const y1 = points[1];
     const x2 = points[2];
@@ -40,6 +38,7 @@ export default class EllipseDrawComponent extends Component {
   render() {
     const results = this.getCoordinates();
     const { annotation, slideWidth } = this.props;
+    const { fill } = annotation;
     const {
       cx, cy, rx, ry,
     } = results;
@@ -50,7 +49,7 @@ export default class EllipseDrawComponent extends Component {
         cy={cy}
         rx={rx}
         ry={ry}
-        fill="none"
+        fill={ fill ? getFormattedColor(annotation.color) : "none" }
         stroke={getFormattedColor(annotation.color)}
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
@@ -68,6 +67,7 @@ EllipseDrawComponent.propTypes = {
     points: PropTypes.arrayOf(PropTypes.number).isRequired,
     color: PropTypes.number.isRequired,
     thickness: PropTypes.number.isRequired,
+    fill: PropTypes.bool.isRequired,
   }).isRequired,
   // Defines the width of the slide (svg coordinate system), which needed in calculations
   slideWidth: PropTypes.number.isRequired,

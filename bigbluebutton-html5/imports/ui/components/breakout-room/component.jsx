@@ -4,15 +4,14 @@ import _ from 'lodash';
 import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
-import cx from 'classnames';
-import { styles } from './styles';
+import Styled from './styles';
 import Service from './service';
 import BreakoutRoomContainer from './breakout-remaining-time/container';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { PANELS, ACTIONS } from '../layout/enums';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
-import UserListService from '/imports/ui/components/user-list/service';
 import AudioManager from '/imports/ui/services/audio-manager';
+import Settings from '/imports/ui/services/settings';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -253,6 +252,7 @@ class BreakoutRoom extends PureComponent {
     const {
       isMicrophoneUser,
       amIModerator,
+      amIPresenter,
       intl,
       isUserInBreakoutRoom,
       exitAudio,
@@ -265,7 +265,6 @@ class BreakoutRoom extends PureComponent {
       breakoutId: _stateBreakoutId,
       requestedBreakoutId,
       waiting,
-      generated,
     } = this.state;
 
     const {
@@ -286,7 +285,7 @@ class BreakoutRoom extends PureComponent {
           status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.RETURNING,
         });
         this.returnBackToMeeeting(breakoutId);
-        return logger.debug({
+        return logger.info({
           logCode: 'breakoutroom_return_main_audio',
           extraInfo: { logType: 'user_action' },
         }, 'Returning to main audio (breakout room audio closed)');
@@ -297,22 +296,22 @@ class BreakoutRoom extends PureComponent {
           status: AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.CONNECTED,
         });
         this.transferUserToBreakoutRoom(breakoutId);
-        return logger.debug({
+        return logger.info({
           logCode: 'breakoutroom_join_audio_from_main_room',
           extraInfo: { logType: 'user_action' },
         }, 'joining breakout room audio (main room audio closed)');
       };
     return (
-      <div className={styles.breakoutActions}>
+      <Styled.BreakoutActions>
         {
           isUserInBreakoutRoom(joinedUsers)
             ? (
-              <span className={styles.alreadyConnected}>
+              <Styled.AlreadyConnected>
                 {intl.formatMessage(intlMessages.alreadyConnected)}
-              </span>
+              </Styled.AlreadyConnected>
             )
             : (
-              <Button
+              <Styled.JoinButton
                 label={this.getBreakoutLabel(breakoutId)}
                 data-test="breakoutJoin"
                 aria-label={`${this.getBreakoutLabel(breakoutId)} ${this.props.breakoutRooms[number - 1]?.shortName }`}
@@ -321,16 +320,15 @@ class BreakoutRoom extends PureComponent {
                   // leave main room's audio,
                   // and stops video and screenshare when joining a breakout room
                   exitAudio();
-                  logger.debug({
+                  logger.info({
                     logCode: 'breakoutroom_join',
                     extraInfo: { logType: 'user_action' },
                   }, 'joining breakout room closed audio in the main room');
                   VideoService.storeDeviceIds();
                   VideoService.exitVideo();
-                  if (UserListService.amIPresenter()) screenshareHasEnded();
+                  if (amIPresenter) screenshareHasEnded();
                 }}
                 disabled={disable}
-                className={styles.joinButton}
               />
             )
         }
@@ -339,14 +337,13 @@ class BreakoutRoom extends PureComponent {
             ? [
               ('|'),
               (
-                <Button
+                <Styled.AudioButton
                   label={
                     stateBreakoutId === breakoutId
                       && (joinedAudioOnly || isInBreakoutAudioTransfer)
                       ? intl.formatMessage(intlMessages.breakoutReturnAudio)
                       : intl.formatMessage(intlMessages.breakoutJoinAudio)
                   }
-                  className={styles.button}
                   disabled={stateBreakoutId !== breakoutId && joinedAudioOnly}
                   key={`join-audio-${breakoutId}`}
                   onClick={audioAction}
@@ -355,7 +352,7 @@ class BreakoutRoom extends PureComponent {
             ]
             : null
         }
-      </div>
+      </Styled.BreakoutActions>
     );
   }
 
@@ -370,50 +367,49 @@ class BreakoutRoom extends PureComponent {
       requestedBreakoutId,
     } = this.state;
 
+    const { animations } = Settings.application;
+
     const roomItems = breakoutRooms.map((breakout) => (
-      <div
-        className={styles.breakoutItems}
-        key={`breakoutRoomItems-${breakout.breakoutId}`}
-      >
-        <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
-          <span className={styles.breakoutRoomListNameLabel} aria-hidden>
+      <Styled.BreakoutItems key={`breakoutRoomItems-${breakout.breakoutId}`} >
+        <Styled.Content key={`breakoutRoomList-${breakout.breakoutId}`}>
+          <Styled.BreakoutRoomListNameLabel aria-hidden>
             {breakout.isDefaultName
               ? intl.formatMessage(intlMessages.breakoutRoom, { 0: breakout.sequence })
               : breakout.shortName}
-            <span className={styles.usersAssignedNumberLabel}>
+            <Styled.UsersAssignedNumberLabel>
               (
               {breakout.joinedUsers.length}
               )
-            </span>
-          </span>
+            </Styled.UsersAssignedNumberLabel>
+          </Styled.BreakoutRoomListNameLabel>
           {waiting && requestedBreakoutId === breakout.breakoutId ? (
             <span>
               {intl.formatMessage(intlMessages.generatingURL)}
-              <span className={styles.connectingAnimation} />
+              <Styled.ConnectingAnimation animations={animations}/>
             </span>
           ) : this.renderUserActions(
             breakout.breakoutId,
             breakout.joinedUsers,
             breakout.sequence.toString(),
           )}
-        </div>
-        <div className={styles.joinedUserNames}>
+        </Styled.Content>
+        <Styled.JoinedUserNames>
           {breakout.joinedUsers
             .sort(BreakoutRoom.sortById)
             .filter((value, idx, arr) => !(value.userId === (arr[idx + 1] || {}).userId))
             .sort(Service.sortUsersByName)
             .map((u) => u.name)
             .join(', ')}
-        </div>
-      </div>
+        </Styled.JoinedUserNames>
+      </Styled.BreakoutItems>
     ));
 
     return (
-      <div className={styles.breakoutColumn}>
-        <div className={styles.breakoutScrollableList}>
+      <Styled.BreakoutColumn>
+        <Styled.BreakoutScrollableList>
           {roomItems}
-        </div>
-      </div>
+        </Styled.BreakoutScrollableList>
+      </Styled.BreakoutColumn>
     );
   }
 
@@ -432,20 +428,16 @@ class BreakoutRoom extends PureComponent {
       visibleExtendTimeHigherThanMeetingTimeError,
     } = this.state;
     return (
-      <div className={styles.durationContainer}>
+      <Styled.DurationContainer>
         {amIModerator && visibleExtendTimeForm ? (
-          <div className={styles.extendTimeContainer}>
-            <label
-              htmlFor="inputExtendTimeSelector"
-              className={cx(styles.label, styles.labelSmall)}
-            >
+          <Styled.ExtendTimeContainer>
+            <label htmlFor="inputExtendTimeSelector" >
               {intl.formatMessage(intlMessages.extendTimeInMinutes)}
             </label>
             <br />
-            <input
+            <Styled.ExtendDurationInput
               id="inputExtendTimeSelector"
               type="number"
-              className={styles.extendDuration}
               min="1"
               value={extendTime}
               onChange={this.changeExtendTime}
@@ -454,26 +446,24 @@ class BreakoutRoom extends PureComponent {
             <br />
             <br />
             {visibleExtendTimeHigherThanMeetingTimeError ? (
-              <span className={styles.withError}>
+              <Styled.WithError>
                 {intl.formatMessage(intlMessages.extendTimeHigherThanMeetingTimeError)}
                 <br />
                 <br />
-              </span>
+              </Styled.WithError>
             ) : null}
-            <Button
+            <Styled.EndButton
               color="default"
               disabled={!isMeteorConnected}
               size="sm"
               label={intl.formatMessage(intlMessages.extendTimeCancel)}
-              className={styles.endButton}
               onClick={this.resetExtendTimeForm}
             />
-            <Button
+            <Styled.EndButton
               color="primary"
               disabled={!isMeteorConnected}
               size="sm"
               label={intl.formatMessage(intlMessages.extendTimeLabel)}
-              className={styles.endButton}
               onClick={() => {
                 this.showExtendTimeHigherThanMeetingTimeError(false);
 
@@ -484,9 +474,9 @@ class BreakoutRoom extends PureComponent {
                 }
               }}
             />
-          </div>
+          </Styled.ExtendTimeContainer>
         ) : null}
-        <span className={styles.duration}>
+        <Styled.Duration>
           <BreakoutRoomContainer
             messageDuration={intlMessages.breakoutDuration}
             breakoutRoom={breakoutRooms[0]}
@@ -506,8 +496,8 @@ class BreakoutRoom extends PureComponent {
               />
             )
             : null}
-        </span>
-      </div>
+        </Styled.Duration>
+      </Styled.DurationContainer>
     );
   }
 
@@ -519,12 +509,11 @@ class BreakoutRoom extends PureComponent {
       amIModerator,
     } = this.props;
     return (
-      <div className={styles.panel} ref={(n) => this.panel = n}>
-        <Button
+      <Styled.Panel ref={(n) => this.panel = n}>
+        <Styled.HeaderButton
           icon="left_arrow"
           label={intl.formatMessage(intlMessages.breakoutTitle)}
           aria-label={intl.formatMessage(intlMessages.breakoutAriaTitle)}
-          className={styles.header}
           onClick={() => {
             this.closePanel();
           }}
@@ -534,12 +523,11 @@ class BreakoutRoom extends PureComponent {
         {
           amIModerator
             ? (
-              <Button
+              <Styled.EndButton
                 color="primary"
                 disabled={!isMeteorConnected}
                 size="lg"
                 label={intl.formatMessage(intlMessages.endAllBreakouts)}
-                className={styles.endButton}
                 data-test="endBreakoutRoomsButton"
                 onClick={() => {
                   this.closePanel();
@@ -548,7 +536,7 @@ class BreakoutRoom extends PureComponent {
               />
             ) : null
         }
-      </div>
+      </Styled.Panel>
     );
   }
 }

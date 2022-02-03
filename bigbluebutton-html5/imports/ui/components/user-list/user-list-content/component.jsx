@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { styles } from './styles';
+import Styled from './styles';
 import UserParticipantsContainer from './user-participants/container';
 import UserMessagesContainer from './user-messages/container';
 import UserNotesContainer from './user-notes/container';
@@ -44,6 +44,8 @@ class UserContent extends PureComponent {
       forcePollOpen,
       hasBreakoutRoom,
       pendingUsers,
+      isWaitingRoomEnabled,
+      isGuestLobbyMessageEnabled,
       requestUserInformation,
       currentClosedChats,
       sidebarContentPanel,
@@ -51,11 +53,11 @@ class UserContent extends PureComponent {
       startedChats,
     } = this.props;
 
+    const showWaitingRoom = (isGuestLobbyMessageEnabled && isWaitingRoomEnabled)
+      || pendingUsers.length > 0;
+
     return (
-      <div
-        data-test="userListContent"
-        className={styles.content}
-      >
+      <Styled.Content data-test="userListContent">
         {CHAT_ENABLED
           ? (
             <UserMessagesContainer
@@ -82,7 +84,7 @@ class UserContent extends PureComponent {
             intl,
           }}
         />
-        {pendingUsers.length > 0 && currentUser.role === ROLE_MODERATOR
+        {showWaitingRoom && currentUser.role === ROLE_MODERATOR
           ? (
             <WaitingUsers
               {...{
@@ -121,7 +123,7 @@ class UserContent extends PureComponent {
             requestUserInformation,
           }}
         />
-      </div>
+      </Styled.Content>
     );
   }
 }

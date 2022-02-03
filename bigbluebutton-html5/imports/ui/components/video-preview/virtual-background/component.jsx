@@ -2,8 +2,7 @@ import React, { useState, useRef } from 'react';
 import { findDOMNode } from 'react-dom';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { styles } from './styles';
-import Button from '/imports/ui/components/button/component';
+import Styled from './styles';
 import {
   EFFECT_TYPES,
   BLUR_FILENAME,
@@ -97,10 +96,9 @@ const VirtualBgSelector = ({
     const disabled = locked || !isVirtualBackgroundSupported();
 
     return (
-      <div className={styles.virtualBackgroundRowDropdown}>
-        <select
+      <div>
+        <Styled.Select
           value={JSON.stringify(currentVirtualBg)}
-          className={styles.select}
           disabled={disabled}
           onChange={event => {
             const { type, name } = JSON.parse(event.target.value);
@@ -126,7 +124,7 @@ const VirtualBgSelector = ({
               </option>
             );
           })}
-        </select>
+        </Styled.Select>
       </div>
     );
   }
@@ -134,21 +132,14 @@ const VirtualBgSelector = ({
   const renderThumbnailSelector = () => {
     const disabled = locked || !isVirtualBackgroundSupported();
 
-    const thumbnailStyles = [
-      styles.virtualBackgroundItem,
-      disabled && styles.disabled
-    ];
-
     return (
-      <div className={styles.virtualBackgroundRowThumbnail}>
-        <div
+      <Styled.VirtualBackgroundRowThumbnail>
+        <Styled.BgWrapper
           role="group"
           aria-label={intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
-          className={styles.bgWrapper}
         >
           <>
-            <Button
-              className={styles.bgNone}
+            <Styled.BgNoneButton
               icon='close'
               label={intl.formatMessage(intlMessages.noneLabel)}
               aria-pressed={currentVirtualBg?.name === undefined}
@@ -164,9 +155,8 @@ const VirtualBgSelector = ({
           </>
 
           <>
-            <Button
+            <Styled.ThumbnailButton
               style={{ backgroundImage: `url('${getVirtualBackgroundThumbnail(BLUR_FILENAME)}')` }}
-              className={thumbnailStyles.join(' ')}
               aria-label={EFFECT_TYPES.BLUR_TYPE}
               label={capitalizeFirstLetter(EFFECT_TYPES.BLUR_TYPE)}
               aria-describedby={`vr-cam-btn-blur`}
@@ -190,12 +180,11 @@ const VirtualBgSelector = ({
 
             return (
               <div key={`${imageName}-${index}`} style={{ position: 'relative' }}>
-                <Button
+                <Styled.ThumbnailButton
                   id={`${imageName}-${index}`}
                   label={label}
                   tabIndex={disabled ? -1 : 0}
                   role="button"
-                  className={thumbnailStyles.join(' ')}
                   aria-label={label}
                   aria-describedby={`vr-cam-btn-${index}`}
                   aria-pressed={currentVirtualBg?.name?.includes(imageName.split('.').shift())}
@@ -204,20 +193,19 @@ const VirtualBgSelector = ({
                   onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index + 1)}
                   disabled={disabled}
                 />
-                <img onClick={() => {
+                <Styled.Thumbnail onClick={() => {
                   const node = findDOMNode(inputElementsRef.current[index + 1]);
                   node.focus();
                   node.click();
-                }} aria-hidden className={styles.thumbnail} src={getVirtualBackgroundThumbnail(imageName)} />
+                }} aria-hidden src={getVirtualBackgroundThumbnail(imageName)} />
                 <div aria-hidden className="sr-only" id={`vr-cam-btn-${index}`}>
                   {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: label })}
                 </div>
               </div>
             )
           })}
-
-        </div>
-      </div>
+        </Styled.BgWrapper>
+      </Styled.VirtualBackgroundRowThumbnail>
     );
   };
 
@@ -228,11 +216,11 @@ const VirtualBgSelector = ({
 
   return (
     <>
-      <label className={styles.label}>
+      <Styled.Label>
         {!isVirtualBackgroundSupported()
           ? intl.formatMessage(intlMessages.virtualBackgroundSettingsDisabledLabel)
           : intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
-      </label>
+      </Styled.Label>
 
       {renderSelector()}
     </>

@@ -3,7 +3,8 @@ package org.bigbluebutton.api2
 import scala.collection.JavaConverters._
 import akka.actor.ActorSystem
 import akka.event.Logging
-import org.bigbluebutton.api.domain.{ BreakoutRoomsParams, LockSettingsParams }
+import java.util
+import org.bigbluebutton.api.domain.{ BreakoutRoomsParams, Group, LockSettingsParams }
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.WebRedisSubscriberActor
@@ -144,7 +145,9 @@ class BbbWebApiGWApp(
                     keepEvents:                             java.lang.Boolean,
                     breakoutParams:                         BreakoutRoomsParams,
                     lockSettingsParams:                     LockSettingsParams,
-                    html5InstanceId:                        java.lang.Integer): Unit = {
+                    html5InstanceId:                        java.lang.Integer,
+                    groups:                                 java.util.ArrayList[Group],
+                    virtualBackgroundsDisabled:             java.lang.Boolean): Unit = {
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
       isBreakout = isBreakout.booleanValue(), learningDashboardEnabled = learningDashboardEnabled.booleanValue())
@@ -180,7 +183,7 @@ class BbbWebApiGWApp(
     val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
       allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
-      authenticatedGuest = authenticatedGuest.booleanValue())
+      authenticatedGuest = authenticatedGuest.booleanValue(), virtualBackgroundsDisabled = virtualBackgroundsDisabled.booleanValue())
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
     val screenshareProps = ScreenshareProps(
       screenshareConf = voiceBridge + screenshareConfSuffix,
@@ -193,7 +196,7 @@ class BbbWebApiGWApp(
       disableMic = lockSettingsParams.disableMic.booleanValue(),
       disablePrivateChat = lockSettingsParams.disablePrivateChat.booleanValue(),
       disablePublicChat = lockSettingsParams.disablePublicChat.booleanValue(),
-      disableNote = lockSettingsParams.disableNote.booleanValue(),
+      disableNotes = lockSettingsParams.disableNotes.booleanValue(),
       hideUserList = lockSettingsParams.hideUserList.booleanValue(),
       lockedLayout = lockSettingsParams.lockedLayout.booleanValue(),
       lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
@@ -203,6 +206,8 @@ class BbbWebApiGWApp(
     val systemProps = SystemProps(
       html5InstanceId
     )
+
+    val groupsAsVector: Vector[GroupProps] = groups.asScala.toVector.map(g => GroupProps(g.getGroupId(), g.getName(), g.getUsersExtId().asScala.toVector))
 
     val defaultProps = DefaultProps(
       meetingProp,
@@ -216,7 +221,8 @@ class BbbWebApiGWApp(
       metadataProp,
       screenshareProps,
       lockSettingsProps,
-      systemProps
+      systemProps,
+      groupsAsVector
     )
 
     //meetingManagerActorRef ! new CreateMeetingMsg(defaultProps)

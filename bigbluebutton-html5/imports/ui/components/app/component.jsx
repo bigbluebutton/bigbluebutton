@@ -12,6 +12,7 @@ import UserInfoContainer from '/imports/ui/components/user-info/container';
 import BreakoutRoomInvitation from '/imports/ui/components/breakout-room/invitation/container';
 import { Meteor } from 'meteor/meteor';
 import ToastContainer from '../toast/container';
+import PadsSessionsContainer from '/imports/ui/components/pads/sessions/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
@@ -23,37 +24,35 @@ import StatusNotifier from '/imports/ui/components/status-notifier/container';
 import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
+import CaptionsSpeechContainer from '/imports/ui/components/captions/speech/container';
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import NewWebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
-import { styles } from './styles';
-import {
-  LAYOUT_TYPE, DEVICE_TYPE, ACTIONS,
-} from '../layout/enums';
+import Styled from './styles';
+import { DEVICE_TYPE, ACTIONS } from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 } from '../layout/utils';
-import CustomLayout from '../layout/layout-manager/customLayout';
-import SmartLayout from '../layout/layout-manager/smartLayout';
-import PresentationFocusLayout from '../layout/layout-manager/presentationFocusLayout';
-import VideoFocusLayout from '../layout/layout-manager/videoFocusLayout';
+import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
-import { NAVBAR_HEIGHT, LARGE_NAVBAR_HEIGHT } from '/imports/ui/components/layout/defaultValues';
 import Settings from '/imports/ui/services/settings';
 import LayoutService from '/imports/ui/components/layout/service';
 import { registerTitleView } from '/imports/utils/dom-utils';
+import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
+const VIEWER = Meteor.settings.public.user.role_viewer;
+const MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -104,19 +103,23 @@ const intlMessages = defineMessages({
     id: 'app.title.defaultViewLabel',
     description: 'view name apended to document title',
   },
+  promotedLabel: {
+    id: 'app.toast.promotedLabel',
+    description: 'notification message when promoted',
+  },
+  demotedLabel: {
+    id: 'app.toast.demotedLabel',
+    description: 'notification message when demoted',
+  },
 });
 
 const propTypes = {
-  navbar: PropTypes.element,
-  sidebar: PropTypes.element,
   actionsbar: PropTypes.element,
   captions: PropTypes.element,
   locale: PropTypes.string,
 };
 
 const defaultProps = {
-  navbar: null,
-  sidebar: null,
   actionsbar: null,
   captions: null,
   locale: OVERRIDE_LOCALE || navigator.language,
@@ -228,6 +231,7 @@ class App extends Component {
       meetingMuted,
       notify,
       currentUserEmoji,
+      currentUserRole,
       intl,
       hasPublishedPoll,
       mountModal,
@@ -305,6 +309,16 @@ class App extends Component {
         intl.formatMessage(intlMessages.pollPublishedLabel), 'info', 'polling',
       );
     }
+    if (prevProps.currentUserRole === VIEWER && currentUserRole === MODERATOR) {
+      notify(
+        intl.formatMessage(intlMessages.promotedLabel), 'info', 'user',
+      );
+    }
+    if (prevProps.currentUserRole === MODERATOR && currentUserRole === VIEWER) {
+      notify(
+        intl.formatMessage(intlMessages.demotedLabel), 'info', 'user',
+      );
+    }
 
     if (deviceType === null || prevProps.deviceType !== deviceType) this.throttledDeviceType();
   }
@@ -356,9 +370,8 @@ class App extends Component {
     if (!captions) return null;
 
     return (
-      <div
+      <Styled.CaptionsWrapper
         role="region"
-        className={styles.captionsWrapper}
         style={
           {
             position: 'absolute',
@@ -369,7 +382,7 @@ class App extends Component {
         }
       >
         {captions}
-      </div>
+      </Styled.CaptionsWrapper>
     );
   }
 
@@ -384,9 +397,8 @@ class App extends Component {
     if (!actionsbar || hideActionsBar) return null;
 
     return (
-      <section
+      <Styled.ActionsBar
         role="region"
-        className={styles.actionsbar}
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={this.shouldAriaHide()}
         style={
@@ -401,7 +413,7 @@ class App extends Component {
         }
       >
         {actionsbar}
-      </section>
+      </Styled.ActionsBar>
     );
   }
 
@@ -430,22 +442,6 @@ class App extends Component {
     ) : null);
   }
 
-  renderLayoutManager() {
-    const { layoutType } = this.props;
-    switch (layoutType) {
-      case LAYOUT_TYPE.CUSTOM_LAYOUT:
-        return <CustomLayout />;
-      case LAYOUT_TYPE.SMART_LAYOUT:
-        return <SmartLayout />;
-      case LAYOUT_TYPE.PRESENTATION_FOCUS:
-        return <PresentationFocusLayout />;
-      case LAYOUT_TYPE.VIDEO_FOCUS:
-        return <VideoFocusLayout />;
-      default:
-        return <CustomLayout />;
-    }
-  }
-
   render() {
     const {
       customStyle,
@@ -456,14 +452,15 @@ class App extends Component {
       shouldShowScreenshare,
       shouldShowExternalVideo,
       isPresenter,
+      layoutType,
     } = this.props;
 
     return (
       <>
-        {this.renderLayoutManager()}
-        <div
+        <LayoutEngine layoutType={layoutType} />
+        <GlobalStyles />
+        <Styled.Layout
           id="layout"
-          className={styles.layout}
           style={{
             width: '100%',
             height: '100%',
@@ -486,6 +483,7 @@ class App extends Component {
           }
           {this.renderCaptions()}
           <UploaderContainer />
+          <CaptionsSpeechContainer />
           <BreakoutRoomInvitation />
           <AudioContainer />
           <ToastContainer rtl />
@@ -502,10 +500,11 @@ class App extends Component {
           <ManyWebcamsNotifier />
           <PollingContainer />
           <ModalContainer />
+          <PadsSessionsContainer />
           {this.renderActionsBar()}
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
           {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
-        </div>
+        </Styled.Layout>
       </>
     );
   }

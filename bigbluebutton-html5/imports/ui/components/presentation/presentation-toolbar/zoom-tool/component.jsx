@@ -1,9 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
-import cx from 'classnames';
-import { styles } from '../styles.scss';
+import Styled from './styles';
 import HoldButton from './holdButton/component';
 
 const DELAY_MILLISECONDS = 200;
@@ -171,7 +169,7 @@ class ZoomTool extends PureComponent {
             value={zoomValue}
             minBound={minBound}
           >
-            <Button
+            <Styled.DecreaseZoomButton
               key="zoom-tool-1"
               aria-describedby="zoomOutDescription"
               aria-label={zoomOutAriaLabel}
@@ -179,7 +177,6 @@ class ZoomTool extends PureComponent {
               icon="substract"
               onClick={() => { }}
               disabled={(zoomValue <= minBound) || !isMeteorConnected}
-              className={cx(styles.prevSlide, styles.presentationBtn)}
               hideLabel
             />
             <div id="zoomOutDescription" hidden>{intl.formatMessage(intlMessages.zoomOutDesc)}</div>
@@ -187,7 +184,7 @@ class ZoomTool extends PureComponent {
         ),
         (
           <span key="zoom-tool-2">
-            <Button
+            <Styled.ResetZoomButton
               aria-label={intl.formatMessage(intlMessages.resetZoomLabel)}
               aria-describedby="resetZoomDescription"
               disabled={(stateZoomValue === minBound) || !isMeteorConnected}
@@ -196,7 +193,6 @@ class ZoomTool extends PureComponent {
               size="md"
               onClick={() => this.resetZoom()}
               label={intl.formatMessage(intlMessages.resetZoomLabel)}
-              className={cx(styles.zoomPercentageDisplay, styles.presentationBtn)}
               hideLabel
             />
             <div id="resetZoomDescription" hidden>
@@ -211,7 +207,7 @@ class ZoomTool extends PureComponent {
             value={zoomValue}
             maxBound={maxBound}
           >
-            <Button
+            <Styled.IncreaseZoomButton
               key="zoom-tool-3"
               aria-describedby="zoomInDescription"
               aria-label={zoomInAriaLabel}
@@ -219,7 +215,6 @@ class ZoomTool extends PureComponent {
               icon="add"
               onClick={() => { }}
               disabled={(zoomValue >= maxBound) || !isMeteorConnected}
-              className={cx(styles.skipSlide, styles.presentationBtn)}
               hideLabel
             />
             <div id="zoomInDescription" hidden>{intl.formatMessage(intlMessages.zoomInDesc)}</div>

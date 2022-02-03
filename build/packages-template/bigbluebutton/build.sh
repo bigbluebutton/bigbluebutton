@@ -23,6 +23,7 @@ bbb-html5
 bbb-learning-dashboard
 bbb-libreoffice-docker
 bbb-mkclean
+bbb-pads
 bbb-playback
 bbb-playback-presentation
 bbb-record-core
@@ -52,7 +53,7 @@ Standards-Version: 3.9.2
 
 Package: bigbluebutton
 Version: $VERSION
-Maintainer: Senfcall IT <it@senfcall.de>
+Maintainer: ffdixon@bigbluebutton.org
 Depends: $DEPENDENCIES
 Architecture: amd64
 Copyright: license.txt
