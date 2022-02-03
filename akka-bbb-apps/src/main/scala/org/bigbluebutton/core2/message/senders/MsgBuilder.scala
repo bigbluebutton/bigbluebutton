@@ -460,6 +460,7 @@ object MsgBuilder {
   def buildGetCamBroadcastPermissionRespMsg(
       meetingId:    String,
       userId:       String,
+      streamId:     String,
       sfuSessionId: String,
       allowed:      Boolean
   ): BbbCommonEnvCoreMsg = {
@@ -470,6 +471,7 @@ object MsgBuilder {
     val body = GetCamBroadcastPermissionRespMsgBody(
       meetingId,
       userId,
+      streamId,
       sfuSessionId,
       allowed
     )
