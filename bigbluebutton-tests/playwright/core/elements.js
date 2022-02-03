@@ -218,6 +218,7 @@ exports.alwaysAccept = 'button[data-test="alwaysAccept"]';
 exports.alwaysDeny = 'button[data-test="alwaysDeny"]';
 // Lock Viewers
 exports.lockViewersButton = 'li[data-test="lockViewersButton"]';
+exports.unlockUserButton = 'li[data-test="unlockUserButton"]';
 exports.applyLockSettings ='button[data-test="applyLockSettings"]';
 exports.lockShareWebcam = 'input[data-test="lockShareWebcam"]';
 exports.lockSeeOtherViewersWebcam = 'input[data-test="lockSeeOtherViewersWebcam"]';

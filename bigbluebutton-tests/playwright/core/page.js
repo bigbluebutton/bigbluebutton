@@ -114,6 +114,10 @@ class Page {
     await this.page.click(selector, { timeout });
   }
 
+  async clickOnLocator(locator, timeout = ELEMENT_WAIT_TIME) {
+    await locator.click({ timeout });
+  }
+
   async checkElement(selector, index = 0) {
     return this.page.evaluate(checkElement, [selector, index]);
   }
@@ -131,6 +135,11 @@ class Page {
   async hasElementDisabled(selector, timeout = ELEMENT_WAIT_TIME) {
     const locator = this.getLocator(selector);
     await expect(locator).toBeDisabled({ timeout });
+  }
+
+  async hasElementEnabled(selector, timeout = ELEMENT_WAIT_TIME) {
+    const locator = this.getLocator(selector);
+    await expect(locator).toBeEnabled({ timeout });
   }
 
   async hasText(selector, text, timeout = ELEMENT_WAIT_TIME) {

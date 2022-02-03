@@ -143,5 +143,12 @@ test.describe.parallel('User', () => {
       await lockViewers.initUserPage2();
       await lockViewers.lockSeeOtherViewersUserList();
     });
-  })
+
+    test('Unlock a user', async ({ browser, context, page }) => {
+      const lockViewers = new LockViewers(browser, context);
+      await lockViewers.initPages(page);
+      await lockViewers.initUserPage2();
+      await lockViewers.unlockUser();
+    });
+  });
 });
