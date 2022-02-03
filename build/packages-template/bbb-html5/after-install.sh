@@ -15,8 +15,8 @@ if [[ $meteor_owner != "root:root" ]] ; then
     chown -R root:root /usr/share/meteor
 fi
 
-  SOURCE=/tmp/settings.yml
-  TARGET=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+SOURCE=/tmp/settings.yml
+TARGET=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
   if [ -f $SOURCE ]; then
 
@@ -24,21 +24,11 @@ fi
     ENABLESCREENSHARING=$(yq r $SOURCE public.kurento.enableScreensharing)
     ENABLEVIDEO=$(yq r $SOURCE public.kurento.enableVideo)
 
-    ETHERPAD_ENABLED=$(yq r $SOURCE public.note.enabled)
-    ETHERPAD_URL=$(yq r $SOURCE public.note.url)
-
     yq w -i $TARGET public.kurento.wsUrl               "$WSURL"
     yq w -i $TARGET public.kurento.enableScreensharing "$ENABLESCREENSHARING"
     yq w -i $TARGET public.kurento.enableVideo         "$ENABLEVIDEO"
 
-    if [ "$ETHERPAD_ENABLED" == "null" ]; then
-      # This is an upgrade from a previous version of 2.2-dev that didn't have settings for etherpad
-      yq w -i $TARGET public.note.enabled                "true"
-      yq w -i $TARGET public.note.url                    "$PROTOCOL://$HOST/pad"
-    else
-      yq w -i $TARGET public.note.enabled                "$ETHERPAD_ENABLED"
-      yq w -i $TARGET public.note.url                    "$ETHERPAD_URL"
-    fi
+    yq w -i $TARGET public.pads.url                    "$PROTOCOL://$HOST/pad"
 
     yq w -i $TARGET public.app.listenOnlyMode          "true"
 
@@ -54,15 +44,11 @@ fi
 
     yq w -i $TARGET public.app.listenOnlyMode          "true"
 
-    yq w -i $TARGET public.note.enabled                "true"
-    yq w -i $TARGET public.note.url                    "$PROTOCOL://$HOST/pad"
+    yq w -i $TARGET public.pads.url                    "$PROTOCOL://$HOST/pad"
 
     sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
     sed -i "s/server_name  .*/server_name  $IP;/g" /etc/nginx/sites-available/bigbluebutton
   fi
-
-  APIKEY=$(cat /usr/share/etherpad-lite/APIKEY.txt)
-  yq w -i $TARGET private.etherpad.apikey $APIKEY
 
   chmod 600 $TARGET
   chown meteor:meteor $TARGET
@@ -126,6 +112,9 @@ fi
 chown root:root /usr/lib/systemd/system
 chown root:root /usr/lib/systemd/system/bbb-html5.service
 chown root:root /usr/lib/systemd/system/disable-transparent-huge-pages.service
+
+# Ensure settings is readable
+chmod go+r /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
 startService bbb-html5 || echo "bbb-html5 service could not be registered or started"
 

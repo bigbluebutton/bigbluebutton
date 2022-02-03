@@ -37,7 +37,8 @@ public interface IBbbWebApiGWApp {
                      BreakoutRoomsParams breakoutParams,
                      LockSettingsParams lockSettingsParams,
                      Integer html5InstanceId,
-                     ArrayList<Group> groups);
+                     ArrayList<Group> groups,
+                     Boolean virtualBackgroundsDisabled);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String avatarURL,

@@ -211,7 +211,20 @@ const HideButton = styled(Button)`
 
 const LobbyMessage = styled.div`
   border-bottom: 1px solid ${colorGrayLightest};
+  margin: 2px 2px 0 2px;
 
+  & > p {
+    background-color: ${colorOffWhite};
+    box-sizing: border-box;
+    color: ${colorGray};
+    padding: 1rem;
+    text-align: center;
+  }
+`;
+
+const PrivateLobbyMessage = styled.div`
+  border-bottom: 1px solid ${colorGrayLightest};
+  display: none;
   & > p {
     background-color: ${colorOffWhite};
     box-sizing: border-box;
@@ -248,6 +261,7 @@ export default {
   ListItem,
   UserContentContainer,
   UserAvatarContainer,
+  PrivateLobbyMessage,
   UserName,
   ButtonContainer,
   WaitingUsersButton,

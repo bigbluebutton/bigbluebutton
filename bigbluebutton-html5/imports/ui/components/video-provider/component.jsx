@@ -522,42 +522,46 @@ class VideoProvider extends Component {
         }
 
         const handlePubPeerCreation = (error) => {
-          const peer = this.webRtcPeers[stream];
-          peer.stream = stream;
-          peer.started = false;
-          peer.attached = false;
-          peer.didSDPAnswered = false;
-          peer.inboundIceQueue = [];
-          peer.isPublisher = true;
-          peer.originalProfileId = profileId;
-          peer.currentProfileId = profileId;
+          try {
+            const peer = this.webRtcPeers[stream];
+            peer.stream = stream;
+            peer.started = false;
+            peer.attached = false;
+            peer.didSDPAnswered = false;
+            peer.inboundIceQueue = [];
+            peer.isPublisher = true;
+            peer.originalProfileId = profileId;
+            peer.currentProfileId = profileId;
 
-          if (error) return reject(error);
+            if (error) return reject(error);
 
-          // Store the media stream if necessary. The scenario here is one where
-          // there is no preloaded stream stored.
-          if (bbbVideoStream == null) {
-            bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
-            VideoPreviewService.storeStream(
-              MediaStreamUtils.extractVideoDeviceId(bbbVideoStream.mediaStream),
-              bbbVideoStream
-            );
+            // Store the media stream if necessary. The scenario here is one where
+            // there is no preloaded stream stored.
+            if (bbbVideoStream == null) {
+              bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
+              VideoPreviewService.storeStream(
+                MediaStreamUtils.extractVideoDeviceId(bbbVideoStream.mediaStream),
+                bbbVideoStream
+              );
+            }
+
+            peer.bbbVideoStream = bbbVideoStream;
+            bbbVideoStream.on('streamSwapped', ({ newStream }) => {
+              if (newStream && newStream instanceof MediaStream) {
+                this.replacePCVideoTracks(stream, newStream);
+              }
+            });
+
+            peer.generateOffer((errorGenOffer, offerSdp) => {
+              if (errorGenOffer) {
+                return reject(errorGenOffer);
+              }
+
+              return resolve(offerSdp);
+            });
+          } catch (error) {
+            return reject(error);
           }
-
-          peer.bbbVideoStream = bbbVideoStream;
-          bbbVideoStream.on('streamSwapped', ({ newStream }) => {
-            if (newStream && newStream instanceof MediaStream) {
-              this.replacePCVideoTracks(stream, newStream);
-            }
-          });
-
-          peer.generateOffer((errorGenOffer, offerSdp) => {
-            if (errorGenOffer) {
-              return reject(errorGenOffer);
-            }
-
-            return resolve(offerSdp);
-          });
         }
 
         this.webRtcPeers[stream] = new window.kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(
@@ -574,17 +578,21 @@ class VideoProvider extends Component {
     return new Promise((resolve, reject) => {
       try {
         const handleSubPeerCreation = (error) => {
-          const peer = this.webRtcPeers[stream];
-          peer.stream = stream;
-          peer.started = false;
-          peer.attached = false;
-          peer.didSDPAnswered = false;
-          peer.inboundIceQueue = [];
-          peer.isPublisher = false;
+          try {
+            const peer = this.webRtcPeers[stream];
+            peer.stream = stream;
+            peer.started = false;
+            peer.attached = false;
+            peer.didSDPAnswered = false;
+            peer.inboundIceQueue = [];
+            peer.isPublisher = false;
 
-          if (error) return reject(error);
+            if (error) return reject(error);
 
-          return resolve();
+            return resolve();
+          } catch (error) {
+            return reject(error);
+          }
         };
 
         this.webRtcPeers[stream] = new window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(

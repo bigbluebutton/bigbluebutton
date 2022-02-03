@@ -1,5 +1,5 @@
 // Common
-exports.actions = 'button[aria-label="Actions"]';
+exports.actions = 'button[data-test="actionsButton"]';
 exports.pollMenuButton = 'div[data-test="pollMenuButton"]';
 exports.options = 'button[aria-label="Options"]';
 exports.optionsButton = 'button[data-test="optionsButton"]';
@@ -59,12 +59,17 @@ exports.chatCopy = 'li[data-test="chatCopy"]';
 exports.chatTitle = 'div[data-test="chatTitle"]';
 exports.activeChat = 'li[data-test="activeChat"]';
 exports.hidePrivateChat = 'button[aria-label^="Hide Private Chat with"]';
+exports.typingIndicator = 'span[data-test="typingIndicator"]';
 // Messages
 exports.message = 'Hello World!';
 exports.message1 = 'Hello User2';
 exports.message2 = 'Hello User1';
 exports.publicMessage1 = 'This is a Public Message from User1';
 exports.publicMessage2 = 'This is a Public Message from User2';
+
+// Long messages
+exports.longMessage5000 = '01234567890123456789012345678901234567890123456789'.repeat(100);
+exports.longMessage5001 = '01234567890123456789012345678901234567890123456789'.repeat(100) + '0';
 
 exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
 exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';

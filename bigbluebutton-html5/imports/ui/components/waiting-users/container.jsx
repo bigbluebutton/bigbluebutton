@@ -36,12 +36,15 @@ export default withTracker(() => {
   return {
     guestUsers,
     authenticatedUsers,
+    privateMessageVisible: Service.privateMessageVisible,
     guestUsersCall: Service.guestUsersCall,
     isWaitingRoomEnabled: Service.isWaitingRoomEnabled(),
     changeGuestPolicy: Service.changeGuestPolicy,
     isGuestLobbyMessageEnabled: Service.isGuestLobbyMessageEnabled,
     setGuestLobbyMessage: Service.setGuestLobbyMessage,
     guestLobbyMessage: Service.getGuestLobbyMessage(),
+    privateGuestLobbyMessage: Service.getPrivateGuestLobbyMessage,
+    setPrivateGuestLobbyMessage: Service.setPrivateGuestLobbyMessage,
     authenticatedGuest,
     allowRememberChoice: Service.allowRememberChoice,
   };

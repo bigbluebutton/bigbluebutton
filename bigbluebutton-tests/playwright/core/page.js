@@ -61,7 +61,7 @@ class Page {
   }
 
   async logoutFromMeeting() {
-    await this.waitAndClick(e.options);
+    await this.waitAndClick(e.optionsButton);
     await this.waitAndClick(e.logout);
   }
 

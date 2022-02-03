@@ -19,13 +19,6 @@ const intlMessages = defineMessages({
 });
 
 class UserCaptions extends Component {
-  shouldComponentUpdate(nextProps) {
-    const { ownedLocales, sidebarContentPanel } = this.props;
-
-    return ownedLocales.length !== nextProps.ownedLocales.length
-      || sidebarContentPanel !== nextProps.sidebarContentPanel;
-  }
-
   renderCaptions() {
     const {
       ownedLocales,
@@ -33,7 +26,7 @@ class UserCaptions extends Component {
       layoutContextDispatch,
     } = this.props;
 
-    return ownedLocales.map((locale) => (
+    return ownedLocales.map((ownedLocale) => (
       <CSSTransition
         classNames="transition"
         appear
@@ -41,12 +34,15 @@ class UserCaptions extends Component {
         exit={false}
         timeout={0}
         component="div"
-        key={locale.locale}
+        key={ownedLocale.locale}
       >
         <Styled.ListTransition>
           <CaptionsListItem
             {...{
-              locale, layoutContextDispatch, sidebarContentPanel,
+              locale: ownedLocale.locale,
+              name: ownedLocale.name,
+              layoutContextDispatch,
+              sidebarContentPanel,
             }}
             tabIndex={-1}
           />

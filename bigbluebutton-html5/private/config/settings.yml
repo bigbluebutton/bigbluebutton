@@ -29,7 +29,7 @@ public:
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: 2.4
-    copyright: '©2021 BigBlueButton Inc.'
+    copyright: '©2022 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
@@ -225,7 +225,7 @@ public:
       maxTimeout: 60000
     screenshare:
       # Whether volume control should be allowed if screen sharing has audio
-      enableVolumeControl: false
+      enableVolumeControl: true
       # Experimental. True is the canonical behavior. Flip to false to reverse
       # the negotiation flow for subscribers.
       subscriberOffering: false
@@ -332,7 +332,7 @@ public:
     enableScreensharing: true
     enableVideo: true
     enableVideoMenu: true
-    enableVideoPin: false
+    enableVideoPin: true
     enableListenOnly: true
     # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
     # media server adapter should be used for listen only.
@@ -438,12 +438,13 @@ public:
     chatMessage: true
   captions:
     enabled: true
-    enableDictation: false
-    backgroundColor: '#000000'
-    fontColor: '#FFFFFF'
-    fontFamily: Calibri
-    fontSize: 24px
-    takeOwnership: true
+    id: captions
+    dictation: false
+    background: '#000000'
+    font:
+      color: '#ffffff'
+      family: Calibri
+      size: 24px
     lines: 2
     time: 5000
   chat:
@@ -472,13 +473,19 @@ public:
     typingIndicator:
       enabled: true
     moderatorChatEmphasized: true
-  note:
+  notes:
     enabled: true
-    url: ETHERPAD_HOST
+    id: notes
   layout:
     autoSwapLayout: false
     hidePresentation: false
     showParticipantsOnLogin: true
+  pads:
+    url: ETHERPAD_HOST
+    cookie:
+      path: /
+      sameSite: None
+      secure: true
   media:
     audio:
       #
@@ -597,6 +604,11 @@ public:
     restoreOnUpdate: false
     oldMinimizeButton: false
     uploadEndpoint: '/bigbluebutton/presentation/upload'
+    fileUploadConstraintsHint: false
+    # mirroredFromBBBCore are values controlled in bbb-web properties file. We include a copy here for notification purposes
+    mirroredFromBBBCore:
+      uploadSizeMax: 30000000
+      uploadPagesMax: 200
     uploadValidMimeTypes:
       - extension: .pdf
         mime: application/pdf
@@ -759,11 +771,6 @@ private:
     localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
-  etherpad:
-    apikey: ETHERPAD_APIKEY
-    version: 1.2.13
-    host: 127.0.0.1
-    port: 9001
   redis:
     host: 127.0.0.1
     port: '6379'
