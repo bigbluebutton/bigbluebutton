@@ -376,7 +376,7 @@ class UserDropdown extends PureComponent {
           });
         },
         icon: 'chat',
-        dataTest: "startPrivateChat",
+        dataTest: 'startPrivateChat',
       });
     }
 
@@ -483,6 +483,7 @@ class UserDropdown extends PureComponent {
           this.handleClose();
         },
         icon: userLocked ? 'unlock' : 'lock',
+        dataTest: 'unlockUserButton',
       });
     }
 

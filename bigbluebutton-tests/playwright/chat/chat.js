@@ -11,22 +11,22 @@ class Chat extends Page {
 
   async sendPublicMessage() {
     await openChat(this.page);
-    const message = this.page.locator(e.chatUserMessageText);
+    const message = this.getLocator(e.chatUserMessageText);
     await expect(message).toHaveCount(0);
 
     await this.type(e.chatBox, e.message);
     await this.waitAndClick(e.sendButton);
-    await this.page.waitForSelector(e.chatUserMessageText);
+    await this.waitForSelector(e.chatUserMessageText);
     await expect(message).toHaveCount(1);
   }
 
   async clearChat() {
     await openChat(this.page);
-    const message = this.page.locator(e.chatUserMessageText);
+    const message = this.getLocator(e.chatUserMessageText);
 
     await this.type(e.chatBox, e.message);
     await this.waitAndClick(e.sendButton);
-    await this.page.waitForSelector(e.chatUserMessageText);
+    await this.waitForSelector(e.chatUserMessageText);
 
     // 1 message
     await expect(message).toHaveCount(1);
@@ -34,7 +34,7 @@ class Chat extends Page {
     // clear
     await this.waitAndClick(e.chatOptions);
     await this.waitAndClick(e.chatClear);
-    const clearMessage = this.page.locator(e.chatClearMessageText);
+    const clearMessage = this.getLocator(e.chatClearMessageText);
     await expect(clearMessage).toBeVisible();
   }
 
@@ -65,7 +65,7 @@ class Chat extends Page {
 
   async characterLimit() {
     await openChat(this.page);
-    const messageLocator = this.page.locator(e.chatUserMessageText);
+    const messageLocator = this.getLocator(e.chatUserMessageText);
 
     await this.page.fill(e.chatBox, e.longMessage5000);
     await this.waitAndClick(e.sendButton);
