@@ -783,6 +783,8 @@ class PresentationUploader extends Component {
       ? cx(styles.itemAction, styles.itemActionRemove, styles.checked)
       : cx(styles.itemAction, styles.itemActionRemove);
 
+    const isRemovable = item.isRemovable 
+
     return (
       <tr
         key={item.id}
@@ -832,7 +834,8 @@ class PresentationUploader extends Component {
               onChange={() => this.handleCurrentChange(item.id)}
               disabled={disableActions}
             />
-            <Button
+            {isRemovable ? (
+              <Button
               disabled={disableActions}
               className={cx(styles.itemAction, styles.itemActionRemove)}
               label={intl.formatMessage(intlMessages.removePresentation)}
@@ -842,7 +845,9 @@ class PresentationUploader extends Component {
               icon="delete"
               hideLabel
               onClick={() => this.handleRemove(item)}
-            />
+              />
+              ): null
+            }
           </td>
         )}
       </tr>

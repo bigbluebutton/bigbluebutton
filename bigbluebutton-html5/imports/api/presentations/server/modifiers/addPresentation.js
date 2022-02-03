@@ -49,6 +49,7 @@ export default function addPresentation(meetingId, podId, presentation) {
       },
     ],
     downloadable: Boolean,
+    removable: Boolean,
   });
 
   const selector = {
