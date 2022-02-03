@@ -87,9 +87,6 @@ exports.userslist = 'div[data-test="userList"]';
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';
 exports.hideNoteLabel = 'button[data-test="hideNoteLabel"]';
-exports.etherpad = 'iframe[title="etherpad"]';
-exports.ether = 'iframe[title="Ether"]';
-exports.pad = 'iframe[title="pad"]';
 exports.etherpadFrame = 'iframe[title="etherpad"]';
 exports.etherpadOuter = 'iframe[title="Ether"]';
 exports.etherpadInner = 'iframe[title="pad"]';
