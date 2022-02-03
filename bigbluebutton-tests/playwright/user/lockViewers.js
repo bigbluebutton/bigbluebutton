@@ -4,7 +4,7 @@ const e = require('../core/elements');
 const { expect } = require("@playwright/test");
 const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require("../core/constants");
 const { getNotesLocator } = require("../sharednotes/util");
-const { sleep } = require("../core/helpers");
+const { waitAndClearNotification } = require("../notifications/util");
 
 class LockViewers extends MultiUsers {
   constructor(browser, page) {
@@ -13,13 +13,14 @@ class LockViewers extends MultiUsers {
 
   async lockShareWebcam() {
     await this.modPage.shareWebcam();
-    await this.userPage.hasElement(e.videoContainer);
-    await this.userPage2.hasElement(e.videoContainer);
+    await this.userPage.hasElement(e.webcamVideoItem);
+    await this.userPage2.hasElement(e.webcamVideoItem);
     await this.userPage.shareWebcam();
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockShareWebcam);
     await this.modPage.waitAndClick(e.applyLockSettings);
-    const videoContainerLockedCount = await this.userPage2.getSelectorCount(e.videoContainer);
+    await waitAndClearNotification(this.modPage);
+    const videoContainerLockedCount = await this.userPage2.getSelectorCount(e.webcamVideoItem);
     expect(videoContainerLockedCount).toBe(1);
 
     await this.userPage2.waitForSelector(e.dropdownWebcamButton);
@@ -35,9 +36,9 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClickElement(e.lockSeeOtherViewersWebcam);
     await this.modPage.waitAndClick(e.applyLockSettings);
     const videoContainersCount = [
-      await this.modPage.getSelectorCount(e.videoContainer),
-      await this.userPage.getSelectorCount(e.videoContainer),
-      await this.userPage2.getSelectorCount(e.videoContainer),
+      await this.modPage.getSelectorCount(e.webcamVideoItem),
+      await this.userPage.getSelectorCount(e.webcamVideoItem),
+      await this.userPage2.getSelectorCount(e.webcamVideoItem),
     ];
     expect(videoContainersCount).toStrictEqual([3, 2, 2]);
   }

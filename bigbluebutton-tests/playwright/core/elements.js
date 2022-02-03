@@ -182,6 +182,9 @@ exports.statingUploadPresentationToast = 'To be uploaded ...';
 exports.convertingPresentationFileToast = 'Converting file';
 exports.presentationUploadedToast = 'Current presentation';
 
+// Settings
+exports.languageSelector = 'select[id="langSelector"]';
+
 // User
 exports.userAvatar = 'div[data-test="userAvatar"]';
 exports.applauseIcon = `${this.userAvatar} > div > i[class="icon-bbb-applause"]`;
@@ -239,8 +242,9 @@ exports.leaveVideo = 'button[data-test="leaveVideo"]';
 exports.videoPreview = 'video[data-test="videoPreview"]';
 exports.startSharingWebcam = 'button[data-test="startSharingWebcam"]';
 exports.webcamConnecting = 'div[data-test="webcamConnecting"]';
-exports.webcamVideo = 'video[data-test="videoContainer"]';
-exports.videoContainer = 'div[data-test="webcamList"]';
+exports.webcamContainer = 'video[data-test="videoContainer"]';
+exports.webcamVideoItem = 'div[data-test="webcamVideoItem"]';
+
 exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';
 exports.webcamSettingsModal = 'div[data-test="webcamSettingsModal"]';
 exports.dropdownWebcamButton = 'div[data-test="dropdownWebcamButton"]';

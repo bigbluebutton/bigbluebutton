@@ -4,7 +4,6 @@ const e = require('../core/elements');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { openConnectionStatus, checkNetworkStatus } = require('./util');
 const { startScreenshare } = require('../screenshare/util');
-const { checkElementLengthEqualTo } = require('../core/util');
 const { waitAndClearNotification } = require('../notifications/util');
 
 
@@ -33,10 +32,10 @@ class ConnectionStatus extends MultiUsers {
     await this.modPage.waitAndClickElement(e.dataSavingWebcams);
     await this.modPage.waitAndClickElement(e.closeModal);
     await waitAndClearNotification(this.modPage);
-    const checkUserWhoHasDisabled = await this.modPage.page.evaluate(checkElementLengthEqualTo, [e.videoContainer, 1]);
-    const checkSecondUser = await this.userPage.page.evaluate(checkElementLengthEqualTo, [e.videoContainer, 2]);
-    await expect(checkUserWhoHasDisabled).toBeTruthy();
-    await expect(checkSecondUser).toBeTruthy();
+    const checkUserWhoHasDisabled = await this.modPage.getSelectorCount(e.webcamContainer);
+    await expect(checkUserWhoHasDisabled).toBe(1);
+    const checkSecondUser = await this.userPage.getSelectorCount(e.webcamContainer);
+    await expect(checkSecondUser).toBe(2);
   }
 
   async usersConnectionStatus() {

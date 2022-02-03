@@ -29,8 +29,7 @@ class Webcam extends Page {
 
   async talkingIndicator() {
     await this.webcamLayoutStart();
-
-    await this.waitForSelector(e.webcamVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.isTalking);
     await this.hasElement(e.webcamItemTalkingUser);
