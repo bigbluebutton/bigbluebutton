@@ -58,7 +58,7 @@
     "app.upload.notification.header": "ファイルがアップロードされました",
     "app.upload.notification.disclaimer": "ブラウザが、このファイルタイプをサポートしていない可能性もあります。注意してください",
     "app.upload.media.title": "メディアアップロード",
-    "app.upload.media.note": "mp4, mp3, ogg, webm形式の動画、音声ファイルを500MBまでアップロード可能です。アップロードされたファイルは「インターネット上の動画を共有」から共有できます。ただしファイルのシークは今のところChromeやEdgeでは行えません（nginxの設定がrange requestsに対応していないため）。Firefoxでは可能です。",
+    "app.upload.media.note": "mp4、mp3、ogg、webm形式の動画、音声ファイルを1000MBまでアップロード可能です。アップロードされたファイルは「インターネット上の動画を共有」から共有できます。",
     "app.upload.media.message": "アップロードするメディアファイルをドラッグまたは選択してください",
     "app.upload.media.filename": "メディアファイル名",
     "app.upload.media.options": "メディアオプション",
