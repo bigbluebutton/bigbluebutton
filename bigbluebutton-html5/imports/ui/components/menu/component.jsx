@@ -94,7 +94,7 @@ class BBBMenu extends React.Component {
 
   render() {
     const { anchorEl } = this.state;
-    const { trigger, intl, wide, classes } = this.props;
+    const { trigger, intl, wide, classes, dataTest } = this.props;
     const actionsItems = this.makeMenuItems();
     const menuClasses = classes || [];
     menuClasses.push(styles.menu);
@@ -125,6 +125,7 @@ class BBBMenu extends React.Component {
           onClose={this.handleClose}
           className={menuClasses.join(' ')}
           style={{ zIndex: 9999 }}
+          data-test={dataTest}
         >
           {actionsItems}
           {anchorEl && window.innerWidth < MAX_WIDTH &&
@@ -182,4 +183,6 @@ BBBMenu.propTypes = {
   onCloseCallback: PropTypes.func,
 
   wide: PropTypes.bool,
+
+  dataTest: PropTypes.string,
 };

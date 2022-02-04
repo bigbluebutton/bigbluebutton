@@ -5,7 +5,6 @@ import MediaService, {
   shouldEnableSwapLayout,
 } from '/imports/ui/components/media/service';
 import { notify } from '/imports/ui/services/notification';
-import { Session } from 'meteor/session';
 import PresentationService from './service';
 import { Slides } from '/imports/api/slides';
 import Presentation from '/imports/ui/components/presentation/component';
@@ -17,8 +16,6 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import LayoutContext from '../layout/context';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { DEVICE_TYPE } from '../layout/enums';
-
-const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
 const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props }) => {
   const fullscreenElementId = 'Presentation';
@@ -48,7 +45,6 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
         layoutContextDispatch,
         numCameras,
         ...props,
-        isViewer: currentUser.role === ROLE_VIEWER,
         userIsPresenter: userIsPresenter && !layoutSwapped,
         presentationBounds: presentation,
         layoutType,

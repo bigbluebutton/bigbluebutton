@@ -356,6 +356,7 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 .checkBoxesContainer {
   @extend %flex-row;
   margin-top: 2rem;
+  margin-bottom: 0.25rem;
 }
 
 .withError {

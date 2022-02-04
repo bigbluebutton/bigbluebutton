@@ -22,6 +22,7 @@ trait GetCamBroadcastPermissionReqMsgHdlr {
 
       if (!user.userLeftFlag.left
         && liveMeeting.props.meetingProp.intId == msg.body.meetingId
+        && msg.body.streamId.startsWith(msg.header.userId)
         && (applyPermissionCheck && !camBroadcastLocked)) {
         allowed = true
       }
@@ -30,6 +31,7 @@ trait GetCamBroadcastPermissionReqMsgHdlr {
     val event = MsgBuilder.buildGetCamBroadcastPermissionRespMsg(
       liveMeeting.props.meetingProp.intId,
       msg.body.userId,
+      msg.body.streamId,
       msg.body.sfuSessionId,
       allowed
     )

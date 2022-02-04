@@ -8,14 +8,13 @@ class Language extends Page {
   }
 
   async test() {
-    for(let locale of e.locales) {
+    for(const locale of e.locales) {
       console.log(`Testing ${locale} locale`);
       await openSettings(this);
-      await this.page.waitForSelector('#langSelector');
-      const langDropdown = await this.page.$('#langSelector');
-      const langOptions = await langDropdown.$$('option');
+      await this.waitForSelector(e.languageSelector);
+      const langDropdown = await this.page.$(e.languageSelector);
       await langDropdown.selectOption({ value: locale });
-      await this.page.click(e.modalConfirmButton);
+      await this.waitAndClick(e.modalConfirmButton);
     }
   }
 }

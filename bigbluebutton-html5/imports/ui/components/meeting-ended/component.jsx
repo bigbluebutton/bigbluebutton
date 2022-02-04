@@ -15,6 +15,7 @@ import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
+import Storage from '/imports/ui/services/storage/session';
 
 const intlMessage = defineMessages({
   410: {
@@ -156,6 +157,8 @@ class MeetingEnded extends PureComponent {
     this.getEndingMessage = this.getEndingMessage.bind(this);
 
     AudioManager.exitAudio();
+    Storage.removeItem('getEchoTest');
+    Storage.removeItem('isFirstJoin');
     Meteor.disconnect();
   }
 

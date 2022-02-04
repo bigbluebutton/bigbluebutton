@@ -170,7 +170,7 @@ class CustomParameters extends MultiUsers {
     await this.modPage.waitForSelector(e.joinVideo);
     const parsedSettings = await this.modPage.getSettingsYaml();
     const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-    await this.modPage.shareWebcam(true, videoPreviewTimeout);
+    await this.modPage.shareWebcam(videoPreviewTimeout);
   }
 
   async mirrorOwnWebcam() {
