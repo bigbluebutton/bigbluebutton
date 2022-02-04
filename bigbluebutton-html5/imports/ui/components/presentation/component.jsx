@@ -147,7 +147,6 @@ class Presentation extends PureComponent {
       layoutSwapped,
       currentSlide,
       publishedPoll,
-      isViewer,
       toggleSwapLayout,
       restoreOnUpdate,
       layoutContextDispatch,
@@ -221,7 +220,7 @@ class Presentation extends PureComponent {
         });
       }
 
-      if (layoutSwapped && restoreOnUpdate && isViewer && currentSlide) {
+      if (layoutSwapped && restoreOnUpdate && !userIsPresenter && currentSlide) {
         const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
         const positionChanged = slidePosition
           .viewBoxHeight !== prevProps.slidePosition.viewBoxHeight
