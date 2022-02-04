@@ -61,6 +61,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: EndAllBreakoutRoomsMsg                         => logMessage(msg)
       case m: TransferUserToMeetingRequestMsg                => logMessage(msg)
       case m: ExtendBreakoutRoomsTimeReqMsg                  => logMessage(msg)
+      case m: SendMessageToAllBreakoutRoomsReqMsg            => logMessage(msg)
       case m: UserLeftVoiceConfToClientEvtMsg                => logMessage(msg)
       case m: UserLeftVoiceConfEvtMsg                        => logMessage(msg)
       case m: RecordingStartedVoiceConfEvtMsg                => logMessage(msg)
@@ -146,10 +147,14 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: GuestWaitingLeftMsg => logMessage(msg)
       case m: GuestWaitingLeftEvtMsg => logMessage(msg)
       case m: GuestsWaitingForApprovalEvtMsg => logMessage(msg)
+      case m: UpdatePositionInWaitingQueueReqMsg => logMessage(msg)
+      case m: PosInWaitingQueueUpdatedRespMsg => logMessage(msg)
       case m: SetGuestPolicyCmdMsg => logMessage(msg)
       case m: GuestPolicyChangedEvtMsg => logMessage(msg)
       case m: SetGuestLobbyMessageCmdMsg => logMessage(msg)
       case m: GuestLobbyMessageChangedEvtMsg => logMessage(msg)
+      case m: SetPrivateGuestLobbyMessageCmdMsg => logMessage(msg)
+      case m: PrivateGuestLobbyMsgChangedEvtMsg => logMessage(msg)
 
       // System
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
@@ -173,6 +178,26 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       // Layout
       case m: BroadcastLayoutMsg => logMessage(msg)
       case m: BroadcastLayoutEvtMsg => logMessage(msg)
+
+      // Pads
+      case m: PadCreateGroupReqMsg => logMessage(msg)
+      case m: PadCreateGroupCmdMsg => logMessage(msg)
+      case m: PadGroupCreatedEvtMsg => logMessage(msg)
+      case m: PadGroupCreatedRespMsg => logMessage(msg)
+      case m: PadCreateReqMsg => logMessage(msg)
+      case m: PadCreateCmdMsg => logMessage(msg)
+      case m: PadCreatedEvtMsg => logMessage(msg)
+      case m: PadCreatedRespMsg => logMessage(msg)
+      case m: PadCreateSessionReqMsg => logMessage(msg)
+      case m: PadCreateSessionCmdMsg => logMessage(msg)
+      case m: PadSessionCreatedEvtMsg => logMessage(msg)
+      case m: PadSessionCreatedRespMsg => logMessage(msg)
+      case m: PadSessionDeletedSysMsg => logMessage(msg)
+      case m: PadSessionDeletedEvtMsg => logMessage(msg)
+      case m: PadUpdatedSysMsg => logMessage(msg)
+      case m: PadUpdatedEvtMsg => logMessage(msg)
+      case m: PadUpdatePubMsg => logMessage(msg)
+      case m: PadUpdateCmdMsg => logMessage(msg)
 
       case _ => // ignore message
     }

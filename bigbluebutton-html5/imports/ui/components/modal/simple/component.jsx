@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
-import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import ModalBase, { withModalState } from '../base/component';
-import { styles } from './styles';
+import { withModalState } from '../base/component';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   modalClose: {
@@ -27,7 +25,7 @@ const propTypes = {
 const defaultProps = {
   shouldCloseOnOverlayClick: true,
   shouldShowCloseButton: true,
-  overlayClassName: styles.overlay,
+  overlayClassName: "modalOverlay",
 };
 
 class ModalSimple extends Component {
@@ -75,18 +73,17 @@ class ModalSimple extends Component {
       }
     }
     return (
-      <ModalBase
+      <Styled.SimpleModal
         isOpen={modalisOpen}
-        className={cx(className, styles.modal)}
+        className={className}
         onRequestClose={handleRequestClose}
         contentLabel={title || contentLabel}
         {...otherProps}
       >
-        <header className={hideBorder ? styles.headerNoBorder : styles.header}>
-          <h1 className={styles.title}>{title}</h1>
+        <Styled.Header hideBorder={hideBorder}>
+          <Styled.Title hasLeftMargin={shouldShowCloseButton}>{title}</Styled.Title>
           {shouldShowCloseButton ? (
-            <Button
-              className={styles.dismiss}
+            <Styled.DismissButton
               label={intl.formatMessage(intlMessages.modalClose)}
               aria-label={`${intl.formatMessage(intlMessages.modalClose)} ${title || contentLabel}`}
               data-test="closeModal"
@@ -97,12 +94,12 @@ class ModalSimple extends Component {
               aria-describedby="modalDismissDescription"
             />
           ) : null}
-        </header>
-        <div className={styles.content}>
+        </Styled.Header>
+        <Styled.Content>
           {this.props.children}
-        </div>
+        </Styled.Content>
         <div id="modalDismissDescription" hidden>{intl.formatMessage(intlMessages.modalCloseDescription)}</div>
-      </ModalBase>
+      </Styled.SimpleModal>
     );
   }
 }

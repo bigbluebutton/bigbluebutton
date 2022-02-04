@@ -1,130 +1,134 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import CaptionsService from './service';
+import { defineMessages, injectIntl } from 'react-intl';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import Button from '/imports/ui/components/button/component';
+import PadContainer from '/imports/ui/components/pads/container';
+import Service from '/imports/ui/components/captions/service';
+import Styled from './styles';
+import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
+import browserInfo from '/imports/utils/browserInfo';
 
-const CAPTIONS_CONFIG = Meteor.settings.public.captions;
+const intlMessages = defineMessages({
+  hide: {
+    id: 'app.captions.hide',
+    description: 'Label for hiding closed captions',
+  },
+  takeOwnership: {
+    id: 'app.captions.ownership',
+    description: 'Label for taking ownership of closed captions',
+  },
+  takeOwnershipTooltip: {
+    id: 'app.captions.ownershipTooltip',
+    description: 'Text for button for taking ownership of closed captions',
+  },
+  dictationStart: {
+    id: 'app.captions.dictationStart',
+    description: 'Label for starting speech recognition',
+  },
+  dictationStop: {
+    id: 'app.captions.dictationStop',
+    description: 'Label for stoping speech recognition',
+  },
+  dictationOnDesc: {
+    id: 'app.captions.dictationOnDesc',
+    description: 'Aria description for button that turns on speech recognition',
+  },
+  dictationOffDesc: {
+    id: 'app.captions.dictationOffDesc',
+    description: 'Aria description for button that turns off speech recognition',
+  },
+});
 
-class Captions extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { initial: true };
-    this.text = '';
-    this.ariaText = '';
-    this.timer = null;
-    this.settings = CaptionsService.getCaptionsSettings();
-
-    this.updateText = this.updateText.bind(this);
-    this.resetTimer = this.resetTimer.bind(this);
-  }
-
-  componentDidMount() {
-    this.setState({ initial: false });
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    const {
-      locale,
-      revs,
-    } = this.props;
-
-    if (locale === nextProps.locale) {
-      if (revs === nextProps.revs && !nextState.clear) return false;
-    }
-    return true;
-  }
-
-  componentDidUpdate() {
-    /* https://reactjs.org/docs/react-component.html#componentdidupdate
-     You may call setState() immediately in componentDidUpdate()
-     but note that it must be wrapped in a condition (...),
-     or you’ll cause an infinite loop. */
-    const { clear } = this.state;
-    if (clear) {
-      this.setState({ clear: false });
-    } else {
-      this.resetTimer();
-      this.timer = setTimeout(() => { this.setState({ clear: true }); }, CAPTIONS_CONFIG.time);
-    }
-  }
-
-  componentWillUnmount() {
-    this.resetTimer();
-  }
-
-  updateText(data) {
-    const { clear } = this.state;
-    if (clear) {
-      this.text = '';
-      this.ariaText = '';
-    } else {
-      this.ariaText = CaptionsService.formatCaptionsText(data);
-      const text = this.text + data;
-      this.text = CaptionsService.formatCaptionsText(text);
-    }
-  }
-
-  resetTimer() {
-    if (this.timer) {
-      clearTimeout(this.timer);
-      this.timer = null;
-    }
-  }
-
-  render() {
-    const { data } = this.props;
-    const { initial } = this.state;
-    const {
-      fontFamily,
-      fontSize,
-      fontColor,
-      backgroundColor,
-    } = this.settings;
-
-    if (!initial) {
-      this.updateText(data);
-    }
-
-    const captionStyles = {
-      whiteSpace: 'pre-wrap',
-      wordWrap: 'break-word',
-      fontFamily,
-      fontSize,
-      background: backgroundColor,
-      color: fontColor,
-    };
-
-    const visuallyHidden = {
-      position: 'absolute',
-      overflow: 'hidden',
-      clip: 'rect(0 0 0 0)',
-      height: '1px',
-      width: '1px',
-      margin: '-1px',
-      padding: '0',
-      border: '0',
-    };
-
-    return (
-      <div>
-        <div style={captionStyles}>
-          {this.text}
-        </div>
-        <div
-          style={visuallyHidden}
-          aria-atomic
-          aria-live="polite"
-        >
-          {this.ariaText}
-        </div>
-      </div>
-    );
-  }
-}
-
-export default Captions;
-
-Captions.propTypes = {
+const propTypes = {
   locale: PropTypes.string.isRequired,
-  revs: PropTypes.number.isRequired,
-  data: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  ownerId: PropTypes.string.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  dictation: PropTypes.bool.isRequired,
+  dictating: PropTypes.bool.isRequired,
+  isRTL: PropTypes.bool.isRequired,
+  hasPermission: PropTypes.bool.isRequired,
+  layoutContextDispatch: PropTypes.func.isRequired,
+  isResizing: PropTypes.bool.isRequired,
 };
+
+const Captions = ({
+  locale,
+  intl,
+  ownerId,
+  name,
+  dictation,
+  dictating,
+  isRTL,
+  hasPermission,
+  layoutContextDispatch,
+  isResizing,
+}) => {
+  const { isChrome } = browserInfo;
+
+  return (
+    <Styled.Captions isChrome={isChrome}>
+      <Styled.Header>
+        <Styled.Title>
+          <Styled.HideBtn
+            onClick={() => {
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.NONE,
+              });
+            }}
+            aria-label={intl.formatMessage(intlMessages.hide)}
+            label={name}
+            icon={isRTL ? 'right_arrow' : 'left_arrow'}
+          />
+        </Styled.Title>
+        {Service.amICaptionsOwner(ownerId)
+          ? (
+            <span>
+              <Button
+                onClick={dictating
+                  ? () => Service.stopDictation(locale)
+                  : () => Service.startDictation(locale)}
+                label={dictating
+                  ? intl.formatMessage(intlMessages.dictationStop)
+                  : intl.formatMessage(intlMessages.dictationStart)}
+                aria-describedby="dictationBtnDesc"
+                color={dictating ? 'danger' : 'primary'}
+                disabled={!dictation}
+              />
+              <div id="dictationBtnDesc" hidden>
+                {dictating
+                  ? intl.formatMessage(intlMessages.dictationOffDesc)
+                  : intl.formatMessage(intlMessages.dictationOnDesc)}
+              </div>
+            </span>
+          ) : (
+            <Button
+              color="primary"
+              tooltipLabel={intl.formatMessage(intlMessages.takeOwnershipTooltip, { 0: name })}
+              onClick={() => Service.updateCaptionsOwner(locale, name)}
+              aria-label={intl.formatMessage(intlMessages.takeOwnership)}
+              label={intl.formatMessage(intlMessages.takeOwnership)}
+            />
+          )}
+      </Styled.Header>
+      <PadContainer
+        externalId={locale}
+        hasPermission={hasPermission}
+        isResizing={isResizing}
+        isRTL={isRTL}
+      />
+    </Styled.Captions>
+  );
+};
+
+Captions.propTypes = propTypes;
+
+export default injectWbResizeEvent(injectIntl(Captions));

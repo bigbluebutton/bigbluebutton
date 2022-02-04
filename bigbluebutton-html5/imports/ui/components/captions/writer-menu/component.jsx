@@ -1,12 +1,10 @@
 import React, { PureComponent } from 'react';
-import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import PropTypes from 'prop-types';
-import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
+import Service from '/imports/ui/components/captions/service';
 import LocalesDropdown from '/imports/ui/components/locales-dropdown/component';
-import { styles } from './styles';
+import Styled from './styles';
 import { PANELS, ACTIONS } from '../../layout/enums';
 
 const intlMessages = defineMessages({
@@ -45,8 +43,7 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  takeOwnership: PropTypes.func.isRequired,
-  allLocales: PropTypes.arrayOf(PropTypes.object).isRequired,
+  availableLocales: PropTypes.arrayOf(PropTypes.object).isRequired,
   closeModal: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -56,9 +53,9 @@ const propTypes = {
 class WriterMenu extends PureComponent {
   constructor(props) {
     super(props);
-    const { allLocales, intl } = this.props;
+    const { availableLocales, intl } = this.props;
 
-    const candidate = allLocales.filter(
+    const candidate = availableLocales.filter(
       (l) => l.locale.substring(0, 2) === intl.locale.substring(0, 2),
     );
 
@@ -81,11 +78,13 @@ class WriterMenu extends PureComponent {
   }
 
   handleStart() {
-    const { closeModal, takeOwnership, layoutContextDispatch } = this.props;
-    const { locale } = this.state;
+    const {
+      closeModal,
+      layoutContextDispatch,
+    } = this.props;
 
-    takeOwnership(locale);
-    Session.set('captionsLocale', locale);
+    const { locale } = this.state;
+    Service.createCaptions(locale);
 
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -102,26 +101,24 @@ class WriterMenu extends PureComponent {
   render() {
     const {
       intl,
-      allLocales,
+      availableLocales,
       closeModal,
     } = this.props;
 
     const { locale } = this.state;
 
     return (
-      <Modal
-        overlayClassName={styles.overlay}
-        className={styles.modal}
+      <Styled.WriterMenuModal
         onRequestClose={closeModal}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.title)}
       >
-        <header className={styles.header}>
-          <h3 className={styles.title}>
+        <Styled.Header>
+          <Styled.Title>
             {intl.formatMessage(intlMessages.title)}
-          </h3>
-        </header>
-        <div className={styles.content}>
+          </Styled.Title>
+        </Styled.Header>
+        <Styled.Content>
           <span>
             {intl.formatMessage(intlMessages.subtitle)}
           </span>
@@ -132,17 +129,16 @@ class WriterMenu extends PureComponent {
             aria-label={intl.formatMessage(intlMessages.ariaSelect)}
           />
 
-          <LocalesDropdown
-            allLocales={allLocales}
-            handleChange={this.handleChange}
-            value={locale}
-            elementId="captionsLangSelector"
-            elementClass={styles.select}
-            selectMessage={intl.formatMessage(intlMessages.select)}
-          />
-
-          <Button
-            className={styles.startBtn}
+          <Styled.WriterMenuSelect>
+            <LocalesDropdown
+              allLocales={availableLocales}
+              handleChange={this.handleChange}
+              value={locale}
+              elementId="captionsLangSelector"
+              selectMessage={intl.formatMessage(intlMessages.select)}
+            />
+          </Styled.WriterMenuSelect>
+          <Styled.StartBtn
             label={intl.formatMessage(intlMessages.start)}
             aria-label={intl.formatMessage(intlMessages.ariaStart)}
             aria-describedby="descriptionStart"
@@ -150,8 +146,8 @@ class WriterMenu extends PureComponent {
             disabled={locale == null}
           />
           <div id="descriptionStart" hidden>{intl.formatMessage(intlMessages.ariaStartDesc)}</div>
-        </div>
-      </Modal>
+        </Styled.Content>
+      </Styled.WriterMenuModal>
     );
   }
 }

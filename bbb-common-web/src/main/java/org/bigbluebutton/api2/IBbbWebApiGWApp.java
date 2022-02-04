@@ -1,9 +1,11 @@
 package org.bigbluebutton.api2;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.bigbluebutton.api.domain.BreakoutRoomsParams;
 import org.bigbluebutton.api.domain.LockSettingsParams;
+import org.bigbluebutton.api.domain.Group;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.PublishedRecordingMessage;
@@ -34,7 +36,9 @@ public interface IBbbWebApiGWApp {
                      Boolean keepEvents,
                      BreakoutRoomsParams breakoutParams,
                      LockSettingsParams lockSettingsParams,
-                     Integer html5InstanceId, Boolean virtualBackgroundsDisabled);
+                     Integer html5InstanceId,
+                     ArrayList<Group> groups,
+                     Boolean virtualBackgroundsDisabled);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String avatarURL,

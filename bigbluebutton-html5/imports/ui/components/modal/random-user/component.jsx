@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
 import AudioService from '/imports/ui/components/audio/service';
-import { styles } from './styles';
+import Styled from './styles';
 
 const SELECT_RANDOM_USER_COUNTDOWN = Meteor.settings.public.selectRandomUser.countdown;
 
@@ -56,7 +55,7 @@ class RandomUserSelect extends Component {
       props.randomUserReq();
     }
 
-    if(SELECT_RANDOM_USER_COUNTDOWN) {
+    if (SELECT_RANDOM_USER_COUNTDOWN) {
       this.state = {
         count: 0,
       };
@@ -86,12 +85,12 @@ class RandomUserSelect extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if(SELECT_RANDOM_USER_COUNTDOWN) {
-      if (this.props.currentUser.presenter && this.state.count == 0) {
+    if (SELECT_RANDOM_USER_COUNTDOWN) {
+      if (this.props.currentUser.presenter && this.state.count === 0) {
         this.iterateSelection();
       }
 
-      if (prevState.count !== this.state.count) {
+      if ((prevState.count !== this.state.count) && this.props.keepModalOpen) {
         this.play();
       }
     }
@@ -105,7 +104,7 @@ class RandomUserSelect extends Component {
   }
 
   reselect() {
-    if(SELECT_RANDOM_USER_COUNTDOWN) {
+    if (SELECT_RANDOM_USER_COUNTDOWN) {
       this.setState({
         count: 0,
       });
@@ -115,6 +114,8 @@ class RandomUserSelect extends Component {
 
   render() {
     const {
+      keepModalOpen,
+      toggleKeepModalOpen,
       intl,
       mountModal,
       numAvailableViewers,
@@ -139,20 +140,20 @@ class RandomUserSelect extends Component {
       // and people are entering and leaving the meeting
       // display modal informing presenter that there's no viewers to select from
       viewElement = (
-        <div className={styles.modalViewContainer}>
-          <div className={styles.modalViewTitle}>
+        <Styled.ModalViewContainer>
+          <Styled.ModalViewTitle>
             {intl.formatMessage(messages.randUserTitle)}
-          </div>
+          </Styled.ModalViewTitle>
           <div>{intl.formatMessage(messages.noViewers)}</div>
-        </div>
+        </Styled.ModalViewContainer>
       );
     } else { // viewers are available
       if (!selectedUser) return null; // rendering triggered before selectedUser is available
 
       // display modal with random user selection
       viewElement = (
-        <div className={styles.modalViewContainer}>
-          <div className={styles.modalViewTitle}>
+        <Styled.ModalViewContainer>
+          <Styled.ModalViewTitle>
             {countDown == 0
               ? amISelectedUser
                 ? `${intl.formatMessage(messages.selected)}`
@@ -160,40 +161,43 @@ class RandomUserSelect extends Component {
                   ? `${intl.formatMessage(messages.onlyOneViewerTobeSelected)}`
                   : `${intl.formatMessage(messages.randUserTitle)}`
               : `${intl.formatMessage(messages.whollbeSelected)} ${countDown}`}
-          </div>
-          <div aria-hidden className={styles.modalAvatar} style={{ backgroundColor: `${selectedUser.color}` }}>
+          </Styled.ModalViewTitle>
+          <Styled.ModalAvatar aria-hidden style={{ backgroundColor: `${selectedUser.color}` }}>
             {selectedUser.name.slice(0, 2)}
-          </div>
-          <div className={styles.selectedUserName}>
+          </Styled.ModalAvatar>
+          <Styled.SelectedUserName>
             {selectedUser.name}
-          </div>
+          </Styled.SelectedUserName>
           {currentUser.presenter
-            && countDown == 0
+            && countDown === 0
             && (
-            <Button
+            <Styled.SelectButton
               label={intl.formatMessage(messages.reselect)}
               color="primary"
               size="md"
-              className={styles.selectBtn}
               onClick={() => this.reselect()}
             />
             )}
-        </div>
+        </Styled.ModalViewContainer>
       );
     }
-
-    return (
-      <Modal
-        hideBorder
-        onRequestClose={() => {
-          if (currentUser.presenter) clearRandomlySelectedUser();
-          mountModal(null);
-        }}
-        contentLabel={intl.formatMessage(messages.ariaModalTitle)}
-      >
-        {viewElement}
-      </Modal>
-    );
+    if (keepModalOpen) {
+      return (
+        <Modal
+          hideBorder
+          onRequestClose={() => {
+            if (currentUser.presenter) clearRandomlySelectedUser();
+            toggleKeepModalOpen();
+            mountModal(null);
+          }}
+          contentLabel={intl.formatMessage(messages.ariaModalTitle)}
+        >
+          {viewElement}
+        </Modal>
+      );
+    } else {
+      return null;
+    }
   }
 }
 

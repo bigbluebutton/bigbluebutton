@@ -1,28 +1,45 @@
-import React, { Component } from 'react';
+import { useEffect, useRef } from 'react';
 import _ from 'lodash';
-import { LayoutContextFunc } from '/imports/ui/components/layout/context';
+import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
-import {
-  DEVICE_TYPE, ACTIONS, PANELS, CAMERADOCK_POSITION,
-} from '/imports/ui/components/layout/enums';
+import { ACTIONS, PANELS, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
-const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
-const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
-class SmartLayout extends Component {
-  constructor(props) {
-    super(props);
+const SmartLayout = (props) => {
+  const { bannerAreaHeight, isMobile } = props;
 
-    this.throttledCalculatesLayout = _.throttle(() => this.calculatesLayout(),
-      50, { trailing: true, leading: true });
+  function usePrevious(value) {
+    const ref = useRef();
+    useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
   }
 
-  componentDidMount() {
-    this.init();
-    const { layoutContextDispatch } = this.props;
+  const input = layoutSelect((i) => i.input);
+  const deviceType = layoutSelect((i) => i.deviceType);
+  const isRTL = layoutSelect((i) => i.isRTL);
+  const fullscreen = layoutSelect((i) => i.fullscreen);
+  const fontSize = layoutSelect((i) => i.fontSize);
+  const currentPanelType = layoutSelect((i) => i.currentPanelType);
+
+  const presentationInput = layoutSelectInput((i) => i.presentation);
+  const sidebarNavigationInput = layoutSelectInput((i) => i.sidebarNavigation);
+  const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
+  const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
+  const actionbarInput = layoutSelectInput((i) => i.actionBar);
+  const navbarInput = layoutSelectInput((i) => i.navBar);
+  const layoutContextDispatch = layoutDispatch();
+
+  const prevDeviceType = usePrevious(deviceType);
+
+  const throttledCalculatesLayout = _.throttle(() => calculatesLayout(),
+    50, { trailing: true, leading: true });
+
+  useEffect(() => {
     window.addEventListener('resize', () => {
       layoutContextDispatch({
         type: ACTIONS.SET_BROWSER_SIZE,
@@ -32,70 +49,50 @@ class SmartLayout extends Component {
         },
       });
     });
-  }
+  }, []);
 
-  shouldComponentUpdate(nextProps) {
-    const { layoutContextState } = this.props;
-    return layoutContextState.input !== nextProps.layoutContextState.input
-      || layoutContextState.deviceType !== nextProps.layoutContextState.deviceType
-      || layoutContextState.isRTL !== nextProps.layoutContextState.isRTL
-      || layoutContextState.fontSize !== nextProps.layoutContextState.fontSize
-      || layoutContextState.fullscreen !== nextProps.layoutContextState.fullscreen;
-  }
+  useEffect(() => {
+    if (deviceType === null) return;
 
-  componentDidUpdate(prevProps) {
-    const { layoutContextState } = this.props;
-    const { deviceType } = layoutContextState;
-    if (prevProps.layoutContextState.deviceType !== deviceType) {
-      this.init();
+    if (deviceType !== prevDeviceType) {
+      // reset layout if deviceType changed
+      // not all options is supported in all devices
+      init();
     } else {
-      this.throttledCalculatesLayout();
+      throttledCalculatesLayout();
     }
-  }
+  }, [input, deviceType, isRTL, fontSize, fullscreen]);
 
-  bannerAreaHeight() {
-    const { layoutContextState } = this.props;
-    const { input } = layoutContextState;
-    const { bannerBar, notificationsBar } = input;
-
-    const bannerHeight = bannerBar.hasBanner ? DEFAULT_VALUES.bannerHeight : 0;
-    const notificationHeight = notificationsBar.hasNotification ? DEFAULT_VALUES.bannerHeight : 0;
-
-    return bannerHeight + notificationHeight;
-  }
-
-  init() {
-    const { layoutContextState, layoutContextDispatch } = this.props;
-    const { deviceType, input } = layoutContextState;
-    if (deviceType === DEVICE_TYPE.MOBILE) {
+  const init = () => {
+    if (isMobile) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: _.defaultsDeep({
           sidebarNavigation: {
             isOpen: false,
-            sidebarNavPanel: input.sidebarNavigation.sidebarNavPanel,
+            sidebarNavPanel: sidebarNavigationInput.sidebarNavPanel,
           },
           sidebarContent: {
             isOpen: false,
-            sidebarContentPanel: input.sidebarContent.sidebarContentPanel,
+            sidebarContentPanel: sidebarContentInput.sidebarContentPanel,
           },
           SidebarContentHorizontalResizer: {
             isOpen: false,
           },
           presentation: {
-            isOpen: input.presentation.isOpen,
-            slidesLength: input.presentation.slidesLength,
+            isOpen: presentationInput.isOpen,
+            slidesLength: presentationInput.slidesLength,
             currentSlide: {
-              ...input.presentation.currentSlide,
+              ...presentationInput.currentSlide,
             },
           },
           cameraDock: {
-            numCameras: input.cameraDock.numCameras,
+            numCameras: cameraDockInput.numCameras,
           },
         }, INITIAL_INPUT_STATE),
       });
     } else {
-      const { sidebarContentPanel } = input.sidebarContent;
+      const { sidebarContentPanel } = sidebarContentInput;
 
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
@@ -111,311 +108,89 @@ class SmartLayout extends Component {
             isOpen: false,
           },
           presentation: {
-            isOpen: input.presentation.isOpen,
-            slidesLength: input.presentation.slidesLength,
+            isOpen: presentationInput.isOpen,
+            slidesLength: presentationInput.slidesLength,
             currentSlide: {
-              ...input.presentation.currentSlide,
+              ...presentationInput.currentSlide,
             },
           },
           cameraDock: {
-            numCameras: input.cameraDock.numCameras,
+            numCameras: cameraDockInput.numCameras,
           },
         }, INITIAL_INPUT_STATE),
       });
     }
-    this.throttledCalculatesLayout();
-  }
+    throttledCalculatesLayout();
+  };
 
-  reset() {
-    this.init();
-  }
-
-  calculatesNavbarBounds(mediaAreaBounds) {
-    const { layoutContextState } = this.props;
-    const { isRTL } = layoutContextState;
-
-    return {
-      width: mediaAreaBounds.width,
-      height: DEFAULT_VALUES.navBarHeight,
-      top: DEFAULT_VALUES.navBarTop + this.bannerAreaHeight(),
-      left: !isRTL ? mediaAreaBounds.left : 0,
-      zIndex: 1,
-    };
-  }
-
-  calculatesActionbarHeight() {
-    const { layoutContextState } = this.props;
-    const { fontSize } = layoutContextState;
-
-    const BASE_FONT_SIZE = 14; // 90% font size
-    const BASE_HEIGHT = DEFAULT_VALUES.actionBarHeight;
-    const PADDING = DEFAULT_VALUES.actionBarPadding;
-
-    const actionBarHeight = ((BASE_HEIGHT / BASE_FONT_SIZE) * fontSize);
-
-    return {
-      height: actionBarHeight + (PADDING * 2),
-      innerHeight: actionBarHeight,
-      padding: PADDING,
-    };
-  }
-
-  calculatesActionbarBounds(mediaAreaBounds) {
-    const { layoutContextState } = this.props;
-    const { input, isRTL } = layoutContextState;
-
-    const actionBarHeight = this.calculatesActionbarHeight();
-
-    return {
-      display: input.actionBar.hasActionBar,
-      width: mediaAreaBounds.width,
-      height: actionBarHeight.height,
-      innerHeight: actionBarHeight.innerHeight,
-      padding: actionBarHeight.padding,
-      top: windowHeight() - actionBarHeight.height,
-      left: !isRTL ? mediaAreaBounds.left : 0,
-      zIndex: 1,
-    };
-  }
-
-  calculatesSidebarNavWidth() {
-    const { layoutContextState } = this.props;
-    const { deviceType, input } = layoutContextState;
-    const {
-      sidebarNavMinWidth,
-      sidebarNavMaxWidth,
-    } = DEFAULT_VALUES;
-    let minWidth = 0;
-    let width = 0;
-    let maxWidth = 0;
-    if (input.sidebarNavigation.isOpen) {
-      if (deviceType === DEVICE_TYPE.MOBILE) {
-        minWidth = windowWidth();
-        width = windowWidth();
-        maxWidth = windowWidth();
-      } else {
-        if (input.sidebarNavigation.width === 0) {
-          width = min(max((windowWidth() * 0.2), sidebarNavMinWidth), sidebarNavMaxWidth);
-        } else {
-          width = min(max(input.sidebarNavigation.width, sidebarNavMinWidth), sidebarNavMaxWidth);
-        }
-        minWidth = sidebarNavMinWidth;
-        maxWidth = sidebarNavMaxWidth;
-      }
-    }
-    return {
-      minWidth,
-      width,
-      maxWidth,
-    };
-  }
-
-  calculatesSidebarNavHeight() {
-    const { layoutContextState } = this.props;
-    const { deviceType, input } = layoutContextState;
-    let sidebarNavHeight = 0;
-    if (input.sidebarNavigation.isOpen) {
-      if (deviceType === DEVICE_TYPE.MOBILE) {
-        sidebarNavHeight = windowHeight() - DEFAULT_VALUES.navBarHeight;
-      } else {
-        sidebarNavHeight = windowHeight();
-      }
-      sidebarNavHeight -= this.bannerAreaHeight();
-    }
-    return sidebarNavHeight;
-  }
-
-  calculatesSidebarNavBounds() {
-    const { layoutContextState } = this.props;
-    const { deviceType, isRTL } = layoutContextState;
-    const { sidebarNavTop, navBarHeight, sidebarNavLeft } = DEFAULT_VALUES;
-
-    let top = sidebarNavTop + this.bannerAreaHeight();
-
-    if (deviceType === DEVICE_TYPE.MOBILE) top = navBarHeight + this.bannerAreaHeight();
-
-    return {
-      top,
-      left: !isRTL ? sidebarNavLeft : null,
-      right: isRTL ? sidebarNavLeft : null,
-      zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 2,
-    };
-  }
-
-  calculatesSidebarContentWidth() {
-    const { layoutContextState } = this.props;
-    const { deviceType, input } = layoutContextState;
-    const {
-      sidebarContentMinWidth,
-      sidebarContentMaxWidth,
-    } = DEFAULT_VALUES;
-    let minWidth = 0;
-    let width = 0;
-    let maxWidth = 0;
-    if (input.sidebarContent.isOpen) {
-      if (deviceType === DEVICE_TYPE.MOBILE) {
-        minWidth = windowWidth();
-        width = windowWidth();
-        maxWidth = windowWidth();
-      } else {
-        if (input.sidebarContent.width === 0) {
-          width = min(
-            max((windowWidth() * 0.2), sidebarContentMinWidth), sidebarContentMaxWidth,
-          );
-        } else {
-          width = min(max(input.sidebarContent.width, sidebarContentMinWidth),
-            sidebarContentMaxWidth);
-        }
-        minWidth = sidebarContentMinWidth;
-        maxWidth = sidebarContentMaxWidth;
-      }
-    }
-    return {
-      minWidth,
-      width,
-      maxWidth,
-    };
-  }
-
-  calculatesSidebarContentHeight() {
-    const { layoutContextState } = this.props;
-    const { deviceType, input } = layoutContextState;
+  const calculatesSidebarContentHeight = () => {
     let sidebarContentHeight = 0;
-    if (input.sidebarContent.isOpen) {
-      if (deviceType === DEVICE_TYPE.MOBILE) {
+    if (sidebarContentInput.isOpen) {
+      if (isMobile) {
         sidebarContentHeight = windowHeight() - DEFAULT_VALUES.navBarHeight;
       } else {
         sidebarContentHeight = windowHeight();
       }
-      sidebarContentHeight -= this.bannerAreaHeight();
+      sidebarContentHeight -= bannerAreaHeight();
     }
     return sidebarContentHeight;
-  }
+  };
 
-  calculatesSidebarContentBounds(sidebarNavWidth) {
-    const { layoutContextState } = this.props;
-    const { deviceType, isRTL } = layoutContextState;
-    const { sidebarNavTop, navBarHeight } = DEFAULT_VALUES;
+  const calculatesCameraDockBounds = (mediaAreaBounds, mediaBounds, sidebarSize) => {
+    const { baseCameraDockBounds } = props;
 
-    let top = sidebarNavTop + this.bannerAreaHeight();
+    const baseBounds = baseCameraDockBounds(mediaAreaBounds, sidebarSize);
 
-    if (deviceType === DEVICE_TYPE.MOBILE) top = navBarHeight + this.bannerAreaHeight();
-
-    let left = deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth;
-    left = !isRTL ? left : null;
-
-    let right = deviceType === DEVICE_TYPE.MOBILE ? 0 : sidebarNavWidth;
-    right = isRTL ? right : null;
-
-    return {
-      top,
-      left,
-      right,
-      zIndex: deviceType === DEVICE_TYPE.MOBILE ? 11 : 1,
-    };
-  }
-
-  calculatesMediaAreaBounds(sidebarNavWidth, sidebarContentWidth) {
-    const { layoutContextState } = this.props;
-    const { deviceType, isRTL } = layoutContextState;
-    const { navBarHeight } = DEFAULT_VALUES;
-    const { height: actionBarHeight } = this.calculatesActionbarHeight();
-    let left = 0;
-    let width = 0;
-    if (deviceType === DEVICE_TYPE.MOBILE) {
-      left = 0;
-      width = windowWidth();
-    } else {
-      left = !isRTL ? sidebarNavWidth + sidebarContentWidth : 0;
-      width = windowWidth() - sidebarNavWidth - sidebarContentWidth;
+    // do not proceed if using values from LayoutEngine
+    if (Object.keys(baseBounds).length > 0) {
+      baseBounds.isCameraHorizontal = false;
+      return baseBounds;
     }
 
-    return {
-      width,
-      height: windowHeight() - (navBarHeight + actionBarHeight + this.bannerAreaHeight()),
-      top: navBarHeight + this.bannerAreaHeight(),
-      left,
-    };
-  }
-
-  calculatesCameraDockBounds(mediaAreaBounds, mediaBounds, sidebarSize) {
-    const { layoutContextState } = this.props;
-    const {
-      input, fullscreen, isRTL, deviceType,
-    } = layoutContextState;
-    const { presentation } = input;
-    const { isOpen } = presentation;
     const { camerasMargin, presentationToolbarMinWidth } = DEFAULT_VALUES;
 
     const cameraDockBounds = {};
+
     cameraDockBounds.isCameraHorizontal = false;
-    const mediaBoundsWidth = (mediaBounds.width > presentationToolbarMinWidth
-      && deviceType !== DEVICE_TYPE.MOBILE)
+
+    const mediaBoundsWidth = (mediaBounds.width > presentationToolbarMinWidth && !isMobile)
       ? mediaBounds.width
       : presentationToolbarMinWidth;
 
-    if (input.cameraDock.numCameras > 0) {
-      cameraDockBounds.top = mediaAreaBounds.top;
-      cameraDockBounds.left = mediaAreaBounds.left;
-      cameraDockBounds.right = isRTL ? sidebarSize : null;
-      cameraDockBounds.zIndex = 1;
+    cameraDockBounds.top = mediaAreaBounds.top;
+    cameraDockBounds.left = mediaAreaBounds.left;
+    cameraDockBounds.right = isRTL ? sidebarSize + (camerasMargin * 2) : null;
+    cameraDockBounds.zIndex = 1;
 
-      if (!isOpen) {
-        cameraDockBounds.width = mediaAreaBounds.width;
-        cameraDockBounds.maxWidth = mediaAreaBounds.width;
-        cameraDockBounds.height = mediaAreaBounds.height;
-        cameraDockBounds.maxHeight = mediaAreaBounds.height;
-        cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_TOP;
-      } else if (mediaBounds.width < mediaAreaBounds.width) {
-        cameraDockBounds.width = mediaAreaBounds.width - mediaBoundsWidth;
-        cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
-        cameraDockBounds.height = mediaAreaBounds.height;
-        cameraDockBounds.maxHeight = mediaAreaBounds.height;
-        cameraDockBounds.left += camerasMargin;
-        cameraDockBounds.width -= (camerasMargin * 2);
-        cameraDockBounds.isCameraHorizontal = true;
-        cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_LEFT;
-        // button size in vertical position
-        cameraDockBounds.height -= 20;
-        cameraDockBounds.right = isRTL ? sidebarSize + (camerasMargin * 2) : null;
-      } else {
-        cameraDockBounds.width = mediaAreaBounds.width;
-        cameraDockBounds.maxWidth = mediaAreaBounds.width;
-        cameraDockBounds.height = mediaAreaBounds.height - mediaBounds.height;
-        cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.8;
-        cameraDockBounds.top += camerasMargin;
-        cameraDockBounds.height -= (camerasMargin * 2);
-        cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_TOP;
-      }
-
-      cameraDockBounds.minWidth = cameraDockBounds.width;
-      cameraDockBounds.minHeight = cameraDockBounds.height;
-
-      if (fullscreen.group === 'webcams') {
-        cameraDockBounds.width = windowWidth();
-        cameraDockBounds.minWidth = windowWidth();
-        cameraDockBounds.maxWidth = windowWidth();
-        cameraDockBounds.height = windowHeight();
-        cameraDockBounds.minHeight = windowHeight();
-        cameraDockBounds.maxHeight = windowHeight();
-        cameraDockBounds.top = 0;
-        cameraDockBounds.left = 0;
-        cameraDockBounds.right = 0;
-        cameraDockBounds.zIndex = 99;
-      }
+    if (mediaBounds.width < mediaAreaBounds.width) {
+      cameraDockBounds.width = mediaAreaBounds.width - mediaBoundsWidth;
+      cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
+      cameraDockBounds.height = mediaAreaBounds.height;
+      cameraDockBounds.maxHeight = mediaAreaBounds.height;
+      cameraDockBounds.left += camerasMargin;
+      cameraDockBounds.width -= (camerasMargin * 2);
+      cameraDockBounds.isCameraHorizontal = true;
+      cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_LEFT;
+      // button size in vertical position
+      cameraDockBounds.height -= 20;
     } else {
-      cameraDockBounds.width = 0;
-      cameraDockBounds.height = 0;
+      cameraDockBounds.width = mediaAreaBounds.width;
+      cameraDockBounds.maxWidth = mediaAreaBounds.width;
+      cameraDockBounds.height = mediaAreaBounds.height - mediaBounds.height;
+      cameraDockBounds.maxHeight = mediaAreaBounds.height * 0.8;
+      cameraDockBounds.top += camerasMargin;
+      cameraDockBounds.height -= (camerasMargin * 2);
+      cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_TOP;
     }
 
-    return cameraDockBounds;
-  }
+    cameraDockBounds.minWidth = cameraDockBounds.width;
+    cameraDockBounds.minHeight = cameraDockBounds.height;
 
-  calculatesSlideSize(mediaAreaBounds) {
-    const { layoutContextState } = this.props;
-    const { input } = layoutContextState;
-    const { presentation } = input;
-    const { currentSlide } = presentation;
+    return cameraDockBounds;
+  };
+
+  const calculatesSlideSize = (mediaAreaBounds) => {
+    const { currentSlide } = presentationInput;
 
     if (currentSlide.size.width === 0 && currentSlide.size.height === 0) {
       return {
@@ -439,15 +214,10 @@ class SmartLayout extends Component {
       width: slideWidth,
       height: slideHeight,
     };
-  }
+  };
 
-  calculatesMediaBounds(mediaAreaBounds, slideSize, sidebarSize) {
-    const { layoutContextState } = this.props;
-    const {
-      input, fullscreen, isRTL, deviceType,
-    } = layoutContextState;
-    const { presentation } = input;
-    const { isOpen } = presentation;
+  const calculatesMediaBounds = (mediaAreaBounds, slideSize, sidebarSize) => {
+    const { isOpen } = presentationInput;
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
 
@@ -471,9 +241,9 @@ class SmartLayout extends Component {
       return mediaBounds;
     }
 
-    if (input.cameraDock.numCameras > 0 && !input.cameraDock.isDragging) {
+    if (cameraDockInput.numCameras > 0 && !cameraDockInput.isDragging) {
       if (slideSize.width !== 0 && slideSize.height !== 0) {
-        if (slideSize.width < mediaAreaBounds.width && deviceType !== DEVICE_TYPE.MOBILE) {
+        if (slideSize.width < mediaAreaBounds.width && !isMobile) {
           if (slideSize.width < (mediaAreaBounds.width * 0.8)) {
             mediaBounds.width = slideSize.width;
           } else {
@@ -518,30 +288,35 @@ class SmartLayout extends Component {
     mediaBounds.zIndex = 1;
 
     return mediaBounds;
-  }
+  };
 
-  calculatesLayout() {
-    const { layoutContextState, layoutContextDispatch } = this.props;
-    const { deviceType, input, isRTL } = layoutContextState;
+  const calculatesLayout = () => {
+    const {
+      calculatesNavbarBounds,
+      calculatesActionbarBounds,
+      calculatesSidebarNavWidth,
+      calculatesSidebarNavHeight,
+      calculatesSidebarNavBounds,
+      calculatesSidebarContentWidth,
+      calculatesSidebarContentBounds,
+      calculatesMediaAreaBounds,
+      isTablet,
+    } = props;
     const { camerasMargin, captionsMargin } = DEFAULT_VALUES;
 
-    const sidebarNavWidth = this.calculatesSidebarNavWidth();
-    const sidebarNavHeight = this.calculatesSidebarNavHeight();
-    const sidebarContentWidth = this.calculatesSidebarContentWidth();
-    const sidebarContentHeight = this.calculatesSidebarContentHeight();
-    const sidebarNavBounds = this
-      .calculatesSidebarNavBounds(sidebarNavWidth.width, sidebarContentWidth.width);
-    const sidebarContentBounds = this
-      .calculatesSidebarContentBounds(sidebarNavWidth.width, sidebarContentWidth.width);
-    const mediaAreaBounds = this
-      .calculatesMediaAreaBounds(sidebarNavWidth.width, sidebarContentWidth.width);
-    const navbarBounds = this.calculatesNavbarBounds(mediaAreaBounds);
-    const actionbarBounds = this.calculatesActionbarBounds(mediaAreaBounds);
-    const slideSize = this.calculatesSlideSize(mediaAreaBounds);
+    const sidebarNavWidth = calculatesSidebarNavWidth();
+    const sidebarNavHeight = calculatesSidebarNavHeight();
+    const sidebarContentWidth = calculatesSidebarContentWidth();
+    const sidebarContentHeight = calculatesSidebarContentHeight();
+    const sidebarNavBounds = calculatesSidebarNavBounds();
+    const sidebarContentBounds = calculatesSidebarContentBounds(sidebarNavWidth.width);
+    const mediaAreaBounds = calculatesMediaAreaBounds(sidebarNavWidth.width, sidebarContentWidth.width);
+    const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
+    const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
+    const slideSize = calculatesSlideSize(mediaAreaBounds);
     const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
-    const mediaBounds = this.calculatesMediaBounds(mediaAreaBounds, slideSize, sidebarSize);
-    const cameraDockBounds = this
-      .calculatesCameraDockBounds(mediaAreaBounds, mediaBounds, sidebarSize);
+    const mediaBounds = calculatesMediaBounds(mediaAreaBounds, slideSize, sidebarSize);
+    const cameraDockBounds = calculatesCameraDockBounds(mediaAreaBounds, mediaBounds, sidebarSize);
     const horizontalCameraDiff = cameraDockBounds.isCameraHorizontal
       ? cameraDockBounds.width + (camerasMargin * 2)
       : 0;
@@ -549,7 +324,7 @@ class SmartLayout extends Component {
     layoutContextDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,
       value: {
-        display: input.navBar.hasNavBar,
+        display: navbarInput.hasNavBar,
         width: navbarBounds.width,
         height: navbarBounds.height,
         top: navbarBounds.top,
@@ -562,7 +337,7 @@ class SmartLayout extends Component {
     layoutContextDispatch({
       type: ACTIONS.SET_ACTIONBAR_OUTPUT,
       value: {
-        display: input.actionBar.hasActionBar,
+        display: actionbarInput.hasActionBar,
         width: actionbarBounds.width,
         height: actionbarBounds.height,
         innerHeight: actionbarBounds.innerHeight,
@@ -586,7 +361,7 @@ class SmartLayout extends Component {
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_OUTPUT,
       value: {
-        display: input.sidebarNavigation.isOpen,
+        display: sidebarNavigationInput.isOpen,
         minWidth: sidebarNavWidth.minWidth,
         width: sidebarNavWidth.width,
         maxWidth: sidebarNavWidth.maxWidth,
@@ -595,8 +370,7 @@ class SmartLayout extends Component {
         left: sidebarNavBounds.left,
         right: sidebarNavBounds.right,
         tabOrder: DEFAULT_VALUES.sidebarNavTabOrder,
-        isResizable: deviceType !== DEVICE_TYPE.MOBILE
-          && deviceType !== DEVICE_TYPE.TABLET,
+        isResizable: !isMobile && !isTablet,
         zIndex: sidebarNavBounds.zIndex,
       },
     });
@@ -614,7 +388,7 @@ class SmartLayout extends Component {
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_OUTPUT,
       value: {
-        display: input.sidebarContent.isOpen,
+        display: sidebarContentInput.isOpen,
         minWidth: sidebarContentWidth.minWidth,
         width: sidebarContentWidth.width,
         maxWidth: sidebarContentWidth.maxWidth,
@@ -622,10 +396,9 @@ class SmartLayout extends Component {
         top: sidebarContentBounds.top,
         left: sidebarContentBounds.left,
         right: sidebarContentBounds.right,
-        currentPanelType: input.currentPanelType,
+        currentPanelType,
         tabOrder: DEFAULT_VALUES.sidebarContentTabOrder,
-        isResizable: deviceType !== DEVICE_TYPE.MOBILE
-          && deviceType !== DEVICE_TYPE.TABLET,
+        isResizable: !isMobile && !isTablet,
         zIndex: sidebarContentBounds.zIndex,
       },
     });
@@ -651,7 +424,7 @@ class SmartLayout extends Component {
     layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
       value: {
-        display: input.cameraDock.numCameras > 0,
+        display: cameraDockInput.numCameras > 0,
         position: cameraDockBounds.position,
         minWidth: cameraDockBounds.minWidth,
         width: cameraDockBounds.width,
@@ -677,7 +450,7 @@ class SmartLayout extends Component {
     layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_OUTPUT,
       value: {
-        display: input.presentation.isOpen,
+        display: presentationInput.isOpen,
         width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,
@@ -711,13 +484,9 @@ class SmartLayout extends Component {
         right: isRTL ? (mediaBounds.right + horizontalCameraDiff) : null,
       },
     });
-  }
+  };
 
-  render() {
-    return (
-      <></>
-    );
-  }
-}
+  return null;
+};
 
-export default LayoutContextFunc.withConsumer(SmartLayout);
+export default SmartLayout;

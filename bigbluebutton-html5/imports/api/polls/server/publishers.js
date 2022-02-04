@@ -50,15 +50,16 @@ function currentPoll(secretPoll) {
     } else {
       selector.secretPoll = false;
     }
-
-    return Polls.find(selector, options);
+    Mongo.Collection._publishCursor(Polls.find(selector, options), this, 'current-poll');
+    return this.ready();
   }
 
   Logger.warn(
     'Publishing current-poll was requested by non-presenter connection',
     { meetingId, userId, connectionId: this.connection.id },
   );
-  return Polls.find({ meetingId: '' });
+  Mongo.Collection._publishCursor(Polls.find({ meetingId: '' }), this, 'current-poll');
+  return this.ready();
 }
 
 function publishCurrentPoll(...args) {

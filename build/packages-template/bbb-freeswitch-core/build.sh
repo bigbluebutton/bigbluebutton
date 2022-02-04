@@ -7,25 +7,22 @@ PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 VERSION=$(echo $TARGET | cut -d'_' -f2)
 DISTRO=$(echo $TARGET | cut -d'_' -f3)
 
-#
-# Clear staging directory for build
-rm -rf staging
+BUILDDIR=$PWD
+DESTDIR=$BUILDDIR/staging
+CONFDIR=$DESTDIR/opt/freeswitch/etc/freeswitch
 
 #
-# Create directory for fpm to process
-#DIRS="/opt/freeswitch \
-#      /var/freeswitch/meetings"
-#for dir in $DIRS; do
-#  mkdir -p staging$dir
-#  DIRECTORIES="$DIRECTORIES --directories $dir"
-#done
+# Clear staging directory for build
+
+rm -rf $DESTDIR
+mkdir -p $DESTDIR
 
 ##
 
 . ./opts-$DISTRO.sh
 
-#cp modules.conf freeswitch
-#cd freeswitch
+cp modules.conf $BUILDDIR/freeswitch
+cd $BUILDDIR/freeswitch
 
 #
 # Need to figure out how to build with mod_av
@@ -38,12 +35,10 @@ else
 fi
 
 if [ "$DISTRO" == "bionic" ]; then
-	add-apt-repository ppa:bigbluebutton/support -y
+  add-apt-repository ppa:bigbluebutton/support -y
   apt-get update
   apt-get install -y libopusfile-dev opus-tools libopusenc-dev
 fi
-
-mkdir -p staging
 
 pushd .
 
@@ -52,7 +47,7 @@ if [ ! -d sofia-sip ]; then
   git clone https://github.com/freeswitch/sofia-sip.git
 fi
 cd sofia-sip/
-git checkout v1.13.6
+git checkout v1.13.7
 ./bootstrap.sh
 ./configure
 
@@ -66,7 +61,7 @@ if [ ! -d spandsp ]; then
   git clone https://github.com/freeswitch/spandsp.git
 fi
 cd spandsp/
-git checkout 284fe91dd068d0cf391139110fdc2811043972b9
+git checkout e59ca8fb8b1591e626e6a12fdc60a2ebe83435ed
 ./bootstrap.sh
 ./configure
 
@@ -95,7 +90,7 @@ if [ ! -d libks ]; then
   git clone https://github.com/signalwire/libks.git
 fi
 cd libks/
-git checkout f43b85399f8fc840561566887e768fc877ba2583
+git checkout 707bda51db7b1a858a5e608bb5484632cc84a349
 
 cmake .
 make
@@ -108,7 +103,10 @@ ldconfig
 
 # we already cloned the FS repo in freeswitch.placeholder.sh and selected tag/branch
 
-patch -p0 < floor.patch
+cd $BUILDDIR/freeswitch
+
+patch -p0 < $BUILDDIR/floor.patch
+patch -p0 < $BUILDDIR/audio.patch       # Provisional patch for https://github.com/signalwire/freeswitch/pull/1531
 
 ./bootstrap.sh 
 
@@ -119,11 +117,10 @@ patch -p0 < floor.patch
 make -j $(nproc)
 make install
 
-DESTDIR=staging
-CONFDIR=$DESTDIR/opt/freeswitch/etc/freeswitch
-
 mkdir -p $DESTDIR/opt
-cp -r /opt/freeswitch staging/opt
+cp -r /opt/freeswitch $DESTDIR/opt
+
+cd $BUILDDIR
 
 	mkdir -p $DESTDIR/lib/systemd/system
 	cp freeswitch.service.${DISTRO} $DESTDIR/lib/systemd/system/freeswitch.service
@@ -135,7 +132,7 @@ cp -r /opt/freeswitch staging/opt
 	echo "This directory holds *.wav files for FreeSWITCH" > $DESTDIR/var/freeswitch/meetings/readme.txt
 
 	rm -rf $CONFDIR/*
-	cp -r config/freeswitch/conf/* $CONFDIR
+	cp -r bbb-voice-conference/config/freeswitch/conf/* $CONFDIR
 
 	pushd $DESTDIR/opt/freeswitch
 	ln -s ./etc/freeswitch conf
@@ -154,24 +151,22 @@ HERE
 	done
 
 	cp -P /usr/local/lib/lib* $DESTDIR/opt/freeswitch/lib
-        if [ -f /etc/system-release ]; then
-          cp /usr/lib64/libopusfile.so.0.4.4 $DESTDIR/opt/freeswitch/lib
-          cp /usr/lib64/libopusurl.so.0.4.4 $DESTDIR/opt/freeswitch/lib
-	  pushd $DESTDIR/opt/freeswitch/lib
-            ln -s libopusfile.so.0.4.4 libopusfile.so
-            ln -s libopusurl.so.0.4.4 libopusurl.so
-	  popd
-        fi
+
+  if [ -f /etc/system-release ]; then
+    cp /usr/lib64/libopusfile.so.0.4.4 $DESTDIR/opt/freeswitch/lib
+    cp /usr/lib64/libopusurl.so.0.4.4 $DESTDIR/opt/freeswitch/lib
+    pushd $DESTDIR/opt/freeswitch/lib
+      ln -s libopusfile.so.0.4.4 libopusfile.so
+      ln -s libopusurl.so.0.4.4 libopusurl.so
+    popd
+  fi
 
 
-        mkdir -p $DESTDIR/usr/local/bin
+  mkdir -p $DESTDIR/usr/local/bin
 	cp fs_clibbb $DESTDIR/usr/local/bin
 	chmod +x $DESTDIR/usr/local/bin/fs_clibbb
 
 	rm -rf $DESTDIR/usr/lib/tmpfiles.d
-
-	# Needed for Edge
-	# find $DESTDIR/etc/freeswitch -name "*.xml" -exec sed -i 's/ <param name="nonce-ttl" value="60"\/>/ <!--<param name="nonce-ttl" value="60"\/>-->/g' '{}' \;
 
 fpm -s dir -C $DESTDIR -n $PACKAGE \
     --version $VERSION --epoch 2 \

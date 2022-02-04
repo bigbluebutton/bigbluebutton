@@ -23,12 +23,12 @@ trait RespondToTypedPollReqMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    def broadcastUserRespondedToTypedPollRespMsg(msg: RespondToTypedPollReqMsg, pollId: String, answerId: Int, sendToId: String): Unit = {
+    def broadcastUserRespondedToTypedPollRespMsg(msg: RespondToTypedPollReqMsg, pollId: String, answer: String, sendToId: String): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, sendToId)
       val envelope = BbbCoreEnvelope(UserRespondedToTypedPollRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(UserRespondedToTypedPollRespMsg.NAME, liveMeeting.props.meetingProp.intId, sendToId)
 
-      val body = UserRespondedToTypedPollRespMsgBody(pollId, msg.header.userId, answerId)
+      val body = UserRespondedToTypedPollRespMsgBody(pollId, msg.header.userId, answer)
       val event = UserRespondedToTypedPollRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
@@ -43,8 +43,7 @@ trait RespondToTypedPollReqMsgHdlr {
       for {
         presenter <- Users2x.findPresenter(liveMeeting.users2x)
       } yield {
-        val answerId = (updatedPoll.answers find (ans => ans.key == msg.body.answer)).get.id
-        broadcastUserRespondedToTypedPollRespMsg(msg, pollId, answerId, presenter.intId)
+        broadcastUserRespondedToTypedPollRespMsg(msg, pollId, msg.body.answer, presenter.intId)
       }
     }
   }

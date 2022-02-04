@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
-import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
+import Styled from './styles';
 import { ACTIONS, PANELS } from '../../../layout/enums';
 
 const propTypes = {
@@ -42,36 +42,37 @@ const WaitingUsers = ({
   };
 
   return (
-    <div className={styles.messages}>
-      <div className={styles.container}>
-        <h2 className={styles.smallTitle}>
+    <Styled.Messages>
+      <Styled.Container>
+        <Styled.SmallTitle>
           {intl.formatMessage(intlMessages.waitingUsersTitle)}
-        </h2>
-      </div>
-      <div className={styles.scrollableList}>
-        <div className={styles.list}>
-          <div
+        </Styled.SmallTitle>
+      </Styled.Container>
+      <Styled.ScrollableList>
+        <Styled.List>
+          <Styled.ListItem
             role="button"
             data-test="waitingUsersBtn"
             tabIndex={0}
-            className={styles.listItem}
             onClick={toggleWaitingPanel}
             onKeyPress={() => { }}
           >
             <Icon iconName="user" />
             <span>{intl.formatMessage(intlMessages.title)}</span>
-            <div className={styles.unreadMessages}>
-              <div className={styles.unreadMessagesText}>
-                {pendingUsers.length}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+            {pendingUsers.length > 0 && (
+              <Styled.UnreadMessages>
+                <Styled.UnreadMessagesText>
+                  {pendingUsers.length}
+                </Styled.UnreadMessagesText>
+              </Styled.UnreadMessages>
+            )}
+          </Styled.ListItem>
+        </Styled.List>
+      </Styled.ScrollableList>
+    </Styled.Messages>
   );
 };
 
 WaitingUsers.propTypes = propTypes;
 
-export default WaitingUsers;
+export default injectIntl(WaitingUsers);

@@ -1,10 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import Button from '/imports/ui/components/button/component';
-import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
-import ModalBase, { withModalState } from '../base/component';
-import { styles } from './styles.scss';
+import { withModalState } from '../base/component';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   modalClose: {
@@ -103,28 +101,27 @@ class ModalFullscreen extends PureComponent {
     }
 
     return (
-      <ModalBase
+      <Styled.FullscreenModal
+      id="fsmodal"
         isOpen={modalisOpen || preventClosing}
-        className={cx(className, styles.modal)}
         contentLabel={title}
+        overlayClassName={"fullscreenModalOverlay"}
         {...otherProps}
       >
-        <header className={styles.header}>
-          <h1 className={styles.title}>{title}</h1>
-          <div className={styles.actions}>
-            <Button
+        <Styled.Header>
+          <Styled.Title>{title}</Styled.Title>
+          <Styled.Actions>
+            <Styled.DismissButton
               data-test="modalDismissButton"
-              className={styles.dismiss}
               label={intl.formatMessage(intlMessages.modalClose)}
               aria-label={`${intl.formatMessage(intlMessages.modalClose)} ${title}`}
               disabled={dismiss.disabled}
               onClick={() => this.handleAction('dismiss')}
               aria-describedby="modalDismissDescription"
             />
-            <Button
+            <Styled.ConfirmButton
               data-test="modalConfirmButton"
               color="primary"
-              className={popoutIcon ? cx(styles.confirm, styles.popout) : styles.confirm}
               label={confirm.label || intl.formatMessage(intlMessages.modalDone)}
               aria-label={confirmAriaLabel}
               disabled={confirm.disabled}
@@ -132,15 +129,16 @@ class ModalFullscreen extends PureComponent {
               aria-describedby="modalConfirmDescription"
               icon={confirm.icon || null}
               iconRight={popoutIcon}
+              popout={popoutIcon ? 'popout' : 'simple'}
             />
-          </div>
-        </header>
-        <div className={styles.content}>
+          </Styled.Actions>
+        </Styled.Header>
+        <Styled.Content>
           {children}
-        </div>
+        </Styled.Content>
         <div id="modalDismissDescription" hidden>{intl.formatMessage(intlMessages.modalCloseDescription)}</div>
         <div id="modalConfirmDescription" hidden>{intl.formatMessage(intlMessages.modalDoneDescription)}</div>
-      </ModalBase>
+      </Styled.FullscreenModal>
     );
   }
 }

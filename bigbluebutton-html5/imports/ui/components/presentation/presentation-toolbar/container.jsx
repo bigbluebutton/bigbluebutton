@@ -1,21 +1,24 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import PresentationService from '/imports/ui/components/presentation/service';
 import MediaService from '/imports/ui/components/media/service';
-import Service from '/imports/ui/components/actions-bar/service';
 import PollService from '/imports/ui/components/poll/service';
 import { makeCall } from '/imports/ui/services/api';
 import PresentationToolbar from './component';
 import PresentationToolbarService from './service';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
+import Auth from '/imports/ui/services/auth';
 
 const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
 
 const PresentationToolbarContainer = (props) => {
-  const {
-    userIsPresenter,
-    layoutSwapped,
-  } = props;
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const currentUser = users[Auth.meetingID][Auth.userID];
+  const userIsPresenter = currentUser.presenter;
+
+  const { layoutSwapped } = props;
 
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
@@ -23,6 +26,7 @@ const PresentationToolbarContainer = (props) => {
     return (
       <PresentationToolbar
         {...props}
+        amIPresenter={userIsPresenter}
       />
     );
   }
@@ -40,13 +44,11 @@ export default withTracker((params) => {
     Session.set('forcePollOpen', true);
     window.dispatchEvent(new Event('panelChanged'));
 
-    makeCall('startPoll', PollService.pollTypes, type, id, false, '', answers);
+    makeCall('startPoll', PollService.pollTypes, type, id, false, '', false, answers);
   };
 
   return {
-    amIPresenter: Service.amIPresenter(),
     layoutSwapped: MediaService.getSwapLayout() && MediaService.shouldEnableSwapLayout(),
-    userIsPresenter: PresentationService.isPresenter(podId),
     numberOfSlides: PresentationToolbarService.getNumberOfSlides(podId, presentationId),
     nextSlide: PresentationToolbarService.nextSlide,
     previousSlide: PresentationToolbarService.previousSlide,
@@ -64,9 +66,6 @@ PresentationToolbarContainer.propTypes = {
   currentSlideNum: PropTypes.number.isRequired,
   zoom: PropTypes.number.isRequired,
   zoomChanger: PropTypes.func.isRequired,
-
-  // Is the user a presenter
-  userIsPresenter: PropTypes.bool.isRequired,
 
   // Total number of slides in this presentation
   numberOfSlides: PropTypes.number.isRequired,

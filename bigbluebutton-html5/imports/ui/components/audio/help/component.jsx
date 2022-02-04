@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import Button from '/imports/ui/components/button/component';
 import { injectIntl, defineMessages } from 'react-intl';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   descriptionHelp: {
@@ -48,21 +47,20 @@ class Help extends Component {
     }
 
     return (
-      <span className={styles.help}>
-        <div className={styles.text}>
+      <Styled.Help>
+        <Styled.Text>
           { helpMessage }
-        </div>
-        <div className={styles.enterAudio}>
-          <Button
-            className={styles.backBtn}
+        </Styled.Text>
+        <Styled.EnterAudio>
+          <Styled.BackButton
             label={intl.formatMessage(intlMessages.backLabel)}
             size="md"
             color="primary"
             onClick={handleBack}
             ghost
           />
-        </div>
-      </span>
+        </Styled.EnterAudio>
+      </Styled.Help>
     );
   }
 }

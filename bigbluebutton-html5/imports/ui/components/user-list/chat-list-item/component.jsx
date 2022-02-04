@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import { styles } from './styles';
-import ChatAvatar from './chat-avatar/component';
-import ChatIcon from './chat-icon/component';
-import ChatUnreadCounter from './chat-unread-messages/component';
+import Styled from './styles';
+import UserAvatar from '/imports/ui/components/user-avatar/component';
 import { ACTIONS, PANELS } from '../../layout/enums';
+import Icon from '/imports/ui/components/icon/component';
 
 const DEBOUNCE_TIME = 1000;
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -73,9 +71,6 @@ const ChatListItem = (props) => {
   const chatPanelOpen = sidebarContentIsOpen && sidebarContentPanel === PANELS.CHAT;
 
   const isCurrentChat = chat.chatId === activeChatId && chatPanelOpen;
-  const linkClasses = {};
-
-  linkClasses[styles.active] = isCurrentChat;
 
   const [stateUreadCount, setStateUreadCount] = useState(0);
 
@@ -136,12 +131,21 @@ const ChatListItem = (props) => {
     }
   };
 
+  const localizedChatName = isPublicChat(chat)
+    ? intl.formatMessage(intlMessages.titlePublic)
+    : chat.name;
+
+  const arialabel = `${localizedChatName} ${
+    stateUreadCount > 1
+      ? intl.formatMessage(intlMessages.unreadPlural, { 0: stateUreadCount })
+      : intl.formatMessage(intlMessages.unreadSingular)}`;
+
   return (
-    <div
+    <Styled.ChatListItem
       data-test="chatButton"
       role="button"
-      className={cx(styles.chatListItem, linkClasses)}
       aria-expanded={isCurrentChat}
+      active={isCurrentChat}
       tabIndex={tabIndex}
       accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
       onClick={handleClickToggleChat}
@@ -149,40 +153,43 @@ const ChatListItem = (props) => {
       aria-label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
       onKeyPress={() => {}}
     >
-
-      <div className={styles.chatListItemLink}>
-        <div className={styles.chatIcon}>
+      <Styled.ChatListItemLink>
+        <Styled.ChatIcon>
           {chat.icon
-            ? <ChatIcon icon={chat.icon} />
-            : (
-              <ChatAvatar
-                isModerator={chat.isModerator}
-                color={chat.color}
+            ? (
+              <Styled.ChatThumbnail>
+                <Icon iconName={chat.icon} />
+              </Styled.ChatThumbnail>
+            ) : (
+              <UserAvatar
+                moderator={chat.isModerator}
                 avatar={chat.avatar}
-                name={chat.name.toLowerCase().slice(0, 2)}
-              />
+                color={chat.color}
+              >
+                {chat.name.toLowerCase().slice(0, 2)}
+              </UserAvatar>
             )}
-        </div>
-        <div className={styles.chatName} aria-live="off">
+        </Styled.ChatIcon>
+        <Styled.ChatName aria-live="off">
           {!compact
             ? (
-              <span className={styles.chatNameMain}>
+              <Styled.ChatNameMain>
                 {isPublicChat(chat)
                   ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
-              </span>
+              </Styled.ChatNameMain>
             ) : null}
-        </div>
+        </Styled.ChatName>
         {(stateUreadCount > 0)
           ? (
-            <ChatUnreadCounter
-              chat={chat}
-              isPublicChat={isPublicChat}
-              counter={stateUreadCount}
-            />
+            <Styled.UnreadMessages aria-label={arialabel}>
+              <Styled.UnreadMessagesText aria-hidden="true">
+                {stateUreadCount}
+              </Styled.UnreadMessagesText>
+            </Styled.UnreadMessages>
           )
           : null}
-      </div>
-    </div>
+      </Styled.ChatListItemLink>
+    </Styled.ChatListItem>
   );
 };
 

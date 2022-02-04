@@ -43,7 +43,7 @@ export default function publishTypedVote(id, pollAnswer) {
     activePoll.answers.forEach((a) => {
       if (a.key === pollAnswer) existingAnsId = a.id;
     });
-
+  
     if (existingAnsId !== null) {
       check(existingAnsId, Number);
       EVENT_NAME = 'RespondToPollReqMsg';
@@ -57,11 +57,11 @@ export default function publishTypedVote(id, pollAnswer) {
           requesterId: requesterUserId,
           pollId: id,
           questionId: 0,
-          answerId: existingAnsId,
+          answerIds: [existingAnsId],
         },
       );
     }
-
+  
     const payload = {
       requesterId: requesterUserId,
       pollId: id,

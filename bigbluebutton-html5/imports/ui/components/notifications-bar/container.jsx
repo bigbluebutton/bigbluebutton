@@ -1,13 +1,14 @@
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
-import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
+import { MeetingTimeRemaining } from '/imports/api/meetings';
+import Meetings from '/imports/api/meetings';
 import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
-import { styles } from './styles.scss';
-import LayoutContext from '../layout/context';
+import Styled from './styles';
+import { layoutSelectInput, layoutDispatch } from '../layout/context';
 import { ACTIONS } from '../layout/enums';
 
 import breakoutService from '/imports/ui/components/breakout-room/service';
@@ -76,10 +77,10 @@ const intlMessages = defineMessages({
 
 const NotificationsBarContainer = (props) => {
   const { message, color } = props;
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-  const { input } = layoutContextState;
-  const { notificationsBar } = input;
+
+  const notificationsBar = layoutSelectInput((i) => i.notificationsBar);
+  const layoutContextDispatch = layoutDispatch();
+
   const { hasNotification } = notificationsBar;
 
   useEffect(() => {
@@ -154,9 +155,9 @@ export default injectIntl(withTracker(({ intl }) => {
         data.message = (
           <>
             {intl.formatMessage(intlMessages.waitingMessage, { 0: getRetrySeconds() })}
-            <button className={styles.retryButton} type="button" onClick={reconnect}>
+            <Styled.RetryButton type="button" onClick={reconnect}>
               {intl.formatMessage(intlMessages.retryNow)}
-            </button>
+            </Styled.RetryButton>
           </>
         );
         break;

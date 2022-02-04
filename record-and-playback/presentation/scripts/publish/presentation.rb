@@ -221,7 +221,7 @@ end
 
 def svg_render_shape_rect(g, slide, shape)
   g['shape'] = "rect#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:#{shape[:fill] ? '#'+shape[:color] : 'none'}"
   if $version_atleast_2_0_0
     g['style'] += ";stroke-linejoin:miter"
   else
@@ -256,7 +256,7 @@ end
 
 def svg_render_shape_triangle(g, slide, shape)
   g['shape'] = "triangle#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:#{shape[:fill] ? '#'+shape[:color] : 'none'}"
   if $version_atleast_2_0_0
     g['style'] += ";stroke-linejoin:miter;stroke-miterlimit:8"
   else
@@ -279,7 +279,7 @@ end
 
 def svg_render_shape_ellipse(g, slide, shape)
   g['shape'] = "ellipse#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:#{shape[:fill] ? '#'+shape[:color] : 'none'}"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -611,6 +611,12 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
     else
       shape[:thickness] = thickness.text.to_i
     end
+  end
+  if  shape[:type] == 'rectangle' or
+      shape[:type] == 'ellipse' or shape[:type] == 'triangle'
+    fill = event.at_xpath('fill')
+    fill = fill.nil? ? "false" : fill.text
+    shape[:fill] = fill =~ /true/ ? true : false
   end
   if shape[:type] == 'rectangle'
     square = event.at_xpath('square')

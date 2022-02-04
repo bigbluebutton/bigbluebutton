@@ -746,7 +746,8 @@ class ApiController {
     Meeting meeting = meetingService.getMeeting(us.meetingID)
     String status = us.guestStatus
     destURL = us.clientUrl
-    String lobbyMsg = meeting.getGuestLobbyMessage()
+    String posInWaitingQueue = meeting.getWaitingPositionsInWaitingQueue(us.internalUserId)
+    String lobbyMsg = meeting.getGuestLobbyMessage(us.internalUserId)
 
     Boolean redirectClient = true
     if (!StringUtils.isEmpty(params.redirect)) {
@@ -811,6 +812,7 @@ class ApiController {
             guestStatus status
             lobbyMessage lobbyMsg
             url destURL
+            positionInWaitingQueue posInWaitingQueue
           }
           render(contentType: "application/json", text: builder.toPrettyString())
         }
@@ -1258,54 +1260,6 @@ class ApiController {
     }
   }
 
-//  Here is the alternative code, should you guys prefer to create another function other than change the
-//  already existing one
-//  def uploadDocumentsAtInsertAPI(conf) {
-//    log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
-//    def listOfPresentation = presentationService.listPresentations(conf.getInternalId(), conf.getInternalId());
-//
-//    //sanitizeInput
-//    params.each {
-//      key, value -> params[key] = sanitizeInput(value)
-//    }
-//
-//    String requestBody = request.inputStream == null ? null : request.inputStream.text;
-//    requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
-//
-//    if (requestBody == null) {
-//      return null
-//    } else {
-//      def xml = new XmlSlurper().parseText(requestBody);
-//      xml.children().each { module ->
-//        log.debug("module config found: [${module.@name}]");
-//
-//        if ("presentation".equals(module.@name.toString())) {
-//          // need to iterate over presentation files and process them
-//          Boolean current = false;
-//          module.children().each { document ->
-//            if (!StringUtils.isEmpty(document.@url.toString())) {
-//              def fileName;
-//              if (!StringUtils.isEmpty(document.@filename.toString())) {
-//                log.debug("user provided filename: [${module.@filename}]");
-//                fileName = document.@filename.toString();
-//              }
-//              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), current /* default presentation */, fileName);
-//              current = false;
-//            } else if (!StringUtils.isEmpty(document.@name.toString())) {
-//              def b64 = new Base64()
-//              def decodedBytes = b64.decode(document.text().getBytes())
-//              processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-//                      conf.getInternalId(), current /* default presentation */);
-//              current = false;
-//            } else {
-//              log.debug("presentation module config found, but it did not contain url or name attributes");
-//            }
-//          }
-//        }
-//      }
-//    }
-//  }
-
   def uploadDocuments(conf, isFromInsertAPI) { //
     log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
 
@@ -1321,7 +1275,7 @@ class ApiController {
       if (isFromInsertAPI){
         return;
       }
-      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), true /* default presentation */, '');
+      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), true /* default presentation */, '', false, true);
     } else {
       def xml = new XmlSlurper().parseText(requestBody);
       xml.children().each { module ->
@@ -1333,11 +1287,20 @@ class ApiController {
           module.children().each { document ->
             if (!StringUtils.isEmpty(document.@url.toString())) {
               def fileName;
+              def Boolean isRemovable = true;
+              def Boolean isDownloadable = false;
               if (!StringUtils.isEmpty(document.@filename.toString())) {
                 log.debug("user provided filename: [${module.@filename}]");
                 fileName = document.@filename.toString();
+                if (!StringUtils.isEmpty(document.@removable.toString())) {
+                  isRemovable = java.lang.Boolean.parseBoolean(document.@removable.toString());
+                }
+                if (!StringUtils.isEmpty(document.@downloadable.toString())) {
+                  isDownloadable = java.lang.Boolean.parseBoolean(document.@downloadable.toString());
+                }
               }
-              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), current /* default presentation */, fileName);
+              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), current /* default presentation */,
+                      fileName, isDownloadable, isRemovable);
               current = false;
             } else if (!StringUtils.isEmpty(document.@name.toString())) {
               def b64 = new Base64()
@@ -1398,14 +1361,23 @@ class ApiController {
               current,
               "preupload-raw-authz-token",
               uploadFailed,
-              uploadFailReasons)
+              uploadFailReasons,
+              false,
+              true
+    )
   }
 
-  def downloadAndProcessDocument(address, meetingId, current, fileName) {
+  def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable) {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
     String presOrigFilename;
     if (StringUtils.isEmpty(fileName)) {
-      presOrigFilename = address.tokenize("/")[-1];
+      try {
+        presOrigFilename = URLDecoder.decode(address.tokenize("/")[-1], "UTF-8");
+      } catch (UnsupportedEncodingException e) {
+        log.error "Couldn't decode the uploaded file name.", e
+        invalid("fileNameError", "Cannot decode the uploaded file name")
+        return;
+      }
     } else {
       presOrigFilename = fileName;
     }
@@ -1456,12 +1428,15 @@ class ApiController {
             current,
             "preupload-download-authz-token",
             uploadFailed,
-            uploadFailReasons
+            uploadFailReasons,
+            isDownloadable,
+            isRemovable
     )
   }
 
 
-  def processUploadedFile(podId, meetingId, presId, filename, presFile, current, authzToken, uploadFailed, uploadFailReasons ) {
+  def processUploadedFile(podId, meetingId, presId, filename, presFile, current,
+                          authzToken, uploadFailed, uploadFailReasons, isDownloadable, isRemovable ) {
     def presentationBaseUrl = presentationService.presentationBaseUrl
     // TODO add podId
     UploadedPresentation uploadedPres = new UploadedPresentation(podId,
@@ -1474,6 +1449,12 @@ class ApiController {
             uploadFailed,
             uploadFailReasons)
     uploadedPres.setUploadedFile(presFile);
+    if (isRemovable != null) {
+      uploadedPres.setRemovable(isRemovable);
+    }
+    if (isDownloadable != null && isDownloadable){
+      uploadedPres.setDownloadable();
+    }
     presentationService.processUploadedPresentation(uploadedPres);
   }
 
