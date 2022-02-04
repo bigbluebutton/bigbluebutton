@@ -319,6 +319,7 @@ class UserDropdown extends PureComponent {
             this.handleClose();
           },
           icon: getEmojiList[s],
+          dataTest: s,
         });
       });
       return actions;
@@ -331,6 +332,7 @@ class UserDropdown extends PureComponent {
         onClick: () => this.setState({ showNestedOptions: true }),
         icon: 'user',
         iconRight: 'right_arrow',
+        dataTest: 'setStatus'
       });
     }
 

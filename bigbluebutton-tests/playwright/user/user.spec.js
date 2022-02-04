@@ -109,6 +109,12 @@ test.describe.parallel('User', () => {
         await lockViewers.unlockUser();
       });
     });
+
+    test('Select random user', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page);
+      await multiusers.selectRandomUser();
+    });
   });
 
   test.describe.parallel('Mobile devices', () => {

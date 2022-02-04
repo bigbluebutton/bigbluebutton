@@ -5,6 +5,7 @@ const { expect } = require("@playwright/test");
 const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require("../core/constants");
 const { getNotesLocator } = require("../sharednotes/util");
 const { waitAndClearNotification } = require("../notifications/util");
+const { sleep } = require("../core/helpers");
 
 class LockViewers extends MultiUsers {
   constructor(browser, page) {
@@ -35,6 +36,7 @@ class LockViewers extends MultiUsers {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockSeeOtherViewersWebcam);
     await this.modPage.waitAndClick(e.applyLockSettings);
+    await sleep(500);
     const videoContainersCount = [
       await this.modPage.getSelectorCount(e.webcamVideoItem),
       await this.userPage.getSelectorCount(e.webcamVideoItem),
