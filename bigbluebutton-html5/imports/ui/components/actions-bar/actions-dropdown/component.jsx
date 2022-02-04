@@ -6,6 +6,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
+import { allowRandomUserModalToOpen } from '/imports/ui/components/modal/random-user/container';
 import BBBMenu from '/imports/ui/components/menu/component';
 import Styled from './styles'
 import { PANELS, ACTIONS } from '../../layout/enums';
@@ -197,10 +198,13 @@ class ActionsDropdown extends PureComponent {
         icon: "user",
         label: intl.formatMessage(intlMessages.selectRandUserLabel),
         key: this.selectUserRandId,
-        onClick: () => mountModal(<RandomUserSelectContainer isSelectedUser={false} />),
+        onClick: () => {
+          allowRandomUserModalToOpen();
+          mountModal(<RandomUserSelectContainer isSelectedUser={false} />)
+        },
       })
     }
-
+;
     return actions;
   }
 

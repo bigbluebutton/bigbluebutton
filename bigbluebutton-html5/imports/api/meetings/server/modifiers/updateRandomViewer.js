@@ -41,17 +41,6 @@ function getFiveRandom(userList, userIds) {
   }
 }
 
-//  All possible combinations of 3 elements
-//  to speed up randomizing
-const optionsFor3 = [
-  [0, 1, 2],
-  [0, 2, 1],
-  [1, 2, 0],
-  [1, 0, 2],
-  [2, 0, 1],
-  [2, 1, 0],
-];
-
 export default function updateRandomUser(meetingId, userIds, choice, requesterId) {
   check(meetingId, String);
   check(userIds, Array);
@@ -68,9 +57,12 @@ export default function updateRandomUser(meetingId, userIds, choice, requesterId
 
   const numberOfUsers = userIds.length;
 
-  const chosenUser = userIds[choice];
+  const chosenUser = choice;
+
+  console.log(JSON.stringify(userIds));
 
   if (choice == "") { // no viewer
+    console.log("\n\n0\n\n");
     userList = [
       [requesterId, intervals[0]],
       [requesterId, 0],
@@ -80,6 +72,7 @@ export default function updateRandomUser(meetingId, userIds, choice, requesterId
       [requesterId, 0],
     ];
   } else if (numberOfUsers === 1) { //  If user is only one, obviously it is the chosen one
+    console.log("\n\n1\n\n");
     userList = [
       [userIds[0], intervals[0]],
       [userIds[0], 0],
@@ -91,6 +84,7 @@ export default function updateRandomUser(meetingId, userIds, choice, requesterId
   }
 
   else if (!SELECT_RANDOM_USER_COUNTDOWN) { //  If animation is disabled, we only care about the chosen one
+    console.log("\n\nno countdown\n\n");
     userList = [
       [chosenUser, intervals[0]],
       [chosenUser, 0],
@@ -102,6 +96,7 @@ export default function updateRandomUser(meetingId, userIds, choice, requesterId
   }
 
   else if (numberOfUsers === 2) { // If there are only two users, we can just chow them in turns
+    console.log("\n\n2\n\n");
     const IDs = userIds.slice();
     IDs.splice(choice, 1);
     userList = [
@@ -112,23 +107,15 @@ export default function updateRandomUser(meetingId, userIds, choice, requesterId
       [IDs[0], intervals[4]],
       [chosenUser, intervals[5]],
     ];
-  } else if (numberOfUsers === 3) { //  If there are 3 users, the number of combinations is small, so we'll use that
-    const option = Math.floor(Math.random() * 6);
-    const order = optionsFor3[option];
-    userList = [
-      [userIds[order[0]], intervals[0]],
-      [userIds[order[1]], intervals[1]],
-      [userIds[order[2]], intervals[2]],
-      [userIds[order[0]], intervals[3]],
-      [userIds[order[1]], intervals[4]],
-      [chosenUser, intervals[5]],
-    ];
   }
 
   else { // We generate 5 users randomly, just for animation, and last one is the chosen one
+    console.log("\n\nmore\n\n");
     getFiveRandom(userList, userIds);
     userList.push([chosenUser, intervals[intervals.length]]);
   }
+
+  console.log(`\n\n  userList: ${JSON.stringify(userList)}\n\n`);
 
   const modifier = {
     $set: {

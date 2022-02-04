@@ -15,6 +15,8 @@ const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabl
 //  whether it should be open or closed after a render
 let keepModalOpen = true;
 
+export function allowRandomUserModalToOpen() { keepModalOpen = true; }
+
 //  A value that stores the previous indicator
 let updateIndicator = 1;
 
@@ -40,7 +42,7 @@ const RandomUserSelectContainer = (props) => {
     if (!currentUser.presenter) { updateIndicator = randomlySelectedUser[0][1]; } // keep indicator up to date
   } catch (err) {
     logger.error({
-      logCode: 'Random_USer_Error',
+      logCode: 'Random_User_Error',
       extraInfo: {
         stackTrace: err,
       },
@@ -53,6 +55,7 @@ const RandomUserSelectContainer = (props) => {
       + `\n${err}`);
   }
 
+  try{
   if (randomlySelectedUser) {
     mappedRandomlySelectedUsers = randomlySelectedUser.map((ui) => {
       const selectedUser = users[Auth.meetingID][ui[0]];
@@ -63,6 +66,9 @@ const RandomUserSelectContainer = (props) => {
         name: selectedUser.name,
       }, ui[1]];
     });
+  }
+  } catch(err){
+    console.log(JSON.stringify(randomlySelectedUser));
   }
 
   return (
@@ -91,7 +97,7 @@ export default withModalMounter(withTracker(({ mountModal }) => {
     },
   });
 
-  const randomUserReq = () => (SELECT_RANDOM_USER_ENABLED ? makeCall('setRandomUser') : null);
+  const randomUserReq = (allowRepeat, refresh) => (SELECT_RANDOM_USER_ENABLED ? makeCall('setRandomUser', allowRepeat, refresh) : null);
 
   const clearRandomlySelectedUser = () => (SELECT_RANDOM_USER_ENABLED ? makeCall('clearRandomlySelectedUser') : null);
 

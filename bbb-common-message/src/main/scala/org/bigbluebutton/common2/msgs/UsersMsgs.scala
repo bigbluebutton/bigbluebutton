@@ -413,7 +413,7 @@ case class UserActivitySignCmdMsgBody(userId: String)
  */
 object SelectRandomViewerReqMsg { val NAME = "SelectRandomViewerReqMsg" }
 case class SelectRandomViewerReqMsg(header: BbbClientMsgHeader, body: SelectRandomViewerReqMsgBody) extends StandardMsg
-case class SelectRandomViewerReqMsgBody(requestedBy: String)
+case class SelectRandomViewerReqMsgBody(requestedBy: String, allowRepeat: Boolean, refresh: Boolean)
 
 /**
  * Response to request for a random viewer

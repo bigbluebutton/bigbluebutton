@@ -13,6 +13,31 @@ trait SelectRandomViewerReqMsgHdlr extends RightsManagementTrait {
 
   val outGW: OutMsgRouter
 
+  var randomizedIds = Vector[String]()
+  var previousIds = Set[String]()
+  var counter = 0
+
+  def pickUser(userIds: Vector[String], refresh: Boolean): String = {
+    if (userIds.length != 1) {
+      val setOfIds = userIds.toSet
+      if ((randomizedIds.size == 0) || refresh) { //executed once on the first call
+        randomizedIds = Random.shuffle(userIds)
+        previousIds = setOfIds
+        counter = 0
+      }
+      if (!(setOfIds).equals(previousIds)) { //only executed if list of users has changed
+        val usedUp = randomizedIds.dropRight(randomizedIds.length - counter)
+        val leftToChoose = userIds.diff(usedUp)
+        randomizedIds = usedUp ++ Random.shuffle(leftToChoose)
+        previousIds = setOfIds
+      }
+      if (counter != userIds.length) {
+        counter = counter + 1
+        randomizedIds(counter - 1)
+      } else ""
+    } else userIds(0)
+  }
+
   def handleSelectRandomViewerReqMsg(msg: SelectRandomViewerReqMsg): Unit = {
     log.debug("Received SelectRandomViewerReqMsg {}", SelectRandomViewerReqMsg)
 
@@ -32,27 +57,39 @@ trait SelectRandomViewerReqMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to select random user."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
-      val users = Users2x.getRandomlyPickableUsers(liveMeeting.users2x, false)
+      val users = Users2x.findNotPresentersNorModerators(liveMeeting.users2x)
 
-      val usersPicked = Users2x.getRandomlyPickableUsers(liveMeeting.users2x, reduceDuplicatedPick)
+      var userIds = (users.map { case (v) => v.intId })
 
-      val randNum = new scala.util.Random
-      val pickedUser = if (usersPicked.size == 0) "" else usersPicked(randNum.nextInt(usersPicked.size)).intId
+      var allowRepeat = msg.body.allowRepeat
 
-      if (reduceDuplicatedPick) {
-        if (usersPicked.size == 1) {
-          // Initialise the exemption
-          val usersToUnexempt = Users2x.findAll(liveMeeting.users2x)
-          usersToUnexempt foreach { u =>
-            Users2x.setUserExempted(liveMeeting.users2x, u.intId, false)
+      var refresh = msg.body.refresh
+
+      val choice = if (allowRepeat) {
+
+        val pickableUsers = Users2x.getRandomlyPickableUsers(liveMeeting.users2x, false)
+
+        val usersPicked = Users2x.getRandomlyPickableUsers(liveMeeting.users2x, reduceDuplicatedPick)
+
+        val randNum = new scala.util.Random
+        val pickedUser = if (usersPicked.size == 0) "" else usersPicked(randNum.nextInt(usersPicked.size)).intId
+
+        if (reduceDuplicatedPick) {
+          if (usersPicked.size == 1) {
+            // Initialise the exemption
+            val usersToUnexempt = Users2x.findAll(liveMeeting.users2x)
+            usersToUnexempt foreach { u =>
+              Users2x.setUserExempted(liveMeeting.users2x, u.intId, false)
+            }
+          } else if (usersPicked.size > 1) {
+            Users2x.setUserExempted(liveMeeting.users2x, pickedUser, true)
           }
-        } else if (usersPicked.size > 1) {
-          Users2x.setUserExempted(liveMeeting.users2x, pickedUser, true)
         }
-      }
 
-      val userIds = users.map { case (v) => v.intId }
-      broadcastEvent(msg, userIds, pickedUser)
+        userIds = pickableUsers.map { case (v) => v.intId }
+        pickedUser
+      } else pickUser(userIds, refresh)
+      broadcastEvent(msg, userIds, choice)
     }
   }
 }

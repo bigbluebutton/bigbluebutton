@@ -26,6 +26,7 @@ import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-user
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import CaptionsSpeechContainer from '/imports/ui/components/captions/speech/container';
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
+import { allowRandomUserModalToOpen } from '/imports/ui/components/modal/random-user/container';
 import NewWebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
@@ -267,7 +268,10 @@ class App extends Component {
       }
     }
 
-    if (mountRandomUserModal) mountModal(<RandomUserSelectContainer />);
+    if (mountRandomUserModal) {
+      allowRandomUserModalToOpen();
+      mountModal(<RandomUserSelectContainer />);
+    }
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
