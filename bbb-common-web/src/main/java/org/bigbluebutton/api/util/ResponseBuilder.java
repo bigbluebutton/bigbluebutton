@@ -223,10 +223,12 @@ public class ResponseBuilder {
         StringWriter xmlText = new StringWriter();
 
         Map<String, Object> data = new HashMap<String, Object>();
+        log.info("Teste: ");
+        log.info(message);
         data.put("returnCode", returnCode);
         data.put("info", message);
 
-        processData(getTemplate("get-meeting-info.ftlx"), data, xmlText);
+        processData(getTemplate("insert-document.ftlx"), data, xmlText);
 
         return xmlText.toString();
     }

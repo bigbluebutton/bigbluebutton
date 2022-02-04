@@ -59,6 +59,9 @@ class BBBMenu extends React.Component {
 
     return actions?.map(a => {
       const { dataTest, label, onClick, key, disabled } = a;
+      console.log("Teste")
+      console.log(label)
+      console.log(onClick)
 
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 

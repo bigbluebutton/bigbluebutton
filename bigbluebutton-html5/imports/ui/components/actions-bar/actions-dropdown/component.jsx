@@ -242,6 +242,7 @@ class ActionsDropdown extends PureComponent {
   }
 
   render() {
+    console.log("Teste grande --------------------------------------")
     const {
       intl,
       amIPresenter,

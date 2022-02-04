@@ -1125,8 +1125,6 @@ class ApiController {
 
     if (meeting != null){
       uploadDocuments(meeting, true);
-//      Here is the other form!
-//      uploadDocumentsAtInsertAPI(meeting);
       withFormat {
         xml {
           render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
@@ -1273,6 +1271,7 @@ class ApiController {
 
     if (requestBody == null) {
       if (isFromInsertAPI){
+        log.warn("Insert Document API called without a payload - ignoring")
         return;
       }
       downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), true /* default presentation */, '', false, true);
@@ -1283,7 +1282,7 @@ class ApiController {
 
         if ("presentation".equals(module.@name.toString())) {
           // need to iterate over presentation files and process them
-          Boolean current = !isFromInsertAPI;
+          Boolean current = false;
           module.children().each { document ->
             if (!StringUtils.isEmpty(document.@url.toString())) {
               def fileName;
@@ -1298,16 +1297,23 @@ class ApiController {
                 if (!StringUtils.isEmpty(document.@downloadable.toString())) {
                   isDownloadable = java.lang.Boolean.parseBoolean(document.@downloadable.toString());
                 }
+                // I need to make sure that only one of the documents is going to be the current.
+                if (!StringUtils.isEmpty(document.@current.toString()) && !current) {
+                  def isCurrent = java.lang.Boolean.parseBoolean(document.@current.toString());
+                  log.warn("Teste aqui:")
+//                  log.warn(key)
+                  if (isCurrent){
+                    current = isCurrent
+                  }
+                }
               }
               downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), current /* default presentation */,
                       fileName, isDownloadable, isRemovable);
-              current = false;
             } else if (!StringUtils.isEmpty(document.@name.toString())) {
               def b64 = new Base64()
               def decodedBytes = b64.decode(document.text().getBytes())
               processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
                   conf.getInternalId(), current /* default presentation */);
-              current = false;
             } else {
               log.debug("presentation module config found, but it did not contain url or name attributes");
             }

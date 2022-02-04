@@ -45,6 +45,7 @@ export default function setCurrentPresentation(meetingId, podId, presentationId)
     },
   };
 
+  Logger.info("Teste grande AQUII ---------------------------------------")
   const oldPresentation = Presentations.findOne(oldCurrent.selector);
   const newPresentation = Presentations.findOne(newCurrent.selector);
 
