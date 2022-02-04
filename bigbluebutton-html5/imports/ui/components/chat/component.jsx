@@ -120,6 +120,7 @@ const Chat = (props) => {
                 aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
                 label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
                 accessKey={CLOSE_CHAT_AK}
+                data-test="closePrivateChat"
               />
             )
             : (

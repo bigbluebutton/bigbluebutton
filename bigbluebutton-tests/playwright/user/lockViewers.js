@@ -71,9 +71,9 @@ class LockViewers extends MultiUsers {
   }
 
   async lockSendPrivateChatMessages() {
-    const lastUserItemLocator = this.userPage.getLocator(e.userListItem).last();
+    const lastUserItemLocator = this.userPage.getLocatorByIndex(e.userListItem, -1);
     await this.userPage.clickOnLocator(lastUserItemLocator);
-    const startPrivateChatButton = this.userPage.getLocator(e.startPrivateChat).last();
+    const startPrivateChatButton = this.userPage.getLocatorByIndex(e.startPrivateChat, -1);
     await this.userPage.clickOnLocator(startPrivateChatButton);
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockPrivateChat);
@@ -117,9 +117,9 @@ class LockViewers extends MultiUsers {
     await this.userPage.hasElementDisabled(e.joinVideo);
     await this.userPage2.hasElementDisabled(e.joinVideo);
 
-    const lastUserItemLocator = this.modPage.getLocator(e.userListItem).last();
+    const lastUserItemLocator = this.modPage.getLocatorByIndex(e.userListItem, -1);
     await this.modPage.clickOnLocator(lastUserItemLocator);
-    const unlockUserButton = this.modPage.getLocator(e.unlockUserButton).last();
+    const unlockUserButton = this.modPage.getLocatorByIndex(e.unlockUserButton, -1);
     await this.modPage.clickOnLocator(unlockUserButton);
     await this.userPage.hasElementDisabled(e.joinVideo);
     await this.userPage2.hasElementEnabled(e.joinVideo);
