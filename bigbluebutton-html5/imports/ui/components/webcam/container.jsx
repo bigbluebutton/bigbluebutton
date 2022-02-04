@@ -23,6 +23,7 @@ const WebcamContainer = ({
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const isRTL = layoutSelect((i) => i.isRTL);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
+  const focusedId = layoutSelectInput((i) => i.focusedId);
   const presentation = layoutSelectOutput((i) => i.presentation);
   const cameraDock = layoutSelectOutput((i) => i.cameraDock);
   const layoutContextDispatch = layoutDispatch();
@@ -41,6 +42,7 @@ const WebcamContainer = ({
         {...{
           swapLayout,
           usersVideo,
+          focusedId,
           cameraDock,
           cameraOptimalGridSize,
           layoutContextDispatch,

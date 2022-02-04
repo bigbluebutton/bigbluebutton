@@ -28,6 +28,8 @@ export const ACTIONS = {
   SET_DEVICE_TYPE: 'setDeviceType',
   SET_FONT_SIZE: 'setFontSize',
 
+  SET_FOCUSED_CAMERA_ID: 'focusedId',
+
   SET_LAYOUT_INPUT: 'setLayoutInput',
 
   SET_SIDEBAR_NAVIGATION_PANEL: 'setSidebarNavigationPanel',

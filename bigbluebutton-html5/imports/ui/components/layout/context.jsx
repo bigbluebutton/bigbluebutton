@@ -44,6 +44,18 @@ const initState = {
 const reducer = (state, action) => {
   debugActions(action.type, action.value);
   switch (action.type) {
+    case ACTIONS.SET_FOCUSED_CAMERA_ID: {
+      const { focusedId } = state.input;
+      if (focusedId === action.value) return state;
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          focusedId: action.value,
+        },
+      };
+    }
+
     case ACTIONS.SET_LAYOUT_INPUT: {
       if (state.input === action.value) return state;
       return {

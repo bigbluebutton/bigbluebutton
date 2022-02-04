@@ -64,7 +64,6 @@ class VideoList extends Component {
     super(props);
 
     this.state = {
-      focusedId: false,
       optimalGrid: {
         cols: 1,
         rows: 1,
@@ -85,7 +84,6 @@ class VideoList extends Component {
     this.setOptimalGrid = this.setOptimalGrid.bind(this);
     this.handleAllowAutoplay = this.handleAllowAutoplay.bind(this);
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
-    this.handleVideoFocus = this.handleVideoFocus.bind(this);
     this.autoplayWasHandled = false;
   }
 
@@ -96,22 +94,20 @@ class VideoList extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { focusedId } = this.state;
-    const { layoutType, cameraDock, streams } = this.props;
+    const { layoutType, cameraDock, streams, focusedId } = this.props;
     const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
     const {
       layoutType: prevLayoutType,
       cameraDock: prevCameraDock,
       streams: prevStreams,
+      focusedId: prevFocusedId,
     } = prevProps;
     const { width: prevCameraDockWidth, height: prevCameraDockHeight } = prevCameraDock;
 
     const focusedStream = streams.filter((item) => item.stream === focusedId);
 
-    if (focusedId && focusedStream.length === 0) {
-      this.handleVideoFocus(focusedId);
-    }
     if (layoutType !== prevLayoutType
+      || focusedId !== prevFocusedId
       || cameraDockWidth !== prevCameraDockWidth
       || cameraDockHeight !== prevCameraDockHeight
       || streams.length !== prevStreams.length) {
@@ -165,14 +161,6 @@ class VideoList extends Component {
     }
   }
 
-  handleVideoFocus(id) {
-    const { focusedId } = this.state;
-    this.setState({
-      focusedId: focusedId !== id ? id : false,
-    }, this.handleCanvasResize);
-    window.dispatchEvent(new Event('videoFocusChange'));
-  }
-
   handleCanvasResize() {
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
@@ -193,7 +181,7 @@ class VideoList extends Component {
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
     }
-    const { focusedId } = this.state;
+    const { focusedId } = this.props;
     const canvasWidth = cameraDock?.width;
     const canvasHeight = cameraDock?.height;
 
@@ -304,8 +292,9 @@ class VideoList extends Component {
       onVideoItemMount,
       onVideoItemUnmount,
       swapLayout,
+      handleVideoFocus,
+      focusedId,
     } = this.props;
-    const { focusedId } = this.state;
     const numOfStreams = streams.length;
 
     return streams.map((vs) => {
@@ -324,7 +313,7 @@ class VideoList extends Component {
             userId={userId}
             name={name}
             focused={isFocused}
-            onHandleVideoFocus={this.handleVideoFocus}
+            onHandleVideoFocus={handleVideoFocus}
             onVideoItemMount={(videoRef) => {
               this.handleCanvasResize();
               onVideoItemMount(stream, videoRef);

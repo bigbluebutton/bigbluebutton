@@ -11,6 +11,7 @@ import { colorContentBackground } from '/imports/ui/stylesheets/styled-component
 const WebcamComponent = ({
   cameraDock,
   swapLayout,
+  focusedId,
   layoutContextDispatch,
   fullscreen,
   isPresenter,
@@ -99,6 +100,13 @@ const WebcamComponent = ({
       Storage.setItem('webcamSize', { width: newCameraMaxWidth, height: lastHeight });
     }
   }, [cameraDock.position, cameraDock.maxWidth, isPresenter, displayPresentation]);
+
+  const handleVideoFocus = (id) => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_FOCUSED_CAMERA_ID,
+      value: focusedId !== id ? id : false,
+    });
+  }
 
   const onResizeHandle = (deltaWidth, deltaHeight) => {
     if (cameraDock.resizableEdge.top || cameraDock.resizableEdge.bottom) {
@@ -258,6 +266,8 @@ const WebcamComponent = ({
                 {...{
                   swapLayout,
                   cameraDock,
+                  focusedId,
+                  handleVideoFocus,
                 }}
               />
             </Styled.Draggable>
