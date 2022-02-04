@@ -6,7 +6,7 @@ import { UsersContext } from '/imports/ui/components/components-data/users-conte
 import Service from '/imports/ui/components/user-list/service';
 import Auth from '/imports/ui/services/auth';
 
-const UserMessagesContainer = (props) => {
+const UserMessagesContainer = () => {
   const usingChatContext = useContext(ChatContext);
   const usingUsersContext = useContext(UsersContext);
   const usingGroupChatContext = useContext(GroupChatContext);
@@ -14,7 +14,9 @@ const UserMessagesContainer = (props) => {
   const { users } = usingUsersContext;
   const { groupChat: groupChats } = usingGroupChatContext;
   const activeChats = Service.getActiveChats({ groupChatsMessages, groupChats, users:users[Auth.meetingID] });
-  return <UserMessages {...{ ...props, activeChats }} />;
+  const { roving } = Service;
+
+  return <UserMessages {...{ activeChats, roving }} />;
 };
 
 export default UserMessagesContainer;

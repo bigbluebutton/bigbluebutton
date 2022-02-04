@@ -140,6 +140,7 @@ class TimeWindowChatItem extends PureComponent {
       isModerator,
       avatar,
       isOnline,
+      isSystemSender,
     } = this.props;
 
     const dateTime = new Date(timestamp);
@@ -150,7 +151,7 @@ class TimeWindowChatItem extends PureComponent {
 
     return (
       <Styled.Item key={`time-window-${messageKey}`}>
-        <Styled.Wrapper>
+        <Styled.Wrapper isSystemSender={isSystemSender}>
           <Styled.AvatarWrapper>
             <UserAvatar
               color={color}

@@ -1,6 +1,7 @@
 import React from 'react';
 import ChatListItem from './component';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '../../layout/context';
+import Service from '/imports/ui/components/user-list/service';
 
 const ChatListItemContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -10,6 +11,8 @@ const ChatListItemContainer = (props) => {
   const { sidebarContentPanel } = sidebarContent;
   const sidebarContentIsOpen = sidebarContent.isOpen;
 
+  const { isPublicChat } = Service;
+
   return (
     <ChatListItem
       {...{
@@ -17,6 +20,7 @@ const ChatListItemContainer = (props) => {
         sidebarContentPanel,
         layoutContextDispatch,
         idChatOpen,
+        isPublicChat,
         ...props,
       }}
     />

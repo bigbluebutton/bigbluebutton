@@ -321,7 +321,7 @@
    * LibreOffice can be used in lieu of Abiword to export pads.
    * Setting it to null disables LibreOffice exporting.
    */
-  "soffice": null,
+  "soffice": "/usr/share/bbb-libreoffice-conversion/etherpad-export.sh",
 
   /*
    * Path to the Tidy executable.
