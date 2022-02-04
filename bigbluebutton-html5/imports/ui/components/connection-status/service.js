@@ -582,4 +582,5 @@ export default {
   getNetworkData,
   calculateBitsPerSecond,
   calculateBitsPerSecondFromMultipleData,
+  getDataType,
 };
