@@ -351,6 +351,7 @@
     "app.endMeeting.noLabel": "No",
     "app.about.title": "About",
     "app.about.version": "Client build:",
+    "app.about.version_label": "BigBlueButton version:",
     "app.about.copyright": "Copyright:",
     "app.about.confirmLabel": "OK",
     "app.about.confirmDesc": "OK",
