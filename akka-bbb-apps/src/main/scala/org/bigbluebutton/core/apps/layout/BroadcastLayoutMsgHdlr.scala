@@ -20,7 +20,12 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
       if (LayoutsType.layoutsType.contains(msg.body.layout)) {
         val newlayout = LayoutsType.layoutsType.getOrElse(msg.body.layout, "")
 
-        Layouts.setCurrentLayout(liveMeeting.layouts, newlayout, msg.header.userId)
+        Layouts.setCurrentLayout(liveMeeting.layouts, newlayout)
+        Layouts.setPresentationIsOpen(liveMeeting.layouts, msg.body.presentationIsOpen)
+        Layouts.setCameraPosition(liveMeeting.layouts, msg.body.cameraPosition)
+        Layouts.setFocusedCamera(liveMeeting.layouts, msg.body.focusedCamera)
+        Layouts.setPresentationVideoRate(liveMeeting.layouts, msg.body.presentationVideoRate)
+        Layouts.setRequestedBy(liveMeeting.layouts, msg.header.userId)
 
         sendBroadcastLayoutEvtMsg(msg.header.userId)
       }
@@ -34,8 +39,12 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
 
     val body = BroadcastLayoutEvtMsgBody(
       Layouts.getCurrentLayout(liveMeeting.layouts),
+      Layouts.getPresentationIsOpen(liveMeeting.layouts),
+      Layouts.getCameraPosition(liveMeeting.layouts),
+      Layouts.getFocusedCamera(liveMeeting.layouts),
+      Layouts.getPresentationVideoRate(liveMeeting.layouts),
       MeetingStatus2x.getPermissions(liveMeeting.status).lockedLayout,
-      Layouts.getLayoutSetter(liveMeeting.layouts), affectedUsers
+      Layouts.getLayoutSetter(liveMeeting.layouts)
     )
     val event = BroadcastLayoutEvtMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)

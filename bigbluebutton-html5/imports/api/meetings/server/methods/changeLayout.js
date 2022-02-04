@@ -1,9 +1,10 @@
 import Logger from '/imports/startup/server/logger';
+import { LayoutMeetings } from '/imports/api/meetings';
 import RedisPubSub from '/imports/startup/server/redis';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 
-export default function changeLayout(layout) {
+export default function changeLayout(payload) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'BroadcastLayoutMsg';
@@ -14,11 +15,11 @@ export default function changeLayout(layout) {
     check(meetingId, String);
     check(requesterUserId, String);
 
-    const payload = {
-      layout,
-    };
+    const { presentationIsOpen, cameraPosition, focusedCamera, presentationVideoRate } = LayoutMeetings.findOne({ meetingId });
 
-    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+    const defaultPayload = { presentationIsOpen, cameraPosition, focusedCamera, presentationVideoRate, ...payload};
+
+    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, defaultPayload);
   } catch (err) {
     Logger.error(`Exception while invoking method changeLayout ${err.stack}`);
   }

@@ -245,6 +245,14 @@ class App extends Component {
       mountModal,
       deviceType,
       meetingLayout,
+      meetingLayoutUpdatedAt,
+      presentationIsOpen,
+      focusedCamera,
+      cameraPosition,
+      presentationVideoRate,
+      cameraWidth,
+      cameraHeight,
+      isPresenter,
       selectedLayout, // layout name
       pushLayout, // is layout pushed
       layoutContextDispatch,
@@ -275,12 +283,83 @@ class App extends Component {
       });
 
       if (pushLayout) {
-        LayoutService.setMeetingLayout(selectedLayout);
+        LayoutService.setMeetingLayout({layout: selectedLayout, presentationIsOpen, cameraPosition, focusedCamera, presentationVideoRate});
       }
     }
 
     if (pushLayout && !prevProps.pushLayout) {
-      LayoutService.setMeetingLayout(selectedLayout);
+      LayoutService.setMeetingLayout({layout: selectedLayout, presentationIsOpen, cameraPosition, focusedCamera, presentationVideoRate});
+    }
+
+    if (meetingLayout === "custom" && !isPresenter) {
+
+      if (meetingLayout !== prevProps.meetingLayout
+	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+
+	let contextLayout = meetingLayout;
+	if (isMobile() || StreamService.isRecordingBot()) {
+	  contextLayout = meetingLayout === 'custom' ? 'smart' : meetingLayout;
+	}
+
+	layoutContextDispatch({
+	  type: ACTIONS.SET_LAYOUT_TYPE,
+	  value: contextLayout,
+	});
+
+	Settings.application.selectedLayout = contextLayout;
+	Settings.save();
+      }
+
+      if (focusedCamera !== prevProps.focusedCamera
+	&& meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+
+	layoutContextDispatch({
+	  type: ACTIONS.SET_FOCUSED_CAMERA_ID,
+	  value: focusedCamera,
+	});
+      }
+
+      if (cameraPosition !== prevProps.cameraPosition
+	&& meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+
+	layoutContextDispatch({
+	  type: ACTIONS.SET_CAMERA_DOCK_POSITION,
+	  value: cameraPosition,
+	});
+      }
+
+      if (Math.abs(presentationVideoRate - prevProps.presentationVideoRate) > 0.01
+	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+
+
+	let w, h;
+        if (cameraWidth > cameraHeight) {
+	  w = cameraWidth;
+	  h = window.innerHeight * presentationVideoRate;
+	} else {
+	  w = window.innerWidth * presentationVideoRate;
+	  h = cameraHeight;
+	}
+
+        layoutContextDispatch({
+	  type: ACTIONS.SET_CAMERA_DOCK_SIZE,
+	  value: {
+	    width: w,
+	    height: h,
+	    browserWidth: window.innerWidth,
+	    browserHeight: window.innerHeight,
+	  }
+	});
+      }
+
+      if (presentationIsOpen !== prevProps.presentationIsOpen
+	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+
+	layoutContextDispatch({
+	  type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+	  value: presentationIsOpen,
+	});
+      }
     }
 
     if (mountRandomUserModal) mountModal(<RandomUserSelectContainer />);

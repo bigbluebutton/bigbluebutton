@@ -8,15 +8,4 @@ trait LayoutApp2x
   with GetCurrentLayoutReqMsgHdlr {
 
   this: MeetingActor =>
-
-  def affectedUsers(): Vector[String] = {
-    if (Layouts.doesLayoutApplyToViewersOnly(liveMeeting.layouts)) {
-      val users = Users2x.findAll(liveMeeting.users2x) filter { u =>
-        (!u.presenter && u.role != Roles.MODERATOR_ROLE)
-      }
-      users.map(u => u.intId)
-    } else {
-      Users2x.findAll(liveMeeting.users2x).map(u => u.intId)
-    }
-  }
 }

@@ -67,6 +67,7 @@ const AppContainer = (props) => {
   const {
     actionsbar,
     meetingLayout,
+    meetingLayoutUpdatedAt,
     selectedLayout,
     pushLayout,
     currentUserId,
@@ -75,6 +76,10 @@ const AppContainer = (props) => {
     isPresenter,
     randomlySelectedUser,
     isModalOpen,
+    presentationIsOpen: layoutPresOpen,
+    cameraPosition: layoutCamPosition,
+    focusedCamera: layoutFocusedCam,
+    presentationVideoRate: layoutRate,
     ...otherProps
   } = props;
 
@@ -92,6 +97,16 @@ const AppContainer = (props) => {
   const { isOpen: presentationIsOpen } = presentation;
   const shouldShowPresentation = propsShouldShowPresentation
     && (presentationIsOpen || presentationRestoreOnUpdate);
+
+  const { cameraDock } = output;
+  const { focusedId } = input;
+  // this is not exactly right yet
+  let presentationVideoRate;
+  if (cameraDock.width > cameraDock.height) {
+    presentationVideoRate = cameraDock.height / window.innerHeight;
+  } else {
+    presentationVideoRate = cameraDock.width / window.innerWidth;
+  }
 
   const prevRandomUser = usePrevious(randomlySelectedUser);
 
@@ -111,6 +126,13 @@ const AppContainer = (props) => {
           meetingLayout,
           selectedLayout,
           pushLayout,
+          meetingLayoutUpdatedAt,
+          presentationIsOpen: isPresenter ? presentationIsOpen : layoutPresOpen,
+          cameraPosition: isPresenter ? cameraDock.position : layoutCamPosition,
+          focusedCamera: isPresenter ? focusedId : layoutFocusedCam,
+          presentationVideoRate: isPresenter ? presentationVideoRate : layoutRate,
+          cameraWidth: cameraDock.width,
+          cameraHeight: cameraDock.height,
           deviceType,
           layoutContextDispatch,
           sidebarNavPanel,
@@ -172,7 +194,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   } = currentMeeting;
 
   const meetingLayout = LayoutMeetings.findOne({ meetingId: Auth.meetingID });
-  const { layout, layoutUpdatedAt } = meetingLayout;
+  const { layout, layoutUpdatedAt, presentationIsOpen, cameraPosition, focusedCamera, presentationVideoRate } = meetingLayout;
 
   if (currentUser && !currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -197,6 +219,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
 
   const LAYOUT_CONFIG = Meteor.settings.public.layout;
 
+  const isPresenter = currentUser?.presenter;
+
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     fontSize: getFontSize(),
@@ -213,10 +237,13 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     hasPublishedPoll: publishedPoll,
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
-    currentUserRole: currentUser?.role,
-    isPresenter: currentUser?.presenter,
+    isPresenter,
     meetingLayout: layout,
     meetingLayoutUpdatedAt: layoutUpdatedAt,
+    presentationIsOpen,
+    cameraPosition,
+    focusedCamera,
+    presentationVideoRate,
     selectedLayout,
     pushLayout,
     audioAlertEnabled: AppSettings.chatAudioAlerts,

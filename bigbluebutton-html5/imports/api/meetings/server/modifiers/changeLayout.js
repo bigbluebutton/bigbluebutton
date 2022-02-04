@@ -3,12 +3,11 @@ import { LayoutMeetings } from '/imports/api/meetings';
 import { check } from 'meteor/check';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
-export default function changeLayout(meetingId, layout, requesterUserId, affectedUsers) {
+export default function changeLayout(meetingId, layout, presentationIsOpen, cameraPosition, focusedCamera, presentationVideoRate, requesterUserId) {
   try {
     check(meetingId, String);
     check(requesterUserId, String);
     check(layout, String);
-    check(affectedUsers, Match.Maybe([String]));
 
     const selector = {
       meetingId,
@@ -18,6 +17,10 @@ export default function changeLayout(meetingId, layout, requesterUserId, affecte
       $set: {
         layout: LAYOUT_TYPE[layout] || LAYOUT_TYPE.SMART_LAYOUT,
         layoutUpdatedAt: new Date().getTime(),
+        presentationIsOpen,
+        cameraPosition,
+        focusedCamera,
+        presentationVideoRate,
       },
     };
 

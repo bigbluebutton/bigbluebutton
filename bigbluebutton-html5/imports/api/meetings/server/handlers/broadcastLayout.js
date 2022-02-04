@@ -1,7 +1,7 @@
 import changeLayout from '../modifiers/changeLayout';
 
 export default function broadcastLayout({ body }, meetingId) {
-  const { layout, setByUserId, applyTo } = body;
+  const { layout, presentationIsOpen, cameraPosition, focusedCamera, presentationVideoRate, setByUserId } = body;
 
-  changeLayout(meetingId, layout, setByUserId, applyTo);
+  changeLayout(meetingId, layout, presentationIsOpen, cameraPosition, focusedCamera, presentationVideoRate, setByUserId);
 }
