@@ -41,9 +41,7 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
           val event = buildUserRoleChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId,
             msg.body.changedBy, Roles.VIEWER_ROLE)
 
-          if (newUvo.locked) {
-            LockSettingsUtil.enforceCamLockSettingsForAllUsers(liveMeeting, outGW)
-          }
+          LockSettingsUtil.enforceCamLockSettingsForAllUsers(liveMeeting, outGW)
 
           outGW.send(event)
         }
