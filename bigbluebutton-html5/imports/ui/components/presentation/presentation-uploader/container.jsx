@@ -12,9 +12,9 @@ const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 const PresentationUploaderContainer = (props) => (
   props.isPresenter
   && (
-  <ErrorBoundary Fallback={() => <FallbackModal />}>
-    <PresentationUploader {...props} />
-  </ErrorBoundary>
+    <ErrorBoundary Fallback={() => <FallbackModal />}>
+      <PresentationUploader {...props} />
+    </ErrorBoundary>
   )
 );
 

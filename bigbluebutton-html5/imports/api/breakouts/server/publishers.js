@@ -37,7 +37,7 @@ function breakouts(role) {
       },
       {
         parentMeetingId: meetingId,
-        'users.userId': userId,
+        [`url_${userId}`]: { $exists: true },
       },
       {
         breakoutId: meetingId,
@@ -45,7 +45,23 @@ function breakouts(role) {
     ],
   };
 
-  return Breakouts.find(selector);
+  const fields = {
+    fields: {
+      [`url_${userId}`]: 1,
+      breakoutId: 1,
+      externalId: 1,
+      freeJoin: 1,
+      isDefaultName: 1,
+      joinedUsers: 1,
+      name: 1,
+      parentMeetingId: 1,
+      sequence: 1,
+      shortName: 1,
+      timeRemaining: 1,
+    },
+  };
+
+  return Breakouts.find(selector, fields);
 }
 
 function publish(...args) {

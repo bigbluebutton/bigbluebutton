@@ -138,7 +138,6 @@
     "app.meeting.ended": "Η συνεδρία έληξε",
     "app.meeting.meetingTimeRemaining": "Υπολειπόμενος χρόνος σύσκεψης: {0}",
     "app.meeting.meetingTimeHasEnded": "Ο χρόνος τελείωσε.  Η σύσκεψη θα κλείσει σύντομα.",
-    "app.meeting.endedByUserMessage": "Η σύσκεψη τερματίστηκε από τον {0}",
     "app.meeting.endedMessage": "Θα μεταφερθείτε πίσω στην αρχική σας σελίδα",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Η σύσκεψη θα κλείσει σε ένα λεπτό.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Η σύσκεψη θα κλείσει σε {0} λεπτά.",

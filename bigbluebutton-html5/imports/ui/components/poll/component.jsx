@@ -9,6 +9,7 @@ import Button from '/imports/ui/components/button/component';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
 import DragAndDrop from './dragAndDrop/component';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 
 const intlMessages = defineMessages({
   pollPaneTitle: {
@@ -151,7 +152,7 @@ const intlMessages = defineMessages({
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
 
-const MAX_CUSTOM_FIELDS = POLL_SETTINGS.max_custom;
+const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
 const MAX_INPUT_CHARS = POLL_SETTINGS.maxTypedAnswerLength;
 const QUESTION_MAX_INPUT_CHARS = 400;
 const FILE_DRAG_AND_DROP_ENABLED = POLL_SETTINGS.allowDragAndDropFile;
@@ -351,6 +352,7 @@ class Poll extends Component {
       currentPoll,
       pollAnswerIds,
       usernames,
+      isDefaultPoll,
     } = this.props;
 
     return (
@@ -365,6 +367,7 @@ class Poll extends Component {
             currentPoll,
             pollAnswerIds,
             usernames,
+            isDefaultPoll,
           }}
           handleBackClick={this.handleBackClick}
         />
@@ -492,7 +495,7 @@ class Poll extends Component {
                           label={intl.formatMessage(intlMessages.addOptionLabel)}
                           color="default"
                           icon="add"
-                          disabled={optList.length === MAX_CUSTOM_FIELDS}
+                          disabled={optList.length >= MAX_CUSTOM_FIELDS}
                           onClick={() => this.handleAddOption()}
                         />
                       )}
@@ -646,7 +649,7 @@ class Poll extends Component {
   }
 }
 
-export default withModalMounter(injectIntl(Poll));
+export default injectWbResizeEvent(withModalMounter(injectIntl(Poll)));
 
 Poll.propTypes = {
   intl: PropTypes.shape({

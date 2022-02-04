@@ -7,6 +7,7 @@ import Button from '/imports/ui/components/button/component';
 import logger from '/imports/startup/client/logger';
 import PadService from './service';
 import CaptionsService from '/imports/ui/components/captions/service';
+import { notify } from '/imports/ui/services/notification';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -46,14 +47,16 @@ const intlMessages = defineMessages({
     id: 'app.captions.pad.dictationOffDesc',
     description: 'Aria description for button that turns off speech recognition',
   },
+  speechRecognitionStop: {
+    id: 'app.captions.pad.speechRecognitionStop',
+    description: 'Notification for stopped speech recognition',
+  },  
 });
 
 const propTypes = {
   locale: PropTypes.string.isRequired,
   ownerId: PropTypes.string.isRequired,
   currentUserId: PropTypes.string.isRequired,
-  padId: PropTypes.string.isRequired,
-  readOnlyPadId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   amIModerator: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
@@ -74,16 +77,33 @@ class Pad extends PureComponent {
 
     this.state = {
       listening: false,
+      url: null,
     };
 
-    const { locale } = props;
+    const { locale, intl } = props;
     this.recognition = CaptionsService.initSpeechRecognition(locale);
 
     this.toggleListen = this.toggleListen.bind(this);
     this.handleListen = this.handleListen.bind(this);
+    
+    if (this.recognition) {
+      this.recognition.addEventListener('end', () => {
+        const { listening } = this.state;
+        if (listening) {
+          notify(intl.formatMessage(intlMessages.speechRecognitionStop), 'info', 'warning');
+          this.stopListen();
+        }
+      });
+    }
   }
 
-  componentDidUpdate() {
+  componentDidMount() {
+    const { locale } = this.props;
+
+    this.updatePadURL(locale);
+  }
+
+  componentDidUpdate(prevProps) {
     const {
       locale,
       ownerId,
@@ -91,9 +111,24 @@ class Pad extends PureComponent {
     } = this.props;
 
     if (this.recognition) {
+      if (ownerId !== currentUserId) {
+        this.recognition.stop();
+      } else if (this.state.listening && this.recognition.lang !== locale) {
+        this.recognition.stop();
+        this.stopListen();
+      }
       this.recognition.lang = locale;
-      if (ownerId !== currentUserId) this.recognition.stop();
     }
+
+    if (prevProps.ownerId !== ownerId || prevProps.locale !== locale) {
+      this.updatePadURL(locale);
+    }
+  }
+
+  updatePadURL(locale) {
+    PadService.getPadId(locale).then(response => {
+      this.setState({ url: PadService.buildPadURL(response) });
+    });
   }
 
   handleListen() {
@@ -168,13 +203,15 @@ class Pad extends PureComponent {
       listening: !listening,
     }, this.handleListen);
   }
+  
+  stopListen() {
+    this.setState({ listening: false });
+  }
 
   render() {
     const {
       locale,
       intl,
-      padId,
-      readOnlyPadId,
       ownerId,
       name,
       amIModerator,
@@ -186,8 +223,10 @@ class Pad extends PureComponent {
       return null;
     }
 
-    const { listening } = this.state;
-    const url = PadService.getPadURL(padId, readOnlyPadId, ownerId);
+    const {
+      listening,
+      url,
+    } = this.state;
 
     return (
       <div className={styles.pad}>

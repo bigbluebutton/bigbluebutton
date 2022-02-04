@@ -111,11 +111,17 @@ const intlMessages = defineMessages({
     id: 'app.userList.you',
     description: 'Text for identifying your user',
   },
+  minimumDurationWarnBreakout: {
+    id: 'app.createBreakoutRoom.minimumDurationWarnBreakout',
+    description: 'minimum duration warning message label',
+  },
+
 });
 
 const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
 const MIN_BREAKOUT_ROOMS = 2;
 const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
+const MIN_BREAKOUT_TIME = 5;
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -177,6 +183,7 @@ class BreakoutRoom extends PureComponent {
       valid: true,
       record: false,
       numberOfRoomsIsValid: true,
+      durationIsValid: true,
       breakoutJoinedUsers: null,
     };
 
@@ -307,19 +314,26 @@ class BreakoutRoom extends PureComponent {
       freeJoin,
       record,
       numberOfRoomsIsValid,
+      durationIsValid,
     } = this.state;
+
+    const { numberOfRooms, durationTime } = this.state;
+
+    if ((durationTime || 0) < MIN_BREAKOUT_TIME) {
+      this.setState({ durationIsValid: false });
+      return;
+    }
 
     if (users.length === this.getUserByRoom(0).length && !freeJoin) {
       this.setState({ valid: false });
       return;
     }
 
-    if (!numberOfRoomsIsValid) {
+    if (!numberOfRoomsIsValid || !durationIsValid) {
       return;
     }
 
     this.setState({ preventClosing: false });
-    const { numberOfRooms, durationTime } = this.state;
     const rooms = _.range(1, numberOfRooms + 1).map((value) => ({
       users: this.getUserByRoom(value).map((u) => u.userId),
       name: intl.formatMessage(intlMessages.roomName, {
@@ -466,17 +480,25 @@ class BreakoutRoom extends PureComponent {
 
   increaseDurationTime() {
     const { durationTime } = this.state;
-    this.setState({ durationTime: (1 * durationTime) + 1 });
+    const number = ((1 * durationTime) + 1);
+    const newDurationTime = number > MIN_BREAKOUT_TIME ? number : MIN_BREAKOUT_TIME;
+
+    this.setState({ durationTime: newDurationTime, durationIsValid: true });
   }
 
   decreaseDurationTime() {
     const { durationTime } = this.state;
     const number = ((1 * durationTime) - 1);
-    this.setState({ durationTime: number < 1 ? 1 : number });
+    const newDurationTime = number > MIN_BREAKOUT_TIME ? number : MIN_BREAKOUT_TIME;
+
+    this.setState({ durationTime: newDurationTime, durationIsValid: true });
   }
 
   changeDurationTime(event) {
-    this.setState({ durationTime: Number.parseInt(event.target.value, 10) || '' });
+    const durationTime = Number.parseInt(event.target.value, 10) || '';
+    const durationIsValid = durationTime >= MIN_BREAKOUT_TIME;
+
+    this.setState({ durationTime, durationIsValid });
   }
 
   blurDurationTime(event) {
@@ -489,7 +511,7 @@ class BreakoutRoom extends PureComponent {
     this.setState({
       numberOfRooms,
       numberOfRoomsIsValid: numberOfRooms <= MAX_BREAKOUT_ROOMS
-      && numberOfRooms >= MIN_BREAKOUT_ROOMS,
+        && numberOfRooms >= MIN_BREAKOUT_ROOMS,
     });
   }
 
@@ -552,6 +574,7 @@ class BreakoutRoom extends PureComponent {
       numberOfRooms,
       durationTime,
       numberOfRoomsIsValid,
+      durationIsValid,
     } = this.state;
     if (isInvitation) return null;
 
@@ -580,7 +603,7 @@ class BreakoutRoom extends PureComponent {
               }
             </select>
           </div>
-          <label htmlFor="breakoutRoomTime">
+          <label htmlFor="breakoutRoomTime" className={!durationIsValid ? styles.changeToWarn : null}>
             <p className={styles.labelText} aria-hidden>
               {intl.formatMessage(intlMessages.duration)}
             </p>
@@ -607,7 +630,7 @@ class BreakoutRoom extends PureComponent {
                     `${intl.formatMessage(intlMessages.minusRoomTime)} ${intl.formatMessage(intlMessages.roomTime, { 0: durationTime - 1 })}`
                   }
                   icon="substract"
-                  onClick={() => {}}
+                  onClick={() => { }}
                   hideLabel
                   circle
                   size="sm"
@@ -624,13 +647,17 @@ class BreakoutRoom extends PureComponent {
                     `${intl.formatMessage(intlMessages.addRoomTime)} ${intl.formatMessage(intlMessages.roomTime, { 0: durationTime + 1 })}`
                   }
                   icon="add"
-                  onClick={() => {}}
+                  onClick={() => { }}
                   hideLabel
                   circle
                   size="sm"
                 />
               </HoldButton>
             </div>
+            <span className={durationIsValid ? styles.dontShow : styles.leastOneWarn}>
+              {intl.formatMessage(intlMessages.minimumDurationWarnBreakout, { 0: MIN_BREAKOUT_TIME })}
+            </span>
+
           </label>
           <Button
             data-test="randomlyAssign"
@@ -796,7 +823,7 @@ class BreakoutRoom extends PureComponent {
             ))
           }
         </span>
-        { isInvitation || this.renderButtonSetLevel(1, intl.formatMessage(intlMessages.backLabel))}
+        {isInvitation || this.renderButtonSetLevel(1, intl.formatMessage(intlMessages.backLabel))}
       </div>
     );
   }
@@ -813,15 +840,15 @@ class BreakoutRoom extends PureComponent {
       <>
         {!valid
           && (
-          <span className={styles.withError}>
-            {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
-          </span>
+            <span className={styles.withError}>
+              {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
+            </span>
           )}
         {!numberOfRoomsIsValid
           && (
-          <span className={styles.withError}>
-            {intl.formatMessage(intlMessages.numberOfRoomsIsValid)}
-          </span>
+            <span className={styles.withError}>
+              {intl.formatMessage(intlMessages.numberOfRoomsIsValid)}
+            </span>
           )}
       </>
     );
@@ -887,6 +914,7 @@ class BreakoutRoom extends PureComponent {
       preventClosing,
       valid,
       numberOfRoomsIsValid,
+      durationIsValid,
     } = this.state;
 
     const { isMobile } = deviceInfo;
@@ -904,7 +932,7 @@ class BreakoutRoom extends PureComponent {
               ? intl.formatMessage(intlMessages.invitationConfirm)
               : intl.formatMessage(intlMessages.confirmButton),
             callback: isInvitation ? this.onInviteBreakout : this.onCreateBreakouts,
-            disabled: !valid || !numberOfRoomsIsValid,
+            disabled: !valid || !numberOfRoomsIsValid || !durationIsValid,
           }
         }
         dismiss={{

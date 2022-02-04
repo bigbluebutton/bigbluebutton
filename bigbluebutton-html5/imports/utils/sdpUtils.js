@@ -65,6 +65,40 @@ const stripMDnsCandidates = (sdp) => {
   return { sdp: transform.write(parsedSDP), type: sdp.type };
 };
 
+const filterValidIceCandidates = (validIceCandidates, sdp) => {
+  if (!validIceCandidates || !validIceCandidates.length) return sdp;
+
+  const matchCandidatesIp = (candidate, mediaCandidate) => (
+    (candidate.address && candidate.address.includes(mediaCandidate.ip))
+    || (candidate.relatedAddress
+      && candidate.relatedAddress.includes(mediaCandidate.ip))
+  );
+
+  const parsedSDP = transform.parse(sdp.sdp);
+  let strippedCandidates = 0;
+  parsedSDP.media.forEach((media) => {
+    if (media.candidates) {
+      media.candidates = media.candidates.filter((candidate) => {
+        if (candidate.ip
+          && candidate.type
+          && candidate.transport
+          && validIceCandidates.find((c) => (c.protocol === candidate.transport)
+              && matchCandidatesIp(c, candidate))
+        ) {
+          return true;
+        }
+        strippedCandidates += 1;
+        return false;
+      });
+    }
+  });
+  if (strippedCandidates > 0) {
+    logger.info({ logCode: 'sdp_utils_mdns_candidate_strip' },
+      `Filtered ${strippedCandidates} invalid candidates from trickle SDP`);
+  }
+  return { sdp: transform.write(parsedSDP), type: sdp.type };
+};
+
 const isPublicIpv4 = (ip) => {
   const ipParts = ip.split('.');
   switch (ipParts[0]) {
@@ -305,6 +339,7 @@ export {
   toPlanB,
   toUnifiedPlan,
   stripMDnsCandidates,
+  filterValidIceCandidates,
   analyzeSdp,
   logSelectedCandidate,
 };

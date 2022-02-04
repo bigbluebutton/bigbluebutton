@@ -79,6 +79,10 @@ object Users2x {
     users.toVector.filter(u => u.role == Roles.VIEWER_ROLE)
   }
 
+  def findLockedViewers(users: Users2x): Vector[UserState] = {
+    users.toVector.filter(u => u.role == Roles.VIEWER_ROLE && u.locked)
+  }
+
   def updateLastUserActivity(users: Users2x, u: UserState): UserState = {
     val newUserState = modify(u)(_.lastActivityTime).setTo(System.currentTimeMillis())
     users.save(newUserState)

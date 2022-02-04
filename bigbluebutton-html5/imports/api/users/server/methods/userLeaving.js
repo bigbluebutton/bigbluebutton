@@ -40,7 +40,7 @@ export default function userLeaving(meetingId, userId, connectionId) {
     const payload = {
       userId,
       sessionId: meetingId,
-      loggedOut: user.loggedOut,
+      loggedOut: user.loggedOut || false,
     };
 
     ClientConnections.removeClientConnection(`${meetingId}--${userId}`, connectionId);

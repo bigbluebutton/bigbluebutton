@@ -68,7 +68,9 @@ object Polls {
     stoppedPoll match {
       case None => {
         for {
-          curPoll <- getRunningPollThatStartsWith("public", lm.polls)
+          // Assuming there's only one running poll at a time, fallback to the
+          // current running poll without indexing by a presentation page.
+          curPoll <- getRunningPoll(lm.polls)
         } yield {
           stopPoll(curPoll.id, lm.polls)
           curPoll.id
@@ -255,6 +257,7 @@ object Polls {
     shape += "numRespondents" -> new Integer(result.numRespondents)
     shape += "numResponders" -> new Integer(result.numResponders)
     shape += "type" -> WhiteboardKeyUtil.POLL_RESULT_TYPE
+    shape += "pollType" -> result.questionType
     shape += "id" -> result.id
     shape += "status" -> WhiteboardKeyUtil.DRAW_END_STATUS
 
@@ -304,6 +307,12 @@ object Polls {
 
     shape += "points" -> mapA
     shape.toMap
+  }
+
+  def getRunningPoll(polls: Polls): Option[PollVO] = {
+    for {
+      poll <- polls.polls.values find { poll => poll.isRunning() }
+    } yield poll.toPollVO()
   }
 
   def getRunningPollThatStartsWith(pollId: String, polls: Polls): Option[PollVO] = {
@@ -644,7 +653,7 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
   }
 
   def toSimplePollResultOutVO(): SimplePollResultOutVO = {
-    new SimplePollResultOutVO(id, questions(0).text, questions(0).toSimpleVotesOutVO(), numRespondents, _numResponders)
+    new SimplePollResultOutVO(id, questions(0).questionType, questions(0).text, questions(0).toSimpleVotesOutVO(), numRespondents, _numResponders)
   }
 }
 

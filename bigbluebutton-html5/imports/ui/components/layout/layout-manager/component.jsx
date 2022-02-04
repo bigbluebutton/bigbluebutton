@@ -4,6 +4,7 @@ import { Session } from 'meteor/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import deviceInfo from '/imports/utils/deviceInfo';
+import browserInfo from '/imports/utils/browserInfo';
 import _ from 'lodash';
 
 const windowWidth = () => window.innerWidth;
@@ -12,11 +13,13 @@ const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
 const { isMobile } = deviceInfo;
+const { isSafari } = browserInfo;
+const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
 // values based on sass file
-const USERLIST_MIN_WIDTH = 150;
+const USERLIST_MIN_WIDTH = 70;
 const USERLIST_MAX_WIDTH = 240;
-const CHAT_MIN_WIDTH = 320;
+const CHAT_MIN_WIDTH = 70;
 const CHAT_MAX_WIDTH = 400;
 const POLL_MIN_WIDTH = 320;
 const POLL_MAX_WIDTH = 400;
@@ -107,7 +110,7 @@ class LayoutManagerComponent extends Component {
       this.setLayoutSizes(false, false, true);
     });
     
-    window.addEventListener('fullscreenchange', () => {
+    window.addEventListener(FULLSCREEN_CHANGE_EVENT, () => {
       setTimeout(() => this.setLayoutSizes(), 200);
     });
 
@@ -306,7 +309,7 @@ class LayoutManagerComponent extends Component {
       return;
     }
 
-    if ((mediaAreaWidth - presentationWidth) > (mediaAreaHeight - presentationHeight)) {
+    if (!isMobile && ((mediaAreaWidth - presentationWidth) > (mediaAreaHeight - presentationHeight))) {
       layoutContextDispatch(
         {
           type: 'setWebcamsPlacement',

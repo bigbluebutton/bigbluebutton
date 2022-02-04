@@ -135,7 +135,6 @@
     "app.meeting.ended": "Ez a munkamenet befejeződött",
     "app.meeting.meetingTimeRemaining": "Az előadásból hátralévő idő: {0}",
     "app.meeting.meetingTimeHasEnded": "Az idő lejárt. Az előadás hamarosan véget ér",
-    "app.meeting.endedByUserMessage": "{0} előadás befejezése",
     "app.meeting.endedMessage": "Visszairányítunk a kezdőképernyőre",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "A megbeszélés egy perc múlva véget ér.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "A megbeszélés {0} percen belül véget ér.",

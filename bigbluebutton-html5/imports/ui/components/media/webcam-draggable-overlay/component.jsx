@@ -4,6 +4,7 @@ import cx from 'classnames';
 import PropTypes from 'prop-types';
 import Resizable from 're-resizable';
 import deviceInfo from '/imports/utils/deviceInfo';
+import browserInfo from '/imports/utils/browserInfo';
 import { withDraggableConsumer } from './context';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import { styles } from '../styles.scss';
@@ -21,6 +22,7 @@ const propTypes = {
   refMediaContainer: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
   layoutContextState: PropTypes.objectOf(Object).isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
+  isRTL: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -30,6 +32,9 @@ const defaultProps = {
   audioModalIsOpen: false,
   refMediaContainer: null,
 };
+
+const { isSafari } = browserInfo;
+const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
 class WebcamDraggable extends PureComponent {
   constructor(props) {
@@ -55,12 +60,12 @@ class WebcamDraggable extends PureComponent {
   }
 
   componentDidMount() {
-    document.addEventListener('fullscreenchange', this.onFullscreenChange);
+    document.addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     window.addEventListener('layoutSizesSets', this.handleLayoutSizesSets);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    document.removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     window.removeEventListener('layoutSizesSets', this.handleLayoutSizesSets);
   }
 
@@ -198,12 +203,12 @@ class WebcamDraggable extends PureComponent {
   }
 
   calculatePosition() {
-    const { layoutContextState } = this.props;
+    const { layoutContextState, isRTL } = this.props;
     const { mediaBounds } = layoutContextState;
 
     const { top: mediaTop, left: mediaLeft } = mediaBounds;
     const { top: webcamsListTop, left: webcamsListLeft } = this.getWebcamsListBounds();
-    const x = webcamsListLeft - mediaLeft;
+    const x = !isRTL ? (webcamsListLeft - mediaLeft) : webcamsListLeft;
     const y = webcamsListTop - mediaTop;
     return {
       x,
@@ -282,6 +287,7 @@ class WebcamDraggable extends PureComponent {
       hideOverlay,
       disableVideo,
       audioModalIsOpen,
+      isRTL,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -429,7 +435,7 @@ class WebcamDraggable extends PureComponent {
           />
         </div>
         <div
-          className={dropZoneLeftClassName}
+          className={!isRTL ? dropZoneLeftClassName : dropZoneRightClassName}
           style={{
             width: '15vh',
             height: `calc(${mediaHeight}px - (15vh * 2))`,
@@ -474,8 +480,10 @@ class WebcamDraggable extends PureComponent {
             enable={{
               top: (webcamsPlacement === 'bottom') && !swapLayout,
               bottom: (webcamsPlacement === 'top') && !swapLayout,
-              left: (webcamsPlacement === 'right') && !swapLayout,
-              right: (webcamsPlacement === 'left') && !swapLayout,
+              left: ((!isRTL && webcamsPlacement === 'right') || (isRTL && webcamsPlacement === 'left'))
+                && !swapLayout,
+              right: ((!isRTL && webcamsPlacement === 'left') || (isRTL && webcamsPlacement === 'right'))
+                && !swapLayout,
               topLeft: false,
               topRight: false,
               bottomLeft: false,
@@ -514,7 +522,7 @@ class WebcamDraggable extends PureComponent {
           />
         </div>
         <div
-          className={dropZoneRightClassName}
+          className={!isRTL ? dropZoneRightClassName : dropZoneLeftClassName}
           style={{
             width: '15vh',
             height: `calc(${mediaHeight}px - (15vh * 2))`,

@@ -139,7 +139,6 @@
     "app.meeting.ended": "இந்த அமர்வு முடிந்தது",
     "app.meeting.meetingTimeRemaining": "சந்திப்பு நேரம் மீதமுள்ளது: {0}",
     "app.meeting.meetingTimeHasEnded": "நேரம் முடிந்தது. கூட்டம் விரைவில் நிறைவடையும்",
-    "app.meeting.endedByUserMessage": "கூட்டம் {0 by உடன் முடிந்தது",
     "app.meeting.endedMessage": "நீங்கள் மீண்டும் வீட்டுத் திரைக்கு அனுப்பப்படுவீர்கள்",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "கூட்டம் ஒரு நிமிடத்தில் நிறைவடைகிறது.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "கூட்டம் {0} நிமிடங்களில் நிறைவடைகிறது.",

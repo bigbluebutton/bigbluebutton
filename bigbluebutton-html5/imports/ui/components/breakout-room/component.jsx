@@ -11,6 +11,7 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 import UserListService from '/imports/ui/components/user-list/service';
 import AudioManager from '/imports/ui/services/audio-manager';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -90,7 +91,7 @@ class BreakoutRoom extends PureComponent {
 
   componentDidUpdate() {
     const {
-      breakoutRoomUser,
+      getBreakoutRoomUrl,
       breakoutRooms,
       closeBreakoutPanel,
       setBreakoutAudioTransferStatus,
@@ -107,11 +108,11 @@ class BreakoutRoom extends PureComponent {
     if (breakoutRooms.length <= 0) closeBreakoutPanel();
 
     if (waiting) {
-      const breakoutUser = breakoutRoomUser(requestedBreakoutId);
+      const breakoutUrlData = getBreakoutRoomUrl(requestedBreakoutId);
 
-      if (!breakoutUser) return;
-      if (breakoutUser.redirectToHtml5JoinURL !== '') {
-        window.open(breakoutUser.redirectToHtml5JoinURL, '_blank');
+      if (!breakoutUrlData) return false;
+      if (breakoutUrlData.redirectToHtml5JoinURL !== '') {
+        window.open(breakoutUrlData.redirectToHtml5JoinURL, '_blank');
         _.delay(() => this.setState({ waiting: false }), 1000);
       }
     }
@@ -127,10 +128,10 @@ class BreakoutRoom extends PureComponent {
 
   getBreakoutURL(breakoutId) {
     Session.set('lastBreakoutOpened', breakoutId);
-    const { requestJoinURL, breakoutRoomUser } = this.props;
+    const { requestJoinURL, getBreakoutRoomUrl } = this.props;
     const { waiting } = this.state;
-    const hasUser = breakoutRoomUser(breakoutId);
-    if (!hasUser && !waiting) {
+    const breakoutRoomUrlData = getBreakoutRoomUrl(breakoutId);
+    if (!breakoutRoomUrlData && !waiting) {
       this.setState(
         {
           waiting: true,
@@ -140,8 +141,8 @@ class BreakoutRoom extends PureComponent {
       );
     }
 
-    if (hasUser) {
-      window.open(hasUser.redirectToHtml5JoinURL, '_blank');
+    if (breakoutRoomUrlData) {
+      window.open(breakoutRoomUrlData.redirectToHtml5JoinURL, '_blank');
       this.setState({ waiting: false });
     }
     return null;
@@ -373,4 +374,4 @@ class BreakoutRoom extends PureComponent {
   }
 }
 
-export default injectIntl(BreakoutRoom);
+export default injectWbResizeEvent(injectIntl(BreakoutRoom));

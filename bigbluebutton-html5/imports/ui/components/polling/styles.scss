@@ -90,14 +90,6 @@
   display: grid;
   grid-template-columns: repeat(var(--col-amount), 1fr);
 
-  > pollButtonWrapper:nth-child(odd) {
-      grid-column: 1;
-  }
-
-  > pollButtonWrapper:nth-child(even) {
-      grid-column: var(--col-amount);
-  }
-
   @include mq($hasPhoneDimentions) {
     grid-template-columns: repeat(1, 1fr);
 

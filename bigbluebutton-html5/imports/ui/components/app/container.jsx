@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -13,6 +13,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
+import _ from 'lodash';
 
 import {
   getFontSize,
@@ -20,12 +21,14 @@ import {
   validIOSVersion,
 } from './service';
 
-import { withModalMounter } from '../modal/service';
+import { withModalMounter, getModal } from '../modal/service';
 
 import App from './component';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
+
+const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
 
 const propTypes = {
   navbar: PropTypes.node,
@@ -52,30 +55,56 @@ const endMeeting = (code) => {
 };
 
 const AppContainer = (props) => {
+  function usePrevious(value) {
+    const ref = useRef();
+    useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
+  }
+
   const {
     navbar,
     actionsbar,
     media,
+    currentUserId,
+    isPresenter,
+    randomlySelectedUser,
+    isModalOpen,
     ...otherProps
   } = props;
 
-  return (
-    <App
-      navbar={navbar}
-      actionsbar={actionsbar}
-      media={media}
-      {...otherProps}
-    />
-  );
+  const prevRandomUser = usePrevious(randomlySelectedUser);
+
+  const mountRandomUserModal = !isPresenter
+  && !_.isEqual( prevRandomUser, randomlySelectedUser)
+  && randomlySelectedUser.length > 0
+  && !isModalOpen;
+
+  return currentUserId
+    ? (
+      <App
+        navbar={navbar}
+        actionsbar={actionsbar}
+        media={media}
+        currentUserId={currentUserId}
+        {...{
+          mountRandomUserModal,
+          isPresenter,
+        }}
+        {...otherProps}
+      />
+    )
+    : null;
 };
 
-const currentUserEmoji = currentUser => (currentUser ? {
+const currentUserEmoji = (currentUser) => (currentUser ? {
   status: currentUser.emoji,
   changedAt: currentUser.emojiTime,
 } : {
-    status: 'none',
-    changedAt: null,
-  });
+  status: 'none',
+  changedAt: null,
+});
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const authTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });
@@ -90,12 +119,16 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   });
 
-  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { approved: 1, emoji: 1, userId: 1, presenter: 1 } });
+  const currentUser = Users.findOne({ userId: Auth.userID }, {
+    fields: {
+      approved: 1, emoji: 1, userId: 1, presenter: 1,
+    },
+  });
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { publishedPoll: 1, voiceProp: 1, randomlySelectedUser: 1 } });
   const { publishedPoll, voiceProp, randomlySelectedUser } = currentMeeting;
 
-  if (!currentUser.approved) {
+  if (currentUser && !currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
   }
 
@@ -104,12 +137,18 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     requesterUserId: Auth.userID,
   }).fetch();
 
+  let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
+
+  if (!customStyleUrl && CUSTOM_STYLE_URL) {
+    customStyleUrl = CUSTOM_STYLE_URL;
+  }
+
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
     customStyle: getFromUserSettings('bbb_custom_style', false),
-    customStyleUrl: getFromUserSettings('bbb_custom_style_url', false),
+    customStyleUrl,
     openPanel: Session.get('openPanel'),
     UserInfo,
     notify,
@@ -122,9 +161,10 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     startBandwidthMonitoring,
     handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),
     randomlySelectedUser,
-    currentUserId: currentUser.userId,
-    isPresenter: currentUser.presenter,
-    isLargeFont: Session.get('isLargeFont')
+    currentUserId: currentUser?.userId,
+    isPresenter: currentUser?.presenter,
+    isLargeFont: Session.get('isLargeFont'),
+    isModalOpen: !!getModal(),
   };
 })(AppContainer)));
 

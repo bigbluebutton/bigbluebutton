@@ -69,8 +69,15 @@ export default withTracker(() => {
 
   if (currentUser) {
     subscriptionsHandlers.push(Meteor.subscribe('meetings', currentUser.role, subscriptionErrorHandler));
-    subscriptionsHandlers.push(Meteor.subscribe('users', currentUser.role, subscriptionErrorHandler));
+    subscriptionsHandlers.push(Meteor.subscribe('users', currentUser.role, {
+      ...subscriptionErrorHandler,
+      onStop: () => {
+        const event = new Event(EVENT_NAME);
+        window.dispatchEvent(event);
+      },
+    }));
     subscriptionsHandlers.push(Meteor.subscribe('breakouts', currentUser.role, subscriptionErrorHandler));
+    subscriptionsHandlers.push(Meteor.subscribe('guestUser', currentUser.role, subscriptionErrorHandler));
   }
 
   const annotationsHandler = Meteor.subscribe('annotations', {
@@ -104,15 +111,11 @@ export default withTracker(() => {
         { meetingId, users: { $all: [requesterUserId] } },
       ],
     }).fetch();
-    
+
     const chatIds = chats.map(chat => chat.chatId);
 
     const subHandler = {
       ...subscriptionErrorHandler,
-      onStop: () => {
-        const event = new Event(EVENT_NAME);
-        window.dispatchEvent(event);
-      },
     };
 
     groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatIds, subHandler);

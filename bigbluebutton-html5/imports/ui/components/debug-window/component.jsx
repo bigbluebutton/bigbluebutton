@@ -39,6 +39,14 @@ const intlMessages = defineMessages({
     id: 'app.debugWindow.form.enableAutoarrangeLayoutDescription',
     description: 'Enable Autoarrange layout description',
   },
+  chatLoggerLabel: {
+    id: 'app.debugWindow.form.chatLoggerLabel',
+    description: 'Chat logger level form label',
+  },
+  applyButtonLabel: {
+    id: 'app.debugWindow.form.button.apply',
+    description: 'Chat logger level form apply button',
+  },
   on: {
     id: 'app.switch.onLabel',
     description: 'label for toggle switch on state',
@@ -227,7 +235,7 @@ class DebugWindow extends Component {
                 </div>
                 <div className={styles.row}>
                   <div className={styles.cell}>
-                    Testing the chatLogger levels:
+                    {`${intl.formatMessage(intlMessages.chatLoggerLabel)}:`}
                   </div>
                   <div className={styles.cell}>
                     <div className={styles.cellContent}>
@@ -255,7 +263,7 @@ class DebugWindow extends Component {
                           });
                         }}
                       >
-                        Aplicar
+                        {`${intl.formatMessage(intlMessages.applyButtonLabel)}`}
                       </button>
                     </div>
                   </div>

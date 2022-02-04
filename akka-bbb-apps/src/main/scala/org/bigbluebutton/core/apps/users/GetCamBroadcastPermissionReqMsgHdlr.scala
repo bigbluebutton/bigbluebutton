@@ -4,6 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.LockSettingsUtil
 
 trait GetCamBroadcastPermissionReqMsgHdlr {
   this: MeetingActor =>
@@ -11,13 +12,18 @@ trait GetCamBroadcastPermissionReqMsgHdlr {
   val outGW: OutMsgRouter
 
   def handleGetCamBroadcastPermissionReqMsg(msg: GetCamBroadcastPermissionReqMsg) {
+    var camBroadcastLocked: Boolean = false
     var allowed = false
 
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
     } yield {
+      camBroadcastLocked = LockSettingsUtil.isCameraBroadcastLocked(user, liveMeeting)
+
       if (!user.userLeftFlag.left
-        && liveMeeting.props.meetingProp.intId == msg.body.meetingId) {
+        && liveMeeting.props.meetingProp.intId == msg.body.meetingId
+        && msg.body.streamId.startsWith(msg.header.userId)
+        && (applyPermissionCheck && !camBroadcastLocked)) {
         allowed = true
       }
     }
@@ -25,6 +31,7 @@ trait GetCamBroadcastPermissionReqMsgHdlr {
     val event = MsgBuilder.buildGetCamBroadcastPermissionRespMsg(
       liveMeeting.props.meetingProp.intId,
       msg.body.userId,
+      msg.body.streamId,
       msg.body.sfuSessionId,
       allowed
     )

@@ -3,7 +3,7 @@ import { check } from 'meteor/check';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import Logger from '/imports/startup/server/logger';
 
-export default function startPoll(pollType, pollId, question, answers) {
+export default function startPoll(pollTypes, pollType, pollId, question, answers) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   let EVENT_NAME = 'StartPollReqMsg';
@@ -23,7 +23,7 @@ export default function startPoll(pollType, pollId, question, answers) {
       question,
     };
 
-    if (pollType === 'custom') {
+    if (pollType === pollTypes.Custom) {
       EVENT_NAME = 'StartCustomPollReqMsg';
       check(answers, Array);
       payload.answers = answers;

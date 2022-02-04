@@ -46,14 +46,16 @@ const getResponseString = (obj) => {
 class LiveResult extends PureComponent {
   static getDerivedStateFromProps(nextProps) {
     const {
-      currentPoll, intl, pollAnswerIds, usernames,
+      currentPoll, intl, pollAnswerIds, usernames, isDefaultPoll,
     } = nextProps;
 
     if (!currentPoll) return null;
 
     const {
-      answers, responses, users, numRespondents,
+      answers, responses, users, numRespondents, pollType
     } = currentPoll;
+
+    const defaultPoll = isDefaultPoll(pollType);
 
     const currentPollQuestion = (currentPoll.question) ? currentPoll.question : '';
 
@@ -85,7 +87,7 @@ class LiveResult extends PureComponent {
               <td className={styles.resultLeft}>{user.name}</td>
               <td data-test="receivedAnswer" className={styles.resultRight}>
                 {
-                  pollAnswerIds[formattedMessageIndex]
+                  defaultPoll && pollAnswerIds[formattedMessageIndex]
                     ? intl.formatMessage(pollAnswerIds[formattedMessageIndex])
                     : user.answer
                 }
@@ -110,7 +112,7 @@ class LiveResult extends PureComponent {
         <div className={styles.main} key={_.uniqueId('stats-')}>
           <div className={styles.left}>
             {
-              pollAnswerIds[formattedMessageIndex]
+              defaultPoll && pollAnswerIds[formattedMessageIndex]
                 ? intl.formatMessage(pollAnswerIds[formattedMessageIndex])
                 : obj.key
             }

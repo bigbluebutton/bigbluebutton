@@ -139,7 +139,6 @@
     "app.meeting.ended": "Denne session er afsluttet",
     "app.meeting.meetingTimeRemaining": "Resterende mødetid: {0}",
     "app.meeting.meetingTimeHasEnded": "Tiden sluttede. Mødet afsluttes snart",
-    "app.meeting.endedByUserMessage": "Mødet sluttede med {0}",
     "app.meeting.endedMessage": "Du videresendes tilbage til startskærmen",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": " Mødet lukker om et minut.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": " Mødet lukker om {0} minutter.",

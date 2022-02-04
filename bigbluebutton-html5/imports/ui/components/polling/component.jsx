@@ -92,7 +92,8 @@ class Polling extends Component {
       handleVote,
       handleTypedVote,
       pollAnswerIds,
-      pollTypes
+      pollTypes,
+      isDefaultPoll,
     } = this.props;
 
     const {
@@ -101,7 +102,8 @@ class Polling extends Component {
 
     if (!poll) return null;
 
-    const { stackOptions, answers, question } = poll;
+    const { stackOptions, answers, question, pollType } = poll;
+    const defaultPoll = isDefaultPoll(pollType);
 
     const pollAnswerStyles = {
       [styles.pollingAnswers]: true,
@@ -144,7 +146,7 @@ class Polling extends Component {
                   {poll.answers.map((pollAnswer) => {
                     const formattedMessageIndex = pollAnswer.key.toLowerCase();
                     let label = pollAnswer.key;
-                    if (pollAnswerIds[formattedMessageIndex]) {
+                    if (defaultPoll && pollAnswerIds[formattedMessageIndex]) {
                       label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
                     }
 

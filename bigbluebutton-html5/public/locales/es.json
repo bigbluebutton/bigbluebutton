@@ -139,7 +139,6 @@
     "app.meeting.ended": "La sesión ha finalizado",
     "app.meeting.meetingTimeRemaining": "Tiempo restante de la reunión: {0}",
     "app.meeting.meetingTimeHasEnded": "Tiempo finalizado. La reunión se cerrará en breve",
-    "app.meeting.endedByUserMessage": "La reunión fue finalizada por {0}",
     "app.meeting.endedMessage": "Serás enviado a la pantalla de inicio.",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "La reunión se cerrará en un minuto.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "La reunión se cerrará en {0} minutos.",

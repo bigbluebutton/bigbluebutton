@@ -23,6 +23,7 @@ import {
   subscribeToStreamStateChange,
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
+import browserInfo from '/imports/utils/browserInfo';
 
 const intlMessages = defineMessages({
   screenShareLabel: {
@@ -38,6 +39,8 @@ const intlMessages = defineMessages({
 });
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const { isSafari } = browserInfo;
+const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
 class ScreenshareComponent extends React.Component {
   constructor() {
@@ -59,7 +62,7 @@ class ScreenshareComponent extends React.Component {
 
   componentDidMount() {
     screenshareHasStarted();
-    this.screenshareContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
+    this.screenshareContainer.addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     // Autoplay failure handling
     window.addEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     // Stream health state tracker to propagate UI changes on reconnections
@@ -72,7 +75,7 @@ class ScreenshareComponent extends React.Component {
     const {
       isPresenter,
     } = this.props;
-    if (isPresenter && !prevProps.isPresenter) {
+    if (prevProps.isPresenter && !isPresenter) {
       screenshareHasEnded();
     }
   }
@@ -86,7 +89,7 @@ class ScreenshareComponent extends React.Component {
     const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
     if (layoutSwapped) toggleSwapLayout();
     screenshareHasEnded();
-    this.screenshareContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    this.screenshareContainer.removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
   }
