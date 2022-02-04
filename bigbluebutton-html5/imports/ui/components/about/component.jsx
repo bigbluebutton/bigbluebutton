@@ -39,6 +39,7 @@ const intlMessages = defineMessages({
 });
 
 const showVersion = ({ displayBbbServerVersion, bbbServerVersion, intl }) => {
+  debugger
   if (!displayBbbServerVersion) return null;
 
   return (
@@ -49,13 +50,18 @@ const showVersion = ({ displayBbbServerVersion, bbbServerVersion, intl }) => {
   );
 };
 
-const AboutComponent = ({
-  intl,
-  clientBuild,
-  copyright,
-  bbbServerVersion,
-  displayBbbServerVersion,
-}) => (
+const AboutComponent = ({intl,settings}) => {
+  
+  
+  const {
+    clientBuild,
+    copyright,
+    bbbServerVersion,
+    displayBbbServerVersion
+  } = settings;
+
+
+  return(
   <Modal
     title={intl.formatMessage(intlMessages.title)}
     dismiss={{
@@ -63,11 +69,12 @@ const AboutComponent = ({
       description: intl.formatMessage(intlMessages.dismissDesc),
     }}
   >
+    teste 
     {`${intl.formatMessage(intlMessages.copyright)} ${copyright}`}
     <br />
     {`${intl.formatMessage(intlMessages.version)} ${clientBuild}`}
     {showVersion({ bbbServerVersion, displayBbbServerVersion, intl })}
   </Modal>
-);
+)};
 
 export default injectIntl(AboutComponent);
