@@ -1314,6 +1314,57 @@ check_state() {
       fi
     fi
 
+    BBB_LOG="/var/log/bigbluebutton"
+    if [ "$(stat -c "%U %G" $BBB_LOG)" != "bigbluebutton bigbluebutton" ]; then
+      echo
+      echo "#"
+      echo "# Warning: The directory"
+      echo "#"
+      echo "#  $BBB_LOG"
+      echo "#"
+      echo "# is not owned by bigbluebutton:bigbluebutton.  To fix, run the command"
+      echo "#"
+      echo "#   sudo chown bigbluebutton:bigbluebutton $BBB_LOG"
+      echo "#"
+    fi
+
+    BBB_LOG_FILES="$BBB_LOG/bbb-rap-worker.log $BBB_LOG/bbb-web.log $BBB_LOG/post_publish.log  $BBB_LOG/sanity.log"
+    for log_file in $BBB_LOG_FILES; do
+      if [ -f "$log_file" ] && [ "$(stat -c "%U %G" $log_file)" != "bigbluebutton bigbluebutton" ]; then
+        echo
+        echo "#"
+        echo "# Warning: The file"
+        echo "#"
+        echo "#  $log_file"
+        echo "#"
+        echo "# is not owned by bigbluebutton:bigbluebutton.  To fix, run the command"
+        echo "#"
+        echo "#   sudo chown bigbluebutton:bigbluebutton $log_file"
+        echo "#"
+      fi
+    done
+
+    if [ -d /var/lib/gems/2.5.0/cache ]; then
+      for gem_file in /var/lib/gems/2.5.0/cache/*; do
+        if [ ! -s $gem_file ]; then
+          echo "#"
+          echo "# Warning: Found a zero byte size gem file"
+          echo "#"
+          echo "#  $gem_file"
+          echo "#"
+        fi
+      done
+    fi
+
+		if journalctl -u bbb-rap-* | grep -q 'Nil'; then
+			echo
+			echo "#"
+			echo "# Warning: found 'Nil' message in recording processing logs.  Possible GEM errors"
+			echo "#"
+			echo "#  https://github.com/bigbluebutton/bigbluebutton/issues/14287"
+			echo "#"
+		fi
+
 
     exit 0
 }
