@@ -178,7 +178,7 @@ class WhiteboardModel extends SystemConfiguration {
         //DRAW_START and DRAW_UPDATE events (#9019). Client now sends drawEndOnly in the
         //SendWhiteboardAnnotationPubMsg so akka knows not to expect usersAnnotations to be accumulating.
         //With #14012, DRAW_UPDATE can happen when the synchronised update option is turned on,
-        // and we don't need the argument drawEndOnly parameter anymore.
+        // and we don't need the argument drawEndOnly anymore.
          case Some(annotation) if (updateExists) => usersAnnotations.tail
          case _                                  => usersAnnotations
       }
