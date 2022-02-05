@@ -14,9 +14,9 @@ export default function modifyWhiteboardAccess(meetingId, whiteboardId, multiUse
   };
 
   const modifier = {
-      meetingId,
-      whiteboardId,
-      multiUser,
+    meetingId,
+    whiteboardId,
+    multiUser,
   };
 
   if (AnnotationsStreamer(meetingId)) {
