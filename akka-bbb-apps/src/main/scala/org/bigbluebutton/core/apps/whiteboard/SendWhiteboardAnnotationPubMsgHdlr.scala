@@ -93,7 +93,7 @@ trait SendWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
       //println("============= Printing Sanitized annotation ============")
       //printAnnotationInfo(sanitizedShape)
       //println("============= Printed Sanitized annotation  ============")
-      val annotation = sendWhiteboardAnnotation(sanitizedShape, msg.body.drawEndOnly, liveMeeting)
+      val annotation = sendWhiteboardAnnotation(sanitizedShape, liveMeeting)
       broadcastEvent(msg, annotation)
     } else {
       //val meetingId = liveMeeting.props.meetingProp.intId
