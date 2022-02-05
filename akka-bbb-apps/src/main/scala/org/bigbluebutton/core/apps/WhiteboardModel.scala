@@ -109,7 +109,7 @@ class WhiteboardModel extends SystemConfiguration {
     }
   }
 
-  def endAnnotationPencil(wbId: String, userId: String, annotation: AnnotationVO, drawEndOnly: Boolean): AnnotationVO = {
+  def endAnnotationPencil(wbId: String, userId: String, annotation: AnnotationVO): AnnotationVO = {
     var rtnAnnotation: AnnotationVO = annotation
 
     val wb = getWhiteboard(wbId)
@@ -172,13 +172,15 @@ class WhiteboardModel extends SystemConfiguration {
 
       val updatedAnnotation = annotation.copy(position = newPosition, annotationInfo = updatedAnnotationData)
 
+      val updateExists = !usersAnnotations.isEmpty && usersAnnotations.head.id == annotation.id
       var newUsersAnnotations: List[AnnotationVO] = oldAnnotationOption match {
         //As part of the whiteboard improvments for the HTML5 client it no longer sends
         //DRAW_START and DRAW_UPDATE events (#9019). Client now sends drawEndOnly in the
         //SendWhiteboardAnnotationPubMsg so akka knows not to expect usersAnnotations to be accumulating.
-        case Some(annotation) if (drawEndOnly == true) => usersAnnotations
-        case Some(annotation)                          => usersAnnotations.tail
-        case None                                      => usersAnnotations
+        //With #14012, DRAW_UPDATE can happen when the synchronised update option is turned on,
+        // and we don't need the hacky arg drawEndOnly parameter anymore.
+         case Some(annotation) if (updateExists) => usersAnnotations.tail
+         case _                                  => usersAnnotations
       }
 
       val newAnnotationsMap = wb.annotationsMap + (userId -> (updatedAnnotation :: newUsersAnnotations))
