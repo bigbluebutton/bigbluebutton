@@ -404,6 +404,11 @@
   width: var(--fileLineWidth);
 } 
 
+.extraHint {
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
 .statusIcon {
   margin-left: auto;
   [dir="rtl"] & {
@@ -471,6 +476,7 @@
 .actionWrapper {
   display: flex;
   align-items: center;
+  margin: 0 0.25rem;
 }
 
 .confirm,

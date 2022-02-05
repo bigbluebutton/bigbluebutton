@@ -376,6 +376,7 @@ class UserDropdown extends PureComponent {
           });
         },
         icon: 'chat',
+        dataTest: 'startPrivateChat',
       });
     }
 
@@ -428,6 +429,7 @@ class UserDropdown extends PureComponent {
           this.handleClose();
         },
         icon: 'pen_tool',
+        dataTest: 'changeWhiteboardAccess',
       });
     }
 
@@ -481,6 +483,7 @@ class UserDropdown extends PureComponent {
           this.handleClose();
         },
         icon: userLocked ? 'unlock' : 'lock',
+        dataTest: 'unlockUserButton',
       });
     }
 

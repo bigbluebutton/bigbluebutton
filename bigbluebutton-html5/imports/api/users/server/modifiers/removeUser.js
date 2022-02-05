@@ -5,6 +5,8 @@ import Logger from '/imports/startup/server/logger';
 import setloggedOutStatus from '/imports/api/users-persistent-data/server/modifiers/setloggedOutStatus';
 import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
 import ClientConnections from '/imports/startup/server/ClientConnections';
+import UsersPersistentData from '/imports/api/users-persistent-data';
+import VoiceUsers from '/imports/api/voice-users/';
 
 const clearAllSessions = (sessionUserId) => {
   const serverSessions = Meteor.server.sessions;
@@ -35,7 +37,15 @@ export default function removeUser(meetingId, userId) {
 
       clearUserInfoForRequester(meetingId, userId);
 
+      const currentUser = UsersPersistentData.findOne({ userId, meetingId });
+      const hasMessages = currentUser?.shouldPersist?.hasMessages;
+      const hasConnectionStatus = currentUser?.shouldPersist?.hasConnectionStatus;
+
+      if (!hasMessages && !hasConnectionStatus) {
+        UsersPersistentData.remove(selector);
+      }
       Users.remove(selector);
+      VoiceUsers.remove({ intId: userId, meetingId });
     }
 
     if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {

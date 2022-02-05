@@ -3,7 +3,12 @@ import { throttle, defaultsDeep } from 'lodash';
 import { LayoutContextFunc } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
-import { DEVICE_TYPE, ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import {
+  DEVICE_TYPE,
+  ACTIONS,
+  PANELS,
+  CAMERADOCK_POSITION,
+} from '/imports/ui/components/layout/enums';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -99,7 +104,7 @@ class PresentationFocusLayout extends Component {
         type: ACTIONS.SET_LAYOUT_INPUT,
         value: defaultsDeep({
           sidebarNavigation: {
-            isOpen: input.sidebarNavigation.isOpen || false,
+            isOpen: input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
           },
           sidebarContent: {
             isOpen: sidebarContentPanel !== PANELS.NONE,
@@ -395,9 +400,9 @@ class PresentationFocusLayout extends Component {
       if (!isOpen) {
         cameraDockBounds.width = mediaAreaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
-        cameraDockBounds.height = mediaAreaBounds.height;
+        cameraDockBounds.height = mediaAreaBounds.height - this.bannerAreaHeight();
         cameraDockBounds.maxHeight = mediaAreaBounds.height;
-        cameraDockBounds.top = DEFAULT_VALUES.navBarHeight;
+        cameraDockBounds.top = DEFAULT_VALUES.navBarHeight + this.bannerAreaHeight();
         cameraDockBounds.left = !isRTL ? mediaAreaBounds.left : 0;
         cameraDockBounds.right = isRTL ? sidebarSize : null;
       } else {
@@ -616,6 +621,7 @@ class PresentationFocusLayout extends Component {
       type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
       value: {
         display: input.cameraDock.numCameras > 0,
+        position: CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM,
         minWidth: cameraDockBounds.minWidth,
         width: cameraDockBounds.width,
         maxWidth: cameraDockBounds.maxWidth,

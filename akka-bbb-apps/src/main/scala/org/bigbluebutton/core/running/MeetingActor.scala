@@ -255,7 +255,6 @@ class MeetingActor(
     // Handling RegisterUserReqMsg as it is forwarded from BBBActor and
     // its type is not BbbCommonEnvCoreMsg
     case m: RegisterUserReqMsg                => usersApp.handleRegisterUserReqMsg(m)
-
     case m: EjectDuplicateUserReqMsg          => usersApp.handleEjectDuplicateUserReqMsg(m)
     case m: GetAllMeetingsReqMsg              => handleGetAllMeetingsReqMsg(m)
     case m: GetRunningMeetingStateReqMsg      => handleGetRunningMeetingStateReqMsg(m)
@@ -693,7 +692,8 @@ class MeetingActor(
     // sync all lock settings
     handleSyncGetLockSettingsMsg(state, liveMeeting, msgBus)
 
-    // TODO send all screen sharing info
+    // send all screen sharing info
+    screenshareApp2x.handleSyncGetScreenshareInfoRespMsg(liveMeeting, msgBus)
   }
 
   def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {

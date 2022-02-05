@@ -55,6 +55,7 @@ class TimeWindowList extends PureComponent {
     this.userScrolledBack = false;
     this.handleScrollUpdate = _.debounce(this.handleScrollUpdate.bind(this), 150);
     this.rowRender = this.rowRender.bind(this);
+    this.forceCacheUpdate = this.forceCacheUpdate.bind(this);
     this.systemMessagesResized = {};
 
     this.state = {
@@ -183,6 +184,13 @@ class TimeWindowList extends PureComponent {
     }
   }
 
+  forceCacheUpdate(index) {
+    if (index >= 0) {
+      this.cache.clear(index);
+      this.listRef.recomputeRowHeights(index);
+    }
+  }
+
   rowRender({
     index,
     parent,
@@ -220,6 +228,9 @@ class TimeWindowList extends PureComponent {
             scrollArea={scrollArea}
             dispatch={dispatch}
             chatId={chatId}
+            height={style.height}
+            index={index}
+            forceCacheUpdate={this.forceCacheUpdate}
           />
         </span>
       </CellMeasurer>

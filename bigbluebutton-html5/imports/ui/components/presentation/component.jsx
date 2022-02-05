@@ -5,6 +5,7 @@ import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteb
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
+import { politeSRAlert } from '/imports/utils/dom-utils';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationPlaceholder from './presentation-placeholder/component';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
@@ -44,6 +45,10 @@ const intlMessages = defineMessages({
   slideContentEnd: {
     id: 'app.presentation.endSlideContent',
     description: 'Indicate the slide content end',
+  },
+  slideContentChanged: {
+    id: 'app.presentation.changedSlideContent',
+    description: 'Indicate the slide content has changed',
   },
   noSlideContent: {
     id: 'app.presentation.emptySlideContent',
@@ -112,7 +117,8 @@ class Presentation extends PureComponent {
 
   componentDidMount() {
     this.getInitialPresentationSizes();
-    this.refPresentationContainer.addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
+    this.refPresentationContainer
+      .addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     window.addEventListener('resize', this.onResize, false);
 
     const {
@@ -141,13 +147,13 @@ class Presentation extends PureComponent {
       layoutSwapped,
       currentSlide,
       publishedPoll,
-      isViewer,
       toggleSwapLayout,
       restoreOnUpdate,
       layoutContextDispatch,
       userIsPresenter,
       presentationBounds,
       numCameras,
+      intl,
     } = this.props;
 
     const {
@@ -157,6 +163,14 @@ class Presentation extends PureComponent {
 
     if (numCameras !== prevNumCameras) {
       this.onResize();
+    }
+
+    if (
+      currentSlide?.num != null
+      && prevProps?.currentSlide?.num != null
+      && currentSlide?.num !== prevProps.currentSlide?.num
+    ) {
+      politeSRAlert(intl.formatMessage(intlMessages.slideContentChanged, { 0: currentSlide.num }));
     }
 
     if (prevProps?.slidePosition && slidePosition) {
@@ -206,7 +220,7 @@ class Presentation extends PureComponent {
         });
       }
 
-      if (layoutSwapped && restoreOnUpdate && isViewer && currentSlide) {
+      if (layoutSwapped && restoreOnUpdate && !userIsPresenter && currentSlide) {
         const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
         const positionChanged = slidePosition
           .viewBoxHeight !== prevProps.slidePosition.viewBoxHeight
@@ -225,7 +239,8 @@ class Presentation extends PureComponent {
     const { fullscreenContext, layoutContextDispatch } = this.props;
 
     window.removeEventListener('resize', this.onResize, false);
-    this.refPresentationContainer.removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
+    this.refPresentationContainer
+      .removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
 
     if (fullscreenContext) {
       layoutContextDispatch({
@@ -799,6 +814,7 @@ class Presentation extends PureComponent {
       layoutType,
       numCameras,
       currentPresentation,
+      layoutSwapped,
     } = this.props;
 
     const {
@@ -863,8 +879,11 @@ class Presentation extends PureComponent {
           right: presentationBounds.right,
           width: presentationBounds.width,
           height: presentationBounds.height,
+          display: layoutSwapped ? 'none' : 'flex',
           zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
-          backgroundColor: '#06172A',
+          background: layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0 && !fullscreenContext
+            ? 'var(--color-content-background)'
+            : null,
         }}
       >
         {isFullscreen && <PollingContainer />}

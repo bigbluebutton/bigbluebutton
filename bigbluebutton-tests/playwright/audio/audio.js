@@ -9,22 +9,23 @@ class Audio extends Page {
 
   async joinAudio() {
     await this.waitAndClick(e.listenOnlyButton);
-    await this.wasRemoved(e.connectingStatus);
+    await this.wasRemoved(e.connecting);
     const parsedSettings = await this.getSettingsYaml();
     const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
     await this.waitForSelector(e.leaveAudio, listenOnlyCallTimeout);
     await this.waitForSelector(e.whiteboard);
-    return this.hasElement(e.leaveAudio);
+    await this.hasElement(e.leaveAudio);
   }
 
   async joinMicrophone() {
     await this.waitAndClick(e.microphoneButton);
-    await this.wasRemoved(e.connectingStatus, ELEMENT_WAIT_LONGER_TIME);
+    await this.waitForSelector(e.connectingToEchoTest);
+    await this.wasRemoved(e.connectingToEchoTest, ELEMENT_WAIT_LONGER_TIME);
     const parsedSettings = await this.getSettingsYaml();
     const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
     await this.waitAndClick(e.echoYesButton, listenOnlyCallTimeout);
     await this.waitForSelector(e.whiteboard);
-    return this.hasElement(e.isTalking);
+    await this.hasElement(e.isTalking);
   }
 }
 

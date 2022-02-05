@@ -47,6 +47,7 @@ const messages = defineMessages({
 const propTypes = {
   user: PropTypes.shape({
     name: PropTypes.string.isRequired,
+    pin: PropTypes.bool.isRequired,
   }).isRequired,
   compact: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
@@ -81,7 +82,9 @@ const UserName = (props) => {
   if (user.isSharingWebcam && LABEL.sharingWebcam) {
     userNameSub.push(
       <span key={_.uniqueId('video-')}>
-        <Icon iconName="video" />
+        { user.pin === true
+          ? <Icon iconName="pin-video_on" />
+          : <Icon iconName="video" /> }
         &nbsp;
         {intl.formatMessage(messages.sharingWebcam)}
       </span>,

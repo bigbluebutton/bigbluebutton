@@ -197,7 +197,7 @@ const FILE_DRAG_AND_DROP_ENABLED = POLL_SETTINGS.allowDragAndDropFile;
 
 const validateInput = (i) => {
   let _input = i;
-  if (/^\s/.test(_input)) _input = '';
+  while (/^\s/.test(_input)) _input = _input.substring(1);
   return _input;
 };
 
@@ -280,9 +280,18 @@ class Poll extends Component {
     const { pollTypes } = this.props;
     const list = [...optList];
     const validatedVal = validateInput(e.target.value).replace(/\s{2,}/g, ' ');
+    const charsRemovedCount = e.target.value.length - validatedVal.length;
     const clearError = validatedVal.length > 0 && type !== pollTypes.Response;
+    const input = e.target;
+    const caretStart = e.target.selectionStart;
+    const caretEnd = e.target.selectionEnd;
     list[index] = { val: validatedVal };
-    this.setState({ optList: list, error: clearError ? null : error });
+    this.setState({ optList: list, error: clearError ? null : error },
+      () => {
+        input.focus();
+        input.selectionStart = caretStart - charsRemovedCount;
+        input.selectionEnd = caretEnd - charsRemovedCount;
+      });
   }
 
   handleTextareaChange(e) {
@@ -522,6 +531,7 @@ class Poll extends Component {
             <Button
               label={intl.formatMessage(intlMessages.a4)}
               aria-describedby="poll-config-button"
+              data-test="pollLetterAlternatives"
               color="default"
               onClick={() => {
                 this.setState({
@@ -544,6 +554,7 @@ class Poll extends Component {
             <Button
               label={intl.formatMessage(intlMessages.yna)}
               aria-describedby="poll-config-button"
+              data-test="pollYesNoAbstentionBtn"
               color="default"
               onClick={() => {
                 this.setState({
@@ -564,6 +575,7 @@ class Poll extends Component {
             <Button
               label={intl.formatMessage(intlMessages.userResponse)}
               aria-describedby="poll-config-button"
+              data-test="userResponseBtn"
               color="default"
               onClick={() => { this.setState({ type: pollTypes.Response }); }}
               className={
@@ -625,6 +637,7 @@ class Poll extends Component {
                             onChange={() => this.handleToggle()}
                             ariaLabel={intl.formatMessage(intlMessages.secretPollLabel)}
                             showToggleLabel={false}
+                            data-test="anonymousPollBtn"
                           />
                         </label>
                       </div>
@@ -794,6 +807,7 @@ class Poll extends Component {
             icon="close"
             size="sm"
             hideLabel
+            data-test="closePolling"
           />
         </header>
         {this.renderPollPanel()}
