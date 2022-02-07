@@ -135,6 +135,7 @@
     "app.media.autoplayAlertDesc": "Allow Access",
     "app.media.screenshare.start": "Screenshare has started",
     "app.media.screenshare.end": "Screenshare has ended",
+    "app.media.screenshare.endDueToDataSaving": "Screenshare stopped due to data savings",
     "app.media.screenshare.unavailable": "Screenshare Unavailable",
     "app.media.screenshare.notSupported": "Screensharing is not supported in this browser.",
     "app.media.screenshare.autoplayBlockedDesc": "We need your permission to show you the presenter's screen.",
