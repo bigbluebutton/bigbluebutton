@@ -123,6 +123,11 @@ class ScreenshareComponent extends React.Component {
       this.setState({ restoreOnUnmount: false });
     };
 
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_SCREEN_SHARE,
+      value: true,
+    });
+
     if (hidePresentation) {
       layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_IS_OPEN,
@@ -158,6 +163,11 @@ class ScreenshareComponent extends React.Component {
     } else {
       notify(intl.formatMessage(intlMessages.screenshareEndedDueToDataSaving), 'info', 'desktop');
     }
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_SCREEN_SHARE,
+      value: false,
+    });
 
     if (fullscreenContext) {
       layoutContextDispatch({
