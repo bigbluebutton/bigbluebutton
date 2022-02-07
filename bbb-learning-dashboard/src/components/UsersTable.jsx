@@ -114,11 +114,11 @@ class UsersTable extends React.Component {
         const talkTimeB = b.talk.totalTime;
 
         if (talkTimeA < talkTimeB) {
-          return onlineTimeOrder === 'desc' ? 1 : -1;
+          return talkTimeOrder === 'desc' ? 1 : -1;
         }
 
         if (talkTimeA > talkTimeB) {
-          return onlineTimeOrder === 'desc' ? -1 : 1;
+          return talkTimeOrder === 'desc' ? -1 : 1;
         }
 
         return 0;
@@ -129,11 +129,11 @@ class UsersTable extends React.Component {
         console.log(webcamTimeA, webcamTimeB);
 
         if (webcamTimeA < webcamTimeB) {
-          return onlineTimeOrder === 'desc' ? 1 : -1;
+          return webcamTimeOrder === 'desc' ? 1 : -1;
         }
 
         if (webcamTimeA > webcamTimeB) {
-          return onlineTimeOrder === 'desc' ? -1 : 1;
+          return webcamTimeOrder === 'desc' ? -1 : 1;
         }
 
         return 0;
