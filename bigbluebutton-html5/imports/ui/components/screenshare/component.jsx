@@ -26,6 +26,7 @@ import {
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import deviceInfo from '/imports/utils/deviceInfo';
+import Settings from '/imports/ui/services/settings';
 
 const intlMessages = defineMessages({
   screenShareLabel: {
@@ -54,6 +55,10 @@ const intlMessages = defineMessages({
   screenshareEnded: {
     id: 'app.media.screenshare.end',
     description: 'toast to show when a screenshare has ended',
+  },
+  screenshareEndedDueToDataSaving: {
+    id: 'app.media.screenshare.endDueToDataSaving',
+    description: 'toast to show when a screenshare has ended by changing data savings option',
   },
 });
 
@@ -148,7 +153,11 @@ class ScreenshareComponent extends React.Component {
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
 
-    notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
+    if (!Settings.dataSaving.viewScreenshare) {
+      notify(intl.formatMessage(intlMessages.screenshareEndedDueToDataSaving), 'info', 'desktop');
+    } else {
+      notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
+    }
 
     if (fullscreenContext) {
       layoutContextDispatch({
