@@ -6,22 +6,49 @@ import { getUserEmojisSummary, emojiConfigs } from '../services/EmojiService';
 import { getActivityScore, getSumOfTime, tsToHHmmss } from '../services/UserService';
 import UserAvatar from './UserAvatar';
 
+function renderArrow(order = 'asc') {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-4 w-4 inline"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d={order === 'asc' ? 'M7 11l5-5m0 0l5 5m-5-5v12' : 'M17 13l-5 5m0 0l-5-5m5 5V6'}
+      />
+    </svg>
+  );
+}
+
 class UsersTable extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      userOrder: 'asc',
+      onlineTimeOrder: 'desc',
+      talkTimeOrder: 'desc',
+      webcamTimeOrder: 'desc',
       activityscoreOrder: 'desc',
+      lastFieldClicked: 'userOrder',
     };
   }
 
-  toggleActivityScoreOrder() {
-    const { activityscoreOrder } = this.state;
+  toggleOrder(field) {
+    const { [field]: fieldOrder } = this.state;
+    const { tab } = this.props;
 
-    if (activityscoreOrder === 'asc') {
-      this.setState({ activityscoreOrder: 'desc' });
+    if (fieldOrder === 'asc') {
+      this.setState({ [field]: 'desc' });
     } else {
-      this.setState({ activityscoreOrder: 'asc' });
+      this.setState({ [field]: 'asc' });
     }
+
+    if (tab === 'overview') this.setState({ lastFieldClicked: field });
   }
 
   render() {
@@ -29,7 +56,10 @@ class UsersTable extends React.Component {
       allUsers, totalOfActivityTime, totalOfPolls, tab,
     } = this.props;
 
-    const { activityscoreOrder } = this.state;
+    const {
+      activityscoreOrder, userOrder, onlineTimeOrder,
+      talkTimeOrder, webcamTimeOrder, lastFieldClicked,
+    } = this.state;
 
     const usersEmojisSummary = {};
     Object.values(allUsers || {}).forEach((user) => {
@@ -46,36 +76,119 @@ class UsersTable extends React.Component {
       usersActivityScore[user.userKey] = getActivityScore(user, allUsers, totalOfPolls);
     });
 
+    const sortFunctions = {
+      userOrder(a, b) {
+        if (a.name.toLowerCase() < b.name.toLowerCase()) {
+          return userOrder === 'desc' ? 1 : -1;
+        }
+        if (a.name.toLowerCase() > b.name.toLowerCase()) {
+          return userOrder === 'desc' ? -1 : 1;
+        }
+        return 0;
+      },
+      onlineTimeOrder(a, b) {
+        const onlineTimeA = Object.values(a.intIds).reduce((prev, intId) => (
+          prev + ((intId.leftOn > 0
+            ? intId.leftOn
+            : (new Date()).getTime()) - intId.registeredOn)
+        ), 0);
+
+        const onlineTimeB = Object.values(b.intIds).reduce((prev, intId) => (
+          prev + ((intId.leftOn > 0
+            ? intId.leftOn
+            : (new Date()).getTime()) - intId.registeredOn)
+        ), 0);
+
+        if (onlineTimeA < onlineTimeB) {
+          return onlineTimeOrder === 'desc' ? 1 : -1;
+        }
+
+        if (onlineTimeA > onlineTimeB) {
+          return onlineTimeOrder === 'desc' ? -1 : 1;
+        }
+
+        return 0;
+      },
+      talkTimeOrder(a, b) {
+        const talkTimeA = a.talk.totalTime;
+        const talkTimeB = b.talk.totalTime;
+
+        if (talkTimeA < talkTimeB) {
+          return talkTimeOrder === 'desc' ? 1 : -1;
+        }
+
+        if (talkTimeA > talkTimeB) {
+          return talkTimeOrder === 'desc' ? -1 : 1;
+        }
+
+        return 0;
+      },
+      webcamTimeOrder(a, b) {
+        const webcamTimeA = getSumOfTime(a.webcams);
+        const webcamTimeB = getSumOfTime(b.webcams);
+
+        if (webcamTimeA < webcamTimeB) {
+          return webcamTimeOrder === 'desc' ? 1 : -1;
+        }
+
+        if (webcamTimeA > webcamTimeB) {
+          return webcamTimeOrder === 'desc' ? -1 : 1;
+        }
+
+        return 0;
+      },
+      activityscoreOrder(a, b) {
+        if (usersActivityScore[a.userKey] < usersActivityScore[b.userKey]) {
+          return activityscoreOrder === 'desc' ? 1 : -1;
+        }
+        if (usersActivityScore[a.userKey] > usersActivityScore[b.userKey]) {
+          return activityscoreOrder === 'desc' ? -1 : 1;
+        }
+        if (a.isModerator === false && b.isModerator === true) return 1;
+        if (a.isModerator === true && b.isModerator === false) return -1;
+        return 0;
+      },
+    };
+
     return (
       <table className="w-full">
         <thead>
           <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-100">
-            <th className="px-3.5 2xl:px-4 py-3 col-text-left">
+            <th
+              className={`px-3.5 2xl:px-4 py-3 col-text-left ${tab === 'overview' ? 'cursor-pointer' : ''}`}
+              onClick={() => { if (tab === 'overview') this.toggleOrder('userOrder'); }}
+            >
               <FormattedMessage id="app.learningDashboard.user" defaultMessage="User" />
-              {
-                tab === 'overview'
-                  ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 inline"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
-                    </svg>
-                  )
-                  : null
-              }
+              { tab === 'overview' && lastFieldClicked === 'userOrder'
+                ? renderArrow(userOrder)
+                : null }
             </th>
-            <th className="px-3.5 2xl:px-4 py-3 text-center">
+            <th
+              className={`px-3.5 2xl:px-4 py-3 text-center ${tab === 'overview' ? 'cursor-pointer' : ''}`}
+              onClick={() => { if (tab === 'overview') this.toggleOrder('onlineTimeOrder'); }}
+            >
               <FormattedMessage id="app.learningDashboard.usersTable.colOnline" defaultMessage="Online time" />
+              { tab === 'overview' && lastFieldClicked === 'onlineTimeOrder'
+                ? renderArrow(onlineTimeOrder)
+                : null }
             </th>
-            <th className="px-3.5 2xl:px-4 py-3 text-center">
+            <th
+              className={`px-3.5 2xl:px-4 py-3 text-center ${tab === 'overview' ? 'cursor-pointer' : ''}`}
+              onClick={() => { if (tab === 'overview') this.toggleOrder('talkTimeOrder'); }}
+            >
               <FormattedMessage id="app.learningDashboard.usersTable.colTalk" defaultMessage="Talk time" />
+              { tab === 'overview' && lastFieldClicked === 'talkTimeOrder'
+                ? renderArrow(talkTimeOrder)
+                : null }
             </th>
-            <th className="px-3.5 2xl:px-4 py-3 text-center">
+            <th
+              className={`px-3.5 2xl:px-4 py-3 text-center ${tab === 'overview' ? 'cursor-pointer' : ''}`}
+              onClick={() => { if (tab === 'overview') this.toggleOrder('webcamTimeOrder'); }}
+            >
               <FormattedMessage id="app.learningDashboard.usersTable.colWebcam" defaultMessage="Webcam Time" />
+              { tab === 'overview' && lastFieldClicked === 'webcamTimeOrder'
+                ? renderArrow(webcamTimeOrder)
+                : null }
             </th>
             <th className="px-3.5 2xl:px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.usersTable.colMessages" defaultMessage="Messages" />
@@ -88,29 +201,12 @@ class UsersTable extends React.Component {
             </th>
             <th
               className={`px-3.5 2xl:px-4 py-3 text-center ${tab === 'overview_activityscore' ? 'cursor-pointer' : ''}`}
-              onClick={() => { if (tab === 'overview_activityscore') this.toggleActivityScoreOrder(); }}
+              onClick={() => { if (tab === 'overview_activityscore') this.toggleOrder('activityscoreOrder'); }}
             >
               <FormattedMessage id="app.learningDashboard.usersTable.colActivityScore" defaultMessage="Activity Score" />
-              {
-                tab === 'overview_activityscore'
-                  ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 inline"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d={activityscoreOrder === 'asc' ? 'M17 13l-5 5m0 0l-5-5m5 5V6' : 'M7 11l5-5m0 0l5 5m-5-5v12'}
-                      />
-                    </svg>
-                  )
-                  : null
-              }
+              { tab === 'overview_activityscore'
+                ? renderArrow(activityscoreOrder)
+                : null }
             </th>
             <th className="px-3.5 2xl:px-4 py-3 text-center">
               <FormattedMessage id="app.learningDashboard.usersTable.colStatus" defaultMessage="Status" />
@@ -120,19 +216,7 @@ class UsersTable extends React.Component {
         <tbody className="bg-white divide-y whitespace-nowrap">
           { typeof allUsers === 'object' && Object.values(allUsers || {}).length > 0 ? (
             Object.values(allUsers || {})
-              .sort((a, b) => {
-                if (tab === 'overview_activityscore' && usersActivityScore[a.userKey] < usersActivityScore[b.userKey]) {
-                  return activityscoreOrder === 'desc' ? 1 : -1;
-                }
-                if (tab === 'overview_activityscore' && usersActivityScore[a.userKey] > usersActivityScore[b.userKey]) {
-                  return activityscoreOrder === 'desc' ? -1 : 1;
-                }
-                if (a.isModerator === false && b.isModerator === true) return 1;
-                if (a.isModerator === true && b.isModerator === false) return -1;
-                if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
-                if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
-                return 0;
-              })
+              .sort(tab === 'overview' ? sortFunctions[lastFieldClicked] : sortFunctions.activityscoreOrder)
               .map((user) => {
                 const opacity = user.leftOn > 0 ? 'opacity-75' : '';
                 return (
@@ -383,7 +467,11 @@ class UsersTable extends React.Component {
                             <FormattedNumber value={usersActivityScore[user.userKey]} minimumFractionDigits="0" maximumFractionDigits="1" />
                           </span>
                         </td>
-                      ) : <td />
+                      ) : (
+                        <td className="px-4 py-3 text-sm text-center">
+                          <FormattedMessage id="app.learningDashboard.usersTable.notAvailable" defaultMessage="N/A" />
+                        </td>
+                      )
                     }
                     <td className="px-3.5 2xl:px-4 py-3 text-xs text-center">
                       {

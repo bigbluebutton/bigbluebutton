@@ -128,6 +128,7 @@ class App extends React.Component {
     // Get the three most used
     const mostUsedEmojis = Object
       .entries(emojiCount)
+      .filter(([, count]) => count)
       .sort(([, countA], [, countB]) => countA - countB)
       .reverse()
       .slice(0, 3);
@@ -452,7 +453,7 @@ class App extends React.Component {
             ? <FormattedMessage id="app.learningDashboard.statusTimelineTable.title" defaultMessage="Timeline" />
             : null }
           { tab === 'polling'
-            ? <FormattedMessage id="app.learningDashboard.pollsTable.title" defaultMessage="Polling" />
+            ? <FormattedMessage id="app.learningDashboard.pollsTable.title" defaultMessage="Polls" />
             : null }
         </h1>
         <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
@@ -482,7 +483,7 @@ class App extends React.Component {
           </div>
         </div>
         <hr className="my-8" />
-        <div className="flex justify-between mb-8 text-xs text-gray-700 dark:text-gray-400 whitespace-nowrap flex-col sm:flex-row">
+        <div className="flex justify-between pb-8 text-xs text-gray-700 dark:text-gray-400 whitespace-nowrap flex-col sm:flex-row">
           <div className="flex flex-col justify-center mb-4 sm:mb-0">
             <p>
               {
