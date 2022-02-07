@@ -3,6 +3,8 @@ const Page = require('../core/page');
 const e = require('../core/elements');
 const { waitAndClearNotification } = require('../notifications/util');
 const { sleep } = require('../core/helpers');
+const { checkElement } = require('../core/util');
+const { checkAvatarIcon } = require('./util');
 
 class MultiUsers {
   constructor(browser, context) {
@@ -17,12 +19,24 @@ class MultiUsers {
 
   async initModPage(page, shouldCloseAudioModal = true, { fullName = 'Moderator', ...restOptions } = {}) {
     const options = {
-      fullName,
       ...restOptions,
+      fullName,
     };
 
     this.modPage = new Page(this.browser, page);
     await this.modPage.init(true, shouldCloseAudioModal, options);
+  }
+
+  async initModPage2(shouldCloseAudioModal = true, context = this.context, { fullName = 'Moderator2', useModMeetingId = true, ...restOptions } = {}) {
+    const options = {
+      ...restOptions,
+      fullName,
+      meetingId: (useModMeetingId) ? this.modPage.meetingId : undefined,
+    };
+
+    const page = await context.newPage();
+    this.modPage2 = new Page(this.browser, page);
+    await this.modPage2.init(true, shouldCloseAudioModal, options);
   }
 
   async initUserPage(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee', useModMeetingId = true, ...restOptions } = {}) {
@@ -58,6 +72,24 @@ class MultiUsers {
     await expect(secondUserOnModPage).toHaveCount(1);
     await expect(firstUserOnUserPage).toHaveCount(1);
     await expect(secondUserOnUserPage).toHaveCount(1);
+  }
+
+  async promoteToModerator() {
+    await checkAvatarIcon(this.userPage, false);
+    await this.userPage.wasRemoved(e.manageUsers);
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.promoteToModerator);
+    await checkAvatarIcon(this.userPage);
+    await this.userPage.hasElement(e.manageUsers);
+  }
+
+  async demoteToViewer() {
+    await checkAvatarIcon(this.modPage2);
+    await this.modPage2.hasElement(e.manageUsers);
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.demoteToViewer);
+    await checkAvatarIcon(this.modPage2, false);
+    await this.modPage2.wasRemoved(e.manageUsers);
   }
 
   async raiseHandTest() {

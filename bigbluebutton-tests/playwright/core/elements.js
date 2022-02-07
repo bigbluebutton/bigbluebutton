@@ -185,6 +185,8 @@ exports.languageSelector = 'select[id="langSelector"]';
 
 // User
 exports.userAvatar = 'div[data-test="userAvatar"]';
+exports.moderatorAvatar = 'div[data-test="moderatorAvatar"]';
+exports.viewerAvatar = 'div[data-test="viewerAvatar"]';
 exports.applauseIcon = `${this.userAvatar} > div > i[class="icon-bbb-applause"]`;
 exports.awayIcon = `${this.userAvatar} > div > i[class="icon-bbb-time"]`;
 exports.setStatus = 'li[data-test="setStatus"]';
@@ -218,6 +220,8 @@ exports.selectRandomUser = 'li[data-test="selectRandomUser"]';
 exports.noViewersSelectedMessage = 'div[data-test="noViewersSelectedMessage"]';
 exports.selectedUserName = 'div[data-test="selectedUserName"]';
 exports.selectAgainRadomUser = 'button[data-test="selectAgainRadomUser"]';
+exports.promoteToModerator = 'li[data-test="promoteToModerator"]';
+exports.demoteToViewer = 'li[data-test="demoteToViewer"]';
 // Lock Viewers
 exports.lockViewersButton = 'li[data-test="lockViewersButton"]';
 exports.unlockUserButton = 'li[data-test="unlockUserButton"]';

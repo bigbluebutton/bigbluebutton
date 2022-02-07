@@ -458,6 +458,7 @@ class UserDropdown extends PureComponent {
           this.handleClose();
         },
         icon: 'promote',
+        dataTest: 'promoteToModerator',
       });
     }
 
@@ -470,6 +471,7 @@ class UserDropdown extends PureComponent {
           this.handleClose();
         },
         icon: 'user',
+        dataTest: 'demoteToViewer',
       });
     }
 
@@ -667,7 +669,7 @@ class UserDropdown extends PureComponent {
         style={{ direction: isRTL ? 'rtl' : 'ltr', width: '100%' }}
       >
         <div className={styles.userItemContents}>
-          <div className={styles.userAvatar}>
+          <div className={styles.userAvatar} data-test="userAvatar">
             {this.renderUserAvatar()}
           </div>
           <UserName

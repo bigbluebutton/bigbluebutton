@@ -30,6 +30,19 @@ test.describe.parallel('User', () => {
       await multiusers.initPages(page);
       await multiusers.userPresence();
     });
+
+    test('Promote to moderator', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page);
+      await multiusers.promoteToModerator();
+    });
+
+    test('Demote to viewer', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page);
+      await multiusers.initModPage2();
+      await multiusers.demoteToViewer();
+    });
   });
 
   test.describe.parallel('Manage', () => {

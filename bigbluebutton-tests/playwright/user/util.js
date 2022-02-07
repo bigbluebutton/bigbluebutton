@@ -17,6 +17,11 @@ async function setGuestPolicyOption(test, option) {
   await test.waitAndClick(option);
 }
 
+async function checkAvatarIcon(test, checkModIcon = true) {
+  await test.hasElement(`${e.firstUser} ${checkModIcon ? e.moderatorAvatar : e.viewerAvatar}`);
+}
+
 exports.setStatus = setStatus;
 exports.openLockViewers = openLockViewers;
 exports.setGuestPolicyOption = setGuestPolicyOption;
+exports.checkAvatarIcon = checkAvatarIcon;
