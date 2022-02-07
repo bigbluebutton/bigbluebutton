@@ -709,6 +709,7 @@ class Presentation extends PureComponent {
         fitToWidthHandler={this.fitToWidthHandler}
         isFullscreen={fullscreenContext}
         fullscreenAction={ACTIONS.SET_FULLSCREEN_ELEMENT}
+        fullscreenRef={this.refPresentationContainer}
       />
     );
   }
