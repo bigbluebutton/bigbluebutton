@@ -3,8 +3,7 @@ const Page = require('../core/page');
 const e = require('../core/elements');
 const { waitAndClearNotification } = require('../notifications/util');
 const { sleep } = require('../core/helpers');
-const { checkElement } = require('../core/util');
-const { checkAvatarIcon } = require('./util');
+const { checkAvatarIcon, checkPresenterClass } = require('./util');
 
 class MultiUsers {
   constructor(browser, context) {
@@ -72,6 +71,33 @@ class MultiUsers {
     await expect(secondUserOnModPage).toHaveCount(1);
     await expect(firstUserOnUserPage).toHaveCount(1);
     await expect(secondUserOnUserPage).toHaveCount(1);
+  }
+
+  async makePresenter() {
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.makePresenter);
+
+    await this.userPage.hasElement(e.startScreenSharing);
+    await this.userPage.hasElement(e.presentationToolbarWrapper);
+    await this.userPage.hasElement(e.toolsButton);
+    await this.userPage.hasElement(e.actions);
+    const hasPresenterClass = await checkPresenterClass(this.userPage);
+    expect(hasPresenterClass).toBeTruthy();
+  }
+
+  async takePresenter() {
+    await this.modPage2.waitAndClick(e.firstUser);
+    await this.modPage2.waitAndClick(e.takePresenter);
+
+    await this.modPage2.hasElement(e.startScreenSharing);
+    await this.modPage2.hasElement(e.toolsButton);
+    await this.modPage2.hasElement(e.presentationToolbarWrapper);
+    const hasPresenterClass = await checkPresenterClass(this.modPage2);
+    expect(hasPresenterClass).toBeTruthy();
+    await this.modPage2.waitAndClick(e.actions);
+    await this.modPage2.hasElement(e.managePresentations);
+    await this.modPage2.hasElement(e.polling);
+    await this.modPage2.hasElement(e.shareExternalVideoBtn);
   }
 
   async promoteToModerator() {

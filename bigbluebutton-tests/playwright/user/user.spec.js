@@ -31,6 +31,19 @@ test.describe.parallel('User', () => {
       await multiusers.userPresence();
     });
 
+    test('Make presenter', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initPages(page);
+      await multiusers.makePresenter();
+    });
+
+    test('Take presenter', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page);
+      await multiusers.initModPage2();
+      await multiusers.takePresenter();
+    });
+
     test('Promote to moderator', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);

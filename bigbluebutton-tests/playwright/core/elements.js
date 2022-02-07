@@ -222,6 +222,8 @@ exports.selectedUserName = 'div[data-test="selectedUserName"]';
 exports.selectAgainRadomUser = 'button[data-test="selectAgainRadomUser"]';
 exports.promoteToModerator = 'li[data-test="promoteToModerator"]';
 exports.demoteToViewer = 'li[data-test="demoteToViewer"]';
+exports.makePresenter = 'li[data-test="makePresenter"]';
+exports.takePresenter = 'li[data-test="takePresenter"]';
 // Lock Viewers
 exports.lockViewersButton = 'li[data-test="lockViewersButton"]';
 exports.unlockUserButton = 'li[data-test="unlockUserButton"]';
