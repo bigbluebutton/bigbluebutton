@@ -153,10 +153,10 @@ class ScreenshareComponent extends React.Component {
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
 
-    if (!Settings.dataSaving.viewScreenshare) {
-      notify(intl.formatMessage(intlMessages.screenshareEndedDueToDataSaving), 'info', 'desktop');
-    } else {
+    if (Settings.dataSaving.viewScreenshare) {
       notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
+    } else {
+      notify(intl.formatMessage(intlMessages.screenshareEndedDueToDataSaving), 'info', 'desktop');
     }
 
     if (fullscreenContext) {
