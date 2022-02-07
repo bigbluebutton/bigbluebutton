@@ -94,7 +94,7 @@ const renderGuestUserItem = (
   name, color, handleAccept, handleDeny, role, sequence, userId, avatar, intl,
   privateMessageVisible, setPrivateGuestLobbyMessage, privateGuestLobbyMessage, isGuestLobbyMessageEnabled,
 ) => (
-  <>
+  <React.Fragment key={`user-${userId}`}>
   <Styled.ListItem key={`userlist-item-${userId}`} animations={animations}>
     <Styled.UserContentContainer key={`user-content-container-${userId}`}>
       <Styled.UserAvatarContainer key={`user-avatar-container-${userId}`}>
@@ -162,7 +162,7 @@ const renderGuestUserItem = (
         </p>
     </Styled.PrivateLobbyMessage>
   ) : null}
-  </>
+  </React.Fragment>
 );
 
 const renderNoUserWaitingItem = (message) => (

@@ -11,6 +11,8 @@ trait BreakoutApp2x extends BreakoutRoomCreatedMsgHdlr
   with CreateBreakoutRoomsCmdMsgHdlr
   with EndAllBreakoutRoomsMsgHdlr
   with ExtendBreakoutRoomsTimeMsgHdlr
+  with SendMessageToAllBreakoutRoomsMsgHdlr
+  with SendMessageToBreakoutRoomInternalMsgHdlr
   with RequestBreakoutJoinURLReqMsgHdlr
   with SendBreakoutUsersUpdateMsgHdlr
   with TransferUserToMeetingRequestHdlr

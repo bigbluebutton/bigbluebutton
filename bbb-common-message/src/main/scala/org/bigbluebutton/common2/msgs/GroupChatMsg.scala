@@ -5,7 +5,7 @@ object GroupChatAccess {
   val PRIVATE = "PRIVATE_ACCESS"
 }
 
-case class GroupChatUser(id: String)
+case class GroupChatUser(id: String, name: String = "")
 case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser, message: String)
 case class GroupChatMsgToUser(id: String, timestamp: Long, correlationId: String, sender: GroupChatUser, message: String)
 case class GroupChatInfo(id: String, name: String, access: String, createdBy: GroupChatUser, users: Vector[GroupChatUser])

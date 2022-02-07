@@ -36,6 +36,7 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
   const msgDocument = {
     ...restMsg,
     sender: sender.id,
+    senderName: sender.name,
     meetingId,
     chatId,
     message: parseMessage(msg.message),

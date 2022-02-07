@@ -793,6 +793,8 @@ class PresentationUploader extends Component {
 
     const { animations } = Settings.application;
 
+    const isRemovable = item.isRemovable 
+
     return (
       <Styled.PresentationItem
         key={item.id}
@@ -849,19 +851,22 @@ class PresentationUploader extends Component {
               onChange={() => this.handleCurrentChange(item.id)}
               disabled={disableActions}
               animations={animations}
-            />
+              />
             </Styled.ItemAction>
-            <Styled.RemoveButton
-              disabled={disableActions}
-              label={intl.formatMessage(intlMessages.removePresentation)}
-              data-test="removePresentation"
-              aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.filename}`}
-              size="sm"
-              icon="delete"
-              hideLabel
-              onClick={() => this.handleRemove(item)}
-              animations={animations}
-            />
+            {isRemovable ? (
+              <Styled.RemoveButton
+                disabled={disableActions}
+                label={intl.formatMessage(intlMessages.removePresentation)}
+                data-test="removePresentation"
+                aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.filename}`}
+                size="sm"
+                icon="delete"
+                hideLabel
+                onClick={() => this.handleRemove(item)}
+                animations={animations}
+              />
+              ) : null
+            }
           </Styled.TableItemActions>
         )}
       </Styled.PresentationItem>

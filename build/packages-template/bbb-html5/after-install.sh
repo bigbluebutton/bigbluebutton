@@ -113,5 +113,8 @@ chown root:root /usr/lib/systemd/system
 chown root:root /usr/lib/systemd/system/bbb-html5.service
 chown root:root /usr/lib/systemd/system/disable-transparent-huge-pages.service
 
+# Ensure settings is readable
+chmod go+r /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+
 startService bbb-html5 || echo "bbb-html5 service could not be registered or started"
 
