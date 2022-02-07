@@ -13,6 +13,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
+import LayoutService from '/imports/ui/components/layout/service';
 import _ from 'lodash';
 import {
   layoutSelect,
@@ -115,14 +116,19 @@ const AppContainer = (props) => {
   && randomlySelectedUser.length > 0
   && !isModalOpen;
 
+  const setMeetingLayout = () => {
+    LayoutService.setMeetingLayout({layout: selectedLayout, presentationIsOpen, cameraPosition: cameraDock.position, focusedCamera: focusedId, presentationVideoRate});
+  }
+
   return currentUserId
     ? (
       <App
         {...{
-          actionsbar,
+          actionsbar: <ActionsBarContainer setMeetingLayout={setMeetingLayout} />,
           actionsBarStyle,
           captionsStyle,
           currentUserId,
+          setMeetingLayout,
           meetingLayout,
           selectedLayout,
           pushLayout,

@@ -43,7 +43,6 @@ import SidebarContentContainer from '../sidebar-content/container';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Settings from '/imports/ui/services/settings';
-import LayoutService from '/imports/ui/components/layout/service';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 
@@ -257,6 +256,7 @@ class App extends Component {
       pushLayout, // is layout pushed
       layoutContextDispatch,
       mountRandomUserModal,
+      setMeetingLayout,
     } = this.props;
 
     if (meetingLayout !== prevProps.meetingLayout
@@ -283,12 +283,12 @@ class App extends Component {
       });
 
       if (pushLayout) {
-        LayoutService.setMeetingLayout({layout: selectedLayout, presentationIsOpen, cameraPosition, focusedCamera, presentationVideoRate});
+        setMeetingLayout();
       }
     }
 
-    if (pushLayout && !prevProps.pushLayout) {
-      LayoutService.setMeetingLayout({layout: selectedLayout, presentationIsOpen, cameraPosition, focusedCamera, presentationVideoRate});
+    if (pushLayout && (!prevProps.pushLayout || Math.abs(meetingLayoutUpdatedAt - prevProps.meetingLayoutUpdatedAt) > 2*1000)) {
+      setMeetingLayout();
     }
 
     if (meetingLayout === "custom" && !isPresenter) {

@@ -35,6 +35,7 @@ class ActionsBar extends PureComponent {
       layoutContextDispatch,
       actionsBarStyle,
       isOldMinimizeButtonEnabled,
+      setMeetingLayout,
     } = this.props;
 
     return (
@@ -57,6 +58,7 @@ class ActionsBar extends PureComponent {
             isSharingVideo,
             stopExternalVideoShare,
             isMeteorConnected,
+            setMeetingLayout,
           }}
           />
           {isCaptionsAvailable
