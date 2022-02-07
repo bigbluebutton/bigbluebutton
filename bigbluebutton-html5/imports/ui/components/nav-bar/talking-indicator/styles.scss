@@ -127,12 +127,6 @@
   }
 }
 
-.mobileHide {
-  @include mq($small-only) {
-    visibility: hidden;
-  }
-}
-
 .isViewer {
   cursor: default;
 }
