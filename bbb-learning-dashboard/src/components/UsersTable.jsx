@@ -126,7 +126,6 @@ class UsersTable extends React.Component {
       webcamTimeOrder(a, b) {
         const webcamTimeA = getSumOfTime(a.webcams);
         const webcamTimeB = getSumOfTime(b.webcams);
-        console.log(webcamTimeA, webcamTimeB);
 
         if (webcamTimeA < webcamTimeB) {
           return webcamTimeOrder === 'desc' ? 1 : -1;
