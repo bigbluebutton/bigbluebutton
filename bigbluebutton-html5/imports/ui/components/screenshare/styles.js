@@ -20,20 +20,21 @@ const MainText = styled.h1`
 `;
 
 const ScreenshareVideo = styled.video`
-  ${({ unhealthy }) => unhealthy && `
+  ${({ unhealthyStream }) => unhealthyStream && `
     filter: grayscale(50%) opacity(50%);
   `}
 `;
 
 const ScreenshareContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
   background-color: ${colorContentBackground};
   width: 100%;
   height: 100%;
 
   ${({ switched }) => !switched && `
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-direction: column;
   `}
 `;
@@ -61,6 +62,34 @@ const Bounce1 = styled(SpinnerStyles.Bounce1)``;
 
 const Bounce2 = styled(SpinnerStyles.Bounce2)``;
 
+const MobileControlsOverlay = styled.span`
+  position: absolute;
+  top:0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+`;
+
+const HoverToolbar = styled.div`
+  ${({ toolbarStyle }) => toolbarStyle === 'hoverToolbar' && `
+    display: none;
+
+    :hover > & {
+      display: flex;
+    }
+  `}
+
+  ${({ toolbarStyle }) => toolbarStyle === 'dontShowMobileHoverToolbar' && `
+    display: none;
+  `}
+
+  ${({ toolbarStyle }) => toolbarStyle === 'showMobileHoverToolbar' && `
+    display: flex;
+    z-index: 2;
+  `}
+`;
+
 export default {
   ScreenshareContainerInside,
   MainText,
@@ -71,4 +100,6 @@ export default {
   Spinner,
   Bounce1,
   Bounce2,
+  MobileControlsOverlay,
+  HoverToolbar,
 };

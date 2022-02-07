@@ -28,7 +28,7 @@ async function validateAuthToken(meetingId, requesterUserId, requesterToken, ext
     });
 
     setTimeoutRef = setTimeout(() => {
-      observeFunc.stop();
+      authTokenValidationObserver.stop();
       rej();
     }, AUTH_TIMEOUT);
 

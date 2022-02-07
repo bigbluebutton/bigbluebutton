@@ -53,6 +53,7 @@ class UserListItem extends PureComponent {
       raiseHandPushAlert,
       layoutContextDispatch,
       isRTL,
+      ejectUserCameras,
     } = this.props;
 
     const contents = (
@@ -92,6 +93,7 @@ class UserListItem extends PureComponent {
           raiseHandPushAlert,
           layoutContextDispatch,
           isRTL,
+          ejectUserCameras,
         }}
       />
     );

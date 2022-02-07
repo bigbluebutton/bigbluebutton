@@ -9,7 +9,9 @@ class PollsTable extends React.Component {
 
     function getUserAnswer(user, poll) {
       if (typeof user.answers[poll.pollId] !== 'undefined') {
-        return user.answers[poll.pollId];
+        return Array.isArray(user.answers[poll.pollId])
+          ? user.answers[poll.pollId]
+          : [user.answers[poll.pollId]];
       }
       return [];
     }
@@ -17,7 +19,7 @@ class PollsTable extends React.Component {
     if (typeof polls === 'object' && Object.values(polls).length === 0) {
       return (
         <div className="flex flex-col items-center py-24">
-          <div className="mb-1 p-3 text-orange-500 rounded-full bg-blue-100 text-blue-500">
+          <div className="mb-1 p-3 rounded-full bg-blue-100 text-blue-500">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"
@@ -66,7 +68,9 @@ class PollsTable extends React.Component {
               </svg>
             </th>
             {typeof polls === 'object' && Object.values(polls || {}).length > 0 ? (
-              Object.values(polls || {}).map((poll, index) => <th className="px-3.5 2xl:px-4 py-3 text-center">{poll.question || `Poll ${index + 1}`}</th>)
+              Object.values(polls || {})
+                .sort((a, b) => ((a.createdOn > b.createdOn) ? 1 : -1))
+                .map((poll, index) => <th className="px-3.5 2xl:px-4 py-3 text-center">{poll.question || `Poll ${index + 1}`}</th>)
             ) : null }
           </tr>
         </thead>
@@ -169,11 +173,13 @@ class PollsTable extends React.Component {
                     </div>
                   </div>
                 </td>
-                {Object.values(polls || {}).map((poll) => (
-                  <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
-                    { poll.anonymousAnswers.map((answer) => <p>{answer}</p>) }
-                  </td>
-                ))}
+                {Object.values(polls || {})
+                  .sort((a, b) => ((a.createdOn > b.createdOn) ? 1 : -1))
+                  .map((poll) => (
+                    <td className="px-3.5 2xl:px-4 py-3 text-sm text-center">
+                      { poll.anonymousAnswers.map((answer) => <p>{answer}</p>) }
+                    </td>
+                  ))}
               </tr>
             ) : null}
         </tbody>

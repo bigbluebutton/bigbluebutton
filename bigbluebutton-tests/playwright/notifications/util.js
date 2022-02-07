@@ -3,7 +3,7 @@ const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { checkElementLengthEqualTo } = require('../core/util');
 
 async function popupMenu(test) {
-  await test.waitAndClick(e.options);
+  await test.waitAndClick(e.optionsButton);
   await test.waitAndClick(e.settings);
 }
 
@@ -49,6 +49,11 @@ async function privateChatMessageToast(page2) {
   await page2.waitAndClick(e.sendButton);
 }
 
+async function waitAndClearNotification(test) {
+  await test.waitAndClick(e.smallToastMsg);
+  await test.wasRemoved(e.smallToastMsg);
+}
+
 exports.privateChatMessageToast = privateChatMessageToast;
 exports.publicChatMessageToast = publicChatMessageToast;
 exports.enableUserJoinPopup = enableUserJoinPopup;
@@ -56,3 +61,4 @@ exports.checkNotificationText = checkNotificationText;
 exports.enableChatPopup = enableChatPopup;
 exports.saveSettings = saveSettings;
 exports.popupMenu = popupMenu;
+exports.waitAndClearNotification = waitAndClearNotification;
