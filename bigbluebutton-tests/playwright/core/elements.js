@@ -62,6 +62,7 @@ exports.closePrivateChat = 'button[data-test="closePrivateChat"]';
 exports.typingIndicator = 'span[data-test="typingIndicator"]';
 exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
 exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
+exports.chatWelcomeMessageText = 'p[data-test="chatWelcomeMessageText"]';
 // Messages
 exports.message = 'Hello World!';
 exports.testMessage = 'Just a test';
@@ -198,7 +199,7 @@ exports.multiWhiteboardTool = 'span[data-test="multiWhiteboardTool"]';
 exports.manageUsers = 'button[data-test="manageUsers"]';
 exports.presenterClassName = 'presenter--';
 exports.anyUser = 'div[data-test="userListItem"]';
-exports.userList = 'button[data-test="toggleUserList"]';
+exports.userListToggleBtn = 'button[data-test="toggleUserList"]';
 exports.mobileUser = 'span[data-test="mobileUser"]';
 exports.connectionStatusBtn = 'button[data-test="connectionStatusButton"]';
 exports.connectionStatusModal = 'div[data-test="connectionStatusModal"]';

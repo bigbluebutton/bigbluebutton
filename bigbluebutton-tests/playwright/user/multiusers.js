@@ -137,6 +137,20 @@ class MultiUsers {
     await this.userPage.hasElement(e.raiseHandBtn);
   }
 
+  async toggleUserList() {
+    await this.modPage.hasElement(e.chatWelcomeMessageText);
+    await this.modPage.hasElement(e.chatBox);
+    await this.modPage.hasElement(e.chatButton);
+    await this.modPage.waitAndClick(e.userListToggleBtn);
+    await this.modPage.wasRemoved(e.chatWelcomeMessageText);
+    await this.modPage.wasRemoved(e.chatBox);
+    await this.modPage.wasRemoved(e.chatButton);
+    await this.modPage.waitAndClick(e.userListToggleBtn);
+    await this.modPage.wasRemoved(e.chatWelcomeMessageText);
+    await this.modPage.wasRemoved(e.chatBox);
+    await this.modPage.hasElement(e.chatButton);
+  }
+
   async selectRandomUser() {
     // check with no viewer joined
     await this.modPage.waitAndClick(e.actions);

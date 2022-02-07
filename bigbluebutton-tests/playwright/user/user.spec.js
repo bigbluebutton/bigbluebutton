@@ -16,6 +16,12 @@ test.describe.parallel('User', () => {
       await multiusers.getAvatarColorAndCompareWithUserListItem();
       await multiusers.lowerHandTest();
     });
+
+    test('Toggle user list', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page);
+      await multiusers.toggleUserList();
+    });
   });
 
   test.describe.parallel('List', () => {
@@ -46,7 +52,7 @@ test.describe.parallel('User', () => {
 
     test('Promote to moderator', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page);
+      await multiusers.initPages(page);
       await multiusers.promoteToModerator();
     });
 
