@@ -3,7 +3,6 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
-import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import { notify } from '/imports/ui/services/notification';
@@ -107,9 +106,7 @@ const currentUserEmoji = (currentUser) => (currentUser ? {
 });
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
-  const authTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });
-
-  if (authTokenValidation.connectionId !== Meteor.connection._lastSessionId) {
+  if (Auth.connectionID !== Meteor.connection._lastSessionId) {
     endMeeting('403');
   }
 
