@@ -78,7 +78,8 @@ case class DefaultProps(
     screenshareProps:  ScreenshareProps,
     lockSettingsProps: LockSettingsProps,
     systemProps:       SystemProps,
-    groups:            Vector[GroupProps]
+    groups:            Vector[GroupProps],
+    disabledFeatures:  Vector[String]
 )
 
 case class StartEndTimeStatus(startTime: Long, endTime: Long)

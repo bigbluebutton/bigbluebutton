@@ -121,6 +121,7 @@ export default function addMeeting(meeting) {
       html5InstanceId: Number,
     },
     groups: Array,
+    disabledFeatures: Array,
   });
 
   const {

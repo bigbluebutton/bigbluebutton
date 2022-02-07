@@ -17,7 +17,11 @@ trait GetScreenBroadcastPermissionReqMsgHdlr {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
     } yield {
-      if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      if (props.disabledFeatures.contains("screensharing")) {
+        val meetingId = liveMeeting.props.meetingProp.intId
+        val reason = "Screen sharing is disabled for this meeting."
+        PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
+      } else if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
         val meetingId = liveMeeting.props.meetingProp.intId
         val reason = "No permission to share the screen."
         PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)

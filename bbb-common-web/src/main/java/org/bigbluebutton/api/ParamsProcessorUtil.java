@@ -93,6 +93,7 @@ public class ParamsProcessorUtil {
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultAllowModsToEjectCameras = false;
+    private String defaultDisabledFeatures;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
     private String defaultLogoURL;
@@ -516,6 +517,16 @@ public class ParamsProcessorUtil {
             virtualBackgroundsDisabled = Boolean.valueOf(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED));
         }
 
+        // Check Disabled Features
+        ArrayList<String> listOfDisabledFeatures=new ArrayList(Arrays.asList(defaultDisabledFeatures.split(",")));
+        if (!StringUtils.isEmpty(params.get(ApiParams.DISABLED_FEATURES))) {
+            String disabledFeaturesParam = params.get(ApiParams.DISABLED_FEATURES);
+            listOfDisabledFeatures.addAll(Arrays.asList(disabledFeaturesParam.split(",")));
+        }
+        listOfDisabledFeatures.removeAll(Arrays.asList("", null));
+        listOfDisabledFeatures.replaceAll(String::trim);
+        listOfDisabledFeatures = new ArrayList<>(new HashSet<>(listOfDisabledFeatures));
+
 
         boolean webcamsOnlyForMod = webcamsOnlyForModerator;
         if (!StringUtils.isEmpty(params.get(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR))) {
@@ -622,6 +633,7 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
                 .withVirtualBackgroundsDisabled(virtualBackgroundsDisabled)
+                .withDisabledFeatures(listOfDisabledFeatures)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
@@ -1269,6 +1281,10 @@ public class ParamsProcessorUtil {
   public void setEndWhenNoModeratorDelayInMinutes(Integer value) {
       this.defaultEndWhenNoModeratorDelayInMinutes = value;
   }
+
+  public void setDisabledFeatures(String disabledFeatures) {
+        this.defaultDisabledFeatures = disabledFeatures;
+    }
 
   public void setBbbVersion(String version) {
       this.bbbVersion = this.allowRevealOfBBBVersion ? version : "";

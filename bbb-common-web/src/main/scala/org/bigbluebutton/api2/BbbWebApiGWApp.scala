@@ -147,7 +147,8 @@ class BbbWebApiGWApp(
                     lockSettingsParams:                     LockSettingsParams,
                     html5InstanceId:                        java.lang.Integer,
                     groups:                                 java.util.ArrayList[Group],
-                    virtualBackgroundsDisabled:             java.lang.Boolean): Unit = {
+                    virtualBackgroundsDisabled:             java.lang.Boolean,
+                    disabledFeatures:                       java.util.ArrayList[String]): Unit = {
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
       isBreakout = isBreakout.booleanValue(), learningDashboardEnabled = learningDashboardEnabled.booleanValue())
@@ -208,6 +209,7 @@ class BbbWebApiGWApp(
     )
 
     val groupsAsVector: Vector[GroupProps] = groups.asScala.toVector.map(g => GroupProps(g.getGroupId(), g.getName(), g.getUsersExtId().asScala.toVector))
+    val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
     val defaultProps = DefaultProps(
       meetingProp,
@@ -222,7 +224,8 @@ class BbbWebApiGWApp(
       screenshareProps,
       lockSettingsProps,
       systemProps,
-      groupsAsVector
+      groupsAsVector,
+      disabledFeaturesAsVector
     )
 
     //meetingManagerActorRef ! new CreateMeetingMsg(defaultProps)
