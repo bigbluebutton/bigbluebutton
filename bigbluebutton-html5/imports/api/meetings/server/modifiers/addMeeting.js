@@ -55,6 +55,7 @@ export default function addMeeting(meeting) {
       isBreakout: Boolean,
       learningDashboardEnabled: Boolean,
       name: String,
+      disabledFeatures: Array,
     },
     usersProp: {
       webcamsOnlyForModerator: Boolean,
@@ -120,8 +121,7 @@ export default function addMeeting(meeting) {
     systemProps: {
       html5InstanceId: Number,
     },
-    groups: Array,
-    disabledFeatures: Array,
+    groups: Array
   });
 
   const {
