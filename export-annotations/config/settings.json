@@ -1,0 +1,20 @@
+{
+    "log": {
+      "level": "info"
+    },
+    "master": {
+       "presAnnDropboxDir": "/tmp/pres-ann-dropbox"
+    },
+    "collector": {
+        "presFileDir": "/var/bigbluebutton"
+    },
+    "redis": {
+      "host": "127.0.0.1",
+      "port": 6379,
+      "password": null,
+      "interval": 1000,
+      "channels": {
+        "queue": "exportJobs"
+      }
+    }
+}
