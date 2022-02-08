@@ -1365,7 +1365,6 @@ check_state() {
 		echo "#"
 	fi
 
-
     exit 0
 }
 
