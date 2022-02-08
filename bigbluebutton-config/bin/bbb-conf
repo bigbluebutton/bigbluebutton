@@ -1356,14 +1356,14 @@ check_state() {
       done
     fi
 
-		if journalctl -u bbb-rap-* | grep -q 'Nil'; then
-			echo
-			echo "#"
-			echo "# Warning: found 'Nil' message in recording processing logs.  Possible GEM errors"
-			echo "#"
-			echo "#  https://github.com/bigbluebutton/bigbluebutton/issues/14287"
-			echo "#"
-		fi
+	if journalctl -u bbb-rap-* | grep -q 'Nil'; then
+		echo
+		echo "#"
+		echo "# Warning: found 'Nil' message in recording processing logs.  Possible GEM errors"
+		echo "#"
+		echo "#  https://github.com/bigbluebutton/bigbluebutton/issues/14287"
+		echo "#"
+	fi
 
 
     exit 0
