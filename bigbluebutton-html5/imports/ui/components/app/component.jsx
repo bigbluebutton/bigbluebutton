@@ -158,6 +158,12 @@ class App extends Component {
       layoutContextDispatch,
       meetingLayout,
       settingsLayout,
+      focusedCamera,
+      presentationVideoRate,
+      cameraWidth,
+      cameraHeight,
+      cameraPosition,
+      presentationIsOpen,
       isRTL,
       hidePresentation,
     } = this.props;
@@ -171,12 +177,6 @@ class App extends Component {
       value: isRTL,
     });
 
-    layoutContextDispatch({
-      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-      value: !hidePresentation,
-    });
-
-    MediaService.setSwapLayout(layoutContextDispatch);
     Modal.setAppElement('#app');
 
     const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
@@ -199,6 +199,48 @@ class App extends Component {
       Settings.application.selectedLayout = selectedLayout;
     }
     Settings.save();
+
+    console.log(selectedLayout, focusedCamera, cameraPosition, presentationVideoRate, presentationIsOpen, "111111111111");
+    if (selectedLayout === 'custom') {
+      if (!presentationIsOpen) {
+        MediaService.toggleSwapLayout(layoutContextDispatch);
+      }
+
+      if (focusedCamera !== 'none') {
+        layoutContextDispatch({
+          type: ACTIONS.SET_FOCUSED_CAMERA_ID,
+          value: focusedCamera,
+        });
+      }
+
+      if (cameraPosition) {
+        layoutContextDispatch({
+          type: ACTIONS.SET_CAMERA_DOCK_POSITION,
+          value: cameraPosition,
+        });
+      }
+
+      if (Math.abs(presentationVideoRate - 0) < 0.01) {
+        let w, h;
+        if (cameraWidth > cameraHeight) {
+          w = cameraWidth;
+          h = window.innerHeight * presentationVideoRate;
+        } else {
+          w = window.innerWidth * presentationVideoRate;
+          h = cameraHeight;
+        }
+
+        layoutContextDispatch({
+          type: ACTIONS.SET_CAMERA_DOCK_SIZE,
+          value: {
+            width: w,
+            height: h,
+            browserWidth: window.innerWidth,
+            browserHeight: window.innerHeight,
+          }
+        });
+      }
+    }
 
     const body = document.getElementsByTagName('body')[0];
 
