@@ -269,7 +269,7 @@ class BreakoutRoom extends PureComponent {
       amIModerator,
       intl,
       isUserInBreakoutRoom,
-      exitAudio,
+      forceExitAudio,
       joinMicrophone,
       joinListenOnly,
       setBreakoutAudioTransferStatus,
@@ -340,7 +340,7 @@ class BreakoutRoom extends PureComponent {
                   this.getBreakoutURL(breakoutId);
                   // leave main room's audio,
                   // and stops video and screenshare when joining a breakout room
-                  exitAudio();
+                  forceExitAudio();
                   logger.info({
                     logCode: 'breakoutroom_join',
                     extraInfo: { logType: 'user_action' },
@@ -363,9 +363,19 @@ class BreakoutRoom extends PureComponent {
 
                     const rejoinAudio = () => {
                       if (didUserSelectedMicrophone()) {
-                        joinMicrophone();
+                        joinMicrophone().catch(() => {
+                          logger.info({
+                            logCode: 'mainroom_audio_rejoin',
+                            extraInfo: { logType: 'user_action' },
+                          }, 'leaving breakout room rejoined audio in the main room');
+                        });
                       } else if (didUserSelectedListenOnly()) {
-                        joinListenOnly();
+                        joinListenOnly().catch(() => {
+                          logger.info({
+                            logCode: 'mainroom_audio_rejoin',
+                            extraInfo: { logType: 'user_action' },
+                          }, 'leaving breakout room rejoined audio in the main room');
+                        });
                       }
                       c.stop();
                     }

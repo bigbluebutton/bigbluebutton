@@ -51,7 +51,7 @@ export default withTracker((props) => {
     amIModerator: amIModerator(),
     isMeteorConnected,
     isUserInBreakoutRoom,
-    exitAudio: () => AudioManager.forceExitAudio(),
+    forceExitAudio: () => AudioManager.forceExitAudio(),
     joinMicrophone: () => AudioManager.joinMicrophone(),
     joinListenOnly: () => AudioManager.joinListenOnly(),
     isReconnecting,
