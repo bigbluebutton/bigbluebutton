@@ -1,9 +1,5 @@
 import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import MediaService, {
-  getSwapLayout,
-  shouldEnableSwapLayout,
-} from '/imports/ui/components/media/service';
 import { notify } from '/imports/ui/services/notification';
 import PresentationService from './service';
 import { Slides } from '/imports/api/slides';
@@ -51,7 +47,7 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
         layoutContextDispatch,
         numCameras,
         ...props,
-        userIsPresenter: userIsPresenter && !layoutSwapped,
+        userIsPresenter,
         presentationBounds: presentation,
         layoutType,
         fullscreenContext,
@@ -71,7 +67,6 @@ const fetchedpresentation = {};
 export default withTracker(({ podId }) => {
   const currentSlide = PresentationService.getCurrentSlide(podId);
   const presentationIsDownloadable = PresentationService.isPresentationDownloadable(podId);
-  const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
 
   let slidePosition;
   if (currentSlide) {
@@ -127,8 +122,6 @@ export default withTracker(({ podId }) => {
     notify,
     zoomSlide: PresentationToolbarService.zoomSlide,
     podId,
-    layoutSwapped,
-    toggleSwapLayout: MediaService.toggleSwapLayout,
     publishedPoll: Meetings.findOne({ meetingId: Auth.meetingID }, {
       fields: {
         publishedPoll: 1,

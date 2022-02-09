@@ -39,45 +39,16 @@ function shouldShowOverlay() {
 }
 
 const swapLayout = {
-  value: getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout),
-  tracker: new Tracker.Dependency(),
-};
-
-const setSwapLayout = (layoutContextDispatch) => {
-  const hidePresentation = getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation);
-
-  swapLayout.value = getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout);
-  swapLayout.tracker.changed();
-
-  if (!hidePresentation) {
-    layoutContextDispatch({
-      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-      value: !swapLayout.value,
-    });
-  }
+  value: getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout) || getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
 };
 
 const toggleSwapLayout = (layoutContextDispatch) => {
-  window.dispatchEvent(new Event('togglePresentationHide'));
   swapLayout.value = !swapLayout.value;
-  swapLayout.tracker.changed();
 
   layoutContextDispatch({
     type: ACTIONS.SET_PRESENTATION_IS_OPEN,
     value: !swapLayout.value,
   });
-};
-
-export const shouldEnableSwapLayout = () => {
-  if (!PRESENTATION_CONFIG.oldMinimizeButton) {
-    return true;
-  }
-  return !shouldShowScreenshare() && !shouldShowExternalVideo();
-}
-
-export const getSwapLayout = () => {
-  swapLayout.tracker.depend();
-  return swapLayout.value;
 };
 
 export default {
@@ -88,7 +59,4 @@ export default {
   shouldShowOverlay,
   isVideoBroadcasting,
   toggleSwapLayout,
-  shouldEnableSwapLayout,
-  getSwapLayout,
-  setSwapLayout,
 };

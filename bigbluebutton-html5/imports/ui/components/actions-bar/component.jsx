@@ -34,7 +34,6 @@ class ActionsBar extends PureComponent {
       shortcuts,
       layoutContextDispatch,
       actionsBarStyle,
-      isOldMinimizeButtonEnabled,
       setMeetingLayout,
     } = this.props;
 
@@ -81,19 +80,14 @@ class ActionsBar extends PureComponent {
           />
         </Styled.Center>
         <Styled.Right>
-          {!isOldMinimizeButtonEnabled ||
-            (isOldMinimizeButtonEnabled && isLayoutSwapped && !isPresentationDisabled)
-            ? (
-              <PresentationOptionsContainer
-                isLayoutSwapped={isLayoutSwapped}
-                toggleSwapLayout={toggleSwapLayout}
-                layoutContextDispatch={layoutContextDispatch}
-                hasPresentation={isThereCurrentPresentation}
-                hasExternalVideo={isSharingVideo}
-                hasScreenshare={hasScreenshare}
-              />
-            )
-            : null}
+          <PresentationOptionsContainer
+            isLayoutSwapped={isLayoutSwapped}
+            toggleSwapLayout={toggleSwapLayout}
+            layoutContextDispatch={layoutContextDispatch}
+            hasPresentation={isThereCurrentPresentation}
+            hasExternalVideo={isSharingVideo}
+            hasScreenshare={hasScreenshare}
+          />
           {isRaiseHandButtonEnabled
             ? (
               <Styled.RaiseHandButton

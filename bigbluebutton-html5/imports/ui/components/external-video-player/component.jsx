@@ -151,8 +151,6 @@ class VideoPlayer extends Component {
 
   componentDidMount() {
     const {
-      getSwapLayout,
-      toggleSwapLayout,
       layoutContextDispatch,
       hidePresentation,
     } = this.props;
@@ -164,8 +162,6 @@ class VideoPlayer extends Component {
 
     VideoPlayer.clearVideoListeners();
     this.registerVideoListeners();
-
-    if (getSwapLayout()) toggleSwapLayout(layoutContextDispatch);
 
     if (hidePresentation) {
       layoutContextDispatch({

@@ -31,18 +31,8 @@ import {
 import { withModalMounter, getModal } from '/imports/ui/components/common/modal/service';
 
 import App from './component';
-import ActionsBarContainer from '../actions-bar/container';
 
 const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
-
-const propTypes = {
-  actionsbar: PropTypes.node,
-  meetingLayout: PropTypes.string.isRequired,
-};
-
-const defaultProps = {
-  actionsbar: <ActionsBarContainer />,
-};
 
 const intlMessages = defineMessages({
   waitingApprovalMessage: {
@@ -124,7 +114,6 @@ const AppContainer = (props) => {
     ? (
       <App
         {...{
-          actionsbar: <ActionsBarContainer setMeetingLayout={setMeetingLayout} />,
           actionsBarStyle,
           captionsStyle,
           currentUserId,
@@ -134,6 +123,7 @@ const AppContainer = (props) => {
           pushLayout,
           meetingLayoutUpdatedAt,
           presentationIsOpen: isPresenter ? presentationIsOpen : layoutPresOpen,
+          isLayoutSwapped: !presentationIsOpen,
           cameraPosition: isPresenter ? cameraDock.position : layoutCamPosition,
           focusedCamera: isPresenter ? focusedId : layoutFocusedCam,
           presentationVideoRate: isPresenter ? presentationVideoRate : layoutRate,
@@ -267,6 +257,3 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     isModalOpen: !!getModal(),
   };
 })(AppContainer)));
-
-AppContainer.defaultProps = defaultProps;
-AppContainer.propTypes = propTypes;

@@ -683,6 +683,7 @@ class Presentation extends PureComponent {
       fullscreenElementId,
       fullscreenContext,
       layoutContextDispatch,
+      isLayoutSwapped,
     } = this.props;
     const { zoom, fitToWidth } = this.state;
 
@@ -705,6 +706,7 @@ class Presentation extends PureComponent {
           toolbarWidth,
           fullscreenElementId,
           layoutContextDispatch,
+          isLayoutSwapped,
         }}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}

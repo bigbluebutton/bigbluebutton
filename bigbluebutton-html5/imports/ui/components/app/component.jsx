@@ -46,6 +46,8 @@ import Settings from '/imports/ui/services/settings';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 
+import ActionsBarContainer from '../actions-bar/container';
+
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
@@ -483,13 +485,14 @@ class App extends Component {
 
   renderActionsBar() {
     const {
-      actionsbar,
       intl,
       actionsBarStyle,
       hideActionsBar,
+      setMeetingLayout,
+      isLayoutSwapped,
     } = this.props;
 
-    if (!actionsbar || hideActionsBar) return null;
+    if (hideActionsBar) return null;
 
     return (
       <Styled.ActionsBar
@@ -507,7 +510,10 @@ class App extends Component {
           }
         }
       >
-        {actionsbar}
+        <ActionsBarContainer
+          setMeetingLayout={setMeetingLayout}
+          isLayoutSwapped={isLayoutSwapped}
+	/>
       </Styled.ActionsBar>
     );
   }
@@ -569,11 +575,11 @@ class App extends Component {
           <SidebarContentContainer />
           <NavBarContainer main="new" />
           {this.renderWebcamsContainer()}
-          {shouldShowPresentation ? <PresentationAreaContainer /> : null}
-          {shouldShowScreenshare ? <ScreenshareContainer /> : null}
+          {shouldShowPresentation ? <PresentationAreaContainer isLayoutSwapped={isLayoutSwapped} /> : null}
+          {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={isLayoutSwapped} /> : null}
           {
             shouldShowExternalVideo
-              ? <ExternalVideoContainer isPresenter={isPresenter} />
+              ? <ExternalVideoContainer isLayoutSwapped={isLayoutSwapped} isPresenter={isPresenter} />
               : null
           }
           {this.renderCaptions()}
