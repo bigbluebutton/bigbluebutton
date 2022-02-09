@@ -509,7 +509,7 @@ class ConnectionStatusComponent extends PureComponent {
     }
 
     return (
-      <Styled.NetworkDataContainer>
+      <Styled.NetworkDataContainer data-test="networkDataContainer">
         <Styled.Prev>
           <Styled.ButtonLeft
             role="button"
@@ -698,6 +698,7 @@ class ConnectionStatusComponent extends PureComponent {
         onRequestClose={() => closeModal(dataSaving, intl)}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.ariaTitle)}
+        data-test="connectionStatusModal"
       >
         <Styled.Container>
           <Styled.Header>

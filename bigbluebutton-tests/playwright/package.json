@@ -1,6 +1,9 @@
 {
   "scripts": {
-    "test": "npx playwright test"
+    "test": "npx playwright test",
+    "test:filter": "npx playwright test -g",
+    "test:headed": "npx playwright test --headed",
+    "test:debug": "npx playwright test --debug -g"
   },
   "devDependencies": {
     "@playwright/test": "^1.16.3",

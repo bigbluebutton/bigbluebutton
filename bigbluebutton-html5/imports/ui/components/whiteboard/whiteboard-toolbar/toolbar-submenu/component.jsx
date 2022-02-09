@@ -243,6 +243,7 @@ class ToolbarSubmenu extends Component {
         onMouseLeave={this.handleMouseLeave}
         type={type}
         ref={(node) => { this.submenuItems = node; }}
+        data-test="toolbarToolsList"
       >
         {objectsToRender ? objectsToRender.map(obj => (
           <ToolbarSubmenuItem
@@ -253,6 +254,7 @@ class ToolbarSubmenu extends Component {
             objectToReturn={obj}
             toolbarActive={objectSelected.value === obj.value}
             key={obj.value}
+            data-test={`${obj.value}Tool`}
           />
         )) : null}
       </Styled.Wrapper>

@@ -377,6 +377,7 @@ class UserListItem extends PureComponent {
           });
         },
         icon: 'chat',
+        dataTest: 'startPrivateChat',
       },
       {
         allowed: allowedToResetStatus
@@ -433,6 +434,7 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'pen_tool',
+        dataTest: 'changeWhiteboardAccess',
       },
       {
         allowed: allowedToSetPresenter && isMeteorConnected && !isDialInUser && !showNestedOptions,
@@ -476,6 +478,7 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: userLocked ? 'unlock' : 'lock',
+        dataTest: 'unlockUserButton',
       },
       {
         allowed: allowUserLookup && isMeteorConnected && !showNestedOptions,

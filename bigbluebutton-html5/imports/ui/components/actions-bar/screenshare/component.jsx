@@ -164,12 +164,15 @@ const ScreenshareButton = ({
     && !isMobile
     && amIPresenter;
 
+  const dataTest = !screenshareDataSavingSetting ? 'screenshareLocked'
+    : isVideoBroadcasting ? 'stopScreenShare' : 'startScreenShare';
+
   return shouldAllowScreensharing
     ? (
       <Styled.ScreenShareButton
         disabled={(!isMeteorConnected && !isVideoBroadcasting) || !screenshareDataSavingSetting}
         icon={isVideoBroadcasting ? 'desktop' : 'desktop_off'}
-        data-test={isVideoBroadcasting ? 'stopScreenShare' : 'startScreenShare'}
+        data-test={dataTest}
         label={intl.formatMessage(vLabel)}
         description={intl.formatMessage(vDescr)}
         color={isVideoBroadcasting ? 'primary' : 'default'}

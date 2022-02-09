@@ -56,6 +56,10 @@ const intlMessages = defineMessages({
     id: 'app.media.screenshare.end',
     description: 'toast to show when a screenshare has ended',
   },
+  screenshareEndedDueToDataSaving: {
+    id: 'app.media.screenshare.endDueToDataSaving',
+    description: 'toast to show when a screenshare has ended by changing data savings option',
+  },
 });
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
@@ -120,6 +124,11 @@ class ScreenshareComponent extends React.Component {
       this.setState({ restoreOnUnmount: false });
     };
 
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_SCREEN_SHARE,
+      value: true,
+    });
+
     if (hidePresentation) {
       layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_IS_OPEN,
@@ -150,7 +159,16 @@ class ScreenshareComponent extends React.Component {
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
 
-    notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
+    if (Settings.dataSaving.viewScreenshare) {
+      notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
+    } else {
+      notify(intl.formatMessage(intlMessages.screenshareEndedDueToDataSaving), 'info', 'desktop');
+    }
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_SCREEN_SHARE,
+      value: false,
+    });
 
     if (fullscreenContext) {
       layoutContextDispatch({

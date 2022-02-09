@@ -67,6 +67,7 @@ export default class StorageTracker {
   removeItem(key) {
     const prefixedKey = this._prefixedKey(key);
     this._storage.removeItem(prefixedKey);
+    if (!this._trackers[prefixedKey]) return;
     this._trackers[prefixedKey].changed();
     delete this._trackers[prefixedKey];
   }

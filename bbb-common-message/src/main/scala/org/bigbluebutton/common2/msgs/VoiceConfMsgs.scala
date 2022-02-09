@@ -196,6 +196,7 @@ case class ScreenBroadcastStopSysMsg(
 ) extends BbbCoreMsg
 case class ScreenBroadcastStopSysMsgBody(
     meetingId: String,
+    voiceConf: String,
     streamId:  String
 )
 

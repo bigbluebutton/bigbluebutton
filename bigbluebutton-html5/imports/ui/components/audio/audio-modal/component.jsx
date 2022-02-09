@@ -381,12 +381,13 @@ class AudioModal extends Component {
 
     return (
       <div>
-        <Styled.AudioOptions>
+        <Styled.AudioOptions data-test="audioModalOptions">
           {!showMicrophone && !isMobileNative
               && (
               <>
                 <Styled.AudioModalButton
                   label={intl.formatMessage(intlMessages.microphoneLabel)}
+                  data-test="microphoneBtn"
                   aria-describedby="mic-description"
                   icon="unmute"
                   circle
@@ -408,6 +409,7 @@ class AudioModal extends Component {
               <>
                 <Styled.AudioModalButton
                   label={intl.formatMessage(intlMessages.listenOnlyLabel)}
+                  data-test="listenOnlyBtn"
                   aria-describedby="listenOnly-description"
                   icon="listen"
                   circle
@@ -549,6 +551,7 @@ class AudioModal extends Component {
         <Styled.AudioModal
           onRequestClose={closeModal}
           hideBorder
+          data-test="audioModal"
           contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         >
           {isIE ? (
@@ -566,7 +569,7 @@ class AudioModal extends Component {
           {
             !this.skipAudioOptions()
               ? (
-                <Styled.Header data-test="audioModalHeader">
+                <Styled.Header>
                   <Styled.Title>
                     {content
                       ? intl.formatMessage(this.contents[content].title)

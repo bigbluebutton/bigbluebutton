@@ -12,6 +12,7 @@ object ScreenshareApp2x {
     if (ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
       val event = MsgBuilder.buildScreenBroadcastStopSysMsg(
         liveMeeting.props.meetingProp.intId,
+        ScreenshareModel.getVoiceConf(liveMeeting.screenshareModel),
         ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel),
       )
 

@@ -33,6 +33,7 @@ const BgNoneButton = styled(Button)`
   width: 48px;
   border: ${borderSizeSmall} solid ${userThumbnailBorder};
   margin: 0 0.15em;
+  flex-shrink: 0;
 `;
 
 const ThumbnailButton = styled(Button)`
@@ -49,6 +50,7 @@ const ThumbnailButton = styled(Button)`
   background-color: transparent;
   border: ${borderSizeSmall} solid ${userThumbnailBorder};
   margin: 0 0.15em;
+  flex-shrink: 0;
 
   & + img {
     border-radius: ${borderSizeLarge};

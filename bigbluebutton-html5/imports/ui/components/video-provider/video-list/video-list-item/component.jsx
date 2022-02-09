@@ -326,7 +326,7 @@ class VideoListItem extends Component {
               {enableVideoMenu && availableActions.length >= 1
                 ? (
                   <BBBMenu
-                    trigger={<Styled.DropdownTrigger tabIndex={0}>{name}</Styled.DropdownTrigger>}
+                    trigger={<Styled.DropdownTrigger tabIndex={0} data-test="dropdownWebcamButton">{name}</Styled.DropdownTrigger>}
                     actions={this.getAvailableActions()}
                     opts={{
                       id: "default-dropdown-menu",

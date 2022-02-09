@@ -130,6 +130,7 @@ class ExternalVideoModal extends Component {
             label={intl.formatMessage(intlMessages.start)}
             onClick={this.startWatchingHandler}
             disabled={startDisabled}
+            data-test="startNewVideo"
           />
         </Styled.Content>
       </Styled.ExternalVideoModal>
