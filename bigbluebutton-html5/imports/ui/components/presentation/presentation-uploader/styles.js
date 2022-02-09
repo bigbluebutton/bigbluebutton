@@ -580,6 +580,11 @@ const DownloadButton = styled(Button)`
   `}
 `;
 
+const ExtraHint = styled.div`
+  margin-top: 1rem;
+  font-weight: bold;
+`;
+
 export default {
   UploadRow,
   FileLine,
@@ -618,4 +623,5 @@ export default {
   PresentationItem,
   TableItemActions,
   DownloadButton,
+  ExtraHint,
 };

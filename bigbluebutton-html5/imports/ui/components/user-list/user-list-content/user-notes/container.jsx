@@ -1,6 +1,7 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import NoteService from '/imports/ui/components/note/service';
+import PadsService from '/imports/ui/components/pads/service';
+import NotesService from '/imports/ui/components/notes/service';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import UserNotes from './component';
 import { layoutSelectInput, layoutDispatch } from '../../../layout/context';
@@ -13,9 +14,9 @@ const UserNotesContainer = (props) => {
 };
 
 export default lockContextContainer(withTracker(({ userLocks }) => {
-  const shouldDisableNote = userLocks.userNote;
+  const shouldDisableNotes = userLocks.userNotes;
   return {
-    revs: NoteService.getRevs(),
-    disableNote: shouldDisableNote,
+    rev: PadsService.getRev(NotesService.ID),
+    disableNotes: shouldDisableNotes,
   };
 })(UserNotesContainer));
