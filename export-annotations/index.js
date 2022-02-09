@@ -1,5 +1,6 @@
 const Logger = require('./lib/utils/logger');
 const config = require('./config');
+const fs = require('fs');
 const redis = require('redis');
 
 const logger = new Logger('presAnn');
@@ -25,10 +26,17 @@ function sleep(ms) {
         
         var job = await client.LPOP(config.redis.channels.queue)
 
+        const exportJob = JSON.parse(job);
+
         if(job != null) {
             logger.info('Received new job', job)
-            // Drop job into dropbox as JSON
             
+            // Drop job into dropbox as JSON
+            fs.writeFile(config.master.presAnnDropboxDir + '/' + exportJob.jobId, job, function(err) {
+                if(err) { return logger.error(err); }
+            });
+
+            // Kicks processing by launching the Collector Worker passing JobId
         }
     }
 })();

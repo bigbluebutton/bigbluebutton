@@ -24,7 +24,7 @@ case class ExportJob(
   presId: String,
   presLocation: String,
   allPages: Boolean,
-  pages: Array[PresentationPageForExport],
+  pages: List[Int],
   parentMeetingId: String,
   presUploadToken: String,
 )

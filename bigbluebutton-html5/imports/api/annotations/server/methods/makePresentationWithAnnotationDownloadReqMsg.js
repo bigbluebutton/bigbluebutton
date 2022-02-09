@@ -17,13 +17,13 @@ export default function makePresentationWithAnnotationDownloadReqMsg() {
     check(requesterUserId, String);
 
     const payload = {
-      presId: "placeholder-pres-id",
-      allPages: true,
-      pages: [],
+      presId: "",
+      allPages: false,
+      pages: [2, 3, 8],
     };
 
     const payload2 = {
-      parentMeetingId: "placeholder-parent-meeting-id",
+      parentMeetingId: "",
       allPages: false,
     };
 
@@ -34,9 +34,7 @@ export default function makePresentationWithAnnotationDownloadReqMsg() {
     Logger.warn(requesterUserId)
     Logger.warn('************');
     
-    return RedisPubSub.publishUserMessage(CHANNEL, SECOND_EVENT_NAME, meetingId, requesterUserId, payload2);
-
-    // return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   } catch (err) {
     Logger.error(`Exception while invoking method makePresentationWithAnnotationDownloadReqMsg ${err.stack}`);
   }

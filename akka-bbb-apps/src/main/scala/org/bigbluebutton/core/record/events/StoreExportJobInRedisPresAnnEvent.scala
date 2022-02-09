@@ -47,7 +47,7 @@ class StoreExportJobInRedisPresAnnEvent extends AbstractPresentationWithAnnotati
     eventMap.put(ALL_PAGES, allPages)
   }
 
-  def setPages(pages: Array[PresentationPageForExport]) {
+  def setPages(pages: List[Int]) {
     eventMap.put(PAGES, JsonUtil.toJson(pages))
   }
 

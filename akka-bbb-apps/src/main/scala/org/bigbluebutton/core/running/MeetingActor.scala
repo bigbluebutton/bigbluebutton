@@ -750,7 +750,12 @@ class MeetingActor(
 
   def handleMakePresentationWithAnnotationDownloadReqMsg(m: MakePresentationWithAnnotationDownloadReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
 
-    val presId: String = m.body.presId // Whiteboard ID
+    // Whiteboard ID
+    val presId: String = m.body.presId match {
+      case "" => getMeetingInfoPresentationDetails().id
+      case _  => m.body.presId
+    }
+
     val allPages: Boolean = m.body.allPages // Whether or not all pages of the presentation should be exported
     val pages: List[Int] = m.body.pages // Desired presentation pages for export
 
@@ -787,7 +792,7 @@ class MeetingActor(
     // 2) Insert Export Job in Redis
     val jobType = "PresentationWithAnnotationDownloadJob"
     val presLocation = s"/var/bigbluebutton/${presId}"
-    val exportJob = new ExportJob(jobId, jobType, presId, presLocation, allPages, storeAnnotationPages, "", "")
+    val exportJob = new ExportJob(jobId, jobType, presId, presLocation, allPages, pagesRange, "", "")
     var job = buildStoreExportJobInRedisSysMsg(exportJob)
     outGW.send(job)
   }
@@ -836,7 +841,7 @@ class MeetingActor(
     // 2) Insert Export Job in Redis
     val jobType: String = "PresentationWithAnnotationExportJob"
     val presLocation = s"/var/bigbluebutton/${presId}"
-    val exportJob = new ExportJob(jobId, jobType, presId, presLocation, allPages, storeAnnotationPages, parentMeetingId, presentationUploadToken)
+    val exportJob = new ExportJob(jobId, jobType, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
     var job = buildStoreExportJobInRedisSysMsg(exportJob)
     outGW.send(job)
   }
