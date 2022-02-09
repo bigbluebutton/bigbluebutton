@@ -204,7 +204,7 @@ class VideoPlayer extends Component {
   }
 
   componentWillUnmount() {
-    const { hidePresentation } = this.props;
+    const { hidePresentation, layoutContextDispatch } = this.props;
     window.removeEventListener('beforeunload', this.onBeforeUnload);
 
     VideoPlayer.clearVideoListeners();
@@ -290,10 +290,14 @@ class VideoPlayer extends Component {
   }
 
   handleOnProgress() {
+    const { mutedByEchoTest } = this.state;
+
     const volume = this.getCurrentVolume();
     const muted = this.getMuted();
 
-    this.setState({ volume, muted });
+    if (!mutedByEchoTest) {
+      this.setState({ volume, muted });
+    }
   }
 
   handleVolumeChanged(volume) {
