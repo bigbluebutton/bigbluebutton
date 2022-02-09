@@ -12,6 +12,9 @@ export default function setCurrentPresentation(meetingId, podId, presentationId)
       meetingId,
       podId,
       current: true,
+      id: {
+        $ne: presentationId,
+      },
     },
     modifier: {
       $set: { current: false },
@@ -45,21 +48,23 @@ export default function setCurrentPresentation(meetingId, podId, presentationId)
     },
   };
 
-  Logger.info("Teste grande AQUII ---------------------------------------")
   const oldPresentation = Presentations.findOne(oldCurrent.selector);
   const newPresentation = Presentations.findOne(newCurrent.selector);
 
-  // Prevent bug with presentation being unset, same happens in the slide
-  // See: https://github.com/bigbluebutton/bigbluebutton/pull/4431
-  if (oldPresentation && newPresentation && (oldPresentation._id === newPresentation._id)) {
-    return;
+  if (oldPresentation) {
+    try{
+      Presentations.update(oldCurrent.selector, oldCurrent.modifier);
+    } catch(e){
+      oldCurrent.callback(e);
+    }
   }
 
   if (newPresentation) {
-    Presentations.update(newPresentation._id, newCurrent.modifier, newCurrent.callback);
-  }
-
-  if (oldPresentation) {
-    Presentations.update(oldPresentation._id, oldCurrent.modifier, oldCurrent.callback);
+    try{
+      Presentations.update(newPresentation._id, newCurrent.modifier);
+    } catch(e){
+      newCurrent.callback(e);
+    }
   }
 }
+ 

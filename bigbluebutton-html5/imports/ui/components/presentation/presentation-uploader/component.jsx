@@ -793,7 +793,7 @@ class PresentationUploader extends Component {
 
     const { animations } = Settings.application;
 
-    const isRemovable = item.isRemovable 
+    const { isRemovable } = item; 
 
     return (
       <Styled.PresentationItem
