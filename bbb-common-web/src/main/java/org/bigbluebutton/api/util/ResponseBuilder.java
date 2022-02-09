@@ -223,10 +223,8 @@ public class ResponseBuilder {
         StringWriter xmlText = new StringWriter();
 
         Map<String, Object> data = new HashMap<String, Object>();
-        log.info("Teste: ");
-        log.info(message);
         data.put("returnCode", returnCode);
-        data.put("info", message);
+        data.put("message", message);
 
         processData(getTemplate("insert-document.ftlx"), data, xmlText);
 

@@ -3,6 +3,6 @@
 <response>
   <#-- Where code is a 'SUCCESS' or 'FAILED' String -->
   <returncode>${returnCode}</returncode>
-  <info>${message}</info>
+  <message>${message}</message>
 </response>
 </#compress>

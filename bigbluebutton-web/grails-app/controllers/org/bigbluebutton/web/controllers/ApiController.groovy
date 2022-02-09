@@ -1282,8 +1282,23 @@ class ApiController {
 
         if ("presentation".equals(module.@name.toString())) {
           // need to iterate over presentation files and process them
-          Boolean current = false;
-          module.children().each { document ->
+          // In this first foreach we are going to know if some presentation has
+          // the current property
+          def Boolean hasCurrent = false;
+          for (document in module.children()) {
+            if (!StringUtils.isEmpty(document.@current.toString()) && java.lang.Boolean.parseBoolean(
+                    document.@current.toString())) {
+              hasCurrent = true;
+              break
+            }
+          }
+          Boolean current = !hasCurrent;
+          int lastIndex = module.children().size() - 1
+          module.children().eachWithIndex { document, index ->
+            def Boolean isCurrent = false;
+            if (index == 0 && !hasCurrent){
+              isCurrent = true
+            }
             if (!StringUtils.isEmpty(document.@url.toString())) {
               def fileName;
               def Boolean isRemovable = true;
@@ -1299,21 +1314,21 @@ class ApiController {
                 }
                 // I need to make sure that only one of the documents is going to be the current.
                 if (!StringUtils.isEmpty(document.@current.toString()) && !current) {
-                  def isCurrent = java.lang.Boolean.parseBoolean(document.@current.toString());
-                  log.warn("Teste aqui:")
-//                  log.warn(key)
-                  if (isCurrent){
-                    current = isCurrent
-                  }
+                  isCurrent = java.lang.Boolean.parseBoolean(document.@current.toString());
+                  current = isCurrent;
                 }
               }
-              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), current /* default presentation */,
+              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
                       fileName, isDownloadable, isRemovable);
             } else if (!StringUtils.isEmpty(document.@name.toString())) {
+              if (!StringUtils.isEmpty(document.@current.toString()) && !current) {
+                isCurrent = java.lang.Boolean.parseBoolean(document.@current.toString());
+                current = isCurrent;
+              }
               def b64 = new Base64()
               def decodedBytes = b64.decode(document.text().getBytes())
               processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                  conf.getInternalId(), current /* default presentation */);
+                  conf.getInternalId(), isCurrent /* default presentation */);
             } else {
               log.debug("presentation module config found, but it did not contain url or name attributes");
             }
