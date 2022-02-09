@@ -17,7 +17,7 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import {
   didUserSelectedMicrophone,
-  didUserSelectedListenOnly
+  didUserSelectedListenOnly,
 } from '/imports/ui/components/audio/audio-modal/service';
 
 const intlMessages = defineMessages({
@@ -364,17 +364,17 @@ class BreakoutRoom extends PureComponent {
                     const rejoinAudio = () => {
                       if (didUserSelectedMicrophone()) {
                         joinMicrophone().catch(() => {
-                          logger.info({
+                          logger.warn({
                             logCode: 'mainroom_audio_rejoin',
                             extraInfo: { logType: 'user_action' },
-                          }, 'leaving breakout room rejoined audio in the main room');
+                          }, 'leaving breakout room couldn\'t rejoin audio in the main room');
                         });
                       } else if (didUserSelectedListenOnly()) {
                         joinListenOnly().catch(() => {
-                          logger.info({
+                          logger.warn({
                             logCode: 'mainroom_audio_rejoin',
                             extraInfo: { logType: 'user_action' },
-                          }, 'leaving breakout room rejoined audio in the main room');
+                          }, 'leaving breakout room couldn\'t rejoin audio in the main room');
                         });
                       }
                       c.stop();
@@ -382,17 +382,17 @@ class BreakoutRoom extends PureComponent {
 
                     query.observe({
                       added: (user) => {
-                        if (user?.extId?.startsWith(Auth.userID) && user?.loggedOut) {
+                        if (user?.loggedOut && user?.extId?.startsWith(Auth.userID)) {
                           rejoinAudio();
                         }
                       },
                       changed: (user) => {
-                        if (user?.extId?.startsWith(Auth.userID) && user?.loggedOut) {
+                        if (user?.loggedOut && user?.extId?.startsWith(Auth.userID)) {
                           rejoinAudio();
                         }
-                      }
-                    })
-                  })
+                      },
+                    });
+                  });
                 }}
                 disabled={disable}
                 className={styles.joinButton}
