@@ -193,3 +193,17 @@ case class CamStreamSubscribedInSfuEvtMsgBody(
     subscriberStreamId: String,
     sfuSessionId:       String // Subscriber's SFU session ID
 )
+
+/**
+ * Sync webcam state with bbb-html5
+ */
+object SyncGetWebcamInfoRespMsg { val NAME = "SyncGetWebcamInfoRespMsg" }
+case class SyncGetWebcamInfoRespMsg(
+    header: BbbClientMsgHeader,
+    body:   SyncGetWebcamInfoRespMsgBody
+) extends BbbCoreMsg
+
+case class SyncGetWebcamInfoRespMsgBody(
+    webcamListSync: Vector[WebcamStreamInfo]
+)
+case class WebcamStreamInfo(stream: String, userId: String, name: String, pin: Boolean, floor: Boolean, lastFloorTime: String)
