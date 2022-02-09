@@ -42,6 +42,9 @@ const propTypes = {
   presentationTitle: PropTypes.string,
   hasUnreadMessages: PropTypes.bool,
   shortcuts: PropTypes.string,
+  breakoutNum: PropTypes.number,
+  breakoutName: PropTypes.string,
+  meetingName: PropTypes.string,
 };
 
 const defaultProps = {
@@ -71,14 +74,16 @@ class NavBar extends Component {
     } = this.props;
 
     if (breakoutNum && breakoutNum > 0) {
-      const defaultBreakoutName = intl.formatMessage(intlMessages.defaultBreakoutName, {
-        0: breakoutNum,
-      });
+      if (breakoutName && meetingName) {
+        const defaultBreakoutName = intl.formatMessage(intlMessages.defaultBreakoutName, {
+          0: breakoutNum,
+        });
 
-      if (breakoutName === defaultBreakoutName) {
-        document.title = `${breakoutNum} - ${meetingName}`;
-      } else {
-        document.title = `${breakoutName} - ${meetingName}`;
+        if (breakoutName === defaultBreakoutName) {
+          document.title = `${breakoutNum} - ${meetingName}`;
+        } else {
+          document.title = `${breakoutName} - ${meetingName}`;
+        }
       }
     }
 
@@ -210,7 +215,7 @@ class NavBar extends Component {
               ghost
               circle
               hideLabel
-              data-test={hasNotification ? 'hasUnreadMessages' : null}
+              data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
               tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
               aria-label={ariaLabel}
@@ -225,7 +230,9 @@ class NavBar extends Component {
               && <Styled.ArrowRight iconName="right_arrow" />}
           </Styled.Left>
           <Styled.Center>
-            <Styled.PresentationTitle>{presentationTitle}</Styled.PresentationTitle>
+            <Styled.PresentationTitle data-test="presentationTitle">
+              {presentationTitle}
+            </Styled.PresentationTitle>
             <RecordingIndicator
               mountModal={mountModal}
               amIModerator={amIModerator}

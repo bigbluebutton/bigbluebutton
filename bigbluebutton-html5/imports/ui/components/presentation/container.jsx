@@ -22,8 +22,6 @@ import {
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { DEVICE_TYPE } from '../layout/enums';
 
-const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
-
 const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props }) => {
   const { layoutSwapped } = props;
 
@@ -53,7 +51,6 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
         layoutContextDispatch,
         numCameras,
         ...props,
-        isViewer: currentUser.role === ROLE_VIEWER,
         userIsPresenter: userIsPresenter && !layoutSwapped,
         presentationBounds: presentation,
         layoutType,

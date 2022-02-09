@@ -148,7 +148,6 @@ class Presentation extends PureComponent {
       layoutSwapped,
       currentSlide,
       publishedPoll,
-      isViewer,
       toggleSwapLayout,
       restoreOnUpdate,
       layoutContextDispatch,
@@ -222,7 +221,7 @@ class Presentation extends PureComponent {
         });
       }
 
-      if (layoutSwapped && restoreOnUpdate && isViewer && currentSlide) {
+      if (layoutSwapped && restoreOnUpdate && !userIsPresenter && currentSlide) {
         const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
         const positionChanged = slidePosition
           .viewBoxHeight !== prevProps.slidePosition.viewBoxHeight
@@ -713,6 +712,7 @@ class Presentation extends PureComponent {
         fitToWidthHandler={this.fitToWidthHandler}
         isFullscreen={fullscreenContext}
         fullscreenAction={ACTIONS.SET_FULLSCREEN_ELEMENT}
+        fullscreenRef={this.refPresentationContainer}
       />
     );
   }
@@ -817,6 +817,7 @@ class Presentation extends PureComponent {
       layoutType,
       numCameras,
       currentPresentation,
+      layoutSwapped,
     } = this.props;
 
     const {
@@ -880,6 +881,7 @@ class Presentation extends PureComponent {
           right: presentationBounds.right,
           width: presentationBounds.width,
           height: presentationBounds.height,
+          display: layoutSwapped ? 'none' : 'flex',
           zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
           background: layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0 && !fullscreenContext
             ? colorContentBackground

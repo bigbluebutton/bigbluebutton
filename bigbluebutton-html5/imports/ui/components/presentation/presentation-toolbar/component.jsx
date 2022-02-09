@@ -155,8 +155,11 @@ class PresentationToolbar extends PureComponent {
       isFullscreen,
       layoutContextDispatch,
       fullscreenAction,
+      fullscreenRef,
+      handleToggleFullScreen,
     } = this.props;
 
+    handleToggleFullScreen(fullscreenRef);
     const newElement = isFullscreen ? '' : fullscreenElementId;
 
     layoutContextDispatch({

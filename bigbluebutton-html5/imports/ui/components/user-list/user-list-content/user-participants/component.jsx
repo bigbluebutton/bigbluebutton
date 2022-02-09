@@ -194,7 +194,7 @@ class UserParticipants extends Component {
     const { isOpen, scrollArea } = this.state;
 
     return (
-      <Styled.UserListColumn>
+      <Styled.UserListColumn data-test="userList">
         {
           !compact
             ? (

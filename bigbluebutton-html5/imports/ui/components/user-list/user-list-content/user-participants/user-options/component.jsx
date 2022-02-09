@@ -261,6 +261,7 @@ class UserOptions extends PureComponent {
           // description: intl.formatMessage(intlMessages.lockViewersDesc),
           onClick: () => mountModal(<LockViewersContainer />),
           icon: 'lock',
+          dataTest: 'lockViewersButton',
         });
 
         if (dynamicGuestPolicy) {

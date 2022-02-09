@@ -111,7 +111,7 @@ class UserMessages extends PureComponent {
         <Styled.Container>
           {
             !compact ? (
-              <Styled.MessagesTitle>
+              <Styled.MessagesTitle data-test="messageTitle">
                 {intl.formatMessage(intlMessages.messagesTitle)}
               </Styled.MessagesTitle>
             ) : (

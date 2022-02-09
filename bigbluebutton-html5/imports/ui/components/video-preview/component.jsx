@@ -812,6 +812,7 @@ class VideoPreview extends Component {
         shouldShowCloseButton={allowCloseModal}
         shouldCloseOnOverlayClick={allowCloseModal}
         isPhone={deviceInfo.isPhone}
+        data-test="webcamSettingsModal"
       >
         {deviceInfo.hasMediaDevices
           ? this.renderModalContent()

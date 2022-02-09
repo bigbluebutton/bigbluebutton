@@ -8,6 +8,7 @@ const OptionsButton = styled(Button)`
   border-radius: 50%;
   display: block;
   padding: 0;
+  margin: 0 0.25rem;
 
   i {
     width: auto;

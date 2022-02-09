@@ -100,6 +100,7 @@ class BreakoutRoom extends PureComponent {
     super(props);
     this.renderBreakoutRooms = this.renderBreakoutRooms.bind(this);
     this.getBreakoutURL = this.getBreakoutURL.bind(this);
+    this.hasBreakoutUrl = this.hasBreakoutUrl.bind(this);
     this.getBreakoutLabel = this.getBreakoutLabel.bind(this);
     this.renderDuration = this.renderDuration.bind(this);
     this.transferUserToBreakoutRoom = this.transferUserToBreakoutRoom.bind(this);
@@ -190,17 +191,24 @@ class BreakoutRoom extends PureComponent {
     return null;
   }
 
-  getBreakoutLabel(breakoutId) {
-    const { intl, getBreakoutRoomUrl } = this.props;
+  hasBreakoutUrl(breakoutId) {
+    const { getBreakoutRoomUrl } = this.props;
     const { requestedBreakoutId, generated } = this.state;
 
     const breakoutRoomUrlData = getBreakoutRoomUrl(breakoutId);
 
-    if (generated && requestedBreakoutId === breakoutId) {
-      return intl.formatMessage(intlMessages.breakoutJoin);
+    if ((generated && requestedBreakoutId === breakoutId) || breakoutRoomUrlData) {
+      return true;
     }
 
-    if (breakoutRoomUrlData) {
+    return false;
+  }
+
+  getBreakoutLabel(breakoutId) {
+    const { intl } = this.props;
+    const hasBreakoutUrl = this.hasBreakoutUrl(breakoutId)
+
+    if (hasBreakoutUrl) {
       return intl.formatMessage(intlMessages.breakoutJoin);
     }
 
@@ -283,6 +291,10 @@ class BreakoutRoom extends PureComponent {
     const stateBreakoutId = _stateBreakoutId || currentAudioTransferBreakoutId;
     const moderatorJoinedAudio = isMicrophoneUser && amIModerator;
     const disable = waiting && requestedBreakoutId !== breakoutId;
+    const breakoutShortname = this.props.breakoutRooms[number - 1]?.shortName;
+    const hasBreakoutUrl = this.hasBreakoutUrl(breakoutId);
+    const dataTest = `${hasBreakoutUrl ? 'join' : 'askToJoin'}${breakoutShortname.replace(' ', '')}`;
+
     const audioAction = joinedAudioOnly || isInBreakoutAudioTransfer
       ? () => {
         setBreakoutAudioTransferStatus({
@@ -311,15 +323,15 @@ class BreakoutRoom extends PureComponent {
         {
           isUserInBreakoutRoom(joinedUsers)
             ? (
-              <Styled.AlreadyConnected>
+              <Styled.AlreadyConnected data-test="alreadyConnected">
                 {intl.formatMessage(intlMessages.alreadyConnected)}
               </Styled.AlreadyConnected>
             )
             : (
               <Styled.JoinButton
                 label={this.getBreakoutLabel(breakoutId)}
-                data-test="breakoutJoin"
-                aria-label={`${this.getBreakoutLabel(breakoutId)} ${this.props.breakoutRooms[number - 1]?.shortName }`}
+                data-test={dataTest}
+                aria-label={`${this.getBreakoutLabel(breakoutId)} ${breakoutShortname}`}
                 onClick={() => {
                   this.getBreakoutURL(breakoutId);
                   // leave main room's audio,
