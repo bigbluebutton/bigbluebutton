@@ -13,6 +13,12 @@ import { PANELS, ACTIONS } from '../layout/enums';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 import UserListService from '/imports/ui/components/user-list/service';
 import AudioManager from '/imports/ui/services/audio-manager';
+import Users from '/imports/api/users';
+import Auth from '/imports/ui/services/auth';
+import {
+  didUserSelectedMicrophone,
+  didUserSelectedListenOnly
+} from '/imports/ui/components/audio/audio-modal/service';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -264,6 +270,8 @@ class BreakoutRoom extends PureComponent {
       intl,
       isUserInBreakoutRoom,
       exitAudio,
+      joinMicrophone,
+      joinListenOnly,
       setBreakoutAudioTransferStatus,
       getBreakoutAudioTransferStatus,
     } = this.props;
@@ -340,6 +348,41 @@ class BreakoutRoom extends PureComponent {
                   VideoService.storeDeviceIds();
                   VideoService.exitVideo();
                   if (UserListService.amIPresenter()) screenshareHasEnded();
+
+                  Tracker.autorun((c) => {
+                    const selector = {
+                      meetingId: breakoutId,
+                    };
+
+                    const query = Users.find(selector, {
+                      fields: {
+                        loggedOut: 1,
+                        extId: 1,
+                      },
+                    });
+
+                    const rejoinAudio = () => {
+                      if (didUserSelectedMicrophone()) {
+                        joinMicrophone();
+                      } else if (didUserSelectedListenOnly()) {
+                        joinListenOnly();
+                      }
+                      c.stop();
+                    }
+
+                    query.observe({
+                      added: (user) => {
+                        if (user?.extId?.startsWith(Auth.userID) && user?.loggedOut) {
+                          rejoinAudio();
+                        }
+                      },
+                      changed: (user) => {
+                        if (user?.extId?.startsWith(Auth.userID) && user?.loggedOut) {
+                          rejoinAudio();
+                        }
+                      }
+                    })
+                  })
                 }}
                 disabled={disable}
                 className={styles.joinButton}
