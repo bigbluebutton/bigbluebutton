@@ -26,6 +26,7 @@ const NotificationsBar = (props) => {
 
   return (
     <Styled.NotificationsBar
+      data-test="notificationBannerBar"
       role={alert ? 'alert' : ''}
       aria-live="off"
       style={

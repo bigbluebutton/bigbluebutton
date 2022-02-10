@@ -2,13 +2,14 @@ package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.LockSettingsUtil
-import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, ConfVoiceUser, MessageTypes, Routing, UserJoinedVoiceConfToClientEvtMsg, UserJoinedVoiceConfToClientEvtMsgBody, UserLeftVoiceConfToClientEvtMsg, UserLeftVoiceConfToClientEvtMsgBody, UserMutedVoiceEvtMsg, UserMutedVoiceEvtMsgBody }
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.bus.InternalEventBus
-import org.bigbluebutton.core.models.{ Users2x, VoiceUserState, VoiceUsers }
-import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core.models._
+import org.bigbluebutton.core.apps.users.UsersApp
 
 object VoiceApp extends SystemConfiguration {
 
@@ -152,20 +153,22 @@ object VoiceApp extends SystemConfiguration {
               }
             }
           case None =>
-            handleUserJoinedVoiceConfEvtMsg(
-              liveMeeting,
-              outGW,
-              eventBus,
-              liveMeeting.props.voiceProp.voiceConf,
-              cvu.intId,
-              cvu.voiceUserId,
-              cvu.callingWith,
-              cvu.callerIdName,
-              cvu.callerIdNum,
-              cvu.muted,
-              cvu.talking,
-              cvu.calledInto
-            )
+            if (!cvu.intId.startsWith("v_")) {
+              handleUserJoinedVoiceConfEvtMsg(
+                liveMeeting,
+                outGW,
+                eventBus,
+                liveMeeting.props.voiceProp.voiceConf,
+                cvu.intId,
+                cvu.voiceUserId,
+                cvu.callingWith,
+                cvu.callerIdName,
+                cvu.callerIdNum,
+                cvu.muted,
+                cvu.talking,
+                cvu.calledInto
+              )
+            }
         }
     }
 
@@ -302,6 +305,17 @@ object VoiceApp extends SystemConfiguration {
       outGW
     )
 
+  }
+
+  def removeUserFromVoiceConf(
+      liveMeeting:  LiveMeeting,
+      outGW:        OutMsgRouter,
+      voiceUserId:  String,
+    ): Unit = {
+    val guest = GuestApprovedVO(voiceUserId, GuestStatus.DENY)
+      UsersApp.approveOrRejectGuest(liveMeeting, outGW, guest, SystemUser.ID)
+      val event = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf, voiceUserId)
+      outGW.send(event)
   }
 
   def handleUserLeftVoiceConfEvtMsg(

@@ -61,6 +61,7 @@ case class GetCamBroadcastPermissionReqMsg(
 case class GetCamBroadcastPermissionReqMsgBody(
     meetingId:    String,
     userId:       String,
+    streamId:     String,
     sfuSessionId: String
 )
 
@@ -74,6 +75,7 @@ case class GetCamBroadcastPermissionRespMsg(
 case class GetCamBroadcastPermissionRespMsgBody(
     meetingId:    String,
     userId:       String,
+    streamId:     String,
     sfuSessionId: String,
     allowed:      Boolean
 )

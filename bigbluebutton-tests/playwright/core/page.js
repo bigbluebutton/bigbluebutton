@@ -38,6 +38,7 @@ class Page {
 
     if (!isModerator) this.initParameters.moderatorPW = '';
     if (fullName) this.initParameters.fullName = fullName;
+    this.username = this.initParameters.fullName;
 
     this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, customParameter);
     const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, customParameter);
@@ -65,14 +66,14 @@ class Page {
     await this.waitAndClick(e.logout);
   }
 
-  async shareWebcam(shouldConfirmSharing, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
+  async shareWebcam(shouldConfirmSharing = true, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
     await this.waitAndClick(e.joinVideo);
     if (shouldConfirmSharing) {
       await this.waitForSelector(e.videoPreview, videoPreviewTimeout);
       await this.waitAndClick(e.startSharingWebcam);
     }
     await this.waitForSelector(e.webcamConnecting);
-    await this.waitForSelector(e.webcamVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
   }
 
@@ -113,6 +114,10 @@ class Page {
     await this.page.click(selector, { timeout });
   }
 
+  async clickOnLocator(locator, timeout = ELEMENT_WAIT_TIME) {
+    await locator.click({ timeout });
+  }
+
   async checkElement(selector, index = 0) {
     return this.page.evaluate(checkElement, [selector, index]);
   }
@@ -125,6 +130,16 @@ class Page {
   async hasElement(selector, timeout = ELEMENT_WAIT_TIME) {
     const locator = this.getLocator(selector);
     await expect(locator).toBeVisible({ timeout });
+  }
+
+  async hasElementDisabled(selector, timeout = ELEMENT_WAIT_TIME) {
+    const locator = this.getLocator(selector);
+    await expect(locator).toBeDisabled({ timeout });
+  }
+
+  async hasElementEnabled(selector, timeout = ELEMENT_WAIT_TIME) {
+    const locator = this.getLocator(selector);
+    await expect(locator).toBeEnabled({ timeout });
   }
 
   async hasText(selector, text, timeout = ELEMENT_WAIT_TIME) {

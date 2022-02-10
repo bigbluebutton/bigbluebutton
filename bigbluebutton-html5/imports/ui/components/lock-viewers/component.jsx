@@ -3,7 +3,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Toggle from '/imports/ui/components/switch/component';
 import NotesService from '/imports/ui/components/notes/service';
-import Button from '/imports/ui/components/button/component';
 import Styled from './styles';
 
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
@@ -197,6 +196,7 @@ class LockViewersComponent extends Component {
                     ariaLabel={intl.formatMessage(intlMessages.webcamLabel)}
                     showToggleLabel={showToggleLabel}
                     invertColors={invertColors}
+                    data-test="lockShareWebcam"
                   />
                 </Styled.FormElementRight>
               </Styled.Col>
@@ -221,6 +221,7 @@ class LockViewersComponent extends Component {
                     ariaLabel={intl.formatMessage(intlMessages.otherViewersWebcamLabel)}
                     showToggleLabel={showToggleLabel}
                     invertColors={invertColors}
+                    data-test="lockSeeOtherViewersWebcam"
                   />
                 </Styled.FormElementRight>
               </Styled.Col>
@@ -245,6 +246,7 @@ class LockViewersComponent extends Component {
                     ariaLabel={intl.formatMessage(intlMessages.microphoneLable)}
                     showToggleLabel={showToggleLabel}
                     invertColors={invertColors}
+                    data-test="lockShareMicrophone"
                   />
                 </Styled.FormElementRight>
               </Styled.Col>
@@ -272,6 +274,7 @@ class LockViewersComponent extends Component {
                         ariaLabel={intl.formatMessage(intlMessages.publicChatLabel)}
                         showToggleLabel={showToggleLabel}
                         invertColors={invertColors}
+                        data-test="lockPublicChat"
                       />
                     </Styled.FormElementRight>
                   </Styled.Col>
@@ -296,6 +299,7 @@ class LockViewersComponent extends Component {
                         ariaLabel={intl.formatMessage(intlMessages.privateChatLable)}
                         showToggleLabel={showToggleLabel}
                         invertColors={invertColors}
+                        data-test="lockPrivateChat"
                       />
                     </Styled.FormElementRight>
                   </Styled.Col>
@@ -325,6 +329,7 @@ class LockViewersComponent extends Component {
                         ariaLabel={intl.formatMessage(intlMessages.notesLabel)}
                         showToggleLabel={showToggleLabel}
                         invertColors={invertColors}
+                        data-test="lockEditSharedNotes"
                       />
                     </Styled.FormElementRight>
                   </Styled.Col>
@@ -352,6 +357,7 @@ class LockViewersComponent extends Component {
                     ariaLabel={intl.formatMessage(intlMessages.userListLabel)}
                     showToggleLabel={showToggleLabel}
                     invertColors={invertColors}
+                    data-test="lockUserList"
                   />
                 </Styled.FormElementRight>
               </Styled.Col>
@@ -360,13 +366,11 @@ class LockViewersComponent extends Component {
         </Styled.Container>
         <Styled.Footer>
           <Styled.Actions>
-            <Button
-              className={styles.buttonCancel}
+            <Styled.ButtonCancel
               label={intl.formatMessage(intlMessages.buttonCancel)}
               onClick={closeModal}
             />
-            <Button
-              className={styles.buttonApply}
+            <Styled.ButtonApply
               color="primary"
               label={intl.formatMessage(intlMessages.buttonApply)}
               onClick={() => {
@@ -374,6 +378,7 @@ class LockViewersComponent extends Component {
                 updateWebcamsOnlyForModerator(usersProp.webcamsOnlyForModerator);
                 closeModal();
               }}
+              data-test="applyLockSettings"
             />
           </Styled.Actions>
         </Styled.Footer>

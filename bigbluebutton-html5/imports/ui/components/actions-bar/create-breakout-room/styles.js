@@ -208,6 +208,7 @@ const AssignBtns = styled(Button)`
 
 const CheckBoxesContainer = styled(FlexRow)`
   margin-top: 2rem;
+  margin-bottom: 0.25rem;
 `;
 
 const FreeJoinCheckbox = styled.input`

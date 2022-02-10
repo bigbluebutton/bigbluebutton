@@ -108,12 +108,6 @@ const TalkingIndicatorButton = styled(Button)`
     }
   `}
 
-  ${({ mobileHide }) => mobileHide && `
-    @media ${smallOnly} {
-      visibility: hidden;
-    }
-  `}
-
   ${({ isViewer }) => isViewer && `
     cursor: default;
   `}

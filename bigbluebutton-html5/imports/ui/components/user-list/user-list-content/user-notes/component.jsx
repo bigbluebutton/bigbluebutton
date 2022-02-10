@@ -128,7 +128,7 @@ class UserNotes extends Component {
     return (
       <Styled.Messages>
         <Styled.Container>
-          <Styled.SmallTitle>
+          <Styled.SmallTitle data-test="notesTitle">
             {intl.formatMessage(intlMessages.title)}
           </Styled.SmallTitle>
         </Styled.Container>

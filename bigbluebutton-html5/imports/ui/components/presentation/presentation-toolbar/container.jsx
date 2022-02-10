@@ -9,6 +9,7 @@ import PresentationToolbar from './component';
 import PresentationToolbarService from './service';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
+import FullscreenService from '/imports/ui/components/fullscreen-button/service';
 
 const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
 
@@ -20,6 +21,8 @@ const PresentationToolbarContainer = (props) => {
 
   const { layoutSwapped } = props;
 
+  const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
+
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
 
@@ -27,6 +30,9 @@ const PresentationToolbarContainer = (props) => {
       <PresentationToolbar
         {...props}
         amIPresenter={userIsPresenter}
+        {...{
+          handleToggleFullScreen,
+        }}
       />
     );
   }

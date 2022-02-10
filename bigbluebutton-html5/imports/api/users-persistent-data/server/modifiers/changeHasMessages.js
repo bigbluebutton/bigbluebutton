@@ -1,5 +1,5 @@
 import Logger from '/imports/startup/server/logger';
-import Users from '/imports/api/users';
+import UsersPersistentData from '/imports/api/users-persistent-data';
 
 export default function changeHasMessages(hasMessages, userId, meetingId) {
   const selector = {
@@ -9,12 +9,12 @@ export default function changeHasMessages(hasMessages, userId, meetingId) {
 
   const modifier = {
     $set: {
-      hasMessages,
+      'shouldPersist.hasMessages': hasMessages,
     },
   };
 
   try {
-    const numberAffected = Users.update(selector, modifier);
+    const numberAffected = UsersPersistentData.update(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Changed hasMessages=${hasMessages} id=${userId} meeting=${meetingId}`);

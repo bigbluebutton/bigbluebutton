@@ -29,7 +29,7 @@ const Toast = ({
   content,
   small,
 }) => (
-  <Styled.ToastContainer small={small}>
+  <Styled.ToastContainer small={small} data-test="toastContainer">
     <Styled.Toast type={type}>
       <Styled.ToastIcon small={small}>
         <Icon iconName={icon || defaultIcons[type]} />

@@ -196,7 +196,7 @@ class RecordingIndicator extends PureComponent {
         {record
           ? <Styled.PresentationTitleSeparator aria-hidden>|</Styled.PresentationTitleSeparator>
           : null}
-        <Styled.RecordingIndicator>
+        <Styled.RecordingIndicator data-test="recordingIndicator">
           {showButton
             ? recordingButton
             : null}

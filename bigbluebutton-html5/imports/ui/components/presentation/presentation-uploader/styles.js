@@ -430,6 +430,7 @@ const ModalHeader = styled.div`
 const ActionWrapper = styled.div`
   display: flex;
   align-items: center;
+  margin: 0 0.25rem;
 `;
 
 const DismissButton = styled(Button)`

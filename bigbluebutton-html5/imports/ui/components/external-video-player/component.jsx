@@ -173,6 +173,11 @@ class VideoPlayer extends Component {
         value: true,
       });
     }
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+      value: true,
+    });
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -215,6 +220,11 @@ class VideoPlayer extends Component {
     clearTimeout(this.autoPlayTimeout);
 
     this.player = null;
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+      value: false,
+    });
 
     if (hidePresentation) {
       layoutContextDispatch({
