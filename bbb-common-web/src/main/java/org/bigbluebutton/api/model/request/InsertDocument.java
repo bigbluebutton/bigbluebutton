@@ -9,8 +9,7 @@ import java.util.Map;
 public class InsertDocument extends RequestWithChecksum<InsertDocument.Params> {
 
     public enum Params implements RequestParameters {
-        MEETING_ID("meetingID"),
-        PASSWORD("password");
+        MEETING_ID("meetingID");
 
         private final String value;
 
@@ -21,9 +20,6 @@ public class InsertDocument extends RequestWithChecksum<InsertDocument.Params> {
 
     @MeetingIDConstraint
     private String meetingID;
-
-    @PasswordConstraint
-    private String password;
 
     public InsertDocument(Checksum checksum) {
         super(checksum);
@@ -37,17 +33,8 @@ public class InsertDocument extends RequestWithChecksum<InsertDocument.Params> {
         this.meetingID = meetingID;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     @Override
     public void populateFromParamsMap(Map<String, String[]> params) {
         if(params.containsKey(Params.MEETING_ID.getValue())) setMeetingID(params.get(Params.MEETING_ID.getValue())[0]);
-        if(params.containsKey(Params.PASSWORD.getValue())) setPassword(params.get(Params.PASSWORD.getValue())[0]);
     }
 }
