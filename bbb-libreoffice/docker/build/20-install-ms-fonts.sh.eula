@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+
+# You must read and accept Microsofts EULA before installing Microsoft fonts.
+# Remove the `.eula` extention from this file and rebuild the docker image if
+# you know what you are doing.
+
+apk add msttcorefonts-installer
+update-ms-fonts
+fc-cache -s

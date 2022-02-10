@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-apk add fontconfig msttcorefonts-installer \
+apk add fontconfig \
     terminus-font ttf-inconsolata ttf-dejavu ttf-liberation ttf-font-awesome terminus-font font-arabic-misc \
     font-misc-cyrillic font-mutt-misc font-screen-cyrillic font-winitzki-cyrillic font-cronyx-cyrillic \
     font-noto font-noto-adlam font-noto-adlamunjoined font-noto-all font-noto-arabic font-noto-armenian font-noto-avestan font-noto-bamum font-noto-bengali \
@@ -11,5 +11,4 @@ apk add fontconfig msttcorefonts-installer \
     font-noto-mandaic font-noto-myanmar font-noto-nko font-noto-olchiki font-noto-oldturkic font-noto-oriya font-noto-osage font-noto-osmanya font-noto-shavian \
     font-noto-sinhala font-noto-tamil font-noto-telugu font-noto-thaana font-noto-thai font-noto-tibetan font-noto-tifinagh font-noto-vai
 
-update-ms-fonts
-fc-cache -f -s -v
+fc-cache -s
