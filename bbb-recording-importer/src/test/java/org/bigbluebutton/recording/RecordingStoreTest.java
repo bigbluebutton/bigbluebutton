@@ -3,6 +3,8 @@ package org.bigbluebutton.recording;
 import org.bigbluebutton.api.model.entity.Recording;
 import org.bigbluebutton.api.util.DataStore;
 import org.junit.jupiter.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.List;
@@ -12,6 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class RecordingStoreTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(RecordingStoreTest.class);
 
     private String metadataDirectory = "./metadata";
     private final RecordingImportHandler handler = RecordingImportHandler.getInstance();
@@ -31,6 +35,11 @@ public class RecordingStoreTest {
         List<Recording> recordings = dataStore.findAll(Recording.class);
         String[] entries = new File(metadataDirectory).list();
 
+        if (entries == null || entries.length == 0) {
+            logger.info("No recordings were found in {}", new File(metadataDirectory).getAbsolutePath());
+            return;
+        }
+
         assertTrue(recordings != null);
         assertEquals(entries.length, recordings.size());
     }
@@ -41,6 +50,11 @@ public class RecordingStoreTest {
     public void testFind() {
         dataStore = DataStore.getInstance();
         String[] entries = new File(metadataDirectory).list();
+
+        if (entries == null || entries.length == 0) {
+            logger.info("No recordings were found in {}", new File(metadataDirectory).getAbsolutePath());
+            return;
+        }
 
         for (String entry : entries) {
             Recording recording = dataStore.findRecordingByRecordId(entry);

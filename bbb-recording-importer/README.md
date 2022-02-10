@@ -17,5 +17,5 @@ Imports and parses recordings metadata.xml files and stores the data in a Postgr
    - To use the main program compile it with "mvn package" which will generate two jars in the target directory
    - The program accepts two arguments: the path to the directory containing metadata files and boolean value to determine if the parsed recordings
      should be persisted or not
-   - Run the program with the command "java -jar target/bbb-recording-importer-1.0-SNAPSHOT-shaded.jar arg1 arg2"
+   - Run the program with the run.sh script
  

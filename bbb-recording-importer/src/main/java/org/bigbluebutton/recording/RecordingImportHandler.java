@@ -50,7 +50,8 @@ public class RecordingImportHandler {
 
         for (String entry : entries) {
             Recording recording = dataStore.findRecordingByRecordId(entry);
-            if (recording != null) {
+            if (recording != null && persist) {
+                logger.info("Record found for {}. Skipping", entry);
                 continue;
             }
 

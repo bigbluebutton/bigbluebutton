@@ -1,3 +1,4 @@
+#!/bin/bash
 . .env
 mkdir -p ./src/main/resources
 echo '<!DOCTYPE hibernate-configuration PUBLIC
@@ -15,8 +16,11 @@ echo '<!DOCTYPE hibernate-configuration PUBLIC
           <property name="connection.password">'"$POSTGRES_PASSWORD"'</property>
 
 
-          <!-- JDBC connection pool settings ... using built-in test pool -->
-          <property name="connection.pool_size">1</property>
+          <!-- JDBC connection pool settings -->
+          <property name="hibernate.connection.provider_class">com.zaxxer.hikari.hibernate.HikariConnectionProvider</property>
+          <property name="hibernate.hikari.minimumIdle">5</property>
+          <property name="hibernate.hikari.maximumPoolSize">10</property>
+          <property name="hibernate.hikari.idleTimeout">30000</property>
 
           <!-- Select our SQL dialect -->
           <property name="dialect">org.hibernate.dialect.PostgreSQL10Dialect</property>
