@@ -30,6 +30,7 @@ exports.echoYesButton = 'button[data-test="echoYesBtn"]';
 exports.connectingToEchoTest = 'span[data-test="connectingToEchoTest"]';
 exports.isTalking = 'button[data-test="isTalking"]';
 exports.talkingIndicator = 'div[data-test="talkingIndicator"]';
+exports.toggleMicrophoneButton = 'button[data-test="toggleMicrophoneButton"]';
 
 // Breakout
 exports.createBreakoutRooms = 'li[data-test="createBreakoutRooms"]';
@@ -56,12 +57,14 @@ exports.chatTitle = 'div[data-test="chatTitle"]';
 exports.startPrivateChat = 'li[data-test="startPrivateChat"]';
 exports.publicChat = 'div[data-test="publicChat"]';
 exports.privateChat = 'div[data-test="privateChat"]';
+exports.hidePublicChat = 'button[data-test="hidePublicChat"]';
 exports.hidePrivateChat = 'button[data-test="hidePrivateChat"]';
 exports.typingIndicator = 'span[data-test="typingIndicator"]';
 exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
 exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
 // Messages
 exports.message = 'Hello World!';
+exports.testMessage = 'Just a test';
 exports.message1 = 'Hello User2';
 exports.message2 = 'Hello User1';
 exports.publicMessage1 = 'This is a Public Message from User1';
@@ -85,7 +88,10 @@ exports.userslist = 'div[data-test="userList"]';
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';
 exports.hideNoteLabel = 'button[data-test="hideNoteLabel"]';
-exports.etherpad = 'iframe[title="etherpad"]';
+exports.etherpadFrame = 'iframe[title="etherpad"]';
+exports.etherpadOuter = 'iframe[title="Ether"]';
+exports.etherpadInner = 'iframe[title="pad"]';
+exports.etherpadEditable = 'body[id="innerdocbody"]';
 
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
@@ -174,6 +180,11 @@ exports.statingUploadPresentationToast = 'To be uploaded ...';
 exports.convertingPresentationFileToast = 'Converting file';
 exports.presentationUploadedToast = 'Current presentation';
 
+// Settings
+exports.languageSelector = 'select[id="langSelector"]';
+exports.messageTitle = 'h2[data-test="messageTitle"]';
+exports.notesTitle = 'h2[data-test="notesTitle"]';
+
 // User
 exports.userAvatar = 'div[data-test="userAvatar"]';
 exports.applauseIcon = `${this.userAvatar} > div > i[class="icon-bbb-applause"]`;
@@ -205,6 +216,17 @@ exports.joinMeetingDemoPage = 'div[class^="join-meeting"]';
 exports.askModerator = 'button[data-test="askModerator"]';
 exports.alwaysAccept = 'button[data-test="alwaysAccept"]';
 exports.alwaysDeny = 'button[data-test="alwaysDeny"]';
+// Lock Viewers
+exports.lockViewersButton = 'li[data-test="lockViewersButton"]';
+exports.unlockUserButton = 'li[data-test="unlockUserButton"]';
+exports.applyLockSettings ='button[data-test="applyLockSettings"]';
+exports.lockShareWebcam = 'input[data-test="lockShareWebcam"]';
+exports.lockSeeOtherViewersWebcam = 'input[data-test="lockSeeOtherViewersWebcam"]';
+exports.lockShareMicrophone = 'input[data-test="lockShareMicrophone"]';
+exports.lockPublicChat = 'input[data-test="lockPublicChat"]';
+exports.lockPrivateChat = 'input[data-test="lockPrivateChat"]';
+exports.lockEditSharedNotes = 'input[data-test="lockEditSharedNotes"]';
+exports.lockUserList = 'input[data-test="lockUserList"]';
 
 // Locales
 exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
@@ -221,10 +243,12 @@ exports.leaveVideo = 'button[data-test="leaveVideo"]';
 exports.videoPreview = 'video[data-test="videoPreview"]';
 exports.startSharingWebcam = 'button[data-test="startSharingWebcam"]';
 exports.webcamConnecting = 'div[data-test="webcamConnecting"]';
-exports.webcamVideo = 'video[data-test="videoContainer"]';
-exports.videoContainer = 'div[data-test="webcamList"]';
+exports.webcamContainer = 'video[data-test="videoContainer"]';
+exports.webcamVideoItem = 'div[data-test="webcamVideoItem"]';
+
 exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';
 exports.webcamSettingsModal = 'div[data-test="webcamSettingsModal"]';
+exports.dropdownWebcamButton = 'div[data-test="dropdownWebcamButton"]';
 exports.webcamMirroredVideoPreview = 'video[data-test="mirroredVideoPreview"]';
 
 // Whiteboard

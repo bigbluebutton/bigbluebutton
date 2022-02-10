@@ -2,9 +2,7 @@ package org.bigbluebutton.core2.message.handlers.guests
 
 import org.bigbluebutton.common2.msgs.{ GuestApprovedVO, GuestsWaitingApprovedMsg }
 import org.bigbluebutton.core.apps.users.UsersApp
-import org.bigbluebutton.core.apps.voice.VoiceApp
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
@@ -14,7 +12,6 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers with RightsManagementT
 
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
-  val eventBus: InternalEventBus
 
   def handleGuestsWaitingApprovedMsg(msg: GuestsWaitingApprovedMsg): Unit = {
     if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
@@ -27,32 +24,6 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers with RightsManagementT
           // Remove guest from waiting list
           _ <- GuestsWaiting.remove(liveMeeting.guestsWaiting, g.guest)
         } yield {
-          if (g.guest.startsWith("v_")) {
-            Users2x.findWithIntId(liveMeeting.users2x, g.guest) match {
-              case Some(dialInUser) =>
-                if (g.status == GuestStatus.ALLOW) {
-                  VoiceApp.handleUserJoinedVoiceConfEvtMsg(
-                    liveMeeting,
-                    outGW,
-                    eventBus,
-                    liveMeeting.props.voiceProp.voiceConf,
-                    g.guest,
-                    dialInUser.extId,
-                    "none",
-                    dialInUser.name,
-                    dialInUser.name,
-                    false,
-                    false,
-                    "freeswitch"
-                  )
-                } else {
-                  VoiceApp.removeUserFromVoiceConf(liveMeeting, outGW, dialInUser.extId)
-                  val event = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf, g.guest)
-                  outGW.send(event)
-                }
-              case None => None
-            }
-          }
           UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, msg.body.approvedBy)
         }
       }

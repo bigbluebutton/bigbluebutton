@@ -127,7 +127,7 @@ class UserNotes extends Component {
     return (
       <div className={styles.messages}>
         <div className={styles.container}>
-          <h2 className={styles.smallTitle}>
+          <h2 className={styles.smallTitle} data-test="notesTitle">
             {intl.formatMessage(intlMessages.title)}
           </h2>
         </div>

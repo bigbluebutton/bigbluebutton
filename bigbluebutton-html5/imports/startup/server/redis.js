@@ -49,7 +49,7 @@ class MeetingMessageQueue {
   constructor(eventEmitter, asyncMessages = [], redisDebugEnabled = false) {
     this.asyncMessages = asyncMessages;
     this.emitter = eventEmitter;
-    this.queue = queue({ autostart: true });
+    this.queue = queue({ autostart: true, concurrency: 1 });
     this.redisDebugEnabled = redisDebugEnabled;
 
     this.handleTask = this.handleTask.bind(this);

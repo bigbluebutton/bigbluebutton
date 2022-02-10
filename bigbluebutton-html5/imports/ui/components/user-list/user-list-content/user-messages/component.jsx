@@ -124,7 +124,7 @@ class UserMessages extends PureComponent {
         <div className={styles.container}>
           {
             !compact ? (
-              <h2 className={styles.smallTitle}>
+              <h2 className={styles.smallTitle} data-test="messageTitle">
                 {intl.formatMessage(intlMessages.messagesTitle)}
               </h2>
             ) : (
