@@ -55,6 +55,7 @@ public class Meeting {
 	private int learningDashboardCleanupDelayInMinutes;
 	private String learningDashboardAccessToken;
 	private Boolean virtualBackgroundsDisabled;
+	private ArrayList<String> disabledFeatures;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
 	private String modOnlyMessage = "";
@@ -118,6 +119,7 @@ public class Meeting {
         moderatorPass = builder.moderatorPass;
 		learningDashboardEnabled = builder.learningDashboardEnabled;
 		virtualBackgroundsDisabled = builder.virtualBackgroundsDisabled;
+		disabledFeatures = builder.disabledFeatures;
 		learningDashboardCleanupDelayInMinutes = builder.learningDashboardCleanupDelayInMinutes;
 		learningDashboardAccessToken = builder.learningDashboardAccessToken;
         maxUsers = builder.maxUsers;
@@ -348,6 +350,10 @@ public class Meeting {
 
 	public Boolean getVirtualBackgroundsDisabled() {
 		return virtualBackgroundsDisabled;
+	}
+
+	public ArrayList<String> getDisabledFeatures() {
+		return disabledFeatures;
 	}
 
   public String getWelcomeMessageTemplate() {
@@ -765,6 +771,7 @@ public class Meeting {
     	private int learningDashboardCleanupDelayInMinutes;
     	private String learningDashboardAccessToken;
 		private Boolean virtualBackgroundsDisabled;
+		private ArrayList<String> disabledFeatures;
     	private int duration;
     	private String webVoice;
     	private String telVoice;
@@ -874,6 +881,11 @@ public class Meeting {
 
 		public Builder withVirtualBackgroundsDisabled(Boolean d) {
 			this.virtualBackgroundsDisabled = d;
+			return this;
+		}
+
+		public Builder withDisabledFeatures(ArrayList<String> list) {
+			this.disabledFeatures = list;
 			return this;
 		}
 
