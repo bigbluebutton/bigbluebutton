@@ -46,6 +46,16 @@ class PrivateChat extends MultiUsers {
     const userChatCount = await this.userPage.getSelectorCount(e.chatButton);
     expect(userChatCount).toBe(2);
   }
+
+  async chatDisabledUserLeaves() {
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.startPrivateChat);
+    await this.modPage.waitForSelector(e.sendButton);
+    await this.userPage.waitAndClick(e.optionsButton);
+    await this.userPage.waitAndClick(e.logout);
+    await this.modPage.hasElementDisabled(e.chatBox);
+    await this.modPage.hasElementDisabled(e.sendButton);
+  }
 }
 
 exports.PrivateChat = PrivateChat; 
