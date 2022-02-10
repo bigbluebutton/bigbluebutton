@@ -299,8 +299,8 @@ class PresentationUploader extends Component {
 
       this.setState({
         presentations: Object.values({
-          ...propPresentations,
           ...presentations,
+          ...propPresentations,
         }),
       });
     }
@@ -345,6 +345,7 @@ class PresentationUploader extends Component {
       return {
         file,
         isDownloadable: false, // by default new presentations are set not to be downloadable
+        isRemovable: true,
         id,
         filename: file.name,
         isCurrent: false,

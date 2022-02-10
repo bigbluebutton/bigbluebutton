@@ -53,7 +53,7 @@ export default function setCurrentPresentation(meetingId, podId, presentationId)
 
   if (oldPresentation) {
     try{
-      Presentations.update(oldCurrent.selector, oldCurrent.modifier);
+      Presentations.update(oldCurrent.selector, oldCurrent.modifier, {multi: true});
     } catch(e){
       oldCurrent.callback(e);
     }

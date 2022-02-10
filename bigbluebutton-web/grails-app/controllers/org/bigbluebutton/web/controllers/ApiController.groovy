@@ -1292,43 +1292,43 @@ class ApiController {
               break
             }
           }
-          Boolean current = !hasCurrent;
+          Boolean foundCurrent = !hasCurrent;
           int lastIndex = module.children().size() - 1
           module.children().eachWithIndex { document, index ->
             def Boolean isCurrent = false;
+            def Boolean isRemovable = true;
+            def Boolean isDownloadable = false;
             if (index == 0 && !hasCurrent){
               isCurrent = true
             }
+
+            // Extracting all properties inside the xml
+            if (!StringUtils.isEmpty(document.@removable.toString())) {
+              isRemovable = java.lang.Boolean.parseBoolean(document.@removable.toString());
+            }
+            if (!StringUtils.isEmpty(document.@downloadable.toString())) {
+              isDownloadable = java.lang.Boolean.parseBoolean(document.@downloadable.toString());
+            }
+            // I need to make sure that only one of the documents is going to be the current.
+            if (!StringUtils.isEmpty(document.@current.toString()) && !foundCurrent) {
+              isCurrent = java.lang.Boolean.parseBoolean(document.@current.toString());
+              foundCurrent = isCurrent;
+            }
+
+            // Verifying whether the document is a base64 encoded or a url to download.
             if (!StringUtils.isEmpty(document.@url.toString())) {
               def fileName;
-              def Boolean isRemovable = true;
-              def Boolean isDownloadable = false;
               if (!StringUtils.isEmpty(document.@filename.toString())) {
                 log.debug("user provided filename: [${module.@filename}]");
                 fileName = document.@filename.toString();
-                if (!StringUtils.isEmpty(document.@removable.toString())) {
-                  isRemovable = java.lang.Boolean.parseBoolean(document.@removable.toString());
-                }
-                if (!StringUtils.isEmpty(document.@downloadable.toString())) {
-                  isDownloadable = java.lang.Boolean.parseBoolean(document.@downloadable.toString());
-                }
-                // I need to make sure that only one of the documents is going to be the current.
-                if (!StringUtils.isEmpty(document.@current.toString()) && !current) {
-                  isCurrent = java.lang.Boolean.parseBoolean(document.@current.toString());
-                  current = isCurrent;
-                }
               }
               downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
                       fileName, isDownloadable, isRemovable);
             } else if (!StringUtils.isEmpty(document.@name.toString())) {
-              if (!StringUtils.isEmpty(document.@current.toString()) && !current) {
-                isCurrent = java.lang.Boolean.parseBoolean(document.@current.toString());
-                current = isCurrent;
-              }
               def b64 = new Base64()
               def decodedBytes = b64.decode(document.text().getBytes())
               processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                  conf.getInternalId(), isCurrent /* default presentation */);
+                  conf.getInternalId(), isCurrent , isDownloadable, isRemovable/* default presentation */);
             } else {
               log.debug("presentation module config found, but it did not contain url or name attributes");
             }
@@ -1338,7 +1338,7 @@ class ApiController {
     }
   }
 
-  def processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current) {
+  def processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable) {
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
 
@@ -1383,8 +1383,8 @@ class ApiController {
               "preupload-raw-authz-token",
               uploadFailed,
               uploadFailReasons,
-              false,
-              true
+              isDownloadable,
+              isRemovable
     )
   }
 
