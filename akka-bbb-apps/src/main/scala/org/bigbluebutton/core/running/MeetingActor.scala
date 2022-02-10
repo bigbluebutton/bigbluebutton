@@ -750,6 +750,8 @@ class MeetingActor(
 
   def handleMakePresentationWithAnnotationDownloadReqMsg(m: MakePresentationWithAnnotationDownloadReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
 
+    val meetingId = liveMeeting.props.meetingProp.intId
+
     // Whiteboard ID
     val presId: String = m.body.presId match {
       case "" => getMeetingInfoPresentationDetails().id
@@ -791,13 +793,15 @@ class MeetingActor(
 
     // 2) Insert Export Job in Redis
     val jobType = "PresentationWithAnnotationDownloadJob"
-    val presLocation = s"/var/bigbluebutton/${presId}"
+    val presLocation = s"/var/bigbluebutton/${meetingId}/${meetingId}/${presId}/svgs"
     val exportJob = new ExportJob(jobId, jobType, presId, presLocation, allPages, pagesRange, "", "")
     var job = buildStoreExportJobInRedisSysMsg(exportJob)
     outGW.send(job)
   }
 
   def handleExportPresentationWithAnnotationReqMsg(m: ExportPresentationWithAnnotationReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
+
+    val meetingId = liveMeeting.props.meetingProp.intId
 
     val userId = m.header.userId
     val presId: String = getMeetingInfoPresentationDetails.id

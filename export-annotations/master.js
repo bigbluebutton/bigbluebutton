@@ -37,7 +37,7 @@ function sleep(ms) {
     while (true) {
         await sleep(config.redis.interval);
         
-        var job = await client.LPOP(config.redis.channels.queue)
+        let job = await client.LPOP(config.redis.channels.queue)
 
         const exportJob = JSON.parse(job);
 

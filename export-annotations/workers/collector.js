@@ -16,8 +16,31 @@ console.log()
 let job = fs.readFileSync(config.shared.presAnnDropboxDir + '/' + jobId);
 let exportJob = JSON.parse(job);
 
-// Collect the annotations from Redis
+// presId
+// pages
+// presLocation
+// jobType
 
-// Collect the Presentation Page files from the presentation dir
+// Collect the annotations from Redis
+(async () => {
+    const client = redis.createClient({
+        host: config.redis.host,
+        port: config.redis.port,
+        password: config.redis.password
+      });
+  
+    client.on('error', (err) => logger.info('Redis Client Error', err));
+
+    await client.connect();
+
+    let presAnn = await client.hGetAll(exportJob.jobId);
+    const annotations = JSON.parse(JSON.stringify(presAnn));
+    
+    // Drop annotations as JSON in the dropbox
+    console.log(annotations)
+})()
+
+// Collect the Presentation Page files from the presentation directory
+
 
 parentPort.postMessage({ message: workerData })
