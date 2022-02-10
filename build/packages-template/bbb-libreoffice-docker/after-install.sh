@@ -12,7 +12,7 @@ fi
 	echo "#"
 	echo "# Building bbb-libreoffice docker image"
 	echo "#"
-	docker build -t bbb-soffice docker/
+	docker build --pull -t bbb-soffice docker/
 #fi
 
 

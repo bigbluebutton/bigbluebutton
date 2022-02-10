@@ -23,13 +23,8 @@ else
 	echo "Docker already installed";
 fi
 
-IMAGE_CHECK=`docker image inspect bbb-soffice &> /dev/null && echo 1 || echo 0`
-if [ "$IMAGE_CHECK"  = "0" ]; then
-	echo "Docker image doesn't exists, building"
-	docker build -t bbb-soffice docker/
-else
-	echo "Docker image already exists";
-fi
+# Always pull and build a new images if install-local.sh is called explicitly.
+docker build --pull -t bbb-soffice docker/
 
 FOLDER_CHECK=`[ -d /usr/share/bbb-libreoffice-conversion/ ] && echo 1 || echo 0`
 if [ "$FOLDER_CHECK" = "0" ]; then
@@ -53,21 +48,3 @@ if [ "$FILE_SUDOERS_CHECK" = "0" ]; then
 else
 	echo "Sudoers file already exists"
 fi;
-
-aptInstalledList=$(apt list --installed 2>&1)
-fontInstalled=0
-
-for font in fonts-arkpandora fonts-crosextra-carlito fonts-crosextra-caladea fonts-noto fonts-noto-cjk fonts-liberation fonts-arkpandora
-do
-	if [[ $(echo $aptInstalledList | grep $font | wc -l) = "0" ]]; then
-		echo "Font $font doesn't exists, installing"
-		apt-get install -y --no-install-recommends $font
-		fontInstalled=1
-	else
-		echo "Font $font already installed"
-	fi
-done
-
-if [ $fontInstalled = "1" ]; then
-	dpkg-reconfigure fontconfig && fc-cache -f -s -v
-fi
