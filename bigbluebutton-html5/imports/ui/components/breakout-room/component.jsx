@@ -15,6 +15,7 @@ import UserListService from '/imports/ui/components/user-list/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
+import { makeCall } from '/imports/ui/services/api';
 import {
   didUserSelectedMicrophone,
   didUserSelectedListenOnly,
@@ -361,24 +362,30 @@ class BreakoutRoom extends PureComponent {
                       },
                     });
 
+                    const logMessage = () => {
+                      logger.warn({
+                        logCode: 'mainroom_audio_rejoin',
+                        extraInfo: { logType: 'user_action' },
+                      }, 'leaving breakout room couldn\'t rejoin audio in the main room');
+                    };
+
                     const rejoinAudio = () => {
                       if (didUserSelectedMicrophone()) {
-                        joinMicrophone().catch(() => {
-                          logger.warn({
-                            logCode: 'mainroom_audio_rejoin',
-                            extraInfo: { logType: 'user_action' },
-                          }, 'leaving breakout room couldn\'t rejoin audio in the main room');
+                        joinMicrophone().then(() => {
+                          makeCall('toggleVoice', null, true).catch(() => {
+                            forceExitAudio();
+                            logMessage();
+                          });
+                        }).catch(() => {
+                          logMessage();
                         });
                       } else if (didUserSelectedListenOnly()) {
                         joinListenOnly().catch(() => {
-                          logger.warn({
-                            logCode: 'mainroom_audio_rejoin',
-                            extraInfo: { logType: 'user_action' },
-                          }, 'leaving breakout room couldn\'t rejoin audio in the main room');
+                          logMessage();
                         });
                       }
                       c.stop();
-                    }
+                    };
 
                     query.observe({
                       added: (user) => {
