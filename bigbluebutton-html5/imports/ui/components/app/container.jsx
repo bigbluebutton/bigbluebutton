@@ -141,9 +141,7 @@ const currentUserEmoji = (currentUser) => (currentUser
 );
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
-  const authTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });
-
-  if (authTokenValidation.connectionId !== Meteor.connection._lastSessionId) {
+  if (Auth.connectionID !== Meteor.connection._lastSessionId) {
     endMeeting('403');
   }
 

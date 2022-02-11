@@ -64,8 +64,6 @@ class TalkingIndicator extends PureComponent {
         [styles.talker]: true,
         [styles.spoke]: !talking,
         [styles.muted]: muted,
-        [styles.mobileHide]: sidebarNavigationIsOpen
-          && sidebarContentIsOpen,
         [styles.isViewer]: !amIModerator,
       };
 
@@ -114,9 +112,6 @@ class TalkingIndicator extends PureComponent {
       const style = {
         [styles.talker]: true,
         [styles.spoke]: nobodyTalking,
-        // [styles.muted]: false,
-        [styles.mobileHide]: sidebarNavigationIsOpen
-          && sidebarContentIsOpen,
       };
 
       const { moreThanMaxIndicatorsTalking, moreThanMaxIndicatorsWereTalking } = intlMessages;
