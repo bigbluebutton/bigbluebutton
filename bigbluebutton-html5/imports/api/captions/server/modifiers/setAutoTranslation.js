@@ -20,7 +20,6 @@ export default function setAutoTranslation(meetingId, locale, autoTranslation) {
 
   try {
     const numberAffected = Captions.update(selector, modifier);
-//console.log("MODIFIER", Captions.findOne({locale, meetingId}));
 
     if (numberAffected) {
       Logger.verbose('Captions: updated pad autoTranslation', { locale });
