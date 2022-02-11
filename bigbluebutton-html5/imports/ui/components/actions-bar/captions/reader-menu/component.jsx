@@ -254,10 +254,10 @@ class ReaderMenu extends PureComponent {
                   {intl.formatMessage(intlMessages.ariaSelectLang)}
                 </div>
                 <select
-                  value={Storage.getItem(CAPTION_LOCALE)}
                   aria-label={intl.formatMessage(intlMessages.ariaSelectLang)}
                   className={styles.select}
                   onChange={this.handleLocaleChange}
+                  defaultValue={Storage.getItem(CAPTION_LOCALE)}
                   lang={locale}
                 >
                   <option
