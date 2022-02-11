@@ -23,6 +23,7 @@ export default function addCaption(meetingId, padId, locale, name) {
     data: '',
     revs: 0,
     length: 0,
+    autoTranslation: false,
   };
 
   try {
