@@ -19,12 +19,12 @@
   <hasBeenForciblyEnded>${meeting.isForciblyEnded()?c}</hasBeenForciblyEnded>
   <startTime>${meeting.getStartTime()?c}</startTime>
   <endTime>${meeting.getEndTime()?c}</endTime>
-  <participantCount>${meeting.getNumUsers()}</participantCount>
-  <listenerCount>${meeting.getNumListenOnly()}</listenerCount>
-  <voiceParticipantCount>${meeting.getNumVoiceJoined()}</voiceParticipantCount>
-  <videoCount>${meeting.getNumVideos()}</videoCount>
-  <maxUsers>${meeting.getMaxUsers()}</maxUsers>
-  <moderatorCount>${meeting.getNumModerators()}</moderatorCount>
+  <participantCount>${meeting.getNumUsers()?c}</participantCount>
+  <listenerCount>${meeting.getNumListenOnly()?c}</listenerCount>
+  <voiceParticipantCount>${meeting.getNumVoiceJoined()?c}</voiceParticipantCount>
+  <videoCount>${meeting.getNumVideos()?c}</videoCount>
+  <maxUsers>${meeting.getMaxUsers()?c}</maxUsers>
+  <moderatorCount>${meeting.getNumModerators()?c}</moderatorCount>
   <attendees>
   <#list meeting.getUsers() as att>
     <attendee>
