@@ -362,6 +362,7 @@
     "app.actionsBar.camOffLabel": "Camera off",
     "app.actionsBar.raiseLabel": "Raise",
     "app.actionsBar.label": "Actions bar",
+    "app.actionsBar.changeCaption": "Switch caption locale",
     "app.actionsBar.actionsDropdown.restorePresentationLabel": "Restore presentation",
     "app.actionsBar.actionsDropdown.restorePresentationDesc": "Button to restore presentation after it has been minimized",
     "app.actionsBar.actionsDropdown.minimizePresentationLabel": "Minimize presentation",
