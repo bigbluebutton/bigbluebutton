@@ -14,7 +14,7 @@ object Dependencies {
     // Libraries
     val akkaVersion = "2.6.17"
     val akkaHttpVersion = "10.2.7"
-    val logback = "1.3.0-alpha10"
+    val logback = "1.2.10"
 
     // Apache Commons
     val lang = "3.12.0"
