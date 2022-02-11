@@ -40,7 +40,7 @@ export default withTracker((props) => {
     getBreakoutAudioTransferStatus,
   } = AudioService;
 
-  const logMessage = () => {
+  const logUserCouldNotRejoinAudio = () => {
     logger.warn({
       logCode: 'mainroom_audio_rejoin',
       extraInfo: { logType: 'user_action' },
@@ -52,14 +52,14 @@ export default withTracker((props) => {
       AudioManager.joinMicrophone().then(() => {
         makeCall('toggleVoice', null, true).catch(() => {
           forceExitAudio();
-          logMessage();
+          logUserCouldNotRejoinAudio();
         });
       }).catch(() => {
-        logMessage();
+        logUserCouldNotRejoinAudio();
       });
     } else if (didUserSelectedListenOnly()) {
       AudioManager.joinListenOnly().catch(() => {
-        logMessage();
+        logUserCouldNotRejoinAudio();
       });
     }
   };
