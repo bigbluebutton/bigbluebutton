@@ -105,7 +105,7 @@ const takeOwnership = (locale) => {
 const appendText = (text, locale) => {
   if (typeof text !== 'string' || text.length === 0) return;
 
-  const formattedText = `${text.trim().replace(/^\w/, (c) => c?.toUpperCase()).replace(/\n+$/, '')}\n`;
+  const formattedText = `${text.trim().replace(/^\w/, (c) => c?.toUpperCase())}\n`;
   const localedAutoTranslated = getLocalesAutoTranslated();
 
   let locales = [locale];
