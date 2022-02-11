@@ -10,7 +10,7 @@ const intlMessages = defineMessages({
 });
 
 const ClosePresentationComponent = ({
-  intl, toggleSwapLayout, layoutContextDispatch, isIphone,
+  intl, setPresentationIsOpen, presentationIsOpen, layoutContextDispatch, isIphone,
 }) => (
   <Styled.CloseButton
     isIphone={isIphone}
@@ -18,7 +18,7 @@ const ClosePresentationComponent = ({
     icon="minus"
     size="sm"
     data-test="hidePresentationButton"
-    onClick={() => toggleSwapLayout(layoutContextDispatch)}
+    onClick={() => { setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen) } }
     label={intl.formatMessage(intlMessages.closePresentationLabel)}
     aria-label={intl.formatMessage(intlMessages.closePresentationLabel)}
     hideLabel

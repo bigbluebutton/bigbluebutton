@@ -78,6 +78,7 @@ const AppContainer = (props) => {
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const captionsStyle = layoutSelectOutput((i) => i.captions);
+  const cameraDock = layoutSelectOutput((i) => i.cameraDock);
   const presentation = layoutSelectInput((i) => i.presentation);
   const layoutType = layoutSelect((i) => i.layoutType);
   const deviceType = layoutSelect((i) => i.deviceType);
@@ -89,8 +90,8 @@ const AppContainer = (props) => {
   const shouldShowPresentation = propsShouldShowPresentation
     && (presentationIsOpen || presentationRestoreOnUpdate);
 
-  const { cameraDock } = output;
-  const { focusedId } = input;
+  const { focusedId } = cameraDock;
+
   // this is not exactly right yet
   let presentationVideoRate;
   if (cameraDock.width > cameraDock.height) {
@@ -252,7 +253,6 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
       'bbb_force_restore_presentation_on_new_events',
       Meteor.settings.public.presentation.restoreOnUpdate,
     ),
-    hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     isModalOpen: !!getModal(),
   };

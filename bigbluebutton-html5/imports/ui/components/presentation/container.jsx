@@ -18,8 +18,7 @@ import {
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { DEVICE_TYPE } from '../layout/enums';
 
-const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props }) => {
-  const { layoutSwapped } = props;
+const PresentationContainer = ({ presentationIsOpen, presentationPodIds, mountPresentation, ...props }) => {
 
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
   const presentation = layoutSelectOutput((i) => i.presentation);
@@ -54,6 +53,7 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
         fullscreenElementId,
         isMobile: deviceType === DEVICE_TYPE.MOBILE,
         isIphone,
+        presentationIsOpen,
       }
       }
     />
@@ -64,7 +64,7 @@ const APP_CONFIG = Meteor.settings.public.app;
 const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 const fetchedpresentation = {};
 
-export default withTracker(({ podId }) => {
+export default withTracker(({ podId, presentationIsOpen }) => {
   const currentSlide = PresentationService.getCurrentSlide(podId);
   const presentationIsDownloadable = PresentationService.isPresentationDownloadable(podId);
 
@@ -115,7 +115,7 @@ export default withTracker(({ podId }) => {
     slidePosition,
     downloadPresentationUri: PresentationService.downloadPresentationUri(podId),
     multiUser: WhiteboardService.hasMultiUserAccess(currentSlide && currentSlide.id, Auth.userID)
-      && !layoutSwapped,
+      && presentationIsOpen,
     presentationIsDownloadable,
     mountPresentation: !!currentSlide,
     currentPresentation: PresentationService.getCurrentPresentation(podId),

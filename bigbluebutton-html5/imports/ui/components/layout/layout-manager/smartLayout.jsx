@@ -448,6 +448,7 @@ const SmartLayout = (props) => {
           left: false,
         },
         zIndex: cameraDockBounds.zIndex,
+        focusedId: input.cameraDock.focusedId,
       },
     });
 

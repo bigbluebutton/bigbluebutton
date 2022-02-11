@@ -42,7 +42,7 @@ const WebcamContainer = ({
         {...{
           swapLayout,
           usersVideo,
-          focusedId,
+          focusedId: cameraDock.focusedId,
           cameraDock,
           cameraOptimalGridSize,
           layoutContextDispatch,
@@ -58,7 +58,7 @@ const WebcamContainer = ({
 
 let userWasInBreakout = false;
 
-export default withModalMounter(withTracker(() => {
+export default withModalMounter(withTracker((props) => {
   const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
   const data = {
     audioModalIsOpen: Session.get('audioModalIsOpen'),
@@ -92,7 +92,7 @@ export default withModalMounter(withTracker(() => {
 
   const { streams: usersVideo } = VideoService.getVideoStreams();
   data.usersVideo = usersVideo;
-  data.swapLayout = !hasPresentation;
+  data.swapLayout = !hasPresentation || !props.presentationIsOpen;
 
   if (data.swapLayout) {
     data.floatingOverlay = true;

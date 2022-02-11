@@ -14,8 +14,8 @@ class ActionsBar extends PureComponent {
       amIPresenter,
       amIModerator,
       enableVideo,
-      isLayoutSwapped,
-      toggleSwapLayout,
+      presentationIsOpen,
+      setPresentationIsOpen,
       handleTakePresenter,
       intl,
       isSharingVideo,
@@ -58,6 +58,7 @@ class ActionsBar extends PureComponent {
             stopExternalVideoShare,
             isMeteorConnected,
             setMeetingLayout,
+            presentationIsOpen,
           }}
           />
           {isCaptionsAvailable
@@ -81,8 +82,8 @@ class ActionsBar extends PureComponent {
         </Styled.Center>
         <Styled.Right>
           <PresentationOptionsContainer
-            isLayoutSwapped={isLayoutSwapped}
-            toggleSwapLayout={toggleSwapLayout}
+            presentationIsOpen={presentationIsOpen}
+            setPresentationIsOpen={setPresentationIsOpen}
             layoutContextDispatch={layoutContextDispatch}
             hasPresentation={isThereCurrentPresentation}
             hasExternalVideo={isSharingVideo}

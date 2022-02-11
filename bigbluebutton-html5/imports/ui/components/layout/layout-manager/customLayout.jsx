@@ -592,6 +592,7 @@ const CustomLayout = (props) => {
             || (isRTL && cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_LEFT),
         },
         zIndex: cameraDockBounds.zIndex,
+        focusedId: input.cameraDock.focusedId,
       },
     });
 

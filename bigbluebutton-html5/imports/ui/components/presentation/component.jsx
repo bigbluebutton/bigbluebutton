@@ -14,7 +14,7 @@ import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import Styled from './styles';
-import MediaService, { shouldEnableSwapLayout } from '../media/service';
+import MediaService from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
@@ -145,10 +145,11 @@ class Presentation extends PureComponent {
     const {
       currentPresentation,
       slidePosition,
-      layoutSwapped,
+      presentationIsOpen,
       currentSlide,
       publishedPoll,
-      toggleSwapLayout,
+      isViewer,
+      setPresentationIsOpen,
       restoreOnUpdate,
       layoutContextDispatch,
       userIsPresenter,
@@ -221,14 +222,14 @@ class Presentation extends PureComponent {
         });
       }
 
-      if (layoutSwapped && restoreOnUpdate && !userIsPresenter && currentSlide) {
+      if (!presentationIsOpen && restoreOnUpdate && !userIsPresenter && currentSlide) {
         const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
         const positionChanged = slidePosition
           .viewBoxHeight !== prevProps.slidePosition.viewBoxHeight
           || slidePosition.viewBoxWidth !== prevProps.slidePosition.viewBoxWidth;
         const pollPublished = publishedPoll && !prevProps.publishedPoll;
         if (slideChanged || positionChanged || pollPublished) {
-          toggleSwapLayout(layoutContextDispatch);
+          setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen);
         }
       }
 
@@ -457,20 +458,20 @@ class Presentation extends PureComponent {
       fullscreenContext,
       layoutContextDispatch,
       isIphone,
+      presentationIsOpen,
     } = this.props;
 
-    if (!OLD_MINIMIZE_BUTTON_ENABLED
-      || !shouldEnableSwapLayout()
-      || isFullscreen
+    if (isFullscreen
       || fullscreenContext
       || layoutType === LAYOUT_TYPE.PRESENTATION_FOCUS) {
       return null;
     }
     return (
       <PresentationCloseButton
-        toggleSwapLayout={MediaService.toggleSwapLayout}
+        setPresentationIsOpen={MediaService.setPresentationIsOpen}
         layoutContextDispatch={layoutContextDispatch}
         isIphone={isIphone}
+        presentationIsOpen={presentationIsOpen}
       />
     );
   }
@@ -550,7 +551,7 @@ class Presentation extends PureComponent {
       currentSlide,
       slidePosition,
       userIsPresenter,
-      layoutSwapped,
+      presentationIsOpen,
     } = this.props;
 
     const {
@@ -608,7 +609,7 @@ class Presentation extends PureComponent {
           width: svgDimensions.width < 0 ? 0 : svgDimensions.width,
           height: svgDimensions.height < 0 ? 0 : svgDimensions.height,
           textAlign: 'center',
-          display: layoutSwapped ? 'none' : 'block',
+          display: !presentationIsOpen ? 'none' : 'block',
         }}
       >
         <Styled.VisuallyHidden id="currentSlideText">{slideContent}</Styled.VisuallyHidden>
@@ -617,7 +618,7 @@ class Presentation extends PureComponent {
         {this.renderPresentationFullscreen()}
         <Styled.PresentationSvg
           key={currentSlide.id}
-          data-test="whiteboard"
+          data-test={!presentationIsOpen ? 'hiddenWhiteboard' : 'whiteboard'}
           width={svgDimensions.width < 0 ? 0 : svgDimensions.width}
           height={svgDimensions.height < 0 ? 0 : svgDimensions.height}
           ref={(ref) => { if (ref != null) { this.svggroup = ref; } }}
@@ -683,7 +684,7 @@ class Presentation extends PureComponent {
       fullscreenElementId,
       fullscreenContext,
       layoutContextDispatch,
-      isLayoutSwapped,
+      presentationIsOpen,
     } = this.props;
     const { zoom, fitToWidth } = this.state;
 
@@ -706,7 +707,7 @@ class Presentation extends PureComponent {
           toolbarWidth,
           fullscreenElementId,
           layoutContextDispatch,
-          isLayoutSwapped,
+          presentationIsOpen,
         }}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}

@@ -424,6 +424,7 @@ const VideoFocusLayout = (props) => {
           left: false,
         },
         zIndex: cameraDockBounds.zIndex,
+        focusedId: input.cameraDock.focusedId,
       },
     });
 

@@ -131,10 +131,6 @@ const LAYERED_BREAKPOINT = 640;
 const isLayeredView = window.matchMedia(`(max-width: ${LAYERED_BREAKPOINT}px)`);
 
 class App extends Component {
-  static renderWebcamsContainer() {
-    return <NewWebcamContainer />;
-  }
-
   constructor(props) {
     super(props);
     this.state = {
@@ -143,7 +139,6 @@ class App extends Component {
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
-    this.renderWebcamsContainer = App.renderWebcamsContainer.bind(this);
 
     this.throttledDeviceType = throttle(() => this.setDeviceType(),
       50, { trailing: true, leading: true }).bind(this);
@@ -165,7 +160,6 @@ class App extends Component {
       cameraPosition,
       presentationIsOpen,
       isRTL,
-      hidePresentation,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -531,7 +525,7 @@ class App extends Component {
       actionsBarStyle,
       hideActionsBar,
       setMeetingLayout,
-      isLayoutSwapped,
+      presentationIsOpen,
     } = this.props;
 
     if (hideActionsBar) return null;
@@ -554,7 +548,7 @@ class App extends Component {
       >
         <ActionsBarContainer
           setMeetingLayout={setMeetingLayout}
-          isLayoutSwapped={isLayoutSwapped}
+          presentationIsOpen={presentationIsOpen}
 	/>
       </Styled.ActionsBar>
     );
@@ -596,6 +590,7 @@ class App extends Component {
       shouldShowExternalVideo,
       isPresenter,
       layoutType,
+      presentationIsOpen,
     } = this.props;
 
     return (
@@ -616,12 +611,12 @@ class App extends Component {
           <SidebarNavigationContainer />
           <SidebarContentContainer />
           <NavBarContainer main="new" />
-          {this.renderWebcamsContainer()}
-          {shouldShowPresentation ? <PresentationAreaContainer isLayoutSwapped={isLayoutSwapped} /> : null}
-          {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={isLayoutSwapped} /> : null}
+          <NewWebcamContainer isLayoutSwapped={!presentationIsOpen} />
+          {shouldShowPresentation ? <PresentationAreaContainer presentationIsOpen={presentationIsOpen} /> : null}
+          {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} /> : null}
           {
             shouldShowExternalVideo
-              ? <ExternalVideoContainer isLayoutSwapped={isLayoutSwapped} isPresenter={isPresenter} />
+              ? <ExternalVideoContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
               : null
           }
           {this.renderCaptions()}

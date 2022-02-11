@@ -51,7 +51,7 @@ export default withTracker(() => ({
   amIModerator: Service.amIModerator(),
   stopExternalVideoShare: ExternalVideoService.stopWatching,
   enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
-  toggleSwapLayout: MediaService.toggleSwapLayout,
+  setPresentationIsOpen: MediaService.setPresentationIsOpen,
   handleTakePresenter: Service.takePresenterRole,
   currentSlidHasContent: PresentationService.currentSlidHasContent(),
   parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,

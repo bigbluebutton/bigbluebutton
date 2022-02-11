@@ -38,16 +38,10 @@ function shouldShowOverlay() {
   return getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
 }
 
-const swapLayout = {
-  value: getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout) || getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
-};
-
-const toggleSwapLayout = (layoutContextDispatch) => {
-  swapLayout.value = !swapLayout.value;
-
+const setPresentationIsOpen = (layoutContextDispatch, value) => {
   layoutContextDispatch({
     type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-    value: !swapLayout.value,
+    value,
   });
 };
 
@@ -58,5 +52,5 @@ export default {
   shouldShowExternalVideo,
   shouldShowOverlay,
   isVideoBroadcasting,
-  toggleSwapLayout,
+  setPresentationIsOpen,
 };
