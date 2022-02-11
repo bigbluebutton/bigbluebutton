@@ -34,7 +34,6 @@ function translateText (padId, index, textOri, src, dst) {
     }).then((response) => {
       const { code, text } = response.data;
       if (code === 200) {
-        //sendToPad(padId, text.replace(/\n+$/,''));
         sendToPad(padId, text);
       } else {
         Logger.error(`Could not get translation for ${textOri}`);
