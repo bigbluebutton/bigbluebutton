@@ -17,6 +17,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
   def handleUserJoinedVoiceConfEvtMsg(msg: UserJoinedVoiceConfEvtMsg): Unit = {
 
     val guestPolicy = GuestsWaiting.getGuestPolicy(liveMeeting.guestsWaiting)
+    val isDialInUser = msg.body.intId.startsWith("v_")
 
     def notifyModeratorsOfGuestWaiting(guest: GuestWaiting, users: Users2x, meetingId: String): Unit = {
       val moderators = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE)
@@ -92,18 +93,22 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
       )
       outGW.send(event)
     } else {
-      if (msg.body.intId.startsWith("v_")) { // Dial-in user (v_*)
+      if (isDialInUser) {
         registerUserInRegisteredUsers()
         registerUserInUsers2x()
-      }
-      guestPolicy match {
-        case GuestPolicy(policy, setBy) => {
-          policy match {
-            case GuestPolicyType.ALWAYS_ACCEPT => letUserEnter()
-            case GuestPolicyType.ALWAYS_DENY   => VoiceApp.removeUserFromVoiceConf(liveMeeting, outGW, msg.body.voiceUserId)
-            case GuestPolicyType.ASK_MODERATOR => registerUserAsGuest()
+        guestPolicy match {
+          case GuestPolicy(policy, setBy) => {
+            policy match {
+              case GuestPolicyType.ALWAYS_ACCEPT => letUserEnter()
+              case GuestPolicyType.ALWAYS_DENY   => VoiceApp.removeUserFromVoiceConf(liveMeeting, outGW, msg.body.voiceUserId)
+              case GuestPolicyType.ASK_MODERATOR => registerUserAsGuest()
+            }
           }
         }
+      } else {
+        // Regular users reach this point after beeing
+        // allowed to join
+        letUserEnter()
       }
     }
   }
