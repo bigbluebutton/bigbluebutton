@@ -9,6 +9,7 @@ import {
   didUserSelectedMicrophone,
   didUserSelectedListenOnly,
 } from '/imports/ui/components/audio/audio-modal/service';
+import { makeCall } from '/imports/ui/services/api';
 
 const BreakoutContainer = (props) => {
   const layoutContext = useContext(LayoutContext);
@@ -51,7 +52,7 @@ export default withTracker((props) => {
     if (didUserSelectedMicrophone()) {
       AudioManager.joinMicrophone().then(() => {
         makeCall('toggleVoice', null, true).catch(() => {
-          forceExitAudio();
+          AudioManager.forceExitAudio();
           logUserCouldNotRejoinAudio();
         });
       }).catch(() => {
