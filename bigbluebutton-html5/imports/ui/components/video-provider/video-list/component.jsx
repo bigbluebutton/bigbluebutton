@@ -104,7 +104,7 @@ class VideoList extends Component {
     } = prevProps;
     const { width: prevCameraDockWidth, height: prevCameraDockHeight } = prevCameraDock;
 
-    const focusedStream = streams.filter((item) => item.stream === focusedId);
+    const focusedStream = streams.filter(s => s.stream === focusedId);
 
     if (layoutType !== prevLayoutType
       || focusedId !== prevFocusedId
@@ -187,7 +187,9 @@ class VideoList extends Component {
 
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
       .getPropertyValue('grid-row-gap'), 10);
-    const hasFocusedItem = numItems > 2 && focusedId;
+
+    const hasFocusedItem = streams.filter(s => s.stream === focusedId).length && numItems > 2;
+
     // Has a focused item so we need +3 cells
     if (hasFocusedItem) {
       numItems += 3;
@@ -304,7 +306,7 @@ class VideoList extends Component {
       return (
         <Styled.VideoListItem
           key={stream}
-          focused={focusedId === stream && numOfStreams > 2}
+          focused={isFocused}
           data-test="webcamVideoItem"
         >
           <VideoListItemContainer
