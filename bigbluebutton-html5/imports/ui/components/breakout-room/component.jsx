@@ -356,19 +356,16 @@ class BreakoutRoom extends PureComponent {
                       },
                     });
 
+                    const observeLogOut = (user) => {
+                      if (user?.loggedOut && user?.extId?.startsWith(Auth.userID)) {
+                        rejoinAudio();
+                        c.stop();
+                      }
+                    }
+
                     query.observe({
-                      added: (user) => {
-                        if (user?.loggedOut && user?.extId?.startsWith(Auth.userID)) {
-                          rejoinAudio();
-                          c.stop();
-                        }
-                      },
-                      changed: (user) => {
-                        if (user?.loggedOut && user?.extId?.startsWith(Auth.userID)) {
-                          rejoinAudio();
-                          c.stop();
-                        }
-                      },
+                      added: observeLogOut,
+                      changed: observeLogOut,
                     });
                   });
                 }}
