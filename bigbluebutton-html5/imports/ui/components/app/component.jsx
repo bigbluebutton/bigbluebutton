@@ -159,6 +159,10 @@ class App extends Component {
       cameraHeight,
       cameraPosition,
       presentationIsOpen,
+      layoutPresOpen,
+      layoutCamPosition,
+      layoutFocusedCam,
+      layoutRate,
       isRTL,
     } = this.props;
     const { browserName } = browserInfo;
@@ -194,46 +198,41 @@ class App extends Component {
     }
     Settings.save();
 
-    console.log(selectedLayout, focusedCamera, cameraPosition, presentationVideoRate, presentationIsOpen, "111111111111");
     if (selectedLayout === 'custom') {
-      if (!presentationIsOpen) {
-        MediaService.toggleSwapLayout(layoutContextDispatch);
-      }
+      setTimeout(() => {
+        MediaService.setPresentationIsOpen(layoutContextDispatch, layoutPresOpen);
 
-      if (focusedCamera !== 'none') {
         layoutContextDispatch({
           type: ACTIONS.SET_FOCUSED_CAMERA_ID,
-          value: focusedCamera,
+          value: layoutFocusedCam,
         });
-      }
 
-      if (cameraPosition) {
         layoutContextDispatch({
           type: ACTIONS.SET_CAMERA_DOCK_POSITION,
-          value: cameraPosition,
+          value: layoutCamPosition,
         });
-      }
 
-      if (Math.abs(presentationVideoRate - 0) < 0.01) {
-        let w, h;
-        if (cameraWidth > cameraHeight) {
-          w = cameraWidth;
-          h = window.innerHeight * presentationVideoRate;
-        } else {
-          w = window.innerWidth * presentationVideoRate;
-          h = cameraHeight;
-        }
-
-        layoutContextDispatch({
-          type: ACTIONS.SET_CAMERA_DOCK_SIZE,
-          value: {
-            width: w,
-            height: h,
-            browserWidth: window.innerWidth,
-            browserHeight: window.innerHeight,
+        if (Math.abs(layoutRate - 0) < 0.01) {
+          let w, h;
+          if (cameraWidth > cameraHeight) {
+            w = cameraWidth;
+            h = window.innerHeight * layoutRate;
+          } else {
+            w = window.innerWidth * layoutRate;
+            h = cameraHeight;
           }
-        });
-      }
+
+          layoutContextDispatch({
+            type: ACTIONS.SET_CAMERA_DOCK_SIZE,
+            value: {
+              width: w,
+              height: h,
+              browserWidth: window.innerWidth,
+              browserHeight: window.innerHeight,
+            }
+          });
+        }
+      }, 0);
     }
 
     const body = document.getElementsByTagName('body')[0];
@@ -290,6 +289,10 @@ class App extends Component {
       cameraWidth,
       cameraHeight,
       isPresenter,
+      layoutPresOpen,
+      layoutCamPosition,
+      layoutFocusedCam,
+      layoutRate,
       selectedLayout, // layout name
       pushLayout, // is layout pushed
       layoutContextDispatch,
@@ -329,53 +332,53 @@ class App extends Component {
       setMeetingLayout();
     }
 
-    if (meetingLayout === "custom" && !isPresenter) {
+    if (meetingLayout !== prevProps.meetingLayout
+      || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
 
-      if (meetingLayout !== prevProps.meetingLayout
-	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
-
-	let contextLayout = meetingLayout;
-	if (isMobile() || StreamService.isRecordingBot()) {
-	  contextLayout = meetingLayout === 'custom' ? 'smart' : meetingLayout;
-	}
-
-	layoutContextDispatch({
-	  type: ACTIONS.SET_LAYOUT_TYPE,
-	  value: contextLayout,
-	});
-
-	Settings.application.selectedLayout = contextLayout;
-	Settings.save();
+      let contextLayout = meetingLayout;
+      if (isMobile()) {
+        contextLayout = meetingLayout === 'custom' ? 'smart' : meetingLayout;
       }
 
-      if (focusedCamera !== prevProps.focusedCamera
+      layoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_TYPE,
+        value: contextLayout,
+      });
+
+      Settings.application.selectedLayout = contextLayout;
+      Settings.save();
+    }
+
+    if (meetingLayout === "custom") {
+
+      if (layoutFocusedCam !== prevProps.layoutFocusedCam
 	&& meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
 
 	layoutContextDispatch({
 	  type: ACTIONS.SET_FOCUSED_CAMERA_ID,
-	  value: focusedCamera,
+	  value: layoutFocusedCam,
 	});
       }
 
-      if (cameraPosition !== prevProps.cameraPosition
+      if (layoutCamPosition !== prevProps.layoutCamPosition
 	&& meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
 
 	layoutContextDispatch({
 	  type: ACTIONS.SET_CAMERA_DOCK_POSITION,
-	  value: cameraPosition,
+	  value: layoutCamPosition,
 	});
       }
 
-      if (Math.abs(presentationVideoRate - prevProps.presentationVideoRate) > 0.01
+      if (Math.abs(layoutRate - prevProps.layoutRate) > 0.01
 	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
 
 
 	let w, h;
         if (cameraWidth > cameraHeight) {
 	  w = cameraWidth;
-	  h = window.innerHeight * presentationVideoRate;
+	  h = window.innerHeight * layoutRate;
 	} else {
-	  w = window.innerWidth * presentationVideoRate;
+	  w = window.innerWidth * layoutRate;
 	  h = cameraHeight;
 	}
 
@@ -390,12 +393,12 @@ class App extends Component {
 	});
       }
 
-      if (presentationIsOpen !== prevProps.presentationIsOpen
+      if (layoutPresOpen !== prevProps.layoutPresOpen
 	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
 
 	layoutContextDispatch({
 	  type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-	  value: presentationIsOpen,
+	  value: layoutPresOpen,
 	});
       }
     }
