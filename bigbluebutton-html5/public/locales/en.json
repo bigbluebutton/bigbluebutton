@@ -46,6 +46,8 @@
     "app.captions.pad.tip": "Press Esc to focus editor toolbar",
     "app.captions.pad.ownership": "Take over",
     "app.captions.pad.ownershipTooltip": "You will be assigned as the owner of {0} captions",
+    "app.captions.pad.autoTranslation": "Toggle automatic translation",
+    "app.captions.pad.autoTranslationDesc": "AI translation from the dictated language",
     "app.captions.pad.interimResult": "Interim results",
     "app.captions.pad.dictationStart": "Start dictation",
     "app.captions.pad.dictationStop": "Stop dictation",
