@@ -442,6 +442,8 @@ public:
   captions:
     enabled: true
     enableDictation: false
+    enableAutomaticTranslation: false
+    googleTranslateUrl: https://script.google.com/macros/s/YOUR_ID
     backgroundColor: '#000000'
     fontColor: '#FFFFFF'
     fontFamily: Calibri
