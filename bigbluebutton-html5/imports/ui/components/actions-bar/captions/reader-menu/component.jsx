@@ -117,7 +117,7 @@ class ReaderMenu extends PureComponent {
     const { ownedLocales } = this.props;
 
     let initLocale;
-    if (Storage.getItem(CAPTION_LOCALE)) {
+    if (Storage.getItem(CAPTION_LOCALE) && ownedLocales.some ( locale => locale.locale == Storage.getItem(CAPTION_LOCALE)) ) {
       initLocale = Storage.getItem(CAPTION_LOCALE);
     } else {
       const locale = (ownedLocales && ownedLocales[0]) ? ownedLocales[0].locale : null;
@@ -166,7 +166,6 @@ class ReaderMenu extends PureComponent {
   }
 
   handleLocaleChange(event) {
-    Storage.setItem(CAPTION_LOCALE, event.target.value);
     this.setState({ locale: event.target.value });
   }
 
@@ -191,6 +190,7 @@ class ReaderMenu extends PureComponent {
       fontFamily,
       fontSize,
     };
+    Storage.setItem(CAPTION_LOCALE, locale);
     activateCaptions(locale, settings);
     closeModal();
   }
@@ -258,7 +258,6 @@ class ReaderMenu extends PureComponent {
                   aria-label={intl.formatMessage(intlMessages.ariaSelectLang)}
                   className={styles.select}
                   onChange={this.handleLocaleChange}
-                  defaultValue={defaultLocale}
                   lang={locale}
                 >
                   <option
