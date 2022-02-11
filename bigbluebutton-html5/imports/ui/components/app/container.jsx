@@ -92,12 +92,13 @@ const AppContainer = (props) => {
 
   const { focusedId } = cameraDock;
 
+  const horizontalPosition = cameraDock.position === 'contentLeft' || cameraDock.position === 'contentRight';
   // this is not exactly right yet
   let presentationVideoRate;
-  if (cameraDock.width > cameraDock.height) {
-    presentationVideoRate = cameraDock.height / window.innerHeight;
-  } else {
+  if (horizontalPosition) {
     presentationVideoRate = cameraDock.width / window.innerWidth;
+  } else {
+    presentationVideoRate = cameraDock.height / window.innerHeight;
   }
 
   const prevRandomUser = usePrevious(randomlySelectedUser);
@@ -133,6 +134,7 @@ const AppContainer = (props) => {
           layoutCamPosition,
           layoutFocusedCam,
           layoutRate,
+          horizontalPosition,
           deviceType,
           layoutContextDispatch,
           sidebarNavPanel,

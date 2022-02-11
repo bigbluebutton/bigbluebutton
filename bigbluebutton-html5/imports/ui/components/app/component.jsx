@@ -163,6 +163,7 @@ class App extends Component {
       layoutCamPosition,
       layoutFocusedCam,
       layoutRate,
+      horizontalPosition,
       isRTL,
     } = this.props;
     const { browserName } = browserInfo;
@@ -214,12 +215,12 @@ class App extends Component {
 
         if (Math.abs(layoutRate - 0) < 0.01) {
           let w, h;
-          if (cameraWidth > cameraHeight) {
-            w = cameraWidth;
-            h = window.innerHeight * layoutRate;
-          } else {
+          if (horizontalPosition) {
             w = window.innerWidth * layoutRate;
             h = cameraHeight;
+          } else {
+            w = cameraWidth;
+            h = window.innerHeight * layoutRate;
           }
 
           layoutContextDispatch({
@@ -293,6 +294,7 @@ class App extends Component {
       layoutCamPosition,
       layoutFocusedCam,
       layoutRate,
+      horizontalPosition,
       selectedLayout, // layout name
       pushLayout, // is layout pushed
       layoutContextDispatch,
@@ -372,14 +374,13 @@ class App extends Component {
       if (Math.abs(layoutRate - prevProps.layoutRate) > 0.01
 	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
 
-
 	let w, h;
-        if (cameraWidth > cameraHeight) {
-	  w = cameraWidth;
-	  h = window.innerHeight * layoutRate;
-	} else {
+        if (horizontalPosition) {
 	  w = window.innerWidth * layoutRate;
 	  h = cameraHeight;
+	} else {
+	  w = cameraWidth;
+	  h = window.innerHeight * layoutRate;
 	}
 
         layoutContextDispatch({
