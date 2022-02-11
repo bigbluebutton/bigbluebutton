@@ -6,12 +6,14 @@ import { GithubPicker } from 'react-color';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { styles } from './styles.scss';
+import Storage from '/imports/ui/services/storage/session';
 
 const DEFAULT_VALUE = 'select';
 const DEFAULT_KEY = -1;
 const DEFAULT_INDEX = 0;
 const FONT_FAMILIES = ['Arial', 'Calibri', 'Times New Roman', 'Sans-serif'];
 const FONT_SIZES = ['12px', '14px', '18px', '24px', '32px', '42px'];
+const CAPTION_LOCALE = 'captionLocale';
 
 // Not using hex values to force the githubPicker UI to display color names on hover
 const COLORS = [
@@ -114,8 +116,17 @@ class ReaderMenu extends PureComponent {
 
     const { ownedLocales } = this.props;
 
+    let initLocale;
+    if (Storage.getItem(CAPTION_LOCALE)) {
+      initLocale = Storage.getItem(CAPTION_LOCALE);
+    } else {
+      const locale = (ownedLocales && ownedLocales[0]) ? ownedLocales[0].locale : null;
+      Storage.setItem(CAPTION_LOCALE, locale);
+      initLocale = locale;
+    }
+
     this.state = {
-      locale: (ownedLocales && ownedLocales[0]) ? ownedLocales[0].locale : null,
+      locale: initLocale,
       backgroundColor,
       fontColor,
       fontFamily,
@@ -155,6 +166,7 @@ class ReaderMenu extends PureComponent {
   }
 
   handleLocaleChange(event) {
+    Storage.setItem(CAPTION_LOCALE, event.target.value);
     this.setState({ locale: event.target.value });
   }
 
@@ -242,6 +254,7 @@ class ReaderMenu extends PureComponent {
                   {intl.formatMessage(intlMessages.ariaSelectLang)}
                 </div>
                 <select
+                  value={Storage.getItem(CAPTION_LOCALE)}
                   aria-label={intl.formatMessage(intlMessages.ariaSelectLang)}
                   className={styles.select}
                   onChange={this.handleLocaleChange}
