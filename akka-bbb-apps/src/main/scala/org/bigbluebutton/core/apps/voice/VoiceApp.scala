@@ -153,7 +153,7 @@ object VoiceApp extends SystemConfiguration {
               }
             }
           case None =>
-            if (!cvu.intId.startsWith("v_")) {
+            if (!cvu.intId.startsWith(IntIdPrefixType.DIAL_IN)) {
               handleUserJoinedVoiceConfEvtMsg(
                 liveMeeting,
                 outGW,

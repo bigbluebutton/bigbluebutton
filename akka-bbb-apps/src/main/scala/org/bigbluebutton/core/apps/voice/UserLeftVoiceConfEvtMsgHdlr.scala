@@ -28,7 +28,7 @@ trait UserLeftVoiceConfEvtMsgHdlr {
     }
 
     //if user was a dial-in, this would be their ID
-    val ifDialInUserId = "v_" + msg.body.voiceUserId
+    val ifDialInUserId = IntIdPrefixType.DIAL_IN + msg.body.voiceUserId
 
     for {
       // Check whether there is such dial-in user

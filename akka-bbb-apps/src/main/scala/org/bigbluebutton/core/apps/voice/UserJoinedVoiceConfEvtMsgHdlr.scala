@@ -17,7 +17,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
   def handleUserJoinedVoiceConfEvtMsg(msg: UserJoinedVoiceConfEvtMsg): Unit = {
 
     val guestPolicy = GuestsWaiting.getGuestPolicy(liveMeeting.guestsWaiting)
-    val isDialInUser = msg.body.intId.startsWith("v_")
+    val isDialInUser = msg.body.intId.startsWith(IntIdPrefixType.DIAL_IN)
 
     def notifyModeratorsOfGuestWaiting(guest: GuestWaiting, users: Users2x, meetingId: String): Unit = {
       val moderators = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE)
