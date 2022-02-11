@@ -15,11 +15,6 @@ import UserListService from '/imports/ui/components/user-list/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import { makeCall } from '/imports/ui/services/api';
-import {
-  didUserSelectedMicrophone,
-  didUserSelectedListenOnly,
-} from '/imports/ui/components/audio/audio-modal/service';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -271,8 +266,7 @@ class BreakoutRoom extends PureComponent {
       intl,
       isUserInBreakoutRoom,
       forceExitAudio,
-      joinMicrophone,
-      joinListenOnly,
+      rejoinAudio,
       setBreakoutAudioTransferStatus,
       getBreakoutAudioTransferStatus,
     } = this.props;
@@ -362,40 +356,17 @@ class BreakoutRoom extends PureComponent {
                       },
                     });
 
-                    const logMessage = () => {
-                      logger.warn({
-                        logCode: 'mainroom_audio_rejoin',
-                        extraInfo: { logType: 'user_action' },
-                      }, 'leaving breakout room couldn\'t rejoin audio in the main room');
-                    };
-
-                    const rejoinAudio = () => {
-                      if (didUserSelectedMicrophone()) {
-                        joinMicrophone().then(() => {
-                          makeCall('toggleVoice', null, true).catch(() => {
-                            forceExitAudio();
-                            logMessage();
-                          });
-                        }).catch(() => {
-                          logMessage();
-                        });
-                      } else if (didUserSelectedListenOnly()) {
-                        joinListenOnly().catch(() => {
-                          logMessage();
-                        });
-                      }
-                      c.stop();
-                    };
-
                     query.observe({
                       added: (user) => {
                         if (user?.loggedOut && user?.extId?.startsWith(Auth.userID)) {
                           rejoinAudio();
+                          c.stop();
                         }
                       },
                       changed: (user) => {
                         if (user?.loggedOut && user?.extId?.startsWith(Auth.userID)) {
                           rejoinAudio();
+                          c.stop();
                         }
                       },
                     });
