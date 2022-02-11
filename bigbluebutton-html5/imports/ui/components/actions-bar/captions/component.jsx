@@ -5,7 +5,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from '/imports/ui/components/actions-bar/styles';
 import Button from '/imports/ui/components/button/component';
 import ButtonEmoji from '/imports/ui/components/button/button-emoji/ButtonEmoji';
-import CaptionsService from '/imports/ui/components/captions/service';
 import { Session } from 'meteor/session';
 import _ from 'lodash';
 import Dropdown from '/imports/ui/components/dropdown/component';
