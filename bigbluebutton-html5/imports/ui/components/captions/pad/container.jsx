@@ -52,5 +52,8 @@ export default withTracker(() => {
     ownerId,
     currentUserId: Auth.userID,
     amIModerator: CaptionsService.amIModerator(),
+    isAutoTranslated: CaptionsService.isAutoTranslated(locale),
+    toggleAutoTranslation: CaptionsService.toggleAutoTranslation,
+    ownedLocales: CaptionsService.getOwnedLocales(),
   };
 })(PadContainer);
