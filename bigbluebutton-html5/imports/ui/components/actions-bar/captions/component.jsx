@@ -44,7 +44,6 @@ const handleClickCaption = (locale, selectedLocale) => {
   if (selectedLocale != locale) {
     Storage.setItem(CAPTION_LOCALE, locale);
     Session.set('activeCaptions', locale);
-    //CaptionsService.setActiveCaptions(locale);
   }
 }
 
