@@ -22,8 +22,7 @@ import {
 
 const BoxContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, minmax(4rem, 16rem));
-  grid-template-rows: repeat(auto-fill, minmax(4rem, 8rem));
+  grid-template-columns: repeat(3, 1fr);
   grid-gap: 1.6rem 1rem;
   box-sizing: border-box;
   padding-bottom: 1rem;
@@ -38,6 +37,13 @@ const Alert = styled.div`
       color: ${colorDanger};
     }
   `}
+
+  grid-row: span 3;
+
+  & > div {
+    height: 25.2rem;
+    max-height: 25.2rem;
+  }
 `;
 
 const FreeJoinLabel = styled.label`
@@ -71,8 +77,7 @@ const BreakoutNameInput = styled.input`
 
 const BreakoutBox = styled(ScrollboxVertical)`
   width: 100%;
-  height: 80%;
-  min-height: 4rem;
+  min-height: 6rem;
   max-height: 8rem;
   border: 1px solid ${colorGrayLighter};
   border-radius: ${borderRadius}; 
