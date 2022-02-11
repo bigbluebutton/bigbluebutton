@@ -92,7 +92,7 @@ export default withModalMounter(withTracker((props) => {
 
   const { streams: usersVideo } = VideoService.getVideoStreams();
   data.usersVideo = usersVideo;
-  data.swapLayout = !hasPresentation || !props.presentationIsOpen;
+  data.swapLayout = !hasPresentation || props.isLayoutSwapped;
 
   if (data.swapLayout) {
     data.floatingOverlay = true;
