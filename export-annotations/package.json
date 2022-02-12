@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "BigBlueButton's Annotation Exporter",
   "scripts": {
-    "start": "node index.js",
+    "start": "node master.js",
     "lint": "./node_modules/.bin/eslint lib/**",
     "test": "jest"
   },

@@ -2,11 +2,9 @@
     "log": {
       "level": "info"
     },
-    "master": {
-       "presAnnDropboxDir": "/tmp/pres-ann-dropbox"
-    },
-    "collector": {
-        "presFileDir": "/var/bigbluebutton"
+    "shared": {
+      "presDir": "/var/bigbluebutton",
+      "presAnnDropboxDir": "/tmp/pres-ann-dropbox"
     },
     "redis": {
       "host": "127.0.0.1",
