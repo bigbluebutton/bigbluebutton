@@ -21,25 +21,42 @@ function sendToPad (padId, text) {
 }
 
 function translateText (padId, index, textOri, src, dst) {
-  const url = CAPTIONS_CONFIG.googleTranslateUrl + '/exec?' +
-              'text=' + encodeURIComponent(textOri) + '&source=' + src + '&target=' + dst;
-
   if (index === 0) {
       sendToPad(padId, textOri);
   } else {
+    let url = '';
+    if (CAPTIONS_CONFIG.googleTranslateUrl) {
+      url = CAPTIONS_CONFIG.googleTranslateUrl + '/exec?' +
+            'text=' + encodeURIComponent(textOri) + '&source=' + src + '&target=' + dst;
+    } else if (CAPTIONS_CONFIG.deeplTranslateUrl) {
+      url = CAPTIONS_CONFIG.deeplTranslateUrl +
+            '&target_lang=' + dst + '&text=' + encodeURIComponent(textOri);
+    } else {
+      Logger.error('Could not get a translation service.');
+      return;
+    }
+
     axios({
       method: 'get',
       url,
       responseType: 'json',
     }).then((response) => {
-      const { code, text } = response.data;
-      if (code === 200) {
-        sendToPad(padId, text);
-      } else {
-        Logger.error(`Could not get translation for ${textOri}`);
+      if (CAPTIONS_CONFIG.googleTranslateUrl) {
+        const { code, text } = response.data;
+        if (code === 200) {
+          sendToPad(padId, text);
+        } else {
+          Logger.error(`Failed to get Google translation for ${textOri}`);
+        }
+      } else if (CAPTIONS_CONFIG.deeplTranslateUrl) {
+        const { translations } = response.data;
+        if (translations.length > 0 && translations[0].text) {
+          sendToPad(padId, translations[0].text);
+        } else {
+          Logger.error(`Failed to get DeepL translation for ${textOri}`);
+        }
       }
-    }).catch((error) => Logger.error(`Could not get translation for ${textOri}: ${error}`));
-
+    }).catch((error) => Logger.error(`Could not get translation for ${textOri.trim()} on the locale ${dst}: ${error}`));
   }
 }
 
