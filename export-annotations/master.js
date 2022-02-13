@@ -45,11 +45,11 @@ function sleep(ms) {
             logger.info('Received job', job)
             
             // Create folder in dropbox
-            let dropbox = config.shared.presAnnDropboxDir + '/' + exportJob.jobId
+            let dropbox = `${config.shared.presAnnDropboxDir}/${exportJob.jobId}`
             fs.mkdirSync(dropbox, { recursive: true })
             
             // Drop job into dropbox as JSON
-            fs.writeFile(dropbox + '/job', job, function(err) {
+            fs.writeFile(`${dropbox}/job`, job, function(err) {
                 if(err) { return logger.error(err); }
             });
 

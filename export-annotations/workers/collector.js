@@ -22,10 +22,10 @@ const kickOffProcessWorker = (jobId) => {
   })
 }
 
-let dropbox = config.shared.presAnnDropboxDir + '/' + jobId
+let dropbox = `${config.shared.presAnnDropboxDir}/${jobId}`
 
 // Takes the Job from the dropbox
-let job = fs.readFileSync(dropbox + '/job');
+let job = fs.readFileSync(`${dropbox}/job`);
 let exportJob = JSON.parse(job);
 
 // Collect the annotations from Redis
@@ -46,15 +46,15 @@ let exportJob = JSON.parse(job);
     let whiteboard = JSON.parse(annotations);
     let pages = JSON.parse(whiteboard.pages);
     
-    fs.writeFile(dropbox + '/whiteboard', annotations, function(err) {
+    fs.writeFile(`${dropbox}/whiteboard`, annotations, function(err) {
       if(err) { return logger.error(err); }
     });
 
     // Collect the Presentation Page files from the presentation directory
     for (let i = 0; i < pages.length; i++) {
       let pageNumber = pages[i].page
-      let slide = exportJob.presLocation + '/slide' + pageNumber + '.svg'
-      let file = dropbox + '/slide' + pageNumber + '.svg'
+      let slide = `${exportJob.presLocation}/slide${pageNumber}.svg`
+      let file = `${dropbox}/slide${pageNumber}.svg`
 
       fs.copyFile(slide, file, (err) => { if (err) throw err; } );
     }
