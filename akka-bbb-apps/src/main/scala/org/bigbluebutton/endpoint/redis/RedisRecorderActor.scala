@@ -78,7 +78,6 @@ class RedisRecorderActor(
       case m: SendWhiteboardAnnotationEvtMsg        => handleSendWhiteboardAnnotationEvtMsg(m)
       case m: SendCursorPositionEvtMsg              => handleSendCursorPositionEvtMsg(m)
       case m: ClearWhiteboardEvtMsg                 => handleClearWhiteboardEvtMsg(m)
-      case m: UndoWhiteboardEvtMsg                  => handleUndoWhiteboardEvtMsg(m)
       case m: ModifyWhiteboardAnnotationEvtMsg      => handleModifyWhiteboardAnnotationEvtMsg(m)
 
       // User
@@ -316,17 +315,6 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleUndoWhiteboardEvtMsg(msg: UndoWhiteboardEvtMsg) = {
-    val ev = new UndoAnnotationRecordEvent()
-    ev.setMeetingId(msg.header.meetingId)
-    ev.setPresentation(getPresentationId(msg.body.whiteboardId))
-    ev.setPageNumber(getPageNum(msg.body.whiteboardId))
-    ev.setWhiteboardId(msg.body.whiteboardId)
-    ev.setUserId(msg.body.userId)
-    ev.setRemovedShapeIds(msg.body.removedAnnotationIds)
-    record(msg.header.meetingId, ev.toMap.asJava)
-  }
-
   private def handleModifyWhiteboardAnnotationEvtMsg(msg: ModifyWhiteboardAnnotationEvtMsg) = {
     val ev = new ModifyWhiteboardAnnotationRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
@@ -334,7 +322,9 @@ class RedisRecorderActor(
     ev.setPageNumber(getPageNum(msg.body.whiteboardId))
     ev.setWhiteboardId(msg.body.whiteboardId)
     ev.setUserId(msg.body.userId)
+    ev.setAction(msg.body.action)
     ev.setRemovedShapeIds(msg.body.idsToRemove)
+    ev.setAddedAnnotations(msg.body.annotations)
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
