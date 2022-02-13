@@ -28,7 +28,7 @@ function modifyWhiteboardAnnotations(
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
   } catch (err) {
-    Logger.error(`Exception while invoking method undoAnnotation ${err.stack}`);
+    Logger.error(`Exception while invoking method modifyWhiteboardAnnotations ${err.stack}`);
   }
 }
 

@@ -1,27 +1,63 @@
 import { check } from 'meteor/check';
-import Logger from '/imports/startup/server/logger';
+import AnnotationsStreamer from '/imports/api/annotations/server/streamer';
+import addAnnotation from '../modifiers/addAnnotation';
+import Metrics from '/imports/startup/server/metrics';
 import removeAnnotation from '../modifiers/removeAnnotation';
 
-export default function handleWhiteboardModification({ body }, meetingId) {
-  Logger.info('\nCalled handleWhiteboardModification:\n');
-  Logger.info(`${JSON.stringify(body)}${body}${meetingId}`);
-  Logger.info('\n');
+const { queueMetrics } = Meteor.settings.private.redis.metrics;
 
-  check(body, {
-    annotations: [Match.Any], userId: String, whiteBoardId: String, action: String,
+const {
+  annotationsQueueProcessInterval: ANNOTATION_PROCESS_INTERVAL,
+} = Meteor.settings.public.whiteboard;
+
+let annotationsQueue = {};
+let annotationsRecieverIsRunning = false;
+
+const process = () => {
+  if (!Object.keys(annotationsQueue).length) {
+    annotationsRecieverIsRunning = false;
+    return;
+  }
+  annotationsRecieverIsRunning = true;
+  Object.keys(annotationsQueue).forEach((meetingId) => {
+    AnnotationsStreamer(meetingId).emit('added', { meetingId, annotations: annotationsQueue[meetingId] });
+    if (queueMetrics) {
+      Metrics.setAnnotationQueueLength(meetingId, 0);
+    }
   });
-  const { whiteBoardId } = body;
-  const { annotations } = body;
-  const { action } = body;
+  annotationsQueue = {};
+
+  Meteor.setTimeout(process, ANNOTATION_PROCESS_INTERVAL);
+};
+
+export default function handleWhiteboardModification({ body }, meetingId) {
+  check(body, {
+    annotations: [Match.Any], idsToRemove: [String], whiteBoardId: String,
+  });
+  const { whiteboardId, annotations, idsToRemove } = body;
+
+  if (!Object.prototype.hasOwnProperty.call(annotationsQueue, meetingId)) {
+    annotationsQueue[meetingId] = [];
+  }
+  annotations.forEach((annotation) => {
+    const annotationUserId = annotation.userId;
+    check(annotationUserId, String);
+    annotationsQueue[meetingId].push({
+      meetingId, whiteboardId, annotationUserId, annotation,
+    });
+  });
+
+  idsToRemove.forEach((shapeId) => {
+    check(shapeId, String);
+    removeAnnotation(meetingId, whiteboardId, shapeId);
+  });
+
+  if (queueMetrics) {
+    Metrics.setAnnotationQueueLength(meetingId, annotationsQueue[meetingId].length);
+  }
+  if (!annotationsRecieverIsRunning) process();
 
   annotations.forEach((annotation) => {
-    check(annotation.id, String);
-    switch (action) {
-      case 'delete':
-        removeAnnotation(meetingId, whiteBoardId, annotation.id);
-        break;
-      default:
-        Logger.warn(`Unknown action type: ${action}`);
-    }
+    addAnnotation(meetingId, whiteboardId, annotation.userId, annotation);
   });
 }

@@ -79,10 +79,6 @@ object SendWhiteboardAnnotationEvtMsg { val NAME = "SendWhiteboardAnnotationEvtM
 case class SendWhiteboardAnnotationEvtMsg(header: BbbClientMsgHeader, body: SendWhiteboardAnnotationEvtMsgBody) extends BbbCoreMsg
 case class SendWhiteboardAnnotationEvtMsgBody(annotation: AnnotationVO)
 
-object UndoWhiteboardEvtMsg { val NAME = "UndoWhiteboardEvtMsg" }
-case class UndoWhiteboardEvtMsg(header: BbbClientMsgHeader, body: UndoWhiteboardEvtMsgBody) extends BbbCoreMsg
-case class UndoWhiteboardEvtMsgBody(whiteboardId: String, userId: String, removedAnnotationIds: List[String], addedAnnotations: List[AnnotationVO])
-
 object ModifyWhiteboardAnnotationEvtMsg { val NAME = "ModifyWhiteboardAnnotationEvtMsg" }
 case class ModifyWhiteboardAnnotationEvtMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAnnotationEvtMsgBody) extends StandardMsg
 case class ModifyWhiteboardAnnotationEvtMsgBody(annotations: List[AnnotationVO], idsToRemove: List[String], userId: String, whiteboardId: String, action: String)
