@@ -16,10 +16,6 @@ const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 const ANNOTATION_TYPE_PENCIL = 'pencil';
 
-let deselectHandle = null;
-
-const setDeselectHandle = (handle) => { deselectHandle = handle; };
-
 let annotationsStreamListener = null;
 
 const clearPreview = (annotation) => {
@@ -54,16 +50,12 @@ function handleRemovedAnnotation({
 
   if (shapeId) {
     query.id = shapeId;
+    SelectionModificationToolService.deselect(shapeId);
+  } else {
+    SelectionModificationToolService.getSelectedAnnotations()
+      .map((annotation) => SelectionModificationToolService.deselect(annotation.id));
   }
 
-  if (deselectHandle) {
-    if (shapeId) {
-      deselectHandle(shapeId);
-    } else {
-      SelectionModificationToolService.getSelectedAnnotations()
-        .map((annotationId) => deselectHandle(annotationId));
-    }
-  }
   Annotations.remove(query);
 }
 
@@ -79,7 +71,7 @@ export function initAnnotationsStreamListener() {
   const startStreamHandlersPromise = new Promise((resolve) => {
     const checkStreamHandlersInterval = setInterval(() => {
       const streamHandlersSize = Object.values(Meteor.StreamerCentral.instances[`annotations-${Auth.meetingID}`].handlers)
-        .filter(el => el !== undefined)
+        .filter((el) => el !== undefined)
         .length;
 
       if (!streamHandlersSize) {
@@ -94,7 +86,7 @@ export function initAnnotationsStreamListener() {
     annotationsStreamListener.on('removed', handleRemovedAnnotation);
 
     annotationsStreamListener.on('added', ({ annotations }) => {
-      annotations.forEach(annotation => handleAddedAnnotation(annotation));
+      annotations.forEach((annotation) => handleAddedAnnotation(annotation));
     });
   });
 }
@@ -254,7 +246,7 @@ const getCurrentWhiteboardId = () => {
   );
 
   return currentSlide && currentSlide.id;
-}
+};
 
 const isMultiUserActive = (whiteboardId) => {
   const multiUser = getMultiUser(whiteboardId);
@@ -311,5 +303,4 @@ export {
   addIndividualAccess,
   removeGlobalAccess,
   removeIndividualAccess,
-  setDeselectHandle,
 };

@@ -1,12 +1,26 @@
-let selectedAnnotations = [];
+import { Tracker } from 'meteor/tracker';
 
-const selectAnnotations = (annotationIds) => {
-  selectedAnnotations = annotationIds;
+let selectedAnnotations = [];
+const selectionDep = new Tracker.Dependency();
+
+const selectAnnotations = (annotations) => {
+  selectedAnnotations = annotations;
+  selectionDep.changed();
 };
 
-const getSelectedAnnotations = () => selectedAnnotations;
+const getSelectedAnnotations = () => {
+  selectionDep.depend();
+  return selectedAnnotations;
+};
+
+const deselect = (annotationsToDeselect) => {
+  selectedAnnotations = selectedAnnotations
+    .filter((annotation) => annotationsToDeselect.includes(annotation));
+  selectionDep.changed();
+};
 
 export default {
+  deselect,
   getSelectedAnnotations,
   selectAnnotations,
 };
