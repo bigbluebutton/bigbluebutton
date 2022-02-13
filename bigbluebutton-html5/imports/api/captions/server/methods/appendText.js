@@ -30,7 +30,8 @@ function translateText (padId, index, textOri, src, dst) {
             'text=' + encodeURIComponent(textOri) + '&source=' + src + '&target=' + dst;
     } else if (CAPTIONS_CONFIG.deeplTranslateUrl) {
       url = CAPTIONS_CONFIG.deeplTranslateUrl +
-            '&target_lang=' + dst + '&text=' + encodeURIComponent(textOri);
+            '&text=' + encodeURIComponent(textOri) + '&source_lang=' + src.toUpperCase() +
+            '&target_lang=' + dst.toUpperCase();
     } else {
       Logger.error('Could not get a translation service.');
       return;
