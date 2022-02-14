@@ -56,6 +56,12 @@ const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
 const VIEWER = Meteor.settings.public.user.role_viewer;
 const MODERATOR = Meteor.settings.public.user.role_moderator;
 
+const equalDouble = (n1, n2) => {
+  const precision = 0.01;
+
+  return Math.abs(n1 - n2) <= precision;
+};
+
 const intlMessages = defineMessages({
   userListLabel: {
     id: 'app.userList.label',
@@ -213,7 +219,7 @@ class App extends Component {
           value: layoutCamPosition,
         });
 
-        if (Math.abs(layoutRate - 0) < 0.01) {
+        if (!equalDouble(layoutRate, 0)) {
           let w, h;
           if (horizontalPosition) {
             w = window.innerWidth * layoutRate;
@@ -324,14 +330,6 @@ class App extends Component {
         type: ACTIONS.SET_LAYOUT_TYPE,
         value: selectedLayout,
       });
-
-      if (pushLayout) {
-        setMeetingLayout();
-      }
-    }
-
-    if (pushLayout && (!prevProps.pushLayout || Math.abs(meetingLayoutUpdatedAt - prevProps.meetingLayoutUpdatedAt) > 2*1000)) {
-      setMeetingLayout();
     }
 
     if (meetingLayout !== prevProps.meetingLayout
@@ -351,10 +349,10 @@ class App extends Component {
       Settings.save();
     }
 
-    if (meetingLayout === "custom") {
+    if (meetingLayout === "custom" && !isPresenter) {
 
       if (layoutFocusedCam !== prevProps.layoutFocusedCam
-	&& meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
 
 	layoutContextDispatch({
 	  type: ACTIONS.SET_FOCUSED_CAMERA_ID,
@@ -363,7 +361,7 @@ class App extends Component {
       }
 
       if (layoutCamPosition !== prevProps.layoutCamPosition
-	&& meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
 
 	layoutContextDispatch({
 	  type: ACTIONS.SET_CAMERA_DOCK_POSITION,
@@ -371,7 +369,7 @@ class App extends Component {
 	});
       }
 
-      if (Math.abs(layoutRate - prevProps.layoutRate) > 0.01
+      if (!equalDouble(layoutRate, prevProps.layoutRate)
 	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
 
 	let w, h;
@@ -403,6 +401,16 @@ class App extends Component {
 	});
       }
     }
+
+    if (isPresenter && pushLayout && selectedLayout === 'custom' &&
+      (presentationIsOpen !== prevProps.presentationIsOpen
+      || cameraPosition !== prevProps.cameraPosition
+      || focusedCamera !== prevProps.focusedCamera
+      || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate))
+    ) {
+      setMeetingLayout();
+    }
+
 
     if (mountRandomUserModal) mountModal(<RandomUserSelectContainer />);
 
