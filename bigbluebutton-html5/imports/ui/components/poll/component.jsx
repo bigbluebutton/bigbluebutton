@@ -4,7 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
-import Checkbox from '/imports/ui/components/checkbox/component';
+import Checkbox from '/imports/ui/components/common/checkbox/component';
 import Toggle from '/imports/ui/components/switch/component';
 import LiveResult from './live-result/component';
 import Styled from './styles';
