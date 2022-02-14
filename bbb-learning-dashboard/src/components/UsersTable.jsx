@@ -232,7 +232,7 @@ class UsersTable extends React.Component {
               .map((user) => {
                 const opacity = user.leftOn > 0 ? 'opacity-75' : '';
                 return (
-                  <tr key={user} className="text-gray-700 cursor-pointer" onClick={() => this.openUserModal(user)}>
+                  <tr key={user} className="text-gray-700">
                     <td className={`flex items-center px-4 py-3 col-text-left text-sm ${opacity}`}>
                       <div className="inline-block relative w-8 h-8 rounded-full">
                         <UserAvatar user={user} />
@@ -243,9 +243,14 @@ class UsersTable extends React.Component {
                       </div>
                       &nbsp;&nbsp;&nbsp;
                       <div className="inline-block">
-                        <p className="font-semibold truncate xl:max-w-sm max-w-xs">
+                        <button
+                          className="border-0 p-0 m-0 bg-none font-semibold truncate xl:max-w-sm max-w-xs cursor-pointer rounded-md focus:outline-none focus:ring ring-offset-0 focus:ring-gray-500 focus:ring-opacity-50"
+                          type="button"
+                          onClick={() => this.openUserModal(user)}
+                          aria-label={`Open user details modal - ${user.name}`}
+                        >
                           {user.name}
-                        </p>
+                        </button>
                         { Object.values(user.intIds || {}).map((intId, index) => (
                           <>
                             <p className="text-xs text-gray-600 dark:text-gray-400">
