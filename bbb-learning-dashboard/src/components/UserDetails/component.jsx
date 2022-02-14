@@ -21,7 +21,7 @@ const UserDatailsComponent = (props) => {
   const leftTimes = Object.values(user.intIds).map((intId) => intId.leftOn || currTime());
   const joinTime = Math.min(...registeredTimes);
   const leftTime = Math.max(...leftTimes);
-  const sessionDuration = (endedOn || new Date().getTime()) - createdOn;
+  const sessionDuration = (endedOn || currTime()) - createdOn;
   const userEndOffsetTime = (((endedOn || currTime()) - leftTime) * 100) / sessionDuration;
   const userStartOffsetTime = ((joinTime - createdOn) * 100) / sessionDuration;
   const offsetOrigin = document.dir === 'rtl' ? 'left' : 'right';
@@ -44,7 +44,7 @@ const UserDatailsComponent = (props) => {
           <div className="mb-2">{average ?? (<FormattedMessage id="app.learningDashboard.usersTable.notAvailable" defaultMessage="N/A" />)}</div>
           <div className="rounded-2xl bg-gray-200 before:bg-gray-500 h-4 relative before:absolute before:top-[-50%] before:bottom-[-50%] before:w-[2px] before:left-[calc(50%-1px)]">
             <div
-              className="rounded-2xl bg-green-600 absolute inset-0"
+              className="rounded-2xl bg-gradient-to-br from-green-100 to-green-600 absolute inset-0"
               style={{
                 [offsetOrigin]: '50%',
               }}
@@ -95,16 +95,18 @@ const UserDatailsComponent = (props) => {
         </div>
         <div className="bg-white shadow rounded mb-4">
           <div className="p-6 text-lg flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <div className="p-2 rounded-full bg-pink-50 text-pink-500">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
             <p className="ltr:ml-2 rtl:mr-2"><FormattedMessage id="app.learningDashboard.usersTable.title" defaultMessage="Overview" /></p>
           </div>
-          <div className="p-6 m-px bg-gray-200">
+          <div className="p-6 m-px bg-gray-100">
             <div className="h-6 relative before:bg-gray-500 before:absolute before:w-[10px] before:h-[10px] before:rounded-full before:left-0 before:top-[calc(50%-5px)] after:bg-gray-500 after:absolute after:w-[10px] after:h-[10px] after:rounded-full after:right-0 after:top-[calc(50%-5px)]">
               <div className="bg-gray-500 [--line-height:2px] h-[var(--line-height)] absolute top-[calc(50%-var(--line-height)/2)] left-[10px] right-[10px] rounded-2xl" />
               <div
-                className="bg-green-600 absolute h-full rounded-2xl text-right rtl:text-left"
+                className="ltr:bg-gradient-to-br rtl:bg-gradient-to-bl from-green-100 to-green-600 absolute h-full rounded-2xl text-right rtl:text-left text-ellipsis overflow-hidden"
                 style={{
                   right: `calc(${document.dir === 'ltr' ? userEndOffsetTime : userStartOffsetTime}% + 10px)`,
                   left: `calc(${document.dir === 'ltr' ? userStartOffsetTime : userEndOffsetTime}% + 10px)`,
@@ -124,7 +126,13 @@ const UserDatailsComponent = (props) => {
               </div>
               <div className="ltr:text-right rtl:text-left">
                 <div><FormattedMessage id="app.learningDashboard.userDetails.endTime" defaultMessage="End Time" /></div>
-                <div>{new Date(endedOn).toISOString().substring(11, 19)}</div>
+                <div>
+                  { endedOn === 0 ? (
+                    <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
+                      <FormattedMessage id="app.learningDashboard.indicators.meetingStatusActive" defaultMessage="Active" />
+                    </span>
+                  ) : new Date(endedOn || Date.now()).toISOString().substring(11, 19) }
+                </div>
               </div>
             </div>
           </div>
@@ -153,10 +161,12 @@ const UserDatailsComponent = (props) => {
         </div>
         <div className="bg-white shadow rounded mb-4 table w-full">
           <div className="p-6 text-lg flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-            </svg>
+            <div className="p-2 rounded-full bg-green-200 text-green-500">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+              </svg>
+            </div>
             <p className="ltr:ml-2 rtl:mr-2"><FormattedMessage id="app.learningDashboard.indicators.activityScore" defaultMessage="Activity Score" /></p>
           </div>
           <div className="p-6 py-2 m-px bg-gray-200 flex flex-row justify-between text-xs text-gray-700">
@@ -168,9 +178,11 @@ const UserDatailsComponent = (props) => {
         </div>
         <div className="bg-white shadow rounded">
           <div className="p-6 text-lg flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-            </svg>
+            <div className="p-2 rounded-full bg-blue-100 text-blue-500">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+              </svg>
+            </div>
             <p className="ltr:ml-2 rtl:mr-2"><FormattedMessage id="app.learningDashboard.indicators.polls" defaultMessage="Polls" /></p>
           </div>
           <div className="p-6 py-2 m-px bg-gray-200 flex flex-row justify-between text-xs text-gray-700">
