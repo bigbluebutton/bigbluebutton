@@ -1,5 +1,6 @@
 [Unit]
 Description=Disable Transparent Huge Pages
+PartOf=bigbluebutton.target
 
 [Service]
 Type=oneshot
@@ -7,4 +8,4 @@ ExecStart=/bin/sh -c "/bin/echo "never" | tee /sys/kernel/mm/transparent_hugepag
 ExecStart=/bin/sh -c "/bin/echo "never" | tee /sys/kernel/mm/transparent_hugepage/defrag"
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target bigbluebutton.target

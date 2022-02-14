@@ -14,6 +14,7 @@ rm -rf staging
 #
 # Create build directories for markign by fpm
 DIRS="/etc/bigbluebutton \
+      /lib/systemd/system \
       /var/bigbluebutton/blank \
       /usr/share/bigbluebutton/blank \
       /var/www/bigbluebutton-default"
@@ -68,6 +69,7 @@ Wants=redis-server.service
 After=redis-server.service
 HERE
 
+cp bigbluebutton.target staging/lib/systemd/system/
 
 . ./opts-$DISTRO.sh
 
