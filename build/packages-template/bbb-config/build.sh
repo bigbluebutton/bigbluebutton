@@ -2,6 +2,12 @@
 
 TARGET=`basename $(pwd)`
 
+# inject dependency to bigbluebutton.target
+for unit in freeswitch nginx redis-server; do
+  mkdir -p "staging/lib/systemd/system/${unit}.service.d"
+  cp bigbluebutton.conf "staging/lib/systemd/system/${unit}.service.d/"
+done
+
 
 PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 VERSION=$(echo $TARGET | cut -d'_' -f2)
