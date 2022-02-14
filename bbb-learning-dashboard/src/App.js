@@ -7,6 +7,7 @@ import {
 import { emojiConfigs } from './services/EmojiService';
 import Card from './components/Card';
 import UsersTable from './components/UsersTable';
+import UserDetails from './components/UserDetails/component';
 import StatusTable from './components/StatusTable';
 import PollsTable from './components/PollsTable';
 import ErrorMessage from './components/ErrorMessage';
@@ -480,6 +481,7 @@ class App extends React.Component {
             { tab === 'polling'
               ? <PollsTable polls={activitiesJson.polls} allUsers={activitiesJson.users} />
               : null }
+            <UserDetails dataJson={activitiesJson} />
           </div>
         </div>
         <hr className="my-8" />

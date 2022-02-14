@@ -5,6 +5,7 @@ import {
 import { getUserEmojisSummary, emojiConfigs } from '../services/EmojiService';
 import { getActivityScore, getSumOfTime, tsToHHmmss } from '../services/UserService';
 import UserAvatar from './UserAvatar';
+import { UserDetailsContext } from './UserDetails/context';
 
 function renderArrow(order = 'asc') {
   return (
@@ -36,6 +37,8 @@ class UsersTable extends React.Component {
       activityscoreOrder: 'desc',
       lastFieldClicked: 'userOrder',
     };
+
+    this.openUserModal = this.openUserModal.bind(this);
   }
 
   toggleOrder(field) {
@@ -49,6 +52,15 @@ class UsersTable extends React.Component {
     }
 
     if (tab === 'overview') this.setState({ lastFieldClicked: field });
+  }
+
+  openUserModal(user) {
+    const { dispatch } = this.context;
+
+    dispatch({
+      type: 'changeUser',
+      user,
+    });
   }
 
   render() {
@@ -220,7 +232,7 @@ class UsersTable extends React.Component {
               .map((user) => {
                 const opacity = user.leftOn > 0 ? 'opacity-75' : '';
                 return (
-                  <tr key={user} className="text-gray-700">
+                  <tr key={user} className="text-gray-700 cursor-pointer" onClick={() => this.openUserModal(user)}>
                     <td className={`flex items-center px-4 py-3 col-text-left text-sm ${opacity}`}>
                       <div className="inline-block relative w-8 h-8 rounded-full">
                         <UserAvatar user={user} />
@@ -503,5 +515,7 @@ class UsersTable extends React.Component {
     );
   }
 }
+
+UsersTable.contextType = UserDetailsContext;
 
 export default injectIntl(UsersTable);
