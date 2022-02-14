@@ -11,7 +11,7 @@ import {
 import { colorGray, colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
 import { lineHeightBase, headingsFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const RecordingModal = styled(Modal)`
   padding: ${smPaddingY};

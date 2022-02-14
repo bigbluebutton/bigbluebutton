@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import Styled from '../base/styles';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import { borderSize, smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 import {
   lineHeightComputed,

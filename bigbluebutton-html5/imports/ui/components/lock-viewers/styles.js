@@ -11,7 +11,7 @@ import {
 import { fontSizeLarge, fontSizeBase, fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
 import { colorGray, colorGrayDark, colorGrayLabel, colorGrayLighter } from '../../stylesheets/styled-components/palette';
 import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const ToggleLabel = styled.span`
   margin-right: ${smPaddingX};

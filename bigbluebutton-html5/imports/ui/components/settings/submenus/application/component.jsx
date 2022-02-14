@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import Toggle from '/imports/ui/components/switch/component';
 import LocalesDropdown from '/imports/ui/components/locales-dropdown/component';
 import { defineMessages, injectIntl } from 'react-intl';

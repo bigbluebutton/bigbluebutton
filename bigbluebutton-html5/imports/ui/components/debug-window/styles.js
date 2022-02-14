@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 import Resizable from 're-resizable';
 import Icon from '/imports/ui/components/icon/component';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const ToggleLabel = styled.span`
   margin-right: ${smPaddingX};

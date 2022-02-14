@@ -18,7 +18,7 @@ import {
   fontSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const BreakoutActions = styled.div`
   display: flex;

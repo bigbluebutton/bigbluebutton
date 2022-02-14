@@ -8,9 +8,8 @@ import Tippy, { roundArrow, hideAll } from 'tippy.js';
 import 'tippy.js/dist/svg-arrow.css';
 import 'tippy.js/animations/shift-away.css';
 import './bbbtip.css';
-import BaseButton from '/imports/ui/components/button/base/component';
-import ButtonEmoji from
-  '/imports/ui/components/button/button-emoji/ButtonEmoji';
+import BaseButton from '/imports/ui/components/common/button/base/component';
+import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 
 const ANIMATION_DURATION = 350;
 const ANIMATION_DELAY = [150, 50];

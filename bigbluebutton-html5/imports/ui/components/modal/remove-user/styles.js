@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import Modal from '/imports/ui/components/modal/simple/component';
 import {
   smPaddingX,

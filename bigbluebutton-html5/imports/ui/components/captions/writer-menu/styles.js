@@ -10,7 +10,7 @@ import {
   colorPrimary,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { HeaderElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import Modal from '/imports/ui/components/modal/simple/component';
 
 const WriterMenuModal = styled(Modal)`

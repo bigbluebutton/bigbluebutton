@@ -1,5 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
