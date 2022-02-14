@@ -46,6 +46,5 @@ export default withTracker(({ isPresenter }) => {
     inEchoTest,
     isPresenter,
     videoUrl: getVideoUrl(),
-    hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
   };
 })(ExternalVideoContainer);

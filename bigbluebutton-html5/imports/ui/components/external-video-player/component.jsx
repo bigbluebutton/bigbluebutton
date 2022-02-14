@@ -152,7 +152,6 @@ class VideoPlayer extends Component {
   componentDidMount() {
     const {
       layoutContextDispatch,
-      hidePresentation,
     } = this.props;
 
     window.addEventListener('beforeunload', this.onBeforeUnload);
@@ -162,13 +161,6 @@ class VideoPlayer extends Component {
 
     VideoPlayer.clearVideoListeners();
     this.registerVideoListeners();
-
-    if (hidePresentation) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-        value: true,
-      });
-    }
 
     layoutContextDispatch({
       type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
@@ -222,7 +214,7 @@ class VideoPlayer extends Component {
       value: false,
     });
 
-    if (hidePresentation) {
+    if (isLayoutSwapped) {
       layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_IS_OPEN,
         value: false,
