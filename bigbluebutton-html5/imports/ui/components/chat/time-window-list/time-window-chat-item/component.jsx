@@ -16,7 +16,7 @@ const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
 const propTypes = {
   user: PropTypes.shape({
     color: PropTypes.string,
-    isModerator: PropTypes.bool,
+    messageFromModerator: PropTypes.bool,
     isOnline: PropTypes.bool,
     name: PropTypes.string,
   }),
@@ -137,7 +137,7 @@ class TimeWindowChatItem extends PureComponent {
       read,
       name,
       color,
-      isModerator,
+      messageFromModerator,
       avatar,
       isOnline,
       isSystemSender,
@@ -147,7 +147,7 @@ class TimeWindowChatItem extends PureComponent {
     const regEx = /<a[^>]+>/i;
     ChatLogger.debug('TimeWindowChatItem::renderMessageItem', this.props);
     const defaultAvatarString = name?.toLowerCase().slice(0, 2) || "  ";
-    const emphasizedText = isModerator && CHAT_EMPHASIZE_TEXT && chatId === CHAT_PUBLIC_ID;
+    const emphasizedText = messageFromModerator && CHAT_EMPHASIZE_TEXT && chatId === CHAT_PUBLIC_ID;
 
     return (
       <Styled.Item key={`time-window-${messageKey}`}>
@@ -155,7 +155,7 @@ class TimeWindowChatItem extends PureComponent {
           <Styled.AvatarWrapper>
             <UserAvatar
               color={color}
-              moderator={isModerator}
+              moderator={messageFromModerator}
               avatar={avatar}
             >
               {defaultAvatarString}

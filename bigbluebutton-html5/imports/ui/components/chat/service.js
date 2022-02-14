@@ -190,6 +190,7 @@ const sendGroupMessage = (message, idChatOpen) => {
     sender: {
       id: senderUserId,
       name: '',
+      role: '',
     },
     message,
   };

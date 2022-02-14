@@ -37,6 +37,7 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     ...restMsg,
     sender: sender.id,
     senderName: sender.name,
+    senderRole: sender.role,
     meetingId,
     chatId,
     message: parseMessage(msg.message),
