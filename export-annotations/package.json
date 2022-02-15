@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "redis": "^4.0.3",
+    "xml-js": "^1.6.11",
     "xmlbuilder2": "^3.0.2"
   },
   "devDependencies": {

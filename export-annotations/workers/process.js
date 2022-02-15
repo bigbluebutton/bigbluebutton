@@ -1,6 +1,7 @@
 const Logger = require('../lib/utils/logger');
 const config = require('../config');
 const fs = require('fs');
+const convert = require('xml-js');
 const { create } = require('xmlbuilder2', { encoding: 'utf-8' });
 
 const { workerData, parentPort } = require('worker_threads')
@@ -24,14 +25,28 @@ let pages = JSON.parse(whiteboard.pages);
 
 // 3. Convert annotations to SVG
 for (let i = 0; i < pages.length; i++) {
+    
+    // Get the current slide (without annotations)
     let currentSlide = pages[i]
+    var backgroundSlide = fs.readFileSync(`${dropbox}/slide${pages[i].page}.svg`).toString();
+    
+    // Read background slide in as JSON to determine dimensions
+    // TODO: find a better way to get width and height of slide (e.g. as part of message)
+    backgroundSlide = JSON.parse(convert.xml2json(backgroundSlide));
+
+    // There's a bug with older versions of rsvg which defaults SVG output to pixels.
+    // See: https://gitlab.gnome.org/GNOME/librsvg/-/issues/766
+    var slideWidth = Number(backgroundSlide.elements[0].attributes.width.replace(/\D/g, ""))
+    var slideHeight = Number(backgroundSlide.elements[0].attributes.height.replace(/\D/g, ""))
 
     // Create the SVG slide with the background image
-    const svg = create({ version: '1.0', encoding: 'UTF-8' })
+    let svg = create({ version: '1.0', encoding: 'UTF-8' })
                 .ele('svg', { 
                     xmlns: 'http://www.w3.org/2000/svg',
                     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
-                    viewBox: `${currentSlide.xOffset} ${currentSlide.yOffset} ${currentSlide.widthRatio}% ${currentSlide.heightRatio}%`
+                    width: slideWidth,
+                    height: slideHeight,
+                    viewBox: `${currentSlide.xOffset} ${currentSlide.yOffset} ${slideWidth * currentSlide.widthRatio} ${slideHeight * currentSlide.heightRatio}`
                 })
                 .dtd({ 
                     pubID: '-//W3C//DTD SVG 1.1//EN',
@@ -43,18 +58,21 @@ for (let i = 0; i < pages.length; i++) {
                     height: '100%'
                 });
 
-    const xml = svg.end({ prettyPrint: true });
-    console.log(xml);
+    svg = svg.end({ prettyPrint: true });
 
     // Write annotated SVG file
-    fs.writeFile(`${dropbox}/annotated-slide${pages[i].page}.svg`, xml, function(err) {
+    fs.writeFile(`${dropbox}/annotated-slide${pages[i].page}.svg`, svg, function(err) {
         if(err) { return logger.error(err); }
     });
+
+    // 4. Overlay annotations onto slides
+    
+    // rsvg-convert annotated-slide2.svg -f pdf -o out.pdf
 }
 
-// 4. Overlay annotations onto slides
 
 // Resulting PDF file is stored in the presentation dir
+// rsvg-convert annotated-slide2.svg annotated-slide3.svg ... -f pdf -o out.pdf
 
 // Launch Notifier Worker depending on job type
 
