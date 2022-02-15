@@ -3,7 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import PropTypes from 'prop-types';
 import Service from '/imports/ui/components/captions/service';
-import LocalesDropdown from '/imports/ui/components/locales-dropdown/component';
+import LocalesDropdown from '/imports/ui/components/common/locales-dropdown/component';
 import Styled from './styles';
 import { PANELS, ACTIONS } from '../../layout/enums';
 
