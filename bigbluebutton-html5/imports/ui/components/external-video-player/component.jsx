@@ -15,7 +15,7 @@ import logger from '/imports/startup/client/logger';
 
 import VolumeSlider from './volume-slider/component';
 import ReloadButton from '/imports/ui/components/reload-button/component';
-import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
+import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 
 import ArcPlayer from '/imports/ui/components/external-video-player/custom-players/arc-player';
 import PeerTubePlayer from '/imports/ui/components/external-video-player/custom-players/peertube';

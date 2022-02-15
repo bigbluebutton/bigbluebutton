@@ -1,7 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import Toggle from '/imports/ui/components/switch/component';
+import Toggle from '/imports/ui/components/common/switch/component';
 import NotesService from '/imports/ui/components/notes/service';
 import Styled from './styles';
 

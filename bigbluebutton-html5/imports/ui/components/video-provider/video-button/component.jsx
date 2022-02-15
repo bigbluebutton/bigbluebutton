@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import ButtonEmoji from '/imports/ui/components/button/button-emoji/ButtonEmoji';
+import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import VideoService from '../service';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';

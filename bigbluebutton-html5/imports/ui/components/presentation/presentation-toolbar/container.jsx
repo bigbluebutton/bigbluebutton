@@ -9,7 +9,7 @@ import PresentationToolbar from './component';
 import PresentationToolbarService from './service';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
-import FullscreenService from '/imports/ui/components/fullscreen-button/service';
+import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 
 const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
 

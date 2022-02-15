@@ -17,8 +17,8 @@ import {
   headingsFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly, landscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Modal from '/imports/ui/components/modal/simple/component';
-import ModalStyles from '/imports/ui/components/modal/simple/styles';
+import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalStyles from '/imports/ui/components/common/modal/simple/styles';
 
 const Warning = styled.div`
   text-align: center;

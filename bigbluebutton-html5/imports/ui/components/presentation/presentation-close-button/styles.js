@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const CloseButton = styled(Button)`
   z-index: 1;

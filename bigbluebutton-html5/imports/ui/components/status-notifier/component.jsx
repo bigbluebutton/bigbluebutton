@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
-import Icon from '/imports/ui/components/icon/component';
+import Icon from '/imports/ui/components/common/icon/component';
 import { ENTER } from '/imports/utils/keyCodes';
 import Styled from './styles';
 import {Meteor} from "meteor/meteor";

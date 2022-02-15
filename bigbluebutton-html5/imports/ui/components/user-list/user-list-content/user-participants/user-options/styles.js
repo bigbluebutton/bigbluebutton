@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import { colorOffWhite, colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 

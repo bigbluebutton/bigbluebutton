@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { TAB } from '/imports/utils/keyCodes';
 import deviceInfo from '/imports/utils/deviceInfo';
-import Button from '/imports/ui/components/button/component';
-import Icon from '/imports/ui/components/icon/component';
+import Button from '/imports/ui/components/common/button/component';
+import Icon from '/imports/ui/components/common/icon/component';
 import update from 'immutability-helper';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
@@ -13,7 +13,7 @@ import _ from 'lodash';
 import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 import Styled from './styles';
 import Settings from '/imports/ui/services/settings';
-import Checkbox from '/imports/ui/components/checkbox/component';
+import Checkbox from '/imports/ui/components/common/checkbox/component';
 
 const { isMobile } = deviceInfo;
 

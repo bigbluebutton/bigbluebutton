@@ -8,8 +8,8 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import { colorGray } from '/imports/ui/stylesheets/styled-components/palette';
 import { lineHeightBase } from '/imports/ui/stylesheets/styled-components/typography';
-import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
+import Modal from '/imports/ui/components/common/modal/simple/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const EndMeetingModal = styled(Modal)`
   padding: ${smPaddingY};

@@ -3,7 +3,7 @@ import React from 'react';
 import _ from 'lodash';
 import { toast } from 'react-toastify';
 
-import Toast from '/imports/ui/components/toast/component';
+import Toast from '/imports/ui/components/common/toast/component';
 
 let lastToast = {
   id: null,

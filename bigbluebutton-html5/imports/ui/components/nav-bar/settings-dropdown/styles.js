@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 
 const DropdownButton = styled(Button)`

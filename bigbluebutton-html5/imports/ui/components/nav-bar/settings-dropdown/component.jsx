@@ -1,15 +1,15 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
 import { makeCall } from '/imports/ui/services/api';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
-import BBBMenu from '/imports/ui/components/menu/component';
+import BBBMenu from '/imports/ui/components/common/menu/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import FullscreenService from '../../fullscreen-button/service';
+import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { colorDanger } from '/imports/ui/stylesheets/styled-components/palette';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from './styles';

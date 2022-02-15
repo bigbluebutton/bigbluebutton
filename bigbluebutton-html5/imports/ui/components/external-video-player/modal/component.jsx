@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import { isUrlValid } from '../service';
 import Settings from '/imports/ui/services/settings';

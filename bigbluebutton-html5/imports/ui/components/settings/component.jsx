@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import Modal from '/imports/ui/components/modal/fullscreen/component';
+import Modal from '/imports/ui/components/common/modal/fullscreen/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
 import Application from '/imports/ui/components/settings/submenus/application/component';
 import Notification from '/imports/ui/components/settings/submenus/notification/component';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-
-import { withModalMounter } from '../modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import Styled from './styles';
 
 const intlMessages = defineMessages({

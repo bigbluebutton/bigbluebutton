@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import Icon from '/imports/ui/components/icon/component';
-import Button from '/imports/ui/components/button/component';
+import Icon from '/imports/ui/components/common/icon/component';
+import Button from '/imports/ui/components/common/button/component';
 import {
   colorPrimary,
   colorBlack,

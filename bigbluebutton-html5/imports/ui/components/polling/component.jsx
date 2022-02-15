@@ -5,7 +5,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
 import Styled from './styles';
 import AudioService from '/imports/ui/components/audio/service';
-import Checkbox from '/imports/ui/components/checkbox/component';
+import Checkbox from '/imports/ui/components/common/checkbox/component';
 
 const MAX_INPUT_CHARS = Meteor.settings.public.poll.maxTypedAnswerLength;
 
