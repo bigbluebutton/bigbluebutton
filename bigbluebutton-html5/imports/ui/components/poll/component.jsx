@@ -5,7 +5,7 @@ import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
-import Toggle from '/imports/ui/components/switch/component';
+import Toggle from '/imports/ui/components/common/switch/component';
 import LiveResult from './live-result/component';
 import Styled from './styles';
 import { PANELS, ACTIONS } from '../layout/enums';

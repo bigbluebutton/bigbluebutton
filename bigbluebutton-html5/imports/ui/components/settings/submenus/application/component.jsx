@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '/imports/ui/components/common/button/component';
-import Toggle from '/imports/ui/components/switch/component';
+import Toggle from '/imports/ui/components/common/switch/component';
 import LocalesDropdown from '/imports/ui/components/common/locales-dropdown/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
