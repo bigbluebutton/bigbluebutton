@@ -109,6 +109,7 @@ class Pad extends PureComponent {
               this.recognition.start();
             } else {
               notify(intl.formatMessage(intlMessages.speechRecognitionIncompatible), 'info', 'warning');
+              this.counterDictationStop = 0;
               this.stopListen();
             }
           } catch (e) {
