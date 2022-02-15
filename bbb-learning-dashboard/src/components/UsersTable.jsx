@@ -244,7 +244,7 @@ class UsersTable extends React.Component {
                       &nbsp;&nbsp;&nbsp;
                       <div className="inline-block">
                         <button
-                          className="border-0 p-0 m-0 bg-none font-semibold truncate xl:max-w-sm max-w-xs cursor-pointer rounded-md focus:outline-none focus:ring ring-offset-0 focus:ring-gray-500 focus:ring-opacity-50"
+                          className="leading-none border-0 p-0 m-0 bg-none font-semibold truncate xl:max-w-sm max-w-xs cursor-pointer rounded-md focus:outline-none focus:ring ring-offset-0 focus:ring-gray-500 focus:ring-opacity-50"
                           type="button"
                           onClick={() => this.openUserModal(user)}
                           aria-label={`Open user details modal - ${user.name}`}
