@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
-import FallbackView from '/imports/ui/components/fallback-errors/fallback-view/component';
+import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
 import PresentationPodService from './service';
 import PresentationPods from './component';
 

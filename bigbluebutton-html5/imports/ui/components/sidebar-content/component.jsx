@@ -10,7 +10,7 @@ import BreakoutRoomContainer from '/imports/ui/components/breakout-room/containe
 import WaitingUsersPanel from '/imports/ui/components/waiting-users/container';
 import Styled from './styles';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
-import FallbackView from '/imports/ui/components/fallback-errors/fallback-view/component';
+import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
 
 const propTypes = {
   top: PropTypes.number.isRequired,
