@@ -1,7 +1,7 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
-import injectNotify from '/imports/ui/components/toast/inject-notify/component';
+import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import _ from 'lodash';
 import BreakoutRemainingTimeComponent from './component';

@@ -13,7 +13,7 @@ import {
   fontSizeLarger,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
-import ToastStyled from '/imports/ui/components/toast/styles';
+import ToastStyled from '/imports/ui/components/common/toast/styles';
 
 const VisuallyHidden = styled.span`
   position: absolute;

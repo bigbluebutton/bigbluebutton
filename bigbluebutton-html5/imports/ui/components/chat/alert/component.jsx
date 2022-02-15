@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import injectNotify from '/imports/ui/components/toast/inject-notify/component';
+import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import AudioService from '/imports/ui/components/audio/service';
 import ChatPushAlert from './push-alert/component';
 import Service from '../service';
