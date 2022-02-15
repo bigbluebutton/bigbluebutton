@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Icon from '/imports/ui/components/icon/component';
+import Icon from '/imports/ui/components/common/icon/component';
 import {
   btnDefaultColor,
   btnDefaultBg,

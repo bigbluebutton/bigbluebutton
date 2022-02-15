@@ -19,7 +19,7 @@ import {
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import MessageChatItem from './message-chat-item/component';
-import Icon from '/imports/ui/components/icon/component';
+import Icon from '/imports/ui/components/common/icon/component';
 
 const Item = styled.div`
   padding: calc(${lineHeightComputed} / 4) 0 calc(${lineHeightComputed} / 2) 0;

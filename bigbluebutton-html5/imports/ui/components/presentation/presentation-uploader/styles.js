@@ -1,5 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
-import Icon from '/imports/ui/components/icon/component';
+import Icon from '/imports/ui/components/common/icon/component';
 import Dropzone from 'react-dropzone';
 import Button from '/imports/ui/components/common/button/component';
 import {

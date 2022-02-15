@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import Button from "/imports/ui/components/common/button/component";
-import Icon from '/imports/ui/components/icon/component';
+import Icon from '/imports/ui/components/common/icon/component';
 import MenuItem from "@material-ui/core/MenuItem";
 import { colorWhite, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';

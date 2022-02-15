@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { colorGrayLight, colorSuccess } from '/imports/ui/stylesheets/styled-components/palette';
-import Icon from '/imports/ui/components/icon/component';
+import Icon from '/imports/ui/components/common/icon/component';
 
 const CheckboxWrapper = styled.div`
   opacity: 1;

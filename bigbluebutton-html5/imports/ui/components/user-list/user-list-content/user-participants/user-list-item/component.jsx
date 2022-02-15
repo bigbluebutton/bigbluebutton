@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { findDOMNode } from 'react-dom';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
-import Icon from '/imports/ui/components/icon/component';
+import Icon from '/imports/ui/components/common/icon/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import RemoveUserModal from '/imports/ui/components/modal/remove-user/component';

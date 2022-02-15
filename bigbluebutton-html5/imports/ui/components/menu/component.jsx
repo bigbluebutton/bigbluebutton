@@ -5,7 +5,7 @@ import { defineMessages, injectIntl } from "react-intl";
 import Menu from "@material-ui/core/Menu";
 import { Divider } from "@material-ui/core";
 
-import Icon from "/imports/ui/components/icon/component";
+import Icon from "/imports/ui/components/common/icon/component";
 
 import { ENTER } from "/imports/utils/keyCodes";
 

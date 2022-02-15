@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
-import Icon from '../icon/component';
+import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
 
 const propTypes = {

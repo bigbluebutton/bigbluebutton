@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Icon from '/imports/ui/components/icon/component';
+import Icon from '/imports/ui/components/common/icon/component';
 import NotesService from '/imports/ui/components/notes/service';
 import Styled from './styles';
 import { PANELS } from '/imports/ui/components/layout/enums';

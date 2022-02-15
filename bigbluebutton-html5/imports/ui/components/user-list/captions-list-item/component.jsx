@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Icon from '/imports/ui/components/icon/component';
+import Icon from '/imports/ui/components/common/icon/component';
 import CaptionsService from '/imports/ui/components/captions/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';

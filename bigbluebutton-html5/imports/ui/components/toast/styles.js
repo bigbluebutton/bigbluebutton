@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { ToastContainer as Toastify } from 'react-toastify';
-import Icon from '../icon/component';
+import Icon from '/imports/ui/components/common/icon/component';
 import {
   fontSizeSmallest,
   fontSizeSmaller,
