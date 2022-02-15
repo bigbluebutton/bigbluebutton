@@ -3,6 +3,7 @@ const config = require('../config');
 const fs = require('fs');
 const convert = require('xml-js');
 const { create } = require('xmlbuilder2', { encoding: 'utf-8' });
+const { exec } = require("child_process");
 
 const { workerData, parentPort } = require('worker_threads')
 
@@ -96,6 +97,7 @@ let exportJob = JSON.parse(job);
 let annotations = fs.readFileSync(`${dropbox}/whiteboard`);
 let whiteboard = JSON.parse(annotations);
 let pages = JSON.parse(whiteboard.pages);
+let rsvgConvertInput = ""
 
 // 3. Convert annotations to SVG
 for (let i = 0; i < pages.length; i++) {
@@ -148,15 +150,26 @@ for (let i = 0; i < pages.length; i++) {
     console.log (svg)
 
     // Write annotated SVG file
-    fs.writeFile(`${dropbox}/annotated-slide${pages[i].page}.svg`, svg, function(err) {
+    let file = `${dropbox}/annotated-slide${pages[i].page}.svg`
+    fs.writeFile(file, svg, function(err) {
         if(err) { return logger.error(err); }
     });
 
-    // rsvg-convert annotated-slide2.svg -f pdf -o out.pdf
+    rsvgConvertInput += `${file} `
 }
 
 // Resulting PDF file is stored in the presentation dir
-// rsvg-convert annotated-slide2.svg annotated-slide3.svg ... -f pdf -o out.pdf
+// TODO: change presLocation so it doesn't point to the 'svgs' directory
+exec(`rsvg-convert ${rsvgConvertInput} -f pdf -o ${exportJob.presLocation}/../annotated_slides_${jobId}.pdf`, (error, stderr) => {
+    if (error) {
+        console.log(`SVG to PDF export failed with error: ${error.message}`);
+        return;
+    }
+    if (stderr) {
+        logger.error(`SVG to PDF export failed with stderr: ${stderr}`);
+        return;
+    }
+});
 
 // Launch Notifier Worker depending on job type
 
