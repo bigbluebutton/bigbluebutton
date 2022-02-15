@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import ErrorBoundary from '/imports/ui/components/error-boundary/component';
+import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackModal from '/imports/ui/components/fallback-errors/fallback-modal/component';
 import Service from './service';
 import PresentationUploader from './component';
