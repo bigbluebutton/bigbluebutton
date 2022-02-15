@@ -6,7 +6,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
-import BBBMenu from '/imports/ui/components/menu/component';
+import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles'
 import { PANELS, ACTIONS } from '../../layout/enums';
 import deviceInfo from '/imports/utils/deviceInfo';

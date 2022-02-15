@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import _ from 'lodash';
-import BBBMenu from "/imports/ui/components/menu/component";
+import BBBMenu from "/imports/ui/components/common/menu/component";
 import Button from '/imports/ui/components/common/button/component';
 
 import { alertScreenReader } from '/imports/utils/dom-utils';

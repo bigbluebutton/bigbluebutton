@@ -8,7 +8,7 @@ import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-pol
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import CaptionsService from '/imports/ui/components/captions/service';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
-import BBBMenu from '/imports/ui/components/menu/component';
+import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';

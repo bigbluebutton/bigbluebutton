@@ -10,7 +10,7 @@ import lockContextContainer from '/imports/ui/components/lock-viewers/context/co
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import RemoveUserModal from '/imports/ui/components/modal/remove-user/component';
 import VideoService from '/imports/ui/components/video-provider/service';
-import BBBMenu from '/imports/ui/components/menu/component';
+import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { PANELS, ACTIONS } from '../../../../layout/enums';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
