@@ -11,6 +11,92 @@ const jobId = workerData;
 const logger = new Logger('presAnn Process Worker');
 logger.info("Processing PDF for job " + jobId);
 
+function shape_scale(dimension, coord){
+    return (coord / 100.0 * dimension)
+}
+
+function overlay_pencil(svg, annotation, w, h) {
+    console.log('color')
+    console.log(annotation.color)
+    console.log('thickness')
+    console.log(annotation.thickness)
+    console.log('points')
+    console.log(annotation.points)
+    console.log('dimensions')
+    console.log(annotation.dimensions)
+    console.log('commands')
+    console.log(annotation.commands)
+
+    const shapeColor = Number(annotation.color).toString(16)
+
+    if (annotation.points.length < 2) {
+        logger.info("Pencil doesn't have enough points")
+        return;
+    }
+
+    else if (annotation.points.length == 2) {
+        svg.ele('g', {
+            style: `stroke:none;fill:#${shapeColor}`,
+        }).ele('circle', {
+            cx: shape_scale(w, annotation.points[0]),
+            cy: shape_scale(h, annotation.points[1]),
+            r:  shape_scale(w, annotation.thickness) / 2
+        }).up()
+    }
+
+    else {
+        let path =  ""
+        let dataPoints = annotation.points
+
+        for(let i = 0; i < annotation.commands.length; i++) {
+            switch(annotation.commands[i]){
+                case 1: // MOVE TO
+                    var x = shape_scale(w, dataPoints.shift())
+                    var y = shape_scale(h, dataPoints.shift())
+                    path = `${path} M${x} ${y}`
+                    break;
+                case 2: // LINE TO
+                    var x = shape_scale(w, dataPoints.shift())
+                    var y = shape_scale(h, dataPoints.shift())
+                    path = `${path} L${x} ${y}`
+                    break;
+                case 4: // C_CURVE_TO
+                    var cx1 = shape_scale(w, dataPoints.shift())
+                    var cy1 = shape_scale(h, dataPoints.shift())
+                    var cx2 = shape_scale(w, dataPoints.shift())
+                    var cy2 = shape_scale(h, dataPoints.shift())
+                    var x = shape_scale(w, dataPoints.shift())
+                    var y = shape_scale(h, dataPoints.shift())
+                    path = `${path} C${cx1} ${cy1},${cx2} ${cy2},${x} ${y}`
+
+                    break;
+                default:
+                    logger.error(`Unknown pencil command: ${annotation.commands[i]}`)       
+            }
+        }
+
+        svg.ele('g', {
+            style: `stroke:#${shapeColor};stroke-linecap:round;stroke-linejoin:round;stroke-width:${shape_scale(w, annotation.thickness)};fill:none`
+        }).ele('path', {
+            d: path
+        }).up()
+    }
+
+    console.log("-------------------------------------")
+}
+
+function overlay_annotations(svg, annotations, w, h) {
+    for(let i = 0; i < annotations.length; i++){        
+        switch (annotations[i].annotationType) {
+            case 'pencil':
+                overlay_pencil(svg, annotations[i].annotationInfo, w, h)
+                break;
+            default:
+                logger.error(`Unknown annotation type ${annotations[i].annotationType}.`);
+        }
+    }
+}
+
 // Process the presentation pages and annotations into a PDF file
 
 // 1. Get the job
@@ -46,7 +132,7 @@ for (let i = 0; i < pages.length; i++) {
                     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
                     width: slideWidth,
                     height: slideHeight,
-                    viewBox: `${currentSlide.xOffset} ${currentSlide.yOffset} ${slideWidth * currentSlide.widthRatio} ${slideHeight * currentSlide.heightRatio}`
+                    viewBox: `${currentSlide.xOffset} ${currentSlide.yOffset} ${slideWidth * currentSlide.widthRatio / 100} ${slideHeight * currentSlide.heightRatio / 100}`
                 })
                 .dtd({ 
                     pubID: '-//W3C//DTD SVG 1.1//EN',
@@ -56,20 +142,29 @@ for (let i = 0; i < pages.length; i++) {
                     'xlink:href': `file://${dropbox}/slide${pages[i].page}.svg`,
                     width: '100%',
                     height: '100%'
+                })
+                .up()
+                .ele('g', {
+                    class: 'canvas'
                 });
 
+    // 4. Overlay annotations onto slides
+    console.log("=====================================")
+
+    overlay_annotations(svg, pages[i].annotations, slideWidth, slideHeight)
+
+    console.log("=====================================")
+    console.log()
+
     svg = svg.end({ prettyPrint: true });
+    console.log (svg)
 
     // Write annotated SVG file
     fs.writeFile(`${dropbox}/annotated-slide${pages[i].page}.svg`, svg, function(err) {
         if(err) { return logger.error(err); }
     });
-
-    // 4. Overlay annotations onto slides
-    
     // rsvg-convert annotated-slide2.svg -f pdf -o out.pdf
 }
-
 
 // Resulting PDF file is stored in the presentation dir
 // rsvg-convert annotated-slide2.svg annotated-slide3.svg ... -f pdf -o out.pdf
