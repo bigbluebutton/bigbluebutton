@@ -17,7 +17,7 @@ import Styled from './styles';
 import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
-import FullscreenService from '../fullscreen-button/service';
+import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import Icon from '/imports/ui/components/icon/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';

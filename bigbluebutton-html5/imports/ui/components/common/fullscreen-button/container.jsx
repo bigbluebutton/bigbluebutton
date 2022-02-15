@@ -1,6 +1,6 @@
 import React from 'react';
 import FullscreenButtonComponent from './component';
-import { layoutSelect, layoutDispatch } from '../layout/context';
+import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import FullscreenService from './service';
 
 const FullscreenButtonContainer = (props) => <FullscreenButtonComponent {...props} />;

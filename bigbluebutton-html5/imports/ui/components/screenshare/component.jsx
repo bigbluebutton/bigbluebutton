@@ -2,7 +2,7 @@ import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import FullscreenButtonContainer from '../fullscreen-button/container';
+import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import SwitchButtonContainer from './switch-button/container';
 import Styled from './styles';
 import VolumeSlider from '../external-video-player/volume-slider/component';

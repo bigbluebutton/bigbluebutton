@@ -3,7 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import SettingsDropdown from './component';
-import FullscreenService from '../../fullscreen-button/service';
+import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const { isIphone } = deviceInfo;
