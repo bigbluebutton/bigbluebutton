@@ -117,7 +117,7 @@ const UserDatailsComponent = (props) => {
     .map((currUser) => getPointsOfPolls(currUser))
     .reduce((prev, curr) => prev + curr, 0) / allUsersArr.length;
 
-  const functionsOfPoints = {
+  const activityPointsFunctions = {
     // Talks: getPointsOfTalk,
     Messages: getPointsOfChatting,
     Emojis: getPointsofEmoji,
@@ -332,7 +332,7 @@ const UserDatailsComponent = (props) => {
             return renderActivityScoreItem(
               category,
               averages[category],
-              functionsOfPoints[category]?.(user),
+              activityPointsFunctions[category]?.(user),
               percentage,
               total,
             );
