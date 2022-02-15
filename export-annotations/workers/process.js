@@ -7,6 +7,7 @@ const { create } = require('xmlbuilder2', { encoding: 'utf-8' });
 const { workerData, parentPort } = require('worker_threads')
 
 const jobId = workerData;
+const MAGIC_MYSTERY_NUMBER = 2;
 
 const logger = new Logger('presAnn Process Worker');
 logger.info("Processing PDF for job " + jobId);
@@ -16,17 +17,6 @@ function shape_scale(dimension, coord){
 }
 
 function overlay_pencil(svg, annotation, w, h) {
-    console.log('color')
-    console.log(annotation.color)
-    console.log('thickness')
-    console.log(annotation.thickness)
-    console.log('points')
-    console.log(annotation.points)
-    console.log('dimensions')
-    console.log(annotation.dimensions)
-    console.log('commands')
-    console.log(annotation.commands)
-
     const shapeColor = Number(annotation.color).toString(16)
 
     if (annotation.points.length < 2) {
@@ -81,8 +71,6 @@ function overlay_pencil(svg, annotation, w, h) {
             d: path
         }).up()
     }
-
-    console.log("-------------------------------------")
 }
 
 function overlay_annotations(svg, annotations, w, h) {
@@ -125,6 +113,11 @@ for (let i = 0; i < pages.length; i++) {
     var slideWidth = Number(backgroundSlide.elements[0].attributes.width.replace(/\D/g, ""))
     var slideHeight = Number(backgroundSlide.elements[0].attributes.height.replace(/\D/g, ""))
 
+    var panzoom_x = -currentSlide.xOffset * MAGIC_MYSTERY_NUMBER / 100.0 * slideWidth
+    var panzoom_y = -currentSlide.yOffset * MAGIC_MYSTERY_NUMBER / 100.0 * slideHeight
+    var panzoom_w = shape_scale(slideWidth, currentSlide.widthRatio)
+    var panzoom_h = shape_scale(slideHeight, currentSlide.heightRatio)
+
     // Create the SVG slide with the background image
     let svg = create({ version: '1.0', encoding: 'UTF-8' })
                 .ele('svg', { 
@@ -132,7 +125,7 @@ for (let i = 0; i < pages.length; i++) {
                     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
                     width: slideWidth,
                     height: slideHeight,
-                    viewBox: `${currentSlide.xOffset} ${currentSlide.yOffset} ${slideWidth * currentSlide.widthRatio / 100} ${slideHeight * currentSlide.heightRatio / 100}`
+                    viewBox: `${panzoom_x} ${panzoom_y} ${panzoom_w} ${panzoom_h}`
                 })
                 .dtd({ 
                     pubID: '-//W3C//DTD SVG 1.1//EN',
@@ -140,8 +133,8 @@ for (let i = 0; i < pages.length; i++) {
                 })
                 .ele('image', {
                     'xlink:href': `file://${dropbox}/slide${pages[i].page}.svg`,
-                    width: '100%',
-                    height: '100%'
+                    width: slideWidth,
+                    height: slideHeight,
                 })
                 .up()
                 .ele('g', {
@@ -149,12 +142,7 @@ for (let i = 0; i < pages.length; i++) {
                 });
 
     // 4. Overlay annotations onto slides
-    console.log("=====================================")
-
     overlay_annotations(svg, pages[i].annotations, slideWidth, slideHeight)
-
-    console.log("=====================================")
-    console.log()
 
     svg = svg.end({ prettyPrint: true });
     console.log (svg)
@@ -163,6 +151,7 @@ for (let i = 0; i < pages.length; i++) {
     fs.writeFile(`${dropbox}/annotated-slide${pages[i].page}.svg`, svg, function(err) {
         if(err) { return logger.error(err); }
     });
+
     // rsvg-convert annotated-slide2.svg -f pdf -o out.pdf
 }
 
