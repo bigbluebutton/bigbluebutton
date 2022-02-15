@@ -10,7 +10,7 @@ import {
 } from '../../stylesheets/styled-components/general';
 import { fontSizeLarge, fontSizeBase, fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
 import { colorGray, colorGrayDark, colorGrayLabel, colorGrayLighter } from '../../stylesheets/styled-components/palette';
-import Modal from '/imports/ui/components/modal/simple/component';
+import Modal from '/imports/ui/components/common/modal/simple/component';
 import Button from '/imports/ui/components/common/button/component';
 
 const ToggleLabel = styled.span`

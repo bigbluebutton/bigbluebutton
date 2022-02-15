@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import PropTypes from 'prop-types';
 import Service from '/imports/ui/components/captions/service';
 import LocalesDropdown from '/imports/ui/components/common/locales-dropdown/component';

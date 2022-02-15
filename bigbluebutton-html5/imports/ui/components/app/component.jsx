@@ -13,7 +13,7 @@ import BreakoutRoomInvitation from '/imports/ui/components/breakout-room/invitat
 import { Meteor } from 'meteor/meteor';
 import ToastContainer from '../toast/container';
 import PadsSessionsContainer from '/imports/ui/components/pads/sessions/container';
-import ModalContainer from '../modal/container';
+import ModalContainer from '/imports/ui/components/common/modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
@@ -25,7 +25,7 @@ import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import CaptionsSpeechContainer from '/imports/ui/components/captions/speech/container';
-import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
+import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
 import NewWebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';

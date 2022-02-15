@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Modal from '/imports/ui/components/modal/simple/component';
+import Modal from '/imports/ui/components/common/modal/simple/component';
 import Button from '/imports/ui/components/common/button/component';
 import { colorGrayDark, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import {

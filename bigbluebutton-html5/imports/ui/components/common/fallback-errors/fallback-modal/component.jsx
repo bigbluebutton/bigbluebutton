@@ -1,7 +1,7 @@
 import React from 'react';
-import ModalSimple from '/imports/ui/components/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import FallbackView from '../fallback-view/component';
 
 const intlMessages = defineMessages({

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import Styled from './styles';
 
 const messages = defineMessages({

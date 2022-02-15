@@ -1,6 +1,6 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import { withUsersConsumer } from '/imports/ui/components/components-data/users-context/context';

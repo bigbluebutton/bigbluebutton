@@ -11,7 +11,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { HeaderElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import Button from '/imports/ui/components/common/button/component';
-import Modal from '/imports/ui/components/modal/simple/component';
+import Modal from '/imports/ui/components/common/modal/simple/component';
 
 const WriterMenuModal = styled(Modal)`
   padding: 1.5rem;

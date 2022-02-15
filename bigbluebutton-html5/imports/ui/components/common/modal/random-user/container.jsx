@@ -3,7 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { makeCall } from '/imports/ui/services/api';
 import RandomUserSelect from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 
 import Button from '/imports/ui/components/common/button/component';
-import Modal from '/imports/ui/components/modal/simple/component';
+import Modal from '/imports/ui/components/common/modal/simple/component';
 import { makeCall } from '/imports/ui/services/api';
 
 import { Meteor } from 'meteor/meteor';

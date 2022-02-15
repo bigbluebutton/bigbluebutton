@@ -1,4 +1,4 @@
-import { showModal } from '/imports/ui/components/modal/service';
+import { showModal } from '/imports/ui/components/common/modal/service';
 import Service from '../service';
 import Storage from '/imports/ui/services/storage/session';
 
