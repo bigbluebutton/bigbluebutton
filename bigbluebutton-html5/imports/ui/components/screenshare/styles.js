@@ -3,7 +3,7 @@ import {
   colorWhite,
   colorContentBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import SpinnerStyles from '/imports/ui/components/loading-screen/styles';
+import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
 
 const ScreenshareContainerInside = styled.div`
   display: flex;
