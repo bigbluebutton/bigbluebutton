@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Styled from './styles';
-import TooltipContainer from '/imports/ui/components/tooltip/container';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const propTypes = {
   /**

@@ -5,7 +5,7 @@ import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
 import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
-import TooltipContainer from '/imports/ui/components/tooltip/container';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
 
