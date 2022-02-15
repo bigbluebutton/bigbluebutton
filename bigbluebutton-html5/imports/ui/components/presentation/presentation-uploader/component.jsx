@@ -625,7 +625,7 @@ class PresentationUploader extends Component {
         }}
       >
         <div className={styles.fileLine}>
-          <span className={styles.fileIcon}>
+          <span>
             <Icon iconName="file" />
           </span>
           <span className={styles.toastFileName}>
