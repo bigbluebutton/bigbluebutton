@@ -27,11 +27,6 @@ val compileSettings = Seq(
   )
 )
 
-resolvers ++= Seq(
-  ("spray repo" at "http://repo.spray.io/").withAllowInsecureProtocol(true),
-  ("blindside-repos" at "http://blindside.googlecode.com/svn/repository/").withAllowInsecureProtocol(true)
-)
-
 resolvers += Resolver.sonatypeRepo("releases")
 
 publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/dev/repo/maven-repo/releases" )) )
