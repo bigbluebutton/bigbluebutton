@@ -1,7 +1,7 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { injectIntl } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import JoinVideoButton from './component';
 import VideoService from '../service';

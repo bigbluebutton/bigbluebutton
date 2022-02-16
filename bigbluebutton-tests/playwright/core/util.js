@@ -15,4 +15,3 @@ function checkIncludeClass([selector, className]) {
 exports.checkElement = checkElement;
 exports.checkElementLengthEqualTo = checkElementLengthEqualTo;
 exports.checkIncludeClass = checkIncludeClass;
-

@@ -1,9 +1,7 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
-import { styles } from './styles';
+import Styled from './styles';
 
 const ASK_MODERATOR = 'ASK_MODERATOR';
 const ALWAYS_ACCEPT = 'ALWAYS_ACCEPT';
@@ -65,30 +63,26 @@ class GuestPolicyComponent extends PureComponent {
     } = this.props;
 
     return (
-      <Modal
-        overlayClassName={styles.overlay}
-        className={styles.modal}
+      <Styled.GuestPolicyModal
         onRequestClose={closeModal}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
       >
-        <div
-          className={styles.container}
+        <Styled.Container
           data-test="guestPolicySettingsModal"
         >
-          <div className={styles.header}>
-            <h2 className={styles.title}>
+          <Styled.Header>
+            <Styled.Title>
               {intl.formatMessage(intlMessages.guestPolicyTitle)}
-            </h2>
-          </div>
-          <div className={styles.description}>
+            </Styled.Title>
+          </Styled.Header>
+          <Styled.Description>
             {intl.formatMessage(intlMessages.guestPolicyDescription)}
-          </div>
+          </Styled.Description>
 
-          <div className={styles.content}>
-            <Button
+          <Styled.Content>
+            <Styled.GuestPolicyButton
               color="primary"
-              className={[styles.button, guestPolicy === ASK_MODERATOR && styles.active].join(' ')}
               disabled={guestPolicy === ASK_MODERATOR}
               label={intl.formatMessage(intlMessages.askModerator)}
               aria-describedby={guestPolicy === ASK_MODERATOR ? 'selected-btn-desc' : 'policy-btn-desc'}
@@ -99,9 +93,8 @@ class GuestPolicyComponent extends PureComponent {
                 closeModal();
               }}
             />
-            <Button
+            <Styled.GuestPolicyButton
               color="primary"
-              className={[styles.button, guestPolicy === ALWAYS_ACCEPT && styles.active].join(' ')}
               disabled={guestPolicy === ALWAYS_ACCEPT}
               label={intl.formatMessage(intlMessages.alwaysAccept)}
               aria-describedby={guestPolicy === ALWAYS_ACCEPT ? 'selected-btn-desc' : 'policy-btn-desc'}
@@ -112,9 +105,8 @@ class GuestPolicyComponent extends PureComponent {
                 closeModal();
               }}
             />
-            <Button
+            <Styled.GuestPolicyButton
               color="primary"
-              className={[styles.button, guestPolicy === ALWAYS_DENY && styles.active].join(' ')}
               disabled={guestPolicy === ALWAYS_DENY}
               label={intl.formatMessage(intlMessages.alwaysDeny)}
               aria-describedby={guestPolicy === ALWAYS_DENY ? 'selected-btn-desc' : 'policy-btn-desc'}
@@ -125,12 +117,12 @@ class GuestPolicyComponent extends PureComponent {
                 closeModal();
               }}
             />
-          </div>
+          </Styled.Content>
           <div id="policy-btn-desc" aria-hidden className="sr-only">
             {intl.formatMessage(intlMessages.policyBtnDesc)}
           </div>
-        </div>
-      </Modal>
+        </Styled.Container>
+      </Styled.GuestPolicyModal>
     );
   }
 }

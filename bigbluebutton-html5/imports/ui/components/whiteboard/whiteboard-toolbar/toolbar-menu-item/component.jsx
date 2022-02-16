@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Button from '/imports/ui/components/button/component';
 import _ from 'lodash';
-import cx from 'classnames';
-import { styles } from '../styles';
+import Styled from './styles';
 
 export default class ToolbarMenuItem extends Component {
   constructor() {
@@ -73,7 +71,6 @@ export default class ToolbarMenuItem extends Component {
       icon,
       customIcon,
       onBlur,
-      className,
       children,
       showCornerTriangle,
       expanded,
@@ -82,11 +79,14 @@ export default class ToolbarMenuItem extends Component {
     } = this.props;
 
     return (
-      <div
-        className={cx(styles.buttonWrapper, !showCornerTriangle || styles.cornerTriangle)}
+      <Styled.ButtonWrapper
+        showCornerTriangle={showCornerTriangle}
+        className={"toolbarButtonWrapper"}
         hidden={disabled}
       >
-        <Button
+        <Styled.ToolbarButton
+          state={expanded ? 'active' : 'inactive'}
+          className={expanded ? 'toolbarActive' : ''}
           aria-expanded={expanded}
           aria-haspopup={haspopup}
           data-test={dataTest}
@@ -102,12 +102,11 @@ export default class ToolbarMenuItem extends Component {
           onKeyPress={this.handleOnMouseDown}
           onKeyUp={this.handleOnMouseUp}
           onBlur={onBlur}
-          className={className}
           setRef={this.setRef}
           disabled={disabled}
         />
         {children}
-      </div>
+      </Styled.ButtonWrapper>
     );
   }
 }
@@ -128,7 +127,7 @@ ToolbarMenuItem.propTypes = {
   icon: PropTypes.string,
   customIcon: PropTypes.node,
   label: PropTypes.string.isRequired,
-  className: PropTypes.string.isRequired,
+  toolbarActive: PropTypes.bool,
   disabled: PropTypes.bool,
   showCornerTriangle: PropTypes.bool,
 };
@@ -141,4 +140,5 @@ ToolbarMenuItem.defaultProps = {
   children: null,
   disabled: false,
   showCornerTriangle: false,
+  toolbarActive: false,
 };

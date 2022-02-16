@@ -55,6 +55,7 @@ public class Meeting {
 	private int learningDashboardCleanupDelayInMinutes;
 	private String learningDashboardAccessToken;
 	private Boolean virtualBackgroundsDisabled;
+	private ArrayList<String> disabledFeatures;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
 	private String modOnlyMessage = "";
@@ -72,10 +73,11 @@ public class Meeting {
 	private String defaultAvatarURL;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
 	private String guestLobbyMessage = "";
+	private Map<String,String> usersWithGuestLobbyMessages;
 	private Boolean authenticatedGuest = false;
 	private String meetingLayout = MeetingLayout.SMART_LAYOUT;
 	private boolean userHasJoined = false;
-	private Map<String, String> pads;
+	private Map<String, String> guestUsersWithPositionInWaitingLine;
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users;
@@ -83,6 +85,7 @@ public class Meeting {
 	private final ConcurrentMap<String, Long> enteredUsers;
 	private final Boolean isBreakout;
 	private final List<String> breakoutRooms = new ArrayList<>();
+	private ArrayList<Group> groups = new ArrayList<Group>();
 	private String customLogoURL = "";
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
@@ -116,6 +119,7 @@ public class Meeting {
         moderatorPass = builder.moderatorPass;
 		learningDashboardEnabled = builder.learningDashboardEnabled;
 		virtualBackgroundsDisabled = builder.virtualBackgroundsDisabled;
+		disabledFeatures = builder.disabledFeatures;
 		learningDashboardCleanupDelayInMinutes = builder.learningDashboardCleanupDelayInMinutes;
 		learningDashboardAccessToken = builder.learningDashboardAccessToken;
         maxUsers = builder.maxUsers;
@@ -139,23 +143,18 @@ public class Meeting {
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
         authenticatedGuest = builder.authenticatedGuest;
+		meetingLayout = builder.meetingLayout;
         allowRequestsWithoutSession = builder.allowRequestsWithoutSession;
-				meetingLayout = builder.meetingLayout;
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
         allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
         endWhenNoModerator = builder.endWhenNoModerator;
         endWhenNoModeratorDelayInMinutes = builder.endWhenNoModeratorDelayInMinutes;
         html5InstanceId = builder.html5InstanceId;
-
-        /*
-         * A pad is a pair of padId and readOnlyId that represents
-         * valid etherpads instances for this meeting. They can be:
-         *  - shared notes
-         *  - closed captions
-         */
-        pads = new HashMap<>();
+		groups = builder.groups;
+		guestUsersWithPositionInWaitingLine = new HashMap<>();
         userCustomData = new HashMap<>();
+		usersWithGuestLobbyMessages = new HashMap<>();
 
         users = new ConcurrentHashMap<>();
         registeredUsers = new ConcurrentHashMap<>();
@@ -168,10 +167,6 @@ public class Meeting {
 
 	public List<String> getBreakoutRooms() {
 		return breakoutRooms;
-	}
-
-	public Map<String, String> getPads() {
-		return pads;
 	}
 
 	public Map<String, String> getMetadata() {
@@ -228,6 +223,10 @@ public class Meeting {
 	public int getHtml5InstanceId() { return html5InstanceId; }
 
     public void setHtml5InstanceId(int instanceId) { html5InstanceId = instanceId; }
+
+	public ArrayList<Group> getGroups() { return groups; }
+
+	public void setGroups(ArrayList<Group> groups) { this.groups = groups; }
 
     public long getStartTime() {
 		return startTime;
@@ -353,6 +352,10 @@ public class Meeting {
 		return virtualBackgroundsDisabled;
 	}
 
+	public ArrayList<String> getDisabledFeatures() {
+		return disabledFeatures;
+	}
+
   public String getWelcomeMessageTemplate() {
     return welcomeMsgTemplate;
   }
@@ -363,6 +366,14 @@ public class Meeting {
 
 	public String getDefaultAvatarURL() {
 		return defaultAvatarURL;
+	}
+
+	public void setWaitingPositionsInWaitingQueue(HashMap<String, String> guestUsersWithPositionInWaitingLine) {
+		this.guestUsersWithPositionInWaitingLine = guestUsersWithPositionInWaitingLine;
+	}
+
+	public String getWaitingPositionsInWaitingQueue(String userId) {
+		return guestUsersWithPositionInWaitingLine.get(userId);
 	}
 
 	public void setGuestPolicy(String policy) {
@@ -377,8 +388,15 @@ public class Meeting {
 		guestLobbyMessage = message;
 	}
 
-	public String getGuestLobbyMessage() {
+	public String getGuestLobbyMessage(String guestId) {
+		if (usersWithGuestLobbyMessages.containsKey(guestId) && usersWithGuestLobbyMessages.get(guestId) != "") {
+			return usersWithGuestLobbyMessages.get(guestId);
+		}
 		return guestLobbyMessage;
+	}
+
+	public void setPrivateGuestLobbyMessage(String guestId, String message) {
+		usersWithGuestLobbyMessages.put(guestId, message);
 	}
 
 	public void setAuthenticatedGuest(Boolean authGuest) {
@@ -626,14 +644,6 @@ public class Meeting {
         return sum;
     }
 
-	public void addPad(String padId, String readOnlyId) {
-		pads.put(padId, readOnlyId);
-	}
-
-	public Boolean hasPad(String id) {
-		return pads.containsKey(id) || pads.containsValue(id);
-	}
-
 	public void addUserCustomData(String userID, Map<String, String> data) {
 		userCustomData.put(userID, data);
 	}
@@ -761,6 +771,7 @@ public class Meeting {
     	private int learningDashboardCleanupDelayInMinutes;
     	private String learningDashboardAccessToken;
 		private Boolean virtualBackgroundsDisabled;
+		private ArrayList<String> disabledFeatures;
     	private int duration;
     	private String webVoice;
     	private String telVoice;
@@ -778,13 +789,14 @@ public class Meeting {
     	private String guestPolicy;
     	private Boolean authenticatedGuest;
     	private Boolean allowRequestsWithoutSession;
-			private String meetingLayout;
+		private String meetingLayout;
     	private BreakoutRoomsParams breakoutRoomsParams;
     	private LockSettingsParams lockSettingsParams;
 		private Boolean allowDuplicateExtUserid;
 		private Boolean endWhenNoModerator;
 		private Integer endWhenNoModeratorDelayInMinutes;
 		private int html5InstanceId;
+		private ArrayList<Group> groups;
 
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -869,6 +881,11 @@ public class Meeting {
 
 		public Builder withVirtualBackgroundsDisabled(Boolean d) {
 			this.virtualBackgroundsDisabled = d;
+			return this;
+		}
+
+		public Builder withDisabledFeatures(ArrayList<String> list) {
+			this.disabledFeatures = list;
 			return this;
 		}
 
@@ -967,7 +984,12 @@ public class Meeting {
     		return this;
 		}
 
-    	public Meeting build() {
+		public Builder withGroups(ArrayList<Group> groups) {
+			this.groups = groups;
+			return this;
+		}
+
+		public Meeting build() {
     		return new Meeting(this);
     	}
     }

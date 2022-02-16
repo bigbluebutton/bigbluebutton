@@ -5,5 +5,4 @@ before-remove.sh
 build.sh
 opts-bionic.sh
 opts-centos7.sh
-opts-xenial.sh
 webhooks.nginx

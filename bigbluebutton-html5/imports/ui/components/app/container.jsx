@@ -1,21 +1,25 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
-import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import { notify } from '/imports/ui/services/notification';
-import CaptionsContainer from '/imports/ui/components/captions/container';
+import CaptionsContainer from '/imports/ui/components/captions/live/container';
 import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
-import LayoutContext from '../layout/context';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import _ from 'lodash';
+import {
+  layoutSelect,
+  layoutSelectInput,
+  layoutSelectOutput,
+  layoutDispatch,
+} from '../layout/context';
 
 import {
   getFontSize,
@@ -23,7 +27,7 @@ import {
   validIOSVersion,
 } from './service';
 
-import { withModalMounter, getModal } from '../modal/service';
+import { withModalMounter, getModal } from '/imports/ui/components/common/modal/service';
 
 import App from './component';
 import ActionsBarContainer from '../actions-bar/container';
@@ -52,9 +56,6 @@ const endMeeting = (code) => {
 };
 
 const AppContainer = (props) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-
   function usePrevious(value) {
     const ref = useRef();
     useEffect(() => {
@@ -77,26 +78,26 @@ const AppContainer = (props) => {
     isModalOpen,
     ...otherProps
   } = props;
-  const {
-    input,
-    output,
-    layoutType,
-    deviceType,
-  } = layoutContextState;
-  const { sidebarContent, sidebarNavigation, presentation } = input;
-  const { actionBar: actionsBarStyle, captions: captionsStyle } = output;
-  const { sidebarNavPanel } = sidebarNavigation;
-  const { sidebarContentPanel } = sidebarContent;
-  const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
-  const sidebarContentIsOpen = sidebarContent.isOpen;
-  const presentationIsOpen = presentation.isOpen;
+
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
+  const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
+  const captionsStyle = layoutSelectOutput((i) => i.captions);
+  const presentation = layoutSelectInput((i) => i.presentation);
+  const layoutType = layoutSelect((i) => i.layoutType);
+  const deviceType = layoutSelect((i) => i.deviceType);
+  const layoutContextDispatch = layoutDispatch();
+
+  const { sidebarContentPanel, isOpen: sidebarContentIsOpen } = sidebarContent;
+  const { sidebarNavPanel, isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
+  const { isOpen: presentationIsOpen } = presentation;
   const shouldShowPresentation = propsShouldShowPresentation
     && (presentationIsOpen || presentationRestoreOnUpdate);
 
   const prevRandomUser = usePrevious(randomlySelectedUser);
 
   const mountRandomUserModal = !isPresenter
-  && !_.isEqual( prevRandomUser, randomlySelectedUser)
+  && !_.isEqual(prevRandomUser, randomlySelectedUser)
   && randomlySelectedUser.length > 0
   && !isModalOpen;
 
@@ -141,12 +142,6 @@ const currentUserEmoji = (currentUser) => (currentUser
 );
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
-  const authTokenValidation = AuthTokenValidation.findOne({}, { sort: { updatedAt: -1 } });
-
-  if (authTokenValidation.connectionId !== Meteor.connection._lastSessionId) {
-    endMeeting('403');
-  }
-
   Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
     removed() {
       endMeeting('403');
@@ -158,10 +153,11 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     {
       fields:
       {
-        approved: 1, emoji: 1, userId: 1, presenter: 1,
+        approved: 1, emoji: 1, userId: 1, presenter: 1, role: 1,
       },
     },
   );
+
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
     {
       fields: {
@@ -192,7 +188,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
-    && (viewScreenshare || MediaService.isUserPresenter());
+    && (viewScreenshare || currentUser?.presenter);
   let customStyleUrl = getFromUserSettings('bbb_custom_style_url', false);
 
   if (!customStyleUrl && CUSTOM_STYLE_URL) {
@@ -217,6 +213,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     hasPublishedPoll: publishedPoll,
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
+    currentUserRole: currentUser?.role,
     isPresenter: currentUser?.presenter,
     meetingLayout: layout,
     selectedLayout,

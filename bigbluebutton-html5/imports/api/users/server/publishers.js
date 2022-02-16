@@ -2,14 +2,15 @@ import Users from '/imports/api/users';
 import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
-import { extractCredentials } from '/imports/api/common/server/helpers';
+import { extractCredentials, publicationSafeGuard } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 function currentUser() {
   if (!this.userId) {
-    return Users.find({ meetingId: '' });
+    Mongo.Collection._publishCursor(Users.find({ meetingId: '' }), this, 'current-user');
+    return this.ready();
   }
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
@@ -28,8 +29,8 @@ function currentUser() {
       authToken: false, // Not asking for authToken from client side but also not exposing it
     },
   };
-
-  return Users.find(selector, options);
+  Mongo.Collection._publishCursor(Users.find(selector, options), this, 'current-user');
+  return this.ready();
 }
 
 function publishCurrentUser(...args) {
@@ -39,7 +40,7 @@ function publishCurrentUser(...args) {
 
 Meteor.publish('current-user', publishCurrentUser);
 
-function users(role) {
+function users() {
   const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
@@ -68,6 +69,18 @@ function users(role) {
       'breakoutProps.isBreakoutUser': true,
       'breakoutProps.parentId': meetingId,
     });
+    // Monitor this publication and stop it when user is not a moderator anymore
+    const comparisonFunc = () => {
+      const user = Users.findOne({ userId, meetingId }, { fields: { role: 1, userId: 1 } });
+      const condition = user.role === ROLE_MODERATOR;
+      if (!condition) {
+        Logger.info(`conditions aren't filled anymore in publication ${this._name}: 
+        user.role === ROLE_MODERATOR :${condition}, user.role: ${user.role} ROLE_MODERATOR: ${ROLE_MODERATOR}`);
+      }
+
+      return condition;
+    };
+    publicationSafeGuard(comparisonFunc, this);
   }
 
   const options = {

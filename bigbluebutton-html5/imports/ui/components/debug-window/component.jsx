@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import Draggable from 'react-draggable';
-import Resizable from 're-resizable';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from './styles.scss';
-import Icon from '/imports/ui/components/icon/component';
-import Button from '/imports/ui/components/button/component';
+import Styled from './styles';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 
 const intlMessages = defineMessages({
@@ -87,10 +84,10 @@ class DebugWindow extends Component {
     const { intl } = this.props;
 
     return (
-      <span className={styles.toggleLabel}>
+      <Styled.ToggleLabel>
         {status ? intl.formatMessage(intlMessages.on)
           : intl.formatMessage(intlMessages.off)}
-      </span>
+      </Styled.ToggleLabel>
     );
   }
 
@@ -108,8 +105,7 @@ class DebugWindow extends Component {
         bounds="body"
         enableUserSelectHack={false}
       >
-        <Resizable
-          className={styles.debugWindowWrapper}
+        <Styled.DebugWindowWrapper
           minWidth={window.innerWidth * 0.2}
           minHeight={window.innerHeight * 0.2}
           enable={{
@@ -123,19 +119,13 @@ class DebugWindow extends Component {
             bottomRight: true,
           }}
         >
-          <div
-            className={styles.debugWindow}
-          >
-            <div
-              id="debugWindowHeader"
-              className={styles.header}
-            >
-              <Icon iconName="fit_to_screen" className={styles.moveIcon} />
-              <div className={styles.title}>
+          <Styled.DebugWindow>
+            <Styled.Header id="debugWindowHeader">
+              <Styled.MoveIcon iconName="fit_to_screen" />
+              <Styled.Title>
                 {intl.formatMessage(intlMessages.debugWindowTitle)}
-              </div>
-              <Button
-                className={styles.close}
+              </Styled.Title>
+              <Styled.CloseButton
                 label={intl.formatMessage(intlMessages.modalClose)}
                 aria-label={`${intl.formatMessage(intlMessages.modalClose)} ${intl.formatMessage(intlMessages.debugWindowTitle)}`}
                 icon="close"
@@ -143,16 +133,15 @@ class DebugWindow extends Component {
                 hideLabel
                 onClick={() => this.setShowDebugWindow(false)}
               />
-            </div>
-            <div className={styles.debugWindowContent}>
-              <div className={styles.table}>
-                <div className={styles.row}>
-                  <div className={styles.cell}>
+            </Styled.Header>
+            <Styled.DebugWindowContent>
+              <Styled.Table>
+                <Styled.TableRow>
+                  <Styled.TableCell>
                     {`${intl.formatMessage(intlMessages.userAgentLabel)}:`}
-                  </div>
-                  <div className={styles.cell}>
-                    <input
-                      className={styles.userAgentInput}
+                  </Styled.TableCell>
+                  <Styled.TableCell>
+                    <Styled.UserAgentInput
                       id="debugModalUserAgent"
                       type="text"
                       value={window.navigator.userAgent}
@@ -164,14 +153,14 @@ class DebugWindow extends Component {
                     >
                       {`${intl.formatMessage(intlMessages.copyButtonLabel)}`}
                     </button>
-                  </div>
-                </div>
-                <div className={styles.row}>
-                  <div className={styles.cell}>
+                  </Styled.TableCell>
+                </Styled.TableRow>
+                <Styled.TableRow>
+                  <Styled.TableCell>
                     {`${intl.formatMessage(intlMessages.chatLoggerLabel)}:`}
-                  </div>
-                  <div className={styles.cell}>
-                    <div className={styles.cellContent}>
+                  </Styled.TableCell>
+                  <Styled.TableCell>
+                    <Styled.CellContent>
                       <select
                         style={{ marginRight: '1rem' }}
                         onChange={(ev) => {
@@ -199,13 +188,13 @@ class DebugWindow extends Component {
                       >
                         {`${intl.formatMessage(intlMessages.applyButtonLabel)}`}
                       </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Resizable>
+                    </Styled.CellContent>
+                  </Styled.TableCell>
+                </Styled.TableRow>
+              </Styled.Table>
+            </Styled.DebugWindowContent>
+          </Styled.DebugWindow>
+        </Styled.DebugWindowWrapper>
       </Draggable>
     );
   }

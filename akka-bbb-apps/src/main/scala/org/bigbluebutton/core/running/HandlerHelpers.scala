@@ -3,6 +3,7 @@ package org.bigbluebutton.core.running
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, EndBreakoutRoomInternalMsg }
+import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.apps.voice.VoiceApp
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
@@ -296,4 +297,17 @@ trait HandlerHelpers extends SystemConfiguration {
     val event = UserRemovedFromPresenterGroupEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
+
+  def buildGroupChatMessageBroadcastEvtMsg(meetingId: String, userId: String, chatId: String,
+                                           msg: GroupChatMessage): BbbCommonEnvCoreMsg = {
+
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GroupChatMessageBroadcastEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GroupChatMessageBroadcastEvtMsg.NAME, meetingId, userId)
+    val cmsgs = GroupChatApp.toMessageToUser(msg)
+    val body = GroupChatMessageBroadcastEvtMsgBody(chatId, cmsgs)
+    val event = GroupChatMessageBroadcastEvtMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
 }

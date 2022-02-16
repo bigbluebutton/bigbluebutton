@@ -6,4 +6,10 @@ async function setStatus(page, status) {
   await page.waitAndClick(status);
 }
 
+async function openLockViewers(test) {
+  await test.waitAndClick(e.manageUsers);
+  await test.waitAndClick(e.lockViewersButton);
+}
+
 exports.setStatus = setStatus;
+exports.openLockViewers = openLockViewers;

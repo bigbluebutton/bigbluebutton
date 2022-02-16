@@ -41,6 +41,10 @@ sed -i 's/\r$//' bbb-common-web/project/Dependencies.scala
 sed -i 's|\(val bbbCommons = \)"[^"]*"$|\1"EPHEMERAL_VERSION"|g' bbb-common-web/project/Dependencies.scala
 sed -i "s/EPHEMERAL_VERSION/$EPHEMERAL_VERSION/g" bbb-common-web/project/Dependencies.scala
 
+#Clear cached .jar of common-message and common-web
+rm -rf bbb-common-web/lib_managed/jars/org.bigbluebutton/bbb-common-message_*
+rm -rf bigbluebutton-web/lib/bbb-*
+
 echo start building bbb-common-message
 cd bbb-common-message
 sbt publish

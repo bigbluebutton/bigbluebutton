@@ -101,8 +101,8 @@ class RedisRecorderActor(
       // Caption
       case m: EditCaptionHistoryEvtMsg              => handleEditCaptionHistoryEvtMsg(m)
 
-      // Pad
-      case m: AddPadEvtMsg                          => handleAddPadEvtMsg(m)
+      // Pads
+      case m: PadCreatedRespMsg                     => handlePadCreatedRespMsg(m)
 
       // Screenshare
       case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
@@ -137,10 +137,8 @@ class RedisRecorderActor(
     if (msg.body.chatId == GroupChatApp.MAIN_PUBLIC_CHAT) {
       val ev = new PublicChatRecordEvent()
       ev.setMeetingId(msg.header.meetingId)
-      ev.setSender(msg.body.msg.sender.name)
       ev.setSenderId(msg.body.msg.sender.id)
       ev.setMessage(msg.body.msg.message)
-      ev.setColor(msg.body.msg.color)
 
       record(msg.header.meetingId, ev.toMap.asJava)
     }
@@ -447,15 +445,15 @@ class RedisRecorderActor(
     ev.setMeetingId(msg.header.meetingId)
     ev.setStartIndex(msg.body.startIndex)
     ev.setEndIndex(msg.body.endIndex)
+    ev.setName(msg.body.name)
     ev.setLocale(msg.body.locale)
-    ev.setLocaleCode(msg.body.localeCode)
     ev.setText(msg.body.text)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleAddPadEvtMsg(msg: AddPadEvtMsg) {
-    val ev = new AddPadRecordEvent()
+  private def handlePadCreatedRespMsg(msg: PadCreatedRespMsg) {
+    val ev = new PadCreatedRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPadId(msg.body.padId)
 

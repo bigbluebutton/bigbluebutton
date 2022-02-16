@@ -49,7 +49,7 @@ module BigBlueButton
       BigBlueButton.logger.info("Task: Getting meeting metadata")
       doc = Nokogiri::XML(File.open(events_xml))
       metadata = {}
-      doc.xpath("//metadata").each do |e|
+      doc.xpath("recording/metadata").each do |e|
         e.keys.each do |k|
           metadata[k] = e.attribute(k)
         end
@@ -61,7 +61,7 @@ module BigBlueButton
       BigBlueButton.logger.info("Task: Getting notes id")
       notes_id = 'undefined'
       cc_token = '_cc_'
-      events.xpath("/recording/event[@eventname='AddPadEvent']").each do |pad_event|
+      events.xpath("/recording/event[@eventname='AddPadEvent' or @eventname='PadCreatedEvent']").each do |pad_event|
         pad_id = pad_event.at_xpath('padId').text
         notes_id = pad_id if ! pad_id.include? cc_token
       end
@@ -483,6 +483,19 @@ module BigBlueButton
       html.to_html
     end
 
+    # Build a map of users name
+    def self.user_name_map(events)
+      map = {}
+
+      events.xpath('/recording/event[@module="PARTICIPANT" and @eventname="ParticipantJoinEvent"]').each do |event|
+        internal_id = event.at_xpath('./userId')&.content
+        user_name = event.at_xpath('./name')&.content
+        map[internal_id] = user_name
+      end
+
+      map
+    end
+
     # Build a map of internal user IDs to anonymized names. This can be used to anonymize users in
     # chat, cursor overlays, etc.
     def self.anonymous_user_map(events, moderators: false)
@@ -552,7 +565,7 @@ module BigBlueButton
       anonymize_moderators = bbb_props['anonymize_chat_moderators'] if anonymize_moderators.nil?
       anonymize_moderators = anonymize_moderators.to_s.casecmp?('true')
 
-      user_map = anonymize_senders ? anonymous_user_map(events, moderators: anonymize_moderators) : {}
+      user_map = anonymize_senders ? anonymous_user_map(events, moderators: anonymize_moderators) : user_name_map(events);
 
       chats = []
       events.xpath('/recording/event').each do |event|
@@ -566,21 +579,13 @@ module BigBlueButton
           date = event.at_xpath('./date')&.content
           date = DateTime.iso8601(date) unless date.nil?
           sender_id = event.at_xpath('./senderId')&.content
-          color = event.at_xpath('./color')&.content
-          if color&.start_with?('#')
-            avatar_color = color
-          else
-            text_color = color.to_i
-          end
 
           chats << {
             in: timestamp - offset,
             out: nil,
             sender_id: sender_id,
-            sender: user_map.fetch(sender_id) { event.at_xpath('./sender').content },
+            sender: user_map.fetch(sender_id),
             message: linkify(event.at_xpath('./message').content.strip),
-            avatar_color: avatar_color,
-            text_color: text_color,
             date: date,
           }
         when %w[CHAT ClearPublicChatEvent]
@@ -608,7 +613,7 @@ module BigBlueButton
     def self.get_record_status_events(events_xml)
       BigBlueButton.logger.info "Getting record status events"
       rec_events = []
-      events_xml.xpath("//event[@eventname='RecordStatusEvent']").each do |event|
+      events_xml.xpath("recording/event[@eventname='RecordStatusEvent']").each do |event|
         s = { :timestamp => event['timestamp'].to_i }
         rec_events << s
       end
@@ -618,14 +623,14 @@ module BigBlueButton
     def self.get_external_video_events(events_xml)
       BigBlueButton.logger.info "Getting external video events"
       external_videos_events = []
-      events_xml.xpath("//event[@eventname='StartExternalVideoRecordEvent']").each do |event|
+      events_xml.xpath("recording/event[@eventname='StartExternalVideoRecordEvent']").each do |event|
         s = {
           :timestamp => event['timestamp'].to_i,
           :external_video_url => event.at_xpath("externalVideoUrl").text
         }
         external_videos_events << s
       end
-      events_xml.xpath("//event[@eventname='StopExternalVideoRecordEvent']").each do |event|
+      events_xml.xpath("recording/event[@eventname='StopExternalVideoRecordEvent']").each do |event|
         s = { :timestamp => event['timestamp'].to_i }
         external_videos_events << s
       end

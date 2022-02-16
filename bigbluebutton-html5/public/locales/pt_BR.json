@@ -333,6 +333,7 @@
     "app.navBar.userListToggleBtnLabel": "Alternar lista de usuários",
     "app.navBar.toggleUserList.ariaLabel": "Alternar usuários e mensagens",
     "app.navBar.toggleUserList.newMessages": "com notificação para novas mensagens",
+    "app.navBar.toggleUserList.newMsgAria": "Nova mensagem de {0}",
     "app.navBar.recording": "Esta conferência está sendo gravada",
     "app.navBar.recording.on": "A gravação está em andamento",
     "app.navBar.recording.off": "Sem gravação",
@@ -687,6 +688,10 @@
     "app.connection-status.no": "Não",
     "app.connection-status.notification": "Sua conexão foi perdida",
     "app.connection-status.offline": "desconectado",
+    "app.connection-status.audioUploadRate": "Taxa de Upload de Áudio",
+    "app.connection-status.audioDownloadRate": "Taxa de Download de Áudio",
+    "app.connection-status.videoUploadRate": "Taxa de Upload de Video",
+    "app.connection-status.videoDownloadRate": "Taxa de Download de Video",
     "app.connection-status.lostPackets": "Pacotes perdidos",
     "app.connection-status.usingTurn": "Usando TURN",
     "app.connection-status.yes": "Sim",
@@ -919,7 +924,6 @@
     "playback.player.chat.message.poll.option.abstention": "Abstenção",
     "playback.player.chat.message.poll.option.true": "Verdadeiro",
     "playback.player.chat.message.poll.option.false": "Falso",
-    "playback.player.chat.message.externalVideo.name": "Vídeo externo",
     "playback.player.chat.wrapper.aria": "Área do bate-papo",
     "playback.player.notes.wrapper.aria": "Área das anotações",
     "playback.player.presentation.wrapper.aria": "Área da apresentação",
@@ -927,7 +931,6 @@
     "playback.player.search.modal.title": "Procurar",
     "playback.player.search.modal.subtitle": "Encontre o conteúdo dos slides da apresentação",
     "playback.player.thumbnails.wrapper.aria": "Área das miniaturas",
-    "playback.player.video.wrapper.aria": "Área do vídeo",
     "app.learningDashboard.dashboardTitle": "Painel Analítico de Aprendizagem",
     "app.learningDashboard.user": "Usuário",
     "app.learningDashboard.indicators.meetingStatusEnded": "Finalizado",
@@ -958,4 +961,3 @@
     "app.learningDashboard.errors.dataUnavailable": "Dado indisponível"
 
 }
-

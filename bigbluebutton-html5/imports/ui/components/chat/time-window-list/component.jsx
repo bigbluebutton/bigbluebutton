@@ -3,9 +3,8 @@ import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import Button from '/imports/ui/components/button/component';
-import { List, AutoSizer,CellMeasurer, CellMeasurerCache } from 'react-virtualized';
-import { styles } from './styles';
+import { AutoSizer,CellMeasurer, CellMeasurerCache } from 'react-virtualized';
+import Styled from './styles';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import TimeWindowChatItem from './time-window-chat-item/container';
 
@@ -247,9 +246,8 @@ class TimeWindowList extends PureComponent {
 
     if (count && userScrolledBack) {
       return (
-        <Button
+        <Styled.UnreadButton
           aria-hidden="true"
-          className={styles.unreadButton}
           color="primary"
           size="sm"
           key="unread-messages"
@@ -289,7 +287,7 @@ class TimeWindowList extends PureComponent {
 
     return (
       [
-        <div
+        <Styled.MessageListWrapper
           onMouseDown={() => {
             this.setState({
               userScrolledBack: true,
@@ -303,7 +301,6 @@ class TimeWindowList extends PureComponent {
               this.userScrolledBack = true
             }
           }}
-          className={styles.messageListWrapper}
           key="chat-list"
           data-test="chatMessages"
           aria-live="polite"
@@ -316,7 +313,7 @@ class TimeWindowList extends PureComponent {
                 this.cache.clearAll();
               }
               return (
-                <List
+                <Styled.MessageList
                   ref={(ref) => {
                     if (ref !== null) {
                       this.listRef = ref;
@@ -328,7 +325,6 @@ class TimeWindowList extends PureComponent {
                   }}
                   isScrolling
                   rowHeight={this.cache.rowHeight}
-                  className={styles.messageList}
                   rowRenderer={this.rowRender}
                   rowCount={timeWindowsValues.length}
                   height={height}
@@ -351,7 +347,7 @@ class TimeWindowList extends PureComponent {
               );
             }}
           </AutoSizer>
-        </div>,
+        </Styled.MessageListWrapper>,
         this.renderUnreadNotification(),
       ]
     );

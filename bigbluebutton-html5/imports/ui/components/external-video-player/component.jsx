@@ -2,9 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import ReactPlayer from 'react-player';
 import _ from 'lodash';
-import cx from 'classnames';
 import {
   sendMessage,
   onMessage,
@@ -17,13 +15,13 @@ import logger from '/imports/startup/client/logger';
 
 import VolumeSlider from './volume-slider/component';
 import ReloadButton from '/imports/ui/components/reload-button/component';
-import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
+import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 
 import ArcPlayer from '/imports/ui/components/external-video-player/custom-players/arc-player';
 import PeerTubePlayer from '/imports/ui/components/external-video-player/custom-players/peertube';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   autoPlayWarning: {
@@ -43,8 +41,8 @@ const THROTTLE_INTERVAL_SECONDS = 0.5;
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
-ReactPlayer.addCustomPlayer(PeerTubePlayer);
-ReactPlayer.addCustomPlayer(ArcPlayer);
+Styled.VideoPlayer.addCustomPlayer(PeerTubePlayer);
+Styled.VideoPlayer.addCustomPlayer(ArcPlayer);
 
 class VideoPlayer extends Component {
   static clearVideoListeners() {
@@ -175,6 +173,11 @@ class VideoPlayer extends Component {
         value: true,
       });
     }
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+      value: true,
+    });
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -204,7 +207,11 @@ class VideoPlayer extends Component {
   }
 
   componentWillUnmount() {
-    const { hidePresentation } = this.props;
+    const {
+      layoutContextDispatch,
+      hidePresentation,
+    } = this.props;
+
     window.removeEventListener('beforeunload', this.onBeforeUnload);
 
     VideoPlayer.clearVideoListeners();
@@ -213,6 +220,11 @@ class VideoPlayer extends Component {
     clearTimeout(this.autoPlayTimeout);
 
     this.player = null;
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+      value: false,
+    });
 
     if (hidePresentation) {
       layoutContextDispatch({
@@ -335,7 +347,7 @@ class VideoPlayer extends Component {
     const intPlayer = this.player && this.player.getInternalPlayer();
     const rate = (intPlayer && intPlayer.getPlaybackRate && intPlayer.getPlaybackRate());
 
-    return typeof(rate) == 'number' ? rate : 1;
+    return typeof (rate) === 'number' ? rate : 1;
   }
 
   setPlaybackRate(rate) {
@@ -536,12 +548,15 @@ class VideoPlayer extends Component {
     const playerName = this.player && this.player.player
       && this.player.player.player && this.player.player.player.constructor.name;
 
-    const mobileHoverToolBarStyle = showHoverToolBar
-      ? styles.showMobileHoverToolbar
-      : styles.dontShowMobileHoverToolbar;
-    const desktopHoverToolBarStyle = styles.hoverToolbar;
+    let toolbarStyle = 'hoverToolbar';
 
-    const hoverToolbarStyle = deviceInfo.isMobile ? mobileHoverToolBarStyle : desktopHoverToolBarStyle;
+    if (deviceInfo.isMobile && !showHoverToolBar) {
+      toolbarStyle = 'dontShowMobileHoverToolbar';
+    }
+
+    if (deviceInfo.isMobile && showHoverToolBar) {
+      toolbarStyle = 'showMobileHoverToolbar';
+    }
     const isMinimized = width === 0 && height === 0;
 
     return (
@@ -557,27 +572,23 @@ class VideoPlayer extends Component {
           display: isMinimized && 'none',
         }}
       >
-        <div
+        <Styled.VideoPlayerWrapper
           id="video-player"
           data-test="videoPlayer"
-          className={cx({
-            [styles.videoPlayerWrapper]: true,
-            [styles.fullscreen]: fullscreenContext,
-          })}
+          fullscreen={fullscreenContext}
           ref={(ref) => { this.playerParent = ref; }}
         >
           {
             autoPlayBlocked
               ? (
-                <p className={styles.autoPlayWarning}>
+                <Styled.AutoPlayWarning>
                   {intl.formatMessage(intlMessages.autoPlayWarning)}
-                </p>
+                </Styled.AutoPlayWarning>
               )
               : ''
           }
 
-          <ReactPlayer
-            className={styles.videoPlayer}
+          <Styled.VideoPlayer
             url={videoUrl}
             config={this.opts}
             volume={(muted || mutedByEchoTest) ? 0 : volume}
@@ -598,7 +609,10 @@ class VideoPlayer extends Component {
             !isPresenter
               ? [
                 (
-                  <div className={hoverToolbarStyle} key="hover-toolbar-external-video">
+                  <Styled.HoverToolbar
+                    toolbarStyle={toolbarStyle}
+                    key="hover-toolbar-external-video"
+                  >
                     <VolumeSlider
                       hideVolume={this.hideVolume[playerName]}
                       volume={volume}
@@ -612,11 +626,10 @@ class VideoPlayer extends Component {
                       label={intl.formatMessage(intlMessages.refreshLabel)}
                     />
                     {this.renderFullscreenButton()}
-                  </div>
+                  </Styled.HoverToolbar>
                 ),
                 (deviceInfo.isMobile && playing) && (
-                  <span
-                    className={styles.mobileControlsOverlay}
+                  <Styled.MobileControlsOverlay
                     key="mobile-overlay-external-video"
                     ref={(ref) => { this.overlay = ref; }}
                     onTouchStart={() => {
@@ -634,7 +647,7 @@ class VideoPlayer extends Component {
               ]
               : null
           }
-        </div>
+        </Styled.VideoPlayerWrapper>
       </span>
     );
   }

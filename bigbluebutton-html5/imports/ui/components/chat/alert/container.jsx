@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import ChatAlert from './component';
-import LayoutContext from '../../layout/context';
+import { layoutSelect, layoutSelectInput, layoutDispatch } from '../../layout/context';
 import { PANELS } from '../../layout/enums';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import { ChatContext } from '/imports/ui/components/components-data/chat-context/context';
@@ -28,11 +28,11 @@ function usePrevious(value) {
 }
 
 const ChatAlertContainer = (props) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-  const { idChatOpen, input } = layoutContextState;
-  const { sidebarContent } = input;
+  const idChatOpen = layoutSelect((i) => i.idChatOpen);
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
+  const layoutContextDispatch = layoutDispatch();
+
   const { audioAlertEnabled, pushAlertEnabled } = props;
 
   let idChat = idChatOpen;

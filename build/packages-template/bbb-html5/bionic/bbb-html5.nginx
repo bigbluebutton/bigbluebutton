@@ -35,6 +35,7 @@ location /html5client/wasm {
 }
 
 location /html5client {
+  gzip_static on;
   alias /usr/share/meteor/bundle/programs/web.browser;
   try_files $uri @html5client;
 }

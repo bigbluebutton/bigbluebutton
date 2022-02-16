@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
-import Button from '/imports/ui/components/button/component';
 import { toast } from 'react-toastify';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   suggestLockTitle: {
@@ -68,25 +67,23 @@ class LockViewersNotifyComponent extends Component {
 
     notify(
       (
-        <React.Fragment>
-          <p className={styles.info}>{intl.formatMessage(intlMessages.suggestLockTitle)}</p>
-          <div className={styles.buttonWrapper}>
-            <Button
+        <>
+          <Styled.Info>{intl.formatMessage(intlMessages.suggestLockTitle)}</Styled.Info>
+          <Styled.ButtonWrapper>
+            <Styled.ManyUsersButton
               label={intl.formatMessage(intlMessages.enable)}
               aria-label={intl.formatMessage(intlMessages.enable)}
               onClick={toggleWebcamsOnlyForModerator}
-              className={styles.button}
             />
             |
-            <Button
+            <Styled.ManyUsersButton
               label={intl.formatMessage(intlMessages.cancel)}
               aria-label={intl.formatMessage(intlMessages.cancel)}
               onClick={() => toast.dismiss(lockToastId)}
-              className={styles.button}
             />
-          </div>
-          <p className={styles.info}>{intl.formatMessage(intlMessages.suggestLockReason)}</p>
-        </React.Fragment>
+          </Styled.ButtonWrapper>
+          <Styled.Info>{intl.formatMessage(intlMessages.suggestLockReason)}</Styled.Info>
+        </>
       ),
       'info',
       'rooms',

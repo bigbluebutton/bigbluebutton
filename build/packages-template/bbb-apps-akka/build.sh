@@ -15,6 +15,9 @@ find -name build.sbt -exec sed -i "s|\(.*org.bigbluebutton.*bbb-common-message[^
 
 export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
 
+#Clear cached .jar of common-message
+rm -rf akka-bbb-apps/lib_managed/jars/org.bigbluebutton/bbb-common-message_*
+
 cd bbb-common-message
 sbt publish
 sbt publishLocal

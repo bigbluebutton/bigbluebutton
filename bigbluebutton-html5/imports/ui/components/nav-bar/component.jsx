@@ -1,13 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import { defineMessages, injectIntl } from 'react-intl';
-import Icon from '../icon/component';
-import { styles } from './styles.scss';
-import Button from '/imports/ui/components/button/component';
+import Styled from './styles';
 import RecordingIndicator from './recording-indicator/container';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
 import ConnectionStatusButton from '/imports/ui/components/connection-status/button/container';
@@ -46,6 +42,9 @@ const propTypes = {
   presentationTitle: PropTypes.string,
   hasUnreadMessages: PropTypes.bool,
   shortcuts: PropTypes.string,
+  breakoutNum: PropTypes.number,
+  breakoutName: PropTypes.string,
+  meetingName: PropTypes.string,
 };
 
 const defaultProps = {
@@ -67,8 +66,6 @@ class NavBar extends Component {
 
   componentDidMount() {
     const {
-      processOutsideToggleRecording,
-      connectRecordingObserver,
       shortcuts: TOGGLE_USERLIST_AK,
       intl,
       breakoutNum,
@@ -77,25 +74,21 @@ class NavBar extends Component {
     } = this.props;
 
     if (breakoutNum && breakoutNum > 0) {
-      const defaultBreakoutName = intl.formatMessage(intlMessages.defaultBreakoutName, {
-        0: breakoutNum,
-      });
+      if (breakoutName && meetingName) {
+        const defaultBreakoutName = intl.formatMessage(intlMessages.defaultBreakoutName, {
+          0: breakoutNum,
+        });
 
-      if (breakoutName === defaultBreakoutName) {
-        document.title = `${breakoutNum} - ${meetingName}`;
-      } else {
-        document.title = `${breakoutName} - ${meetingName}`;
+        if (breakoutName === defaultBreakoutName) {
+          document.title = `${breakoutNum} - ${meetingName}`;
+        } else {
+          document.title = `${breakoutName} - ${meetingName}`;
+        }
       }
     }
 
     const { isFirefox } = browserInfo;
     const { isMacos } = deviceInfo;
-
-    if (Meteor.settings.public.allowOutsideCommands.toggleRecording
-      || getFromUserSettings('bbb_outside_toggle_recording', false)) {
-      connectRecordingObserver();
-      window.addEventListener('message', processOutsideToggleRecording);
-    }
 
     // accessKey U does not work on firefox for macOS for some unknown reason
     if (isMacos && isFirefox && TOGGLE_USERLIST_AK === 'U') {
@@ -167,7 +160,6 @@ class NavBar extends Component {
     const {
       hasUnreadMessages,
       hasUnreadNotes,
-      // isExpanded,
       activeChats,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
@@ -180,9 +172,6 @@ class NavBar extends Component {
     } = this.props;
 
     const hasNotification = hasUnreadMessages || hasUnreadNotes;
-    const toggleBtnClasses = {};
-    toggleBtnClasses[styles.btn] = true;
-    toggleBtnClasses[styles.btnWithNotificationDot] = hasNotification;
 
     let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
     ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
@@ -198,8 +187,7 @@ class NavBar extends Component {
     });
 
     return (
-      <header
-        className={styles.navbar}
+      <Styled.Navbar
         style={
           main === 'new'
             ? {
@@ -216,13 +204,13 @@ class NavBar extends Component {
             }
         }
       >
-        <div className={styles.top}>
-          <div className={styles.left}>
+        <Styled.Top>
+          <Styled.Left>
             {isExpanded && document.dir === 'ltr'
-              && <Icon iconName="left_arrow" className={styles.arrowLeft} />}
+              && <Styled.ArrowLeft iconName="left_arrow" />}
             {!isExpanded && document.dir === 'rtl'
-              && <Icon iconName="left_arrow" className={styles.arrowLeft} />}
-            <Button
+              && <Styled.ArrowLeft iconName="left_arrow" />}
+            <Styled.NavbarToggleButton
               onClick={this.handleToggleUserList}
               ghost
               circle
@@ -232,34 +220,33 @@ class NavBar extends Component {
               tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
               aria-label={ariaLabel}
               icon="user"
-              className={cx(toggleBtnClasses)}
               aria-expanded={isExpanded}
               accessKey={TOGGLE_USERLIST_AK}
+              hasNotification={hasNotification}
             />
             {!isExpanded && document.dir === 'ltr'
-              && <Icon iconName="right_arrow" className={styles.arrowRight} />}
+              && <Styled.ArrowRight iconName="right_arrow" />}
             {isExpanded && document.dir === 'rtl'
-              && <Icon iconName="right_arrow" className={styles.arrowRight} />}
-          </div>
-          <div className={styles.center}>
-            <h1 className={styles.presentationTitle} data-test="presentationTitle">
+              && <Styled.ArrowRight iconName="right_arrow" />}
+          </Styled.Left>
+          <Styled.Center>
+            <Styled.PresentationTitle data-test="presentationTitle">
               {presentationTitle}
-            </h1>
-
+            </Styled.PresentationTitle>
             <RecordingIndicator
               mountModal={mountModal}
               amIModerator={amIModerator}
             />
-          </div>
-          <div className={styles.right}>
+          </Styled.Center>
+          <Styled.Right>
             {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
             <SettingsDropdownContainer amIModerator={amIModerator} />
-          </div>
-        </div>
-        <div className={styles.bottom}>
+          </Styled.Right>
+        </Styled.Top>
+        <Styled.Bottom>
           <TalkingIndicatorContainer amIModerator={amIModerator} />
-        </div>
-      </header>
+        </Styled.Bottom>
+      </Styled.Navbar>
     );
   }
 }
