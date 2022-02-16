@@ -125,7 +125,7 @@ const ChatAlert = (props) => {
             { autoClose: 3000 },
             <div>
               <div style={{ fontWeight: 700 }}>{chatsTracker[key].lastSender}</div>
-              <div>{chatsTracker[key].content}</div>
+              <div dangerouslySetInnerHTML={{ __html: chatsTracker[key].content }} />
             </div>,
             true,
           );
