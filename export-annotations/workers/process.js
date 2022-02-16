@@ -55,6 +55,19 @@ function overlay_ellipse(svg, annotation, w, h) {
     }).up()
 }
 
+function overlay_line(svg, annotation, w, h) {
+    let shapeColor = Number(annotation.color).toString(16)
+
+    svg.ele('g', {
+        style: `stroke:#${shapeColor};stroke-width:${shape_scale(w, annotation.thickness)};stroke-linecap:butt`
+    }).ele('line', {
+        x1: shape_scale(w, annotation.points[0]),
+        y1: shape_scale(h, annotation.points[1]),
+        x2: shape_scale(w, annotation.points[2]),
+        y2: shape_scale(h, annotation.points[3]),
+    }).up()
+}
+
 function overlay_pencil(svg, annotation, w, h) {
     let shapeColor = Number(annotation.color).toString(16)
 
@@ -131,27 +144,49 @@ function overlay_rectangle(svg, annotation, w, h) {
     }).up()
 }
 
+function overlay_triangle(svg, annotation, w, h) {
+    let shapeColor = Number(annotation.color).toString(16)
+    let fill = annotation.fill ? `#${shapeColor}` : 'none';
+    
+    let x1 = shape_scale(w, annotation.points[0])
+    let y1 = shape_scale(h, annotation.points[1])
+    let x2 = shape_scale(w, annotation.points[2])
+    let y2 = shape_scale(h, annotation.points[3])
+
+    let px = (x1 + x2) / 2
+
+    let path = `M${px} ${y1} L${x2} ${y2} L${x1} ${y2} Z`
+
+    svg.ele('g', {
+        style: `stroke:#${shapeColor};stroke-width:${shape_scale(w, annotation.thickness)};fill:${fill};stroke-linejoin:miter;stroke-miterlimit:8`
+    }).ele('path', {
+        d: path
+    }).up()
+}
+
 function overlay_annotations(svg, annotations, w, h) {
     console.log(annotations)
 
     for(let i = 0; i < annotations.length; i++) {        
         switch (annotations[i].annotationType) {
             case 'ellipse':
-                overlay_ellipse(svg, annotations[i].annotationInfo, w, h)
+                overlay_ellipse(svg, annotations[i].annotationInfo, w, h);
                 break;
             case 'line':
+                overlay_line(svg, annotations[i].annotationInfo, w, h);
                 break;
             case 'poll_result':
                 break;
             case 'pencil':
-                overlay_pencil(svg, annotations[i].annotationInfo, w, h)
+                overlay_pencil(svg, annotations[i].annotationInfo, w, h);
                 break;
             case 'rectangle':
-                overlay_rectangle(svg, annotations[i].annotationInfo, w, h)
+                overlay_rectangle(svg, annotations[i].annotationInfo, w, h);
                 break;
             case 'text':
                 break;
             case 'triangle':
+                overlay_triangle(svg, annotations[i].annotationInfo, w, h);
                 break;
             default:
                 logger.error(`Unknown annotation type ${annotations[i].annotationType}.`);
