@@ -19,7 +19,7 @@ trait UserLeaveReqMsgHdlr extends HandlerHelpers {
           // Just flag that user has left as the user might be reconnecting.
           // An audit will remove this user if it hasn't rejoined after a certain period of time.
           // ralam oct 23, 2018
-          sendUserLeftFlagEvtMsg(outGW, liveMeeting, msg.body.userId, true);
+          sendUserLeftFlagUpdatedEvtMsg(outGW, liveMeeting, msg.body.userId, true);
 
           Users2x.setUserLeftFlag(liveMeeting.users2x, msg.body.userId)
         }

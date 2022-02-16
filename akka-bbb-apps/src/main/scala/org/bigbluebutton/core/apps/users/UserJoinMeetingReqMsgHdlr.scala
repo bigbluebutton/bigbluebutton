@@ -21,7 +21,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
         if (reconnectingUser.userLeftFlag.left) {
           log.info("Resetting flag that user left meeting. user {}", msg.body.userId)
           // User has reconnected. Just reset it's flag. ralam Oct 23, 2018
-          sendUserLeftFlagEvtMsg(outGW, liveMeeting, msg.body.userId, false);
+          sendUserLeftFlagUpdatedEvtMsg(outGW, liveMeeting, msg.body.userId, false);
           Users2x.resetUserLeftFlag(liveMeeting.users2x, msg.body.userId)
         }
 

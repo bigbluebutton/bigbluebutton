@@ -1,6 +1,6 @@
 import { check } from 'meteor/check';
 
-import userLeftFlag from '../modifiers/userLeftFlag';
+import userLeftFlag from '../modifiers/userLeftFlagUpdated';
 
 export default function handleUserLeftFlag({ body }, meetingId) {
   const user = body;

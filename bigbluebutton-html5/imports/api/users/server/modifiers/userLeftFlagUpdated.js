@@ -1,7 +1,7 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
-export default function userLeftFlag(meetingId, userId, left) {
+export default function userLeftFlagUpdated(meetingId, userId, left) {
   const selector = {
     meetingId,
     userId,

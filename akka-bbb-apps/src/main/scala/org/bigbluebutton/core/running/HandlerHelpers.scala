@@ -38,7 +38,7 @@ trait HandlerHelpers extends SystemConfiguration {
     }
   }
 
-  def sendUserLeftFlagEvtMsg(
+  def sendUserLeftFlagUpdatedEvtMsg(
       outGW:       OutMsgRouter,
       liveMeeting: LiveMeeting,
       intId:       String,
@@ -47,7 +47,7 @@ trait HandlerHelpers extends SystemConfiguration {
     for {
       u <- Users2x.findWithIntId(liveMeeting.users2x, intId)
     } yield {
-      val userLeftFlagMeetingEvent = MsgBuilder.buildUserLeftFlagEvtMsg(liveMeeting.props.meetingProp.intId, u.intId, leftFlag)
+      val userLeftFlagMeetingEvent = MsgBuilder.buildUserLeftFlagUpdatedEvtMsg(liveMeeting.props.meetingProp.intId, u.intId, leftFlag)
       outGW.send(userLeftFlagMeetingEvent)
     }
   }
