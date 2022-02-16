@@ -205,9 +205,11 @@ class App extends Component {
     }
     Settings.save();
 
+    const initialPresentation = !getFromUserSettings('bbb_hide_presentation', !layoutPresOpen);
+    MediaService.setPresentationIsOpen(layoutContextDispatch, initialPresentation);
+
     if (selectedLayout === 'custom') {
       setTimeout(() => {
-        MediaService.setPresentationIsOpen(layoutContextDispatch, layoutPresOpen);
 
         layoutContextDispatch({
           type: ACTIONS.SET_FOCUSED_CAMERA_ID,
