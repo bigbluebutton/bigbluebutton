@@ -164,6 +164,19 @@ function overlay_triangle(svg, annotation, w, h) {
     }).up()
 }
 
+function overlay_line(svg, annotation, w, h) {
+    let shapeColor = Number(annotation.color).toString(16)
+
+    svg.ele('g', {
+        style: `stroke:#${shapeColor};stroke-width:${shape_scale(w, annotation.thickness)};stroke-linecap:butt`
+    }).ele('line', {
+        x1: shape_scale(w, annotation.points[0]),
+        y1: shape_scale(h, annotation.points[1]),
+        x2: shape_scale(w, annotation.points[2]),
+        y2: shape_scale(h, annotation.points[3]),
+    }).up()
+}
+
 function overlay_annotations(svg, annotations, w, h) {
     console.log(annotations)
 
