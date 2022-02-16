@@ -846,7 +846,6 @@ class ApiController {
             request.getParameterMap(),
             request.getQueryString(),
     )
-
     if(!(validationResponse == null)) {
       respMessage = validationResponse.getValue()
       reject = true

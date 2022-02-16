@@ -194,7 +194,6 @@ public class Meeting {
 	}
 
 	public void setLeftGuestLobby(String userId, Boolean bool) {
-		System.out.println("colocando o usuario como invalido " + userId);
 		RegisteredUser ruser = registeredUsers.get(userId);
 		if (ruser != null) {
 			ruser.setLeftGuestLobby(bool);

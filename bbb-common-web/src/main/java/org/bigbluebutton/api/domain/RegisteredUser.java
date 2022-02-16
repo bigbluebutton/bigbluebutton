@@ -5,7 +5,6 @@ public class RegisteredUser {
     public final String userId;
     public final Long registeredOn;
 
-
     private String guestStatus;
     private Boolean excludeFromDashboard;
     private Long guestWaitedOn;
@@ -31,7 +30,9 @@ public class RegisteredUser {
         return guestStatus;
     }
 
-    public Boolean getLeftGuestLobby() { return leftGuestLobby; }
+    public Boolean getLeftGuestLobby() {
+        return leftGuestLobby;
+    }
 
     public void setExcludeFromDashboard(Boolean excludeFromDashboard) {
         this.excludeFromDashboard = excludeFromDashboard;
