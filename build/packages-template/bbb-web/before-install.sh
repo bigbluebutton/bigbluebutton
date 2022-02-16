@@ -3,9 +3,6 @@
 case "$1" in
     install|upgrade|1|2)
         
-        #addGroup bigbluebutton ""
-        #addUser bigbluebutton "" freeswitch /opt/freeswitch "freeswitch" /bin/bash
-
         rm -f /tmp/bigbluebutton.properties
         if [ -f /var/lib/tomcat7/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties ]; then
           mv -f /var/lib/tomcat7/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties /tmp
