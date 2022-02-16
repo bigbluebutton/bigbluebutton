@@ -109,6 +109,8 @@ class Pad extends PureComponent {
               this.recognition.start();
             } catch (e) {
               notify(intl.formatMessage(intlMessages.speechRecognitionStop), 'info', 'warning');
+              this.counterDictationStop = 0;
+              this.stopListen();
               logger.error({
                 logCode: 'captions_recognition',
                 extraInfo: { error: e.error },
