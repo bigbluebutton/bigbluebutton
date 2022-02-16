@@ -6,6 +6,7 @@ import setloggedOutStatus from '/imports/api/users-persistent-data/server/modifi
 import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
 import ClientConnections from '/imports/startup/server/ClientConnections';
 import UsersPersistentData from '/imports/api/users-persistent-data';
+import userEjected from './userEjected';
 import VoiceUsers from '/imports/api/voice-users/';
 
 const clearAllSessions = (sessionUserId) => {
@@ -19,7 +20,8 @@ const clearAllSessions = (sessionUserId) => {
   }
 };
 
-export default function removeUser(meetingId, userId) {
+export default function removeUser(body, meetingId) {
+  const { intId: userId, reasonCode } = body;
   check(meetingId, String);
   check(userId, String);
 
@@ -31,6 +33,10 @@ export default function removeUser(meetingId, userId) {
         meetingId,
         userId,
       };
+
+      if (body.eject) {
+        userEjected(meetingId, userId, reasonCode);
+      }
 
       setloggedOutStatus(userId, meetingId, true);
       VideoStreams.remove({ meetingId, userId });

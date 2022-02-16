@@ -75,7 +75,7 @@ case class UserLeftMeetingEvtMsg(
     header: BbbClientMsgHeader,
     body:   UserLeftMeetingEvtMsgBody
 ) extends BbbCoreMsg
-case class UserLeftMeetingEvtMsgBody(intId: String)
+case class UserLeftMeetingEvtMsgBody(intId: String, eject: Boolean, ejectedBy: String, banUser: Boolean, reason: String, reasonCode: String)
 
 object UserJoinedMeetingEvtMsg {
   val NAME = "UserJoinedMeetingEvtMsg"

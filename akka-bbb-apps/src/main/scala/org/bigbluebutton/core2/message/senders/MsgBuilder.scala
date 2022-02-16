@@ -299,11 +299,11 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildUserLeftMeetingEvtMsg(meetingId: String, userId: String): BbbCommonEnvCoreMsg = {
+  def buildUserLeftMeetingEvtMsg(meetingId: String, userId: String, eject: Boolean = false, ejectedBy: String = "", banUser: Boolean = false, reason: String = "", reasonCode: String = ""): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(UserLeftMeetingEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(UserLeftMeetingEvtMsg.NAME, meetingId, userId)
-    val body = UserLeftMeetingEvtMsgBody(userId)
+    val body = UserLeftMeetingEvtMsgBody(userId, eject, ejectedBy, banUser, reason, reasonCode)
     val event = UserLeftMeetingEvtMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
