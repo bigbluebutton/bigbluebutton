@@ -17,6 +17,44 @@ function shape_scale(dimension, coord){
     return (coord / 100.0 * dimension)
 }
 
+function overlay_ellipse(svg, annotation, w, h) {
+    let shapeColor = Number(annotation.color).toString(16)
+    let fill = annotation.fill ? `#${shapeColor}` : 'none';
+
+    let x1 = shape_scale(w, annotation.points[0])
+    let y1 = shape_scale(h, annotation.points[1])
+    let x2 = shape_scale(w, annotation.points[2])
+    let y2 = shape_scale(h, annotation.points[3])
+
+    let width_r = Math.abs(x2 - x1) / 2
+    let height_r = Math.abs(y2 - y1) / 2
+    let hx = Math.abs(x1 + x2) / 2
+    let hy = Math.abs(y1 + y2) / 2
+
+    // Normalize the x,y coordinates
+    if (x1 > x2) {
+        [x1, x2] = [x2, x1]
+    }
+
+    if (y1 > y2) {
+        [y1, y2] = [y2, y1]
+    }
+
+    path = `M${x1} ${hy}
+            A${width_r} ${height_r} 0 0 1 ${hx} ${y1}
+            A${width_r} ${height_r} 0 0 1 ${x2} ${hy}
+            A${width_r} ${height_r} 0 0 1 ${hx} ${y2}
+            A${width_r} ${height_r} 0 0 1 ${x1} ${hy}
+            Z`
+
+    svg.ele('g', {
+        style: `stroke:#${shapeColor};stroke-width:${shape_scale(w, annotation.thickness)};
+                fill:${fill};stroke-linejoin:miter;stroke-miterlimit:8`
+    }).ele('path', {
+        d: path
+    }).up()
+}
+
 function overlay_pencil(svg, annotation, w, h) {
     let shapeColor = Number(annotation.color).toString(16)
 
@@ -67,16 +105,16 @@ function overlay_pencil(svg, annotation, w, h) {
         }
 
         svg.ele('g', {
-            style: `stroke:#${shapeColor};stroke-linecap:round;stroke-linejoin:round;stroke-width:${shape_scale(w, annotation.thickness)};fill:none`
+            style: `stroke:#${shapeColor};stroke-linecap:round;stroke-linejoin:round;
+            stroke-width:${shape_scale(w, annotation.thickness)};fill:none`
         }).ele('path', {
             d: path
         }).up()
     }
 }
 
-function overlay_rectangle(svg, annotation, w, h){
+function overlay_rectangle(svg, annotation, w, h) {
     let shapeColor = Number(annotation.color).toString(16)
-
     let fill = annotation.fill ? `#${shapeColor}` : 'none';
     
     let x1 = shape_scale(w, annotation.points[0])
@@ -98,11 +136,22 @@ function overlay_annotations(svg, annotations, w, h) {
 
     for(let i = 0; i < annotations.length; i++) {        
         switch (annotations[i].annotationType) {
+            case 'ellipse':
+                overlay_ellipse(svg, annotations[i].annotationInfo, w, h)
+                break;
+            case 'line':
+                break;
+            case 'poll_result':
+                break;
             case 'pencil':
                 overlay_pencil(svg, annotations[i].annotationInfo, w, h)
                 break;
             case 'rectangle':
                 overlay_rectangle(svg, annotations[i].annotationInfo, w, h)
+                break;
+            case 'text':
+                break;
+            case 'triangle':
                 break;
             default:
                 logger.error(`Unknown annotation type ${annotations[i].annotationType}.`);
@@ -169,6 +218,7 @@ for (let i = 0; i < pages.length; i++) {
                 });
 
     // 4. Overlay annotations onto slides
+    // Based on /record-and-playback/presentation/scripts/publish/presentation.rb
     overlay_annotations(svg, pages[i].annotations, slideWidth, slideHeight)
 
     svg = svg.end({ prettyPrint: true });
