@@ -98,26 +98,26 @@ class Pad extends PureComponent {
       this.recognition.addEventListener('end', () => {
         const { listening } = this.state;
         if (listening) {
-          try {
-            if (Date.now() - this.timer < 1000) {
-              this.counterDictationStop += 1;
-            } else {
-              this.counterDictationStop = 0;
-            }
-            this.timer = Date.now();
-            if (this.counterDictationStop < 5) {
+          if (Date.now() - this.timer < 1000) {
+            this.counterDictationStop += 1;
+          } else {
+            this.counterDictationStop = 0;
+          }
+          this.timer = Date.now();
+          if (this.counterDictationStop < 5) {
+            try {
               this.recognition.start();
-            } else {
-              notify(intl.formatMessage(intlMessages.speechRecognitionIncompatible), 'info', 'warning');
-              this.counterDictationStop = 0;
-              this.stopListen();
+            } catch (e) {
+              notify(intl.formatMessage(intlMessages.speechRecognitionStop), 'info', 'warning');
+              logger.error({
+                logCode: 'captions_recognition',
+                extraInfo: { error: e.error },
+              }, 'Captions pad error when restarting the recognition');
             }
-          } catch (e) {
-            notify(intl.formatMessage(intlMessages.speechRecognitionStop), 'info', 'warning');
-            logger.error({
-              logCode: 'captions_recognition',
-              extraInfo: { error: e.error },
-            }, 'Captions pad error when restarting the recognition');
+          } else {
+            notify(intl.formatMessage(intlMessages.speechRecognitionIncompatible), 'info', 'warning');
+            this.counterDictationStop = 0;
+            this.stopListen();
           }
         }
       });
