@@ -83,9 +83,9 @@ object UsersApp {
   }
 
   def sendUserLeftMeetingToAllClients(outGW: OutMsgRouter, meetingId: String,
-                                      userId: String): Unit = {
+                                      userId: String, eject: Boolean = false, ejectedBy: String = "", banUser: Boolean = false, reason: String = "",  reasonCode: String = ""): Unit = {
     // send a user left event for the clients to update
-    val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(meetingId, userId)
+    val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(meetingId, userId, eject, ejectedBy, banUser, reason, reasonCode)
     outGW.send(userLeftMeetingEvent)
   }
 
@@ -124,8 +124,8 @@ object UsersApp {
     for {
       user <- Users2x.ejectFromMeeting(liveMeeting.users2x, userId)
     } yield {
-      sendUserEjectedMessageToClient(outGW, meetingId, userId, ejectedBy, reason, reasonCode)
-      sendUserLeftMeetingToAllClients(outGW, meetingId, userId)
+//      sendUserEjectedMessageToClient(outGW, meetingId, userId, ejectedBy, reason, reasonCode)
+      sendUserLeftMeetingToAllClients(outGW, meetingId, userId, true, ejectedBy, ban,reason, reasonCode)
       sendEjectUserFromSfuSysMsg(outGW, meetingId, userId)
       if (user.presenter) {
         // println(s"ejectUserFromMeeting will cause a automaticallyAssignPresenter for user=${user}")
