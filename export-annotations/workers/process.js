@@ -13,7 +13,7 @@ const MAGIC_MYSTERY_NUMBER = 2;
 const logger = new Logger('presAnn Process Worker');
 logger.info("Processing PDF for job " + jobId);
 
-function shape_scale(dimension, coord){
+function scale_shape(dimension, coord){
     return (coord / 100.0 * dimension)
 }
 
@@ -21,10 +21,10 @@ function overlay_ellipse(svg, annotation, w, h) {
     let shapeColor = Number(annotation.color).toString(16)
     let fill = annotation.fill ? `#${shapeColor}` : 'none';
 
-    let x1 = shape_scale(w, annotation.points[0])
-    let y1 = shape_scale(h, annotation.points[1])
-    let x2 = shape_scale(w, annotation.points[2])
-    let y2 = shape_scale(h, annotation.points[3])
+    let x1 = scale_shape(w, annotation.points[0])
+    let y1 = scale_shape(h, annotation.points[1])
+    let x2 = scale_shape(w, annotation.points[2])
+    let y2 = scale_shape(h, annotation.points[3])
 
     let width_r = Math.abs(x2 - x1) / 2
     let height_r = Math.abs(y2 - y1) / 2
@@ -48,7 +48,7 @@ function overlay_ellipse(svg, annotation, w, h) {
             Z`
 
     svg.ele('g', {
-        style: `stroke:#${shapeColor};stroke-width:${shape_scale(w, annotation.thickness)};
+        style: `stroke:#${shapeColor};stroke-width:${scale_shape(w, annotation.thickness)};
                 fill:${fill};stroke-linejoin:miter;stroke-miterlimit:8`
     }).ele('path', {
         d: path
@@ -59,12 +59,12 @@ function overlay_line(svg, annotation, w, h) {
     let shapeColor = Number(annotation.color).toString(16)
 
     svg.ele('g', {
-        style: `stroke:#${shapeColor};stroke-width:${shape_scale(w, annotation.thickness)};stroke-linecap:butt`
+        style: `stroke:#${shapeColor};stroke-width:${scale_shape(w, annotation.thickness)};stroke-linecap:butt`
     }).ele('line', {
-        x1: shape_scale(w, annotation.points[0]),
-        y1: shape_scale(h, annotation.points[1]),
-        x2: shape_scale(w, annotation.points[2]),
-        y2: shape_scale(h, annotation.points[3]),
+        x1: scale_shape(w, annotation.points[0]),
+        y1: scale_shape(h, annotation.points[1]),
+        x2: scale_shape(w, annotation.points[2]),
+        y2: scale_shape(h, annotation.points[3]),
     }).up()
 }
 
@@ -80,9 +80,9 @@ function overlay_pencil(svg, annotation, w, h) {
         svg.ele('g', {
             style: `stroke:none;fill:#${shapeColor}`,
         }).ele('circle', {
-            cx: shape_scale(w, annotation.points[0]),
-            cy: shape_scale(h, annotation.points[1]),
-            r:  shape_scale(w, annotation.thickness) / 2
+            cx: scale_shape(w, annotation.points[0]),
+            cy: scale_shape(h, annotation.points[1]),
+            r:  scale_shape(w, annotation.thickness) / 2
         }).up()
     }
 
@@ -93,22 +93,22 @@ function overlay_pencil(svg, annotation, w, h) {
         for(let i = 0; i < annotation.commands.length; i++) {
             switch(annotation.commands[i]){
                 case 1: // MOVE TO
-                    var x = shape_scale(w, dataPoints.shift())
-                    var y = shape_scale(h, dataPoints.shift())
+                    var x = scale_shape(w, dataPoints.shift())
+                    var y = scale_shape(h, dataPoints.shift())
                     path = `${path} M${x} ${y}`
                     break;
                 case 2: // LINE TO
-                    var x = shape_scale(w, dataPoints.shift())
-                    var y = shape_scale(h, dataPoints.shift())
+                    var x = scale_shape(w, dataPoints.shift())
+                    var y = scale_shape(h, dataPoints.shift())
                     path = `${path} L${x} ${y}`
                     break;
                 case 4: // C_CURVE_TO
-                    var cx1 = shape_scale(w, dataPoints.shift())
-                    var cy1 = shape_scale(h, dataPoints.shift())
-                    var cx2 = shape_scale(w, dataPoints.shift())
-                    var cy2 = shape_scale(h, dataPoints.shift())
-                    var x = shape_scale(w, dataPoints.shift())
-                    var y = shape_scale(h, dataPoints.shift())
+                    var cx1 = scale_shape(w, dataPoints.shift())
+                    var cy1 = scale_shape(h, dataPoints.shift())
+                    var cx2 = scale_shape(w, dataPoints.shift())
+                    var cy2 = scale_shape(h, dataPoints.shift())
+                    var x = scale_shape(w, dataPoints.shift())
+                    var y = scale_shape(h, dataPoints.shift())
                     path = `${path} C${cx1} ${cy1},${cx2} ${cy2},${x} ${y}`
 
                     break;
@@ -119,7 +119,7 @@ function overlay_pencil(svg, annotation, w, h) {
 
         svg.ele('g', {
             style: `stroke:#${shapeColor};stroke-linecap:round;stroke-linejoin:round;
-            stroke-width:${shape_scale(w, annotation.thickness)};fill:none`
+            stroke-width:${scale_shape(w, annotation.thickness)};fill:none`
         }).ele('path', {
             d: path
         }).up()
@@ -130,15 +130,15 @@ function overlay_rectangle(svg, annotation, w, h) {
     let shapeColor = Number(annotation.color).toString(16)
     let fill = annotation.fill ? `#${shapeColor}` : 'none';
     
-    let x1 = shape_scale(w, annotation.points[0])
-    let y1 = shape_scale(h, annotation.points[1])
-    let x2 = shape_scale(w, annotation.points[2])
-    let y2 = shape_scale(h, annotation.points[3])
+    let x1 = scale_shape(w, annotation.points[0])
+    let y1 = scale_shape(h, annotation.points[1])
+    let x2 = scale_shape(w, annotation.points[2])
+    let y2 = scale_shape(h, annotation.points[3])
 
     let path = `M ${x1} ${y1} L ${x2} ${y1} L ${x2} ${y2} L ${x1} ${y2} Z`
 
     svg.ele('g', {
-        style: `stroke:#${shapeColor};stroke-width:${shape_scale(w, annotation.thickness)};fill:${fill};stroke-linejoin:miter`
+        style: `stroke:#${shapeColor};stroke-width:${scale_shape(w, annotation.thickness)};fill:${fill};stroke-linejoin:miter`
     }).ele('path', {
         d: path
     }).up()
@@ -148,32 +148,54 @@ function overlay_triangle(svg, annotation, w, h) {
     let shapeColor = Number(annotation.color).toString(16)
     let fill = annotation.fill ? `#${shapeColor}` : 'none';
     
-    let x1 = shape_scale(w, annotation.points[0])
-    let y1 = shape_scale(h, annotation.points[1])
-    let x2 = shape_scale(w, annotation.points[2])
-    let y2 = shape_scale(h, annotation.points[3])
+    let x1 = scale_shape(w, annotation.points[0])
+    let y1 = scale_shape(h, annotation.points[1])
+    let x2 = scale_shape(w, annotation.points[2])
+    let y2 = scale_shape(h, annotation.points[3])
 
     let px = (x1 + x2) / 2
 
     let path = `M${px} ${y1} L${x2} ${y2} L${x1} ${y2} Z`
 
     svg.ele('g', {
-        style: `stroke:#${shapeColor};stroke-width:${shape_scale(w, annotation.thickness)};fill:${fill};stroke-linejoin:miter;stroke-miterlimit:8`
+        style: `stroke:#${shapeColor};stroke-width:${scale_shape(w, annotation.thickness)};fill:${fill};stroke-linejoin:miter;stroke-miterlimit:8`
     }).ele('path', {
         d: path
     }).up()
+}
+
+function overlay_text(svg, annotation, w, h) {
+    let fontColor = Number(annotation.fontColor).toString(16)
+
+    let textBox_x = scale_shape(w, annotation.x);
+    let textBox_y = scale_shape(h, annotation.y);
+
+    let fontSize = scale_shape(h, annotation.calcedFontSize)
+    let lines = annotation.text.replace(/\r\n|\n\r|\n|\r/g,'\n').split('\n');
+
+    let textBox = svg.ele('g', {
+        style: `fill:#${fontColor};font-family:Arial;font-size:${fontSize}px`,
+    })
+
+    for(let i = 0; i < lines.length; i++) {
+        textBox.ele('text', {
+            x: textBox_x,
+            y: textBox_y,
+            dy: `${i}em`
+        }).txt(lines[i]).up()
+    }
 }
 
 function overlay_line(svg, annotation, w, h) {
     let shapeColor = Number(annotation.color).toString(16)
 
     svg.ele('g', {
-        style: `stroke:#${shapeColor};stroke-width:${shape_scale(w, annotation.thickness)};stroke-linecap:butt`
+        style: `stroke:#${shapeColor};stroke-width:${scale_shape(w, annotation.thickness)};stroke-linecap:butt`
     }).ele('line', {
-        x1: shape_scale(w, annotation.points[0]),
-        y1: shape_scale(h, annotation.points[1]),
-        x2: shape_scale(w, annotation.points[2]),
-        y2: shape_scale(h, annotation.points[3]),
+        x1: scale_shape(w, annotation.points[0]),
+        y1: scale_shape(h, annotation.points[1]),
+        x2: scale_shape(w, annotation.points[2]),
+        y2: scale_shape(h, annotation.points[3]),
     }).up()
 }
 
@@ -197,6 +219,7 @@ function overlay_annotations(svg, annotations, w, h) {
                 overlay_rectangle(svg, annotations[i].annotationInfo, w, h);
                 break;
             case 'text':
+                overlay_text(svg, annotations[i].annotationInfo, w, h);
                 break;
             case 'triangle':
                 overlay_triangle(svg, annotations[i].annotationInfo, w, h);
@@ -239,8 +262,8 @@ for (let i = 0; i < pages.length; i++) {
 
     var panzoom_x = -currentSlide.xOffset * MAGIC_MYSTERY_NUMBER / 100.0 * slideWidth
     var panzoom_y = -currentSlide.yOffset * MAGIC_MYSTERY_NUMBER / 100.0 * slideHeight
-    var panzoom_w = shape_scale(slideWidth, currentSlide.widthRatio)
-    var panzoom_h = shape_scale(slideHeight, currentSlide.heightRatio)
+    var panzoom_w = scale_shape(slideWidth, currentSlide.widthRatio)
+    var panzoom_h = scale_shape(slideHeight, currentSlide.heightRatio)
 
     // Create the SVG slide with the background image
     let svg = create({ version: '1.0', encoding: 'UTF-8' })
