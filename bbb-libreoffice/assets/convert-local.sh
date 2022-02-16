@@ -34,6 +34,8 @@ convertToParam="--convert-to $convertTo"
 
 #If timeout is missing, define 60
 timeoutSecs="${4:-60}"
+#Truncate timeout to max 3 digits (as expected by sudoers)
+timeoutSecs="${timeoutSecs:0:3}"
 
 #If output is html, include param --writer to avoid blank page
 if [ ${1: -5} == ".html" ]
