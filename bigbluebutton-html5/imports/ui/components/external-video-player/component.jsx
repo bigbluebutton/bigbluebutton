@@ -15,7 +15,7 @@ import logger from '/imports/startup/client/logger';
 
 import VolumeSlider from './volume-slider/component';
 import ReloadButton from '/imports/ui/components/reload-button/component';
-import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
+import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 
 import ArcPlayer from '/imports/ui/components/external-video-player/custom-players/arc-player';
 import PeerTubePlayer from '/imports/ui/components/external-video-player/custom-players/peertube';
@@ -173,6 +173,11 @@ class VideoPlayer extends Component {
         value: true,
       });
     }
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+      value: true,
+    });
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -215,6 +220,11 @@ class VideoPlayer extends Component {
     clearTimeout(this.autoPlayTimeout);
 
     this.player = null;
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+      value: false,
+    });
 
     if (hidePresentation) {
       layoutContextDispatch({

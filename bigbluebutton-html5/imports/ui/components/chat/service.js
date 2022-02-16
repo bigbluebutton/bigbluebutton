@@ -189,6 +189,7 @@ const sendGroupMessage = (message, idChatOpen) => {
     correlationId: `${senderUserId}-${Date.now()}`,
     sender: {
       id: senderUserId,
+      name: '',
     },
     message,
   };

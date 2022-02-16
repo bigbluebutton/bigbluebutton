@@ -8,7 +8,14 @@ case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
                          userActivitySignResponseDelayInMinutes: Int,
                          endWhenNoModerator:                     Boolean, endWhenNoModeratorDelayInMinutes: Int)
 
-case class MeetingProp(name: String, extId: String, intId: String, isBreakout: Boolean, learningDashboardEnabled: Boolean)
+case class MeetingProp(
+    name:                     String,
+    extId:                    String,
+    intId:                    String,
+    isBreakout:               Boolean,
+    learningDashboardEnabled: Boolean,
+    disabledFeatures:         Vector[String]
+)
 
 case class BreakoutProps(
     parentId:           String,

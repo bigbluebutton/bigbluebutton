@@ -85,6 +85,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
         logData.put("current", pres.isCurrent());
         logData.put("logCode", "supported_file_not_handled");
         logData.put("message", "Supported file not handled.");
+        logData.put("removable", pres.isRemovable());
 
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
@@ -135,6 +136,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
           logData.put("authzToken", pres.getAuthzToken());
           logData.put("logCode", "presentation_conversion_start");
           logData.put("message", "Start presentation conversion.");
+          logData.put("isRemovable", pres.isRemovable());
 
           Gson gson = new Gson();
           String logStr = gson.toJson(logData);
@@ -149,6 +151,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
                   pres.getName(),
                   pres.getAuthzToken(),
                   pres.isDownloadable(),
+                  pres.isRemovable(),
                   pres.isCurrent());
           notifier.sendDocConversionProgress(progress);
       }

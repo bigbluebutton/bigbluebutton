@@ -10,7 +10,6 @@ import {
   getVirtualBackgroundThumbnail,
   isVirtualBackgroundSupported,
 } from '/imports/ui/services/virtual-background/service';
-import { capitalizeFirstLetter } from '/imports/utils/string-utils';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -157,8 +156,8 @@ const VirtualBgSelector = ({
           <>
             <Styled.ThumbnailButton
               style={{ backgroundImage: `url('${getVirtualBackgroundThumbnail(BLUR_FILENAME)}')` }}
-              aria-label={EFFECT_TYPES.BLUR_TYPE}
-              label={capitalizeFirstLetter(EFFECT_TYPES.BLUR_TYPE)}
+              aria-label={intl.formatMessage(intlMessages.blurLabel)}
+              label={intl.formatMessage(intlMessages.blurLabel)}
               aria-describedby={`vr-cam-btn-blur`}
               tabIndex={disabled ? -1 : 0}
               hideLabel

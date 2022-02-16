@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import { TextElipsis, TitleElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import Styled from '/imports/ui/components/actions-bar/create-breakout-room/styles';
 import { colorWhite, colorGrayLighter } from '/imports/ui/stylesheets/styled-components/palette';

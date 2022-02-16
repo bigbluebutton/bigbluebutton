@@ -147,10 +147,20 @@ class BbbWebApiGWApp(
                     lockSettingsParams:                     LockSettingsParams,
                     html5InstanceId:                        java.lang.Integer,
                     groups:                                 java.util.ArrayList[Group],
-                    virtualBackgroundsDisabled:             java.lang.Boolean): Unit = {
+                    virtualBackgroundsDisabled:             java.lang.Boolean,
+                    disabledFeatures:                       java.util.ArrayList[String]): Unit = {
 
-    val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
-      isBreakout = isBreakout.booleanValue(), learningDashboardEnabled = learningDashboardEnabled.booleanValue())
+    val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
+
+    val meetingProp = MeetingProp(
+      name = meetingName,
+      extId = extMeetingId,
+      intId = meetingId,
+      isBreakout = isBreakout.booleanValue(),
+      learningDashboardEnabled = learningDashboardEnabled.booleanValue(),
+      disabledFeaturesAsVector
+    )
+
     val durationProps = DurationProps(
       duration = duration.intValue(),
       createdTime = createTime.longValue(), createDate,

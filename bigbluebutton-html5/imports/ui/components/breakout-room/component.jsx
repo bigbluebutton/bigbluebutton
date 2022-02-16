@@ -1,12 +1,13 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import Service from './service';
 import BreakoutRoomContainer from './breakout-remaining-time/container';
+import MessageFormContainer from './message-form/container';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { PANELS, ACTIONS } from '../layout/enums';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
@@ -54,6 +55,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.endAllBreakouts',
     description: 'Button label to end all breakout rooms',
   },
+  chatTitleMsgAllRooms: {
+    id: 'app.createBreakoutRoom.chatTitleMsgAllRooms',
+    description: 'chat title for send message to all rooms',
+  },
   alreadyConnected: {
     id: 'app.createBreakoutRoom.alreadyConnected',
     description: 'label for the user that is already connected to breakout room',
@@ -95,6 +100,7 @@ class BreakoutRoom extends PureComponent {
     super(props);
     this.renderBreakoutRooms = this.renderBreakoutRooms.bind(this);
     this.getBreakoutURL = this.getBreakoutURL.bind(this);
+    this.hasBreakoutUrl = this.hasBreakoutUrl.bind(this);
     this.getBreakoutLabel = this.getBreakoutLabel.bind(this);
     this.renderDuration = this.renderDuration.bind(this);
     this.transferUserToBreakoutRoom = this.transferUserToBreakoutRoom.bind(this);
@@ -185,17 +191,24 @@ class BreakoutRoom extends PureComponent {
     return null;
   }
 
-  getBreakoutLabel(breakoutId) {
-    const { intl, getBreakoutRoomUrl } = this.props;
+  hasBreakoutUrl(breakoutId) {
+    const { getBreakoutRoomUrl } = this.props;
     const { requestedBreakoutId, generated } = this.state;
 
     const breakoutRoomUrlData = getBreakoutRoomUrl(breakoutId);
 
-    if (generated && requestedBreakoutId === breakoutId) {
-      return intl.formatMessage(intlMessages.breakoutJoin);
+    if ((generated && requestedBreakoutId === breakoutId) || breakoutRoomUrlData) {
+      return true;
     }
 
-    if (breakoutRoomUrlData) {
+    return false;
+  }
+
+  getBreakoutLabel(breakoutId) {
+    const { intl } = this.props;
+    const hasBreakoutUrl = this.hasBreakoutUrl(breakoutId)
+
+    if (hasBreakoutUrl) {
       return intl.formatMessage(intlMessages.breakoutJoin);
     }
 
@@ -278,6 +291,10 @@ class BreakoutRoom extends PureComponent {
     const stateBreakoutId = _stateBreakoutId || currentAudioTransferBreakoutId;
     const moderatorJoinedAudio = isMicrophoneUser && amIModerator;
     const disable = waiting && requestedBreakoutId !== breakoutId;
+    const breakoutShortname = this.props.breakoutRooms[number - 1]?.shortName;
+    const hasBreakoutUrl = this.hasBreakoutUrl(breakoutId);
+    const dataTest = `${hasBreakoutUrl ? 'join' : 'askToJoin'}${breakoutShortname.replace(' ', '')}`;
+
     const audioAction = joinedAudioOnly || isInBreakoutAudioTransfer
       ? () => {
         setBreakoutAudioTransferStatus({
@@ -306,15 +323,15 @@ class BreakoutRoom extends PureComponent {
         {
           isUserInBreakoutRoom(joinedUsers)
             ? (
-              <Styled.AlreadyConnected>
+              <Styled.AlreadyConnected data-test="alreadyConnected">
                 {intl.formatMessage(intlMessages.alreadyConnected)}
               </Styled.AlreadyConnected>
             )
             : (
               <Styled.JoinButton
                 label={this.getBreakoutLabel(breakoutId)}
-                data-test="breakoutJoin"
-                aria-label={`${this.getBreakoutLabel(breakoutId)} ${this.props.breakoutRooms[number - 1]?.shortName }`}
+                data-test={dataTest}
+                aria-label={`${this.getBreakoutLabel(breakoutId)} ${breakoutShortname}`}
                 onClick={() => {
                   this.getBreakoutURL(breakoutId);
                   // leave main room's audio,
@@ -518,6 +535,20 @@ class BreakoutRoom extends PureComponent {
             this.closePanel();
           }}
         />
+        {amIModerator
+          ? (
+            <MessageFormContainer
+              {...{
+                title: intl.formatMessage(intlMessages.chatTitleMsgAllRooms),
+              }}
+              chatId="breakouts"
+              chatTitle={intl.formatMessage(intlMessages.chatTitleMsgAllRooms)}
+              disabled={!isMeteorConnected}
+              connected={isMeteorConnected}
+              locked={false}
+            />
+          ) : null }
+        {amIModerator ? <Styled.Separator /> : null }
         {this.renderBreakoutRooms()}
         {this.renderDuration()}
         {

@@ -3,8 +3,8 @@ import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import Button from '/imports/ui/components/button/component';
-import BBBMenu from '/imports/ui/components/menu/component';
+import Button from '/imports/ui/components/common/button/component';
+import BBBMenu from '/imports/ui/components/common/menu/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 
 import Styled from './styles';

@@ -2,7 +2,7 @@ import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import FullscreenButtonContainer from '../fullscreen-button/container';
+import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import SwitchButtonContainer from './switch-button/container';
 import Styled from './styles';
 import VolumeSlider from '../external-video-player/volume-slider/component';
@@ -55,6 +55,10 @@ const intlMessages = defineMessages({
   screenshareEnded: {
     id: 'app.media.screenshare.end',
     description: 'toast to show when a screenshare has ended',
+  },
+  screenshareEndedDueToDataSaving: {
+    id: 'app.media.screenshare.endDueToDataSaving',
+    description: 'toast to show when a screenshare has ended by changing data savings option',
   },
 });
 
@@ -120,6 +124,11 @@ class ScreenshareComponent extends React.Component {
       this.setState({ restoreOnUnmount: false });
     };
 
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_SCREEN_SHARE,
+      value: true,
+    });
+
     if (hidePresentation) {
       layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_IS_OPEN,
@@ -150,7 +159,16 @@ class ScreenshareComponent extends React.Component {
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
 
-    notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
+    if (Settings.dataSaving.viewScreenshare) {
+      notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
+    } else {
+      notify(intl.formatMessage(intlMessages.screenshareEndedDueToDataSaving), 'info', 'desktop');
+    }
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_SCREEN_SHARE,
+      value: false,
+    });
 
     if (fullscreenContext) {
       layoutContextDispatch({

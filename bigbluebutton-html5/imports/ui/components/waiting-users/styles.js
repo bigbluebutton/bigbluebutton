@@ -20,7 +20,7 @@ import {
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { DivElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 
 const ListItem = styled.div`

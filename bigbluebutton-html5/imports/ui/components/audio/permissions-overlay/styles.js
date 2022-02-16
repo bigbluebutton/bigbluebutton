@@ -1,5 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
-import Modal from '/imports/ui/components/modal/simple/component';
+import Modal from '/imports/ui/components/common/modal/simple/component';
 import { colorBlack } from '/imports/ui/stylesheets/styled-components/palette';
 import { jumboPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 

@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { TAB } from '/imports/utils/keyCodes';
 import deviceInfo from '/imports/utils/deviceInfo';
-import Button from '/imports/ui/components/button/component';
-import Icon from '/imports/ui/components/icon/component';
+import Button from '/imports/ui/components/common/button/component';
+import Icon from '/imports/ui/components/common/icon/component';
 import update from 'immutability-helper';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
@@ -13,7 +13,7 @@ import _ from 'lodash';
 import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 import Styled from './styles';
 import Settings from '/imports/ui/services/settings';
-import Checkbox from '/imports/ui/components/checkbox/component';
+import Checkbox from '/imports/ui/components/common/checkbox/component';
 
 const { isMobile } = deviceInfo;
 
@@ -793,6 +793,8 @@ class PresentationUploader extends Component {
 
     const { animations } = Settings.application;
 
+    const isRemovable = item.isRemovable 
+
     return (
       <Styled.PresentationItem
         key={item.id}
@@ -849,19 +851,22 @@ class PresentationUploader extends Component {
               onChange={() => this.handleCurrentChange(item.id)}
               disabled={disableActions}
               animations={animations}
-            />
+              />
             </Styled.ItemAction>
-            <Styled.RemoveButton
-              disabled={disableActions}
-              label={intl.formatMessage(intlMessages.removePresentation)}
-              data-test="removePresentation"
-              aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.filename}`}
-              size="sm"
-              icon="delete"
-              hideLabel
-              onClick={() => this.handleRemove(item)}
-              animations={animations}
-            />
+            {isRemovable ? (
+              <Styled.RemoveButton
+                disabled={disableActions}
+                label={intl.formatMessage(intlMessages.removePresentation)}
+                data-test="removePresentation"
+                aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.filename}`}
+                size="sm"
+                icon="delete"
+                hideLabel
+                onClick={() => this.handleRemove(item)}
+                animations={animations}
+              />
+              ) : null
+            }
           </Styled.TableItemActions>
         )}
       </Styled.PresentationItem>

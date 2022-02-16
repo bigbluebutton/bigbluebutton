@@ -2,11 +2,11 @@ import _ from 'lodash';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
-import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
-import BBBMenu from '/imports/ui/components/menu/component';
+import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
+import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles'
 import { PANELS, ACTIONS } from '../../layout/enums';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -142,7 +142,7 @@ class ActionsDropdown extends PureComponent {
     if (amIPresenter && !hidePresentation) {
       actions.push({
         icon: "presentation",
-        dataTest: "uploadPresentation",
+        dataTest: "managePresentations",
         label: formatMessage(presentationLabel),
         key: this.presentationItemId,
         onClick: handlePresentationClick,
@@ -189,6 +189,7 @@ class ActionsDropdown extends PureComponent {
           : intl.formatMessage(intlMessages.stopExternalVideoLabel),
         key: "external-video",
         onClick: isSharingVideo ? stopExternalVideoShare : this.handleExternalVideoClick,
+        dataTest: "shareExternalVideo",
       })
     }
 

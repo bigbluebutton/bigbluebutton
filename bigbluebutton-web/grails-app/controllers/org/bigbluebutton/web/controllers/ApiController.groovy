@@ -1225,7 +1225,7 @@ class ApiController {
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
 
     if (requestBody == null) {
-      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), true /* default presentation */, '');
+      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), true /* default presentation */, '', false, true);
     } else {
       def xml = new XmlSlurper().parseText(requestBody);
       xml.children().each { module ->
@@ -1237,11 +1237,20 @@ class ApiController {
           module.children().each { document ->
             if (!StringUtils.isEmpty(document.@url.toString())) {
               def fileName;
+              def Boolean isRemovable = true;
+              def Boolean isDownloadable = false;
               if (!StringUtils.isEmpty(document.@filename.toString())) {
                 log.debug("user provided filename: [${module.@filename}]");
                 fileName = document.@filename.toString();
+                if (!StringUtils.isEmpty(document.@removable.toString())) {
+                  isRemovable = java.lang.Boolean.parseBoolean(document.@removable.toString());
+                }
+                if (!StringUtils.isEmpty(document.@downloadable.toString())) {
+                  isDownloadable = java.lang.Boolean.parseBoolean(document.@downloadable.toString());
+                }
               }
-              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), current /* default presentation */, fileName);
+              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), current /* default presentation */,
+                      fileName, isDownloadable, isRemovable);
               current = false;
             } else if (!StringUtils.isEmpty(document.@name.toString())) {
               def b64 = new Base64()
@@ -1302,10 +1311,13 @@ class ApiController {
               current,
               "preupload-raw-authz-token",
               uploadFailed,
-              uploadFailReasons)
+              uploadFailReasons,
+              false,
+              true
+    )
   }
 
-  def downloadAndProcessDocument(address, meetingId, current, fileName) {
+  def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable) {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
     String presOrigFilename;
     if (StringUtils.isEmpty(fileName)) {
@@ -1366,12 +1378,15 @@ class ApiController {
             current,
             "preupload-download-authz-token",
             uploadFailed,
-            uploadFailReasons
+            uploadFailReasons,
+            isDownloadable,
+            isRemovable
     )
   }
 
 
-  def processUploadedFile(podId, meetingId, presId, filename, presFile, current, authzToken, uploadFailed, uploadFailReasons ) {
+  def processUploadedFile(podId, meetingId, presId, filename, presFile, current,
+                          authzToken, uploadFailed, uploadFailReasons, isDownloadable, isRemovable ) {
     def presentationBaseUrl = presentationService.presentationBaseUrl
     // TODO add podId
     UploadedPresentation uploadedPres = new UploadedPresentation(podId,
@@ -1384,6 +1399,12 @@ class ApiController {
             uploadFailed,
             uploadFailReasons)
     uploadedPres.setUploadedFile(presFile);
+    if (isRemovable != null) {
+      uploadedPres.setRemovable(isRemovable);
+    }
+    if (isDownloadable != null && isDownloadable){
+      uploadedPres.setDownloadable();
+    }
     presentationService.processUploadedPresentation(uploadedPres);
   }
 

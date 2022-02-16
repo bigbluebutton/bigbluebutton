@@ -3,6 +3,7 @@ import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service'
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { isScreenSharingEnabled } from '/imports/ui/services/features';
 import { ACTIONS } from '../layout/enums';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
@@ -25,8 +26,7 @@ function shouldShowWhiteboard() {
 
 function shouldShowScreenshare() {
   const { viewScreenshare } = Settings.dataSaving;
-  const enableScreensharing = getFromUserSettings('bbb_enable_screen_sharing', KURENTO_CONFIG.enableScreensharing);
-  return enableScreensharing && viewScreenshare && isVideoBroadcasting();
+  return isScreenSharingEnabled() && viewScreenshare && isVideoBroadcasting();
 }
 
 function shouldShowExternalVideo() {

@@ -19,8 +19,8 @@ import {
   fontSizeXL,
   fontSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/typography';
-import Button from '/imports/ui/components/button/component';
-import ToastStyled from '/imports/ui/components/toast/styles';
+import Button from '/imports/ui/components/common/button/component';
+import ToastStyled from '/imports/ui/components/common/toast/styles';
 
 const Avatar = styled.div`
   cursor: pointer;

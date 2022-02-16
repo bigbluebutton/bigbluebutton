@@ -49,6 +49,7 @@
     "app.captions.pad.dictationStop": "Diktálás befejezése",
     "app.captions.pad.dictationOnDesc": "Beszédfelismerés bekapcsolása",
     "app.captions.pad.dictationOffDesc": "Beszédfelismerés kikapcsolása",
+    "app.captions.pad.speechRecognitionStop": "A beszédfelismerés leállt hosszasabb csend, vagy a böngésző inkompatibilitása miatt. \nHasználatra javasolt böngésző a Google Chrome, az új Microsoft Edge vagy Firefox.",
     "app.note.title": "Megosztott jegyzetek",
     "app.note.label": "Jegyzetek",
     "app.note.hideNoteLabel": "Jegyzet elrejtése",

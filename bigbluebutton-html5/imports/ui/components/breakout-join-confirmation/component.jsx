@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/modal/service';
-import Modal from '/imports/ui/components/modal/fullscreen/component';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
+import Modal from '/imports/ui/components/common/modal/fullscreen/component';
 import logger from '/imports/startup/client/logger';
 import PropTypes from 'prop-types';
 import AudioService from '../audio/service';

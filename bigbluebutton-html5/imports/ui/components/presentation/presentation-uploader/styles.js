@@ -1,7 +1,7 @@
 import styled, { css, keyframes } from 'styled-components';
-import Icon from '/imports/ui/components/icon/component';
+import Icon from '/imports/ui/components/common/icon/component';
 import Dropzone from 'react-dropzone';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import {
   fileLineWidth,
   iconPaddingMd,
@@ -430,6 +430,7 @@ const ModalHeader = styled.div`
 const ActionWrapper = styled.div`
   display: flex;
   align-items: center;
+  margin: 0 0.25rem;
 `;
 
 const DismissButton = styled(Button)`

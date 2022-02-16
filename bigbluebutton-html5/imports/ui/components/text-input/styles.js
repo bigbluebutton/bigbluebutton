@@ -13,7 +13,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import TextareaAutosize from 'react-autosize-textarea';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const Wrapper = styled.div`
   display: flex;

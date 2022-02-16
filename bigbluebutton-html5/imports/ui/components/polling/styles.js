@@ -31,7 +31,7 @@ import {
   colorPrimary,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { hasPhoneDimentions } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const PollingTitle = styled.div`
   white-space: nowrap;

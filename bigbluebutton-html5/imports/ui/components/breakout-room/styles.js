@@ -3,7 +3,7 @@ import {
   systemMessageBorderColor,
   mdPaddingX,
   borderSize,
-  listItemBgHover,
+  listItemBgHover, borderSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorPrimary,
@@ -11,14 +11,14 @@ import {
   colorDanger,
   colorGrayDark,
   userListBg,
-  colorWhite,
+  colorWhite, colorGrayLighter,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   headingsFontWeight,
   fontSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const BreakoutActions = styled.div`
   display: flex;
@@ -230,6 +230,15 @@ const HeaderButton = styled(Button)`
     }
   }`;
 
+const Separator = styled.div`
+  position: relative;
+  width: 100%;
+  height: 10px;
+  height: ${borderSizeSmall};
+  background-color: ${colorGrayLighter};
+  margin: 30px 0px;
+`;
+
 export default {
   BreakoutActions,
   AlreadyConnected,
@@ -251,4 +260,5 @@ export default {
   Duration,
   Panel,
   HeaderButton,
+  Separator,
 };
