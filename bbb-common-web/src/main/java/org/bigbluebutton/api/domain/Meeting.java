@@ -193,6 +193,22 @@ public class Meeting {
 		}
 	}
 
+	public void setLeftGuestLobby(String userId, Boolean bool) {
+		RegisteredUser ruser = registeredUsers.get(userId);
+		if (ruser != null) {
+			ruser.setLeftGuestLobby(bool);
+		}
+	}
+
+	public Boolean didGuestUserLeaveGuestLobby(String userId) {
+		RegisteredUser ruser = registeredUsers.get(userId);
+
+		if (ruser != null) {
+			return ruser.getLeftGuestLobby();
+		}
+		return true;
+	}
+
 	public void setGuestStatusWithId(String userId, String guestStatus) {
     	User user = getUserById(userId);
     	if (user != null) {
