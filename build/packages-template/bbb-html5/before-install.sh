@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 addGroup meteor ""
-addUser meteor "" meteor /usr/share/meteor "meteor user-daemon" "/bin/bash"
+addUser meteor "" meteor /usr/share/meteor "meteor user-daemon" "/usr/sbin/nologin"
 
 case "$1" in
   install|upgrade|1|2)

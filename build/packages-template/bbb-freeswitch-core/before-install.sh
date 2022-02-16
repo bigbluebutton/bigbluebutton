@@ -4,7 +4,7 @@ case "$1" in
     install|upgrade|1|2)
         
         addGroup freeswitch ""
-        addUser freeswitch "" freeswitch /opt/freeswitch "freeswitch" /bin/bash
+        addUser freeswitch "" freeswitch /opt/freeswitch "freeswitch" /usr/sbin/nologin
 
         rm -f /tmp/external.xml
         if [ -f /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml ]; then
