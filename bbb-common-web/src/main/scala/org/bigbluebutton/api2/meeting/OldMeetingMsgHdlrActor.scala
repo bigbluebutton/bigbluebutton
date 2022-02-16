@@ -38,6 +38,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: CreateBreakoutRoomSysCmdMsg       => handleCreateBreakoutRoomSysCmdMsg(m)
       case m: PresentationUploadTokenSysPubMsg  => handlePresentationUploadTokenSysPubMsg(m)
       case m: GuestsWaitingApprovedEvtMsg       => handleGuestsWaitingApprovedEvtMsg(m)
+      case m: StatusOfMovedUserChangedEvtMsg    => handleStatusOfMovedUserChangedEvtMsg(m)
+      case m: RegisterMovedUserAnewEvtMsg       => handleRegisterMovedUserAnewEvtMsg(m)
       case m: GuestPolicyChangedEvtMsg          => handleGuestPolicyChangedEvtMsg(m)
       case m: GuestLobbyMessageChangedEvtMsg    => handleGuestLobbyMessageChangedEvtMsg(m)
       case m: AddCaptionsPadsEvtMsg             => handleAddCaptionsPadsEvtMsg(m)
@@ -68,6 +70,22 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handleRecordingChapterBreakSysMsg(msg: RecordingChapterBreakSysMsg): Unit = {
     olgMsgGW.handle(new RecordChapterBreak(msg.body.meetingId, msg.body.timestamp))
+  }
+
+  def handleRegisterMovedUserAnewEvtMsg(msg: RegisterMovedUserAnewEvtMsg) {
+    olgMsgGW.handle(new RegisterMovedUserAnew(
+      msg.header.meetingId,
+      msg.body.registeredUser.id,
+      msg.body.registeredUser.name,
+      msg.body.registeredUser.role,
+      msg.body.registeredUser.externId,
+      msg.body.registeredUser.authToken,
+      msg.body.registeredUser.avatarURL,
+      msg.body.registeredUser.guest,
+      msg.body.registeredUser.authed,
+      "WAIT",
+      msg.body.registeredUser.excludeFromDashboard
+    ))
   }
 
   def handleMeetingCreatedEvtMsg(msg: MeetingCreatedEvtMsg): Unit = {
@@ -169,6 +187,13 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
     val u: util.ArrayList[GuestsStatus] = new util.ArrayList[GuestsStatus]()
     msg.body.guests.foreach(g => u.add(new GuestsStatus(g.guest, g.status)))
     val m = new GuestStatusChangedEventMsg(msg.header.meetingId, u)
+    olgMsgGW.handle(m)
+  }
+
+  def handleStatusOfMovedUserChangedEvtMsg(msg: StatusOfMovedUserChangedEvtMsg): Unit = {
+    val arrGuestStatus: util.ArrayList[GuestsStatus] = new util.ArrayList[GuestsStatus]()
+    arrGuestStatus.add(new GuestsStatus(msg.body.guestId, msg.body.guestStatus))
+    val m = new GuestStatusChangedEventMsg(msg.header.meetingId, arrGuestStatus)
     olgMsgGW.handle(m)
   }
 

@@ -84,6 +84,29 @@ case class GuestWaitingLeftEvtMsg(
 case class GuestWaitingLeftEvtMsgBody(userId: String)
 
 /**
+ * Message sent to bbb-web that changes the status of the user session when polling.
+ */
+object StatusOfMovedUserChangedEvtMsg { val NAME = "StatusOfMovedUserChangedEvtMsg" }
+case class StatusOfMovedUserChangedEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   StatusOfMovedUserChangedEvtMsgBody
+) extends BbbCoreMsg
+case class StatusOfMovedUserChangedEvtMsgBody(guestId: String, guestStatus: String)
+
+/**
+ * Message sent to bbb-web to register the user after ejected and moved to the guest lobby.
+ */
+object RegisterMovedUserAnewEvtMsg { val NAME = "RegisterMovedUserAnewEvtMsg" }
+case class RegisterMovedUserAnewEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   RegisterMovedUserAnewEvtMsgBody
+) extends BbbCoreMsg
+case class RegisterMovedUserAnewEvtMsgBody(registeredUser: MovedUserToGuestLobby)
+case class MovedUserToGuestLobby(id: String, externId: String, name: String, role: String,
+                                 authToken: String, avatarURL: String, guest: Boolean, authed: Boolean,
+                                 guestStatus: String, excludeFromDashboard: Boolean, loggedOut: Boolean)
+
+/**
  * Message from user to set the guest policy.
  */
 object SetGuestPolicyCmdMsg { val NAME = "SetGuestPolicyCmdMsg" }

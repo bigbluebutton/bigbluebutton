@@ -1110,6 +1110,12 @@ public class MeetingService implements MessageListener {
     }
   }
 
+  private void processRegisterMovedUserAnew(RegisterMovedUserAnew message) {
+    this.registerUser(message.meetingID, message.internalUserId, message.fullname, 
+                      message.role, message.externUserID, message.authToken, message.avatarURL, 
+                      message.guest, message.authed, message.guestStatus, message.excludeFromDashboard);
+  }
+
   private void userRoleChanged(UserRoleChanged message) {
     Meeting m = getMeeting(message.meetingId);
     if (m != null) {
@@ -1164,6 +1170,8 @@ public class MeetingService implements MessageListener {
           processEndMeeting((EndMeeting) message);
         } else if (message instanceof RegisterUser) {
           processRegisterUser((RegisterUser) message);
+        } else if (message instanceof RegisterMovedUserAnew) {
+          processRegisterMovedUserAnew((RegisterMovedUserAnew) message);
         } else if (message instanceof CreateBreakoutRoom) {
           processCreateBreakoutRoom((CreateBreakoutRoom) message);
         } else if (message instanceof PresentationUploadToken) {

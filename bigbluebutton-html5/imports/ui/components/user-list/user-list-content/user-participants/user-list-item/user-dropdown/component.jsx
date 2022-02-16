@@ -10,6 +10,7 @@ import Icon from '/imports/ui/components/icon/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import RemoveUserModal from '/imports/ui/components/modal/remove-user/component';
+import MoveUserToGuestLobbyModal from '/imports/ui/components/modal/move-user-guestlobby/component'
 import VideoService from '/imports/ui/components/video-provider/service';
 import BBBMenu from '/imports/ui/components/menu/component';
 import { styles } from './styles';
@@ -113,6 +114,10 @@ const messages = defineMessages({
   DirectoryLookupLabel: {
     id: 'app.userList.menu.directoryLookup.label',
     description: 'Directory lookup',
+  },
+  MoveUserToGuestLobbyLabel: {
+    id: 'app.userList.menu.moveUserToGuestLobby.label',
+    description: 'Move user back to the guest lobby',
   },
   yesLabel: {
     id: 'app.endMeeting.yesLabel',
@@ -244,6 +249,7 @@ class UserDropdown extends PureComponent {
       setEmojiStatus,
       assignPresenter,
       removeUser,
+      moveUserToGuestLobby,
       toggleVoice,
       changeRole,
       ejectUserCameras,
@@ -279,6 +285,7 @@ class UserDropdown extends PureComponent {
       allowedToSetPresenter,
       allowedToPromote,
       allowedToDemote,
+      allowedToMoveToGuestLobby,
       allowedToChangeStatus,
       allowedToChangeUserLockStatus,
       allowedToChangeWhiteboardAccess,
@@ -504,6 +511,25 @@ class UserDropdown extends PureComponent {
       });
     }
 
+    if (allowedToMoveToGuestLobby && isMeteorConnected) {
+      actions.push({
+        key: 'moveToGuestLobby',
+        label: intl.formatMessage(messages.MoveUserToGuestLobbyLabel),
+        onClick: () => {
+          this.onActionsHide(mountModal(
+            <MoveUserToGuestLobbyModal
+              intl={intl}
+              user={user}
+              onConfirm={moveUserToGuestLobby}
+            />,
+          ));
+
+          this.handleClose();
+        },
+        icon: 'desktop',
+      });
+    }
+    
     if (allowedToRemove && isMeteorConnected) {
       actions.push({
         key: 'remove',

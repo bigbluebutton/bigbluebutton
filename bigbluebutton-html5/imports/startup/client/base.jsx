@@ -5,6 +5,7 @@ import Auth from '/imports/ui/services/auth';
 import AppContainer from '/imports/ui/components/app/container';
 import ErrorScreen from '/imports/ui/components/error-screen/component';
 import MeetingEnded from '/imports/ui/components/meeting-ended/component';
+import MovedToGuestLobbyScreen from '/imports/ui/components/moved-to-guest-lobby/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
@@ -336,6 +337,9 @@ class Base extends Component {
     }
 
     if (ejected) {
+      if (ejectedReason === 'moved_to_guest_lobby_reason') {
+        return (<MovedToGuestLobbyScreen />)
+      } 
       return (<MeetingEnded code="403" ejectedReason={ejectedReason} />);
     }
 

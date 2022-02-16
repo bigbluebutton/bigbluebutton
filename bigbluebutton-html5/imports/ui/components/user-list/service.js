@@ -320,6 +320,20 @@ const isMeetingLocked = (id) => {
   return isLocked;
 };
 
+const isWaitingApprovalEnabled = (meetingId) => {
+  let isEnabled = false;
+  const meeting = Meetings.findOne(
+    { meetingId: meetingId },
+    { fields: { 'usersProp.guestPolicy': 1 } },
+  );
+
+  if (meeting.usersProp.guestPolicy === 'ASK_MODERATOR') {
+    isEnabled=true;
+  };
+
+  return isEnabled ;
+};
+
 const getUsersProp = () => {
   const meeting = Meetings.findOne(
     { meetingId: Auth.meetingID },
@@ -399,6 +413,11 @@ const getAvailableActions = (
     && !isBreakoutRoom
     && !(isSubjectUserGuest && usersProp.authenticatedGuest);
 
+  const allowedToMoveToGuestLobby = amIModerator
+    && !amISubjectUser
+    && !isSubjectUserModerator
+    && !isBreakoutRoom
+    && isWaitingApprovalEnabled(Auth.meetingID);
   const allowedToChangeStatus = amISubjectUser;
 
   const allowedToChangeUserLockStatus = amIModerator
@@ -421,6 +440,7 @@ const getAvailableActions = (
     allowedToSetPresenter,
     allowedToPromote,
     allowedToDemote,
+    allowedToMoveToGuestLobby,
     allowedToChangeStatus,
     allowedToChangeUserLockStatus,
     allowedToChangeWhiteboardAccess,
@@ -451,6 +471,10 @@ const removeUser = (userId, banUser) => {
   } else {
     makeCall('removeUser', userId, banUser);
   }
+};
+
+const moveUserToGuestLobby = (userId) => {
+  makeCall('moveUserToGuestLobby', userId);
 };
 
 const toggleVoice = (userId) => {
@@ -655,6 +679,7 @@ export default {
   setEmojiStatus,
   clearAllEmojiStatus,
   assignPresenter,
+  moveUserToGuestLobby,
   removeUser,
   toggleVoice,
   muteAllUsers,

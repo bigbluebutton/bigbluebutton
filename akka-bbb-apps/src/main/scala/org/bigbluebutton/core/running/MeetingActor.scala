@@ -405,6 +405,7 @@ class MeetingActor(
       case m: ChangeUserEmojiCmdMsg               => handleChangeUserEmojiCmdMsg(m)
       case m: SelectRandomViewerReqMsg            => usersApp.handleSelectRandomViewerReqMsg(m)
       case m: ChangeUserPinStateReqMsg            => usersApp.handleChangeUserPinStateReqMsg(m)
+      case m: MoveUserToGuestLobbyCmdMsg          => usersApp.handleMoveUserToGuestLobbyCmdMsg(m)
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>

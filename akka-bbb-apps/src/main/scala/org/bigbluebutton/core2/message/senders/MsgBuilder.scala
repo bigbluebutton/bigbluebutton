@@ -74,6 +74,28 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildStatusOfMovedUserChangedEvtMsg(meetingId: String, guestId: String, guestStatus: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, guestId)
+    val envelope = BbbCoreEnvelope(StatusOfMovedUserChangedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(StatusOfMovedUserChangedEvtMsg.NAME, meetingId, guestId)
+
+    val body = StatusOfMovedUserChangedEvtMsgBody(guestId, guestStatus)
+    val event = StatusOfMovedUserChangedEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildRegisterMovedUserAnewEvtMsg(meetingId: String, registeredUser: MovedUserToGuestLobby): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, registeredUser.id)
+    val envelope = BbbCoreEnvelope(RegisterMovedUserAnewEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(RegisterMovedUserAnewEvtMsg.NAME, meetingId, registeredUser.id)
+
+    val body = RegisterMovedUserAnewEvtMsgBody(registeredUser)
+    val event = RegisterMovedUserAnewEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildValidateConnAuthTokenSysRespMsg(meetingId: String, userId: String,
                                            authzed: Boolean, connId: String, app: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
