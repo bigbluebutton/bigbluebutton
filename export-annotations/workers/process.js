@@ -18,7 +18,7 @@ function shape_scale(dimension, coord){
 }
 
 function overlay_pencil(svg, annotation, w, h) {
-    const shapeColor = Number(annotation.color).toString(16)
+    let shapeColor = Number(annotation.color).toString(16)
 
     if (annotation.points.length < 2) {
         logger.info("Pencil doesn't have enough points")
@@ -74,11 +74,35 @@ function overlay_pencil(svg, annotation, w, h) {
     }
 }
 
+function overlay_rectangle(svg, annotation, w, h){
+    let shapeColor = Number(annotation.color).toString(16)
+
+    let fill = annotation.fill ? `#${shapeColor}` : 'none';
+    
+    let x1 = shape_scale(w, annotation.points[0])
+    let y1 = shape_scale(h, annotation.points[1])
+    let x2 = shape_scale(w, annotation.points[2])
+    let y2 = shape_scale(h, annotation.points[3])
+
+    let path = `M ${x1} ${y1} L ${x2} ${y1} L ${x2} ${y2} L ${x1} ${y2} Z`
+
+    svg.ele('g', {
+        style: `stroke:#${shapeColor};stroke-width:${shape_scale(w, annotation.thickness)};fill:${fill};stroke-linejoin:miter`
+    }).ele('path', {
+        d: path
+    }).up()
+}
+
 function overlay_annotations(svg, annotations, w, h) {
-    for(let i = 0; i < annotations.length; i++){        
+    console.log(annotations)
+
+    for(let i = 0; i < annotations.length; i++) {        
         switch (annotations[i].annotationType) {
             case 'pencil':
                 overlay_pencil(svg, annotations[i].annotationInfo, w, h)
+                break;
+            case 'rectangle':
+                overlay_rectangle(svg, annotations[i].annotationInfo, w, h)
                 break;
             default:
                 logger.error(`Unknown annotation type ${annotations[i].annotationType}.`);
@@ -111,6 +135,7 @@ for (let i = 0; i < pages.length; i++) {
     backgroundSlide = JSON.parse(convert.xml2json(backgroundSlide));
 
     // There's a bug with older versions of rsvg which defaults SVG output to pixels.
+    // So we ignore the units here as well.
     // See: https://gitlab.gnome.org/GNOME/librsvg/-/issues/766
     var slideWidth = Number(backgroundSlide.elements[0].attributes.width.replace(/\D/g, ""))
     var slideHeight = Number(backgroundSlide.elements[0].attributes.height.replace(/\D/g, ""))
@@ -172,5 +197,6 @@ exec(`rsvg-convert ${rsvgConvertInput} -f pdf -o ${exportJob.presLocation}/../an
 });
 
 // Launch Notifier Worker depending on job type
+logger.info(`Saved PDF at ${exportJob.presLocation}/../annotated_slides_${jobId}.pdf`)
 
 parentPort.postMessage({ message: workerData })
