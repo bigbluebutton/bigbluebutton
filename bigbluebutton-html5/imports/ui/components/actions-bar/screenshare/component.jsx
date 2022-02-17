@@ -15,7 +15,7 @@ import {
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 
 const { isMobile } = deviceInfo;
-const { isSafari } = browserInfo;
+const { isSafari, isMobileApp } = browserInfo;
 
 const propTypes = {
   intl: PropTypes.objectOf(Object).isRequired,
@@ -161,7 +161,7 @@ const ScreenshareButton = ({
     ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc;
 
   const shouldAllowScreensharing = enabled
-    && !isMobile
+    && ( !isMobile || isMobileApp)
     && amIPresenter;
 
   const dataTest = !screenshareDataSavingSetting ? 'screenshareLocked'
