@@ -33,7 +33,7 @@ public class RecordingImportHandlerTest {
 
         for (String entry : entries) {
             String path = metadataDirectory + "/" + entry + "/metadata.xml";
-            Recording recording = handler.importRecording(path, entry);
+            Recording recording = handler.importRecording(path, entry, false);
             ids.add(recording.getRecordId());
             assertEquals(entry, recording.getRecordId());
         }

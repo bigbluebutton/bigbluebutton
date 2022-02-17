@@ -56,13 +56,11 @@ public class RecordingImportHandler {
             }
 
             String path = directory + "/" + entry + "/metadata.xml";
-            recording = importRecording(path, entry);
-            if (persist)
-                dataStore.save(recording);
+            importRecording(path, entry, persist);
         }
     }
 
-    public Recording importRecording(String path, String recordId) {
+    public Recording importRecording(String path, String recordId, boolean persist) {
         logger.info("Attempting to import {}", path);
 
         String content = null;
@@ -97,6 +95,9 @@ public class RecordingImportHandler {
             if (recording.getRecordId() == null || recording.getRecordId().equals(""))
                 recording.setRecordId(recordId);
         }
+
+        if (persist)
+            dataStore.save(recording);
 
         return recording;
     }

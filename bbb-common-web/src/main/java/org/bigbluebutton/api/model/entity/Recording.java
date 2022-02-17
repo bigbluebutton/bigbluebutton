@@ -1,6 +1,8 @@
 package org.bigbluebutton.api.model.entity;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
@@ -8,6 +10,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "recordings")
+@XmlRootElement
 public class Recording {
 
     @Id
@@ -61,6 +64,7 @@ public class Recording {
 
     public void setId(Long id) { this.id = id; }
 
+    @XmlElement
     public String getRecordId() {
         return recordId;
     }
@@ -69,6 +73,7 @@ public class Recording {
         this.recordId = recordId;
     }
 
+    @XmlElement
     public String getMeetingId() {
         return meetingId;
     }
@@ -77,6 +82,7 @@ public class Recording {
         this.meetingId = meetingId;
     }
 
+    @XmlElement
     public String getName() {
         return name;
     }
@@ -85,6 +91,7 @@ public class Recording {
         this.name = name;
     }
 
+    @XmlElement
     public Boolean getPublished() {
         return published;
     }
@@ -93,6 +100,7 @@ public class Recording {
         this.published = published;
     }
 
+    @XmlElement
     public Integer getParticipants() {
         return participants;
     }
@@ -101,6 +109,7 @@ public class Recording {
         this.participants = participants;
     }
 
+    @XmlElement
     public String getState() {
         return state;
     }
@@ -109,6 +118,7 @@ public class Recording {
         this.state = state;
     }
 
+    @XmlElement
     public LocalDateTime getStartTime() {
         return startTime;
     }
@@ -117,6 +127,7 @@ public class Recording {
         this.startTime = startTime;
     }
 
+    @XmlElement
     public LocalDateTime getEndTime() {
         return endTime;
     }
@@ -125,6 +136,7 @@ public class Recording {
         this.endTime = endTime;
     }
 
+    @XmlElement
     public LocalDateTime getDeletedAt() {
         return deletedAt;
     }
@@ -133,6 +145,7 @@ public class Recording {
         this.deletedAt = deletedAt;
     }
 
+    @XmlElement
     public Boolean getPublishUpdated() {
         return publishUpdated;
     }
@@ -141,6 +154,7 @@ public class Recording {
         this.publishUpdated = publishUpdated;
     }
 
+    @XmlElement
     public Boolean getProtected() {
         return isProtected;
     }
@@ -149,6 +163,7 @@ public class Recording {
         isProtected = aProtected;
     }
 
+    @XmlElement
     public Set<Metadata> getMetadata() { return metadata; }
 
     public void setMetadata(Set<Metadata> metadata) { this.metadata = metadata; }
@@ -162,6 +177,7 @@ public class Recording {
         this.metadata.add(metadata);
     }
 
+    @XmlElement
     public PlaybackFormat getFormat() {
         return format;
     }
@@ -170,6 +186,7 @@ public class Recording {
         this.format = format;
     }
 
+    @XmlElement
     public CallbackData getCallbackData() {
         return callbackData;
     }
