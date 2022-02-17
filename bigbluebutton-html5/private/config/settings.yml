@@ -28,7 +28,7 @@ public:
     #
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.5
+    bbbServerVersion: HTML5_FULL_BBB_VERSION
     displayBbbServerVersion: false
     copyright: '©2022 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
