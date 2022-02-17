@@ -58,6 +58,17 @@ if [ ! -f /.dockerenv ]; then
   systemctl daemon-reload
 fi
 
+# set full BBB version in settings.yml so it can be displayed in the client
+BBB_RELEASE_FILE=/etc/bigbluebutton/bigbluebutton-release
+BBB_HTML5_SETTINGS_FILE=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+if [[ -f $BBB_RELEASE_FILE ]] ; then
+  BBB_FULL_VERSION=$(cat $BBB_RELEASE_FILE | sed -n '/^BIGBLUEBUTTON_RELEASE/{s/.*=//;p}' )
+  echo "setting BBB_FULL_VERSION=$BBB_FULL_VERSION in $BBB_HTML5_SETTINGS_FILE "
+  if [[ -f $BBB_HTML5_SETTINGS_FILE ]] ; then
+    sed -i "s/HTML5_FULL_BBB_VERSION/$BBB_FULL_VERSION/g" $BBB_HTML5_SETTINGS_FILE
+  fi
+fi
+
 # Remove old overrides 
 if [ -f /etc/systemd/system/mongod.service.d/override-mongo.conf ] \
   || [ -f /etc/systemd/system/mongod.service.d/override.conf ] \
