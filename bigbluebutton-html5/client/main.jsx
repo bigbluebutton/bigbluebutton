@@ -21,6 +21,7 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
 import logger from '/imports/startup/client/logger';
+import '/imports/ui/services/mobile-app';
 import Base from '/imports/startup/client/base';
 import JoinHandler from '/imports/ui/components/join-handler/component';
 import AuthenticatedHandler from '/imports/ui/components/authenticated-handler/component';

@@ -1,6 +1,7 @@
 import Bowser from 'bowser';
 
-const BOWSER_RESULTS = Bowser.parse(window.navigator.userAgent);
+const userAgent = window.navigator.userAgent;
+const BOWSER_RESULTS = Bowser.parse(userAgent);
 
 const isChrome = BOWSER_RESULTS.browser.name === 'Chrome';
 const isSafari = BOWSER_RESULTS.browser.name === 'Safari';
@@ -11,9 +12,11 @@ const isFirefox = BOWSER_RESULTS.browser.name === 'Firefox';
 const browserName = BOWSER_RESULTS.browser.name;
 const versionNumber = BOWSER_RESULTS.browser.version;
 
-const isValidSafariVersion = Bowser.getParser(window.navigator.userAgent).satisfies({
+const isValidSafariVersion = Bowser.getParser(userAgent).satisfies({
   safari: '>12',
 });
+
+const isMobileApp =  !!(userAgent.match(/BBBMobile/i));
 
 const browserInfo = {
   isChrome,
@@ -24,6 +27,7 @@ const browserInfo = {
   browserName,
   versionNumber,
   isValidSafariVersion,
+  isMobileApp
 };
 
 export default browserInfo;
