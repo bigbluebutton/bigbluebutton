@@ -15,7 +15,8 @@ export default function changeLayout(payload) {
     check(meetingId, String);
     check(requesterUserId, String);
 
-    const { presentationIsOpen, cameraPosition, focusedCamera, presentationVideoRate } = LayoutMeetings.findOne({ meetingId });
+    const m = LayoutMeetings.findOne({ meetingId }) || {};
+    const { presentationIsOpen, cameraPosition, focusedCamera, presentationVideoRate } = m;
 
     const defaultPayload = { presentationIsOpen, cameraPosition, focusedCamera, presentationVideoRate, ...payload};
 

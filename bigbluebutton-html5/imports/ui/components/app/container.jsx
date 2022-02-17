@@ -196,7 +196,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     layout,
   } = currentMeeting;
 
-  const meetingLayout = LayoutMeetings.findOne({ meetingId: Auth.meetingID });
+  const meetingLayout = LayoutMeetings.findOne({ meetingId: Auth.meetingID }) || {};
   const { layout, layoutUpdatedAt, presentationIsOpen, cameraPosition, focusedCamera, presentationVideoRate } = meetingLayout;
 
   if (currentUser && !currentUser.approved) {
