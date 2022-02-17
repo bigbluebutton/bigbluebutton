@@ -139,6 +139,7 @@ class RedisRecorderActor(
       ev.setMeetingId(msg.header.meetingId)
       ev.setSenderId(msg.body.msg.sender.id)
       ev.setMessage(msg.body.msg.message)
+      ev.setSenderRole(msg.body.msg.sender.role)
 
       record(msg.header.meetingId, ev.toMap.asJava)
     }
