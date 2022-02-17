@@ -604,6 +604,7 @@
     "app.guest.seatWait": "Guest waiting for a seat in the meeting.",
     "app.guest.allow": "Guest approved and redirecting to meeting.",
     "app.guest.guestInvalid": "Guest user is invalid",
+    "app.guest.meetingForciblyEnded": "You cannot join a meeting that has already been forcibly ended",
     "app.userList.guest.waitingUsers": "Waiting Users",
     "app.userList.guest.waitingUsersTitle": "User Management",
     "app.userList.guest.optionTitle": "Review Pending Users",
