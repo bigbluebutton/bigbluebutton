@@ -19,8 +19,6 @@
 
 package org.bigbluebutton.presentation;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
@@ -28,7 +26,6 @@ import org.bigbluebutton.presentation.imp.*;
 import org.bigbluebutton.presentation.messages.DocConversionRequestReceived;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.bigbluebutton.api.Util;
 import com.google.gson.Gson;
 
 public class DocumentConversionServiceImp implements DocumentConversionService {
@@ -88,6 +85,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
         logData.put("current", pres.isCurrent());
         logData.put("logCode", "supported_file_not_handled");
         logData.put("message", "Supported file not handled.");
+        logData.put("removable", pres.isRemovable());
 
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
@@ -138,6 +136,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
           logData.put("authzToken", pres.getAuthzToken());
           logData.put("logCode", "presentation_conversion_start");
           logData.put("message", "Start presentation conversion.");
+          logData.put("isRemovable", pres.isRemovable());
 
           Gson gson = new Gson();
           String logStr = gson.toJson(logData);
@@ -152,6 +151,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
                   pres.getName(),
                   pres.getAuthzToken(),
                   pres.isDownloadable(),
+                  pres.isRemovable(),
                   pres.isCurrent());
           notifier.sendDocConversionProgress(progress);
       }

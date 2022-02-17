@@ -1,6 +1,9 @@
-import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 
-const GuestUsers = new Mongo.Collection('guestUsers');
+const collectionOptions = Meteor.isClient ? {
+  connection: null,
+} : {};
+
+const GuestUsers = new Mongo.Collection('guestUsers', collectionOptions);
 
 export default GuestUsers;

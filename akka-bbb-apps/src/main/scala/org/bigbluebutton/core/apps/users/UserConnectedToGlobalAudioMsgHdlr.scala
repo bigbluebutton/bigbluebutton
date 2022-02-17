@@ -11,7 +11,7 @@ trait UserConnectedToGlobalAudioMsgHdlr {
 
   def handleUserConnectedToGlobalAudioMsg(msg: UserConnectedToGlobalAudioMsg) {
     log.info("Handling UserConnectedToGlobalAudio: meetingId=" + props.meetingProp.intId + " userId=" + msg.body.userId)
-
+    
     def broadcastEvent(vu: VoiceUserState): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId,
         vu.intId)
@@ -40,7 +40,9 @@ trait UserConnectedToGlobalAudioMsgHdlr {
         talking = false,
         listenOnly = true,
         "kms",
-        System.currentTimeMillis()
+        System.currentTimeMillis(),
+        floor = false,
+        lastFloorTime = "0",
       )
 
       VoiceUsers.add(liveMeeting.voiceUsers, vu)

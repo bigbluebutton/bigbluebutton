@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
-import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   confirmLabel: {
@@ -27,7 +26,9 @@ const intlMessages = defineMessages({
 const propTypes = {
   handleYes: PropTypes.func.isRequired,
   handleNo: PropTypes.func.isRequired,
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 class EchoTest extends Component {
@@ -52,24 +53,24 @@ class EchoTest extends Component {
     const {
       intl,
     } = this.props;
-    const disableYesButtonClicked = callback => () => {
+    const { disabled } = this.state;
+    const disableYesButtonClicked = (callback) => () => {
       this.setState({ disabled: true }, callback);
     };
     return (
-      <span className={styles.echoTest}>
-        <Button
-          className={styles.button}
+      <Styled.EchoTest>
+        <Styled.EchoTestButton
           label={intl.formatMessage(intlMessages.confirmLabel)}
           aria-label={intl.formatMessage(intlMessages.confirmAriaLabel)}
+          data-test="echoYesBtn"
           icon="thumbs_up"
-          disabled={this.state.disabled}
+          disabled={disabled}
           circle
           color="success"
           size="jumbo"
           onClick={disableYesButtonClicked(this.handleYes)}
         />
-        <Button
-          className={styles.button}
+        <Styled.EchoTestButton
           label={intl.formatMessage(intlMessages.disconfirmLabel)}
           aria-label={intl.formatMessage(intlMessages.disconfirmAriaLabel)}
           icon="thumbs_down"
@@ -78,7 +79,7 @@ class EchoTest extends Component {
           size="jumbo"
           onClick={this.handleNo}
         />
-      </span>
+      </Styled.EchoTest>
     );
   }
 }

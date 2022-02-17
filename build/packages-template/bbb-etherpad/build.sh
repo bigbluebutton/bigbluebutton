@@ -1,0 +1,68 @@
+#!/bin/bash -ex
+
+TARGET=`basename $(pwd)`
+
+
+PACKAGE=$(echo $TARGET | cut -d'_' -f1)
+VERSION=$(echo $TARGET | cut -d'_' -f2)
+DISTRO=$(echo $TARGET | cut -d'_' -f3)
+TAG=$(echo $TARGET | cut -d'_' -f4)
+
+
+#
+# Clean up directories
+rm -rf staging
+
+#
+# package
+
+set +e
+bin/installDeps.sh
+set -e
+
+git clone https://github.com/mconf/ep_pad_ttl.git
+npm pack ./ep_pad_ttl
+npm install ./ep_pad_ttl-*.tgz
+
+git clone https://github.com/alangecker/bbb-etherpad-plugin.git
+npm pack ./bbb-etherpad-plugin
+npm install ./ep_bigbluebutton_patches-*.tgz
+
+git clone https://github.com/mconf/ep_redis_publisher.git
+npm pack ./ep_redis_publisher
+npm install ./ep_redis_publisher-*.tgz
+
+npm install ep_cursortrace
+npm install ep_disable_chat
+
+mkdir -p staging/usr/share/etherpad-lite
+
+cp -r CHANGELOG.md CONTRIBUTING.md LICENSE README.md bin doc src tests var node_modules staging/usr/share/etherpad-lite
+
+cp settings.json staging/usr/share/etherpad-lite
+git clone https://github.com/alangecker/bbb-etherpad-skin.git staging/usr/share/etherpad-lite/src/static/skins/bigbluebutton
+
+mkdir -p staging/usr/lib/systemd/system
+cp etherpad.service staging/usr/lib/systemd/system
+
+mkdir -p staging/etc/bigbluebutton/nginx
+cp notes.nginx staging/etc/bigbluebutton/nginx
+
+rm -rf staging/usr/share/etherpad-lite/src/static/skins/bigbluebutton/.git
+
+##
+
+. ./opts-$DISTRO.sh
+
+#
+# Build RPM package
+fpm -s dir -C ./staging -n $PACKAGE \
+    --version $VERSION --epoch $EPOCH \
+    --before-install before-install.sh \
+    --after-install after-install.sh \
+    --before-remove before-remove.sh \
+    --after-remove after-remove.sh \
+    --description "The EtherPad Lite components for BigBlueButton" \
+    $DIRECTORIES \
+    $OPTS
+

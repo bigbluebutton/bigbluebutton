@@ -1,5 +1,7 @@
 package org.bigbluebutton.core.models
 
+import com.softwaremill.quicklens._
+
 object Webcams {
   def findWithStreamId(webcams: Webcams, streamId: String): Option[WebcamStream] = {
     webcams.toVector.find(w => w.stream.id == streamId)
@@ -30,6 +32,42 @@ object Webcams {
       removedStream <- webcams.remove(streamId)
     } yield removedStream
   }
+
+  def addViewer(webcams: Webcams, streamId: String, subscriberId: String): Unit = {
+    for {
+      webcamStream <- findWithStreamId(webcams, streamId)
+    } yield {
+      val mediaStream = webcamStream.stream
+      if (!mediaStream.viewers.contains(subscriberId)) {
+        val newViewers = mediaStream.viewers + subscriberId
+        webcams.updateViewers(webcamStream, newViewers)
+      }
+    }
+  }
+
+  def removeViewer(webcams: Webcams, streamId: String, subscriberId: String): Unit = {
+    for {
+      webcamStream <- findWithStreamId(webcams, streamId)
+    } yield {
+      val mediaStream = webcamStream.stream
+      if (mediaStream.viewers.contains(subscriberId)) {
+        val newViewers = mediaStream.viewers - subscriberId
+        webcams.updateViewers(webcamStream, newViewers)
+      }
+    }
+  }
+
+  def isViewingWebcam(webcams: Webcams, userId: String, streamId: String): Boolean = {
+    findWithStreamId(webcams, streamId) match {
+      case Some(webcam) => {
+        val viewing = webcam.stream.viewers contains userId
+        viewing
+      }
+      case None => {
+        false
+      }
+    }
+  }
 }
 
 class Webcams {
@@ -46,6 +84,13 @@ class Webcams {
     val webcam = webcams.get(streamId)
     webcam foreach (u => webcams -= streamId)
     webcam
+  }
+
+  private def updateViewers(webcamStream: WebcamStream, viewers: Set[String]): WebcamStream = {
+    val mediaStream: MediaStream = webcamStream.stream
+    val newMediaStream = mediaStream.modify(_.viewers).setTo(viewers)
+    val newWebcamStream = webcamStream.modify(_.stream).setTo(newMediaStream)
+    save(newWebcamStream)
   }
 }
 

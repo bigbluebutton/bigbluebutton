@@ -2,13 +2,25 @@ import ConnectionStatus from '/imports/api/connection-status';
 import Logger from '/imports/startup/server/logger';
 
 export default function clearConnectionStatus(meetingId) {
+  const selector = {};
+
   if (meetingId) {
-    return ConnectionStatus.remove({ meetingId }, () => {
-      Logger.info(`Cleared ConnectionStatus (${meetingId})`);
-    });
+    selector.meetingId = meetingId;
   }
 
-  return ConnectionStatus.remove({}, () => {
-    Logger.info('Cleared ConnectionStatus (all)');
-  });
+  try {
+    const numberAffected = ConnectionStatus.remove(selector);
+
+    if (numberAffected) {
+      if (meetingId) {
+        Logger.info(`Removed ConnectionStatus (${meetingId})`);
+      } else {
+        Logger.info('Removed ConnectionStatus (all)');
+      }
+    } else {
+      Logger.warn('Removing ConnectionStatus nonaffected');
+    }
+  } catch (err) {
+    Logger.error(`Removing ConnectionStatus: ${err}`);
+  }
 }

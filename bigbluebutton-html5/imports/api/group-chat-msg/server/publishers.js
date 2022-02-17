@@ -1,10 +1,13 @@
 import { GroupChatMsg, UsersTyping } from '/imports/api/group-chat-msg';
+import Users from '/imports/api/users';
 import { Meteor } from 'meteor/meteor';
-
+import { check } from 'meteor/check';
+import GroupChat from '/imports/api/group-chat';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-function groupChatMsg(chatsIds) {
+function groupChatMsg(chatCount) {
+  check(chatCount, Number);
   const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
@@ -19,12 +22,23 @@ function groupChatMsg(chatsIds) {
 
   Logger.debug('Publishing group-chat-msg', { meetingId, userId });
 
-  return GroupChatMsg.find({
+  const chats = GroupChat.find({
+    $or: [
+      { meetingId, users: { $all: [userId] } },
+    ],
+  }).fetch();
+
+  const chatsIds = chats.map((ct) => ct.chatId);
+
+  const User = Users.findOne({ userId, meetingId });
+  const selector = {
+    timestamp: { $gte: User.authTokenValidatedTime },
     $or: [
       { meetingId, chatId: { $eq: PUBLIC_GROUP_CHAT_ID } },
-      { chatId: { $in: chatsIds } },
+      { meetingId, chatId: { $in: chatsIds } },
     ],
-  });
+  };
+  return GroupChatMsg.find(selector);
 }
 
 function publish(...args) {

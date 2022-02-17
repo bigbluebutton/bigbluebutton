@@ -50,7 +50,8 @@ object MsgBuilder {
     val header = BbbCoreHeaderWithMeetingId(RegisterUserReqMsg.NAME, msg.meetingId)
     val body = RegisterUserReqMsgBody(meetingId = msg.meetingId, intUserId = msg.intUserId,
       name = msg.name, role = msg.role, extUserId = msg.extUserId, authToken = msg.authToken,
-      avatarURL = msg.avatarURL, guest = msg.guest, authed = msg.authed, guestStatus = msg.guestStatus)
+      avatarURL = msg.avatarURL, guest = msg.guest, authed = msg.authed, guestStatus = msg.guestStatus,
+      excludeFromDashboard = msg.excludeFromDashboard)
     val req = RegisterUserReqMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
@@ -64,11 +65,11 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def buildCheckAlivePingSysMsg(system: String, timestamp: Long): BbbCommonEnvCoreMsg = {
+  def buildCheckAlivePingSysMsg(system: String, bbbWebTimestamp: Long, akkaAppsTimestamp: Long): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(CheckAlivePingSysMsg.NAME, routing)
     val header = BbbCoreBaseHeader(CheckAlivePingSysMsg.NAME)
-    val body = CheckAlivePingSysMsgBody(system, timestamp)
+    val body = CheckAlivePingSysMsgBody(system, bbbWebTimestamp, akkaAppsTimestamp)
     val req = CheckAlivePingSysMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
@@ -157,7 +158,7 @@ object MsgBuilder {
 
     val pages = generatePresentationPages(msg.presId, msg.numPages.intValue(), msg.presBaseUrl)
     val presentation = PresentationVO(msg.presId, msg.filename,
-      current = msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue())
+      current = msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue(), msg.removable.booleanValue())
 
     val body = PresentationConversionCompletedSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
       code = msg.key, presentation)
@@ -230,6 +231,7 @@ object MsgBuilder {
       current = msg.current,
       presName = msg.filename,
       downloadable = msg.downloadable,
+      removable = msg.removable,
       authzToken = msg.authzToken
     )
     val req = PresentationConversionRequestReceivedSysMsg(header, body)
@@ -247,6 +249,7 @@ object MsgBuilder {
       current = msg.current,
       presName = msg.filename,
       downloadable = msg.downloadable,
+      removable = msg.removable,
       numPages = msg.numPages,
       authzToken = msg.authzToken
     )
@@ -280,4 +283,17 @@ object MsgBuilder {
     val req = DeletedRecordingSysMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
+
+  def buildPresentationUploadedFileTooLargeErrorSysMsg(msg: UploadFileTooLargeMessage): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationUploadedFileTooLargeErrorSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationUploadedFileTooLargeErrorSysPubMsg.NAME, msg.meetingId, msg.authzToken)
+
+    val body = PresentationUploadedFileTooLargeErrorSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
+      code = msg.key, presentationName = msg.filename, presentationToken = msg.authzToken, fileSize = msg.uploadedFileSize.intValue(), maxFileSize = msg.maxUploadFileSize)
+
+    val req = PresentationUploadedFileTooLargeErrorSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
 }

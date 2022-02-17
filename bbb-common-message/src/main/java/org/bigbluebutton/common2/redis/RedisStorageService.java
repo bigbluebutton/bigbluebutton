@@ -22,7 +22,7 @@ package org.bigbluebutton.common2.redis;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import io.lettuce.core.api.sync.BaseRedisCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,5 +145,12 @@ public class RedisStorageService extends RedisAwareCommunicator {
         RedisCommands<String, String> commands = connection.sync();
         result = commands.hmset(key, info);
         return result;
+    }
+
+    public Boolean checkConnectionStatusBasic() {
+        BaseRedisCommands command = connection.sync();
+        String response = command.ping();
+
+        return response.equals("PONG");
     }
 }

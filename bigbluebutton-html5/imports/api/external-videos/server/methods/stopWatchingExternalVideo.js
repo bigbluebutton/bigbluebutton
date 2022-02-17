@@ -1,42 +1,25 @@
-import { Meteor } from 'meteor/meteor';
+import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import Meetings from '/imports/api/meetings';
-import Users from '/imports/api/users';
-import RedisPubSub from '/imports/startup/server/redis';
 import { extractCredentials } from '/imports/api/common/server/helpers';
+import RedisPubSub from '/imports/startup/server/redis';
 
-export default function stopWatchingExternalVideo(options) {
+export default function stopWatchingExternalVideo() {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-  const EVENT_NAME = 'StopExternalVideoMsg';
-
-  const { meetingId, requesterUserId } = this.userId ? extractCredentials(this.userId) : options;
+  const EVENT_NAME = 'StopExternalVideoPubMsg';
 
   try {
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
     check(meetingId, String);
     check(requesterUserId, String);
 
-    const user = Users.findOne({
-      meetingId,
-      userId: requesterUserId,
-      presenter: true,
-    }, { presenter: 1 });
-
-    if (this.userId && !user) {
-      Logger.error(`Only presenters are allowed to stop external video for a meeting. meeting=${meetingId} userId=${requesterUserId}`);
-      return;
-    }
-
-    const meeting = Meetings.findOne({ meetingId });
-    if (!meeting || meeting.externalVideoUrl === null) return;
-
-    Meetings.update({ meetingId }, { $set: { externalVideoUrl: null } });
     const payload = {};
 
-    Logger.info(`User id=${requesterUserId} stopped sharing an external video for meeting=${meetingId}`);
+    Logger.info(`User ${requesterUserId} stoping an external video for meeting ${meetingId}`);
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   } catch (error) {
-    Logger.error(`Error on stop sharing an external video for meeting=${meetingId} ${error}`);
+    Logger.error(`Error on stoping an external video for meeting ${meetingId}: ${error}`);
   }
 }

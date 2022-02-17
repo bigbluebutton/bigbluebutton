@@ -35,6 +35,7 @@ module BigBlueButton
 
             # If the publish directory exists, the script does nothing
             FileUtils.rm_rf("#{@recording_dir}/publish/#{@format_name}/#{@full_id}")
+
             remove_status_files
 
             # For legacy reasons, the meeting ID passed to the publish script contains

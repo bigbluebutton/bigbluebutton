@@ -18,14 +18,12 @@
 
 package org.bigbluebutton.presentation.imp;
 
+import org.bigbluebutton.api.messaging.messages.PresentationUploadToken;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.presentation.ConversionMessageConstants;
 import org.bigbluebutton.presentation.GeneratedSlidesInfoHelper;
 import org.bigbluebutton.presentation.UploadedPresentation;
-import org.bigbluebutton.presentation.messages.DocPageCompletedProgress;
-import org.bigbluebutton.presentation.messages.DocPageGeneratedProgress;
-import org.bigbluebutton.presentation.messages.IDocConversionMsg;
-import org.bigbluebutton.presentation.messages.OfficeDocConversionProgress;
+import org.bigbluebutton.presentation.messages.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +39,17 @@ public class SwfSlidesGenerationProgressNotifier {
     messagingService.sendDocConversionMsg(msg);
   }
 
+  public void sendUploadFileTooLargeMessage(PresentationUploadToken pres, int uploadedFileSize, int maxUploadFileSize) {
+    UploadFileTooLargeMessage progress = new UploadFileTooLargeMessage(
+            pres.podId,
+            pres.meetingId,
+            pres.filename,
+            pres.authzToken,
+            ConversionMessageConstants.FILE_TOO_LARGE,
+            uploadedFileSize,
+            maxUploadFileSize);
+    messagingService.sendDocConversionMsg(progress);
+  }
 
   public void sendConversionUpdateMessage(int slidesCompleted, UploadedPresentation pres, int pageGenerated) {
     DocPageGeneratedProgress progress = new DocPageGeneratedProgress(pres.getPodId(),
@@ -51,6 +60,7 @@ public class SwfSlidesGenerationProgressNotifier {
             "notUsedYet",
             "notUsedYet",
             pres.isDownloadable(),
+            pres.isRemovable(),
             ConversionMessageConstants.GENERATED_SLIDE_KEY,
             pres.getNumberOfPages(),
             slidesCompleted,
@@ -64,7 +74,7 @@ public class SwfSlidesGenerationProgressNotifier {
     OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
-      pres.isDownloadable(), ConversionMessageConstants.GENERATING_THUMBNAIL_KEY);
+      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_THUMBNAIL_KEY);
     messagingService.sendDocConversionMsg(progress);
   }
 
@@ -77,7 +87,7 @@ public class SwfSlidesGenerationProgressNotifier {
     DocPageCompletedProgress progress = new DocPageCompletedProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
-      pres.isDownloadable(), ConversionMessageConstants.CONVERSION_COMPLETED_KEY,
+      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.CONVERSION_COMPLETED_KEY,
       pres.getNumberOfPages(), generateBasePresUrl(pres), pres.isCurrent());
     messagingService.sendDocConversionMsg(progress);
   }
@@ -98,7 +108,7 @@ public class SwfSlidesGenerationProgressNotifier {
     OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
-      pres.isDownloadable(), ConversionMessageConstants.GENERATING_TEXTFILES_KEY);
+      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_TEXTFILES_KEY);
     messagingService.sendDocConversionMsg(progress);
   }
 
@@ -106,7 +116,7 @@ public class SwfSlidesGenerationProgressNotifier {
     OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
-      pres.isDownloadable(), ConversionMessageConstants.GENERATING_SVGIMAGES_KEY);
+      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_SVGIMAGES_KEY);
     messagingService.sendDocConversionMsg(progress);
   }
 }

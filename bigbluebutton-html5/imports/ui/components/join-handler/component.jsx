@@ -6,8 +6,8 @@ import Auth from '/imports/ui/services/auth';
 import { setCustomLogoUrl, setModeratorOnlyMessage } from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
-import LoadingScreen from '/imports/ui/components/loading-screen/component';
-import Users from '/imports/api/users';
+import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
+import { CurrentUser } from '/imports/api/users';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -24,6 +24,7 @@ class JoinHandler extends Component {
 
     this.state = {
       joined: false,
+      hasAlreadyJoined: false,
     };
   }
 
@@ -38,14 +39,13 @@ class JoinHandler extends Component {
         connected,
         status,
       } = Meteor.status();
-
-      if (status === 'connecting') {
+      const { hasAlreadyJoined } = this.state;
+      if (status === 'connecting' && !hasAlreadyJoined) {
         this.setState({ joined: false });
       }
 
       logger.debug(`Initial connection status change. status: ${status}, connected: ${connected}`);
       if (connected) {
-
         const msToConnect = (new Date() - this.firstJoinTime) / 1000;
         const secondsToConnect = parseFloat(msToConnect).toFixed(2);
 
@@ -84,6 +84,8 @@ class JoinHandler extends Component {
   }
 
   async fetchToken() {
+    const { hasAlreadyJoined } = this.state;
+    const APP = Meteor.settings.public.app;
     if (!this._isMounted) return;
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -95,7 +97,9 @@ class JoinHandler extends Component {
     }
 
     // Old credentials stored in memory were being used when joining a new meeting
-    Auth.clearCredentials();
+    if (!hasAlreadyJoined) {
+      Auth.clearCredentials();
+    }
     const logUserInfo = () => {
       const userInfo = window.navigator;
 
@@ -163,7 +167,7 @@ class JoinHandler extends Component {
 
       return new Promise((resolve) => {
         if (customdata.length) {
-          makeCall('addUserSettings', customdata).then(r => resolve(r));
+          makeCall('addUserSettings', customdata).then((r) => resolve(r));
         }
         resolve(true);
       });
@@ -175,8 +179,8 @@ class JoinHandler extends Component {
     };
 
     // use enter api to get params for the client
-    const url = `/bigbluebutton/api/enter?sessionToken=${sessionToken}`;
-    const fetchContent = await fetch(url, { credentials: 'same-origin' });
+    const url = `${APP.bbbWebBase}/api/enter?sessionToken=${sessionToken}`;
+    const fetchContent = await fetch(url, { credentials: 'include' });
     const parseToJson = await fetchContent.json();
     const { response } = parseToJson;
 
@@ -191,8 +195,8 @@ class JoinHandler extends Component {
       setModOnlyMessage(response);
 
       Tracker.autorun(async (cd) => {
-        const user = Users.findOne({ userId: Auth.userID, approved: true }, { fields: { _id: 1 } });
-
+        const user = CurrentUser
+          .findOne({ userId: Auth.userID, approved: true }, { fields: { _id: 1 } });
         if (user) {
           await setCustomData(response);
           cd.stop();
@@ -216,7 +220,10 @@ class JoinHandler extends Component {
         },
       }, 'User faced an error on main.joinRouteHandler.');
     }
-    this.setState({ joined: true });
+    this.setState({
+      joined: true,
+      hasAlreadyJoined: true,
+    });
   }
 
   render() {

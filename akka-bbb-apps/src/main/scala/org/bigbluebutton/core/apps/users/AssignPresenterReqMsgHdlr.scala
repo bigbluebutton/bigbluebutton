@@ -2,10 +2,12 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.presentationpod.SetPresenterInPodActionHandler
+import org.bigbluebutton.core.apps.{ ExternalVideoModel }
 import org.bigbluebutton.core.models.{ PresentationPod, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.{ requestBroadcastStop }
 
 trait AssignPresenterReqMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -14,6 +16,7 @@ trait AssignPresenterReqMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleAssignPresenterReqMsg(msg: AssignPresenterReqMsg, state: MeetingState2x): MeetingState2x = {
+    log.info("handleAssignPresenterReqMsg: assignedBy={} newPresenterId={}", msg.body.assignedBy, msg.body.newPresenterId)
     AssignPresenterActionHandler.handleAction(liveMeeting, outGW, msg.body.assignedBy, msg.body.newPresenterId)
 
     // Change presenter of default presentation pod
@@ -67,8 +70,16 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
       for {
         oldPres <- Users2x.findPresenter(liveMeeting.users2x)
       } yield {
-        Users2x.makeNotPresenter(liveMeeting.users2x, oldPres.intId)
-        broadcastOldPresenterChange(oldPres)
+        if (oldPres.intId != newPresenterId) {
+          // Stop external video if it's running
+          ExternalVideoModel.stop(outGW, liveMeeting)
+          // Request a screen broadcast stop (goes to SFU, comes back through
+          // ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg)
+          requestBroadcastStop(outGW, liveMeeting)
+
+          Users2x.makeNotPresenter(liveMeeting.users2x, oldPres.intId)
+          broadcastOldPresenterChange(oldPres)
+        }
       }
 
       for {

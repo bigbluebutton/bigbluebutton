@@ -1,17 +1,19 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Session } from 'meteor/session';
-import cx from 'classnames';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import { defineMessages, injectIntl } from 'react-intl';
-import Icon from '../icon/component';
-import { styles } from './styles.scss';
-import Button from '/imports/ui/components/button/component';
+import Styled from './styles';
 import RecordingIndicator from './recording-indicator/container';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
+import ConnectionStatusButton from '/imports/ui/components/connection-status/button/container';
+import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import SettingsDropdownContainer from './settings-dropdown/container';
+import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
+import _ from "lodash";
+import { politeSRAlert } from '/imports/utils/dom-utils';
+import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -26,12 +28,23 @@ const intlMessages = defineMessages({
     id: 'app.navBar.toggleUserList.newMessages',
     description: 'label for toggleUserList btn when showing red notification',
   },
+  newMsgAria: {
+    id: 'app.navBar.toggleUserList.newMsgAria',
+    description: 'label for new message screen reader alert',
+  },
+  defaultBreakoutName: {
+    id: 'app.createBreakoutRoom.room',
+    description: 'default breakout room name',
+  },
 });
 
 const propTypes = {
   presentationTitle: PropTypes.string,
   hasUnreadMessages: PropTypes.bool,
   shortcuts: PropTypes.string,
+  breakoutNum: PropTypes.number,
+  breakoutName: PropTypes.string,
+  meetingName: PropTypes.string,
 };
 
 const defaultProps = {
@@ -41,28 +54,58 @@ const defaultProps = {
 };
 
 class NavBar extends Component {
-  static handleToggleUserList() {
-    Session.set(
-      'openPanel',
-      Session.get('openPanel') !== ''
-        ? ''
-        : 'userlist',
-    );
-    Session.set('idChatOpen', '');
+  constructor(props) {
+    super(props);
 
-    window.dispatchEvent(new Event('panelChanged'));
+    this.state = {
+        acs: props.activeChats,
+    }
+
+    this.handleToggleUserList = this.handleToggleUserList.bind(this);
   }
 
   componentDidMount() {
     const {
-      processOutsideToggleRecording,
-      connectRecordingObserver,
+      shortcuts: TOGGLE_USERLIST_AK,
+      intl,
+      breakoutNum,
+      breakoutName,
+      meetingName,
     } = this.props;
 
-    if (Meteor.settings.public.allowOutsideCommands.toggleRecording
-      || getFromUserSettings('bbb_outside_toggle_recording', false)) {
-      connectRecordingObserver();
-      window.addEventListener('message', processOutsideToggleRecording);
+    if (breakoutNum && breakoutNum > 0) {
+      if (breakoutName && meetingName) {
+        const defaultBreakoutName = intl.formatMessage(intlMessages.defaultBreakoutName, {
+          0: breakoutNum,
+        });
+
+        if (breakoutName === defaultBreakoutName) {
+          document.title = `${breakoutNum} - ${meetingName}`;
+        } else {
+          document.title = `${breakoutName} - ${meetingName}`;
+        }
+      }
+    }
+
+    const { isFirefox } = browserInfo;
+    const { isMacos } = deviceInfo;
+
+    // accessKey U does not work on firefox for macOS for some unknown reason
+    if (isMacos && isFirefox && TOGGLE_USERLIST_AK === 'U') {
+      document.addEventListener('keyup', (event) => {
+        const { key, code } = event;
+        const eventKey = key?.toUpperCase();
+        const eventCode = code;
+        if (event?.altKey && (eventKey === TOGGLE_USERLIST_AK || eventCode === `Key${TOGGLE_USERLIST_AK}`)) {
+          this.handleToggleUserList();
+        }
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (!_.isEqual(prevProps.activeChats, this.props.activeChats)) {
+      this.setState({ acs: this.props.activeChats})
     }
   }
 
@@ -70,68 +113,140 @@ class NavBar extends Component {
     clearInterval(this.interval);
   }
 
+  handleToggleUserList() {
+    const {
+      sidebarNavigation,
+      sidebarContent,
+      layoutContextDispatch,
+    } = this.props;
+
+    if (sidebarNavigation.isOpen) {
+      if (sidebarContent.isOpen) {
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+          value: false,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+          value: PANELS.NONE,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_ID_CHAT_OPEN,
+          value: '',
+        });
+      }
+
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+        value: false,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
+        value: PANELS.NONE,
+      });
+    } else {
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+        value: true,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
+        value: PANELS.USERLIST,
+      });
+    }
+  }
+
   render() {
     const {
       hasUnreadMessages,
-      isExpanded,
+      hasUnreadNotes,
+      activeChats,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
       mountModal,
       presentationTitle,
       amIModerator,
+      style,
+      main,
+      sidebarNavigation,
     } = this.props;
 
-
-    const toggleBtnClasses = {};
-    toggleBtnClasses[styles.btn] = true;
-    toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
+    const hasNotification = hasUnreadMessages || hasUnreadNotes;
 
     let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
-    ariaLabel += hasUnreadMessages ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
+    ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
+
+    const isExpanded = sidebarNavigation.isOpen;
+
+    const { acs } = this.state;
+
+    activeChats.map((c, i) => {
+      if (c?.unreadCounter > 0 && c?.unreadCounter !== acs[i]?.unreadCounter) {
+        politeSRAlert(`${intl.formatMessage(intlMessages.newMsgAria, { 0: c.name })}`)
+      }
+    });
 
     return (
-      <div
-        className={styles.navbar}
-      >
-        <div className={styles.top}>
-          <div className={styles.left}>
-            {!isExpanded ? null
-              : <Icon iconName="left_arrow" className={styles.arrowLeft} />
+      <Styled.Navbar
+        style={
+          main === 'new'
+            ? {
+              position: 'absolute',
+              top: style.top,
+              left: style.left,
+              height: style.height,
+              width: style.width,
             }
-            <Button
-              data-test="userListToggleButton"
-              onClick={NavBar.handleToggleUserList}
+            : {
+              position: 'relative',
+              height: style.height,
+              width: '100%',
+            }
+        }
+      >
+        <Styled.Top>
+          <Styled.Left>
+            {isExpanded && document.dir === 'ltr'
+              && <Styled.ArrowLeft iconName="left_arrow" />}
+            {!isExpanded && document.dir === 'rtl'
+              && <Styled.ArrowLeft iconName="left_arrow" />}
+            <Styled.NavbarToggleButton
+              onClick={this.handleToggleUserList}
               ghost
               circle
               hideLabel
-              data-test={hasUnreadMessages ? 'hasUnreadMessages' : null}
+              data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
+              tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
               aria-label={ariaLabel}
               icon="user"
-              className={cx(toggleBtnClasses)}
               aria-expanded={isExpanded}
               accessKey={TOGGLE_USERLIST_AK}
+              hasNotification={hasNotification}
             />
-            {isExpanded ? null
-              : <Icon iconName="right_arrow" className={styles.arrowRight} />
-            }
-          </div>
-          <div className={styles.center}>
-            <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
-
+            {!isExpanded && document.dir === 'ltr'
+              && <Styled.ArrowRight iconName="right_arrow" />}
+            {isExpanded && document.dir === 'rtl'
+              && <Styled.ArrowRight iconName="right_arrow" />}
+          </Styled.Left>
+          <Styled.Center>
+            <Styled.PresentationTitle data-test="presentationTitle">
+              {presentationTitle}
+            </Styled.PresentationTitle>
             <RecordingIndicator
               mountModal={mountModal}
               amIModerator={amIModerator}
             />
-          </div>
-          <div className={styles.right}>
+          </Styled.Center>
+          <Styled.Right>
+            {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
             <SettingsDropdownContainer amIModerator={amIModerator} />
-          </div>
-        </div>
-        <div className={styles.bottom}>
+          </Styled.Right>
+        </Styled.Top>
+        <Styled.Bottom>
           <TalkingIndicatorContainer amIModerator={amIModerator} />
-        </div>
-      </div>
+        </Styled.Bottom>
+      </Styled.Navbar>
     );
   }
 }

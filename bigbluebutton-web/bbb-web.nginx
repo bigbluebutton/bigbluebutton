@@ -7,21 +7,37 @@
 	       		proxy_redirect     default;
         	        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
 
-                	# Workaround IE refusal to set cookies in iframe
-	                add_header P3P 'CP="No P3P policy available"';
+                    # Workaround IE refusal to set cookies in iframe
+                    add_header P3P 'CP="No P3P policy available"';
+                    if ($bbb_loadbalancer_node) {
+                        add_header 'Access-Control-Allow-Origin' $bbb_loadbalancer_node always;
+                        add_header 'Access-Control-Allow-Credentials' 'true' always;
+                    }
 		}
 
 
 		location ~ "^\/bigbluebutton\/presentation\/(?<prestoken>[a-zA-Z0-9_-]+)/upload$" {
-	        	proxy_pass         http://127.0.0.1:8090;
+			# Grails can't handle CORS OPTION preflight requests correctly -> lets do this in nginx
+			if ($request_method = 'OPTIONS') {
+				add_header 'Access-Control-Allow-Origin' $bbb_loadbalancer_node always;
+				add_header 'Access-Control-Allow-Credentials' 'true' always;
+				add_header 'Content-Type' 'text/plain; charset=utf-8';
+				add_header 'Content-Length' 0;
+				return 204;
+			}
+			proxy_pass         http://127.0.0.1:8090;
 			proxy_redirect     default;
 			proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
 
 			# Workaround IE refusal to set cookies in iframe
-		        add_header P3P 'CP="No P3P policy available"';
+			add_header P3P 'CP="No P3P policy available"';
+			if ($bbb_loadbalancer_node) {
+				add_header 'Access-Control-Allow-Origin' $bbb_loadbalancer_node always;
+				add_header 'Access-Control-Allow-Credentials' 'true' always;
+			}
 
-			# Allow 30M uploaded presentation document.
-		        client_max_body_size       30m;
+			# high limit for presentation as bbb-web will reject upload if larger than configured
+			client_max_body_size       1000m;
 			client_body_buffer_size    128k;
 
 			proxy_connect_timeout      90;
@@ -38,7 +54,10 @@
 			proxy_request_buffering off;
 
 			# Send a sub-request to allow bbb-web to refuse before loading
-		 	auth_request /bigbluebutton/presentation/checkPresentation;
+			# If file is larger than configured bbb-web will return with code 403 and Header: x-file-too-large = 1
+			auth_request /bigbluebutton/presentation/checkPresentation;
+			error_page 403 = @error403;
+			auth_request_set $file_too_large_header $upstream_http_x_file_too_large;
 
 		}
 
@@ -54,6 +73,9 @@
 			proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
 			# Workaround IE refusal to set cookies in iframe
 			add_header P3P 'CP="No P3P policy available"';
+			if ($bbb_loadbalancer_node) {
+				add_header 'Access-Control-Allow-Origin' $bbb_loadbalancer_node always;
+			}
 		}
 
 		location = /bigbluebutton/presentation/checkPresentation {
@@ -66,8 +88,8 @@
 			proxy_set_header	Content-Length "";
 			proxy_set_header	X-Original-Content-Length $http_content_length;
 
-			# Allow 30M uploaded presentation document.
-		        client_max_body_size       30m;
+			# high limit for presentation as bbb-web will reject upload if larger than configured
+			client_max_body_size       1000m;
 			client_body_buffer_size    128k;
 
 			proxy_pass_request_body off;
@@ -88,9 +110,28 @@
 			proxy_set_header         X-Original-URI $request_uri;
 		}
 
+		location = /bigbluebutton/connection/legacyCheckAuthorization {
+			internal;
+			proxy_pass               http://127.0.0.1:8090;
+			proxy_pass_request_body  off;
+			proxy_set_header         Content-Length "";
+			proxy_set_header         X-Original-URI $request_uri;
+		}
+
+		location = /bigbluebutton/connection/validatePad {
+			internal;
+			proxy_pass               http://127.0.0.1:8090;
+			proxy_pass_request_body  off;
+			proxy_set_header         Content-Length "";
+			proxy_set_header         X-Original-URI $request_uri;
+		}
+
         location ~ "^/bigbluebutton\/textTrack\/(?<textTrackToken>[a-zA-Z0-9]+)\/(?<recordId>[a-zA-Z0-9_-]+)\/(?<textTrack>.+)$" {
             # Workaround IE refusal to set cookies in iframe
             add_header P3P 'CP="No P3P policy available"';
+            if ($bbb_loadbalancer_node) {
+                add_header 'Access-Control-Allow-Origin' $bbb_loadbalancer_node always;
+            }
 
             # Allow 30M uploaded presentation document.
             client_max_body_size       30m;
@@ -129,4 +170,12 @@
             proxy_set_header        X-Original-URI $request_uri;
         }
 
+	}
+
+	location @error403 {
+            if ($file_too_large_header = '1') {
+                    return 413;
+            }
+
+            return 403;
 	}

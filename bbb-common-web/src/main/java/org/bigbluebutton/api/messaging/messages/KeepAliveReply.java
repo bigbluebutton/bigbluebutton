@@ -3,10 +3,12 @@ package org.bigbluebutton.api.messaging.messages;
 public class KeepAliveReply implements IMessage {
 	
   public final String system;
-  public final Long timestamp;
-  
-  public KeepAliveReply(String system, Long timestamp) {
+  public final Long bbbWebTimestamp;
+  public final Long akkaAppsTimestamp;
+
+  public KeepAliveReply(String system, Long bbbWebTimestamp, Long akkaAppsTimestamp) {
   	this.system = system;
-  	this.timestamp = timestamp;
+  	this.bbbWebTimestamp = bbbWebTimestamp;
+  	this.akkaAppsTimestamp = akkaAppsTimestamp;
   }
 }

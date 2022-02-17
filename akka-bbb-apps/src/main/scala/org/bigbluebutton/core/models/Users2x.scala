@@ -8,6 +8,14 @@ object Users2x {
     users.toVector find (u => u.intId == intId)
   }
 
+  def findWithBreakoutRoomId(users: Users2x, breakoutRoomId: String): Option[UserState] = {
+    //userId + "-" + roomSequence
+    val userIdParts = breakoutRoomId.split("-")
+    val userExtId = userIdParts(0)
+
+    users.toVector find (u => u.extId == userExtId)
+  }
+
   def findAll(users: Users2x): Vector[UserState] = users.toVector
 
   def add(users: Users2x, user: UserState): Option[UserState] = {
@@ -42,7 +50,7 @@ object Users2x {
   def findAllExpiredUserLeftFlags(users: Users2x, meetingExpireWhenLastUserLeftInMs: Long): Vector[UserState] = {
     if (meetingExpireWhenLastUserLeftInMs > 0) {
       users.toVector filter (u => u.userLeftFlag.left && u.userLeftFlag.leftOn != 0 &&
-        System.currentTimeMillis() - u.userLeftFlag.leftOn > 1000)
+        System.currentTimeMillis() - u.userLeftFlag.leftOn > 10000)
     } else {
       // When meetingExpireWhenLastUserLeftInMs is set zero we need to
       // remove user right away to end the meeting as soon as possible.
@@ -55,20 +63,39 @@ object Users2x {
     users.toVector.length
   }
 
+  def numActiveModerators(users: Users2x): Int = {
+    users.toVector.filter(u => u.role == Roles.MODERATOR_ROLE && !u.userLeftFlag.left).length
+  }
+
   def findNotPresenters(users: Users2x): Vector[UserState] = {
     users.toVector.filter(u => !u.presenter)
   }
 
-  def findNotPresentersNorModerators(users: Users2x): Vector[UserState] = {
-    users.toVector.filter(u => !u.presenter && u.role != Roles.MODERATOR_ROLE)
+  def getRandomlyPickableUsers(users: Users2x, reduceDup: Boolean): Vector[UserState] = {
+
+    if (reduceDup) {
+      users.toVector.filter(u => !u.presenter && u.role != Roles.MODERATOR_ROLE && !u.userLeftFlag.left && !u.pickExempted)
+    } else {
+      users.toVector.filter(u => !u.presenter && u.role != Roles.MODERATOR_ROLE && !u.userLeftFlag.left)
+    }
   }
 
   def findViewers(users: Users2x): Vector[UserState] = {
     users.toVector.filter(u => u.role == Roles.VIEWER_ROLE)
   }
 
+  def findLockedViewers(users: Users2x): Vector[UserState] = {
+    users.toVector.filter(u => u.role == Roles.VIEWER_ROLE && u.locked)
+  }
+
   def updateLastUserActivity(users: Users2x, u: UserState): UserState = {
-    val newUserState = modify(u)(_.lastActivityTime).setTo(TimeUtil.timeNowInMs())
+    val newUserState = modify(u)(_.lastActivityTime).setTo(System.currentTimeMillis())
+    users.save(newUserState)
+    newUserState
+  }
+
+  def updateLastInactivityInspect(users: Users2x, u: UserState): UserState = {
+    val newUserState = modify(u)(_.lastInactivityInspect).setTo(System.currentTimeMillis())
     users.save(newUserState)
     newUserState
   }
@@ -108,6 +135,16 @@ object Users2x {
     }
   }
 
+  def changePin(users: Users2x, intId: String, pin: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.pin).setTo(pin)
+      users.save(newUser)
+      newUser
+    }
+  }
+
   def setEmojiStatus(users: Users2x, intId: String, emoji: String): Option[UserState] = {
     for {
       u <- findWithIntId(users, intId)
@@ -123,6 +160,16 @@ object Users2x {
       u <- findWithIntId(users, intId)
     } yield {
       val newUser = u.modify(_.locked).setTo(locked)
+      users.save(newUser)
+      newUser
+    }
+  }
+
+  def setUserExempted(users: Users2x, intId: String, exempted: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.pickExempted).setTo(exempted)
       users.save(newUser)
       newUser
     }
@@ -144,6 +191,24 @@ object Users2x {
 
   def findPresenter(users: Users2x): Option[UserState] = {
     users.toVector.find(u => u.presenter)
+  }
+
+  def hasPin(users: Users2x): Boolean = {
+    findPin(users) match {
+      case Some(p) => true
+      case None    => false
+    }
+  }
+
+  def isPin(intId: String, users: Users2x): Boolean = {
+    findWithIntId(users, intId) match {
+      case Some(u) => u.pin
+      case None    => false
+    }
+  }
+
+  def findPin(users: Users2x): Option[UserState] = {
+    users.toVector.find(u => u.pin)
   }
 
   def findModerator(users: Users2x): Option[UserState] = {
@@ -257,21 +322,24 @@ case class OldPresenter(userId: String, changedPresenterOn: Long)
 case class UserLeftFlag(left: Boolean, leftOn: Long)
 
 case class UserState(
-    intId:            String,
-    extId:            String,
-    name:             String,
-    role:             String,
-    guest:            Boolean,
-    authed:           Boolean,
-    guestStatus:      String,
-    emoji:            String,
-    locked:           Boolean,
-    presenter:        Boolean,
-    avatar:           String,
-    roleChangedOn:    Long         = System.currentTimeMillis(),
-    lastActivityTime: Long         = TimeUtil.timeNowInMs(),
-    clientType:       String,
-    userLeftFlag:     UserLeftFlag
+    intId:                 String,
+    extId:                 String,
+    name:                  String,
+    role:                  String,
+    guest:                 Boolean,
+    pin:                   Boolean,
+    authed:                Boolean,
+    guestStatus:           String,
+    emoji:                 String,
+    locked:                Boolean,
+    presenter:             Boolean,
+    avatar:                String,
+    roleChangedOn:         Long         = System.currentTimeMillis(),
+    lastActivityTime:      Long         = System.currentTimeMillis(),
+    lastInactivityInspect: Long         = 0,
+    clientType:            String,
+    pickExempted:          Boolean,
+    userLeftFlag:          UserLeftFlag
 )
 
 case class UserIdAndName(id: String, name: String)
@@ -300,11 +368,13 @@ object SystemUser {
 }
 
 object EjectReasonCode {
+  val NOT_EJECT = "not_eject_reason"
   val DUPLICATE_USER = "duplicate_user_in_meeting_eject_reason"
   val PERMISSION_FAILED = "not_enough_permission_eject_reason"
   val EJECT_USER = "user_requested_eject_reason"
   val SYSTEM_EJECT_USER = "system_requested_eject_reason"
   val VALIDATE_TOKEN = "validate_token_failed_eject_reason"
   val USER_INACTIVITY = "user_inactivity_eject_reason"
-  val EJECTED_USER_REJOINING = "ejected_user_rejoining_reason"
+  val BANNED_USER_REJOINING = "banned_user_rejoining_reason"
+  val USER_LOGGED_OUT = "user_logged_out_reason"
 }

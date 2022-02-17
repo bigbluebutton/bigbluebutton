@@ -1,0 +1,40 @@
+#!/bin/bash
+
+#
+# Restart Kurento every 24+ hours
+#
+
+if [ ! -f /var/tmp/bbb-kms-last-restart.txt ]; then
+  date +%Y-%m-%d\ %H:%M:%S > /var/tmp/bbb-kms-last-restart.txt
+  exit
+fi
+
+# Read in RESTART_OPTS
+if [ -f /etc/default/bbb-restart-kms ]; then
+  source /etc/default/bbb-restart-kms
+fi
+
+users=$(mongo --quiet mongodb://127.0.1.1:27017/meteor --eval "db.users.count()")
+
+if [ "$users" -eq 0 ]; then
+
+  # Make sure 24 hours have passed since last restart
+
+  # Seconds since epoch for last restart
+  dt1=$(cat /var/tmp/bbb-kms-last-restart.txt)
+  t1=`date --date="$dt1" +%s`
+
+  # Current seconds since epoch
+  dt2=`date +%Y-%m-%d\ %H:%M:%S`
+  t2=`date --date="$dt2" +%s`
+
+  # Hours since last restart
+  let "tDiff=$t2-$t1"
+  let "hDiff=$tDiff/3600"
+
+  if [ "$hDiff" -ge 24 ]; then
+    systemctl restart kurento-media-server bbb-webrtc-sfu $RESTART_OPTS
+    date +%Y-%m-%d\ %H:%M:%S > /var/tmp/bbb-kms-last-restart.txt
+  fi
+fi
+

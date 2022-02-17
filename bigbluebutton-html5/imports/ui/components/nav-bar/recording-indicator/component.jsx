@@ -1,10 +1,10 @@
 import React, { PureComponent, Fragment } from 'react';
 import RecordingContainer from '/imports/ui/components/recording/container';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
-import Tooltip from '/imports/ui/components/tooltip/component';
+import Tooltip from '/imports/ui/components/common/tooltip/component';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {
@@ -103,6 +103,7 @@ class RecordingIndicator extends PureComponent {
       allowStartStopRecording,
       notify,
       micUser,
+      isPhone,
     } = this.props;
 
     const { time } = this.state;
@@ -116,12 +117,15 @@ class RecordingIndicator extends PureComponent {
       : intlMessages.recordingIndicatorOff);
 
     let recordTitle = '';
-    if (!recording) {
-      recordTitle = time > 0
-        ? intl.formatMessage(intlMessages.resumeTitle)
-        : intl.formatMessage(intlMessages.startTitle);
-    } else {
-      recordTitle = intl.formatMessage(intlMessages.stopTitle);
+
+    if (!isPhone) {
+      if (!recording) {
+        recordTitle = time > 0
+          ? intl.formatMessage(intlMessages.resumeTitle)
+          : intl.formatMessage(intlMessages.startTitle);
+      } else {
+        recordTitle = intl.formatMessage(intlMessages.stopTitle);
+      }
     }
 
     const recordingToggle = () => {
@@ -133,7 +137,7 @@ class RecordingIndicator extends PureComponent {
     };
 
     const recordingIndicatorIcon = (
-      <span className={styles.recordingIndicatorIcon}>
+      <Styled.RecordingIndicatorIcon titleMargin={!isPhone || recording} data-test="mainWhiteboard">
         <svg xmlns="http://www.w3.org/2000/svg" height="100%" version="1" viewBox="0 0 20 20">
           <g stroke="#FFF" fill="#FFF" strokeLinecap="square">
             <circle
@@ -152,15 +156,16 @@ class RecordingIndicator extends PureComponent {
             />
           </g>
         </svg>
-      </span>
+      </Styled.RecordingIndicatorIcon>
     );
 
     const showButton = amIModerator && allowStartStopRecording;
 
     const recordMeetingButton = (
-      <div
-        aria-label={title}
-        className={recording ? styles.recordingControlON : styles.recordingControlOFF}
+      <Styled.RecordingControl
+        aria-label={recordTitle}
+        aria-describedby={"recording-description"}
+        recording={recording}
         role="button"
         tabIndex={0}
         key="recording-toggle"
@@ -168,19 +173,14 @@ class RecordingIndicator extends PureComponent {
         onKeyPress={recordingToggle}
       >
         {recordingIndicatorIcon}
-
-        <div className={styles.presentationTitle}>
-          {recording
-            ? (
-              <span className={styles.visuallyHidden}>
-                {`${intl.formatMessage(intlMessages.recordingAriaLabel)} ${humanizeSeconds(time)}`}
-              </span>
-            ) : null
-          }
+        <Styled.PresentationTitle>
+          <Styled.VisuallyHidden id={"recording-description"}>
+            {`${title} ${recording ? humanizeSeconds(time) : ''}`}
+          </Styled.VisuallyHidden>
           {recording
             ? <span aria-hidden>{humanizeSeconds(time)}</span> : <span>{recordTitle}</span>}
-        </div>
-      </div>
+        </Styled.PresentationTitle>
+      </Styled.RecordingControl>
     );
 
     const recordMeetingButtonWithTooltip = (
@@ -194,9 +194,9 @@ class RecordingIndicator extends PureComponent {
     return (
       <Fragment>
         {record
-          ? <span className={styles.presentationTitleSeparator} aria-hidden>|</span>
+          ? <Styled.PresentationTitleSeparator aria-hidden>|</Styled.PresentationTitleSeparator>
           : null}
-        <div className={styles.recordingIndicator}>
+        <Styled.RecordingIndicator data-test="recordingIndicator">
           {showButton
             ? recordingButton
             : null}
@@ -207,20 +207,19 @@ class RecordingIndicator extends PureComponent {
                 ? intlMessages.notificationRecordingStart
                 : intlMessages.notificationRecordingStop)}`}
             >
-              <div
+              <Styled.RecordingStatusViewOnly
                 aria-label={`${intl.formatMessage(recording
                   ? intlMessages.notificationRecordingStart
                   : intlMessages.notificationRecordingStop)}`}
-                className={styles.recordingStatusViewOnly}
               >
                 {recordingIndicatorIcon}
 
                 {recording
-                  ? <div className={styles.presentationTitle}>{humanizeSeconds(time)}</div> : null}
-              </div>
+                  ? <Styled.PresentationTitle>{humanizeSeconds(time)}</Styled.PresentationTitle> : null}
+              </Styled.RecordingStatusViewOnly>
             </Tooltip>
           )}
-        </div>
+        </Styled.RecordingIndicator>
       </Fragment>
     );
   }

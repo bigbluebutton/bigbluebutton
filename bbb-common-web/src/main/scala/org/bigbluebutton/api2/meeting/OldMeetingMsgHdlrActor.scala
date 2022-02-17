@@ -38,16 +38,35 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: CreateBreakoutRoomSysCmdMsg       => handleCreateBreakoutRoomSysCmdMsg(m)
       case m: PresentationUploadTokenSysPubMsg  => handlePresentationUploadTokenSysPubMsg(m)
       case m: GuestsWaitingApprovedEvtMsg       => handleGuestsWaitingApprovedEvtMsg(m)
+      case m: PosInWaitingQueueUpdatedRespMsg   => handlePosInWaitingQueueUpdatedRespMsg(m)
       case m: GuestPolicyChangedEvtMsg          => handleGuestPolicyChangedEvtMsg(m)
+      case m: GuestLobbyMessageChangedEvtMsg    => handleGuestLobbyMessageChangedEvtMsg(m)
+      case m: PrivateGuestLobbyMsgChangedEvtMsg => handlePrivateGuestLobbyMsgChangedEvtMsg(m)
       case m: RecordingChapterBreakSysMsg       => handleRecordingChapterBreakSysMsg(m)
       case m: SetPresentationDownloadableEvtMsg => handleSetPresentationDownloadableEvtMsg(m)
       case m: RecordingStatusChangedEvtMsg      => handleRecordingStatusChangedEvtMsg(m)
+      case m: LearningDashboardEvtMsg           => handleLearningDashboardEvtMsg(m)
       case _                                    => log.error("***** Cannot handle " + msg.envelope.name)
     }
   }
 
   def handleGuestPolicyChangedEvtMsg(msg: GuestPolicyChangedEvtMsg): Unit = {
     olgMsgGW.handle(new GuestPolicyChanged(msg.header.meetingId, msg.body.policy))
+  }
+
+  def handleGuestLobbyMessageChangedEvtMsg(msg: GuestLobbyMessageChangedEvtMsg): Unit = {
+    olgMsgGW.handle(new GuestLobbyMessageChanged(msg.header.meetingId, msg.body.message))
+  }
+
+  def handlePrivateGuestLobbyMsgChangedEvtMsg(msg: PrivateGuestLobbyMsgChangedEvtMsg): Unit = {
+    olgMsgGW.handle(new PrivateGuestLobbyMessageChanged(msg.header.meetingId, msg.body.guestId, msg.body.message))
+  }
+
+  def handlePosInWaitingQueueUpdatedRespMsg(msg: PosInWaitingQueueUpdatedRespMsg): Unit = {
+    val guestUsers: util.HashMap[String, String] = new util.HashMap[String, String]()
+    msg.body.guests.foreach(guest => guestUsers.put(guest.intId, guest.idx))
+    val m = new PositionInWaitingQueueUpdated(msg.header.meetingId, guestUsers)
+    olgMsgGW.handle(m)
   }
 
   def handleRecordingChapterBreakSysMsg(msg: RecordingChapterBreakSysMsg): Unit = {
@@ -72,6 +91,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.room.parentId,
       msg.body.room.name,
       msg.body.room.sequence,
+      msg.body.room.shortName,
+      msg.body.room.isDefaultName,
       msg.body.room.freeJoin,
       msg.body.room.dialNumber,
       msg.body.room.voiceConfId,
@@ -91,7 +112,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
   }
 
   def handleCheckAlivePongSysMsg(msg: CheckAlivePongSysMsg): Unit = {
-    olgMsgGW.handle(new org.bigbluebutton.api.messaging.messages.KeepAliveReply(msg.body.system, msg.body.timestamp))
+    olgMsgGW.handle(new org.bigbluebutton.api.messaging.messages.KeepAliveReply(msg.body.system, msg.body.bbbWebTimestamp,
+      msg.body.akkaAppsTimestamp))
   }
 
   def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
@@ -143,7 +165,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
   }
 
   def handlePresentationUploadTokenSysPubMsg(msg: PresentationUploadTokenSysPubMsg): Unit = {
-    olgMsgGW.handle(new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename))
+    olgMsgGW.handle(new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename, msg.body.meetingId))
   }
 
   def handleGuestsWaitingApprovedEvtMsg(msg: GuestsWaitingApprovedEvtMsg): Unit = {
@@ -160,6 +182,10 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
     val presFilename = msg.body.presFilename
     val m = new MakePresentationDownloadableMsg(meetingId, presId, presFilename, downloadable)
     olgMsgGW.handle(m)
+  }
+
+  def handleLearningDashboardEvtMsg(msg: LearningDashboardEvtMsg): Unit = {
+    olgMsgGW.handle(new LearningDashboard(msg.header.meetingId, msg.body.learningDashboardAccessToken, msg.body.activityJson))
   }
 
 }

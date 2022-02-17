@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
-import Button from '/imports/ui/components/button/component';
+import Checkbox from '/imports/ui/components/common/checkbox/component';
+import Toggle from '/imports/ui/components/common/switch/component';
 import LiveResult from './live-result/component';
-import { styles } from './styles.scss';
+import Styled from './styles';
+import { PANELS, ACTIONS } from '../layout/enums';
+import DragAndDrop from './dragAndDrop/component';
+import { alertScreenReader } from '/imports/utils/dom-utils';
 
 const intlMessages = defineMessages({
   pollPaneTitle: {
@@ -22,18 +25,6 @@ const intlMessages = defineMessages({
     id: 'app.poll.hidePollDesc',
     description: 'aria label description for hide poll button',
   },
-  customPollLabel: {
-    id: 'app.poll.customPollLabel',
-    description: 'label for custom poll button',
-  },
-  startCustomLabel: {
-    id: 'app.poll.startCustomLabel',
-    description: 'label for button to start custom poll',
-  },
-  customPollInstruction: {
-    id: 'app.poll.customPollInstruction',
-    description: 'instructions for using custom poll',
-  },
   quickPollInstruction: {
     id: 'app.poll.quickPollInstruction',
     description: 'instructions for using pre configured polls',
@@ -41,6 +32,10 @@ const intlMessages = defineMessages({
   activePollInstruction: {
     id: 'app.poll.activePollInstruction',
     description: 'instructions displayed when a poll is active',
+  },
+  dragDropPollInstruction: {
+    id: 'app.poll.dragDropPollInstruction',
+    description: 'instructions for upload poll options via drag and drop',
   },
   ariaInputCount: {
     id: 'app.poll.ariaInputCount',
@@ -58,58 +53,177 @@ const intlMessages = defineMessages({
     id: 'app.poll.clickHereToSelect',
     description: 'open uploader modal button label',
   },
+  questionErr: {
+    id: 'app.poll.questionErr',
+    description: 'question text area error label',
+  },
+  optionErr: {
+    id: 'app.poll.optionErr',
+    description: 'poll input error label',
+  },
   tf: {
     id: 'app.poll.tf',
     description: 'label for true / false poll',
-  },
-  yn: {
-    id: 'app.poll.yn',
-    description: 'label for Yes / No poll',
-  },
-  yna: {
-    id: 'app.poll.yna',
-    description: 'label for Yes / No / Abstention poll',
-  },
-  a2: {
-    id: 'app.poll.a2',
-    description: 'label for A / B poll',
-  },
-  a3: {
-    id: 'app.poll.a3',
-    description: 'label for A / B / C poll',
   },
   a4: {
     id: 'app.poll.a4',
     description: 'label for A / B / C / D poll',
   },
-  a5: {
-    id: 'app.poll.a5',
-    description: 'label for A / B / C / D / E poll',
+  delete: {
+    id: 'app.poll.optionDelete.label',
+    description: '',
+  },
+  questionLabel: {
+    id: 'app.poll.question.label',
+    description: '',
+  },
+  optionalQuestionLabel: {
+    id: 'app.poll.optionalQuestion.label',
+    description: '',
+  },
+  userResponse: {
+    id: 'app.poll.userResponse.label',
+    description: '',
+  },
+  responseChoices: {
+    id: 'app.poll.responseChoices.label',
+    description: '',
+  },
+  typedResponseDesc: {
+    id: 'app.poll.typedResponse.desc',
+    description: '',
+  },
+  responseTypesLabel: {
+    id: 'app.poll.responseTypes.label',
+    description: '',
+  },
+  addOptionLabel: {
+    id: 'app.poll.addItem.label',
+    description: '',
+  },
+  startPollLabel: {
+    id: 'app.poll.start.label',
+    description: '',
+  },
+  secretPollLabel: {
+    id: 'app.poll.secretPoll.label',
+    description: '',
+  },
+  isSecretPollLabel: {
+    id: 'app.poll.secretPoll.isSecretLabel',
+    description: '',
+  },
+  true: {
+    id: 'app.poll.answer.true',
+    description: '',
+  },
+  false: {
+    id: 'app.poll.answer.false',
+    description: '',
+  },
+  a: {
+    id: 'app.poll.answer.a',
+    description: '',
+  },
+  b: {
+    id: 'app.poll.answer.b',
+    description: '',
+  },
+  c: {
+    id: 'app.poll.answer.c',
+    description: '',
+  },
+  d: {
+    id: 'app.poll.answer.d',
+    description: '',
+  },
+  yna: {
+    id: 'app.poll.yna',
+    description: '',
+  },
+  yes: {
+    id: 'app.poll.y',
+    description: '',
+  },
+  no: {
+    id: 'app.poll.n',
+    description: '',
+  },
+  abstention: {
+    id: 'app.poll.abstention',
+    description: '',
+  },
+  enableMultipleResponseLabel: {
+    id: 'app.poll.enableMultipleResponseLabel',
+    description: 'label for checkbox to enable multiple choice',
+  },
+  startPollDesc: {
+    id: 'app.poll.startPollDesc',
+    description: '',
+  },
+  showRespDesc: {
+    id: 'app.poll.showRespDesc',
+    description: '',
+  },
+  addRespDesc: {
+    id: 'app.poll.addRespDesc',
+    description: '',
+  },
+  deleteRespDesc: {
+    id: 'app.poll.deleteRespDesc',
+    description: '',
+  },
+  on: {
+    id: 'app.switch.onLabel',
+    description: 'label for toggle switch on state',
+  },
+  off: {
+    id: 'app.switch.offLabel',
+    description: 'label for toggle switch off state',
+  },
+  removePollOpt: {
+    id: 'app.poll.removePollOpt',
+    description: 'screen reader alert for removed poll option',
+  },
+  emptyPollOpt: {
+    id: 'app.poll.emptyPollOpt',
+    description: 'screen reader for blank poll option',
   },
 });
 
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
-const MAX_CUSTOM_FIELDS = Meteor.settings.public.poll.max_custom;
-const MAX_INPUT_CHARS = 45;
+const POLL_SETTINGS = Meteor.settings.public.poll;
+
+const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
+const MAX_INPUT_CHARS = POLL_SETTINGS.maxTypedAnswerLength;
+const QUESTION_MAX_INPUT_CHARS = 400;
+const FILE_DRAG_AND_DROP_ENABLED = POLL_SETTINGS.allowDragAndDropFile;
+
+const validateInput = (i) => {
+  let _input = i;
+  while (/^\s/.test(_input)) _input = _input.substring(1);
+  return _input;
+};
 
 class Poll extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      customPollReq: false,
       isPolling: false,
-      customPollValues: [],
+      question: '',
+      optList: [],
+      error: null,
+      isMultipleResponse: false,
+      secretPoll: false,
     };
 
-    this.inputEditor = [];
-
-    this.toggleCustomFields = this.toggleCustomFields.bind(this);
-    this.renderQuickPollBtns = this.renderQuickPollBtns.bind(this);
-    this.renderCustomView = this.renderCustomView.bind(this);
-    this.renderInputFields = this.renderInputFields.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
     this.handleBackClick = this.handleBackClick.bind(this);
+    this.handleAddOption = this.handleAddOption.bind(this);
+    this.handleRemoveOption = this.handleRemoveOption.bind(this);
+    this.handleTextareaChange = this.handleTextareaChange.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.toggleIsMultipleResponse = this.toggleIsMultipleResponse.bind(this);
+    this.displayToggleStatus = this.displayToggleStatus.bind(this);
   }
 
   componentDidMount() {
@@ -121,124 +235,209 @@ class Poll extends Component {
   }
 
   componentDidUpdate() {
-    const { amIPresenter } = this.props;
+    const { amIPresenter, layoutContextDispatch, sidebarContentPanel } = this.props;
 
     if (Session.equals('resetPollPanel', true)) {
       this.handleBackClick();
     }
 
-    if (!amIPresenter) {
-      Session.set('openPanel', 'userlist');
-      Session.set('forcePollOpen', false);
+    if (!amIPresenter && sidebarContentPanel === PANELS.POLL) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+        value: false,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.NONE,
+      });
     }
   }
 
-  handleInputChange(index, event) {
-    // This regex will replace any instance of 2 or more consecutive white spaces
-    // with a single white space character.
-    const option = event.target.value.replace(/\s{2,}/g, ' ').trim();
-
-    this.inputEditor[index] = option === '' ? '' : option;
-
-    this.setState({ customPollValues: this.inputEditor });
+  componentWillUnmount() {
+    Session.set('secretPoll', false);
   }
 
   handleBackClick() {
     const { stopPoll } = this.props;
-    Session.set('resetPollPanel', false);
-
-    stopPoll();
-    this.inputEditor = [];
     this.setState({
       isPolling: false,
-      customPollValues: this.inputEditor,
-    }, document.activeElement.blur());
-  }
-
-  toggleCustomFields() {
-    const { customPollReq } = this.state;
-    return this.setState({ customPollReq: !customPollReq });
-  }
-
-  renderQuickPollBtns() {
-    const {
-      isMeteorConnected, pollTypes, startPoll, intl,
-    } = this.props;
-
-    const btns = pollTypes.map((type) => {
-      if (type === 'custom') return false;
-
-      const label = intl.formatMessage(
-        // regex removes the - to match the message id
-        intlMessages[type.replace(/-/g, '').toLowerCase()],
-      );
-
-      return (
-        <Button
-          disabled={!isMeteorConnected}
-          label={label}
-          color="default"
-          className={styles.pollBtn}
-          data-test="pollBtn"
-          key={_.uniqueId('quick-poll-')}
-          onClick={() => {
-            Session.set('pollInitiated', true);
-            this.setState({ isPolling: true }, () => startPoll(type));
-          }}
-        />);
+      error: null,
+    }, () => {
+      stopPoll();
+      Session.set('resetPollPanel', false);
+      document.activeElement.blur();
     });
-
-    return btns;
   }
 
-  renderCustomView() {
-    const { intl, startCustomPoll } = this.props;
-    const isDisabled = _.compact(this.inputEditor).length < 1;
+  handleInputTextChange(index, text) {
+    const { optList } = this.state;
+    // This regex will replace any instance of 2 or more consecutive white spaces
+    // with a single white space character.
+    const option = text.replace(/\s{2,}/g, ' ').trim();
+
+    if (index < optList.length) optList[index].val = option === '' ? '' : option;
+
+    this.setState({ optList });
+  }
+
+  handleInputChange(e, index) {
+    const { optList, type, error } = this.state;
+    const { pollTypes } = this.props;
+    const list = [...optList];
+    const validatedVal = validateInput(e.target.value).replace(/\s{2,}/g, ' ');
+    const charsRemovedCount = e.target.value.length - validatedVal.length;
+    const clearError = validatedVal.length > 0 && type !== pollTypes.Response;
+    const input = e.target;
+    const caretStart = e.target.selectionStart;
+    const caretEnd = e.target.selectionEnd;
+    list[index] = { val: validatedVal };
+    this.setState({ optList: list, error: clearError ? null : error },
+      () => {
+        input.focus();
+        input.selectionStart = caretStart - charsRemovedCount;
+        input.selectionEnd = caretEnd - charsRemovedCount;
+      });
+  }
+
+  toggleIsMultipleResponse() {
+    const { isMultipleResponse } = this.state;
+    return this.setState({ isMultipleResponse: !isMultipleResponse });
+  }
+
+  handleTextareaChange(e) {
+    const { type, error } = this.state;
+    const { pollTypes } = this.props;
+    const validatedQuestion = validateInput(e.target.value);
+    const clearError = validatedQuestion.length > 0 && type === pollTypes.Response;
+    this.setState({ question: validateInput(e.target.value), error: clearError ? null : error });
+  }
+
+  handlePollValuesText(text) {
+    if (text && text.length > 0) {
+      this.pushToCustomPollValues(text);
+    }
+  }
+
+  handleRemoveOption(index) {
+    const { intl } = this.props;
+    const { optList } = this.state;
+    const list = [...optList];
+    const removed = list[index];
+    list.splice(index, 1);
+    this.setState({ optList: list }, () => {
+      alertScreenReader(`${intl.formatMessage(intlMessages.removePollOpt,
+        { 0: removed.val || intl.formatMessage(intlMessages.emptyPollOpt) })}`);
+    });
+  }
+
+  handleAddOption() {
+    const { optList } = this.state;
+    this.setState({ optList: [...optList, { val: '' }] });
+  }
+
+  handleToggle() {
+    const { secretPoll } = this.state;
+    const toggledValue = !secretPoll;
+    Session.set('secretPoll', toggledValue);
+    this.setState({ secretPoll: toggledValue });
+  }
+
+  setOptListLength(len) {
+    const { optList } = this.state;
+    let diff = len > MAX_CUSTOM_FIELDS
+      ? MAX_CUSTOM_FIELDS - optList.length
+      : len - optList.length;
+    if (diff > 0) {
+      while (diff > 0) {
+        this.handleAddOption();
+        diff -= 1;
+      }
+    } else {
+      while (diff < 0) {
+        this.handleRemoveOption();
+        diff += 1;
+      }
+    }
+  }
+
+  displayToggleStatus(status) {
+    const { intl } = this.props;
 
     return (
-      <div className={styles.customInputWrapper}>
-        {this.renderInputFields()}
-        <Button
-          onClick={() => {
-            if (this.inputEditor.length > 0) {
-              Session.set('pollInitiated', true);
-              this.setState({ isPolling: true }, () => startCustomPoll('custom', _.compact(this.inputEditor)));
-            }
-          }}
-          label={intl.formatMessage(intlMessages.startCustomLabel)}
-          color="primary"
-          aria-disabled={isDisabled}
-          disabled={isDisabled}
-          className={styles.btn}
-        />
-      </div>
+      <Styled.ToggleLabel>
+        {status ? intl.formatMessage(intlMessages.on)
+          : intl.formatMessage(intlMessages.off)}
+      </Styled.ToggleLabel>
     );
   }
 
-  renderInputFields() {
-    const { intl } = this.props;
-    const { customPollValues } = this.state;
-    let items = [];
+  pushToCustomPollValues(text) {
+    const lines = text.split('\n');
+    this.setOptListLength(lines.length);
+    for (let i = 0; i < MAX_CUSTOM_FIELDS; i += 1) {
+      let line = '';
+      if (i < lines.length) {
+        line = lines[i];
+        line = line.length > MAX_INPUT_CHARS ? line.substring(0, MAX_INPUT_CHARS) : line;
+      }
+      this.handleInputTextChange(i, line);
+    }
+  }
 
-    items = _.range(1, MAX_CUSTOM_FIELDS + 1).map((ele, index) => {
-      const id = index;
+  renderInputs() {
+    const { intl, pollTypes } = this.props;
+    const { optList, type, error } = this.state;
+    let hasVal = false;
+    return optList.map((o, i) => {
+      if (o.val.length > 0) hasVal = true;
+      const pollOptionKey = `poll-option-${i}`;
       return (
-        <div key={`custom-poll-${id}`} className={styles.pollInput}>
-          <input
-            aria-label={intl.formatMessage(
-              intlMessages.ariaInputCount, { 0: id + 1, 1: MAX_CUSTOM_FIELDS },
-            )}
-            placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
-            className={styles.input}
-            onChange={event => this.handleInputChange(id, event)}
-            defaultValue={customPollValues[id]}
-            maxLength={MAX_INPUT_CHARS}
-          />
-        </div>
+        <span key={pollOptionKey}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'spaceBetween',
+            }}
+          >
+            <Styled.PollOptionInput
+              type="text"
+              value={o.val}
+              placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
+              data-test="pollOptionItem"
+              onChange={(e) => this.handleInputChange(e, i)}
+              maxLength={MAX_INPUT_CHARS}
+            />
+            {i > 1
+              ? (
+                <>
+                  <Styled.DeletePollOptionButton
+                    label={intl.formatMessage(intlMessages.delete)}
+                    aria-describedby={`option-${i}`}
+                    icon="delete"
+                    data-test="deletePollOption"
+                    hideLabel
+                    circle
+                    color="default"
+                    onClick={() => {
+                      this.handleRemoveOption(i);
+                    }}
+                  />
+                  <span className="sr-only" id={`option-${i}`}>
+                    {intl.formatMessage(intlMessages.deleteRespDesc,
+                      { 0: (o.val || intl.formatMessage(intlMessages.emptyPollOpt)) })}
+                  </span>
+                </>
+              )
+              : <div style={{ width: '40px', flex: 'none' }} />}
+          </div>
+          {!hasVal && type !== pollTypes.Response && error ? (
+            <Styled.InputError>{error}</Styled.InputError>
+          ) : (
+            <Styled.ErrorSpacer>&nbsp;</Styled.ErrorSpacer>
+          )}
+        </span>
       );
     });
-
-    return items;
   }
 
   renderActivePollOptions() {
@@ -248,21 +447,23 @@ class Poll extends Component {
       stopPoll,
       currentPoll,
       pollAnswerIds,
-      sendGroupMessage,
+      usernames,
+      isDefaultPoll,
     } = this.props;
 
     return (
       <div>
-        <div className={styles.instructions}>
+        <Styled.Instructions>
           {intl.formatMessage(intlMessages.activePollInstruction)}
-        </div>
+        </Styled.Instructions>
         <LiveResult
           {...{
             isMeteorConnected,
             stopPoll,
             currentPoll,
             pollAnswerIds,
-            sendGroupMessage,
+            usernames,
+            isDefaultPoll,
           }}
           handleBackClick={this.handleBackClick}
         />
@@ -271,45 +472,266 @@ class Poll extends Component {
   }
 
   renderPollOptions() {
-    const { isMeteorConnected, intl } = this.props;
-    const { customPollReq } = this.state;
-
+    const {
+      type, secretPoll, optList, question, error, isMultipleResponse
+    } = this.state;
+    const {
+      startPoll,
+      startCustomPoll,
+      intl,
+      pollTypes,
+      isDefaultPoll,
+      checkPollType,
+      smallSidebar,
+    } = this.props;
+    const defaultPoll = isDefaultPoll(type);
+    const questionPlaceholder = (type === pollTypes.Response)
+      ? intlMessages.questionLabel
+      : intlMessages.optionalQuestionLabel;
+    const hasQuestionError = (type === pollTypes.Response && question.length === 0 && error);
     return (
       <div>
-        <div className={styles.instructions}>
-          {intl.formatMessage(intlMessages.quickPollInstruction)}
+        <div>
+          <Styled.PollQuestionArea
+            hasError={hasQuestionError}
+            data-test="pollQuestionArea"
+            value={question}
+            onChange={(e) => this.handleTextareaChange(e)}
+            rows="4"
+            cols="35"
+            maxLength={QUESTION_MAX_INPUT_CHARS}
+            aria-label={intl.formatMessage(questionPlaceholder)}
+            placeholder={intl.formatMessage(questionPlaceholder)}
+          />
+          {hasQuestionError ? (
+            <Styled.InputError>{error}</Styled.InputError>
+          ) : (
+            <Styled.ErrorSpacer>&nbsp;</Styled.ErrorSpacer>
+          )}
         </div>
-        <div className={styles.grid}>
-          {this.renderQuickPollBtns()}
+        <div data-test="responseTypes">
+          <Styled.SectionHeading>
+            {intl.formatMessage(intlMessages.responseTypesLabel)}
+          </Styled.SectionHeading>
+          <Styled.ResponseType>
+            <Styled.PollConfigButton
+              selected={type === pollTypes.TrueFalse}
+              small={!smallSidebar}
+              label={intl.formatMessage(intlMessages.tf)}
+              aria-describedby="poll-config-button"
+              color="default"
+              onClick={() => {
+                this.setState({
+                  type: pollTypes.TrueFalse,
+                  optList: [
+                    { val: intl.formatMessage(intlMessages.true) },
+                    { val: intl.formatMessage(intlMessages.false) },
+                  ],
+                });
+              }}
+            />
+            <Styled.PollConfigButton
+              selected={type === pollTypes.Letter}
+              small={!smallSidebar}
+              label={intl.formatMessage(intlMessages.a4)}
+              aria-describedby="poll-config-button"
+              data-test="pollLetterAlternatives"
+              color="default"
+              onClick={() => {
+                this.setState({
+                  type: pollTypes.Letter,
+                  optList: [
+                    { val: intl.formatMessage(intlMessages.a) },
+                    { val: intl.formatMessage(intlMessages.b) },
+                    { val: intl.formatMessage(intlMessages.c) },
+                    { val: intl.formatMessage(intlMessages.d) },
+                  ],
+                });
+              }}
+            />
+            <Styled.PollConfigButton
+              selected={type === pollTypes.YesNoAbstention}
+              small={false}
+              full={true}
+              label={intl.formatMessage(intlMessages.yna)}
+              aria-describedby="poll-config-button"
+              data-test="pollYesNoAbstentionBtn"
+              color="default"
+              onClick={() => {
+                this.setState({
+                  type: pollTypes.YesNoAbstention,
+                  optList: [
+                    { val: intl.formatMessage(intlMessages.yes) },
+                    { val: intl.formatMessage(intlMessages.no) },
+                    { val: intl.formatMessage(intlMessages.abstention) },
+                  ],
+                });
+              }}
+            />
+            <Styled.PollConfigButton
+              selected={type === pollTypes.Response}
+              small={false}
+              full={true}
+              label={intl.formatMessage(intlMessages.userResponse)}
+              aria-describedby="poll-config-button"
+              data-test="userResponseBtn"
+              color="default"
+              onClick={() => { this.setState({ type: pollTypes.Response }); }}
+            />
+          </Styled.ResponseType>
         </div>
-        <div className={styles.instructions}>
-          {intl.formatMessage(intlMessages.customPollInstruction)}
-        </div>
-        <Button
-          disabled={!isMeteorConnected}
-          className={styles.customBtn}
-          color="default"
-          onClick={this.toggleCustomFields}
-          label={intl.formatMessage(intlMessages.customPollLabel)}
-          aria-expanded={customPollReq}
-        />
-        {!customPollReq ? null : this.renderCustomView()}
+        {type
+          && (
+            <div data-test="responseChoices">
+              <Styled.SectionHeading>
+                {intl.formatMessage(intlMessages.responseChoices)}
+              </Styled.SectionHeading>
+              {
+                type === pollTypes.Response
+                && (
+                  <Styled.PollParagraph>
+                    <span>{intl.formatMessage(intlMessages.typedResponseDesc)}</span>
+                  </Styled.PollParagraph>
+                )
+              }
+                {
+                  (defaultPoll || type === pollTypes.Response)
+                    && (
+                    <div style={{
+                      display: 'flex',
+                      flexFlow: 'wrap',
+                      flexDirection: 'column',
+                    }}
+                    >
+                      {defaultPoll
+                        && (
+                        <div>
+                          <Styled.PollCheckbox>
+                            <Checkbox
+                              onChange={this.toggleIsMultipleResponse}
+                              checked={isMultipleResponse}
+                              ariaLabelledBy="multipleResponseCheckboxLabel"
+                            />
+                          </Styled.PollCheckbox>
+                          <Styled.InstructionsLabel id="multipleResponseCheckboxLabel">
+                            {intl.formatMessage(intlMessages.enableMultipleResponseLabel)}
+                          </Styled.InstructionsLabel>
+                        </div>
+                        )}
+                      {defaultPoll && this.renderInputs()}
+                      {defaultPoll
+                        && (
+                        <Styled.AddItemButton
+                          data-test="addPollItem"
+                          label={intl.formatMessage(intlMessages.addOptionLabel)}
+                          aria-describedby="add-item-button"
+                          color="default"
+                          icon="add"
+                          disabled={optList.length >= MAX_CUSTOM_FIELDS}
+                          onClick={() => this.handleAddOption()}
+                        />
+                      )}
+                    <Styled.Row>
+                      <Styled.Col aria-hidden="true">
+                        <Styled.SectionHeading>
+                          {intl.formatMessage(intlMessages.secretPollLabel)}
+                        </Styled.SectionHeading>
+                      </Styled.Col>
+                      <Styled.Col>
+                        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                        <Styled.Toggle>
+                          {this.displayToggleStatus(secretPoll)}
+                          <Toggle
+                            icons={false}
+                            defaultChecked={secretPoll}
+                            onChange={() => this.handleToggle()}
+                            ariaLabel={intl.formatMessage(intlMessages.secretPollLabel)}
+                            showToggleLabel={false}
+                            data-test="anonymousPollBtn"
+                          />
+                        </Styled.Toggle>
+                      </Styled.Col>
+                    </Styled.Row>
+                    {secretPoll
+                      && (
+                        <Styled.PollParagraph>
+                          { intl.formatMessage(intlMessages.isSecretPollLabel) }
+                        </Styled.PollParagraph>
+                      )}
+                    <Styled.StartPollBtn
+                      data-test="startPoll"
+                      label={intl.formatMessage(intlMessages.startPollLabel)}
+                      color="primary"
+                      onClick={() => {
+                        let hasVal = false;
+                        optList.forEach((o) => {
+                          if (o.val.length > 0) hasVal = true;
+                        });
+
+                        let err = null;
+                        if (type === pollTypes.Response && question.length === 0) {
+                          err = intl.formatMessage(intlMessages.questionErr);
+                        }
+                        if (!hasVal && type !== pollTypes.Response) {
+                          err = intl.formatMessage(intlMessages.optionErr);
+                        }
+                        if (err) return this.setState({ error: err });
+
+                        return this.setState({ isPolling: true }, () => {
+                          const verifiedPollType = checkPollType(
+                            type,
+                            optList,
+                            intl.formatMessage(intlMessages.yes),
+                            intl.formatMessage(intlMessages.no),
+                            intl.formatMessage(intlMessages.abstention),
+                            intl.formatMessage(intlMessages.true),
+                            intl.formatMessage(intlMessages.false),
+                          );
+                          const verifiedOptions = optList.map((o) => {
+                            if (o.val.length > 0) return o.val;
+                            return null;
+                          });
+                          if (verifiedPollType === pollTypes.Custom) {
+                            startCustomPoll(
+                              verifiedPollType,
+                              secretPoll,
+                              question,
+                              isMultipleResponse,
+                              _.compact(verifiedOptions),
+                            );
+                          } else {
+                            startPoll(verifiedPollType, secretPoll, question, isMultipleResponse);
+                          }
+                        });
+                      }}
+                    />
+                    {
+                      FILE_DRAG_AND_DROP_ENABLED
+                      && type !== pollTypes.Response
+                      && this.renderDragDrop()
+                    }
+                  </div>
+                )
+              }
+            </div>
+          )}
       </div>
     );
   }
 
   renderNoSlidePanel() {
-    const { mountModal, intl } = this.props;
+    const { intl } = this.props;
     return (
-      <div className={styles.noSlidePanelContainer}>
-        <h4>{intl.formatMessage(intlMessages.noPresentationSelected)}</h4>
-        <Button
+      <Styled.NoSlidePanelContainer>
+        <Styled.SectionHeading>
+          {intl.formatMessage(intlMessages.noPresentationSelected)}
+        </Styled.SectionHeading>
+        <Styled.PollButton
           label={intl.formatMessage(intlMessages.clickHereToSelect)}
           color="primary"
-          onClick={() => mountModal(<PresentationUploaderContainer />)}
-          className={styles.pollBtn}
+          onClick={() => Session.set('showUploadPresentationView', true)}
         />
-      </div>
+      </Styled.NoSlidePanelContainer>
     );
   }
 
@@ -320,13 +742,30 @@ class Poll extends Component {
       currentSlide,
     } = this.props;
 
-    if (!CHAT_ENABLED && !currentSlide) return this.renderNoSlidePanel();
+    if (!currentSlide) return this.renderNoSlidePanel();
 
-    if (isPolling || (!isPolling && currentPoll)) {
+    if (isPolling || currentPoll) {
       return this.renderActivePollOptions();
     }
 
     return this.renderPollOptions();
+  }
+
+  renderDragDrop() {
+    const { intl } = this.props;
+    return (
+      <div>
+        <Styled.Instructions>
+          {intl.formatMessage(intlMessages.dragDropPollInstruction)}
+        </Styled.Instructions>
+        <DragAndDrop
+          {...{ intl, MAX_INPUT_CHARS }}
+          handlePollValuesText={(e) => this.handlePollValuesText(e)}
+        >
+          <Styled.DragAndDropPollContainer />
+        </DragAndDrop>
+      </div>
+    );
   }
 
   render() {
@@ -334,48 +773,56 @@ class Poll extends Component {
       intl,
       stopPoll,
       currentPoll,
-      amIPresenter,
+      layoutContextDispatch,
     } = this.props;
-
-    if (!amIPresenter) return null;
 
     return (
       <div>
-        <header className={styles.header}>
-          <Button
+        <Styled.Header>
+          <Styled.PollHideButton
             ref={(node) => { this.hideBtn = node; }}
             data-test="hidePollDesc"
             tabIndex={0}
             label={intl.formatMessage(intlMessages.pollPaneTitle)}
             icon="left_arrow"
             aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
-            className={styles.hideBtn}
             onClick={() => {
-              Session.set('openPanel', 'userlist');
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.NONE,
+              });
             }}
           />
-
-          <Button
+          <Styled.PollCloseButton
             label={intl.formatMessage(intlMessages.closeLabel)}
             aria-label={`${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`}
             onClick={() => {
-              if (currentPoll) {
-                stopPoll();
-              }
-              Session.set('openPanel', 'userlist');
+              if (currentPoll) stopPoll();
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.NONE,
+              });
               Session.set('forcePollOpen', false);
               Session.set('pollInitiated', false);
             }}
-            className={styles.closeBtn}
             icon="close"
             size="sm"
             hideLabel
+            data-test="closePolling"
           />
-
-        </header>
-        {
-          this.renderPollPanel()
-        }
+        </Styled.Header>
+        {this.renderPollPanel()}
+        <span className="sr-only" id="poll-config-button">{intl.formatMessage(intlMessages.showRespDesc)}</span>
+        <span className="sr-only" id="add-item-button">{intl.formatMessage(intlMessages.addRespDesc)}</span>
+        <span className="sr-only" id="start-poll-button">{intl.formatMessage(intlMessages.startPollDesc)}</span>
       </div>
     );
   }
@@ -388,7 +835,7 @@ Poll.propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   amIPresenter: PropTypes.bool.isRequired,
-  pollTypes: PropTypes.instanceOf(Array).isRequired,
+  pollTypes: PropTypes.instanceOf(Object).isRequired,
   startPoll: PropTypes.func.isRequired,
   startCustomPoll: PropTypes.func.isRequired,
   stopPoll: PropTypes.func.isRequired,

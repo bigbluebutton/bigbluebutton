@@ -1,22 +1,18 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 import logger from '/imports/startup/client/logger';
-import browser from 'browser-detect';
-import { styles } from '../audio-modal/styles';
+import browserInfo from '/imports/utils/browserInfo';
 
 const propTypes = {
   kind: PropTypes.oneOf(['audioinput', 'audiooutput', 'videoinput']),
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
-  className: PropTypes.string,
 };
 
 const defaultProps = {
   kind: 'audioinput',
   value: undefined,
-  className: null,
 };
 
 class DeviceSelector extends Component {
@@ -35,7 +31,7 @@ class DeviceSelector extends Component {
   componentDidMount() {
     const { kind } = this.props;
     const handleEnumerateDevicesSuccess = (deviceInfos) => {
-      const devices = deviceInfos.filter(d => d.kind === kind);
+      const devices = deviceInfos.filter((d) => d.kind === kind);
       logger.info({
         logCode: 'audiodeviceselector_component_enumeratedevices_success',
         extraInfo: {
@@ -56,7 +52,7 @@ class DeviceSelector extends Component {
     navigator.mediaDevices
       .enumerateDevices()
       .then(handleEnumerateDevicesSuccess)
-      .catch((err) => {
+      .catch(() => {
         logger.error({
           logCode: 'audiodeviceselector_component_enumeratedevices_error',
           extraInfo: {
@@ -71,17 +67,26 @@ class DeviceSelector extends Component {
     const { onChange } = this.props;
     const { devices } = this.state;
     this.setState({ value }, () => {
-      const selectedDevice = devices.find(d => d.deviceId === value);
+      const selectedDevice = devices.find((d) => d.deviceId === value);
       onChange(selectedDevice.deviceId, selectedDevice, event);
     });
   }
 
   render() {
     const {
-      kind, className, ...props
+      kind, ...props
     } = this.props;
 
     const { options, value } = this.state;
+    const { isSafari } = browserInfo;
+
+    let notFoundOption;
+
+    if (kind === 'audiooutput' && isSafari) {
+      notFoundOption = <option value="not-found">Default</option>;
+    } else {
+      notFoundOption = <option value="not-found">{`no ${kind} found`}</option>;
+    }
 
     return (
       <select
@@ -89,11 +94,10 @@ class DeviceSelector extends Component {
         value={value}
         onChange={this.handleSelectChange}
         disabled={!options.length}
-        className={cx(styles.select, className)}
       >
         {
           options.length
-            ? options.map(option => (
+            ? options.map((option) => (
               <option
                 key={option.key}
                 value={option.value}
@@ -101,11 +105,7 @@ class DeviceSelector extends Component {
                 {option.label}
               </option>
             ))
-            : (
-              (kind === 'audiooutput' && browser().name === 'safari')
-                ? <option value="not-found">Default</option>
-                : <option value="not-found">{`no ${kind} found`}</option>
-            )
+            : notFoundOption
         }
       </select>
     );

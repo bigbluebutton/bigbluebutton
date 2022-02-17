@@ -164,14 +164,14 @@ case class CheckAlivePingSysMsg(
     header: BbbCoreBaseHeader,
     body:   CheckAlivePingSysMsgBody
 ) extends BbbCoreMsg
-case class CheckAlivePingSysMsgBody(system: String, timestamp: Long)
+case class CheckAlivePingSysMsgBody(system: String, bbbWebTimestamp: Long, akkaAppsTimestamp: Long)
 
 object CheckAlivePongSysMsg { val NAME = "CheckAlivePongSysMsg" }
 case class CheckAlivePongSysMsg(
     header: BbbCoreBaseHeader,
     body:   CheckAlivePongSysMsgBody
 ) extends BbbCoreMsg
-case class CheckAlivePongSysMsgBody(system: String, timestamp: Long)
+case class CheckAlivePongSysMsgBody(system: String, bbbWebTimestamp: Long, akkaAppsTimestamp: Long)
 
 object RecordingChapterBreakSysMsg { val NAME = "RecordingChapterBreakSysMsg" }
 case class RecordingChapterBreakSysMsg(
@@ -207,3 +207,13 @@ case class UnpublishedRecordingSysMsgBody(recordId: String)
 object DeletedRecordingSysMsg { val NAME = "DeletedRecordingSysMsg" }
 case class DeletedRecordingSysMsg(header: BbbCoreBaseHeader, body: DeletedRecordingSysMsgBody) extends BbbCoreMsg
 case class DeletedRecordingSysMsgBody(recordId: String)
+
+/**
+ * Sent from akka-apps to bbb-web to inform a summary of the meeting activities
+ */
+object LearningDashboardEvtMsg { val NAME = "LearningDashboardEvtMsg" }
+case class LearningDashboardEvtMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   LearningDashboardEvtMsgBody
+) extends BbbCoreMsg
+case class LearningDashboardEvtMsgBody(learningDashboardAccessToken: String, activityJson: String)

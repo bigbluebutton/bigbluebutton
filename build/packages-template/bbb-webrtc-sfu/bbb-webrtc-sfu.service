@@ -1,0 +1,17 @@
+[Unit]
+Description=BigBlueButton WebRTC SFU
+Wants=redis-server.service
+After=syslog.target network.target freeswitch.service kurento-media-server.service
+
+[Service]
+WorkingDirectory=/usr/local/bigbluebutton/bbb-webrtc-sfu
+ExecStart=/usr/bin/node server.js
+Restart=always
+SyslogIdentifier=bbb-webrtc-sfu
+User=bigbluebutton
+Group=bigbluebutton
+Environment=NODE_ENV=production
+Environment=NODE_CONFIG_DIR=/etc/bigbluebutton/bbb-webrtc-sfu/:/usr/local/bigbluebutton/bbb-webrtc-sfu/config/
+
+[Install]
+WantedBy=multi-user.target

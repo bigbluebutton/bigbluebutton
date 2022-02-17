@@ -1,7 +1,6 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   closePresentationLabel: {
@@ -10,18 +9,19 @@ const intlMessages = defineMessages({
   },
 });
 
-const ClosePresentationComponent = ({ intl, toggleSwapLayout }) => (
-  <Button
-    role="button"
-    aria-labelledby="closeLabel"
-    aria-describedby="closeDesc"
-    color="primary"
+const ClosePresentationComponent = ({
+  intl, toggleSwapLayout, layoutContextDispatch, isIphone,
+}) => (
+  <Styled.CloseButton
+    isIphone={isIphone}
+    color="muted"
     icon="minus"
     size="sm"
-    onClick={toggleSwapLayout}
+    data-test="hidePresentationButton"
+    onClick={() => toggleSwapLayout(layoutContextDispatch)}
     label={intl.formatMessage(intlMessages.closePresentationLabel)}
+    aria-label={intl.formatMessage(intlMessages.closePresentationLabel)}
     hideLabel
-    className={styles.button}
   />
 );
 

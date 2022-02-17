@@ -1,6 +1,6 @@
 import logger from '/imports/startup/client/logger';
 import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
-import SFU_BROKER_ERRORS from '/imports/ui/services/bbb-webrtc-sfu/broker-base-errors';
+import { SFU_BROKER_ERRORS } from '/imports/ui/services/bbb-webrtc-sfu/broker-base-errors';
 
 const PING_INTERVAL_MS = 15000;
 
@@ -25,6 +25,7 @@ class BaseBroker {
     this.started = false;
     this.signallingTransportOpen = false;
     this.logCodePrefix = `${this.sfuComponent}_broker`;
+    this.peerConfiguration = {};
 
     this.onbeforeunload = this.onbeforeunload.bind(this);
     window.addEventListener('beforeunload', this.onbeforeunload);
@@ -51,6 +52,14 @@ class BaseBroker {
   }
 
   onended () {
+    // To be implemented by inheritors
+  }
+
+  handleSFUError (sfuResponse) {
+    // To be implemented by inheritors
+  }
+
+  sendLocalDescription (localDescription) {
     // To be implemented by inheritors
   }
 
@@ -102,48 +111,81 @@ class BaseBroker {
     this.sendMessage({ id: 'ping' });
   }
 
-  processAnswer (message) {
-    const { response, sdpAnswer, role, connectionId } = message;
+  _handleRemoteDescriptionProcessing (error, localDescription = null) {
+    if (error) {
+      logger.error({
+        logCode: `${this.logCodePrefix}_processanswer_error`,
+        extraInfo: {
+          errorMessage: error.name || error.message || 'Unknown error',
+          sfuComponent: this.sfuComponent,
+        }
+      }, `Error processing SDP answer from SFU for ${this.sfuComponent}`);
+      // 1305: "PEER_NEGOTIATION_FAILED",
+      return this.onerror(BaseBroker.assembleError(1305));
+    }
 
-    if (response !== 'accepted') return this.handleSFUError(message);
+    // There is a new local description; send it back to the server
+    if (localDescription) this.sendLocalDescription(localDescription);
+
+    // Mark the peer as negotiated and flush the ICE queue
+    this.webRtcPeer.negotiated = true;
+    this.processIceQueue();
+  }
+
+  _validateStartResponse (sfuResponse) {
+    const { response, role } = sfuResponse;
+
+    if (response !== 'accepted') {
+      this.handleSFUError(sfuResponse);
+      return false;
+    }
 
     logger.debug({
       logCode: `${this.logCodePrefix}_start_success`,
       extraInfo: {
-        sfuConnectionId: connectionId,
         role,
         sfuComponent: this.sfuComponent,
       }
     }, `Start request accepted for ${this.sfuComponent}`);
 
-    this.webRtcPeer.processAnswer(sdpAnswer, (error) => {
-      if (error) {
-        logger.error({
-          logCode: `${this.logCodePrefix}_processanswer_error`,
-          extraInfo: {
-            errorMessage: error.name || error.message || 'Unknown error',
-            sfuConnectionId: connectionId,
-            role,
-            sfuComponent: this.sfuComponent,
-          }
-        }, `Error processing SDP answer from SFU for ${this.sfuComponent}`);
-        // 1305: "PEER_NEGOTIATION_FAILED",
-        return this.onerror(BaseBroker.assembleError(1305));
-      }
-
-      // Mark the peer as negotiated and flush the ICE queue
-      this.webRtcPeer.negotiated = true;
-      this.processIceQueue();
-    });
+    return true;
   }
 
-  addIceServers (options) {
-    if (this.iceServers && this.iceServers.length > 0) {
-      options.configuration = {};
-      options.configuration.iceServers = this.iceServers;
+  processOffer (sfuResponse) {
+    if (this._validateStartResponse(sfuResponse)) {
+      this.webRtcPeer.processOffer(
+        sfuResponse.sdpAnswer,
+        this._handleRemoteDescriptionProcessing.bind(this)
+      );
+    }
+  }
+
+  processAnswer (sfuResponse) {
+    if (this._validateStartResponse(sfuResponse)) {
+      this.webRtcPeer.processAnswer(
+        sfuResponse.sdpAnswer,
+        this._handleRemoteDescriptionProcessing.bind(this)
+      );
+    }
+  }
+
+  populatePeerConfiguration () {
+    this.addIceServers();
+    if (this.forceRelay) {
+      this.setRelayTransportPolicy();
     }
 
-    return options;
+    return this.peerConfiguration;
+  }
+
+  addIceServers () {
+    if (this.iceServers && this.iceServers.length > 0) {
+      this.peerConfiguration.iceServers = this.iceServers;
+    }
+  }
+
+  setRelayTransportPolicy () {
+    this.peerConfiguration.iceTransportPolicy = 'relay';
   }
 
   handleConnectionStateChange (eventIdentifier) {

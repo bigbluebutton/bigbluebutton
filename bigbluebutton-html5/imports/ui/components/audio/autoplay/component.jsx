@@ -1,9 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from './styles';
-
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   confirmLabel: {
@@ -18,7 +16,9 @@ const intlMessages = defineMessages({
 
 const propTypes = {
   handleAllowAutoplay: PropTypes.func.isRequired,
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 class AudioAutoplayPrompt extends PureComponent {
@@ -28,9 +28,8 @@ class AudioAutoplayPrompt extends PureComponent {
       handleAllowAutoplay,
     } = this.props;
     return (
-      <span className={styles.autoplayPrompt}>
-        <Button
-          className={styles.button}
+      <Styled.AutoplayPrompt>
+        <Styled.AutoplayButton
           label={intl.formatMessage(intlMessages.confirmLabel)}
           aria-label={intl.formatMessage(intlMessages.confirmAriaLabel)}
           icon="thumbs_up"
@@ -39,7 +38,7 @@ class AudioAutoplayPrompt extends PureComponent {
           size="jumbo"
           onClick={handleAllowAutoplay}
         />
-      </span>
+      </Styled.AutoplayPrompt>
     );
   }
 }

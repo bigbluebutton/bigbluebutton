@@ -1,11 +1,12 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
+import org.bigbluebutton.core.domain.BreakoutRoom2x
 
 object RegisteredUsers {
   def create(userId: String, extId: String, name: String, roles: String,
              token: String, avatar: String, guest: Boolean, authenticated: Boolean,
-             guestStatus: String): RegisteredUser = {
+             guestStatus: String, excludeFromDashboard: Boolean, loggedOut: Boolean): RegisteredUser = {
     new RegisteredUser(
       userId,
       extId,
@@ -16,10 +17,13 @@ object RegisteredUsers {
       guest,
       authenticated,
       guestStatus,
+      excludeFromDashboard,
       System.currentTimeMillis(),
+      0,
       false,
       false,
-      false
+      false,
+      loggedOut,
     )
   }
 
@@ -41,6 +45,13 @@ object RegisteredUsers {
 
   def findUsersNotJoined(users: RegisteredUsers): Vector[RegisteredUser] = {
     users.toVector.filter(u => u.joined == false && u.markAsJoinTimedOut == false)
+  }
+
+  def findWithBreakoutRoomId(breakoutRoomId: String, users: RegisteredUsers): Vector[RegisteredUser] = {
+    //userId + "-" + roomSequence
+    val userIdParts = breakoutRoomId.split("-")
+    val userExtId = userIdParts(0)
+    users.toVector.filter(ru => userExtId == ru.externId)
   }
 
   def getRegisteredUserWithToken(token: String, userId: String, regUsers: RegisteredUsers): Option[RegisteredUser] = {
@@ -120,8 +131,21 @@ object RegisteredUsers {
     u
   }
 
+  def updateUserLastBreakoutRoom(users: RegisteredUsers, user: RegisteredUser,
+                                 lastBreakoutRoom: BreakoutRoom2x): RegisteredUser = {
+    val u = user.modify(_.lastBreakoutRoom).setTo(lastBreakoutRoom)
+    users.save(u)
+    u
+  }
+
   def updateUserJoin(users: RegisteredUsers, user: RegisteredUser): RegisteredUser = {
     val u = user.copy(joined = true)
+    users.save(u)
+    u
+  }
+
+  def updateUserLastAuthTokenValidated(users: RegisteredUsers, user: RegisteredUser): RegisteredUser = {
+    val u = user.copy(lastAuthTokenValidatedOn = System.currentTimeMillis())
     users.save(u)
     u
   }
@@ -131,6 +155,13 @@ object RegisteredUsers {
     users.save(u)
     u
   }
+
+  def setUserLoggedOutFlag(users: RegisteredUsers, user: RegisteredUser): RegisteredUser = {
+    val u = user.copy(loggedOut = true)
+    users.save(u)
+    u
+  }
+
 }
 
 class RegisteredUsers {
@@ -153,18 +184,22 @@ class RegisteredUsers {
 }
 
 case class RegisteredUser(
-    id:                 String,
-    externId:           String,
-    name:               String,
-    role:               String,
-    authToken:          String,
-    avatarURL:          String,
-    guest:              Boolean,
-    authed:             Boolean,
-    guestStatus:        String,
-    registeredOn:       Long,
-    joined:             Boolean,
-    markAsJoinTimedOut: Boolean,
-    banned:             Boolean
+    id:                       String,
+    externId:                 String,
+    name:                     String,
+    role:                     String,
+    authToken:                String,
+    avatarURL:                String,
+    guest:                    Boolean,
+    authed:                   Boolean,
+    guestStatus:              String,
+    excludeFromDashboard:     Boolean,
+    registeredOn:             Long,
+    lastAuthTokenValidatedOn: Long,
+    joined:                   Boolean,
+    markAsJoinTimedOut:       Boolean,
+    banned:                   Boolean,
+    loggedOut:                Boolean,
+    lastBreakoutRoom:         BreakoutRoom2x = null
 )
 

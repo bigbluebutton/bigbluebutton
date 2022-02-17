@@ -1,4 +1,5 @@
 import Users from '/imports/api/users';
+import Logger from '/imports/startup/server/logger';
 
 const MSG_DIRECT_TYPE = 'DIRECT';
 const NODE_USER = 'nodeJSapp';
@@ -21,7 +22,7 @@ export const indexOf = [].indexOf || function (item) {
   return -1;
 };
 
-export const processForHTML5ServerOnly = fn => (message, ...args) => {
+export const processForHTML5ServerOnly = (fn) => (message, ...args) => {
   const { envelope } = message;
   const { routing } = envelope;
   const { msgType, meetingId, userId } = routing;
@@ -38,36 +39,30 @@ export const processForHTML5ServerOnly = fn => (message, ...args) => {
   return fn(message, ...args);
 };
 
-/**
- * Calculate a 32 bit FNV-1a hash
- * Found here: https://gist.github.com/vaiorabbit/5657561
- * Ref.: http://isthe.com/chongo/tech/comp/fnv/
- *
- * @param {string} str the input value
- * @param {boolean} [asString=false] set to true to return the hash value as
- *     8-digit hex string instead of an integer
- * @param {integer} [seed] optionally pass the hash of the previous chunk
- * @returns {integer | string}
- */
-/* eslint-disable */
-export const hashFNV32a = (str, asString, seed) => {
-  let hval = (seed === undefined) ? 0x811c9dc5 : seed;
-
-  for (let i = 0, l = str.length; i < l; i++) {
-    hval ^= str.charCodeAt(i);
-    hval += (hval << 1) + (hval << 4) + (hval << 7) + (hval << 8) + (hval << 24);
-  }
-  if (asString) {
-    return (`0000000${(hval >>> 0).toString(16)}`).substr(-8);
-  }
-  return hval >>> 0;
-};
-/* eslint-enable */
-
 export const extractCredentials = (credentials) => {
   if (!credentials) return {};
   const credentialsArray = credentials.split('--');
   const meetingId = credentialsArray[0];
   const requesterUserId = credentialsArray[1];
   return { meetingId, requesterUserId };
+};
+
+// Creates a background job to periodically check the result of the provided function.
+// The provided function is publication-specific and must check the "survival condition" of the publication.
+export const publicationSafeGuard = function (fn, self) {
+  let stopped = false;
+  const periodicCheck = function () {
+    if (stopped) return;
+    if (!fn()) {
+      self.added(self._name, 'publication-stop-marker', { id: 'publication-stop-marker', stopped: true });
+      self.stop();
+    } else Meteor.setTimeout(periodicCheck, 1000);
+  };
+
+  self.onStop(() => {
+    stopped = true;
+    Logger.info(`Publication ${self._name} has stopped in server side`);
+  });
+
+  periodicCheck();
 };

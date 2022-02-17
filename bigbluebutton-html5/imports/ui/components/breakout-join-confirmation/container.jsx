@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
@@ -6,18 +6,24 @@ import { makeCall } from '/imports/ui/services/api';
 import breakoutService from '/imports/ui/components/breakout-room/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import BreakoutJoinConfirmationComponent from './component';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 
-const BreakoutJoinConfirmationContrainer = props => (
-  <BreakoutJoinConfirmationComponent
+const BreakoutJoinConfirmationContrainer = (props) => {
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
+
+  return <BreakoutJoinConfirmationComponent
     {...props}
+    amIPresenter={amIPresenter}
   />
-);
+};
 
 const getURL = (breakoutId) => {
   const currentUserId = Auth.userID;
-  const getBreakout = Breakouts.findOne({ breakoutId }, { fields: { users: 1 } });
-  const user = getBreakout ? getBreakout.users.find(u => u.userId === currentUserId) : '';
-  if (user) return user.redirectToHtml5JoinURL;
+  const breakout = Breakouts.findOne({ breakoutId }, { fields: { [`url_${currentUserId}`]: 1 } });
+  const breakoutUrlData = (breakout && breakout[`url_${currentUserId}`]) ? breakout[`url_${currentUserId}`] : null;
+  if (breakoutUrlData) return breakoutUrlData.redirectToHtml5JoinURL;
   return '';
 };
 

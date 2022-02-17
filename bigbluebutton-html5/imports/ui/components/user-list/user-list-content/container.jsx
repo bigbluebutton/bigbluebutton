@@ -1,28 +1,38 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
 import UserContent from './component';
-import GuestUsers from '/imports/api/guest-users/';
-import Users from '/imports/api/users';
+import GuestUsers from '/imports/api/guest-users';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
+import WaitingUsersService from '/imports/ui/components/waiting-users/service';
 
-const UserContentContainer = props => <UserContent {...props} />;
+const UserContentContainer = (props) => {
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const currentUser = {
+    userId: Auth.userID,
+    presenter: users[Auth.meetingID][Auth.userID].presenter,
+    locked: users[Auth.meetingID][Auth.userID].locked,
+    role: users[Auth.meetingID][Auth.userID].role,
+  };
+  const { isGuestLobbyMessageEnabled } = WaitingUsersService;
+
+  return (
+    <UserContent
+      {...{
+        isGuestLobbyMessageEnabled,
+        currentUser,
+        ...props,
+      }}
+    />
+  );
+};
 
 export default withTracker(() => ({
-  pollIsOpen: Session.equals('isPollOpen', true),
-  forcePollOpen: Session.equals('forcePollOpen', true),
-  currentUser: Users.findOne({ userId: Auth.userID }, {
-    fields: {
-      userId: 1,
-      role: 1,
-      guest: 1,
-      locked: 1,
-      presenter: 1,
-    },
-  }),
   pendingUsers: GuestUsers.find({
     meetingId: Auth.meetingID,
     approved: false,
     denied: false,
   }).fetch(),
+  isWaitingRoomEnabled: WaitingUsersService.isWaitingRoomEnabled(),
 }))(UserContentContainer);

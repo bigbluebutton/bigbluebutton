@@ -25,7 +25,14 @@ class WhiteboardModel extends SystemConfiguration {
   }
 
   private def createWhiteboard(wbId: String): Whiteboard = {
-    new Whiteboard(wbId, multiUserWhiteboardDefault, System.currentTimeMillis(), 0, new HashMap[String, List[AnnotationVO]]())
+    new Whiteboard(
+      wbId,
+      Array.empty[String],
+      Array.empty[String],
+      System.currentTimeMillis(),
+      0,
+      new HashMap[String, List[AnnotationVO]]()
+    )
   }
 
   private def getAnnotationsByUserId(wb: Whiteboard, id: String): List[AnnotationVO] = {
@@ -145,10 +152,7 @@ class WhiteboardModel extends SystemConfiguration {
       val updatedAnnotationData = annotation.annotationInfo + ("points" -> pathData.points.asScala.toList) + ("commands" -> pathData.commands.asScala.toList)
       //println("oldAnnotation value = " + oldAnnotationOption.getOrElse("Empty"))
 
-      var newPosition: Int = oldAnnotationOption match {
-        case Some(annotation) => annotation.position
-        case None             => wb.annotationCount
-      }
+      var newPosition: Int = wb.annotationCount
 
       val updatedAnnotation = annotation.copy(position = newPosition, annotationInfo = updatedAnnotationData)
 
@@ -163,7 +167,7 @@ class WhiteboardModel extends SystemConfiguration {
 
       val newAnnotationsMap = wb.annotationsMap + (userId -> (updatedAnnotation :: newUsersAnnotations))
       //println("Annotation has position [" + usersAnnotations.head.position + "]")
-      val newWb = wb.copy(annotationsMap = newAnnotationsMap)
+      val newWb = wb.copy(annotationCount = wb.annotationCount + 1, annotationsMap = newAnnotationsMap)
       //println("Updating annotation on page [" + wb.id + "]. After numAnnotations=[" + getAnnotationsByUserId(wb, userId).length + "].")
       saveWhiteboard(newWb)
 
@@ -184,7 +188,7 @@ class WhiteboardModel extends SystemConfiguration {
     if (hasWhiteboard(wbId)) {
       val wb = getWhiteboard(wbId)
 
-      if (wb.multiUser) {
+      if (wb.multiUser.contains(userId)) {
         if (wb.annotationsMap.contains(userId)) {
           val newWb = wb.copy(annotationsMap = wb.annotationsMap - userId)
           saveWhiteboard(newWb)
@@ -205,7 +209,7 @@ class WhiteboardModel extends SystemConfiguration {
     var last: Option[AnnotationVO] = None
     val wb = getWhiteboard(wbId)
 
-    if (wb.multiUser) {
+    if (wb.multiUser.contains(userId)) {
       val usersAnnotations = getAnnotationsByUserId(wb, userId)
 
       //not empty and head id equals annotation id
@@ -234,13 +238,24 @@ class WhiteboardModel extends SystemConfiguration {
     wb.copy(annotationsMap = newAnnotationsMap)
   }
 
-  def modifyWhiteboardAccess(wbId: String, multiUser: Boolean) {
+  def modifyWhiteboardAccess(wbId: String, multiUser: Array[String]) {
     val wb = getWhiteboard(wbId)
-    val newWb = wb.copy(multiUser = multiUser, changedModeOn = System.currentTimeMillis())
+    val newWb = wb.copy(multiUser = multiUser, oldMultiUser = wb.multiUser, changedModeOn = System.currentTimeMillis())
     saveWhiteboard(newWb)
   }
 
-  def getWhiteboardAccess(wbId: String): Boolean = getWhiteboard(wbId).multiUser
+  def getWhiteboardAccess(wbId: String): Array[String] = getWhiteboard(wbId).multiUser
+
+  def isNonEjectionGracePeriodOver(wbId: String, userId: String): Boolean = {
+    val wb = getWhiteboard(wbId)
+    val lastChange = System.currentTimeMillis() - wb.changedModeOn
+    !(wb.oldMultiUser.contains(userId) && lastChange < 5000)
+  }
+
+  def hasWhiteboardAccess(wbId: String, userId: String): Boolean = {
+    val wb = getWhiteboard(wbId)
+    wb.multiUser.contains(userId)
+  }
 
   def getChangedModeOn(wbId: String): Long = getWhiteboard(wbId).changedModeOn
 

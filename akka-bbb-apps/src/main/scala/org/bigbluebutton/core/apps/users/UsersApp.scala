@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.users
 import akka.actor.ActorContext
 import akka.event.Logging
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.{ ExternalVideoModel }
 import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
@@ -53,11 +54,15 @@ object UsersApp {
   }
 
   def automaticallyAssignPresenter(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
+    // Stop external video if it's running
+    ExternalVideoModel.stop(outGW, liveMeeting)
+
     val meetingId = liveMeeting.props.meetingProp.intId
     for {
       moderator <- Users2x.findModerator(liveMeeting.users2x)
       newPresenter <- Users2x.makePresenter(liveMeeting.users2x, moderator.intId)
     } yield {
+      // println(s"automaticallyAssignPresenter: moderator=${moderator} newPresenter=${newPresenter.intId}");
       sendPresenterAssigned(outGW, meetingId, newPresenter.intId, newPresenter.name, newPresenter.intId)
     }
   }
@@ -98,19 +103,32 @@ object UsersApp {
     outGW.send(ejectFromVoiceEvent)
   }
 
+  def sendEjectUserFromSfuSysMsg(
+    outGW: OutMsgRouter,
+    meetingId: String,
+    userId: String
+  ): Unit = {
+    val event = MsgBuilder.buildEjectUserFromSfuSysMsg(
+      meetingId,
+      userId,
+    )
+    outGW.send(event)
+  }
+
   def ejectUserFromMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting,
                            userId: String, ejectedBy: String, reason: String,
                            reasonCode: String, ban: Boolean): Unit = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
-
+    RegisteredUsers.eject(userId, liveMeeting.registeredUsers, ban)
     for {
       user <- Users2x.ejectFromMeeting(liveMeeting.users2x, userId)
-      reguser <- RegisteredUsers.eject(userId, liveMeeting.registeredUsers, ban)
     } yield {
       sendUserEjectedMessageToClient(outGW, meetingId, userId, ejectedBy, reason, reasonCode)
       sendUserLeftMeetingToAllClients(outGW, meetingId, userId)
+      sendEjectUserFromSfuSysMsg(outGW, meetingId, userId)
       if (user.presenter) {
+        // println(s"ejectUserFromMeeting will cause a automaticallyAssignPresenter for user=${user}")
         automaticallyAssignPresenter(outGW, liveMeeting)
       }
     }
@@ -148,6 +166,7 @@ class UsersApp(
   with SelectRandomViewerReqMsgHdlr
   with GetWebcamsOnlyForModeratorReqMsgHdlr
   with AssignPresenterReqMsgHdlr
+  with ChangeUserPinStateReqMsgHdlr
   with EjectDuplicateUserReqMsgHdlr
   with EjectUserFromMeetingCmdMsgHdlr
   with EjectUserFromMeetingSysMsgHdlr

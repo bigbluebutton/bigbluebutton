@@ -2,7 +2,7 @@
 name: HTML5 Issue
 about: Template for creating HTML5 Issue (frontend which you see during a session, not Greenlight).
 title: ''
-labels: HTML5 Client
+labels: 'module: client'
 assignees: ''
 
 ---
@@ -29,7 +29,7 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**BBB version (optional):**
+**BBB version:**
 BigBlueButton continually evolves. Providing the version/build helps us to pinpoint when an issue was introduced.
 Example:
 $ sudo bbb-conf --check | grep BigBlueButton

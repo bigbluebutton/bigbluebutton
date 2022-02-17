@@ -1,16 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Icon from '/imports/ui/components/icon/component';
-import { Session } from 'meteor/session';
+import Icon from '/imports/ui/components/common/icon/component';
+import CaptionsService from '/imports/ui/components/captions/service';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
+import Styled from './styles';
+import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
-  locale: PropTypes.shape({
-    locale: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  locale: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
   tabIndex: PropTypes.number.isRequired,
 };
 
@@ -21,41 +22,56 @@ const intlMessages = defineMessages({
   },
 });
 
-const handleClickToggleCaptions = (locale) => {
-  const panel = Session.get('openPanel');
-
-  if (panel !== 'captions') {
-    Session.set('captionsLocale', locale);
-    Session.set('openPanel', 'captions');
-  } else {
-    const captionsLocale = Session.get('captionsLocale');
-    if (captionsLocale !== locale) {
-      Session.set('captionsLocale', locale);
-    } else {
-      Session.set('openPanel', 'userlist');
-    }
-  }
-};
-
 const CaptionsListItem = (props) => {
   const {
     intl,
     locale,
+    name,
     tabIndex,
+    sidebarContentPanel,
+    layoutContextDispatch,
   } = props;
 
+  const handleClickToggleCaptions = () => {
+    if (sidebarContentPanel !== PANELS.CAPTIONS) {
+      CaptionsService.setCaptionsLocale(locale);
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+        value: true,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.CAPTIONS,
+      });
+    } else {
+      const captionsLocale = CaptionsService.getCaptionsLocale();
+      if (captionsLocale !== locale) {
+        CaptionsService.setCaptionsLocale(locale);
+      } else {
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+          value: false,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+          value: PANELS.NONE,
+        });
+      }
+    }
+  };
+
   return (
-    <div
+    <Styled.ListItem
       role="button"
       tabIndex={tabIndex}
-      id={locale.locale}
-      className={styles.listItem}
-      onClick={() => handleClickToggleCaptions(locale.locale)}
-      aria-label={`${locale.name} ${intl.formatMessage(intlMessages.captionLabel)}`}
+      id={locale}
+      onClick={handleClickToggleCaptions}
+      aria-label={`${name} ${intl.formatMessage(intlMessages.captionLabel)}`}
+      onKeyPress={() => {}}
     >
       <Icon iconName="closed_caption" />
-      <span aria-hidden>{locale.name}</span>
-    </div>
+      <span aria-hidden>{name}</span>
+    </Styled.ListItem>
   );
 };
 

@@ -13,6 +13,7 @@ const getMeetingTitle = () => {
 const getUsers = () => {
   const numUsers = Users.find({
     meetingId: Auth.meetingID,
+    userId: { $ne: Auth.userID },
   }, { fields: { _id: 1 } }).count();
 
   return numUsers;

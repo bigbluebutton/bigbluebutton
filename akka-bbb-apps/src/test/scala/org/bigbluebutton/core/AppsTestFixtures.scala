@@ -29,6 +29,7 @@ trait AppsTestFixtures {
   val webcamsOnlyForModerator = false;
   val moderatorPassword = "modpass"
   val viewerPassword = "viewpass"
+  val learningDashboardAccessToken = "ldToken"
   val createTime = System.currentTimeMillis
   val createDate = "Oct 26, 2015"
   val isBreakout = false
@@ -39,7 +40,10 @@ trait AppsTestFixtures {
   val maxUsers = 25
   val guestPolicy = "ALWAYS_ASK"
   val allowModsToUnmuteUsers = false
+  val allowModsToEjectCameras = false
   val authenticatedGuest = false
+  val meetingLayout = ""
+  val virtualBackgroundsEnabled = false
 
   val red5DeskShareIPTestFixture = "127.0.0.1"
   val red5DeskShareAppTestFixtures = "red5App"
@@ -52,14 +56,15 @@ trait AppsTestFixtures {
   val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate,
     meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes, meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes,
     userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes, userInactivityThresholdInMinutes = userInactivityInspectTimerInMinutes, userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes)
-  val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword)
+  val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword, learningDashboardAccessToken = learningDashboardAccessToken)
   val recordProp = RecordProp(record = record, autoStartRecording = autoStartRecording,
     allowStartStopRecording = allowStartStopRecording, keepEvents = keepEvents )
   val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
     modOnlyMessage = modOnlyMessage)
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
-    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, authenticatedGuest = authenticatedGuest)
+    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, allowModsToEjectCameras = allowModsToEjectCameras,
+    authenticatedGuest = authenticatedGuest, meetingLayout = meetingLayout, virtualBackgroundsEnabled = virtualBackgroundsEnabled)
   val metadataProp = new MetadataProp(metadata)
 
   val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,

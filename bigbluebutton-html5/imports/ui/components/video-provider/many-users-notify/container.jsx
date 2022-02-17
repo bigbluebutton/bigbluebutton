@@ -1,5 +1,5 @@
 import { withTracker } from 'meteor/react-meteor-data';
-import Meetings from '/imports/api/meetings/';
+import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users/';
 import VideoStreams from '/imports/api/video-streams';
@@ -27,7 +27,7 @@ export default withTracker(() => {
       presenter: false,
     }, { fields: {} }).count(),
     currentUserIsModerator: Users.findOne({ userId: Auth.userID },
-      { fields: { role: 1 } }).role === ROLE_MODERATOR,
+      { fields: { role: 1 } })?.role === ROLE_MODERATOR,
     lockSettings: meeting.lockSettingsProps,
     webcamOnlyForModerator: meeting.usersProp.webcamsOnlyForModerator,
     limitOfViewersInWebcam: Meteor.settings.public.app.viewersInWebcam,

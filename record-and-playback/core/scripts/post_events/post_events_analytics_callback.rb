@@ -19,6 +19,13 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
+# In order to use this script, you will have to install the following ruby gems
+# in addition to the ones included with BigBlueButton:
+# * bbbevents
+# * jwt
+#
+# Running post_events scripts requires that you enable keepEvents=true in
+# bbb-web's bigbluebutton.properties configuration.
 
 require '../../core/lib/recordandplayback'
 require 'bbbevents'
@@ -39,7 +46,7 @@ BigBlueButton.logger = logger
 
 options = {}
 OptionParser.new do |opts|
-  opts.banner = 'Usage: ruby post_events/post_events.rb -m <meeting_id>'
+  opts.banner = 'Usage: ruby post_events/post_events_analytics_callback.rb -m <meeting_id>'
 
   opts.on('-m', '--meeting-id MEETING_ID', 'meeting_id (required)') do |m|
     options[:meeting_id] = m

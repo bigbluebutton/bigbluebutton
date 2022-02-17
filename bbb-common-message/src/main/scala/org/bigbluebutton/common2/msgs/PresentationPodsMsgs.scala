@@ -118,6 +118,7 @@ case class PresentationConversionRequestReceivedSysMsgBody(
     current:        Boolean,
     presName:       String,
     downloadable:   Boolean,
+    removable:      Boolean,
     authzToken:     String
 )
 
@@ -132,6 +133,7 @@ case class PresentationPageConversionStartedSysMsgBody(
     current:        Boolean,
     presName:       String,
     downloadable:   Boolean,
+    removable:      Boolean,
     authzToken:     String,
     numPages:       Int
 )
@@ -145,6 +147,21 @@ case class PresentationConversionEndedSysMsgBody(
     podId:          String,
     presentationId: String,
     presName:       String
+)
+
+object PresentationUploadedFileTooLargeErrorSysPubMsg { val NAME = "PresentationUploadedFileTooLargeErrorSysPubMsg" }
+case class PresentationUploadedFileTooLargeErrorSysPubMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationUploadedFileTooLargeErrorSysPubMsgBody
+) extends StandardMsg
+case class PresentationUploadedFileTooLargeErrorSysPubMsgBody(
+    podId:             String,
+    messageKey:        String,
+    code:              String,
+    presentationName:  String,
+    presentationToken: String,
+    fileSize:          Int,
+    maxFileSize:       Int
 )
 
 // ------------ bbb-common-web to akka-apps ------------
@@ -198,6 +215,10 @@ case class PresentationPageConvertedEventMsgBody(
     page:           PresentationPageVO
 )
 
+object PresentationUploadedFileTooLargeErrorEvtMsg { val NAME = "PresentationUploadedFileTooLargeErrorEvtMsg" }
+case class PresentationUploadedFileTooLargeErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationUploadedFileTooLargeErrorEvtMsgBody) extends BbbCoreMsg
+case class PresentationUploadedFileTooLargeErrorEvtMsgBody(podId: String, messageKey: String, code: String, presentationName: String, presentationToken: String, fileSize: Int, maxFileSize: Int)
+
 object PresentationConversionRequestReceivedEventMsg { val NAME = "PresentationConversionRequestReceivedEventMsg" }
 case class PresentationConversionRequestReceivedEventMsg(
     header: BbbClientMsgHeader,
@@ -209,6 +230,7 @@ case class PresentationConversionRequestReceivedEventMsgBody(
     current:        Boolean,
     presName:       String,
     downloadable:   Boolean,
+    removable:      Boolean,
     authzToken:     String
 )
 
@@ -223,6 +245,7 @@ case class PresentationPageConversionStartedEventMsgBody(
     current:        Boolean,
     presName:       String,
     downloadable:   Boolean,
+    removable:      Boolean,
     numPages:       Int,
     authzToken:     String
 )
@@ -281,5 +304,5 @@ case class SyncGetPresentationPodsRespMsgBody(pods: Vector[PresentationPodVO])
 // ------------ akka-apps to bbb-common-web ------------
 object PresentationUploadTokenSysPubMsg { val NAME = "PresentationUploadTokenSysPubMsg" }
 case class PresentationUploadTokenSysPubMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenSysPubMsgBody) extends BbbCoreMsg
-case class PresentationUploadTokenSysPubMsgBody(podId: String, authzToken: String, filename: String)
+case class PresentationUploadTokenSysPubMsgBody(podId: String, authzToken: String, filename: String, meetingId: String)
 // ------------ akka-apps to bbb-common-web ------------

@@ -64,19 +64,27 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case GetUsersStatusToVoiceConfSysMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
 
+      // Sent to SFU
+      case EjectUserFromSfuSysMsg.NAME =>
+        msgSender.send(toSfuRedisChannel, json)
+      case CamBroadcastStopSysMsg.NAME =>
+        msgSender.send(toSfuRedisChannel, json)
+      case CamStreamUnsubscribeSysMsg.NAME =>
+        msgSender.send(toSfuRedisChannel, json)
+
       //==================================================================
       // Send chat, presentation, and whiteboard in different channels so as not to
       // flood other applications (e.g. bbb-web) with unnecessary messages
 
       // Whiteboard
       case SendWhiteboardAnnotationEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
       case SendCursorPositionEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
       case ClearWhiteboardEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
       case UndoWhiteboardEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
       // Chat
       case SendPublicMessageEvtMsg.NAME =>
@@ -101,8 +109,6 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
       case BreakoutRoomsListEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
-      case BreakoutRoomJoinURLEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsPresRedisChannel, json)
       case BreakoutRoomsTimeRemainingUpdateEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
       case BreakoutRoomStartedEvtMsg.NAME =>
@@ -117,6 +123,34 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       // Poll Record Event
       case UserRespondedToPollRecordMsg.NAME =>
       //==================================================================
+
+      case ValidateAuthTokenRespMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json) // needed for cases when single nodejs process is running (like in development)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      // Message duplicated for frontend and backend processes
+      case MeetingCreatedEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      case MeetingEndingEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      case MeetingDestroyedEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      case UserLeftMeetingEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      case UserLeftVoiceConfToClientEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json)
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      case UpdateExternalVideoEvtMsg.NAME =>
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
       case _ =>
         msgSender.send(fromAkkaAppsRedisChannel, json)

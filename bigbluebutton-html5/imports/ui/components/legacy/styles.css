@@ -16,3 +16,11 @@
   font-size: 1.5rem;
   padding: 10px;
 }
+
+@media only screen and (max-width: 40em) {
+  .browserWarning {
+    width: 95%;
+    left: 2.5%;
+    margin-left: 0;
+  }
+}

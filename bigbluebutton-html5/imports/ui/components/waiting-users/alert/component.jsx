@@ -1,7 +1,21 @@
 import React, { Component } from 'react';
-import injectNotify from '/imports/ui/components/toast/inject-notify/component';
+import _ from 'lodash';
+import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from './styles';
+import Settings from '/imports/ui/services/settings';
+import Styled from './styles';
+
+const CDN = Meteor.settings.public.app.cdn;
+const BASENAME = Meteor.settings.public.app.basename;
+const HOST = CDN + BASENAME;
+const GUEST_WAITING_BELL_THROTTLE_TIME = 10000;
+
+function ringGuestWaitingBell() {
+  if (Settings.application.guestWaitingAudioAlerts) {
+    const audio = new Audio(`${HOST}/resources/sounds/doorbell.mp3`);
+    audio.play();
+  }
+}
 
 const intlMessages = defineMessages({
   pendingGuestAlert: {
@@ -11,12 +25,14 @@ const intlMessages = defineMessages({
 });
 
 class PendingUsersAlert extends Component {
-  static messageElement(text, style) {
-    return (
-      <div className={style}>
-        { text }
-      </div>
-    );
+  static messageElement(text, type) {
+    if (type === 'title') {
+      return <Styled.TitleMessage>{ text }</Styled.TitleMessage>;
+    }
+    if (type === 'content') {
+      return <Styled.ContentMessage>{ text }</Styled.ContentMessage>;
+    }
+    return false;
   }
 
   constructor(props) {
@@ -27,6 +43,13 @@ class PendingUsersAlert extends Component {
     };
 
     this.notifyAndStore = this.notifyAndStore.bind(this);
+    // The throttle prevents the bell from annoying the mods when a lot of
+    // guests are entering almost at the same time
+    this.ringGuestWaitingBell = _.throttle(
+      ringGuestWaitingBell,
+      GUEST_WAITING_BELL_THROTTLE_TIME,
+      { leading: true, trailing: false },
+    );
   }
 
   componentDidMount() {
@@ -36,8 +59,8 @@ class PendingUsersAlert extends Component {
     } = this.props;
     const { notifiedIds } = this.state;
     const notifiedPendingUsers = pendingUsers
-      .filter(user => user.loginTime < joinTime)
-      .map(user => user.intId);
+      .filter((user) => user.loginTime < joinTime)
+      .map((user) => user.intId);
     this.setState({ notifiedIds: [...notifiedIds, ...notifiedPendingUsers] });
   }
 
@@ -50,7 +73,7 @@ class PendingUsersAlert extends Component {
     const { notifiedIds } = this.state;
 
     pendingUsers
-      .filter(user => !notifiedIds.includes(user.intId))
+      .filter((user) => !notifiedIds.includes(user.intId))
       .forEach((user) => {
         if (managementPanelIsOpen || !currentUserIsModerator) {
           return this.storeId(user.intId);
@@ -66,17 +89,22 @@ class PendingUsersAlert extends Component {
 
   notifyAndStore(user) {
     const { notify, intl } = this.props;
-    notify(
-      PendingUsersAlert.messageElement(user.name, styles.titleMessage),
-      'info',
-      'user',
-      { onOpen: this.storeId(user.intId) },
-      PendingUsersAlert.messageElement(
-        intl.formatMessage(intlMessages.pendingGuestAlert),
-        styles.contentMessage,
-      ),
-      true,
-    );
+
+    if (Settings.application.guestWaitingPushAlerts) {
+      notify(
+        PendingUsersAlert.messageElement(user.name, 'title'),
+        'info',
+        'user',
+        { onOpen: this.storeId(user.intId) },
+        PendingUsersAlert.messageElement(
+          intl.formatMessage(intlMessages.pendingGuestAlert),
+          'content',
+        ),
+        true,
+      );
+    }
+
+    this.ringGuestWaitingBell();
   }
 
   render() {

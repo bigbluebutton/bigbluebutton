@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/container';
+import BreakoutService from '../service';
 
 const BREAKOUT_MODAL_DELAY = 200;
 
 const propTypes = {
   mountModal: PropTypes.func.isRequired,
-  currentBreakoutUser: PropTypes.shape({
+  currentBreakoutUrlData: PropTypes.shape({
     insertedTime: PropTypes.number.isRequired,
   }),
-  getBreakoutByUser: PropTypes.func.isRequired,
   breakoutUserIsIn: PropTypes.shape({
     sequence: PropTypes.number.isRequired,
   }),
@@ -21,7 +21,7 @@ const propTypes = {
 };
 
 const defaultProps = {
-  currentBreakoutUser: undefined,
+  currentBreakoutUrlData: undefined,
   breakoutUserIsIn: undefined,
   breakouts: [],
 };
@@ -32,8 +32,6 @@ const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) => mou
     breakoutName={breakoutName}
   />,
 );
-
-const closeBreakoutJoinConfirmation = mountModal => mountModal(null);
 
 class BreakoutRoomInvitation extends Component {
   constructor(props) {
@@ -56,42 +54,38 @@ class BreakoutRoomInvitation extends Component {
   checkBreakouts(oldProps) {
     const {
       breakouts,
-      mountModal,
-      currentBreakoutUser,
-      getBreakoutByUser,
+      currentBreakoutUrlData,
+      getBreakoutByUrlData,
       breakoutUserIsIn,
-      amIModerator,
     } = this.props;
 
     const {
       didSendBreakoutInvite,
     } = this.state;
 
-    const hadBreakouts = oldProps.breakouts.length > 0;
     const hasBreakouts = breakouts.length > 0;
-    if (!hasBreakouts && hadBreakouts) {
-      closeBreakoutJoinConfirmation(mountModal);
-    }
 
-    if (hasBreakouts && !breakoutUserIsIn && !amIModerator) {
-      // Have to check for freeJoin breakouts first because currentBreakoutUser will
-      // populate after a room has been joined
-      const breakoutRoom = getBreakoutByUser(currentBreakoutUser);
-      const freeJoinBreakout = breakouts.find(breakout => breakout.freeJoin);
-      if (freeJoinBreakout) {
-        if (!didSendBreakoutInvite) {
-          this.inviteUserToBreakout(breakoutRoom || freeJoinBreakout);
-          this.setState({ didSendBreakoutInvite: true });
-        }
-      } else if (currentBreakoutUser) {
-        const currentInsertedTime = currentBreakoutUser.insertedTime;
-        const oldCurrentUser = oldProps.currentBreakoutUser || {};
-        const oldInsertedTime = oldCurrentUser.insertedTime;
+    if (hasBreakouts && !breakoutUserIsIn && BreakoutService.checkInviteModerators()) {
+      const freeJoinRooms = breakouts.filter((breakout) => breakout.freeJoin);
+
+      if (currentBreakoutUrlData) {
+        const breakoutRoom = getBreakoutByUrlData(currentBreakoutUrlData);
+        const currentInsertedTime = currentBreakoutUrlData.insertedTime;
+        const oldCurrentUrlData = oldProps.currentBreakoutUrlData || {};
+        const oldInsertedTime = oldCurrentUrlData.insertedTime;
         if (currentInsertedTime !== oldInsertedTime) {
-          const breakoutId = Session.get('lastBreakoutOpened');
-          if (breakoutRoom.breakoutId !== breakoutId) {
+          const lastBreakoutId = Session.get('lastBreakoutOpened');
+          if (breakoutRoom.breakoutId !== lastBreakoutId) {
             this.inviteUserToBreakout(breakoutRoom);
           }
+        }
+      } else if (freeJoinRooms.length > 0 && !didSendBreakoutInvite) {
+        const maxSeq = Math.max(...freeJoinRooms.map(((room) => room.sequence)));
+        // Check if received all rooms and Pick a room randomly
+        if (maxSeq === freeJoinRooms.length) {
+          const randomRoom = freeJoinRooms[Math.floor(Math.random() * freeJoinRooms.length)];
+          this.inviteUserToBreakout(randomRoom);
+          this.setState({ didSendBreakoutInvite: true });
         }
       }
     }

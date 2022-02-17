@@ -1,19 +1,27 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import ErrorBoundary from '/imports/ui/components/error-boundary/component';
-import FallbackModal from '/imports/ui/components/fallback-errors/fallback-modal/component';
+import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
+import FallbackModal from '/imports/ui/components/common/fallback-errors/fallback-modal/component';
 import Service from './service';
-import PresentationService from '../service';
 import PresentationUploader from './component';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
+import Auth from '/imports/ui/services/auth';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
-const PresentationUploaderContainer = props => (
-  <ErrorBoundary Fallback={() => <FallbackModal />}>
-    <PresentationUploader {...props} />
-  </ErrorBoundary>
-);
+const PresentationUploaderContainer = (props) => {
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const currentUser = users[Auth.meetingID][Auth.userID];
+  const userIsPresenter = currentUser.presenter;
+
+  return userIsPresenter && (
+    <ErrorBoundary Fallback={() => <FallbackModal />}>
+      <PresentationUploader isPresenter={userIsPresenter} {...props} />
+    </ErrorBoundary>
+  );
+};
 
 export default withTracker(() => {
   const currentPresentations = Service.getPresentations();
@@ -25,11 +33,12 @@ export default withTracker(() => {
 
   return {
     presentations: currentPresentations,
-    defaultFileName: PRESENTATION_CONFIG.defaultPresentationFile,
-    fileSizeMin: PRESENTATION_CONFIG.uploadSizeMin,
-    fileSizeMax: PRESENTATION_CONFIG.uploadSizeMax,
+    fileUploadConstraintsHint: PRESENTATION_CONFIG.fileUploadConstraintsHint,
+    fileSizeMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadSizeMax,
+    filePagesMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
-    handleSave: presentations => Service.persistPresentationChanges(
+    allowDownloadable: PRESENTATION_CONFIG.allowDownloadable,
+    handleSave: (presentations) => Service.persistPresentationChanges(
       currentPresentations,
       presentations,
       PRESENTATION_CONFIG.uploadEndpoint,
@@ -40,6 +49,5 @@ export default withTracker(() => {
     dispatchTogglePresentationDownloadable,
     isOpen: Session.get('showUploadPresentationView') || false,
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
-    isPresenter: PresentationService.isPresenter('DEFAULT_PRESENTATION_POD'),
   };
 })(PresentationUploaderContainer);

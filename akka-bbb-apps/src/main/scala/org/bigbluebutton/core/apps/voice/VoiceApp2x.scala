@@ -18,6 +18,7 @@ trait VoiceApp2x extends UserJoinedVoiceConfEvtMsgHdlr
   with RecordingStartedVoiceConfEvtMsgHdlr
   with VoiceConfRunningEvtMsgHdlr
   with SyncGetVoiceUsersMsgHdlr
+  with AudioFloorChangedVoiceConfEvtMsgHdlr
   with VoiceConfCallStateEvtMsgHdlr
   with UserStatusVoiceConfEvtMsgHdlr {
 

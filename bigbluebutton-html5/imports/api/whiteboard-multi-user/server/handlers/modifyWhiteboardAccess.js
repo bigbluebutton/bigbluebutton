@@ -4,7 +4,7 @@ import modifyWhiteboardAccess from '../modifiers/modifyWhiteboardAccess';
 export default function handleModifyWhiteboardAccess({ body }, meetingId) {
   const { multiUser, whiteboardId } = body;
 
-  check(multiUser, Boolean);
+  check(multiUser, Array);
   check(whiteboardId, String);
   check(meetingId, String);
 

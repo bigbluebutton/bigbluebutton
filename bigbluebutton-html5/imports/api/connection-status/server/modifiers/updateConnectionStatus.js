@@ -1,6 +1,7 @@
 import ConnectionStatus from '/imports/api/connection-status';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
+import changeHasConnectionStatus from '/imports/api/users-persistent-data/server/modifiers/changeHasConnectionStatus';
 
 export default function updateConnectionStatus(meetingId, userId, level) {
   check(meetingId, String);
@@ -20,18 +21,14 @@ export default function updateConnectionStatus(meetingId, userId, level) {
     timestamp,
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Updating connection status: ${err}`);
+  try {
+    const { numberAffected } = ConnectionStatus.upsert(selector, modifier);
+
+    if (numberAffected) {
+      changeHasConnectionStatus(true, userId, meetingId);
+      Logger.verbose(`Updated connection status meetingId=${meetingId} userId=${userId} level=${level}`);
     }
-
-    const { insertedId } = numChanged;
-    if (insertedId) {
-      return Logger.info(`Added connection status userId=${userId} level=${level}`);
-    }
-
-    return Logger.verbose(`Update connection status userId=${userId} level=${level}`);
-  };
-
-  return ConnectionStatus.upsert(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`Updating connection status meetingId=${meetingId} userId=${userId}: ${err}`);
+  }
 }

@@ -47,20 +47,31 @@ module BigBlueButton
       # In order to handle portrait docs better, scale to a square based on
       # the larger of height, width in the resize parameter.
       scale = resize.split('x').map(&:to_i).max
-      BigBlueButton.logger.info("Task: Extracting a page from pdf file as png image")
+      BigBlueButton.logger.info('Task: Extracting a page from pdf file as png image')
       temp_out = "#{File.dirname(png_out)}/temp-#{File.basename(png_out, '.png')}"
-      command = "pdftocairo -png -f #{page_num} -l #{page_num} -scale-to #{scale} -singlefile #{pdf_presentation} #{temp_out}"
-      status = BigBlueButton.execute(command, false)
-      temp_out += ".png"
-      if status.success? and File.exist?(temp_out)
+      status = BigBlueButton.execute(
+        [
+          'pdftocairo', '-png', '-f', page_num.to_s, '-l', page_num.to_s, '-scale-to', scale.to_s, '-singlefile',
+          pdf_presentation, temp_out,
+        ],
+        false
+      )
+      temp_out += '.png'
+      if status.success? && File.exist?(temp_out)
         # Resize to the requested size
-        command = "convert #{temp_out} -resize #{scale}x#{scale} -quality 90 +dither -depth 8 -colors 256 #{png_out}"
-        status = BigBlueButton.execute(command, false)
+        status = BigBlueButton.execute(
+          [
+            'convert', temp_out, '-resize', "#{scale}x#{scale}", '-quality', '90', '+dither', '-depth', '8', '-colors', '256',
+            png_out,
+          ],
+          false
+        )
       end
-      if !status.success? or !File.exist?(png_out)
+      if !status.success? || !File.exist?(png_out)
         # If page extraction failed, generate a blank white image
-        command = "convert -size #{resize} xc:white -quality 90 +dither -depth 8 -colors 256 #{png_out}"
-        BigBlueButton.execute(command)
+        BigBlueButton.execute(
+          ['convert', '-size', resize, 'xc:white', '-quality', '90', '+dither', '-depth', '8', '-colors', '256', png_out]
+        )
       end
     ensure
       FileUtils.rm_f(temp_out)
@@ -104,10 +115,14 @@ module BigBlueButton
       BigBlueButton.logger.info("Task: Getting from events the presentation to be used for preview")
       presentation = {}
       doc = Nokogiri::XML(File.open(events_xml))
+      presentation_filenames = {}
+      doc.xpath("//event[@eventname='ConversionCompletedEvent']").each do |conversion_event|
+        presentation_filenames[conversion_event.xpath("presentationName").text] = conversion_event.xpath("originalFilename").text
+      end
       doc.xpath("//event[@eventname='SharePresentationEvent']").each do |presentation_event|
         # Extract presentation data from events
         presentation_id = presentation_event.xpath("presentationName").text
-        presentation_filename = presentation_event.xpath("originalFilename").text
+        presentation_filename = presentation_filenames[presentation_id]
         # Set textfile directory
         textfiles_dir = "#{process_dir}/presentation/#{presentation_id}/textfiles"
         # Set presentation hashmap to be returned

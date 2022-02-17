@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages } from 'react-intl';
-import Icon from '/imports/ui/components/icon/component';
-import NoteService from '/imports/ui/components/note/service';
-import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
+import { defineMessages, injectIntl } from 'react-intl';
+import Icon from '/imports/ui/components/common/icon/component';
+import NotesService from '/imports/ui/components/notes/service';
+import Styled from './styles';
+import { PANELS } from '/imports/ui/components/layout/enums';
 
 const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  revs: PropTypes.number.isRequired,
-  isPanelOpened: PropTypes.bool.isRequired,
+  rev: PropTypes.number.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -19,7 +19,7 @@ const intlMessages = defineMessages({
     description: 'Title for the notes list',
   },
   sharedNotes: {
-    id: 'app.note.title',
+    id: 'app.notes.title',
     description: 'Title for the shared notes',
   },
   unreadContent: {
@@ -27,7 +27,7 @@ const intlMessages = defineMessages({
     description: 'Aria label for notes unread content',
   },
   locked: {
-    id: 'app.userList.locked',
+    id: 'app.notes.locked',
     description: '',
   },
   byModerator: {
@@ -43,97 +43,105 @@ class UserNotes extends Component {
     this.state = {
       unread: false,
     };
+    this.setUnread = this.setUnread.bind(this);
   }
 
   componentDidMount() {
-    const { revs } = this.props;
+    const {
+      rev,
+    } = this.props;
 
-    const lastRevs = NoteService.getLastRevs();
+    const lastRev = NotesService.getLastRev();
 
-    if (revs !== 0 && revs > lastRevs) this.setState({ unread: true });
+    if (rev !== 0 && rev > lastRev) this.setUnread(true);
   }
 
   componentDidUpdate(prevProps) {
-    const { isPanelOpened, revs } = this.props;
+    const { sidebarContentPanel, rev } = this.props;
     const { unread } = this.state;
 
-    if (!isPanelOpened && !unread) {
-      if (prevProps.revs !== revs) this.setState({ unread: true });
+    if (sidebarContentPanel !== PANELS.SHARED_NOTES && !unread) {
+      if (prevProps.rev !== rev) this.setUnread(true);
     }
 
-    if (isPanelOpened && unread) {
-      this.setState({ unread: false });
+    if (sidebarContentPanel === PANELS.SHARED_NOTES && unread) {
+      this.setUnread(false);
     }
   }
 
+  setUnread(unread) {
+    this.setState({ unread });
+  }
+
   renderNotes() {
-    const { intl, disableNote } = this.props;
+    const {
+      intl,
+      disableNotes,
+      sidebarContentPanel,
+      layoutContextDispatch,
+    } = this.props;
     const { unread } = this.state;
 
     let notification = null;
     if (unread) {
       notification = (
-        <div
-          className={styles.unreadMessages}
-          aria-label={intl.formatMessage(intlMessages.unreadContent)}
-        >
-          <div className={styles.unreadMessagesText} aria-hidden="true">
+        <Styled.UnreadMessages aria-label={intl.formatMessage(intlMessages.unreadContent)}>
+          <Styled.UnreadMessagesText aria-hidden="true">
             ···
-          </div>
-        </div>
+          </Styled.UnreadMessagesText>
+        </Styled.UnreadMessages>
       );
     }
 
     return (
-      <div
+      <Styled.ListItem
         aria-label={intl.formatMessage(intlMessages.sharedNotes)}
-        aria-describedby="lockedNote"
+        aria-describedby="lockedNotes"
         role="button"
         tabIndex={0}
-        className={styles.listItem}
-        onClick={NoteService.toggleNotePanel}
+        onClick={() => NotesService.toggleNotesPanel(sidebarContentPanel, layoutContextDispatch)}
+        onKeyPress={() => { }}
       >
         <Icon iconName="copy" />
         <div aria-hidden>
-          <div className={styles.noteTitle} data-test="sharedNotes">
+          <Styled.NotesTitle data-test="sharedNotes">
             {intl.formatMessage(intlMessages.sharedNotes)}
-          </div>
-          {disableNote
+          </Styled.NotesTitle>
+          {disableNotes
             ? (
-              <div className={styles.noteLock}>
+              <Styled.NotesLock>
                 <Icon iconName="lock" />
-                <span id="lockedNote">{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
-              </div>
-            ) : null
-          }
+                <span id="lockedNotes">{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
+              </Styled.NotesLock>
+            ) : null}
         </div>
         {notification}
-      </div>
+      </Styled.ListItem>
     );
   }
 
   render() {
-    const { intl, disableNote } = this.props;
+    const { intl } = this.props;
 
-    if (!NoteService.isEnabled()) return null;
+    if (!NotesService.isEnabled()) return null;
 
     return (
-      <div className={styles.messages}>
-        <div className={styles.container}>
-          <h2 className={styles.smallTitle}>
+      <Styled.Messages>
+        <Styled.Container>
+          <Styled.SmallTitle data-test="notesTitle">
             {intl.formatMessage(intlMessages.title)}
-          </h2>
-        </div>
-        <div className={styles.scrollableList}>
-          <div className={styles.list}>
+          </Styled.SmallTitle>
+        </Styled.Container>
+        <Styled.ScrollableList>
+          <Styled.List>
             {this.renderNotes()}
-          </div>
-        </div>
-      </div>
+          </Styled.List>
+        </Styled.ScrollableList>
+      </Styled.Messages>
     );
   }
 }
 
 UserNotes.propTypes = propTypes;
 
-export default UserNotes;
+export default injectIntl(UserNotes);

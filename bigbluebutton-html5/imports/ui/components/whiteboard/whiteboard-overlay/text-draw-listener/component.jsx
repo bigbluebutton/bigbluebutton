@@ -69,17 +69,6 @@ export default class TextDrawListener extends Component {
     window.addEventListener('click', this.handleClick);
   }
 
-  // If the activeId suddenly became empty - this means the shape was deleted
-  // While the user was drawing it. So we are resetting the state.
-  componentWillReceiveProps(nextProps) {
-    const { drawSettings } = this.props;
-    const nextDrawsettings = nextProps.drawSettings;
-
-    if (drawSettings.textShapeActiveId !== '' && nextDrawsettings.textShapeActiveId === '') {
-      this.resetState();
-    }
-  }
-
   componentDidUpdate(prevProps) {
     const {
       drawSettings,
@@ -88,6 +77,11 @@ export default class TextDrawListener extends Component {
 
     const prevDrawsettings = prevProps.drawSettings;
     const prevTextShapeValue = prevProps.drawSettings.textShapeValue;
+    // If the activeId suddenly became empty - this means the shape was deleted
+    // While the user was drawing it. So we are resetting the state.
+    if (prevDrawsettings.textShapeActiveId !== '' && drawSettings.textShapeActiveId === '') {
+      this.resetState();
+    }
 
     // Updating the component in cases when:
     // Either color / font-size or text value has changed
@@ -120,9 +114,8 @@ export default class TextDrawListener extends Component {
     this.sendLastMessage();
   }
 
-  handleClick() {
-    const { isWritingText } = this.state;
-    if (isWritingText) this.sendLastMessage();
+  handleClick(e) {
+    if (e.srcElement.getAttribute('role') !== 'presentation') this.sendLastMessage();
   }
 
   // checks if the input textarea is focused or not, and if not - moves focus there
@@ -139,7 +132,7 @@ export default class TextDrawListener extends Component {
     const textarea = document.getElementById(getCurrentShapeId());
 
     if (textarea) {
-      if (document.activeElement === textarea) {
+      if (document.activeElement === textarea && document.activeElement.value.length > 0) {
         return true;
       }
       textarea.focus();

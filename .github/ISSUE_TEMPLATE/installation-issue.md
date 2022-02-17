@@ -2,7 +2,7 @@
 name: Installation issue (not a support question)
 about: Template for issues encountered during installation
 title: ''
-labels: ''
+labels: 'deploy: installation'
 assignees: ''
 
 ---

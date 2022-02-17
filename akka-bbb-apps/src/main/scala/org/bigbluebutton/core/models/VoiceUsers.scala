@@ -14,6 +14,7 @@ object VoiceUsers {
   def findAll(users: VoiceUsers): Vector[VoiceUserState] = users.toVector
 
   def findAllNonListenOnlyVoiceUsers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.listenOnly == false)
+  def findAllListenOnlyVoiceUsers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.listenOnly == true)
   def findAllFreeswitchCallers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.calledInto == "freeswitch")
   def findAllKurentoCallers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.calledInto == "kms")
 
@@ -61,6 +62,29 @@ object VoiceUsers {
     } yield {
       val vu = u.modify(_.muted).setTo(false)
         .modify(_.talking).setTo(talking)
+        .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
+      users.save(vu)
+      vu
+    }
+  }
+
+  def becameFloor(users: VoiceUsers, voiceUserId: String, floor: Boolean, timestamp: String): Option[VoiceUserState] = {
+    for {
+      u <- findWithVoiceUserId(users, voiceUserId)
+    } yield {
+      val vu = u.modify(_.floor).setTo(floor)
+        .modify(_.lastFloorTime).setTo(timestamp)
+        .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
+      users.save(vu)
+      vu
+    }
+  }
+
+  def releasedFloor(users: VoiceUsers, voiceUserId: String, floor: Boolean): Option[VoiceUserState] = {
+    for {
+      u <- findWithVoiceUserId(users, voiceUserId)
+    } yield {
+      val vu = u.modify(_.floor).setTo(floor)
         .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
       users.save(vu)
       vu
@@ -130,16 +154,18 @@ case class VoiceUser2x(
     voiceUserId: String
 )
 case class VoiceUserVO2x(
-    intId:       String,
-    voiceUserId: String,
-    callerName:  String,
-    callerNum:   String,
-    joined:      Boolean,
-    locked:      Boolean,
-    muted:       Boolean,
-    talking:     Boolean,
-    callingWith: String,
-    listenOnly:  Boolean
+    intId:         String,
+    voiceUserId:   String,
+    callerName:    String,
+    callerNum:     String,
+    joined:        Boolean,
+    locked:        Boolean,
+    muted:         Boolean,
+    talking:       Boolean,
+    callingWith:   String,
+    listenOnly:    Boolean,
+    floor:         Boolean,
+    lastFloorTime: String
 )
 
 case class VoiceUserState(
@@ -152,5 +178,7 @@ case class VoiceUserState(
     talking:            Boolean,
     listenOnly:         Boolean,
     calledInto:         String,
-    lastStatusUpdateOn: Long
+    lastStatusUpdateOn: Long,
+    floor:              Boolean,
+    lastFloorTime:      String
 )

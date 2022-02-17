@@ -36,7 +36,6 @@ module BigBlueButton
     def self.process(archive_dir, file_basename)
       BigBlueButton.logger.info("AudioProcessor.process: Processing audio...")
 
-      audio_dir = "#{archive_dir}/audio"
       events_xml = "#{archive_dir}/events.xml"
       events = Nokogiri::XML(File.open(events_xml))
 
@@ -52,21 +51,45 @@ module BigBlueButton
       BigBlueButton::EDL::Audio.dump(audio_edl)
 
       target_dir = File.dirname(file_basename)
-      audio_dir = "#{archive_dir}/audio"
-      events_xml = "#{archive_dir}/events.xml"
 
+      # getting users audio...
       @audio_file = BigBlueButton::EDL::Audio.render(
         audio_edl, File.join(target_dir, 'recording'))
 
+      # and mixing it with deskshare audio	
+      deskshare_dir = "#{archive_dir}/deskshare"
+      if BigBlueButton::Events.screenshare_has_audio?(events, deskshare_dir)
+        BigBlueButton.logger.info("AudioProcessor.process: processing Deskshare audio...")	
+
+        mixed_dir = "#{archive_dir}/mixed"
+
+        deskshare_audio_edl = BigBlueButton::AudioEvents.create_deskshare_audio_edl(events, deskshare_dir)
+        BigBlueButton::EDL::Audio.dump(deskshare_audio_edl)	
+
+        BigBlueButton.logger.info "Applying recording start/stop events to Deskshare audio"
+        deskshare_audio_edl = BigBlueButton::Events.edl_match_recording_marks_audio(
+          deskshare_audio_edl, events, start_time, end_time)
+        BigBlueButton.logger.debug "Trimmed Deskshare Audio EDL:"
+        BigBlueButton::EDL::Audio.dump(deskshare_audio_edl)
+
+        audio_inputs = []	
+        audio_inputs << @audio_file	
+        audio_inputs << BigBlueButton::EDL::Audio.render(deskshare_audio_edl, deskshare_dir)	
+
+        @audio_file = BigBlueButton::EDL::Audio.mixer(audio_inputs, mixed_dir)	
+      else
+        BigBlueButton.logger.info("AudioProcessor.process: no Deskshare audio to process.")	
+      end
+
       ogg_format = {
         :extension => 'ogg',
-        :parameters => [ [ '-c:a', 'libvorbis', '-q:a', '2', '-f', 'ogg' ] ]
+        :parameters => [ [ '-c:a', 'copy', '-f', 'ogg' ] ]
       }
       BigBlueButton::EDL.encode(@audio_file, nil, ogg_format, file_basename)
 
       webm_format = {
         :extension => 'webm',
-        :parameters => [ [ '-c:a', 'libvorbis', '-q:a', '2', '-f', 'webm' ] ],
+        :parameters => [ [ '-c:a', 'copy', '-f', 'webm' ] ],
         :postprocess => [ [ 'mkclean', '--quiet', ':input', ':output' ] ]
       }
       BigBlueButton::EDL.encode(@audio_file, nil, webm_format, file_basename)

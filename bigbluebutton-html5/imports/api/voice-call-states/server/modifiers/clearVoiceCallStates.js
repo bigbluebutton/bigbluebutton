@@ -1,5 +1,5 @@
 import Logger from '/imports/startup/server/logger';
-import VoiceCallStates from '/imports/api/voice-users';
+import VoiceCallStates from '/imports/api/voice-call-states';
 
 export default function clearVoiceCallStates(meetingId) {
   if (meetingId) {

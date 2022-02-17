@@ -15,7 +15,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
 
   def handleSetLockSettings(msg: ChangeLockSettingsInMeetingCmdMsg): Unit = {
 
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) || liveMeeting.props.meetingProp.isBreakout) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to change lock settings"
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
@@ -25,7 +25,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         disableMic = msg.body.disableMic,
         disablePrivChat = msg.body.disablePrivChat,
         disablePubChat = msg.body.disablePubChat,
-        disableNote = msg.body.disableNote,
+        disableNotes = msg.body.disableNotes,
         hideUserList = msg.body.hideUserList,
         lockedLayout = msg.body.lockedLayout,
         lockOnJoin = msg.body.lockOnJoin,
@@ -44,6 +44,10 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           LockSettingsUtil.enforceLockSettingsForAllVoiceUsers(liveMeeting, outGW)
         }
 
+        if (!oldPermissions.disableCam && settings.disableCam) {
+          LockSettingsUtil.enforceCamLockSettingsForAllUsers(liveMeeting, outGW)
+        }
+
         val routing = Routing.addMsgToClientRouting(
           MessageTypes.BROADCAST_TO_MEETING,
           props.meetingProp.intId,
@@ -58,7 +62,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           disableMic = settings.disableMic,
           disablePrivChat = settings.disablePrivChat,
           disablePubChat = settings.disablePubChat,
-          disableNote = settings.disableNote,
+          disableNotes = settings.disableNotes,
           hideUserList = settings.hideUserList,
           lockedLayout = settings.lockedLayout,
           lockOnJoin = settings.lockOnJoin,

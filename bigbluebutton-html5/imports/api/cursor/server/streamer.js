@@ -1,4 +1,5 @@
 import Logger from '/imports/startup/server/logger';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 import publishCursorUpdate from './methods/publishCursorUpdate';
 
 const { streamerLog } = Meteor.settings.private.serverLog;
@@ -25,8 +26,9 @@ export function addCursorStreamer(meetingId) {
     return this.userId && this.userId.includes(meetingId);
   });
 
-  streamer.on('publish', (message) => {
-    publishCursorUpdate(meetingId, message.userId, message.payload);
+  streamer.on('publish', function (message) {
+    const { requesterUserId } = extractCredentials(this.userId);
+    publishCursorUpdate(meetingId, requesterUserId, message);
   });
 }
 

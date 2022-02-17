@@ -1,36 +1,118 @@
-import React, { memo } from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
-import UserListService from '/imports/ui/components/user-list/service';
-import Settings from '/imports/ui/services/settings';
-import ChatAlert from './component';
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
+import ChatAlert from './component';
+import { layoutSelect, layoutSelectInput, layoutDispatch } from '../../layout/context';
+import { PANELS } from '../../layout/enums';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
+import { ChatContext } from '/imports/ui/components/components-data/chat-context/context';
+import { GroupChatContext } from '/imports/ui/components/components-data/group-chat-context/context';
+import userListService from '/imports/ui/components/user-list/service';
+import UnreadMessages from '/imports/ui/services/unread-messages';
 
-const ChatAlertContainer = props => (
-  <ChatAlert {...props} />
-);
+const PUBLIC_CHAT_ID = Meteor.settings.public.chat.public_group_id;
 
-export default withTracker(() => {
-  const AppSettings = Settings.application;
-  const activeChats = UserListService.getActiveChats();
-  const { loginTime } = Users.findOne({ userId: Auth.userID }, { fields: { loginTime: 1 } });
+const propTypes = {
+  audioAlertEnabled: PropTypes.bool.isRequired,
+  pushAlertEnabled: PropTypes.bool.isRequired,
+};
 
-  const openPanel = Session.get('openPanel');
-  let idChatOpen = Session.get('idChatOpen');
+// custom hook for getting previous value
+function usePrevious(value) {
+  const ref = React.useRef();
+  React.useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
 
-  // Currently the panel can switch from the chat panel to something else and the idChatOpen won't
-  // always reset. A better solution would be to make the openPanel Session variable an
-  // Object { panelType: <String>, panelOptions: <Object> } and then get rid of idChatOpen
-  if (openPanel !== 'chat') {
-    idChatOpen = '';
+const ChatAlertContainer = (props) => {
+  const idChatOpen = layoutSelect((i) => i.idChatOpen);
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const { sidebarContentPanel } = sidebarContent;
+  const layoutContextDispatch = layoutDispatch();
+
+  const { audioAlertEnabled, pushAlertEnabled } = props;
+
+  let idChat = idChatOpen;
+  if (sidebarContentPanel !== PANELS.CHAT) idChat = '';
+
+  const usingUsersContext = useContext(UsersContext);
+  const usingChatContext = useContext(ChatContext);
+  const usingGroupChatContext = useContext(GroupChatContext);
+
+  const { users } = usingUsersContext;
+  const { chats: groupChatsMessages } = usingChatContext;
+  const { groupChat: groupChats } = usingGroupChatContext;
+
+  const activeChats = userListService.getActiveChats({ groupChatsMessages, groupChats, users });
+
+  // audio alerts
+  const unreadMessagesCountByChat = audioAlertEnabled
+    ? activeChats.map((chat) => ({
+      chatId: chat.chatId, unreadCounter: chat.unreadCounter,
+    }))
+    : null;
+
+  // push alerts
+  const unreadMessagesByChat = pushAlertEnabled
+    ? activeChats.filter(
+      (chat) => chat.unreadCounter > 0 && chat.chatId !== idChat,
+    ).map((chat) => {
+      const chatId = (chat.chatId === 'public') ? PUBLIC_CHAT_ID : chat.chatId;
+      return UnreadMessages.getUnreadMessages(chatId, groupChatsMessages);
+    })
+    : null;
+
+  const chatsTracker = {};
+
+  if (usingChatContext.chats) {
+    const chatsActive = Object.entries(usingChatContext.chats);
+    chatsActive.forEach((c) => {
+      try {
+        if (c[0] === idChat || (c[0] === 'MAIN-PUBLIC-GROUP-CHAT' && idChat === 'public')) {
+          chatsTracker[c[0]] = {};
+          chatsTracker[c[0]].lastSender = users[Auth.meetingID][c[1]?.lastSender]?.name;
+          if (c[1]?.posJoinMessages || c[1]?.messageGroups) {
+            const m = Object.entries(c[1]?.posJoinMessages || c[1]?.messageGroups);
+            chatsTracker[c[0]].count = m?.length;
+            if (m[m.length - 1]) {
+              chatsTracker[c[0]].content = m[m.length - 1][1]?.message;
+            }
+          }
+        }
+      } catch (e) {
+        logger.error({
+          logCode: 'chat_alert_component_error',
+        }, 'Error : ', e.error);
+      }
+    });
+
+    const prevTracker = usePrevious(chatsTracker);
+
+    if (prevTracker) {
+      const keys = Object.keys(prevTracker);
+      keys.forEach((key) => {
+        if (chatsTracker[key]?.count > prevTracker[key]?.count) {
+          chatsTracker[key].shouldNotify = true;
+        }
+      });
+    }
   }
 
-  return {
-    audioAlertDisabled: !AppSettings.chatAudioAlerts,
-    pushAlertDisabled: !AppSettings.chatPushAlerts,
-    activeChats,
-    publicUserId: Meteor.settings.public.chat.public_group_id,
-    joinTimestamp: loginTime,
-    idChatOpen,
-  };
-})(memo(ChatAlertContainer));
+  return (
+    <ChatAlert
+      {...props}
+      chatsTracker={chatsTracker}
+      layoutContextDispatch={layoutContextDispatch}
+      unreadMessagesCountByChat={unreadMessagesCountByChat}
+      unreadMessagesByChat={unreadMessagesByChat}
+      idChatOpen={idChat}
+    />
+  );
+};
+
+ChatAlertContainer.propTypes = propTypes;
+
+export default ChatAlertContainer;

@@ -1,11 +1,13 @@
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
-import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
-import Button from '/imports/ui/components/button/component';
-import { styles } from './styles';
+import TextInput from '/imports/ui/components/text-input/component';
+import Styled from './styles';
+import { PANELS, ACTIONS } from '../layout/enums';
+import Settings from '/imports/ui/services/settings';
+import browserInfo from '/imports/utils/browserInfo';
 
 const intlMessages = defineMessages({
   waitingUsersTitle: {
@@ -44,13 +46,33 @@ const intlMessages = defineMessages({
     id: 'app.userList.guest.pendingGuestUsers',
     description: 'Title for the waiting users',
   },
+  noPendingUsers: {
+    id: 'app.userList.guest.noPendingUsers',
+    description: 'Label for no users waiting',
+  },
   rememberChoice: {
     id: 'app.userList.guest.rememberChoice',
     description: 'Remember label for checkbox',
   },
+  emptyMessage: {
+    id: 'app.userList.guest.emptyMessage',
+    description: 'Empty guest lobby message label',
+  },
+  inputPlaceholder: {
+    id: 'app.userList.guest.inputPlaceholder',
+    description: 'Placeholder to guest lobby message input',
+  },
+  privateMessageLabel: {
+    id: 'app.userList.guest.privateMessageLabel',
+    description: 'Private message button label',
+  },  
+  privateInputPlaceholder: {
+    id: 'app.userList.guest.privateInputPlaceholder',
+    description: 'Private input placeholder',
+  },
   accept: {
     id: 'app.userList.guest.acceptLabel',
-    description: 'Accept guest button label'
+    description: 'Accept guest button label',
   },
   deny: {
     id: 'app.userList.guest.denyLabel',
@@ -60,17 +82,22 @@ const intlMessages = defineMessages({
 
 const ALLOW_STATUS = 'ALLOW';
 const DENY_STATUS = 'DENY';
+const { animations } = Settings.application;
 
 const getNameInitials = (name) => {
   const nameInitials = name.slice(0, 2);
 
-  return nameInitials.replace(/^\w/, c => c.toUpperCase());
-}
+  return nameInitials.replace(/^\w/, (c) => c.toUpperCase());
+};
 
-const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequence, userId, avatar, intl) => (
-  <div key={`userlist-item-${userId}`} className={styles.listItem}>
-    <div key={`user-content-container-${userId}`} className={styles.userContentContainer}>
-      <div key={`user-avatar-container-${userId}`} className={styles.userAvatar}>
+const renderGuestUserItem = (
+  name, color, handleAccept, handleDeny, role, sequence, userId, avatar, intl,
+  privateMessageVisible, setPrivateGuestLobbyMessage, privateGuestLobbyMessage, isGuestLobbyMessageEnabled,
+) => (
+  <React.Fragment key={`user-${userId}`}>
+  <Styled.ListItem key={`userlist-item-${userId}`} animations={animations}>
+    <Styled.UserContentContainer key={`user-content-container-${userId}`}>
+      <Styled.UserAvatarContainer key={`user-avatar-container-${userId}`}>
         <UserAvatar
           key={`user-avatar-${userId}`}
           moderator={role === 'MODERATOR'}
@@ -79,19 +106,26 @@ const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequen
         >
           {getNameInitials(name)}
         </UserAvatar>
-      </div>
-      <p key={`user-name-${userId}`} className={styles.userName}>
-[
-        {sequence}
-]
-        {name}
-      </p>
-    </div>
+      </Styled.UserAvatarContainer>
+      <Styled.UserName key={`user-name-${userId}`}>
+        {`[${sequence}] ${name}`}
+      </Styled.UserName>
+    </Styled.UserContentContainer>
 
-    <div key={`userlist-btns-${userId}`} className={styles.buttonContainer}>
-      <Button
+    <Styled.ButtonContainer key={`userlist-btns-${userId}`}>
+    { isGuestLobbyMessageEnabled ? ( 
+      <Styled.WaitingUsersButton
+        key={`userbtn-message-${userId}`}
+        color="primary"
+        size="lg"
+        ghost
+        label={intl.formatMessage(intlMessages.privateMessageLabel)}
+        onClick={privateMessageVisible} 
+      />
+    ) : null}
+        |
+      <Styled.WaitingUsersButton
         key={`userbtn-accept-${userId}`}
-        className={styles.button}
         color="primary"
         size="lg"
         ghost
@@ -99,26 +133,56 @@ const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequen
         onClick={handleAccept}
       />
       |
-      <Button
+      <Styled.WaitingUsersButton
         key={`userbtn-deny-${userId}`}
-        className={styles.button}
-        color="primary"
+        color="danger"
         size="lg"
         ghost
         label={intl.formatMessage(intlMessages.deny)}
         onClick={handleDeny}
       />
-    </div>
-  </div>
+    </Styled.ButtonContainer>
+  </Styled.ListItem>
+  { isGuestLobbyMessageEnabled ? (
+    <Styled.PrivateLobbyMessage
+      id={`privateMessage-${userId}`}>
+        <TextInput
+          maxLength={128}
+          placeholder={intl.formatMessage(intlMessages.privateInputPlaceholder,
+                                         { 0: name })}
+          send={setPrivateGuestLobbyMessage} />
+        <p>
+          <i>
+            &quot;
+            {privateGuestLobbyMessage.length > 0
+              ? privateGuestLobbyMessage
+              : intl.formatMessage(intlMessages.emptyMessage)}
+            &quot;
+          </i>
+        </p>
+    </Styled.PrivateLobbyMessage>
+  ) : null}
+  </React.Fragment>
 );
 
-const renderPendingUsers = (message, usersArray, action, intl) => {
+const renderNoUserWaitingItem = (message) => (
+  <Styled.PendingUsers>
+    <Styled.NoPendingUsers>
+      {message}
+    </Styled.NoPendingUsers>
+  </Styled.PendingUsers>
+);
+
+const renderPendingUsers = (message, usersArray, action, intl,
+  privateMessageVisible, setPrivateGuestLobbyMessage, 
+  privateGuestLobbyMessage, isGuestLobbyMessageEnabled
+) => { 
   if (!usersArray.length) return null;
   return (
-    <div className={styles.pendingUsers}>
-      <p className={styles.mainTitle}>{message}</p>
-      <div className={styles.usersWrapper}>
-        <div className={styles.users}>
+    <Styled.PendingUsers>
+      <Styled.MainTitle>{message}</Styled.MainTitle>
+      <Styled.UsersWrapper>
+        <Styled.Users>
           {usersArray.map((user, idx) => renderGuestUserItem(
             user.name,
             user.color,
@@ -129,32 +193,58 @@ const renderPendingUsers = (message, usersArray, action, intl) => {
             user.intId,
             user.avatar,
             intl,
+            () => privateMessageVisible(`privateMessage-${user.intId}`),
+            (message) => setPrivateGuestLobbyMessage(message, user.intId),
+            privateGuestLobbyMessage(user.intId),
+            isGuestLobbyMessageEnabled,
           ))}
-        </div>
-      </div>
-    </div>
+        </Styled.Users>
+      </Styled.UsersWrapper>
+    </Styled.PendingUsers>
   );
 };
 
 const WaitingUsers = (props) => {
   const [rememberChoice, setRememberChoice] = useState(false);
 
-  useEffect(() => {
-    const {
-      authenticatedUsers,
-      guestUsers,
-    } = props;
-    if (!authenticatedUsers.length && !guestUsers.length) Session.set('openPanel', 'userlist');
-  });
-
   const {
     intl,
     authenticatedUsers,
+    privateMessageVisible,
     guestUsers,
     guestUsersCall,
     changeGuestPolicy,
+    isGuestLobbyMessageEnabled,
+    setGuestLobbyMessage,
+    guestLobbyMessage,
+    setPrivateGuestLobbyMessage,
+    privateGuestLobbyMessage,
     authenticatedGuest,
+    layoutContextDispatch,
+    allowRememberChoice,
   } = props;
+
+  const existPendingUsers = authenticatedUsers.length > 0 || guestUsers.length > 0;
+
+  const closePanel = () => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: false,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.NONE,
+    });
+  };
+
+  useEffect(() => {
+    const {
+      isWaitingRoomEnabled,
+    } = props;
+    if (!isWaitingRoomEnabled && !existPendingUsers) {
+      closePanel();
+    }
+  });
 
   const onCheckBoxChange = (e) => {
     const { checked } = e.target;
@@ -165,17 +255,17 @@ const WaitingUsers = (props) => {
     if (shouldExecutePolicy) {
       changeGuestPolicy(policyRule);
     }
+    closePanel();
     return cb();
   };
 
-  const renderButton = (message, { key, policy, action }) => (
-    <Button
+  const renderButton = (message, { key, color, policy, action }) => (
+    <Styled.CustomButton
       key={key}
-      color="primary"
+      color={color}
       label={message}
       size="lg"
       onClick={changePolicy(rememberChoice, policy, action)}
-      className={styles.customBtn}
     />
   );
 
@@ -184,6 +274,7 @@ const WaitingUsers = (props) => {
       messageId: intlMessages.allowAllAuthenticated,
       action: () => guestUsersCall(authenticatedUsers, ALLOW_STATUS),
       key: 'allow-all-auth',
+      color: 'primary',
       policy: 'ALWAYS_ACCEPT_AUTH',
     },
     {
@@ -193,6 +284,7 @@ const WaitingUsers = (props) => {
         ALLOW_STATUS,
       ),
       key: 'allow-all-guest',
+      color: 'primary',
       policy: 'ALWAYS_ACCEPT',
     },
   ];
@@ -202,70 +294,105 @@ const WaitingUsers = (props) => {
       messageId: intlMessages.allowEveryone,
       action: () => guestUsersCall([...guestUsers, ...authenticatedUsers], ALLOW_STATUS),
       key: 'allow-everyone',
+      color: 'primary',
       policy: 'ALWAYS_ACCEPT',
     },
     {
       messageId: intlMessages.denyEveryone,
       action: () => guestUsersCall([...guestUsers, ...authenticatedUsers], DENY_STATUS),
       key: 'deny-everyone',
+      color: 'danger',
       policy: 'ALWAYS_DENY',
     },
   ];
 
-  const buttonsData = authenticatedGuest ? _.concat(authGuestButtonsData , guestButtonsData) : guestButtonsData;
+  const buttonsData = authenticatedGuest
+    ? _.concat(authGuestButtonsData, guestButtonsData)
+    : guestButtonsData;
+
+  const { isChrome } = browserInfo;
 
   return (
-    <div
-      data-test="note"
-      className={styles.panel}
-    >
-      <header className={styles.header}>
-        <div
-          data-test="noteTitle"
-          className={styles.title}
-        >
-          <Button
-            onClick={() => {
-              Session.set('openPanel', 'userlist');
-            }}
+    <Styled.Panel data-test="note" isChrome={isChrome}>
+      <Styled.Header>
+        <Styled.Title data-test="noteTitle">
+          <Styled.HideButton
+            onClick={() => closePanel()}
             label={intl.formatMessage(intlMessages.title)}
             icon="left_arrow"
-            className={styles.hideBtn}
           />
-        </div>
-      </header>
-      <div>
+        </Styled.Title>
+      </Styled.Header>
+      <Styled.ScrollableArea>
+        {isGuestLobbyMessageEnabled ? (
+          <Styled.LobbyMessage>
+            <TextInput
+              maxLength={128}
+              placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
+              send={setGuestLobbyMessage}
+            />
+            <p>
+              <i>
+                &quot;
+                {
+                guestLobbyMessage.length > 0
+                  ? guestLobbyMessage
+                  : intl.formatMessage(intlMessages.emptyMessage)
+              }
+                &quot;
+              </i>
+            </p>
+          </Styled.LobbyMessage>
+        ) : null}
+        {existPendingUsers && (
         <div>
-          <p className={styles.mainTitle}>{intl.formatMessage(intlMessages.optionTitle)}</p>
-          {
-            buttonsData.map(buttonData => renderButton(
+          <div>
+            <Styled.MainTitle>{intl.formatMessage(intlMessages.optionTitle)}</Styled.MainTitle>
+            {
+            buttonsData.map((buttonData) => renderButton(
               intl.formatMessage(buttonData.messageId),
               buttonData,
             ))
           }
+          </div>
+
+          {allowRememberChoice ? (
+            <Styled.RememberContainer>
+              <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
+              <label htmlFor="rememderCheckboxId">
+                {intl.formatMessage(intlMessages.rememberChoice)}
+              </label>
+            </Styled.RememberContainer>
+          ) : null}
         </div>
-        <div className={styles.rememberContainer}>
-          <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
-          <label htmlFor="rememderCheckboxId">
-            {intl.formatMessage(intlMessages.rememberChoice)}
-          </label>
-        </div>
-      </div>
-      {renderPendingUsers(
-        intl.formatMessage(intlMessages.pendingUsers,
-          { 0: authenticatedUsers.length }),
-        authenticatedUsers,
-        guestUsersCall,
-        intl,
-      )}
-      {renderPendingUsers(
-        intl.formatMessage(intlMessages.pendingGuestUsers,
-          { 0: guestUsers.length }),
-        guestUsers,
-        guestUsersCall,
-        intl,
-      )}
-    </div>
+        )}
+        {renderPendingUsers(
+          intl.formatMessage(intlMessages.pendingUsers,
+            { 0: authenticatedUsers.length }),
+          authenticatedUsers,
+          guestUsersCall,
+          intl,
+          privateMessageVisible,
+          setPrivateGuestLobbyMessage,
+          privateGuestLobbyMessage,
+          isGuestLobbyMessageEnabled,
+        )}
+        {renderPendingUsers(
+          intl.formatMessage(intlMessages.pendingGuestUsers,
+            { 0: guestUsers.length }),
+          guestUsers,
+          guestUsersCall,
+          intl,
+          privateMessageVisible,
+          setPrivateGuestLobbyMessage,
+          privateGuestLobbyMessage,
+          isGuestLobbyMessageEnabled,
+        )}
+        {!existPendingUsers && (
+          renderNoUserWaitingItem(intl.formatMessage(intlMessages.noPendingUsers))
+        )}
+      </Styled.ScrollableArea>
+    </Styled.Panel>
   );
 };
 

@@ -23,11 +23,11 @@ performance_start = Time.now
 
 require File.expand_path('../../../lib/recordandplayback', __FILE__)
 require 'rubygems'
-require 'trollop'
+require 'optimist'
 require 'yaml'
 require 'builder'
 require 'fastimage' # require fastimage to get the image size of the slides (gem install fastimage)
-
+require 'json'
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 bbb_props = BigBlueButton.read_props
@@ -221,7 +221,7 @@ end
 
 def svg_render_shape_rect(g, slide, shape)
   g['shape'] = "rect#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:#{shape[:fill] ? '#'+shape[:color] : 'none'}"
   if $version_atleast_2_0_0
     g['style'] += ";stroke-linejoin:miter"
   else
@@ -256,7 +256,7 @@ end
 
 def svg_render_shape_triangle(g, slide, shape)
   g['shape'] = "triangle#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:#{shape[:fill] ? '#'+shape[:color] : 'none'}"
   if $version_atleast_2_0_0
     g['style'] += ";stroke-linejoin:miter;stroke-miterlimit:8"
   else
@@ -279,7 +279,7 @@ end
 
 def svg_render_shape_ellipse(g, slide, shape)
   g['shape'] = "ellipse#{shape[:shape_unique_id]}"
-  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:none"
+  g['style'] = "stroke:##{shape[:color]};stroke-width:#{shape_thickness(slide,shape)};visibility:hidden;fill:#{shape[:fill] ? '#'+shape[:color] : 'none'}"
 
   doc = g.document
   data_points = shape[:data_points]
@@ -355,6 +355,11 @@ def svg_render_shape_text(g, slide, shape)
 end
 
 def svg_render_shape_poll(g, slide, shape)
+  result = shape[:result]
+  if result == "[]"
+    BigBlueButton.logger.info("Poll #{shape[:shape_unique_id]} result is empty (no options/answers), ignoring...")
+    return
+  end
   poll_id = shape[:shape_unique_id]
   g['shape'] = "poll#{poll_id}"
   g['style'] = 'visibility:hidden'
@@ -366,7 +371,6 @@ def svg_render_shape_poll(g, slide, shape)
   width = shape_scale_width(slide, data_points[2])
   height = shape_scale_height(slide, data_points[3])
 
-  result = shape[:result]
   num_responders = shape[:num_responders]
   presentation = slide[:presentation]
 
@@ -607,6 +611,12 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
     else
       shape[:thickness] = thickness.text.to_i
     end
+  end
+  if  shape[:type] == 'rectangle' or
+      shape[:type] == 'ellipse' or shape[:type] == 'triangle'
+    fill = event.at_xpath('fill')
+    fill = fill.nil? ? "false" : fill.text
+    shape[:fill] = fill =~ /true/ ? true : false
   end
   if shape[:type] == 'rectangle'
     square = event.at_xpath('square')
@@ -1056,33 +1066,21 @@ def processPresentation(package_dir)
   File.write("#{package_dir}/#{$cursor_xml_filename}", cursors_doc.to_xml)
 end
 
-def processChatMessages
+def processChatMessages(events, bbb_props)
   BigBlueButton.logger.info("Processing chat events")
   # Create slides.xml and chat.
-  $slides_doc = Nokogiri::XML::Builder.new do |xml|
-    $xml = xml
-    $xml.popcorn {
-      # Process chat events.
-      current_time = 0
-      $rec_events.each do |re|
-        $chat_events.each do |node|
-          if (node[:timestamp].to_i >= re[:start_timestamp] and node[:timestamp].to_i <= re[:stop_timestamp])
-            chat_timestamp =  node[:timestamp]
-            chat_sender = node.xpath(".//sender")[0].text()
-            chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
-            chat_start = ( translateTimestamp(chat_timestamp) / 1000).to_i
-            # Creates a list of the clear timestamps that matter for this message
-            next_clear_timestamps = $clear_chat_timestamps.select{ |e| e >= node[:timestamp] }
-            # If there is none we skip it, or else we add the out time that will remove a message
-            if next_clear_timestamps.empty?
-              $xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
-            else
-              chat_end = ( translateTimestamp( next_clear_timestamps.first ) / 1000).to_i
-              $xml.chattimeline(:in => chat_start, :out => chat_end, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
-            end
-          end
-        end
-        current_time += re[:stop_timestamp] - re[:start_timestamp]
+  Nokogiri::XML::Builder.new do |xml|
+    xml.popcorn {
+      BigBlueButton::Events.get_chat_events(events, $meeting_start.to_i, $meeting_end.to_i, bbb_props).each do |chat|
+        chattimeline = {
+          in: (chat[:in] / 1000.0).round(1),
+          direction: 'down',
+          name: chat[:sender],
+          message: chat[:message],
+          target: 'chat'
+        }
+        chattimeline[:out] = (chat[:out] / 1000.0).round(1) unless chat[:out].nil?
+        xml.chattimeline(**chattimeline)
       end
     }
   end
@@ -1115,12 +1113,131 @@ def processDeskshareEvents(events)
   end
 end
 
+def getPollQuestion(event)
+  question = ""
+  if not event.at_xpath("question").nil?
+    question = event.at_xpath("question").text
+  end
+
+  question
+end
+
+def getPollAnswers(event)
+  answers = []
+  if not event.at_xpath("answers").nil?
+    answers = JSON.load(event.at_xpath("answers").content)
+  end
+
+  answers
+end
+
+def getPollRespondents(event)
+  respondents = 0
+  if not event.at_xpath("numRespondents").nil?
+    respondents = event.at_xpath("numRespondents").text.to_i
+  end
+
+  respondents
+end
+
+def getPollResponders(event)
+  responders = 0
+  if not event.at_xpath("numResponders").nil?
+    responders = event.at_xpath("numResponders").text.to_i
+  end
+
+  responders
+end
+
+def getPollId(event)
+  id = ""
+  if not event.at_xpath("pollId").nil?
+    id = event.at_xpath("pollId").text
+  end
+
+  id
+end
+
+def getPollType(events, published_poll_event)
+  published_poll_id = getPollId(published_poll_event)
+
+  type = ""
+  events.xpath("//event[@eventname='PollStartedRecordEvent']").each do |event|
+    poll_id = getPollId(event)
+
+    if poll_id.eql?(published_poll_id)
+      type = event.at_xpath("type").text
+      break
+    end
+  end
+
+  type
+end
+
+def processPollEvents(events, package_dir)
+  BigBlueButton.logger.info("Processing poll events")
+
+  published_polls = []
+  $rec_events.each do |re|
+    events.xpath("//event[@eventname='PollPublishedRecordEvent']").each do |event|
+      if (event[:timestamp].to_i >= re[:start_timestamp] and event[:timestamp].to_i <= re[:stop_timestamp])
+        published_polls << {
+          :timestamp => (translateTimestamp(event[:timestamp]) / 1000).to_i,
+          :type => getPollType(events, event),
+          :question => getPollQuestion(event),
+          :answers => getPollAnswers(event),
+          :respondents => getPollRespondents(event),
+          :responders => getPollResponders(event)
+        }
+      end
+    end
+  end
+
+  if not published_polls.empty?
+    File.open("#{package_dir}/polls.json", "w") do |f|
+      f.puts(published_polls.to_json)
+    end
+  end
+end
+
+def processExternalVideoEvents(events, package_dir)
+  BigBlueButton.logger.info("Processing external video events")
+
+  # Retrieve external video events
+  external_video_events = BigBlueButton::Events.match_start_and_stop_external_video_events(
+    BigBlueButton::Events.get_start_and_stop_external_video_events(@doc))
+
+  external_videos = []
+  $rec_events.each do |re|
+    external_video_events.each do |event|
+      #BigBlueButton.logger.info("Processing rec event #{re} and external video event #{event}")
+      timestamp = (translateTimestamp(event[:start_timestamp]) / 1000).to_i
+      # do not add same external_video twice
+      if (external_videos.find {|ev| ev[:timestamp] == timestamp}.nil?)
+        if ((event[:start_timestamp] >= re[:start_timestamp] and event[:start_timestamp] <= re[:stop_timestamp]) ||
+           (event[:start_timestamp] < re[:start_timestamp] and event[:stop_timestamp] >= re[:start_timestamp]))
+          external_videos << {
+            :timestamp => timestamp,
+            :external_video_url => event[:external_video_url]
+          }
+        end
+      end
+    end
+  end
+
+  if not external_videos.empty?
+    File.open("#{package_dir}/external_videos.json", "w") do |f|
+      f.puts(external_videos.to_json)
+    end
+  end
+end
+
 $shapes_svg_filename = 'shapes.svg'
 $panzooms_xml_filename = 'panzooms.xml'
 $cursor_xml_filename = 'cursor.xml'
 $deskshare_xml_filename = 'deskshare.xml'
 
-opts = Trollop::options do
+opts = Optimist::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
 end
 
@@ -1295,25 +1412,19 @@ begin
         #Create slides.xml
         BigBlueButton.logger.info("Generating xml for slides and chat")
 
-        # Gathering all the events from the events.xml
-        $chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
-
-        # Create a list of timestamps when the moderator cleared the public chat
-        $clear_chat_timestamps = [ ]
-        clear_chat_events = @doc.xpath("//event[@eventname='ClearPublicChatEvent']")
-        clear_chat_events.each { |clear| $clear_chat_timestamps << clear[:timestamp] }
-        $clear_chat_timestamps.sort!
-
         calculateRecordEventsOffset()
 
-        processChatMessages()
+        # Write slides.xml to file
+        slides_doc = processChatMessages(@doc, bbb_props)
+        File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts slides_doc.to_xml }
 
         processPresentation(package_dir)
 
         processDeskshareEvents(@doc)
 
-        # Write slides.xml to file
-        File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts $slides_doc.to_xml }
+        processPollEvents(@doc, package_dir)
+
+        processExternalVideoEvents(@doc, package_dir)
 
         # Write deskshare.xml to file
         File.open("#{package_dir}/#{$deskshare_xml_filename}", 'w') { |f| f.puts $deskshare_xml.to_xml }

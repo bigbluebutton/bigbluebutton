@@ -14,7 +14,7 @@ const getNumberOfSlides = (podId, presentationId) => {
     id: presentationId,
   });
 
-  return presentation ? presentation.pages.length : 0;
+  return presentation && presentation.pages ? presentation.pages.length : 0;
 };
 
 const previousSlide = (currentSlideNum, podId) => {
