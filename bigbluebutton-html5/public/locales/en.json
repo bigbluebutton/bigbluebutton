@@ -131,6 +131,7 @@
     "app.userList.userOptions.savedNames.title": "List of users in meeting {0} at {1}",
     "app.userList.userOptions.sortedFirstName.heading": "Sorted by first name:",
     "app.userList.userOptions.sortedLastName.heading": "Sorted by last name:",
+    "app.userList.loading": "Loading users...",
     "app.media.label": "Media",
     "app.media.autoplayAlertDesc": "Allow Access",
     "app.media.screenshare.start": "Screenshare has started",

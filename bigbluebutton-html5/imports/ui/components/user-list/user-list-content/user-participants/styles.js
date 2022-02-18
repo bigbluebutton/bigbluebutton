@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 
-import { FlexColumn } from '/imports/ui/stylesheets/styled-components/placeholders';
 import Styled from '/imports/ui/components/user-list/styles';
 import StyledContent from '/imports/ui/components/user-list/user-list-content/styles';
 import {
@@ -16,10 +15,7 @@ const SmallTitle = styled(Styled.SmallTitle)``;
 
 const Separator = styled(StyledContent.Separator)``;
 
-const UserListColumn = styled(FlexColumn)`
-  min-height: 0;
-  flex-grow: 1;
-`;
+const UserListColumn = styled(StyledContent.UserListColumn)``;
 
 const VirtualizedScrollableList = styled(ScrollboxVertical)`
   background: linear-gradient(${userListBg} 30%, rgba(255,255,255,0)),

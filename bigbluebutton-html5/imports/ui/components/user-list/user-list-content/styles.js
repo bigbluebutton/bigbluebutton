@@ -163,6 +163,19 @@ const Separator = styled.hr`
   border-top: 1px solid ${colorGrayLighter};
 `;
 
+const UserListColumn = styled(FlexColumn)`
+  min-height: 0;
+  flex-grow: 1;
+`;
+
+const SmallTitle = styled(Styled.SmallTitle)``;
+
+const LoadingUsersText = styled.div`
+  display: flex;
+  font-weight: bold;
+  justify-content: center;
+`;
+
 export default {
   Content,
   Container,
@@ -172,4 +185,7 @@ export default {
   UnreadMessages,
   UnreadMessagesText,
   Separator,
+  UserListColumn,
+  SmallTitle,
+  LoadingUsersText,
 };

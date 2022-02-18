@@ -1,13 +1,21 @@
 import { useContext, useEffect } from 'react';
-import { CurrentUser } from '/imports/api/users';
-import Users from '/imports/api/users';
+import Users, { CurrentUser } from '/imports/api/users';
+
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import { UsersContext, ACTIONS } from './context';
+import { UsersReadyContext, READY_ACTIONS } from '../users-ready-context/context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
+
+const USER_JOIN_TIMEOUT = 1000;
 
 const Adapter = () => {
   const usingUsersContext = useContext(UsersContext);
   const { dispatch } = usingUsersContext;
+
+  const usingUsersReadyContext = useContext(UsersReadyContext);
+  const { dispatch: dispatchReady } = usingUsersReadyContext;
+
+  let readyTimeout = null;
 
   useEffect(() => {
     const usersPersistentDataCursor = UsersPersistentData.find({}, { sort: { timestamp: 1 } });
@@ -40,12 +48,30 @@ const Adapter = () => {
     usersCursor.observe({
       added: (obj) => {
         ChatLogger.debug('usersAdapter::observe::added', obj);
+        clearTimeout(readyTimeout);
+
+        dispatchReady({
+          type: READY_ACTIONS.READY,
+          value: {
+            isReady: false,
+          },
+        });
+
         dispatch({
           type: ACTIONS.ADDED,
           value: {
             user: obj,
           },
         });
+
+        readyTimeout = setTimeout(() => {
+          dispatchReady({
+            type: READY_ACTIONS.READY,
+            value: {
+              isReady: true,
+            },
+          });
+        }, USER_JOIN_TIMEOUT);
       },
       changed: (obj) => {
         dispatch({
