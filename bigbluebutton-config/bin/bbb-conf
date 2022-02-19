@@ -1747,7 +1747,7 @@ if [ -n "$HOST" ]; then
 
     if [ -f $HTML5_DEFAULT_CONFIG ]; then
         yq w -i $HTML5_DEFAULT_CONFIG public.kurento.wsUrl "wss://$HOST/bbb-webrtc-sfu"
-        yq w -i $HTML5_DEFAULT_CONFIG public.note.url      "$PROTOCOL://$HOST/pad"
+        yq w -i $HTML5_DEFAULT_CONFIG public.pads.url      "$PROTOCOL://$HOST/pad"
         chown meteor:meteor $HTML5_DEFAULT_CONFIG
 
         #if [ -f $KURENTO_CONFIG ]; then
