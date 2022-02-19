@@ -3,7 +3,7 @@ const config = require('../config');
 const fs = require('fs');
 const convert = require('xml-js');
 const { create } = require('xmlbuilder2', { encoding: 'utf-8' });
-const { exec } = require("child_process");
+const { exec, execSync } = require("child_process");
 
 const { workerData, parentPort } = require('worker_threads')
 
@@ -126,6 +126,58 @@ function overlay_pencil(svg, annotation, w, h) {
     }
 }
 
+function overlay_poll(svg, annotation, w, h) {
+    if (annotation.result.length == 0) {
+        return;
+    }
+
+    let poll_x = scale_shape(w, annotation.points[0]);
+    let poll_y = scale_shape(h, annotation.points[1]);
+    let poll_width = Math.round(scale_shape(w, annotation.points[2]));
+    let poll_height = Math.round(scale_shape(h, annotation.points[3]));
+    let pollId = annotation.id.replace(/\//g, '');
+    let pollSVG = `${dropbox}/poll-${pollId}.svg`
+    let pollJSON = `${dropbox}/poll-${pollId}.json`
+
+    // Rename 'numVotes' key to 'num_votes'
+    let pollJSONContent = annotation.result.map(result => {
+        result.num_votes = result.numVotes;
+        delete result.numVotes;
+        return result;
+    });
+
+    // Store the poll result in a JSON file
+    fs.writeFileSync(pollJSON, JSON.stringify(pollJSONContent), function(err) {
+        if(err) { return logger.error(err); }
+    });
+
+    // Create empty SVG poll
+    fs.writeFileSync(pollSVG, '', function(err) {
+        if(err) { return logger.error(err); }
+    });
+
+    // Render the poll SVG using gen_poll_svg script
+    execSync(`${config.genPollSVG.path} -i ${pollJSON} -w ${poll_width} -h ${poll_height} -n ${annotation.numResponders} -o ${pollSVG}`, (error, stderr) => {
+        if (error) {
+            logger.error(`Poll generation failed with error: ${error.message}`);
+            return;
+        }
+        if (stderr) {
+            logger.error(`Poll generation failed with stderr: ${stderr}`);
+            return;
+        }
+    });
+
+    // Add poll image element
+    svg.ele('image', {
+        'xlink:href': `file://${pollSVG}`,
+        x: poll_x,
+        y: poll_y,
+        width: poll_width,
+        height: poll_height,
+    })
+}
+
 function overlay_rectangle(svg, annotation, w, h) {
     let shapeColor = Number(annotation.color).toString(16)
     let fill = annotation.fill ? `#${shapeColor}` : 'none';
@@ -135,7 +187,7 @@ function overlay_rectangle(svg, annotation, w, h) {
     let x2 = scale_shape(w, annotation.points[2])
     let y2 = scale_shape(h, annotation.points[3])
 
-    let path = `M ${x1} ${y1} L ${x2} ${y1} L ${x2} ${y2} L ${x1} ${y2} Z`
+    let path = `M${x1} ${y1} L${x2} ${y1} L${x2} ${y2} L${x1} ${y2} Z`
 
     svg.ele('g', {
         style: `stroke:#${shapeColor};stroke-width:${scale_shape(w, annotation.thickness)};fill:${fill};stroke-linejoin:miter`
@@ -200,8 +252,6 @@ function overlay_line(svg, annotation, w, h) {
 }
 
 function overlay_annotations(svg, annotations, w, h) {
-    console.log(annotations)
-
     for(let i = 0; i < annotations.length; i++) {        
         switch (annotations[i].annotationType) {
             case 'ellipse':
@@ -211,6 +261,7 @@ function overlay_annotations(svg, annotations, w, h) {
                 overlay_line(svg, annotations[i].annotationInfo, w, h);
                 break;
             case 'poll_result':
+                overlay_poll(svg, annotations[i].annotationInfo, w, h);
                 break;
             case 'pencil':
                 overlay_pencil(svg, annotations[i].annotationInfo, w, h);
@@ -233,7 +284,7 @@ function overlay_annotations(svg, annotations, w, h) {
 // Process the presentation pages and annotations into a PDF file
 
 // 1. Get the job
-let dropbox = `${config.shared.presAnnDropboxDir}/${jobId}`
+const dropbox = `${config.shared.presAnnDropboxDir}/${jobId}`
 let job = fs.readFileSync(`${dropbox}/job`);
 let exportJob = JSON.parse(job);
 
@@ -293,7 +344,6 @@ for (let i = 0; i < pages.length; i++) {
     overlay_annotations(svg, pages[i].annotations, slideWidth, slideHeight)
 
     svg = svg.end({ prettyPrint: true });
-    console.log (svg)
 
     // Write annotated SVG file
     let file = `${dropbox}/annotated-slide${pages[i].page}.svg`
@@ -308,7 +358,7 @@ for (let i = 0; i < pages.length; i++) {
 // TODO: change presLocation so it doesn't point to the 'svgs' directory
 exec(`rsvg-convert ${rsvgConvertInput} -f pdf -o ${exportJob.presLocation}/../annotated_slides_${jobId}.pdf`, (error, stderr) => {
     if (error) {
-        console.log(`SVG to PDF export failed with error: ${error.message}`);
+        logger.error(`SVG to PDF export failed with error: ${error.message}`);
         return;
     }
     if (stderr) {
