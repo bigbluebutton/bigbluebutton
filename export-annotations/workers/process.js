@@ -219,21 +219,25 @@ function overlay_triangle(svg, annotation, w, h) {
 function overlay_text(svg, annotation, w, h) {
     let fontColor = Number(annotation.fontColor).toString(16)
 
+    let textBoxWidth = scale_shape(w, annotation.textBoxWidth);
+    let textBoxHeight = scale_shape(h, annotation.textBoxHeight);
     let textBox_x = scale_shape(w, annotation.x);
     let textBox_y = scale_shape(h, annotation.y);
 
     let fontSize = scale_shape(h, annotation.calcedFontSize)
     let lines = annotation.text.replace(/\r\n|\n\r|\n|\r/g,'\n').split('\n');
 
-    let textBox = svg.ele('g', {
-        style: `fill:#${fontColor};font-family:Arial;font-size:${fontSize}px`,
-    })
+    let textBox = svg.ele('svg', {
+        x: textBox_x,
+        y: textBox_y,
+        width: textBoxWidth,
+        height: textBoxHeight
+    });
 
     for(let i = 0; i < lines.length; i++) {
         textBox.ele('text', {
-            x: textBox_x,
-            y: textBox_y,
-            dy: `${i}em`
+            style: `fill:#${fontColor};font-family:Arial;font-size:${fontSize}px`,
+            dy: `${i + 1}em`,
         }).txt(lines[i]).up()
     }
 }
@@ -344,7 +348,6 @@ for (let i = 0; i < pages.length; i++) {
     overlay_annotations(svg, pages[i].annotations, slideWidth, slideHeight)
 
     svg = svg.end({ prettyPrint: true });
-
     // Write annotated SVG file
     let file = `${dropbox}/annotated-slide${pages[i].page}.svg`
     fs.writeFile(file, svg, function(err) {
