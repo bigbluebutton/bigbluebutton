@@ -24,27 +24,11 @@ mkdir -p $DESTDIR
 cp modules.conf $BUILDDIR/freeswitch
 cd $BUILDDIR/freeswitch
 
-#
-# Need to figure out how to build with mod_av
-if [ $DISTRO == "centos7" ] || [ $DISTRO == "amzn2" ]; then
-  sed -i 's/applications\/mod_av/#applications\/mod_av/g' modules.conf
-else
-  apt-get update
-  apt-get install -y software-properties-common
-  add-apt-repository -y ppa:bigbluebutton/support
-fi
-
-if [ "$DISTRO" == "bionic" ]; then
-  add-apt-repository ppa:bigbluebutton/support -y
-  apt-get update
-  apt-get install -y libopusfile-dev opus-tools libopusenc-dev
-fi
-
 pushd .
 
 # sofia-sip start
 if [ ! -d sofia-sip ]; then
-  git clone https://github.com/freeswitch/sofia-sip.git
+    git clone https://github.com/freeswitch/sofia-sip.git
 fi
 cd sofia-sip/
 git checkout v1.13.7
@@ -58,7 +42,7 @@ cd ..
 
 # spandsp start
 if [ ! -d spandsp ]; then
-  git clone https://github.com/freeswitch/spandsp.git
+    git clone https://github.com/freeswitch/spandsp.git
 fi
 cd spandsp/
 git checkout e59ca8fb8b1591e626e6a12fdc60a2ebe83435ed
@@ -68,18 +52,6 @@ git checkout e59ca8fb8b1591e626e6a12fdc60a2ebe83435ed
 make -j $(nproc)
 make install
 
-if [ $DISTRO == "centos7" ] || [ $DISTRO == "amzn2" ]; then
-  export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
-  yum install -y opusfile-devel
-
-  git clone https://github.com/xiph/libopusenc.git
-  cd libopusenc/
-  git checkout dc6ab59ac41a96c5bf262056ea09fa5e2f776fe6
-  ./autogen.sh
-  ./configure
-  make -j $(nproc)
-  make install
-fi
 popd
 # spandsp end
 
@@ -87,7 +59,7 @@ popd
 
 # libks start
 if [ ! -d libks ]; then
-  git clone https://github.com/signalwire/libks.git
+    git clone https://github.com/signalwire/libks.git
 fi
 cd libks/
 git checkout 707bda51db7b1a858a5e608bb5484632cc84a349
@@ -108,11 +80,11 @@ cd $BUILDDIR/freeswitch
 patch -p0 < $BUILDDIR/floor.patch
 patch -p0 --ignore-whitespace < $BUILDDIR/audio.patch       # Provisional patch for https://github.com/signalwire/freeswitch/pull/1531
 
-./bootstrap.sh 
+./bootstrap.sh
 
 ./configure --disable-core-odbc-support --disable-core-pgsql-support \
-    --without-python --without-erlang --without-java \
-    --prefix=/opt/freeswitch CFLAGS="-Wno-error -Og -ggdb" CXXFLAGS="-Wno-error -Og -ggdb"
+--without-python --without-erlang --without-java \
+--prefix=/opt/freeswitch CFLAGS="-Wno-error -Og -ggdb" CXXFLAGS="-Wno-error -Og -ggdb"
 
 make -j $(nproc)
 make install
@@ -122,59 +94,59 @@ cp -r /opt/freeswitch $DESTDIR/opt
 
 cd $BUILDDIR
 
-	mkdir -p $DESTDIR/lib/systemd/system
-	cp freeswitch.service.${DISTRO} $DESTDIR/lib/systemd/system/freeswitch.service
+mkdir -p $DESTDIR/lib/systemd/system
+cp freeswitch.service.${DISTRO} $DESTDIR/lib/systemd/system/freeswitch.service
 
-	mkdir -p $DESTDIR/lib/systemd/system
-	cp freeswitch.conf $DESTDIR/lib/systemd/system
+mkdir -p $DESTDIR/lib/systemd/system
+cp freeswitch.conf $DESTDIR/lib/systemd/system
 
-        mkdir -p $DESTDIR/var/freeswitch/meetings
-	echo "This directory holds *.wav files for FreeSWITCH" > $DESTDIR/var/freeswitch/meetings/readme.txt
+mkdir -p $DESTDIR/var/freeswitch/meetings
+echo "This directory holds *.wav files for FreeSWITCH" > $DESTDIR/var/freeswitch/meetings/readme.txt
 
-	rm -rf $CONFDIR/*
-	cp -r bbb-voice-conference/config/freeswitch/conf/* $CONFDIR
+rm -rf $CONFDIR/*
+cp -r bbb-voice-conference/config/freeswitch/conf/* $CONFDIR
 
-	pushd $DESTDIR/opt/freeswitch
-	ln -s ./etc/freeswitch conf
-	ln -s ./var/log/freeswitch log
-	popd
+pushd $DESTDIR/opt/freeswitch
+ln -s ./etc/freeswitch conf
+ln -s ./var/log/freeswitch log
+popd
 
-	# Install libraries for sofia-sip and spandsp
-        mkdir -p $DESTDIR/etc/ld.so.conf.d
+# Install libraries for sofia-sip and spandsp
+mkdir -p $DESTDIR/etc/ld.so.conf.d
 	cat > $DESTDIR/etc/ld.so.conf.d/freeswitch.conf << HERE
 /opt/freeswitch/lib
 HERE
 
-	files="sip-date sip-dig sip-options stunc addrinfo localinfo"
-	for file in $files; do
-	  cp /usr/local/bin/$file $DESTDIR/opt/freeswitch/bin
-	done
+files="sip-date sip-dig sip-options stunc addrinfo localinfo"
+for file in $files; do
+    cp /usr/local/bin/$file $DESTDIR/opt/freeswitch/bin
+done
 
-	cp -P /usr/local/lib/lib* $DESTDIR/opt/freeswitch/lib
+cp -P /usr/local/lib/lib* $DESTDIR/opt/freeswitch/lib
 
-  if [ -f /etc/system-release ]; then
+if [ -f /etc/system-release ]; then
     cp /usr/lib64/libopusfile.so.0.4.4 $DESTDIR/opt/freeswitch/lib
     cp /usr/lib64/libopusurl.so.0.4.4 $DESTDIR/opt/freeswitch/lib
     pushd $DESTDIR/opt/freeswitch/lib
-      ln -s libopusfile.so.0.4.4 libopusfile.so
-      ln -s libopusurl.so.0.4.4 libopusurl.so
+    ln -s libopusfile.so.0.4.4 libopusfile.so
+    ln -s libopusurl.so.0.4.4 libopusurl.so
     popd
-  fi
+fi
 
 
-  mkdir -p $DESTDIR/usr/local/bin
-	cp fs_clibbb $DESTDIR/usr/local/bin
-	chmod +x $DESTDIR/usr/local/bin/fs_clibbb
+mkdir -p $DESTDIR/usr/local/bin
+cp fs_clibbb $DESTDIR/usr/local/bin
+chmod +x $DESTDIR/usr/local/bin/fs_clibbb
 
-	rm -rf $DESTDIR/usr/lib/tmpfiles.d
+rm -rf $DESTDIR/usr/lib/tmpfiles.d
 
 fpm -s dir -C $DESTDIR -n $PACKAGE \
-    --version $VERSION --epoch 2 \
-    --before-install before-install.sh      \
-    --after-install after-install.sh        \
-    --before-remove before-remove.sh        \
-    --after-remove after-remove.sh         \
-    --description "BigBlueButton build of FreeSWITCH" \
-    $DIRECTORIES                            \
-    $OPTS
+--version $VERSION --epoch 2 \
+--before-install before-install.sh      \
+--after-install after-install.sh        \
+--before-remove before-remove.sh        \
+--after-remove after-remove.sh         \
+--description "BigBlueButton build of FreeSWITCH" \
+$DIRECTORIES                            \
+$OPTS
 
