@@ -32,7 +32,7 @@ rm -rf .git
 # npm install expects this to be a git repository
 git init
 
-if [ "$DISTRO" == "bionic" ]; then
+if [ "$DISTRO" == "bionic" ]; then # TODO -- does not seem needed on focal
   # this is a workaround so that the post-install command will find the pegjs binary
   export PATH=$PWD/node_modules/pegjs/bin:$PATH
   npm install --unsafe-perm --production

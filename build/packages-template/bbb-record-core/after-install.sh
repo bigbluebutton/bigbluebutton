@@ -41,7 +41,7 @@ case "$1" in
 
     if ! gem -v | grep -q ^3.; then 
       gem update --system --no-document
-      if grep -q bionic /etc/lsb-release; then
+      if grep -q bionic /etc/lsb-release; then # TODO can remove on focal
         gem install bundler -v 2.1.4
       else
         gem install bundler --no-document
