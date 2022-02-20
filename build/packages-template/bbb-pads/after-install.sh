@@ -2,8 +2,9 @@
 
 case "$1" in
   configure|upgrade|1|2)
-    TARGET=/usr/local/bigbluebutton/bbb-pads/config/settings.json
+    yq w -i /etc/bigbluebutton/bbb-html5.yml public.pads.url "$PROTOCOL://$SERVER_URL/pad"
 
+    TARGET=/usr/local/bigbluebutton/bbb-pads/config/settings.json
     cp /usr/local/bigbluebutton/bbb-pads/config/settings.json.template $TARGET
 
     if [ -f /usr/share/etherpad-lite/APIKEY.txt ]; then
