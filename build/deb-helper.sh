@@ -251,7 +251,7 @@ if [ -f /etc/redhat-release ]; then
   TOMCAT_SERVICE=tomcat
 else
   if grep -q focal /etc/lsb-release; then
-    TOMCAT_SERVICE=tomcat8
+    TOMCAT_SERVICE=tomcat9
   else
     TOMCAT_SERVICE=tomcat7
   fi
