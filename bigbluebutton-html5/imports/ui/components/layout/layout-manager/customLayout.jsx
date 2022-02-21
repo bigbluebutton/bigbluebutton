@@ -583,13 +583,14 @@ const CustomLayout = (props) => {
         tabOrder: 4,
         isDraggable: !isMobile && !isTablet,
         resizableEdge: {
-          top: cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_BOTTOM
-            || cameraDockInput.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM,
-          right: (!isRTL && cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_LEFT)
-            || (isRTL && cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_RIGHT),
-          bottom: cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_TOP,
-          left: (!isRTL && cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_RIGHT)
-            || (isRTL && cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_LEFT),
+          top: (input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM)
+            || (input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM
+            && input.sidebarContent.isOpen),
+          right: (!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT)
+            || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT),
+          bottom: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP,
+          left: (!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT)
+            || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT),
         },
         zIndex: cameraDockBounds.zIndex,
         focusedId: input.cameraDock.focusedId,
