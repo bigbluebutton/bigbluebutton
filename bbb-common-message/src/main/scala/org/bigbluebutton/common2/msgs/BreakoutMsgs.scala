@@ -31,7 +31,7 @@ case class BreakoutRoomsTimeRemainingUpdateEvtMsg(
     header: BbbClientMsgHeader,
     body:   BreakoutRoomsTimeRemainingUpdateEvtMsgBody
 ) extends BbbCoreMsg
-case class BreakoutRoomsTimeRemainingUpdateEvtMsgBody(timeRemaining: Long)
+case class BreakoutRoomsTimeRemainingUpdateEvtMsgBody(timeRemaining: Long, timeUpdatedInMinutes: Int)
 
 /**
  * Sent to bbb-web to create breakout rooms.
@@ -94,13 +94,13 @@ object UpdateBreakoutUsersEvtMsg { val NAME = "UpdateBreakoutUsersEvtMsg" }
 case class UpdateBreakoutUsersEvtMsg(header: BbbClientMsgHeader, body: UpdateBreakoutUsersEvtMsgBody) extends BbbCoreMsg
 case class UpdateBreakoutUsersEvtMsgBody(parentId: String, breakoutId: String, users: Vector[BreakoutUserVO])
 
-object ExtendBreakoutRoomsTimeReqMsg { val NAME = "ExtendBreakoutRoomsTimeReqMsg" }
-case class ExtendBreakoutRoomsTimeReqMsg(header: BbbClientMsgHeader, body: ExtendBreakoutRoomsTimeReqMsgBody) extends StandardMsg
-case class ExtendBreakoutRoomsTimeReqMsgBody(meetingId: String, extendTimeInMinutes: Int)
+object UpdateBreakoutRoomsTimeReqMsg { val NAME = "UpdateBreakoutRoomsTimeReqMsg" }
+case class UpdateBreakoutRoomsTimeReqMsg(header: BbbClientMsgHeader, body: UpdateBreakoutRoomsTimeReqMsgBody) extends StandardMsg
+case class UpdateBreakoutRoomsTimeReqMsgBody(meetingId: String, timeInMinutes: Int)
 
-object ExtendBreakoutRoomsTimeEvtMsg { val NAME = "ExtendBreakoutRoomsTimeEvtMsg" }
-case class ExtendBreakoutRoomsTimeEvtMsg(header: BbbClientMsgHeader, body: ExtendBreakoutRoomsTimeEvtMsgBody) extends BbbCoreMsg
-case class ExtendBreakoutRoomsTimeEvtMsgBody(meetingId: String, extendTimeInMinutes: Int)
+object UpdateBreakoutRoomsTimeEvtMsg { val NAME = "UpdateBreakoutRoomsTimeEvtMsg" }
+case class UpdateBreakoutRoomsTimeEvtMsg(header: BbbClientMsgHeader, body: UpdateBreakoutRoomsTimeEvtMsgBody) extends BbbCoreMsg
+case class UpdateBreakoutRoomsTimeEvtMsgBody(meetingId: String, timeInMinutes: Int)
 
 object SendMessageToAllBreakoutRoomsReqMsg { val NAME = "SendMessageToAllBreakoutRoomsReqMsg" }
 case class SendMessageToAllBreakoutRoomsReqMsg(header: BbbClientMsgHeader, body: SendMessageToAllBreakoutRoomsReqMsgBody) extends StandardMsg
