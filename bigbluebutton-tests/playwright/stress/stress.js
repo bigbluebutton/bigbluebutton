@@ -115,19 +115,19 @@ class Stress {
   }
 
   async usersJoinExceddingParticipantsLimit() {
-    for (let i = 1; i <= c.JOIN_TWO_USERS_EXCEEDING_MAX_PARTICIPANTS + 1; i++) {
+    for (let i = 1; i <= c.JOIN_TWO_USERS_EXCEEDING_MAX_PARTICIPANTS; i++) {
       console.log(`loop ${i} of ${c.JOIN_TWO_USERS_EXCEEDING_MAX_PARTICIPANTS}`);
 
       const pages = [];
       const meetingId = await createMeeting(parameters, `maxParticipants=${c.MAX_PARTICIPANTS_TO_JOIN}`);
 
-      for (let i = 1; i <= c.MAX_PARTICIPANTS_TO_JOIN + 1; i++) {
+      for (let j = 1; j <= c.MAX_PARTICIPANTS_TO_JOIN + 1; j++) {
         pages.push(new Page(this.browser, await this.getNewPageTab()));
       }
 
-      for (let i = 1; i < c.MAX_PARTICIPANTS_TO_JOIN; i++) {
-        console.log(`- joining user ${i} of ${c.MAX_PARTICIPANTS_TO_JOIN}`);
-        await pages[i - 1].init(true, false, { meetingId, fullName: `User-${i}` });
+      for (let j = 1; j < c.MAX_PARTICIPANTS_TO_JOIN; j++) {
+        console.log(`- joining user ${j} of ${c.MAX_PARTICIPANTS_TO_JOIN}`);
+        await pages[j - 1].init(true, false, { meetingId, fullName: `User-${j}` });
       }
       console.log('- joining two users at the same time');
 
@@ -137,7 +137,7 @@ class Stress {
       ]
 
       Promise.all(lastPages.map((page, index) => {
-        page.init(true, false, { meetingId, fullName: `User-last-${index}` })
+        return page.init(true, false, { meetingId, fullName: `User-last-${index}` })
       }));
 
       try {
