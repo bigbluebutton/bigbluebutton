@@ -115,34 +115,42 @@ class Stress {
   }
 
   async usersJoinExceddingParticipantsLimit() {
-    const pages = [];
-    const meetingId = await createMeeting(parameters, `maxParticipants=${c.MAX_PARTICIPANTS_TO_JOIN}`);
+    for (let i = 1; i <= c.JOIN_TWO_USERS_EXCEEDING_MAX_PARTICIPANTS + 1; i++) {
+      console.log(`loop ${i} of ${c.JOIN_TWO_USERS_EXCEEDING_MAX_PARTICIPANTS}`);
 
-    for (let i = 1; i <= c.MAX_PARTICIPANTS_TO_JOIN + 1; i++) {
-      pages.push(new Page(this.browser, await this.getNewPageTab()));
-    }
+      const pages = [];
+      const meetingId = await createMeeting(parameters, `maxParticipants=${c.MAX_PARTICIPANTS_TO_JOIN}`);
 
-    for (let i = 1; i < c.MAX_PARTICIPANTS_TO_JOIN; i++) {
-      console.log(`joining user ${i} of ${c.MAX_PARTICIPANTS_TO_JOIN}`);
-      await pages[i - 1].init(true, false, { meetingId, fullName: `User-${i}` });
-    }
-    console.log('joining two users at the same time');
+      for (let i = 1; i <= c.MAX_PARTICIPANTS_TO_JOIN + 1; i++) {
+        pages.push(new Page(this.browser, await this.getNewPageTab()));
+      }
 
-    const lastPages = [
-      pages[pages.length - 1],
-      pages[pages.length - 2],
-    ]
+      for (let i = 1; i < c.MAX_PARTICIPANTS_TO_JOIN; i++) {
+        console.log(`- joining user ${i} of ${c.MAX_PARTICIPANTS_TO_JOIN}`);
+        await pages[i - 1].init(true, false, { meetingId, fullName: `User-${i}` });
+      }
+      console.log('- joining two users at the same time');
 
-    Promise.all(lastPages.map((page, index) => {
-      page.init(true, false, { meetingId, fullName: `User-last-${index}` })
-    }));
+      const lastPages = [
+        pages[pages.length - 1],
+        pages[pages.length - 2],
+      ]
 
-    try {
-      await lastPages[0].waitForSelector(e.audioModal);
-      await lastPages[1].waitForSelector(e.errorScreenMessage);
-    } catch (err) {
-      await lastPages[1].waitForSelector(e.audioModal);
-      await lastPages[0].waitForSelector(e.errorScreenMessage);
+      Promise.all(lastPages.map((page, index) => {
+        page.init(true, false, { meetingId, fullName: `User-last-${index}` })
+      }));
+
+      try {
+        await lastPages[0].waitForSelector(e.audioModal);
+        await lastPages[1].waitForSelector(e.errorScreenMessage);
+      } catch (err) {
+        await lastPages[1].waitForSelector(e.audioModal);
+        await lastPages[0].waitForSelector(e.errorScreenMessage);
+      }
+
+      pages.forEach(async (currentPage) => {
+        await currentPage.page.close();
+      })
     }
   }
 }
