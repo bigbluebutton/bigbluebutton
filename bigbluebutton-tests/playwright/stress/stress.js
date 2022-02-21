@@ -1,8 +1,10 @@
 const { expect } = require('@playwright/test');
 const Page = require('../core/page');
 const e = require('../core/elements');
-const c = require('../core/constants');
 const { checkIncludeClass } = require('../core/util');
+const { createMeeting } = require('../core/helpers');
+const parameters = require('../core/parameters');
+const c = require('../core/constants');
 
 class Stress {
   constructor(browser, context, page) {
@@ -10,6 +12,10 @@ class Stress {
     this.browser = browser;
     this.context = context;
     this.userPages = [];
+  }
+
+  async getNewPageTab() {
+    return this.browser.newPage();
   }
 
   async moderatorAsPresenter() {
@@ -37,7 +43,7 @@ class Stress {
     await this.modPage.init(true, true, { fullName: 'Moderator' });
     for (let i = 1; i <= c.BREAKOUT_ROOM_INVITATION_TEST_ROUNDS; i++) {
       const userName = `User-${i}`;
-      const newPage = await this.browser.newPage();
+      const newPage = await this.getNewPageTab();
       const userPage = new Page(this.browser, newPage);
       await userPage.init(false, true, { fullName: userName, meetingId: this.modPage.meetingId });
       console.log(`${userName} joined`);
@@ -72,6 +78,71 @@ class Stress {
     for (const page of this.userPages) {
       await page.bringToFront();
       await page.hasElement(e.modalConfirmButton);
+    }
+  }
+
+  async twoUsersJoinSameTime() {
+    for (let i = 1; i <= c.JOIN_TWO_USERS_ROUNDS; i++) {
+      console.log(`loop ${i} of ${c.JOIN_TWO_USERS_ROUNDS}`);
+      const meetingId = await createMeeting(parameters);
+      const modPage = new Page(this.browser, await this.getNewPageTab());
+      const userPage = new Page(this.browser, await this.getNewPageTab());
+      await Promise.all([
+        modPage.init(true, false, { meetingId }),
+        userPage.init(false, false, { meetingId }),
+      ]);
+      await modPage.waitForSelector(e.audioModal);
+      await userPage.waitForSelector(e.audioModal);
+      await modPage.page.close();
+      await userPage.page.close();
+    }
+  }
+
+  async usersJoinKeepingConnected() {
+    const meetingId = await createMeeting(parameters);
+
+    for (let i = 1; i <= c.JOIN_TWO_USERS_KEEPING_CONNECTED_ROUNDS / 2; i++) {
+      console.log(`joining ${i * 2} users of ${c.JOIN_TWO_USERS_KEEPING_CONNECTED_ROUNDS}`);
+      const modPage = new Page(this.browser, await this.getNewPageTab());
+      const userPage = new Page(this.browser, await this.getNewPageTab());
+      Promise.all([
+        modPage.init(true, false, { meetingId, fullName: `Mod-${i}` }),
+        userPage.init(false, false, { meetingId, fullName: `User-${i}` }),
+      ]);
+      await modPage.waitForSelector(e.audioModal, c.ELEMENT_WAIT_LONGER_TIME);
+      await userPage.waitForSelector(e.audioModal, c.ELEMENT_WAIT_LONGER_TIME);
+    }
+  }
+
+  async usersJoinExceddingParticipantsLimit() {
+    const pages = [];
+    const meetingId = await createMeeting(parameters, `maxParticipants=${c.MAX_PARTICIPANTS_TO_JOIN}`);
+
+    for (let i = 1; i <= c.MAX_PARTICIPANTS_TO_JOIN + 1; i++) {
+      pages.push(new Page(this.browser, await this.getNewPageTab()));
+    }
+
+    for (let i = 1; i < c.MAX_PARTICIPANTS_TO_JOIN; i++) {
+      console.log(`joining user ${i} of ${c.MAX_PARTICIPANTS_TO_JOIN}`);
+      await pages[i - 1].init(true, false, { meetingId, fullName: `User-${i}` });
+    }
+    console.log('joining two users at the same time');
+
+    const lastPages = [
+      pages[pages.length - 1],
+      pages[pages.length - 2],
+    ]
+
+    Promise.all(lastPages.map((page, index) => {
+      page.init(true, false, { meetingId, fullName: `User-last-${index}` })
+    }));
+
+    try {
+      await lastPages[0].waitForSelector(e.audioModal);
+      await lastPages[1].waitForSelector(e.errorScreenMessage);
+    } catch (err) {
+      await lastPages[1].waitForSelector(e.audioModal);
+      await lastPages[0].waitForSelector(e.errorScreenMessage);
     }
   }
 }
