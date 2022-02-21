@@ -144,7 +144,8 @@ Meteor.startup(() => {
   Meteor.onMessage(event => {
     const { method } = event;
     if (method) {
-      PrometheusAgent.increment(METRIC_NAMES.METEOR_METHODS, { methodName: method });
+      const methodName = method.includes('stream-cursor') ? 'stream-cursor' : method;
+      PrometheusAgent.increment(METRIC_NAMES.METEOR_METHODS, { methodName });
     }
   });
 
