@@ -103,14 +103,14 @@ case "$1" in
     # chown kurento:root /var/log/kurento-media-server
 
     # Ensure a default port range is setup
-    # if ! grep -v '^;' /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini | grep -q minPort; then
-      # cat >> /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini << HERE
+#     if ! grep -v '^;' /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini | grep -q minPort; then
+#       cat >> /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini << HERE
 
-# Added by bbb-webrtc-sfu.postinst $(date)
-minPort=24577
-maxPort=32768
-HERE
-    fi
+# # Added by bbb-webrtc-sfu.postinst $(date)
+# minPort=24577
+# maxPort=32768
+# HERE
+#     fi
 
     # Check if using Kurento packages with bionic
 
