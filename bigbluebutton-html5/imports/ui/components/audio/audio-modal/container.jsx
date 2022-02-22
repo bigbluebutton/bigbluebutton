@@ -15,6 +15,8 @@ import {
   closeModal,
   joinListenOnly,
   leaveEchoTest,
+  setUserSelectedMicrophone,
+  setUserSelectedListenOnly,
 } from './service';
 import Storage from '/imports/ui/services/storage/session';
 import Service from '../service';
@@ -98,5 +100,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     handleAllowAutoplay: () => Service.handleAllowAutoplay(),
     isRTL,
     AudioError,
+    setUserSelectedMicrophone,
+    setUserSelectedListenOnly,
   });
 })(AudioModalContainer)));

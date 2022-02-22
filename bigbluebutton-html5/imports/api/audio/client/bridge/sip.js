@@ -900,20 +900,9 @@ class SIPSession {
             fsReady,
           },
         }, 'Audio call - check if ICE is finished and FreeSWITCH is ready');
-        if (iceCompleted && fsReady) {
+        if (iceCompleted) {
           this.webrtcConnected = true;
           setupRemoteMedia();
-
-          const { sdp } = this.currentSession.sessionDescriptionHandler
-            .peerConnection.remoteDescription;
-
-          logger.info({
-            logCode: 'sip_js_session_setup_remote_media',
-            extraInfo: {
-              callerIdName: this.user.callerIdName,
-              sdp,
-            },
-          }, 'Audio call - setup remote media');
 
           this.callback({ status: this.baseCallStates.started, bridge: BRIDGE_NAME });
           resolve();
@@ -1035,6 +1024,37 @@ class SIPSession {
                 break;
               default:
                 break;
+            }
+          };
+
+        this.currentSession.sessionDescriptionHandler.peerConnectionDelegate
+          .onsignalingstatechange = (event) => {
+            const peer = event.target;
+
+            logger.info({
+              logCode: 'sip_js_signaling_state_change',
+              extraInfo: {
+                connectionStateChange: peer.signalingState,
+                callerIdName: this.user.callerIdName,
+              },
+            }, 'Signaling state change - Current signaling state - '
+            + `${peer.signalingState}`);
+
+            if (peer.signalingState === 'stable') {
+              const { sdp: remoteSdp } = this.currentSession
+                .sessionDescriptionHandler.peerConnection.remoteDescription;
+
+              const { sdp: localSdp } = this.currentSession
+                .sessionDescriptionHandler.peerConnection.localDescription;
+
+              logger.info({
+                logCode: 'sip_js_session_peer_has_sdp',
+                extraInfo: {
+                  callerIdName: this.user.callerIdName,
+                  remoteSdp,
+                  localSdp,
+                },
+              }, 'Peer has SDP');
             }
           };
 

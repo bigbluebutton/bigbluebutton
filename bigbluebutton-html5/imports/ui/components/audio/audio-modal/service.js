@@ -8,7 +8,6 @@ const CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY = 'clientUserSelectedListenOnly';
 export const setUserSelectedMicrophone = (value) => (
   Storage.setItem(CLIENT_DID_USER_SELECTED_MICROPHONE_KEY, !!value)
 );
-
 export const setUserSelectedListenOnly = (value) => (
   Storage.setItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY, !!value)
 );
@@ -22,9 +21,6 @@ export const didUserSelectedListenOnly = () => (
 );
 
 export const joinMicrophone = (skipEchoTest = false) => {
-  Storage.setItem(CLIENT_DID_USER_SELECTED_MICROPHONE_KEY, true);
-  Storage.setItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY, false);
-
   const call = new Promise((resolve, reject) => {
     try {
       if (skipEchoTest && !Service.isConnected()) {
@@ -45,9 +41,6 @@ export const joinMicrophone = (skipEchoTest = false) => {
 };
 
 export const joinListenOnly = () => {
-  Storage.setItem(CLIENT_DID_USER_SELECTED_MICROPHONE_KEY, false);
-  Storage.setItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY, true);
-
   const call = new Promise((resolve) => {
     Service.joinListenOnly().then(() => {
       // Autoplay block wasn't triggered. Close the modal. If autoplay was
@@ -79,11 +72,27 @@ export const closeModal = () => {
   showModal(null);
 };
 
+/**
+ * Helper function that join (or not) user in audio. If user previously
+ * selected microphone, it will automatically join mic (without audio modal).
+ * If user previously selected listen only option in audio modal, then it will
+ * automatically join listen only.
+ * @returns a Promise for the audio joining process.
+ */
+export const joinAudioAutomatically = async () => {
+  if (Service.isConnected()) return Promise.resolve();
+
+  if (didUserSelectedMicrophone()) return joinMicrophone(true);
+
+  if (didUserSelectedListenOnly()) return joinListenOnly();
+
+  return Promise.resolve();
+};
+
 export default {
   joinMicrophone,
   closeModal,
   joinListenOnly,
   leaveEchoTest,
-  didUserSelectedMicrophone,
-  didUserSelectedListenOnly,
+  joinAudioAutomatically,
 };

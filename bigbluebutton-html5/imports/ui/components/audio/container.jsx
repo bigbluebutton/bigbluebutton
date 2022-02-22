@@ -12,10 +12,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import {
-  joinMicrophone,
-  joinListenOnly,
-  didUserSelectedMicrophone,
-  didUserSelectedListenOnly,
+  joinAudioAutomatically,
 } from '/imports/ui/components/audio/audio-modal/service';
 
 import Service from './service';
@@ -80,54 +77,44 @@ class AudioContainer extends PureComponent {
   }
 
   componentDidMount() {
-    const { meetingIsBreakout } = this.props;
+    const {
+      meetingIsBreakout,
+      openVideoPreviewModal,
+    } = this.props;
 
     this.init().then(() => {
       if (meetingIsBreakout && !Service.isUsingAudio()) {
-        this.joinAudio();
+        joinAudioAutomatically();
+        return;
       }
+
+      Breakouts.find().observeChanges({
+        removed() {
+          // if the user joined a breakout room, the main room's audio was
+          // programmatically dropped to avoid interference. On breakout end,
+          // offer to rejoin main room audio only if the user is not in audio
+          // already
+          const enableVideo = getFromUserSettings('bbb_enable_video',
+            KURENTO_CONFIG.enableVideo);
+          const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam',
+            KURENTO_CONFIG.autoShareWebcam);
+
+          if (Service.isUsingAudio()) {
+            if (enableVideo && autoShareWebcam) {
+              openVideoPreviewModal();
+            }
+
+            return;
+          }
+
+          joinAudioAutomatically().then(() => {
+            if (enableVideo && autoShareWebcam) {
+              openVideoPreviewModal();
+            }
+          });
+        },
+      });
     });
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.userIsReturningFromBreakoutRoom(prevProps)) {
-      this.joinAudio();
-    }
-  }
-
-  /**
-   * Helper function to determine wheter user is returning from breakout room
-   * to main room.
-   * @param  {[Object} prevProps prevProps param from componentDidUpdate
-   * @return {boolean}           True if user is returning from breakout room
-   *                             to main room. False, otherwise.
-   */
-  userIsReturningFromBreakoutRoom(prevProps) {
-    const { hasBreakoutRooms } = this.props;
-    const { hasBreakoutRooms: hadBreakoutRooms } = prevProps;
-    return hadBreakoutRooms && !hasBreakoutRooms;
-  }
-
-  /**
-   * Helper function that join (or not) user in audio. If user previously
-   * selected microphone, it will automatically join mic (without audio modal).
-   * If user previously selected listen only option in audio modal, then it will
-   * automatically join listen only.
-   */
-  joinAudio() {
-    if (Service.isConnected()) return;
-
-    const {
-      userSelectedMicrophone,
-      userSelectedListenOnly,
-    } = this.props;
-
-    if (userSelectedMicrophone) {
-      joinMicrophone(true);
-      return;
-    }
-
-    if (userSelectedListenOnly) joinListenOnly();
   }
 
   render() {
@@ -168,10 +155,7 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
   const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
   const { userWebcam, userMic } = userLocks;
 
-  const userSelectedMicrophone = didUserSelectedMicrophone();
-  const userSelectedListenOnly = didUserSelectedListenOnly();
   const meetingIsBreakout = AppService.meetingIsBreakout();
-  const hasBreakoutRooms = AppService.getBreakoutRooms().length > 0;
   const openAudioModal = () => new Promise((resolve) => {
     mountModal(<AudioModalContainer resolve={resolve} />);
   });
@@ -190,33 +174,9 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
     }
   }
 
-  Breakouts.find().observeChanges({
-    removed() {
-      // if the user joined a breakout room, the main room's audio was
-      // programmatically dropped to avoid interference. On breakout end,
-      // offer to rejoin main room audio only if the user is not in audio already
-      if (Service.isUsingAudio()
-        || userSelectedMicrophone
-        || userSelectedListenOnly) {
-        if (enableVideo && autoShareWebcam) {
-          openVideoPreviewModal();
-        }
-
-        return;
-      }
-      setTimeout(() => openAudioModal().then(() => {
-         if (enableVideo && autoShareWebcam) {
-           openVideoPreviewModal();
-          }
-        }), 0);
-    },
-  });
-
   return {
-    hasBreakoutRooms,
     meetingIsBreakout,
-    userSelectedMicrophone,
-    userSelectedListenOnly,
+    openVideoPreviewModal,
     init: async () => {
       await Service.init(messages, intl);
       const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
@@ -230,10 +190,7 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
       Session.set('audioModalIsOpen', true);
       if (enableVideo && autoShareWebcam) {
         openAudioModal().then(() => { openVideoPreviewModal(); didMountAutoJoin = true; });
-      } else if (!(
-        userSelectedMicrophone
-        && userSelectedListenOnly
-        && meetingIsBreakout)) {
+      } else if (!(meetingIsBreakout)) {
         openAudioModal();
         didMountAutoJoin = true;
       }
@@ -243,8 +200,6 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
 })(AudioContainer))));
 
 AudioContainer.propTypes = {
-  hasBreakoutRooms: PropTypes.bool.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
-  userSelectedListenOnly: PropTypes.bool.isRequired,
-  userSelectedMicrophone: PropTypes.bool.isRequired,
+  openVideoPreviewModal: PropTypes.func.isRequired,
 };
