@@ -140,6 +140,7 @@ class RedisRecorderActor(
       ev.setSenderId(msg.body.msg.sender.id)
       ev.setMessage(msg.body.msg.message)
       ev.setSenderRole(msg.body.msg.sender.role)
+      ev.setChatEmphasizedText(msg.body.msg.chatEmphasizedText)
 
       record(msg.header.meetingId, ev.toMap.asJava)
     }

@@ -37,7 +37,7 @@ case class GroupChat(id: String, name: String, access: String, createdBy: GroupC
 }
 
 case class GroupChatMessage(id: String, timestamp: Long, correlationId: String, createdOn: Long,
-                            updatedOn: Long, sender: GroupChatUser, message: String)
+                            updatedOn: Long, sender: GroupChatUser, chatEmphasizedText: Boolean = true, message: String)
 
 case class GroupChatWindow(windowId: String, chatIds: Vector[String], keepOpen: Boolean, openedBy: String) {
 

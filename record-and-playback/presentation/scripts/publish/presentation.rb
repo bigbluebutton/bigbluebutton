@@ -1076,6 +1076,7 @@ def processChatMessages(events, bbb_props)
           in: (chat[:in] / 1000.0).round(1),
           direction: 'down',
           name: chat[:sender],
+          chatEmphasizedText: chat[:chatEmphasizedText],
           senderRole: chat[:senderRole],
           message: chat[:message],
           target: 'chat'

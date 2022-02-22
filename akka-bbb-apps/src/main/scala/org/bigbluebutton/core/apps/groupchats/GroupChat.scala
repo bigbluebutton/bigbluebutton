@@ -18,12 +18,12 @@ object GroupChatApp {
   def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser): GroupChatMessage = {
     val now = System.currentTimeMillis()
     val id = GroupChatFactory.genId()
-    GroupChatMessage(id, now, msg.correlationId, now, now, sender, msg.message)
+    GroupChatMessage(id, now, msg.correlationId, now, now, sender, msg.chatEmphasizedText, msg.message)
   }
 
   def toMessageToUser(msg: GroupChatMessage): GroupChatMsgToUser = {
     GroupChatMsgToUser(id = msg.id, timestamp = msg.timestamp, correlationId = msg.correlationId,
-      sender = msg.sender, message = msg.message)
+      sender = msg.sender, chatEmphasizedText = msg.chatEmphasizedText, message = msg.message)
   }
 
   def addGroupChatMessage(chat: GroupChat, chats: GroupChats,
