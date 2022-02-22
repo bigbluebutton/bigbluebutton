@@ -23,15 +23,11 @@ case "$1" in
       FREESWITCH_IP=$(xmlstarlet sel -t -v '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "local_ip_v4=")]/@data' /opt/freeswitch/conf/vars.xml | sed 's/local_ip_v4=//g')
       if [ "$FREESWITCH_IP" != "" ]; then
         yq w -i $TARGET freeswitch.ip $FREESWITCH_IP
-#	if [ "$DISTRIB_RELEASE" == "18.04" ]; then
         yq w -i $TARGET freeswitch.sip_ip $FREESWITCH_IP
-#	fi
       else
         # Looks like the FreeSWITCH package is being installed, let's fall back to the default value
         yq w -i $TARGET freeswitch.ip $IP
-	if [ "$DISTRIB_RELEASE" == "18.04" ]; then
-          yq w -i $TARGET freeswitch.sip_ip $IP
-	fi
+        yq w -i $TARGET freeswitch.sip_ip $IP
       fi
  
     cd /usr/local/bigbluebutton/bbb-webrtc-sfu

@@ -73,7 +73,7 @@ fi
 
 source /etc/lsb-release
 
-if [ "$DISTRIB_RELEASE" == "18.04" ]; then
+if [ "$DISTRIB_RELEASE" == "20.04" ]; then
   node_version="14.18.1"
   if [[ ! -d /usr/share/node-v${node_version}-linux-x64 ]]; then
     cd /usr/share
