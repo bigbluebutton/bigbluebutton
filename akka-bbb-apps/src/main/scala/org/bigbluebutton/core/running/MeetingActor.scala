@@ -793,7 +793,7 @@ class MeetingActor(
 
     // 2) Insert Export Job in Redis
     val jobType = "PresentationWithAnnotationDownloadJob"
-    val presLocation = s"/var/bigbluebutton/${meetingId}/${meetingId}/${presId}/svgs"
+    val presLocation = s"/var/bigbluebutton/${meetingId}/${meetingId}/${presId}"
     val exportJob = new ExportJob(jobId, jobType, presId, presLocation, allPages, pagesRange, "", "")
     var job = buildStoreExportJobInRedisSysMsg(exportJob)
     outGW.send(job)
@@ -844,7 +844,7 @@ class MeetingActor(
 
     // 2) Insert Export Job in Redis
     val jobType: String = "PresentationWithAnnotationExportJob"
-    val presLocation = s"/var/bigbluebutton/${meetingId}/${meetingId}/${presId}/svgs"
+    val presLocation = s"/var/bigbluebutton/${meetingId}/${meetingId}/${presId}"
     val exportJob = new ExportJob(jobId, jobType, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
     var job = buildStoreExportJobInRedisSysMsg(exportJob)
     outGW.send(job)

@@ -3,8 +3,7 @@ const config = require('../config');
 const fs = require('fs');
 const convert = require('xml-js');
 const { create } = require('xmlbuilder2', { encoding: 'utf-8' });
-const { exec, execSync } = require("child_process");
-
+const { execSync } = require("child_process");
 const { workerData, parentPort } = require('worker_threads')
 
 const jobId = workerData;
@@ -14,7 +13,32 @@ const logger = new Logger('presAnn Process Worker');
 logger.info("Processing PDF for job " + jobId);
 
 function scale_shape(dimension, coord){
-    return (coord / 100.0 * dimension)
+    return (coord / 100.0 * dimension);
+}
+
+function measure_length(string, fontSize) {
+    // TODO: find faster way to measure string length
+    if (string.length == 0) {
+        return 0;
+    }
+
+    var output;
+    output = execSync(`convert xc: -font ${config.process.font} -pointsize ${fontSize} -debug annotate -annotate 0 "${string}" null: 2>&1`, (error, stderr) => {
+        if (error) {
+            logger.error(`Error when measuring length of string ${string} with ImageMagick: ${error.message}`);
+            return;
+        }
+        if (stderr) {
+            logger.error(`stderr when measuring lenght of string "${string}" with ImageMagick ${stderr}`);
+            return;
+        }
+    })
+
+    output = String(output).split(" ")
+    const textWidth = (element) => element == 'width:';
+    var index = output.findIndex(textWidth);
+
+    return Number(output[index + 1].replace(/[^0-9]/g,''));
 }
 
 function overlay_ellipse(svg, annotation, w, h) {
@@ -234,11 +258,91 @@ function overlay_text(svg, annotation, w, h) {
         height: textBoxHeight
     });
 
+    var yOffset = 1; // in em
+    var wrappedLine = [];
+    var wrappedLineLength = 0;
+
     for(let i = 0; i < lines.length; i++) {
-        textBox.ele('text', {
-            style: `fill:#${fontColor};font-family:Arial;font-size:${fontSize}px`,
-            dy: `${i + 1}em`,
-        }).txt(lines[i]).up()
+        var lineLength = measure_length(lines[i], fontSize);
+        
+        if (lineLength < textBoxWidth) {
+            // Line fits in text box. Can be displayed as-is
+            textBox.ele('text', {
+                style: `fill:#${fontColor};font-family:Arial;font-size:${fontSize}px`,
+                dy: `${yOffset}em`,
+            }).txt(lines[i]).up()
+
+            yOffset += 1;
+        }
+
+        else {
+            // Split line into words, keeping the whitespace
+            words = lines[i].split(/(\s+)/);
+
+            // Generate line breaks due to word wrapping
+            for(let j = 0; j < words.length; j++) {
+                wordLength = measure_length(words[j], fontSize);
+
+                // If word fits in line, add it
+                if (wrappedLineLength + wordLength <= textBoxWidth) {
+                    wrappedLine.push(words[j])
+                    wrappedLineLength += wordLength;
+
+                } else if (wordLength > textBoxWidth) {
+                    // If the word itself is wider than the textbox, place the characters individually
+                    var chars = words[j].split('');
+                    
+                    for(let k = 0; k < chars.length; k++){
+                        var charWidth = measure_length(chars[k], fontSize);
+
+                        // If the character fits, add it
+                        if (charWidth + wrappedLineLength <= textBoxWidth) {
+                            wrappedLine.push(chars[k]);
+                            wrappedLineLength += charWidth;
+                        }
+
+                        else {
+                            // Line became too long due to the new character: add the characters that fit
+                            var leftoverWord = chars.slice(k).join('');
+
+                            textBox.ele('text', {
+                                style: `fill:#${fontColor};font-family:Arial;font-size:${fontSize}px`,
+                                dy: `${yOffset}em`,
+                            }).txt(wrappedLine.join('')).up()
+
+                            yOffset += 1;
+                            wrappedLine = [leftoverWord];
+                            wrappedLineLength = wordLength;
+                            break;
+                        }
+                    }
+
+                    // Add remaining part of the word on a new line
+                    textBox.ele('text', {
+                        style: `fill:#${fontColor};font-family:Arial;font-size:${fontSize}px`,
+                        dy: `${yOffset}em`,
+                    }).txt(wrappedLine.join('')).up()
+
+                } else {
+                    // If the line became too long, add the words that came previously
+                    // and add a linebreak starting with the word that didn't fit
+                    textBox.ele('text', {
+                        style: `fill:#${fontColor};font-family:Arial;font-size:${fontSize}px`,
+                        dy: `${yOffset}em`,
+                    }).txt(wrappedLine.join('')).up()
+                    
+                    yOffset += 1;
+                    wrappedLine = [words[j]]
+                    wrappedLineLength = wordLength;
+                }
+            }
+
+            // Add remaining text elements
+            textBox.ele('text', {
+                style: `fill:#${fontColor};font-family:Arial;font-size:${fontSize}px`,
+                dy: `${yOffset}em`,
+            }).txt(wrappedLine.join('')).up()
+        }
     }
 }
 
@@ -350,7 +454,7 @@ for (let i = 0; i < pages.length; i++) {
     svg = svg.end({ prettyPrint: true });
     // Write annotated SVG file
     let file = `${dropbox}/annotated-slide${pages[i].page}.svg`
-    fs.writeFile(file, svg, function(err) {
+    fs.writeFileSync(file, svg, function(err) {
         if(err) { return logger.error(err); }
     });
 
@@ -358,8 +462,7 @@ for (let i = 0; i < pages.length; i++) {
 }
 
 // Resulting PDF file is stored in the presentation dir
-// TODO: change presLocation so it doesn't point to the 'svgs' directory
-exec(`rsvg-convert ${rsvgConvertInput} -f pdf -o ${exportJob.presLocation}/../annotated_slides_${jobId}.pdf`, (error, stderr) => {
+execSync(`rsvg-convert ${rsvgConvertInput} -f pdf -o ${exportJob.presLocation}/annotated_slides_${jobId}.pdf`, (error, stderr) => {
     if (error) {
         logger.error(`SVG to PDF export failed with error: ${error.message}`);
         return;
@@ -371,6 +474,6 @@ exec(`rsvg-convert ${rsvgConvertInput} -f pdf -o ${exportJob.presLocation}/../an
 });
 
 // Launch Notifier Worker depending on job type
-logger.info(`Saved PDF at ${exportJob.presLocation}/../annotated_slides_${jobId}.pdf`)
+logger.info(`Saved PDF at ${exportJob.presLocation}/annotated_slides_${jobId}.pdf`)
 
 parentPort.postMessage({ message: workerData })
