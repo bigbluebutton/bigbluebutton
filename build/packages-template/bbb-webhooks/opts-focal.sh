@@ -1,4 +1,4 @@
 . ./opts-global.sh
 
-OPTS="$OPTS -t deb -d nodejs,npm,yq"
+OPTS="$OPTS -t deb -d nodejs,npm"
 

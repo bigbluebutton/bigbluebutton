@@ -1,3 +1,3 @@
 . ./opts-global.sh
 
-OPTS="$OPTS -t deb -d bbb-record-core,yq"
+OPTS="$OPTS -t deb -d bbb-record-core"
