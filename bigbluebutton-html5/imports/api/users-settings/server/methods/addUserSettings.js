@@ -7,7 +7,6 @@ const oldParameters = {
   askForFeedbackOnLogout: 'bbb_ask_for_feedback_on_logout',
   autoJoin: 'bbb_auto_join_audio',
   autoShareWebcam: 'bbb_auto_share_webcam',
-  autoSwapLayout: 'bbb_auto_swap_layout',
   clientTitle: 'bbb_client_title',
   customStyle: 'bbb_custom_style',
   customStyleUrl: 'bbb_custom_style_url',
@@ -57,7 +56,6 @@ const currentParameters = [
   'bbb_custom_style',
   'bbb_custom_style_url',
   // LAYOUT
-  'bbb_auto_swap_layout',
   'bbb_hide_presentation',
   'bbb_show_participants_on_login',
   'bbb_show_public_chat_on_login',

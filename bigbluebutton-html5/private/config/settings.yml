@@ -95,8 +95,6 @@ public:
     showAudioFilters: true
     raiseHandActionButton:
       enabled: true
-    pushLayoutToEveryone:
-      keepPushing: false
     # If enabled, before joining microphone the client will perform a trickle
     # ICE against Kurento and use the information about successfull
     # candidate-pairs to filter out local candidates in SIP.js's SDP.
@@ -126,7 +124,9 @@ public:
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
         paginationEnabled: true
-        pushLayoutToEveryone: false
+        # Default Meeting Layout
+        # Valid values are CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS
+        defaultLayout: SMART_LAYOUT
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
         # specified in fallbackLocale. Note that fallbackLocale should be a
