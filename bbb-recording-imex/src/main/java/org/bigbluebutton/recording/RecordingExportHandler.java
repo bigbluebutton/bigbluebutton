@@ -1,13 +1,18 @@
 package org.bigbluebutton.recording;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
 import org.bigbluebutton.api.model.entity.Recording;
 import org.bigbluebutton.api.util.DataStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class RecordingExportHandler {
@@ -50,19 +55,26 @@ public class RecordingExportHandler {
     private void exportRecording(Recording recording, String path) {
         logger.info("Attempting to export recording {} to {}", recording.getRecordId(), path);
         try {
-            JAXBContext context = JAXBContext.newInstance(Recording.class);
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-            File dir = new File(path + File.separator + recording.getRecordId());
-            if (!dir.exists())
+            Path dirPath = Paths.get(path);
+            File dir = new File(dirPath.toAbsolutePath() + File.separator + recording.getRecordId());
+            logger.info("Checking if directory {} exists", dir.getAbsolutePath());
+            if (!dir.exists()) {
+                logger.info("Directory does not exist, creating");
                 dir.mkdir();
+            }
 
             File file = new File(dir + File.separator + "metadata.xml");
+            logger.info("Attempting to create file {}", file.getAbsolutePath());
             boolean fileCreated = file.createNewFile();
 
             if (fileCreated) {
-                marshaller.marshal(recording, file);
+                logger.info("Exporting {}", recording);
+
+                BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+                XStream xStream = new XStream(new StaxDriver());
+                xStream.processAnnotations(Recording.class);
+                xStream.marshal(recording, new PrettyPrintWriter(writer));
             }
         } catch (Exception e) {
             logger.error("Failed to export recording {}", recording.getRecordId());

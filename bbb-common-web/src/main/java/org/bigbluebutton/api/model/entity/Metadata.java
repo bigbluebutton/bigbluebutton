@@ -2,9 +2,12 @@ package org.bigbluebutton.api.model.entity;
 
 import javax.persistence.*;
 import java.util.Objects;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 @Entity
 @Table(name = "metadata")
+@XStreamAlias("metadata")
 public class Metadata {
 
     @Id
@@ -20,6 +23,7 @@ public class Metadata {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "recording_id", referencedColumnName = "id")
+    @XStreamOmitField
     private Recording recording;
 
     public Long getId() { return id; }

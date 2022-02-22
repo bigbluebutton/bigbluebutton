@@ -106,6 +106,12 @@
             <version>1.8.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.thoughtworks.xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>1.4.19</version>
+        </dependency>
+
     </dependencies>
 
 </project>
