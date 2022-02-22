@@ -262,7 +262,7 @@ class ActionsDropdown extends PureComponent {
       return null;
     }
     const { isMobile } = deviceInfo;
-    const customStyles = { top: '-4rem' };
+    const customStyles = { top: '-3rem' };
 
     return (
       <BBBMenu
