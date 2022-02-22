@@ -79,34 +79,26 @@ if [ -f /usr/share/bbb-apps-akka/conf/application.conf ]; then
   fi
 fi
 
-if [ -d /var/bigbluebutton/screenshare ]; then
-  chown red5:red5 /var/bigbluebutton/screenshare
-fi
-
 #
 # Added to enable bbb-record-core to move files #8901
 #
 usermod bigbluebutton -a -G freeswitch
 chmod 0775 /var/freeswitch/meetings
 
-if ! id kurento >/dev/null 2>&1; then
-    useradd --home-dir "/var/lib/kurento" --system kurento
-fi
-usermod bigbluebutton -a -G kurento
-chown kurento:kurento /var/kurento
-chmod 0775 /var/kurento
+# if ! id kurento >/dev/null 2>&1; then
+#     useradd --home-dir "/var/lib/kurento" --system kurento
+# fi
+# usermod bigbluebutton -a -G kurento
+# chown kurento:kurento /var/kurento
+# chmod 0775 /var/kurento
 
-if [ -d /var/kurento/recordings ]; then
-  chmod 0775 /var/kurento/recordings
-fi
+# if [ -d /var/kurento/recordings ]; then
+#   chmod 0775 /var/kurento/recordings
+# fi
 
-if [ -d /var/kurento/screenshare ]; then 
-  chmod 0775 /var/kurento/screenshare
-fi
-
-if [ -f /usr/lib/systemd/system/red5.service ]; then
-  chown root:root /usr/lib/systemd/system/red5.service
-fi
+# if [ -d /var/kurento/screenshare ]; then 
+#   chmod 0775 /var/kurento/screenshare
+# fi
 
 # Verify mediasoup raw media directories ownership and perms
 if [ -d /var/mediasoup ]; then
