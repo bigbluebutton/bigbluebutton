@@ -1,0 +1,124 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/components/modal/simple/styles";
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/mixins/_scrollable";
+
+.header {
+  margin: 0;
+  padding: 0;
+  border: none;
+  line-height: 2rem;
+}
+
+.content {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  padding: .5rem 0 .5rem 0;
+  overflow: hidden;
+}
+
+.modal {
+  padding: 1.5rem;
+  min-height: 20rem;
+}
+
+.bodyContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.iconSvg {
+  height: 8rem;
+  border-radius: 5px;
+
+  @media (max-width: 540px) {
+    height: 3rem;
+  }
+}
+
+.layoutBtn {
+  display: flex;
+  background-color: var(--color-white);
+  border: var(--color-white) solid 12px;
+  align-items: center;
+  flex-direction: column;
+  padding: 0 !important;
+  border-radius: 18px;
+  margin: 0 1rem 1rem 1rem;
+  width: fit-content;
+
+  &:focus {
+    border: var(--color-background) solid 12px;
+  }
+
+  @media (max-width: 540px) {
+    width: 10rem;
+    margin: 0.5rem;
+    border: var(--color-white) solid 4px;
+    border-radius: 10px;
+
+    &:focus {
+      width: fit-content;
+      border: var(--color-background) solid 4px;
+    }
+  }
+}
+
+.buttonLayoutContainer {
+  @media (max-width: 540px) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.buttonsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  @media (max-width: 540px) {
+    flex-wrap: unset;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.buttonBottomContainer {
+  align-self: end;
+  padding-right: 3rem;
+
+  @media (max-width: 540px) {
+    align-self: unset;
+    padding-right: unset;
+  }
+}
+
+.labelLayoutNames {
+  text-align: center;
+  margin: 0 0 0.1rem 0;
+}
+
+.bottomButton {
+  margin: 0 0.5rem;
+}
+
+.pushContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 0 2rem 0;
+}
+
+.labelPushLayout {
+  padding-right: 0.5rem;
+}
+
+.title {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.5rem;
+  white-space: normal;
+  color: var(--color-primary);
+}

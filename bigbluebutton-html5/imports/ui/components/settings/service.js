@@ -3,6 +3,7 @@ import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import GuestService from '/imports/ui/components/waiting-users/service';
+import { getFromMeetingSettingsAsBoolean } from '/imports/ui/services/meeting-settings';
 
 const getUserRoles = () => {
   const user = Users.findOne({
@@ -28,6 +29,11 @@ const showGuestNotification = () => {
   return guestPolicy === 'ASK_MODERATOR';
 };
 
+const isKeepPushingLayoutEnabled = () => {
+  const KEEP_PUSHING_ENABLED = Meteor.settings.public.app.pushLayoutToEveryone.keepPushing;
+  return getFromMeetingSettingsAsBoolean('enable-keep-pushing', KEEP_PUSHING_ENABLED);
+};
+
 const updateSettings = (obj, msg) => {
   Object.keys(obj).forEach(k => (Settings[k] = obj[k]));
   Settings.save();
@@ -51,5 +57,6 @@ export {
   isPresenter,
   showGuestNotification,
   updateSettings,
+  isKeepPushingLayoutEnabled,
   getAvailableLocales,
 };

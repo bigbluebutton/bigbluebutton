@@ -5,6 +5,7 @@ import LocalesDropdown from '/imports/ui/components/common/locales-dropdown/comp
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import Styled from './styles';
+import SettingsService from '/imports/ui/components/settings/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { ACTIONS, LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
@@ -327,6 +328,8 @@ class ApplicationMenu extends BaseMenu {
   renderChangeLayout() {
     const { intl, isPresenter, showToggleLabel, displaySettingsStatus } = this.props;
     const { settings } = this.state;
+    const { isMobile } = deviceInfo;
+    const isKeepPushingLayoutEnabled = SettingsService.isKeepPushingLayoutEnabled();
 
     return (
       <>
@@ -353,7 +356,7 @@ class ApplicationMenu extends BaseMenu {
             </Styled.FormElementRight>
           </Styled.Col>
         </Styled.Row>
-        { isPresenter ?
+        { (isPresenter && isKeepPushingLayoutEnabled) ?
           (<Styled.Row>
             <Styled.Col>
               <Styled.FormElement>

@@ -5,12 +5,14 @@ import { defineMessages } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
-import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
-import BBBMenu from '/imports/ui/components/common/menu/component';
+import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
+import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
+import BBBMenu from '/imports/ui/components/menu/component';
 import Styled from './styles'
-import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
+import SettingsMenuContainer from '/imports/ui/components/settings/container';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -88,6 +90,14 @@ const intlMessages = defineMessages({
   propagateLayoutLabel: {
     id: 'app.actionsBar.actionsDropdown.propagateLayoutLabel',
     description: 'Label for propagate layout button',
+  },
+  layouts: {
+    id: 'app.actionsBar.actionsDropdown.layouts',
+    description: 'Label for layouts selection button',
+  },
+  layoutModal: {
+    id: 'app.actionsBar.actionsDropdown.layoutModal',
+    description: 'Label for layouts selection button',
   },
 });
 
@@ -219,6 +229,22 @@ class ActionsDropdown extends PureComponent {
         onClick: setMeetingLayout,
       });
     }
+
+    if (amIPresenter) {
+      actions.push({
+        icon: 'send',
+        label: intl.formatMessage(intlMessages.layouts),
+        key: 'layouts',
+        onClick: () => mountModal(<SettingsMenuContainer highlightLayoutSubMenu />),
+      });
+    }
+
+    actions.push({
+      icon: 'send',
+      label: intl.formatMessage(intlMessages.layoutModal),
+      key: 'layoutModal',
+      onClick: () => mountModal(<LayoutModalContainer {...this.props} />),
+    });
 
     return actions;
   }
