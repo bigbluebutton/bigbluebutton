@@ -105,12 +105,10 @@ if [ -f /etc/centos-release ] || [ -f /etc/system-release ]; then
     REDIS_SERVICE=redis.service
 else
     . /etc/lsb-release    # Get value for DISTRIB_ID
-    if [ "$DISTRIB_CODENAME" == "bionic" ]; then
-      TOMCAT_USER=tomcat8
+    if [ "$DISTRIB_CODENAME" == "focal" ] ; then
+      TOMCAT_USER=tomcat9
     fi
-    if [ "$DISTRIB_CODENAME" == "xenial" ]; then
-      TOMCAT_USER=tomcat7
-    fi
+
     TOMCAT_DIR=/var/lib/$TOMCAT_USER
     SERVLET_LOGS=$TOMCAT_DIR/logs
     REDIS_SERVICE=redis-server
@@ -126,8 +124,6 @@ LTI_DIR=/usr/share/bbb-lti
 
 if [ -f /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties ]; then
     SERVLET_DIR=/usr/share/bbb-web
-else
-    SERVLET_DIR=/var/lib/tomcat7/webapps/bigbluebutton
 fi
 
 
@@ -1505,17 +1501,6 @@ if [ $CHECK ]; then
         echo
         echo "/etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini (STUN Server)"
         echo "                              stun: $stunServerAddress:$stunServerPort"
-     fi
-
-     if [ "$DISTRIB_CODENAME" == "xenial" ]; then
-       if ! java -version 2>&1 | grep -q "1.8.0"; then
-        echo
-        echo "# Warning: Did not detect Java 8 as default version"
-        echo
-        echo "   sudo apt-get install openjdk-8-jdk"
-        echo "   update-alternatives --config java"
-        echo "   bbb-conf --restart"
-      fi
      fi
 
      check_state
