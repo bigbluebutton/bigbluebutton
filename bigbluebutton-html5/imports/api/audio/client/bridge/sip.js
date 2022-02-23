@@ -1041,11 +1041,11 @@ class SIPSession {
             + `${peer.signalingState}`);
 
             if (peer.signalingState === 'stable') {
-              const { sdp: remoteSdp } = this.currentSession
-                .sessionDescriptionHandler.peerConnection.remoteDescription;
+              if (!peer.remoteDescription || !peer.localDescription) return;
 
-              const { sdp: localSdp } = this.currentSession
-                .sessionDescriptionHandler.peerConnection.localDescription;
+              const { sdp: remoteSdp } = peer.remoteDescription;
+
+              const { sdp: localSdp } = peer.localDescription;
 
               logger.info({
                 logCode: 'sip_js_session_peer_has_sdp',
