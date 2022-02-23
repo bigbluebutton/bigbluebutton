@@ -91,10 +91,6 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.propagateLayoutLabel',
     description: 'Label for propagate layout button',
   },
-  layouts: {
-    id: 'app.actionsBar.actionsDropdown.layouts',
-    description: 'Label for layouts selection button',
-  },
   layoutModal: {
     id: 'app.actionsBar.actionsDropdown.layoutModal',
     description: 'Label for layouts selection button',
@@ -227,15 +223,6 @@ class ActionsDropdown extends PureComponent {
         label: intl.formatMessage(intlMessages.propagateLayoutLabel),
         key: 'propagate layout',
         onClick: setMeetingLayout,
-      });
-    }
-
-    if (amIPresenter) {
-      actions.push({
-        icon: 'send',
-        label: intl.formatMessage(intlMessages.layouts),
-        key: 'layouts',
-        onClick: () => mountModal(<SettingsMenuContainer highlightLayoutSubMenu />),
       });
     }
 
