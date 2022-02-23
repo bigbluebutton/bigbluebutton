@@ -1,11 +1,11 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import UserListService from '/imports/ui/components/user-list/service';
 import UserParticipants from './component';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import ChatService from '/imports/ui/components/chat/service';
 import Auth from '/imports/ui/services/auth';
-import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
+import useContextUsers from '/imports/ui/components/components-data/users-context/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 
@@ -19,11 +19,11 @@ const UserParticipantsContainer = (props) => {
   } = UserListService;
 
   const { videoUsers, whiteboardUsers } = props;
-  const usingUsersContext = useContext(UsersContext);
-  const { users: contextUsers } = usingUsersContext;
-  const currentUser = contextUsers[Auth.meetingID][Auth.userID];
-  const usersArray = Object.values(contextUsers[Auth.meetingID]);
-  const users = formatUsers(usersArray, videoUsers, whiteboardUsers);
+  const { users: contextUsers, isReady } = useContextUsers();
+
+  const currentUser = contextUsers ? contextUsers[Auth.meetingID][Auth.userID] : null;
+  const usersArray = contextUsers ? Object.values(contextUsers[Auth.meetingID]) : null;
+  const users = contextUsers ? formatUsers(usersArray, videoUsers, whiteboardUsers) : [];
 
   return (
     <UserParticipants {
@@ -34,6 +34,7 @@ const UserParticipantsContainer = (props) => {
       clearAllEmojiStatus,
       roving,
       requestUserInformation,
+      isReady,
       ...props,
     }
   }
