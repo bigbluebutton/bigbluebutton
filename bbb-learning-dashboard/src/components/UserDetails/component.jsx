@@ -182,10 +182,12 @@ const UserDatailsComponent = (props) => {
       <div className="p-6 flex flex-row justify-between items-center">
         <div className="min-w-[40%] text-ellipsis">{question}</div>
         { isAnonymous ? (
-          <span title={intl.formatMessage({
-            id: 'app.learningDashboard.userDetails.anonymousAnswer',
-            defaultMessage: 'Anonymous Poll',
-          })}
+          <span
+            title={intl.formatMessage({
+              id: 'app.learningDashboard.userDetails.anonymousAnswer',
+              defaultMessage: 'Anonymous Poll',
+            })}
+            className="mx-3"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -203,9 +205,14 @@ const UserDatailsComponent = (props) => {
             </svg>
           </span>
         ) : (
-          <div className="grow text-center">{answers.map((answer) => <p>{answer}</p>)}</div>
+          <div className="min-w-[20%] grow text-center mx-3">{answers.map((answer) => <p title={answer} className="overflow-hidden text-ellipsis">{answer}</p>)}</div>
         ) }
-        <div className="min-w-[40%] text-ellipsis text-center">
+        <div
+          className="min-w-[40%] text-ellipsis text-center overflow-hidden"
+          title={mostCommomAnswer
+            ? `${String.fromCharCode(mostCommomAnswer.charCodeAt(0) - 32)}${mostCommomAnswer.substring(1)}`
+            : null}
+        >
           { mostCommomAnswer
             ? `${String.fromCharCode(mostCommomAnswer.charCodeAt(0) - 32)}${mostCommomAnswer.substring(1)}`
             : intl.formatMessage({
