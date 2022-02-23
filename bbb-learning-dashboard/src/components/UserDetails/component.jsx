@@ -89,10 +89,6 @@ const UserDatailsComponent = (props) => {
   const usersEmojis = allUsersArr.map((currUser) => currUser.emojis.filter((emoji) => emoji.name !== 'raiseHand').length);
   const usersRaiseHands = allUsersArr.map((currUser) => currUser.emojis.filter((emoji) => emoji.name === 'raiseHand').length);
 
-  const totalTalkTime = usersTalkTime.reduce((prev, talkTime) => prev + talkTime, 0);
-  const totalMessages = usersTotalOfMessages.reduce((prev, messages) => prev + messages, 0);
-  const totalEmojis = usersEmojis.reduce((prev, emojis) => prev + emojis, 0);
-  const totalRaiseHands = usersRaiseHands.reduce((prev, raiseHands) => prev + raiseHands, 0);
   const totalPolls = Object.values(polls || {}).length;
 
   function getPointsOfTalk(u) {
@@ -235,7 +231,7 @@ const UserDatailsComponent = (props) => {
   }
 
   function renderActivityScoreItem(
-    category, average, activityPoints, loaderWidth, totalOfActivity,
+    category, average, activityPoints, totalOfActivity,
   ) {
     return (
       <div className="p-6 flex flex-row justify-between items-end">
@@ -250,7 +246,7 @@ const UserDatailsComponent = (props) => {
             <div
               className="flex justify-end items-center text-white rounded-2xl ltr:bg-gradient-to-br rtl:bg-gradient-to-bl from-green-100 to-green-600 absolute inset-0"
               style={{
-                width: `${loaderWidth}%`,
+                width: `${(activityPoints / 2) * 100}%`,
               }}
             >
               { totalOfActivity > 0
@@ -400,39 +396,23 @@ const UserDatailsComponent = (props) => {
                 <div className="min-w-[20%] text-ellipsis text-right rtl:text-left"><FormattedMessage id="app.learningDashboard.userDetails.activityPoints" defaultMessage="Activity Points" /></div>
               </div>
               { ['Talk Time', 'Messages', 'Emojis', 'Raise Hands', 'Poll Votes'].map((category) => {
-                let loaderWidth = 0;
                 let totalOfActivity = 0;
 
                 switch (category) {
                   case 'Talk Time':
                     totalOfActivity = user.talk.totalTime;
-                    if (totalTalkTime) {
-                      loaderWidth = (totalOfActivity * 100) / totalTalkTime;
-                    }
                     break;
                   case 'Messages':
                     totalOfActivity = user.totalOfMessages;
-                    if (totalMessages) {
-                      loaderWidth = (totalOfActivity * 100) / totalMessages;
-                    }
                     break;
                   case 'Emojis':
                     totalOfActivity = user.emojis.filter((emoji) => emoji.name !== 'raiseHand').length;
-                    if (totalEmojis) {
-                      loaderWidth = (totalOfActivity * 100) / totalEmojis;
-                    }
                     break;
                   case 'Raise Hands':
                     totalOfActivity = user.emojis.filter((emoji) => emoji.name === 'raiseHand').length;
-                    if (totalRaiseHands) {
-                      loaderWidth = (totalOfActivity * 100) / totalRaiseHands;
-                    }
                     break;
                   case 'Poll Votes':
                     totalOfActivity = Object.values(user.answers).length;
-                    if (totalPolls) {
-                      loaderWidth = (totalOfActivity * 100) / totalPolls;
-                    }
                     break;
                   default:
                 }
@@ -441,7 +421,6 @@ const UserDatailsComponent = (props) => {
                   category,
                   averages[category],
                   activityPointsFunctions[category](user),
-                  loaderWidth,
                   totalOfActivity,
                 );
               }) }
