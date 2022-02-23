@@ -12,6 +12,7 @@ export const UserDetailsProvider = ({ children }) => {
         };
       case 'closeModal':
         return {
+          user: null,
           isOpen: false,
         };
       default:

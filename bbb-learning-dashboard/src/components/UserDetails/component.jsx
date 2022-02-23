@@ -1,24 +1,27 @@
 import React, { useContext, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import {
-  FormattedMessage, FormattedNumber, injectIntl,
+  FormattedMessage, FormattedNumber, FormattedTime, injectIntl,
 } from 'react-intl';
 import { UserDetailsContext } from './context';
 import UserAvatar from '../UserAvatar';
-import { getSumOfTime } from '../../services/UserService';
+import { getSumOfTime, tsToHHmmss } from '../../services/UserService';
 
 const UserDatailsComponent = (props) => {
   const {
-    isOpen, dispatch, user, dataJson,
+    isOpen, dispatch, user, dataJson, intl,
   } = props;
 
-  useEffect(() => {
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Escape') dispatch({ type: 'closeModal' });
-    });
-  }, []);
-
   if (!isOpen) return null;
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.code === 'Escape') dispatch({ type: 'closeModal' });
+    };
+
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   const {
     createdOn, endedOn, polls, users,
@@ -28,41 +31,79 @@ const UserDatailsComponent = (props) => {
 
   // Join and left times.
   const registeredTimes = Object.values(user.intIds).map((intId) => intId.registeredOn);
-  const leftTimes = Object.values(user.intIds).map((intId) => intId.leftOn || currTime());
+  const leftTimes = Object.values(user.intIds).map((intId) => intId.leftOn);
   const joinTime = Math.min(...registeredTimes);
   const leftTime = Math.max(...leftTimes);
+  const isOnline = Object.values(user.intIds).some((intId) => intId.leftOn === 0);
 
   // Used in the calculation of the online loader.
   const sessionDuration = (endedOn || currTime()) - createdOn;
-  const userEndOffsetTime = (((endedOn || currTime()) - leftTime) * 100) / sessionDuration;
   const userStartOffsetTime = ((joinTime - createdOn) * 100) / sessionDuration;
-  const offsetOrigin = document.dir === 'rtl' ? 'left' : 'right';
+  const userEndOffsetTime = isOnline
+    ? 0
+    : (((endedOn || currTime()) - leftTime) * 100) / sessionDuration;
 
   const allUsers = () => Object.values(users || {}).filter((currUser) => !currUser.isModerator);
-
   const allUsersArr = allUsers();
-  const totalMessages = allUsersArr
-    .map((currUser) => currUser.totalOfMessages)
-    .reduce((prev, messages) => prev + messages, 0);
-  const totalEmojis = allUsersArr
-    .map((currUser) => currUser.emojis.filter((emoji) => emoji.name !== 'raiseHand').length)
-    .reduce((prev, emojis) => prev + emojis, 0);
-  const totalRaiseHands = allUsersArr
-    .map((currUser) => currUser.emojis.filter((emoji) => emoji.name === 'raiseHand').length)
-    .reduce((prev, raiseHands) => prev + raiseHands, 0);
-  const totalPollVotes = Object.values(polls || {}).length;
 
-  // function getPointsOfTalk(u) {
-  //   const usersTalkTime = allUsersArr.map((currUser) => currUser.talk.totalTime);
-  //   const maxTalkTime = Math.max(...usersTalkTime);
-  //   if (maxTalkTime > 0) {
-  //     return (u.talk.totalTime / maxTalkTime) * 2;
-  //   }
-  //   return 0;
-  // }
+  // Here we count each poll vote in order to find out the most common answer.
+  const pollVotesCount = Object.keys(polls || {}).reduce((prevPollVotesCount, pollId) => {
+    const currPollVotesCount = { ...prevPollVotesCount };
+    currPollVotesCount[pollId] = {};
+
+    if (polls[pollId].anonymous) {
+      polls[pollId].anonymousAnswers.forEach((answer) => {
+        const answerLowerCase = answer.toLowerCase();
+        if (currPollVotesCount[pollId][answerLowerCase] === undefined) {
+          currPollVotesCount[pollId][answerLowerCase] = 1;
+        } else {
+          currPollVotesCount[pollId][answerLowerCase] += 1;
+        }
+      });
+
+      return currPollVotesCount;
+    }
+
+    allUsersArr.forEach((currUser) => {
+      if (currUser.answers[pollId] !== undefined) {
+        const userAnswers = Array.isArray(currUser.answers[pollId])
+          ? currUser.answers[pollId]
+          : [currUser.answers[pollId]];
+
+        userAnswers.forEach((answer) => {
+          const answerLowerCase = answer.toLowerCase();
+          if (currPollVotesCount[pollId][answerLowerCase] === undefined) {
+            currPollVotesCount[pollId][answerLowerCase] = 1;
+          } else {
+            currPollVotesCount[pollId][answerLowerCase] += 1;
+          }
+        });
+      }
+    });
+
+    return currPollVotesCount;
+  }, {});
+
+  const usersTalkTime = allUsersArr.map((currUser) => currUser.talk.totalTime);
+  const usersTotalOfMessages = allUsersArr.map((currUser) => currUser.totalOfMessages);
+  const usersEmojis = allUsersArr.map((currUser) => currUser.emojis.filter((emoji) => emoji.name !== 'raiseHand').length);
+  const usersRaiseHands = allUsersArr.map((currUser) => currUser.emojis.filter((emoji) => emoji.name === 'raiseHand').length);
+
+  const totalTalkTime = usersTalkTime.reduce((prev, talkTime) => prev + talkTime, 0);
+  const totalMessages = usersTotalOfMessages.reduce((prev, messages) => prev + messages, 0);
+  const totalEmojis = usersEmojis.reduce((prev, emojis) => prev + emojis, 0);
+  const totalRaiseHands = usersRaiseHands.reduce((prev, raiseHands) => prev + raiseHands, 0);
+  const totalPolls = Object.values(polls || {}).length;
+
+  function getPointsOfTalk(u) {
+    const maxTalkTime = Math.max(...usersTalkTime);
+    if (maxTalkTime > 0) {
+      return (u.talk.totalTime / maxTalkTime) * 2;
+    }
+    return 0;
+  }
 
   function getPointsOfChatting(u) {
-    const usersTotalOfMessages = allUsersArr.map((currUser) => currUser.totalOfMessages);
     const maxMessages = Math.max(...usersTotalOfMessages);
     if (maxMessages > 0) {
       return (u.totalOfMessages / maxMessages) * 2;
@@ -71,8 +112,7 @@ const UserDatailsComponent = (props) => {
   }
 
   function getPointsOfRaiseHand(u) {
-    const usersRaiseHand = allUsersArr.map((currUser) => currUser.emojis.filter((emoji) => emoji.name === 'raiseHand').length);
-    const maxRaiseHand = Math.max(...usersRaiseHand);
+    const maxRaiseHand = Math.max(...usersRaiseHands);
     const userRaiseHand = u.emojis.filter((emoji) => emoji.name === 'raiseHand').length;
     if (maxRaiseHand > 0) {
       return (userRaiseHand / maxRaiseHand) * 2;
@@ -81,7 +121,6 @@ const UserDatailsComponent = (props) => {
   }
 
   function getPointsofEmoji(u) {
-    const usersEmojis = allUsersArr.map((currUser) => currUser.emojis.filter((emoji) => emoji.name !== 'raiseHand').length);
     const maxEmojis = Math.max(...usersEmojis);
     const userEmojis = u.emojis.filter((emoji) => emoji.name !== 'raiseHand').length;
     if (maxEmojis > 0) {
@@ -91,34 +130,34 @@ const UserDatailsComponent = (props) => {
   }
 
   function getPointsOfPolls(u) {
-    if (Object.values(polls || {}).length > 0) {
-      return (Object.values(u.answers || {}).length / Object.values(polls || {}).length) * 2;
+    if (totalPolls > 0) {
+      return (Object.values(u.answers || {}).length / totalPolls) * 2;
     }
     return 0;
   }
 
-  // const talksAverage = allUser()
-  //   .map((currUser) => getPointsOfTalk(currUser))
-  //   .reduce((prev, curr) => prev + curr, 0) / allUsersArr.length;
+  const talkTimeAverage = allUsersArr
+    .map((currUser) => getPointsOfTalk(currUser))
+    .reduce((prev, curr) => prev + curr, 0) / (allUsersArr.length || 1);
 
   const messagesAverage = allUsersArr
     .map((currUser) => getPointsOfChatting(currUser))
-    .reduce((prev, curr) => prev + curr, 0) / allUsersArr.length;
+    .reduce((prev, curr) => prev + curr, 0) / (allUsersArr.length || 1);
 
   const emojisAverage = allUsersArr
     .map((currUser) => getPointsofEmoji(currUser))
-    .reduce((prev, curr) => prev + curr, 0) / allUsersArr.length;
+    .reduce((prev, curr) => prev + curr, 0) / (allUsersArr.length || 1);
 
   const raiseHandsAverage = allUsersArr
     .map((currUser) => getPointsOfRaiseHand(currUser))
-    .reduce((prev, curr) => prev + curr, 0) / allUsersArr.length;
+    .reduce((prev, curr) => prev + curr, 0) / (allUsersArr.length || 1);
 
   const pollsAverage = allUsersArr
     .map((currUser) => getPointsOfPolls(currUser))
-    .reduce((prev, curr) => prev + curr, 0) / allUsersArr.length;
+    .reduce((prev, curr) => prev + curr, 0) / (allUsersArr.length || 1);
 
   const activityPointsFunctions = {
-    // Talks: getPointsOfTalk,
+    'Talk Time': getPointsOfTalk,
     Messages: getPointsOfChatting,
     Emojis: getPointsofEmoji,
     'Raise Hands': getPointsOfRaiseHand,
@@ -126,24 +165,61 @@ const UserDatailsComponent = (props) => {
   };
 
   const averages = {
-    // Talks: talksAverage,
+    'Talk Time': talkTimeAverage,
     Messages: messagesAverage,
     Emojis: emojisAverage,
     'Raise Hands': raiseHandsAverage,
     'Poll Votes': pollsAverage,
   };
 
-  function renderPollItem(question, answer, mostCommomAnswer) {
+  function renderPollItem(poll, answers) {
+    const { anonymous: isAnonymous, question, pollId } = poll;
+    const mostCommomAnswer = Object
+      .entries(pollVotesCount[pollId])
+      .sort(([, countA], [, countB]) => countB - countA)[0]?.[0];
+
     return (
-      <div className="p-6 flex flex-row justify-between">
+      <div className="p-6 flex flex-row justify-between items-center">
         <div className="min-w-[40%] text-ellipsis">{question}</div>
-        <div className="grow text-center">{answer}</div>
-        <div className="min-w-[40%] text-ellipsis text-center">{mostCommomAnswer || <FormattedMessage id="app.learningDashboard.usersTable.notAvailable" defaultMessage="N/A" />}</div>
+        { isAnonymous ? (
+          <span title={intl.formatMessage({
+            id: 'app.learningDashboard.userDetails.anonymousAnswer',
+            defaultMessage: 'Anonymous Poll',
+          })}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4 inline"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </span>
+        ) : (
+          <div className="grow text-center">{answers.map((answer) => <p>{answer}</p>)}</div>
+        ) }
+        <div className="min-w-[40%] text-ellipsis text-center">
+          { mostCommomAnswer
+            ? `${String.fromCharCode(mostCommomAnswer.charCodeAt(0) - 32)}${mostCommomAnswer.substring(1)}`
+            : intl.formatMessage({
+              id: 'app.learningDashboard.usersTable.notAvailable',
+              defaultMessage: 'N/A',
+            }) }
+        </div>
       </div>
     );
   }
 
-  function renderActivityScoreItem(category, average, activityPoints, percentage, total) {
+  function renderActivityScoreItem(
+    category, average, activityPoints, loaderWidth, totalOfActivity,
+  ) {
     return (
       <div className="p-6 flex flex-row justify-between items-end">
         <div className="min-w-[20%] text-ellipsis overflow-hidden">{category}</div>
@@ -155,13 +231,13 @@ const UserDatailsComponent = (props) => {
           </div>
           <div className="rounded-2xl bg-gray-200 before:bg-gray-500 h-4 relative before:absolute before:top-[-50%] before:bottom-[-50%] before:w-[2px] before:left-[calc(50%-1px)] before:z-10">
             <div
-              className="flex justify-end items-center text-white rounded-2xl bg-gradient-to-br from-green-100 to-green-600 absolute inset-0"
+              className="flex justify-end items-center text-white rounded-2xl ltr:bg-gradient-to-br rtl:bg-gradient-to-bl from-green-100 to-green-600 absolute inset-0"
               style={{
-                [offsetOrigin]: `${percentage}%`,
+                width: `${loaderWidth}%`,
               }}
             >
-              { total > 0
-                ? <span className="mr-4">{total}</span>
+              { totalOfActivity > 0
+                ? <span className="ltr:mr-4 rtl:ml-4">{category === 'Talk Time' ? tsToHHmmss(totalOfActivity) : totalOfActivity}</span>
                 : null }
             </div>
           </div>
@@ -242,7 +318,9 @@ const UserDatailsComponent = (props) => {
             <div className="flex flex-row justify-between font-light text-gray-700">
               <div>
                 <div><FormattedMessage id="app.learningDashboard.userDetails.startTime" defaultMessage="Start Time" /></div>
-                <div>{new Date(createdOn).toISOString().substring(11, 19)}</div>
+                <div>
+                  <FormattedTime value={createdOn} />
+                </div>
               </div>
               <div className="ltr:text-right rtl:text-left">
                 <div><FormattedMessage id="app.learningDashboard.userDetails.endTime" defaultMessage="End Time" /></div>
@@ -251,7 +329,9 @@ const UserDatailsComponent = (props) => {
                     <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
                       <FormattedMessage id="app.learningDashboard.indicators.meetingStatusActive" defaultMessage="Active" />
                     </span>
-                  ) : new Date(endedOn || Date.now()).toISOString().substring(11, 19) }
+                  ) : (
+                    <FormattedTime value={endedOn} />
+                  ) }
                 </div>
               </div>
             </div>
@@ -267,98 +347,110 @@ const UserDatailsComponent = (props) => {
             </div>
             <div>
               <div className="font-medium">
-                { new Date(joinTime).toISOString().substring(11, 19) }
+                <FormattedTime value={joinTime} />
               </div>
               <div><FormattedMessage id="app.learningDashboard.userDetails.joined" defaultMessage="Joined" /></div>
             </div>
             <div>
               <div className="font-medium">
-                { new Date(leftTime).toISOString().substring(11, 19) }
+                { isOnline ? (
+                  <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
+                    <FormattedMessage id="app.learningDashboard.indicators.userStatusOnline" defaultMessage="Online" />
+                  </span>
+                ) : (
+                  <FormattedTime value={leftTime} />
+                ) }
               </div>
-              <div><FormattedMessage id="app.learningDashboard.usersTable.left" defaultMessage="Left" /></div>
+              <div className="px-2"><FormattedMessage id="app.learningDashboard.usersTable.left" defaultMessage="Left" /></div>
             </div>
           </div>
         </div>
-        <div className="bg-white shadow rounded mb-4 table w-full">
-          <div className="p-6 text-lg flex items-center">
-            <div className="p-2 rounded-full bg-green-200 text-green-500">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-              </svg>
-            </div>
-            <p className="ltr:ml-2 rtl:mr-2"><FormattedMessage id="app.learningDashboard.indicators.activityScore" defaultMessage="Activity Score" /></p>
-          </div>
-          <div className="p-6 py-2 m-px bg-gray-200 flex flex-row justify-between text-xs text-gray-700">
-            <div className="min-w-[20%] text-ellipsis"><FormattedMessage id="app.learningDashboard.userDetails.category" defaultMessage="Category" /></div>
-            <div className="grow text-center"><FormattedMessage id="app.learningDashboard.userDetails.average" defaultMessage="Average" /></div>
-            <div className="min-w-[20%] text-ellipsis text-right rtl:text-left"><FormattedMessage id="app.learningDashboard.userDetails.activityPoints" defaultMessage="Activity Points" /></div>
-          </div>
-          { ['Talks', 'Messages', 'Emojis', 'Raise Hands', 'Poll Votes'].map((category) => {
-            let percentage = 100;
-            let total = 0;
+        { !user.isModerator && (
+          <>
+            <div className="bg-white shadow rounded mb-4 table w-full">
+              <div className="p-6 text-lg flex items-center">
+                <div className="p-2 rounded-full bg-green-200 text-green-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                  </svg>
+                </div>
+                <p className="ltr:ml-2 rtl:mr-2"><FormattedMessage id="app.learningDashboard.indicators.activityScore" defaultMessage="Activity Score" /></p>
+              </div>
+              <div className="p-6 py-2 m-px bg-gray-200 flex flex-row justify-between text-xs text-gray-700">
+                <div className="min-w-[20%] text-ellipsis"><FormattedMessage id="app.learningDashboard.userDetails.category" defaultMessage="Category" /></div>
+                <div className="grow text-center"><FormattedMessage id="app.learningDashboard.userDetails.average" defaultMessage="Average" /></div>
+                <div className="min-w-[20%] text-ellipsis text-right rtl:text-left"><FormattedMessage id="app.learningDashboard.userDetails.activityPoints" defaultMessage="Activity Points" /></div>
+              </div>
+              { ['Talk Time', 'Messages', 'Emojis', 'Raise Hands', 'Poll Votes'].map((category) => {
+                let loaderWidth = 0;
+                let totalOfActivity = 0;
 
-            switch (category) {
-              case 'Talks':
-                // TODO: Needs a bit of back end work.
-                break;
-              case 'Messages':
-                total = user.totalOfMessages;
-                if (totalMessages) {
-                  percentage = 100 - ((total * 100) / totalMessages);
+                switch (category) {
+                  case 'Talk Time':
+                    totalOfActivity = user.talk.totalTime;
+                    if (totalTalkTime) {
+                      loaderWidth = (totalOfActivity * 100) / totalTalkTime;
+                    }
+                    break;
+                  case 'Messages':
+                    totalOfActivity = user.totalOfMessages;
+                    if (totalMessages) {
+                      loaderWidth = (totalOfActivity * 100) / totalMessages;
+                    }
+                    break;
+                  case 'Emojis':
+                    totalOfActivity = user.emojis.filter((emoji) => emoji.name !== 'raiseHand').length;
+                    if (totalEmojis) {
+                      loaderWidth = (totalOfActivity * 100) / totalEmojis;
+                    }
+                    break;
+                  case 'Raise Hands':
+                    totalOfActivity = user.emojis.filter((emoji) => emoji.name === 'raiseHand').length;
+                    if (totalRaiseHands) {
+                      loaderWidth = (totalOfActivity * 100) / totalRaiseHands;
+                    }
+                    break;
+                  case 'Poll Votes':
+                    totalOfActivity = Object.values(user.answers).length;
+                    if (totalPolls) {
+                      loaderWidth = (totalOfActivity * 100) / totalPolls;
+                    }
+                    break;
+                  default:
                 }
-                break;
-              case 'Emojis':
-                total = user.emojis.filter((emoji) => emoji.name !== 'raiseHand').length;
-                if (totalEmojis) {
-                  percentage = 100 - ((total * 100) / totalEmojis);
-                }
-                break;
-              case 'Raise Hands':
-                total = user.emojis.filter((emoji) => emoji.name === 'raiseHand').length;
-                if (totalRaiseHands) {
-                  percentage = 100 - ((total * 100) / totalRaiseHands);
-                }
-                break;
-              case 'Poll Votes':
-                total = Object.values(user.answers).length;
-                if (totalPollVotes) {
-                  percentage = 100 - ((total * 100) / totalPollVotes);
-                }
-                break;
-              default:
-            }
 
-            return renderActivityScoreItem(
-              category,
-              averages[category],
-              activityPointsFunctions[category]?.(user),
-              percentage,
-              total,
-            );
-          }) }
-        </div>
-        <div className="bg-white shadow rounded">
-          <div className="p-6 text-lg flex items-center">
-            <div className="p-2 rounded-full bg-blue-100 text-blue-500">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-              </svg>
+                return renderActivityScoreItem(
+                  category,
+                  averages[category],
+                  activityPointsFunctions[category](user),
+                  loaderWidth,
+                  totalOfActivity,
+                );
+              }) }
             </div>
-            <p className="ltr:ml-2 rtl:mr-2"><FormattedMessage id="app.learningDashboard.indicators.polls" defaultMessage="Polls" /></p>
-          </div>
-          <div className="p-6 py-2 m-px bg-gray-200 flex flex-row justify-between text-xs text-gray-700">
-            <div className="min-w-[40%] text-ellipsis"><FormattedMessage id="app.learningDashboard.userDetails.poll" defaultMessage="Poll" /></div>
-            <div className="grow text-center"><FormattedMessage id="app.learningDashboard.userDetails.response" defaultMessage="Response" /></div>
-            <div className="min-w-[40%] text-ellipsis text-center"><FormattedMessage id="app.learningDashboard.userDetails.mostCommonAnswer" defaultMessage="Most Common Answer" /></div>
-          </div>
-          { Object.values(polls || {})
-            .map((poll) => renderPollItem(
-              poll.question,
-              getUserAnswer(poll),
-              null, // TODO: Needs a bit of back end work.
-            )) }
-        </div>
+            <div className="bg-white shadow rounded">
+              <div className="p-6 text-lg flex items-center">
+                <div className="p-2 rounded-full bg-blue-100 text-blue-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  </svg>
+                </div>
+                <p className="ltr:ml-2 rtl:mr-2"><FormattedMessage id="app.learningDashboard.indicators.polls" defaultMessage="Polls" /></p>
+              </div>
+              <div className="p-6 py-2 m-px bg-gray-200 flex flex-row justify-between text-xs text-gray-700">
+                <div className="min-w-[40%] text-ellipsis"><FormattedMessage id="app.learningDashboard.userDetails.poll" defaultMessage="Poll" /></div>
+                <div className="grow text-center"><FormattedMessage id="app.learningDashboard.userDetails.response" defaultMessage="Response" /></div>
+                <div className="min-w-[40%] text-ellipsis text-center"><FormattedMessage id="app.learningDashboard.userDetails.mostCommonAnswer" defaultMessage="Most Common Answer" /></div>
+              </div>
+              { Object.values(polls || {})
+                .map((poll) => renderPollItem(
+                  poll,
+                  getUserAnswer(poll),
+                )) }
+            </div>
+          </>
+        ) }
       </div>
     </div>
   );

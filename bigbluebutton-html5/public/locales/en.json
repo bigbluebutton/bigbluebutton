@@ -978,6 +978,7 @@
     "app.learningDashboard.userDetails.poll": "Poll",
     "app.learningDashboard.userDetails.response": "Response",
     "app.learningDashboard.userDetails.mostCommonAnswer": "Most Common Answer",
+    "app.learningDashboard.userDetails.anonymousAnswer": "Anonymous Poll",
     "app.learningDashboard.usersTable.title": "Overview",
     "app.learningDashboard.usersTable.colOnline": "Online time",
     "app.learningDashboard.usersTable.colTalk": "Talk time",
