@@ -363,7 +363,7 @@
     "app.actionsBar.actionsDropdown.restorePresentationDesc": "Botão para restaurar apresentação minimizada",
     "app.actionsBar.actionsDropdown.minimizePresentationLabel": "Minimizar apresentação",
     "app.actionsBar.actionsDropdown.minimizePresentationDesc": "Botão para minimizar apresentação",
-    "app.actionsBar.actionsDropdown.layouts": "Layouts",
+    "app.actionsBar.actionsDropdown.layoutModal": "Layouts",
     "app.screenshare.screenShareLabel" : "Compartilhamento de tela",
     "app.submenu.application.applicationSectionTitle": "Aplicação",
     "app.submenu.application.animationsLabel": "Animações",

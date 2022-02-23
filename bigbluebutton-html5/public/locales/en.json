@@ -368,7 +368,6 @@
     "app.actionsBar.actionsDropdown.restorePresentationDesc": "Button to restore presentation after it has been minimized",
     "app.actionsBar.actionsDropdown.minimizePresentationLabel": "Minimize presentation",
     "app.actionsBar.actionsDropdown.minimizePresentationDesc": "Button used to minimize presentation",
-    "app.actionsBar.actionsDropdown.layouts": "Layouts",
     "app.actionsBar.actionsDropdown.layoutModal": "Layout Settings Modal",
     "app.screenshare.screenShareLabel" : "Screen share",
     "app.submenu.application.applicationSectionTitle": "Application",
