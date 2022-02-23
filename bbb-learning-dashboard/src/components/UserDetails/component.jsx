@@ -174,47 +174,57 @@ const UserDatailsComponent = (props) => {
 
   function renderPollItem(poll, answers) {
     const { anonymous: isAnonymous, question, pollId } = poll;
-    const mostCommomAnswer = Object
+    const answersSorted = Object
       .entries(pollVotesCount[pollId])
-      .sort(([, countA], [, countB]) => countB - countA)[0]?.[0];
+      .sort(([, countA], [, countB]) => countB - countA);
+    let mostCommonAnswer = answersSorted[0]?.[0];
+    const mostCommonAnswerCount = answersSorted[0]?.[1];
+
+    if (mostCommonAnswer && mostCommonAnswerCount) {
+      const hasDraw = answersSorted[1]?.[1] === mostCommonAnswerCount;
+      if (hasDraw) mostCommonAnswer = null;
+    }
 
     return (
       <div className="p-6 flex flex-row justify-between items-center">
         <div className="min-w-[40%] text-ellipsis">{question}</div>
         { isAnonymous ? (
-          <span
-            title={intl.formatMessage({
-              id: 'app.learningDashboard.userDetails.anonymousAnswer',
-              defaultMessage: 'Anonymous Poll',
-            })}
-            className="mx-3"
+          <div
+            className="min-w-[20%] grow text-center mx-3"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 inline"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+            <span
+              title={intl.formatMessage({
+                id: 'app.learningDashboard.userDetails.anonymousAnswer',
+                defaultMessage: 'Anonymous Poll',
+              })}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 inline"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </span>
+          </div>
         ) : (
           <div className="min-w-[20%] grow text-center mx-3">{answers.map((answer) => <p title={answer} className="overflow-hidden text-ellipsis">{answer}</p>)}</div>
         ) }
         <div
           className="min-w-[40%] text-ellipsis text-center overflow-hidden"
-          title={mostCommomAnswer
-            ? `${String.fromCharCode(mostCommomAnswer.charCodeAt(0) - 32)}${mostCommomAnswer.substring(1)}`
+          title={mostCommonAnswer
+            ? `${String.fromCharCode(mostCommonAnswer.charCodeAt(0) - 32)}${mostCommonAnswer.substring(1)}`
             : null}
         >
-          { mostCommomAnswer
-            ? `${String.fromCharCode(mostCommomAnswer.charCodeAt(0) - 32)}${mostCommomAnswer.substring(1)}`
+          { mostCommonAnswer
+            ? `${String.fromCharCode(mostCommonAnswer.charCodeAt(0) - 32)}${mostCommonAnswer.substring(1)}`
             : intl.formatMessage({
               id: 'app.learningDashboard.usersTable.notAvailable',
               defaultMessage: 'N/A',
