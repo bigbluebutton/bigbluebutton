@@ -4,7 +4,7 @@ const fs = require('fs');
 const convert = require('xml-js');
 const { create } = require('xmlbuilder2', { encoding: 'utf-8' });
 const { execSync } = require("child_process");
-const { workerData, parentPort } = require('worker_threads')
+const { workerData, parentPort } = require('worker_threads');
 
 const jobId = workerData;
 const MAGIC_MYSTERY_NUMBER = 2;
@@ -12,37 +12,54 @@ const MAGIC_MYSTERY_NUMBER = 2;
 const logger = new Logger('presAnn Process Worker');
 logger.info("Processing PDF for job " + jobId);
 
-function scale_shape(dimension, coord){
+const kickOffNotifierWorker = (jobType) => {
+    return new Promise((resolve, reject) => {
+        const worker = new Worker('./workers/notifier.js', { workerData: jobType });
+        worker.on('message', resolve);
+        worker.on('error', reject);
+        worker.on('exit', (code) => {
+            if (code !== 0)
+                reject(new Error(`PresAnn Notifier Worker stopped with exit code ${code}`));
+        })
+    })
+}
+
+function color_to_hex(color) {
+    color = parseInt(color).toString(16)
+    return '0'.repeat(6 - color.length) + color
+}
+
+function scale_shape(dimension, coord) {
     return (coord / 100.0 * dimension);
 }
 
-function measure_length(string, fontSize) {
-    // TODO: find faster way to measure string length
-    if (string.length == 0) {
-        return 0;
-    }
+function render_HTMLTextBox(htmlFilePath, id, width, height) {
+    commands = [
+        'wkhtmltoimage',
+        '--format', 'png',
+        '--encoding', `${config.process.whiteboardTextEncoding}`,
+        '--transparent',
+        '--crop-w', width,
+        '--crop-h', height,
+        '--log-level', 'none',
+        htmlFilePath, `${dropbox}/text${id}.png`
+    ]
 
-    var output;
-    output = execSync(`convert xc: -font ${config.process.font} -pointsize ${fontSize} -debug annotate -annotate 0 "${string}" null: 2>&1`, (error, stderr) => {
+    execSync(commands.join(' '), (error, stderr) => {
         if (error) {
-            logger.error(`Error when measuring length of string ${string} with ImageMagick: ${error.message}`);
+            logger.error(`Error when rendering text box for string "${string}" with wkhtmltoimage: ${error.message}`);
             return;
         }
+
         if (stderr) {
-            logger.error(`stderr when measuring lenght of string "${string}" with ImageMagick ${stderr}`);
+            logger.error(`stderr when rendering text box for string "${string}" with wkhtmltoimage: ${stderr}`);
             return;
         }
     })
-
-    output = String(output).split(" ")
-    const textWidth = (element) => element == 'width:';
-    var index = output.findIndex(textWidth);
-
-    return Number(output[index + 1].replace(/[^0-9]/g,''));
 }
 
 function overlay_ellipse(svg, annotation, w, h) {
-    let shapeColor = Number(annotation.color).toString(16)
+    let shapeColor = color_to_hex(annotation.color);
     let fill = annotation.fill ? `#${shapeColor}` : 'none';
 
     let x1 = scale_shape(w, annotation.points[0])
@@ -80,7 +97,7 @@ function overlay_ellipse(svg, annotation, w, h) {
 }
 
 function overlay_line(svg, annotation, w, h) {
-    let shapeColor = Number(annotation.color).toString(16)
+    let shapeColor = color_to_hex(annotation.color);
 
     svg.ele('g', {
         style: `stroke:#${shapeColor};stroke-width:${scale_shape(w, annotation.thickness)};stroke-linecap:butt`
@@ -93,7 +110,7 @@ function overlay_line(svg, annotation, w, h) {
 }
 
 function overlay_pencil(svg, annotation, w, h) {
-    let shapeColor = Number(annotation.color).toString(16)
+    let shapeColor = color_to_hex(annotation.color);
 
     if (annotation.points.length < 2) {
         logger.info("Pencil doesn't have enough points")
@@ -203,7 +220,7 @@ function overlay_poll(svg, annotation, w, h) {
 }
 
 function overlay_rectangle(svg, annotation, w, h) {
-    let shapeColor = Number(annotation.color).toString(16)
+    let shapeColor = color_to_hex(annotation.color);
     let fill = annotation.fill ? `#${shapeColor}` : 'none';
     
     let x1 = scale_shape(w, annotation.points[0])
@@ -221,7 +238,7 @@ function overlay_rectangle(svg, annotation, w, h) {
 }
 
 function overlay_triangle(svg, annotation, w, h) {
-    let shapeColor = Number(annotation.color).toString(16)
+    let shapeColor = color_to_hex(annotation.color);
     let fill = annotation.fill ? `#${shapeColor}` : 'none';
     
     let x1 = scale_shape(w, annotation.points[0])
@@ -241,113 +258,50 @@ function overlay_triangle(svg, annotation, w, h) {
 }
 
 function overlay_text(svg, annotation, w, h) {
-    let fontColor = Number(annotation.fontColor).toString(16)
 
-    let textBoxWidth = scale_shape(w, annotation.textBoxWidth);
-    let textBoxHeight = scale_shape(h, annotation.textBoxHeight);
-    let textBox_x = scale_shape(w, annotation.x);
-    let textBox_y = scale_shape(h, annotation.y);
+    let fontColor = color_to_hex(annotation.fontColor);
+    let textBoxWidth = Math.ceil(scale_shape(w, annotation.textBoxWidth));
+    let textBoxHeight = Math.ceil(scale_shape(h, annotation.textBoxHeight));
+    let textBox_x = Math.ceil(scale_shape(w, annotation.x));
+    let textBox_y = Math.ceil(scale_shape(h, annotation.y));
 
     let fontSize = scale_shape(h, annotation.calcedFontSize)
-    let lines = annotation.text.replace(/\r\n|\n\r|\n|\r/g,'\n').split('\n');
+    let style = [
+        `width:${textBoxWidth}px;`,
+        `height:${textBoxHeight}px;`,
+        `color:#${fontColor};`,
+        "word-wrap:break-word;",
+        "font-family:Arial;",
+        `font-size:${fontSize}px`
+    ]
 
-    let textBox = svg.ele('svg', {
+    var html = 
+        `<!DOCTYPE html>
+        <html>
+            <p style="${style.join('')}">
+                ${annotation.text.split('\n').join('<br>')}
+            </p>
+        </html>`;
+    
+    var htmlFilePath = `${dropbox}/text${annotation.id}.html`
+
+    fs.writeFileSync(htmlFilePath, html, function (err) {
+        if (err) logger.error(err)
+    })
+
+    render_HTMLTextBox(htmlFilePath, annotation.id, textBoxWidth, textBoxHeight)
+
+    svg.ele('image', {
+        'xlink:href': `file://${dropbox}/text${annotation.id}.png`,
         x: textBox_x,
         y: textBox_y,
         width: textBoxWidth,
-        height: textBoxHeight
-    });
-
-    var yOffset = 1; // in em
-    var wrappedLine = [];
-    var wrappedLineLength = 0;
-
-    for(let i = 0; i < lines.length; i++) {
-        var lineLength = measure_length(lines[i], fontSize);
-        
-        if (lineLength < textBoxWidth) {
-            // Line fits in text box. Can be displayed as-is
-            textBox.ele('text', {
-                style: `fill:#${fontColor};font-family:Arial;font-size:${fontSize}px`,
-                dy: `${yOffset}em`,
-            }).txt(lines[i]).up()
-
-            yOffset += 1;
-        }
-
-        else {
-            // Split line into words, keeping the whitespace
-            words = lines[i].split(/(\s+)/);
-
-            // Generate line breaks due to word wrapping
-            for(let j = 0; j < words.length; j++) {
-                wordLength = measure_length(words[j], fontSize);
-
-                // If word fits in line, add it
-                if (wrappedLineLength + wordLength <= textBoxWidth) {
-                    wrappedLine.push(words[j])
-                    wrappedLineLength += wordLength;
-
-                } else if (wordLength > textBoxWidth) {
-                    // If the word itself is wider than the textbox, place the characters individually
-                    var chars = words[j].split('');
-                    
-                    for(let k = 0; k < chars.length; k++){
-                        var charWidth = measure_length(chars[k], fontSize);
-
-                        // If the character fits, add it
-                        if (charWidth + wrappedLineLength <= textBoxWidth) {
-                            wrappedLine.push(chars[k]);
-                            wrappedLineLength += charWidth;
-                        }
-
-                        else {
-                            // Line became too long due to the new character: add the characters that fit
-                            var leftoverWord = chars.slice(k).join('');
-
-                            textBox.ele('text', {
-                                style: `fill:#${fontColor};font-family:Arial;font-size:${fontSize}px`,
-                                dy: `${yOffset}em`,
-                            }).txt(wrappedLine.join('')).up()
-
-                            yOffset += 1;
-                            wrappedLine = [leftoverWord];
-                            wrappedLineLength = wordLength;
-                            break;
-                        }
-                    }
-
-                    // Add remaining part of the word on a new line
-                    textBox.ele('text', {
-                        style: `fill:#${fontColor};font-family:Arial;font-size:${fontSize}px`,
-                        dy: `${yOffset}em`,
-                    }).txt(wrappedLine.join('')).up()
-
-                } else {
-                    // If the line became too long, add the words that came previously
-                    // and add a linebreak starting with the word that didn't fit
-                    textBox.ele('text', {
-                        style: `fill:#${fontColor};font-family:Arial;font-size:${fontSize}px`,
-                        dy: `${yOffset}em`,
-                    }).txt(wrappedLine.join('')).up()
-                    
-                    yOffset += 1;
-                    wrappedLine = [words[j]]
-                    wrappedLineLength = wordLength;
-                }
-            }
-
-            // Add remaining text elements
-            textBox.ele('text', {
-                style: `fill:#${fontColor};font-family:Arial;font-size:${fontSize}px`,
-                dy: `${yOffset}em`,
-            }).txt(wrappedLine.join('')).up()
-        }
-    }
+        height: textBoxHeight,
+    }).up();
 }
 
 function overlay_line(svg, annotation, w, h) {
-    let shapeColor = Number(annotation.color).toString(16)
+    let shapeColor = color_to_hex(annotation.color);
 
     svg.ele('g', {
         style: `stroke:#${shapeColor};stroke-width:${scale_shape(w, annotation.thickness)};stroke-linecap:butt`
@@ -408,7 +362,6 @@ for (let i = 0; i < pages.length; i++) {
     // Get the current slide (without annotations)
     let currentSlide = pages[i]
     var backgroundSlide = fs.readFileSync(`${dropbox}/slide${pages[i].page}.svg`).toString();
-    
     // Read background slide in as JSON to determine dimensions
     // TODO: find a better way to get width and height of slide (e.g. as part of message)
     backgroundSlide = JSON.parse(convert.xml2json(backgroundSlide));
@@ -474,6 +427,8 @@ execSync(`rsvg-convert ${rsvgConvertInput} -f pdf -o ${exportJob.presLocation}/a
 });
 
 // Launch Notifier Worker depending on job type
-logger.info(`Saved PDF at ${exportJob.presLocation}/annotated_slides_${jobId}.pdf`)
+logger.info(`Saved PDF at ${exportJob.presLocation}/annotated_slides_${jobId}.pdf`);
+
+// kickOffNotifierWorker(exportJob.jobType);
 
 parentPort.postMessage({ message: workerData })
