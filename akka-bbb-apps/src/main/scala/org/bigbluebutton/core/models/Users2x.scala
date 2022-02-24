@@ -367,6 +367,10 @@ object SystemUser {
   val ID = "SYSTEM"
 }
 
+object IntIdPrefixType {
+  val DIAL_IN = "v_"
+}
+
 object EjectReasonCode {
   val NOT_EJECT = "not_eject_reason"
   val DUPLICATE_USER = "duplicate_user_in_meeting_eject_reason"
