@@ -31,7 +31,7 @@ case class BreakoutRoomsTimeRemainingUpdateEvtMsg(
     header: BbbClientMsgHeader,
     body:   BreakoutRoomsTimeRemainingUpdateEvtMsgBody
 ) extends BbbCoreMsg
-case class BreakoutRoomsTimeRemainingUpdateEvtMsgBody(timeRemaining: Long, timeUpdatedInMinutes: Int)
+case class BreakoutRoomsTimeRemainingUpdateEvtMsgBody(timeRemaining: Long)
 
 /**
  * Sent to bbb-web to create breakout rooms.
