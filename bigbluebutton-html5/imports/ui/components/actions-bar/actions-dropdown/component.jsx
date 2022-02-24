@@ -199,6 +199,7 @@ class ActionsDropdown extends PureComponent {
         label: intl.formatMessage(intlMessages.selectRandUserLabel),
         key: this.selectUserRandId,
         onClick: () => mountModal(<RandomUserSelectContainer isSelectedUser={false} />),
+        dataTest: "selectRandomUser",
       })
     }
 

@@ -24,6 +24,8 @@ const colorMuted = 'var(--color-muted, #586571)';
 const colorMutedBackground = 'var(--color-muted-background, #F3F6F9)';
 
 const colorBackground = `var(--color-background, ${colorGrayDark})`;
+const colorOverlay = `var(--color-overlay, rgba(6, 23, 42, 0.75))`;
+
 const userListBg = `var(--user-list-bg, ${colorOffWhite})`;
 const userListText = `var(--user-list-text, ${colorGray})`;
 const unreadMessagesBg = `var(--unread-messages-bg, ${colorDanger})`;
@@ -91,7 +93,7 @@ const colorContentBackground = 'var(--color-content-background, #1B2A3A)';
 const dropdownBg = `var(--dropdown-bg, ${colorWhite})`;
 
 const pollStatsBorderColor = 'var(--poll-stats-border-color, #D4D9DF)';
-const pollBlue = 'var(--poll-blue, #1A73D4)';
+const pollBlue = `var(--poll-blue, ${colorPrimary})`;
 
 const toastDefaultColor = `var(--toast-default-color, ${colorWhite})`;
 const toastDefaultBg = `var(--toast-default-bg, ${colorGray})`;
@@ -126,6 +128,7 @@ export {
   colorSuccess,
   colorWarning,
   colorBackground,
+  colorOverlay,
   userListBg,
   userListText,
   unreadMessagesBg,
