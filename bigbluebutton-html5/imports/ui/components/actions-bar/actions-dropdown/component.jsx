@@ -233,6 +233,15 @@ class ActionsDropdown extends PureComponent {
       onClick: () => mountModal(<LayoutModalContainer {...this.props} />),
     });
 
+    if (amIPresenter) {
+      actions.push({
+        icon: 'application',
+        label: intl.formatMessage(intlMessages.layouts),
+        key: 'layouts',
+        onClick: () => mountModal(<SettingsMenuContainer highlightLayoutSubMenu />),
+      });
+    }
+
     return actions;
   }
 
