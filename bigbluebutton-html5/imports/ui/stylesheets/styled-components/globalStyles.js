@@ -148,6 +148,15 @@ const GlobalStyle = createGlobalStyle`
       left: none !important;
     }
   }
+
+  .raiseHandToast {
+    background-color: ${colorWhite};
+    padding: 1rem;
+
+    i.close {
+      left: none !important;
+    }
+  }
 `;
 
 export default GlobalStyle;
