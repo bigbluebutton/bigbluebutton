@@ -31,6 +31,7 @@ case class VoiceProp(telVoice: String, voiceConf: String, dialNumber: String, mu
 case class UsersProp(
     maxUsers:                   Int,
     webcamsOnlyForModerator:    Boolean,
+    userCameraCap:              Int,
     guestPolicy:                String,
     meetingLayout:              String,
     allowModsToUnmuteUsers:     Boolean,

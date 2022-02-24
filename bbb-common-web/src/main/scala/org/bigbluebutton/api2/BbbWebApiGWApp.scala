@@ -124,6 +124,7 @@ class BbbWebApiGWApp(
                     recorded: java.lang.Boolean, voiceBridge: String, duration: java.lang.Integer,
                     autoStartRecording:      java.lang.Boolean,
                     allowStartStopRecording: java.lang.Boolean, webcamsOnlyForModerator: java.lang.Boolean,
+                    userCameraCap: java.lang.Integer,
                     moderatorPass: String, viewerPass: String, learningDashboardEnabled: java.lang.Boolean, learningDashboardAccessToken: String,
                     createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean,
                     sequence: java.lang.Integer,
@@ -179,6 +180,7 @@ class BbbWebApiGWApp(
       modOnlyMessage = modOnlyMessage)
     val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber, muteOnStart = muteOnStart.booleanValue())
     val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
+      userCameraCap = userCameraCap.intValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
       allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
       authenticatedGuest = authenticatedGuest.booleanValue(), virtualBackgroundsDisabled = virtualBackgroundsDisabled.booleanValue())
