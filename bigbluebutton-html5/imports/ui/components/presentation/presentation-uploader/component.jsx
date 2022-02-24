@@ -301,12 +301,14 @@ class PresentationUploader extends Component {
         }
       });
 
-      this.setState({
-        presentations: Object.values({
-          ...presentations,
-          ...propPresentations,
-        }),
-      });
+      if (!_.isEqual(prevProps.presentations, propPresentations) || presentations.length === 0) {
+        this.setState({
+          presentations: Object.values({
+            ...presentations,
+            ...propPresentations,
+          }),
+        });
+      }
     }
 
     if (presentations.length > 0) {
