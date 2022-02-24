@@ -4,10 +4,10 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 
-export default function extendBreakoutsTime({ extendTimeInMinutes }) {
+export default function setBreakoutsTime({ timeInMinutes }) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-  const EVENT_NAME = 'ExtendBreakoutRoomsTimeReqMsg';
+  const EVENT_NAME = 'UpdateBreakoutRoomsTimeReqMsg';
 
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
@@ -15,14 +15,14 @@ export default function extendBreakoutsTime({ extendTimeInMinutes }) {
     check(meetingId, String);
     check(requesterUserId, String);
 
-    return RedisPubSub.publishUserMessage(
+    RedisPubSub.publishUserMessage(
       CHANNEL, EVENT_NAME, meetingId, requesterUserId,
       {
         meetingId,
-        extendTimeInMinutes,
+        timeInMinutes,
       },
     );
   } catch (err) {
-    Logger.error(`Exception while invoking method extendBreakoutsTime ${err.stack}`);
+    Logger.error(`Exception while invoking method setBreakoutsTime ${err.stack}`);
   }
 }

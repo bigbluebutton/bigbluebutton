@@ -154,13 +154,13 @@ const DurationContainer = styled.div`
   text-align: center;
 `;
 
-const ExtendTimeContainer = styled.div`
+const SetTimeContainer = styled.div`
   border-top: 1px solid ${systemMessageBorderColor};
   border-bottom: 1px solid ${systemMessageBorderColor};
   padding: 10px 0px;
 `;
 
-const ExtendDurationInput = styled.input`
+const SetDurationInput = styled.input`
   width: 50%;
   text-align: center;
   padding: .25rem;
@@ -253,8 +253,8 @@ export default {
   BreakoutColumn,
   BreakoutScrollableList,
   DurationContainer,
-  ExtendTimeContainer,
-  ExtendDurationInput,
+  SetTimeContainer,
+  SetDurationInput,
   WithError,
   EndButton,
   Duration,

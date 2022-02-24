@@ -1,20 +1,20 @@
 package org.bigbluebutton.core.apps.breakout
 
-import org.bigbluebutton.core.api.{ ExtendBreakoutRoomTimeInternalMsg }
+import org.bigbluebutton.core.api.{ UpdateBreakoutRoomTimeInternalMsg }
 import org.bigbluebutton.core.domain.{ MeetingState2x }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 
-trait ExtendBreakoutRoomTimeInternalMsgHdlr {
+trait UpdateBreakoutRoomTimeInternalMsgHdlr {
   this: MeetingActor =>
 
   val outGW: OutMsgRouter
 
-  def handleExtendBreakoutRoomTimeInternalMsgHdlr(msg: ExtendBreakoutRoomTimeInternalMsg, state: MeetingState2x): MeetingState2x = {
+  def handleUpdateBreakoutRoomTimeInternalMsgHdlr(msg: UpdateBreakoutRoomTimeInternalMsg, state: MeetingState2x): MeetingState2x = {
 
     val breakoutModel = for {
       model <- state.breakout
     } yield {
-      val updatedBreakoutModel = model.extendTime(msg.extendTimeInMinutes)
+      val updatedBreakoutModel = model.setTime(msg.durationInSeconds)
       updatedBreakoutModel
     }
 
