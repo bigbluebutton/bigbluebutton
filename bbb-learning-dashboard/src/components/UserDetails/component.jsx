@@ -5,7 +5,7 @@ import {
 } from 'react-intl';
 import { UserDetailsContext } from './context';
 import UserAvatar from '../UserAvatar';
-import { getSumOfTime, tsToHHmmss } from '../../services/UserService';
+import { getSumOfTime, tsToHHmmss, getActivityScore } from '../../services/UserService';
 
 const UserDatailsComponent = (props) => {
   const {
@@ -388,7 +388,13 @@ const UserDatailsComponent = (props) => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
                   </svg>
                 </div>
-                <p className="ltr:ml-2 rtl:mr-2"><FormattedMessage id="app.learningDashboard.indicators.activityScore" defaultMessage="Activity Score" /></p>
+                <p className="ltr:ml-2 rtl:mr-2">
+                  <FormattedMessage id="app.learningDashboard.indicators.activityScore" defaultMessage="Activity Score" />
+                  :&nbsp;
+                  <span className="font-bold">
+                    <FormattedNumber value={getActivityScore(user, users, totalPolls)} minimumFractionDigits="0" maximumFractionDigits="1" />
+                  </span>
+                </p>
               </div>
               <div className="p-6 py-2 m-px bg-gray-200 flex flex-row justify-between text-xs text-gray-700">
                 <div className="min-w-[20%] text-ellipsis"><FormattedMessage id="app.learningDashboard.userDetails.category" defaultMessage="Category" /></div>
