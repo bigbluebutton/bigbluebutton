@@ -9,8 +9,8 @@ SERVICE_FILES_DIR=/usr/lib/systemd/system
 LOCAL_PACKAGING_DIR=/home/bigbluebutton/dev/bigbluebutton/build/packages-template/bbb-html5
 
 if [ ! -d "$LOCAL_PACKAGING_DIR" ]; then
-  echo "Did not find LOCAL_PACKAGING_DIR=$LOCAL_PACKAGING_DIR"
-  exit
+    echo "Did not find LOCAL_PACKAGING_DIR=$LOCAL_PACKAGING_DIR"
+    exit
 fi
 
 sudo rm -rf "$UPPER_DESTINATION_DIR"
@@ -19,7 +19,7 @@ sudo chown -R meteor:meteor "$UPPER_DESTINATION_DIR"
 
 # the next 5 lines may be temporarily commented out if you are sure you are not tweaking the required node_modules after first use of the script. This will save a minute or two during the run of the script
 if [ -d "node_modules" ]; then
-   rm -r node_modules/
+    rm -r node_modules/
 fi
 meteor reset
 meteor npm ci --production
@@ -40,7 +40,7 @@ echo "writing $DESTINATION_DIR/mongod_start_pre.sh"
 sudo cp $LOCAL_PACKAGING_DIR/mongod_start_pre.sh "$DESTINATION_DIR"/mongod_start_pre.sh
 
 echo "writing $DESTINATION_DIR/mongo-ramdisk.conf"
-sudo cp $LOCAL_PACKAGING_DIR/mongo-ramdisk.conf "$DESTINATION_DIR"/mongo-ramdisk.conf
+sudo cp $LOCAL_PACKAGING_DIR/bionic/mongo-ramdisk.conf "$DESTINATION_DIR"/mongo-ramdisk.conf
 
 echo "writing $DESTINATION_DIR/bbb-html5-with-roles.conf"
 sudo tee "$DESTINATION_DIR/bbb-html5-with-roles.conf" >/dev/null <<HERE
