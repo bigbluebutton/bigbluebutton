@@ -85,10 +85,10 @@ const UserDatailsComponent = (props) => {
   }, {});
 
   const usersTalkTime = allUsersArr.map((currUser) => currUser.talk.totalTime);
-  const usersTotalOfMessages = allUsersArr.map((currUser) => currUser.totalOfMessages);
+  const usersMessages = allUsersArr.map((currUser) => currUser.totalOfMessages);
   const usersEmojis = allUsersArr.map((currUser) => currUser.emojis.filter((emoji) => emoji.name !== 'raiseHand').length);
   const usersRaiseHands = allUsersArr.map((currUser) => currUser.emojis.filter((emoji) => emoji.name === 'raiseHand').length);
-
+  const usersAnswers = allUsersArr.map((currUser) => Object.values(currUser.answers || {}).length);
   const totalPolls = Object.values(polls || {}).length;
 
   function getPointsOfTalk(u) {
@@ -100,7 +100,7 @@ const UserDatailsComponent = (props) => {
   }
 
   function getPointsOfChatting(u) {
-    const maxMessages = Math.max(...usersTotalOfMessages);
+    const maxMessages = Math.max(...usersMessages);
     if (maxMessages > 0) {
       return (u.totalOfMessages / maxMessages) * 2;
     }
@@ -132,24 +132,19 @@ const UserDatailsComponent = (props) => {
     return 0;
   }
 
-  const talkTimeAverage = allUsersArr
-    .map((currUser) => getPointsOfTalk(currUser))
+  const talkTimeAverage = usersTalkTime
     .reduce((prev, curr) => prev + curr, 0) / (allUsersArr.length || 1);
 
-  const messagesAverage = allUsersArr
-    .map((currUser) => getPointsOfChatting(currUser))
+  const messagesAverage = usersMessages
     .reduce((prev, curr) => prev + curr, 0) / (allUsersArr.length || 1);
 
-  const emojisAverage = allUsersArr
-    .map((currUser) => getPointsofEmoji(currUser))
+  const emojisAverage = usersEmojis
     .reduce((prev, curr) => prev + curr, 0) / (allUsersArr.length || 1);
 
-  const raiseHandsAverage = allUsersArr
-    .map((currUser) => getPointsOfRaiseHand(currUser))
+  const raiseHandsAverage = usersRaiseHands
     .reduce((prev, curr) => prev + curr, 0) / (allUsersArr.length || 1);
 
-  const pollsAverage = allUsersArr
-    .map((currUser) => getPointsOfPolls(currUser))
+  const pollsAverage = usersAnswers
     .reduce((prev, curr) => prev + curr, 0) / (allUsersArr.length || 1);
 
   const activityPointsFunctions = {
@@ -238,9 +233,11 @@ const UserDatailsComponent = (props) => {
         <div className="min-w-[20%] text-ellipsis overflow-hidden">{category}</div>
         <div className="min-w-[60%] grow text-center text-sm">
           <div className="mb-2">
-            { average >= 0
-              ? <FormattedNumber value={average} minimumFractionDigits="0" maximumFractionDigits="1" />
-              : <FormattedMessage id="app.learningDashboard.usersTable.notAvailable" defaultMessage="N/A" /> }
+            { (function () {
+              if (average >= 0 && category === 'Talk Time') return tsToHHmmss(average);
+              if (average >= 0 && category !== 'Talk Time') return <FormattedNumber value={average} minimumFractionDigits="0" maximumFractionDigits="1" />;
+              return <FormattedMessage id="app.learningDashboard.usersTable.notAvailable" defaultMessage="N/A" />;
+            }()) }
           </div>
           <div className="rounded-2xl bg-gray-200 before:bg-gray-500 h-4 relative before:absolute before:top-[-50%] before:bottom-[-50%] before:w-[2px] before:left-[calc(50%-1px)] before:z-10">
             <div
