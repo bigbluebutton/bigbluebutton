@@ -5,6 +5,7 @@ import {
 import { getUserEmojisSummary, emojiConfigs } from '../services/EmojiService';
 import { getActivityScore, getSumOfTime, tsToHHmmss } from '../services/UserService';
 import UserAvatar from './UserAvatar';
+import { UserDetailsContext } from './UserDetails/context';
 
 function renderArrow(order = 'asc') {
   return (
@@ -36,6 +37,8 @@ class UsersTable extends React.Component {
       activityscoreOrder: 'desc',
       lastFieldClicked: 'userOrder',
     };
+
+    this.openUserModal = this.openUserModal.bind(this);
   }
 
   toggleOrder(field) {
@@ -49,6 +52,15 @@ class UsersTable extends React.Component {
     }
 
     if (tab === 'overview') this.setState({ lastFieldClicked: field });
+  }
+
+  openUserModal(user) {
+    const { dispatch } = this.context;
+
+    dispatch({
+      type: 'changeUser',
+      user,
+    });
   }
 
   render() {
@@ -231,9 +243,14 @@ class UsersTable extends React.Component {
                       </div>
                       &nbsp;&nbsp;&nbsp;
                       <div className="inline-block">
-                        <p className="font-semibold truncate xl:max-w-sm max-w-xs">
+                        <button
+                          className="leading-none border-0 p-0 m-0 bg-none font-semibold truncate xl:max-w-sm max-w-xs cursor-pointer rounded-md focus:outline-none focus:ring ring-offset-0 focus:ring-gray-500 focus:ring-opacity-50"
+                          type="button"
+                          onClick={() => this.openUserModal(user)}
+                          aria-label={`Open user details modal - ${user.name}`}
+                        >
                           {user.name}
-                        </p>
+                        </button>
                         { Object.values(user.intIds || {}).map((intId, index) => (
                           <>
                             <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -503,5 +520,7 @@ class UsersTable extends React.Component {
     );
   }
 }
+
+UsersTable.contextType = UserDetailsContext;
 
 export default injectIntl(UsersTable);
