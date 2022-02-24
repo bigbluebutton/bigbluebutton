@@ -7,23 +7,23 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.12.8"
+    val scala = "2.12.15"
     val junit = "4.12"
     val junitInterface = "0.11"
     val scalactic = "3.0.3"
 
     // Libraries
-    val akkaVersion = "2.5.19"
-    val akkaHttpVersion = "10.1.4"
-    val gson = "2.8.5"
-    val jackson = "2.9.7"
-    val logback = "1.2.3"
-    val quicklens = "1.4.11"
-    val spray = "1.3.4"
+    val akkaVersion = "2.6.17"
+    val akkaHttpVersion = "10.2.7"
+    val gson = "2.8.9"
+    val jackson = "2.13.0"
+    val logback = "1.2.7"
+    val quicklens = "1.7.5"
+    val spray = "1.3.6"
 
     // Apache Commons
-    val lang = "3.9"
-    val codec = "1.14"
+    val lang = "3.12.0"
+    val codec = "1.15"
 
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"
@@ -60,7 +60,7 @@ object Dependencies {
 
   object Test {
     val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalaTest % "test"
-    val junit = "junit" % "junit" % Versions.junit % "test"
+//    val junit = "junit" % "junit" % Versions.junit % "test"
     val mockitoCore = "org.mockito" % "mockito-core" % Versions.mockito % "test"
     val scalactic = "org.scalactic" % "scalactic_2.12" % Versions.scalactic % "test"
     val akkaTestKit = "com.typesafe.akka" %% "akka-testkit" % Versions.akkaTestKit % "test"
@@ -68,7 +68,7 @@ object Dependencies {
 
   val testing = Seq(
     Test.scalaTest,
-    Test.junit,
+//    Test.junit,
     Test.mockitoCore,
     Test.scalactic,
     Test.akkaTestKit)

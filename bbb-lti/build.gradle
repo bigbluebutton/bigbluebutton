@@ -23,9 +23,11 @@ buildscript {
     maven { url "https://repo.grails.org/grails/core" }
   }
   dependencies {
-    classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-    classpath "org.grails.plugins:hibernate5:${gormVersion - ".RELEASE"}"
-    classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.15.1"
+    classpath "org.grails:grails-gradle-plugin:${grailsGradlePluginVersion}"
+    classpath "org.grails.plugins:hibernate5:${gormVersion}"
+    classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.3.4"
+    classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:2.6"
+    classpath "org.grails.plugins:views-gradle:2.1.0"
   }
 }
 
@@ -36,8 +38,10 @@ apply plugin: "eclipse"
 apply plugin: "idea"
 apply plugin: "war"
 apply plugin: "org.grails.grails-web"
-apply plugin: "asset-pipeline"
+apply plugin:"com.bertramlabs.asset-pipeline"
 apply plugin: "org.grails.grails-gsp"
+apply plugin:"com.github.erdi.webdriver-binaries"
+apply plugin:"org.grails.plugins.views-json"
 
 task resolveDeps(type: Copy) {
   into('lib')
@@ -74,43 +78,58 @@ repositories {
   maven { url "https://jitpack.io" }
 }
 
+configurations {
+  developmentOnly
+  runtimeClasspath {
+    extendsFrom developmentOnly
+  }
+}
+
 dependencies {
-  compile "org.springframework.boot:spring-boot-starter-logging"
-  compile "org.springframework.boot:spring-boot-autoconfigure"
-  compile "org.grails:grails-core"
-  compile "org.springframework.boot:spring-boot-starter-actuator"
-  compile "org.springframework.boot:spring-boot-starter-tomcat"
-  compile "org.grails:grails-web-boot"
-  compile "org.grails:grails-logging"
-  compile "org.grails:grails-plugin-rest"
-  compile "org.grails:grails-plugin-databinding"
-  compile "org.grails:grails-plugin-i18n"
-  compile "org.grails:grails-plugin-services"
-  compile "org.grails:grails-plugin-url-mappings"
-  compile "org.grails:grails-plugin-interceptors"
-  compile 'org.grails.plugins:external-config:1.2.2'
-  compile "org.grails.plugins:cache"
-  compile "org.grails.plugins:async"
-  compile "org.grails.plugins:scaffolding"
-  compile "org.grails.plugins:events"
-  compile "org.grails.plugins:gsp"
-  compile 'com.github.blindsidenetworks:oauth:master-SNAPSHOT'
-  compile "org.json:json:20180813"
+  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.3.4"
+  implementation group: 'commons-codec', name: 'commons-codec', version: '1.15'
+  developmentOnly("org.springframework.boot:spring-boot-devtools")
+  implementation "org.codehaus.groovy:groovy-dateutil:3.0.9"
+  implementation "org.springframework.boot:spring-boot-starter-logging"
+  implementation "org.springframework.boot:spring-boot-autoconfigure"
+  implementation "org.grails:grails-core"
+  implementation "org.springframework.boot:spring-boot-starter-actuator"
+  implementation "org.springframework.boot:spring-boot-starter-tomcat"
+  implementation "org.grails:grails-web-boot"
+  implementation "org.grails:grails-logging"
+  implementation "org.grails:grails-plugin-rest"
+  implementation "org.grails:grails-plugin-databinding"
+  implementation "org.grails:grails-plugin-i18n"
+  implementation "org.grails:grails-plugin-services"
+  implementation "org.grails:grails-plugin-url-mappings"
+  implementation "org.grails:grails-plugin-interceptors"
+  implementation "org.grails.plugins:cache"
+  implementation "org.grails.plugins:async"
+  implementation "org.grails.plugins:scaffolding"
+  implementation "org.grails.plugins:events"
+  implementation "org.grails.plugins:gsp"
+  implementation 'com.github.blindsidenetworks:oauth:master-SNAPSHOT'
+  implementation "org.json:json:20180813"
   console "org.grails:grails-console"
   profile "org.grails.profiles:web"
-  runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.15.1"
-  testCompile "org.grails:grails-gorm-testing-support"
-  testCompile "org.grails.plugins:geb"
-  testCompile "org.grails:grails-web-testing-support"
-  testCompile "org.grails.plugins:geb:1.1.2"
-  testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
-  testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
-  testRuntime "org.seleniumhq.selenium:selenium-chrome-driver:2.47.1"
+  testImplementation "org.grails:grails-gorm-testing-support"
+  testImplementation "org.grails.plugins:geb"
+  testImplementation "org.grails:grails-web-testing-support"
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
+  testImplementation "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
+  testImplementation "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
+  testImplementation "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
 }
 
 bootRun {
-  jvmArgs('-Dspring.output.ansi.enabled=always')
-  addResources = true
+  jvmArgs(
+          '-Dspring.output.ansi.enabled=always',
+          '-noverify',
+          '-XX:TieredStopAtLevel=1',
+          '-Xmx1024m')
+  sourceResources sourceSets.main
   String springProfilesActive = 'spring.profiles.active'
   systemProperty springProfilesActive, System.getProperty(springProfilesActive)
 }
@@ -125,4 +144,8 @@ tasks.withType(Test) {
 assets {
   minifyJs = true
   minifyCss = true
+}
+
+springBoot {
+  mainClassName = 'org.bigbluebuttoni.Application'
 }

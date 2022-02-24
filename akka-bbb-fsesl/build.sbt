@@ -27,11 +27,6 @@ val compileSettings = Seq(
   )
 )
 
-resolvers ++= Seq(
-  "spray repo" at "http://repo.spray.io/",
-  "blindside-repos" at "http://blindside.googlecode.com/svn/repository/"
-)
-
 resolvers += Resolver.sonatypeRepo("releases")
 
 publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/dev/repo/maven-repo/releases" )) )
@@ -79,4 +74,4 @@ daemonGroup in Linux := group
 
 javaOptions in Universal ++= Seq("-J-Xms130m", "-J-Xmx256m", "-Dconfig.file=/etc/bigbluebutton/bbb-fsesl-akka.conf", "-Dlogback.configurationFile=conf/logback.xml")
 
-debianPackageDependencies in Debian ++= Seq("java8-runtime-headless", "bash", "bbb-freeswitch-core")
+debianPackageDependencies in Debian ++= Seq("java11-runtime-headless", "bash", "bbb-freeswitch-core")

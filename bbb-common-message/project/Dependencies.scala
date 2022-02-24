@@ -7,21 +7,22 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.12.8"
+    val scala = "2.12.15"
     val junit = "4.12"
     val junitInterface = "0.11"
     val scalactic = "3.0.3"
 
     // Libraries
-    val akkaVersion = "2.5.19"
-    val gson = "2.8.5"
-    val jackson = "2.9.7"
-    val sl4j = "1.7.25"
+    val akkaVersion = "2.6.17"
+    val gson = "2.8.9"
+    val jackson = "2.13.0"
+    val sl4j = "1.7.32"
     val red5 = "1.0.10-M9"
-    val pool = "2.8.0"
+    val pool = "2.11.1"
+    val codec = "1.15"
 
     // Redis
-    val lettuce = "5.1.3.RELEASE"
+    val lettuce = "6.1.5.RELEASE"
 
     // Test
     val scalaTest = "3.0.5"
@@ -35,9 +36,9 @@ object Dependencies {
 
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
-    val sl4jApi = "org.slf4j" % "slf4j-api" % Versions.sl4j % "runtime"
-    val red5 = "org.red5" % "red5-server-common" % Versions.red5
+    val sl4jApi = "org.slf4j" % "slf4j-api" % Versions.sl4j
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
+    val commonsCodec = "commons-codec" % "commons-codec" % Versions.codec
 
     val lettuceCore = "io.lettuce" % "lettuce-core" % Versions.lettuce
   }
@@ -62,7 +63,7 @@ object Dependencies {
     Compile.googleGson,
     Compile.jacksonModule,
     Compile.sl4jApi,
-    Compile.red5,
+    Compile.commonsCodec,
     Compile.apachePool2,
     Compile.lettuceCore) ++ testing
 }

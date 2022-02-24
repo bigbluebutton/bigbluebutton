@@ -7,18 +7,18 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.12.8"
+    val scala = "2.12.15"
     val junitInterface = "0.11"
     val scalactic = "3.0.3"
 
     // Libraries
-    val akkaVersion = "2.5.19"
-    val akkaHttpVersion = "10.1.4"
-    val logback = "1.2.3"
+    val akkaVersion = "2.6.17"
+    val akkaHttpVersion = "10.2.7"
+    val logback = "1.2.10"
 
     // Apache Commons
-    val lang = "3.9"
-    val codec = "1.14"
+    val lang = "3.12.0"
+    val codec = "1.15"
 
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"
