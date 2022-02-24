@@ -11,6 +11,7 @@ import {
   colorText,
   colorWhite,
   colorGrayLighter,
+  colorOverlay,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const GlobalStyle = createGlobalStyle`
@@ -64,7 +65,7 @@ const GlobalStyle = createGlobalStyle`
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(6, 23, 42, 0.75);
+    background-color: ${colorOverlay};
   }
 
   .fullscreenModalOverlay {

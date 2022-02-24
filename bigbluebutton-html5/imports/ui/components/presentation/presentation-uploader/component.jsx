@@ -98,6 +98,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.rejectedError',
     description: 'some files rejected, please check the file mime types',
   },
+  badConnectionError: {
+    id: 'app.presentationUploder.connectionClosedError',
+    description: 'message indicating that the connection was closed',
+  },
   uploadProcess: {
     id: 'app.presentationUploder.upload.progress',
     description: 'message that indicates the percentage of the upload',
@@ -613,9 +617,9 @@ class PresentationUploader extends Component {
         }}
       >
         <Styled.FileLine>
-          <Styled.FileIcon>
+          <span>
             <Icon iconName="file" />
-          </Styled.FileIcon>
+          </span>
           <Styled.ToastFileName>
             <span>{item.filename}</span>
           </Styled.ToastFileName>
@@ -977,6 +981,11 @@ class PresentationUploader extends Component {
     if (item.upload.done && item.upload.error) {
       if (item.conversion.status === 'FILE_TOO_LARGE') {
         constraint['0'] = ((item.conversion.maxFileSize) / 1000 / 1000).toFixed(2);
+      }
+
+      if (item.upload.progress < 100) {
+        const errorMessage = intlMessages.badConnectionError;
+        return intl.formatMessage(errorMessage);
       }
 
       const errorMessage = intlMessages[item.upload.status] || intlMessages.genericError;

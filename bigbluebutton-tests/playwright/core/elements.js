@@ -59,9 +59,11 @@ exports.publicChat = 'div[data-test="publicChat"]';
 exports.privateChat = 'div[data-test="privateChat"]';
 exports.hidePublicChat = 'button[data-test="hidePublicChat"]';
 exports.hidePrivateChat = 'button[data-test="hidePrivateChat"]';
+exports.closePrivateChat = 'button[data-test="closePrivateChat"]';
 exports.typingIndicator = 'span[data-test="typingIndicator"]';
 exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
 exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
+exports.chatWelcomeMessageText = 'p[data-test="chatWelcomeMessageText"]';
 // Messages
 exports.message = 'Hello World!';
 exports.testMessage = 'Just a test';
@@ -187,9 +189,11 @@ exports.notesTitle = 'h2[data-test="notesTitle"]';
 
 // User
 exports.userAvatar = 'div[data-test="userAvatar"]';
+exports.moderatorAvatar = 'div[data-test="moderatorAvatar"]';
+exports.viewerAvatar = 'div[data-test="viewerAvatar"]';
 exports.applauseIcon = `${this.userAvatar} > div > i[class="icon-bbb-applause"]`;
 exports.awayIcon = `${this.userAvatar} > div > i[class="icon-bbb-time"]`;
-exports.setStatus = 'li[data-test="setstatus"]';
+exports.setStatus = 'li[data-test="setStatus"]';
 exports.away = 'li[data-test="away"]';
 exports.applaud = 'li[data-test="applause"]';
 exports.userListItem = 'div[data-test="userListItem"]';
@@ -198,7 +202,7 @@ exports.multiWhiteboardTool = 'span[data-test="multiWhiteboardTool"]';
 exports.manageUsers = 'button[data-test="manageUsers"]';
 exports.presenterClassName = 'presenter--';
 exports.anyUser = 'div[data-test="userListItem"]';
-exports.userList = 'button[data-test="toggleUserList"]';
+exports.userListToggleBtn = 'button[data-test="toggleUserList"]';
 exports.mobileUser = 'span[data-test="mobileUser"]';
 exports.connectionStatusBtn = 'button[data-test="connectionStatusButton"]';
 exports.connectionStatusModal = 'div[aria-label="Connection status modal"]';
@@ -217,6 +221,14 @@ exports.joinMeetingDemoPage = 'div[class^="join-meeting"]';
 exports.askModerator = 'button[data-test="askModerator"]';
 exports.alwaysAccept = 'button[data-test="alwaysAccept"]';
 exports.alwaysDeny = 'button[data-test="alwaysDeny"]';
+exports.selectRandomUser = 'li[data-test="selectRandomUser"]';
+exports.noViewersSelectedMessage = 'div[data-test="noViewersSelectedMessage"]';
+exports.selectedUserName = 'div[data-test="selectedUserName"]';
+exports.selectAgainRadomUser = 'button[data-test="selectAgainRadomUser"]';
+exports.promoteToModerator = 'li[data-test="promoteToModerator"]';
+exports.demoteToViewer = 'li[data-test="demoteToViewer"]';
+exports.makePresenter = 'li[data-test="makePresenter"]';
+exports.takePresenter = 'li[data-test="takePresenter"]';
 // Lock Viewers
 exports.lockViewersButton = 'li[data-test="lockViewersButton"]';
 exports.unlockUserButton = 'li[data-test="unlockUserButton"]';

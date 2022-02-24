@@ -60,16 +60,9 @@ const UploadRow = styled.div`
 const FileLine = styled.div`
   display: flex;
   flex-direction: row;
-  width: ${fileLineWidth};
-`;
-
-const FileIcon = styled.span`
-  width: 1%;
+  align-items: center;
   padding-bottom: ${iconPaddingMd};
-  & > i {
-    position: relative;
-    top: ${borderSizeLarge};
-  }
+  width: ${fileLineWidth};
 `;
 
 const ToastFileName = styled.span`
@@ -77,31 +70,21 @@ const ToastFileName = styled.span`
   overflow: hidden;
   white-space: nowrap;
   height: 1.25rem !important;
-  margin-left: ${lgPaddingX};
-  top: ${borderSizeLarge};
+  margin-left: ${mdPaddingY};
   height: 1rem;
   width: auto;
-  position: relative;
   text-align: left;
   font-weight: ${headingsFontWeight};
 
   [dir="rtl"] & {
-    margin-right: ${lgPaddingX};
+    margin-right: ${mdPaddingY};
     margin-left: 0;
     text-align: right;
   }
 `;
 
 const StatusIcon = styled.span`
-  margin-left: auto;
-  [dir="rtl"] & {
-    margin-right: auto;
-    margin-left: 0;
-  }
-
   & > i {
-    position: relative;
-    top: 1px;
     height: ${statusIconSize};
     width: ${statusIconSize};
   }
@@ -162,9 +145,6 @@ const Table = styled.table`
         font-weight: bold;
         color: ${colorGrayDark};
       }
-
-      td {
-      }
     }
   }
 `;
@@ -219,6 +199,11 @@ const InnerToast = styled(ScrollboxVertical)`
   padding-right: 1.5rem;
   box-sizing: content-box;
   background: none;
+
+  [dir="rtl"] & {
+    padding-right: 0;
+    padding-left: 1.5rem;
+  }
 `;
 
 const TableItemIcon = styled.td`
@@ -455,8 +440,12 @@ const ToastItemIcon = styled(Icon)`
   width: ${statusIconSize};
   height: ${statusIconSize};
   font-size: 117%;
-  bottom: ${borderSize};
   left: ${statusInfoHeight};
+
+  [dir="rtl"] & {
+    left: unset;
+    right: ${statusInfoHeight};
+  }
 
   ${({ done }) => done && `
     color: ${colorSuccess};
@@ -589,7 +578,6 @@ const ExtraHint = styled.div`
 export default {
   UploadRow,
   FileLine,
-  FileIcon,
   ToastFileName,
   StatusIcon,
   StatusInfo,

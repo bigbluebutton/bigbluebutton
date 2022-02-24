@@ -359,16 +359,14 @@ class LearningDashboardActor(
   }
 
   private def handleUserRoleChangedEvtMsg(msg: UserRoleChangedEvtMsg) {
-    if(msg.body.role == Roles.MODERATOR_ROLE) {
-      for {
-        meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-        user <- findUserByIntId(meeting, msg.body.userId)
-      } yield {
-        val updatedUser = user.copy(isModerator = true)
-        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      user <- findUserByIntId(meeting, msg.body.userId)
+    } yield {
+      val updatedUser = user.copy(isModerator = (msg.body.role == Roles.MODERATOR_ROLE))
+      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
 
-        meetings += (updatedMeeting.intId -> updatedMeeting)
-      }
+      meetings += (updatedMeeting.intId -> updatedMeeting)
     }
   }
 

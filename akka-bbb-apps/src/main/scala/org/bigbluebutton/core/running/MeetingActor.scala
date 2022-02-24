@@ -708,6 +708,9 @@ class MeetingActor(
 
     // send all screen sharing info
     screenshareApp2x.handleSyncGetScreenshareInfoRespMsg(liveMeeting, msgBus)
+
+    // send all webcam info
+    usersApp.handleSyncGetWebcamInfoRespMsg(liveMeeting, msgBus)
   }
 
   def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
