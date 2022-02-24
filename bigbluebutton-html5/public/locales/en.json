@@ -414,6 +414,7 @@
     "app.settings.dataSavingTab.description": "To save your bandwidth adjust what's currently being displayed.",
     "app.settings.save-notification.label": "Settings have been saved",
     "app.statusNotifier.lowerHands": "Lower Hands",
+    "app.statusNotifier.lowerHandDescOneUser": "Lower {0}'s hand",
     "app.statusNotifier.raisedHandsTitle": "Raised Hands",
     "app.statusNotifier.raisedHandDesc": "{0} raised their hands",
     "app.statusNotifier.raisedHandDescOneUser": "{0} raised hand",
