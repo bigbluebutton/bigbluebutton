@@ -1,4 +1,5 @@
-import React, { createContext, useReducer } from 'react';
+import React, { useReducer } from 'react';
+import { createContext, useContextSelector } from 'use-context-selector';
 import PropTypes from 'prop-types';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
@@ -24,7 +25,7 @@ const providerPropTypes = {
   ]).isRequired,
 };
 
-const LayoutContext = createContext();
+const LayoutContextSelector = createContext();
 
 const initState = {
   deviceType: null,
@@ -333,12 +334,12 @@ const reducer = (state, action) => {
       } = action.value;
       const { sidebarNavigation } = state.output;
       if (sidebarNavigation.display === display
-        && sidebarNavigation.minWidth === width
-        && sidebarNavigation.maxWidth === width
+        && sidebarNavigation.minWidth === minWidth
+        && sidebarNavigation.maxWidth === maxWidth
         && sidebarNavigation.width === width
-        && sidebarNavigation.minHeight === height
+        && sidebarNavigation.minHeight === minHeight
         && sidebarNavigation.height === height
-        && sidebarNavigation.maxHeight === height
+        && sidebarNavigation.maxHeight === maxHeight
         && sidebarNavigation.top === top
         && sidebarNavigation.left === left
         && sidebarNavigation.right === right
@@ -1132,37 +1133,40 @@ const reducer = (state, action) => {
   }
 };
 
-const ContextProvider = (props) => {
+const LayoutContextProvider = (props) => {
   const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initState);
   const { children } = props;
   return (
-    <LayoutContext.Provider value={{
-      layoutContextState,
-      layoutContextDispatch,
-    }}
+    <LayoutContextSelector.Provider value={
+      [
+        layoutContextState,
+        layoutContextDispatch,
+      ]
+    }
     >
       {children}
-    </LayoutContext.Provider>
+    </LayoutContextSelector.Provider>
   );
 };
-ContextProvider.propTypes = providerPropTypes;
+LayoutContextProvider.propTypes = providerPropTypes;
 
-const withProvider = (Component) => (props) => (
-  <ContextProvider>
-    <Component {...props} />
-  </ContextProvider>
-);
-
-const withConsumer = (Component) => (props) => (
-  <LayoutContext.Consumer>
-    {(contexts) => <Component {...props} {...contexts} />}
-  </LayoutContext.Consumer>
-);
-
-export default LayoutContext;
-
-export const LayoutContextFunc = {
-  withProvider,
-  withConsumer,
-  withContext: (Component) => withProvider(withConsumer(Component)),
+const layoutSelect = (selector) => {
+  return useContextSelector(LayoutContextSelector, layout => selector(layout[0]));
 };
+const layoutSelectInput = (selector) => {
+  return useContextSelector(LayoutContextSelector, layout => selector(layout[0].input));
+};
+const layoutSelectOutput = (selector) => {
+  return useContextSelector(LayoutContextSelector, layout => selector(layout[0].output));
+};
+const layoutDispatch = () => {
+  return useContextSelector(LayoutContextSelector, layout => layout[1]);
+};
+
+export {
+  LayoutContextProvider,
+  layoutSelect,
+  layoutSelectInput,
+  layoutSelectOutput,
+  layoutDispatch,
+}

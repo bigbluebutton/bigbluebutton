@@ -24,13 +24,11 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     id: Match.Maybe(String),
     timestamp: Number,
     sender: Object,
-    color: String,
     message: String,
     correlationId: Match.Maybe(String),
   });
 
   const {
-    color,
     sender,
     ...restMsg
   } = msg;
@@ -38,6 +36,7 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
   const msgDocument = {
     ...restMsg,
     sender: sender.id,
+    senderName: sender.name,
     meetingId,
     chatId,
     message: parseMessage(msg.message),

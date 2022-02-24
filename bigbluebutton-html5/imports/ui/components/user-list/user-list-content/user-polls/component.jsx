@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Icon from '/imports/ui/components/icon/component';
-import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
+import Icon from '/imports/ui/components/common/icon/component';
+import Styled from './styles';
 import { ACTIONS, PANELS } from '../../../layout/enums';
 
 const intlMessages = defineMessages({
@@ -37,28 +37,27 @@ const UserPolls = ({
   };
 
   return (
-    <div className={styles.messages}>
-      <div className={styles.container}>
-        <h2 className={styles.smallTitle}>
+    <Styled.Messages>
+      <Styled.Container>
+        <Styled.SmallTitle>
           {intl.formatMessage(intlMessages.pollLabel)}
-        </h2>
-      </div>
-      <div className={styles.list}>
-        <div className={styles.scrollableList}>
-          <div
+        </Styled.SmallTitle>
+      </Styled.Container>
+      <Styled.List>
+        <Styled.ScrollableList>
+          <Styled.ListItem
             role="button"
             tabIndex={0}
-            className={styles.listItem}
             data-test="pollMenuButton"
             onClick={handleClickTogglePoll}
             onKeyPress={() => {}}
           >
             <Icon iconName="polling" />
             <span>{intl.formatMessage(intlMessages.pollLabel)}</span>
-          </div>
-        </div>
-      </div>
-    </div>
+          </Styled.ListItem>
+        </Styled.ScrollableList>
+      </Styled.List>
+    </Styled.Messages>
   );
 };
 

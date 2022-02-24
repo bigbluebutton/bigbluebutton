@@ -10,5 +10,5 @@ export default function handlePresentationAdded({ body }, meetingId) {
   check(podId, String);
   check(presentation, Object);
 
-  return addPresentation(meetingId, podId, presentation);
+  addPresentation(meetingId, podId, presentation);
 }

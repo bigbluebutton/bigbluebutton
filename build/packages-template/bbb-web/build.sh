@@ -50,6 +50,7 @@ echo end building bbb-common-message
 
 # New project directory containing parts of bbb-web
 cd bbb-common-web
+sbt update
 sbt publish
 sbt publishLocal
 cd ..

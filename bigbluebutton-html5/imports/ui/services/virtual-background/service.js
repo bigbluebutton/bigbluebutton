@@ -97,7 +97,7 @@ const isVirtualBackgroundEnabled = () => {
 }
 
 const isVirtualBackgroundSupported = () => {
-  return !(deviceInfo.isIOS || browserInfo.isSafari);
+  return !(deviceInfo.isIos || browserInfo.isSafari);
 }
 
 const getVirtualBgImagePath = () => {

@@ -352,6 +352,10 @@ stop_bigbluebutton () {
         WEBHOOKS=bbb-webhooks
     fi
 
+    if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
+        PADS=bbb-pads
+    fi
+
     if [ -f /usr/share/etherpad-lite/settings.json ]; then
         ETHERPAD=etherpad
     fi
@@ -368,7 +372,7 @@ stop_bigbluebutton () {
       TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    systemctl stop $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker.service bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
+    systemctl stop $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker.service bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $PADS $ETHERPAD $BBB_WEB $BBB_LTI
 }
 
 start_bigbluebutton () {
@@ -399,6 +403,10 @@ start_bigbluebutton () {
         WEBHOOKS=bbb-webhooks
     fi
 
+    if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
+        PADS=bbb-pads
+    fi
+
     if [ -f /usr/share/etherpad-lite/settings.json ]; then
         ETHERPAD=etherpad
     fi
@@ -415,7 +423,7 @@ start_bigbluebutton () {
         TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    systemctl start $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
+    systemctl start $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $PADS $BBB_WEB $BBB_LTI
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         systemctl start mongod
@@ -472,6 +480,10 @@ display_bigbluebutton_status () {
 
     if [ -f /lib/systemd/system/bbb-lti.service ]; then
         units="$units bbb-lti"
+    fi
+
+    if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
+        units="$units bbb-pads"
     fi
 
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
@@ -1735,7 +1747,7 @@ if [ -n "$HOST" ]; then
 
     if [ -f $HTML5_DEFAULT_CONFIG ]; then
         yq w -i $HTML5_DEFAULT_CONFIG public.kurento.wsUrl "wss://$HOST/bbb-webrtc-sfu"
-        yq w -i $HTML5_DEFAULT_CONFIG public.note.url      "$PROTOCOL://$HOST/pad"
+        yq w -i $HTML5_DEFAULT_CONFIG public.pads.url      "$PROTOCOL://$HOST/pad"
         chown meteor:meteor $HTML5_DEFAULT_CONFIG
 
         #if [ -f $KURENTO_CONFIG ]; then

@@ -81,6 +81,11 @@
       animation: sk-bouncedelay calc(var(--enableAnimation) * 1.4s) infinite ease-in-out both;
     }
 
+    #positionInWaitingQueue {
+      align-items: center;
+      text-align: center;
+    }
+
     @-webkit-keyframes sk-bouncedelay {
 
       0%,
@@ -132,6 +137,26 @@
           updateMessage(lobbyMessage);
         } else {
           updateMessage(_('app.guest.guestWait'));
+        }
+      }
+    }
+
+    function updatePositionOnPage(message, currentPosition) {
+      document.querySelector('#positionInWaitingQueue > p').innerHTML = message + currentPosition;
+    }
+
+    function stopUpdatingWaitingPosition() {
+      document.querySelector('#positionInWaitingQueue > p').innerHTML = '';
+    }
+
+    let positionInWaitingQueue = '';
+    function updatePositionInWaitingQueue(newPositionInWaitingQueue) {
+      if (positionInWaitingQueue !== newPositionInWaitingQueue) {
+        positionInWaitingQueue = newPositionInWaitingQueue;
+        if (positionInWaitingQueue === '1') {
+          updatePositionOnPage(_('app.guest.firstPositionInWaitingQueue'), '');
+        } else {
+          updatePositionOnPage(_('app.guest.positionInWaitingQueue'), positionInWaitingQueue);
         }
       }
     }
@@ -247,7 +272,7 @@
                   return;
                 }
 
-                pollGuestStatus(sessionToken, 0, ATTEMPT_LIMIT, ATTEMPT_EVERY_MS);
+                pollGuestStatus(sessionToken, ATTEMPT_EVERY_MS);
               } catch (e) {
                 disableAnimation();
                 console.error(e);
@@ -277,32 +302,29 @@
       }, REDIRECT_TIMEOUT);
     };
 
-    function pollGuestStatus(token, attempt, limit, everyMs) {
+    function pollGuestStatus(token, everyMs) {
 
       setTimeout(function () {
-        if (attempt >= limit) {
-          disableAnimation();
-          updateMessage(_('app.guest.noModeratorResponse'));
-          return;
-        }
-
         fetchGuestWait(token)
           .then(async (resp) => await resp.json())
           .then((data) => {
             const code = data.response.returncode;
 
             if (code === 'FAILED') {
+              stopUpdatingWaitingPosition();
               return redirect(_('app.guest.' + data.response.messageKey), data.response.url);
             }
 
             const status = data.response.guestStatus;
 
             if (status === 'DENY') {
+              stopUpdatingWaitingPosition();
               return redirect(_('app.guest.' + data.response.messageKey), data.response.url);
             }
 
             if (status === 'ALLOW') {
               updateLobbyMessage(_('app.guest.allow'));
+              stopUpdatingWaitingPosition();
               // Timeout is required by accessibility to allow viewing of the message for a minimum of 3 seconds
               // before redirecting.
               setTimeout(() => {
@@ -311,10 +333,10 @@
               }, MESSAGE_TIMEOUT);
               return;
             }
-
+            updatePositionInWaitingQueue(data.response.positionInWaitingQueue);
             updateLobbyMessage(data.response.lobbyMessage);
 
-            return pollGuestStatus(token, attempt + 1, limit, everyMs);
+            return pollGuestStatus(token, everyMs);
           });
       }, everyMs);
     };
@@ -342,6 +364,9 @@
       <div class="bounce3"></div>
     </div>
     <p aria-live="polite">Please wait for a moderator to approve you joining the meeting.</p>
+    <div id="positionInWaitingQueue">
+      <p aria-live="polite">Calculating position in waiting queue</p>
+    </div>
   </div>
 </body>
 

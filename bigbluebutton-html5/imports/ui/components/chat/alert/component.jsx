@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import injectNotify from '/imports/ui/components/toast/inject-notify/component';
+import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import AudioService from '/imports/ui/components/audio/service';
 import ChatPushAlert from './push-alert/component';
 import Service from '../service';
-import { styles } from '../styles';
+import Styled from './styles';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.chat_clear;
@@ -125,7 +125,7 @@ const ChatAlert = (props) => {
             { autoClose: 3000 },
             <div>
               <div style={{ fontWeight: 700 }}>{chatsTracker[key].lastSender}</div>
-              <div>{chatsTracker[key].content}</div>
+              <div dangerouslySetInnerHTML={{ __html: chatsTracker[key].content }} />
             </div>,
             true,
           );
@@ -188,15 +188,15 @@ const ChatAlert = (props) => {
   };
 
   const createMessage = (name, message) => (
-    <div className={styles.pushMessageContent}>
-      <h3 className={styles.userNameMessage}>{name}</h3>
-      <div className={styles.contentMessage}>
+    <Styled.PushMessageContent>
+      <Styled.UserNameMessage>{name}</Styled.UserNameMessage>
+      <Styled.ContentMessage>
         {
           mapContentText(message)
             .reduce((acc, text) => [...acc, (<br key={_.uniqueId('br_')} />), text], [])
         }
-      </div>
-    </div>
+      </Styled.ContentMessage>
+    </Styled.PushMessageContent>
   );
 
   return pushAlertEnabled

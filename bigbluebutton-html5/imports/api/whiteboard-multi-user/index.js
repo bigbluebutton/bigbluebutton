@@ -1,6 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 
-const WhiteboardMultiUser = new Mongo.Collection('whiteboard-multi-user');
+const collectionOptions = Meteor.isClient ? {
+  connection: null,
+} : {};
+
+const WhiteboardMultiUser = new Mongo.Collection('whiteboard-multi-user', collectionOptions);
 
 if (Meteor.isServer) {
   // types of queries for the whiteboard-multi-user:

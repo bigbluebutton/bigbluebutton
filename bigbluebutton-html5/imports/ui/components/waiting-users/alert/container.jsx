@@ -1,22 +1,20 @@
 import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
-import GuestUsers from '/imports/api/guest-users/';
+import GuestUsers from '/imports/api/guest-users';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import WaitingComponent from './component';
-import LayoutContext from '../../layout/context';
+import { layoutSelectInput, layoutDispatch } from '../../layout/context';
 import { PANELS } from '../../layout/enums';
 
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 
 const WaitingContainer = (props) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-  const { input } = layoutContextState;
-  const { sidebarContent } = input;
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const managementPanelIsOpen = sidebarContentPanel === PANELS.WAITING_USERS;
+  const layoutContextDispatch = layoutDispatch();
 
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;

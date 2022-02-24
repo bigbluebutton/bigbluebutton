@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import ChatAlert from './component';
-import LayoutContext from '../../layout/context';
+import { layoutSelect, layoutSelectInput, layoutDispatch } from '../../layout/context';
 import { PANELS } from '../../layout/enums';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import { ChatContext } from '/imports/ui/components/components-data/chat-context/context';
@@ -28,11 +28,11 @@ function usePrevious(value) {
 }
 
 const ChatAlertContainer = (props) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-  const { idChatOpen, input } = layoutContextState;
-  const { sidebarContent } = input;
+  const idChatOpen = layoutSelect((i) => i.idChatOpen);
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
+  const layoutContextDispatch = layoutDispatch();
+
   const { audioAlertEnabled, pushAlertEnabled } = props;
 
   let idChat = idChatOpen;
@@ -73,12 +73,13 @@ const ChatAlertContainer = (props) => {
       try {
         if (c[0] === idChat || (c[0] === 'MAIN-PUBLIC-GROUP-CHAT' && idChat === 'public')) {
           chatsTracker[c[0]] = {};
-          chatsTracker[c[0]].lastSender = users[Auth.meetingID][c[1]?.lastSender]?.name;
           if (c[1]?.posJoinMessages || c[1]?.messageGroups) {
             const m = Object.entries(c[1]?.posJoinMessages || c[1]?.messageGroups);
-            chatsTracker[c[0]].count = m?.length;
-            if (m[m.length - 1]) {
+            const sameUserCount = m.filter((message) => message[1]?.sender === Auth.userID).length;
+            if (m[m.length - 1] && m[m.length - 1][1]?.sender !== Auth.userID) {
+              chatsTracker[c[0]].lastSender = users[Auth.meetingID][c[1]?.lastSender]?.name;
               chatsTracker[c[0]].content = m[m.length - 1][1]?.message;
+              chatsTracker[c[0]].count = m?.length - sameUserCount;
             }
           }
         }
@@ -94,7 +95,7 @@ const ChatAlertContainer = (props) => {
     if (prevTracker) {
       const keys = Object.keys(prevTracker);
       keys.forEach((key) => {
-        if (chatsTracker[key]?.count > prevTracker[key]?.count) {
+        if (chatsTracker[key]?.count > (prevTracker[key]?.count || 0)) {
           chatsTracker[key].shouldNotify = true;
         }
       });

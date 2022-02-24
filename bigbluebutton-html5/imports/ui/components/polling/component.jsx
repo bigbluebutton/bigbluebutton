@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Button from '/imports/ui/components/button/component';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import cx from 'classnames';
 import { Meteor } from 'meteor/meteor';
-import { styles } from './styles.scss';
+import Styled from './styles';
 import AudioService from '/imports/ui/components/audio/service';
+import Checkbox from '/imports/ui/components/common/checkbox/component';
 
 const MAX_INPUT_CHARS = Meteor.settings.public.poll.maxTypedAnswerLength;
 
@@ -52,10 +51,15 @@ class Polling extends Component {
 
     this.state = {
       typedAns: '',
+      checkedAnswers: [],
     };
 
     this.play = this.play.bind(this);
     this.handleUpdateResponseInput = this.handleUpdateResponseInput.bind(this);
+    this.renderButtonAnswers = this.renderButtonAnswers.bind(this);
+    this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.renderCheckboxAnswers = this.renderCheckboxAnswers.bind(this);
     this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
   }
 
@@ -75,6 +79,23 @@ class Polling extends Component {
     this.setState({ typedAns: this.responseInput.value });
   }
 
+  handleSubmit(pollId) {
+    const { handleVote } = this.props;
+    const { checkedAnswers } = this.state;
+    handleVote(pollId, checkedAnswers);
+  }
+
+  handleCheckboxChange(pollId, answerId) {
+    const { checkedAnswers } = this.state;
+    if (checkedAnswers.includes(answerId)) {
+      checkedAnswers.splice(checkedAnswers.indexOf(answerId), 1);
+    } else {
+      checkedAnswers.push(answerId);
+    }
+    checkedAnswers.sort();
+    this.setState({ checkedAnswers });
+  }
+
   handleMessageKeyDown(e) {
     const {
       poll,
@@ -90,7 +111,7 @@ class Polling extends Component {
     }
   }
 
-  render() {
+  renderButtonAnswers() {
     const {
       isMeteorConnected,
       intl,
@@ -111,44 +132,20 @@ class Polling extends Component {
     const { stackOptions, answers, question, pollType } = poll;
     const defaultPoll = isDefaultPoll(pollType);
 
-    const pollAnswerStyles = {
-      [styles.pollingAnswers]: true,
-      [styles.removeColumns]: answers.length === 1,
-      [styles.stacked]: stackOptions,
-    };
-
     return (
-      <div className={styles.overlay}>
-        <div
-          data-test="pollingContainer"
-          className={cx({
-            [styles.pollingContainer]: true,
-            [styles.autoWidth]: stackOptions,
-          })}
-          role="alert"
-        >
-          {
-            question.length > 0 && (
-              <span className={styles.qHeader}>
-                <h2 className={styles.qTitle}>
-                  {intl.formatMessage(intlMessages.pollQuestionTitle)}
-                </h2>
-                <div data-test="pollQuestion" className={styles.qText}>{question}</div>
-              </span>
-            )
-          }
+      <div>
           {
             poll.pollType !== pollTypes.Response && (
               <span>
                 {
                   question.length === 0 && (
-                    <div className={styles.pollingTitle}>
+                    <Styled.PollingTitle>
                       {intl.formatMessage(intlMessages.pollingTitleLabel)}
-                    </div>
+                    </Styled.PollingTitle>
                   )
                 }
-                <div className={cx(pollAnswerStyles)}>
-                  {poll.answers.map((pollAnswer) => {
+                <Styled.PollingAnswers removeColumns={answers.length === 1} stacked={stackOptions}>
+                  {answers.map((pollAnswer) => {
                     const formattedMessageIndex = pollAnswer?.key.toLowerCase();
                     let label = pollAnswer.key;
                     if (defaultPoll && pollAnswerIds[formattedMessageIndex]) {
@@ -156,79 +153,166 @@ class Polling extends Component {
                     }
 
                     return (
-                      <div
-                        key={pollAnswer.id}
-                        className={styles.pollButtonWrapper}
-                      >
-                        <Button
+                      <Styled.PollButtonWrapper key={pollAnswer.id} >
+                        <Styled.PollingButton
                           disabled={!isMeteorConnected}
-                          className={styles.pollingButton}
                           color="primary"
                           size="md"
                           label={label}
                           key={pollAnswer.key}
-                          onClick={() => handleVote(poll.pollId, pollAnswer)}
+                          onClick={() => handleVote(poll.pollId, [pollAnswer.id])}
                           aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
                           aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
                           data-test="pollAnswerOption"
                         />
-                        <div
-                          className={styles.hidden}
-                          id={`pollAnswerLabel${pollAnswer.key}`}
-                        >
+                        <Styled.Hidden id={`pollAnswerLabel${pollAnswer.key}`}>
                           {intl.formatMessage(intlMessages.pollAnswerLabel, { 0: label })}
-                        </div>
-                        <div
-                          className={styles.hidden}
-                          id={`pollAnswerDesc${pollAnswer.key}`}
-                        >
+                        </Styled.Hidden>
+                        <Styled.Hidden id={`pollAnswerDesc${pollAnswer.key}`}>
                           {intl.formatMessage(intlMessages.pollAnswerDesc, { 0: label })}
-                        </div>
-                      </div>
+                        </Styled.Hidden>
+                      </Styled.PollButtonWrapper>
                     );
                   })}
-                </div>
-              </span>
-            )
-          }
-          {
-            poll.pollType === pollTypes.Response
-            && (
-              <div className={styles.typedResponseWrapper}>
-                <input
-                  data-test="pollAnswerOption"
-                  onChange={(e) => {
-                    this.handleUpdateResponseInput(e);
-                  }}
-                  onKeyDown={(e) => {
-                    this.handleMessageKeyDown(e);
-                  }}
-                  type="text"
-                  className={styles.typedResponseInput}
-                  placeholder={intl.formatMessage(intlMessages.responsePlaceholder)}
-                  maxLength={MAX_INPUT_CHARS}
-                  ref={(r) => { this.responseInput = r; }}
-                />
-                <Button
-                  data-test="submitAnswer"
-                  className={styles.submitVoteBtn}
-                  disabled={typedAns.length === 0}
-                  color="primary"
-                  size="sm"
-                  label={intl.formatMessage(intlMessages.submitLabel)}
-                  aria-label={intl.formatMessage(intlMessages.submitAriaLabel)}
-                  onClick={() => {
-                    handleTypedVote(poll.pollId, typedAns);
-                  }}
-                />
-              </div>
-            )
-          }
-          <div className={styles.pollingSecret}>
-            {intl.formatMessage(poll.secretPoll ? intlMessages.responseIsSecret : intlMessages.responseNotSecret)}
-          </div>
+                </Styled.PollingAnswers>
+            </span>
+          )
+        }
+        {
+          poll.pollType === pollTypes.Response
+          && (
+            <Styled.TypedResponseWrapper>
+              <Styled.TypedResponseInput
+                data-test="pollAnswerOption"
+                onChange={(e) => {
+                  this.handleUpdateResponseInput(e);
+                }}
+                onKeyDown={(e) => {
+                  this.handleMessageKeyDown(e);
+                }}
+                type="text"
+                placeholder={intl.formatMessage(intlMessages.responsePlaceholder)}
+                maxLength={MAX_INPUT_CHARS}
+                ref={(r) => { this.responseInput = r; }}
+              />
+              <Styled.SubmitVoteButton
+                data-test="submitAnswer"
+                disabled={typedAns.length === 0}
+                color="primary"
+                size="sm"
+                label={intl.formatMessage(intlMessages.submitLabel)}
+                aria-label={intl.formatMessage(intlMessages.submitAriaLabel)}
+                onClick={() => {
+                  handleTypedVote(poll.pollId, typedAns);
+                }}
+              />
+            </Styled.TypedResponseWrapper>
+          )
+        }
+        <Styled.PollingSecret>
+          {intl.formatMessage(poll.secretPoll ? intlMessages.responseIsSecret : intlMessages.responseNotSecret)}
+        </Styled.PollingSecret>
+      </div>
+    );
+  }
+
+  renderCheckboxAnswers() {
+    const {
+      isMeteorConnected,
+      intl,
+      poll,
+      pollAnswerIds,
+    } = this.props;
+    const { checkedAnswers } = this.state;
+    const { question } = poll;
+    return (
+      <div>
+        {question.length === 0
+          && (
+          <Styled.PollingTitle>
+            {intl.formatMessage(intlMessages.pollingTitleLabel)}
+          </Styled.PollingTitle>
+          )}
+        <Styled.MultipleResponseAnswersTable>
+          {poll.answers.map((pollAnswer) => {
+            const formattedMessageIndex = pollAnswer.key.toLowerCase();
+            let label = pollAnswer.key;
+            if (pollAnswerIds[formattedMessageIndex]) {
+              label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
+            }
+
+            return (
+              <Styled.CheckboxContainer
+                key={pollAnswer.id}
+              >
+                <td>
+                  <Styled.PollingCheckbox>
+                    <Checkbox
+                      disabled={!isMeteorConnected}
+                      id={`answerInput${pollAnswer.key}`}
+                      onChange={() => this.handleCheckboxChange(poll.pollId, pollAnswer.id)}
+                      checked={checkedAnswers.includes(pollAnswer.id)}
+                      ariaLabelledBy={`pollAnswerLabel${pollAnswer.key}`}
+                      ariaDescribedBy={`pollAnswerDesc${pollAnswer.key}`}
+                    />
+                  </Styled.PollingCheckbox>
+                </td>
+                <Styled.MultipleResponseAnswersTableAnswerText>
+                  <label id={`pollAnswerLabel${pollAnswer.key}`}>
+                    {label}
+                  </label>
+                  <Styled.Hidden id={`pollAnswerDesc${pollAnswer.key}`} >
+                    {intl.formatMessage(intlMessages.pollAnswerDesc, { 0: label })}
+                  </Styled.Hidden>
+                </Styled.MultipleResponseAnswersTableAnswerText>
+              </Styled.CheckboxContainer>
+            );
+          })}
+        </Styled.MultipleResponseAnswersTable>
+        <div>
+          <Styled.SubmitVoteButton
+            disabled={!isMeteorConnected || checkedAnswers.length === 0}
+            color="primary"
+            size="sm"
+            label={intl.formatMessage(intlMessages.submitLabel)}
+            aria-label={intl.formatMessage(intlMessages.submitAriaLabel)}
+            onClick={() => this.handleSubmit(poll.pollId)}
+          />
         </div>
       </div>
+    );
+  }
+
+  render() {
+    const {
+      intl,
+      poll,
+    } = this.props;
+
+    if (!poll) return null;
+
+    const { stackOptions, question } = poll;
+
+    return (
+      <Styled.Overlay>
+        <Styled.PollingContainer
+          autoWidth={stackOptions}
+          data-test="pollingContainer"
+          role="alert"
+        >
+          {
+            question.length > 0 && (
+              <Styled.QHeader>
+                <Styled.QTitle>
+                  {intl.formatMessage(intlMessages.pollQuestionTitle)}
+                </Styled.QTitle>
+                <Styled.QText data-test="pollQuestion">{question}</Styled.QText>
+              </Styled.QHeader>
+            )
+          }
+          {poll.isMultipleResponse ? this.renderCheckboxAnswers() : this.renderButtonAnswers()}
+        </Styled.PollingContainer>
+      </Styled.Overlay>
     );
   }
 }

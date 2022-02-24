@@ -179,7 +179,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsDisableMic" value="${lockSettingsDisableMic}"/>
         <property name="lockSettingsDisablePrivateChat" value="${lockSettingsDisablePrivateChat}"/>
         <property name="lockSettingsDisablePublicChat" value="${lockSettingsDisablePublicChat}"/>
-        <property name="lockSettingsDisableNote" value="${lockSettingsDisableNote}"/>
+        <property name="lockSettingsDisableNotes" value="${lockSettingsDisableNotes}"/>
         <property name="lockSettingsHideUserList" value="${lockSettingsHideUserList}"/>
         <property name="lockSettingsLockedLayout" value="${lockSettingsLockedLayout}"/>
         <property name="lockSettingsLockOnJoin" value="${lockSettingsLockOnJoin}"/>
@@ -187,6 +187,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
         <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>
         <property name="endWhenNoModeratorDelayInMinutes" value="${endWhenNoModeratorDelayInMinutes}"/>
+        <property name="disabledFeatures" value="${disabledFeatures}"/>
         <property name="defaultKeepEvents" value="${defaultKeepEvents}"/>
         <property name="allowRevealOfBBBVersion" value="${allowRevealOfBBBVersion}"/>
     </bean>

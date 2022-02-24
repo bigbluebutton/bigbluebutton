@@ -140,28 +140,14 @@ public class MeetingService implements MessageListener {
   public void registerUser(String meetingID, String internalUserId,
                            String fullname, String role, String externUserID,
                            String authToken, String avatarURL, Boolean guest,
-                           Boolean authed, String guestStatus, Boolean excludeFromDashboard) {
+                           Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby) {
     handle(new RegisterUser(meetingID, internalUserId, fullname, role,
-      externUserID, authToken, avatarURL, guest, authed, guestStatus, excludeFromDashboard));
+      externUserID, authToken, avatarURL, guest, authed, guestStatus, excludeFromDashboard, leftGuestLobby));
 
     Meeting m = getMeeting(meetingID);
     if (m != null) {
-      RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus, excludeFromDashboard);
+      RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus, excludeFromDashboard, leftGuestLobby);
       m.userRegistered(ruser);
-    }
-  }
-
-  public Boolean isPadValid(String padId, String sessionToken) {
-    UserSession us = getUserSessionWithAuthToken(sessionToken);
-    if (us == null) return false;
-
-    Meeting m = getMeeting(us.meetingID);
-    if (m == null) return false;
-
-    if (m.hasPad(padId)) {
-      return true;
-    } else {
-      return false;
     }
   }
 
@@ -275,9 +261,7 @@ public class MeetingService implements MessageListener {
     for (AbstractMap.Entry<String, Meeting> entry : this.meetings.entrySet()) {
       Long now = System.currentTimeMillis();
       Meeting meeting = entry.getValue();
-
       ConcurrentMap<String, User> users = meeting.getUsersMap();
-
       for (AbstractMap.Entry<String, RegisteredUser> registeredUser : meeting.getRegisteredUsers().entrySet()) {
         String registeredUserID = registeredUser.getKey();
         RegisteredUser ru = registeredUser.getValue();
@@ -286,6 +270,7 @@ public class MeetingService implements MessageListener {
         if (elapsedTime >= waitingGuestUsersTimeout && ru.getGuestStatus() == GuestPolicy.WAIT) {
           if (meeting.userUnregistered(registeredUserID) != null) {
             gw.guestWaitingLeft(meeting.getInternalId(), registeredUserID);
+            meeting.setLeftGuestLobby(registeredUserID, true);
           };
         }
       }
@@ -429,8 +414,8 @@ public class MeetingService implements MessageListener {
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
             m.getUserActivitySignResponseDelayInMinutes(), m.getEndWhenNoModerator(), m.getEndWhenNoModeratorDelayInMinutes(),
             m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getAllowModsToEjectCameras(), m.getMeetingKeepEvents(),
-            m.breakoutRoomsParams,
-            m.lockSettingsParams, m.getHtml5InstanceId(), m.getVirtualBackgroundsDisabled());
+            m.breakoutRoomsParams, m.lockSettingsParams, m.getHtml5InstanceId(),
+            m.getGroups(), m.getVirtualBackgroundsDisabled(), m.getDisabledFeatures());
   }
 
   private String formatPrettyDate(Long timestamp) {
@@ -1010,9 +995,9 @@ public class MeetingService implements MessageListener {
   }
 
   public void processLearningDashboard(LearningDashboard message) {
-
     //Get all data from Json instead of getMeeting(message.meetingId), to process messages received even after meeting ended
     JsonObject activityJsonObject = new Gson().fromJson(message.activityJson, JsonObject.class).getAsJsonObject();
+
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingId", activityJsonObject.get("intId").getAsString());
     logData.put("externalMeetingId", activityJsonObject.get("extId").getAsString());
@@ -1168,18 +1153,18 @@ public class MeetingService implements MessageListener {
           processCreateBreakoutRoom((CreateBreakoutRoom) message);
         } else if (message instanceof PresentationUploadToken) {
           processPresentationUploadToken((PresentationUploadToken) message);
+        } else if (message instanceof PositionInWaitingQueueUpdated) {
+          processPositionInWaitingQueueUpdated((PositionInWaitingQueueUpdated) message);
         } else if (message instanceof GuestStatusChangedEventMsg) {
           processGuestStatusChangedEventMsg((GuestStatusChangedEventMsg) message);
         } else if (message instanceof GuestPolicyChanged) {
           processGuestPolicyChanged((GuestPolicyChanged) message);
         } else if (message instanceof GuestLobbyMessageChanged) {
           processGuestLobbyMessageChanged((GuestLobbyMessageChanged) message);
+        } else if (message instanceof PrivateGuestLobbyMessageChanged) {
+          processPrivateGuestLobbyMessageChanged((PrivateGuestLobbyMessageChanged) message); 
         } else if (message instanceof RecordChapterBreak) {
           processRecordingChapterBreak((RecordChapterBreak) message);
-        } else if (message instanceof AddPad) {
-          processAddPad((AddPad) message);
-        } else if (message instanceof AddCaptionsPads) {
-          processAddCaptionsPads((AddCaptionsPads) message);
         } else if (message instanceof MakePresentationDownloadableMsg) {
           processMakePresentationDownloadableMsg((MakePresentationDownloadableMsg) message);
         } else if (message instanceof UpdateRecordingStatus) {
@@ -1200,6 +1185,14 @@ public class MeetingService implements MessageListener {
     }
   }
 
+  public void processPositionInWaitingQueueUpdated(PositionInWaitingQueueUpdated msg) {
+    Meeting m = getMeeting(msg.meetingId);
+    HashMap<String,String> guestUsers = msg.guests;
+    if (m != null) {
+      m.setWaitingPositionsInWaitingQueue(guestUsers);
+    }
+  }
+
   public void processGuestLobbyMessageChanged(GuestLobbyMessageChanged msg) {
     Meeting m = getMeeting(msg.meetingId);
     if (m != null) {
@@ -1207,19 +1200,10 @@ public class MeetingService implements MessageListener {
     }
   }
 
-  public void processAddPad(AddPad msg) {
+  public void processPrivateGuestLobbyMessageChanged(PrivateGuestLobbyMessageChanged msg) {
     Meeting m = getMeeting(msg.meetingId);
     if (m != null) {
-      m.addPad(msg.padId, msg.readOnlyId);
-    }
-  }
-
-  public void processAddCaptionsPads(AddCaptionsPads msg) {
-    Meeting m = getMeeting(msg.meetingId);
-    if (m != null) {
-      for (String padId : msg.padIds) {
-        m.addPad(padId, "undefined");
-      }
+      m.setPrivateGuestLobbyMessage(msg.guestId, msg.message);
     }
   }
 

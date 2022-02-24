@@ -5,6 +5,7 @@ import { UsersContext } from '../users-context/context';
 import { makeCall } from '/imports/ui/services/api';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import Auth from '/imports/ui/services/auth';
+import CollectionEventsBroker from '/imports/ui/services/LiveDataEventBroker/LiveDataEventBroker';
 
 let prevUserData = {};
 let currentUserData = {};
@@ -119,23 +120,19 @@ const Adapter = () => {
       });
     }, 1000, { trailing: true, leading: true });
 
-    Meteor.connection._stream.socket.addEventListener('message', (msg) => {
-      if (msg.data.indexOf('{"msg":"added","collection":"group-chat-msg"') !== -1) {
-        const parsedMsg = JSON.parse(msg.data);
-        if (parsedMsg.msg === 'added') {
-          const { fields } = parsedMsg;
-          if (fields.id === `${SYSTEM_CHAT_TYPE}-${CHAT_CLEAR_MESSAGE}`) {
-            messageQueue = [];
-            dispatch({
-              type: ACTIONS.REMOVED,
-            });
-          }
-
-          messageQueue.push(fields);
-          throttledDispatch();
-        }
+    const insertToContext = (fields) => {
+      if (fields.id === `${SYSTEM_CHAT_TYPE}-${CHAT_CLEAR_MESSAGE}`) {
+        messageQueue = [];
+        dispatch({
+          type: ACTIONS.REMOVED,
+        });
       }
-    });
+
+      messageQueue.push(fields);
+      throttledDispatch();
+    };
+
+    CollectionEventsBroker.addListener('group-chat-msg', 'added', insertToContext);
   }, [Meteor.status().connected, Meteor.connection._lastSessionId]);
 
   return null;

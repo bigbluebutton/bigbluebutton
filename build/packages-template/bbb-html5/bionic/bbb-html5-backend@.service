@@ -5,7 +5,7 @@ Before=bbb-html5.service
 BindsTo=bbb-html5.service
 StartLimitBurst=4
 StartLimitInterval=70sec
-StartLimitAction=exit
+StartLimitAction=none
 
 [Service]
 PermissionsStartOnly=true
@@ -26,4 +26,3 @@ Nice=19
 
 [Install]
 WantedBy=bbb-html5.service
-

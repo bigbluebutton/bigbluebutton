@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 
-import Button from '/imports/ui/components/button/component';
-import Modal from '/imports/ui/components/modal/simple/component';
+import Button from '/imports/ui/components/common/button/component';
+import Modal from '/imports/ui/components/common/modal/simple/component';
 import { makeCall } from '/imports/ui/services/api';
 
 import { Meteor } from 'meteor/meteor';
-import { styles } from './styles';
+import Styled from './styles';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -98,7 +98,7 @@ class ActivityCheck extends Component {
         shouldCloseOnOverlayClick={false}
         shouldShowCloseButton={false}
       >
-        <div className={styles.activityModalContent}>
+        <Styled.ActivityModalContent>
           <h1>{intl.formatMessage(intlMessages.activityCheckTitle)}</h1>
           <p>{intl.formatMessage(intlMessages.activityCheckLabel, { 0: responseDelay })}</p>
           <Button
@@ -109,7 +109,7 @@ class ActivityCheck extends Component {
             role="button"
             size="lg"
           />
-        </div>
+        </Styled.ActivityModalContent>
       </Modal>
     );
   }

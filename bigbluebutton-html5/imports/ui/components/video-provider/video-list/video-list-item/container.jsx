@@ -1,18 +1,18 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import VoiceUsers from '/imports/api/voice-users/';
 import Users from '/imports/api/users/';
 import VideoListItem from './component';
-import LayoutContext from '/imports/ui/components/layout/context';
+import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 
 const VideoListItemContainer = (props) => {
   const { cameraId } = props;
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-  const { fullscreen } = layoutContextState;
+
+  const fullscreen = layoutSelect((i) => i.fullscreen);
   const { element } = fullscreen;
   const isFullscreenContext = (element === cameraId);
+  const layoutContextDispatch = layoutDispatch();
 
   return (
     <VideoListItem

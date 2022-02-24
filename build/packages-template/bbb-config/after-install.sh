@@ -133,5 +133,8 @@ else
   sed -i 's/events {/worker_rlimit_nofile 10000;\n\nevents {/g' /etc/nginx/nginx.conf
 fi
 
+# Fix permissions for logging
+chown bigbluebutton:bigbluebutton /var/log/bbb-fsesl-akka
+
 # Load the overrides
 systemctl daemon-reload

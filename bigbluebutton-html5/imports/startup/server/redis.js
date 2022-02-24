@@ -2,10 +2,6 @@ import Redis from 'redis';
 import { Meteor } from 'meteor/meteor';
 import { EventEmitter2 } from 'eventemitter2';
 import { check } from 'meteor/check';
-import {
-  isPadMessage,
-  getInstanceIdFromPadMessage,
-} from './etherpad';
 import Logger from './logger';
 import Metrics from './metrics';
 import queue from 'queue';
@@ -36,11 +32,6 @@ const makeEnvelope = (channel, eventName, header, body, routing) => {
 const getInstanceIdFromMessage = (parsedMessage) => {
   // End meeting message does not seem to have systemProps
   let instanceIdFromMessage = parsedMessage.core.body.props?.systemProps?.html5InstanceId;
-
-  // Pad messages does not have systemProps
-  if (!instanceIdFromMessage && isPadMessage(parsedMessage)) {
-    instanceIdFromMessage = getInstanceIdFromPadMessage(parsedMessage);
-  }
 
   return instanceIdFromMessage;
 };

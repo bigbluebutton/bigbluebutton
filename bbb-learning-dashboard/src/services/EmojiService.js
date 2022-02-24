@@ -60,3 +60,15 @@ export function getUserEmojisSummary(user, skipNames = null, start = null, end =
   });
   return userEmojis;
 }
+
+export function filterUserEmojis(user, skipNames = null, start = null, end = null) {
+  const userEmojis = [];
+  user.emojis.forEach((emoji) => {
+    if (typeof emojiConfigs[emoji.name] === 'undefined') return;
+    if (skipNames != null && skipNames.split(',').indexOf(emoji.name) > -1) return;
+    if (start != null && emoji.sentOn < start) return;
+    if (end != null && emoji.sentOn > end) return;
+    userEmojis.push(emoji);
+  });
+  return userEmojis;
+}
