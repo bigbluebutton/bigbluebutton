@@ -32,7 +32,11 @@ const process = () => {
 
 export default function handleWhiteboardModification({ body }, meetingId) {
   check(body, {
-    annotations: [Match.Any], idsToRemove: [String], whiteBoardId: String,
+    annotations: [Match.Any],
+    idsToRemove: [String],
+    userId: String,
+    whiteboardId: String,
+    action: String,
   });
   const { whiteboardId, annotations, idsToRemove } = body;
 

@@ -415,11 +415,7 @@ object Polls {
     }
   }
 
-<<<<<<< HEAD
-  def respondToQuestion(pollId: String, questionID: Int, responseID: Int, responder: Responder, polls: Polls) {
-=======
-  def respondToQuestion(pollId: String, questionID: Int, responseIDs: Seq[Int], responder: Responder, polls: Polls) = {
->>>>>>> 071af82d90... - Fixed Bugs in new multiuser undo system
+  def respondToQuestion(pollId: String, questionID: Int, responseID: Int, responder: Responder, polls: Polls) = {
     polls.polls.get(pollId) match {
       case Some(p) => {
         if (!p.getResponders().exists(_ == responder)) {
@@ -626,7 +622,7 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
     return false
   }
 
-  def respondToQuestion(questionID: Int, responseID: Int, responder: Responder) {
+  def respondToQuestion(questionID: Int, responseID: Int, responder: Responder) = {
     questions.foreach(q => {
       if (q.id == questionID) {
         q.respondToQuestion(responseID, responder)
@@ -678,7 +674,7 @@ class Question(val id: Int, val questionType: String, val multiResponse: Boolean
     return false
   }
 
-  def respondToQuestion(id: Int, responder: Responder) {
+  def respondToQuestion(id: Int, responder: Responder) = {
     answers.foreach(r => {
       if (r.id == id) r.addResponder(responder)
     })
