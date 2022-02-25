@@ -65,7 +65,7 @@ if [[ -f $BBB_RELEASE_FILE ]] ; then
   BBB_FULL_VERSION=$(cat $BBB_RELEASE_FILE | sed -n '/^BIGBLUEBUTTON_RELEASE/{s/.*=//;p}' )
   echo "setting BBB_FULL_VERSION=$BBB_FULL_VERSION in $BBB_HTML5_SETTINGS_FILE "
   if [[ -f $BBB_HTML5_SETTINGS_FILE ]] ; then
-    sed -i "s/HTML5_FULL_BBB_VERSION/$BBB_FULL_VERSION/g" $BBB_HTML5_SETTINGS_FILE
+    yq w -i $BBB_HTML5_SETTINGS_FILE public.app.bbbServerVersion $BBB_FULL_VERSION
   fi
 fi
 
