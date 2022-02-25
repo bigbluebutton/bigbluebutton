@@ -140,7 +140,9 @@ class RedisRecorderActor(
       ev.setSenderId(msg.body.msg.sender.id)
       ev.setMessage(msg.body.msg.message)
       ev.setSenderRole(msg.body.msg.sender.role)
-      ev.setChatEmphasizedText(msg.body.msg.chatEmphasizedText)
+      
+      val isModerator = msg.body.sender.role == "MODERATOR"
+      ev.setChatEmphasizedText(msg.body.msg.chatEmphasizedText && isModerator)
 
       record(msg.header.meetingId, ev.toMap.asJava)
     }
