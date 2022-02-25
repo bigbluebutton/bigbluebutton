@@ -13,7 +13,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-target:jvm-1.8",
+    "-target:jvm-1.11",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -92,4 +92,4 @@ pomExtra := (
 
 licenses := Seq("Apache License, Version 2.0" -> url("http://opensource.org/licenses/Apache-2.0"))
 
-homepage := Some(url("http://www.bigbluebutton.org"))
+homepage := Some(url("https://bigbluebutton.org"))

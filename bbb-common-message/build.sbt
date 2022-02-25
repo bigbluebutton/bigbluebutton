@@ -12,7 +12,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-target:jvm-1.8",
+    "-target:jvm-1.11",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -30,6 +30,8 @@ retrieveManaged := true
 
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", "junitxml")
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
+
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 
 Seq(Revolver.settings: _*)
 lazy val commonMessage = (project in file(".")).settings(name := "bbb-common-message", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
@@ -52,6 +54,8 @@ scalariformAutoformat := true
 // Build pure Java lib (i.e. without scala)
 // Do not append Scala versions to the generated artifacts
 //crossPaths := false
+
+scalaVersion := "2.13.4"
 
 // This forbids including Scala related libraries into the dependency
 //autoScalaLibrary := false
@@ -96,4 +100,4 @@ pomExtra := (
 
 licenses := Seq("LGPL-3.0" -> url("http://opensource.org/licenses/LGPL-3.0"))
 
-homepage := Some(url("http://www.bigbluebutton.org"))
+homepage := Some(url("https://www.bigbluebutton.org"))

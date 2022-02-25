@@ -51,10 +51,6 @@ repositories {
   maven { url "https://repo.grails.org/grails/core" }
 }
 
-configurations {
-  compile.exclude group: "org.red5", module: "red5-server-common"
-}
-
 dependencies {
   runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.3.4"
   implementation "org.springframework.boot:spring-boot-starter-logging"
