@@ -13,9 +13,9 @@ const EmojiButtonIcon = styled(Icon)`
   height: 60%;
   left: 0;
   width: 75%;
-  margin-left: 25%;
+  margin-left: 15%;
   font-size: 50%;
-  margin-top: 40%;
+  margin-top: 30%;
   color: ${btnDefaultColor};
 `;
 

@@ -7,7 +7,7 @@ const parameters = require('./parameters');
 const helpers = require('./helpers');
 const e = require('./elements');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } = require('./constants');
-const { checkElement } = require('./util');
+const { checkElement, checkElementLengthEqualTo } = require('./util');
 
 class Page {
   constructor(browser, page) {
@@ -81,6 +81,10 @@ class Page {
     return this.page.locator(selector);
   }
 
+  getLocatorByIndex(selector, index) {
+    return this.page.locator(selector).nth(index);
+  }
+
   async getSelectorCount(selector) {
     const locator = this.getLocator(selector);
     return locator.count();
@@ -93,6 +97,14 @@ class Page {
 
   async waitForSelector(selector, timeout = ELEMENT_WAIT_TIME) {
     await this.page.waitForSelector(selector, { timeout });
+  }
+
+  async waitUntilHaveCountSelector(selector, count, timeout = ELEMENT_WAIT_TIME) {
+    await this.page.waitForFunction(
+      checkElementLengthEqualTo,
+      [selector, count],
+      { timeout },
+    );
   }
 
   async type(selector, text) {

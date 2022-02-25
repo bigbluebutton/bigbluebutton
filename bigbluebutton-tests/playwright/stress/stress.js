@@ -1,10 +1,10 @@
 const { expect } = require('@playwright/test');
 const Page = require('../core/page');
 const e = require('../core/elements');
-const { checkIncludeClass } = require('../core/util');
-const { createMeeting } = require('../core/helpers');
-const parameters = require('../core/parameters');
 const c = require('../core/constants');
+const parameters = require('../core/parameters');
+const { checkPresenterClass } = require('../user/util');
+const { createMeeting } = require('../core/helpers');
 
 class Stress {
   constructor(browser, context, page) {
@@ -24,7 +24,7 @@ class Stress {
     for (let i = 1; i <= c.JOIN_AS_MODERATOR_TEST_ROUNDS; i++) {
       await this.modPage.init(true, true, { fullName: `Moderator-${i}` });
       await this.modPage.waitForSelector(e.userAvatar);
-      const hasPresenterClass = await this.modPage.page.evaluate(checkIncludeClass, [e.userAvatar, e.presenterClassName]);
+      const hasPresenterClass = await checkPresenterClass(this.modPage);
       await this.modPage.waitAndClick(e.actions);
       const canStartPoll = await this.modPage.checkElement(e.polling);
       if (!hasPresenterClass || !canStartPoll) {

@@ -4,7 +4,7 @@ import _ from 'lodash';
 import cx from 'classnames';
 import { ESCAPE } from '/imports/utils/keyCodes';
 import Settings from '/imports/ui/services/settings';
-import Tippy, { roundArrow, hideAll } from 'tippy.js';
+import Tippy, { roundArrow } from 'tippy.js';
 import 'tippy.js/dist/svg-arrow.css';
 import 'tippy.js/animations/shift-away.css';
 import './bbbtip.css';
@@ -77,9 +77,6 @@ class Tooltip extends Component {
       touch: 'hold',
       theme: 'bbbtip',
       multiple: false,
-      onBeforeUpdate: () => {
-        hideAll();
-      },
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }

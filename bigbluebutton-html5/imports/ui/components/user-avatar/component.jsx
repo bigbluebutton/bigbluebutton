@@ -49,7 +49,7 @@ const UserAvatar = ({
 }) => (
   <Styled.Avatar
     aria-hidden="true"
-    data-test="userAvatar"
+    data-test={moderator ? 'moderatorAvatar' : 'viewerAvatar'}
     moderator={moderator}
     presenter={presenter}
     whiteboardAccess={whiteboardAccess && !presenter}
