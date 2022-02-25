@@ -12,6 +12,14 @@ const getUserRoles = () => {
   return user.role;
 };
 
+const isPresenter = () => {
+  const user = Users.findOne({
+    userId: Auth.userID,
+  });
+
+  return user.presenter;
+};
+
 const showGuestNotification = () => {
   const guestPolicy = GuestService.getGuestPolicy();
 
@@ -40,6 +48,7 @@ const getAvailableLocales = () => fetch('./locale-list').then(locales => locales
 
 export {
   getUserRoles,
+  isPresenter,
   showGuestNotification,
   updateSettings,
   getAvailableLocales,

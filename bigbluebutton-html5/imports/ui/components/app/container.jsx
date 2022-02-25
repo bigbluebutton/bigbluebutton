@@ -193,7 +193,6 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     publishedPoll,
     voiceProp,
     randomlySelectedUser,
-    layout,
   } = currentMeeting;
 
   const meetingLayout = LayoutMeetings.findOne({ meetingId: Auth.meetingID }) || {};

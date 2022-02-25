@@ -163,6 +163,7 @@ class Settings extends Component {
     const {
       intl,
       isModerator,
+      isPresenter,
       showGuestNotification,
       showToggleLabel,
       layoutContextDispatch,
@@ -212,7 +213,7 @@ class Settings extends Component {
             displaySettingsStatus={this.displaySettingsStatus}
             layoutContextDispatch={layoutContextDispatch}
             selectedLayout={selectedLayout}
-            isModerator={isModerator}
+            isPresenter={isPresenter}
           />
         </Styled.SettingsTabPanel>
         <Styled.SettingsTabPanel selectedClassName="is-selected">

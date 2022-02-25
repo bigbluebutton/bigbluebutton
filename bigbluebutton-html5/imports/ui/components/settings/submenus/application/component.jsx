@@ -325,7 +325,7 @@ class ApplicationMenu extends BaseMenu {
   }
 
   renderChangeLayout() {
-    const { intl, isModerator, showToggleLabel, displaySettingsStatus } = this.props;
+    const { intl, isPresenter, showToggleLabel, displaySettingsStatus } = this.props;
     const { settings } = this.state;
 
     return (

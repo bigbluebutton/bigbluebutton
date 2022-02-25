@@ -48,10 +48,8 @@ const ScreenshareContainer = (props) => {
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 
 export default withTracker(() => {
-  const user = Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } });
   return {
     isGloballyBroadcasting: isGloballyBroadcasting(),
-    isPresenter: user.presenter,
     toggleSwapLayout: MediaService.toggleSwapLayout,
     hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
     enableVolumeControl: shouldEnableVolumeControl(),

@@ -166,6 +166,11 @@ class VideoPlayer extends Component {
       type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
       value: true,
     });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+      value: true,
+    });
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -214,7 +219,7 @@ class VideoPlayer extends Component {
       value: false,
     });
 
-    if (isLayoutSwapped) {
+    if (hidePresentation) {
       layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_IS_OPEN,
         value: false,

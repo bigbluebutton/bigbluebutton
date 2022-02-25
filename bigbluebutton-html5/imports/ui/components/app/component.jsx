@@ -31,7 +31,7 @@ import PresentationAreaContainer from '../presentation/presentation-area/contain
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
 import Styled from './styles';
-import { DEVICE_TYPE, ACTIONS } from '../layout/enums';
+import { DEVICE_TYPE, ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 } from '../layout/utils';
@@ -603,13 +603,13 @@ class App extends Component {
       shouldShowScreenshare,
       shouldShowExternalVideo,
       isPresenter,
-      layoutType,
+      meetingLayout,
       presentationIsOpen,
     } = this.props;
 
     return (
       <>
-        <LayoutEngine layoutType={layoutType} />
+        <LayoutEngine layoutType={meetingLayout} />
         <GlobalStyles />
         <Styled.Layout
           id="layout"

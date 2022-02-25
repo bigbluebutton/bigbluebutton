@@ -101,10 +101,8 @@ class ScreenshareComponent extends React.Component {
   componentDidMount() {
     const {
       isLayoutSwapped,
-      toggleSwapLayout,
       layoutContextDispatch,
       intl,
-      hidePresentation,
       isPresenter,
     } = this.props;
 
@@ -122,6 +120,13 @@ class ScreenshareComponent extends React.Component {
       type: ACTIONS.SET_HAS_SCREEN_SHARE,
       value: true,
     });
+
+    if (isLayoutSwapped) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: true,
+      });
+    }
   }
 
   componentDidUpdate(prevProps) {

@@ -199,11 +199,13 @@ export default function addMeeting(meeting) {
   // At the moment `modOnlyMessage` is obtained from client side as a response to Enter API
   newMeeting.welcomeProp.modOnlyMessage = sanitizeTextInChat(newMeeting.welcomeProp.modOnlyMessage);
 
+  const { meetingLayout } = meeting.usersProp;
+
   const modifier = {
     $set: Object.assign({
       meetingId,
       meetingEnded,
-      layout: LAYOUT_TYPE[meeting.usersProp.meetingLayout] || 'smart',
+      layout: LAYOUT_TYPE[meetingLayout] || 'smart',
       publishedPoll: false,
       guestLobbyMessage: '',
       randomlySelectedUser: [],
@@ -236,7 +238,7 @@ export default function addMeeting(meeting) {
   }
 
   addExternalVideo(meetingId);
-  addLayout(meetingId, LAYOUT_TYPE[meetingLayout] || LAYOUT_TYPE[defaultLayout]);
+  addLayout(meetingId, LAYOUT_TYPE[meetingLayout] || 'smart');
 
   try {
     const { insertedId, numberAffected } = Meetings.upsert(selector, modifier);
