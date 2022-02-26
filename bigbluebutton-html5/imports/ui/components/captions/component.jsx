@@ -1,28 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import CaptionsService from './service';
-import { Session } from 'meteor/session';
 
 const CAPTIONS_CONFIG = Meteor.settings.public.captions;
-const LINE_BREAK = '\n';
 
 class Captions extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { initial: true, newTranslation: 0 };
+    this.state = { initial: true };
     this.text = '';
     this.ariaText = '';
     this.timer = null;
     this.settings = CaptionsService.getCaptionsSettings();
-    this.translatedText = '';
 
-    this.srcLocale = Session.get('captionsLocale');
-    this.dstLocale = Session.get('captionsDstLocale');
-    this.translating = !this.dstLocale || this.srcLocale === this.dstLocale ? false : true;
-    
     this.updateText = this.updateText.bind(this);
     this.resetTimer = this.resetTimer.bind(this);
-    this.translateText = this.translateText.bind(this);
   }
 
   componentDidMount() {
@@ -35,10 +27,8 @@ class Captions extends React.Component {
       revs,
     } = this.props;
 
-    const { newTranslation } = this.state;
-    
     if (locale === nextProps.locale) {
-      if (revs === nextProps.revs && newTranslation === nextState.newTranslation && !nextState.clear) return false;
+      if (revs === nextProps.revs && !nextState.clear) return false;
     }
     return true;
   }
@@ -49,20 +39,11 @@ class Captions extends React.Component {
      but note that it must be wrapped in a condition (...),
      or you’ll cause an infinite loop. */
     const { clear } = this.state;
-    if (this.translating && this.translatedText.length == 0) {
-      if (clear) {
-        this.setState({ clear: false });
-      }
+    if (clear) {
+      this.setState({ clear: false });
     } else {
-      if (this.translatedText.length > 0) {
-        this.translatedText = '';
-      }
-      if (clear) {
-        this.setState({ clear: false });
-      } else {
-        this.resetTimer();
-        this.timer = setTimeout(() => { this.setState({ clear: true }); }, CAPTIONS_CONFIG.time);
-      }
+      this.resetTimer();
+      this.timer = setTimeout(() => { this.setState({ clear: true }); }, CAPTIONS_CONFIG.time);
     }
   }
 
@@ -75,11 +56,6 @@ class Captions extends React.Component {
     if (clear) {
       this.text = '';
       this.ariaText = '';
-      if (this.translatedText.length != 0) {
-        this.ariaText = CaptionsService.formatCaptionsText(data);
-        const text = this.text + data ;
-        this.text = CaptionsService.formatCaptionsText(text);
-      }
     } else {
       this.ariaText = CaptionsService.formatCaptionsText(data);
       const text = this.text + data;
@@ -93,15 +69,6 @@ class Captions extends React.Component {
       this.timer = null;
     }
   }
-
-  async translateText (text, src, tgt) {
-    const url = CAPTIONS_CONFIG.googleTranslateUrl + '/exec?' + 'text=' + text + '&source=' + src + '&target=' + tgt;
-    const jsObj = await fetch(url).then(resp => resp.json());
-    const translatedText = jsObj.code === 200 ? jsObj.text : '';
-    this.translatedText = translatedText + LINE_BREAK ;
-    const { newTranslation } = this.state;
-    this.setState({ newTranslation: newTranslation + 1 });
-  }
   
   render() {
     const { data } = this.props;
@@ -113,22 +80,8 @@ class Captions extends React.Component {
       backgroundColor,
     } = this.settings;
 
-    const { clear } = this.state;
-    
     if (!initial) {
-      if (this.translating) {
-        if (this.translatedText.length == 0 && !clear) {
-          const translation = this.translateText(data, this.srcLocale, this.dstLocale);
-          return null;
-        } else {
-          this.updateText(this.translatedText);
-        }
-      } else {
-        this.updateText(data);
-      }
-    }
-    if (typeof this.ariaText !== 'string' || typeof this.text !== 'string') {
-      return null;
+      this.updateText(data);
     }
 
     const captionStyles = {
