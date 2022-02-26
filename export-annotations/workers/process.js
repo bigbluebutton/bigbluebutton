@@ -4,7 +4,7 @@ const fs = require('fs');
 const convert = require('xml-js');
 const { create } = require('xmlbuilder2', { encoding: 'utf-8' });
 const { execSync } = require("child_process");
-const { workerData, parentPort } = require('worker_threads');
+const { Worker, workerData, parentPort } = require('worker_threads');
 
 const jobId = workerData;
 const MAGIC_MYSTERY_NUMBER = 2;
@@ -14,7 +14,7 @@ logger.info("Processing PDF for job " + jobId);
 
 const kickOffNotifierWorker = (jobType) => {
     return new Promise((resolve, reject) => {
-        const worker = new Worker('./workers/notifier.js', { workerData: jobType });
+        const worker = new Worker('./workers/notifier.js', { workerData: [jobType, jobId] });
         worker.on('message', resolve);
         worker.on('error', reject);
         worker.on('exit', (code) => {
@@ -260,10 +260,10 @@ function overlay_triangle(svg, annotation, w, h) {
 function overlay_text(svg, annotation, w, h) {
 
     let fontColor = color_to_hex(annotation.fontColor);
-    let textBoxWidth = Math.ceil(scale_shape(w, annotation.textBoxWidth));
-    let textBoxHeight = Math.ceil(scale_shape(h, annotation.textBoxHeight));
-    let textBox_x = Math.ceil(scale_shape(w, annotation.x));
-    let textBox_y = Math.ceil(scale_shape(h, annotation.y));
+    let textBoxWidth = Math.round(scale_shape(w, annotation.textBoxWidth));
+    let textBoxHeight = Math.round(scale_shape(h, annotation.textBoxHeight));
+    let textBox_x = Math.round(scale_shape(w, annotation.x));
+    let textBox_y = Math.round(scale_shape(h, annotation.y));
 
     let fontSize = scale_shape(h, annotation.calcedFontSize)
     let style = [
@@ -429,6 +429,6 @@ execSync(`rsvg-convert ${rsvgConvertInput} -f pdf -o ${exportJob.presLocation}/a
 // Launch Notifier Worker depending on job type
 logger.info(`Saved PDF at ${exportJob.presLocation}/annotated_slides_${jobId}.pdf`);
 
-// kickOffNotifierWorker(exportJob.jobType);
+kickOffNotifierWorker(exportJob.jobType);
 
 parentPort.postMessage({ message: workerData })

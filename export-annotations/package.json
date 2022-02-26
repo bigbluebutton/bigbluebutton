@@ -1,19 +1,15 @@
 {
   "name": "export-annotations",
   "version": "0.0.1",
-  "description": "BigBlueButton's Annotation Exporter",
+  "description": "BigBlueButton's Presentation Annotation Exporter",
   "scripts": {
-    "start": "node master.js",
-    "lint": "./node_modules/.bin/eslint lib/**",
-    "test": "jest"
+    "start": "node master.js"
   },
   "dependencies": {
+    "axios": "^0.26.0",
+    "form-data": "^4.0.0",
     "redis": "^4.0.3",
     "xml-js": "^1.6.11",
     "xmlbuilder2": "^3.0.2"
-  },
-  "devDependencies": {
-    "eslint": "^8.7.0",
-    "jest": "^27.4.7"
   }
 }
