@@ -38,11 +38,11 @@ Deployment
 =============
 Place the war file into the tomcat webapps directory and restart tomcat
         
-    sudo cp target/lti-0.2.war /var/lib/tomcat6/webapps/lti.war
+    sudo cp target/lti-0.2.war /var/lib/tomcat8/webapps/lti.war
        
 Configure the properties
         
-    sudo vi /var/lib/tomcat6/webapps/lti/WEB-INF/classes/lti.properties
+    sudo vi /var/lib/tomcat8/webapps/lti/WEB-INF/classes/lti.properties
 
 Edit the URL and Salt of the BigBlueButton server you are going to connect to (NOTE: Remove any trailing slashes from the URL!)
     
@@ -58,7 +58,7 @@ Edit the LTI basic information
     
 Restart tomcat
         
-    sudo service tomcat6 restart
+    sudo service tomcat8 restart
         
 When running on the BigBlueButton server, create the map to this new application on nginx
     
