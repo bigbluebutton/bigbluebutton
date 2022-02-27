@@ -11,19 +11,7 @@ BIGBLUEBUTTON_USER=bigbluebutton
 case "$1" in
   configure|upgrade|1|2)
     
-    SOURCE=/tmp/presentation.yml
     TARGET=/usr/local/bigbluebutton/core/scripts/presentation.yml
-
-    if [ -f $SOURCE ]; then
-      #
-      # upgrade, so let's propagate values
-
-      TMP=$(mktemp)
-      yq m -x $TARGET $SOURCE > $TMP
-      cat $TMP > $TARGET
-
-      mv -f $SOURCE "${SOURCE}_"
-    fi
 
     chmod +r $TARGET
     

@@ -18,15 +18,7 @@ bbb_new_properties() {
 }
 
 bbb_config() {
-      if [ -f /tmp/bigbluebutton.properties ]; then
-	      VARS=$(cat /tmp/bigbluebutton.properties | grep = | grep -v \# | sed -e "s/ //g" -e "s/=.*/ /g" | tr -d '\n')
-			  for v in $VARS ; do
-				  old_val=$(cat /tmp/bigbluebutton.properties | tr -d '\r' | sed -n "/^${v}[# ]*=[ ]*/{s/${v}[ ]*=[ ]*//;p}" )
-				  sed -i "s|^$v=.*|$v=$old_val|" $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
-			  done
-      else
-        bbb_new_properties
-      fi
+	bbb_new_properties
 	
   #
   # Now update the API examples
@@ -35,19 +27,8 @@ bbb_config() {
 
 	HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 
-	if [ -f /tmp/bigbluebutton.properties ]; then
-		if grep -q securitySalt /tmp/bigbluebutton.properties; then 
-			# Use existing salt in bigbluebutton.properties
-			SECRET=$(cat /tmp/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-		fi
-	fi
-
   sed -i "s/securitySalt=.*/securitySalt=$SECRET/g" \
      $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
-
-	# XXX
-	sed -i "s/^swfToolsDir=\/bin$/swfToolsDir=\/usr\/bin/g" \
-		$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
 
 	#
 	# XXX
@@ -63,28 +44,12 @@ bbb_config() {
 	sed -i 's/imageTagThreshold=8000/imageTagThreshold=800/g'     $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
 
 	#
-	# Update the API version to 2.0
-	sed -i 's/apiVersion=1.1/apiVersion=2.0/g' $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
-
-	#
-	# Propagate settings for TURN server
-	if [ -f /tmp/turn-stun-servers.xml ]; then
-		cp /tmp/turn-stun-servers.xml $SERVLET_DIR/WEB-INF/classes/spring
-		mv /tmp/turn-stun-servers.xml /tmp/turn-stun-servers.xml_
-	fi
-
-	#
 	# Fix links in welcome text
 	sed -i 's#<a href="event:http://www.bigbluebutton.org/html5">#<a href="https://www.bigbluebutton.org/html5" target="_blank">#g' \
 		$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
 
 	sed -i 's#<a href="http://docs.bigbluebutton.org/" target="_blank">#<a href="https://docs.bigbluebutton.org/" target="_blank">#g' \
 		$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
-
-
-	if [ -f /tmp/bigbluebutton.properties ]; then
-          mv /tmp/bigbluebutton.properties /tmp/bigbluebutton.properties_
-        fi
 
   if [ ! -L /etc/bigbluebutton/nginx/web.nginx ]; then
     ln -s /etc/bigbluebutton/nginx/web /etc/bigbluebutton/nginx/web.nginx
@@ -105,7 +70,6 @@ bbb_config() {
 
   # Restart bbb-web to deploy new 
   startService bbb-web.service || echo "bbb-web.service could not be registered or started"
-  # sed -i 's/8080/8090/g' /etc/bigbluebutton/nginx/web
 }
 
 case "$1" in

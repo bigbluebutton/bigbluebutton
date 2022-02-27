@@ -20,7 +20,7 @@ else
 fi
 
 #
-# Set the permissions to /var/bigbluebutton so both red5 and tomcat can write
+# Set the permissions to /var/bigbluebutton tomcat (and possibly other services) can write
 #
 if [ -d /var/bigbluebutton ]; then
   echo -n "."
