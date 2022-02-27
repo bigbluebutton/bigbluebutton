@@ -52,6 +52,10 @@ const intlMessages = defineMessages({
     id: 'app.captions.pad.speechRecognitionStop',
     description: 'Notification for stopped speech recognition',
   },
+  speechRecognitionIncompatible: {
+    id: 'app.captions.pad.speechRecognitionIncompatible',
+    description: 'Notification for browser incompatibility',
+  },
 });
 
 const propTypes = {
