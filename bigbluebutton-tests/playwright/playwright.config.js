@@ -3,6 +3,7 @@ require('dotenv').config();
 const config = {
   workers: 1,
   timeout: 3 * 60 * 1000,
+  reporter: [['list']],
   use: {
     headless: true,
   },
@@ -48,5 +49,11 @@ const config = {
     },
   ],
 };
+
+if (process.env.DEBUG_MODE === 'true') {
+  config.reporter.push(['html', { open: 'never' }]);
+  config.use.screenshot = 'only-on-failure';
+  config.use.trace = 'retain-on-failure';
+}
 
 module.exports = config;
