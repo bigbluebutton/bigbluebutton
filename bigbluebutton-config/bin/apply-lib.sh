@@ -19,8 +19,6 @@ fi
 
 if [ -f /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties ]; then
   SERVLET_DIR=/usr/share/bbb-web
-else
-  SERVLET_DIR=/var/lib/tomcat7/webapps/bigbluebutton
 fi
 
 BBB_WEB_ETC_CONFIG=/etc/bigbluebutton/bbb-web.properties

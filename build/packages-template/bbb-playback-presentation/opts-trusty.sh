@@ -1,4 +1,4 @@
 . ./opts-global.sh
 
-OPTS="$OPTS -t deb -d tomcat7 -d bbb-record-core"
+OPTS="$OPTS -t deb -d tomcat8 -d bbb-record-core"
 
