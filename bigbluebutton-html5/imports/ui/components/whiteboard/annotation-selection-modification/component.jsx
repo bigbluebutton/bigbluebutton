@@ -19,6 +19,11 @@ function SelectionModification(props) {
     }
   }, [svgDimensions, userIsPresenter, selection]);
 
+  // clear selection when whiteboard (current slide) changes
+  useEffect(() => {
+    SelectionService.selectAnnotations([]);
+  }, [whiteboardId]);
+
   function forwardEventOnSelectableToSelecto(eventToTarget) {
     if (selectoRef) {
       const newEvent = eventToTarget;
