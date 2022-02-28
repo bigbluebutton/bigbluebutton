@@ -118,8 +118,4 @@ if dpkg -l | grep -q nginx; then
   reloadService nginx
 fi
 
-if ! grep -q xenial /etc/lsb-release; then
-  startService bbb-record-core.timer || echo "bbb-record-core could not be registered or started"
-fi
-
 systemctl daemon-reload

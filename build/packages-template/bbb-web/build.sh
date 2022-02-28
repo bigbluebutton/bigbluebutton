@@ -90,10 +90,6 @@ rm bigbluebutton-0.10.0.war
 popd
 pwd
 
-#mv target/bigbluebutton-0.9.0.war       staging/var/tmp/bigbluebutton.war
-#mkdir -p staging/usr/share/tomcat7/bin
-#cp setenv.sh staging/usr/share/tomcat7/bin
-
 # Copy this as simply 'web' and we'll make a symbolic link later in the .postinst script
 mkdir -p "$STAGING"/etc/bigbluebutton/nginx
 cp bbb-web.nginx "$STAGING"/etc/bigbluebutton/nginx/web

@@ -108,9 +108,6 @@ else
     if [ "$DISTRIB_CODENAME" == "bionic" ]; then
       TOMCAT_USER=tomcat8
     fi
-    if [ "$DISTRIB_CODENAME" == "xenial" ]; then
-      TOMCAT_USER=tomcat7
-    fi
     TOMCAT_DIR=/var/lib/$TOMCAT_USER
     SERVLET_LOGS=$TOMCAT_DIR/logs
     REDIS_SERVICE=redis-server
@@ -126,8 +123,6 @@ LTI_DIR=/usr/share/bbb-lti
 
 if [ -f /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties ]; then
     SERVLET_DIR=/usr/share/bbb-web
-else
-    SERVLET_DIR=/var/lib/tomcat7/webapps/bigbluebutton
 fi
 
 
@@ -158,7 +153,6 @@ get_bbb_web_config_value() {
 
 RECORD_CONFIG=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 
-HTML5_CONFIG_OLD=/usr/share/meteor/bundle/programs/server/assets/app/config/settings-production.json
 HTML5_DEFAULT_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 HTML5_ETC_CONFIG=/etc/bigbluebutton/bbb-html5.yml
 if [ -f $HTML5_ETC_CONFIG ]; then
@@ -816,20 +810,6 @@ check_configuration() {
             echo "#"
             echo "#    $FREESWITCH_EXTERNAL"
             echo
-        fi
-
-        if [ -f $HTML5_CONFIG_OLD ]; then
-            if grep \"enableListenOnly\".*true $HTML5_CONFIG_OLD > /dev/null; then
-                if ! grep -q ws-binding $FREESWITCH_EXTERNAL ;  then
-                echo "# Warning: You have enabled listen-only audio via Kurento"
-                echo "# but FreeSWITCH is not listening on port 5066.  You should edit "
-                echo "#"
-                echo "#    $FREESWITCH_EXTERNAL"
-                echo "#"
-                echo "# and add a line that enables ws-binding on port 5066."
-                echo
-                fi
-            fi
         fi
     fi
 
@@ -1740,11 +1720,6 @@ if [ -n "$HOST" ]; then
     #
     # Update HTML5 client
     #
-    if [ -f $HTML5_CONFIG_OLD ]; then
-        WS=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
-        sed -i "s|\"wsUrl.*|\"wsUrl\": \"$WS/bbb-webrtc-sfu\",|g" $HTML5_CONFIG_OLD
-    fi
-
     if [ -f $HTML5_DEFAULT_CONFIG ]; then
         yq w -i $HTML5_DEFAULT_CONFIG public.kurento.wsUrl "wss://$HOST/bbb-webrtc-sfu"
         yq w -i $HTML5_DEFAULT_CONFIG public.pads.url      "$PROTOCOL://$HOST/pad"
