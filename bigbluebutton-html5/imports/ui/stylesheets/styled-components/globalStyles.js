@@ -150,6 +150,7 @@ const GlobalStyle = createGlobalStyle`
   
   .moveable-control-box{
     z-index: 1!important;
+    pointer-events: none;
   }
 `;
 
