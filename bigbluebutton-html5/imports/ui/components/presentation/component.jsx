@@ -655,7 +655,7 @@ class Presentation extends PureComponent {
           )}
         </Styled.PresentationSvg>
         <SelectionModificationContainer
-          localPosition={localPosition}
+          svgDimensions={svgDimensions}
           userIsPresenter={userIsPresenter}
           whiteboardId={currentSlide.id}
         />

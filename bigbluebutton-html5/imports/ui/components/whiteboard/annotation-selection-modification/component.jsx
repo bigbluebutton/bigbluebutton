@@ -10,14 +10,14 @@ function SelectionModification(props) {
   const selectoRef = React.useRef(null);
 
   const {
-    tool, userIsPresenter, whiteboardId, localPosition, selection
+    tool, userIsPresenter, whiteboardId, svgDimensions, selection,
   } = props;
 
   useEffect(() => {
     if (moveableRef.current) {
       moveableRef.current.updateRect();
     }
-  }, [localPosition, userIsPresenter, selection]);
+  }, [svgDimensions, userIsPresenter, selection]);
 
   function forwardEventOnSelectableToSelecto(eventToTarget) {
     if (selectoRef) {
@@ -99,7 +99,10 @@ function SelectionModification(props) {
       ) : null}
       <Selecto
         // disable selecto on other tools and if user is presenter
-        dragCondition={(e) => tool === 'selection' && userIsPresenter}
+        dragCondition={({ inputEvent }) => tool === 'selection'
+            && userIsPresenter
+            // disable Selecto on fullscreen button to preserve selection
+            && ![inputEvent.target.tagName, inputEvent.target.parentNode?.tagName].includes('BUTTON')}
         boundContainer="#slideSVG"
         ref={selectoRef}
         selectByClick
@@ -124,7 +127,7 @@ SelectionModification.propTypes = {
   // selection rectangle (Moveable control box) on zoom.
   // Zoom itself does not work as trigger prop because
   // sometimes it gets updated prior to rerendering.
-  localPosition: PropTypes.objectOf(PropTypes.number).isRequired,
+  svgDimensions: PropTypes.objectOf(PropTypes.number).isRequired,
   userIsPresenter: PropTypes.bool.isRequired,
   whiteboardId: PropTypes.string.isRequired,
   selection: PropTypes.arrayOf(PropTypes.object).isRequired,
