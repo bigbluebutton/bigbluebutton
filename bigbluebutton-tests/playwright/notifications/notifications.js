@@ -15,13 +15,6 @@ class Notifications extends MultiUsers {
     await util.checkNotificationText(this.modPage, e.savedSettingsToast);
   }
 
-  async saveConnectionStatusSettingsNotification() {
-    await this.modPage.waitAndClick(e.connectionStatusBtn);
-    await this.modPage.waitAndClickElement(e.dataSavingWebcams);
-    await this.modPage.waitAndClick(e.closeModal);
-    await util.checkNotificationText(this.modPage, e.savedSettingsToast);
-  }
-
   async audioNotification() {
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.joinMicrophone();

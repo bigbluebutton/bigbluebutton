@@ -887,6 +887,7 @@ class Presentation extends PureComponent {
             ? colorContentBackground
             : null,
         }}
+        data-test="presentationContainer"
       >
         {isFullscreen && <PollingContainer />}
 

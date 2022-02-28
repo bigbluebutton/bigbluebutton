@@ -84,7 +84,7 @@ class LockViewers extends MultiUsers {
 
   async lockEditSharedNotes() {
     await this.userPage.waitAndClick(e.sharedNotes);
-    await this.userPage.waitForSelector(e.hideNoteLabel);
+    await this.userPage.waitForSelector(e.hideNotesLabel);
     const sharedNotesLocator = getNotesLocator(this.userPage);
     await sharedNotesLocator.type(e.message);
     expect(sharedNotesLocator).toContainText(e.message);

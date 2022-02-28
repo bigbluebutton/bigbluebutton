@@ -23,7 +23,8 @@ class ConnectionStatus extends MultiUsers {
     await this.userPage.waitAndClick(e.joinAudio);
     await this.userPage.joinMicrophone();
     await this.userPage.shareWebcam();
-    await this.userPage.waitAndClick(e.connectionStatusBtn);
+    // await this.userPage.waitAndClick(e.connectionStatusBtn);
+    await openConnectionStatus(this.modPage);
 
     await this.userPage.page.waitForFunction(checkNetworkStatus,
       e.connectionDataContainer,
