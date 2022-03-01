@@ -135,6 +135,7 @@
     "app.media.autoplayAlertDesc": "Luba juurdepääs",
     "app.media.screenshare.start": "Ekraanijagamine algas",
     "app.media.screenshare.end": "Ekraanijagamine lõppes",
+    "app.media.screenshare.endDueToDataSaving": "Ekraanijagamine peatatud andmemahu kokkuhoiu tõttu",
     "app.media.screenshare.unavailable": "Ekraanijagamine pole saadaval",
     "app.media.screenshare.notSupported": "Ekraanijagamine pole selles brauseris toetatud.",
     "app.media.screenshare.autoplayBlockedDesc": "Vajame sinu luba, et näidata sulle esitleja ekraani.",
