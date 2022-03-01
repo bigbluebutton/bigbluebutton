@@ -90,6 +90,7 @@ class BBBMenu extends React.Component {
             const close = !key.includes('setstatus') && !key.includes('back');
             // prevent menu close for sub menu actions
             if (close) this.handleClose(event);
+            event.stopPropagation();
           }}>
           <div style={{ display: 'flex', flexFlow: 'row', width: '100%' }}>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
