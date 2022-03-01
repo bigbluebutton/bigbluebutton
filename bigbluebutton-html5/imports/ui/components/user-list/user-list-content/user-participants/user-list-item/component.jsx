@@ -429,8 +429,8 @@ class UserListItem extends PureComponent {
         && !showNestedOptions,
         key: 'changeWhiteboardAccess',
         label: user.whiteboardAccess
-        ? intl.formatMessage(messages.removeWhiteboardAccess)
-        : intl.formatMessage(messages.giveWhiteboardAccess),
+          ? intl.formatMessage(messages.removeWhiteboardAccess)
+          : intl.formatMessage(messages.giveWhiteboardAccess),
         onClick: () => {
           WhiteboardService.changeWhiteboardAccess(user.userId, !user.whiteboardAccess);
           this.handleClose();
@@ -525,7 +525,7 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'video_off',
-      }
+      },
     ];
 
     const statuses = Object.keys(getEmojiList);
@@ -542,10 +542,10 @@ class UserListItem extends PureComponent {
         },
         icon: getEmojiList[s],
         dataTest: s,
-      })
+      });
     });
 
-    return availableActions.filter(action => action.allowed);
+    return availableActions.filter((action) => action.allowed);
   }
 
   getDropdownMenuParent() {
@@ -713,7 +713,7 @@ class UserListItem extends PureComponent {
 
     const innerContents = (
       <Styled.UserItemInnerContents>
-        <Styled.UserAvatar data-test="userAvatar">
+        <Styled.UserAvatar data-test="userAvatar" data-test-presenter={user.presenter ? '' : undefined}>
           {this.renderUserAvatar()}
         </Styled.UserAvatar>
         {!compact

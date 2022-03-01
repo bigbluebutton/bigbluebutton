@@ -110,7 +110,7 @@ class Page {
   async type(selector, text) {
     const handle = this.getLocator(selector);
     await handle.focus();
-    await handle.type(text);
+    await handle.type(text, { timeout: ELEMENT_WAIT_TIME });
   }
 
   async waitAndClickElement(element, index = 0, timeout = ELEMENT_WAIT_TIME) {
