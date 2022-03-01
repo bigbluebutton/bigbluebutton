@@ -9,12 +9,11 @@ case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
                          endWhenNoModerator:                     Boolean, endWhenNoModeratorDelayInMinutes: Int)
 
 case class MeetingProp(
-    name:                     String,
-    extId:                    String,
-    intId:                    String,
-    isBreakout:               Boolean,
-    learningDashboardEnabled: Boolean,
-    disabledFeatures:         Vector[String]
+    name:             String,
+    extId:            String,
+    intId:            String,
+    isBreakout:       Boolean,
+    disabledFeatures: Vector[String]
 )
 
 case class BreakoutProps(

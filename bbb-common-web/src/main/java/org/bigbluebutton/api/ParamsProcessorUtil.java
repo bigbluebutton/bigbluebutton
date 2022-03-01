@@ -87,7 +87,6 @@ public class ParamsProcessorUtil {
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
-    private boolean learningDashboardEnabled;
     private int learningDashboardCleanupDelayInMinutes;
     private boolean webcamsOnlyForModerator;
     private boolean defaultMuteOnStart = false;
@@ -473,44 +472,6 @@ public class ParamsProcessorUtil {
             }
         }
 
-        boolean learningDashboardEn = false;
-        int learningDashboardCleanupMins = 0;
-
-        // Learning Dashboard not allowed for Breakout Rooms
-        if(!isBreakout) {
-            learningDashboardEn = learningDashboardEnabled;
-            if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED))) {
-                try {
-                    learningDashboardEn = Boolean.parseBoolean(params
-                            .get(ApiParams.LEARNING_DASHBOARD_ENABLED));
-                } catch (Exception ex) {
-                    log.warn(
-                            "Invalid param [learningDashboardEnabled] for meeting=[{}]",
-                            internalMeetingId);
-                }
-            }
-
-            learningDashboardCleanupMins = learningDashboardCleanupDelayInMinutes;
-            if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES))) {
-                try {
-                    learningDashboardCleanupMins = Integer.parseInt(params
-                            .get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES));
-                } catch (Exception ex) {
-                    log.warn(
-                            "Invalid param [learningDashboardCleanupDelayInMinutes] for meeting=[{}]",
-                            internalMeetingId);
-                }
-            }
-        }
-
-
-        //Generate token to access Activity Report
-        String learningDashboardAccessToken = "";
-        if(learningDashboardEn == true) {
-            learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
-        }
-
-
         // Check if VirtualBackgrounds is disabled
         boolean virtualBackgroundsDisabled = false;
         if (!StringUtils.isEmpty(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED))) {
@@ -527,6 +488,28 @@ public class ParamsProcessorUtil {
         listOfDisabledFeatures.replaceAll(String::trim);
         listOfDisabledFeatures = new ArrayList<>(new HashSet<>(listOfDisabledFeatures));
 
+        int learningDashboardCleanupMins = 0;
+
+        // Learning Dashboard not allowed for Breakout Rooms
+        if(!isBreakout) {
+            learningDashboardCleanupMins = learningDashboardCleanupDelayInMinutes;
+            if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES))) {
+                try {
+                    learningDashboardCleanupMins = Integer.parseInt(params
+                            .get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES));
+                } catch (Exception ex) {
+                    log.warn(
+                            "Invalid param [learningDashboardCleanupDelayInMinutes] for meeting=[{}]",
+                            internalMeetingId);
+                }
+            }
+        }
+
+        //Generate token to access Activity Report
+        String learningDashboardAccessToken = "";
+        if(listOfDisabledFeatures.contains("learningDashboard") == false) {
+            learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
+        }
 
         boolean webcamsOnlyForMod = webcamsOnlyForModerator;
         if (!StringUtils.isEmpty(params.get(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR))) {
@@ -628,7 +611,6 @@ public class ParamsProcessorUtil {
 				.withLockSettingsParams(lockSettingsParams)
 				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
                 .withHTML5InstanceId(html5InstanceId)
-                .withLearningDashboardEnabled(learningDashboardEn)
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
@@ -1057,10 +1039,6 @@ public class ParamsProcessorUtil {
 
     public void setAllowStartStopRecording(boolean allowStartStopRecording) {
         this.allowStartStopRecording = allowStartStopRecording;
-    }
-
-    public void setLearningDashboardEnabled(boolean learningDashboardEnabled) {
-        this.learningDashboardEnabled = learningDashboardEnabled;
     }
 
     public void setlearningDashboardCleanupDelayInMinutes(int learningDashboardCleanupDelayInMinutes) {
