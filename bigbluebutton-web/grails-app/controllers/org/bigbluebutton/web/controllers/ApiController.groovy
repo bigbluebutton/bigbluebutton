@@ -1315,6 +1315,8 @@ class ApiController {
               foundCurrent = isCurrent;
             }
 
+            isCurrent = isCurrent && !isFromInsertAPI
+
             // Verifying whether the document is a base64 encoded or a url to download.
             if (!StringUtils.isEmpty(document.@url.toString())) {
               def fileName;
