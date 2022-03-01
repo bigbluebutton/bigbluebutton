@@ -11,7 +11,8 @@
     },
     "notifier": {
       "pod_id": "DEFAULT_PRESENTATION_POD",
-      "is_downloadable": "false"
+      "is_downloadable": "false",
+      "msgName": "NewPresAnnFileAvailableMsg"
     },
     "genPollSVG": {
       "path": "/home/petriroc/dev/bigbluebutton/record-and-playback/core/scripts/utils/gen_poll_svg"

@@ -270,6 +270,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[MakePresentationWithAnnotationDownloadReqMsg](envelope, jsonNode)
       case ExportPresentationWithAnnotationReqMsg.NAME =>
         routeGenericMsg[ExportPresentationWithAnnotationReqMsg](envelope, jsonNode)
+      case NewPresAnnFileAvailableMsg.NAME =>
+        routeGenericMsg[NewPresAnnFileAvailableMsg](envelope, jsonNode)
 
       // Presentation Pods
       case CreateNewPresentationPodPubMsg.NAME =>
@@ -358,7 +360,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UpdateExternalVideoPubMsg](envelope, jsonNode)
       case StopExternalVideoPubMsg.NAME =>
         routeGenericMsg[StopExternalVideoPubMsg](envelope, jsonNode)
-
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing

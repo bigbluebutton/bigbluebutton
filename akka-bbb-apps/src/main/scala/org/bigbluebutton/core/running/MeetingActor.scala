@@ -501,6 +501,7 @@ class MeetingActor(
       case m: AssignPresenterReqMsg                          => state = handlePresenterChange(m, state)
       case m: MakePresentationWithAnnotationDownloadReqMsg   => handleMakePresentationWithAnnotationDownloadReqMsg(m, state, liveMeeting)
       case m: ExportPresentationWithAnnotationReqMsg         => handleExportPresentationWithAnnotationReqMsg(m, state, liveMeeting)
+      case m: NewPresAnnFileAvailableMsg                     => log.info("***** New PDF with annotations available.")
 
       // Presentation Pods
       case m: CreateNewPresentationPodPubMsg                 => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
@@ -794,7 +795,7 @@ class MeetingActor(
     // 2) Insert Export Job in Redis
     val jobType = "PresentationWithAnnotationDownloadJob"
     val presLocation = s"/var/bigbluebutton/${meetingId}/${meetingId}/${presId}"
-    val exportJob = new ExportJob(jobId, jobType, presId, presLocation, allPages, pagesRange, "", "")
+    val exportJob = new ExportJob(jobId, jobType, presId, presLocation, allPages, pagesRange, meetingId, "")
     var job = buildStoreExportJobInRedisSysMsg(exportJob)
     outGW.send(job)
   }
@@ -802,7 +803,6 @@ class MeetingActor(
   def handleExportPresentationWithAnnotationReqMsg(m: ExportPresentationWithAnnotationReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
-
     val userId = m.header.userId
     val presId: String = getMeetingInfoPresentationDetails.id
     val parentMeetingId: String = m.body.parentMeetingId

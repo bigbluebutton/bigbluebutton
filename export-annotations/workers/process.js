@@ -294,7 +294,7 @@ function overlay_text(svg, annotation, w, h) {
     svg.ele('image', {
         'xlink:href': `file://${dropbox}/text${annotation.id}.png`,
         x: textBox_x,
-        y: textBox_y,
+        y: textBox_y - fontSize,
         width: textBoxWidth,
         height: textBoxHeight,
     }).up();

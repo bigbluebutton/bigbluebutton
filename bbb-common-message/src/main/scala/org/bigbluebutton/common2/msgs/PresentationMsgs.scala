@@ -18,6 +18,10 @@ object ExportPresentationWithAnnotationReqMsg { val NAME = "ExportPresentationWi
 case class ExportPresentationWithAnnotationReqMsg(header: BbbClientMsgHeader, body: ExportPresentationWithAnnotationReqMsgBody) extends StandardMsg
 case class ExportPresentationWithAnnotationReqMsgBody(parentMeetingId: String, allPages: Boolean)
 
+object NewPresAnnFileAvailableMsg { val NAME = "NewPresAnnFileAvailableMsg" }
+case class NewPresAnnFileAvailableMsg(header: BbbClientMsgHeader, body: NewPresAnnFileAvailableMsgBody) extends StandardMsg
+case class NewPresAnnFileAvailableMsgBody(fileURI: String)
+
 // ------------ bbb-common-web to akka-apps ------------
 
 // ------------ akka-apps to client ------------

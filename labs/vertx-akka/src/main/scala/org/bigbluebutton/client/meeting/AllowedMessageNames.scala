@@ -63,6 +63,7 @@ object AllowedMessageNames {
     SetPresenterInPodReqMsg.NAME,
     MakePresentationWithAnnotationDownloadReqMsg.NAME,
     ExportPresentationWithAnnotationReqMsg.NAME,
+    NewPresAnnFileAvailableMsg.NAME,
     StoreAnnotationsInRedisSysMsg.NAME,
     StoreExportJobInRedisSysMsg.NAME,
 
