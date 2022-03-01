@@ -78,14 +78,14 @@ function SelectionModification(props) {
         (eventType) => window.removeEventListener(eventType, forwardEventOnSelectableToSelecto),
       );
     };
-  });
+  }, []);
 
   useEffect(() => {
     window.addEventListener('keyup', deleteAnnotations);
     return () => {
       window.removeEventListener('keyup', deleteAnnotations);
     };
-  });
+  }, []);
 
   return (
     <>
