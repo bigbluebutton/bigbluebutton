@@ -7,6 +7,7 @@ import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
+import browserInfo from '/imports/utils/browserInfo';
 
 const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinimizeButton;
 
@@ -175,56 +176,60 @@ const PresentationMenu = (props) => {
       );
     }
 
-    menuItems.push(
-      {
-        key: 'list-item-screenshot',
-        label: intl.formatMessage(intlMessages.snapshotLabel),
-        onClick: () => {
-          setState({
-            loading: true,
-            hasError: false,
-          });
+    const { isSafari } = browserInfo;
 
-          toastId.current = toast.info(renderToastContent(), {
-            hideProgressBar: true,
-            autoClose: false,
-            newestOnTop: true,
-            closeOnClick: true,
-            onClose: () => {
-              toastId.current = null;
-            },
-          });
-
-          toPng(screenshotRef, {
-            width: window.screen.width,
-            height: window.screen.height,
-          }).then((data) => {
-            const anchor = document.createElement('a');
-            anchor.href = data;
-            anchor.setAttribute(
-              'download',
-              `${elementName}_${meetingName}_${new Date().toISOString()}.png`,
-            );
-            anchor.click();
-
+    if (!isSafari) {
+      menuItems.push(
+        {
+          key: 'list-item-screenshot',
+          label: intl.formatMessage(intlMessages.snapshotLabel),
+          onClick: () => {
             setState({
-              loading: false,
+              loading: true,
               hasError: false,
             });
-          }).catch((error) => {
-            logger.warn({
-              logCode: 'presentation_snapshot_error',
-              extraInfo: error,
+
+            toastId.current = toast.info(renderToastContent(), {
+              hideProgressBar: true,
+              autoClose: false,
+              newestOnTop: true,
+              closeOnClick: true,
+              onClose: () => {
+                toastId.current = null;
+              },
             });
 
-            setState({
-              loading: false,
-              hasError: true,
+            toPng(screenshotRef, {
+              width: window.screen.width,
+              height: window.screen.height,
+            }).then((data) => {
+              const anchor = document.createElement('a');
+              anchor.href = data;
+              anchor.setAttribute(
+                'download',
+                `${elementName}_${meetingName}_${new Date().toISOString()}.png`,
+              );
+              anchor.click();
+
+              setState({
+                loading: false,
+                hasError: false,
+              });
+            }).catch((error) => {
+              logger.warn({
+                logCode: 'presentation_snapshot_error',
+                extraInfo: error,
+              });
+
+              setState({
+                loading: false,
+                hasError: true,
+              });
             });
-          });
+          },
         },
-      },
-    );
+      );
+    }
 
     return menuItems;
   }

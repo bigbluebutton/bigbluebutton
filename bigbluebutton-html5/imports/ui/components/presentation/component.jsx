@@ -756,8 +756,6 @@ class Presentation extends PureComponent {
     } = this.props;
     const { isFullscreen } = this.state;
 
-    if (!ALLOW_FULLSCREEN) return null;
-
     return (
       <PresentationMenu
         fullscreenRef={this.refPresentationContainer}
