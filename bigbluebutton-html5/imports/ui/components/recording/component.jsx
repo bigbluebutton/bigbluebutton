@@ -24,14 +24,6 @@ const intlMessages = defineMessages({
     id: 'app.recording.stopDescription',
     description: 'stop recording description',
   },
-  yesLabel: {
-    id: 'app.audioModal.yes',
-    description: 'label for yes button',
-  },
-  noLabel: {
-    id: 'app.audioModal.no',
-    description: 'label for no button',
-  },
 });
 
 const propTypes = {
