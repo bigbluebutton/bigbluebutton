@@ -138,7 +138,7 @@ const PresentationMenu = (props) => {
     );
   }
 
-  function renderMenuItems() {
+  function getAvailableOptions() {
     const menuItems = [];
 
     if (!isIphone) {
@@ -254,6 +254,10 @@ const PresentationMenu = (props) => {
     }
   });
 
+  const options = getAvailableOptions();
+
+  if (options.length === 0) return null;
+
   return (
     <Styled.Right>
       <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
@@ -275,7 +279,7 @@ const PresentationMenu = (props) => {
             tabIndex={0}
           >
             <Styled.List>
-              { renderMenuItems().map((option) => {
+              { options.map((option) => {
                 const {
                   label, onClick, key, dataTest,
                 } = option;
