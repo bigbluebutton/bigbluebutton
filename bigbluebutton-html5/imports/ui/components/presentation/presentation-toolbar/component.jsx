@@ -10,10 +10,6 @@ import TooltipContainer from '/imports/ui/components/tooltip/container';
 import KEY_CODES from '/imports/utils/keyCodes';
 
 const intlMessages = defineMessages({
-  downloadAnnotatedSlidesLabel: {
-    id: 'app.presentation.presentationToolbar.downloadSlideWithAnnotations',
-    description: 'Download slide with annotations label'
-  },
   previousSlideLabel: {
     id: 'app.presentation.presentationToolbar.prevSlideLabel',
     description: 'Previous slide button label',
@@ -79,7 +75,7 @@ const intlMessages = defineMessages({
 class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
-    this.handleDownloadAnnotatedSlides = this.handleDownloadAnnotatedSlides.bind(this);
+    
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
     this.renderAriaDescs = this.renderAriaDescs.bind(this);
@@ -117,14 +113,6 @@ class PresentationToolbar extends PureComponent {
         default:
       }
     }
-  }
-
-  handleDownloadAnnotatedSlides() {
-    const {
-      downloadAnnotatedSlides
-    } = this.props;
-
-    downloadAnnotatedSlides()
   }
 
   handleSkipToSlideChange(event) {
@@ -199,9 +187,6 @@ class PresentationToolbar extends PureComponent {
         <div id="nextSlideDesc">
           {intl.formatMessage(intlMessages.nextSlideDesc)}
         </div>
-        <div id="downloadAnnotatedSlidesLabel">
-          {intl.formatMessage(intlMessages.downloadAnnotatedSlidesLabel)}
-        </div>
         <div id="noNextSlideDesc">
           {intl.formatMessage(intlMessages.noNextSlideDesc)}
         </div>
@@ -267,8 +252,6 @@ class PresentationToolbar extends PureComponent {
     const nextSlideAriaLabel = endOfSlides
       ? intl.formatMessage(intlMessages.nextSlideLabel)
       : `${intl.formatMessage(intlMessages.nextSlideLabel)} (${currentSlideNum >= 1 ? (currentSlideNum + 1) : ''})`;
-
-    const downloadAnnotatedSlidesLabel = intl.formatMessage(intlMessages.downloadAnnotatedSlidesLabel);
 
     return (
       <Styled.PresentationToolbarWrapper
@@ -341,19 +324,6 @@ class PresentationToolbar extends PureComponent {
               hideLabel
               data-test="nextSlide"
             />
-            <Styled.DownloadAnnotatedSlidesButton
-              role="button"
-              aria-label={downloadAnnotatedSlidesLabel}
-              aria-describedby={'downloadAnnotatedSlidesLabel'}
-              disabled={false}
-              color="default"
-              icon="download"
-              size="md"
-              onClick={this.handleDownloadAnnotatedSlides}
-              label={intl.formatMessage(intlMessages.downloadAnnotatedSlidesLabel)}
-              hideLabel
-              data-test="downloadAnnotatedSlides"
-            />
           </Styled.PresentationSlideControls>
         }
         {
@@ -411,7 +381,6 @@ PresentationToolbar.propTypes = {
   nextSlide: PropTypes.func.isRequired,
   previousSlide: PropTypes.func.isRequired,
   skipToSlide: PropTypes.func.isRequired,
-  downloadAnnotatedSlides: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,

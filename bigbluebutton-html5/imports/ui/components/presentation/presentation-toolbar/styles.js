@@ -140,34 +140,6 @@ const NextSlideButton = styled(Button)`
   }
 `;
 
-const DownloadAnnotatedSlidesButton = styled(Button)`
-  border: none !important;
-
-  & > i {
-    font-size: 1rem;
-
-    [dir="rtl"] & {
-      -webkit-transform: scale(-1, 1);
-      -moz-transform: scale(-1, 1);
-      -ms-transform: scale(-1, 1);
-      -o-transform: scale(-1, 1);
-      transform: scale(-1, 1);
-    }
-  }
-
-  position: relative;
-  color: ${toolbarButtonColor};
-  background-color: ${colorOffWhite};
-  border-radius: 0;
-  box-shadow: none !important;
-  border: 0;
-
-  &:focus {
-    background-color: ${colorOffWhite};
-    border: 0;
-  }
-`;
-
 const SkipSlideSelect = styled.select`
   padding: 0 ${smPaddingY};
   margin: ${borderSize};
@@ -254,7 +226,6 @@ export default {
   PresentationSlideControls,
   PrevSlideButton,
   NextSlideButton,
-  DownloadAnnotatedSlidesButton,
   SkipSlideSelect,
   PresentationZoomControls,
   FitToWidthButton,

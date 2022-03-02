@@ -169,7 +169,6 @@
     "app.presentation.presentationToolbar.prevSlideDesc": "Change the presentation to the previous slide",
     "app.presentation.presentationToolbar.nextSlideLabel": "Next slide",
     "app.presentation.presentationToolbar.nextSlideDesc": "Change the presentation to the next slide",
-    "app.presentation.presentationToolbar.downloadSlideWithAnnotations": "Download slides with annotations",
     "app.presentation.presentationToolbar.skipSlideLabel": "Skip slide",
     "app.presentation.presentationToolbar.skipSlideDesc": "Change the presentation to a specific slide",
     "app.presentation.presentationToolbar.fitWidthLabel": "Fit to width",

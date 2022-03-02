@@ -29,10 +29,6 @@ const nextSlide = (currentSlideNum, numberOfSlides, podId) => {
   }
 };
 
-const downloadAnnotatedSlides = () => {
-  makeCall('makePresentationWithAnnotationDownloadReqMsg');
-};
-
 const zoomSlide = throttle((currentSlideNum, podId, widthRatio, heightRatio, xOffset, yOffset) => {
   makeCall('zoomSlide', currentSlideNum, podId, widthRatio, heightRatio, xOffset, yOffset);
 }, PAN_ZOOM_INTERVAL);
@@ -44,7 +40,6 @@ const skipToSlide = (requestedSlideNum, podId) => {
 export default {
   getNumberOfSlides,
   nextSlide,
-  downloadAnnotatedSlides,
   previousSlide,
   skipToSlide,
   zoomSlide,
