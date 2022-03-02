@@ -1,19 +1,25 @@
 import styled from 'styled-components';
+import Button from '/imports/ui/components/common/button/component';
+import Modal from '/imports/ui/components/common/modal/simple/component';
 import {
-  smPaddingY,
   smPaddingX,
+  smPaddingY,
   lgPaddingX,
   lgPaddingY,
-  jumboPaddingY,
   descriptionMargin,
   titlePositionLeft,
+  jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
-import { colorGray, colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
-import { lineHeightBase, headingsFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
-import Modal from '/imports/ui/components/common/modal/simple/component';
-import Button from '/imports/ui/components/common/button/component';
+import {
+  colorGrayDark,
+  colorGray,
+} from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  headingsFontWeight,
+  lineHeightBase,
+} from '/imports/ui/stylesheets/styled-components/typography';
 
-const RecordingModal = styled(Modal)`
+const ConfirmationModal = styled(Modal)`
   padding: ${smPaddingY};
 `;
 
@@ -49,11 +55,21 @@ const Description = styled.div`
   margin-bottom: ${jumboPaddingY};
 `;
 
+const Checkbox = styled.input`
+  position: relative;
+  top: 0.134rem;
+  margin-right: 0.5rem;
+  [dir="rtl"] & {
+      margin-right: 0;
+      margin-left: 0.5rem;
+  }
+`;
+
 const Footer = styled.div`
   display:flex;
 `;
 
-const RecordingButton = styled(Button)`
+const ConfirmationButton = styled(Button)`
   padding-right: ${jumboPaddingY};
   padding-left: ${jumboPaddingY};
   margin: 0 ${smPaddingX} 0 0;
@@ -64,11 +80,12 @@ const RecordingButton = styled(Button)`
 `;
 
 export default {
-  RecordingModal,
+  ConfirmationModal,
   Container,
   Header,
   Title,
   Description,
+  Checkbox,
   Footer,
-  RecordingButton,
+  ConfirmationButton,
 };
