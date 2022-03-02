@@ -19,7 +19,7 @@ import {
   lineHeightBase,
 } from '/imports/ui/stylesheets/styled-components/typography';
 
-const RemoveUserModal = styled(Modal)`
+const ConfirmationModal = styled(Modal)`
   padding: ${smPaddingY};
 `;
 
@@ -55,7 +55,7 @@ const Description = styled.div`
   margin-bottom: ${jumboPaddingY};
 `;
 
-const BanUserCheckBox = styled.input`
+const Checkbox = styled.input`
   position: relative;
   top: 0.134rem;
   margin-right: 0.5rem;
@@ -84,12 +84,12 @@ const DismissButton = styled(ConfirmButton)`
 `;
 
 export default {
-  RemoveUserModal,
+  ConfirmationModal,
   Container,
   Header,
   Title,
   Description,
-  BanUserCheckBox,
+  Checkbox,
   Footer,
   ConfirmButton,
   DismissButton,

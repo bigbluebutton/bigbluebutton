@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
+import PropTypes from 'prop-types';
 import Styled from './styles';
 
 const messages = defineMessages({
@@ -12,20 +13,17 @@ const messages = defineMessages({
     id: 'app.endMeeting.noLabel',
     description: 'cancel confirm button label',
   },
-  removeConfirmTitle: {
-    id: 'app.userList.menu.removeConfirmation.label',
-    description: 'title for remove user confirmation modal',
-  },
-  removeConfirmDesc: {
-    id: 'app.userlist.menu.removeConfirmation.desc',
-    description: 'description for remove user confirmation',
-  },
 });
 
 const propTypes = {
+  confirmButtonColor: PropTypes.string,
 };
 
-class RemoveUserModal extends Component {
+const defaultProps = {
+  confirmButtonColor: 'primary',
+};
+
+class ConfirmationModal extends Component {
   constructor(props) {
     super(props);
 
@@ -36,15 +34,25 @@ class RemoveUserModal extends Component {
 
   render() {
     const {
-      mountModal, onConfirm, user, title, intl,
+      intl,
+      mountModal,
+      onConfirm,
+      title,
+      titleMessageId,
+      titleMessageExtra,
+      checkboxMessageId,
+      confirmButtonColor,
+      confirmParam,
     } = this.props;
 
     const {
       checked,
     } = this.state;
 
+    const hasCheckbox = !!checkboxMessageId;
+
     return (
-      <Styled.RemoveUserModal
+      <Styled.ConfirmationModal
         onRequestClose={() => mountModal(null)}
         hideBorder
         contentLabel={title}
@@ -52,28 +60,30 @@ class RemoveUserModal extends Component {
         <Styled.Container>
           <Styled.Header>
             <Styled.Title>
-              {intl.formatMessage(messages.removeConfirmTitle, { 0: user.name })}
+              {intl.formatMessage({ id: titleMessageId }, { 0: titleMessageExtra })}
             </Styled.Title>
           </Styled.Header>
           <Styled.Description>
-            <label htmlFor="banUserCheckbox" key="eject-or-ban-user">
-              <Styled.BanUserCheckBox
-                type="checkbox"
-                id="banUserCheckbox"
-                onChange={() => this.setState({ checked: !checked })}
-                checked={checked}
-                aria-label={intl.formatMessage(messages.removeConfirmDesc)}
-              />
-              <span aria-hidden>{intl.formatMessage(messages.removeConfirmDesc)}</span>
-            </label>
+            { hasCheckbox ? (
+              <label htmlFor="confirmationCheckbox" key="confirmation-checkbox">
+                <Styled.Checkbox
+                  type="checkbox"
+                  id="confirmationCheckbox"
+                  onChange={() => this.setState({ checked: !checked })}
+                  checked={checked}
+                  aria-label={intl.formatMessage({ id: checkboxMessageId })}
+                />
+                <span aria-hidden>{intl.formatMessage({ id: checkboxMessageId })}</span>
+              </label>
+            ) : null }
           </Styled.Description>
 
           <Styled.Footer>
             <Styled.ConfirmButton
-              color="primary"
+              color={confirmButtonColor}
               label={intl.formatMessage(messages.yesLabel)}
               onClick={() => {
-                onConfirm(user.userId, checked);
+                onConfirm(confirmParam, checked);
                 mountModal(null);
               }}
             />
@@ -83,10 +93,12 @@ class RemoveUserModal extends Component {
             />
           </Styled.Footer>
         </Styled.Container>
-      </Styled.RemoveUserModal>
+      </Styled.ConfirmationModal>
     );
   }
 }
 
-RemoveUserModal.propTypes = propTypes;
-export default withModalMounter(RemoveUserModal);
+ConfirmationModal.propTypes = propTypes;
+ConfirmationModal.defaultProps = defaultProps;
+
+export default withModalMounter(ConfirmationModal);
