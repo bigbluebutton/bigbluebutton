@@ -478,7 +478,6 @@ public:
     enabled: true
     id: notes
   layout:
-    autoSwapLayout: false
     hidePresentation: false
     showParticipantsOnLogin: true
     layoutControlInActionsMenu: true

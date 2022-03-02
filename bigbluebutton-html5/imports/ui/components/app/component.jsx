@@ -55,6 +55,7 @@ const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
 const VIEWER = Meteor.settings.public.user.role_viewer;
 const MODERATOR = Meteor.settings.public.user.role_moderator;
+const HIDE_PRESENTATION = Meteor.settings.public.layout.hidePresentation;
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
@@ -205,7 +206,7 @@ class App extends Component {
     }
     Settings.save();
 
-    const initialPresentation = !getFromUserSettings('bbb_hide_presentation', !layoutPresOpen);
+    const initialPresentation = !getFromUserSettings('bbb_hide_presentation', HIDE_PRESENTATION || !layoutPresOpen);
     MediaService.setPresentationIsOpen(layoutContextDispatch, initialPresentation);
 
     if (selectedLayout === 'custom') {
