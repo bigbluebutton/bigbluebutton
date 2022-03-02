@@ -46,4 +46,16 @@ test.describe.parallel('Chat', () => {
     await chat.init(true, true);
     await chat.emptyMessage();
   });
+
+  test('Close private chat', async ({ browser, context, page }) => {
+    const privateChat = new PrivateChat(browser, context);
+    await privateChat.initPages(page);
+    await privateChat.closeChat();
+  });
+
+  test('Private chat disabled when user leaves meeting', async ({ browser, context, page }) => {
+    const privateChat = new PrivateChat(browser, context);
+    await privateChat.initPages(page);
+    await privateChat.chatDisabledUserLeaves();
+  });
 });

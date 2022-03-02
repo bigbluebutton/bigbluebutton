@@ -65,7 +65,7 @@ if [[ -f $BBB_RELEASE_FILE ]] ; then
   BBB_FULL_VERSION=$(cat $BBB_RELEASE_FILE | sed -n '/^BIGBLUEBUTTON_RELEASE/{s/.*=//;p}' )
   echo "setting BBB_FULL_VERSION=$BBB_FULL_VERSION in $BBB_HTML5_SETTINGS_FILE "
   if [[ -f $BBB_HTML5_SETTINGS_FILE ]] ; then
-    sed -i "s/HTML5_FULL_BBB_VERSION/$BBB_FULL_VERSION/g" $BBB_HTML5_SETTINGS_FILE
+    yq w -i $BBB_HTML5_SETTINGS_FILE public.app.bbbServerVersion $BBB_FULL_VERSION
   fi
 fi
 
@@ -84,7 +84,7 @@ fi
 
 source /etc/lsb-release
 
-if [ "$DISTRIB_RELEASE" == "18.04" ]; then
+if [ "$DISTRIB_CODENAME" == "bionic" ]; then
   node_version="14.18.1"
   if [[ ! -d /usr/share/node-v${node_version}-linux-x64 ]]; then
     cd /usr/share

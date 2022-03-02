@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import {
   colorWhite,
-  colorGrayDark,
+  colorBackground,
   colorGrayLighter,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
@@ -13,7 +13,7 @@ const Background = styled.div`
   justify-content: center;
   width: 100%;
   height: 100%;
-  background-color: ${colorGrayDark};
+  background-color: ${colorBackground};
   color: ${colorWhite};
   text-align: center;
 `;

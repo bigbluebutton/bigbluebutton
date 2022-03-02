@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { injectIntl, defineMessages } from 'react-intl';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { findDOMNode } from 'react-dom';
@@ -328,6 +329,7 @@ class UserListItem extends PureComponent {
         onClick: () => this.setState({ showNestedOptions: true }),
         icon: 'user',
         iconRight: 'right_arrow',
+        dataTest: 'setStatus',
       },
       {
         allowed: showNestedOptions && isMeteorConnected && allowedToChangeStatus,
@@ -447,6 +449,7 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'presentation',
+        dataTest: isMe(user.userId) ? 'takePresenter' : 'makePresenter',
       },
       {
         allowed: allowedToPromote && isMeteorConnected && !showNestedOptions,
@@ -457,6 +460,7 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'promote',
+        dataTest: 'promoteToModerator',
       },
       {
         allowed: allowedToDemote && isMeteorConnected && !showNestedOptions,
@@ -467,6 +471,7 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'user',
+        dataTest: 'demoteToViewer',
       },
       {
         allowed: allowedToChangeUserLockStatus && isMeteorConnected && !showNestedOptions,
@@ -536,6 +541,7 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: getEmojiList[s],
+        dataTest: s,
       })
     });
 
@@ -707,7 +713,7 @@ class UserListItem extends PureComponent {
 
     const innerContents = (
       <Styled.UserItemInnerContents>
-        <Styled.UserAvatar>
+        <Styled.UserAvatar data-test="userAvatar">
           {this.renderUserAvatar()}
         </Styled.UserAvatar>
         {!compact
@@ -718,10 +724,12 @@ class UserListItem extends PureComponent {
               aria-expanded={isActionsOpen}
             >
               <Styled.UserNameMain>
-                <span>
-                  {user.name}
-                &nbsp;
-                </span>
+                <TooltipContainer title={user.name}>
+                  <span>
+                    {user.name}
+                    &nbsp;
+                  </span>
+                </TooltipContainer>
                 <i>{(isMe(user.userId)) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
               </Styled.UserNameMain>
               {

@@ -45,6 +45,7 @@ public class UserSession {
   public String guestStatus = GuestPolicy.ALLOW;
   public String clientUrl = null;
   public Boolean excludeFromDashboard = false;
+  public Boolean leftGuestLobby = false;
 
   private AtomicInteger connections = new AtomicInteger(0);
   

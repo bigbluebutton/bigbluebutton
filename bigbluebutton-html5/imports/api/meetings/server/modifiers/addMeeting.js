@@ -100,11 +100,6 @@ export default function addMeeting(meeting) {
       telVoice: String,
       muteOnStart: Boolean,
     },
-    screenshareProps: {
-      red5ScreenshareIp: String,
-      red5ScreenshareApp: String,
-      screenshareConf: String,
-    },
     metadataProp: Object,
     lockSettingsProps: {
       disableCam: Boolean,

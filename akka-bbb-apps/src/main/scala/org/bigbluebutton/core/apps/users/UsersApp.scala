@@ -170,6 +170,7 @@ class UsersApp(
   with EjectDuplicateUserReqMsgHdlr
   with EjectUserFromMeetingCmdMsgHdlr
   with EjectUserFromMeetingSysMsgHdlr
+  with SyncGetWebcamInfoRespMsgHdlr
   with MuteUserCmdMsgHdlr {
 
   val log = Logging(context.system, getClass)

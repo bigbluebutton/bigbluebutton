@@ -322,6 +322,7 @@ class ApiController {
     us.guestStatus = guestStatusVal
     us.logoutUrl = meeting.getLogoutUrl()
     us.defaultLayout = meeting.getMeetingLayout()
+    us.leftGuestLobby = false
 
     if (!StringUtils.isEmpty(params.defaultLayout)) {
       us.defaultLayout = params.defaultLayout;
@@ -366,7 +367,8 @@ class ApiController {
         us.guest,
         us.authed,
         guestStatusVal,
-        us.excludeFromDashboard
+        us.excludeFromDashboard,
+        us.leftGuestLobby
     )
 
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
@@ -733,7 +735,6 @@ class ApiController {
             request.getParameterMap(),
             request.getQueryString()
     )
-
     if(!(validationResponse == null)) {
       msgKey = validationResponse.getKey()
       msgValue = validationResponse.getValue()
@@ -793,6 +794,14 @@ class ApiController {
         break
     }
 
+    if(meeting.didGuestUserLeaveGuestLobby(us.internalUserId)){
+      destURL = meeting.getLogoutUrl()
+      msgKey = "guestInvalid"
+      msgValue = "Invalid user"
+      status = GuestPolicy.DENY
+      redirectClient = false
+    }
+
     if (redirectClient) {
       // User may join the meeting
       redirect(url: destURL)
@@ -839,7 +848,6 @@ class ApiController {
             request.getParameterMap(),
             request.getQueryString(),
     )
-
     if(!(validationResponse == null)) {
       respMessage = validationResponse.getValue()
       reject = true
@@ -1314,6 +1322,8 @@ class ApiController {
               isCurrent = java.lang.Boolean.parseBoolean(document.@current.toString());
               foundCurrent = isCurrent;
             }
+
+            isCurrent = isCurrent && !isFromInsertAPI
 
             // Verifying whether the document is a base64 encoded or a url to download.
             if (!StringUtils.isEmpty(document.@url.toString())) {

@@ -19,14 +19,11 @@ import org.bigbluebutton.common2.redis._
 import org.bigbluebutton.common2.bus._
 
 class BbbWebApiGWApp(
-    val oldMessageReceivedGW:        OldMessageReceivedGW,
-    val screenshareRtmpServer:       String,
-    val screenshareRtmpBroadcastApp: String,
-    val screenshareConfSuffix:       String,
-    redisHost:                       String,
-    redisPort:                       Int,
-    redisPassword:                   String,
-    redisExpireKey:                  Int
+    val oldMessageReceivedGW: OldMessageReceivedGW,
+    redisHost:                String,
+    redisPort:                Int,
+    redisPassword:            String,
+    redisExpireKey:           Int
 ) extends IBbbWebApiGWApp with SystemConfiguration {
 
   implicit val system = ActorSystem("bbb-web-common")
@@ -194,11 +191,6 @@ class BbbWebApiGWApp(
       allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
       authenticatedGuest = authenticatedGuest.booleanValue(), virtualBackgroundsDisabled = virtualBackgroundsDisabled.booleanValue())
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
-    val screenshareProps = ScreenshareProps(
-      screenshareConf = voiceBridge + screenshareConfSuffix,
-      red5ScreenshareIp = screenshareRtmpServer,
-      red5ScreenshareApp = screenshareRtmpBroadcastApp
-    )
 
     val lockSettingsProps = LockSettingsProps(
       disableCam = lockSettingsParams.disableCam.booleanValue(),
@@ -228,7 +220,6 @@ class BbbWebApiGWApp(
       voiceProp,
       usersProp,
       metadataProp,
-      screenshareProps,
       lockSettingsProps,
       systemProps,
       groupsAsVector
