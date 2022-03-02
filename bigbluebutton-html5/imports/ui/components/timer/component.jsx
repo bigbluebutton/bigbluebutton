@@ -273,6 +273,7 @@ class Timer extends Component {
                     value={track}
                     checked={currentTrack === track}
                     onChange={Timer.handleOnTrackChange}
+                    disabled={stopwatch}
                   />
                   {intl.formatMessage(intlMessages[track])}
                 </label>
