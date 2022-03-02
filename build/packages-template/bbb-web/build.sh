@@ -50,6 +50,7 @@ echo end building bbb-common-message
 
 # New project directory containing parts of bbb-web
 cd bbb-common-web
+sbt update
 sbt publish
 sbt publishLocal
 cd ..
@@ -88,10 +89,6 @@ jar -xvf bigbluebutton-0.10.0.war
 rm bigbluebutton-0.10.0.war
 popd
 pwd
-
-#mv target/bigbluebutton-0.9.0.war       staging/var/tmp/bigbluebutton.war
-#mkdir -p staging/usr/share/tomcat7/bin
-#cp setenv.sh staging/usr/share/tomcat7/bin
 
 # Copy this as simply 'web' and we'll make a symbolic link later in the .postinst script
 mkdir -p "$STAGING"/etc/bigbluebutton/nginx

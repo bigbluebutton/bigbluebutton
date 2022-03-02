@@ -6,11 +6,16 @@ import Icon from '/imports/ui/components/common/icon/component';
 import { ENTER } from '/imports/utils/keyCodes';
 import Styled from './styles';
 import {Meteor} from "meteor/meteor";
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const messages = defineMessages({
   lowerHandsLabel: {
     id: 'app.statusNotifier.lowerHands',
     description: 'text displayed to clear all raised hands',
+  },
+  lowerHandDescOneUser: {
+    id: 'app.statusNotifier.lowerHandDescOneUser',
+    description: 'text displayed to clear a single user raised hands',
   },
   raisedHandsTitle: {
     id: 'app.statusNotifier.raisedHandsTitle',
@@ -75,7 +80,7 @@ class StatusNotifier extends Component {
             autoClose: false,
             closeOnClick: false,
             closeButton: false,
-            className: "actionToast",
+            className: "raiseHandToast",
           });
         }
         break;
@@ -118,22 +123,25 @@ class StatusNotifier extends Component {
   }
 
   raisedHandAvatars() {
-    const { emojiUsers, clearUserStatus } = this.props;
+    const { emojiUsers, clearUserStatus, intl } = this.props;
     let users = emojiUsers;
     if (emojiUsers.length > MAX_AVATAR_COUNT) users = users.slice(0, MAX_AVATAR_COUNT);
 
     const avatars = users.map(u => (
-      <Styled.Avatar
-        role="button"
-        tabIndex={0}
-        style={{ backgroundColor: `${u.color}` }}
-        onClick={() => clearUserStatus(u.userId)}
-        onKeyDown={e => (e.keyCode === ENTER ? clearUserStatus(u.userId) : null)}
+      <TooltipContainer
         key={`statusToastAvatar-${u.userId}`}
-        data-test="avatarsWrapperAvatar"
-      >
-        {u.name.slice(0, 2)}
-      </Styled.Avatar>
+        title={intl.formatMessage(messages.lowerHandDescOneUser, { 0: u.name })}>
+        <Styled.Avatar
+          role="button"
+          tabIndex={0}
+          style={{ backgroundColor: `${u.color}` }}
+          onClick={() => clearUserStatus(u.userId)}
+          onKeyDown={e => (e.keyCode === ENTER ? clearUserStatus(u.userId) : null)}
+          data-test="avatarsWrapperAvatar"
+        >
+          {u.name.slice(0, 2)}
+        </Styled.Avatar>
+      </TooltipContainer>
     ));
 
     if (emojiUsers.length > MAX_AVATAR_COUNT) {

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
 import Styled from './styles';
-import _ from 'lodash';
 import { findDOMNode } from 'react-dom';
 import {
   AutoSizer,
@@ -19,7 +18,7 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  currentUser: PropTypes.shape({}).isRequired,
+  currentUser: PropTypes.shape({}),
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
   clearAllEmojiStatus: PropTypes.func.isRequired,
@@ -29,6 +28,7 @@ const propTypes = {
 
 const defaultProps = {
   compact: false,
+  currentUser: null,
 };
 
 const intlMessages = defineMessages({
@@ -82,10 +82,8 @@ class UserParticipants extends Component {
     }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    const isPropsEqual = _.isEqual(this.props, nextProps);
-    const isStateEqual = _.isEqual(this.state, nextState);
-    return !isPropsEqual || !isStateEqual;
+  shouldComponentUpdate(nextProps) {
+    return nextProps.isReady;
   }
 
   selectEl(el) {
@@ -205,7 +203,7 @@ class UserParticipants extends Component {
                   {users.length}
                   )
                 </Styled.SmallTitle>
-                {currentUser.role === ROLE_MODERATOR
+                {currentUser?.role === ROLE_MODERATOR
                   ? (
                     <UserOptionsContainer {...{
                       users,

@@ -5,6 +5,7 @@ TARGET=`basename $(pwd)`
 
 PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 DISTRO=$(echo $TARGET | cut -d'_' -f3)
+BUILD=$1
 
 ##
 
@@ -48,6 +49,8 @@ echo '#JAVA_OPTS="-Dconfig.file=/usr/share/bbb-fsesl-akka/conf/application.conf 
 sed -i "s/^version .*/version := \"$VERSION\"/g" build.sbt
 if [[ -n $EPOCH && $EPOCH -gt 0 ]] ; then
     echo 'version in Debian := "'$EPOCH:$VERSION'"' >> build.sbt
+else
+    echo 'version in Debian := "'$VERSION-$BUILD'"' >> build.sbt
 fi
 sbt debian:packageBin
 cp ./target/*.deb ..

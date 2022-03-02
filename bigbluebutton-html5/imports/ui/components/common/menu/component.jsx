@@ -80,7 +80,7 @@ class BBBMenu extends React.Component {
         <Styled.BBBMenuItem
           emoji={emojiSelected ? 'yes' : 'no'}
           key={label}
-          data-test={dataTest || key}
+          data-test={dataTest}
           disableRipple={true}
           disableGutters={true}
           disabled={disabled}

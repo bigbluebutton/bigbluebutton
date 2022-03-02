@@ -9,7 +9,7 @@ trait SendBreakoutTimeRemainingInternalMsgHdlr {
   val outGW: OutMsgRouter
 
   def handleSendBreakoutTimeRemainingInternalMsg(msg: SendBreakoutTimeRemainingInternalMsg): Unit = {
-    val event = MsgBuilder.buildMeetingTimeRemainingUpdateEvtMsg(liveMeeting.props.meetingProp.intId, msg.timeLeftInSec.toInt)
+    val event = MsgBuilder.buildMeetingTimeRemainingUpdateEvtMsg(liveMeeting.props.meetingProp.intId, msg.timeLeftInSec.toInt, msg.timeUpdatedInMinutes)
     outGW.send(event)
   }
 }

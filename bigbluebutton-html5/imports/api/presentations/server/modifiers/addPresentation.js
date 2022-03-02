@@ -71,15 +71,14 @@ export default function addPresentation(meetingId, podId, presentation) {
     const { insertedId } = Presentations.upsert(selector, modifier);
 
     addSlides(meetingId, podId, presentation.id, presentation.pages);
-
-    if (insertedId) {
-      if (presentation.current) {
-        setCurrentPresentation(meetingId, podId, presentation.id);
-        Logger.info(`Added presentation id=${presentation.id} meeting=${meetingId}`);
-      } else {
-        Logger.info(`Upserted presentation id=${presentation.id} meeting=${meetingId}`);
-      }
+    
+    if (presentation.current) {
+      setCurrentPresentation(meetingId, podId, presentation.id);
+      Logger.info(`Added presentation id=${presentation.id} meeting=${meetingId}`);
+    } else {
+      Logger.info(`Upserted presentation id=${presentation.id} meeting=${meetingId}`);
     }
+
   } catch (err) {
     Logger.error(`Adding presentation to collection: ${err}`);
   }

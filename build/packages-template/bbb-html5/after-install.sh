@@ -58,6 +58,17 @@ if [ ! -f /.dockerenv ]; then
   systemctl daemon-reload
 fi
 
+# set full BBB version in settings.yml so it can be displayed in the client
+BBB_RELEASE_FILE=/etc/bigbluebutton/bigbluebutton-release
+BBB_HTML5_SETTINGS_FILE=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+if [[ -f $BBB_RELEASE_FILE ]] ; then
+  BBB_FULL_VERSION=$(cat $BBB_RELEASE_FILE | sed -n '/^BIGBLUEBUTTON_RELEASE/{s/.*=//;p}' )
+  echo "setting BBB_FULL_VERSION=$BBB_FULL_VERSION in $BBB_HTML5_SETTINGS_FILE "
+  if [[ -f $BBB_HTML5_SETTINGS_FILE ]] ; then
+    yq w -i $BBB_HTML5_SETTINGS_FILE public.app.bbbServerVersion $BBB_FULL_VERSION
+  fi
+fi
+
 # Remove old overrides 
 if [ -f /etc/systemd/system/mongod.service.d/override-mongo.conf ] \
   || [ -f /etc/systemd/system/mongod.service.d/override.conf ] \
@@ -73,7 +84,7 @@ fi
 
 source /etc/lsb-release
 
-if [ "$DISTRIB_RELEASE" == "18.04" ]; then
+if [ "$DISTRIB_CODENAME" == "bionic" ]; then
   node_version="14.18.1"
   if [[ ! -d /usr/share/node-v${node_version}-linux-x64 ]]; then
     cd /usr/share

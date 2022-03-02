@@ -46,7 +46,7 @@ const toolbarItemTrianglePadding = '2px';
 const toolbarMargin = '.8rem';
 
 const fileLineWidth = '16.75rem';
-const iconPaddingMd = '.65rem';
+const iconPaddingMd = '.4rem';
 const statusIconSize = '16px';
 const toastMdMargin = '.5rem';
 const uploadListHeight = '30vh';

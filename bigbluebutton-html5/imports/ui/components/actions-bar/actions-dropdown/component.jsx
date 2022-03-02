@@ -199,6 +199,7 @@ class ActionsDropdown extends PureComponent {
         label: intl.formatMessage(intlMessages.selectRandUserLabel),
         key: this.selectUserRandId,
         onClick: () => mountModal(<RandomUserSelectContainer isSelectedUser={false} />),
+        dataTest: "selectRandomUser",
       })
     }
 
@@ -262,7 +263,7 @@ class ActionsDropdown extends PureComponent {
       return null;
     }
     const { isMobile } = deviceInfo;
-    const customStyles = { top: '-4rem' };
+    const customStyles = { top: '-3rem' };
 
     return (
       <BBBMenu

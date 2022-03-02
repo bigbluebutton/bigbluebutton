@@ -24,22 +24,6 @@ mkdir -p $DESTDIR
 cp modules.conf $BUILDDIR/freeswitch
 cd $BUILDDIR/freeswitch
 
-#
-# Need to figure out how to build with mod_av
-if [ $DISTRO == "centos7" ] || [ $DISTRO == "amzn2" ]; then
-  sed -i 's/applications\/mod_av/#applications\/mod_av/g' modules.conf
-else
-  apt-get update
-  apt-get install -y software-properties-common
-  add-apt-repository -y ppa:bigbluebutton/support
-fi
-
-if [ "$DISTRO" == "bionic" ]; then
-  add-apt-repository ppa:bigbluebutton/support -y
-  apt-get update
-  apt-get install -y libopusfile-dev opus-tools libopusenc-dev
-fi
-
 pushd .
 
 # sofia-sip start
@@ -68,18 +52,6 @@ git checkout e59ca8fb8b1591e626e6a12fdc60a2ebe83435ed
 make -j $(nproc)
 make install
 
-if [ $DISTRO == "centos7" ] || [ $DISTRO == "amzn2" ]; then
-  export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
-  yum install -y opusfile-devel
-
-  git clone https://github.com/xiph/libopusenc.git
-  cd libopusenc/
-  git checkout dc6ab59ac41a96c5bf262056ea09fa5e2f776fe6
-  ./autogen.sh
-  ./configure
-  make -j $(nproc)
-  make install
-fi
 popd
 # spandsp end
 
@@ -161,7 +133,6 @@ HERE
     popd
   fi
 
-
   mkdir -p $DESTDIR/usr/local/bin
 	cp fs_clibbb $DESTDIR/usr/local/bin
 	chmod +x $DESTDIR/usr/local/bin/fs_clibbb
@@ -177,4 +148,3 @@ fpm -s dir -C $DESTDIR -n $PACKAGE \
     --description "BigBlueButton build of FreeSWITCH" \
     $DIRECTORIES                            \
     $OPTS
-

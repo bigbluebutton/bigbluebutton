@@ -3,7 +3,6 @@
 case "$1" in
   configure|upgrade|1|2)
     TARGET=/usr/local/bigbluebutton/bbb-pads/config/settings.json
-
     cp /usr/local/bigbluebutton/bbb-pads/config/settings.json.template $TARGET
 
     if [ -f /usr/share/etherpad-lite/APIKEY.txt ]; then

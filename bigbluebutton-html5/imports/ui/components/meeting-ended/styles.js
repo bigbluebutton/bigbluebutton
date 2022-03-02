@@ -3,7 +3,11 @@ import {
   borderRadius,
   lgPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
-import { colorWhite, colorText } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorWhite,
+  colorText,
+  colorBackground,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeLarge,
   headingsFontWeight,
@@ -20,6 +24,7 @@ const Parent = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: ${colorBackground};
 `;
 
 const Modal = styled.div`

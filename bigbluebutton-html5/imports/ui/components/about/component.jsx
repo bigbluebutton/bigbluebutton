@@ -32,20 +32,42 @@ const intlMessages = defineMessages({
     id: 'app.about.dismissDesc',
     description: 'adds descriptive context to dissmissLabel',
   },
+  version_label: {
+    id: 'app.about.version_label',
+    description: 'label for version bbb',
+  },
 });
 
-const AboutComponent = ({ intl, clientBuild, copyright }) => (
-  <Modal
-    title={intl.formatMessage(intlMessages.title)}
-    dismiss={{
-      label: intl.formatMessage(intlMessages.dismissLabel),
-      description: intl.formatMessage(intlMessages.dismissDesc),
-    }}
-  >
-    {`${intl.formatMessage(intlMessages.copyright)} ${copyright}`}
-    <br />
-    {`${intl.formatMessage(intlMessages.version)} ${clientBuild}`}
-  </Modal>
-);
+const AboutComponent = ({ intl, settings }) => {
+  const {
+    html5ClientBuild,
+    copyright,
+    bbbServerVersion,
+    displayBbbServerVersion,
+  } = settings;
+
+  const showLabelVersion = () => (
+    <>
+      <br />
+      {`${intl.formatMessage(intlMessages.version_label)} ${bbbServerVersion}`}
+    </>
+  );
+
+  return (
+    <Modal
+      title={intl.formatMessage(intlMessages.title)}
+      dismiss={{
+        label: intl.formatMessage(intlMessages.dismissLabel),
+        description: intl.formatMessage(intlMessages.dismissDesc),
+      }}
+    >
+      {`${intl.formatMessage(intlMessages.copyright)} ${copyright}`}
+      <br />
+      {`${intl.formatMessage(intlMessages.version)} ${html5ClientBuild}`}
+      {displayBbbServerVersion ? showLabelVersion() : null}
+
+    </Modal>
+  );
+};
 
 export default injectIntl(AboutComponent);

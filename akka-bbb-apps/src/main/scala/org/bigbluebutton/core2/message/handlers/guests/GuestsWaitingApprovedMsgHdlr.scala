@@ -27,7 +27,7 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers with RightsManagementT
           // Remove guest from waiting list
           _ <- GuestsWaiting.remove(liveMeeting.guestsWaiting, g.guest)
         } yield {
-          if (g.guest.startsWith("v_")) {
+          if (g.guest.startsWith(IntIdPrefixType.DIAL_IN)) {
             Users2x.findWithIntId(liveMeeting.users2x, g.guest) match {
               case Some(dialInUser) =>
                 if (g.status == GuestStatus.ALLOW) {
