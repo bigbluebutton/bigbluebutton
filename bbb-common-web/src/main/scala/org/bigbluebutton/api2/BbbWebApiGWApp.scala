@@ -124,6 +124,7 @@ class BbbWebApiGWApp(
                     recorded: java.lang.Boolean, voiceBridge: String, duration: java.lang.Integer,
                     autoStartRecording:      java.lang.Boolean,
                     allowStartStopRecording: java.lang.Boolean, webcamsOnlyForModerator: java.lang.Boolean,
+                    meetingCameraCap: java.lang.Integer,
                     userCameraCap: java.lang.Integer,
                     moderatorPass: String, viewerPass: String, learningDashboardEnabled: java.lang.Boolean, learningDashboardAccessToken: String,
                     createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean,
@@ -149,6 +150,7 @@ class BbbWebApiGWApp(
                     virtualBackgroundsDisabled:             java.lang.Boolean): Unit = {
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
+      meetingCameraCap = meetingCameraCap.intValue(),
       isBreakout = isBreakout.booleanValue(), learningDashboardEnabled = learningDashboardEnabled.booleanValue())
     val durationProps = DurationProps(
       duration = duration.intValue(),

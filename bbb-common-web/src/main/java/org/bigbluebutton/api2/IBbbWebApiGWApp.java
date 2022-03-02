@@ -17,6 +17,7 @@ public interface IBbbWebApiGWApp {
                      String parentMeetingID, String meetingName, Boolean recorded,
                      String voiceBridge, Integer duration, Boolean autoStartRecording,
                      Boolean allowStartStopRecording, Boolean webcamsOnlyForModerator,
+                     Integer meetingCameraCap,
                      Integer userCameraCap,
                      String moderatorPass, String viewerPass, Boolean learningDashboardEnabled, String learningDashboardAccessToken, Long createTime,
                      String createDate, Boolean isBreakout, Integer sequence, Boolean freejoin, Map<String, String> metadata,

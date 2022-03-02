@@ -27,6 +27,7 @@ trait AppsTestFixtures {
   val keepEvents = false
   val allowStartStopRecording = false
   val webcamsOnlyForModerator = false;
+  val meetingCameraCap = 0
   val userCameraCap = 0
   val moderatorPassword = "modpass"
   val viewerPassword = "viewpass"
@@ -53,6 +54,7 @@ trait AppsTestFixtures {
   val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, breakoutRooms = Vector())
 
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
+    meetingCameraCap = meetingCameraCap,
     isBreakout = isBreakout.booleanValue())
   val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate,
     meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes, meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes,
