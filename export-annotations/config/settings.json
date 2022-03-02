@@ -12,7 +12,9 @@
     "notifier": {
       "pod_id": "DEFAULT_PRESENTATION_POD",
       "is_downloadable": "false",
-      "msgName": "NewPresAnnFileAvailableMsg"
+      "msgName": "NewPresAnnFileAvailableMsg",
+      "protocol": "https",
+      "host": "localhost"
     },
     "genPollSVG": {
       "path": "/home/petriroc/dev/bigbluebutton/record-and-playback/core/scripts/utils/gen_poll_svg"

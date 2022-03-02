@@ -42,6 +42,7 @@ function render_HTMLTextBox(htmlFilePath, id, width, height) {
         '--crop-w', width,
         '--crop-h', height,
         '--log-level', 'none',
+        '--quality', '100',
         htmlFilePath, `${dropbox}/text${id}.png`
     ]
 
@@ -414,8 +415,18 @@ for (let i = 0; i < pages.length; i++) {
     rsvgConvertInput += `${file} `
 }
 
+// Create PDF output directory if it doesn't exist
+let output_dir = `${exportJob.presLocation}/pdfs`;
+if (!fs.existsSync(output_dir)) { fs.mkdirSync(output_dir); }
+
+let render = [
+    'rsvg-convert', rsvgConvertInput,
+    '-f', 'pdf', 
+    '-o', `${output_dir}/annotated_slides_${jobId}.pdf`
+    ].join(' ');
+
 // Resulting PDF file is stored in the presentation dir
-execSync(`rsvg-convert ${rsvgConvertInput} -f pdf -o ${exportJob.presLocation}/annotated_slides_${jobId}.pdf`, (error, stderr) => {
+execSync(render, (error, stderr) => {
     if (error) {
         logger.error(`SVG to PDF export failed with error: ${error.message}`);
         return;
@@ -427,7 +438,7 @@ execSync(`rsvg-convert ${rsvgConvertInput} -f pdf -o ${exportJob.presLocation}/a
 });
 
 // Launch Notifier Worker depending on job type
-logger.info(`Saved PDF at ${exportJob.presLocation}/annotated_slides_${jobId}.pdf`);
+logger.info(`Saved PDF at ${output_dir}/annotated_slides_${jobId}.pdf`);
 
 kickOffNotifierWorker(exportJob.jobType);
 

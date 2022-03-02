@@ -25,6 +25,7 @@ async function connectToRedis() {
     await client.connect();
     client.on('error', (err) => logger.info('Redis Client Error', err));
 
+    let link = `${config.notifier.protocol}://${config.notifier.host}/bigbluebutton/presentation/${exportJob.parentMeetingId}/${exportJob.parentMeetingId}/${exportJob.presId}/pdf/${jobId}`;
     // Notify Meeting Actor of file availability by sending a message through Redis PubSub
     const notification = {
         envelope: {
@@ -41,11 +42,12 @@ async function connectToRedis() {
                 userId: ""
             },
             body: {
-                fileURI: `file://${exportJob.presLocation}/annotated_slides_${jobId}.pdf`,
+                fileURI: link
             },
-          } 
+          }
     }
 
+    logger.info(`Annotated PDF available at ${link}`);
     await client.publish(config.redis.channels.publish, JSON.stringify(notification));
 }
 
@@ -59,7 +61,7 @@ async function upload(exportJob) {
     formData.append('room', exportJob.parentMeetingId);
     formData.append('pod_id', config.notifier.pod_id);
     formData.append('is_downloadable', config.notifier.is_downloadable);
-    formData.append('fileUpload', fs.createReadStream(`${exportJob.presLocation}/annotated_slides_${jobId}.pdf`));
+    formData.append('fileUpload', fs.createReadStream(`${exportJob.presLocation}/pdfs/annotated_slides_${jobId}.pdf`));
 
     let res = await axios.post(callbackUrl, formData, { headers: formData.getHeaders() });
     logger.info(`Upload of job ${exportJob.jobId} returned ${res.data}`);
