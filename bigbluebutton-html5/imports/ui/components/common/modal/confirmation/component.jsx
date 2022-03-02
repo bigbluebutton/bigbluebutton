@@ -46,6 +46,7 @@ class ConfirmationModal extends Component {
       titleMessageExtra,
       checkboxMessageId,
       confirmButtonColor,
+      confirmButtonDataTest,
       confirmParam,
       disableConfirmButton,
       description,
@@ -66,11 +67,11 @@ class ConfirmationModal extends Component {
         <Styled.Container>
           <Styled.Header>
             <Styled.Title>
-              { title ? title : intl.formatMessage({ id: titleMessageId }, { 0: titleMessageExtra })}
+              { title || intl.formatMessage({ id: titleMessageId }, { 0: titleMessageExtra })}
             </Styled.Title>
           </Styled.Header>
           <Styled.Description>
-            { description }
+            <span dangerouslySetInnerHTML={{ __html: description }} />
             { hasCheckbox ? (
               <label htmlFor="confirmationCheckbox" key="confirmation-checkbox">
                 <Styled.Checkbox
@@ -90,6 +91,7 @@ class ConfirmationModal extends Component {
               color={confirmButtonColor}
               label={intl.formatMessage(messages.yesLabel)}
               disabled={disableConfirmButton}
+              data-test={confirmButtonDataTest}
               onClick={() => {
                 onConfirm(confirmParam, checked);
                 mountModal(null);
