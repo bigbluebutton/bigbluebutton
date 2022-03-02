@@ -28,7 +28,8 @@ public:
     #
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.4
+    bbbServerVersion: HTML5_FULL_BBB_VERSION
+    displayBbbServerVersion: true
     copyright: '©2022 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
@@ -789,7 +790,6 @@ private:
       - to-html5-redis-channel
       - from-akka-apps-[^f]*
       - from-third-party-redis-channel
-      - from-etherpad-redis-channel
     async:
       - from-akka-apps-wb-redis-channel
     ignored:

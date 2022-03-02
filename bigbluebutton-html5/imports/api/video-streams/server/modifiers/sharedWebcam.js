@@ -56,3 +56,46 @@ export default function sharedWebcam(meetingId, userId, stream) {
     Logger.error(`Error setting stream: ${err}`);
   }
 }
+
+export function addWebcamSync(meetingId, videoStream) {
+  check(videoStream, {
+    userId: String,
+    stream: String,
+    name: String,
+    pin: Boolean,
+    floor: Boolean,
+    lastFloorTime: String,
+  });
+
+  const {
+    stream, userId, name, pin, floor, lastFloorTime,
+  } = videoStream;
+
+  const deviceId = getDeviceId(stream);
+
+  const selector = {
+    meetingId,
+    userId,
+    deviceId,
+  };
+
+  const modifier = {
+    $set: {
+      stream,
+      name,
+      lastFloorTime,
+      floor,
+      pin,
+    },
+  };
+
+  try {
+    const { insertedId } = VideoStreams.upsert(selector, modifier);
+
+    if (insertedId) {
+      Logger.info(`Synced stream=${stream} meeting=${meetingId}`);
+    }
+  } catch (err) {
+    Logger.error(`Error setting sync stream: ${err}`);
+  }
+}

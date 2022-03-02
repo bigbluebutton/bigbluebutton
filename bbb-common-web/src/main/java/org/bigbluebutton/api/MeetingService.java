@@ -105,6 +105,7 @@ public class MeetingService implements MessageListener {
   private SwfSlidesGenerationProgressNotifier notifier;
 
   private long usersTimeout;
+  private long waitingGuestUsersTimeout;
   private long enteredUsersTimeout;
 
   private ParamsProcessorUtil paramsProcessorUtil;
@@ -139,13 +140,13 @@ public class MeetingService implements MessageListener {
   public void registerUser(String meetingID, String internalUserId,
                            String fullname, String role, String externUserID,
                            String authToken, String avatarURL, Boolean guest,
-                           Boolean authed, String guestStatus, Boolean excludeFromDashboard) {
+                           Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby) {
     handle(new RegisterUser(meetingID, internalUserId, fullname, role,
-      externUserID, authToken, avatarURL, guest, authed, guestStatus, excludeFromDashboard));
+      externUserID, authToken, avatarURL, guest, authed, guestStatus, excludeFromDashboard, leftGuestLobby));
 
     Meeting m = getMeeting(meetingID);
     if (m != null) {
-      RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus, excludeFromDashboard);
+      RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus, excludeFromDashboard, leftGuestLobby);
       m.userRegistered(ruser);
     }
   }
@@ -260,17 +261,16 @@ public class MeetingService implements MessageListener {
     for (AbstractMap.Entry<String, Meeting> entry : this.meetings.entrySet()) {
       Long now = System.currentTimeMillis();
       Meeting meeting = entry.getValue();
-
       ConcurrentMap<String, User> users = meeting.getUsersMap();
-
       for (AbstractMap.Entry<String, RegisteredUser> registeredUser : meeting.getRegisteredUsers().entrySet()) {
         String registeredUserID = registeredUser.getKey();
         RegisteredUser ru = registeredUser.getValue();
 
         long elapsedTime = now - ru.getGuestWaitedOn();
-        if (elapsedTime >= 15000 && ru.getGuestStatus() == GuestPolicy.WAIT) {
+        if (elapsedTime >= waitingGuestUsersTimeout && ru.getGuestStatus() == GuestPolicy.WAIT) {
           if (meeting.userUnregistered(registeredUserID) != null) {
             gw.guestWaitingLeft(meeting.getInternalId(), registeredUserID);
+            meeting.setLeftGuestLobby(registeredUserID, true);
           };
         }
       }
@@ -1302,6 +1302,10 @@ public class MeetingService implements MessageListener {
 
   public void setUsersTimeout(long value) {
     usersTimeout = value;
+  }
+
+  public void setWaitingGuestUsersTimeout(long value) {
+    waitingGuestUsersTimeout = value;
   }
 
   public void setEnteredUsersTimeout(long value) {

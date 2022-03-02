@@ -61,9 +61,6 @@ sudo cp $LOCAL_PACKAGING_DIR/bionic/systemd_start.sh "$DESTINATION_DIR"/systemd_
 echo "writing $DESTINATION_DIR/systemd_start_frontend.sh"
 sudo cp $LOCAL_PACKAGING_DIR/bionic/systemd_start_frontend.sh "$DESTINATION_DIR"/systemd_start_frontend.sh
 
-echo "writing $DESTINATION_DIR/workers-start.sh"
-sudo cp $LOCAL_PACKAGING_DIR/bionic/workers-start.sh "$DESTINATION_DIR"/workers-start.sh
-
 sudo chown -R meteor:meteor "$UPPER_DESTINATION_DIR"/
 sudo chmod +x "$DESTINATION_DIR"/mongod_start_pre.sh
 sudo chmod +x "$DESTINATION_DIR"/systemd_start.sh

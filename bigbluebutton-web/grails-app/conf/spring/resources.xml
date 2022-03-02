@@ -57,6 +57,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="gw" ref="bbbWebApiGWApp"/>
         <property name="callbackUrlService" ref="callbackUrlService"/>
         <property name="usersTimeout" value="${usersTimeout}"/>
+        <property name="waitingGuestUsersTimeout" value="${waitingGuestUsersTimeout}"/>
         <property name="enteredUsersTimeout" value="${enteredUsersTimeout}"/>
         <property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
     </bean>

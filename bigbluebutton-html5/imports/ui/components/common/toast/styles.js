@@ -142,35 +142,35 @@ const Toast = styled.div`
   display: flex;
 
   ${({ type }) => type === 'default' && `
-    & > i {
+    & .toastIcon {
       color: ${toastDefaultColor};
       background-color: ${toastDefaultBg};
     }
   `}
 
   ${({ type }) => type === 'error' && `
-    & > i {
+    & .toastIcon {
       color: ${toastErrorColor};
       background-color: ${toastErrorBg};
     }
   `}
 
   ${({ type }) => type === 'info' && `
-    & > i {
+    & .toastIcon {
       color: ${toastInfoColor};
       background-color: ${toastInfoBg};
     }
   `}
 
   ${({ type }) => type === 'success' && `
-    & > i {
+    & .toastIcon {
       color: ${toastSuccessColor};
       background-color: ${toastSuccessBg};
     }
   `}
 
   ${({ type }) => type === 'warning' && `
-    & > i {
+    & .toastIcon {
       color: ${toastWarningColor};
       background-color: ${toastWarningBg};
     }

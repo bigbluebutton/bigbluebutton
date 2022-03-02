@@ -47,7 +47,7 @@ const requestJoinURL = (breakoutId) => {
   });
 };
 
-const isExtendTimeHigherThanMeetingRemaining = (extendTimeInMinutes) => {
+const isNewTimeHigherThanMeetingRemaining = (newTimeInMinutes) => {
   const meetingId = Auth.meetingID;
   const meetingTimeRemaining = MeetingTimeRemaining.findOne({ meetingId });
 
@@ -55,10 +55,7 @@ const isExtendTimeHigherThanMeetingRemaining = (extendTimeInMinutes) => {
     const { timeRemaining } = meetingTimeRemaining;
 
     if (timeRemaining) {
-      const breakoutRooms = findBreakouts();
-      const breakoutRoomsTimeRemaining = breakoutRooms[0].timeRemaining;
-      const newBreakoutRoomsRemainingTime =
-        breakoutRoomsTimeRemaining + extendTimeInMinutes * 60;
+      const newBreakoutRoomsRemainingTime = newTimeInMinutes * 60;
       //  Keep margin of 5 seconds for breakout rooms end before parent meeting
       const meetingTimeRemainingWithMargin = timeRemaining - 5;
 
@@ -71,11 +68,11 @@ const isExtendTimeHigherThanMeetingRemaining = (extendTimeInMinutes) => {
   return false;
 };
 
-const extendBreakoutsTime = (extendTimeInMinutes) => {
-  if (extendTimeInMinutes <= 0) return false;
+const setBreakoutsTime = (timeInMinutes) => {
+  if (timeInMinutes <= 0) return false;
 
-  makeCall('extendBreakoutsTime', {
-    extendTimeInMinutes,
+  makeCall('setBreakoutsTime', {
+    timeInMinutes,
   });
 
   return true;
@@ -209,10 +206,10 @@ const isUserInBreakoutRoom = (joinedUsers) => {
 export default {
   findBreakouts,
   endAllBreakouts,
-  extendBreakoutsTime,
+  setBreakoutsTime,
   sendMessageToAllBreakouts,
   getUserMessagesToAllBreakouts,
-  isExtendTimeHigherThanMeetingRemaining,
+  isNewTimeHigherThanMeetingRemaining,
   requestJoinURL,
   getBreakoutRoomUrl,
   transferUserToMeeting,

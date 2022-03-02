@@ -281,7 +281,7 @@ class SettingsDropdown extends PureComponent {
     } = this.props;
 
     const { isMobile } = deviceInfo;
-    const customStyles = { top: '4rem' };
+    const customStyles = { top: '3rem' };
 
     return (
       <BBBMenu

@@ -31,7 +31,7 @@ const Toast = ({
 }) => (
   <Styled.ToastContainer small={small} data-test="toastContainer">
     <Styled.Toast type={type}>
-      <Styled.ToastIcon small={small}>
+      <Styled.ToastIcon className="toastIcon" small={small}>
         <Icon iconName={icon || defaultIcons[type]} />
       </Styled.ToastIcon>
       <Styled.ToastMessage data-test="toastSmallMsg">
