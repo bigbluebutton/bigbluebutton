@@ -69,7 +69,7 @@ const Footer = styled.div`
   display:flex;
 `;
 
-const ConfirmButton = styled(Button)`
+const ConfirmationButton = styled(Button)`
   padding-right: ${jumboPaddingY};
   padding-left: ${jumboPaddingY};
   margin: 0 ${smPaddingX} 0 0;
@@ -77,10 +77,6 @@ const ConfirmButton = styled(Button)`
   [dir="rtl"] & {
     margin: 0 0 0 ${smPaddingX};
   }
-`;
-
-const DismissButton = styled(ConfirmButton)`
-  box-shadow: 0 0 0 1px ${colorGray};
 `;
 
 export default {
@@ -91,6 +87,5 @@ export default {
   Description,
   Checkbox,
   Footer,
-  ConfirmButton,
-  DismissButton,
+  ConfirmationButton,
 };

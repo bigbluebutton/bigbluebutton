@@ -17,10 +17,14 @@ const messages = defineMessages({
 
 const propTypes = {
   confirmButtonColor: PropTypes.string,
+  disableConfirmButton: PropTypes.bool,
+  description: PropTypes.string,
 };
 
 const defaultProps = {
   confirmButtonColor: 'primary',
+  disableConfirmButton: false,
+  description: '',
 };
 
 class ConfirmationModal extends Component {
@@ -43,6 +47,8 @@ class ConfirmationModal extends Component {
       checkboxMessageId,
       confirmButtonColor,
       confirmParam,
+      disableConfirmButton,
+      description,
     } = this.props;
 
     const {
@@ -60,10 +66,11 @@ class ConfirmationModal extends Component {
         <Styled.Container>
           <Styled.Header>
             <Styled.Title>
-              {intl.formatMessage({ id: titleMessageId }, { 0: titleMessageExtra })}
+              { title ? title : intl.formatMessage({ id: titleMessageId }, { 0: titleMessageExtra })}
             </Styled.Title>
           </Styled.Header>
           <Styled.Description>
+            { description }
             { hasCheckbox ? (
               <label htmlFor="confirmationCheckbox" key="confirmation-checkbox">
                 <Styled.Checkbox
@@ -79,15 +86,16 @@ class ConfirmationModal extends Component {
           </Styled.Description>
 
           <Styled.Footer>
-            <Styled.ConfirmButton
+            <Styled.ConfirmationButton
               color={confirmButtonColor}
               label={intl.formatMessage(messages.yesLabel)}
+              disabled={disableConfirmButton}
               onClick={() => {
                 onConfirm(confirmParam, checked);
                 mountModal(null);
               }}
             />
-            <Styled.DismissButton
+            <Styled.ConfirmationButton
               label={intl.formatMessage(messages.noLabel)}
               onClick={() => mountModal(null)}
             />
