@@ -127,11 +127,9 @@ class BigBlueButtonActor(
         // Subscribe to meeting and voice events.
         eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)
         eventBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
-        eventBus.subscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
 
         bbbMsgBus.subscribe(m.actorRef, m.props.meetingProp.intId)
         bbbMsgBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
-        bbbMsgBus.subscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
 
         RunningMeetings.add(meetings, m)
 
@@ -177,11 +175,9 @@ class BigBlueButtonActor(
       // Unsubscribe to meeting and voice events.
       eventBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
       eventBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
-      eventBus.unsubscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
 
       bbbMsgBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
       bbbMsgBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
-      bbbMsgBus.unsubscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
 
       // Delay sending DisconnectAllUsers to allow messages to reach the client
       // before the connections are closed.

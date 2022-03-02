@@ -245,8 +245,6 @@ class MeetingActor(
       handleMeetingInfoAnalyticsLogging()
     case MeetingInfoAnalyticsMsg =>
       handleMeetingInfoAnalyticsService()
-    case msg: ScreenStreamSubscribeSysMsg =>
-      handleScreenStreamSubscribeSysMsg(msg)
     //=============================
 
     // 2x messages
@@ -286,9 +284,6 @@ class MeetingActor(
     case msg: BreakoutRoomEndedInternalMsg         => state = handleBreakoutRoomEndedInternalMsg(msg, state)
     case msg: SendMessageToBreakoutRoomInternalMsg => state = handleSendMessageToBreakoutRoomInternalMsg(msg, state, liveMeeting, msgBus)
     case msg: SendBreakoutTimeRemainingInternalMsg => handleSendBreakoutTimeRemainingInternalMsg(msg)
-
-    // Screenshare
-    case msg: DeskShareGetDeskShareInfoRequest     => handleDeskShareGetDeskShareInfoRequest(msg)
 
     case msg: SendRecordingTimerInternalMsg =>
       state = usersApp.handleSendRecordingTimerInternalMsg(msg, state)
@@ -562,8 +557,6 @@ class MeetingActor(
       case m: UserTypingPubMsg                               => chatApp2x.handle(m, liveMeeting, msgBus)
 
       // Screenshare
-      case m: ScreenshareStartedVoiceConfEvtMsg              => screenshareApp2x.handle(m, liveMeeting, msgBus)
-      case m: ScreenshareStoppedVoiceConfEvtMsg              => screenshareApp2x.handle(m, liveMeeting, msgBus)
       case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
       case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
       case m: GetScreenshareStatusReqMsg                     => screenshareApp2x.handle(m, liveMeeting, msgBus)
@@ -592,8 +585,6 @@ class MeetingActor(
       case _                              => log.warning("***** Cannot handle " + msg.envelope.name)
     }
   }
-
-  private def handleScreenStreamSubscribeSysMsg(msg: ScreenStreamSubscribeSysMsg): Unit = ???
 
   private def handleMeetingInfoAnalyticsLogging(): Unit = {
     val meetingInfoAnalyticsLogMsg: MeetingInfoAnalytics = prepareMeetingInfo()
@@ -723,29 +714,8 @@ class MeetingActor(
     // switch user presenter status for old and new presenter
     val newState = usersApp.handleAssignPresenterReqMsg(msg, state)
 
-    // request screenshare to end
-    screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(
-      liveMeeting.props.voiceProp.voiceConf,
-      liveMeeting.props.screenshareProps.screenshareConf,
-      liveMeeting, msgBus
-    )
-
     newState
 
-  }
-
-  def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {
-    log.info("handleDeskShareGetDeskShareInfoRequest: " + msg.conferenceName + "isBroadcasting="
-      + ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel) + " URL:" +
-      ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel))
-
-    if (ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
-      // if the meeting has an ongoing WebRTC Deskshare session, send a notification
-      //outGW.send(new DeskShareNotifyASingleViewer(props.meetingProp.intId, msg.requesterID,
-      //  DeskshareModel.getRTMPBroadcastingUrl(liveMeeting.deskshareModel),
-      //  DeskshareModel.getDesktopShareVideoWidth(liveMeeting.deskshareModel),
-      //  DeskshareModel.getDesktopShareVideoHeight(liveMeeting.deskshareModel), true))
-    }
   }
 
   def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
@@ -894,9 +864,6 @@ class MeetingActor(
         if (u.presenter) {
           log.info("removeUsersWithExpiredUserLeftFlag will cause an automaticallyAssignPresenter because user={} left", u)
           UsersApp.automaticallyAssignPresenter(outGW, liveMeeting)
-
-          // request screenshare to end
-          screenshareApp2x.handleScreenshareStoppedVoiceConfEvtMsg(liveMeeting.props.voiceProp.voiceConf, liveMeeting.props.screenshareProps.screenshareConf, liveMeeting, msgBus)
 
           // request ongoing poll to end
           Polls.handleStopPollReqMsg(state, u.intId, liveMeeting)

@@ -82,7 +82,6 @@ case class DefaultProps(
     voiceProp:         VoiceProp,
     usersProp:         UsersProp,
     metadataProp:      MetadataProp,
-    screenshareProps:  ScreenshareProps,
     lockSettingsProps: LockSettingsProps,
     systemProps:       SystemProps,
     groups:            Vector[GroupProps]

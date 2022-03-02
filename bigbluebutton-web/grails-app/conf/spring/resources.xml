@@ -72,13 +72,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="bbbWebApiGWApp" class="org.bigbluebutton.api2.BbbWebApiGWApp">
         <constructor-arg index="0" ref="oldMessageReceivedGW"/>
-        <constructor-arg index="1" value="${screenshareRtmpServer}"/>
-        <constructor-arg index="2" value="${screenshareRtmpBroadcastApp}"/>
-        <constructor-arg index="3" value="${screenshareConfSuffix}"/>
-        <constructor-arg index="4" value="${redisHost}"/>
-        <constructor-arg index="5" value="${redisPort}"/>
-        <constructor-arg index="6" value="${redisPassword}"/>
-        <constructor-arg index="7" value="${redisKeyExpiry}"/>
+        <constructor-arg index="1" value="${redisHost}"/>
+        <constructor-arg index="2" value="${redisPort}"/>
+        <constructor-arg index="3" value="${redisPassword}"/>
+        <constructor-arg index="4" value="${redisKeyExpiry}"/>
     </bean>
 
     <bean id="recordingServiceHelper" class="org.bigbluebutton.api.util.RecordingMetadataReaderHelper">
