@@ -321,6 +321,7 @@ public:
         bitrate: 500
         constraints:
           width: 1280
+          height: 720
           frameRate: 15
       - id: hd
         name: High definition
@@ -328,6 +329,7 @@ public:
         bitrate: 800
         constraints:
           width: 1280
+          height: 720
           frameRate: 30
     enableScreensharing: true
     enableVideo: true
