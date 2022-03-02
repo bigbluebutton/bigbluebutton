@@ -55,6 +55,7 @@ class Indicator extends Component {
 
   componentWillUnmount() {
     clearInterval(this.interval);
+    this.stopMusic();
   }
 
   updateInterval(prevTimer, timer) {
