@@ -73,10 +73,9 @@ class Indicator extends Component {
 
   setUpMusic() {
     const { currentTrack } = this.props;
-
-    if (trackName[currentTrack] !== undefined) {
+    if (trackName[currentTrack] === undefined) return;
+    if (this.music === null) {
       this.music = new Audio(`${HOST}/resources/sounds/${trackName[currentTrack]}.mp3`);
-      this.music.track = currentTrack;
       this.music.volume = TimerService.getMusicVolume();
       this.music.addEventListener('timeupdate', () => {
         const buffer = 0.19;
@@ -86,7 +85,10 @@ class Indicator extends Component {
           this.music.play();
         }
       });
+    } else {
+      this.music.src = `${HOST}/resources/sounds/${trackName[currentTrack]}.mp3`;
     }
+    this.music.track = currentTrack;
   }
 
   updateAlarmTrigger(prevTimer, timer) {
@@ -201,14 +203,20 @@ class Indicator extends Component {
       running,
       stopwatch,
     } = timer;
+    const validMusic = this.music != null;
+    if (!validMusic) return false;
 
-    return isMusicActive && running && !stopwatch;
+    const musicIsPlaying = !this.music.paused;
+
+    return !musicIsPlaying && isMusicActive && running && !stopwatch;
   }
 
   shouldStopMusic(time) {
     const {
       timer,
+      isTimerActive,
       isMusicActive,
+      currentTrack,
     } = this.props;
 
     const {
@@ -218,10 +226,13 @@ class Indicator extends Component {
 
     const zero = time === 0;
     const validMusic = this.music != null;
+    const musicIsPlaying = validMusic && !this.music.paused;
+    const trackChanged = this.music?.track !== currentTrack;
 
     const reachedZeroOrStopped = (running && zero) || (!running);
 
-    return !isMusicActive || !validMusic || stopwatch || reachedZeroOrStopped;
+    return musicIsPlaying
+      && (!isMusicActive || stopwatch || reachedZeroOrStopped || !isTimerActive || trackChanged);
   }
 
   shoulNotifyTimerEnded(time) {
@@ -288,24 +299,22 @@ class Indicator extends Component {
   }
 
   render() {
-    const { isTimerActive, currentTrack } = this.props;
-    if (!isTimerActive) {
-      this.stopMusic();
-      return null;
-    }
-
-    if (this.music?.track !== currentTrack) {
-      this.stopMusic();
-      this.setUpMusic();
-    }
+    const { isTimerActive } = this.props;
+    const time = this.getTime();
+    if (!isTimerActive) return null;
 
     const {
       isModerator,
       timer,
       sidebarNavigationIsOpen,
       sidebarContentIsOpen,
+      currentTrack,
     } = this.props;
     const { running } = timer;
+    const trackChanged = this.music?.track !== currentTrack;
+    if (trackChanged) {
+      this.setUpMusic();
+    }
 
     const onClick = running ? TimerService.stopTimer : TimerService.startTimer;
 
@@ -328,7 +337,7 @@ class Indicator extends Component {
                 aria-hidden
                 ref={this.timeRef}
               >
-                {this.getTime()}
+                {time}
               </Styled.TimerTime>
             </Styled.TimerContent>
           </Styled.TimerIndicator>
