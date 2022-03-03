@@ -8,10 +8,7 @@ import org.hibernate.cfg.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.NoResultException;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import javax.persistence.*;
 import java.util.List;
 
 public class DataStore {
@@ -126,6 +123,64 @@ public class DataStore {
             Root<Recording> recordingRoot = criteriaQuery.from(Recording.class);
             criteriaQuery.where(criteriaBuilder.equal(recordingRoot.get("recordId"), recordId));
             result = session.createQuery(criteriaQuery).getSingleResult();
+            transaction.commit();
+        } catch(Exception e) {
+            if(transaction != null) {
+                transaction.rollback();
+
+                if(e instanceof NoResultException) logger.info("No result found.");
+                else e.printStackTrace();
+            }
+        } finally {
+            session.close();
+        }
+
+        return result;
+    }
+
+    public List<Recording> findRecordingsByState(String state) {
+        logger.info("Attempting to find recordings with state {}", state);
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        List<Recording> result = null;
+
+        try {
+            transaction = session.beginTransaction();
+            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+            CriteriaQuery<Recording> criteriaQuery = criteriaBuilder.createQuery(Recording.class);
+            Root<Recording> recordingRoot = criteriaQuery.from(Recording.class);
+            criteriaQuery.where(criteriaBuilder.equal(recordingRoot.get("state"), state));
+            result = session.createQuery(criteriaQuery).getResultList();
+            transaction.commit();
+        } catch(Exception e) {
+            if(transaction != null) {
+                transaction.rollback();
+
+                if(e instanceof NoResultException) logger.info("No results found.");
+                else e.printStackTrace();
+            }
+        } finally {
+            session.close();
+        }
+
+        return result;
+    }
+
+    public List<Metadata> findMetadataByFilter(String key, String value) {
+        logger.info("Attempting to find metadata with key {} and value {}", key, value);
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        List<Metadata> result = null;
+
+        try {
+            transaction = session.beginTransaction();
+            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+            CriteriaQuery<Metadata> criteriaQuery = criteriaBuilder.createQuery(Metadata.class);
+            Root<Metadata> metadataRoot = criteriaQuery.from(Metadata.class);
+            Predicate predicateForKey = criteriaBuilder.equal(metadataRoot.get("key"), key);
+            Predicate predicateForValue = criteriaBuilder.equal(metadataRoot.get("value"), value);
+            criteriaQuery.where(criteriaBuilder.and(predicateForKey, predicateForValue));
+            result = session.createQuery(criteriaQuery).getResultList();
             transaction.commit();
         } catch(Exception e) {
             if(transaction != null) {
