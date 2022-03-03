@@ -1,6 +1,6 @@
 package org.bigbluebutton.api.model.validator;
 
-import org.bigbluebutton.api.MeetingService;
+import org.bigbluebutton.api.service.MeetingService;
 import org.bigbluebutton.api.domain.GuestPolicy;
 import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.model.constraint.GuestPolicyConstraint;

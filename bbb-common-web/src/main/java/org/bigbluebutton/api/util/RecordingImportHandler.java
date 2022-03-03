@@ -1,6 +1,5 @@
 package org.bigbluebutton.api.util;
 
-import org.bigbluebutton.api.RecordingService;
 import org.bigbluebutton.api.model.entity.Metadata;
 import org.bigbluebutton.api.model.entity.PlaybackFormat;
 import org.bigbluebutton.api.model.entity.Recording;

@@ -1,6 +1,5 @@
 package org.bigbluebutton.api.service;
 
-import org.bigbluebutton.api.MeetingService;
 import org.bigbluebutton.api.domain.UserSession;
 
 public class SessionService {

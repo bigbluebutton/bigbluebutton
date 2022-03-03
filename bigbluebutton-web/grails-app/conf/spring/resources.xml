@@ -44,7 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="gw" ref="bbbWebApiGWApp"/>
     </bean>
 
-    <bean id="meetingService" class="org.bigbluebutton.api.MeetingService" init-method="start" destroy-method="stop">
+    <bean id="meetingService" class="org.bigbluebutton.api.service.MeetingService" init-method="start" destroy-method="stop">
         <property name="redisStorageService" ref="redisStorageService"/>
         <property name="learningDashboardService" ref="learningDashboardService"/>
         <property name="recordingService" ref="recordingService"/>
@@ -97,7 +97,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="blankPresentation" value="${BLANK_PRESENTATION}"/>
     </bean>
 
-    <bean id="recordingService" class="org.bigbluebutton.api.RecordingService">
+    <bean id="recordingService" class="org.bigbluebutton.api.service.impl.RecordingServiceFileImpl">
         <property name="recordingStatusDir" value="${recordStatusDir}"/>
         <property name="publishedDir" value="${publishedDir}"/>
         <property name="unpublishedDir" value="${unpublishedDir}"/>

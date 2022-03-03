@@ -1,6 +1,5 @@
 package org.bigbluebutton.api.service;
 
-import org.bigbluebutton.api.MeetingService;
 import org.bigbluebutton.api.ParamsProcessorUtil;
 import org.bigbluebutton.api.domain.Meeting;
 import org.slf4j.Logger;

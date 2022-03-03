@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.bigbluebutton.api.MeetingService;
+import org.bigbluebutton.api.service.MeetingService;
 
 public class EnteredUserCleanupTimerTask {
 
