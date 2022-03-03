@@ -9,6 +9,7 @@ import Modal from '/imports/ui/components/modal/simple/component';
 import Toggle from '/imports/ui/components/switch/component';
 import Button from '/imports/ui/components/button/component';
 import deviceInfo from '/imports/utils/deviceInfo';
+import cx from 'classnames';
 import { styles } from './styles';
 
 const LayoutModalComponent = (props) => {
@@ -147,7 +148,10 @@ const LayoutModalComponent = (props) => {
           <div className={styles.buttonLayoutContainer} key={layout}>
             <p className={styles.labelLayoutNames}>{intl.formatMessage(intlMessages[`${layout}Layout`])}</p>
             <Button
-              className={styles.layoutBtn}
+              className={cx({
+                [styles.layoutBtn]: true,
+                [styles.layoutBtnActive]: layout === selectedLayout,
+              })}
               label=""
               customIcon={<img src={`${LAYOUTS_PATH}${layout}.svg`} alt={`${LAYOUTS_PATH}${layout}Layout`} className={styles.iconSvg} />}
               onClick={() => handleSwitchLayout(layout)}

@@ -39,6 +39,7 @@
 
 .layoutBtn {
   display: flex;
+  box-shadow: unset !important;
   background-color: var(--color-white);
   border: var(--color-white) solid 12px;
   align-items: center;
@@ -48,20 +49,20 @@
   margin: 0 1rem 1rem 1rem;
   width: fit-content;
 
-  &:focus {
-    border: var(--color-background) solid 12px;
-  }
-
   @media (max-width: 540px) {
-    width: 10rem;
     margin: 0.5rem;
     border: var(--color-white) solid 4px;
     border-radius: 10px;
+    width: fit-content;
+  }
+}
 
-    &:focus {
-      width: fit-content;
-      border: var(--color-background) solid 4px;
-    }
+.layoutBtnActive {
+  @extend .layoutBtn;
+  border: var(--color-background) solid 12px;
+
+  @media (max-width: 540px) {
+    border: var(--color-background) solid 4px;
   }
 }
 
