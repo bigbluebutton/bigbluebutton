@@ -424,15 +424,6 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildRegisteredUserJoinTimeoutMsg(meetingId: String, userId: String, name: String): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-    val envelope = BbbCoreEnvelope(RegisteredUserJoinTimeoutMsg.NAME, routing)
-    val header = BbbCoreHeaderWithMeetingId(RegisteredUserJoinTimeoutMsg.NAME, meetingId)
-    val body = RegisteredUserJoinTimeoutMsgBody(meetingId, userId, name)
-    val event = RegisteredUserJoinTimeoutMsg(header, body)
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
-
   def buildGetScreenSubscribePermissionRespMsg(
       meetingId:    String,
       voiceConf:    String,

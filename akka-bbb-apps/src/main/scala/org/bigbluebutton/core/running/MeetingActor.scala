@@ -751,7 +751,6 @@ class MeetingActor(
     setRecordingChapterBreak()
 
     processUserInactivityAudit()
-    flagRegisteredUsersWhoHasNotJoined()
     checkIfNeedToEndMeetingWhenNoAuthedUsers(liveMeeting)
     checkIfNeedToEndMeetingWhenNoModerators(liveMeeting)
   }
@@ -966,22 +965,6 @@ class MeetingActor(
         )
 
         Sender.sendDisconnectClientSysMsg(liveMeeting.props.meetingProp.intId, u.intId, SystemUser.ID, EjectReasonCode.USER_INACTIVITY, outGW)
-      }
-    }
-  }
-
-  def flagRegisteredUsersWhoHasNotJoined(): Unit = {
-    val users = RegisteredUsers.findUsersNotJoined(liveMeeting.registeredUsers)
-    users foreach { u =>
-      val now = System.currentTimeMillis()
-      if (now - u.registeredOn > TimeUtil.secondsToMillis(maxRegUserToJoinTime)) {
-        RegisteredUsers.markAsUserFailedToJoin(liveMeeting.registeredUsers, u)
-        val event = MsgBuilder.buildRegisteredUserJoinTimeoutMsg(
-          liveMeeting.props.meetingProp.intId,
-          u.id,
-          u.name
-        )
-        outGW.send(event)
       }
     }
   }

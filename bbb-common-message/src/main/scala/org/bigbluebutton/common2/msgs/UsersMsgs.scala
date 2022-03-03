@@ -25,13 +25,6 @@ case class UserRegisteredRespMsg(
 case class UserRegisteredRespMsgBody(meetingId: String, userId: String, name: String,
                                      role: String, excludeFromDashboard: Boolean, registeredOn: Long)
 
-object RegisteredUserJoinTimeoutMsg { val NAME = "RegisteredUserJoinTimeoutMsg" }
-case class RegisteredUserJoinTimeoutMsg(
-    header: BbbCoreHeaderWithMeetingId,
-    body:   RegisteredUserJoinTimeoutMsgBody
-) extends BbbCoreMsg
-case class RegisteredUserJoinTimeoutMsgBody(meetingId: String, userId: String, name: String)
-
 object ValidateAuthTokenReqMsg {
   val NAME = "ValidateAuthTokenReqMsg"
 
