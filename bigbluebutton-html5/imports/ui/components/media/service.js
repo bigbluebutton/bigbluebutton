@@ -46,7 +46,7 @@ const swapLayout = {
 const setSwapLayout = (layoutContextDispatch) => {
   const hidePresentation = getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation);
 
-  swapLayout.value = getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout);
+  swapLayout.value = getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout) || hidePresentation;
   swapLayout.tracker.changed();
 
   if (!hidePresentation) {
@@ -73,7 +73,7 @@ export const shouldEnableSwapLayout = () => {
     return true;
   }
   return !shouldShowScreenshare() && !shouldShowExternalVideo();
-}
+};
 
 export const getSwapLayout = () => {
   swapLayout.tracker.depend();
