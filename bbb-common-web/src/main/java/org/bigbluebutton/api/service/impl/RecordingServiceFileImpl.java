@@ -1,23 +1,12 @@
-/**
- * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
- *
- * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
- *
- * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License as published by the Free Software
- * Foundation; either version 3.0 of the License, or (at your option) any later
- * version.
- *
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along
- * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- *
- */
+package org.bigbluebutton.api.service.impl;
 
-package org.bigbluebutton.api;
+import org.bigbluebutton.api.Util;
+import org.bigbluebutton.api.domain.Recording;
+import org.bigbluebutton.api.domain.RecordingMetadata;
+import org.bigbluebutton.api.messaging.messages.MakePresentationDownloadableMsg;
+import org.bigbluebutton.api.service.RecordingService;
+import org.bigbluebutton.api.util.RecordingMetadataReaderHelper;
+import org.bigbluebutton.api2.domain.UploadedTrack;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,27 +14,12 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.bigbluebutton.api.domain.Recording;
-import org.bigbluebutton.api.domain.RecordingMetadata;
-import org.bigbluebutton.api.messaging.messages.MakePresentationDownloadableMsg;
-import org.bigbluebutton.api.util.RecordingMetadataReaderHelper;
-import org.bigbluebutton.api2.domain.UploadedTrack;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public class RecordingServiceFileImpl implements RecordingService {
 
-public class RecordingService {
-    private static Logger log = LoggerFactory.getLogger(RecordingService.class);
+    private static Logger log = LoggerFactory.getLogger(RecordingServiceFileImpl.class);
 
     private static final Pattern PRESENTATION_ID_PATTERN = Pattern.compile("^[a-z0-9]{40}-[0-9]{13}\\.[0-9a-zA-Z]{3,4}$");
 
@@ -80,11 +54,11 @@ public class RecordingService {
 
     public File getDownloadablePresentationFile(String meetingId, String presId, String presFilename) {
         log.info("Find downloadable presentation for meetingId={} presId={} filename={}", meetingId, presId,
-          presFilename);
+                presFilename);
 
         if (! Util.isPresFileIdValidFormat(presFilename)) {
             log.error("Invalid presentation filename for meetingId={} presId={} filename={}", meetingId, presId,
-              presFilename);
+                    presFilename);
             return null;
         }
 
@@ -99,12 +73,12 @@ public class RecordingService {
             }
 
             log.error("Presentation file missing for meetingId={} presId={} filename={}", meetingId, presId,
-              presFilename);
+                    presFilename);
             return null;
         }
 
         log.error("Invalid presentation directory for meetingId={} presId={} filename={}", meetingId, presId,
-          presFilename);
+                presFilename);
         return null;
     }
 
@@ -323,7 +297,7 @@ public class RecordingService {
         while (iterator.hasNext()) {
             File rec = iterator.next();
             if (rec.getName().startsWith(id)) {
-              recs.add(rec);
+                recs.add(rec);
             }
         }
         return recs;
@@ -473,24 +447,24 @@ public class RecordingService {
         boolean exists = false;
         boolean succeeded = true;
         String[] format = getPlaybackFormats(path);
-         for (String aFormat : format) {
+        for (String aFormat : format) {
             List<File> recordings = getDirectories(path + File.separatorChar + aFormat);
             for (File recording : recordings) {
                 if (recording.getName().equalsIgnoreCase(recordingId)) {
                     exists = true;
                     File dest;
                     if (state.equals(Recording.STATE_PUBLISHED)) {
-                       dest = new File(publishedDir + File.separatorChar + aFormat);
-                       succeeded &= publishRecording(dest, recordingId, recording, aFormat);
+                        dest = new File(publishedDir + File.separatorChar + aFormat);
+                        succeeded &= publishRecording(dest, recordingId, recording, aFormat);
                     } else if (state.equals(Recording.STATE_UNPUBLISHED)) {
-                       dest = new File(unpublishedDir + File.separatorChar + aFormat);
-                       succeeded &= unpublishRecording(dest, recordingId, recording, aFormat);
+                        dest = new File(unpublishedDir + File.separatorChar + aFormat);
+                        succeeded &= unpublishRecording(dest, recordingId, recording, aFormat);
                     } else if (state.equals(Recording.STATE_DELETED)) {
-                       dest = new File(deletedDir + File.separatorChar + aFormat);
-                       succeeded &= deleteRecording(dest, recordingId, recording, aFormat);
+                        dest = new File(deletedDir + File.separatorChar + aFormat);
+                        succeeded &= deleteRecording(dest, recordingId, recording, aFormat);
                     } else {
-                       log.debug(String.format("State: %s, is not supported", state));
-                       return false;
+                        log.debug(String.format("State: %s, is not supported", state));
+                        return false;
                     }
                 }
             }
@@ -511,12 +485,12 @@ public class RecordingService {
                 r.setPublished(true);
 
                 File medataXmlFile = recordingServiceHelper.getMetadataXmlLocation(
-                  destDir.getAbsolutePath() + File.separatorChar + recordingId);
+                        destDir.getAbsolutePath() + File.separatorChar + recordingId);
 
                 // Process the changes by saving the recording into metadata.xml
                 return recordingServiceHelper.saveRecordingMetadata(medataXmlFile, r);
             } catch (IOException e) {
-              log.error("Failed to publish recording : " + recordingId, e);
+                log.error("Failed to publish recording : " + recordingId, e);
             }
         }
         return false;
@@ -535,12 +509,12 @@ public class RecordingService {
                 r.setPublished(false);
 
                 File medataXmlFile = recordingServiceHelper.getMetadataXmlLocation(
-                  destDir.getAbsolutePath() + File.separatorChar + recordingId);
+                        destDir.getAbsolutePath() + File.separatorChar + recordingId);
 
                 // Process the changes by saving the recording into metadata.xml
                 return recordingServiceHelper.saveRecordingMetadata(medataXmlFile, r);
             } catch (IOException e) {
-              log.error("Failed to unpublish recording : " + recordingId, e);
+                log.error("Failed to unpublish recording : " + recordingId, e);
             }
         }
         return false;
@@ -559,12 +533,12 @@ public class RecordingService {
                 r.setPublished(false);
 
                 File medataXmlFile = recordingServiceHelper.getMetadataXmlLocation(
-                  destDir.getAbsolutePath() + File.separatorChar + recordingId);
+                        destDir.getAbsolutePath() + File.separatorChar + recordingId);
 
                 // Process the changes by saving the recording into metadata.xml
                 return recordingServiceHelper.saveRecordingMetadata(medataXmlFile, r);
             } catch (IOException e) {
-              log.error("Failed to delete recording : " + recordingId, e);
+                log.error("Failed to delete recording : " + recordingId, e);
             }
         }
         return false;
@@ -705,11 +679,10 @@ public class RecordingService {
     }
 
     public String getCaptionsDir() {
-      return captionsDir;
+        return captionsDir;
     }
 
     public String getCaptionFileUrlDirectory() {
         return defaultTextTrackUrl + "/textTrack/";
     }
-
 }
