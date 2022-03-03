@@ -136,6 +136,8 @@ cp -r /opt/freeswitch staging/opt
 
 	rm -rf $CONFDIR/*
 	cp -r config/freeswitch/conf/* $CONFDIR
+    # enable spandsp module by default for G722 codec
+    sed -i '/<!-- Codec Interfaces -->/a\    <load module="mod_spandsp"/>' $CONFDIR/autoload_configs/modules.conf.xml
 
 	pushd $DESTDIR/opt/freeswitch
 	ln -s ./etc/freeswitch conf
