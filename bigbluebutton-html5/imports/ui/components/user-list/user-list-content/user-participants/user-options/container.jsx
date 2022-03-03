@@ -10,6 +10,7 @@ import logger from '/imports/startup/client/logger';
 import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import UserOptions from './component';
+import { isLearningDashboardEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
   users: PropTypes.arrayOf(Object).isRequired,
@@ -91,7 +92,7 @@ const UserOptionsContainer = withTracker((props) => {
     guestPolicy: WaitingUsersService.getGuestPolicy(),
     isMeteorConnected: Meteor.status().connected,
     meetingName: getMeetingName(),
-    learningDashboardEnabled: LearningDashboardService.isLearningDashboardEnabled(),
+    learningDashboardEnabled: isLearningDashboardEnabled(),
     openLearningDashboardUrl: LearningDashboardService.openLearningDashboardUrl,
     dynamicGuestPolicy,
   };

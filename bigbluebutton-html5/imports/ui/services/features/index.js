@@ -15,3 +15,7 @@ export function getDisabledFeatures() {
 export function isScreenSharingEnabled() {
   return getDisabledFeatures().indexOf('screenshare') === -1 && Meteor.settings.public.kurento.enableScreensharing;
 }
+
+export function isLearningDashboardEnabled() {
+  return getDisabledFeatures().indexOf('learningDashboard') === -1;
+}

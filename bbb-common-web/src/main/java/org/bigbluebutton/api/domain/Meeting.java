@@ -51,7 +51,6 @@ public class Meeting {
 	private String webVoice;
 	private String moderatorPass;
 	private String viewerPass;
-	private Boolean learningDashboardEnabled;
 	private int learningDashboardCleanupDelayInMinutes;
 	private String learningDashboardAccessToken;
 	private Boolean virtualBackgroundsDisabled;
@@ -118,7 +117,6 @@ public class Meeting {
         intMeetingId = builder.internalId;
         viewerPass = builder.viewerPass;
         moderatorPass = builder.moderatorPass;
-		learningDashboardEnabled = builder.learningDashboardEnabled;
 		virtualBackgroundsDisabled = builder.virtualBackgroundsDisabled;
 		disabledFeatures = builder.disabledFeatures;
 		learningDashboardCleanupDelayInMinutes = builder.learningDashboardCleanupDelayInMinutes;
@@ -352,10 +350,6 @@ public class Meeting {
 
 	public String getViewerPassword() {
 		return viewerPass;
-	}
-
-	public Boolean getLearningDashboardEnabled() {
-		return learningDashboardEnabled;
 	}
 
 	public int getLearningDashboardCleanupDelayInMinutes() {
@@ -790,7 +784,6 @@ public class Meeting {
         private Integer userCameraCap;
     	private String moderatorPass;
     	private String viewerPass;
-    	private Boolean learningDashboardEnabled;
     	private int learningDashboardCleanupDelayInMinutes;
     	private String learningDashboardAccessToken;
 		private Boolean virtualBackgroundsDisabled;
@@ -889,11 +882,6 @@ public class Meeting {
 
     	public Builder withViewerPass(String p) {
 	    	this.viewerPass = p;
-	    	return this;
-	    }
-    	
-    	public Builder withLearningDashboardEnabled(Boolean e) {
-	    	this.learningDashboardEnabled = e;
 	    	return this;
 	    }
 

@@ -20,14 +20,6 @@ const isModerator = () => {
   return false;
 };
 
-const isLearningDashboardEnabled = () => (((
-  Meetings.findOne(
-    { meetingId: Auth.meetingID },
-    {
-      fields: { 'meetingProp.learningDashboardEnabled': 1 },
-    },
-  ) || {}).meetingProp || {}).learningDashboardEnabled || false);
-
 const getLearningDashboardAccessToken = () => ((
   Meetings.findOne(
     { meetingId: Auth.meetingID, learningDashboardAccessToken: { $exists: true } },
@@ -58,7 +50,6 @@ const openLearningDashboardUrl = (lang) => {
 
 export default {
   isModerator,
-  isLearningDashboardEnabled,
   getLearningDashboardAccessToken,
   setLearningDashboardCookie,
   openLearningDashboardUrl,
