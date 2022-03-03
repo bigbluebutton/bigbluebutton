@@ -22,6 +22,7 @@ const propTypes = {
   handleTakePresenter: PropTypes.func.isRequired,
   allowExternalVideo: PropTypes.bool.isRequired,
   stopExternalVideoShare: PropTypes.func.isRequired,
+  isMobile: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
