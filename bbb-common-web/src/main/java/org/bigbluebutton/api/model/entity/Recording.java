@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import org.bigbluebutton.api.util.converter.LocalDateTimeConverter;
 
 @Entity
 @Table(name = "recordings")
@@ -16,6 +17,7 @@ public class Recording {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @XStreamOmitField
     private Long id;
 
     @Column(name = "record_id")
@@ -37,12 +39,15 @@ public class Recording {
     private String state;
 
     @Column(name = "start_time")
+    @XStreamConverter(LocalDateTimeConverter.class)
     private LocalDateTime startTime;
 
     @Column(name = "end_time")
+    @XStreamConverter(LocalDateTimeConverter.class)
     private LocalDateTime endTime;
 
     @Column(name = "deleted_at")
+    @XStreamConverter(LocalDateTimeConverter.class)
     private LocalDateTime deletedAt;
 
     @Column(name = "publish_updated")

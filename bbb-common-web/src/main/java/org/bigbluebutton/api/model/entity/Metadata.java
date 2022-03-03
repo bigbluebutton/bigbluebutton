@@ -13,6 +13,7 @@ public class Metadata {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @XStreamOmitField
     private Long id;
 
     @Column(name = "key")
