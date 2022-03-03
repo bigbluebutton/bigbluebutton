@@ -6,10 +6,13 @@ import PresentationPodService from '/imports/ui/components/presentation-pod/serv
 import ActionsDropdown from './component';
 import { layoutSelectInput, layoutDispatch } from '../../layout/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
 
 const ActionsDropdownContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
+  const { width: browserWidth } = layoutSelectInput((i) => i.browser);
+  const isMobile = browserWidth <= SMALL_VIEWPORT_BREAKPOINT;
   const layoutContextDispatch = layoutDispatch();
 
   return (
@@ -17,6 +20,7 @@ const ActionsDropdownContainer = (props) => {
       layoutContextDispatch,
       sidebarContent,
       sidebarNavigation,
+      isMobile,
       ...props,
     }}
     />

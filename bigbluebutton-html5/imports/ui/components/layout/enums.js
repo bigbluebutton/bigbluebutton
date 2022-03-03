@@ -13,6 +13,8 @@ export const DEVICE_TYPE = {
   DESKTOP: 'desktop',
 };
 
+export const SMALL_VIEWPORT_BREAKPOINT = 640;
+
 export const CAMERADOCK_POSITION = {
   CONTENT_TOP: 'contentTop',
   CONTENT_RIGHT: 'contentRight',
