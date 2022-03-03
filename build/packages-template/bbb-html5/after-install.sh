@@ -15,40 +15,21 @@ if [[ $meteor_owner != "root:root" ]] ; then
     chown -R root:root /usr/share/meteor
 fi
 
-SOURCE=/tmp/settings.yml
 TARGET=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
-  if [ -f $SOURCE ]; then
+  WSURL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
 
-    WSURL=$(yq r $SOURCE public.kurento.wsUrl)
-    ENABLESCREENSHARING=$(yq r $SOURCE public.kurento.enableScreensharing)
-    ENABLEVIDEO=$(yq r $SOURCE public.kurento.enableVideo)
+  yq w -i $TARGET public.kurento.wsUrl               "$WSURL/bbb-webrtc-sfu"
 
-    yq w -i $TARGET public.kurento.wsUrl               "$WSURL"
-    yq w -i $TARGET public.kurento.enableScreensharing "$ENABLESCREENSHARING"
-    yq w -i $TARGET public.kurento.enableVideo         "$ENABLEVIDEO"
+  yq w -i $TARGET public.kurento.enableScreensharing "true"
+  yq w -i $TARGET public.kurento.enableVideo         "true"
 
-    yq w -i $TARGET public.pads.url                    "$PROTOCOL://$HOST/pad"
+  yq w -i $TARGET public.app.listenOnlyMode          "true"
 
-    yq w -i $TARGET public.app.listenOnlyMode          "true"
+  yq w -i $TARGET public.pads.url                    "$PROTOCOL://$HOST/pad"
 
-    mv -f $SOURCE "${SOURCE}_"
-  else
-    # New Setup
-    WSURL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
-
-    yq w -i $TARGET public.kurento.wsUrl               "$WSURL/bbb-webrtc-sfu"
-
-    yq w -i $TARGET public.kurento.enableScreensharing "true"
-    yq w -i $TARGET public.kurento.enableVideo         "true"
-
-    yq w -i $TARGET public.app.listenOnlyMode          "true"
-
-    yq w -i $TARGET public.pads.url                    "$PROTOCOL://$HOST/pad"
-
-    sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
-    sed -i "s/server_name  .*/server_name  $IP;/g" /etc/nginx/sites-available/bigbluebutton
-  fi
+  sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
+  sed -i "s/server_name  .*/server_name  $IP;/g" /etc/nginx/sites-available/bigbluebutton
 
   chmod 600 $TARGET
   chown meteor:meteor $TARGET
@@ -79,11 +60,9 @@ if [ -f /etc/systemd/system/mongod.service.d/override-mongo.conf ] \
   systemctl daemon-reload
 fi
 
-# Setup specific version of node
-
-
 source /etc/lsb-release
 
+# Setup specific version of node
 if [ "$DISTRIB_CODENAME" == "bionic" ]; then
   node_version="14.18.1"
   if [[ ! -d /usr/share/node-v${node_version}-linux-x64 ]]; then

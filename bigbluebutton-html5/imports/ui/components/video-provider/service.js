@@ -571,6 +571,31 @@ class VideoService {
     return false;
   }
 
+  hasCapReached() {
+    const meeting = Meetings.findOne(
+      { meetingId: Auth.meetingID },
+      {
+        fields: {
+          'usersProp.userCameraCap': 1,
+        },
+      },
+    );
+
+    if (!meeting?.usersProp) return true;
+
+    const localStreams = this.getLocalVideoStreamsCount();
+
+    return localStreams >= meeting.usersProp.userCameraCap;
+  }
+
+  getLocalVideoStreamsCount() {
+    const localStreams = VideoStreams.find(
+      { userId: Auth.userID }
+    ).count();
+
+    return localStreams;
+  }
+
   getInfo() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'voiceProp.voiceConf': 1 } });
@@ -963,6 +988,7 @@ export default {
   getUserParameterProfile: () => videoService.getUserParameterProfile(),
   isMultipleCamerasEnabled: () => videoService.isMultipleCamerasEnabled(),
   mirrorOwnWebcam: userId => videoService.mirrorOwnWebcam(userId),
+  hasCapReached: () => videoService.hasCapReached(),
   onBeforeUnload: () => videoService.onBeforeUnload(),
   notify: message => notify(message, 'error', 'video'),
   updateNumberOfDevices: devices => videoService.updateNumberOfDevices(devices),

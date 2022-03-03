@@ -153,6 +153,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
+        <property name="defaultUserCameraCap" value="${userCameraCap}"/>
         <property name="useDefaultAvatar" value="${useDefaultAvatar}"/>
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
         <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>

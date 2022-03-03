@@ -3,7 +3,6 @@
 case "$1" in
   configure|upgrade|1|2)
 
-    SOURCE=/tmp/bbb-webhooks-default.yml
     TARGET=/usr/local/bigbluebutton/bbb-webhooks/config/default.yml
 
     cp /usr/local/bigbluebutton/bbb-webhooks/config/default.example.yml $TARGET

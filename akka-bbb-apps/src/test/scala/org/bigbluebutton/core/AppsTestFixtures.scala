@@ -26,6 +26,7 @@ trait AppsTestFixtures {
   val keepEvents = false
   val allowStartStopRecording = false
   val webcamsOnlyForModerator = false;
+  val userCameraCap = 0
   val moderatorPassword = "modpass"
   val viewerPassword = "viewpass"
   val learningDashboardAccessToken = "ldToken"
@@ -59,6 +60,7 @@ trait AppsTestFixtures {
     modOnlyMessage = modOnlyMessage)
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
+    userCameraCap = userCameraCap,
     guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, allowModsToEjectCameras = allowModsToEjectCameras,
     authenticatedGuest = authenticatedGuest, meetingLayout = meetingLayout, virtualBackgroundsEnabled = virtualBackgroundsEnabled)
   val metadataProp = new MetadataProp(metadata)

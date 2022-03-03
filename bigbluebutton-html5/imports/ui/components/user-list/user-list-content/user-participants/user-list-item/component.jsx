@@ -9,7 +9,7 @@ import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/common/icon/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
-import RemoveUserModal from '/imports/ui/components/common/modal/remove-user/component';
+import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import VideoService from '/imports/ui/components/video-provider/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
@@ -429,8 +429,8 @@ class UserListItem extends PureComponent {
         && !showNestedOptions,
         key: 'changeWhiteboardAccess',
         label: user.whiteboardAccess
-        ? intl.formatMessage(messages.removeWhiteboardAccess)
-        : intl.formatMessage(messages.giveWhiteboardAccess),
+          ? intl.formatMessage(messages.removeWhiteboardAccess)
+          : intl.formatMessage(messages.giveWhiteboardAccess),
         onClick: () => {
           WhiteboardService.changeWhiteboardAccess(user.userId, !user.whiteboardAccess);
           this.handleClose();
@@ -501,9 +501,12 @@ class UserListItem extends PureComponent {
         label: intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
         onClick: () => {
           this.onActionsHide(mountModal(
-            <RemoveUserModal
+            <ConfirmationModal
               intl={intl}
-              user={user}
+              titleMessageId="app.userList.menu.removeConfirmation.label"
+              titleMessageExtra={user.name}
+              checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
+              confirmParam={user.userId}
               onConfirm={removeUser}
             />,
           ));
@@ -525,7 +528,7 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'video_off',
-      }
+      },
     ];
 
     const statuses = Object.keys(getEmojiList);
@@ -542,10 +545,10 @@ class UserListItem extends PureComponent {
         },
         icon: getEmojiList[s],
         dataTest: s,
-      })
+      });
     });
 
-    return availableActions.filter(action => action.allowed);
+    return availableActions.filter((action) => action.allowed);
   }
 
   getDropdownMenuParent() {
