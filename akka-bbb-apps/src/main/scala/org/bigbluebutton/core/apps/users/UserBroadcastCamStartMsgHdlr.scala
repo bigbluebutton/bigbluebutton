@@ -1,11 +1,10 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core2.message.handlers.{ CameraHdlrHelpers }
 import org.bigbluebutton.core.models.{ MediaStream, WebcamStream, Webcams }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
-import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.apps.PermissionCheck
-import org.bigbluebutton.LockSettingsUtil
 
 trait UserBroadcastCamStartMsgHdlr {
   this: MeetingActor =>
@@ -13,8 +12,6 @@ trait UserBroadcastCamStartMsgHdlr {
   val outGW: OutMsgRouter
 
   def handleUserBroadcastCamStartMsg(msg: UserBroadcastCamStartMsg): Unit = {
-    var allowed: Boolean = false
-
     def broadcastEvent(msg: UserBroadcastCamStartMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(UserBroadcastCamStartedEvtMsg.NAME, routing)
@@ -26,31 +23,24 @@ trait UserBroadcastCamStartMsgHdlr {
       outGW.send(msgEvent)
     }
 
-    for {
-      user <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
-    } yield {
-      val meetingId = props.meetingProp.intId
-      val camBroadcastLocked = LockSettingsUtil.isCameraBroadcastLocked(user, liveMeeting)
+    val allowed = CameraHdlrHelpers.isCameraBroadcastAllowed(
+      liveMeeting,
+      msg.header.meetingId,
+      msg.header.userId,
+      msg.body.stream
+    )
 
-      if (!user.userLeftFlag.left
-        && meetingId == msg.header.meetingId
-        && msg.body.stream.startsWith(msg.header.userId)
-        && (applyPermissionCheck && !camBroadcastLocked)) {
-        allowed = true
-      }
+    if (!allowed) {
+      val reason = "No permission to share camera."
+      PermissionCheck.ejectUserForFailedPermission(props.meetingProp.intId, msg.header.userId, reason, outGW, liveMeeting)
+    } else {
+      val stream = new MediaStream(msg.body.stream, msg.body.stream, msg.header.userId, Map.empty, Set.empty)
+      val webcamStream = new WebcamStream(msg.body.stream, stream)
 
-      if (!allowed) {
-        val reason = "No permission to share camera."
-        PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
-      } else {
-        val stream = new MediaStream(msg.body.stream, msg.body.stream, msg.header.userId, Map.empty, Set.empty)
-        val webcamStream = new WebcamStream(msg.body.stream, stream)
-
-        for {
-          uvo <- Webcams.addWebcamBroadcastStream(liveMeeting.webcams, webcamStream)
-        } yield {
-          broadcastEvent(msg)
-        }
+      for {
+        uvo <- Webcams.addWebcamBroadcastStream(liveMeeting.webcams, webcamStream)
+      } yield {
+        broadcastEvent(msg)
       }
     }
   }

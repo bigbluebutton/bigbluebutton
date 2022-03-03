@@ -795,6 +795,7 @@
     "app.video.virtualBackground.background": "Background",
     "app.video.virtualBackground.genericError": "Failed to apply camera effect. Try again.",
     "app.video.virtualBackground.camBgAriaDesc": "Sets webcam virtual background to {0}",
+    "app.video.camCapReached": "You cannot share more cameras",
     "app.video.dropZoneLabel": "Drop here",
     "app.fullscreenButton.label": "Make {0} fullscreen",
     "app.fullscreenUndoButton.label": "Undo {0} fullscreen",
