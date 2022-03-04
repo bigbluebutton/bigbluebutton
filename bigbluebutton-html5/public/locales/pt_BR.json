@@ -378,7 +378,7 @@
     "app.submenu.application.paginationEnabledLabel": "Paginação de vídeo",
     "app.submenu.application.wakeLockEnabledLabel": "Manter ecrã ativo",
     "app.submenu.application.layoutOptionLabel": "Tipo de layout",
-    "app.submenu.application.pushLayoutLabel": "Propagar layout automaticamente",
+    "app.submenu.application.pushLayoutLabel": "Acompanhar layout do apresentador",
     "app.submenu.notification.SectionTitle": "Notificações",
     "app.submenu.notification.Desc": "Defina suas notificações.",
     "app.submenu.notification.audioAlertLabel": "Alertas de áudio",
