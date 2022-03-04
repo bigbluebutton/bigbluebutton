@@ -6,7 +6,8 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.*;
+import com.thoughtworks.xstream.hibernate.converter.HibernatePersistentCollectionConverter;
 import org.bigbluebutton.api.util.converter.LocalDateTimeConverter;
 
 @Entity
@@ -58,6 +59,7 @@ public class Recording {
 
     @OneToMany(mappedBy = "recording", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @XStreamAlias("meta")
+    @XStreamConverter(HibernatePersistentCollectionConverter.class)
     private Set<Metadata> metadata;
 
     @OneToOne(mappedBy = "recording", cascade = CascadeType.ALL)

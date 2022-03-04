@@ -3,7 +3,7 @@ package org.bigbluebutton.recording;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
-import org.bigbluebutton.api.model.entity.Recording;
+import org.bigbluebutton.api.model.entity.*;
 import org.bigbluebutton.api.util.DataStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,11 +73,20 @@ public class RecordingExportHandler {
 
                 BufferedWriter writer = new BufferedWriter(new FileWriter(file));
                 XStream xStream = new XStream(new StaxDriver());
-                xStream.processAnnotations(Recording.class);
+
+                // xStream.processAnnotations(Recording.class);
+                // xStream.processAnnotations(Metadata.class);
+                // xStream.processAnnotations(PlaybackFormat.class);
+                // xStream.processAnnotations(Thumbnail.class);
+                // xStream.processAnnotations(CallbackData.class);
+
+                xStream.autodetectAnnotations(true);
+
                 xStream.marshal(recording, new PrettyPrintWriter(writer));
             }
         } catch (Exception e) {
             logger.error("Failed to export recording {}", recording.getRecordId());
+            e.printStackTrace();
         }
     }
 }

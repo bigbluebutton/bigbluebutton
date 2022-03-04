@@ -8,7 +8,7 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 @Entity
 @Table(name = "thumbnails")
 @XStreamAlias("thumbnail")
-public class Thumbnail {
+public class Thumbnail implements Comparable<Thumbnail> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -103,6 +103,11 @@ public class Thumbnail {
     @Override
     public int hashCode() {
         return Objects.hash(id, height, width, alt, url);
+    }
+
+    @Override
+    public int compareTo(Thumbnail t) {
+        return this.getSequence().compareTo(t.getSequence());
     }
 
     @Override

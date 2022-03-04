@@ -9,15 +9,13 @@ import java.time.ZoneId;
 
 public class LocalDateTimeConverter implements Converter {
 
-    public void marshal(Object source, HierarchicalStreamWriter writer,
-                        MarshallingContext context) {
+    public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
         LocalDateTime dateTime = (LocalDateTime) source;
         Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
         writer.setValue(String.valueOf(instant.toEpochMilli()));
     }
 
-    public Object unmarshal(HierarchicalStreamReader reader,
-                            UnmarshallingContext context) {
+    public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         return LocalDateTime.parse(reader.getValue());
     }
 

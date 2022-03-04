@@ -2,12 +2,13 @@ package org.bigbluebutton.api.model.entity;
 
 import javax.persistence.*;
 import java.util.Objects;
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
+import com.thoughtworks.xstream.annotations.*;
+import org.bigbluebutton.api.util.converter.MetadataConverter;
 
 @Entity
 @Table(name = "metadata")
 @XStreamAlias("metadata")
+@XStreamConverter(MetadataConverter.class)
 public class Metadata {
 
     @Id

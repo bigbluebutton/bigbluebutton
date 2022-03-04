@@ -106,5 +106,6 @@ libraryDependencies ++= Seq(
   "org.hibernate" % "hibernate-core" % "5.6.1.Final",
   "org.flywaydb" % "flyway-core" % "7.8.2",
   "com.zaxxer" % "HikariCP" % "4.0.3",
-  "com.thoughtworks.xstream" % "xstream" % "1.4.19"
+  "com.thoughtworks.xstream" % "xstream" % "1.4.19",
+  "com.thoughtworks.xstream" % "xstream-hibernate" % "1.4.19"
 )
