@@ -165,16 +165,13 @@ class UsersApp(
   with SetRecordingStatusCmdMsgHdlr
   with RecordAndClearPreviousMarkersCmdMsgHdlr
   with SendRecordingTimerInternalMsgHdlr
-  with UpdateWebcamsOnlyForModeratorCmdMsgHdlr
   with GetRecordingStatusReqMsgHdlr
   with SelectRandomViewerReqMsgHdlr
-  with GetWebcamsOnlyForModeratorReqMsgHdlr
   with AssignPresenterReqMsgHdlr
   with ChangeUserPinStateReqMsgHdlr
   with EjectDuplicateUserReqMsgHdlr
   with EjectUserFromMeetingCmdMsgHdlr
   with EjectUserFromMeetingSysMsgHdlr
-  with SyncGetWebcamInfoRespMsgHdlr
   with MuteUserCmdMsgHdlr {
 
   val log = Logging(context.system, getClass)
