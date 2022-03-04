@@ -581,11 +581,17 @@ class VideoService {
       },
     );
 
+    // If the meeting prop data is unreachable, force a safe return
     if (!meeting?.usersProp) return true;
+
+    const { userCameraCap } = meeting.usersProp;
+
+    // Zero means disabled
+    if (userCameraCap === 0) return false;
 
     const localStreams = this.getLocalVideoStreamsCount();
 
-    return localStreams >= meeting.usersProp.userCameraCap;
+    return localStreams >= userCameraCap;
   }
 
   getLocalVideoStreamsCount() {
