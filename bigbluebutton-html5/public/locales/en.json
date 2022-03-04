@@ -160,8 +160,6 @@
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Meeting is closing in {0} minutes.",
     "app.meeting.alertBreakoutEndsUnderMinutesPlural": "Breakout is closing in {0} minutes.",
     "app.meeting.alertBreakoutEndsUnderMinutesSingular": "Breakout is closing in one minute.",
-    "app.meeting.alertBreakoutTimeExtended.mainRoom": "Breakout rooms time has been extended to {0} minutes, and a notification has been sent.",
-    "app.meeting.alertBreakoutTimeExtended.breakout": "Breakout time is now {0}:00. Keep collaborating.",
     "app.presentation.hide": "Hide presentation",
     "app.presentation.notificationLabel": "Current presentation",
     "app.presentation.downloadLabel": "Download",
