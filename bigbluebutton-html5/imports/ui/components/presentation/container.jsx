@@ -13,30 +13,36 @@ import { UsersContext } from '../components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import LayoutContext from '../layout/context';
+import {
+  layoutSelect,
+  layoutSelectInput,
+  layoutSelectOutput,
+  layoutDispatch,
+} from '../layout/context';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { DEVICE_TYPE } from '../layout/enums';
 
 const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props }) => {
-  const fullscreenElementId = 'Presentation';
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-  const {
-    input, output, layoutType, fullscreen, deviceType,
-  } = layoutContextState;
-  const { cameraDock } = input;
+  const { layoutSwapped } = props;
+
+  const cameraDock = layoutSelectInput((i) => i.cameraDock);
+  const presentation = layoutSelectOutput((i) => i.presentation);
+  const layoutType = layoutSelect((i) => i.layoutType);
+  const fullscreen = layoutSelect((i) => i.fullscreen);
+  const deviceType = layoutSelect((i) => i.deviceType);
+  const layoutContextDispatch = layoutDispatch();
+
   const { numCameras } = cameraDock;
-  const { presentation } = output;
   const { element } = fullscreen;
+  const fullscreenElementId = 'Presentation';
   const fullscreenContext = (element === fullscreenElementId);
-  const { layoutSwapped, podId } = props;
+
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
 
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
-
-  const userIsPresenter = (podId === 'DEFAULT_PRESENTATION_POD') ? currentUser.presenter : props.isPresenter;
+  const userIsPresenter = currentUser.presenter;
 
   return (
     <Presentation
@@ -113,7 +119,6 @@ export default withTracker(({ podId }) => {
     currentSlide,
     slidePosition,
     downloadPresentationUri: PresentationService.downloadPresentationUri(podId),
-    isPresenter: PresentationService.isPresenter(podId),
     multiUser: WhiteboardService.hasMultiUserAccess(currentSlide && currentSlide.id, Auth.userID)
       && !layoutSwapped,
     presentationIsDownloadable,

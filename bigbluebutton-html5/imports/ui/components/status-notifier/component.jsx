@@ -2,17 +2,20 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
-import Icon from '/imports/ui/components/icon/component';
-import Button from '/imports/ui/components/button/component';
+import Icon from '/imports/ui/components/common/icon/component';
 import { ENTER } from '/imports/utils/keyCodes';
-import toastStyles from '/imports/ui/components/toast/styles';
-import { styles } from './styles';
+import Styled from './styles';
 import {Meteor} from "meteor/meteor";
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const messages = defineMessages({
   lowerHandsLabel: {
     id: 'app.statusNotifier.lowerHands',
     description: 'text displayed to clear all raised hands',
+  },
+  lowerHandDescOneUser: {
+    id: 'app.statusNotifier.lowerHandDescOneUser',
+    description: 'text displayed to clear a single user raised hands',
   },
   raisedHandsTitle: {
     id: 'app.statusNotifier.raisedHandsTitle',
@@ -49,10 +52,10 @@ class StatusNotifier extends Component {
 
   componentDidUpdate(prevProps) {
     const {
-      emojiUsers, raiseHandAudioAlert, raiseHandPushAlert, status, isViewer,
+      emojiUsers, raiseHandAudioAlert, raiseHandPushAlert, status, isViewer, isPresenter,
     } = this.props;
 
-    if (isViewer) {
+    if (isViewer && !isPresenter) {
       if (this.statusNotifierId) toast.dismiss(this.statusNotifierId);
       return false;
     }
@@ -77,7 +80,7 @@ class StatusNotifier extends Component {
             autoClose: false,
             closeOnClick: false,
             closeButton: false,
-            className: toastStyles.actionToast,
+            className: "raiseHandToast",
           });
         }
         break;
@@ -120,33 +123,32 @@ class StatusNotifier extends Component {
   }
 
   raisedHandAvatars() {
-    const { emojiUsers, clearUserStatus } = this.props;
+    const { emojiUsers, clearUserStatus, intl } = this.props;
     let users = emojiUsers;
     if (emojiUsers.length > MAX_AVATAR_COUNT) users = users.slice(0, MAX_AVATAR_COUNT);
 
     const avatars = users.map(u => (
-      <div
-        role="button"
-        tabIndex={0}
-        className={styles.avatar}
-        style={{ backgroundColor: `${u.color}` }}
-        onClick={() => clearUserStatus(u.userId)}
-        onKeyDown={e => (e.keyCode === ENTER ? clearUserStatus(u.userId) : null)}
+      <TooltipContainer
         key={`statusToastAvatar-${u.userId}`}
-        data-test="avatarsWrapperAvatar"
-      >
-        {u.name.slice(0, 2)}
-      </div>
+        title={intl.formatMessage(messages.lowerHandDescOneUser, { 0: u.name })}>
+        <Styled.Avatar
+          role="button"
+          tabIndex={0}
+          style={{ backgroundColor: `${u.color}` }}
+          onClick={() => clearUserStatus(u.userId)}
+          onKeyDown={e => (e.keyCode === ENTER ? clearUserStatus(u.userId) : null)}
+          data-test="avatarsWrapperAvatar"
+        >
+          {u.name.slice(0, 2)}
+        </Styled.Avatar>
+      </TooltipContainer>
     ));
 
     if (emojiUsers.length > MAX_AVATAR_COUNT) {
       avatars.push(
-        <div
-          className={styles.avatarsExtra}
-          key={`statusToastAvatar-${emojiUsers.length}`}
-        >
+        <Styled.AvatarsExtra key={`statusToastAvatar-${emojiUsers.length}`}>
           {emojiUsers.length}
-        </div>,
+        </Styled.AvatarsExtra>,
       );
     }
 
@@ -158,24 +160,20 @@ class StatusNotifier extends Component {
     const formattedRaisedHands = this.getRaisedHandNames();
     return (
       <div>
-        <div className={styles.toastIcon}>
-          <div className={styles.iconWrapper}>
+        <Styled.ToastIcon>
+          <Styled.IconWrapper>
             <Icon iconName="hand" />
-          </div>
-        </div>
-        <div
-          className={styles.avatarsWrapper}
-          data-test="avatarsWrapper"
-        >
+          </Styled.IconWrapper>
+        </Styled.ToastIcon>
+        <Styled.AvatarsWrapper data-test="avatarsWrapper">
           {this.raisedHandAvatars()}
-        </div>
-        <div className={styles.toastMessage}>
+        </Styled.AvatarsWrapper>
+        <Styled.ToastMessage>
           <div>{intl.formatMessage(messages.raisedHandsTitle)}</div>
           {formattedRaisedHands}
-        </div>
-        <div className={toastStyles.separator} />
-        <Button
-          className={styles.clearBtn}
+        </Styled.ToastMessage>
+        <Styled.ToastSeparator />
+        <Styled.ClearButton
           label={intl.formatMessage(messages.lowerHandsLabel)}
           color="default"
           size="md"

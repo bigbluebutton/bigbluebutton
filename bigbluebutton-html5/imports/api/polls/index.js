@@ -1,6 +1,11 @@
 import { Meteor } from 'meteor/meteor';
 
-const Polls = new Mongo.Collection('polls');
+const collectionOptions = Meteor.isClient ? {
+  connection: null,
+} : {};
+
+const Polls = new Mongo.Collection('polls', collectionOptions);
+export const CurrentPoll = new Mongo.Collection('current-poll', { connection: null });
 
 if (Meteor.isServer) {
   // We can have just one active poll per meeting

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
-import LoadingScreen from '/imports/ui/components/loading-screen/component';
+import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 
 const STATUS_CONNECTING = 'connecting';
 
@@ -17,7 +17,7 @@ class AuthenticatedHandler extends Component {
   }
 
   static updateStatus(status, lastStatus) {
-    return status.retryCount > 0 && lastStatus !== STATUS_CONNECTING ? status.status : lastStatus;
+    return lastStatus !== STATUS_CONNECTING ? status.status : lastStatus;
   }
 
   static addReconnectObservable() {
@@ -27,6 +27,7 @@ class AuthenticatedHandler extends Component {
       lastStatus = AuthenticatedHandler.updateStatus(Meteor.status(), lastStatus);
 
       if (AuthenticatedHandler.shouldAuthenticate(Meteor.status(), lastStatus)) {
+        Session.set('userWillAuth', true);
         Auth.authenticate(true);
         lastStatus = Meteor.status().status;
       }
@@ -95,6 +96,5 @@ class AuthenticatedHandler extends Component {
       : (<LoadingScreen />);
   }
 }
-
 
 export default AuthenticatedHandler;

@@ -1,11 +1,12 @@
 package org.bigbluebutton.endpoint.redis
 
 import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import org.bigbluebutton.common2.domain.PresentationVO
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
-import org.bigbluebutton.core.models.Roles
+import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 import java.security.MessageDigest
@@ -22,6 +23,7 @@ case class Meeting(
   users: Map[String, User] = Map(),
   polls: Map[String, Poll] = Map(),
   screenshares: Vector[Screenshare] = Vector(),
+  presentationSlides: Vector[PresentationSlide] = Vector(),
   createdOn: Long = System.currentTimeMillis(),
   endedOn: Long = 0,
 )
@@ -34,7 +36,7 @@ case class User(
   isModerator:        Boolean,
   isDialIn:           Boolean = false,
   currentIntId:       String = null,
-  answers:            Map[String,String] = Map(),
+  answers:            Map[String,Vector[String]] = Map(),
   talk:               Talk = Talk(),
   emojis:             Vector[Emoji] = Vector(),
   webcams:            Vector[Webcam] = Vector(),
@@ -51,7 +53,8 @@ case class UserId(
 case class Poll(
   pollId:     String,
   pollType:   String,
-  anonymous: Boolean,
+  anonymous:  Boolean,
+  multiple:   Boolean,
   question:   String,
   options:    Vector[String] = Vector(),
   anonymousAnswers: Vector[String] = Vector(),
@@ -78,6 +81,12 @@ case class Screenshare(
   stoppedOn: Long = 0,
 )
 
+case class PresentationSlide(
+  presentationId: String,
+  pageNum: Long,
+  setOn: Long = System.currentTimeMillis(),
+)
+
 
 object LearningDashboardActor {
   def props(
@@ -98,8 +107,9 @@ class LearningDashboardActor(
 
   private var meetings: Map[String, Meeting] = Map()
   private var meetingAccessTokens: Map[String,String] = Map()
-  private var meetingsLastJsonHash: Map[String,String] = Map()
-  private var meetingExcludedUserIds: Map[String,Vector[String]] = Map()
+  private var meetingsLastJsonHash : Map[String,String] = Map()
+  private var meetingPresentations : Map[String,Map[String,PresentationVO]] = Map()
+  private var meetingExcludedUserIds : Map[String,Vector[String]] = Map()
 
   system.scheduler.schedule(10.seconds, 10.seconds, self, SendPeriodicReport)
 
@@ -115,6 +125,12 @@ class LearningDashboardActor(
     msg.core match {
       // Chat
       case m: GroupChatMessageBroadcastEvtMsg       => handleGroupChatMessageBroadcastEvtMsg(m)
+
+      // Presentation
+      case m: PresentationConversionCompletedEvtMsg => handlePresentationConversionCompletedEvtMsg(m)
+      case m: SetCurrentPageEvtMsg                  => handleSetCurrentPageEvtMsg(m)
+      case m: RemovePresentationEvtMsg              => handleRemovePresentationEvtMsg(m)
+      case m: SetCurrentPresentationEvtMsg          => handleSetCurrentPresentationEvtMsg(m)
 
       // User
       case m: UserRegisteredRespMsg                 => handleUserRegisteredRespMsg(m)
@@ -157,6 +173,79 @@ class LearningDashboardActor(
       } yield {
         val updatedUser = user.copy(totalOfMessages = user.totalOfMessages + 1)
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+
+        meetings += (updatedMeeting.intId -> updatedMeeting)
+      }
+    }
+  }
+
+  private def handlePresentationConversionCompletedEvtMsg(msg: PresentationConversionCompletedEvtMsg) {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+    } yield {
+      val updatedPresentations = meetingPresentations.get(meeting.intId).getOrElse(Map()) + (msg.body.presentation.id -> msg.body.presentation)
+      meetingPresentations += (meeting.intId -> updatedPresentations)
+      if(msg.body.presentation.current == true) {
+        for {
+          page <- msg.body.presentation.pages.find(p => p.current == true)
+        } yield {
+          this.setPresentationSlide(meeting.intId, msg.body.presentation.id,page.num)
+        }
+      }
+    }
+  }
+
+  private def handleSetCurrentPageEvtMsg(msg: SetCurrentPageEvtMsg) {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      presentations <- meetingPresentations.get(meeting.intId)
+      presentation <- presentations.get(msg.body.presentationId)
+      page <- presentation.pages.find(p => p.id == msg.body.pageId)
+    } yield {
+      this.setPresentationSlide(meeting.intId, msg.body.presentationId,page.num)
+    }
+  }
+
+  private def handleRemovePresentationEvtMsg(msg: RemovePresentationEvtMsg) {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+    } yield {
+      if(meeting.presentationSlides.last.presentationId == msg.body.presentationId) {
+        this.setPresentationSlide(meeting.intId, "",0)
+      }
+    }
+  }
+
+  private def handleSetCurrentPresentationEvtMsg(msg: SetCurrentPresentationEvtMsg) {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+    } yield {
+      val presPreviousSlides: Vector[PresentationSlide] = meeting.presentationSlides.filter(p => p.presentationId == msg.body.presentationId);
+      if(presPreviousSlides.length > 0) {
+        //Set last page showed for this presentation
+        this.setPresentationSlide(meeting.intId, msg.body.presentationId,presPreviousSlides.last.pageNum)
+      } else {
+        //If none page was showed yet, set the current page (page 1 by default)
+        for {
+          presentations <- meetingPresentations.get(meeting.intId)
+          presentation <- presentations.get(msg.body.presentationId)
+          page <- presentation.pages.find(s => s.current == true)
+        } yield  {
+          this.setPresentationSlide(meeting.intId, msg.body.presentationId,page.num)
+        }
+      }
+    }
+  }
+
+  private def setPresentationSlide(meetingId: String, presentationId: String, pageNum: Long) {
+    for {
+      meeting <- meetings.values.find(m => m.intId == meetingId)
+    } yield {
+      if (meeting.presentationSlides.length == 0 ||
+        meeting.presentationSlides.last.presentationId != presentationId ||
+        meeting.presentationSlides.last.pageNum != pageNum) {
+        val updatedMeeting = meeting.copy(presentationSlides = meeting.presentationSlides :+ PresentationSlide(presentationId, pageNum))
+
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
     }
@@ -307,7 +396,7 @@ class LearningDashboardActor(
 
   private def handleUserJoinedVoiceConfToClientEvtMsg(msg: UserJoinedVoiceConfToClientEvtMsg): Unit = {
     //Create users for Dial-in connections
-    if(msg.body.intId.startsWith("v_")) {
+    if(msg.body.intId.startsWith(IntIdPrefixType.DIAL_IN)) {
       this.addUserToMeeting(msg.header.meetingId, msg.body.intId, msg.body.callerName, msg.body.callerName, false, true)
     }
   }
@@ -371,7 +460,7 @@ class LearningDashboardActor(
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
     } yield {
       val options = msg.body.poll.answers.map(answer => answer.key)
-      val newPoll = Poll(msg.body.pollId, msg.body.pollType, msg.body.secretPoll, msg.body.question, options.toVector)
+      val newPoll = Poll(msg.body.pollId, msg.body.pollType, msg.body.secretPoll, msg.body.poll.isMultipleResponse, msg.body.question, options.toVector)
 
       val updatedMeeting = meeting.copy(polls = meeting.polls + (newPoll.pollId -> newPoll))
       meetings += (updatedMeeting.intId -> updatedMeeting)
@@ -394,7 +483,7 @@ class LearningDashboardActor(
         }
       } else {
         //Store Public Poll in `user.answers`
-        val updatedUser = user.copy(answers = user.answers + (msg.body.pollId -> msg.body.answer))
+        val updatedUser = user.copy(answers = user.answers + (msg.body.pollId -> (user.answers.get(msg.body.pollId).getOrElse(Vector()) :+ msg.body.answer)))
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
@@ -421,7 +510,7 @@ class LearningDashboardActor(
   }
 
   private def handleCreateMeetingReqMsg(msg: CreateMeetingReqMsg): Unit = {
-    if(msg.body.props.meetingProp.learningDashboardEnabled) {
+    if (msg.body.props.meetingProp.disabledFeatures.contains("learningDashboard") == false) {
       val newMeeting = Meeting(
         msg.body.props.meetingProp.intId,
         msg.body.props.meetingProp.extId,
@@ -460,6 +549,7 @@ class LearningDashboardActor(
       sendReport(updatedMeeting)
 
       meetings = meetings.-(updatedMeeting.intId)
+      meetingPresentations = meetingPresentations.-(updatedMeeting.intId)
       meetingAccessTokens = meetingAccessTokens.-(updatedMeeting.intId)
       meetingExcludedUserIds = meetingExcludedUserIds.-(updatedMeeting.intId)
       meetingsLastJsonHash = meetingsLastJsonHash.-(updatedMeeting.intId)
@@ -490,7 +580,6 @@ class LearningDashboardActor(
     for {
       meeting <- meetings.values.find(m => m.intId == meetingIntId)
     } yield {
-
       if(!meetingExcludedUserIds.get(meeting.intId).getOrElse(Vector()).contains(extId)) {
         val currentTime = System.currentTimeMillis();
 
@@ -508,7 +597,7 @@ class LearningDashboardActor(
               )
             })
           )
-        , currentTime, false)
+          , currentTime, false)
 
         meetings += (meeting.intId -> meeting.copy(
           //Set leftOn to same intId in past user records
@@ -516,13 +605,13 @@ class LearningDashboardActor(
             (u._1 -> u._2.copy(
               intIds = u._2.intIds.map(uId => {
                 (uId._1 -> {
-                  if(uId._2.intId == intId && uId._2.leftOn == 0) uId._2.copy(leftOn = currentTime)
+                  if (uId._2.intId == intId && uId._2.leftOn == 0) uId._2.copy(leftOn = currentTime)
                   else uId._2
                 })
-            })))
+              })))
           }) + (user.userKey -> user.copy(
             currentIntId = intId,
-            intIds = user.intIds + (intId -> user.intIds.get(intId).getOrElse(UserId(intId,currentTime)).copy(
+            intIds = user.intIds + (intId -> user.intIds.get(intId).getOrElse(UserId(intId, currentTime)).copy(
               leftOn = 0,
               userLeftFlag = false
             ))
@@ -544,16 +633,23 @@ class LearningDashboardActor(
     //Avoid send repeated activity jsons
     val activityJsonHash : String = MessageDigest.getInstance("MD5").digest(activityJson.getBytes).mkString
     if(!meetingsLastJsonHash.contains(meeting.intId) || meetingsLastJsonHash.get(meeting.intId).getOrElse("") != activityJsonHash) {
-
       for {
         learningDashboardAccessToken <- meetingAccessTokens.get(meeting.intId)
       } yield {
         val event = MsgBuilder.buildLearningDashboardEvtMsg(meeting.intId, learningDashboardAccessToken, activityJson)
         outGW.send(event)
-
         meetingsLastJsonHash += (meeting.intId -> activityJsonHash)
 
-        log.info("Activity Report sent for meeting {}",meeting.intId)
+        for {
+          learningDashboardAccessToken <- meetingAccessTokens.get(meeting.intId)
+        } yield {
+          val event = MsgBuilder.buildLearningDashboardEvtMsg(meeting.intId, learningDashboardAccessToken, activityJson)
+          outGW.send(event)
+
+          meetingsLastJsonHash += (meeting.intId -> activityJsonHash)
+
+          log.info("Learning Dashboard data sent for meeting {}", meeting.intId)
+        }
       }
     }
   }

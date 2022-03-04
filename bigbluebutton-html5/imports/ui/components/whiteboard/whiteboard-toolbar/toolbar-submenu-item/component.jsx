@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Button from '/imports/ui/components/button/component';
 import _ from 'lodash';
-import { styles } from '../styles';
+import Styled from './styles';
 
 export default class ToolbarSubmenuItem extends Component {
   constructor() {
@@ -48,16 +47,17 @@ export default class ToolbarSubmenuItem extends Component {
 
   render() {
     const {
-      className,
       customIcon,
       icon,
       label,
+      toolbarActive,
       'data-test': dataTest,
     } = this.props;
 
     return (
-      <div className={styles.buttonWrapper}>
-        <Button
+      <Styled.ButtonWrapper>
+        <Styled.SubmenuButton
+          state={toolbarActive ? 'selected' : 'unselected'}
           hideLabel
           role="button"
           color="default"
@@ -68,11 +68,10 @@ export default class ToolbarSubmenuItem extends Component {
           customIcon={customIcon}
           onMouseUp={this.handleOnMouseUp}
           onKeyPress={this.handleOnMouseUp}
-          className={className}
           setRef={this.setRef}
           data-test={dataTest}
         />
-      </div>
+      </Styled.ButtonWrapper>
     );
   }
 }
@@ -88,10 +87,11 @@ ToolbarSubmenuItem.propTypes = {
     PropTypes.object,
     PropTypes.number,
   ]).isRequired,
-  className: PropTypes.string.isRequired,
+  selected: PropTypes.bool,
 };
 
 ToolbarSubmenuItem.defaultProps = {
   icon: null,
   customIcon: null,
+  selected: false,
 };

@@ -9,7 +9,7 @@ const WhiteboardToolbarContainer = props => (
 );
 
 export default withTracker((params) => {
-  const { whiteboardId } = params;
+  const { whiteboardId, isPresenter } = params;
 
   const data = {
     actions: {
@@ -31,8 +31,8 @@ export default withTracker((params) => {
     },
     textShapeActiveId: WhiteboardToolbarService.getTextShapeActiveId(),
     multiUser: WhiteboardService.isMultiUserActive(whiteboardId),
-    isPresenter: WhiteboardToolbarService.isPresenter(),
-    annotations: WhiteboardToolbarService.filterAnnotationList(),
+    isPresenter,
+    annotations: WhiteboardToolbarService.filterAnnotationList(isPresenter),
     isMeteorConnected: Meteor.status().connected,
     multiUserSize: WhiteboardService.getMultiUserSize(whiteboardId),
   };

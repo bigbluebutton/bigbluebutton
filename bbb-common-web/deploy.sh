@@ -1,1 +1,4 @@
-sbt clean publish publishLocal
+#!/bin/bash
+
+#Publish new bbb-common-web .jar
+sbt clean update publish publishLocal

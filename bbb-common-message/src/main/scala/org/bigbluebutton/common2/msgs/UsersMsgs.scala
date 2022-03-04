@@ -252,7 +252,7 @@ case class ChangeLockSettingsInMeetingCmdMsg(
     body:   ChangeLockSettingsInMeetingCmdMsgBody
 ) extends StandardMsg
 case class ChangeLockSettingsInMeetingCmdMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
-                                                 disablePubChat: Boolean, disableNote: Boolean, hideUserList: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
+                                                 disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
                                                  lockOnJoinConfigurable: Boolean, setBy: String)
 
 object LockSettingsInMeetingChangedEvtMsg { val NAME = "LockSettingsInMeetingChangedEvtMsg" }
@@ -261,7 +261,7 @@ case class LockSettingsInMeetingChangedEvtMsg(
     body:   LockSettingsInMeetingChangedEvtMsgBody
 ) extends BbbCoreMsg
 case class LockSettingsInMeetingChangedEvtMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
-                                                  disablePubChat: Boolean, disableNote: Boolean, hideUserList: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
+                                                  disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
                                                   lockOnJoinConfigurable: Boolean, setBy: String)
 
 /**
@@ -277,7 +277,7 @@ case class GetLockSettingsReqMsgBody(requesterId: String)
 object GetLockSettingsRespMsg { val NAME = "GetLockSettingsRespMsg" }
 case class GetLockSettingsRespMsg(header: BbbClientMsgHeader, body: GetLockSettingsRespMsgBody) extends BbbCoreMsg
 case class GetLockSettingsRespMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
-                                      disablePubChat: Boolean, disableNote: Boolean, hideUserList: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
+                                      disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
                                       lockOnJoinConfigurable: Boolean)
 
 object LockSettingsNotInitializedRespMsg { val NAME = "LockSettingsNotInitializedRespMsg" }

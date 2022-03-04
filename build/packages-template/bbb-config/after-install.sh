@@ -20,7 +20,7 @@ else
 fi
 
 #
-# Set the permissions to /var/bigbluebutton so both red5 and tomcat can write
+# Set the permissions to /var/bigbluebutton tomcat (and possibly other services) can write
 #
 if [ -d /var/bigbluebutton ]; then
   echo -n "."
@@ -132,6 +132,9 @@ if grep "worker_rlimit_nofile" /etc/nginx/nginx.conf; then
 else
   sed -i 's/events {/worker_rlimit_nofile 10000;\n\nevents {/g' /etc/nginx/nginx.conf
 fi
+
+# Fix permissions for logging
+chown bigbluebutton:bigbluebutton /var/log/bbb-fsesl-akka
 
 # Load the overrides
 systemctl daemon-reload

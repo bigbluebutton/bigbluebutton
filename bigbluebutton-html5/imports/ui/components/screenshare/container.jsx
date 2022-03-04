@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import Users from '/imports/api/users/';
 import Auth from '/imports/ui/services/auth';
 import MediaService, {
   getSwapLayout,
@@ -11,18 +10,24 @@ import {
   isGloballyBroadcasting,
 } from './service';
 import ScreenshareComponent from './component';
-import LayoutContext from '../layout/context';
+import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import { shouldEnableVolumeControl } from './service';
 
 const ScreenshareContainer = (props) => {
-  const fullscreenElementId = 'Screenshare';
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState, layoutContextDispatch } = layoutContext;
-  const { output, fullscreen } = layoutContextState;
-  const { screenShare } = output;
+  const screenShare = layoutSelectOutput((i) => i.screenShare);
+  const fullscreen = layoutSelect((i) => i.fullscreen);
+  const layoutContextDispatch = layoutDispatch();
+
   const { element } = fullscreen;
+  const fullscreenElementId = 'Screenshare';
   const fullscreenContext = (element === fullscreenElementId);
+
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const currentUser = users[Auth.meetingID][Auth.userID];
+  const isPresenter = currentUser.presenter;
 
   if (isVideoBroadcasting()) {
     return (
@@ -34,6 +39,7 @@ const ScreenshareContainer = (props) => {
           ...screenShare,
           fullscreenContext,
           fullscreenElementId,
+          isPresenter,
         }
         }
       />
@@ -44,15 +50,11 @@ const ScreenshareContainer = (props) => {
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 
-export default withTracker(() => {
-  const user = Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } });
-  return {
-    isGloballyBroadcasting: isGloballyBroadcasting(),
-    isPresenter: user.presenter,
-    getSwapLayout,
-    shouldEnableSwapLayout,
-    toggleSwapLayout: MediaService.toggleSwapLayout,
-    hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
-    enableVolumeControl: shouldEnableVolumeControl(),
-  };
-})(ScreenshareContainer);
+export default withTracker(() => ({
+  isGloballyBroadcasting: isGloballyBroadcasting(),
+  getSwapLayout,
+  shouldEnableSwapLayout,
+  toggleSwapLayout: MediaService.toggleSwapLayout,
+  hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
+  enableVolumeControl: shouldEnableVolumeControl(),
+}))(ScreenshareContainer);

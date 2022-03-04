@@ -1,9 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
-import Modal from '/imports/ui/components/modal/simple/component';
-import { styles } from './styles';
+import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 
 const intlMessages = defineMessages({
   startTitle: {
@@ -26,19 +24,10 @@ const intlMessages = defineMessages({
     id: 'app.recording.stopDescription',
     description: 'stop recording description',
   },
-  yesLabel: {
-    id: 'app.audioModal.yes',
-    description: 'label for yes button',
-  },
-  noLabel: {
-    id: 'app.audioModal.no',
-    description: 'label for no button',
-  },
 });
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
-  closeModal: PropTypes.func.isRequired,
   toggleRecording: PropTypes.func.isRequired,
   recordingTime: PropTypes.number,
   recordingStatus: PropTypes.bool,
@@ -59,7 +48,6 @@ class RecordingComponent extends PureComponent {
       recordingStatus,
       recordingTime,
       amIModerator,
-      closeModal,
       toggleRecording,
       isMeteorConnected,
     } = this.props;
@@ -74,41 +62,19 @@ class RecordingComponent extends PureComponent {
     }
 
     if (!amIModerator) return null;
+
+    const description = intl.formatMessage(!recordingStatus
+      ? intlMessages.startDescription
+      : intlMessages.stopDescription);
+
     return (
-      <Modal
-        overlayClassName={styles.overlay}
-        className={styles.modal}
-        onRequestClose={closeModal}
-        hideBorder
-        contentLabel={title}
-      >
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <div className={styles.title}>
-              {title}
-            </div>
-          </div>
-          <div className={styles.description}>
-            {`${intl.formatMessage(!recordingStatus
-              ? intlMessages.startDescription
-              : intlMessages.stopDescription)}`}
-          </div>
-          <div className={styles.footer}>
-            <Button
-              color="primary"
-              className={styles.button}
-              disabled={!isMeteorConnected}
-              label={intl.formatMessage(intlMessages.yesLabel)}
-              onClick={toggleRecording}
-            />
-            <Button
-              label={intl.formatMessage(intlMessages.noLabel)}
-              className={styles.button}
-              onClick={closeModal}
-            />
-          </div>
-        </div>
-      </Modal>
+      <ConfirmationModal
+        intl={intl}
+        onConfirm={toggleRecording}
+        title={title}
+        description={description}
+        disableConfirmButton={!isMeteorConnected}
+      />
     );
   }
 }

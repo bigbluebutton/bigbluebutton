@@ -1,6 +1,5 @@
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import Polls from '/imports/api/polls';
+import { CurrentPoll } from '/imports/api/polls';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { defineMessages } from 'react-intl';
 
@@ -212,12 +211,8 @@ const checkPollType = (
 };
 
 export default {
-  amIPresenter: () => Users.findOne(
-    { userId: Auth.userID },
-    { fields: { presenter: 1 } },
-  ).presenter,
   pollTypes,
-  currentPoll: () => Polls.findOne({ meetingId: Auth.meetingID }),
+  currentPoll: () => CurrentPoll.findOne({ meetingId: Auth.meetingID }),
   pollAnswerIds,
   POLL_AVATAR_COLOR,
   isDefaultPoll,

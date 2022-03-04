@@ -40,7 +40,8 @@ public class ValidationService {
         ENTER("enter", RequestType.GET),
         STUNS("stuns", RequestType.GET),
         SIGN_OUT("signOut", RequestType.GET),
-        LEARNING_DASHBOARD("learningDashboard", RequestType.GET);
+        LEARNING_DASHBOARD("learningDashboard", RequestType.GET),
+        INSERT_DOCUMENT("insertDocument", RequestType.GET);
 
         private final String name;
         private final RequestType requestType;
@@ -121,6 +122,9 @@ public class ValidationService {
                     case GET_MEETINGS:
                     case GET_SESSIONS:
                         request = new SimpleRequest(checksum);
+                        break;
+                    case INSERT_DOCUMENT:
+                        request = new InsertDocument(checksum);
                         break;
                     case GUEST_WAIT:
                         request = new GuestWait();

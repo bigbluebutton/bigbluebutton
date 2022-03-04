@@ -60,6 +60,7 @@ public class SwfSlidesGenerationProgressNotifier {
             "notUsedYet",
             "notUsedYet",
             pres.isDownloadable(),
+            pres.isRemovable(),
             ConversionMessageConstants.GENERATED_SLIDE_KEY,
             pres.getNumberOfPages(),
             slidesCompleted,
@@ -73,7 +74,7 @@ public class SwfSlidesGenerationProgressNotifier {
     OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
-      pres.isDownloadable(), ConversionMessageConstants.GENERATING_THUMBNAIL_KEY);
+      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_THUMBNAIL_KEY);
     messagingService.sendDocConversionMsg(progress);
   }
 
@@ -86,7 +87,7 @@ public class SwfSlidesGenerationProgressNotifier {
     DocPageCompletedProgress progress = new DocPageCompletedProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
-      pres.isDownloadable(), ConversionMessageConstants.CONVERSION_COMPLETED_KEY,
+      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.CONVERSION_COMPLETED_KEY,
       pres.getNumberOfPages(), generateBasePresUrl(pres), pres.isCurrent());
     messagingService.sendDocConversionMsg(progress);
   }
@@ -107,7 +108,7 @@ public class SwfSlidesGenerationProgressNotifier {
     OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
-      pres.isDownloadable(), ConversionMessageConstants.GENERATING_TEXTFILES_KEY);
+      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_TEXTFILES_KEY);
     messagingService.sendDocConversionMsg(progress);
   }
 
@@ -115,7 +116,7 @@ public class SwfSlidesGenerationProgressNotifier {
     OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
-      pres.isDownloadable(), ConversionMessageConstants.GENERATING_SVGIMAGES_KEY);
+      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_SVGIMAGES_KEY);
     messagingService.sendDocConversionMsg(progress);
   }
 }

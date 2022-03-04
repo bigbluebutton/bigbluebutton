@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import hark from 'hark';
-import Icon from '/imports/ui/components/icon/component';
-import cx from 'classnames';
-import { styles } from './styles';
+import Icon from '/imports/ui/components/common/icon/component';
+import Styled from './styles';
 import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
-import TooltipContainer from '/imports/ui/components/tooltip/container';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
 
@@ -132,23 +131,21 @@ class MutedAlert extends Component {
       isViewer, isPresenter, muted, intl,
     } = this.props;
     const { visible } = this.state;
-    const style = {};
-    style[styles.alignForMod] = !isViewer || isPresenter;
-    style[styles.alignForViewer] = isViewer;
 
     return visible && muted ? (
       <TooltipContainer
         title={intl.formatMessage(intlMessages.tooltip)}
         position="top"
       >
-        <div
-          className={cx(styles.muteWarning, style)}
+        <Styled.MuteWarning
+          alignForMod={!isViewer || isPresenter}
+          alignForViewer={isViewer}
           onClick={() => this.closeAlert()}
         >
           <span>
             {intl.formatMessage(intlMessages.warningLabel, { 0: <Icon iconName="mute" /> })}
           </span>
-        </div>
+        </Styled.MuteWarning>
       </TooltipContainer>
     ) : null;
   }

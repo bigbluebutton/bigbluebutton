@@ -1,5 +1,5 @@
 import { withTracker } from 'meteor/react-meteor-data';
-import Meetings from '/imports/api/meetings/';
+import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users/';
 import VideoStreams from '/imports/api/video-streams';

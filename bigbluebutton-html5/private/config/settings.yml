@@ -28,7 +28,8 @@ public:
     #
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.4
+    bbbServerVersion: HTML5_FULL_BBB_VERSION
+    displayBbbServerVersion: true
     copyright: '©2022 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
@@ -225,7 +226,7 @@ public:
       maxTimeout: 60000
     screenshare:
       # Whether volume control should be allowed if screen sharing has audio
-      enableVolumeControl: false
+      enableVolumeControl: true
       # Experimental. True is the canonical behavior. Flip to false to reverse
       # the negotiation flow for subscribers.
       subscriberOffering: false
@@ -321,6 +322,7 @@ public:
         bitrate: 500
         constraints:
           width: 1280
+          height: 720
           frameRate: 15
       - id: hd
         name: High definition
@@ -328,11 +330,12 @@ public:
         bitrate: 800
         constraints:
           width: 1280
+          height: 720
           frameRate: 30
     enableScreensharing: true
     enableVideo: true
     enableVideoMenu: true
-    enableVideoPin: false
+    enableVideoPin: true
     enableListenOnly: true
     # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
     # media server adapter should be used for listen only.
@@ -430,9 +433,6 @@ public:
   syncUsersWithConnectionManager:
     enabled: false
     syncInterval: 60000
-  allowOutsideCommands:
-    toggleRecording: false
-    toggleSelfVoice: false
   poll:
     enabled: true
     maxCustom: 5
@@ -441,12 +441,13 @@ public:
     chatMessage: true
   captions:
     enabled: true
-    enableDictation: false
-    backgroundColor: '#000000'
-    fontColor: '#FFFFFF'
-    fontFamily: Calibri
-    fontSize: 24px
-    takeOwnership: true
+    id: captions
+    dictation: false
+    background: '#000000'
+    font:
+      color: '#ffffff'
+      family: Calibri
+      size: 24px
     lines: 2
     time: 5000
   chat:
@@ -475,13 +476,19 @@ public:
     typingIndicator:
       enabled: true
     moderatorChatEmphasized: true
-  note:
+  notes:
     enabled: true
-    url: ETHERPAD_HOST
+    id: notes
   layout:
     autoSwapLayout: false
     hidePresentation: false
     showParticipantsOnLogin: true
+  pads:
+    url: ETHERPAD_HOST
+    cookie:
+      path: /
+      sameSite: None
+      secure: true
   media:
     audio:
       #
@@ -512,8 +519,8 @@ public:
       # '/imports/api/audio/client' dir.
       #
       bridges:
-          #
-          # The name of the bridge
+        #
+        # The name of the bridge
         - name: sipjs
           #
           # The bridge file path , relative to /imports/api/audio/client
@@ -767,11 +774,6 @@ private:
     localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
-  etherpad:
-    apikey: ETHERPAD_APIKEY
-    version: 1.2.13
-    host: 127.0.0.1
-    port: 9001
   redis:
     host: 127.0.0.1
     port: '6379'
@@ -790,7 +792,6 @@ private:
       - to-html5-redis-channel
       - from-akka-apps-[^f]*
       - from-third-party-redis-channel
-      - from-etherpad-redis-channel
     async:
       - from-akka-apps-wb-redis-channel
     ignored:
@@ -803,7 +804,7 @@ private:
     - browser: chrome
       version: 72
     - browser: chromeMobileIOS
-      version: Infinity
+      version: 94
     - browser: firefox
       version: 68
     - browser: firefoxMobile

@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import Settings from '/imports/ui/services/settings';
 import ConnectionStatusService from '../service';
 import ConnectionStatusComponent from './component';

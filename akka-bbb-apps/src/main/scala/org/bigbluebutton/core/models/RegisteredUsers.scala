@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
+import org.bigbluebutton.core.domain.BreakoutRoom2x
 
 object RegisteredUsers {
   def create(userId: String, extId: String, name: String, roles: String,
@@ -39,6 +40,13 @@ object RegisteredUsers {
 
   def findAllWithExternUserId(id: String, users: RegisteredUsers): Vector[RegisteredUser] = {
     users.toVector.filter(ru => id == ru.externId)
+  }
+
+  def findWithBreakoutRoomId(breakoutRoomId: String, users: RegisteredUsers): Vector[RegisteredUser] = {
+    //userId + "-" + roomSequence
+    val userIdParts = breakoutRoomId.split("-")
+    val userExtId = userIdParts(0)
+    users.toVector.filter(ru => userExtId == ru.externId)
   }
 
   def getRegisteredUserWithToken(token: String, userId: String, regUsers: RegisteredUsers): Option[RegisteredUser] = {
@@ -118,6 +126,13 @@ object RegisteredUsers {
     u
   }
 
+  def updateUserLastBreakoutRoom(users: RegisteredUsers, user: RegisteredUser,
+                                 lastBreakoutRoom: BreakoutRoom2x): RegisteredUser = {
+    val u = user.modify(_.lastBreakoutRoom).setTo(lastBreakoutRoom)
+    users.save(u)
+    u
+  }
+
   def updateUserJoin(users: RegisteredUsers, user: RegisteredUser): RegisteredUser = {
     val u = user.copy(joined = true)
     users.save(u)
@@ -172,6 +187,7 @@ case class RegisteredUser(
     lastAuthTokenValidatedOn: Long,
     joined:                   Boolean,
     banned:                   Boolean,
-    loggedOut:                Boolean
+    loggedOut:                Boolean,
+    lastBreakoutRoom:         BreakoutRoom2x = null
 )
 

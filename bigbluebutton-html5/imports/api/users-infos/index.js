@@ -1,6 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 
-const UserInfos = new Mongo.Collection('users-infos');
+const collectionOptions = Meteor.isClient ? {
+  connection: null,
+} : {};
+
+const UserInfos = new Mongo.Collection('users-infos', collectionOptions);
 
 if (Meteor.isServer) {
   UserInfos._ensureIndex({ meetingId: 1, userId: 1 });

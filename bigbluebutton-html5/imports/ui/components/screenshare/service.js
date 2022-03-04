@@ -6,7 +6,6 @@ import logger from '/imports/startup/client/logger';
 import { stopWatching } from '/imports/ui/components/external-video-player/service';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
-import UserListService from '/imports/ui/components/user-list/service';
 import AudioService from '/imports/ui/components/audio/service';
 import { Meteor } from "meteor/meteor";
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
@@ -106,14 +105,14 @@ const attachLocalPreviewStream = (mediaElement) => {
   }
 }
 
-const screenshareHasStarted = () => {
+const screenshareHasStarted = (isPresenter) => {
   // Presenter's screen preview is local, so skip
-  if (!UserListService.amIPresenter()) {
+  if (!isPresenter) {
     viewScreenshare();
   }
 };
 
-const shareScreen = async (onFail) => {
+const shareScreen = async (isPresenter, onFail) => {
   // stop external video share if running
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
 
@@ -123,7 +122,7 @@ const shareScreen = async (onFail) => {
 
   try {
     const stream = await BridgeService.getScreenStream();
-    if(!UserListService.isUserPresenter(Auth.userID)) return MediaStreamUtils.stopMediaStreamTracks(stream);
+    if(!isPresenter) return MediaStreamUtils.stopMediaStreamTracks(stream);
     await KurentoBridge.share(stream, onFail);
     setSharingScreen(true);
   } catch (error) {

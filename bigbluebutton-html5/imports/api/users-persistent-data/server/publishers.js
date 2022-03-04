@@ -4,7 +4,7 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 import Users from '/imports/api/users';
 
-const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 function usersPersistentData() {
   if (!this.userId) {
@@ -19,8 +19,14 @@ function usersPersistentData() {
     meetingId,
   };
 
+  const options = {};
+
   const User = Users.findOne({ userId: requesterUserId, meetingId }, { fields: { role: 1 } });
-  if (!!User && User.role === ROLE_VIEWER) {
+  if (!User || User.role !== ROLE_MODERATOR) {
+    options.fields = {
+      lastBreakoutRoom: false,
+    };
+
     // viewers are allowed to see other users' data if:
     // user is logged in or user sent a message in chat
     const viewerSelector = {
@@ -34,9 +40,9 @@ function usersPersistentData() {
         },
       ],
     };
-    return UsersPersistentData.find(viewerSelector);
+    return UsersPersistentData.find(viewerSelector, options);
   }
-  return UsersPersistentData.find(selector);
+  return UsersPersistentData.find(selector, options);
 }
 
 function publishUsersPersistentData(...args) {

@@ -1,17 +1,16 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import _ from 'lodash';
 import { makeCall } from '/imports/ui/services/api';
 import MessageForm from './component';
 import ChatService from '/imports/ui/components/chat/service';
-import LayoutContext from '../../layout/context';
+import { layoutSelect } from '../../layout/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const START_TYPING_THROTTLE_INTERVAL = 2000;
 
 const MessageFormContainer = (props) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState } = layoutContext;
-  const { idChatOpen } = layoutContextState;
+  const idChatOpen = layoutSelect((i) => i.idChatOpen);
+
   const handleSendMessage = (message) => {
     ChatService.setUserSentMessage(true);
     return ChatService.sendGroupMessage(message, idChatOpen);

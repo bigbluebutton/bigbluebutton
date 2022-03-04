@@ -1,6 +1,6 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import Meetings from '../../../api/meetings';
+import Meetings from '/imports/api/meetings';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -19,14 +19,6 @@ const isModerator = () => {
 
   return false;
 };
-
-const isLearningDashboardEnabled = () => (((
-  Meetings.findOne(
-    { meetingId: Auth.meetingID },
-    {
-      fields: { 'meetingProp.learningDashboardEnabled': 1 },
-    },
-  ) || {}).meetingProp || {}).learningDashboardEnabled || false);
 
 const getLearningDashboardAccessToken = () => ((
   Meetings.findOne(
@@ -58,7 +50,6 @@ const openLearningDashboardUrl = (lang) => {
 
 export default {
   isModerator,
-  isLearningDashboardEnabled,
   getLearningDashboardAccessToken,
   setLearningDashboardCookie,
   openLearningDashboardUrl,
