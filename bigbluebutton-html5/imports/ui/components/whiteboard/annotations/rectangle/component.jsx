@@ -4,8 +4,8 @@ import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers'
 
 export default class RectangleDrawComponent extends Component {
   shouldComponentUpdate(nextProps) {
-    const { version } = this.props;
-    return version !== nextProps.version;
+    const { version, selected } = this.props;
+    return version !== nextProps.version || selected !== nextProps.selected;
   }
 
   getCoordinates() {
@@ -46,10 +46,12 @@ export default class RectangleDrawComponent extends Component {
 
   render() {
     const results = this.getCoordinates();
-    const { annotation, slideWidth } = this.props;
+    const { annotation, slideWidth, selected, isEditable} = this.props;
 
     return (
+      <g>
       <rect
+        id={annotation.id}
         x={results.x}
         y={results.y}
         width={results.width}
@@ -60,6 +62,20 @@ export default class RectangleDrawComponent extends Component {
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
         data-test="drawnRectangle"
       />
+     {selected &&
+      <rect
+        x={results.x}
+        y={results.y}
+        width={results.width}
+        height={results.height}
+        fill= "none"
+        stroke={isEditable ? Meteor.settings.public.whiteboard.selectColor : Meteor.settings.public.whiteboard.selectInertColor}
+        opacity="0.5"
+        strokeWidth={getStrokeWidth(annotation.thickness+1, slideWidth)}
+        style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
+        data-test="drawnRectangleSelection"
+      />}
+     </g>
     );
   }
 }
