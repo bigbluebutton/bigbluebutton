@@ -4,8 +4,8 @@ import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers'
 
 export default class EllipseDrawComponent extends Component {
   shouldComponentUpdate(nextProps) {
-    const { version } = this.props;
-    return version !== nextProps.version;
+    const { version, selected } = this.props;
+    return version !== nextProps.version || selected !== nextProps.selected;
   }
 
   getCoordinates() {
@@ -37,15 +37,30 @@ export default class EllipseDrawComponent extends Component {
     };
   }
 
+  getBBox() {
+    const { slideWidth, slideHeight, annotation } = this.props;
+    const { points } = annotation;
+
+    const x = denormalizeCoord(Math.min(points[0], points[2]), slideWidth)
+    const y = denormalizeCoord(Math.min(points[1], points[3]), slideHeight)
+    const width = denormalizeCoord(Math.max(points[0], points[2]), slideWidth) - x;
+    const height = denormalizeCoord(Math.max(points[1], points[3]), slideHeight) -y;
+
+    return {x, y, width, height};
+  }
+  
   render() {
     const results = this.getCoordinates();
-    const { annotation, slideWidth } = this.props;
+    const { annotation, slideWidth, selected, isEditable } = this.props;
     const {
       cx, cy, rx, ry,
     } = results;
 
+    const bbox  = this.getBBox();
     return (
+      <g>
       <ellipse
+        id={annotation.id}
         cx={cx}
         cy={cy}
         rx={rx}
@@ -56,6 +71,20 @@ export default class EllipseDrawComponent extends Component {
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
         data-test="drawnEllipse"
       />
+     {selected &&
+      <rect
+        x={bbox.x}
+        y={bbox.y}
+        width={bbox.width}
+        height={bbox.height}
+        fill= "none"
+        stroke={isEditable ? Meteor.settings.public.whiteboard.selectColor : Meteor.settings.public.whiteboard.selectInertColor}
+        opacity="0.5"
+        strokeWidth={getStrokeWidth(annotation.thickness+1, slideWidth)}
+        style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
+        data-test="drawnEllipseSelection"
+      />}
+     </g>
     );
   }
 }
