@@ -585,6 +585,7 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   # Common properties
   shape[:in] = timestamp
   shape[:type] = event.at_xpath('type').text
+  shape[:position] = event.at_xpath('position').text.to_i
   shape[:data_points] = event.at_xpath('dataPoints').text.split(',').map { |p| p.to_f }
   # These can be missing in old BBB versions, there are fallbacks
   user_id = event.at_xpath('userId')
@@ -723,7 +724,7 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
     # all the shapes with that id.
     BigBlueButton.logger.info("Undo: removing shape with ID #{shape_id} at #{timestamp}")
     shapes.each do |shape|
-      if shape[:id] == shape_id
+      if shape[:id].sub(/_[\.\d]+$/,"") == shape_id
         if shape[:undo].nil? or shape[:undo] > timestamp
           shape[:undo] = timestamp
         end
@@ -749,6 +750,159 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
       BigBlueButton.logger.info("Undo: no applicable shapes found")
     end
   end
+end
+
+def events_parse_remove(shapes, event, current_presentation, current_slide, timestamp)
+  # Figure out what presentation+slide this remove is for
+  presentation = event.at_xpath('presentation').text
+  slide = event.at_xpath('pageNumber').text.to_i
+
+  # Remove messages have the shape id, making this a lot easier
+  shape_id = event.at_xpath('shapeId')
+  if !shape_id.nil?
+    shape_id = shape_id.text
+  end
+
+  # Set up the shapes data structures if needed
+  shapes[presentation] = {} if shapes[presentation].nil?
+  shapes[presentation][slide] = [] if shapes[presentation][slide].nil?
+
+  # We only need to deal with shapes for this slide
+  shapes = shapes[presentation][slide]
+
+  if !shape_id.nil?
+    # If we have the shape id, we simply have to update the undo time on
+    # all the shapes with that id.
+    BigBlueButton.logger.info("Remove: removing selected shape with ID #{shape_id} at #{timestamp}")
+    shapes.each do |shape|
+      if shape[:id].sub(/_[\.\d]+$/,"") == shape_id
+        if shape[:undo].nil? or shape[:undo] > timestamp
+          shape[:undo] = timestamp
+        end
+      end
+    end
+  end
+end
+
+def copyshape(s)
+  ns = s.dup
+  ns[:data_points] = s[:data_points].dup
+  if s[:successor]
+    ns[:successor] = s[:successor].dup
+  end
+  ns
+end
+
+def events_parse_reorder(shapes, event, current_presentation, current_slide, timestamp)
+  # Figure out what presentation+slide this remove is for
+  presentation = event.at_xpath('presentation').text
+  slide = event.at_xpath('pageNumber').text.to_i
+
+  # Set up the shapes data structures if needed
+  shapes[presentation] = {} if shapes[presentation].nil?
+  shapes[presentation][slide] = [] if shapes[presentation][slide].nil?
+
+  # We only need to deal with shapes for this slide
+  shapes = shapes[presentation][slide]
+
+  order = event.at_xpath('order')
+  order = eval(order.text) unless order.nil?
+
+  unless order.nil?
+    min_changed_position = order.values.max
+    shapes.each do |shape|
+      next if !shape[:undo].nil? && shape[:undo] <= timestamp
+      new_position = order[shape[:id].sub(/_[\.\d]+$/,"").to_sym]
+      if shape[:position] != new_position
+        min_changed_position = [min_changed_position, shape[:position], new_position].min
+      end
+    end
+
+    new_shapes = shapes.map{|s| copyshape(s)}
+    shapes.each do |shape|
+      next if shape[:position] < min_changed_position
+
+      if shape[:undo].nil? or shape[:undo] > timestamp
+        shape[:undo] = timestamp
+      end
+
+      if shape[:successor].nil?
+        shape[:successor] = []
+      end
+      shape[:successor] << "#{shape[:id].sub(/_[\.\d]+$/,"")}_#{timestamp}"
+    end
+
+    new_shapes.delete_if{|shape| (!shape[:undo].nil? && shape[:undo] <= timestamp) || shape[:position] < min_changed_position}
+    new_shapes.each do |shape|
+      shape[:id] = "#{shape[:id].sub(/_[\.\d]+$/,"")}_#{timestamp}"
+      shape[:position] = order[shape[:id].sub(/_[\.\d]+$/,"").to_sym]
+      shape[:in] = timestamp
+    end
+    new_shapes.sort!{|a, b| a[:position] <=> b[:position]}
+    shapes.concat(new_shapes)
+  end
+end
+
+def events_parse_move(shapes, event, current_presentation, current_slide, timestamp)
+  # Figure out what presentation+slide this remove is for
+  presentation = event.at_xpath('presentation').text
+  slide = event.at_xpath('pageNumber').text.to_i
+
+  # Move messages have the shape id, making this a lot easier
+  shape_id = event.at_xpath('shapeId')
+  if !shape_id.nil?
+    shape_id = shape_id.text
+  end
+
+  # Set up the shapes data structures if needed
+  shapes[presentation] = {} if shapes[presentation].nil?
+  shapes[presentation][slide] = [] if shapes[presentation][slide].nil?
+
+  # We only need to deal with shapes for this slide
+  shapes = shapes[presentation][slide]
+
+  xoffset = event.at_xpath('xOffset')
+  xoffset = xoffset.text.to_f unless xoffset.nil?
+  yoffset = event.at_xpath('yOffset')
+  yoffset = yoffset.text.to_f unless yoffset.nil?
+
+    shapes_alive = shapes.find_all{|shape| shape[:undo].nil? or shape[:undo] > timestamp}
+    shapes_alive_moved = shapes_alive.select{|shape| shape[:id].sub(/_[\.\d]+$/,"") == shape_id}
+    if shapes_alive_moved.size != 1
+      return
+    end
+    moved_position = shapes_alive_moved[0][:position]
+
+    new_shapes = shapes.map{|s| copyshape(s)}
+
+    shapes.each do |shape|
+      next if shape[:position] < moved_position
+      if shape[:undo].nil? or shape[:undo] > timestamp
+        shape[:undo] = timestamp
+      end
+
+      if shape[:successor].nil?
+        shape[:successor] = []
+      end
+      shape[:successor] << "#{shape[:id].sub(/_[\.\d]+$/,"")}_#{timestamp}"
+    end
+
+    new_shapes.delete_if{|shape| (!shape[:undo].nil? && shape[:undo] <= timestamp) || shape[:position] < moved_position}
+    new_shapes.each do |shape|
+      shape_id_ori = shape[:id].sub(/_[\.\d]+$/,"")
+      shape[:id] = "#{shape_id_ori}_#{timestamp}"
+      shape[:in] = timestamp
+      if shape_id_ori == shape_id
+        if shape[:type] == "text"
+          shape[:data_points][0] += xoffset
+          shape[:data_points][1] += yoffset
+        else
+          shape[:data_points] = shape[:data_points].map.with_index{|d, i| i%2 == 0 ? d + xoffset : d + yoffset}
+        end
+      end
+    end
+    new_shapes.sort!{|a, b| a[:position] <=> b[:position]}
+    shapes.concat(new_shapes)
 end
 
 def events_parse_clear(shapes, event, current_presentation, current_slide, timestamp)
@@ -923,6 +1077,15 @@ def processPresentation(package_dir)
     elsif eventname == 'UndoShapeEvent' or eventname == 'UndoAnnotationEvent'
       events_parse_undo(shapes, event, current_presentation, current_slide, timestamp)
 
+    elsif eventname == 'RemoveAnnotationEvent'
+      events_parse_remove(shapes, event, current_presentation, current_slide, timestamp)
+
+    elsif eventname == 'MoveAnnotationEvent'
+      events_parse_move(shapes, event, current_presentation, current_slide, timestamp)
+
+    elsif eventname == 'ReorderAnnotationEvent'
+      events_parse_reorder(shapes, event, current_presentation, current_slide, timestamp)
+      
     elsif eventname == 'ClearPageEvent' or eventname == 'ClearWhiteboardEvent'
       events_parse_clear(shapes, event, current_presentation, current_slide, timestamp)
 
