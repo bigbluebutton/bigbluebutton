@@ -38,8 +38,8 @@ mkdir -p staging/usr/lib/systemd/system
 cp systemd/* staging/usr/lib/systemd/system
 
 if [ -f "staging/usr/local/bigbluebutton/core/scripts/basic_stats.nginx" ]; then \
-  mkdir -p staging/etc/bigbluebutton/nginx; \
-  mv staging/usr/local/bigbluebutton/core/scripts/basic_stats.nginx staging/etc/bigbluebutton/nginx; \
+  mkdir -p staging/usr/share/bigbluebutton/nginx; \
+  mv staging/usr/local/bigbluebutton/core/scripts/basic_stats.nginx staging/usr/share/bigbluebutton/nginx; \
 fi
 
 ##
@@ -51,6 +51,7 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --before-install before-install.sh        \
     --after-install after-install.sh    \
     --before-remove before-remove.sh    \
+    --after-remove after-remove.sh \
     --description "BigBlueButton record and playback" \
     $DIRECTORIES \
     $OPTS

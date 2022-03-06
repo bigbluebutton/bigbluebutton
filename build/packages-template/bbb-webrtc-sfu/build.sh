@@ -13,7 +13,7 @@ rm -rf staging
 
 #
 # Create directory for fpm to process
-DIRS="/etc/bigbluebutton/nginx /usr/local/bigbluebutton/bbb-webrtc-sfu /etc/logrotate.d /usr/lib/systemd/system /etc/cron.hourly"
+DIRS="/usr/share/bigbluebutton/nginx /usr/local/bigbluebutton/bbb-webrtc-sfu /etc/logrotate.d /usr/lib/systemd/system /etc/cron.hourly"
 for dir in $DIRS; do
   mkdir -p staging$dir
 done
@@ -46,7 +46,7 @@ rm -rf node_modules/mediasoup/worker/out/Release/mediasoup-worker.p
 rm -rf node_modules/mediasoup/worker/out/Release/deps
 popd
 
-cp webrtc-sfu.nginx staging/etc/bigbluebutton/nginx
+cp webrtc-sfu.nginx staging/usr/share/bigbluebutton/nginx
 
 cp bbb-webrtc-sfu.service staging/usr/lib/systemd/system
 cp bbb-webrtc-sfu.logrotate staging/etc/logrotate.d
@@ -61,6 +61,7 @@ fpm -s dir -C ./staging -n $PACKAGE                 \
     --after-install after-install.sh                \
     --before-install before-install.sh              \
     --before-remove before-remove.sh                \
+    --after-remove after-remove.sh \
     --description "BigBlueButton WebRTC SFU"        \
     $DIRECTORIES                                    \
     $OPTS
