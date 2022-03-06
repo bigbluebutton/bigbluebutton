@@ -284,6 +284,7 @@ class MeetingActor(
     case msg: BreakoutRoomUsersUpdateInternalMsg => state = handleBreakoutRoomUsersUpdateInternalMsg(msg, state)
     case msg: EndBreakoutRoomInternalMsg         => handleEndBreakoutRoomInternalMsg(msg)
     case msg: ExtendBreakoutRoomTimeInternalMsg  => state = handleExtendBreakoutRoomTimeInternalMsgHdlr(msg, state)
+    case msg: EjectUserFromBreakoutInternalMsg   => handleEjectUserFromBreakoutInternalMsgHdlr(msg)
     case msg: BreakoutRoomEndedInternalMsg       => state = handleBreakoutRoomEndedInternalMsg(msg, state)
     case msg: SendBreakoutTimeRemainingInternalMsg =>
       handleSendBreakoutTimeRemainingInternalMsg(msg)
@@ -408,7 +409,7 @@ class MeetingActor(
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
-        usersApp.handleEjectUserFromMeetingCmdMsg(m)
+        usersApp.handleEjectUserFromMeetingCmdMsg(m, state)
         updateUserLastActivity(m.body.ejectedBy)
 
       // Another part of system (e.g. bbb-apps) requested to eject user.

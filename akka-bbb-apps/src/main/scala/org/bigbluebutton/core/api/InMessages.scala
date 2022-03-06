@@ -83,6 +83,18 @@ case class EndBreakoutRoomInternalMsg(parentId: String, breakoutId: String, reas
  */
 case class ExtendBreakoutRoomTimeInternalMsg(parentId: String, breakoutId: String, extendTimeInMinutes: Int) extends InMessage
 
+/**
+ * Sent by parent meeting to breakout room to extend time.
+ * @param parentId
+ * @param breakoutId
+ * @param extUserId
+ * @param ejectedBy
+ * @param reason
+ * @param reasonCode
+ * @param ban
+ */
+case class EjectUserFromBreakoutInternalMsg(parentId: String, breakoutId: String, extUserId: String, ejectedBy: String, reason: String, reasonCode: String, ban: Boolean) extends InMessage
+
 // DeskShare
 case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage
 case class DeskShareStoppedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage
