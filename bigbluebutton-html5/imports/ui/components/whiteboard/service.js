@@ -360,6 +360,14 @@ const removeIndividualAccess = (whiteboardId, userId) => {
   makeCall('removeIndividualAccess', whiteboardId, userId);
 };
 
+const currentUserID = () => {
+  return Auth.userID ;
+};
+
+const annotatorID = (annotation) => {
+  return annotation.id.replace(/-.+/,'');
+};
+
 const isPresenter = () => {
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } });
   return currentUser ? currentUser.presenter : false;
@@ -380,6 +388,8 @@ export {
   addIndividualAccess,
   removeGlobalAccess,
   removeIndividualAccess,
+  currentUserID,
+  annotatorID,
   isPresenter,
   moveAndUpdateOneAnnotation,
 };
