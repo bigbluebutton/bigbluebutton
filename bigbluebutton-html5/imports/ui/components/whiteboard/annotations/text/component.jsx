@@ -147,8 +147,10 @@ export default class TextDrawComponent extends Component {
     const styles = TextDrawComponent.getViewerStyles(results);
 
     return (
-      <g id={annotation.id} className="selectable">
+      <g>
         <foreignObject
+          id={annotation.id}
+          className="selectable"
           x={results.x}
           y={results.y}
           width={results.width}
