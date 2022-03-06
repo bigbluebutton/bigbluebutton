@@ -86,7 +86,6 @@ export default class PencilDrawComponent extends Component {
 
   shouldComponentUpdate(nextProps) {
     const { version, selected, annotation, slideWidth, slideHeight } = this.props;
-    const { version, hidden, selected, annotation, slideWidth, slideHeight } = this.props;
     if (annotation.status == "DRAW_END"
         && (annotation.points[0] !== nextProps.annotation.points[0]
          || annotation.points[1] !== nextProps.annotation.points[1])) {
