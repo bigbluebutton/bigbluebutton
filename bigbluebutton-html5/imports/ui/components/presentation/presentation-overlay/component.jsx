@@ -133,7 +133,7 @@ export default class PresentationOverlay extends Component {
   componentWillUnmount() {
     window.removeEventListener('mousemove', this.mouseMoveHandler);
     window.removeEventListener('mouseup', this.mouseUpHandler);
-    window.removeEventListener('keydown', this.keyDownHandler)
+    window.removeEventListener('keydown', this.keyDownHandler);
   }
 
   getTransformedSvgPoint(clientX, clientY) {
