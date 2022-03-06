@@ -20,6 +20,7 @@ export default withTracker((params) => {
   } = params;
 
   const annotation = StaticAnnotationService.getAnnotationById(shapeId);
+  const annotatorID = WhiteboardService.annotatorID(annotation);
   const isPresenter = WhiteboardService.isPresenter();
   const isMyAnnotation = WhiteboardService.currentUserID() == annotatorID;
   const isEditable = isMyAnnotation || (isPresenter && !WhiteboardService.isMultiUserActive(whiteboardId));
