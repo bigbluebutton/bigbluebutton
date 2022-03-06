@@ -522,15 +522,15 @@ export default class PresentationOverlay extends Component {
       this.pinchMoveHandler(event);
     } else if (userIsPresenter && selectedAnnotations.length == 0) {
       this.panMoveHandler(event);
-    } else (selectedAnnotations.length > 0) {
+    } else if (selectedAnnotations.length > 0) {
       const touchCenterPoint = PresentationOverlay.touchCenterPoint(event.touches);
       const interval = Date.now() - this.time;
       this.time = Date.now();
       this.flick = ((touchCenterPoint.x - this.currentTouchX)**2 + (touchCenterPoint.y - this.currentTouchY)**2) / interval;
       const newPoint = this.svgCoordinateToPercentages(this.getTransformedSvgPoint(touchCenterPoint.x, touchCenterPoint.y));
       const oldPoint = this.svgCoordinateToPercentages(this.getTransformedSvgPoint(this.currentTouchX, this.currentTouchY));
-      const dx_percent = newPoint.x - oldPoint.x
-      const dy_percent = newPoint.y - oldPoint.y
+      const dx_percent = newPoint.x - oldPoint.x;
+      const dy_percent = newPoint.y - oldPoint.y;
       this.currentTouchX = touchCenterPoint.x;
       this.currentTouchY = touchCenterPoint.y;
       this.draggedAnnotations = selectedAnnotations;
