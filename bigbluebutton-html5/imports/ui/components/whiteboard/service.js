@@ -55,6 +55,79 @@ function handleRemovedAnnotation({
   Annotations.remove(query);
 }
 
+const moveAndUpdateOneAnnotation = (whiteboardId, shapeId, offset) => {
+  const selector = { whiteboardId, id: shapeId };
+  const newAnnotationInfo = Annotations.findOne(selector).annotationInfo;
+
+  if (newAnnotationInfo.type == "text") {
+    newAnnotationInfo.x += offset.x;
+    newAnnotationInfo.y += offset.y;
+  } else {
+    const newPoints = newAnnotationInfo.points.map( function(val, idx) {
+      if( idx % 2 !== 0 ) {
+        return val + offset.y;
+      } else {
+        return val + offset.x;
+      }
+    });
+    newAnnotationInfo.points = newPoints;
+  }
+
+  const modifier = {
+    $set: {
+      annotationInfo: newAnnotationInfo,
+    },
+    $inc: {
+      version: 1,
+    },
+  };
+
+  Annotations.update(selector, modifier);
+}
+
+function handleMovedAnnotation({
+  meetingId, whiteboardId, userId, shapeId, offset
+}) {
+  // If you are an annotator, your annotations should have already been moved.
+  if ((isPresenter() || hasMultiUserAccess(whiteboardId, userId)) && userId == Auth.userID) return;
+
+  moveAndUpdateOneAnnotation(whiteboardId, shapeId, offset);
+}
+
+function handleReorderedAnnotation({
+  meetingId, whiteboardId, userId, order
+}) {
+  // If you are an annotator, your annotations should have already been moved.
+  if ((isPresenter() || hasMultiUserAccess(whiteboardId, userId)) && userId == Auth.userID) return;
+
+  for (const ac of order) {
+    // doesn't specify userId for the multi-user whiteboard
+    const selector = { meetingId, whiteboardId, id: ac.id };
+
+    const modifier = {
+      $set: {
+        position: ac.position,
+      },
+    };
+
+    Annotations.update(selector, modifier);
+  }
+}
+
+function handleDeselectedAnnotation({
+  meetingId, whiteboardId
+}) {
+  const selector = { meetingId, whiteboardId, selected: true };
+
+  const modifier = {
+    $set: {
+      selected: false,
+    },
+  };
+
+  Annotations.update(selector, modifier, { multi: true });
+}
+
 export function initAnnotationsStreamListener() {
   logger.info({ logCode: 'init_annotations_stream_listener' }, 'initAnnotationsStreamListener called');
   /**
@@ -80,6 +153,9 @@ export function initAnnotationsStreamListener() {
     logger.debug({ logCode: 'annotations_stream_handler_attach' }, 'Attaching handlers for annotations stream');
 
     annotationsStreamListener.on('removed', handleRemovedAnnotation);
+    annotationsStreamListener.on('reordered', handleReorderedAnnotation);
+    annotationsStreamListener.on('deselected', handleDeselectedAnnotation);
+    annotationsStreamListener.on('moved', handleMovedAnnotation);
 
     annotationsStreamListener.on('added', ({ annotations }) => {
       annotations.forEach(annotation => handleAddedAnnotation(annotation));
@@ -299,4 +375,5 @@ export {
   addIndividualAccess,
   removeGlobalAccess,
   removeIndividualAccess,
+  moveAndUpdateOneAnnotation,
 };
