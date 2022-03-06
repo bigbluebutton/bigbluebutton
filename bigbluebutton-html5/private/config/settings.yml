@@ -661,6 +661,8 @@ public:
         start: DRAW_START
         update: DRAW_UPDATE
         end: DRAW_END
+    selectColor: '#0088ff'
+    selectInertColor: '#202020'
     toolbar:
       multiUserPenOnly: false
       colors:
@@ -734,6 +736,7 @@ public:
         - triangle
         - rectangle
         - pencil
+        - hand
   clientLog:
     server:
       enabled: false
