@@ -510,7 +510,7 @@ class LearningDashboardActor(
   }
 
   private def handleCreateMeetingReqMsg(msg: CreateMeetingReqMsg): Unit = {
-    if(msg.body.props.meetingProp.learningDashboardEnabled) {
+    if (msg.body.props.meetingProp.disabledFeatures.contains("learningDashboard") == false) {
       val newMeeting = Meeting(
         msg.body.props.meetingProp.intId,
         msg.body.props.meetingProp.extId,

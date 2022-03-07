@@ -13,6 +13,7 @@ import { PANELS, ACTIONS } from '../layout/enums';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Settings from '/imports/ui/services/settings';
+import BreakoutDropdown from '/imports/ui/components/breakout-room/breakout-dropdown/component';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -110,6 +111,7 @@ class BreakoutRoom extends PureComponent {
     this.renderUserActions = this.renderUserActions.bind(this);
     this.returnBackToMeeeting = this.returnBackToMeeeting.bind(this);
     this.closePanel = this.closePanel.bind(this);
+    this.handleClickOutsideDurationContainer = this.handleClickOutsideDurationContainer.bind(this);
     this.state = {
       requestedBreakoutId: '',
       waiting: false,
@@ -224,8 +226,19 @@ class BreakoutRoom extends PureComponent {
     this.setState({ newTime: newSetTime >= 0 ? newSetTime : 0 });
   }
 
+  handleClickOutsideDurationContainer(e) {
+    if (this.durationContainerRef) {
+      const { x, right, y, bottom } = this.durationContainerRef.getBoundingClientRect();
+
+      if (e.clientX < x || e.clientX > right || e.clientY < y || e.clientY > bottom) {
+        this.resetSetTimeForm();
+      }
+    }
+  }
+
   showSetTimeForm() {
     this.setState({ visibleSetTimeForm: true });
+    window.addEventListener('click', this.handleClickOutsideDurationContainer);
   }
 
   showSetTimeHigherThanMeetingTimeError(show) {
@@ -234,6 +247,7 @@ class BreakoutRoom extends PureComponent {
 
   resetSetTimeForm() {
     this.setState({ visibleSetTimeForm: false, newTime: 5 });
+    window.removeEventListener('click', this.handleClickOutsideDurationContainer);
   }
 
   transferUserToBreakoutRoom(breakoutId) {
@@ -444,75 +458,57 @@ class BreakoutRoom extends PureComponent {
       visibleSetTimeHigherThanMeetingTimeError,
     } = this.state;
     return (
-      <Styled.DurationContainer>
+      <Styled.DurationContainer
+        centeredText={!visibleSetTimeForm}
+        ref={(ref) => this.durationContainerRef = ref}
+      >
+        <Styled.Duration>
+          <BreakoutRoomContainer
+            messageDuration={intlMessages.breakoutDuration}
+            breakoutRoom={breakoutRooms[0]}
+            fromBreakoutPanel
+          />
+        </Styled.Duration>
         {amIModerator && visibleSetTimeForm ? (
           <Styled.SetTimeContainer>
             <label htmlFor="inputSetTimeSelector" >
               {intl.formatMessage(intlMessages.setTimeInMinutes)}
             </label>
             <br />
-            <Styled.SetDurationInput
-              id="inputSetTimeSelector"
-              type="number"
-              min="1"
-              value={newTime}
-              onChange={this.changeSetTime}
-              aria-label={intl.formatMessage(intlMessages.setTimeInMinutes)}
-            />
-            <br />
-            <br />
+            <Styled.FlexRow>
+              <Styled.SetDurationInput
+                id="inputSetTimeSelector"
+                type="number"
+                min="1"
+                value={newTime}
+                onChange={this.changeSetTime}
+                aria-label={intl.formatMessage(intlMessages.setTimeInMinutes)}
+              />
+              &nbsp;
+              &nbsp;
+              <Styled.EndButton
+                color="primary"
+                disabled={!isMeteorConnected}
+                size="sm"
+                label={intl.formatMessage(intlMessages.setTimeLabel)}
+                onClick={() => {
+                  this.showSetTimeHigherThanMeetingTimeError(false);
+
+                  if (isNewTimeHigherThanMeetingRemaining(newTime)) {
+                    this.showSetTimeHigherThanMeetingTimeError(true);
+                  } else if (setBreakoutsTime(newTime)) {
+                    this.resetSetTimeForm();
+                  }
+                }}
+              />
+            </Styled.FlexRow>
             {visibleSetTimeHigherThanMeetingTimeError ? (
               <Styled.WithError>
                 {intl.formatMessage(intlMessages.setTimeHigherThanMeetingTimeError)}
-                <br />
-                <br />
               </Styled.WithError>
             ) : null}
-            <Styled.EndButton
-              color="default"
-              disabled={!isMeteorConnected}
-              size="sm"
-              label={intl.formatMessage(intlMessages.setTimeCancel)}
-              onClick={this.resetSetTimeForm}
-            />
-            <Styled.EndButton
-              color="primary"
-              disabled={!isMeteorConnected}
-              size="sm"
-              label={intl.formatMessage(intlMessages.setTimeLabel)}
-              onClick={() => {
-                this.showSetTimeHigherThanMeetingTimeError(false);
-
-                if (isNewTimeHigherThanMeetingRemaining(newTime)) {
-                  this.showSetTimeHigherThanMeetingTimeError(true);
-                } else if (setBreakoutsTime(newTime)) {
-                  this.resetSetTimeForm();
-                }
-              }}
-            />
           </Styled.SetTimeContainer>
         ) : null}
-        <Styled.Duration>
-          <BreakoutRoomContainer
-            messageDuration={intlMessages.breakoutDuration}
-            breakoutRoom={breakoutRooms[0]}
-          />
-          {amIModerator && !visibleSetTimeForm
-            ? (
-              <Button
-                onClick={this.showSetTimeForm}
-                color="default"
-                icon="more"
-                circle
-                hideLabel
-                size="sm"
-                label={intl.formatMessage(intlMessages.setTimeInMinutes)}
-                aria-label={intl.formatMessage(intlMessages.setTimeInMinutes)}
-                disabled={!isMeteorConnected}
-              />
-            )
-            : null}
-        </Styled.Duration>
       </Styled.DurationContainer>
     );
   }
@@ -526,14 +522,28 @@ class BreakoutRoom extends PureComponent {
     } = this.props;
     return (
       <Styled.Panel ref={(n) => this.panel = n}>
-        <Styled.HeaderButton
-          icon="left_arrow"
-          label={intl.formatMessage(intlMessages.breakoutTitle)}
-          aria-label={intl.formatMessage(intlMessages.breakoutAriaTitle)}
-          onClick={() => {
-            this.closePanel();
-          }}
-        />
+        <Styled.Header>
+          <Styled.HeaderButton
+            icon="left_arrow"
+            label={intl.formatMessage(intlMessages.breakoutTitle)}
+            aria-label={intl.formatMessage(intlMessages.breakoutAriaTitle)}
+            onClick={() => {
+              this.closePanel();
+            }}
+          />
+          { amIModerator && (
+            <BreakoutDropdown
+              openBreakoutTimeManager={this.showSetTimeForm}
+              endAllBreakouts={() => {
+                this.closePanel();
+                endAllBreakouts();
+              }}
+              isMeteorConnected={isMeteorConnected}
+              amIModerator={amIModerator}
+            />
+          ) }
+        </Styled.Header>
+        {this.renderDuration()}
         {amIModerator
           ? (
             <MessageFormContainer
@@ -549,23 +559,6 @@ class BreakoutRoom extends PureComponent {
           ) : null }
         {amIModerator ? <Styled.Separator /> : null }
         {this.renderBreakoutRooms()}
-        {this.renderDuration()}
-        {
-          amIModerator
-            ? (
-              <Styled.EndButton
-                color="primary"
-                disabled={!isMeteorConnected}
-                size="lg"
-                label={intl.formatMessage(intlMessages.endAllBreakouts)}
-                data-test="endBreakoutRoomsButton"
-                onClick={() => {
-                  this.closePanel();
-                  endAllBreakouts();
-                }}
-              />
-            ) : null
-        }
       </Styled.Panel>
     );
   }

@@ -261,8 +261,7 @@
               updateMessage(_('app.guest.guestWait'));
               enableAnimation();
               try {
-                const ATTEMPT_EVERY_MS = 5000;
-                const ATTEMPT_LIMIT = 100;
+                const ATTEMPT_EVERY_MS = 10 * 1000; // 10 seconds
 
                 const sessionToken = getSearchParam('sessionToken');
 

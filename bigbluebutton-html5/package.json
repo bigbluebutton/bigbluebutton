@@ -44,6 +44,7 @@
     "fibers": "^4.0.2",
     "flat": "^4.1.1",
     "hark": "^1.2.3",
+    "html-to-image": "^1.9.0",
     "immutability-helper": "~2.8.1",
     "langmap": "0.0.16",
     "lodash": "^4.17.21",

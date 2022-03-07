@@ -43,27 +43,6 @@ public interface IVoiceConferenceService {
                               String voiceUserId,
                               Boolean talking);
 
-  void deskShareStarted(String voiceConfId,
-                        String callerIdNum,
-                        String callerIdName);
-
-  void deskShareEnded(String voiceConfId,
-                      String callerIdNum,
-                      String callerIdName);
-
-  void deskShareRTMPBroadcastStarted(String room,
-                                     String streamname,
-                                     Integer videoWidth,
-                                     Integer videoHeight,
-                                     String timestamp,
-                                     boolean hasAudio);
-
-  void deskShareRTMPBroadcastStopped(String room,
-                                     String streamname,
-                                     Integer videoWidth,
-                                     Integer videoHeight,
-                                     String timestamp);
-
   void audioFloorChanged(String room,
                          String voiceUserId,
                          String oldVoiceUserId,

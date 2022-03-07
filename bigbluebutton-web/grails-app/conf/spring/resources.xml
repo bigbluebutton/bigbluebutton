@@ -72,13 +72,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="bbbWebApiGWApp" class="org.bigbluebutton.api2.BbbWebApiGWApp">
         <constructor-arg index="0" ref="oldMessageReceivedGW"/>
-        <constructor-arg index="1" value="${screenshareRtmpServer}"/>
-        <constructor-arg index="2" value="${screenshareRtmpBroadcastApp}"/>
-        <constructor-arg index="3" value="${screenshareConfSuffix}"/>
-        <constructor-arg index="4" value="${redisHost}"/>
-        <constructor-arg index="5" value="${redisPort}"/>
-        <constructor-arg index="6" value="${redisPassword}"/>
-        <constructor-arg index="7" value="${redisKeyExpiry}"/>
+        <constructor-arg index="1" value="${redisHost}"/>
+        <constructor-arg index="2" value="${redisPort}"/>
+        <constructor-arg index="3" value="${redisPassword}"/>
+        <constructor-arg index="4" value="${redisKeyExpiry}"/>
     </bean>
 
     <bean id="recordingServiceHelper" class="org.bigbluebutton.api.util.RecordingMetadataReaderHelper">
@@ -154,9 +151,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
-        <property name="learningDashboardEnabled" value="${learningDashboardEnabled}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
+        <property name="defaultUserCameraCap" value="${userCameraCap}"/>
         <property name="useDefaultAvatar" value="${useDefaultAvatar}"/>
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
         <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>

@@ -1,30 +1,11 @@
 #!/bin/bash -e
-
-if [ -f /etc/redhat-release ]; then
-  DISTRIB_ID=centos
-else
-  . /etc/lsb-release    # Get value for DISTRIB_ID
-fi
-
 BIGBLUEBUTTON_USER=bigbluebutton
 
 case "$1" in
   configure|upgrade|1|2)
-    
-    SOURCE=/tmp/notes.yml
+
     TARGET=/usr/local/bigbluebutton/core/scripts/notes.yml
 
-    if [ -f $SOURCE ]; then
-      #
-      # upgrade, so let's propagate values
-
-      TMP=$(mktemp)
-      yq m -x $TARGET $SOURCE > $TMP
-      cat $TMP > $TARGET
-
-      mv -f $SOURCE "${SOURCE}_"
-    fi
-   
     chmod +r $TARGET
  
     mkdir -p /var/bigbluebutton/published/notes

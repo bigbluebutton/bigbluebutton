@@ -23,6 +23,7 @@ trait TestFixtures {
   val autoStartRecording = false
   val allowStartStopRecording = false
   val webcamsOnlyForModerator = false
+  val userCameraCap = 0
   val moderatorPassword = "modpass"
   val viewerPassword = "viewpass"
   val learningDashboardAccessToken = "ldToken"
@@ -56,10 +57,9 @@ trait TestFixtures {
     modOnlyMessage = modOnlyMessage)
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
+    userCameraCap = userCameraCap,
     guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, allowModsToEjectCameras = allowModsToEjectCameras, authenticatedGuest = authenticatedGuest)
   val metadataProp = new MetadataProp(metadata)
-  val screenshareProps = ScreenshareProps(screenshareConf = "FixMe!", red5ScreenshareIp = "fixMe!",
-    red5ScreenshareApp = "fixMe!")
   val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
-    usersProp, metadataProp, screenshareProps)
+    usersProp, metadataProp)
 }

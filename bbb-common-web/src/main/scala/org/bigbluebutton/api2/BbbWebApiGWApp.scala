@@ -19,14 +19,11 @@ import org.bigbluebutton.common2.redis._
 import org.bigbluebutton.common2.bus._
 
 class BbbWebApiGWApp(
-    val oldMessageReceivedGW:        OldMessageReceivedGW,
-    val screenshareRtmpServer:       String,
-    val screenshareRtmpBroadcastApp: String,
-    val screenshareConfSuffix:       String,
-    redisHost:                       String,
-    redisPort:                       Int,
-    redisPassword:                   String,
-    redisExpireKey:                  Int
+    val oldMessageReceivedGW: OldMessageReceivedGW,
+    redisHost:                String,
+    redisPort:                Int,
+    redisPassword:            String,
+    redisExpireKey:           Int
 ) extends IBbbWebApiGWApp with SystemConfiguration {
 
   implicit val system = ActorSystem("bbb-web-common")
@@ -125,7 +122,8 @@ class BbbWebApiGWApp(
                     recorded: java.lang.Boolean, voiceBridge: String, duration: java.lang.Integer,
                     autoStartRecording:      java.lang.Boolean,
                     allowStartStopRecording: java.lang.Boolean, webcamsOnlyForModerator: java.lang.Boolean,
-                    moderatorPass: String, viewerPass: String, learningDashboardEnabled: java.lang.Boolean, learningDashboardAccessToken: String,
+                    userCameraCap: java.lang.Integer,
+                    moderatorPass: String, viewerPass: String, learningDashboardAccessToken: String,
                     createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean,
                     sequence: java.lang.Integer,
                     freeJoin: java.lang.Boolean,
@@ -157,7 +155,6 @@ class BbbWebApiGWApp(
       extId = extMeetingId,
       intId = meetingId,
       isBreakout = isBreakout.booleanValue(),
-      learningDashboardEnabled = learningDashboardEnabled.booleanValue(),
       disabledFeaturesAsVector
     )
 
@@ -191,15 +188,11 @@ class BbbWebApiGWApp(
       modOnlyMessage = modOnlyMessage)
     val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber, muteOnStart = muteOnStart.booleanValue())
     val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
+      userCameraCap = userCameraCap.intValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
       allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
       authenticatedGuest = authenticatedGuest.booleanValue(), virtualBackgroundsDisabled = virtualBackgroundsDisabled.booleanValue())
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
-    val screenshareProps = ScreenshareProps(
-      screenshareConf = voiceBridge + screenshareConfSuffix,
-      red5ScreenshareIp = screenshareRtmpServer,
-      red5ScreenshareApp = screenshareRtmpBroadcastApp
-    )
 
     val lockSettingsProps = LockSettingsProps(
       disableCam = lockSettingsParams.disableCam.booleanValue(),
@@ -229,7 +222,6 @@ class BbbWebApiGWApp(
       voiceProp,
       usersProp,
       metadataProp,
-      screenshareProps,
       lockSettingsProps,
       systemProps,
       groupsAsVector

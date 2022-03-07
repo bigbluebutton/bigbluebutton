@@ -15,6 +15,7 @@ exports.lowerHandBtn = 'button[data-test="lowerHandLabel"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
 exports.logout = 'li[data-test="logout"]';
 exports.rating = 'div[data-test="rating"]';
+exports.errorScreenMessage = 'h1[data-test="errorScreenMessage"]';
 // Accesskey
 exports.chatButtonKey = 'div[accesskey="P"]';
 exports.userListButton = 'button[accesskey="U"]';

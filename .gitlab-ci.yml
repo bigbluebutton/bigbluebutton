@@ -11,7 +11,7 @@ stages:
 
 # define which docker image to use for builds
 default:
-  image: gitlab.senfcall.de:5050/senfcall-public/docker-bbb-build:v2022-02-08-bbb-2.5
+  image: gitlab.senfcall.de:5050/senfcall-public/docker-bbb-build:v2022-03-02
 
 # This stage uses git to find out since when each package has been unmodified.
 # it then checks an API endpoint on the package server to find out for which of

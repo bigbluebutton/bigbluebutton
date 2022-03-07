@@ -24,6 +24,7 @@ import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import { colorContentBackground } from '/imports/ui/stylesheets/styled-components/palette';
 import browserInfo from '/imports/utils/browserInfo';
+import PresentationMenu from './presentation-menu/container';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -450,31 +451,6 @@ class Presentation extends PureComponent {
     zoomSlide(currentSlide.num, podId, w, h, x, y);
   }
 
-  renderPresentationClose() {
-    const { isFullscreen } = this.state;
-    const {
-      layoutType,
-      fullscreenContext,
-      layoutContextDispatch,
-      isIphone,
-    } = this.props;
-
-    if (!OLD_MINIMIZE_BUTTON_ENABLED
-      || !shouldEnableSwapLayout()
-      || isFullscreen
-      || fullscreenContext
-      || layoutType === LAYOUT_TYPE.PRESENTATION_FOCUS) {
-      return null;
-    }
-    return (
-      <PresentationCloseButton
-        toggleSwapLayout={MediaService.toggleSwapLayout}
-        layoutContextDispatch={layoutContextDispatch}
-        isIphone={isIphone}
-      />
-    );
-  }
-
   renderOverlays(slideObj, svgDimensions, viewBoxPosition, viewBoxDimensions, physicalDimensions) {
     const {
       userIsPresenter,
@@ -612,9 +588,8 @@ class Presentation extends PureComponent {
         }}
       >
         <Styled.VisuallyHidden id="currentSlideText">{slideContent}</Styled.VisuallyHidden>
-        {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
-        {this.renderPresentationFullscreen()}
+        {this.renderPresentationMenu()}
         <Styled.PresentationSvg
           key={currentSlide.id}
           data-test="whiteboard"
@@ -747,23 +722,23 @@ class Presentation extends PureComponent {
     );
   }
 
-  renderPresentationFullscreen() {
+  renderPresentationMenu() {
     const {
       intl,
       fullscreenElementId,
+      layoutContextDispatch,
     } = this.props;
     const { isFullscreen } = this.state;
 
-    if (!ALLOW_FULLSCREEN) return null;
-
     return (
-      <Styled.PresentationFullscreenButton
+      <PresentationMenu
         fullscreenRef={this.refPresentationContainer}
+        screenshotRef={this.getSvgRef()}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
         isFullscreen={isFullscreen}
-        color="muted"
-        fullScreenStyle={false}
+        toggleSwapLayout={MediaService.toggleSwapLayout}
+        layoutContextDispatch={layoutContextDispatch}
       />
     );
   }
