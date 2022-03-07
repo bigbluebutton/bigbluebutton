@@ -57,10 +57,6 @@ const LayoutModalComponent = (props) => {
       id: 'app.layout.modal.keepPushingLayoutLabel',
       description: 'Keep push layout Label',
     },
-    pushLayoutLabel: {
-      id: 'app.layout.modal.pushLayoutLabel',
-      description: 'Push layout Label',
-    },
     customLayout: {
       id: 'app.layout.style.custom',
       description: 'label for custom layout style',
@@ -81,10 +77,6 @@ const LayoutModalComponent = (props) => {
 
   const handleSwitchLayout = (e) => {
     setSelectedLayout(e);
-  };
-
-  const handlePushLayout = () => {
-    setPushLayout((value) => !value);
   };
 
   const handleKeepPushingLayout = () => {
@@ -111,8 +103,8 @@ const LayoutModalComponent = (props) => {
     }
     if (isKeepPushingLayoutEnabled) {
       return (
-        <div>
-          <label htmlFor="TogglePush">
+        <div className={styles.pushContainer}>
+          <label htmlFor="TogglePush" className={styles.labelPushLayout}>
             {intl.formatMessage(intlMessages.keepPushingLayoutLabel)}
           </label>
           <Toggle
@@ -126,19 +118,6 @@ const LayoutModalComponent = (props) => {
         </div>
       );
     }
-    return (
-      <div className={styles.pushContainer}>
-        <label htmlFor="checkPushLayout" className={styles.labelPushLayout}>
-          {intl.formatMessage(intlMessages.pushLayoutLabel)}
-        </label>
-        <input
-          id="checkPushLayout"
-          type="checkbox"
-          defaultChecked={false}
-          onChange={handlePushLayout}
-        />
-      </div>
-    );
   };
 
   const renderLayoutButtons = () => (

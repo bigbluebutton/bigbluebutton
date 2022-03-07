@@ -482,7 +482,8 @@ public:
   layout:
     hidePresentation: false
     showParticipantsOnLogin: true
-    layoutControlInActionsMenu: true
+    showPushLayoutButton: true
+    showPushLayoutToggle: true
   pads:
     url: ETHERPAD_HOST
     cookie:

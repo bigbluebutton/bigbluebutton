@@ -30,7 +30,7 @@ const showGuestNotification = () => {
 };
 
 const isKeepPushingLayoutEnabled = () => {
-  const KEEP_PUSHING_ENABLED = Meteor.settings.public.app.pushLayoutToEveryone.keepPushing;
+  const KEEP_PUSHING_ENABLED = Meteor.settings.public.layout.showPushLayoutToggle;
   return getFromMeetingSettingsAsBoolean('enable-keep-pushing', KEEP_PUSHING_ENABLED);
 };
 
