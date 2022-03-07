@@ -793,6 +793,7 @@ class Presentation extends PureComponent {
       numCameras,
       currentPresentation,
       layoutSwapped,
+      layoutContextDispatch,
     } = this.props;
 
     const {
@@ -841,6 +842,7 @@ class Presentation extends PureComponent {
           {
           ...presentationBounds
           }
+          layoutContextDispatch={layoutContextDispatch}
           setPresentationRef={this.setPresentationRef}
         />
       );
