@@ -44,7 +44,8 @@ const LayoutEngine = ({ layoutType }) => {
   };
 
   const baseCameraDockBounds = (mediaAreaBounds, sidebarSize) => {
-    const { isOpen } = presentationInput;
+    const { isOpen, currentSlide } = presentationInput;
+    const { num: currentSlideNumber } = currentSlide;
 
     const cameraDockBounds = {};
 
@@ -55,7 +56,9 @@ const LayoutEngine = ({ layoutType }) => {
       return cameraDockBounds;
     }
 
-    if (!isOpen) {
+    const isSmartLayout = (layoutType === LAYOUT_TYPE.SMART_LAYOUT);
+
+    if (!isOpen || (isSmartLayout && currentSlideNumber === 0)) {
       cameraDockBounds.width = mediaAreaBounds.width;
       cameraDockBounds.maxWidth = mediaAreaBounds.width;
       cameraDockBounds.height = mediaAreaBounds.height - bannerAreaHeight();
