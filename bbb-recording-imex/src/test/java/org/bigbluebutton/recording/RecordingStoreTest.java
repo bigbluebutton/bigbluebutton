@@ -17,8 +17,9 @@ public class RecordingStoreTest {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordingStoreTest.class);
 
-    private String metadataDirectory = "./metadata";
-    private final RecordingImportHandler handler = RecordingImportHandler.getInstance();
+    private String metadataDirectory = "metadata";
+    private final RecordingImportHandler importHandler = RecordingImportHandler.getInstance();
+    private final RecordingExportHandler exportHandler = RecordingExportHandler.getInstance();
     private DataStore dataStore;
 
     @BeforeAll
@@ -31,7 +32,7 @@ public class RecordingStoreTest {
     @Order(1)
     public void testPersist() {
         dataStore = DataStore.getInstance();
-        handler.importRecordings(metadataDirectory, true);
+        importHandler.importRecordings(metadataDirectory, true);
         List<Recording> recordings = dataStore.findAll(Recording.class);
         String[] entries = new File(metadataDirectory).list();
 
@@ -60,5 +61,20 @@ public class RecordingStoreTest {
             Recording recording = dataStore.findRecordingByRecordId(entry);
             assertTrue(recording != null);
         }
+    }
+
+    @Test
+    @DisplayName("Records should be properly exported")
+    @Order(3)
+    public void testExportRecording() {
+        dataStore = DataStore.getInstance();
+        String metadataDirectory = "metadata-export";
+
+        exportHandler.exportRecordings(metadataDirectory);
+
+        String[] entries = new File(metadataDirectory).list();
+        List<Recording> recordings = dataStore.findAll(Recording.class);
+
+        assertEquals(entries.length, recordings.size());
     }
 }

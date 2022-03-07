@@ -21,7 +21,7 @@ public class RecordingImportHandlerTest {
     @Test
     @DisplayName("RecordIDs should be properly parsed")
     public void testParseRecordId() {
-        String metadataDirectory = "./metadata";
+        String metadataDirectory = "metadata";
 
         String[] entries = new File(metadataDirectory).list();
         Set<String> ids = new HashSet<>();
@@ -33,7 +33,7 @@ public class RecordingImportHandlerTest {
 
         for (String entry : entries) {
             String path = metadataDirectory + "/" + entry + "/metadata.xml";
-            Recording recording = handler.importRecording(path, entry);
+            Recording recording = handler.importRecording(path, entry, false);
             ids.add(recording.getRecordId());
             assertEquals(entry, recording.getRecordId());
         }

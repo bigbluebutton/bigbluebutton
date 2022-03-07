@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 public class RecordingImportHandler {
 
@@ -56,13 +57,11 @@ public class RecordingImportHandler {
             }
 
             String path = directory + "/" + entry + "/metadata.xml";
-            recording = importRecording(path, entry);
-            if (persist)
-                dataStore.save(recording);
+            importRecording(path, entry, persist);
         }
     }
 
-    public Recording importRecording(String path, String recordId) {
+    public Recording importRecording(String path, String recordId, boolean persist) {
         logger.info("Attempting to import {}", path);
 
         String content = null;
@@ -98,6 +97,9 @@ public class RecordingImportHandler {
                 recording.setRecordId(recordId);
         }
 
+        if (persist)
+            dataStore.save(recording);
+
         return recording;
     }
 
@@ -128,9 +130,9 @@ public class RecordingImportHandler {
 
         try {
             recording.setStartTime(
-                    LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(startTime)), ZoneId.systemDefault()));
-            recording.setEndTime(
-                    LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(endTime)), ZoneId.systemDefault()));
+                    LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(startTime)), ZoneOffset.UTC));
+            recording
+                    .setEndTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(endTime)), ZoneOffset.UTC));
             recording.setParticipants(Integer.parseInt(participants));
         } catch (NumberFormatException e) {
         }
@@ -169,9 +171,7 @@ public class RecordingImportHandler {
     }
 
     private PlaybackFormat parsePlaybackFormat(Document recordingDocument) {
-        Node playbackNode = recordingDocument.getElementsByTagName("playback").item(0);
         PlaybackFormat playback = new PlaybackFormat();
-        Element playbackElement = (Element) playbackNode;
 
         String format = getNodeData(recordingDocument, "format");
         playback.setFormat(format);
@@ -229,7 +229,7 @@ public class RecordingImportHandler {
     }
 
     private String getNodeData(Document document, String tag) {
-        String data = "";
+        String data = null;
         if (!tagExists(document, tag))
             return data;
 

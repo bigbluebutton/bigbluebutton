@@ -2,14 +2,19 @@ package org.bigbluebutton.api.model.entity;
 
 import javax.persistence.*;
 import java.util.Objects;
+import com.thoughtworks.xstream.annotations.*;
+import org.bigbluebutton.api.util.converter.MetadataConverter;
 
 @Entity
 @Table(name = "metadata")
+@XStreamAlias("metadata")
+@XStreamConverter(MetadataConverter.class)
 public class Metadata {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @XStreamOmitField
     private Long id;
 
     @Column(name = "key")
@@ -20,6 +25,7 @@ public class Metadata {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "recording_id", referencedColumnName = "id")
+    @XStreamOmitField
     private Recording recording;
 
     public Long getId() { return id; }
