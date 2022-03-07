@@ -15,7 +15,9 @@ const getSelectedAnnotations = () => {
 
 const deselect = (annotationsToDeselect) => {
   selectedAnnotations = selectedAnnotations
-    .filter((annotation) => annotationsToDeselect.includes(annotation));
+    .filter((annotation) => !(annotationsToDeselect.constructor === Array
+      ? annotationsToDeselect.includes(annotation.id)
+      : annotationsToDeselect === annotation.id));
   selectionDep.changed();
 };
 
