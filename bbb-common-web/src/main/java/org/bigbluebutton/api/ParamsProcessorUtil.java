@@ -373,10 +373,8 @@ public class ParamsProcessorUtil {
 
                             Vector<String> groupUsers = new Vector<>();
                             if(groupJsonObj.has("roster") && groupJsonObj.get("roster").isJsonArray()) {
-                                for (JsonElement jsonElementUser : groupJsonObj.get("roster").getAsJsonArray()) {
-                                    if(jsonElementUser.isJsonObject() && jsonElementUser.getAsJsonObject().has("id")) {
-                                        groupUsers.add(jsonElementUser.getAsJsonObject().get("id").getAsString());
-                                    }
+                                for (JsonElement userExtId : groupJsonObj.get("roster").getAsJsonArray()) {
+                                    groupUsers.add(userExtId.getAsString());
                                 }
                             }
                             groups.add(new Group(groupId,groupName,groupUsers));
