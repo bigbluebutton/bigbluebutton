@@ -16,11 +16,6 @@ case "$1" in
                 cp /opt/freeswitch/etc/freeswitch/vars.xml /tmp/vars.xml
         fi
 
-        rm -f /tmp/verto.conf.xml
-        if [ -f /opt/freeswitch/conf/autoload_configs/verto.conf.xml ]; then
-                cp /opt/freeswitch/conf/autoload_configs/verto.conf.xml /tmp/verto.conf.xml
-        fi
-
         rm -f /tmp/event_socket.conf.xml
         if [ -f /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml ]; then
                 cp /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml /tmp/event_socket.conf.xml

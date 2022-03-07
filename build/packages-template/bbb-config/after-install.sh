@@ -79,10 +79,6 @@ if [ -f /usr/share/bbb-apps-akka/conf/application.conf ]; then
   fi
 fi
 
-if [ -d /var/bigbluebutton/screenshare ]; then
-  chown red5:red5 /var/bigbluebutton/screenshare
-fi
-
 #
 # Added to enable bbb-record-core to move files #8901
 #
@@ -102,10 +98,6 @@ fi
 
 if [ -d /var/kurento/screenshare ]; then 
   chmod 0775 /var/kurento/screenshare
-fi
-
-if [ -f /usr/lib/systemd/system/red5.service ]; then
-  chown root:root /usr/lib/systemd/system/red5.service
 fi
 
 # Verify mediasoup raw media directories ownership and perms
