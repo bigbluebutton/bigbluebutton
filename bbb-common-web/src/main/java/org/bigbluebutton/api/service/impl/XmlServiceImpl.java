@@ -29,6 +29,7 @@ import org.w3c.dom.Node;
 public class XmlServiceImpl implements XmlService {
 
     private static Logger logger = LoggerFactory.getLogger(XmlServiceImpl.class);
+    private static Logger log = LoggerFactory.getLogger(MeetingService.class);
 
     private DocumentBuilderFactory factory;
     private DocumentBuilder builder;
@@ -37,7 +38,6 @@ public class XmlServiceImpl implements XmlService {
     public String recordingToXml(Recording recording) {
         logger.info("Converting {} to xml", recording);
         try {
-
             setup();
             Document document = builder.newDocument();
 
@@ -88,6 +88,7 @@ public class XmlServiceImpl implements XmlService {
     @Override
     public String metadataToXml(Metadata metadata) {
         logger.info("Converting {} to xml", metadata);
+
         try {
             setup();
             Document document = builder.newDocument();
@@ -108,6 +109,7 @@ public class XmlServiceImpl implements XmlService {
     @Override
     public String playbackFormatToXml(PlaybackFormat playbackFormat) {
         logger.info("Converting {} to xml", playbackFormat);
+
         try {
             setup();
             Document document = builder.newDocument();
@@ -137,12 +139,14 @@ public class XmlServiceImpl implements XmlService {
         } catch(Exception e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
     @Override
     public String thumbnailToXml(Thumbnail thumbnail) {
         logger.info("Converting {} to xml", thumbnail);
+
         try {
             setup();
             Document document = builder.newDocument();
@@ -164,6 +168,7 @@ public class XmlServiceImpl implements XmlService {
     @Override
     public String callbackDataToXml(CallbackData callbackData) {
         logger.info("Converting {} to xml", callbackData);
+
         try {
             setup();
             Document document = builder.newDocument();
