@@ -10,7 +10,7 @@ function SelectionModification(props) {
   const selectoRef = React.useRef(null);
 
   const {
-    tool, userIsPresenter, whiteboardId, svgDimensions, selection,
+    tool, userIsPresenter, whiteboardId, svgDimensions, selection, isMultiUserActive,
   } = props;
 
   useEffect(() => {
@@ -89,7 +89,7 @@ function SelectionModification(props) {
 
   return (
     <>
-      {userIsPresenter ? (
+      {userIsPresenter || isMultiUserActive ? (
         <Moveable
           origin={false}
           draggable={false}
@@ -105,7 +105,7 @@ function SelectionModification(props) {
       <Selecto
         // disable selecto on other tools and if user is presenter
         dragCondition={({ inputEvent }) => tool === 'selection'
-            && userIsPresenter
+            && (userIsPresenter || isMultiUserActive)
             // disable Selecto on fullscreen button to preserve selection
             && ![inputEvent.target.tagName, inputEvent.target.parentNode?.tagName].includes('BUTTON')}
         boundContainer="#slideSVG"
@@ -136,6 +136,7 @@ SelectionModification.propTypes = {
   userIsPresenter: PropTypes.bool.isRequired,
   whiteboardId: PropTypes.string.isRequired,
   selection: PropTypes.arrayOf(PropTypes.object).isRequired,
+  isMultiUserActive: PropTypes.bool.isRequired,
 };
 
 export default SelectionModification;
