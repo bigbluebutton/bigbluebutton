@@ -2,12 +2,9 @@ package org.bigbluebutton.api.model.entity;
 
 import javax.persistence.*;
 import java.util.Objects;
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 @Entity
 @Table(name = "thumbnails")
-@XStreamAlias("thumbnail")
 public class Thumbnail implements Comparable<Thumbnail> {
 
     @Id
@@ -32,7 +29,6 @@ public class Thumbnail implements Comparable<Thumbnail> {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "playback_format_id", referencedColumnName = "id")
-    @XStreamOmitField
     private PlaybackFormat playbackFormat;
 
     public Long getId() { return id; }

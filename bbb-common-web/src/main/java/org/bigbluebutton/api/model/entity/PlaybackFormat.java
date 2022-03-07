@@ -4,12 +4,9 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 @Entity
 @Table(name = "playback_formats")
-@XStreamAlias("playback")
 public class PlaybackFormat {
 
     @Id
@@ -31,7 +28,6 @@ public class PlaybackFormat {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "recording_id", referencedColumnName = "id")
-    @XStreamOmitField
     private Recording recording;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "playbackFormat", fetch = FetchType.EAGER)
