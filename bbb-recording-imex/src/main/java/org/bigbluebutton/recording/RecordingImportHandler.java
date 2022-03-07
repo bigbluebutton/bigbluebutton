@@ -229,7 +229,7 @@ public class RecordingImportHandler {
     }
 
     private String getNodeData(Document document, String tag) {
-        String data = "";
+        String data = null;
         if (!tagExists(document, tag))
             return data;
 

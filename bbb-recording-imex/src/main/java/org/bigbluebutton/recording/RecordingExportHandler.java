@@ -1,16 +1,29 @@
 package org.bigbluebutton.recording;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
-import com.thoughtworks.xstream.io.xml.StaxDriver;
 import org.bigbluebutton.api.model.entity.Recording;
 import org.bigbluebutton.api.util.DataStore;
+import org.bigbluebutton.api.service.XmlService;
+import org.bigbluebutton.api.service.impl.XmlServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
-import java.io.BufferedWriter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.StringReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -21,9 +34,11 @@ public class RecordingExportHandler {
 
     private static RecordingExportHandler instance;
     private DataStore dataStore;
+    private XmlService xmlService;
 
     private RecordingExportHandler() {
         dataStore = DataStore.getInstance();
+        xmlService = new XmlServiceImpl();
     }
 
     public static RecordingExportHandler getInstance() {
@@ -71,13 +86,36 @@ public class RecordingExportHandler {
             if (fileCreated) {
                 logger.info("Exporting {}", recording);
 
-                BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                XStream xStream = new XStream(new StaxDriver());
-                xStream.processAnnotations(Recording.class);
-                xStream.marshal(recording, new PrettyPrintWriter(writer));
+                String xml = xmlService.recordingToXml(recording);
+
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+                document.normalize();
+                XPath xPath = XPathFactory.newInstance().newXPath();
+                NodeList nodeList = (NodeList) xPath.evaluate("//text()[normalize-space()='']", document,
+                        XPathConstants.NODESET);
+
+                for (int i = 0; i < nodeList.getLength(); i++) {
+                    Node node = nodeList.item(i);
+                    node.getParentNode().removeChild(node);
+                }
+
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                Transformer transformer = transformerFactory.newTransformer();
+                transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+                transformer.setOutputProperty(OutputKeys.STANDALONE, "no");
+                DOMSource source = new DOMSource(document);
+
+                StreamResult result = new StreamResult(file);
+                transformer.transform(source, result);
             }
         } catch (Exception e) {
             logger.error("Failed to export recording {}", recording.getRecordId());
+            e.printStackTrace();
         }
     }
 }

@@ -15,7 +15,5 @@ Imports and parses recordings metadata.xml files and stores the data in a Postgr
    - Edit the "metadataDirectory" variables in the test files to point to where the recording metadata can be found
    - Run the unit tests using the command "mvn test"
    - To use the main program compile it with "mvn package" which will generate two jars in the target directory
-   - The program accepts two arguments: the path to the directory containing metadata files and boolean value to determine if the parsed recordings
-     should be persisted or not
    - Run the program with the run.sh script
  

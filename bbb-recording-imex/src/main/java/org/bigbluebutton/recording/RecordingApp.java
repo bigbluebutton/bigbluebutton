@@ -8,52 +8,58 @@ public class RecordingApp {
     public static void main(String[] args) {
         System.out.println("Use this application to import and export recording metadata");
 
-        int impex = getResponse("Are you importing or exporting recordings (1-Import 2-Export):", new int[] { 1, 2 },
-                "Please enter either 1 or 2");
+        do {
+            int impex = getResponse("Are you importing or exporting recordings? (1-Import 2-Export 3-Quit) ",
+                    new int[] { 1, 2, 3 }, "Please enter either 1, 2, or 3");
 
-        if (impex == 1) {
-            importRecordings();
-        } else {
-            exportRecordings();
-        }
+            if (impex == 1) {
+                importRecordings();
+            } else if (impex == 2) {
+                exportRecordings();
+            } else {
+                break;
+            }
+        } while (true);
     }
 
     private static void importRecordings() {
         RecordingImportHandler handler = RecordingImportHandler.getInstance();
-        int importIndividually = getResponse("Are you importing recordings individually (1-Yes 2-No)?",
+        int importIndividually = getResponse("Are you importing recordings individually? (1-Yes 2-No) ",
                 new int[] { 1, 2 }, "Please enter either 1 or 2");
-        int persist = getResponse("Should the imported recording(s) be persisted (1-Yes 2-No)?", new int[] { 1, 2 },
+        int persist = getResponse("Should the imported recording(s) be persisted? (1-Yes 2-No) ", new int[] { 1, 2 },
                 "Please enter either 1 or 2");
         boolean shouldPersist = persist == 1;
 
         if (importIndividually == 1) {
             do {
                 String path = getResponse(
-                        "Please enter the path to the recording metadata.xml file (enter q to quit):");
-                String recordingId = getResponse("Please enter the ID of the recording:");
+                        "Please enter the path to the recording metadata.xml file (enter q to quit): ");
+
                 if (path.equalsIgnoreCase("q") || path.equalsIgnoreCase("quit"))
                     break;
+
+                String recordingId = getResponse("Please enter the ID of the recording: ");
                 handler.importRecording(path, recordingId, shouldPersist);
             } while (true);
         } else {
-            String path = getResponse("Please enter the path to the directory containing the metadata.xml files:");
+            String path = getResponse("Please enter the path to the directory containing the metadata.xml files: ");
             handler.importRecordings(path, shouldPersist);
         }
     }
 
     private static void exportRecordings() {
         RecordingExportHandler handler = RecordingExportHandler.getInstance();
-        int exportAll = getResponse("Do you want to export all recordings (1-Yes 2-No)?", new int[] { 1, 2 },
+        int exportAll = getResponse("Do you want to export all recordings? (1-Yes 2-No) ", new int[] { 1, 2 },
                 "Please enter either 1 or 2");
-        String path = getResponse("Please enter the path to the directory that the recordings should be exported to");
+        String path = getResponse("Please enter the path to the directory that the recordings should be exported to: ");
 
         if (exportAll == 1) {
             handler.exportRecordings(path);
         } else {
             do {
                 String response = getResponse(
-                        "Please enter the ID of the recording you would like to export (enter q to quit):");
-                if (response.equalsIgnoreCase("q") || response.equalsIgnoreCase("quite"))
+                        "Please enter the ID of the recording you would like to export (enter q to quit): ");
+                if (response.equalsIgnoreCase("q") || response.equalsIgnoreCase("quit"))
                     break;
                 handler.exportRecording(response, path);
             } while (true);
@@ -67,7 +73,7 @@ public class RecordingApp {
         do {
             response = console.readLine(prompt);
             result = parseResponse(response, error);
-        } while (contains(options, result));
+        } while (!contains(options, result));
 
         return result;
     }

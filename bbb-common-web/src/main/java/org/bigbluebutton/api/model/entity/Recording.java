@@ -6,7 +6,9 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.*;
+import com.thoughtworks.xstream.hibernate.converter.HibernatePersistentCollectionConverter;
+import org.bigbluebutton.api.util.converter.LocalDateTimeConverter;
 
 @Entity
 @Table(name = "recordings")
@@ -16,6 +18,7 @@ public class Recording {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @XStreamOmitField
     private Long id;
 
     @Column(name = "record_id")
@@ -37,12 +40,15 @@ public class Recording {
     private String state;
 
     @Column(name = "start_time")
+    @XStreamConverter(LocalDateTimeConverter.class)
     private LocalDateTime startTime;
 
     @Column(name = "end_time")
+    @XStreamConverter(LocalDateTimeConverter.class)
     private LocalDateTime endTime;
 
     @Column(name = "deleted_at")
+    @XStreamConverter(LocalDateTimeConverter.class)
     private LocalDateTime deletedAt;
 
     @Column(name = "publish_updated")
@@ -53,6 +59,7 @@ public class Recording {
 
     @OneToMany(mappedBy = "recording", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @XStreamAlias("meta")
+    @XStreamConverter(HibernatePersistentCollectionConverter.class)
     private Set<Metadata> metadata;
 
     @OneToOne(mappedBy = "recording", cascade = CascadeType.ALL)
