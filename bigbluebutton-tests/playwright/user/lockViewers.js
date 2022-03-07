@@ -95,8 +95,7 @@ class LockViewers extends MultiUsers {
     await this.userPage.waitAndClick(e.sharedNotes);
     await this.userPage.waitAndClick(e.sharedNotes);
     // tries to type, but the element is not editable
-    await sharedNotesLocator.type(e.testMessage, { timeout: ELEMENT_WAIT_TIME });
-    await expect(sharedNotesLocator).not.toContainText(e.testMessage, { timeout: ELEMENT_WAIT_TIME });
+    await this.userPage.wasRemoved(e.etherpadFrame);
   }
 
   async lockSeeOtherViewersUserList() {

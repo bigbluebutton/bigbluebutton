@@ -69,6 +69,7 @@ class Page {
   async shareWebcam(shouldConfirmSharing = true, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
     await this.waitAndClick(e.joinVideo);
     if (shouldConfirmSharing) {
+      await this.bringToFront();
       await this.waitForSelector(e.videoPreview, videoPreviewTimeout);
       await this.waitAndClick(e.startSharingWebcam);
     }
