@@ -240,14 +240,14 @@ const VideoFocusLayout = (props) => {
       mediaBounds.left = mediaAreaBounds.left;
       mediaBounds.top = mediaAreaBounds.top + cameraDockBounds.height;
       mediaBounds.width = mediaAreaBounds.width;
-    } else if (cameraDockInput.numCameras > 0) {
+    } else if (cameraDockInput.numCameras > 0 && presentationInput.isOpen) {
       mediaBounds.height = windowHeight() - sidebarContentHeight - bannerAreaHeight();
       mediaBounds.left = !isRTL ? sidebarNavWidth : 0;
       mediaBounds.right = isRTL ? sidebarNavWidth : 0;
       mediaBounds.top = sidebarContentHeight + bannerAreaHeight();
       mediaBounds.width = sidebarContentWidth;
       mediaBounds.zIndex = 1;
-    } else if (!input.presentation.isOpen) {
+    } else if (!presentationInput.isOpen) {
       mediaBounds.width = 0;
       mediaBounds.height = 0;
       mediaBounds.top = 0;
