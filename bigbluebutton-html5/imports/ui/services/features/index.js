@@ -1,6 +1,5 @@
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
-import { Meteor } from 'meteor/meteor';
 
 export function getDisabledFeatures() {
   const selector = {
