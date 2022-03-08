@@ -4,7 +4,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { LAYOUT_TYPE, LAYOUT_TYPE_MOBILE } from '/imports/ui/components/layout/enums';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import SettingsService from '/imports/ui/components/settings/service';
-import LayoutService from '/imports/ui/components/layout/service';
 import Modal from '/imports/ui/components/modal/simple/component';
 import Toggle from '/imports/ui/components/switch/component';
 import Button from '/imports/ui/components/button/component';
@@ -23,7 +22,6 @@ const LayoutModalComponent = (props) => {
   } = props;
 
   const [selectedLayout, setSelectedLayout] = useState(application.selectedLayout);
-  const [pushLayout, setPushLayout] = useState(false);
   // eslint-disable-next-line react/prop-types
   const [isKeepPushingLayout, setIsKeepPushingLayout] = useState(application.pushLayout);
 
@@ -89,10 +87,6 @@ const LayoutModalComponent = (props) => {
       { ...application, selectedLayout, pushLayout: isKeepPushingLayout },
     };
 
-    if (pushLayout) {
-      LayoutService.setMeetingLayout({ layout: selectedLayout });
-    }
-
     updateSettings(obj, intl.formatMessage(intlMessages.layoutToastLabel));
     closeModal();
   };
@@ -118,6 +112,7 @@ const LayoutModalComponent = (props) => {
         </div>
       );
     }
+    return null;
   };
 
   const renderLayoutButtons = () => (
