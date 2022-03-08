@@ -4,7 +4,6 @@ import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
 import axios from 'axios';
-import _ from 'lodash';
 
 const PADS_CONFIG = Meteor.settings.public.pads;
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
@@ -115,30 +114,24 @@ async function convertAndUpload(externalId) {
   }
 
   let sharedNotesData = new File([exportedSharedNotes.data], "SharedNotes.pdf", { lastModified: Date.now, type: 'application/pdf' });
+  let presentationUploadToken = await PresentationUploaderService.requestPresentationUploadToken('DEFAULT_PRESENTATION_POD', Auth.meetingID, "SharedNotes.pdf");
 
-  const id = _.uniqueId(sharedNotesData.fileName);
-  
-  let presentation = [{
-    file: sharedNotesData,
-    isDownloadable: false,
-    isRemovable: true,
-    id: id,
-    filename: "SharedNotes",
-    isCurrent: true,
-    conversion: { done: false, error: false },
-    upload: { done: false, error: false, progress: 0 },
-    onProgress: (event) => {},
-    onConversion: (conversion) => {},
-    onUpload: (upload) => {},
-    onDone: (newId) => {},
-  }]
+  let formData = new FormData();
 
-  PresentationUploaderService.uploadAndConvertPresentations(
-    presentation,
-    Auth.meetingID,
-    'DEFAULT_PRESENTATION_POD',
-    PRESENTATION_CONFIG.uploadEndpoint,
-  );
+  formData.append('presentation_name', 'SharedNotes.pdf');
+  formData.append('Filename', 'SharedNotes.pdf');
+  formData.append('conference', Auth.meetingID);
+  formData.append('room', Auth.meetingID);
+  formData.append('pod_id', 'DEFAULT_PRESENTATION_POD');
+  formData.append('is_downloadable', false);
+  formData.append('fileUpload', sharedNotesData);
+
+  axios({
+    method: "post",
+    url: PRESENTATION_CONFIG.uploadEndpoint.replace('upload', `${presentationUploadToken}/upload`),
+    data: formData,
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 
   return null;
 }
