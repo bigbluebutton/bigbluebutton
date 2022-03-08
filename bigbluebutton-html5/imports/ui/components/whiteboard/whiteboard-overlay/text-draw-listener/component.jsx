@@ -447,6 +447,7 @@ export default class TextDrawListener extends Component {
     const {
       normalizeFont,
       sendAnnotation,
+      sendLiveSyncPreviewAnnotation,
     } = actions;
 
     const {
@@ -478,7 +479,7 @@ export default class TextDrawListener extends Component {
       position: 0,
     };
 
-    sendAnnotation(annotation, whiteboardId);
+    sendLiveSyncPreviewAnnotation(annotation, whiteboardId);
   }
 
   discardAnnotation() {
@@ -591,6 +592,8 @@ TextDrawListener.propTypes = {
     normalizeFont: PropTypes.func.isRequired,
     // Defines a function which we use to publish a message to the server
     sendAnnotation: PropTypes.func.isRequired,
+    // Defines a function to wich we use to publish a message to the server
+    sendLiveSyncPreviewAnnotation: PropTypes.func.isRequired,
     // Defines a function which resets the current state of the text shape drawing
     resetTextShapeSession: PropTypes.func.isRequired,
     // Defines a function that sets a session value for the current active text shape
