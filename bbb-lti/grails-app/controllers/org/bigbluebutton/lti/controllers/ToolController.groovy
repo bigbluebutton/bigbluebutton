@@ -354,13 +354,18 @@ class ToolController {
     }
 
     private List<Object> sanitizeThumbnails(Object format) {
-        if (format.preview == null || format.preview.images == null || format.preview.images.image == null) {
+        try {
+            if (format.preview == null || format.preview.images == null || format.preview.images.image == null) {
+                return new ArrayList()
+            }
+            if (format.preview.images.image instanceof Map<?,?>) {
+                return new ArrayList(format.preview.images.image)
+            }
+            return format.preview.images.image
+        } catch( Exception e ) {
+            log.debug "Exception error: " + e.message
             return new ArrayList()
         }
-        if (format.preview.images.image instanceof Map<?,?>) {
-            return new ArrayList(format.preview.images.image)
-        }
-        return format.preview.images.image
     }
 
     private String getCartridgeXML(){
