@@ -19,3 +19,7 @@ export function isScreenSharingEnabled() {
 export function isLearningDashboardEnabled() {
   return getDisabledFeatures().indexOf('learningDashboard') === -1;
 }
+
+export function isPollingEnabled() {
+  return getDisabledFeatures().indexOf('polls') === -1 && Meteor.settings.public.poll.enabled;
+}
