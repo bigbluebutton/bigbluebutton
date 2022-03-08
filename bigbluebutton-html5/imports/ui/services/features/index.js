@@ -1,5 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
+import { Meteor } from 'meteor/meteor';
 
 export function getDisabledFeatures() {
   const selector = {
@@ -18,4 +19,8 @@ export function isScreenSharingEnabled() {
 
 export function isLearningDashboardEnabled() {
   return getDisabledFeatures().indexOf('learningDashboard') === -1;
+}
+
+export function isPollingEnabled() {
+  return getDisabledFeatures().indexOf('polls') === -1 && Meteor.settings.public.poll.enabled;
 }
