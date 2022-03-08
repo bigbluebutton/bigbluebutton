@@ -74,6 +74,10 @@ const toggleNotesPanel = (sidebarContentPanel, layoutContextDispatch) => {
   });
 };
 
+const convertAndUpload = () => {
+  return PadsService.convertAndUpload(NOTES_CONFIG.id);
+}
+
 export default {
   ID: NOTES_CONFIG.id,
   toggleNotesPanel,
@@ -82,4 +86,5 @@ export default {
   setLastRev,
   getLastRev,
   hasUnreadNotes,
+  convertAndUpload,
 };

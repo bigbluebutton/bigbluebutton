@@ -1,15 +1,24 @@
-import React from 'react';
+import React,  { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Notes from './component';
 import Service from './service';
 import { layoutSelectInput, layoutDispatch } from '../layout/context';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
+import Auth from '/imports/ui/services/auth';
+
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const Container = ({ ...props }) => {
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
   const { isResizing } = cameraDock;
   const layoutContextDispatch = layoutDispatch();
 
-  return <Notes {...{ layoutContextDispatch, isResizing, ...props }} />;
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+  const currentUser = users[Auth.meetingID][Auth.userID];
+  const amIModerator = currentUser.role === ROLE_MODERATOR;
+
+  return <Notes {...{ amIModerator, layoutContextDispatch, isResizing, ...props }} />;
 };
 
 export default withTracker(() => {

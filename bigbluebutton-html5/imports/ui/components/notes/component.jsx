@@ -17,6 +17,10 @@ const intlMessages = defineMessages({
     id: 'app.notes.title',
     description: 'Title for the shared notes',
   },
+  convertAndUploadLabel: {
+    id: 'app.note.convertAndUpload',
+    description: 'Export shared notes as a PDF and upload to the main room',
+  },
 });
 
 const propTypes = {
@@ -34,10 +38,49 @@ const Notes = ({
   intl,
   isRTL,
   layoutContextDispatch,
+  amIModerator,
   isResizing,
 }) => {
   useEffect(() => () => Service.setLastRev(), []);
   const { isChrome } = browserInfo;
+
+  if (hasPermission && amIModerator) {
+    return (
+      <Styled.Notes data-test="notes" isChrome={isChrome}>
+        <Styled.Header>
+          <Styled.Title data-test="notesTitle">
+            <Styled.HideButton
+              onClick={() => {
+                layoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                  value: false,
+                });
+                layoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                  value: PANELS.NONE,
+                });
+              }}
+              data-test="hideNotesLabel"
+              aria-label={intl.formatMessage(intlMessages.hide)}
+              label={intl.formatMessage(intlMessages.title)}
+              icon={isRTL ? 'right_arrow' : 'left_arrow'}
+            />
+          </Styled.Title>
+          <Styled.ConvertAndUpload
+            onClick={() => { Service.convertAndUpload(); }}
+            label={intl.formatMessage(intlMessages.convertAndUploadLabel)}
+            icon="upload"
+          />
+        </Styled.Header>
+        <PadContainer
+          externalId={Service.ID}
+          hasPermission={hasPermission}
+          isResizing={isResizing}
+          isRTL={isRTL}
+        />
+      </Styled.Notes>
+    );
+  }
 
   return (
     <Styled.Notes data-test="notes" isChrome={isChrome}>

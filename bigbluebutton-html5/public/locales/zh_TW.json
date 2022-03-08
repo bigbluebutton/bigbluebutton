@@ -57,6 +57,7 @@
     "app.note.title": "共享筆記",
     "app.note.label": "筆記",
     "app.note.hideNoteLabel": "隱藏筆記",
+    "app.note.convertAndUpload": "上傳共享筆記",
     "app.note.tipLabel": "按下 Esc 鍵以聚焦到編輯器工具列",
     "app.note.locked": "已鎖定",
     "app.user.activityCheck": "用戶活動檢查",
