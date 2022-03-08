@@ -270,5 +270,5 @@ export default {
   persistPresentationChanges,
   dispatchTogglePresentationDownloadable,
   setPresentation,
-  requestPresentationUploadToken,
+  uploadAndConvertPresentations,
 };

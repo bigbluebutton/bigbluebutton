@@ -4,8 +4,10 @@ import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
 import axios from 'axios';
+import _ from 'lodash';
 
 const PADS_CONFIG = Meteor.settings.public.pads;
+const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
 const getLang = () => {
   const { locale } = Settings.application;
@@ -92,9 +94,15 @@ async function convertAndUpload(externalId) {
 
   // Build export URL in the desired format
   const params = getParams();
+  
+  // This returns a blank PDF
   const exportUrl = Auth.authenticateURL(`${PADS_CONFIG.url}/p/${padId}/export/pdf?${params}`);
 
+  // This returns 403 forbidden
+  // const exportUrl = `${PADS_CONFIG.notes_endpoint}/${padId}/export/pdf`;
+
   console.log(exportUrl);
+  console.log(`${PADS_CONFIG.notes_endpoint}/${padId}/export/pdf`)
 
   let exportedSharedNotes = await axios({
     method: 'get',
@@ -106,41 +114,31 @@ async function convertAndUpload(externalId) {
     return null;
   }
 
-  let file = new File([exportedSharedNotes.data], "SharedNotes.pdf", { lastModified: Date.now, type: 'application/pdf' });
+  let sharedNotesData = new File([exportedSharedNotes.data], "SharedNotes.pdf", { lastModified: Date.now, type: 'application/pdf' });
 
-  // PresentationUploaderService.uploadAndConvertPresentation(
-  //   file,
-  //   false,
-  //   'DEFAULT_PRESENTATION_POD',
-  //   Auth.meetingID,
-  //   PRESENTATION_CONFIG.uploadEndpoint,
-  //   { done: false, error: false, progress: 0 },
-  //   { done: false, error: false },
-  //   { done: false, error: false, status: '' },
-  // );
-
-  let presentationUploadToken = await PresentationUploaderService.requestPresentationUploadToken('DEFAULT_PRESENTATION_POD', Auth.meetingID, 'SharedNotes.pdf');
-
-  let callbackUrl = `http://127.0.0.1:8090/bigbluebutton/presentation/${presentationUploadToken}/upload`;
-  let formData = new FormData();
-
-  formData.append('presentation_name', 'SharedNotes.pdf');
-  formData.append('Filename', 'SharedNotes.pdf');
-  formData.append('conference', Auth.meetingID);
-  formData.append('room', Auth.meetingID);
-  formData.append('pod_id', 'DEFAULT_PRESENTATION_POD');
-  formData.append('is_downloadable', false);
+  const id = _.uniqueId(sharedNotesData.fileName);
   
-  // formData.append('fileUpload', file);
+  let presentation = [{
+    file: sharedNotesData,
+    isDownloadable: false,
+    isRemovable: true,
+    id: id,
+    filename: "SharedNotes",
+    isCurrent: true,
+    conversion: { done: false, error: false },
+    upload: { done: false, error: false, progress: 0 },
+    onProgress: (event) => {},
+    onConversion: (conversion) => {},
+    onUpload: (upload) => {},
+    onDone: (newId) => {},
+  }]
 
-  let res = await axios({
-    method: "post",
-    url: callbackUrl,
-    fileUpload: file,
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-
-  console.log(res.data);
+  PresentationUploaderService.uploadAndConvertPresentations(
+    presentation,
+    Auth.meetingID,
+    'DEFAULT_PRESENTATION_POD',
+    PRESENTATION_CONFIG.uploadEndpoint,
+  );
 
   return null;
 }
