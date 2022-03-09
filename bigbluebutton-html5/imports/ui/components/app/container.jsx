@@ -61,6 +61,7 @@ const AppContainer = (props) => {
     meetingLayoutUpdatedAt,
     selectedLayout,
     pushLayout,
+    pushLayoutMeeting,
     currentUserId,
     shouldShowPresentation: propsShouldShowPresentation,
     presentationRestoreOnUpdate,
@@ -120,6 +121,7 @@ const AppContainer = (props) => {
       cameraPosition: cameraDock.position,
       focusedCamera: focusedId,
       presentationVideoRate,
+      pushLayout,
     });
   };
 
@@ -134,6 +136,7 @@ const AppContainer = (props) => {
           meetingLayout,
           selectedLayout,
           pushLayout,
+          pushLayoutMeeting,
           meetingLayoutUpdatedAt,
           presentationIsOpen,
           cameraPosition: cameraDock.position,
@@ -208,7 +211,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   } = currentMeeting;
 
   const meetingLayout = LayoutMeetings.findOne({ meetingId: Auth.meetingID }) || {};
-  const { layout, layoutUpdatedAt, presentationIsOpen, isResizing, cameraPosition, focusedCamera, presentationVideoRate } = meetingLayout;
+  const { layout, pushLayout: pushLayoutMeeting, layoutUpdatedAt, presentationIsOpen, isResizing, cameraPosition, focusedCamera, presentationVideoRate } = meetingLayout;
 
   if (currentUser && !currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -261,6 +264,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     presentationVideoRate,
     selectedLayout,
     pushLayout,
+    pushLayoutMeeting,
     audioAlertEnabled: AppSettings.chatAudioAlerts,
     pushAlertEnabled: AppSettings.chatPushAlerts,
     shouldShowScreenshare,

@@ -308,6 +308,7 @@ class App extends Component {
       horizontalPosition,
       selectedLayout, // layout name
       pushLayout, // is layout pushed
+      pushLayoutMeeting,
       layoutContextDispatch,
       mountRandomUserModal,
       setMeetingLayout,
@@ -352,6 +353,10 @@ class App extends Component {
 
       Settings.application.selectedLayout = contextLayout;
       Settings.save();
+    }
+
+    if (pushLayoutMeeting !== prevProps.pushLayoutMeeting) {
+      Settings.application.pushLayout = pushLayoutMeeting;
     }
 
     if (meetingLayout === "custom" && !isPresenter) {
@@ -414,16 +419,17 @@ class App extends Component {
       }
     }
 
-    if (isPresenter && pushLayout && selectedLayout === 'custom' &&
-      (presentationIsOpen !== prevProps.presentationIsOpen
+    const layoutChanged = presentationIsOpen !== prevProps.presentationIsOpen
       || cameraIsResizing !== prevProps.cameraIsResizing
       || cameraPosition !== prevProps.cameraPosition
       || focusedCamera !== prevProps.focusedCamera
-      || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate))
-    ) {
+      || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
+
+    if (isPresenter && (pushLayout && selectedLayout === 'custom' && layoutChanged) // change layout sizes / states
+      || (selectedLayout !== prevProps.selectedLayout) // change layout type
+      || (!pushLayout && prevProps.pushLayout)) { // special case where we set pushLayout to false in all viewers
       setMeetingLayout();
     }
-
 
     if (mountRandomUserModal) mountModal(<RandomUserSelectContainer />);
 

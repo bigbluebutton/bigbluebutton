@@ -5,7 +5,7 @@ import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
 const APP_CONFIG = Meteor.settings.public.app.defaultSettings.application;
 
-export default function changeLayout(meetingId, layout, presentationIsOpen, isResizing, cameraPosition, focusedCamera, presentationVideoRate, requesterUserId) {
+export default function changeLayout(meetingId, layout, presentationIsOpen, isResizing, cameraPosition, focusedCamera, presentationVideoRate, pushLayout, requesterUserId) {
   try {
     check(meetingId, String);
     check(requesterUserId, String);
@@ -25,6 +25,7 @@ export default function changeLayout(meetingId, layout, presentationIsOpen, isRe
         cameraPosition,
         focusedCamera,
         presentationVideoRate,
+        pushLayout,
       },
     };
 

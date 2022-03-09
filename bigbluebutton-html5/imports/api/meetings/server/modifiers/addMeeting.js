@@ -48,6 +48,7 @@ const addLayout = (meetingId, layout) => {
     cameraPosition: 'contentTop',
     focusedCamera: 'none',
     presentationVideoRate: 0,
+    pushLayout: false,
   };
 
   try {
