@@ -87,6 +87,7 @@ public class ParamsProcessorUtil {
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
+    private boolean learningDashboardEnabled = true;
     private int learningDashboardCleanupDelayInMinutes;
     private boolean webcamsOnlyForModerator;
     private Integer defaultUserCameraCap = 0;
@@ -486,6 +487,25 @@ public class ParamsProcessorUtil {
         listOfDisabledFeatures.removeAll(Arrays.asList("", null));
         listOfDisabledFeatures.replaceAll(String::trim);
         listOfDisabledFeatures = new ArrayList<>(new HashSet<>(listOfDisabledFeatures));
+
+        if(learningDashboardEnabled == false && !listOfDisabledFeatures.contains("learningDashboard")) {
+            listOfDisabledFeatures.add("learningDashboard");
+        }
+
+        if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED))) {
+            try {
+                boolean learningDashboardEn = Boolean.parseBoolean(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED));
+
+                if(learningDashboardEn == false) {
+                    log.warn("[DEPRECATION] use disabledFeatures=learningDashboard instead of learningDashboardEnabled=false");
+                    if(!listOfDisabledFeatures.contains("learningDashboard")) {
+                        listOfDisabledFeatures.add("learningDashboard");
+                    }
+                }
+            } catch (Exception ex) {
+                log.warn("Invalid param [learningDashboardEnabled] for meeting=[{}]",internalMeetingId);
+            }
+        }
 
         int learningDashboardCleanupMins = 0;
 
@@ -1051,7 +1071,15 @@ public class ParamsProcessorUtil {
         this.allowStartStopRecording = allowStartStopRecording;
     }
 
-    public void setlearningDashboardCleanupDelayInMinutes(int learningDashboardCleanupDelayInMinutes) {
+    public void setLearningDashboardEnabled(boolean learningDashboardEnabled) {
+        if(learningDashboardEnabled == false) {
+            log.warn("[DEPRECATION] use disabledFeatures=learningDashboard instead of learningDashboardEnabled=false");
+        }
+
+        this.learningDashboardEnabled = learningDashboardEnabled;
+    }
+
+    public void setLearningDashboardCleanupDelayInMinutes(int learningDashboardCleanupDelayInMinutes) {
         this.learningDashboardCleanupDelayInMinutes = learningDashboardCleanupDelayInMinutes;
     }
 
