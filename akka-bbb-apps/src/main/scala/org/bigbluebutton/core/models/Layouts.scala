@@ -11,6 +11,14 @@ object Layouts {
     instance.currentLayout
   }
 
+  def setPushLayout(instance: Layouts, pushLayout: Boolean) {
+    instance.pushLayout = pushLayout
+  }
+
+  def getPushLayout(instance: Layouts): Boolean = {
+    instance.pushLayout
+  }
+
   def setPresentationIsOpen(instance: Layouts, p: Boolean) = {
     instance.presentationIsOpen = p
   }
@@ -63,6 +71,7 @@ object Layouts {
 class Layouts {
   private var setByUser: String = "system";
   private var currentLayout = "";
+  private var pushLayout: Boolean = false;
   private var presentationIsOpen: Boolean = true;
   private var isResizing: Boolean = false;
   private var cameraPosition: String = "";
