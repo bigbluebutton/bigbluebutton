@@ -31,3 +31,7 @@ export function isExternalVideoEnabled() {
 export function isChatEnabled() {
   return getDisabledFeatures().indexOf('chat') === -1 && Meteor.settings.public.chat.enabled;
 }
+
+export function isSharedNotesEnabled() {
+  return getDisabledFeatures().indexOf('sharedNotes') === -1 && Meteor.settings.public.notes.enabled;
+}

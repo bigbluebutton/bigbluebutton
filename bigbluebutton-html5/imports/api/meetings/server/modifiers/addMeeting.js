@@ -212,7 +212,9 @@ export default function addMeeting(meeting) {
 
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
-      initPads(meetingId);
+      if (newMeeting.meetingProp.disabledFeatures.indexOf('sharedNotes') === -1) {
+        initPads(meetingId);
+      }
       initCaptions(meetingId);
     } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);
