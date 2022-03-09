@@ -1033,5 +1033,14 @@
     "app.learningDashboard.statusTimelineTable.title": "Timeline",
     "app.learningDashboard.statusTimelineTable.thumbnail": "Presentation thumbnail",
     "app.learningDashboard.errors.invalidToken": "Invalid session token",
-    "app.learningDashboard.errors.dataUnavailable": "Data is no longer available"
+    "app.learningDashboard.errors.dataUnavailable": "Data is no longer available",
+    "mobileApp.portals.list.empty.label": "Please add portals.",
+    "mobileApp.portals.list.add.button.label": "New Portal",
+    "mobileApp.portals.fields.name.label": "Portal Name",
+    "mobileApp.portals.fields.name.placeholder": "BigBlueButton demo",
+    "mobileApp.portals.fields.url.label": "Server URL",
+    "mobileApp.portals.addPortalPopup.confirm.button.label": "Add Portal",
+    "mobileApp.portals.drawerNavigation.button.label": "Portals",
+    "mobileApp.portals.addPortalPopup.validation.emptyFilds": "Empty Fields",
+    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Name Already Exists"
 }
