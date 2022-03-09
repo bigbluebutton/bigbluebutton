@@ -382,7 +382,7 @@ class WhiteboardToolbar extends Component {
       whiteboardId,
     } = this.props;
 
-    actions.clearWhiteboard(whiteboardId);
+    actions.deleteAnnotations(whiteboardId);
   }
 
   handleSwitchWhiteboardMode() {
@@ -648,20 +648,6 @@ class WhiteboardToolbar extends Component {
     );
   }
 
-  //TODO introduce new item icon!
-  renderDeleteSelectionIcon() {
-    const { intl, isMeteorConnected } = this.props;
-
-    return (
-      <ToolbarMenuItem
-        disabled={!isMeteorConnected}
-        label={intl.formatMessage(intlMessages.toolbarDeleteSelection)}
-        icon="delete"
-        onItemClick={this.handleDeleteSelection}
-      />
-    );
-  }
-
   renderThicknessItemIcon() {
     const {
       colorSelected,
@@ -855,9 +841,9 @@ class WhiteboardToolbar extends Component {
       <Styled.ToolbarContainer role="region" aria-label={intl.formatMessage(intlMessages.toolbarAriaLabel)}>
         <Styled.ToolbarWrapper>
           {this.renderToolItem()}
-          {annotationSelected.value === 'selection' ? this.renderDeleteSelectionIcon() : null }
-          {annotationSelected.value === 'text' ? this.renderFontItem() : this.renderThicknessItem()}
-          {this.renderColorItem()}
+          {annotationSelected.value === 'text' ? this.renderFontItem() : null}
+          { !['text', 'selection'].includes(annotationSelected.value) ? this.renderThicknessItem() : null}
+          {annotationSelected.value !== 'selection' ? this.renderColorItem() : null}
           {this.renderUndoItem()}
           {this.renderClearAllItem()}
           {window.PointerEvent ? this.renderPalmRejectionItem() : null}

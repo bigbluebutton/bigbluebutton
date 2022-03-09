@@ -16,25 +16,30 @@ const makeSetter = (key) => (value) => {
   }
 };
 
-const deleteAnnotations = (whiteboardId) => {
-  const selectedAnnotationIds = SelectionService.getSelectedAnnotations()
-    .map((annotation) => annotation.id);
-
-  const selector = { id: { $in: selectedAnnotationIds } };
-  const selectedAnnotations = Annotations.find(selector, {
-    fields: {
-      _id: 0, meetingId: 0, whiteboardId: 0, 'annotationInfo.commands': 0, version: 0,
-    },
-  }).fetch();
-  makeCall('deleteWhiteboardAnnotations', selectedAnnotations, whiteboardId);
-};
-
 const undoAnnotation = (whiteboardId) => {
   makeCall('undoAnnotation', whiteboardId);
 };
 
 const clearWhiteboard = (whiteboardId) => {
   makeCall('clearWhiteboard', whiteboardId);
+};
+
+const deleteAnnotations = (whiteboardId) => {
+  const selectedAnnotationIds = SelectionService.getSelectedAnnotations()
+    .map((annotation) => annotation.id);
+
+  // Delete selected annotations. If no annotations are selected, clear whole whiteboard.
+  if (selectedAnnotationIds.length) {
+    const selector = { id: { $in: selectedAnnotationIds } };
+    const selectedAnnotations = Annotations.find(selector, {
+      fields: {
+        _id: 0, meetingId: 0, whiteboardId: 0, 'annotationInfo.commands': 0, version: 0,
+      },
+    }).fetch();
+    makeCall('deleteWhiteboardAnnotations', selectedAnnotations, whiteboardId);
+  } else {
+    clearWhiteboard(whiteboardId);
+  }
 };
 
 const changeWhiteboardMode = (multiUser, whiteboardId) => {
