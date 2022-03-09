@@ -5,7 +5,7 @@ import { defineMessages } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
-import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
+import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
 import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
 import BBBMenu from '/imports/ui/components/menu/component';
 import Styled from './styles'
