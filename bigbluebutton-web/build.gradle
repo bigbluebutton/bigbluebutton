@@ -73,7 +73,7 @@ dependencies {
   implementation "org.grails.plugins:events"
   implementation "org.grails.plugins:gsp"
   //--- BigBlueButton Dependencies Start - Transitive dependencies have to be re-defined below
-  implementation "org.bigbluebutton:bbb-common-message_2.12:0.0.20-SNAPSHOT"
+  implementation "org.bigbluebutton:bbb-common-message_2.13:0.0.21-SNAPSHOT"
   implementation "org.bigbluebutton:bbb-common-web:0.0.3-SNAPSHOT"
   implementation "io.lettuce:lettuce-core:6.1.5.RELEASE"
   implementation "org.reactivestreams:reactive-streams:1.0.3"

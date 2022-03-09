@@ -26,7 +26,7 @@ object Dependencies {
     val codec = "1.15"
 
     // BigBlueButton
-    val bbbCommons = "0.0.20-SNAPSHOT"
+    val bbbCommons = "0.0.21-SNAPSHOT"
 
     // Test
     val scalaTest = "3.0.5"

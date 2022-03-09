@@ -34,7 +34,7 @@ object Dependencies {
     val text = "1.9"
 
     // BigBlueButton
-    val bbbCommons = "0.0.20-SNAPSHOT"
+    val bbbCommons = "0.0.21-SNAPSHOT"
 
     // Test
     val scalaTest = "3.0.5"
