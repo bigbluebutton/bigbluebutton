@@ -19,9 +19,9 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.tools',
     description: 'Whiteboard toolbar tools menu',
   },
-  toolbarDeleteSelection: {
-    id: 'app.whiteboard.toolbar.deleteSelection',
-    description: 'Whiteboard toolbar delete selection menu',
+  toolbarDeleteAnnotations: {
+    id: 'app.whiteboard.toolbar.deleteAnnotations',
+    description: 'Whiteboard toolbar delete annotations menu',
   },
   toolbarLineThickness: {
     id: 'app.whiteboard.toolbar.thickness',
@@ -133,7 +133,7 @@ class WhiteboardToolbar extends Component {
     this.closeSubMenu = this.closeSubMenu.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleUndo = this.handleUndo.bind(this);
-    this.handleClearAll = this.handleClearAll.bind(this);
+    this.handleDeleteAnnotations = this.handleDeleteAnnotations.bind(this);
     this.handleSwitchWhiteboardMode = this.handleSwitchWhiteboardMode.bind(this);
     this.handleSwitchPalmRejectionMode = this.handleSwitchPalmRejectionMode.bind(this);
     this.handleAnnotationChange = this.handleAnnotationChange.bind(this);
@@ -376,7 +376,7 @@ class WhiteboardToolbar extends Component {
   }
 
   // clear all annotations
-  handleClearAll() {
+  handleDeleteAnnotations() {
     const {
       actions,
       whiteboardId,
@@ -779,15 +779,15 @@ class WhiteboardToolbar extends Component {
     );
   }
 
-  renderClearAllItem() {
+  renderDeleteItem() {
     const { intl, isMeteorConnected } = this.props;
 
     return (
       <ToolbarMenuItem
         disabled={!isMeteorConnected}
-        label={intl.formatMessage(intlMessages.toolbarClearAnnotations)}
+        label={intl.formatMessage(intlMessages.toolbarDeleteAnnotations)}
         icon="delete"
-        onItemClick={this.handleClearAll}
+        onItemClick={this.handleDeleteAnnotations}
       />
     );
   }
@@ -845,7 +845,7 @@ class WhiteboardToolbar extends Component {
           { !['text', 'selection'].includes(annotationSelected.value) ? this.renderThicknessItem() : null}
           {annotationSelected.value !== 'selection' ? this.renderColorItem() : null}
           {this.renderUndoItem()}
-          {this.renderClearAllItem()}
+          {this.renderDeleteItem()}
           {window.PointerEvent ? this.renderPalmRejectionItem() : null}
           {isPresenter ? this.renderMultiUserItem() : null}
         </Styled.ToolbarWrapper>

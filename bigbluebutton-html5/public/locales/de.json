@@ -802,7 +802,7 @@
     "app.whiteboard.toolbar.color.violet": "Violett",
     "app.whiteboard.toolbar.color.magenta": "Magenta",
     "app.whiteboard.toolbar.color.silver": "Silber",
-    "app.whiteboard.toolbar.deleteSelection": "Ausgewählte Anmerkungen löschen",
+    "app.whiteboard.toolbar.deleteAnnotations": "Anmerkungen löschen",
     "app.whiteboard.toolbar.undo": "Anmerkung zurücknehmen",
     "app.whiteboard.toolbar.clear": "Alle Anmerkungen löschen",
     "app.whiteboard.toolbar.multiUserOn": "Mehrbenutzermodus starten",

@@ -822,7 +822,7 @@
     "app.whiteboard.toolbar.color.violet": "Violet",
     "app.whiteboard.toolbar.color.magenta": "Magenta",
     "app.whiteboard.toolbar.color.silver": "Silver",
-    "app.whiteboard.toolbar.deleteSelection": "Delete selected annotations",
+    "app.whiteboard.toolbar.deleteAnnotations": "Delete annotations",
     "app.whiteboard.toolbar.undo": "Undo annotation",
     "app.whiteboard.toolbar.clear": "Clear all annotations",
     "app.whiteboard.toolbar.multiUserOn": "Turn multi-user whiteboard on",
