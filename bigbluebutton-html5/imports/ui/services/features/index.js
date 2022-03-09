@@ -23,3 +23,7 @@ export function isLearningDashboardEnabled() {
 export function isPollingEnabled() {
   return getDisabledFeatures().indexOf('polls') === -1 && Meteor.settings.public.poll.enabled;
 }
+
+export function isExternalVideoEnabled() {
+  return getDisabledFeatures().indexOf('externalVideos') === -1 && Meteor.settings.public.externalVideoPlayer.enabled;
+}
