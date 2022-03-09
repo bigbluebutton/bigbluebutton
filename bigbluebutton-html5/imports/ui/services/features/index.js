@@ -27,3 +27,7 @@ export function isPollingEnabled() {
 export function isExternalVideoEnabled() {
   return getDisabledFeatures().indexOf('externalVideos') === -1 && Meteor.settings.public.externalVideoPlayer.enabled;
 }
+
+export function isChatEnabled() {
+  return getDisabledFeatures().indexOf('chat') === -1 && Meteor.settings.public.chat.enabled;
+}
