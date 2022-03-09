@@ -3,7 +3,7 @@ import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service'
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { isScreenSharingEnabled } from '/imports/ui/services/features';
+import { isExternalVideoEnabled, isScreenSharingEnabled } from '/imports/ui/services/features';
 import { ACTIONS } from '../layout/enums';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
@@ -30,8 +30,7 @@ function shouldShowScreenshare() {
 }
 
 function shouldShowExternalVideo() {
-  const { enabled: enableExternalVideo } = Meteor.settings.public.externalVideoPlayer;
-  return enableExternalVideo && getVideoUrl();
+  return isExternalVideoEnabled() && getVideoUrl();
 }
 
 function shouldShowOverlay() {

@@ -14,7 +14,7 @@ import ExternalVideoService from '/imports/ui/components/external-video-player/s
 import CaptionsService from '/imports/ui/components/captions/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
-import { isPollingEnabled } from '/imports/ui/services/features';
+import { isExternalVideoEnabled, isPollingEnabled } from '/imports/ui/services/features';
 
 import MediaService, {
   getSwapLayout,
@@ -71,6 +71,6 @@ export default withTracker(() => ({
   isOldMinimizeButtonEnabled: OLD_MINIMIZE_BUTTON_ENABLED,
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
-  allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
+  allowExternalVideo: isExternalVideoEnabled(),
   setEmojiStatus: UserListService.setEmojiStatus,
 }))(injectIntl(ActionsBarContainer));
