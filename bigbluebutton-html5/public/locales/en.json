@@ -971,7 +971,7 @@
     "app.learningDashboard.statusTimelineTable.thumbnail": "Presentation thumbnail",
     "app.learningDashboard.errors.invalidToken": "Invalid session token",
     "app.learningDashboard.errors.dataUnavailable": "Data is no longer available",
-    "mobileApp.portals.list.empty.label": "There aren't portals.",
+    "mobileApp.portals.list.empty.label": "Please add portals.",
     "mobileApp.portals.list.add.button.label": "New Portal",
     "mobileApp.portals.fields.name.label": "Portal Name",
     "mobileApp.portals.fields.name.placeholder": "BigBlueButton demo",
