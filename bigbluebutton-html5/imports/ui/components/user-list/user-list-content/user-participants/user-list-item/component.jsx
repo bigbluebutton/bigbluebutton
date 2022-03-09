@@ -15,6 +15,7 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { PANELS, ACTIONS } from '../../../../layout/enums';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
+import { isChatEnabled } from '/imports/ui/services/features';
 
 const messages = defineMessages({
   presenter: {
@@ -169,7 +170,6 @@ const propTypes = {
   isMe: PropTypes.func.isRequired,
 };
 
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const LABEL = Meteor.settings.public.user.label;
 
@@ -354,7 +354,7 @@ class UserListItem extends PureComponent {
         icon: userIsPinned ? 'pin-video_off' : 'pin-video_on',
       },
       {
-        allowed: CHAT_ENABLED
+        allowed: isChatEnabled()
         && enablePrivateChat
         && !isDialInUser
         && !meetingIsBreakout
