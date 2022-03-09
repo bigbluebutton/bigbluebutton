@@ -270,6 +270,7 @@ class MeetingActor(
 
       // Update breakout rooms of remaining time
       state = handleSendBreakoutTimeRemainingMsg(msg, state)
+<<<<<<< HEAD
     case msg: BreakoutRoomCreatedInternalMsg       => state = handleBreakoutRoomCreatedInternalMsg(msg, state)
     case msg: SendBreakoutUsersAuditInternalMsg    => handleSendBreakoutUsersUpdateInternalMsg(msg)
     case msg: BreakoutRoomUsersUpdateInternalMsg   => state = handleBreakoutRoomUsersUpdateInternalMsg(msg, state)
@@ -278,6 +279,20 @@ class MeetingActor(
     case msg: BreakoutRoomEndedInternalMsg         => state = handleBreakoutRoomEndedInternalMsg(msg, state)
     case msg: SendMessageToBreakoutRoomInternalMsg => state = handleSendMessageToBreakoutRoomInternalMsg(msg, state, liveMeeting, msgBus)
     case msg: SendBreakoutTimeRemainingInternalMsg => handleSendBreakoutTimeRemainingInternalMsg(msg)
+=======
+    case msg: BreakoutRoomCreatedInternalMsg     => state = handleBreakoutRoomCreatedInternalMsg(msg, state)
+    case msg: SendBreakoutUsersAuditInternalMsg  => handleSendBreakoutUsersUpdateInternalMsg(msg)
+    case msg: BreakoutRoomUsersUpdateInternalMsg => state = handleBreakoutRoomUsersUpdateInternalMsg(msg, state)
+    case msg: EndBreakoutRoomInternalMsg         => handleEndBreakoutRoomInternalMsg(msg)
+    case msg: ExtendBreakoutRoomTimeInternalMsg  => state = handleExtendBreakoutRoomTimeInternalMsgHdlr(msg, state)
+    case msg: EjectUserFromBreakoutInternalMsg   => handleEjectUserFromBreakoutInternalMsgHdlr(msg)
+    case msg: BreakoutRoomEndedInternalMsg       => state = handleBreakoutRoomEndedInternalMsg(msg, state)
+    case msg: SendBreakoutTimeRemainingInternalMsg =>
+      handleSendBreakoutTimeRemainingInternalMsg(msg)
+
+    // Screenshare
+    case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
+>>>>>>> upstream/v2.4.x-release
 
     case msg: SendRecordingTimerInternalMsg =>
       state = usersApp.handleSendRecordingTimerInternalMsg(msg, state)
@@ -386,7 +401,7 @@ class MeetingActor(
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
-        usersApp.handleEjectUserFromMeetingCmdMsg(m)
+        usersApp.handleEjectUserFromMeetingCmdMsg(m, state)
         updateUserLastActivity(m.body.ejectedBy)
 
       // Another part of system (e.g. bbb-apps) requested to eject user.
