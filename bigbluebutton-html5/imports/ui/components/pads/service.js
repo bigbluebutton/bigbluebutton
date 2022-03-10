@@ -3,7 +3,6 @@ import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
-import axios from 'axios';
 
 const PADS_CONFIG = Meteor.settings.public.pads;
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
@@ -91,32 +90,18 @@ const getPadContent = (externalId) => {
 async function convertAndUpload(externalId) {
   const padId = await makeCall('getPadId', externalId);
 
-  // Build export URL in the desired format
   const params = getParams();
-  
-  // This returns a blank PDF
   const exportUrl = Auth.authenticateURL(`${PADS_CONFIG.url}/p/${padId}/export/pdf?${params}`);
 
-  // This returns 403 forbidden
-  // const exportUrl = `${PADS_CONFIG.notes_endpoint}/${padId}/export/pdf`;
+  const response = await fetch(exportUrl, { credentials: 'include' });
+  const data = await response.blob();
+  const presentationUploadToken = await PresentationUploaderService.requestPresentationUploadToken('DEFAULT_PRESENTATION_POD', Auth.meetingID, 'SharedNotes.pdf');
 
-  console.log(exportUrl);
-  console.log(`${PADS_CONFIG.notes_endpoint}/${padId}/export/pdf`)
-
-  let exportedSharedNotes = await axios({
-    method: 'get',
-    url: exportUrl,
-    responseType: 'json',
+  const sharedNotesData = new File([data], 'SharedNotes.pdf', {
+    type: data.type,
   });
 
-  if (exportedSharedNotes.status != 200) {
-    return null;
-  }
-
-  let sharedNotesData = new File([exportedSharedNotes.data], "SharedNotes.pdf", { lastModified: Date.now, type: 'application/pdf' });
-  let presentationUploadToken = await PresentationUploaderService.requestPresentationUploadToken('DEFAULT_PRESENTATION_POD', Auth.meetingID, "SharedNotes.pdf");
-
-  let formData = new FormData();
+  const formData = new FormData();
 
   formData.append('presentation_name', 'SharedNotes.pdf');
   formData.append('Filename', 'SharedNotes.pdf');
@@ -126,11 +111,9 @@ async function convertAndUpload(externalId) {
   formData.append('is_downloadable', false);
   formData.append('fileUpload', sharedNotesData);
 
-  axios({
-    method: "post",
-    url: PRESENTATION_CONFIG.uploadEndpoint.replace('upload', `${presentationUploadToken}/upload`),
-    data: formData,
-    headers: { "Content-Type": "multipart/form-data" },
+  fetch(PRESENTATION_CONFIG.uploadEndpoint.replace('upload', `${presentationUploadToken}/upload`), {
+    body: formData,
+    method: 'post',
   });
 
   return null;

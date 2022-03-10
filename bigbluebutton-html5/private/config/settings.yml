@@ -482,7 +482,6 @@ public:
     hidePresentation: false
     showParticipantsOnLogin: true
   pads:
-    notes_endpoint: http://127.0.0.1:9002/p
     url: ETHERPAD_HOST
     cookie:
       path: /
