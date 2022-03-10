@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.apps.pads
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.models.Pads
 import org.bigbluebutton.core.running.LiveMeeting
@@ -22,11 +21,7 @@ trait PadCreateSessionReqMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    if (liveMeeting.props.meetingProp.disabledFeatures.contains("sharedNotes")) {
-      val meetingId = liveMeeting.props.meetingProp.intId
-      val reason = "Shared Notes disabled for this meeting."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
-    } else if (Pads.hasAccess(liveMeeting, msg.body.externalId, msg.header.userId)) {
+    if (Pads.hasAccess(liveMeeting, msg.body.externalId, msg.header.userId)) {
       Pads.getGroup(liveMeeting.pads, msg.body.externalId) match {
         case Some(group) => broadcastEvent(group.groupId, msg.header.userId)
         case _           =>

@@ -21,7 +21,15 @@ trait PadCreateGroupReqMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    if (!Pads.hasGroup(liveMeeting.pads, msg.body.externalId)) {
+    val padEnabled = {
+      if (msg.body.externalId == "notes" && liveMeeting.props.meetingProp.disabledFeatures.contains("sharedNotes")) {
+        false
+      } else {
+        true
+      }
+    }
+
+    if (padEnabled && !Pads.hasGroup(liveMeeting.pads, msg.body.externalId)) {
       Pads.addGroup(liveMeeting.pads, msg.body.externalId, msg.body.model, msg.body.name, msg.header.userId)
       broadcastEvent(msg.body.externalId, msg.body.model)
     }
