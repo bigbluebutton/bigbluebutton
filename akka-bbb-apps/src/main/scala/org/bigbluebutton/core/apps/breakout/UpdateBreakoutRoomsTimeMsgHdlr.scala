@@ -6,6 +6,7 @@ import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 import org.bigbluebutton.core.util.TimeUtil
 
 trait UpdateBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {
@@ -52,6 +53,14 @@ trait UpdateBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {
         } else {
           breakoutModel.rooms.values.foreach { room =>
             eventBus.publish(BigBlueButtonEvent(room.id, UpdateBreakoutRoomTimeInternalMsg(props.breakoutProps.parentId, room.id, newDurationInSeconds)))
+            val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+              room.id,
+              "success",
+              "about",
+              "app.chat.breakoutDurationUpdated",
+              Vector(s"${msg.body.timeInMinutes}")
+            )
+            outGW.send(notifyEvent)
           }
           log.debug("Updating {} minutes for breakout rooms time in meeting {}", msg.body.timeInMinutes, props.meetingProp.intId)
           breakoutModel.setTime(newDurationInSeconds)

@@ -1,7 +1,7 @@
 package org.bigbluebutton.core2.message.senders
 
 import org.bigbluebutton.common2.domain.DefaultProps
-import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreHeaderWithMeetingId, MessageTypes, Routing, ValidateConnAuthTokenSysRespMsg, ValidateConnAuthTokenSysRespMsgBody, _ }
+import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreHeaderWithMeetingId, MessageTypes, Routing, ValidateConnAuthTokenSysRespMsg, ValidateConnAuthTokenSysRespMsgBody, NotifyAllInMeetingEvtMsg, NotifyAllInMeetingEvtMsgBody, _ }
 import org.bigbluebutton.core.models.GuestWaiting
 
 object MsgBuilder {
@@ -612,6 +612,22 @@ object MsgBuilder {
     val header = BbbClientMsgHeader(UserBroadcastCamStoppedEvtMsg.NAME, meetingId, userId)
     val body = UserBroadcastCamStoppedEvtMsgBody(userId, streamId)
     val event = UserBroadcastCamStoppedEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildNotifyAllInMeetingEvtMsg(
+      meetingId:        String,
+      notificationType: String,
+      icon:             String,
+      messageId:        String,
+      messageValues:    Vector[String]
+  ): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(NotifyAllInMeetingEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(NotifyAllInMeetingEvtMsg.NAME, meetingId, "not-used")
+    val body = NotifyAllInMeetingEvtMsgBody(meetingId, notificationType, icon, messageId, messageValues)
+    val event = NotifyAllInMeetingEvtMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }

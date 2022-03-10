@@ -8,6 +8,7 @@ import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 import { publicationSafeGuard } from '/imports/api/common/server/helpers';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
+import notificationEmitter from '../notificationEmitter';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -132,3 +133,37 @@ function timeRemainingPublish(...args) {
 }
 
 Meteor.publish('meeting-time-remaining', timeRemainingPublish);
+
+function notifications() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+  if (tokenValidation || tokenValidation.validationStatus === ValidationStates.VALIDATED) {
+    notificationEmitter.on('notification', (notification) => {
+      const { meetingId, userId } = tokenValidation;
+      switch (notification.type) {
+        case 'notifyAllInMeeting':
+          if (notification.meetingId === meetingId) this.added('notifications', Math.random() * 500, notification);
+          break;
+        case 'NotifyUserInMeeting':
+          if (notification.userId === userId) this.added('notifications', Math.random() * 500, notification);
+          break;
+        case 'NotifyRoleInMeeting': {
+          const user = Users.findOne({ userId, meetingId }, { fields: { role: 1, userId: 1 } });
+          if (notification.role === user.role) this.added('notifications', Math.random() * 500, notification);
+          break;
+        }
+        default: Logger.warn(`wrong type: ${notification.type} userId: ${userId}`);
+      }
+    });
+
+    this.ready();
+  } else {
+    Logger.warn(`Publishing notification was requested by unauth connection ${this.connection.id}`);
+  }
+}
+
+function notificationsPublish(...args) {
+  const boundNotifications = notifications.bind(this);
+  return boundNotifications(...args);
+}
+
+Meteor.publish('notifications', notificationsPublish);
