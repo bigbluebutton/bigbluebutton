@@ -576,22 +576,28 @@ class VideoService {
       { meetingId: Auth.meetingID },
       {
         fields: {
+          'meetingProp.meetingCameraCap': 1,
           'usersProp.userCameraCap': 1,
         },
       },
     );
 
     // If the meeting prop data is unreachable, force a safe return
-    if (!meeting?.usersProp) return true;
+    if (!meeting?.usersProp || !meeting?.meetingProp) return true;
 
+    const { meetingCameraCap } = meeting.meetingProp;
     const { userCameraCap } = meeting.usersProp;
 
-    // Zero means disabled
-    if (userCameraCap === 0) return false;
+    const meetingCap = meetingCameraCap !== 0 && this.getVideoStreamsCount() >= meetingCameraCap;
+    const userCap = userCameraCap !== 0 && this.getLocalVideoStreamsCount() >= userCameraCap;
 
-    const localStreams = this.getLocalVideoStreamsCount();
+    return meetingCap || userCap;
+  }
 
-    return localStreams >= userCameraCap;
+  getVideoStreamsCount() {
+    const streams = VideoStreams.find({}).count();
+
+    return streams;
   }
 
   getLocalVideoStreamsCount() {
@@ -724,6 +730,7 @@ class VideoService {
     const locks = {
       videoLocked: this.isUserLocked(),
       videoConnecting: this.isConnecting,
+      camCapReached: this.hasCapReached() && !this.hasVideoStream(),
       meteorDisconnected: !Meteor.status().connected
     };
     const locksKeys = Object.keys(locks);
