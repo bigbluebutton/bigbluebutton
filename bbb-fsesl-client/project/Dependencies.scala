@@ -7,16 +7,16 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.12.15"
+    val scala = "2.13.4"
 
     // Libraries
     val netty = "3.2.10.Final"
-    val logback = "1.3.0-alpha10"
+    val logback = "1.2.10"
 
     // Test
     val junit = "4.12"
   }
-
+  
   object Compile {
     val scalaLibrary = "org.scala-lang" % "scala-library" % Versions.scala
     val scalaCompiler = "org.scala-lang" % "scala-compiler" % Versions.scala

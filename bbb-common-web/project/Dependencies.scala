@@ -37,7 +37,7 @@ object Dependencies {
     val bbbCommons = "0.0.21-SNAPSHOT"
 
     // Test
-    val scalaTest = "3.0.5"
+    val scalaTest = "3.2.11"
   }
 
   object Compile {

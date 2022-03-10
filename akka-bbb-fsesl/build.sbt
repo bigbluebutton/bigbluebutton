@@ -27,6 +27,8 @@ val compileSettings = Seq(
   )
 )
 
+scalaVersion := "2.13.4"
+
 resolvers += Resolver.sonatypeRepo("releases")
 
 publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/dev/repo/maven-repo/releases" )) )
@@ -46,6 +48,7 @@ lazy val bbbFseslAkka = (project in file(".")).settings(name := "bbb-fsesl-akka"
 // See https://github.com/scala-ide/scalariform
 // Config file is in ./.scalariform.conf
 scalariformAutoformat := true
+
 
 //-----------
 // Packaging
