@@ -104,13 +104,7 @@ cd $BUILDDIR
 	echo "This directory holds *.wav files for FreeSWITCH" > $DESTDIR/var/freeswitch/meetings/readme.txt
 
 	rm -rf $CONFDIR/*
-<<<<<<< HEAD
 	cp -r bbb-voice-conference/config/freeswitch/conf/* $CONFDIR
-=======
-	cp -r config/freeswitch/conf/* $CONFDIR
-    # enable spandsp module by default for G722 codec
-    sed -i '/<!-- Codec Interfaces -->/a\    <load module="mod_spandsp"/>' $CONFDIR/autoload_configs/modules.conf.xml
->>>>>>> upstream/v2.4.x-release
 
 	pushd $DESTDIR/opt/freeswitch
 	ln -s ./etc/freeswitch conf
