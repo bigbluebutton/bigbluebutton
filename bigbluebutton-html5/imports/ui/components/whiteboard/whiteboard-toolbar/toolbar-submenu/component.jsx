@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import { styles } from '../styles';
+import Styled from './styles';
 import ToolbarSubmenuItem from '../toolbar-submenu-item/component';
 
 const intlMessages = defineMessages({
@@ -89,36 +88,22 @@ class ToolbarSubmenu extends Component {
   static getCustomIcon(type, obj) {
     if (type === 'color') {
       return (
-        <svg className={styles.customSvgIcon}>
+        <Styled.CustomSvgIcon>
           <rect x="20%" y="20%" width="60%" height="60%" fill={obj.value} />
-        </svg>
+        </Styled.CustomSvgIcon>
       );
     } if (type === 'thickness') {
       return (
-        <svg className={styles.customSvgIcon}>
+        <Styled.CustomSvgIcon>
           <circle cx="50%" cy="50%" r={obj.value} />
-        </svg>
+        </Styled.CustomSvgIcon>
       );
     } if (type === 'font-size') {
       return (
-        <p className={styles.textThickness} style={{ fontSize: obj.value <= 32 ? obj.value : 32 }}>
+        <Styled.TextThickness style={{ fontSize: obj.value <= 32 ? obj.value : 32 }}>
           Aa
-        </p>
+        </Styled.TextThickness>
       );
-    }
-
-    return null;
-  }
-
-  static getWrapperClassNames(type) {
-    if (type === 'font-size') {
-      return cx(styles.fontSizeList, styles.toolbarList);
-    } if (
-      type === 'annotations'
-        || type === 'thickness'
-        || type === 'color'
-    ) {
-      return styles.toolbarList;
     }
 
     return null;
@@ -253,10 +238,10 @@ class ToolbarSubmenu extends Component {
     } = this.props;
 
     return (
-      <div
+      <Styled.Wrapper
         onMouseEnter={this.handleMouseEnter}
         onMouseLeave={this.handleMouseLeave}
-        className={ToolbarSubmenu.getWrapperClassNames(type)}
+        type={type}
         ref={(node) => { this.submenuItems = node; }}
         data-test="toolbarToolsList"
       >
@@ -267,15 +252,12 @@ class ToolbarSubmenu extends Component {
             customIcon={customIcon ? ToolbarSubmenu.getCustomIcon(type, obj) : null}
             onItemClick={this.onItemClick}
             objectToReturn={obj}
-            className={cx(
-              styles.toolbarListButton,
-              objectSelected.value === obj.value ? styles.selectedListButton : '',
-            )}
+            toolbarActive={objectSelected.value === obj.value}
             key={obj.value}
             data-test={`${obj.value}Tool`}
           />
         )) : null}
-      </div>
+      </Styled.Wrapper>
     );
   }
 }

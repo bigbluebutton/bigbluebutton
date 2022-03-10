@@ -12,10 +12,11 @@ public class OfficeDocConversionSupported implements IMessage{
   public final String uploaderId;
   public final String authzToken;
   public final Boolean downloadable;
+  public final Boolean removable;
 
   public OfficeDocConversionSupported(String podId, String meetingId, String presId, String presInstance,
                                       String filename, String uploaderId, String authzToken,
-                                      Boolean downloadable) {
+                                      Boolean downloadable, Boolean removable) {
     this.podId = podId;
     this.meetingId = meetingId;
     this.presId = presId;
@@ -24,5 +25,6 @@ public class OfficeDocConversionSupported implements IMessage{
     this.uploaderId = uploaderId;
     this.authzToken = authzToken;
     this.downloadable = downloadable;
+    this.removable = removable;
   }
 }

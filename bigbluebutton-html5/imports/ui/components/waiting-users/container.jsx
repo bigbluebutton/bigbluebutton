@@ -1,15 +1,15 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
-import GuestUsers from '/imports/api/guest-users/';
+import GuestUsers from '/imports/api/guest-users';
 import Meetings from '/imports/api/meetings';
 import Service from './service';
 import WaitingComponent from './component';
-import LayoutContext from '../layout/context';
+import { layoutDispatch } from '../layout/context';
 
 const WaitingContainer = (props) => {
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextDispatch } = layoutContext;
+  const layoutContextDispatch = layoutDispatch();
+
   return <WaitingComponent {...{ layoutContextDispatch, ...props }} />;
 };
 
@@ -36,11 +36,15 @@ export default withTracker(() => {
   return {
     guestUsers,
     authenticatedUsers,
+    privateMessageVisible: Service.privateMessageVisible,
     guestUsersCall: Service.guestUsersCall,
+    isWaitingRoomEnabled: Service.isWaitingRoomEnabled(),
     changeGuestPolicy: Service.changeGuestPolicy,
     isGuestLobbyMessageEnabled: Service.isGuestLobbyMessageEnabled,
     setGuestLobbyMessage: Service.setGuestLobbyMessage,
     guestLobbyMessage: Service.getGuestLobbyMessage(),
+    privateGuestLobbyMessage: Service.getPrivateGuestLobbyMessage,
+    setPrivateGuestLobbyMessage: Service.setPrivateGuestLobbyMessage,
     authenticatedGuest,
     allowRememberChoice: Service.allowRememberChoice,
   };

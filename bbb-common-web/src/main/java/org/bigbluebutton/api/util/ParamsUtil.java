@@ -53,23 +53,6 @@ public class ParamsUtil {
     return token;
   }
 
-  public static String getPadId(String url) {
-    String padId = "undefined";
-    try {
-      String decodedURL = URLDecoder.decode(url, "UTF-8");
-      String[] splitURL = decodedURL.split("\\?");
-      // If there is no query params, it's an invalid URL already
-      if (splitURL.length == 2) {
-        String[] params = splitURL[0].split("\\/");
-        // /p/pad/<padId>
-        if (params.length >= 4) padId = params[3];
-      }
-    } catch (UnsupportedEncodingException e) {
-      log.error(e.toString());
-    }
-    return padId;
-  }
-
   public static String sanitizeString(String inputString) {
     if(inputString == null) {
       return "";

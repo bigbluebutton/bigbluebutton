@@ -1,11 +1,9 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
-import Button from '/imports/ui/components/button/component';
-import ButtonEmoji from '/imports/ui/components/button/button-emoji/ButtonEmoji';
+import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import VideoService from '../service';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from './styles';
+import Styled from './styles';
 import { validIOSVersion } from '/imports/ui/components/app/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { debounce } from 'lodash';
@@ -110,11 +108,10 @@ const JoinVideoButton = ({
   );
 
   return (
-    <div className={styles.offsetBottom}>
-      <Button
+    <Styled.OffsetBottom>
+      <Styled.VideoButton
         label={label}
         data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
-        className={cx(hasVideoStream || styles.btn)}
         onClick={handleOnClick}
         hideLabel
         color={hasVideoStream ? 'primary' : 'default'}
@@ -125,7 +122,7 @@ const JoinVideoButton = ({
         disabled={!!disableReason}
       />
       {renderEmojiButton()}
-    </div>
+    </Styled.OffsetBottom>
   );
 };
 

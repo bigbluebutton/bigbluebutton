@@ -58,9 +58,9 @@ trait FakeTestData {
 
     val rusers = Users2x.findAll(liveMeeting.users2x)
     val others = rusers.filterNot(u => u.intId == ruser1.id)
-    val viewers = others.map { o => o.intId }
-    val wstream1 = FakeUserGenerator.createFakeWebcamStreamFor(ruser1.id, viewers.toSet)
-    Webcams.addWebcamBroadcastStream(liveMeeting.webcams, wstream1)
+    val subscribers = others.map { o => o.intId }
+    val wstream1 = FakeUserGenerator.createFakeWebcamStreamFor(ruser1.id, subscribers.toSet)
+    Webcams.addWebcamStream(liveMeeting.webcams, wstream1)
 
     createFakeUser(liveMeeting, ruser1)
   }

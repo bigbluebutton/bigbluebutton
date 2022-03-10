@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from './styles.scss';
+import Styled from './styles';
+import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -36,14 +36,16 @@ class AudioTest extends React.Component {
       intl,
     } = this.props;
 
+    const { animations } = Settings.application;
+
     return (
-      <Button
-        className={styles.testAudioBtn}
+      <Styled.TestAudioButton
         label={intl.formatMessage(intlMessages.playSoundLabel)}
         icon="unmute"
         size="sm"
         color="primary"
         onClick={() => this.handlePlayAudioSample(outputDeviceId)}
+        animations={animations}
       />
     );
   }

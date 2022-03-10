@@ -1,14 +1,12 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
-import Button from '/imports/ui/components/button/component';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import InputStreamLiveSelectorContainer from './input-stream-live-selector/container';
 import MutedAlert from '/imports/ui/components/muted-alert/component';
-import { styles } from './styles';
+import Styled from './styles';
+import Settings from '/imports/ui/services/settings';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -31,7 +29,6 @@ const intlMessages = defineMessages({
 
 const propTypes = {
   shortcuts: PropTypes.objectOf(PropTypes.string).isRequired,
-  processToggleMuteFromOutside: PropTypes.func.isRequired,
   handleToggleMuteMicrophone: PropTypes.func.isRequired,
   handleJoinAudio: PropTypes.func.isRequired,
   handleLeaveAudio: PropTypes.func.isRequired,
@@ -55,14 +52,6 @@ class AudioControls extends PureComponent {
     this.renderJoinLeaveButton = this.renderJoinLeaveButton.bind(this);
   }
 
-  componentDidMount() {
-    const { processToggleMuteFromOutside } = this.props;
-    if (Meteor.settings.public.allowOutsideCommands.toggleSelfVoice
-      || getFromUserSettings('bbb_outside_toggle_self_voice', false)) {
-      window.addEventListener('message', processToggleMuteFromOutside);
-    }
-  }
-
   renderJoinButton() {
     const {
       handleJoinAudio,
@@ -72,8 +61,7 @@ class AudioControls extends PureComponent {
     } = this.props;
 
     return (
-      <Button
-        className={styles.btn}
+      <Styled.AudioControlsButton
         onClick={handleJoinAudio}
         disabled={disable}
         hideLabel
@@ -118,8 +106,7 @@ class AudioControls extends PureComponent {
     }
 
     return (
-      <Button
-        className={cx(inAudio || styles.btn)}
+      <Styled.LeaveButtonWithoutLiveStreamSelector
         onClick={inAudio ? handleLeaveAudio : handleJoinAudio}
         disabled={disable}
         data-test={inAudio ? 'leaveAudio' : 'joinAudio'}
@@ -185,9 +172,10 @@ class AudioControls extends PureComponent {
     const label = muted ? intl.formatMessage(intlMessages.unmuteAudio)
       : intl.formatMessage(intlMessages.muteAudio);
 
+    const { animations } = Settings.application;
+
     const toggleMuteBtn = (
-      <Button
-        className={cx(styles.muteToggle, !talking || styles.glow, !muted || styles.btn)}
+      <Styled.MuteToggleButton
         onClick={handleToggleMuteMicrophone}
         disabled={disable}
         hideLabel
@@ -199,6 +187,8 @@ class AudioControls extends PureComponent {
         size="lg"
         circle
         accessKey={shortcuts.togglemute}
+        talking={talking}
+        animations={animations}
         data-test="toggleMicrophoneButton"
       />
     );
@@ -207,7 +197,7 @@ class AudioControls extends PureComponent {
     const { enabled: muteAlertEnabled } = MUTE_ALERT_CONFIG;
 
     return (
-      <span className={styles.container}>
+      <Styled.Container>
         {isVoiceUser && inputStream && muteAlertEnabled && !listenOnly && muted && showMute ? (
           <MutedAlert {...{
             muted, inputStream, isViewer, isPresenter,
@@ -218,7 +208,7 @@ class AudioControls extends PureComponent {
         {
           this.renderJoinLeaveButton()
         }
-      </span>
+      </Styled.Container>
     );
   }
 }

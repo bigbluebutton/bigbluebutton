@@ -2,7 +2,7 @@
     "app.home.greeting": "Su presentación se iniciará pronto...",
     "app.chat.submitLabel": "Enviar mensaje",
     "app.chat.loading": "Mensajes de chat cargados: {0}%",
-    "app.chat.errorMaxMessageLength": "El mensaje es {0} caracteres mas largo de lo esperado",
+    "app.chat.errorMaxMessageLength": "El mensaje es {0} caracter(es) más largo de lo esperado",
     "app.chat.disconnected": "Está desconectado, los mensajes no pueden ser enviados",
     "app.chat.locked": "El chat está bloqueado. Los mensajes no pueden enviarse",
     "app.chat.inputLabel": "Mensaje entrante para el chat {0}",
@@ -25,6 +25,8 @@
     "app.chat.multi.typing": "Varios usuarios están escribiendo",
     "app.chat.one.typing": "{0} está escribiendo",
     "app.chat.two.typing": "{0} y {1} están escribiendo",
+    "app.chat.copySuccess": "Transcripción de chat copiada",
+    "app.chat.copyErr": "Copiar la transcripción del chat ha fallado",
     "app.captions.label": "Subtítulos",
     "app.captions.menu.close": "Cerrar",
     "app.captions.menu.start": "Iniciar",
@@ -188,7 +190,9 @@
     "app.presentationUploder.uploadLabel": "Subir",
     "app.presentationUploder.confirmLabel": "Confirmar",
     "app.presentationUploder.confirmDesc": "Guardar los cambios e iniciar la presentación",
-    "app.presentationUploder.dismissLabel": "Cancelar"
+    "app.presentationUploder.dismissLabel": "Cancelar",
+    "app.whiteboard.toolbar.palmRejectionOn": "Activar rechazo de palma (táctiles)",
+    "app.whiteboard.toolbar.palmRejectionOff": "Desactivar rechazo de palma (táctiles)"
 
 }
 

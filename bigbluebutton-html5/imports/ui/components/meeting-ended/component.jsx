@@ -4,17 +4,17 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
 import Auth from '/imports/ui/services/auth';
 import LearningDashboardService from '../learning-dashboard/service';
-import Button from '/imports/ui/components/button/component';
 import allowRedirectToLogoutURL from './service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 import Rating from './rating/component';
-import { styles } from './styles';
+import Styled from './styles';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
+import { isLearningDashboardEnabled } from '/imports/ui/services/features';
 import Storage from '/imports/ui/services/storage/session';
 
 const intlMessage = defineMessages({
@@ -259,49 +259,46 @@ class MeetingEnded extends PureComponent {
     logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason: ejectedReason } }, logMessage);
 
     return (
-      <div className={styles.parent}>
-        <div className={styles.modal}>
-          <div className={styles.content}>
-            <h1 className={styles.title} data-test="meetingEndedModalTitle">
+      <Styled.Parent>
+        <Styled.Modal>
+          <Styled.Content>
+            <Styled.Title data-test="meetingEndedModalTitle">
               {this.getEndingMessage()}
-            </h1>
+            </Styled.Title>
             {!allowRedirectToLogoutURL() ? null : (
               <div>
                 {
                   LearningDashboardService.isModerator()
-                  && LearningDashboardService.isLearningDashboardEnabled() === true
+                  && isLearningDashboardEnabled() === true
                   // Always set cookie in case Dashboard is already opened
                   && LearningDashboardService.setLearningDashboardCookie() === true
                     ? (
-                      <div className={styles.text}>
-                        <Button
+                      <Styled.Text>
+                        <Styled.MeetingEndedButton
                           icon="multi_whiteboard"
                           color="default"
                           onClick={() => LearningDashboardService.openLearningDashboardUrl(locale)}
-                          className={styles.button}
                           label={intl.formatMessage(intlMessage.open_activity_report_btn)}
                           description={intl.formatMessage(intlMessage.open_activity_report_btn)}
                         />
-                      </div>
+                      </Styled.Text>
                     ) : null
                 }
-                <div className={styles.text}>
+                <Styled.Text>
                   {intl.formatMessage(intlMessage.messageEnded)}
-                </div>
+                </Styled.Text>
 
-                <Button
+                <Styled.MeetingEndedButton
                   color="primary"
                   onClick={this.confirmRedirect}
-                  className={styles.button}
                   label={intl.formatMessage(intlMessage.buttonOkay)}
                   description={intl.formatMessage(intlMessage.confirmDesc)}
                 />
               </div>
-
             )}
-          </div>
-        </div>
-      </div>
+          </Styled.Content>
+        </Styled.Modal>
+      </Styled.Parent>
     );
   }
 
@@ -318,17 +315,17 @@ class MeetingEnded extends PureComponent {
     logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code, reason: ejectedReason } }, logMessage);
 
     return (
-      <div className={styles.parent}>
-        <div className={styles.modal} data-test="meetingEndedModal">
-          <div className={styles.content}>
-            <h1 className={styles.title}>
+      <Styled.Parent>
+        <Styled.Modal data-test="meetingEndedModal">
+          <Styled.Content>
+            <Styled.Title>
               {this.getEndingMessage()}
-            </h1>
-            <div className={styles.text}>
+            </Styled.Title>
+            <Styled.Text>
               {this.shouldShowFeedback()
                 ? intl.formatMessage(intlMessage.subtitle)
                 : intl.formatMessage(intlMessage.messageEnded)}
-            </div>
+            </Styled.Text>
 
             {this.shouldShowFeedback() ? (
               <div data-test="rating">
@@ -337,10 +334,9 @@ class MeetingEnded extends PureComponent {
                   onRate={this.setSelectedStar}
                 />
                 {!noRating ? (
-                  <textarea
+                  <Styled.TextArea
                     rows="5"
                     id="feedbackComment"
-                    className={styles.textarea}
                     placeholder={intl.formatMessage(intlMessage.textarea)}
                     aria-describedby="textareaDesc"
                   />
@@ -348,27 +344,25 @@ class MeetingEnded extends PureComponent {
               </div>
             ) : null}
             {noRating && allowRedirectToLogoutURL() ? (
-              <Button
+              <Styled.MeetingEndedButton
                 color="primary"
                 onClick={this.confirmRedirect}
-                className={styles.button}
                 label={intl.formatMessage(intlMessage.buttonOkay)}
                 description={intl.formatMessage(intlMessage.confirmDesc)}
               />
             ) : null}
 
             {!noRating && !dispatched ? (
-              <Button
+              <Styled.MeetingEndedButton
                 color="primary"
                 onClick={this.sendFeedback}
-                className={styles.button}
                 label={intl.formatMessage(intlMessage.sendLabel)}
                 description={intl.formatMessage(intlMessage.sendDesc)}
               />
             ) : null}
-          </div>
-        </div>
-      </div>
+          </Styled.Content>
+        </Styled.Modal>
+      </Styled.Parent>
     );
   }
 

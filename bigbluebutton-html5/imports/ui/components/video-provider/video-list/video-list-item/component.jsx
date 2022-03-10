@@ -3,13 +3,10 @@ import { defineMessages, injectIntl } from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
-import BBBMenu from '/imports/ui/components/menu/component';
-import Icon from '/imports/ui/components/icon/component';
-import Button from '/imports/ui/components/button/component';
-import FullscreenService from '/imports/ui/components/fullscreen-button/service';
-import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
-import { styles } from '../styles';
+import BBBMenu from '/imports/ui/components/common/menu/component';
+import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
+import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
+import Styled from './styles';
 import VideoService from '../../service';
 import {
   isStreamStateUnhealthy,
@@ -17,6 +14,7 @@ import {
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
+import Settings from '/imports/ui/services/settings';
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 const { isSafari } = browserInfo;
@@ -241,14 +239,9 @@ class VideoListItem extends Component {
 
     if (!shouldRenderPinButton) return null;
 
-    const wrapperClassName = cx({
-      [styles.wrapper]: true,
-      [styles.dark]: true,
-    });
-
     return (
-      <div className={wrapperClassName}>
-        <Button
+      <Styled.PinButtonWrapper>
+        <Styled.PinButton
           color="default"
           icon={!pinned ? 'pin-video_on' : 'pin-video_off'}
           size="sm"
@@ -258,10 +251,9 @@ class VideoListItem extends Component {
             : intl.formatMessage(intlMessages.unpinLabelDisabled)}
           hideLabel
           disabled={!videoPinActionAvailable}
-          className={styles.button}
           data-test="pinVideoButton"
         />
-      </div>
+      </Styled.PinButtonWrapper>
     );
   }
 
@@ -283,68 +275,58 @@ class VideoListItem extends Component {
     const shouldRenderReconnect = !isStreamHealthy && videoIsReady;
 
     const { isFirefox } = browserInfo;
+    const { animations } = Settings.application;
     const talking = voiceUser?.talking;
     const listenOnly = voiceUser?.listenOnly;
     const muted = voiceUser?.muted;
     const voiceUserJoined = voiceUser?.joined;
-
+    
     return (
-      <div
+      <Styled.Content
+        talking={talking}
+        fullscreen={isFullscreenContext}
         data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
-        className={cx({
-          [styles.content]: true,
-          [styles.talking]: talking,
-          [styles.fullscreen]: isFullscreenContext,
-        })}
+        animations={animations}
       >
         {
           !videoIsReady
           && (
-            <div
+            <Styled.WebcamConnecting
               data-test="webcamConnecting"
-              className={cx({
-                [styles.connecting]: true,
-                [styles.content]: true,
-                [styles.talking]: talking,
-              })}
+              talking={talking}
+              animations={animations}
             >
-              <span className={styles.loadingText}>{name}</span>
-            </div>
+              <Styled.LoadingText>{name}</Styled.LoadingText>
+            </Styled.WebcamConnecting>
           )
 
         }
 
         {
           shouldRenderReconnect
-          && <div className={styles.reconnecting} />
+          && <Styled.Reconnecting />
         }
 
-        <div
-          className={styles.videoContainer}
-          ref={(ref) => { this.videoContainer = ref; }}
-        >
-          <video
+        <Styled.VideoContainer ref={(ref) => { this.videoContainer = ref; }}>
+          <Styled.Video
             muted
             data-test={this.mirrorOwnWebcam ? 'mirroredVideoContainer' : 'videoContainer'}
-            className={cx({
-              [styles.media]: true,
-              [styles.mirroredVideo]: isMirrored,
-              [styles.unhealthyStream]: shouldRenderReconnect,
-            })}
+            mirrored={isMirrored}
+            unhealthyStream={shouldRenderReconnect}
             ref={(ref) => { this.videoTag = ref; }}
             autoPlay
             playsInline
           />
           {videoIsReady && this.renderFullscreenButton()}
           {videoIsReady && this.renderPinButton()}
-        </div>
+        </Styled.VideoContainer>
         {videoIsReady
           && (
-            <div className={styles.info}>
+            <Styled.Info>
               {enableVideoMenu && availableActions.length >= 1
                 ? (
                   <BBBMenu
-                    trigger={<div tabIndex={0} className={styles.dropdownTrigger} data-test="dropdownWebcamButton">{name}</div>}
+                    trigger={<Styled.DropdownTrigger tabIndex={0} data-test="dropdownWebcamButton">{name}</Styled.DropdownTrigger>}
                     actions={this.getAvailableActions()}
                     opts={{
                       id: "default-dropdown-menu",
@@ -359,24 +341,18 @@ class VideoListItem extends Component {
                   />
                 )
                 : (
-                  <div className={isFirefox ? styles.dropdownFireFox
-                    : styles.dropdown}
-                  >
-                    <span className={cx({
-                      [styles.userName]: true,
-                      [styles.noMenu]: numOfStreams < 3,
-                    })}
-                    >
+                  <Styled.Dropdown isFirefox={isFirefox}>
+                    <Styled.UserName noMenu={numOfStreams < 3}>
                       {name}
-                    </span>
-                  </div>
+                    </Styled.UserName>
+                  </Styled.Dropdown>
                 )}
-              {muted && !listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
-              {listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
-              {voiceUserJoined && !muted ? <Icon className={styles.voice} iconName="unmute" /> : null}
-            </div>
+              {muted && !listenOnly ? <Styled.Muted iconName="unmute_filled" /> : null}
+              {listenOnly ? <Styled.Voice iconName="listen" /> : null}
+              {voiceUserJoined && !muted ? <Styled.Voice iconName="unmute" /> : null}
+            </Styled.Info>
           )}
-      </div>
+      </Styled.Content>
     );
   }
 }

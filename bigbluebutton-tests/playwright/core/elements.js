@@ -15,17 +15,18 @@ exports.lowerHandBtn = 'button[data-test="lowerHandLabel"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
 exports.logout = 'li[data-test="logout"]';
 exports.rating = 'div[data-test="rating"]';
+exports.errorScreenMessage = 'h1[data-test="errorScreenMessage"]';
 // Accesskey
 exports.chatButtonKey = 'div[accesskey="P"]';
 exports.userListButton = 'button[accesskey="U"]';
 
 // Audio
 exports.joinAudio = 'button[data-test="joinAudio"]';
-exports.audioModal = 'div[data-test="audioModal"]';
+exports.audioModal = 'div[aria-label="Join audio modal"]';
 exports.listenOnlyButton = 'button[data-test="listenOnlyBtn"]';
 exports.connecting = 'span[data-test="connecting"]';
 exports.leaveAudio = 'button[data-test="leaveAudio"]';
-exports.microphoneButton = 'button[data-test="microphoneBtn"]';
+exports.microphoneButton = 'button[aria-label="Microphone"]';
 exports.echoYesButton = 'button[data-test="echoYesBtn"]';
 exports.connectingToEchoTest = 'span[data-test="connectingToEchoTest"]';
 exports.isTalking = 'button[data-test="isTalking"]';
@@ -89,8 +90,8 @@ exports.userslist = 'div[data-test="userList"]';
 
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';
-exports.hideNoteLabel = 'button[data-test="hideNoteLabel"]';
-exports.etherpadFrame = 'iframe[title="etherpad"]';
+exports.hideNoteLabel = 'button[aria-label="Hide notes"]';
+exports.etherpadFrame = 'iframe[title="pad"]';
 exports.etherpadOuter = 'iframe[title="Ether"]';
 exports.etherpadInner = 'iframe[title="pad"]';
 exports.etherpadEditable = 'body[id="innerdocbody"]';
@@ -163,7 +164,7 @@ exports.confirmManagePresentation = 'button[data-test="confirmManagePresentation
 exports.toastDownload = 'a[data-test="toastDownload"]';
 exports.presentationDownloadBtn = 'button[data-test="presentationDownload"]';
 exports.removePresentation = 'button[data-test="removePresentation"]';
-exports.presentationPlaceholder = 'div[data-test="presentationPlaceholder"]';
+exports.presentationPlaceholder = 'span[data-test="presentationPlaceholder"]';
 exports.presentationContainer = 'div[class^="presentationContainer--"]';
 exports.minimizePresentation = 'button[data-test="minimizePresentation"]';
 exports.restorePresentation = 'button[data-test="restorePresentation"]';
@@ -205,10 +206,11 @@ exports.anyUser = 'div[data-test="userListItem"]';
 exports.userListToggleBtn = 'button[data-test="toggleUserList"]';
 exports.mobileUser = 'span[data-test="mobileUser"]';
 exports.connectionStatusBtn = 'button[data-test="connectionStatusButton"]';
-exports.connectionStatusModal = 'div[data-test="connectionStatusModal"]';
+exports.connectionStatusModal = 'div[aria-label="Connection status modal"]';
 exports.dataSavingScreenshare = 'input[data-test="dataSavingScreenshare"]';
 exports.screenshareLocked = 'button[data-test="screenshareLocked"]';
 exports.connectionStatusItemEmpty = 'div[data-test="connectionStatusItemEmpty"]';
+exports.connectionStatusTab2 = 'div[data-tab="2"]';
 exports.connectionStatusItemUser = 'div[data-test="connectionStatusItemUser"]';
 exports.dataSavingWebcams = 'input[data-test="dataSavingWebcams"]';
 exports.connectionStatusOfflineUser = 'div[data-test="offlineUser"]';

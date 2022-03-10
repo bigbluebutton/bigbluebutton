@@ -1,23 +1,14 @@
 import React, { PureComponent } from 'react';
-import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import { styles } from './styles.scss';
+import Styled from './styles';
 import CustomLogo from './custom-logo/component';
 import UserContentContainer from './user-list-content/container';
 
 const propTypes = {
   compact: PropTypes.bool,
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
   CustomLogoUrl: PropTypes.string.isRequired,
-  isPublicChat: PropTypes.func.isRequired,
-  setEmojiStatus: PropTypes.func.isRequired,
-  clearAllEmojiStatus: PropTypes.func.isRequired,
-  roving: PropTypes.func.isRequired,
   showBranding: PropTypes.bool.isRequired,
-  requestUserInformation: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -27,40 +18,21 @@ const defaultProps = {
 class UserList extends PureComponent {
   render() {
     const {
-      intl,
       compact,
-      setEmojiStatus,
-      clearAllEmojiStatus,
-      isPublicChat,
-      roving,
       CustomLogoUrl,
       showBranding,
-      hasBreakoutRoom,
-      requestUserInformation,
     } = this.props;
 
     return (
-      <div className={styles.userList}>
+      <Styled.UserList>
         {
           showBranding
             && !compact
             && CustomLogoUrl
             ? <CustomLogo CustomLogoUrl={CustomLogoUrl} /> : null
         }
-        {<UserContentContainer
-          {...{
-            intl,
-            compact,
-            setEmojiStatus,
-            clearAllEmojiStatus,
-            isPublicChat,
-            roving,
-            hasBreakoutRoom,
-            requestUserInformation,
-          }
-          }
-        />}
-      </div>
+        <UserContentContainer compact={compact} />
+      </Styled.UserList>
     );
   }
 }
@@ -68,4 +40,4 @@ class UserList extends PureComponent {
 UserList.propTypes = propTypes;
 UserList.defaultProps = defaultProps;
 
-export default injectWbResizeEvent(injectIntl(UserList));
+export default injectWbResizeEvent(UserList);

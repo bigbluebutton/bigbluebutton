@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import TimeWindowChatItem from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import ChatService from '../../service';
-import LayoutContext from '../../../layout/context';
+import { layoutSelect } from '../../../layout/context';
 import PollService from '/imports/ui/components/poll/service';
 import Auth from '/imports/ui/services/auth';
 
@@ -12,20 +12,29 @@ const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const TimeWindowChatItemContainer = (props) => {
   const { message, messageId } = props;
-  const layoutContext = useContext(LayoutContext);
-  const { layoutContextState } = layoutContext;
-  const { idChatOpen } = layoutContextState;
+
+  const idChatOpen = layoutSelect((i) => i.idChatOpen);
+
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const {
     sender,
+    senderName,
     key,
     timestamp,
     content,
     extra,
+    messageValues,
   } = message;
   const messages = content;
-  const user = users[Auth.meetingID][sender];
+
+  const user = (sender === 'SYSTEM') ? {
+    name: senderName,
+    color: '#01579b',
+    avatar: '',
+    role: ROLE_MODERATOR,
+    loggedOut: false,
+  } : users[Auth.meetingID][sender];
   const messageKey = key;
   const handleReadMessage = (tstamp) => ChatService.updateUnreadMessage(tstamp, idChatOpen);
   return (
@@ -34,12 +43,14 @@ const TimeWindowChatItemContainer = (props) => {
       ...{
         color: user?.color,
         isModerator: user?.role === ROLE_MODERATOR,
+        isSystemSender: sender === 'SYSTEM',
         isOnline: !user?.loggedOut,
         avatar: user?.avatar,
         name: user?.name,
         read: message.read,
         messages,
         extra,
+        messageValues,
         getPollResultString: PollService.getPollResultString,
         user,
         timestamp,

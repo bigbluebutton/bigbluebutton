@@ -1,8 +1,7 @@
 import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 import KEY_CODES from '/imports/utils/keyCodes';
-import { styles } from './styles';
+import Styled from './styles';
 import ListItem from './item/component';
 import ListSeparator from './separator/component';
 import ListTitle from './title/component';
@@ -14,8 +13,8 @@ const propTypes = {
     if (propValue[key].type !== ListItem
       && propValue[key].type !== ListSeparator
       && propValue[key].type !== ListTitle) {
-      return new Error(`Invalid prop \`${propFullName}\` supplied to` +
-        ` \`${componentName}\`. Validation failed.`);
+      return new Error(`Invalid prop \`${propFullName}\` supplied to`
+        + ` \`${componentName}\`. Validation failed.`);
     }
     return true;
   }).isRequired,
@@ -153,7 +152,6 @@ export default class DropdownList extends Component {
     const {
       children,
       style,
-      className,
       horizontal,
     } = this.props;
 
@@ -186,11 +184,12 @@ export default class DropdownList extends Component {
       },
     );
 
-    const listDirection = horizontal ? styles.horizontalList : styles.verticalList;
+    const listDirection = horizontal ? 'horizontal' : 'vertical';
+
     return (
-      <ul
+      <Styled.List
         style={style}
-        className={cx(listDirection, className)}
+        direction={listDirection}
         role="menu"
         ref={(menu) => {
           this._menu = menu;
@@ -198,7 +197,7 @@ export default class DropdownList extends Component {
         }}
       >
         {boundChildren}
-      </ul>
+      </Styled.List>
     );
   }
 }

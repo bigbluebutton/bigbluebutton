@@ -72,13 +72,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="bbbWebApiGWApp" class="org.bigbluebutton.api2.BbbWebApiGWApp">
         <constructor-arg index="0" ref="oldMessageReceivedGW"/>
-        <constructor-arg index="1" value="${screenshareRtmpServer}"/>
-        <constructor-arg index="2" value="${screenshareRtmpBroadcastApp}"/>
-        <constructor-arg index="3" value="${screenshareConfSuffix}"/>
-        <constructor-arg index="4" value="${redisHost}"/>
-        <constructor-arg index="5" value="${redisPort}"/>
-        <constructor-arg index="6" value="${redisPassword}"/>
-        <constructor-arg index="7" value="${redisKeyExpiry}"/>
+        <constructor-arg index="1" value="${redisHost}"/>
+        <constructor-arg index="2" value="${redisPort}"/>
+        <constructor-arg index="3" value="${redisPassword}"/>
+        <constructor-arg index="4" value="${redisKeyExpiry}"/>
     </bean>
 
     <bean id="recordingServiceHelper" class="org.bigbluebutton.api.util.RecordingMetadataReaderHelper">
@@ -154,7 +151,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
-        <property name="learningDashboardEnabled" value="${learningDashboardEnabled}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
         <property name="defaultMeetingCameraCap" value="${meetingCameraCap}"/>
@@ -181,7 +177,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsDisableMic" value="${lockSettingsDisableMic}"/>
         <property name="lockSettingsDisablePrivateChat" value="${lockSettingsDisablePrivateChat}"/>
         <property name="lockSettingsDisablePublicChat" value="${lockSettingsDisablePublicChat}"/>
-        <property name="lockSettingsDisableNote" value="${lockSettingsDisableNote}"/>
+        <property name="lockSettingsDisableNotes" value="${lockSettingsDisableNotes}"/>
         <property name="lockSettingsHideUserList" value="${lockSettingsHideUserList}"/>
         <property name="lockSettingsLockedLayout" value="${lockSettingsLockedLayout}"/>
         <property name="lockSettingsLockOnJoin" value="${lockSettingsLockOnJoin}"/>
@@ -189,6 +185,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
         <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>
         <property name="endWhenNoModeratorDelayInMinutes" value="${endWhenNoModeratorDelayInMinutes}"/>
+        <property name="disabledFeatures" value="${disabledFeatures}"/>
         <property name="defaultKeepEvents" value="${defaultKeepEvents}"/>
         <property name="allowRevealOfBBBVersion" value="${allowRevealOfBBBVersion}"/>
     </bean>

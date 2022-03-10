@@ -34,12 +34,12 @@ trait RespondToPollReqMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    def broadcastUserRespondedToPollRespMsg(msg: RespondToPollReqMsg, pollId: String, answerId: Int, sendToId: String): Unit = {
+    def broadcastUserRespondedToPollRespMsg(msg: RespondToPollReqMsg, pollId: String, answerIds: Seq[Int], sendToId: String): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, sendToId)
       val envelope = BbbCoreEnvelope(UserRespondedToPollRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(UserRespondedToPollRespMsg.NAME, liveMeeting.props.meetingProp.intId, sendToId)
 
-      val body = UserRespondedToPollRespMsgBody(pollId, msg.header.userId, answerId)
+      val body = UserRespondedToPollRespMsgBody(pollId, msg.header.userId, answerIds)
       val event = UserRespondedToPollRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
@@ -47,20 +47,24 @@ trait RespondToPollReqMsgHdlr {
 
     for {
       (pollId: String, updatedPoll: SimplePollResultOutVO) <- Polls.handleRespondToPollReqMsg(msg.header.userId, msg.body.pollId,
-        msg.body.questionId, msg.body.answerId, liveMeeting)
+        msg.body.questionId, msg.body.answerIds, liveMeeting)
     } yield {
       broadcastPollUpdatedEvent(msg, pollId, updatedPoll)
       for {
         poll <- Polls.getPoll(pollId, liveMeeting.polls)
       } yield {
-        val answerText = poll.questions(0).answers.get(msg.body.answerId).key
-        broadcastUserRespondedToPollRecordMsg(msg, pollId, msg.body.answerId, answerText, poll.isSecret)
+        for {
+          answerId <- msg.body.answerIds
+        } yield {
+          val answerText = poll.questions(0).answers.get(answerId).key
+          broadcastUserRespondedToPollRecordMsg(msg, pollId, answerId, answerText, poll.isSecret)
+        }
       }
 
       for {
         presenter <- Users2x.findPresenter(liveMeeting.users2x)
       } yield {
-        broadcastUserRespondedToPollRespMsg(msg, pollId, msg.body.answerId, presenter.intId)
+        broadcastUserRespondedToPollRespMsg(msg, pollId, msg.body.answerIds, presenter.intId)
       }
     }
   }

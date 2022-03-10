@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import ConnectionStatusModalContainer from '/imports/ui/components/connection-status/modal/container';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Icon from '/imports/ui/components/connection-status/icon/component';
-import { styles } from './styles';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   label: {
@@ -21,12 +21,12 @@ const intlMessages = defineMessages({
 class ConnectionStatusButton extends PureComponent {
   renderIcon(level = 'normal') {
     return(
-      <div className={styles.iconWrapper}>
+      <Styled.IconWrapper>
         <Icon
           level={level}
           grayscale
         />
-      </div>
+      </Styled.IconWrapper>
     );
   }
 
@@ -38,7 +38,7 @@ class ConnectionStatusButton extends PureComponent {
 
     if (!connected) {
       return (
-        <div className={styles.buttonWrapper}>
+        <Styled.ButtonWrapper>
           <Button
             customIcon={this.renderIcon()}
             label={intl.formatMessage(intlMessages.label)}
@@ -51,7 +51,7 @@ class ConnectionStatusButton extends PureComponent {
             onClick={() => {}}
             data-test="connectionStatusButton"
           />
-        </div>
+        </Styled.ButtonWrapper>
       );
     }
 
@@ -80,7 +80,7 @@ class ConnectionStatusButton extends PureComponent {
     const level = stats ? stats : 'normal';
 
     return (
-      <div className={styles.buttonWrapper}>
+      <Styled.ButtonWrapper>
         <Button
           customIcon={this.renderIcon(level)}
           label={intl.formatMessage(intlMessages.label)}
@@ -92,7 +92,7 @@ class ConnectionStatusButton extends PureComponent {
           onClick={() => mountModal(<ConnectionStatusModalContainer />)}
           data-test="connectionStatusButton"
         />
-      </div>
+      </Styled.ButtonWrapper>
     );
   }
 }

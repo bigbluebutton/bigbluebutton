@@ -3,11 +3,11 @@ import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
 
-import { makeCall } from '/imports/ui/services/api';
 import { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
 import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
 import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
-import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
+import SubscriptionRegistry from '/imports/ui/services/subscription-registry/subscriptionRegistry';
+import { ValidationStates } from '/imports/api/auth-token-validation';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -151,6 +151,15 @@ class Auth {
     };
   }
 
+  set _connectionID(connectionId) {
+    this._connectionID = connectionId;
+    Storage.setItem('sessionToken', this._connectionID);
+  }
+
+  get sessionToken() {
+    return this._sessionToken;
+  }
+
   set(
     meetingId,
     requesterUserId,
@@ -223,7 +232,7 @@ class Auth {
 
   validateAuthToken() {
     return new Promise((resolve, reject) => {
-      Meteor.subscribe('current-user');
+      SubscriptionRegistry.createSubscription('current-user');
       const validationTimeout = setTimeout(() => {
         reject({
           error: 408,

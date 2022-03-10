@@ -1,11 +1,9 @@
 import React from 'react';
-import cx from 'classnames';
-import Toggle from '/imports/ui/components/switch/component';
+import Toggle from '/imports/ui/components/common/switch/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
-import { styles } from '../styles';
-
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+import Styled from './styles';
+import { isChatEnabled } from '/imports/ui/services/features';
 
 const intlMessages = defineMessages({
   notificationSectionTitle: {
@@ -70,32 +68,34 @@ class NotificationMenu extends BaseMenu {
     return (
       <div>
         <div>
-          <h3 className={styles.title}>
+          <Styled.Title>
             {intl.formatMessage(intlMessages.notificationSectionTitle)}
-          </h3>
-          <h4 className={styles.subtitle}>{intl.formatMessage(intlMessages.notificationSectionDesc)}</h4>
+          </Styled.Title>
+          <Styled.SubTitle>
+            {intl.formatMessage(intlMessages.notificationSectionDesc)}
+          </Styled.SubTitle>
         </div>
 
-        <div className={styles.form}>
-          <div className={styles.row}>
-            <div className={styles.col} />
-            <div className={cx(styles.col, styles.colHeading)}>
+        <Styled.Form>
+          <Styled.Row>
+            <Styled.Col />
+            <Styled.ColHeading>
               {intl.formatMessage(intlMessages.audioAlertLabel)}
-            </div>
-            <div className={cx(styles.col, styles.colHeading)}>
+            </Styled.ColHeading>
+            <Styled.ColHeading>
               {intl.formatMessage(intlMessages.pushAlertLabel)}
-            </div>
-          </div>
+            </Styled.ColHeading>
+          </Styled.Row>
 
-          {CHAT_ENABLED ? (
-            <div className={styles.row}>
-              <div className={styles.col}>
-                <label className={styles.label}>
+          {isChatEnabled() ? (
+            <Styled.Row>
+              <Styled.Col>
+                <Styled.Label>
                   {intl.formatMessage(intlMessages.messagesLabel)}
-                </label>
-              </div>
-              <div className={styles.col}>
-                <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                </Styled.Label>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementCenter>
                   {displaySettingsStatus(settings.chatAudioAlerts)}
                   <Toggle
                     icons={false}
@@ -104,10 +104,10 @@ class NotificationMenu extends BaseMenu {
                     ariaLabel={`${intl.formatMessage(intlMessages.messagesLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)}`}
                     showToggleLabel={showToggleLabel}
                   />
-                </div>
-              </div>
-              <div className={styles.col}>
-                <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                </Styled.FormElementCenter>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementCenter>
                   {displaySettingsStatus(settings.chatPushAlerts)}
                   <Toggle
                     icons={false}
@@ -117,19 +117,19 @@ class NotificationMenu extends BaseMenu {
                     showToggleLabel={showToggleLabel}
                     data-test="chatPopupAlertsBtn"
                   />
-                </div>
-              </div>
-            </div>) : null
-            }
+                </Styled.FormElementCenter>
+              </Styled.Col>
+            </Styled.Row>
+          ) : null}
 
-          <div className={styles.row}>
-            <div className={styles.col}>
-              <label className={styles.label}>
+          <Styled.Row>
+            <Styled.Col>
+              <Styled.Label>
                 {intl.formatMessage(intlMessages.userJoinLabel)}
-              </label>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentCenter)}>
+              </Styled.Label>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementCenter>
                 {displaySettingsStatus(settings.userJoinAudioAlerts)}
                 <Toggle
                   icons={false}
@@ -138,10 +138,10 @@ class NotificationMenu extends BaseMenu {
                   ariaLabel={`${intl.formatMessage(intlMessages.userJoinLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)}`}
                   showToggleLabel={showToggleLabel}
                 />
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentCenter)}>
+              </Styled.FormElementCenter>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementCenter>
                 {displaySettingsStatus(settings.userJoinPushAlerts)}
                 <Toggle
                   icons={false}
@@ -151,18 +151,18 @@ class NotificationMenu extends BaseMenu {
                   showToggleLabel={showToggleLabel}
                   data-test="userJoinPopupAlerts"
                 />
-              </div>
-            </div>
-          </div>
+              </Styled.FormElementCenter>
+            </Styled.Col>
+          </Styled.Row>
 
-          <div className={styles.row}>
-            <div className={styles.col}>
-              <label className={styles.label}>
+          <Styled.Row>
+            <Styled.Col>
+              <Styled.Label>
                 {intl.formatMessage(intlMessages.userLeaveLabel)}
-              </label>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentCenter)}>
+              </Styled.Label>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementCenter>
                 {displaySettingsStatus(settings.userLeaveAudioAlerts)}
                 <Toggle
                   icons={false}
@@ -171,10 +171,10 @@ class NotificationMenu extends BaseMenu {
                   ariaLabel={`${intl.formatMessage(intlMessages.userLeaveLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)}`}
                   showToggleLabel={showToggleLabel}
                 />
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentCenter)}>
+              </Styled.FormElementCenter>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementCenter>
                 {displaySettingsStatus(settings.userLeavePushAlerts)}
                 <Toggle
                   icons={false}
@@ -183,19 +183,19 @@ class NotificationMenu extends BaseMenu {
                   ariaLabel={`${intl.formatMessage(intlMessages.userLeaveLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
                   showToggleLabel={showToggleLabel}
                 />
-              </div>
-            </div>
-          </div>
+              </Styled.FormElementCenter>
+            </Styled.Col>
+          </Styled.Row>
 
           {isModerator && showGuestNotification ? (
-            <div className={styles.row}>
-              <div className={styles.col}>
-                <label className={styles.label}>
+            <Styled.Row>
+              <Styled.Col>
+                <Styled.Label>
                   {intl.formatMessage(intlMessages.guestWaitingLabel)}
-                </label>
-              </div>
-              <div className={styles.col}>
-                <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                </Styled.Label>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementCenter>
                   {displaySettingsStatus(settings.guestWaitingAudioAlerts)}
                   <Toggle
                     icons={false}
@@ -204,10 +204,10 @@ class NotificationMenu extends BaseMenu {
                     ariaLabel={`${intl.formatMessage(intlMessages.guestWaitingLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)}`}
                     showToggleLabel={showToggleLabel}
                   />
-                </div>
-              </div>
-              <div className={styles.col}>
-                <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                </Styled.FormElementCenter>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementCenter>
                   {displaySettingsStatus(settings.guestWaitingPushAlerts)}
                   <Toggle
                     icons={false}
@@ -216,20 +216,20 @@ class NotificationMenu extends BaseMenu {
                     ariaLabel={`${intl.formatMessage(intlMessages.guestWaitingLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
                     showToggleLabel={showToggleLabel}
                   />
-                </div>
-              </div>
-            </div>
+                </Styled.FormElementCenter>
+              </Styled.Col>
+            </Styled.Row>
           ) : null}
 
           {isModerator ? (
-            <div className={styles.row}>
-              <div className={styles.col}>
-                <label className={styles.label}>
+            <Styled.Row>
+              <Styled.Col>
+                <Styled.Label>
                   {intl.formatMessage(intlMessages.raiseHandLabel)}
-                </label>
-              </div>
-              <div className={styles.col}>
-                <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                </Styled.Label>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementCenter>
                   {displaySettingsStatus(settings.raiseHandAudioAlerts)}
                   <Toggle
                     icons={false}
@@ -238,10 +238,10 @@ class NotificationMenu extends BaseMenu {
                     ariaLabel={`${intl.formatMessage(intlMessages.raiseHandLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)}`}
                     showToggleLabel={showToggleLabel}
                   />
-                </div>
-              </div>
-              <div className={styles.col}>
-                <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                </Styled.FormElementCenter>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementCenter>
                   {displaySettingsStatus(settings.raiseHandPushAlerts)}
                   <Toggle
                     icons={false}
@@ -250,12 +250,12 @@ class NotificationMenu extends BaseMenu {
                     ariaLabel={`${intl.formatMessage(intlMessages.raiseHandLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
                     showToggleLabel={showToggleLabel}
                   />
-                </div>
-              </div>
-            </div>
+                </Styled.FormElementCenter>
+              </Styled.Col>
+            </Styled.Row>
           ) : null}
 
-        </div>
+        </Styled.Form>
       </div>
     );
   }

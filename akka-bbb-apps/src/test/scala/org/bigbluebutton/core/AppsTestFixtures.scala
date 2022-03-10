@@ -16,7 +16,6 @@ trait AppsTestFixtures {
   val record = false
   val voiceConfId = "85115"
   val muteOnStart = true
-  val deskshareConfId = "85115-DESKSHARE"
   val durationInMinutes = 10
   val meetingExpireIfNoUserJoinedInMinutes = 5
   val meetingExpireWhenLastUserLeftInMinutes = 10
@@ -47,10 +46,7 @@ trait AppsTestFixtures {
   val meetingLayout = ""
   val virtualBackgroundsEnabled = false
 
-  val red5DeskShareIPTestFixture = "127.0.0.1"
-  val red5DeskShareAppTestFixtures = "red5App"
   val metadata: collection.immutable.Map[String, String] = Map("foo" -> "bar", "bar" -> "baz", "baz" -> "foo")
-  val screenshareProps = ScreenshareProps("TODO", "TODO", "TODO")
   val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, breakoutRooms = Vector())
 
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
@@ -72,7 +68,7 @@ trait AppsTestFixtures {
   val metadataProp = new MetadataProp(metadata)
 
   val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
-    usersProp, metadataProp, screenshareProps)
+    usersProp, metadataProp)
 
   val chatModel = new ChatModel()
   val layouts = new Layouts()

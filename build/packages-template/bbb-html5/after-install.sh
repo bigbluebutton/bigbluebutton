@@ -9,74 +9,27 @@ fi
 
 cd /usr/share/meteor
 
-if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
-  sed -i 's/^svgImagesRequired=.*/svgImagesRequired=true/' $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
-  if [ ! -f /.dockerenv ]; then
-    systemctl restart nginx
-  fi
-
-  if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep bigbluebutton.web.serverURL | grep -q https; then
-    PROTOCOL=https
-    sed -i 's/^ENVIRONMENT_TYPE=.*/ENVIRONMENT_TYPE=production/' /usr/share/meteor/bundle/systemd_start.sh
-  else
-    PROTOCOL=http
-    sed -i 's/^ENVIRONMENT_TYPE=.*/ENVIRONMENT_TYPE=development/' /usr/share/meteor/bundle/systemd_start.sh
-  fi
-
+# meteor code should be owned by root, config file by meteor user
+meteor_owner=$(stat -c %U:%G /usr/share/meteor)
+if [[ $meteor_owner != "root:root" ]] ; then
+    chown -R root:root /usr/share/meteor
 fi
 
-  SOURCE=/tmp/settings.yml
-  TARGET=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+TARGET=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
-  if [ -f $SOURCE ]; then
+  WSURL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
 
-    WSURL=$(yq r $SOURCE public.kurento.wsUrl)
-    CHROMEEXTENSIONKEY=$(yq r $SOURCE public.kurento.chromeExtensionKey)
-    CHROMEEXTENSIONLINK=$(yq r $SOURCE public.kurento.chromeExtensionLink)
-    ENABLESCREENSHARING=$(yq r $SOURCE public.kurento.enableScreensharing)
-    ENABLEVIDEO=$(yq r $SOURCE public.kurento.enableVideo)
+  yq w -i $TARGET public.kurento.wsUrl               "$WSURL/bbb-webrtc-sfu"
 
-    ETHERPAD_ENABLED=$(yq r $SOURCE public.note.enabled)
-    ETHERPAD_URL=$(yq r $SOURCE public.note.url)
+  yq w -i $TARGET public.kurento.enableScreensharing "true"
+  yq w -i $TARGET public.kurento.enableVideo         "true"
 
-    yq w -i $TARGET public.kurento.wsUrl               "$WSURL"
-    yq w -i $TARGET public.kurento.chromeExtensionKey  "$CHROMEEXTENSIONKEY"
-    yq w -i $TARGET public.kurento.chromeExtensionLink "$CHROMEEXTENSIONLINK"
-    yq w -i $TARGET public.kurento.enableScreensharing "$ENABLESCREENSHARING"
-    yq w -i $TARGET public.kurento.enableVideo         "$ENABLEVIDEO"
+  yq w -i $TARGET public.app.listenOnlyMode          "true"
 
-    if [ "$ETHERPAD_ENABLED" == "null" ]; then
-      # This is an upgrade from a previous version of 2.2-dev that didn't have settings for etherpad
-      yq w -i $TARGET public.note.enabled                "true"
-      yq w -i $TARGET public.note.url                    "$PROTOCOL://$HOST/pad"
-    else
-      yq w -i $TARGET public.note.enabled                "$ETHERPAD_ENABLED"
-      yq w -i $TARGET public.note.url                    "$ETHERPAD_URL"
-    fi
+  yq w -i $TARGET public.pads.url                    "$PROTOCOL://$HOST/pad"
 
-    yq w -i $TARGET public.app.listenOnlyMode          "true"
-
-    mv -f $SOURCE "${SOURCE}_"
-  else
-    # New Setup
-    WSURL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
-
-    yq w -i $TARGET public.kurento.wsUrl               "$WSURL/bbb-webrtc-sfu"
-
-    yq w -i $TARGET public.kurento.enableScreensharing "true"
-    yq w -i $TARGET public.kurento.enableVideo         "true"
-
-    yq w -i $TARGET public.app.listenOnlyMode          "true"
-
-    yq w -i $TARGET public.note.enabled                "true"
-    yq w -i $TARGET public.note.url                    "$PROTOCOL://$HOST/pad"
-
-    sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
-    sed -i "s/server_name  .*/server_name  $IP;/g" /etc/nginx/sites-available/bigbluebutton
-  fi
-
-  APIKEY=$(cat /usr/share/etherpad-lite/APIKEY.txt)
-  yq w -i $TARGET private.etherpad.apikey $APIKEY
+  sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
+  sed -i "s/server_name  .*/server_name  $IP;/g" /etc/nginx/sites-available/bigbluebutton
 
   chmod 600 $TARGET
   chown meteor:meteor $TARGET
@@ -84,6 +37,17 @@ fi
 if [ ! -f /.dockerenv ]; then
   systemctl enable disable-transparent-huge-pages.service
   systemctl daemon-reload
+fi
+
+# set full BBB version in settings.yml so it can be displayed in the client
+BBB_RELEASE_FILE=/etc/bigbluebutton/bigbluebutton-release
+BBB_HTML5_SETTINGS_FILE=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+if [[ -f $BBB_RELEASE_FILE ]] ; then
+  BBB_FULL_VERSION=$(cat $BBB_RELEASE_FILE | sed -n '/^BIGBLUEBUTTON_RELEASE/{s/.*=//;p}' )
+  echo "setting BBB_FULL_VERSION=$BBB_FULL_VERSION in $BBB_HTML5_SETTINGS_FILE "
+  if [[ -f $BBB_HTML5_SETTINGS_FILE ]] ; then
+    yq w -i $BBB_HTML5_SETTINGS_FILE public.app.bbbServerVersion $BBB_FULL_VERSION
+  fi
 fi
 
 # Remove old overrides 
@@ -96,19 +60,10 @@ if [ -f /etc/systemd/system/mongod.service.d/override-mongo.conf ] \
   systemctl daemon-reload
 fi
 
-# Setup specific version of node
-
-
 source /etc/lsb-release
-if [ "$DISTRIB_RELEASE" == "16.04" ]; then
-  if [ ! -d /usr/share/node-v8.17.0-linux-x64 ]; then
-    cd /usr/share
-    tar xfz node-v8.17.0-linux-x64.tar.gz
-    chown -R meteor:meteor node-v8.17.0-linux-x64
-  fi
-fi
 
-if [ "$DISTRIB_RELEASE" == "18.04" ]; then
+# Setup specific version of node
+if [ "$DISTRIB_CODENAME" == "bionic" ]; then
   node_version="14.18.1"
   if [[ ! -d /usr/share/node-v${node_version}-linux-x64 ]]; then
     cd /usr/share
@@ -147,6 +102,9 @@ fi
 chown root:root /usr/lib/systemd/system
 chown root:root /usr/lib/systemd/system/bbb-html5.service
 chown root:root /usr/lib/systemd/system/disable-transparent-huge-pages.service
+
+# Ensure settings is readable
+chmod go+r /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
 startService bbb-html5 || echo "bbb-html5 service could not be registered or started"
 

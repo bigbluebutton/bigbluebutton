@@ -62,8 +62,6 @@ trait TestFixtures {
     userCameraCap = userCameraCap,
     guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, allowModsToEjectCameras = allowModsToEjectCameras, authenticatedGuest = authenticatedGuest)
   val metadataProp = new MetadataProp(metadata)
-  val screenshareProps = ScreenshareProps(screenshareConf = "FixMe!", red5ScreenshareIp = "fixMe!",
-    red5ScreenshareApp = "fixMe!")
   val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
-    usersProp, metadataProp, screenshareProps)
+    usersProp, metadataProp)
 }

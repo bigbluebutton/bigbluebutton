@@ -1,10 +1,9 @@
 import Presentations from '/imports/api/presentations';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
-import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
 import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { isExternalVideoEnabled, isScreenSharingEnabled } from '/imports/ui/services/features';
 import { ACTIONS } from '../layout/enums';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
@@ -21,22 +20,17 @@ const getPresentationInfo = () => {
   };
 };
 
-const isUserPresenter = () => Users.findOne({ userId: Auth.userID },
-  { fields: { presenter: 1 } }).presenter;
-
 function shouldShowWhiteboard() {
   return true;
 }
 
 function shouldShowScreenshare() {
   const { viewScreenshare } = Settings.dataSaving;
-  const enableScreensharing = getFromUserSettings('bbb_enable_screen_sharing', KURENTO_CONFIG.enableScreensharing);
-  return enableScreensharing && viewScreenshare && isVideoBroadcasting();
+  return isScreenSharingEnabled() && viewScreenshare && isVideoBroadcasting();
 }
 
 function shouldShowExternalVideo() {
-  const { enabled: enableExternalVideo } = Meteor.settings.public.externalVideoPlayer;
-  return enableExternalVideo && getVideoUrl();
+  return isExternalVideoEnabled() && getVideoUrl();
 }
 
 function shouldShowOverlay() {
@@ -91,7 +85,6 @@ export default {
   shouldShowScreenshare,
   shouldShowExternalVideo,
   shouldShowOverlay,
-  isUserPresenter,
   isVideoBroadcasting,
   toggleSwapLayout,
   shouldEnableSwapLayout,
