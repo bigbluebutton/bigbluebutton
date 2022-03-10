@@ -31,6 +31,7 @@ const propTypes = {
   hasPermission: PropTypes.bool.isRequired,
   isResizing: PropTypes.bool.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
+  amIPresenter: PropTypes.bool.isRequired,
 };
 
 const Notes = ({
@@ -38,13 +39,13 @@ const Notes = ({
   intl,
   isRTL,
   layoutContextDispatch,
-  amIModerator,
+  amIPresenter,
   isResizing,
 }) => {
   useEffect(() => () => Service.setLastRev(), []);
   const { isChrome } = browserInfo;
 
-  if (hasPermission && amIModerator) {
+  if (hasPermission && amIPresenter) {
     return (
       <Styled.Notes data-test="notes" isChrome={isChrome}>
         <Styled.Header>
@@ -67,7 +68,7 @@ const Notes = ({
             />
           </Styled.Title>
           <Styled.ConvertAndUpload
-            onClick={() => { Service.convertAndUpload(); }}
+            onClick={() => { Service.convertAndUpload(Date.now()); }}
             label={intl.formatMessage(intlMessages.convertAndUploadLabel)}
             icon="upload"
           />
