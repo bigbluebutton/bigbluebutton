@@ -22,7 +22,9 @@ trait PadCreateGroupReqMsgHdlr {
     }
 
     val padEnabled = {
-      if (msg.body.externalId == "notes" && liveMeeting.props.meetingProp.disabledFeatures.contains("sharedNotes")) {
+      if (msg.body.model == "notes" && liveMeeting.props.meetingProp.disabledFeatures.contains("sharedNotes")) {
+        false
+      } else if (msg.body.model == "captions" && liveMeeting.props.meetingProp.disabledFeatures.contains("captions")) {
         false
       } else {
         true
