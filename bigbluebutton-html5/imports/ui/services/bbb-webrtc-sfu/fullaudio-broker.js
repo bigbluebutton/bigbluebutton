@@ -10,20 +10,14 @@ const SFU_COMPONENT_NAME = 'fullaudio';
 class FullAudioBroker extends BaseBroker {
   constructor(
     wsUrl,
-    voiceBridge,
-    userId,
-    internalMeetingId,
     role,
     options = {},
   ) {
     super(SFU_COMPONENT_NAME, wsUrl);
-    this.voiceBridge = voiceBridge;
-    this.userId = userId;
-    this.internalMeetingId = internalMeetingId;
     this.role = role;
     this.offering = true;
 
-    // Optional parameters are: userName, caleeName, iceServers, offering,
+    // Optional parameters are: caleeName, iceServers, offering,
     // mediaServer, extension, constraints
     Object.assign(this, options);
   }
@@ -171,7 +165,6 @@ class FullAudioBroker extends BaseBroker {
       id: SUBSCRIBER_ANSWER,
       type: this.sfuComponent,
       role: this.role,
-      voiceBridge: this.voiceBridge,
       sdpOffer: localDescription,
     };
 
@@ -191,11 +184,7 @@ class FullAudioBroker extends BaseBroker {
       id: 'start',
       type: this.sfuComponent,
       role: this.role,
-      internalMeetingId: this.internalMeetingId,
-      voiceBridge: this.voiceBridge,
       caleeName: this.caleeName,
-      userId: this.userId,
-      userName: this.userName,
       sdpOffer: offer,
       mediaServer: this.mediaServer,
       extension: this.extension,
@@ -240,7 +229,6 @@ class FullAudioBroker extends BaseBroker {
       id: ON_ICE_CANDIDATE_MSG,
       role,
       type: this.sfuComponent,
-      voiceBridge: this.voiceBridge,
       candidate,
     };
 

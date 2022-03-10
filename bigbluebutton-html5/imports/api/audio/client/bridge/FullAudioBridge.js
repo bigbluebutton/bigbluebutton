@@ -11,7 +11,6 @@ import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 import Storage from '/imports/ui/services/storage/session';
 import browserInfo from '/imports/utils/browserInfo';
 import {
-  DEFAULT_INPUT_DEVICE_ID,
   DEFAULT_OUTPUT_DEVICE_ID,
   INPUT_DEVICE_ID_KEY,
   OUTPUT_DEVICE_ID_KEY,
@@ -60,8 +59,6 @@ const getMediaServerAdapter = () => getFromMeetingSettings(
 export default class FullAudioBridge extends BaseAudioBridge {
   constructor(userData) {
     super();
-    this.internalMeetingID = userData.meetingId;
-    this.voiceBridge = userData.voiceBridge;
     this.userId = userData.userId;
     this.name = userData.username;
     this.sessionToken = userData.sessionToken;
@@ -310,7 +307,6 @@ export default class FullAudioBridge extends BaseAudioBridge {
       ].join('-').replace(/"/g, "'");
 
       const brokerOptions = {
-        userName: this.name,
         caleeName: callerIdName,
         extension,
         iceServers: this.iceServers,
@@ -321,9 +317,6 @@ export default class FullAudioBridge extends BaseAudioBridge {
 
       this.broker = new FullAudioBroker(
         Auth.authenticateURL(SFU_URL),
-        this.voiceBridge,
-        this.userId,
-        this.internalMeetingID,
         isListenOnly ? RECV_ROLE : SENDRECV_ROLE,
         brokerOptions,
       );
