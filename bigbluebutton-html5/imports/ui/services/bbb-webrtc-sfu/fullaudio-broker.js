@@ -72,12 +72,11 @@ class FullAudioBroker extends BaseBroker {
           audio: this.constraints ? this.constraints : true,
           video: false,
         },
+        configuration: this.populatePeerConfiguration(),
         onicecandidate: (candidate) => {
           this.onIceCandidate(candidate, this.role);
         },
       };
-
-      this.addIceServers(options);
 
       const WebRTCPeer = (this.role === 'sendrecv')
         ? kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv

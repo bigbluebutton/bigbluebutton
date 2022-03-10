@@ -19,7 +19,7 @@ import {
   getAudioConstraints,
   filterSupportedConstraints,
 } from '/imports/api/audio/client/bridge/service';
-
+import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const MEDIA = Meteor.settings.public.media;
@@ -316,6 +316,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
         iceServers: this.iceServers,
         mediaServer: getMediaServerAdapter(),
         constraints: getAudioConstraints({ deviceId: this.inputDeviceId }),
+        forceRelay: shouldForceRelay(),
       };
 
       this.broker = new FullAudioBroker(
