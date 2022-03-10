@@ -148,7 +148,8 @@ class BbbWebApiGWApp(
                     html5InstanceId:                        java.lang.Integer,
                     groups:                                 java.util.ArrayList[Group],
                     virtualBackgroundsDisabled:             java.lang.Boolean,
-                    disabledFeatures:                       java.util.ArrayList[String]): Unit = {
+                    disabledFeatures:                       java.util.ArrayList[String],
+                    notifyRecordingIsOn:                    java.lang.Boolean): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
@@ -158,7 +159,8 @@ class BbbWebApiGWApp(
       intId = meetingId,
       isBreakout = isBreakout.booleanValue(),
       learningDashboardEnabled = learningDashboardEnabled.booleanValue(),
-      disabledFeaturesAsVector
+      disabledFeaturesAsVector,
+      notifyRecordingIsOn
     )
 
     val durationProps = DurationProps(

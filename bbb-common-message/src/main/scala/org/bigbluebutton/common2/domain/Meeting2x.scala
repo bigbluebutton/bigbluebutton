@@ -14,7 +14,8 @@ case class MeetingProp(
     intId:                    String,
     isBreakout:               Boolean,
     learningDashboardEnabled: Boolean,
-    disabledFeatures:         Vector[String]
+    disabledFeatures:         Vector[String],
+    notifyRecordingIsOn:      Boolean,
 )
 
 case class BreakoutProps(
