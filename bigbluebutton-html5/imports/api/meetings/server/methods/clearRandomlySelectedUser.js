@@ -20,8 +20,8 @@ export default function clearRandomlySelectedUser() {
       },
     };
 
-    const { insertedId } = Meetings.update(selector, modifier);
-    if (insertedId) {
+    const numberAffected = Meetings.update(selector, modifier);
+    if (numberAffected) {
       Logger.info(`Cleared randomly selected user from meeting=${meetingId} by id=${requesterUserId}`);
     }
   } catch (err) {

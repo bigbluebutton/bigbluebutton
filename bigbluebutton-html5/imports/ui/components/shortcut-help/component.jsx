@@ -7,6 +7,7 @@ import Modal from '/imports/ui/components/common/modal/simple/component';
 import _ from 'lodash';
 import Styled from './styles';
 import withShortcutHelper from './service';
+import { isChatEnabled } from '/imports/ui/services/features';
 
 const intlMessages = defineMessages({
   title: {
@@ -99,9 +100,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const CHAT_ENABLED = CHAT_CONFIG.enabled;
-
 const ShortcutHelpComponent = (props) => {
   const { intl, shortcuts } = props;
   const { browserName } = browserInfo;
@@ -134,7 +132,7 @@ const ShortcutHelpComponent = (props) => {
   }
 
   const shortcutItems = shortcuts.map((shortcut) => {
-    if (!CHAT_ENABLED && shortcut.descId.indexOf('Chat') !== -1) return null;
+    if (!isChatEnabled() && shortcut.descId.indexOf('Chat') !== -1) return null;
     return (
       <tr key={_.uniqueId('hotkey-item-')}>
         <Styled.KeyCell>{`${accessMod} + ${shortcut.accesskey}`}</Styled.KeyCell>

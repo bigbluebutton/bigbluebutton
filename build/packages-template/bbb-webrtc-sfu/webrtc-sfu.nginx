@@ -14,8 +14,8 @@ location /bbb-webrtc-sfu {
     proxy_set_header User-Id $user_id;
     proxy_set_header Meeting-Id $meeting_id;
     proxy_set_header Voice-Bridge $voice_bridge;
-    proxy_read_timeout 6h;
-    proxy_send_timeout 6h;
-    client_body_timeout 6h;
-    send_timeout 6h;
+    proxy_read_timeout 60s;
+    proxy_send_timeout 60s;
+    client_body_timeout 60s;
+    send_timeout 60s;
 }

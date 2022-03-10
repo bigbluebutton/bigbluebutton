@@ -1206,7 +1206,7 @@ class ApiController {
         respMessage = "Meeting not found"
       }
 
-      if(meeting.getLearningDashboardEnabled() == false) {
+      if(meeting.getDisabledFeatures().contains("learningDashboard") == true) {
         reject = true
         respMessage = "Learning Dashboard disabled for this meeting"
       }
@@ -1322,6 +1322,8 @@ class ApiController {
               isCurrent = java.lang.Boolean.parseBoolean(document.@current.toString());
               foundCurrent = isCurrent;
             }
+
+            isCurrent = isCurrent && !isFromInsertAPI
 
             // Verifying whether the document is a base64 encoded or a url to download.
             if (!StringUtils.isEmpty(document.@url.toString())) {

@@ -68,8 +68,6 @@ export default function updateRandomUser(meetingId, userIds, choice, requesterId
 
   const numberOfUsers = userIds.length;
 
-  const chosenUser = userIds[choice];
-
   if (choice == "") { // no viewer
     userList = [
       [requesterId, intervals[0]],
@@ -92,12 +90,12 @@ export default function updateRandomUser(meetingId, userIds, choice, requesterId
 
   else if (!SELECT_RANDOM_USER_COUNTDOWN) { //  If animation is disabled, we only care about the chosen one
     userList = [
-      [chosenUser, intervals[0]],
-      [chosenUser, 0],
-      [chosenUser, 0],
-      [chosenUser, 0],
-      [chosenUser, 0],
-      [chosenUser, 0],
+      [choice, intervals[0]],
+      [choice, 0],
+      [choice, 0],
+      [choice, 0],
+      [choice, 0],
+      [choice, 0],
     ];
   }
 
@@ -106,11 +104,11 @@ export default function updateRandomUser(meetingId, userIds, choice, requesterId
     IDs.splice(choice, 1);
     userList = [
       [IDs[0], intervals[0]],
-      [chosenUser, intervals[1]],
+      [choice, intervals[1]],
       [IDs[0], intervals[2]],
-      [chosenUser, intervals[3]],
+      [choice, intervals[3]],
       [IDs[0], intervals[4]],
-      [chosenUser, intervals[5]],
+      [choice, intervals[5]],
     ];
   } else if (numberOfUsers === 3) { //  If there are 3 users, the number of combinations is small, so we'll use that
     const option = Math.floor(Math.random() * 6);
@@ -121,13 +119,13 @@ export default function updateRandomUser(meetingId, userIds, choice, requesterId
       [userIds[order[2]], intervals[2]],
       [userIds[order[0]], intervals[3]],
       [userIds[order[1]], intervals[4]],
-      [chosenUser, intervals[5]],
+      [choice, intervals[5]],
     ];
   }
 
   else { // We generate 5 users randomly, just for animation, and last one is the chosen one
     getFiveRandom(userList, userIds);
-    userList.push([chosenUser, intervals[intervals.length]]);
+    userList.push([choice, intervals[intervals.length]]);
   }
 
   const modifier = {

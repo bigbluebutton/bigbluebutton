@@ -79,7 +79,13 @@ class RandomUserSelect extends Component {
   }
 
   componentDidMount() {
-    if (SELECT_RANDOM_USER_COUNTDOWN && !this.props.currentUser.presenter) {
+    const { keepModalOpen, toggleKeepModalOpen, currentUser } = this.props;
+
+    if (currentUser.presenter && !keepModalOpen) {
+      toggleKeepModalOpen();
+    }
+
+    if (SELECT_RANDOM_USER_COUNTDOWN && !currentUser.presenter) {
       this.iterateSelection();
     }
   }

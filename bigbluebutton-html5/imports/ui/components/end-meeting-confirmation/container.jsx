@@ -6,13 +6,9 @@ import EndMeetingComponent from './component';
 import Service from './service';
 import logger from '/imports/startup/client/logger';
 
-const EndMeetingContainer = props => <EndMeetingComponent {...props} />;
+const EndMeetingContainer = (props) => <EndMeetingComponent {...props} />;
 
 export default withModalMounter(withTracker(({ mountModal }) => ({
-  closeModal: () => {
-    mountModal(null);
-  },
-
   endMeeting: () => {
     logger.warn({
       logCode: 'moderator_forcing_end_meeting',

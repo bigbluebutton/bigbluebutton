@@ -52,13 +52,14 @@ export default function addMeeting(meeting) {
     meetingProp: {
       intId: String,
       extId: String,
+      meetingCameraCap: Number,
       isBreakout: Boolean,
-      learningDashboardEnabled: Boolean,
       name: String,
       disabledFeatures: Array,
     },
     usersProp: {
       webcamsOnlyForModerator: Boolean,
+      userCameraCap: Number,
       guestPolicy: String,
       authenticatedGuest: Boolean,
       maxUsers: Number,
@@ -100,11 +101,6 @@ export default function addMeeting(meeting) {
       dialNumber: String,
       telVoice: String,
       muteOnStart: Boolean,
-    },
-    screenshareProps: {
-      red5ScreenshareIp: String,
-      red5ScreenshareApp: String,
-      screenshareConf: String,
     },
     metadataProp: Object,
     lockSettingsProps: {
