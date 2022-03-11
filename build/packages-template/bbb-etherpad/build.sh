@@ -17,17 +17,21 @@ rm -rf staging
 # package
 
 set +e
+rm -f node_modules/ep_etherpad-lite/package.json # Was preventing npm ci running, see https://github.com/ether/etherpad-lite/issues/4962#issuecomment-916642078
 bin/installDeps.sh
 set -e
 
+rm -rf ep_pad_ttl
 git clone https://github.com/mconf/ep_pad_ttl.git
 npm pack ./ep_pad_ttl
 npm install ./ep_pad_ttl-*.tgz
 
+rm -rf bbb-etherpad-plugin
 git clone https://github.com/alangecker/bbb-etherpad-plugin.git
 npm pack ./bbb-etherpad-plugin
 npm install ./ep_bigbluebutton_patches-*.tgz
 
+rm -rf ep_redis_publisher
 git clone https://github.com/mconf/ep_redis_publisher.git
 npm pack ./ep_redis_publisher
 npm install ./ep_redis_publisher-*.tgz
