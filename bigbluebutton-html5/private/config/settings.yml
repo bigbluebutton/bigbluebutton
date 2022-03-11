@@ -1,5 +1,6 @@
 public:
   app:
+    requireAdditionalRecordingConsentOnJoin: true
     mobileFontSize: 16px
     desktopFontSize: 14px
     audioChatNotification: false
