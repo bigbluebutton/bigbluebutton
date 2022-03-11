@@ -17,7 +17,11 @@ rm -rf staging
 # package
 
 set +e
-rm -f node_modules/ep_etherpad-lite/package.json # Was preventing npm ci running, see https://github.com/ether/etherpad-lite/issues/4962#issuecomment-916642078
+
+ls -l node_modules/
+ls -l node_modules/ep_etherpad-lite
+ls -l src/
+# rm -f node_modules/ep_etherpad-lite/package.json # Was preventing npm ci running, see https://github.com/ether/etherpad-lite/issues/4962#issuecomment-916642078
 bin/installDeps.sh
 set -e
 
