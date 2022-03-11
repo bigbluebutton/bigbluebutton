@@ -12,7 +12,7 @@ class Webcam extends Page {
   async share() {
     const parsedSettings = await this.getSettingsYaml();
     const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-    await this.shareWebcam(true, videoPreviewTimeout);
+    await this.shareWebcam(videoPreviewTimeout);
 
     await this.hasElement('video');
   }
@@ -21,7 +21,7 @@ class Webcam extends Page {
     const parsedSettings = await this.getSettingsYaml();
     const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
 
-    await this.shareWebcam(true, videoPreviewTimeout);
+    await this.shareWebcam(videoPreviewTimeout);
     const respUser = await webcamContentCheck(this);
 
     await expect(respUser).toBeTruthy();
@@ -29,8 +29,7 @@ class Webcam extends Page {
 
   async talkingIndicator() {
     await this.webcamLayoutStart();
-
-    await this.waitForSelector(e.webcamVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.isTalking);
     await this.hasElement(e.webcamItemTalkingUser);
@@ -40,7 +39,7 @@ class Webcam extends Page {
     await this.joinMicrophone();
     const parsedSettings = await this.getSettingsYaml();
     const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-    await this.shareWebcam(true, videoPreviewTimeout);
+    await this.shareWebcam(videoPreviewTimeout);
   }
 }
 

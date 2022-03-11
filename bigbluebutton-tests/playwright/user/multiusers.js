@@ -36,6 +36,18 @@ class MultiUsers {
     await this.userPage.init(false, shouldCloseAudioModal, options);
   }
 
+  async initUserPage2(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee2', useModMeetingId = true, ...restOptions } = {}) {
+    const options = {
+      ...restOptions,
+      fullName,
+      meetingId: (useModMeetingId) ? this.modPage.meetingId : undefined,
+    };
+
+    const page = await context.newPage();
+    this.userPage2 = new Page(this.browser, page);
+    await this.userPage2.init(false, shouldCloseAudioModal, options);
+  }
+
   async userPresence() {
     const firstUserOnModPage = this.modPage.getLocator(e.firstUser);
     const secondUserOnModPage = this.modPage.getLocator(e.userListItem);

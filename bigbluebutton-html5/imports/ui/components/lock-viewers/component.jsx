@@ -202,6 +202,7 @@ class LockViewersComponent extends Component {
                     ariaLabel={intl.formatMessage(intlMessages.webcamLabel)}
                     showToggleLabel={showToggleLabel}
                     invertColors={invertColors}
+                    data-test="lockShareWebcam"
                   />
                 </div>
               </div>
@@ -226,6 +227,7 @@ class LockViewersComponent extends Component {
                     ariaLabel={intl.formatMessage(intlMessages.otherViewersWebcamLabel)}
                     showToggleLabel={showToggleLabel}
                     invertColors={invertColors}
+                    data-test="lockSeeOtherViewersWebcam"
                   />
                 </div>
               </div>
@@ -250,6 +252,7 @@ class LockViewersComponent extends Component {
                     ariaLabel={intl.formatMessage(intlMessages.microphoneLable)}
                     showToggleLabel={showToggleLabel}
                     invertColors={invertColors}
+                    data-test="lockShareMicrophone"
                   />
                 </div>
               </div>
@@ -277,6 +280,7 @@ class LockViewersComponent extends Component {
                         ariaLabel={intl.formatMessage(intlMessages.publicChatLabel)}
                         showToggleLabel={showToggleLabel}
                         invertColors={invertColors}
+                        data-test="lockPublicChat"
                       />
                     </div>
                   </div>
@@ -301,6 +305,7 @@ class LockViewersComponent extends Component {
                         ariaLabel={intl.formatMessage(intlMessages.privateChatLable)}
                         showToggleLabel={showToggleLabel}
                         invertColors={invertColors}
+                        data-test="lockPrivateChat"
                       />
                     </div>
                   </div>
@@ -330,6 +335,7 @@ class LockViewersComponent extends Component {
                         ariaLabel={intl.formatMessage(intlMessages.notesLabel)}
                         showToggleLabel={showToggleLabel}
                         invertColors={invertColors}
+                        data-test="lockEditSharedNotes"
                       />
                     </div>
                   </div>
@@ -357,6 +363,7 @@ class LockViewersComponent extends Component {
                     ariaLabel={intl.formatMessage(intlMessages.userListLabel)}
                     showToggleLabel={showToggleLabel}
                     invertColors={invertColors}
+                    data-test="lockUserList"
                   />
                 </div>
               </div>
@@ -366,10 +373,12 @@ class LockViewersComponent extends Component {
         <div className={styles.footer}>
           <div className={styles.actions}>
             <Button
+              className={styles.buttonCancel}
               label={intl.formatMessage(intlMessages.buttonCancel)}
               onClick={closeModal}
             />
             <Button
+              className={styles.buttonApply}
               color="primary"
               label={intl.formatMessage(intlMessages.buttonApply)}
               onClick={() => {
@@ -377,6 +386,7 @@ class LockViewersComponent extends Component {
                 updateWebcamsOnlyForModerator(usersProp.webcamsOnlyForModerator);
                 closeModal();
               }}
+              data-test="applyLockSettings"
             />
           </div>
         </div>
