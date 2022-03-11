@@ -56,6 +56,7 @@ export default function addMeeting(meeting) {
       learningDashboardEnabled: Boolean,
       name: String,
       disabledFeatures: Array,
+      remindRecordingIsOn: Boolean,
     },
     usersProp: {
       webcamsOnlyForModerator: Boolean,

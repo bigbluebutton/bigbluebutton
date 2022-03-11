@@ -45,7 +45,6 @@ import Settings from '/imports/ui/services/settings';
 import LayoutService from '/imports/ui/components/layout/service';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
-import ModalConsentContainer from '../modal-consent/container';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -467,7 +466,6 @@ class App extends Component {
             height: '100%',
           }}
         >
-          <ModalConsentContainer/>
           {this.renderActivityCheck()}
           {this.renderUserInformation()}
           <BannerBarContainer />
