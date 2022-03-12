@@ -18,6 +18,13 @@ rm -rf staging
 
 set +e
 
+# as of March 12, 2022, circa BigBlueButton 2.5-alpha4, we set npm by default to 8.5.0
+# however, it seems bbb-etherpad has troubles building with npm as high.
+# Setting npm to 6.14.11 which was used successfully for building in BigBlueButton 2.4.x
+npm -v
+npm i -g npm@6.14.11
+npm -v
+
 ls -l node_modules/
 ls -l node_modules/ep_etherpad-lite
 ls -l src/
