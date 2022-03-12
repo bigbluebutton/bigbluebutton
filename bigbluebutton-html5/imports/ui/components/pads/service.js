@@ -94,7 +94,7 @@ async function convertAndUpload(externalId) {
   const exportUrl = Auth.authenticateURL(`${PADS_CONFIG.url}/p/${padId}/export/pdf?${params}`);
   const sharedNotesAsPdf = await fetch(exportUrl, { credentials: 'include' });
   const data = await sharedNotesAsPdf.blob();
-  
+
   const sharedNotesData = new File([data], 'SharedNotes.pdf', {
     type: data.type,
   });
@@ -107,10 +107,12 @@ async function convertAndUpload(externalId) {
   formData.append('room', Auth.meetingID);
   formData.append('pod_id', 'DEFAULT_PRESENTATION_POD');
   formData.append('is_downloadable', false);
+  formData.append('current', true);
   formData.append('fileUpload', sharedNotesData);
 
   const presentationUploadToken = await PresentationUploaderService.requestPresentationUploadToken('DEFAULT_PRESENTATION_POD', Auth.meetingID, 'SharedNotes.pdf');
-  const upload = await fetch(PRESENTATION_CONFIG.uploadEndpoint.replace('upload', `${presentationUploadToken}/upload`), {
+
+  fetch(PRESENTATION_CONFIG.uploadEndpoint.replace('upload', `${presentationUploadToken}/upload`), {
     body: formData,
     method: 'post',
   });
