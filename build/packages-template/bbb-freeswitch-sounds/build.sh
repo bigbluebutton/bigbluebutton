@@ -30,10 +30,19 @@ DESTDIR=staging
 CONFDIR=$DESTDIR/opt/freeswitch/etc/freeswitch
 
 mkdir -p $DESTDIR/opt/freeswitch/share/freeswitch
-if [ ! -f sounds.tar.gz ] ; then
-    wget http://bigbluebutton.org/downloads/sounds.tar.gz -O sounds.tar.gz
-fi
-tar xvfz sounds.tar.gz -C $DESTDIR/opt/freeswitch/share/freeswitch
+
+#
+# Overwrite "your are now muted"/"you are now unmuted" with short audio sounds.  Thanks senfcall.de!
+#
+apt-get install -y sox
+rm -f mute-and-unmute-sounds-master.zip
+wget https://gitlab.senfcall.de/senfcall-public/mute-and-unmute-sounds/-/archive/master/mute-and-unmute-sounds-master.zip
+rm -rf mute-and-unmute-sounds-master
+unzip mute-and-unmute-sounds-master.zip
+
+pushd mute-and-unmute-sounds-master/sounds
+ find . -name "*.wav" -exec /bin/bash -c "sox -v 0.4  {} /tmp/tmp.wav; cp /tmp/tmp.wav ../../$DESTDIR/opt/freeswitch/share/freeswitch/sounds/en/us/callie/conference/{}" \;
+popd
 
 . ./opts-$DISTRO.sh
 
