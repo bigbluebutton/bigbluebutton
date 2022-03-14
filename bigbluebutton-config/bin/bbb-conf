@@ -106,7 +106,7 @@ if [ -f /etc/centos-release ] || [ -f /etc/system-release ]; then
 else
     . /etc/lsb-release    # Get value for DISTRIB_ID
     if [ "$DISTRIB_CODENAME" == "focal" ]; then
-      TOMCAT_USER=tomcat10
+      TOMCAT_USER=tomcat9
     fi
     TOMCAT_DIR=/var/lib/$TOMCAT_USER
     SERVLET_LOGS=$TOMCAT_DIR/logs
