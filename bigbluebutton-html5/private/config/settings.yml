@@ -69,6 +69,7 @@ public:
     allowFullscreen: true
     preloadNextSlides: 2
     warnAboutUnsavedContentOnMeetingEnd: false
+    notifyRecordingIsOn: false
     mutedAlert:
       enabled: true
       interval: 200

@@ -8,7 +8,7 @@ import RecordIndicator from './component';
 import deviceInfo from '/imports/utils/deviceInfo';
 import RecordingIndicatorService from './service';
 
-const RecordIndicatorContainer = props => (
+const RecordIndicatorContainer = (props) => (
   <RecordIndicator {...props} />
 );
 
@@ -22,6 +22,9 @@ export default withTracker(() => {
     },
   });
 
+  const recordingNotificationEnabled = RecordingIndicatorService.isRecordingNotificationEnabled()
+    || Meteor.settings.public.app.notifyRecordingIsOn;
+
   return {
     allowStartStopRecording: !!(recordObeject && recordObeject.allowStartStopRecording),
     autoStartRecording: recordObeject && recordObeject.autoStartRecording,
@@ -31,6 +34,6 @@ export default withTracker(() => {
     notify,
     micUser,
     isPhone: deviceInfo.isPhone,
-    recordingNotificationEnabled: RecordingIndicatorService.isRecordingNotificationEnabled(),
+    recordingNotificationEnabled,
   };
 })(RecordIndicatorContainer);
