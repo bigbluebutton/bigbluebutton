@@ -63,7 +63,7 @@ fi
 source /etc/lsb-release
 
 # Setup specific version of node
-if [ "$DISTRIB_CODENAME" == "bionic" ]; then
+if [ "$DISTRIB_CODENAME" == "focal" ]; then
   node_version="14.18.1"
   if [[ ! -d /usr/share/node-v${node_version}-linux-x64 ]]; then
     cd /usr/share

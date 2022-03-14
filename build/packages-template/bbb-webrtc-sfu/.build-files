@@ -6,6 +6,6 @@ before-install.sh
 before-remove.sh
 build.sh
 kurento-media-server.service
-opts-bionic.sh
+opts-focal.sh
 opts-centos7.sh
 webrtc-sfu.nginx

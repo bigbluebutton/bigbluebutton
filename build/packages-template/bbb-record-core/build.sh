@@ -27,7 +27,7 @@ done
 mkdir -p staging/var/log/bigbluebutton
 cp -r scripts lib Gemfile Gemfile.lock  staging/usr/local/bigbluebutton/core
 
-if [ "$DISTRO" == "bionic" ]; then
+if [ "$DISTRO" == "focal" ]; then
   cp Rakefile  staging/usr/local/bigbluebutton/core
 fi
 
