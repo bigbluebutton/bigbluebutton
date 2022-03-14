@@ -643,6 +643,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.DURATION, message.durationInMinutes.toString());
       params.put(ApiParams.RECORD, message.record.toString());
       params.put(ApiParams.WELCOME, getMeeting(message.parentMeetingId).getWelcomeMessageTemplate());
+      params.put(ApiParams.NOTIFY_RECORDING_IS_ON,parentMeeting.getNotifyRecordingIsOn().toString());
 
       Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();
 
