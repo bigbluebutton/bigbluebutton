@@ -29,7 +29,10 @@ const {
   baseTimeout: CAMERA_SHARE_FAILED_WAIT_TIME = 15000,
   maxTimeout: MAX_CAMERA_SHARE_FAILED_WAIT_TIME = 60000,
 } = Meteor.settings.public.kurento.cameraTimeouts || {};
-const CAMERA_QUALITY_THRESHOLDS_ENABLED = Meteor.settings.public.kurento.cameraQualityThresholds.enabled;
+const {
+  enabled: CAMERA_QUALITY_THRESHOLDS_ENABLED = true,
+  privilegedStreams: CAMERA_QUALITY_THR_PRIVILEGED = true,
+} = Meteor.settings.public.kurento.cameraQualityThresholds;
 const PING_INTERVAL = 15000;
 const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
 
@@ -256,7 +259,7 @@ class VideoProvider extends Component {
 
   findAllPrivilegedStreams () {
     const { streams } = this.props;
-    // Privileged streams are: floor holders
+    // Privileged streams are: floor holders, pinned users
     return streams.filter(stream => stream.floor || stream.pin);
   }
 
@@ -267,9 +270,11 @@ class VideoProvider extends Component {
       Object.values(this.webRtcPeers)
         .filter(peer => peer.isPublisher)
         .forEach((peer) => {
+          // Conditions which make camera revert their original profile
           // 1) Threshold 0 means original profile/inactive constraint
-          // 2) Privileged streams are: floor holders
-          const exempt = threshold === 0 || privilegedStreams.some(vs => vs.stream === peer.stream)
+          // 2) Privileged streams
+          const exempt = threshold === 0
+            || (CAMERA_QUALITY_THR_PRIVILEGED && privilegedStreams.some(vs => vs.stream === peer.stream))
           const profileToApply = exempt ? peer.originalProfileId : profile;
           VideoService.applyCameraProfile(peer, profileToApply);
         });
