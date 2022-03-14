@@ -1,3 +1,3 @@
 . ./opts-global.sh
 
-OPTS="$OPTS -t deb -d tomcat8"
+OPTS="$OPTS -t deb -d tomcat10"
