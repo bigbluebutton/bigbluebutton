@@ -143,7 +143,9 @@ class RandomUserSelect extends Component {
           <div className={styles.modalViewTitle}>
             {intl.formatMessage(messages.randUserTitle)}
           </div>
-          <div>{intl.formatMessage(messages.noViewers)}</div>
+          <div data-test="noViewersSelectedMessage">
+            {intl.formatMessage(messages.noViewers)}
+          </div>
         </div>
       );
     } else { // viewers are available
@@ -164,7 +166,7 @@ class RandomUserSelect extends Component {
           <div aria-hidden className={styles.modalAvatar} style={{ backgroundColor: `${selectedUser.color}` }}>
             {selectedUser.name.slice(0, 2)}
           </div>
-          <div className={styles.selectedUserName}>
+          <div className={styles.selectedUserName} data-test="selectedUserName">
             {selectedUser.name}
           </div>
           {currentUser.presenter
@@ -176,6 +178,7 @@ class RandomUserSelect extends Component {
               size="md"
               className={styles.selectBtn}
               onClick={() => this.reselect()}
+              data-test="selectAgainRadomUser"
             />
             )}
         </div>

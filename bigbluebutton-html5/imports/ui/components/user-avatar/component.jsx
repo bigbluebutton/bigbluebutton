@@ -51,7 +51,7 @@ const UserAvatar = ({
 
   <div
     aria-hidden="true"
-    data-test="userAvatar"
+    data-test={moderator ? 'moderatorAvatar' : 'viewerAvatar'}
     className={cx(styles.avatar, {
       [styles.moderator]: moderator,
       [styles.presenter]: presenter,

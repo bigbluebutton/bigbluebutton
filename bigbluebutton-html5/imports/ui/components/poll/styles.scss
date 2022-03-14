@@ -4,7 +4,7 @@
 
 :root {
     --poll-column-amount: 2;
-    --poll-blue: #1A73D4;
+    --poll-blue: var(--color-primary);
     --poll-header-offset: -0.875rem;
     --poll-addItem-width: 100%;
     --poll-input-height: 2.5rem;

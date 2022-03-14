@@ -23,6 +23,7 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
   },
   sharedDevices: VideoService.getSharedDevices(),
   isCamLocked: VideoService.isUserLocked(),
+  camCapReached: VideoService.hasCapReached(),
   closeModal: () => mountModal(null),
   webcamDeviceId: Service.webcamDeviceId(),
   hasVideoStream: VideoService.hasVideoStream(),

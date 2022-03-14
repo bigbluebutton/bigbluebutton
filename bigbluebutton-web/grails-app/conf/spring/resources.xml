@@ -57,6 +57,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="gw" ref="bbbWebApiGWApp"/>
         <property name="callbackUrlService" ref="callbackUrlService"/>
         <property name="usersTimeout" value="${usersTimeout}"/>
+        <property name="waitingGuestUsersTimeout" value="${waitingGuestUsersTimeout}"/>
         <property name="enteredUsersTimeout" value="${enteredUsersTimeout}"/>
         <property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
     </bean>
@@ -156,6 +157,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="learningDashboardEnabled" value="${learningDashboardEnabled}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
+        <property name="defaultUserCameraCap" value="${userCameraCap}"/>
         <property name="useDefaultAvatar" value="${useDefaultAvatar}"/>
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
         <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>

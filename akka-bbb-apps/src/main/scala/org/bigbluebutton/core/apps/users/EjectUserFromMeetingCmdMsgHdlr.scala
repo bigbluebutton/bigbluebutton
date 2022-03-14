@@ -1,9 +1,12 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.api.{ EjectUserFromBreakoutInternalMsg }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.Sender
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.bus.BigBlueButtonEvent
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ EjectReasonCode, RegisteredUsers }
 
 trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
@@ -12,7 +15,7 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
 
-  def handleEjectUserFromMeetingCmdMsg(msg: EjectUserFromMeetingCmdMsg) {
+  def handleEjectUserFromMeetingCmdMsg(msg: EjectUserFromMeetingCmdMsg, state: MeetingState2x) {
     val meetingId = liveMeeting.props.meetingProp.intId
     val userId = msg.body.userId
     val ejectedBy = msg.body.ejectedBy
@@ -42,6 +45,18 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
           // Hunt down all registered users based on extern userid and eject them all.
           // ralam april 21, 2020
           RegisteredUsers.findAllWithExternUserId(registeredUser.externId, liveMeeting.registeredUsers) foreach { ru =>
+
+            //Eject from Breakouts
+            for {
+              breakoutModel <- state.breakout
+            } yield {
+              breakoutModel.rooms.values.foreach { room =>
+                room.users.filter(u => u.id == ru.externId + "-" + room.sequence).foreach(user => {
+                  eventBus.publish(BigBlueButtonEvent(room.id, EjectUserFromBreakoutInternalMsg(meetingId, room.id, user.id, ejectedBy, reason, EjectReasonCode.EJECT_USER, ban)))
+                })
+              }
+            }
+
             //println("****************** User " + ejectedBy + " ejecting other user " + ru.id)
             UsersApp.ejectUserFromMeeting(
               outGW,
@@ -53,7 +68,7 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
               ban
             )
 
-            log.info("Eject userId=" + userId + " by " + ejectedBy + " and ban=" + banUser)
+            log.info("Eject user {} userId={} by {} and ban=" + banUser + " in meeting {}", registeredUser.name, userId, ejectedBy, meetingId)
 
             // send a system message to force disconnection
             Sender.sendDisconnectClientSysMsg(meetingId, ru.id, ejectedBy, EjectReasonCode.EJECT_USER, outGW)

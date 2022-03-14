@@ -319,6 +319,7 @@ class UserDropdown extends PureComponent {
             this.handleClose();
           },
           icon: getEmojiList[s],
+          dataTest: s,
         });
       });
       return actions;
@@ -331,6 +332,7 @@ class UserDropdown extends PureComponent {
         onClick: () => this.setState({ showNestedOptions: true }),
         icon: 'user',
         iconRight: 'right_arrow',
+        dataTest: 'setStatus',
       });
     }
 
@@ -444,6 +446,7 @@ class UserDropdown extends PureComponent {
           this.handleClose();
         },
         icon: 'presentation',
+        dataTest: isMe(user.userId) ? 'takePresenter' : 'makePresenter',
       });
     }
 
@@ -456,6 +459,7 @@ class UserDropdown extends PureComponent {
           this.handleClose();
         },
         icon: 'promote',
+        dataTest: 'promoteToModerator',
       });
     }
 
@@ -468,6 +472,7 @@ class UserDropdown extends PureComponent {
           this.handleClose();
         },
         icon: 'user',
+        dataTest: 'demoteToViewer',
       });
     }
 
@@ -665,7 +670,7 @@ class UserDropdown extends PureComponent {
         style={{ direction: isRTL ? 'rtl' : 'ltr', width: '100%' }}
       >
         <div className={styles.userItemContents}>
-          <div className={styles.userAvatar}>
+          <div className={styles.userAvatar} data-test="userAvatar">
             {this.renderUserAvatar()}
           </div>
           <UserName

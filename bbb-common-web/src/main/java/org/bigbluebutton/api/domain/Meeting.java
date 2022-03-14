@@ -68,6 +68,7 @@ public class Meeting {
 	private boolean allowStartStopRecording = false;
 	private boolean haveRecordingMarks = false;
 	private boolean webcamsOnlyForModerator = false;
+	private Integer userCameraCap = 0;
 	private String dialNumber;
 	private String defaultAvatarURL;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
@@ -128,6 +129,7 @@ public class Meeting {
         autoStartRecording = builder.autoStartRecording;
         allowStartStopRecording = builder.allowStartStopRecording;
         webcamsOnlyForModerator = builder.webcamsOnlyForModerator;
+        userCameraCap = builder.userCameraCap;
         duration = builder.duration;
         webVoice = builder.webVoice;
         telVoice = builder.telVoice;
@@ -191,6 +193,22 @@ public class Meeting {
 		if (ruser != null) {
 			ruser.updateGuestWaitedOn();
 		}
+	}
+
+	public void setLeftGuestLobby(String userId, Boolean bool) {
+		RegisteredUser ruser = registeredUsers.get(userId);
+		if (ruser != null) {
+			ruser.setLeftGuestLobby(bool);
+		}
+	}
+
+	public Boolean didGuestUserLeaveGuestLobby(String userId) {
+		RegisteredUser ruser = registeredUsers.get(userId);
+
+		if (ruser != null) {
+			return ruser.getLeftGuestLobby();
+		}
+		return true;
 	}
 
 	public void setGuestStatusWithId(String userId, String guestStatus) {
@@ -479,6 +497,10 @@ public class Meeting {
         return webcamsOnlyForModerator;
     }
 
+    public Integer getUserCameraCap() {
+        return userCameraCap;
+    }
+
 	public boolean hasUserJoined() {
 		return userHasJoined;
 	}
@@ -755,6 +777,7 @@ public class Meeting {
     	private boolean autoStartRecording;
         private boolean allowStartStopRecording;
         private boolean webcamsOnlyForModerator;
+        private Integer userCameraCap;
     	private String moderatorPass;
     	private String viewerPass;
     	private Boolean learningDashboardEnabled;
@@ -824,6 +847,11 @@ public class Meeting {
 
         public Builder withWebcamsOnlyForModerator(boolean only) {
             this.webcamsOnlyForModerator = only;
+            return this;
+        }
+
+        public Builder withUserCameraCap(Integer cap) {
+            this.userCameraCap = cap;
             return this;
         }
 

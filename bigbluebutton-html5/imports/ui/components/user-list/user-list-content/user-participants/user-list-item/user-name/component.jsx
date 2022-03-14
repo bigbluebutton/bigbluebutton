@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
+import TooltipContainer from '/imports/ui/components/tooltip/container';
 import _ from 'lodash';
 import { styles } from './styles';
 
@@ -121,10 +122,12 @@ const UserName = (props) => {
       aria-expanded={isActionsOpen}
     >
       <span aria-hidden className={styles.userNameMain}>
-        <span>
-          {user.name}
-          &nbsp;
-        </span>
+        <TooltipContainer title={user.name}>
+          <span>
+            {user.name}
+            &nbsp;
+          </span>
+        </TooltipContainer>
         <i>{(isMe(user.userId)) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
       </span>
       {

@@ -300,10 +300,14 @@ class VideoPlayer extends Component {
   }
 
   handleOnProgress() {
+    const { mutedByEchoTest } = this.state;
+
     const volume = this.getCurrentVolume();
     const muted = this.getMuted();
 
-    this.setState({ volume, muted });
+    if (!mutedByEchoTest) {
+      this.setState({ volume, muted });
+    }
   }
 
   handleVolumeChanged(volume) {
@@ -311,7 +315,11 @@ class VideoPlayer extends Component {
   }
 
   handleOnMuted(muted) {
-    this.setState({ muted });
+    const { mutedByEchoTest } = this.state;
+
+    if (!mutedByEchoTest) {
+      this.setState({ muted });
+    }
   }
 
   handleReload() {
@@ -370,10 +378,10 @@ class VideoPlayer extends Component {
   }
 
   getMuted() {
-    const { muted } = this.state;
+    const { mutedByEchoTest } = this.state;
     const intPlayer = this.player && this.player.getInternalPlayer();
 
-    return (intPlayer && intPlayer.isMuted && intPlayer.isMuted()) || muted;
+    return intPlayer && intPlayer.isMuted && intPlayer.isMuted() && !mutedByEchoTest;
   }
 
   autoPlayBlockDetected() {

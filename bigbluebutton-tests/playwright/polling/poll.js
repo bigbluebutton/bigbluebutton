@@ -133,17 +133,15 @@ class Polling extends MultiUsers {
   }
 
   async typeOnLastChoiceInput() {
-    const allInputs = this.modPage.getLocator(e.pollOptionItem);
-    const lastInput = allInputs.last();
+    const lastInput = this.modPage.getLocatorByIndex(e.pollOptionItem, -1);
     await lastInput.fill(this.newInputText);
 
   }
 
   async checkLastOptionText() {
     await this.userPage.waitForSelector(e.pollingContainer);
-    const answerOptions = this.userPage.getLocator(e.pollAnswerOptionBtn);
-    const lastOptionText = await answerOptions.last().textContent();
-    await expect(lastOptionText).toEqual(this.newInputText);
+    const lastOptionText = this.userPage.getLocatorByIndex(e.pollAnswerOptionBtn, -1);
+    await expect(lastOptionText).toHaveText(this.newInputText);
   }
 }
 

@@ -8,9 +8,9 @@
   --statusInfoHeight: 8px;
   --toast-md-margin: .5rem;
   --iconLineHeight: 2.35rem;
-  --iconPadding-md: .65rem;
+  --iconPadding-md: .4rem;
   --fileLineWidth: 16.75rem;
-  --itemActionsWidth:  68px; // size of the 2 icons (check/trash)
+  --itemActionsWidth: 68px; // size of the 2 icons (check/trash)
   --uploadListHeight: 30vh;
   --modalInnerWidth: 40rem;
 }
@@ -48,9 +48,6 @@
   border-spacing: 0;
   border-collapse: collapse;
 
-  > thead {
-  }
-
   > tbody {
     text-align: left;
 
@@ -80,9 +77,6 @@
         font-weight: bold;
         color: var(--color-gray-dark);
       }
-
-      td {
-      }
     }
   }
 }
@@ -104,7 +98,7 @@
 }
 
 .notDownloadable {
-	  min-width: 48px;
+	min-width: 48px;
 }
 
 .tableItemIcon > i {
@@ -320,27 +314,16 @@
 
 .toastFileName,
 .fileName {
-    margin-left: var(--lg-padding-x);
-    top: var(--border-size-large);
-    height: 1rem;
-    width: auto;
-    position: relative;
-    text-align: left;
-    font-weight: var(--headings-font-weight);
+  margin-left: var(--md-padding-y);
+  height: 1rem;
+  width: auto;
+  text-align: left;
+  font-weight: var(--headings-font-weight);
 
-    [dir="rtl"] & {
-      margin-right: var(--lg-padding-x);
-      margin-left: 0;
-      text-align: right;
-    }
-}
-
-.fileIcon {
-  width: 1%;
-  padding-bottom: var(--iconPadding-md);
-  i {
-    position: relative;
-    top: var(--border-size-large);
+  [dir="rtl"] & {
+    margin-right: var(--md-padding-y);
+    margin-left: 0;
+    text-align: right;
   }
 }
 
@@ -362,13 +345,17 @@
 
 .loading,
 .done,
-.err{
+.err {
   position: relative;
   width: var(--statusIconSize);
   height: var(--statusIconSize);
   font-size: 117%;
-  bottom: var(--border-size);
   left: var(--statusInfoHeight);
+
+  [dir="rtl"] & {
+    left: unset;
+    right: var(--statusInfoHeight);
+  }
 }
 
 .uploadRow {
@@ -391,7 +378,7 @@
   bottom: var(--toast-md-margin);
   position: relative;
   left: var(--border-size-large);
-  
+
   [dir="rtl"] & {
     right: var(--border-size-large);
     left: 0;
@@ -401,6 +388,8 @@
 .fileLine {
   display: flex;
   flex-direction: row;
+  align-items: center;
+  padding-bottom: var(--iconPadding-md);
   width: var(--fileLineWidth);
 } 
 
@@ -410,15 +399,7 @@
 }
 
 .statusIcon {
-  margin-left: auto;
-  [dir="rtl"] & {
-    margin-right: auto;
-    margin-left: 0;
-  }
-
   i {
-    position: relative;
-    top: 1px;
     height: var(--statusIconSize);
     width: var(--statusIconSize);
   }
@@ -499,6 +480,11 @@
   padding-right: 1.5rem;
   box-sizing: content-box;
   background: none;
+
+  [dir="rtl"] & {
+    padding-right: 0;
+    padding-left: 1.5rem;
+  }
 }
 
 .toastWrapper {
