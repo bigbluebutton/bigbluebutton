@@ -81,15 +81,15 @@ class RecordingIndicator extends PureComponent {
   }
 
   componentDidMount() {
-    const { recording } = this.props;
+    const { recording, recordingNotificationEnabled } = this.props;
 
-    if (recording) {
+    if (recordingNotificationEnabled && recording) {
       this.toggleShouldNotify();
     }
   }
 
   componentDidUpdate(prevProps) {
-    const { recording, mountModal, getModal } = this.props;
+    const { recording, mountModal, getModal, recordingNotificationEnabled } = this.props;
     const { shouldNotify } = this.state;
 
     if (!recording) {
@@ -98,16 +98,18 @@ class RecordingIndicator extends PureComponent {
     } else if (this.interval === null) {
       this.interval = setInterval(this.incrementTime, 1000);
     }
-    
-    if (!prevProps.recording && recording && !shouldNotify) {
-      return this.setState({shouldNotify: true});
-    }
 
-    const isModalOpen = !!getModal();
-
-    // should only display notification modal when other modals are closed
-    if (shouldNotify && !isModalOpen) {
-      mountModal(<RecordingNotifyContainer toggleShouldNotify={this.toggleShouldNotify} />);
+    if (recordingNotificationEnabled) {
+      if (!prevProps.recording && recording && !shouldNotify) {
+        return this.setState({shouldNotify: true});
+      }
+  
+      const isModalOpen = !!getModal();
+  
+      // should only display notification modal when other modals are closed
+      if (shouldNotify && !isModalOpen) {
+        mountModal(<RecordingNotifyContainer toggleShouldNotify={this.toggleShouldNotify} />);
+      }  
     }
   }
 
