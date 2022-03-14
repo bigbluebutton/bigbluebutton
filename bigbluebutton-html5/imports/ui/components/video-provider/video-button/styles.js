@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 
 const VideoButton = styled(Button)`
@@ -13,8 +13,7 @@ const VideoButton = styled(Button)`
 `;
 
 const OffsetBottom = styled.div`
-  top: auto !important;
-  bottom: 4rem !important;
+  position: relative;
 `;
 
 export default {

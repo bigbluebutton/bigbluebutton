@@ -9,9 +9,8 @@ import PresentationToolbar from './component';
 import PresentationToolbarService from './service';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
-import FullscreenService from '/imports/ui/components/fullscreen-button/service';
-
-const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
+import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
+import { isPollingEnabled } from '/imports/ui/services/features';
 
 const PresentationToolbarContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
@@ -60,7 +59,7 @@ export default withTracker((params) => {
     previousSlide: PresentationToolbarService.previousSlide,
     skipToSlide: PresentationToolbarService.skipToSlide,
     isMeteorConnected: Meteor.status().connected,
-    isPollingEnabled: POLLING_ENABLED,
+    isPollingEnabled: isPollingEnabled(),
     currentSlidHasContent: PresentationService.currentSlidHasContent(),
     parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
     startPoll,

@@ -8,8 +8,8 @@ import {
   modalMargin,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
-import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
+import Modal from '/imports/ui/components/common/modal/simple/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const GuestPolicyModal = styled(Modal)`
   padding: ${jumboPaddingY};

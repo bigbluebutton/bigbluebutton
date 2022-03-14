@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
 import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';

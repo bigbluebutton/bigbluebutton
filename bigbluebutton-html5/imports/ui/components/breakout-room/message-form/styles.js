@@ -14,7 +14,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import TextareaAutosize from 'react-autosize-textarea';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const Form = styled.form`
   flex-grow: 0;
@@ -47,7 +47,6 @@ const Input = styled(TextareaAutosize)`
   min-height: 2.5rem;
   max-height: 10rem;
   border: 1px solid ${colorGrayLighter};
-  box-shadow: 0 0 0 1px ${colorGrayLighter};
 
   &:disabled,
   &[disabled] {

@@ -50,7 +50,11 @@ const intlMessages = defineMessages({
   [CHAT_CLEAR_MESSAGE]: {
     id: 'app.chat.clearPublicChatMessage',
     description: 'message of when clear the public chat',
-  }
+  },
+  breakoutDurationUpdated: {
+    id: 'app.chat.breakoutDurationUpdated',
+    description: 'used when the breakout duration is updated',
+  },
 });
 
 class TimeWindowChatItem extends PureComponent {
@@ -89,6 +93,7 @@ class TimeWindowChatItem extends PureComponent {
   renderSystemMessage() {
     const {
       messages,
+      messageValues,
       chatAreaId,
       handleReadMessage,
       messageKey,
@@ -104,13 +109,16 @@ class TimeWindowChatItem extends PureComponent {
         key={`time-window-chat-item-${messageKey}`}
         ref={element => this.itemRef = element} >
         <Styled.Messages>
-          {messages.map(message => (
+          {messages.map((message) => (
             message.text !== ''
               ? (
                 <Styled.SystemMessageChatItem
                   border={message.id}
                   key={message.id ? message.id : _.uniqueId('id-')}
-                  text={intlMessages[message.text] ? intl.formatMessage(intlMessages[message.text]) : message.text }
+                  text={intlMessages[message.text] ? intl.formatMessage(
+                    intlMessages[message.text],
+                    messageValues || {},
+                  ) : message.text}
                   time={message.time}
                   isSystemMessage={message.id ? true : false}
                   systemMessageType={message.text === CHAT_CLEAR_MESSAGE ? 'chatClearMessageText' : 'chatWelcomeMessageText'}

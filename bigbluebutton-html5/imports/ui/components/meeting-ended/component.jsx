@@ -14,6 +14,7 @@ import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
+import { isLearningDashboardEnabled } from '/imports/ui/services/features';
 import Storage from '/imports/ui/services/storage/session';
 
 const intlMessage = defineMessages({
@@ -268,7 +269,7 @@ class MeetingEnded extends PureComponent {
               <div>
                 {
                   LearningDashboardService.isModerator()
-                  && LearningDashboardService.isLearningDashboardEnabled() === true
+                  && isLearningDashboardEnabled() === true
                   // Always set cookie in case Dashboard is already opened
                   && LearningDashboardService.setLearningDashboardCookie() === true
                     ? (

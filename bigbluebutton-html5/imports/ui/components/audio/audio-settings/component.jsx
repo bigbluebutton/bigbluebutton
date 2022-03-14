@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import Button from '/imports/ui/components/common/button/component';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import AudioTestContainer from '/imports/ui/components/audio/audio-test/container';
 import Styled from './styles';
 

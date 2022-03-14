@@ -1,10 +1,9 @@
 import React from 'react';
-import Toggle from '/imports/ui/components/switch/component';
+import Toggle from '/imports/ui/components/common/switch/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import Styled from './styles';
-
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+import { isChatEnabled } from '/imports/ui/services/features';
 
 const intlMessages = defineMessages({
   notificationSectionTitle: {
@@ -88,7 +87,7 @@ class NotificationMenu extends BaseMenu {
             </Styled.ColHeading>
           </Styled.Row>
 
-          {CHAT_ENABLED ? (
+          {isChatEnabled() ? (
             <Styled.Row>
               <Styled.Col>
                 <Styled.Label>

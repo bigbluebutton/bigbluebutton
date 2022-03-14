@@ -571,6 +571,43 @@ class VideoService {
     return false;
   }
 
+  hasCapReached() {
+    const meeting = Meetings.findOne(
+      { meetingId: Auth.meetingID },
+      {
+        fields: {
+          'meetingProp.meetingCameraCap': 1,
+          'usersProp.userCameraCap': 1,
+        },
+      },
+    );
+
+    // If the meeting prop data is unreachable, force a safe return
+    if (!meeting?.usersProp || !meeting?.meetingProp) return true;
+
+    const { meetingCameraCap } = meeting.meetingProp;
+    const { userCameraCap } = meeting.usersProp;
+
+    const meetingCap = meetingCameraCap !== 0 && this.getVideoStreamsCount() >= meetingCameraCap;
+    const userCap = userCameraCap !== 0 && this.getLocalVideoStreamsCount() >= userCameraCap;
+
+    return meetingCap || userCap;
+  }
+
+  getVideoStreamsCount() {
+    const streams = VideoStreams.find({}).count();
+
+    return streams;
+  }
+
+  getLocalVideoStreamsCount() {
+    const localStreams = VideoStreams.find(
+      { userId: Auth.userID }
+    ).count();
+
+    return localStreams;
+  }
+
   getInfo() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'voiceProp.voiceConf': 1 } });
@@ -693,6 +730,7 @@ class VideoService {
     const locks = {
       videoLocked: this.isUserLocked(),
       videoConnecting: this.isConnecting,
+      camCapReached: this.hasCapReached() && !this.hasVideoStream(),
       meteorDisconnected: !Meteor.status().connected
     };
     const locksKeys = Object.keys(locks);
@@ -963,6 +1001,7 @@ export default {
   getUserParameterProfile: () => videoService.getUserParameterProfile(),
   isMultipleCamerasEnabled: () => videoService.isMultipleCamerasEnabled(),
   mirrorOwnWebcam: userId => videoService.mirrorOwnWebcam(userId),
+  hasCapReached: () => videoService.hasCapReached(),
   onBeforeUnload: () => videoService.onBeforeUnload(),
   notify: message => notify(message, 'error', 'video'),
   updateNumberOfDevices: devices => videoService.updateNumberOfDevices(devices),

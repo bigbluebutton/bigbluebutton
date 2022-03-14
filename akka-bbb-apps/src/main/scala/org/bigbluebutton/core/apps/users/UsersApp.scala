@@ -8,6 +8,7 @@ import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 
 object UsersApp {
   def broadcastAddUserToPresenterGroup(meetingId: String, userId: String, requesterId: String,
@@ -56,6 +57,9 @@ object UsersApp {
   def automaticallyAssignPresenter(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
     // Stop external video if it's running
     ExternalVideoModel.stop(outGW, liveMeeting)
+    // Request a screen broadcast stop (goes to SFU, comes back through
+    // ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg)
+    ScreenshareApp2x.requestBroadcastStop(outGW, liveMeeting)
 
     val meetingId = liveMeeting.props.meetingProp.intId
     for {
@@ -161,10 +165,8 @@ class UsersApp(
   with SetRecordingStatusCmdMsgHdlr
   with RecordAndClearPreviousMarkersCmdMsgHdlr
   with SendRecordingTimerInternalMsgHdlr
-  with UpdateWebcamsOnlyForModeratorCmdMsgHdlr
   with GetRecordingStatusReqMsgHdlr
   with SelectRandomViewerReqMsgHdlr
-  with GetWebcamsOnlyForModeratorReqMsgHdlr
   with AssignPresenterReqMsgHdlr
   with ChangeUserPinStateReqMsgHdlr
   with EjectDuplicateUserReqMsgHdlr

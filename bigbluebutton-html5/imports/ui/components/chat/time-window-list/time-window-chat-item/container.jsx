@@ -25,6 +25,7 @@ const TimeWindowChatItemContainer = (props) => {
     timestamp,
     content,
     extra,
+    messageValues,
   } = message;
   const messages = content;
 
@@ -50,6 +51,7 @@ const TimeWindowChatItemContainer = (props) => {
         read: message.read,
         messages,
         extra,
+        messageValues,
         getPollResultString: PollService.getPollResultString,
         user,
         timestamp,

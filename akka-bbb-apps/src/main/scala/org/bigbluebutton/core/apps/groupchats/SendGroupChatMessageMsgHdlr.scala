@@ -14,6 +14,7 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
   def handle(msg: SendGroupChatMessageMsg, state: MeetingState2x,
              liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
 
+    val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
     var chatLocked: Boolean = false
     var userRole: String = Roles.VIEWER_ROLE
 
@@ -39,7 +40,7 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
       }
     }
 
-    if (!(applyPermissionCheck && chatLocked)) {
+    if (!chatDisabled && !(applyPermissionCheck && chatLocked)) {
       val newState = for {
         sender <- GroupChatApp.findGroupChatUser(msg.header.userId, liveMeeting.users2x)
         chat <- state.groupChats.find(msg.body.chatId)

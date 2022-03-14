@@ -15,7 +15,7 @@ import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typogra
 import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
-import Icon from '../icon/component';
+import Icon from '/imports/ui/components/common/icon/component';
 
 const ToggleLabel = styled.span`
   margin-right: ${smPaddingX};

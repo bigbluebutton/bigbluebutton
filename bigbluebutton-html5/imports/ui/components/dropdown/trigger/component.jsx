@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 

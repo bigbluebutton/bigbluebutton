@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
-import injectNotify from '/imports/ui/components/toast/inject-notify/component';
+import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import Settings from '/imports/ui/services/settings';
 import Styled from './styles';

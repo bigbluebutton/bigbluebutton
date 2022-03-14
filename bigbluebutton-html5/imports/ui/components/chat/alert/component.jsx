@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import injectNotify from '/imports/ui/components/toast/inject-notify/component';
+import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import AudioService from '/imports/ui/components/audio/service';
 import ChatPushAlert from './push-alert/component';
 import Service from '../service';
@@ -125,7 +125,7 @@ const ChatAlert = (props) => {
             { autoClose: 3000 },
             <div>
               <div style={{ fontWeight: 700 }}>{chatsTracker[key].lastSender}</div>
-              <div>{chatsTracker[key].content}</div>
+              <div dangerouslySetInnerHTML={{ __html: chatsTracker[key].content }} />
             </div>,
             true,
           );

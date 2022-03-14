@@ -1,7 +1,7 @@
 import React, { PureComponent, Fragment } from 'react';
 import RecordingContainer from '/imports/ui/components/recording/container';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
-import Tooltip from '/imports/ui/components/tooltip/component';
+import Tooltip from '/imports/ui/components/common/tooltip/component';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';

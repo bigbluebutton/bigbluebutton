@@ -1,19 +1,21 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { injectIntl, defineMessages } from 'react-intl';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { findDOMNode } from 'react-dom';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
-import Icon from '/imports/ui/components/icon/component';
+import Icon from '/imports/ui/components/common/icon/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
-import { withModalMounter } from '/imports/ui/components/modal/service';
-import RemoveUserModal from '/imports/ui/components/modal/remove-user/component';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
+import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import VideoService from '/imports/ui/components/video-provider/service';
-import BBBMenu from '/imports/ui/components/menu/component';
+import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { PANELS, ACTIONS } from '../../../../layout/enums';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
+import { isChatEnabled } from '/imports/ui/services/features';
 
 const messages = defineMessages({
   presenter: {
@@ -168,7 +170,6 @@ const propTypes = {
   isMe: PropTypes.func.isRequired,
 };
 
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const LABEL = Meteor.settings.public.user.label;
 
@@ -328,6 +329,7 @@ class UserListItem extends PureComponent {
         onClick: () => this.setState({ showNestedOptions: true }),
         icon: 'user',
         iconRight: 'right_arrow',
+        dataTest: 'setStatus',
       },
       {
         allowed: showNestedOptions && isMeteorConnected && allowedToChangeStatus,
@@ -352,7 +354,7 @@ class UserListItem extends PureComponent {
         icon: userIsPinned ? 'pin-video_off' : 'pin-video_on',
       },
       {
-        allowed: CHAT_ENABLED
+        allowed: isChatEnabled()
         && enablePrivateChat
         && !isDialInUser
         && !meetingIsBreakout
@@ -427,8 +429,8 @@ class UserListItem extends PureComponent {
         && !showNestedOptions,
         key: 'changeWhiteboardAccess',
         label: user.whiteboardAccess
-        ? intl.formatMessage(messages.removeWhiteboardAccess)
-        : intl.formatMessage(messages.giveWhiteboardAccess),
+          ? intl.formatMessage(messages.removeWhiteboardAccess)
+          : intl.formatMessage(messages.giveWhiteboardAccess),
         onClick: () => {
           WhiteboardService.changeWhiteboardAccess(user.userId, !user.whiteboardAccess);
           this.handleClose();
@@ -447,6 +449,7 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'presentation',
+        dataTest: isMe(user.userId) ? 'takePresenter' : 'makePresenter',
       },
       {
         allowed: allowedToPromote && isMeteorConnected && !showNestedOptions,
@@ -457,6 +460,7 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'promote',
+        dataTest: 'promoteToModerator',
       },
       {
         allowed: allowedToDemote && isMeteorConnected && !showNestedOptions,
@@ -467,6 +471,7 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'user',
+        dataTest: 'demoteToViewer',
       },
       {
         allowed: allowedToChangeUserLockStatus && isMeteorConnected && !showNestedOptions,
@@ -496,9 +501,12 @@ class UserListItem extends PureComponent {
         label: intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
         onClick: () => {
           this.onActionsHide(mountModal(
-            <RemoveUserModal
+            <ConfirmationModal
               intl={intl}
-              user={user}
+              titleMessageId="app.userList.menu.removeConfirmation.label"
+              titleMessageExtra={user.name}
+              checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
+              confirmParam={user.userId}
               onConfirm={removeUser}
             />,
           ));
@@ -520,7 +528,7 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'video_off',
-      }
+      },
     ];
 
     const statuses = Object.keys(getEmojiList);
@@ -536,10 +544,11 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: getEmojiList[s],
-      })
+        dataTest: s,
+      });
     });
 
-    return availableActions.filter(action => action.allowed);
+    return availableActions.filter((action) => action.allowed);
   }
 
   getDropdownMenuParent() {
@@ -707,7 +716,7 @@ class UserListItem extends PureComponent {
 
     const innerContents = (
       <Styled.UserItemInnerContents>
-        <Styled.UserAvatar>
+        <Styled.UserAvatar data-test="userAvatar">
           {this.renderUserAvatar()}
         </Styled.UserAvatar>
         {!compact
@@ -718,10 +727,12 @@ class UserListItem extends PureComponent {
               aria-expanded={isActionsOpen}
             >
               <Styled.UserNameMain>
-                <span>
-                  {user.name}
-                &nbsp;
-                </span>
+                <TooltipContainer title={user.name}>
+                  <span>
+                    {user.name}
+                    &nbsp;
+                  </span>
+                </TooltipContainer>
                 <i>{(isMe(user.userId)) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
               </Styled.UserNameMain>
               {

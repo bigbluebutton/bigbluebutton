@@ -4,11 +4,8 @@ gradle resolveDeps
 
 gradle build
 
-sudo rm -rf /var/lib/tomcat7/webapps/demo*
+sudo rm -rf /var/lib/tomcat8/webapps/demo*
 
-sudo cp build/libs/demo.war /var/lib/tomcat7/webapps/
+sudo cp build/libs/demo.war /var/lib/tomcat8/webapps/
 
-sudo systemctl restart tomcat7
-
-
-
+sudo systemctl restart tomcat8

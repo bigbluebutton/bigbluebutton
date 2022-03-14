@@ -18,19 +18,19 @@ trait SendBreakoutTimeRemainingMsgHdlr {
       model <- state.breakout
       startedOn <- model.startedOn
     } yield {
-      val endMeetingTime = TimeUtil.millisToSeconds(startedOn) + TimeUtil.minutesToSeconds(model.durationInMinutes)
+      val endMeetingTime = TimeUtil.millisToSeconds(startedOn) + model.durationInSeconds
       val timeRemaining = endMeetingTime - TimeUtil.millisToSeconds(System.currentTimeMillis())
 
       if (!liveMeeting.props.meetingProp.isBreakout) {
         // Notify parent meeting users of breakout rooms time remaining
-        val event = buildBreakoutRoomsTimeRemainingUpdateEvtMsg(liveMeeting.props.meetingProp.intId, timeRemaining.toInt)
+        val event = buildBreakoutRoomsTimeRemainingUpdateEvtMsg(liveMeeting.props.meetingProp.intId, timeRemaining.toInt, 0)
         outGW.send(event)
       }
 
       // Tell all breakout rooms of time remaining so they can notify their users.
       // This syncs all rooms about time remaining.
       model.rooms.values.foreach { room =>
-        eventBus.publish(BigBlueButtonEvent(room.id, SendBreakoutTimeRemainingInternalMsg(props.breakoutProps.parentId, timeRemaining.toInt)))
+        eventBus.publish(BigBlueButtonEvent(room.id, SendBreakoutTimeRemainingInternalMsg(props.breakoutProps.parentId, timeRemaining.toInt, msg.timeUpdatedInMinutes)))
       }
 
       if (timeRemaining < 0) {
@@ -41,7 +41,7 @@ trait SendBreakoutTimeRemainingMsgHdlr {
     state
   }
 
-  def buildBreakoutRoomsTimeRemainingUpdateEvtMsg(meetingId: String, timeLeftInSec: Long): BbbCommonEnvCoreMsg = {
+  def buildBreakoutRoomsTimeRemainingUpdateEvtMsg(meetingId: String, timeLeftInSec: Long, timeUpdatedInMinutes: Int = 0): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
     val envelope = BbbCoreEnvelope(BreakoutRoomsTimeRemainingUpdateEvtMsg.NAME, routing)
     val body = BreakoutRoomsTimeRemainingUpdateEvtMsgBody(timeLeftInSec)

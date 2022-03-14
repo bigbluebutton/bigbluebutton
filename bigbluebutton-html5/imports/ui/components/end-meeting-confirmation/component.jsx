@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Styled from './styles';
+import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 
 const intlMessages = defineMessages({
   endMeetingTitle: {
@@ -20,14 +20,6 @@ const intlMessages = defineMessages({
     id: 'app.endMeeting.contentWarning',
     description: 'end meeting content warning',
   },
-  yesLabel: {
-    id: 'app.endMeeting.yesLabel',
-    description: 'label for yes button for end meeting',
-  },
-  noLabel: {
-    id: 'app.endMeeting.noLabel',
-    description: 'label for no button for end meeting',
-  },
 });
 
 const { warnAboutUnsavedContentOnMeetingEnd } = Meteor.settings.public.app;
@@ -36,7 +28,6 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  closeModal: PropTypes.func.isRequired,
   endMeeting: PropTypes.func.isRequired,
   meetingTitle: PropTypes.string.isRequired,
   users: PropTypes.number.isRequired,
@@ -45,45 +36,28 @@ const propTypes = {
 class EndMeetingComponent extends PureComponent {
   render() {
     const {
-      users, intl, closeModal, endMeeting, meetingTitle,
+      users, intl, endMeeting, meetingTitle,
     } = this.props;
 
+    const title = intl.formatMessage(intlMessages.endMeetingTitle, { 0: meetingTitle });
+
+    let description = users > 0
+      ? intl.formatMessage(intlMessages.endMeetingDescription, { 0: users })
+      : intl.formatMessage(intlMessages.endMeetingNoUserDescription);
+
+    if (warnAboutUnsavedContentOnMeetingEnd) {
+      description += `<p>${intl.formatMessage(intlMessages.contentWarning)}</p>`;
+    }
+
     return (
-      <Styled.EndMeetingModal
-        onRequestClose={closeModal}
-        hideBorder
-        title={intl.formatMessage(intlMessages.endMeetingTitle, { 0: meetingTitle })}
-      >
-        <Styled.Container>
-          <Styled.Description>
-            {
-              users > 0
-                ? intl.formatMessage(intlMessages.endMeetingDescription, { 0: users })
-                : intl.formatMessage(intlMessages.endMeetingNoUserDescription)
-            }
-            {
-              warnAboutUnsavedContentOnMeetingEnd
-                ? (
-                  <p>
-                    {intl.formatMessage(intlMessages.contentWarning)}
-                  </p>
-                ) : null
-            }
-          </Styled.Description>
-          <Styled.Footer>
-            <Styled.EndMeetingButton
-              data-test="confirmEndMeeting"
-              color="danger"
-              label={intl.formatMessage(intlMessages.yesLabel)}
-              onClick={endMeeting}
-            />
-            <Styled.EndMeetingButton
-              label={intl.formatMessage(intlMessages.noLabel)}
-              onClick={closeModal}
-            />
-          </Styled.Footer>
-        </Styled.Container>
-      </Styled.EndMeetingModal>
+      <ConfirmationModal
+        intl={intl}
+        onConfirm={endMeeting}
+        title={title}
+        description={description}
+        confirmButtonColor="danger"
+        confirmButtonDataTest="confirmEndMeeting"
+      />
     );
   }
 }

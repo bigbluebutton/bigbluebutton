@@ -98,6 +98,8 @@ class RedisRecorderActor(
       case m: VoiceRecordingStartedEvtMsg           => handleVoiceRecordingStartedEvtMsg(m)
       case m: VoiceRecordingStoppedEvtMsg           => handleVoiceRecordingStoppedEvtMsg(m)
 
+      case m: AudioFloorChangedEvtMsg               => handleAudioFloorChangedEvtMsg(m)
+
       // Caption
       case m: EditCaptionHistoryEvtMsg              => handleEditCaptionHistoryEvtMsg(m)
 
@@ -440,6 +442,17 @@ class RedisRecorderActor(
     ev.setBridge(msg.body.voiceConf)
     ev.setRecordingTimestamp(msg.body.timestamp)
     ev.setFilename(msg.body.stream)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleAudioFloorChangedEvtMsg(msg: AudioFloorChangedEvtMsg) {
+    val ev = new AudioFloorChangedRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setBridge(msg.body.voiceConf)
+    ev.setParticipant(msg.body.intId)
+    ev.setFloor(msg.body.floor)
+    ev.setLastFloorTime(msg.body.lastFloorTime)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
