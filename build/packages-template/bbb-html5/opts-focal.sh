@@ -1,4 +1,4 @@
 . ./opts-global.sh
 
-OPTS="$OPTS -d bbb-webrtc-sfu,bc,yq,bbb-pads,bbb-web -t deb"
-
+# TODO - add yq
+OPTS="$OPTS -d bbb-webrtc-sfu,bc,bbb-pads,bbb-web -t deb"
