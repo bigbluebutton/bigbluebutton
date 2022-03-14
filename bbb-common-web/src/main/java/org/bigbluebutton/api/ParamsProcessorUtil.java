@@ -98,7 +98,7 @@ public class ParamsProcessorUtil {
     private Boolean useDefaultLogo;
     private String defaultLogoURL;
 
-		private boolean defaultBreakoutRoomsEnabled;
+		private boolean defaultBreakoutRoomsEnabled = true;
 		private boolean defaultBreakoutRoomsRecord;
 		private boolean defaultbreakoutRoomsPrivateChatEnabled;
 
@@ -256,12 +256,6 @@ public class ParamsProcessorUtil {
     }
 
 		private BreakoutRoomsParams processBreakoutRoomsParams(Map<String, String> params) {
-			Boolean breakoutRoomsEnabled = defaultBreakoutRoomsEnabled;
-			String breakoutRoomsEnabledParam = params.get(ApiParams.BREAKOUT_ROOMS_ENABLED);
-			if (!StringUtils.isEmpty(breakoutRoomsEnabledParam)) {
-				breakoutRoomsEnabled = Boolean.parseBoolean(breakoutRoomsEnabledParam);
-			}
-
 			Boolean breakoutRoomsRecord = defaultBreakoutRoomsRecord;
 			String breakoutRoomsRecordParam = params.get(ApiParams.BREAKOUT_ROOMS_RECORD);
 			if (!StringUtils.isEmpty(breakoutRoomsRecordParam)) {
@@ -274,9 +268,7 @@ public class ParamsProcessorUtil {
 				breakoutRoomsPrivateChatEnabled = Boolean.parseBoolean(breakoutRoomsPrivateChatEnabledParam);
 			}
 
-			return new BreakoutRoomsParams(breakoutRoomsEnabled,
-							breakoutRoomsRecord,
-							breakoutRoomsPrivateChatEnabled);
+			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled);
 		}
 
 		private LockSettingsParams processLockSettingsParams(Map<String, String> params) {
@@ -561,6 +553,16 @@ public class ParamsProcessorUtil {
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_LAYOUT))) {
             meetingLayout = params.get(ApiParams.MEETING_LAYOUT);
+        }
+
+        Boolean breakoutRoomsEnabled = defaultBreakoutRoomsEnabled;
+        String breakoutRoomsEnabledParam = params.get(ApiParams.BREAKOUT_ROOMS_ENABLED);
+        if (!StringUtils.isEmpty(breakoutRoomsEnabledParam)) {
+            breakoutRoomsEnabled = Boolean.parseBoolean(breakoutRoomsEnabledParam);
+        }
+        if(breakoutRoomsEnabled == false && !listOfDisabledFeatures.contains("breakoutRooms")) {
+            log.warn("[DEPRECATION] use disabledFeatures=breakoutRooms instead of breakoutRoomsEnabled=false");
+            listOfDisabledFeatures.add("breakoutRooms");
         }
 
         BreakoutRoomsParams breakoutParams = processBreakoutRoomsParams(params);

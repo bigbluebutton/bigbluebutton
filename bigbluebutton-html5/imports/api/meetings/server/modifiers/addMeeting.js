@@ -45,7 +45,6 @@ export default function addMeeting(meeting) {
       freeJoin: Boolean,
       breakoutRooms: Array,
       parentId: String,
-      enabled: Boolean,
       record: Boolean,
       privateChatEnabled: Boolean,
     },

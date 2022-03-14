@@ -21,7 +21,6 @@ case class BreakoutProps(
     sequence:           Int,
     freeJoin:           Boolean,
     breakoutRooms:      Vector[String],
-    enabled:            Boolean,
     record:             Boolean,
     privateChatEnabled: Boolean
 )
