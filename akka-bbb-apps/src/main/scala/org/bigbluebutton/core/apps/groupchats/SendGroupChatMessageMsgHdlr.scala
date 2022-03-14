@@ -16,13 +16,11 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
 
     val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
     var chatLocked: Boolean = false
-    var userRole: String = Roles.VIEWER_ROLE
 
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
       groupChat <- state.groupChats.find(msg.body.chatId)
     } yield {
-      userRole = user.role
       if (user.role != Roles.MODERATOR_ROLE && user.locked) {
         val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
         if (groupChat.access == GroupChatAccess.PRIVATE) {

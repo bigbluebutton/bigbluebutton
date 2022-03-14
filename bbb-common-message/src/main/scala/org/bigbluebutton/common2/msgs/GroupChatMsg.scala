@@ -5,9 +5,9 @@ object GroupChatAccess {
   val PRIVATE = "PRIVATE_ACCESS"
 }
 
-case class GroupChatUser(id: String, name: String = "", role: String = "")
-case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser, chatEmphasizedText: Boolean = true, message: String)
-case class GroupChatMsgToUser(id: String, timestamp: Long, correlationId: String, sender: GroupChatUser, chatEmphasizedText: Boolean = true, message: String)
+case class GroupChatUser(id: String, name: String = "", role: String = "VIEWER")
+case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser, chatEmphasizedText: Boolean = false, message: String)
+case class GroupChatMsgToUser(id: String, timestamp: Long, correlationId: String, sender: GroupChatUser, chatEmphasizedText: Boolean = false, message: String)
 case class GroupChatInfo(id: String, name: String, access: String, createdBy: GroupChatUser, users: Vector[GroupChatUser])
 
 object OpenGroupChatWindowReqMsg { val NAME = "OpenGroupChatWindowReqMsg" }
