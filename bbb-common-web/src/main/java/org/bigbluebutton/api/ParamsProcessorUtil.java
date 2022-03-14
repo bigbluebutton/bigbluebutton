@@ -488,23 +488,17 @@ public class ParamsProcessorUtil {
         listOfDisabledFeatures.replaceAll(String::trim);
         listOfDisabledFeatures = new ArrayList<>(new HashSet<>(listOfDisabledFeatures));
 
-        if(learningDashboardEnabled == false && !listOfDisabledFeatures.contains("learningDashboard")) {
-            listOfDisabledFeatures.add("learningDashboard");
-        }
-
+        boolean learningDashboardEn = learningDashboardEnabled;
         if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED))) {
             try {
-                boolean learningDashboardEn = Boolean.parseBoolean(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED));
-
-                if(learningDashboardEn == false) {
-                    log.warn("[DEPRECATION] use disabledFeatures=learningDashboard instead of learningDashboardEnabled=false");
-                    if(!listOfDisabledFeatures.contains("learningDashboard")) {
-                        listOfDisabledFeatures.add("learningDashboard");
-                    }
-                }
+                learningDashboardEn = Boolean.parseBoolean(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED));
             } catch (Exception ex) {
                 log.warn("Invalid param [learningDashboardEnabled] for meeting=[{}]",internalMeetingId);
             }
+        }
+        if(learningDashboardEn == false && !listOfDisabledFeatures.contains("learningDashboard")) {
+            log.warn("[DEPRECATION] use disabledFeatures=learningDashboard instead of learningDashboardEnabled=false");
+            listOfDisabledFeatures.add("learningDashboard");
         }
 
         int learningDashboardCleanupMins = 0;
@@ -1072,10 +1066,6 @@ public class ParamsProcessorUtil {
     }
 
     public void setLearningDashboardEnabled(boolean learningDashboardEnabled) {
-        if(learningDashboardEnabled == false) {
-            log.warn("[DEPRECATION] use disabledFeatures=learningDashboard instead of learningDashboardEnabled=false");
-        }
-
         this.learningDashboardEnabled = learningDashboardEnabled;
     }
 
