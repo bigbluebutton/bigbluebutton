@@ -80,6 +80,7 @@ class ModalSimple extends Component {
         contentLabel={title || contentLabel}
         {...otherProps}
       >
+        {shouldShowCloseButton || title ? (
         <Styled.Header hideBorder={hideBorder}>
           <Styled.Title hasLeftMargin={shouldShowCloseButton}>{title}</Styled.Title>
           {shouldShowCloseButton ? (
@@ -95,6 +96,7 @@ class ModalSimple extends Component {
             />
           ) : null}
         </Styled.Header>
+        ) : null}
         <Styled.Content>
           {this.props.children}
         </Styled.Content>
