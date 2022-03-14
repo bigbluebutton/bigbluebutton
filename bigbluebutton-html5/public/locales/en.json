@@ -730,6 +730,8 @@
     "app.recording.notify.description": "A recording will be available based on the remainder of this session",
     "app.recording.notify.continue": "Continue",
     "app.recording.notify.leave": "Leave session",
+    "app.recording.notify.continueLabel" : "Accept recording and continue",
+    "app.recording.notify.leaveLabel" : "Do not accept recording and leave meeting",
     "app.videoPreview.cameraLabel": "Camera",
     "app.videoPreview.profileLabel": "Quality",
     "app.videoPreview.quality.low": "Low",

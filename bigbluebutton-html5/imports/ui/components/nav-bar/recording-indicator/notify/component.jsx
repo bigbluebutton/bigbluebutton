@@ -15,12 +15,20 @@ const intlMessages = defineMessages({
   continue: {
     id: 'app.recording.notify.continue',
     description: 'Button accept',
-
   },
   leave: {
     id: 'app.recording.notify.leave',
     description: 'Button accept',
   },
+  continueAriaLabel: {
+    id: 'app.recording.notify.continueLabel',
+    description: 'provides better context for yes btn label',
+  },
+  leaveAriaLabel: {
+    id: 'app.recording.notify.leaveLabel',
+    description: 'provides better context for no btn label',
+  },
+
 });
 
 const LOGOUT_CODE = '680';
@@ -40,7 +48,7 @@ const RecordingNotifyModal = ({ intl, closeModal, toggleShouldNotify }) => {
     >
       <Styled.Container>
         <Styled.Header>
-          <Styled.Title>
+          <Styled.Title aria-hidden>
             {intl.formatMessage(intlMessages.title)}
           </Styled.Title>
         </Styled.Header>
@@ -52,10 +60,12 @@ const RecordingNotifyModal = ({ intl, closeModal, toggleShouldNotify }) => {
             color="primary"
             label={intl.formatMessage(intlMessages.continue)}
             onClick={closeModal}
+            aria-label={intl.formatMessage(intlMessages.continueAriaLabel)}
           />
           <Styled.NotifyButton
             label={intl.formatMessage(intlMessages.leave)}
             onClick={skipButtonHandle}
+            aria-label={intl.formatMessage(intlMessages.leaveAriaLabel)}
           />
         </Styled.Footer>
       </Styled.Container>
