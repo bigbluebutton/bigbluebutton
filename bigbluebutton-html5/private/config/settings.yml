@@ -363,6 +363,8 @@ public:
     #            that will be applied to all cameras when threshold is hit
     cameraQualityThresholds:
       enabled: true
+      applyConstraints: false
+      debounceTime: 2500
       thresholds:
         - threshold: 8
           profile: low-u8
