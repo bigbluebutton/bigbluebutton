@@ -7,20 +7,20 @@ export default function handlePresentationUploadTokenPass({ body, header }, meet
   check(body, Object);
 
   const { userId } = header;
-  const { podId, authzToken, filename, presId } = body;
+  const { podId, authzToken, filename, tmpPresId } = body;
 
   check(userId, String);
   check(podId, String);
   check(authzToken, String);
   check(filename, String);
-  check(presId, String)
+  check(tmpPresId, String)
 
   const selector = {
     meetingId,
     podId,
     userId,
     filename,
-    presId,
+    tmpPresId,
   };
 
   const modifier = {
@@ -29,7 +29,7 @@ export default function handlePresentationUploadTokenPass({ body, header }, meet
     userId,
     filename,
     authzToken,
-    presId,
+    tmpPresId,
     failed: false,
     used: false,
   };

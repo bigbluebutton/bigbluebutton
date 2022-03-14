@@ -19,7 +19,7 @@ trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
       val envelope = BbbCoreEnvelope(PresentationUploadTokenPassRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(PresentationUploadTokenPassRespMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = PresentationUploadTokenPassRespMsgBody(msg.body.podId, token, msg.body.filename, msg.body.presId)
+      val body = PresentationUploadTokenPassRespMsgBody(msg.body.podId, token, msg.body.filename, msg.body.tmpPresId)
       val event = PresentationUploadTokenPassRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
