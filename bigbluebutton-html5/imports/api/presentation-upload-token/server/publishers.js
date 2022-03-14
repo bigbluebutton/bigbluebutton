@@ -4,7 +4,7 @@ import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-function presentationUploadToken(podId, filename) {
+function presentationUploadToken(podId, filename, presId) {
   const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
@@ -16,12 +16,14 @@ function presentationUploadToken(podId, filename) {
 
   check(podId, String);
   check(filename, String);
+  check(presId, String);
 
   const selector = {
     meetingId,
     podId,
     userId,
     filename,
+    presId,
   };
 
   Logger.debug('Publishing PresentationUploadToken', { meetingId, userId });

@@ -2,6 +2,7 @@ package org.bigbluebutton.api;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,7 +46,8 @@ public final class Util {
 
 	public static String generatePresentationId(String presFilename) {
 		long timestamp = System.currentTimeMillis();
-		return DigestUtils.sha1Hex(presFilename) + "-" + timestamp;
+		String uuid = UUID.randomUUID().toString();
+		return DigestUtils.sha1Hex(presFilename + uuid) + "-" + timestamp;
 	}
 
 	public static String createNewFilename(String presId, String fileExt) {

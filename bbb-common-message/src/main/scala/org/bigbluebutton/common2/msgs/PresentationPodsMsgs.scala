@@ -13,7 +13,7 @@ case class RemovePresentationPodPubMsgBody(podId: String)
 
 object PresentationUploadTokenReqMsg { val NAME = "PresentationUploadTokenReqMsg" }
 case class PresentationUploadTokenReqMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenReqMsgBody) extends StandardMsg
-case class PresentationUploadTokenReqMsgBody(podId: String, filename: String)
+case class PresentationUploadTokenReqMsgBody(podId: String, filename: String, presId: String)
 
 object GetAllPresentationPodsReqMsg { val NAME = "GetAllPresentationPodsReqMsg" }
 case class GetAllPresentationPodsReqMsg(header: BbbClientMsgHeader, body: GetAllPresentationPodsReqMsgBody) extends StandardMsg
@@ -113,12 +113,13 @@ case class PresentationConversionRequestReceivedSysMsg(
     body:   PresentationConversionRequestReceivedSysMsgBody
 ) extends StandardMsg
 case class PresentationConversionRequestReceivedSysMsgBody(
-    podId:          String,
-    presentationId: String,
-    current:        Boolean,
-    presName:       String,
-    downloadable:   Boolean,
-    authzToken:     String
+    podId:                   String,
+    presentationId:          String,
+    temporaryPresentationId: String,
+    current:                 Boolean,
+    presName:                String,
+    downloadable:            Boolean,
+    authzToken:              String
 )
 
 object PresentationPageConversionStartedSysMsg { val NAME = "PresentationPageConversionStartedSysMsg" }
@@ -179,7 +180,7 @@ case class PdfConversionInvalidErrorEvtMsgBody(podId: String, messageKey: String
 
 object PresentationUploadTokenPassRespMsg { val NAME = "PresentationUploadTokenPassRespMsg" }
 case class PresentationUploadTokenPassRespMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenPassRespMsgBody) extends StandardMsg
-case class PresentationUploadTokenPassRespMsgBody(podId: String, authzToken: String, filename: String)
+case class PresentationUploadTokenPassRespMsgBody(podId: String, authzToken: String, filename: String, presId: String)
 
 object PresentationUploadTokenFailRespMsg { val NAME = "PresentationUploadTokenFailRespMsg" }
 case class PresentationUploadTokenFailRespMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenFailRespMsgBody) extends StandardMsg

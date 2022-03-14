@@ -118,6 +118,7 @@ class PresentationController {
     def filenameExt = ""
     def presId = ""
     def pres = null
+    def temporaryPresentationId = params.temporaryPresentationId
 
     def file = request.getFile('fileUpload')
     if (file && !file.empty) {
@@ -153,6 +154,7 @@ class PresentationController {
             podId,
             meetingId,
             presId,
+            temporaryPresentationId,
             presFilename,
             presentationBaseUrl,
             false /* default presentation */,
