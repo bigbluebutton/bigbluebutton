@@ -46,7 +46,7 @@ rm -rf mute-and-unmute-sounds-master
 unzip mute-and-unmute-sounds-master.zip
 
 pushd mute-and-unmute-sounds-master/sounds
- find . -name "*.wav" -exec /bin/bash -c "sox -v 0.4  {} /tmp/tmp.wav; cp /tmp/tmp.wav ../../$DESTDIR/opt/freeswitch/share/freeswitch/sounds/en/us/callie/conference/{}" \;
+ find . -name "*.wav" -exec /bin/bash -c "sox -v 0.3  {} /tmp/tmp.wav; cp /tmp/tmp.wav ../../$DESTDIR/opt/freeswitch/share/freeswitch/sounds/en/us/callie/conference/{}" \;
 popd
 
 . ./opts-$DISTRO.sh
