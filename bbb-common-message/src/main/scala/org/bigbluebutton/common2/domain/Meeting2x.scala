@@ -12,6 +12,7 @@ case class MeetingProp(
     name:             String,
     extId:            String,
     intId:            String,
+    meetingCameraCap: Int,
     isBreakout:       Boolean,
     disabledFeatures: Vector[String]
 )

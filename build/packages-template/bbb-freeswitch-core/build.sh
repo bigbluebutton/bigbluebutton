@@ -84,7 +84,10 @@ patch -p0 --ignore-whitespace < $BUILDDIR/audio.patch       # Provisional patch 
 
 ./configure --disable-core-odbc-support --disable-core-pgsql-support \
     --without-python --without-erlang --without-java \
-    --prefix=/opt/freeswitch CFLAGS="-Wno-error -Og -ggdb" CXXFLAGS="-Wno-error -Og -ggdb"
+    --prefix=/opt/freeswitch 
+
+# Overrides for generating debug version
+#   --prefix=/opt/freeswitch CFLAGS="-Wno-error -Og -ggdb" CXXFLAGS="-Wno-error -Og -ggdb"
 
 make -j $(nproc)
 make install

@@ -799,6 +799,7 @@
     "app.video.virtualBackground.genericError": "Failed to apply camera effect. Try again.",
     "app.video.virtualBackground.camBgAriaDesc": "Sets webcam virtual background to {0}",
     "app.video.camCapReached": "You cannot share more cameras",
+    "app.video.meetingCamCapReached": "Meeting reached it's simultaneous cameras limit",
     "app.video.dropZoneLabel": "Drop here",
     "app.fullscreenButton.label": "Make {0} fullscreen",
     "app.fullscreenUndoButton.label": "Undo {0} fullscreen",
@@ -1033,5 +1034,14 @@
     "app.learningDashboard.statusTimelineTable.title": "Timeline",
     "app.learningDashboard.statusTimelineTable.thumbnail": "Presentation thumbnail",
     "app.learningDashboard.errors.invalidToken": "Invalid session token",
-    "app.learningDashboard.errors.dataUnavailable": "Data is no longer available"
+    "app.learningDashboard.errors.dataUnavailable": "Data is no longer available",
+    "mobileApp.portals.list.empty.label": "Please add portals.",
+    "mobileApp.portals.list.add.button.label": "New Portal",
+    "mobileApp.portals.fields.name.label": "Portal Name",
+    "mobileApp.portals.fields.name.placeholder": "BigBlueButton demo",
+    "mobileApp.portals.fields.url.label": "Server URL",
+    "mobileApp.portals.addPortalPopup.confirm.button.label": "Add Portal",
+    "mobileApp.portals.drawerNavigation.button.label": "Portals",
+    "mobileApp.portals.addPortalPopup.validation.emptyFilds": "Empty Fields",
+    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Name Already Exists"
 }

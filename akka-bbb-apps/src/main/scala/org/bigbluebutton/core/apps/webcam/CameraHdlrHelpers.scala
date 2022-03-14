@@ -114,13 +114,21 @@ object CameraHdlrHelpers extends SystemConfiguration with RightsManagementTrait 
       liveMeeting: LiveMeeting,
       userId:      String
   ): Boolean = {
-    val cameras = Webcams.findWebcamsForUser(liveMeeting.webcams, userId).length
-
-    liveMeeting.props.usersProp.userCameraCap match {
+    val cameras = Webcams.findAll(liveMeeting.webcams).length
+    val meetingCap = liveMeeting.props.meetingProp.meetingCameraCap match {
       case 0                => false // disabled
       case x if x > cameras => false
       case _                => true
     }
+
+    val userCameras = Webcams.findWebcamsForUser(liveMeeting.webcams, userId).length
+    val userCap = liveMeeting.props.usersProp.userCameraCap match {
+      case 0                    => false // disabled
+      case x if x > userCameras => false
+      case _                    => true
+    }
+
+    (meetingCap || userCap)
   }
 
   def stopBroadcastedCam(

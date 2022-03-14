@@ -89,6 +89,7 @@ public class ParamsProcessorUtil {
     private boolean allowStartStopRecording;
     private int learningDashboardCleanupDelayInMinutes;
     private boolean webcamsOnlyForModerator;
+    private Integer defaultMeetingCameraCap = 0;
     private Integer defaultUserCameraCap = 0;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
@@ -514,6 +515,16 @@ public class ParamsProcessorUtil {
             }
         }
 
+        Integer meetingCameraCap = defaultMeetingCameraCap;
+        if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_CAMERA_CAP))) {
+            try {
+                Integer meetingCameraCapParam = Integer.parseInt(params.get(ApiParams.MEETING_CAMERA_CAP));
+                if (meetingCameraCapParam >= 0) meetingCameraCap = meetingCameraCapParam;
+            } catch (NumberFormatException e) {
+                log.warn("Invalid param [meetingCameraCap] for meeting=[{}]", internalMeetingId);
+            }
+        }
+
         Integer userCameraCap = defaultUserCameraCap;
         if (!StringUtils.isEmpty(params.get(ApiParams.USER_CAMERA_CAP))) {
             try {
@@ -611,6 +622,7 @@ public class ParamsProcessorUtil {
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
+                .withMeetingCameraCap(meetingCameraCap)
                 .withUserCameraCap(userCameraCap)
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
@@ -1059,6 +1071,10 @@ public class ParamsProcessorUtil {
 
     public void setWebcamsOnlyForModerator(boolean webcamsOnlyForModerator) {
         this.webcamsOnlyForModerator = webcamsOnlyForModerator;
+    }
+
+    public void setDefaultMeetingCameraCap(Integer meetingCameraCap) {
+        this.defaultMeetingCameraCap = meetingCameraCap;
     }
 
     public void setDefaultUserCameraCap(Integer userCameraCap) {
