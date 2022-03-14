@@ -4,6 +4,7 @@
 HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 
 if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
+  mkdir -p /etc/nginx/sites-enabled
   ln -s /etc/nginx/sites-available/bigbluebutton /etc/nginx/sites-enabled/bigbluebutton
 fi
 
