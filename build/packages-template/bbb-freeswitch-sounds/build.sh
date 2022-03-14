@@ -31,6 +31,11 @@ CONFDIR=$DESTDIR/opt/freeswitch/etc/freeswitch
 
 mkdir -p $DESTDIR/opt/freeswitch/share/freeswitch
 
+if [ ! -f sounds.tar.gz ] ; then
+  wget http://bigbluebutton.org/downloads/sounds.tar.gz -O sounds.tar.gz
+fi
+tar xvfz sounds.tar.gz -C $DESTDIR/opt/freeswitch/share/freeswitch
+
 #
 # Overwrite "your are now muted"/"you are now unmuted" with short audio sounds.  Thanks senfcall.de!
 #
