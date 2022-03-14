@@ -208,7 +208,7 @@ if [ -f /etc/redhat-release ]; then
   TOMCAT_SERVICE=tomcat
 else
   if grep -q bionic /etc/lsb-release; then
-    TOMCAT_SERVICE=tomcat10
+    TOMCAT_SERVICE=tomcat8
   fi
 fi
 
