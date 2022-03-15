@@ -172,7 +172,7 @@ fi
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
 NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
-SIP_CONFIG=/etc/bigbluebutton/nginx/sip.nginx
+SIP_CONFIG=/usr/share/bigbluebutton/nginx/sip.nginx
 SIP_NGINX_IP=$(cat $SIP_CONFIG |  grep -v '#' | sed -n '/proxy_pass/{s/.*proxy_pass http[s]*:\/\///;s/:.*//;p}' | head -n 1)
 
 NCPU=$(nproc --all)
@@ -779,12 +779,12 @@ check_configuration() {
             echo
         fi
 
-        WEBHOOKS_PROXY_PORT=$(cat /etc/bigbluebutton/nginx/webhooks.nginx | grep -v '#' | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
+        WEBHOOKS_PROXY_PORT=$(cat /usr/share/bigbluebutton/nginx/webhooks.nginx | grep -v '#' | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
         WEBHOOKS_APP_PORT=$(yq r $WEBHOOKS_CONF server.port)
 
         if [ "$WEBHOOKS_PROXY_PORT" != "$WEBHOOKS_APP_PORT" ]; then
             echo "# Warning: Webhooks port mismatch: "
-            echo "#  /etc/bigbluebutton/nginx/webhooks.nginx                   = $WEBHOOKS_PROXY_PORT"
+            echo "#  /usr/share/bigbluebutton/nginx/webhooks.nginx                   = $WEBHOOKS_PROXY_PORT"
             echo "#  $WEBHOOKS_CONF = $WEBHOOKS_APP_PORT"
             echo
         fi
@@ -802,10 +802,10 @@ check_configuration() {
         fi
     fi
 
-    SIP_PROTOCOL=$(cat /etc/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
+    SIP_PROTOCOL=$(cat /usr/share/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
     if [[ $SIP_PROTOCOL == "https" ]]; then
         if ! grep wss-binding $FREESWITCH_EXTERNAL > /dev/null; then
-            echo "# Warning: Websockets is using HTTPS in /etc/bigbluebutton/nginx/sip.nginx"
+            echo "# Warning: Websockets is using HTTPS in /usr/share/bigbluebutton/nginx/sip.nginx"
             echo "# but no definition for wss-binding found in "
             echo "#"
             echo "#    $FREESWITCH_EXTERNAL"
@@ -937,7 +937,7 @@ check_state() {
     #
     # Check if running development environment
     #
-    if ! grep 8090 /etc/bigbluebutton/nginx/web.nginx > /dev/null; then
+    if ! grep 8090 /usr/share/bigbluebutton/nginx/web.nginx > /dev/null; then
         echo "# Warning: nginx is not serving BigBlueButton's web application"
         echo "# from port 8090"
         echo "#"
@@ -1021,7 +1021,7 @@ check_state() {
     #
     # Check if the user is running their own bbb-web
     #
-    if grep -q 8888 /etc/bigbluebutton/nginx/web.nginx; then
+    if grep -q 8888 /usr/share/bigbluebutton/nginx/web.nginx; then
         if ! netstat -ant | grep '8888' > /dev/null; then
             echo "# Warning: There is no application server listening to port 8888."
             echo
@@ -1187,7 +1187,7 @@ check_state() {
         if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
           echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
           echo "#"
-          echo "#    /etc/bigbluebutton/nginx/sip.nginx"
+          echo "#    /usr/share/bigbluebutton/nginx/sip.nginx"
           echo "#"
           echo "# does not match the local IP address ($IP)."
           echo "# (This is OK if you've manually changed the values)"
@@ -1439,7 +1439,7 @@ if [ $CHECK ]; then
         echo
         echo "$SIP_CONFIG (sip.nginx)"
         echo "                        proxy_pass: $SIP_NGINX_IP"
-        echo "                          protocol: $(cat /etc/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)"
+        echo "                          protocol: $(cat /usr/share/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)"
     fi
 
     if [ -n "$KURENTO_CONFIG" ]; then

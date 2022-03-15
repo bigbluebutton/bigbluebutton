@@ -22,14 +22,9 @@ TARGET=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
   yq w -i $TARGET public.kurento.wsUrl               "$WSURL/bbb-webrtc-sfu"
 
-  yq w -i $TARGET public.kurento.enableScreensharing "true"
-  yq w -i $TARGET public.kurento.enableVideo         "true"
-
-  yq w -i $TARGET public.app.listenOnlyMode          "true"
-
   yq w -i $TARGET public.pads.url                    "$PROTOCOL://$HOST/pad"
 
-  sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
+  sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /usr/share/bigbluebutton/nginx/sip.nginx
   sed -i "s/server_name  .*/server_name  $IP;/g" /etc/nginx/sites-available/bigbluebutton
 
   chmod 600 $TARGET
@@ -78,26 +73,8 @@ fi
 
 
 # Enable Listen Only support in FreeSWITCH
-
 if [ -f /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml ]; then
   sed -i 's/<!--<param name="enable-3pcc" value="true"\/>-->/<param name="enable-3pcc" value="proxy"\/>/g' /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
-fi
-
-if [ -f /tmp/sip.nginx ]; then
-  IP_SIP=$(cat /tmp/sip.nginx | grep -v '#' | sed -n '/proxy_pass/{s/.*\/\///;s/:.*//;p}')
-  IP_PORT=$(cat /tmp/sip.nginx | grep -v '#' | sed -n '/proxy_pass/{s/[^:]*.*[^:]*://;s/;.*//;p}')
-  if grep proxy_pass /tmp/sip.nginx | grep -q https; then
-    sed -i "s/proxy_pass http.*/proxy_pass https:\/\/$IP_SIP:$IP_PORT;/g" \
-            /etc/bigbluebutton/nginx/sip.nginx
-  else
-    sed -i "s/proxy_pass http.*/proxy_pass http:\/\/$IP_SIP:$IP_PORT;/g" \
-            /etc/bigbluebutton/nginx/sip.nginx
-  fi
-fi
-
-if ! grep -q auth_request /etc/bigbluebutton/nginx/sip.nginx; then
-	sed -i 's#}#\n        auth_request /bigbluebutton/connection/checkAuthorization;\n        auth_request_set $auth_status $upstream_status;\n}#g' \
-	       /etc/bigbluebutton/nginx/sip.nginx
 fi
 
 chown root:root /usr/lib/systemd/system
