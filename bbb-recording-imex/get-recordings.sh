@@ -26,7 +26,7 @@ if [ "${QUERY:$INDEX:1}" = "&" ]; then QUERY=${QUERY:0:$INDEX}; fi
 
 echo "query: $QUERY"
 
-SALT=dsuvcSRpWUD8eNrEiZtbiPqB1KoocnHm1cBfZlX9E
+SALT=
 DATA="$ENDPOINT$QUERY$SALT"
 
 echo "data: $DATA"
