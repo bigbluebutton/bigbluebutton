@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { LAYOUT_TYPE, LAYOUT_TYPE_MOBILE } from '/imports/ui/components/layout/enums';
+import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import SettingsService from '/imports/ui/components/settings/service';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import getFromUserSettings from '/imports/ui/services/users-settings';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Toggle from '/imports/ui/components/common/switch/component';
 import Button from '/imports/ui/components/common/button/component';
-import deviceInfo from '/imports/utils/deviceInfo';
-import cx from 'classnames';
-import { styles } from './styles';
+import Styled from './styles';
 
 const LayoutModalComponent = (props) => {
   const {
@@ -26,9 +25,11 @@ const LayoutModalComponent = (props) => {
   const [isKeepPushingLayout, setIsKeepPushingLayout] = useState(application.pushLayout);
 
   const BASE_NAME = Meteor.settings.public.app.basename;
-  const LAYOUTS_PATH = `${BASE_NAME}/resources/images/layouts/`;
+  const CUSTOM_STYLE_URL = Boolean(Meteor.settings.public.app.customStyleUrl);
+  const customStyleUrl = Boolean(getFromUserSettings('bbb_custom_style_url', CUSTOM_STYLE_URL));
+
+  const LAYOUTS_PATH = `${BASE_NAME}/resources/images/layouts/${customStyleUrl ? 'customStyle/' : ''}`;
   const isKeepPushingLayoutEnabled = SettingsService.isKeepPushingLayoutEnabled();
-  const { isMobile } = deviceInfo;
 
   const intlMessages = defineMessages({
     title: {
@@ -97,10 +98,10 @@ const LayoutModalComponent = (props) => {
     }
     if (isKeepPushingLayoutEnabled) {
       return (
-        <div className={styles.pushContainer}>
-          <label htmlFor="TogglePush" className={styles.labelPushLayout}>
+        <Styled.PushContainer>
+          <Styled.LabelPushLayout>
             {intl.formatMessage(intlMessages.keepPushingLayoutLabel)}
-          </label>
+          </Styled.LabelPushLayout>
           <Toggle
             id="TogglePush"
             icons={false}
@@ -109,63 +110,62 @@ const LayoutModalComponent = (props) => {
             ariaLabel="push"
             showToggleLabel={showToggleLabel}
           />
-        </div>
+        </Styled.PushContainer>
       );
     }
     return null;
   };
 
   const renderLayoutButtons = () => (
-    <div className={styles.buttonsContainer}>
-      {Object.values(isMobile ? LAYOUT_TYPE_MOBILE : LAYOUT_TYPE)
+    <Styled.ButtonsContainer>
+      {Object.values(LAYOUT_TYPE)
         .map((layout) => (
-          <div className={styles.buttonLayoutContainer} key={layout}>
-            <p className={styles.labelLayoutNames}>{intl.formatMessage(intlMessages[`${layout}Layout`])}</p>
-            <Button
-              className={cx({
-                [styles.layoutBtn]: true,
-                [styles.layoutBtnActive]: layout === selectedLayout,
-              })}
+          <Styled.ButtonLayoutContainer key={layout}>
+            <Styled.LabelLayoutNames>{intl.formatMessage(intlMessages[`${layout}Layout`])}</Styled.LabelLayoutNames>
+            <Styled.LayoutBtn
               label=""
-              customIcon={<img src={`${LAYOUTS_PATH}${layout}.svg`} alt={`${LAYOUTS_PATH}${layout}Layout`} className={styles.iconSvg} />}
+              customIcon={<Styled.IconSvg src={`${LAYOUTS_PATH}${layout}.svg`} alt={`${LAYOUTS_PATH}${layout}Layout`} />}
               onClick={() => handleSwitchLayout(layout)}
+              active={(layout === selectedLayout).toString()}
             />
-          </div>
+          </Styled.ButtonLayoutContainer>
         ))}
-    </div>
+    </Styled.ButtonsContainer>
   );
 
   return (
-    <Modal
-      overlayClassName={styles.overlay}
-      className={styles.modal}
+    <Styled.LayoutModal
+      contentLabel={intl.formatMessage(intlMessages.title)}
+      shouldShowCloseButton
+      shouldCloseOnOverlayClick
+      isPhone={deviceInfo.isPhone}
+      data-test="layoutChangeModal"
       onRequestClose={closeModal}
       hideBorder
     >
-      <header className={styles.header}>
-        <h3 className={styles.title}>
+      <Styled.Header>
+        <Styled.Title>
           {intl.formatMessage(intlMessages.title)}
-        </h3>
-      </header>
-      <div className={styles.content}>
-        <div className={styles.bodyContainer}>
+        </Styled.Title>
+      </Styled.Header>
+      <Styled.Content>
+        <Styled.BodyContainer>
           {renderLayoutButtons()}
           {renderPushLayoutsOptions()}
-        </div>
-        <div className={styles.buttonBottomContainer}>
-          <Button
-            label={intl.formatMessage(intlMessages.cancel)}
-            onClick={closeModal}
-            className={styles.bottomButton}
-          />
-          <Button
-            color="primary"
-            label={intl.formatMessage(intlMessages.confirm)}
-            onClick={handleCloseModal}
-          />
-        </div>
-      </div>
-    </Modal>
+        </Styled.BodyContainer>
+      </Styled.Content>
+      <Styled.ButtonBottomContainer>
+        <Styled.BottomButton
+          label={intl.formatMessage(intlMessages.cancel)}
+          onClick={closeModal}
+        />
+        <Button
+          color="primary"
+          label={intl.formatMessage(intlMessages.confirm)}
+          onClick={handleCloseModal}
+        />
+      </Styled.ButtonBottomContainer>
+    </Styled.LayoutModal>
   );
 };
 

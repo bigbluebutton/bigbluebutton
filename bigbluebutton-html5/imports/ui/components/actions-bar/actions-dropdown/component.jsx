@@ -7,12 +7,11 @@ import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
 import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
 import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
-import BBBMenu from '/imports/ui/components/menu/component';
-import Styled from './styles'
+import BBBMenu from '/imports/ui/components/common/menu/component';
+import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
-import SettingsMenuContainer from '/imports/ui/components/settings/container';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -232,15 +231,6 @@ class ActionsDropdown extends PureComponent {
       key: 'layoutModal',
       onClick: () => mountModal(<LayoutModalContainer {...this.props} />),
     });
-
-    if (amIPresenter) {
-      actions.push({
-        icon: 'application',
-        label: intl.formatMessage(intlMessages.layouts),
-        key: 'layouts',
-        onClick: () => mountModal(<SettingsMenuContainer highlightLayoutSubMenu />),
-      });
-    }
 
     return actions;
   }

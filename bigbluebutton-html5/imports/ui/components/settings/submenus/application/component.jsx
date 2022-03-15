@@ -328,7 +328,6 @@ class ApplicationMenu extends BaseMenu {
   renderChangeLayout() {
     const { intl, isPresenter, showToggleLabel, displaySettingsStatus } = this.props;
     const { settings } = this.state;
-    const { isMobile } = deviceInfo;
     const isKeepPushingLayoutEnabled = SettingsService.isKeepPushingLayoutEnabled();
 
     return (
@@ -356,29 +355,30 @@ class ApplicationMenu extends BaseMenu {
             </Styled.FormElementRight>
           </Styled.Col>
         </Styled.Row>
-        { (isPresenter && isKeepPushingLayoutEnabled) ?
-          (<Styled.Row>
-            <Styled.Col>
-              <Styled.FormElement>
-                <Styled.Label>
-                  {intl.formatMessage(intlMessages.pushLayoutLabel)}
-                </Styled.Label>
-              </Styled.FormElement>
-            </Styled.Col>
-            <Styled.Col>
-              <Styled.FormElementRight>
-                {displaySettingsStatus(settings.pushLayout)}
-                <Toggle
-                  icons={false}
-                  defaultChecked={settings.pushLayout}
-                  onChange={() => this.handleToggle('pushLayout')}
-                  ariaLabel={intl.formatMessage(intlMessages.pushLayoutLabel)}
-                  showToggleLabel={showToggleLabel}
-                />
-              </Styled.FormElementRight>
-            </Styled.Col>
-          </Styled.Row>
-        ) : null }
+        { (isPresenter && isKeepPushingLayoutEnabled)
+          ? (
+            <Styled.Row>
+              <Styled.Col>
+                <Styled.FormElement>
+                  <Styled.Label>
+                    {intl.formatMessage(intlMessages.pushLayoutLabel)}
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
+                  {displaySettingsStatus(settings.pushLayout)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={settings.pushLayout}
+                    onChange={() => this.handleToggle('pushLayout')}
+                    ariaLabel={intl.formatMessage(intlMessages.pushLayoutLabel)}
+                    showToggleLabel={showToggleLabel}
+                  />
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+          ) : null }
       </>
     );
   }
