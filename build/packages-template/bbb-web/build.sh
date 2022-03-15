@@ -93,6 +93,7 @@ pwd
 # Copy this as simply 'web' and we'll make a symbolic link later in the .postinst script
 mkdir -p "$STAGING"/usr/share/bigbluebutton/nginx
 cp bbb-web.nginx "$STAGING"/usr/share/bigbluebutton/nginx/web
+cp loadbalancer.nginx "$STAGING"/usr/share/bigbluebutton/nginx/loadbalancer.nginx
 
 mkdir -p "$STAGING"/var/log/bigbluebutton
 
