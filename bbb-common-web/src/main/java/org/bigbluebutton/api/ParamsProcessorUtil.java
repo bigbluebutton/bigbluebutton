@@ -885,6 +885,7 @@ public class ParamsProcessorUtil {
 		log.info("CHECKSUM={} length={}", checksum, checksum.length());
 
 		String data = apiCall + queryString + securitySalt;
+		log.info("Data {}", data);
 		String cs = DigestUtils.sha1Hex(data);
 		if (checksum.length() == 64) {
 			cs = DigestUtils.sha256Hex(data);

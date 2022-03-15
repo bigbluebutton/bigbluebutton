@@ -28,7 +28,7 @@ import java.nio.charset.StandardCharsets
 import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
-import org.bigbluebutton.api.MeetingService;
+import org.bigbluebutton.api.service.MeetingService
 import org.bigbluebutton.api.Util;
 
 class PresentationController {

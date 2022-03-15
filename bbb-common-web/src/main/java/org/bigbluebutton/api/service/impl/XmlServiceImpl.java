@@ -1,6 +1,5 @@
 package org.bigbluebutton.api.service.impl;
 
-import org.bigbluebutton.api.MeetingService;
 import org.bigbluebutton.api.model.entity.*;
 import org.bigbluebutton.api.service.XmlService;
 import org.w3c.dom.Document;
@@ -29,10 +28,40 @@ import org.w3c.dom.Node;
 public class XmlServiceImpl implements XmlService {
 
     private static Logger logger = LoggerFactory.getLogger(XmlServiceImpl.class);
-    private static Logger log = LoggerFactory.getLogger(MeetingService.class);
 
     private DocumentBuilderFactory factory;
     private DocumentBuilder builder;
+
+    @Override
+    public String recordingsToXml(Collection<Recording> recordings) {
+        logger.info("Converting {} recordings to xml", recordings.size());
+        try {
+            setup();
+            Document document = builder.newDocument();
+
+            Element rootElement = createElement(document, "recordings", null);
+            document.appendChild(rootElement);
+
+            String xml;
+            Document secondDoc;
+            Node node;
+
+            for(Recording recording: recordings) {
+                xml = recordingToXml(recording);
+                secondDoc = builder.parse(new ByteArrayInputStream(xml.getBytes()));
+                node = document.importNode(secondDoc.getDocumentElement(), true);
+                rootElement.appendChild(node);
+            }
+
+            String result = documentToString(document);
+            logger.info("Result {}", result);
+            return result;
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 
     @Override
     public String recordingToXml(Recording recording) {
@@ -153,7 +182,7 @@ public class XmlServiceImpl implements XmlService {
 
             Element rootElement = createElement(document, "image", thumbnail.getUrl());
             document.appendChild(rootElement);
-            appendFields(document, rootElement, thumbnail, new String[] {"id", "url"}, Type.ATTRIBUTE);
+            appendFields(document, rootElement, thumbnail, new String[] {"id", "url", "playbackFormat"}, Type.ATTRIBUTE);
 
             String result = documentToString(document);
             logger.info("Result {}", result);
@@ -198,7 +227,7 @@ public class XmlServiceImpl implements XmlService {
         return element;
     }
 
-    private String documentToString(Document document) {
+    public String documentToString(Document document) {
         String output = null;
 
         try {

@@ -10,6 +10,27 @@ import java.util.Set;
 @Table(name = "recordings")
 public class Recording {
 
+    public enum State {
+        STATE_PROCESSING("processing"),
+        STATE_PROCESSED("processed"),
+        STATE_PUBLISING("publishing"),
+        STATE_PUBLISHED("published"),
+        STATE_UNPUBLISING("unpublishing"),
+        STATE_UNPUBLISHED("unpublished"),
+        STATE_DELETING("deleting"),
+        STATE_DELETED("deleted");
+
+        private String value;
+
+        State(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

@@ -2,7 +2,7 @@ package org.bigbluebutton.web.controllers
 
 import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
-import org.bigbluebutton.api.MeetingService
+import org.bigbluebutton.api.service.MeetingService
 import org.bigbluebutton.api.ParamsProcessorUtil
 import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.api.ApiErrors

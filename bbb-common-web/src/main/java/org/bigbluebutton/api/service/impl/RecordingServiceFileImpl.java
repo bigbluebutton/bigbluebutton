@@ -7,7 +7,6 @@ import org.bigbluebutton.api.messaging.messages.MakePresentationDownloadableMsg;
 import org.bigbluebutton.api.service.RecordingService;
 import org.bigbluebutton.api.util.RecordingMetadataReaderHelper;
 import org.bigbluebutton.api2.domain.UploadedTrack;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -16,6 +15,30 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.bigbluebutton.api.domain.Recording;
+import org.bigbluebutton.api.domain.RecordingMetadata;
+import org.bigbluebutton.api.messaging.messages.MakePresentationDownloadableMsg;
+import org.bigbluebutton.api.util.RecordingMetadataReaderHelper;
+import org.bigbluebutton.api2.domain.UploadedTrack;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RecordingServiceFileImpl implements RecordingService {
 
@@ -92,7 +115,7 @@ public class RecordingServiceFileImpl implements RecordingService {
                 if (!doneFile.exists())
                     log.error("Failed to create {} file.", done);
             } catch (IOException e) {
-                log.error("Exception occured when trying to create {} file", done);
+                log.error("Exception occurred when trying to create {} file", done);
             }
         } else {
             log.error("{} file already exists.", done);
@@ -126,7 +149,7 @@ public class RecordingServiceFileImpl implements RecordingService {
                 if (!doneFile.exists())
                     log.error("Failed to create " + done + " file.");
             } catch (IOException e) {
-                log.error("Exception occured when trying to create {} file.", done);
+                log.error("Exception occurred when trying to create {} file.", done);
             }
         } else {
             log.error(done + " file already exists.");

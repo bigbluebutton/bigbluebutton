@@ -18,7 +18,7 @@
 */
 package org.bigbluebutton.web.controllers
 
-import org.bigbluebutton.api.MeetingService
+import org.bigbluebutton.api.service.MeetingService
 import org.bigbluebutton.api.domain.UserSession
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.ParamsProcessorUtil
