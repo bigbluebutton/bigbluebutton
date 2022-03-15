@@ -78,7 +78,7 @@ ldconfig
 cd $BUILDDIR/freeswitch
 
 patch -p0 < $BUILDDIR/floor.patch
-# patch -p0 --ignore-whitespace < $BUILDDIR/audio.patch       # Provisional patch for https://github.com/signalwire/freeswitch/pull/1531
+patch -p0 --ignore-whitespace < $BUILDDIR/audio.patch       # Provisional patch for https://github.com/signalwire/freeswitch/pull/1531
 
 ./bootstrap.sh 
 
