@@ -54,7 +54,7 @@
     "app.note.title": "分享笔记",
     "app.note.label": "笔记",
     "app.note.hideNoteLabel": "隐藏笔记面板",
-    "app.note.convertAndUpload": "上传共享笔记",
+    "app.note.converter-button.convertAndUpload": "上传共享笔记",
     "app.note.tipLabel": "按Esc键定位到编辑器工具栏",
     "app.note.locked": "已锁定",
     "app.user.activityCheck": "用户活动检查",

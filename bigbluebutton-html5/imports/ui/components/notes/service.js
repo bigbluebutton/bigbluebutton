@@ -7,8 +7,6 @@ import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 
 const NOTES_CONFIG = Meteor.settings.public.notes;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-const SHARED_NOTES_UPLOAD_COOLDOWN = 10;
-let lastSharedNotesUploadPress = 0;
 
 const hasPermission = () => {
   const user = Users.findOne(
@@ -76,17 +74,6 @@ const toggleNotesPanel = (sidebarContentPanel, layoutContextDispatch) => {
   });
 };
 
-const convertAndUpload = (timestamp) => {
-  let elapsed = (timestamp - lastSharedNotesUploadPress) / 1000;
-
-  if (elapsed >= SHARED_NOTES_UPLOAD_COOLDOWN){
-    lastSharedNotesUploadPress = Date.now();
-    return PadsService.convertAndUpload(NOTES_CONFIG.id);
-  }
-
-  return null;
-}
-
 export default {
   ID: NOTES_CONFIG.id,
   toggleNotesPanel,
@@ -95,5 +82,4 @@ export default {
   setLastRev,
   getLastRev,
   hasUnreadNotes,
-  convertAndUpload,
 };

@@ -57,7 +57,7 @@
     "app.note.title": "Notas compartilhadas",
     "app.note.label": "Notas",
     "app.note.hideNoteLabel": "Ocultar notas",
-    "app.note.convertAndUpload": "Adicionar notas compartilhadas como apresentação",
+    "app.note.converter-button.convertAndUpload": "Adicionar notas compartilhadas como apresentação",
     "app.note.tipLabel": "Pressione Esc para focar na barra de ferramentas do editor",
     "app.note.locked": "Bloqueado",
     "app.user.activityCheck": "Verificação de atividade do usuário",

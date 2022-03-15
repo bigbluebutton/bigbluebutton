@@ -57,7 +57,7 @@
     "app.note.title": "Geteilte Notizen",
     "app.note.label": "Notiz",
     "app.note.hideNoteLabel": "Notiz verbergen",
-    "app.note.convertAndUpload": "Geteilte Notizen im Präsentations-Bereich laden",
+    "app.note.converter-button.convertAndUpload": "Geteilte Notizen im Präsentations-Bereich laden",
     "app.note.tipLabel": "Drücken Sie Esc, um die Editorwerkzeugliste auszuwählen",
     "app.note.locked": "Gesperrt",
     "app.user.activityCheck": "Teilnehmeraktivitätsprüfung",
