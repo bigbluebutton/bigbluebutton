@@ -96,6 +96,10 @@ cp bbb-web.nginx "$STAGING"/usr/share/bigbluebutton/nginx/web
 cp loadbalancer.nginx "$STAGING"/usr/share/bigbluebutton/nginx/loadbalancer.nginx
 
 mkdir -p "$STAGING"/var/log/bigbluebutton
+# Copy directive for serving SVG files (HTML5) from nginx
+if [ -f nginx-confs/presentation-slides.nginx ]; then
+  cp nginx-confs/presentation-slides.nginx "$STAGING"/usr/share/bigbluebutton/nginx
+fi
 
 mkdir -p "$STAGING"/var/bigbluebutton/diagnostics
 
