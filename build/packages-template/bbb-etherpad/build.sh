@@ -60,8 +60,8 @@ git clone https://github.com/alangecker/bbb-etherpad-skin.git staging/usr/share/
 mkdir -p staging/usr/lib/systemd/system
 cp etherpad.service staging/usr/lib/systemd/system
 
-mkdir -p staging/etc/bigbluebutton/nginx
-cp notes.nginx staging/etc/bigbluebutton/nginx
+mkdir -p staging/usr/share/bigbluebutton/nginx
+cp notes.nginx staging/usr/share/bigbluebutton/nginx
 
 rm -rf staging/usr/share/etherpad-lite/src/static/skins/bigbluebutton/.git
 

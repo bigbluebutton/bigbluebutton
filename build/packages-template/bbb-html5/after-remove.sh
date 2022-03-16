@@ -6,6 +6,8 @@ case "$1" in
    if [ -L /etc/nginx/sites-enabled/bigbluebutton ]; then
      rm /etc/nginx/sites-enabled/bigbluebutton
    fi
+   rm -f /usr/share/bigbluebutton/nginx/bbb-html5.nginx
+   rm -f /usr/share/bigbluebutton/nginx/sip.nginx
 
    ;;
    purge)

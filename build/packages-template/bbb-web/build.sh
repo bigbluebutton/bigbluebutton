@@ -91,15 +91,14 @@ popd
 pwd
 
 # Copy this as simply 'web' and we'll make a symbolic link later in the .postinst script
-mkdir -p "$STAGING"/etc/bigbluebutton/nginx
-cp bbb-web.nginx "$STAGING"/etc/bigbluebutton/nginx/web
-cp loadbalancer.nginx "$STAGING"/etc/bigbluebutton/nginx/loadbalancer.nginx
+mkdir -p "$STAGING"/usr/share/bigbluebutton/nginx
+cp bbb-web.nginx "$STAGING"/usr/share/bigbluebutton/nginx/web
+cp loadbalancer.nginx "$STAGING"/usr/share/bigbluebutton/nginx/loadbalancer.nginx
 
 mkdir -p "$STAGING"/var/log/bigbluebutton
-
 # Copy directive for serving SVG files (HTML5) from nginx
 if [ -f nginx-confs/presentation-slides.nginx ]; then
-  cp nginx-confs/presentation-slides.nginx "$STAGING"/etc/bigbluebutton/nginx
+  cp nginx-confs/presentation-slides.nginx "$STAGING"/usr/share/bigbluebutton/nginx
 fi
 
 mkdir -p "$STAGING"/var/bigbluebutton/diagnostics
@@ -111,6 +110,7 @@ fpm -s dir -C "$STAGING" -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --before-install before-install.sh      \
     --after-install after-install.sh        \
+    --after-remove after-remove.sh \
     --description "BigBlueButton API" \
     $DIRECTORIES \
     $OPTS

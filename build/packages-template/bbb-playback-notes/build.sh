@@ -27,8 +27,8 @@ cp -r scripts staging/usr/local/bigbluebutton/core
 chmod +x staging/usr/local/bigbluebutton/core/scripts/process/notes.rb
 chmod +x staging/usr/local/bigbluebutton/core/scripts/publish/notes.rb
 
-mkdir -p staging/etc/bigbluebutton/nginx
-cp scripts/notes-playback.nginx staging/etc/bigbluebutton/nginx
+mkdir -p staging/usr/share/bigbluebutton/nginx
+cp scripts/notes-playback.nginx staging/usr/share/bigbluebutton/nginx
 
 ##
 
@@ -40,6 +40,7 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --post-install before-install.sh \
     --after-install after-install.sh \
+    --after-remove after-remove.sh \
     --description "BigBluebutton playback of notes" \
     $DIRECTORIES \
     $OPTS
