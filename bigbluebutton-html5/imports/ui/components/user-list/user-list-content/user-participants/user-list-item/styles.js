@@ -155,6 +155,10 @@ const UserNameSub = styled.span`
   }
 `;
 
+const SkeletonWrapper = styled.span`
+  width: 100%;
+`;
+
 export default {
   UserItemContents,
   UserItemInnerContents,
@@ -163,4 +167,5 @@ export default {
   UserName,
   UserNameMain,
   UserNameSub,
+  SkeletonWrapper,
 };

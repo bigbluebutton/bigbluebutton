@@ -257,7 +257,13 @@ const Avatar = styled.div`
       height: 1.2rem;
     }
   `}
+`;
 
+const Skeleton = styled.div`
+  & .react-loading-skeleton {    
+    height: 2.25rem;
+    width: 2.25rem;
+  }
 `;
 
 export default {
@@ -266,4 +272,5 @@ export default {
   Img,
   Talking,
   Avatar,
+  Skeleton,
 };
