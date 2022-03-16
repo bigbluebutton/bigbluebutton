@@ -22,7 +22,7 @@ for dir in $DIRS; do
 done
 
 mkdir -p ~/.sbt/1.0
-echo 'resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases"' > ~/.sbt/1.0/global.sbt
+echo 'resolvers += "Artima Maven Repository" at "https://repo.artima.com/releases"' > ~/.sbt/1.0/global.sbt
 
 ##
 
