@@ -21,18 +21,25 @@ done
 
 ##
 
+# After extracting out bbb-lti into its own repository there is an additional directory level
+if [ -d bbb-lti ]; then
+  cd bbb-lti/
+fi
+
 gradle clean
 gradle resolveDeps
 grails assemble
 
+cd ..
+
 mkdir -p staging/lib/systemd/system
 cp bbb-lti.service staging/lib/systemd/system
 
-mkdir -p staging/etc/bigbluebutton/nginx
-cp lti.nginx  staging/etc/bigbluebutton/nginx
+mkdir -p staging/usr/share/bigbluebutton/nginx
+cp bbb-lti/lti.nginx  staging/usr/share/bigbluebutton/nginx
 
 mkdir -p staging/usr/share/bbb-lti
-cp build/libs/bbb-lti-0.5.war staging/usr/share/bbb-lti
+cp bbb-lti/build/libs/bbb-lti-0.5.war staging/usr/share/bbb-lti
 
 cd staging/usr/share/bbb-lti
 jar -xvf bbb-lti-0.5.war
@@ -41,12 +48,6 @@ cd ../../../..
 
 cp run-prod.sh staging/usr/share/bbb-lti
 chmod +x staging/usr/share/bbb-lti/run-prod.sh
-
-mkdir -p staging/etc/bigbluebutton/nginx
-cp lti.nginx  staging/etc/bigbluebutton/nginx
-
-mkdir -p staging/lib/systemd/system
-cp bbb-lti.service staging/lib/systemd/system
 
 ##
 

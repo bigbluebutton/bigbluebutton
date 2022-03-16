@@ -47,7 +47,6 @@ const Input = styled(TextareaAutosize)`
   min-height: 2.5rem;
   max-height: 10rem;
   border: 1px solid ${colorGrayLighter};
-  box-shadow: 0 0 0 1px ${colorGrayLighter};
 
   &:disabled,
   &[disabled] {

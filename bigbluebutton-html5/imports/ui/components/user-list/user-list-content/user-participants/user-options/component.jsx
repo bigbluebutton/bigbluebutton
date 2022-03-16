@@ -12,6 +12,7 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
+import { isLearningDashboardEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -213,7 +214,6 @@ class UserOptions extends PureComponent {
       hasBreakoutRoom,
       isBreakoutEnabled,
       getUsersNotAssigned,
-      learningDashboardEnabled,
       openLearningDashboardUrl,
       amIModerator,
       users,
@@ -326,7 +326,7 @@ class UserOptions extends PureComponent {
         });
       }
       if (amIModerator) {
-        if (learningDashboardEnabled === true) {
+        if (isLearningDashboardEnabled()) {
           this.menuItems.push({
             icon: 'multi_whiteboard',
             iconRight: 'popout_window',

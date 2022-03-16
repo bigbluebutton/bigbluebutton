@@ -688,10 +688,6 @@
     "app.connection-status.no": "Não",
     "app.connection-status.notification": "Sua conexão foi perdida",
     "app.connection-status.offline": "desconectado",
-    "app.connection-status.audioUploadRate": "Taxa de Upload de Áudio",
-    "app.connection-status.audioDownloadRate": "Taxa de Download de Áudio",
-    "app.connection-status.videoUploadRate": "Taxa de Upload de Video",
-    "app.connection-status.videoDownloadRate": "Taxa de Download de Video",
     "app.connection-status.lostPackets": "Pacotes perdidos",
     "app.connection-status.usingTurn": "Usando TURN",
     "app.connection-status.yes": "Sim",
@@ -961,3 +957,4 @@
     "app.learningDashboard.errors.dataUnavailable": "Dado indisponível"
 
 }
+

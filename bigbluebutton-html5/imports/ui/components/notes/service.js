@@ -4,6 +4,7 @@ import PadsService from '/imports/ui/components/pads/service';
 import Auth from '/imports/ui/services/auth';
 import { Session } from 'meteor/session';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import { isSharedNotesEnabled } from '/imports/ui/services/features';
 
 const NOTES_CONFIG = Meteor.settings.public.notes;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -58,7 +59,7 @@ const hasUnreadNotes = (sidebarContentPanel) => {
   return rev !== 0 && rev > lastRev;
 };
 
-const isEnabled = () => NOTES_CONFIG.enabled;
+const isEnabled = () => isSharedNotesEnabled();
 
 const toggleNotesPanel = (sidebarContentPanel, layoutContextDispatch) => {
   layoutContextDispatch({

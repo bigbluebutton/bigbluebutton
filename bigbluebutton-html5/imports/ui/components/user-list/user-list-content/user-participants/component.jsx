@@ -125,6 +125,8 @@ class UserParticipants extends Component {
       requestUserInformation,
       currentUser,
       meetingIsBreakout,
+      lockSettingsProps,
+      isThisMeetingLocked,
     } = this.props;
     const { scrollArea } = this.state;
     const user = users[index];
@@ -152,6 +154,8 @@ class UserParticipants extends Component {
               meetingIsBreakout,
               scrollArea,
               isRTL,
+              lockSettingsProps,
+              isThisMeetingLocked,
             }}
             user={user}
             getScrollContainerRef={this.getScrollContainerRef}

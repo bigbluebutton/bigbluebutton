@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import TypingIndicatorContainer from './typing-indicator/container';
 import Styled from './styles';
+import { isChatEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
@@ -60,7 +61,6 @@ const messages = defineMessages({
 });
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const CHAT_ENABLED = CHAT_CONFIG.enabled;
 
 class MessageForm extends PureComponent {
   constructor(props) {
@@ -259,7 +259,7 @@ class MessageForm extends PureComponent {
 
     const { hasErrors, error, message } = this.state;
 
-    return CHAT_ENABLED ? (
+    return isChatEnabled() ? (
       <Styled.Form
         ref={(ref) => { this.form = ref; }}
         onSubmit={this.handleSubmit}
