@@ -103,7 +103,7 @@ const AppContainer = (props) => {
   } else {
     presentationVideoRate = cameraDock.height / window.innerHeight;
   }
-  presentationVideoRate = presentationVideoRate.toFixed(2);
+  presentationVideoRate = parseFloat(presentationVideoRate.toFixed(2));
 
   const prevRandomUser = usePrevious(randomlySelectedUser);
 
