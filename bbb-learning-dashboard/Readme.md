@@ -22,5 +22,5 @@ cp -r build/* /var/bigbluebutton/learning-dashboard
 ## Update nginx config
 
 ```
-cp bbb-learning-dashboard/learning-dashboard.nginx /etc/bigbluebutton/nginx/
+cp bbb-learning-dashboard/learning-dashboard.nginx /usr/share/bigbluebutton/nginx/
 ```

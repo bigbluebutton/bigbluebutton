@@ -56,10 +56,10 @@ NUMBER_OF_FRONTEND_NODEJS_PROCESSES=2
 HERE
 
 echo "writing $DESTINATION_DIR/systemd_start.sh"
-sudo cp $LOCAL_PACKAGING_DIR/bionic/systemd_start.sh "$DESTINATION_DIR"/systemd_start.sh
+sudo cp $LOCAL_PACKAGING_DIR/systemd_start.sh "$DESTINATION_DIR"/systemd_start.sh
 
 echo "writing $DESTINATION_DIR/systemd_start_frontend.sh"
-sudo cp $LOCAL_PACKAGING_DIR/bionic/systemd_start_frontend.sh "$DESTINATION_DIR"/systemd_start_frontend.sh
+sudo cp $LOCAL_PACKAGING_DIR/systemd_start_frontend.sh "$DESTINATION_DIR"/systemd_start_frontend.sh
 
 sudo chown -R meteor:meteor "$UPPER_DESTINATION_DIR"/
 sudo chmod +x "$DESTINATION_DIR"/mongod_start_pre.sh
@@ -70,10 +70,10 @@ sudo chmod +x "$DESTINATION_DIR"/workers-start.sh
 
 
 echo "writing $SERVICE_FILES_DIR/bbb-html5-frontend@.service"
-sudo cp $LOCAL_PACKAGING_DIR/bionic/bbb-html5-frontend@.service "$SERVICE_FILES_DIR"/bbb-html5-frontend@.service
+sudo cp $LOCAL_PACKAGING_DIR/bbb-html5-frontend@.service "$SERVICE_FILES_DIR"/bbb-html5-frontend@.service
 
 echo "writing $SERVICE_FILES_DIR/bbb-html5-backend@.service"
-sudo cp $LOCAL_PACKAGING_DIR/bionic/bbb-html5-backend@.service "$SERVICE_FILES_DIR"/bbb-html5-backend@.service
+sudo cp $LOCAL_PACKAGING_DIR/bbb-html5-backend@.service "$SERVICE_FILES_DIR"/bbb-html5-backend@.service
 
 sudo systemctl daemon-reload
 

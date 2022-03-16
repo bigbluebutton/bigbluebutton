@@ -579,12 +579,16 @@ module BigBlueButton
           date = event.at_xpath('./date')&.content
           date = DateTime.iso8601(date) unless date.nil?
           sender_id = event.at_xpath('./senderId')&.content
+          senderRole = event.at_xpath('./senderRole')&.content
+          chatEmphasizedText = event.at_xpath('./chatEmphasizedText')&.content
 
           chats << {
             in: timestamp - offset,
             out: nil,
             sender_id: sender_id,
             sender: user_map.fetch(sender_id),
+            senderRole: senderRole,
+            chatEmphasizedText: chatEmphasizedText,
             message: linkify(event.at_xpath('./message').content.strip),
             date: date,
           }

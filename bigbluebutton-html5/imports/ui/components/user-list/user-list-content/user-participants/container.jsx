@@ -8,6 +8,7 @@ import Auth from '/imports/ui/services/auth';
 import useContextUsers from '/imports/ui/components/components-data/users-context/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
+import Meetings from '/imports/api/meetings';
 
 const UserParticipantsContainer = (props) => {
   const {
@@ -50,10 +51,14 @@ export default withTracker(() => {
 
   const whiteboardId = WhiteboardService.getCurrentWhiteboardId();
   const whiteboardUsers = whiteboardId ? WhiteboardService.getMultiUser(whiteboardId) : null;
+  const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { lockSettingsProps: 1 } });
 
   return ({
     meetingIsBreakout: meetingIsBreakout(),
     videoUsers: VideoService.getUsersIdFromVideoStreams(),
     whiteboardUsers,
+    isThisMeetingLocked: UserListService.isMeetingLocked(Auth.meetingID),
+    lockSettingsProps: currentMeeting && currentMeeting.lockSettingsProps,
   });
 })(UserParticipantsContainer);

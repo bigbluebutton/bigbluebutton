@@ -48,7 +48,7 @@ enableHTML5ClientLog() {
   yq w -i $HTML5_CONFIG public.app.askForFeedbackOnLogout true
   chown meteor:meteor $HTML5_CONFIG
 
-  cat > /etc/bigbluebutton/nginx/html5-client-log.nginx << HERE
+  cat > /usr/share/bigbluebutton/nginx/html5-client-log.nginx << HERE
 location /html5log {
         access_log /var/log/nginx/html5-client.log postdata;
         echo_read_request_body;

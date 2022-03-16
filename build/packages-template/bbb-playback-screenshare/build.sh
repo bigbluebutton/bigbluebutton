@@ -30,8 +30,8 @@ chmod +x staging/usr/local/bigbluebutton/core/scripts/publish/screenshare.rb
 mkdir -p staging/usr/local/bigbluebutton/core/playback/screenshare
 cp -r playback/* staging/usr/local/bigbluebutton/core/playback/screenshare
 
-mkdir -p staging/etc/bigbluebutton/nginx
-mv staging/usr/local/bigbluebutton/core/scripts/recording-screenshare.nginx staging/etc/bigbluebutton/nginx
+mkdir -p staging/usr/share/bigbluebutton/nginx
+mv staging/usr/local/bigbluebutton/core/scripts/recording-screenshare.nginx staging/usr/share/bigbluebutton/nginx
 
 ##
 
@@ -43,6 +43,7 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --post-install before-install.sh \
     --after-install after-install.sh \
+    --after-remove after-remove.sh \
     --description "BigBluebutton playback of screenshare" \
     $DIRECTORIES \
     $OPTS

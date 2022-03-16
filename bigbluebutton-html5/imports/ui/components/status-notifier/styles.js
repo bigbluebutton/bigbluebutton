@@ -6,6 +6,7 @@ import {
   smPaddingX,
   toastIconSide,
   toastMargin,
+  toastMarginMobile,
   avatarWrapperOffset,
   jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -19,6 +20,9 @@ import {
   fontSizeXL,
   fontSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/typography';
+import {
+  smallOnly,
+} from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
 import ToastStyled from '/imports/ui/components/common/toast/styles';
 
@@ -81,6 +85,17 @@ const IconWrapper = styled.div`
     [dir="rtl"] & {
       left: 0;
       right: 10px;
+    }
+    @media ${smallOnly} {
+      {
+        top: ${toastMarginMobile};
+        left: ${toastMarginMobile};
+
+        [dir="rtl"] & {
+          left: 0;
+          right: ${toastMargin};
+        }
+      }
     }
   }
 `;

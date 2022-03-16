@@ -4,8 +4,7 @@ import PropTypes from 'prop-types';
 import Toggle from '/imports/ui/components/common/switch/component';
 import NotesService from '/imports/ui/components/notes/service';
 import Styled from './styles';
-
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+import { isChatEnabled } from '/imports/ui/services/features';
 
 const intlMessages = defineMessages({
   lockViewersTitle: {
@@ -252,7 +251,7 @@ class LockViewersComponent extends Component {
               </Styled.Col>
             </Styled.Row>
 
-            {CHAT_ENABLED ? (
+            {isChatEnabled() ? (
               <Fragment>
                 <Styled.Row>
                   <Styled.Col aria-hidden="true">
