@@ -576,9 +576,10 @@
   "toolbar": {
     "left": [
       ["bold", "italic", "underline", "strikethrough"],
-      ["orderedlist", "unorderedlist", "undo", "redo"]
+      ["orderedlist", "unorderedlist", "undo", "redo"],
+      ["importexport"]
     ],
-    "right": [["importexport"]]
+    "right": [[]]
   },
 
   /*
@@ -601,4 +602,5 @@
   /* Disable Admin UI tests */
   "enableAdminUITests": false
 }
+
 

@@ -1206,7 +1206,7 @@ class ApiController {
         respMessage = "Meeting not found"
       }
 
-      if(meeting.getLearningDashboardEnabled() == false) {
+      if(meeting.getDisabledFeatures().contains("learningDashboard") == true) {
         reject = true
         respMessage = "Learning Dashboard disabled for this meeting"
       }

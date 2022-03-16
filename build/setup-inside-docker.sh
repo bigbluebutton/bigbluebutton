@@ -49,7 +49,7 @@ else
     VERSION="${VERSION_NUMBER}~${VERSION_ADDON}+${COMMIT_DATE}-git.${GIT_REV}"
 fi
 
-DISTRO=bionic
+DISTRO=focal
 CACHE_DIR="/root/"
 mkdir -p "$CACHE_DIR"
 

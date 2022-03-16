@@ -9,7 +9,6 @@ import RandomUserSelectContainer from '/imports/ui/components/common/modal/rando
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles'
 import { PANELS, ACTIONS } from '../../layout/enums';
-import deviceInfo from '/imports/utils/deviceInfo';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 
 const propTypes = {
@@ -23,6 +22,7 @@ const propTypes = {
   handleTakePresenter: PropTypes.func.isRequired,
   allowExternalVideo: PropTypes.bool.isRequired,
   stopExternalVideoShare: PropTypes.func.isRequired,
+  isMobile: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -250,6 +250,7 @@ class ActionsDropdown extends PureComponent {
       shortcuts: OPEN_ACTIONS_AK,
       isMeteorConnected,
       isDropdownOpen,
+      isMobile,
     } = this.props;
 
     const availableActions = this.getAvailableActions();
@@ -262,7 +263,6 @@ class ActionsDropdown extends PureComponent {
       || !isMeteorConnected) {
       return null;
     }
-    const { isMobile } = deviceInfo;
     const customStyles = { top: '-3rem' };
 
     return (

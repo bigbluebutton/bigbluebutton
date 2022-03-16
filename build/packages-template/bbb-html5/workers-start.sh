@@ -25,7 +25,7 @@ fi
 # Start frontend nodejs processes
 if ((NUMBER_OF_FRONTEND_NODEJS_PROCESSES >= MIN_NUMBER_OF_FRONTEND_PROCESSES && NUMBER_OF_FRONTEND_NODEJS_PROCESSES <= MAX_NUMBER_OF_FRONTEND_PROCESSES)); then
   if ((NUMBER_OF_FRONTEND_NODEJS_PROCESSES == 0)); then
-    echo 'Need to modify /etc/bigbluebutton/nginx/bbb-html5.nginx to ensure backend IPs are used'
+    echo 'Need to modify bbb-html5.nginx to ensure backend IPs are used'
   fi
   for ((i = 1 ; i <= NUMBER_OF_FRONTEND_NODEJS_PROCESSES ; i++)); do
     systemctl start bbb-html5-frontend@$i
