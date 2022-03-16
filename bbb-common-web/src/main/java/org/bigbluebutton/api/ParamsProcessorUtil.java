@@ -87,6 +87,7 @@ public class ParamsProcessorUtil {
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
+    private boolean learningDashboardEnabled = true;
     private int learningDashboardCleanupDelayInMinutes;
     private boolean webcamsOnlyForModerator;
     private Integer defaultMeetingCameraCap = 0;
@@ -487,6 +488,19 @@ public class ParamsProcessorUtil {
         listOfDisabledFeatures.removeAll(Arrays.asList("", null));
         listOfDisabledFeatures.replaceAll(String::trim);
         listOfDisabledFeatures = new ArrayList<>(new HashSet<>(listOfDisabledFeatures));
+
+        boolean learningDashboardEn = learningDashboardEnabled;
+        if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED))) {
+            try {
+                learningDashboardEn = Boolean.parseBoolean(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED));
+            } catch (Exception ex) {
+                log.warn("Invalid param [learningDashboardEnabled] for meeting=[{}]",internalMeetingId);
+            }
+        }
+        if(learningDashboardEn == false && !listOfDisabledFeatures.contains("learningDashboard")) {
+            log.warn("[DEPRECATION] use disabledFeatures=learningDashboard instead of learningDashboardEnabled=false");
+            listOfDisabledFeatures.add("learningDashboard");
+        }
 
         int learningDashboardCleanupMins = 0;
 
@@ -1063,7 +1077,11 @@ public class ParamsProcessorUtil {
         this.allowStartStopRecording = allowStartStopRecording;
     }
 
-    public void setlearningDashboardCleanupDelayInMinutes(int learningDashboardCleanupDelayInMinutes) {
+    public void setLearningDashboardEnabled(boolean learningDashboardEnabled) {
+        this.learningDashboardEnabled = learningDashboardEnabled;
+    }
+
+    public void setLearningDashboardCleanupDelayInMinutes(int learningDashboardCleanupDelayInMinutes) {
         this.learningDashboardCleanupDelayInMinutes = learningDashboardCleanupDelayInMinutes;
     }
 

@@ -151,6 +151,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
+        <property name="learningDashboardEnabled" value="${learningDashboardEnabled:true}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
         <property name="defaultMeetingCameraCap" value="${meetingCameraCap}"/>
