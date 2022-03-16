@@ -9,5 +9,5 @@ zip -r demo * > /dev/null
 mv -f demo.zip $DEPLOY_DIR/demo.war
 touch $DEPLOY_DIR/demo.war
 
-# Restart nginx to take advantage of the updates to /etc/bigbluebutton/nginx
+# Restart nginx to take advantage of the updates to nginx configuration
 reloadService nginx

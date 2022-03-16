@@ -8,6 +8,17 @@ import {
   getMappedFallbackStun,
 } from '/imports/utils/fetchStunTurnServers';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
+import Storage from '/imports/ui/services/storage/session';
+import browserInfo from '/imports/utils/browserInfo';
+import {
+  DEFAULT_OUTPUT_DEVICE_ID,
+  INPUT_DEVICE_ID_KEY,
+  OUTPUT_DEVICE_ID_KEY,
+  getAudioSessionNumber,
+  getAudioConstraints,
+  filterSupportedConstraints,
+} from '/imports/api/audio/client/bridge/service';
+import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const MEDIA = Meteor.settings.public.media;
@@ -18,7 +29,7 @@ const RECONNECT_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
 const SENDRECV_ROLE = 'sendrecv';
 const RECV_ROLE = 'recv';
 const BRIDGE_NAME = 'fullaudio';
-const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
+const IS_CHROME = browserInfo.isChrome;
 
 // SFU's base broker has distinct error codes so that it can be reused by different
 // modules. Errors that have a valid, localized counterpart in audio manager are
@@ -45,22 +56,9 @@ const getMediaServerAdapter = () => getFromMeetingSettings(
   DEFAULT_FULLAUDIO_MEDIA_SERVER,
 );
 
-const getAudioSessionNumber = () => {
-  let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
-  if (!currItem) {
-    currItem = 0;
-  }
-
-  currItem += 1;
-  sessionStorage.setItem(AUDIO_SESSION_NUM_KEY, currItem);
-  return currItem;
-};
-
 export default class FullAudioBridge extends BaseAudioBridge {
   constructor(userData) {
     super();
-    this.internalMeetingID = userData.meetingId;
-    this.voiceBridge = userData.voiceBridge;
     this.userId = userData.userId;
     this.name = userData.username;
     this.sessionToken = userData.sessionToken;
@@ -70,24 +68,73 @@ export default class FullAudioBridge extends BaseAudioBridge {
     this.broker = null;
     this.reconnecting = false;
     this.iceServers = [];
+    this.inEchoTest = false;
+    this.bridgeName = BRIDGE_NAME;
   }
 
-  async changeOutputDevice(value) {
-    const audioContext = document.querySelector(`#${MEDIA_TAG}`);
-    if (audioContext.setSinkId) {
-      try {
-        await audioContext.setSinkId(value);
-        this.media.outputDeviceId = value;
-      } catch (error) {
-        logger.error({
-          logCode: 'fullaudio_changeoutputdevice_error',
-          extraInfo: { error, bridge: BRIDGE_NAME },
-        }, 'Audio bridge failed to change output device');
-        throw new Error(this.baseErrorCodes.MEDIA_ERROR);
-      }
+  get inputDeviceId() {
+    const sessionInputDeviceId = Storage.getItem(INPUT_DEVICE_ID_KEY);
+
+    if (sessionInputDeviceId) {
+      return sessionInputDeviceId;
     }
 
-    return this.media.outputDeviceId || value;
+    if (this.media.inputDeviceId) {
+      return this.media.inputDeviceId;
+    }
+
+    return null;
+  }
+
+  set inputDeviceId(deviceId) {
+    Storage.setItem(INPUT_DEVICE_ID_KEY, deviceId);
+    this.media.inputDeviceId = deviceId;
+  }
+
+  get outputDeviceId() {
+    const sessionOutputDeviceId = Storage.getItem(OUTPUT_DEVICE_ID_KEY);
+    if (sessionOutputDeviceId) {
+      return sessionOutputDeviceId;
+    }
+
+    if (this.media.outputDeviceId) {
+      return this.media.outputDeviceId;
+    }
+
+    return DEFAULT_OUTPUT_DEVICE_ID;
+  }
+
+  set outputDeviceId(deviceId) {
+    Storage.setItem(OUTPUT_DEVICE_ID_KEY, deviceId);
+    this.media.outputDeviceId = deviceId;
+  }
+
+  get inputStream() {
+    if (this.broker) {
+      return this.broker.getLocalStream();
+    }
+
+    return null;
+  }
+
+  async setInputStream(stream) {
+    try {
+      if (this.broker == null) return null;
+
+      await this.broker.setLocalStream(stream);
+
+      return stream;
+    } catch (error) {
+      logger.warn({
+        logCode: 'fullaudio_setinputstream_error',
+        extraInfo: {
+          errorCode: error.code,
+          errorMessage: error.message,
+          bridgeName: this.bridgeName,
+        },
+      }, 'Failed to set input stream (mic)');
+      return null;
+    }
   }
 
   getPeerConnection() {
@@ -99,7 +146,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
   }
 
   handleTermination() {
-    return this.callback({ status: this.baseCallStates.ended, bridge: BRIDGE_NAME });
+    return this.callback({ status: this.baseCallStates.ended, bridge: this.bridgeName });
   }
 
   clearReconnectionTimeout() {
@@ -112,7 +159,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
 
   reconnect() {
     this.broker.stop();
-    this.callback({ status: this.baseCallStates.reconnecting, bridge: BRIDGE_NAME });
+    this.callback({ status: this.baseCallStates.reconnecting, bridge: this.bridgeName });
     this.reconnecting = true;
     // Set up a reconnectionTimeout in case the server is unresponsive
     // for some reason. If it gets triggered, end the session and stop
@@ -122,7 +169,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
         status: this.baseCallStates.failed,
         error: 1010,
         bridgeError: 'Reconnection timeout',
-        bridge: BRIDGE_NAME,
+        bridge: this.bridgeName,
       });
       this.broker.stop();
       this.clearReconnectionTimeout();
@@ -137,7 +184,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
         extraInfo: {
           errorMessage: error.errorMessage,
           reconnecting: this.reconnecting,
-          bridge: BRIDGE_NAME,
+          bridge: this.bridgeName,
         },
       }, 'Fullaudio reconnect failed');
     });
@@ -155,7 +202,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
             errorMessage,
             errorCode,
             errorCause,
-            bridge: BRIDGE_NAME,
+            bridge: this.bridgeName,
           },
         }, 'Fullaudio failed, try to reconnect');
         this.reconnect();
@@ -171,7 +218,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
           errorCode,
           errorCause,
           reconnecting: this.reconnecting,
-          bridge: BRIDGE_NAME,
+          bridge: this.bridgeName,
         },
       }, 'Fullaudio failed');
       this.clearReconnectionTimeout();
@@ -180,7 +227,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
         status: this.baseCallStates.failed,
         error: errorCode,
         bridgeError: errorMessage,
-        bridge: BRIDGE_NAME,
+        bridge: this.bridgeName,
       });
       return reject(error);
     });
@@ -191,7 +238,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
       detail: { mediaElement },
     });
     window.dispatchEvent(tagFailedEvent);
-    this.callback({ status: this.baseCallStates.autoplayBlocked, bridge: BRIDGE_NAME });
+    this.callback({ status: this.baseCallStates.autoplayBlocked, bridge: this.bridgeName });
   }
 
   handleStart() {
@@ -201,14 +248,14 @@ export default class FullAudioBridge extends BaseAudioBridge {
     return loadAndPlayMediaStream(stream, mediaElement, false).then(() => this
       .callback({
         status: this.baseCallStates.started,
-        bridge: BRIDGE_NAME,
+        bridge: this.bridgeName,
       })).catch((error) => {
       // NotAllowedError equals autoplay issues, fire autoplay handling event.
       // This will be handled in audio-manager.
       if (error.name === 'NotAllowedError') {
         logger.error({
           logCode: 'fullaudio_error_autoplay',
-          extraInfo: { errorName: error.name, bridge: BRIDGE_NAME },
+          extraInfo: { errorName: error.name, bridge: this.bridgeName },
         }, 'Fullaudio media play failed due to autoplay error');
         this.dispatchAutoplayHandlingEvent(mediaElement);
       } else {
@@ -220,7 +267,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
           status: this.baseCallStates.failed,
           error: normalizedError.errorCode,
           bridgeError: normalizedError.errorMessage,
-          bridge: BRIDGE_NAME,
+          bridge: this.bridgeName,
         });
         throw normalizedError;
       }
@@ -247,9 +294,10 @@ export default class FullAudioBridge extends BaseAudioBridge {
     });
   }
 
-  async _startBroker(_options) {
+  async _startBroker(options) {
     try {
-      const { isListenOnly } = _options;
+      const { isListenOnly, extension } = options;
+      this.inEchoTest = !!extension;
       this.isListenOnly = isListenOnly;
 
       const callerIdName = [
@@ -258,20 +306,19 @@ export default class FullAudioBridge extends BaseAudioBridge {
         isListenOnly ? `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}` : this.name,
       ].join('-').replace(/"/g, "'");
 
-      const options = {
-        userName: this.name,
+      const brokerOptions = {
         caleeName: callerIdName,
+        extension,
         iceServers: this.iceServers,
         mediaServer: getMediaServerAdapter(),
+        constraints: getAudioConstraints({ deviceId: this.inputDeviceId }),
+        forceRelay: shouldForceRelay(),
       };
 
       this.broker = new FullAudioBroker(
         Auth.authenticateURL(SFU_URL),
-        this.voiceBridge,
-        this.userId,
-        this.internalMeetingID,
         isListenOnly ? RECV_ROLE : SENDRECV_ROLE,
-        options,
+        brokerOptions,
       );
 
       const initBrokerEventsPromise = this._initBrokerEventsPromise();
@@ -289,7 +336,6 @@ export default class FullAudioBridge extends BaseAudioBridge {
   async joinAudio(options, callback) {
     try {
       this.callback = callback;
-
       this.iceServers = await fetchWebRTCMappedStunTurnServers(this.sessionToken);
     } catch (error) {
       logger.error({ logCode: 'fullaudio_stun-turn_fetch_failed' },
@@ -300,10 +346,67 @@ export default class FullAudioBridge extends BaseAudioBridge {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  async updateAudioConstraints() {
-    // TO BE IMPLEMENTED
-    return true;
+  sendDtmf(tones) {
+    if (this.broker) {
+      this.broker.dtmf(tones);
+    }
+  }
+
+  transferCall(onTransferSuccess) {
+    this.inEchoTest = false;
+    return this.trackTransferState(onTransferSuccess);
+  }
+
+  async liveChangeInputDevice(deviceId) {
+    try {
+      const constraints = {
+        audio: getAudioConstraints({ deviceId }),
+      };
+
+      this.inputStream.getAudioTracks().forEach((t) => t.stop());
+      const updatedStream = await navigator.mediaDevices.getUserMedia(constraints);
+      await this.setInputStream(updatedStream);
+      this.inputDeviceId = deviceId;
+
+      return updatedStream;
+    } catch (error) {
+      logger.warn({
+        logCode: 'fullaudio_livechangeinputdevice_error',
+        extraInfo: {
+          errorCode: error.code,
+          errorMessage: error.message,
+          bridgeName: this.bridgeName,
+        },
+      }, 'Failed to change input device (mic)');
+      return null;
+    }
+  }
+
+  async updateAudioConstraints(constraints) {
+    try {
+      if (typeof constraints !== 'object') return;
+
+      const matchConstraints = filterSupportedConstraints(constraints);
+
+      if (IS_CHROME) {
+        matchConstraints.deviceId = this.inputDeviceId;
+        const stream = await navigator.mediaDevices.getUserMedia(
+          { audio: matchConstraints },
+        );
+        this.setInputStream(stream);
+      } else {
+        this.inputStream.getAudioTracks().forEach((track) => track.applyConstraints(matchConstraints));
+      }
+    } catch (error) {
+      logger.error({
+        logCode: 'fullaudio_audio_constraint_error',
+        extraInfo: {
+          errorCode: error.code,
+          errorMessage: error.message,
+          bridgeName: this.bridgeName,
+        },
+      }, 'Failed to update audio constraint');
+    }
   }
 
   exitAudio() {

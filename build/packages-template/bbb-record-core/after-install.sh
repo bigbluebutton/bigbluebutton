@@ -27,7 +27,7 @@ case "$1" in
 
     if ! gem -v | grep -q ^3.; then 
       gem update --system --no-document
-      if grep -q bionic /etc/lsb-release; then
+      if grep -q focal /etc/lsb-release; then
         gem install bundler -v 2.1.4
       else
         gem install bundler --no-document

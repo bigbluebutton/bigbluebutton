@@ -68,6 +68,7 @@ public class Meeting {
 	private boolean allowStartStopRecording = false;
 	private boolean haveRecordingMarks = false;
 	private boolean webcamsOnlyForModerator = false;
+	private Integer meetingCameraCap = 0;
 	private Integer userCameraCap = 0;
 	private String dialNumber;
 	private String defaultAvatarURL;
@@ -131,6 +132,7 @@ public class Meeting {
         autoStartRecording = builder.autoStartRecording;
         allowStartStopRecording = builder.allowStartStopRecording;
         webcamsOnlyForModerator = builder.webcamsOnlyForModerator;
+        meetingCameraCap = builder.meetingCameraCap;
         userCameraCap = builder.userCameraCap;
         duration = builder.duration;
         webVoice = builder.webVoice;
@@ -509,6 +511,10 @@ public class Meeting {
         return webcamsOnlyForModerator;
     }
 
+    public Integer getMeetingCameraCap() {
+        return meetingCameraCap;
+    }
+
     public Integer getUserCameraCap() {
         return userCameraCap;
     }
@@ -781,6 +787,7 @@ public class Meeting {
     	private boolean autoStartRecording;
         private boolean allowStartStopRecording;
         private boolean webcamsOnlyForModerator;
+        private Integer meetingCameraCap;
         private Integer userCameraCap;
     	private String moderatorPass;
     	private String viewerPass;
@@ -852,6 +859,11 @@ public class Meeting {
 
         public Builder withWebcamsOnlyForModerator(boolean only) {
             this.webcamsOnlyForModerator = only;
+            return this;
+        }
+
+        public Builder withMeetingCameraCap(Integer cap) {
+            this.meetingCameraCap = cap;
             return this;
         }
 

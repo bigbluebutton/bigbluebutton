@@ -26,7 +26,7 @@ case "$1" in
       else
         # Looks like the FreeSWITCH package is being installed, let's fall back to the default value
         yq w -i $TARGET freeswitch.ip $IP
-	if [ "$DISTRIB_RELEASE" == "18.04" ]; then
+	if [ "$DISTRIB_CODENAME" == "focal" ]; then
           yq w -i $TARGET freeswitch.sip_ip $IP
 	fi
       fi
@@ -82,7 +82,7 @@ maxPort=32768
 HERE
     fi
 
-    # Check if using Kurento packages with bionic
+    # Check if using Kurento packages with focal
 
     reloadService nginx
     startService bbb-webrtc-sfu        || echo "bbb-webrtc-sfu could not be registered or started"

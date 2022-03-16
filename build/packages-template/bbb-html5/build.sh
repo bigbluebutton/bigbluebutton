@@ -20,8 +20,8 @@ if [ -f private/config/settings.yml ]; then
   sed -i "s/HTML5_CLIENT_VERSION/$(($1))/" private/config/settings.yml
 fi
 
-mkdir -p staging/etc/bigbluebutton/nginx
-cp bbb-html5.nginx staging/etc/bigbluebutton/nginx
+mkdir -p staging/usr/share/bigbluebutton/nginx
+cp bbb-html5.nginx staging/usr/share/bigbluebutton/nginx
 
 mkdir -p staging/etc/nginx/conf.d
 cp bbb-html5-loadbalancer.conf staging/etc/nginx/conf.d
@@ -111,8 +111,8 @@ find staging/usr/share/meteor/bundle/programs/web.browser -name '*.wasm' -exec g
 mkdir -p staging/etc/nginx/sites-available
 cp bigbluebutton.nginx staging/etc/nginx/sites-available/bigbluebutton
 
-mkdir -p staging/etc/bigbluebutton/nginx
-cp sip.nginx staging/etc/bigbluebutton/nginx
+mkdir -p staging/usr/share/bigbluebutton/nginx
+cp sip.nginx staging/usr/share/bigbluebutton/nginx
 
 mkdir -p staging/var/www/bigbluebutton
 touch staging/var/www/bigbluebutton/index.html

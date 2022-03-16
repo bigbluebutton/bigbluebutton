@@ -27,8 +27,8 @@ gradle build
 mkdir -p staging/var/tmp
 cp build/libs/demo.war staging/var/tmp
 
-mkdir -p staging/etc/bigbluebutton/nginx
-cp demo.nginx  staging/etc/bigbluebutton/nginx
+mkdir -p staging/usr/share/bigbluebutton/nginx
+cp demo.nginx  staging/usr/share/bigbluebutton/nginx
 
 ##
 

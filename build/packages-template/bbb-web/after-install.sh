@@ -51,8 +51,8 @@ bbb_config() {
 	sed -i 's#<a href="http://docs.bigbluebutton.org/" target="_blank">#<a href="https://docs.bigbluebutton.org/" target="_blank">#g' \
 		$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
 
-  if [ ! -L /etc/bigbluebutton/nginx/web.nginx ]; then
-    ln -s /etc/bigbluebutton/nginx/web /etc/bigbluebutton/nginx/web.nginx
+  if [ ! -L /usr/share/bigbluebutton/nginx/web.nginx ]; then
+    ln -s /usr/share/bigbluebutton/nginx/web /usr/share/bigbluebutton/nginx/web.nginx
   fi
 
   if [[ ! -L /usr/share/bbb-web/logs && -d /usr/share/bbb-web/logs ]]; then  # remove old directory (if exists)

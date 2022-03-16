@@ -24,7 +24,7 @@ trait GetGroupChatMsgsReqMsgHdlr {
     state.groupChats.find(msg.body.chatId) foreach { gc =>
       if (gc.access == GroupChatAccess.PUBLIC || gc.isUserMemberOf(msg.header.userId)) {
         val msgs = gc.msgs.toVector map (m => GroupChatMsgToUser(m.id, m.createdOn, m.correlationId,
-          m.sender, m.message))
+          m.sender, m.chatEmphasizedText, m.message))
         val respMsg = buildGetGroupChatMsgsRespMsg(
           liveMeeting.props.meetingProp.intId,
           msg.header.userId, msgs, gc.id
