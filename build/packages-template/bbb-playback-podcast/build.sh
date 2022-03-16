@@ -27,8 +27,8 @@ cp -r scripts staging/usr/local/bigbluebutton/core
 #mkdir -p staging/var/bigbluebutton
 #cp -r playback staging/var/bigbluebutton
 
-mkdir -p staging/etc/bigbluebutton/nginx
-mv staging/usr/local/bigbluebutton/core/scripts/podcast.nginx staging/etc/bigbluebutton/nginx
+mkdir -p staging/usr/share/bigbluebutton/nginx
+cp staging/usr/local/bigbluebutton/core/scripts/podcast.nginx staging/usr/share/bigbluebutton/nginx
 
 ##
 
@@ -40,6 +40,7 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --post-install before-install.sh \
     --after-install after-install.sh \
+    --after-remove after-remove.sh \
     --description "BigBluebutton playback in podcast" \
     $DIRECTORIES \
     $OPTS
