@@ -1,8 +1,7 @@
 const e = require('../core/elements');
-const { checkIncludeClass } = require('../core/util');
 
 async function setStatus(page, status) {
-  await page.waitAndClick(e.firstUser);
+  await page.waitAndClick(e.currentUser);
   await page.waitAndClick(e.setStatus);
   await page.waitAndClick(status);
 }
@@ -19,15 +18,17 @@ async function setGuestPolicyOption(test, option) {
 }
 
 async function checkAvatarIcon(test, checkModIcon = true) {
-  await test.hasElement(`${e.firstUser} ${checkModIcon ? e.moderatorAvatar : e.viewerAvatar}`);
+  await test.hasElement(`${e.currentUser} ${checkModIcon ? e.moderatorAvatar : e.viewerAvatar}`);
 }
 
-async function checkPresenterClass(test) {
-  return test.page.evaluate(checkIncludeClass, [e.userAvatar, e.presenterClassName]);
+async function checkIsPresenter(test) {
+  return test.page.evaluate(([currentAvatarSelector, userAvatarSelector]) => {
+    return document.querySelectorAll(`${currentAvatarSelector} ${userAvatarSelector}`)[0].hasAttribute('data-test-presenter')
+  }, [e.currentUser, e.userAvatar])
 }
 
 exports.setStatus = setStatus;
 exports.openLockViewers = openLockViewers;
 exports.setGuestPolicyOption = setGuestPolicyOption;
 exports.checkAvatarIcon = checkAvatarIcon;
-exports.checkPresenterClass = checkPresenterClass;
+exports.checkIsPresenter = checkIsPresenter;

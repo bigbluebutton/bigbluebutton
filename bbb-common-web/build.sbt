@@ -11,7 +11,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-target:jvm-1.8",
+    "-target:jvm-1.11",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -29,13 +29,18 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
+libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "2.0.0"
+
 Seq(Revolver.settings: _*)
+
 lazy val commonWeb = (project in file(".")).settings(name := "bbb-common-web", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
 
 // See https://github.com/scala-ide/scalariform
 // Config file is in ./.scalariform.conf
 scalariformAutoformat := true
 
+scalaVersion := "2.13.4"
 //-----------
 // Packaging
 //
