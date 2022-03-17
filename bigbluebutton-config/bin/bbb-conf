@@ -861,26 +861,6 @@ check_configuration() {
 
 }
 
-update_gstreamer() {
-    # due to a change in the kurento packages naming convention, gstreamer packages don't naturally upgrade
-    # this snippet checks if the installed gstreamer packages are the same as the one available in the repository
-    # if they are not, it will update (possibly downgrade)
-    # TODO remove it on 2.3 or above
-    if [ "$DISTRIB_CODENAME" == "xenial" ]; then
-        DOWNGRADE_LIST=""
-        for PACKAGE in $(dpkg -l | grep gst | tr -s ' ' | cut -d' ' -f2 | cut -d':' -f1); do
-            RIGHT_VERSION=$(apt-cache policy $PACKAGE | grep -B1 ubuntu.bigbluebutton.org | head -n1 | tr -s ' ' | cut -d' ' -f2)
-            if [[ $RIGHT_VERSION != "***" ]] && [[ $RIGHT_VERSION != "" ]]; then
-                echo "Force $PACKAGE to version $RIGHT_VERSION"
-                DOWNGRADE_LIST="$PACKAGE=$RIGHT_VERSION $DOWNGRADE_LIST"
-            fi
-        done
-        if [[ $DOWNGRADE_LIST != "" ]]; then
-            apt-get -y --allow-downgrades install $DOWNGRADE_LIST > /dev/null
-        fi
-    fi
-}
-
 check_state() {
     echo
     print_header
@@ -1737,8 +1717,6 @@ String BigBlueButtonURL = \"$BBB_WEB_URL/bigbluebutton/\";
 
     echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
     stop_bigbluebutton
-    update_gstreamer
-    echo
     start_bigbluebutton
 
     exit 0
@@ -1752,7 +1730,6 @@ if [ $RESTART ]; then
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
 
     stop_bigbluebutton
-    update_gstreamer
     start_bigbluebutton
     check_state
 fi
@@ -1764,7 +1741,6 @@ if [ $CLEAN ]; then
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE (and cleaning out all log files) ..."
 
     stop_bigbluebutton
-    update_gstreamer
 
     #
     # Clean log files
