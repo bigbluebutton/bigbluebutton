@@ -9,12 +9,12 @@ case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
                          endWhenNoModerator:                     Boolean, endWhenNoModeratorDelayInMinutes: Int)
 
 case class MeetingProp(
-    name:                     String,
-    extId:                    String,
-    intId:                    String,
-    isBreakout:               Boolean,
-    learningDashboardEnabled: Boolean,
-    disabledFeatures:         Vector[String]
+    name:             String,
+    extId:            String,
+    intId:            String,
+    meetingCameraCap: Int,
+    isBreakout:       Boolean,
+    disabledFeatures: Vector[String]
 )
 
 case class BreakoutProps(
@@ -38,6 +38,7 @@ case class VoiceProp(telVoice: String, voiceConf: String, dialNumber: String, mu
 case class UsersProp(
     maxUsers:                   Int,
     webcamsOnlyForModerator:    Boolean,
+    userCameraCap:              Int,
     guestPolicy:                String,
     meetingLayout:              String,
     allowModsToUnmuteUsers:     Boolean,
@@ -82,7 +83,6 @@ case class DefaultProps(
     voiceProp:         VoiceProp,
     usersProp:         UsersProp,
     metadataProp:      MetadataProp,
-    screenshareProps:  ScreenshareProps,
     lockSettingsProps: LockSettingsProps,
     systemProps:       SystemProps,
     groups:            Vector[GroupProps]

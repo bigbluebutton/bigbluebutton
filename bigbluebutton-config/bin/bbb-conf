@@ -1419,12 +1419,6 @@ if [ $CHECK ]; then
     echo "                        ws-binding: $(xmlstarlet sel -t -m 'profile/settings/param[@name="ws-binding"]' -v @value $FREESWITCH_EXTERNAL)"
     echo "                       wss-binding: $(xmlstarlet sel -t -m 'profile/settings/param[@name="wss-binding"]' -v @value $FREESWITCH_EXTERNAL)"
 
-    if [ -f ${SERVLET_DIR}/demo/bbb_api_conf.jsp ]; then
-        BBB_WEB_URL=$(cat ${SERVLET_DIR}//WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-        echo
-        echo "${SERVLET_DIR}/demo/bbb_api_conf.jsp (API demos)"
-        echo "                               url: $BBB_WEB_URL"
-    fi
 
 #     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
 #          LTI_URL=$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
@@ -1673,12 +1667,20 @@ if [ -n "$HOST" ]; then
     # Update api demos
     #
     if [ -f ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp ]; then
-        echo "Assigning $HOST for api demos in ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp"
-        $SUDO sed -i "s/BigBlueButtonURL = \"http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"$PROTOCOL:\/\/$HOST\2/g" \
-                ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp
+      echo "there is bbb-demo installed"
+      BBB_WEB_URL=$(get_bbb_web_config_value bigbluebutton.web.serverURL)
+      SECRET=$(get_bbb_web_config_value securitySalt)
+
+      echo "Assigning $BBB_WEB_URL for api demos in ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp"
+      $SUDO echo -n "<%" > ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp
+      $SUDO echo "!
+// This is the security salt that must match the value set in the BigBlueButton server
+String salt = \"$SECRET\";
+
+// This is the URL for the BigBlueButton server
+String BigBlueButtonURL = \"$BBB_WEB_URL/bigbluebutton/\";
+%>" >> ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp
     fi
-
-
 
     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
         echo "Assigning $HOST for LTI integration in ${LTI_DIR}/WEB-INF/classes/lti-config.properties"
