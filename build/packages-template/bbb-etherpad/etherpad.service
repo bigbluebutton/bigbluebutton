@@ -2,7 +2,7 @@
 Description=Etherpad Server
 Wants=redis-server.service
 After=syslog.target network.target
-packages-template/bbb-config/build.sh
+PartOf=bigbluebutton.target
 
 [Service]
 Type=simple
