@@ -27,3 +27,20 @@ $ npx playwright test chat --browser=firefox
 or
 $ npm test chat -- --browser=firefox
 ```
+#### Additional commands
+
+To see the tests running visually, you must run them in headed mode:
+```bash
+$ npm run test:headed chat
+```
+
+If you want to run a specific test or a specific group of tests, you can do so with the following command:
+```bash
+$ npm run test:filter "Send public message"
+```
+_(note that this filter needs to be passed in "double quotes")_
+
+You can also use this also through the test tree, adding the test suite / group of tests before the test filter:
+```bash
+$ npm run test:filter "notifications chat"
+```

@@ -22,15 +22,11 @@ const TalkingIndicatorContainer = (props) => {
   const { sidebarNavPanel } = sidebarNavigation;
   const layoutContextDispatch = layoutDispatch();
 
-  const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
-  const sidebarContentIsOpen = sidebarContent.isOpen;
   return (
     <TalkingIndicator
       {...{
         sidebarNavPanel,
-        sidebarNavigationIsOpen,
         sidebarContentPanel,
-        sidebarContentIsOpen,
         layoutContextDispatch,
         ...props,
       }}

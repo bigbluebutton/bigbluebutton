@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {

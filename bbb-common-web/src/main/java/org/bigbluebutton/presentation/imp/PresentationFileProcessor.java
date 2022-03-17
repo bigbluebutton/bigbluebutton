@@ -180,6 +180,7 @@ public class PresentationFileProcessor {
                 pres.getName(),
                 pres.getAuthzToken(),
                 pres.isDownloadable(),
+                pres.isRemovable(),
                 pres.isCurrent(),
                 pres.getNumberOfPages());
         notifier.sendDocConversionProgress(progress);
@@ -205,7 +206,7 @@ public class PresentationFileProcessor {
             DocPageCountFailed progress = new DocPageCountFailed(pres.getPodId(), pres.getMeetingId(),
                     pres.getId(), pres.getId(),
                     pres.getName(), "notUsedYet", "notUsedYet",
-                    pres.isDownloadable(), ConversionMessageConstants.PAGE_COUNT_FAILED_KEY);
+                    pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.PAGE_COUNT_FAILED_KEY);
 
             notifier.sendDocConversionProgress(progress);
 
@@ -230,7 +231,7 @@ public class PresentationFileProcessor {
             DocPageCountExceeded progress = new DocPageCountExceeded(pres.getPodId(), pres.getMeetingId(),
                     pres.getId(), pres.getId(),
                     pres.getName(), "notUsedYet", "notUsedYet",
-                    pres.isDownloadable(), ConversionMessageConstants.PAGE_COUNT_EXCEEDED_KEY,
+                    pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.PAGE_COUNT_EXCEEDED_KEY,
                     e.getPageCount(), e.getMaxNumberOfPages());
 
             notifier.sendDocConversionProgress(progress);

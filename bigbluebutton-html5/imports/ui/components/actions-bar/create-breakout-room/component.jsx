@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import deviceInfo from '/imports/utils/deviceInfo';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import { Session } from 'meteor/session';
-import Modal from '/imports/ui/components/modal/fullscreen/component';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import Modal from '/imports/ui/components/common/modal/fullscreen/component';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import SortList from './sort-user-list/component';
 import Styled from './styles';
 

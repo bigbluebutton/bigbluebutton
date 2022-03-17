@@ -87,12 +87,15 @@ public class ParamsProcessorUtil {
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
-    private boolean learningDashboardEnabled;
+    private boolean learningDashboardEnabled = true;
     private int learningDashboardCleanupDelayInMinutes;
     private boolean webcamsOnlyForModerator;
+    private Integer defaultMeetingCameraCap = 0;
+    private Integer defaultUserCameraCap = 0;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultAllowModsToEjectCameras = false;
+    private String defaultDisabledFeatures;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
     private String defaultLogoURL;
@@ -372,10 +375,8 @@ public class ParamsProcessorUtil {
 
                             Vector<String> groupUsers = new Vector<>();
                             if(groupJsonObj.has("roster") && groupJsonObj.get("roster").isJsonArray()) {
-                                for (JsonElement jsonElementUser : groupJsonObj.get("roster").getAsJsonArray()) {
-                                    if(jsonElementUser.isJsonObject() && jsonElementUser.getAsJsonObject().has("id")) {
-                                        groupUsers.add(jsonElementUser.getAsJsonObject().get("id").getAsString());
-                                    }
+                                for (JsonElement userExtId : groupJsonObj.get("roster").getAsJsonArray()) {
+                                    groupUsers.add(userExtId.getAsString());
                                 }
                             }
                             groups.add(new Group(groupId,groupName,groupUsers));
@@ -472,23 +473,39 @@ public class ParamsProcessorUtil {
             }
         }
 
-        boolean learningDashboardEn = false;
+        // Check if VirtualBackgrounds is disabled
+        boolean virtualBackgroundsDisabled = false;
+        if (!StringUtils.isEmpty(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED))) {
+            virtualBackgroundsDisabled = Boolean.valueOf(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED));
+        }
+
+        // Check Disabled Features
+        ArrayList<String> listOfDisabledFeatures=new ArrayList(Arrays.asList(defaultDisabledFeatures.split(",")));
+        if (!StringUtils.isEmpty(params.get(ApiParams.DISABLED_FEATURES))) {
+            String disabledFeaturesParam = params.get(ApiParams.DISABLED_FEATURES);
+            listOfDisabledFeatures.addAll(Arrays.asList(disabledFeaturesParam.split(",")));
+        }
+        listOfDisabledFeatures.removeAll(Arrays.asList("", null));
+        listOfDisabledFeatures.replaceAll(String::trim);
+        listOfDisabledFeatures = new ArrayList<>(new HashSet<>(listOfDisabledFeatures));
+
+        boolean learningDashboardEn = learningDashboardEnabled;
+        if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED))) {
+            try {
+                learningDashboardEn = Boolean.parseBoolean(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED));
+            } catch (Exception ex) {
+                log.warn("Invalid param [learningDashboardEnabled] for meeting=[{}]",internalMeetingId);
+            }
+        }
+        if(learningDashboardEn == false && !listOfDisabledFeatures.contains("learningDashboard")) {
+            log.warn("[DEPRECATION] use disabledFeatures=learningDashboard instead of learningDashboardEnabled=false");
+            listOfDisabledFeatures.add("learningDashboard");
+        }
+
         int learningDashboardCleanupMins = 0;
 
         // Learning Dashboard not allowed for Breakout Rooms
         if(!isBreakout) {
-            learningDashboardEn = learningDashboardEnabled;
-            if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED))) {
-                try {
-                    learningDashboardEn = Boolean.parseBoolean(params
-                            .get(ApiParams.LEARNING_DASHBOARD_ENABLED));
-                } catch (Exception ex) {
-                    log.warn(
-                            "Invalid param [learningDashboardEnabled] for meeting=[{}]",
-                            internalMeetingId);
-                }
-            }
-
             learningDashboardCleanupMins = learningDashboardCleanupDelayInMinutes;
             if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES))) {
                 try {
@@ -502,20 +519,11 @@ public class ParamsProcessorUtil {
             }
         }
 
-
         //Generate token to access Activity Report
         String learningDashboardAccessToken = "";
-        if(learningDashboardEn == true) {
+        if(listOfDisabledFeatures.contains("learningDashboard") == false) {
             learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
         }
-
-
-        // Check if VirtualBackgrounds is disabled
-        boolean virtualBackgroundsDisabled = false;
-        if (!StringUtils.isEmpty(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED))) {
-            virtualBackgroundsDisabled = Boolean.valueOf(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED));
-        }
-
 
         boolean webcamsOnlyForMod = webcamsOnlyForModerator;
         if (!StringUtils.isEmpty(params.get(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR))) {
@@ -526,6 +534,26 @@ public class ParamsProcessorUtil {
                 log.warn(
                         "Invalid param [webcamsOnlyForModerator] for meeting=[{}]",
                         internalMeetingId);
+            }
+        }
+
+        Integer meetingCameraCap = defaultMeetingCameraCap;
+        if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_CAMERA_CAP))) {
+            try {
+                Integer meetingCameraCapParam = Integer.parseInt(params.get(ApiParams.MEETING_CAMERA_CAP));
+                if (meetingCameraCapParam >= 0) meetingCameraCap = meetingCameraCapParam;
+            } catch (NumberFormatException e) {
+                log.warn("Invalid param [meetingCameraCap] for meeting=[{}]", internalMeetingId);
+            }
+        }
+
+        Integer userCameraCap = defaultUserCameraCap;
+        if (!StringUtils.isEmpty(params.get(ApiParams.USER_CAMERA_CAP))) {
+            try {
+                Integer userCameraCapParam = Integer.parseInt(params.get(ApiParams.USER_CAMERA_CAP));
+                if (userCameraCapParam >= 0) userCameraCap = userCameraCapParam;
+            } catch (NumberFormatException e) {
+                log.warn("Invalid param [userCameraCap] for meeting=[{}]", internalMeetingId);
             }
         }
 
@@ -606,6 +634,8 @@ public class ParamsProcessorUtil {
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
+                .withMeetingCameraCap(meetingCameraCap)
+                .withUserCameraCap(userCameraCap)
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
@@ -617,11 +647,11 @@ public class ParamsProcessorUtil {
 				.withLockSettingsParams(lockSettingsParams)
 				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
                 .withHTML5InstanceId(html5InstanceId)
-                .withLearningDashboardEnabled(learningDashboardEn)
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
                 .withVirtualBackgroundsDisabled(virtualBackgroundsDisabled)
+                .withDisabledFeatures(listOfDisabledFeatures)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
@@ -1051,12 +1081,20 @@ public class ParamsProcessorUtil {
         this.learningDashboardEnabled = learningDashboardEnabled;
     }
 
-    public void setlearningDashboardCleanupDelayInMinutes(int learningDashboardCleanupDelayInMinutes) {
+    public void setLearningDashboardCleanupDelayInMinutes(int learningDashboardCleanupDelayInMinutes) {
         this.learningDashboardCleanupDelayInMinutes = learningDashboardCleanupDelayInMinutes;
     }
 
     public void setWebcamsOnlyForModerator(boolean webcamsOnlyForModerator) {
         this.webcamsOnlyForModerator = webcamsOnlyForModerator;
+    }
+
+    public void setDefaultMeetingCameraCap(Integer meetingCameraCap) {
+        this.defaultMeetingCameraCap = meetingCameraCap;
+    }
+
+    public void setDefaultUserCameraCap(Integer userCameraCap) {
+        this.defaultUserCameraCap = userCameraCap;
     }
 
 	public void setUseDefaultAvatar(Boolean value) {
@@ -1269,6 +1307,10 @@ public class ParamsProcessorUtil {
   public void setEndWhenNoModeratorDelayInMinutes(Integer value) {
       this.defaultEndWhenNoModeratorDelayInMinutes = value;
   }
+
+  public void setDisabledFeatures(String disabledFeatures) {
+        this.defaultDisabledFeatures = disabledFeatures;
+    }
 
   public void setBbbVersion(String version) {
       this.bbbVersion = this.allowRevealOfBBBVersion ? version : "";

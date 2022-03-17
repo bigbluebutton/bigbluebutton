@@ -1,19 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Icon from '/imports/ui/components/icon/component';
+import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
 import { ACTIONS, PANELS } from '../../../layout/enums';
+import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
     id: 'app.createBreakoutRoom.title',
     description: 'breakout title',
   },
+  breakoutTimeRemaining: {
+    id: 'app.createBreakoutRoom.duration',
+    description: 'Message that tells how much time is remaining for the breakout room',
+  },
 });
 
 const BreakoutRoomItem = ({
   hasBreakoutRoom,
+  breakoutRoom,
   sidebarContentPanel,
   layoutContextDispatch,
   intl,
@@ -50,7 +56,17 @@ const BreakoutRoomItem = ({
               onKeyPress={() => {}}
             >
               <Icon iconName="rooms" />
-              <span aria-hidden>{intl.formatMessage(intlMessages.breakoutTitle)}</span>
+              <div aria-hidden>
+                <Styled.BreakoutTitle>
+                  {intl.formatMessage(intlMessages.breakoutTitle)}
+                </Styled.BreakoutTitle>
+                <Styled.BreakoutDuration>
+                  <BreakoutRemainingTime
+                    messageDuration={intlMessages.breakoutTimeRemaining}
+                    breakoutRoom={breakoutRoom}
+                  />
+                </Styled.BreakoutDuration>
+              </div>
             </Styled.ListItem>
           </Styled.List>
         </Styled.ScrollableList>

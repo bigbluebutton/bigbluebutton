@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-background/component'
 import logger from '/imports/startup/client/logger';
 import browserInfo from '/imports/utils/browserInfo';
@@ -34,6 +34,7 @@ const propTypes = {
   startSharing: PropTypes.func.isRequired,
   stopSharing: PropTypes.func.isRequired,
   resolve: PropTypes.func,
+  camCapReached: PropTypes.bool,
   hasVideoStream: PropTypes.bool.isRequired,
   webcamDeviceId: PropTypes.string,
   sharedDevices: PropTypes.arrayOf(PropTypes.string),
@@ -41,6 +42,7 @@ const propTypes = {
 
 const defaultProps = {
   resolve: null,
+  camCapReached: true,
   webcamDeviceId: null,
   sharedDevices: [],
 };
@@ -169,6 +171,10 @@ const intlMessages = defineMessages({
   genericError: {
     id: 'app.video.genericError',
     description: 'error message for when the webcam sharing fails with unknown error',
+  },
+  camCapReached: {
+    id: 'app.video.camCapReached',
+    description: 'message for when the camera cap has been reached',
   },
   virtualBgGenericError: {
     id: 'app.video.virtualBackground.genericError',
@@ -715,6 +721,7 @@ class VideoPreview extends Component {
       sharedDevices,
       hasVideoStream,
       forceOpen,
+      camCapReached,
     } = this.props;
 
     const {
@@ -766,13 +773,15 @@ class VideoPreview extends Component {
             : null
           }
           <Styled.Actions>
-            <Button
-              data-test="startSharingWebcam"
-              color={shared ? 'danger' : 'primary'}
-              label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
-              onClick={shared ? this.handleStopSharing : this.handleStartSharing}
-              disabled={isStartSharingDisabled || isStartSharingDisabled === null || shouldDisableButtons}
-            />
+            {!shared && camCapReached ? (
+              <span>{intl.formatMessage(intlMessages.camCapReached)}</span>
+            ) : (<Button
+            data-test="startSharingWebcam"
+            color={shared ? 'danger' : 'primary'}
+            label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
+            onClick={shared ? this.handleStopSharing : this.handleStartSharing}
+            disabled={isStartSharingDisabled || isStartSharingDisabled === null || shouldDisableButtons}
+          />)}
           </Styled.Actions>
         </Styled.Footer>
       </>
@@ -812,6 +821,7 @@ class VideoPreview extends Component {
         shouldShowCloseButton={allowCloseModal}
         shouldCloseOnOverlayClick={allowCloseModal}
         isPhone={deviceInfo.isPhone}
+        data-test="webcamSettingsModal"
       >
         {deviceInfo.hasMediaDevices
           ? this.renderModalContent()

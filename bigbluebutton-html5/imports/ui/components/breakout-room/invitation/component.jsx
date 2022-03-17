@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/container';
 import BreakoutService from '../service';
 

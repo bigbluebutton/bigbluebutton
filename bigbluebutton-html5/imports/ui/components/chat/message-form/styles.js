@@ -13,7 +13,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import TextareaAutosize from 'react-autosize-textarea';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const Form = styled.form`
   flex-grow: 0;

@@ -60,6 +60,7 @@ public class OfficeToPdfConversionSuccessFilter {
       "notUsedYet",
       "notUsedYet",
       pres.isDownloadable(),
+      pres.isRemovable(),
       pres.getConversionStatus());
     gw.sendDocConversionMsg(progress);
   }

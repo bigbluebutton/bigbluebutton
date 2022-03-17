@@ -10,7 +10,8 @@ import {
 } from '../../stylesheets/styled-components/general';
 import { fontSizeLarge, fontSizeBase, fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
 import { colorGray, colorGrayDark, colorGrayLabel, colorGrayLighter } from '../../stylesheets/styled-components/palette';
-import Modal from '/imports/ui/components/modal/simple/component';
+import Modal from '/imports/ui/components/common/modal/simple/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const ToggleLabel = styled.span`
   margin-right: ${smPaddingX};
@@ -138,6 +139,14 @@ const Actions = styled.div`
   }
 `;
 
+const ButtonCancel = styled(Button)`
+  margin: 0 0.25rem;
+`;
+
+const ButtonApply = styled(Button)`
+  margin: 0 0.25rem;
+`;
+
 export default {
   ToggleLabel,
   LockViewersModal,
@@ -155,4 +164,6 @@ export default {
   Label,
   Footer,
   Actions,
+  ButtonCancel,
+  ButtonApply,
 };

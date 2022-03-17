@@ -12,7 +12,6 @@ const oldParameters = {
   customStyle: 'bbb_custom_style',
   customStyleUrl: 'bbb_custom_style_url',
   displayBrandingArea: 'bbb_display_branding_area',
-  enableScreensharing: 'bbb_enable_screen_sharing',
   enableVideo: 'bbb_enable_video',
   forceListenOnly: 'bbb_force_listen_only',
   hidePresentation: 'bbb_hide_presentation',
@@ -43,7 +42,6 @@ const currentParameters = [
   // KURENTO
   'bbb_auto_share_webcam',
   'bbb_preferred_camera_profile',
-  'bbb_enable_screen_sharing',
   'bbb_enable_video',
   'bbb_record_video',
   'bbb_skip_video_preview',

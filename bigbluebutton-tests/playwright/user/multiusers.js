@@ -1,11 +1,9 @@
 const { expect } = require('@playwright/test');
 const Page = require('../core/page');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { connectionStatus, checkNetworkStatus } = require('./util');
-const { checkElementLengthEqualTo } = require('../core/util');
 const { waitAndClearNotification } = require('../notifications/util');
 const { sleep } = require('../core/helpers');
+const { checkAvatarIcon, checkIsPresenter } = require('./util');
 
 class MultiUsers {
   constructor(browser, context) {
@@ -20,12 +18,24 @@ class MultiUsers {
 
   async initModPage(page, shouldCloseAudioModal = true, { fullName = 'Moderator', ...restOptions } = {}) {
     const options = {
-      fullName,
       ...restOptions,
+      fullName,
     };
 
     this.modPage = new Page(this.browser, page);
     await this.modPage.init(true, shouldCloseAudioModal, options);
+  }
+
+  async initModPage2(shouldCloseAudioModal = true, context = this.context, { fullName = 'Moderator2', useModMeetingId = true, ...restOptions } = {}) {
+    const options = {
+      ...restOptions,
+      fullName,
+      meetingId: (useModMeetingId) ? this.modPage.meetingId : undefined,
+    };
+
+    const page = await context.newPage();
+    this.modPage2 = new Page(this.browser, page);
+    await this.modPage2.init(true, shouldCloseAudioModal, options);
   }
 
   async initUserPage(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee', useModMeetingId = true, ...restOptions } = {}) {
@@ -40,107 +50,137 @@ class MultiUsers {
     await this.userPage.init(false, shouldCloseAudioModal, options);
   }
 
+  async initUserPage2(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee2', useModMeetingId = true, ...restOptions } = {}) {
+    const options = {
+      ...restOptions,
+      fullName,
+      meetingId: (useModMeetingId) ? this.modPage.meetingId : undefined,
+    };
+
+    const page = await context.newPage();
+    this.userPage2 = new Page(this.browser, page);
+    await this.userPage2.init(false, shouldCloseAudioModal, options);
+  }
+
   async userPresence() {
-    const firstUserOnModPage = await this.modPage.getLocator(e.firstUser);
-    const secondUserOnModPage = await this.modPage.getLocator(e.userListItem);
-    const firstUserOnUserPage = await this.userPage.getLocator(e.firstUser);
-    const secondUserOnUserPage = await this.userPage.getLocator(e.userListItem);
+    const firstUserOnModPage = this.modPage.getLocator(e.currentUser);
+    const secondUserOnModPage = this.modPage.getLocator(e.userListItem);
+    const firstUserOnUserPage = this.userPage.getLocator(e.currentUser);
+    const secondUserOnUserPage = this.userPage.getLocator(e.userListItem);
     await expect(firstUserOnModPage).toHaveCount(1);
     await expect(secondUserOnModPage).toHaveCount(1);
     await expect(firstUserOnUserPage).toHaveCount(1);
     await expect(secondUserOnUserPage).toHaveCount(1);
   }
 
-  async disableWebcamsFromConnectionStatus() {
-    await this.modPage.shareWebcam(true, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.shareWebcam(true, ELEMENT_WAIT_LONGER_TIME);
-    await connectionStatus(this.modPage);
-    await this.modPage.waitAndClickElement(e.dataSavingWebcams);
-    await this.modPage.waitAndClickElement(e.closeConnectionStatusModal);
-    await waitAndClearNotification(this.modPage);
-    const checkUserWhoHasDisabled = await this.modPage.page.evaluate(checkElementLengthEqualTo, [e.videoContainer, 1]);
-    const checkSecondUser = await this.userPage.page.evaluate(checkElementLengthEqualTo, [e.videoContainer, 2]);
-    await expect(checkUserWhoHasDisabled).toBeTruthy();
-    await expect(checkSecondUser).toBeTruthy();
+  async makePresenter() {
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.makePresenter);
+
+    await this.userPage.hasElement(e.startScreenSharing);
+    await this.userPage.hasElement(e.presentationToolbarWrapper);
+    await this.userPage.hasElement(e.toolsButton);
+    await this.userPage.hasElement(e.actions);
+    const isPresenter = await checkIsPresenter(this.userPage);
+    expect(isPresenter).toBeTruthy();
   }
 
-  async usersConnectionStatus() {
-    await this.modPage.shareWebcam(true);
-    await this.initUserPage();
-    await this.userPage.waitAndClick(e.joinAudio);
-    await this.userPage.joinMicrophone();
-    await this.userPage.shareWebcam(true);
-    await this.userPage.waitAndClick(e.connectionStatusBtn);
+  async takePresenter() {
+    await this.modPage2.waitAndClick(e.currentUser);
+    await this.modPage2.waitAndClick(e.takePresenter);
 
-    await this.userPage.page.waitForFunction(checkNetworkStatus,
-      { dataContainer: e.connectionDataContainer, networdData: e.connectionNetwordData },
-      { timeout: ELEMENT_WAIT_TIME },
-    );
+    await this.modPage2.hasElement(e.startScreenSharing);
+    await this.modPage2.hasElement(e.toolsButton);
+    await this.modPage2.hasElement(e.presentationToolbarWrapper);
+    const isPresenter = await checkIsPresenter(this.modPage2);
+    expect(isPresenter).toBeTruthy();
+    await this.modPage2.waitAndClick(e.actions);
+    await this.modPage2.hasElement(e.managePresentations);
+    await this.modPage2.hasElement(e.polling);
+    await this.modPage2.hasElement(e.shareExternalVideoBtn);
+  }
+
+  async promoteToModerator() {
+    await checkAvatarIcon(this.userPage, false);
+    await this.userPage.wasRemoved(e.manageUsers);
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.promoteToModerator);
+    await checkAvatarIcon(this.userPage);
+    await this.userPage.hasElement(e.manageUsers);
+  }
+
+  async demoteToViewer() {
+    await checkAvatarIcon(this.modPage2);
+    await this.modPage2.hasElement(e.manageUsers);
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.demoteToViewer);
+    await checkAvatarIcon(this.modPage2, false);
+    await this.modPage2.wasRemoved(e.manageUsers);
   }
 
   async raiseHandTest() {
-    await this.userPage.waitAndClick(e.raiseHandLabel);
-    await this.userPage.hasElement(e.lowerHandLabel);
+    await this.userPage.waitAndClick(e.raiseHandBtn);
+    await this.userPage.hasElement(e.lowerHandBtn);
   }
 
   async getAvatarColorAndCompareWithUserListItem() {
     const getBackgroundColorComputed = (locator) => locator.evaluate((elem) => getComputedStyle(elem).backgroundColor);
 
-    const avatarInToastElementColor = await this.modPage.getLocator(e.avatarsWrapperAvatar);
-    const avatarInUserListColor = await this.modPage.getLocator(`${e.userListItem} > div ${e.userAvatar}`);
+    const avatarInToastElementColor = this.modPage.getLocator(e.avatarsWrapperAvatar);
+    const avatarInUserListColor = this.modPage.getLocator(`${e.userListItem} > div ${e.userAvatar}`);
     await expect(getBackgroundColorComputed(avatarInToastElementColor)).toStrictEqual(getBackgroundColorComputed(avatarInUserListColor));
   }
 
   async lowerHandTest() {
     await waitAndClearNotification(this.userPage);
-    await this.userPage.waitAndClick(e.lowerHandLabel);
-    await this.userPage.hasElement(e.raiseHandLabel);
+    await this.userPage.waitAndClick(e.lowerHandBtn);
+    await this.userPage.hasElement(e.raiseHandBtn);
   }
 
-  async askModeratorGuestPolicy() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.guestPolicyLabel);
-    await this.modPage.waitAndClick(e.askModerator);
-    await this.initUserPage(false);
-    await this.modPage.hasElement(e.waitingUsersBtn);
+  async toggleUserList() {
+    await this.modPage.hasElement(e.chatWelcomeMessageText);
+    await this.modPage.hasElement(e.chatBox);
+    await this.modPage.hasElement(e.chatButton);
+    await this.modPage.waitAndClick(e.userListToggleBtn);
+    await this.modPage.wasRemoved(e.chatWelcomeMessageText);
+    await this.modPage.wasRemoved(e.chatBox);
+    await this.modPage.wasRemoved(e.chatButton);
+    await this.modPage.waitAndClick(e.userListToggleBtn);
+    await this.modPage.wasRemoved(e.chatWelcomeMessageText);
+    await this.modPage.wasRemoved(e.chatBox);
+    await this.modPage.hasElement(e.chatButton);
   }
 
-  async alwaysAcceptGuestPolicy() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.guestPolicyLabel);
-    await this.modPage.waitAndClick(e.alwaysAccept);
-    await this.initUserPage(false);
-    await this.userPage.hasElement(e.audioModal);
-  }
-
-  async alwaysDenyGuestPolicy() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.guestPolicyLabel);
-    await this.modPage.waitAndClick(e.alwaysDeny);
-    await sleep(1500);
-    await this.initUserPage(false);
-    await this.userPage.hasElement(e.joinMeetingDemoPage);
-  }
-
-  async whiteboardNotAppearOnMobile() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.waitAndClick(e.userListButton);
-    await this.userPage.waitAndClick(e.userListButton);
-    await this.userPage.waitAndClick(e.chatButtonKey);
-    await this.modPage.wasRemoved(e.whiteboard);
-    await this.userPage.wasRemoved(e.whiteboard);
-  }
-
-  async userlistNotAppearOnMobile() {
-    await this.modPage.wasRemoved(e.userListItem);
-    await this.userPage.wasRemoved(e.userListItem);
-  }
-
-  async chatPanelNotAppearOnMobile() {
-    await this.modPage.wasRemoved(e.chatButtonKey);
-    await this.userPage.waitAndClick(e.userListButton);
-    await this.userPage.waitAndClick(e.chatButtonKey);
-    await this.userPage.hasElement(e.chatButtonKey);
+  async selectRandomUser() {
+    // check with no viewer joined
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.selectRandomUser);
+    await this.modPage.hasElement(e.noViewersSelectedMessage);
+    // check with only one viewer
+    await this.modPage.waitAndClick(e.closeModal);
+    await this.initUserPage();
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.selectRandomUser);
+    await this.modPage.hasText(e.selectedUserName, this.userPage.username);
+    // check with more users
+    await this.modPage.waitAndClick(e.closeModal);
+    await this.initUserPage2();
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.selectRandomUser);
+    const nameSelected = await this.modPage.getLocator(e.selectedUserName).textContent();
+    await this.userPage.hasText(e.selectedUserName, nameSelected);
+    await this.userPage2.hasText(e.selectedUserName, nameSelected);
+    // user close modal just for you
+    await this.userPage.waitAndClick(e.closeModal);
+    await this.userPage.wasRemoved(e.selectedUserName);
+    await this.userPage2.hasElement(e.selectedUserName);
+    await this.modPage.hasElement(e.selectedUserName);
+    // moderator close modal
+    await this.modPage.waitAndClick(e.selectAgainRadomUser);
+    await sleep(500);
+    await this.modPage.waitAndClick(e.closeModal);
+    await this.userPage.wasRemoved(e.selectedUserName);
+    await this.userPage2.wasRemoved(e.selectedUserName);
   }
 
   async whiteboardAccess() {

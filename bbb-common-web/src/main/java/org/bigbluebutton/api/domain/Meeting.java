@@ -51,10 +51,10 @@ public class Meeting {
 	private String webVoice;
 	private String moderatorPass;
 	private String viewerPass;
-	private Boolean learningDashboardEnabled;
 	private int learningDashboardCleanupDelayInMinutes;
 	private String learningDashboardAccessToken;
 	private Boolean virtualBackgroundsDisabled;
+	private ArrayList<String> disabledFeatures;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
 	private String modOnlyMessage = "";
@@ -68,6 +68,8 @@ public class Meeting {
 	private boolean allowStartStopRecording = false;
 	private boolean haveRecordingMarks = false;
 	private boolean webcamsOnlyForModerator = false;
+	private Integer meetingCameraCap = 0;
+	private Integer userCameraCap = 0;
 	private String dialNumber;
 	private String defaultAvatarURL;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
@@ -116,8 +118,8 @@ public class Meeting {
         intMeetingId = builder.internalId;
         viewerPass = builder.viewerPass;
         moderatorPass = builder.moderatorPass;
-		learningDashboardEnabled = builder.learningDashboardEnabled;
 		virtualBackgroundsDisabled = builder.virtualBackgroundsDisabled;
+		disabledFeatures = builder.disabledFeatures;
 		learningDashboardCleanupDelayInMinutes = builder.learningDashboardCleanupDelayInMinutes;
 		learningDashboardAccessToken = builder.learningDashboardAccessToken;
         maxUsers = builder.maxUsers;
@@ -130,6 +132,8 @@ public class Meeting {
         autoStartRecording = builder.autoStartRecording;
         allowStartStopRecording = builder.allowStartStopRecording;
         webcamsOnlyForModerator = builder.webcamsOnlyForModerator;
+        meetingCameraCap = builder.meetingCameraCap;
+        userCameraCap = builder.userCameraCap;
         duration = builder.duration;
         webVoice = builder.webVoice;
         telVoice = builder.telVoice;
@@ -184,6 +188,22 @@ public class Meeting {
 		if (ruser != null) {
 			ruser.updateGuestWaitedOn();
 		}
+	}
+
+	public void setLeftGuestLobby(String userId, Boolean bool) {
+		RegisteredUser ruser = registeredUsers.get(userId);
+		if (ruser != null) {
+			ruser.setLeftGuestLobby(bool);
+		}
+	}
+
+	public Boolean didGuestUserLeaveGuestLobby(String userId) {
+		RegisteredUser ruser = registeredUsers.get(userId);
+
+		if (ruser != null) {
+			return ruser.getLeftGuestLobby();
+		}
+		return true;
 	}
 
 	public void setGuestStatusWithId(String userId, String guestStatus) {
@@ -334,10 +354,6 @@ public class Meeting {
 		return viewerPass;
 	}
 
-	public Boolean getLearningDashboardEnabled() {
-		return learningDashboardEnabled;
-	}
-
 	public int getLearningDashboardCleanupDelayInMinutes() {
 		return learningDashboardCleanupDelayInMinutes;
 	}
@@ -348,6 +364,10 @@ public class Meeting {
 
 	public Boolean getVirtualBackgroundsDisabled() {
 		return virtualBackgroundsDisabled;
+	}
+
+	public ArrayList<String> getDisabledFeatures() {
+		return disabledFeatures;
 	}
 
   public String getWelcomeMessageTemplate() {
@@ -489,6 +509,14 @@ public class Meeting {
 
     public boolean getWebcamsOnlyForModerator() {
         return webcamsOnlyForModerator;
+    }
+
+    public Integer getMeetingCameraCap() {
+        return meetingCameraCap;
+    }
+
+    public Integer getUserCameraCap() {
+        return userCameraCap;
     }
 
 	public boolean hasUserJoined() {
@@ -759,12 +787,14 @@ public class Meeting {
     	private boolean autoStartRecording;
         private boolean allowStartStopRecording;
         private boolean webcamsOnlyForModerator;
+        private Integer meetingCameraCap;
+        private Integer userCameraCap;
     	private String moderatorPass;
     	private String viewerPass;
-    	private Boolean learningDashboardEnabled;
     	private int learningDashboardCleanupDelayInMinutes;
     	private String learningDashboardAccessToken;
 		private Boolean virtualBackgroundsDisabled;
+		private ArrayList<String> disabledFeatures;
     	private int duration;
     	private String webVoice;
     	private String telVoice;
@@ -832,6 +862,16 @@ public class Meeting {
             return this;
         }
 
+        public Builder withMeetingCameraCap(Integer cap) {
+            this.meetingCameraCap = cap;
+            return this;
+        }
+
+        public Builder withUserCameraCap(Integer cap) {
+            this.userCameraCap = cap;
+            return this;
+        }
+
     	public Builder withWebVoice(String w) {
     		this.webVoice = w;
     		return this;
@@ -856,11 +896,6 @@ public class Meeting {
 	    	this.viewerPass = p;
 	    	return this;
 	    }
-    	
-    	public Builder withLearningDashboardEnabled(Boolean e) {
-	    	this.learningDashboardEnabled = e;
-	    	return this;
-	    }
 
     	public Builder withLearningDashboardCleanupDelayInMinutes(int m) {
 	    	this.learningDashboardCleanupDelayInMinutes = m;
@@ -874,6 +909,11 @@ public class Meeting {
 
 		public Builder withVirtualBackgroundsDisabled(Boolean d) {
 			this.virtualBackgroundsDisabled = d;
+			return this;
+		}
+
+		public Builder withDisabledFeatures(ArrayList<String> list) {
+			this.disabledFeatures = list;
 			return this;
 		}
 

@@ -24,14 +24,14 @@ case class MonitorNumberOfUsersInternalMsg(meetingID: String) extends InMessage
  * Audit message sent to meeting to trigger updating clients of meeting time remaining.
  * @param meetingId
  */
-case class SendTimeRemainingAuditInternalMsg(meetingId: String) extends InMessage
+case class SendTimeRemainingAuditInternalMsg(meetingId: String, timeUpdatedInMinutes: Int) extends InMessage
 
 /**
  * Parent message sent to breakout rooms to trigger updating clients of meeting time remaining.
  * @param meetingId
  * @param timeLeftInSec
  */
-case class SendBreakoutTimeRemainingInternalMsg(meetingId: String, timeLeftInSec: Long) extends InMessage
+case class SendBreakoutTimeRemainingInternalMsg(meetingId: String, timeLeftInSec: Long, timeUpdatedInMinutes: Int) extends InMessage
 
 case class SendRecordingTimerInternalMsg(meetingId: String) extends InMessage
 
@@ -76,12 +76,33 @@ case class BreakoutRoomUsersUpdateInternalMsg(parentId: String, breakoutId: Stri
 case class EndBreakoutRoomInternalMsg(parentId: String, breakoutId: String, reason: String) extends InMessage
 
 /**
+ * Sent by parent meeting to breakout room to update time.
+ * @param parentId
+ * @param breakoutId
+ * @param durationInSeconds
+ */
+case class UpdateBreakoutRoomTimeInternalMsg(parentId: String, breakoutId: String, durationInSeconds: Int) extends InMessage
+
+/**
  * Sent by parent meeting to breakout room to extend time.
  * @param parentId
  * @param breakoutId
- * @param extendTimeInMinutes
+ * @param senderName
+ * @param msg
  */
-case class ExtendBreakoutRoomTimeInternalMsg(parentId: String, breakoutId: String, extendTimeInMinutes: Int) extends InMessage
+case class SendMessageToBreakoutRoomInternalMsg(parentId: String, breakoutId: String, senderName: String, msg: String) extends InMessage
+
+/**
+ * Sent by parent meeting to breakout room to eject user.
+ * @param parentId
+ * @param breakoutId
+ * @param extUserId
+ * @param ejectedBy
+ * @param reason
+ * @param reasonCode
+ * @param ban
+ */
+case class EjectUserFromBreakoutInternalMsg(parentId: String, breakoutId: String, extUserId: String, ejectedBy: String, reason: String, reasonCode: String, ban: Boolean) extends InMessage
 
 // DeskShare
 case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage

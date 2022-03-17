@@ -189,6 +189,7 @@ class AudioControls extends PureComponent {
         accessKey={shortcuts.togglemute}
         talking={talking}
         animations={animations}
+        data-test="toggleMicrophoneButton"
       />
     );
 

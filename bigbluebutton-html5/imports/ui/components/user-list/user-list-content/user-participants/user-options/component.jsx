@@ -2,16 +2,17 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import CaptionsService from '/imports/ui/components/captions/service';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
-import BBBMenu from '/imports/ui/components/menu/component';
+import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
+import { isLearningDashboardEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -213,7 +214,6 @@ class UserOptions extends PureComponent {
       hasBreakoutRoom,
       isBreakoutEnabled,
       getUsersNotAssigned,
-      learningDashboardEnabled,
       openLearningDashboardUrl,
       amIModerator,
       users,
@@ -261,6 +261,7 @@ class UserOptions extends PureComponent {
           // description: intl.formatMessage(intlMessages.lockViewersDesc),
           onClick: () => mountModal(<LockViewersContainer />),
           icon: 'lock',
+          dataTest: 'lockViewersButton',
         });
 
         if (dynamicGuestPolicy) {
@@ -325,7 +326,7 @@ class UserOptions extends PureComponent {
         });
       }
       if (amIModerator) {
-        if (learningDashboardEnabled === true) {
+        if (isLearningDashboardEnabled()) {
           this.menuItems.push({
             icon: 'multi_whiteboard',
             iconRight: 'popout_window',

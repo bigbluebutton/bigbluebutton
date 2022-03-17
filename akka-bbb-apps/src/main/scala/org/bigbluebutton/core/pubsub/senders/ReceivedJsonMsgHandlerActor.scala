@@ -147,6 +147,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[CamBroadcastStoppedInSfuEvtMsg](envelope, jsonNode)
       case EjectUserCamerasCmdMsg.NAME =>
         routeGenericMsg[EjectUserCamerasCmdMsg](envelope, jsonNode)
+      case GetWebcamsOnlyForModeratorReqMsg.NAME =>
+        routeGenericMsg[GetWebcamsOnlyForModeratorReqMsg](envelope, jsonNode)
+      case UpdateWebcamsOnlyForModeratorCmdMsg.NAME =>
+        routeGenericMsg[UpdateWebcamsOnlyForModeratorCmdMsg](envelope, jsonNode)
 
       // Pads
       case PadCreateGroupReqMsg.NAME =>
@@ -223,8 +227,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[EndAllBreakoutRoomsMsg](envelope, jsonNode)
       case TransferUserToMeetingRequestMsg.NAME =>
         routeGenericMsg[TransferUserToMeetingRequestMsg](envelope, jsonNode)
-      case ExtendBreakoutRoomsTimeReqMsg.NAME =>
-        routeGenericMsg[ExtendBreakoutRoomsTimeReqMsg](envelope, jsonNode)
+      case UpdateBreakoutRoomsTimeReqMsg.NAME =>
+        routeGenericMsg[UpdateBreakoutRoomsTimeReqMsg](envelope, jsonNode)
+      case SendMessageToAllBreakoutRoomsReqMsg.NAME =>
+        routeGenericMsg[SendMessageToAllBreakoutRoomsReqMsg](envelope, jsonNode)
 
       // Layout
       case GetCurrentLayoutReqMsg.NAME =>
@@ -336,10 +342,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetRecordingStatusReqMsg](envelope, jsonNode)
       case GetScreenshareStatusReqMsg.NAME =>
         routeGenericMsg[GetScreenshareStatusReqMsg](envelope, jsonNode)
-      case GetWebcamsOnlyForModeratorReqMsg.NAME =>
-        routeGenericMsg[GetWebcamsOnlyForModeratorReqMsg](envelope, jsonNode)
-      case UpdateWebcamsOnlyForModeratorCmdMsg.NAME =>
-        routeGenericMsg[UpdateWebcamsOnlyForModeratorCmdMsg](envelope, jsonNode)
 
       // Lock settings
       case LockUserInMeetingCmdMsg.NAME =>
@@ -356,10 +358,6 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg](envelope, jsonNode)
       case ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg](envelope, jsonNode)
-      case ScreenshareStartedVoiceConfEvtMsg.NAME =>
-        routeVoiceMsg[ScreenshareStartedVoiceConfEvtMsg](envelope, jsonNode)
-      case ScreenshareStoppedVoiceConfEvtMsg.NAME =>
-        routeVoiceMsg[ScreenshareStoppedVoiceConfEvtMsg](envelope, jsonNode)
       case GetScreenBroadcastPermissionReqMsg.NAME =>
         routeGenericMsg[GetScreenBroadcastPermissionReqMsg](envelope, jsonNode)
       case GetScreenSubscribePermissionReqMsg.NAME =>

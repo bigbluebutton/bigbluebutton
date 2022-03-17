@@ -22,7 +22,6 @@ trait RegisterUserReqMsgHdlr {
       val event = UserRegisteredRespMsg(header, body)
       BbbCommonEnvCoreMsg(envelope, event)
     }
-
     val guestStatus = msg.body.guestStatus
 
     val regUser = RegisteredUsers.create(msg.body.intUserId, msg.body.extUserId,

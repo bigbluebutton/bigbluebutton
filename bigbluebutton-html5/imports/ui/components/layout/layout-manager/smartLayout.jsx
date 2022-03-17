@@ -32,6 +32,8 @@ const SmartLayout = (props) => {
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const actionbarInput = layoutSelectInput((i) => i.actionBar);
   const navbarInput = layoutSelectInput((i) => i.navBar);
+  const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
+  const screenShareInput = layoutSelectInput((i) => i.screenShare);
   const layoutContextDispatch = layoutDispatch();
 
   const prevDeviceType = usePrevious(deviceType);
@@ -217,11 +219,14 @@ const SmartLayout = (props) => {
   };
 
   const calculatesMediaBounds = (mediaAreaBounds, slideSize, sidebarSize) => {
-    const { isOpen } = presentationInput;
+    const { isOpen, currentSlide } = presentationInput;
+    const { hasExternalVideo } = externalVideoInput;
+    const { hasScreenShare } = screenShareInput;
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
+    const { num: currentSlideNumber } = currentSlide;
 
-    if (!isOpen) {
+    if (!isOpen || currentSlideNumber === 0) {
       mediaBounds.width = 0;
       mediaBounds.height = 0;
       mediaBounds.top = 0;
@@ -242,7 +247,7 @@ const SmartLayout = (props) => {
     }
 
     if (cameraDockInput.numCameras > 0 && !cameraDockInput.isDragging) {
-      if (slideSize.width !== 0 && slideSize.height !== 0) {
+      if (slideSize.width !== 0 && slideSize.height !== 0 && !hasExternalVideo && !hasScreenShare) {
         if (slideSize.width < mediaAreaBounds.width && !isMobile) {
           if (slideSize.width < (mediaAreaBounds.width * 0.8)) {
             mediaBounds.width = slideSize.width;

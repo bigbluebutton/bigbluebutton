@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { Meteor } from 'meteor/meteor';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
@@ -60,11 +60,12 @@ const Chat = (props) => {
 
   const HIDE_CHAT_AK = shortcuts.hideprivatechat;
   const CLOSE_CHAT_AK = shortcuts.closeprivatechat;
+  const isPublicChat = chatID === PUBLIC_CHAT_ID;
   ChatLogger.debug('ChatComponent::render', props);
   return (
     <Styled.Chat
       isChrome={isChrome}
-      data-test={chatID !== PUBLIC_CHAT_ID ? 'privateChat' : 'publicChat'}
+      data-test={isPublicChat ? 'publicChat' : 'privateChat'}
     >
       <Styled.Header>
         <Styled.Title data-test="chatTitle">
@@ -85,12 +86,13 @@ const Chat = (props) => {
             }}
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
             accessKey={chatID !== 'public' ? HIDE_CHAT_AK : null}
+            data-test={isPublicChat ? 'hidePublicChat' : 'hidePrivateChat'}
             label={title}
             icon="left_arrow"
           />
         </Styled.Title>
         {
-          chatID !== PUBLIC_CHAT_ID
+          !isPublicChat
             ? (
               <Button
                 icon="close"
@@ -116,6 +118,7 @@ const Chat = (props) => {
                 aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
                 label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
                 accessKey={CLOSE_CHAT_AK}
+                data-test="closePrivateChat"
               />
             )
             : (

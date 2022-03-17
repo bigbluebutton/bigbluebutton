@@ -157,7 +157,7 @@ case class MeetingTimeRemainingUpdateEvtMsg(
     header: BbbClientMsgHeader,
     body:   MeetingTimeRemainingUpdateEvtMsgBody
 ) extends BbbCoreMsg
-case class MeetingTimeRemainingUpdateEvtMsgBody(timeLeftInSec: Long)
+case class MeetingTimeRemainingUpdateEvtMsgBody(timeLeftInSec: Long, timeUpdatedInMinutes: Int)
 
 object CheckAlivePingSysMsg { val NAME = "CheckAlivePingSysMsg" }
 case class CheckAlivePingSysMsg(
