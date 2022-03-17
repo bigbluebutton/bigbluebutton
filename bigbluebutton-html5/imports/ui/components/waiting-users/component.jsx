@@ -288,16 +288,14 @@ const WaitingUsers = (props) => {
             </p>
           </div>
         ) : null}
-        <div>
-          <div>
-            <p className={styles.mainTitle}>{intl.formatMessage(intlMessages.optionTitle)}</p>
-            {
-              buttonsData.map((buttonData) => renderButton(
-                intl.formatMessage(buttonData.messageId),
-                buttonData,
-              ))
-            }
-          </div>
+        <div className={styles.moderatorActions}>
+          <p className={styles.mainTitle}>{intl.formatMessage(intlMessages.optionTitle)}</p>
+          {
+            buttonsData.map((buttonData) => renderButton(
+              intl.formatMessage(buttonData.messageId),
+              buttonData,
+            ))
+          }
 
           {allowRememberChoice ? (
             <div className={styles.rememberContainer}>

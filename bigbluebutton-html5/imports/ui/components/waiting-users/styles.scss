@@ -87,6 +87,12 @@
   margin: .3rem 0;
   font-weight: 400;
   font-size: var(--font-size-base);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.moderatorActions {
+  padding: 0 .2rem;
 }
 
 .mainTitle {
