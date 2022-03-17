@@ -22,7 +22,6 @@ object RegisteredUsers {
       0,
       false,
       false,
-      false,
       loggedOut,
     )
   }
@@ -41,10 +40,6 @@ object RegisteredUsers {
 
   def findAllWithExternUserId(id: String, users: RegisteredUsers): Vector[RegisteredUser] = {
     users.toVector.filter(ru => id == ru.externId)
-  }
-
-  def findUsersNotJoined(users: RegisteredUsers): Vector[RegisteredUser] = {
-    users.toVector.filter(u => u.joined == false && u.markAsJoinTimedOut == false)
   }
 
   def findWithBreakoutRoomId(breakoutRoomId: String, users: RegisteredUsers): Vector[RegisteredUser] = {
@@ -150,12 +145,6 @@ object RegisteredUsers {
     u
   }
 
-  def markAsUserFailedToJoin(users: RegisteredUsers, user: RegisteredUser): RegisteredUser = {
-    val u = user.copy(markAsJoinTimedOut = true)
-    users.save(u)
-    u
-  }
-
   def setUserLoggedOutFlag(users: RegisteredUsers, user: RegisteredUser): RegisteredUser = {
     val u = user.copy(loggedOut = true)
     users.save(u)
@@ -197,7 +186,6 @@ case class RegisteredUser(
     registeredOn:             Long,
     lastAuthTokenValidatedOn: Long,
     joined:                   Boolean,
-    markAsJoinTimedOut:       Boolean,
     banned:                   Boolean,
     loggedOut:                Boolean,
     lastBreakoutRoom:         BreakoutRoom2x = null
