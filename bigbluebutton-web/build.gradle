@@ -103,6 +103,10 @@ dependencies {
   testImplementation "com.github.javafaker:javafaker:0.12"
 }
 
+configurations.implementation {
+    exclude group: 'io.micronaut', module: 'micronaut-aop'
+}
+
 configurations {
   developmentOnly
   runtimeClasspath {
