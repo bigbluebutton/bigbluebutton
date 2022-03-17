@@ -1,5 +1,6 @@
 [Unit]
 Description=BigBlueButton recording caption upload handler
+PartOf=bigbluebutton.target
 
 [Service]
 Type=simple
@@ -9,4 +10,4 @@ Slice=bbb_record_core.slice
 Restart=on-failure
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target bigbluebutton.target
