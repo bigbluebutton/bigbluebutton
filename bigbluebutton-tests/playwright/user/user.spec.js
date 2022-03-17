@@ -150,6 +150,10 @@ test.describe.parallel('User', () => {
   });
 
   test.describe.parallel('Mobile devices', () => {
+    test.beforeEach(({ browserName }) => {
+      test.skip(browserName === 'firefox', 'Mobile tests are not able in Firefox browser');
+    });
+
     test('Mobile Tag Name For Mobile User', async ({ browser }) => {
       const context = await browser.newContext({ ...iPhone11 });
       const mobilePage = await context.newPage();
