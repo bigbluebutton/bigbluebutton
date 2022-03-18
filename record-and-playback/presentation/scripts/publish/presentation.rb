@@ -32,6 +32,12 @@ require 'json'
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 bbb_props = BigBlueButton.read_props
 $presentation_props = YAML::load(File.read('presentation.yml'))
+filepathPresOverride = "/etc/bigbluebutton/presentation.yml"
+isThereOverride = File.file?(filepathPresOverride)
+if (isThereOverride)
+  presOverrideProps = YAML::load(File.open(filepathPresOverride))
+  $presentation_props = $presentation_props.merge(presOverrideProps)
+end
 
 # There's a couple of places where stuff is mysteriously divided or multiplied
 # by 2. This is just here to call out how spooky that is.

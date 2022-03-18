@@ -47,6 +47,13 @@ presentation_props = File.open(File.expand_path('../presentation.yml', __dir__))
   YAML.safe_load(pres_yml)
 end
 
+filepathPresOverride = "/etc/bigbluebutton/presentation.yml"
+isThereOverride = File.file?(filepathPresOverride)
+if (isThereOverride)
+  presOverrideProps = YAML::load(File.open(filepathPresOverride))
+  presentation_props = presentation_props.merge(presOverrideProps)
+end
+
 logger = Journald::Logger.new('caption/presentation')
 logger.tag(record_id: recording_id)
 
