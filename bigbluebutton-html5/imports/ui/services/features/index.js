@@ -43,3 +43,7 @@ export function isCaptionsEnabled() {
 export function isBreakoutRoomsEnabled() {
   return getDisabledFeatures().indexOf('breakoutRooms') === -1;
 }
+
+export function isLayoutsEnabled() {
+  return getDisabledFeatures().indexOf('layouts') === -1;
+}
