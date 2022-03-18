@@ -181,7 +181,6 @@ class BbbWebApiGWApp(
       sequence = sequence.intValue(),
       freeJoin = freeJoin.booleanValue(),
       breakoutRooms = Vector(),
-      enabled = breakoutParams.enabled.booleanValue(),
       record = breakoutParams.record.booleanValue(),
       privateChatEnabled = breakoutParams.privateChatEnabled.booleanValue()
     )
