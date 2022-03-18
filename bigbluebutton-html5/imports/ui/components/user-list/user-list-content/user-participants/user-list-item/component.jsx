@@ -16,7 +16,7 @@ import Styled from './styles';
 import { PANELS, ACTIONS } from '../../../../layout/enums';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { isChatEnabled } from '/imports/ui/services/features';
-import Skeleton from 'react-loading-skeleton';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
 const messages = defineMessages({
@@ -654,29 +654,31 @@ class UserListItem extends PureComponent {
     } = this.state;
 
     if (!user) return (
-      <Styled.UserItemContents>
-        <div style={{ direction: isRTL ? 'rtl' : 'ltr', width: '100%' }}>
-          <Styled.UserItemInnerContents>
-            <Styled.UserAvatar data-test="userAvatar">
-              <UserAvatar isSkeleton={true}>
-                <Skeleton circle="true"/>
-              </UserAvatar>
-            </Styled.UserAvatar>
-            <Styled.UserName>
-              <Styled.UserNameMain>
-                <Styled.SkeletonWrapper>
-                  <Skeleton />
-                </Styled.SkeletonWrapper>
-              </Styled.UserNameMain>
-              <Styled.UserNameSub>
-                <Styled.SkeletonWrapper>
-                  <Skeleton />
-                </Styled.SkeletonWrapper>
-              </Styled.UserNameSub>
-            </Styled.UserName>
-          </Styled.UserItemInnerContents>
-        </div>
-      </Styled.UserItemContents>
+      <Styled.SkeletonUserItemContents>
+        <SkeletonTheme baseColor="#DCE4EC">
+          <div style={{ direction: isRTL ? 'rtl' : 'ltr', width: '100%' }}>
+            <Styled.UserItemInnerContents>
+              <Styled.UserAvatar data-test="userAvatar">
+                <UserAvatar isSkeleton={true}>
+                  <Skeleton circle="true"/>
+                </UserAvatar>
+              </Styled.UserAvatar>
+              <Styled.UserName>
+                <Styled.UserNameMain>
+                  <Styled.SkeletonWrapper>
+                    <Skeleton />
+                  </Styled.SkeletonWrapper>
+                </Styled.UserNameMain>
+                <Styled.UserNameSub>
+                  <Styled.SkeletonWrapper>
+                    <Skeleton />
+                  </Styled.SkeletonWrapper>
+                </Styled.UserNameSub>
+              </Styled.UserName>
+            </Styled.UserItemInnerContents>
+          </div>
+        </SkeletonTheme>
+      </Styled.SkeletonUserItemContents>
     );
 
     const actions = this.getUsersActions();

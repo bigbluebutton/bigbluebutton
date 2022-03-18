@@ -84,6 +84,14 @@ const UserItemContents = styled.div`
   `}
 `;
 
+const SkeletonUserItemContents = styled.div`
+  position: static;
+  padding: .45rem;
+  margin-left: .5rem;
+  margin-right: .5rem;
+  width: auto;
+`;
+
 const UserItemInnerContents = styled.div`
   flex-grow: 0;
   display: flex;
@@ -161,6 +169,7 @@ const SkeletonWrapper = styled.span`
 
 export default {
   UserItemContents,
+  SkeletonUserItemContents,
   UserItemInnerContents,
   UserAvatar,
   NoActionsListItem,
