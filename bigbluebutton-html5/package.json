@@ -63,6 +63,7 @@
     "react-draggable": "^3.3.2",
     "react-dropzone": "^7.0.1",
     "react-intl": "^3.12.1",
+    "react-loading-skeleton": "^3.0.3",
     "react-modal": "~3.6.1",
     "react-player": "^2.9.0",
     "react-render-in-browser": "^1.1.1",
