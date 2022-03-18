@@ -77,6 +77,8 @@ class VideoPlayer extends Component {
       volume: 1,
       playbackRate: 1,
       key: 0,
+      played:0,
+      loaded:0,
     };
 
     this.hideVolume = {
@@ -299,11 +301,15 @@ class VideoPlayer extends Component {
     }
   }
 
-  handleOnProgress() {
+  handleOnProgress(data) {
     const { mutedByEchoTest } = this.state;
 
     const volume = this.getCurrentVolume();
     const muted = this.getMuted();
+
+    const { played, loaded } = data;
+
+    this.setState({played, loaded});
 
     if (!mutedByEchoTest) {
       this.setState({ volume, muted });
@@ -547,7 +553,7 @@ class VideoPlayer extends Component {
 
     const {
       playing, playbackRate, mutedByEchoTest, autoPlayBlocked,
-      volume, muted, key, showHoverToolBar,
+      volume, muted, key, showHoverToolBar, played, loaded
     } = this.state;
 
     // This looks weird, but I need to get this nested player
@@ -615,6 +621,20 @@ class VideoPlayer extends Component {
           {
             !isPresenter
               ? [
+                (
+                  <div className={styles.progressBar}>
+                    <div 
+                      className={styles.loaded}
+                      style={{ width: loaded * 100 + '%' }}
+                      >
+                      <div
+                        className={styles.played}
+                        style={{ width: played * 100 / loaded + '%'}}
+                      >
+                      </div>
+                    </div>
+                  </div>
+                ),
                 (
                   <div className={hoverToolbarStyle} key="hover-toolbar-external-video">
                     <VolumeSlider
