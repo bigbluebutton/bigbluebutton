@@ -275,9 +275,11 @@ class MeetingActor(
     case msg: BreakoutRoomUsersUpdateInternalMsg   => state = handleBreakoutRoomUsersUpdateInternalMsg(msg, state)
     case msg: EndBreakoutRoomInternalMsg           => handleEndBreakoutRoomInternalMsg(msg)
     case msg: UpdateBreakoutRoomTimeInternalMsg    => state = handleUpdateBreakoutRoomTimeInternalMsgHdlr(msg, state)
+    case msg: EjectUserFromBreakoutInternalMsg     => handleEjectUserFromBreakoutInternalMsgHdlr(msg)
     case msg: BreakoutRoomEndedInternalMsg         => state = handleBreakoutRoomEndedInternalMsg(msg, state)
     case msg: SendMessageToBreakoutRoomInternalMsg => state = handleSendMessageToBreakoutRoomInternalMsg(msg, state, liveMeeting, msgBus)
-    case msg: SendBreakoutTimeRemainingInternalMsg => handleSendBreakoutTimeRemainingInternalMsg(msg)
+    case msg: SendBreakoutTimeRemainingInternalMsg =>
+      handleSendBreakoutTimeRemainingInternalMsg(msg)
 
     case msg: SendRecordingTimerInternalMsg =>
       state = usersApp.handleSendRecordingTimerInternalMsg(msg, state)
@@ -371,22 +373,22 @@ class MeetingActor(
         state = handleUserLeaveReqMsg(m, state)
         updateModeratorsPresence()
 
-      case m: UserJoinedVoiceConfEvtMsg        => handleUserJoinedVoiceConfEvtMsg(m)
-      case m: LogoutAndEndMeetingCmdMsg        => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
+      case m: UserJoinedVoiceConfEvtMsg => handleUserJoinedVoiceConfEvtMsg(m)
+      case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
       case m: SetRecordingStatusCmdMsg =>
         state = usersApp.handleSetRecordingStatusCmdMsg(m, state)
         updateUserLastActivity(m.body.setBy)
       case m: RecordAndClearPreviousMarkersCmdMsg =>
         state = usersApp.handleRecordAndClearPreviousMarkersCmdMsg(m, state)
         updateUserLastActivity(m.body.setBy)
-      case m: GetRecordingStatusReqMsg            => usersApp.handleGetRecordingStatusReqMsg(m)
-      case m: ChangeUserEmojiCmdMsg               => handleChangeUserEmojiCmdMsg(m)
-      case m: SelectRandomViewerReqMsg            => usersApp.handleSelectRandomViewerReqMsg(m)
-      case m: ChangeUserPinStateReqMsg            => usersApp.handleChangeUserPinStateReqMsg(m)
+      case m: GetRecordingStatusReqMsg => usersApp.handleGetRecordingStatusReqMsg(m)
+      case m: ChangeUserEmojiCmdMsg    => handleChangeUserEmojiCmdMsg(m)
+      case m: SelectRandomViewerReqMsg => usersApp.handleSelectRandomViewerReqMsg(m)
+      case m: ChangeUserPinStateReqMsg => usersApp.handleChangeUserPinStateReqMsg(m)
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
-        usersApp.handleEjectUserFromMeetingCmdMsg(m)
+        usersApp.handleEjectUserFromMeetingCmdMsg(m, state)
         updateUserLastActivity(m.body.ejectedBy)
 
       // Another part of system (e.g. bbb-apps) requested to eject user.
@@ -570,15 +572,15 @@ class MeetingActor(
       case m: UpdateWebcamsOnlyForModeratorCmdMsg => webcamApp2x.handle(m, liveMeeting, msgBus)
 
       // ExternalVideo
-      case m: StartExternalVideoPubMsg    => externalVideoApp2x.handle(m, liveMeeting, msgBus)
-      case m: UpdateExternalVideoPubMsg   => externalVideoApp2x.handle(m, liveMeeting, msgBus)
-      case m: StopExternalVideoPubMsg     => externalVideoApp2x.handle(m, liveMeeting, msgBus)
+      case m: StartExternalVideoPubMsg            => externalVideoApp2x.handle(m, liveMeeting, msgBus)
+      case m: UpdateExternalVideoPubMsg           => externalVideoApp2x.handle(m, liveMeeting, msgBus)
+      case m: StopExternalVideoPubMsg             => externalVideoApp2x.handle(m, liveMeeting, msgBus)
 
-      case m: ValidateConnAuthTokenSysMsg => handleValidateConnAuthTokenSysMsg(m)
+      case m: ValidateConnAuthTokenSysMsg         => handleValidateConnAuthTokenSysMsg(m)
 
-      case m: UserActivitySignCmdMsg      => handleUserActivitySignCmdMsg(m)
+      case m: UserActivitySignCmdMsg              => handleUserActivitySignCmdMsg(m)
 
-      case _                              => log.warning("***** Cannot handle " + msg.envelope.name)
+      case _                                      => log.warning("***** Cannot handle " + msg.envelope.name)
     }
   }
 
@@ -729,7 +731,6 @@ class MeetingActor(
     setRecordingChapterBreak()
 
     processUserInactivityAudit()
-    flagRegisteredUsersWhoHasNotJoined()
     checkIfNeedToEndMeetingWhenNoAuthedUsers(liveMeeting)
     checkIfNeedToEndMeetingWhenNoModerators(liveMeeting)
   }
@@ -941,22 +942,6 @@ class MeetingActor(
         )
 
         Sender.sendDisconnectClientSysMsg(liveMeeting.props.meetingProp.intId, u.intId, SystemUser.ID, EjectReasonCode.USER_INACTIVITY, outGW)
-      }
-    }
-  }
-
-  def flagRegisteredUsersWhoHasNotJoined(): Unit = {
-    val users = RegisteredUsers.findUsersNotJoined(liveMeeting.registeredUsers)
-    users foreach { u =>
-      val now = System.currentTimeMillis()
-      if (now - u.registeredOn > TimeUtil.secondsToMillis(maxRegUserToJoinTime)) {
-        RegisteredUsers.markAsUserFailedToJoin(liveMeeting.registeredUsers, u)
-        val event = MsgBuilder.buildRegisteredUserJoinTimeoutMsg(
-          liveMeeting.props.meetingProp.intId,
-          u.id,
-          u.name
-        )
-        outGW.send(event)
       }
     }
   }

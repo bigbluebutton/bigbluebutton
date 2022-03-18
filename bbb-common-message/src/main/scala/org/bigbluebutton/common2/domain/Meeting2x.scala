@@ -12,6 +12,7 @@ case class MeetingProp(
     name:             String,
     extId:            String,
     intId:            String,
+    meetingCameraCap: Int,
     isBreakout:       Boolean,
     disabledFeatures: Vector[String]
 )
@@ -21,7 +22,6 @@ case class BreakoutProps(
     sequence:           Int,
     freeJoin:           Boolean,
     breakoutRooms:      Vector[String],
-    enabled:            Boolean,
     record:             Boolean,
     privateChatEnabled: Boolean
 )

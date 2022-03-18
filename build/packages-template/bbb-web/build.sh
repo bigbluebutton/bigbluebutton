@@ -22,11 +22,11 @@ for dir in $DIRS; do
 done
 
 mkdir -p ~/.sbt/1.0
-echo 'resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases"' > ~/.sbt/1.0/global.sbt
+echo 'resolvers += "Artima Maven Repository" at "https://repo.artima.com/releases"' > ~/.sbt/1.0/global.sbt
 
 ##
 
-[ $DISTRO == "centos6" ] && JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.91-1.b14.el6.x86_64
+# [ $DISTRO == "centos6" ] && JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-1.11.0.91-1.b14.el6.x86_64
 
 EPHEMERAL_VERSION=0.0.$(date +%s)-SNAPSHOT
 sed -i "s|\(version := \)\".*|\1\"$EPHEMERAL_VERSION\"|g" bbb-common-message/build.sbt
@@ -91,15 +91,14 @@ popd
 pwd
 
 # Copy this as simply 'web' and we'll make a symbolic link later in the .postinst script
-mkdir -p "$STAGING"/etc/bigbluebutton/nginx
-cp bbb-web.nginx "$STAGING"/etc/bigbluebutton/nginx/web
-cp loadbalancer.nginx "$STAGING"/etc/bigbluebutton/nginx/loadbalancer.nginx
+mkdir -p "$STAGING"/usr/share/bigbluebutton/nginx
+cp bbb-web.nginx "$STAGING"/usr/share/bigbluebutton/nginx/web
+cp loadbalancer.nginx "$STAGING"/usr/share/bigbluebutton/nginx/loadbalancer.nginx
 
 mkdir -p "$STAGING"/var/log/bigbluebutton
-
 # Copy directive for serving SVG files (HTML5) from nginx
 if [ -f nginx-confs/presentation-slides.nginx ]; then
-  cp nginx-confs/presentation-slides.nginx "$STAGING"/etc/bigbluebutton/nginx
+  cp nginx-confs/presentation-slides.nginx "$STAGING"/usr/share/bigbluebutton/nginx
 fi
 
 mkdir -p "$STAGING"/var/bigbluebutton/diagnostics
@@ -111,6 +110,7 @@ fpm -s dir -C "$STAGING" -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --before-install before-install.sh      \
     --after-install after-install.sh        \
+    --after-remove after-remove.sh \
     --description "BigBlueButton API" \
     $DIRECTORIES \
     $OPTS

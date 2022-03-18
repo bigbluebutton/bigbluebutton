@@ -9,7 +9,6 @@ class ScreenShare extends Page {
 
   async startSharing() {
     await startScreenshare(this);
-    await getScreenShareBreakoutContainer(this);
     await this.hasElement(e.isSharingScreen);
   }
 

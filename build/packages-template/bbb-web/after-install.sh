@@ -51,8 +51,8 @@ bbb_config() {
 	sed -i 's#<a href="http://docs.bigbluebutton.org/" target="_blank">#<a href="https://docs.bigbluebutton.org/" target="_blank">#g' \
 		$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
 
-  if [ ! -L /etc/bigbluebutton/nginx/web.nginx ]; then
-    ln -s /etc/bigbluebutton/nginx/web /etc/bigbluebutton/nginx/web.nginx
+  if [ ! -L /usr/share/bigbluebutton/nginx/web.nginx ]; then
+    ln -s /usr/share/bigbluebutton/nginx/web /usr/share/bigbluebutton/nginx/web.nginx
   fi
 
   if [[ ! -L /usr/share/bbb-web/logs && -d /usr/share/bbb-web/logs ]]; then  # remove old directory (if exists)
@@ -66,7 +66,7 @@ bbb_config() {
   touch /var/log/bigbluebutton/bbb-web.log
   chown bigbluebutton:bigbluebutton /var/log/bigbluebutton/bbb-web.log
 
-  update-java-alternatives -s java-1.8.0-openjdk-amd64
+  update-java-alternatives -s java-1.11.0-openjdk-amd64
 
   # Restart bbb-web to deploy new 
   startService bbb-web.service || echo "bbb-web.service could not be registered or started"

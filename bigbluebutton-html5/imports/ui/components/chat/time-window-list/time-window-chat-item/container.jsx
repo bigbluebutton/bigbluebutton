@@ -20,6 +20,7 @@ const TimeWindowChatItemContainer = (props) => {
   const {
     sender,
     senderName,
+    senderRole,
     key,
     timestamp,
     content,
@@ -42,7 +43,7 @@ const TimeWindowChatItemContainer = (props) => {
       {
       ...{
         color: user?.color,
-        isModerator: user?.role === ROLE_MODERATOR,
+        messageFromModerator: senderRole === ROLE_MODERATOR,
         isSystemSender: sender === 'SYSTEM',
         isOnline: !user?.loggedOut,
         avatar: user?.avatar,

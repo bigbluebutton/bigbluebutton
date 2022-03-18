@@ -32,6 +32,18 @@ export function isChatEnabled() {
   return getDisabledFeatures().indexOf('chat') === -1 && Meteor.settings.public.chat.enabled;
 }
 
+export function isSharedNotesEnabled() {
+  return getDisabledFeatures().indexOf('sharedNotes') === -1 && Meteor.settings.public.notes.enabled;
+}
+
+export function isCaptionsEnabled() {
+  return getDisabledFeatures().indexOf('captions') === -1 && Meteor.settings.public.captions.enabled;
+}
+
+export function isBreakoutRoomsEnabled() {
+  return getDisabledFeatures().indexOf('breakoutRooms') === -1;
+}
+
 export function isLayoutsEnabled() {
   return getDisabledFeatures().indexOf('layouts') === -1;
 }

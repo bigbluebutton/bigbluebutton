@@ -716,7 +716,7 @@ class UserListItem extends PureComponent {
 
     const innerContents = (
       <Styled.UserItemInnerContents>
-        <Styled.UserAvatar data-test="userAvatar">
+        <Styled.UserAvatar data-test="userAvatar" data-test-presenter={user.presenter ? '' : undefined}>
           {this.renderUserAvatar()}
         </Styled.UserAvatar>
         {!compact
