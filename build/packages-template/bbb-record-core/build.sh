@@ -51,7 +51,6 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --before-install before-install.sh        \
     --after-install after-install.sh    \
     --before-remove before-remove.sh    \
-    --after-remove after-remove.sh \
     --description "BigBlueButton record and playback" \
     $DIRECTORIES \
     $OPTS

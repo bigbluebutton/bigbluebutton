@@ -6,7 +6,6 @@ case "$1" in
    purge)
      deleteUser etherpad
      deleteGroup etherpad
-     rm -f /usr/share/bigbluebutton/nginx/notes.nginx
    ;;
    upgrade)
    ;;
