@@ -1,17 +1,12 @@
-import React, { Component } from 'react';
+import React, { Component, useContext } from 'react';
 import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
-import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
+import { JoinContext, JOIN_ACTIONS } from '/imports/ui/components/components-data/join-context/context';
 
 const STATUS_CONNECTING = 'connecting';
 
 class AuthenticatedHandler extends Component {
-  static setError({ description, error }) {
-    if (error) Session.set('codeError', error);
-    Session.set('errorMessageDescription', description);
-  }
-
   static shouldAuthenticate(status, lastStatus) {
     return lastStatus != null && lastStatus === STATUS_CONNECTING && status.connected;
   }
@@ -34,35 +29,12 @@ class AuthenticatedHandler extends Component {
     });
   }
 
-  static async authenticatedRouteHandler(callback) {
-    if (Auth.loggedIn) {
-      callback();
-    }
-
-    AuthenticatedHandler.addReconnectObservable();
-
-    const setReason = (reason) => {
-      const log = reason.error === 403 ? 'warn' : 'error';
-      
-      logger[log]({
-        logCode: 'authenticatedhandlercomponent_setreason',
-        extraInfo: { reason },
-      }, 'Encountered error while trying to authenticate');
-
-      AuthenticatedHandler.setError(reason);
-      callback();
-    };
-
-    try {
-      const getAuthenticate = await Auth.authenticate();
-      callback(getAuthenticate);
-    } catch (error) {
-      setReason(error);
-    }
-  }
-
   constructor(props) {
     super(props);
+
+    this.setError = this.setError.bind(this);
+    this.authenticatedRouteHandler = this.authenticatedRouteHandler.bind(this);
+
     this.state = {
       authenticated: false,
     };
@@ -72,10 +44,49 @@ class AuthenticatedHandler extends Component {
     if (Session.get('codeError')) {
       this.setState({ authenticated: true });
     }
-    AuthenticatedHandler.authenticatedRouteHandler((value, error) => {
-      if (error) AuthenticatedHandler.setError(error);
+    this.authenticatedRouteHandler((value, error) => {
+      if (error) this.setError(error.description, error.code);
       this.setState({ authenticated: true });
     });
+  }
+
+  setError(description, error) {
+    const { joinDispatch } = this.props;
+    console.log('set erro auth', { description, error });
+    if (error) Session.set('codeError', error);
+    Session.set('errorMessageDescription', description);
+
+    joinDispatch({
+      type: JOIN_ACTIONS.SET_HAS_ERROR,
+      value: true,
+    });
+  }
+
+  async authenticatedRouteHandler(callback) {
+    if (Auth.loggedIn) {
+      callback();
+    }
+
+    AuthenticatedHandler.addReconnectObservable();
+
+    const setReason = (reason) => {
+      const log = reason.error === 403 ? 'warn' : 'error';
+
+      logger[log]({
+        logCode: 'authenticatedhandlercomponent_setreason',
+        extraInfo: { reason },
+      }, 'Encountered error while trying to authenticate');
+
+      this.setError(reason.description, reason.error);
+      callback();
+    };
+
+    try {
+      const getAuthenticate = await Auth.authenticate();
+      callback(getAuthenticate);
+    } catch (error) {
+      setReason(error);
+    }
   }
 
   render() {
@@ -91,10 +102,15 @@ class AuthenticatedHandler extends Component {
     // TODO: breakoutRoomIsOpen doesn't seem used
     Session.set('breakoutRoomIsOpen', false);
 
-    return authenticated
-      ? children
-      : (<LoadingScreen />);
+    return authenticated && children;
   }
 }
 
-export default AuthenticatedHandler;
+const AuthenticatedHandlerContainer = (props) => {
+  const usingJoinContext = useContext(JoinContext);
+  const { joinDispatch } = usingJoinContext;
+
+  return <AuthenticatedHandler {...{ joinDispatch, ...props }} />;
+};
+
+export default AuthenticatedHandlerContainer;
