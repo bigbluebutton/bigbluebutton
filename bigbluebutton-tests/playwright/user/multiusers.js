@@ -4,6 +4,7 @@ const e = require('../core/elements');
 const { waitAndClearNotification } = require('../notifications/util');
 const { sleep } = require('../core/helpers');
 const { checkAvatarIcon, checkIsPresenter } = require('./util');
+const { checkTextContent } = require('../core/util');
 
 class MultiUsers {
   constructor(browser, context) {
@@ -149,6 +150,18 @@ class MultiUsers {
     await this.modPage.wasRemoved(e.chatWelcomeMessageText);
     await this.modPage.wasRemoved(e.chatBox);
     await this.modPage.hasElement(e.chatButton);
+  }
+
+  async saveUserNames(testInfo) {
+    await this.modPage.waitAndClick(e.manageUsers);
+    const { content } = await this.modPage.handleDownload(e.downloadUserNamesList, testInfo);
+
+    const dataToCheck = [
+      this.modPage.username,
+      this.userPage.username,
+      this.modPage.meetingId,
+    ];
+    await checkTextContent(content, dataToCheck);
   }
 
   async selectRandomUser() {

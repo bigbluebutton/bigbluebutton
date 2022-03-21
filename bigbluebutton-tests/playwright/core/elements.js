@@ -217,6 +217,7 @@ exports.connectionStatusOfflineUser = 'div[data-test="offlineUser"]';
 exports.connectionDataContainer = 'div[data-test="networkDataContainer"]';
 exports.avatarsWrapperAvatar = 'div[data-test="avatarsWrapperAvatar"]';
 exports.guestPolicyLabel = 'li[data-test="guestPolicyLabel"]';
+exports.downloadUserNamesList = 'li[data-test="downloadUserNamesList"]';
 exports.waitingUsersBtn = 'div[data-test="waitingUsersBtn"]';
 exports.joinMeetingDemoPage = 'div[class^="join-meeting"]';
 exports.askModerator = 'button[data-test="askModerator"]';

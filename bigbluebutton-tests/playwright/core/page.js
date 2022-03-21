@@ -2,7 +2,7 @@ require('dotenv').config();
 const { expect } = require('@playwright/test');
 const yaml = require('js-yaml');
 const path = require('path');
-const fs = require('fs');
+const { readFileSync } = require('fs');
 const parameters = require('./parameters');
 const helpers = require('./helpers');
 const e = require('./elements');
@@ -18,7 +18,7 @@ class Page {
 
   async getSettingsYaml() {
     try {
-      return yaml.load(fs.readFileSync(path.join(__dirname, '../../../bigbluebutton-html5/private/config/settings.yml'), 'utf8'));
+      return yaml.load(readFileSync(path.join(__dirname, '../../../bigbluebutton-html5/private/config/settings.yml'), 'utf8'));
     } catch (err) {
       console.log(err);
     }
@@ -44,6 +44,22 @@ class Page {
     const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, customParameter);
     await this.page.goto(joinUrl);
     if (shouldCloseAudioModal) await this.closeAudioModal();
+  }
+
+  async handleDownload(selector, testInfo, timeout = ELEMENT_WAIT_TIME) {
+    const [download] = await Promise.all([
+      this.page.waitForEvent('download', { timeout }),
+      this.waitAndClick(selector, timeout),
+    ]);
+    await expect(download).toBeTruthy();
+    const path = await download.path();
+    const content = await readFileSync(path, 'utf8');
+    await testInfo.attach('downloaded', { path });
+
+    return {
+      download,
+      content,
+    }
   }
 
   async joinMicrophone() {

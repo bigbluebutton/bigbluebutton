@@ -142,6 +142,12 @@ test.describe.parallel('User', () => {
       });
     });
 
+    test('Save user names', async ({ browser, context, page }, testInfo) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initPages(page);
+      await multiusers.saveUserNames(testInfo);
+    });
+
     test('Select random user', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);

@@ -72,7 +72,7 @@ class Presentation extends MultiUsers {
     await expect(userSlides0).not.toEqual(userSlides1);
   }
 
-  async allowAndDisallowDownload() {
+  async allowAndDisallowDownload(testInfo) {
     // allow the presentation download
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.actions);
@@ -83,6 +83,7 @@ class Presentation extends MultiUsers {
     await this.userPage.waitForSelector(e.toastDownload);
     // check download button in presentation after ALLOW it - should be true
     await this.userPage.hasElement(e.presentationDownloadBtn);
+    await this.userPage.handleDownload(e.presentationDownloadBtn, testInfo);
 
     // disallow the presentation download
     await this.modPage.waitAndClick(e.actions);
