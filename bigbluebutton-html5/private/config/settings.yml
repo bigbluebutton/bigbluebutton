@@ -435,6 +435,7 @@ public:
     syncInterval: 60000
   poll:
     enabled: true
+    autoOptioning: true
     maxCustom: 5
     allowDragAndDropFile: false
     maxTypedAnswerLength: 45
