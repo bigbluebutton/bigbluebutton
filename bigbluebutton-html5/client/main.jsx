@@ -22,6 +22,7 @@ import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
 import logger from '/imports/startup/client/logger';
 import Base from '/imports/startup/client/base';
+import JoinLoading from '/imports/ui/components/join-loading/component';
 import JoinHandler from '/imports/ui/components/join-handler/component';
 import AuthenticatedHandler from '/imports/ui/components/authenticated-handler/component';
 import Subscriptions from '/imports/ui/components/subscriptions/component';
@@ -67,20 +68,22 @@ Meteor.startup(() => {
   // TODO make this a Promise
   render(
     <ContextProviders>
-      <React.Fragment>
-        <JoinHandler>
-          <AuthenticatedHandler>
-            <Subscriptions>
-              <IntlStartup>
-                <Base />
-              </IntlStartup>
-            </Subscriptions>
-          </AuthenticatedHandler>
-        </JoinHandler>
+      <>
+        <IntlStartup>
+          <JoinLoading>
+            <JoinHandler>
+              <AuthenticatedHandler>
+                <Subscriptions>
+                  <Base />
+                </Subscriptions>
+              </AuthenticatedHandler>
+            </JoinHandler>
+          </JoinLoading>
+        </IntlStartup>
         <UsersAdapter />
         <ChatAdapter />
         <GroupChatAdapter />
-      </React.Fragment>
+      </>
     </ContextProviders>,
     document.getElementById('app'),
   );

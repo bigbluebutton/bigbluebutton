@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useContext } from 'react';
 import { Session } from 'meteor/session';
 import PropTypes from 'prop-types';
 import SanitizeHTML from 'sanitize-html';
@@ -6,21 +6,18 @@ import Auth from '/imports/ui/services/auth';
 import { setCustomLogoUrl, setModeratorOnlyMessage } from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
-import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 import { CurrentUser } from '/imports/api/users';
+import { JoinContext, JOIN_ACTIONS } from '/imports/ui/components/components-data/join-context/context';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
 };
 
 class JoinHandler extends Component {
-  static setError(codeError) {
-    if (codeError) Session.set('codeError', codeError);
-  }
-
   constructor(props) {
     super(props);
     this.fetchToken = this.fetchToken.bind(this);
+    this.setError = this.setError.bind(this);
 
     this.state = {
       joined: false,
@@ -72,7 +69,7 @@ class JoinHandler extends Component {
           },
         }, `Connection to Meteor failed, took ${secondsToConnect}s`);
 
-        JoinHandler.setError('400');
+        this.setError('400');
         Session.set('errorMessageDescription', 'Failed to connect to server');
         this.firstJoinTime = undefined;
       }
@@ -83,8 +80,19 @@ class JoinHandler extends Component {
     this._isMounted = false;
   }
 
+  setError(codeError) {
+    const { joinDispatch } = this.props;
+    if (codeError) Session.set('codeError', codeError);
+
+    joinDispatch({
+      type: JOIN_ACTIONS.SET_HAS_ERROR,
+      value: true,
+    });
+  }
+
   async fetchToken() {
     const { hasAlreadyJoined } = this.state;
+    const { joinDispatch } = this.props;
     const APP = Meteor.settings.public.app;
     if (!this._isMounted) return;
 
@@ -92,7 +100,7 @@ class JoinHandler extends Component {
     const sessionToken = urlParams.get('sessionToken');
 
     if (!sessionToken) {
-      JoinHandler.setError('400');
+      this.setError('400');
       Session.set('errorMessageDescription', 'Session token was not provided');
     }
 
@@ -209,6 +217,10 @@ class JoinHandler extends Component {
           response,
         },
       }, 'User successfully went through main.joinRouteHandler');
+      this.setState({
+        joined: true,
+        hasAlreadyJoined: true,
+      });
     } else {
       const e = new Error(response.message);
       if (!Session.get('codeError')) Session.set('errorMessageDescription', response.message);
@@ -219,22 +231,29 @@ class JoinHandler extends Component {
           error: e,
         },
       }, 'User faced an error on main.joinRouteHandler.');
+      this.setError(401);
     }
-    this.setState({
-      joined: true,
-      hasAlreadyJoined: true,
+    joinDispatch({
+      type: JOIN_ACTIONS.SET_LOADING,
+      value: false,
     });
   }
 
   render() {
     const { children } = this.props;
     const { joined } = this.state;
-    return joined
-      ? children
-      : (<LoadingScreen />);
+
+    return joined && children;
   }
 }
 
-export default JoinHandler;
+const JoinHandlerContainer = (props) => {
+  const usingJoinContext = useContext(JoinContext);
+  const { joinDispatch } = usingJoinContext;
+
+  return <JoinHandler {...{ joinDispatch, ...props }} />;
+};
+
+export default JoinHandlerContainer;
 
 JoinHandler.propTypes = propTypes;
