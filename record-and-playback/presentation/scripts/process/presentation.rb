@@ -42,8 +42,8 @@ meeting_id = opts[:meeting_id]
 props = BigBlueButton.read_props
 presentation_props = YAML.safe_load(File.open('presentation.yml'))
 filepathPresOverride = "/etc/bigbluebutton/presentation.yml"
-isThereOverride = File.file?(filepathPresOverride)
-if (isThereOverride)
+hasOverride = File.file?(filepathPresOverride)
+if (hasOverride)
   presOverrideProps = YAML::load(File.open(filepathPresOverride))
   presentation_props = presentation_props.merge(presOverrideProps)
 end

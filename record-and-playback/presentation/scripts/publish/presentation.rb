@@ -33,8 +33,8 @@ require 'json'
 bbb_props = BigBlueButton.read_props
 $presentation_props = YAML::load(File.read('presentation.yml'))
 filepathPresOverride = "/etc/bigbluebutton/presentation.yml"
-isThereOverride = File.file?(filepathPresOverride)
-if (isThereOverride)
+hasOverride = File.file?(filepathPresOverride)
+if (hasOverride)
   presOverrideProps = YAML::load(File.open(filepathPresOverride))
   $presentation_props = $presentation_props.merge(presOverrideProps)
 end

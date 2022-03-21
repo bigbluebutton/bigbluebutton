@@ -241,15 +241,13 @@ module BigBlueButton
     return @props if @props
 
     filepathRecOverride = "/etc/bigbluebutton/recording.yml"
-    isThereOverride = File.file?(filepathRecOverride)
+    hasOverride = File.file?(filepathRecOverride)
     
     filepath = File.join(BigBlueButton.rap_scripts_path, 'bigbluebutton.yml')
-    props = YAML::load(File.open(filepath))
-    if (isThereOverride)
+    @props = YAML::load(File.open(filepath))
+    if (hasOverride)
       recOverrideProps = YAML::load(File.open(filepathRecOverride))
-      @props = props.merge(recOverrideProps)
-    else
-      @props = props
+      @props = @props.merge(recOverrideProps)
     end
   end
 
