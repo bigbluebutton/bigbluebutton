@@ -113,6 +113,7 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsLockedLayout;
 		private boolean defaultLockSettingsLockOnJoin;
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
+		private boolean defaultLockSettingsHideViewersCursor;
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
@@ -335,6 +336,12 @@ public class ParamsProcessorUtil {
 				lockSettingsLockOnJoinConfigurable = Boolean.parseBoolean(lockSettingsLockOnJoinConfigurableParam);
 			}
 
+			Boolean lockSettingsHideViewersCursor = defaultLockSettingsHideViewersCursor;
+			String lockSettingsHideViewersCursorParam = params.get(ApiParams.LOCK_SETTINGS_HIDE_VIEWERS_CURSOR);
+			if (!StringUtils.isEmpty(lockSettingsHideViewersCursorParam)) {
+                lockSettingsHideViewersCursor = Boolean.parseBoolean(lockSettingsHideViewersCursorParam);
+			}
+
 			return new LockSettingsParams(lockSettingsDisableCam,
 							lockSettingsDisableMic,
 							lockSettingsDisablePrivateChat,
@@ -343,7 +350,8 @@ public class ParamsProcessorUtil {
 							lockSettingsHideUserList,
 							lockSettingsLockedLayout,
 							lockSettingsLockOnJoin,
-							lockSettingsLockOnJoinConfigurable);
+							lockSettingsLockOnJoinConfigurable,
+                            lockSettingsHideViewersCursor);
 		}
 
     private ArrayList<Group> processGroupsParams(Map<String, String> params) {
@@ -1296,6 +1304,10 @@ public class ParamsProcessorUtil {
 
 	public void setLockSettingsLockOnJoinConfigurable(Boolean lockSettingsLockOnJoinConfigurable) {
 		this.defaultLockSettingsLockOnJoinConfigurable = lockSettingsLockOnJoinConfigurable;
+	}
+
+	public void setLockSettingsHideViewersCursor(Boolean lockSettingsHideViewersCursor) {
+		this.defaultLockSettingsHideViewersCursor = lockSettingsHideViewersCursor;
 	}
 
 	public void setAllowDuplicateExtUserid(Boolean allow) {

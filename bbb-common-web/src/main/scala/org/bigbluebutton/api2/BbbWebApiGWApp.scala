@@ -123,8 +123,8 @@ class BbbWebApiGWApp(
                     autoStartRecording:      java.lang.Boolean,
                     allowStartStopRecording: java.lang.Boolean, webcamsOnlyForModerator: java.lang.Boolean,
                     meetingCameraCap: java.lang.Integer,
-                    userCameraCap: java.lang.Integer,
-                    moderatorPass: String, viewerPass: String, learningDashboardAccessToken: String,
+                    userCameraCap:    java.lang.Integer,
+                    moderatorPass:    String, viewerPass: String, learningDashboardAccessToken: String,
                     createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean,
                     sequence: java.lang.Integer,
                     freeJoin: java.lang.Boolean,
@@ -204,7 +204,8 @@ class BbbWebApiGWApp(
       hideUserList = lockSettingsParams.hideUserList.booleanValue(),
       lockedLayout = lockSettingsParams.lockedLayout.booleanValue(),
       lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
-      lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue()
+      lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue(),
+      hideViewersCursor = lockSettingsParams.hideViewersCursor.booleanValue()
     )
 
     val systemProps = SystemProps(
