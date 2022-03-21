@@ -52,7 +52,6 @@ class AuthenticatedHandler extends Component {
 
   setError(description, error) {
     const { joinDispatch } = this.props;
-    console.log('set erro auth', { description, error });
     if (error) Session.set('codeError', error);
     Session.set('errorMessageDescription', description);
 

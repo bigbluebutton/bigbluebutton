@@ -1,11 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import AppContainer from '/imports/ui/components/app/container';
-import ErrorScreen from '/imports/ui/components/error-screen/component';
 import MeetingEnded from '/imports/ui/components/meeting-ended/component';
-import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
@@ -25,6 +23,7 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
 import { isChatEnabled } from '/imports/ui/services/features';
+import { JoinContext, JOIN_ACTIONS } from '/imports/ui/components/components-data/join-context/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -196,6 +195,9 @@ class Base extends Component {
       layoutContextDispatch,
       sidebarContentPanel,
       usersVideo,
+      codeError,
+      meetingHasEnded,
+      joinDispatch,
     } = this.props;
     const {
       loading,
@@ -206,6 +208,25 @@ class Base extends Component {
       layoutContextDispatch({
         type: ACTIONS.SET_NUM_CAMERAS,
         value: usersVideo.length,
+      });
+    }
+
+    if (codeError && !meetingHasEnded) {
+      // 680 is set for the codeError when the user requests a logout
+      if (codeError !== '680') {
+        Session.set('codeError', codeError);
+        return joinDispatch({
+          type: JOIN_ACTIONS.SET_HAS_ERROR,
+          value: true,
+        });
+      }
+      return (<MeetingEnded code={codeError} />);
+    }
+
+    if (!(loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
+      joinDispatch({
+        type: JOIN_ACTIONS.SET_LOADING,
+        value: false,
       });
     }
 
@@ -320,22 +341,15 @@ class Base extends Component {
   renderByState() {
     const { updateLoadingState } = this;
     const stateControls = { updateLoadingState };
-    const { loading } = this.state;
     const {
       codeError,
       ejected,
       ejectedReason,
-      meetingExist,
       meetingHasEnded,
       meetingEndedReason,
       meetingIsBreakout,
-      subscriptionsReady,
       User,
     } = this.props;
-
-    if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
-      return (<LoadingScreen>{loading}</LoadingScreen>);
-    }
 
     if (ejected) {
       return (<MeetingEnded code="403" ejectedReason={ejectedReason} />);
@@ -356,14 +370,6 @@ class Base extends Component {
       );
     }
 
-    if (codeError && !meetingHasEnded) {
-      // 680 is set for the codeError when the user requests a logout
-      if (codeError !== '680') {
-        return (<ErrorScreen code={codeError} />);
-      }
-      return (<MeetingEnded code={codeError} />);
-    }
-
     return (<AppContainer {...this.props} baseControls={stateControls} />);
   }
 
@@ -373,14 +379,12 @@ class Base extends Component {
     } = this.props;
     const { meetingExisted } = this.state;
 
+    if ((!meetingExisted && !meetingExist && Auth.loggedIn)) return null;
+    
     return (
       <>
         {meetingExist && Auth.loggedIn && <DebugWindow />}
-        {
-          (!meetingExisted && !meetingExist && Auth.loggedIn)
-            ? <LoadingScreen />
-            : this.renderByState()
-        }
+        {this.renderByState()}
       </>
     );
   }
@@ -394,7 +398,10 @@ const BaseContainer = (props) => {
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
 
-  return <Base {...{ sidebarContentPanel, layoutContextDispatch, ...props }} />;
+  const usingJoinContext = useContext(JoinContext);
+  const { joinDispatch } = usingJoinContext;
+
+  return <Base {...{ sidebarContentPanel, layoutContextDispatch, joinDispatch, ...props }} />;
 };
 
 export default withTracker(() => {

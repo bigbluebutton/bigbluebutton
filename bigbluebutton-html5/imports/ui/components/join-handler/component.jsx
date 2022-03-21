@@ -92,7 +92,6 @@ class JoinHandler extends Component {
 
   async fetchToken() {
     const { hasAlreadyJoined } = this.state;
-    const { joinDispatch } = this.props;
     const APP = Meteor.settings.public.app;
     if (!this._isMounted) return;
 
@@ -233,10 +232,6 @@ class JoinHandler extends Component {
       }, 'User faced an error on main.joinRouteHandler.');
       this.setError(401);
     }
-    joinDispatch({
-      type: JOIN_ACTIONS.SET_LOADING,
-      value: false,
-    });
   }
 
   render() {
