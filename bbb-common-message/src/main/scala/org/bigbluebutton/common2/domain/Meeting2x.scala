@@ -59,7 +59,8 @@ case class LockSettingsProps(
     hideUserList:           Boolean,
     lockedLayout:           Boolean,
     lockOnJoin:             Boolean,
-    lockOnJoinConfigurable: Boolean
+    lockOnJoinConfigurable: Boolean,
+    hideViewersCursor:      Boolean
 )
 
 case class SystemProps(
