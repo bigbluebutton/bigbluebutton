@@ -185,7 +185,7 @@
     "app.poll.questionAndoptions.label" : "טקסט שאלה שיוצג.\nא. אפשרות סקר *\nB. אפשרות סקר (אופציונלי)\nC. אפשרות סקר (אופציונלי)\nD. אפשרות סקר (אופציונלי)\nה. אפשרות סקר (אופציונלי)",
     "app.poll.autoOption.label": "אופציה אוטומטית",
     "app.poll.autoOptionInstructions.label": "אפשרות אוטומטית מופעלת - כתוב שאלת סקר ואפשרויות בפורמט נתון.",
-    "app.poll.maxOptionsError.label": "ניתן להשתמש רק ב-5 האפשרויות הראשונות!",
+    "app.poll.maxOptionsWarning.label": "ניתן להשתמש רק ב-5 האפשרויות הראשונות!",
     "app.poll.pollPaneTitle": "סקר",
     "app.poll.quickPollTitle": "סקר מהיר",
     "app.poll.hidePollDesc": "הסתרת תפריט הסקר",

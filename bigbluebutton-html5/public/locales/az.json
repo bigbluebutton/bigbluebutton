@@ -215,7 +215,7 @@
     "app.poll.questionAndoptions.label" : "Göstəriləcək sual mətni.\nA. Sorğu seçimi *\nB. Sorğu seçimi (isteğe bağlı)\nC. Sorğu seçimi (isteğe bağlı)\nD. Sorğu seçimi (isteğe bağlı)\nE. Sorğu seçimi (isteğe bağlı)",
     "app.poll.autoOption.label": "Avtomatik seçim",
     "app.poll.autoOptionInstructions.label": "Avtomatik seçim aktivləşdirilib – sorğu sualını və seçim(ləri) verilmiş formatda yazın.",
-    "app.poll.maxOptionsError.label": "Yalnız ilk 5 seçimdən istifadə edilə bilər!",
+    "app.poll.maxOptionsWarning.label": "Yalnız ilk 5 seçimdən istifadə edilə bilər!",
     "app.poll.pollPaneTitle": "Sorğu",
     "app.poll.quickPollTitle": "Cəld sorğu",
     "app.poll.hidePollDesc": "Sorğu bölməsini gizlədir",

@@ -237,7 +237,7 @@
     "app.poll.questionAndoptions.label" : "చూపవలసిన ప్రశ్న వచనం.\nA. పోల్ ఎంపిక *\nB. పోల్ ఎంపిక (ఐచ్ఛికం)\nC. పోల్ ఎంపిక (ఐచ్ఛికం)\nD. పోల్ ఎంపిక (ఐచ్ఛికం)\nE. పోల్ ఎంపిక (ఐచ్ఛికం)",
     "app.poll.autoOption.label": "స్వీయ ఎంపిక",
     "app.poll.autoOptionInstructions.label": "ఆటో ఐచ్ఛికం ప్రారంభించబడింది - పోల్ ప్రశ్న మరియు ఎంపిక(లు) ఇచ్చిన ఆకృతిలో వ్రాయండి.",
-    "app.poll.maxOptionsError.label": "మొదటి 5 ఎంపికలను మాత్రమే ఉపయోగించవచ్చు!",
+    "app.poll.maxOptionsWarning.label": "మొదటి 5 ఎంపికలను మాత్రమే ఉపయోగించవచ్చు!",
     "app.poll.pollPaneTitle": "పోలింగ్",
     "app.poll.quickPollTitle": "తక్షణ ఎన్నిక",
     "app.poll.hidePollDesc": "పోల్ మెను పేన్‌ను దాచిపెడుతుంది",

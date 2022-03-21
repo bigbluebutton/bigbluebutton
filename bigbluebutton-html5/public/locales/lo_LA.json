@@ -35,7 +35,7 @@
     "app.poll.questionAndoptions.label" : "ຂໍ້ຄວາມຄຳຖາມທີ່ຈະສະແດງ.\nA. ຕົວເລືອກແບບສຳຫຼວດ *\nB. ຕົວເລືອກແບບສຳຫຼວດ (ທາງເລືອກ)\nC. ຕົວເລືອກແບບສຳຫຼວດ (ທາງເລືອກ)\nD. ຕົວເລືອກແບບສຳຫຼວດ (ທາງເລືອກ)\nE. ຕົວເລືອກແບບສຳຫຼວດ (ທາງເລືອກ)",
     "app.poll.autoOption.label": "ຕົວເລືອກອັດຕະໂນມັດ ",
     "app.poll.autoOptionInstructions.label": "ເປີດໃຊ້ຕົວເລືອກອັດຕະໂນມັດ – ຂຽນຄຳຖາມແບບສຳຫຼວດ ແລະ ທາງເລືອກໃນຮູບແບບທີ່ໃຫ້ໄວ້.",
-    "app.poll.maxOptionsError.label": "ພຽງ​ແຕ່ 5 ທາງ​ເລືອກ​ທໍາ​ອິດ​ທີ່​ສາ​ມາດ​ນໍາ​ໃຊ້​!",
+    "app.poll.maxOptionsWarning.label": "ພຽງ​ແຕ່ 5 ທາງ​ເລືອກ​ທໍາ​ອິດ​ທີ່​ສາ​ມາດ​ນໍາ​ໃຊ້​!",
     "app.settings.main.save.label": "ບັນທຶກ",
     "app.audioNotification.closeLabel": "ປິດ",
     "app.audioModal.closeLabel": "ປິດ",

@@ -181,7 +181,7 @@
     "app.poll.questionAndoptions.label" : "ತೋರಿಸಬೇಕಾದ ಪ್ರಶ್ನೆ ಪಠ್ಯ.\nA. ಪೋಲ್ ಆಯ್ಕೆ *\nB. ಪೋಲ್ ಆಯ್ಕೆ (ಐಚ್ಛಿಕ)\nC. ಪೋಲ್ ಆಯ್ಕೆ (ಐಚ್ಛಿಕ)\nD. ಪೋಲ್ ಆಯ್ಕೆ (ಐಚ್ಛಿಕ)\nE. ಪೋಲ್ ಆಯ್ಕೆ (ಐಚ್ಛಿಕ)",
     "app.poll.autoOption.label": "ಸ್ವಯಂ ಆಯ್ಕೆಮಾಡುವಿಕೆ",
     "app.poll.autoOptionInstructions.label": "ಸ್ವಯಂ ಆಯ್ಕೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ - ಪೋಲ್ ಪ್ರಶ್ನೆ ಮತ್ತು ಆಯ್ಕೆ(ಗಳನ್ನು) ಕೊಟ್ಟಿರುವ ಸ್ವರೂಪದಲ್ಲಿ ಬರೆಯಿರಿ.",
-    "app.poll.maxOptionsError.label": "ಮೊದಲ 5 ಆಯ್ಕೆಗಳನ್ನು ಮಾತ್ರ ಬಳಸಬಹುದು!",
+    "app.poll.maxOptionsWarning.label": "ಮೊದಲ 5 ಆಯ್ಕೆಗಳನ್ನು ಮಾತ್ರ ಬಳಸಬಹುದು!",
     "app.poll.pollPaneTitle": "ಮತದಾನ",
     "app.poll.quickPollTitle": "ತ್ವರಿತ ಸಮೀಕ್ಷೆ",
     "app.poll.hidePollDesc": "ಸಮೀಕ್ಷೆ ಮೆನು ಫಲಕವನ್ನು ಮರೆಮಾಡುತ್ತದೆ",

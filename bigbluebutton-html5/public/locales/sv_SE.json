@@ -237,7 +237,7 @@
     "app.poll.questionAndoptions.label" : "Frågetext som ska visas.\nA. Omröstningsalternativ *\nB. Omröstningsalternativ (valfritt)\nC. Omröstningsalternativ (valfritt)\nD. Omröstningsalternativ (valfritt)\nE. Omröstningsalternativ (valfritt)",
     "app.poll.autoOption.label": "Automatiskt val",
     "app.poll.autoOptionInstructions.label": "Automatiskt alternativ är aktiverat – skriv omröstningsfråga och alternativ(er) i givet format.",
-    "app.poll.maxOptionsError.label": "Endast de första 5 alternativen kan användas!",
+    "app.poll.maxOptionsWarning.label": "Endast de första 5 alternativen kan användas!",
     "app.poll.pollPaneTitle": "Omröstning",
     "app.poll.quickPollTitle": "Snabb undersökning",
     "app.poll.hidePollDesc": "Döljer enkät menyfönstret",

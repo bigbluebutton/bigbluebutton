@@ -69,8 +69,8 @@ const intlMessages = defineMessages({
     id: 'app.poll.autoOptionInstructions.label',
     description: 'poll auto optioning instructions label',
   },
-  maxOptionsError: {
-    id: 'app.poll.maxOptionsError.label',
+  maxOptionsWarning: {
+    id: 'app.poll.maxOptionsWarning.label',
     description: 'poll max options error',
   },
   optionErr: {
@@ -377,12 +377,14 @@ class Poll extends Component {
       });
     } else {
       const { warning, optList } = this.state;
+      let maxOptionsWarning = warning;
       const { splittedQuestion, optionsList } = getSplittedQuestionAndOptions(validatedInput);
       const optionsListLength = optionsList.length;
-      const clearWarning = warning && optionsListLength <= MAX_CUSTOM_FIELDS;
+      const clearWarning = maxOptionsWarning && optionsListLength <= MAX_CUSTOM_FIELDS;
       if ((optionsListLength) > MAX_CUSTOM_FIELDS && optList[MAX_CUSTOM_FIELDS] === undefined) {
-        this.setState({ warning: intl.formatMessage(intlMessages.maxOptionsError) });
+        this.setState({ warning: intl.formatMessage(intlMessages.maxOptionsWarning) });
         if (!isPasting) { return null; }
+        maxOptionsWarning = intl.formatMessage(intlMessages.maxOptionsWarning);
         this.setState({ isPasting: false });
       }
       this.setState({
@@ -390,7 +392,7 @@ class Poll extends Component {
         optList: optionsList,
         question: splittedQuestion,
         error: clearError ? null : error,
-        warning: clearWarning ? null : warning,
+        warning: clearWarning ? null : maxOptionsWarning,
       });
     }
     return null;
@@ -459,7 +461,7 @@ class Poll extends Component {
       const inputList = removeEmptyLineSpaces(question);
       const { splittedQuestion, optionsList } = getSplittedQuestionAndOptions(inputList);
       const clearWarning = optionsList.length > MAX_CUSTOM_FIELDS
-        ? intl.formatMessage(intlMessages.maxOptionsError) : null;
+        ? intl.formatMessage(intlMessages.maxOptionsWarning) : null;
       this.setState({
         questionAndOptions: inputList.join('\n'),
         optList: optionsList,

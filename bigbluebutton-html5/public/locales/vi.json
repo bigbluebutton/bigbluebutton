@@ -89,7 +89,7 @@
     "app.poll.questionAndoptions.label" : "Văn bản câu hỏi sẽ được hiển thị. \nA. Tùy chọn thăm dò ý kiến ​​* \nB. Tùy chọn thăm dò ý kiến ​​(tùy chọn) \nC. Tùy chọn thăm dò ý kiến ​​(tùy chọn) \nD. Tùy chọn thăm dò ý kiến ​​(tùy chọn) \nE. Tùy chọn thăm dò (tùy chọn)",
     "app.poll.autoOption.label": "Tự động tối ưu hóa ",
     "app.poll.autoOptionInstructions.label": "Tự động tùy chọn được bật - viết (các) câu hỏi và tùy chọn thăm dò ở định dạng nhất định ",
-    "app.poll.maxOptionsError.label": "Chỉ có 5 tùy chọn đầu tiên có thể được sử dụng!",
+    "app.poll.maxOptionsWarning.label": "Chỉ có 5 tùy chọn đầu tiên có thể được sử dụng!",
     "app.presentationUploder.dismissLabel": "Hủy bỏ",
     "app.poll.closeLabel": "Đóng",
     "app.poll.liveResult.usersTitle": "Thành viên",

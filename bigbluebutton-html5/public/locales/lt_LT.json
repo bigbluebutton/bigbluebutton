@@ -210,7 +210,7 @@
     "app.poll.questionAndoptions.label" : "Turi būti rodomas klausimo tekstas.\nA. Apklausos parinktis *\nB. Apklausos parinktis (neprivaloma)\nC. Apklausos parinktis (pasirenkama)\nD. Apklausos parinktis (neprivaloma)\nE. Apklausos parinktis (pasirenkama)",
     "app.poll.autoOption.label": "Automatinis parinkimas",
     "app.poll.autoOptionInstructions.label": "Automatinis parinkimas įjungtas – parašykite apklausos klausimą ir parinktį (-as) duotu formatu.",
-    "app.poll.maxOptionsError.label": "Galima naudoti tik pirmąsias 5 parinktis!",
+    "app.poll.maxOptionsWarning.label": "Galima naudoti tik pirmąsias 5 parinktis!",
     "app.poll.pollPaneTitle": "Apklausa",
     "app.poll.quickPollTitle": "Greita apklausa",
     "app.poll.hidePollDesc": "Paslepia apklausos meniu sritį",

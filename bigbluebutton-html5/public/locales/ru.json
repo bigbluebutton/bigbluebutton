@@ -244,7 +244,7 @@
     "app.poll.questionAndoptions.label" : "Отображаемый текст вопроса.\nA. Вариант опроса *\nB. Опция опроса (необязательно)\nC. Опция опроса (необязательно)\nD. Опция опроса (необязательно)\nE. Опция опроса (необязательно)",
     "app.poll.autoOption.label": "Автоматический выбор",
     "app.poll.autoOptionInstructions.label": "Автоматический выбор параметров включен – напишите вопрос и вариант(ы) опроса в заданном формате.",
-    "app.poll.maxOptionsError.label": "Можно использовать только первые 5 вариантов!",
+    "app.poll.maxOptionsWarning.label": "Можно использовать только первые 5 вариантов!",
     "app.poll.pollPaneTitle": "Голосование",
     "app.poll.quickPollTitle": "Быстрое голосование",
     "app.poll.hidePollDesc": "Скрыть меню голосования",

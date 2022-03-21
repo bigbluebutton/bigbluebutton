@@ -240,7 +240,7 @@
     "app.poll.questionAndoptions.label" : "ചോദ്യ വാചകം കാണിക്കണം.\nഎ. പോൾ ഓപ്ഷൻ *\nB. പോൾ ഓപ്ഷൻ (ഓപ്ഷണൽ)\nC. പോൾ ഓപ്ഷൻ (ഓപ്ഷണൽ)\nD. പോൾ ഓപ്ഷൻ (ഓപ്ഷണൽ)\nഇ. പോൾ ഓപ്‌ഷൻ (ഓപ്ഷണൽ)",
     "app.poll.autoOption.label": "ഓട്ടോ ഓപ്‌ഷനിംഗ്",
     "app.poll.autoOptionInstructions.label": "ഓട്ടോ ഓപ്‌ഷനിംഗ് പ്രവർത്തനക്ഷമമാക്കി - വോട്ടെടുപ്പ് ചോദ്യവും ഓപ്‌ഷനും(കൾ) തന്നിരിക്കുന്ന ഫോർമാറ്റിൽ എഴുതുക.",
-    "app.poll.maxOptionsError.label": "ആദ്യത്തെ 5 ഓപ്ഷനുകൾ മാത്രമേ ഉപയോഗിക്കാനാകൂ!",
+    "app.poll.maxOptionsWarning.label": "ആദ്യത്തെ 5 ഓപ്ഷനുകൾ മാത്രമേ ഉപയോഗിക്കാനാകൂ!",
     "app.poll.pollPaneTitle": "പോളിംഗ്",
     "app.poll.quickPollTitle": "ദ്രുത വോട്ടെടുപ്പ്",
     "app.poll.hidePollDesc": "വോട്ടെടുപ്പ് മെനു പാളി മറയ്ക്കുന്നു",

@@ -238,7 +238,7 @@
     "app.poll.questionAndoptions.label" : "Vraagtekst die moet worden weergegeven.\nA. Poll-optie *\nB. Poll-optie (optioneel)\nC. Poll-optie (optioneel)\nD. Poll-optie (optioneel)\nE. Poll-optie (optioneel)",
     "app.poll.autoOption.label": "Automatische opties",
     "app.poll.autoOptionInstructions.label": "Automatische opties zijn ingeschakeld – schrijf de poll-vraag en optie(s) in een bepaald formaat.",
-    "app.poll.maxOptionsError.label": "Alleen de eerste 5 opties kunnen worden gebruikt!",
+    "app.poll.maxOptionsWarning.label": "Alleen de eerste 5 opties kunnen worden gebruikt!",
     "app.poll.pollPaneTitle": "Peiling",
     "app.poll.quickPollTitle": "Snelle peiling",
     "app.poll.hidePollDesc": "Verbergt het peilmenupaneel",

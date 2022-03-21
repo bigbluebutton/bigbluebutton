@@ -223,7 +223,7 @@
     "app.poll.questionAndoptions.label" : "Question text to be shown.\nA. Poll option *\nB. Poll option (optional)\nC. Poll option (optional)\nD. Poll option (optional)\nE. Poll option (optional)",
     "app.poll.autoOption.label": "Auto Optioning",
     "app.poll.autoOptionInstructions.label": "Auto optioning is enabled – write poll question and option(s) in given format.",
-    "app.poll.maxOptionsError.label": "Only first 5 options can be used!",
+    "app.poll.maxOptionsWarning.label": "Only first 5 options can be used!",
     "app.poll.pollPaneTitle": "ވޯޓުނަގަނީ",
     "app.poll.quickPollTitle": "އަވަސް ވޯޓު",
     "app.poll.hidePollDesc": "ވޯޓު މެނޫ ޕޭން ފޮރުވާނެ",

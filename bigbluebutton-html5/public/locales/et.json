@@ -243,7 +243,7 @@
     "app.poll.questionAndoptions.label" : "Kuvatakse küsimuse tekst.\nA. Küsitluse valik *\nB. Küsitluse valik (valikuline)\nC. Küsitluse valik (valikuline)\nD. Küsitluse valik (valikuline)\nE. Küsitlus valik (valikuline)",
     "app.poll.autoOption.label": "Automaatne valik",
     "app.poll.autoOptionInstructions.label": "Auto valikut on lubatud - kirjuta küsitluse küsimus ja valik (id) antud formaadis .",
-    "app.poll.maxOptionsError.label": "Ainult esimesed 5 valikut saab kasutada!",
+    "app.poll.maxOptionsWarning.label": "Ainult esimesed 5 valikut saab kasutada!",
     "app.poll.pollPaneTitle": "Küsitlus",
     "app.poll.quickPollTitle": "Kiirküsitlus",
     "app.poll.hidePollDesc": "Peidab küsitluse paneeli",

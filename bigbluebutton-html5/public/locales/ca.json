@@ -204,7 +204,7 @@
     "app.poll.questionAndoptions.label" : "Text de la pregunta que es mostrarà.\nA. Opció d'enquesta *\nB. Opció d'enquesta (opcional)\nC. Opció d'enquesta (opcional)\nD. Opció d'enquesta (opcional)\nE. Opció d'enquesta (opcional)",
     "app.poll.autoOption.label": "Opció automàtica",
     "app.poll.autoOptionInstructions.label": "L'opció automàtica està activada: escriviu la pregunta i les opcions de l'enquesta en el format donat.",
-    "app.poll.maxOptionsError.label": "Només es poden utilitzar les 5 primeres opcions!",
+    "app.poll.maxOptionsWarning.label": "Només es poden utilitzar les 5 primeres opcions!",
     "app.poll.pollPaneTitle": "Enquesta",
     "app.poll.quickPollTitle": "Enquesta ràpida",
     "app.poll.hidePollDesc": "Amaga el panell d'enquesta",

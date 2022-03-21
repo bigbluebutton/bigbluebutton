@@ -244,7 +244,7 @@
     "app.poll.questionAndoptions.label" : "Text otázky, který se má zobrazit.\nA. Možnost ankety *\nB. Možnost ankety (volitelné)\nC. Možnost hlasování (volitelné)\nD. Možnost ankety (volitelné)\nE. Možnost ankety (volitelné)",
     "app.poll.autoOption.label": "Automatická volba",
     "app.poll.autoOptionInstructions.label": "Automatická volba je povolena – napište anketní otázku a možnosti v daném formátu.",
-    "app.poll.maxOptionsError.label": "Lze použít pouze prvních 5 možností!",
+    "app.poll.maxOptionsWarning.label": "Lze použít pouze prvních 5 možností!",
     "app.poll.pollPaneTitle": "Anketa (hlasování)",
     "app.poll.quickPollTitle": "Rychlá anketa (hlasování)",
     "app.poll.hidePollDesc": "Schová panel ankety",

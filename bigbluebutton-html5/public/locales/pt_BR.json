@@ -240,7 +240,7 @@
     "app.poll.questionAndoptions.label" : "Texto da pergunta a ser mostrado.\nA. Opção de enquete *\nB. Opção de pesquisa (opcional)\nC. Opção de pesquisa (opcional)\nD. Opção de pesquisa (opcional)\nE. Opção de enquete (opcional)",
     "app.poll.autoOption.label": "Opção automática",
     "app.poll.autoOptionInstructions.label": "A opção automática está habilitada - escreva a pergunta da enquete e a(s) opção(ões) no formato fornecido.",
-    "app.poll.maxOptionsError.label": "Apenas as primeiras 5 opções podem ser usadas!",
+    "app.poll.maxOptionsWarning.label": "Apenas as primeiras 5 opções podem ser usadas!",
     "app.poll.pollPaneTitle": "Enquete",
     "app.poll.quickPollTitle": "Enquete rápida",
     "app.poll.hidePollDesc": "Ocultar menu de enquetes",
