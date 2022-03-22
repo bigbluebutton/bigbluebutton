@@ -473,12 +473,6 @@ public class ParamsProcessorUtil {
             }
         }
 
-        // Check if VirtualBackgrounds is disabled
-        boolean virtualBackgroundsDisabled = false;
-        if (!StringUtils.isEmpty(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED))) {
-            virtualBackgroundsDisabled = Boolean.valueOf(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED));
-        }
-
         // Check Disabled Features
         ArrayList<String> listOfDisabledFeatures=new ArrayList(Arrays.asList(defaultDisabledFeatures.split(",")));
         if (!StringUtils.isEmpty(params.get(ApiParams.DISABLED_FEATURES))) {
@@ -488,6 +482,15 @@ public class ParamsProcessorUtil {
         listOfDisabledFeatures.removeAll(Arrays.asList("", null));
         listOfDisabledFeatures.replaceAll(String::trim);
         listOfDisabledFeatures = new ArrayList<>(new HashSet<>(listOfDisabledFeatures));
+
+        // Check if VirtualBackgrounds is disabled
+        if (!StringUtils.isEmpty(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED))) {
+            boolean virtualBackgroundsDisabled = Boolean.valueOf(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED));
+            if(virtualBackgroundsDisabled == true && !listOfDisabledFeatures.contains("virtualBackgrounds")) {
+                log.warn("[DEPRECATION] use disabledFeatures=virtualBackgrounds instead of virtualBackgroundsDisabled=true");
+                listOfDisabledFeatures.add("virtualBackgrounds");
+            }
+        }
 
         boolean learningDashboardEn = learningDashboardEnabled;
         if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED))) {
@@ -660,7 +663,6 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
-                .withVirtualBackgroundsDisabled(virtualBackgroundsDisabled)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .build();
 
