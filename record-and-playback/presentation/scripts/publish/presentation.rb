@@ -178,7 +178,6 @@ def svg_render_shape_pencil(g, slide, shape)
         end
       end
     else
-      # BigBlueButton.logger.info("Pencil #{shape_unique_id}: Drawing simple line (#{data_points_length / 2} points)")
       x = shape_scale_width(slide, data_points.next)
       y = shape_scale_height(slide, data_points.next)
       path << "M#{x} #{y}"
@@ -427,7 +426,7 @@ def svg_render_image(svg, slide, shapes)
   slide_in = slide[:in]
   slide_out = slide[:out]
 
-  if slide_in == slide_out
+  if slide_in == slide_out || slide_in > (@recording_time / 1000)
     BigBlueButton.logger.info("Presentation #{presentation} Slide #{slide_number} is never shown (duration rounds to 0)")
     return
   end
@@ -1254,8 +1253,7 @@ begin
           BigBlueButton::Events.get_start_and_stop_rec_events(@doc)
         )
 
-        recording_time = BigBlueButton::Events.get_recording_length(@doc)
-
+        @recording_time = BigBlueButton::Events.get_recording_length(@doc)
         @meeting_start = BigBlueButton::Events.first_event_timestamp(@doc)
         @meeting_end = BigBlueButton::Events.last_event_timestamp(@doc)
 
@@ -1290,7 +1288,7 @@ begin
             xml.format('presentation')
             xml.link("#{playback_protocol}://#{playback_host}/playback/presentation/2.3/#{@meeting_id}")
             xml.processing_time(processing_time.to_s)
-            xml.duration(recording_time.to_s)
+            xml.duration(@recording_time.to_s)
             unless presentation.empty?
               xml.extensions do
                 xml.preview do
