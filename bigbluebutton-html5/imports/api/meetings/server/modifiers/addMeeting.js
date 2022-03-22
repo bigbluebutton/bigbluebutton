@@ -65,7 +65,6 @@ export default function addMeeting(meeting) {
       allowModsToUnmuteUsers: Boolean,
       allowModsToEjectCameras: Boolean,
       meetingLayout: String,
-      virtualBackgroundsDisabled: Boolean,
     },
     durationProps: {
       createdTime: Number,

@@ -146,7 +146,6 @@ class BbbWebApiGWApp(
                     lockSettingsParams:                     LockSettingsParams,
                     html5InstanceId:                        java.lang.Integer,
                     groups:                                 java.util.ArrayList[Group],
-                    virtualBackgroundsDisabled:             java.lang.Boolean,
                     disabledFeatures:                       java.util.ArrayList[String]): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
@@ -192,7 +191,7 @@ class BbbWebApiGWApp(
       userCameraCap = userCameraCap.intValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
       allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
-      authenticatedGuest = authenticatedGuest.booleanValue(), virtualBackgroundsDisabled = virtualBackgroundsDisabled.booleanValue())
+      authenticatedGuest = authenticatedGuest.booleanValue())
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
 
     val lockSettingsProps = LockSettingsProps(
