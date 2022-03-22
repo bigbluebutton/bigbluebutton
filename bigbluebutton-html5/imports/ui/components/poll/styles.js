@@ -21,6 +21,7 @@ import {
   colorGrayLighter,
   colorGrayLightest,
   colorDanger,
+  colorWarning,
   colorHeading,
   colorPrimary,
   colorGrayDark,
@@ -207,6 +208,18 @@ const Row = styled.div`
   justify-content: space-between;
   margin-top: 0.7rem;
   margin-bottom: 0.7rem;
+`;
+
+const Warning = styled.div`
+  color: ${colorWarning};
+  font-size: ${fontSizeSmall};
+`;
+
+const AutoOptioningRow = styled.div`
+  display: flex;
+  flex-flow: wrap;
+  flex-grow: 1;
+  justify-content: space-between;
 `;
 
 const Col = styled.div`
@@ -399,4 +412,6 @@ export default {
   Header,
   PollHideButton,
   PollCloseButton,
+  Warning,
+  AutoOptioningRow,
 };
