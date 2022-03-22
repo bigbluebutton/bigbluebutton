@@ -79,6 +79,10 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.unlocked',
     description: 'unlocked element label',
   },
+  hideCursorsLabel: {
+    id: "app.lock-viewers.hideViewersCursor",
+    description: 'label for other viewers cursor',
+  }
 });
 
 const propTypes = {
@@ -357,6 +361,32 @@ class LockViewersComponent extends Component {
                     showToggleLabel={showToggleLabel}
                     invertColors={invertColors}
                     data-test="lockUserList"
+                  />
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+
+            <Styled.Row>
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
+                    {intl.formatMessage(intlMessages.hideCursorsLabel)}
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
+                  {this.displayLockStatus(lockSettingsProps.hideViewersCursor)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={lockSettingsProps.hideViewersCursor}
+                    onChange={() => {
+                      this.toggleLockSettings('hideViewersCursor');
+                    }}
+                    ariaLabel={intl.formatMessage(intlMessages.hideCursorsLabel)}
+                    showToggleLabel={showToggleLabel}
+                    invertColors={invertColors}
+                    data-test="hideViewersCursor"
                   />
                 </Styled.FormElementRight>
               </Styled.Col>

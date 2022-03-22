@@ -696,6 +696,7 @@
     "app.lock-viewers.button.cancel": "Cancel",
     "app.lock-viewers.locked": "Locked",
     "app.lock-viewers.unlocked": "Unlocked",
+    "app.lock-viewers.hideViewersCursor": "See other viewers cursors",
     "app.guest-policy.ariaTitle": "Guest policy settings modal",
     "app.guest-policy.title": "Guest policy",
     "app.guest-policy.description": "Change meeting guest policy setting",
