@@ -37,7 +37,10 @@ const CustomLayout = (props) => {
   const navbarInput = layoutSelectInput((i) => i.navBar);
   const layoutContextDispatch = layoutDispatch();
 
+  const { isResizing } = cameraDockInput;
+
   const prevDeviceType = usePrevious(deviceType);
+  const prevIsResizing = usePrevious(isResizing);
 
   const throttledCalculatesLayout = _.throttle(() => calculatesLayout(),
     50, { trailing: true, leading: true });
@@ -227,8 +230,9 @@ const CustomLayout = (props) => {
 
     let cameraDockHeight = 0;
     let cameraDockWidth = 0;
+
     const lastSize = Storage.getItem('webcamSize') || { width: 0, height: 0 };
-    const { width: lastWidth, height: lastHeight } = lastSize;
+    let { width: lastWidth, height: lastHeight } = lastSize;
 
     if (cameraDockInput.isDragging) cameraDockBounds.zIndex = 99;
     else cameraDockBounds.zIndex = 1;
@@ -238,7 +242,23 @@ const CustomLayout = (props) => {
     const isCameraLeft = cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_LEFT;
     const isCameraRight = cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_RIGHT;
     const isCameraSidebar = cameraDockInput.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM;
-    const { isResizing } = cameraDockInput;
+
+    const stoppedResizing = prevIsResizing && !isResizing;
+    if (stoppedResizing) {
+      const isCameraTopOrBottom = cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_TOP
+        || cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_BOTTOM;
+
+      Storage.setItem('webcamSize', {
+        width: isCameraTopOrBottom || isCameraSidebar
+          ? lastWidth : cameraDockInput.width,
+        height: isCameraTopOrBottom || isCameraSidebar
+          ? cameraDockInput.height : lastHeight,
+      });
+
+      const updatedLastSize = Storage.getItem('webcamSize');
+      lastWidth = updatedLastSize.width;
+      lastHeight = updatedLastSize.height;
+    }
 
     if (isCameraTop || isCameraBottom) {
       if ((lastHeight === 0 && !isResizing) || (isCameraTop && isMobile)) {

@@ -19,6 +19,14 @@ object Layouts {
     instance.presentationIsOpen
   }
 
+  def setCameraDockIsResizing(instance: Layouts, p: Boolean) = {
+    instance.isResizing = p
+  }
+
+  def getCameraDockIsResizing(instance: Layouts): Boolean = {
+    instance.isResizing
+  }
+
   def setCameraPosition(instance: Layouts, cp: String) = {
     instance.cameraPosition = cp
   }
@@ -56,6 +64,7 @@ class Layouts {
   private var setByUser: String = "system";
   private var currentLayout = "";
   private var presentationIsOpen: Boolean = true;
+  private var isResizing: Boolean = false;
   private var cameraPosition: String = "";
   private var focusedCamera: String = "";
   private var presentationVideoRate: Double = 0;

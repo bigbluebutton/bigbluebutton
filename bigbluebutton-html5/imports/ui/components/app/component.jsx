@@ -298,8 +298,10 @@ class App extends Component {
       presentationVideoRate,
       cameraWidth,
       cameraHeight,
+      cameraIsResizing,
       isPresenter,
       layoutPresOpen,
+      layoutIsResizing,
       layoutCamPosition,
       layoutFocusedCam,
       layoutRate,
@@ -384,6 +386,13 @@ class App extends Component {
 	  h = window.innerHeight * layoutRate;
 	}
 
+        if (layoutIsResizing !== prevProps.layoutIsResizing) {
+          layoutContextDispatch({
+            type: ACTIONS.SET_CAMERA_DOCK_IS_RESIZING,
+            value: layoutIsResizing,
+          });
+        }
+
         layoutContextDispatch({
 	  type: ACTIONS.SET_CAMERA_DOCK_SIZE,
 	  value: {
@@ -407,6 +416,7 @@ class App extends Component {
 
     if (isPresenter && pushLayout && selectedLayout === 'custom' &&
       (presentationIsOpen !== prevProps.presentationIsOpen
+      || cameraIsResizing !== prevProps.cameraIsResizing
       || cameraPosition !== prevProps.cameraPosition
       || focusedCamera !== prevProps.focusedCamera
       || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate))
