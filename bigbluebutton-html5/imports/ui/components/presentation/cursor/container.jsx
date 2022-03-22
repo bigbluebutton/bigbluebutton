@@ -1,11 +1,13 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { withTracker } from "meteor/react-meteor-data";
-import Auth from "/imports/ui/services/auth";
-import Meetings from "/imports/api/meetings";
-import Users from "/imports/api/users";
-import CursorService from "./service";
-import Cursor from "./component";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { withTracker } from 'meteor/react-meteor-data';
+import Auth from '/imports/ui/services/auth';
+import Meetings from '/imports/api/meetings';
+import Users from '/imports/api/users';
+import CursorService from './service';
+import Cursor from './component';
+
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 class CursorContainer extends Component {
   render() {
@@ -29,27 +31,27 @@ export default withTracker((params) => {
   const cursor = CursorService.getCurrentCursor(cursorId);
   const meeting = Meetings.findOne(
     { meetingId: Auth.meetingID },
-    { fields: { "lockSettingsProps.hideViewersCursor": 1 } }
+    { fields: { 'lockSettingsProps.hideViewersCursor': 1 } },
   );
-  const curUser = Users.findOne(
+  const user = Users.findOne(
     { meetingId: Auth.meetingID, userId: Auth.userID },
-    { fields: { role: 1, userId: 1 } }
+    { fields: { role: 1, userId: 1 } },
   );
 
   if (cursor) {
-    const { xPercent: cursorX, yPercent: cursorY, userName, userId } = cursor;
-    const isRTL = document.documentElement.getAttribute("dir") === "rtl";
-    const userCursor = Users.findOne(
+    const {
+      xPercent: cursorX, yPercent: cursorY, userName, userId,
+    } = cursor;
+    const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
+    const cursorOwner = Users.findOne(
       { meetingId: Auth.meetingID, userId },
-      { fields: { presenter: 1, userId: 1 } }
+      { fields: { presenter: 1, userId: 1, role: 1 } },
     );
-    const visibleCursor =
-      curUser?.role === "MODERATOR" ||
-      userCursor.presenter ||
-      userCursor.userId === curUser.userId;
+    const showCursor = user.role === ROLE_MODERATOR || cursorOwner.presenter
+      || (!cursor.presenter && cursorOwner.userId === user.userId);
     const hideViewersCursor = meeting?.lockSettingsProps?.hideViewersCursor;
 
-    if (!hideViewersCursor || (hideViewersCursor && visibleCursor)) {
+    if (!hideViewersCursor || (hideViewersCursor && showCursor)) {
       return {
         cursorX,
         cursorY,
@@ -62,7 +64,7 @@ export default withTracker((params) => {
   return {
     cursorX: -1,
     cursorY: -1,
-    userName: "",
+    userName: '',
   };
 })(CursorContainer);
 
