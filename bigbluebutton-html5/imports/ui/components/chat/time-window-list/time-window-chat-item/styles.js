@@ -9,6 +9,8 @@ import {
   systemMessageBackgroundColor,
   systemMessageBorderColor,
   systemMessageFontColor,
+  highlightedMessageBackgroundColor,
+  highlightedMessageBorderColor,
   colorHeading,
   colorGrayLight,
   palettePlaceholderText,
@@ -17,7 +19,7 @@ import {
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import MessageChatItem from './message-chat-item/component';
-import Icon from '/imports/ui/components/icon/component';
+import Icon from '/imports/ui/components/common/icon/component';
 
 const Item = styled.div`
   padding: calc(${lineHeightComputed} / 4) 0 calc(${lineHeightComputed} / 2) 0;
@@ -63,6 +65,13 @@ const Wrapper = styled.div`
   position: relative;
   margin: ${borderSize} 0 0 ${borderSize};
 
+  ${({ isSystemSender }) => isSystemSender && `
+    background-color: ${highlightedMessageBackgroundColor};
+    border-left: 2px solid ${highlightedMessageBorderColor};
+    border-radius: 0px 3px 3px 0px;
+    padding: 8px 2px;
+  `}
+  
   [dir="rtl"] & {
     margin: ${borderSize} ${borderSize} 0 0;
   }

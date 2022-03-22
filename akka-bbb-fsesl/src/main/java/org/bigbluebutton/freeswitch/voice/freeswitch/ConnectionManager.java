@@ -233,20 +233,4 @@ public class ConnectionManager {
 			rcc.handleResponse(response, conferenceEventListener);
 		}
 	}
-
-	public void broadcastRTMP(ScreenshareBroadcastRTMPCommand rtmp) {
-		Client c = manager.getESLClient();
-		if (c.canSend()) {
-			EslMessage response = c.sendSyncApiCommand(rtmp.getCommand(), rtmp.getCommandArgs());
-			rtmp.handleResponse(response, conferenceEventListener);
-		}
-	}
-
-	public void hangUp(ScreenshareHangUpCommand huCmd) {
-		Client c = manager.getESLClient();
-		if (c.canSend()) {
-			EslMessage response = c.sendSyncApiCommand(huCmd.getCommand(), huCmd.getCommandArgs());
-			huCmd.handleResponse(response, conferenceEventListener);
-		}
-	}
 }

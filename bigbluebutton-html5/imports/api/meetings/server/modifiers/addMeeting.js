@@ -52,12 +52,14 @@ export default function addMeeting(meeting) {
     meetingProp: {
       intId: String,
       extId: String,
+      meetingCameraCap: Number,
       isBreakout: Boolean,
-      learningDashboardEnabled: Boolean,
       name: String,
+      disabledFeatures: Array,
     },
     usersProp: {
       webcamsOnlyForModerator: Boolean,
+      userCameraCap: Number,
       guestPolicy: String,
       authenticatedGuest: Boolean,
       maxUsers: Number,
@@ -99,11 +101,6 @@ export default function addMeeting(meeting) {
       dialNumber: String,
       telVoice: String,
       muteOnStart: Boolean,
-    },
-    screenshareProps: {
-      red5ScreenshareIp: String,
-      red5ScreenshareApp: String,
-      screenshareConf: String,
     },
     metadataProp: Object,
     lockSettingsProps: {
@@ -216,8 +213,12 @@ export default function addMeeting(meeting) {
 
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
-      initPads(meetingId);
-      initCaptions(meetingId);
+      if (newMeeting.meetingProp.disabledFeatures.indexOf('sharedNotes') === -1) {
+        initPads(meetingId);
+      }
+      if (newMeeting.meetingProp.disabledFeatures.indexOf('captions') === -1) {
+        initCaptions(meetingId);
+      }
     } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);
     }

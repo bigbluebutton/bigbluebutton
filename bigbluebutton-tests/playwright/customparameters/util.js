@@ -5,7 +5,7 @@ const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constan
 
 async function forceListenOnly(test) {
   await test.wasRemoved(e.echoYesButton);
-  await test.hasText(e.toastContainer, e.joiningMessageLabel);
+  await test.hasText(e.toastContainer, e.joiningMessageToast);
 }
 
 function hexToRgb(hex) {
@@ -22,7 +22,7 @@ async function zoomIn(test) {
       setInterval(() => {
         document.querySelector(selector).scrollBy(0, 10);
       }, 100);
-    }, e.zoomIn);
+    }, e.zoomInBtn);
     return true;
   } catch (err) {
     console.log(err);
@@ -36,7 +36,7 @@ async function zoomOut(test) {
       setInterval(() => {
         document.querySelector(selector).scrollBy(10, 0);
       }, 100);
-    }, e.zoomIn);
+    }, e.zoomInBtn);
     return true;
   } catch (err) {
     console.log(err);
@@ -51,7 +51,7 @@ async function poll(page1, page2) {
   await page1.waitAndClick(e.pollYesNoAbstentionBtn);
   await page1.waitAndClick(e.startPoll);
   await page2.waitForSelector(e.pollingContainer);
-  await page2.waitAndClick(e.yesBtn);
+  await page2.waitAndClickElement(e.pollAnswerOptionBtn);
   await page1.waitAndClick(e.publishPollingLabel);
 }
 
@@ -64,7 +64,7 @@ async function nextSlide(test) {
 }
 
 async function annotation(test) {
-  await test.waitAndClick(e.tools);
+  await test.waitAndClick(e.toolsButton);
   await test.waitAndClick(e.pencil);
   await test.waitAndClick(e.whiteboard);
   await test.page.waitForFunction(
@@ -77,6 +77,11 @@ async function annotation(test) {
 function encodeCustomParams(param) {
   try {
     let splited = param.split('=');
+    if (splited.length > 2) {
+      const aux = splited.shift();
+      splited[1] = splited.join('=');
+      splited[0] = aux;
+    }
     splited[1] = encodeURIComponent(splited[1]).replace(/%20/g, '+');
     return splited.join('=');
   } catch (err) {

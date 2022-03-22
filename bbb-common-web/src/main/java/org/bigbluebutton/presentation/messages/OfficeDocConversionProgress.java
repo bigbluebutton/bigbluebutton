@@ -9,11 +9,12 @@ public class OfficeDocConversionProgress implements IDocConversionMsg {
   public final String uploaderId;
   public final String authzToken;
   public final Boolean downloadable;
+  public final Boolean removable;
   public final String key;
 
   public OfficeDocConversionProgress(String podId, String meetingId, String presId, String presInstance,
                                      String filename, String uploaderId, String authzToken,
-                                     Boolean downloadable, String key) {
+                                     Boolean downloadable, Boolean removable,  String key) {
     this.podId = podId;
     this.meetingId = meetingId;
     this.presId = presId;
@@ -22,6 +23,7 @@ public class OfficeDocConversionProgress implements IDocConversionMsg {
     this.uploaderId = uploaderId;
     this.authzToken = authzToken;
     this.downloadable = downloadable;
+    this.removable = removable;
     this.key = key;
   }
 }

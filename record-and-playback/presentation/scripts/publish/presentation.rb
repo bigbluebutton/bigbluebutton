@@ -159,6 +159,12 @@ def svg_render_shape_pencil(g, slide, shape)
           x = shape_scale_width(slide, data_points.next)
           y = shape_scale_height(slide, data_points.next)
           path.push("L#{x} #{y}")
+        when 3 # Q_CURVE_TO
+          cx1 = shape_scale_width(slide, data_points.next)
+          cy1 = shape_scale_height(slide, data_points.next)
+          x = shape_scale_width(slide, data_points.next)
+          y = shape_scale_height(slide, data_points.next)
+          path.push("Q#{cx1} #{cy1},#{x} #{y}")
         when 4 # C_CURVE_TO
           cx1 = shape_scale_width(slide, data_points.next)
           cy1 = shape_scale_height(slide, data_points.next)
@@ -994,11 +1000,13 @@ def process_chat_messages(events, bbb_props)
         in: (chat[:in] / 1000.0).round(1),
         direction: 'down',
         name: chat[:sender],
+        chatEmphasizedText: chat[:chatEmphasizedText],
+        senderRole: chat[:senderRole],
         message: chat[:message],
         target: 'chat',
       }
-      if (chat_out = chat[:out])
-        chattimeline[:out] = (chat_out / 1000.0).round(1)
+      if (chat[:out])
+        chattimeline[:out] = (chat[:out] / 1000.0).round(1)
       end
 
       xml.chattimeline(**chattimeline)
@@ -1041,7 +1049,8 @@ end
 
 def get_poll_answers(event)
   answers = []
-  if (answers_event = event.at_xpath('answers'))
+  answers_event = event.at_xpath('answers')
+  if (answers_event)
     answers = JSON.parse(answers_event.content)
   end
 

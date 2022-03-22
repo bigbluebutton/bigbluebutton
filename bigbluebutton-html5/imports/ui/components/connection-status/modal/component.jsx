@@ -3,7 +3,7 @@ import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/connection-status/icon/component';
-import Switch from '/imports/ui/components/switch/component';
+import Switch from '/imports/ui/components/common/switch/component';
 import Service from '../service';
 import Styled from './styles';
 import ConnectionStatusHelper from '../status-helper/container';
@@ -215,12 +215,14 @@ class ConnectionStatusComponent extends PureComponent {
         inbound: audioCurrentDownloadRate,
       } = Service.calculateBitsPerSecond(data.audio, previousData.audio);
 
-      const jitter = data.audio['inbound-rtp']
-        ? data.audio['inbound-rtp'].jitterBufferAverage
+      const inboundRtp = Service.getDataType(data.audio, 'inbound-rtp')[0];
+
+      const jitter = inboundRtp
+        ? inboundRtp.jitterBufferAverage
         : 0;
 
-      const packetsLost = data.audio['inbound-rtp']
-        ? data.audio['inbound-rtp'].packetsLost
+      const packetsLost = inboundRtp
+        ? inboundRtp.packetsLost
         : 0;
 
       const audio = {
@@ -507,7 +509,7 @@ class ConnectionStatusComponent extends PureComponent {
     }
 
     return (
-      <Styled.NetworkDataContainer>
+      <Styled.NetworkDataContainer data-test="networkDataContainer">
         <Styled.Prev>
           <Styled.ButtonLeft
             role="button"
@@ -696,6 +698,7 @@ class ConnectionStatusComponent extends PureComponent {
         onRequestClose={() => closeModal(dataSaving, intl)}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.ariaTitle)}
+        data-test="connectionStatusModal"
       >
         <Styled.Container>
           <Styled.Header>

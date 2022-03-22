@@ -24,7 +24,8 @@ export default function addSystemMsg(meetingId, chatId, msg) {
     timestamp: Number,
     sender: Object,
     message: String,
-    extra: Object,
+    messageValues: Match.Maybe(Object),
+    extra: Match.Maybe(Object),
     correlationId: Match.Maybe(String),
   });
   const msgDocument = {

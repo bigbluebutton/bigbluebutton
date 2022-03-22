@@ -27,7 +27,7 @@ import {
   validIOSVersion,
 } from './service';
 
-import { withModalMounter, getModal } from '../modal/service';
+import { withModalMounter, getModal } from '/imports/ui/components/common/modal/service';
 
 import App from './component';
 import ActionsBarContainer from '../actions-bar/container';

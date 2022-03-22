@@ -46,7 +46,7 @@ export function getActivityScore(user, allUsers, totalOfPolls) {
 
 export function getSumOfTime(eventsArr) {
   return eventsArr.reduce((prevVal, elem) => {
-    if ((elem.stoppedOn || elem.registeredOn) > 0) {
+    if ((elem.stoppedOn || elem.leftOn) > 0) {
       return prevVal + ((elem.stoppedOn || elem.leftOn) - (elem.startedOn || elem.registeredOn));
     }
     return prevVal + (new Date().getTime() - (elem.startedOn || elem.registeredOn));

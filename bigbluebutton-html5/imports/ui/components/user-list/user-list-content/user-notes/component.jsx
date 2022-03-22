@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages } from 'react-intl';
-import Icon from '/imports/ui/components/icon/component';
+import { defineMessages, injectIntl } from 'react-intl';
+import Icon from '/imports/ui/components/common/icon/component';
 import NotesService from '/imports/ui/components/notes/service';
 import Styled from './styles';
 import { PANELS } from '/imports/ui/components/layout/enums';
@@ -128,7 +128,7 @@ class UserNotes extends Component {
     return (
       <Styled.Messages>
         <Styled.Container>
-          <Styled.SmallTitle>
+          <Styled.SmallTitle data-test="notesTitle">
             {intl.formatMessage(intlMessages.title)}
           </Styled.SmallTitle>
         </Styled.Container>
@@ -144,4 +144,4 @@ class UserNotes extends Component {
 
 UserNotes.propTypes = propTypes;
 
-export default UserNotes;
+export default injectIntl(UserNotes);

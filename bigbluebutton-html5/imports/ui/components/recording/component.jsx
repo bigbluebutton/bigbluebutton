@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Styled from './styles';
+import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 
 const intlMessages = defineMessages({
   startTitle: {
@@ -24,19 +24,10 @@ const intlMessages = defineMessages({
     id: 'app.recording.stopDescription',
     description: 'stop recording description',
   },
-  yesLabel: {
-    id: 'app.audioModal.yes',
-    description: 'label for yes button',
-  },
-  noLabel: {
-    id: 'app.audioModal.no',
-    description: 'label for no button',
-  },
 });
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
-  closeModal: PropTypes.func.isRequired,
   toggleRecording: PropTypes.func.isRequired,
   recordingTime: PropTypes.number,
   recordingStatus: PropTypes.bool,
@@ -57,7 +48,6 @@ class RecordingComponent extends PureComponent {
       recordingStatus,
       recordingTime,
       amIModerator,
-      closeModal,
       toggleRecording,
       isMeteorConnected,
     } = this.props;
@@ -72,35 +62,19 @@ class RecordingComponent extends PureComponent {
     }
 
     if (!amIModerator) return null;
+
+    const description = intl.formatMessage(!recordingStatus
+      ? intlMessages.startDescription
+      : intlMessages.stopDescription);
+
     return (
-      <Styled.RecordingModal
-        onRequestClose={closeModal}
-        hideBorder
-        contentLabel={title}
-      >
-        <Styled.Container>
-          <Styled.Header>
-            <Styled.Title>{title}</Styled.Title>
-          </Styled.Header>
-          <Styled.Description>
-            {`${intl.formatMessage(!recordingStatus
-              ? intlMessages.startDescription
-              : intlMessages.stopDescription)}`}
-          </Styled.Description>
-          <Styled.Footer>
-            <Styled.RecordingButton
-              color="primary"
-              disabled={!isMeteorConnected}
-              label={intl.formatMessage(intlMessages.yesLabel)}
-              onClick={toggleRecording}
-            />
-            <Styled.RecordingButton
-              label={intl.formatMessage(intlMessages.noLabel)}
-              onClick={closeModal}
-            />
-          </Styled.Footer>
-        </Styled.Container>
-      </Styled.RecordingModal>
+      <ConfirmationModal
+        intl={intl}
+        onConfirm={toggleRecording}
+        title={title}
+        description={description}
+        disableConfirmButton={!isMeteorConnected}
+      />
     );
   }
 }

@@ -3,7 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import { IntlProvider } from 'react-intl';
 import Settings from '/imports/ui/services/settings';
-import LoadingScreen from '/imports/ui/components/loading-screen/component';
+import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import _ from 'lodash';
 import { Session } from 'meteor/session';

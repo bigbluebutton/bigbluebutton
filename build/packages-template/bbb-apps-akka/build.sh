@@ -5,6 +5,7 @@ TARGET=`basename $(pwd)`
 
 PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 DISTRO=$(echo $TARGET | cut -d'_' -f3)
+BUILD=$1
 
 ##
 
@@ -34,7 +35,10 @@ sed -i "s/^version .*/version := \"$VERSION\"/g" build.sbt
 # set epoch if its greater than 0
 if [[ -n $EPOCH && $EPOCH -gt 0 ]] ; then
     echo 'version in Debian := "'$EPOCH:$VERSION'"' >> build.sbt
+else
+    echo 'version in Debian := "'$VERSION-$BUILD'"' >> build.sbt
 fi
+sbt update
 sbt debian:packageBin
 cp ./target/*.deb ..
 

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
 import Styled from './styles';
-import _ from 'lodash';
 import { findDOMNode } from 'react-dom';
 import {
   AutoSizer,
@@ -12,13 +11,14 @@ import {
 import UserListItemContainer from './user-list-item/container';
 import UserOptionsContainer from './user-options/container';
 import Settings from '/imports/ui/services/settings';
+import { injectIntl } from 'react-intl';
 
 const propTypes = {
   compact: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  currentUser: PropTypes.shape({}).isRequired,
+  currentUser: PropTypes.shape({}),
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
   clearAllEmojiStatus: PropTypes.func.isRequired,
@@ -28,6 +28,7 @@ const propTypes = {
 
 const defaultProps = {
   compact: false,
+  currentUser: null,
 };
 
 const intlMessages = defineMessages({
@@ -81,10 +82,8 @@ class UserParticipants extends Component {
     }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    const isPropsEqual = _.isEqual(this.props, nextProps);
-    const isStateEqual = _.isEqual(this.state, nextState);
-    return !isPropsEqual || !isStateEqual;
+  shouldComponentUpdate(nextProps) {
+    return nextProps.isReady;
   }
 
   selectEl(el) {
@@ -126,6 +125,8 @@ class UserParticipants extends Component {
       requestUserInformation,
       currentUser,
       meetingIsBreakout,
+      lockSettingsProps,
+      isThisMeetingLocked,
     } = this.props;
     const { scrollArea } = this.state;
     const user = users[index];
@@ -153,6 +154,8 @@ class UserParticipants extends Component {
               meetingIsBreakout,
               scrollArea,
               isRTL,
+              lockSettingsProps,
+              isThisMeetingLocked,
             }}
             user={user}
             getScrollContainerRef={this.getScrollContainerRef}
@@ -193,7 +196,7 @@ class UserParticipants extends Component {
     const { isOpen, scrollArea } = this.state;
 
     return (
-      <Styled.UserListColumn>
+      <Styled.UserListColumn data-test="userList">
         {
           !compact
             ? (
@@ -204,7 +207,7 @@ class UserParticipants extends Component {
                   {users.length}
                   )
                 </Styled.SmallTitle>
-                {currentUser.role === ROLE_MODERATOR
+                {currentUser?.role === ROLE_MODERATOR
                   ? (
                     <UserOptionsContainer {...{
                       users,
@@ -265,4 +268,4 @@ class UserParticipants extends Component {
 UserParticipants.propTypes = propTypes;
 UserParticipants.defaultProps = defaultProps;
 
-export default UserParticipants;
+export default injectIntl(UserParticipants);

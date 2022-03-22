@@ -73,12 +73,13 @@ const ChatAlertContainer = (props) => {
       try {
         if (c[0] === idChat || (c[0] === 'MAIN-PUBLIC-GROUP-CHAT' && idChat === 'public')) {
           chatsTracker[c[0]] = {};
-          chatsTracker[c[0]].lastSender = users[Auth.meetingID][c[1]?.lastSender]?.name;
           if (c[1]?.posJoinMessages || c[1]?.messageGroups) {
             const m = Object.entries(c[1]?.posJoinMessages || c[1]?.messageGroups);
-            chatsTracker[c[0]].count = m?.length;
-            if (m[m.length - 1]) {
+            const sameUserCount = m.filter((message) => message[1]?.sender === Auth.userID).length;
+            if (m[m.length - 1] && m[m.length - 1][1]?.sender !== Auth.userID) {
+              chatsTracker[c[0]].lastSender = users[Auth.meetingID][c[1]?.lastSender]?.name;
               chatsTracker[c[0]].content = m[m.length - 1][1]?.message;
+              chatsTracker[c[0]].count = m?.length - sameUserCount;
             }
           }
         }
@@ -94,7 +95,7 @@ const ChatAlertContainer = (props) => {
     if (prevTracker) {
       const keys = Object.keys(prevTracker);
       keys.forEach((key) => {
-        if (chatsTracker[key]?.count > prevTracker[key]?.count) {
+        if (chatsTracker[key]?.count > (prevTracker[key]?.count || 0)) {
           chatsTracker[key].shouldNotify = true;
         }
       });

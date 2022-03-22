@@ -1,5 +1,3 @@
 #!/bin/bash -e
 
-#if [ "$1" = "remove" ]; then
-#	rm -f /var/lib/tomcat7/webapps/lti.war
-#fi
+rm -f /usr/share/bigbluebutton/nginx/bbb-lti.nginx

@@ -1,5 +1,5 @@
 import React from 'react';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { withTracker } from 'meteor/react-meteor-data';
 import Service from './service';
 import VideoPreview from './component';
@@ -23,6 +23,7 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
   },
   sharedDevices: VideoService.getSharedDevices(),
   isCamLocked: VideoService.isUserLocked(),
+  camCapReached: VideoService.hasCapReached(),
   closeModal: () => mountModal(null),
   webcamDeviceId: Service.webcamDeviceId(),
   hasVideoStream: VideoService.hasVideoStream(),

@@ -73,22 +73,6 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
         } else if (event instanceof VoiceStartRecordingEvent) {
           VoiceStartRecordingEvent evt = (VoiceStartRecordingEvent) event;
           vcs.voiceConfRecordingStarted(evt.getRoom(), evt.getRecordingFilename(), evt.startRecord(), evt.getTimestamp());
-        } else if (event instanceof ScreenshareStartedEvent) {
-          ScreenshareStartedEvent evt = (ScreenshareStartedEvent) event;
-          vcs.deskShareStarted(evt.getRoom(), evt.getCallerIdNum(), evt.getCallerIdName());
-        } else if (event instanceof DeskShareEndedEvent) {
-          DeskShareEndedEvent evt = (DeskShareEndedEvent) event;
-          vcs.deskShareEnded(evt.getRoom(), evt.getCallerIdNum(), evt.getCallerIdName());
-        } else if (event instanceof ScreenshareRTMPBroadcastEvent) {
-          if (((ScreenshareRTMPBroadcastEvent) event).getBroadcast()) {
-            ScreenshareRTMPBroadcastEvent evt = (ScreenshareRTMPBroadcastEvent) event;
-            vcs.deskShareRTMPBroadcastStarted(evt.getRoom(), evt.getBroadcastingStreamUrl(),
-              evt.getVideoWidth(), evt.getVideoHeight(), evt.getTimestamp(), evt.getHasAudio());
-          } else {
-            ScreenshareRTMPBroadcastEvent evt = (ScreenshareRTMPBroadcastEvent) event;
-            vcs.deskShareRTMPBroadcastStopped(evt.getRoom(), evt.getBroadcastingStreamUrl(),
-              evt.getVideoWidth(), evt.getVideoHeight(), evt.getTimestamp());
-          }
         } else if (event instanceof AudioFloorChangedEvent) {
           AudioFloorChangedEvent evt = (AudioFloorChangedEvent) event;
           vcs.audioFloorChanged(

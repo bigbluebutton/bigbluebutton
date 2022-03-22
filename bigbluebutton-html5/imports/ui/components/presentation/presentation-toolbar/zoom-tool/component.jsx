@@ -212,6 +212,7 @@ class ZoomTool extends PureComponent {
               aria-describedby="zoomInDescription"
               aria-label={zoomInAriaLabel}
               label={intl.formatMessage(intlMessages.zoomInLabel)}
+              data-test="zoomInBtn"
               icon="add"
               onClick={() => { }}
               disabled={(zoomValue >= maxBound) || !isMeteorConnected}

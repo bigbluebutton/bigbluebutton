@@ -13,7 +13,7 @@ import {
   colorPrimary,
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const VirtualBackgroundRowThumbnail = styled.div`
   margin-top: 0.4rem;
@@ -33,6 +33,7 @@ const BgNoneButton = styled(Button)`
   width: 48px;
   border: ${borderSizeSmall} solid ${userThumbnailBorder};
   margin: 0 0.15em;
+  flex-shrink: 0;
 `;
 
 const ThumbnailButton = styled(Button)`
@@ -49,6 +50,7 @@ const ThumbnailButton = styled(Button)`
   background-color: transparent;
   border: ${borderSizeSmall} solid ${userThumbnailBorder};
   margin: 0 0.15em;
+  flex-shrink: 0;
 
   & + img {
     border-radius: ${borderSizeLarge};

@@ -51,6 +51,7 @@ export default class ToolbarSubmenuItem extends Component {
       icon,
       label,
       toolbarActive,
+      'data-test': dataTest,
     } = this.props;
 
     return (
@@ -68,6 +69,7 @@ export default class ToolbarSubmenuItem extends Component {
           onMouseUp={this.handleOnMouseUp}
           onKeyPress={this.handleOnMouseUp}
           setRef={this.setRef}
+          data-test={dataTest}
         />
       </Styled.ButtonWrapper>
     );

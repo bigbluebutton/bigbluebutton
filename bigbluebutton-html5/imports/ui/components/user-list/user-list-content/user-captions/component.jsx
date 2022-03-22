@@ -2,14 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import CaptionsListItem from '/imports/ui/components/user-list/captions-list-item/component';
-import { defineMessages } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
 
 const propTypes = {
   ownedLocales: PropTypes.arrayOf(PropTypes.object).isRequired,
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
   sidebarContentPanel: PropTypes.string.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
 };
@@ -87,4 +84,4 @@ class UserCaptions extends Component {
 
 UserCaptions.propTypes = propTypes;
 
-export default UserCaptions;
+export default injectIntl(UserCaptions);

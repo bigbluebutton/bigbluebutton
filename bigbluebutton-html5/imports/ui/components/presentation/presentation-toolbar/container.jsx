@@ -9,8 +9,8 @@ import PresentationToolbar from './component';
 import PresentationToolbarService from './service';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
-
-const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
+import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
+import { isPollingEnabled } from '/imports/ui/services/features';
 
 const PresentationToolbarContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
@@ -20,6 +20,8 @@ const PresentationToolbarContainer = (props) => {
 
   const { layoutSwapped } = props;
 
+  const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
+
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
 
@@ -27,6 +29,9 @@ const PresentationToolbarContainer = (props) => {
       <PresentationToolbar
         {...props}
         amIPresenter={userIsPresenter}
+        {...{
+          handleToggleFullScreen,
+        }}
       />
     );
   }
@@ -54,7 +59,7 @@ export default withTracker((params) => {
     previousSlide: PresentationToolbarService.previousSlide,
     skipToSlide: PresentationToolbarService.skipToSlide,
     isMeteorConnected: Meteor.status().connected,
-    isPollingEnabled: POLLING_ENABLED,
+    isPollingEnabled: isPollingEnabled(),
     currentSlidHasContent: PresentationService.currentSlidHasContent(),
     parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
     startPoll,

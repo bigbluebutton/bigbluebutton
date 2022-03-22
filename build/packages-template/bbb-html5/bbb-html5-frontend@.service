@@ -1,0 +1,29 @@
+[Unit]
+Description=BigBlueButton HTML5 service, frontend instance %i
+Requires=bbb-html5.service
+Before=bbb-html5.service
+BindsTo=bbb-html5.service
+StartLimitBurst=4
+StartLimitInterval=70sec
+StartLimitAction=none
+
+[Service]
+PermissionsStartOnly=true
+#Type=simple
+Type=idle
+EnvironmentFile=/usr/share/meteor/bundle/bbb-html5-with-roles.conf
+ExecStart=/usr/share/meteor/bundle/systemd_start_frontend.sh %i
+WorkingDirectory=/usr/share/meteor/bundle
+StandardOutput=syslog
+StandardError=syslog
+TimeoutStartSec=10
+Restart=on-failure
+RestartSec=10
+User=meteor
+Group=meteor
+CPUSchedulingPolicy=fifo
+Nice=19
+
+[Install]
+WantedBy=bbb-html5.service
+

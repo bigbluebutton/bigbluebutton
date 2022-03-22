@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import ButtonEmoji from '/imports/ui/components/button/button-emoji/ButtonEmoji';
+import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 
 const AudioDropdown = styled(ButtonEmoji)`
   span {

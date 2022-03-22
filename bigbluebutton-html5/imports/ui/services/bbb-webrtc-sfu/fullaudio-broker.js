@@ -3,48 +3,78 @@ import BaseBroker from '/imports/ui/services/bbb-webrtc-sfu/sfu-base-broker';
 
 const ON_ICE_CANDIDATE_MSG = 'iceCandidate';
 const SUBSCRIBER_ANSWER = 'subscriberAnswer';
+const DTMF = 'dtmf';
 
 const SFU_COMPONENT_NAME = 'fullaudio';
 
 class FullAudioBroker extends BaseBroker {
   constructor(
     wsUrl,
-    voiceBridge,
-    userId,
-    internalMeetingId,
     role,
     options = {},
   ) {
     super(SFU_COMPONENT_NAME, wsUrl);
-    this.voiceBridge = voiceBridge;
-    this.userId = userId;
-    this.internalMeetingId = internalMeetingId;
     this.role = role;
     this.offering = true;
 
-    // Optional parameters are: userName, caleeName, iceServers, offering, mediaServer
+    // Optional parameters are: caleeName, iceServers, offering,
+    // mediaServer, extension, constraints
     Object.assign(this, options);
+  }
+
+  getLocalStream() {
+    if (this.webRtcPeer.peerConnection) {
+      return this.webRtcPeer.peerConnection.getLocalStreams()[0];
+    }
+
+    return null;
+  }
+
+  setLocalStream(stream) {
+    if (this.webRtcPeer == null || this.webRtcPeer.peerConnection == null) {
+      throw new Error('Missing peer connection');
+    }
+
+    const { peerConnection } = this.webRtcPeer;
+    const newTracks = stream.getAudioTracks();
+    const localStream = this.getLocalStream();
+    const oldTracks = localStream ? localStream.getAudioTracks() : [];
+
+    peerConnection.getSenders().forEach((sender, index) => {
+      if (sender.track && sender.track.kind === 'audio') {
+        const newTrack = newTracks[index];
+        if (newTrack == null) return;
+
+        // Cleanup old tracks in the local MediaStream
+        const oldTrack = oldTracks[index];
+        sender.replaceTrack(newTrack);
+        if (oldTrack) {
+          oldTrack.stop();
+          localStream.removeTrack(oldTrack);
+        }
+        localStream.addTrack(newTrack);
+      }
+    });
+
+    return Promise.resolve();
   }
 
   joinAudio() {
     return new Promise((resolve, reject) => {
       const options = {
         mediaConstraints: {
-          audio: true,
+          audio: this.constraints ? this.constraints : true,
           video: false,
         },
+        configuration: this.populatePeerConfiguration(),
         onicecandidate: (candidate) => {
           this.onIceCandidate(candidate, this.role);
         },
       };
 
-      this.addIceServers(options);
-
       const WebRTCPeer = (this.role === 'sendrecv')
         ? kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv
         : kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
-
-      window.kurento = kurentoUtils.WebRtcPeer;
 
       this.webRtcPeer = WebRTCPeer(options, (error) => {
         if (error) {
@@ -135,7 +165,6 @@ class FullAudioBroker extends BaseBroker {
       id: SUBSCRIBER_ANSWER,
       type: this.sfuComponent,
       role: this.role,
-      voiceBridge: this.voiceBridge,
       sdpOffer: localDescription,
     };
 
@@ -155,13 +184,10 @@ class FullAudioBroker extends BaseBroker {
       id: 'start',
       type: this.sfuComponent,
       role: this.role,
-      internalMeetingId: this.internalMeetingId,
-      voiceBridge: this.voiceBridge,
       caleeName: this.caleeName,
-      userId: this.userId,
-      userName: this.userName,
       sdpOffer: offer,
       mediaServer: this.mediaServer,
+      extension: this.extension,
     };
 
     logger.debug({
@@ -188,12 +214,21 @@ class FullAudioBroker extends BaseBroker {
     this.sendStartReq(sdpOffer);
   }
 
+  dtmf (tones) {
+    const message = {
+      id: DTMF,
+      type: this.sfuComponent,
+      tones,
+    };
+
+    this.sendMessage(message);
+  }
+
   onIceCandidate (candidate, role) {
     const message = {
       id: ON_ICE_CANDIDATE_MSG,
       role,
       type: this.sfuComponent,
-      voiceBridge: this.voiceBridge,
       candidate,
     };
 

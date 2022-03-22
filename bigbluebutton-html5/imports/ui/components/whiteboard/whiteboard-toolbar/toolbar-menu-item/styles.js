@@ -16,7 +16,7 @@ import {
   toolbarListBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { toolbarButtonFontSize } from '/imports/ui/stylesheets/styled-components/typography';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const ButtonWrapper = styled.div`
   width: ${toolbarButtonWidth};

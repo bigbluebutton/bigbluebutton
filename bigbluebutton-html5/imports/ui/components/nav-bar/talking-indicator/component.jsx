@@ -44,8 +44,6 @@ class TalkingIndicator extends PureComponent {
       intl,
       talkers,
       amIModerator,
-      sidebarNavigationIsOpen,
-      sidebarContentIsOpen,
       moreThanMaxIndicators,
     } = this.props;
     if (!talkers) return null;
@@ -70,7 +68,6 @@ class TalkingIndicator extends PureComponent {
         <Styled.TalkingIndicatorButton
           spoke={!talking}
           muted={muted}
-          mobileHide={sidebarNavigationIsOpen && sidebarContentIsOpen}
           isViewer={!amIModerator}
           key={_.uniqueId(`${callerName}-`)}
           onClick={() => this.handleMuteUser(id)}
@@ -114,7 +111,6 @@ class TalkingIndicator extends PureComponent {
         <Styled.TalkingIndicatorButton
           spoke={nobodyTalking}
           muted={false}
-          mobileHide={sidebarNavigationIsOpen && sidebarContentIsOpen}
           isViewer={false}
           key={_.uniqueId('_has__More_')}
           onClick={() => {}} // maybe add a dropdown to show the rest of the users
@@ -133,7 +129,7 @@ class TalkingIndicator extends PureComponent {
     };
 
     return (
-      <Styled.IsTalkingWrapper>
+      <Styled.IsTalkingWrapper data-test="talkingIndicator">
         <Styled.Speaking>
           {talkingUserElements}
           {maxIndicator()}

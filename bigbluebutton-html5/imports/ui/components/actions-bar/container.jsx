@@ -14,6 +14,7 @@ import ExternalVideoService from '/imports/ui/components/external-video-player/s
 import CaptionsService from '/imports/ui/components/captions/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
+import { isExternalVideoEnabled, isPollingEnabled } from '/imports/ui/services/features';
 
 import MediaService, {
   getSwapLayout,
@@ -45,7 +46,6 @@ const ActionsBarContainer = (props) => {
   );
 };
 
-const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
 const PRESENTATION_DISABLED = Meteor.settings.public.layout.hidePresentation;
 const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabled;
 const RAISE_HAND_BUTTON_ENABLED = Meteor.settings.public.app.raiseHandActionButton.enabled;
@@ -64,13 +64,13 @@ export default withTracker(() => ({
   hasScreenshare: isVideoBroadcasting(),
   isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
   isMeteorConnected: Meteor.status().connected,
-  isPollingEnabled: POLLING_ENABLED,
+  isPollingEnabled: isPollingEnabled(),
   isPresentationDisabled: PRESENTATION_DISABLED,
   isSelectRandomUserEnabled: SELECT_RANDOM_USER_ENABLED,
   isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
   isOldMinimizeButtonEnabled: OLD_MINIMIZE_BUTTON_ENABLED,
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
-  allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
+  allowExternalVideo: isExternalVideoEnabled(),
   setEmojiStatus: UserListService.setEmojiStatus,
 }))(injectIntl(ActionsBarContainer));

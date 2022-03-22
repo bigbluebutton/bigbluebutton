@@ -1,77 +1,132 @@
 README
 
-This instructions below are for testing by running scripts manually:
+These instructions below are for testing by running scripts manually:
 
 1. Create some temp scratch dirs:
-    mkdir -p ~/temp/log/presentation ~/temp/recording/{process,publish,raw} ~/temp/recording/status/{recorded,archived,processed,sanity} ~/temp/published
 
-2. Edit core/scripts/bigbluebutton.yml and comment out the PRODUCTION dirs while uncommenting the DEVELOPMENT dir. The dir should match what you created above.
+mkdir -p ~/temp/log/presentation ~/temp/recording/{process,publish,raw} ~/temp/recording/status/{recorded,archived,processed,sanity} ~/temp/published
 
-raw_audio_src: /var/freeswitch/meetings
-raw_video_src: /usr/share/red5/webapps/video/streams
-raw_deskshare_src: /var/bigbluebutton/deskshare
-raw_presentation_src: /var/bigbluebutton
-redis_host: 127.0.0.1
-redis_port: 6379
-
+2. Edit ~/dev/bigbluebutton/record-and-playback/core/scripts/bigbluebutton.yml and comment the PRODUCTION directories while uncommenting the DEVELOPMENT folders.
+The path should match the ones created above.
 
 # For PRODUCTION
-log_dir: /var/log/bigbluebutton
-recording_dir: /var/bigbluebutton/recording
-published_dir: /var/bigbluebutton/published
-playback_host: 10.0.3.203
+# log_dir: /var/log/bigbluebutton
+events_dir: /var/bigbluebutton/events
+# recording_dir: /var/bigbluebutton/recording
+# published_dir: /var/bigbluebutton/published
+captions_dir: /var/bigbluebutton/captions
+# playback_host: develop.distancelearning.cloud
+playback_protocol: https
 
 # For DEVELOPMENT
 # This allows us to run the scripts manually
-#scripts_dir: /home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts
-#log_dir: /home/ubuntu/temp/log
-#recording_dir: /home/ubuntu/temp/recording
-#published_dir: /home/ubuntu/temp/published
-#playback_host: 192.168.22.137
+scripts_dir: /home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts
+log_dir: /home/ubuntu/temp/log
+recording_dir: /home/ubuntu/temp/recording
+published_dir: /home/ubuntu/temp/published
+playback_host: 127.0.0.1
 
-3. Create a recording using BigBlueButton. After logging out, it should have created a <meeting-id>.done file in
-   /var/bigbluebutton/recording/status/recorded dir. Make note of this meeting-id as we use that to tell the script
+3. Stop the recording service:
+
+   systemctl stop bbb-rap-starter
+   systemctl stop bbb-rap-resque-worker
+
+4. Create a recording using BigBlueButton. After logging out, it should have created a <meeting-id>.done file in the
+   /var/bigbluebutton/recording/status/recorded directory. Make note of this meeting-id as we use that to tell the script
    which recording to process.
 
-4. Before running the scripts, we have to make sure our scripts have the PATHs setup correctly.
-   Edit presentation/scripts/process/presentation.rb, presentation/scripts/publish/presentation.rb, presentation/scripts/presentation.yml and uncomment the DEVELOPMENT PATH while
-   commenting the PRODUCTION PATH. We need to do this so the script will be able to find the
-   core library.
+5. Before running the scripts, we have to make sure our scripts have the paths set up correctly.
+   In your development environment (~/dev/bigbluebutton/record-and-playback), edit
 
-5. Now we run the archive step. Go to record-and-playback/core/scripts dir and type
-     ruby archive/archive.rb -m <meeting-id>
+   - /core/scripts/archive/archive.rb
+   - /core/scripts/sanity/sanity.rb
+   - presentation/scripts/process/presentation.rb
+   - presentation/scripts/publish/presentation.rb
+   - presentation/scripts/presentation.yml
 
-6. If everything goes well, you should have the raw files in ~/temp/recording/raw/<meeting-id>
-   You can also check the logs at ~/temp/log/archive-<meeting-id>.log
+   and ensure the scripts are using the DEVELOPMENT PATH. We need to do this so the script will be able to find the core library.
 
-   You should also have an entry in ~/temp/recording/status/archived dir
+   # For DEVELOPMENT
+   # Allows us to run the script manually
+   require File.expand_path('../../../../core/lib/recordandplayback', __FILE__)
 
-7. Then we need to do a sanity check if the raw recordings are complete. Type
-     ruby sanity/sanity.rb -m <meeting-id>
+   # For PRODUCTION
+   # require File.expand_path('../../../lib/recordandplayback', __FILE__)
 
-   Check the log in ~/temp/log/sanity.log
+   # For PRODUCTION
+   # publish_dir: /var/bigbluebutton/published/presentation
+   video_formats:
+   - webm
+   # - mp4
 
-   You should also have an entry in ~/temp/recording/status/sanity dir
+   # For DEVELOPMENT
+   publish_dir: /home/ubuntu/temp/published/presentation
+
+6. Now we run the archive step. Go to record-and-playback/core/scripts and type
+   
+   ruby archive/archive.rb -m <meeting-id>
+
+   If everything went well, you should now have the raw files in ~/temp/recording/raw/<meeting-id>.
+   You can also check the logs at ~/temp/log/archive-<meeting-id>.log, and have a .done entry in ~/temp/recording/status/archived.
+
+7. Now we need to do a sanity check to ensure the raw recordings are complete. Again in the scripts folder, type
+
+   ruby sanity/sanity.rb -m <meeting-id>
+
+   Confirm everything went as intended by checking the logs at ~/temp/log/sanity.log and
+   that a .done entry in ~/temp/recording/status/sanity exists.
 
 8. Assuming the recording passed the sanity check, it's time to process the recording.
-     cd record-and-playback/presentation/scripts
-     ruby process/presentation.rb -m <meeting-id>
 
-     You can monitor the progress by tailing the log at ~/temp/log/presentation/process-<meeting-id>.log
+   Set the path of the captions generation script by changing the line
 
-9. Assuming that everything goes well. We can now run the publish script. However, we need to cheat a little bit.
-   The publish script will be looking for a "processing_time" file which contains information on how long the
-   processing took. Unfortunately, that file is created by the rap-worker.rb script which we don't run.
+   ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', target_dir)
 
-   So we create that file manually at 
-    vi  ~/temp/recording/process/presentation/<meeting-d>/processing_time
+   to
+
+   ret = BigBlueButton.exec_ret('/home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts/utils/gen_webvtt', '-i', raw_archive_dir, '-o', target_dir)
+
+   Now, you can run the presentation processing script:
+
+   cd ~/dev/bigbluebutton/record-and-playback/presentation/scripts
+   ruby process/presentation.rb -m <meeting-id>
+
+   You can monitor the progress by tailing the log at ~/temp/log/presentation/process-<meeting-id>.log.
+
+   Note that each time one of the scripts fails, the corresponding directories for the recording at
+
+   ~/temp/recording/process/presentation and ~/temp/recording/publish/presentation
+
+   need to be deleted before executing them again.
+
+9. If everything went well, we can now run the publish script. However, we need to cheat a little bit.
+
+   The publish script will be looking for a 'processing_time' file which contains information on how long the
+   processing took. Unfortunately, that file is created by the 'rap-worker.rb', a script which we don't run.
+
+   Manually create the file at
+
+      vi ~/temp/recording/process/presentation/<meeting-d>/processing_time
 
    Enter any number (e.g. 46843) and save the file.
 
-10. Now run the publish script
-      ruby publish/presentation.rb -m <meeting-id>-presentation
+   Once again, the path to the poll generation utility needs to be updated:
+   
+   Change
 
-    Notice we appended "presentation" to the meeting-id, this will tell the script to publish using the "presentation" format.
+   ret = BigBlueButton.exec_ret('utils/gen_poll_svg', ...)
 
+   to
 
+   ret = BigBlueButton.exec_ret('/home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts/utils/gen_webvtt', ...)
 
+   Finally, run the publish script:
+
+   ruby publish/presentation.rb -m <meeting-id>-presentation
+
+   Notice we appended "presentation" to the meetingId, this will tell the script to publish using the "presentation" format.
+
+9. Deploy your changes with deploy.sh and restarting the recording-related services:
+   
+   systemctl restart bbb-rap-starter
+   systemctl restart bbb-rap-resque-worker

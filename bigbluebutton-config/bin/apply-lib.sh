@@ -19,8 +19,6 @@ fi
 
 if [ -f /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties ]; then
   SERVLET_DIR=/usr/share/bbb-web
-else
-  SERVLET_DIR=/var/lib/tomcat7/webapps/bigbluebutton
 fi
 
 BBB_WEB_ETC_CONFIG=/etc/bigbluebutton/bbb-web.properties
@@ -50,7 +48,7 @@ enableHTML5ClientLog() {
   yq w -i $HTML5_CONFIG public.app.askForFeedbackOnLogout true
   chown meteor:meteor $HTML5_CONFIG
 
-  cat > /etc/bigbluebutton/nginx/html5-client-log.nginx << HERE
+  cat > /usr/share/bigbluebutton/nginx/html5-client-log.nginx << HERE
 location /html5log {
         access_log /var/log/nginx/html5-client.log postdata;
         echo_read_request_body;
@@ -105,7 +103,7 @@ enableUFWRules() {
 
 
 enableMultipleKurentos() {
-  echo "  - Configuring three Kurento Media Servers (listen only, webcam, and screeshare)"
+  echo "  - Configuring three Kurento Media Servers (listen only, webcam, and screenshare)"
 
   # Step 1.  Setup shared certificate between FreeSWITCH and Kurento
 

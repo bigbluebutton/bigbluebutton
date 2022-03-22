@@ -3,7 +3,11 @@ import {
   borderRadius,
   lgPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
-import { colorWhite, colorText } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorWhite,
+  colorText,
+  colorBackground,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeLarge,
   headingsFontWeight,
@@ -12,7 +16,7 @@ import {
   fontSizeBase,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const Parent = styled.div`
   height: 100%;
@@ -20,6 +24,7 @@ const Parent = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: ${colorBackground};
 `;
 
 const Modal = styled.div`
