@@ -28,6 +28,10 @@ const intlDisableMessages = defineMessages({
     id: 'app.userList.userOptions.hideUserList',
     description: 'label to hide user list notification',
   },
+  hideViewersCursor: {
+    id: 'app.userList.userOptions.hideViewersCursor',
+    description: 'label to hide viewer cursors notification',
+  },
   onlyModeratorWebcam: {
     id: 'app.userList.userOptions.webcamsOnlyForModerator',
     description: 'label to disable all webcams except for the moderators cam',
@@ -58,6 +62,10 @@ const intlEnableMessages = defineMessages({
   hideUserList: {
     id: 'app.userList.userOptions.showUserList',
     description: 'label to show user list notification',
+  },
+  hideViewersCursor: {
+    id: 'app.userList.userOptions.showViewersCursor',
+    description: 'label to hide viewer cursors notification',
   },
   onlyModeratorWebcam: {
     id: 'app.userList.userOptions.enableOnlyModeratorWebcam',

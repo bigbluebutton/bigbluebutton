@@ -75,10 +75,6 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.locked',
     description: 'locked element label',
   },
-  unlockedLabel: {
-    id: 'app.lock-viewers.unlocked',
-    description: 'unlocked element label',
-  },
   hideCursorsLabel: {
     id: "app.lock-viewers.hideViewersCursor",
     description: 'label for other viewers cursor',
