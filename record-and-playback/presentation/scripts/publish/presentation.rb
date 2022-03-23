@@ -1236,13 +1236,11 @@ begin
           end
         end
 
-        if File.exist?(presentation_text = "#{@process_dir}/presentation_text.json")
-          FileUtils.cp(presentation_text, package_dir)
-        end
+        presentation_text = "#{@process_dir}/presentation_text.json"
+        FileUtils.cp(presentation_text, package_dir) if File.exist?(presentation_text)
 
-        if File.exist?(notes = "#{@process_dir}/notes/notes.html")
-          FileUtils.cp(notes, package_dir)
-        end
+        notes = "#{@process_dir}/notes/notes.html"
+        FileUtils.cp(notes, package_dir) if File.exist?(notes)
 
         processing_time = File.read("#{@process_dir}/processing_time")
 
