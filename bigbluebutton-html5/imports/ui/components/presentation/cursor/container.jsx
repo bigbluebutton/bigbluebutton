@@ -4,6 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
+import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import CursorService from './service';
 import Cursor from './component';
 
@@ -26,32 +27,23 @@ class CursorContainer extends Component {
   }
 }
 
-export default withTracker((params) => {
-  const { cursorId } = params;
+export default lockContextContainer(withTracker((params) => {
+  const { cursorId, userLocks } = params;
+  const isViewersCursorLocked = userLocks?.hideViewersCursor;
   const cursor = CursorService.getCurrentCursor(cursorId);
-  const meeting = Meetings.findOne(
-    { meetingId: Auth.meetingID },
-    { fields: { 'lockSettingsProps.hideViewersCursor': 1 } },
-  );
   const user = Users.findOne(
     { meetingId: Auth.meetingID, userId: Auth.userID },
     { fields: { role: 1, userId: 1 } },
   );
-
   if (cursor) {
     const {
       xPercent: cursorX, yPercent: cursorY, userName, userId,
     } = cursor;
     const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
-    const cursorOwner = Users.findOne(
-      { meetingId: Auth.meetingID, userId },
-      { fields: { presenter: 1, userId: 1, role: 1 } },
-    );
-    const showCursor = user.role === ROLE_MODERATOR || cursorOwner.presenter
-      || (!cursor.presenter && cursorOwner.userId === user.userId);
-    const hideViewersCursor = meeting?.lockSettingsProps?.hideViewersCursor;
+    const showCursor = user.role === ROLE_MODERATOR || cursor.presenter
+      || (!cursor.presenter && cursor.userId === user.userId);
 
-    if (!hideViewersCursor || (hideViewersCursor && showCursor)) {
+    if (!isViewersCursorLocked || (isViewersCursorLocked && showCursor)) {
       return {
         cursorX,
         cursorY,
@@ -66,7 +58,7 @@ export default withTracker((params) => {
     cursorY: -1,
     userName: '',
   };
-})(CursorContainer);
+})(CursorContainer));
 
 CursorContainer.propTypes = {
   // Defines the 'x' coordinate for the cursor, in percentages of the slide's width
