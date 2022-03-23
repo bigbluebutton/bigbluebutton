@@ -40,7 +40,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: GetRunningMeetingsReqMsg                       => logMessage(msg)
 
       case m: RegisterUserReqMsg                             => logMessage(msg)
-      case m: RegisteredUserJoinTimeoutMsg                   => logMessage(msg)
       case m: UserRegisteredRespMsg                          => logMessage(msg)
       case m: DisconnectAllClientsSysMsg                     => logMessage(msg)
       case m: DisconnectClientSysMsg                         => logMessage(msg)

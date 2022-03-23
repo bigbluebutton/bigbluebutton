@@ -23,7 +23,7 @@ class FullAudioBroker extends BaseBroker {
   }
 
   getLocalStream() {
-    if (this.webRtcPeer.peerConnection) {
+    if (this.webRtcPeer && this.webRtcPeer.peerConnection) {
       return this.webRtcPeer.peerConnection.getLocalStreams()[0];
     }
 

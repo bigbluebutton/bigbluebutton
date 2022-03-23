@@ -958,7 +958,6 @@ class ApiController {
             avatarURL us.avatarURL
             if (meeting.breakoutRoomsParams != null) {
               breakoutRooms {
-                enabled meeting.breakoutRoomsParams.enabled
                 record meeting.breakoutRoomsParams.record
                 privateChatEnabled meeting.breakoutRoomsParams.privateChatEnabled
               }
