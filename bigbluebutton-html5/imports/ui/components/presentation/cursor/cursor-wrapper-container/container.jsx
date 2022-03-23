@@ -14,9 +14,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
+import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import CursorWrapperService from './service';
 import CursorContainer from '../container';
-import WhiteboardService from '/imports/ui/components/whiteboard/service';
 
 const CursorWrapperContainer = ({ presenterCursorId, multiUserCursorIds, ...rest }) => (
   <g>
@@ -30,8 +30,7 @@ const CursorWrapperContainer = ({ presenterCursorId, multiUserCursorIds, ...rest
         />
       )
       : null }
-
-    {multiUserCursorIds.map(cursorId => (
+    {multiUserCursorIds.map((cursorId) => (
       <CursorContainer
         key={cursorId._id}
         cursorId={cursorId._id}
@@ -46,7 +45,6 @@ export default withTracker((params) => {
   const { podId, whiteboardId } = params;
   const cursorIds = CursorWrapperService.getCurrentCursorIds(podId, whiteboardId);
   const { presenterCursorId, multiUserCursorIds } = cursorIds;
-
   const isMultiUser = WhiteboardService.isMultiUserActive(whiteboardId);
 
   return {
@@ -55,7 +53,6 @@ export default withTracker((params) => {
     isMultiUser,
   };
 })(CursorWrapperContainer);
-
 
 CursorWrapperContainer.propTypes = {
   // Defines the object which contains the id of the presenter's cursor
