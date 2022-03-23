@@ -337,6 +337,7 @@ const isMeetingLocked = (id) => {
       || lockSettings.disablePublicChat
       || lockSettings.disableNotes
       || lockSettings.hideUserList
+      || lockSettings.hideViewrsCursor
       || usersProp.webcamsOnlyForModerator) {
       isLocked = true;
     }
