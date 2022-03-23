@@ -130,12 +130,9 @@ class LockViewersComponent extends Component {
 
   displayLockStatus(status) {
     const { intl } = this.props;
-
     return (
-      <Styled.ToggleLabel>
-        {status ? intl.formatMessage(intlMessages.lockedLabel)
-          : intl.formatMessage(intlMessages.unlockedLabel)
-        }
+      status && <Styled.ToggleLabel>
+        {intl.formatMessage(intlMessages.lockedLabel)}
       </Styled.ToggleLabel>
     );
   }
