@@ -79,7 +79,7 @@ sudo systemctl daemon-reload
 
 echo 'before stopping bbb-html5:'
 ps -ef | grep node-
-sudo netstat -netlp | grep -i node
+sudo ss -netlp | grep -i node
 echo 'before stopping bbb-html5:'
 echo '_____________'
 
@@ -88,7 +88,7 @@ sudo systemctl stop bbb-html5
 sleep 5s
 echo 'after stopping bbb-html5:'
 ps -ef | grep node-
-sudo netstat -netlp | grep -i node
+sudo ss -netlp | grep -i node
 echo 'after stopping bbb-html5:'
 echo '_____________'
 
@@ -97,6 +97,6 @@ sudo systemctl start bbb-html5
 sleep 10s
 echo 'after:...'
 ps -ef | grep node-
-sudo netstat -netlp | grep -i node
+sudo ss -netlp | grep -i node
 echo 'after:'
 echo '_____________'

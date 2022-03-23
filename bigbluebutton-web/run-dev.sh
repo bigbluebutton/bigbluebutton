@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-IS_BBB_WEB_RUNNING=`netstat -an | grep LISTEN | grep 8090 > /dev/null && echo 1 || echo 0`
+IS_BBB_WEB_RUNNING=`ss -an | grep LISTEN | grep 8090 > /dev/null && echo 1 || echo 0`
 
 if [ "$IS_BBB_WEB_RUNNING" = "1" ]; then
 	echo "bbb-web is running, exiting"
