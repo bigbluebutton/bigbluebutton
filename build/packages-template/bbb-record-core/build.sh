@@ -7,6 +7,9 @@ PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 VERSION=$(echo $TARGET | cut -d'_' -f2)
 DISTRO=$(echo $TARGET | cut -d'_' -f3)
 
+# required by systemd gem
+apt install libsystemd-dev
+
 #
 # Clean up directories
 rm -rf staging
@@ -27,11 +30,11 @@ done
 mkdir -p staging/var/log/bigbluebutton
 cp -r scripts lib Gemfile Gemfile.lock  staging/usr/local/bigbluebutton/core
 
-if [ "$DISTRO" == "focal" ]; then
-  cp Rakefile  staging/usr/local/bigbluebutton/core
-fi
+pushd staging/usr/local/bigbluebutton/core
+bundle2.7 install --path vendor/bundle
+popd
 
-
+cp Rakefile  staging/usr/local/bigbluebutton/core
 cp bbb-record-core.logrotate staging/etc/logrotate.d
 
 mkdir -p staging/usr/lib/systemd/system

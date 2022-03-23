@@ -5,8 +5,8 @@ After=redis.service
 
 [Service]
 Type=simple
-ExecStart=/bin/sh -c '/usr/bin/rake -f ../Rakefile resque:workers >> /var/log/bigbluebutton/bbb-rap-worker.log'
-WorkingDirectory=/usr/local/bigbluebutton/core/scripts
+ExecStart=bundle exec rake -f Rakefile resque:workers
+WorkingDirectory=/usr/local/bigbluebutton/core
 Environment=QUEUE=rap:archive,rap:publish,rap:process,rap:sanity,rap:captions,rap:events
 Environment=COUNT=1
 # Environment=VVERBOSE=1
