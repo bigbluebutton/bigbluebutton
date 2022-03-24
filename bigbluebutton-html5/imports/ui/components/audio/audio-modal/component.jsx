@@ -12,6 +12,7 @@ import Help from '../help/component';
 import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
 import Settings from '/imports/ui/services/settings';
+import CaptionsCheckContainer from '/imports/ui/components/audio/captions/check/container';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -464,6 +465,7 @@ class AudioModal extends Component {
             ghost
           />
         ) : null}
+        <CaptionsCheckContainer />
       </div>
     );
   }
