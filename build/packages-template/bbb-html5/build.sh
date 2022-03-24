@@ -21,7 +21,7 @@ if [ -f private/config/settings.yml ]; then
 fi
 
 mkdir -p staging/usr/share/bigbluebutton/nginx
-cp bbb-html5.nginx staging/usr/share/bigbluebutton/nginx
+cp bbb-html5-prod.nginx staging/usr/share/bigbluebutton/nginx/bbb-html5.nginx
 
 mkdir -p staging/etc/nginx/conf.d
 cp bbb-html5-loadbalancer.conf staging/etc/nginx/conf.d

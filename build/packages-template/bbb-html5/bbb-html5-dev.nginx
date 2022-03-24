@@ -1,0 +1,12 @@
+location @html5client {
+  proxy_pass http://127.0.0.1:4100;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "Upgrade";
+}
+
+location /html5client {
+  gzip_static on;
+  alias /usr/share/meteor/bundle/programs/web.browser;
+  try_files $uri @html5client;
+}

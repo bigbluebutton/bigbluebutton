@@ -1,6 +1,5 @@
 location @html5client {
-  # proxy_pass http://127.0.0.1:4100; # use for development
-  proxy_pass http://poolhtml5servers; # use for production
+  proxy_pass http://poolhtml5servers;
   proxy_http_version 1.1;
   proxy_set_header Upgrade $http_upgrade;
   proxy_set_header Connection "Upgrade";
