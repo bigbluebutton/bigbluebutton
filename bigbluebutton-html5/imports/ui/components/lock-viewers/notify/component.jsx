@@ -28,6 +28,10 @@ const intlDisableMessages = defineMessages({
     id: 'app.userList.userOptions.hideUserList',
     description: 'label to hide user list notification',
   },
+  hideViewersCursor: {
+    id: 'app.userList.userOptions.hideViewersCursor',
+    description: 'label to show viewer cursors notification',
+  },
   onlyModeratorWebcam: {
     id: 'app.userList.userOptions.webcamsOnlyForModerator',
     description: 'label to disable all webcams except for the moderators cam',
@@ -59,6 +63,10 @@ const intlEnableMessages = defineMessages({
     id: 'app.userList.userOptions.showUserList',
     description: 'label to show user list notification',
   },
+  hideViewersCursor: {
+    id: 'app.userList.userOptions.showViewersCursor',
+    description: 'label to hide viewer cursors notification',
+  },
   onlyModeratorWebcam: {
     id: 'app.userList.userOptions.enableOnlyModeratorWebcam',
     description: 'label to enable all webcams except for the moderators cam',
@@ -88,11 +96,11 @@ class LockViewersNotifyComponent extends Component {
       const rejectedKeys = ['setBy', 'lockedLayout'];
 
       const disabledSettings = Object.keys(lockSettings)
-        .filter(key => prevLockSettings[key] !== lockSettings[key]
+        .filter((key) => prevLockSettings[key] !== lockSettings[key]
           && lockSettings[key]
           && !rejectedKeys.includes(key));
       const enableSettings = Object.keys(lockSettings)
-        .filter(key => prevLockSettings[key] !== lockSettings[key]
+        .filter((key) => prevLockSettings[key] !== lockSettings[key]
           && !lockSettings[key]
           && !rejectedKeys.includes(key));
 

@@ -9,12 +9,19 @@
 # before BigBlueButton starts
 #
 
-
-if LANG=c ifconfig | grep -q 'venet0:0'; then
-  # IP detection for OpenVZ environment
-  IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
+### duplicated code: see deb-helper.sh and bbb-conf
+if [ -e "/sys/class/net/venet0:0" ]; then
+    # IP detection for OpenVZ environment
+    _dev="venet0:0"
 else
-  IP=$(hostname -I | sed 's/ .*//g')
+    _dev=$(awk '$2 == 00000000 { print $1 }' /proc/net/route | head -1)
+fi
+_ips=$(LANG=C ip -4 -br address show dev "$_dev" | awk '{ $1=$2=""; print $0 }')
+_ips=${_ips/127.0.0.1\/8/}
+read -r IP _ <<< "$_ips"
+IP=${IP/\/*} # strip subnet provided by ip address
+if [ -z "$IP" ]; then
+  read -r IP _ <<< "$(hostname -I)"
 fi
 
 if [ -f /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties ]; then

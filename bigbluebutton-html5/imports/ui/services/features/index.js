@@ -47,3 +47,7 @@ export function isBreakoutRoomsEnabled() {
 export function isLayoutsEnabled() {
   return getDisabledFeatures().indexOf('layouts') === -1;
 }
+
+export function isVirtualBackgroundsEnabled() {
+  return getDisabledFeatures().indexOf('virtualBackgrounds') === -1;
+}
