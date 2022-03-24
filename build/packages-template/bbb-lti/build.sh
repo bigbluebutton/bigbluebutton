@@ -56,7 +56,6 @@ chmod +x staging/usr/share/bbb-lti/run-prod.sh
 fpm -s dir -C ./staging -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --after-install after-install.sh        \
-    --after-remove  after-remove.sh        \
     --depends unzip                        \
     --description "BigBlueButton endpoint for LTI" \
     $DIRECTORIES \

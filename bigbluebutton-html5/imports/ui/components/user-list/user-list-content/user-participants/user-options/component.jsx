@@ -12,7 +12,7 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
-import { isLearningDashboardEnabled } from '/imports/ui/services/features';
+import { isBreakoutRoomsEnabled, isLearningDashboardEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -27,7 +27,6 @@ const propTypes = {
   guestPolicy: PropTypes.string.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,
-  isBreakoutEnabled: PropTypes.bool.isRequired,
   isBreakoutRecordable: PropTypes.bool.isRequired,
   dynamicGuestPolicy: PropTypes.bool.isRequired,
 };
@@ -212,7 +211,6 @@ class UserOptions extends PureComponent {
       toggleMuteAllUsersExceptPresenter,
       meetingIsBreakout,
       hasBreakoutRoom,
-      isBreakoutEnabled,
       getUsersNotJoined,
       openLearningDashboardUrl,
       amIModerator,
@@ -224,7 +222,7 @@ class UserOptions extends PureComponent {
     const canCreateBreakout = amIModerator
       && !meetingIsBreakout
       && !hasBreakoutRoom
-      && isBreakoutEnabled;
+      && isBreakoutRoomsEnabled();
 
     const canInviteUsers = amIModerator
       && !meetingIsBreakout

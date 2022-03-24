@@ -42,8 +42,8 @@ const UserListItemContainer = (props) => {
 const isMe = (intId) => intId === Auth.userID;
 
 export default withTracker(({ user }) => {
-  const findUserInBreakout = BreakoutService.getBreakoutUserIsIn(user.userId);
-  const findUserLastBreakout = BreakoutService.getBreakoutUserWasIn(user.userId, null);
+  const findUserInBreakout = user ? BreakoutService.getBreakoutUserIsIn(user.userId) : false;
+  const findUserLastBreakout = user ? BreakoutService.getBreakoutUserWasIn(user.userId, null) : null;
   const breakoutSequence = (findUserInBreakout || {}).sequence;
 
   return {
@@ -52,7 +52,7 @@ export default withTracker(({ user }) => {
     userLastBreakout: findUserLastBreakout,
     breakoutSequence,
     isMeteorConnected: Meteor.status().connected,
-    voiceUser: UserListService.curatedVoiceUser(user.userId),
+    voiceUser: user ? UserListService.curatedVoiceUser(user.userId) : null,
     getEmojiList: UserListService.getEmojiList(),
     getEmoji: UserListService.getEmoji(),
     usersProp: UserListService.getUsersProp(),

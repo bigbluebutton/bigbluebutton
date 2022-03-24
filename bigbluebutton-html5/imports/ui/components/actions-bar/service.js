@@ -60,8 +60,6 @@ export default {
   }).fetch(),
   groups: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { groups: 1 } }).groups,
-  isBreakoutEnabled: () => Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'breakoutProps.enabled': 1 } }).breakoutProps.enabled,
   isBreakoutRecordable: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'breakoutProps.record': 1 } }).breakoutProps.record,
   toggleRecording: () => makeCall('toggleRecording'),
