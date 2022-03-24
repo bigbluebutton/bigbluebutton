@@ -23,10 +23,6 @@ public class ModeratorPasswordValidator implements ConstraintValidator<Moderator
         log.info("Validating password {} for meeting with ID {}",
                 moderatorPassword.getPassword(), moderatorPassword.getMeetingID());
 
-        if(moderatorPassword.getMeetingID() == null) {
-            return false;
-        }
-
         Meeting meeting = ServiceUtils.findMeetingFromMeetingID(moderatorPassword.getMeetingID());
 
         if(meeting == null) {
@@ -35,18 +31,14 @@ public class ModeratorPasswordValidator implements ConstraintValidator<Moderator
 
         String actualPassword = meeting.getModeratorPassword();
         String providedPassword = moderatorPassword.getPassword();
+        if (providedPassword != null && !providedPassword.isEmpty()){
+            log.info("Actual password: {}", actualPassword);
+            log.info("Provided password: {}", providedPassword);
 
-        if(providedPassword == null) {
-            return false;
+            if (actualPassword != null && !actualPassword.isEmpty() && !providedPassword.equals(actualPassword)) {
+                return false;
+            }
         }
-
-        log.info("Actual password: {}", actualPassword);
-        log.info("Provided password: {}", providedPassword);
-
-        if(!providedPassword.equals(actualPassword)) {
-            return false;
-        }
-
         return true;
     }
 }

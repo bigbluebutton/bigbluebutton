@@ -264,14 +264,40 @@ class ApiController {
 
     // Now determine if this user is a moderator or a viewer.
     String role = null;
-    if (meeting.getModeratorPassword().equals(attPW)) {
-      role = Meeting.ROLE_MODERATOR
-    } else if (meeting.getViewerPassword().equals(attPW)) {
-      role = Meeting.ROLE_ATTENDEE
+    if (attPW != null && !attPW.isEmpty()){
+      if ((meeting.getModeratorPassword() != null && !meeting.getModeratorPassword().isEmpty())
+          && (meeting.getViewerPassword() != null && !meeting.getViewerPassword().isEmpty())){
+        if (meeting.getModeratorPassword().equals(attPW)) {
+          role = Meeting.ROLE_MODERATOR
+        } else if (meeting.getViewerPassword().equals(attPW)) {
+          role = Meeting.ROLE_ATTENDEE
+        }
+      } else if (StringUtils.isEmpty(params.role)){
+        log.debug("This meeting doesn't have any password");
+        response.addHeader("Cache-Control", "no-cache")
+        withFormat {
+          xml {
+            render(text: responseBuilder.buildError("Params required", "You must send the 'role' parameter, since " +
+                    "this meeting doesn't have any password.", RESP_CODE_FAILED), contentType: "text/xml")
+          }
+        }
+        return
+      }
     }
 
     if (!StringUtils.isEmpty(params.role) && roles.containsKey(params.role.toLowerCase())) {
         role = roles.get(params.role.toLowerCase());
+    } else if (attPW == null){
+      log.info("You must either send the valid role of the user, or " +
+              "the password, sould the meeting has one");
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        xml {
+          render(text: responseBuilder.buildError("Params required", "You must either send the valid role of the user, or " +
+                  "the password, sould the meeting has one", RESP_CODE_FAILED), contentType: "text/xml")
+        }
+      }
+      return
     }
 
     // We preprend "w_" to our internal meeting Id to indicate that this is a web user.
