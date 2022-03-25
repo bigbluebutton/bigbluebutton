@@ -169,7 +169,7 @@ const uploadAndConvertPresentation = (
   data.append('fileUpload', file);
   data.append('conference', meetingId);
   data.append('room', meetingId);
-  data.append('temporaryPresentationId', tmpPresId)
+  data.append('temporaryPresentationId', tmpPresId);
 
   // TODO: Currently the uploader is not related to a POD so the id is fixed to the default
   data.append('pod_id', podId);

@@ -73,17 +73,8 @@ public final class UploadedPresentation {
                               String authzToken,
                               Boolean uploadFailed,
                               ArrayList<String> uploadFailReason) {
-    this.podId = podId;
-    this.meetingId = meetingId;
-    this.id = id;
-    this.temporaryPresentationId = "";
-    this.name = name;
-    this.baseUrl = baseUrl;
-    this.isDownloadable = false;
-    this.current = current;
-    this.authzToken = authzToken;
-    this.uploadFailed = uploadFailed;
-    this.uploadFailReason = uploadFailReason;
+    this(podId, meetingId, id, "", name, baseUrl,
+            current, authzToken, uploadFailed, uploadFailReason);
   }
 
   public File getUploadedFile() {

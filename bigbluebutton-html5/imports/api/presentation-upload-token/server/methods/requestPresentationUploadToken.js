@@ -15,7 +15,7 @@ export default function requestPresentationUploadToken(podId, filename, tmpPresI
     check(requesterUserId, String);
     check(podId, String);
     check(filename, String);
-    check(tmpPresId, String)
+    check(tmpPresId, String);
 
     const payload = {
       podId,
