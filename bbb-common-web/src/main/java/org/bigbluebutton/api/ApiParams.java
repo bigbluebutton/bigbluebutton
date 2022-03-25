@@ -84,6 +84,7 @@ public class ApiParams {
     public static final String LOCK_SETTINGS_LOCKED_LAYOUT = "lockSettingsLockedLayout";
     public static final String LOCK_SETTINGS_LOCK_ON_JOIN = "lockSettingsLockOnJoin";
     public static final String LOCK_SETTINGS_LOCK_ON_JOIN_CONFIGURABLE = "lockSettingsLockOnJoinConfigurable";
+    public static final String LOCK_SETTINGS_HIDE_VIEWERS_CURSOR = "lockSettingsHideViewersCursor";
 
     // New param passed on create call to callback when meeting ends.
     // This is a duplicate of the endCallbackUrl meta param as we want this

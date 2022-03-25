@@ -101,7 +101,7 @@ public class ParamsProcessorUtil {
     private Boolean useDefaultLogo;
     private String defaultLogoURL;
 
-		private boolean defaultBreakoutRoomsEnabled;
+		private boolean defaultBreakoutRoomsEnabled = true;
 		private boolean defaultBreakoutRoomsRecord;
 		private boolean defaultbreakoutRoomsPrivateChatEnabled;
 
@@ -114,6 +114,7 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsLockedLayout;
 		private boolean defaultLockSettingsLockOnJoin;
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
+		private boolean defaultLockSettingsHideViewersCursor;
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
@@ -259,12 +260,6 @@ public class ParamsProcessorUtil {
     }
 
 		private BreakoutRoomsParams processBreakoutRoomsParams(Map<String, String> params) {
-			Boolean breakoutRoomsEnabled = defaultBreakoutRoomsEnabled;
-			String breakoutRoomsEnabledParam = params.get(ApiParams.BREAKOUT_ROOMS_ENABLED);
-			if (!StringUtils.isEmpty(breakoutRoomsEnabledParam)) {
-				breakoutRoomsEnabled = Boolean.parseBoolean(breakoutRoomsEnabledParam);
-			}
-
 			Boolean breakoutRoomsRecord = defaultBreakoutRoomsRecord;
 			String breakoutRoomsRecordParam = params.get(ApiParams.BREAKOUT_ROOMS_RECORD);
 			if (!StringUtils.isEmpty(breakoutRoomsRecordParam)) {
@@ -277,9 +272,7 @@ public class ParamsProcessorUtil {
 				breakoutRoomsPrivateChatEnabled = Boolean.parseBoolean(breakoutRoomsPrivateChatEnabledParam);
 			}
 
-			return new BreakoutRoomsParams(breakoutRoomsEnabled,
-							breakoutRoomsRecord,
-							breakoutRoomsPrivateChatEnabled);
+			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled);
 		}
 
 		private LockSettingsParams processLockSettingsParams(Map<String, String> params) {
@@ -344,6 +337,12 @@ public class ParamsProcessorUtil {
 				lockSettingsLockOnJoinConfigurable = Boolean.parseBoolean(lockSettingsLockOnJoinConfigurableParam);
 			}
 
+			Boolean lockSettingsHideViewersCursor = defaultLockSettingsHideViewersCursor;
+			String lockSettingsHideViewersCursorParam = params.get(ApiParams.LOCK_SETTINGS_HIDE_VIEWERS_CURSOR);
+			if (!StringUtils.isEmpty(lockSettingsHideViewersCursorParam)) {
+                lockSettingsHideViewersCursor = Boolean.parseBoolean(lockSettingsHideViewersCursorParam);
+			}
+
 			return new LockSettingsParams(lockSettingsDisableCam,
 							lockSettingsDisableMic,
 							lockSettingsDisablePrivateChat,
@@ -352,7 +351,8 @@ public class ParamsProcessorUtil {
 							lockSettingsHideUserList,
 							lockSettingsLockedLayout,
 							lockSettingsLockOnJoin,
-							lockSettingsLockOnJoinConfigurable);
+							lockSettingsLockOnJoinConfigurable,
+                            lockSettingsHideViewersCursor);
 		}
 
     private ArrayList<Group> processGroupsParams(Map<String, String> params) {
@@ -474,12 +474,6 @@ public class ParamsProcessorUtil {
             }
         }
 
-        // Check if VirtualBackgrounds is disabled
-        boolean virtualBackgroundsDisabled = false;
-        if (!StringUtils.isEmpty(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED))) {
-            virtualBackgroundsDisabled = Boolean.valueOf(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED));
-        }
-
         // Check Disabled Features
         ArrayList<String> listOfDisabledFeatures=new ArrayList(Arrays.asList(defaultDisabledFeatures.split(",")));
         if (!StringUtils.isEmpty(params.get(ApiParams.DISABLED_FEATURES))) {
@@ -489,6 +483,15 @@ public class ParamsProcessorUtil {
         listOfDisabledFeatures.removeAll(Arrays.asList("", null));
         listOfDisabledFeatures.replaceAll(String::trim);
         listOfDisabledFeatures = new ArrayList<>(new HashSet<>(listOfDisabledFeatures));
+
+        // Check if VirtualBackgrounds is disabled
+        if (!StringUtils.isEmpty(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED))) {
+            boolean virtualBackgroundsDisabled = Boolean.valueOf(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED));
+            if(virtualBackgroundsDisabled == true && !listOfDisabledFeatures.contains("virtualBackgrounds")) {
+                log.warn("[DEPRECATION] use disabledFeatures=virtualBackgrounds instead of virtualBackgroundsDisabled=true");
+                listOfDisabledFeatures.add("virtualBackgrounds");
+            }
+        }
 
         boolean learningDashboardEn = learningDashboardEnabled;
         if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED))) {
@@ -594,6 +597,16 @@ public class ParamsProcessorUtil {
             meetingLayout = params.get(ApiParams.MEETING_LAYOUT);
         }
 
+        Boolean breakoutRoomsEnabled = defaultBreakoutRoomsEnabled;
+        String breakoutRoomsEnabledParam = params.get(ApiParams.BREAKOUT_ROOMS_ENABLED);
+        if (!StringUtils.isEmpty(breakoutRoomsEnabledParam)) {
+            breakoutRoomsEnabled = Boolean.parseBoolean(breakoutRoomsEnabledParam);
+        }
+        if(breakoutRoomsEnabled == false && !listOfDisabledFeatures.contains("breakoutRooms")) {
+            log.warn("[DEPRECATION] use disabledFeatures=breakoutRooms instead of breakoutRoomsEnabled=false");
+            listOfDisabledFeatures.add("breakoutRooms");
+        }
+
         BreakoutRoomsParams breakoutParams = processBreakoutRoomsParams(params);
         LockSettingsParams lockSettingsParams = processLockSettingsParams(params);
 
@@ -656,7 +669,6 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
-                .withVirtualBackgroundsDisabled(virtualBackgroundsDisabled)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
                 .build();
@@ -1301,6 +1313,10 @@ public class ParamsProcessorUtil {
 
 	public void setLockSettingsLockOnJoinConfigurable(Boolean lockSettingsLockOnJoinConfigurable) {
 		this.defaultLockSettingsLockOnJoinConfigurable = lockSettingsLockOnJoinConfigurable;
+	}
+
+	public void setLockSettingsHideViewersCursor(Boolean lockSettingsHideViewersCursor) {
+		this.defaultLockSettingsHideViewersCursor = lockSettingsHideViewersCursor;
 	}
 
 	public void setAllowDuplicateExtUserid(Boolean allow) {

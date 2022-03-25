@@ -54,6 +54,7 @@ class ModalSimple extends Component {
       onRequestClose,
       shouldShowCloseButton,
       contentLabel,
+      'data-test': dataTest,
       ...otherProps
     } = this.props;
 
@@ -78,6 +79,9 @@ class ModalSimple extends Component {
         className={className}
         onRequestClose={handleRequestClose}
         contentLabel={title || contentLabel}
+        data={{
+          test: dataTest ?? null
+        }}
         {...otherProps}
       >
         {shouldShowCloseButton || title ? (

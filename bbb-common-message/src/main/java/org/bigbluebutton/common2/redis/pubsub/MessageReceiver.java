@@ -5,7 +5,7 @@ import java.util.concurrent.Executors;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.bigbluebutton.common2.redis.RedisAwareCommunicator;
-import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 import io.lettuce.core.ClientOptions;
@@ -18,7 +18,7 @@ import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands;
 import io.lettuce.core.support.ConnectionPoolSupport;
 
 public class MessageReceiver extends RedisAwareCommunicator {
-    private static Logger log = Red5LoggerFactory.getLogger(MessageReceiver.class, "video");
+    private static Logger log = LoggerFactory.getLogger(MessageReceiver.class);
 
     private ReceivedMessageHandler handler;
 

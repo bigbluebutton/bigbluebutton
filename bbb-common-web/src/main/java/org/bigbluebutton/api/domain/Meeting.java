@@ -53,7 +53,6 @@ public class Meeting {
 	private String viewerPass;
 	private int learningDashboardCleanupDelayInMinutes;
 	private String learningDashboardAccessToken;
-	private Boolean virtualBackgroundsDisabled;
 	private ArrayList<String> disabledFeatures;
 	private Boolean notifyRecordingIsOn;
 	private String welcomeMsgTemplate;
@@ -119,7 +118,6 @@ public class Meeting {
         intMeetingId = builder.internalId;
         viewerPass = builder.viewerPass;
         moderatorPass = builder.moderatorPass;
-		virtualBackgroundsDisabled = builder.virtualBackgroundsDisabled;
 		disabledFeatures = builder.disabledFeatures;
 		notifyRecordingIsOn = builder.notifyRecordingIsOn;
 		learningDashboardCleanupDelayInMinutes = builder.learningDashboardCleanupDelayInMinutes;
@@ -362,10 +360,6 @@ public class Meeting {
 
 	public String getLearningDashboardAccessToken() {
 		return learningDashboardAccessToken;
-	}
-
-	public Boolean getVirtualBackgroundsDisabled() {
-		return virtualBackgroundsDisabled;
 	}
 
 	public ArrayList<String> getDisabledFeatures() {
@@ -799,7 +793,6 @@ public class Meeting {
     	private String viewerPass;
     	private int learningDashboardCleanupDelayInMinutes;
     	private String learningDashboardAccessToken;
-		private Boolean virtualBackgroundsDisabled;
 		private ArrayList<String> disabledFeatures;
 		private Boolean notifyRecordingIsOn;
     	private int duration;
@@ -913,11 +906,6 @@ public class Meeting {
 	    	this.learningDashboardAccessToken = t;
 	    	return this;
 	    }
-
-		public Builder withVirtualBackgroundsDisabled(Boolean d) {
-			this.virtualBackgroundsDisabled = d;
-			return this;
-		}
 
 		public Builder withDisabledFeatures(ArrayList<String> list) {
 			this.disabledFeatures = list;

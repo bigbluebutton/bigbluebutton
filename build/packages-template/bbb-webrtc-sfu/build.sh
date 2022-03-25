@@ -61,7 +61,6 @@ fpm -s dir -C ./staging -n $PACKAGE                 \
     --after-install after-install.sh                \
     --before-install before-install.sh              \
     --before-remove before-remove.sh                \
-    --after-remove after-remove.sh \
     --description "BigBlueButton WebRTC SFU"        \
     $DIRECTORIES                                    \
     $OPTS

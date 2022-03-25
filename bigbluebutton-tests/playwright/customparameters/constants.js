@@ -1,3 +1,5 @@
+const e = require('../core/elements');
+
 exports.autoJoin = 'userdata-bbb_auto_join_audio=false';
 exports.listenOnlyMode = 'userdata-bbb_listen_only_mode=false';
 exports.forceListenOnly = 'userdata-bbb_force_listen_only=true';
@@ -14,7 +16,7 @@ exports.autoShareWebcam = 'userdata-bbb_auto_share_webcam=true';
 exports.multiUserPenOnly = 'userdata-bbb_multi_user_pen_only=true';
 exports.presenterTools = 'userdata-bbb_presenter_tools=["pencil", "hand"]';
 exports.multiUserTools = 'userdata-bbb_multi_user_tools=["pencil", "hand"]';
-const cssCode = '.presentationTitle--1LT79g{display: none;}';
+const cssCode = `${e.presentationTitle}{display: none;}`;
 exports.customStyle = `userdata-bbb_custom_style=${cssCode}`;
 exports.customStyleUrl = 'userdata-bbb_custom_style_url=https://develop.bigbluebutton.org/css-test-file.css';
 exports.autoSwapLayout = 'userdata-bbb_auto_swap_layout=true';

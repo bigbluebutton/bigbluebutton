@@ -3,7 +3,7 @@ const Page = require('../core/page');
 const e = require('../core/elements');
 const { waitAndClearNotification } = require('../notifications/util');
 const { sleep } = require('../core/helpers');
-const { checkAvatarIcon, checkPresenterClass } = require('./util');
+const { checkAvatarIcon, checkIsPresenter } = require('./util');
 
 class MultiUsers {
   constructor(browser, context) {
@@ -63,9 +63,9 @@ class MultiUsers {
   }
 
   async userPresence() {
-    const firstUserOnModPage = this.modPage.getLocator(e.firstUser);
+    const firstUserOnModPage = this.modPage.getLocator(e.currentUser);
     const secondUserOnModPage = this.modPage.getLocator(e.userListItem);
-    const firstUserOnUserPage = this.userPage.getLocator(e.firstUser);
+    const firstUserOnUserPage = this.userPage.getLocator(e.currentUser);
     const secondUserOnUserPage = this.userPage.getLocator(e.userListItem);
     await expect(firstUserOnModPage).toHaveCount(1);
     await expect(secondUserOnModPage).toHaveCount(1);
@@ -81,19 +81,19 @@ class MultiUsers {
     await this.userPage.hasElement(e.presentationToolbarWrapper);
     await this.userPage.hasElement(e.toolsButton);
     await this.userPage.hasElement(e.actions);
-    const hasPresenterClass = await checkPresenterClass(this.userPage);
-    expect(hasPresenterClass).toBeTruthy();
+    const isPresenter = await checkIsPresenter(this.userPage);
+    expect(isPresenter).toBeTruthy();
   }
 
   async takePresenter() {
-    await this.modPage2.waitAndClick(e.firstUser);
+    await this.modPage2.waitAndClick(e.currentUser);
     await this.modPage2.waitAndClick(e.takePresenter);
 
     await this.modPage2.hasElement(e.startScreenSharing);
     await this.modPage2.hasElement(e.toolsButton);
     await this.modPage2.hasElement(e.presentationToolbarWrapper);
-    const hasPresenterClass = await checkPresenterClass(this.modPage2);
-    expect(hasPresenterClass).toBeTruthy();
+    const isPresenter = await checkIsPresenter(this.modPage2);
+    expect(isPresenter).toBeTruthy();
     await this.modPage2.waitAndClick(e.actions);
     await this.modPage2.hasElement(e.managePresentations);
     await this.modPage2.hasElement(e.polling);

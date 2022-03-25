@@ -123,8 +123,8 @@ class BbbWebApiGWApp(
                     autoStartRecording:      java.lang.Boolean,
                     allowStartStopRecording: java.lang.Boolean, webcamsOnlyForModerator: java.lang.Boolean,
                     meetingCameraCap: java.lang.Integer,
-                    userCameraCap: java.lang.Integer,
-                    moderatorPass: String, viewerPass: String, learningDashboardAccessToken: String,
+                    userCameraCap:    java.lang.Integer,
+                    moderatorPass:    String, viewerPass: String, learningDashboardAccessToken: String,
                     createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean,
                     sequence: java.lang.Integer,
                     freeJoin: java.lang.Boolean,
@@ -146,7 +146,6 @@ class BbbWebApiGWApp(
                     lockSettingsParams:                     LockSettingsParams,
                     html5InstanceId:                        java.lang.Integer,
                     groups:                                 java.util.ArrayList[Group],
-                    virtualBackgroundsDisabled:             java.lang.Boolean,
                     disabledFeatures:                       java.util.ArrayList[String],
                     notifyRecordingIsOn:                    java.lang.Boolean): Unit = {
 
@@ -183,7 +182,6 @@ class BbbWebApiGWApp(
       sequence = sequence.intValue(),
       freeJoin = freeJoin.booleanValue(),
       breakoutRooms = Vector(),
-      enabled = breakoutParams.enabled.booleanValue(),
       record = breakoutParams.record.booleanValue(),
       privateChatEnabled = breakoutParams.privateChatEnabled.booleanValue()
     )
@@ -195,7 +193,7 @@ class BbbWebApiGWApp(
       userCameraCap = userCameraCap.intValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
       allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
-      authenticatedGuest = authenticatedGuest.booleanValue(), virtualBackgroundsDisabled = virtualBackgroundsDisabled.booleanValue())
+      authenticatedGuest = authenticatedGuest.booleanValue())
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
 
     val lockSettingsProps = LockSettingsProps(
@@ -207,7 +205,8 @@ class BbbWebApiGWApp(
       hideUserList = lockSettingsParams.hideUserList.booleanValue(),
       lockedLayout = lockSettingsParams.lockedLayout.booleanValue(),
       lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
-      lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue()
+      lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue(),
+      hideViewersCursor = lockSettingsParams.hideViewersCursor.booleanValue()
     )
 
     val systemProps = SystemProps(
