@@ -84,7 +84,7 @@ public class SwfSlidesGenerationProgressNotifier {
     }
 
     DocPageCompletedProgress progress = new DocPageCompletedProgress(pres.getPodId(), pres.getMeetingId(),
-      pres.getId(), pres.getId(),
+      pres.getId(), pres.getTemporaryPresentationId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
       pres.isDownloadable(), ConversionMessageConstants.CONVERSION_COMPLETED_KEY,
       pres.getNumberOfPages(), generateBasePresUrl(pres), pres.isCurrent());
