@@ -2,7 +2,7 @@ import { Match, check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import { BREAK_LINE } from '/imports/utils/lineEndings';
-import changeHasMessages from '/imports/api/users/server/modifiers/changeHasMessages';
+import changeHasMessages from '/imports/api/users-persistent-data/server/modifiers/changeHasMessages';
 
 export function parseMessage(message) {
   let parsedMessage = message || '';
@@ -24,6 +24,7 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     id: Match.Maybe(String),
     timestamp: Number,
     sender: Object,
+    chatEmphasizedText: Boolean,
     message: String,
     correlationId: Match.Maybe(String),
   });
@@ -36,6 +37,8 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
   const msgDocument = {
     ...restMsg,
     sender: sender.id,
+    senderName: sender.name,
+    senderRole: sender.role,
     meetingId,
     chatId,
     message: parseMessage(msg.message),

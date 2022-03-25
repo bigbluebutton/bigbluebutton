@@ -516,6 +516,7 @@ class WhiteboardToolbar extends Component {
           objectToReturn="annotationList"
           onBlur={this.closeSubMenu}
           showCornerTriangle
+          data-test="toolsBtn"
         >
           {currentSubmenuOpen === 'annotationList' && annotations.length > 1
             ? (
@@ -794,6 +795,7 @@ class WhiteboardToolbar extends Component {
             ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
             : intl.formatMessage(intlMessages.toolbarMultiUserOn)
           }
+          data-test={multiUser ? 'turnMultiUsersWhiteboardOff' : 'turnMultiUsersWhiteboardOn'}
           icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
           onItemClick={this.handleSwitchWhiteboardMode}
         />

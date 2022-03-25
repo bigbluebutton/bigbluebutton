@@ -20,7 +20,7 @@ import {
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { DivElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 
 const ListItem = styled.div`
@@ -98,8 +98,6 @@ const WaitingUsersButton = styled(Button)`
 
 const PendingUsers = styled.div`
   display: flex;
-  height: 100%;
-  width: 100%;
   flex-direction: column;
 `;
 
@@ -114,22 +112,12 @@ const MainTitle = styled.p`
 
 const UsersWrapper = styled.div`
   display: flex;
-  height: 100%;
-  width: 100%;
   flex-direction: column;
-  position: relative;
 `;
 
 const Users = styled.div`
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
-  overflow-y: auto;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  height: 100%;
-  width: 100%;
 `;
 
 const CustomButton = styled(Button)`

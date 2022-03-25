@@ -2,4 +2,4 @@ after-install.sh
 bbb-pads.service
 before-remove.sh
 build.sh
-opts-bionic.sh
+opts-focal.sh

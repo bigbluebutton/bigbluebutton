@@ -19,13 +19,23 @@ const TimeWindowChatItemContainer = (props) => {
   const { users } = usingUsersContext;
   const {
     sender,
+    senderName,
+    senderRole,
     key,
     timestamp,
     content,
     extra,
+    messageValues,
   } = message;
   const messages = content;
-  const user = users[Auth.meetingID][sender];
+
+  const user = (sender === 'SYSTEM') ? {
+    name: senderName,
+    color: '#01579b',
+    avatar: '',
+    role: ROLE_MODERATOR,
+    loggedOut: false,
+  } : users[Auth.meetingID][sender];
   const messageKey = key;
   const handleReadMessage = (tstamp) => ChatService.updateUnreadMessage(tstamp, idChatOpen);
   return (
@@ -33,13 +43,15 @@ const TimeWindowChatItemContainer = (props) => {
       {
       ...{
         color: user?.color,
-        isModerator: user?.role === ROLE_MODERATOR,
+        messageFromModerator: senderRole === ROLE_MODERATOR,
+        isSystemSender: sender === 'SYSTEM',
         isOnline: !user?.loggedOut,
         avatar: user?.avatar,
         name: user?.name,
         read: message.read,
         messages,
         extra,
+        messageValues,
         getPollResultString: PollService.getPollResultString,
         user,
         timestamp,

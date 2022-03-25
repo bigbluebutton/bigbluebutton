@@ -1,5 +1,7 @@
 package org.bigbluebutton.api.messaging.converters.messages;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class CreateMeetingMessage {
@@ -15,10 +17,12 @@ public class CreateMeetingMessage {
 	public boolean autoStartRecording;
 	public boolean allowStartStopRecording;
 	public boolean webcamsOnlyForModerator;
+	public final Integer meetingCameraCap;
+	public final Integer userCameraCap;
 	public final String moderatorPass;
 	public final String viewerPass;
 	public final String learningDashboardAccessToken;
-	public final Boolean learningDashboardEnabled;
+	public final ArrayList<String> disabledFeatures;
 	public final Long createTime;
 	public final String createDate;
 	public final Map<String, String> metadata;
@@ -26,8 +30,9 @@ public class CreateMeetingMessage {
 	public CreateMeetingMessage(String id, String externalId, String name, Boolean record, 
 						String voiceBridge, Long duration, 
 						Boolean autoStartRecording, Boolean allowStartStopRecording,
-						Boolean webcamsOnlyForModerator, String moderatorPass,
-						String viewerPass, String learningDashboardAccessToken, Boolean learningDashboardEnabled,
+						Boolean webcamsOnlyForModerator, Integer meetingCameraCap, Integer userCameraCap, String moderatorPass,
+						String viewerPass, String learningDashboardAccessToken,
+						ArrayList<String> disabledFeatures,
 						Long createTime, String createDate, Map<String, String> metadata) {
 		this.id = id;
 		this.externalId = externalId;
@@ -38,10 +43,12 @@ public class CreateMeetingMessage {
 		this.autoStartRecording = autoStartRecording;
 		this.allowStartStopRecording = allowStartStopRecording;
 		this.webcamsOnlyForModerator = webcamsOnlyForModerator;
+		this.meetingCameraCap = meetingCameraCap;
+		this.userCameraCap = userCameraCap;
 		this.moderatorPass = moderatorPass;
 		this.viewerPass = viewerPass;
 		this.learningDashboardAccessToken = learningDashboardAccessToken;
-		this.learningDashboardEnabled = learningDashboardEnabled;
+		this.disabledFeatures = disabledFeatures;
 		this.createTime = createTime;
 		this.createDate = createDate;
 		this.metadata = metadata;

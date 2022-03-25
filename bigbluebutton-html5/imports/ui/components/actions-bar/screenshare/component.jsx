@@ -5,7 +5,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
-import { withModalMounter } from '../../modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import Styled from './styles';
 import ScreenshareBridgeService from '/imports/api/screenshare/client/bridge/service';
 import {
@@ -164,12 +164,15 @@ const ScreenshareButton = ({
     && !isMobile
     && amIPresenter;
 
+  const dataTest = !screenshareDataSavingSetting ? 'screenshareLocked'
+    : isVideoBroadcasting ? 'stopScreenShare' : 'startScreenShare';
+
   return shouldAllowScreensharing
     ? (
       <Styled.ScreenShareButton
         disabled={(!isMeteorConnected && !isVideoBroadcasting) || !screenshareDataSavingSetting}
         icon={isVideoBroadcasting ? 'desktop' : 'desktop_off'}
-        data-test={isVideoBroadcasting ? 'stopScreenShare' : 'startScreenShare'}
+        data-test={dataTest}
         label={intl.formatMessage(vLabel)}
         description={intl.formatMessage(vDescr)}
         color={isVideoBroadcasting ? 'primary' : 'default'}

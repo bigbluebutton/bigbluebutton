@@ -3,9 +3,9 @@ import { defineMessages, injectIntl } from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
-import BBBMenu from '/imports/ui/components/menu/component';
-import FullscreenService from '/imports/ui/components/fullscreen-button/service';
-import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
+import BBBMenu from '/imports/ui/components/common/menu/component';
+import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
+import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import Styled from './styles';
 import VideoService from '../../service';
 import {
@@ -326,7 +326,7 @@ class VideoListItem extends Component {
               {enableVideoMenu && availableActions.length >= 1
                 ? (
                   <BBBMenu
-                    trigger={<Styled.DropdownTrigger tabIndex={0}>{name}</Styled.DropdownTrigger>}
+                    trigger={<Styled.DropdownTrigger tabIndex={0} data-test="dropdownWebcamButton">{name}</Styled.DropdownTrigger>}
                     actions={this.getAvailableActions()}
                     opts={{
                       id: "default-dropdown-menu",

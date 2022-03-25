@@ -2,7 +2,7 @@ import org.bigbluebutton.build._
 
 description := "BigBlueButton custom FS-ESL client built on top of FS-ESL Java library."
 
-version := "0.0.7-SNAPSHOT"
+version := "0.0.8-SNAPSHOT"
 
 val compileSettings = Seq(
   organization := "org.bigbluebutton",
@@ -13,7 +13,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-target:jvm-1.8",
+    "-target:jvm-1.11",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -51,6 +51,8 @@ crossPaths := false
 
 // This forbids including Scala related libraries into the dependency
 autoScalaLibrary := false
+
+scalaVersion := "2.13.4"
 
 publishTo := Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/.m2/repository")))
 
@@ -92,4 +94,4 @@ pomExtra := (
 
 licenses := Seq("Apache License, Version 2.0" -> url("http://opensource.org/licenses/Apache-2.0"))
 
-homepage := Some(url("http://www.bigbluebutton.org"))
+homepage := Some(url("https://bigbluebutton.org"))

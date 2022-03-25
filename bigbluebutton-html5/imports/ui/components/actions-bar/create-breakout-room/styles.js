@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import HoldButton from '/imports/ui/components/presentation/presentation-toolbar/zoom-tool/holdButton/component';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import { FlexRow, FlexColumn } from '/imports/ui/stylesheets/styled-components/placeholders';
 import {
   colorDanger,
@@ -22,8 +22,7 @@ import {
 
 const BoxContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, minmax(4rem, 16rem));
-  grid-template-rows: repeat(auto-fill, minmax(4rem, 8rem));
+  grid-template-columns: repeat(3, 1fr);
   grid-gap: 1.6rem 1rem;
   box-sizing: border-box;
   padding-bottom: 1rem;
@@ -38,6 +37,13 @@ const Alert = styled.div`
       color: ${colorDanger};
     }
   `}
+
+  grid-row: span 3;
+
+  & > div {
+    height: 25.2rem;
+    max-height: 25.2rem;
+  }
 `;
 
 const FreeJoinLabel = styled.label`
@@ -71,8 +77,7 @@ const BreakoutNameInput = styled.input`
 
 const BreakoutBox = styled(ScrollboxVertical)`
   width: 100%;
-  height: 80%;
-  min-height: 4rem;
+  min-height: 6rem;
   max-height: 8rem;
   border: 1px solid ${colorGrayLighter};
   border-radius: ${borderRadius}; 
@@ -208,6 +213,7 @@ const AssignBtns = styled(Button)`
 
 const CheckBoxesContainer = styled(FlexRow)`
   margin-top: 2rem;
+  margin-bottom: 0.25rem;
 `;
 
 const FreeJoinCheckbox = styled.input`

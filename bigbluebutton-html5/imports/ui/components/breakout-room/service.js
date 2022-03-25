@@ -6,6 +6,7 @@ import Users from '/imports/api/users';
 import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
 import UsersPersistentData from '/imports/api/users-persistent-data';
+import BreakoutsHistory from '/imports/api/breakouts-history';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -46,7 +47,7 @@ const requestJoinURL = (breakoutId) => {
   });
 };
 
-const isExtendTimeHigherThanMeetingRemaining = (extendTimeInMinutes) => {
+const isNewTimeHigherThanMeetingRemaining = (newTimeInMinutes) => {
   const meetingId = Auth.meetingID;
   const meetingTimeRemaining = MeetingTimeRemaining.findOne({ meetingId });
 
@@ -54,10 +55,7 @@ const isExtendTimeHigherThanMeetingRemaining = (extendTimeInMinutes) => {
     const { timeRemaining } = meetingTimeRemaining;
 
     if (timeRemaining) {
-      const breakoutRooms = findBreakouts();
-      const breakoutRoomsTimeRemaining = breakoutRooms[0].timeRemaining;
-      const newBreakoutRoomsRemainingTime =
-        breakoutRoomsTimeRemaining + extendTimeInMinutes * 60;
+      const newBreakoutRoomsRemainingTime = newTimeInMinutes * 60;
       //  Keep margin of 5 seconds for breakout rooms end before parent meeting
       const meetingTimeRemainingWithMargin = timeRemaining - 5;
 
@@ -70,14 +68,31 @@ const isExtendTimeHigherThanMeetingRemaining = (extendTimeInMinutes) => {
   return false;
 };
 
-const extendBreakoutsTime = (extendTimeInMinutes) => {
-  if (extendTimeInMinutes <= 0) return false;
+const setBreakoutsTime = (timeInMinutes) => {
+  if (timeInMinutes <= 0) return false;
 
-  makeCall('extendBreakoutsTime', {
-    extendTimeInMinutes,
+  makeCall('setBreakoutsTime', {
+    timeInMinutes,
   });
 
   return true;
+};
+
+const sendMessageToAllBreakouts = (msg) => {
+  makeCall('sendMessageToAllBreakouts', {
+    msg,
+  });
+
+  return true;
+};
+
+const getUserMessagesToAllBreakouts = () => {
+  const breakoutHistory = BreakoutsHistory.findOne(
+    { meetingId: Auth.meetingID },
+    { fields: { broadcastMsgs: 1 } },
+  ) || {};
+
+  return (breakoutHistory.broadcastMsgs || []).filter((msg) => msg.senderId === Auth.userID);
 };
 
 const transferUserToMeeting = (fromMeetingId, toMeetingId) =>
@@ -191,8 +206,10 @@ const isUserInBreakoutRoom = (joinedUsers) => {
 export default {
   findBreakouts,
   endAllBreakouts,
-  extendBreakoutsTime,
-  isExtendTimeHigherThanMeetingRemaining,
+  setBreakoutsTime,
+  sendMessageToAllBreakouts,
+  getUserMessagesToAllBreakouts,
+  isNewTimeHigherThanMeetingRemaining,
   requestJoinURL,
   getBreakoutRoomUrl,
   transferUserToMeeting,

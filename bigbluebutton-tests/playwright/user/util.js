@@ -1,24 +1,34 @@
 const e = require('../core/elements');
 
 async function setStatus(page, status) {
-  await page.waitAndClick(e.firstUser);
+  await page.waitAndClick(e.currentUser);
   await page.waitAndClick(e.setStatus);
   await page.waitAndClick(status);
 }
 
-async function connectionStatus(test) {
-  await test.waitAndClick(e.connectionStatusBtn);
-  await test.waitForSelector(e.connectionStatusModal);
+async function openLockViewers(test) {
+  await test.waitAndClick(e.manageUsers);
+  await test.waitAndClick(e.lockViewersButton);
 }
 
-function checkNetworkStatus({ dataContainer, networdData }) {
-  const values = Array.from(document.querySelectorAll(`${dataContainer} > ${networdData}`));
-  values.splice(4, values.length - 4);
-  const check = values.filter(elem => elem.textContent.includes(' 0 k'))[0];
+async function setGuestPolicyOption(test, option) {
+  await test.waitAndClick(e.manageUsers);
+  await test.waitAndClick(e.guestPolicyLabel);
+  await test.waitAndClick(option);
+}
 
-  if (!check) return true;
+async function checkAvatarIcon(test, checkModIcon = true) {
+  await test.hasElement(`${e.currentUser} ${checkModIcon ? e.moderatorAvatar : e.viewerAvatar}`);
+}
+
+async function checkIsPresenter(test) {
+  return test.page.evaluate(([currentAvatarSelector, userAvatarSelector]) => {
+    return document.querySelectorAll(`${currentAvatarSelector} ${userAvatarSelector}`)[0].hasAttribute('data-test-presenter')
+  }, [e.currentUser, e.userAvatar])
 }
 
 exports.setStatus = setStatus;
-exports.connectionStatus = connectionStatus;
-exports.checkNetworkStatus = checkNetworkStatus;
+exports.openLockViewers = openLockViewers;
+exports.setGuestPolicyOption = setGuestPolicyOption;
+exports.checkAvatarIcon = checkAvatarIcon;
+exports.checkIsPresenter = checkIsPresenter;

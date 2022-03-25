@@ -6,13 +6,6 @@ trait VoiceStandardMsg extends BbbCoreMsg {
   def header: BbbCoreVoiceConfHeader
 }
 
-object ScreenshareHangUpVoiceConfMsg { val NAME = "ScreenshareHangUpVoiceConfMsg" }
-case class ScreenshareHangUpVoiceConfMsg(
-    header: BbbCoreHeaderWithMeetingId,
-    body:   ScreenshareHangUpVoiceConfMsgBody
-) extends BbbCoreMsg
-case class ScreenshareHangUpVoiceConfMsgBody(voiceConf: String, screenshareConf: String, timestamp: String)
-
 /**
  * Sent from FS that RTMP stream has started.
  */
@@ -82,48 +75,6 @@ case class ScreenshareRtmpBroadcastStoppedEvtMsg(
 case class ScreenshareRtmpBroadcastStoppedEvtMsgBody(voiceConf: String, screenshareConf: String,
                                                      stream: String, vidWidth: Int, vidHeight: Int,
                                                      timestamp: String)
-
-/**
- * Sent by FS that screenshare has started.
- */
-object ScreenshareStartedVoiceConfEvtMsg { val NAME = "ScreenshareStartedVoiceConfEvtMsg" }
-case class ScreenshareStartedVoiceConfEvtMsg(
-    header: BbbCoreVoiceConfHeader,
-    body:   ScreenshareStartedVoiceConfEvtMsgBody
-) extends VoiceStandardMsg
-case class ScreenshareStartedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String,
-                                                 callerIdNum: String, callerIdName: String)
-
-/**
- * Sent to FS to broadcast ans RTMP stream to Red5.
- */
-object ScreenshareStartRtmpBroadcastVoiceConfMsg { val NAME = "ScreenshareStartRtmpBroadcastVoiceConfMsg" }
-case class ScreenshareStartRtmpBroadcastVoiceConfMsg(
-    header: BbbCoreHeaderWithMeetingId,
-    body:   ScreenshareStartRtmpBroadcastVoiceConfMsgBody
-) extends BbbCoreMsg
-case class ScreenshareStartRtmpBroadcastVoiceConfMsgBody(voiceConf: String, screenshareConf: String, url: String, timestamp: String)
-
-/**
- * Sent by FS that screenshare has stopped.
- */
-object ScreenshareStoppedVoiceConfEvtMsg { val NAME = "ScreenshareStoppedVoiceConfEvtMsg" }
-case class ScreenshareStoppedVoiceConfEvtMsg(
-    header: BbbCoreVoiceConfHeader,
-    body:   ScreenshareStoppedVoiceConfEvtMsgBody
-) extends VoiceStandardMsg
-case class ScreenshareStoppedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String,
-                                                 callerIdNum: String, callerIdName: String)
-
-/**
- * Sent to FS to stop broadcasting RTMP stream to Red5.
- */
-object ScreenshareStopRtmpBroadcastVoiceConfMsg { val NAME = "ScreenshareStopRtmpBroadcastVoiceConfMsg" }
-case class ScreenshareStopRtmpBroadcastVoiceConfMsg(
-    header: BbbCoreHeaderWithMeetingId,
-    body:   ScreenshareStopRtmpBroadcastVoiceConfMsgBody
-) extends BbbCoreMsg
-case class ScreenshareStopRtmpBroadcastVoiceConfMsgBody(voiceConf: String, screenshareConf: String, url: String, timestamp: String)
 
 /* Sent by bbb-webrtc-sfu to ask permission for broadcasting a screen stream
  */
@@ -196,6 +147,7 @@ case class ScreenBroadcastStopSysMsg(
 ) extends BbbCoreMsg
 case class ScreenBroadcastStopSysMsgBody(
     meetingId: String,
+    voiceConf: String,
     streamId:  String
 )
 

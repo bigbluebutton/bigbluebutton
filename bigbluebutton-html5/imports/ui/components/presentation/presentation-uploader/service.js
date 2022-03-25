@@ -42,6 +42,7 @@ const getPresentations = () => Presentations
       conversion,
       current,
       downloadable,
+      removable,
       id,
       name,
     } = presentation;
@@ -54,6 +55,7 @@ const getPresentations = () => Presentations
       isCurrent: current || false,
       upload: { done: true, error: false },
       isDownloadable: downloadable,
+      isRemovable: removable,
       conversion: conversion || { done: true, error: false },
       uploadTimestamp,
     };

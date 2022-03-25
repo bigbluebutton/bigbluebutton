@@ -16,7 +16,7 @@ const BreakoutContainer = (props) => {
 
   return <BreakoutComponent
     amIPresenter={amIPresenter}
-    {...{ layoutContextDispatch, ...props }} 
+    {...{ layoutContextDispatch, ...props }}
   />;
 };
 
@@ -24,8 +24,9 @@ export default withTracker((props) => {
   const {
     endAllBreakouts,
     requestJoinURL,
-    extendBreakoutsTime,
-    isExtendTimeHigherThanMeetingRemaining,
+    setBreakoutsTime,
+    sendMessageToAllBreakouts,
+    isNewTimeHigherThanMeetingRemaining,
     findBreakouts,
     getBreakoutRoomUrl,
     transferUserToMeeting,
@@ -49,8 +50,9 @@ export default withTracker((props) => {
     breakoutRooms,
     endAllBreakouts,
     requestJoinURL,
-    extendBreakoutsTime,
-    isExtendTimeHigherThanMeetingRemaining,
+    setBreakoutsTime,
+    sendMessageToAllBreakouts,
+    isNewTimeHigherThanMeetingRemaining,
     getBreakoutRoomUrl,
     transferUserToMeeting,
     transferToBreakout,

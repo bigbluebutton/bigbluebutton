@@ -118,6 +118,7 @@ case class PresentationConversionRequestReceivedSysMsgBody(
     current:        Boolean,
     presName:       String,
     downloadable:   Boolean,
+    removable:      Boolean,
     authzToken:     String
 )
 
@@ -132,6 +133,7 @@ case class PresentationPageConversionStartedSysMsgBody(
     current:        Boolean,
     presName:       String,
     downloadable:   Boolean,
+    removable:      Boolean,
     authzToken:     String,
     numPages:       Int
 )
@@ -228,6 +230,7 @@ case class PresentationConversionRequestReceivedEventMsgBody(
     current:        Boolean,
     presName:       String,
     downloadable:   Boolean,
+    removable:      Boolean,
     authzToken:     String
 )
 
@@ -242,6 +245,7 @@ case class PresentationPageConversionStartedEventMsgBody(
     current:        Boolean,
     presName:       String,
     downloadable:   Boolean,
+    removable:      Boolean,
     numPages:       Int,
     authzToken:     String
 )

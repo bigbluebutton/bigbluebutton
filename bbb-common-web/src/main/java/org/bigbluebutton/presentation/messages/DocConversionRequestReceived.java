@@ -7,6 +7,7 @@ public class DocConversionRequestReceived implements IDocConversionMsg {
     public final String filename;
     public final String authzToken;
     public final Boolean downloadable;
+    public final Boolean removable;
     public final Boolean current;
 
     public DocConversionRequestReceived(String podId,
@@ -15,6 +16,7 @@ public class DocConversionRequestReceived implements IDocConversionMsg {
                                         String filename,
                                         String authzToken,
                                         Boolean downloadable,
+                                        Boolean removable,
                                         Boolean current) {
         this.podId = podId;
         this.meetingId = meetingId;
@@ -22,6 +24,7 @@ public class DocConversionRequestReceived implements IDocConversionMsg {
         this.filename = filename;
         this.authzToken = authzToken;
         this.downloadable = downloadable;
+        this.removable = removable;
         this.current = current;
     }
 }

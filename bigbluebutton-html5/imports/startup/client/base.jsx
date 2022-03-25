@@ -5,7 +5,7 @@ import Auth from '/imports/ui/services/auth';
 import AppContainer from '/imports/ui/components/app/container';
 import ErrorScreen from '/imports/ui/components/error-screen/component';
 import MeetingEnded from '/imports/ui/components/meeting-ended/component';
-import LoadingScreen from '/imports/ui/components/loading-screen/component';
+import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
@@ -24,9 +24,9 @@ import { layoutSelectInput, layoutDispatch } from '../../ui/components/layout/co
 import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
+import { isChatEnabled } from '/imports/ui/services/features';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const CHAT_ENABLED = CHAT_CONFIG.enabled;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
 const BREAKOUT_END_NOTIFY_DELAY = 50;
@@ -256,7 +256,7 @@ class Base extends Component {
     if (sidebarContentPanel === PANELS.NONE || Session.equals('subscriptionsReady', true)) {
       if (!checkedUserSettings) {
         if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
-          if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
+          if (isChatEnabled() && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
               value: true,

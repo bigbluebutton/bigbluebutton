@@ -27,7 +27,7 @@ done
 mkdir -p staging/var/log/bigbluebutton
 cp -r scripts lib Gemfile Gemfile.lock  staging/usr/local/bigbluebutton/core
 
-if [ "$DISTRO" == "bionic" ]; then
+if [ "$DISTRO" == "focal" ]; then
   cp Rakefile  staging/usr/local/bigbluebutton/core
 fi
 
@@ -38,8 +38,8 @@ mkdir -p staging/usr/lib/systemd/system
 cp systemd/* staging/usr/lib/systemd/system
 
 if [ -f "staging/usr/local/bigbluebutton/core/scripts/basic_stats.nginx" ]; then \
-  mkdir -p staging/etc/bigbluebutton/nginx; \
-  mv staging/usr/local/bigbluebutton/core/scripts/basic_stats.nginx staging/etc/bigbluebutton/nginx; \
+  mkdir -p staging/usr/share/bigbluebutton/nginx; \
+  mv staging/usr/local/bigbluebutton/core/scripts/basic_stats.nginx staging/usr/share/bigbluebutton/nginx; \
 fi
 
 ##

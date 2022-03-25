@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import injectNotify from '/imports/ui/components/toast/inject-notify/component';
+import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import { PANELS, ACTIONS } from '../../../layout/enums';
 
 const propTypes = {

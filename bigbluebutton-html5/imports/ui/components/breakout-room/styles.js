@@ -3,7 +3,9 @@ import {
   systemMessageBorderColor,
   mdPaddingX,
   borderSize,
-  listItemBgHover,
+  listItemBgHover, borderSizeSmall,
+  borderRadius,
+  jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorPrimary,
@@ -12,13 +14,16 @@ import {
   colorGrayDark,
   userListBg,
   colorWhite,
+  colorGrayLighter,
+  colorGrayLightest,
+  colorBlueLight
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   headingsFontWeight,
   fontSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const BreakoutActions = styled.div`
   display: flex;
@@ -151,22 +156,45 @@ const BreakoutScrollableList = styled(ScrollboxVertical)`
 `;
 
 const DurationContainer = styled.div`
-  text-align: center;
+  ${({ centeredText }) => centeredText && `
+    text-align: center;
+  `}
+
+  border-radius: ${borderRadius};
+  margin-bottom: ${jumboPaddingY};
+  padding: 10px;
+  box-shadow: 0 0 1px 1px ${colorGrayLightest};
 `;
 
-const ExtendTimeContainer = styled.div`
-  border-top: 1px solid ${systemMessageBorderColor};
-  border-bottom: 1px solid ${systemMessageBorderColor};
-  padding: 10px 0px;
+const SetTimeContainer = styled.div`
+  margin: .5rem 0 0 0;
 `;
 
-const ExtendDurationInput = styled.input`
+const SetDurationInput = styled.input`
+  flex: 1;
+  border: 1px solid ${colorGrayLighter};
   width: 50%;
   text-align: center;
   padding: .25rem;
+  border-radius: ${borderRadius};
+  background-clip: padding-box;
+  outline: none;
+
   &::placeholder {
     color: ${colorGray};
     opacity: 1;
+  }
+
+  &:focus {
+    border-radius: ${borderSize};
+    box-shadow: 0 0 0 ${borderSize} ${colorBlueLight}, inset 0 0 0 1px ${colorPrimary};
+  }
+
+  &:disabled,
+  &[disabled] {
+    cursor: not-allowed;
+    opacity: .75;
+    background-color: rgba(167,179,189,0.25);
   }
 `;
 
@@ -184,7 +212,6 @@ const EndButton = styled(Button)`
 const Duration = styled.span`
   display: inline-block;
   align-self: center;
-  margin: .5rem 0 .5rem 0;
 `;
 
 const Panel = styled(ScrollboxVertical)`
@@ -207,7 +234,6 @@ const HeaderButton = styled(Button)`
   flex-direction: row;
   justify-content: space-between;
   position: relative;
-  margin: 0 auto 2rem 0;
   padding-left: 0;
   padding-right: inherit;
   background: none !important;
@@ -230,6 +256,27 @@ const HeaderButton = styled(Button)`
     }
   }`;
 
+const Separator = styled.div`
+  position: relative;
+  width: 100%;
+  height: 10px;
+  height: ${borderSizeSmall};
+  background-color: ${colorGrayLighter};
+  margin: 30px 0px;
+`;
+
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: ${jumboPaddingY};
+`;
+
+const FlexRow = styled.div`
+  display: flex;
+  flex-wrap: nowrap;
+`;
+
 export default {
   BreakoutActions,
   AlreadyConnected,
@@ -244,11 +291,14 @@ export default {
   BreakoutColumn,
   BreakoutScrollableList,
   DurationContainer,
-  ExtendTimeContainer,
-  ExtendDurationInput,
+  SetTimeContainer,
+  SetDurationInput,
   WithError,
   EndButton,
   Duration,
   Panel,
   HeaderButton,
+  Separator,
+  Header,
+  FlexRow,
 };
