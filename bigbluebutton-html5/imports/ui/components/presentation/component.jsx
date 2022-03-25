@@ -728,7 +728,6 @@ class Presentation extends PureComponent {
       fullscreenElementId,
       layoutContextDispatch,
     } = this.props;
-    const { isFullscreen } = this.state;
 
     return (
       <PresentationMenu
@@ -736,7 +735,6 @@ class Presentation extends PureComponent {
         screenshotRef={this.getSvgRef()}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
-        isFullscreen={isFullscreen}
         toggleSwapLayout={MediaService.toggleSwapLayout}
         layoutContextDispatch={layoutContextDispatch}
       />
