@@ -664,7 +664,7 @@ public class Meeting {
 		meetingExpireWhenLastUserLeftInMinutes = value;
 	}
 
-	public Integer getmeetingExpireWhenLastUserLeftInMinutes() {
+	public Integer getMeetingExpireWhenLastUserLeftInMinutes() {
 		return meetingExpireWhenLastUserLeftInMinutes;
 	}
 
