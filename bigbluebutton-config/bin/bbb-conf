@@ -1257,7 +1257,7 @@ check_state() {
       echo "#"
     fi
 
-    FREESWITCH_SIP=$(ss -anlt | grep :5066 | grep -v tcp6 | grep LISTEN | sed 's/ [ ]*/ /g' | cut -d' ' -f4 | sed 's/:5066//g')
+    FREESWITCH_SIP=$(ss -anlt4 | grep :5066 | grep -v tcp6 | grep LISTEN | sed 's/ [ ]*/ /g' | cut -d' ' -f4 | sed 's/:5066//g')
     KURENTO_SIP=$(echo "$KURENTO_CONFIG" | yq r - freeswitch.sip_ip)
     
     if [ ! -z "$FREESWITCH_SIP" ]; then
