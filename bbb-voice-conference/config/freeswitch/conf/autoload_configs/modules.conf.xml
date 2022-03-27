@@ -19,6 +19,7 @@
     <load module="mod_dialplan_xml"/>
 
     <!-- Codec Interfaces -->
+    <load module="mod_spandsp"/>
     <load module="mod_opus"/>
     <load module="mod_opusfile"/>
 

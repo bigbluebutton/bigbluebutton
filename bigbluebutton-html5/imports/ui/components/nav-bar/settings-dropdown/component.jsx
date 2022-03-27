@@ -11,7 +11,6 @@ import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/componen
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { colorDanger } from '/imports/ui/stylesheets/styled-components/palette';
-import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 
@@ -98,6 +97,7 @@ const propTypes = {
   isBreakoutRoom: PropTypes.bool,
   isMeteorConnected: PropTypes.bool.isRequired,
   isDropdownOpen: PropTypes.bool,
+  isMobile: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -278,9 +278,9 @@ class SettingsDropdown extends PureComponent {
       intl,
       shortcuts: OPEN_OPTIONS_AK,
       isDropdownOpen,
+      isMobile,
     } = this.props;
 
-    const { isMobile } = deviceInfo;
     const customStyles = { top: '3rem' };
 
     return (

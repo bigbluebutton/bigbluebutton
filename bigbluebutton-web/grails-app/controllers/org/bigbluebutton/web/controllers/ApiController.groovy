@@ -958,7 +958,6 @@ class ApiController {
             avatarURL us.avatarURL
             if (meeting.breakoutRoomsParams != null) {
               breakoutRooms {
-                enabled meeting.breakoutRoomsParams.enabled
                 record meeting.breakoutRoomsParams.record
                 privateChatEnabled meeting.breakoutRoomsParams.privateChatEnabled
               }
@@ -1206,7 +1205,7 @@ class ApiController {
         respMessage = "Meeting not found"
       }
 
-      if(meeting.getLearningDashboardEnabled() == false) {
+      if(meeting.getDisabledFeatures().contains("learningDashboard") == true) {
         reject = true
         respMessage = "Learning Dashboard disabled for this meeting"
       }

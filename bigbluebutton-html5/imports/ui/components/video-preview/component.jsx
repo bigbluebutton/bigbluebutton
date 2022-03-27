@@ -17,10 +17,10 @@ import {
   EFFECT_TYPES,
   SHOW_THUMBNAILS,
   setSessionVirtualBackgroundInfo,
-  isVirtualBackgroundEnabled,
   getSessionVirtualBackgroundInfo,
-} from '/imports/ui/services/virtual-background/service'
+} from '/imports/ui/services/virtual-background/service';
 import Settings from '/imports/ui/services/settings';
+import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 
 const VIEW_STATES = {
   finding: 'finding',
@@ -34,6 +34,7 @@ const propTypes = {
   startSharing: PropTypes.func.isRequired,
   stopSharing: PropTypes.func.isRequired,
   resolve: PropTypes.func,
+  camCapReached: PropTypes.bool,
   hasVideoStream: PropTypes.bool.isRequired,
   webcamDeviceId: PropTypes.string,
   sharedDevices: PropTypes.arrayOf(PropTypes.string),
@@ -41,6 +42,7 @@ const propTypes = {
 
 const defaultProps = {
   resolve: null,
+  camCapReached: true,
   webcamDeviceId: null,
   sharedDevices: [],
 };
@@ -169,6 +171,10 @@ const intlMessages = defineMessages({
   genericError: {
     id: 'app.video.genericError',
     description: 'error message for when the webcam sharing fails with unknown error',
+  },
+  camCapReached: {
+    id: 'app.video.camCapReached',
+    description: 'message for when the camera cap has been reached',
   },
   virtualBgGenericError: {
     id: 'app.video.virtualBackground.genericError',
@@ -627,7 +633,7 @@ class VideoPreview extends Component {
             </>
           )
         }
-        {isVirtualBackgroundEnabled() && this.renderVirtualBgSelector()}
+        {isVirtualBackgroundsEnabled() && this.renderVirtualBgSelector()}
       </Styled.Col>
     );
   }
@@ -715,6 +721,7 @@ class VideoPreview extends Component {
       sharedDevices,
       hasVideoStream,
       forceOpen,
+      camCapReached,
     } = this.props;
 
     const {
@@ -766,13 +773,15 @@ class VideoPreview extends Component {
             : null
           }
           <Styled.Actions>
-            <Button
-              data-test="startSharingWebcam"
-              color={shared ? 'danger' : 'primary'}
-              label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
-              onClick={shared ? this.handleStopSharing : this.handleStartSharing}
-              disabled={isStartSharingDisabled || isStartSharingDisabled === null || shouldDisableButtons}
-            />
+            {!shared && camCapReached ? (
+              <span>{intl.formatMessage(intlMessages.camCapReached)}</span>
+            ) : (<Button
+            data-test="startSharingWebcam"
+            color={shared ? 'danger' : 'primary'}
+            label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
+            onClick={shared ? this.handleStopSharing : this.handleStartSharing}
+            disabled={isStartSharingDisabled || isStartSharingDisabled === null || shouldDisableButtons}
+          />)}
           </Styled.Actions>
         </Styled.Footer>
       </>

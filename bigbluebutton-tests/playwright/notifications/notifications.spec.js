@@ -10,12 +10,6 @@ test.describe.parallel('Notifications', () => {
     await notifications.saveSettingsNotification();
   });
 
-  test('Save connection status settings notification', async ({ browser, context, page }) => {
-    const notifications = new Notifications(browser, context);
-    await notifications.initModPage(page);
-    await notifications.saveConnectionStatusSettingsNotification();
-  });
-
   test('Audio notifications', async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page);

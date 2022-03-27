@@ -13,7 +13,7 @@ rm -rf staging
 
 #
 # Create directory for fpm to process
-DIRS="/etc/bigbluebutton/nginx /usr/local/bigbluebutton/bbb-webhooks"
+DIRS="/usr/share/bigbluebutton/nginx /usr/local/bigbluebutton/bbb-webhooks"
 for dir in $DIRS; do
   mkdir -p staging$dir
 done
@@ -29,7 +29,7 @@ cd staging/usr/local/bigbluebutton/bbb-webhooks/
 npm install --production
 popd
 
-cp webhooks.nginx staging/etc/bigbluebutton/nginx/webhooks.nginx
+cp webhooks.nginx staging/usr/share/bigbluebutton/nginx/webhooks.nginx
 
 mkdir -p staging/usr/lib/systemd/system
 cp bbb-webhooks.service staging/usr/lib/systemd/system

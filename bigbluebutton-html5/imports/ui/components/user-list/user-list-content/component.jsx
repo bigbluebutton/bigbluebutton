@@ -8,12 +8,12 @@ import UserCaptionsContainer from './user-captions/container';
 import WaitingUsersContainer from './waiting-users/container';
 import UserPollsContainer from './user-polls/container';
 import BreakoutRoomContainer from './breakout-room/container';
+import { isChatEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
   currentUser: PropTypes.shape({}).isRequired,
 };
 
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 class UserContent extends PureComponent {
@@ -31,7 +31,7 @@ class UserContent extends PureComponent {
 
     return (
       <Styled.Content data-test="userListContent">
-        {CHAT_ENABLED ? <UserMessagesContainer /> : null}
+        {isChatEnabled() ? <UserMessagesContainer /> : null}
         {currentUser.role === ROLE_MODERATOR ? <UserCaptionsContainer /> : null}
         <UserNotesContainer />
         {showWaitingRoom && currentUser.role === ROLE_MODERATOR

@@ -8,6 +8,7 @@ import Styled from './styles';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { ACTIONS, LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
+import { isLayoutsEnabled } from '/imports/ui/services/features';
 
 const MIN_FONTSIZE = 0;
 const SHOW_AUDIO_FILTERS = (Meteor.settings.public.app
@@ -503,7 +504,7 @@ class ApplicationMenu extends BaseMenu {
               </Styled.FormElementRight>
             </Styled.Col>
           </Styled.Row>
-          {this.renderChangeLayout()}
+          { isLayoutsEnabled() ? this.renderChangeLayout() : null }
         </Styled.Form>
       </div>
     );

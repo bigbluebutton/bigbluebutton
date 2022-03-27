@@ -85,17 +85,6 @@ const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => {
   };
 }
 
-const isVirtualBackgroundEnabled = () => {
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'usersProp.virtualBackgroundsDisabled': 1 } });
-
-  if (meeting?.usersProp && meeting.usersProp.virtualBackgroundsDisabled === true) {
-    return false;
-  }
-
-  return VIRTUAL_BACKGROUND_ENABLED;
-}
-
 const isVirtualBackgroundSupported = () => {
   return !(deviceInfo.isIos || browserInfo.isSafari);
 }
@@ -117,7 +106,6 @@ export {
   setSessionVirtualBackgroundInfo,
   getSessionVirtualBackgroundInfo,
   getSessionVirtualBackgroundInfoWithDefault,
-  isVirtualBackgroundEnabled,
   isVirtualBackgroundSupported,
   createVirtualBackgroundStream,
   getVirtualBackgroundThumbnail,

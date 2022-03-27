@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+sourceCompatibility = '1.11'
+targetCompatibility = '1.11'
 
 version '0.0.1'
 jar.enabled = true
@@ -20,14 +20,14 @@ repositories {
 }
 
 dependencies {
-    compile 'org.apache.poi:poi:4.1.2'
-    compile 'org.apache.poi:poi-ooxml:4.1.2'
-    compile 'org.apache.poi:poi-ooxml-schemas:4.1.2'
-    compile 'commons-io:commons-io:2.6'
-    compile 'org.apache.commons:commons-lang3:3.9'
-    compile 'org.apache.commons:commons-collections4:4.4'
-    compile 'org.apache.xmlbeans:xmlbeans:3.0.2'
-    compile 'org.apache.commons:commons-compress:1.20'
+    implementation 'org.apache.poi:poi:4.1.2'
+    implementation 'org.apache.poi:poi-ooxml:4.1.2'
+    implementation 'org.apache.poi:poi-ooxml-schemas:4.1.2'
+    implementation 'commons-io:commons-io:2.11.0'
+    implementation 'org.apache.commons:commons-lang3:3.9'
+    implementation 'org.apache.commons:commons-collections4:4.4'
+    implementation 'org.apache.xmlbeans:xmlbeans:3.0.2'
+    implementation 'org.apache.commons:commons-compress:1.20'
 }
 
 jar {
