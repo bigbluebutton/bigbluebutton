@@ -105,7 +105,10 @@ class BBBMenu extends React.Component {
         <div
           onClick={(e) => {
             e.persist();
-            this.opts.autoFocus = !(['mouse', 'touch'].includes(e.nativeEvent.pointerType));
+            const firefoxInputSource = !([1, 5].includes(e.nativeEvent.mozInputSource)); // 1 = mouse, 5 = touch (firefox only)
+            const chromeInputSource = !(['mouse', 'touch'].includes(e.nativeEvent.pointerType));
+
+            this.opts.autoFocus = firefoxInputSource && chromeInputSource;
             this.handleClick(e);
           }}
           onKeyPress={(e) => {
