@@ -1,7 +1,5 @@
 package org.bigbluebutton.common2.msgs
-
-import java.lang.annotation.Annotation
-import javax.lang.model.element.AnnotationValueVisitor
+import scala.collection.immutable.List
 
 abstract class AnnotationEvent {
   def wbId: String
@@ -40,6 +38,10 @@ case class SendCursorPositionPubMsgBody(whiteboardId: String, xPercent: Double, 
 object SendWhiteboardAnnotationPubMsg { val NAME = "SendWhiteboardAnnotationPubMsg" }
 case class SendWhiteboardAnnotationPubMsg(header: BbbClientMsgHeader, body: SendWhiteboardAnnotationPubMsgBody) extends StandardMsg
 case class SendWhiteboardAnnotationPubMsgBody(annotation: AnnotationVO, drawEndOnly: Boolean)
+
+object SendWhiteboardEraserPubMsg { val NAME = "SendWhiteboardEraserPubMsg" }
+case class SendWhiteboardEraserPubMsg(header: BbbClientMsgHeader, body: SendWhiteboardEraserPubMsgBody) extends StandardMsg
+case class SendWhiteboardEraserPubMsgBody(annotation: AnnotationVO, drawEndOnly: Boolean)
 
 object UndoWhiteboardPubMsg { val NAME = "UndoWhiteboardPubMsg" }
 case class UndoWhiteboardPubMsg(header: BbbClientMsgHeader, body: UndoWhiteboardPubMsgBody) extends StandardMsg
@@ -82,4 +84,8 @@ case class SendWhiteboardAnnotationEvtMsgBody(annotation: AnnotationVO)
 object ModifyWhiteboardAnnotationEvtMsg { val NAME = "ModifyWhiteboardAnnotationEvtMsg" }
 case class ModifyWhiteboardAnnotationEvtMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAnnotationEvtMsgBody) extends StandardMsg
 case class ModifyWhiteboardAnnotationEvtMsgBody(annotations: List[AnnotationVO], idsToRemove: List[String], userId: String, whiteboardId: String, action: String)
+
+object SendWhiteboardEraserEvtMsg { val NAME = "SendWhiteboardEraserEvtMsg" }
+case class SendWhiteboardEraserEvtMsg(header: BbbClientMsgHeader, body: SendWhiteboardEraserEvtMsgBody) extends BbbCoreMsg
+case class SendWhiteboardEraserEvtMsgBody(whiteboardId: String, userId: String, eraserId: String, annotationsToAdd: List[AnnotationVO], idsToRemove: List[String])
 // ------------ akka-apps to client ------------

@@ -48,7 +48,6 @@ class ReceivedJsonMsgHandlerActor(
   def handle(envelope: BbbCoreEnvelope, jsonNode: JsonNode): Unit = {
     // if (SendCursorPositionPubMsg.NAME != envelope.name)
     //   log.debug("Route envelope name " + envelope.name)
-
     envelope.name match {
       // System
       case CheckAlivePingSysMsg.NAME =>
@@ -226,6 +225,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UndoWhiteboardPubMsg](envelope, jsonNode)
       case SendWhiteboardAnnotationPubMsg.NAME =>
         routeGenericMsg[SendWhiteboardAnnotationPubMsg](envelope, jsonNode)
+      case SendWhiteboardEraserPubMsg.NAME =>
+        routeGenericMsg[SendWhiteboardEraserPubMsg](envelope, jsonNode)
       case GetWhiteboardAnnotationsReqMsg.NAME =>
         routeGenericMsg[GetWhiteboardAnnotationsReqMsg](envelope, jsonNode)
       case ClientToServerLatencyTracerMsg.NAME =>

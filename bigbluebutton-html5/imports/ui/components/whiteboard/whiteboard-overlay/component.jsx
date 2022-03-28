@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import ShapeDrawListener from './shape-draw-listener/component';
 import TextDrawListener from './text-draw-listener/component';
 import PencilDrawListener from './pencil-draw-listener/component';
+import EraserDrawListener from './eraser-draw-listener/component';
 import ShapePointerListener from './shape-pointer-listener/component';
 import PencilPointerListener from './pencil-pointer-listener/component';
+import EraserPointerListener from './eraser-pointer-listener/component';
 import CursorListener from './cursor-listener/component';
 
 export default class WhiteboardOverlay extends Component {
@@ -168,7 +170,7 @@ export default class WhiteboardOverlay extends Component {
 
     const { tool } = drawSettings;
 
-    if (tool === 'triangle' || tool === 'rectangle' || tool === 'ellipse' || tool === 'line' || tool === 'eraser') {
+    if (tool === 'triangle' || tool === 'rectangle' || tool === 'ellipse' || tool === 'line') {
       if (window.PointerEvent) {
         return (
           <ShapePointerListener
@@ -204,6 +206,30 @@ export default class WhiteboardOverlay extends Component {
 
       return (
         <PencilDrawListener
+          userId={userId}
+          whiteboardId={whiteboardId}
+          drawSettings={drawSettings}
+          actions={actions}
+          physicalSlideWidth={physicalSlideWidth}
+          physicalSlideHeight={physicalSlideHeight}
+        />
+      );
+    } if (tool === 'eraser') {
+      if (window.PointerEvent) {
+        return (
+          <EraserPointerListener
+            userId={userId}
+            whiteboardId={whiteboardId}
+            drawSettings={drawSettings}
+            actions={actions}
+            physicalSlideWidth={physicalSlideWidth}
+            physicalSlideHeight={physicalSlideHeight}
+          />
+        );
+      }
+
+      return (
+        <EraserDrawListener
           userId={userId}
           whiteboardId={whiteboardId}
           drawSettings={drawSettings}

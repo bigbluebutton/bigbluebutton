@@ -2,13 +2,16 @@ package org.bigbluebutton.core.apps
 
 //import java.util.ArrayList;
 import org.bigbluebutton.core.util.jhotdraw.BezierWrapper
-import scala.collection.immutable.List
-import scala.collection.immutable.HashMap
+import org.bigbluebutton.core.util.BoundingBox
+import org.bigbluebutton.core.util.ShapeType
+import scala.collection.immutable.{ List, HashMap }
+import scala.Tuple2
+import scala.collection.mutable.{ ListBuffer, Set }
 import scala.collection.JavaConverters._
 import org.bigbluebutton.common2.msgs.{ AnnotationEvent, AnnotationVO, ModificationVO }
 import org.bigbluebutton.core.apps.whiteboard.Whiteboard
+import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 import org.bigbluebutton.SystemConfiguration
-import scala.collection.mutable.Set
 
 class WhiteboardModel extends SystemConfiguration {
   private var _whiteboards = new HashMap[String, Whiteboard]()
@@ -233,6 +236,151 @@ class WhiteboardModel extends SystemConfiguration {
     }
 
     rtnAnnotation
+  }
+
+  def endAnnotationEraser(wbId: String, userId: String, annotation: AnnotationVO, drawEndOnly: Boolean): Map[String, Any] = {
+    val wb = getWhiteboard(wbId)
+    val usersAnnotations = getAnnotationsByUserId(wb, userId)
+
+    var rtnInformation: Map[String, Any] = HashMap("whiteboardId" -> wb, "userId" -> userId, "eraserId" -> annotation.id, "annotationsToAdd" -> List(), "idsToRemove" -> List())
+
+    //not empty and head id equals annotation id
+    //println("!usersAnnotations.isEmpty: " + (!usersAnnotations.isEmpty) + ", usersAnnotations.head.id == annotation.id: " + (usersAnnotations.head.id == annotation.id));
+
+    var dimensions: List[Int] = List[Int]()
+    annotation.annotationInfo.get("dimensions").foreach(d => {
+      d match {
+        case d2: List[_] => dimensions = convertListNumbersToInt(d2)
+      }
+    })
+
+    //println("dimensions.size(): " + dimensions.size());
+    if (dimensions.length == 2) {
+      var oldPoints: List[Float] = List[Float]()
+      val oldAnnotationOption: Option[AnnotationVO] = usersAnnotations.headOption match {
+        case Some(a: AnnotationVO) => Some(a)
+        case _                     => None
+      }
+      if (!oldAnnotationOption.isEmpty) {
+        val oldAnnotation = oldAnnotationOption.get
+        if (oldAnnotation.id == annotation.id) {
+          oldAnnotation.annotationInfo.get("points").foreach(a => {
+            a match {
+              case a2: List[_] => oldPoints = a2.asInstanceOf[List[Float]]
+            }
+          })
+        }
+      }
+
+      var newPoints: List[Float] = List[Float]()
+      annotation.annotationInfo.get("points").foreach(a => {
+        a match {
+          case a2: List[_] => newPoints = convertListNumbersToFloat(a2)
+        }
+      }) //newPoints = a.asInstanceOf[ArrayList[Float]])
+
+      //println("oldPoints.size(): " + oldPoints.size)
+
+      //val oldPointsJava: java.util.List[java.lang.Float] = oldPoints.asJava.asInstanceOf[java.util.List[java.lang.Float]]
+      //println("****class = " + oldPointsJava.getClass())
+      val pathData = BezierWrapper.lineSimplifyAndCurve((oldPoints ::: newPoints).asJava.asInstanceOf[java.util.List[java.lang.Float]], dimensions(0), dimensions(1))
+      //println("Path data: pointssize " + pathData.points.size() + " commandssize " + pathData.commands.size())
+
+      val updatedAnnotationData = annotation.annotationInfo + ("points" -> pathData.points.asScala.toList) + ("commands" -> pathData.commands.asScala.toList)
+      //println("oldAnnotation value = " + oldAnnotationOption.getOrElse("Empty"))
+
+      var newPosition: Int = oldAnnotationOption match {
+        case Some(annotation) => annotation.position
+        case None             => wb.annotationCount
+      }
+
+      val updatedAnnotation = annotation.copy(position = newPosition, annotationInfo = updatedAnnotationData)
+
+      var newUsersAnnotations: List[AnnotationEvent] = oldAnnotationOption match {
+        //As part of the whiteboard improvments for the HTML5 client it no longer sends
+        //DRAW_START and DRAW_UPDATE events (#9019). Client now sends drawEndOnly in the
+        //SendWhiteboardAnnotationPubMsg so akka knows not to expect usersAnnotations to be accumulating.
+        case Some(annotation) if (drawEndOnly == true) => usersAnnotations
+        case Some(annotation)                          => usersAnnotations.tail
+        case None                                      => usersAnnotations
+      }
+
+      def extractThickness(a: AnnotationVO): Float = {
+        a.annotationInfo.get("thickness") match {
+          case Some(thickness: Float) => thickness
+          case _                      => 0
+        }
+      }
+
+      var intersectingAnnotations: scala.collection.mutable.Map[String, ListBuffer[AnnotationVO]] = scala.collection.mutable.Map[String, ListBuffer[AnnotationVO]]()
+      var clippedAnnotations: scala.collection.mutable.Map[String, ListBuffer[AnnotationVO]] = scala.collection.mutable.Map[String, ListBuffer[AnnotationVO]]()
+
+      val eraserPoints: List[Float] = updatedAnnotation.annotationInfo.get("points") match {
+        case Some(points: List[Float]) => points
+        case _                         => List(0f, 0f, 0f, 0f)
+      }
+      val eraserBoundingBox: BoundingBox = new BoundingBox(eraserPoints, extractThickness(updatedAnnotation), ShapeType.Line)
+
+      wb.annotationsMap.foreach {
+        case (userId, annotations) => annotations.foreach {
+          case a: AnnotationVO => {
+            //Searching for intersecting annotations
+            a.annotationInfo.get("type") match {
+              case Some(WhiteboardKeyUtil.PENCIL_TYPE) => {
+                a.annotationInfo.get("points") match {
+                  case Some(points: List[Float]) => {
+                    val annotationBB = new BoundingBox(points, extractThickness(a), ShapeType.Line)
+                    if (eraserBoundingBox.intersects(annotationBB)) {
+                      //TODO Clip
+
+                      intersectingAnnotations.get(userId) match {
+                        case Some(listbuffer: ListBuffer[AnnotationVO]) => listbuffer += a
+                        case None                                       => intersectingAnnotations += (userId -> ListBuffer[AnnotationVO](a))
+                      }
+                    }
+                  }
+                }
+              }
+
+              case Some(WhiteboardKeyUtil.RECTANGLE_TYPE) => {
+                a.annotationInfo.get("points") match {
+                  case Some(points: List[Float]) => {
+                    val annotationBB = new BoundingBox(points, extractThickness(a), ShapeType.Rectangle)
+                    if (eraserBoundingBox.intersects(annotationBB)) {
+                      //TODO Clip
+
+                      intersectingAnnotations.get(userId) match {
+                        case Some(listbuffer: ListBuffer[AnnotationVO]) => listbuffer += a
+                        case None                                       => intersectingAnnotations += (userId -> ListBuffer[AnnotationVO](a))
+                      }
+                    }
+                  }
+                }
+              }
+
+              case Some(WhiteboardKeyUtil.ELLIPSE_TYPE)  => {}
+
+              case Some(WhiteboardKeyUtil.TRIANGLE_TYPE) => {}
+
+              case Some(WhiteboardKeyUtil.LINE_TYPE)     => {}
+
+              case Some(WhiteboardKeyUtil.TEXT_TYPE)     => {}
+            }
+          }
+        }
+      }
+
+      var newAnnotationsMap = wb.annotationsMap
+      intersectingAnnotations.foreach { case (userID, annotations) => newAnnotationsMap = newAnnotationsMap + (userID -> (newAnnotationsMap(userID) diff annotations)) }
+      //println("Annotation has position [" + usersAnnotations.head.position + "]")
+      val newWb = wb.copy(annotationsMap = newAnnotationsMap)
+      //println("Updating annotation on page [" + wb.id + "]. After numAnnotations=[" + getAnnotationsByUserId(wb, userId).length + "].")
+      saveWhiteboard(newWb)
+
+      rtnInformation = rtnInformation + ("idsToRemove" -> (intersectingAnnotations.foldLeft(ListBuffer.empty[String]) { case (a, (k, v)) => a ++ v.map(a => a.id) }).toList)
+    }
+
+    rtnInformation
   }
 
   def getHistory(wbId: String): Array[AnnotationVO] = {
