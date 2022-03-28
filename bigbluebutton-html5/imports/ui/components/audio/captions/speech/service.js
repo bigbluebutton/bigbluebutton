@@ -48,12 +48,14 @@ const isActive = () => isEnabled() && getSpeech();
 
 const getStatus = () => {
   const active = isActive();
-  const { connected } = Meteor.status();
   const audio = AudioService.isConnected() && !AudioService.isEchoTest() && !AudioService.isMuted();
+  const connected = Meteor.status().connected && active && audio;
+  const talking = AudioService.isTalking();
 
   return {
     locale: DEFAULT_LANGUAGE,
-    dictating: active && connected && audio,
+    connected,
+    talking,
   };
 };
 

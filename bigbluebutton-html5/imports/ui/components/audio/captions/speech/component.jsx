@@ -1,30 +1,13 @@
 import { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl } from 'react-intl';
-import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 import Service from './service';
-
-const intlMessages = defineMessages({
-  start: {
-    id: 'app.audio.captions.speech.start',
-    description: 'Notification on speech recognition start',
-  },
-  stop: {
-    id: 'app.audio.captions.speech.stop',
-    description: 'Notification on speech recognition stop',
-  },
-  error: {
-    id: 'app.audio.captions.speech.error',
-    description: 'Notification on speech recognition error',
-  },
-});
 
 class Speech extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.onStop = this.onStop.bind(this);
+    this.onEnd = this.onEnd.bind(this);
     this.onError = this.onError.bind(this);
     this.onResult = this.onResult.bind(this);
 
@@ -33,11 +16,12 @@ class Speech extends PureComponent {
       isFinal: true,
     };
 
+    this.idle = true;
+
     this.speechRecognition = Service.initSpeechRecognition();
 
     if (this.speechRecognition) {
-      this.speechRecognition.onstart = () => notify(props.intl.formatMessage(intlMessages.start), 'info', 'closed_caption');
-      this.speechRecognition.onend = () => notify(props.intl.formatMessage(intlMessages.stop), 'info', 'closed_caption');
+      this.speechRecognition.onend = () => this.onEnd();
       this.speechRecognition.onerror = (event) => this.onError(event);
       this.speechRecognition.onresult = (event) => this.onResult(event);
     }
@@ -46,55 +30,56 @@ class Speech extends PureComponent {
   componentDidUpdate(prevProps) {
     const {
       locale,
-      dictating,
+      connected,
+      talking,
     } = this.props;
 
-    // Start dictating
-    if (!prevProps.dictating && dictating) {
+    // Connected
+    if (!prevProps.connected && connected) {
       this.start(locale);
     }
 
-    // Stop dictating
-    if (prevProps.dictating && !dictating) {
-      this.onStop();
+    // Disconnected
+    if (prevProps.connected && !connected) {
+      this.stop();
     }
 
     // Switch locale
     if (prevProps.locale !== locale) {
-      if (prevProps.dictating && dictating) {
-        this.onStop();
+      if (prevProps.connected && connected) {
+        this.stop();
         this.start(locale);
+      }
+    }
+
+    // Recovery from idle
+    if (!prevProps.talking && talking) {
+      if (prevProps.connected && connected) {
+        if (this.idle) {
+          this.start(locale);
+        }
       }
     }
   }
 
   componentWillUnmount() {
-    this.onStop();
+    this.stop();
   }
 
-  onError(error) {
-    this.onStop();
+  onEnd() {
+    this.stop();
+  }
+
+  onError(event) {
+    this.stop();
 
     logger.error({
       logCode: 'captions_speech_recognition',
-      extraInfo: { error },
+      extraInfo: {
+        error: event.error,
+        message: event.message,
+      },
     }, 'Captions speech recognition error');
-  }
-
-  onStop() {
-    if (this.speechRecognition) {
-      const {
-        isFinal,
-        transcript,
-      } = this.result;
-
-      if (!isFinal) {
-        Service.pushFinalTranscript(transcript);
-        this.speechRecognition.abort();
-      } else {
-        this.speechRecognition.stop();
-      }
-    }
   }
 
   onResult(event) {
@@ -121,8 +106,26 @@ class Speech extends PureComponent {
       this.speechRecognition.lang = locale;
       try {
         this.speechRecognition.start();
+        this.idle = false;
       } catch (event) {
-        this.onError(event.error);
+        this.onError(event);
+      }
+    }
+  }
+
+  stop() {
+    this.idle = true;
+    if (this.speechRecognition) {
+      const {
+        isFinal,
+        transcript,
+      } = this.result;
+
+      if (!isFinal) {
+        Service.pushFinalTranscript(transcript);
+        this.speechRecognition.abort();
+      } else {
+        this.speechRecognition.stop();
       }
     }
   }
@@ -134,10 +137,8 @@ class Speech extends PureComponent {
 
 Speech.propTypes = {
   locale: PropTypes.string.isRequired,
-  dictating: PropTypes.bool.isRequired,
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
+  connected: PropTypes.bool.isRequired,
+  talking: PropTypes.bool.isRequired,
 };
 
-export default injectIntl(Speech);
+export default Speech;

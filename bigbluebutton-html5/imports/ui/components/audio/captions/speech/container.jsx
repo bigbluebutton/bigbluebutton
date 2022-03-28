@@ -8,11 +8,13 @@ const Container = (props) => <Speech {...props} />;
 export default withTracker(() => {
   const {
     locale,
-    dictating,
+    connected,
+    talking,
   } = Service.getStatus();
 
   return {
     locale,
-    dictating,
+    connected,
+    talking,
   };
 })(Container);
