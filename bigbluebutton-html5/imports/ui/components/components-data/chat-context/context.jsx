@@ -139,16 +139,18 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
       if (groupMessage.sender === stateMessages.lastSender) {
         const previousMessage = msg.timestamp <= getLoginTime();
         const timeWindowKey = keyName + '-' + stateMessages.chatIndexes[keyName];
+        const read = previousMessage ? true : !!removedMessagesReadState[groupMessage.id];
+
         messageGroups[timeWindowKey] = {
           ...groupMessage,
           lastTimestamp: msg.timestamp,
-          read: previousMessage ? true : false,
+          read,
           content: [
             ...groupMessage.content,
             { id: msg.id, text: msg.message, time: msg.timestamp }
           ],
         };
-        if (!previousMessage && groupMessage.sender !== Auth.userID) {
+        if (!read && groupMessage.sender !== Auth.userID) {
           stateMessages.unreadTimeWindows.add(timeWindowKey);
         }
       }

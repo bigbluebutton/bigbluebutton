@@ -44,7 +44,6 @@ trait AppsTestFixtures {
   val allowModsToEjectCameras = false
   val authenticatedGuest = false
   val meetingLayout = ""
-  val virtualBackgroundsEnabled = false
 
   val metadata: collection.immutable.Map[String, String] = Map("foo" -> "bar", "bar" -> "baz", "baz" -> "foo")
   val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, breakoutRooms = Vector())
@@ -64,7 +63,7 @@ trait AppsTestFixtures {
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
     userCameraCap = userCameraCap,
     guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, allowModsToEjectCameras = allowModsToEjectCameras,
-    authenticatedGuest = authenticatedGuest, meetingLayout = meetingLayout, virtualBackgroundsEnabled = virtualBackgroundsEnabled)
+    authenticatedGuest = authenticatedGuest, meetingLayout = meetingLayout)
   val metadataProp = new MetadataProp(metadata)
 
   val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,

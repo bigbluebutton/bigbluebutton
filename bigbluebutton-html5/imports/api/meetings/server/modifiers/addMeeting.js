@@ -65,7 +65,6 @@ export default function addMeeting(meeting) {
       allowModsToUnmuteUsers: Boolean,
       allowModsToEjectCameras: Boolean,
       meetingLayout: String,
-      virtualBackgroundsDisabled: Boolean,
     },
     durationProps: {
       createdTime: Number,
@@ -112,6 +111,7 @@ export default function addMeeting(meeting) {
       lockOnJoin: Boolean,
       lockOnJoinConfigurable: Boolean,
       lockedLayout: Boolean,
+      hideViewersCursor: Boolean,
     },
     systemProps: {
       html5InstanceId: Number,
