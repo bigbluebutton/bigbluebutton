@@ -32,7 +32,7 @@ mkdir -p staging/var/log/bigbluebutton
 cp -r scripts lib Gemfile Gemfile.lock  staging/usr/local/bigbluebutton/core
 
 pushd staging/usr/local/bigbluebutton/core
-  bundle config set --local path vendor/bundle
+  bundle config set --local deployment true
   bundle install
   # Remove unneeded files to reduce package size
   bundle clean
