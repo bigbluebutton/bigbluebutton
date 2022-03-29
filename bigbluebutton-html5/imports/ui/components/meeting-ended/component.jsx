@@ -231,7 +231,13 @@ class MeetingEnded extends PureComponent {
     });
 
     fetch(url, options).catch((e) => {
-      logger.warn(e);
+      logger.warn({
+        logCode: 'user_feedback_not_sent_error',
+        extraInfo: {
+          errorName: e.name,
+          errorMessage: e.message,
+        },
+      }, `Unable to send feedback: ${e.message}`);
     });
   }
 
