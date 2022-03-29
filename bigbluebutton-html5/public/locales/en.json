@@ -954,6 +954,7 @@
     "playback.button.search.aria": "Search",
     "playback.button.section.aria": "Side section",
     "playback.button.swap.aria": "Swap content",
+    "playback.button.theme.aria": "Toggle theme",
     "playback.error.wrapper.aria": "Error area",
     "playback.loader.wrapper.aria": "Loader area",
     "playback.player.wrapper.aria": "Player area",
