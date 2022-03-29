@@ -12,7 +12,7 @@ test.describe.parallel('Polling', () => {
     test('Create anonymous poll', async ({ browser, context, page }) => {
       const polling = new Polling(browser, context);
       await polling.initPages(page);
-      await polling.pollAnonymous()
+      await polling.pollAnonymous();
     });
 
     test('Create quick poll - from the slide', async ({ browser, context, page }) => {

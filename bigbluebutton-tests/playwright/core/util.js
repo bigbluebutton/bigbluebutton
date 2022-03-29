@@ -12,7 +12,7 @@ function checkElementLengthEqualTo([element, count]) {
 
 // Text
 async function checkTextContent(baseContent, checkData) {
-  if (typeof checkData === 'string' ) checkData = new Array(checkData);
+  if (typeof checkData === 'string') checkData = new Array(checkData);
 
   const check = checkData.every(word => baseContent.includes(word));
   await expect(check).toBeTruthy();

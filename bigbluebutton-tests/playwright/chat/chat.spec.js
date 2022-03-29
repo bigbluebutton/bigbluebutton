@@ -34,7 +34,7 @@ test.describe.parallel('Chat', () => {
     await chat.saveChat(testInfo);
   });
 
-  test('Verify character limit (5000 characters)', async ({ browser, page }) => {
+  test('Verify character limit', async ({ browser, page }) => {
     const chat = new Chat(browser, page);
     await chat.init(true, true);
     await chat.characterLimit();
