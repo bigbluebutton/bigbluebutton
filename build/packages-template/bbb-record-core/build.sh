@@ -7,6 +7,10 @@ PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 VERSION=$(echo $TARGET | cut -d'_' -f2)
 DISTRO=$(echo $TARGET | cut -d'_' -f3)
 
+# Additional packages required for build
+# TODO: Add these to the docker base image used for package building.
+apt install ruby-bundler libsystemd-dev
+
 #
 # Clean up directories
 rm -rf staging
@@ -27,15 +31,21 @@ done
 mkdir -p staging/var/log/bigbluebutton
 cp -r scripts lib Gemfile Gemfile.lock  staging/usr/local/bigbluebutton/core
 
-if [ "$DISTRO" == "focal" ]; then
-  cp Rakefile  staging/usr/local/bigbluebutton/core
-fi
+pushd staging/usr/local/bigbluebutton/core
+  bundle config set --local deployment true
+  bundle install
+  # Remove unneeded files to reduce package size
+  bundle clean
+  rm -r vendor/bundle/ruby/*/cache
+  find vendor/bundle -name '*.o' -delete
+popd
 
-
+cp Rakefile  staging/usr/local/bigbluebutton/core
 cp bbb-record-core.logrotate staging/etc/logrotate.d
 
-mkdir -p staging/usr/lib/systemd/system
-cp systemd/* staging/usr/lib/systemd/system
+SYSTEMDSYSTEMUNITDIR=$(pkg-config --variable systemdsystemunitdir systemd)
+mkdir -p "staging${SYSTEMDSYSTEMUNITDIR}"
+cp systemd/* "staging${SYSTEMDSYSTEMUNITDIR}"
 
 if [ -f "staging/usr/local/bigbluebutton/core/scripts/basic_stats.nginx" ]; then \
   mkdir -p staging/usr/share/bigbluebutton/nginx; \
