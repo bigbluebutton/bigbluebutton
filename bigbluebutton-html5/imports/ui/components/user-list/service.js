@@ -662,8 +662,8 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'meetingProp.name': 1 } });
   const date = new Date();
-  const time = `${date.getHours()}-${date.getMinutes()}`;
-  const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_${time}`;
+  const time = `${('0'+date.getHours()).slice(-2)}-${('0'+date.getMinutes()).slice(-2)}`;
+  const dateString = `${date.getFullYear()}-${('0'+(date.getMonth() + 1)).slice(-2)}-${('0'+date.getDate()).slice(-2)}_${time}`;
   link.setAttribute('download', `bbb-${meeting.meetingProp.name}[users-list]_${dateString}.txt`);
   link.setAttribute(
     'href',
