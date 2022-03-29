@@ -3,7 +3,7 @@ Description=BigBlueButton recording caption upload handler
 
 [Service]
 Type=simple
-ExecStart=bundle exec ruby scripts/rap-caption-inbox.rb
+ExecStart=/usr/local/bigbluebutton/core/scripts/rap-caption-inbox.rb
 WorkingDirectory=/usr/local/bigbluebutton/core
 User=bigbluebutton
 Slice=bbb_record_core.slice
