@@ -11,6 +11,7 @@ import {
   colorText,
   colorWhite,
   colorGrayLighter,
+  colorOverlay,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const GlobalStyle = createGlobalStyle`
@@ -30,7 +31,7 @@ const GlobalStyle = createGlobalStyle`
     border-radius: ${borderRadius};
     border: 0;
     z-index: 9999;
-    max-width: 16rem;
+    max-width: 22rem;
   }
 
   // modal
@@ -64,7 +65,7 @@ const GlobalStyle = createGlobalStyle`
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(6, 23, 42, 0.75);
+    background-color: ${colorOverlay};
   }
 
   .fullscreenModalOverlay {
@@ -142,6 +143,15 @@ const GlobalStyle = createGlobalStyle`
 
   .actionToast {
     background-color: ${colorWhite};
+
+    i.close {
+      left: none !important;
+    }
+  }
+
+  .raiseHandToast {
+    background-color: ${colorWhite};
+    padding: 1rem;
 
     i.close {
       left: none !important;

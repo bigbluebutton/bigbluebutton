@@ -15,7 +15,12 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
 
   def handleCreateBreakoutRoomsCmdMsg(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x): MeetingState2x = {
 
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) || liveMeeting.props.meetingProp.isBreakout) {
+    if (liveMeeting.props.meetingProp.disabledFeatures.contains("breakoutRooms")) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "Breakout rooms is disabled for this meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
+      state
+    } else if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) || liveMeeting.props.meetingProp.isBreakout) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to create breakout room for meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId,
@@ -61,7 +66,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         breakout.freeJoin,
         liveMeeting.props.voiceProp.dialNumber,
         breakout.voiceConf,
-        msg.body.durationInMinutes,
+        msg.body.durationInMinutes * 60,
         liveMeeting.props.password.moderatorPass,
         liveMeeting.props.password.viewerPass,
         presId, presSlide, msg.body.record,
@@ -72,7 +77,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       outGW.send(event)
     }
 
-    val breakoutModel = new BreakoutModel(None, msg.body.durationInMinutes, rooms)
+    val breakoutModel = new BreakoutModel(None, msg.body.durationInMinutes * 60, rooms)
     state.update(Some(breakoutModel))
   }
 

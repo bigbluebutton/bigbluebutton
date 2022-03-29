@@ -9,16 +9,13 @@ import {
   removeAllListeners,
   getPlayingState,
 } from './service';
-
-import {
-  isMobile, isTablet,
-} from '../layout/utils';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 import logger from '/imports/startup/client/logger';
 
 import VolumeSlider from './volume-slider/component';
 import ReloadButton from '/imports/ui/components/reload-button/component';
-import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
+import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 
 import ArcPlayer from '/imports/ui/components/external-video-player/custom-players/arc-player';
 import PeerTubePlayer from '/imports/ui/components/external-video-player/custom-players/peertube';
@@ -149,7 +146,6 @@ class VideoPlayer extends Component {
     this.setPlaybackRate = this.setPlaybackRate.bind(this);
     this.onBeforeUnload = this.onBeforeUnload.bind(this);
 
-    this.isMobile = isMobile() || isTablet();
     this.mobileHoverSetTimeout = null;
   }
 
@@ -177,6 +173,11 @@ class VideoPlayer extends Component {
         value: true,
       });
     }
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+      value: true,
+    });
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -219,6 +220,11 @@ class VideoPlayer extends Component {
     clearTimeout(this.autoPlayTimeout);
 
     this.player = null;
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+      value: false,
+    });
 
     if (hidePresentation) {
       layoutContextDispatch({
@@ -296,10 +302,14 @@ class VideoPlayer extends Component {
   }
 
   handleOnProgress() {
+    const { mutedByEchoTest } = this.state;
+
     const volume = this.getCurrentVolume();
     const muted = this.getMuted();
 
-    this.setState({ volume, muted });
+    if (!mutedByEchoTest) {
+      this.setState({ volume, muted });
+    }
   }
 
   handleVolumeChanged(volume) {
@@ -307,7 +317,11 @@ class VideoPlayer extends Component {
   }
 
   handleOnMuted(muted) {
-    this.setState({ muted });
+    const { mutedByEchoTest } = this.state;
+
+    if (!mutedByEchoTest) {
+      this.setState({ muted });
+    }
   }
 
   handleReload() {
@@ -366,10 +380,10 @@ class VideoPlayer extends Component {
   }
 
   getMuted() {
-    const { muted } = this.state;
+    const { mutedByEchoTest } = this.state;
     const intPlayer = this.player && this.player.getInternalPlayer();
 
-    return (intPlayer && intPlayer.isMuted && intPlayer.isMuted()) || muted;
+    return intPlayer && intPlayer.isMuted && intPlayer.isMuted() && !mutedByEchoTest;
   }
 
   autoPlayBlockDetected() {
@@ -544,13 +558,14 @@ class VideoPlayer extends Component {
 
     let toolbarStyle = 'hoverToolbar';
 
-    if (this.isMobile && !showHoverToolBar) {
+    if (deviceInfo.isMobile && !showHoverToolBar) {
       toolbarStyle = 'dontShowMobileHoverToolbar';
     }
 
-    if (this.isMobile && showHoverToolBar) {
+    if (deviceInfo.isMobile && showHoverToolBar) {
       toolbarStyle = 'showMobileHoverToolbar';
     }
+    const isMinimized = width === 0 && height === 0;
 
     return (
       <span
@@ -562,6 +577,7 @@ class VideoPlayer extends Component {
           height,
           width,
           pointerEvents: isResizing ? 'none' : 'inherit',
+          display: isMinimized && 'none',
         }}
       >
         <Styled.VideoPlayerWrapper
@@ -620,7 +636,7 @@ class VideoPlayer extends Component {
                     {this.renderFullscreenButton()}
                   </Styled.HoverToolbar>
                 ),
-                (this.isMobile && playing) && (
+                (deviceInfo.isMobile && playing) && (
                   <Styled.MobileControlsOverlay
                     key="mobile-overlay-external-video"
                     ref={(ref) => { this.overlay = ref; }}

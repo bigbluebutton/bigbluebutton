@@ -6,6 +6,7 @@ import { ACTIONS, CAMERADOCK_POSITION } from '../layout/enums';
 import DropAreaContainer from './drop-areas/container';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import Storage from '/imports/ui/services/storage/session';
+import { colorContentBackground } from '/imports/ui/stylesheets/styled-components/palette';
 
 const WebcamComponent = ({
   cameraDock,
@@ -244,11 +245,13 @@ const WebcamComponent = ({
               isDraggable={cameraDock.isDraggable && !isFullscreen && !isDragging}
               isDragging={isDragging}
               id="cameraDock"
+              role="region"
               draggable={cameraDock.isDraggable && !isFullscreen ? 'true' : undefined}
               style={{
                 width: isDragging ? cameraSize.width : cameraDock.width,
                 height: isDragging ? cameraSize.height : cameraDock.height,
                 opacity: isDragging ? 0.5 : undefined,
+                background: isCameraSidebar ? colorContentBackground : null,
               }}
             >
               <VideoProviderContainer

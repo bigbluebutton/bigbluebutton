@@ -3,7 +3,7 @@ const { sleep } = require('../core/helpers');
 const { LOOP_INTERVAL, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 async function webcamContentCheck(test) {
-  await test.waitForSelector(e.videoContainer);
+  await test.waitForSelector(e.webcamVideoItem);
   await test.wasRemoved(e.webcamConnecting, ELEMENT_WAIT_LONGER_TIME);
   const repeats = 5;
   let check;

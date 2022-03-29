@@ -7,7 +7,7 @@ const parameters = require('./parameters');
 const helpers = require('./helpers');
 const e = require('./elements');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } = require('./constants');
-const { checkElement } = require('./util');
+const { checkElement, checkElementLengthEqualTo } = require('./util');
 
 class Page {
   constructor(browser, page) {
@@ -38,58 +38,80 @@ class Page {
 
     if (!isModerator) this.initParameters.moderatorPW = '';
     if (fullName) this.initParameters.fullName = fullName;
+    this.username = this.initParameters.fullName;
 
     this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, customParameter);
     const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, customParameter);
     await this.page.goto(joinUrl);
-
     if (shouldCloseAudioModal) await this.closeAudioModal();
   }
 
   async joinMicrophone() {
     await this.waitForSelector(e.audioModal);
     await this.waitAndClick(e.microphoneButton);
-    await this.waitForSelector(e.connectingStatus);
+    await this.waitForSelector(e.connectingToEchoTest);
     const parsedSettings = await this.getSettingsYaml();
     const listenOnlyCallTimeout = parseInt(parsedSettings.public.media.listenOnlyCallTimeout);
     await this.waitAndClick(e.echoYesButton, listenOnlyCallTimeout);
     await this.waitForSelector(e.isTalking);
   }
 
-  async shareWebcam(shouldConfirmSharing, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
+  async leaveAudio() {
+    await this.waitAndClick(e.leaveAudio);
+    await this.waitForSelector(e.joinAudio);
+  }
+
+  async logoutFromMeeting() {
+    await this.waitAndClick(e.optionsButton);
+    await this.waitAndClick(e.logout);
+  }
+
+  async shareWebcam(shouldConfirmSharing = true, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
     await this.waitAndClick(e.joinVideo);
     if (shouldConfirmSharing) {
+      await this.bringToFront();
       await this.waitForSelector(e.videoPreview, videoPreviewTimeout);
       await this.waitAndClick(e.startSharingWebcam);
     }
     await this.waitForSelector(e.webcamConnecting);
-    await this.waitForSelector(e.webcamVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
   }
 
-  async getLocator(selector, { timeout, hidden } = { timeout: ELEMENT_WAIT_TIME, hidden: false }) {
-    if (!hidden) await this.waitForSelector(selector, timeout);
+  getLocator(selector) {
     return this.page.locator(selector);
   }
 
-  async getSelectorCount(selector, timeout = ELEMENT_WAIT_TIME) {
-    const locator = await this.getLocator(selector, timeout);
+  getLocatorByIndex(selector, index) {
+    return this.page.locator(selector).nth(index);
+  }
+
+  async getSelectorCount(selector) {
+    const locator = this.getLocator(selector);
     return locator.count();
   }
 
   async closeAudioModal() {
     await this.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
-    await this.waitAndClick(e.closeAudioButton);
+    await this.waitAndClick(e.closeModal);
   }
 
   async waitForSelector(selector, timeout = ELEMENT_WAIT_TIME) {
     await this.page.waitForSelector(selector, { timeout });
   }
 
+  async waitUntilHaveCountSelector(selector, count, timeout = ELEMENT_WAIT_TIME) {
+    await this.page.waitForFunction(
+      checkElementLengthEqualTo,
+      [selector, count],
+      { timeout },
+    );
+  }
+
   async type(selector, text) {
-    const handle = await this.getLocator(selector);
+    const handle = this.getLocator(selector);
     await handle.focus();
-    await handle.type(text);
+    await handle.type(text, { timeout: ELEMENT_WAIT_TIME });
   }
 
   async waitAndClickElement(element, index = 0, timeout = ELEMENT_WAIT_TIME) {
@@ -102,7 +124,11 @@ class Page {
   async waitAndClick(selector, timeout = ELEMENT_WAIT_TIME) {
     await this.waitForSelector(selector, timeout);
     await this.page.focus(selector);
-    await this.page.click(selector);
+    await this.page.click(selector, { timeout });
+  }
+
+  async clickOnLocator(locator, timeout = ELEMENT_WAIT_TIME) {
+    await locator.click({ timeout });
   }
 
   async checkElement(selector, index = 0) {
@@ -110,17 +136,27 @@ class Page {
   }
 
   async wasRemoved(selector, timeout = ELEMENT_WAIT_TIME) {
-    const locator = await this.getLocator(selector, { hidden: true });
+    const locator = this.getLocator(selector);
     await expect(locator).toBeHidden({ timeout });
   }
 
   async hasElement(selector, timeout = ELEMENT_WAIT_TIME) {
-    const locator = await this.getLocator(selector);
+    const locator = this.getLocator(selector);
     await expect(locator).toBeVisible({ timeout });
   }
 
+  async hasElementDisabled(selector, timeout = ELEMENT_WAIT_TIME) {
+    const locator = this.getLocator(selector);
+    await expect(locator).toBeDisabled({ timeout });
+  }
+
+  async hasElementEnabled(selector, timeout = ELEMENT_WAIT_TIME) {
+    const locator = this.getLocator(selector);
+    await expect(locator).toBeEnabled({ timeout });
+  }
+
   async hasText(selector, text, timeout = ELEMENT_WAIT_TIME) {
-    const locator = await this.getLocator(selector);
+    const locator = this.getLocator(selector);
     await expect(locator).toContainText(text, { timeout });
   }
 }

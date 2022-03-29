@@ -26,8 +26,22 @@ function usersPersistentData() {
     options.fields = {
       lastBreakoutRoom: false,
     };
-  }
 
+    // viewers are allowed to see other users' data if:
+    // user is logged in or user sent a message in chat
+    const viewerSelector = {
+      meetingId,
+      $or: [
+        {
+          'shouldPersist.hasMessages': true,
+        },
+        {
+          loggedOut: false,
+        },
+      ],
+    };
+    return UsersPersistentData.find(viewerSelector, options);
+  }
   return UsersPersistentData.find(selector, options);
 }
 

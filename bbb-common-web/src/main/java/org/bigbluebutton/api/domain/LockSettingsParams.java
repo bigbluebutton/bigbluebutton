@@ -5,29 +5,32 @@ public class LockSettingsParams {
 	public final Boolean disableMic;
 	public final Boolean disablePrivateChat;
 	public final Boolean disablePublicChat;
-	public final Boolean disableNote;
+	public final Boolean disableNotes;
 	public final Boolean hideUserList;
 	public final Boolean lockedLayout;
 	public final Boolean lockOnJoin;
 	public final Boolean lockOnJoinConfigurable;
+	public final Boolean hideViewersCursor;
 
 	public LockSettingsParams(Boolean disableCam,
 					Boolean disableMic,
 					Boolean disablePrivateChat,
 					Boolean disablePublicChat,
-					Boolean disableNote,
+					Boolean disableNotes,
 					Boolean hideUserList,
 					Boolean lockedLayout,
 					Boolean lockOnJoin,
-					Boolean lockOnJoinConfigurable) {
+					Boolean lockOnJoinConfigurable,
+					Boolean hideViewersCursor) {
 		this.disableCam = disableCam;
 		this.disableMic = disableMic;
 		this.disablePrivateChat = disablePrivateChat;
 		this.disablePublicChat = disablePublicChat;
-		this.disableNote = disableNote;
+		this.disableNotes = disableNotes;
 		this.hideUserList = hideUserList;
 		this.lockedLayout = lockedLayout;
 		this.lockOnJoin = lockOnJoin;
 		this.lockOnJoinConfigurable = lockOnJoinConfigurable;
+		this.hideViewersCursor = hideViewersCursor;
 	}
 }

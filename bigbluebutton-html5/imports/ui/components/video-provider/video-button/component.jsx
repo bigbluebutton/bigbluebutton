@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import ButtonEmoji from '/imports/ui/components/button/button-emoji/ButtonEmoji';
+import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import VideoService from '../service';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
@@ -8,7 +8,7 @@ import { validIOSVersion } from '/imports/ui/components/app/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { debounce } from 'lodash';
 
-const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app;
+const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app.enableWebcamSelectorButton;
 
 const intlMessages = defineMessages({
   joinVideo: {
@@ -31,6 +31,10 @@ const intlMessages = defineMessages({
     id: 'app.video.connecting',
     description: 'video connecting label',
   },
+  camCapReached: {
+    id: 'app.video.meetingCamCapReached',
+    description: 'meeting camera cap label',
+  },
   meteorDisconnected: {
     id: 'app.video.clientDisconnected',
     description: 'Meteor disconnected label',
@@ -47,6 +51,7 @@ const propTypes = {
   intl: PropTypes.object.isRequired,
   hasVideoStream: PropTypes.bool.isRequired,
   mountVideoPreview: PropTypes.func.isRequired,
+  forceMountVideoPreview: PropTypes.func.isRequired,
 };
 
 const JoinVideoButton = ({
@@ -54,6 +59,7 @@ const JoinVideoButton = ({
   hasVideoStream,
   disableReason,
   mountVideoPreview,
+  forceMountVideoPreview,
 }) => {
   const { isMobile } = deviceInfo;
   const shouldEnableWebcamSelectorButton = ENABLE_WEBCAM_SELECTOR_BUTTON
@@ -62,6 +68,7 @@ const JoinVideoButton = ({
   const exitVideo = () => hasVideoStream
     && !isMobile
     && (!VideoService.isMultipleCamerasEnabled() || shouldEnableWebcamSelectorButton);
+  const isMobileSharingCamera = hasVideoStream && isMobile;
 
   const handleOnClick = debounce(() => {
     if (!validIOSVersion()) {
@@ -70,6 +77,8 @@ const JoinVideoButton = ({
 
     if (exitVideo()) {
       VideoService.exitVideo();
+    } else if (isMobileSharingCamera) {
+      forceMountVideoPreview();
     } else {
       mountVideoPreview();
     }
@@ -77,7 +86,7 @@ const JoinVideoButton = ({
 
   const handleOpenAdvancedOptions = (e) => {
     e.stopPropagation();
-    mountVideoPreview();
+    forceMountVideoPreview();
   };
 
   let label = exitVideo()

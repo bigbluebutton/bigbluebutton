@@ -15,18 +15,19 @@ import {
   localUsersSync,
 } from '/client/collection-mirror-initializer';
 import SubscriptionRegistry, { subscriptionReactivity } from '../../services/subscription-registry/subscriptionRegistry';
+import { isChatEnabled } from '/imports/ui/services/features';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const CHAT_ENABLED = CHAT_CONFIG.enabled;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 const SUBSCRIPTIONS = [
   'users', 'meetings', 'polls', 'presentations', 'slides', 'slide-positions', 'captions',
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
-  'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note', 'meeting-time-remaining',
+  'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'meeting-time-remaining',
   'local-settings', 'users-typing', 'record-meetings', 'video-streams',
   'connection-status', 'voice-call-states', 'external-video-meetings', 'breakouts', 'breakouts-history',
+  'pads', 'pads-sessions', 'pads-updates',
 ];
 
 const EVENT_NAME = 'bbb-group-chat-messages-subscription-has-stoppped';
@@ -81,7 +82,7 @@ export default withTracker(() => {
   let subscriptionsHandlers = SUBSCRIPTIONS.map((name) => {
     let subscriptionHandlers = subscriptionErrorHandler;
     if ((!TYPING_INDICATOR_ENABLED && name.indexOf('typing') !== -1)
-      || (!CHAT_ENABLED && name.indexOf('chat') !== -1)) return null;
+      || (!isChatEnabled() && name.indexOf('chat') !== -1)) return null;
 
     if (name === 'users') {
       subscriptionHandlers = {
@@ -141,7 +142,7 @@ export default withTracker(() => {
   const ready = subscriptionsHandlers.every(handler => handler.ready());
   let groupChatMessageHandler = {};
 
-  if (CHAT_ENABLED && ready) {
+  if (isChatEnabled() && ready) {
     const chatsCount = GroupChat.find({
       $or: [
         {

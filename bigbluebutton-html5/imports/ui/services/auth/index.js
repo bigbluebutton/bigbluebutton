@@ -44,6 +44,15 @@ class Auth {
     Storage.setItem('meetingID', this._meetingID);
   }
 
+  set _connectionID(connectionId) {
+    this._connectionID = connectionId;
+    Storage.setItem('sessionToken', this._connectionID);
+  }
+
+  get sessionToken() {
+    return this._sessionToken;
+  }
+
   set sessionToken(sessionToken) {
     this._sessionToken = sessionToken;
     Storage.setItem('sessionToken', this._sessionToken);

@@ -25,11 +25,12 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         disableMic = msg.body.disableMic,
         disablePrivChat = msg.body.disablePrivChat,
         disablePubChat = msg.body.disablePubChat,
-        disableNote = msg.body.disableNote,
+        disableNotes = msg.body.disableNotes,
         hideUserList = msg.body.hideUserList,
         lockedLayout = msg.body.lockedLayout,
         lockOnJoin = msg.body.lockOnJoin,
-        lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable
+        lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable,
+        hideViewersCursor = msg.body.hideViewersCursor
       )
 
       if (!MeetingStatus2x.permissionsEqual(liveMeeting.status, settings) || !MeetingStatus2x.permisionsInitialized(liveMeeting.status)) {
@@ -62,11 +63,12 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           disableMic = settings.disableMic,
           disablePrivChat = settings.disablePrivChat,
           disablePubChat = settings.disablePubChat,
-          disableNote = settings.disableNote,
+          disableNotes = settings.disableNotes,
           hideUserList = settings.hideUserList,
           lockedLayout = settings.lockedLayout,
           lockOnJoin = settings.lockOnJoin,
           lockOnJoinConfigurable = settings.lockOnJoinConfigurable,
+          hideViewersCursor = settings.hideViewersCursor,
           msg.body.setBy
         )
         val header = BbbClientMsgHeader(

@@ -202,6 +202,23 @@ const Avatar = styled.div`
     }
   `}
 
+  ${({ voice }) => voice && `
+    &:after {
+      content: "\\00a0\\e931\\00a0";
+      background-color: ${colorSuccess};
+      top: 1.375rem;
+      left: 1.375rem;
+      right: auto;
+
+      [dir="rtl"] & {
+        left: auto;
+        right: 1.375rem;
+      }
+      opacity: 1;
+      width: 1.2rem;
+      height: 1.2rem;
+    }
+  `}
 
   ${({ muted }) => muted && `
     &:after {
@@ -216,24 +233,6 @@ const Avatar = styled.div`
   ${({ listenOnly }) => listenOnly && `
     &:after {
       content: "\\00a0\\e90c\\00a0";
-      opacity: 1;
-      width: 1.2rem;
-      height: 1.2rem;
-    }
-  `}
-
-  ${({ voice }) => voice && `
-    &:after {
-      content: "\\00a0\\e931\\00a0";
-      background-color: ${colorSuccess};
-      top: 1.375rem;
-      left: 1.375rem;
-      right: auto;
-
-      [dir="rtl"] & {
-        left: auto;
-        right: 1.375rem;
-      }
       opacity: 1;
       width: 1.2rem;
       height: 1.2rem;
@@ -258,7 +257,13 @@ const Avatar = styled.div`
       height: 1.2rem;
     }
   `}
+`;
 
+const Skeleton = styled.div`
+  & .react-loading-skeleton {    
+    height: 2.25rem;
+    width: 2.25rem;
+  }
 `;
 
 export default {
@@ -267,4 +272,5 @@ export default {
   Img,
   Talking,
   Avatar,
+  Skeleton,
 };

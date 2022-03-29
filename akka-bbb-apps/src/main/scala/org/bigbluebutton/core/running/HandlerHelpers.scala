@@ -3,6 +3,7 @@ package org.bigbluebutton.core.running
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, EndBreakoutRoomInternalMsg }
+import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.apps.voice.VoiceApp
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
@@ -13,19 +14,6 @@ import org.bigbluebutton.core2.message.senders.{ MsgBuilder, UserJoinedMeetingEv
 import org.bigbluebutton.core.util.TimeUtil
 
 trait HandlerHelpers extends SystemConfiguration {
-
-  def sendAllWebcamStreams(outGW: OutMsgRouter, requesterId: String, webcams: Webcams, meetingId: String): Unit = {
-    val streams = org.bigbluebutton.core.models.Webcams.findAll(webcams)
-    val webcamStreams = streams.map { u =>
-      val msVO = MediaStreamVO(id = u.stream.id, url = u.stream.url, userId = u.stream.userId,
-        attributes = u.stream.attributes, viewers = u.stream.viewers)
-
-      WebcamStreamVO(streamId = msVO.id, stream = msVO)
-    }
-
-    val event = MsgBuilder.buildGetWebcamStreamsMeetingRespMsg(meetingId, requesterId, webcamStreams)
-    outGW.send(event)
-  }
 
   def trackUserJoin(
       outGW:       OutMsgRouter,
@@ -60,6 +48,7 @@ trait HandlerHelpers extends SystemConfiguration {
         authed = regUser.authed,
         guestStatus = regUser.guestStatus,
         emoji = "none",
+        pin = false,
         presenter = false,
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = regUser.avatarURL,
@@ -281,4 +270,17 @@ trait HandlerHelpers extends SystemConfiguration {
     val event = UserRemovedFromPresenterGroupEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
+
+  def buildGroupChatMessageBroadcastEvtMsg(meetingId: String, userId: String, chatId: String,
+                                           msg: GroupChatMessage): BbbCommonEnvCoreMsg = {
+
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(GroupChatMessageBroadcastEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GroupChatMessageBroadcastEvtMsg.NAME, meetingId, userId)
+    val cmsgs = GroupChatApp.toMessageToUser(msg)
+    val body = GroupChatMessageBroadcastEvtMsgBody(chatId, cmsgs)
+    val event = GroupChatMessageBroadcastEvtMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
 }

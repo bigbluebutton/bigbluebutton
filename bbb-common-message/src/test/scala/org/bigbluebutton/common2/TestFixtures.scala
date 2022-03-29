@@ -23,6 +23,8 @@ trait TestFixtures {
   val autoStartRecording = false
   val allowStartStopRecording = false
   val webcamsOnlyForModerator = false
+  val meetingCameraCap = 0
+  val userCameraCap = 0
   val moderatorPassword = "modpass"
   val viewerPassword = "viewpass"
   val learningDashboardAccessToken = "ldToken"
@@ -36,12 +38,14 @@ trait TestFixtures {
   val maxUsers = 25
   val muteOnStart = false
   val allowModsToUnmuteUsers = false
+  val allowModsToEjectCameras = false
   val keepEvents = false
   val guestPolicy = "ALWAYS_ASK"
   val authenticatedGuest = false
   val metadata: collection.immutable.Map[String, String] = Map("foo" -> "bar", "bar" -> "baz", "baz" -> "foo")
 
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
+    meetingCameraCap = meetingCameraCap,
     isBreakout = isBreakout.booleanValue())
   val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, breakoutRooms = Vector())
 
@@ -55,10 +59,9 @@ trait TestFixtures {
     modOnlyMessage = modOnlyMessage)
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
-    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, authenticatedGuest = authenticatedGuest)
+    userCameraCap = userCameraCap,
+    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, allowModsToEjectCameras = allowModsToEjectCameras, authenticatedGuest = authenticatedGuest)
   val metadataProp = new MetadataProp(metadata)
-  val screenshareProps = ScreenshareProps(screenshareConf = "FixMe!", red5ScreenshareIp = "fixMe!",
-    red5ScreenshareApp = "fixMe!")
   val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
-    usersProp, metadataProp, screenshareProps)
+    usersProp, metadataProp)
 }

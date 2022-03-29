@@ -109,6 +109,14 @@ class PresentationController {
 
     def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
     def podId = params.pod_id
+
+    // Defaults current to false (optional upload parameter)
+    def current = false
+    
+    if (null != params.current) {
+      current = params.current.toBoolean()
+    }
+    
     log.debug "@Default presentation pod" + podId
 
     def uploadFailed = false
@@ -155,7 +163,7 @@ class PresentationController {
             presId,
             presFilename,
             presentationBaseUrl,
-            false /* default presentation */,
+            current,
             params.authzToken,
             uploadFailed,
             uploadFailReasons

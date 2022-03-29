@@ -2,14 +2,13 @@ import _ from 'lodash';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
-import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
-import BBBMenu from '/imports/ui/components/menu/component';
+import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
+import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles'
 import { PANELS, ACTIONS } from '../../layout/enums';
-import deviceInfo from '/imports/utils/deviceInfo';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 
 const propTypes = {
@@ -23,6 +22,7 @@ const propTypes = {
   handleTakePresenter: PropTypes.func.isRequired,
   allowExternalVideo: PropTypes.bool.isRequired,
   stopExternalVideoShare: PropTypes.func.isRequired,
+  isMobile: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -142,7 +142,7 @@ class ActionsDropdown extends PureComponent {
     if (amIPresenter && !hidePresentation) {
       actions.push({
         icon: "presentation",
-        dataTest: "uploadPresentation",
+        dataTest: "managePresentations",
         label: formatMessage(presentationLabel),
         key: this.presentationItemId,
         onClick: handlePresentationClick,
@@ -189,6 +189,7 @@ class ActionsDropdown extends PureComponent {
           : intl.formatMessage(intlMessages.stopExternalVideoLabel),
         key: "external-video",
         onClick: isSharingVideo ? stopExternalVideoShare : this.handleExternalVideoClick,
+        dataTest: "shareExternalVideo",
       })
     }
 
@@ -198,6 +199,7 @@ class ActionsDropdown extends PureComponent {
         label: intl.formatMessage(intlMessages.selectRandUserLabel),
         key: this.selectUserRandId,
         onClick: () => mountModal(<RandomUserSelectContainer isSelectedUser={false} />),
+        dataTest: "selectRandomUser",
       })
     }
 
@@ -248,6 +250,7 @@ class ActionsDropdown extends PureComponent {
       shortcuts: OPEN_ACTIONS_AK,
       isMeteorConnected,
       isDropdownOpen,
+      isMobile,
     } = this.props;
 
     const availableActions = this.getAvailableActions();
@@ -260,8 +263,7 @@ class ActionsDropdown extends PureComponent {
       || !isMeteorConnected) {
       return null;
     }
-    const { isMobile } = deviceInfo;
-    const customStyles = { top: '-4rem' };
+    const customStyles = { top: '-3rem' };
 
     return (
       <BBBMenu
@@ -272,6 +274,7 @@ class ActionsDropdown extends PureComponent {
             open={isDropdownOpen}
             hideLabel
             aria-label={intl.formatMessage(intlMessages.actionsLabel)}
+            data-test="actionsButton"
             label={intl.formatMessage(intlMessages.actionsLabel)}
             icon="plus"
             color="primary"
@@ -282,7 +285,6 @@ class ActionsDropdown extends PureComponent {
         }
         actions={children}
         opts={{
-          disablePortal: true,
           id: "default-dropdown-menu",
           keepMounted: true,
           transitionDuration: 0,

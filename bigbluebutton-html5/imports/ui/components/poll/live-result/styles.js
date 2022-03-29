@@ -15,7 +15,7 @@ import {
   borderSizeLarge,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const ResultLeft = styled.td`
   padding: 0 .5rem 0 0;

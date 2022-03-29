@@ -35,6 +35,7 @@ public final class UploadedPresentation {
   private String conversionStatus;
   private final String baseUrl;
   private boolean isDownloadable = false;
+  private boolean isRemovable = true;
   private boolean current = false;
   private String authzToken;
   private boolean conversionStarted = false;
@@ -119,6 +120,14 @@ public final class UploadedPresentation {
 
   public void setDownloadable() {
     this.isDownloadable = true;
+  }
+
+  public boolean isRemovable() {
+    return isRemovable;
+  }
+
+  public void setRemovable(boolean removable) {
+    isRemovable = removable;
   }
 
   public boolean isCurrent() {

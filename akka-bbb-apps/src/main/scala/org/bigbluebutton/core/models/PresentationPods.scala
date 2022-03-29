@@ -60,7 +60,8 @@ case class PresentationInPod(
     name:         String,
     current:      Boolean                                                  = false,
     pages:        scala.collection.immutable.Map[String, PresentationPage],
-    downloadable: Boolean
+    downloadable: Boolean,
+    removable:    Boolean,
 )
 
 object PresentationPod {

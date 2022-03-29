@@ -7,6 +7,8 @@ import {
 import { emojiConfigs } from './services/EmojiService';
 import Card from './components/Card';
 import UsersTable from './components/UsersTable';
+import UserDetails from './components/UserDetails/component';
+import { UserDetailsContext } from './components/UserDetails/context';
 import StatusTable from './components/StatusTable';
 import PollsTable from './components/PollsTable';
 import ErrorMessage from './components/ErrorMessage';
@@ -128,10 +130,24 @@ class App extends React.Component {
     // Get the three most used
     const mostUsedEmojis = Object
       .entries(emojiCount)
+      .filter(([, count]) => count)
       .sort(([, countA], [, countB]) => countA - countB)
       .reverse()
       .slice(0, 3);
     return mostUsedEmojis.map(([emoji]) => icons[emoji]);
+  }
+
+  updateModalUser() {
+    const { user, dispatch, isOpen } = this.context;
+    const { activitiesJson } = this.state;
+    const { users } = activitiesJson;
+
+    if (isOpen && users[user.userKey]) {
+      dispatch({
+        type: 'changeUser',
+        user: users[user.userKey],
+      });
+    }
   }
 
   fetchActivitiesJson() {
@@ -150,6 +166,7 @@ class App extends React.Component {
             lastUpdated: Date.now(),
           });
           document.title = `Learning Dashboard - ${json.name}`;
+          this.updateModalUser();
         }).catch(() => {
           this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
         });
@@ -167,6 +184,7 @@ class App extends React.Component {
               lastUpdated: Date.now(),
             });
             document.title = `Learning Dashboard - ${jsonData.name}`;
+            this.updateModalUser();
           } else {
             // When meeting is ended the sessionToken stop working, check for new cookies
             this.setDashboardParams();
@@ -229,6 +247,8 @@ class App extends React.Component {
         .filter((currUser) => !currUser.isModerator);
       const nrOfUsers = allUsers.length;
 
+      if (nrOfUsers === 0) return meetingAveragePoints;
+
       // Calculate points of Talking
       const usersTalkTime = allUsers.map((currUser) => currUser.talk.totalTime);
       const maxTalkTime = Math.max(...usersTalkTime);
@@ -250,7 +270,7 @@ class App extends React.Component {
       const maxRaiseHand = Math.max(...usersRaiseHand);
       const totalRaiseHand = usersRaiseHand.reduce((prev, val) => prev + val, 0);
       if (maxRaiseHand > 0) {
-        meetingAveragePoints += ((totalRaiseHand / nrOfUsers) / maxMessages) * 2;
+        meetingAveragePoints += ((totalRaiseHand / nrOfUsers) / maxRaiseHand) * 2;
       }
 
       // Calculate points of Emojis
@@ -354,7 +374,7 @@ class App extends React.Component {
                 .filter((u) => activitiesJson.endedOn > 0
                   || Object.values(u.intIds)[Object.values(u.intIds).length - 1].leftOn === 0)
                 .length}
-              cardClass={tab === 'overview' ? 'border-pink-500' : 'hover:border-pink-500'}
+              cardClass={tab === 'overview' ? 'border-pink-500' : 'hover:border-pink-500 border-white'}
               iconClass="bg-pink-50 text-pink-500"
               onClick={() => {
                 this.setState({ tab: 'overview' });
@@ -383,7 +403,7 @@ class App extends React.Component {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 1,
               })}
-              cardClass={tab === 'overview_activityscore' ? 'border-green-500' : 'hover:border-green-500'}
+              cardClass={tab === 'overview_activityscore' ? 'border-green-500' : 'hover:border-green-500 border-white'}
               iconClass="bg-green-200 text-green-500"
             >
               <svg
@@ -412,7 +432,7 @@ class App extends React.Component {
             <Card
               name={intl.formatMessage({ id: 'app.learningDashboard.indicators.timeline', defaultMessage: 'Timeline' })}
               number={totalOfEmojis()}
-              cardClass={tab === 'status_timeline' ? 'border-purple-500' : 'hover:border-purple-500'}
+              cardClass={tab === 'status_timeline' ? 'border-purple-500' : 'hover:border-purple-500 border-white'}
               iconClass="bg-purple-200 text-purple-500"
             >
               {this.fetchMostUsedEmojis()}
@@ -422,7 +442,7 @@ class App extends React.Component {
             <Card
               name={intl.formatMessage({ id: 'app.learningDashboard.indicators.polls', defaultMessage: 'Polls' })}
               number={Object.values(activitiesJson.polls || {}).length}
-              cardClass={tab === 'polling' ? 'border-blue-500' : 'hover:border-blue-500'}
+              cardClass={tab === 'polling' ? 'border-blue-500' : 'hover:border-blue-500 border-white'}
               iconClass="bg-blue-100 text-blue-500"
             >
               <svg
@@ -450,7 +470,7 @@ class App extends React.Component {
             ? <FormattedMessage id="app.learningDashboard.statusTimelineTable.title" defaultMessage="Timeline" />
             : null }
           { tab === 'polling'
-            ? <FormattedMessage id="app.learningDashboard.pollsTable.title" defaultMessage="Polling" />
+            ? <FormattedMessage id="app.learningDashboard.pollsTable.title" defaultMessage="Polls" />
             : null }
         </h1>
         <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
@@ -477,10 +497,11 @@ class App extends React.Component {
             { tab === 'polling'
               ? <PollsTable polls={activitiesJson.polls} allUsers={activitiesJson.users} />
               : null }
+            <UserDetails dataJson={activitiesJson} />
           </div>
         </div>
         <hr className="my-8" />
-        <div className="flex justify-between mb-8 text-xs text-gray-700 dark:text-gray-400 whitespace-nowrap flex-col sm:flex-row">
+        <div className="flex justify-between pb-8 text-xs text-gray-700 dark:text-gray-400 whitespace-nowrap flex-col sm:flex-row">
           <div className="flex flex-col justify-center mb-4 sm:mb-0">
             <p>
               {
@@ -521,5 +542,7 @@ class App extends React.Component {
     );
   }
 }
+
+App.contextType = UserDetailsContext;
 
 export default injectIntl(App);

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withModalMounter } from '/imports/ui/components/modal/service';
-import CaptionsService from '/imports/ui/components/captions/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
+import Service from '/imports/ui/components/captions/service';
 import WriterMenu from './component';
 import { layoutDispatch } from '../../layout/context';
 import Auth from '/imports/ui/services/auth';
@@ -22,6 +22,5 @@ const WriterMenuContainer = (props) => {
 
 export default withModalMounter(withTracker(({ mountModal }) => ({
   closeModal: () => mountModal(null),
-  allLocales: CaptionsService.getAvailableLocales(),
-  takeOwnership: (locale) => CaptionsService.takeOwnership(locale),
+  availableLocales: Service.getAvailableLocales(),
 }))(WriterMenuContainer));

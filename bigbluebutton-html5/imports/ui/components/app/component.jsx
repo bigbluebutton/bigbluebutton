@@ -11,8 +11,9 @@ import ActivityCheckContainer from '/imports/ui/components/activity-check/contai
 import UserInfoContainer from '/imports/ui/components/user-info/container';
 import BreakoutRoomInvitation from '/imports/ui/components/breakout-room/invitation/container';
 import { Meteor } from 'meteor/meteor';
-import ToastContainer from '../toast/container';
-import ModalContainer from '../modal/container';
+import ToastContainer from '/imports/ui/components/common/toast/container';
+import PadsSessionsContainer from '/imports/ui/components/pads/sessions/container';
+import ModalContainer from '/imports/ui/components/common/modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
@@ -23,13 +24,14 @@ import StatusNotifier from '/imports/ui/components/status-notifier/container';
 import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
-import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
+import CaptionsSpeechContainer from '/imports/ui/components/captions/speech/container';
+import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
 import NewWebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
 import Styled from './styles';
-import { DEVICE_TYPE, ACTIONS } from '../layout/enums';
+import { DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT } from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 } from '../layout/utils';
@@ -123,8 +125,7 @@ const defaultProps = {
   locale: OVERRIDE_LOCALE || navigator.language,
 };
 
-const LAYERED_BREAKPOINT = 640;
-const isLayeredView = window.matchMedia(`(max-width: ${LAYERED_BREAKPOINT}px)`);
+const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
 
 class App extends Component {
   static renderWebcamsContainer() {
@@ -198,6 +199,8 @@ class App extends Component {
 
     body.classList.add(`os-${osName.split(' ').shift().toLowerCase()}`);
 
+    body.classList.add(`lang-${locale.split('-')[0]}`);
+
     if (!validIOSVersion()) {
       notify(
         intl.formatMessage(intlMessages.iOSWarning), 'error', 'warning',
@@ -215,7 +218,7 @@ class App extends Component {
     window.ondragover = (e) => { e.preventDefault(); };
     window.ondrop = (e) => { e.preventDefault(); };
 
-    if (isMobile()) makeCall('setMobileUser');
+    if (deviceInfo.isMobile) makeCall('setMobileUser');
 
     ConnectionStatusService.startRoundTripTime();
 
@@ -367,6 +370,7 @@ class App extends Component {
 
     return (
       <Styled.CaptionsWrapper
+        role="region"
         style={
           {
             position: 'absolute',
@@ -393,6 +397,7 @@ class App extends Component {
 
     return (
       <Styled.ActionsBar
+        role="region"
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={this.shouldAriaHide()}
         style={
@@ -477,6 +482,7 @@ class App extends Component {
           }
           {this.renderCaptions()}
           <UploaderContainer />
+          <CaptionsSpeechContainer />
           <BreakoutRoomInvitation />
           <AudioContainer />
           <ToastContainer rtl />
@@ -493,6 +499,7 @@ class App extends Component {
           <ManyWebcamsNotifier />
           <PollingContainer />
           <ModalContainer />
+          <PadsSessionsContainer />
           {this.renderActionsBar()}
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
           {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}

@@ -1,10 +1,11 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
-import injectNotify from '/imports/ui/components/toast/inject-notify/component';
+import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import _ from 'lodash';
 import BreakoutRemainingTimeComponent from './component';
+import { Text, Time } from './styles';
 
 const intlMessages = defineMessages({
   failedMessage: {
@@ -47,9 +48,18 @@ class breakoutRemainingTimeContainer extends React.Component {
   }
 
   render() {
-    const { message } = this.props;
+    const { message, bold } = this.props;
     if (_.isEmpty(message)) {
       return null;
+    }
+    if (bold) {
+      return (
+        <BreakoutRemainingTimeComponent>
+          <Text>{message.split(' ')[0]}</Text>
+          <br />
+          <Time>{message.split(' ')[1]}</Time>
+        </BreakoutRemainingTimeComponent>
+      );
     }
     return (
       <BreakoutRemainingTimeComponent>
@@ -87,6 +97,7 @@ export default injectNotify(injectIntl(withTracker(({
   timeEndedMessage,
   alertMessage,
   alertUnderMinutes,
+  fromBreakoutPanel,
 }) => {
   const data = {};
   if (breakoutRoom) {
@@ -115,6 +126,7 @@ export default injectNotify(injectIntl(withTracker(({
         notify(alertMessage, 'info', 'rooms');
       }
       data.message = intl.formatMessage(messageDuration, { 0: humanizeSeconds(time) });
+      if (fromBreakoutPanel) data.bold = true;
     } else {
       clearInterval(timeRemainingInterval);
       data.message = intl.formatMessage(timeEndedMessage || intlMessages.breakoutWillClose);

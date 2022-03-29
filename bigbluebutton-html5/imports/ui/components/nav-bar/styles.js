@@ -1,11 +1,6 @@
 import styled from 'styled-components';
-import Icon from '../icon/component';
-import {
-  barsPadding,
-  lgPaddingY,
-  mdPaddingX,
-  borderSize,
-} from '/imports/ui/stylesheets/styled-components/general';
+import Icon from '/imports/ui/components/common/icon/component';
+import { barsPadding, borderSize } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
   colorDanger,
@@ -13,7 +8,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import { phoneLandscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const Navbar = styled.header`
   position: absolute;

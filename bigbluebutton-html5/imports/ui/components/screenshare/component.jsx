@@ -2,9 +2,10 @@ import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import FullscreenButtonContainer from '../fullscreen-button/container';
+import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import SwitchButtonContainer from './switch-button/container';
 import Styled from './styles';
+import VolumeSlider from '../external-video-player/volume-slider/component';
 import AutoplayOverlay from '../media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
@@ -15,6 +16,8 @@ import {
   screenshareHasStarted,
   getMediaElement,
   attachLocalPreviewStream,
+  setVolume,
+  getVolume,
 } from '/imports/ui/components/screenshare/service';
 import {
   isStreamStateUnhealthy,
@@ -23,6 +26,7 @@ import {
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   screenShareLabel: {
@@ -52,9 +56,14 @@ const intlMessages = defineMessages({
     id: 'app.media.screenshare.end',
     description: 'toast to show when a screenshare has ended',
   },
+  screenshareEndedDueToDataSaving: {
+    id: 'app.media.screenshare.endDueToDataSaving',
+    description: 'toast to show when a screenshare has ended by changing data savings option',
+  },
 });
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const MOBILE_HOVER_TIMEOUT = 5000;
 
 class ScreenshareComponent extends React.Component {
   static renderScreenshareContainerInside(mainText) {
@@ -68,10 +77,13 @@ class ScreenshareComponent extends React.Component {
   constructor() {
     super();
     this.state = {
+      restoreOnUnmount: true,
       loaded: false,
       autoplayBlocked: false,
       isStreamHealthy: false,
       switched: false,
+      // Volume control hover toolbar
+      showHoverToolBar: false,
     };
 
     this.onLoadedData = this.onLoadedData.bind(this);
@@ -80,6 +92,11 @@ class ScreenshareComponent extends React.Component {
     this.failedMediaElements = [];
     this.onStreamStateChange = this.onStreamStateChange.bind(this);
     this.onSwitched = this.onSwitched.bind(this);
+    this.handleOnVolumeChanged = this.handleOnVolumeChanged.bind(this);
+    this.handleOnMuted = this.handleOnMuted.bind(this);
+
+    this.volume = getVolume();
+    this.mobileHoverSetTimeout = null;
   }
 
   componentDidMount() {
@@ -102,7 +119,15 @@ class ScreenshareComponent extends React.Component {
 
     notify(intl.formatMessage(intlMessages.screenshareStarted), 'info', 'desktop');
 
-    if (getSwapLayout()) toggleSwapLayout(layoutContextDispatch);
+    if (getSwapLayout()) {
+      toggleSwapLayout(layoutContextDispatch)
+      this.setState({ restoreOnUnmount: false });
+    };
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_SCREEN_SHARE,
+      value: true,
+    });
 
     if (hidePresentation) {
       layoutContextDispatch({
@@ -123,13 +148,27 @@ class ScreenshareComponent extends React.Component {
 
   componentWillUnmount() {
     const {
-      intl, fullscreenContext, layoutContextDispatch, hidePresentation,
+      intl,
+      fullscreenContext,
+      layoutContextDispatch,
+      hidePresentation,
+      toggleSwapLayout,
     } = this.props;
+    const { restoreOnUnmount } = this.state;
     screenshareHasEnded();
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
 
-    notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
+    if (Settings.dataSaving.viewScreenshare) {
+      notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
+    } else {
+      notify(intl.formatMessage(intlMessages.screenshareEndedDueToDataSaving), 'info', 'desktop');
+    }
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_SCREEN_SHARE,
+      value: false,
+    });
 
     if (fullscreenContext) {
       layoutContextDispatch({
@@ -141,11 +180,12 @@ class ScreenshareComponent extends React.Component {
       });
     }
 
-    if (hidePresentation) {
+    if (hidePresentation || !restoreOnUnmount) {
       layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_IS_OPEN,
         value: false,
       });
+      toggleSwapLayout(layoutContextDispatch);
     }
   }
 
@@ -209,6 +249,19 @@ class ScreenshareComponent extends React.Component {
     this.setState((prevState) => ({ switched: !prevState.switched }));
   }
 
+  handleOnVolumeChanged(volume) {
+    this.volume = volume;
+    setVolume(volume);
+  }
+
+  handleOnMuted(muted) {
+    if (muted) {
+      setVolume(0);
+    } else {
+      setVolume(this.volume);
+    }
+  }
+
   renderFullscreenButton() {
     const { intl, fullscreenElementId, fullscreenContext } = this.props;
 
@@ -249,6 +302,55 @@ class ScreenshareComponent extends React.Component {
         dark
       />
     );
+  }
+
+  renderMobileVolumeControlOverlay () {
+    return (
+      <Styled.MobileControlsOverlay
+        key="mobile-overlay-screenshare"
+        ref={(ref) => { this.overlay = ref; }}
+        onTouchStart={() => {
+          clearTimeout(this.mobileHoverSetTimeout);
+          this.setState({ showHoverToolBar: true });
+        }}
+        onTouchEnd={() => {
+          this.mobileHoverSetTimeout = setTimeout(
+            () => this.setState({ showHoverToolBar: false }),
+            MOBILE_HOVER_TIMEOUT,
+          );
+        }}
+      />
+    );
+  }
+
+  renderVolumeSlider() {
+    const { showHoverToolBar } = this.state;
+
+    let toolbarStyle = 'hoverToolbar';
+
+    if (deviceInfo.isMobile && !showHoverToolBar) {
+      toolbarStyle = 'dontShowMobileHoverToolbar';
+    }
+
+    if (deviceInfo.isMobile && showHoverToolBar) {
+      toolbarStyle = 'showMobileHoverToolbar';
+    }
+  
+
+    return [(
+      <Styled.HoverToolbar
+        toolbarStyle={toolbarStyle}
+        key='hover-toolbar-screenshare'>
+        <VolumeSlider
+          volume={getVolume()}
+          muted={getVolume() === 0}
+          onVolumeChanged={this.handleOnVolumeChanged}
+          onMuted={this.handleOnMuted}
+        />
+      </Styled.HoverToolbar>
+      ),
+      (deviceInfo.isMobile) && this.renderMobileVolumeControlOverlay(),
+    ];
   }
 
   renderVideo(switched) {
@@ -304,7 +406,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderScreenshareDefault() {
-    const { intl } = this.props;
+    const { intl, enableVolumeControl } = this.props;
     const { loaded } = this.state;
 
     return (
@@ -317,6 +419,7 @@ class ScreenshareComponent extends React.Component {
       >
         {loaded && this.renderFullscreenButton()}
         {this.renderVideo(true)}
+        {loaded && enableVolumeControl && this.renderVolumeSlider() }
 
         <Styled.ScreenshareContainerDefault>
           {
@@ -401,4 +504,5 @@ ScreenshareComponent.propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   isPresenter: PropTypes.bool.isRequired,
+  enableVolumeControl: PropTypes.bool.isRequired,
 };

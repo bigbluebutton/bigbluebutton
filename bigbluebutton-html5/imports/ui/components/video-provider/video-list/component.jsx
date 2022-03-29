@@ -21,24 +21,6 @@ const propTypes = {
 };
 
 const intlMessages = defineMessages({
-  focusLabel: {
-    id: 'app.videoDock.webcamFocusLabel',
-  },
-  focusDesc: {
-    id: 'app.videoDock.webcamFocusDesc',
-  },
-  unfocusLabel: {
-    id: 'app.videoDock.webcamUnfocusLabel',
-  },
-  unfocusDesc: {
-    id: 'app.videoDock.webcamUnfocusDesc',
-  },
-  mirrorLabel: {
-    id: 'app.videoDock.webcamMirrorLabel',
-  },
-  mirrorDesc: {
-    id: 'app.videoDock.webcamMirrorDesc',
-  },
   autoplayBlockedDesc: {
     id: 'app.videoDock.autoplayBlockedDesc',
   },
@@ -75,8 +57,6 @@ const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItem
 };
 
 const ASPECT_RATIO = 4 / 3;
-const ACTION_NAME_FOCUS = 'focus';
-const ACTION_NAME_MIRROR = 'mirror';
 // const ACTION_NAME_BACKGROUND = 'blurBackground';
 
 class VideoList extends Component {
@@ -91,7 +71,6 @@ class VideoList extends Component {
         filledArea: 0,
       },
       autoplayBlocked: false,
-      mirroredCameras: [],
     };
 
     this.ticking = false;
@@ -106,6 +85,7 @@ class VideoList extends Component {
     this.setOptimalGrid = this.setOptimalGrid.bind(this);
     this.handleAllowAutoplay = this.handleAllowAutoplay.bind(this);
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
+    this.handleVideoFocus = this.handleVideoFocus.bind(this);
     this.autoplayWasHandled = false;
   }
 
@@ -247,24 +227,6 @@ class VideoList extends Component {
     });
   }
 
-  mirrorCamera(stream) {
-    const { mirroredCameras } = this.state;
-    if (this.cameraIsMirrored(stream)) {
-      this.setState({
-        mirroredCameras: mirroredCameras.filter((x) => x !== stream),
-      });
-    } else {
-      this.setState({
-        mirroredCameras: mirroredCameras.concat([stream]),
-      });
-    }
-  }
-
-  cameraIsMirrored(stream) {
-    const { mirroredCameras } = this.state;
-    return mirroredCameras.indexOf(stream) >= 0;
-  }
-
   displayPageButtons() {
     const { numberOfPages, cameraDock } = this.props;
     const { width: cameraDockWidth } = cameraDock;
@@ -338,7 +300,6 @@ class VideoList extends Component {
 
   renderVideoList() {
     const {
-      intl,
       streams,
       onVideoItemMount,
       onVideoItemUnmount,
@@ -349,37 +310,21 @@ class VideoList extends Component {
 
     return streams.map((vs) => {
       const { stream, userId, name } = vs;
-      const isFocused = focusedId === stream;
-      const isFocusedIntlKey = !isFocused ? 'focus' : 'unfocus';
-      const isMirrored = this.cameraIsMirrored(stream);
-      const actions = [{
-        actionName: ACTION_NAME_MIRROR,
-        label: intl.formatMessage(intlMessages.mirrorLabel),
-        description: intl.formatMessage(intlMessages.mirrorDesc),
-        onClick: () => this.mirrorCamera(stream),
-      }];
-
-      if (numOfStreams > 2) {
-        actions.push({
-          actionName: ACTION_NAME_FOCUS,
-          label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
-          description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
-          onClick: () => this.handleVideoFocus(stream),
-        });
-      }
+      const isFocused = focusedId === stream && numOfStreams > 2;
 
       return (
         <Styled.VideoListItem
           key={stream}
           focused={focusedId === stream && numOfStreams > 2}
+          data-test="webcamVideoItem"
         >
           <VideoListItemContainer
             numOfStreams={numOfStreams}
             cameraId={stream}
             userId={userId}
             name={name}
-            mirrored={isMirrored}
-            actions={actions}
+            focused={isFocused}
+            onHandleVideoFocus={this.handleVideoFocus}
             onVideoItemMount={(videoRef) => {
               this.handleCanvasResize();
               onVideoItemMount(stream, videoRef);

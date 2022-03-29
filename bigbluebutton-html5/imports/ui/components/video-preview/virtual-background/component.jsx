@@ -10,7 +10,6 @@ import {
   getVirtualBackgroundThumbnail,
   isVirtualBackgroundSupported,
 } from '/imports/ui/services/virtual-background/service';
-import { capitalizeFirstLetter } from '/imports/utils/string-utils';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -45,7 +44,22 @@ const intlMessages = defineMessages({
   camBgAriaDesc: {
     id: 'app.video.virtualBackground.camBgAriaDesc',
     description: 'Label for virtual background button aria',
-  }
+  },
+  background: {
+    id: 'app.video.virtualBackground.background',
+    description: 'Label for the background word',
+  },
+  ...IMAGE_NAMES.reduce((prev, imageName) => {
+    const id = imageName.split('.').shift();
+    return {
+      ...prev,
+      [id]: {
+        id: `app.video.virtualBackground.${id}`,
+        description: `Label for the ${id} camera option`,
+        defaultMessage: '{background} {index}',
+      },
+    };
+  }, {})
 });
 
 const VirtualBgSelector = ({
@@ -142,8 +156,8 @@ const VirtualBgSelector = ({
           <>
             <Styled.ThumbnailButton
               style={{ backgroundImage: `url('${getVirtualBackgroundThumbnail(BLUR_FILENAME)}')` }}
-              aria-label={EFFECT_TYPES.BLUR_TYPE}
-              label={capitalizeFirstLetter(EFFECT_TYPES.BLUR_TYPE)}
+              aria-label={intl.formatMessage(intlMessages.blurLabel)}
+              label={intl.formatMessage(intlMessages.blurLabel)}
               aria-describedby={`vr-cam-btn-blur`}
               tabIndex={disabled ? -1 : 0}
               hideLabel
@@ -158,14 +172,19 @@ const VirtualBgSelector = ({
           </>
 
           {IMAGE_NAMES.map((imageName, index) => {
+            const label = intl.formatMessage(intlMessages[imageName.split('.').shift()], {
+              index: index + 2,
+              background: intl.formatMessage(intlMessages.background),
+            });
+
             return (
               <div key={`${imageName}-${index}`} style={{ position: 'relative' }}>
                 <Styled.ThumbnailButton
                   id={`${imageName}-${index}`}
-                  label={capitalizeFirstLetter(imageName.split('.').shift())}
+                  label={label}
                   tabIndex={disabled ? -1 : 0}
                   role="button"
-                  aria-label={capitalizeFirstLetter(imageName.split('.').shift())}
+                  aria-label={label}
                   aria-describedby={`vr-cam-btn-${index}`}
                   aria-pressed={currentVirtualBg?.name?.includes(imageName.split('.').shift())}
                   hideLabel
@@ -179,7 +198,7 @@ const VirtualBgSelector = ({
                   node.click();
                 }} aria-hidden src={getVirtualBackgroundThumbnail(imageName)} />
                 <div aria-hidden className="sr-only" id={`vr-cam-btn-${index}`}>
-                  {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: capitalizeFirstLetter(imageName.split('.').shift()) })}
+                  {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: label })}
                 </div>
               </div>
             )

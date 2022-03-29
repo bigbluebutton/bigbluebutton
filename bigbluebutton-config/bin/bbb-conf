@@ -105,11 +105,8 @@ if [ -f /etc/centos-release ] || [ -f /etc/system-release ]; then
     REDIS_SERVICE=redis.service
 else
     . /etc/lsb-release    # Get value for DISTRIB_ID
-    if [ "$DISTRIB_CODENAME" == "bionic" ]; then
-      TOMCAT_USER=tomcat8
-    fi
-    if [ "$DISTRIB_CODENAME" == "xenial" ]; then
-      TOMCAT_USER=tomcat7
+    if [ "$DISTRIB_CODENAME" == "focal" ]; then
+      TOMCAT_USER=tomcat9
     fi
     TOMCAT_DIR=/var/lib/$TOMCAT_USER
     SERVLET_LOGS=$TOMCAT_DIR/logs
@@ -126,8 +123,6 @@ LTI_DIR=/usr/share/bbb-lti
 
 if [ -f /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties ]; then
     SERVLET_DIR=/usr/share/bbb-web
-else
-    SERVLET_DIR=/var/lib/tomcat7/webapps/bigbluebutton
 fi
 
 
@@ -158,7 +153,6 @@ get_bbb_web_config_value() {
 
 RECORD_CONFIG=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 
-HTML5_CONFIG_OLD=/usr/share/meteor/bundle/programs/server/assets/app/config/settings-production.json
 HTML5_DEFAULT_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 HTML5_ETC_CONFIG=/etc/bigbluebutton/bbb-html5.yml
 if [ -f $HTML5_ETC_CONFIG ]; then
@@ -178,7 +172,7 @@ fi
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
 NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
-SIP_CONFIG=/etc/bigbluebutton/nginx/sip.nginx
+SIP_CONFIG=/usr/share/bigbluebutton/nginx/sip.nginx
 SIP_NGINX_IP=$(cat $SIP_CONFIG |  grep -v '#' | sed -n '/proxy_pass/{s/.*proxy_pass http[s]*:\/\///;s/:.*//;p}' | head -n 1)
 
 NCPU=$(nproc --all)
@@ -213,16 +207,19 @@ fi
 # Determine IP so it works on multilingual installations
 #
 
-if LANG=c ifconfig | grep -q 'venet0:0'; then
-    IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
+### duplicated code: see deb-helper.sh and apply-lib.sh
+if [ -e "/sys/class/net/venet0:0" ]; then
+    # IP detection for OpenVZ environment
+    _dev="venet0:0"
 else
-    IP=$(ifconfig $(route | grep ^default | head -1 | sed "s/.* //") | awk '/inet /{ print $2}' | cut -d: -f2)
+    _dev=$(awk '$2 == 00000000 { print $1 }' /proc/net/route | head -1)
 fi
-
+_ips=$(LANG=C ip -4 -br address show dev "$_dev" | awk '{ $1=$2=""; print $0 }')
+_ips=${_ips/127.0.0.1\/8/}
+read -r IP _ <<< "$_ips"
+IP=${IP/\/*} # strip subnet provided by ip address
 if [ -z "$IP" ]; then
-    if [ $DISTRIB_ID == "centos" ]; then
-        IP=$(hostname -I | sed 's/ .*//g')
-    fi
+  read -r IP _ <<< "$(hostname -I)"
 fi
 
 #
@@ -352,6 +349,10 @@ stop_bigbluebutton () {
         WEBHOOKS=bbb-webhooks
     fi
 
+    if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
+        PADS=bbb-pads
+    fi
+
     if [ -f /usr/share/etherpad-lite/settings.json ]; then
         ETHERPAD=etherpad
     fi
@@ -368,7 +369,7 @@ stop_bigbluebutton () {
       TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    systemctl stop $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker.service bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
+    systemctl stop $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker.service bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $PADS $ETHERPAD $BBB_WEB $BBB_LTI
 }
 
 start_bigbluebutton () {
@@ -399,6 +400,10 @@ start_bigbluebutton () {
         WEBHOOKS=bbb-webhooks
     fi
 
+    if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
+        PADS=bbb-pads
+    fi
+
     if [ -f /usr/share/etherpad-lite/settings.json ]; then
         ETHERPAD=etherpad
     fi
@@ -415,7 +420,7 @@ start_bigbluebutton () {
         TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    systemctl start $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
+    systemctl start $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $PADS $BBB_WEB $BBB_LTI
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         systemctl start mongod
@@ -472,6 +477,10 @@ display_bigbluebutton_status () {
 
     if [ -f /lib/systemd/system/bbb-lti.service ]; then
         units="$units bbb-lti"
+    fi
+
+    if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
+        units="$units bbb-pads"
     fi
 
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
@@ -773,12 +782,12 @@ check_configuration() {
             echo
         fi
 
-        WEBHOOKS_PROXY_PORT=$(cat /etc/bigbluebutton/nginx/webhooks.nginx | grep -v '#' | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
+        WEBHOOKS_PROXY_PORT=$(cat /usr/share/bigbluebutton/nginx/webhooks.nginx | grep -v '#' | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
         WEBHOOKS_APP_PORT=$(yq r $WEBHOOKS_CONF server.port)
 
         if [ "$WEBHOOKS_PROXY_PORT" != "$WEBHOOKS_APP_PORT" ]; then
             echo "# Warning: Webhooks port mismatch: "
-            echo "#  /etc/bigbluebutton/nginx/webhooks.nginx                   = $WEBHOOKS_PROXY_PORT"
+            echo "#  /usr/share/bigbluebutton/nginx/webhooks.nginx                   = $WEBHOOKS_PROXY_PORT"
             echo "#  $WEBHOOKS_CONF = $WEBHOOKS_APP_PORT"
             echo
         fi
@@ -796,28 +805,14 @@ check_configuration() {
         fi
     fi
 
-    SIP_PROTOCOL=$(cat /etc/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
+    SIP_PROTOCOL=$(cat /usr/share/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
     if [[ $SIP_PROTOCOL == "https" ]]; then
         if ! grep wss-binding $FREESWITCH_EXTERNAL > /dev/null; then
-            echo "# Warning: Websockets is using HTTPS in /etc/bigbluebutton/nginx/sip.nginx"
+            echo "# Warning: Websockets is using HTTPS in /usr/share/bigbluebutton/nginx/sip.nginx"
             echo "# but no definition for wss-binding found in "
             echo "#"
             echo "#    $FREESWITCH_EXTERNAL"
             echo
-        fi
-
-        if [ -f $HTML5_CONFIG_OLD ]; then
-            if grep \"enableListenOnly\".*true $HTML5_CONFIG_OLD > /dev/null; then
-                if ! grep -q ws-binding $FREESWITCH_EXTERNAL ;  then
-                echo "# Warning: You have enabled listen-only audio via Kurento"
-                echo "# but FreeSWITCH is not listening on port 5066.  You should edit "
-                echo "#"
-                echo "#    $FREESWITCH_EXTERNAL"
-                echo "#"
-                echo "# and add a line that enables ws-binding on port 5066."
-                echo
-                fi
-            fi
         fi
     fi
 
@@ -945,7 +940,7 @@ check_state() {
     #
     # Check if running development environment
     #
-    if ! grep 8090 /etc/bigbluebutton/nginx/web.nginx > /dev/null; then
+    if ! grep 8090 /usr/share/bigbluebutton/nginx/web.nginx > /dev/null; then
         echo "# Warning: nginx is not serving BigBlueButton's web application"
         echo "# from port 8090"
         echo "#"
@@ -1029,7 +1024,7 @@ check_state() {
     #
     # Check if the user is running their own bbb-web
     #
-    if grep -q 8888 /etc/bigbluebutton/nginx/web.nginx; then
+    if grep -q 8888 /usr/share/bigbluebutton/nginx/web.nginx; then
         if ! netstat -ant | grep '8888' > /dev/null; then
             echo "# Warning: There is no application server listening to port 8888."
             echo
@@ -1195,7 +1190,7 @@ check_state() {
         if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
           echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
           echo "#"
-          echo "#    /etc/bigbluebutton/nginx/sip.nginx"
+          echo "#    /usr/share/bigbluebutton/nginx/sip.nginx"
           echo "#"
           echo "# does not match the local IP address ($IP)."
           echo "# (This is OK if you've manually changed the values)"
@@ -1314,6 +1309,57 @@ check_state() {
       fi
     fi
 
+    BBB_LOG="/var/log/bigbluebutton"
+    if [ "$(stat -c "%U %G" $BBB_LOG)" != "bigbluebutton bigbluebutton" ]; then
+      echo
+      echo "#"
+      echo "# Warning: The directory"
+      echo "#"
+      echo "#  $BBB_LOG"
+      echo "#"
+      echo "# is not owned by bigbluebutton:bigbluebutton.  To fix, run the command"
+      echo "#"
+      echo "#   sudo chown bigbluebutton:bigbluebutton $BBB_LOG"
+      echo "#"
+    fi
+
+    BBB_LOG_FILES="$BBB_LOG/bbb-rap-worker.log $BBB_LOG/bbb-web.log $BBB_LOG/post_publish.log  $BBB_LOG/sanity.log"
+    for log_file in $BBB_LOG_FILES; do
+      if [ -f "$log_file" ] && [ "$(stat -c "%U %G" $log_file)" != "bigbluebutton bigbluebutton" ]; then
+        echo
+        echo "#"
+        echo "# Warning: The file"
+        echo "#"
+        echo "#  $log_file"
+        echo "#"
+        echo "# is not owned by bigbluebutton:bigbluebutton.  To fix, run the command"
+        echo "#"
+        echo "#   sudo chown bigbluebutton:bigbluebutton $log_file"
+        echo "#"
+      fi
+    done
+
+    if [ -d /var/lib/gems/2.5.0/cache ]; then
+      for gem_file in /var/lib/gems/2.5.0/cache/*; do
+        if [ ! -s $gem_file ]; then
+          echo "#"
+          echo "# Warning: Found a zero byte size gem file"
+          echo "#"
+          echo "#  $gem_file"
+          echo "#"
+        fi
+      done
+    fi
+
+		if journalctl -u bbb-rap-* | grep -q 'Nil'; then
+			echo
+			echo "#"
+			echo "# Warning: found 'Nil' message in recording processing logs.  Possible GEM errors"
+			echo "#"
+			echo "#  https://github.com/bigbluebutton/bigbluebutton/issues/14287"
+			echo "#"
+		fi
+
 
     exit 0
 }
@@ -1376,12 +1422,6 @@ if [ $CHECK ]; then
     echo "                        ws-binding: $(xmlstarlet sel -t -m 'profile/settings/param[@name="ws-binding"]' -v @value $FREESWITCH_EXTERNAL)"
     echo "                       wss-binding: $(xmlstarlet sel -t -m 'profile/settings/param[@name="wss-binding"]' -v @value $FREESWITCH_EXTERNAL)"
 
-    if [ -f ${SERVLET_DIR}/demo/bbb_api_conf.jsp ]; then
-        BBB_WEB_URL=$(cat ${SERVLET_DIR}//WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-        echo
-        echo "${SERVLET_DIR}/demo/bbb_api_conf.jsp (API demos)"
-        echo "                               url: $BBB_WEB_URL"
-    fi
 
 #     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
 #          LTI_URL=$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
@@ -1402,7 +1442,7 @@ if [ $CHECK ]; then
         echo
         echo "$SIP_CONFIG (sip.nginx)"
         echo "                        proxy_pass: $SIP_NGINX_IP"
-        echo "                          protocol: $(cat /etc/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)"
+        echo "                          protocol: $(cat /usr/share/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)"
     fi
 
     if [ -n "$KURENTO_CONFIG" ]; then
@@ -1442,17 +1482,6 @@ if [ $CHECK ]; then
         echo
         echo "/etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini (STUN Server)"
         echo "                              stun: $stunServerAddress:$stunServerPort"
-     fi
-
-     if [ "$DISTRIB_CODENAME" == "xenial" ]; then
-       if ! java -version 2>&1 | grep -q "1.8.0"; then
-        echo
-        echo "# Warning: Did not detect Java 8 as default version"
-        echo
-        echo "   sudo apt-get install openjdk-8-jdk"
-        echo "   update-alternatives --config java"
-        echo "   bbb-conf --restart"
-      fi
      fi
 
      check_state
@@ -1630,12 +1659,20 @@ if [ -n "$HOST" ]; then
     # Update api demos
     #
     if [ -f ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp ]; then
-        echo "Assigning $HOST for api demos in ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp"
-        $SUDO sed -i "s/BigBlueButtonURL = \"http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"$PROTOCOL:\/\/$HOST\2/g" \
-                ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp
+      echo "there is bbb-demo installed"
+      BBB_WEB_URL=$(get_bbb_web_config_value bigbluebutton.web.serverURL)
+      SECRET=$(get_bbb_web_config_value securitySalt)
+
+      echo "Assigning $BBB_WEB_URL for api demos in ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp"
+      $SUDO echo -n "<%" > ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp
+      $SUDO echo "!
+// This is the security salt that must match the value set in the BigBlueButton server
+String salt = \"$SECRET\";
+
+// This is the URL for the BigBlueButton server
+String BigBlueButtonURL = \"$BBB_WEB_URL/bigbluebutton/\";
+%>" >> ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp
     fi
-
-
 
     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
         echo "Assigning $HOST for LTI integration in ${LTI_DIR}/WEB-INF/classes/lti-config.properties"
@@ -1677,14 +1714,9 @@ if [ -n "$HOST" ]; then
     #
     # Update HTML5 client
     #
-    if [ -f $HTML5_CONFIG_OLD ]; then
-        WS=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
-        sed -i "s|\"wsUrl.*|\"wsUrl\": \"$WS/bbb-webrtc-sfu\",|g" $HTML5_CONFIG_OLD
-    fi
-
     if [ -f $HTML5_DEFAULT_CONFIG ]; then
         yq w -i $HTML5_DEFAULT_CONFIG public.kurento.wsUrl "wss://$HOST/bbb-webrtc-sfu"
-        yq w -i $HTML5_DEFAULT_CONFIG public.note.url      "$PROTOCOL://$HOST/pad"
+        yq w -i $HTML5_DEFAULT_CONFIG public.pads.url      "$PROTOCOL://$HOST/pad"
         chown meteor:meteor $HTML5_DEFAULT_CONFIG
 
         #if [ -f $KURENTO_CONFIG ]; then

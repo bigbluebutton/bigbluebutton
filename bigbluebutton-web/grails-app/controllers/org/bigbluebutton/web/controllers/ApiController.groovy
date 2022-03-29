@@ -97,6 +97,22 @@ class ApiController {
     log.debug request.getParameterMap().toMapString()
     log.debug request.getQueryString()
 
+    String[] ap = request.getParameterMap().get("attendeePW")
+    String attendeePW
+    if(ap == null) log.info("No attendeePW provided")
+    else attendeePW = ap[0]
+
+    String[] mp = request.getParameterMap().get("moderatorPW")
+    String moderatorPW
+    if(mp == null) log.info("No moderatorPW provided")
+    else moderatorPW = mp[0]
+
+    log.info("attendeePW [${attendeePW}]")
+    log.info("moderatorPW [${moderatorPW}]")
+
+    if(attendeePW.equals("")) log.info("attendeePW is empty")
+    if(moderatorPW.equals("")) log.info("moderatorPW is empty")
+
     Map.Entry<String, String> validationResponse = validateRequest(
             ValidationService.ApiCall.CREATE,
             request.getParameterMap(),
@@ -130,7 +146,7 @@ class ApiController {
 
     if (meetingService.createMeeting(newMeeting)) {
       // See if the request came with pre-uploading of presentation.
-      uploadDocuments(newMeeting);  //
+      uploadDocuments(newMeeting, false);  //
       respondWithConference(newMeeting, null, null)
     } else {
       // Translate the external meeting id into an internal meeting id.
@@ -277,7 +293,7 @@ class ApiController {
     }
 
     //Return a Map with the user custom data
-    Map<String, String> userCustomData = paramsProcessorUtil.getUserCustomData(params);
+    Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);
 
     //Currently, it's associated with the externalUserID
     if (userCustomData.size() > 0)
@@ -306,6 +322,7 @@ class ApiController {
     us.guestStatus = guestStatusVal
     us.logoutUrl = meeting.getLogoutUrl()
     us.defaultLayout = meeting.getMeetingLayout()
+    us.leftGuestLobby = false
 
     if (!StringUtils.isEmpty(params.defaultLayout)) {
       us.defaultLayout = params.defaultLayout;
@@ -350,7 +367,8 @@ class ApiController {
         us.guest,
         us.authed,
         guestStatusVal,
-        us.excludeFromDashboard
+        us.excludeFromDashboard,
+        us.leftGuestLobby
     )
 
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
@@ -717,7 +735,6 @@ class ApiController {
             request.getParameterMap(),
             request.getQueryString()
     )
-
     if(!(validationResponse == null)) {
       msgKey = validationResponse.getKey()
       msgValue = validationResponse.getValue()
@@ -730,7 +747,8 @@ class ApiController {
     Meeting meeting = meetingService.getMeeting(us.meetingID)
     String status = us.guestStatus
     destURL = us.clientUrl
-    String lobbyMsg = meeting.getGuestLobbyMessage()
+    String posInWaitingQueue = meeting.getWaitingPositionsInWaitingQueue(us.internalUserId)
+    String lobbyMsg = meeting.getGuestLobbyMessage(us.internalUserId)
 
     Boolean redirectClient = true
     if (!StringUtils.isEmpty(params.redirect)) {
@@ -776,6 +794,14 @@ class ApiController {
         break
     }
 
+    if(meeting.didGuestUserLeaveGuestLobby(us.internalUserId)){
+      destURL = meeting.getLogoutUrl()
+      msgKey = "guestInvalid"
+      msgValue = "Invalid user"
+      status = GuestPolicy.DENY
+      redirectClient = false
+    }
+
     if (redirectClient) {
       // User may join the meeting
       redirect(url: destURL)
@@ -795,6 +821,7 @@ class ApiController {
             guestStatus status
             lobbyMessage lobbyMsg
             url destURL
+            positionInWaitingQueue posInWaitingQueue
           }
           render(contentType: "application/json", text: builder.toPrettyString())
         }
@@ -821,7 +848,6 @@ class ApiController {
             request.getParameterMap(),
             request.getQueryString(),
     )
-
     if(!(validationResponse == null)) {
       respMessage = validationResponse.getValue()
       reject = true
@@ -932,7 +958,6 @@ class ApiController {
             avatarURL us.avatarURL
             if (meeting.breakoutRoomsParams != null) {
               breakoutRooms {
-                enabled meeting.breakoutRoomsParams.enabled
                 record meeting.breakoutRoomsParams.record
                 privateChatEnabled meeting.breakoutRoomsParams.privateChatEnabled
               }
@@ -1081,6 +1106,51 @@ class ApiController {
     }
   }
 
+  /*************************************************
+   * INSERT_DOCUMENT API
+   *************************************************/
+
+  def insertDocument = {
+    String API_CALL = 'insertDocument'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    Map.Entry<String, String> validationResponse = validateRequest(
+            ValidationService.ApiCall.INSERT_DOCUMENT,
+            request.getParameterMap(),
+            request.getQueryString()
+    )
+
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
+      return
+    }
+
+    String externalMeetingId = params.meetingID
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId)
+    log.info("Retrieving meeting ${internalMeetingId}")
+    Meeting meeting = meetingService.getMeeting(internalMeetingId)
+
+    if (meeting != null){
+      uploadDocuments(meeting, true);
+      withFormat {
+        xml {
+          render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
+                  , contentType: "text/xml")
+        }
+      }
+    }else {
+      log.warn("Meeting with externalID ${externalMeetingId} and internalID ${internalMeetingId} " +
+              "doesn't exist.")
+      withFormat {
+        xml {
+          render(text: responseBuilder.buildInsertDocumentResponse(
+                  "The meeting with id \"${externalMeetingId}\" doesn't exist.", RESP_CODE_FAILED),
+                  contentType: "text/xml")
+        }
+      }
+    }
+  }
+
   /***********************************************
    * LEARNING DASHBOARD DATA
    ***********************************************/
@@ -1135,7 +1205,7 @@ class ApiController {
         respMessage = "Meeting not found"
       }
 
-      if(meeting.getLearningDashboardEnabled() == false) {
+      if(meeting.getDisabledFeatures().contains("learningDashboard") == true) {
         reject = true
         respMessage = "Learning Dashboard disabled for this meeting"
       }
@@ -1195,7 +1265,7 @@ class ApiController {
     }
   }
 
-  def uploadDocuments(conf) { //
+  def uploadDocuments(conf, isFromInsertAPI) { //
     log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
 
     //sanitizeInput
@@ -1207,7 +1277,11 @@ class ApiController {
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
 
     if (requestBody == null) {
-      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), true /* default presentation */, '');
+      if (isFromInsertAPI){
+        log.warn("Insert Document API called without a payload - ignoring")
+        return;
+      }
+      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), true /* default presentation */, '', false, true);
     } else {
       def xml = new XmlSlurper().parseText(requestBody);
       xml.children().each { module ->
@@ -1215,22 +1289,55 @@ class ApiController {
 
         if ("presentation".equals(module.@name.toString())) {
           // need to iterate over presentation files and process them
-          Boolean current = true;
-          module.children().each { document ->
+          // In this first foreach we are going to know if some presentation has
+          // the current property
+          def Boolean hasCurrent = false;
+          for (document in module.children()) {
+            if (!StringUtils.isEmpty(document.@current.toString()) && java.lang.Boolean.parseBoolean(
+                    document.@current.toString())) {
+              hasCurrent = true;
+              break
+            }
+          }
+          Boolean foundCurrent = !hasCurrent;
+          int lastIndex = module.children().size() - 1
+          module.children().eachWithIndex { document, index ->
+            def Boolean isCurrent = false;
+            def Boolean isRemovable = true;
+            def Boolean isDownloadable = false;
+            if (index == 0 && !hasCurrent){
+              isCurrent = true
+            }
+
+            // Extracting all properties inside the xml
+            if (!StringUtils.isEmpty(document.@removable.toString())) {
+              isRemovable = java.lang.Boolean.parseBoolean(document.@removable.toString());
+            }
+            if (!StringUtils.isEmpty(document.@downloadable.toString())) {
+              isDownloadable = java.lang.Boolean.parseBoolean(document.@downloadable.toString());
+            }
+            // I need to make sure that only one of the documents is going to be the current.
+            if (!StringUtils.isEmpty(document.@current.toString()) && !foundCurrent) {
+              isCurrent = java.lang.Boolean.parseBoolean(document.@current.toString());
+              foundCurrent = isCurrent;
+            }
+
+            isCurrent = isCurrent && !isFromInsertAPI
+
+            // Verifying whether the document is a base64 encoded or a url to download.
             if (!StringUtils.isEmpty(document.@url.toString())) {
               def fileName;
               if (!StringUtils.isEmpty(document.@filename.toString())) {
                 log.debug("user provided filename: [${module.@filename}]");
                 fileName = document.@filename.toString();
               }
-              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), current /* default presentation */, fileName);
-              current = false;
+              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
+                      fileName, isDownloadable, isRemovable);
             } else if (!StringUtils.isEmpty(document.@name.toString())) {
               def b64 = new Base64()
               def decodedBytes = b64.decode(document.text().getBytes())
               processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                  conf.getInternalId(), current /* default presentation */);
-              current = false;
+                  conf.getInternalId(), isCurrent , isDownloadable, isRemovable/* default presentation */);
             } else {
               log.debug("presentation module config found, but it did not contain url or name attributes");
             }
@@ -1240,7 +1347,7 @@ class ApiController {
     }
   }
 
-  def processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current) {
+  def processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable) {
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
 
@@ -1284,14 +1391,23 @@ class ApiController {
               current,
               "preupload-raw-authz-token",
               uploadFailed,
-              uploadFailReasons)
+              uploadFailReasons,
+              isDownloadable,
+              isRemovable
+    )
   }
 
-  def downloadAndProcessDocument(address, meetingId, current, fileName) {
+  def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable) {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
     String presOrigFilename;
     if (StringUtils.isEmpty(fileName)) {
-      presOrigFilename = address.tokenize("/")[-1];
+      try {
+        presOrigFilename = URLDecoder.decode(address.tokenize("/")[-1], "UTF-8");
+      } catch (UnsupportedEncodingException e) {
+        log.error "Couldn't decode the uploaded file name.", e
+        invalid("fileNameError", "Cannot decode the uploaded file name")
+        return;
+      }
     } else {
       presOrigFilename = fileName;
     }
@@ -1342,12 +1458,15 @@ class ApiController {
             current,
             "preupload-download-authz-token",
             uploadFailed,
-            uploadFailReasons
+            uploadFailReasons,
+            isDownloadable,
+            isRemovable
     )
   }
 
 
-  def processUploadedFile(podId, meetingId, presId, filename, presFile, current, authzToken, uploadFailed, uploadFailReasons ) {
+  def processUploadedFile(podId, meetingId, presId, filename, presFile, current,
+                          authzToken, uploadFailed, uploadFailReasons, isDownloadable, isRemovable ) {
     def presentationBaseUrl = presentationService.presentationBaseUrl
     // TODO add podId
     UploadedPresentation uploadedPres = new UploadedPresentation(podId,
@@ -1360,6 +1479,12 @@ class ApiController {
             uploadFailed,
             uploadFailReasons)
     uploadedPres.setUploadedFile(presFile);
+    if (isRemovable != null) {
+      uploadedPres.setRemovable(isRemovable);
+    }
+    if (isDownloadable != null && isDownloadable){
+      uploadedPres.setDownloadable();
+    }
     presentationService.processUploadedPresentation(uploadedPres);
   }
 
@@ -1429,7 +1554,7 @@ class ApiController {
     if (!session[token]) {
       log.info("Session for token ${token} not found")
 
-      Boolean allowRequestsWithoutSession = paramsProcessorUtil.getAllowRequestsWithoutSession()
+      Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(token)
       if (!allowRequestsWithoutSession) {
         log.info("Meeting related to ${token} doesn't allow requests without session")
         return false

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withModalMounter } from '/imports/ui/components/modal/service';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
@@ -11,6 +11,8 @@ import ConnectionStatusService from '/imports/ui/components/connection-status/se
 import SettingsDropdownContainer from './settings-dropdown/container';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
+import _ from "lodash";
+import { politeSRAlert } from '/imports/utils/dom-utils';
 import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
@@ -26,12 +28,23 @@ const intlMessages = defineMessages({
     id: 'app.navBar.toggleUserList.newMessages',
     description: 'label for toggleUserList btn when showing red notification',
   },
+  newMsgAria: {
+    id: 'app.navBar.toggleUserList.newMsgAria',
+    description: 'label for new message screen reader alert',
+  },
+  defaultBreakoutName: {
+    id: 'app.createBreakoutRoom.room',
+    description: 'default breakout room name',
+  },
 });
 
 const propTypes = {
   presentationTitle: PropTypes.string,
   hasUnreadMessages: PropTypes.bool,
   shortcuts: PropTypes.string,
+  breakoutNum: PropTypes.number,
+  breakoutName: PropTypes.string,
+  meetingName: PropTypes.string,
 };
 
 const defaultProps = {
@@ -44,13 +57,35 @@ class NavBar extends Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+        acs: props.activeChats,
+    }
+
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
   }
 
   componentDidMount() {
     const {
       shortcuts: TOGGLE_USERLIST_AK,
+      intl,
+      breakoutNum,
+      breakoutName,
+      meetingName,
     } = this.props;
+
+    if (breakoutNum && breakoutNum > 0) {
+      if (breakoutName && meetingName) {
+        const defaultBreakoutName = intl.formatMessage(intlMessages.defaultBreakoutName, {
+          0: breakoutNum,
+        });
+
+        if (breakoutName === defaultBreakoutName) {
+          document.title = `${breakoutNum} - ${meetingName}`;
+        } else {
+          document.title = `${breakoutName} - ${meetingName}`;
+        }
+      }
+    }
 
     const { isFirefox } = browserInfo;
     const { isMacos } = deviceInfo;
@@ -65,6 +100,12 @@ class NavBar extends Component {
           this.handleToggleUserList();
         }
       });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (!_.isEqual(prevProps.activeChats, this.props.activeChats)) {
+      this.setState({ acs: this.props.activeChats})
     }
   }
 
@@ -119,6 +160,7 @@ class NavBar extends Component {
     const {
       hasUnreadMessages,
       hasUnreadNotes,
+      activeChats,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
       mountModal,
@@ -135,6 +177,14 @@ class NavBar extends Component {
     ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
 
     const isExpanded = sidebarNavigation.isOpen;
+
+    const { acs } = this.state;
+
+    activeChats.map((c, i) => {
+      if (c?.unreadCounter > 0 && c?.unreadCounter !== acs[i]?.unreadCounter) {
+        politeSRAlert(`${intl.formatMessage(intlMessages.newMsgAria, { 0: c.name })}`)
+      }
+    });
 
     return (
       <Styled.Navbar
@@ -165,7 +215,7 @@ class NavBar extends Component {
               ghost
               circle
               hideLabel
-              data-test={hasNotification ? 'hasUnreadMessages' : null}
+              data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
               tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
               aria-label={ariaLabel}
@@ -180,7 +230,9 @@ class NavBar extends Component {
               && <Styled.ArrowRight iconName="right_arrow" />}
           </Styled.Left>
           <Styled.Center>
-            <Styled.PresentationTitle>{presentationTitle}</Styled.PresentationTitle>
+            <Styled.PresentationTitle data-test="presentationTitle">
+              {presentationTitle}
+            </Styled.PresentationTitle>
             <RecordingIndicator
               mountModal={mountModal}
               amIModerator={amIModerator}

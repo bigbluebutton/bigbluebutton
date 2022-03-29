@@ -31,7 +31,7 @@ log_history=28
 #
 # Delete presentations older than N days
 #
-find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-*" -mtime +$history -exec rm -rf '{}' +
+find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-[0-9]*" -mtime +$history -exec rm -rf '{}' +
 
 #
 # Delete streams from Kurento and mediasoup older than N days
@@ -62,7 +62,6 @@ find /var/freeswitch/meetings/ -name "*.opus" -mtime +$history -delete
 # Delete old/rotated log files
 #
 find /opt/freeswitch/var/log/freeswitch -type f -mtime +$log_history -delete
-[[ -d /var/log/tomcat7 ]] && find /var/log/tomcat7 -type f -mtime +$log_history -delete
 find /var/log/bigbluebutton -type f -mtime +$log_history -delete
 find /var/log/bbb-webrtc-sfu -type f -mtime +$log_history -delete
 find /var/log/kurento-media-server -name "*.pid*.log" -type f -mtime +$log_history -delete

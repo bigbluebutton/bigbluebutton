@@ -16,7 +16,6 @@ trait AppsTestFixtures {
   val record = false
   val voiceConfId = "85115"
   val muteOnStart = true
-  val deskshareConfId = "85115-DESKSHARE"
   val durationInMinutes = 10
   val meetingExpireIfNoUserJoinedInMinutes = 5
   val meetingExpireWhenLastUserLeftInMinutes = 10
@@ -27,6 +26,8 @@ trait AppsTestFixtures {
   val keepEvents = false
   val allowStartStopRecording = false
   val webcamsOnlyForModerator = false;
+  val meetingCameraCap = 0
+  val userCameraCap = 0
   val moderatorPassword = "modpass"
   val viewerPassword = "viewpass"
   val learningDashboardAccessToken = "ldToken"
@@ -40,15 +41,15 @@ trait AppsTestFixtures {
   val maxUsers = 25
   val guestPolicy = "ALWAYS_ASK"
   val allowModsToUnmuteUsers = false
+  val allowModsToEjectCameras = false
   val authenticatedGuest = false
+  val meetingLayout = ""
 
-  val red5DeskShareIPTestFixture = "127.0.0.1"
-  val red5DeskShareAppTestFixtures = "red5App"
   val metadata: collection.immutable.Map[String, String] = Map("foo" -> "bar", "bar" -> "baz", "baz" -> "foo")
-  val screenshareProps = ScreenshareProps("TODO", "TODO", "TODO")
   val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, breakoutRooms = Vector())
 
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
+    meetingCameraCap = meetingCameraCap,
     isBreakout = isBreakout.booleanValue())
   val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate,
     meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes, meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes,
@@ -60,11 +61,13 @@ trait AppsTestFixtures {
     modOnlyMessage = modOnlyMessage)
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
-    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, authenticatedGuest = authenticatedGuest)
+    userCameraCap = userCameraCap,
+    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, allowModsToEjectCameras = allowModsToEjectCameras,
+    authenticatedGuest = authenticatedGuest, meetingLayout = meetingLayout)
   val metadataProp = new MetadataProp(metadata)
 
   val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
-    usersProp, metadataProp, screenshareProps)
+    usersProp, metadataProp)
 
   val chatModel = new ChatModel()
   val layouts = new Layouts()

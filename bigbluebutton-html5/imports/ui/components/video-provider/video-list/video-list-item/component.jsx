@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
+import { defineMessages, injectIntl } from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
-import BBBMenu from '/imports/ui/components/menu/component';
-import FullscreenService from '/imports/ui/components/fullscreen-button/service';
-import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
+import BBBMenu from '/imports/ui/components/common/menu/component';
+import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
+import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import Styled from './styles';
 import VideoService from '../../service';
 import {
@@ -19,6 +20,42 @@ const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 const { isSafari } = browserInfo;
 const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
+const intlMessages = defineMessages({
+  focusLabel: {
+    id: 'app.videoDock.webcamFocusLabel',
+  },
+  focusDesc: {
+    id: 'app.videoDock.webcamFocusDesc',
+  },
+  unfocusLabel: {
+    id: 'app.videoDock.webcamUnfocusLabel',
+  },
+  unfocusDesc: {
+    id: 'app.videoDock.webcamUnfocusDesc',
+  },
+  pinLabel: {
+    id: 'app.videoDock.webcamPinLabel',
+  },
+  pinDesc: {
+    id: 'app.videoDock.webcamPinDesc',
+  },
+  unpinLabel: {
+    id: 'app.videoDock.webcamUnpinLabel',
+  },
+  unpinLabelDisabled: {
+    id: 'app.videoDock.webcamUnpinLabelDisabled',
+  },
+  unpinDesc: {
+    id: 'app.videoDock.webcamUnpinDesc',
+  },
+  mirrorLabel: {
+    id: 'app.videoDock.webcamMirrorLabel',
+  },
+  mirrorDesc: {
+    id: 'app.videoDock.webcamMirrorDesc',
+  },
+});
+
 class VideoListItem extends Component {
   constructor(props) {
     super(props);
@@ -28,6 +65,7 @@ class VideoListItem extends Component {
       videoIsReady: false,
       isFullscreen: false,
       isStreamHealthy: false,
+      isMirrored: VideoService.mirrorOwnWebcam(props.userId),
     };
 
     this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam(props.userId);
@@ -126,31 +164,51 @@ class VideoListItem extends Component {
 
   getAvailableActions() {
     const {
-      actions,
+      intl,
       cameraId,
-      name,
+      numOfStreams,
+      onHandleVideoFocus,
+      user,
+      focused,
     } = this.props;
-    const MAX_WIDTH = 640;
-    const fullWidthMenu = window.innerWidth < MAX_WIDTH;
-    const menuItems = [];
-    if (fullWidthMenu) menuItems.push({
-      key: `${cameraId}-${name}`,
-      label: name,
-      onClick: () => {},
-      disabled: true,
-    })
-    actions?.map((a, i) => {
-        let topDivider = false;
-        if (i === 0 && fullWidthMenu) topDivider = true;
-        menuItems.push({
-          key: `${cameraId}-${a?.actionName}`,
-          label: a?.label,
-          description: a?.description,
-          onClick: a?.onClick,
-          dividerTop: topDivider,
-        });
-    });
-    return menuItems
+
+    const pinned = user?.pin;
+    const userId = user?.userId;
+
+    const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
+    const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';
+
+    const menuItems = [{
+      key: `${cameraId}-mirror`,
+      label: intl.formatMessage(intlMessages.mirrorLabel),
+      description: intl.formatMessage(intlMessages.mirrorDesc),
+      onClick: () => this.mirrorCamera(cameraId),
+    }];
+
+    if (numOfStreams > 2) {
+      menuItems.push({
+        key: `${cameraId}-focus`,
+        label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
+        description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
+        onClick: () => onHandleVideoFocus(cameraId),
+      });
+    }
+
+    if (VideoService.isVideoPinEnabledForCurrentUser()) {
+      menuItems.push({
+        key: `${cameraId}-pin`,
+        label: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Label`]),
+        description: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Desc`]),
+        onClick: () => VideoService.toggleVideoPin(userId, pinned),
+      });
+    }
+
+    return menuItems;
+  }
+
+  mirrorCamera() {
+    const { isMirrored } = this.state;
+    this.setState({ isMirrored: !isMirrored });
   }
 
   renderFullscreenButton() {
@@ -172,16 +230,44 @@ class VideoListItem extends Component {
     );
   }
 
+  renderPinButton() {
+    const { user, intl } = this.props;
+    const pinned = user?.pin;
+    const userId = user?.userId;
+    const shouldRenderPinButton = pinned && userId;
+    const videoPinActionAvailable = VideoService.isVideoPinEnabledForCurrentUser();
+
+    if (!shouldRenderPinButton) return null;
+
+    return (
+      <Styled.PinButtonWrapper>
+        <Styled.PinButton
+          color="default"
+          icon={!pinned ? 'pin-video_on' : 'pin-video_off'}
+          size="sm"
+          onClick={() => VideoService.toggleVideoPin(userId, true)}
+          label={videoPinActionAvailable
+            ? intl.formatMessage(intlMessages.unpinLabel)
+            : intl.formatMessage(intlMessages.unpinLabelDisabled)}
+          hideLabel
+          disabled={!videoPinActionAvailable}
+          data-test="pinVideoButton"
+        />
+      </Styled.PinButtonWrapper>
+    );
+  }
+
   render() {
     const {
       videoIsReady,
       isStreamHealthy,
+      isMirrored,
     } = this.state;
     const {
       name,
+      user,
       voiceUser,
       numOfStreams,
-      mirrored,
       isFullscreenContext,
     } = this.props;
     const availableActions = this.getAvailableActions();
@@ -190,12 +276,16 @@ class VideoListItem extends Component {
 
     const { isFirefox } = browserInfo;
     const { animations } = Settings.application;
+    const talking = voiceUser?.talking;
+    const listenOnly = voiceUser?.listenOnly;
+    const muted = voiceUser?.muted;
+    const voiceUserJoined = voiceUser?.joined;
     
     return (
       <Styled.Content
-        talking={voiceUser.talking}
+        talking={talking}
         fullscreen={isFullscreenContext}
-        data-test={voiceUser.talking ? 'webcamItemTalkingUser' : 'webcamItem'}
+        data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
         animations={animations}
       >
         {
@@ -203,7 +293,7 @@ class VideoListItem extends Component {
           && (
             <Styled.WebcamConnecting
               data-test="webcamConnecting"
-              talking={voiceUser.talking}
+              talking={talking}
               animations={animations}
             >
               <Styled.LoadingText>{name}</Styled.LoadingText>
@@ -221,14 +311,14 @@ class VideoListItem extends Component {
           <Styled.Video
             muted
             data-test={this.mirrorOwnWebcam ? 'mirroredVideoContainer' : 'videoContainer'}
-            mirrored={(this.mirrorOwnWebcam && !mirrored)
-              || (!this.mirrorOwnWebcam && mirrored)}
+            mirrored={isMirrored}
             unhealthyStream={shouldRenderReconnect}
             ref={(ref) => { this.videoTag = ref; }}
             autoPlay
             playsInline
           />
           {videoIsReady && this.renderFullscreenButton()}
+          {videoIsReady && this.renderPinButton()}
         </Styled.VideoContainer>
         {videoIsReady
           && (
@@ -236,7 +326,7 @@ class VideoListItem extends Component {
               {enableVideoMenu && availableActions.length >= 1
                 ? (
                   <BBBMenu
-                    trigger={<Styled.DropdownTrigger tabIndex={0}>{name}</Styled.DropdownTrigger>}
+                    trigger={<Styled.DropdownTrigger tabIndex={0} data-test="dropdownWebcamButton">{name}</Styled.DropdownTrigger>}
                     actions={this.getAvailableActions()}
                     opts={{
                       id: "default-dropdown-menu",
@@ -257,9 +347,9 @@ class VideoListItem extends Component {
                     </Styled.UserName>
                   </Styled.Dropdown>
                 )}
-              {voiceUser.muted && !voiceUser.listenOnly ? <Styled.Muted iconName="unmute_filled" /> : null}
-              {voiceUser.listenOnly ? <Styled.Voice iconName="listen" /> : null}
-              {voiceUser.joined && !voiceUser.muted ? <Styled.Voice iconName="unmute" /> : null}
+              {muted && !listenOnly ? <Styled.Muted iconName="unmute_filled" /> : null}
+              {listenOnly ? <Styled.Voice iconName="listen" /> : null}
+              {voiceUserJoined && !muted ? <Styled.Voice iconName="unmute" /> : null}
             </Styled.Info>
           )}
       </Styled.Content>
@@ -267,15 +357,29 @@ class VideoListItem extends Component {
   }
 }
 
-export default VideoListItem;
+export default injectIntl(VideoListItem);
 
 VideoListItem.defaultProps = {
   numOfStreams: 0,
+  user: null,
 };
 
 VideoListItem.propTypes = {
-  actions: PropTypes.arrayOf(PropTypes.object).isRequired,
   cameraId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   numOfStreams: PropTypes.number,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  onHandleVideoFocus: PropTypes.func.isRequired,
+  user: PropTypes.shape({
+    pin: PropTypes.bool.isRequired,
+    userId: PropTypes.string.isRequired,
+  }).isRequired,
+  voiceUser:  PropTypes.shape({
+    muted: PropTypes.bool.isRequired,
+    listenOnly: PropTypes.bool.isRequired,
+    talking: PropTypes.bool.isRequired,
+  }).isRequired,
+  focused: PropTypes.bool.isRequired,
 };

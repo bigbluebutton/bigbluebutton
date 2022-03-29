@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 import Styled from '/imports/ui/components/user-list/styles';
+import ContentStyled from '/imports/ui/components/user-list/user-list-content/styles';
 import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   lgPaddingY,
@@ -11,6 +12,7 @@ import {
   colorGrayDark,
   colorOffWhite,
   listItemBgHover,
+  colorGrayLight,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const ChatListItemLink = styled.div`
@@ -83,10 +85,24 @@ const ChatListItem = styled(Styled.ListItem)`
   }
 `;
 
+const ChatThumbnail = styled.div`
+  display: flex;
+  flex-flow: column;
+  color: ${colorGrayLight};
+  justify-content: center;
+  font-size: 175%;
+`;
+
+const UnreadMessages = styled(ContentStyled.UnreadMessages)``;
+const UnreadMessagesText = styled(ContentStyled.UnreadMessagesText)``;
+
 export default {
   ChatListItemLink,
   ChatIcon,
   ChatName,
   ChatNameMain,
   ChatListItem,
+  ChatThumbnail,
+  UnreadMessages,
+  UnreadMessagesText,
 };

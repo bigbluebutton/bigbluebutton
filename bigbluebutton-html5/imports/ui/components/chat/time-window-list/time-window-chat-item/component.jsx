@@ -16,7 +16,7 @@ const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
 const propTypes = {
   user: PropTypes.shape({
     color: PropTypes.string,
-    isModerator: PropTypes.bool,
+    messageFromModerator: PropTypes.bool,
     isOnline: PropTypes.bool,
     name: PropTypes.string,
   }),
@@ -50,11 +50,32 @@ const intlMessages = defineMessages({
   [CHAT_CLEAR_MESSAGE]: {
     id: 'app.chat.clearPublicChatMessage',
     description: 'message of when clear the public chat',
-  }
+  },
+  breakoutDurationUpdated: {
+    id: 'app.chat.breakoutDurationUpdated',
+    description: 'used when the breakout duration is updated',
+  },
 });
 
 class TimeWindowChatItem extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      forcedUpdateCount: 0,
+    };
+  }
+
   componentDidUpdate(prevProps, prevState) {
+    const { height, forceCacheUpdate, systemMessage, index } = this.props;
+    const elementHeight = this.itemRef ? this.itemRef.clientHeight : null;
+
+    if (systemMessage && elementHeight && height !== 'auto' && elementHeight !== height && this.state.forcedUpdateCount < 10) {
+      // forceCacheUpdate() internally calls forceUpdate(), so we need a stop flag
+      // and cannot rely on shouldComponentUpdate() and other comparisons.
+      forceCacheUpdate(index);
+      this.setState(({ forcedUpdateCount }) => ({ forcedUpdateCount: forcedUpdateCount + 1 }));
+    }
+
     ChatLogger.debug('TimeWindowChatItem::componentDidUpdate::props', { ...this.props }, { ...prevProps });
     ChatLogger.debug('TimeWindowChatItem::componentDidUpdate::state', { ...this.state }, { ...prevState });
   }
@@ -72,6 +93,7 @@ class TimeWindowChatItem extends PureComponent {
   renderSystemMessage() {
     const {
       messages,
+      messageValues,
       chatAreaId,
       handleReadMessage,
       messageKey,
@@ -83,15 +105,20 @@ class TimeWindowChatItem extends PureComponent {
     }
 
     return (
-      <Styled.Item key={`time-window-chat-item-${messageKey}`}>
+      <Styled.Item
+        key={`time-window-chat-item-${messageKey}`}
+        ref={element => this.itemRef = element} >
         <Styled.Messages>
-          {messages.map(message => (
+          {messages.map((message) => (
             message.text !== ''
               ? (
                 <Styled.SystemMessageChatItem
                   border={message.id}
                   key={message.id ? message.id : _.uniqueId('id-')}
-                  text={intlMessages[message.text] ? intl.formatMessage(intlMessages[message.text]) : message.text }
+                  text={intlMessages[message.text] ? intl.formatMessage(
+                    intlMessages[message.text],
+                    messageValues || {},
+                  ) : message.text}
                   time={message.time}
                   isSystemMessage={message.id ? true : false}
                   systemMessageType={message.text === CHAT_CLEAR_MESSAGE ? 'chatClearMessageText' : 'chatWelcomeMessageText'}
@@ -118,24 +145,25 @@ class TimeWindowChatItem extends PureComponent {
       read,
       name,
       color,
-      isModerator,
+      messageFromModerator,
       avatar,
       isOnline,
+      isSystemSender,
     } = this.props;
 
     const dateTime = new Date(timestamp);
     const regEx = /<a[^>]+>/i;
     ChatLogger.debug('TimeWindowChatItem::renderMessageItem', this.props);
     const defaultAvatarString = name?.toLowerCase().slice(0, 2) || "  ";
-    const emphasizedText = isModerator && CHAT_EMPHASIZE_TEXT && chatId === CHAT_PUBLIC_ID;
+    const emphasizedText = messageFromModerator && CHAT_EMPHASIZE_TEXT && chatId === CHAT_PUBLIC_ID;
 
     return (
       <Styled.Item key={`time-window-${messageKey}`}>
-        <Styled.Wrapper>
+        <Styled.Wrapper isSystemSender={isSystemSender}>
           <Styled.AvatarWrapper>
             <UserAvatar
               color={color}
-              moderator={isModerator}
+              moderator={messageFromModerator}
               avatar={avatar}
             >
               {defaultAvatarString}

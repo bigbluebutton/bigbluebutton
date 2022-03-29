@@ -4,7 +4,7 @@ import UserCaptionsItem from './component';
 import CaptionsService from '/imports/ui/components/captions/service';
 import { layoutSelectInput, layoutDispatch } from '../../../layout/context';
 
-const UserCaptionsItemContainer = (props) => {
+const Container = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
@@ -14,4 +14,4 @@ const UserCaptionsItemContainer = (props) => {
 
 export default withTracker(() => ({
   ownedLocales: CaptionsService.getOwnedLocales(),
-}))(UserCaptionsItemContainer);
+}))(Container);

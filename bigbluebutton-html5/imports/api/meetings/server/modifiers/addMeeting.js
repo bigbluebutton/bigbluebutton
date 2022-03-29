@@ -9,7 +9,8 @@ import Meetings, {
   ExternalVideoMeetings,
 } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
-import { initPads } from '/imports/api/common/server/etherpad';
+import { initPads } from '/imports/api/pads/server/helpers';
+import { initCaptions } from '/imports/api/captions/server/helpers';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
 import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
@@ -44,23 +45,25 @@ export default function addMeeting(meeting) {
       freeJoin: Boolean,
       breakoutRooms: Array,
       parentId: String,
-      enabled: Boolean,
       record: Boolean,
       privateChatEnabled: Boolean,
     },
     meetingProp: {
       intId: String,
       extId: String,
+      meetingCameraCap: Number,
       isBreakout: Boolean,
-      learningDashboardEnabled: Boolean,
       name: String,
+      disabledFeatures: Array,
     },
     usersProp: {
       webcamsOnlyForModerator: Boolean,
+      userCameraCap: Number,
       guestPolicy: String,
       authenticatedGuest: Boolean,
       maxUsers: Number,
       allowModsToUnmuteUsers: Boolean,
+      allowModsToEjectCameras: Boolean,
       meetingLayout: String,
     },
     durationProps: {
@@ -97,22 +100,18 @@ export default function addMeeting(meeting) {
       telVoice: String,
       muteOnStart: Boolean,
     },
-    screenshareProps: {
-      red5ScreenshareIp: String,
-      red5ScreenshareApp: String,
-      screenshareConf: String,
-    },
     metadataProp: Object,
     lockSettingsProps: {
       disableCam: Boolean,
       disableMic: Boolean,
       disablePrivateChat: Boolean,
       disablePublicChat: Boolean,
-      disableNote: Boolean,
+      disableNotes: Boolean,
       hideUserList: Boolean,
       lockOnJoin: Boolean,
       lockOnJoinConfigurable: Boolean,
       lockedLayout: Boolean,
+      hideViewersCursor: Boolean,
     },
     systemProps: {
       html5InstanceId: Number,
@@ -213,9 +212,12 @@ export default function addMeeting(meeting) {
 
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
-
-      const { html5InstanceId } = meeting.systemProps;
-      initPads(meetingId, html5InstanceId);
+      if (newMeeting.meetingProp.disabledFeatures.indexOf('sharedNotes') === -1) {
+        initPads(meetingId);
+      }
+      if (newMeeting.meetingProp.disabledFeatures.indexOf('captions') === -1) {
+        initCaptions(meetingId);
+      }
     } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);
     }

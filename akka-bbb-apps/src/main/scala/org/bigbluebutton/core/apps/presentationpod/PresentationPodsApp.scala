@@ -59,7 +59,7 @@ object PresentationPodsApp {
       }
 
       PresentationVO(p.id, p.name, p.current,
-        pages.toVector, p.downloadable)
+        pages.toVector, p.downloadable, p.removable)
     }
 
     PresentationPodVO(pod.id, pod.currentPresenter, presentationVOs.toVector)
@@ -90,7 +90,7 @@ object PresentationPodsApp {
         heightRatio = page.heightRatio
       )
     }
-    PresentationVO(pres.id, pres.name, pres.current, pages.toVector, pres.downloadable)
+    PresentationVO(pres.id, pres.name, pres.current, pages.toVector, pres.downloadable, pres.removable)
   }
 
   def setCurrentPresentationInPod(state: MeetingState2x, podId: String, nextCurrentPresId: String): Option[PresentationPod] = {

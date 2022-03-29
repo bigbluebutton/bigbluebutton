@@ -24,22 +24,6 @@ mkdir -p $DESTDIR
 cp modules.conf $BUILDDIR/freeswitch
 cd $BUILDDIR/freeswitch
 
-#
-# Need to figure out how to build with mod_av
-if [ $DISTRO == "centos7" ] || [ $DISTRO == "amzn2" ]; then
-  sed -i 's/applications\/mod_av/#applications\/mod_av/g' modules.conf
-else
-  apt-get update
-  apt-get install -y software-properties-common
-  add-apt-repository -y ppa:bigbluebutton/support
-fi
-
-if [ "$DISTRO" == "bionic" ]; then
-  add-apt-repository ppa:bigbluebutton/support -y
-  apt-get update
-  apt-get install -y libopusfile-dev opus-tools libopusenc-dev
-fi
-
 pushd .
 
 # sofia-sip start
@@ -47,7 +31,7 @@ if [ ! -d sofia-sip ]; then
   git clone https://github.com/freeswitch/sofia-sip.git
 fi
 cd sofia-sip/
-git checkout v1.13.6
+git checkout v1.13.7
 ./bootstrap.sh
 ./configure
 
@@ -61,25 +45,13 @@ if [ ! -d spandsp ]; then
   git clone https://github.com/freeswitch/spandsp.git
 fi
 cd spandsp/
-git checkout 284fe91dd068d0cf391139110fdc2811043972b9
+git checkout e59ca8fb8b1591e626e6a12fdc60a2ebe83435ed
 ./bootstrap.sh
 ./configure
 
 make -j $(nproc)
 make install
 
-if [ $DISTRO == "centos7" ] || [ $DISTRO == "amzn2" ]; then
-  export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
-  yum install -y opusfile-devel
-
-  git clone https://github.com/xiph/libopusenc.git
-  cd libopusenc/
-  git checkout dc6ab59ac41a96c5bf262056ea09fa5e2f776fe6
-  ./autogen.sh
-  ./configure
-  make -j $(nproc)
-  make install
-fi
 popd
 # spandsp end
 
@@ -90,7 +62,7 @@ if [ ! -d libks ]; then
   git clone https://github.com/signalwire/libks.git
 fi
 cd libks/
-git checkout f43b85399f8fc840561566887e768fc877ba2583
+git checkout 707bda51db7b1a858a5e608bb5484632cc84a349
 
 cmake .
 make
@@ -106,12 +78,16 @@ ldconfig
 cd $BUILDDIR/freeswitch
 
 patch -p0 < $BUILDDIR/floor.patch
+patch -p0 --ignore-whitespace < $BUILDDIR/audio.patch       # Provisional patch for https://github.com/signalwire/freeswitch/pull/1531
 
 ./bootstrap.sh 
 
 ./configure --disable-core-odbc-support --disable-core-pgsql-support \
     --without-python --without-erlang --without-java \
-    --prefix=/opt/freeswitch CFLAGS="-Wno-error -Og -ggdb" CXXFLAGS="-Wno-error -Og -ggdb"
+    --prefix=/opt/freeswitch 
+
+# Overrides for generating debug version
+#   --prefix=/opt/freeswitch CFLAGS="-Wno-error -Og -ggdb" CXXFLAGS="-Wno-error -Og -ggdb"
 
 make -j $(nproc)
 make install
@@ -150,24 +126,21 @@ HERE
 	done
 
 	cp -P /usr/local/lib/lib* $DESTDIR/opt/freeswitch/lib
-        if [ -f /etc/system-release ]; then
-          cp /usr/lib64/libopusfile.so.0.4.4 $DESTDIR/opt/freeswitch/lib
-          cp /usr/lib64/libopusurl.so.0.4.4 $DESTDIR/opt/freeswitch/lib
-	  pushd $DESTDIR/opt/freeswitch/lib
-            ln -s libopusfile.so.0.4.4 libopusfile.so
-            ln -s libopusurl.so.0.4.4 libopusurl.so
-	  popd
-        fi
 
+  if [ -f /etc/system-release ]; then
+    cp /usr/lib64/libopusfile.so.0.4.4 $DESTDIR/opt/freeswitch/lib
+    cp /usr/lib64/libopusurl.so.0.4.4 $DESTDIR/opt/freeswitch/lib
+    pushd $DESTDIR/opt/freeswitch/lib
+      ln -s libopusfile.so.0.4.4 libopusfile.so
+      ln -s libopusurl.so.0.4.4 libopusurl.so
+    popd
+  fi
 
-        mkdir -p $DESTDIR/usr/local/bin
+  mkdir -p $DESTDIR/usr/local/bin
 	cp fs_clibbb $DESTDIR/usr/local/bin
 	chmod +x $DESTDIR/usr/local/bin/fs_clibbb
 
 	rm -rf $DESTDIR/usr/lib/tmpfiles.d
-
-	# Needed for Edge
-	# find $DESTDIR/etc/freeswitch -name "*.xml" -exec sed -i 's/ <param name="nonce-ttl" value="60"\/>/ <!--<param name="nonce-ttl" value="60"\/>-->/g' '{}' \;
 
 fpm -s dir -C $DESTDIR -n $PACKAGE \
     --version $VERSION --epoch 2 \
@@ -178,4 +151,3 @@ fpm -s dir -C $DESTDIR -n $PACKAGE \
     --description "BigBlueButton build of FreeSWITCH" \
     $DIRECTORIES                            \
     $OPTS
-

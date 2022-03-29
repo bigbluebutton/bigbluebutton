@@ -1,19 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Icon from '/imports/ui/components/icon/component';
-import { Session } from 'meteor/session';
+import Icon from '/imports/ui/components/common/icon/component';
+import CaptionsService from '/imports/ui/components/captions/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
-import { PANELS, ACTIONS } from '../../layout/enums';
+import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 
 const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  locale: PropTypes.shape({
-    locale: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-  }).isRequired,
+  locale: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
   tabIndex: PropTypes.number.isRequired,
 };
 
@@ -28,6 +26,7 @@ const CaptionsListItem = (props) => {
   const {
     intl,
     locale,
+    name,
     tabIndex,
     sidebarContentPanel,
     layoutContextDispatch,
@@ -35,7 +34,7 @@ const CaptionsListItem = (props) => {
 
   const handleClickToggleCaptions = () => {
     if (sidebarContentPanel !== PANELS.CAPTIONS) {
-      Session.set('captionsLocale', locale.locale);
+      CaptionsService.setCaptionsLocale(locale);
       layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
         value: true,
@@ -45,9 +44,9 @@ const CaptionsListItem = (props) => {
         value: PANELS.CAPTIONS,
       });
     } else {
-      const captionsLocale = Session.get('captionsLocale');
-      if (captionsLocale !== locale.locale) {
-        Session.set('captionsLocale', locale.locale);
+      const captionsLocale = CaptionsService.getCaptionsLocale();
+      if (captionsLocale !== locale) {
+        CaptionsService.setCaptionsLocale(locale);
       } else {
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -65,13 +64,13 @@ const CaptionsListItem = (props) => {
     <Styled.ListItem
       role="button"
       tabIndex={tabIndex}
-      id={locale.locale}
+      id={locale}
       onClick={handleClickToggleCaptions}
-      aria-label={`${locale.name} ${intl.formatMessage(intlMessages.captionLabel)}`}
+      aria-label={`${name} ${intl.formatMessage(intlMessages.captionLabel)}`}
       onKeyPress={() => {}}
     >
       <Icon iconName="closed_caption" />
-      <span aria-hidden>{locale.name}</span>
+      <span aria-hidden>{name}</span>
     </Styled.ListItem>
   );
 };

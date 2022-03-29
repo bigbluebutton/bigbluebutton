@@ -2,14 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import CaptionsListItem from '/imports/ui/components/user-list/captions-list-item/component';
-import { defineMessages } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
 
 const propTypes = {
   ownedLocales: PropTypes.arrayOf(PropTypes.object).isRequired,
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
   sidebarContentPanel: PropTypes.string.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
 };
@@ -22,13 +19,6 @@ const intlMessages = defineMessages({
 });
 
 class UserCaptions extends Component {
-  shouldComponentUpdate(nextProps) {
-    const { ownedLocales, sidebarContentPanel } = this.props;
-
-    return ownedLocales.length !== nextProps.ownedLocales.length
-      || sidebarContentPanel !== nextProps.sidebarContentPanel;
-  }
-
   renderCaptions() {
     const {
       ownedLocales,
@@ -36,7 +26,7 @@ class UserCaptions extends Component {
       layoutContextDispatch,
     } = this.props;
 
-    return ownedLocales.map((locale) => (
+    return ownedLocales.map((ownedLocale) => (
       <CSSTransition
         classNames="transition"
         appear
@@ -44,12 +34,15 @@ class UserCaptions extends Component {
         exit={false}
         timeout={0}
         component="div"
-        key={locale.locale}
+        key={ownedLocale.locale}
       >
         <Styled.ListTransition>
           <CaptionsListItem
             {...{
-              locale, layoutContextDispatch, sidebarContentPanel,
+              locale: ownedLocale.locale,
+              name: ownedLocale.name,
+              layoutContextDispatch,
+              sidebarContentPanel,
             }}
             tabIndex={-1}
           />
@@ -91,4 +84,4 @@ class UserCaptions extends Component {
 
 UserCaptions.propTypes = propTypes;
 
-export default UserCaptions;
+export default injectIntl(UserCaptions);

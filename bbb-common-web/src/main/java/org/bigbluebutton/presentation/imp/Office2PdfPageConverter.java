@@ -60,7 +60,7 @@ public abstract class Office2PdfPageConverter {
       log.info(String.format("Calling conversion script %s.", presOfficeConversionExec));
 
       NuProcessBuilder officeConverterExec = new NuProcessBuilder(Arrays.asList("timeout", conversionTimeout + "s", "/bin/sh", "-c",
-              "\""+presOfficeConversionExec + "\" \"" + presentationFile.getAbsolutePath() + "\" \"" + output.getAbsolutePath()+"\""));
+              "\""+presOfficeConversionExec + "\" \"" + presentationFile.getAbsolutePath() + "\" \"" + output.getAbsolutePath()+"\" pdf " + conversionTimeout));
       Office2PdfConverterHandler office2PdfConverterHandler  = new Office2PdfConverterHandler();
       officeConverterExec.setProcessListener(office2PdfConverterHandler);
 

@@ -5,6 +5,8 @@ import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteb
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
+import { politeSRAlert } from '/imports/utils/dom-utils';
+import { Session } from 'meteor/session';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationPlaceholder from './presentation-placeholder/component';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
@@ -12,16 +14,16 @@ import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import Styled from './styles';
-import MediaService, { shouldEnableSwapLayout } from '../media/service';
-import PresentationCloseButton from './presentation-close-button/component';
+import MediaService from '../media/service';
 import DownloadPresentationButton from './download-presentation-button/component';
-import FullscreenService from '../fullscreen-button/service';
-import Icon from '/imports/ui/components/icon/component';
+import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
+import Icon from '/imports/ui/components/common/icon/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
-import { colorBackground } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorContentBackground } from '/imports/ui/stylesheets/styled-components/palette';
 import browserInfo from '/imports/utils/browserInfo';
+import PresentationMenu from './presentation-menu/container';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -44,14 +46,16 @@ const intlMessages = defineMessages({
     id: 'app.presentation.endSlideContent',
     description: 'Indicate the slide content end',
   },
+  slideContentChanged: {
+    id: 'app.presentation.changedSlideContent',
+    description: 'Indicate the slide content has changed',
+  },
   noSlideContent: {
     id: 'app.presentation.emptySlideContent',
     description: 'No content available for slide',
   },
 });
 
-const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
-const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinimizeButton;
 const { isSafari } = browserInfo;
 const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
@@ -83,6 +87,7 @@ class Presentation extends PureComponent {
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
     this.setPresentationRef = this.setPresentationRef.bind(this);
+    Session.set('componentPresentationWillUnmount', false);
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -111,7 +116,8 @@ class Presentation extends PureComponent {
 
   componentDidMount() {
     this.getInitialPresentationSizes();
-    this.refPresentationContainer.addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
+    this.refPresentationContainer
+      .addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     window.addEventListener('resize', this.onResize, false);
 
     const {
@@ -140,13 +146,13 @@ class Presentation extends PureComponent {
       layoutSwapped,
       currentSlide,
       publishedPoll,
-      isViewer,
       toggleSwapLayout,
       restoreOnUpdate,
       layoutContextDispatch,
       userIsPresenter,
       presentationBounds,
       numCameras,
+      intl,
     } = this.props;
 
     const {
@@ -156,6 +162,14 @@ class Presentation extends PureComponent {
 
     if (numCameras !== prevNumCameras) {
       this.onResize();
+    }
+
+    if (
+      currentSlide?.num != null
+      && prevProps?.currentSlide?.num != null
+      && currentSlide?.num !== prevProps.currentSlide?.num
+    ) {
+      politeSRAlert(intl.formatMessage(intlMessages.slideContentChanged, { 0: currentSlide.num }));
     }
 
     if (prevProps?.slidePosition && slidePosition) {
@@ -205,7 +219,7 @@ class Presentation extends PureComponent {
         });
       }
 
-      if (layoutSwapped && restoreOnUpdate && isViewer && currentSlide) {
+      if (layoutSwapped && restoreOnUpdate && !userIsPresenter && currentSlide) {
         const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
         const positionChanged = slidePosition
           .viewBoxHeight !== prevProps.slidePosition.viewBoxHeight
@@ -221,10 +235,12 @@ class Presentation extends PureComponent {
   }
 
   componentWillUnmount() {
+    Session.set('componentPresentationWillUnmount', true);
     const { fullscreenContext, layoutContextDispatch } = this.props;
 
     window.removeEventListener('resize', this.onResize, false);
-    this.refPresentationContainer.removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
+    this.refPresentationContainer
+      .removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
 
     if (fullscreenContext) {
       layoutContextDispatch({
@@ -241,10 +257,12 @@ class Presentation extends PureComponent {
     const presentationSizes = this.getPresentationSizesAvailable();
     if (Object.keys(presentationSizes).length > 0) {
       // updating the size of the space available for the slide
-      this.setState({
-        presentationHeight: presentationSizes.presentationHeight,
-        presentationWidth: presentationSizes.presentationWidth,
-      });
+      if (!Session.get('componentPresentationWillUnmount')) {
+        this.setState({
+          presentationHeight: presentationSizes.presentationHeight,
+          presentationWidth: presentationSizes.presentationWidth,
+        });
+      }
     }
   }
 
@@ -430,31 +448,6 @@ class Presentation extends PureComponent {
     zoomSlide(currentSlide.num, podId, w, h, x, y);
   }
 
-  renderPresentationClose() {
-    const { isFullscreen } = this.state;
-    const {
-      layoutType,
-      fullscreenContext,
-      layoutContextDispatch,
-      isIphone,
-    } = this.props;
-
-    if (!OLD_MINIMIZE_BUTTON_ENABLED
-      || !shouldEnableSwapLayout()
-      || isFullscreen
-      || fullscreenContext
-      || layoutType === LAYOUT_TYPE.PRESENTATION_FOCUS) {
-      return null;
-    }
-    return (
-      <PresentationCloseButton
-        toggleSwapLayout={MediaService.toggleSwapLayout}
-        layoutContextDispatch={layoutContextDispatch}
-        isIphone={isIphone}
-      />
-    );
-  }
-
   renderOverlays(slideObj, svgDimensions, viewBoxPosition, viewBoxDimensions, physicalDimensions) {
     const {
       userIsPresenter,
@@ -592,9 +585,8 @@ class Presentation extends PureComponent {
         }}
       >
         <Styled.VisuallyHidden id="currentSlideText">{slideContent}</Styled.VisuallyHidden>
-        {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
-        {this.renderPresentationFullscreen()}
+        {this.renderPresentationMenu()}
         <Styled.PresentationSvg
           key={currentSlide.id}
           data-test="whiteboard"
@@ -692,6 +684,7 @@ class Presentation extends PureComponent {
         fitToWidthHandler={this.fitToWidthHandler}
         isFullscreen={fullscreenContext}
         fullscreenAction={ACTIONS.SET_FULLSCREEN_ELEMENT}
+        fullscreenRef={this.refPresentationContainer}
       />
     );
   }
@@ -726,23 +719,23 @@ class Presentation extends PureComponent {
     );
   }
 
-  renderPresentationFullscreen() {
+  renderPresentationMenu() {
     const {
       intl,
       fullscreenElementId,
+      layoutContextDispatch,
     } = this.props;
     const { isFullscreen } = this.state;
 
-    if (!ALLOW_FULLSCREEN) return null;
-
     return (
-      <Styled.PresentationFullscreenButton
+      <PresentationMenu
         fullscreenRef={this.refPresentationContainer}
+        screenshotRef={this.getSvgRef()}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
         isFullscreen={isFullscreen}
-        color="muted"
-        fullScreenStyle={false}
+        toggleSwapLayout={MediaService.toggleSwapLayout}
+        layoutContextDispatch={layoutContextDispatch}
       />
     );
   }
@@ -796,6 +789,8 @@ class Presentation extends PureComponent {
       layoutType,
       numCameras,
       currentPresentation,
+      layoutSwapped,
+      layoutContextDispatch,
     } = this.props;
 
     const {
@@ -844,6 +839,7 @@ class Presentation extends PureComponent {
           {
           ...presentationBounds
           }
+          layoutContextDispatch={layoutContextDispatch}
           setPresentationRef={this.setPresentationRef}
         />
       );
@@ -851,6 +847,7 @@ class Presentation extends PureComponent {
 
     return (
       <Styled.PresentationContainer
+        role="region"
         ref={(ref) => { this.refPresentationContainer = ref; }}
         style={{
           top: presentationBounds.top,
@@ -858,9 +855,13 @@ class Presentation extends PureComponent {
           right: presentationBounds.right,
           width: presentationBounds.width,
           height: presentationBounds.height,
+          display: layoutSwapped ? 'none' : 'flex',
           zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
-          backgroundColor: colorBackground,
+          background: layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0 && !fullscreenContext
+            ? colorContentBackground
+            : null,
         }}
+        data-test="presentationContainer"
       >
         {isFullscreen && <PollingContainer />}
 

@@ -15,8 +15,8 @@ import {
   colorPrimary,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
-import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
+import Modal from '/imports/ui/components/common/modal/simple/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const UrlError = styled.div`
   color: red;

@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
+import Button from '/imports/ui/components/common/button/component';
 import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-background/component'
 import logger from '/imports/startup/client/logger';
 import browserInfo from '/imports/utils/browserInfo';
@@ -17,10 +17,10 @@ import {
   EFFECT_TYPES,
   SHOW_THUMBNAILS,
   setSessionVirtualBackgroundInfo,
-  isVirtualBackgroundEnabled,
   getSessionVirtualBackgroundInfo,
-} from '/imports/ui/services/virtual-background/service'
+} from '/imports/ui/services/virtual-background/service';
 import Settings from '/imports/ui/services/settings';
+import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 
 const VIEW_STATES = {
   finding: 'finding',
@@ -34,6 +34,7 @@ const propTypes = {
   startSharing: PropTypes.func.isRequired,
   stopSharing: PropTypes.func.isRequired,
   resolve: PropTypes.func,
+  camCapReached: PropTypes.bool,
   hasVideoStream: PropTypes.bool.isRequired,
   webcamDeviceId: PropTypes.string,
   sharedDevices: PropTypes.arrayOf(PropTypes.string),
@@ -41,6 +42,7 @@ const propTypes = {
 
 const defaultProps = {
   resolve: null,
+  camCapReached: true,
   webcamDeviceId: null,
   sharedDevices: [],
 };
@@ -170,6 +172,10 @@ const intlMessages = defineMessages({
     id: 'app.video.genericError',
     description: 'error message for when the webcam sharing fails with unknown error',
   },
+  camCapReached: {
+    id: 'app.video.camCapReached',
+    description: 'message for when the camera cap has been reached',
+  },
   virtualBgGenericError: {
     id: 'app.video.virtualBackground.genericError',
     description: 'Failed to apply camera effect',
@@ -216,6 +222,7 @@ class VideoPreview extends Component {
   componentDidMount() {
     const {
       webcamDeviceId,
+      forceOpen,
     } = this.props;
 
     this._isMounted = true;
@@ -224,7 +231,7 @@ class VideoPreview extends Component {
       navigator.mediaDevices.enumerateDevices().then((devices) => {
         VideoService.updateNumberOfDevices(devices);
         // Video preview skip is activated, short circuit via a simpler procedure
-        if (PreviewService.getSkipVideoPreview()) return this.skipVideoPreview();
+        if (PreviewService.getSkipVideoPreview() && !forceOpen) return this.skipVideoPreview();
         // Late enumerateDevices resolution, stop.
         if (!this._isMounted) return;
 
@@ -626,7 +633,7 @@ class VideoPreview extends Component {
             </>
           )
         }
-        {isVirtualBackgroundEnabled() && this.renderVirtualBgSelector()}
+        {isVirtualBackgroundsEnabled() && this.renderVirtualBgSelector()}
       </Styled.Col>
     );
   }
@@ -713,6 +720,8 @@ class VideoPreview extends Component {
       intl,
       sharedDevices,
       hasVideoStream,
+      forceOpen,
+      camCapReached,
     } = this.props;
 
     const {
@@ -721,7 +730,9 @@ class VideoPreview extends Component {
       deviceError,
       previewError,
     } = this.state;
-    const shouldDisableButtons = PreviewService.getSkipVideoPreview() && !(deviceError || previewError);
+    const shouldDisableButtons = PreviewService.getSkipVideoPreview()
+    && !forceOpen
+    && !(deviceError || previewError);
 
     const shared = sharedDevices.includes(webcamDeviceId);
 
@@ -762,13 +773,15 @@ class VideoPreview extends Component {
             : null
           }
           <Styled.Actions>
-            <Button
-              data-test="startSharingWebcam"
-              color={shared ? 'danger' : 'primary'}
-              label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
-              onClick={shared ? this.handleStopSharing : this.handleStartSharing}
-              disabled={isStartSharingDisabled || isStartSharingDisabled === null || shouldDisableButtons}
-            />
+            {!shared && camCapReached ? (
+              <span>{intl.formatMessage(intlMessages.camCapReached)}</span>
+            ) : (<Button
+            data-test="startSharingWebcam"
+            color={shared ? 'danger' : 'primary'}
+            label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
+            onClick={shared ? this.handleStopSharing : this.handleStartSharing}
+            disabled={isStartSharingDisabled || isStartSharingDisabled === null || shouldDisableButtons}
+          />)}
           </Styled.Actions>
         </Styled.Footer>
       </>
@@ -779,6 +792,7 @@ class VideoPreview extends Component {
     const {
       intl,
       isCamLocked,
+      forceOpen,
     } = this.props;
 
     if (isCamLocked === true) {
@@ -786,7 +800,7 @@ class VideoPreview extends Component {
       return null;
     }
 
-    if (PreviewService.getSkipVideoPreview()) {
+    if (PreviewService.getSkipVideoPreview() && !forceOpen) {
       return null;
     }
 
@@ -795,7 +809,9 @@ class VideoPreview extends Component {
       previewError,
     } = this.state;
 
-    const allowCloseModal = !!(deviceError || previewError) || !PreviewService.getSkipVideoPreview();
+    const allowCloseModal = !!(deviceError || previewError)
+    || !PreviewService.getSkipVideoPreview()
+    || forceOpen;
 
     return (
       <Styled.VideoPreviewModal
@@ -805,6 +821,7 @@ class VideoPreview extends Component {
         shouldShowCloseButton={allowCloseModal}
         shouldCloseOnOverlayClick={allowCloseModal}
         isPhone={deviceInfo.isPhone}
+        data-test="webcamSettingsModal"
       >
         {deviceInfo.hasMediaDevices
           ? this.renderModalContent()

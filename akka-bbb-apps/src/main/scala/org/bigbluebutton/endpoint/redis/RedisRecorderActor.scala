@@ -98,11 +98,13 @@ class RedisRecorderActor(
       case m: VoiceRecordingStartedEvtMsg           => handleVoiceRecordingStartedEvtMsg(m)
       case m: VoiceRecordingStoppedEvtMsg           => handleVoiceRecordingStoppedEvtMsg(m)
 
+      case m: AudioFloorChangedEvtMsg               => handleAudioFloorChangedEvtMsg(m)
+
       // Caption
       case m: EditCaptionHistoryEvtMsg              => handleEditCaptionHistoryEvtMsg(m)
 
-      // Pad
-      case m: AddPadEvtMsg                          => handleAddPadEvtMsg(m)
+      // Pads
+      case m: PadCreatedRespMsg                     => handlePadCreatedRespMsg(m)
 
       // Screenshare
       case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
@@ -139,6 +141,10 @@ class RedisRecorderActor(
       ev.setMeetingId(msg.header.meetingId)
       ev.setSenderId(msg.body.msg.sender.id)
       ev.setMessage(msg.body.msg.message)
+      ev.setSenderRole(msg.body.msg.sender.role)
+      
+      val isModerator = msg.body.msg.sender.role == "MODERATOR"
+      ev.setChatEmphasizedText(msg.body.msg.chatEmphasizedText && isModerator)
 
       record(msg.header.meetingId, ev.toMap.asJava)
     }
@@ -440,20 +446,31 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
+  private def handleAudioFloorChangedEvtMsg(msg: AudioFloorChangedEvtMsg) {
+    val ev = new AudioFloorChangedRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setBridge(msg.body.voiceConf)
+    ev.setParticipant(msg.body.intId)
+    ev.setFloor(msg.body.floor)
+    ev.setLastFloorTime(msg.body.lastFloorTime)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
   private def handleEditCaptionHistoryEvtMsg(msg: EditCaptionHistoryEvtMsg) {
     val ev = new EditCaptionHistoryRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setStartIndex(msg.body.startIndex)
     ev.setEndIndex(msg.body.endIndex)
+    ev.setName(msg.body.name)
     ev.setLocale(msg.body.locale)
-    ev.setLocaleCode(msg.body.localeCode)
     ev.setText(msg.body.text)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleAddPadEvtMsg(msg: AddPadEvtMsg) {
-    val ev = new AddPadRecordEvent()
+  private def handlePadCreatedRespMsg(msg: PadCreatedRespMsg) {
+    val ev = new PadCreatedRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPadId(msg.body.padId)
 

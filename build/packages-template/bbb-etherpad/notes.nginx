@@ -1,5 +1,10 @@
 # https://github.com/ether/etherpad-lite/wiki/How-to-put-Etherpad-Lite-behind-a-reverse-Proxy
 location /pad/p/ {
+    # Avoid setting the user name from the embedded URL
+    if ($arg_userName) {
+        return 401;
+    }
+
     rewrite /pad/p/(.*) /p/$1 break;
     rewrite ^/pad/p$ /pad/p/ permanent;
     proxy_pass http://127.0.0.1:9001/p;
@@ -13,7 +18,7 @@ location /pad/p/ {
     proxy_set_header X-Forwarded-Proto $scheme; # for EP to set secure cookie flag when https is used
     proxy_http_version 1.1;
 
-    auth_request /bigbluebutton/connection/validatePad;
+    auth_request /bigbluebutton/connection/checkAuthorization;
     auth_request_set $auth_status $upstream_status;
 }
 

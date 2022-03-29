@@ -61,7 +61,7 @@ module BigBlueButton
       BigBlueButton.logger.info("Task: Getting notes id")
       notes_id = 'undefined'
       cc_token = '_cc_'
-      events.xpath("/recording/event[@eventname='AddPadEvent']").each do |pad_event|
+      events.xpath("/recording/event[@eventname='AddPadEvent' or @eventname='PadCreatedEvent']").each do |pad_event|
         pad_id = pad_event.at_xpath('padId').text
         notes_id = pad_id if ! pad_id.include? cc_token
       end
@@ -579,12 +579,16 @@ module BigBlueButton
           date = event.at_xpath('./date')&.content
           date = DateTime.iso8601(date) unless date.nil?
           sender_id = event.at_xpath('./senderId')&.content
+          senderRole = event.at_xpath('./senderRole')&.content
+          chatEmphasizedText = event.at_xpath('./chatEmphasizedText')&.content
 
           chats << {
             in: timestamp - offset,
             out: nil,
             sender_id: sender_id,
             sender: user_map.fetch(sender_id),
+            senderRole: senderRole,
+            chatEmphasizedText: chatEmphasizedText,
             message: linkify(event.at_xpath('./message').content.strip),
             date: date,
           }

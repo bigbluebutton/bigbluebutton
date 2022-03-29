@@ -6,7 +6,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
-import org.bigbluebutton.core.models.Roles
+import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 import java.security.MessageDigest
@@ -173,6 +173,7 @@ class LearningDashboardActor(
       } yield {
         val updatedUser = user.copy(totalOfMessages = user.totalOfMessages + 1)
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
     }
@@ -244,6 +245,7 @@ class LearningDashboardActor(
         meeting.presentationSlides.last.presentationId != presentationId ||
         meeting.presentationSlides.last.pageNum != pageNum) {
         val updatedMeeting = meeting.copy(presentationSlides = meeting.presentationSlides :+ PresentationSlide(presentationId, pageNum))
+
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
     }
@@ -357,16 +359,14 @@ class LearningDashboardActor(
   }
 
   private def handleUserRoleChangedEvtMsg(msg: UserRoleChangedEvtMsg) {
-    if(msg.body.role == Roles.MODERATOR_ROLE) {
-      for {
-        meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-        user <- findUserByIntId(meeting, msg.body.userId)
-      } yield {
-        val updatedUser = user.copy(isModerator = true)
-        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      user <- findUserByIntId(meeting, msg.body.userId)
+    } yield {
+      val updatedUser = user.copy(isModerator = (msg.body.role == Roles.MODERATOR_ROLE))
+      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
 
-        meetings += (updatedMeeting.intId -> updatedMeeting)
-      }
+      meetings += (updatedMeeting.intId -> updatedMeeting)
     }
   }
 
@@ -396,7 +396,7 @@ class LearningDashboardActor(
 
   private def handleUserJoinedVoiceConfToClientEvtMsg(msg: UserJoinedVoiceConfToClientEvtMsg): Unit = {
     //Create users for Dial-in connections
-    if(msg.body.intId.startsWith("v_")) {
+    if(msg.body.intId.startsWith(IntIdPrefixType.DIAL_IN)) {
       this.addUserToMeeting(msg.header.meetingId, msg.body.intId, msg.body.callerName, msg.body.callerName, false, true)
     }
   }
@@ -510,7 +510,7 @@ class LearningDashboardActor(
   }
 
   private def handleCreateMeetingReqMsg(msg: CreateMeetingReqMsg): Unit = {
-    if(msg.body.props.meetingProp.learningDashboardEnabled) {
+    if (msg.body.props.meetingProp.disabledFeatures.contains("learningDashboard") == false) {
       val newMeeting = Meeting(
         msg.body.props.meetingProp.intId,
         msg.body.props.meetingProp.extId,
@@ -640,7 +640,16 @@ class LearningDashboardActor(
         outGW.send(event)
         meetingsLastJsonHash += (meeting.intId -> activityJsonHash)
 
-        log.info("Learning Dashboard data sent for meeting {}", meeting.intId)
+        for {
+          learningDashboardAccessToken <- meetingAccessTokens.get(meeting.intId)
+        } yield {
+          val event = MsgBuilder.buildLearningDashboardEvtMsg(meeting.intId, learningDashboardAccessToken, activityJson)
+          outGW.send(event)
+
+          meetingsLastJsonHash += (meeting.intId -> activityJsonHash)
+
+          log.info("Learning Dashboard data sent for meeting {}", meeting.intId)
+        }
       }
     }
   }

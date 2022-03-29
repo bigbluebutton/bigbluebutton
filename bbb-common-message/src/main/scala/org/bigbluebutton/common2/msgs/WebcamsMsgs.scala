@@ -6,50 +6,34 @@ case class UserBroadcastCamStartedEvtMsg(
     header: BbbClientMsgHeader,
     body:   UserBroadcastCamStartedEvtMsgBody
 ) extends BbbCoreMsg
-case class UserBroadcastCamStartedEvtMsgBody(userId: String, stream: String)
+case class UserBroadcastCamStartedEvtMsgBody(
+    userId: String,
+    stream: String
+)
 
 object UserBroadcastCamStartMsg { val NAME = "UserBroadcastCamStartMsg" }
-case class UserBroadcastCamStartMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStartMsgBody) extends StandardMsg
+case class UserBroadcastCamStartMsg(
+    header: BbbClientMsgHeader,
+    body:   UserBroadcastCamStartMsgBody
+) extends StandardMsg
 case class UserBroadcastCamStartMsgBody(stream: String)
 
 object UserBroadcastCamStopMsg { val NAME = "UserBroadcastCamStopMsg" }
-case class UserBroadcastCamStopMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStopMsgBody) extends StandardMsg
+case class UserBroadcastCamStopMsg(
+    header: BbbClientMsgHeader,
+    body:   UserBroadcastCamStopMsgBody
+) extends StandardMsg
 case class UserBroadcastCamStopMsgBody(stream: String)
 
 object UserBroadcastCamStoppedEvtMsg { val NAME = "UserBroadcastCamStoppedEvtMsg" }
-case class UserBroadcastCamStoppedEvtMsg(header: BbbClientMsgHeader, body: UserBroadcastCamStoppedEvtMsgBody) extends BbbCoreMsg
-case class UserBroadcastCamStoppedEvtMsgBody(userId: String, stream: String)
-
-object GetWebcamStreamsMeetingRespMsg {
-  val NAME = "GetWebcamStreamsMeetingRespMsg"
-
-  def apply(meetingId: String, userId: String, streams: Vector[WebcamStreamVO]): GetWebcamStreamsMeetingRespMsg = {
-    val header = BbbClientMsgHeader(GetWebcamStreamsMeetingRespMsg.NAME, meetingId, userId)
-
-    val body = GetWebcamStreamsMeetingRespMsgBody(streams)
-    GetWebcamStreamsMeetingRespMsg(header, body)
-  }
-}
-case class GetWebcamStreamsMeetingRespMsg(header: BbbClientMsgHeader, body: GetWebcamStreamsMeetingRespMsgBody) extends BbbCoreMsg
-case class GetWebcamStreamsMeetingRespMsgBody(streams: Vector[WebcamStreamVO])
-
-case class WebcamStreamVO(streamId: String, stream: MediaStreamVO)
-case class MediaStreamVO(id: String, url: String, userId: String, attributes: collection.immutable.Map[String, String], viewers: Set[String])
-
-object GetWebcamStreamsRespMsg {
-  val NAME = "GetWebcamStreamsRespMsg"
-
-  def apply(meetingId: String, userId: String, webcamStreams: Vector[String]): GetWebcamStreamsRespMsg = {
-    val header = BbbClientMsgHeader(GetWebcamStreamsRespMsg.NAME, meetingId, userId)
-
-    val body = GetWebcamStreamsRespMsgBody(webcamStreams)
-    GetWebcamStreamsRespMsg(header, body)
-  }
-}
-
-case class GetWebcamStreamsRespMsg(header: BbbClientMsgHeader, body: GetWebcamStreamsRespMsgBody) extends BbbCoreMsg
-
-case class GetWebcamStreamsRespMsgBody(webcamStreams: Vector[String])
+case class UserBroadcastCamStoppedEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   UserBroadcastCamStoppedEvtMsgBody
+) extends BbbCoreMsg
+case class UserBroadcastCamStoppedEvtMsgBody(
+    userId: String,
+    stream: String
+)
 
 /* Sent by bbb-webrtc-sfu to ask permission for broadcasting a webcam
  */
@@ -61,6 +45,7 @@ case class GetCamBroadcastPermissionReqMsg(
 case class GetCamBroadcastPermissionReqMsgBody(
     meetingId:    String,
     userId:       String,
+    streamId:     String,
     sfuSessionId: String
 )
 
@@ -74,6 +59,7 @@ case class GetCamBroadcastPermissionRespMsg(
 case class GetCamBroadcastPermissionRespMsgBody(
     meetingId:    String,
     userId:       String,
+    streamId:     String,
     sfuSessionId: String,
     allowed:      Boolean
 )
@@ -117,6 +103,16 @@ case class EjectUserFromSfuSysMsg(
     body:   EjectUserFromSfuSysMsgBody
 ) extends BbbCoreMsg
 case class EjectUserFromSfuSysMsgBody(userId: String)
+
+/**
+ * Sent by the client to eject all cameras from user #userId
+ */
+object EjectUserCamerasCmdMsg { val NAME = "EjectUserCamerasCmdMsg" }
+case class EjectUserCamerasCmdMsg(
+    header: BbbClientMsgHeader,
+    body:   EjectUserCamerasCmdMsgBody
+) extends StandardMsg
+case class EjectUserCamerasCmdMsgBody(userId: String)
 
 /**
  * Sent to bbb-webrtc-sfu to tear down broadcaster stream #streamId
@@ -183,3 +179,17 @@ case class CamStreamSubscribedInSfuEvtMsgBody(
     subscriberStreamId: String,
     sfuSessionId:       String // Subscriber's SFU session ID
 )
+
+/**
+ * Sync webcam state with bbb-html5
+ */
+object SyncGetWebcamInfoRespMsg { val NAME = "SyncGetWebcamInfoRespMsg" }
+case class SyncGetWebcamInfoRespMsg(
+    header: BbbClientMsgHeader,
+    body:   SyncGetWebcamInfoRespMsgBody
+) extends BbbCoreMsg
+
+case class SyncGetWebcamInfoRespMsgBody(
+    webcamListSync: Vector[WebcamStreamInfo]
+)
+case class WebcamStreamInfo(stream: String, userId: String, name: String, pin: Boolean, floor: Boolean, lastFloorTime: String)

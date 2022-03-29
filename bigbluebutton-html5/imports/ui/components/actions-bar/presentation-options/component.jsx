@@ -63,6 +63,7 @@ const PresentationOptionsContainer = ({
       id="restore-presentation"
       ghost={isLayoutSwapped}
       disabled={!isThereCurrentPresentation}
+      data-test={isLayoutSwapped ? 'restorePresentation' : 'minimizePresentation'}
     />
   );
 };

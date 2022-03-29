@@ -18,12 +18,12 @@ object GroupChatApp {
   def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser): GroupChatMessage = {
     val now = System.currentTimeMillis()
     val id = GroupChatFactory.genId()
-    GroupChatMessage(id, now, msg.correlationId, now, now, sender, msg.message)
+    GroupChatMessage(id, now, msg.correlationId, now, now, sender, msg.chatEmphasizedText, msg.message)
   }
 
   def toMessageToUser(msg: GroupChatMessage): GroupChatMsgToUser = {
     GroupChatMsgToUser(id = msg.id, timestamp = msg.timestamp, correlationId = msg.correlationId,
-      sender = msg.sender, message = msg.message)
+      sender = msg.sender, chatEmphasizedText = msg.chatEmphasizedText, message = msg.message)
   }
 
   def addGroupChatMessage(chat: GroupChat, chats: GroupChats,
@@ -34,7 +34,7 @@ object GroupChatApp {
 
   def findGroupChatUser(userId: String, users: Users2x): Option[GroupChatUser] = {
     Users2x.findWithIntId(users, userId) match {
-      case Some(u) => Some(GroupChatUser(u.intId))
+      case Some(u) => Some(GroupChatUser(u.intId, u.name, u.role))
       case None =>
         if (userId == SystemUser.ID) {
           Some(GroupChatUser(SystemUser.ID))

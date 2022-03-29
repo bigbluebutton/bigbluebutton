@@ -1,5 +1,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
+import logger from '/imports/startup/client/logger';
+import Auth from '/imports/ui/services/auth';
 import ChatAlert from './component';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '../../layout/context';
 import { PANELS } from '../../layout/enums';
@@ -15,6 +17,15 @@ const propTypes = {
   audioAlertEnabled: PropTypes.bool.isRequired,
   pushAlertEnabled: PropTypes.bool.isRequired,
 };
+
+// custom hook for getting previous value
+function usePrevious(value) {
+  const ref = React.useRef();
+  React.useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
 
 const ChatAlertContainer = (props) => {
   const idChatOpen = layoutSelect((i) => i.idChatOpen);
@@ -54,9 +65,47 @@ const ChatAlertContainer = (props) => {
     })
     : null;
 
+  const chatsTracker = {};
+
+  if (usingChatContext.chats) {
+    const chatsActive = Object.entries(usingChatContext.chats);
+    chatsActive.forEach((c) => {
+      try {
+        if (c[0] === idChat || (c[0] === 'MAIN-PUBLIC-GROUP-CHAT' && idChat === 'public')) {
+          chatsTracker[c[0]] = {};
+          if (c[1]?.posJoinMessages || c[1]?.messageGroups) {
+            const m = Object.entries(c[1]?.posJoinMessages || c[1]?.messageGroups);
+            const sameUserCount = m.filter((message) => message[1]?.sender === Auth.userID).length;
+            if (m[m.length - 1] && m[m.length - 1][1]?.sender !== Auth.userID) {
+              chatsTracker[c[0]].lastSender = users[Auth.meetingID][c[1]?.lastSender]?.name;
+              chatsTracker[c[0]].content = m[m.length - 1][1]?.message;
+              chatsTracker[c[0]].count = m?.length - sameUserCount;
+            }
+          }
+        }
+      } catch (e) {
+        logger.error({
+          logCode: 'chat_alert_component_error',
+        }, 'Error : ', e.error);
+      }
+    });
+
+    const prevTracker = usePrevious(chatsTracker);
+
+    if (prevTracker) {
+      const keys = Object.keys(prevTracker);
+      keys.forEach((key) => {
+        if (chatsTracker[key]?.count > (prevTracker[key]?.count || 0)) {
+          chatsTracker[key].shouldNotify = true;
+        }
+      });
+    }
+  }
+
   return (
     <ChatAlert
       {...props}
+      chatsTracker={chatsTracker}
       layoutContextDispatch={layoutContextDispatch}
       unreadMessagesCountByChat={unreadMessagesCountByChat}
       unreadMessagesByChat={unreadMessagesByChat}

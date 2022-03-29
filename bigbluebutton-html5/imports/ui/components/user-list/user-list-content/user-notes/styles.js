@@ -15,12 +15,12 @@ const UnreadMessagesText = styled(StyledContent.UnreadMessagesText)``;
 
 const ListItem = styled(StyledContent.ListItem)``;
 
-const NoteTitle = styled.div`
+const NotesTitle = styled.div`
   font-weight: 400;
   font-size: ${fontSizeSmall};
 `;
 
-const NoteLock = styled.div`
+const NotesLock = styled.div`
   font-weight: 200;
   font-size: ${fontSizeSmaller};
   color: ${colorGray};
@@ -44,8 +44,8 @@ export default {
   UnreadMessages,
   UnreadMessagesText,
   ListItem,
-  NoteTitle,
-  NoteLock,
+  NotesTitle,
+  NotesLock,
   Messages,
   Container,
   SmallTitle,
