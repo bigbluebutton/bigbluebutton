@@ -417,7 +417,7 @@ public class MeetingService implements MessageListener {
             m.getUserActivitySignResponseDelayInMinutes(), m.getEndWhenNoModerator(), m.getEndWhenNoModeratorDelayInMinutes(),
             m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getAllowModsToEjectCameras(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams, m.lockSettingsParams, m.getHtml5InstanceId(),
-            m.getGroups(), m.getVirtualBackgroundsDisabled(), m.getDisabledFeatures());
+            m.getGroups(), m.getDisabledFeatures());
   }
 
   private String formatPrettyDate(Long timestamp) {
@@ -898,7 +898,7 @@ public class MeetingService implements MessageListener {
       }
 
       //Remove Learning Dashboard files
-      if(m.getLearningDashboardCleanupDelayInMinutes() > 0) {
+      if(!m.getDisabledFeatures().contains("learningDashboard") && m.getLearningDashboardCleanupDelayInMinutes() > 0) {
         learningDashboardService.removeJsonDataFile(message.meetingId, m.getLearningDashboardCleanupDelayInMinutes());
       }
 

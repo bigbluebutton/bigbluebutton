@@ -14,8 +14,7 @@ import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import Styled from './styles';
-import MediaService, { shouldEnableSwapLayout } from '../media/service';
-import PresentationCloseButton from './presentation-close-button/component';
+import MediaService from '../media/service';
 import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import Icon from '/imports/ui/components/common/icon/component';
@@ -57,8 +56,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
-const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinimizeButton;
 const { isSafari } = browserInfo;
 const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
@@ -864,6 +861,7 @@ class Presentation extends PureComponent {
             ? colorContentBackground
             : null,
         }}
+        data-test="presentationContainer"
       >
         {isFullscreen && <PollingContainer />}
 

@@ -12,6 +12,7 @@ import PollService from '/imports/ui/components/poll/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
+const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
 
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
@@ -190,7 +191,9 @@ const sendGroupMessage = (message, idChatOpen) => {
     sender: {
       id: senderUserId,
       name: '',
+      role: '',
     },
+    chatEmphasizedText: CHAT_EMPHASIZE_TEXT,
     message,
   };
 

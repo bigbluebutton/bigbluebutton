@@ -1,5 +1,6 @@
 AllCops:
   TargetRubyVersion: 2.5 # System ruby on Ubuntu 18.04
+  NewCops: enable
 Layout/HashAlignment:
   EnforcedHashRocketStyle: [ key, table ]
   EnforcedColonStyle: [ key, table ]

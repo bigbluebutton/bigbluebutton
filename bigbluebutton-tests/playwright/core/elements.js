@@ -22,11 +22,11 @@ exports.userListButton = 'button[accesskey="U"]';
 
 // Audio
 exports.joinAudio = 'button[data-test="joinAudio"]';
-exports.audioModal = 'div[aria-label="Join audio modal"]';
+exports.audioModal = 'div[data-test="audioModal"]';
 exports.listenOnlyButton = 'button[data-test="listenOnlyBtn"]';
 exports.connecting = 'span[data-test="connecting"]';
 exports.leaveAudio = 'button[data-test="leaveAudio"]';
-exports.microphoneButton = 'button[aria-label="Microphone"]';
+exports.microphoneButton = 'button[data-test="microphoneBtn"]';
 exports.echoYesButton = 'button[data-test="echoYesBtn"]';
 exports.connectingToEchoTest = 'span[data-test="connectingToEchoTest"]';
 exports.isTalking = 'button[data-test="isTalking"]';
@@ -90,7 +90,7 @@ exports.userslist = 'div[data-test="userList"]';
 
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';
-exports.hideNoteLabel = 'button[aria-label="Hide notes"]';
+exports.hideNotesLabel = 'button[data-test="hideNotesLabel"]';
 exports.etherpadFrame = 'iframe[title="pad"]';
 exports.etherpadOuter = 'iframe[title="Ether"]';
 exports.etherpadInner = 'iframe[title="pad"]';
@@ -114,7 +114,7 @@ exports.endScreenshareToast = 'Screenshare has ended';
 exports.joiningMessageToast = 'You have joined the audio conference';
 exports.attendeeJoinedToast = 'Attendee joined the session';
 exports.raisingHandToast = 'You have raised your hand';
-exports.loweringHandToast = 'You have lowered your hand';
+exports.loweringHandToast = 'Your hand has been lowered';
 // Icons
 const baseBbbIcon = 'i.icon-bbb-';
 exports.unmuteIcon = `${baseBbbIcon}unmute`;
@@ -164,8 +164,8 @@ exports.confirmManagePresentation = 'button[data-test="confirmManagePresentation
 exports.toastDownload = 'a[data-test="toastDownload"]';
 exports.presentationDownloadBtn = 'button[data-test="presentationDownload"]';
 exports.removePresentation = 'button[data-test="removePresentation"]';
-exports.presentationPlaceholder = 'span[data-test="presentationPlaceholder"]';
-exports.presentationContainer = 'div[class^="presentationContainer--"]';
+exports.presentationPlaceholder = 'div[data-test="presentationPlaceholder"]';
+exports.presentationContainer = 'div[data-test="presentationContainer"]';
 exports.minimizePresentation = 'button[data-test="minimizePresentation"]';
 exports.restorePresentation = 'button[data-test="restorePresentation"]';
 exports.shareExternalVideoBtn = 'li[data-test="shareExternalVideo"]';
@@ -198,7 +198,7 @@ exports.setStatus = 'li[data-test="setStatus"]';
 exports.away = 'li[data-test="away"]';
 exports.applaud = 'li[data-test="applause"]';
 exports.userListItem = 'div[data-test="userListItem"]';
-exports.firstUser = 'div[data-test="userListItemCurrent"]';
+exports.currentUser = 'div[data-test="userListItemCurrent"]';
 exports.multiWhiteboardTool = 'span[data-test="multiWhiteboardTool"]';
 exports.manageUsers = 'button[data-test="manageUsers"]';
 exports.presenterClassName = 'presenter--';
@@ -206,7 +206,7 @@ exports.anyUser = 'div[data-test="userListItem"]';
 exports.userListToggleBtn = 'button[data-test="toggleUserList"]';
 exports.mobileUser = 'span[data-test="mobileUser"]';
 exports.connectionStatusBtn = 'button[data-test="connectionStatusButton"]';
-exports.connectionStatusModal = 'div[aria-label="Connection status modal"]';
+exports.connectionStatusModal = 'div[data-test="connectionStatusModal"]';
 exports.dataSavingScreenshare = 'input[data-test="dataSavingScreenshare"]';
 exports.screenshareLocked = 'button[data-test="screenshareLocked"]';
 exports.connectionStatusItemEmpty = 'div[data-test="connectionStatusItemEmpty"]';

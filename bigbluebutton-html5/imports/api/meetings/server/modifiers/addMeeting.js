@@ -45,7 +45,6 @@ export default function addMeeting(meeting) {
       freeJoin: Boolean,
       breakoutRooms: Array,
       parentId: String,
-      enabled: Boolean,
       record: Boolean,
       privateChatEnabled: Boolean,
     },
@@ -66,7 +65,6 @@ export default function addMeeting(meeting) {
       allowModsToUnmuteUsers: Boolean,
       allowModsToEjectCameras: Boolean,
       meetingLayout: String,
-      virtualBackgroundsDisabled: Boolean,
     },
     durationProps: {
       createdTime: Number,
@@ -113,6 +111,7 @@ export default function addMeeting(meeting) {
       lockOnJoin: Boolean,
       lockOnJoinConfigurable: Boolean,
       lockedLayout: Boolean,
+      hideViewersCursor: Boolean,
     },
     systemProps: {
       html5InstanceId: Number,
@@ -213,8 +212,12 @@ export default function addMeeting(meeting) {
 
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
-      initPads(meetingId);
-      initCaptions(meetingId);
+      if (newMeeting.meetingProp.disabledFeatures.indexOf('sharedNotes') === -1) {
+        initPads(meetingId);
+      }
+      if (newMeeting.meetingProp.disabledFeatures.indexOf('captions') === -1) {
+        initCaptions(meetingId);
+      }
     } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);
     }

@@ -35,8 +35,8 @@ cd ..
 mkdir -p staging/lib/systemd/system
 cp bbb-lti.service staging/lib/systemd/system
 
-mkdir -p staging/etc/bigbluebutton/nginx
-cp bbb-lti/lti.nginx  staging/etc/bigbluebutton/nginx
+mkdir -p staging/usr/share/bigbluebutton/nginx
+cp bbb-lti/lti.nginx  staging/usr/share/bigbluebutton/nginx
 
 mkdir -p staging/usr/share/bbb-lti
 cp bbb-lti/build/libs/bbb-lti-0.5.war staging/usr/share/bbb-lti
@@ -56,7 +56,6 @@ chmod +x staging/usr/share/bbb-lti/run-prod.sh
 fpm -s dir -C ./staging -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --after-install after-install.sh        \
-    --after-remove  after-remove.sh        \
     --depends unzip                        \
     --description "BigBlueButton endpoint for LTI" \
     $DIRECTORIES \

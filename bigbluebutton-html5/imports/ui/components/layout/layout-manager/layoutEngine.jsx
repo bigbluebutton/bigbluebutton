@@ -21,6 +21,8 @@ const LayoutEngine = ({ layoutType }) => {
   const actionbarInput = layoutSelectInput((i) => i.actionBar);
   const sidebarNavigationInput = layoutSelectInput((i) => i.sidebarNavigation);
   const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
+  const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
+  const screenShareInput = layoutSelectInput((i) => i.screenShare);
 
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const isRTL = layoutSelect((i) => i.isRTL);
@@ -46,6 +48,8 @@ const LayoutEngine = ({ layoutType }) => {
   const baseCameraDockBounds = (mediaAreaBounds, sidebarSize) => {
     const { isOpen, currentSlide } = presentationInput;
     const { num: currentSlideNumber } = currentSlide;
+    const { hasExternalVideo } = externalVideoInput;
+    const { hasScreenShare } = screenShareInput;
 
     const cameraDockBounds = {};
 
@@ -58,7 +62,7 @@ const LayoutEngine = ({ layoutType }) => {
 
     const isSmartLayout = (layoutType === LAYOUT_TYPE.SMART_LAYOUT);
 
-    if (!isOpen || (isSmartLayout && currentSlideNumber === 0)) {
+    if (!isOpen || (isSmartLayout && currentSlideNumber === 0 && !hasExternalVideo && !hasScreenShare)) {
       cameraDockBounds.width = mediaAreaBounds.width;
       cameraDockBounds.maxWidth = mediaAreaBounds.width;
       cameraDockBounds.height = mediaAreaBounds.height - bannerAreaHeight();

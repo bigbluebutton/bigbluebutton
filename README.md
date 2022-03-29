@@ -13,7 +13,7 @@ We designed BigBlueButton for online learning, (though it can be used for many [
   * Group collaboration (many-to-many)
   * Online classes (one-to-many)
 
-You can install on a Ubuntu 18.04 64-bit server. We provide [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) to let you have a server up and running within 30 minutes (or your money back 😉).
+You can install on a Ubuntu 20.04 64-bit server. We provide [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) to let you have a server up and running within 30 minutes (or your money back 😉).
 
 For full technical documentation BigBlueButton -- including architecture, features, API, and GreenLight (the default front-end) -- see [https://docs.bigbluebutton.org/](https://docs.bigbluebutton.org/).
 

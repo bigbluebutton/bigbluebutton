@@ -151,6 +151,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
+        <property name="learningDashboardEnabled" value="${learningDashboardEnabled:true}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
         <property name="defaultMeetingCameraCap" value="${meetingCameraCap}"/>
@@ -170,7 +171,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="muteOnStart" value="${muteOnStart}"/>
         <property name="allowModsToUnmuteUsers" value="${allowModsToUnmuteUsers}"/>
         <property name="allowModsToEjectCameras" value="${allowModsToEjectCameras}"/>
-        <property name="breakoutRoomsEnabled" value="${breakoutRoomsEnabled}"/>
+        <property name="breakoutRoomsEnabled" value="${breakoutRoomsEnabled:true}"/>
         <property name="breakoutRoomsRecord" value="${breakoutRoomsRecord}"/>
         <property name="breakoutRoomsPrivateChatEnabled" value="${breakoutRoomsPrivateChatEnabled}"/>
         <property name="lockSettingsDisableCam" value="${lockSettingsDisableCam}"/>
@@ -182,6 +183,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsLockedLayout" value="${lockSettingsLockedLayout}"/>
         <property name="lockSettingsLockOnJoin" value="${lockSettingsLockOnJoin}"/>
         <property name="lockSettingsLockOnJoinConfigurable" value="${lockSettingsLockOnJoinConfigurable}"/>
+        <property name="lockSettingsHideViewersCursor" value="${lockSettingsHideViewersCursor}"/>
         <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
         <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>
         <property name="endWhenNoModeratorDelayInMinutes" value="${endWhenNoModeratorDelayInMinutes}"/>
