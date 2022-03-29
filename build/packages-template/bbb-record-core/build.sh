@@ -7,10 +7,6 @@ PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 VERSION=$(echo $TARGET | cut -d'_' -f2)
 DISTRO=$(echo $TARGET | cut -d'_' -f3)
 
-# Additional packages required for build
-# TODO: Add these to the docker base image used for package building.
-apt install ruby-bundler libsystemd-dev
-
 #
 # Clean up directories
 rm -rf staging
