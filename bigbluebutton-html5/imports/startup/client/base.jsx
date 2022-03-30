@@ -228,7 +228,6 @@ class Base extends Component {
     if (approved && loading) this.updateLoadingState(false);
 
     if (prevProps.ejected || ejected) {
-      console.log(' if (prevProps.ejected || ejected) {');
       Session.set('codeError', '403');
       Session.set('isMeetingEnded', true);
     }

@@ -18,6 +18,7 @@ export default withTracker(() => ({
   clearPreview: WhiteboardOverlayService.clearPreview,
   contextMenuHandler: WhiteboardOverlayService.contextMenuHandler,
   sendAnnotation: WhiteboardOverlayService.sendAnnotation,
+  sendLiveSyncPreviewAnnotation: WhiteboardOverlayService.sendLiveSyncPreviewAnnotation,
   setTextShapeActiveId: WhiteboardOverlayService.setTextShapeActiveId,
   resetTextShapeSession: WhiteboardOverlayService.resetTextShapeSession,
   drawSettings: WhiteboardOverlayService.getWhiteboardToolbarValues(),
