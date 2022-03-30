@@ -351,8 +351,8 @@ public class ParamsProcessorUtil {
 
         String externalMeetingId = params.get(ApiParams.MEETING_ID);
 
-        String viewerPass = params.get(ApiParams.ATTENDEE_PW);
-        String modPass = params.get(ApiParams.MODERATOR_PW);
+        String viewerPass = processPassword(params.get(ApiParams.ATTENDEE_PW));
+        String modPass = processPassword(params.get(ApiParams.MODERATOR_PW));
 
         // Get the digits for voice conference for users joining through the
         // phone.
@@ -717,7 +717,11 @@ public class ParamsProcessorUtil {
 		return DigestUtils.sha1Hex(extMeetingId);
 	}
 
-	public boolean hasChecksumAndQueryString(String checksum, String queryString) {
+    public String processPassword(String pass) {
+        return StringUtils.isEmpty(pass) ? RandomStringUtils.randomAlphanumeric(8) : pass;
+    }
+
+    public boolean hasChecksumAndQueryString(String checksum, String queryString) {
 		return (! StringUtils.isEmpty(checksum) && StringUtils.isEmpty(queryString));
 	}
 
