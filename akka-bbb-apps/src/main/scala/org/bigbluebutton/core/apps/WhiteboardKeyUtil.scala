@@ -11,4 +11,6 @@ object WhiteboardKeyUtil {
   val DRAW_UPDATE_STATUS = "DRAW_UPDATE";
   val DRAW_END_STATUS = "DRAW_END";
   val POLL_RESULT_TYPE = "poll_result";
+  val MODYFY_WHITEBOARD_ACTION_DELETE = "delete";
+  val MODYFY_WHITEBOARD_ACTION_MOVE = "move";
 }

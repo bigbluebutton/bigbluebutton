@@ -25,6 +25,8 @@ import DEFAULT_VALUES from '../layout/defaultValues';
 import { colorContentBackground } from '/imports/ui/stylesheets/styled-components/palette';
 import browserInfo from '/imports/utils/browserInfo';
 import PresentationMenu from './presentation-menu/container';
+import SelectionModificationContainer
+  from '/imports/ui/components/whiteboard/annotation-selection-modification/container';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -63,8 +65,8 @@ const { isSafari } = browserInfo;
 const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
 class Presentation extends PureComponent {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this.state = {
       presentationWidth: 0,
@@ -585,12 +587,15 @@ class Presentation extends PureComponent {
           height: svgDimensions.height < 0 ? 0 : svgDimensions.height,
           textAlign: 'center',
           display: layoutSwapped ? 'none' : 'block',
+          // hidden overflow hides control boxes of Moveable outside of presentation area
+          overflow: 'hidden',
         }}
       >
         <Styled.VisuallyHidden id="currentSlideText">{slideContent}</Styled.VisuallyHidden>
         {this.renderPresentationDownload()}
         {this.renderPresentationMenu()}
         <Styled.PresentationSvg
+          id="slideSVG"
           key={currentSlide.id}
           data-test="whiteboard"
           width={svgDimensions.width < 0 ? 0 : svgDimensions.width}
@@ -644,6 +649,11 @@ class Presentation extends PureComponent {
             physicalDimensions,
           )}
         </Styled.PresentationSvg>
+        <SelectionModificationContainer
+          svgDimensions={svgDimensions}
+          userIsPresenter={userIsPresenter}
+          whiteboardId={currentSlide.id}
+        />
       </div>
     );
   }

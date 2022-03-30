@@ -1,11 +1,14 @@
 import { check } from 'meteor/check';
 import Annotations from '/imports/api/annotations';
 import Logger from '/imports/startup/server/logger';
+import AnnotationsStreamer from '../streamer';
 
 export default function removeAnnotation(meetingId, whiteboardId, shapeId) {
   check(meetingId, String);
   check(whiteboardId, String);
   check(shapeId, String);
+
+  AnnotationsStreamer(meetingId).emit('removed', { meetingId, whiteboardId, shapeId });
 
   const selector = {
     meetingId,

@@ -14,6 +14,7 @@ export default withTracker((params) => {
   const data = {
     actions: {
       undoAnnotation: WhiteboardToolbarService.undoAnnotation,
+      deleteAnnotations: WhiteboardToolbarService.deleteAnnotations,
       clearWhiteboard: WhiteboardToolbarService.clearWhiteboard,
       addWhiteboardGlobalAccess: WhiteboardService.addGlobalAccess,
       removeWhiteboardGlobalAccess: WhiteboardService.removeGlobalAccess,

@@ -326,8 +326,11 @@ class RedisRecorderActor(
     ev.setPageNumber(getPageNum(msg.body.whiteboardId))
     ev.setWhiteboardId(msg.body.whiteboardId)
     ev.setUserId(msg.body.userId)
-    ev.setShapeId(msg.body.annotationId)
-    record(msg.header.meetingId, ev.toMap.asJava)
+    //TODO Fix Recording
+    if (msg.body.removedAnnotationIds.nonEmpty) {
+      ev.setShapeId(msg.body.removedAnnotationIds.head)
+      record(msg.header.meetingId, ev.toMap.asJava)
+    }
   }
 
   private def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {

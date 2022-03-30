@@ -1,12 +1,14 @@
 import { makeCall } from '/imports/ui/services/api';
 import Storage from '/imports/ui/services/storage/session';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import SelectionService from '/imports/ui/components/whiteboard/annotation-selection-modification/service';
+import { Annotations } from '../service';
 
 const DRAW_SETTINGS = 'drawSettings';
 const PALM_REJECTION_MODE = 'palmRejectionMode';
 const WHITEBOARD_TOOLBAR = Meteor.settings.public.whiteboard.toolbar;
 
-const makeSetter = key => (value) => {
+const makeSetter = (key) => (value) => {
   const drawSettings = Storage.getItem(DRAW_SETTINGS);
   if (drawSettings) {
     drawSettings[key] = value;
@@ -20,6 +22,24 @@ const undoAnnotation = (whiteboardId) => {
 
 const clearWhiteboard = (whiteboardId) => {
   makeCall('clearWhiteboard', whiteboardId);
+};
+
+const deleteAnnotations = (whiteboardId) => {
+  const selectedAnnotationIds = SelectionService.getSelectedAnnotations()
+    .map((annotation) => annotation.id);
+
+  // Delete selected annotations. If no annotations are selected, clear whole whiteboard.
+  if (selectedAnnotationIds.length) {
+    const selector = { id: { $in: selectedAnnotationIds } };
+    const selectedAnnotations = Annotations.find(selector, {
+      fields: {
+        _id: 0, meetingId: 0, whiteboardId: 0, 'annotationInfo.commands': 0, version: 0,
+      },
+    }).fetch();
+    makeCall('deleteWhiteboardAnnotations', selectedAnnotations, whiteboardId);
+  } else {
+    clearWhiteboard(whiteboardId);
+  }
 };
 
 const changeWhiteboardMode = (multiUser, whiteboardId) => {
@@ -84,20 +104,19 @@ const filterAnnotationList = (amIPresenter) => {
 
   const presenterTools = getFromUserSettings('bbb_presenter_tools', WHITEBOARD_TOOLBAR.presenterTools);
   if (amIPresenter && Array.isArray(presenterTools)) {
-    filteredAnnotationList = WHITEBOARD_TOOLBAR.tools.filter(el =>
-      presenterTools.includes(el.value));
+    filteredAnnotationList = WHITEBOARD_TOOLBAR.tools.filter((el) => presenterTools.includes(el.value));
   }
 
   const multiUserTools = getFromUserSettings('bbb_multi_user_tools', WHITEBOARD_TOOLBAR.multiUserTools);
   if (!amIPresenter && !multiUserPenOnly && Array.isArray(multiUserTools)) {
-    filteredAnnotationList = WHITEBOARD_TOOLBAR.tools.filter(el =>
-      multiUserTools.includes(el.value));
+    filteredAnnotationList = WHITEBOARD_TOOLBAR.tools.filter((el) => multiUserTools.includes(el.value));
   }
 
   return filteredAnnotationList;
 };
 
 export default {
+  deleteAnnotations,
   undoAnnotation,
   clearWhiteboard,
   changeWhiteboardMode,

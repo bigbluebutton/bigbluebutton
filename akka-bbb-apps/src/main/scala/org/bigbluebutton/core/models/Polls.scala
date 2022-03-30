@@ -96,7 +96,7 @@ object Polls {
     }
 
     def updateWhiteboardAnnotation(annotation: AnnotationVO): AnnotationVO = {
-      lm.wbModel.updateAnnotation(annotation.wbId, annotation.userId, annotation)
+      lm.wbModel.updateAnnotation(annotation.wbId, annotation)
     }
 
     def send(poll: SimplePollResultOutVO, shape: scala.collection.immutable.Map[String, Object]): Option[AnnotationVO] = {
@@ -360,7 +360,7 @@ object Polls {
   //    success
   //  }
   //
-  def startPoll(pollId: String, polls: Polls) {
+  def startPoll(pollId: String, polls: Polls) = {
     polls.get(pollId) foreach {
       p =>
         p.start()
@@ -381,7 +381,7 @@ object Polls {
   //    success
   //  }
   //
-  def stopPoll(pollId: String, polls: Polls) {
+  def stopPoll(pollId: String, polls: Polls) = {
     polls.get(pollId) foreach (p => p.stop())
   }
 
@@ -407,7 +407,7 @@ object Polls {
     pvo
   }
 
-  def showPollResult(pollId: String, polls: Polls) {
+  def showPollResult(pollId: String, polls: Polls) = {
     polls.get(pollId) foreach {
       p =>
         p.showResult
@@ -415,7 +415,7 @@ object Polls {
     }
   }
 
-  def respondToQuestion(pollId: String, questionID: Int, responseIDs: Seq[Int], responder: Responder, polls: Polls) {
+  def respondToQuestion(pollId: String, questionID: Int, responseIDs: Seq[Int], responder: Responder, polls: Polls) = {
     polls.polls.get(pollId) match {
       case Some(p) => {
         if (!p.getResponders().contains(responder)) {
@@ -427,7 +427,7 @@ object Polls {
     }
   }
 
-  def addQuestionResponse(pollId: String, questionID: Int, answer: String, polls: Polls) {
+  def addQuestionResponse(pollId: String, questionID: Int, answer: String, polls: Polls) = {
     polls.polls.get(pollId) match {
       case Some(p) => {
         p.addQuestionResponse(questionID, answer)
@@ -598,20 +598,20 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
   private var _numResponders: Int = 0
   private var _responders = new ArrayBuffer[Responder]()
 
-  def showingResult() { _showResult = true }
+  def showingResult() = { _showResult = true }
   def showResult(): Boolean = { _showResult }
-  def start() { _started = true }
-  def stop() { _stopped = true }
+  def start() = { _started = true }
+  def stop() = { _stopped = true }
   def isStarted(): Boolean = { return _started }
   def isStopped(): Boolean = { return _stopped }
   def isRunning(): Boolean = { return isStarted() && !isStopped() }
-  def clear() {
+  def clear() = {
     questions.foreach(q => { q.clear })
     _started = false
     _stopped = false
   }
 
-  def addResponder(responder: Responder) { _responders += (responder) }
+  def addResponder(responder: Responder) = { _responders += (responder) }
   def getResponders(): ArrayBuffer[Responder] = { return _responders }
 
   def hasResponses(): Boolean = {
@@ -622,7 +622,7 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
     return false
   }
 
-  def respondToQuestion(questionID: Int, responseIDs: Seq[Int], responder: Responder) {
+  def respondToQuestion(questionID: Int, responseIDs: Seq[Int], responder: Responder) = {
     questions.foreach(q => {
       if (q.id == questionID) {
         q.respondToQuestion(responseIDs, responder)
@@ -631,7 +631,7 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
     })
   }
 
-  def addQuestionResponse(questionID: Int, answer: String) {
+  def addQuestionResponse(questionID: Int, answer: String) = {
     questions.foreach(q => {
       if (q.id == questionID) {
         q.addQuestionResponse(answer)
@@ -658,11 +658,11 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
 }
 
 class Question(val id: Int, val questionType: String, val multiResponse: Boolean, val text: Option[String], val answers: ArrayBuffer[Answer]) {
-  def addAnswer(text: String) {
+  def addAnswer(text: String) = {
     answers += new Answer(answers.size, text, Some(text))
   }
 
-  def clear() {
+  def clear() = {
     answers.foreach(r => r.clear)
   }
 
@@ -674,13 +674,13 @@ class Question(val id: Int, val questionType: String, val multiResponse: Boolean
     return false
   }
 
-  def respondToQuestion(ids: Seq[Int], responder: Responder) {
+  def respondToQuestion(ids: Seq[Int], responder: Responder) = {
     answers.foreach(r => {
       if (ids.contains(r.id)) r.addResponder(responder)
     })
   }
 
-  def addQuestionResponse(answer: String) {
+  def addQuestionResponse(answer: String) = {
     addAnswer(answer)
   }
 
@@ -717,10 +717,10 @@ class Answer(val id: Int, val key: String, val text: Option[String]) {
 
   val responders = new ArrayBuffer[Responder]()
 
-  def clear() {
+  def clear() = {
     responders.clear
   }
-  def addResponder(responder: Responder) {
+  def addResponder(responder: Responder) = {
     responders += responder
   }
 

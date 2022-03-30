@@ -49,11 +49,13 @@ export default class EllipseDrawComponent extends Component {
         cy={cy}
         rx={rx}
         ry={ry}
-        fill={ fill ? getFormattedColor(annotation.color) : "none" }
+        fill={fill ? getFormattedColor(annotation.color) : 'none'}
         stroke={getFormattedColor(annotation.color)}
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
         data-test="drawnEllipse"
+        className="selectable"
+        id={annotation.id}
       />
     );
   }
@@ -68,6 +70,7 @@ EllipseDrawComponent.propTypes = {
     color: PropTypes.number.isRequired,
     thickness: PropTypes.number.isRequired,
     fill: PropTypes.bool.isRequired,
+    id: PropTypes.string.isRequired,
   }).isRequired,
   // Defines the width of the slide (svg coordinate system), which needed in calculations
   slideWidth: PropTypes.number.isRequired,

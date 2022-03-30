@@ -33,12 +33,14 @@ export default class TriangleDrawComponent extends Component {
     return (
       <path
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
-        fill={ fill ? getFormattedColor(annotation.color) : "none" }
+        fill={fill ? getFormattedColor(annotation.color) : 'none'}
         stroke={getFormattedColor(annotation.color)}
         d={path}
         strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         strokeLinejoin="miter"
         data-test="drawnTriangle"
+        className="selectable"
+        id={annotation.id}
       />
     );
   }
@@ -53,6 +55,7 @@ TriangleDrawComponent.propTypes = {
     color: PropTypes.number.isRequired,
     thickness: PropTypes.number.isRequired,
     fill: PropTypes.bool.isRequired,
+    id: PropTypes.string.isRequired,
   }).isRequired,
   // Defines the width of the slide (svg coordinate system), which needed in calculations
   slideWidth: PropTypes.number.isRequired,
