@@ -514,16 +514,17 @@ object MsgBuilder {
   }
 
   def buildNotifyAllInMeetingEvtMsg(
-      meetingId:        String,
-      notificationType: String,
-      icon:             String,
-      messageId:        String,
-      messageValues:    Vector[String]
+      meetingId:          String,
+      notificationType:   String,
+      icon:               String,
+      messageId:          String,
+      messageDescription: String,
+      messageValues:      Vector[String]
   ): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(NotifyAllInMeetingEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(NotifyAllInMeetingEvtMsg.NAME, meetingId, "not-used")
-    val body = NotifyAllInMeetingEvtMsgBody(meetingId, notificationType, icon, messageId, messageValues)
+    val body = NotifyAllInMeetingEvtMsgBody(meetingId, notificationType, icon, messageId, messageDescription, messageValues)
     val event = NotifyAllInMeetingEvtMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)

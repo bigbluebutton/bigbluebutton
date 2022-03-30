@@ -7,6 +7,7 @@ export default function handleNotifyAllInMeeting({ body }) {
     notificationType: String,
     icon: String,
     messageId: String,
+    messageDescription: String,
     messageValues: Array,
   });
   return emitNotification(body, 'notifyAllInMeeting');

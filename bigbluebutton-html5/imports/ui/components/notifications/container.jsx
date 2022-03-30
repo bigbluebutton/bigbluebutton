@@ -11,7 +11,7 @@ export default withTracker(() => {
         <FormattedMessage
           id={obj.messageId}
           values={obj.messageValues}
-          description="Notification for when the recording starts"
+          description={obj.messageDescription}
         />,
         obj.notificationType,
         obj.icon,

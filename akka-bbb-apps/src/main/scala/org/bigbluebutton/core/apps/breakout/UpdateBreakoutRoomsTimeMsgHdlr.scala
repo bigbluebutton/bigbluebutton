@@ -58,6 +58,7 @@ trait UpdateBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {
               "success",
               "about",
               "app.chat.breakoutDurationUpdated",
+              "Used when the breakout duration is updated",
               Vector(s"${msg.body.timeInMinutes}")
             )
             outGW.send(notifyEvent)

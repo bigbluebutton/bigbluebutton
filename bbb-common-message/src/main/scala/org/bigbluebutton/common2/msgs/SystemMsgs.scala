@@ -101,21 +101,21 @@ case class NotifyAllInMeetingEvtMsg(
     header: BbbClientMsgHeader,
     body:   NotifyAllInMeetingEvtMsgBody
 ) extends BbbCoreMsg
-case class NotifyAllInMeetingEvtMsgBody(meetingId: String, notificationType: String, icon: String, messageId: String, messageValues: Vector[String])
+case class NotifyAllInMeetingEvtMsgBody(meetingId: String, notificationType: String, icon: String, messageId: String, messageDescription: String, messageValues: Vector[String])
 
 object NotifyUserInMeetingEvtMsg { val NAME = "NotifyUserInMeetingEvtMsg" }
 case class NotifyUserInMeetingEvtMsg(
     header: BbbClientMsgHeader,
     body:   NotifyUserInMeetingEvtMsgBody
 ) extends BbbCoreMsg
-case class NotifyUserInMeetingEvtMsgBody(userId: String, meetingId: String, notificationType: String, icon: String, messageId: String, messageValues: Vector[String])
+case class NotifyUserInMeetingEvtMsgBody(userId: String, meetingId: String, notificationType: String, icon: String, messageId: String, messageDescription: String, messageValues: Vector[String])
 
 object NotifyRoleInMeetingEvtMsg { val NAME = "NotifyRoleInMeetingEvtMsg" }
 case class NotifyRoleInMeetingEvtMsg(
     header: BbbClientMsgHeader,
     body:   NotifyRoleInMeetingEvtMsgBody
 ) extends BbbCoreMsg
-case class NotifyRoleInMeetingEvtMsgBody(role: String, meetingId: String, notificationType: String, icon: String, messageId: String, messageValues: Vector[String])
+case class NotifyRoleInMeetingEvtMsgBody(role: String, meetingId: String, notificationType: String, icon: String, messageId: String, messageDescription: String, messageValues: Vector[String])
 
 /**
  * Sent to bbb-web
