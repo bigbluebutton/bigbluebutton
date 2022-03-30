@@ -58,9 +58,9 @@ fi
 
 source /etc/lsb-release
 
-# Setup specific version of node
+# Set up specific version of node
 if [ "$DISTRIB_CODENAME" == "focal" ]; then
-  node_version="14.18.1"
+  node_version="14.18.3"
   if [[ ! -d /usr/share/node-v${node_version}-linux-x64 ]]; then
     cd /usr/share
     tar xfz "node-v${node_version}-linux-x64.tar.gz"
