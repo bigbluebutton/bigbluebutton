@@ -20,7 +20,6 @@ import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
 import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
 import StatusNotifier from '/imports/ui/components/status-notifier/container';
-import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
@@ -171,7 +170,6 @@ class App extends Component {
       value: !hidePresentation,
     });
 
-    MediaService.setSwapLayout(layoutContextDispatch);
     Modal.setAppElement('#app');
 
     const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;

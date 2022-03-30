@@ -120,6 +120,12 @@ class SmartLayout extends Component {
           cameraDock: {
             numCameras: input.cameraDock.numCameras,
           },
+          externalVideo: {
+            hasExternalVideo: input.externalVideo.hasExternalVideo,
+          },
+          screenShare: {
+            hasScreenShare: input.screenShare.hasScreenShare,
+          },
         }, INITIAL_INPUT_STATE),
       });
     }
@@ -343,9 +349,13 @@ class SmartLayout extends Component {
     const {
       input, fullscreen, isRTL, deviceType,
     } = layoutContextState;
-    const { presentation } = input;
-    const { isOpen } = presentation;
+    const { presentation, externalVideo, screenShare } = input;
+    const { isOpen, currentSlide } = presentation;
     const { camerasMargin, presentationToolbarMinWidth } = DEFAULT_VALUES;
+
+    const { num: currentSlideNumber } = currentSlide;
+    const { hasExternalVideo } = externalVideo;
+    const { hasScreenShare } = screenShare;
 
     const cameraDockBounds = {};
     cameraDockBounds.isCameraHorizontal = false;
@@ -360,7 +370,7 @@ class SmartLayout extends Component {
       cameraDockBounds.right = isRTL ? sidebarSize : null;
       cameraDockBounds.zIndex = 1;
 
-      if (!isOpen) {
+      if (!isOpen || (currentSlideNumber === 0 && !hasExternalVideo && !hasScreenShare)) {
         cameraDockBounds.width = mediaAreaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
         cameraDockBounds.height = mediaAreaBounds.height;
@@ -447,13 +457,14 @@ class SmartLayout extends Component {
       input, fullscreen, isRTL, deviceType,
     } = layoutContextState;
     const { presentation, externalVideo, screenShare } = input;
-    const { isOpen } = presentation;
+    const { isOpen, currentSlide } = presentation;
+    const { num: currentSlideNumber } = currentSlide;
     const { hasExternalVideo } = externalVideo;
     const { hasScreenShare } = screenShare;
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
 
-    if (!isOpen) {
+    if (!isOpen || (currentSlideNumber === 0 && !hasExternalVideo && !hasScreenShare)) {
       mediaBounds.width = 0;
       mediaBounds.height = 0;
       mediaBounds.top = 0;
