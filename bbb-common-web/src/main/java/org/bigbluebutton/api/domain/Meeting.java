@@ -49,8 +49,8 @@ public class Meeting {
 	private boolean forciblyEnded = false;
 	private String telVoice;
 	private String webVoice;
-	private String moderatorPass;
-	private String viewerPass;
+	private String moderatorPass = "";
+	private String viewerPass = "";
 	private Boolean learningDashboardEnabled;
 	private int learningDashboardCleanupDelayInMinutes;
 	private String learningDashboardAccessToken;
@@ -113,8 +113,16 @@ public class Meeting {
         name = builder.name;
         extMeetingId = builder.externalId;
         intMeetingId = builder.internalId;
-        viewerPass = builder.viewerPass;
-        moderatorPass = builder.moderatorPass;
+		if (builder.viewerPass == null){
+			viewerPass = "";
+		} else {
+			viewerPass = builder.viewerPass;
+		}
+		if (builder.moderatorPass == null){
+			moderatorPass = "";
+		} else {
+			moderatorPass = builder.moderatorPass;
+		}
 		learningDashboardEnabled = builder.learningDashboardEnabled;
 		virtualBackgroundsDisabled = builder.virtualBackgroundsDisabled;
 		learningDashboardCleanupDelayInMinutes = builder.learningDashboardCleanupDelayInMinutes;

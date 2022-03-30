@@ -264,14 +264,56 @@ class ApiController {
 
     // Now determine if this user is a moderator or a viewer.
     String role = null;
-    if (meeting.getModeratorPassword().equals(attPW)) {
-      role = Meeting.ROLE_MODERATOR
-    } else if (meeting.getViewerPassword().equals(attPW)) {
-      role = Meeting.ROLE_ATTENDEE
-    }
 
+    // First Case: send a valid role
     if (!StringUtils.isEmpty(params.role) && roles.containsKey(params.role.toLowerCase())) {
-        role = roles.get(params.role.toLowerCase());
+      role = roles.get(params.role.toLowerCase());
+
+    // Second case: role is not present or valid BUT there is password
+    } else if (attPW != null && !attPW.isEmpty()){
+      // Check if the meeting has passwords
+      if ((meeting.getModeratorPassword() != null && !meeting.getModeratorPassword().isEmpty())
+              && (meeting.getViewerPassword() != null && !meeting.getViewerPassword().isEmpty())){
+        // Check which role does the user belong
+        if (meeting.getModeratorPassword().equals(attPW)) {
+          role = Meeting.ROLE_MODERATOR
+        } else if (meeting.getViewerPassword().equals(attPW)) {
+          role = Meeting.ROLE_ATTENDEE
+        } else {
+          log.debug("Password does not match any of the registered ones");
+          response.addHeader("Cache-Control", "no-cache")
+          withFormat {
+            xml {
+              render(text: responseBuilder.buildError("Params required", "You must enter a valid password",
+                      RESP_CODE_FAILED), contentType: "text/xml")
+            }
+          }
+          return
+        }
+      // In this case, the meeting doesn't have any password registered and there is no role param
+      } else {
+        log.debug("This meeting doesn't have any password");
+        response.addHeader("Cache-Control", "no-cache")
+        withFormat {
+          xml {
+            render(text: responseBuilder.buildError("Params required", "You must send the 'role' parameter, since " +
+                    "this meeting doesn't have any password.", RESP_CODE_FAILED), contentType: "text/xml")
+          }
+        }
+        return
+      }
+
+    // Third case: No valid role + no valid password
+    } else {
+      log.debug("No matching params encountered");
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        xml {
+          render(text: responseBuilder.buildError("Params required", "You must either send the valid role of the user, or " +
+                  "the password, sould the meeting has one.", RESP_CODE_FAILED), contentType: "text/xml")
+        }
+      }
+      return
     }
 
     // We preprend "w_" to our internal meeting Id to indicate that this is a web user.
