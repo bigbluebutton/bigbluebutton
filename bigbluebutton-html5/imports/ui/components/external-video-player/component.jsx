@@ -387,7 +387,7 @@ class VideoPlayer extends Component {
     const { mutedByEchoTest, muted } = this.state;
     const intPlayer = this.player && this.player.getInternalPlayer();
 
-    return (intPlayer && intPlayer?.isMuted && intPlayer?.isMuted?.() && !mutedByEchoTest) || muted;
+    return (intPlayer && intPlayer.isMuted && intPlayer.isMuted?.() && !mutedByEchoTest) || muted;
   }
 
   autoPlayBlockDetected() {
