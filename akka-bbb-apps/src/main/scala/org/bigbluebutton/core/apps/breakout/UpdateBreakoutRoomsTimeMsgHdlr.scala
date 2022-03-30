@@ -55,7 +55,7 @@ trait UpdateBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {
             eventBus.publish(BigBlueButtonEvent(room.id, UpdateBreakoutRoomTimeInternalMsg(props.breakoutProps.parentId, room.id, newDurationInSeconds)))
             val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
               room.id,
-              "success",
+              "info",
               "about",
               "app.chat.breakoutDurationUpdated",
               "Used when the breakout duration is updated",
@@ -63,6 +63,18 @@ trait UpdateBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {
             )
             outGW.send(notifyEvent)
           }
+
+          val notifyModeratorEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+            msg.header.userId,
+            liveMeeting.props.meetingProp.intId,
+            "info",
+            "promote",
+            "app.chat.breakoutDurationUpdatedModerator",
+            "Sent to the moderator that requested breakout duration change",
+            Vector(s"${msg.body.timeInMinutes}")
+          )
+          outGW.send(notifyModeratorEvent)
+
           log.debug("Updating {} minutes for breakout rooms time in meeting {}", msg.body.timeInMinutes, props.meetingProp.intId)
           breakoutModel.setTime(newDurationInSeconds)
         }

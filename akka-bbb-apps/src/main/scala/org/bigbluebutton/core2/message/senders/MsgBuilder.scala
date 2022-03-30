@@ -1,7 +1,7 @@
 package org.bigbluebutton.core2.message.senders
 
 import org.bigbluebutton.common2.domain.DefaultProps
-import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreHeaderWithMeetingId, MessageTypes, Routing, ValidateConnAuthTokenSysRespMsg, ValidateConnAuthTokenSysRespMsgBody, NotifyAllInMeetingEvtMsg, NotifyAllInMeetingEvtMsgBody, _ }
+import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreHeaderWithMeetingId, MessageTypes, Routing, ValidateConnAuthTokenSysRespMsg, ValidateConnAuthTokenSysRespMsgBody, NotifyAllInMeetingEvtMsg, NotifyAllInMeetingEvtMsgBody, NotifyRoleInMeetingEvtMsg, NotifyRoleInMeetingEvtMsgBody, NotifyUserInMeetingEvtMsg, NotifyUserInMeetingEvtMsgBody, _ }
 import org.bigbluebutton.core.models.GuestWaiting
 
 object MsgBuilder {
@@ -526,6 +526,42 @@ object MsgBuilder {
     val header = BbbClientMsgHeader(NotifyAllInMeetingEvtMsg.NAME, meetingId, "not-used")
     val body = NotifyAllInMeetingEvtMsgBody(meetingId, notificationType, icon, messageId, messageDescription, messageValues)
     val event = NotifyAllInMeetingEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildNotifyRoleInMeetingEvtMsg(
+      role:               String,
+      meetingId:          String,
+      notificationType:   String,
+      icon:               String,
+      messageId:          String,
+      messageDescription: String,
+      messageValues:      Vector[String]
+  ): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(NotifyRoleInMeetingEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(NotifyRoleInMeetingEvtMsg.NAME, meetingId, "not-used")
+    val body = NotifyRoleInMeetingEvtMsgBody(role, meetingId, notificationType, icon, messageId, messageDescription, messageValues)
+    val event = NotifyRoleInMeetingEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildNotifyUserInMeetingEvtMsg(
+      userId:             String,
+      meetingId:          String,
+      notificationType:   String,
+      icon:               String,
+      messageId:          String,
+      messageDescription: String,
+      messageValues:      Vector[String]
+  ): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(NotifyUserInMeetingEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(NotifyUserInMeetingEvtMsg.NAME, meetingId, "not-used")
+    val body = NotifyUserInMeetingEvtMsgBody(userId, meetingId, notificationType, icon, messageId, messageDescription, messageValues)
+    val event = NotifyUserInMeetingEvtMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
