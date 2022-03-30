@@ -65,12 +65,12 @@ class WhiteboardModel extends SystemConfiguration {
       case (modification: ModificationVO, _) => false
     }.asInstanceOf[Iterable[(AnnotationVO, Int)]]
 
-    val newAnnotationsMap = wb.annotationsMap.mapValues {
+    val newAnnotationsMap = wb.annotationsMap.view.mapValues {
       case list => list.filterNot {
         case annotation: AnnotationVO     => annotationIds.contains(annotation.id)
         case modification: ModificationVO => false
       }
-    }.filter { case (userId, list) => list.nonEmpty }
+    }.toMap.filter { case (userId, list) => list.nonEmpty }
 
     val newWhiteboard = wb.copy(annotationsMap = newAnnotationsMap)
     saveWhiteboard(newWhiteboard)
