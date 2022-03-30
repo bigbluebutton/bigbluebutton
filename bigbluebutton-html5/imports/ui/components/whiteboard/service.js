@@ -5,6 +5,7 @@ import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
 import { Slides } from '/imports/api/slides';
 import { makeCall } from '/imports/ui/services/api';
 import PresentationService from '/imports/ui/components/presentation/service';
+import SelectionModificationToolService from '/imports/ui/components/whiteboard/annotation-selection-modification/service';
 import logger from '/imports/startup/client/logger';
 import { isEqual } from 'lodash';
 
@@ -17,7 +18,6 @@ const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 const ANNOTATION_TYPE_PENCIL = 'pencil';
 const ANNOTATION_TYPE_TEXT = 'text';
-
 
 let annotationsStreamListener = null;
 
@@ -111,6 +111,10 @@ function handleRemovedAnnotation({
 
   if (shapeId) {
     query.id = shapeId;
+    SelectionModificationToolService.deselect(shapeId);
+  } else {
+    SelectionModificationToolService.getSelectedAnnotations()
+      .map((annotation) => SelectionModificationToolService.deselect(annotation.id));
   }
   const annotationIsFake = Annotations.remove(query) === 0;
   if (annotationIsFake) {
@@ -131,7 +135,7 @@ export function initAnnotationsStreamListener() {
   const startStreamHandlersPromise = new Promise((resolve) => {
     const checkStreamHandlersInterval = setInterval(() => {
       const streamHandlersSize = Object.values(Meteor.StreamerCentral.instances[`annotations-${Auth.meetingID}`].handlers)
-        .filter(el => el !== undefined)
+        .filter((el) => el !== undefined)
         .length;
 
       if (!streamHandlersSize) {
@@ -340,7 +344,7 @@ const getCurrentWhiteboardId = () => {
   );
 
   return currentSlide && currentSlide.id;
-}
+};
 
 const isMultiUserActive = (whiteboardId) => {
   const multiUser = getMultiUser(whiteboardId);

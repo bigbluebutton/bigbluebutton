@@ -19,6 +19,10 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.tools',
     description: 'Whiteboard toolbar tools menu',
   },
+  toolbarDeleteAnnotations: {
+    id: 'app.whiteboard.toolbar.deleteAnnotations',
+    description: 'Whiteboard toolbar delete annotations menu',
+  },
   toolbarLineThickness: {
     id: 'app.whiteboard.toolbar.thickness',
     description: 'Whiteboard toolbar thickness menu',
@@ -129,10 +133,11 @@ class WhiteboardToolbar extends Component {
     this.closeSubMenu = this.closeSubMenu.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleUndo = this.handleUndo.bind(this);
-    this.handleClearAll = this.handleClearAll.bind(this);
+    this.handleDeleteAnnotations = this.handleDeleteAnnotations.bind(this);
     this.handleSwitchWhiteboardMode = this.handleSwitchWhiteboardMode.bind(this);
     this.handleSwitchPalmRejectionMode = this.handleSwitchPalmRejectionMode.bind(this);
     this.handleAnnotationChange = this.handleAnnotationChange.bind(this);
+    this.handleDeleteSelection = this.handleDeleteSelection.bind(this);
     this.handleThicknessChange = this.handleThicknessChange.bind(this);
     this.handleFontSizeChange = this.handleFontSizeChange.bind(this);
     this.handleColorChange = this.handleColorChange.bind(this);
@@ -371,13 +376,13 @@ class WhiteboardToolbar extends Component {
   }
 
   // clear all annotations
-  handleClearAll() {
+  handleDeleteAnnotations() {
     const {
       actions,
       whiteboardId,
     } = this.props;
 
-    actions.clearWhiteboard(whiteboardId);
+    actions.deleteAnnotations(whiteboardId);
   }
 
   handleSwitchWhiteboardMode() {
@@ -427,6 +432,16 @@ class WhiteboardToolbar extends Component {
 
     actions.setTool(annotation.value);
     this.setState(obj);
+  }
+
+  // deletes all items selected in current session
+  handleDeleteSelection() {
+    const {
+      actions,
+      whiteboardId,
+    } = this.props;
+
+    actions.deleteAnnotations(whiteboardId);
   }
 
   // changes a current selected thickness both in the state and in the session
@@ -765,15 +780,15 @@ class WhiteboardToolbar extends Component {
     );
   }
 
-  renderClearAllItem() {
+  renderDeleteItem() {
     const { intl, isMeteorConnected } = this.props;
 
     return (
       <ToolbarMenuItem
         disabled={!isMeteorConnected}
-        label={intl.formatMessage(intlMessages.toolbarClearAnnotations)}
+        label={intl.formatMessage(intlMessages.toolbarDeleteAnnotations)}
         icon="delete"
-        onItemClick={this.handleClearAll}
+        onItemClick={this.handleDeleteAnnotations}
       />
     );
   }
@@ -820,7 +835,7 @@ class WhiteboardToolbar extends Component {
       />
     );
   }
- 
+
   render() {
     const { annotationSelected } = this.state;
     const { isPresenter, intl } = this.props;
@@ -828,10 +843,11 @@ class WhiteboardToolbar extends Component {
       <Styled.ToolbarContainer role="region" aria-label={intl.formatMessage(intlMessages.toolbarAriaLabel)}>
         <Styled.ToolbarWrapper>
           {this.renderToolItem()}
-          {annotationSelected.value === 'text' ? this.renderFontItem() : this.renderThicknessItem()}
-          {this.renderColorItem()}
+          {annotationSelected.value === 'text' ? this.renderFontItem() : null}
+          { !['text', 'selection'].includes(annotationSelected.value) ? this.renderThicknessItem() : null}
+          {annotationSelected.value !== 'selection' ? this.renderColorItem() : null}
           {this.renderUndoItem()}
-          {this.renderClearAllItem()}
+          {this.renderDeleteItem()}
           {window.PointerEvent ? this.renderPalmRejectionItem() : null}
           {isPresenter ? this.renderMultiUserItem() : null}
         </Styled.ToolbarWrapper>
