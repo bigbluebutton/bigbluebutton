@@ -23,6 +23,7 @@ import { LayoutContextFunc } from '../../ui/components/layout/context';
 import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
+import MediaService from '/imports/ui/components/media/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -94,6 +95,8 @@ class Base extends Component {
       type: ACTIONS.SET_NUM_CAMERAS,
       value: usersVideo.length,
     });
+
+    MediaService.setSwapLayout(layoutContextDispatch);
 
     const {
       userID: localUserId,
