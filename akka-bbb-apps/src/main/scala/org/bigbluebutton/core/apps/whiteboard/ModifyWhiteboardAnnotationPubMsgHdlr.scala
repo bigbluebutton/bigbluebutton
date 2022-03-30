@@ -10,12 +10,12 @@ trait ModifyWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
 
   def handle(msg: ModifyWhiteboardAnnotationPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
-    def broadcastEvent(msg: ModifyWhiteboardAnnotationPubMsg, annotations: List[AnnotationVO], idsToRemove: List[String], userId: String, whiteboardId: String, action: String): Unit = {
+    def broadcastEvent(msg: ModifyWhiteboardAnnotationPubMsg, annotations: List[AnnotationVO], idsToRemove: List[String]): Unit = {
       val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, liveMeeting.props.systemProps.html5InstanceId.toString)
       val envelope = BbbCoreEnvelope(ModifyWhiteboardAnnotationEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(ModifyWhiteboardAnnotationEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = ModifyWhiteboardAnnotationEvtMsgBody(annotations, idsToRemove, userId, whiteboardId, action)
+      val body = ModifyWhiteboardAnnotationEvtMsgBody(annotations, idsToRemove, msg.header.userId, msg.body.whiteBoardId, msg.body.action)
       val event = ModifyWhiteboardAnnotationEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
@@ -28,7 +28,7 @@ trait ModifyWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
     } else {
       val modification = modifyWhiteboardAnnotations(sanitizedAnnotations, msg.body.idsToRemove, msg.body.whiteBoardId, msg.body.userId, liveMeeting)
 
-      broadcastEvent(msg, modification.addedAnnotations, modification.removedAnnotations.map { case (ann, ind) => ann.id }, msg.header.userId, msg.body.whiteBoardId, msg.body.action)
+      broadcastEvent(msg, modification.addedAnnotations, modification.removedAnnotations.map { case (ann, ind) => ann.id })
     }
 
   }

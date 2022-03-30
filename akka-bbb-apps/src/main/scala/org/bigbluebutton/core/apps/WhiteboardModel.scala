@@ -68,7 +68,7 @@ class WhiteboardModel extends SystemConfiguration {
     // Extract UserId from annotationId
     val groupedIdsToRemove = annotationIds.sorted.groupBy(s => s.substring(0, s.indexOf("-")))
     for ((extractedUserId, idsToRemove) <- groupedIdsToRemove) {
-      if (wb.multiUser.contains(extractedUserId)) {
+      if (wb.annotationsMap.contains(extractedUserId)) {
         var usersAnnotations = getAnnotationsByUserId(wb, userId)
         removedIds ++= annotationIds.filter(annotationToRemove =>
           usersAnnotations.exists {
@@ -238,11 +238,11 @@ class WhiteboardModel extends SystemConfiguration {
     rtnAnnotation
   }
 
-  def endAnnotationEraser(wbId: String, userId: String, annotation: AnnotationVO, drawEndOnly: Boolean): Map[String, Any] = {
+  def endAnnotationEraser(wbId: String, userId: String, annotation: AnnotationVO, drawEndOnly: Boolean): Option[ModificationVO] = {
+    var rtnModification: Option[ModificationVO] = None
+
     val wb = getWhiteboard(wbId)
     val usersAnnotations = getAnnotationsByUserId(wb, userId)
-
-    var rtnInformation: Map[String, Any] = HashMap("whiteboardId" -> wb, "userId" -> userId, "eraserId" -> annotation.id, "annotationsToAdd" -> List(), "idsToRemove" -> List())
 
     //not empty and head id equals annotation id
     //println("!usersAnnotations.isEmpty: " + (!usersAnnotations.isEmpty) + ", usersAnnotations.head.id == annotation.id: " + (usersAnnotations.head.id == annotation.id));
@@ -313,7 +313,7 @@ class WhiteboardModel extends SystemConfiguration {
       }
 
       var intersectingAnnotations: scala.collection.mutable.Map[String, ListBuffer[AnnotationVO]] = scala.collection.mutable.Map[String, ListBuffer[AnnotationVO]]()
-      var clippedAnnotations: scala.collection.mutable.Map[String, ListBuffer[AnnotationVO]] = scala.collection.mutable.Map[String, ListBuffer[AnnotationVO]]()
+      var clippedAnnotations: ListBuffer[AnnotationVO] = ListBuffer.empty
 
       val eraserPoints: List[Float] = updatedAnnotation.annotationInfo.get("points") match {
         case Some(points: List[Float]) => points
@@ -367,20 +367,21 @@ class WhiteboardModel extends SystemConfiguration {
               case Some(WhiteboardKeyUtil.TEXT_TYPE)     => {}
             }
           }
+          case _ => {}
         }
       }
-
-      var newAnnotationsMap = wb.annotationsMap
-      intersectingAnnotations.foreach { case (userID, annotations) => newAnnotationsMap = newAnnotationsMap + (userID -> (newAnnotationsMap(userID) diff annotations)) }
-      //println("Annotation has position [" + usersAnnotations.head.position + "]")
-      val newWb = wb.copy(annotationsMap = newAnnotationsMap)
-      //println("Updating annotation on page [" + wb.id + "]. After numAnnotations=[" + getAnnotationsByUserId(wb, userId).length + "].")
-      saveWhiteboard(newWb)
-
-      rtnInformation = rtnInformation + ("idsToRemove" -> (intersectingAnnotations.foldLeft(ListBuffer.empty[String]) { case (a, (k, v)) => a ++ v.map(a => a.id) }).toList)
+      var modification: ModificationVO = ModificationVO(
+        removedAnnotations = intersectingAnnotations.foldLeft(ListBuffer.empty[Tuple2[AnnotationVO, Int]]) {
+          case (acc: ListBuffer[(AnnotationVO, Int)], (uId: String, anns: ListBuffer[AnnotationVO])) => acc ++ removeAnnotations(anns.map(a => a.id).toList, wbID = wb.id, userId = uId)
+        }.toList,
+        addedAnnotations = clippedAnnotations.toList,
+        wbId = wb.id, userId = userId, position = 0
+      )
+      addModificationVO(modification)
+      rtnModification = Some(modification.copy(removedAnnotations = (updatedAnnotation, 0) :: modification.removedAnnotations))
     }
 
-    rtnInformation
+    rtnModification
   }
 
   def getHistory(wbId: String): Array[AnnotationVO] = {
@@ -444,7 +445,7 @@ class WhiteboardModel extends SystemConfiguration {
         val newWb = revokeModification(modification)
         saveWhiteboard(newWb)
       }
-      case _ =>
+      case _ => {}
     }
     last
   }
@@ -463,8 +464,9 @@ class WhiteboardModel extends SystemConfiguration {
       case ann: AnnotationVO => {
         if (addedAnnotationIds.contains(ann.id)) {
           false
+        } else {
+          true
         }
-        true
       }
     }
 
@@ -475,20 +477,25 @@ class WhiteboardModel extends SystemConfiguration {
 
     newAnnotationList = usersAnnotationsWithoutAdded
     var newAnnotationsMap = wb.annotationsMap
-    var currentUserId = modification.userId
+    var currentUserId: Option[String] = None
 
     if (modification.removedAnnotations.nonEmpty) {
       for ((ann, index) <- modification.removedAnnotations) {
-        if (ann.userId != currentUserId) {
-          newAnnotationsMap = if (newAnnotationList.isEmpty) newAnnotationsMap - currentUserId else newAnnotationsMap + (currentUserId -> newAnnotationList)
-          currentUserId = ann.userId
-          newAnnotationList = getAnnotationsByUserId(wb, currentUserId)
+        if (currentUserId.isEmpty) {
+          currentUserId = Some(ann.userId)
+          newAnnotationList = getAnnotationsByUserId(wb, currentUserId.get)
+        }
+        if (ann.userId != currentUserId.get) {
+          newAnnotationsMap = if (newAnnotationList.isEmpty) newAnnotationsMap - currentUserId.get else newAnnotationsMap + (currentUserId.get -> newAnnotationList)
+          currentUserId = Some(ann.userId)
+          newAnnotationList = getAnnotationsByUserId(wb, currentUserId.get)
         }
         newAnnotationList = insert(newAnnotationList, index, ann)
       }
     }
-
-    newAnnotationsMap = if (newAnnotationList.isEmpty) newAnnotationsMap - currentUserId else newAnnotationsMap + (currentUserId -> newAnnotationList)
+    if (currentUserId.isDefined) {
+      newAnnotationsMap = if (newAnnotationList.isEmpty) newAnnotationsMap - currentUserId.get else newAnnotationsMap + (currentUserId.get -> newAnnotationList)
+    }
     wb.copy(annotationsMap = newAnnotationsMap)
   }
 

@@ -49,7 +49,7 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     annotation.copy(annotationInfo = shape2)
   }
 
-  def modifyWhiteboardAnnotations(annotations: List[AnnotationVO], idsToRemove: List[String], wbId: String, userId: String, liveMeeting: LiveMeeting) = {
+  def modifyWhiteboardAnnotations(annotations: List[AnnotationVO], idsToRemove: List[String], wbId: String, userId: String, liveMeeting: LiveMeeting): ModificationVO = {
     val removedAnnotations = liveMeeting.wbModel.removeAnnotations(idsToRemove, wbId, userId)
     val addedAnnotations = for (ann <- annotations) yield liveMeeting.wbModel.addAnnotation(wbId, ann)
     val modVO = ModificationVO(removedAnnotations = removedAnnotations, addedAnnotations = addedAnnotations, wbId = wbId, userId = userId, position = 0)
@@ -60,7 +60,6 @@ class WhiteboardApp2x(implicit val context: ActorContext)
   def sendWhiteboardAnnotation(annotation: AnnotationVO, drawEndOnly: Boolean, liveMeeting: LiveMeeting): AnnotationVO = {
     //    println("Received whiteboard annotation. status=[" + status + "], annotationType=[" + annotationType + "]")
     var rtnAnnotation: AnnotationVO = annotation
-    log.debug("Received whiteboard annotation. status=[" + annotation.status + "], annotationType=[" + annotation.annotationType + "], annotationInfo=[" + annotation.annotationInfo + "]")
 
     if (WhiteboardKeyUtil.DRAW_START_STATUS == annotation.status) {
       rtnAnnotation = liveMeeting.wbModel.addAnnotation(annotation.wbId, annotation)
@@ -79,14 +78,12 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     } else {
       //	    println("Received UNKNOWN whiteboard annotation!!!!. status=[" + status + "], annotationType=[" + annotationType + "]")
     }
-    log.debug(rtnAnnotation.annotationInfo.map(_.productIterator.mkString(":")).mkString("|"))
     rtnAnnotation
   }
 
-  def sendWhiteboardEraser(eraserAnnotation: AnnotationVO, drawEndOnly: Boolean, liveMeeting: LiveMeeting): Map[String, Any] = {
+  def sendWhiteboardEraser(eraserAnnotation: AnnotationVO, drawEndOnly: Boolean, liveMeeting: LiveMeeting): Option[ModificationVO] = {
     //    println("Received whiteboard annotation. status=[" + status + "], annotationType=[" + annotationType + "]")
-    var rtnInformation: Map[String, Any] = HashMap("whiteboardId" -> eraserAnnotation.wbId, "userId" -> eraserAnnotation.userId, "eraserId" -> eraserAnnotation.id, "annotationsToAdd" -> List(), "idsToRemove" -> List())
-    log.debug("Received whiteboard annotation. status=[" + eraserAnnotation.status + "], annotationType=[" + eraserAnnotation.annotationType + "], pos=[" + eraserAnnotation.position + "]")
+    var rtnInformation: Option[ModificationVO] = None
 
     if (WhiteboardKeyUtil.DRAW_START_STATUS == eraserAnnotation.status) {
       //rtnInformation = liveMeeting.wbModel.addAnnotation(annotation.wbId, annotation.userId, annotation)
@@ -98,7 +95,9 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     } else {
       //	    println("Received UNKNOWN whiteboard annotation!!!!. status=[" + status + "], annotationType=[" + annotationType + "]")
     }
-    log.debug("rtnInformation. toAdd=[" + rtnInformation("annotationsToAdd") + "], remove=[" + rtnInformation("idsToRemove") + "]")
+    if (rtnInformation.isDefined) {
+      log.debug("rtnInformation. toAdd=[" + rtnInformation.get.addedAnnotations + "], remove=[" + rtnInformation.get.removedAnnotations + "]")
+    }
     rtnInformation
   }
 

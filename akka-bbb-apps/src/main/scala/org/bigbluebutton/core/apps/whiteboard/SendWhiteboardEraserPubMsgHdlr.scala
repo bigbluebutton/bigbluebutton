@@ -5,59 +5,22 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait, WhiteboardKeyUtil }
 import scala.collection.immutable.{ Map, List }
+import org.bigbluebutton.common2.msgs.{ ModificationVO, AnnotationVO }
 
 trait SendWhiteboardEraserPubMsgHdlr extends RightsManagementTrait {
   this: WhiteboardApp2x =>
 
   def handle(msg: SendWhiteboardEraserPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
-    def broadcastEvent(msg: SendWhiteboardEraserPubMsg, eraserMap: Map[String, Any]): Unit = {
+    def broadcastEvent(msg: SendWhiteboardEraserPubMsg, annotations: List[AnnotationVO], idsToRemove: List[String]): Unit = {
       val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, liveMeeting.props.systemProps.html5InstanceId.toString)
-      val envelope = BbbCoreEnvelope(SendWhiteboardEraserEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(SendWhiteboardEraserEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
+      val envelope = BbbCoreEnvelope(ModifyWhiteboardAnnotationEvtMsg.NAME, routing)
+      val header = BbbClientMsgHeader(ModifyWhiteboardAnnotationEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      // start body
-      // whiteboardId, userId, eraserId, annotationsToAdd, idsToRemove
-      val body = SendWhiteboardEraserEvtMsgBody(
-        eraserMap.get("whiteboardId") match {
-          case Some(value: String) => value
-          case _ => {
-            log.warning("Eraser Map has no whiteboardId value")
-            msg.body.annotation.wbId
-          }
-        },
-        eraserMap.get("userId") match {
-          case Some(value: String) => value
-          case _ => {
-            log.warning("Eraser Map has no userId value")
-            msg.body.annotation.userId
-          }
-        },
-        eraserMap.get("eraserId") match {
-          case Some(value: String) => value
-          case _ => {
-            log.warning("Eraser Map has no eraserId value")
-            msg.body.annotation.id
-          }
-        },
-        eraserMap.get("annotationsToAdd") match {
-          case Some(value: List[AnnotationVO]) => value
-          case _ => {
-            log.warning("Eraser Map has no annotationsToAdd value")
-            List()
-          }
-        },
-        eraserMap.get("idsToRemove") match {
-          case Some(value: List[String]) => value
-          case _ => {
-            log.warning("Eraser Map has no idsToRemove value")
-            List()
-          }
-        }
-      )
-      //end body
+      val eraserAnnotation: AnnotationVO = msg.body.annotation
 
-      val event = SendWhiteboardEraserEvtMsg(header, body)
+      val body = ModifyWhiteboardAnnotationEvtMsgBody(annotations, idsToRemove, eraserAnnotation.userId, eraserAnnotation.wbId, "eraser")
+      val event = ModifyWhiteboardAnnotationEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
     }
@@ -116,6 +79,7 @@ trait SendWhiteboardEraserPubMsgHdlr extends RightsManagementTrait {
       PermissionCheck.GUEST_LEVEL,
       PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId
     )) {
+      //copied from modifyWhiteboardAnnotations
       //val meetingId = liveMeeting.props.meetingProp.intId
       //val reason = "No permission to send a whiteboard annotation."
 
@@ -136,8 +100,11 @@ trait SendWhiteboardEraserPubMsgHdlr extends RightsManagementTrait {
       //println("============= Printing Sanitized annotation ============")
       //printAnnotationInfo(sanitizedShape)
       //println("============= Printed Sanitized annotation  ============")
-      val eraserMap = sendWhiteboardEraser(sanitizedShape, msg.body.drawEndOnly, liveMeeting)
-      broadcastEvent(msg, eraserMap)
+      val modVOOption: Option[ModificationVO] = sendWhiteboardEraser(sanitizedShape, msg.body.drawEndOnly, liveMeeting)
+
+      modVOOption match {
+        case Some(modification: ModificationVO) => broadcastEvent(msg, modification.addedAnnotations, modification.removedAnnotations.map { case (ann, ind) => ann.id })
+      }
     }
   }
 }
