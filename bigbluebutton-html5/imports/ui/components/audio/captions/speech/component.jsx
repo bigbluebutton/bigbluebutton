@@ -12,6 +12,7 @@ class Speech extends PureComponent {
     this.onResult = this.onResult.bind(this);
 
     this.result = {
+      id: Service.generateId(),
       transcript: '',
       isFinal: true,
     };
@@ -88,16 +89,19 @@ class Speech extends PureComponent {
       results,
     } = event;
 
+    const { id } = this.result;
     const { transcript } = results[resultIndex][0];
     const { isFinal } = results[resultIndex];
 
     this.result.transcript = transcript;
     this.result.isFinal = isFinal;
 
+    const { locale } = this.props;
     if (isFinal) {
-      Service.pushFinalTranscript(transcript);
+      Service.updateFinalTranscript(id, transcript, locale);
+      this.result.id = Service.generateId();
     } else {
-      Service.pushInterimTranscript(transcript);
+      Service.updateInterimTranscript(id, transcript, locale);
     }
   }
 
@@ -105,6 +109,7 @@ class Speech extends PureComponent {
     if (this.speechRecognition) {
       this.speechRecognition.lang = locale;
       try {
+        this.result.id = Service.generateId();
         this.speechRecognition.start();
         this.idle = false;
       } catch (event) {
@@ -122,7 +127,9 @@ class Speech extends PureComponent {
       } = this.result;
 
       if (!isFinal) {
-        Service.pushFinalTranscript(transcript);
+        const { locale } = this.props;
+        const { id } = this.result;
+        Service.updateFinalTranscript(id, transcript, locale);
         this.speechRecognition.abort();
       } else {
         this.speechRecognition.stop();

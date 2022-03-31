@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import pushAudioTranscript from '/imports/api/audio-captions/server/methods/pushAudioTranscript';
+import updateTranscript from '/imports/api/audio-captions/server/methods/updateTranscript';
 
 Meteor.methods({
-  pushAudioTranscript,
+  updateTranscript,
 });

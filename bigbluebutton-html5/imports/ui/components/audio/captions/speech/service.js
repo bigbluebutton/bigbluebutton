@@ -1,11 +1,12 @@
 import _ from 'lodash';
 import { Session } from 'meteor/session';
+import Auth from '/imports/ui/services/auth';
 import { makeCall } from '/imports/ui/services/api';
 import AudioService from '/imports/ui/components/audio/service';
 
 const DEFAULT_LANGUAGE = 'pt-BR';
 const ENABLED = Meteor.settings.public.app.enableAudioCaptions;
-const THROTTLE_TIMEOUT = 2000;
+const THROTTLE_TIMEOUT = 1000;
 
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -24,18 +25,20 @@ const initSpeechRecognition = (locale = DEFAULT_LANGUAGE) => {
   return null;
 };
 
-const pushAudioTranscript = (transcript, type) => makeCall('pushAudioTranscript', transcript, type);
+const updateTranscript = (id, transcript, locale) => makeCall('updateTranscript', id, transcript, locale);
 
-const throttledTranscriptPush = _.throttle(pushAudioTranscript, THROTTLE_TIMEOUT, {
+const throttledTranscriptUpdate = _.throttle(updateTranscript, THROTTLE_TIMEOUT, {
   leading: false,
   trailing: true,
 });
 
-const pushInterimTranscript = (transcript) => throttledTranscriptPush(transcript, 'interim');
+const updateInterimTranscript = (id, transcript, locale) => {
+  throttledTranscriptUpdate(id, transcript, locale);
+};
 
-const pushFinalTranscript = (transcript) => {
-  throttledTranscriptPush.cancel();
-  pushAudioTranscript(transcript, 'final');
+const updateFinalTranscript = (id, transcript, locale) => {
+  throttledTranscriptUpdate.cancel();
+  updateTranscript(id, transcript, locale);
 };
 
 const getSpeech = () => Session.get('speech') || false;
@@ -59,14 +62,17 @@ const getStatus = () => {
   };
 };
 
+const generateId = () => `${Auth.userID}-${Date.now()}`;
+
 export default {
   hasSpeechRecognitionSupport,
   initSpeechRecognition,
-  pushInterimTranscript,
-  pushFinalTranscript,
+  updateInterimTranscript,
+  updateFinalTranscript,
   getSpeech,
   setSpeech,
   isEnabled,
   isActive,
   getStatus,
+  generateId,
 };
