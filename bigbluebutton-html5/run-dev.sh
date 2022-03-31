@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 
 for var in "$@"
 do
-    if [[ $var == --reset* ]] ; then
+    if [[ $var == --reset ]] ; then
     	echo "Performing Meteor reset..."
         rm -rf node_modules
 		meteor reset
