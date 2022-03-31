@@ -33,6 +33,15 @@ class BBBMenu extends React.Component {
     this.handleClose = this.handleClose.bind(this);
   }
 
+  componentDidUpdate() {
+    const { anchorEl } = this.state;
+    if (this.props.open === false && anchorEl) {
+      this.setState({ anchorEl: null });
+    } else if (this.props.open === true && !anchorEl) {
+      this.setState({ anchorEl: this.anchorElRef });
+    }
+  }
+
   handleClick(event) {
     this.setState({ anchorEl: event.currentTarget });
   };
@@ -126,6 +135,7 @@ class BBBMenu extends React.Component {
             this.handleClick(e);
           }}
           accessKey={this.props?.accessKey}
+          ref={(ref) => this.anchorElRef = ref}
         >
           {trigger}
         </div>
