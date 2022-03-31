@@ -276,7 +276,7 @@
     "app.poll.deleteRespDesc": "Remueve opción {0}",
     "app.poll.t": "Verdadero",
     "app.poll.f": "Falso",
-    "app.poll.tf": "Verdadero / Falseo",
+    "app.poll.tf": "Verdadero / Falso",
     "app.poll.y": "Sí",
     "app.poll.n": "No",
     "app.poll.abstention": "Abstención",
