@@ -16,9 +16,9 @@ export default function changeLayout(payload) {
     check(requesterUserId, String);
 
     const m = LayoutMeetings.findOne({ meetingId }) || {};
-    const { presentationIsOpen, cameraPosition, focusedCamera, presentationVideoRate } = m;
+    const { presentationIsOpen, isResizing, cameraPosition, focusedCamera, presentationVideoRate, pushLayout } = m;
 
-    const defaultPayload = { presentationIsOpen, cameraPosition, focusedCamera, presentationVideoRate, ...payload};
+    const defaultPayload = { presentationIsOpen, isResizing, cameraPosition, focusedCamera, presentationVideoRate, ...payload};
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, defaultPayload);
   } catch (err) {

@@ -3,10 +3,13 @@ import { LayoutMeetings } from '/imports/api/meetings';
 import { check } from 'meteor/check';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
-export default function changeLayout(meetingId, layout, presentationIsOpen, cameraPosition, focusedCamera, presentationVideoRate, requesterUserId) {
+const APP_CONFIG = Meteor.settings.public.app.defaultSettings.application;
+
+export default function changeLayout(meetingId, layout, presentationIsOpen, isResizing, cameraPosition, focusedCamera, presentationVideoRate, pushLayout, requesterUserId) {
   try {
     check(meetingId, String);
     check(requesterUserId, String);
+    check(isResizing, Boolean);
     check(layout, String);
 
     const selector = {
@@ -18,9 +21,11 @@ export default function changeLayout(meetingId, layout, presentationIsOpen, came
         layout: LAYOUT_TYPE[layout] || LAYOUT_TYPE.SMART_LAYOUT,
         layoutUpdatedAt: new Date().getTime(),
         presentationIsOpen,
+        isResizing,
         cameraPosition,
         focusedCamera,
         presentationVideoRate,
+        pushLayout,
       },
     };
 

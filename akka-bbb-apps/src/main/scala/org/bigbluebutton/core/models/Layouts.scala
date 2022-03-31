@@ -11,12 +11,28 @@ object Layouts {
     instance.currentLayout
   }
 
+  def setPushLayout(instance: Layouts, pushLayout: Boolean) {
+    instance.pushLayout = pushLayout
+  }
+
+  def getPushLayout(instance: Layouts): Boolean = {
+    instance.pushLayout
+  }
+
   def setPresentationIsOpen(instance: Layouts, p: Boolean) = {
     instance.presentationIsOpen = p
   }
 
   def getPresentationIsOpen(instance: Layouts): Boolean = {
     instance.presentationIsOpen
+  }
+
+  def setCameraDockIsResizing(instance: Layouts, p: Boolean) = {
+    instance.isResizing = p
+  }
+
+  def getCameraDockIsResizing(instance: Layouts): Boolean = {
+    instance.isResizing
   }
 
   def setCameraPosition(instance: Layouts, cp: String) = {
@@ -55,7 +71,9 @@ object Layouts {
 class Layouts {
   private var setByUser: String = "system";
   private var currentLayout = "";
+  private var pushLayout: Boolean = false;
   private var presentationIsOpen: Boolean = true;
+  private var isResizing: Boolean = false;
   private var cameraPosition: String = "";
   private var focusedCamera: String = "";
   private var presentationVideoRate: Double = 0;

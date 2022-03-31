@@ -407,7 +407,7 @@ public class Meeting {
 		return authenticatedGuest;
 	}
 
-	public void setMeetingLayout(String layout, Boolean presentationIsOpen, String cameraPosition, String focusedCamera, Double presentationVideoRate) {
+	public void setMeetingLayout(String layout) {
 		meetingLayout = layout;
 	}
 

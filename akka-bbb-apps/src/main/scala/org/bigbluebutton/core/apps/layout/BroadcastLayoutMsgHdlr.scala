@@ -21,7 +21,9 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
         val newlayout = LayoutsType.layoutsType.getOrElse(msg.body.layout, "")
 
         Layouts.setCurrentLayout(liveMeeting.layouts, newlayout)
+        Layouts.setPushLayout(liveMeeting.layouts, msg.body.pushLayout)
         Layouts.setPresentationIsOpen(liveMeeting.layouts, msg.body.presentationIsOpen)
+        Layouts.setCameraDockIsResizing(liveMeeting.layouts, msg.body.isResizing)
         Layouts.setCameraPosition(liveMeeting.layouts, msg.body.cameraPosition)
         Layouts.setFocusedCamera(liveMeeting.layouts, msg.body.focusedCamera)
         Layouts.setPresentationVideoRate(liveMeeting.layouts, msg.body.presentationVideoRate)
@@ -39,7 +41,9 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
 
     val body = BroadcastLayoutEvtMsgBody(
       Layouts.getCurrentLayout(liveMeeting.layouts),
+      Layouts.getPushLayout(liveMeeting.layouts),
       Layouts.getPresentationIsOpen(liveMeeting.layouts),
+      Layouts.getCameraDockIsResizing(liveMeeting.layouts),
       Layouts.getCameraPosition(liveMeeting.layouts),
       Layouts.getFocusedCamera(liveMeeting.layouts),
       Layouts.getPresentationVideoRate(liveMeeting.layouts),

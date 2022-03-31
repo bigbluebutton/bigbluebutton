@@ -44,9 +44,11 @@ const addLayout = (meetingId, layout) => {
     layout,
     layoutUpdatedAt: new Date().getTime(),
     presentationIsOpen: true,
+    isResizing: false,
     cameraPosition: 'contentTop',
     focusedCamera: 'none',
     presentationVideoRate: 0,
+    pushLayout: false,
   };
 
   try {
