@@ -29,7 +29,10 @@ const ReactiveAnnotationContainer = (props) => {
 
 export default withTracker((params) => {
   const { shapeId } = params;
-  const annotation = ReactiveAnnotationService.getAnnotationById(shapeId);
+  const unsentAnnotation = ReactiveAnnotationService.getUnsentAnnotationById(shapeId);
+  const isUnsentAnnotation = unsentAnnotation !== undefined;
+  const annotation = isUnsentAnnotation
+    ? unsentAnnotation : ReactiveAnnotationService.getAnnotationById(shapeId);
   const isViewer = Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID }, {
     fields: {
       role: 1,

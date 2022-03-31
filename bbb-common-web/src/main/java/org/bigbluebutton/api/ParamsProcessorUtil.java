@@ -113,12 +113,13 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsLockedLayout;
 		private boolean defaultLockSettingsLockOnJoin;
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
+		private boolean defaultLockSettingsHideViewersCursor;
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
     private Integer clientLogoutTimerInMinutes = 0;
-  	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
-  	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
+    private Integer defaultMeetingExpireIfNoUserJoinedInMinutes = 5;
+    private Integer defaultMeetingExpireWhenLastUserLeftInMinutes = 1;
   	private Integer userInactivityInspectTimerInMinutes = 120;
   	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
@@ -335,6 +336,12 @@ public class ParamsProcessorUtil {
 				lockSettingsLockOnJoinConfigurable = Boolean.parseBoolean(lockSettingsLockOnJoinConfigurableParam);
 			}
 
+			Boolean lockSettingsHideViewersCursor = defaultLockSettingsHideViewersCursor;
+			String lockSettingsHideViewersCursorParam = params.get(ApiParams.LOCK_SETTINGS_HIDE_VIEWERS_CURSOR);
+			if (!StringUtils.isEmpty(lockSettingsHideViewersCursorParam)) {
+                lockSettingsHideViewersCursor = Boolean.parseBoolean(lockSettingsHideViewersCursorParam);
+			}
+
 			return new LockSettingsParams(lockSettingsDisableCam,
 							lockSettingsDisableMic,
 							lockSettingsDisablePrivateChat,
@@ -343,7 +350,8 @@ public class ParamsProcessorUtil {
 							lockSettingsHideUserList,
 							lockSettingsLockedLayout,
 							lockSettingsLockOnJoin,
-							lockSettingsLockOnJoinConfigurable);
+							lockSettingsLockOnJoinConfigurable,
+                            lockSettingsHideViewersCursor);
 		}
 
     private ArrayList<Group> processGroupsParams(Map<String, String> params) {
@@ -465,12 +473,6 @@ public class ParamsProcessorUtil {
             }
         }
 
-        // Check if VirtualBackgrounds is disabled
-        boolean virtualBackgroundsDisabled = false;
-        if (!StringUtils.isEmpty(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED))) {
-            virtualBackgroundsDisabled = Boolean.valueOf(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED));
-        }
-
         // Check Disabled Features
         ArrayList<String> listOfDisabledFeatures=new ArrayList(Arrays.asList(defaultDisabledFeatures.split(",")));
         if (!StringUtils.isEmpty(params.get(ApiParams.DISABLED_FEATURES))) {
@@ -480,6 +482,15 @@ public class ParamsProcessorUtil {
         listOfDisabledFeatures.removeAll(Arrays.asList("", null));
         listOfDisabledFeatures.replaceAll(String::trim);
         listOfDisabledFeatures = new ArrayList<>(new HashSet<>(listOfDisabledFeatures));
+
+        // Check if VirtualBackgrounds is disabled
+        if (!StringUtils.isEmpty(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED))) {
+            boolean virtualBackgroundsDisabled = Boolean.valueOf(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED));
+            if(virtualBackgroundsDisabled == true && !listOfDisabledFeatures.contains("virtualBackgrounds")) {
+                log.warn("[DEPRECATION] use disabledFeatures=virtualBackgrounds instead of virtualBackgroundsDisabled=true");
+                listOfDisabledFeatures.add("virtualBackgrounds");
+            }
+        }
 
         boolean learningDashboardEn = learningDashboardEnabled;
         if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED))) {
@@ -546,6 +557,24 @@ public class ParamsProcessorUtil {
                 if (userCameraCapParam >= 0) userCameraCap = userCameraCapParam;
             } catch (NumberFormatException e) {
                 log.warn("Invalid param [userCameraCap] for meeting=[{}]", internalMeetingId);
+            }
+        }
+
+        Integer meetingExpireIfNoUserJoinedInMinutes = defaultMeetingExpireIfNoUserJoinedInMinutes;
+        if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_EXPIRE_IF_NO_USER_JOINED_IN_MINUTES))) {
+            try {
+                meetingExpireIfNoUserJoinedInMinutes = Integer.parseInt(params.get(ApiParams.MEETING_EXPIRE_IF_NO_USER_JOINED_IN_MINUTES));
+            } catch (NumberFormatException e) {
+                log.warn("Invalid param [meetingExpireIfNoUserJoinedInMinutes] for meeting=[{}]", internalMeetingId);
+            }
+        }
+
+        Integer meetingExpireWhenLastUserLeftInMinutes = defaultMeetingExpireWhenLastUserLeftInMinutes;
+        if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_EXPIRE_WHEN_LAST_USER_LEFT_IN_MINUTES))) {
+            try {
+                meetingExpireWhenLastUserLeftInMinutes = Integer.parseInt(params.get(ApiParams.MEETING_EXPIRE_WHEN_LAST_USER_LEFT_IN_MINUTES));
+            } catch (NumberFormatException e) {
+                log.warn("Invalid param [meetingExpireWhenLastUserLeftInMinutes] for meeting=[{}]", internalMeetingId);
             }
         }
 
@@ -652,7 +681,6 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
-                .withVirtualBackgroundsDisabled(virtualBackgroundsDisabled)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .build();
 
@@ -1124,15 +1152,11 @@ public class ParamsProcessorUtil {
 	}
 
 	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
-		meetingExpireWhenLastUserLeftInMinutes = value;
-	}
-
-	public Integer getmeetingExpireWhenLastUserLeftInMinutes() {
-		return meetingExpireWhenLastUserLeftInMinutes;
+        defaultMeetingExpireWhenLastUserLeftInMinutes = value;
 	}
 
 	public void setMeetingExpireIfNoUserJoinedInMinutes(Integer value) {
-		meetingExpireIfNoUserJoinedInMinutes = value;
+        defaultMeetingExpireIfNoUserJoinedInMinutes = value;
 	}
 
 	public Integer getUserInactivityInspectTimerInMinutes() {
@@ -1296,6 +1320,10 @@ public class ParamsProcessorUtil {
 
 	public void setLockSettingsLockOnJoinConfigurable(Boolean lockSettingsLockOnJoinConfigurable) {
 		this.defaultLockSettingsLockOnJoinConfigurable = lockSettingsLockOnJoinConfigurable;
+	}
+
+	public void setLockSettingsHideViewersCursor(Boolean lockSettingsHideViewersCursor) {
+		this.defaultLockSettingsHideViewersCursor = lockSettingsHideViewersCursor;
 	}
 
 	public void setAllowDuplicateExtUserid(Boolean allow) {

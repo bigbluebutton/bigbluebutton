@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import {
   smPaddingX,
-  smPaddingY,
   mdPaddingX,
   mdPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -26,10 +25,9 @@ const MessageListWrapper = styled.div`
   overflow-y: auto;
   padding-left: ${smPaddingX};
   margin-left: calc(-1 * ${mdPaddingX});
-  padding-right: ${smPaddingY};
+  padding-right: ${smPaddingX};
   margin-right: calc(-1 * ${mdPaddingY});
   padding-bottom: ${mdPaddingX};
-  margin-bottom: calc(-1 * ${mdPaddingX});
   z-index: 2;
   [dir="rtl"] & {
     padding-right: ${mdPaddingX};
