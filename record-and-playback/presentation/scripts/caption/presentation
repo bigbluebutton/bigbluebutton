@@ -47,7 +47,7 @@ presentation_props = File.open(File.expand_path('../presentation.yml', __dir__))
   YAML.safe_load(pres_yml)
 end
 
-filepathPresOverride = "/etc/bigbluebutton/presentation.yml"
+filepathPresOverride = "/etc/bigbluebutton/recording/presentation.yml"
 isThereOverride = File.file?(filepathPresOverride)
 if (isThereOverride)
   presOverrideProps = YAML::load(File.open(filepathPresOverride))

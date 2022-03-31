@@ -240,7 +240,7 @@ module BigBlueButton
   def self.read_props
     return @props if @props
 
-    filepathRecOverride = "/etc/bigbluebutton/recording.yml"
+    filepathRecOverride = "/etc/bigbluebutton/recording/recording.yml"
     hasOverride = File.file?(filepathRecOverride)
     
     filepath = File.join(BigBlueButton.rap_scripts_path, 'bigbluebutton.yml')

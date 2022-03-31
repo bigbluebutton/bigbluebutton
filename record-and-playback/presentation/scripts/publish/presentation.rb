@@ -32,7 +32,7 @@ require 'json'
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 bbb_props = BigBlueButton.read_props
 $presentation_props = YAML::load(File.read('presentation.yml'))
-filepathPresOverride = "/etc/bigbluebutton/presentation.yml"
+filepathPresOverride = "/etc/bigbluebutton/recording/presentation.yml"
 hasOverride = File.file?(filepathPresOverride)
 if (hasOverride)
   presOverrideProps = YAML::load(File.open(filepathPresOverride))
