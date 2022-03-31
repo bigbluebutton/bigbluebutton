@@ -39,3 +39,15 @@ export function isSharedNotesEnabled() {
 export function isCaptionsEnabled() {
   return getDisabledFeatures().indexOf('captions') === -1 && Meteor.settings.public.captions.enabled;
 }
+
+export function isBreakoutRoomsEnabled() {
+  return getDisabledFeatures().indexOf('breakoutRooms') === -1;
+}
+
+export function isLayoutsEnabled() {
+  return getDisabledFeatures().indexOf('layouts') === -1;
+}
+
+export function isVirtualBackgroundsEnabled() {
+  return getDisabledFeatures().indexOf('virtualBackgrounds') === -1;
+}

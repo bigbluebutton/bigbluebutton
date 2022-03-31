@@ -77,6 +77,11 @@ async function annotation(test) {
 function encodeCustomParams(param) {
   try {
     let splited = param.split('=');
+    if (splited.length > 2) {
+      const aux = splited.shift();
+      splited[1] = splited.join('=');
+      splited[0] = aux;
+    }
     splited[1] = encodeURIComponent(splited[1]).replace(/%20/g, '+');
     return splited.join('=');
   } catch (err) {

@@ -84,6 +84,14 @@ const UserItemContents = styled.div`
   `}
 `;
 
+const SkeletonUserItemContents = styled.div`
+  position: static;
+  padding: .45rem;
+  margin-left: .5rem;
+  margin-right: .5rem;
+  width: auto;
+`;
+
 const UserItemInnerContents = styled.div`
   flex-grow: 0;
   display: flex;
@@ -155,12 +163,18 @@ const UserNameSub = styled.span`
   }
 `;
 
+const SkeletonWrapper = styled.span`
+  width: 100%;
+`;
+
 export default {
   UserItemContents,
+  SkeletonUserItemContents,
   UserItemInnerContents,
   UserAvatar,
   NoActionsListItem,
   UserName,
   UserNameMain,
   UserNameSub,
+  SkeletonWrapper,
 };

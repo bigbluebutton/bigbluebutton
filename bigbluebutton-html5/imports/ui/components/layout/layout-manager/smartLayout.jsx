@@ -119,6 +119,12 @@ const SmartLayout = (props) => {
           cameraDock: {
             numCameras: cameraDockInput.numCameras,
           },
+          externalVideo: {
+            hasExternalVideo: externalVideoInput.hasExternalVideo,
+          },
+          screenShare: {
+            hasScreenShare: screenShareInput.hasScreenShare,
+          }
         }, INITIAL_INPUT_STATE),
       });
     }
@@ -226,7 +232,7 @@ const SmartLayout = (props) => {
     const { element: fullscreenElement } = fullscreen;
     const { num: currentSlideNumber } = currentSlide;
 
-    if (!isOpen || currentSlideNumber === 0) {
+    if (!isOpen || (currentSlideNumber === 0 && !hasExternalVideo && !hasScreenShare)) {
       mediaBounds.width = 0;
       mediaBounds.height = 0;
       mediaBounds.top = 0;

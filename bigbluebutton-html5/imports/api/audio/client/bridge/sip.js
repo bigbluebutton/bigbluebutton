@@ -50,6 +50,8 @@ const DEFAULT_OUTPUT_DEVICE_ID = 'default';
 
 const INPUT_DEVICE_ID_KEY = 'audioInputDeviceId';
 const OUTPUT_DEVICE_ID_KEY = 'audioOutputDeviceId';
+const UA_SERVER_VERSION = Meteor.settings.public.app.bbbServerVersion;
+const UA_CLIENT_VERSION = Meteor.settings.public.app.html5ClientBuild;
 
 /**
   * Get error code from SIP.js websocket messages.
@@ -482,7 +484,7 @@ class SIPSession {
         },
         displayName: callerIdName,
         register: false,
-        userAgentString: 'BigBlueButton',
+        userAgentString: `BigBlueButton/${UA_SERVER_VERSION} (HTML5, rv:${UA_CLIENT_VERSION}) ${window.navigator.userAgent}`,
         hackViaWs: SIPJS_HACK_VIA_WS,
       });
 

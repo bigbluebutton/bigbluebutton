@@ -29,7 +29,8 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         hideUserList = msg.body.hideUserList,
         lockedLayout = msg.body.lockedLayout,
         lockOnJoin = msg.body.lockOnJoin,
-        lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable
+        lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable,
+        hideViewersCursor = msg.body.hideViewersCursor
       )
 
       if (!MeetingStatus2x.permissionsEqual(liveMeeting.status, settings) || !MeetingStatus2x.permisionsInitialized(liveMeeting.status)) {
@@ -67,6 +68,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           lockedLayout = settings.lockedLayout,
           lockOnJoin = settings.lockOnJoin,
           lockOnJoinConfigurable = settings.lockOnJoinConfigurable,
+          hideViewersCursor = settings.hideViewersCursor,
           msg.body.setBy
         )
         val header = BbbClientMsgHeader(

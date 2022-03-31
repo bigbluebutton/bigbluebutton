@@ -40,7 +40,6 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --post-install before-install.sh \
     --after-install after-install.sh \
-    --after-remove after-remove.sh \
     --description "BigBluebutton playback in podcast" \
     $DIRECTORIES \
     $OPTS

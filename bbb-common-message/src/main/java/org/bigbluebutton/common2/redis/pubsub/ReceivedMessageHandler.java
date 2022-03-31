@@ -5,12 +5,12 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 public class ReceivedMessageHandler {
-    private static Logger log = Red5LoggerFactory
-            .getLogger(ReceivedMessageHandler.class/* , "video" */);
+    private static Logger log = LoggerFactory
+            .getLogger(ReceivedMessageHandler.class);
 
     private BlockingQueue<ReceivedMessage> receivedMessages = new LinkedBlockingQueue<ReceivedMessage>();
 

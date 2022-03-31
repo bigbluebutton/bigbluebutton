@@ -10,6 +10,7 @@ public class LockSettingsParams {
 	public final Boolean lockedLayout;
 	public final Boolean lockOnJoin;
 	public final Boolean lockOnJoinConfigurable;
+	public final Boolean hideViewersCursor;
 
 	public LockSettingsParams(Boolean disableCam,
 					Boolean disableMic,
@@ -19,7 +20,8 @@ public class LockSettingsParams {
 					Boolean hideUserList,
 					Boolean lockedLayout,
 					Boolean lockOnJoin,
-					Boolean lockOnJoinConfigurable) {
+					Boolean lockOnJoinConfigurable,
+					Boolean hideViewersCursor) {
 		this.disableCam = disableCam;
 		this.disableMic = disableMic;
 		this.disablePrivateChat = disablePrivateChat;
@@ -29,5 +31,6 @@ public class LockSettingsParams {
 		this.lockedLayout = lockedLayout;
 		this.lockOnJoin = lockOnJoin;
 		this.lockOnJoinConfigurable = lockOnJoinConfigurable;
+		this.hideViewersCursor = hideViewersCursor;
 	}
 }
