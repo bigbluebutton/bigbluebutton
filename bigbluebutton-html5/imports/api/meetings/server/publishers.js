@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor';
+import { Random } from 'meteor/random';
 import Meetings, {
   RecordMeetings,
   MeetingTimeRemaining,
@@ -141,14 +142,14 @@ function notifications() {
       const { meetingId, userId } = tokenValidation;
       switch (notification.type) {
         case 'notifyAllInMeeting':
-          if (notification.meetingId === meetingId) this.added('notifications', Math.random() * 500, notification);
+          if (notification.meetingId === meetingId) this.added('notifications', Random.id(), notification);
           break;
         case 'NotifyUserInMeeting':
-          if (notification.meetingId === meetingId && notification.userId === userId) this.added('notifications', Math.random() * 500, notification);
+          if (notification.meetingId === meetingId && notification.userId === userId) this.added('notifications', Random.id(), notification);
           break;
         case 'NotifyRoleInMeeting': {
           const user = Users.findOne({ userId, meetingId }, { fields: { role: 1, userId: 1 } });
-          if (notification.meetingId === meetingId && notification.role === user.role) this.added('notifications', Math.random() * 500, notification);
+          if (notification.meetingId === meetingId && notification.role === user.role) this.added('notifications', Random.id(), notification);
           break;
         }
         default: Logger.warn(`wrong type: ${notification.type} userId: ${userId}`);
