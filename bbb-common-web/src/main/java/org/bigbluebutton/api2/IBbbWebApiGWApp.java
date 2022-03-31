@@ -41,7 +41,6 @@ public interface IBbbWebApiGWApp {
                      LockSettingsParams lockSettingsParams,
                      Integer html5InstanceId,
                      ArrayList<Group> groups,
-                     Boolean virtualBackgroundsDisabled,
                      ArrayList<String> disabledFeatures);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,

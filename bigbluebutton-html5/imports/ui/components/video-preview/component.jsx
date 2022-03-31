@@ -17,10 +17,10 @@ import {
   EFFECT_TYPES,
   SHOW_THUMBNAILS,
   setSessionVirtualBackgroundInfo,
-  isVirtualBackgroundEnabled,
   getSessionVirtualBackgroundInfo,
-} from '/imports/ui/services/virtual-background/service'
+} from '/imports/ui/services/virtual-background/service';
 import Settings from '/imports/ui/services/settings';
+import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 
 const VIEW_STATES = {
   finding: 'finding',
@@ -633,7 +633,7 @@ class VideoPreview extends Component {
             </>
           )
         }
-        {isVirtualBackgroundEnabled() && this.renderVirtualBgSelector()}
+        {isVirtualBackgroundsEnabled() && this.renderVirtualBgSelector()}
       </Styled.Col>
     );
   }

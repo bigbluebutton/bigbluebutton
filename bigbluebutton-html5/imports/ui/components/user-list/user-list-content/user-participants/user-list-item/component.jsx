@@ -16,6 +16,8 @@ import Styled from './styles';
 import { PANELS, ACTIONS } from '../../../../layout/enums';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { isChatEnabled } from '/imports/ui/services/features';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const messages = defineMessages({
   presenter: {
@@ -157,7 +159,7 @@ const propTypes = {
   user: PropTypes.shape({
     name: PropTypes.string.isRequired,
     pin: PropTypes.bool.isRequired,
-  }).isRequired,
+  }),
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -285,6 +287,9 @@ class UserListItem extends PureComponent {
       layoutContextDispatch,
     } = this.props;
     const { showNestedOptions } = this.state;
+
+    if (!user) return [];
+
     const { clientType, isSharingWebcam, pin: userIsPinned } = user;
     const isDialInUser = clientType === 'dial-in-user';
 
@@ -341,9 +346,9 @@ class UserListItem extends PureComponent {
       },
       {
         allowed: isSharingWebcam
-        && isMeteorConnected
-        && VideoService.isVideoPinEnabledForCurrentUser()
-        && !showNestedOptions,
+          && isMeteorConnected
+          && VideoService.isVideoPinEnabledForCurrentUser()
+          && !showNestedOptions,
         key: 'pinVideo',
         label: userIsPinned
           ? intl.formatMessage(messages.UnpinUserWebcam)
@@ -355,11 +360,11 @@ class UserListItem extends PureComponent {
       },
       {
         allowed: isChatEnabled()
-        && enablePrivateChat
-        && !isDialInUser
-        && !meetingIsBreakout
-        && isMeteorConnected
-        && !showNestedOptions,
+          && enablePrivateChat
+          && !isDialInUser
+          && !meetingIsBreakout
+          && isMeteorConnected
+          && !showNestedOptions,
         key: 'activeChat',
         label: intl.formatMessage(messages.StartPrivateChat),
         onClick: () => {
@@ -383,9 +388,9 @@ class UserListItem extends PureComponent {
       },
       {
         allowed: allowedToResetStatus
-        && user.emoji !== 'none'
-        && isMeteorConnected
-        && !showNestedOptions,
+          && user.emoji !== 'none'
+          && isMeteorConnected
+          && !showNestedOptions,
         key: 'clearStatus',
         label: intl.formatMessage(messages.ClearStatusLabel),
         onClick: () => {
@@ -396,9 +401,9 @@ class UserListItem extends PureComponent {
       },
       {
         allowed: allowedToMuteAudio
-        && isMeteorConnected
-        && !meetingIsBreakout
-        && !showNestedOptions,
+          && isMeteorConnected
+          && !meetingIsBreakout
+          && !showNestedOptions,
         key: 'mute',
         label: intl.formatMessage(messages.MuteUserAudioLabel),
         onClick: () => {
@@ -409,10 +414,10 @@ class UserListItem extends PureComponent {
       },
       {
         allowed: allowedToUnmuteAudio
-        && !userLocks.userMic
-        && isMeteorConnected
-        && !meetingIsBreakout
-        && !showNestedOptions,
+          && !userLocks.userMic
+          && isMeteorConnected
+          && !meetingIsBreakout
+          && !showNestedOptions,
         key: 'unmute',
         label: intl.formatMessage(messages.UnmuteUserAudioLabel),
         onClick: () => {
@@ -423,10 +428,10 @@ class UserListItem extends PureComponent {
       },
       {
         allowed: allowedToChangeWhiteboardAccess
-        && !user.presenter
-        && isMeteorConnected
-        && !isDialInUser
-        && !showNestedOptions,
+          && !user.presenter
+          && isMeteorConnected
+          && !isDialInUser
+          && !showNestedOptions,
         key: 'changeWhiteboardAccess',
         label: user.whiteboardAccess
           ? intl.formatMessage(messages.removeWhiteboardAccess)
@@ -517,10 +522,10 @@ class UserListItem extends PureComponent {
       },
       {
         allowed: allowedToEjectCameras
-        && user.isSharingWebcam
-        && isMeteorConnected
-        && !meetingIsBreakout
-        && !showNestedOptions,
+          && user.isSharingWebcam
+          && isMeteorConnected
+          && !meetingIsBreakout
+          && !showNestedOptions,
         key: 'ejectUserCameras',
         label: intl.formatMessage(messages.ejectUserCamerasLabel),
         onClick: () => {
@@ -648,6 +653,34 @@ class UserListItem extends PureComponent {
       selected,
     } = this.state;
 
+    if (!user) return (
+      <Styled.SkeletonUserItemContents>
+        <SkeletonTheme baseColor="#DCE4EC">
+          <div style={{ direction: isRTL ? 'rtl' : 'ltr', width: '100%' }}>
+            <Styled.UserItemInnerContents>
+              <Styled.UserAvatar data-test="userAvatar">
+                <UserAvatar isSkeleton={true}>
+                  <Skeleton circle="true"/>
+                </UserAvatar>
+              </Styled.UserAvatar>
+              <Styled.UserName>
+                <Styled.UserNameMain>
+                  <Styled.SkeletonWrapper>
+                    <Skeleton />
+                  </Styled.SkeletonWrapper>
+                </Styled.UserNameMain>
+                <Styled.UserNameSub>
+                  <Styled.SkeletonWrapper>
+                    <Skeleton />
+                  </Styled.SkeletonWrapper>
+                </Styled.UserNameSub>
+              </Styled.UserName>
+            </Styled.UserItemInnerContents>
+          </div>
+        </SkeletonTheme>
+      </Styled.SkeletonUserItemContents>
+    );
+
     const actions = this.getUsersActions();
 
     const you = isMe(user.userId) ? intl.formatMessage(messages.you) : '';
@@ -736,17 +769,17 @@ class UserListItem extends PureComponent {
                 <i>{(isMe(user.userId)) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
               </Styled.UserNameMain>
               {
-              userNameSub.length
-                ? (
-                  <Styled.UserNameSub
-                    aria-hidden
-                    data-test={user.mobile ? 'mobileUser' : undefined}
-                  >
-                    {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
-                  </Styled.UserNameSub>
-                )
-                : null
-            }
+                userNameSub.length
+                  ? (
+                    <Styled.UserNameSub
+                      aria-hidden
+                      data-test={user.mobile ? 'mobileUser' : undefined}
+                    >
+                      {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
+                    </Styled.UserNameSub>
+                  )
+                  : null
+              }
             </Styled.UserName>
           )
           : null}

@@ -175,27 +175,14 @@ class Presentation extends PureComponent {
       politeSRAlert(intl.formatMessage(intlMessages.slideContentChanged, { 0: currentSlide.num }));
     }
 
-    if (prevProps?.slidePosition && slidePosition) {
-      const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
-      const { width: currWidth, height: currHeight } = slidePosition;
-
-      if (prevWidth !== currWidth || prevHeight !== currHeight) {
-        layoutContextDispatch({
-          type: ACTIONS.SET_PRESENTATION_CURRENT_SLIDE_SIZE,
-          value: {
-            width: currWidth,
-            height: currHeight,
-          },
-        });
-      }
-
-      const downloadableOn = !prevProps.currentPresentation.downloadable
+    if (currentPresentation) {
+      const downloadableOn = !prevProps?.currentPresentation?.downloadable
         && currentPresentation.downloadable;
 
       const shouldCloseToast = !(currentPresentation.downloadable && !userIsPresenter);
 
       if (
-        prevProps.currentPresentation.name !== currentPresentation.name
+        prevProps?.currentPresentation?.name !== currentPresentation.name
         || (downloadableOn && !userIsPresenter)
       ) {
         if (this.currentPresentationToastId) {
@@ -212,13 +199,28 @@ class Presentation extends PureComponent {
         }
       }
 
-      const downloadableOff = prevProps.currentPresentation.downloadable
+      const downloadableOff = prevProps?.currentPresentation?.downloadable
         && !currentPresentation.downloadable;
 
       if (this.currentPresentationToastId && downloadableOff) {
         toast.update(this.currentPresentationToastId, {
           autoClose: true,
           render: this.renderCurrentPresentationToast(),
+        });
+      }
+    }
+
+    if (prevProps?.slidePosition && slidePosition) {
+      const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
+      const { width: currWidth, height: currHeight } = slidePosition;
+
+      if (prevWidth !== currWidth || prevHeight !== currHeight) {
+        layoutContextDispatch({
+          type: ACTIONS.SET_PRESENTATION_CURRENT_SLIDE_SIZE,
+          value: {
+            width: currWidth,
+            height: currHeight,
+          },
         });
       }
 
@@ -728,7 +730,6 @@ class Presentation extends PureComponent {
       fullscreenElementId,
       layoutContextDispatch,
     } = this.props;
-    const { isFullscreen } = this.state;
 
     return (
       <PresentationMenu
@@ -736,7 +737,6 @@ class Presentation extends PureComponent {
         screenshotRef={this.getSvgRef()}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
-        isFullscreen={isFullscreen}
         toggleSwapLayout={MediaService.toggleSwapLayout}
         layoutContextDispatch={layoutContextDispatch}
       />

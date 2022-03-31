@@ -39,7 +39,6 @@ tar xvfz sounds.tar.gz -C $DESTDIR/opt/freeswitch/share/freeswitch
 #
 # Overwrite "your are now muted"/"you are now unmuted" with short audio sounds.  Thanks senfcall.de!
 #
-apt-get install -y sox
 rm -f mute-and-unmute-sounds-master.zip
 wget https://gitlab.senfcall.de/senfcall-public/mute-and-unmute-sounds/-/archive/master/mute-and-unmute-sounds-master.zip
 rm -rf mute-and-unmute-sounds-master
