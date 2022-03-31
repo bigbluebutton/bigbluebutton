@@ -265,6 +265,7 @@ class VideoListItem extends Component {
     } = this.state;
     const {
       name,
+      user,
       voiceUser,
       numOfStreams,
       isFullscreenContext,
