@@ -256,18 +256,6 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildUserEjectedFromMeetingEvtMsg(meetingId: String, userId: String,
-                                        ejectedBy: String, reason: String,
-                                        reasonCode: String): BbbCommonEnvCoreMsg = {
-    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
-    val envelope = BbbCoreEnvelope(UserEjectedFromMeetingEvtMsg.NAME, routing)
-    val header = BbbClientMsgHeader(UserEjectedFromMeetingEvtMsg.NAME, meetingId, userId)
-    val body = UserEjectedFromMeetingEvtMsgBody(userId, ejectedBy, reason, reasonCode)
-    val event = UserEjectedFromMeetingEvtMsg(header, body)
-
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
-
   def buildDisconnectClientSysMsg(meetingId: String, userId: String, ejectedBy: String, reason: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, userId)
     val envelope = BbbCoreEnvelope(DisconnectClientSysMsg.NAME, routing)
@@ -288,11 +276,11 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildUserLeftMeetingEvtMsg(meetingId: String, userId: String): BbbCommonEnvCoreMsg = {
+  def buildUserLeftMeetingEvtMsg(meetingId: String, userId: String, eject: Boolean = false, ejectedBy: String = "", reason: String = "", reasonCode: String = ""): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(UserLeftMeetingEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(UserLeftMeetingEvtMsg.NAME, meetingId, userId)
-    val body = UserLeftMeetingEvtMsgBody(userId)
+    val body = UserLeftMeetingEvtMsgBody(userId, eject, ejectedBy, reason, reasonCode)
     val event = UserLeftMeetingEvtMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
