@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.audiocaptions
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.models.AudioCaptions
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait UpdateTranscriptPubMsgHdlr {
@@ -21,10 +22,12 @@ trait UpdateTranscriptPubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    broadcastEvent(
-      msg.header.userId,
-      msg.body.transcript,
-      msg.body.locale
-    )
+    if (AudioCaptions.isFloor(liveMeeting.audioCaptions, msg.header.userId)) {
+      broadcastEvent(
+        msg.header.userId,
+        msg.body.transcript,
+        msg.body.locale
+      )
+    }
   }
 }

@@ -451,7 +451,9 @@ class MeetingActor(
       case m: VoiceConfCallStateEvtMsg         => handleVoiceConfCallStateEvtMsg(m)
 
       case m: RecordingStartedVoiceConfEvtMsg  => handleRecordingStartedVoiceConfEvtMsg(m)
-      case m: AudioFloorChangedVoiceConfEvtMsg => handleAudioFloorChangedVoiceConfEvtMsg(m)
+      case m: AudioFloorChangedVoiceConfEvtMsg =>
+        handleAudioFloorChangedVoiceConfEvtMsg(m)
+        audioCaptionsApp2x.handle(m, liveMeeting)
       case m: MuteUserCmdMsg =>
         usersApp.handleMuteUserCmdMsg(m)
         updateUserLastActivity(m.body.mutedBy)
