@@ -6,7 +6,6 @@ import Users from '/imports/api/users';
 import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
 import UsersPersistentData from '/imports/api/users-persistent-data';
-import BreakoutsHistory from '/imports/api/breakouts-history';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -84,15 +83,6 @@ const sendMessageToAllBreakouts = (msg) => {
   });
 
   return true;
-};
-
-const getUserMessagesToAllBreakouts = () => {
-  const breakoutHistory = BreakoutsHistory.findOne(
-    { meetingId: Auth.meetingID },
-    { fields: { broadcastMsgs: 1 } },
-  ) || {};
-
-  return (breakoutHistory.broadcastMsgs || []).filter((msg) => msg.senderId === Auth.userID);
 };
 
 const transferUserToMeeting = (fromMeetingId, toMeetingId) =>
@@ -208,7 +198,6 @@ export default {
   endAllBreakouts,
   setBreakoutsTime,
   sendMessageToAllBreakouts,
-  getUserMessagesToAllBreakouts,
   isNewTimeHigherThanMeetingRemaining,
   requestJoinURL,
   getBreakoutRoomUrl,
