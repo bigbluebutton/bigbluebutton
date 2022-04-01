@@ -21,6 +21,7 @@
     "app.chat.offline": "Offline",
     "app.chat.pollResult": "Poll Results",
     "app.chat.breakoutDurationUpdated": "Breakout time is now {0} minutes",
+    "app.chat.breakoutDurationUpdatedModerator": "Breakout rooms time is now {0} minutes, and a notification has been sent.",
     "app.chat.emptyLogLabel": "Chat log empty",
     "app.chat.clearPublicChatMessage": "The public chat history was cleared by a moderator",
     "app.chat.multi.typing": "Multiple users are typing",
