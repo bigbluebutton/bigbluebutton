@@ -38,7 +38,7 @@ const intlMessages = defineMessages({
   },
   testSpeakerLabel: {
     id: 'app.audio.audioSettings.testSpeakerLabel',
-    description: 'Label for speaker source',
+    description: 'Label for the speaker test button',
   },
   streamVolumeLabel: {
     id: 'app.audio.audioSettings.microphoneStreamLabel',
