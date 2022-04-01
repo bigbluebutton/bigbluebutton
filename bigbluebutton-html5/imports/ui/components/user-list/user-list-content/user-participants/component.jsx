@@ -39,6 +39,7 @@ const intlMessages = defineMessages({
 });
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const SKELETON_COUNT = 10;
 
 class UserParticipants extends Component {
   constructor() {
@@ -143,7 +144,7 @@ class UserParticipants extends Component {
         <span
           style={style}
           key={key}
-          id={`user-${user.userId}`}
+          id={`user-${user?.userId || ''}`}
         >
           <UserListItemContainer
             {...{
@@ -203,9 +204,7 @@ class UserParticipants extends Component {
               <Styled.Container>
                 <Styled.SmallTitle>
                   {intl.formatMessage(intlMessages.usersTitle)}
-                  &nbsp;(
-                  {users.length}
-                  )
+                  {users.length > 0 ? ` (${users.length})` : null}
                 </Styled.SmallTitle>
                 {currentUser?.role === ROLE_MODERATOR
                   ? (
@@ -250,7 +249,7 @@ class UserParticipants extends Component {
                 }}
                 rowHeight={this.cache.rowHeight}
                 rowRenderer={this.rowRenderer}
-                rowCount={users.length}
+                rowCount={users.length || SKELETON_COUNT}
                 height={height - 1}
                 width={width - 1}
                 overscanRowCount={30}

@@ -36,6 +36,10 @@ const intlMessages = defineMessages({
     id: 'app.audio.audioSettings.speakerSourceLabel',
     description: 'Label for speaker source',
   },
+  testSpeakerLabel: {
+    id: 'app.audio.audioSettings.testSpeakerLabel',
+    description: 'Label for speaker source',
+  },
   streamVolumeLabel: {
     id: 'app.audio.audioSettings.microphoneStreamLabel',
     description: 'Label for stream volume',
@@ -136,9 +140,8 @@ class AudioSettings extends React.Component {
 
           <Styled.Row>
             <Styled.SpacedLeftCol>
-              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
               <Styled.LabelSmall htmlFor="audioTest">
-                Test your speaker volume
+                {intl.formatMessage(intlMessages.testSpeakerLabel)}
                 <AudioTestContainer id="audioTest" />
               </Styled.LabelSmall>
             </Styled.SpacedLeftCol>

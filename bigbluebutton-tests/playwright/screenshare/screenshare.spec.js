@@ -9,6 +9,10 @@ test.describe.parallel('Screenshare', () => {
   });
 
   test.describe.parallel('Mobile', () => {
+    test.beforeEach(({ browserName }) => {
+      test.skip(browserName === 'firefox', 'Mobile tests are not able in Firefox browser');
+    });
+
     test('Share screen unavailable on Mobile Android', async ({ browser }) => {
       const motoG4 = devices['Moto G4'];
       const context = await browser.newContext({ ...motoG4 });

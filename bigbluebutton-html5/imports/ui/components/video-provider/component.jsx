@@ -958,7 +958,7 @@ class VideoProvider extends Component {
     const peer = this.webRtcPeers[stream];
     this.videoTags[stream] = video;
 
-    if (peer && !peer.attached) {
+    if (peer && !peer.attached && peer.stream === stream) {
       this.attachVideoStream(stream);
     }
   }

@@ -5,6 +5,7 @@ PartOf=bigbluebutton.target
 [Service]
 Type=simple
 ExecStart=/usr/local/bigbluebutton/core/scripts/rap-caption-inbox.rb
+WorkingDirectory=/usr/local/bigbluebutton/core
 User=bigbluebutton
 Slice=bbb_record_core.slice
 Restart=on-failure

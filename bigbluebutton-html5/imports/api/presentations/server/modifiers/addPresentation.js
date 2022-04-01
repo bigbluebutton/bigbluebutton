@@ -1,4 +1,4 @@
-import { HTTP } from 'meteor/http';
+import axios from 'axios';
 import { check } from 'meteor/check';
 import Presentations from '/imports/api/presentations';
 import Logger from '/imports/startup/server/logger';
@@ -9,7 +9,8 @@ import setCurrentPresentation from './setCurrentPresentation';
 const getSlideText = async (url) => {
   let content = '';
   try {
-    content = await HTTP.get(url).content;
+    const request = await axios(url);
+    content = request.data;
   } catch (error) {
     Logger.error(`No file found. ${error}`);
   }

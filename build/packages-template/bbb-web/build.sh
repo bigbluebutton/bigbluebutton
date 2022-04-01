@@ -110,7 +110,6 @@ fpm -s dir -C "$STAGING" -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --before-install before-install.sh      \
     --after-install after-install.sh        \
-    --after-remove after-remove.sh \
     --description "BigBlueButton API" \
     $DIRECTORIES \
     $OPTS

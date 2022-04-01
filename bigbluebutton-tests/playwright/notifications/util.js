@@ -1,5 +1,6 @@
 const { expect } = require('@playwright/test');
 const e = require('../core/elements');
+const { sleep } = require('../core/helpers');
 
 async function enableChatPopup(test) {
   await test.waitAndClick(e.notificationsTab);
@@ -41,6 +42,7 @@ async function privateChatMessageToast(page2) {
   await page2.waitUntilHaveCountSelector(e.chatButton, 2);
   // send a private message
   await page2.type(e.chatBox, e.message1);
+  await sleep(1000);
   await page2.waitAndClick(e.sendButton);
 }
 

@@ -3,6 +3,7 @@ require('dotenv').config();
 const config = {
   workers: 1,
   timeout: 3 * 60 * 1000,
+  reporter: [['list']],
   use: {
     headless: true,
   },
@@ -25,11 +26,10 @@ const config = {
       use: {
         browserName: 'firefox',
         launchOptions: {
-          args: [
-            '--no-sandbox',
-            '--use-fake-ui-for-media-stream',
-            '--use-fake-device-for-media-stream',
-          ]
+          firefoxUserPrefs: {
+            "media.navigator.streams.fake": true,
+            "media.navigator.permission.disabled": true,
+          }
         },
       },
     },
@@ -48,5 +48,11 @@ const config = {
     },
   ],
 };
+
+if (process.env.DEBUG_MODE === 'true') {
+  config.reporter.push(['html', { open: 'never' }]);
+  config.use.screenshot = 'only-on-failure';
+  config.use.trace = 'retain-on-failure';
+}
 
 module.exports = config;
