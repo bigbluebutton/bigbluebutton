@@ -6,7 +6,7 @@ import setloggedOutStatus from '/imports/api/users-persistent-data/server/modifi
 import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
 import ClientConnections from '/imports/startup/server/ClientConnections';
 import UsersPersistentData from '/imports/api/users-persistent-data';
-import userEjected from './userEjected';
+import userEjected from '/imports/api/users/server/modifiers/userEjected';
 import VoiceUsers from '/imports/api/voice-users/';
 
 const disconnectUser = (meetingId, userId) => {
