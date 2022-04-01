@@ -14,7 +14,6 @@ import { FormattedMessage } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
 import Meetings from '/imports/api/meetings';
 import AppService from '/imports/ui/components/app/service';
-import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -29,11 +28,8 @@ import MediaService from '/imports/ui/components/media/service';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
-const BREAKOUT_END_NOTIFY_DELAY = 50;
-
 const HTML = document.getElementsByTagName('html')[0];
 
-let breakoutNotified = false;
 let checkedUserSettings = false;
 
 const propTypes = {
@@ -372,38 +368,6 @@ export default withTracker(() => {
   const meetingEndedReason = meeting?.meetingEndedReason;
 
   let userSubscriptionHandler;
-
-  Breakouts.find({}, { fields: { _id: 1 } }).observeChanges({
-    added() {
-      breakoutNotified = false;
-    },
-    removed() {
-      // Need to check the number of breakouts left because if a user's role changes to viewer
-      // then all but one room is removed. The data here isn't reactive so no need to filter
-      // the fields
-      const numBreakouts = Breakouts.find().count();
-      if (!AudioService.isUsingAudio() && !breakoutNotified && numBreakouts === 0) {
-        if (meeting && !meeting.meetingEnded && !meeting.meetingProp.isBreakout) {
-          // There's a race condition when reloading a tab where the collection gets cleared
-          // out and then refilled. The removal of the old data triggers the notification so
-          // instead wait a bit and check to see that records weren't added right after.
-          setTimeout(() => {
-            if (breakoutNotified) {
-              notify(
-                <FormattedMessage
-                  id="app.toast.breakoutRoomEnded"
-                  description="message when the breakout room is ended"
-                />,
-                'info',
-                'rooms',
-              );
-            }
-          }, BREAKOUT_END_NOTIFY_DELAY);
-        }
-        breakoutNotified = true;
-      }
-    },
-  });
 
   const codeError = Session.get('codeError');
   const { streams: usersVideo } = VideoService.getVideoStreams();
