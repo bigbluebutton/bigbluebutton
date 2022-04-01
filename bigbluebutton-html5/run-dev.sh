@@ -10,8 +10,11 @@ do
     	echo "Performing Meteor reset..."
         rm -rf node_modules
 		meteor reset
-		meteor npm i
     fi
 done
+
+if [ ! -d ./node_modules ] ; then
+	meteor npm i
+fi
 
 npm start
