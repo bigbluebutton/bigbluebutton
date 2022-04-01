@@ -9,10 +9,10 @@ object GroupChatApp {
 
   val MAIN_PUBLIC_CHAT = "MAIN-PUBLIC-GROUP-CHAT"
 
-  def createGroupChat(chatName: String, access: String, createBy: GroupChatUser,
+  def createGroupChat(access: String, createBy: GroupChatUser,
                       users: Vector[GroupChatUser], msgs: Vector[GroupChatMessage]): GroupChat = {
     val gcId = GroupChatFactory.genId()
-    GroupChatFactory.create(gcId, chatName, access, createBy, users, msgs)
+    GroupChatFactory.create(gcId, access, createBy, users, msgs)
   }
 
   def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser): GroupChatMessage = {
@@ -46,7 +46,7 @@ object GroupChatApp {
 
   def createDefaultPublicGroupChat(): GroupChat = {
     val createBy = GroupChatUser(SystemUser.ID)
-    GroupChatFactory.create(MAIN_PUBLIC_CHAT, MAIN_PUBLIC_CHAT, GroupChatAccess.PUBLIC, createBy, Vector.empty, Vector.empty)
+    GroupChatFactory.create(MAIN_PUBLIC_CHAT, GroupChatAccess.PUBLIC, createBy, Vector.empty, Vector.empty)
   }
 
   def createTestPublicGroupChat(state: MeetingState2x): MeetingState2x = {
