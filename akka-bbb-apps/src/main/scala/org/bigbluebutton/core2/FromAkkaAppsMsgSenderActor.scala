@@ -41,10 +41,6 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case SyncGetVoiceUsersRespMsg.NAME       => sendToHTML5InstanceIdChannel(msg, json)
 
       // Sent to FreeSWITCH
-      case ScreenshareStartRtmpBroadcastVoiceConfMsg.NAME =>
-        msgSender.send(toVoiceConfRedisChannel, json)
-      case ScreenshareStopRtmpBroadcastVoiceConfMsg.NAME =>
-        msgSender.send(toVoiceConfRedisChannel, json)
       case EjectAllFromVoiceConfMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
       case GetUsersInVoiceConfSysMsg.NAME =>

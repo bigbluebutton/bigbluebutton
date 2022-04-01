@@ -7,6 +7,8 @@ import {
 import { emojiConfigs } from './services/EmojiService';
 import Card from './components/Card';
 import UsersTable from './components/UsersTable';
+import UserDetails from './components/UserDetails/component';
+import { UserDetailsContext } from './components/UserDetails/context';
 import StatusTable from './components/StatusTable';
 import PollsTable from './components/PollsTable';
 import ErrorMessage from './components/ErrorMessage';
@@ -135,6 +137,19 @@ class App extends React.Component {
     return mostUsedEmojis.map(([emoji]) => icons[emoji]);
   }
 
+  updateModalUser() {
+    const { user, dispatch, isOpen } = this.context;
+    const { activitiesJson } = this.state;
+    const { users } = activitiesJson;
+
+    if (isOpen && users[user.userKey]) {
+      dispatch({
+        type: 'changeUser',
+        user: users[user.userKey],
+      });
+    }
+  }
+
   fetchActivitiesJson() {
     const {
       learningDashboardAccessToken, meetingId, sessionToken, invalidSessionCount,
@@ -151,6 +166,7 @@ class App extends React.Component {
             lastUpdated: Date.now(),
           });
           document.title = `Learning Dashboard - ${json.name}`;
+          this.updateModalUser();
         }).catch(() => {
           this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
         });
@@ -168,6 +184,7 @@ class App extends React.Component {
               lastUpdated: Date.now(),
             });
             document.title = `Learning Dashboard - ${jsonData.name}`;
+            this.updateModalUser();
           } else {
             // When meeting is ended the sessionToken stop working, check for new cookies
             this.setDashboardParams();
@@ -480,6 +497,7 @@ class App extends React.Component {
             { tab === 'polling'
               ? <PollsTable polls={activitiesJson.polls} allUsers={activitiesJson.users} />
               : null }
+            <UserDetails dataJson={activitiesJson} />
           </div>
         </div>
         <hr className="my-8" />
@@ -524,5 +542,7 @@ class App extends React.Component {
     );
   }
 }
+
+App.contextType = UserDetailsContext;
 
 export default injectIntl(App);

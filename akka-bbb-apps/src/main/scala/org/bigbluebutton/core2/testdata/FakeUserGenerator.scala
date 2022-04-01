@@ -77,12 +77,9 @@ object FakeUserGenerator {
       callerNum = name, muted, talking, listenOnly, "freeswitch", System.currentTimeMillis(), floor, lastFloorTime)
   }
 
-  def createFakeWebcamStreamFor(userId: String, viewers: Set[String]): WebcamStream = {
+  def createFakeWebcamStreamFor(userId: String, subscribers: Set[String]): WebcamStream = {
     val streamId = RandomStringGenerator.randomAlphanumericString(10)
-    val url = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" + streamId
-    val attributes = collection.immutable.HashMap("height" -> "600", "width" -> "800", "codec" -> "h264")
-    val media = MediaStream(streamId, url: String, userId: String, attributes, viewers)
-    WebcamStream(streamId, stream = media)
+    WebcamStream(streamId, userId, subscribers)
   }
 
 }

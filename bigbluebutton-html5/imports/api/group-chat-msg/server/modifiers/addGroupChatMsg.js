@@ -24,6 +24,7 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     id: Match.Maybe(String),
     timestamp: Number,
     sender: Object,
+    chatEmphasizedText: Boolean,
     message: String,
     correlationId: Match.Maybe(String),
   });
@@ -37,6 +38,7 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     ...restMsg,
     sender: sender.id,
     senderName: sender.name,
+    senderRole: sender.role,
     meetingId,
     chatId,
     message: parseMessage(msg.message),

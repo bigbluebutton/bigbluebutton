@@ -6,14 +6,17 @@ import { Slides } from '/imports/api/slides';
 import { makeCall } from '/imports/ui/services/api';
 import PresentationService from '/imports/ui/components/presentation/service';
 import logger from '/imports/startup/client/logger';
+import { isEqual } from 'lodash';
 
 const Annotations = new Mongo.Collection(null);
 const UnsentAnnotations = new Mongo.Collection(null);
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
+const DRAW_START = ANNOTATION_CONFIG.status.start;
 const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 const ANNOTATION_TYPE_PENCIL = 'pencil';
+const ANNOTATION_TYPE_TEXT = 'text';
 
 
 let annotationsStreamListener = null;
@@ -24,6 +27,64 @@ const clearPreview = (annotation) => {
 
 function clearFakeAnnotations() {
   UnsentAnnotations.remove({});
+  Annotations.remove({ id: /-fake/g });
+}
+
+function handleAddedLiveSyncPreviewAnnotation({
+  meetingId, whiteboardId, userId, annotation,
+}) {
+  const isOwn = Auth.meetingID === meetingId && Auth.userID === userId;
+  const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
+
+  if (!isOwn) {
+    Annotations.upsert(query.selector, query.modifier);
+    return;
+  }
+
+  const fakeAnnotation = Annotations.findOne({ id: `${annotation.id}-fake` });
+  let fakePoints;
+
+  if (fakeAnnotation) {
+    fakePoints = fakeAnnotation.annotationInfo.points;
+    const { points: lastPoints } = annotation.annotationInfo;
+
+    if (annotation.annotationType !== 'pencil') {
+      Annotations.update(fakeAnnotation._id, {
+        $set: {
+          position: annotation.position,
+          'annotationInfo.color': isEqual(fakePoints, lastPoints) || annotation.status === DRAW_END
+            ? annotation.annotationInfo.color : fakeAnnotation.annotationInfo.color,
+        },
+        $inc: { version: 1 }, // TODO: Remove all this version stuff
+      });
+      return;
+    }
+  }
+
+  Annotations.upsert(query.selector, query.modifier, (err) => {
+    if (err) {
+      logger.error({
+        logCode: 'whiteboard_annotation_upsert_error',
+        extraInfo: { error: err },
+      }, 'Error on adding an annotation');
+      return;
+    }
+
+    // Remove fake annotation for pencil on draw end
+    if (annotation.status === DRAW_END) {
+      Annotations.remove({ id: `${annotation.id}-fake` });
+      return;
+    }
+
+    if (annotation.status === DRAW_START) {
+      Annotations.update(fakeAnnotation._id, {
+        $set: {
+          position: annotation.position - 1,
+        },
+        $inc: { version: 1 }, // TODO: Remove all this version stuff
+      });
+    }
+  });
 }
 
 function handleAddedAnnotation({
@@ -51,8 +112,11 @@ function handleRemovedAnnotation({
   if (shapeId) {
     query.id = shapeId;
   }
-
-  Annotations.remove(query);
+  const annotationIsFake = Annotations.remove(query) === 0;
+  if (annotationIsFake) {
+    query.id = { $in: [shapeId, `${shapeId}-fake`] };
+    Annotations.remove(query);
+  }
 }
 
 export function initAnnotationsStreamListener() {
@@ -82,7 +146,14 @@ export function initAnnotationsStreamListener() {
     annotationsStreamListener.on('removed', handleRemovedAnnotation);
 
     annotationsStreamListener.on('added', ({ annotations }) => {
-      annotations.forEach(annotation => handleAddedAnnotation(annotation));
+      annotations.forEach((annotation) => {
+        const tool = annotation.annotation.annotationType;
+        if (tool === ANNOTATION_TYPE_TEXT) {
+          handleAddedLiveSyncPreviewAnnotation(annotation);
+        } else {
+          handleAddedAnnotation(annotation);
+        }
+      });
     });
   });
 }
@@ -181,6 +252,33 @@ const sendAnnotation = (annotation) => {
 
     UnsentAnnotations.upsert(queryFake.selector, queryFake.modifier);
   }
+};
+
+const sendLiveSyncPreviewAnnotation = (annotation) => {
+  // Prevent sending annotations while disconnected
+  if (!Meteor.status().connected) return;
+
+  annotationsQueue.push(annotation);
+  if (!annotationsSenderIsRunning) setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
+
+  // skip optimistic for draw end since the smoothing is done in akka
+  if (annotation.status === DRAW_END) return;
+
+  const { position, ...relevantAnotation } = annotation;
+  const queryFake = addAnnotationQuery(
+    Auth.meetingID, annotation.wbId, Auth.userID,
+    {
+      ...relevantAnotation,
+      id: `${annotation.id}-fake`,
+      position: Number.MAX_SAFE_INTEGER,
+      annotationInfo: {
+        ...annotation.annotationInfo,
+        color: increaseBrightness(annotation.annotationInfo.color, 40),
+      },
+    },
+  );
+
+  Annotations.upsert(queryFake.selector, queryFake.modifier);
 };
 
 WhiteboardMultiUser.find({ meetingId: Auth.meetingID }).observeChanges({
@@ -288,6 +386,7 @@ export {
   Annotations,
   UnsentAnnotations,
   sendAnnotation,
+  sendLiveSyncPreviewAnnotation,
   clearPreview,
   getMultiUser,
   getMultiUserSize,

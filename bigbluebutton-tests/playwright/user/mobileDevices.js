@@ -7,8 +7,8 @@ class MobileDevices extends MultiUsers {
   }
 
   async mobileTagName() {
-    await this.modPage.waitAndClick(e.userList);
-    await this.modPage.waitForSelector(e.firstUser);
+    await this.modPage.waitAndClick(e.userListToggleBtn);
+    await this.modPage.waitForSelector(e.currentUser);
     await this.modPage.hasElement(e.mobileUser);
   }
 

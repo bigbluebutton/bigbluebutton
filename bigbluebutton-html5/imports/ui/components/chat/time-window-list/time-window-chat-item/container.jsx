@@ -20,10 +20,12 @@ const TimeWindowChatItemContainer = (props) => {
   const {
     sender,
     senderName,
+    senderRole,
     key,
     timestamp,
     content,
     extra,
+    messageValues,
   } = message;
   const messages = content;
 
@@ -41,7 +43,7 @@ const TimeWindowChatItemContainer = (props) => {
       {
       ...{
         color: user?.color,
-        isModerator: user?.role === ROLE_MODERATOR,
+        messageFromModerator: senderRole === ROLE_MODERATOR,
         isSystemSender: sender === 'SYSTEM',
         isOnline: !user?.loggedOut,
         avatar: user?.avatar,
@@ -49,6 +51,7 @@ const TimeWindowChatItemContainer = (props) => {
         read: message.read,
         messages,
         extra,
+        messageValues,
         getPollResultString: PollService.getPollResultString,
         user,
         timestamp,

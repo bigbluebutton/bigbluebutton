@@ -15,19 +15,6 @@ import org.bigbluebutton.core.util.TimeUtil
 
 trait HandlerHelpers extends SystemConfiguration {
 
-  def sendAllWebcamStreams(outGW: OutMsgRouter, requesterId: String, webcams: Webcams, meetingId: String): Unit = {
-    val streams = org.bigbluebutton.core.models.Webcams.findAll(webcams)
-    val webcamStreams = streams.map { u =>
-      val msVO = MediaStreamVO(id = u.stream.id, url = u.stream.url, userId = u.stream.userId,
-        attributes = u.stream.attributes, viewers = u.stream.viewers)
-
-      WebcamStreamVO(streamId = msVO.id, stream = msVO)
-    }
-
-    val event = MsgBuilder.buildGetWebcamStreamsMeetingRespMsg(meetingId, requesterId, webcamStreams)
-    outGW.send(event)
-  }
-
   def trackUserJoin(
       outGW:       OutMsgRouter,
       liveMeeting: LiveMeeting,

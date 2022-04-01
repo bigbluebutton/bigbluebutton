@@ -22,8 +22,8 @@ class Join extends Create {
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
     await breakoutUserPage.bringToFront();
 
-    await breakoutUserPage.hasElement(e.presentationPlaceholder);
     if (!shouldJoinAudio) await breakoutUserPage.closeAudioModal();
+    await breakoutUserPage.hasElement(e.presentationPlaceholder);
     return breakoutUserPage;
   }
 

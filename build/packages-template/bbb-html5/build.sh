@@ -17,18 +17,18 @@ rm -rf staging
 
 # New format
 if [ -f private/config/settings.yml ]; then
-  sed -i "s/HTML5_CLIENT_VERSION/$(($VERSION))/" private/config/settings.yml
+  sed -i "s/HTML5_CLIENT_VERSION/$(($1))/" private/config/settings.yml
 fi
 
-mkdir -p staging/etc/bigbluebutton/nginx
-cp $DISTRO/bbb-html5.nginx staging/etc/bigbluebutton/nginx
+mkdir -p staging/usr/share/bigbluebutton/nginx
+cp bbb-html5.nginx staging/usr/share/bigbluebutton/nginx
 
 mkdir -p staging/etc/nginx/conf.d
-cp $DISTRO/bbb-html5-loadbalancer.conf staging/etc/nginx/conf.d
+cp bbb-html5-loadbalancer.conf staging/etc/nginx/conf.d
 
 
 mkdir -p staging/etc/systemd/system
-cp $DISTRO/mongod.service staging/etc/systemd/system
+cp mongod.service staging/etc/systemd/system
 
 mkdir -p staging/usr/share/meteor
 
@@ -66,43 +66,43 @@ npm i
 cd -
 cp -r /tmp/html5-build/bundle staging/usr/share/meteor
 
-cp $DISTRO/systemd_start.sh staging/usr/share/meteor/bundle
+cp systemd_start.sh staging/usr/share/meteor/bundle
 chmod +x staging/usr/share/meteor/bundle/systemd_start.sh
 
-cp $DISTRO/systemd_start_frontend.sh staging/usr/share/meteor/bundle
+cp systemd_start_frontend.sh staging/usr/share/meteor/bundle
 chmod +x staging/usr/share/meteor/bundle/systemd_start_frontend.sh
 
-cp $DISTRO/workers-start.sh staging/usr/share/meteor/bundle
+cp workers-start.sh staging/usr/share/meteor/bundle
 chmod +x staging/usr/share/meteor/bundle/workers-start.sh
 
-cp $DISTRO/bbb-html5-with-roles.conf staging/usr/share/meteor/bundle
+cp bbb-html5-with-roles.conf staging/usr/share/meteor/bundle
 
 cp mongod_start_pre.sh staging/usr/share/meteor/bundle
 chmod +x staging/usr/share/meteor/bundle/mongod_start_pre.sh
 
-cp $DISTRO/mongo-ramdisk.conf staging/usr/share/meteor/bundle
+cp mongo-ramdisk.conf staging/usr/share/meteor/bundle
 
 mkdir -p staging/usr/lib/systemd/system
-cp $DISTRO/bbb-html5.service staging/usr/lib/systemd/system
+cp bbb-html5.service staging/usr/lib/systemd/system
 cp disable-transparent-huge-pages.service staging/usr/lib/systemd/system
 
-cp $DISTRO/bbb-html5-backend@.service staging/usr/lib/systemd/system
-cp $DISTRO/bbb-html5-frontend@.service staging/usr/lib/systemd/system
+cp bbb-html5-backend@.service staging/usr/lib/systemd/system
+cp bbb-html5-frontend@.service staging/usr/lib/systemd/system
 
 
 mkdir -p staging/usr/share
 
-if [ ! -f node-v14.18.1-linux-x64.tar.gz ]; then
-  wget https://nodejs.org/dist/v14.18.1/node-v14.18.1-linux-x64.tar.gz
+if [ ! -f node-v14.18.3-linux-x64.tar.gz ]; then
+  wget https://nodejs.org/dist/v14.18.3/node-v14.18.3-linux-x64.tar.gz
 fi
 
-cp node-v14.18.1-linux-x64.tar.gz staging/usr/share
+cp node-v14.18.3-linux-x64.tar.gz staging/usr/share
 
 if [ -f staging/usr/share/meteor/bundle/programs/web.browser/head.html ]; then
   sed -i "s/VERSION/$(($BUILD))/" staging/usr/share/meteor/bundle/programs/web.browser/head.html
 fi
 
-# Compress CSS, Javascript andtensorflow WASM binaries used for virtual backgrounds. Keep the
+# Compress CSS, Javascript and tensorflow WASM binaries used for virtual backgrounds. Keep the
 # uncompressed versions as well so it works with mismatched nginx location blocks
 find staging/usr/share/meteor/bundle/programs/web.browser -name '*.js' -exec gzip -k -f -9 '{}' \;
 find staging/usr/share/meteor/bundle/programs/web.browser -name '*.css' -exec gzip -k -f -9 '{}' \;
@@ -111,8 +111,8 @@ find staging/usr/share/meteor/bundle/programs/web.browser -name '*.wasm' -exec g
 mkdir -p staging/etc/nginx/sites-available
 cp bigbluebutton.nginx staging/etc/nginx/sites-available/bigbluebutton
 
-mkdir -p staging/etc/bigbluebutton/nginx
-cp sip.nginx staging/etc/bigbluebutton/nginx
+mkdir -p staging/usr/share/bigbluebutton/nginx
+cp sip.nginx staging/usr/share/bigbluebutton/nginx
 
 mkdir -p staging/var/www/bigbluebutton
 touch staging/var/www/bigbluebutton/index.html

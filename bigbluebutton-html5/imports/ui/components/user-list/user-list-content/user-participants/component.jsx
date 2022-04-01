@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
 import Styled from './styles';
-import _ from 'lodash';
 import { findDOMNode } from 'react-dom';
 import {
   AutoSizer,
@@ -19,7 +18,7 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  currentUser: PropTypes.shape({}).isRequired,
+  currentUser: PropTypes.shape({}),
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
   clearAllEmojiStatus: PropTypes.func.isRequired,
@@ -29,6 +28,7 @@ const propTypes = {
 
 const defaultProps = {
   compact: false,
+  currentUser: null,
 };
 
 const intlMessages = defineMessages({
@@ -39,6 +39,7 @@ const intlMessages = defineMessages({
 });
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const SKELETON_COUNT = 10;
 
 class UserParticipants extends Component {
   constructor() {
@@ -82,10 +83,8 @@ class UserParticipants extends Component {
     }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    const isPropsEqual = _.isEqual(this.props, nextProps);
-    const isStateEqual = _.isEqual(this.state, nextState);
-    return !isPropsEqual || !isStateEqual;
+  shouldComponentUpdate(nextProps) {
+    return nextProps.isReady;
   }
 
   selectEl(el) {
@@ -127,6 +126,8 @@ class UserParticipants extends Component {
       requestUserInformation,
       currentUser,
       meetingIsBreakout,
+      lockSettingsProps,
+      isThisMeetingLocked,
     } = this.props;
     const { scrollArea } = this.state;
     const user = users[index];
@@ -143,7 +144,7 @@ class UserParticipants extends Component {
         <span
           style={style}
           key={key}
-          id={`user-${user.userId}`}
+          id={`user-${user?.userId || ''}`}
         >
           <UserListItemContainer
             {...{
@@ -154,6 +155,8 @@ class UserParticipants extends Component {
               meetingIsBreakout,
               scrollArea,
               isRTL,
+              lockSettingsProps,
+              isThisMeetingLocked,
             }}
             user={user}
             getScrollContainerRef={this.getScrollContainerRef}
@@ -201,11 +204,9 @@ class UserParticipants extends Component {
               <Styled.Container>
                 <Styled.SmallTitle>
                   {intl.formatMessage(intlMessages.usersTitle)}
-                  &nbsp;(
-                  {users.length}
-                  )
+                  {users.length > 0 ? ` (${users.length})` : null}
                 </Styled.SmallTitle>
-                {currentUser.role === ROLE_MODERATOR
+                {currentUser?.role === ROLE_MODERATOR
                   ? (
                     <UserOptionsContainer {...{
                       users,
@@ -248,7 +249,7 @@ class UserParticipants extends Component {
                 }}
                 rowHeight={this.cache.rowHeight}
                 rowRenderer={this.rowRenderer}
-                rowCount={users.length}
+                rowCount={users.length || SKELETON_COUNT}
                 height={height - 1}
                 width={width - 1}
                 overscanRowCount={30}

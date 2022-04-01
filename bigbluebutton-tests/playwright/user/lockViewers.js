@@ -5,6 +5,7 @@ const { expect } = require("@playwright/test");
 const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require("../core/constants");
 const { getNotesLocator } = require("../sharednotes/util");
 const { waitAndClearNotification } = require("../notifications/util");
+const { sleep } = require("../core/helpers");
 
 class LockViewers extends MultiUsers {
   constructor(browser, page) {
@@ -35,6 +36,7 @@ class LockViewers extends MultiUsers {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockSeeOtherViewersWebcam);
     await this.modPage.waitAndClick(e.applyLockSettings);
+    await sleep(500);
     const videoContainersCount = [
       await this.modPage.getSelectorCount(e.webcamVideoItem),
       await this.userPage.getSelectorCount(e.webcamVideoItem),
@@ -69,9 +71,9 @@ class LockViewers extends MultiUsers {
   }
 
   async lockSendPrivateChatMessages() {
-    const lastUserItemLocator = this.userPage.getLocator(e.userListItem).last();
+    const lastUserItemLocator = this.userPage.getLocatorByIndex(e.userListItem, -1);
     await this.userPage.clickOnLocator(lastUserItemLocator);
-    const startPrivateChatButton = this.userPage.getLocator(e.startPrivateChat).last();
+    const startPrivateChatButton = this.userPage.getLocatorByIndex(e.startPrivateChat, -1);
     await this.userPage.clickOnLocator(startPrivateChatButton);
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockPrivateChat);
@@ -82,10 +84,10 @@ class LockViewers extends MultiUsers {
 
   async lockEditSharedNotes() {
     await this.userPage.waitAndClick(e.sharedNotes);
-    await this.userPage.waitForSelector(e.hideNoteLabel);
+    await this.userPage.waitForSelector(e.hideNotesLabel);
     const sharedNotesLocator = getNotesLocator(this.userPage);
     await sharedNotesLocator.type(e.message);
-    expect(sharedNotesLocator).toContainText(e.message);
+    expect(sharedNotesLocator).toContainText(e.message, { timeout: ELEMENT_WAIT_TIME });
 
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockEditSharedNotes);
@@ -93,8 +95,7 @@ class LockViewers extends MultiUsers {
     await this.userPage.waitAndClick(e.sharedNotes);
     await this.userPage.waitAndClick(e.sharedNotes);
     // tries to type, but the element is not editable
-    await sharedNotesLocator.type(e.testMessage);
-    await expect(sharedNotesLocator).not.toContainText(e.testMessage);
+    await this.userPage.wasRemoved(e.etherpadFrame);
   }
 
   async lockSeeOtherViewersUserList() {
@@ -115,9 +116,9 @@ class LockViewers extends MultiUsers {
     await this.userPage.hasElementDisabled(e.joinVideo);
     await this.userPage2.hasElementDisabled(e.joinVideo);
 
-    const lastUserItemLocator = this.modPage.getLocator(e.userListItem).last();
+    const lastUserItemLocator = this.modPage.getLocatorByIndex(e.userListItem, -1);
     await this.modPage.clickOnLocator(lastUserItemLocator);
-    const unlockUserButton = this.modPage.getLocator(e.unlockUserButton).last();
+    const unlockUserButton = this.modPage.getLocatorByIndex(e.unlockUserButton, -1);
     await this.modPage.clickOnLocator(unlockUserButton);
     await this.userPage.hasElementDisabled(e.joinVideo);
     await this.userPage2.hasElementEnabled(e.joinVideo);

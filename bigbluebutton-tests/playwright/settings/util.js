@@ -15,7 +15,7 @@ async function getLocaleValues(elements, locale) {
 
   for (const selector in elements) {
     const currentKey = elements[selector];
-    currentValues[selector] = currentLocale[currentKey] ?? getValueFromSecondaryLocale();
+    currentValues[selector] = currentLocale[currentKey] ? currentLocale[currentKey] : getValueFromSecondaryLocale();
 
     function getValueFromSecondaryLocale() {
       const generalLocaleName = locale.split('-')[0];
@@ -23,7 +23,7 @@ async function getLocaleValues(elements, locale) {
       try {
         generalLocale = require(`../../../bigbluebutton-html5/public/locales/${generalLocaleName}.json`);
       } catch (e) { }
-      return generalLocale[currentKey] ?? defaultLocale[currentKey];
+      return generalLocale[currentKey] ? generalLocale[currentKey] : defaultLocale[currentKey];
     }
   }
   return currentValues;

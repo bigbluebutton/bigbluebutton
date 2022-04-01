@@ -7,7 +7,7 @@ const parameters = require('./parameters');
 const helpers = require('./helpers');
 const e = require('./elements');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } = require('./constants');
-const { checkElement } = require('./util');
+const { checkElement, checkElementLengthEqualTo } = require('./util');
 
 class Page {
   constructor(browser, page) {
@@ -69,6 +69,7 @@ class Page {
   async shareWebcam(shouldConfirmSharing = true, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
     await this.waitAndClick(e.joinVideo);
     if (shouldConfirmSharing) {
+      await this.bringToFront();
       await this.waitForSelector(e.videoPreview, videoPreviewTimeout);
       await this.waitAndClick(e.startSharingWebcam);
     }
@@ -79,6 +80,10 @@ class Page {
 
   getLocator(selector) {
     return this.page.locator(selector);
+  }
+
+  getLocatorByIndex(selector, index) {
+    return this.page.locator(selector).nth(index);
   }
 
   async getSelectorCount(selector) {
@@ -95,10 +100,18 @@ class Page {
     await this.page.waitForSelector(selector, { timeout });
   }
 
+  async waitUntilHaveCountSelector(selector, count, timeout = ELEMENT_WAIT_TIME) {
+    await this.page.waitForFunction(
+      checkElementLengthEqualTo,
+      [selector, count],
+      { timeout },
+    );
+  }
+
   async type(selector, text) {
     const handle = this.getLocator(selector);
     await handle.focus();
-    await handle.type(text);
+    await handle.type(text, { timeout: ELEMENT_WAIT_TIME });
   }
 
   async waitAndClickElement(element, index = 0, timeout = ELEMENT_WAIT_TIME) {

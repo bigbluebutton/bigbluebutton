@@ -25,13 +25,6 @@ case class UserRegisteredRespMsg(
 case class UserRegisteredRespMsgBody(meetingId: String, userId: String, name: String,
                                      role: String, excludeFromDashboard: Boolean, registeredOn: Long)
 
-object RegisteredUserJoinTimeoutMsg { val NAME = "RegisteredUserJoinTimeoutMsg" }
-case class RegisteredUserJoinTimeoutMsg(
-    header: BbbCoreHeaderWithMeetingId,
-    body:   RegisteredUserJoinTimeoutMsgBody
-) extends BbbCoreMsg
-case class RegisteredUserJoinTimeoutMsgBody(meetingId: String, userId: String, name: String)
-
 object ValidateAuthTokenReqMsg {
   val NAME = "ValidateAuthTokenReqMsg"
 
@@ -75,7 +68,7 @@ case class UserLeftMeetingEvtMsg(
     header: BbbClientMsgHeader,
     body:   UserLeftMeetingEvtMsgBody
 ) extends BbbCoreMsg
-case class UserLeftMeetingEvtMsgBody(intId: String, eject: Boolean, ejectedBy: String, banUser: Boolean, reason: String, reasonCode: String)
+case class UserLeftMeetingEvtMsgBody(intId: String, eject: Boolean, ejectedBy: String, reason: String, reasonCode: String)
 
 object UserJoinedMeetingEvtMsg {
   val NAME = "UserJoinedMeetingEvtMsg"
@@ -190,13 +183,6 @@ object UserEmojiChangedEvtMsg { val NAME = "UserEmojiChangedEvtMsg" }
 case class UserEmojiChangedEvtMsg(header: BbbClientMsgHeader, body: UserEmojiChangedEvtMsgBody) extends BbbCoreMsg
 case class UserEmojiChangedEvtMsgBody(userId: String, emoji: String)
 
-/**
- * Sent to all clients about a user ejected (kicked) from the meeting
- */
-object UserEjectedFromMeetingEvtMsg { val NAME = "UserEjectedFromMeetingEvtMsg" }
-case class UserEjectedFromMeetingEvtMsg(header: BbbClientMsgHeader, body: UserEjectedFromMeetingEvtMsgBody) extends StandardMsg
-case class UserEjectedFromMeetingEvtMsgBody(userId: String, ejectedBy: String, reason: String, reasonCode: String)
-
 object AssignPresenterReqMsg { val NAME = "AssignPresenterReqMsg" }
 case class AssignPresenterReqMsg(header: BbbClientMsgHeader, body: AssignPresenterReqMsgBody) extends StandardMsg
 case class AssignPresenterReqMsgBody(requesterId: String, newPresenterId: String, newPresenterName: String, assignedBy: String)
@@ -260,7 +246,7 @@ case class ChangeLockSettingsInMeetingCmdMsg(
 ) extends StandardMsg
 case class ChangeLockSettingsInMeetingCmdMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
                                                  disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
-                                                 lockOnJoinConfigurable: Boolean, setBy: String)
+                                                 lockOnJoinConfigurable: Boolean, hideViewersCursor: Boolean, setBy: String)
 
 object LockSettingsInMeetingChangedEvtMsg { val NAME = "LockSettingsInMeetingChangedEvtMsg" }
 case class LockSettingsInMeetingChangedEvtMsg(
@@ -269,7 +255,7 @@ case class LockSettingsInMeetingChangedEvtMsg(
 ) extends BbbCoreMsg
 case class LockSettingsInMeetingChangedEvtMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
                                                   disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
-                                                  lockOnJoinConfigurable: Boolean, setBy: String)
+                                                  lockOnJoinConfigurable: Boolean, hideViewersCursor: Boolean, setBy: String)
 
 /**
  * Sent by client to query the lock settings.
@@ -285,7 +271,7 @@ object GetLockSettingsRespMsg { val NAME = "GetLockSettingsRespMsg" }
 case class GetLockSettingsRespMsg(header: BbbClientMsgHeader, body: GetLockSettingsRespMsgBody) extends BbbCoreMsg
 case class GetLockSettingsRespMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
                                       disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
-                                      lockOnJoinConfigurable: Boolean)
+                                      lockOnJoinConfigurable: Boolean, hideViewersCursor: Boolean)
 
 object LockSettingsNotInitializedRespMsg { val NAME = "LockSettingsNotInitializedRespMsg" }
 case class LockSettingsNotInitializedRespMsg(header: BbbClientMsgHeader, body: LockSettingsNotInitializedRespMsgBody) extends BbbCoreMsg

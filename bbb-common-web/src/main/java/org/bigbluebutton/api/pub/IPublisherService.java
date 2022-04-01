@@ -12,6 +12,7 @@ public interface IPublisherService {
                        String parentMeetingID, String meetingName, Boolean recorded,
                        String voiceBridge, Integer duration, Boolean autoStartRecording,
                        Boolean allowStartStopRecording, Boolean webcamsOnlyForModerator,
+                       Integer userCameraCap,
                        String moderatorPass, String viewerPass, Long createTime,
                        String createDate, Boolean isBreakout, Integer sequence,
                        Boolean freeJoin, Map<String, String> metadata, String guestPolicy);
