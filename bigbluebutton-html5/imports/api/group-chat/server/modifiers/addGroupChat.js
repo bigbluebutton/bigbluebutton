@@ -9,7 +9,6 @@ export default function addGroupChat(meetingId, chat) {
     id: Match.Maybe(String),
     chatId: Match.Maybe(String),
     correlationId: Match.Maybe(String),
-    name: String,
     access: String,
     createdBy: Object,
     users: Array,
@@ -19,7 +18,6 @@ export default function addGroupChat(meetingId, chat) {
   const chatDocument = {
     meetingId,
     chatId: chat.chatId || chat.id,
-    name: chat.name,
     access: chat.access,
     users: chat.users.map(u => u.id),
     participants: chat.users,
