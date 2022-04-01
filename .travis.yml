@@ -1,6 +1,6 @@
-dist: bionic
+dist: focal
 language: node_js
-node_js: 12
+node_js: 16
 
 env:
   - JOB_TYPE=linter

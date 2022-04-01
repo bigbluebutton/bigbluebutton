@@ -57,6 +57,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="gw" ref="bbbWebApiGWApp"/>
         <property name="callbackUrlService" ref="callbackUrlService"/>
         <property name="usersTimeout" value="${usersTimeout}"/>
+        <property name="waitingGuestUsersTimeout" value="${waitingGuestUsersTimeout}"/>
         <property name="enteredUsersTimeout" value="${enteredUsersTimeout}"/>
         <property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
     </bean>
@@ -71,13 +72,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="bbbWebApiGWApp" class="org.bigbluebutton.api2.BbbWebApiGWApp">
         <constructor-arg index="0" ref="oldMessageReceivedGW"/>
-        <constructor-arg index="1" value="${screenshareRtmpServer}"/>
-        <constructor-arg index="2" value="${screenshareRtmpBroadcastApp}"/>
-        <constructor-arg index="3" value="${screenshareConfSuffix}"/>
-        <constructor-arg index="4" value="${redisHost}"/>
-        <constructor-arg index="5" value="${redisPort}"/>
-        <constructor-arg index="6" value="${redisPassword}"/>
-        <constructor-arg index="7" value="${redisKeyExpiry}"/>
+        <constructor-arg index="1" value="${redisHost}"/>
+        <constructor-arg index="2" value="${redisPort}"/>
+        <constructor-arg index="3" value="${redisPassword}"/>
+        <constructor-arg index="4" value="${redisKeyExpiry}"/>
     </bean>
 
     <bean id="recordingServiceHelper" class="org.bigbluebutton.api.util.RecordingMetadataReaderHelper">
@@ -153,9 +151,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
-        <property name="learningDashboardEnabled" value="${learningDashboardEnabled}"/>
+        <property name="learningDashboardEnabled" value="${learningDashboardEnabled:true}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
+        <property name="defaultMeetingCameraCap" value="${meetingCameraCap}"/>
+        <property name="defaultUserCameraCap" value="${userCameraCap}"/>
         <property name="useDefaultAvatar" value="${useDefaultAvatar}"/>
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
         <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>
@@ -171,7 +171,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="muteOnStart" value="${muteOnStart}"/>
         <property name="allowModsToUnmuteUsers" value="${allowModsToUnmuteUsers}"/>
         <property name="allowModsToEjectCameras" value="${allowModsToEjectCameras}"/>
-        <property name="breakoutRoomsEnabled" value="${breakoutRoomsEnabled}"/>
+        <property name="breakoutRoomsEnabled" value="${breakoutRoomsEnabled:true}"/>
         <property name="breakoutRoomsRecord" value="${breakoutRoomsRecord}"/>
         <property name="breakoutRoomsPrivateChatEnabled" value="${breakoutRoomsPrivateChatEnabled}"/>
         <property name="lockSettingsDisableCam" value="${lockSettingsDisableCam}"/>
@@ -183,6 +183,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsLockedLayout" value="${lockSettingsLockedLayout}"/>
         <property name="lockSettingsLockOnJoin" value="${lockSettingsLockOnJoin}"/>
         <property name="lockSettingsLockOnJoinConfigurable" value="${lockSettingsLockOnJoinConfigurable}"/>
+        <property name="lockSettingsHideViewersCursor" value="${lockSettingsHideViewersCursor}"/>
         <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
         <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>
         <property name="endWhenNoModeratorDelayInMinutes" value="${endWhenNoModeratorDelayInMinutes}"/>

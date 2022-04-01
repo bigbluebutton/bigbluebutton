@@ -1,4 +1,5 @@
 #!/bin/sh -ex
+cd "$(dirname "$0")"
 
 # Please check bigbluebutton/bigbluebutton-html5/dev_local_deployment/README.md
 
@@ -6,7 +7,7 @@ UPPER_DESTINATION_DIR=/usr/share/meteor
 DESTINATION_DIR=$UPPER_DESTINATION_DIR/bundle
 
 SERVICE_FILES_DIR=/usr/lib/systemd/system
-LOCAL_PACKAGING_DIR=/home/bigbluebutton/dev/bigbluebutton/build/packages-template/bbb-html5
+LOCAL_PACKAGING_DIR="$(pwd)/../build/packages-template/bbb-html5"
 
 if [ ! -d "$LOCAL_PACKAGING_DIR" ]; then
   echo "Did not find LOCAL_PACKAGING_DIR=$LOCAL_PACKAGING_DIR"
@@ -56,33 +57,32 @@ NUMBER_OF_FRONTEND_NODEJS_PROCESSES=2
 HERE
 
 echo "writing $DESTINATION_DIR/systemd_start.sh"
-sudo cp $LOCAL_PACKAGING_DIR/bionic/systemd_start.sh "$DESTINATION_DIR"/systemd_start.sh
+sudo cp $LOCAL_PACKAGING_DIR/systemd_start.sh "$DESTINATION_DIR"/systemd_start.sh
 
 echo "writing $DESTINATION_DIR/systemd_start_frontend.sh"
-sudo cp $LOCAL_PACKAGING_DIR/bionic/systemd_start_frontend.sh "$DESTINATION_DIR"/systemd_start_frontend.sh
-
-echo "writing $DESTINATION_DIR/workers-start.sh"
-sudo cp $LOCAL_PACKAGING_DIR/bionic/workers-start.sh "$DESTINATION_DIR"/workers-start.sh
+sudo cp $LOCAL_PACKAGING_DIR/systemd_start_frontend.sh "$DESTINATION_DIR"/systemd_start_frontend.sh
 
 sudo chown -R meteor:meteor "$UPPER_DESTINATION_DIR"/
 sudo chmod +x "$DESTINATION_DIR"/mongod_start_pre.sh
 sudo chmod +x "$DESTINATION_DIR"/systemd_start.sh
 sudo chmod +x "$DESTINATION_DIR"/systemd_start_frontend.sh
+
+sudo cp $LOCAL_PACKAGING_DIR/workers-start.sh "$DESTINATION_DIR"/workers-start.sh
 sudo chmod +x "$DESTINATION_DIR"/workers-start.sh
 
 
 
 echo "writing $SERVICE_FILES_DIR/bbb-html5-frontend@.service"
-sudo cp $LOCAL_PACKAGING_DIR/bionic/bbb-html5-frontend@.service "$SERVICE_FILES_DIR"/bbb-html5-frontend@.service
+sudo cp $LOCAL_PACKAGING_DIR/bbb-html5-frontend@.service "$SERVICE_FILES_DIR"/bbb-html5-frontend@.service
 
 echo "writing $SERVICE_FILES_DIR/bbb-html5-backend@.service"
-sudo cp $LOCAL_PACKAGING_DIR/bionic/bbb-html5-backend@.service "$SERVICE_FILES_DIR"/bbb-html5-backend@.service
+sudo cp $LOCAL_PACKAGING_DIR/bbb-html5-backend@.service "$SERVICE_FILES_DIR"/bbb-html5-backend@.service
 
 sudo systemctl daemon-reload
 
 echo 'before stopping bbb-html5:'
 ps -ef | grep node-
-sudo netstat -netlp | grep -i node
+sudo ss -netlp | grep -i node
 echo 'before stopping bbb-html5:'
 echo '_____________'
 
@@ -91,7 +91,7 @@ sudo systemctl stop bbb-html5
 sleep 5s
 echo 'after stopping bbb-html5:'
 ps -ef | grep node-
-sudo netstat -netlp | grep -i node
+sudo ss -netlp | grep -i node
 echo 'after stopping bbb-html5:'
 echo '_____________'
 
@@ -100,6 +100,6 @@ sudo systemctl start bbb-html5
 sleep 10s
 echo 'after:...'
 ps -ef | grep node-
-sudo netstat -netlp | grep -i node
+sudo ss -netlp | grep -i node
 echo 'after:'
 echo '_____________'

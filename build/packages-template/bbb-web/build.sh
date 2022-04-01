@@ -22,11 +22,11 @@ for dir in $DIRS; do
 done
 
 mkdir -p ~/.sbt/1.0
-echo 'resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases"' > ~/.sbt/1.0/global.sbt
+echo 'resolvers += "Artima Maven Repository" at "https://repo.artima.com/releases"' > ~/.sbt/1.0/global.sbt
 
 ##
 
-[ $DISTRO == "centos6" ] && JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.91-1.b14.el6.x86_64
+# [ $DISTRO == "centos6" ] && JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-1.11.0.91-1.b14.el6.x86_64
 
 EPHEMERAL_VERSION=0.0.$(date +%s)-SNAPSHOT
 sed -i "s|\(version := \)\".*|\1\"$EPHEMERAL_VERSION\"|g" bbb-common-message/build.sbt
@@ -41,10 +41,6 @@ sed -i 's/\r$//' bbb-common-web/project/Dependencies.scala
 sed -i 's|\(val bbbCommons = \)"[^"]*"$|\1"EPHEMERAL_VERSION"|g' bbb-common-web/project/Dependencies.scala
 sed -i "s/EPHEMERAL_VERSION/$EPHEMERAL_VERSION/g" bbb-common-web/project/Dependencies.scala
 
-#Clear cached .jar of common-message and common-web
-rm -rf bbb-common-web/lib_managed/jars/org.bigbluebutton/bbb-common-message_*
-rm -rf bigbluebutton-web/lib/bbb-*
-
 echo start building bbb-common-message
 cd bbb-common-message
 sbt publish
@@ -54,6 +50,7 @@ echo end building bbb-common-message
 
 # New project directory containing parts of bbb-web
 cd bbb-common-web
+sbt update
 sbt publish
 sbt publishLocal
 cd ..
@@ -93,20 +90,15 @@ rm bigbluebutton-0.10.0.war
 popd
 pwd
 
-#mv target/bigbluebutton-0.9.0.war       staging/var/tmp/bigbluebutton.war
-#mkdir -p staging/usr/share/tomcat7/bin
-#cp setenv.sh staging/usr/share/tomcat7/bin
-
 # Copy this as simply 'web' and we'll make a symbolic link later in the .postinst script
-mkdir -p "$STAGING"/etc/bigbluebutton/nginx
-cp bbb-web.nginx "$STAGING"/etc/bigbluebutton/nginx/web
-cp loadbalancer.nginx "$STAGING"/etc/bigbluebutton/nginx/loadbalancer.nginx
+mkdir -p "$STAGING"/usr/share/bigbluebutton/nginx
+cp bbb-web.nginx "$STAGING"/usr/share/bigbluebutton/nginx/web
+cp loadbalancer.nginx "$STAGING"/usr/share/bigbluebutton/nginx/loadbalancer.nginx
 
 mkdir -p "$STAGING"/var/log/bigbluebutton
-
 # Copy directive for serving SVG files (HTML5) from nginx
 if [ -f nginx-confs/presentation-slides.nginx ]; then
-  cp nginx-confs/presentation-slides.nginx "$STAGING"/etc/bigbluebutton/nginx
+  cp nginx-confs/presentation-slides.nginx "$STAGING"/usr/share/bigbluebutton/nginx
 fi
 
 mkdir -p "$STAGING"/var/bigbluebutton/diagnostics

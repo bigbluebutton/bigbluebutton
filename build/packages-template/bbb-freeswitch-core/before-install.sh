@@ -4,7 +4,7 @@ case "$1" in
     install|upgrade|1|2)
         
         addGroup freeswitch ""
-        addUser freeswitch "" freeswitch /opt/freeswitch "freeswitch" /bin/bash
+        addUser freeswitch "" freeswitch /opt/freeswitch "freeswitch" /usr/sbin/nologin
 
         rm -f /tmp/external.xml
         if [ -f /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml ]; then
@@ -14,11 +14,6 @@ case "$1" in
         rm -f /tmp/vars.xml
         if [ -f /opt/freeswitch/etc/freeswitch/vars.xml ]; then
                 cp /opt/freeswitch/etc/freeswitch/vars.xml /tmp/vars.xml
-        fi
-
-        rm -f /tmp/verto.conf.xml
-        if [ -f /opt/freeswitch/conf/autoload_configs/verto.conf.xml ]; then
-                cp /opt/freeswitch/conf/autoload_configs/verto.conf.xml /tmp/verto.conf.xml
         fi
 
         rm -f /tmp/event_socket.conf.xml

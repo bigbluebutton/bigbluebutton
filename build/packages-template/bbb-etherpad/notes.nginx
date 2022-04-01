@@ -1,5 +1,10 @@
 # https://github.com/ether/etherpad-lite/wiki/How-to-put-Etherpad-Lite-behind-a-reverse-Proxy
 location /pad/p/ {
+    # Avoid setting the user name from the embedded URL
+    if ($arg_userName) {
+        return 401;
+    }
+
     rewrite /pad/p/(.*) /p/$1 break;
     rewrite ^/pad/p$ /pad/p/ permanent;
     proxy_pass http://127.0.0.1:9001/p;

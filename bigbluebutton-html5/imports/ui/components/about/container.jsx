@@ -14,8 +14,8 @@ const AboutContainer = (props) => {
 
 const getClientBuildInfo = () => (
   {
-    clientBuild: Meteor.settings.public.app.html5ClientBuild,
-    copyright: Meteor.settings.public.app.copyright,
+    settings: Meteor.settings.public.app,
+
   }
 );
 

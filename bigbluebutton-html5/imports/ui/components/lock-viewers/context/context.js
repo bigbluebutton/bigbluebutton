@@ -12,6 +12,7 @@ export function LockStruct() {
       lockOnJoin: true,
       lockOnJoinConfigurable: false,
       lockedLayout: false,
+      hideViewersCursor: false,
     },
     userLocks: {
       userWebcam: false,

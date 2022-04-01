@@ -4,6 +4,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import PropTypes from 'prop-types';
 import Styled from './styles';
 import { notify } from '/imports/ui/services/notification';
+import { isChatEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -47,9 +48,6 @@ const messages = defineMessages({
     description: 'Message for chat sent successfully',
   },
 });
-
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const CHAT_ENABLED = CHAT_CONFIG.enabled;
 
 class MessageForm extends PureComponent {
   constructor(props) {
@@ -231,7 +229,7 @@ class MessageForm extends PureComponent {
 
     const { hasErrors, error, message } = this.state;
 
-    return CHAT_ENABLED ? (
+    return isChatEnabled() ? (
       <Styled.Form
         ref={(ref) => { this.form = ref; }}
         onSubmit={this.handleSubmit}

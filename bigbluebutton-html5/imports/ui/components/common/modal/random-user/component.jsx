@@ -79,7 +79,13 @@ class RandomUserSelect extends Component {
   }
 
   componentDidMount() {
-    if (SELECT_RANDOM_USER_COUNTDOWN && !this.props.currentUser.presenter) {
+    const { keepModalOpen, toggleKeepModalOpen, currentUser } = this.props;
+
+    if (currentUser.presenter && !keepModalOpen) {
+      toggleKeepModalOpen();
+    }
+
+    if (SELECT_RANDOM_USER_COUNTDOWN && !currentUser.presenter) {
       this.iterateSelection();
     }
   }
@@ -144,7 +150,9 @@ class RandomUserSelect extends Component {
           <Styled.ModalViewTitle>
             {intl.formatMessage(messages.randUserTitle)}
           </Styled.ModalViewTitle>
-          <div>{intl.formatMessage(messages.noViewers)}</div>
+          <div data-test="noViewersSelectedMessage">
+            {intl.formatMessage(messages.noViewers)}
+          </div>
         </Styled.ModalViewContainer>
       );
     } else { // viewers are available
@@ -165,7 +173,7 @@ class RandomUserSelect extends Component {
           <Styled.ModalAvatar aria-hidden style={{ backgroundColor: `${selectedUser.color}` }}>
             {selectedUser.name.slice(0, 2)}
           </Styled.ModalAvatar>
-          <Styled.SelectedUserName>
+          <Styled.SelectedUserName data-test="selectedUserName">
             {selectedUser.name}
           </Styled.SelectedUserName>
           {currentUser.presenter
@@ -176,6 +184,7 @@ class RandomUserSelect extends Component {
               color="primary"
               size="md"
               onClick={() => this.reselect()}
+              data-test="selectAgainRadomUser"
             />
             )}
         </Styled.ModalViewContainer>

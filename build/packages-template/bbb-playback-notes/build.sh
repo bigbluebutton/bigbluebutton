@@ -27,8 +27,8 @@ cp -r scripts staging/usr/local/bigbluebutton/core
 chmod +x staging/usr/local/bigbluebutton/core/scripts/process/notes.rb
 chmod +x staging/usr/local/bigbluebutton/core/scripts/publish/notes.rb
 
-mkdir -p staging/etc/bigbluebutton/nginx
-cp scripts/notes-playback.nginx staging/etc/bigbluebutton/nginx
+mkdir -p staging/usr/share/bigbluebutton/nginx
+cp scripts/notes-playback.nginx staging/usr/share/bigbluebutton/nginx
 
 ##
 

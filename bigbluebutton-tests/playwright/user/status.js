@@ -20,8 +20,8 @@ class Status extends Page {
   }
 
   async mobileTagName() {
-    await this.waitAndClick(e.userList);
-    await this.waitForSelector(e.firstUser);
+    await this.waitAndClick(e.userListToggleBtn);
+    await this.waitForSelector(e.currentUser);
     await this.hasElement(e.mobileUser);
   }
 }

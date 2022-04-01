@@ -6,6 +6,7 @@ import SpeechService from '/imports/ui/components/captions/speech/service';
 import { makeCall } from '/imports/ui/services/api';
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
+import { isCaptionsEnabled } from '/imports/ui/services/features';
 
 const CAPTIONS_CONFIG = Meteor.settings.public.captions;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -128,8 +129,6 @@ const getCaptionsData = () => {
 const setCaptionsActive = (locale) => Session.set('captionsActive', locale);
 
 const amICaptionsOwner = (ownerId) => ownerId === Auth.userID;
-
-const isCaptionsEnabled = () => CAPTIONS_CONFIG.enabled;
 
 const isCaptionsAvailable = () => {
   if (isCaptionsEnabled()) {

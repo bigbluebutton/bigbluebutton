@@ -6,6 +6,7 @@ import Menu from "@material-ui/core/Menu";
 import { Divider } from "@material-ui/core";
 
 import Icon from "/imports/ui/components/common/icon/component";
+import { SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
 
 import { ENTER } from "/imports/utils/keyCodes";
 
@@ -17,9 +18,6 @@ const intlMessages = defineMessages({
     description: 'Close button label',
   },
 });
-
-//Used to switch to mobile view
-const MAX_WIDTH = 640;
 
 class BBBMenu extends React.Component {
   constructor(props) {
@@ -80,7 +78,7 @@ class BBBMenu extends React.Component {
         <Styled.BBBMenuItem
           emoji={emojiSelected ? 'yes' : 'no'}
           key={label}
-          data-test={dataTest || key}
+          data-test={dataTest}
           disableRipple={true}
           disableGutters={true}
           disabled={disabled}
@@ -90,6 +88,7 @@ class BBBMenu extends React.Component {
             const close = !key.includes('setstatus') && !key.includes('back');
             // prevent menu close for sub menu actions
             if (close) this.handleClose(event);
+            event.stopPropagation();
           }}>
           <div style={{ display: 'flex', flexFlow: 'row', width: '100%' }}>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
@@ -118,7 +117,10 @@ class BBBMenu extends React.Component {
         <div
           onClick={(e) => {
             e.persist();
-            this.opts.autoFocus = !(['mouse', 'touch'].includes(e.nativeEvent.pointerType));
+            const firefoxInputSource = !([1, 5].includes(e.nativeEvent.mozInputSource)); // 1 = mouse, 5 = touch (firefox only)
+            const chromeInputSource = !(['mouse', 'touch'].includes(e.nativeEvent.pointerType));
+
+            this.opts.autoFocus = firefoxInputSource && chromeInputSource;
             this.handleClick(e);
           }}
           onKeyPress={(e) => {
@@ -140,7 +142,7 @@ class BBBMenu extends React.Component {
           data-test={dataTest}
         >
           {actionsItems}
-          {anchorEl && window.innerWidth < MAX_WIDTH &&
+          {anchorEl && window.innerWidth < SMALL_VIEWPORT_BREAKPOINT &&
             <Styled.CloseButton
               label={intl.formatMessage(intlMessages.close)}
               size="lg"

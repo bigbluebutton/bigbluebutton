@@ -147,17 +147,6 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
     queueMessage(rcc);
   }
 
-  public void deskShareBroadcastRTMP(String voiceConfId, String streamUrl, String timestamp, Boolean broadcast) {
-    ScreenshareBroadcastRTMPCommand rtmp = new ScreenshareBroadcastRTMPCommand(voiceConfId, USER,
-            streamUrl, timestamp, broadcast);
-    queueMessage(rtmp);
-  }
-
-  public void deskShareHangUp(String voiceConfId, String fsConferenceName, String timestamp) {
-    ScreenshareHangUpCommand huCmd = new ScreenshareHangUpCommand(voiceConfId, fsConferenceName, USER, timestamp);
-    queueMessage(huCmd);
-  }
-
   private void sendMessageToFreeswitch(final FreeswitchCommand command) {
     Runnable task = new Runnable() {
       public void run() {
@@ -185,11 +174,6 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
             manager.tranfer(cmd);
           } else if (command instanceof RecordConferenceCommand) {
             manager.record((RecordConferenceCommand) command);
-          } else if (command instanceof ScreenshareBroadcastRTMPCommand) {
-            manager.broadcastRTMP((ScreenshareBroadcastRTMPCommand) command);
-          } else if (command instanceof ScreenshareHangUpCommand) {
-            ScreenshareHangUpCommand cmd = (ScreenshareHangUpCommand) command;
-            manager.hangUp(cmd);
           } else if (command instanceof BroadcastConferenceCommand) {
             manager.broadcast((BroadcastConferenceCommand) command);
           } else if (command instanceof ConferenceCheckRecordCommand) {

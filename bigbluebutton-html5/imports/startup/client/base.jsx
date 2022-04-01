@@ -24,9 +24,10 @@ import { layoutSelectInput, layoutDispatch } from '../../ui/components/layout/co
 import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
+import { isChatEnabled } from '/imports/ui/services/features';
+import MediaService from '/imports/ui/components/media/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const CHAT_ENABLED = CHAT_CONFIG.enabled;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
 const BREAKOUT_END_NOTIFY_DELAY = 50;
@@ -95,6 +96,8 @@ class Base extends Component {
       type: ACTIONS.SET_NUM_CAMERAS,
       value: usersVideo.length,
     });
+
+    MediaService.setSwapLayout(layoutContextDispatch);
 
     const {
       userID: localUserId,
@@ -228,7 +231,6 @@ class Base extends Component {
     if (approved && loading) this.updateLoadingState(false);
 
     if (prevProps.ejected || ejected) {
-      console.log(' if (prevProps.ejected || ejected) {');
       Session.set('codeError', '403');
       Session.set('isMeetingEnded', true);
     }
@@ -256,7 +258,7 @@ class Base extends Component {
     if (sidebarContentPanel === PANELS.NONE || Session.equals('subscriptionsReady', true)) {
       if (!checkedUserSettings) {
         if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
-          if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
+          if (isChatEnabled() && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
               value: true,

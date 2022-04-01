@@ -5,6 +5,7 @@ TARGET=`basename $(pwd)`
 
 PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 DISTRO=$(echo $TARGET | cut -d'_' -f3)
+BUILD=$1
 
 ##
 
@@ -14,9 +15,6 @@ find -name build.gradle -exec sed -i "s|\(.*org.bigbluebutton.*bbb-common-messag
 find -name build.sbt -exec sed -i "s|\(.*org.bigbluebutton.*bbb-common-message[^\"]*\"[ ]*%[ ]*\)\"[^\"]*\"\(.*\)|\1\"$EPHEMERAL_VERSION\"\2|g" {} \;
 
 export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
-
-#Clear cached .jar of common-message
-rm -rf akka-bbb-apps/lib_managed/jars/org.bigbluebutton/bbb-common-message_*
 
 cd bbb-common-message
 sbt publish
@@ -37,7 +35,10 @@ sed -i "s/^version .*/version := \"$VERSION\"/g" build.sbt
 # set epoch if its greater than 0
 if [[ -n $EPOCH && $EPOCH -gt 0 ]] ; then
     echo 'version in Debian := "'$EPOCH:$VERSION'"' >> build.sbt
+else
+    echo 'version in Debian := "'$VERSION-$BUILD'"' >> build.sbt
 fi
+sbt update
 sbt debian:packageBin
 cp ./target/*.deb ..
 

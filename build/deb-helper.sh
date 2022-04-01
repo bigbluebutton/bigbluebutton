@@ -196,64 +196,26 @@ deleteGroup() {
   fi
 }
 
-get_yml_properties() {
-  cat ${1} | grep : | grep -v \# | grep -v :$ | sed -e "s/ //g" -e "s/:.*/ /g" | tr -d '\n'
-}
-
-get_yml_value() {
-  # cat ${1} | tr -d '\r' | sed -n "/^[[:blank:]#]*${2}:[ ]*/{s/^[[:blank:]#]*${2}:[ ]*//;p}"
-  cat ${1} | tr -d '\r' | sed -n "/${2}/{s/[^:]*:[ ]*//;p}"
-}
-
-change_yml_value () {
-  sed -i "s<^\([[:blank:]#]*\)\(${2}\): .*<\1\2: ${3}<" $1
-}
-
-
-create_keep_file() {
-  SOURCE=$1
-  SOURCE_ORIG=$SOURCE.orig
-  TARGET="/tmp/$(basename $SOURCE).keep"
-  rm -f $TARGET
-  if [ -f $SOURCE ] && [ -f $SOURCE_ORIG ]; then
-    VARS=$(get_yml_properties $SOURCE_ORIG)
-    for v in $VARS ; do
-      orig_val=$(get_yml_value $SOURCE_ORIG $v)
-      val=$(get_yml_value $SOURCE $v)
-      if [ "$orig_val" != "$val" ]; then
-        echo "$v: $val" | tee -a $TARGET
-      fi
-    done
-  fi
-}
-
-propagate_keep_file() {
-  TARGET=$1
-  SOURCE="/tmp/$(basename $TARGET).keep"
-  if [ -f $SOURCE ] && [ -f $TARGET ]; then
-    VARS=$(get_yml_properties $SOURCE)
-    for v in $VARS ; do
-      old_val=$(get_yml_value $SOURCE $v)
-      change_yml_value $TARGET $v $old_val
-    done
-  fi
-}
-
-if LANG=c ifconfig | grep -q 'venet0:0'; then
-  # IP detection for OpenVZ environment
-  IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
+### duplicated code: see bbb-conf and apply-lib.sh
+if [ -e "/sys/class/net/venet0:0" ]; then
+    # IP detection for OpenVZ environment
+    _dev="venet0:0"
 else
-  # use IP address of interface used for primary default route
-  IP=$(ifconfig $(route | grep ^default | head -1 | sed "s/.* //") | awk '/inet /{ print $2}' | cut -d: -f2)
+    _dev=$(awk '$2 == 00000000 { print $1 }' /proc/net/route | head -1)
+fi
+_ips=$(LANG=C ip -4 -br address show dev "$_dev" | awk '{ $1=$2=""; print $0 }')
+_ips=${_ips/127.0.0.1\/8/}
+read -r IP _ <<< "$_ips"
+IP=${IP/\/*} # strip subnet provided by ip address
+if [ -z "$IP" ]; then
+  read -r IP _ <<< "$(hostname -I)"
 fi
 
 if [ -f /etc/redhat-release ]; then
   TOMCAT_SERVICE=tomcat
 else
-  if grep -q bionic /etc/lsb-release; then
-    TOMCAT_SERVICE=tomcat8
-  else
-    TOMCAT_SERVICE=tomcat7
+  if grep -q focal /etc/lsb-release; then
+    TOMCAT_SERVICE=tomcat9
   fi
 fi
 
