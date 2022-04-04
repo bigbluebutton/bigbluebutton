@@ -2,10 +2,9 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs.UserJoinMeetingReqMsg
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
-import org.bigbluebutton.core.models.{ Users2x, VoiceUsers }
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting, MeetingActor, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.core.models.{Users2x, VoiceUsers}
+import org.bigbluebutton.core.running.{HandlerHelpers, LiveMeeting, MeetingActor, OutMsgRouter}
 
 trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
   this: MeetingActor =>
@@ -21,7 +20,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
         if (reconnectingUser.userLeftFlag.left) {
           log.info("Resetting flag that user left meeting. user {}", msg.body.userId)
           // User has reconnected. Just reset it's flag. ralam Oct 23, 2018
-          sendUserLeftFlagUpdatedEvtMsg(outGW, liveMeeting, msg.body.userId, false);
+          sendUserLeftFlagUpdatedEvtMsg(outGW, liveMeeting, msg.body.userId, false)
           Users2x.resetUserLeftFlag(liveMeeting.users2x, msg.body.userId)
         }
 
