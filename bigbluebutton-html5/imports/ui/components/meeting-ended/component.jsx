@@ -230,7 +230,14 @@ class MeetingEnded extends PureComponent {
       dispatched: true,
     });
 
-    fetch(url, options).catch((e) => {
+    fetch(url, options).then(() => {
+      if (!(this.localUserRole.toLowerCase() === 'moderator')) {
+        const REDIRECT_WAIT_TIME = 5000;
+        setTimeout(() => {
+          logoutRouteHandler();
+        }, REDIRECT_WAIT_TIME);
+      }
+    }).catch((e) => {
       logger.warn({
         logCode: 'user_feedback_not_sent_error',
         extraInfo: {
