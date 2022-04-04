@@ -231,7 +231,7 @@ class MeetingEnded extends PureComponent {
     });
 
     fetch(url, options).then(() => {
-      if (!(this.localUserRole.toLowerCase() === 'moderator')) {
+      if (this.localUserRole === 'VIEWER') {
         const REDIRECT_WAIT_TIME = 5000;
         setTimeout(() => {
           logoutRouteHandler();
