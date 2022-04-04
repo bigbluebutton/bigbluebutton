@@ -22,9 +22,6 @@ export default withTracker(() => {
     },
   });
 
-  const recordingNotificationEnabled = RecordingIndicatorService.isRecordingNotificationEnabled()
-    || Meteor.settings.public.app.notifyRecordingIsOn;
-
   return {
     allowStartStopRecording: !!(recordObeject && recordObeject.allowStartStopRecording),
     autoStartRecording: recordObeject && recordObeject.autoStartRecording,
@@ -34,6 +31,6 @@ export default withTracker(() => {
     notify,
     micUser,
     isPhone: deviceInfo.isPhone,
-    recordingNotificationEnabled,
+    recordingNotificationEnabled: RecordingIndicatorService.isRecordingNotificationEnabled(),
   };
 })(RecordIndicatorContainer);
