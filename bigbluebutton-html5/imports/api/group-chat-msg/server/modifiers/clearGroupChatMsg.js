@@ -1,6 +1,6 @@
 import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import Logger from '/imports/startup/server/logger';
-import addGroupChatMsg from '/imports/api/group-chat-msg/server/modifiers/addGroupChatMsg';
+import addSystemMsg from '/imports/api/group-chat-msg/server/modifiers/addSystemMsg';
 
 export default function clearGroupChatMsg(meetingId, chatId) {
   const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -25,7 +25,7 @@ export default function clearGroupChatMsg(meetingId, chatId) {
           },
           message: CHAT_CLEAR_MESSAGE,
         };
-        addGroupChatMsg(meetingId, PUBLIC_GROUP_CHAT_ID, clearMsg);
+        addSystemMsg(meetingId, PUBLIC_GROUP_CHAT_ID, clearMsg);
       }
     } catch (err) {
       Logger.error(`Error on clearing GroupChat (${meetingId}, ${chatId}). ${err}`);

@@ -105,7 +105,7 @@ class Settings extends Component {
     super(props);
 
     const {
-      dataSaving, application, selectedTab
+      dataSaving, application, selectedTab,
     } = props;
 
     this.state = {
@@ -117,7 +117,7 @@ class Settings extends Component {
         dataSaving: _.clone(dataSaving),
         application: _.clone(application),
       },
-      selectedTab: _.isFinite(selectedTab) && selectedTab >=0 && selectedTab <= 2
+      selectedTab: _.isFinite(selectedTab) && selectedTab >= 0 && selectedTab <= 2
         ? selectedTab
         : 0,
     };
@@ -167,6 +167,8 @@ class Settings extends Component {
       showToggleLabel,
       layoutContextDispatch,
       selectedLayout,
+      isScreenSharingEnabled,
+      isVideoEnabled,
     } = this.props;
 
     const {
@@ -174,6 +176,8 @@ class Settings extends Component {
       current,
       allLocales,
     } = this.state;
+
+    const isDataSavingTabEnabled = isScreenSharingEnabled || isVideoEnabled;
 
     return (
       <Styled.SettingsTabs
@@ -195,13 +199,17 @@ class Settings extends Component {
             <Styled.SettingsIcon iconName="alert" />
             <span id="notificationTab">{intl.formatMessage(intlMessages.notificationLabel)}</span>
           </Styled.SettingsTabSelector>
-          <Styled.SettingsTabSelector
-            aria-labelledby="dataSavingTab"
-            selectedClassName="is-selected"
-          >
-            <Styled.SettingsIcon iconName="network" />
-            <span id="dataSaving">{intl.formatMessage(intlMessages.dataSavingLabel)}</span>
-          </Styled.SettingsTabSelector>
+          {isDataSavingTabEnabled
+            ? (
+              <Styled.SettingsTabSelector
+                aria-labelledby="dataSavingTab"
+                selectedClassName="is-selected"
+              >
+                <Styled.SettingsIcon iconName="network" />
+                <span id="dataSaving">{intl.formatMessage(intlMessages.dataSavingLabel)}</span>
+              </Styled.SettingsTabSelector>
+            )
+            : null}
         </Styled.SettingsTabList>
         <Styled.SettingsTabPanel selectedClassName="is-selected">
           <Application
@@ -225,14 +233,20 @@ class Settings extends Component {
             {...{ isModerator }}
           />
         </Styled.SettingsTabPanel>
-        <Styled.SettingsTabPanel selectedClassName="is-selected">
-          <DataSaving
-            settings={current.dataSaving}
-            handleUpdateSettings={this.handleUpdateSettings}
-            showToggleLabel={showToggleLabel}
-            displaySettingsStatus={this.displaySettingsStatus}
-          />
-        </Styled.SettingsTabPanel>
+        {isDataSavingTabEnabled
+          ? (
+            <Styled.SettingsTabPanel selectedClassName="is-selected">
+              <DataSaving
+                settings={current.dataSaving}
+                handleUpdateSettings={this.handleUpdateSettings}
+                showToggleLabel={showToggleLabel}
+                displaySettingsStatus={this.displaySettingsStatus}
+                isScreenSharingEnabled={isScreenSharingEnabled}
+                isVideoEnabled={isVideoEnabled}
+              />
+            </Styled.SettingsTabPanel>
+          )
+          : null}
       </Styled.SettingsTabs>
     );
   }
@@ -252,7 +266,7 @@ class Settings extends Component {
         confirm={{
           callback: () => {
             this.updateSettings(current, intl.formatMessage(intlMessages.savedAlertLabel));
-            document.body.classList.remove(`lang-${saved.application.locale.split('-')[0]}`)
+            document.body.classList.remove(`lang-${saved.application.locale.split('-')[0]}`);
             document.body.classList.add(`lang-${current.application.locale.split('-')[0]}`);
             document.getElementsByTagName('html')[0].lang = current.application.locale;
             /* We need to use mountModal(null) here to prevent submenu state updates,
