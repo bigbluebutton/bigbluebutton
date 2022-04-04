@@ -33,6 +33,7 @@ const propTypes = {
   outputDeviceId: PropTypes.string,
   formattedDialNum: PropTypes.string.isRequired,
   showPermissionsOvelay: PropTypes.bool.isRequired,
+  simplifiedEchoTestEnabled: PropTypes.bool.isRequired,
   listenOnlyMode: PropTypes.bool.isRequired,
   joinFullAudioImmediately: PropTypes.bool,
   forceListenOnlyAttendee: PropTypes.bool.isRequired,
@@ -134,6 +135,7 @@ class AudioModal extends Component {
     this.handleRetryGoToEchoTest = this.handleRetryGoToEchoTest.bind(this);
     this.handleGoToEchoTest = this.handleGoToEchoTest.bind(this);
     this.handleJoinMicrophone = this.handleJoinMicrophone.bind(this);
+    this.handleJoinSimplifiedEcho = this.handleJoinSimplifiedEcho.bind(this);
     this.handleJoinListenOnly = this.handleJoinListenOnly.bind(this);
     this.skipAudioOptions = this.skipAudioOptions.bind(this);
 
@@ -233,6 +235,16 @@ class AudioModal extends Component {
     return this.handleGoToEchoTest();
   }
 
+  handleGoToSimplifiedEchoTest() {
+    // Simplified echo test: this will return the AudioSettings with:
+    //   - withEcho: true
+    // Echo test will be local and done in the AudioSettings view instead of the
+    // old E2E -> yes/no -> join view
+    this.setState({
+      content: 'settings',
+    });
+  }
+
   handleGoToEchoTest() {
     const { AudioError } = this.props;
     const { MIC_ERROR } = AudioError;
@@ -248,6 +260,7 @@ class AudioModal extends Component {
     const {
       joinEchoTest,
       isConnecting,
+      simplifiedEchoTestEnabled
     } = this.props;
 
     const {
@@ -255,6 +268,8 @@ class AudioModal extends Component {
     } = this.state;
 
     if (disableActions && isConnecting) return null;
+
+    if (simplifiedEchoTestEnabled) return this.handleGoToSimplifiedEchoTest();
 
     this.setState({
       hasError: false,
@@ -319,6 +334,15 @@ class AudioModal extends Component {
         });
       }
     });
+  }
+
+  handleJoinSimplifiedEcho() {
+    // Reset the modal to a connecting state - this kind of sucks?
+    // FIXME - prlanzarin Apr 04 2022
+    this.setState({
+      content: null,
+    });
+    this.handleJoinMicrophone();
   }
 
   handleJoinMicrophone() {
@@ -480,12 +504,28 @@ class AudioModal extends Component {
       joinEchoTest,
       changeInputDevice,
       changeOutputDevice,
+      joinMicrophone,
+      simplifiedEchoTestEnabled,
+      showVolumeMeter,
     } = this.props;
+
+    const confirmationCallback = !simplifiedEchoTestEnabled
+      ? this.handleRetryGoToEchoTest
+      : this.handleJoinSimplifiedEcho;
+
+    const handleGUMFailure = () => {
+      this.setState({
+        content: 'help',
+        errCode: 0,
+        disableActions: false,
+      });
+    }
 
     return (
       <AudioSettings
         handleBack={this.handleGoToAudioOptions}
-        handleRetry={this.handleRetryGoToEchoTest}
+        handleConfirmation={confirmationCallback}
+        handleGUMFailure={handleGUMFailure}
         joinEchoTest={joinEchoTest}
         changeInputDevice={changeInputDevice}
         changeOutputDevice={changeOutputDevice}
@@ -494,6 +534,8 @@ class AudioModal extends Component {
         isEchoTest={isEchoTest}
         inputDeviceId={inputDeviceId}
         outputDeviceId={outputDeviceId}
+        withVolumeMeter={showVolumeMeter}
+        withEcho={simplifiedEchoTestEnabled}
       />
     );
   }

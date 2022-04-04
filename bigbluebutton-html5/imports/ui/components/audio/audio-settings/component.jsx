@@ -5,6 +5,13 @@ import Button from '/imports/ui/components/common/button/component';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import AudioTestContainer from '/imports/ui/components/audio/audio-test/container';
 import Styled from './styles';
+import logger from '/imports/startup/client/logger';
+import AudioStreamVolume from '/imports/ui/components/audio/audio-stream-volume/component';
+import LocalEcho from '/imports/ui/components/audio/local-echo/component';
+import {
+  getAudioConstraints,
+} from '/imports/api/audio/client/bridge/service';
+import MediaStreamUtils from '/imports/utils/media-stream-utils';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -13,10 +20,13 @@ const propTypes = {
   changeInputDevice: PropTypes.func.isRequired,
   changeOutputDevice: PropTypes.func.isRequired,
   handleBack: PropTypes.func.isRequired,
-  handleRetry: PropTypes.func.isRequired,
+  handleConfirmation: PropTypes.func.isRequired,
+  handleGUMFailure: PropTypes.func.isRequired,
   isConnecting: PropTypes.bool.isRequired,
   inputDeviceId: PropTypes.string.isRequired,
   outputDeviceId: PropTypes.string.isRequired,
+  withEcho: PropTypes.bool.isRequired,
+  withVolumeMeter: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -45,8 +55,8 @@ const intlMessages = defineMessages({
     description: 'Label for stream volume',
   },
   retryLabel: {
-    id: 'app.audio.audioSettings.retryLabel',
-    description: 'Retry button label',
+    id: 'app.audio.joinAudio',
+    description: 'Confirmation button label',
   },
 });
 
@@ -65,29 +75,132 @@ class AudioSettings extends React.Component {
     this.state = {
       inputDeviceId,
       outputDeviceId,
+      stream: null,
     };
+
+    this._isMounted = false;
+  }
+
+  componentDidMount() {
+    const { inputDeviceId } = this.state;
+    this._isMounted = true;
+    this.handleInputChange(inputDeviceId);
+  }
+
+  componentWillUnmount() {
+    const { stream } = this.state;
+
+    this._mounted = false;
+
+    if (stream) {
+      MediaStreamUtils.stopMediaStreamTracks(stream);
+    }
+  }
+
+  generateInputStream(inputDeviceId) {
+    const { stream } = this.state;
+
+    if (inputDeviceId && stream) {
+      const currentDeviceId = MediaStreamUtils.extractDeviceIdFromStream(stream, 'audio');
+
+      if (currentDeviceId === inputDeviceId) return Promise.resolve(stream);
+
+      MediaStreamUtils.stopMediaStreamTracks(stream);
+    }
+
+    const constraints = {
+      audio: getAudioConstraints({ deviceId: inputDeviceId }),
+    };
+
+    return navigator.mediaDevices.getUserMedia(constraints)
   }
 
   handleInputChange(deviceId) {
     const {
+      handleGUMFailure,
       changeInputDevice,
+      withEcho,
+      withVolumeMeter,
     } = this.props;
 
     changeInputDevice(deviceId);
-    this.setState({
-      inputDeviceId: deviceId,
-    });
+
+    // Only generate input streams if they're going to be used with something
+    // In this case, the volume meter or local echo test.
+    if (withEcho || withVolumeMeter) {
+      this.generateInputStream(deviceId).then((stream) => {
+        if (!this._isMounted) return;
+        this.setState({
+          inputDeviceId: deviceId,
+          stream,
+        });
+      }).catch((error) => {
+        logger.warn({
+          logCode: 'audiosettings_gum_failed',
+          extraInfo: {
+            deviceId,
+            errorMessage: error.message,
+            errorName: error.name,
+          },
+        }, `Audio settings gUM failed: ${error.name}`);
+        handleGUMFailure(error);
+      });
+    } else {
+      this.setState({
+        inputDeviceId: deviceId,
+      });
+    }
   }
 
   handleOutputChange(deviceId) {
     const {
       changeOutputDevice,
+      withEcho,
     } = this.props;
 
-    changeOutputDevice(deviceId);
+    changeOutputDevice(deviceId, withEcho);
     this.setState({
       outputDeviceId: deviceId,
     });
+  }
+
+  renderOutputTest() {
+    const { withEcho, intl } = this.props;
+    const { stream } = this.state;
+
+    return (
+      <Styled.Row>
+        <Styled.SpacedLeftCol>
+          <Styled.LabelSmall htmlFor="audioTest">
+            {intl.formatMessage(intlMessages.testSpeakerLabel)}
+            {!withEcho
+              ? <AudioTestContainer id="audioTest" />
+              : <LocalEcho
+                intl={this.props.intl}
+                stream={stream}
+              />
+            }
+          </Styled.LabelSmall>
+        </Styled.SpacedLeftCol>
+      </Styled.Row>
+    );
+  }
+
+  renderVolumeMeter() {
+    const { withVolumeMeter, inputDeviceId, intl } = this.props;
+    const { stream } = this.state;
+
+    return withVolumeMeter ? (
+      <Styled.Row>
+        <Styled.LabelSmallFullWidth htmlFor="audioStreamVolume">
+          {intl.formatMessage(intlMessages.streamVolumeLabel)}
+          <AudioStreamVolume
+            stream={stream}
+            intl={intl}
+          />
+        </Styled.LabelSmallFullWidth>
+      </Styled.Row>
+    ) : null
   }
 
   render() {
@@ -95,7 +208,7 @@ class AudioSettings extends React.Component {
       isConnecting,
       intl,
       handleBack,
-      handleRetry,
+      handleConfirmation,
     } = this.props;
 
     const { inputDeviceId, outputDeviceId } = this.state;
@@ -119,6 +232,7 @@ class AudioSettings extends React.Component {
                     value={inputDeviceId}
                     kind="audioinput"
                     onChange={this.handleInputChange}
+                    intl={intl}
                   />
                 </Styled.LabelSmall>
               </Styled.FormElement>
@@ -132,20 +246,15 @@ class AudioSettings extends React.Component {
                     value={outputDeviceId}
                     kind="audiooutput"
                     onChange={this.handleOutputChange}
+                    intl={intl}
                   />
                 </Styled.LabelSmall>
               </Styled.FormElement>
             </Styled.Col>
           </Styled.Row>
 
-          <Styled.Row>
-            <Styled.SpacedLeftCol>
-              <Styled.LabelSmall htmlFor="audioTest">
-                {intl.formatMessage(intlMessages.testSpeakerLabel)}
-                <AudioTestContainer id="audioTest" />
-              </Styled.LabelSmall>
-            </Styled.SpacedLeftCol>
-          </Styled.Row>
+          {this.renderOutputTest()}
+          {this.renderVolumeMeter()}
         </Styled.Form>
 
         <Styled.EnterAudio>
@@ -161,7 +270,7 @@ class AudioSettings extends React.Component {
             size="md"
             color="primary"
             label={intl.formatMessage(intlMessages.retryLabel)}
-            onClick={handleRetry}
+            onClick={handleConfirmation}
           />
         </Styled.EnterAudio>
       </Styled.FormWrapper>

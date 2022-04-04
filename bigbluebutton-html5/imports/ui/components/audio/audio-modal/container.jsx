@@ -71,8 +71,8 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     leaveEchoTest,
     changeInputDevice: (inputDeviceId) => Service
       .changeInputDevice(inputDeviceId),
-    changeOutputDevice: (outputDeviceId) => Service
-      .changeOutputDevice(outputDeviceId),
+    changeOutputDevice: (outputDeviceId, isLive) => Service
+      .changeOutputDevice(outputDeviceId, isLive),
     joinEchoTest: () => Service.joinEchoTest(),
     exitAudio: () => Service.exitAudio(),
     isConnecting: Service.isConnecting(),
@@ -82,6 +82,8 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     inputDeviceId: Service.inputDeviceId(),
     outputDeviceId: Service.outputDeviceId(),
     showPermissionsOvelay: Service.isWaitingPermissions(),
+    showVolumeMeter: Service.showVolumeMeter,
+    simplifiedEchoTestEnabled: Service.simplifiedEchoTestEnabled,
     listenOnlyMode,
     formattedDialNum,
     formattedTelVoice,
