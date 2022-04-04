@@ -1,22 +1,22 @@
 import styled from 'styled-components';
 import Modal from '/imports/ui/components/common/modal/simple/component';
-import RecordingModalStyles from '/imports/ui/components/recording/styles';
+import ConfirmationModalStyles from '/imports/ui/components/common/modal/confirmation/styles';
 
 const RecordingNotifyModal = styled(Modal)``;
 
-const Container = styled(RecordingModalStyles.Container)`
+const Container = styled(ConfirmationModalStyles.Container)`
   padding: 3.625em 0 3.625em 0;
 `;
 
-const Header = styled(RecordingModalStyles.Header)``;
+const Header = styled(ConfirmationModalStyles.Header)``;
 
-const Title = styled(RecordingModalStyles.Title)``;
+const Title = styled(ConfirmationModalStyles.Title)``;
 
-const Description = styled(RecordingModalStyles.Description)``;
+const Description = styled(ConfirmationModalStyles.Description)``;
 
-const Footer = styled(RecordingModalStyles.Footer)``;
+const Footer = styled(ConfirmationModalStyles.Footer)``;
 
-const NotifyButton = styled(RecordingModalStyles.RecordingButton)``;
+const NotifyButton = styled(ConfirmationModalStyles.ConfirmationButton)``;
 
 export default {
   RecordingNotifyModal,

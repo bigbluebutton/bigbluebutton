@@ -55,7 +55,7 @@ export default function addMeeting(meeting) {
       isBreakout: Boolean,
       name: String,
       disabledFeatures: Array,
-      remindRecordingIsOn: Boolean,
+      notifyRecordingIsOn: Boolean,
     },
     usersProp: {
       webcamsOnlyForModerator: Boolean,
