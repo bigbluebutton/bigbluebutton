@@ -125,6 +125,11 @@ else
   sed -i 's/events {/worker_rlimit_nofile 10000;\n\nevents {/g' /etc/nginx/nginx.conf
 fi
 
+# symlink default bbb nginx config from package if it does not exist
+if [ ! -e /etc/bigbluebutton/nginx/include_default.nginx ] ; then
+  ln -s /usr/share/bigbluebutton/include_default.nginx /etc/bigbluebutton/nginx/include_default.nginx
+fi
+
 # Fix permissions for logging
 chown bigbluebutton:bigbluebutton /var/log/bbb-fsesl-akka
 

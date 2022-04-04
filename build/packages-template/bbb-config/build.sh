@@ -44,6 +44,10 @@ cp cron.daily/* staging/etc/cron.daily
 mkdir -p staging/etc/cron.hourly
 cp cron.hourly/bbb-resync-freeswitch staging/etc/cron.hourly
 
+mkdir -p staging/usr/share/bigbluebutton/nginx
+
+cp include_default.nginx staging/usr/share/bigbluebutton/
+
 # Overrides 
 
 mkdir -p staging/etc/systemd/system/bbb-apps-akka.service.d
@@ -76,6 +80,7 @@ HERE
 fpm -s dir -C ./staging -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --after-install after-install.sh \
+    --after-remove after-remove.sh \
     --description "BigBlueButton configuration utilities" \
     $DIRECTORIES \
     $OPTS
