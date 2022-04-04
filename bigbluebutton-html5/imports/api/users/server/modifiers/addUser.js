@@ -62,6 +62,7 @@ export default function addUser(meetingId, userData) {
     inactivityCheck: false,
     responseDelay: 0,
     loggedOut: false,
+    left: false,
     ...flat(user),
   };
 

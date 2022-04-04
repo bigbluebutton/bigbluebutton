@@ -286,6 +286,16 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildUserLeftFlagUpdatedEvtMsg(meetingId: String, userId: String, userLeftFlag: Boolean): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(UserLeftFlagUpdatedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(UserLeftFlagUpdatedEvtMsg.NAME, meetingId, userId)
+    val body = UserLeftFlagUpdatedEvtMsgBody(userId, userLeftFlag)
+    val event = UserLeftFlagUpdatedEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildUserInactivityInspectMsg(meetingId: String, userId: String, responseDelay: Long): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
     val envelope = BbbCoreEnvelope(UserInactivityInspectMsg.NAME, routing)
