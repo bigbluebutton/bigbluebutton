@@ -3,6 +3,7 @@ package org.bigbluebutton.api.service;
 import org.bigbluebutton.api.model.entity.*;
 
 import java.util.Collection;
+import org.springframework.data.domain.*;
 
 public interface XmlService {
 
@@ -12,4 +13,6 @@ public interface XmlService {
     String playbackFormatToXml(PlaybackFormat playbackFormat);
     String thumbnailToXml(Thumbnail thumbnail);
     String callbackDataToXml(CallbackData callbackData);
+    String constructResponseFromRecordingsXml(String xml);
+    String constructPaginatedResponse(Page<?> page, String response);
 }

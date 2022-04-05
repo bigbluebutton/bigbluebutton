@@ -17,7 +17,7 @@ object Dependencies {
     val gson = "2.8.5"
     val jackson = "2.9.7"
     val freemarker = "2.3.28"
-    val apacheHttp = "4.5.6"
+    val apacheHttp = "4.5.13"
     val apacheHttpAsync = "4.1.4"
 
     // Office and document conversion

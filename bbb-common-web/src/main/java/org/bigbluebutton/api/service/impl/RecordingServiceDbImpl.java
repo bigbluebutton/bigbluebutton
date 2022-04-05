@@ -16,6 +16,8 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.data.domain.*;
+
 public class RecordingServiceDbImpl implements RecordingService {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordingServiceDbImpl.class);
@@ -71,7 +73,12 @@ public class RecordingServiceDbImpl implements RecordingService {
     }
 
     @Override
-    public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters) {
+    public String getRecordings2x(
+            List<String> idList,
+            List<String> states,
+            Map<String, String> metadataFilters,
+            Pageable pageable
+    ) {
         Set<Recording> recordings = new HashSet<>();
         recordings.addAll(dataStore.findAll(Recording.class));
 
@@ -100,7 +107,16 @@ public class RecordingServiceDbImpl implements RecordingService {
             recordings.retainAll(recordingsByMetadata);
         }
 
-        return xmlService.recordingsToXml(recordings);
+        Page<Recording> recordingsPage = recordingListToPage(new ArrayList<>(recordings), pageable);
+        String recordingsXml = xmlService.recordingsToXml(recordingsPage.getContent());
+        String response = xmlService.constructResponseFromRecordingsXml(recordingsXml);
+        return xmlService.constructPaginatedResponse(recordingsPage, response);
+    }
+
+    private List<Recording> truncateRecordingList(List<Recording> recordings, int page, int size) {
+        int start = page * size;
+        int end = Math.min(start + size, recordings.size());
+        return recordings.subList(start, end);
     }
 
     @Override

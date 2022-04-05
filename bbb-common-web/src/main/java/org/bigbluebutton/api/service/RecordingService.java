@@ -20,11 +20,14 @@
 package org.bigbluebutton.api.service;
 
 import org.bigbluebutton.api.messaging.messages.MakePresentationDownloadableMsg;
+import org.bigbluebutton.api.model.entity.Recording;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.data.domain.*;
 
 public interface RecordingService {
 
@@ -34,7 +37,7 @@ public interface RecordingService {
     String getCaptionTrackInboxDir();
     String getCaptionsDir();
     boolean isRecordingExist(String recordId);
-    String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters);
+    String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, Pageable pageable);
     boolean existAnyRecording(List<String> idList);
     boolean changeState(String recordingId, String state);
     void updateMetaParams(List<String> recordIDs, Map<String,String> metaParams);
@@ -43,4 +46,12 @@ public interface RecordingService {
     void kickOffRecordingChapterBreak(String meetingId, Long timestamp);
     void processMakePresentationDownloadableMsg(MakePresentationDownloadableMsg msg);
     File getDownloadablePresentationFile(String meetingId, String presId, String presFilename);
+
+    default Page<Recording> recordingListToPage(List<Recording> recordings, Pageable pageable) {
+        int start = (int) pageable.getOffset();
+        int end = (int) (Math.min((start + pageable.getPageSize()), recordings.size()));
+
+        Page<Recording> recordingsPage = new PageImpl<>(recordings.subList(start, end), pageable, recordings.size());
+        return recordingsPage;
+    }
 }

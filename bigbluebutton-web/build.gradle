@@ -87,6 +87,8 @@ dependencies {
 
   compile "javax.validation:validation-api:2.0.1.Final"
   compile "org.springframework.boot:spring-boot-starter-validation:2.5.1"
+//  compile "org.springframework.boot:spring-boot-starter-web:2.5.1"
+//  compile "org.springframework.boot:spring-boot-starter-data-jpa:2.5.1"
   compile "org.postgresql:postgresql:42.2.16"
   compile "org.hibernate:hibernate-core:5.6.1.Final"
   compile 'com.h2database:h2:1.4.199'

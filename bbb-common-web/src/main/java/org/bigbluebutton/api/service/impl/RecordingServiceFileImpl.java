@@ -40,6 +40,8 @@ import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.data.domain.*;
+
 public class RecordingServiceFileImpl implements RecordingService {
 
     private static Logger log = LoggerFactory.getLogger(RecordingServiceFileImpl.class);
@@ -193,7 +195,11 @@ public class RecordingServiceFileImpl implements RecordingService {
         return recordingServiceHelper.putRecordingTextTrack(track);
     }
 
-    public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters) {
+    public String getRecordings2x(
+            List<String> idList,
+            List<String> states,
+            Map<String, String> metadataFilters,
+            Pageable pageable) {
         List<RecordingMetadata> recsList = getRecordingsMetadata(idList, states);
         ArrayList<RecordingMetadata> recs = filterRecordingsByMetadata(recsList, metadataFilters);
         return recordingServiceHelper.getRecordings2x(recs);
