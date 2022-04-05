@@ -60,6 +60,7 @@
     "app.notes.hide": "Notizen verbergen",
     "app.notes.locked": "Gesperrt",
     "app.pads.hint": "Drücken Sie Esc, um die Symbolleiste des Pads auszuwählen",
+    "app.note.converter-button.convertAndUpload": "Geteilte Notizen im Präsentations-Bereich laden",
     "app.user.activityCheck": "Teilnehmeraktivitätsprüfung",
     "app.user.activityCheck.label": "Prüfen, ob der Teilnehmer noch in der Konferenz ist ({0})",
     "app.user.activityCheck.check": "Prüfen",

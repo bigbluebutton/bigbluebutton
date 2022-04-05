@@ -59,6 +59,7 @@
     "app.notes.title": "Shared Notes",
     "app.notes.label": "Notes",
     "app.notes.hide": "Hide notes",
+    "app.note.converter-button.convertAndUpload": "Move notes to whiteboard",
     "app.notes.locked": "Locked",
     "app.pads.hint": "Press Esc to focus the pad's toolbar",
     "app.user.activityCheck": "User activity check",
