@@ -25,6 +25,7 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
 import { isChatEnabled } from '/imports/ui/services/features';
+import MediaService from '/imports/ui/components/media/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -95,6 +96,8 @@ class Base extends Component {
       type: ACTIONS.SET_NUM_CAMERAS,
       value: usersVideo.length,
     });
+
+    MediaService.setSwapLayout(layoutContextDispatch);
 
     const {
       userID: localUserId,
@@ -228,7 +231,6 @@ class Base extends Component {
     if (approved && loading) this.updateLoadingState(false);
 
     if (prevProps.ejected || ejected) {
-      console.log(' if (prevProps.ejected || ejected) {');
       Session.set('codeError', '403');
       Session.set('isMeetingEnded', true);
     }

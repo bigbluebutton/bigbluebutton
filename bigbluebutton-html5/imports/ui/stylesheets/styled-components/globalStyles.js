@@ -143,6 +143,9 @@ const GlobalStyle = createGlobalStyle`
 
   .actionToast {
     background-color: ${colorWhite};
+    display: flex;
+    padding: ${smPaddingX};
+    border-radius: ${borderRadius};
 
     i.close {
       left: none !important;
