@@ -226,7 +226,6 @@ class App extends Component {
 
   componentDidUpdate(prevProps) {
     const {
-      meetingMuted,
       notify,
       currentUserEmoji,
       currentUserRole,
@@ -290,16 +289,6 @@ class App extends Component {
         currentUserEmoji.status === 'none'
           ? 'clear_status'
           : 'user',
-      );
-    }
-    if (!prevProps.meetingMuted && meetingMuted) {
-      notify(
-        intl.formatMessage(intlMessages.meetingMuteOn), 'info', 'mute',
-      );
-    }
-    if (prevProps.meetingMuted && !meetingMuted) {
-      notify(
-        intl.formatMessage(intlMessages.meetingMuteOff), 'info', 'unmute',
       );
     }
     if (!prevProps.hasPublishedPoll && hasPublishedPoll) {

@@ -162,14 +162,12 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     {
       fields: {
         publishedPoll: 1,
-        voiceProp: 1,
         randomlySelectedUser: 1,
         layout: 1,
       },
     });
   const {
     publishedPoll,
-    voiceProp,
     randomlySelectedUser,
     layout,
   } = currentMeeting;
@@ -208,7 +206,6 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     validIOSVersion,
     isPhone: deviceInfo.isPhone,
     isRTL: document.documentElement.getAttribute('dir') === 'rtl',
-    meetingMuted: voiceProp.muteOnStart,
     currentUserEmoji: currentUserEmoji(currentUser),
     hasPublishedPoll: publishedPoll,
     randomlySelectedUser,
