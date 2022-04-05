@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
+import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container'
+import WhiteboardContainer from '/imports/ui/components/whiteboard/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -14,7 +15,8 @@ import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import Styled from './styles';
-import MediaService from '../media/service';
+import MediaService, { shouldEnableSwapLayout } from '../media/service';
+// import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import Icon from '/imports/ui/components/common/icon/component';
@@ -23,7 +25,6 @@ import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import { colorContentBackground } from '/imports/ui/stylesheets/styled-components/palette';
 import browserInfo from '/imports/utils/browserInfo';
-import PresentationMenu from './presentation-menu/container';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -56,6 +57,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinimizeButton;
 const { isSafari } = browserInfo;
 const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
@@ -475,10 +478,18 @@ class Presentation extends PureComponent {
       fullscreenContext,
       layoutContextDispatch,
       isIphone,
-      presentationIsOpen,
+// <<<<<<< HEAD
+//       presentationIsOpen,
+//     } = this.props;
+
+//     if (isFullscreen
+// =======
     } = this.props;
 
-    if (isFullscreen
+    if (!OLD_MINIMIZE_BUTTON_ENABLED
+      || !shouldEnableSwapLayout()
+      || isFullscreen
+// >>>>>>> embed Tldraw into BBB client
       || fullscreenContext
       || layoutType === LAYOUT_TYPE.PRESENTATION_FOCUS) {
       return null;
@@ -622,8 +633,9 @@ class Presentation extends PureComponent {
         }}
       >
         <Styled.VisuallyHidden id="currentSlideText">{slideContent}</Styled.VisuallyHidden>
+        {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
-        {this.renderPresentationMenu()}
+        {this.renderPresentationFullscreen()}
         <Styled.PresentationSvg
           key={currentSlide.id}
           data-test={!presentationIsOpen ? 'hiddenWhiteboard' : 'whiteboard'}
@@ -758,21 +770,30 @@ class Presentation extends PureComponent {
     );
   }
 
-  renderPresentationMenu() {
+  renderPresentationFullscreen() {
     const {
       intl,
       fullscreenElementId,
-      layoutContextDispatch,
     } = this.props;
 
+    if (!ALLOW_FULLSCREEN) return null;
+
     return (
-      <PresentationMenu
+      <Styled.PresentationFullscreenButton
         fullscreenRef={this.refPresentationContainer}
-        getScreenshotRef={this.getSvgRef}
+// <<<<<<< HEAD
+//         getScreenshotRef={this.getSvgRef}
+//         elementName={intl.formatMessage(intlMessages.presentationLabel)}
+//         elementId={fullscreenElementId}
+//         toggleSwapLayout={MediaService.toggleSwapLayout}
+//         layoutContextDispatch={layoutContextDispatch}
+// =======
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
-        toggleSwapLayout={MediaService.toggleSwapLayout}
-        layoutContextDispatch={layoutContextDispatch}
+        isFullscreen={isFullscreen}
+        color="muted"
+        fullScreenStyle={false}
+{/* >>>>>>> embed Tldraw into BBB client */}
       />
     );
   }
@@ -827,7 +848,6 @@ class Presentation extends PureComponent {
       numCameras,
       currentPresentation,
       layoutSwapped,
-      layoutContextDispatch,
     } = this.props;
 
     const {
@@ -876,32 +896,35 @@ class Presentation extends PureComponent {
           {
           ...presentationBounds
           }
-          layoutContextDispatch={layoutContextDispatch}
           setPresentationRef={this.setPresentationRef}
         />
       );
     }
 
-    return (
-      <Styled.PresentationContainer
-        role="region"
-        ref={(ref) => { this.refPresentationContainer = ref; }}
-        style={{
-          top: presentationBounds.top,
-          left: presentationBounds.left,
-          right: presentationBounds.right,
-          width: presentationBounds.width,
-          height: presentationBounds.height,
-          display: layoutSwapped ? 'none' : 'flex',
-          zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
-          background: layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0 && !fullscreenContext
-            ? colorContentBackground
-            : null,
-        }}
-        data-test="presentationContainer"
-      >
-        {isFullscreen && <PollingContainer />}
+    
 
+    return (
+      <>   
+        <Styled.PresentationContainer
+          role="region"
+          ref={(ref) => { this.refPresentationContainer = ref; }}
+          style={{
+            top: presentationBounds.top,
+            left: presentationBounds.left,
+            right: presentationBounds.right,
+            width: presentationBounds.width,
+            height: presentationBounds.height,
+            display: layoutSwapped ? 'none' : 'flex',
+            overflow: 'hidden',
+            zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
+            background: layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0 && !fullscreenContext
+              ? colorContentBackground
+              : null,
+          }}
+        >
+          <WhiteboardContainer getSvgRef={this.getSvgRef}/>
+          {isFullscreen && <PollingContainer />}
+        {/* 
         <Styled.Presentation ref={(ref) => { this.refPresentation = ref; }}>
           <Styled.WhiteboardSizeAvailable ref={(ref) => { this.refWhiteboardArea = ref; }} />
           <Styled.SvgContainer
@@ -930,8 +953,8 @@ class Presentation extends PureComponent {
               )
               : null}
           </Styled.SvgContainer>
-        </Styled.Presentation>
-      </Styled.PresentationContainer>
+        </Styled.Presentation> */}
+      </Styled.PresentationContainer></>
     );
   }
 }
