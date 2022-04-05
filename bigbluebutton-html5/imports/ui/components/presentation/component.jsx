@@ -158,6 +158,8 @@ class Presentation extends PureComponent {
       intl,
     } = this.props;
 
+    const { presentationWidth, presentationHeight } = this.state;
+
     const {
       numCameras: prevNumCameras,
       presentationBounds: prevPresentationBounds,
@@ -235,7 +237,8 @@ class Presentation extends PureComponent {
         }
       }
 
-      if (presentationBounds !== prevPresentationBounds) this.onResize();
+      if ((presentationBounds !== prevPresentationBounds) ||
+        (!presentationWidth && !presentationHeight)) this.onResize();
     }
   }
 
