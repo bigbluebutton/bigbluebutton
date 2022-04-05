@@ -230,7 +230,6 @@ class App extends Component {
       currentUserEmoji,
       currentUserRole,
       intl,
-      hasPublishedPoll,
       mountModal,
       deviceType,
       meetingLayout,
@@ -289,11 +288,6 @@ class App extends Component {
         currentUserEmoji.status === 'none'
           ? 'clear_status'
           : 'user',
-      );
-    }
-    if (!prevProps.hasPublishedPoll && hasPublishedPoll) {
-      notify(
-        intl.formatMessage(intlMessages.pollPublishedLabel), 'info', 'polling',
       );
     }
     if (prevProps.currentUserRole === VIEWER && currentUserRole === MODERATOR) {
