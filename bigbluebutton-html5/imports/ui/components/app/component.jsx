@@ -494,7 +494,6 @@ class App extends Component {
               />
             )}
           <WaitingNotifierContainer />
-          <LockNotifier />
           <StatusNotifier status="raiseHand" />
           <ManyWebcamsNotifier />
           <PollingContainer />
