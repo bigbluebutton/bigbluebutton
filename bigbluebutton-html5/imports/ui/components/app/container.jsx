@@ -153,7 +153,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     {
       fields:
       {
-        approved: 1, emoji: 1, userId: 1, presenter: 1, role: 1,
+        approved: 1, emoji: 1, userId: 1, presenter: 1,
       },
     },
   );
@@ -207,7 +207,6 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     currentUserEmoji: currentUserEmoji(currentUser),
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
-    currentUserRole: currentUser?.role,
     isPresenter: currentUser?.presenter,
     meetingLayout: layout,
     selectedLayout,

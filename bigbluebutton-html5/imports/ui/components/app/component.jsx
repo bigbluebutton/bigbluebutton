@@ -19,7 +19,6 @@ import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
-import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
 import StatusNotifier from '/imports/ui/components/status-notifier/container';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
@@ -51,8 +50,6 @@ const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
-const VIEWER = Meteor.settings.public.user.role_viewer;
-const MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -228,7 +225,6 @@ class App extends Component {
     const {
       notify,
       currentUserEmoji,
-      currentUserRole,
       intl,
       mountModal,
       deviceType,
@@ -288,16 +284,6 @@ class App extends Component {
         currentUserEmoji.status === 'none'
           ? 'clear_status'
           : 'user',
-      );
-    }
-    if (prevProps.currentUserRole === VIEWER && currentUserRole === MODERATOR) {
-      notify(
-        intl.formatMessage(intlMessages.promotedLabel), 'info', 'user',
-      );
-    }
-    if (prevProps.currentUserRole === MODERATOR && currentUserRole === VIEWER) {
-      notify(
-        intl.formatMessage(intlMessages.demotedLabel), 'info', 'user',
       );
     }
 
