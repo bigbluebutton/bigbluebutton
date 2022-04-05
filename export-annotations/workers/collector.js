@@ -51,10 +51,10 @@ let exportJob = JSON.parse(job);
     });
 
     // Collect the Presentation Page files from the presentation directory
-    for (let i = 0; i < pages.length; i++) {
-      let pageNumber = pages[i].page
-      let slide = `${exportJob.presLocation}/svgs/slide${pageNumber}.svg`
-      let file = `${dropbox}/slide${pageNumber}.svg`
+    for (let p of pages) {
+      let pageNumber = p.page;
+      let slide = `${exportJob.presLocation}/svgs/slide${pageNumber}.svg`;
+      let file = `${dropbox}/slide${pageNumber}.svg`;
 
       fs.copyFile(slide, file, (err) => { if (err) throw err; } );
     }

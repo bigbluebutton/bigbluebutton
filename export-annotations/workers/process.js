@@ -34,7 +34,7 @@ function scale_shape(dimension, coord) {
 }
 
 function render_HTMLTextBox(htmlFilePath, id, width, height) {
-    commands = [
+    let commands = [
         'wkhtmltoimage',
         '--format', 'png',
         '--encoding', `${config.process.whiteboardTextEncoding}`,
@@ -54,7 +54,6 @@ function render_HTMLTextBox(htmlFilePath, id, width, height) {
 
         if (stderr) {
             logger.error(`stderr when rendering text box for string "${string}" with wkhtmltoimage: ${stderr}`);
-            return;
         }
     })
 }
@@ -82,12 +81,12 @@ function overlay_ellipse(svg, annotation, w, h) {
         [y1, y2] = [y2, y1]
     }
 
-    path = `M${x1} ${hy}
-            A${width_r} ${height_r} 0 0 1 ${hx} ${y1}
-            A${width_r} ${height_r} 0 0 1 ${x2} ${hy}
-            A${width_r} ${height_r} 0 0 1 ${hx} ${y2}
-            A${width_r} ${height_r} 0 0 1 ${x1} ${hy}
-            Z`
+    let path = `M${x1} ${hy}
+                A${width_r} ${height_r} 0 0 1 ${hx} ${y1}
+                A${width_r} ${height_r} 0 0 1 ${x2} ${hy}
+                A${width_r} ${height_r} 0 0 1 ${hx} ${y2}
+                A${width_r} ${height_r} 0 0 1 ${x1} ${hy}
+                Z`
 
     svg.ele('g', {
         style: `stroke:#${shapeColor};stroke-width:${scale_shape(w, annotation.thickness)};
@@ -115,7 +114,6 @@ function overlay_pencil(svg, annotation, w, h) {
 
     if (annotation.points.length < 2) {
         logger.info("Pencil doesn't have enough points")
-        return;
     }
 
     else if (annotation.points.length == 2) {
@@ -129,30 +127,31 @@ function overlay_pencil(svg, annotation, w, h) {
     }
 
     else {
+        let x;
+        let y;
         let path =  ""
         let dataPoints = annotation.points
 
-        for(let i = 0; i < annotation.commands.length; i++) {
-            switch(annotation.commands[i]){
+        for(let command of annotation.commands) {
+            switch(command){
                 case 1: // MOVE TO
-                    var x = scale_shape(w, dataPoints.shift())
-                    var y = scale_shape(h, dataPoints.shift())
+                    x = scale_shape(w, dataPoints.shift())
+                    y = scale_shape(h, dataPoints.shift())
                     path = `${path} M${x} ${y}`
                     break;
                 case 2: // LINE TO
-                    var x = scale_shape(w, dataPoints.shift())
-                    var y = scale_shape(h, dataPoints.shift())
+                    x = scale_shape(w, dataPoints.shift())
+                    y = scale_shape(h, dataPoints.shift())
                     path = `${path} L${x} ${y}`
                     break;
                 case 4: // C_CURVE_TO
-                    var cx1 = scale_shape(w, dataPoints.shift())
-                    var cy1 = scale_shape(h, dataPoints.shift())
-                    var cx2 = scale_shape(w, dataPoints.shift())
-                    var cy2 = scale_shape(h, dataPoints.shift())
-                    var x = scale_shape(w, dataPoints.shift())
-                    var y = scale_shape(h, dataPoints.shift())
+                    let cx1 = scale_shape(w, dataPoints.shift())
+                    let cy1 = scale_shape(h, dataPoints.shift())
+                    let cx2 = scale_shape(w, dataPoints.shift())
+                    let cy2 = scale_shape(h, dataPoints.shift())
+                    x = scale_shape(w, dataPoints.shift())
+                    y = scale_shape(h, dataPoints.shift())
                     path = `${path} C${cx1} ${cy1},${cx2} ${cy2},${x} ${y}`
-
                     break;
                 default:
                     logger.error(`Unknown pencil command: ${annotation.commands[i]}`)       
@@ -204,9 +203,9 @@ function overlay_poll(svg, annotation, w, h) {
             logger.error(`Poll generation failed with error: ${error.message}`);
             return;
         }
+
         if (stderr) {
             logger.error(`Poll generation failed with stderr: ${stderr}`);
-            return;
         }
     });
 
@@ -301,45 +300,32 @@ function overlay_text(svg, annotation, w, h) {
     }).up();
 }
 
-function overlay_line(svg, annotation, w, h) {
-    let shapeColor = color_to_hex(annotation.color);
-
-    svg.ele('g', {
-        style: `stroke:#${shapeColor};stroke-width:${scale_shape(w, annotation.thickness)};stroke-linecap:butt`
-    }).ele('line', {
-        x1: scale_shape(w, annotation.points[0]),
-        y1: scale_shape(h, annotation.points[1]),
-        x2: scale_shape(w, annotation.points[2]),
-        y2: scale_shape(h, annotation.points[3]),
-    }).up()
-}
-
-function overlay_annotations(svg, annotations, w, h) {
-    for(let i = 0; i < annotations.length; i++) {        
-        switch (annotations[i].annotationType) {
+function overlay_annotations(svg, currentSlideAnnotations, w, h) {
+    for(let annotation of currentSlideAnnotations) {        
+        switch (annotation.annotationType) {
             case 'ellipse':
-                overlay_ellipse(svg, annotations[i].annotationInfo, w, h);
+                overlay_ellipse(svg, annotation.annotationInfo, w, h);
                 break;
             case 'line':
-                overlay_line(svg, annotations[i].annotationInfo, w, h);
+                overlay_line(svg, annotation.annotationInfo, w, h);
                 break;
             case 'poll_result':
-                overlay_poll(svg, annotations[i].annotationInfo, w, h);
+                overlay_poll(svg, annotation.annotationInfo, w, h);
                 break;
             case 'pencil':
-                overlay_pencil(svg, annotations[i].annotationInfo, w, h);
+                overlay_pencil(svg, annotation.annotationInfo, w, h);
                 break;
             case 'rectangle':
-                overlay_rectangle(svg, annotations[i].annotationInfo, w, h);
+                overlay_rectangle(svg, annotation.annotationInfo, w, h);
                 break;
             case 'text':
-                overlay_text(svg, annotations[i].annotationInfo, w, h);
+                overlay_text(svg, annotation.annotationInfo, w, h);
                 break;
             case 'triangle':
-                overlay_triangle(svg, annotations[i].annotationInfo, w, h);
+                overlay_triangle(svg, annotation.annotationInfo, w, h);
                 break;
             default:
-                logger.error(`Unknown annotation type ${annotations[i].annotationType}.`);
+                logger.error(`Unknown annotation type ${annotation.annotationType}.`);
         }
     }
 }
@@ -358,11 +344,8 @@ let pages = JSON.parse(whiteboard.pages);
 let rsvgConvertInput = ""
 
 // 3. Convert annotations to SVG
-for (let i = 0; i < pages.length; i++) {
-    
-    // Get the current slide (without annotations)
-    let currentSlide = pages[i]
-    var backgroundSlide = fs.readFileSync(`${dropbox}/slide${pages[i].page}.svg`).toString();
+for (let currentSlide of pages) {
+    var backgroundSlide = fs.readFileSync(`${dropbox}/slide${currentSlide.page}.svg`).toString();
     // Read background slide in as JSON to determine dimensions
     // TODO: find a better way to get width and height of slide (e.g. as part of message)
     backgroundSlide = JSON.parse(convert.xml2json(backgroundSlide));
@@ -370,8 +353,8 @@ for (let i = 0; i < pages.length; i++) {
     // There's a bug with older versions of rsvg which defaults SVG output to pixels.
     // So we ignore the units here as well.
     // See: https://gitlab.gnome.org/GNOME/librsvg/-/issues/766
-    var slideWidth = Number(backgroundSlide.elements[0].attributes.width.replace(/\D/g, ""))
-    var slideHeight = Number(backgroundSlide.elements[0].attributes.height.replace(/\D/g, ""))
+    var slideWidth = Number(backgroundSlide.elements[0].attributes.width.replace(/[^\d.]/g, ''))
+    var slideHeight = Number(backgroundSlide.elements[0].attributes.height.replace(/[^\d.]/g, ''))
 
     var panzoom_x = -currentSlide.xOffset * MAGIC_MYSTERY_NUMBER / 100.0 * slideWidth
     var panzoom_y = -currentSlide.yOffset * MAGIC_MYSTERY_NUMBER / 100.0 * slideHeight
@@ -392,7 +375,7 @@ for (let i = 0; i < pages.length; i++) {
                     sysID: 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'
                 })
                 .ele('image', {
-                    'xlink:href': `file://${dropbox}/slide${pages[i].page}.svg`,
+                    'xlink:href': `file://${dropbox}/slide${currentSlide.page}.svg`,
                     width: slideWidth,
                     height: slideHeight,
                 })
@@ -403,11 +386,11 @@ for (let i = 0; i < pages.length; i++) {
 
     // 4. Overlay annotations onto slides
     // Based on /record-and-playback/presentation/scripts/publish/presentation.rb
-    overlay_annotations(svg, pages[i].annotations, slideWidth, slideHeight)
+    overlay_annotations(svg, currentSlide.annotations, slideWidth, slideHeight)
 
     svg = svg.end({ prettyPrint: true });
     // Write annotated SVG file
-    let file = `${dropbox}/annotated-slide${pages[i].page}.svg`
+    let file = `${dropbox}/annotated-slide${currentSlide.page}.svg`
     fs.writeFileSync(file, svg, function(err) {
         if(err) { return logger.error(err); }
     });
@@ -433,7 +416,6 @@ execSync(render, (error, stderr) => {
     }
     if (stderr) {
         logger.error(`SVG to PDF export failed with stderr: ${stderr}`);
-        return;
     }
 });
 

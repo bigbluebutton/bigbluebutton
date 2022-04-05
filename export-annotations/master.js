@@ -2,7 +2,7 @@ const Logger = require('./lib/utils/logger');
 const config = require('./config');
 const fs = require('fs');
 const redis = require('redis');
-const { Worker } = require('worker_threads')
+const { Worker } = require('worker_threads');
 
 const logger = new Logger('presAnn Master');
 logger.info("Running export-annotations");
@@ -23,6 +23,11 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+async function redisAlive(client) {
+    let ping = await client.ping();
+    return (ping === "PONG");
+}
+
 (async () => {
     const client = redis.createClient({
         host: config.redis.host,
@@ -31,14 +36,12 @@ function sleep(ms) {
       });
   
     client.on('error', (err) => logger.info('Redis Client Error', err));
-
     await client.connect();
 
-    while (true) {
+    while (redisAlive(client)) {
         await sleep(config.redis.interval);
         
         let job = await client.LPOP(config.redis.channels.queue)
-
         const exportJob = JSON.parse(job);
 
         if(job != null) {
