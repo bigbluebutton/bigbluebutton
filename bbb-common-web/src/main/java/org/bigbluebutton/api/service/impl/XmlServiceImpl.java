@@ -34,7 +34,7 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String recordingsToXml(Collection<Recording> recordings) {
-        logger.info("Converting {} recordings to xml", recordings.size());
+        //logger.info("Converting {} recordings to xml", recordings.size());
         try {
             setup();
             Document document = builder.newDocument();
@@ -54,7 +54,7 @@ public class XmlServiceImpl implements XmlService {
             }
 
             String result = documentToString(document);
-            logger.info("Result {}", result);
+            //logger.info("Result {}", result);
             return result;
         } catch(Exception e) {
             e.printStackTrace();
@@ -65,7 +65,7 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String recordingToXml(Recording recording) {
-        logger.info("Converting {} to xml", recording);
+        //logger.info("Converting {} to xml", recording);
         try {
             setup();
             Document document = builder.newDocument();
@@ -105,7 +105,7 @@ public class XmlServiceImpl implements XmlService {
             }
 
             String result = documentToString(document);
-            logger.info("Result {}", result);
+            //logger.info("Result {}", result);
             return result;
         } catch(Exception e) {
             e.printStackTrace();
@@ -116,8 +116,7 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String metadataToXml(Metadata metadata) {
-        logger.info("Converting {} to xml", metadata);
-
+        //logger.info("Converting {} to xml", metadata);
         try {
             setup();
             Document document = builder.newDocument();
@@ -126,7 +125,7 @@ public class XmlServiceImpl implements XmlService {
             document.appendChild(rootElement);
 
             String result = documentToString(document);
-            logger.info("Result {}", result);
+            //logger.info("Result {}", result);
             return result;
         } catch(Exception e) {
             e.printStackTrace();
@@ -137,8 +136,7 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String playbackFormatToXml(PlaybackFormat playbackFormat) {
-        logger.info("Converting {} to xml", playbackFormat);
-
+        //logger.info("Converting {} to xml", playbackFormat);
         try {
             setup();
             Document document = builder.newDocument();
@@ -163,7 +161,7 @@ public class XmlServiceImpl implements XmlService {
             }
 
             String result = documentToString(document);
-            logger.info("Result {}", result);
+            //logger.info("Result {}", result);
             return result;
         } catch(Exception e) {
             e.printStackTrace();
@@ -174,8 +172,7 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String thumbnailToXml(Thumbnail thumbnail) {
-        logger.info("Converting {} to xml", thumbnail);
-
+        //logger.info("Converting {} to xml", thumbnail);
         try {
             setup();
             Document document = builder.newDocument();
@@ -185,7 +182,7 @@ public class XmlServiceImpl implements XmlService {
             appendFields(document, rootElement, thumbnail, new String[] {"id", "url", "playbackFormat"}, Type.ATTRIBUTE);
 
             String result = documentToString(document);
-            logger.info("Result {}", result);
+            //logger.info("Result {}", result);
             return result;
         } catch(Exception e) {
             e.printStackTrace();
@@ -196,8 +193,7 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String callbackDataToXml(CallbackData callbackData) {
-        logger.info("Converting {} to xml", callbackData);
-
+        //logger.info("Converting {} to xml", callbackData);
         try {
             setup();
             Document document = builder.newDocument();
@@ -207,7 +203,7 @@ public class XmlServiceImpl implements XmlService {
             appendFields(document, rootElement, callbackData, new String[] {"id", "recording"}, Type.CHILD);
 
             String result = documentToString(document);
-            logger.info("Result {}", result);
+            //logger.info("Result {}", result);
             return result;
         } catch(Exception e) {
             e.printStackTrace();

@@ -31,7 +31,7 @@ DATA="$ENDPOINT$QUERY$SALT"
 
 echo "data: $DATA"
 
-CHECKSUM=$(echo -n getRecordingsdsuvcSRpWUD8eNrEiZtbiPqB1KoocnHm1cBfZlX9E | sha256sum)
+CHECKSUM=$(echo -n $DATA | sha256sum)
 CHECKSUM=${CHECKSUM:0:64}
 
 echo "sha256 checksum: $CHECKSUM"

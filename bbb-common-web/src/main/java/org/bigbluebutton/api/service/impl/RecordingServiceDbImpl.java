@@ -72,8 +72,30 @@ public class RecordingServiceDbImpl implements RecordingService {
 
     @Override
     public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters) {
-        Set<Recording> recordings = new HashSet<>();
-        recordings.addAll(dataStore.findAll(Recording.class));
+        logger.info("Retrieving all recordings");
+        Set<Recording> recordings = new HashSet<>(dataStore.findAll(Recording.class));
+        logger.info("There are {} total recordings", recordings.size());
+
+        Set<Recording> recordingsById = new HashSet<>();
+        for(String id: idList) {
+            List<Recording> r = dataStore.findRecordingsByMeetingId(id);
+
+            if(r == null || r.size() == 0) {
+                Recording recording = dataStore.findRecordingByRecordId(id);
+                if(recording != null) {
+                    r = new ArrayList<>();
+                    r.add(recording);
+                }
+            }
+
+            if(r != null) recordingsById.addAll(r);
+        }
+
+        logger.info("Filtering recordings by meeting ID");
+        if(recordingsById.size() > 0) {
+            recordings.retainAll(recordingsById);
+        }
+        logger.info("{} recordings remaining", recordings.size());
 
         Set<Recording> recordingsByState = new HashSet<>();
         for(String state: states) {
@@ -81,9 +103,11 @@ public class RecordingServiceDbImpl implements RecordingService {
             if(r != null) recordingsByState.addAll(r);
         }
 
+        logger.info("Filtering recordings by state");
         if(recordingsByState.size() > 0) {
             recordings.retainAll(recordingsByState);
         }
+        logger.info("{} recordings remaining", recordings.size());
 
         List<Metadata> metadata = new ArrayList<>();
         for(Map.Entry<String, String> metadataFilter: metadataFilters.entrySet()) {
@@ -96,9 +120,11 @@ public class RecordingServiceDbImpl implements RecordingService {
             recordingsByMetadata.add(m.getRecording());
         }
 
+        logger.info("Filtering recordings by metadata");
         if(recordingsByMetadata.size() > 0) {
             recordings.retainAll(recordingsByMetadata);
         }
+        logger.info("{} recordings remaining", recordings.size());
 
         return xmlService.recordingsToXml(recordings);
     }
