@@ -60,6 +60,7 @@ export default function Whiteboard(props) {
       next.pages[s.parentId] = {
         ...next.pages[s.parentId],
         shapes: {
+          ...next.pages[s.parentId].shapes,
           [s.id]: { ...s },
         },
       };
