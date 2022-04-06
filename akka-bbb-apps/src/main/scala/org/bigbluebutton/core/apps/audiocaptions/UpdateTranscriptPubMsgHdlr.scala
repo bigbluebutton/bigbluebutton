@@ -23,9 +23,11 @@ trait UpdateTranscriptPubMsgHdlr {
     }
 
     if (AudioCaptions.isFloor(liveMeeting.audioCaptions, msg.header.userId)) {
+      val transcript = AudioCaptions.parseTranscript(msg.body.transcript)
+
       broadcastEvent(
         msg.header.userId,
-        msg.body.transcript,
+        transcript,
         msg.body.locale
       )
     }

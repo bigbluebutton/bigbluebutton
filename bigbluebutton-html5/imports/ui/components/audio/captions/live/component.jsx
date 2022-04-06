@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import CaptionsService from '/imports/ui/components/captions/service';
 
 const CAPTIONS_CONFIG = Meteor.settings.public.captions;
 
@@ -10,7 +9,6 @@ class LiveCaptions extends PureComponent {
 
     this.state = { clear: true };
     this.timer = null;
-    this.settings = CaptionsService.getCaptionsSettings();
   }
 
   componentDidUpdate(prevProps) {
@@ -42,20 +40,19 @@ class LiveCaptions extends PureComponent {
   render() {
     const { data } = this.props;
     const { clear } = this.state;
-    const {
-      fontFamily,
-      fontSize,
-      fontColor,
-      backgroundColor,
-    } = this.settings;
+
+    const wrapperStyles = {
+      background: 'black',
+      padding: '.5rem 1rem',
+    };
 
     const captionStyles = {
-      whiteSpace: 'pre-wrap',
+      whiteSpace: 'pre-line',
       wordWrap: 'break-word',
-      fontFamily,
-      fontSize,
-      background: backgroundColor,
-      color: fontColor,
+      fontFamily: 'Verdana',
+      fontSize: '1.5rem',
+      background: 'black',
+      color: 'white',
     };
 
     const visuallyHidden = {
@@ -70,7 +67,7 @@ class LiveCaptions extends PureComponent {
     };
 
     return (
-      <div>
+      <div style={wrapperStyles}>
         <div style={captionStyles}>
           {clear ? '' : data}
         </div>
