@@ -39,4 +39,4 @@ export default injectIntl(withTracker(({ intl }) => {
     },
   });
   return {};
-}))(() => null);
+})(() => null));
