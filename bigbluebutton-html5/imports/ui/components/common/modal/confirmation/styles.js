@@ -55,6 +55,10 @@ const Description = styled.div`
   margin-bottom: ${jumboPaddingY};
 `;
 
+const DescriptionText = styled.span`
+  white-space: pre-line;
+`;
+
 const Checkbox = styled.input`
   position: relative;
   top: 0.134rem;
@@ -85,6 +89,7 @@ export default {
   Header,
   Title,
   Description,
+  DescriptionText,
   Checkbox,
   Footer,
   ConfirmationButton,

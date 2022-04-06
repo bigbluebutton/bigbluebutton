@@ -46,7 +46,8 @@ class EndMeetingComponent extends PureComponent {
       : intl.formatMessage(intlMessages.endMeetingNoUserDescription);
 
     if (warnAboutUnsavedContentOnMeetingEnd) {
-      description += `<p>${intl.formatMessage(intlMessages.contentWarning)}</p>`;
+      // the double breakline it to put one empty line between the descriptions
+      description += `\n\n${intl.formatMessage(intlMessages.contentWarning)}`;
     }
 
     return (
