@@ -5,6 +5,7 @@ import Tooltip from '/imports/ui/components/common/tooltip/component';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
+import RecordingNotifyContainer from './notify/container';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {
@@ -67,18 +68,48 @@ class RecordingIndicator extends PureComponent {
     super(props);
     this.state = {
       time: (props.time ? props.time : 0),
+      shouldNotify: false,
     };
 
     this.incrementTime = this.incrementTime.bind(this);
+    this.toggleShouldNotify = this.toggleShouldNotify.bind(this);
   }
 
-  componentDidUpdate() {
-    const { recording } = this.props;
+  toggleShouldNotify() {
+    const { shouldNotify } = this.state;
+    this.setState({shouldNotify: !shouldNotify});
+  }
+
+  componentDidMount() {
+    const { recording, recordingNotificationEnabled } = this.props;
+
+    if (recordingNotificationEnabled && recording) {
+      this.toggleShouldNotify();
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { recording, mountModal, getModal, recordingNotificationEnabled } = this.props;
+    const { shouldNotify } = this.state;
+
     if (!recording) {
       clearInterval(this.interval);
       this.interval = null;
     } else if (this.interval === null) {
       this.interval = setInterval(this.incrementTime, 1000);
+    }
+
+    if (recordingNotificationEnabled) {
+      if (!prevProps.recording && recording && !shouldNotify) {
+        return this.setState({shouldNotify: true});
+      }
+  
+      const isModalOpen = !!getModal();
+  
+      // should only display notification modal when other modals are closed
+      if (shouldNotify && !isModalOpen) {
+        mountModal(<RecordingNotifyContainer toggleShouldNotify={this.toggleShouldNotify} />);
+      }  
     }
   }
 
@@ -148,9 +179,9 @@ class RecordingIndicator extends PureComponent {
               cy="10"
             />
             <circle
-              stroke={recording ? '#F00' : '#FFF'}
-              fill={recording ? '#F00' : '#FFF'}
-              r="4"
+              stroke="#FFF"
+              fill="#FFF"
+              r={recording ? '5' : '4'}
               cx="10"
               cy="10"
             />

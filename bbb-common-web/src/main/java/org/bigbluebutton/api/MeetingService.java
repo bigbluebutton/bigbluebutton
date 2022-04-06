@@ -417,7 +417,7 @@ public class MeetingService implements MessageListener {
             m.getUserActivitySignResponseDelayInMinutes(), m.getEndWhenNoModerator(), m.getEndWhenNoModeratorDelayInMinutes(),
             m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getAllowModsToEjectCameras(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams, m.lockSettingsParams, m.getHtml5InstanceId(),
-            m.getGroups(), m.getDisabledFeatures());
+            m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn());
   }
 
   private String formatPrettyDate(Long timestamp) {
@@ -645,6 +645,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.DURATION, message.durationInMinutes.toString());
       params.put(ApiParams.RECORD, message.record.toString());
       params.put(ApiParams.WELCOME, getMeeting(message.parentMeetingId).getWelcomeMessageTemplate());
+      params.put(ApiParams.NOTIFY_RECORDING_IS_ON,parentMeeting.getNotifyRecordingIsOn().toString());
 
       Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();
 

@@ -41,7 +41,8 @@ public interface IBbbWebApiGWApp {
                      LockSettingsParams lockSettingsParams,
                      Integer html5InstanceId,
                      ArrayList<Group> groups,
-                     ArrayList<String> disabledFeatures);
+                     ArrayList<String> disabledFeatures,
+                     Boolean notifyRecordingIsOn);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String avatarURL,

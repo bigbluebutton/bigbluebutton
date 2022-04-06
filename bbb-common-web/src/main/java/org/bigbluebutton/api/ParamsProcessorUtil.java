@@ -96,6 +96,7 @@ public class ParamsProcessorUtil {
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultAllowModsToEjectCameras = false;
     private String defaultDisabledFeatures;
+    private boolean defaultNotifyRecordingIsOn = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
     private String defaultLogoURL;
@@ -528,6 +529,11 @@ public class ParamsProcessorUtil {
             learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
         }
 
+        Boolean notifyRecordingIsOn = defaultNotifyRecordingIsOn;
+        if (!StringUtils.isEmpty(params.get(ApiParams.NOTIFY_RECORDING_IS_ON))) {
+            notifyRecordingIsOn = Boolean.parseBoolean(params.get(ApiParams.NOTIFY_RECORDING_IS_ON));
+        }
+
         boolean webcamsOnlyForMod = webcamsOnlyForModerator;
         if (!StringUtils.isEmpty(params.get(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR))) {
             try {
@@ -682,6 +688,7 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
                 .withDisabledFeatures(listOfDisabledFeatures)
+                .withNotifyRecordingIsOn(notifyRecordingIsOn)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
@@ -1341,6 +1348,10 @@ public class ParamsProcessorUtil {
   public void setDisabledFeatures(String disabledFeatures) {
         this.defaultDisabledFeatures = disabledFeatures;
     }
+
+  public void setNotifyRecordingIsOn(Boolean notifyRecordingIsOn) {
+      this.defaultNotifyRecordingIsOn = notifyRecordingIsOn;
+  }
 
   public void setBbbVersion(String version) {
       this.bbbVersion = this.allowRevealOfBBBVersion ? version : "";

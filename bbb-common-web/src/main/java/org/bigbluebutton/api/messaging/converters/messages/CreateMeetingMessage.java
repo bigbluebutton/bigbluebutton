@@ -23,6 +23,7 @@ public class CreateMeetingMessage {
 	public final String viewerPass;
 	public final String learningDashboardAccessToken;
 	public final ArrayList<String> disabledFeatures;
+	public final Boolean notifyRecordingIsOn;
 	public final Long createTime;
 	public final String createDate;
 	public final Map<String, String> metadata;
@@ -33,6 +34,7 @@ public class CreateMeetingMessage {
 						Boolean webcamsOnlyForModerator, Integer meetingCameraCap, Integer userCameraCap, String moderatorPass,
 						String viewerPass, String learningDashboardAccessToken,
 						ArrayList<String> disabledFeatures,
+						Boolean notifyRecordingIsOn,
 						Long createTime, String createDate, Map<String, String> metadata) {
 		this.id = id;
 		this.externalId = externalId;
@@ -49,6 +51,7 @@ public class CreateMeetingMessage {
 		this.viewerPass = viewerPass;
 		this.learningDashboardAccessToken = learningDashboardAccessToken;
 		this.disabledFeatures = disabledFeatures;
+		this.notifyRecordingIsOn = notifyRecordingIsOn;
 		this.createTime = createTime;
 		this.createDate = createDate;
 		this.metadata = metadata;
