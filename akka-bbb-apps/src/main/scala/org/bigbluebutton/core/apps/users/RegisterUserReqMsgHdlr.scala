@@ -60,6 +60,16 @@ trait RegisterUserReqMsgHdlr {
         val guest = GuestWaiting(regUser.id, regUser.name, regUser.role, regUser.guest, regUser.avatarURL, regUser.authed, regUser.registeredOn)
         addGuestToWaitingForApproval(guest, liveMeeting.guestsWaiting)
         notifyModeratorsOfGuestWaiting(Vector(guest), liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
+        val notifyEvent = MsgBuilder.buildNotifyRoleInMeetingEvtMsg(
+          "MODERATOR",
+          liveMeeting.props.meetingProp.intId,
+          "info",
+          "user",
+          "app.userList.guest.pendingGuestAlert",
+          "Notification that a new guest user joined the session",
+          Vector(s"${regUser.name}")
+        )
+        outGW.send(notifyEvent)
       case GuestStatus.DENY =>
         val g = GuestApprovedVO(regUser.id, GuestStatus.DENY)
         UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)
