@@ -232,6 +232,20 @@ class Presentation extends PureComponent {
       }
 
       if (presentationBounds !== prevPresentationBounds) this.onResize();
+    } else if (slidePosition) {
+      const { width: currWidth, height: currHeight } = slidePosition;
+
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_CURRENT_SLIDE_SIZE,
+        value: {
+          width: currWidth,
+          height: currHeight,
+        },
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_NUM_CURRENT_SLIDE,
+        value: currentSlide.num,
+      });
     }
   }
 
