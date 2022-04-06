@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { FormattedMessage } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import { layoutSelectInput } from '/imports/ui/components/layout/context';
 import { PANELS } from '/imports/ui/components/layout/enums';
@@ -60,7 +61,7 @@ function alert(obj) {
       'user',
       null,
       messageElement(
-        intl.formatMessage(obj.messageId),
+        <FormattedMessage id={obj.messageId} />,
         'content',
       ),
       true,
