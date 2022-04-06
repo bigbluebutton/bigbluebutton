@@ -96,6 +96,7 @@ public class ParamsProcessorUtil {
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultAllowModsToEjectCameras = false;
     private String defaultDisabledFeatures;
+    private boolean defaultNotifyRecordingIsOn = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
     private String defaultLogoURL;
@@ -118,8 +119,8 @@ public class ParamsProcessorUtil {
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
     private Integer clientLogoutTimerInMinutes = 0;
-  	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
-  	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
+    private Integer defaultMeetingExpireIfNoUserJoinedInMinutes = 5;
+    private Integer defaultMeetingExpireWhenLastUserLeftInMinutes = 1;
   	private Integer userInactivityInspectTimerInMinutes = 120;
   	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
@@ -528,6 +529,11 @@ public class ParamsProcessorUtil {
             learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
         }
 
+        Boolean notifyRecordingIsOn = defaultNotifyRecordingIsOn;
+        if (!StringUtils.isEmpty(params.get(ApiParams.NOTIFY_RECORDING_IS_ON))) {
+            notifyRecordingIsOn = Boolean.parseBoolean(params.get(ApiParams.NOTIFY_RECORDING_IS_ON));
+        }
+
         boolean webcamsOnlyForMod = webcamsOnlyForModerator;
         if (!StringUtils.isEmpty(params.get(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR))) {
             try {
@@ -557,6 +563,24 @@ public class ParamsProcessorUtil {
                 if (userCameraCapParam >= 0) userCameraCap = userCameraCapParam;
             } catch (NumberFormatException e) {
                 log.warn("Invalid param [userCameraCap] for meeting=[{}]", internalMeetingId);
+            }
+        }
+
+        Integer meetingExpireIfNoUserJoinedInMinutes = defaultMeetingExpireIfNoUserJoinedInMinutes;
+        if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_EXPIRE_IF_NO_USER_JOINED_IN_MINUTES))) {
+            try {
+                meetingExpireIfNoUserJoinedInMinutes = Integer.parseInt(params.get(ApiParams.MEETING_EXPIRE_IF_NO_USER_JOINED_IN_MINUTES));
+            } catch (NumberFormatException e) {
+                log.warn("Invalid param [meetingExpireIfNoUserJoinedInMinutes] for meeting=[{}]", internalMeetingId);
+            }
+        }
+
+        Integer meetingExpireWhenLastUserLeftInMinutes = defaultMeetingExpireWhenLastUserLeftInMinutes;
+        if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_EXPIRE_WHEN_LAST_USER_LEFT_IN_MINUTES))) {
+            try {
+                meetingExpireWhenLastUserLeftInMinutes = Integer.parseInt(params.get(ApiParams.MEETING_EXPIRE_WHEN_LAST_USER_LEFT_IN_MINUTES));
+            } catch (NumberFormatException e) {
+                log.warn("Invalid param [meetingExpireWhenLastUserLeftInMinutes] for meeting=[{}]", internalMeetingId);
             }
         }
 
@@ -664,6 +688,7 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
                 .withDisabledFeatures(listOfDisabledFeatures)
+                .withNotifyRecordingIsOn(notifyRecordingIsOn)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
@@ -1134,15 +1159,11 @@ public class ParamsProcessorUtil {
 	}
 
 	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
-		meetingExpireWhenLastUserLeftInMinutes = value;
-	}
-
-	public Integer getmeetingExpireWhenLastUserLeftInMinutes() {
-		return meetingExpireWhenLastUserLeftInMinutes;
+        defaultMeetingExpireWhenLastUserLeftInMinutes = value;
 	}
 
 	public void setMeetingExpireIfNoUserJoinedInMinutes(Integer value) {
-		meetingExpireIfNoUserJoinedInMinutes = value;
+        defaultMeetingExpireIfNoUserJoinedInMinutes = value;
 	}
 
 	public Integer getUserInactivityInspectTimerInMinutes() {
@@ -1327,6 +1348,10 @@ public class ParamsProcessorUtil {
   public void setDisabledFeatures(String disabledFeatures) {
         this.defaultDisabledFeatures = disabledFeatures;
     }
+
+  public void setNotifyRecordingIsOn(Boolean notifyRecordingIsOn) {
+      this.defaultNotifyRecordingIsOn = notifyRecordingIsOn;
+  }
 
   public void setBbbVersion(String version) {
       this.bbbVersion = this.allowRevealOfBBBVersion ? version : "";

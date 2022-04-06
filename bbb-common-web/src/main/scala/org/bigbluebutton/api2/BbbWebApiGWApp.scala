@@ -146,7 +146,8 @@ class BbbWebApiGWApp(
                     lockSettingsParams:                     LockSettingsParams,
                     html5InstanceId:                        java.lang.Integer,
                     groups:                                 java.util.ArrayList[Group],
-                    disabledFeatures:                       java.util.ArrayList[String]): Unit = {
+                    disabledFeatures:                       java.util.ArrayList[String],
+                    notifyRecordingIsOn:                    java.lang.Boolean): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
@@ -156,7 +157,8 @@ class BbbWebApiGWApp(
       intId = meetingId,
       meetingCameraCap = meetingCameraCap.intValue(),
       isBreakout = isBreakout.booleanValue(),
-      disabledFeaturesAsVector
+      disabledFeaturesAsVector,
+      notifyRecordingIsOn
     )
 
     val durationProps = DurationProps(

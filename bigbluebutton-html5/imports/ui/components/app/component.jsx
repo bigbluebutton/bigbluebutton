@@ -21,7 +21,6 @@ import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
 import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
 import StatusNotifier from '/imports/ui/components/status-notifier/container';
-import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import CaptionsSpeechContainer from '/imports/ui/components/captions/speech/container';
@@ -44,6 +43,7 @@ import ConnectionStatusService from '/imports/ui/components/connection-status/se
 import Settings from '/imports/ui/services/settings';
 import LayoutService from '/imports/ui/components/layout/service';
 import { registerTitleView } from '/imports/utils/dom-utils';
+import Notifications from '../notifications/container';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -173,7 +173,6 @@ class App extends Component {
       value: !hidePresentation,
     });
 
-    MediaService.setSwapLayout(layoutContextDispatch);
     Modal.setAppElement('#app');
 
     const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
@@ -456,6 +455,7 @@ class App extends Component {
 
     return (
       <>
+        <Notifications />
         <LayoutEngine layoutType={layoutType} />
         <GlobalStyles />
         <Styled.Layout

@@ -4,6 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Service from '/imports/ui/components/notes/service';
 import PadContainer from '/imports/ui/components/pads/container';
+import ConverterButtonContainer from './converter-button/container';
 import Styled from './styles';
 import { PANELS, ACTIONS } from '../layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
@@ -60,6 +61,7 @@ const Notes = ({
             icon={isRTL ? 'right_arrow' : 'left_arrow'}
           />
         </Styled.Title>
+        <ConverterButtonContainer />
       </Styled.Header>
       <PadContainer
         externalId={Service.ID}

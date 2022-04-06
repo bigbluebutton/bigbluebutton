@@ -25,30 +25,6 @@ case "$1" in
 
     chmod +r $TARGET
 
-    if ! gem -v | grep -q ^3.; then 
-      gem update --system --no-document
-      if grep -q focal /etc/lsb-release; then
-        gem install bundler -v 2.1.4
-      else
-        gem install bundler --no-document
-      fi
-    fi
-    
-    if hash gem 2>&-; then
-      cd /usr/local/bigbluebutton/core
-      
-      GEMS="builder bundler"
-      for gem in $GEMS; do
-        if ! gem list $gem | grep -q $gem; then
-          gem install $gem
-        fi
-      done
-      /usr/local/bin/bundle
-    else
-      echo "## Could not find gem ##"
-      exit 1
-    fi
-    
     # Run recording link fixup/upgrade script
     # Don't abort on failure; users can manually run it later, too
     if id $BBB_USER > /dev/null 2>&1 ; then

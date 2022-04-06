@@ -63,11 +63,14 @@ public class ApiParams {
     public static final String WEBCAMS_ONLY_FOR_MODERATOR = "webcamsOnlyForModerator";
     public static final String MEETING_CAMERA_CAP = "meetingCameraCap";
     public static final String USER_CAMERA_CAP = "userCameraCap";
+    public static final String MEETING_EXPIRE_IF_NO_USER_JOINED_IN_MINUTES = "meetingExpireIfNoUserJoinedInMinutes";
+    public static final String MEETING_EXPIRE_WHEN_LAST_USER_LEFT_IN_MINUTES = "meetingExpireWhenLastUserLeftInMinutes";
     public static final String WELCOME = "welcome";
     public static final String HTML5_INSTANCE_ID = "html5InstanceId";
     public static final String ROLE = "role";
     public static final String GROUPS = "groups";
     public static final String DISABLED_FEATURES = "disabledFeatures";
+    public static final String NOTIFY_RECORDING_IS_ON = "notifyRecordingIsOn";
 
     public static final String BREAKOUT_ROOMS_ENABLED = "breakoutRoomsEnabled";
     public static final String BREAKOUT_ROOMS_RECORD = "breakoutRoomsRecord";
