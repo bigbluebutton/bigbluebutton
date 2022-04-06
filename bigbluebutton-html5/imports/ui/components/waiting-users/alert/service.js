@@ -1,8 +1,5 @@
 import _ from 'lodash';
-import { FormattedMessage } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
-import { layoutSelectInput } from '/imports/ui/components/layout/context';
-import { PANELS } from '/imports/ui/components/layout/enums';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import Users from '/imports/api/users';
@@ -37,11 +34,7 @@ function messageElement(text, type) {
   return false;
 }
 
-function alert(obj) {
-  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
-  const { sidebarContentPanel } = sidebarContent;
-  const managementPanelIsOpen = sidebarContentPanel === PANELS.WAITING_USERS;
-
+function alert(obj, managementPanelIsOpen, intl) {
   const currentUser = Users.findOne({
     meetingId: Auth.meetingID,
     userId: Auth.userID,
@@ -57,11 +50,14 @@ function alert(obj) {
   if (Settings.application.guestWaitingPushAlerts) {
     notify(
       messageElement(obj.messageValues[0], 'title'),
-      'info',
-      'user',
+      obj.notificationType,
+      obj.icon,
       null,
       messageElement(
-        <FormattedMessage id={obj.messageId} />,
+        intl.formatMessage({
+          id: obj.messageId,
+          description: obj.messageDescription,
+        }),
         'content',
       ),
       true,

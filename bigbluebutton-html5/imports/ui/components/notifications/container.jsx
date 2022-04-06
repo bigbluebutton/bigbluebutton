@@ -1,16 +1,22 @@
 import React from 'react';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, injectIntl } from 'react-intl';
+import { layoutSelectInput } from '/imports/ui/components/layout/context';
 import { Notifications as NotificationsCollection } from '/imports/api/meetings';
 import { notify } from '/imports/ui/services/notification';
+import { PANELS } from '/imports/ui/components/layout/enums';
 import { withTracker } from 'meteor/react-meteor-data';
 import WaitingUsersAlertService from '/imports/ui/components/waiting-users/alert/service';
 import UserService from '/imports/ui/components/user-list/service';
 
-export default withTracker(() => {
+export default injectIntl(withTracker(({ intl }) => {
+  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const { sidebarContentPanel } = sidebarContent;
+  const waitingUsersPanelIsOpen = sidebarContentPanel === PANELS.WAITING_USERS;
+
   NotificationsCollection.find({}).observe({
     added: (obj) => {
       if (obj.messageId === 'app.userList.guest.pendingGuestAlert') {
-        return WaitingUsersAlertService.alert(obj);
+        return WaitingUsersAlertService.alert(obj, waitingUsersPanelIsOpen, intl);
       }
 
       if (obj.messageId === 'app.notification.userJoinPushAlert') {
@@ -33,4 +39,4 @@ export default withTracker(() => {
     },
   });
   return {};
-})(() => null);
+}))(() => null);
