@@ -18,7 +18,7 @@ const intlMessages = defineMessages({
   },
   leave: {
     id: 'app.recording.notify.leave',
-    description: 'Button accept',
+    description: 'Button leave',
   },
   continueAriaLabel: {
     id: 'app.recording.notify.continueLabel',
