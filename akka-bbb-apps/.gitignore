@@ -48,4 +48,4 @@ lib_managed/
 .cache
 bin/
 src/main/resources/
-
+.bsp/
