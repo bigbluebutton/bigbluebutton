@@ -1,7 +1,5 @@
 require('dotenv').config();
 const { expect, default: test } = require('@playwright/test');
-const yaml = require('js-yaml');
-const path = require('path');
 const { readFileSync } = require('fs');
 const parameters = require('./parameters');
 const helpers = require('./helpers');
@@ -47,9 +45,9 @@ class Page {
       this.waitAndClick(selector, timeout),
     ]);
     await expect(download).toBeTruthy();
-    const path = await download.path();
-    const content = await readFileSync(path, 'utf8');
-    await testInfo.attach('downloaded', { path });
+    const filePath = await download.path();
+    const content = await readFileSync(filePath, 'utf8');
+    await testInfo.attach('downloaded', { filePath });
 
     return {
       download,
