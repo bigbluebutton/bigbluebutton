@@ -1039,7 +1039,7 @@ class PresentationUploader extends Component {
 
     let hasNewUpload = false;
 
-    presentations.map((item) => {
+    presentations.forEach((item) => {
       if (item.id.indexOf(item.filename) !== -1 && item.upload.progress === 0) hasNewUpload = true;
     });
 
