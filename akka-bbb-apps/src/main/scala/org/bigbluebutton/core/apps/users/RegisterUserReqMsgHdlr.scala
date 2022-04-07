@@ -61,7 +61,8 @@ trait RegisterUserReqMsgHdlr {
         addGuestToWaitingForApproval(guest, liveMeeting.guestsWaiting)
         notifyModeratorsOfGuestWaiting(Vector(guest), liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
         val notifyEvent = MsgBuilder.buildNotifyRoleInMeetingEvtMsg(
-          "MODERATOR",
+          Roles.MODERATOR_ROLE,
+
           liveMeeting.props.meetingProp.intId,
           "info",
           "user",
