@@ -637,7 +637,7 @@ class PollDrawComponent extends Component {
     }
 
     ariaResultLabel = `${intl.formatMessage(intlMessages.pollResultAria)}: `;
-    textArray.map((t, idx) => {
+    textArray.forEach((t, idx) => {
       const pollLine = t.slice(0, -1);
       ariaResultLabel += `${idx > 0 ? ' |' : ''} ${pollLine.join(' | ')}`;
     });
