@@ -153,7 +153,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     {
       fields:
       {
-        approved: 1, emoji: 1, userId: 1, presenter: 1, role: 1,
+        approved: 1, emoji: 1, userId: 1, presenter: 1,
       },
     },
   );
@@ -161,15 +161,11 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
     {
       fields: {
-        publishedPoll: 1,
-        voiceProp: 1,
         randomlySelectedUser: 1,
         layout: 1,
       },
     });
   const {
-    publishedPoll,
-    voiceProp,
     randomlySelectedUser,
     layout,
   } = currentMeeting;
@@ -208,12 +204,9 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     validIOSVersion,
     isPhone: deviceInfo.isPhone,
     isRTL: document.documentElement.getAttribute('dir') === 'rtl',
-    meetingMuted: voiceProp.muteOnStart,
     currentUserEmoji: currentUserEmoji(currentUser),
-    hasPublishedPoll: publishedPoll,
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
-    currentUserRole: currentUser?.role,
     isPresenter: currentUser?.presenter,
     meetingLayout: layout,
     selectedLayout,
