@@ -1,9 +1,11 @@
+import _ from 'lodash';
 import Pads, { PadsUpdates } from '/imports/api/pads';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 
 const PADS_CONFIG = Meteor.settings.public.pads;
+const THROTTLE_TIMEOUT = 2000;
 
 const getLang = () => {
   const { locale } = Settings.application;
@@ -37,6 +39,11 @@ const hasPad = (externalId) => {
 };
 
 const createSession = (externalId) => makeCall('createSession', externalId);
+
+const throttledCreateSession = _.throttle(createSession, THROTTLE_TIMEOUT, {
+  leading: true,
+  trailing: false,
+});
 
 const buildPadURL = (padId) => {
   if (padId) {
@@ -89,7 +96,7 @@ export default {
   getPadId,
   createGroup,
   hasPad,
-  createSession,
+  createSession: (externalId) => throttledCreateSession(externalId),
   buildPadURL,
   getRev,
   getPadTail,
