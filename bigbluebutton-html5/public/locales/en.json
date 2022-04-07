@@ -636,7 +636,7 @@
     "app.userList.guest.pendingUsers": "{0} Pending Users",
     "app.userList.guest.noPendingUsers": "Currently no pending users...",
     "app.userList.guest.pendingGuestUsers": "{0} Pending Guest Users",
-    "app.userList.guest.pendingGuestAlert": "{0} has joined the session and is waiting for your approval.",
+    "app.userList.guest.pendingGuestAlert": "Has joined the session and is waiting for your approval.",
     "app.userList.guest.rememberChoice": "Remember choice",
     "app.userList.guest.emptyMessage": "There is currently no message",
     "app.userList.guest.inputPlaceholder": "Message to the guests' lobby",
