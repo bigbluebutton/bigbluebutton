@@ -5,6 +5,7 @@ import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
 
 trait MuteMeetingCmdMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -44,8 +45,28 @@ trait MuteMeetingCmdMsgHdlr extends RightsManagementTrait {
 
       if (msg.body.mute != MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
         if (msg.body.mute) {
+          val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+            liveMeeting.props.meetingProp.intId,
+            "info",
+            "mute",
+            "app.toast.meetingMuteOn.label",
+            "Message used when meeting has been muted",
+            Vector()
+          )
+          outGW.send(notifyEvent)
+
           MeetingStatus2x.muteMeeting(liveMeeting.status)
         } else {
+          val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+            liveMeeting.props.meetingProp.intId,
+            "info",
+            "unmute",
+            "app.toast.meetingMuteOff.label",
+            "Message used when meeting has been unmuted",
+            Vector()
+          )
+          outGW.send(notifyEvent)
+
           MeetingStatus2x.unmuteMeeting(liveMeeting.status)
         }
 
