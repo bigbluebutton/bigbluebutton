@@ -24,6 +24,8 @@ import {
   getAudioSessionNumber,
   getAudioConstraints,
   filterSupportedConstraints,
+  DEFAULT_INPUT_DEVICE_ID,
+  DEFAULT_OUTPUT_DEVICE_ID,
 } from '/imports/api/audio/client/bridge/service';
 
 const MEDIA = Meteor.settings.public.media;
@@ -44,9 +46,6 @@ const WEBSOCKET_KEEP_ALIVE_DEBOUNCE = MEDIA.websocketKeepAliveDebounce || 10;
 const TRACE_SIP = MEDIA.traceSip || false;
 const SDP_SEMANTICS = MEDIA.sdpSemantics;
 const FORCE_RELAY = MEDIA.forceRelay;
-
-const DEFAULT_INPUT_DEVICE_ID = 'default';
-const DEFAULT_OUTPUT_DEVICE_ID = 'default';
 
 const INPUT_DEVICE_ID_KEY = 'audioInputDeviceId';
 const OUTPUT_DEVICE_ID_KEY = 'audioOutputDeviceId';
