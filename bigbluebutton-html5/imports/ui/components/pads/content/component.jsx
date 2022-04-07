@@ -6,7 +6,10 @@ const PadContent = ({
 }) => (
   <Styled.Wrapper>
     <Styled.Content>
-      <div dangerouslySetInnerHTML={{ __html: content }} />
+      <div
+        dangerouslySetInnerHTML={{ __html: content }}
+        style={{ width: '100%' }}
+      />
     </Styled.Content>
   </Styled.Wrapper>
 );
