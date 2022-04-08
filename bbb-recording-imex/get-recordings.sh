@@ -9,7 +9,7 @@ do
    esac
 done
 
-BASE_URL="https://bbb-dev-01.test/"
+BASE_URL=""
 SUBDIRECTORY="bigbluebutton/api/"
 ENDPOINT="getRecordings"
 QUERY=""

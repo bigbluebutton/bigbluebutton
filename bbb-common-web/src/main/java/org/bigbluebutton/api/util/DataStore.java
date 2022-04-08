@@ -143,6 +143,34 @@ public class DataStore {
         return result;
     }
 
+    public List<Recording> findRecordingsByMeetingId(String meetingId) {
+        logger.info("Attempting to find recordings with meetingID {}", meetingId);
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        List<Recording> result = null;
+
+        try {
+            transaction = session.beginTransaction();
+            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+            CriteriaQuery<Recording> criteriaQuery = criteriaBuilder.createQuery(Recording.class);
+            Root<Recording> recordingRoot = criteriaQuery.from(Recording.class);
+            criteriaQuery.where(criteriaBuilder.equal(recordingRoot.get("meetingId"), meetingId));
+            result = session.createQuery(criteriaQuery).getResultList();
+            transaction.commit();
+        } catch(Exception e) {
+            if(transaction != null) {
+                transaction.rollback();
+
+                if(e instanceof NoResultException) logger.info("No results found.");
+                else e.printStackTrace();
+            }
+        } finally {
+            session.close();
+        }
+
+        return result;
+    }
+
     public List<Recording> findRecordingsByState(String state) {
         logger.info("Attempting to find recordings with state {}", state);
         Session session = sessionFactory.openSession();
