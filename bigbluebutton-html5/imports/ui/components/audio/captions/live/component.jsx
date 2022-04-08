@@ -41,9 +41,11 @@ class LiveCaptions extends PureComponent {
     const { data } = this.props;
     const { clear } = this.state;
 
+    const hasContent = data.length > 0 && !clear;
+
     const wrapperStyles = {
       background: 'black',
-      padding: '.5rem 1rem',
+      padding: hasContent ? '.5rem 1rem' : undefined,
     };
 
     const captionStyles = {
