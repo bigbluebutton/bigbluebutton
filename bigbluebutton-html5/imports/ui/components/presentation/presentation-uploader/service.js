@@ -5,6 +5,7 @@ import Poll from '/imports/api/polls/';
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import _ from 'lodash';
+import { Random } from 'meteor/random'
 
 const CONVERSION_TIMEOUT = 300000;
 const TOKEN_TIMEOUT = 5000;
@@ -153,7 +154,6 @@ const requestPresentationUploadToken = (
 });
 
 const uploadAndConvertPresentation = (
-  tmpPresId,
   file,
   downloadable,
   podId,
@@ -163,9 +163,9 @@ const uploadAndConvertPresentation = (
   onProgress,
   onConversion,
 ) => {
+  const tmpPresId = _.uniqueId(Random.id(20))
+
   const data = new FormData();
-  data.append('presentation_name', file.name);
-  data.append('Filename', file.name);
   data.append('fileUpload', file);
   data.append('conference', meetingId);
   data.append('room', meetingId);
@@ -207,7 +207,7 @@ const uploadAndConvertPresentations = (
   podId,
   uploadEndpoint,
 ) => Promise.all(presentationsToUpload.map((p) => uploadAndConvertPresentation(
-  p.id, p.file, p.isDownloadable, podId, meetingId, uploadEndpoint,
+  p.file, p.isDownloadable, podId, meetingId, uploadEndpoint,
   p.onUpload, p.onProgress, p.onConversion,
 )));
 
