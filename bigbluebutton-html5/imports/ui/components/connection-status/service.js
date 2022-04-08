@@ -29,6 +29,7 @@ const intlMessages = defineMessages({
 });
 
 let stats = -1;
+let lastRtt = null;
 const statsDep = new Tracker.Dependency();
 
 let statsTimeout = null;
@@ -111,11 +112,12 @@ const addConnectionStatus = (level, type, value) => {
 
 const fetchRoundTripTime = () => {
   const t0 = Date.now();
-  makeCall('voidConnection').then(() => {
+  makeCall('voidConnection', lastRtt).then(() => {
     const tf = Date.now();
     const rtt = tf - t0;
     const event = new CustomEvent('socketstats', { detail: { rtt } });
     window.dispatchEvent(event);
+    lastRtt = rtt;
   });
 };
 
