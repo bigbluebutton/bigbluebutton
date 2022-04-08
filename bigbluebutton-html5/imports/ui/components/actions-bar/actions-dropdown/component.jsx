@@ -58,6 +58,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.pollBtnDesc',
     description: 'poll menu toggle button description',
   },
+  askQuestionBtnLabel: {
+    id: 'app.actionsBar.actionsDropdown.askQuestionBtnLabel',
+    description: 'ask question menu toggle button label',
+  },
+  askQuestionBtnDesc: {
+    id: 'app.actionsBar.actionsDropdown.askQuestionBtnDesc',
+    description: 'ask question menu toggle button description',
+  },
   takePresenter: {
     id: 'app.actionsBar.actionsDropdown.takePresenter',
     description: 'Label for take presenter role option',
@@ -92,6 +100,7 @@ class ActionsDropdown extends PureComponent {
 
     this.presentationItemId = _.uniqueId('action-item-');
     this.pollId = _.uniqueId('action-item-');
+    this.askQuestionId = _.uniqueId('action-item-');
     this.takePresenterId = _.uniqueId('action-item-');
     this.selectUserRandId = _.uniqueId('action-item-');
 
@@ -131,6 +140,7 @@ class ActionsDropdown extends PureComponent {
       pollBtnLabel,
       presentationLabel,
       takePresenter,
+      askQuestionBtnLabel,
     } = intlMessages;
 
     const {
@@ -171,6 +181,30 @@ class ActionsDropdown extends PureComponent {
           Session.set('forcePollOpen', true);
         },
       })
+    }
+
+    if (amIPresenter && isPollingEnabled) {
+      actions.push({
+        icon: 'help',
+        dataTest: 'askQuestion',
+        label: formatMessage(askQuestionBtnLabel),
+        key: this.askQuestionId,
+        // onClick: () => null
+        onClick: () => {
+          // if (Session.equals('pollInitiated', true)) {
+          //   Session.set('resetPollPanel', true);
+          // }
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: true,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.ASK_QUESTION,
+          });
+          Session.set('forcePollOpen', true);
+        },
+      });
     }
 
     if (!amIPresenter) {
