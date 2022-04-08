@@ -95,7 +95,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="blankPresentation" value="${BLANK_PRESENTATION}"/>
     </bean>
 
-    <bean id="recordingService" class="org.bigbluebutton.api.RecordingService">
+    <bean id="recordingService" class="org.bigbluebutton.api.service.impl.RecordingServiceFileImpl">
         <property name="recordingStatusDir" value="${recordStatusDir}"/>
         <property name="publishedDir" value="${publishedDir}"/>
         <property name="unpublishedDir" value="${unpublishedDir}"/>

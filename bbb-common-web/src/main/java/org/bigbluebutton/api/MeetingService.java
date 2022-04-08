@@ -78,6 +78,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.InputStream;
 
+import org.springframework.data.domain.*;
+
 public class MeetingService implements MessageListener {
   private static Logger log = LoggerFactory.getLogger(MeetingService.class);
 
@@ -572,8 +574,26 @@ public class MeetingService implements MessageListener {
     return recordingService.isRecordingExist(recordId);
   }
 
-  public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters) {
-    return recordingService.getRecordings2x(idList, states, metadataFilters);
+  public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, String page, String size) {
+    int p;
+    int s;
+
+    try {
+      p = Integer.parseInt(page);
+    } catch(NumberFormatException e) {
+      p = 0;
+    }
+
+    try {
+      s = Integer.parseInt(size);
+    } catch(NumberFormatException e) {
+      s = 25;
+    }
+
+    log.info("{} {}", p, s);
+
+    Pageable pageable = PageRequest.of(p, s);
+    return recordingService.getRecordings2x(idList, states, metadataFilters, pageable);
   }
 
   public boolean existsAnyRecording(List<String> idList) {
