@@ -155,6 +155,8 @@ class App extends Component {
       isRTL,
       hidePresentation,
       autoSwapLayout,
+      shouldShowScreenshare,
+      shouldShowExternalVideo,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -166,9 +168,12 @@ class App extends Component {
       value: isRTL,
     });
 
+    const presentationOpen = !(autoSwapLayout || hidePresentation)
+      || shouldShowExternalVideo || shouldShowScreenshare;
+
     layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-      value: !(autoSwapLayout || hidePresentation),
+      value: presentationOpen,
     });
 
     Modal.setAppElement('#app');
