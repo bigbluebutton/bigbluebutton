@@ -51,7 +51,7 @@ class LiveCaptions extends PureComponent {
     const captionStyles = {
       whiteSpace: 'pre-line',
       wordWrap: 'break-word',
-      fontFamily: 'Verdana',
+      fontFamily: 'Verdana, Arial, Helvetica, sans-serif',
       fontSize: '1.5rem',
       background: 'black',
       color: 'white',
