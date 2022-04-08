@@ -1,13 +1,13 @@
 # BBB-Recording-Importer
 
-Imports and parses recordings metadata.xml files and stores the data in a Postgresql database
+Imports and parses recording metadata.xml files and stores the data in a Postgresql database
 
 
 ## How to use
 
 1. In bbb-common-web
    - Edit the .env file and set the environment variables
-   - Run the hibernate.cfg script the generates the hibernate config file
+   - Run the hibernate.cfg script to generate the hibernate config file
    - Run "docker-compose up" to start up the docker container containing the Postgresql database
    - Interact with the database using the psql script
 2. In bbb-recording-importer
