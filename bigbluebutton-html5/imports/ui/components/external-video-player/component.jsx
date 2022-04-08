@@ -579,6 +579,7 @@ class VideoPlayer extends Component {
           width,
           pointerEvents: isResizing ? 'none' : 'inherit',
           display: isMinimized && 'none',
+          background: 'black',
         }}
       >
         <div
@@ -622,20 +623,6 @@ class VideoPlayer extends Component {
             !isPresenter
               ? [
                 (
-                  <div className={styles.progressBar}>
-                    <div 
-                      className={styles.loaded}
-                      style={{ width: loaded * 100 + '%' }}
-                      >
-                      <div
-                        className={styles.played}
-                        style={{ width: played * 100 / loaded + '%'}}
-                      >
-                      </div>
-                    </div>
-                  </div>
-                ),
-                (
                   <div className={hoverToolbarStyle} key="hover-toolbar-external-video">
                     <VolumeSlider
                       hideVolume={this.hideVolume[playerName]}
@@ -650,6 +637,19 @@ class VideoPlayer extends Component {
                       label={intl.formatMessage(intlMessages.refreshLabel)}
                     />
                     {this.renderFullscreenButton()}
+
+                    <div className={styles.progressBar}>
+                      <div 
+                        className={styles.loaded}
+                        style={{ width: loaded * 100 + '%' }}
+                      >
+                        <div
+                          className={styles.played}
+                          style={{ width: played * 100 / loaded + '%'}}
+                        >
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ),
                 (deviceInfo.isMobile && playing) && (

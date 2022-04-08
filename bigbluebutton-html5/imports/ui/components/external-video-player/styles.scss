@@ -71,12 +71,8 @@
 }
 
 .progressBar {
-  display: none;
-
-  :hover > & {
-    display: block;
-  }
-
+  position: absolute;
+  bottom: 0;
   height: 5px;
   width: 100%;
 
