@@ -833,3 +833,5 @@ private:
     path: '/metrics'
     # Whether default metrics for Node.js processes should be exported
     collectDefaultMetrics: false
+    # Whether redis metrics should be exported
+    collectRedisMetrics: false
