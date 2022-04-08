@@ -156,6 +156,7 @@ class App extends Component {
       settingsLayout,
       isRTL,
       hidePresentation,
+      autoSwapLayout,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -169,7 +170,7 @@ class App extends Component {
 
     layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-      value: !hidePresentation,
+      value: !(autoSwapLayout || hidePresentation),
     });
 
     Modal.setAppElement('#app');

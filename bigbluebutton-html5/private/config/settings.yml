@@ -276,38 +276,26 @@ public:
         name: low-u30
         bitrate: 30
         hidden: true
-        constraints:
-          frameRate: 3
       - id: low-u25
         name: low-u25
         bitrate: 40
         hidden: true
-        constraints:
-          frameRate: 3
       - id: low-u20
         name: low-u20
         bitrate: 50
         hidden: true
-        constraints:
-          frameRate: 5
       - id: low-u15
         name: low-u15
         bitrate: 70
         hidden: true
-        constraints:
-          frameRate: 8
       - id: low-u12
         name: low-u12
         bitrate: 90
         hidden: true
-        constraints:
-          frameRate: 10
       - id: low-u8
         name: low-u8
         bitrate: 100
         hidden: true
-        constraints:
-          frameRate: 10
       - id: low
         name: Low
         default: false
@@ -364,6 +352,12 @@ public:
     #            that will be applied to all cameras when threshold is hit
     cameraQualityThresholds:
       enabled: true
+      # applyConstraints: whether profile constraints should be applied on profile changes
+      applyConstraints: false
+      # privilegedStreams: whether cameras should revert to their original profile on
+      # certain actions (eg floor changes, pin)
+      privilegedStreams: true
+      debounceTime: 2500
       thresholds:
         - threshold: 8
           profile: low-u8
