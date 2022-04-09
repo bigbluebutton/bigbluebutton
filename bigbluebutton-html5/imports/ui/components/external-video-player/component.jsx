@@ -75,6 +75,8 @@ class VideoPlayer extends Component {
       volume: 1,
       playbackRate: 1,
       key: 0,
+      played:0,
+      loaded:0,
     };
 
     this.hideVolume = {
@@ -301,11 +303,15 @@ class VideoPlayer extends Component {
     }
   }
 
-  handleOnProgress() {
+  handleOnProgress(data) {
     const { mutedByEchoTest } = this.state;
 
     const volume = this.getCurrentVolume();
     const muted = this.getMuted();
+
+    const { played, loaded } = data;
+
+    this.setState({played, loaded});
 
     if (!mutedByEchoTest) {
       this.setState({ volume, muted });
@@ -380,10 +386,10 @@ class VideoPlayer extends Component {
   }
 
   getMuted() {
-    const { mutedByEchoTest } = this.state;
+    const { mutedByEchoTest, muted } = this.state;
     const intPlayer = this.player && this.player.getInternalPlayer();
 
-    return intPlayer && intPlayer.isMuted && intPlayer.isMuted() && !mutedByEchoTest;
+    return (intPlayer && intPlayer.isMuted && intPlayer.isMuted?.() && !mutedByEchoTest) || muted;
   }
 
   autoPlayBlockDetected() {
@@ -549,7 +555,7 @@ class VideoPlayer extends Component {
 
     const {
       playing, playbackRate, mutedByEchoTest, autoPlayBlocked,
-      volume, muted, key, showHoverToolBar,
+      volume, muted, key, showHoverToolBar, played, loaded
     } = this.state;
 
     // This looks weird, but I need to get this nested player
@@ -617,10 +623,19 @@ class VideoPlayer extends Component {
             !isPresenter
               ? [
                 (
-                  <Styled.HoverToolbar
-                    toolbarStyle={toolbarStyle}
-                    key="hover-toolbar-external-video"
-                  >
+                  <Styled.ProgressBar>
+                    <Styled.Loaded
+                      style={{ width: loaded * 100 + '%' }}
+                      >
+                      <Styled.Played
+                        style={{ width: played * 100 / loaded + '%'}}
+                      >
+                      </Styled.Played>
+                    </Styled.Loaded>
+                  </Styled.ProgressBar>
+                ),
+                (
+                  <Styled.HoverToolbar key="hover-toolbar-external-video">
                     <VolumeSlider
                       hideVolume={this.hideVolume[playerName]}
                       volume={volume}

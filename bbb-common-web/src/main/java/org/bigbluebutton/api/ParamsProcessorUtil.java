@@ -817,11 +817,11 @@ public class ParamsProcessorUtil {
 		return DigestUtils.sha1Hex(extMeetingId);
 	}
 
-	public String processPassword(String pass) {
-		return StringUtils.isEmpty(pass) ? RandomStringUtils.randomAlphanumeric(8) : pass;
-	}
+    public String processPassword(String pass) {
+        return StringUtils.isEmpty(pass) ? RandomStringUtils.randomAlphanumeric(8) : pass;
+    }
 
-	public boolean hasChecksumAndQueryString(String checksum, String queryString) {
+    public boolean hasChecksumAndQueryString(String checksum, String queryString) {
 		return (! StringUtils.isEmpty(checksum) && StringUtils.isEmpty(queryString));
 	}
 
