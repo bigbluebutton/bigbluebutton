@@ -8,5 +8,5 @@ export default function handleRemoveUser({ body }, meetingId) {
   check(meetingId, String);
   check(intId, String);
 
-  return removeUser(meetingId, intId);
+  return removeUser(body, meetingId);
 }

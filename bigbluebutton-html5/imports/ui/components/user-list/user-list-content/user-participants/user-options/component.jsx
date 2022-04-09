@@ -281,6 +281,7 @@ class UserOptions extends PureComponent {
           // description: ,
           onClick: this.onSaveUserNames,
           icon: 'download',
+          dataTest: 'downloadUserNamesList',
         });
       }
 

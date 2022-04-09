@@ -2,6 +2,7 @@ package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
 import org.bigbluebutton.core.util.TimeUtil
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object Users2x {
   def findWithIntId(users: Users2x, intId: String): Option[UserState] = {

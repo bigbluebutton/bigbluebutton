@@ -126,6 +126,8 @@ const CustomButton = styled(Button)`
   margin: .3rem 0;
   font-weight: 400;
   font-size: ${fontSizeBase};
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const Panel = styled.div`
@@ -245,6 +247,10 @@ const ScrollableArea = styled(ScrollboxVertical)`
   padding-right: 0.25rem;
 `;
 
+const ModeratorActions = styled.div`
+  padding: 0 .2rem;
+`;
+
 export default {
   ListItem,
   UserContentContainer,
@@ -266,4 +272,5 @@ export default {
   LobbyMessage,
   RememberContainer,
   ScrollableArea,
+  ModeratorActions,
 };

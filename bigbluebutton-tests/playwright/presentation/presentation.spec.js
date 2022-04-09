@@ -27,10 +27,10 @@ test.describe.parallel('Presentation', () => {
       await presentation.uploadPresentationTest();
     });
 
-    test('Allow and disallow presentation download', async ({ browser, context, page }) => {
+    test('Allow and disallow presentation download', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
-      await presentation.allowAndDisallowDownload();
+      await presentation.allowAndDisallowDownload(testInfo);
     });
 
     test('Remove all presentation', async ({ browser, context, page }) => {

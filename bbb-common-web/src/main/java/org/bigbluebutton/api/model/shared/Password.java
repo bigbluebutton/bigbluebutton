@@ -7,7 +7,6 @@ public abstract class Password {
     @NotEmpty(message = "You must provide the meeting ID")
     protected String meetingID;
 
-    @NotEmpty(message = "You must provide the password for the call")
     protected String password;
 
     public String getMeetingID() {

@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-IS_BBB_WEB_RUNNING=`ss -lt | grep ":8090" > /dev/null && echo 1 || echo 0`
-
-if [ "$IS_BBB_WEB_RUNNING" = "1" ]; then
-	echo "bbb-web is running, exiting"
-	exit 1
-fi
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 echo "  **** This is for development only *****"
@@ -16,5 +10,6 @@ echo " chmod -R 777 /var/bigbluebutton/"
 echo " "
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
+sudo service bbb-web stop
 
-exec grails prod run-app --port 8090
+exec grails prod run-app --port 8090 -reloading

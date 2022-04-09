@@ -1296,19 +1296,6 @@ check_state() {
       done
     fi
 
-    stunServerAddress=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerAddress/{s/.*=//;p}')
-    stunServerPort=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerPort/{s/.*=//;p}')
-    if [ ! -z "$stunServerAddress" ]; then
-      if stunclient --mode full --localport 30000 $stunServerAddress $stunServerPort | grep -q "fail\|Unable\ to\ resolve"; then
-        echo
-        echo "#"
-        echo "# Warning: Failed to verify STUN server at $stunServerAddress:$stunServerPort with command"
-        echo "#"
-        echo "#    stunclient --mode full --localport 30000 $stunServerAddress $stunServerPort"
-        echo "#"
-      fi
-    fi
-
     BBB_LOG="/var/log/bigbluebutton"
     if [ "$(stat -c "%U %G" $BBB_LOG)" != "bigbluebutton bigbluebutton" ]; then
       echo
@@ -1474,14 +1461,6 @@ if [ $CHECK ]; then
          echo "$TURN (STUN Server)"
          echo "                              stun: $(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m "_:beans/_:bean[@id=\"$i\"]/_:constructor-arg[@index=\"0\"]" -v @value $TURN | sed 's/stun://g')"
        done
-     fi
-
-     stunServerAddress=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerAddress/{s/.*=//;p}')
-     stunServerPort=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerPort/{s/.*=//;p}')
-     if [ ! -z "$stunServerAddress" ]; then
-        echo
-        echo "/etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini (STUN Server)"
-        echo "                              stun: $stunServerAddress:$stunServerPort"
      fi
 
      check_state
