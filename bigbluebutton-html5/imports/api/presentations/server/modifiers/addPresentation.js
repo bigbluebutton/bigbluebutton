@@ -34,6 +34,7 @@ export default function addPresentation(meetingId, podId, presentation) {
     id: String,
     name: String,
     current: Boolean,
+    temporaryPresentationId: String,
     pages: [
       {
         id: String,
