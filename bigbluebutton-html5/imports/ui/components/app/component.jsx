@@ -18,8 +18,6 @@ import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
-import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
-import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
 import StatusNotifier from '/imports/ui/components/status-notifier/container';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
@@ -43,6 +41,7 @@ import ConnectionStatusService from '/imports/ui/components/connection-status/se
 import Settings from '/imports/ui/services/settings';
 import LayoutService from '/imports/ui/components/layout/service';
 import { registerTitleView } from '/imports/utils/dom-utils';
+import Notifications from '../notifications/container';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -50,8 +49,6 @@ const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
-const VIEWER = Meteor.settings.public.user.role_viewer;
-const MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -225,12 +222,9 @@ class App extends Component {
 
   componentDidUpdate(prevProps) {
     const {
-      meetingMuted,
       notify,
       currentUserEmoji,
-      currentUserRole,
       intl,
-      hasPublishedPoll,
       mountModal,
       deviceType,
       meetingLayout,
@@ -289,31 +283,6 @@ class App extends Component {
         currentUserEmoji.status === 'none'
           ? 'clear_status'
           : 'user',
-      );
-    }
-    if (!prevProps.meetingMuted && meetingMuted) {
-      notify(
-        intl.formatMessage(intlMessages.meetingMuteOn), 'info', 'mute',
-      );
-    }
-    if (prevProps.meetingMuted && !meetingMuted) {
-      notify(
-        intl.formatMessage(intlMessages.meetingMuteOff), 'info', 'unmute',
-      );
-    }
-    if (!prevProps.hasPublishedPoll && hasPublishedPoll) {
-      notify(
-        intl.formatMessage(intlMessages.pollPublishedLabel), 'info', 'polling',
-      );
-    }
-    if (prevProps.currentUserRole === VIEWER && currentUserRole === MODERATOR) {
-      notify(
-        intl.formatMessage(intlMessages.promotedLabel), 'info', 'user',
-      );
-    }
-    if (prevProps.currentUserRole === MODERATOR && currentUserRole === VIEWER) {
-      notify(
-        intl.formatMessage(intlMessages.demotedLabel), 'info', 'user',
       );
     }
 
@@ -454,6 +423,7 @@ class App extends Component {
 
     return (
       <>
+        <Notifications />
         <LayoutEngine layoutType={layoutType} />
         <GlobalStyles />
         <Styled.Layout
@@ -491,8 +461,6 @@ class App extends Component {
                 pushAlertEnabled={pushAlertEnabled}
               />
             )}
-          <WaitingNotifierContainer />
-          <LockNotifier />
           <StatusNotifier status="raiseHand" />
           <ManyWebcamsNotifier />
           <PollingContainer />

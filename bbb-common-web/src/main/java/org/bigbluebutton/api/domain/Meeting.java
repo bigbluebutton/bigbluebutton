@@ -54,6 +54,7 @@ public class Meeting {
 	private int learningDashboardCleanupDelayInMinutes;
 	private String learningDashboardAccessToken;
 	private ArrayList<String> disabledFeatures;
+	private Boolean notifyRecordingIsOn;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
 	private String modOnlyMessage = "";
@@ -118,6 +119,7 @@ public class Meeting {
         viewerPass = builder.viewerPass;
         moderatorPass = builder.moderatorPass;
 		disabledFeatures = builder.disabledFeatures;
+		notifyRecordingIsOn = builder.notifyRecordingIsOn;
 		learningDashboardCleanupDelayInMinutes = builder.learningDashboardCleanupDelayInMinutes;
 		learningDashboardAccessToken = builder.learningDashboardAccessToken;
         maxUsers = builder.maxUsers;
@@ -362,6 +364,10 @@ public class Meeting {
 
 	public ArrayList<String> getDisabledFeatures() {
 		return disabledFeatures;
+	}
+
+	public Boolean getNotifyRecordingIsOn() {
+		return notifyRecordingIsOn;
 	}
 
   public String getWelcomeMessageTemplate() {
@@ -788,6 +794,7 @@ public class Meeting {
     	private int learningDashboardCleanupDelayInMinutes;
     	private String learningDashboardAccessToken;
 		private ArrayList<String> disabledFeatures;
+		private Boolean notifyRecordingIsOn;
     	private int duration;
     	private String webVoice;
     	private String telVoice;
@@ -904,6 +911,11 @@ public class Meeting {
 			this.disabledFeatures = list;
 			return this;
 		}
+
+    	public Builder withNotifyRecordingIsOn(Boolean b) {
+	    	this.notifyRecordingIsOn = b;
+	    	return this;
+	    }
 
     	public Builder withWelcomeMessage(String w) {
     		welcomeMsg = w;
