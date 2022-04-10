@@ -9,10 +9,11 @@ const CursorsContainer = (props) => {
     return <Cursors {...props} publishCursorUpdate={props.publishCursorUpdate}/>
 };
 
-export default withTracker(({ currentUser, publishCursorUpdate }) => {
+export default withTracker(({ currentUser, publishCursorUpdate, tldrawAPI }) => {
   return { 
     currentUser,
     publishCursorUpdate,
     otherCursors: Service.getCursorCur(),
+    tldrawAPI,
   };
 })(CursorsContainer);

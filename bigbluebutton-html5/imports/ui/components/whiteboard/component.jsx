@@ -1,6 +1,16 @@
 import * as React from "react";
+import _ from 'lodash';
 import Cursors from "./cursors/container";
 import { TldrawApp, Tldraw } from "@tldraw/tldraw";
+import { Renderer } from "@tldraw/core";
+
+function usePrevious(value) {
+  const ref = React.useRef();
+  React.useEffect(() => {
+    ref.current = value;
+  }, [value]);
+  return ref.current;
+}
 
 const findRemoved = (A, B) => {
   return A.filter((a) => {
@@ -32,17 +42,18 @@ export default function Whiteboard(props) {
     assets,
   });
   const [doc, setDoc] = React.useState(rDocument.current);
+  const [ass, setAss] = React.useState(assets);
+  const [tldrawAPI, setTLDrawAPI] = React.useState(null);
+  const prevShapes = usePrevious(shapes);
+
   const handleChange = React.useCallback((state) => {
-    // console.log('state.document.assets : ', state.document['assets'])
-    // console.log('assets : ', assets)
-    // state.document.assets = { ...assets };
-  
     rDocument.current = state.document;
   }, []);
 
   React.useMemo(() => {
     const currentDoc = rDocument.current;
     const propShapes = Object.entries(shapes || {})?.map(([k, v]) => v.id);
+
     for (let i = 0; i < Object.keys(currentDoc?.pages).length; i++) {
       const localShapes = Object.entries(currentDoc?.pages[i + 1]?.shapes)?.map(
         ([k, v]) => v.id
@@ -52,11 +63,12 @@ export default function Whiteboard(props) {
         delete currentDoc?.pages[i + 1]?.shapes[s];
       });
     }
+
     const next = { ...currentDoc };
 
     next.assets = { ...assets };
 
-    shapes.forEach((s) => {
+    !_.isEqual(shapes, prevShapes) && shapes.forEach((s) => {
       next.pages[s.parentId] = {
         ...next.pages[s.parentId],
         shapes: {
@@ -79,36 +91,53 @@ export default function Whiteboard(props) {
     }
 
     setDoc(next);
-    console.log("NEXT: ", next);
-  }, [shapes, assets]);
+    if (tldrawAPI && !_.isEqual(shapes, prevShapes) && !_.isEqual(assets, ass)) {
+      tldrawAPI.replacePageContent(shapes, {}, assets);
+      setAss(assets);
+    }
+  }, [shapes]);
+
+
+  console.log('Renderer', Renderer)
 
   return (
-    <Cursors currentUser={currentUser} publishCursorUpdate={publishCursorUpdate}>
+    <Cursors tldrawAPI={tldrawAPI} currentUser={currentUser} publishCursorUpdate={publishCursorUpdate}>
     <Tldraw
       document={doc}
       disableAssets={false}
+      onChangePresence={(app, user) => {
+        console.log('onChangePresence  : ', app, user)
+
+        app.onPointerMove = onPointerMove = (point, user) => {
+          console.log('ON Pointer Move')
+        }
+      }}
+      onPatch={(e) => {
+        // console.log('onPatch  : ', e)
+      }}
       onMount={(app) => {
-        // app.replacePageContent(shapes, {}, assets);
+        setTLDrawAPI(app);
+
+        // app?.onPointerMove(e => {
+        //   console.log('ONPOINTER MOCE ADASDASD', e)
+        // })
       }}
       onChange={handleChange}
       onPersist={(e) => {
-        console.log("persist");
         ///////////// handle assets /////////////////////////
         e?.assets?.forEach((a) => {
           persistAsset(a);
         });
 
         ///////////// handle shapes /////////////////////////
-        const updatedShapes = [];
-        Object.entries(e?.selectedIds)?.forEach(([k, v]) => {
-          updatedShapes.push(e.getShape(v));
-          persistShape(e.getShape(v));
-        });
-
         if (e?.selectedIds.length < 1) {
           Object.entries(e.getShapes())?.forEach(([k, v]) => {
             if (v.type === "draw") persistShape(v);
           });
+        } else {
+          Object.entries(e.getShapes())?.forEach(([k, v]) => {
+            persistShape(v);
+          }); 
         }
 
         const propShapes = Object.entries(shapes || {})?.map(([k, v]) => v.id);
@@ -123,7 +152,7 @@ export default function Whiteboard(props) {
       // showPages={true || isPresenter}
       showPages={false}
       showUI={true || isPresenter}
-      showMenu={false}
+      showMenu={true}
       showMultiplayerMenu={false}
       // readOnly={!isPresenter}
     />
