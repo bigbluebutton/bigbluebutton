@@ -71,13 +71,6 @@ const renderCursor = (
 
 const PositionLabel = (props) => {
   const {
-    detectedEnvironment: {
-      isMouseDetected = false,
-      isTouchDetected = false,
-    } = {},
-    elementDimensions: { width = 0, height = 0 } = {},
-    isActive = false,
-    isPositionOutside = false,
     position: { x = 0, y = 0 } = {},
     currentUser,
     currentPoint,
@@ -96,8 +89,8 @@ const PositionLabel = (props) => {
       props.publishCursorUpdate(
         userId,
         name,
-        ((point[0] / props.pageState.camera.zoom) - props.pageState.camera.point[0]),
-        ((point[1] / props.pageState.camera.zoom) - props.pageState.camera.point[1]),
+        ((point[0] / pageState.camera.zoom) - pageState.camera.point[0]),
+        ((point[1] / pageState.camera.zoom) - pageState.camera.point[1]),
         presenter
       );
     } catch (e) {
