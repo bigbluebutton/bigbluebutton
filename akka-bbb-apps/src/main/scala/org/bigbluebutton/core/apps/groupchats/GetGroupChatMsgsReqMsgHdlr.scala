@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.groupchats
 
+import org.apache.commons.lang3.StringEscapeUtils
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
@@ -24,7 +25,7 @@ trait GetGroupChatMsgsReqMsgHdlr {
     state.groupChats.find(msg.body.chatId) foreach { gc =>
       if (gc.access == GroupChatAccess.PUBLIC || gc.isUserMemberOf(msg.header.userId)) {
         val msgs = gc.msgs.toVector map (m => GroupChatMsgToUser(m.id, m.createdOn, m.correlationId,
-          m.sender, m.chatEmphasizedText, m.message))
+          m.sender, m.chatEmphasizedText, m.message, StringEscapeUtils.escapeHtml4(m.message)))
         val respMsg = buildGetGroupChatMsgsRespMsg(
           liveMeeting.props.meetingProp.intId,
           msg.header.userId, msgs, gc.id

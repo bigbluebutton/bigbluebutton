@@ -1,13 +1,13 @@
 package org.bigbluebutton.core.models
 
+import org.apache.commons.lang3.StringEscapeUtils
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 import org.bigbluebutton.core.domain.MeetingState2x
-
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.running.LiveMeeting
+
+import scala.collection.mutable.{ ArrayBuffer, HashMap }
 
 object Polls {
 
@@ -273,14 +273,14 @@ object Polls {
     // squishing the display.
     if (sorted_answers.length <= 7) {
       sorted_answers.foreach(ans => {
-        answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
+        answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes, StringEscapeUtils.escapeHtml4(ans.key))
       })
     } else {
       var highestId = 0
 
       for (i <- 0 until 7) {
         val ans = sorted_answers(i)
-        answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
+        answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes, StringEscapeUtils.escapeHtml4(ans.key))
         if (ans.id > highestId) {
           highestId = ans.id
         }
@@ -295,7 +295,7 @@ object Polls {
         }
       }
 
-      answers += SimpleVoteOutVO(highestId + 1, "...", otherNumVotes)
+      answers += SimpleVoteOutVO(highestId + 1, "...", otherNumVotes, "...")
     }
 
     shape += "result" -> answers
@@ -653,7 +653,8 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
   }
 
   def toSimplePollResultOutVO(): SimplePollResultOutVO = {
-    new SimplePollResultOutVO(id, questions(0).questionType, questions(0).text, questions(0).toSimpleVotesOutVO(), numRespondents, _numResponders)
+    val questionTextHtml = StringEscapeUtils.escapeHtml4(questions(0).text.toString())
+    new SimplePollResultOutVO(id, questions(0).questionType, questions(0).text, questions(0).text, questions(0).toSimpleVotesOutVO(), numRespondents, _numResponders)
   }
 }
 
@@ -737,7 +738,7 @@ class Answer(val id: Int, val key: String, val text: Option[String]) {
   }
 
   def toSimpleVoteOutVO(): SimpleVoteOutVO = {
-    new SimpleVoteOutVO(id, key, numResponders)
+    new SimpleVoteOutVO(id, key, numResponders, StringEscapeUtils.escapeHtml4(key))
   }
 }
 

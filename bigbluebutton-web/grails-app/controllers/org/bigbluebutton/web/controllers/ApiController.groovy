@@ -25,6 +25,7 @@ import org.apache.commons.codec.binary.Base64
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang.RandomStringUtils
 import org.apache.commons.lang.StringUtils
+import org.apache.commons.text.StringEscapeUtils
 import org.bigbluebutton.api.*
 import org.bigbluebutton.api.domain.Config
 import org.bigbluebutton.api.domain.GuestPolicy
@@ -141,7 +142,6 @@ class ApiController {
     params.html5InstanceId = html5LoadBalancingService.findSuitableHTML5ProcessByRoundRobin().toString()
 
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params)
-
     ApiErrors errors = new ApiErrors()
 
     if (meetingService.createMeeting(newMeeting)) {
@@ -309,6 +309,7 @@ class ApiController {
     us.externMeetingID = meeting.getExternalId()
     us.externUserID = externUserID
     us.fullname = fullName
+    us.fullnameHtml = StringEscapeUtils.escapeHtml4(fullName)
     us.role = role
     us.conference = meeting.getInternalId()
     us.room = meeting.getInternalId()
@@ -360,6 +361,7 @@ class ApiController {
         us.meetingID,
         us.internalUserId,
         us.fullname,
+        us.fullnameHtml,
         us.role,
         us.externUserID,
         us.authToken,
@@ -942,8 +944,14 @@ class ApiController {
             logoutTimer meeting.getLogoutTimer()
             allowStartStopRecording meeting.getAllowStartStopRecording()
             welcome us.welcome
-            if (!StringUtils.isEmpty(meeting.moderatorOnlyMessage) && us.role.equals(ROLE_MODERATOR)) {
+            if (StringUtils.isEmpty(meeting.moderatorOnlyMessageHtml)
+                && !StringUtils.isEmpty(meeting.moderatorOnlyMessage)
+                && us.role.equals(ROLE_MODERATOR)) {
               modOnlyMessage meeting.moderatorOnlyMessage
+            }
+
+            if (!StringUtils.isEmpty(meeting.moderatorOnlyMessageHtml) && us.role.equals(ROLE_MODERATOR)) {
+              modOnlyMessageHtml meeting.moderatorOnlyMessageHtml
             }
             if (!StringUtils.isEmpty(meeting.bannerText)) {
               bannerText meeting.getBannerText()

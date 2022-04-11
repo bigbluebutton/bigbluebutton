@@ -15,6 +15,7 @@ export default function addUserPersistentData(user) {
     intId: String,
     extId: String,
     name: String,
+    nameHtml: String,
     pin: Boolean,
     role: String,
     guest: Boolean,

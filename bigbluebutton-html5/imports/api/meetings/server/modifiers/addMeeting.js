@@ -3,7 +3,7 @@ import {
   check,
   Match,
 } from 'meteor/check';
-import SanitizeHTML from 'sanitize-html';
+import { sanitizeHTML } from '/imports/utils/string-utils';
 import Meetings, {
   RecordMeetings,
   ExternalVideoMeetings,
@@ -82,7 +82,9 @@ export default function addMeeting(meeting) {
     welcomeProp: {
       welcomeMsg: String,
       modOnlyMessage: String,
+      modOnlyMessageHtml: String,
       welcomeMsgTemplate: String,
+      welcomeMsgHtml: String,
     },
     recordProp: Match.ObjectIncluding({
       allowStartStopRecording: Boolean,
@@ -136,16 +138,7 @@ export default function addMeeting(meeting) {
 
   let { welcomeMsg } = newMeeting.welcomeProp;
 
-  const sanitizeTextInChat = original => SanitizeHTML(original, {
-    allowedTags: ['a', 'b', 'br', 'i', 'img', 'li', 'small', 'span', 'strong', 'u', 'ul'],
-    allowedAttributes: {
-      a: ['href', 'name', 'target'],
-      img: ['src', 'width', 'height'],
-    },
-    allowedSchemes: ['https'],
-  });
-
-  const sanitizedWelcomeText = sanitizeTextInChat(welcomeMsg);
+  const sanitizedWelcomeText = sanitizeHTML(welcomeMsg);
   welcomeMsg = sanitizedWelcomeText.replace(
     'href="event:',
     'href="',
@@ -167,7 +160,7 @@ export default function addMeeting(meeting) {
   // note: as of July 2020 `modOnlyMessage` is not published to the client side.
   // We are sanitizing this data simply to prevent future potential usage
   // At the moment `modOnlyMessage` is obtained from client side as a response to Enter API
-  newMeeting.welcomeProp.modOnlyMessage = sanitizeTextInChat(newMeeting.welcomeProp.modOnlyMessage);
+  newMeeting.welcomeProp.modOnlyMessage = sanitizeHTML(newMeeting.welcomeProp.modOnlyMessage);
 
   const modifier = {
     $set: Object.assign({

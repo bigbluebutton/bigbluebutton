@@ -158,7 +158,7 @@ class MessageForm extends PureComponent {
       handleSendMessage,
     } = this.props;
     const { message } = this.state;
-    let msg = message.trim();
+    const msg = message.trim();
 
     if (msg.length < minMessageLength) return;
 
@@ -167,12 +167,6 @@ class MessageForm extends PureComponent {
       this.setState({ hasErrors: true });
       return;
     }
-
-    // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
-
-    const div = document.createElement('div');
-    div.appendChild(document.createTextNode(msg));
-    msg = div.innerHTML;
 
     handleSendMessage(msg);
     this.setState({ message: '', hasErrors: false });

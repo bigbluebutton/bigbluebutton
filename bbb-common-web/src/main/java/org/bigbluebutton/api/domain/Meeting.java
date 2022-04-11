@@ -57,6 +57,8 @@ public class Meeting {
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
 	private String modOnlyMessage = "";
+
+	private String modOnlyMessageHtml = "";
 	private String logoutUrl;
 	private int logoutTimer = 0;
 	private int maxUsers;
@@ -286,6 +288,15 @@ public class Meeting {
 
 	public String getModeratorOnlyMessage() {
 		return modOnlyMessage;
+	}
+
+	public void setModeratorOnlyMessageHtml(String msgHtml) {
+		modOnlyMessage = "";
+		modOnlyMessageHtml = msgHtml;
+	}
+
+	public String getModeratorOnlyMessageHtml() {
+		return modOnlyMessageHtml;
 	}
 
 	public void setEndTime(long t) {

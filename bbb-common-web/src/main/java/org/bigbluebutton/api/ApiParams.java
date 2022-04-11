@@ -42,6 +42,7 @@ public class ApiParams {
     public static final String MEETING_ID = "meetingID";
     public static final String META = "meta";
     public static final String MODERATOR_ONLY_MESSAGE = "moderatorOnlyMessage";
+    public static final String MODERATOR_ONLY_MESSAGE_HTML = "moderatorOnlyMessageHtml";
     public static final String MODERATOR_PW = "moderatorPW";
     public static final String MUTE_ON_START = "muteOnStart";
     public static final String MEETING_KEEP_EVENTS = "meetingKeepEvents";

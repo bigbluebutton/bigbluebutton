@@ -1,5 +1,6 @@
 package org.bigbluebutton.core2.testdata
 
+import org.apache.commons.lang3.StringEscapeUtils
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.LiveMeeting
 
@@ -66,7 +67,7 @@ trait FakeTestData {
   }
 
   def createFakeUser(liveMeeting: LiveMeeting, regUser: RegisteredUser): UserState = {
-    UserState(intId = regUser.id, extId = regUser.externId, name = regUser.name, role = regUser.role, pin = false,
+    UserState(intId = regUser.id, extId = regUser.externId, name = regUser.name, nameHtml = StringEscapeUtils.escapeHtml4(regUser.name), role = regUser.role, pin = false,
       guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
       emoji = "none", locked = false, presenter = false, avatar = regUser.avatarURL, clientType = "unknown",
       pickExempted = false, userLeftFlag = UserLeftFlag(false, 0))

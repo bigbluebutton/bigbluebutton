@@ -1,5 +1,7 @@
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
+import { BREAK_LINE } from '/imports/utils/lineEndings';
+import RegexWebUrl from '/imports/utils/regex-weburl';
 
 const MSG_DIRECT_TYPE = 'DIRECT';
 const NODE_USER = 'nodeJSapp';
@@ -66,3 +68,15 @@ export const publicationSafeGuard = function (fn, self) {
 
   periodicCheck();
 };
+
+export function parseMessage(messageHtml) {
+  let parsedMessageHtml = messageHtml || '';
+
+  // Replace \r and \n to <br/>
+  parsedMessageHtml = parsedMessageHtml.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, `$1${BREAK_LINE}$2`);
+
+  // Replace flash links to html valid ones
+  parsedMessageHtml = parsedMessageHtml.replace(RegexWebUrl, '<a target="_blank" href="$&"><u>$&</u></a>');
+
+  return parsedMessageHtml;
+}

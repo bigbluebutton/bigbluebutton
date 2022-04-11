@@ -25,6 +25,7 @@ public interface IBbbWebApiGWApp {
                      String moderatorPass, String viewerPass, String learningDashboardAccessToken, Long createTime,
                      String createDate, Boolean isBreakout, Integer sequence, Boolean freejoin, Map<String, String> metadata,
                      String guestPolicy, Boolean authenticatedGuest, String meetingLayout, String welcomeMsgTemplate, String welcomeMsg, String modOnlyMessage,
+                     String modOnlyMessageHtml,
                      String dialNumber, Integer maxUsers,
                      Integer meetingExpireIfNoUserJoinedInMinutes,
                      Integer meetingExpireWhenLastUserLeftInMinutes,
@@ -43,7 +44,7 @@ public interface IBbbWebApiGWApp {
                      ArrayList<Group> groups,
                      ArrayList<String> disabledFeatures);
 
-  void registerUser(String meetingID, String internalUserId, String fullname, String role,
+  void registerUser(String meetingID, String internalUserId, String fullname, String fullnameHtml, String role,
                     String externUserID, String authToken, String avatarURL,
                     Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard);
   void ejectDuplicateUser(String meetingID, String internalUserId, String fullname,

@@ -3,6 +3,7 @@ package org.bigbluebutton.core2.testdata
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.util.RandomStringGenerator
+import org.apache.commons.lang3.StringEscapeUtils
 
 object TestDataGen {
   def createRegisteredUser(users: RegisteredUsers, name: String, role: String,
@@ -13,7 +14,7 @@ object TestDataGen {
     val avatarURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
       RandomStringGenerator.randomAlphanumericString(10) + ".png"
 
-    val ru = RegisteredUsers.create(userId = id, extId, name, role,
+    val ru = RegisteredUsers.create(userId = id, extId, name, StringEscapeUtils.escapeHtml4(name), role,
       authToken, avatarURL, guest, authed, GuestStatus.ALLOW, false)
 
     RegisteredUsers.add(users, ru)

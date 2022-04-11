@@ -30,7 +30,7 @@ case class PasswordProp(moderatorPass: String, viewerPass: String, learningDashb
 
 case class RecordProp(record: Boolean, autoStartRecording: Boolean, allowStartStopRecording: Boolean, keepEvents: Boolean)
 
-case class WelcomeProp(welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String)
+case class WelcomeProp(welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String, modOnlyMessageHtml: String, welcomeMsgHtml: String)
 
 case class VoiceProp(telVoice: String, voiceConf: String, dialNumber: String, muteOnStart: Boolean)
 
@@ -98,8 +98,8 @@ case class Meeting2x(defaultProps: DefaultProps, meetingStatus: MeetingStatus)
 
 case class SimpleAnswerOutVO(id: Int, key: String)
 case class SimplePollOutVO(id: String, isMultipleResponse: Boolean, answers: Array[SimpleAnswerOutVO])
-case class SimpleVoteOutVO(id: Int, key: String, numVotes: Int)
-case class SimplePollResultOutVO(id: String, questionType: String, questionText: Option[String], answers: Array[SimpleVoteOutVO], numRespondents: Int, numResponders: Int)
+case class SimpleVoteOutVO(id: Int, key: String, numVotes: Int, keyHtml: String)
+case class SimplePollResultOutVO(id: String, questionType: String, questionText: Option[String], questionTextHtml: Option[String], answers: Array[SimpleVoteOutVO], numRespondents: Int, numResponders: Int)
 case class Responder(userId: String, name: String)
 case class AnswerVO(id: Int, key: String, text: Option[String], responders: Option[Array[Responder]])
 case class QuestionVO(id: Int, questionType: String, multiResponse: Boolean, questionText: Option[String], answers: Option[Array[AnswerVO]])

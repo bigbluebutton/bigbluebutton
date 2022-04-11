@@ -11,6 +11,7 @@ import { UsersContext } from '../components-data/users-context/context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import Chat from '/imports/ui/components/chat/component';
+import { sanitizeHTML } from '/imports/utils/string-utils';
 import ChatService from './service';
 import { layoutSelect, layoutDispatch } from '../layout/context';
 
@@ -87,6 +88,7 @@ const ChatContainer = (props) => {
     ChatService.removeFromClosedChatsSession();
   }, []);
 
+  const modOnlyMessageHtml = Storage.getItem('ModeratorOnlyMessageHtml');
   const modOnlyMessage = Storage.getItem('ModeratorOnlyMessage');
   const { welcomeProp } = ChatService.getWelcomeProp();
 
@@ -97,7 +99,7 @@ const ChatContainer = (props) => {
       id: sysMessagesIds.welcomeId,
       content: [{
         id: sysMessagesIds.welcomeId,
-        text: welcomeProp.welcomeMsg,
+        textHtml: welcomeProp.welcomeMsgHtml,
         time: loginTime,
       }],
       key: sysMessagesIds.welcomeId,
@@ -108,7 +110,7 @@ const ChatContainer = (props) => {
       id: sysMessagesIds.moderatorId,
       content: [{
         id: sysMessagesIds.moderatorId,
-        text: modOnlyMessage,
+        textHtml: modOnlyMessageHtml || modOnlyMessage,
         time: loginTime + 1,
       }],
       key: sysMessagesIds.moderatorId,
@@ -122,7 +124,7 @@ const ChatContainer = (props) => {
   const amIModerator = currentUser.role === ROLE_MODERATOR;
   const systemMessagesIds = [
     sysMessagesIds.welcomeId,
-    amIModerator && modOnlyMessage && sysMessagesIds.moderatorId,
+    amIModerator && modOnlyMessageHtml && sysMessagesIds.moderatorId,
   ].filter((i) => i);
 
   const usingChatContext = useContext(ChatContext);
@@ -136,6 +138,7 @@ const ChatContainer = (props) => {
 
   const { groupChat } = usingGroupChatContext;
   const participants = groupChat[idChatOpen]?.participants;
+  const chatNameHtml = participants?.filter((user) => user.id !== Auth.userID)[0]?.nameHtml;
   const chatName = participants?.filter((user) => user.id !== Auth.userID)[0]?.name;
   const title = chatName
     ? intl.formatMessage(intlMessages.titlePrivate, { 0: chatName })
@@ -178,7 +181,8 @@ const ChatContainer = (props) => {
                 id: sysMessagesIds.syncId,
                 content: [{
                   id: 'synced',
-                  text: intl.formatMessage(intlMessages.loading, { 0: contextChat?.syncedPercent }),
+                  textHtml: sanitizeHTML(intl.formatMessage(intlMessages.loading,
+                    { 0: contextChat?.syncedPercent })),
                   time: loginTime + 1,
                 }],
                 key: sysMessagesIds.syncId,
@@ -200,7 +204,8 @@ const ChatContainer = (props) => {
           id,
           content: [{
             id,
-            text: intl.formatMessage(intlMessages.partnerDisconnected, { 0: chatName }),
+            textHtml: sanitizeHTML(intl.formatMessage(intlMessages.partnerDisconnected,
+              { 0: chatNameHtml })),
             time,
           }],
           time,
@@ -236,7 +241,6 @@ const ChatContainer = (props) => {
       title,
       syncing: contextChat?.syncing,
       syncedPercent: contextChat?.syncedPercent,
-      chatName,
       contextChat,
       layoutContextDispatch,
       lastTimeWindowValuesBuild,

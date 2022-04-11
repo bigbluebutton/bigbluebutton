@@ -2,6 +2,7 @@ package org.bigbluebutton.core2.testdata
 
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.util.RandomStringGenerator
+import org.apache.commons.lang3.StringEscapeUtils
 
 import scala.util.Random
 
@@ -53,7 +54,7 @@ object FakeUserGenerator {
     val avatarURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
       RandomStringGenerator.randomAlphanumericString(10) + ".png"
 
-    val ru = RegisteredUsers.create(userId = id, extId, name, role,
+    val ru = RegisteredUsers.create(userId = id, extId, name, StringEscapeUtils.escapeHtml4(name), role,
       authToken, avatarURL, guest, authed, guestStatus = GuestStatus.ALLOW, false, false)
     RegisteredUsers.add(users, ru)
     ru

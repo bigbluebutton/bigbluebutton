@@ -691,6 +691,13 @@ public class ParamsProcessorUtil {
             meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
         }
 
+        if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE_HTML))) {
+            String moderatorOnlyMessageHtmlTemplate = params.get(ApiParams.MODERATOR_ONLY_MESSAGE_HTML);
+            String moderatorOnlyMessageHtml = substituteKeywords(moderatorOnlyMessageHtmlTemplate,
+                    dialNumber, telVoice, meetingName);
+            meeting.setModeratorOnlyMessageHtml(moderatorOnlyMessageHtml);
+        }
+
         if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_ENDED_CALLBACK_URL))) {
         	String meetingEndedCallbackURL = params.get(ApiParams.MEETING_ENDED_CALLBACK_URL);
         	meeting.setMeetingEndedCallbackURL(meetingEndedCallbackURL);

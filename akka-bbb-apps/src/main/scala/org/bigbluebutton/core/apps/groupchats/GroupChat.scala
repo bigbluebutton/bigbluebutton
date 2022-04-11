@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.groupchats
 
+import org.apache.commons.lang3.StringEscapeUtils
 import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatMsgFromUser, GroupChatMsgToUser, GroupChatUser }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
@@ -23,7 +24,7 @@ object GroupChatApp {
 
   def toMessageToUser(msg: GroupChatMessage): GroupChatMsgToUser = {
     GroupChatMsgToUser(id = msg.id, timestamp = msg.timestamp, correlationId = msg.correlationId,
-      sender = msg.sender, chatEmphasizedText = msg.chatEmphasizedText, message = msg.message)
+      sender = msg.sender, chatEmphasizedText = msg.chatEmphasizedText, message = msg.message, messageHtml = StringEscapeUtils.escapeHtml4(msg.message))
   }
 
   def addGroupChatMessage(chat: GroupChat, chats: GroupChats,
@@ -34,7 +35,7 @@ object GroupChatApp {
 
   def findGroupChatUser(userId: String, users: Users2x): Option[GroupChatUser] = {
     Users2x.findWithIntId(users, userId) match {
-      case Some(u) => Some(GroupChatUser(u.intId, u.name, u.role))
+      case Some(u) => Some(GroupChatUser(u.intId, u.name, u.nameHtml, u.role))
       case None =>
         if (userId == SystemUser.ID) {
           Some(GroupChatUser(SystemUser.ID))

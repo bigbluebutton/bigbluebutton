@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.groupchats
 
+import org.apache.commons.lang3.StringEscapeUtils
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
@@ -37,7 +38,7 @@ trait SyncGetGroupChatsInfoMsgHdlr {
     val allChats = chats map (pc => {
 
       val msgs = pc.msgs.toVector map (m => GroupChatMsgToUser(m.id, m.createdOn, m.correlationId,
-        m.sender, m.chatEmphasizedText, m.message))
+        m.sender, m.chatEmphasizedText, m.message, StringEscapeUtils.escapeHtml4(m.message)))
       val respMsg = buildSyncGetGroupChatMsgsRespMsg(msgs, pc.id)
       bus.outGW.send(respMsg)
 

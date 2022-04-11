@@ -2,7 +2,7 @@ import { Match, check } from 'meteor/check';
 import flat from 'flat';
 import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import Logger from '/imports/startup/server/logger';
-import { parseMessage } from './addGroupChatMsg';
+import { parseMessage } from '/imports/api/common/server/helpers';
 
 export default function syncMeetingChatMsgs(meetingId, chatId, msgs) {
   if (!msgs.length) return;
@@ -26,6 +26,7 @@ export default function syncMeetingChatMsgs(meetingId, chatId, msgs) {
           meetingId,
           chatId,
           message: parseMessage(msg.message),
+          messageHtml: parseMessage(msg.messageHtml),
           sender: sender.id,
         };
 

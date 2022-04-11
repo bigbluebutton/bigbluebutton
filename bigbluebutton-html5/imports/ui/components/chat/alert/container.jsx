@@ -77,7 +77,7 @@ const ChatAlertContainer = (props) => {
             const m = Object.entries(c[1]?.posJoinMessages || c[1]?.messageGroups);
             const sameUserCount = m.filter((message) => message[1]?.sender === Auth.userID).length;
             if (m[m.length - 1] && m[m.length - 1][1]?.sender !== Auth.userID) {
-              chatsTracker[c[0]].lastSender = users[Auth.meetingID][c[1]?.lastSender]?.name;
+              chatsTracker[c[0]].lastSender = users[Auth.meetingID][c[1]?.lastSender]?.nameHtml;
               chatsTracker[c[0]].content = m[m.length - 1][1]?.message;
               chatsTracker[c[0]].count = m?.length - sameUserCount;
             }

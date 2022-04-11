@@ -15,7 +15,7 @@ case class CreateBreakoutRoomMsg(meetingId: String, parentMeetingId: String,
                                  record: Boolean) extends ApiMsg
 
 case class AddUserSession(token: String, session: UserSession)
-case class RegisterUser(meetingId: String, intUserId: String, name: String, role: String,
+case class RegisterUser(meetingId: String, intUserId: String, name: String, nameHtml: String, role: String,
                         extUserId: String, authToken: String, avatarURL: String,
                         guest: Boolean, authed: Boolean, guestStatus: String, excludeFromDashboard: Boolean)
 

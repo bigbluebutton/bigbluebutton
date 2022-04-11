@@ -52,7 +52,7 @@ const TimeWindowChatItemContainer = (props) => {
         messages,
         extra,
         messageValues,
-        getPollResultString: PollService.getPollResultString,
+        getPollResultStringHtml: PollService.getPollResultStringHtml,
         user,
         timestamp,
         systemMessage: messageId.startsWith(SYSTEM_CHAT_TYPE) || !sender,

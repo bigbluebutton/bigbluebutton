@@ -1,7 +1,7 @@
 import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import Logger from '/imports/startup/server/logger';
 import flat from 'flat';
-import { parseMessage } from './addGroupChatMsg';
+import { parseMessage } from '/imports/api/common/server/helpers';
 
 export default async function addBulkGroupChatMsgs(msgs) {
   if (!msgs.length) return;
@@ -19,9 +19,10 @@ export default async function addBulkGroupChatMsgs(msgs) {
         meetingId,
         chatId,
         message: parseMessage(msg.message),
+        messageHtml: parseMessage(msg.messageHtml),
         sender: sender.id,
         senderName: sender.name,
-        senderRole: sender.role
+        senderRole: sender.role,
       };
     })
     .map(el => flat(el, { safe: true }));

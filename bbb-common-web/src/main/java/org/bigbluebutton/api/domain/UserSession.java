@@ -28,7 +28,8 @@ public class UserSession {
   public String meetingID = null;
   public String externMeetingID = null;
   public String externUserID = null;
-  public String fullname = null; 
+  public String fullname = null;
+  public String fullnameHtml = null;
   public String role = null;
   public String conference = null;
   public String room = null;
@@ -80,6 +81,9 @@ public class UserSession {
 
   public String getFullname() {
     return fullname;
+  }
+  public String getFullnameHtml() {
+    return fullnameHtml;
   }
 
   public String getRole() {

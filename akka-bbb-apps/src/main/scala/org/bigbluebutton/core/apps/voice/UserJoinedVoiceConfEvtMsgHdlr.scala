@@ -1,12 +1,12 @@
 package org.bigbluebutton.core.apps.voice
 
+import org.apache.commons.lang3.StringEscapeUtils
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.apps.users.UsersApp
+import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
   this: MeetingActor =>
@@ -32,7 +32,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
 
     def registerUserInRegisteredUsers() = {
       val regUser = RegisteredUsers.create(msg.body.intId, msg.body.voiceUserId,
-        msg.body.callerIdName, Roles.VIEWER_ROLE, "",
+        msg.body.callerIdName, StringEscapeUtils.escapeHtml4(msg.body.callerIdName), Roles.VIEWER_ROLE, "",
         "", true, true, GuestStatus.WAIT, true, false)
       RegisteredUsers.add(liveMeeting.registeredUsers, regUser)
     }
@@ -42,6 +42,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         intId = msg.body.intId,
         extId = msg.body.voiceUserId,
         name = msg.body.callerIdName,
+        nameHtml = StringEscapeUtils.escapeHtml4(msg.body.callerIdName),
         role = Roles.VIEWER_ROLE,
         guest = true,
         authed = true,

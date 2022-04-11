@@ -1,21 +1,9 @@
 import { Match, check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import { GroupChatMsg } from '/imports/api/group-chat-msg';
-import { BREAK_LINE } from '/imports/utils/lineEndings';
 import changeHasMessages from '/imports/api/users-persistent-data/server/modifiers/changeHasMessages';
+import { parseMessage } from '/imports/api/common/server/helpers';
 
-export function parseMessage(message) {
-  let parsedMessage = message || '';
-
-  // Replace \r and \n to <br/>
-  parsedMessage = parsedMessage.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, `$1${BREAK_LINE}$2`);
-
-  // Replace flash links to html valid ones
-  parsedMessage = parsedMessage.split('<a href=\'event:').join('<a target="_blank" href=\'');
-  parsedMessage = parsedMessage.split('<a href="event:').join('<a target="_blank" href="');
-
-  return parsedMessage;
-}
 
 export default function addGroupChatMsg(meetingId, chatId, msg) {
   check(meetingId, String);
@@ -26,6 +14,7 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     sender: Object,
     chatEmphasizedText: Boolean,
     message: String,
+    messageHtml: String,
     correlationId: Match.Maybe(String),
   });
 
@@ -42,6 +31,7 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     meetingId,
     chatId,
     message: parseMessage(msg.message),
+    messageHtml: parseMessage(msg.messageHtml),
   };
 
   try {

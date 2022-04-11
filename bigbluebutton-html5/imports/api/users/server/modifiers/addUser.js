@@ -24,6 +24,7 @@ export default function addUser(meetingId, userData) {
     intId: String,
     extId: String,
     name: String,
+    nameHtml: String,
     role: String,
     guest: Boolean,
     authed: Boolean,

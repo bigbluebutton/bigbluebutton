@@ -3,6 +3,8 @@ package org.bigbluebutton.api2
 import scala.collection.JavaConverters._
 import akka.actor.ActorSystem
 import akka.event.Logging
+import org.apache.commons.text.StringEscapeUtils
+
 import java.util
 import org.bigbluebutton.api.domain.{ BreakoutRoomsParams, Group, LockSettingsParams }
 import org.bigbluebutton.api.messaging.converters.messages._
@@ -130,7 +132,8 @@ class BbbWebApiGWApp(
                     freeJoin: java.lang.Boolean,
                     metadata: java.util.Map[String, String], guestPolicy: String, authenticatedGuest: java.lang.Boolean, meetingLayout: String,
                     welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String,
-                    dialNumber: String, maxUsers: java.lang.Integer,
+                    modOnlyMessageHtml: String,
+                    dialNumber:         String, maxUsers: java.lang.Integer,
                     meetingExpireIfNoUserJoinedInMinutes:   java.lang.Integer,
                     meetingExpireWhenLastUserLeftInMinutes: java.lang.Integer,
                     userInactivityInspectTimerInMinutes:    java.lang.Integer,
@@ -185,7 +188,7 @@ class BbbWebApiGWApp(
     )
 
     val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
-      modOnlyMessage = modOnlyMessage)
+      modOnlyMessage = modOnlyMessage, modOnlyMessageHtml = modOnlyMessageHtml, welcomeMsgHtml = welcomeMsg)
     val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber, muteOnStart = muteOnStart.booleanValue())
     val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
       userCameraCap = userCameraCap.intValue(),
@@ -235,7 +238,7 @@ class BbbWebApiGWApp(
 
   }
 
-  def registerUser(meetingId: String, intUserId: String, name: String,
+  def registerUser(meetingId: String, intUserId: String, name: String, nameHtml: String,
                    role: String, extUserId: String, authToken: String, avatarURL: String,
                    guest: java.lang.Boolean, authed: java.lang.Boolean,
                    guestStatus: String, excludeFromDashboard: java.lang.Boolean): Unit = {
@@ -244,7 +247,7 @@ class BbbWebApiGWApp(
     //      role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
     //     guest = guest, authed = authed)
 
-    val regUser = new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
+    val regUser = new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name, nameHtml = nameHtml,
       role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
       guest = guest.booleanValue(), authed = authed.booleanValue(), guestStatus = guestStatus,
       excludeFromDashboard = excludeFromDashboard)

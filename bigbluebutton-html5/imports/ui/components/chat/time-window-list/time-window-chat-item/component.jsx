@@ -110,15 +110,15 @@ class TimeWindowChatItem extends PureComponent {
         ref={element => this.itemRef = element} >
         <Styled.Messages>
           {messages.map((message) => (
-            message.text !== ''
+            message.textHtml !== ''
               ? (
                 <Styled.SystemMessageChatItem
                   border={message.id}
                   key={message.id ? message.id : _.uniqueId('id-')}
-                  text={intlMessages[message.text] ? intl.formatMessage(
+                  textHtml={intlMessages[message.text] ? intl.formatMessage(
                     intlMessages[message.text],
                     messageValues || {},
-                  ) : message.text}
+                  ) : message.textHtml}
                   time={message.time}
                   isSystemMessage={message.id ? true : false}
                   systemMessageType={message.text === CHAT_CLEAR_MESSAGE ? 'chatClearMessageText' : 'chatWelcomeMessageText'}
@@ -191,7 +191,7 @@ class TimeWindowChatItem extends PureComponent {
                   hasLink={regEx.test(message.text)}
                   emphasizedMessage={emphasizedText}
                   key={message.id}
-                  text={message.text}
+                  textHtml={message.textHtml}
                   time={message.time}
                   chatAreaId={chatAreaId}
                   dispatch={dispatch}
@@ -223,7 +223,7 @@ class TimeWindowChatItem extends PureComponent {
       timestamp,
       color,
       intl,
-      getPollResultString,
+      getPollResultStringHtml,
       messages,
       extra,
       scrollArea,
@@ -257,7 +257,7 @@ class TimeWindowChatItem extends PureComponent {
             <Styled.PollMessageChatItem
               type="poll"
               key={messages[0].id}
-              text={getPollResultString(extra.pollResultData, intl)}
+              textHtml={getPollResultStringHtml(extra.pollResultData, intl)}
               time={messages[0].time}
               chatAreaId={chatAreaId}
               lastReadMessageTime={lastReadMessageTime}

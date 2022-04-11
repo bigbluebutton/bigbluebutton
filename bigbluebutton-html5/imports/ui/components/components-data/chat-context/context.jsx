@@ -74,7 +74,7 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
         lastTimestamp: msg.timestamp,
         read: msg.chatId === PUBLIC_CHAT_KEY && msg.timestamp <= getLoginTime() ? true : !!removedMessagesReadState[msg.id],
         content: [
-          { id: msg.id, text: msg.message, time: msg.timestamp },
+          { id: msg.id, textHtml: msg.messageHtml, text: msg.message, time: msg.timestamp },
         ],
       }
     };
@@ -147,7 +147,7 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
           read,
           content: [
             ...groupMessage.content,
-            { id: msg.id, text: msg.message, time: msg.timestamp }
+            { id: msg.id, textHtml: msg.messageHtml, text: msg.messsge, time: msg.timestamp }
           ],
         };
         if (!read && groupMessage.sender !== Auth.userID) {
