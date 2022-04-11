@@ -1,4 +1,5 @@
 #!/bin/sh -ex
+cd "$(dirname "$0")"
 
 # Please check bigbluebutton/bigbluebutton-html5/dev_local_deployment/README.md
 
@@ -6,7 +7,7 @@ UPPER_DESTINATION_DIR=/usr/share/meteor
 DESTINATION_DIR=$UPPER_DESTINATION_DIR/bundle
 
 SERVICE_FILES_DIR=/usr/lib/systemd/system
-LOCAL_PACKAGING_DIR=/home/bigbluebutton/dev/bigbluebutton/build/packages-template/bbb-html5
+LOCAL_PACKAGING_DIR="$(pwd)/../build/packages-template/bbb-html5"
 
 if [ ! -d "$LOCAL_PACKAGING_DIR" ]; then
   echo "Did not find LOCAL_PACKAGING_DIR=$LOCAL_PACKAGING_DIR"
@@ -65,6 +66,8 @@ sudo chown -R meteor:meteor "$UPPER_DESTINATION_DIR"/
 sudo chmod +x "$DESTINATION_DIR"/mongod_start_pre.sh
 sudo chmod +x "$DESTINATION_DIR"/systemd_start.sh
 sudo chmod +x "$DESTINATION_DIR"/systemd_start_frontend.sh
+
+sudo cp $LOCAL_PACKAGING_DIR/workers-start.sh "$DESTINATION_DIR"/workers-start.sh
 sudo chmod +x "$DESTINATION_DIR"/workers-start.sh
 
 

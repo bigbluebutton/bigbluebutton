@@ -859,6 +859,16 @@ class MeetingActor(
         val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, u.intId)
         outGW.send(userLeftMeetingEvent)
 
+        val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+          liveMeeting.props.meetingProp.intId,
+          "info",
+          "user",
+          "app.notification.userLeavePushAlert",
+          "Notification for a user leaves the meeting",
+          Vector(s"${u.name}")
+        )
+        outGW.send(notifyEvent)
+
         if (u.presenter) {
           log.info("removeUsersWithExpiredUserLeftFlag will cause an automaticallyAssignPresenter because user={} left", u)
           UsersApp.automaticallyAssignPresenter(outGW, liveMeeting)

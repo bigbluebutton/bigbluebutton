@@ -2,6 +2,7 @@ const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const { sleep } = require('../core/helpers');
 const { expect } = require('@playwright/test');
+const { openPrivateChat } = require('./util');
 
 class PrivateChat extends MultiUsers {
   constructor(browser, context) {
@@ -9,8 +10,7 @@ class PrivateChat extends MultiUsers {
   }
 
   async sendPrivateMessage() {
-    await this.modPage.waitAndClick(e.userListItem);
-    await this.modPage.waitAndClick(e.startPrivateChat);
+    await openPrivateChat(this.modPage);
     await this.modPage.waitForSelector(e.hidePrivateChat);
     await sleep(500); // prevent a race condition when running on a deployed server
     // modPage send message
@@ -31,8 +31,7 @@ class PrivateChat extends MultiUsers {
   }
 
   async closeChat() {
-    await this.modPage.waitAndClick(e.userListItem);
-    await this.modPage.waitAndClick(e.startPrivateChat);
+    await openPrivateChat(this.modPage);
     await this.modPage.waitUntilHaveCountSelector(e.chatButton, 2);
     const privateChatLocator = this.modPage.getLocatorByIndex(e.chatButton, -1);
     expect(privateChatLocator).toContainText(this.userPage.username);
@@ -48,8 +47,7 @@ class PrivateChat extends MultiUsers {
   }
 
   async chatDisabledUserLeaves() {
-    await this.modPage.waitAndClick(e.userListItem);
-    await this.modPage.waitAndClick(e.startPrivateChat);
+    await openPrivateChat(this.modPage);
     await this.modPage.waitForSelector(e.sendButton);
     await this.userPage.waitAndClick(e.optionsButton);
     await this.userPage.waitAndClick(e.logout);

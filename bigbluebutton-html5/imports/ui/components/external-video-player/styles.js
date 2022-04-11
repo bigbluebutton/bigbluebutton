@@ -73,10 +73,36 @@ const HoverToolbar = styled.div`
   `}
 `;
 
+const ProgressBar = styled.div`
+  display: none;
+
+  :hover > & {
+    display: block;
+  }
+
+  height: 5px;
+  width: 100%;
+
+  background-color: transparent;   
+`;
+
+const Loaded = styled.div`
+  height: 100%;
+  background-color: gray;
+`;
+
+const Played = styled.div`
+  height: 100%;  
+  background-color: #DF2721;
+`;
+
 export default {
   VideoPlayerWrapper,
   AutoPlayWarning,
   VideoPlayer,
   MobileControlsOverlay,
   HoverToolbar,
+  ProgressBar,
+  Loaded,
+  Played,
 };

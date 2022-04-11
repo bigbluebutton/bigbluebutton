@@ -12,10 +12,8 @@ import Users from '/imports/api/users';
 import { Session } from 'meteor/session';
 import { FormattedMessage } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
-import { RecordMeetings } from '../../api/meetings';
 import Meetings from '/imports/api/meetings';
 import AppService from '/imports/ui/components/app/service';
-import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -30,11 +28,8 @@ import MediaService from '/imports/ui/components/media/service';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
-const BREAKOUT_END_NOTIFY_DELAY = 50;
-
 const HTML = document.getElementsByTagName('html')[0];
 
-let breakoutNotified = false;
 let checkedUserSettings = false;
 
 const propTypes = {
@@ -110,82 +105,6 @@ class Base extends Component {
       document.addEventListener(event, this.handleFullscreenChange);
     });
     Session.set('isFullscreen', false);
-
-    // TODO move this find to container
-    const users = Users.find({
-      meetingId: Auth.meetingID,
-      validated: true,
-      userId: { $ne: localUserId },
-    }, { fields: { name: 1, userId: 1 } });
-
-    users.observe({
-      added: (user) => {
-        const subscriptionsReady = Session.get('subscriptionsReady');
-
-        if (!subscriptionsReady) return;
-
-        const {
-          userJoinAudioAlerts,
-          userJoinPushAlerts,
-        } = Settings.application;
-
-        if (!userJoinAudioAlerts && !userJoinPushAlerts) return;
-
-        if (userJoinAudioAlerts) {
-          AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-            + Meteor.settings.public.app.basename
-            + Meteor.settings.public.app.instanceId}`
-            + '/resources/sounds/userJoin.mp3');
-        }
-
-        if (userJoinPushAlerts) {
-          notify(
-            <FormattedMessage
-              id="app.notification.userJoinPushAlert"
-              description="Notification for a user joins the meeting"
-              values={{
-                0: user.name,
-              }}
-            />,
-            'info',
-            'user',
-          );
-        }
-      },
-      removed: (user) => {
-        const subscriptionsReady = Session.get('subscriptionsReady');
-
-        if (!subscriptionsReady) return;
-
-        const {
-          userLeaveAudioAlerts,
-          userLeavePushAlerts,
-        } = Settings.application;
-
-        if (!userLeaveAudioAlerts && !userLeavePushAlerts) return;
-
-        if (userLeaveAudioAlerts) {
-          AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-            + Meteor.settings.public.app.basename
-            + Meteor.settings.public.app.instanceId}`
-            + '/resources/sounds/notify.mp3');
-        }
-
-        if (userLeavePushAlerts) {
-          notify(
-            <FormattedMessage
-              id="app.notification.userLeavePushAlert"
-              description="Notification for a user leaves the meeting"
-              values={{
-                0: user.name,
-              }}
-            />,
-            'info',
-            'user',
-          );
-        }
-      },
-    });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -449,66 +368,6 @@ export default withTracker(() => {
   const meetingEndedReason = meeting?.meetingEndedReason;
 
   let userSubscriptionHandler;
-
-  Breakouts.find({}, { fields: { _id: 1 } }).observeChanges({
-    added() {
-      breakoutNotified = false;
-    },
-    removed() {
-      // Need to check the number of breakouts left because if a user's role changes to viewer
-      // then all but one room is removed. The data here isn't reactive so no need to filter
-      // the fields
-      const numBreakouts = Breakouts.find().count();
-      if (!AudioService.isUsingAudio() && !breakoutNotified && numBreakouts === 0) {
-        if (meeting && !meeting.meetingEnded && !meeting.meetingProp.isBreakout) {
-          // There's a race condition when reloading a tab where the collection gets cleared
-          // out and then refilled. The removal of the old data triggers the notification so
-          // instead wait a bit and check to see that records weren't added right after.
-          setTimeout(() => {
-            if (breakoutNotified) {
-              notify(
-                <FormattedMessage
-                  id="app.toast.breakoutRoomEnded"
-                  description="message when the breakout room is ended"
-                />,
-                'info',
-                'rooms',
-              );
-            }
-          }, BREAKOUT_END_NOTIFY_DELAY);
-        }
-        breakoutNotified = true;
-      }
-    },
-  });
-
-  RecordMeetings.find({ meetingId }, { fields: { recording: 1 } }).observe({
-    changed: (newDocument, oldDocument) => {
-      if (newDocument) {
-        if (!oldDocument.recording && newDocument.recording) {
-          notify(
-            <FormattedMessage
-              id="app.notification.recordingStart"
-              description="Notification for when the recording starts"
-            />,
-            'success',
-            'record',
-          );
-        }
-
-        if (oldDocument.recording && !newDocument.recording) {
-          notify(
-            <FormattedMessage
-              id="app.notification.recordingPaused"
-              description="Notification for when the recording stops"
-            />,
-            'error',
-            'record',
-          );
-        }
-      }
-    },
-  });
 
   const codeError = Session.get('codeError');
   const { streams: usersVideo } = VideoService.getVideoStreams();
