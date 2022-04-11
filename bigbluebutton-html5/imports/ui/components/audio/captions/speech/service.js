@@ -4,30 +4,26 @@ import Auth from '/imports/ui/services/auth';
 import { makeCall } from '/imports/ui/services/api';
 import AudioService from '/imports/ui/components/audio/service';
 
-const DEFAULT_LANGUAGE = 'pt-BR';
-const ENABLED = Meteor.settings.public.app.enableAudioCaptions;
+const LANGUAGES = [
+  'en-US',
+  'es-ES',
+  'pt-BR',
+];
+
+const CONFIG = Meteor.settings.public.app.audioCaptions;
+const ENABLED = CONFIG.enabled;
+
 const THROTTLE_TIMEOUT = 1000;
-
-const hasVendorSupport = () => {
-  if (window.speechSynthesis && typeof window.speechSynthesis.getVoices === 'function') {
-    const voices = window.speechSynthesis.getVoices();
-
-    if (Array.isArray(voices)) return voices.length > 0;
-  }
-
-  return false;
-};
 
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-const hasSpeechRecognitionSupport = () => typeof SpeechRecognitionAPI !== 'undefined' && hasVendorSupport();
+const hasSpeechRecognitionSupport = () => typeof SpeechRecognitionAPI !== 'undefined';
 
-const initSpeechRecognition = (locale = DEFAULT_LANGUAGE) => {
+const initSpeechRecognition = () => {
   if (hasSpeechRecognitionSupport()) {
     const speechRecognition = new SpeechRecognitionAPI();
     speechRecognition.continuous = true;
     speechRecognition.interimResults = true;
-    speechRecognition.lang = locale;
 
     return speechRecognition;
   }
@@ -51,22 +47,27 @@ const updateFinalTranscript = (id, transcript, locale) => {
   updateTranscript(id, transcript, locale);
 };
 
-const getSpeech = () => Session.get('speech') || false;
+const getSpeechLocale = () => Session.get('speechLocale') || '';
 
-const setSpeech = (value) => Session.set('speech', value);
+const setSpeechLocale = (value) => {
+  if (LANGUAGES.includes(value) || value === '') Session.set('speechLocale', value);
+};
 
 const isEnabled = () => ENABLED && hasSpeechRecognitionSupport();
 
-const isActive = () => isEnabled() && getSpeech();
+const hasSpeechLocale = () => getSpeechLocale() !== '';
+
+const isActive = () => isEnabled() && hasSpeechLocale();
 
 const getStatus = () => {
   const active = isActive();
+  const locale = getSpeechLocale();
   const audio = AudioService.isConnected() && !AudioService.isEchoTest() && !AudioService.isMuted();
   const connected = Meteor.status().connected && active && audio;
   const talking = AudioService.isTalking();
 
   return {
-    locale: DEFAULT_LANGUAGE,
+    locale,
     connected,
     talking,
   };
@@ -74,15 +75,25 @@ const getStatus = () => {
 
 const generateId = () => `${Auth.userID}-${Date.now()}`;
 
+const setDefault = () => setSpeechLocale(CONFIG.language.locale);
+
+const useDefault = () => ENABLED && CONFIG.language.default;
+
+const isLocaleValid = (locale) => LANGUAGES.includes(locale);
+
 export default {
+  LANGUAGES,
   hasSpeechRecognitionSupport,
   initSpeechRecognition,
   updateInterimTranscript,
   updateFinalTranscript,
-  getSpeech,
-  setSpeech,
+  getSpeechLocale,
+  setSpeechLocale,
   isEnabled,
   isActive,
   getStatus,
   generateId,
+  useDefault,
+  setDefault,
+  isLocaleValid,
 };

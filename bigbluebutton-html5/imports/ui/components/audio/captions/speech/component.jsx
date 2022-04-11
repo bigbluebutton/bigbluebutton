@@ -19,6 +19,8 @@ class Speech extends PureComponent {
 
     this.idle = true;
 
+    if (Service.useDefault()) Service.setDefault();
+
     this.speechRecognition = Service.initSpeechRecognition();
 
     if (this.speechRecognition) {
@@ -106,7 +108,7 @@ class Speech extends PureComponent {
   }
 
   start(locale) {
-    if (this.speechRecognition) {
+    if (this.speechRecognition && Service.isLocaleValid(locale)) {
       this.speechRecognition.lang = locale;
       try {
         this.result.id = Service.generateId();

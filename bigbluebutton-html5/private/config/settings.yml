@@ -54,7 +54,6 @@ public:
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     allowDefaultLogoutUrl: true
-    enableAudioCaptions: false
     allowUserLookup: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
@@ -72,6 +71,11 @@ public:
     allowFullscreen: true
     preloadNextSlides: 2
     warnAboutUnsavedContentOnMeetingEnd: false
+    audioCaptions:
+      enabled: false
+      language:
+        default: false
+        locale: pt-BR
     mutedAlert:
       enabled: true
       interval: 200
