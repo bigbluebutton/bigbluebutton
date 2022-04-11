@@ -658,10 +658,12 @@ fi
 
 if [[ $SECRET ]]; then
     need_root
-    if get_properties_value securitySalt "$BBB_WEB_ETC_CONFIG" > /dev/null ; then
-        change_var_salt "$BBB_WEB_ETC_CONFIG" securitySalt "$SECRET"
+
+    echo "Assigning secret in $BBB_WEB_ETC_CONFIG"
+    if [ -f "$BBB_WEB_ETC_CONFIG" ] && grep "^securitySalt" "$BBB_WEB_ETC_CONFIG" > /dev/null ; then
+        change_var_value "$BBB_WEB_ETC_CONFIG" securitySalt "$SECRET"
     else
-        echo "securitySalt=$SECRET" >> "$BBB_WEB_ETC_CONFIG"
+        echo "securitySaltL=$SECRET" >> "$BBB_WEB_ETC_CONFIG"
     fi
 
     if [ -f /usr/local/bigbluebutton/bbb-webhooks/config/default.yml ]; then
