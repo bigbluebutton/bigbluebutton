@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import logger from '/imports/startup/client/logger';
 import browserInfo from '/imports/utils/browserInfo';
 import {
-  defineMessages, injectIntl, FormattedMessage,
+  defineMessages,
 } from 'react-intl';
 
 const propTypes = {

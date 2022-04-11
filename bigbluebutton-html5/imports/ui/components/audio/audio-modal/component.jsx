@@ -504,7 +504,6 @@ class AudioModal extends Component {
       joinEchoTest,
       changeInputDevice,
       changeOutputDevice,
-      joinMicrophone,
       simplifiedEchoTestEnabled,
       showVolumeMeter,
     } = this.props;

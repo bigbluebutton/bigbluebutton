@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import hark from 'hark';
-import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 
 const VOL_POLLING_INTERVAL_MS = 100;
@@ -10,9 +9,6 @@ const VOL_CEIL = 50;
 const DB_AMPL = 65;
 
 const propTypes = {
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
   stream: PropTypes.object,
   volumePollingInterval: PropTypes.number,
   volumeFloor: PropTypes.number,
@@ -28,7 +24,6 @@ const AudioStreamVolume = ({
   optimum,
   high,
   stream,
-  intl,
 }) => {
   const harkObserver = useRef(null);
   const volumeRef = useRef(0);
@@ -44,9 +39,9 @@ const AudioStreamVolume = ({
     observeVolumeChanges(stream);
   }, [stream]);
 
-  const observeVolumeChanges = (stream) => {
-    if (stream) {
-      harkObserver.current = hark(stream, { interval: VOL_POLLING_INTERVAL_MS });
+  const observeVolumeChanges = (_stream) => {
+    if (_stream) {
+      harkObserver.current = hark(_stream, { interval: VOL_POLLING_INTERVAL_MS });
       harkObserver.current.on('volume_change', handleVolumeChange);
     }
   }

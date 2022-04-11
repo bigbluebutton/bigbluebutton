@@ -187,7 +187,7 @@ class AudioSettings extends React.Component {
   }
 
   renderVolumeMeter() {
-    const { withVolumeMeter, inputDeviceId, intl } = this.props;
+    const { withVolumeMeter, intl } = this.props;
     const { stream } = this.state;
 
     return withVolumeMeter ? (
@@ -196,7 +196,6 @@ class AudioSettings extends React.Component {
           {intl.formatMessage(intlMessages.streamVolumeLabel)}
           <AudioStreamVolume
             stream={stream}
-            intl={intl}
           />
         </Styled.LabelSmallFullWidth>
       </Styled.Row>

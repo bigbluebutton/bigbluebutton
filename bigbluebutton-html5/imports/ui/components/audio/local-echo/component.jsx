@@ -3,10 +3,6 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from '../audio-test/styles';
 import Settings from '/imports/ui/services/settings';
-import logger from '/imports/startup/client/logger';
-import {
-  reloadAudioElement
-} from '/imports/api/audio/client/bridge/service';
 
 const MEDIA_TAG = Meteor.settings.public.media.mediaTag;
 
