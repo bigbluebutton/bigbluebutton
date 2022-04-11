@@ -135,7 +135,7 @@ class AudioModal extends Component {
     this.handleRetryGoToEchoTest = this.handleRetryGoToEchoTest.bind(this);
     this.handleGoToEchoTest = this.handleGoToEchoTest.bind(this);
     this.handleJoinMicrophone = this.handleJoinMicrophone.bind(this);
-    this.handleJoinSimplifiedEcho = this.handleJoinSimplifiedEcho.bind(this);
+    this.handleJoinLocalEcho = this.handleJoinLocalEcho.bind(this);
     this.handleJoinListenOnly = this.handleJoinListenOnly.bind(this);
     this.skipAudioOptions = this.skipAudioOptions.bind(this);
 
@@ -336,12 +336,14 @@ class AudioModal extends Component {
     });
   }
 
-  handleJoinSimplifiedEcho() {
+  handleJoinLocalEcho(inputStream) {
+    const { changeInputStream } = this.props;
     // Reset the modal to a connecting state - this kind of sucks?
-    // FIXME - prlanzarin Apr 04 2022
+    // prlanzarin Apr 04 2022
     this.setState({
       content: null,
     });
+    if (inputStream) changeInputStream(inputStream);
     this.handleJoinMicrophone();
   }
 
@@ -510,7 +512,7 @@ class AudioModal extends Component {
 
     const confirmationCallback = !localEchoEnabled
       ? this.handleRetryGoToEchoTest
-      : this.handleJoinSimplifiedEcho;
+      : this.handleJoinLocalEcho;
 
     const handleGUMFailure = () => {
       this.setState({

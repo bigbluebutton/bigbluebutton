@@ -88,6 +88,8 @@ class SIPSession {
     this._reconnecting = false;
     this._currentSessionState = null;
     this._ignoreCallState = false;
+
+    this.mediaStreamFactory = this.mediaStreamFactory.bind(this)
   }
 
   get inputStream() {
@@ -224,6 +226,7 @@ class SIPSession {
     inputDeviceId,
     outputDeviceId,
     validIceCandidates,
+    inputStream,
   }, managerCallback) {
     return new Promise((resolve, reject) => {
       const callExtension = extension ? `${extension}${this.userData.voiceBridge}` : this.userData.voiceBridge;
@@ -259,6 +262,7 @@ class SIPSession {
         isListenOnly,
         inputDeviceId,
         outputDeviceId,
+        inputStream,
       }).catch((reason) => {
         reject(reason);
       });
@@ -287,10 +291,14 @@ class SIPSession {
       isListenOnly,
       inputDeviceId,
       outputDeviceId,
+      inputStream,
     } = options;
 
     this.inputDeviceId = inputDeviceId;
     this.outputDeviceId = outputDeviceId;
+    // If a valid MediaStream was provided it means it was preloaded somewhere
+    // else - let's use it so we don't call gUM needlessly
+    if (inputStream && inputStream.active) this.preloadedInputStream = inputStream;
 
     const {
       userId,
@@ -423,6 +431,17 @@ class SIPSession {
     return this.stopUserAgent();
   }
 
+  mediaStreamFactory(constraints) {
+    if (this.preloadedInputStream && this.preloadedInputStream.active) {
+      return Promise.resolve(this.preloadedInputStream);
+    }
+    // The rest of this mimicks the default factory behavior.
+    if (!constraints.audio && !constraints.video) {
+      return Promise.resolve(new MediaStream());
+    }
+    return navigator.mediaDevices.getUserMedia(constraints);
+  }
+
   createUserAgent(iceServers) {
     return new Promise((resolve, reject) => {
       if (this.userRequestedHangup === true) reject();
@@ -465,6 +484,9 @@ class SIPSession {
       let userAgentConnected = false;
       const token = `sessionToken=${sessionToken}`;
 
+      // Create session description handler factory
+      const customSDHFactory = SIP.Web.defaultSessionDescriptionHandlerFactory(this.mediaStreamFactory);
+
       this.userAgent = new SIP.UserAgent({
         uri: SIP.UserAgent.makeURI(`sip:${encodeURIComponent(callerIdName)}@${hostname}`),
         transportOptions: {
@@ -474,6 +496,7 @@ class SIPSession {
           keepAliveDebounce: WEBSOCKET_KEEP_ALIVE_DEBOUNCE,
           traceSip: TRACE_SIP,
         },
+        sessionDescriptionHandlerFactory: customSDHFactory,
         sessionDescriptionHandlerFactoryOptions: {
           peerConnectionConfiguration: {
             iceServers,
@@ -1280,7 +1303,12 @@ export default class SIPBridge extends BaseAudioBridge {
     return this.activeSession ? this.activeSession.ignoreCallState : false;
   }
 
-  joinAudio({ isListenOnly, extension, validIceCandidates }, managerCallback) {
+  joinAudio({
+    isListenOnly,
+    extension,
+    validIceCandidates,
+    inputStream,
+  }, managerCallback) {
     const hasFallbackDomain = typeof IPV4_FALLBACK_DOMAIN === 'string' && IPV4_FALLBACK_DOMAIN !== '';
 
     return new Promise((resolve, reject) => {
@@ -1319,6 +1347,7 @@ export default class SIPBridge extends BaseAudioBridge {
               inputDeviceId,
               outputDeviceId,
               validIceCandidates,
+              inputStream,
             }, callback)
               .then((value) => {
                 this.changeOutputDevice(outputDeviceId, true);
@@ -1339,6 +1368,7 @@ export default class SIPBridge extends BaseAudioBridge {
         inputDeviceId,
         outputDeviceId,
         validIceCandidates,
+        inputStream,
       }, callback)
         .then((value) => {
           this.changeOutputDevice(outputDeviceId, true);

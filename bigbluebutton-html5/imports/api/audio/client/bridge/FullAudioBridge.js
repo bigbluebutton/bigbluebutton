@@ -297,7 +297,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
 
   async _startBroker(options) {
     try {
-      const { isListenOnly, extension } = options;
+      const { isListenOnly, extension, inputStream } = options;
       this.inEchoTest = !!extension;
       this.isListenOnly = isListenOnly;
 
@@ -314,6 +314,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
         mediaServer: getMediaServerAdapter(),
         constraints: getAudioConstraints({ deviceId: this.inputDeviceId }),
         forceRelay: shouldForceRelay(),
+        stream: (inputStream && inputStream.active) ? inputStream : undefined,
       };
 
       this.broker = new FullAudioBroker(

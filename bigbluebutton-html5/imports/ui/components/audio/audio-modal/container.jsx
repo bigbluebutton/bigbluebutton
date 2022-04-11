@@ -71,6 +71,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     leaveEchoTest,
     changeInputDevice: (inputDeviceId) => Service
       .changeInputDevice(inputDeviceId),
+    changeInputStream: (inputStream) => Service.changeInputStream(inputStream),
     changeOutputDevice: (outputDeviceId, isLive) => Service
       .changeOutputDevice(outputDeviceId, isLive),
     joinEchoTest: () => Service.joinEchoTest(),

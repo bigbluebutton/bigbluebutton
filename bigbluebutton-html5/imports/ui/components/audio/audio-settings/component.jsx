@@ -71,6 +71,7 @@ class AudioSettings extends React.Component {
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleOutputChange = this.handleOutputChange.bind(this);
+    this.handleConfirmationClick = this.handleConfirmationClick.bind(this);
 
     this.state = {
       inputDeviceId,
@@ -202,12 +203,32 @@ class AudioSettings extends React.Component {
     ) : null
   }
 
+  handleConfirmationClick () {
+    const {
+      withEcho,
+      handleConfirmation,
+    } = this.props;
+    const {
+      stream,
+    } = this.state;
+
+    // The local echo mode is not enabled or there isn't any stream in this:
+    // just run the provided callback
+    if (!withEcho || !stream) return handleConfirmation();
+
+    // Local echo mode was enabled and there is a valid input stream => call
+    // the confirmation callback with the input stream as arg so it can be used
+    // in upstream components. The rationale is not surplus gUM calls.
+    // We're cloning it because the original will be cleaned up on unmount here.
+    const inputStream = stream.clone();
+    return handleConfirmation(inputStream);
+  }
+
   render() {
     const {
       isConnecting,
       intl,
       handleBack,
-      handleConfirmation,
     } = this.props;
 
     const { inputDeviceId, outputDeviceId } = this.state;
@@ -269,7 +290,7 @@ class AudioSettings extends React.Component {
             size="md"
             color="primary"
             label={intl.formatMessage(intlMessages.retryLabel)}
-            onClick={handleConfirmation}
+            onClick={this.handleConfirmationClick}
           />
         </Styled.EnterAudio>
       </Styled.FormWrapper>

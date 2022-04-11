@@ -18,7 +18,7 @@ class FullAudioBroker extends BaseBroker {
     this.offering = true;
 
     // Optional parameters are: caleeName, iceServers, offering,
-    // mediaServer, extension, constraints
+    // mediaServer, extension, constraints, stream
     Object.assign(this, options);
   }
 
@@ -62,6 +62,7 @@ class FullAudioBroker extends BaseBroker {
   joinAudio() {
     return new Promise((resolve, reject) => {
       const options = {
+        audioStream: this.stream,
         mediaConstraints: {
           audio: this.constraints ? this.constraints : true,
           video: false,
