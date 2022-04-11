@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import { colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { TextElipsis, DivElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import { landscape, mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
+import Button from '/imports/ui/components/common/button/component';
 
 const DropdownTrigger = styled(DivElipsis)`
   position: relative;
@@ -70,9 +72,50 @@ const MenuWrapper = styled.div`
   max-width: 75%;
 `;
 
+const MenuWrapperSqueezed = styled.div`
+  position: absolute;
+  right: 0;
+  top: 0;
+`;
+
+const OptionsButton = styled(Button)`
+  position: absolute;
+  right: 7px;
+  top: 7px;
+  z-index: 2;
+  background-color: rgba(0,0,0,0.4);
+  color: ${colorOffWhite};
+  overflow: hidden;
+  border: none !important;
+  padding: 3px;
+
+  i {
+    width: auto;
+    font-size: ${fontSizeSmaller} !important;
+    background-color: transparent !important;
+  }
+
+  &,
+  &:active,
+  &:focus,
+  &:hover {
+    background-color: rgba(0,0,0,0.5) !important;
+    border: none !important;
+    color: white !important;
+    opacity: 100% !important;
+  }
+  
+  &:hover {
+    transform: scale(1.3);
+    transition-duration: 150ms;
+  }
+`;
+
 export default {
   DropdownTrigger,
   UserName,
   Dropdown,
   MenuWrapper,
+  MenuWrapperSqueezed,
+  OptionsButton,
 };
