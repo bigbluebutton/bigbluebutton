@@ -230,6 +230,11 @@
   &::before {
     font-size: var(--audio-indicator-fs);
   }
+
+  [dir="rtl"] & {
+    right: auto;
+    left: 7px;
+  }
 }
 
 .muted {
