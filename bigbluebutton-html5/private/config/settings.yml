@@ -570,12 +570,14 @@ public:
     traceSip: false
     # SDP semantics: plan-b|unified-plan
     sdpSemantics: 'unified-plan'
-    # simplifiedEchoTest: enables an experimental echo test mode that is notification
-    # E2E and is bundled with the AudioSettings view
-    simplifiedEchoTest: false
-    # showVolumeMeterInSettings: shows an energy bar for microphones in the
-    # AudioSettings view
-    showVolumeMeterInSettings: false
+    # localEchoTest:
+    #   enabled: Boolean => enables an experimental, simplified echo test mode
+    #   initialHearingState: Boolean => whether users should hear themselves firsthand
+    localEchoTest:
+      enabled: false
+      initialHearingState: false
+    # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
+    showVolumeMeter: false
   stats:
     enabled: true
     interval: 10000

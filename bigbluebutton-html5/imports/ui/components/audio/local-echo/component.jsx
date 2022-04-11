@@ -11,10 +11,12 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   stream: PropTypes.object,
+  initialHearingState: PropTypes.bool,
 };
 
 const defaultProps = {
   stream: null,
+  initialHearingState: false,
 };
 
 const intlMessages = defineMessages({
@@ -46,8 +48,9 @@ const playEchoStream = (stream) => {
 const LocalEcho = ({
   intl,
   stream,
+  initialHearingState,
 }) => {
-  const [hearing, setHearing] = useState(true);
+  const [hearing, setHearing] = useState(initialHearingState);
   const { animations } = Settings.application;
   const icon = hearing ? "mute" : "unmute";
   const label = hearing ? intlMessages.stopHearingYourselfLabel : intlMessages.hearYourselfLabel;

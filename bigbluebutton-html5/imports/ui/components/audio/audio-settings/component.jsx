@@ -7,7 +7,7 @@ import AudioTestContainer from '/imports/ui/components/audio/audio-test/containe
 import Styled from './styles';
 import logger from '/imports/startup/client/logger';
 import AudioStreamVolume from '/imports/ui/components/audio/audio-stream-volume/component';
-import LocalEcho from '/imports/ui/components/audio/local-echo/component';
+import LocalEchoContainer from '/imports/ui/components/audio/local-echo/container';
 import {
   getAudioConstraints,
 } from '/imports/api/audio/client/bridge/service';
@@ -175,10 +175,10 @@ class AudioSettings extends React.Component {
             {intl.formatMessage(intlMessages.testSpeakerLabel)}
             {!withEcho
               ? <AudioTestContainer id="audioTest" />
-              : <LocalEcho
-                intl={this.props.intl}
-                stream={stream}
-              />
+              : <LocalEchoContainer
+                  intl={this.props.intl}
+                  stream={stream}
+                />
             }
           </Styled.LabelSmall>
         </Styled.SpacedLeftCol>

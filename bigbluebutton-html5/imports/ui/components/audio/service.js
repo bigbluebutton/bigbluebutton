@@ -10,8 +10,11 @@ import Storage from '../../services/storage/session';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const TOGGLE_MUTE_THROTTLE_TIME = Meteor.settings.public.media.toggleMuteThrottleTime;
-const SIMPLIFIED_ECHO_TEST = Meteor.settings.public.media.simplifiedEchoTest;
-const SHOW_VOLUME_METER = Meteor.settings.public.media.showVolumeMeterInSettings;
+const SHOW_VOLUME_METER = Meteor.settings.public.media.showVolumeMeter;
+const {
+  enabled: LOCAL_ECHO_TEST_ENABLED,
+  initialHearingState: LOCAL_ECHO_INIT_HEARING_STATE,
+} = Meteor.settings.public.media.localEchoTest;
 
 const MUTED_KEY = 'muted';
 
@@ -140,6 +143,7 @@ export default {
   getBreakoutAudioTransferStatus: () => AudioManager
     .getBreakoutAudioTransferStatus(),
   getStats: () => AudioManager.getStats(),
-  simplifiedEchoTestEnabled: SIMPLIFIED_ECHO_TEST,
+  localEchoEnabled: LOCAL_ECHO_TEST_ENABLED,
+  localEchoInitHearingState: LOCAL_ECHO_INIT_HEARING_STATE,
   showVolumeMeter: SHOW_VOLUME_METER,
 };

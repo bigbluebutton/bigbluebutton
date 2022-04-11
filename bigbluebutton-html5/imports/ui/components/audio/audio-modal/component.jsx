@@ -33,7 +33,7 @@ const propTypes = {
   outputDeviceId: PropTypes.string,
   formattedDialNum: PropTypes.string.isRequired,
   showPermissionsOvelay: PropTypes.bool.isRequired,
-  simplifiedEchoTestEnabled: PropTypes.bool.isRequired,
+  localEchoEnabled: PropTypes.bool.isRequired,
   listenOnlyMode: PropTypes.bool.isRequired,
   joinFullAudioImmediately: PropTypes.bool,
   forceListenOnlyAttendee: PropTypes.bool.isRequired,
@@ -235,7 +235,7 @@ class AudioModal extends Component {
     return this.handleGoToEchoTest();
   }
 
-  handleGoToSimplifiedEchoTest() {
+  handleGoToLocalEcho() {
     // Simplified echo test: this will return the AudioSettings with:
     //   - withEcho: true
     // Echo test will be local and done in the AudioSettings view instead of the
@@ -260,7 +260,7 @@ class AudioModal extends Component {
     const {
       joinEchoTest,
       isConnecting,
-      simplifiedEchoTestEnabled
+      localEchoEnabled
     } = this.props;
 
     const {
@@ -269,7 +269,7 @@ class AudioModal extends Component {
 
     if (disableActions && isConnecting) return null;
 
-    if (simplifiedEchoTestEnabled) return this.handleGoToSimplifiedEchoTest();
+    if (localEchoEnabled) return this.handleGoToLocalEcho();
 
     this.setState({
       hasError: false,
@@ -504,11 +504,11 @@ class AudioModal extends Component {
       joinEchoTest,
       changeInputDevice,
       changeOutputDevice,
-      simplifiedEchoTestEnabled,
+      localEchoEnabled,
       showVolumeMeter,
     } = this.props;
 
-    const confirmationCallback = !simplifiedEchoTestEnabled
+    const confirmationCallback = !localEchoEnabled
       ? this.handleRetryGoToEchoTest
       : this.handleJoinSimplifiedEcho;
 
@@ -534,7 +534,7 @@ class AudioModal extends Component {
         inputDeviceId={inputDeviceId}
         outputDeviceId={outputDeviceId}
         withVolumeMeter={showVolumeMeter}
-        withEcho={simplifiedEchoTestEnabled}
+        withEcho={localEchoEnabled}
       />
     );
   }

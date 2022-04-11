@@ -83,7 +83,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     outputDeviceId: Service.outputDeviceId(),
     showPermissionsOvelay: Service.isWaitingPermissions(),
     showVolumeMeter: Service.showVolumeMeter,
-    simplifiedEchoTestEnabled: Service.simplifiedEchoTestEnabled,
+    localEchoEnabled: Service.localEchoEnabled,
     listenOnlyMode,
     formattedDialNum,
     formattedTelVoice,
