@@ -8,9 +8,19 @@ const DEFAULT_LANGUAGE = 'pt-BR';
 const ENABLED = Meteor.settings.public.app.enableAudioCaptions;
 const THROTTLE_TIMEOUT = 1000;
 
+const hasVendorSupport = () => {
+  if (window.speechSynthesis && typeof window.speechSynthesis.getVoices === 'function') {
+    const voices = window.speechSynthesis.getVoices();
+
+    if (Array.isArray(voices)) return voices.length > 0;
+  }
+
+  return false;
+};
+
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-const hasSpeechRecognitionSupport = () => typeof SpeechRecognitionAPI !== 'undefined';
+const hasSpeechRecognitionSupport = () => typeof SpeechRecognitionAPI !== 'undefined' && hasVendorSupport();
 
 const initSpeechRecognition = (locale = DEFAULT_LANGUAGE) => {
   if (hasSpeechRecognitionSupport()) {
