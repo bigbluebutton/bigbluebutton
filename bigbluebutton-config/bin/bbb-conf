@@ -1614,7 +1614,7 @@ if [ -n "$HOST" ]; then
     if [ -f "$BBB_WEB_ETC_CONFIG" ] && grep "bigbluebutton.web.serverURL" "$BBB_WEB_ETC_CONFIG" > /dev/null ; then
         change_var_value "$BBB_WEB_ETC_CONFIG" bigbluebutton.web.serverURL "$PROTOCOL://$HOST"
     else
-        echo "bigbluebutton.web.serverURL=$PROTOCOL://$HOST" > "$BBB_WEB_ETC_CONFIG"
+        echo "bigbluebutton.web.serverURL=$PROTOCOL://$HOST" >> "$BBB_WEB_ETC_CONFIG"
     fi
 
 
