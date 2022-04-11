@@ -39,7 +39,6 @@ public class RecordingServiceDbImpl implements RecordingService {
 
     public RecordingServiceDbImpl() {
         dataStore = DataStore.getInstance();
-        xmlService = new XmlServiceImpl();
     }
 
     @Override
@@ -128,7 +127,7 @@ public class RecordingServiceDbImpl implements RecordingService {
         }
         logger.info("{} recordings remaining", recordings.size());
 
-        Page<Recording> recordingsPage = recordingListToPage(new ArrayList<>(recordings), pageable);
+        Page<Recording> recordingsPage = listToPage(new ArrayList<>(recordings), pageable);
         String recordingsXml = xmlService.recordingsToXml(recordingsPage.getContent());
         String response = xmlService.constructResponseFromRecordingsXml(recordingsXml);
         return xmlService.constructPaginatedResponse(recordingsPage, response);
@@ -244,4 +243,6 @@ public class RecordingServiceDbImpl implements RecordingService {
     public void setRecordingServiceHelper(RecordingMetadataReaderHelper r) {
         recordingServiceHelper = r;
     }
+
+    public void setXmlService(XmlService xmlService) { this.xmlService = xmlService; }
 }

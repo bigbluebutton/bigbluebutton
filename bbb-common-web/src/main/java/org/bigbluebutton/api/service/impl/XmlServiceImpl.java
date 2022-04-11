@@ -59,9 +59,9 @@ public class XmlServiceImpl implements XmlService {
             }
 
             String result = documentToString(document);
-            logger.info("========== Result ==========");
-            logger.info("{}", result);
-            logger.info("============================");
+//            logger.info("========== Result ==========");
+//            logger.info("{}", result);
+//            logger.info("============================");
             return result;
         } catch(Exception e) {
             e.printStackTrace();
@@ -112,9 +112,9 @@ public class XmlServiceImpl implements XmlService {
             }
 
             String result = documentToString(document);
-            logger.info("========== Result ==========");
-            logger.info("{}", result);
-            logger.info("============================");
+//            logger.info("========== Result ==========");
+//            logger.info("{}", result);
+//            logger.info("============================");
             return result;
         } catch(Exception e) {
             e.printStackTrace();
@@ -135,9 +135,9 @@ public class XmlServiceImpl implements XmlService {
             document.appendChild(rootElement);
 
             String result = documentToString(document);
-            logger.info("========== Result ==========");
-            logger.info("{}", result);
-            logger.info("============================");
+//            logger.info("========== Result ==========");
+//            logger.info("{}", result);
+//            logger.info("============================");
             return result;
         } catch(Exception e) {
             e.printStackTrace();
@@ -174,9 +174,9 @@ public class XmlServiceImpl implements XmlService {
             }
 
             String result = documentToString(document);
-            logger.info("========== Result ==========");
-            logger.info("{}", result);
-            logger.info("============================");
+//            logger.info("========== Result ==========");
+//            logger.info("{}", result);
+//            logger.info("============================");
             return result;
         } catch(Exception e) {
             e.printStackTrace();
@@ -198,9 +198,9 @@ public class XmlServiceImpl implements XmlService {
             appendFields(document, rootElement, thumbnail, new String[] {"id", "url", "playbackFormat"}, Type.ATTRIBUTE);
 
             String result = documentToString(document);
-            logger.info("========== Result ==========");
-            logger.info("{}", result);
-            logger.info("============================");
+//            logger.info("========== Result ==========");
+//            logger.info("{}", result);
+//            logger.info("============================");
             return result;
         } catch(Exception e) {
             e.printStackTrace();
@@ -222,9 +222,9 @@ public class XmlServiceImpl implements XmlService {
             appendFields(document, rootElement, callbackData, new String[] {"id", "recording"}, Type.CHILD);
 
             String result = documentToString(document);
-            logger.info("========== Result ==========");
-            logger.info("{}", result);
-            logger.info("============================");
+//            logger.info("========== Result ==========");
+//            logger.info("{}", result);
+//            logger.info("============================");
             return result;
         } catch(Exception e) {
             e.printStackTrace();
@@ -252,9 +252,9 @@ public class XmlServiceImpl implements XmlService {
             rootElement.appendChild(recordingsNode);
 
             String result = documentToString(document);
-            logger.info("========== Result ==========");
-            logger.info("{}", result);
-            logger.info("============================");
+//            logger.info("========== Result ==========");
+//            logger.info("{}", result);
+//            logger.info("============================");
             return result;
         } catch (Exception e) {
             e.printStackTrace();
@@ -288,14 +288,13 @@ public class XmlServiceImpl implements XmlService {
             node = document.importNode(secondDoc.getDocumentElement(), true);
             pagination.appendChild(node);
 
-            Element totalElements = createElement(document, "totalElements", String.valueOf(page.getNumberOfElements()));
+            Element totalElements = createElement(document, "totalElements", String.valueOf(page.getTotalElements()));
             pagination.appendChild(totalElements);
 
             Element last = createElement(document, "last", String.valueOf(page.isLast()));
             pagination.appendChild(last);
 
-            Element totalPages = createElement(document, "totalPages",
-                    String.valueOf(Math.ceil(page.getNumberOfElements() / page.getSize())));
+            Element totalPages = createElement(document, "totalPages", String.valueOf(page.getTotalPages()));
             pagination.appendChild(totalPages);
 
             Element first = createElement(document, "first", String.valueOf(page.isFirst()));
@@ -307,9 +306,9 @@ public class XmlServiceImpl implements XmlService {
             rootElement.appendChild(pagination);
 
             String result = documentToString(document);
-            logger.info("========== Result ==========");
-            logger.info("{}", result);
-            logger.info("============================");
+//            logger.info("========== Result ==========");
+//            logger.info("{}", result);
+//            logger.info("============================");
             return result;
         } catch (Exception e) {
             e.printStackTrace();
@@ -326,10 +325,21 @@ public class XmlServiceImpl implements XmlService {
             Document document = builder.newDocument();
 
             Element rootElement = createElement(document, "pageable", null);
+            document.appendChild(rootElement);
 
             Sort sort = pageable.getSort();
             Element sortElement = createElement(document, "sort", null);
-            logger.info("Sort {}", sort);
+
+            Element unsorted = createElement(document, "unsorted", String.valueOf(sort.isUnsorted()));
+            sortElement.appendChild(unsorted);
+
+            Element sorted = createElement(document, "sorted", String.valueOf(sort.isSorted()));
+            sortElement.appendChild(sorted);
+
+            Element empty = createElement(document, "empty", String.valueOf(sort.isEmpty()));
+            sortElement.appendChild(empty);
+
+            rootElement.appendChild(sortElement);
 
             Element offset = createElement(document, "offset", String.valueOf(pageable.getOffset()));
             rootElement.appendChild(offset);
@@ -347,9 +357,9 @@ public class XmlServiceImpl implements XmlService {
             rootElement.appendChild(unpaged);
 
             String result = documentToString(document);
-            logger.info("========== Result ==========");
-            logger.info("{}", result);
-            logger.info("============================");
+//            logger.info("========== Result ==========");
+//            logger.info("{}", result);
+//            logger.info("============================");
             return result;
         } catch(Exception e) {
             e.printStackTrace();

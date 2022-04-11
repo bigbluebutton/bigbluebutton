@@ -84,8 +84,9 @@ public class RecordingImportHandler {
             recording = xmlService.xmlToRecording(recordId, content);
         }
 
-        if(recording != null) {
-            if (persist) dataStore.save(recording);
+        if (recording != null) {
+            if (persist)
+                dataStore.save(recording);
         }
 
         return recording;

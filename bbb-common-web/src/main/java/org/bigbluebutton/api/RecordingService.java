@@ -47,11 +47,9 @@ public interface RecordingService {
     void processMakePresentationDownloadableMsg(MakePresentationDownloadableMsg msg);
     File getDownloadablePresentationFile(String meetingId, String presId, String presFilename);
 
-    default Page<Recording> recordingListToPage(List<Recording> recordings, Pageable pageable) {
+    default <T> Page<T> listToPage(List<T> list, Pageable pageable) {
         int start = (int) pageable.getOffset();
-        int end = (int) (Math.min((start + pageable.getPageSize()), recordings.size()));
-
-        Page<Recording> recordingsPage = new PageImpl<>(recordings.subList(start, end), pageable, recordings.size());
-        return recordingsPage;
+        int end = (int) (Math.min((start + pageable.getPageSize()), list.size()));
+        return new PageImpl<>(list.subList(start, end), pageable, list.size());
     }
 }

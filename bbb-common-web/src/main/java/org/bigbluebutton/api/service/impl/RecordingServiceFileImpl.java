@@ -41,6 +41,7 @@ import org.bigbluebutton.api.RecordingService;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.RecordingMetadata;
 import org.bigbluebutton.api.messaging.messages.MakePresentationDownloadableMsg;
+import org.bigbluebutton.api.service.XmlService;
 import org.bigbluebutton.api.util.RecordingMetadataReaderHelper;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.slf4j.Logger;
@@ -58,6 +59,7 @@ public class RecordingServiceFileImpl implements RecordingService {
     private static String unpublishedDir = "/var/bigbluebutton/unpublished";
     private static String deletedDir = "/var/bigbluebutton/deleted";
     private RecordingMetadataReaderHelper recordingServiceHelper;
+    private XmlService xmlService;
     private String recordStatusDir;
     private String captionsDir;
     private String presentationBaseDir;
@@ -202,7 +204,9 @@ public class RecordingServiceFileImpl implements RecordingService {
     public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, Pageable pageable) {
         List<RecordingMetadata> recsList = getRecordingsMetadata(idList, states);
         ArrayList<RecordingMetadata> recs = filterRecordingsByMetadata(recsList, metadataFilters);
-        return recordingServiceHelper.getRecordings2x(recs);
+        Page<RecordingMetadata> recordingsPage = listToPage(recs, pageable);
+        String response = recordingServiceHelper.getRecordings2x(recs);
+        return xmlService.constructPaginatedResponse(recordingsPage, response);
     }
 
     private RecordingMetadata getRecordingMetadata(File dir) {
@@ -426,6 +430,8 @@ public class RecordingServiceFileImpl implements RecordingService {
     public void setRecordingServiceHelper(RecordingMetadataReaderHelper r) {
         recordingServiceHelper = r;
     }
+
+    public void setXmlService(XmlService xmlService) { this.xmlService = xmlService; }
 
     private boolean shouldIncludeState(List<String> states, String type) {
         boolean r = false;
