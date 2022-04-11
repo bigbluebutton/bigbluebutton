@@ -730,10 +730,15 @@ class VideoService {
     this.exitVideo();
   }
 
+  getStatus() {
+    if (this.isConnecting) return 'videoConnecting';
+    if (this.isConnected) return 'connected';
+    return 'disconnected';
+  }
+
   disableReason() {
     const locks = {
       videoLocked: this.isUserLocked(),
-      videoConnecting: this.isConnecting,
       camCapReached: this.hasCapReached() && !this.hasVideoStream(),
       meteorDisconnected: !Meteor.status().connected
     };
@@ -992,6 +997,7 @@ export default {
   getAuthenticatedURL: () => videoService.getAuthenticatedURL(),
   isLocalStream: cameraId => videoService.isLocalStream(cameraId),
   hasVideoStream: () => videoService.hasVideoStream(),
+  getStatus: () => videoService.getStatus(),
   disableReason: () => videoService.disableReason(),
   playStart: cameraId => videoService.playStart(cameraId),
   getCameraProfile: () => videoService.getCameraProfile(),
