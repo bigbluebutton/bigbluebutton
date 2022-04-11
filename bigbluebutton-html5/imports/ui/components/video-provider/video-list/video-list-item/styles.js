@@ -4,6 +4,7 @@ import {
   colorBlack,
   colorWhite,
   webcamBackgroundColor,
+  colorDanger,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { TextElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 
@@ -13,6 +14,15 @@ const rotate360 = keyframes`
   }
   to {
     transform: rotate(0deg);
+  }
+`;
+
+const fade = keyframes`
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 0;
   }
 `;
 
@@ -31,11 +41,28 @@ const Content = styled.div`
     left: 0;
     opacity: 0;
     pointer-events: none;
+    border-radius: 10px;
 
     ${({ animations }) => animations && `
       transition: opacity .1s;
     `}
   }
+
+  ${({ dragging, animations }) => dragging && animations && css`
+    &::after {
+      animation: ${fade} .5s linear infinite;
+      animation-direction: alternate;
+    }
+  `}
+
+  ${({ dragging, draggingOver }) => (dragging || draggingOver) && `
+    &::after {
+      opacity: 0.7;
+      border-style: dashed;
+      border-color: ${colorDanger};
+      transition: opacity 0s;
+    }
+  `}
 
   ${({ talking }) => talking && `
     border: 2px solid ${colorPrimary};

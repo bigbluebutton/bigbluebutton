@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import { findDOMNode } from 'react-dom';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import Styled from './styles';
 import {
   EFFECT_TYPES,
@@ -10,6 +11,7 @@ import {
   getVirtualBackgroundThumbnail,
   isVirtualBackgroundSupported,
 } from '/imports/ui/services/virtual-background/service';
+import { CustomVirtualBackgroundsContext } from './context';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -36,6 +38,14 @@ const intlMessages = defineMessages({
   noneLabel: {
     id: 'app.video.virtualBackground.none',
     description: 'Label for no virtual background selected',
+  },
+  customLabel: {
+    id: 'app.video.virtualBackground.custom',
+    description: 'Label for custom virtual background selected',
+  },
+  removeLabel: {
+    id: 'app.video.virtualBackground.remove',
+    description: 'Label for remove custom virtual background',
   },
   blurLabel: {
     id: 'app.video.virtualBackground.blur',
@@ -68,6 +78,7 @@ const VirtualBgSelector = ({
   locked,
   showThumbnails,
   initialVirtualBgState,
+  isVisualEffects,
 }) => {
   const [currentVirtualBg, setCurrentVirtualBg] = useState({
     ...initialVirtualBgState,
@@ -75,8 +86,20 @@ const VirtualBgSelector = ({
 
   const inputElementsRef = useRef([]);
 
-  const _virtualBgSelected = (type, name, index) =>
-    handleVirtualBgSelected(type, name)
+  const {
+    dispatch,
+    loaded,
+    customBackgrounds,
+    newCustomBackgrounds,
+    loadFromDB,
+  } = useContext(CustomVirtualBackgroundsContext);
+
+  useEffect(() => {
+    if (!loaded && isVisualEffects) loadFromDB();
+  }, []);
+
+  const _virtualBgSelected = (type, name, index, customParams) =>
+    handleVirtualBgSelected(type, name, customParams)
       .then(switched => {
         // Reset to the base NONE_TYPE effect if it failed because the expected
         // behaviour from upstream's method is to actually stop/reset the effect
@@ -128,6 +151,30 @@ const VirtualBgSelector = ({
     );
   }
 
+  const customBgSelectorRef = useRef(null);
+
+  const handleCustomBgChange = (event) => {
+    const file = event.target.files[0];
+    const { name: filename } = file;
+    const reader = new FileReader();
+    const substrings = filename.split('.');
+    substrings.pop();
+    const filenameWithoutExtension = substrings.join('');
+
+    reader.onload = function (e) {
+      const background = {
+        filename: filenameWithoutExtension,
+        data: e.target.result,
+        uniqueId: _.uniqueId(),
+      };
+      dispatch({
+        type: 'new',
+        background,
+      });
+    }
+    reader.readAsDataURL(file);
+  }
+
   const renderThumbnailSelector = () => {
     const disabled = locked || !isVirtualBackgroundSupported();
 
@@ -136,6 +183,7 @@ const VirtualBgSelector = ({
         <Styled.BgWrapper
           role="group"
           aria-label={intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
+          isVisualEffects={isVisualEffects}
         >
           <>
             <Styled.BgNoneButton
@@ -147,6 +195,7 @@ const VirtualBgSelector = ({
               tabIndex={disabled ? -1 : 0}
               disabled={disabled}
               onClick={() => _virtualBgSelected(EFFECT_TYPES.NONE_TYPE)}
+              isVisualEffects={isVisualEffects}
             />
             <div aria-hidden className="sr-only" id={`vr-cam-btn-none`}>
               {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.NONE_TYPE })}
@@ -165,6 +214,7 @@ const VirtualBgSelector = ({
               disabled={disabled}
               ref={ref => { inputElementsRef.current[0] = ref; }}
               onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE, 'Blur', 0)}
+              isVisualEffects={isVisualEffects}
             />
             <div aria-hidden className="sr-only" id={`vr-cam-btn-blur`}>
               {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.BLUR_TYPE })}
@@ -178,8 +228,9 @@ const VirtualBgSelector = ({
             });
 
             return (
-              <div key={`${imageName}-${index}`} style={{ position: 'relative' }}>
+              <React.Fragment key={`${imageName}-${index}`}>
                 <Styled.ThumbnailButton
+                  style={{ backgroundImage: `url('${getVirtualBackgroundThumbnail(imageName)}')` }}
                   id={`${imageName}-${index}`}
                   label={label}
                   tabIndex={disabled ? -1 : 0}
@@ -189,20 +240,108 @@ const VirtualBgSelector = ({
                   aria-pressed={currentVirtualBg?.name?.includes(imageName.split('.').shift())}
                   hideLabel
                   ref={ref => inputElementsRef.current[index + 1] = ref}
-                  onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index + 1)}
+                  onClick={() => {
+                    const node = findDOMNode(inputElementsRef.current[index + 1]);
+                    node.focus();
+                    node.click();
+                    _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index + 1);
+                  }}
                   disabled={disabled}
+                  isVisualEffects={isVisualEffects}
                 />
-                <Styled.Thumbnail onClick={() => {
-                  const node = findDOMNode(inputElementsRef.current[index + 1]);
-                  node.focus();
-                  node.click();
-                }} aria-hidden src={getVirtualBackgroundThumbnail(imageName)} />
                 <div aria-hidden className="sr-only" id={`vr-cam-btn-${index}`}>
                   {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: label })}
                 </div>
-              </div>
+              </React.Fragment>
             )
           })}
+
+          {isVisualEffects && customBackgrounds
+            .concat(newCustomBackgrounds)
+            .map(({ filename, data, uniqueId }, index) => {
+              const imageIndex = index + IMAGE_NAMES.length + 2;
+              const label = `Background ${imageIndex}`;
+
+              return (
+                <Styled.ThumbnailButtonWrapper key={`${filename}-${index}`}>
+                  <Styled.ThumbnailButton
+                    style={{ backgroundImage: `url(${data})` }}
+                    id={`${filename}-${imageIndex}`}
+                    label={label}
+                    tabIndex={disabled ? -1 : 0}
+                    role="button"
+                    aria-label={label}
+                    aria-describedby={`vr-cam-btn-${imageIndex}`}
+                    aria-pressed={currentVirtualBg?.name?.includes(filename)}
+                    hideLabel
+                    ref={ref => inputElementsRef.current[index + IMAGE_NAMES.length + 1] = ref}
+                    onClick={() => {
+                      const node = findDOMNode(inputElementsRef.current[index + IMAGE_NAMES.length + 1]);
+                      node.focus();
+                      node.click();
+                      _virtualBgSelected(
+                        EFFECT_TYPES.IMAGE_TYPE,
+                        filename,
+                        imageIndex - 1,
+                        { file: data },
+                      );
+                    }}
+                    disabled={disabled}
+                    isVisualEffects={isVisualEffects}
+                  />
+                  <Styled.ButtonWrapper>
+                    <Styled.ButtonRemove
+                      label={intl.formatMessage(intlMessages.removeLabel)}
+                      aria-label={intl.formatMessage(intlMessages.removeLabel)}
+                      data-test="removeCustomBackground"
+                      icon="close"
+                      size="sm"
+                      color="dark"
+                      circle
+                      hideLabel
+                      onClick={() => {
+                        dispatch({
+                          type: 'delete',
+                          uniqueId,
+                        });
+                      }}
+                    />
+                  </Styled.ButtonWrapper>
+                  <div aria-hidden className="sr-only" id={`vr-cam-btn-${imageIndex}`}>
+                    {label}
+                  </div>
+                </Styled.ThumbnailButtonWrapper>
+              );
+            })}
+
+          {isVisualEffects && (
+            <>
+              <Styled.BgCustomButton
+                icon='plus'
+                label={intl.formatMessage(intlMessages.customLabel)}
+                aria-describedby={`vr-cam-btn-custom`}
+                hideLabel
+                tabIndex={disabled ? -1 : 0}
+                disabled={disabled}
+                onClick={() => {
+                  if (customBgSelectorRef.current) {
+                    customBgSelectorRef.current.click();
+                  }
+                }}
+                isVisualEffects={isVisualEffects}
+              />
+              <input
+                ref={customBgSelectorRef}
+                type="file"
+                id="customBgSelector"
+                onChange={handleCustomBgChange}
+                style={{ display: 'none' }}
+              />
+              <div aria-hidden className="sr-only" id={`vr-cam-btn-custom`}>
+                {intl.formatMessage(intlMessages.customLabel)}
+              </div>
+            </>
+          )}
         </Styled.BgWrapper>
       </Styled.VirtualBackgroundRowThumbnail>
     );
@@ -215,11 +354,13 @@ const VirtualBgSelector = ({
 
   return (
     <>
-      <Styled.Label>
-        {!isVirtualBackgroundSupported()
-          ? intl.formatMessage(intlMessages.virtualBackgroundSettingsDisabledLabel)
-          : intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
-      </Styled.Label>
+      {!isVisualEffects && (
+        <Styled.Label>
+          {!isVirtualBackgroundSupported()
+            ? intl.formatMessage(intlMessages.virtualBackgroundSettingsDisabledLabel)
+            : intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
+        </Styled.Label>
+      )}
 
       {renderSelector()}
     </>

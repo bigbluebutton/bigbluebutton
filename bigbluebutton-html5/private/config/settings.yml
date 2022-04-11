@@ -63,6 +63,7 @@ public:
     # active. This also allows to change virtual backgrounds without
     # restarting webcam.
     enableWebcamSelectorButton: true
+    enableVirtualBackgroundUpload: true
     enableTalkingIndicator: true
     mirrorOwnWebcam: false
     viewersInWebcam: 8
