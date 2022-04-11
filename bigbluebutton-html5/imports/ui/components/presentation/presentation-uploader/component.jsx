@@ -302,12 +302,23 @@ class PresentationUploader extends Component {
         }
       });
 
-      this.setState({
-        presentations: Object.values({
-          ...presentations,
-          ...propPresentations,
-        }),
+      const presState = Object.values({
+        ...propPresentations,
+        ...presentations,
       });
+      const presStateMapped = presState.map((presentation) => {
+        propPresentations.forEach((propPres) => {
+          if (propPres.id == presentation.id){
+            presentation.isCurrent = propPres.isCurrent;
+          }
+        })
+        return presentation;
+      })
+
+      this.setState({
+        presentations: presStateMapped,
+      })
+      
     }
 
     if (presentations.length > 0) {
