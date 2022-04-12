@@ -13,11 +13,13 @@ const propTypes = {
   }).isRequired,
   kind: PropTypes.oneOf(['audioinput', 'audiooutput']),
   onChange: PropTypes.func.isRequired,
+  blocked: PropTypes.bool,
   value: PropTypes.string,
 };
 
 const defaultProps = {
   kind: 'audioinput',
+  blocked: false,
   value: undefined,
 };
 
@@ -33,6 +35,10 @@ const intlMessages = defineMessages({
   defaultOutputDeviceLabel: {
     id: 'app.audio.audioSettings.defaultOutputDeviceLabel',
     description: 'Default output device label',
+  },
+  findingDevicesLabel: {
+    id: 'app.audio.audioSettings.findingDevicesLabel',
+    description: 'Finding devices label',
   },
   noDeviceFoundLabel: {
     id: 'app.audio.noDeviceFound',
@@ -54,29 +60,43 @@ class DeviceSelector extends Component {
   }
 
   componentDidMount() {
-    const { kind } = this.props;
-    const handleEnumerateDevicesSuccess = (deviceInfos) => {
-      const devices = deviceInfos.filter((d) => d.kind === kind);
-      logger.info({
-        logCode: 'audiodeviceselector_component_enumeratedevices_success',
-        extraInfo: {
-          deviceKind: kind,
-          devices,
-        },
-      }, 'Success on enumerateDevices() for audio');
-      this.setState({
-        devices,
-        options: devices.map((d, i) => ({
-          label: d.label || this.getFallbackLabel(i),
-          value: d.deviceId,
-          key: _.uniqueId('device-option-'),
-        })),
-      });
-    };
+    const { blocked } = this.props;
 
+    if (!blocked) this.enumerate();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { blocked } = this.props;
+
+    if (prevProps.blocked === true && blocked === false) this.enumerate();
+  }
+
+
+  handleEnumerateDevicesSuccess (deviceInfos) {
+    const { kind } = this.props;
+
+    const devices = deviceInfos.filter((d) => d.kind === kind);
+    logger.info({
+      logCode: 'audiodeviceselector_component_enumeratedevices_success',
+      extraInfo: {
+        deviceKind: kind,
+        devices,
+      },
+    }, 'Success on enumerateDevices() for audio');
+    this.setState({
+      devices,
+      options: devices.map((d, i) => ({
+        label: d.label || this.getFallbackLabel(i),
+        value: d.deviceId,
+        key: _.uniqueId('device-option-'),
+      })),
+    });
+  }
+
+  enumerate () {
     navigator.mediaDevices
       .enumerateDevices()
-      .then(handleEnumerateDevicesSuccess)
+      .then(this.handleEnumerateDevicesSuccess.bind(this))
       .catch(() => {
         logger.error({
           logCode: 'audiodeviceselector_component_enumeratedevices_error',
@@ -106,7 +126,7 @@ class DeviceSelector extends Component {
 
   render() {
     const {
-      intl, kind, ...props
+      intl, kind, blocked, ...props
     } = this.props;
 
     const { options, value } = this.state;
@@ -114,7 +134,9 @@ class DeviceSelector extends Component {
 
     let notFoundOption;
 
-    if (kind === 'audiooutput' && isSafari) {
+    if (blocked) {
+      notFoundOption = <option value="finding">{intl.formatMessage(intlMessages.findingDevicesLabel)}</option>;
+    } else if (kind === 'audiooutput' && isSafari) {
       const defaultOutputDeviceLabel = intl.formatMessage(intlMessages.defaultOutputDeviceLabel);
       notFoundOption = <option value="not-found">{defaultOutputDeviceLabel}</option>;
     } else {

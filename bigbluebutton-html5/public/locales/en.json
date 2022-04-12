@@ -574,6 +574,7 @@
     "app.audio.audioSettings.fallbackInputLabel": "Audio input {0}",
     "app.audio.audioSettings.fallbackOutputLabel": "Audio output {0}",
     "app.audio.audioSettings.defaultOutputDeviceLabel": "Default",
+    "app.audio.audioSettings.findingDevicesLabel": "Finding devices...",
     "app.audio.listenOnly.backLabel": "Back",
     "app.audio.listenOnly.closeLabel": "Close",
     "app.audio.permissionsOverlay.title": "Allow access to your microphone",

@@ -537,6 +537,7 @@ class AudioModal extends Component {
         outputDeviceId={outputDeviceId}
         withVolumeMeter={showVolumeMeter}
         withEcho={localEchoEnabled}
+        produceStreams={localEchoEnabled || showVolumeMeter}
       />
     );
   }

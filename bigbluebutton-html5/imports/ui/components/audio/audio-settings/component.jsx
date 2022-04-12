@@ -25,9 +25,16 @@ const propTypes = {
   isConnecting: PropTypes.bool.isRequired,
   inputDeviceId: PropTypes.string.isRequired,
   outputDeviceId: PropTypes.string.isRequired,
-  withEcho: PropTypes.bool.isRequired,
-  withVolumeMeter: PropTypes.bool.isRequired,
+  produceStreams: PropTypes.bool,
+  withEcho: PropTypes.bool,
+  withVolumeMeter: PropTypes.bool,
 };
+
+const defaultProps = {
+  produceStreams: false,
+  withEcho: false,
+  withVolumeMeter: false,
+}
 
 const intlMessages = defineMessages({
   backLabel: {
@@ -76,6 +83,9 @@ class AudioSettings extends React.Component {
     this.state = {
       inputDeviceId,
       outputDeviceId,
+      // If streams need to be produced, device selectors are blocked until
+      // at least one stream is generated
+      deviceSelectorsBlocked: props.produceStreams,
       stream: null,
     };
 
@@ -120,20 +130,21 @@ class AudioSettings extends React.Component {
     const {
       handleGUMFailure,
       changeInputDevice,
-      withEcho,
-      withVolumeMeter,
+      produceStreams,
     } = this.props;
 
     changeInputDevice(deviceId);
 
     // Only generate input streams if they're going to be used with something
     // In this case, the volume meter or local echo test.
-    if (withEcho || withVolumeMeter) {
+    if (produceStreams) {
       this.generateInputStream(deviceId).then((stream) => {
         if (!this._isMounted) return;
+
         this.setState({
           inputDeviceId: deviceId,
           stream,
+          deviceSelectorsBlocked: false,
         });
       }).catch((error) => {
         logger.warn({
@@ -159,10 +170,31 @@ class AudioSettings extends React.Component {
       withEcho,
     } = this.props;
 
+    // withEcho usage (isLive arg): if local echo is enabled we need the device
+    // change to be performed seamlessly (which is what the isLive parameter guarantes)
     changeOutputDevice(deviceId, withEcho);
+
     this.setState({
       outputDeviceId: deviceId,
     });
+  }
+
+  handleConfirmationClick () {
+    const { stream } = this.state;
+    const {
+      produceStreams,
+      handleConfirmation,
+    } = this.props;
+
+    // Stream generation disabled or there isn't any stream: just run the provided callback
+    if (!produceStreams || !stream) return handleConfirmation();
+
+    // Stream generation enabled and there is a valid input stream => call
+    // the confirmation callback with the input stream as arg so it can be used
+    // in upstream components. The rationale is no surplus gUM calls.
+    // We're cloning it because the original will be cleaned up on unmount here.
+    const clonedStream = stream.clone();
+    return handleConfirmation(clonedStream);
   }
 
   renderOutputTest() {
@@ -203,25 +235,44 @@ class AudioSettings extends React.Component {
     ) : null
   }
 
-  handleConfirmationClick () {
-    const {
-      withEcho,
-      handleConfirmation,
-    } = this.props;
-    const {
-      stream,
-    } = this.state;
+  renderDeviceSelectors() {
+    const { inputDeviceId, outputDeviceId, deviceSelectorsBlocked } = this.state;
+    const { intl } = this.props;
 
-    // The local echo mode is not enabled or there isn't any stream in this:
-    // just run the provided callback
-    if (!withEcho || !stream) return handleConfirmation();
-
-    // Local echo mode was enabled and there is a valid input stream => call
-    // the confirmation callback with the input stream as arg so it can be used
-    // in upstream components. The rationale is not surplus gUM calls.
-    // We're cloning it because the original will be cleaned up on unmount here.
-    const inputStream = stream.clone();
-    return handleConfirmation(inputStream);
+    return (
+      <Styled.Row>
+        <Styled.Col>
+          <Styled.FormElement>
+            <Styled.LabelSmall htmlFor="inputDeviceSelector">
+              {intl.formatMessage(intlMessages.micSourceLabel)}
+              <Styled.DeviceSelectorSelect
+                id="inputDeviceSelector"
+                value={inputDeviceId}
+                kind="audioinput"
+                blocked={deviceSelectorsBlocked}
+                onChange={this.handleInputChange}
+                intl={intl}
+              />
+            </Styled.LabelSmall>
+          </Styled.FormElement>
+        </Styled.Col>
+        <Styled.Col>
+          <Styled.FormElement>
+            <Styled.LabelSmall htmlFor="outputDeviceSelector">
+              {intl.formatMessage(intlMessages.speakerSourceLabel)}
+              <Styled.DeviceSelectorSelect
+                id="outputDeviceSelector"
+                value={outputDeviceId}
+                kind="audiooutput"
+                blocked={deviceSelectorsBlocked}
+                onChange={this.handleOutputChange}
+                intl={intl}
+              />
+            </Styled.LabelSmall>
+          </Styled.FormElement>
+        </Styled.Col>
+      </Styled.Row>
+    );
   }
 
   render() {
@@ -231,8 +282,6 @@ class AudioSettings extends React.Component {
       handleBack,
     } = this.props;
 
-    const { inputDeviceId, outputDeviceId } = this.state;
-
     return (
       <Styled.FormWrapper>
         <Styled.Form>
@@ -241,38 +290,7 @@ class AudioSettings extends React.Component {
               {intl.formatMessage(intlMessages.descriptionLabel)}
             </Styled.AudioNote>
           </Styled.Row>
-
-          <Styled.Row>
-            <Styled.Col>
-              <Styled.FormElement>
-                <Styled.LabelSmall htmlFor="inputDeviceSelector">
-                  {intl.formatMessage(intlMessages.micSourceLabel)}
-                  <Styled.DeviceSelectorSelect
-                    id="inputDeviceSelector"
-                    value={inputDeviceId}
-                    kind="audioinput"
-                    onChange={this.handleInputChange}
-                    intl={intl}
-                  />
-                </Styled.LabelSmall>
-              </Styled.FormElement>
-            </Styled.Col>
-            <Styled.Col>
-              <Styled.FormElement>
-                <Styled.LabelSmall htmlFor="outputDeviceSelector">
-                  {intl.formatMessage(intlMessages.speakerSourceLabel)}
-                  <Styled.DeviceSelectorSelect
-                    id="outputDeviceSelector"
-                    value={outputDeviceId}
-                    kind="audiooutput"
-                    onChange={this.handleOutputChange}
-                    intl={intl}
-                  />
-                </Styled.LabelSmall>
-              </Styled.FormElement>
-            </Styled.Col>
-          </Styled.Row>
-
+          {this.renderDeviceSelectors()}
           {this.renderOutputTest()}
           {this.renderVolumeMeter()}
         </Styled.Form>
