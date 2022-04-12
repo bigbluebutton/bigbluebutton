@@ -29,7 +29,6 @@ public class EndMeeting extends RequestWithChecksum<EndMeeting.Params> {
     private String meetingID;
 
     @PasswordConstraint
-    @NotEmpty(message = "You must provide the moderator password")
     private String password;
 
     @Valid

@@ -6,26 +6,26 @@ export default function userBreakoutChanged({ body }) {
   check(body, Object);
 
   const {
-    parentId,
+    meetingId,
     userId,
     fromBreakoutId,
     toBreakoutId,
-    redirectToHtml5JoinUrl,
+    redirectToHtml5JoinURL,
   } = body;
 
-  check(parentId, String);
+  check(meetingId, String);
   check(userId, String);
   check(fromBreakoutId, String);
   check(toBreakoutId, String);
-  check(redirectToHtml5JoinUrl, String);
+  check(redirectToHtml5JoinURL, String);
 
   const oldBreakoutSelector = {
-    parentMeetingId: parentId,
+    parentMeetingId: meetingId,
     breakoutId: fromBreakoutId,
   };
 
   const newBreakoutSelector = {
-    parentMeetingId: parentId,
+    parentMeetingId: meetingId,
     breakoutId: toBreakoutId,
   };
 
@@ -38,17 +38,24 @@ export default function userBreakoutChanged({ body }) {
   const newModifier = {
     $set: {
       [`url_${userId}`]: {
-        redirectToHtml5JoinUrl,
+        redirectToHtml5JoinURL,
         insertedTime: new Date().getTime(),
       },
     },
   };
 
   try {
-    const numberAffectedOld = Breakouts.update(oldBreakoutSelector, oldModifier);
-    const numberAffectedNew = Breakouts.update(newBreakoutSelector, newModifier);
+    let numberAffectedRows = 0;
 
-    if (numberAffectedOld && numberAffectedNew) {
+    if (oldBreakoutSelector.breakoutId !== '') {
+      numberAffectedRows += Breakouts.update(oldBreakoutSelector, oldModifier);
+    }
+
+    if (newBreakoutSelector.breakoutId !== '') {
+      numberAffectedRows += Breakouts.update(newBreakoutSelector, newModifier);
+    }
+
+    if (numberAffectedRows > 0) {
       Logger.info(`Updated user breakout for userId=${userId}`);
     }
   } catch (err) {

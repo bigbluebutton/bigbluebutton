@@ -344,9 +344,7 @@ const WaitingUsers = (props) => {
             </p>
           </Styled.LobbyMessage>
         ) : null}
-        {existPendingUsers && (
-        <div>
-          <div>
+          <Styled.ModeratorActions>
             <Styled.MainTitle>{intl.formatMessage(intlMessages.optionTitle)}</Styled.MainTitle>
             {
             buttonsData.map((buttonData) => renderButton(
@@ -354,8 +352,6 @@ const WaitingUsers = (props) => {
               buttonData,
             ))
           }
-          </div>
-
           {allowRememberChoice ? (
             <Styled.RememberContainer>
               <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
@@ -364,8 +360,7 @@ const WaitingUsers = (props) => {
               </label>
             </Styled.RememberContainer>
           ) : null}
-        </div>
-        )}
+        </Styled.ModeratorActions>
         {renderPendingUsers(
           intl.formatMessage(intlMessages.pendingUsers,
             { 0: authenticatedUsers.length }),

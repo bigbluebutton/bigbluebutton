@@ -19,15 +19,11 @@ public class PasswordValidator implements ConstraintValidator<PasswordConstraint
     @Override
     public boolean isValid(String password, ConstraintValidatorContext context) {
         log.info("Validating password [{}]", password);
-
-        if(password == null || password.equals("")) {
-            log.info("Provided password is either null or an empty string");
-            return true;
-        }
-
-        if(password.length() < 2 || password.length() > 64) {
-            log.info("Passwords must be between 2 and 64 characters in length");
-            return false;
+        if (password != null && !password.isEmpty()){
+            if (password.length() < 2 || password.length() > 64) {
+                log.info("Passwords must be between 2 and 64 characters in length");
+                return false;
+            }
         }
 
         return true;

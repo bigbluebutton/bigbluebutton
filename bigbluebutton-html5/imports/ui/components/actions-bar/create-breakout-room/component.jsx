@@ -485,7 +485,6 @@ class BreakoutRoom extends PureComponent {
 
   onUpdateBreakouts() {
     const { users } = this.state;
-    const { sendInvitation } = this.props;
     const leastOneUserIsValid = users.some((user) => user.from !== user.room);
 
     if (!leastOneUserIsValid) {
@@ -496,18 +495,20 @@ class BreakoutRoom extends PureComponent {
       const { from, room } = user;
       let { userId } = user;
 
-      if (from === room || room === 0) return;
+      if (from === room) return;
 
-      const toBreakout = this.getBreakoutBySequence(room);
-      const { breakoutId: toBreakoutId } = toBreakout;
+      let toBreakoutId = '';
+      if (room !== 0) {
+        const toBreakout = this.getBreakoutBySequence(room);
+        toBreakoutId = toBreakout.breakoutId;
+      }
 
-      if (!user.joined) return sendInvitation(toBreakoutId, userId);
-
-      userId = userId.split('-')[0];
-      const fromBreakout = this.getBreakoutBySequence(from);
-      const { breakoutId: fromBreakoutId } = fromBreakout;
-
-      if (toBreakout.freeJoin) return sendInvitation(toBreakoutId, userId);
+      let fromBreakoutId = '';
+      if (from !== 0) {
+        [userId] = userId.split('-');
+        const fromBreakout = this.getBreakoutBySequence(from);
+        fromBreakoutId = fromBreakout.breakoutId;
+      }
 
       this.changeUserBreakout(fromBreakoutId, toBreakoutId, userId);
     });
@@ -561,6 +562,7 @@ class BreakoutRoom extends PureComponent {
       .filter((user) => !stateUsersId.includes(user.userId))
       .map((user) => ({
         userId: user.userId,
+        extId: user.extId,
         userName: user.name,
         isModerator: user.role === ROLE_MODERATOR,
         from: 0,
@@ -703,7 +705,8 @@ class BreakoutRoom extends PureComponent {
   }
 
   populateWithLastBreakouts(lastBreakouts) {
-    const { getBreakoutUserWasIn, users, intl } = this.props;
+    const { getBreakoutUserWasIn, intl } = this.props;
+    const { users } = this.state;
 
     const changedNames = [];
     lastBreakouts.forEach((breakout) => {

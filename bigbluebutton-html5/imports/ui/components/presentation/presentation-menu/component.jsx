@@ -90,7 +90,7 @@ const PresentationMenu = (props) => {
     currentElement,
     currentGroup,
     fullscreenRef,
-    screenshotRef,
+    getScreenshotRef,
     handleToggleFullscreen,
     layoutContextDispatch,
     meetingName,
@@ -199,7 +199,7 @@ const PresentationMenu = (props) => {
               },
             });
 
-            toPng(screenshotRef, {
+            toPng(getScreenshotRef(), {
               width: window.screen.width,
               height: window.screen.height,
             }).then((data) => {

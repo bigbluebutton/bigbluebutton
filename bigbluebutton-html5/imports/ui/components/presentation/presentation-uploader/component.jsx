@@ -554,8 +554,8 @@ class PresentationUploader extends Component {
     const { presentations: propPresentations } = this.props;
     const ids = new Set(propPresentations.map((d) => d.ID));
     const merged = [
-      ...propPresentations,
       ...presentations.filter((d) => !ids.has(d.ID)),
+      ...propPresentations,
     ];
     this.setState(
       { presentations: merged },
@@ -1039,7 +1039,7 @@ class PresentationUploader extends Component {
 
     let hasNewUpload = false;
 
-    presentations.map((item) => {
+    presentations.forEach((item) => {
       if (item.id.indexOf(item.filename) !== -1 && item.upload.progress === 0) hasNewUpload = true;
     });
 

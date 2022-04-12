@@ -6,6 +6,7 @@ import setloggedOutStatus from '/imports/api/users-persistent-data/server/modifi
 import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
 import ClientConnections from '/imports/startup/server/ClientConnections';
 import UsersPersistentData from '/imports/api/users-persistent-data';
+import userEjected from '/imports/api/users/server/modifiers/userEjected';
 import VoiceUsers from '/imports/api/voice-users/';
 
 const disconnectUser = (meetingId, userId) => {
@@ -23,7 +24,8 @@ const disconnectUser = (meetingId, userId) => {
   }
 };
 
-export default function removeUser(meetingId, userId) {
+export default function removeUser(body, meetingId) {
+  const { intId: userId, reasonCode } = body;
   check(meetingId, String);
   check(userId, String);
 
@@ -36,6 +38,10 @@ export default function removeUser(meetingId, userId) {
     // we don't want to fully process the redis message in frontend
     // since the backend is supposed to update Mongo
     if ((process.env.BBB_HTML5_ROLE !== 'frontend')) {
+      if (body.eject) {
+        userEjected(meetingId, userId, reasonCode);
+      }
+
       setloggedOutStatus(userId, meetingId, true);
       VideoStreams.remove({ meetingId, userId });
 
@@ -53,13 +59,12 @@ export default function removeUser(meetingId, userId) {
     }
 
     if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
-
-      //Wait for user removal and then kill user connections and sessions
+      // Wait for user removal and then kill user connections and sessions
       const queryCurrentUser = Users.find(selector);
       if (queryCurrentUser.count() === 0) {
         disconnectUser(meetingId, userId);
       } else {
-        let queryUserObserver = queryCurrentUser.observeChanges({
+        const queryUserObserver = queryCurrentUser.observeChanges({
           removed() {
             disconnectUser(meetingId, userId);
             queryUserObserver.stop();
