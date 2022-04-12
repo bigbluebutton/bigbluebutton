@@ -27,39 +27,51 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
 
       for {
         breakoutModel <- state.breakout
-        roomFrom <- breakoutModel.rooms.get(msg.body.fromBreakoutId)
-        roomTo <- breakoutModel.rooms.get(msg.body.toBreakoutId)
       } yield {
-        //Eject from room From
-        roomFrom.users.filter(u => u.id == msg.body.userId + "-" + roomFrom.sequence).foreach(user => {
-          eventBus.publish(BigBlueButtonEvent(roomFrom.id, EjectUserFromBreakoutInternalMsg(meetingId, roomFrom.id, user.id, msg.header.userId, "User moved to another room", EjectReasonCode.EJECT_USER, false)))
-        })
 
-        //Send confirmation msg with invite URL (redirectToHtml5JoinURL)
+        //Eject user from room From
         for {
-          (redirectToHtml5JoinURL, redirectJoinURL) <- getRedirectUrls(liveMeeting, msg.body.userId, roomTo.externalId, roomTo.sequence.toString())
+          roomFrom <- breakoutModel.rooms.get(msg.body.fromBreakoutId)
         } yield {
-          BreakoutHdlrHelpers.sendChangeUserBreakoutMsg(
-            outGW,
-            meetingId,
-            msg.body.userId,
-            msg.body.fromBreakoutId,
-            roomTo.id,
-            redirectToHtml5JoinURL,
-          )
+          roomFrom.users.filter(u => u.id == msg.body.userId + "-" + roomFrom.sequence).foreach(user => {
+            eventBus.publish(BigBlueButtonEvent(roomFrom.id, EjectUserFromBreakoutInternalMsg(meetingId, roomFrom.id, user.id, msg.header.userId, "User moved to another room", EjectReasonCode.EJECT_USER, false)))
+          })
         }
 
-        //Send notification to moved User
-        val notifyUserEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+        //Get join URL for room To
+        val redirectToHtml5JoinURL = (
+            for {
+              roomTo <- breakoutModel.rooms.get(msg.body.toBreakoutId)
+              (redirectToHtml5JoinURL, redirectJoinURL) <- getRedirectUrls(liveMeeting, msg.body.userId, roomTo.externalId, roomTo.sequence.toString())
+            } yield redirectToHtml5JoinURL
+          ).getOrElse("")
+
+
+        BreakoutHdlrHelpers.sendChangeUserBreakoutMsg(
+          outGW,
+          meetingId,
           msg.body.userId,
-          liveMeeting.props.meetingProp.intId,
-          "info",
-          "promote",
-          "app.updateBreakoutRoom.userChangeRoomNotification",
-          "Notification to warn user was moved to another room",
-          Vector(roomTo.shortName)
+          msg.body.fromBreakoutId,
+          msg.body.toBreakoutId,
+          redirectToHtml5JoinURL,
         )
-        outGW.send(notifyUserEvent)
+
+        //Send notification to moved User
+        for {
+          roomFrom <- breakoutModel.rooms.get(msg.body.fromBreakoutId)
+          roomTo <- breakoutModel.rooms.get(msg.body.toBreakoutId)
+        } yield {
+          val notifyUserEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+            msg.body.userId,
+            liveMeeting.props.meetingProp.intId,
+            "info",
+            "promote",
+            "app.updateBreakoutRoom.userChangeRoomNotification",
+            "Notification to warn user was moved to another room",
+            Vector(roomTo.shortName)
+          )
+          outGW.send(notifyUserEvent)
+        }
       }
 
       state

@@ -485,7 +485,6 @@ class BreakoutRoom extends PureComponent {
 
   onUpdateBreakouts() {
     const { users } = this.state;
-    const { sendInvitation } = this.props;
     const leastOneUserIsValid = users.some((user) => user.from !== user.room);
 
     if (!leastOneUserIsValid) {
@@ -496,19 +495,20 @@ class BreakoutRoom extends PureComponent {
       const { from, room } = user;
       let { userId } = user;
 
-      if (from === room || room === 0) return;
+      if (from === room) return;
 
-      const toBreakout = this.getBreakoutBySequence(room);
-      const { breakoutId: toBreakoutId } = toBreakout;
-
-      if (!user.joined) {
-        sendInvitation(toBreakoutId, userId);
-        return;
+      let toBreakoutId = '';
+      if (room !== 0) {
+        const toBreakout = this.getBreakoutBySequence(room);
+        toBreakoutId = toBreakout.breakoutId;
       }
 
-      [userId] = userId.split('-');
-      const fromBreakout = this.getBreakoutBySequence(from);
-      const { breakoutId: fromBreakoutId } = fromBreakout;
+      let fromBreakoutId = '';
+      if (from !== 0) {
+        [userId] = userId.split('-');
+        const fromBreakout = this.getBreakoutBySequence(from);
+        fromBreakoutId = fromBreakout.breakoutId;
+      }
 
       this.changeUserBreakout(fromBreakoutId, toBreakoutId, userId);
     });

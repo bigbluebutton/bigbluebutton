@@ -45,10 +45,17 @@ export default function userBreakoutChanged({ body }) {
   };
 
   try {
-    const numberAffectedOld = Breakouts.update(oldBreakoutSelector, oldModifier);
-    const numberAffectedNew = Breakouts.update(newBreakoutSelector, newModifier);
+    let numberAffectedRows = 0;
 
-    if (numberAffectedOld && numberAffectedNew) {
+    if (oldBreakoutSelector.breakoutId !== '') {
+      numberAffectedRows += Breakouts.update(oldBreakoutSelector, oldModifier);
+    }
+
+    if (newBreakoutSelector.breakoutId !== '') {
+      numberAffectedRows += Breakouts.update(newBreakoutSelector, newModifier);
+    }
+
+    if (numberAffectedRows > 0) {
       Logger.info(`Updated user breakout for userId=${userId}`);
     }
   } catch (err) {
