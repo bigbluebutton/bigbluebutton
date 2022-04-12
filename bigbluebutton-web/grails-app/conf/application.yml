@@ -35,9 +35,10 @@ endpoints:
         enabled: true
 
 server:
-    session:
-        cookie:
-            secure: true
+    servlet:
+        session:
+            cookie:
+                secure: true
 
 ---
 grails:
