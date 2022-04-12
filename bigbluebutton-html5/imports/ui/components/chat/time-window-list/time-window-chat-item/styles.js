@@ -101,6 +101,7 @@ const Meta = styled.div`
   flex: 1;
   flex-flow: row;
   line-height: 1.35;
+  align-items: baseline;
 `;
 
 const Name = styled.div`
