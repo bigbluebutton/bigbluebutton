@@ -60,6 +60,8 @@ let exportJob = JSON.parse(job);
     }
 
     kickOffProcessWorker(exportJob.jobId)
+
+    client.disconnect();
 })()
 
 parentPort.postMessage({ message: workerData })

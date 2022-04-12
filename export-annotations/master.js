@@ -23,22 +23,21 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function redisAlive(client) {
-    let ping = await client.ping();
-    return (ping === "PONG");
-}
-
 (async () => {
     const client = redis.createClient({
         host: config.redis.host,
         port: config.redis.port,
         password: config.redis.password
       });
-  
-    client.on('error', (err) => logger.info('Redis Client Error', err));
+    
     await client.connect();
+    
+    let ping = await client.ping();
+    let redisAlive = (ping === "PONG");
 
-    while (redisAlive(client)) {
+    client.on('error', (err) => { logger.info('Redis Client Error', err); redisAlive = false; } );
+
+    while (redisAlive) {
         await sleep(config.redis.interval);
         
         let job = await client.LPOP(config.redis.channels.queue)
@@ -59,4 +58,6 @@ async function redisAlive(client) {
             kickOffCollectorWorker(exportJob.jobId)
         }
     }
+    
+    client.disconnect();
 })();

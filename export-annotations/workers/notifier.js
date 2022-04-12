@@ -15,7 +15,7 @@ const dropbox = `${config.shared.presAnnDropboxDir}/${jobId}`
 let job = fs.readFileSync(`${dropbox}/job`);
 let exportJob = JSON.parse(job);
 
-async function connectToRedis() {
+async function notifyMeetingActor() {
     const client = redis.createClient({
         host: config.redis.host,
         port: config.redis.port,
@@ -49,6 +49,7 @@ async function connectToRedis() {
 
     logger.info(`Annotated PDF available at ${link}`);
     await client.publish(config.redis.channels.publish, JSON.stringify(notification));
+    client.disconnect();
 }
 
 async function upload(exportJob) {
@@ -68,7 +69,7 @@ async function upload(exportJob) {
 }
 
 if (jobType == 'PresentationWithAnnotationDownloadJob') {
-    connectToRedis();
+    notifyMeetingActor();
 
 } else if (jobType == 'PresentationWithAnnotationExportJob') {
     upload(exportJob);
