@@ -735,7 +735,7 @@ class WhiteboardToolbar extends Component {
 
     return (
       <Styled.CustomSvgIcon>
-        <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1" fill={colorSelected.value}>
+        <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1" fill={colorSelected.value} id="colorPicker">
           <animate
             ref={(ref) => { this.colorListIconColor = ref; }}
             attributeName="fill"

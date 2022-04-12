@@ -30,6 +30,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.audioFilterLabel',
     description: 'audio filters label',
   },
+  darkThemeLabel: {
+    id: 'app.submenu.application.darkThemeLabel',
+    description: 'dark mode label',
+  },
   fontSizeControlLabel: {
     id: 'app.submenu.application.fontSizeControlLabel',
     description: 'label for font size ontrol',
@@ -364,6 +368,38 @@ class ApplicationMenu extends BaseMenu {
     );
   }
 
+  renderDarkThemeToggle() {
+    const { intl, showToggleLabel, displaySettingsStatus } = this.props;
+    const { settings } = this.state;
+
+    const isDarkThemeEnabled = Meteor.settings.public.app.darkTheme.enabled;
+    if (!isDarkThemeEnabled) return null;
+
+    return (
+      <Styled.Row>
+        <Styled.Col aria-hidden="true">
+          <Styled.FormElement>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+            <Styled.Label>
+              {intl.formatMessage(intlMessages.darkThemeLabel)}
+            </Styled.Label>
+          </Styled.FormElement>
+        </Styled.Col>
+        <Styled.Col>
+          <Styled.FormElementRight>
+            {displaySettingsStatus(settings.darkTheme)}
+            <Toggle
+              icons={false}
+              defaultChecked={settings.darkTheme}
+              onChange={() => this.handleToggle('darkTheme')}
+              showToggleLabel={showToggleLabel}
+            />
+          </Styled.FormElementRight>
+        </Styled.Col>
+      </Styled.Row>
+    );
+  }
+
   render() {
     const {
       allLocales, intl, showToggleLabel, displaySettingsStatus,
@@ -420,6 +456,7 @@ class ApplicationMenu extends BaseMenu {
 
           {this.renderAudioFilters()}
           {this.renderPaginationToggle()}
+          {this.renderDarkThemeToggle()}
 
           <Styled.Row>
             <Styled.Col>
