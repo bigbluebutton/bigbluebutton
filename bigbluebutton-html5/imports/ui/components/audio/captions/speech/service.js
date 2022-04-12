@@ -10,23 +10,63 @@ const LANGUAGES = [
   'pt-BR',
 ];
 
+const THROTTLE_TIMEOUT = 1000;
+
 const CONFIG = Meteor.settings.public.app.audioCaptions;
 const ENABLED = CONFIG.enabled;
-
-const THROTTLE_TIMEOUT = 1000;
 
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 const hasSpeechRecognitionSupport = () => typeof SpeechRecognitionAPI !== 'undefined';
 
+const setSpeechLocale = (value) => {
+  if (LANGUAGES.includes(value) || value === '') {
+    Session.set('speechLocale', value);
+  } else {
+    // TODO: ERROR
+  }
+};
+
+const setSpeechVoices = () => {
+  if (typeof window.speechSynthesis === 'undefined') return;
+
+  Session.set('speechVoices', window.speechSynthesis.getVoices().map((v) => v.lang));
+};
+
+// Trigger getVoices
+setSpeechVoices();
+
+const getSpeechVoices = () => {
+  const voices = Session.get('speechVoices') || [];
+
+  return voices.filter((v) => LANGUAGES.includes(v));
+};
+
+const setDefault = () => {
+  const voices = getSpeechVoices();
+  if (voices.includes(CONFIG.language.locale)) {
+    setSpeechLocale(CONFIG.language.locale);
+  } else {
+    // TODO: ERROR
+  }
+};
+
+const useDefault = () => ENABLED && CONFIG.language.default;
+
 const initSpeechRecognition = () => {
   if (hasSpeechRecognitionSupport()) {
+    // Effectivate getVoices
+    setSpeechVoices();
     const speechRecognition = new SpeechRecognitionAPI();
     speechRecognition.continuous = true;
     speechRecognition.interimResults = true;
 
+    if (useDefault()) setDefault();
+
     return speechRecognition;
   }
+
+  // TODO: WARN
 
   return null;
 };
@@ -49,13 +89,11 @@ const updateFinalTranscript = (id, transcript, locale) => {
 
 const getSpeechLocale = () => Session.get('speechLocale') || '';
 
-const setSpeechLocale = (value) => {
-  if (LANGUAGES.includes(value) || value === '') Session.set('speechLocale', value);
-};
+const hasSpeechLocale = () => getSpeechLocale() !== '';
+
+const isLocaleValid = (locale) => LANGUAGES.includes(locale);
 
 const isEnabled = () => ENABLED && hasSpeechRecognitionSupport();
-
-const hasSpeechLocale = () => getSpeechLocale() !== '';
 
 const isActive = () => isEnabled() && hasSpeechLocale();
 
@@ -75,25 +113,19 @@ const getStatus = () => {
 
 const generateId = () => `${Auth.userID}-${Date.now()}`;
 
-const setDefault = () => setSpeechLocale(CONFIG.language.locale);
-
-const useDefault = () => ENABLED && CONFIG.language.default;
-
-const isLocaleValid = (locale) => LANGUAGES.includes(locale);
-
 export default {
   LANGUAGES,
   hasSpeechRecognitionSupport,
   initSpeechRecognition,
   updateInterimTranscript,
   updateFinalTranscript,
+  getSpeechVoices,
   getSpeechLocale,
   setSpeechLocale,
+  isLocaleValid,
   isEnabled,
   isActive,
   getStatus,
   generateId,
   useDefault,
-  setDefault,
-  isLocaleValid,
 };

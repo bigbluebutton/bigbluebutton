@@ -26,14 +26,17 @@ const intlMessages = defineMessages({
   },
 });
 
-const Check = ({
+const Select = ({
   intl,
   enabled,
   locale,
+  voices,
 }) => {
   if (!enabled) return null;
 
   if (SpeechService.useDefault()) return null;
+
+  if (voices.length === 0) return null;
 
   const onChange = (e) => {
     const { value } = e.target;
@@ -59,12 +62,12 @@ const Check = ({
         >
           {intl.formatMessage(intlMessages.disabled)}
         </option>
-        {SpeechService.LANGUAGES.map((l) => (
+        {voices.map((v) => (
           <option
-            key={l}
-            value={l}
+            key={v}
+            value={v}
           >
-            {intl.formatMessage(intlMessages[l])}
+            {intl.formatMessage(intlMessages[v])}
           </option>
         ))}
       </select>
@@ -72,12 +75,13 @@ const Check = ({
   );
 };
 
-Check.propTypes = {
+Select.propTypes = {
   enabled: PropTypes.bool.isRequired,
   locale: PropTypes.string.isRequired,
+  voices: PropTypes.arrayOf(PropTypes.string).isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
 };
 
-export default injectIntl(Check);
+export default injectIntl(Select);

@@ -8,4 +8,5 @@ const Container = (props) => <Select {...props} />;
 export default withTracker(() => ({
   enabled: Service.isEnabled(),
   locale: Service.getSpeechLocale(),
+  voices: Service.getSpeechVoices(),
 }))(Container);

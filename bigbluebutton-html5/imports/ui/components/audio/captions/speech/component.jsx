@@ -19,8 +19,6 @@ class Speech extends PureComponent {
 
     this.idle = true;
 
-    if (Service.useDefault()) Service.setDefault();
-
     this.speechRecognition = Service.initSpeechRecognition();
 
     if (this.speechRecognition) {
