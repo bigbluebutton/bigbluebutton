@@ -501,13 +501,14 @@ class BreakoutRoom extends PureComponent {
       const toBreakout = this.getBreakoutBySequence(room);
       const { breakoutId: toBreakoutId } = toBreakout;
 
-      if (!user.joined) return sendInvitation(toBreakoutId, userId);
+      if (!user.joined) {
+        sendInvitation(toBreakoutId, userId);
+        return;
+      }
 
-      userId = userId.split('-')[0];
+      [userId] = userId.split('-');
       const fromBreakout = this.getBreakoutBySequence(from);
       const { breakoutId: fromBreakoutId } = fromBreakout;
-
-      if (toBreakout.freeJoin) return sendInvitation(toBreakoutId, userId);
 
       this.changeUserBreakout(fromBreakoutId, toBreakoutId, userId);
     });

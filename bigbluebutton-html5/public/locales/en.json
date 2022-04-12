@@ -928,6 +928,7 @@
     "app.updateBreakoutRoom.cancelLabel": "Cancel",
     "app.updateBreakoutRoom.title": "Update Breakout Rooms",
     "app.updateBreakoutRoom.confirm": "Apply",
+    "app.updateBreakoutRoom.userChangeRoomNotification": "You were moved to room {0}.",
     "app.update.resetRoom": "Reset user room",
     "app.externalVideo.start": "Share a new video",
     "app.externalVideo.title": "Share an external video",

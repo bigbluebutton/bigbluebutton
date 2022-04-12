@@ -259,6 +259,11 @@ class Base extends Component {
     }
 
     if (ejected) {
+      if (meetingIsBreakout) {
+        window.close();
+        return null;
+      }
+
       return (<MeetingEnded code="403" ejectedReason={ejectedReason} />);
     }
 
