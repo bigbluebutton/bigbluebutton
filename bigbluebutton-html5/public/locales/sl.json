@@ -519,7 +519,6 @@
     "app.lock-viewers.button.apply": "Potrdi",
     "app.lock-viewers.button.cancel": "Prekliči",
     "app.lock-viewers.locked": "Zaklenjeno",
-    "app.lock-viewers.unlocked": "Odklenjeno",
     "app.connection-status.ariaTitle": "Okno stanja povezave",
     "app.connection-status.title": "Stanje povezave",
     "app.connection-status.description": "Pokaži stanje povezave uporabnika",

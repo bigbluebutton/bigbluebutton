@@ -479,7 +479,6 @@
     "app.lock-viewers.button.apply": "Pielietot",
     "app.lock-viewers.button.cancel": "Atcelt",
     "app.lock-viewers.locked": "Slēgts/bloķēts",
-    "app.lock-viewers.unlocked": "Atslēgts/nebloķēts",
     "app.recording.startTitle": "Sākt ierakstu",
     "app.recording.stopTitle": "Pauzēt ierakstu",
     "app.recording.resumeTitle": "Turpināt ierakstu",

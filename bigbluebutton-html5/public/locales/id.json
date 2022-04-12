@@ -648,7 +648,6 @@
     "app.lock-viewers.button.apply": "Terapkan",
     "app.lock-viewers.button.cancel": "Batalkan",
     "app.lock-viewers.locked": "Terkunci",
-    "app.lock-viewers.unlocked": "Tak Terkunci",
     "app.guest-policy.title": "Kebijakan tamu",
     "app.guest-policy.description": "Ubah pengaturan kebijakan tamu pertemuan",
     "app.guest-policy.button.askModerator": "Tanya moderator",

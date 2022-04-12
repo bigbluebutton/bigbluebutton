@@ -647,7 +647,6 @@
     "app.lock-viewers.button.apply": "적용",
     "app.lock-viewers.button.cancel": "취소",
     "app.lock-viewers.locked": "잠김",
-    "app.lock-viewers.unlocked": "해제",
     "app.guest-policy.ariaTitle": "참여자 승인 정책 설정 모달",
     "app.guest-policy.title": "참여자 승인 정책",
     "app.guest-policy.description": "참여자 승인 정책 변경",

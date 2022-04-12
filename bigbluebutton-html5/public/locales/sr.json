@@ -492,7 +492,6 @@
     "app.lock-viewers.button.apply": "Primenite",
     "app.lock-viewers.button.cancel": "Otkažite",
     "app.lock-viewers.locked": "Zaključano",
-    "app.lock-viewers.unlocked": "Otključano",
     "app.connection-status.description": "Pogledajte status povezivanja učesnika",
     "app.recording.startTitle": "Započnite snimanje",
     "app.recording.stopTitle": "Pauzirajte snimanje",
