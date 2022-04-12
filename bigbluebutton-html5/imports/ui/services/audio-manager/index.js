@@ -437,7 +437,6 @@ class AudioManager {
       this.inputDevice = { id: 'default' };
     }
 
-    window.parent.postMessage({ response: 'notInAudio' }, '*');
     window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
 
     const bridge =

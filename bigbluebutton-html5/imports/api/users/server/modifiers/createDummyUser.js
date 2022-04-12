@@ -19,6 +19,7 @@ export default function createDummyUser(meetingId, userId, authToken) {
     authToken,
     clientType: 'HTML5',
     validated: null,
+    left: false,
   };
 
   try {

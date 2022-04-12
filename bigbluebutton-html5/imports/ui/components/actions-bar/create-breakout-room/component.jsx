@@ -562,6 +562,7 @@ class BreakoutRoom extends PureComponent {
       .filter((user) => !stateUsersId.includes(user.userId))
       .map((user) => ({
         userId: user.userId,
+        extId: user.extId,
         userName: user.name,
         isModerator: user.role === ROLE_MODERATOR,
         from: 0,
@@ -704,7 +705,8 @@ class BreakoutRoom extends PureComponent {
   }
 
   populateWithLastBreakouts(lastBreakouts) {
-    const { getBreakoutUserWasIn, users, intl } = this.props;
+    const { getBreakoutUserWasIn, intl } = this.props;
+    const { users } = this.state;
 
     const changedNames = [];
     lastBreakouts.forEach((breakout) => {

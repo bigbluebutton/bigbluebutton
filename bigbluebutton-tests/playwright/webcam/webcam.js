@@ -10,20 +10,15 @@ class Webcam extends Page {
   }
 
   async share() {
-    const parsedSettings = await this.getSettingsYaml();
-    const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-    await this.shareWebcam(videoPreviewTimeout);
-
+    const { videoPreviewTimeout, skipVideoPreview, skipVideoPreviewOnFirstJoin } = this.settings;
+    await this.shareWebcam(!(skipVideoPreview || skipVideoPreviewOnFirstJoin), videoPreviewTimeout);
     await this.hasElement('video');
   }
 
   async checksContent() {
-    const parsedSettings = await this.getSettingsYaml();
-    const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-
-    await this.shareWebcam(videoPreviewTimeout);
+    const { videoPreviewTimeout, skipVideoPreview, skipVideoPreviewOnFirstJoin } = this.settings;
+    await this.shareWebcam(!(skipVideoPreview || skipVideoPreviewOnFirstJoin), videoPreviewTimeout);
     const respUser = await webcamContentCheck(this);
-
     await expect(respUser).toBeTruthy();
   }
 
@@ -37,9 +32,8 @@ class Webcam extends Page {
 
   async webcamLayoutStart() {
     await this.joinMicrophone();
-    const parsedSettings = await this.getSettingsYaml();
-    const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-    await this.shareWebcam(videoPreviewTimeout);
+    const { videoPreviewTimeout, skipVideoPreview, skipVideoPreviewOnFirstJoin } = this.settings;
+    await this.shareWebcam(!(skipVideoPreview || skipVideoPreviewOnFirstJoin), videoPreviewTimeout);
   }
 }
 

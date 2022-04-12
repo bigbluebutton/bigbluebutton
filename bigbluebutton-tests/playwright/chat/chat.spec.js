@@ -22,20 +22,19 @@ test.describe.parallel('Chat', () => {
   });
 
   test('Copy chat', async ({ browser, context, page }, testInfo) => {
-    test.fixme(testInfo.config.projects[0].use.headless, 'Only works in headed mode');
+    test.fixme(testInfo.project.use.headless, 'Only works in headed mode');
     const chat = new Chat(browser, page);
     await chat.init(true, true);
     await chat.copyChat(context);
   });
 
-  test.skip('Save chat', async ({ browser, page }) => {
-    test.fixme();
+  test('Save chat', async ({ browser, page }, testInfo) => {
     const chat = new Chat(browser, page);
     await chat.init(true, true);
-    await chat.saveChat();
+    await chat.saveChat(testInfo);
   });
 
-  test('Verify character limit (5000 characters)', async ({ browser, page }) => {
+  test('Verify character limit', async ({ browser, page }) => {
     const chat = new Chat(browser, page);
     await chat.init(true, true);
     await chat.characterLimit();

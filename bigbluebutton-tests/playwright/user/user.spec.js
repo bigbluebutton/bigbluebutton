@@ -12,9 +12,7 @@ test.describe.parallel('User', () => {
     test('Raise and lower Hand Toast', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
-      await multiusers.raiseHandTest();
-      await multiusers.getAvatarColorAndCompareWithUserListItem();
-      await multiusers.lowerHandTest();
+      await multiusers.raiseAndLowerHand();
     });
 
     test('Toggle user list', async ({ browser, context, page }) => {
@@ -140,6 +138,12 @@ test.describe.parallel('User', () => {
         await lockViewers.initUserPage2();
         await lockViewers.unlockUser();
       });
+    });
+
+    test('Save user names', async ({ browser, context, page }, testInfo) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initPages(page);
+      await multiusers.saveUserNames(testInfo);
     });
 
     test('Select random user', async ({ browser, context, page }) => {

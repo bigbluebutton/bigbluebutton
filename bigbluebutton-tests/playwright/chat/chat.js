@@ -1,8 +1,10 @@
-const { expect } = require('@playwright/test');
+const { expect, default: test } = require('@playwright/test');
 const Page = require('../core/page');
 const { openChat } = require('./util');
 const p = require('../core/parameters');
 const e = require('../core/elements');
+const { checkTextContent } = require('../core/util');
+const { getSettings } = require('../core/settings');
 
 class Chat extends Page {
   constructor(browser, page) {
@@ -10,7 +12,7 @@ class Chat extends Page {
   }
 
   async sendPublicMessage() {
-    await openChat(this.page);
+    await openChat(this);
     const message = this.getLocator(e.chatUserMessageText);
     await expect(message).toHaveCount(0);
 
@@ -21,7 +23,7 @@ class Chat extends Page {
   }
 
   async clearChat() {
-    await openChat(this.page);
+    await openChat(this);
     const message = this.getLocator(e.chatUserMessageText);
 
     await this.type(e.chatBox, e.message);
@@ -39,8 +41,10 @@ class Chat extends Page {
   }
 
   async copyChat(context) {
-    await openChat(this);
+    const { publicChatOptionsEnabled } = getSettings();
+    test.fail(!publicChatOptionsEnabled, 'Public chat options (save and copy) are disabled');
 
+    await openChat(this);
     // sending a message
     await this.type(e.chatBox, e.message);
     await this.waitAndClick(e.sendButton);
@@ -50,29 +54,42 @@ class Chat extends Page {
     await this.waitForSelector(e.chatUserMessageText);
     await this.waitAndClick(e.chatCopy);
     // enable access to browser context clipboard
-    await context.grantPermissions(['clipboard-write', 'clipboard-read'], { origin: process.env.BBB_SERVER_URL });
+    await context.grantPermissions(['clipboard-write', 'clipboard-read'], { origin: process.env.BBB_URL });
     const copiedText = await this.page.evaluate(async () => navigator.clipboard.readText());
     const check = copiedText.includes(`${p.fullName}: ${e.message}`);
     expect(check).toBeTruthy();
   }
 
-  async saveChat() {
-    await openChat(this.page);
+  async saveChat(testInfo) {
+    const { publicChatOptionsEnabled } = getSettings();
+    test.fail(!publicChatOptionsEnabled, 'Public chat options (save and copy) are disabled');
+
+    await openChat(this);
+    await this.type(e.chatBox, e.message);
+    await this.waitAndClick(e.sendButton);
+    await this.waitForSelector(e.chatUserMessageText);
     await this.waitAndClick(e.chatOptions);
-    await this.waitAndClick(e.chatSave);
-    await this.page.waitForEvent('click');
+    const { content } = await this.handleDownload(e.chatSave, testInfo);
+
+    const dataToCheck = [
+      this.meetingId,
+      this.username,
+      e.message,
+    ];
+    await checkTextContent(content, dataToCheck);
   }
 
   async characterLimit() {
-    await openChat(this.page);
+    await openChat(this);
     const messageLocator = this.getLocator(e.chatUserMessageText);
 
-    await this.page.fill(e.chatBox, e.longMessage5000);
+    const { maxMessageLength } = getSettings();
+    await this.page.fill(e.chatBox, e.uniqueCharacterMessage.repeat(maxMessageLength));
     await this.waitAndClick(e.sendButton);
     await this.waitForSelector(e.chatUserMessageText);
     await expect(messageLocator).toHaveCount(1);
 
-    await this.page.fill(e.chatBox, e.longMessage5001);
+    await this.page.fill(e.chatBox, e.uniqueCharacterMessage.repeat(maxMessageLength + 1));
     await this.waitForSelector(e.typingIndicator);
     await this.waitAndClick(e.sendButton);
     await this.waitForSelector(e.chatUserMessageText);
@@ -80,7 +97,7 @@ class Chat extends Page {
   }
 
   async emptyMessage() {
-    await openChat(this.page);
+    await openChat(this);
     const messageLocator = this.getLocator(e.chatUserMessageText);
 
     await this.waitAndClick(e.sendButton);

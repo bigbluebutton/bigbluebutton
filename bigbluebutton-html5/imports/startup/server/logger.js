@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { createLogger, format, transports } from 'winston';
+import WinstonPromTransport from './prom-metrics/winstonPromTransport';
 
 const LOG_CONFIG = Meteor?.settings?.private?.serverLog || {};
 const { level } = LOG_CONFIG;
@@ -19,6 +20,10 @@ const Logger = createLogger({
       colorize: true,
       handleExceptions: true,
       level,
+    }),
+    // export error logs to prometheus
+    new WinstonPromTransport({
+      level: 'error',
     }),
   ],
 });

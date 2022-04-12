@@ -30,9 +30,8 @@ class Join extends Create {
   async joinAndShareWebcam() {
     const breakoutPage = await this.joinRoom();
 
-    const parsedSettings = await this.userPage.getSettingsYaml();
-    const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-    await breakoutPage.shareWebcam(videoPreviewTimeout);
+    const { videoPreviewTimeout } = breakoutPage.settings;
+    await breakoutPage.shareWebcam(true, videoPreviewTimeout);
     await breakoutPage.hasElement(e.presentationPlaceholder);
   }
 
