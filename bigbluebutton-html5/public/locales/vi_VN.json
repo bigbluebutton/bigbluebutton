@@ -646,7 +646,6 @@
     "app.lock-viewers.button.apply": "ÁP dụng",
     "app.lock-viewers.button.cancel": "Hủy bỏ",
     "app.lock-viewers.locked": "Khóa",
-    "app.lock-viewers.unlocked": "Mở khóa",
     "app.guest-policy.ariaTitle": "Phương thức cài đặt chính sách khách",
     "app.guest-policy.title": "Chính sách cho khách",
     "app.guest-policy.description": "Thay đổi cài đặt chính sách khách họp",

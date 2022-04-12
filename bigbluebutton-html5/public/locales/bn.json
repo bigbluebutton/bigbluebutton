@@ -616,7 +616,6 @@
     "app.lock-viewers.button.apply": "প্রয়োগ করুন",
     "app.lock-viewers.button.cancel": "ক্যানকেল",
     "app.lock-viewers.locked": "লকড",
-    "app.lock-viewers.unlocked": "আনলক করা",
     "app.guest-policy.ariaTitle": "অতিথি নীতি সেটিংস মডেল",
     "app.guest-policy.title": "অতিথি নীতি",
     "app.guest-policy.description": "সভায় অতিথি নীতি সেটিং পরিবর্তন করুন",
