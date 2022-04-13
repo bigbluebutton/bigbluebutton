@@ -573,9 +573,13 @@ public:
     # localEchoTest:
     #   enabled: Boolean => enables an experimental, simplified echo test mode
     #   initialHearingState: Boolean => whether users should hear themselves firsthand
+    #   useRtcLoopbackInChromium: Boolean => whether a local RTC loopback should
+    #   be used in Chromium browsers. Works around the fact that Chromium has no
+    #   echo cancellation in non-rtc audio streams
     localEchoTest:
       enabled: false
       initialHearingState: false
+      useRtcLoopbackInChromium: false
     # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
     showVolumeMeter: false
   stats:

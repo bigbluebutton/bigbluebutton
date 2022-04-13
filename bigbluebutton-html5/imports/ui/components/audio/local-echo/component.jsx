@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from '../audio-test/styles';
 import Settings from '/imports/ui/services/settings';
-
-const MEDIA_TAG = Meteor.settings.public.media.mediaTag;
+import Service from '/imports/ui/components/audio/local-echo/service';
 
 const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  stream: PropTypes.object,
+  stream: PropTypes.shape({
+    active: PropTypes.bool,
+    id: PropTypes.string,
+  }),
   initialHearingState: PropTypes.bool,
 };
 
@@ -30,45 +32,39 @@ const intlMessages = defineMessages({
   },
 });
 
-const deattachEchoStream = () => {
-  const audioElement = document.querySelector(MEDIA_TAG);
-  audioElement.pause();
-  audioElement.srcObject = null;
-}
-
-const playEchoStream = (stream) => {
-  if (stream) {
-    const audioElement = document.querySelector(MEDIA_TAG);
-    deattachEchoStream();
-    audioElement.srcObject = stream;
-    audioElement.play();
-  }
-}
-
 const LocalEcho = ({
   intl,
   stream,
   initialHearingState,
 }) => {
+  const loopbackAgent = useRef(null);
   const [hearing, setHearing] = useState(initialHearingState);
   const { animations } = Settings.application;
-  const icon = hearing ? "mute" : "unmute";
+  const icon = hearing ? 'mute' : 'unmute';
   const label = hearing ? intlMessages.stopHearingYourselfLabel : intlMessages.hearYourselfLabel;
 
-  const applyHearingState = () => {
+  const applyHearingState = (_stream) => {
     if (hearing) {
-      playEchoStream(stream);
+      Service.playEchoStream(_stream, loopbackAgent.current);
     } else {
-      deattachEchoStream();
+      Service.deattachEchoStream();
     }
   };
 
-  useEffect(() => {
-    return deattachEchoStream;
-  }, [])
+  const cleanup = () => {
+    if (loopbackAgent.current) loopbackAgent.current.stop();
+    Service.deattachEchoStream();
+  };
 
   useEffect(() => {
-    applyHearingState();
+    if (Service.useRTCLoopback()) {
+      loopbackAgent.current = Service.createAudioRTCLoopback({ audio: true });
+    }
+    return cleanup;
+  }, []);
+
+  useEffect(() => {
+    applyHearingState(stream);
   }, [stream, hearing]);
 
   return (
@@ -81,7 +77,7 @@ const LocalEcho = ({
       animations={animations}
     />
   );
-}
+};
 
 LocalEcho.propTypes = propTypes;
 LocalEcho.defaultProps = defaultProps;
