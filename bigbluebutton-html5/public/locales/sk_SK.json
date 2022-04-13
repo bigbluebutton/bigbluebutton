@@ -590,7 +590,6 @@
     "app.lock-viewers.button.apply": "Aplikovať",
     "app.lock-viewers.button.cancel": "Zrušiť",
     "app.lock-viewers.locked": "Uzamknuté",
-    "app.lock-viewers.unlocked": "Odomknuté",
     "app.guest-policy.ariaTitle": "Nastavenia pravidiel pre hostí sú modálne",
     "app.guest-policy.title": "Pravidlá pre hostí",
     "app.guest-policy.description": "Zmeniť nastavenia pravidiel pre hostí",

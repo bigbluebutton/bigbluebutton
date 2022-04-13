@@ -9,7 +9,6 @@
     "@playwright/test": "^1.18.1",
     "axios": "^0.26.1",
     "dotenv": "^16.0.0",
-    "js-yaml": "^4.1.0",
     "playwright": "^1.18.1",
     "sha1": "^1.1.1"
   }

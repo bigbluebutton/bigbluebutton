@@ -662,7 +662,6 @@
     "app.lock-viewers.button.apply": "Εφαρμογή",
     "app.lock-viewers.button.cancel": "Ακύρωση",
     "app.lock-viewers.locked": "Κλειδωμένο",
-    "app.lock-viewers.unlocked": "Μη Κλειδωμένο",
     "app.guest-policy.ariaTitle": "Τυπικές ρυθμίσεις πολιτικής για επισκέπτη",
     "app.guest-policy.title": "Πολιτική επισκεπτών",
     "app.guest-policy.description": "Αλλαγή ρυθμίσεων πολιτικής συνεδρίας για επισκέπτη",

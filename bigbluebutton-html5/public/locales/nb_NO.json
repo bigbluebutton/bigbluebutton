@@ -486,7 +486,6 @@
     "app.lock-viewers.button.apply": "Bruk",
     "app.lock-viewers.button.cancel": "Avbryt",
     "app.lock-viewers.locked": "Låst",
-    "app.lock-viewers.unlocked": "Opplåst",
     "app.recording.startTitle": "Start innspilling",
     "app.recording.stopTitle": "Pause innspilling",
     "app.recording.resumeTitle": "Gjenoppta innspilling",
