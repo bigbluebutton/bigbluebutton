@@ -22,6 +22,7 @@ export default function userBreakoutChanged({ body }) {
   const oldBreakoutSelector = {
     parentMeetingId: meetingId,
     breakoutId: fromBreakoutId,
+    freeJoin: false,
   };
 
   const newBreakoutSelector = {
