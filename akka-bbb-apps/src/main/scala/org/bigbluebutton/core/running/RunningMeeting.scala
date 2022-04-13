@@ -49,7 +49,6 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   Layouts.setCurrentLayout(
     liveMeeting.layouts,
     props.usersProp.meetingLayout,
-    SystemUser.ID
   )
 
   private val recordEvents = props.recordProp.record || props.recordProp.keepEvents

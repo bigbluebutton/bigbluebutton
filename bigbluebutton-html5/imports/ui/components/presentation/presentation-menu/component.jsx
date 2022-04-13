@@ -60,7 +60,6 @@ const propTypes = {
   }).isRequired,
   handleToggleFullscreen: PropTypes.func.isRequired,
   isDropdownOpen: PropTypes.bool,
-  toggleSwapLayout: PropTypes.func.isRequired,
   isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
   fullscreenRef: PropTypes.instanceOf(Element),
@@ -82,7 +81,6 @@ const defaultProps = {
 const PresentationMenu = (props) => {
   const {
     intl,
-    toggleSwapLayout,
     isFullscreen,
     elementId,
     elementName,
@@ -159,18 +157,6 @@ const PresentationMenu = (props) => {
                 group: newGroup,
               },
             });
-          },
-        },
-      );
-    }
-
-    if (OLD_MINIMIZE_BUTTON_ENABLED) {
-      menuItems.push(
-        {
-          key: 'list-item-minimize',
-          label: intl.formatMessage(intlMessages.minimizePresentationLabel),
-          onClick: () => {
-            toggleSwapLayout(layoutContextDispatch);
           },
         },
       );

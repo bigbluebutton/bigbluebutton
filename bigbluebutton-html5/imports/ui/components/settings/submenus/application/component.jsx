@@ -5,6 +5,7 @@ import LocalesDropdown from '/imports/ui/components/common/locales-dropdown/comp
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import Styled from './styles';
+import SettingsService from '/imports/ui/components/settings/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { ACTIONS, LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
@@ -77,6 +78,10 @@ const intlMessages = defineMessages({
   layoutOptionLabel: {
     id: 'app.submenu.application.layoutOptionLabel',
     description: 'layout options',
+  },
+  pushLayoutLabel: {
+    id: 'app.submenu.application.pushLayoutLabel',
+    description: 'push layout togle',
   },
   customLayout: {
     id: 'app.layout.style.custom',
@@ -326,18 +331,9 @@ class ApplicationMenu extends BaseMenu {
   }
 
   renderChangeLayout() {
-    const { intl, isModerator } = this.props;
+    const { intl, isPresenter, showToggleLabel, displaySettingsStatus } = this.props;
     const { settings } = this.state;
-
-    if (isModerator) {
-      const pushLayouts = {
-        CUSTOM_PUSH: 'customPush',
-        SMART_PUSH: 'smartPush',
-        PRESENTATION_FOCUS_PUSH: 'presentationFocusPush',
-        VIDEO_FOCUS_PUSH: 'videoFocusPush',
-      };
-      Object.assign(LAYOUT_TYPE, pushLayouts);
-    }
+    const isKeepPushingLayoutEnabled = SettingsService.isKeepPushingLayoutEnabled();
 
     return (
       <>
@@ -364,6 +360,30 @@ class ApplicationMenu extends BaseMenu {
             </Styled.FormElementRight>
           </Styled.Col>
         </Styled.Row>
+        { (isPresenter && isKeepPushingLayoutEnabled)
+          ? (
+            <Styled.Row>
+              <Styled.Col>
+                <Styled.FormElement>
+                  <Styled.Label>
+                    {intl.formatMessage(intlMessages.pushLayoutLabel)}
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
+                  {displaySettingsStatus(settings.pushLayout)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={settings.pushLayout}
+                    onChange={() => this.handleToggle('pushLayout')}
+                    ariaLabel={intl.formatMessage(intlMessages.pushLayoutLabel)}
+                    showToggleLabel={showToggleLabel}
+                  />
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+          ) : null }
       </>
     );
   }

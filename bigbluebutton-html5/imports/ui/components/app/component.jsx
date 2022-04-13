@@ -28,11 +28,12 @@ import PresentationAreaContainer from '../presentation/presentation-area/contain
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
 import Styled from './styles';
-import { DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT } from '../layout/enums';
+import { LAYOUT_TYPE, DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT } from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 } from '../layout/utils';
 import LayoutEngine from '../layout/layout-manager/layoutEngine';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
@@ -40,16 +41,26 @@ import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import DarkReader from 'darkreader';
 import Settings from '/imports/ui/services/settings';
-import LayoutService from '/imports/ui/components/layout/service';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import Notifications from '../notifications/container';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
+
+import MediaService from '/imports/ui/components/media/service';
+
+import ActionsBarContainer from '../actions-bar/container';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
+const HIDE_PRESENTATION = Meteor.settings.public.layout.hidePresentation;
+
+const equalDouble = (n1, n2) => {
+  const precision = 0.01;
+
+  return Math.abs(n1 - n2) <= precision;
+};
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -126,10 +137,6 @@ const defaultProps = {
 const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
 
 class App extends Component {
-  static renderWebcamsContainer() {
-    return <NewWebcamContainer />;
-  }
-
   constructor(props) {
     super(props);
     this.state = {
@@ -138,7 +145,6 @@ class App extends Component {
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
-    this.renderWebcamsContainer = App.renderWebcamsContainer.bind(this);
 
     this.throttledDeviceType = throttle(() => this.setDeviceType(),
       50, { trailing: true, leading: true }).bind(this);
@@ -153,9 +159,18 @@ class App extends Component {
       layoutContextDispatch,
       meetingLayout,
       settingsLayout,
+      focusedCamera,
+      presentationVideoRate,
+      cameraWidth,
+      cameraHeight,
+      cameraPosition,
+      presentationIsOpen,
+      layoutPresOpen,
+      layoutCamPosition,
+      layoutFocusedCam,
+      layoutRate,
+      horizontalPosition,
       isRTL,
-      hidePresentation,
-      autoSwapLayout,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -165,11 +180,6 @@ class App extends Component {
     layoutContextDispatch({
       type: ACTIONS.SET_IS_RTL,
       value: isRTL,
-    });
-
-    layoutContextDispatch({
-      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-      value: !(autoSwapLayout || hidePresentation),
     });
 
     Modal.setAppElement('#app');
@@ -183,10 +193,56 @@ class App extends Component {
       value: parseInt(fontSize.slice(0, -2), 10),
     });
 
-    const currentLayout = settingsLayout || meetingLayout;
+    const userLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', false)];
+    Settings.application.selectedLayout = settingsLayout
+      || userLayout
+      || meetingLayout;
 
-    Settings.application.selectedLayout = currentLayout;
+    let selectedLayout = Settings.application.selectedLayout;
+    if (isMobile()) {
+      selectedLayout = selectedLayout === 'custom' ? 'smart' : selectedLayout;
+      Settings.application.selectedLayout = selectedLayout;
+    }
     Settings.save();
+
+    const initialPresentation = !getFromUserSettings('bbb_hide_presentation', HIDE_PRESENTATION || !layoutPresOpen);
+    MediaService.setPresentationIsOpen(layoutContextDispatch, initialPresentation);
+
+    if (selectedLayout === 'custom') {
+      setTimeout(() => {
+
+        layoutContextDispatch({
+          type: ACTIONS.SET_FOCUSED_CAMERA_ID,
+          value: layoutFocusedCam,
+        });
+
+        layoutContextDispatch({
+          type: ACTIONS.SET_CAMERA_DOCK_POSITION,
+          value: layoutCamPosition,
+        });
+
+        if (!equalDouble(layoutRate, 0)) {
+          let w, h;
+          if (horizontalPosition) {
+            w = window.innerWidth * layoutRate;
+            h = cameraHeight;
+          } else {
+            w = cameraWidth;
+            h = window.innerHeight * layoutRate;
+          }
+
+          layoutContextDispatch({
+            type: ACTIONS.SET_CAMERA_DOCK_SIZE,
+            value: {
+              width: w,
+              height: h,
+              browserWidth: window.innerWidth,
+              browserHeight: window.innerHeight,
+            }
+          });
+        }
+      }, 0);
+    }
 
     const body = document.getElementsByTagName('body')[0];
 
@@ -231,36 +287,146 @@ class App extends Component {
       mountModal,
       deviceType,
       meetingLayout,
-      selectedLayout, // full layout name
-      settingsLayout, // shortened layout name (without Push)
-      layoutType,
-      pushLayoutToEveryone, // is layout pushed
+      meetingLayoutUpdatedAt,
+      presentationIsOpen,
+      focusedCamera,
+      cameraPosition,
+      presentationVideoRate,
+      cameraWidth,
+      cameraHeight,
+      cameraIsResizing,
+      isPresenter,
+      layoutPresOpen,
+      layoutIsResizing,
+      layoutCamPosition,
+      layoutFocusedCam,
+      layoutRate,
+      horizontalPosition,
+      selectedLayout, // layout name
+      pushLayout, // is layout pushed
+      pushLayoutMeeting,
       layoutContextDispatch,
       mountRandomUserModal,
+      setMeetingLayout,
     } = this.props;
 
     this.renderDarkMode();
 
-    if (meetingLayout !== prevProps.meetingLayout) {
+    if (meetingLayout !== prevProps.meetingLayout
+      || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+
+      let contextLayout = meetingLayout;
+      if (isMobile()) {
+        contextLayout = meetingLayout === 'custom' ? 'smart' : meetingLayout;
+      }
+
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_TYPE,
-        value: meetingLayout,
+        value: contextLayout,
       });
 
-      Settings.application.selectedLayout = meetingLayout;
+      Settings.application.selectedLayout = contextLayout;
       Settings.save();
     }
 
-    if (selectedLayout !== prevProps.selectedLayout
-      || settingsLayout !== layoutType) {
+    if (selectedLayout !== prevProps.selectedLayout) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_TYPE,
-        value: settingsLayout,
+        value: selectedLayout,
+      });
+    }
+
+    if (meetingLayout !== prevProps.meetingLayout
+      || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+
+      let contextLayout = meetingLayout;
+      if (isMobile()) {
+        contextLayout = meetingLayout === 'custom' ? 'smart' : meetingLayout;
+      }
+
+      layoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_TYPE,
+        value: contextLayout,
       });
 
-      if (pushLayoutToEveryone) {
-        LayoutService.setMeetingLayout(settingsLayout);
+      Settings.application.selectedLayout = contextLayout;
+      Settings.save();
+    }
+
+    if (pushLayoutMeeting !== prevProps.pushLayoutMeeting) {
+      Settings.application.pushLayout = pushLayoutMeeting;
+    }
+
+    if (meetingLayout === "custom" && !isPresenter) {
+
+      if (layoutFocusedCam !== prevProps.layoutFocusedCam
+	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+
+	layoutContextDispatch({
+	  type: ACTIONS.SET_FOCUSED_CAMERA_ID,
+	  value: layoutFocusedCam,
+	});
       }
+
+      if (layoutCamPosition !== prevProps.layoutCamPosition
+	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+
+	layoutContextDispatch({
+	  type: ACTIONS.SET_CAMERA_DOCK_POSITION,
+	  value: layoutCamPosition,
+	});
+      }
+
+      if (!equalDouble(layoutRate, prevProps.layoutRate)
+	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+
+	let w, h;
+        if (horizontalPosition) {
+	  w = window.innerWidth * layoutRate;
+	  h = cameraHeight;
+	} else {
+	  w = cameraWidth;
+	  h = window.innerHeight * layoutRate;
+	}
+
+        if (layoutIsResizing !== prevProps.layoutIsResizing) {
+          layoutContextDispatch({
+            type: ACTIONS.SET_CAMERA_DOCK_IS_RESIZING,
+            value: layoutIsResizing,
+          });
+        }
+
+        layoutContextDispatch({
+	  type: ACTIONS.SET_CAMERA_DOCK_SIZE,
+	  value: {
+	    width: w,
+	    height: h,
+	    browserWidth: window.innerWidth,
+	    browserHeight: window.innerHeight,
+	  }
+	});
+      }
+
+      if (layoutPresOpen !== prevProps.layoutPresOpen
+	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+
+	layoutContextDispatch({
+	  type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+	  value: layoutPresOpen,
+	});
+      }
+    }
+
+    const layoutChanged = presentationIsOpen !== prevProps.presentationIsOpen
+      || cameraIsResizing !== prevProps.cameraIsResizing
+      || cameraPosition !== prevProps.cameraPosition
+      || focusedCamera !== prevProps.focusedCamera
+      || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
+
+    if (isPresenter && (pushLayout && selectedLayout === 'custom' && layoutChanged) // change layout sizes / states
+      || (selectedLayout !== prevProps.selectedLayout) // change layout type
+      || (!pushLayout && prevProps.pushLayout)) { // special case where we set pushLayout to false in all viewers
+      setMeetingLayout();
     }
 
     if (mountRandomUserModal) mountModal(<RandomUserSelectContainer />);
@@ -359,13 +525,14 @@ class App extends Component {
 
   renderActionsBar() {
     const {
-      actionsbar,
       intl,
       actionsBarStyle,
       hideActionsBar,
+      setMeetingLayout,
+      presentationIsOpen,
     } = this.props;
 
-    if (!actionsbar || hideActionsBar) return null;
+    if (hideActionsBar) return null;
 
     return (
       <Styled.ActionsBar
@@ -384,7 +551,10 @@ class App extends Component {
           }
         }
       >
-        {actionsbar}
+        <ActionsBarContainer
+          setMeetingLayout={setMeetingLayout}
+          presentationIsOpen={presentationIsOpen}
+	/>
       </Styled.ActionsBar>
     );
   }
@@ -435,13 +605,14 @@ class App extends Component {
       shouldShowScreenshare,
       shouldShowExternalVideo,
       isPresenter,
-      layoutType,
+      meetingLayout,
+      presentationIsOpen,
     } = this.props;
 
     return (
       <>
         <Notifications />
-        <LayoutEngine layoutType={layoutType} />
+        <LayoutEngine layoutType={meetingLayout} />
         <GlobalStyles />
         <Styled.Layout
           id="layout"
@@ -457,12 +628,12 @@ class App extends Component {
           <SidebarNavigationContainer />
           <SidebarContentContainer />
           <NavBarContainer main="new" />
-          {this.renderWebcamsContainer()}
-          {shouldShowPresentation ? <PresentationAreaContainer /> : null}
-          {shouldShowScreenshare ? <ScreenshareContainer /> : null}
+          <NewWebcamContainer isLayoutSwapped={!presentationIsOpen} />
+          {shouldShowPresentation ? <PresentationAreaContainer presentationIsOpen={presentationIsOpen} /> : null}
+          {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} /> : null}
           {
             shouldShowExternalVideo
-              ? <ExternalVideoContainer isPresenter={isPresenter} />
+              ? <ExternalVideoContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
               : null
           }
           {this.renderCaptions()}

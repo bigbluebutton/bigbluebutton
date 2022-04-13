@@ -92,8 +92,6 @@ class Base extends Component {
       value: usersVideo.length,
     });
 
-    MediaService.setSwapLayout(layoutContextDispatch);
-
     const {
       userID: localUserId,
     } = Auth;

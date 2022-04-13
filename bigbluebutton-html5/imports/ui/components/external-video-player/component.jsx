@@ -153,10 +153,7 @@ class VideoPlayer extends Component {
 
   componentDidMount() {
     const {
-      getSwapLayout,
-      toggleSwapLayout,
       layoutContextDispatch,
-      hidePresentation,
     } = this.props;
 
     window.addEventListener('beforeunload', this.onBeforeUnload);
@@ -167,17 +164,13 @@ class VideoPlayer extends Component {
     VideoPlayer.clearVideoListeners();
     this.registerVideoListeners();
 
-    if (getSwapLayout()) toggleSwapLayout(layoutContextDispatch);
-
-    if (hidePresentation) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-        value: true,
-      });
-    }
-
     layoutContextDispatch({
       type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
+      value: true,
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
       value: true,
     });
   }

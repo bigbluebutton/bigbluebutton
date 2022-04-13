@@ -1094,6 +1094,8 @@ class VideoProvider extends Component {
       currentVideoPageIndex,
       streams,
       cameraDockBounds,
+      focusedId,
+      handleVideoFocus,
     } = this.props;
 
     return (
@@ -1103,6 +1105,8 @@ class VideoProvider extends Component {
           swapLayout,
           currentVideoPageIndex,
           cameraDockBounds,
+          focusedId,
+          handleVideoFocus,
         }}
         onVideoItemMount={this.createVideoTag}
         onVideoItemUnmount={this.destroyVideoTag}
