@@ -334,6 +334,9 @@ class App extends Component {
         type: ACTIONS.SET_LAYOUT_TYPE,
         value: selectedLayout,
       });
+
+      Settings.application.selectedLayout = selectedLayout;
+      Settings.save();
     }
 
     if (meetingLayout !== prevProps.meetingLayout
@@ -423,9 +426,8 @@ class App extends Component {
       || focusedCamera !== prevProps.focusedCamera
       || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
 
-    if (isPresenter && (pushLayout && selectedLayout === 'custom' && layoutChanged) // change layout sizes / states
-      || (selectedLayout !== prevProps.selectedLayout) // change layout type
-      || (!pushLayout && prevProps.pushLayout)) { // special case where we set pushLayout to false in all viewers
+    if (isPresenter && ((pushLayout && selectedLayout === 'custom' && layoutChanged) // change layout sizes / states
+      || (!pushLayout && prevProps.pushLayout))) { // special case where we set pushLayout to false in all viewers
       setMeetingLayout();
     }
 
@@ -605,6 +607,7 @@ class App extends Component {
       shouldShowScreenshare,
       shouldShowExternalVideo,
       isPresenter,
+      selectedLayout,
       meetingLayout,
       presentationIsOpen,
     } = this.props;
@@ -612,7 +615,7 @@ class App extends Component {
     return (
       <>
         <Notifications />
-        <LayoutEngine layoutType={meetingLayout} />
+        <LayoutEngine layoutType={selectedLayout} />
         <GlobalStyles />
         <Styled.Layout
           id="layout"
