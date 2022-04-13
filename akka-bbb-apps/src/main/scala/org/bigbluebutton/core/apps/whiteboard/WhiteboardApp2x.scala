@@ -82,7 +82,7 @@ class WhiteboardApp2x(implicit val context: ActorContext)
   }
 
   def sendWhiteboardEraser(eraserAnnotation: AnnotationVO, drawEndOnly: Boolean, liveMeeting: LiveMeeting): Option[ModificationVO] = {
-    //    println("Received whiteboard annotation. status=[" + status + "], annotationType=[" + annotationType + "]")
+    //println("Received whiteboard annotation: " + eraserAnnotation)
     var rtnInformation: Option[ModificationVO] = None
 
     if (WhiteboardKeyUtil.DRAW_START_STATUS == eraserAnnotation.status) {
@@ -91,12 +91,12 @@ class WhiteboardApp2x(implicit val context: ActorContext)
       //TODO Eraser Update
       //rtnInformation = liveMeeting.wbModel.updateAnnotationPencil(annotation.wbId, annotation.userId, annotation)
     } else if (WhiteboardKeyUtil.DRAW_END_STATUS == eraserAnnotation.status) {
-      rtnInformation = liveMeeting.wbModel.endAnnotationEraser(eraserAnnotation.wbId, eraserAnnotation.userId, eraserAnnotation, drawEndOnly)
+      rtnInformation = liveMeeting.wbModel.evaluateAnnotationEraser(eraserAnnotation.wbId, eraserAnnotation.userId, eraserAnnotation)
     } else {
       //	    println("Received UNKNOWN whiteboard annotation!!!!. status=[" + status + "], annotationType=[" + annotationType + "]")
     }
     if (rtnInformation.isDefined) {
-      log.debug("rtnInformation. toAdd=[" + rtnInformation.get.addedAnnotations + "], remove=[" + rtnInformation.get.removedAnnotations + "]")
+      //log.debug("rtnInformation. toAdd=[" + rtnInformation.get.addedAnnotations + "], remove=[" + rtnInformation.get.removedAnnotations + "]")
     }
     rtnInformation
   }
