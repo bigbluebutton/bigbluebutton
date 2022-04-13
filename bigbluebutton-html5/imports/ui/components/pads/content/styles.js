@@ -17,6 +17,7 @@ color: ${colorGray};
 bottom: 0;
 box-sizing: border-box;
 display: flex;
+flex-direction: column;
 overflow-x: hidden;
 overflow-wrap: break-word;
 word-break: break-all;
