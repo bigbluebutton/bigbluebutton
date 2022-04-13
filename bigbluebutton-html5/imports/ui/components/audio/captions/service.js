@@ -4,7 +4,17 @@ import Auth from '/imports/ui/services/auth';
 const getAudioCaptionsData = () => {
   const audioCaptions = AudioCaptions.findOne({ meetingId: Auth.meetingID });
 
-  return audioCaptions ? audioCaptions.transcript : '';
+  if (audioCaptions) {
+    return {
+      transcriptId: audioCaptions.transcriptId,
+      transcript: audioCaptions.transcript,
+    };
+  }
+
+  return {
+    transcriptId: '',
+    transcript: '',
+  };
 };
 
 const getAudioCaptions = () => Session.get('audioCaptions') || false;

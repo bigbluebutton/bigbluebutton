@@ -5,6 +5,14 @@ import LiveCaptions from './component';
 
 const Container = (props) => <LiveCaptions {...props} />;
 
-export default withTracker(() => ({
-  data: Service.getAudioCaptionsData(),
-}))(Container);
+export default withTracker(() => {
+  const {
+    transcriptId,
+    transcript,
+  } = Service.getAudioCaptionsData();
+
+  return {
+    transcript,
+    transcriptId,
+  };
+})(Container);

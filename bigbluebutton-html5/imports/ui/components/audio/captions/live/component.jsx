@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import UserContainer from './user/container';
 
 const CAPTIONS_CONFIG = Meteor.settings.public.captions;
 
@@ -15,8 +16,8 @@ class LiveCaptions extends PureComponent {
     const { clear } = this.state;
 
     if (clear) {
-      const { data } = this.props;
-      if (prevProps.data !== data) {
+      const { transcript } = this.props;
+      if (prevProps.transcript !== transcript) {
         // eslint-disable-next-line react/no-did-update-set-state
         this.setState({ clear: false });
       }
@@ -38,14 +39,17 @@ class LiveCaptions extends PureComponent {
   }
 
   render() {
-    const { data } = this.props;
+    const {
+      transcript,
+      transcriptId,
+    } = this.props;
+
     const { clear } = this.state;
 
-    const hasContent = data.length > 0 && !clear;
+    const hasContent = transcript.length > 0 && !clear;
 
     const wrapperStyles = {
-      background: 'black',
-      padding: hasContent ? '.5rem 1rem' : undefined,
+      display: 'flex',
     };
 
     const captionStyles = {
@@ -55,6 +59,7 @@ class LiveCaptions extends PureComponent {
       fontSize: '1.5rem',
       background: 'black',
       color: 'white',
+      padding: hasContent ? '.5rem' : undefined,
     };
 
     const visuallyHidden = {
@@ -70,15 +75,21 @@ class LiveCaptions extends PureComponent {
 
     return (
       <div style={wrapperStyles}>
+        {clear ? null : (
+          <UserContainer
+            background="black"
+            transcriptId={transcriptId}
+          />
+        )}
         <div style={captionStyles}>
-          {clear ? '' : data}
+          {clear ? '' : transcript}
         </div>
         <div
           style={visuallyHidden}
           aria-atomic
           aria-live="polite"
         >
-          {clear ? '' : data}
+          {clear ? '' : transcript}
         </div>
       </div>
     );
@@ -86,7 +97,8 @@ class LiveCaptions extends PureComponent {
 }
 
 LiveCaptions.propTypes = {
-  data: PropTypes.string.isRequired,
+  transcript: PropTypes.string.isRequired,
+  transcriptId: PropTypes.string.isRequired,
 };
 
 export default LiveCaptions;
