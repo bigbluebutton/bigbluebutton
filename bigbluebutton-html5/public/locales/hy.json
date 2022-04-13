@@ -695,7 +695,6 @@
     "app.lock-viewers.button.apply": "Ընդունել",
     "app.lock-viewers.button.cancel": "Չեղարկել",
     "app.lock-viewers.locked": "Արգելափակված է",
-    "app.lock-viewers.unlocked": "Արգելափակված չէ",
     "app.guest-policy.ariaTitle": "Հյուրերի միանալու կանոնների պատուհան",
     "app.guest-policy.title": "Հյուրերի միանալու կանոններ",
     "app.guest-policy.description": "Փոխել հյուրերի միանալու կանոնները",

@@ -140,10 +140,13 @@ export default function addMeeting(meeting) {
   const sanitizeTextInChat = original => SanitizeHTML(original, {
     allowedTags: ['a', 'b', 'br', 'i', 'img', 'li', 'small', 'span', 'strong', 'u', 'ul'],
     allowedAttributes: {
-      a: ['href', 'name', 'target'],
+      a: ['href', 'target'],
       img: ['src', 'width', 'height'],
     },
     allowedSchemes: ['https'],
+    allowedSchemesByTag: {
+      a: ['https', 'mailto', 'tel']
+    }
   });
 
   const sanitizedWelcomeText = sanitizeTextInChat(welcomeMsg);
@@ -154,14 +157,18 @@ export default function addMeeting(meeting) {
 
   const insertBlankTarget = (s, i) => `${s.substr(0, i)} target="_blank"${s.substr(i)}`;
   const linkWithoutTarget = new RegExp('<a href="(.*?)">', 'g');
-  linkWithoutTarget.test(welcomeMsg);
 
-  if (linkWithoutTarget.lastIndex > 0) {
-    welcomeMsg = insertBlankTarget(
-      welcomeMsg,
-      linkWithoutTarget.lastIndex - 1,
-    );
-  }
+  do {
+    linkWithoutTarget.test(welcomeMsg);
+
+    if (linkWithoutTarget.lastIndex > 0) {
+      welcomeMsg = insertBlankTarget(
+        welcomeMsg,
+        linkWithoutTarget.lastIndex - 1,
+      );
+      linkWithoutTarget.lastIndex = linkWithoutTarget.lastIndex - 1;
+    }
+  } while (linkWithoutTarget.lastIndex > 0);
 
   newMeeting.welcomeProp.welcomeMsg = welcomeMsg;
 

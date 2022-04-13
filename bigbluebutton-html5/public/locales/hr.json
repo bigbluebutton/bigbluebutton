@@ -389,7 +389,6 @@
     "app.lock-viewers.button.apply": "Primjeni",
     "app.lock-viewers.button.cancel": "Odustani",
     "app.lock-viewers.locked": "Zaključano",
-    "app.lock-viewers.unlocked": "Otključano",
     "app.guest-policy.button.askModerator": "Pitaj moderatora",
     "app.guest-policy.button.alwaysAccept": "Uvijek prihvati",
     "app.guest-policy.button.alwaysDeny": "Uvijek odbij",
