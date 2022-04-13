@@ -574,6 +574,7 @@
     "app.audio.captions.button.stop": "Parar closed captions",
     "app.audio.captions.speech.title": "Transcrição automática",
     "app.audio.captions.speech.disabled": "Desabilitado",
+    "app.audio.captions.speech.unsupported": "Seu navegador não suporta reconhecimento de voz. Seu áudio não será transcrito",
     "app.audio.captions.select.en-US": "Inglês",
     "app.audio.captions.select.es-ES": "Espanhol",
     "app.audio.captions.select.pt-BR": "Português",

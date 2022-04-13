@@ -12,6 +12,10 @@ const intlMessages = defineMessages({
     id: 'app.audio.captions.speech.disabled',
     description: 'Audio speech recognition disabled',
   },
+  unsupported: {
+    id: 'app.audio.captions.speech.unsupported',
+    description: 'Audio speech recognition unsupported',
+  },
   'en-US': {
     id: 'app.audio.captions.select.en-US',
     description: 'Audio speech recognition english language',
@@ -34,9 +38,20 @@ const Select = ({
 }) => {
   if (!enabled) return null;
 
-  if (SpeechService.useDefault()) return null;
+  if (voices.length === 0) {
+    return (
+      <div
+        style={{
+          fontSize: '.75rem',
+          padding: '1rem 0',
+        }}
+      >
+        {`*${intl.formatMessage(intlMessages.unsupported)}`}
+      </div>
+    );
+  }
 
-  if (voices.length === 0) return null;
+  if (SpeechService.useDefault()) return null;
 
   const onChange = (e) => {
     const { value } = e.target;

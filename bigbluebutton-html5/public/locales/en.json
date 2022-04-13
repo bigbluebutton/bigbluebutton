@@ -614,6 +614,7 @@
     "app.audio.captions.button.stop": "Stop closed captions",
     "app.audio.captions.speech.title": "Automatic transcription",
     "app.audio.captions.speech.disabled": "Disabled",
+    "app.audio.captions.speech.unsupported": "Your browser doesn't support speech recognition. Your audio won't be transcribed",
     "app.audio.captions.select.en-US": "English",
     "app.audio.captions.select.es-ES": "Spanish",
     "app.audio.captions.select.pt-BR": "Portuguese",

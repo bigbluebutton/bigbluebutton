@@ -93,9 +93,9 @@ const hasSpeechLocale = () => getSpeechLocale() !== '';
 
 const isLocaleValid = (locale) => LANGUAGES.includes(locale);
 
-const isEnabled = () => ENABLED && hasSpeechRecognitionSupport();
+const isEnabled = () => ENABLED;
 
-const isActive = () => isEnabled() && hasSpeechLocale();
+const isActive = () => isEnabled() && hasSpeechRecognitionSupport() && hasSpeechLocale();
 
 const getStatus = () => {
   const active = isActive();
