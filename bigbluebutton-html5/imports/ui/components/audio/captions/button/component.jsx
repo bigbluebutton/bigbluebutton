@@ -26,7 +26,7 @@ const CaptionsButton = ({
 
   return (
     <Button
-      icon="closed_caption"
+      icon={active ? 'closed_caption' : 'closed_caption_stop'}
       label={intl.formatMessage(active ? intlMessages.stop : intlMessages.start)}
       color={active ? 'primary' : 'default'}
       ghost={!active}

@@ -2,6 +2,8 @@ import _ from 'lodash';
 import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
 import { makeCall } from '/imports/ui/services/api';
+import logger from '/imports/startup/client/logger';
+import Users from '/imports/api/users';
 import AudioService from '/imports/ui/components/audio/service';
 
 const LANGUAGES = [
@@ -21,9 +23,11 @@ const hasSpeechRecognitionSupport = () => typeof SpeechRecognitionAPI !== 'undef
 
 const setSpeechLocale = (value) => {
   if (LANGUAGES.includes(value) || value === '') {
-    Session.set('speechLocale', value);
+    makeCall('setSpeechLocale', value);
   } else {
-    // TODO: ERROR
+    logger.error({
+      logCode: 'captions_speech_locale',
+    }, 'Captions speech set locale error');
   }
 };
 
@@ -47,7 +51,9 @@ const setDefault = () => {
   if (voices.includes(CONFIG.language.locale)) {
     setSpeechLocale(CONFIG.language.locale);
   } else {
-    // TODO: ERROR
+    logger.error({
+      logCode: 'captions_speech_default',
+    }, 'Captions speech set default error');
   }
 };
 
@@ -66,7 +72,9 @@ const initSpeechRecognition = () => {
     return speechRecognition;
   }
 
-  // TODO: WARN
+  logger.warn({
+    logCode: 'captions_speech_unsupported',
+  }, 'Captions speech unsupported');
 
   return null;
 };
@@ -87,9 +95,15 @@ const updateFinalTranscript = (id, transcript, locale) => {
   updateTranscript(id, transcript, locale);
 };
 
-const getSpeechLocale = () => Session.get('speechLocale') || '';
+const getSpeechLocale = (userId = Auth.userID) => {
+  const user = Users.findOne({ userId }, { fields: { speechLocale: 1 } });
 
-const hasSpeechLocale = () => getSpeechLocale() !== '';
+  if (user) return user.speechLocale;
+
+  return '';
+};
+
+const hasSpeechLocale = (userId = Auth.userID) => getSpeechLocale(userId) !== '';
 
 const isLocaleValid = (locale) => LANGUAGES.includes(locale);
 
@@ -122,6 +136,7 @@ export default {
   getSpeechVoices,
   getSpeechLocale,
   setSpeechLocale,
+  hasSpeechLocale,
   isLocaleValid,
   isEnabled,
   isActive,
