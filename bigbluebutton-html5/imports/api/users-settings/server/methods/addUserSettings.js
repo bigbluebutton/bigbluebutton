@@ -62,9 +62,6 @@ const currentParameters = [
   'bbb_hide_actions_bar',
   'bbb_hide_nav_bar',
   'bbb_change_layout',
-  // OUTSIDE COMMANDS
-  'bbb_outside_toggle_self_voice',
-  'bbb_outside_toggle_recording',
 ];
 
 function valueParser(val) {

@@ -365,34 +365,34 @@ class App extends Component {
     if (meetingLayout === "custom" && !isPresenter) {
 
       if (layoutFocusedCam !== prevProps.layoutFocusedCam
-	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+        || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
 
-	layoutContextDispatch({
-	  type: ACTIONS.SET_FOCUSED_CAMERA_ID,
-	  value: layoutFocusedCam,
-	});
+        layoutContextDispatch({
+          type: ACTIONS.SET_FOCUSED_CAMERA_ID,
+          value: layoutFocusedCam,
+        });
       }
 
       if (layoutCamPosition !== prevProps.layoutCamPosition
-	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+        || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
 
-	layoutContextDispatch({
-	  type: ACTIONS.SET_CAMERA_DOCK_POSITION,
-	  value: layoutCamPosition,
-	});
+        layoutContextDispatch({
+          type: ACTIONS.SET_CAMERA_DOCK_POSITION,
+          value: layoutCamPosition,
+        });
       }
 
       if (!equalDouble(layoutRate, prevProps.layoutRate)
-	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+        || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
 
-	let w, h;
+        let w, h;
         if (horizontalPosition) {
-	  w = window.innerWidth * layoutRate;
-	  h = cameraHeight;
-	} else {
-	  w = cameraWidth;
-	  h = window.innerHeight * layoutRate;
-	}
+          w = window.innerWidth * layoutRate;
+          h = cameraHeight;
+        } else {
+          w = cameraWidth;
+          h = window.innerHeight * layoutRate;
+        }
 
         if (layoutIsResizing !== prevProps.layoutIsResizing) {
           layoutContextDispatch({
@@ -402,23 +402,23 @@ class App extends Component {
         }
 
         layoutContextDispatch({
-	  type: ACTIONS.SET_CAMERA_DOCK_SIZE,
-	  value: {
-	    width: w,
-	    height: h,
-	    browserWidth: window.innerWidth,
-	    browserHeight: window.innerHeight,
-	  }
-	});
+          type: ACTIONS.SET_CAMERA_DOCK_SIZE,
+          value: {
+            width: w,
+            height: h,
+            browserWidth: window.innerWidth,
+            browserHeight: window.innerHeight,
+          }
+        });
       }
 
       if (layoutPresOpen !== prevProps.layoutPresOpen
-	|| meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+        || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
 
-	layoutContextDispatch({
-	  type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-	  value: layoutPresOpen,
-	});
+        layoutContextDispatch({
+          type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+          value: layoutPresOpen,
+        });
       }
     }
 
@@ -558,7 +558,7 @@ class App extends Component {
         <ActionsBarContainer
           setMeetingLayout={setMeetingLayout}
           presentationIsOpen={presentationIsOpen}
-	/>
+        />
       </Styled.ActionsBar>
     );
   }

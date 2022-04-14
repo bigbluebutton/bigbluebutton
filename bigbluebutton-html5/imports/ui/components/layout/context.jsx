@@ -58,7 +58,7 @@ const reducer = (state, action) => {
           cameraDock: {
             ...cameraDock,
             focusedId: action.value,
-	  },
+          },
         },
       };
     }
