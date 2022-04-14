@@ -29,6 +29,11 @@ published_days=14
 log_history=28
 
 #
+# Delete recordings deleted by API older than N days
+#
+find /var/bigbluebutton/deleted/presentation/ -maxdepth 1 -type d -name "*-*" -mtime +$history -exec rm -rf '{}' +
+
+#
 # Delete presentations older than N days
 #
 find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-[0-9]*" -mtime +$history -exec rm -rf '{}' +
