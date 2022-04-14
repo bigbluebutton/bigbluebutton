@@ -433,7 +433,7 @@ public:
   poll:
     enabled: true
     maxCustom: 5
-    allowDragAndDropFile: false
+    allowDragAndDropFile: true
     maxTypedAnswerLength: 45
     chatMessage: true
   captions:
