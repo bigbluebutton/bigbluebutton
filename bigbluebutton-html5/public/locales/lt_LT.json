@@ -519,7 +519,6 @@
     "app.lock-viewers.button.apply": "Taikyti",
     "app.lock-viewers.button.cancel": "Atšaukti",
     "app.lock-viewers.locked": "Užrakinta",
-    "app.lock-viewers.unlocked": "Atrakinta",
     "app.connection-status.title": "Ryšio būsena",
     "app.connection-status.description": "Peržiūrėti naudotojų ryšio būseną",
     "app.connection-status.more": "daugiau",

@@ -600,7 +600,6 @@
     "app.lock-viewers.button.apply": "Aplicar",
     "app.lock-viewers.button.cancel": "Cancelar",
     "app.lock-viewers.locked": "Bloqueado",
-    "app.lock-viewers.unlocked": "Desbloqueado",
     "app.guest-policy.ariaTitle": "Modo de configuración de la política de invitados",
     "app.guest-policy.title": "Política de invitados",
     "app.guest-policy.description": "Cambiar la configuración de la política de invitados a la reunión",

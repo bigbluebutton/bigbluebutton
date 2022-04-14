@@ -301,14 +301,23 @@ class PresentationUploader extends Component {
         }
       });
 
-      if (!_.isEqual(prevProps.presentations, propPresentations) || presentations.length === 0) {
-        this.setState({
-          presentations: Object.values({
-            ...presentations,
-            ...propPresentations,
-          }),
-        });
-      }
+      const presState = Object.values({
+        ...propPresentations,
+        ...presentations,
+      });
+      const presStateMapped = presState.map((presentation) => {
+        propPresentations.forEach((propPres) => {
+          if (propPres.id == presentation.id){
+            presentation.isCurrent = propPres.isCurrent;
+          }
+        })
+        return presentation;
+      })
+
+      this.setState({
+        presentations: presStateMapped,
+      })
+      
     }
 
     if (presentations.length > 0) {
@@ -857,7 +866,6 @@ class PresentationUploader extends Component {
               keyValue={item.id}
               onChange={() => this.handleCurrentChange(item.id)}
               disabled={disableActions}
-              animations={animations}
               />
             </Styled.ItemAction>
             {isRemovable ? (

@@ -160,7 +160,7 @@ Meteor.publish('meeting-time-remaining', timeRemainingPublish);
 
 function notifications() {
   const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
-  if (tokenValidation || tokenValidation.validationStatus === ValidationStates.VALIDATED) {
+  if (tokenValidation && tokenValidation.validationStatus === ValidationStates.VALIDATED) {
     notificationEmitter.on('notification', (notification) => {
       const { meetingId, userId } = tokenValidation;
       switch (notification.type) {

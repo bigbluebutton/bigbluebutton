@@ -651,7 +651,6 @@
     "app.lock-viewers.button.apply": "Aplikovat",
     "app.lock-viewers.button.cancel": "Zrušit",
     "app.lock-viewers.locked": "Uzamčen",
-    "app.lock-viewers.unlocked": "Povoleno",
     "app.guest-policy.ariaTitle": "Panel nastavení Pravidla pro hosty",
     "app.guest-policy.title": "Pravidla pro hosty",
     "app.guest-policy.description": "Změnit nastavení pravidel pro hosty",

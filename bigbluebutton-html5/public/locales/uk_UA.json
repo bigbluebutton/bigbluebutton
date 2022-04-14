@@ -651,7 +651,6 @@
     "app.lock-viewers.button.apply": "Застосувати",
     "app.lock-viewers.button.cancel": "Скасувати",
     "app.lock-viewers.locked": "Заблокований",
-    "app.lock-viewers.unlocked": "Розблокований",
     "app.guest-policy.ariaTitle": "Вікно налаштування політики для гостей",
     "app.guest-policy.title": "Гостьова політика",
     "app.guest-policy.description": "Змінити налаштування гостьової політики зустрічі",

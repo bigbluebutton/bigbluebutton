@@ -171,6 +171,8 @@ class App extends Component {
       layoutRate,
       horizontalPosition,
       isRTL,
+      shouldShowScreenshare,
+      shouldShowExternalVideo,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -205,7 +207,7 @@ class App extends Component {
     }
     Settings.save();
 
-    const initialPresentation = !getFromUserSettings('bbb_hide_presentation', HIDE_PRESENTATION || !layoutPresOpen);
+    const initialPresentation = !getFromUserSettings('bbb_hide_presentation', HIDE_PRESENTATION || !layoutPresOpen) || shouldShowScreenshare || shouldShowExternalVideo;
     MediaService.setPresentationIsOpen(layoutContextDispatch, initialPresentation);
 
     if (selectedLayout === 'custom') {
