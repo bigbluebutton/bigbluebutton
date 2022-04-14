@@ -69,6 +69,7 @@ public class Meeting {
 	private boolean webcamsOnlyForModerator = false;
 	private Integer meetingCameraCap = 0;
 	private Integer userCameraCap = 0;
+	private Integer maxPinnedCameras = 0;
 	private String dialNumber;
 	private String defaultAvatarURL;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
@@ -140,6 +141,7 @@ public class Meeting {
         webcamsOnlyForModerator = builder.webcamsOnlyForModerator;
         meetingCameraCap = builder.meetingCameraCap;
         userCameraCap = builder.userCameraCap;
+        maxPinnedCameras = builder.maxPinnedCameras;
         duration = builder.duration;
         webVoice = builder.webVoice;
         telVoice = builder.telVoice;
@@ -521,6 +523,10 @@ public class Meeting {
         return userCameraCap;
     }
 
+    public Integer getMaxPinnedCameras() {
+        return maxPinnedCameras;
+    }
+
 	public boolean hasUserJoined() {
 		return userHasJoined;
 	}
@@ -791,6 +797,7 @@ public class Meeting {
         private boolean webcamsOnlyForModerator;
         private Integer meetingCameraCap;
         private Integer userCameraCap;
+        private Integer maxPinnedCameras;
     	private String moderatorPass;
     	private String viewerPass;
     	private int learningDashboardCleanupDelayInMinutes;
@@ -870,6 +877,11 @@ public class Meeting {
 
         public Builder withUserCameraCap(Integer cap) {
             this.userCameraCap = cap;
+            return this;
+        }
+
+        public Builder withMaxPinnedCameras(Integer pins) {
+            this.maxPinnedCameras = pins;
             return this;
         }
 
