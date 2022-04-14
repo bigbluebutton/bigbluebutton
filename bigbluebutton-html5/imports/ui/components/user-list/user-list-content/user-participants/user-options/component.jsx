@@ -211,7 +211,7 @@ class UserOptions extends PureComponent {
       toggleMuteAllUsersExceptPresenter,
       meetingIsBreakout,
       hasBreakoutRoom,
-      getUsersNotAssigned,
+      getUsersNotJoined,
       openLearningDashboardUrl,
       amIModerator,
       users,
@@ -227,7 +227,7 @@ class UserOptions extends PureComponent {
     const canInviteUsers = amIModerator
       && !meetingIsBreakout
       && hasBreakoutRoom
-      && getUsersNotAssigned(users).length;
+      && getUsersNotJoined(users).length;
 
     const { locale } = intl;
 
