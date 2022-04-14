@@ -393,6 +393,7 @@ public class MeetingService implements MessageListener {
     logData.put("webcamsOnlyForModerator", m.getWebcamsOnlyForModerator());
     logData.put("meetingCameraCap", m.getMeetingCameraCap());
     logData.put("userCameraCap", m.getUserCameraCap());
+    logData.put("maxPinnedCameras", m.getMaxPinnedCameras());
     logData.put("record", m.isRecord());
     logData.put("logCode", "create_meeting");
     logData.put("description", "Create meeting.");
@@ -407,7 +408,7 @@ public class MeetingService implements MessageListener {
 
     gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.isRecord(),
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
-            m.getWebcamsOnlyForModerator(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getModeratorPassword(), m.getViewerPassword(),
+            m.getWebcamsOnlyForModerator(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getMaxPinnedCameras(), m.getModeratorPassword(), m.getViewerPassword(),
             m.getLearningDashboardAccessToken(), m.getCreateTime(),
             formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(),
             m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getMeetingLayout(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
