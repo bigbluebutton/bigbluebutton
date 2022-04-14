@@ -861,6 +861,7 @@
     "app.whiteboard.toolbar.color.silver": "Silver",
     "app.whiteboard.toolbar.undo": "Undo annotation",
     "app.whiteboard.toolbar.clear": "Clear all annotations",
+    "app.whiteboard.toolbar.clearConfirmation": "Are you sure you want to clear all annotations?",
     "app.whiteboard.toolbar.multiUserOn": "Turn multi-user whiteboard on",
     "app.whiteboard.toolbar.multiUserOff": "Turn multi-user whiteboard off",
     "app.whiteboard.toolbar.palmRejectionOn": "Turn palm rejection on",
