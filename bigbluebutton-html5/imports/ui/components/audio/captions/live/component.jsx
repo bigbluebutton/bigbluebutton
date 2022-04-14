@@ -57,7 +57,7 @@ class LiveCaptions extends PureComponent {
       wordWrap: 'break-word',
       fontFamily: 'Verdana, Arial, Helvetica, sans-serif',
       fontSize: '1.5rem',
-      background: 'black',
+      background: '#000000a0',
       color: 'white',
       padding: hasContent ? '.5rem' : undefined,
     };
@@ -77,7 +77,7 @@ class LiveCaptions extends PureComponent {
       <div style={wrapperStyles}>
         {clear ? null : (
           <UserContainer
-            background="black"
+            background="#000000a0"
             transcriptId={transcriptId}
           />
         )}
