@@ -59,6 +59,7 @@ class Base extends Component {
     this.state = {
       loading: false,
       meetingExisted: false,
+      userRemoved: false,
     };
     this.updateLoadingState = this.updateLoadingState.bind(this);
     this.handleFullscreenChange = this.handleFullscreenChange.bind(this);
@@ -118,6 +119,7 @@ class Base extends Component {
       layoutContextDispatch,
       sidebarContentPanel,
       usersVideo,
+      User,
     } = this.props;
     const {
       loading,
@@ -152,6 +154,10 @@ class Base extends Component {
     if (prevProps.ejected || ejected) {
       Session.set('codeError', '403');
       Session.set('isMeetingEnded', true);
+    }
+
+    if (prevProps.User && !User) {
+      this.setUserRemoved(true);
     }
 
     // In case the meteor restart avoid error log
@@ -232,6 +238,10 @@ class Base extends Component {
     this.setState({ meetingExisted });
   }
 
+  setUserRemoved(userRemoved) {
+    this.setState({ userRemoved });
+  }
+
   updateLoadingState(loading = false) {
     this.setState({
       loading,
@@ -241,7 +251,7 @@ class Base extends Component {
   renderByState() {
     const { updateLoadingState } = this;
     const stateControls = { updateLoadingState };
-    const { loading } = this.state;
+    const { loading, userRemoved } = this.state;
     const {
       codeError,
       ejected,
@@ -258,12 +268,12 @@ class Base extends Component {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
 
-    if (ejected) {
-      if (meetingIsBreakout) {
-        window.close();
-        return null;
-      }
+    if (meetingIsBreakout && (ejected || userRemoved)) {
+      window.close();
+      return null;
+    }
 
+    if (ejected) {
       return (<MeetingEnded code="403" ejectedReason={ejectedReason} />);
     }
 
