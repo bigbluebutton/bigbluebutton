@@ -19,7 +19,7 @@ async function uploadPresentation(test, fileName, uploadTimeout = ELEMENT_WAIT_L
   await test.waitAndClick(e.managePresentations);
   await test.waitForSelector(e.fileUpload);
 
-  await test.page.setInputFiles(e.fileUpload, path.join(__dirname, `../media/${fileName}`));
+  await test.page.setInputFiles(e.fileUpload, path.join(__dirname, `../core/media/${fileName}`));
   await test.hasText('body', e.statingUploadPresentationToast);
 
   await test.waitAndClick(e.confirmManagePresentation);

@@ -539,7 +539,6 @@
     "app.lock-viewers.button.apply": "გამოყენება",
     "app.lock-viewers.button.cancel": "გაუქმება",
     "app.lock-viewers.locked": "ჩაკეტილია",
-    "app.lock-viewers.unlocked": "გახსნილია",
     "app.connection-status.title": "კავშირის სტატუსი",
     "app.connection-status.more": "მეტი",
     "app.connection-status.copied": "დაკოპირებულია!",

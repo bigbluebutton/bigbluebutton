@@ -543,7 +543,6 @@
     "app.lock-viewers.button.apply": "Tətbiq et",
     "app.lock-viewers.button.cancel": "Ləğv et",
     "app.lock-viewers.locked": "Kilidlənib",
-    "app.lock-viewers.unlocked": "Kiliddən açılıb",
     "app.connection-status.ariaTitle": "Bağlantı vəziyyəti modaldır",
     "app.connection-status.title": "Bağlantı vəziyyəti",
     "app.connection-status.description": "İstifadəçilərin əlaqə vəziyyətinə baxın",

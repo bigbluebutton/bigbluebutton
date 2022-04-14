@@ -528,7 +528,6 @@
     "app.lock-viewers.button.apply": "Apliki",
     "app.lock-viewers.button.cancel": "Nuligi",
     "app.lock-viewers.locked": "Malebligite",
-    "app.lock-viewers.unlocked": "Ebligite",
     "app.connection-status.ariaTitle": "Dialogo pri konektostato",
     "app.connection-status.title": "Konektostato",
     "app.connection-status.description": "Vidi la konektostaton de uzantoj",
