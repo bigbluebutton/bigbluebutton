@@ -629,7 +629,6 @@
     "app.lock-viewers.button.apply": "പ്രയോഗിക്കുക",
     "app.lock-viewers.button.cancel": "റദ്ദാക്കുക",
     "app.lock-viewers.locked": "ലോക്കുചെയ്‌തു",
-    "app.lock-viewers.unlocked": "അൺലോക്കുചെയ്‌തു",
     "app.guest-policy.ariaTitle": "അതിഥി നയ ക്രമീകരണ മോഡൽ",
     "app.guest-policy.title": "അതിഥി നയം",
     "app.guest-policy.description": "മീറ്റിംഗ് അതിഥി നയ ക്രമീകരണം മാറ്റുക",

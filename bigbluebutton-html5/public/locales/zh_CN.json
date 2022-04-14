@@ -554,7 +554,6 @@
     "app.lock-viewers.button.apply": "应用",
     "app.lock-viewers.button.cancel": "取消",
     "app.lock-viewers.locked": "已锁定",
-    "app.lock-viewers.unlocked": "未锁定",
     "app.connection-status.ariaTitle": "连接状态模式",
     "app.connection-status.title": "连接状态",
     "app.connection-status.description": "查看用户的连接状态",
