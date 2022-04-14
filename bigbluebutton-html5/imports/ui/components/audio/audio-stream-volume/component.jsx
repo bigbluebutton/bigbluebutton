@@ -1,135 +1,94 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import logger from '/imports/startup/client/logger';
+import hark from 'hark';
+import Styled from './styles';
+
+const VOL_POLLING_INTERVAL_MS = 100;
+const VOL_FLOOR = 0;
+const VOL_CEIL = 50;
+const DB_AMPL = 65;
 
 const propTypes = {
-  low: PropTypes.number,
+  stream: PropTypes.object,
+  volumePollingInterval: PropTypes.number,
+  volumeFloor: PropTypes.number,
+  volumeRange: PropTypes.number,
   optimum: PropTypes.number,
   high: PropTypes.number,
-  deviceId: PropTypes.string,
 };
 
-const defaultProps = {
-  low: 0,
-  optimum: 0.05,
-  high: 0.3,
-  deviceId: undefined,
-};
+const AudioStreamVolume = ({
+  volumeFloor,
+  volumeRange,
+  low,
+  optimum,
+  high,
+  stream,
+}) => {
+  const harkObserver = useRef(null);
+  const volumeRef = useRef(0);
+  const [volume, setVolume] = useState(0);
 
-const AudioContext = window.AudioContext || window.webkitAudioContext;
+  useEffect(() => {
+    observeVolumeChanges();
+    return stopObservingVolumeChanges;
+  }, [])
 
-class AudioStreamVolume extends Component {
-  static handleError(error) {
-    logger.error({
-      logCode: 'audiostreamvolume_handleError',
-      extraInfo: { error },
-    }, 'Encountered error while creating audio context');
-  }
+  useEffect(() => {
+    stopObservingVolumeChanges();
+    observeVolumeChanges(stream);
+  }, [stream]);
 
-  constructor(props) {
-    super(props);
-
-    this.createAudioContext = this.createAudioContext.bind(this);
-    this.closeAudioContext = this.closeAudioContext.bind(this);
-    this.handleConnectStreamToProcessor = this.handleConnectStreamToProcessor.bind(this);
-    this.handleAudioProcess = this.handleAudioProcess.bind(this);
-    this.handleError = AudioStreamVolume.handleError.bind(this);
-
-    this.state = {
-      slow: 0,
-    };
-  }
-
-  componentDidMount() {
-    this.createAudioContext();
-  }
-
-  componentDidUpdate(prevProps) {
-    const { deviceId: nextDeviceId } = this.props;
-    if (prevProps.deviceId !== nextDeviceId) {
-      this.closeAudioContext().then(() => {
-        this.setState({
-          slow: 0,
-        });
-        this.createAudioContext();
-      });
+  const observeVolumeChanges = (_stream) => {
+    if (_stream) {
+      harkObserver.current = hark(_stream, { interval: VOL_POLLING_INTERVAL_MS });
+      harkObserver.current.on('volume_change', handleVolumeChange);
     }
   }
 
-  componentWillUnmount() {
-    this.closeAudioContext();
+  const stopObservingVolumeChanges = () => {
+    harkObserver.current?.stop();
+    harkObserver.current = null;
   }
 
-  handleConnectStreamToProcessor(stream) {
-    this.source = this.audioContext.createMediaStreamSource(stream);
-    this.source.connect(this.scriptProcessor);
-    this.scriptProcessor.connect(this.audioContext.destination);
-  }
+  const handleVolumeChange = (dbVolume) => {
+    const previousVolume = volumeRef.current;
+    // Normalize it into 0 - range . DB_AMPL is the "relevance factor" -
+    // original formula is / 20
+    const linearVolume = Math.pow(10, dbVolume / DB_AMPL) * (volumeRange);
+    // If the current linear volume is lower than 1/10 of the total volume range,
+    // ignore to minimize re-renders. Otherwise: generate the next volume val
+    // by smoothing the transition with the previous value and rounding it up
+    const nextVolume = (linearVolume <= (volumeRange / 10))
+      ? volumeFloor
+      : Math.round((0.65 * previousVolume) + (0.35 * linearVolume));
 
-  handleAudioProcess(event) {
-    const input = event.inputBuffer.getChannelData(0);
-    const sum = input.reduce((a, b) => a + (b * b), 0);
-    const instant = Math.sqrt(sum / input.length);
-
-    this.setState((prevState) => ({
-      slow: (0.75 * prevState.slow) + (0.25 * instant),
-    }));
-  }
-
-  createAudioContext() {
-    this.audioContext = new AudioContext();
-    this.scriptProcessor = this.audioContext.createScriptProcessor(2048, 1, 1);
-    this.scriptProcessor.onaudioprocess = this.handleAudioProcess;
-    this.source = null;
-
-    const constraints = {
-      audio: true,
-    };
-
-    const { deviceId } = this.props;
-
-    if (deviceId) {
-      constraints.audio = {
-        deviceId,
-      };
+    if (previousVolume !== nextVolume) {
+      volumeRef.current = nextVolume;
+      setVolume(nextVolume);
     }
-
-    return navigator.mediaDevices
-      .getUserMedia(constraints)
-      .then(this.handleConnectStreamToProcessor)
-      .catch(this.handleError);
   }
 
-  closeAudioContext() {
-    return this.audioContext.close().then(() => {
-      this.audioContext = null;
-      this.scriptProcessor = null;
-      this.source = null;
-    });
-  }
-
-  render() {
-    const {
-      low, optimum, high, ...props
-    } = this.props;
-
-    const { slow } = this.state;
-
-    return (
-      <meter
-        {...props}
-        min={0}
-        max={high * 1.25}
-        low={low}
-        optimum={optimum}
-        high={high}
-        value={slow}
-      />
-    );
-  }
+  return (
+    <Styled.VolumeMeter
+      min={volumeFloor}
+      low={low}
+      max={high * 1.25}
+      optimum={optimum}
+      high={high}
+      value={volume}
+    />
+  );
 }
 
 AudioStreamVolume.propTypes = propTypes;
-AudioStreamVolume.defaultProps = defaultProps;
+AudioStreamVolume.defaultProps = {
+  volumeFloor: VOL_FLOOR,
+  volumeRange: VOL_CEIL,
+  low: VOL_FLOOR,
+  optimum: Math.round(0.3 * VOL_CEIL),
+  high: Math.round(0.4 * VOL_CEIL),
+  stream: null,
+};
 
-export default AudioStreamVolume;
+export default React.memo(AudioStreamVolume);

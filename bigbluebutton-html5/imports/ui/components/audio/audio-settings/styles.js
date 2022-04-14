@@ -80,6 +80,10 @@ const LabelSmall = styled.label`
   }
 `;
 
+const LabelSmallFullWidth = styled(LabelSmall)`
+  width: 100%;
+`;
+
 const SpacedLeftCol = styled.div`
   min-width: 0;
 
@@ -199,6 +203,7 @@ export default {
   Col,
   FormElement,
   LabelSmall,
+  LabelSmallFullWidth,
   SpacedLeftCol,
   BackButton,
   DeviceSelectorSelect,

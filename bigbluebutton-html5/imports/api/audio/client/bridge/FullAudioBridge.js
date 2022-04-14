@@ -11,6 +11,7 @@ import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 import Storage from '/imports/ui/services/storage/session';
 import browserInfo from '/imports/utils/browserInfo';
 import {
+  DEFAULT_INPUT_DEVICE_ID,
   DEFAULT_OUTPUT_DEVICE_ID,
   INPUT_DEVICE_ID_KEY,
   OUTPUT_DEVICE_ID_KEY,
@@ -83,7 +84,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
       return this.media.inputDeviceId;
     }
 
-    return null;
+    return DEFAULT_INPUT_DEVICE_ID;
   }
 
   set inputDeviceId(deviceId) {
@@ -296,7 +297,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
 
   async _startBroker(options) {
     try {
-      const { isListenOnly, extension } = options;
+      const { isListenOnly, extension, inputStream } = options;
       this.inEchoTest = !!extension;
       this.isListenOnly = isListenOnly;
 
@@ -313,6 +314,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
         mediaServer: getMediaServerAdapter(),
         constraints: getAudioConstraints({ deviceId: this.inputDeviceId }),
         forceRelay: shouldForceRelay(),
+        stream: (inputStream && inputStream.active) ? inputStream : undefined,
       };
 
       this.broker = new FullAudioBroker(

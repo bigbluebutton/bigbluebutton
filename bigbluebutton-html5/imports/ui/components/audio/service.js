@@ -10,6 +10,11 @@ import Storage from '../../services/storage/session';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const TOGGLE_MUTE_THROTTLE_TIME = Meteor.settings.public.media.toggleMuteThrottleTime;
+const SHOW_VOLUME_METER = Meteor.settings.public.media.showVolumeMeter;
+const {
+  enabled: LOCAL_ECHO_TEST_ENABLED,
+  initialHearingState: LOCAL_ECHO_INIT_HEARING_STATE,
+} = Meteor.settings.public.media.localEchoTest;
 
 const MUTED_KEY = 'muted';
 
@@ -105,6 +110,7 @@ export default {
   joinEchoTest: () => AudioManager.joinEchoTest(),
   toggleMuteMicrophone: debounce(toggleMuteMicrophone, 500, { leading: true, trailing: false }),
   changeInputDevice: inputDeviceId => AudioManager.changeInputDevice(inputDeviceId),
+  changeInputStream: (newInputStream)  => AudioManager.inputStream = newInputStream,
   liveChangeInputDevice: inputDeviceId => AudioManager.liveChangeInputDevice(inputDeviceId),
   changeOutputDevice: (outputDeviceId, isLive) => {
     if (AudioManager.outputDeviceId !== outputDeviceId) {
@@ -138,4 +144,7 @@ export default {
   getBreakoutAudioTransferStatus: () => AudioManager
     .getBreakoutAudioTransferStatus(),
   getStats: () => AudioManager.getStats(),
+  localEchoEnabled: LOCAL_ECHO_TEST_ENABLED,
+  localEchoInitHearingState: LOCAL_ECHO_INIT_HEARING_STATE,
+  showVolumeMeter: SHOW_VOLUME_METER,
 };
