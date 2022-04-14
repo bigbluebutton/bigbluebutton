@@ -100,10 +100,6 @@ const intlMessages = defineMessages({
     id: 'app.learning-dashboard.description',
     description: 'Activity Report description',
   },
-  invitationItem: {
-    id: 'app.invitation.title',
-    description: 'invitation to breakout title',
-  },
   saveUserNames: {
     id: 'app.actionsBar.actionsDropdown.saveUserNames',
     description: 'Save user name feature description',
@@ -211,7 +207,6 @@ class UserOptions extends PureComponent {
       toggleMuteAllUsersExceptPresenter,
       meetingIsBreakout,
       hasBreakoutRoom,
-      getUsersNotJoined,
       openLearningDashboardUrl,
       amIModerator,
       users,
@@ -223,11 +218,6 @@ class UserOptions extends PureComponent {
       && !meetingIsBreakout
       && !hasBreakoutRoom
       && isBreakoutRoomsEnabled();
-
-    const canInviteUsers = amIModerator
-      && !meetingIsBreakout
-      && hasBreakoutRoom
-      && getUsersNotJoined(users).length;
 
     const { locale } = intl;
 
@@ -302,16 +292,6 @@ class UserOptions extends PureComponent {
           // description: intl.formatMessage(intlMessages.createBreakoutRoomDesc),
           onClick: this.onCreateBreakouts,
           dataTest: 'createBreakoutRooms',
-        });
-      }
-
-      if (canInviteUsers) {
-        this.menuItems.push({
-          icon: 'rooms',
-          dataTest: 'inviteBreakoutRooms',
-          label: intl.formatMessage(intlMessages.invitationItem),
-          key: this.createBreakoutId,
-          onClick: this.onInvitationUsers,
         });
       }
 

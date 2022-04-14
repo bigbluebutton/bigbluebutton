@@ -880,8 +880,6 @@
     "app.videoDock.webcamUnpinDesc": "Unpin the selected webcam",
     "app.videoDock.autoplayBlockedDesc": "We need your permission to show you other users' webcams.",
     "app.videoDock.autoplayAllowLabel": "View webcams",
-    "app.invitation.title": "Breakout room invitation",
-    "app.invitation.confirm": "Invite",
     "app.createBreakoutRoom.title": "Breakout Rooms",
     "app.createBreakoutRoom.ariaTitle": "Hide Breakout Rooms",
     "app.createBreakoutRoom.breakoutRoomLabel": "Breakout Rooms {0}",

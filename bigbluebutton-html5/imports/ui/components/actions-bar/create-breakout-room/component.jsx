@@ -110,14 +110,6 @@ const intlMessages = defineMessages({
     id: 'app.audio.backLabel',
     description: 'Back label',
   },
-  invitationTitle: {
-    id: 'app.invitation.title',
-    description: 'isInvitationto breakout title',
-  },
-  invitationConfirm: {
-    id: 'app.invitation.confirm',
-    description: 'Invitation to breakout confirm button label',
-  },
   minusRoomTime: {
     id: 'app.createBreakoutRoom.minusRoomTime',
     description: 'aria label for btn to decrease room time',
@@ -169,7 +161,6 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  isInvitation: PropTypes.bool.isRequired,
   isMe: PropTypes.func.isRequired,
   meetingName: PropTypes.string.isRequired,
   users: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -212,7 +203,6 @@ class BreakoutRoom extends PureComponent {
     this.blurDurationTime = this.blurDurationTime.bind(this);
     this.removeRoomUsers = this.removeRoomUsers.bind(this);
     this.renderErrorMessages = this.renderErrorMessages.bind(this);
-    this.renderJoinedUsers = this.renderJoinedUsers.bind(this);
     this.onUpdateBreakouts = this.onUpdateBreakouts.bind(this);
 
     this.state = {
@@ -242,17 +232,9 @@ class BreakoutRoom extends PureComponent {
 
   componentDidMount() {
     const {
-      isInvitation, breakoutJoinedUsers, getLastBreakouts, groups, isUpdate,
+      breakoutJoinedUsers, getLastBreakouts, groups, isUpdate,
     } = this.props;
     this.setRoomUsers();
-    if (isInvitation) {
-      this.setInvitationConfig();
-
-      this.setState({
-        breakoutJoinedUsers,
-      });
-    }
-
     if (isUpdate) {
       const usersToMerge = []
       breakoutJoinedUsers.forEach((breakout) => {
@@ -768,7 +750,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   renderRoomsGrid() {
-    const { intl, isInvitation } = this.props;
+    const { intl } = this.props;
     const {
       leastOneUserIsValid,
       numberOfRooms,
@@ -839,7 +821,6 @@ class BreakoutRoom extends PureComponent {
               </Styled.FreeJoinLabel>
               <Styled.BreakoutBox id={`breakoutBox-${value}`} onDrop={drop(value)} onDragOver={allowDrop} tabIndex={0}>
                 {this.renderUserItemByRoom(value)}
-                {isInvitation && this.renderJoinedUsers(value)}
               </Styled.BreakoutBox>
               {this.hasNameDuplicated(value) ? (
                 <Styled.SpanWarn valid={false}>
@@ -861,7 +842,6 @@ class BreakoutRoom extends PureComponent {
   renderBreakoutForm() {
     const {
       intl,
-      isInvitation,
       isUpdate,
     } = this.props;
     const {
@@ -870,7 +850,7 @@ class BreakoutRoom extends PureComponent {
       numberOfRoomsIsValid,
       durationIsValid,
     } = this.state;
-    if (isInvitation || isUpdate) return null;
+    if (isUpdate) return null;
 
     return (
       <React.Fragment key="breakout-form">
@@ -984,16 +964,13 @@ class BreakoutRoom extends PureComponent {
     const {
       users,
       roomSelected,
-      breakoutJoinedUsers,
     } = this.state;
-    const { isInvitation } = this.props;
 
     return (
       <SortList
         confirm={() => this.setState({ formFillLevel: 2 })}
         users={users}
         room={roomSelected}
-        breakoutJoinedUsers={isInvitation && breakoutJoinedUsers}
         onCheck={this.changeUserRoom}
         onUncheck={(userId) => this.changeUserRoom(userId, 0)}
       />
@@ -1001,8 +978,8 @@ class BreakoutRoom extends PureComponent {
   }
 
   renderCheckboxes() {
-    const { intl, isInvitation, isUpdate, isBreakoutRecordable } = this.props;
-    if (isInvitation || isUpdate) return null;
+    const { intl, isUpdate, isBreakoutRecordable } = this.props;
+    if (isUpdate) return null;
     const {
       freeJoin,
       record,
@@ -1091,23 +1068,8 @@ class BreakoutRoom extends PureComponent {
       ));
   }
 
-  renderJoinedUsers(room) {
-    return this.getUsersByRoomSequence(room)
-      .map((user) => (
-        <Styled.RoomUserItem
-          id={`roomUserItem-${user.userId}`}
-          key={user.userId}
-          selected={false}
-          disabled
-        >
-          {user.name}
-          <Styled.LockIcon />
-        </Styled.RoomUserItem>
-      ));
-  }
-
   renderRoomSortList() {
-    const { intl, isInvitation } = this.props;
+    const { intl } = this.props;
     const { numberOfRooms } = this.state;
     const onClick = (roomNumber) => this.setState({ formFillLevel: 3, roomSelected: roomNumber });
     return (
@@ -1130,7 +1092,7 @@ class BreakoutRoom extends PureComponent {
             ))
           }
         </span>
-        {isInvitation || this.renderButtonSetLevel(1, intl.formatMessage(intlMessages.backLabel))}
+        {this.renderButtonSetLevel(1, intl.formatMessage(intlMessages.backLabel))}
       </Styled.ListContainer>
     );
   }
@@ -1232,7 +1194,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   render() {
-    const { intl, isInvitation, isUpdate } = this.props;
+    const { intl, isUpdate } = this.props;
     const {
       preventClosing,
       leastOneUserIsValid,
@@ -1247,20 +1209,16 @@ class BreakoutRoom extends PureComponent {
     return (
       <Modal
         title={
-          isInvitation
-            ? intl.formatMessage(intlMessages.invitationTitle)
-            : isUpdate
+          isUpdate
             ? intl.formatMessage(intlMessages.updateTitle)
             : intl.formatMessage(intlMessages.breakoutRoomTitle)
         }
         confirm={
           {
-            label: isInvitation
-              ? intl.formatMessage(intlMessages.invitationConfirm)
-              : isUpdate
+            label: isUpdate
               ? intl.formatMessage(intlMessages.updateConfirm)
               : intl.formatMessage(intlMessages.confirmButton),
-            callback: isInvitation ? this.onInviteBreakout : isUpdate ? this.onUpdateBreakouts : this.onCreateBreakouts,
+            callback: isUpdate ? this.onUpdateBreakouts : this.onCreateBreakouts,
             disabled: !leastOneUserIsValid
               || !numberOfRoomsIsValid
               || !roomNameDuplicatedIsValid
@@ -1278,7 +1236,7 @@ class BreakoutRoom extends PureComponent {
         preventClosing={preventClosing}
       >
         <Styled.Content>
-          {isInvitation || this.renderTitle()}
+          {this.renderTitle()}
           {isMobile ? this.renderMobile() : this.renderDesktop()}
         </Styled.Content>
       </Modal>
