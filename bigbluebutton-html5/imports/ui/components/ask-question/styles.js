@@ -19,13 +19,14 @@ import {
   colorGray,
   colorGrayLight,
   colorGrayLighter,
-  colorGrayLightest,
   colorDanger,
   colorWarning,
   colorHeading,
   colorPrimary,
   colorGrayDark,
   colorWhite,
+  questioningsuccessLightColor,
+  questioningsuccessDarkColor,
   pollBlue,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase, fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
@@ -60,7 +61,29 @@ const PollOptionInput = styled.input`
   font-size: ${fontSizeBase};
   border: 1px solid ${colorGrayLighter};
   box-shadow: 0 0 0 1px ${colorGrayLighter};
+
+  ${({ isCorrect }) => isCorrect && `
+  border-color: ${questioningsuccessDarkColor};
+  box-shadow: 0 0 0 1px ${questioningsuccessDarkColor};
+  color:${questioningsuccessDarkColor};
+  background-color:${questioningsuccessLightColor};
+`}
+
 `;
+const CorrectOptionInstructions = styled.span`
+  color:${questioningsuccessDarkColor}
+`
+
+const OptionListItem = styled.li`
+padding: ${smPaddingY};
+margin-bottom: ${pollSmMargin};
+${({ isCorrect }) => isCorrect && `
+  border-radius: ${borderRadius};
+  box-shadow: 0 0 0 1px ${questioningsuccessLightColor};
+  color:${questioningsuccessDarkColor};
+  background-color:${questioningsuccessLightColor};
+`}
+`
 
 const DeletePollOptionButton = styled(Button)`
   font-size: ${fontSizeBase};
@@ -424,4 +447,6 @@ export default {
   PollCloseButton,
   Warning,
   AutoOptioningRow,
+  CorrectOptionInstructions,
+  OptionListItem
 };

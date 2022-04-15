@@ -18,7 +18,7 @@ const intlMessages = defineMessages({
     description: 'heading label for poll responses',
   },
   publishLabel: {
-    id: 'app.poll.publishLabel',
+    id: 'app.askQuestion.publishLabel',
     description: 'label for the publish button',
   },
   cancelPollLabel: {
@@ -26,7 +26,7 @@ const intlMessages = defineMessages({
     description: 'label for cancel poll button',
   },
   backLabel: {
-    id: 'app.poll.backLabel',
+    id: 'app.askQuestion.askQuestionBtn',
     description: 'label for the return to poll options button',
   },
   doneLabel: {
@@ -42,6 +42,15 @@ const intlMessages = defineMessages({
     description: 'label shown instead of users in poll responses if poll is secret',
   },
 });
+
+const isCorrectOption = (opt) => {
+  const trimmedOption = opt.trim();
+  const trimmedOptLength = trimmedOption.length
+  return (
+    trimmedOptLength > 3 &&
+    trimmedOption.substring(trimmedOptLength - 3) === "(*)"
+  )
+}
 
 const getResponseString = (obj) => {
   const { children } = obj.props;
@@ -116,16 +125,16 @@ class LiveResult extends PureComponent {
 
     answers.reduce(caseInsensitiveReducer, []).map((obj) => {
       const formattedMessageIndex = obj.key.toLowerCase();
-      const pct = Math.round(obj.numVotes / numResponders * 100);
+      const pct = Math.round((obj.numVotes / numResponders )* 100);
       const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
 
       const calculatedWidth = {
         width: pctFotmatted,
       };
-
+      console.log("obj", obj)
       return pollStats.push(
         <Styled.Main key={_.uniqueId('stats-')}>
-          <Styled.Left>
+          <Styled.Left isCorrect={isCorrectOption(obj.key)}>
             {
               defaultPoll && pollAnswerIds[formattedMessageIndex]
                 ? intl.formatMessage(pollAnswerIds[formattedMessageIndex])
@@ -251,8 +260,10 @@ class LiveResult extends PureComponent {
             <table>
               <tbody>
                 <tr>
-                  <Styled.THeading>{intl.formatMessage(intlMessages.usersTitle)}</Styled.THeading>
-                  <Styled.THeading>{intl.formatMessage(intlMessages.responsesTitle)}</Styled.THeading>
+                  <Styled.THeading>{intl.formatMessage(intlMessages.usersTitle)}
+                  </Styled.THeading>
+                  <Styled.THeading>{intl.formatMessage(intlMessages.responsesTitle)}
+                  </Styled.THeading>
                 </tr>
                 {userAnswers}
               </tbody>

@@ -251,7 +251,8 @@
     "app.presentationUploder.uploadViewTitle": "Upload Presentation",
     
     "app.askQuestion.askQuestionPaneTitle": "Questioning",
-    "app.askQuestion.addingQuestionInstructionsText": "To create a question, copy prepared text of question into field below. First line contains the question text, next new lines are answer options. Additionally, you can specify one of few correct answers with '(*)' sign at the end.",
+    "app.askQuestion.addingQuestionInstructionsText": "To create a question, copy prepared text of question into field below. First line contains the question text, next new lines are answer options. Additionally, you can specify one of few",
+    "app.askQuestion.correctOptionInstructionsText": "correct answers with '(*)' sign at the end.",
     "app.askQuestion.questionAndoptions.label" : "Question text to be shown. \nPoll option \nPoll option (*) \nPoll option \nPoll option",
     "app.askQuestion.previewQuestionBtn": "Preview Question",
     "app.askQuestion.askQuestionBtn": "Ask Question",

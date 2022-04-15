@@ -4,6 +4,7 @@ import {
   colorText,
   colorGrayLighter,
   pollStatsBorderColor,
+  questioningsuccessDarkColor
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -52,6 +53,9 @@ const Left = styled.div`
   color: ${colorText};
 
   position: relative;
+  ${({ isCorrect }) => isCorrect && `
+  color:${questioningsuccessDarkColor};
+`}
 `;
 
 const Center = styled.div`
@@ -134,7 +138,9 @@ const Title = styled.span`
 `;
 
 const Status = styled.div`
-  margin-bottom: .5rem;
+  padding-bottom: 0.7rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 0.2px solid ${colorGrayLightest};
 `;
 
 const ellipsis = keyframes`

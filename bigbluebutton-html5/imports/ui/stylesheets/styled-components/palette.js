@@ -110,6 +110,9 @@ const toastErrorBg = `var(--toast-error-bg, ${colorDanger})`;
 const toastWarningColor = `var(--toast-warning-color, ${colorWhite})`;
 const toastWarningBg = `var(--toast-warning-bg, ${colorWarning})`;
 
+const questioningsuccessLightColor = 'var(--questioning-success-light-color, #eaffe1)'
+const questioningsuccessDarkColor = `var(--questioning-success-dark-color, ${colorSuccess})`
+
 export {
   colorWhite,
   colorOffWhite,
@@ -193,4 +196,6 @@ export {
   toastErrorBg,
   toastWarningColor,
   toastWarningBg,
+  questioningsuccessLightColor,
+  questioningsuccessDarkColor
 };

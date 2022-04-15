@@ -21,6 +21,10 @@ const intlMessages = defineMessages({
     id: 'app.askQuestion.addingQuestionInstructionsText',
     description: 'heading instructions for entering question and options.',
   },
+  addingCorrectOptionInstructionsText: {
+    id: 'app.askQuestion.correctOptionInstructionsText',
+    description: 'heading instructions for entering correct options.',
+  },
   previewBtnLabel: {
     id: 'app.askQuestion.previewQuestionBtn',
     description: 'Label of button to preview question',
@@ -62,7 +66,7 @@ const intlMessages = defineMessages({
     description: 'aria label description for hide poll button',
   },
   activePollInstruction: {
-    id: 'app.poll.activePollInstruction',
+    id: 'app.askQuestion.activeQuestioningInstruction',
     description: 'instructions displayed when a poll is active',
   },
   customPlaceholder: {
@@ -193,9 +197,9 @@ const getCorrectOptions = (options) => {
 const verifiedOptionList = (optList) => {
   const newOptList = optList.map((o) => {
     const trimmedOpt = o.trim()
-    if (isCorrectOption(o)) {
-      return trimmedOpt.replace("(*)", "")
-    }
+    // if (isCorrectOption(o)) {
+    //   return trimmedOpt.replace("(*)", "")
+    // }
     return trimmedOpt;
   })
   return newOptList;
@@ -216,7 +220,7 @@ const checkIfAnyOptionIsEmpty = (options) => {
   options.forEach((opt) => {
     if ((!opt.trim()) || (opt.trim().replace('(*)', '') === '')) {
       isOptionEmpty = true;
-      return null;
+      return isOptionEmpty;
     }
   });
   return isOptionEmpty;
@@ -234,11 +238,8 @@ class Poll extends Component {
       error: null,
       isMultipleResponse: false,
       secretPoll: false,
-      warning: null,
-      type: null,
       openPreviewModal: false
     };
-
     this.handleBackClick = this.handleBackClick.bind(this);
     this.handleAddOption = this.handleAddOption.bind(this);
     this.handleRemoveOption = this.handleRemoveOption.bind(this);
@@ -583,7 +584,7 @@ class Poll extends Component {
 
     return (
       <div>
-        <Styled.Instructions>
+        <Styled.Instructions style={{textAlign:'justify'}}>
           {intl.formatMessage(intlMessages.activePollInstruction)}
         </Styled.Instructions>
         <LiveResult
@@ -602,16 +603,19 @@ class Poll extends Component {
   }
 
   renderPollOptions() {
-    const { type, secretPoll, questionAndOptions, error,
-      isMultipleResponse, optList } = this.state;
-    const { intl, startCustomPoll, pollTypes } = this.props;
+    const { secretPoll, questionAndOptions, error,
+      isMultipleResponse, optList: optionsList } = this.state;
+    const { intl, startCustomPoll } = this.props;
     const questionAndOptionsPlaceholderLabel = intlMessages.questionAndOptionsPlaceholder;
-    const hasQuestionError = error !== null;
+    const hasQuestionError = (error !== null);
     return (
       <div>
 
         <Styled.Instructions style={{ marginBottom: '0.9rem', textAlign: 'justify' }}>
           {intl.formatMessage(intlMessages.addingQuestionInstructionsText)}
+          <Styled.CorrectOptionInstructions>
+            {" "}{intl.formatMessage(intlMessages.addingCorrectOptionInstructionsText)}
+          </Styled.CorrectOptionInstructions>
         </Styled.Instructions>
 
         <div>
@@ -656,7 +660,7 @@ class Poll extends Component {
                 aria-describedby="add-item-button"
                 color="default"
                 icon="add"
-                disabled={optList.length >= MAX_CUSTOM_FIELDS}
+                disabled={optionsList.length >= MAX_CUSTOM_FIELDS}
                 onClick={() => this.handleAddOption()}
               />
             )
@@ -712,10 +716,11 @@ class Poll extends Component {
                   question ? question
                     : questionAndOptions.split('\n')[0],
                   isMultipleResponse,
-                  verifiedOptions,
+                  _.compact(verifiedOptions),
                 );
               })
             }
+            return null;
           }
           }
         />
@@ -725,7 +730,6 @@ class Poll extends Component {
           aria-describedby="preview-question-button"
           color="default"
           onClick={() => {
-            const { error } = this.state
             const { question, optList } = this.seperateQuestionsAndOptionsFromString();
             if (question && optList && !error) {
               this.setState({ openPreviewModal: true });
@@ -797,6 +801,7 @@ class Poll extends Component {
               data-test="pollOptionItem"
               onChange={(e) => this.handleInputChange(e, i)}
               maxLength={MAX_INPUT_CHARS}
+              isCorrect={correctOptions.includes(o)}
             />
             <Styled.PollCheckbox>
               <Checkbox
@@ -915,18 +920,19 @@ class Poll extends Component {
             <Styled.ModalHeading>
               {intl.formatMessage(intlMessages.optionsLabel)}
             </Styled.ModalHeading>
-            <ol type="1">
+            <ul style={{listStyle:'none'}}>
               {optList
                 ? optList.map((opt, index) => {
                   const uniqueKey = `opt-list-question-${index}`;
                   return (
-                    <li key={uniqueKey}>
+                    <Styled.OptionListItem key={uniqueKey} isCorrect={isCorrectOption(opt)}>
+                      {`${index+1}.  `}
                       {!correctOptions.includes(opt) ? (
                         opt
                       ) : (
                         <span>
                           {' '}
-                          {opt.replace('(*)', '')}
+                          {opt.trim().substring(0,opt.length - 3)}
                           {' '}
                           <strong>
                             {' '}
@@ -939,11 +945,11 @@ class Poll extends Component {
                           </strong>
                         </span>
                       )}
-                    </li>
+                    </Styled.OptionListItem>
                   );
                 })
                 : null}
-            </ol>
+            </ul>
           </Styled.PreviewModalContainer>
         </Modal>
       </div>
