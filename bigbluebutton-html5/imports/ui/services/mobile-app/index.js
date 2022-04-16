@@ -14,7 +14,7 @@ import logger from '/imports/startup/client/logger';
         const promisesHolder = {};
 
         // Call a method in the mobile application, returning a promise for its execution
-        function callNativeMethod(method, arguments=[]) {
+        function callNativeMethod(method, args=[]) {
             try {
                 const sequence = ++sequenceHolder.sequence;
 
@@ -26,7 +26,7 @@ import logger from '/imports/startup/client/logger';
                     window.ReactNativeWebView.postMessage(JSON.stringify({
                         sequence: sequenceHolder.sequence,
                         method: method,
-                        arguments: arguments,
+                        arguments: args,
                     }));
                 } );
             } catch(e) {
