@@ -24,7 +24,9 @@ sudo rm -rf /usr/local/bigbluebutton/core/lib
 sudo cp -r core/lib /usr/local/bigbluebutton/core/
 sudo rm -rf /usr/local/bigbluebutton/core/scripts
 sudo cp -r core/scripts /usr/local/bigbluebutton/core/
-sudo rm -rf /var/bigbluebutton/playback/*
+sudo rm -rf /var/bigbluebutton/playback/presentation/0.81/
+sudo rm -rf /var/bigbluebutton/playback/presentation/0.9.0/
+sudo rm -rf /var/bigbluebutton/playback/presentation/2.0/
 
 function deploy_format() {
 	local formats=$1
@@ -95,10 +97,4 @@ if [ ! -d "$REC_STATUS_SANITY_DIR" ]; then
   sudo mkdir -p $REC_STATUS_SANITY_DIR
 fi
 
-sudo mv /usr/local/bigbluebutton/core/scripts/*.nginx /etc/bigbluebutton/nginx/
-sudo service nginx reload
 sudo chown -R bigbluebutton:bigbluebutton /var/bigbluebutton/ /var/log/bigbluebutton/
-sudo chown -R red5:red5 /var/bigbluebutton/screenshare/
-
-#cd /usr/local/bigbluebutton/core/
-#sudo bundle install

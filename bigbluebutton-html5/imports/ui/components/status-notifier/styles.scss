@@ -1,8 +1,10 @@
 @import "/imports/ui/stylesheets/mixins/_indicators";
 @import "/imports/ui/stylesheets/variables/placeholders";
+@import "/imports/ui/stylesheets/variables/breakpoints";
 
 :root {
   --toast-margin: .5rem;
+  --toast-margin-mobile: .35rem;
   --avatar-side: 34px;
   --avatar-wrapper-offset: 14px;
   --avatar-inset: -7px;
@@ -100,10 +102,20 @@
     top: var(--toast-margin);
     left: var(--toast-margin);
     font-size: var(--font-size-xl);
-  
+
     [dir="rtl"] & {
       left: 0;
       right: 10px;
+    }
+
+    @include mq($small-only) {
+      top: var(--toast-margin-mobile);
+      left: var(--toast-margin-mobile);
+
+      [dir="rtl"] & {
+        left: 0;
+        right: var(--toast-margin);
+      }
     }
   }
 }

@@ -146,6 +146,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
                   pres.getPodId(),
                   pres.getMeetingId(),
                   pres.getId(),
+                  pres.getTemporaryPresentationId(),
                   pres.getName(),
                   pres.getAuthzToken(),
                   pres.isDownloadable(),

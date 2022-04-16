@@ -85,6 +85,7 @@ public class ParamsProcessorUtil {
     private boolean learningDashboardEnabled;
     private int learningDashboardCleanupDelayInMinutes;
     private boolean webcamsOnlyForModerator;
+    private Integer defaultUserCameraCap = 0;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultAllowModsToEjectCameras = false;
@@ -480,6 +481,16 @@ public class ParamsProcessorUtil {
             }
         }
 
+        Integer userCameraCap = defaultUserCameraCap;
+        if (!StringUtils.isEmpty(params.get(ApiParams.USER_CAMERA_CAP))) {
+            try {
+                Integer userCameraCapParam = Integer.parseInt(params.get(ApiParams.USER_CAMERA_CAP));
+                if (userCameraCapParam >= 0) userCameraCap = userCameraCapParam;
+            } catch (NumberFormatException e) {
+                log.warn("Invalid param [userCameraCap] for meeting=[{}]", internalMeetingId);
+            }
+        }
+
         boolean endWhenNoModerator = defaultEndWhenNoModerator;
         if (!StringUtils.isEmpty(params.get(ApiParams.END_WHEN_NO_MODERATOR))) {
           try {
@@ -555,6 +566,7 @@ public class ParamsProcessorUtil {
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
+                .withUserCameraCap(userCameraCap)
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
@@ -705,11 +717,11 @@ public class ParamsProcessorUtil {
 		return DigestUtils.sha1Hex(extMeetingId);
 	}
 
-	public String processPassword(String pass) {
-		return StringUtils.isEmpty(pass) ? RandomStringUtils.randomAlphanumeric(8) : pass;
-	}
+    public String processPassword(String pass) {
+        return StringUtils.isEmpty(pass) ? RandomStringUtils.randomAlphanumeric(8) : pass;
+    }
 
-	public boolean hasChecksumAndQueryString(String checksum, String queryString) {
+    public boolean hasChecksumAndQueryString(String checksum, String queryString) {
 		return (! StringUtils.isEmpty(checksum) && StringUtils.isEmpty(queryString));
 	}
 
@@ -1005,6 +1017,10 @@ public class ParamsProcessorUtil {
 
     public void setWebcamsOnlyForModerator(boolean webcamsOnlyForModerator) {
         this.webcamsOnlyForModerator = webcamsOnlyForModerator;
+    }
+
+    public void setDefaultUserCameraCap(Integer userCameraCap) {
+        this.defaultUserCameraCap = userCameraCap;
     }
 
 	public void setUseDefaultAvatar(Boolean value) {

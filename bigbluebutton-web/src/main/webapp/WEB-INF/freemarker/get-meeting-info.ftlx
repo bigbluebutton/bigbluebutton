@@ -10,8 +10,12 @@
   <createDate>${createdOn}</createDate>
   <voiceBridge>${meeting.getTelVoice()}</voiceBridge>
   <dialNumber>${meeting.getDialNumber()}</dialNumber>
-  <attendeePW>${meeting.getViewerPassword()}</attendeePW>
-  <moderatorPW>${meeting.getModeratorPassword()}</moderatorPW>
+  <#if meeting.getViewerPassword()?? && meeting.getViewerPassword()!="" >
+          <attendeePW>${meeting.getViewerPassword()}</attendeePW>
+  </#if>
+  <#if meeting.getModeratorPassword()?? && meeting.getModeratorPassword()!="">
+          <moderatorPW>${meeting.getModeratorPassword()}</moderatorPW>
+  </#if>
   <running>${meeting.isRunning()?c}</running>
   <duration>${meeting.getDuration()?c}</duration>
   <hasUserJoined>${meeting.hasUserJoined()?c}</hasUserJoined>

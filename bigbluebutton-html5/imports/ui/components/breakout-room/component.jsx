@@ -257,7 +257,7 @@ class BreakoutRoom extends PureComponent {
     });
   }
 
-  renderUserActions(breakoutId, joinedUsers, number) {
+  renderUserActions(breakoutId, joinedUsers, shortName) {
     const {
       isMicrophoneUser,
       amIModerator,
@@ -287,9 +287,8 @@ class BreakoutRoom extends PureComponent {
     const stateBreakoutId = _stateBreakoutId || currentAudioTransferBreakoutId;
     const moderatorJoinedAudio = isMicrophoneUser && amIModerator;
     const disable = waiting && requestedBreakoutId !== breakoutId;
-    const breakoutShortname = this.props.breakoutRooms[number - 1]?.shortName;
     const hasBreakoutUrl = this.hasBreakoutUrl(breakoutId);
-    const dataTest = `${hasBreakoutUrl ? 'join' : 'askToJoin'}${breakoutShortname.replace(' ', '')}`;
+    const dataTest = `${hasBreakoutUrl ? 'join' : 'askToJoin'}${shortName.replace(' ', '')}`;
 
     const audioAction = joinedAudioOnly || isInBreakoutAudioTransfer
       ? () => {
@@ -327,7 +326,7 @@ class BreakoutRoom extends PureComponent {
               <Button
                 label={this.getBreakoutLabel(breakoutId)}
                 data-test={dataTest}
-                aria-label={`${this.getBreakoutLabel(breakoutId)} ${breakoutShortname}`}
+                aria-label={`${this.getBreakoutLabel(breakoutId)} ${shortName}`}
                 onClick={() => {
                   this.getBreakoutURL(breakoutId);
                   // leave main room's audio,
@@ -406,7 +405,7 @@ class BreakoutRoom extends PureComponent {
           ) : this.renderUserActions(
             breakout.breakoutId,
             breakout.joinedUsers,
-            breakout.sequence.toString(),
+            breakout.shortName,
           )}
         </div>
         <div className={styles.joinedUserNames}>

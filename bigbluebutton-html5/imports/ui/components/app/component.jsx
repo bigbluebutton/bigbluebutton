@@ -20,7 +20,6 @@ import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
 import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
 import StatusNotifier from '/imports/ui/components/status-notifier/container';
-import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
@@ -155,6 +154,9 @@ class App extends Component {
       settingsLayout,
       isRTL,
       hidePresentation,
+      autoSwapLayout,
+      shouldShowScreenshare,
+      shouldShowExternalVideo,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -166,12 +168,14 @@ class App extends Component {
       value: isRTL,
     });
 
+    const presentationOpen = !(autoSwapLayout || hidePresentation)
+      || shouldShowExternalVideo || shouldShowScreenshare;
+
     layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-      value: !hidePresentation,
+      value: presentationOpen,
     });
 
-    MediaService.setSwapLayout(layoutContextDispatch);
     Modal.setAppElement('#app');
 
     const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
