@@ -41,7 +41,7 @@ import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
-import org.bigbluebutton.core.models.Webcams.{ findAll }
+import org.bigbluebutton.core.models.Webcams.findAll
 import org.bigbluebutton.core2.MeetingStatus2x.{ hasAuthedUserJoined, isVoiceRecording }
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
@@ -307,7 +307,7 @@ class MeetingActor(
 
   }
 
-  private def updateVoiceUserLastActivity(userId: String) {
+  private def updateVoiceUserLastActivity(userId: String) = {
     for {
       vu <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, userId)
     } yield {
@@ -315,7 +315,7 @@ class MeetingActor(
     }
   }
 
-  private def updateUserLastActivity(userId: String) {
+  private def updateUserLastActivity(userId: String) = {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
     } yield {
@@ -323,7 +323,7 @@ class MeetingActor(
     }
   }
 
-  private def updateModeratorsPresence() {
+  private def updateModeratorsPresence() = {
     if (Users2x.numActiveModerators(liveMeeting.users2x) > 0) {
       if (state.expiryTracker.moderatorHasJoined == false ||
         state.expiryTracker.lastModeratorLeftOnInMs != 0) {
@@ -341,7 +341,7 @@ class MeetingActor(
     }
   }
 
-  private def updateUserLastInactivityInspect(userId: String) {
+  private def updateUserLastInactivityInspect(userId: String) = {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
     } yield {
@@ -406,6 +406,7 @@ class MeetingActor(
       case m: UndoWhiteboardPubMsg             => wbApp.handle(m, liveMeeting, msgBus)
       case m: ModifyWhiteboardAccessPubMsg     => wbApp.handle(m, liveMeeting, msgBus)
       case m: SendWhiteboardAnnotationPubMsg   => wbApp.handle(m, liveMeeting, msgBus)
+      case m: SendWhiteboardEraserPubMsg       => wbApp.handle(m, liveMeeting, msgBus)
       case m: GetWhiteboardAnnotationsReqMsg   => wbApp.handle(m, liveMeeting, msgBus)
       case m: ModifyWhiteboardAnnotationPubMsg => wbApp.handle(m, liveMeeting, msgBus)
 
@@ -718,7 +719,7 @@ class MeetingActor(
 
   }
 
-  def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
+  def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) = {
     state = removeUsersWithExpiredUserLeftFlag(liveMeeting, state)
 
     if (!liveMeeting.props.meetingProp.isBreakout) {

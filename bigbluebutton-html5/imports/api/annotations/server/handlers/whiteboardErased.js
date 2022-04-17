@@ -30,24 +30,26 @@ const process = () => {
   Meteor.setTimeout(process, ANNOTATION_PROCESS_INTERVAL);
 };
 
-export default function handleWhiteboardUndo({ body }, meetingId) {
-  const {whiteboardId, userId, addedAnnotations, removedAnnotationIds} = body
+export default function handleWhiteboardErasedSend({ body }, meetingId) {
+  const {whiteboardId, userId, eraserId, annotationsToAdd, idsToRemove} = body
   check(whiteboardId, String);
   check(userId, String);
-  check(addedAnnotations, [Object]);
-  check(removedAnnotationIds, [String]);
+  check(eraserId, String);
+  check(annotationsToAdd, [Object]);
+  check(idsToRemove, [String]);
 
-  if (!annotationsQueue.hasOwnProperty(meetingId)) {
+  if (!Object.prototype.hasOwnProperty.call(annotationsQueue, meetingId)) {
     annotationsQueue[meetingId] = [];
   }
-  addedAnnotations.forEach((annotation) => {
+  annotationsToAdd.forEach((annotation) => {
     var annotationUserId = annotation.userId;
     check(annotationUserId, String);
     annotationsQueue[meetingId].push({ meetingId, whiteboardId, annotationUserId, annotation });
   });
 
-  removedAnnotationIds.forEach((shapeId) => {
+  idsToRemove.forEach((shapeId) => {
     check(shapeId, String);
+    AnnotationsStreamer(meetingId).emit('removed', { meetingId, whiteboardId, shapeId });
     removeAnnotation(meetingId, whiteboardId, shapeId);
   });
 
@@ -56,8 +58,9 @@ export default function handleWhiteboardUndo({ body }, meetingId) {
   }
   if (!annotationsRecieverIsRunning) process();
 
-  addedAnnotations.forEach((annotation) => {
+  annotationsToAdd.forEach((annotation) => {
     addAnnotation(meetingId, whiteboardId, annotation.userId, annotation);
   });
+  AnnotationsStreamer(meetingId).emit('removed', { meetingId, whiteboardId, userId, shapeId: eraserId});
   return 
-} 
+}

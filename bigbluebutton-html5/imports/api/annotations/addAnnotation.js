@@ -2,6 +2,7 @@ import { check } from 'meteor/check';
 
 const ANNOTATION_TYPE_TEXT = 'text';
 const ANNOTATION_TYPE_PENCIL = 'pencil';
+const ANNOTATION_TYPE_ERASER = 'eraser';
 
 // line, triangle, ellipse, rectangle
 function handleCommonAnnotation(meetingId, whiteboardId, userId, annotation) {
@@ -146,6 +147,7 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
   switch (annotation.annotationType) {
     case ANNOTATION_TYPE_TEXT:
       return handleTextUpdate(meetingId, whiteboardId, userId, annotation);
+    case ANNOTATION_TYPE_ERASER:
     case ANNOTATION_TYPE_PENCIL:
       return handlePencilUpdate(meetingId, whiteboardId, userId, annotation);
     default:

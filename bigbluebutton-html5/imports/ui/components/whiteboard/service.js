@@ -18,6 +18,8 @@ const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 const ANNOTATION_TYPE_PENCIL = 'pencil';
 const ANNOTATION_TYPE_TEXT = 'text';
+const ANNOTATION_TYPE_ERASER = 'eraser';
+
 
 let annotationsStreamListener = null;
 
@@ -121,6 +123,9 @@ function handleRemovedAnnotation({
     query.id = { $in: [shapeId, `${shapeId}-fake`] };
     Annotations.remove(query);
   }
+  Annotations.remove(query);
+  //To remove eraser preview
+  UnsentAnnotations.remove(query);
 }
 
 export function initAnnotationsStreamListener() {
@@ -248,12 +253,12 @@ const sendAnnotation = (annotation) => {
     // This is a really hacky solution, but because of the previous code reuse we need to edit
     // the pencil draw update modifier so that it sets the whole array instead of pushing to
     // the end
+    //console.log(queryFake.modifier)
     const { status, annotationType } = relevantAnotation;
-    if (status === DRAW_UPDATE && annotationType === ANNOTATION_TYPE_PENCIL) {
+    if (status === DRAW_UPDATE && (annotationType === ANNOTATION_TYPE_PENCIL || annotationType === ANNOTATION_TYPE_ERASER)) {
       delete queryFake.modifier.$push;
       queryFake.modifier.$set['annotationInfo.points'] = annotation.annotationInfo.points;
     }
-
     UnsentAnnotations.upsert(queryFake.selector, queryFake.modifier);
   }
 };

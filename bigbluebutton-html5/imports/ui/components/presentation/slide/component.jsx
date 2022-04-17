@@ -18,6 +18,7 @@ const Slide = ({ imageUri, svgWidth, svgHeight }) => (
         <image
           // disable pointer events to prevent image interactions with slide on drag
           pointerEvents="none"
+          id="slideimg"
           x="0"
           y="0"
           width={svgWidth}

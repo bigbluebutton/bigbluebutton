@@ -5,7 +5,9 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 import Logger from '/imports/startup/server/logger';
 import checkAnnotation from '../helpers/checkAnnotation';
 
-function modifyWhiteboardAnnotations(annotations, idsToRemove, whiteBoardId, action, meetingId, userId) {
+function modifyWhiteboardAnnotations(
+  annotations, idsToRemove, whiteBoardId, action, meetingId, userId,
+) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'ModifyWhiteboardAnnotationPubMsg';
@@ -26,11 +28,11 @@ function modifyWhiteboardAnnotations(annotations, idsToRemove, whiteBoardId, act
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
   } catch (err) {
-    Logger.error(`Exception while invoking method undoAnnotation ${err.stack}`);
+    Logger.error(`Exception while invoking method modifyWhiteboardAnnotations ${err.stack}`);
   }
 }
 
 export default function deleteWhiteboardAnnotations(annotations, whiteboardId) {
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
-  modifyWhiteboardAnnotations([], annotations.map( a => a.id), whiteboardId, 'delete', meetingId, requesterUserId);
+  modifyWhiteboardAnnotations([], annotations.map((a) => a.id), whiteboardId, 'delete', meetingId, requesterUserId);
 }
