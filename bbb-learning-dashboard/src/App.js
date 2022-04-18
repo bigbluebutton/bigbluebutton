@@ -49,7 +49,7 @@ class App extends React.Component {
 
     downloadButton.setAttribute('disabled', 'true');
     downloadButton.style.cursor = 'not-allowed';
-    link.setAttribute('href', `data:application/octet-stream,${encodeURIComponent(data)}`);
+    link.setAttribute('href', `data:text/csv;charset=UTF-8,${encodeURIComponent(data)}`);
     link.setAttribute('download', filename);
     link.style.display = 'none';
     document.body.appendChild(link);
