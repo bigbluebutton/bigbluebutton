@@ -287,13 +287,13 @@ class Poll extends Component {
   }
 
   componentDidUpdate() {
-    const { amIPresenter, layoutContextDispatch } = this.props;
+    const { amIPresenter, layoutContextDispatch, sidebarContentPanel } = this.props;
 
     if (Session.equals('resetPollPanel', true)) {
       this.handleBackClick();
     }
 
-    if (!amIPresenter) {
+    if (!amIPresenter && sidebarContentPanel === PANELS.POLL) {
       layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
         value: false,
@@ -322,14 +322,15 @@ class Poll extends Component {
   }
 
   handleInputTextChange(index, text) {
-    const { optList } = this.state;
+    const { optList, type } = this.state;
+    const { pollTypes } = this.props;
     // This regex will replace any instance of 2 or more consecutive white spaces
     // with a single white space character.
     const option = text.replace(/\s{2,}/g, ' ').trim();
 
     if (index < optList.length) optList[index].val = option === '' ? '' : option;
 
-    this.setState({ optList });
+    this.setState({ optList, type: type || pollTypes.Letter });
   }
 
   handleInputChange(e, index) {
@@ -661,26 +662,27 @@ class Poll extends Component {
 
         {AUTO_OPTIONING
           && (
-          <Styled.AutoOptioningRow>
-            <Styled.Col aria-hidden="true">
-              <Styled.SectionHeading>
-                {intl.formatMessage(intlMessages.autoOptionToggleLabel)}
-              </Styled.SectionHeading>
-            </Styled.Col>
-            <Styled.Col>
-              <Styled.Toggle>
-                {this.displayAutoOptionToggleStatus(autoOptioning)}
-                <Toggle
-                  icons={false}
-                  defaultChecked={autoOptioning}
-                  onChange={() => this.handleAutoOptionToogle()}
-                  ariaLabel={intl.formatMessage(intlMessages.autoOptionToggleLabel)}
-                  showToggleLabel={false}
-                  data-test="autoOptioningPollBtn"
-                />
-              </Styled.Toggle>
-            </Styled.Col>
-          </Styled.AutoOptioningRow>
+            <Styled.AutoOptioningRow>
+              <Styled.Col aria-hidden="true">
+                <Styled.SectionHeading>
+                  {intl.formatMessage(intlMessages.autoOptionToggleLabel)}
+                </Styled.SectionHeading>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.Toggle>
+                  {this.displayAutoOptionToggleStatus(autoOptioning)}
+                  <Toggle
+                    icons={false}
+                    disabled={FILE_DRAG_AND_DROP_ENABLED}
+                    defaultChecked={autoOptioning}
+                    onChange={() => this.handleAutoOptionToogle()}
+                    ariaLabel={intl.formatMessage(intlMessages.autoOptionToggleLabel)}
+                    showToggleLabel={false}
+                    data-test="autoOptioningPollBtn"
+                  />
+                </Styled.Toggle>
+              </Styled.Col>
+            </Styled.AutoOptioningRow>
           )}
 
         {autoOptioning
@@ -921,16 +923,16 @@ class Poll extends Component {
                         });
                       }}
                     />
-                    {
-                      FILE_DRAG_AND_DROP_ENABLED
-                      && type !== pollTypes.Response
-                      && this.renderDragDrop()
-                    }
                   </div>
                 )
               }
             </div>
           )}
+        {
+          FILE_DRAG_AND_DROP_ENABLED
+          && type !== pollTypes.Response
+          && this.renderDragDrop()
+        }
       </div>
     );
   }
