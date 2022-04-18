@@ -1,6 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
-  systemMessageBorderColor,
   mdPaddingX,
   borderSize,
   listItemBgHover, borderSizeSmall,
