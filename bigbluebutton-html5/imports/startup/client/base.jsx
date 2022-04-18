@@ -10,12 +10,9 @@ import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import { Session } from 'meteor/session';
-import { FormattedMessage } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
 import Meetings from '/imports/api/meetings';
 import AppService from '/imports/ui/components/app/service';
-import AudioService from '/imports/ui/components/audio/service';
-import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { layoutSelectInput, layoutDispatch } from '../../ui/components/layout/context';
@@ -94,10 +91,6 @@ class Base extends Component {
     });
 
     MediaService.setSwapLayout(layoutContextDispatch);
-
-    const {
-      userID: localUserId,
-    } = Auth;
 
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
