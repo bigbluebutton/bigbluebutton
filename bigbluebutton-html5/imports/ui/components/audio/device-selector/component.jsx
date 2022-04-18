@@ -71,8 +71,7 @@ class DeviceSelector extends Component {
     if (prevProps.blocked === true && blocked === false) this.enumerate();
   }
 
-
-  handleEnumerateDevicesSuccess (deviceInfos) {
+  handleEnumerateDevicesSuccess(deviceInfos) {
     const { kind } = this.props;
 
     const devices = deviceInfos.filter((d) => d.kind === kind);
@@ -93,7 +92,26 @@ class DeviceSelector extends Component {
     });
   }
 
-  enumerate () {
+  handleSelectChange(event) {
+    const { value } = event.target;
+    const { onChange } = this.props;
+    const { devices } = this.state;
+    this.setState({ value }, () => {
+      const selectedDevice = devices.find((d) => d.deviceId === value);
+      onChange(selectedDevice.deviceId, selectedDevice, event);
+    });
+  }
+
+  getFallbackLabel(index) {
+    const { intl, kind } = this.props;
+    const label = kind === 'audioinput' ? intlMessages.fallbackInputLabel : intlMessages.fallbackOutputLabel;
+
+    return intl.formatMessage(label, { 0: index });
+  }
+
+  enumerate() {
+    const { kind } = this.props;
+
     navigator.mediaDevices
       .enumerateDevices()
       .then(this.handleEnumerateDevicesSuccess.bind(this))
@@ -105,23 +123,6 @@ class DeviceSelector extends Component {
           },
         }, 'Error on enumerateDevices(): ');
       });
-  }
-
-  getFallbackLabel(index) {
-    const { intl, kind } = this.props;
-    const label = kind === 'audioinput' ? intlMessages.fallbackInputLabel : intlMessages.fallbackOutputLabel;
-
-    return intl.formatMessage(label, { 0: index });
-  }
-
-  handleSelectChange(event) {
-    const { value } = event.target;
-    const { onChange } = this.props;
-    const { devices } = this.state;
-    this.setState({ value }, () => {
-      const selectedDevice = devices.find((d) => d.deviceId === value);
-      onChange(selectedDevice.deviceId, selectedDevice, event);
-    });
   }
 
   render() {

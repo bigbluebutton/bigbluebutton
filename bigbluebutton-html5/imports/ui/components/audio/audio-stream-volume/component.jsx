@@ -9,12 +9,15 @@ const VOL_CEIL = 50;
 const DB_AMPL = 65;
 
 const propTypes = {
-  stream: PropTypes.object,
-  volumePollingInterval: PropTypes.number,
+  stream: PropTypes.shape({
+    active: PropTypes.bool,
+    id: PropTypes.string,
+  }),
   volumeFloor: PropTypes.number,
   volumeRange: PropTypes.number,
   optimum: PropTypes.number,
   high: PropTypes.number,
+  low: PropTypes.number,
 };
 
 const AudioStreamVolume = ({
@@ -29,33 +32,11 @@ const AudioStreamVolume = ({
   const volumeRef = useRef(0);
   const [volume, setVolume] = useState(0);
 
-  useEffect(() => {
-    observeVolumeChanges();
-    return stopObservingVolumeChanges;
-  }, [])
-
-  useEffect(() => {
-    stopObservingVolumeChanges();
-    observeVolumeChanges(stream);
-  }, [stream]);
-
-  const observeVolumeChanges = (_stream) => {
-    if (_stream) {
-      harkObserver.current = hark(_stream, { interval: VOL_POLLING_INTERVAL_MS });
-      harkObserver.current.on('volume_change', handleVolumeChange);
-    }
-  }
-
-  const stopObservingVolumeChanges = () => {
-    harkObserver.current?.stop();
-    harkObserver.current = null;
-  }
-
   const handleVolumeChange = (dbVolume) => {
     const previousVolume = volumeRef.current;
     // Normalize it into 0 - range . DB_AMPL is the "relevance factor" -
     // original formula is / 20
-    const linearVolume = Math.pow(10, dbVolume / DB_AMPL) * (volumeRange);
+    const linearVolume = (10 ** (dbVolume / DB_AMPL)) * (volumeRange);
     // If the current linear volume is lower than 1/10 of the total volume range,
     // ignore to minimize re-renders. Otherwise: generate the next volume val
     // by smoothing the transition with the previous value and rounding it up
@@ -67,7 +48,29 @@ const AudioStreamVolume = ({
       volumeRef.current = nextVolume;
       setVolume(nextVolume);
     }
-  }
+  };
+
+  const observeVolumeChanges = (_stream) => {
+    if (_stream) {
+      harkObserver.current = hark(_stream, { interval: VOL_POLLING_INTERVAL_MS });
+      harkObserver.current.on('volume_change', handleVolumeChange);
+    }
+  };
+
+  const stopObservingVolumeChanges = () => {
+    harkObserver.current?.stop();
+    harkObserver.current = null;
+  };
+
+  useEffect(() => {
+    observeVolumeChanges();
+    return stopObservingVolumeChanges;
+  }, []);
+
+  useEffect(() => {
+    stopObservingVolumeChanges();
+    observeVolumeChanges(stream);
+  }, [stream]);
 
   return (
     <Styled.VolumeMeter
@@ -79,7 +82,7 @@ const AudioStreamVolume = ({
       value={volume}
     />
   );
-}
+};
 
 AudioStreamVolume.propTypes = propTypes;
 AudioStreamVolume.defaultProps = {

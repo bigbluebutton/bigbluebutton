@@ -33,7 +33,6 @@ const propTypes = {
   outputDeviceId: PropTypes.string,
   formattedDialNum: PropTypes.string.isRequired,
   showPermissionsOvelay: PropTypes.bool.isRequired,
-  localEchoEnabled: PropTypes.bool.isRequired,
   listenOnlyMode: PropTypes.bool.isRequired,
   joinFullAudioImmediately: PropTypes.bool,
   forceListenOnlyAttendee: PropTypes.bool.isRequired,
@@ -44,6 +43,9 @@ const propTypes = {
   formattedTelVoice: PropTypes.string.isRequired,
   autoplayBlocked: PropTypes.bool.isRequired,
   handleAllowAutoplay: PropTypes.func.isRequired,
+  changeInputStream: PropTypes.func.isRequired,
+  localEchoEnabled: PropTypes.bool.isRequired,
+  showVolumeMeter: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -260,7 +262,7 @@ class AudioModal extends Component {
     const {
       joinEchoTest,
       isConnecting,
-      localEchoEnabled
+      localEchoEnabled,
     } = this.props;
 
     const {
@@ -520,7 +522,7 @@ class AudioModal extends Component {
         errCode: 0,
         disableActions: false,
       });
-    }
+    };
 
     return (
       <AudioSettings
