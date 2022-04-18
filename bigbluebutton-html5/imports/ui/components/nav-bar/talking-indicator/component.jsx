@@ -53,6 +53,7 @@ class TalkingIndicator extends PureComponent {
         talking,
         color,
         transcribing,
+        floor,
         muted,
         callerName,
       } = talkers[`${id}`];
@@ -70,6 +71,7 @@ class TalkingIndicator extends PureComponent {
           key={_.uniqueId(`${callerName}-`)}
           muted={muted}
           talking={talking}
+          floor={floor}
         >
           {transcribing && (
             <Styled.CCIcon

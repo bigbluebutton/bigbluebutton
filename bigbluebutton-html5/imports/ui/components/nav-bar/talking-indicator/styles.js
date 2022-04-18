@@ -14,7 +14,7 @@ import {
   colorWhite,
   colorSuccess,
   colorDanger,
-  btnMutedColor,
+  colorBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeBase,
@@ -129,7 +129,7 @@ const TalkingIndicatorWrapper = styled.div`
   margin: 0 ${borderRadius};
   opacity: ${({ muted, talking }) => ((muted || !talking) && `${spokeOpacity};`)
     || '1;'};
-  background: ${({ muted, talking }) => ((muted || !talking) && `${btnMutedColor};`)
+  background: ${({ muted, talking, floor }) => ((muted || !talking || !floor) && `${colorBackground};`)
     || `${colorSuccess}`}
 `;
 

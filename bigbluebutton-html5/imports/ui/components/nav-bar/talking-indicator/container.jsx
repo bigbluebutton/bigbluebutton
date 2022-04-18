@@ -42,6 +42,7 @@ export default withTracker(() => {
     fields: {
       callerName: 1,
       talking: 1,
+      floor: 1,
       color: 1,
       startTime: 1,
       muted: 1,
@@ -60,12 +61,13 @@ export default withTracker(() => {
 
     for (let i = 0; i < maxNumberVoiceUsersNotification; i += 1) {
       const {
-        callerName, talking, color, muted, intId,
+        callerName, talking, floor, color, muted, intId,
       } = usersTalking[i];
 
       talkers[`${intId}`] = {
         color,
         transcribing: SpeechService.hasSpeechLocale(intId),
+        floor,
         talking,
         muted,
         callerName,
