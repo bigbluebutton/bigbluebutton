@@ -124,6 +124,7 @@ class BbbWebApiGWApp(
                     allowStartStopRecording: java.lang.Boolean, webcamsOnlyForModerator: java.lang.Boolean,
                     meetingCameraCap: java.lang.Integer,
                     userCameraCap:    java.lang.Integer,
+                    maxPinnedCameras: java.lang.Integer,
                     moderatorPass:    String, viewerPass: String, learningDashboardAccessToken: String,
                     createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean,
                     sequence: java.lang.Integer,
@@ -156,6 +157,7 @@ class BbbWebApiGWApp(
       extId = extMeetingId,
       intId = meetingId,
       meetingCameraCap = meetingCameraCap.intValue(),
+      maxPinnedCameras = maxPinnedCameras.intValue(),
       isBreakout = isBreakout.booleanValue(),
       disabledFeaturesAsVector,
       notifyRecordingIsOn
