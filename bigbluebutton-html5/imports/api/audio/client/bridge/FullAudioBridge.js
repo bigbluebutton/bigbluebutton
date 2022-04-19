@@ -24,6 +24,7 @@ import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const MEDIA = Meteor.settings.public.media;
 const DEFAULT_FULLAUDIO_MEDIA_SERVER = MEDIA.audio.fullAudioMediaServer;
+const DEFAULT_LISTENONLY_MEDIA_SERVER = Meteor.settings.public.kurento.listenOnlyMediaServer;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 const GLOBAL_AUDIO_PREFIX = 'GLOBAL_AUDIO_';
 const RECONNECT_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
@@ -52,10 +53,19 @@ const mapErrorCode = (error) => {
   return error;
 };
 
-const getMediaServerAdapter = () => getFromMeetingSettings(
-  'media-server-fullaudio',
-  DEFAULT_FULLAUDIO_MEDIA_SERVER,
-);
+const getMediaServerAdapter = (listenOnly = false) => {
+  if (listenOnly) {
+    return getFromMeetingSettings(
+      'media-server-listenonly',
+      DEFAULT_LISTENONLY_MEDIA_SERVER,
+    );
+  }
+
+  return getFromMeetingSettings(
+    'media-server-fullaudio',
+    DEFAULT_FULLAUDIO_MEDIA_SERVER,
+  );
+};
 
 export default class FullAudioBridge extends BaseAudioBridge {
   constructor(userData) {
@@ -304,14 +314,14 @@ export default class FullAudioBridge extends BaseAudioBridge {
       const callerIdName = [
         `${this.userId}_${getAudioSessionNumber()}`,
         'bbbID',
-        isListenOnly ? `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}` : this.name,
+        isListenOnly ? `${GLOBAL_AUDIO_PREFIX}` : this.name,
       ].join('-').replace(/"/g, "'");
 
       const brokerOptions = {
         caleeName: callerIdName,
         extension,
         iceServers: this.iceServers,
-        mediaServer: getMediaServerAdapter(),
+        mediaServer: getMediaServerAdapter(isListenOnly),
         constraints: getAudioConstraints({ deviceId: this.inputDeviceId }),
         forceRelay: shouldForceRelay(),
         stream: (inputStream && inputStream.active) ? inputStream : undefined,
