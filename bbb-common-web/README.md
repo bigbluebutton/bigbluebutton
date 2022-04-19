@@ -1,1 +1,1 @@
- see http://code.google.com/p/bigbluebutton/wiki/DevelopingBBB
+see https://docs.bigbluebutton.org/2.4/dev.html
