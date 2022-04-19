@@ -97,7 +97,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="xmlService" class="org.bigbluebutton.api.service.impl.XmlServiceImpl"/>
 
-    <bean id="recordingService" class="org.bigbluebutton.api.service.impl.RecordingServiceDbImpl">
+    <bean id="recordingService" class="org.bigbluebutton.api.service.impl.RecordingServiceFileImpl">
         <property name="recordingStatusDir" value="${recordStatusDir}"/>
         <property name="publishedDir" value="${publishedDir}"/>
         <property name="unpublishedDir" value="${unpublishedDir}"/>
