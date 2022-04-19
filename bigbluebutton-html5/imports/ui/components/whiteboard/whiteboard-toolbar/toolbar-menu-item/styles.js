@@ -3,8 +3,6 @@ import styled from 'styled-components';
 import {
   toolbarButtonWidth,
   toolbarButtonHeight,
-  toolbarItemOutlineOffset,
-  toolbarButtonBorder,
   toolbarButtonBorderRadius,
   toolbarItemTrianglePadding,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -24,22 +22,6 @@ const ButtonWrapper = styled.div`
   height: ${toolbarButtonHeight};
   min-height: ${toolbarButtonHeight};
   position: relative;
-
-  & > button {
-    outline-offset: ${toolbarItemOutlineOffset};
-    border-bottom: ${toolbarButtonBorder} solid ${toolbarButtonBorderColor};
-  }
-
-  &:first-child > button {
-    border-top-left-radius: ${toolbarButtonBorderRadius};
-    border-top-right-radius: ${toolbarButtonBorderRadius};
-  }
-
-  &:last-child > button {
-    border-bottom: 0;
-    border-bottom-left-radius: ${toolbarButtonBorderRadius};
-    border-bottom-right-radius: ${toolbarButtonBorderRadius};
-  }
 
   ${({ showCornerTriangle }) => showCornerTriangle && `
     &::before {

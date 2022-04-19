@@ -211,9 +211,9 @@ class UserListItem extends PureComponent {
   componentDidUpdate() {
     const { user, selectedUserId } = this.props;
     const { selected } = this.state;
-    if (selectedUserId === user.userId && !selected) {
+    if (selectedUserId === user?.userId && !selected) {
       this.setState({ selected: true });
-    } else if (selectedUserId !== user.userId && selected) {
+    } else if (selectedUserId !== user?.userId && selected) {
       this.setState({ selected: false });
     }
   }
