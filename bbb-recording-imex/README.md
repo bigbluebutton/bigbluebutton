@@ -10,7 +10,7 @@ Imports and parses recording metadata.xml files and stores the data in a Postgre
    - Run the hibernate.cfg script to generate the hibernate config file
    - Run "docker-compose up" to start up the docker container containing the Postgresql database
    - Interact with the database using the psql script
-2. In bbb-recording-importer
+2. In bbb-recording-imex
    - Unit tests for parsing and persisting recording metadata can be found in src/test/java/org/bigbluebutton/recording/
    - Edit the "metadataDirectory" variables in the test files to point to where the recording metadata can be found
    - Run the unit tests using the command "mvn test"
