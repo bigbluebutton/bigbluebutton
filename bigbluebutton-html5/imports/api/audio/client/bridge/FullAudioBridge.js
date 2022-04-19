@@ -407,7 +407,8 @@ export default class FullAudioBridge extends BaseAudioBridge {
         );
         this.setInputStream(stream);
       } else {
-        this.inputStream.getAudioTracks().forEach((track) => track.applyConstraints(matchConstraints));
+        this.inputStream.getAudioTracks()
+          .forEach((track) => track.applyConstraints(matchConstraints));
       }
     } catch (error) {
       logger.error({
