@@ -1,7 +1,7 @@
 const Logger = require('../lib/utils/logger');
 const config = require('../config');
 const fs = require('fs');
-const convert = require('xml-js');
+const sizeOf = require('image-size');
 const { create } = require('xmlbuilder2', { encoding: 'utf-8' });
 const { execSync } = require("child_process");
 const { Worker, workerData, parentPort } = require('worker_threads');
@@ -49,7 +49,6 @@ function render_HTMLTextBox(htmlFilePath, id, width, height) {
     execSync(commands.join(' '), (error, stderr) => {
         if (error) {
             logger.error(`Error when rendering text box for string "${string}" with wkhtmltoimage: ${error.message}`);
-            return;
         }
 
         if (stderr) {
@@ -206,6 +205,7 @@ function overlay_poll(svg, annotation, w, h) {
 
         if (stderr) {
             logger.error(`Poll generation failed with stderr: ${stderr}`);
+            return;
         }
     });
 
@@ -341,20 +341,13 @@ let exportJob = JSON.parse(job);
 let annotations = fs.readFileSync(`${dropbox}/whiteboard`);
 let whiteboard = JSON.parse(annotations);
 let pages = JSON.parse(whiteboard.pages);
-let rsvgConvertInput = ""
+let ghostScriptInput = ""
 
 // 3. Convert annotations to SVG
 for (let currentSlide of pages) {
-    var backgroundSlide = fs.readFileSync(`${dropbox}/slide${currentSlide.page}.svg`).toString();
-    // Read background slide in as JSON to determine dimensions
-    // TODO: find a better way to get width and height of slide (e.g. as part of message)
-    backgroundSlide = JSON.parse(convert.xml2json(backgroundSlide));
-
-    // There's a bug with older versions of rsvg which defaults SVG output to pixels.
-    // So we ignore the units here as well.
-    // See: https://gitlab.gnome.org/GNOME/librsvg/-/issues/766
-    var slideWidth = Number(backgroundSlide.elements[0].attributes.width.replace(/[^\d.]/g, ''))
-    var slideHeight = Number(backgroundSlide.elements[0].attributes.height.replace(/[^\d.]/g, ''))
+    var dimensions = sizeOf(`${dropbox}/slide${currentSlide.page}.png`);
+    var slideWidth = dimensions.width;
+    var slideHeight = dimensions.height;
 
     var panzoom_x = -currentSlide.xOffset * MAGIC_MYSTERY_NUMBER / 100.0 * slideWidth
     var panzoom_y = -currentSlide.yOffset * MAGIC_MYSTERY_NUMBER / 100.0 * slideHeight
@@ -375,7 +368,7 @@ for (let currentSlide of pages) {
                     sysID: 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'
                 })
                 .ele('image', {
-                    'xlink:href': `file://${dropbox}/slide${currentSlide.page}.svg`,
+                    'xlink:href': `file://${dropbox}/slide${currentSlide.page}.png`,
                     width: slideWidth,
                     height: slideHeight,
                 })
@@ -390,32 +383,57 @@ for (let currentSlide of pages) {
 
     svg = svg.end({ prettyPrint: true });
     // Write annotated SVG file
-    let file = `${dropbox}/annotated-slide${currentSlide.page}.svg`
-    fs.writeFileSync(file, svg, function(err) {
+    let SVGfile = `${dropbox}/annotated-slide${currentSlide.page}.svg`
+    let PDFfile = `${dropbox}/annotated-slide${currentSlide.page}.pdf`
+
+    fs.writeFileSync(SVGfile, svg, function(err) {
         if(err) { return logger.error(err); }
     });
 
-    rsvgConvertInput += `${file} `
+    let convertAnnotatedSlide = [
+        'cairosvg',
+        SVGfile,
+        '-o', PDFfile
+    ].join(' ');
+
+    execSync(convertAnnotatedSlide, (error, stderr) => {
+        if (error) {
+            logger.error(`SVG to PDF export failed with error: ${error.message}`);
+            return;
+        }
+
+        if (stderr) {
+            logger.error(`SVG to PDF export failed with stderr: ${stderr}`);
+            return;
+        }
+    });
+
+    ghostScriptInput += `${PDFfile} `
 }
 
 // Create PDF output directory if it doesn't exist
 let output_dir = `${exportJob.presLocation}/pdfs`;
 if (!fs.existsSync(output_dir)) { fs.mkdirSync(output_dir); }
 
-let render = [
-    'rsvg-convert', rsvgConvertInput,
-    '-f', 'pdf', 
-    '-o', `${output_dir}/annotated_slides_${jobId}.pdf`
+let mergePDFs = [
+    'gs',
+    '-dNOPAUSE',
+    '-sDEVICE=pdfwrite',
+    `-sOUTPUTFILE=${output_dir}/annotated_slides_${jobId}.pdf`,
+    `-dBATCH`,
+    ghostScriptInput,
     ].join(' ');
 
 // Resulting PDF file is stored in the presentation dir
-execSync(render, (error, stderr) => {
+execSync(mergePDFs, (error, stderr) => {
     if (error) {
         logger.error(`SVG to PDF export failed with error: ${error.message}`);
         return;
     }
+
     if (stderr) {
         logger.error(`SVG to PDF export failed with stderr: ${stderr}`);
+        return;
     }
 });
 

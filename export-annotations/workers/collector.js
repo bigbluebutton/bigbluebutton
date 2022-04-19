@@ -2,6 +2,7 @@ const Logger = require('../lib/utils/logger');
 const config = require('../config');
 const fs = require('fs');
 const redis = require('redis');
+const { execSync } = require("child_process");
 
 const { Worker, workerData, parentPort } = require('worker_threads')
 
@@ -53,10 +54,30 @@ let exportJob = JSON.parse(job);
     // Collect the Presentation Page files from the presentation directory
     for (let p of pages) {
       let pageNumber = p.page;
-      let slide = `${exportJob.presLocation}/svgs/slide${pageNumber}.svg`;
-      let file = `${dropbox}/slide${pageNumber}.svg`;
+      let pdf = `${exportJob.presLocation}/${exportJob.presId}.pdf`;
+      let file = `${dropbox}/slide${pageNumber}`;
 
-      fs.copyFile(slide, file, (err) => { if (err) throw err; } );
+      let extactSlideAsPDFCommands = [
+        'pdftocairo',
+        '-png',
+        '-f', pageNumber,
+        '-l', pageNumber,
+        '-singlefile',
+        pdf,
+        file
+      ].join(' ');
+
+      execSync(extactSlideAsPDFCommands, (error, stderr) => {
+        if (error) {
+            logger.error(`PDFtoCairo failed with error: ${error.message}`);
+            return;
+        }
+
+        if (stderr) {
+            logger.error(`PDFtoCairo failed with stderr: ${stderr}`);
+            return;
+        }
+      })
     }
 
     kickOffProcessWorker(exportJob.jobId)
