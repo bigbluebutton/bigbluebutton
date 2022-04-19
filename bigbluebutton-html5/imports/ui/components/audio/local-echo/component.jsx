@@ -58,7 +58,7 @@ const LocalEcho = ({
 
   useEffect(() => {
     if (Service.useRTCLoopback()) {
-      loopbackAgent.current = Service.createAudioRTCLoopback({ audio: true });
+      loopbackAgent.current = Service.createAudioRTCLoopback();
     }
     return cleanup;
   }, []);

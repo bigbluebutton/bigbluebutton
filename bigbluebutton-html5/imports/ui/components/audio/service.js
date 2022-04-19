@@ -99,7 +99,6 @@ const toggleMuteMicrophone = throttle(() => {
   }
 }, TOGGLE_MUTE_THROTTLE_TIME);
 
-
 export default {
   init,
   exitAudio: () => AudioManager.exitAudio(),
@@ -109,9 +108,9 @@ export default {
   joinMicrophone: () => AudioManager.joinMicrophone(),
   joinEchoTest: () => AudioManager.joinEchoTest(),
   toggleMuteMicrophone: debounce(toggleMuteMicrophone, 500, { leading: true, trailing: false }),
-  changeInputDevice: inputDeviceId => AudioManager.changeInputDevice(inputDeviceId),
-  changeInputStream: (newInputStream)  => AudioManager.inputStream = newInputStream,
-  liveChangeInputDevice: inputDeviceId => AudioManager.liveChangeInputDevice(inputDeviceId),
+  changeInputDevice: (inputDeviceId) => AudioManager.changeInputDevice(inputDeviceId),
+  changeInputStream: (newInputStream) => { AudioManager.inputStream = newInputStream; },
+  liveChangeInputDevice: (inputDeviceId) => AudioManager.liveChangeInputDevice(inputDeviceId),
   changeOutputDevice: (outputDeviceId, isLive) => {
     if (AudioManager.outputDeviceId !== outputDeviceId) {
       AudioManager.changeOutputDevice(outputDeviceId, isLive);
@@ -134,12 +133,12 @@ export default {
   isVoiceUser,
   autoplayBlocked: () => AudioManager.autoplayBlocked,
   handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
-  playAlertSound: url => AudioManager.playAlertSound(url),
+  playAlertSound: (url) => AudioManager.playAlertSound(url),
   updateAudioConstraints:
-    constraints => AudioManager.updateAudioConstraints(constraints),
+    (constraints) => AudioManager.updateAudioConstraints(constraints),
   recoverMicState,
   isReconnecting: () => AudioManager.isReconnecting,
-  setBreakoutAudioTransferStatus: status => AudioManager
+  setBreakoutAudioTransferStatus: (status) => AudioManager
     .setBreakoutAudioTransferStatus(status),
   getBreakoutAudioTransferStatus: () => AudioManager
     .getBreakoutAudioTransferStatus(),

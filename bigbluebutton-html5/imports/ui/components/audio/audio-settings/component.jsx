@@ -34,7 +34,7 @@ const defaultProps = {
   produceStreams: false,
   withEcho: false,
   withVolumeMeter: false,
-}
+};
 
 const intlMessages = defineMessages({
   backLabel: {
@@ -108,24 +108,6 @@ class AudioSettings extends React.Component {
     }
   }
 
-  generateInputStream(inputDeviceId) {
-    const { stream } = this.state;
-
-    if (inputDeviceId && stream) {
-      const currentDeviceId = MediaStreamUtils.extractDeviceIdFromStream(stream, 'audio');
-
-      if (currentDeviceId === inputDeviceId) return Promise.resolve(stream);
-
-      MediaStreamUtils.stopMediaStreamTracks(stream);
-    }
-
-    const constraints = {
-      audio: getAudioConstraints({ deviceId: inputDeviceId }),
-    };
-
-    return navigator.mediaDevices.getUserMedia(constraints)
-  }
-
   handleInputChange(deviceId) {
     const {
       handleGUMFailure,
@@ -179,7 +161,7 @@ class AudioSettings extends React.Component {
     });
   }
 
-  handleConfirmationClick () {
+  handleConfirmationClick() {
     const { stream } = this.state;
     const {
       produceStreams,
@@ -197,6 +179,24 @@ class AudioSettings extends React.Component {
     return handleConfirmation(clonedStream);
   }
 
+  generateInputStream(inputDeviceId) {
+    const { stream } = this.state;
+
+    if (inputDeviceId && stream) {
+      const currentDeviceId = MediaStreamUtils.extractDeviceIdFromStream(stream, 'audio');
+
+      if (currentDeviceId === inputDeviceId) return Promise.resolve(stream);
+
+      MediaStreamUtils.stopMediaStreamTracks(stream);
+    }
+
+    const constraints = {
+      audio: getAudioConstraints({ deviceId: inputDeviceId }),
+    };
+
+    return navigator.mediaDevices.getUserMedia(constraints);
+  }
+
   renderOutputTest() {
     const { withEcho, intl } = this.props;
     const { stream } = this.state;
@@ -208,11 +208,12 @@ class AudioSettings extends React.Component {
             {intl.formatMessage(intlMessages.testSpeakerLabel)}
             {!withEcho
               ? <AudioTestContainer id="audioTest" />
-              : <LocalEchoContainer
-                  intl={this.props.intl}
+              : (
+                <LocalEchoContainer
+                  intl={intl}
                   stream={stream}
                 />
-            }
+              )}
           </Styled.LabelSmall>
         </Styled.SpacedLeftCol>
       </Styled.Row>
@@ -232,7 +233,7 @@ class AudioSettings extends React.Component {
           />
         </Styled.LabelSmallFullWidth>
       </Styled.Row>
-    ) : null
+    ) : null;
   }
 
   renderDeviceSelectors() {
@@ -317,5 +318,6 @@ class AudioSettings extends React.Component {
 }
 
 AudioSettings.propTypes = propTypes;
+AudioSettings.defaultProps = defaultProps;
 
 export default withModalMounter(injectIntl(AudioSettings));
