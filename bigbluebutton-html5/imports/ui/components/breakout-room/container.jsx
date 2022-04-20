@@ -5,6 +5,11 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import BreakoutComponent from './component';
 import Service from './service';
 import LayoutContext from '../layout/context';
+import {
+  didUserSelectedMicrophone,
+  didUserSelectedListenOnly,
+} from '/imports/ui/components/audio/audio-modal/service';
+import { makeCall } from '/imports/ui/services/api';
 
 const BreakoutContainer = (props) => {
   const layoutContext = useContext(LayoutContext);
@@ -36,6 +41,30 @@ export default withTracker((props) => {
     getBreakoutAudioTransferStatus,
   } = AudioService;
 
+  const logUserCouldNotRejoinAudio = () => {
+    logger.warn({
+      logCode: 'mainroom_audio_rejoin',
+      extraInfo: { logType: 'user_action' },
+    }, 'leaving breakout room couldn\'t rejoin audio in the main room');
+  };
+
+  const rejoinAudio = () => {
+    if (didUserSelectedMicrophone()) {
+      AudioManager.joinMicrophone().then(() => {
+        makeCall('toggleVoice', null, true).catch(() => {
+          AudioManager.forceExitAudio();
+          logUserCouldNotRejoinAudio();
+        });
+      }).catch(() => {
+        logUserCouldNotRejoinAudio();
+      });
+    } else if (didUserSelectedListenOnly()) {
+      AudioManager.joinListenOnly().catch(() => {
+        logUserCouldNotRejoinAudio();
+      });
+    }
+  };
+
   return {
     ...props,
     breakoutRooms,
@@ -51,7 +80,8 @@ export default withTracker((props) => {
     amIModerator: amIModerator(),
     isMeteorConnected,
     isUserInBreakoutRoom,
-    exitAudio: () => AudioManager.exitAudio(),
+    forceExitAudio: () => AudioManager.forceExitAudio(),
+    rejoinAudio,
     isReconnecting,
     setBreakoutAudioTransferStatus,
     getBreakoutAudioTransferStatus,
