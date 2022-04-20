@@ -5,9 +5,9 @@ const ON_ICE_CANDIDATE_MSG = 'iceCandidate';
 const SUBSCRIBER_ANSWER = 'subscriberAnswer';
 const DTMF = 'dtmf';
 
-const SFU_COMPONENT_NAME = 'fullaudio';
+const SFU_COMPONENT_NAME = 'audio';
 
-class FullAudioBroker extends BaseBroker {
+class AudioBroker extends BaseBroker {
   constructor(
     wsUrl,
     role,
@@ -157,7 +157,7 @@ class FullAudioBroker extends BaseBroker {
         sfuComponent: this.sfuComponent,
         started: this.started,
       },
-    }, 'Listen only failed in SFU');
+    }, 'Audio failed in SFU');
     this.onerror(error);
   }
 
@@ -207,7 +207,7 @@ class FullAudioBroker extends BaseBroker {
           errorMessage: error.name || error.message || 'Unknown error',
           sfuComponent: this.sfuComponent,
         },
-      }, 'Listen only offer generation failed');
+      }, 'Audio offer generation failed');
       // 1305: "PEER_NEGOTIATION_FAILED",
       this.onerror(error);
     }
@@ -237,4 +237,4 @@ class FullAudioBroker extends BaseBroker {
   }
 }
 
-export default FullAudioBroker;
+export default AudioBroker;
