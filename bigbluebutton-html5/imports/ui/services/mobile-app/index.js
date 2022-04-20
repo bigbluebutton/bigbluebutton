@@ -7,34 +7,40 @@ import logger from '/imports/startup/client/logger';
     if(browserInfo.isMobileApp) {
         logger.debug(`BBB-MOBILE - Mobile APP detected`);
 
+        const WEBRTC_CALL_TYPE_FULL_AUDIO = 'full_audio';
+        const WEBRTC_CALL_TYPE_SCREEN_SHARE = 'screen_share';
+        const WEBRTC_CALL_TYPE_STANDARD = 'standard';
+
         // This function detects if the call happened to publish a screenshare
-        function isScreenShareBroadcastRelated(caller, peerConnection = null, args = null) {
+        function detectWebRtcCallType(caller, peerConnection = null, args = null) {
             // Keep track of how many webRTC evaluations was done
-            if(!peerConnection.isSBREvaluations) 
-                peerConnection.isSBREvaluations = 0;
+            if(!peerConnection.detectWebRtcCallTypeEvaluations) 
+                peerConnection.detectWebRtcCallTypeEvaluations = 0;
             
-            peerConnection.isSBREvaluations ++;
+            peerConnection.detectWebRtcCallTypeEvaluations ++;
 
             // If already successfully evaluated, reuse
-            if(peerConnection && peerConnection.isSBR !== undefined ) {
-                logger.info(`BBB-MOBILE - isScreenShareBroadcastRelated (already evaluated as ${peerConnection.isSBR})`, {caller, peerConnection});
-                return peerConnection.isSBR;
+            if(peerConnection && peerConnection.webRtcCallType !== undefined ) {
+                logger.info(`BBB-MOBILE - detectWebRtcCallType (already evaluated as ${peerConnection.webRtcCallType})`, {caller, peerConnection});
+                return peerConnection.webRtcCallType;
             }
 
             // Evaluate context otherwise
             const e = new Error('dummy');
             const stackTrace = e.stack;
-            logger.info(`BBB-MOBILE - isScreenShareBroadcastRelated (evaluating)`, {caller, peerConnection, stackTrace: stackTrace.split('\n'), isSBREvaluations: peerConnection.isSBREvaluations, args});
+            logger.info(`BBB-MOBILE - detectWebRtcCallType (evaluating)`, {caller, peerConnection, stackTrace: stackTrace.split('\n'), detectWebRtcCallTypeEvaluations: peerConnection.detectWebRtcCallTypeEvaluations, args});
             
             // addTransceiver is the first call for screensharing and it has a startScreensharing in its stackTrace
-            if( peerConnection.isSBREvaluations == 1) {
+            if( peerConnection.detectWebRtcCallTypeEvaluations == 1) {
                 if(caller == 'addTransceiver' && stackTrace.indexOf('startScreensharing') !== -1) {
-                    peerConnection.isSBR = true;
+                    peerConnection.webRtcCallType = WEBRTC_CALL_TYPE_SCREEN_SHARE; // this uses mobile app broadcast upload extension
+                } else if(caller == 'addEventListener' && stackTrace.indexOf('invite') !== -1) {
+                    peerConnection.webRtcCallType = WEBRTC_CALL_TYPE_FULL_AUDIO; // this uses mobile app webRTC
                 } else {
-                    peerConnection.isSBR = false;
+                    peerConnection.webRtcCallType = WEBRTC_CALL_TYPE_STANDARD; // this uses the webview webRTC
                 }
 
-                return peerConnection.isSBR;
+                return peerConnection.webRtcCallType;
             }
 
         }
@@ -84,7 +90,7 @@ import logger from '/imports/startup/client/logger';
         // WebRTC replacement functions
         const buildVideoTrack = function () {}
         const stream = {};
-        
+
         // Navigator
         navigator.getDisplayMedia = function() {
             logger.info(`BBB-MOBILE - getDisplayMedia called`, arguments);
@@ -124,16 +130,20 @@ import logger from '/imports/startup/client/logger';
 
         prototype.originalCreateOffer = prototype.createOffer;
         prototype.createOffer = function (options) {
-            if(!isScreenShareBroadcastRelated('createOffer', this)){
+            const webRtcCallType = detectWebRtcCallType('createOffer', this);
+
+            if(webRtcCallType === WEBRTC_CALL_TYPE_STANDARD){
                 return prototype.originalCreateOffer.call(this, ...arguments);
             }
             logger.info(`BBB-MOBILE - createOffer called`, {options});
 
+            const createOfferMethod = (webRtcCallType === WEBRTC_CALL_TYPE_SCREEN_SHARE) ? 'createScreenShareOffer' : 'createFullAudioOffer';
+
             return new Promise( (resolve, reject) => {
-                callNativeMethod('createOffer').then ( sdp => {
+                callNativeMethod(createOfferMethod).then ( sdp => {
                     logger.info(`BBB-MOBILE - createOffer resolved`, {sdp});
 
-                    //
+                    // send offer to BBB code
                     resolve({
                         type: 'offer',
                         sdp
@@ -144,7 +154,7 @@ import logger from '/imports/startup/client/logger';
 
         prototype.originalAddEventListener = prototype.addEventListener;
         prototype.addEventListener = function (event, callback) {
-            if(!isScreenShareBroadcastRelated('addEventListener', this, arguments)){
+            if(WEBRTC_CALL_TYPE_STANDARD === detectWebRtcCallType('addEventListener', this, arguments)){
                 return prototype.originalAddEventListener.call(this, ...arguments);
             }
             
@@ -171,7 +181,7 @@ import logger from '/imports/startup/client/logger';
 
         prototype.originalSetLocalDescription = prototype.setLocalDescription;
         prototype.setLocalDescription = function (description, successCallback, failureCallback) {
-            if(!isScreenShareBroadcastRelated('setLocalDescription', this)){
+            if(WEBRTC_CALL_TYPE_STANDARD === detectWebRtcCallType('setLocalDescription', this)){
                 return prototype.originalSetLocalDescription.call(this, ...arguments);
             }
             logger.info(`BBB-MOBILE - setLocalDescription called`, {description, successCallback, failureCallback});
@@ -189,7 +199,8 @@ import logger from '/imports/startup/client/logger';
 
         prototype.originalSetRemoteDescription = prototype.setRemoteDescription;
         prototype.setRemoteDescription = function (description, successCallback, failureCallback) {
-            if(!isScreenShareBroadcastRelated('setRemoteDescription', this)){
+            const webRtcCallType = detectWebRtcCallType('setRemoteDescription', this);
+            if(WEBRTC_CALL_TYPE_STANDARD === webRtcCallType){
                 return prototype.originalSetRemoteDescription.call(this, ...arguments);
             }
 
@@ -197,28 +208,38 @@ import logger from '/imports/startup/client/logger';
             
             this._remoteDescription = JSON.parse(JSON.stringify(description));
             Object.defineProperty(this, 'remoteDescription', {get: function() {return this._remoteDescription;},set: function(newValue) {}});
+            
+            const setRemoteDescriptionMethod = (webRtcCallType === WEBRTC_CALL_TYPE_SCREEN_SHARE) ? 'setScreenShareRemoteSDP' : 'setFullAudioRemoteSDP';
 
             return new Promise( (resolve, reject) => {
-                callNativeMethod('setRemoteDescription', [description]).then ( () => {
+                callNativeMethod(setRemoteDescriptionMethod, [description]).then ( () => {
                     logger.info(`BBB-MOBILE - setRemoteDescription resolved`);
 
                     resolve();
+
+                    if(webRtcCallType === WEBRTC_CALL_TYPE_FULL_AUDIO) {
+                        Object.defineProperty(this, "iceGatheringState", {get: function() { return "complete" }, set: ()=>{} });
+                        Object.defineProperty(this, "iceConnectionState", {get: function() { return "completed" }, set: ()=>{} });
+                        this.onicegatheringstatechange && this.onicegatheringstatechange({target: this});
+                        this.oniceconnectionstatechange && this.oniceconnectionstatechange({target: this});
+                    }
                 });
             } );
         }
 
         prototype.originalAddTrack = prototype.addTrack;
         prototype.addTrack = function (description, successCallback, failureCallback) {
-            if(!isScreenShareBroadcastRelated('addTrack', this)){
+            if(WEBRTC_CALL_TYPE_STANDARD === detectWebRtcCallType('addTrack', this)){
                 return prototype.originalAddTrack.call(this, ...arguments);
             }
 
             logger.info(`BBB-MOBILE - addTrack called`, {description, successCallback, failureCallback});
+            console.log(`BBB-MOBILE - addTrack called`, {description, successCallback, failureCallback});
         }
 
         prototype.originalGetLocalStreams = prototype.getLocalStreams;
         prototype.getLocalStreams = function() {
-            if(!isScreenShareBroadcastRelated('getLocalStreams', this)){
+            if(WEBRTC_CALL_TYPE_STANDARD === detectWebRtcCallType('getLocalStreams', this)){
                 return prototype.originalGetLocalStreams.call(this, ...arguments);
             }
             logger.info(`BBB-MOBILE - getLocalStreams called`, arguments);
@@ -231,7 +252,7 @@ import logger from '/imports/startup/client/logger';
 
         prototype.originalAddTransceiver = prototype.addTransceiver;
         prototype.addTransceiver = function() {
-            if(!isScreenShareBroadcastRelated('addTransceiver', this)){
+            if(WEBRTC_CALL_TYPE_STANDARD === detectWebRtcCallType('addTransceiver', this)){
                 return prototype.originalAddTransceiver.call(this, ...arguments);
             }
             logger.info(`BBB-MOBILE - addTransceiver called`, arguments);
@@ -239,7 +260,7 @@ import logger from '/imports/startup/client/logger';
 
         prototype.originalAddIceCandidate = prototype.addIceCandidate;
         prototype.addIceCandidate = function (candidate) {
-            if(!isScreenShareBroadcastRelated('addIceCandidate', this)){
+            if(WEBRTC_CALL_TYPE_STANDARD === detectWebRtcCallType('addIceCandidate', this)){
                 return prototype.originalAddIceCandidate.call(this, ...arguments);
             }
             logger.info(`BBB-MOBILE - addIceCandidate called`, {candidate});
@@ -252,6 +273,13 @@ import logger from '/imports/startup/client/logger';
                 });
             } );
         }
+
+
+        // Application events
+        window.bbbMobileScreenShareBroadcastFinishedCallback = function () {
+            document.querySelector('[data-test="stopScreenShare"]')?.click();
+        }
+
 
     }
 })();
