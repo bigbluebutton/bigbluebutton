@@ -1,0 +1,40 @@
+location /ws {
+        # The client will use SIP to send FreeSWITCH a list of its addresses,
+        # from which one will be selected for use.  Which one depends on how
+        # the client connected - connections from a private address space
+        # should use the private address; connections from a public address
+        # should use it.  Since we're running through nginx as a proxy,
+        # FreeSWITCH can't determine on its own how the client connected.
+        # Therefore, we route the two different kinds of client connections
+        # to two different FreeSWITCH SIP profiles listening on separate ports.
+
+        location = /ws {
+                if ($private_address = true) {
+                        proxy_pass https://127.0.0.1:7445;
+                }
+                if ($private_address = false) {
+                        proxy_pass https://127.0.0.1:7443;
+                }
+        }
+
+        location = /ws/sipjsHackViaWs {
+                if ($private_address = true) {
+                        proxy_pass http://127.0.0.1:5068;
+                }
+                if ($private_address = false) {
+                        proxy_pass http://127.0.0.1:5066;
+                }
+        }
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_read_timeout 120s;
+        proxy_send_timeout 120s;
+        client_body_timeout 120s;
+        send_timeout 120s;
+
+	auth_request /bigbluebutton/connection/checkAuthorization;
+	auth_request_set $auth_status $upstream_status;
+}
+
