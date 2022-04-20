@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Styled from '../audio-test/styles';
+import Styled from './styles';
 import Settings from '/imports/ui/services/settings';
 import Service from '/imports/ui/components/audio/local-echo/service';
 
@@ -22,13 +22,13 @@ const defaultProps = {
 };
 
 const intlMessages = defineMessages({
-  hearYourselfLabel: {
-    id: 'app.audio.hearYourselfLabel',
-    description: 'Hear yourself button label',
-  },
   stopHearingYourselfLabel: {
     id: 'app.audio.stopHearingYourselfLabel',
     description: 'Stop hearing yourself button label',
+  },
+  testSpeakerLabel: {
+    id: 'app.audio.audioSettings.testSpeakerLabel',
+    description: 'Label for the speaker test button',
   },
 });
 
@@ -41,7 +41,7 @@ const LocalEcho = ({
   const [hearing, setHearing] = useState(initialHearingState);
   const { animations } = Settings.application;
   const icon = hearing ? 'mute' : 'unmute';
-  const label = hearing ? intlMessages.stopHearingYourselfLabel : intlMessages.hearYourselfLabel;
+  const label = hearing ? intlMessages.stopHearingYourselfLabel : intlMessages.testSpeakerLabel;
 
   const applyHearingState = (_stream) => {
     if (hearing) {
@@ -68,10 +68,11 @@ const LocalEcho = ({
   }, [stream, hearing]);
 
   return (
-    <Styled.TestAudioButton
+    <Styled.LocalEchoTestButton
+      hearing={hearing}
       label={intl.formatMessage(label)}
       icon={icon}
-      size="sm"
+      size="md"
       color="primary"
       onClick={() => setHearing(!hearing)}
       animations={animations}
