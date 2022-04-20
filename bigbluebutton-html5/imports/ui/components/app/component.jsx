@@ -47,6 +47,7 @@ import { NAVBAR_HEIGHT, LARGE_NAVBAR_HEIGHT } from '/imports/ui/components/layou
 import Settings from '/imports/ui/services/settings';
 import LayoutService from '/imports/ui/components/layout/service';
 import { registerTitleView } from '/imports/utils/dom-utils';
+import MediaService from '/imports/ui/components/media/service';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -175,6 +176,10 @@ class App extends Component {
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
       value: presentationOpen,
     });
+
+    if (!presentationOpen && !MediaService.getSwapLayout()) {
+      MediaService.setSwapLayout(layoutContextDispatch);
+    }
 
     Modal.setAppElement('#app');
 
