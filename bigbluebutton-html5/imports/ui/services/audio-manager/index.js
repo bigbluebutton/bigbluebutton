@@ -1,9 +1,9 @@
 import { Tracker } from 'meteor/tracker';
-import KurentoBridge from '/imports/api/audio/client/bridge/kurento';
 
 import Auth from '/imports/ui/services/auth';
 import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
+import SFUAudioBridge from '/imports/api/audio/client/bridge/sfu-audio-bridge';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
@@ -20,7 +20,6 @@ import {
 
 const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
-const MEDIA_TAG = MEDIA.mediaTag;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
 const MAX_LISTEN_ONLY_RETRIES = 1;
 const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 25000;
@@ -80,7 +79,6 @@ class AudioManager {
       isReconnecting: false,
     });
 
-    this.useKurento = Meteor.settings.public.kurento.enableListenOnly;
     this.failedMediaElements = [];
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.monitor = this.monitor.bind(this);
@@ -108,11 +106,10 @@ class AudioManager {
    */
   async loadBridges(userData) {
     let FullAudioBridge = SIPBridge;
-    let ListenOnlyBridge = KurentoBridge;
+    let ListenOnlyBridge = SFUAudioBridge;
 
     if (MEDIA.audio) {
-      const { bridges, defaultFullAudioBridge, defaultListenOnlyBridge } =
-        MEDIA.audio;
+      const { bridges, defaultFullAudioBridge, defaultListenOnlyBridge } = MEDIA.audio;
 
       const _fullAudioBridge = getFromMeetingSettings(
         'fullaudio-bridge',
@@ -139,10 +136,8 @@ class AudioManager {
       }
     }
 
-    this.bridge = new FullAudioBridge(userData);
-    if (this.useKurento) {
-      this.listenOnlyBridge = new ListenOnlyBridge(userData);
-    }
+    this.fullAudioBridge = new FullAudioBridge(userData);
+    this.listenOnlyBridge = new ListenOnlyBridge(userData);
   }
 
   setAudioMessages(messages, intl) {
@@ -174,7 +169,13 @@ class AudioManager {
   async trickleIce() {
     const { isFirefox, isIe, isSafari } = browserInfo;
 
-    if (!this.listenOnlyBridge || isFirefox || isIe || isSafari) return [];
+    if (!this.listenOnlyBridge
+      || typeof this.listenOnlyBridge.trickleIce !== 'function'
+      || isFirefox
+      || isIe
+      || isSafari) {
+      return [];
+    }
 
     if (this.validIceCandidates && this.validIceCandidates.length) {
       logger.info(
@@ -297,9 +298,6 @@ class AudioManager {
     this.isListenOnly = true;
     this.isEchoTest = false;
 
-    // The kurento bridge isn't a full audio bridge yet, so we have to differ it
-    const bridge = this.useKurento ? this.listenOnlyBridge : this.bridge;
-
     const callOptions = {
       isListenOnly: true,
       extension: null,
@@ -315,21 +313,11 @@ class AudioManager {
     }
 
     // We need this until we upgrade to SIP 9x. See #4690
-    const listenOnlyCallTimeoutErr = this.useKurento
-      ? 'KURENTO_CALL_TIMEOUT'
-      : 'SIP_CALL_TIMEOUT';
+    const listenOnlyCallTimeoutErr = 'SIP_CALL_TIMEOUT';
 
     const iceGatheringTimeout = new Promise((resolve, reject) => {
       setTimeout(reject, LISTEN_ONLY_CALL_TIMEOUT_MS, listenOnlyCallTimeoutErr);
     });
-
-    const exitKurentoAudio = () => {
-      if (this.useKurento) {
-        bridge.exitAudio();
-        const audio = document.querySelector(MEDIA_TAG);
-        audio.muted = false;
-      }
-    };
 
     const handleListenOnlyError = (err) => {
       if (iceGatheringTimeout) {
@@ -340,18 +328,17 @@ class AudioManager {
         (typeof err === 'string' ? err : undefined) ||
         err.errorReason ||
         err.errorMessage;
-      const bridgeInUse = this.useKurento ? 'Kurento' : 'SIP';
 
       logger.error(
         {
           logCode: 'audiomanager_listenonly_error',
           extraInfo: {
             errorReason,
-            audioBridge: bridgeInUse,
+            audioBridge: this.bridge?.bridgeName,
             retries,
           },
         },
-        `Listen only error - ${errorReason} - bridge: ${bridgeInUse}`
+        `Listen only error - ${errorReason} - bridge: ${this.bridge?.bridgeName}`
       );
     };
 
@@ -368,7 +355,7 @@ class AudioManager {
     return this.onAudioJoining()
       .then(() =>
         Promise.race([
-          bridge.joinAudio(callOptions, this.callStateCallback.bind(this)),
+          this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this)),
           iceGatheringTimeout,
         ])
       )
@@ -376,29 +363,6 @@ class AudioManager {
         handleListenOnlyError(err);
 
         if (retries < MAX_LISTEN_ONLY_RETRIES) {
-          // Fallback to SIP.js listen only in case of failure
-          if (this.useKurento) {
-            exitKurentoAudio();
-
-            this.useKurento = false;
-
-            const errorReason =
-              (typeof err === 'string' ? err : undefined) ||
-              err.errorReason ||
-              err.errorMessage;
-
-            logger.info(
-              {
-                logCode: 'audiomanager_listenonly_fallback',
-                extraInfo: {
-                  logType: 'fallback',
-                  errorReason,
-                },
-              },
-              `Falling back to FreeSWITCH listenOnly - cause: ${errorReason}`
-            );
-          }
-
           retries += 1;
           this.joinListenOnly(retries);
         }
@@ -418,14 +382,9 @@ class AudioManager {
   exitAudio() {
     if (!this.isConnected) return Promise.resolve();
 
-    const bridge =
-      this.useKurento && this.isListenOnly
-        ? this.listenOnlyBridge
-        : this.bridge;
-
     this.isHangingUp = true;
 
-    return bridge.exitAudio();
+    return this.bridge.exitAudio();
   }
 
   forceExitAudio() {
@@ -441,11 +400,7 @@ class AudioManager {
 
     window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
 
-    const bridge =
-      this.useKurento && this.isListenOnly
-        ? this.listenOnlyBridge
-        : this.bridge;
-    return bridge.exitAudio();
+    return this.bridge.exitAudio();
   }
 
   transferCall() {
@@ -714,6 +669,10 @@ class AudioManager {
     return this._inputStream;
   }
 
+  get bridge() {
+    return this.isListenOnly ? this.listenOnlyBridge : this.fullAudioBridge;
+  }
+
   set inputStream(stream) {
     // We store reactive information about input stream
     // because mutedalert component needs to track when it changes
@@ -802,11 +761,7 @@ class AudioManager {
   }
 
   monitor() {
-    const bridge =
-      this.useKurento && this.isListenOnly
-        ? this.listenOnlyBridge
-        : this.bridge;
-    const peer = bridge.getPeerConnection();
+    const peer = this.bridge.getPeerConnection();
     monitorAudioConnection(peer);
   }
 
@@ -915,14 +870,6 @@ class AudioManager {
   }
 
   /**
-   * Helper for retrieving the current bridge being used by audio.
-   * @returns An Object representing the current bridge.
-   */
-  getCurrentBridge() {
-    return this.isListenOnly ? this.listenOnlyBridge : this.bridge;
-  }
-
-  /**
    * Get the info about candidate-pair that is being used by the current peer.
    * For firefox, or any other browser that doesn't support iceTransport
    * property of RTCDtlsTransport, we retrieve the selected local candidate
@@ -979,11 +926,9 @@ class AudioManager {
    * https://developer.mozilla.org/en-US/docs/Web/API/RTCDtlsTransport
    */
   getSelectedCandidatePairFromPeer() {
-    const bridge = this.getCurrentBridge();
+    if (!this.bridge) return null;
 
-    if (!bridge) return null;
-
-    const peer = bridge.getPeerConnection();
+    const peer = this.bridge.getPeerConnection();
 
     if (!peer) return null;
 
@@ -1100,11 +1045,9 @@ class AudioManager {
    * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
    */
   async getStats() {
-    const bridge = this.getCurrentBridge();
+    if (!this.bridge) return null;
 
-    if (!bridge) return null;
-
-    const peer = bridge.getPeerConnection();
+    const peer = this.bridge.getPeerConnection();
 
     if (!peer) return null;
 

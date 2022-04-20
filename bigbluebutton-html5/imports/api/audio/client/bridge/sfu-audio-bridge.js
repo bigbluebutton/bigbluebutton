@@ -67,7 +67,7 @@ const getMediaServerAdapter = (listenOnly = false) => {
   );
 };
 
-export default class FullAudioBridge extends BaseAudioBridge {
+export default class SFUAudioBridge extends BaseAudioBridge {
   constructor(userData) {
     super();
     this.userId = userData.userId;
@@ -437,4 +437,4 @@ export default class FullAudioBridge extends BaseAudioBridge {
   }
 }
 
-module.exports = FullAudioBridge;
+module.exports = SFUAudioBridge;
