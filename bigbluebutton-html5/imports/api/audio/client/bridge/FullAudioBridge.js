@@ -296,63 +296,49 @@ export default class FullAudioBridge extends BaseAudioBridge {
     });
   }
 
-  async _initBrokerEventsPromise() {
+  async _startBroker(options) {
     return new Promise((resolve, reject) => {
       try {
-        if (!this.broker) resolve(null);
+        const { isListenOnly, extension, inputStream } = options;
+        this.inEchoTest = !!extension;
+        this.isListenOnly = isListenOnly;
+        const callerIdName = [
+          `${this.userId}_${getAudioSessionNumber()}`,
+          'bbbID',
+          isListenOnly ? `${GLOBAL_AUDIO_PREFIX}` : this.name,
+        ].join('-').replace(/"/g, "'");
+
+        const brokerOptions = {
+          caleeName: callerIdName,
+          extension,
+          iceServers: this.iceServers,
+          mediaServer: getMediaServerAdapter(isListenOnly),
+          constraints: getAudioConstraints({ deviceId: this.inputDeviceId }),
+          forceRelay: shouldForceRelay(),
+          stream: (inputStream && inputStream.active) ? inputStream : undefined,
+        };
+
+        this.broker = new AudioBroker(
+          Auth.authenticateURL(SFU_URL),
+          isListenOnly ? RECV_ROLE : SENDRECV_ROLE,
+          brokerOptions,
+        );
 
         this.broker.onended = this.handleTermination.bind(this);
-
         this.broker.onerror = (error) => {
           this.handleBrokerFailure(error).catch(reject);
         };
-
         this.broker.onstart = () => {
           this.handleStart().then(resolve).catch(reject);
         };
+
+        this.broker.joinAudio().catch(reject);
       } catch (error) {
+        logger.warn({ logCode: 'sfuaudio_bridge_broker_init_fail' },
+          'Problem when initializing SFU broker for fullaudio bridge');
         reject(error);
       }
     });
-  }
-
-  async _startBroker(options) {
-    try {
-      const { isListenOnly, extension, inputStream } = options;
-      this.inEchoTest = !!extension;
-      this.isListenOnly = isListenOnly;
-      const callerIdName = [
-        `${this.userId}_${getAudioSessionNumber()}`,
-        'bbbID',
-        isListenOnly ? `${GLOBAL_AUDIO_PREFIX}` : this.name,
-      ].join('-').replace(/"/g, "'");
-
-      const brokerOptions = {
-        caleeName: callerIdName,
-        extension,
-        iceServers: this.iceServers,
-        mediaServer: getMediaServerAdapter(isListenOnly),
-        constraints: getAudioConstraints({ deviceId: this.inputDeviceId }),
-        forceRelay: shouldForceRelay(),
-        stream: (inputStream && inputStream.active) ? inputStream : undefined,
-      };
-
-      this.broker = new AudioBroker(
-        Auth.authenticateURL(SFU_URL),
-        isListenOnly ? RECV_ROLE : SENDRECV_ROLE,
-        brokerOptions,
-      );
-
-      const initBrokerEventsPromise = this._initBrokerEventsPromise();
-
-      this.broker.listen();
-
-      return initBrokerEventsPromise;
-    } catch (error) {
-      logger.warn({ logCode: 'sfuaudio_bridge_broker_init_fail' },
-        'Problem when initializing SFU broker for fullaudio bridge');
-      throw error;
-    }
   }
 
   async joinAudio(options, callback) {

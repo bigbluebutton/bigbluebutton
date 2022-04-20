@@ -59,7 +59,7 @@ class AudioBroker extends BaseBroker {
     return Promise.resolve();
   }
 
-  joinAudio() {
+  _join() {
     return new Promise((resolve, reject) => {
       const options = {
         audioStream: this.stream,
@@ -111,9 +111,9 @@ class AudioBroker extends BaseBroker {
     });
   }
 
-  listen() {
+  joinAudio() {
     return this.openWSConnection()
-      .then(this.joinAudio.bind(this));
+      .then(this._join.bind(this));
   }
 
   onWSMessage(message) {
