@@ -5,9 +5,9 @@ const ON_ICE_CANDIDATE_MSG = 'iceCandidate';
 const SUBSCRIBER_ANSWER = 'subscriberAnswer';
 const DTMF = 'dtmf';
 
-const SFU_COMPONENT_NAME = 'fullaudio';
+const SFU_COMPONENT_NAME = 'audio';
 
-class FullAudioBroker extends BaseBroker {
+class AudioBroker extends BaseBroker {
   constructor(
     wsUrl,
     role,
@@ -59,7 +59,7 @@ class FullAudioBroker extends BaseBroker {
     return Promise.resolve();
   }
 
-  joinAudio() {
+  _join() {
     return new Promise((resolve, reject) => {
       const options = {
         audioStream: this.stream,
@@ -74,8 +74,8 @@ class FullAudioBroker extends BaseBroker {
       };
 
       const WebRTCPeer = (this.role === 'sendrecv')
-        ? kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv
-        : kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
+        ? window.kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv
+        : window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
 
       this.webRtcPeer = WebRTCPeer(options, (error) => {
         if (error) {
@@ -111,12 +111,12 @@ class FullAudioBroker extends BaseBroker {
     });
   }
 
-  listen() {
+  joinAudio() {
     return this.openWSConnection()
-      .then(this.joinAudio.bind(this));
+      .then(this._join.bind(this));
   }
 
-  onWSMessage (message) {
+  onWSMessage(message) {
     const parsedMessage = JSON.parse(message.data);
 
     switch (parsedMessage.id) {
@@ -139,12 +139,12 @@ class FullAudioBroker extends BaseBroker {
       default:
         logger.debug({
           logCode: `${this.logCodePrefix}_invalid_req`,
-          extraInfo: { messageId: parsedMessage.id || 'Unknown', sfuComponent: this.sfuComponent }
-        }, `Discarded invalid SFU message`);
+          extraInfo: { messageId: parsedMessage.id || 'Unknown', sfuComponent: this.sfuComponent },
+        }, 'Discarded invalid SFU message');
     }
   }
 
-  handleSFUError (sfuResponse) {
+  handleSFUError(sfuResponse) {
     const { code, reason, role } = sfuResponse;
     const error = BaseBroker.assembleError(code, reason);
 
@@ -157,11 +157,11 @@ class FullAudioBroker extends BaseBroker {
         sfuComponent: this.sfuComponent,
         started: this.started,
       },
-    }, `Listen only failed in SFU`);
+    }, 'Audio failed in SFU');
     this.onerror(error);
   }
 
-  sendLocalDescription (localDescription) {
+  sendLocalDescription(localDescription) {
     const message = {
       id: SUBSCRIBER_ANSWER,
       type: this.sfuComponent,
@@ -172,7 +172,7 @@ class FullAudioBroker extends BaseBroker {
     this.sendMessage(message);
   }
 
-  onRemoteDescriptionReceived (sfuResponse) {
+  onRemoteDescriptionReceived(sfuResponse) {
     if (this.offering) {
       return this.processAnswer(sfuResponse);
     }
@@ -180,7 +180,7 @@ class FullAudioBroker extends BaseBroker {
     return this.processOffer(sfuResponse);
   }
 
-  sendStartReq (offer) {
+  sendStartReq(offer) {
     const message = {
       id: 'start',
       type: this.sfuComponent,
@@ -194,28 +194,28 @@ class FullAudioBroker extends BaseBroker {
     logger.debug({
       logCode: `${this.logCodePrefix}_offer_generated`,
       extraInfo: { sfuComponent: this.sfuComponent, role: this.role },
-    }, `SFU audio offer generated`);
+    }, 'SFU audio offer generated');
 
     this.sendMessage(message);
   }
 
-  onOfferGenerated (error, sdpOffer) {
+  onOfferGenerated(error, sdpOffer) {
     if (error) {
       logger.error({
         logCode: `${this.logCodePrefix}_offer_failure`,
         extraInfo: {
           errorMessage: error.name || error.message || 'Unknown error',
-          sfuComponent: this.sfuComponent
+          sfuComponent: this.sfuComponent,
         },
-      }, `Listen only offer generation failed`);
+      }, 'Audio offer generation failed');
       // 1305: "PEER_NEGOTIATION_FAILED",
-      return this.onerror(error);
+      this.onerror(error);
     }
 
     this.sendStartReq(sdpOffer);
   }
 
-  dtmf (tones) {
+  dtmf(tones) {
     const message = {
       id: DTMF,
       type: this.sfuComponent,
@@ -225,7 +225,7 @@ class FullAudioBroker extends BaseBroker {
     this.sendMessage(message);
   }
 
-  onIceCandidate (candidate, role) {
+  onIceCandidate(candidate, role) {
     const message = {
       id: ON_ICE_CANDIDATE_MSG,
       role,
@@ -237,4 +237,4 @@ class FullAudioBroker extends BaseBroker {
   }
 }
 
-export default FullAudioBroker;
+export default AudioBroker;
