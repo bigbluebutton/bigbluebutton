@@ -142,8 +142,8 @@ class CustomParameters extends MultiUsers {
     const zoomOutCase = await util.zoomOut(this.modPage);
     await expect(zoomOutCase).toBeTruthy();
     await util.poll(this.modPage, this.userPage);
-    await util.previousSlide(this.modPage);
     await util.nextSlide(this.modPage);
+    await util.previousSlide(this.modPage);
     await util.annotation(this.modPage);
     await this.userPage.checkElement(e.restorePresentation);
   }
