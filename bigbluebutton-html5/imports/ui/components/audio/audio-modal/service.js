@@ -27,7 +27,7 @@ export const joinMicrophone = (skipEchoTest = false) => {
 
   const call = new Promise((resolve, reject) => {
     try {
-      if (skipEchoTest && !Service.isConnected()) {
+      if ((skipEchoTest && !Service.isConnected()) || Service.localEchoEnabled) {
         return resolve(Service.joinMicrophone());
       }
 

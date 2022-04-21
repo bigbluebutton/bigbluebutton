@@ -188,11 +188,12 @@ exports.messageTitle = 'h2[data-test="messageTitle"]';
 exports.notesTitle = 'h2[data-test="notesTitle"]';
 
 // User
-exports.userAvatar = 'div[data-test="userAvatar"]';
+const userAvatar = 'div[data-test="userAvatar"]';
+exports.userAvatar = userAvatar;
 exports.moderatorAvatar = 'div[data-test="moderatorAvatar"]';
 exports.viewerAvatar = 'div[data-test="viewerAvatar"]';
-exports.applauseIcon = `${this.userAvatar} > div > i[class="icon-bbb-applause"]`;
-exports.awayIcon = `${this.userAvatar} > div > i[class="icon-bbb-time"]`;
+exports.applauseIcon = `${userAvatar} > div > i[class="icon-bbb-applause"]`;
+exports.awayIcon = `${userAvatar} > div > i[class="icon-bbb-time"]`;
 exports.setStatus = 'li[data-test="setStatus"]';
 exports.away = 'li[data-test="away"]';
 exports.applaud = 'li[data-test="applause"]';

@@ -48,6 +48,8 @@ public:
     learningDashboardBase: '/learning-analytics-dashboard'
     # Use https URL of CSS file. Example: https://docs.bigbluebutton.org/admin/customize.html#examples
     customStyleUrl: null
+    darkTheme:
+      enabled: true
     askForFeedbackOnLogout: false
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
@@ -124,6 +126,7 @@ public:
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
         paginationEnabled: true
+        darkTheme: false
         pushLayoutToEveryone: false
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
@@ -429,8 +432,9 @@ public:
     syncInterval: 60000
   poll:
     enabled: true
+    autoOptioning: true
     maxCustom: 5
-    allowDragAndDropFile: false
+    allowDragAndDropFile: true
     maxTypedAnswerLength: 45
     chatMessage: true
   captions:
@@ -570,6 +574,18 @@ public:
     traceSip: false
     # SDP semantics: plan-b|unified-plan
     sdpSemantics: 'unified-plan'
+    # localEchoTest:
+    #   enabled: Boolean => enables an experimental, simplified echo test mode
+    #   initialHearingState: Boolean => whether users should hear themselves firsthand
+    #   useRtcLoopbackInChromium: Boolean => whether a local RTC loopback should
+    #   be used in Chromium browsers. Works around the fact that Chromium has no
+    #   echo cancellation in non-rtc audio streams
+    localEchoTest:
+      enabled: false
+      initialHearingState: false
+      useRtcLoopbackInChromium: false
+    # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
+    showVolumeMeter: false
   stats:
     enabled: true
     interval: 10000
