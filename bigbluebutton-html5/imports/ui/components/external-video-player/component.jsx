@@ -579,7 +579,7 @@ class VideoPlayer extends Component {
           width,
           pointerEvents: isResizing ? 'none' : 'inherit',
           display: isMinimized && 'none',
-          background: 'black',
+          background: 'var(--color-black)',
         }}
       >
         <div
