@@ -343,9 +343,11 @@ class Poll extends Component {
         diff -= 1;
       }
     } else {
+      let index = optList.length-1;
       while (diff < 0) {
-        this.handleRemoveOption();
+        this.handleRemoveOption(index);
         diff += 1;
+        index -=1;
       }
     }
   }
