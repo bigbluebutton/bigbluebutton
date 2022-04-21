@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import Button from '/imports/ui/components/common/button/component';
 import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
@@ -155,6 +154,8 @@ class BreakoutRoom extends PureComponent {
       if (breakoutUrlData.redirectToHtml5JoinURL !== ''
         && breakoutUrlData.redirectToHtml5JoinURL !== prevBreakoutData.redirectToHtml5JoinURL) {
         prevBreakoutData = breakoutUrlData;
+
+        Session.set('lastBreakoutIdOpened', requestedBreakoutId);
         window.open(breakoutUrlData.redirectToHtml5JoinURL, '_blank');
         _.delay(() => this.setState({ generated: true, waiting: false }), 1000);
       }
@@ -171,7 +172,6 @@ class BreakoutRoom extends PureComponent {
   }
 
   getBreakoutURL(breakoutId) {
-    Session.set('lastBreakoutOpened', breakoutId);
     const { requestJoinURL, getBreakoutRoomUrl } = this.props;
     const { waiting } = this.state;
     const breakoutRoomUrlData = getBreakoutRoomUrl(breakoutId);
@@ -187,6 +187,8 @@ class BreakoutRoom extends PureComponent {
     }
 
     if (breakoutRoomUrlData) {
+
+      Session.set('lastBreakoutIdOpened', breakoutId);
       window.open(breakoutRoomUrlData.redirectToHtml5JoinURL, '_blank');
       this.setState({ waiting: false, generated: false });
     }

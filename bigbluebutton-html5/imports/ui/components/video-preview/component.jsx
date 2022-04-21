@@ -471,7 +471,10 @@ class VideoPreview extends Component {
     let actualDeviceId = deviceId;
 
     if (!actualDeviceId && this.currentVideoStream) {
-      actualDeviceId = MediaStreamUtils.extractVideoDeviceId(this.currentVideoStream.mediaStream);
+      actualDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
+        this.currentVideoStream.mediaStream,
+        'video',
+      );
     }
 
     this.setState({ webcamDeviceId: actualDeviceId, });

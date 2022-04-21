@@ -19,6 +19,7 @@ public class CreateMeetingMessage {
 	public boolean webcamsOnlyForModerator;
 	public final Integer meetingCameraCap;
 	public final Integer userCameraCap;
+	public final Integer maxPinnedCameras;
 	public final String moderatorPass;
 	public final String viewerPass;
 	public final String learningDashboardAccessToken;
@@ -31,7 +32,7 @@ public class CreateMeetingMessage {
 	public CreateMeetingMessage(String id, String externalId, String name, Boolean record, 
 						String voiceBridge, Long duration, 
 						Boolean autoStartRecording, Boolean allowStartStopRecording,
-						Boolean webcamsOnlyForModerator, Integer meetingCameraCap, Integer userCameraCap, String moderatorPass,
+						Boolean webcamsOnlyForModerator, Integer meetingCameraCap, Integer userCameraCap, Integer maxPinnedCameras, String moderatorPass,
 						String viewerPass, String learningDashboardAccessToken,
 						ArrayList<String> disabledFeatures,
 						Boolean notifyRecordingIsOn,
@@ -47,6 +48,7 @@ public class CreateMeetingMessage {
 		this.webcamsOnlyForModerator = webcamsOnlyForModerator;
 		this.meetingCameraCap = meetingCameraCap;
 		this.userCameraCap = userCameraCap;
+		this.maxPinnedCameras = maxPinnedCameras;
 		this.moderatorPass = moderatorPass;
 		this.viewerPass = viewerPass;
 		this.learningDashboardAccessToken = learningDashboardAccessToken;

@@ -188,6 +188,7 @@ class NavBar extends Component {
 
     return (
       <Styled.Navbar
+        id="Navbar"
         style={
           main === 'new'
             ? {

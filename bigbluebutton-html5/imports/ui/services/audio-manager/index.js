@@ -13,6 +13,10 @@ import AudioErrors from './error-codes';
 import { Meteor } from 'meteor/meteor';
 import browserInfo from '/imports/utils/browserInfo';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
+import {
+  DEFAULT_INPUT_DEVICE_ID,
+  DEFAULT_OUTPUT_DEVICE_ID,
+} from '/imports/api/audio/client/bridge/service';
 
 const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
@@ -20,8 +24,6 @@ const MEDIA_TAG = MEDIA.mediaTag;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
 const MAX_LISTEN_ONLY_RETRIES = 1;
 const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 25000;
-const DEFAULT_INPUT_DEVICE_ID = 'default';
-const DEFAULT_OUTPUT_DEVICE_ID = 'default';
 const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
   Meteor.settings.public.app.experimentalUseKmsTrickleIceForMicrophone;
 

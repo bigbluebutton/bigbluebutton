@@ -10,6 +10,11 @@ import Storage from '../../services/storage/session';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const TOGGLE_MUTE_THROTTLE_TIME = Meteor.settings.public.media.toggleMuteThrottleTime;
+const SHOW_VOLUME_METER = Meteor.settings.public.media.showVolumeMeter;
+const {
+  enabled: LOCAL_ECHO_TEST_ENABLED,
+  initialHearingState: LOCAL_ECHO_INIT_HEARING_STATE,
+} = Meteor.settings.public.media.localEchoTest;
 
 const MUTED_KEY = 'muted';
 
@@ -94,7 +99,6 @@ const toggleMuteMicrophone = throttle(() => {
   }
 }, TOGGLE_MUTE_THROTTLE_TIME);
 
-
 export default {
   init,
   exitAudio: () => AudioManager.exitAudio(),
@@ -104,8 +108,9 @@ export default {
   joinMicrophone: () => AudioManager.joinMicrophone(),
   joinEchoTest: () => AudioManager.joinEchoTest(),
   toggleMuteMicrophone: debounce(toggleMuteMicrophone, 500, { leading: true, trailing: false }),
-  changeInputDevice: inputDeviceId => AudioManager.changeInputDevice(inputDeviceId),
-  liveChangeInputDevice: inputDeviceId => AudioManager.liveChangeInputDevice(inputDeviceId),
+  changeInputDevice: (inputDeviceId) => AudioManager.changeInputDevice(inputDeviceId),
+  changeInputStream: (newInputStream) => { AudioManager.inputStream = newInputStream; },
+  liveChangeInputDevice: (inputDeviceId) => AudioManager.liveChangeInputDevice(inputDeviceId),
   changeOutputDevice: (outputDeviceId, isLive) => {
     if (AudioManager.outputDeviceId !== outputDeviceId) {
       AudioManager.changeOutputDevice(outputDeviceId, isLive);
@@ -128,14 +133,17 @@ export default {
   isVoiceUser,
   autoplayBlocked: () => AudioManager.autoplayBlocked,
   handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
-  playAlertSound: url => AudioManager.playAlertSound(url),
+  playAlertSound: (url) => AudioManager.playAlertSound(url),
   updateAudioConstraints:
-    constraints => AudioManager.updateAudioConstraints(constraints),
+    (constraints) => AudioManager.updateAudioConstraints(constraints),
   recoverMicState,
   isReconnecting: () => AudioManager.isReconnecting,
-  setBreakoutAudioTransferStatus: status => AudioManager
+  setBreakoutAudioTransferStatus: (status) => AudioManager
     .setBreakoutAudioTransferStatus(status),
   getBreakoutAudioTransferStatus: () => AudioManager
     .getBreakoutAudioTransferStatus(),
   getStats: () => AudioManager.getStats(),
+  localEchoEnabled: LOCAL_ECHO_TEST_ENABLED,
+  localEchoInitHearingState: LOCAL_ECHO_INIT_HEARING_STATE,
+  showVolumeMeter: SHOW_VOLUME_METER,
 };

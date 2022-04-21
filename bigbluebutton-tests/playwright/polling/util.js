@@ -1,4 +1,3 @@
-const { default: test } = require('@playwright/test');
 const e = require('../core/elements.js');
 const { getSettings } = require('../core/settings.js');
 
