@@ -14,8 +14,8 @@ Imports and parses recording metadata.xml files and stores the data in a Postgre
    - Unit tests for parsing and persisting recording metadata can be found in src/test/java/org/bigbluebutton/recording/
    - Edit the "metadataDirectory" variables in the test files to point to where the recording metadata can be found
    - Run the unit tests using the command "mvn test"
-   - To use the main program compile it with "mvn package" which will generate two jars in the target directory
-   - Run the program with the run.sh script
+   - Use the deploy.sh script to compile the program
+   - Run the program with the recording-imex.sh script found in ~/usr/local/bin
 
 
 ## Testing the new recording service
