@@ -55,7 +55,7 @@ test.describe.parallel('Notifications', () => {
       await presenterNotifications.publishPollResults();
     });
 
-    test('Presentation upload notification', async ({ browser, context, page }) => {
+    test.fixme('Presentation upload notification', async ({ browser, context, page }) => { // this test is unstable, there's an apparent timing issue around the visibility of smallToastMsg
       const presenterNotifications = new PresenterNotifications(browser, context);
       await presenterNotifications.initPages(page);
       await presenterNotifications.fileUploaderNotification();
