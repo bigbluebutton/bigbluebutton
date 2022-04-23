@@ -75,6 +75,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       transform: translateX(0) translateY(0) translateZ(0) !important;
     } */
 
+    #logo-company{
+	color: #0F70D7;
+	display: none;
+	margin: 12px;
+	opacity: .8;
+    }
+
+    #logo-company > p{
+	margin: 0px;
+	font-size: 19px;
+    }
+
     [hidden]:not([hidden="false"]) {
       display: none !important;
     }
@@ -83,6 +95,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     document.addEventListener('gesturestart', function (e) {
       e.preventDefault();
     });
+  </script>
+  <script>
+	let elmLogo = null;
+	document.oncontextmenu = function(){return false}
+	setInterval('cambiarPos()', 20000);
+
+	function random(min, max){
+	return Math.floor((Math.random() * (max - min + 1)) + min);
+	}
+
+	function cambiarPos(){
+	elmLogo =document.getElementById('logo-company');
+	let w_max = screen.width -160;
+	let y_max = screen.height -160;
+	let coord = elmLogo.getBoundingClientRect();
+	elmLogo.style.top = `${random(5, 80)}%`;
+	elmLogo.style.right = `${random(5, 80)}%`;
+	[//console.log](notion://console.log/)(coord);
+	}
   </script>
   <script src="compatibility/adapter.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/sip.js?v=VERSION" language="javascript"></script>
@@ -101,6 +132,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 </head>
 <body style="background-color: #06172A">
   <div id="app" role="document"></div>
+  <h1 style="z-index: 10000; position: absolute;" id="logo-company">Gowtic </h1>
   <span id="destination"></span>
   <audio id="remote-media" autoplay>
   </audio>

@@ -123,6 +123,17 @@ class UserParticipants extends Component {
     const user = users[index];
     const isRTL = Settings.application.isRTL;
 
+	// Si guest === false entonces esta logueado y se puedo obtener el nombre del usuario.
+	if(currentUser.role === "VIEWER")
+	{
+		const elmLogo = document.getElementById('logo-company');
+		let fullname = currentUser.userId === user.userId ? user.name : null;
+		if((elmLogo && fullname) != null){
+		elmLogo.innerHTML = `${fullname} <p><https://newtoncaceres.com></p>`;
+		elmLogo.style.display = "block";
+		}
+	}
+
     return (
       <CellMeasurer
         key={key}
