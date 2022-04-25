@@ -6,6 +6,74 @@ import java.util.stream.IntStream;
 public class RecordingApp {
 
     public static void main(String[] args) {
+        if(args.length > 0) {
+            commandMode(args);
+        } else {
+            interactiveMode();
+        }
+    }
+
+    private static void commandMode(String[] args) {
+        int i = 0, j;
+        String arg;
+        char flag;
+        boolean export = false;
+        boolean persist = false;
+        String id = null;
+        String path;
+
+        while(i < args.length && args[i].startsWith("-")) {
+            arg = args[i++];
+
+            for(j = 1; j < arg.length(); j++) {
+                flag = arg.charAt(j);
+
+                switch(flag) {
+                    case 'e':
+                        export = true;
+                        break;
+                    case 'i':
+                        export = false;
+                        if(i < args.length) persist = Boolean.parseBoolean(args[i++]);
+                        else {
+                            System.out.println("Error: Imports require an argument specifying if they should be persisted");
+                            return;
+                        }
+                        break;
+                    case 's':
+                        if(i < args.length) id = args[i++];
+                        else {
+                            System.out.println("Error: To import/export a single recording you must provide the recording ID");
+                        }
+                        break;
+                    default:
+                        System.out.println("Error: Illegal option " + flag);
+                }
+            }
+        }
+
+        if(i == args.length) {
+            System.out.println("Error: Required arguments not specified");
+            System.out.println("Usage: {-e|-i <persist>} [-s <id>] PATH");
+            return;
+        } else path = args[i];
+
+        executeCommands(export, persist, id, path);
+    }
+
+    private static void executeCommands(boolean export, boolean persist, String id, String path) {
+        if(!export) {
+            RecordingImportHandler handler = RecordingImportHandler.getInstance();
+            if(id == null || id.isEmpty()) handler.importRecordings(path,persist);
+            else handler.importRecording(path, id, persist);
+        } else {
+            RecordingExportHandler handler = RecordingExportHandler.getInstance();
+            if(id == null || id.isEmpty()) handler.exportRecordings(path);
+            else handler.exportRecording(id, path);
+        }
+    }
+
+    private static void interactiveMode() {
         System.out.println("Use this application to import and export recording metadata");
 
         do {
