@@ -25,6 +25,7 @@ const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const MEDIA = Meteor.settings.public.media;
 const DEFAULT_FULLAUDIO_MEDIA_SERVER = MEDIA.audio.fullAudioMediaServer;
 const DEFAULT_LISTENONLY_MEDIA_SERVER = Meteor.settings.public.kurento.listenOnlyMediaServer;
+const LISTEN_ONLY_OFFERING = MEDIA.listenOnlyOffering;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 const GLOBAL_AUDIO_PREFIX = 'GLOBAL_AUDIO_';
 const RECONNECT_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
@@ -316,6 +317,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
           constraints: getAudioConstraints({ deviceId: this.inputDeviceId }),
           forceRelay: shouldForceRelay(),
           stream: (inputStream && inputStream.active) ? inputStream : undefined,
+          offering: isListenOnly ? LISTEN_ONLY_OFFERING : true,
         };
 
         this.broker = new AudioBroker(
