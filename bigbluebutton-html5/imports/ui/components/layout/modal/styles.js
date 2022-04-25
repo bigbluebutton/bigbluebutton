@@ -20,12 +20,13 @@ const Content = styled.div`
   display: flex;
   flex-direction: column;
   padding: .5rem 0 .5rem 0;
-  overflow: hidden
+  overflow: hidden;
+  min-height: 30rem;
 `;
 
 const LayoutModal = styled(Modal)`
   padding: 1rem;
-  min-height: 25rem;
+  min-height: 44rem;
 
   @media ${smallOnly} {
     height: unset;

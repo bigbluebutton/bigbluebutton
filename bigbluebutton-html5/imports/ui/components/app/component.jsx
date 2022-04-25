@@ -55,6 +55,7 @@ const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
 const HIDE_PRESENTATION = Meteor.settings.public.layout.hidePresentation;
+const LAYOUT_CONFIG = Meteor.settings.public.layout;
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
@@ -534,7 +535,10 @@ class App extends Component {
       hideActionsBar,
       setMeetingLayout,
       presentationIsOpen,
+      selectedLayout,
     } = this.props;
+
+    const { showPushLayoutButton } = LAYOUT_CONFIG;
 
     if (hideActionsBar) return null;
 
@@ -557,6 +561,7 @@ class App extends Component {
       >
         <ActionsBarContainer
           setMeetingLayout={setMeetingLayout}
+          showPushLayout={showPushLayoutButton && selectedLayout === 'custom'}
           presentationIsOpen={presentationIsOpen}
         />
       </Styled.ActionsBar>

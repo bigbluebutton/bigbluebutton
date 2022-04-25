@@ -35,6 +35,7 @@ class ActionsBar extends PureComponent {
       layoutContextDispatch,
       actionsBarStyle,
       setMeetingLayout,
+      showPushLayout,
     } = this.props;
 
     return (
@@ -59,6 +60,7 @@ class ActionsBar extends PureComponent {
             isMeteorConnected,
             setMeetingLayout,
             presentationIsOpen,
+            showPushLayout,
           }}
           />
           {isCaptionsAvailable

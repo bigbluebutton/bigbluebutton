@@ -96,7 +96,8 @@ const LayoutModalComponent = (props) => {
     if (!isPresenter) {
       return null;
     }
-    if (isKeepPushingLayoutEnabled) {
+
+    if (isKeepPushingLayoutEnabled && selectedLayout === 'custom') {
       return (
         <Styled.PushContainer>
           <Styled.LabelPushLayout>
