@@ -96,6 +96,15 @@ const Played = styled.div`
   background-color: #DF2721;
 `;
 
+const ButtonsWrapper = styled.div`
+  position: absolute;
+  right: auto;
+  left: 0;
+  bottom: 0;
+  top: 0;
+  display: flex;
+`;
+
 export default {
   VideoPlayerWrapper,
   AutoPlayWarning,
@@ -105,4 +114,5 @@ export default {
   ProgressBar,
   Loaded,
   Played,
+  ButtonsWrapper,
 };

@@ -1,8 +1,9 @@
 import styled from 'styled-components';
-import { colorTransparent } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
 
-const Wrapper = styled.div`
+import { colorTransparent } from '/imports/ui/stylesheets/styled-components/palette';
+
+const SubtitlesWrapper = styled.div`
   background-color: ${colorTransparent};
   cursor: pointer;
   border: 0;
@@ -15,7 +16,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const ReloadButton = styled(Button)`
+const SubtitlesButton = styled(Button)`
   &,
   &:active,
   &:hover,
@@ -27,6 +28,7 @@ const ReloadButton = styled(Button)`
       background-color: ${colorTransparent} !important;
     }
   }
+
   padding: 5px;
 
   &:hover {
@@ -39,6 +41,6 @@ const ReloadButton = styled(Button)`
 `;
 
 export default {
-  Wrapper,
-  ReloadButton,
+  SubtitlesWrapper,
+  SubtitlesButton,
 };
