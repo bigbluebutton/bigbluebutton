@@ -129,4 +129,5 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --after-remove after-remove.sh \
     --description "The HTML5 components for BigBlueButton" \
     $DIRECTORIES \
-    $OPTS
+    $OPTS \
+    -d 'yq (>= 3)' -d 'yq (<< 4)'
