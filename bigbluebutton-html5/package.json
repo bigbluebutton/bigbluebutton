@@ -78,7 +78,6 @@
     "sdp-transform": "2.7.0",
     "string-hash": "~1.1.3",
     "tippy.js": "^5.1.3",
-    "useragent": "^2.3.0",
     "wasm-check": "^2.0.3",
     "winston": "^3.7.2",
     "yaml": "^1.7.2"

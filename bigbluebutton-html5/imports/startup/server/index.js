@@ -4,7 +4,6 @@ import Langmap from 'langmap';
 import fs from 'fs';
 import Users from '/imports/api/users';
 import './settings';
-import { lookup as lookupUserAgent } from 'useragent';
 import { check } from 'meteor/check';
 import Logger from './logger';
 import Redis from './redis';
@@ -301,20 +300,6 @@ WebApp.connectHandlers.use('/feedback', (req, res) => {
     };
     Logger.info('FEEDBACK LOG:', feedback);
   }));
-});
-
-WebApp.connectHandlers.use('/useragent', (req, res) => {
-  const userAgent = req.headers['user-agent'];
-  let response = 'No user agent found in header';
-  if (userAgent) {
-    response = lookupUserAgent(userAgent).toString();
-  }
-
-  Logger.info(`The requesting user agent is ${response}`);
-
-  // res.setHeader('Content-Type', 'application/json');
-  res.writeHead(200);
-  res.end(response);
 });
 
 WebApp.connectHandlers.use('/guestWait', (req, res) => {
