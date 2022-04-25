@@ -58,12 +58,12 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.pollBtnDesc',
     description: 'poll menu toggle button description',
   },
-  askQuestionBtnLabel: {
-    id: 'app.actionsBar.actionsDropdown.askQuestionBtnLabel',
+  questionQuizBtnLabel: {
+    id: 'app.actionsBar.actionsDropdown.questionQuizBtnLabel',
     description: 'ask question menu toggle button label',
   },
-  askQuestionBtnDesc: {
-    id: 'app.actionsBar.actionsDropdown.askQuestionBtnDesc',
+  questionQuizBtnDesc: {
+    id: 'app.actionsBar.actionsDropdown.questionQuizBtnDesc',
     description: 'ask question menu toggle button description',
   },
   takePresenter: {
@@ -100,7 +100,7 @@ class ActionsDropdown extends PureComponent {
 
     this.presentationItemId = _.uniqueId('action-item-');
     this.pollId = _.uniqueId('action-item-');
-    this.askQuestionId = _.uniqueId('action-item-');
+    this.questionQuizId = _.uniqueId('action-item-');
     this.takePresenterId = _.uniqueId('action-item-');
     this.selectUserRandId = _.uniqueId('action-item-');
 
@@ -140,7 +140,7 @@ class ActionsDropdown extends PureComponent {
       pollBtnLabel,
       presentationLabel,
       takePresenter,
-      askQuestionBtnLabel,
+      questionQuizBtnLabel,
     } = intlMessages;
 
     const {
@@ -186,9 +186,9 @@ class ActionsDropdown extends PureComponent {
     if (amIPresenter && isPollingEnabled) {
       actions.push({
         icon: 'help',
-        dataTest: 'askQuestion',
-        label: formatMessage(askQuestionBtnLabel),
-        key: this.askQuestionId,
+        dataTest: 'questionQuiz',
+        label: formatMessage(questionQuizBtnLabel),
+        key: this.questionQuizId,
         // onClick: () => null
         onClick: () => {
           // if (Session.equals('pollInitiated', true)) {
@@ -202,7 +202,7 @@ class ActionsDropdown extends PureComponent {
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
             value: PANELS.ASK_QUESTION,
           });
-          Session.set('forcePollOpen', true);
+          Session.set('forceQuestionQuizOpen', true);
         },
       });
     }

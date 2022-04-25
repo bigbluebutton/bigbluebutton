@@ -6,6 +6,7 @@ import '/imports/api/users/server';
 import '/imports/api/annotations/server';
 import '/imports/api/cursor/server';
 import '/imports/api/polls/server';
+import '/imports/api/question-quiz/server'
 import '/imports/api/captions/server';
 import '/imports/api/presentations/server';
 import '/imports/api/presentation-pods/server';
