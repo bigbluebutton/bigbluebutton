@@ -114,7 +114,7 @@ class VideoPlayer extends Component {
           autohide: 1,
           rel: 0,
           ecver: 2,
-          controls: isPresenter ? 1 : 0,
+          controls: 1,
         },
       },
       peertube: {
