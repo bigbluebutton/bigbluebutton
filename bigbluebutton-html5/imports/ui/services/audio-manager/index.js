@@ -180,17 +180,29 @@ class AudioManager {
     if (this.validIceCandidates && this.validIceCandidates.length) {
       logger.info(
         { logCode: 'audiomanager_trickle_ice_reuse_candidate' },
-        'Reusing trickle-ice information before activating microphone'
+        'Reusing trickle ICE information before activating microphone',
       );
       return this.validIceCandidates;
     }
 
     logger.info(
       { logCode: 'audiomanager_trickle_ice_get_local_candidate' },
-      'Performing trickle-ice before activating microphone'
+      'Performing trickle ICE before activating microphone',
     );
-    this.validIceCandidates = (await this.listenOnlyBridge.trickleIce()) || [];
-    return this.validIceCandidates;
+
+    try {
+      this.validIceCandidates = await this.listenOnlyBridge.trickleIce();
+      return this.validIceCandidates;
+    } catch (error) {
+      logger.error({
+        logCode: 'audiomanager_trickle_ice_failed',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, `Trickle ICE before activating microphone failed: ${error.message}`);
+      return [];
+    }
   }
 
   joinMicrophone() {

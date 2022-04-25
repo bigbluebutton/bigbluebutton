@@ -423,6 +423,48 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     }
   }
 
+  trickleIce() {
+    return new Promise((resolve, reject) => {
+      try {
+        fetchWebRTCMappedStunTurnServers(this.sessionToken)
+          .then((iceServers) => {
+            const options = {
+              userName: this.name,
+              caleeName: `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}`,
+              iceServers,
+              offering: LISTEN_ONLY_OFFERING,
+            };
+
+            this.broker = new AudioBroker(
+              Auth.authenticateURL(SFU_URL),
+              RECV_ROLE,
+              options,
+            );
+
+            this.broker.onstart = () => {
+              const { peerConnection } = this.broker.webRtcPeer;
+
+              if (!peerConnection) return resolve(null);
+
+              const selectedCandidatePair = peerConnection.getReceivers()[0]
+                .transport.iceTransport.getSelectedCandidatePair();
+
+              const validIceCandidate = [selectedCandidatePair.local];
+
+              this.broker.stop();
+              return resolve(validIceCandidate);
+            };
+
+            this.broker.joinAudio().catch(reject);
+          });
+      } catch (error) {
+        // Rollback
+        this.exitAudio();
+        reject(error);
+      }
+    });
+  }
+
   exitAudio() {
     const mediaElement = document.getElementById(MEDIA_TAG);
 
