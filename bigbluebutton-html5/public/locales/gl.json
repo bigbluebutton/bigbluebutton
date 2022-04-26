@@ -648,7 +648,7 @@
     "app.connection-status.more": "máis",
     "app.connection-status.copy": "Copiar datos da rede",
     "app.connection-status.copied": "Copiado!",
-    "app.connection-status.jitter": "Tremer",
+    "app.connection-status.jitter": "Flutuación do retardo",
     "app.connection-status.label": "Estado da conexión",
     "app.connection-status.no": "Non",
     "app.connection-status.notification": "Detectouse a perda da súa conexión",
