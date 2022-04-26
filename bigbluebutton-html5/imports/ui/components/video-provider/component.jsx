@@ -545,7 +545,10 @@ class VideoProvider extends Component {
             if (bbbVideoStream == null) {
               bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
               VideoPreviewService.storeStream(
-                MediaStreamUtils.extractVideoDeviceId(bbbVideoStream.mediaStream),
+                MediaStreamUtils.extractDeviceIdFromStream(
+                  bbbVideoStream.mediaStream,
+                  'video',
+                ),
                 bbbVideoStream
               );
             }
@@ -921,7 +924,10 @@ class VideoProvider extends Component {
       peer.attached = true;
 
       if (isLocal) {
-        const deviceId = MediaStreamUtils.extractVideoDeviceId(peer.bbbVideoStream.mediaStream);
+        const deviceId = MediaStreamUtils.extractDeviceIdFromStream(
+          peer.bbbVideoStream.mediaStream,
+          'video',
+        );
         const { type, name } = getSessionVirtualBackgroundInfo(deviceId);
 
         this.restoreVirtualBackground(peer.bbbVideoStream, type, name).catch((error) => {

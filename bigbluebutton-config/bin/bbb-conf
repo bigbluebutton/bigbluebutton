@@ -1453,7 +1453,8 @@ if [ $CHECK ]; then
         echo "/etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)"
         echo "                             build: $(echo "$HTML5_CONFIG" | yq r - public.app.html5ClientBuild)"
         echo "                        kurentoUrl: $(echo "$HTML5_CONFIG" | yq r - public.kurento.wsUrl)"
-        echo "                  enableListenOnly: $(echo "$HTML5_CONFIG" | yq r - public.kurento.enableListenOnly)"
+        echo "            defaultFullAudioBridge: $(echo "$HTML5_CONFIG" | yq r - public.media.audio.defaultFullAudioBridge)"
+        echo "           defaultListenOnlyBridge: $(echo "$HTML5_CONFIG" | yq r - public.media.audio.defaultListenOnlyBridge)"
         echo "                    sipjsHackViaWs: $(echo "$HTML5_CONFIG" | yq r - public.media.sipjsHackViaWs)"
      fi
 

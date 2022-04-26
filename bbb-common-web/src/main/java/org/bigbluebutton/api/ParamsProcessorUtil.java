@@ -92,6 +92,7 @@ public class ParamsProcessorUtil {
     private boolean webcamsOnlyForModerator;
     private Integer defaultMeetingCameraCap = 0;
     private Integer defaultUserCameraCap = 0;
+    private Integer defaultMaxPinnedCameras = 3;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultAllowModsToEjectCameras = false;
@@ -566,6 +567,16 @@ public class ParamsProcessorUtil {
             }
         }
 
+        Integer maxPinnedCameras = defaultMaxPinnedCameras;
+        if (!StringUtils.isEmpty(params.get(ApiParams.MAX_PINNED_CAMERAS))) {
+          try {
+            Integer maxPinnedCamerasParam = Integer.parseInt(params.get(ApiParams.MAX_PINNED_CAMERAS));
+            if (maxPinnedCamerasParam > 0) maxPinnedCameras = maxPinnedCamerasParam;
+          } catch (NumberFormatException e) {
+            log.warn("Invalid param [maxPinnedCameras] for meeting =[{}]", internalMeetingId);
+          }
+        }
+
         Integer meetingExpireIfNoUserJoinedInMinutes = defaultMeetingExpireIfNoUserJoinedInMinutes;
         if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_EXPIRE_IF_NO_USER_JOINED_IN_MINUTES))) {
             try {
@@ -673,6 +684,7 @@ public class ParamsProcessorUtil {
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
                 .withMeetingCameraCap(meetingCameraCap)
                 .withUserCameraCap(userCameraCap)
+                .withMaxPinnedCameras(maxPinnedCameras)
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
@@ -1132,6 +1144,10 @@ public class ParamsProcessorUtil {
 
     public void setDefaultUserCameraCap(Integer userCameraCap) {
         this.defaultUserCameraCap = userCameraCap;
+    }
+
+    public void setDefaultMaxPinnedCameras(Integer maxPinnedCameras) {
+        this.defaultMaxPinnedCameras = maxPinnedCameras;
     }
 
 	public void setUseDefaultAvatar(Boolean value) {

@@ -81,6 +81,8 @@ class UserParticipants extends Component {
         this.handleClickSelectedUser,
       );
     }
+
+    window.addEventListener('beforeunload', () => Session.set('dropdownOpenUserId', null));
   }
 
   shouldComponentUpdate(nextProps) {

@@ -1,7 +1,7 @@
 import BaseAudioBridge from './base';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
-import FullAudioBroker from '/imports/ui/services/bbb-webrtc-sfu/fullaudio-broker';
+import AudioBroker from '/imports/ui/services/bbb-webrtc-sfu/audio-broker';
 import loadAndPlayMediaStream from '/imports/ui/services/bbb-webrtc-sfu/load-play';
 import {
   fetchWebRTCMappedStunTurnServers,
@@ -11,6 +11,7 @@ import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 import Storage from '/imports/ui/services/storage/session';
 import browserInfo from '/imports/utils/browserInfo';
 import {
+  DEFAULT_INPUT_DEVICE_ID,
   DEFAULT_OUTPUT_DEVICE_ID,
   INPUT_DEVICE_ID_KEY,
   OUTPUT_DEVICE_ID_KEY,
@@ -23,6 +24,8 @@ import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const MEDIA = Meteor.settings.public.media;
 const DEFAULT_FULLAUDIO_MEDIA_SERVER = MEDIA.audio.fullAudioMediaServer;
+const DEFAULT_LISTENONLY_MEDIA_SERVER = Meteor.settings.public.kurento.listenOnlyMediaServer;
+const LISTEN_ONLY_OFFERING = MEDIA.listenOnlyOffering;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 const GLOBAL_AUDIO_PREFIX = 'GLOBAL_AUDIO_';
 const RECONNECT_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
@@ -51,12 +54,21 @@ const mapErrorCode = (error) => {
   return error;
 };
 
-const getMediaServerAdapter = () => getFromMeetingSettings(
-  'media-server-fullaudio',
-  DEFAULT_FULLAUDIO_MEDIA_SERVER,
-);
+const getMediaServerAdapter = (listenOnly = false) => {
+  if (listenOnly) {
+    return getFromMeetingSettings(
+      'media-server-listenonly',
+      DEFAULT_LISTENONLY_MEDIA_SERVER,
+    );
+  }
 
-export default class FullAudioBridge extends BaseAudioBridge {
+  return getFromMeetingSettings(
+    'media-server-fullaudio',
+    DEFAULT_FULLAUDIO_MEDIA_SERVER,
+  );
+};
+
+export default class SFUAudioBridge extends BaseAudioBridge {
   constructor(userData) {
     super();
     this.userId = userData.userId;
@@ -83,7 +95,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
       return this.media.inputDeviceId;
     }
 
-    return null;
+    return DEFAULT_INPUT_DEVICE_ID;
   }
 
   set inputDeviceId(deviceId) {
@@ -117,6 +129,10 @@ export default class FullAudioBridge extends BaseAudioBridge {
     return null;
   }
 
+  get role() {
+    return this.broker?.role;
+  }
+
   async setInputStream(stream) {
     try {
       if (this.broker == null) return null;
@@ -126,11 +142,12 @@ export default class FullAudioBridge extends BaseAudioBridge {
       return stream;
     } catch (error) {
       logger.warn({
-        logCode: 'fullaudio_setinputstream_error',
+        logCode: 'sfuaudio_setinputstream_error',
         extraInfo: {
           errorCode: error.code,
           errorMessage: error.message,
           bridgeName: this.bridgeName,
+          role: this.role,
         },
       }, 'Failed to set input stream (mic)');
       return null;
@@ -180,13 +197,14 @@ export default class FullAudioBridge extends BaseAudioBridge {
     ).catch((error) => {
       // Error handling is a no-op because it will be "handled" in handleBrokerFailure
       logger.debug({
-        logCode: 'fullaudio_reconnect_failed',
+        logCode: 'sfuaudio_reconnect_failed',
         extraInfo: {
           errorMessage: error.errorMessage,
           reconnecting: this.reconnecting,
           bridge: this.bridgeName,
+          role: this.role,
         },
-      }, 'Fullaudio reconnect failed');
+      }, 'SFU audio reconnect failed');
     });
   }
 
@@ -197,30 +215,31 @@ export default class FullAudioBridge extends BaseAudioBridge {
 
       if (this.broker.started && !this.reconnecting) {
         logger.error({
-          logCode: 'fullaudio_error_try_to_reconnect',
+          logCode: 'sfuaudio_error_try_to_reconnect',
           extraInfo: {
             errorMessage,
             errorCode,
             errorCause,
             bridge: this.bridgeName,
+            role: this.role,
           },
-        }, 'Fullaudio failed, try to reconnect');
+        }, 'SFU audio failed, try to reconnect');
         this.reconnect();
         return resolve();
       }
-
       // Already tried reconnecting once OR the user handn't succesfully
       // connected firsthand. Just finish the session and reject with error
       logger.error({
-        logCode: 'fullaudio_error',
+        logCode: 'sfuaudio_error',
         extraInfo: {
           errorMessage,
           errorCode,
           errorCause,
           reconnecting: this.reconnecting,
           bridge: this.bridgeName,
+          role: this.role,
         },
-      }, 'Fullaudio failed');
+      }, 'SFU audio failed');
       this.clearReconnectionTimeout();
       this.broker.stop();
       this.callback({
@@ -254,9 +273,13 @@ export default class FullAudioBridge extends BaseAudioBridge {
       // This will be handled in audio-manager.
       if (error.name === 'NotAllowedError') {
         logger.error({
-          logCode: 'fullaudio_error_autoplay',
-          extraInfo: { errorName: error.name, bridge: this.bridgeName },
-        }, 'Fullaudio media play failed due to autoplay error');
+          logCode: 'sfuaudio_error_autoplay',
+          extraInfo: {
+            errorName: error.name,
+            bridge: this.bridgeName,
+            role: this.role,
+          },
+        }, 'SFU audio media play failed due to autoplay error');
         this.dispatchAutoplayHandlingEvent(mediaElement);
       } else {
         const normalizedError = {
@@ -274,76 +297,64 @@ export default class FullAudioBridge extends BaseAudioBridge {
     });
   }
 
-  async _initBrokerEventsPromise() {
+  async _startBroker(options) {
     return new Promise((resolve, reject) => {
       try {
-        if (!this.broker) resolve(null);
+        const { isListenOnly, extension, inputStream } = options;
+        this.inEchoTest = !!extension;
+        this.isListenOnly = isListenOnly;
+        const callerIdName = [
+          `${this.userId}_${getAudioSessionNumber()}`,
+          'bbbID',
+          isListenOnly ? `${GLOBAL_AUDIO_PREFIX}` : this.name,
+        ].join('-').replace(/"/g, "'");
+
+        const brokerOptions = {
+          caleeName: callerIdName,
+          extension,
+          iceServers: this.iceServers,
+          mediaServer: getMediaServerAdapter(isListenOnly),
+          constraints: getAudioConstraints({ deviceId: this.inputDeviceId }),
+          forceRelay: shouldForceRelay(),
+          stream: (inputStream && inputStream.active) ? inputStream : undefined,
+          offering: isListenOnly ? LISTEN_ONLY_OFFERING : true,
+        };
+
+        this.broker = new AudioBroker(
+          Auth.authenticateURL(SFU_URL),
+          isListenOnly ? RECV_ROLE : SENDRECV_ROLE,
+          brokerOptions,
+        );
 
         this.broker.onended = this.handleTermination.bind(this);
-
         this.broker.onerror = (error) => {
           this.handleBrokerFailure(error).catch(reject);
         };
-
         this.broker.onstart = () => {
           this.handleStart().then(resolve).catch(reject);
         };
+
+        this.broker.joinAudio().catch(reject);
       } catch (error) {
+        logger.warn({ logCode: 'sfuaudio_bridge_broker_init_fail' },
+          'Problem when initializing SFU broker for fullaudio bridge');
         reject(error);
       }
     });
   }
 
-  async _startBroker(options) {
-    try {
-      const { isListenOnly, extension } = options;
-      this.inEchoTest = !!extension;
-      this.isListenOnly = isListenOnly;
-
-      const callerIdName = [
-        `${this.userId}_${getAudioSessionNumber()}`,
-        'bbbID',
-        isListenOnly ? `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}` : this.name,
-      ].join('-').replace(/"/g, "'");
-
-      const brokerOptions = {
-        caleeName: callerIdName,
-        extension,
-        iceServers: this.iceServers,
-        mediaServer: getMediaServerAdapter(),
-        constraints: getAudioConstraints({ deviceId: this.inputDeviceId }),
-        forceRelay: shouldForceRelay(),
-      };
-
-      this.broker = new FullAudioBroker(
-        Auth.authenticateURL(SFU_URL),
-        isListenOnly ? RECV_ROLE : SENDRECV_ROLE,
-        brokerOptions,
-      );
-
-      const initBrokerEventsPromise = this._initBrokerEventsPromise();
-
-      this.broker.listen();
-
-      return initBrokerEventsPromise;
-    } catch (error) {
-      logger.warn({ logCode: 'fullaudio_bridge_broker_init_fail' },
-        'Problem when initializing SFU broker for fullaudio bridge');
-      throw error;
-    }
-  }
-
   async joinAudio(options, callback) {
+    this.callback = callback;
+
     try {
-      this.callback = callback;
       this.iceServers = await fetchWebRTCMappedStunTurnServers(this.sessionToken);
     } catch (error) {
-      logger.error({ logCode: 'fullaudio_stun-turn_fetch_failed' },
+      logger.error({ logCode: 'sfuaudio_stun-turn_fetch_failed' },
         'SFU audio bridge failed to fetch STUN/TURN info, using default servers');
       this.iceServers = getMappedFallbackStun();
-    } finally {
-      await this._startBroker(options);
     }
+
+    return this._startBroker(options);
   }
 
   sendDtmf(tones) {
@@ -371,11 +382,12 @@ export default class FullAudioBridge extends BaseAudioBridge {
       return updatedStream;
     } catch (error) {
       logger.warn({
-        logCode: 'fullaudio_livechangeinputdevice_error',
+        logCode: 'sfuaudio_livechangeinputdevice_error',
         extraInfo: {
           errorCode: error.code,
           errorMessage: error.message,
           bridgeName: this.bridgeName,
+          role: this.role,
         },
       }, 'Failed to change input device (mic)');
       return null;
@@ -395,18 +407,62 @@ export default class FullAudioBridge extends BaseAudioBridge {
         );
         this.setInputStream(stream);
       } else {
-        this.inputStream.getAudioTracks().forEach((track) => track.applyConstraints(matchConstraints));
+        this.inputStream.getAudioTracks()
+          .forEach((track) => track.applyConstraints(matchConstraints));
       }
     } catch (error) {
       logger.error({
-        logCode: 'fullaudio_audio_constraint_error',
+        logCode: 'sfuaudio_audio_constraint_error',
         extraInfo: {
           errorCode: error.code,
           errorMessage: error.message,
           bridgeName: this.bridgeName,
+          role: this.role,
         },
       }, 'Failed to update audio constraint');
     }
+  }
+
+  trickleIce() {
+    return new Promise((resolve, reject) => {
+      try {
+        fetchWebRTCMappedStunTurnServers(this.sessionToken)
+          .then((iceServers) => {
+            const options = {
+              userName: this.name,
+              caleeName: `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}`,
+              iceServers,
+              offering: LISTEN_ONLY_OFFERING,
+            };
+
+            this.broker = new AudioBroker(
+              Auth.authenticateURL(SFU_URL),
+              RECV_ROLE,
+              options,
+            );
+
+            this.broker.onstart = () => {
+              const { peerConnection } = this.broker.webRtcPeer;
+
+              if (!peerConnection) return resolve(null);
+
+              const selectedCandidatePair = peerConnection.getReceivers()[0]
+                .transport.iceTransport.getSelectedCandidatePair();
+
+              const validIceCandidate = [selectedCandidatePair.local];
+
+              this.broker.stop();
+              return resolve(validIceCandidate);
+            };
+
+            this.broker.joinAudio().catch(reject);
+          });
+      } catch (error) {
+        // Rollback
+        this.exitAudio();
+        reject(error);
+      }
+    });
   }
 
   exitAudio() {
@@ -425,4 +481,4 @@ export default class FullAudioBridge extends BaseAudioBridge {
   }
 }
 
-module.exports = FullAudioBridge;
+module.exports = SFUAudioBridge;

@@ -3,41 +3,81 @@ import BaseBroker from '/imports/ui/services/bbb-webrtc-sfu/sfu-base-broker';
 
 const ON_ICE_CANDIDATE_MSG = 'iceCandidate';
 const SUBSCRIBER_ANSWER = 'subscriberAnswer';
+const DTMF = 'dtmf';
+
 const SFU_COMPONENT_NAME = 'audio';
 
-class ListenOnlyBroker extends BaseBroker {
+class AudioBroker extends BaseBroker {
   constructor(
     wsUrl,
-    voiceBridge,
-    userId,
-    internalMeetingId,
     role,
     options = {},
   ) {
     super(SFU_COMPONENT_NAME, wsUrl);
-    this.voiceBridge = voiceBridge;
-    this.userId = userId;
-    this.internalMeetingId = internalMeetingId;
     this.role = role;
     this.offering = true;
 
-    // Optional parameters are: userName, caleeName, iceServers, offering, mediaServer
-    // signalCandidates
+    // Optional parameters are: caleeName, iceServers, offering,
+    // mediaServer, extension, constraints, stream
     Object.assign(this, options);
   }
 
-  joinListenOnly () {
+  getLocalStream() {
+    if (this.webRtcPeer && this.webRtcPeer.peerConnection) {
+      return this.webRtcPeer.peerConnection.getLocalStreams()[0];
+    }
+
+    return null;
+  }
+
+  setLocalStream(stream) {
+    if (this.webRtcPeer == null || this.webRtcPeer.peerConnection == null) {
+      throw new Error('Missing peer connection');
+    }
+
+    const { peerConnection } = this.webRtcPeer;
+    const newTracks = stream.getAudioTracks();
+    const localStream = this.getLocalStream();
+    const oldTracks = localStream ? localStream.getAudioTracks() : [];
+
+    peerConnection.getSenders().forEach((sender, index) => {
+      if (sender.track && sender.track.kind === 'audio') {
+        const newTrack = newTracks[index];
+        if (newTrack == null) return;
+
+        // Cleanup old tracks in the local MediaStream
+        const oldTrack = oldTracks[index];
+        sender.replaceTrack(newTrack);
+        if (oldTrack) {
+          oldTrack.stop();
+          localStream.removeTrack(oldTrack);
+        }
+        localStream.addTrack(newTrack);
+      }
+    });
+
+    return Promise.resolve();
+  }
+
+  _join() {
     return new Promise((resolve, reject) => {
       const options = {
+        audioStream: this.stream,
         mediaConstraints: {
-          audio: true,
+          audio: this.constraints ? this.constraints : true,
           video: false,
         },
-        onicecandidate: this.signalCandidates ? this.onIceCandidate.bind(this) : null,
         configuration: this.populatePeerConfiguration(),
+        onicecandidate: (candidate) => {
+          this.onIceCandidate(candidate, this.role);
+        },
       };
 
-      this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, (error) => {
+      const WebRTCPeer = (this.role === 'sendrecv')
+        ? window.kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv
+        : window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
+
+      this.webRtcPeer = WebRTCPeer(options, (error) => {
         if (error) {
           // 1305: "PEER_NEGOTIATION_FAILED",
           const normalizedError = BaseBroker.assembleError(1305);
@@ -49,7 +89,7 @@ class ListenOnlyBroker extends BaseBroker {
               sfuComponent: this.sfuComponent,
               started: this.started,
             },
-          }, `Listen only peer creation failed`);
+          }, 'Audio peer creation failed');
           this.onerror(normalizedError);
           return reject(normalizedError);
         }
@@ -59,21 +99,24 @@ class ListenOnlyBroker extends BaseBroker {
         if (this.offering) {
           this.webRtcPeer.generateOffer(this.onOfferGenerated.bind(this));
         } else {
-          this.sendStartReq()
+          this.sendStartReq();
         }
+
+        return resolve();
       });
 
-      this.webRtcPeer.peerConnection.onconnectionstatechange = this.handleConnectionStateChange.bind(this);
+      this.webRtcPeer.peerConnection.onconnectionstatechange = this
+        .handleConnectionStateChange.bind(this);
       return resolve();
     });
   }
 
-  listen () {
+  joinAudio() {
     return this.openWSConnection()
-      .then(this.joinListenOnly.bind(this));
+      .then(this._join.bind(this));
   }
 
-  onWSMessage (message) {
+  onWSMessage(message) {
     const parsedMessage = JSON.parse(message.data);
 
     switch (parsedMessage.id) {
@@ -96,12 +139,12 @@ class ListenOnlyBroker extends BaseBroker {
       default:
         logger.debug({
           logCode: `${this.logCodePrefix}_invalid_req`,
-          extraInfo: { messageId: parsedMessage.id || 'Unknown', sfuComponent: this.sfuComponent }
-        }, `Discarded invalid SFU message`);
+          extraInfo: { messageId: parsedMessage.id || 'Unknown', sfuComponent: this.sfuComponent },
+        }, 'Discarded invalid SFU message');
     }
   }
 
-  handleSFUError (sfuResponse) {
+  handleSFUError(sfuResponse) {
     const { code, reason, role } = sfuResponse;
     const error = BaseBroker.assembleError(code, reason);
 
@@ -114,23 +157,22 @@ class ListenOnlyBroker extends BaseBroker {
         sfuComponent: this.sfuComponent,
         started: this.started,
       },
-    }, `Listen only failed in SFU`);
+    }, 'Audio failed in SFU');
     this.onerror(error);
   }
 
-  sendLocalDescription (localDescription) {
+  sendLocalDescription(localDescription) {
     const message = {
       id: SUBSCRIBER_ANSWER,
       type: this.sfuComponent,
       role: this.role,
-      voiceBridge: this.voiceBridge,
       sdpOffer: localDescription,
     };
 
     this.sendMessage(message);
   }
 
-  onRemoteDescriptionReceived (sfuResponse) {
+  onRemoteDescriptionReceived(sfuResponse) {
     if (this.offering) {
       return this.processAnswer(sfuResponse);
     }
@@ -138,51 +180,56 @@ class ListenOnlyBroker extends BaseBroker {
     return this.processOffer(sfuResponse);
   }
 
-  sendStartReq (offer) {
+  sendStartReq(offer) {
     const message = {
       id: 'start',
       type: this.sfuComponent,
       role: this.role,
-      internalMeetingId: this.internalMeetingId,
-      voiceBridge: this.voiceBridge,
       caleeName: this.caleeName,
-      userId: this.userId,
-      userName: this.userName,
       sdpOffer: offer,
       mediaServer: this.mediaServer,
+      extension: this.extension,
     };
 
     logger.debug({
       logCode: `${this.logCodePrefix}_offer_generated`,
       extraInfo: { sfuComponent: this.sfuComponent, role: this.role },
-    }, `SFU audio offer generated`);
+    }, 'SFU audio offer generated');
 
     this.sendMessage(message);
   }
 
-  onOfferGenerated (error, sdpOffer) {
+  onOfferGenerated(error, sdpOffer) {
     if (error) {
       logger.error({
         logCode: `${this.logCodePrefix}_offer_failure`,
         extraInfo: {
           errorMessage: error.name || error.message || 'Unknown error',
-          sfuComponent: this.sfuComponent
+          sfuComponent: this.sfuComponent,
         },
-      }, `Listen only offer generation failed`);
+      }, 'Audio offer generation failed');
       // 1305: "PEER_NEGOTIATION_FAILED",
-      const normalizedError = BaseBroker.assembleError(1305);
-      return this.onerror(error);
+      this.onerror(error);
     }
 
     this.sendStartReq(sdpOffer);
   }
 
-  onIceCandidate (candidate) {
+  dtmf(tones) {
+    const message = {
+      id: DTMF,
+      type: this.sfuComponent,
+      tones,
+    };
+
+    this.sendMessage(message);
+  }
+
+  onIceCandidate(candidate, role) {
     const message = {
       id: ON_ICE_CANDIDATE_MSG,
-      role: this.role,
+      role,
       type: this.sfuComponent,
-      voiceBridge: this.voiceBridge,
       candidate,
     };
 
@@ -190,4 +237,4 @@ class ListenOnlyBroker extends BaseBroker {
   }
 }
 
-export default ListenOnlyBroker;
+export default AudioBroker;

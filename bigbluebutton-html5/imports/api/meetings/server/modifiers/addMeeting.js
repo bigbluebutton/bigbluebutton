@@ -79,6 +79,7 @@ export default function addMeeting(meeting) {
       intId: String,
       extId: String,
       meetingCameraCap: Number,
+      maxPinnedCameras: Number,
       isBreakout: Boolean,
       name: String,
       disabledFeatures: Array,

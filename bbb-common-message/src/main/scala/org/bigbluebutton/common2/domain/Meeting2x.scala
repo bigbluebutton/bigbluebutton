@@ -13,6 +13,7 @@ case class MeetingProp(
     extId:                String,
     intId:                String,
     meetingCameraCap:     Int,
+    maxPinnedCameras:     Int,
     isBreakout:           Boolean,
     disabledFeatures:     Vector[String],
     notifyRecordingIsOn:  Boolean,
