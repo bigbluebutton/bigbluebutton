@@ -115,7 +115,7 @@ mkdir -p staging/etc/nginx/sites-available
 cp bigbluebutton.nginx staging/etc/nginx/sites-available/bigbluebutton
 
 mkdir -p staging/usr/share/bigbluebutton/nginx
-cp sip.nginx staging/usr/share/bigbluebutton/nginx
+cp sip.nginx sip2.nginx staging/usr/share/bigbluebutton/nginx
 
 mkdir -p staging/var/www/bigbluebutton
 touch staging/var/www/bigbluebutton/index.html
