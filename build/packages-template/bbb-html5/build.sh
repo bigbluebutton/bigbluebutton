@@ -26,7 +26,7 @@ cp bbb-html5.nginx staging/usr/share/bigbluebutton/nginx
 
 mkdir -p staging/etc/nginx/conf.d
 cp bbb-html5-loadbalancer.conf staging/etc/nginx/conf.d
-
+cp private_address.conf staging/etc/nginx/conf.d
 
 mkdir -p staging/etc/systemd/system
 cp mongod.service staging/etc/systemd/system
