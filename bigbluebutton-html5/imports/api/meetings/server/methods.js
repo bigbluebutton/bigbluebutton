@@ -5,6 +5,7 @@ import transferUser from './methods/transferUser';
 import toggleLockSettings from './methods/toggleLockSettings';
 import toggleWebcamsOnlyForModerator from './methods/toggleWebcamsOnlyForModerator';
 import clearRandomlySelectedUser from './methods/clearRandomlySelectedUser';
+import changeCurrentSlide from './methods/changeCurrentSlide';
 import changeLayout from './methods/changeLayout';
 
 Meteor.methods({
@@ -15,4 +16,5 @@ Meteor.methods({
   toggleWebcamsOnlyForModerator,
   clearRandomlySelectedUser,
   changeLayout,
+  changeCurrentSlide,
 });

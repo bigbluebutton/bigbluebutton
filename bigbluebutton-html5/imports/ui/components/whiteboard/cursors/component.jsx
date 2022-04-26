@@ -89,8 +89,8 @@ const PositionLabel = (props) => {
       props.publishCursorUpdate(
         userId,
         name,
-        ((point[0] / pageState.camera.zoom) - pageState.camera.point[0]),
-        ((point[1] / pageState.camera.zoom) - pageState.camera.point[1]),
+        ((point[0] / pageState?.camera?.zoom) - pageState?.camera?.point[0]),
+        ((point[1] / pageState?.camera?.zoom) - pageState?.camera?.point[1]),
         presenter
       );
     } catch (e) {

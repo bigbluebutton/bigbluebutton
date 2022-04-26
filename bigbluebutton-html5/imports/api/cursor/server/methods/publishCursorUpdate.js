@@ -18,11 +18,11 @@ export default function publishCursorUpdate(meetingId, requesterUserId, payload)
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'SendCursorPositionPubMsg';
 
-  console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
-  console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
-  console.log('publishCursorUpdate', payload)
-  console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
-  console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+  // console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+  // console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+  // console.log('publishCursorUpdate', payload)
+  // console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+  // console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
 
   const { userId, name, x, y, presenter, isPositionOutside } = payload;
 

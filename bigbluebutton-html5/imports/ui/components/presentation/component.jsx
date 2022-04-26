@@ -892,12 +892,13 @@ class Presentation extends PureComponent {
 
     if (!currentPresentation && this.refPresentationContainer) {
       return (
-        <PresentationPlaceholder
-          {
-          ...presentationBounds
-          }
-          setPresentationRef={this.setPresentationRef}
-        />
+        <></>
+        // <PresentationPlaceholder
+        //   {
+        //   ...presentationBounds
+        //   }
+        //   setPresentationRef={this.setPresentationRef}
+        // />
       );
     }
 

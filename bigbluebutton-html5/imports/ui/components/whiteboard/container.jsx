@@ -40,12 +40,20 @@ const WhiteboardContainer = (props) => {
 export default withTracker(({}) => {
   const shapes = Service.getShapes();
   const assets = Service.getAssets();
+  const curPres = Service.getCurrentPres();
+  const curSlide = Service.getCurSlide();
+
+  // console.log('container shapes', shapes)
+
   return {
     initDefaultPages: Service.initDefaultPages,
     persistShape: Service.persistShape,
     persistAsset: Service.persistAsset,
+    changeCurrentSlide: Service.changeCurrentSlide,
+    curSlide,
     shapes: shapes,
     assets: assets,
+    curPres,
     removeShape: Service.removeShape,
     publishCursorUpdate: Service.publishCursorUpdate,
   };
