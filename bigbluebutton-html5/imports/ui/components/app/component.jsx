@@ -430,7 +430,9 @@ class App extends Component {
       || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
 
     if (isPresenter && ((pushLayout && selectedLayout === 'custom' && layoutChanged) // change layout sizes / states
-      || (!pushLayout && prevProps.pushLayout))) { // special case where we set pushLayout to false in all viewers
+      || (!pushLayout && prevProps.pushLayout) // special case where we set pushLayout to false in all viewers
+      || (pushLayout && !prevProps.pushLayout && selectedLayout === 'custom')) // push layout once after presenter presses the button
+    ) {
       setMeetingLayout();
     }
 
