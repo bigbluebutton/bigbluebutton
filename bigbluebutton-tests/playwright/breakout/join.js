@@ -23,7 +23,7 @@ class Join extends Create {
     await breakoutUserPage.bringToFront();
 
     if (!shouldJoinAudio) await breakoutUserPage.closeAudioModal();
-    await breakoutUserPage.hasElement(e.presentationPlaceholder);
+    await breakoutUserPage.waitForSelector(e.presentationTitle);
     return breakoutUserPage;
   }
 
@@ -33,6 +33,7 @@ class Join extends Create {
     const { videoPreviewTimeout } = breakoutPage.settings;
     await breakoutPage.shareWebcam(true, videoPreviewTimeout);
     await breakoutPage.hasElement(e.presentationPlaceholder);
+    await breakoutPage.waitForSelector(e.presentationTitle);
   }
 
   async joinAndShareScreen() {
