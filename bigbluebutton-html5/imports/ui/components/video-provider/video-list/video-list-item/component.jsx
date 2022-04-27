@@ -13,6 +13,8 @@ import {
 import Settings from '/imports/ui/services/settings';
 import Styled from './styles';
 
+const VIDEO_CONTAINER_WIDTH_BOUND = 125;
+
 const VideoListItem = (props) => {
   const {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
@@ -25,7 +27,7 @@ const VideoListItem = (props) => {
   const [isVideoSqueezed, setIsVideoSqueezed] = useState(false);
 
   const resizeObserver = new ResizeObserver((entry) => {
-    if (entry[0].contentRect.width < 125) {
+    if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_WIDTH_BOUND) {
       return setIsVideoSqueezed(true);
     }
     return setIsVideoSqueezed(false);
