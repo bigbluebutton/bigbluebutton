@@ -211,11 +211,13 @@ const UserDatailsComponent = (props) => {
         <div
           className="min-w-[40%] text-ellipsis text-center overflow-hidden"
           title={mostCommonAnswer
-            ? `${String.fromCharCode(mostCommonAnswer.charCodeAt(0) - 32)}${mostCommonAnswer.substring(1)}`
+            ? `${String.fromCharCode(mostCommonAnswer.charCodeAt(0) - 32)}\
+              ${mostCommonAnswer.substring(1)}`
             : null}
         >
           { mostCommonAnswer
-            ? `${String.fromCharCode(mostCommonAnswer.charCodeAt(0) - 32)}${mostCommonAnswer.substring(1)}`
+            ? `${String.fromCharCode(mostCommonAnswer.charCodeAt(0) - 32)}\
+              ${mostCommonAnswer.substring(1)}`
             : intl.formatMessage({
               id: 'app.learningDashboard.usersTable.notAvailable',
               defaultMessage: 'N/A',
