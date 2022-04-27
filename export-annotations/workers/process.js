@@ -199,13 +199,11 @@ function overlay_poll(svg, annotation, w, h) {
     // Render the poll SVG using gen_poll_svg script
     execSync(`${config.genPollSVG.path} -i ${pollJSON} -w ${poll_width} -h ${poll_height} -n ${annotation.numResponders} -o ${pollSVG}`, (error, stderr) => {
         if (error) {
-            logger.error(`Poll generation failed with error: ${error.message}`);
-            return;
+            return logger.error(`Poll generation failed with error: ${error.message}`);
         }
 
         if (stderr) {
-            logger.error(`Poll generation failed with stderr: ${stderr}`);
-            return;
+            return logger.error(`Poll generation failed with stderr: ${stderr}`);
         }
     });
 
@@ -398,13 +396,11 @@ for (let currentSlide of pages) {
 
     execSync(convertAnnotatedSlide, (error, stderr) => {
         if (error) {
-            logger.error(`SVG to PDF export failed with error: ${error.message}`);
-            return;
+            return logger.error(`SVG to PDF export failed with error: ${error.message}`);
         }
 
         if (stderr) {
-            logger.error(`SVG to PDF export failed with stderr: ${stderr}`);
-            return;
+            return logger.error(`SVG to PDF export failed with stderr: ${stderr}`);
         }
     });
 
@@ -427,13 +423,11 @@ let mergePDFs = [
 // Resulting PDF file is stored in the presentation dir
 execSync(mergePDFs, (error, stderr) => {
     if (error) {
-        logger.error(`SVG to PDF export failed with error: ${error.message}`);
-        return;
+        return logger.error(`SVG to PDF export failed with error: ${error.message}`);
     }
 
     if (stderr) {
-        logger.error(`SVG to PDF export failed with stderr: ${stderr}`);
-        return;
+        return logger.error(`SVG to PDF export failed with stderr: ${stderr}`);
     }
 });
 

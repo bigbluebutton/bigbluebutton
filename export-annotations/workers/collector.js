@@ -42,6 +42,10 @@ let exportJob = JSON.parse(job);
     await client.connect();
     
     let presAnn = await client.hGetAll(exportJob.jobId);
+    
+    // Remove annotations from Redis
+    await client.DEL(jobId);
+
     let annotations = JSON.stringify(presAnn);
 
     let whiteboard = JSON.parse(annotations);
@@ -52,38 +56,67 @@ let exportJob = JSON.parse(job);
     });
 
     // Collect the Presentation Page files from the presentation directory
+    let path = `${exportJob.presLocation}/${exportJob.presId}`;
+    let pdfFileExists = fs.existsSync(`${path}.pdf`);
+
     for (let p of pages) {
       let pageNumber = p.page;
-      let pdf = `${exportJob.presLocation}/${exportJob.presId}.pdf`;
       let file = `${dropbox}/slide${pageNumber}`;
 
-      let extactSlideAsPDFCommands = [
-        'pdftocairo',
-        '-png',
-        '-f', pageNumber,
-        '-l', pageNumber,
-        '-singlefile',
-        pdf,
-        file
-      ].join(' ');
+      if(pdfFileExists) {
+        let extactSlideAsPDFCommands = [
+          'pdftocairo',
+          '-png',
+          '-f', pageNumber,
+          '-l', pageNumber,
+          '-singlefile',
+          `${path}.pdf`,
+          file
+        ].join(' ');
+  
+        execSync(extactSlideAsPDFCommands, (error, stderr) => {
+          if (error) {
+              return logger.error(`PDFtoCairo failed with error: ${error.message}`);
+          }
+  
+          if (stderr) {
+              return logger.error(`PDFtoCairo failed with stderr: ${stderr}`);
+          }
+        })
+      }
 
-      execSync(extactSlideAsPDFCommands, (error, stderr) => {
-        if (error) {
-            logger.error(`PDFtoCairo failed with error: ${error.message}`);
-            return;
-        }
+      else if (fs.existsSync(`${path}.png`)) {
+        fs.copyFileSync(`${path}.png`, `${file}.png`);
+      }
+      
+      else if (fs.existsSync(`${path}.jpeg`)) {
+        let convertImageToPngCommands = [
+          'convert',
+          `${path}.jpeg`,
+          '-background', 'white',
+          '-resize', '1600x1600',
+          '-auto-orient',
+          '-flatten',
+          `${file}.png`
+        ].join(' ');
 
-        if (stderr) {
-            logger.error(`PDFtoCairo failed with stderr: ${stderr}`);
-            return;
-        }
-      })
+        execSync(convertImageToPngCommands, (error, stderr) => {
+          if (error) {
+              return logger.error(`Image conversion to PNG failed with error: ${error.message}`);
+          }
+  
+          if (stderr) {
+              return logger.error(`Image conversion to PNG failed with stderr: ${stderr}`);
+          }
+        })
+      }
+      
+      else {
+        return logger.error(`Could not find whiteboard presentation file for job ${exportJob.jobId}`);
+      }
     }
 
-    kickOffProcessWorker(exportJob.jobId)
-
-    // Remove annotations from Redis
-    await client.DEL(jobId);
+    kickOffProcessWorker(exportJob.jobId);
     client.disconnect();
 })()
 
