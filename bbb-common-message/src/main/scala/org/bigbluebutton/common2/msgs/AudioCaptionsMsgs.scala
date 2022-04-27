@@ -3,7 +3,14 @@ package org.bigbluebutton.common2.msgs
 // In messages
 object UpdateTranscriptPubMsg { val NAME = "UpdateTranscriptPubMsg" }
 case class UpdateTranscriptPubMsg(header: BbbClientMsgHeader, body: UpdateTranscriptPubMsgBody) extends StandardMsg
-case class UpdateTranscriptPubMsgBody(transcriptId: String, transcript: String, locale: String)
+case class UpdateTranscriptPubMsgBody(
+    transcriptId: String,
+    start:        Int,
+    end:          Int,
+    text:         String,
+    transcript:   String,
+    locale:       String
+)
 
 // Out messages
 object TranscriptUpdatedEvtMsg { val NAME = "TranscriptUpdatedEvtMsg" }

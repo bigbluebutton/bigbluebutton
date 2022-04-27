@@ -22,7 +22,43 @@ trait UpdateTranscriptPubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
+    // Adapt to the current captions' recording process
+    def editTranscript(
+        userId: String,
+        start:  Int,
+        end:    Int,
+        locale: String,
+        text:   String
+    ): Unit = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+      val envelope = BbbCoreEnvelope(EditCaptionHistoryEvtMsg.NAME, routing)
+      val header = BbbClientMsgHeader(EditCaptionHistoryEvtMsg.NAME, meetingId, userId)
+      val body = EditCaptionHistoryEvtMsgBody(start, end, locale, locale, text)
+      val event = EditCaptionHistoryEvtMsg(header, body)
+      val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+
+      bus.outGW.send(msgEvent)
+    }
+
     if (AudioCaptions.isFloor(liveMeeting.audioCaptions, msg.header.userId)) {
+      val (start, end, text) = AudioCaptions.editTranscript(
+        liveMeeting.audioCaptions,
+        msg.body.transcriptId,
+        msg.body.start,
+        msg.body.end,
+        msg.body.text,
+        msg.body.transcript,
+        msg.body.locale
+      )
+
+      editTranscript(
+        msg.header.userId,
+        start,
+        end,
+        msg.body.locale,
+        text
+      )
+
       val transcript = AudioCaptions.parseTranscript(msg.body.transcript)
 
       broadcastEvent(

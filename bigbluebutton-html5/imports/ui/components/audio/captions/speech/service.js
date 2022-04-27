@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { diff } from '@mconf/bbb-diff';
 import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
 import { makeCall } from '/imports/ui/services/api';
@@ -79,7 +80,31 @@ const initSpeechRecognition = () => {
   return null;
 };
 
-const updateTranscript = (id, transcript, locale) => makeCall('updateTranscript', id, transcript, locale);
+let prevId = '';
+let prevTranscript = '';
+const updateTranscript = (id, transcript, locale) => {
+  // If it's a new sentence
+  if (id !== prevId) {
+    prevId = id;
+    prevTranscript = '';
+  }
+
+  const transcriptDiff = diff(prevTranscript, transcript);
+
+  let start = 0;
+  let end = 0;
+  let text = '';
+  if (transcriptDiff) {
+    start = transcriptDiff.start;
+    end = transcriptDiff.end;
+    text = transcriptDiff.text;
+  }
+
+  // Stores current transcript as previous
+  prevTranscript = transcript;
+
+  makeCall('updateTranscript', id, start, end, text, transcript, locale);
+};
 
 const throttledTranscriptUpdate = _.throttle(updateTranscript, THROTTLE_TIMEOUT, {
   leading: false,
