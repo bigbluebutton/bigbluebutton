@@ -13,6 +13,8 @@ import {
 import Settings from '/imports/ui/services/settings';
 import Styled from './styles';
 
+const VIDEO_CONTAINER_WIDTH_BOUND = 125;
+
 const VideoListItem = (props) => {
   const {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
@@ -22,6 +24,14 @@ const VideoListItem = (props) => {
   const [videoIsReady, setVideoIsReady] = useState(false);
   const [isStreamHealthy, setIsStreamHealthy] = useState(false);
   const [isMirrored, setIsMirrored] = useState(false);
+  const [isVideoSqueezed, setIsVideoSqueezed] = useState(false);
+
+  const resizeObserver = new ResizeObserver((entry) => {
+    if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_WIDTH_BOUND) {
+      return setIsVideoSqueezed(true);
+    }
+    return setIsVideoSqueezed(false);
+  });
 
   const videoTag = useRef();
   const videoContainer = useRef();
@@ -55,10 +65,12 @@ const VideoListItem = (props) => {
   useEffect(() => {
     onVideoItemMount(videoTag.current);
     subscribeToStreamStateChange(cameraId, onStreamStateChange);
+    resizeObserver.observe(videoContainer.current);
     videoTag.current.addEventListener('loadeddata', handleSetVideoIsReady);
 
     return () => {
       videoTag.current.removeEventListener('loadeddata', handleSetVideoIsReady);
+      resizeObserver.disconnect();
     };
   }, []);
 
@@ -90,6 +102,61 @@ const VideoListItem = (props) => {
     onVideoItemUnmount(cameraId);
   }, []);
 
+  const renderWebcamConnecting = () => (
+    <Styled.WebcamConnecting
+      data-test="webcamConnecting"
+      talking={talking}
+      animations={animations}
+    >
+      <Styled.LoadingText>{name}</Styled.LoadingText>
+    </Styled.WebcamConnecting>
+  );
+
+  const renderSqueezedButton = () => (
+    <UserActions
+      name={name}
+      user={user}
+      videoContainer={videoContainer}
+      isVideoSqueezed={isVideoSqueezed}
+      cameraId={cameraId}
+      numOfStreams={numOfStreams}
+      onHandleVideoFocus={onHandleVideoFocus}
+      focused={focused}
+      onHandleMirror={() => setIsMirrored((value) => !value)}
+    />
+  );
+
+  const renderDefaultButtons = () => (
+    <>
+      <Styled.TopBar>
+        <PinArea
+          user={user}
+        />
+        <ViewActions
+          videoContainer={videoContainer}
+          name={name}
+          cameraId={cameraId}
+          isFullscreenContext={isFullscreenContext}
+          layoutContextDispatch={layoutContextDispatch}
+        />
+      </Styled.TopBar>
+      <Styled.BottomBar>
+        <UserActions
+          name={name}
+          user={user}
+          cameraId={cameraId}
+          numOfStreams={numOfStreams}
+          onHandleVideoFocus={onHandleVideoFocus}
+          focused={focused}
+          onHandleMirror={() => setIsMirrored((value) => !value)}
+        />
+        <UserStatus
+          voiceUser={voiceUser}
+        />
+      </Styled.BottomBar>
+    </>
+  );
+
   return (
     <Styled.Content
       ref={videoContainer}
@@ -98,49 +165,6 @@ const VideoListItem = (props) => {
       data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
       animations={animations}
     >
-      {
-          videoIsReady
-            ? (
-              <>
-                <Styled.TopBar>
-                  <PinArea
-                    user={user}
-                  />
-                  <ViewActions
-                    videoContainer={videoContainer}
-                    name={name}
-                    cameraId={cameraId}
-                    isFullscreenContext={isFullscreenContext}
-                    layoutContextDispatch={layoutContextDispatch}
-                  />
-                </Styled.TopBar>
-                <Styled.BottomBar>
-                  <UserActions
-                    name={name}
-                    user={user}
-                    cameraId={cameraId}
-                    numOfStreams={numOfStreams}
-                    onHandleVideoFocus={onHandleVideoFocus}
-                    focused={focused}
-                    onHandleMirror={() => setIsMirrored((value) => !value)}
-                  />
-                  <UserStatus
-                    voiceUser={voiceUser}
-                  />
-                </Styled.BottomBar>
-              </>
-            )
-            : (
-              <Styled.WebcamConnecting
-                data-test="webcamConnecting"
-                talking={talking}
-                animations={animations}
-              >
-                <Styled.LoadingText>{name}</Styled.LoadingText>
-              </Styled.WebcamConnecting>
-            )
-        }
-
       <Styled.VideoContainer>
         <Styled.Video
           muted
@@ -152,6 +176,13 @@ const VideoListItem = (props) => {
           playsInline
         />
       </Styled.VideoContainer>
+
+      {/* eslint-disable-next-line no-nested-ternary */}
+      {videoIsReady
+        ? (isVideoSqueezed)
+          ? renderSqueezedButton()
+          : renderDefaultButtons()
+        : renderWebcamConnecting()}
 
       {shouldRenderReconnect && <Styled.Reconnecting />}
     </Styled.Content>
