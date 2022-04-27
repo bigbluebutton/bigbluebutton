@@ -88,7 +88,7 @@ module BigBlueButton
       # the larger of height, width in the resize parameter.
       scale = resize.split('x').map(&:to_i).max
       BigBlueButton.logger.info("Task: Converting image to .png")
-      command = "convert #{image} -resize #{scale}x#{scale} -background white -flatten #{png_image}"
+      command = "convert #{image} -resize #{scale}x#{scale} -background white -auto-orient -flatten #{png_image}"
       status = BigBlueButton.execute(command, false)
       if !status.success? or !File.exist?(png_image)
         # If image conversion failed, generate a blank white image

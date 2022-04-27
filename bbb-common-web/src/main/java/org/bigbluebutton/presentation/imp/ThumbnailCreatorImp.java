@@ -80,7 +80,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 
     if (SupportedFileTypes.isImageFile(pres.getFileType())) {
       dest = thumbsDir.getAbsolutePath() + File.separatorChar + "thumb-" + page + ".png";
-      COMMAND = IMAGEMAGICK_DIR + File.separatorChar + "convert -thumbnail 150x150 "  + source + " " + dest;
+      COMMAND = IMAGEMAGICK_DIR + File.separatorChar + "convert -auto-orient -thumbnail 150x150 "  + source + " " + dest;
     } else {
       dest = thumbsDir.getAbsolutePath() + File.separatorChar + TEMP_THUMB_NAME + "-" + page; // the "-x.png" is appended automagically
       COMMAND = "pdftocairo -png -scale-to 150 " + source + " " + dest;
