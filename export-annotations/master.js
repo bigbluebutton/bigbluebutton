@@ -2,6 +2,7 @@ const Logger = require('./lib/utils/logger');
 const config = require('./config');
 const fs = require('fs');
 const redis = require('redis');
+const { commandOptions } = require('redis');
 const { Worker } = require('worker_threads');
 
 const logger = new Logger('presAnn Master');
@@ -19,10 +20,6 @@ const kickOffCollectorWorker = (jobId) => {
     })
 }
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 (async () => {
     const client = redis.createClient({
         host: config.redis.host,
@@ -32,32 +29,33 @@ function sleep(ms) {
     
     await client.connect();
     
-    let ping = await client.ping();
-    let redisAlive = (ping === "PONG");
+    client.on('error', (err) => logger.info('Redis Client Error', err));
 
-    client.on('error', (err) => { logger.info('Redis Client Error', err); redisAlive = false; } );
+    async function waitForJobs () {
+        const queue = client.blPop(
+            commandOptions({ isolated: true }),
+            config.redis.channels.queue,
+            0
+        );
 
-    while (redisAlive) {
-        await sleep(config.redis.interval);
+        let job = await queue;
         
-        let job = await client.LPOP(config.redis.channels.queue)
-        const exportJob = JSON.parse(job);
-
-        if(job != null) {
-            logger.info('Received job', job)
-            
-            // Create folder in dropbox
-            let dropbox = `${config.shared.presAnnDropboxDir}/${exportJob.jobId}`
-            fs.mkdirSync(dropbox, { recursive: true })
-            
-            // Drop job into dropbox as JSON
-            fs.writeFile(`${dropbox}/job`, job, function(err) {
-                if(err) { return logger.error(err); }
-            });
-
-            kickOffCollectorWorker(exportJob.jobId)
-        }
-    }
+        logger.info('Received job', job.element);
+        const exportJob = JSON.parse(job.element);
+        
+        // Create folder in dropbox
+        let dropbox = `${config.shared.presAnnDropboxDir}/${exportJob.jobId}`
+        fs.mkdirSync(dropbox, { recursive: true })
     
-    client.disconnect();
+        // Drop job into dropbox as JSON
+        fs.writeFile(`${dropbox}/job`, job.element, function(err) {
+            if(err) { return logger.error(err); }
+        });
+
+        kickOffCollectorWorker(exportJob.jobId)
+
+        waitForJobs();
+    }
+
+    waitForJobs();
 })();

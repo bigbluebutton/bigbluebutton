@@ -82,6 +82,8 @@ let exportJob = JSON.parse(job);
 
     kickOffProcessWorker(exportJob.jobId)
 
+    // Remove annotations from Redis
+    await client.DEL(jobId);
     client.disconnect();
 })()
 

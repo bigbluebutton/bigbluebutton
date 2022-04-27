@@ -27,7 +27,6 @@
       "host": "127.0.0.1",
       "port": 6379,
       "password": null,
-      "interval": 1000,
       "channels": {
         "queue": "exportJobs",
         "publish": "to-akka-apps-redis-channel"
