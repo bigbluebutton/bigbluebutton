@@ -646,8 +646,7 @@ class VideoPlayer extends Component {
                         <div
                           className={styles.played}
                           style={{ width: played * 100 / loaded + '%'}}
-                        >
-                        </div>
+                        />
                       </div>
                     </div>
                   </div>
