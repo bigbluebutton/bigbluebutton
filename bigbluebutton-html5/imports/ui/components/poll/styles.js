@@ -169,6 +169,7 @@ const PollConfigButton = styled(Button)`
 
 const PollParagraph = styled.div`
   color: ${colorText};
+  margin-bottom: 0.9rem;
 `;
 
 const PollCheckbox = styled.div`
@@ -215,7 +216,7 @@ const Warning = styled.div`
   font-size: ${fontSizeSmall};
 `;
 
-const AutoOptioningRow = styled.div`
+const CustomInputRow = styled.div`
   display: flex;
   flex-flow: wrap;
   flex-grow: 1;
@@ -387,6 +388,20 @@ const PollCloseButton = styled(Button)`
   }
 `;
 
+const Question = styled.div`
+  margin-bottom: ${lgPaddingX};
+`;
+
+const OptionWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const ResponseArea = styled.div`
+  display: flex;
+  flex-flow: column wrap;
+`;
+
 export default {
   ToggleLabel,
   PollOptionInput,
@@ -413,5 +428,8 @@ export default {
   PollHideButton,
   PollCloseButton,
   Warning,
-  AutoOptioningRow,
+  CustomInputRow,
+  Question,
+  OptionWrapper,
+  ResponseArea,
 };

@@ -431,9 +431,8 @@ public:
     syncInterval: 60000
   poll:
     enabled: true
-    autoOptioning: true
+    allowCustomResponseInput: true
     maxCustom: 5
-    allowDragAndDropFile: true
     maxTypedAnswerLength: 45
     chatMessage: true
   captions:
