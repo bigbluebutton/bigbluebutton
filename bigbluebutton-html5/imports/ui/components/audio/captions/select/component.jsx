@@ -16,6 +16,10 @@ const intlMessages = defineMessages({
     id: 'app.audio.captions.speech.unsupported',
     description: 'Audio speech recognition unsupported',
   },
+  'de-DE': {
+    id: 'app.audio.captions.select.de-DE',
+    description: 'Audio speech recognition german language',
+  },
   'en-US': {
     id: 'app.audio.captions.select.en-US',
     description: 'Audio speech recognition english language',
@@ -24,9 +28,33 @@ const intlMessages = defineMessages({
     id: 'app.audio.captions.select.es-ES',
     description: 'Audio speech recognition spanish language',
   },
+  'fr-FR': {
+    id: 'app.audio.captions.select.fr-FR',
+    description: 'Audio speech recognition french language',
+  },
+  'hi-ID': {
+    id: 'app.audio.captions.select.hi-ID',
+    description: 'Audio speech recognition indian language',
+  },
+  'it-IT': {
+    id: 'app.audio.captions.select.it-IT',
+    description: 'Audio speech recognition italian language',
+  },
+  'ja-JP': {
+    id: 'app.audio.captions.select.ja-JP',
+    description: 'Audio speech recognition japanese language',
+  },
   'pt-BR': {
     id: 'app.audio.captions.select.pt-BR',
     description: 'Audio speech recognition portuguese language',
+  },
+  'ru-RU': {
+    id: 'app.audio.captions.select.ru-RU',
+    description: 'Audio speech recognition russian language',
+  },
+  'zh-CN': {
+    id: 'app.audio.captions.select.zh-CN',
+    description: 'Audio speech recognition chinese language',
   },
 });
 

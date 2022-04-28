@@ -7,16 +7,11 @@ import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import AudioService from '/imports/ui/components/audio/service';
 
-const LANGUAGES = [
-  'en-US',
-  'es-ES',
-  'pt-BR',
-];
-
 const THROTTLE_TIMEOUT = 1000;
 
 const CONFIG = Meteor.settings.public.app.audioCaptions;
 const ENABLED = CONFIG.enabled;
+const LANGUAGES = CONFIG.language.available;
 
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 

@@ -74,6 +74,17 @@ public:
     audioCaptions:
       enabled: false
       language:
+        available:
+        # - de-DE
+          - en-US
+          - es-ES
+        # - fr-FR
+        # - hi-ID
+        # - it-IT
+        # - ja-JP
+          - pt-BR
+        # - ru-RU
+        # - zh-CN
         default: false
         locale: pt-BR
     mutedAlert:

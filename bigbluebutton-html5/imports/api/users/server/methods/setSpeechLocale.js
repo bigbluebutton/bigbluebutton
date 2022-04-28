@@ -3,11 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import updateSpeechLocale from '../modifiers/updateSpeechLocale';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
-const LANGUAGES = [
-  'en-US',
-  'es-ES',
-  'pt-BR',
-];
+const LANGUAGES = Meteor.settings.public.app.audioCaptions.language.available;
 
 export default function setSpeechLocale(locale) {
   try {
