@@ -30,7 +30,7 @@ const setSpeechLocale = (value) => {
 const setSpeechVoices = () => {
   if (typeof window.speechSynthesis === 'undefined') return;
 
-  Session.set('speechVoices', window.speechSynthesis.getVoices().map((v) => v.lang));
+  Session.set('speechVoices', _.uniq(window.speechSynthesis.getVoices().map((v) => v.lang)));
 };
 
 // Trigger getVoices
