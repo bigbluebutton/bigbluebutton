@@ -60,6 +60,7 @@ import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessa
 import org.bigbluebutton.api.messaging.messages.*;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
+import org.bigbluebutton.common2.msgs.MeetingCreatedEvtMsg;
 import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier;
@@ -103,6 +104,7 @@ public class MeetingService implements MessageListener {
   private CallbackUrlService callbackUrlService;
   private HTML5LoadBalancingService html5LoadBalancingService;
   private SwfSlidesGenerationProgressNotifier notifier;
+  private Boolean webcamsOnlyForModerator;
 
   private long usersTimeout;
   private long waitingGuestUsersTimeout;
@@ -1258,6 +1260,10 @@ public class MeetingService implements MessageListener {
     waitingGuestCleaner.stop();
     userCleaner.stop();
     enteredUserCleaner.stop();
+  }
+
+  public void setWebcamsOnlyForModerator(boolean webcamsOnlyForModerator) {
+    this.webcamsOnlyForModerator = webcamsOnlyForModerator;
   }
 
   public void setRecordingService(RecordingService s) {
