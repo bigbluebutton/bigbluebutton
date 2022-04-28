@@ -15,12 +15,13 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
   ): MeetingState2x = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
+    val temporaryPresentationId = msg.body.presentation.temporaryPresentationId
 
     val newState = for {
       pod <- PresentationPodsApp.getPresentationPod(state, msg.body.podId)
       pres <- pod.getPresentation(msg.body.presentation.id)
     } yield {
-      val presVO = PresentationPodsApp.translatePresentationToPresentationVO(pres)
+      val presVO = PresentationPodsApp.translatePresentationToPresentationVO(pres, temporaryPresentationId)
 
       PresentationSender.broadcastPresentationConversionCompletedEvtMsg(
         bus,

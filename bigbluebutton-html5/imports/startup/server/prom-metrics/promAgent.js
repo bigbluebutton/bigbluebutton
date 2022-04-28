@@ -81,6 +81,16 @@ class PrometheusScrapeAgent {
       metric.set(labelsObject, value)
     }
   }
+
+  observe(metricName, value, labelsObject) {
+    if (!this.started) return;
+
+    const metric = this.metrics[metricName];
+    if (metric) {
+      labelsObject = { ...labelsObject, ...this.roleAndInstanceLabels };
+      metric.observe(labelsObject, value)
+    }
+  }
 }
 
 export default PrometheusScrapeAgent;

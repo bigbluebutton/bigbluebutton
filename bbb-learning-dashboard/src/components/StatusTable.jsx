@@ -147,13 +147,21 @@ class StatusTable extends React.Component {
                           aria-label={tsToHHmmss(start - periods[0].start)}
                         >
                           <a
-                            href={`/bigbluebutton/presentation/${meetingId}/${meetingId}/${slide.presentationId}/svg/${slide.pageNum}`}
+                            href={
+                              `/bigbluebutton/presentation/\
+                              ${meetingId}/${meetingId}/${slide.presentationId}\
+                              /svg/${slide.pageNum}`
+                            }
                             className="block border-2 border-gray-300"
                             target="_blank"
                             rel="noreferrer"
                           >
                             <img
-                              src={`/bigbluebutton/presentation/${meetingId}/${meetingId}/${slide.presentationId}/thumbnail/${slide.pageNum}`}
+                              src={
+                                `/bigbluebutton/presentation/\
+                                ${meetingId}/${meetingId}/${slide.presentationId}\
+                                /thumbnail/${slide.pageNum}`
+                              }
                               alt={intl.formatMessage({
                                 id: 'app.learningDashboard.statusTimelineTable.thumbnail',
                                 defaultMessage: 'Presentation thumbnail',
@@ -257,7 +265,10 @@ class StatusTable extends React.Component {
                                       const redress = '(0.375rem / 2)';
                                       return (
                                         <div
-                                          className={`h-1.5 ${width} bg-gray-200 absolute inset-x-0 z-10 ${roundedLeft} ${roundedRight}`}
+                                          className={
+                                            `h-1.5 ${width} bg-gray-200 absolute \
+                                            inset-x-0 z-10 ${roundedLeft} ${roundedRight}`
+                                          }
                                           style={{
                                             top: `calc(50% - ${redress})`,
                                             left: `${isRTL ? offsetRight : offsetLeft}%`,
@@ -285,7 +296,12 @@ class StatusTable extends React.Component {
                                         defaultMessage: emojiConfigs[emoji.name].defaultMessage,
                                       })}
                                     >
-                                      <i className={`${emojiConfigs[emoji.name].icon} text-sm bbb-icon-timeline`} />
+                                      <i
+                                        className={
+                                          `${emojiConfigs[emoji.name].icon} \
+                                          text-sm bbb-icon-timeline`
+                                        }
+                                      />
                                     </div>
                                   );
                                 }) }

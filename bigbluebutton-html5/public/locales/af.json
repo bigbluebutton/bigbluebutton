@@ -589,7 +589,6 @@
     "app.lock-viewers.button.apply": "Pas toe",
     "app.lock-viewers.button.cancel": "Kanselleer",
     "app.lock-viewers.locked": "Gesluit",
-    "app.lock-viewers.unlocked": "Ontsluit",
     "app.guest-policy.ariaTitle": "Gasbeleid instellings modaal",
     "app.guest-policy.title": "Gasbeleid",
     "app.guest-policy.description": "Verander vergadering gasbeleid instellings",

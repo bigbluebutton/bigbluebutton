@@ -98,6 +98,22 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.previousSlideDesc',
     description: 'describes the previous slide shortcut',
   },
+  togglePanKey: {
+    id: 'app.shortcut-help.togglePanKey',
+    description: 'describes the toggle pan shortcut key',
+  },
+  toggleFullscreenKey: {
+    id: 'app.shortcut-help.toggleFullscreenKey',
+    description: 'describes the toggle full-screen shortcut key',
+  },
+  nextSlideKey: {
+    id: 'app.shortcut-help.nextSlideKey',
+    description: 'describes the next slide shortcut key',
+  },
+  previousSlideKey: {
+    id: 'app.shortcut-help.previousSlideKey',
+    description: 'describes the previous slide shortcut key',
+  },
 });
 
 const ShortcutHelpComponent = (props) => {
@@ -143,28 +159,28 @@ const ShortcutHelpComponent = (props) => {
 
   shortcutItems.push((
     <tr key={_.uniqueId('hotkey-item-')}>
-      <Styled.KeyCell>Spacebar</Styled.KeyCell>
+      <Styled.KeyCell>{intl.formatMessage(intlMessages.togglePanKey)}</Styled.KeyCell>
       <Styled.DescCell>{intl.formatMessage(intlMessages.togglePan)}</Styled.DescCell>
     </tr>
   ));
 
   shortcutItems.push((
     <tr key={_.uniqueId('hotkey-item-')}>
-      <Styled.KeyCell>Enter</Styled.KeyCell>
+      <Styled.KeyCell>{intl.formatMessage(intlMessages.toggleFullscreenKey)}</Styled.KeyCell>
       <Styled.DescCell>{intl.formatMessage(intlMessages.toggleFullscreen)}</Styled.DescCell>
     </tr>
   ));
 
   shortcutItems.push((
     <tr key={_.uniqueId('hotkey-item-')}>
-      <Styled.KeyCell>Right Arrow</Styled.KeyCell>
+      <Styled.KeyCell>{intl.formatMessage(intlMessages.nextSlideKey)}</Styled.KeyCell>
       <Styled.DescCell>{intl.formatMessage(intlMessages.nextSlideDesc)}</Styled.DescCell>
     </tr>
   ));
 
   shortcutItems.push((
     <tr key={_.uniqueId('hotkey-item-')}>
-      <Styled.KeyCell>Left Arrow</Styled.KeyCell>
+      <Styled.KeyCell>{intl.formatMessage(intlMessages.previousSlideKey)}</Styled.KeyCell>
       <Styled.DescCell>{intl.formatMessage(intlMessages.previousSlideDesc)}</Styled.DescCell>
     </tr>
   ));

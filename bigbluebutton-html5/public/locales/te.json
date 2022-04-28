@@ -641,7 +641,6 @@
     "app.lock-viewers.button.apply": "అమలు చేయి",
     "app.lock-viewers.button.cancel": "రద్దు చేయి",
     "app.lock-viewers.locked": "లాక్ చేయబడింది",
-    "app.lock-viewers.unlocked": "అన్ లాక్ చేయబడింది",
     "app.guest-policy.ariaTitle": "అతిథి విధాన సెట్టింగ్‌లు మోడల్",
     "app.guest-policy.title": "అతిథి విధానం",
     "app.guest-policy.description": "సమావేశ అతిథి విధాన సెట్టింగ్‌ని మార్చండి",

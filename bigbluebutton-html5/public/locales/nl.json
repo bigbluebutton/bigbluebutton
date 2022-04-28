@@ -695,7 +695,6 @@
     "app.lock-viewers.button.apply": "Toepassen",
     "app.lock-viewers.button.cancel": "Annuleren",
     "app.lock-viewers.locked": "Vergrendeld",
-    "app.lock-viewers.unlocked": "Ontgrendeld",
     "app.guest-policy.ariaTitle": "Modale instellingen voor het beleid voor gasten",
     "app.guest-policy.title": "Beleid voor gasten",
     "app.guest-policy.description": "Wijzig de instellingen van het beleid voor gasten",

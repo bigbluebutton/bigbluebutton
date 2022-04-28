@@ -10,17 +10,17 @@ const JoinVideoOptionsContainer = (props) => {
   const {
     hasVideoStream,
     disableReason,
+    status,
     intl,
     mountModal,
     ...restProps
   } = props;
 
-  const mountVideoPreview = () => { mountModal(<VideoPreviewContainer forceOpen={false} />); };
-  const forceMountVideoPreview = () => { mountModal(<VideoPreviewContainer forceOpen />); };
+  const mountVideoPreview = (force) => { mountModal(<VideoPreviewContainer forceOpen={force} />); };
 
   return (
     <JoinVideoButton {...{
-      mountVideoPreview, forceMountVideoPreview, hasVideoStream, disableReason, ...restProps,
+      mountVideoPreview, hasVideoStream, disableReason, status, ...restProps,
     }}
     />
   );
@@ -29,4 +29,5 @@ const JoinVideoOptionsContainer = (props) => {
 export default withModalMounter(injectIntl(withTracker(() => ({
   hasVideoStream: VideoService.hasVideoStream(),
   disableReason: VideoService.disableReason(),
+  status: VideoService.getStatus(),
 }))(JoinVideoOptionsContainer)));

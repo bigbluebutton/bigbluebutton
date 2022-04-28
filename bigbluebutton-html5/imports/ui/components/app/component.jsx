@@ -44,6 +44,7 @@ import Settings from '/imports/ui/services/settings';
 import LayoutService from '/imports/ui/components/layout/service';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
+import MediaService from '/imports/ui/components/media/service';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -156,6 +157,9 @@ class App extends Component {
       settingsLayout,
       isRTL,
       hidePresentation,
+      autoSwapLayout,
+      shouldShowScreenshare,
+      shouldShowExternalVideo,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -167,10 +171,17 @@ class App extends Component {
       value: isRTL,
     });
 
+    const presentationOpen = !(autoSwapLayout || hidePresentation)
+      || shouldShowExternalVideo || shouldShowScreenshare;
+
     layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-      value: !hidePresentation,
+      value: presentationOpen,
     });
+
+    if (!presentationOpen && !MediaService.getSwapLayout()) {
+      MediaService.setSwapLayout(layoutContextDispatch);
+    }
 
     Modal.setAppElement('#app');
 

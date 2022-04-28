@@ -653,7 +653,6 @@
     "app.lock-viewers.button.apply": "اعمال",
     "app.lock-viewers.button.cancel": "لغو",
     "app.lock-viewers.locked": "قفل شده",
-    "app.lock-viewers.unlocked": "مجاز",
     "app.guest-policy.ariaTitle": "فرم تنظیمات سیاست پذیرش درخواست ورود کاربران",
     "app.guest-policy.title": "سیاست پذیرش درخواست ورود کاربران",
     "app.guest-policy.description": "سیاست پذیرش درخواست ورود کاربران در جلسه را مشخصی کنید",

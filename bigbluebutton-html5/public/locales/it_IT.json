@@ -669,7 +669,6 @@
     "app.lock-viewers.button.apply": "Applica",
     "app.lock-viewers.button.cancel": "Annulla",
     "app.lock-viewers.locked": "Bloccato",
-    "app.lock-viewers.unlocked": "Sbloccato",
     "app.guest-policy.ariaTitle": "Finestra impostazioni regolamento degli ospiti",
     "app.guest-policy.title": "Regolamento degli ospiti",
     "app.guest-policy.description": "Modifica impostazioni sulle norme degli ospiti al meeting",
