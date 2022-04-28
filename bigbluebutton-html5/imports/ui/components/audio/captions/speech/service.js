@@ -17,16 +17,6 @@ const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechReco
 
 const hasSpeechRecognitionSupport = () => typeof SpeechRecognitionAPI !== 'undefined';
 
-const setSpeechLocale = (value) => {
-  if (LANGUAGES.includes(value) || value === '') {
-    makeCall('setSpeechLocale', value);
-  } else {
-    logger.error({
-      logCode: 'captions_speech_locale',
-    }, 'Captions speech set locale error');
-  }
-};
-
 const setSpeechVoices = () => {
   if (typeof window.speechSynthesis === 'undefined') return;
 
@@ -42,14 +32,14 @@ const getSpeechVoices = () => {
   return voices.filter((v) => LANGUAGES.includes(v));
 };
 
-const setDefault = () => {
+const setSpeechLocale = (value) => {
   const voices = getSpeechVoices();
-  if (voices.includes(CONFIG.language.locale)) {
-    setSpeechLocale(CONFIG.language.locale);
+  if (voices.includes(value) || value === '') {
+    makeCall('setSpeechLocale', value);
   } else {
     logger.error({
-      logCode: 'captions_speech_default',
-    }, 'Captions speech set default error');
+      logCode: 'captions_speech_locale',
+    }, 'Captions speech set locale error');
   }
 };
 
@@ -63,7 +53,11 @@ const initSpeechRecognition = () => {
     speechRecognition.continuous = true;
     speechRecognition.interimResults = true;
 
-    if (useDefault()) setDefault();
+    if (useDefault()) {
+      setSpeechLocale(CONFIG.language.locale);
+    } else {
+      setSpeechLocale(navigator.language);
+    }
 
     return speechRecognition;
   }
