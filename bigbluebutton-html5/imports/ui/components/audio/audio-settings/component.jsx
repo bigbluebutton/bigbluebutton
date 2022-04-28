@@ -93,9 +93,12 @@ class AudioSettings extends React.Component {
   }
 
   componentDidMount() {
-    const { inputDeviceId } = this.state;
+    const { inputDeviceId, outputDeviceId } = this.state;
+
     this._isMounted = true;
-    this.handleInputChange(inputDeviceId);
+    // Guarantee initial in/out devices are initialized on all ends
+    this.setInputDevice(inputDeviceId);
+    this.setOutputDevice(outputDeviceId);
   }
 
   componentWillUnmount() {
@@ -109,6 +112,32 @@ class AudioSettings extends React.Component {
   }
 
   handleInputChange(deviceId) {
+    this.setInputDevice(deviceId);
+  }
+
+  handleOutputChange(deviceId) {
+    this.setOutputDevice(deviceId);
+  }
+
+  handleConfirmationClick() {
+    const { stream } = this.state;
+    const {
+      produceStreams,
+      handleConfirmation,
+    } = this.props;
+
+    // Stream generation disabled or there isn't any stream: just run the provided callback
+    if (!produceStreams || !stream) return handleConfirmation();
+
+    // Stream generation enabled and there is a valid input stream => call
+    // the confirmation callback with the input stream as arg so it can be used
+    // in upstream components. The rationale is no surplus gUM calls.
+    // We're cloning it because the original will be cleaned up on unmount here.
+    const clonedStream = stream.clone();
+    return handleConfirmation(clonedStream);
+  }
+
+  setInputDevice(deviceId) {
     const {
       handleGUMFailure,
       changeInputDevice,
@@ -148,7 +177,7 @@ class AudioSettings extends React.Component {
     }
   }
 
-  handleOutputChange(deviceId) {
+  setOutputDevice(deviceId) {
     const {
       changeOutputDevice,
       withEcho,
@@ -161,24 +190,6 @@ class AudioSettings extends React.Component {
     this.setState({
       outputDeviceId: deviceId,
     });
-  }
-
-  handleConfirmationClick() {
-    const { stream } = this.state;
-    const {
-      produceStreams,
-      handleConfirmation,
-    } = this.props;
-
-    // Stream generation disabled or there isn't any stream: just run the provided callback
-    if (!produceStreams || !stream) return handleConfirmation();
-
-    // Stream generation enabled and there is a valid input stream => call
-    // the confirmation callback with the input stream as arg so it can be used
-    // in upstream components. The rationale is no surplus gUM calls.
-    // We're cloning it because the original will be cleaned up on unmount here.
-    const clonedStream = stream.clone();
-    return handleConfirmation(clonedStream);
   }
 
   generateInputStream(inputDeviceId) {
