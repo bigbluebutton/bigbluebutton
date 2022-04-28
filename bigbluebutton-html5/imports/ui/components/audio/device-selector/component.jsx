@@ -14,13 +14,13 @@ const propTypes = {
   kind: PropTypes.oneOf(['audioinput', 'audiooutput']),
   onChange: PropTypes.func.isRequired,
   blocked: PropTypes.bool,
-  value: PropTypes.string,
+  deviceId: PropTypes.string,
 };
 
 const defaultProps = {
   kind: 'audioinput',
   blocked: false,
-  value: undefined,
+  deviceId: '',
 };
 
 const intlMessages = defineMessages({
@@ -53,7 +53,6 @@ class DeviceSelector extends Component {
     this.handleSelectChange = this.handleSelectChange.bind(this);
 
     this.state = {
-      value: props.value,
       devices: [],
       options: [],
     };
@@ -96,10 +95,8 @@ class DeviceSelector extends Component {
     const { value } = event.target;
     const { onChange } = this.props;
     const { devices } = this.state;
-    this.setState({ value }, () => {
-      const selectedDevice = devices.find((d) => d.deviceId === value);
-      onChange(selectedDevice.deviceId, selectedDevice, event);
-    });
+    const selectedDevice = devices.find((d) => d.deviceId === value);
+    onChange(selectedDevice.deviceId, selectedDevice, event);
   }
 
   getFallbackLabel(index) {
@@ -127,10 +124,10 @@ class DeviceSelector extends Component {
 
   render() {
     const {
-      intl, kind, blocked, ...props
+      intl, kind, blocked, deviceId, ...props
     } = this.props;
 
-    const { options, value } = this.state;
+    const { options } = this.state;
     const { isSafari } = browserInfo;
 
     let notFoundOption;
@@ -148,7 +145,7 @@ class DeviceSelector extends Component {
     return (
       <select
         {...props}
-        value={value}
+        value={deviceId}
         onChange={this.handleSelectChange}
         disabled={!options.length}
       >
