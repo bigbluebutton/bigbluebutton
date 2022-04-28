@@ -124,7 +124,9 @@ class AudioSettings extends React.Component {
         if (!this._isMounted) return;
 
         this.setState({
-          inputDeviceId: deviceId,
+          // We extract the deviceId again from the stream to guarantee consistency
+          // between stream vs chosen device
+          inputDeviceId: MediaStreamUtils.extractDeviceIdFromStream(stream, 'audio'),
           stream,
           deviceSelectorsBlocked: false,
         });
@@ -248,7 +250,7 @@ class AudioSettings extends React.Component {
               {intl.formatMessage(intlMessages.micSourceLabel)}
               <Styled.DeviceSelectorSelect
                 id="inputDeviceSelector"
-                value={inputDeviceId}
+                deviceId={inputDeviceId}
                 kind="audioinput"
                 blocked={deviceSelectorsBlocked}
                 onChange={this.handleInputChange}
@@ -263,7 +265,7 @@ class AudioSettings extends React.Component {
               {intl.formatMessage(intlMessages.speakerSourceLabel)}
               <Styled.DeviceSelectorSelect
                 id="outputDeviceSelector"
-                value={outputDeviceId}
+                deviceId={outputDeviceId}
                 kind="audiooutput"
                 blocked={deviceSelectorsBlocked}
                 onChange={this.handleOutputChange}
