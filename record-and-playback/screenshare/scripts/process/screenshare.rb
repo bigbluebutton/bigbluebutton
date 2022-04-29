@@ -84,7 +84,7 @@ begin
   logger.info "Generating video events list"
 
   # Webcams
-  webcam_edl = BigBlueButton::Events.create_webcam_edl(events, raw_archive_dir)
+  webcam_edl = BigBlueButton::Events.create_webcam_edl(events, raw_archive_dir, props['showModeratorViewpoint'])
   logger.debug "Webcam EDL:"
   BigBlueButton::EDL::Video.dump(webcam_edl)
 
