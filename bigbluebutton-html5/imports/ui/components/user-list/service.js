@@ -213,7 +213,7 @@ const getUsers = () => {
 };
 
 const formatUsers = (contextUsers, videoUsers, whiteboardUsers) => {
-  let users = contextUsers.filter((user) => !user.loggedOut);
+  let users = contextUsers.filter((user) => user.loggedOut === false && user.left === false);
 
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
   if (currentUser && currentUser.role === ROLE_VIEWER && currentUser.locked) {
