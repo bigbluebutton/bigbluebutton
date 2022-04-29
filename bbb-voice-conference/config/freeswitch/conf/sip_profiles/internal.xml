@@ -1,3 +1,20 @@
+<!-- SIP clients send FreeSWITCH a list of their IP addresses, from which -->
+<!-- one address will be selected for use.  Which one depends on how the client -->
+<!-- connected - connections from a private address space should use -->
+<!-- the private address; connections from a public address should use -->
+<!-- the public address.  Since BigBlueButton runs SIP through nginx as a proxy, -->
+<!-- FreeSWITCH can't determine on its own how the client connected. -->
+
+<!-- Therefore, two different FreeSWITCH profiles are used, listening on -->
+<!-- different TCP ports for connections from localhost's nginx. -->
+
+<!-- This is the "internal" profile, listening for WS on port 5068 -->
+<!-- and WSS on port 7445, used for connections from private IP addresses. -->
+
+<!-- apply-candidate-acl prefers private IP addresses (rfc1918) -->
+<!-- ext-rtp-ip and ext-sip-ip are set to this server's private address -->
+<!-- local-network-acl is set to localnet.auto (local network is local; everything else is NAT) -->
+
 <profile name="internal">
   <!-- http://wiki.freeswitch.org/wiki/Sofia_Configuration_Files -->
   <!-- This profile is only for outbound registrations to providers -->
