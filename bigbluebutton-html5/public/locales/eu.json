@@ -564,6 +564,7 @@
     "app.audio.audioSettings.descriptionLabel": "Kontuan izan zure nabigatzailean mikrofonoa partekatzeko eskatuko dizun mezu bat agertuko dela.",
     "app.audio.audioSettings.microphoneSourceLabel": "Mikrofonoaren jatorria",
     "app.audio.audioSettings.speakerSourceLabel": "Bozgorailuen jatorria",
+    "app.audio.audioSettings.testSpeakerLabel": "Probatu zure bozgorailua",
     "app.audio.audioSettings.microphoneStreamLabel": "Zure audioaren bolumena",
     "app.audio.audioSettings.retryLabel": "Saiatu berriro",
     "app.audio.listenOnly.backLabel": "Atzera",
@@ -682,6 +683,10 @@
     "app.shortcut-help.toggleFullscreen": "Aldatu pantaila osoa (aurkezlea)",
     "app.shortcut-help.nextSlideDesc": "Hurrengo diapositiba (aurkezlea)",
     "app.shortcut-help.previousSlideDesc": "Aurreko diapositiba (aurkezlea)",
+    "app.shortcut-help.togglePanKey": "Zuriune-barra",
+    "app.shortcut-help.toggleFullscreenKey": "Sartu",
+    "app.shortcut-help.nextSlideKey": "Eskuin gezia",
+    "app.shortcut-help.previousSlideKey": "Ezker gezia",
     "app.lock-viewers.title": "Blokeatu ikusleak",
     "app.lock-viewers.description": "Aukera hauen bidez ikusleen eginbide zehatzak murriztu ditzakezu.",
     "app.lock-viewers.featuresLable": "Eginbidea",
@@ -1038,15 +1043,17 @@
     "app.learningDashboard.statusTimelineTable.thumbnail": "Aurkezpenaren miniaturak",
     "app.learningDashboard.errors.invalidToken": "Saioaren token baliogabea",
     "app.learningDashboard.errors.dataUnavailable": "Datuak ez daude eskuragarri",
-    "mobileApp.portals.list.empty.label": "Gehitu atariak.",
-    "mobileApp.portals.list.add.button.label": "Atari berria",
+    "mobileApp.portals.list.empty.addFirstPortal.label": "Gehitu zure lehen ataria goiko botoia erabiliz,",
+    "mobileApp.portals.list.empty.orUseOurDemoServer.label": "edo erabili gure demo zerbitzaria.",
+    "mobileApp.portals.list.add.button.label": "Gehitu ataria",
     "mobileApp.portals.fields.name.label": "Atariaren izena",
     "mobileApp.portals.fields.name.placeholder": "BigBlueButton demo",
     "mobileApp.portals.fields.url.label": "Zerbitzariaren URLa",
-    "mobileApp.portals.addPortalPopup.confirm.button.label": "Gehitu ataria",
+    "mobileApp.portals.addPortalPopup.confirm.button.label": "Gorde",
     "mobileApp.portals.drawerNavigation.button.label": "Atariak",
-    "mobileApp.portals.addPortalPopup.validation.emptyFilds": "Eremu hutsak",
-    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Izen hori dagoeneko badago"
+    "mobileApp.portals.addPortalPopup.validation.emptyFields": "Beharrezko eremuak",
+    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Dagoeneko erabiltzen ari den izena",
+    "mobileApp.portals.addPortalPopup.validation.urlInvalid": "Errore bat gertatu da orria kargatzen saiatzean. Egiaztatu URLa eta sareko konexioa"
 
 }
 

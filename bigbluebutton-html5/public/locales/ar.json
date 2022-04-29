@@ -683,6 +683,10 @@
     "app.shortcut-help.toggleFullscreen": "تبديل الشاشة الكاملة (مقدم)",
     "app.shortcut-help.nextSlideDesc": "الشريحة التالية (مقدم)",
     "app.shortcut-help.previousSlideDesc": "الشريحة السابقة (مقدم)",
+    "app.shortcut-help.togglePanKey": "مفتاح المسافة",
+    "app.shortcut-help.toggleFullscreenKey": "مفتاح ألإدخال",
+    "app.shortcut-help.nextSlideKey": "مفتاح السهم الأيمن",
+    "app.shortcut-help.previousSlideKey": "مفتاح السهم الأيسر",
     "app.lock-viewers.title": "قفل المشاهدين",
     "app.lock-viewers.description": "تمكنك هذه الخيارات من تقييد المشاهدين من استخدام ميزات محددة.",
     "app.lock-viewers.featuresLable": "ميزة",
@@ -1039,15 +1043,17 @@
     "app.learningDashboard.statusTimelineTable.thumbnail": "صورة مصغرة للعرض",
     "app.learningDashboard.errors.invalidToken": "رمز جلسة غير صالح",
     "app.learningDashboard.errors.dataUnavailable": "البيانات لم تعد متوفرة",
-    "mobileApp.portals.list.empty.label": "الرجاء إضافة بوابات.",
-    "mobileApp.portals.list.add.button.label": "بوابة جديدة",
+    "mobileApp.portals.list.empty.addFirstPortal.label": "أضف بوابتك الخاصة باستخدام الزر أعلاه ،",
+    "mobileApp.portals.list.empty.orUseOurDemoServer.label": "أو استخدم خادمنا التجريبي.",
+    "mobileApp.portals.list.add.button.label": "أضف بوابة",
     "mobileApp.portals.fields.name.label": "اسم البوابة",
     "mobileApp.portals.fields.name.placeholder": "BigBlueButton التجريبي",
     "mobileApp.portals.fields.url.label": "عنوان رابط للخادم",
-    "mobileApp.portals.addPortalPopup.confirm.button.label": "أضف بوابة",
+    "mobileApp.portals.addPortalPopup.confirm.button.label": "حفظ",
     "mobileApp.portals.drawerNavigation.button.label": "البوابات",
-    "mobileApp.portals.addPortalPopup.validation.emptyFilds": "الحقول الفارغة",
-    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "الاسم موجود بالفعل"
+    "mobileApp.portals.addPortalPopup.validation.emptyFields": "حقول مطلوبة",
+    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "الاسم مستخدم",
+    "mobileApp.portals.addPortalPopup.validation.urlInvalid": "حدث خطأ أثناء محاولة تحميل الصفحة - تحقق من الرابط واتصال الشبكة"
 
 }
 

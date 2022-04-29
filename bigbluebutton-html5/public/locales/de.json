@@ -683,6 +683,10 @@
     "app.shortcut-help.toggleFullscreen": "Vollbild umschalten (Präsentator)",
     "app.shortcut-help.nextSlideDesc": "Nächste Folie (Präsentator)",
     "app.shortcut-help.previousSlideDesc": "Vorherige Folie (Präsentator)",
+    "app.shortcut-help.togglePanKey": "Leertaste",
+    "app.shortcut-help.toggleFullscreenKey": "Enter",
+    "app.shortcut-help.nextSlideKey": "Pfeil rechts",
+    "app.shortcut-help.previousSlideKey": "Pfeil links",
     "app.lock-viewers.title": "Teilnehmerrechte einschränken",
     "app.lock-viewers.description": "Diese Optionen ermöglichen es, bestimmte Funktionen für Teilnehmer einzuschränken.",
     "app.lock-viewers.featuresLable": "Funktion",
@@ -839,7 +843,7 @@
     "app.whiteboard.toolbar.color.orange": "Orange",
     "app.whiteboard.toolbar.color.eletricLime": "Gelbgrün",
     "app.whiteboard.toolbar.color.lime": "Hellgrün",
-    "app.whiteboard.toolbar.color.cyan": "Cyan",
+    "app.whiteboard.toolbar.color.cyan": "Türkis",
     "app.whiteboard.toolbar.color.dodgerBlue": "Hellblau",
     "app.whiteboard.toolbar.color.blue": "Blau",
     "app.whiteboard.toolbar.color.violet": "Violett",
@@ -1039,15 +1043,17 @@
     "app.learningDashboard.statusTimelineTable.thumbnail": "Vorschaubild der Präsentation",
     "app.learningDashboard.errors.invalidToken": "Ungültiger Konferenz-Token",
     "app.learningDashboard.errors.dataUnavailable": "Die Daten sind nicht mehr verfügbar",
-    "mobileApp.portals.list.empty.label": "Bitte Portale hinzufügen.",
-    "mobileApp.portals.list.add.button.label": "Neues Portal",
+    "mobileApp.portals.list.empty.addFirstPortal.label": "Fügen Sie Ihr erstes Portal über die Schaltfläche oben hinzu,",
+    "mobileApp.portals.list.empty.orUseOurDemoServer.label": "oder nutzen Sie unseren Demo-Server.",
+    "mobileApp.portals.list.add.button.label": "Portal hinzufügen",
     "mobileApp.portals.fields.name.label": "Portalname",
     "mobileApp.portals.fields.name.placeholder": "BigBlueButton Demo",
     "mobileApp.portals.fields.url.label": "Server-URL",
-    "mobileApp.portals.addPortalPopup.confirm.button.label": "Portal hinzufügen",
+    "mobileApp.portals.addPortalPopup.confirm.button.label": "Speichern",
     "mobileApp.portals.drawerNavigation.button.label": "Portale",
-    "mobileApp.portals.addPortalPopup.validation.emptyFilds": "Leere Felder",
-    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Name existiert bereits"
+    "mobileApp.portals.addPortalPopup.validation.emptyFields": "Benötigte Felder",
+    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Name wird bereits verwendet",
+    "mobileApp.portals.addPortalPopup.validation.urlInvalid": "Fehler beim Laden der Seite - URL und Netzwerkverbindung prüfen"
 
 }
 
