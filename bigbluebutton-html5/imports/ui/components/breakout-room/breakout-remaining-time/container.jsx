@@ -104,6 +104,7 @@ export default injectNotify(injectIntl(withTracker(({
   messageDuration,
   timeEndedMessage,
   fromBreakoutPanel,
+  displayAlerts,
 }) => {
   const data = {};
   if (breakoutRoom) {
@@ -130,7 +131,7 @@ export default injectNotify(injectIntl(withTracker(({
       const time = getTimeRemaining();
       const alertsInSeconds = REMAINING_TIME_ALERT_THRESHOLD_ARRAY.map((item) => item * 60);
 
-      if (alertsInSeconds.includes(time) && time !== lastAlertTime) {
+      if (alertsInSeconds.includes(time) && time !== lastAlertTime && displayAlerts) {
         const timeInMinutes = time / 60;
         const msg = { id: `${intlMessages.alertBreakoutEndsUnderMinutes.id}${timeInMinutes === 1 ? 'Singular' : 'Plural'}` };
         const alertMessage = intl.formatMessage(msg, { 0: timeInMinutes })

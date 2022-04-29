@@ -180,6 +180,7 @@ export default injectIntl(withTracker(({ intl }) => {
           breakoutRoom={currentBreakout}
           messageDuration={intlMessages.breakoutTimeRemaining}
           timeEndedMessage={intlMessages.breakoutWillClose}
+          displayAlerts={true}
         />
       );
     }
@@ -200,6 +201,7 @@ export default injectIntl(withTracker(({ intl }) => {
           breakoutRoom={meetingTimeRemaining}
           messageDuration={intlMessages.meetingTimeRemaining}
           timeEndedMessage={intlMessages.meetingWillClose}
+          displayAlerts={true}
         />
       );
     }
