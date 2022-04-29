@@ -116,7 +116,6 @@ class RedisRecorderActor(
       case m: RecordStatusResetSysMsg               => handleRecordStatusResetSysMsg(m)
       case m: WebcamsOnlyForModeratorChangedEvtMsg  => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
       case m: MeetingEndingEvtMsg                   => handleEndAndKickAllSysMsg(m)
-      //      case m: BroadcastConfReqMsg                   => handleBroadcastConfigRespMsg(m)
       case m: MeetingCreatedEvtMsg                  => handleStarterConfigurations(m)
 
       // Recording
