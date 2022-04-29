@@ -112,9 +112,7 @@ export default {
   changeInputStream: (newInputStream) => { AudioManager.inputStream = newInputStream; },
   liveChangeInputDevice: (inputDeviceId) => AudioManager.liveChangeInputDevice(inputDeviceId),
   changeOutputDevice: (outputDeviceId, isLive) => {
-    if (AudioManager.outputDeviceId !== outputDeviceId) {
-      AudioManager.changeOutputDevice(outputDeviceId, isLive);
-    }
+    AudioManager.changeOutputDevice(outputDeviceId, isLive);
   },
   isConnected: () => AudioManager.isConnected,
   isTalking: () => AudioManager.isTalking,
