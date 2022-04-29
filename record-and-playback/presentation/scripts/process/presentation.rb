@@ -225,7 +225,7 @@ unless FileTest.directory?(target_dir)
 
       webcam_framerate = 15 if webcam_framerate.nil?
       processed_audio_file = BigBlueButton::AudioProcessor.get_processed_audio_file(raw_archive_dir, "#{target_dir}/audio")
-      BigBlueButton.process_webcam_videos(target_dir, raw_archive_dir, webcam_width, webcam_height, webcam_framerate, presentation_props['audio_offset'], processed_audio_file, presentation_props['video_formats'])
+      BigBlueButton.process_webcam_videos(target_dir, raw_archive_dir, webcam_width, webcam_height, webcam_framerate, presentation_props['audio_offset'], processed_audio_file, presentation_props['video_formats'], presentation_props['showModeratorViewpoint'])
     end
 
     if !Dir["#{raw_archive_dir}/deskshare/*"].empty? && presentation_props['include_deskshare']
