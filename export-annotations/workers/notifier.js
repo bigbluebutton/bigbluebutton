@@ -4,15 +4,16 @@ const fs = require('fs');
 const FormData = require('form-data');
 const redis = require('redis');
 const axios = require('axios').default;
+const path = require('path');
 
 const { workerData, parentPort } = require('worker_threads')
 
-const [jobType, jobId] = workerData;
+const [jobType, jobId, filename] = workerData;
 
 const logger = new Logger('presAnn Notifier Worker');
 
 const dropbox = `${config.shared.presAnnDropboxDir}/${jobId}`
-let job = fs.readFileSync(`${dropbox}/job`);
+let job = fs.readFileSync(path.join(dropbox, 'job'));
 let exportJob = JSON.parse(job);
 
 async function notifyMeetingActor() {
@@ -25,7 +26,7 @@ async function notifyMeetingActor() {
     await client.connect();
     client.on('error', (err) => logger.info('Redis Client Error', err));
 
-    let link = `${config.notifier.protocol}://${config.notifier.host}/bigbluebutton/presentation/${exportJob.parentMeetingId}/${exportJob.parentMeetingId}/${exportJob.presId}/pdf/${jobId}`;
+    let link = `${config.notifier.protocol}://${config.notifier.host}/bigbluebutton/presentation/${exportJob.parentMeetingId}/${exportJob.parentMeetingId}/${exportJob.presId}/pdf/${jobId}/${filename}`;
     // Notify Meeting Actor of file availability by sending a message through Redis PubSub
     const notification = {
         envelope: {
@@ -56,13 +57,10 @@ async function upload(exportJob) {
     let callbackUrl = `http://${config.bbbWeb.host}:${config.bbbWeb.port}/bigbluebutton/presentation/${exportJob.presentationUploadToken}/upload`
     let formData = new FormData();
 
-    formData.append('presentation_name', 'annotated_slides.pdf');
-    formData.append('Filename', 'annotated_slides');
     formData.append('conference', exportJob.parentMeetingId);
-    formData.append('room', exportJob.parentMeetingId);
     formData.append('pod_id', config.notifier.pod_id);
     formData.append('is_downloadable', config.notifier.is_downloadable);
-    formData.append('fileUpload', fs.createReadStream(`${exportJob.presLocation}/pdfs/annotated_slides_${jobId}.pdf`));
+    formData.append('fileUpload', fs.createReadStream(`${exportJob.presLocation}/pdfs/${jobId}/${filename}.pdf`));
 
     let res = await axios.post(callbackUrl, formData, { headers: formData.getHeaders() });
     logger.info(`Upload of job ${exportJob.jobId} returned ${res.data}`);

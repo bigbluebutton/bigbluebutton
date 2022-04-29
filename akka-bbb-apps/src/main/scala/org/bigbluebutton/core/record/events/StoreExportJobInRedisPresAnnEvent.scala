@@ -35,6 +35,14 @@ class StoreExportJobInRedisPresAnnEvent extends AbstractPresentationWithAnnotati
     eventMap.put(JOB_TYPE, jobType)
   }
 
+  def setMeetingName(meetingName: String) {
+    eventMap.put(MEETING_NAME, meetingName)
+  }
+
+  def setPresName(presName: String) {
+    eventMap.put(PRES_NAME, presName)
+  }
+
   def setPresId(presId: String) {
     eventMap.put(PRES_ID, presId)
   }
@@ -63,6 +71,8 @@ class StoreExportJobInRedisPresAnnEvent extends AbstractPresentationWithAnnotati
 object StoreExportJobInRedisPresAnnEvent {
   protected final val JOB_ID = "jobId"
   protected final val JOB_TYPE = "jobType"
+  protected final val MEETING_NAME = "meetingName"
+  protected final val PRES_NAME = "presName"
   protected final val PRES_ID = "presId"
   protected final val PRES_LOCATION = "presLocation"
   protected final val ALL_PAGES = "allPages"

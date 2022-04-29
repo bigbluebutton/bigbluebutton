@@ -21,6 +21,8 @@ case class StoredAnnotations(
 case class ExportJob(
   jobId: String,
   jobType: String,
+  meetingName: String,
+  presName: String,
   presId: String,
   presLocation: String,
   allPages: Boolean,

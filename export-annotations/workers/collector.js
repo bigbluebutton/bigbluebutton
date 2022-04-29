@@ -3,8 +3,8 @@ const config = require('../config');
 const fs = require('fs');
 const redis = require('redis');
 const { execSync } = require("child_process");
-
 const { Worker, workerData, parentPort } = require('worker_threads')
+const path = require('path');
 
 const jobId = workerData;
 
@@ -23,10 +23,10 @@ const kickOffProcessWorker = (jobId) => {
   })
 }
 
-let dropbox = `${config.shared.presAnnDropboxDir}/${jobId}`
+let dropbox = path.join(config.shared.presAnnDropboxDir, jobId);
 
 // Takes the Job from the dropbox
-let job = fs.readFileSync(`${dropbox}/job`);
+let job = fs.readFileSync(path.join(dropbox, 'job'));
 let exportJob = JSON.parse(job);
 
 // Collect the annotations from Redis
@@ -51,17 +51,17 @@ let exportJob = JSON.parse(job);
     let whiteboard = JSON.parse(annotations);
     let pages = JSON.parse(whiteboard.pages);
     
-    fs.writeFile(`${dropbox}/whiteboard`, annotations, function(err) {
+    fs.writeFile(path.join(dropbox, 'whiteboard'), annotations, function(err) {
       if(err) { return logger.error(err); }
     });
 
     // Collect the Presentation Page files from the presentation directory
-    let path = `${exportJob.presLocation}/${exportJob.presId}`;
-    let pdfFileExists = fs.existsSync(`${path}.pdf`);
+    let presentationFile = path.join(exportJob.presLocation, exportJob.presId);
+    let pdfFileExists = fs.existsSync(`${presentationFile}.pdf`);
 
     for (let p of pages) {
       let pageNumber = p.page;
-      let file = `${dropbox}/slide${pageNumber}`;
+      let outputFile = path.join(dropbox, `slide${pageNumber}`);
 
       if(pdfFileExists) {
         let extactSlideAsPDFCommands = [
@@ -70,8 +70,8 @@ let exportJob = JSON.parse(job);
           '-f', pageNumber,
           '-l', pageNumber,
           '-singlefile',
-          `${path}.pdf`,
-          file
+          `${presentationFile}.pdf`,
+          outputFile
         ].join(' ');
   
         execSync(extactSlideAsPDFCommands, (error, stderr) => {
@@ -85,19 +85,19 @@ let exportJob = JSON.parse(job);
         })
       }
 
-      else if (fs.existsSync(`${path}.png`)) {
-        fs.copyFileSync(`${path}.png`, `${file}.png`);
+      else if (fs.existsSync(`${presentationFile}.png`)) {
+        fs.copyFileSync(`${presentationFile}.png`, `${outputFile}.png`);
       }
       
-      else if (fs.existsSync(`${path}.jpeg`)) {
+      else if (fs.existsSync(`${presentationFile}.jpeg`)) {
         let convertImageToPngCommands = [
           'convert',
-          `${path}.jpeg`,
+          `${presentationFile}.jpeg`,
           '-background', 'white',
           '-resize', '1600x1600',
           '-auto-orient',
           '-flatten',
-          `${file}.png`
+          `${outputFile}.png`
         ].join(' ');
 
         execSync(convertImageToPngCommands, (error, stderr) => {

@@ -5,6 +5,8 @@ const sizeOf = require('image-size');
 const { create } = require('xmlbuilder2', { encoding: 'utf-8' });
 const { execSync } = require("child_process");
 const { Worker, workerData, parentPort } = require('worker_threads');
+const path = require('path');
+const sanitize = require("sanitize-filename");
 
 const jobId = workerData;
 const MAGIC_MYSTERY_NUMBER = 2;
@@ -12,9 +14,9 @@ const MAGIC_MYSTERY_NUMBER = 2;
 const logger = new Logger('presAnn Process Worker');
 logger.info("Processing PDF for job " + jobId);
 
-const kickOffNotifierWorker = (jobType) => {
+const kickOffNotifierWorker = (jobType, sanitizedFilename) => {
     return new Promise((resolve, reject) => {
-        const worker = new Worker('./workers/notifier.js', { workerData: [jobType, jobId] });
+        const worker = new Worker('./workers/notifier.js', { workerData: [jobType, jobId, sanitizedFilename] });
         worker.on('message', resolve);
         worker.on('error', reject);
         worker.on('exit', (code) => {
@@ -43,7 +45,7 @@ function render_HTMLTextBox(htmlFilePath, id, width, height) {
         '--crop-h', height,
         '--log-level', 'none',
         '--quality', '100',
-        htmlFilePath, `${dropbox}/text${id}.png`
+        htmlFilePath, path.join(dropbox, `text${id}.png`)
     ]
 
     execSync(commands.join(' '), (error, stderr) => {
@@ -176,8 +178,8 @@ function overlay_poll(svg, annotation, w, h) {
     let poll_width = Math.round(scale_shape(w, annotation.points[2]));
     let poll_height = Math.round(scale_shape(h, annotation.points[3]));
     let pollId = annotation.id.replace(/\//g, '');
-    let pollSVG = `${dropbox}/poll-${pollId}.svg`
-    let pollJSON = `${dropbox}/poll-${pollId}.json`
+    let pollSVG = path.join(dropbox, `poll-${pollId}.svg`);
+    let pollJSON = path.join(dropbox, `poll-${pollId}.json`);
 
     // Rename 'numVotes' key to 'num_votes'
     let pollJSONContent = annotation.result.map(result => {
@@ -281,7 +283,7 @@ function overlay_text(svg, annotation, w, h) {
             </p>
         </html>`;
     
-    var htmlFilePath = `${dropbox}/text${annotation.id}.html`
+    var htmlFilePath = path.join(dropbox, `text${annotation.id}.html`)
 
     fs.writeFileSync(htmlFilePath, html, function (err) {
         if (err) logger.error(err)
@@ -331,19 +333,19 @@ function overlay_annotations(svg, currentSlideAnnotations, w, h) {
 // Process the presentation pages and annotations into a PDF file
 
 // 1. Get the job
-const dropbox = `${config.shared.presAnnDropboxDir}/${jobId}`
-let job = fs.readFileSync(`${dropbox}/job`);
+const dropbox = path.join(config.shared.presAnnDropboxDir, jobId);
+let job = fs.readFileSync(path.join(dropbox, 'job'));
 let exportJob = JSON.parse(job);
 
 // 2. Get the annotations
-let annotations = fs.readFileSync(`${dropbox}/whiteboard`);
+let annotations = fs.readFileSync(path.join(dropbox, 'whiteboard'));
 let whiteboard = JSON.parse(annotations);
 let pages = JSON.parse(whiteboard.pages);
 let ghostScriptInput = ""
 
 // 3. Convert annotations to SVG
 for (let currentSlide of pages) {
-    var dimensions = sizeOf(`${dropbox}/slide${currentSlide.page}.png`);
+    var dimensions = sizeOf(path.join(dropbox, `slide${currentSlide.page}.png`));
     var slideWidth = dimensions.width;
     var slideHeight = dimensions.height;
 
@@ -381,8 +383,8 @@ for (let currentSlide of pages) {
 
     svg = svg.end({ prettyPrint: true });
     // Write annotated SVG file
-    let SVGfile = `${dropbox}/annotated-slide${currentSlide.page}.svg`
-    let PDFfile = `${dropbox}/annotated-slide${currentSlide.page}.pdf`
+    let SVGfile = path.join(dropbox, `annotated-slide${currentSlide.page}.svg`)
+    let PDFfile = path.join(dropbox, `annotated-slide${currentSlide.page}.pdf`)
 
     fs.writeFileSync(SVGfile, svg, function(err) {
         if(err) { return logger.error(err); }
@@ -408,14 +410,16 @@ for (let currentSlide of pages) {
 }
 
 // Create PDF output directory if it doesn't exist
-let output_dir = `${exportJob.presLocation}/pdfs`;
-if (!fs.existsSync(output_dir)) { fs.mkdirSync(output_dir); }
+let output_dir = path.join(exportJob.presLocation, 'pdfs', jobId);
+let filename = sanitize(`annotated_${exportJob.meetingName}_${path.parse(exportJob.presName).name}`).replace(/\s/g, '_');
+
+if (!fs.existsSync(output_dir)) { fs.mkdirSync(output_dir, { recursive: true }); }
 
 let mergePDFs = [
     'gs',
     '-dNOPAUSE',
     '-sDEVICE=pdfwrite',
-    `-sOUTPUTFILE=${output_dir}/annotated_slides_${jobId}.pdf`,
+    `-sOUTPUTFILE="${path.join(output_dir, `${filename}.pdf`)}"`,
     `-dBATCH`,
     ghostScriptInput,
     ].join(' ');
@@ -432,8 +436,8 @@ execSync(mergePDFs, (error, stderr) => {
 });
 
 // Launch Notifier Worker depending on job type
-logger.info(`Saved PDF at ${output_dir}/annotated_slides_${jobId}.pdf`);
+logger.info(`Saved PDF at ${output_dir}/${jobId}/${filename}.pdf`);
 
-kickOffNotifierWorker(exportJob.jobType);
+kickOffNotifierWorker(exportJob.jobType, filename);
 
 parentPort.postMessage({ message: workerData })

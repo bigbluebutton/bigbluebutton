@@ -753,6 +753,7 @@ class MeetingActor(
   def handleMakePresentationWithAnnotationDownloadReqMsg(m: MakePresentationWithAnnotationDownloadReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
+    val meetingName: String = liveMeeting.props.meetingProp.name
 
     // Whiteboard ID
     val presId: String = m.body.presId match {
@@ -765,18 +766,31 @@ class MeetingActor(
 
     // Determine page amount
     val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
-    val currentPres = presentationPods.flatMap(_.getCurrentPresentation()).head
 
-    val pageCount = currentPres.pages.size
+    val currentPres = presentationPods.flatMap(_.getCurrentPresentation()).headOption
+
+    currentPres match {
+      case None =>
+        log.error(s"No presentation set in meeting ${meetingId}")
+        return
+      case _ => ()
+    }
+
+    val pageCount = currentPres.get.pages.size
     val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else pages
 
     var storeAnnotationPages = new Array[PresentationPageForExport](pagesRange.size)
     var resultingPage = 0
 
     for (pageNumber <- pagesRange) {
+      if (pageNumber < 1 || pageNumber > pageCount) {
+        println(pagesRange.length)
+        log.error(s"Page ${pageNumber} requested for export out of range, aborting")
+        return
+      }
 
       var whiteboardId = s"${presId}/${pageNumber.toString}"
-      val presentationPage: PresentationPage = currentPres.pages(whiteboardId)
+      val presentationPage: PresentationPage = currentPres.get.pages(whiteboardId)
       val xOffset: Double = presentationPage.xOffset
       val yOffset: Double = presentationPage.yOffset
       val widthRatio: Double = presentationPage.widthRatio
@@ -796,7 +810,7 @@ class MeetingActor(
     // 2) Insert Export Job in Redis
     val jobType = "PresentationWithAnnotationDownloadJob"
     val presLocation = s"/var/bigbluebutton/${meetingId}/${meetingId}/${presId}"
-    val exportJob = new ExportJob(jobId, jobType, presId, presLocation, allPages, pagesRange, meetingId, "")
+    val exportJob = new ExportJob(jobId, jobType, meetingName, currentPres.get.name, presId, presLocation, allPages, pagesRange, meetingId, "")
     var job = buildStoreExportJobInRedisSysMsg(exportJob)
     outGW.send(job)
   }
@@ -804,25 +818,33 @@ class MeetingActor(
   def handleExportPresentationWithAnnotationReqMsg(m: ExportPresentationWithAnnotationReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
+    val meetingName: String = liveMeeting.props.meetingProp.name
     val userId = m.header.userId
     val presId: String = getMeetingInfoPresentationDetails.id
     val parentMeetingId: String = m.body.parentMeetingId
     val allPages: Boolean = m.body.allPages
 
     val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
-    val currentPres = presentationPods.flatMap(_.getCurrentPresentation()).head
-    val currentPage: PresentationPage = PresentationInPod.getCurrentPage(currentPres).get
+    val currentPres = presentationPods.flatMap(_.getCurrentPresentation()).headOption
 
-    val pageCount = currentPres.pages.size
+    currentPres match {
+      case None =>
+        log.error(s"No presentation set in meeting ${meetingId}")
+        return
+      case _ => ()
+    }
+
+    val currentPage: PresentationPage = PresentationInPod.getCurrentPage(currentPres.get).get
+
+    val pageCount = currentPres.get.pages.size
     val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else List(currentPage.num)
 
     var storeAnnotationPages = new Array[PresentationPageForExport](pagesRange.size)
     var resultingPage = 0
 
     for (pageNumber <- pagesRange) {
-
       var whiteboardId = s"${presId}/${pageNumber.toString}"
-      val presentationPage: PresentationPage = currentPres.pages(whiteboardId)
+      val presentationPage: PresentationPage = currentPres.get.pages(whiteboardId)
       val xOffset: Double = presentationPage.xOffset
       val yOffset: Double = presentationPage.yOffset
       val widthRatio: Double = presentationPage.widthRatio
@@ -837,7 +859,7 @@ class MeetingActor(
     val jobId = RandomStringGenerator.randomAlphanumericString(16)
 
     // Informs bbb-web about the token so that when we use it to upload the presentation, it is able to look it up in the list of tokens
-    outGW.send(buildPresentationUploadTokenSysPubMsg(parentMeetingId, userId, presentationUploadToken, currentPres.name))
+    outGW.send(buildPresentationUploadTokenSysPubMsg(parentMeetingId, userId, presentationUploadToken, currentPres.get.name))
 
     // 1) Send Annotations to Redis
     var annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
@@ -846,7 +868,7 @@ class MeetingActor(
     // 2) Insert Export Job in Redis
     val jobType: String = "PresentationWithAnnotationExportJob"
     val presLocation = s"/var/bigbluebutton/${meetingId}/${meetingId}/${presId}"
-    val exportJob = new ExportJob(jobId, jobType, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
+    val exportJob = new ExportJob(jobId, jobType, meetingName, currentPres.get.name, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
     var job = buildStoreExportJobInRedisSysMsg(exportJob)
     outGW.send(job)
   }

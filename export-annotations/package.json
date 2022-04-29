@@ -10,6 +10,7 @@
     "form-data": "^4.0.0",
     "image-size": "^1.0.1",
     "redis": "^4.0.3",
+    "sanitize-filename": "^1.6.3",
     "xmlbuilder2": "^3.0.2"
   }
 }
