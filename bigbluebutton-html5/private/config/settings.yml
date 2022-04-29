@@ -77,7 +77,7 @@ public:
       threshold: -50
       duration: 4000
     remainingTimeThreshold: 30
-    remainingTimeAlertThreshold: 1
+    remainingTimeAlertThresholdArray: [1,5]
     enableDebugWindow: true
     # Warning: increasing the limit of breakout rooms per meeting
     # can generate excessive overhead to the server. We recommend
