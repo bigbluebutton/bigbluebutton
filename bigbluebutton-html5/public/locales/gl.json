@@ -683,6 +683,10 @@
     "app.shortcut-help.toggleFullscreen": "Alternar a pantalla completa (presentador)",
     "app.shortcut-help.nextSlideDesc": "Diapositiva seguinte (Presentador)",
     "app.shortcut-help.previousSlideDesc": "Diapositiva anterior (Presentador)",
+    "app.shortcut-help.togglePanKey": "Barra espazadora",
+    "app.shortcut-help.toggleFullscreenKey": "Intro",
+    "app.shortcut-help.nextSlideKey": "Frecha dereita",
+    "app.shortcut-help.previousSlideKey": "Frecha esquerda",
     "app.lock-viewers.title": "Bloquear aos espectadores",
     "app.lock-viewers.description": "Estas opcións permítenlle restrinxir aos espectadores o uso de funcións específicas.",
     "app.lock-viewers.featuresLable": "Función",
@@ -1039,15 +1043,17 @@
     "app.learningDashboard.statusTimelineTable.thumbnail": "Miniatura da presentación",
     "app.learningDashboard.errors.invalidToken": "O testemuño de sesión non é válido",
     "app.learningDashboard.errors.dataUnavailable": "Os datos xa non están dispoñíbeis",
-    "mobileApp.portals.list.empty.label": "Engada portais.",
-    "mobileApp.portals.list.add.button.label": "Novo portal",
+    "mobileApp.portals.list.empty.addFirstPortal.label": "Engada o seu primeiro portal usando o botón anterior,",
+    "mobileApp.portals.list.empty.orUseOurDemoServer.label": "ou use o noso servidor de demostración.",
+    "mobileApp.portals.list.add.button.label": "Engadir portal",
     "mobileApp.portals.fields.name.label": "Nome do portal",
     "mobileApp.portals.fields.name.placeholder": "Demostración de BigBlueButton",
     "mobileApp.portals.fields.url.label": "URL do servidor",
-    "mobileApp.portals.addPortalPopup.confirm.button.label": "Engadir portal",
+    "mobileApp.portals.addPortalPopup.confirm.button.label": "Gardar",
     "mobileApp.portals.drawerNavigation.button.label": "Portais",
-    "mobileApp.portals.addPortalPopup.validation.emptyFilds": "Campos baleiros",
-    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Ese nome xa existe"
+    "mobileApp.portals.addPortalPopup.validation.emptyFields": "Campos obrigatorios",
+    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Ese nome xa está a ser usado",
+    "mobileApp.portals.addPortalPopup.validation.urlInvalid": "Produciuse un erro ao tentar cargar a páxina. Comprobe o URL e a conexión de rede"
 
 }
 
