@@ -105,8 +105,8 @@
     <param name="tls-verify-in-subjects" value=""/>
     <!-- TLS version ("sslv23" (default), "tlsv1"). NOTE: Phones may not work with TLSv1 -->
     <param name="tls-version" value="$${sip_tls_version}"/>
-    <param name="ws-binding"  value=":5066"/>
-    <param name="wss-binding"  value=":7443"/>
+    <param name="ws-binding"  value="127.0.0.1:5066"/>
+    <param name="wss-binding"  value="127.0.0.1:7443"/>
 
     <!-- enable rtcp on every channel also can be done per leg basis with rtcp_audio_interval_msec variable set to passthru to pass it across a call-->
     <param name="rtcp-audio-interval-msec" value="5000"/>
