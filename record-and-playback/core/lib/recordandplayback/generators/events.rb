@@ -174,23 +174,16 @@ module BigBlueButton
       blocked_webcams_periods
     end
 
-    def self.is_user_moderator(user_id, list_user_info, timestamp)
-      list_user_info.each do |user_info|
-        if user_id == user_info[:userId]
-          user_info[:moderator_periods].each do |period|
-            if !period[1].nil?
-              if timestamp >= period[0] && timestamp <= period[1]
-                return true
-              end
-            else
-              if timestamp >= period[0]
-                return true
-              end
-            end
-          end
+    def self.is_user_moderator(user_id, list_user_info)
+      user_role = list_user_info[user_id]
+      if !user_role.nil?
+        if user_role == "MODERATOR"
+          return true
+        else
           return false
         end
       end
+      return false
     end
 
     def self.is_timestamp_in_periods(list_period, timestamp)
@@ -226,10 +219,10 @@ module BigBlueButton
     def self.process_webcamsOnlyForModerator(timestamp, list_user_info, active_videos, inactive_videos, webcamsOnlyForModerator)
       
       if webcamsOnlyForModerator
-        list_user_info.each do |user_info|
+        list_user_info.each do |user_id, user_role|
           # If the user is a viewer:
-          if !BigBlueButton::Events.is_timestamp_in_periods(user_info[:moderator_periods], timestamp)
-            filename = BigBlueButton::Events.extract_filename_from_userId(user_info[:userId], active_videos)
+          if !BigBlueButton::Events.is_user_moderator(user_id, list_user_info)
+            filename = BigBlueButton::Events.extract_filename_from_userId(user_id, active_videos)
             if filename != ""
               active_videos.delete(filename)
               inactive_videos << filename
@@ -237,8 +230,7 @@ module BigBlueButton
           end
         end
       else
-        # If the WebcamsOnlyForModerator is false, all previously inactive videos are now active ones
-        # since all inactive videos are necessarily viewers'.
+        # If the WebcamsOnlyForModerator is false, all previously inactive videos will become active
         inactive_videos.each do |filename| 
           active_videos << filename
         end
@@ -266,10 +258,10 @@ module BigBlueButton
         :timestamp => 0,
         :areas => { :webcam => [] }
       }
-      list_user_info = BigBlueButton::Events.get_user_info(events)
+      list_user_info = {}
       list_forbidden_period = BigBlueButton::Events.block_webcams_periods(events)
 
-      events.xpath('/recording/event[@module="WEBCAM" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCShareEvent" or @eventname="StopWebRTCShareEvent")) or (@module="PARTICIPANT" and @eventname="ParticipantStatusChangeEvent") or @eventname="WebcamsOnlyForModeratorEvent"]').each do |event|
+      events.xpath('/recording/event[@module="WEBCAM" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCShareEvent" or @eventname="StopWebRTCShareEvent")) or (@module="PARTICIPANT" and (@eventname="ParticipantStatusChangeEvent" or @eventname="ParticipantJoinEvent")) or @eventname="WebcamsOnlyForModeratorEvent" or @eventname="MeetingConfigurationEvent"]').each do |event|
         timestamp = event['timestamp'].to_i - initial_timestamp
 
         # Determine the video filename if event is as the following
@@ -287,7 +279,9 @@ module BigBlueButton
         when 'StartWebcamShareEvent', 'StartWebRTCShareEvent'
           userId = BigBlueButton::Events.get_id_from_filename(filename)
           is_in_forbidden_period = BigBlueButton::Events.is_timestamp_in_periods(list_forbidden_period, event['timestamp'].to_i)
-          if (!is_in_forbidden_period) || (is_in_forbidden_period && BigBlueButton::Events.is_user_moderator(userId, list_user_info, event['timestamp'].to_i))
+
+          if (!is_in_forbidden_period) || (is_in_forbidden_period && BigBlueButton::Events.is_user_moderator(userId, list_user_info))
+            
             videos[filename] = { :timestamp => timestamp }
             active_videos << filename
 
@@ -300,11 +294,11 @@ module BigBlueButton
               edl_entry[:areas][:webcam] << {
                 :filename => filename,
                 :timestamp => timestamp - videos[filename][:timestamp],
-                :user_id => userId
+                :user_id => BigBlueButton::Events.get_id_from_filename(filename)
               }
             end
             video_edl << edl_entry
-          elsif is_in_forbidden_period && !BigBlueButton::Events.is_user_moderator(userId, list_user_info, event['timestamp'].to_i)
+          elsif is_in_forbidden_period && !BigBlueButton::Events.is_user_moderator(userId, list_user_info)
             inactive_videos << filename
             videos[filename] = { :timestamp => timestamp }
           end
@@ -312,7 +306,7 @@ module BigBlueButton
           userId = BigBlueButton::Events.get_id_from_filename(filename)
           is_in_forbidden_period = BigBlueButton::Events.is_timestamp_in_periods(list_forbidden_period, event['timestamp'].to_i)
 
-          if (!is_in_forbidden_period) || (is_in_forbidden_period && BigBlueButton::Events.is_user_moderator(userId, list_user_info, event['timestamp'].to_i))
+          if (!is_in_forbidden_period) || (is_in_forbidden_period && BigBlueButton::Events.is_user_moderator(userId, list_user_info))
             active_videos.delete(filename)
 
             edl_entry = {
@@ -327,9 +321,13 @@ module BigBlueButton
               }
             end
             video_edl << edl_entry
-          elsif is_in_forbidden_period && !BigBlueButton::Events.is_user_moderator(userId, list_user_info, event['timestamp'].to_i)
+          elsif is_in_forbidden_period && !BigBlueButton::Events.is_user_moderator(userId, list_user_info)
             inactive_videos.delete(filename)
           end
+        when "ParticipantJoinEvent"
+          user_id = event.at_xpath('userId').text
+          list_user_info[user_id] = event.at_xpath('role').text
+
         when "ParticipantStatusChangeEvent"
           is_in_forbidden_period = BigBlueButton::Events.is_timestamp_in_periods(list_forbidden_period, event['timestamp'].to_i)
           userId = ""
@@ -357,7 +355,6 @@ module BigBlueButton
                 end
                 video_edl << edl_entry
               end
-
             elsif is_in_forbidden_period && event.at_xpath('value').text == "VIEWER"
               filename_to_add = BigBlueButton::Events.extract_filename_from_userId(userId, active_videos)
               if filename != ""
@@ -378,7 +375,12 @@ module BigBlueButton
                 video_edl << edl_entry
               end
             end
+            user_id = event.at_xpath('userId').text
+            list_user_info[user_id] = event.at_xpath('value').text
           end
+
+        when "MeetingConfigurationEvent"
+
         when "WebcamsOnlyForModeratorEvent"
           # Change active and inactive videos.
           BigBlueButton::Events.process_webcamsOnlyForModerator(event['timestamp'].to_i, list_user_info, active_videos, inactive_videos, BigBlueButton::Events.to_boolean(event.at_xpath("webcamsOnlyForModerator").text))
