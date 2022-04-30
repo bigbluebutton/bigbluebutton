@@ -26,7 +26,7 @@ async function notifyMeetingActor() {
     await client.connect();
     client.on('error', (err) => logger.info('Redis Client Error', err));
 
-    let link = `${config.notifier.protocol}://${config.notifier.host}/bigbluebutton/presentation/${exportJob.parentMeetingId}/${exportJob.parentMeetingId}/${exportJob.presId}/pdf/${jobId}/${filename}`;
+    let link = `${config.notifier.protocol}://${config.notifier.host}/bigbluebutton/presentation/${exportJob.parentMeetingId}/${exportJob.parentMeetingId}/${exportJob.presId}/pdf/${jobId}/${filename}.pdf`;
     // Notify Meeting Actor of file availability by sending a message through Redis PubSub
     const notification = {
         envelope: {

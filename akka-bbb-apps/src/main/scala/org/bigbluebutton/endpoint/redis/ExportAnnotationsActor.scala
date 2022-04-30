@@ -75,8 +75,7 @@ class ExportAnnotationsActor(
 
     ev.setJobId(msg.body.exportJob.jobId)
     ev.setJobType(msg.body.exportJob.jobType)
-    ev.setMeetingName(msg.body.exportJob.meetingName)
-    ev.setPresName(msg.body.exportJob.presName)
+    ev.setFilename(msg.body.exportJob.filename)
     ev.setPresId(msg.body.exportJob.presId)
     ev.setPresLocation(msg.body.exportJob.presLocation)
     ev.setAllPages(msg.body.exportJob.allPages.toString)

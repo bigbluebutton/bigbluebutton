@@ -14,9 +14,9 @@ const MAGIC_MYSTERY_NUMBER = 2;
 const logger = new Logger('presAnn Process Worker');
 logger.info("Processing PDF for job " + jobId);
 
-const kickOffNotifierWorker = (jobType, sanitizedFilename) => {
+const kickOffNotifierWorker = (jobType, filename) => {
     return new Promise((resolve, reject) => {
-        const worker = new Worker('./workers/notifier.js', { workerData: [jobType, jobId, sanitizedFilename] });
+        const worker = new Worker('./workers/notifier.js', { workerData: [jobType, jobId, filename] });
         worker.on('message', resolve);
         worker.on('error', reject);
         worker.on('exit', (code) => {
@@ -411,9 +411,12 @@ for (let currentSlide of pages) {
 
 // Create PDF output directory if it doesn't exist
 let output_dir = path.join(exportJob.presLocation, 'pdfs', jobId);
-let filename = sanitize(`annotated_${exportJob.meetingName}_${path.parse(exportJob.presName).name}`).replace(/\s/g, '_');
 
 if (!fs.existsSync(output_dir)) { fs.mkdirSync(output_dir, { recursive: true }); }
+
+let filename = sanitize(exportJob.filename.replace(/\s/g, '_'));
+
+console.log(filename)
 
 let mergePDFs = [
     'gs',

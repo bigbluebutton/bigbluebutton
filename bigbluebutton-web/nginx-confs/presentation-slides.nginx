@@ -27,9 +27,9 @@
                 }
         }
 
-        location ~^\/bigbluebutton\/presentation\/(?<meeting_id_1>[A-Za-z0-9\-]+)\/(?<meeting_id_2>[A-Za-z0-9\-]+)\/(?<pres_id>[A-Za-z0-9\-]+)\/pdf\/(?<job_id>[A-Za-z0-9]+)/(?<filename>.*)$ {
+        location ~^\/bigbluebutton\/presentation\/(?<meeting_id_1>[A-Za-z0-9\-]+)\/(?<meeting_id_2>[A-Za-z0-9\-]+)\/(?<pres_id>[A-Za-z0-9\-]+)\/pdf\/(?<job_id>[A-Za-z0-9]+)\/annotated_slides.pdf$ {
 		        default_type application/pdf;
-                alias    /var/bigbluebutton/$meeting_id_2/$meeting_id_2/$pres_id/pdfs/$job_id/annotated_$filename.pdf;
+                alias    /var/bigbluebutton/$meeting_id_2/$meeting_id_2/$pres_id/pdfs/$job_id/annotated_slides.pdf;
                 if ($bbb_loadbalancer_node) {
                     add_header 'Access-Control-Allow-Origin' $bbb_loadbalancer_node always;
                 }

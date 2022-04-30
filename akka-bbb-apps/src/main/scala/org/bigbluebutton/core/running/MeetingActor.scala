@@ -24,7 +24,6 @@ import org.bigbluebutton.core.apps.webcam.WebcamApp2x
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models.{ Users2x, VoiceUsers, _ }
-import org.bigbluebutton.core.util.RandomStringGenerator
 import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.meeting._
@@ -496,8 +495,8 @@ class MeetingActor(
       // Presentation
       case m: PreuploadedPresentationsSysPubMsg              => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg                          => state = handlePresenterChange(m, state)
-      case m: MakePresentationWithAnnotationDownloadReqMsg   => handleMakePresentationWithAnnotationDownloadReqMsg(m, state, liveMeeting)
-      case m: ExportPresentationWithAnnotationReqMsg         => handleExportPresentationWithAnnotationReqMsg(m, state, liveMeeting)
+      case m: MakePresentationWithAnnotationDownloadReqMsg   => presentationPodsApp.handleMakePresentationWithAnnotationDownloadReqMsg(m, state, liveMeeting, msgBus)
+      case m: ExportPresentationWithAnnotationReqMsg         => presentationPodsApp.handleExportPresentationWithAnnotationReqMsg(m, state, liveMeeting, msgBus)
       case m: NewPresAnnFileAvailableMsg                     => log.info("***** New PDF with annotations available.")
 
       // Presentation Pods
@@ -719,158 +718,6 @@ class MeetingActor(
 
     newState
 
-  }
-
-  def buildStoreAnnotationsInRedisSysMsg(annotations: StoredAnnotations): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-    val envelope = BbbCoreEnvelope(StoreAnnotationsInRedisSysMsg.NAME, routing)
-    val body = StoreAnnotationsInRedisSysMsgBody(annotations)
-    val header = BbbCoreHeaderWithMeetingId(StoreAnnotationsInRedisSysMsg.NAME, liveMeeting.props.meetingProp.intId)
-    val event = StoreAnnotationsInRedisSysMsg(header, body)
-
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
-
-  def buildStoreExportJobInRedisSysMsg(exportJob: ExportJob): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-    val envelope = BbbCoreEnvelope(StoreExportJobInRedisSysMsg.NAME, routing)
-    val body = StoreExportJobInRedisSysMsgBody(exportJob)
-    val header = BbbCoreHeaderWithMeetingId(StoreExportJobInRedisSysMsg.NAME, liveMeeting.props.meetingProp.intId)
-    val event = StoreExportJobInRedisSysMsg(header, body)
-
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
-
-  def buildPresentationUploadTokenSysPubMsg(parentId: String, userId: String, presentationUploadToken: String, filename: String): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-    val envelope = BbbCoreEnvelope(PresentationUploadTokenSysPubMsg.NAME, routing)
-    val header = BbbClientMsgHeader(PresentationUploadTokenSysPubMsg.NAME, parentId, userId)
-    val body = PresentationUploadTokenSysPubMsgBody("DEFAULT_PRESENTATION_POD", presentationUploadToken, filename, parentId)
-    val event = PresentationUploadTokenSysPubMsg(header, body)
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
-
-  def handleMakePresentationWithAnnotationDownloadReqMsg(m: MakePresentationWithAnnotationDownloadReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
-
-    val meetingId = liveMeeting.props.meetingProp.intId
-    val meetingName: String = liveMeeting.props.meetingProp.name
-
-    // Whiteboard ID
-    val presId: String = m.body.presId match {
-      case "" => getMeetingInfoPresentationDetails().id
-      case _  => m.body.presId
-    }
-
-    val allPages: Boolean = m.body.allPages // Whether or not all pages of the presentation should be exported
-    val pages: List[Int] = m.body.pages // Desired presentation pages for export
-
-    // Determine page amount
-    val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
-
-    val currentPres = presentationPods.flatMap(_.getCurrentPresentation()).headOption
-
-    currentPres match {
-      case None =>
-        log.error(s"No presentation set in meeting ${meetingId}")
-        return
-      case _ => ()
-    }
-
-    val pageCount = currentPres.get.pages.size
-    val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else pages
-
-    var storeAnnotationPages = new Array[PresentationPageForExport](pagesRange.size)
-    var resultingPage = 0
-
-    for (pageNumber <- pagesRange) {
-      if (pageNumber < 1 || pageNumber > pageCount) {
-        println(pagesRange.length)
-        log.error(s"Page ${pageNumber} requested for export out of range, aborting")
-        return
-      }
-
-      var whiteboardId = s"${presId}/${pageNumber.toString}"
-      val presentationPage: PresentationPage = currentPres.get.pages(whiteboardId)
-      val xOffset: Double = presentationPage.xOffset
-      val yOffset: Double = presentationPage.yOffset
-      val widthRatio: Double = presentationPage.widthRatio
-      val heightRatio: Double = presentationPage.heightRatio
-      val whiteboardHistory: Array[AnnotationVO] = liveMeeting.wbModel.getHistory(whiteboardId)
-
-      storeAnnotationPages(resultingPage) = new PresentationPageForExport(pageNumber, xOffset, yOffset, widthRatio, heightRatio, whiteboardHistory)
-      resultingPage += 1
-    }
-
-    val jobId = RandomStringGenerator.randomAlphanumericString(16)
-
-    // 1) Send Annotations to Redis
-    var annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
-    outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations))
-
-    // 2) Insert Export Job in Redis
-    val jobType = "PresentationWithAnnotationDownloadJob"
-    val presLocation = s"/var/bigbluebutton/${meetingId}/${meetingId}/${presId}"
-    val exportJob = new ExportJob(jobId, jobType, meetingName, currentPres.get.name, presId, presLocation, allPages, pagesRange, meetingId, "")
-    var job = buildStoreExportJobInRedisSysMsg(exportJob)
-    outGW.send(job)
-  }
-
-  def handleExportPresentationWithAnnotationReqMsg(m: ExportPresentationWithAnnotationReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
-
-    val meetingId = liveMeeting.props.meetingProp.intId
-    val meetingName: String = liveMeeting.props.meetingProp.name
-    val userId = m.header.userId
-    val presId: String = getMeetingInfoPresentationDetails.id
-    val parentMeetingId: String = m.body.parentMeetingId
-    val allPages: Boolean = m.body.allPages
-
-    val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
-    val currentPres = presentationPods.flatMap(_.getCurrentPresentation()).headOption
-
-    currentPres match {
-      case None =>
-        log.error(s"No presentation set in meeting ${meetingId}")
-        return
-      case _ => ()
-    }
-
-    val currentPage: PresentationPage = PresentationInPod.getCurrentPage(currentPres.get).get
-
-    val pageCount = currentPres.get.pages.size
-    val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else List(currentPage.num)
-
-    var storeAnnotationPages = new Array[PresentationPageForExport](pagesRange.size)
-    var resultingPage = 0
-
-    for (pageNumber <- pagesRange) {
-      var whiteboardId = s"${presId}/${pageNumber.toString}"
-      val presentationPage: PresentationPage = currentPres.get.pages(whiteboardId)
-      val xOffset: Double = presentationPage.xOffset
-      val yOffset: Double = presentationPage.yOffset
-      val widthRatio: Double = presentationPage.widthRatio
-      val heightRatio: Double = presentationPage.heightRatio
-      val whiteboardHistory: Array[AnnotationVO] = liveMeeting.wbModel.getHistory(whiteboardId)
-
-      storeAnnotationPages(resultingPage) = new PresentationPageForExport(pageNumber, xOffset, yOffset, widthRatio, heightRatio, whiteboardHistory)
-      resultingPage += 1
-    }
-
-    val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
-    val jobId = RandomStringGenerator.randomAlphanumericString(16)
-
-    // Informs bbb-web about the token so that when we use it to upload the presentation, it is able to look it up in the list of tokens
-    outGW.send(buildPresentationUploadTokenSysPubMsg(parentMeetingId, userId, presentationUploadToken, currentPres.get.name))
-
-    // 1) Send Annotations to Redis
-    var annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
-    outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations))
-
-    // 2) Insert Export Job in Redis
-    val jobType: String = "PresentationWithAnnotationExportJob"
-    val presLocation = s"/var/bigbluebutton/${meetingId}/${meetingId}/${presId}"
-    val exportJob = new ExportJob(jobId, jobType, meetingName, currentPres.get.name, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
-    var job = buildStoreExportJobInRedisSysMsg(exportJob)
-    outGW.send(job)
   }
 
   def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
