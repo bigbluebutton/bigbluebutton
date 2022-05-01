@@ -56,9 +56,7 @@
     <param name="local-network-acl" value="none"/>
     <param name="manage-presence" value="false"/>
 
-
     <!-- Added for Microsoft Edge browser -->
-    <param name="apply-candidate-acl" value="localnet.auto"/>
     <param name="apply-candidate-acl" value="wan_v4.auto"/>
     <param name="apply-candidate-acl" value="rfc1918.auto"/>
     <param name="apply-candidate-acl" value="any_v4.auto"/>
