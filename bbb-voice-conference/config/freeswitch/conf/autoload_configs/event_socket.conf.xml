@@ -4,7 +4,7 @@
     <param name="listen-ip" value="::"/>
     <param name="listen-port" value="8021"/>
     <param name="password" value="ClueCon"/>
-    <!--<param name="apply-inbound-acl" value="loopback.auto"/>-->
+    <param name="apply-inbound-acl" value="loopback"/>
     <!--<param name="stop-on-bind-error" value="true"/>-->
   </settings>
 </configuration>

@@ -32,6 +32,25 @@
       <!-- <node type="allow" cidr="192.168.0.0/24"/> -->
     </list>
 
+    <!--
+        The auto-generated loopback.auto is hard-wired in a place we don't
+        want it (checking for NAT in sofia_glue_check_nat), so we need
+        to erase it and replace it with an empty ACL.
+    -->
+
+    <list name="loopback.auto" default="deny">
+    </list>
+
+    <!--
+        This duplicates the auto-generated loopback.auto for use in places
+        (event_socket.conf.xml) where we do need to match loopback addresses.
+    -->
+
+    <list name="loopback" default="deny">
+      <node type="allow" cidr="127.0.0.0/8"/>
+      <node type="allow" cidr="::1/128"/>
+    </list>
+
   </network-lists>
 </configuration>
 
