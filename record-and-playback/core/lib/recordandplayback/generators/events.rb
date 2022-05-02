@@ -165,7 +165,7 @@ module BigBlueButton
     end
 
     # Build a webcam EDL
-    def self.create_webcam_edl(events, archive_dir, showModeratorViewpoint)
+    def self.create_webcam_edl(events, archive_dir, show_moderator_viewpoint)
       recording = events.at_xpath('/recording')
       meeting_id = recording['meeting_id']
       event = events.at_xpath('/recording/event[position()=1]')
@@ -186,7 +186,7 @@ module BigBlueButton
       }
       list_user_info = {}
       webcamsOnlyForModerator = false
-      if showModeratorViewpoint
+      if show_moderator_viewpoint
         events.xpath('/recording/event[@module="WEBCAM" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCShareEvent" or @eventname="StopWebRTCShareEvent"))]').each do |event|
           timestamp = event['timestamp'].to_i - initial_timestamp
           # Determine the video filename
@@ -311,7 +311,7 @@ module BigBlueButton
 
               if is_in_forbidden_period && event.at_xpath('value').text == "MODERATOR"
                 filename_to_add = BigBlueButton::Events.extract_filename_from_userId(userId, inactive_videos)
-                if filename != ""
+                if filename_to_add != ""
                   inactive_videos.delete(filename_to_add)
                   active_videos << filename_to_add
 

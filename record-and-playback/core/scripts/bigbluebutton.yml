@@ -44,7 +44,7 @@ anonymize_chat_moderators: false
 # of view is going to be showed here
 # The webcamsOnlyForModerator is one example of it: only moderator's camera
 # are going to be shown, that is, if the below property is false.
-showModeratorViewpoint: false
+show_moderator_viewpoint: false
 
 # Sequence of recording steps. Keys are the current step, values
 # are the next step(s). Examples:
