@@ -151,6 +151,7 @@ begin
   analytics_callback_url = metadata.attributes['analytics-callback-url']&.content
   # analytics_callback_url = metadata.key?("analytics-callback-url") ? metadata["analytics-callback-url"].value : nil
   unless analytics_callback_url.nil?
+    BigBlueButton.logger.info("Processing events for analytics...")
     filepathOverride = "/etc/bigbluebutton/bbb-web.properties"
     hasOverride = File.file?(filepathOverride)
 
