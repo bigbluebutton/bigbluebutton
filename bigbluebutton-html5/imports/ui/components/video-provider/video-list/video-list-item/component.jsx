@@ -5,6 +5,7 @@ import ViewActions from '/imports/ui/components/video-provider/video-list/video-
 import UserActions from '/imports/ui/components/video-provider/video-list/video-list-item/user-actions/component';
 import UserStatus from '/imports/ui/components/video-provider/video-list/video-list-item/user-status/component';
 import PinArea from '/imports/ui/components/video-provider/video-list/video-list-item/pin-area/component';
+import UserAvatarVideo from '/imports/ui/components/video-provider/video-list/video-list-item/user-avatar/component';
 import {
   isStreamStateUnhealthy,
   subscribeToStreamStateChange,
@@ -102,16 +103,6 @@ const VideoListItem = (props) => {
     onVideoItemUnmount(cameraId);
   }, []);
 
-  const renderWebcamConnecting = () => (
-    <Styled.WebcamConnecting
-      data-test="webcamConnecting"
-      talking={talking}
-      animations={animations}
-    >
-      <Styled.LoadingText>{name}</Styled.LoadingText>
-    </Styled.WebcamConnecting>
-  );
-
   const renderSqueezedButton = () => (
     <UserActions
       name={name}
@@ -124,6 +115,46 @@ const VideoListItem = (props) => {
       focused={focused}
       onHandleMirror={() => setIsMirrored((value) => !value)}
     />
+  );
+
+  const renderWebcamConnecting = () => (
+    <Styled.WebcamConnecting
+      data-test="webcamConnecting"
+      animations={animations}
+    >
+      <UserAvatarVideo
+        user={user}
+        voiceUser={voiceUser}
+      />
+      <Styled.BottomBar>
+        <UserActions
+          name={name}
+          user={user}
+          cameraId={cameraId}
+          numOfStreams={numOfStreams}
+          onHandleVideoFocus={onHandleVideoFocus}
+          focused={focused}
+          onHandleMirror={() => setIsMirrored((value) => !value)}
+        />
+        <UserStatus
+          voiceUser={voiceUser}
+        />
+      </Styled.BottomBar>
+    </Styled.WebcamConnecting>
+  );
+
+  const renderWebcamConnectingSqueezed = () => (
+    <Styled.WebcamConnecting
+      data-test="webcamConnectingSqueezed"
+      talking={talking}
+      animations={animations}
+    >
+      <UserAvatarVideo
+        user={user}
+        voiceUser={voiceUser}
+      />
+      {renderSqueezedButton()}
+    </Styled.WebcamConnecting>
   );
 
   const renderDefaultButtons = () => (
@@ -167,7 +198,6 @@ const VideoListItem = (props) => {
     >
       <Styled.VideoContainer>
         <Styled.Video
-          muted
           mirrored={isMirrored}
           unhealthyStream={shouldRenderReconnect}
           data-test={isMirrored ? 'mirroredVideoContainer' : 'videoContainer'}
@@ -182,7 +212,9 @@ const VideoListItem = (props) => {
         ? (isVideoSqueezed)
           ? renderSqueezedButton()
           : renderDefaultButtons()
-        : renderWebcamConnecting()}
+        : (isVideoSqueezed)
+          ? renderWebcamConnectingSqueezed()
+          : renderWebcamConnecting()}
 
       {shouldRenderReconnect && <Styled.Reconnecting />}
     </Styled.Content>

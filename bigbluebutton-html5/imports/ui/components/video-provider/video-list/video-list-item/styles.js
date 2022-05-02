@@ -3,6 +3,7 @@ import {
   colorPrimary,
   colorBlack,
   colorWhite,
+  webcamBackgroundColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { TextElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 
@@ -10,7 +11,8 @@ const Content = styled.div`
   position: relative;
   display: flex;
   min-width: 100%;
-
+  border-radius: 10px;
+  border: 2px solid ${colorBlack};
   &::after {
     content: "";
     position: absolute;
@@ -18,7 +20,6 @@ const Content = styled.div`
     right: 0;
     bottom: 0;
     left: 0;
-    border: 5px solid ${colorPrimary};
     opacity: 0;
     pointer-events: none;
 
@@ -28,6 +29,7 @@ const Content = styled.div`
   }
 
   ${({ talking }) => talking && `
+    border: 2px solid ${colorPrimary};
     &::after {
       opacity: 0.7;
     }
@@ -44,25 +46,15 @@ const Content = styled.div`
 `;
 
 const WebcamConnecting = styled.div`
-  position: relative;
-  height: 100%;
-  width: 100%;
-  object-fit: contain;
-  background-color: ${colorBlack};
-
   display: flex;
   justify-content: center;
   align-items: center;
-  position: absolute;
-  white-space: nowrap;
-  z-index: 1;
-  vertical-align: middle;
-  border-radius: 1px;
-  opacity: 1;
-
-  position: relative;
-  display: flex;
+  height: 100%;
+  width: 100%;
   min-width: 100%;
+  border-radius: 10px;
+  background-color: ${webcamBackgroundColor};
+  z-index: 1;
 
   &::after {
     content: "";
@@ -71,7 +63,6 @@ const WebcamConnecting = styled.div`
     right: 0;
     bottom: 0;
     left: 0;
-    border: 5px solid ${colorPrimary};
     opacity: 0;
     pointer-events: none;
 
@@ -140,6 +131,7 @@ const Video = styled.video`
   width: 100%;
   object-fit: contain;
   background-color: ${colorBlack};
+  border-radius: 10px;
 
   ${({ mirrored }) => mirrored && `
     transform: scale(-1, 1);
