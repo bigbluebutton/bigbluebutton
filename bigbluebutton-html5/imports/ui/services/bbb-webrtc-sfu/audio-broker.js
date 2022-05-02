@@ -17,8 +17,15 @@ class AudioBroker extends BaseBroker {
     this.role = role;
     this.offering = true;
 
-    // Optional parameters are: caleeName, iceServers, offering,
-    // mediaServer, extension, constraints, stream
+    // Optional parameters are:
+    // caleeName,
+    // iceServers,
+    // offering,
+    // mediaServer,
+    // extension,
+    // constraints,
+    // stream,
+    // signalCandidates
     Object.assign(this, options);
   }
 
@@ -68,7 +75,7 @@ class AudioBroker extends BaseBroker {
           video: false,
         },
         configuration: this.populatePeerConfiguration(),
-        onicecandidate: (candidate) => {
+        onicecandidate: !this.signalCandidates ? null : (candidate) => {
           this.onIceCandidate(candidate, this.role);
         },
       };
