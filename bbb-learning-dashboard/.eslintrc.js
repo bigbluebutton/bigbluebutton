@@ -26,7 +26,6 @@ module.exports = {
     'react/jsx-props-no-spreading': 'off',
     'max-classes-per-file': ['error', 2],
     'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],
-    'max-len': 'off',
   },
   globals: {
     browser: 'writable',
