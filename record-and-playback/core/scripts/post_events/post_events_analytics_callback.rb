@@ -151,9 +151,20 @@ begin
   analytics_callback_url = metadata.attributes['analytics-callback-url']&.content
   # analytics_callback_url = metadata.key?("analytics-callback-url") ? metadata["analytics-callback-url"].value : nil
   unless analytics_callback_url.nil?
-    BigBlueButton.logger.info("Processing events for analytics...")
+    filepathOverride = "/etc/bigbluebutton/bbb-web.properties"
+    hasOverride = File.file?(filepathOverride)
 
     bbb_props = JavaProperties::Properties.new("/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties")
+    
+    # If the file does exists: 
+    if (hasOverride)
+      bbbOverrideProps = JavaProperties::Properties.new(filepathOverride)
+      # Override the props
+      bbbOverrideProps.each do |key, prop|
+        bbb_props[key]=prop
+      end
+    end
+
     secret = bbb_props[:securitySalt]
     external_meeting_id = metadata.attributes['meetingId']&.content
 
