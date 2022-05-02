@@ -103,6 +103,11 @@ const ButtonsWrapper = styled.div`
   bottom: 0;
   top: 0;
   display: flex;
+
+  [dir="rtl"] & {
+    right: 0;
+    left : auto;
+  }
 `;
 
 export default {

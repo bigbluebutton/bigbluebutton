@@ -8,11 +8,6 @@ const Wrapper = styled.div`
   border: 0;
   z-index: 2;
   margin: 2px;
-
-  [dir="rtl"] & {
-    right: 0;
-    left : auto;
-  }
 `;
 
 const ReloadButton = styled(Button)`
