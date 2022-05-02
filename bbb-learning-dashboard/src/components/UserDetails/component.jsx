@@ -176,6 +176,11 @@ const UserDatailsComponent = (props) => {
       if (hasDraw) mostCommonAnswer = null;
     }
 
+    const capitalizeFirstLetter = (text) => (
+      String.fromCharCode(text.charCodeAt(0) - 32)
+      + text.substring(1)
+    );
+
     return (
       <div className="p-6 flex flex-row justify-between items-center">
         <div className="min-w-[40%] text-ellipsis">{question}</div>
@@ -211,11 +216,11 @@ const UserDatailsComponent = (props) => {
         <div
           className="min-w-[40%] text-ellipsis text-center overflow-hidden"
           title={mostCommonAnswer
-            ? `${String.fromCharCode(mostCommonAnswer.charCodeAt(0) - 32)}${mostCommonAnswer.substring(1)}`
+            ? capitalizeFirstLetter(mostCommonAnswer)
             : null}
         >
           { mostCommonAnswer
-            ? `${String.fromCharCode(mostCommonAnswer.charCodeAt(0) - 32)}${mostCommonAnswer.substring(1)}`
+            ? capitalizeFirstLetter(mostCommonAnswer)
             : intl.formatMessage({
               id: 'app.learningDashboard.usersTable.notAvailable',
               defaultMessage: 'N/A',
@@ -233,7 +238,7 @@ const UserDatailsComponent = (props) => {
         <div className="min-w-[20%] text-ellipsis overflow-hidden">{category}</div>
         <div className="min-w-[60%] grow text-center text-sm">
           <div className="mb-2">
-            { (function () {
+            { (function getAverage() {
               if (average >= 0 && category === 'Talk Time') return tsToHHmmss(average);
               if (average >= 0 && category !== 'Talk Time') return <FormattedNumber value={average} minimumFractionDigits="0" maximumFractionDigits="1" />;
               return <FormattedMessage id="app.learningDashboard.usersTable.notAvailable" defaultMessage="N/A" />;
