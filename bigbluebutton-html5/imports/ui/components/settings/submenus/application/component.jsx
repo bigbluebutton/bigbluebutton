@@ -7,9 +7,8 @@ import BaseMenu from '../base/component';
 import Styled from './styles';
 import SettingsService from '/imports/ui/components/settings/service';
 import VideoService from '/imports/ui/components/video-provider/service';
-import { ACTIONS, LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+import { ACTIONS } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
-import { isLayoutsEnabled } from '/imports/ui/services/features';
 
 const MIN_FONTSIZE = 0;
 const SHOW_AUDIO_FILTERS = (Meteor.settings.public.app
@@ -330,64 +329,6 @@ class ApplicationMenu extends BaseMenu {
     );
   }
 
-  renderChangeLayout() {
-    const { intl, isPresenter, showToggleLabel, displaySettingsStatus } = this.props;
-    const { settings } = this.state;
-    const isKeepPushingLayoutEnabled = SettingsService.isKeepPushingLayoutEnabled();
-
-    return (
-      <>
-        <Styled.Row>
-          <Styled.Col>
-            <Styled.FormElement>
-              <Styled.Label htmlFor="layoutList">
-                {intl.formatMessage(intlMessages.layoutOptionLabel)}
-              </Styled.Label>
-            </Styled.FormElement>
-          </Styled.Col>
-          <Styled.Col>
-            <Styled.FormElementRight>
-              <Styled.Select
-                onChange={(e) => this.handleSelectChange('selectedLayout', e)}
-                id="layoutList"
-                value={settings.selectedLayout}
-              >
-                {
-                  Object.values(LAYOUT_TYPE)
-                    .map((layout) => <option key={layout} value={layout}>{intl.formatMessage(intlMessages[`${layout}Layout`])}</option>)
-                }
-              </Styled.Select>
-            </Styled.FormElementRight>
-          </Styled.Col>
-        </Styled.Row>
-        { (isPresenter && isKeepPushingLayoutEnabled)
-          ? (
-            <Styled.Row>
-              <Styled.Col>
-                <Styled.FormElement>
-                  <Styled.Label>
-                    {intl.formatMessage(intlMessages.pushLayoutLabel)}
-                  </Styled.Label>
-                </Styled.FormElement>
-              </Styled.Col>
-              <Styled.Col>
-                <Styled.FormElementRight>
-                  {displaySettingsStatus(settings.pushLayout)}
-                  <Toggle
-                    icons={false}
-                    defaultChecked={settings.pushLayout}
-                    onChange={() => this.handleToggle('pushLayout')}
-                    ariaLabel={intl.formatMessage(intlMessages.pushLayoutLabel)}
-                    showToggleLabel={showToggleLabel}
-                  />
-                </Styled.FormElementRight>
-              </Styled.Col>
-            </Styled.Row>
-          ) : null }
-      </>
-    );
-  }
-
   renderDarkThemeToggle() {
     const { intl, showToggleLabel, displaySettingsStatus } = this.props;
     const { settings } = this.state;
@@ -561,7 +502,6 @@ class ApplicationMenu extends BaseMenu {
               </Styled.FormElementRight>
             </Styled.Col>
           </Styled.Row>
-          { isLayoutsEnabled() ? this.renderChangeLayout() : null }
         </Styled.Form>
       </div>
     );
