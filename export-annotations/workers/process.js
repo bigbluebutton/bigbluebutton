@@ -7,6 +7,7 @@ const { execSync } = require("child_process");
 const { Worker, workerData, parentPort } = require('worker_threads');
 const path = require('path');
 const sanitize = require("sanitize-filename");
+const twemoji = require("twemoji")
 
 const jobId = workerData;
 const MAGIC_MYSTERY_NUMBER = 2;
@@ -275,13 +276,19 @@ function overlay_text(svg, annotation, w, h) {
         `font-size:${fontSize}px`
     ]
 
-    var html = 
+    var html = twemoji.parse(
         `<!DOCTYPE html>
+        <style>
+            img.emoji {
+            height: 1em;
+            width: 1em;
+        }
+        </style>
         <html>
             <p style="${style.join('')}">
                 ${annotation.text.split('\n').join('<br>')}
             </p>
-        </html>`;
+        </html>`);
     
     var htmlFilePath = path.join(dropbox, `text${annotation.id}.html`)
 

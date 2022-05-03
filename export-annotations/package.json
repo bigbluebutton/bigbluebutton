@@ -11,6 +11,7 @@
     "image-size": "^1.0.1",
     "redis": "^4.0.3",
     "sanitize-filename": "^1.6.3",
+    "twemoji": "^14.0.2",
     "xmlbuilder2": "^3.0.2"
   }
 }
