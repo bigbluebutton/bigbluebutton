@@ -118,7 +118,7 @@ module.exports = class CallbackEmitter extends EventEmitter {
 
     request(requestOptions, function(error, response, body) {
       if ((error != null) || responseFailed(response)) {
-        Logger.warn(`[Emitter] error in the callback call to: [${requestOptions.uri}] for ${simplifiedEvent(data)}`, "error:", error, "status:", response != null ? response.statusCode : undefined);
+        Logger.warn(`[Emitter] error in the callback call to: [${requestOptions.uri}] for ${simplifiedEvent(data)} error: ${error} status: ${response != null ? response.statusCode : undefined}`);
         callback(error, false);
       } else {
         Logger.info(`[Emitter] successful callback call to: [${requestOptions.uri}] for ${simplifiedEvent(data)}`);
