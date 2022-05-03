@@ -1,0 +1,41 @@
+<include>
+  <!--<gateway name="asterlink.com">-->
+  <!--/// account username *required* ///-->
+  <!--<param name="username" value="cluecon"/>-->
+  <!--/// auth realm: *optional* same as gateway name, if blank ///-->
+  <!--<param name="realm" value="asterlink.com"/>-->
+  <!--/// username to use in from: *optional* same as  username, if blank ///-->
+  <!--<param name="from-user" value="cluecon"/>-->
+  <!--/// domain to use in from: *optional* same as  realm, if blank ///-->
+  <!--<param name="from-domain" value="asterlink.com"/>-->
+  <!--/// account password *required* ///-->
+  <!--<param name="password" value="2007"/>-->
+  <!--/// extension for inbound calls: *optional* same as username, if blank ///-->
+  <!--<param name="extension" value="cluecon"/>-->
+  <!--/// proxy host: *optional* same as realm, if blank ///-->
+  <!--<param name="proxy" value="asterlink.com"/>-->
+  <!--/// send register to this proxy: *optional* same as proxy, if blank ///-->
+  <!--<param name="register-proxy" value="mysbc.com"/>-->
+  <!--/// expire in seconds: *optional* 3600, if blank ///-->
+  <!--<param name="expire-seconds" value="60"/>-->
+  <!--/// do not register ///-->
+  <!--<param name="register" value="false"/>-->
+  <!-- which transport to use for register -->
+  <!--<param name="register-transport" value="udp"/>-->
+  <!--How many seconds before a retry when a failure or timeout occurs -->
+  <!--<param name="retry-seconds" value="30"/>-->
+  <!--Use the callerid of an inbound call in the from field on outbound calls via this gateway -->
+  <!--<param name="caller-id-in-from" value="false"/>-->
+  <!--extra sip params to send in the contact-->
+  <!--<param name="contact-params" value=""/>-->
+  <!-- Put the extension in the contact -->
+  <!--<param name="extension-in-contact" value="true"/>-->
+  <!--send an options ping every x seconds, failure will unregister and/or mark it down-->
+  <!--<param name="ping" value="25"/>-->
+  <!--<param name="cid-type" value="rpid"/>-->
+  <!--rfc5626 : Abilitazione rfc5626 ///-->
+  <!--<param name="rfc-5626" value="true"/>-->
+  <!--rfc5626 : extra sip params to send in the contact-->
+  <!--<param name="reg-id" value="1"/>-->
+  <!--</gateway>-->
+</include>
