@@ -128,11 +128,6 @@ export default function Whiteboard(props) {
     } catch (err) {
 
     }
-        
-
-
-      
-
         // setDoc(next);
       });
     }
@@ -195,37 +190,6 @@ export default function Whiteboard(props) {
           onChangePage={(app, s, b, a) => {
             setCurPage(app.getPage());
           }}
-          onCommand={(e, s, g) => {
-
-            console.log('ON COMMAND ', s)
-            if (s?.includes("session:complete:EraseSession")) {
-              const propShapes = Object.entries(shapes || {})?.map(
-                ([k, v]) => v.id
-              );
-              const localShapes = Object.entries(e.getShapes())?.map(
-                ([k, v]) => v.id
-              );
-              const removedShapes = findRemoved(propShapes, localShapes);
-              if (removedShapes && removedShapes.length > 0) {
-                removedShapes.forEach((s) => removeShape(s));
-              }
-            }
-
-            if (s === "delete") {
-              if (e.getShapes()) {
-                const validIDS = e.getShapes().map(s => s.id);
-                const remove = [];
-                Object.entries(shapes).map(([k, v]) => {
-                  if (v.parentId === `${tldrawAPI?.getPage()?.id}` && !validIDS.includes(v?.id)) {
-                    remove.push(v);
-                  }
-                });
-
-                console.log('REMOVE', remove)
-                remove?.forEach((s) => removeShape(s.id));
-              }
-            }
-          }}
           onMount={(app) => {
             setTLDrawAPI(app);
           }}
@@ -235,23 +199,76 @@ export default function Whiteboard(props) {
             e?.assets?.forEach((a) => {
               persistAsset(a);
             });
-
-            ///////////// handle shapes /////////////////////////
-            if (e?.selectedIds.length < 1) {
-              Object.entries(e.getShapes())?.forEach(([k, v]) => {
-                if (v.type === "draw") persistShape(v);
-              });
-            } else {
-              Object.entries(e.getShapes())?.forEach(([k, v]) => {
-                persistShape(v);
-              });
-            }
           }}
           showPages={false || isPresenter}
           showUI={true || isPresenter}
           showMenu={false}
           showMultiplayerMenu={false}
           // readOnly={!isPresenter}
+
+          onUndo={s => {
+            s?.selectedIds?.map(id => {
+              persistShape(s.getShape(id));
+            })
+          }}
+
+          onRedo={s => {
+            s?.selectedIds?.map(id => {
+              persistShape(s.getShape(id));
+            });
+          }}
+
+          onChangePage={(app, s, b, a) => {
+            if (curPage?.id !== app.getPage()?.id) setCurPage(app.getPage());
+          }}
+          onCommand={(e, s, g) => {
+            if (s.includes("session:complete:DrawSession")) {
+              Object.entries(rDocument?.current?.pages[e.getPage()?.id]?.shapes)
+                .filter(([k, s]) => s?.type === 'draw')
+                .forEach(([k, s]) => {
+                  if (!e.prevShapes[k] || !k.includes('slide-background')) {
+                    persistShape(s);
+                  }
+                });
+            }
+
+            if (s.includes("style")
+            || s?.includes("session:complete:ArrowSession")) {
+              e.selectedIds.forEach(id => {
+                persistShape(e.getShape(id));
+              }); 
+            }
+
+            if (s?.includes("session:complete:TransformSingleSession") 
+              || s?.includes("session:complete:TranslateSession") 
+              || s?.includes("updated_shapes")
+              || s?.includes("session:complete:RotateSession")) {
+                e.selectedIds.forEach(id => {
+                    persistShape(e.getShape(id));
+                    //checks to find any bindings assosiated with the selected shapes.
+                    //If any, they need to be updated as well.
+                    const pageBindings = rDocument?.current?.pages[e.getPage()?.id]?.bindings;
+                    const boundShapes = [];
+                    if (pageBindings) {
+                      Object.entries(pageBindings).map(([k,b]) => {
+                        if (b.toId.includes(id)) {
+                          boundShapes.push(rDocument?.current?.pages[e.getPage()?.id]?.shapes[b.fromId])
+                        }
+                      })
+                    }
+                    //persist shape(s) that was updated by the client and any shapes bound to it.
+                    boundShapes.forEach(bs => persistShape(bs))
+                });
+            }
+
+            if (s?.includes("session:complete:EraseSession") || s?.includes("delete")) {
+              shapes.forEach(s => {
+                const ids = e.shapes.map(ss => ss.id);
+                if (!ids.includes(s.id)) removeShape(s.id);
+              });
+            }
+          }}
+
         />
       </Cursors>
     </>
