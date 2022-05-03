@@ -118,6 +118,7 @@ export default function Whiteboard(props) {
         parentId: `${i + 1}`,
         childIndex: 1,
         point: [50, 60],
+        isLocked: true,
         size: [2560 / 3.5, 1440 / 3.5],
         style: {
           dash: DashStyle.Draw,
