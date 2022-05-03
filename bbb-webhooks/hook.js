@@ -34,6 +34,7 @@ module.exports = class Hook {
     this.id = null;
     this.callbackURL = null;
     this.externalMeetingID = null;
+    this.eventID = null;
     this.queue = [];
     this.emitter = null;
     this.redisClient = Application.redisClient();
@@ -43,9 +44,9 @@ module.exports = class Hook {
 
   save(callback) {
     this.redisClient.hmset(config.get("redis.keys.hookPrefix") + ":" + this.id, this.toRedis(), (error, reply) => {
-      if (error != null) { Logger.error("[Hook] error saving hook to redis:", error, reply); }
+      if (error != null) { Logger.error(`[Hook] error saving hook to redis: ${error} ${reply}`); }
         this.redisClient.sadd(config.get("redis.keys.hooks"), this.id, (error, reply) => {
-        if (error != null) { Logger.error("[Hook] error saving hookID to the list of hooks:", error, reply); }
+        if (error != null) { Logger.error(`[Hook] error saving hookID to the list of hooks: ${error} ${reply}`); }
 
         db[this.id] = this;
        (typeof callback === 'function' ? callback(error, db[this.id]) : undefined);
@@ -55,9 +56,9 @@ module.exports = class Hook {
 
   destroy(callback) {
     this.redisClient.srem(config.get("redis.keys.hooks"), this.id, (error, reply) => {
-      if (error != null) { Logger.error("[Hook] error removing hookID from the list of hooks:", error, reply); }
+      if (error != null) { Logger.error(`[Hook] error removing hookID from the list of hooks: ${error} ${reply}`); }
         this.redisClient.del(config.get("redis.keys.hookPrefix") + ":" + this.id, error => {
-        if (error != null) { Logger.error("[Hook] error removing hook from redis:", error); }
+        if (error != null) { Logger.error(`[Hook] error removing hook from redis: ${error}`); }
 
         if (db[this.id]) {
           delete db[this.id];
@@ -82,20 +83,26 @@ module.exports = class Hook {
   // Puts a new message in the queue. Will also trigger a processing in the queue so this
   // message might be processed instantly.
   enqueue(message) {
-    this.redisClient.llen(config.get("redis.keys.eventsPrefix") + ":" + this.id, (error, reply) => {
-      const length = reply;
-      if (length < config.get("hooks.queueSize") && this.queue.length < config.get("hooks.queueSize")) {
-        Logger.info(`[Hook] ${this.callbackURL} enqueueing message:`, JSON.stringify(message));
-        // Add message to redis queue
-        this.redisClient.rpush(config.get("redis.keys.eventsPrefix") + ":" + this.id, JSON.stringify(message), (error,reply) => {
-          if (error != null) { Logger.error("[Hook] error pushing event to redis queue:", JSON.stringify(message), error); }
-        });
-        this.queue.push(JSON.stringify(message));
-        this._processQueue();
-      } else {
-        Logger.warn(`[Hook] ${this.callbackURL} queue size exceed, event:`, JSON.stringify(message));
-      }
-    });
+    // If the event is not in the hook's event list, skip it.
+    if ((this.eventID != null) && ((message == null) || (message.data == null) || (message.data.id == null) || (!this.eventID.some( ev => ev == message.data.id.toLowerCase() )))) {
+      Logger.info(`[Hook] ${this.callbackURL} skipping message from queue because not in event list for hook: ${JSON.stringify(message)}`);
+    }
+    else {
+      this.redisClient.llen(config.get("redis.keys.eventsPrefix") + ":" + this.id, (error, reply) => {
+        const length = reply;
+        if (length < config.get("hooks.queueSize") && this.queue.length < config.get("hooks.queueSize")) {
+          Logger.info(`[Hook] ${this.callbackURL} enqueueing message: ${JSON.stringify(message)}`);
+          // Add message to redis queue
+          this.redisClient.rpush(config.get("redis.keys.eventsPrefix") + ":" + this.id, JSON.stringify(message), (error,reply) => {
+            if (error != null) { Logger.error(`[Hook] error pushing event to redis queue: ${JSON.stringify(message)} ${error}`); }
+          });
+          this.queue.push(JSON.stringify(message));
+          this._processQueue();
+        } else {
+          Logger.warn(`[Hook] ${this.callbackURL} queue size exceed, event: ${JSON.stringify(message)}`);
+        }
+      });
+    }
   }
 
   toRedis() {
@@ -106,6 +113,7 @@ module.exports = class Hook {
       "getRaw": this.getRaw
     };
     if (this.externalMeetingID != null) { r.externalMeetingID = this.externalMeetingID; }
+    if (this.eventID != null) { r.eventID = this.eventID.join(); }
     return r;
   }
 
@@ -118,6 +126,11 @@ module.exports = class Hook {
       this.externalMeetingID = redisData.externalMeetingID;
     } else {
       this.externalMeetingID = null;
+    }
+    if (redisData.eventID != null) {
+      this.eventID = redisData.eventID.toLowerCase().split(',');
+    } else {
+      this.eventID = null;
     }
   }
 
@@ -141,7 +154,7 @@ module.exports = class Hook {
       while ((num -= 1)) {
         // Remove the sent message from redis
         this.redisClient.lpop(config.get("redis.keys.eventsPrefix") + ":" + this.id, (error, reply) => {
-          if (error != null) { return Logger.error("[Hook] error removing event from redis queue:", error); }
+          if (error != null) { return Logger.error(`[Hook] error removing event from redis queue: ${error}`); }
         });
         this.queue.shift();
       }  // pop the first message just sent
@@ -150,12 +163,12 @@ module.exports = class Hook {
 
     // gave up trying to perform the callback, remove the hook forever if the hook's not permanent (emmiter will validate that)
     return this.emitter.on("stopped", error => {
-      Logger.warn("[Hook] too many failed attempts to perform a callback call, removing the hook for:", this.callbackURL);
+      Logger.warn(`[Hook] too many failed attempts to perform a callback call, removing the hook for: ${this.callbackURL}`);
       this.destroy();
     });
   }
 
-  static addSubscription(callbackURL, meetingID, getRaw, callback) {
+  static addSubscription(callbackURL, meetingID, eventID, getRaw, callback) {
     let hook = Hook.findByCallbackURLSync(callbackURL);
     if (hook != null) {
       return (typeof callback === 'function' ? callback(new Error("There is already a subscription for this callback URL"), hook) : undefined);
@@ -167,6 +180,9 @@ module.exports = class Hook {
       hook = new Hook();
       hook.callbackURL = callbackURL;
       hook.externalMeetingID = meetingID;
+      if (eventID != null) {
+        hook.eventID = eventID.toLowerCase().split(',');
+      }
       hook.getRaw = getRaw;
       hook.permanent = config.get("hooks.permanentURLs").some( obj => {
         return obj.url === callbackURL
@@ -270,9 +286,9 @@ module.exports = class Hook {
     // Remove previous permanent hooks
     for (let hk = 1; hk <= config.get("hooks.permanentURLs").length; hk++) {
       client.srem(config.get("redis.keys.hooks"), hk, (error, reply) => {
-        if (error != null) { Logger.error("[Hook] error removing previous permanent hook from list:", error); }
+        if (error != null) { Logger.error(`[Hook] error removing previous permanent hook from list: ${error}`); }
         client.del(config.get("redis.keys.hookPrefix") + ":" + hk, error => {
-          if (error != null) { Logger.error("[Hook] error removing previous permanent hook from redis:", error); }
+          if (error != null) { Logger.error(`[Hook] error removing previous permanent hook from redis: ${error}`); }
         });
       });
     }
@@ -280,11 +296,11 @@ module.exports = class Hook {
     let tasks = [];
 
     client.smembers(config.get("redis.keys.hooks"), (error, hooks) => {
-      if (error != null) { Logger.error("[Hook] error getting list of hooks from redis:", error); }
+      if (error != null) { Logger.error(`[Hook] error getting list of hooks from redis: ${error}`); }
       hooks.forEach(id => {
         tasks.push(done => {
           client.hgetall(config.get("redis.keys.hookPrefix") + ":" + id, function(error, hookData) {
-            if (error != null) { Logger.error("[Hook] error getting information for a hook from redis:", error); }
+            if (error != null) { Logger.error(`[Hook] error getting information for a hook from redis: ${error}`); }
 
             if (hookData != null) {
               let length;
@@ -314,7 +330,7 @@ module.exports = class Hook {
 
       async.series(tasks, function(errors, result) {
         hooks = _.map(Hook.allSync(), hook => `[${hook.id}] ${hook.callbackURL}`);
-        Logger.info("[Hook] finished resync, hooks registered:", hooks);
+        Logger.info(`[Hook] finished resync, hooks registered: ${hooks}`);
         (typeof callback === 'function' ? callback() : undefined);
       });
     });
