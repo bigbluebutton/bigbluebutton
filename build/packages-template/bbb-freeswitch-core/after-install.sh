@@ -19,22 +19,6 @@ case "$1" in
 
     sed -n 's/,VP8//g' /opt/freeswitch/etc/freeswitch/vars.xml
 
-    SOURCE=/tmp/external.xml
-    TARGET=/opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
-
-    # Determine if there are ws-binding and wss-binding values to propagate
-    if [ -f $SOURCE ]; then
-      if xmlstarlet sel -t -v '//param[@name="ws-binding"]/@value' $SOURCE > /dev/null 2>&1; then
-        WS_BINDING=$(xmlstarlet sel -t -v '//param[@name="ws-binding"]/@value' $SOURCE)
-        xmlstarlet edit --inplace --update '//param[@name="ws-binding"]/@value' --value "$WS_BINDING" $TARGET
-      fi
-      if xmlstarlet sel -t -v '//param[@name="wss-binding"]/@value' $SOURCE > /dev/null 2>&1; then
-        WSS_BINDING=$(xmlstarlet sel -t -v '//param[@name="wss-binding"]/@value' $SOURCE)
-        xmlstarlet edit --inplace --update '//param[@name="wss-binding"]/@value' --value "$WSS_BINDING" $TARGET
-      fi 
-      mv -f $SOURCE "${SOURCE}_"
-    fi 
-
     if [ -f /tmp/verto.conf.xml ]; then
       cp /tmp/verto.conf.xml /opt/freeswitch/conf/autoload_configs/verto.conf.xml
       mv -f /tmp/verto.conf.xml /tmp/_verto.conf.xml
