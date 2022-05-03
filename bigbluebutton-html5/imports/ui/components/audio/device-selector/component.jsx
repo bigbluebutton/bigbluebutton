@@ -6,6 +6,7 @@ import browserInfo from '/imports/utils/browserInfo';
 import {
   defineMessages,
 } from 'react-intl';
+import Styled from './styles';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -124,7 +125,7 @@ class DeviceSelector extends Component {
 
   render() {
     const {
-      intl, kind, blocked, deviceId, ...props
+      intl, kind, blocked, deviceId,
     } = this.props;
 
     const { options } = this.state;
@@ -143,8 +144,7 @@ class DeviceSelector extends Component {
     }
 
     return (
-      <select
-        {...props}
+      <Styled.Select
         value={deviceId}
         onChange={this.handleSelectChange}
         disabled={!options.length}
@@ -161,7 +161,7 @@ class DeviceSelector extends Component {
             ))
             : notFoundOption
         }
-      </select>
+      </Styled.Select>
     );
   }
 }

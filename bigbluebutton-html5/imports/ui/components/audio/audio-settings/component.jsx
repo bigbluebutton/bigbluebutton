@@ -8,6 +8,7 @@ import Styled from './styles';
 import logger from '/imports/startup/client/logger';
 import AudioStreamVolume from '/imports/ui/components/audio/audio-stream-volume/component';
 import LocalEchoContainer from '/imports/ui/components/audio/local-echo/container';
+import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
 import {
   getAudioConstraints,
 } from '/imports/api/audio/client/bridge/service';
@@ -254,7 +255,7 @@ class AudioSettings extends React.Component {
           <Styled.FormElement>
             <Styled.LabelSmall htmlFor="inputDeviceSelector">
               {intl.formatMessage(intlMessages.micSourceLabel)}
-              <Styled.DeviceSelectorSelect
+              <DeviceSelector
                 id="inputDeviceSelector"
                 deviceId={inputDeviceId}
                 kind="audioinput"
@@ -269,7 +270,7 @@ class AudioSettings extends React.Component {
           <Styled.FormElement>
             <Styled.LabelSmall htmlFor="outputDeviceSelector">
               {intl.formatMessage(intlMessages.speakerSourceLabel)}
-              <Styled.DeviceSelectorSelect
+              <DeviceSelector
                 id="outputDeviceSelector"
                 deviceId={outputDeviceId}
                 kind="audiooutput"
