@@ -38,9 +38,9 @@ module.exports = class IDMapping {
 
   save(callback) {
     this.redisClient.hmset(config.get("redis.keys.mappingPrefix") + ":" + this.id, this.toRedis(), (error, reply) => {
-      if (error != null) { Logger.error("[IDMapping] error saving mapping to redis:", error, reply); }
+      if (error != null) { Logger.error(`[IDMapping] error saving mapping to redis: ${error} ${reply}`); }
       this.redisClient.sadd(config.get("redis.keys.mappings"), this.id, (error, reply) => {
-        if (error != null) { Logger.error("[IDMapping] error saving mapping ID to the list of mappings:", error, reply); }
+        if (error != null) { Logger.error(`[IDMapping] error saving mapping ID to the list of mappings: ${error} ${reply}`); }
 
         db[this.internalMeetingID] = this;
         (typeof callback === 'function' ? callback(error, db[this.internalMeetingID]) : undefined);
@@ -50,9 +50,9 @@ module.exports = class IDMapping {
 
   destroy(callback) {
     this.redisClient.srem(config.get("redis.keys.mappings"), this.id, (error, reply) => {
-      if (error != null) { Logger.error("[IDMapping] error removing mapping ID from the list of mappings:", error, reply); }
+      if (error != null) { Logger.error(`[IDMapping] error removing mapping ID from the list of mappings: ${error} ${reply}`); }
       this.redisClient.del(config.get("redis.keys.mappingPrefix") + ":" + this.id, error => {
-        if (error != null) { Logger.error("[IDMapping] error removing mapping from redis:", error); }
+        if (error != null) { Logger.error(`[IDMapping] error removing mapping from redis: ${error}`); }
 
         if (db[this.internalMeetingID]) {
           delete db[this.internalMeetingID];
@@ -92,7 +92,7 @@ module.exports = class IDMapping {
     mapping.externalMeetingID = externalMeetingID;
     mapping.lastActivity = new Date().getTime();
     mapping.save(function(error, result) {
-      Logger.info(`[IDMapping] added or changed meeting mapping to the list ${externalMeetingID}:`, mapping.print());
+      Logger.info(`[IDMapping] added or changed meeting mapping to the list ${externalMeetingID}: ${mapping.print()}`);
       (typeof callback === 'function' ? callback(error, result) : undefined);
     });
   }
@@ -104,7 +104,7 @@ module.exports = class IDMapping {
         var mapping = db[internal];
         if (mapping.internalMeetingID === internalMeetingID) {
           result.push(mapping.destroy( (error, result) => {
-            Logger.info(`[IDMapping] removing meeting mapping from the list ${external}:`, mapping.print());
+            Logger.info(`[IDMapping] removing meeting mapping from the list ${external}: ${mapping.print()}`);
             return (typeof callback === 'function' ? callback(error, result) : undefined);
           }));
         } else {
@@ -163,7 +163,7 @@ module.exports = class IDMapping {
     const all = IDMapping.allSync();
     const toRemove = _.filter(all, mapping => mapping.lastActivity < (now - config.get("mappings.timeout")));
     if (!_.isEmpty(toRemove)) {
-      Logger.info("[IDMapping] expiring the mappings:", _.map(toRemove, map => map.print()));
+      Logger.info(`[IDMapping] expiring the mappings: ${_.map(toRemove, map => map.print())}`);
       toRemove.forEach(mapping => {
         UserMapping.removeMappingMeetingId(mapping.internalMeetingID);
         mapping.destroy()
@@ -184,12 +184,12 @@ module.exports = class IDMapping {
     let tasks = [];
 
     return client.smembers(config.get("redis.keys.mappings"), (error, mappings) => {
-      if (error != null) { Logger.error("[IDMapping] error getting list of mappings from redis:", error); }
+      if (error != null) { Logger.error(`[IDMapping] error getting list of mappings from redis: ${error}`); }
 
       mappings.forEach(id => {
         tasks.push(done => {
           client.hgetall(config.get("redis.keys.mappingPrefix") + ":" + id, function(error, mappingData) {
-            if (error != null) { Logger.error("[IDMapping] error getting information for a mapping from redis:", error); }
+            if (error != null) { Logger.error(`[IDMapping] error getting information for a mapping from redis: ${error}`); }
 
             if (mappingData != null) {
               let mapping = new IDMapping();
@@ -207,7 +207,7 @@ module.exports = class IDMapping {
 
       return async.series(tasks, function(errors, result) {
         mappings = _.map(IDMapping.allSync(), m => m.print());
-        Logger.info("[IDMapping] finished resync, mappings registered:", mappings);
+        Logger.info(`[IDMapping] finished resync, mappings registered: ${mappings}`);
         return (typeof callback === 'function' ? callback() : undefined);
       });
     });
