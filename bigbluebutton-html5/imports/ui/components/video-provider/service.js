@@ -773,17 +773,6 @@ class VideoService {
       && this.numberOfDevices > 1;
   }
 
-  // to be used soon (Paulo)
-  amIModerator() {
-    return Users.findOne({ userId: Auth.userID },
-      { fields: { role: 1 } }).role === ROLE_MODERATOR;
-  }
-
-  // to be used soon (Paulo)
-  getNumberOfPublishers() {
-    return VideoStreams.find({ meetingId: Auth.meetingID }).count();
-  }
-
   isProfileBetter (newProfileId, originalProfileId) {
     return CAMERA_PROFILES.findIndex(({ id }) => id === newProfileId)
       > CAMERA_PROFILES.findIndex(({ id }) => id === originalProfileId);
