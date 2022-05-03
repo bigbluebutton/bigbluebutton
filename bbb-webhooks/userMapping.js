@@ -40,9 +40,9 @@ module.exports = class UserMapping {
     db[this.internalUserID] = this;
 
     this.redisClient.hmset(config.get("redis.keys.userMapPrefix") + ":" + this.id, this.toRedis(), (error, reply) => {
-      if (error != null) { Logger.error("[UserMapping] error saving mapping to redis:", error, reply); }
+      if (error != null) { Logger.error(`[UserMapping] error saving mapping to redis: ${error} ${reply}`); }
       this.redisClient.sadd(config.get("redis.keys.userMaps"), this.id, (error, reply) => {
-        if (error != null) { Logger.error("[UserMapping] error saving mapping ID to the list of mappings:", error, reply); }
+        if (error != null) { Logger.error(`[UserMapping] error saving mapping ID to the list of mappings: ${error} ${reply}`); }
 
         (typeof callback === 'function' ? callback(error, db[this.internalUserID]) : undefined);
       });
@@ -51,9 +51,9 @@ module.exports = class UserMapping {
 
   destroy(callback) {
     this.redisClient.srem(config.get("redis.keys.userMaps"), this.id, (error, reply) => {
-      if (error != null) { Logger.error("[UserMapping] error removing mapping ID from the list of mappings:", error, reply); }
+      if (error != null) { Logger.error(`[UserMapping] error removing mapping ID from the list of mappings: ${error} ${reply}`); }
       this.redisClient.del(config.get("redis.keys.userMapPrefix") + ":" + this.id, error => {
-        if (error != null) { Logger.error("[UserMapping] error removing mapping from redis:", error); }
+        if (error != null) { Logger.error(`[UserMapping] error removing mapping from redis: ${error}`); }
 
         if (db[this.internalUserID]) {
           delete db[this.internalUserID];
@@ -96,7 +96,7 @@ module.exports = class UserMapping {
     mapping.meetingId = meetingId;
     mapping.user = user;
     mapping.save(function(error, result) {
-      Logger.info(`[UserMapping] added user mapping to the list ${internalUserID}:`, mapping.print());
+      Logger.info(`[UserMapping] added user mapping to the list ${internalUserID}: ${mapping.print()}`);
       (typeof callback === 'function' ? callback(error, result) : undefined);
     });
   }
@@ -108,7 +108,7 @@ module.exports = class UserMapping {
         var mapping = db[internal];
         if (mapping.internalUserID === internalUserID) {
           result.push(mapping.destroy( (error, result) => {
-            Logger.info(`[UserMapping] removing user mapping from the list ${internalUserID}:`, mapping.print());
+            Logger.info(`[UserMapping] removing user mapping from the list ${internalUserID}: ${mapping.print()}`);
             return (typeof callback === 'function' ? callback(error, result) : undefined);
           }));
         } else {
@@ -126,7 +126,7 @@ module.exports = class UserMapping {
         var mapping = db[internal];
         if (mapping.meetingId === meetingId) {
           result.push(mapping.destroy( (error, result) => {
-            Logger.info(`[UserMapping] removing user mapping from the list ${mapping.internalUserID}:`, mapping.print());
+            Logger.info(`[UserMapping] removing user mapping from the list ${mapping.internalUserID}: ${mapping.print()}`);
           }));
         } else {
           result.push(undefined);
@@ -169,12 +169,12 @@ module.exports = class UserMapping {
     let tasks = [];
 
     return client.smembers(config.get("redis.keys.userMaps"), (error, mappings) => {
-      if (error != null) { Logger.error("[UserMapping] error getting list of mappings from redis:", error); }
+      if (error != null) { Logger.error(`[UserMapping] error getting list of mappings from redis: ${error}`); }
 
       mappings.forEach(id => {
         tasks.push(done => {
           client.hgetall(config.get("redis.keys.userMapPrefix") + ":" + id, function(error, mappingData) {
-            if (error != null) { Logger.error("[UserMapping] error getting information for a mapping from redis:", error); }
+            if (error != null) { Logger.error(`[UserMapping] error getting information for a mapping from redis: ${error}`); }
 
             if (mappingData != null) {
               let mapping = new UserMapping();
@@ -192,7 +192,7 @@ module.exports = class UserMapping {
 
       return async.series(tasks, function(errors, result) {
         mappings = _.map(UserMapping.allSync(), m => m.print());
-        Logger.info("[UserMapping] finished resync, mappings registered:", mappings);
+        Logger.info(`[UserMapping] finished resync, mappings registered: ${mappings}`);
         return (typeof callback === 'function' ? callback() : undefined);
       });
     });

@@ -87,7 +87,7 @@ describe('bbb-webhooks tests', () => {
 
   describe('GET /hooks/destroy', () => {
     before( (done) => {
-      Hook.addSubscription(Helpers.callback,null,false,() => { done(); });
+      Hook.addSubscription(Helpers.callback,null,null,false,() => { done(); });
     });
     it('should destroy a hook', (done) => {
       const hooks = Hook.allGlobalSync();
@@ -152,7 +152,7 @@ describe('bbb-webhooks tests', () => {
   describe('Hook queues', () => {
     before( () => {
       Application.redisPubSubClient().psubscribe("test-channel");
-      Hook.addSubscription(Helpers.callback,null,false, (err,reply) => {
+      Hook.addSubscription(Helpers.callback,null,null,false, (err,reply) => {
         const hooks = Hook.allGlobalSync();
         const hook = hooks[0];
         const hook2 = hooks[hooks.length -1];
@@ -243,7 +243,7 @@ describe('bbb-webhooks tests', () => {
   describe('/POST raw message', () => {
     before( () => {
       Application.redisPubSubClient().psubscribe("test-channel");
-      Hook.addSubscription(Helpers.callback,null,true, (err,hook) => {
+      Hook.addSubscription(Helpers.callback,null,null,true, (err,hook) => {
         Helpers.flushredis(hook);
       })
     });

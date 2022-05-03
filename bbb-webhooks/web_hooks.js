@@ -24,13 +24,13 @@ module.exports = class WebHooks {
 
   // Subscribe to the events on pubsub that might need to be sent in callback calls.
   _subscribeToEvents() {
-    this.subscriberEvents.on("psubscribe", (channel, count) => Logger.info(`[WebHooks] subscribed to:${channel}`));
+    this.subscriberEvents.on("psubscribe", (channel, count) => Logger.info(`[WebHooks] subscribed to: ${channel}`));
 
     this.subscriberEvents.on("pmessage", (pattern, channel, message) => {
 
       let raw;
       const processMessage = () => {
-        Logger.info(`[WebHooks] processing message on [${channel}]:`, JSON.stringify(message));
+        Logger.info(`[WebHooks] processing message on [${channel}]: ${JSON.stringify(message)}`);
         this._processEvent(message, raw);
       };
 
@@ -46,7 +46,7 @@ module.exports = class WebHooks {
           // First treat meeting events to add/remove ID mappings
           switch (message.data.id) {
             case "meeting-created":
-              Logger.info(`[WebHooks] got create message on meetings channel [${channel}]:`, message);
+              Logger.info(`[WebHooks] got create message on meetings channel [${channel}]: ${message}`);
               IDMapping.addOrUpdateMapping(intId, message.data.attributes.meeting["external-meeting-id"], (error, result) => {
               // has to be here, after the meeting was created, otherwise create calls won't generate
               // callback calls for meeting hooks
@@ -69,7 +69,7 @@ module.exports = class WebHooks {
           }
         }
       } catch (e) {
-        Logger.error("[WebHooks] error processing the message:", JSON.stringify(raw), ":", e.message);
+        Logger.error(`[WebHooks] error processing the message ${JSON.stringify(raw)}: ${e.message}`);
       }
     });
 
@@ -93,7 +93,7 @@ module.exports = class WebHooks {
       // Notify the hooks that expect raw data
       async.forEach(hooks, (hook) => {
         if (hook.getRaw) {
-          Logger.info("[WebHooks] enqueueing a raw message in the hook:", hook.callbackURL);
+          Logger.info(`[WebHooks] enqueueing a raw message in the hook: ${hook.callbackURL}`);
           hook.enqueue(message);
         }
       });
@@ -136,7 +136,7 @@ module.exports = class WebHooks {
     // Notify every hook asynchronously, if hook N fails, it won't block hook N+k from receiving its message
     async.forEach(hooks, (hook) => {
       if (!hook.getRaw) {
-        Logger.info("[WebHooks] enqueueing a message in the hook:", hook.callbackURL);
+        Logger.info(`[WebHooks] enqueueing a message in the hook: ${hook.callbackURL}`);
         hook.enqueue(message);
       }
     });

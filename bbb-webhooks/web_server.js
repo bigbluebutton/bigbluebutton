@@ -20,10 +20,9 @@ module.exports = class WebServer {
   start(port, bind, callback) {
     this.server = this.app.listen(port, bind, () => {
       if (this.server.address() == null) {
-        Logger.error("[WebServer] aborting, could not bind to port", port,
-        process.exit(1));
+        Logger.error(`[WebServer] aborting, could not bind to port ${port} ${process.exit(1)}`);
       }
-      Logger.info("[WebServer] listening on port", port, "in", this.app.settings.env.toUpperCase(), "mode");
+      Logger.info(`[WebServer] listening on port ${port} in ${this.app.settings.env.toUpperCase()} mode`);
       typeof callback === 'function' ? callback(null,"k") : undefined;
     });
   }
@@ -32,7 +31,7 @@ module.exports = class WebServer {
     // Request logger
     this.app.all("*", function(req, res, next) {
       if (!fromMonit(req)) {
-        Logger.info("[WebServer]", req.method, "request to", req.url, "from:", clientDataSimple(req));
+        Logger.info(`[WebServer] ${req.method} request to ${req.url} from: ${clientDataSimple(req)}`);
       }
       next();
     });
@@ -50,6 +49,7 @@ module.exports = class WebServer {
     const urlObj = url.parse(req.url, true);
     const callbackURL = urlObj.query["callbackURL"];
     const meetingID = urlObj.query["meetingID"];
+    const eventID = urlObj.query["eventID"];
     let getRaw = urlObj.query["getRaw"];
     if (getRaw){
       getRaw = JSON.parse(getRaw.toLowerCase());
@@ -60,7 +60,7 @@ module.exports = class WebServer {
     if (callbackURL == null) {
       respondWithXML(res, responses.missingParamCallbackURL);
     } else {
-      Hook.addSubscription(callbackURL, meetingID, getRaw, function(error, hook) {
+      Hook.addSubscription(callbackURL, meetingID, eventID, getRaw, function(error, hook) {
         let msg;
         if (error != null) { // the only error for now is for duplicated callbackURL
           msg = responses.createDuplicated(hook.id);
@@ -76,13 +76,13 @@ module.exports = class WebServer {
   // Create a permanent hook. Permanent hooks can't be deleted via API and will try to emit a message until it succeed
   createPermanents(callback) {
     for (let i = 0; i < config.get("hooks.permanentURLs").length; i++) {
-      Hook.addSubscription(config.get("hooks.permanentURLs")[i].url, null, config.get("hooks.permanentURLs")[i].getRaw, function(error, hook) {
+      Hook.addSubscription(config.get("hooks.permanentURLs")[i].url, null, null, config.get("hooks.permanentURLs")[i].getRaw, function(error, hook) {
         if (error != null) { // there probably won't be any errors here
-          Logger.info("[WebServer] duplicated permanent hook", error);
+          Logger.info(`[WebServer] duplicated permanent hook ${error}`);
         } else if (hook != null) {
-          Logger.info("[WebServer] permanent hook created successfully");
+          Logger.info('[WebServer] permanent hook created successfully');
         } else {
-          Logger.info("[WebServer] error creating permanent hook");
+          Logger.info('[WebServer] error creating permanent hook');
         }
       });
     }
@@ -131,6 +131,7 @@ module.exports = class WebServer {
       msg +=   `<hookID>${hook.id}</hookID>`;
       msg +=   `<callbackURL><![CDATA[${hook.callbackURL}]]></callbackURL>`;
       if (!hook.isGlobal()) { msg +=   `<meetingID><![CDATA[${hook.externalMeetingID}]]></meetingID>`; }
+      if (hook.eventID != null) { msg +=   `<eventID>${hook.eventID.join()}</eventID>`; }
       msg +=   `<permanentHook>${hook.permanent}</permanentHook>`;
       msg +=   `<rawData>${hook.getRaw}</rawData>`;
       msg += "</hook>";
@@ -151,7 +152,7 @@ module.exports = class WebServer {
     if (checksum === Utils.checksumAPI(req.url, sharedSecret)) {
       next();
     } else {
-      Logger.info("[WebServer] checksum check failed, sending a checksumError response");
+      Logger.info('[WebServer] checksum check failed, sending a checksumError response');
       res.setHeader("Content-Type", "text/xml");
       res.send(cleanupXML(responses.checksumError));
     }
@@ -160,7 +161,7 @@ module.exports = class WebServer {
 
 var respondWithXML = function(res, msg) {
   msg = cleanupXML(msg);
-  Logger.info("[WebServer] respond with:", msg);
+  Logger.info(`[WebServer] respond with: ${msg}`);
   res.setHeader("Content-Type", "text/xml");
   res.send(msg);
 };
