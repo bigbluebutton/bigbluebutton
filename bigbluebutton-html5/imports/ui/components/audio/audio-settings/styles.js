@@ -1,13 +1,6 @@
 import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
-import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import {
-  colorWhite,
-  colorGrayLight,
-  colorText,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
 
 const FormWrapper = styled.div`
   min-width: 0;
@@ -170,30 +163,6 @@ const BackButton = styled(Button)`
   }
 `;
 
-const DeviceSelectorSelect = styled(DeviceSelector)`
-  -webkit-appearance: none;
-  -webkit-border-radius: 0px;
-  background: ${colorWhite} url("data:image/svg+xml;charset=utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='#667189' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>") no-repeat right .35rem center/.4rem .5rem;
-  background-repeat: no-repeat;
-  border: 0.07rem solid ${colorGrayLight};
-  border-radius: .125rem;
-  color: ${colorText};
-  width: 100%;
-  padding: .4rem;
-
-  &:hover {
-    outline: transparent;
-    outline-style: dotted;
-    outline-width: ${borderSize};
-  }
-
-  &:focus {
-    outline: transparent;
-    outline-width: ${borderSize};
-    outline-style: solid;
-  }
-`;
-
 export default {
   FormWrapper,
   Form,
@@ -206,5 +175,4 @@ export default {
   LabelSmallFullWidth,
   SpacedLeftCol,
   BackButton,
-  DeviceSelectorSelect,
 };
