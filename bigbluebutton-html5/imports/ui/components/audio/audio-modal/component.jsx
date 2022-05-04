@@ -285,6 +285,7 @@ class AudioModal extends Component {
 
     this.setState({
       disableActions: true,
+      hasError: false,
     });
 
     return joinListenOnly().then(() => {
