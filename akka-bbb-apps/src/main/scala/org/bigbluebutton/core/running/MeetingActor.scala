@@ -401,12 +401,12 @@ class MeetingActor(
         updateModeratorsPresence()
 
       // Whiteboard
-      case m: SendCursorPositionPubMsg       => wbApp.handle(m, liveMeeting, msgBus)
-      case m: ClearWhiteboardPubMsg          => wbApp.handle(m, liveMeeting, msgBus)
-      case m: UndoWhiteboardPubMsg           => wbApp.handle(m, liveMeeting, msgBus)
-      case m: ModifyWhiteboardAccessPubMsg   => wbApp.handle(m, liveMeeting, msgBus)
-      case m: SendWhiteboardAnnotationPubMsg => wbApp.handle(m, liveMeeting, msgBus)
-      case m: GetWhiteboardAnnotationsReqMsg => wbApp.handle(m, liveMeeting, msgBus)
+      case m: SendCursorPositionPubMsg          => wbApp.handle(m, liveMeeting, msgBus)
+      case m: ClearWhiteboardPubMsg             => wbApp.handle(m, liveMeeting, msgBus)
+      case m: DeleteWhiteboardAnnotationsPubMsg => wbApp.handle(m, liveMeeting, msgBus)
+      case m: ModifyWhiteboardAccessPubMsg      => wbApp.handle(m, liveMeeting, msgBus)
+      case m: SendWhiteboardAnnotationsPubMsg   => wbApp.handle(m, liveMeeting, msgBus)
+      case m: GetWhiteboardAnnotationsReqMsg    => wbApp.handle(m, liveMeeting, msgBus)
 
       // Poll
       case m: StartPollReqMsg =>

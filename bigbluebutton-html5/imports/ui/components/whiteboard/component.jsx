@@ -28,7 +28,7 @@ const findRemoved = (A, B) => {
 export default function Whiteboard(props) {
   const {
     isPresenter,
-    removeShape,
+    removeShapes,
     initDefaultPages,
     meetingId,
     persistShape,
@@ -263,10 +263,12 @@ export default function Whiteboard(props) {
             }
 
             if (s?.includes("session:complete:EraseSession") || s?.includes("delete")) {
+              let shapesIdsToRemove = []
               shapes.forEach(s => {
                 const ids = e.shapes.map(ss => ss.id);
-                if (!ids.includes(s.id)) removeShape(s.id);
+                if (!ids.includes(s.id)) shapesIdsToRemove.push(s.id);
               });
+              removeShapes(shapesIdsToRemove)
             }
           }}
 

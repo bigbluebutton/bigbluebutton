@@ -64,10 +64,10 @@ object AllowedMessageNames {
 
     // Whiteboard Messages
     ModifyWhiteboardAccessPubMsg.NAME,
-    UndoWhiteboardPubMsg.NAME,
+    DeleteWhiteboardAnnotationsPubMsg.NAME,
     ClearWhiteboardPubMsg.NAME,
     GetWhiteboardAnnotationsReqMsg.NAME,
-    SendWhiteboardAnnotationPubMsg.NAME,
+    SendWhiteboardAnnotationsPubMsg.NAME,
     SendCursorPositionPubMsg.NAME,
 
     // Polling Messages

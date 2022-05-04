@@ -254,10 +254,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ModifyWhiteboardAccessPubMsg](envelope, jsonNode)
       case ClearWhiteboardPubMsg.NAME =>
         routeGenericMsg[ClearWhiteboardPubMsg](envelope, jsonNode)
-      case UndoWhiteboardPubMsg.NAME =>
-        routeGenericMsg[UndoWhiteboardPubMsg](envelope, jsonNode)
-      case SendWhiteboardAnnotationPubMsg.NAME =>
-        routeGenericMsg[SendWhiteboardAnnotationPubMsg](envelope, jsonNode)
+      case DeleteWhiteboardAnnotationsPubMsg.NAME =>
+        routeGenericMsg[DeleteWhiteboardAnnotationsPubMsg](envelope, jsonNode)
+      case SendWhiteboardAnnotationsPubMsg.NAME =>
+        routeGenericMsg[SendWhiteboardAnnotationsPubMsg](envelope, jsonNode)
       case GetWhiteboardAnnotationsReqMsg.NAME =>
         routeGenericMsg[GetWhiteboardAnnotationsReqMsg](envelope, jsonNode)
       case ClientToServerLatencyTracerMsg.NAME =>

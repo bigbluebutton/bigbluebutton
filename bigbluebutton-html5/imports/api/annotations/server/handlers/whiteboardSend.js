@@ -30,24 +30,28 @@ const process = () => {
 };
 
 export default function handleWhiteboardSend({ header, body }, meetingId) {
+  //console.log("!!!!!!!!!! handleWhiteboardSend!!!!!!!!!!: ");
   const userId = header.userId;
-  const annotation = body.annotation;
+  const whiteboardId = body.whiteboardId;
+  const annotations = body.annotations;
+  //console.log(annotations);
 
   check(userId, String);
-  check(annotation, Object);
-
-  const whiteboardId = annotation.wbId;
   check(whiteboardId, String);
+  check(annotations, Array);
 
   if (!annotationsQueue.hasOwnProperty(meetingId)) {
     annotationsQueue[meetingId] = [];
   }
-
-  annotationsQueue[meetingId].push({ meetingId, whiteboardId, userId, annotation });
+  
+  annotations.map(annotation => {
+    annotationsQueue[meetingId].push({ meetingId, whiteboardId, userId, annotation });
+    addAnnotation(meetingId, whiteboardId, userId, annotation);
+  })
   if (queueMetrics) {
     Metrics.setAnnotationQueueLength(meetingId, annotationsQueue[meetingId].length);
   }
   if (!annotationsRecieverIsRunning) process();
 
-  return addAnnotation(meetingId, whiteboardId, userId, annotation);
+  //return addAnnotation(meetingId, whiteboardId, userId, annotation);
 }

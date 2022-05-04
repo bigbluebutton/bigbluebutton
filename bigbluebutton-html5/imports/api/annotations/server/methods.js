@@ -1,12 +1,13 @@
 import { Meteor } from 'meteor/meteor';
-import undoAnnotation from './methods/undoAnnotation';
 import clearWhiteboard from './methods/clearWhiteboard';
-import sendAnnotation from './methods/sendAnnotation';
+import sendAnnotations from './methods/sendAnnotations';
 import sendBulkAnnotations from './methods/sendBulkAnnotations';
+import deleteAnnotations from './methods/deleteAnnotations';
 
 Meteor.methods({
-  undoAnnotation,
   clearWhiteboard,
-  sendAnnotation,
+  sendAnnotations,
+  sendAnnotations,
   sendBulkAnnotations,
+  deleteAnnotations,
 });

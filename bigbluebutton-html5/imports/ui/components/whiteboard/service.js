@@ -1,4 +1,6 @@
 import Users from '/imports/api/users';
+import Captions from "/imports/api/captions";
+import Meetings from "/imports/api/meetings";
 import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
@@ -91,6 +93,7 @@ function handleAddedAnnotation({
   userId,
   annotation,
 }) {
+  console.log ("********** handleAddedAnnotation!!!!!!!!! ***********")
   const isOwn = Auth.meetingID === meetingId && Auth.userID === userId;
   const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
 
@@ -172,32 +175,6 @@ export function initAnnotationsStreamListener() {
   });
 }
 
-function increaseBrightness(realHex, percent) {
-  let hex = parseInt(realHex, 10).toString(16).padStart(6, 0);
-  // strip the leading # if it's there
-  hex = hex.replace(/^\s*#|\s*$/g, "");
-
-  // convert 3 char codes --> 6, e.g. `E0F` --> `EE00FF`
-  if (hex.length === 3) {
-    hex = hex.replace(/(.)/g, "$1$1");
-  }
-
-  const r = parseInt(hex.substr(0, 2), 16);
-  const g = parseInt(hex.substr(2, 2), 16);
-  const b = parseInt(hex.substr(4, 2), 16);
-
-  /* eslint-disable no-bitwise, no-mixed-operators */
-  return parseInt(
-    (0 | ((1 << 8) + r + ((256 - r) * percent) / 100)).toString(16).substr(1) +
-      (0 | ((1 << 8) + g + ((256 - g) * percent) / 100))
-        .toString(16)
-        .substr(1) +
-      (0 | ((1 << 8) + b + ((256 - b) * percent) / 100)).toString(16).substr(1),
-    16
-  );
-  /* eslint-enable no-bitwise, no-mixed-operators */
-}
-
 const annotationsQueue = [];
 // How many packets we need to have to use annotationsBufferTimeMax
 const annotationsMaxDelayQueueSize = 60;
@@ -244,39 +221,9 @@ const sendAnnotation = (annotation) => {
   // reconnected. With this it will miss things
   if (!Meteor.status().connected) return;
 
-  if (annotation.status === DRAW_END) {
-    annotationsQueue.push(annotation);
-    if (!annotationsSenderIsRunning)
-      setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
-  } else {
-    const { position, ...relevantAnotation } = annotation;
-    const queryFake = addAnnotationQuery(
-      Auth.meetingID,
-      annotation.wbId,
-      Auth.userID,
-      {
-        ...relevantAnotation,
-        id: `${annotation.id}`,
-        position: Number.MAX_SAFE_INTEGER,
-        annotationInfo: {
-          ...annotation.annotationInfo,
-          color: increaseBrightness(annotation.annotationInfo.color, 40),
-        },
-      }
-    );
-
-    // This is a really hacky solution, but because of the previous code reuse we need to edit
-    // the pencil draw update modifier so that it sets the whole array instead of pushing to
-    // the end
-    const { status, annotationType } = relevantAnotation;
-    if (status === DRAW_UPDATE && annotationType === ANNOTATION_TYPE_PENCIL) {
-      delete queryFake.modifier.$push;
-      queryFake.modifier.$set["annotationInfo.points"] =
-        annotation.annotationInfo.points;
-    }
-
-    UnsentAnnotations.upsert(queryFake.selector, queryFake.modifier);
-  }
+  annotationsQueue.push(annotation);
+  if (!annotationsSenderIsRunning)
+    setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
 };
 
 const sendLiveSyncPreviewAnnotation = (annotation) => {
@@ -415,13 +362,24 @@ const removeIndividualAccess = (whiteboardId, userId) => {
 
 const DEFAULT_NUM_OF_PAGES = 1;
 
-const persistShape = (shape) => {
-  makeCall("persistShape", shape);
+const persistShape = (shape) => {  
+  const whiteboardId = getCurrentWhiteboardId();
+
+  const annotation = {
+    id: shape.id,
+    annotationInfo: shape,
+    wbId: whiteboardId,
+    userId: Auth.userID,
+  };
+
+  //console.log(shape);
+
+  sendAnnotation(annotation, whiteboardId);
 };
 
 const persistAsset = (asset) => makeCall("persistAsset", asset);
 
-const removeShape = (id) => makeCall("removeShape", id);
+const removeShapes = (shapes) => makeCall("deleteAnnotations", shapes, getCurrentWhiteboardId());
 
 const changeCurrentSlide = (s) => {
   console.log('CHANGE CUR SLIDE SERVICE')
@@ -432,9 +390,20 @@ const publishCursorUpdate = (userId, name, x, y, presenter, isPositionOutside) =
 }
 
 const getShapes = () => {
-  // temporary storage for shapes
-  console.log('getShapes : ', Slides.find().fetch().filter(s => s.childIndex))
-  return Slides.find().fetch().filter(s => s.childIndex);
+  let whiteboardId = getCurrentWhiteboardId();
+
+  annotations =  Annotations.find(
+    {
+      whiteboardId,
+    },
+    {
+      fields: { annotationInfo: 1, },
+    },
+  ).fetch();
+
+  let result = annotations.map(a => a.annotationInfo);
+  console.log('getShapes : ', result);
+  return result;
 };
 
 const getCurrentPres = () => {
@@ -506,7 +475,7 @@ export {
   getShapes,
   getAssets,
   getCurrentPres,
-  removeShape,
+  removeShapes,
   publishCursorUpdate,
   changeCurrentSlide,
   getCurSlide,

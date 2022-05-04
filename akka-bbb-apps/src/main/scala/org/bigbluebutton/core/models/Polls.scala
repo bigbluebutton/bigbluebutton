@@ -2,7 +2,6 @@ package org.bigbluebutton.core.models
 
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.common2.msgs.AnnotationVO
-import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 import org.bigbluebutton.core.domain.MeetingState2x
 
 import scala.collection.mutable.ArrayBuffer
@@ -95,10 +94,6 @@ object Polls {
       annotation.copy(annotationInfo = shape2)
     }
 
-    def updateWhiteboardAnnotation(annotation: AnnotationVO): AnnotationVO = {
-      lm.wbModel.updateAnnotation(annotation.wbId, annotation.userId, annotation)
-    }
-
     def send(poll: SimplePollResultOutVO, shape: scala.collection.immutable.Map[String, Object]): Option[AnnotationVO] = {
       for {
         pod <- state.presentationPodManager.getDefaultPod()
@@ -107,10 +102,8 @@ object Polls {
       } yield {
         val pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
         val updatedShape = shape + ("whiteboardId" -> pageId)
-        val annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS,
-          WhiteboardKeyUtil.POLL_RESULT_TYPE, updatedShape, pageId, requesterId, -1)
-        val sanitizedShape = sanitizeAnnotation(annotation)
-        updateWhiteboardAnnotation(sanitizedShape)
+        val annotation = new AnnotationVO(poll.id, updatedShape, pageId, requesterId)
+        annotation
       }
     }
 
@@ -256,10 +249,8 @@ object Polls {
     val shape = new scala.collection.mutable.HashMap[String, Object]()
     shape += "numRespondents" -> new Integer(result.numRespondents)
     shape += "numResponders" -> new Integer(result.numResponders)
-    shape += "type" -> WhiteboardKeyUtil.POLL_RESULT_TYPE
     shape += "pollType" -> result.questionType
     shape += "id" -> result.id
-    shape += "status" -> WhiteboardKeyUtil.DRAW_END_STATUS
 
     val answers = new ArrayBuffer[SimpleVoteOutVO]
 

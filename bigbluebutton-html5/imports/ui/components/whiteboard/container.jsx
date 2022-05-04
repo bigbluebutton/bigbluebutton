@@ -43,6 +43,7 @@ export default withTracker(({}) => {
   const curPres = Service.getCurrentPres();
   const curSlide = Service.getCurSlide();
 
+  //console.log("!!! withTracker !!! ")
   // console.log('container shapes', shapes)
 
   return {
@@ -54,7 +55,7 @@ export default withTracker(({}) => {
     shapes: shapes,
     assets: assets,
     curPres,
-    removeShape: Service.removeShape,
+    removeShapes: Service.removeShapes,
     publishCursorUpdate: Service.publishCursorUpdate,
   };
 })(WhiteboardContainer);
