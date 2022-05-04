@@ -1317,13 +1317,15 @@ class ApiController {
 
     String requestBody = request.inputStream == null ? null : request.inputStream.text;
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
+    Boolean preUploadedPresentationOverrideDefault = presentationService.preUploadedPresentationOverrideDefault.toBoolean()
+    Boolean isDefaultPresentationCurrent = false;
 
     if (requestBody == null) {
       if (isFromInsertAPI){
         log.warn("Insert Document API called without a payload - ignoring")
         return;
       }
-      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), true /* default presentation */, '', false, true);
+      isDefaultPresentationCurrent = true
     } else {
       def xml = new XmlSlurper().parseText(requestBody);
       xml.children().each { module ->
@@ -1386,6 +1388,9 @@ class ApiController {
           }
         }
       }
+    }
+    if (!preUploadedPresentationOverrideDefault || requestBody == null){
+      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), isDefaultPresentationCurrent /* default presentation */, '', false, true);
     }
   }
 
