@@ -153,7 +153,14 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
 
     val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
     val jobId = RandomStringGenerator.randomAlphanumericString(16)
-    val filename: String = s"${liveMeeting.props.meetingProp.name}-annotated"
+
+    // Set filename, checking if it is already in use
+    var filename: String = liveMeeting.props.meetingProp.name
+    val duplicatedCount = presentationPods.flatMap(_.getPresentationsByFilename(filename)).size
+    filename = duplicatedCount match {
+      case 0 => filename
+      case _ => s"${filename}(${duplicatedCount})"
+    }
 
     // Informs bbb-web about the token so that when we use it to upload the presentation, it is able to look it up in the list of tokens
     bus.outGW.send(buildPresentationUploadTokenSysPubMsg(parentMeetingId, userId, presentationUploadToken, filename))

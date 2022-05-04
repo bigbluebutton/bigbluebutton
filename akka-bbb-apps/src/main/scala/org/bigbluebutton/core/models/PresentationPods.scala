@@ -83,6 +83,9 @@ case class PresentationPod(id: String, currentPresenter: String,
   def getPresentation(presentationId: String): Option[PresentationInPod] =
     presentations.values find (p => p.id == presentationId)
 
+  def getPresentationsByFilename(filename: String): Iterable[PresentationInPod] =
+    presentations.values filter (p => p.name.startsWith(filename))
+
   def setCurrentPresentation(presId: String): Option[PresentationPod] = {
     var tempPod: PresentationPod = this
     presentations.values foreach (curPres => { // unset previous current presentation
