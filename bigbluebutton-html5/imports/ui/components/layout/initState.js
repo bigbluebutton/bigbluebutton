@@ -64,6 +64,7 @@ export const INITIAL_INPUT_STATE = {
       width: 0,
       height: 0,
     },
+    focusedId: 'none',
   },
   presentation: {
     isOpen: true,
@@ -185,6 +186,7 @@ export const INITIAL_OUTPUT_STATE = {
       left: false,
     },
     zIndex: 1,
+    focusedId: 'none',
   },
   dropZoneAreas: {},
   presentation: {

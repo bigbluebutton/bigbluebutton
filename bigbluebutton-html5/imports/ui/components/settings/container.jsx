@@ -7,6 +7,7 @@ import { isScreenSharingEnabled } from '/imports/ui/services/features';
 
 import {
   getUserRoles,
+  isPresenter,
   showGuestNotification,
   updateSettings,
   getAvailableLocales,
@@ -25,6 +26,7 @@ export default withTracker((props) => ({
   application: SettingsService.application,
   updateSettings,
   availableLocales: getAvailableLocales(),
+  isPresenter: isPresenter(),
   isModerator: getUserRoles() === 'MODERATOR',
   showGuestNotification: showGuestNotification(),
   showToggleLabel: false,

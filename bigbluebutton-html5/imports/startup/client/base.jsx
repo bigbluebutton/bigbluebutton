@@ -90,8 +90,6 @@ class Base extends Component {
       value: usersVideo.length,
     });
 
-    MediaService.setSwapLayout(layoutContextDispatch);
-
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
 

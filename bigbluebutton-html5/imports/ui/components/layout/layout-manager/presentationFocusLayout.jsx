@@ -412,6 +412,7 @@ const PresentationFocusLayout = (props) => {
           bottom: false,
           left: false,
         },
+        focusedId: input.cameraDock.focusedId,
         zIndex: cameraDockBounds.zIndex,
       },
     });
