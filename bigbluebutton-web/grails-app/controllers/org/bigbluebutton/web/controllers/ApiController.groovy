@@ -1315,9 +1315,15 @@ class ApiController {
       key, value -> params[key] = sanitizeInput(value)
     }
 
+    Boolean preUploadedPresentationOverrideDefault=true
+    if (!isFromInsertAPI) {
+      String[] po = request.getParameterMap().get("preUploadedPresentationOverrideDefault")
+      if (po == null) preUploadedPresentationOverrideDefault = presentationService.preUploadedPresentationOverrideDefault.toBoolean()
+      else preUploadedPresentationOverrideDefault = po[0].toBoolean()
+    }
+
     String requestBody = request.inputStream == null ? null : request.inputStream.text;
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
-    Boolean preUploadedPresentationOverrideDefault = presentationService.preUploadedPresentationOverrideDefault.toBoolean()
     Boolean isDefaultPresentationCurrent = false;
 
     if (requestBody == null) {
@@ -1389,7 +1395,8 @@ class ApiController {
         }
       }
     }
-    if (!preUploadedPresentationOverrideDefault || requestBody == null){
+    Boolean uploadDefault = !preUploadedPresentationOverrideDefault || requestBody == null;
+    if (uploadDefault){
       downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), isDefaultPresentationCurrent /* default presentation */, '', false, true);
     }
   }
