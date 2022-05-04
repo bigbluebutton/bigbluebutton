@@ -247,6 +247,7 @@ VideoListItem.propTypes = {
     muted: PropTypes.bool.isRequired,
     listenOnly: PropTypes.bool.isRequired,
     talking: PropTypes.bool.isRequired,
+    joined: PropTypes.bool.isRequired,
   }).isRequired,
   focused: PropTypes.bool.isRequired,
 };
