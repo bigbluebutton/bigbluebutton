@@ -69,6 +69,7 @@ class Switch extends Toggle {
           hasFocus={hasFocus}
           disabled={disabled}
           animations={animations}
+          isRTL={document.getElementsByTagName('html')[0].dir === 'rtl'}
         />
 
         <Styled.ScreenreaderInput

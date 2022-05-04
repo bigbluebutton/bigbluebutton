@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
 import { colorDanger, colorSuccess } from '/imports/ui/stylesheets/styled-components/palette';
 
@@ -121,7 +121,7 @@ const ToggleTrackX = styled.div`
 const ToggleThumb = styled.div`
   position: absolute;
   top: 1px;
-  left: 1px;
+  left: ${({ isRTL }) => isRTL ? '2.6rem' : '1px'};
   width: 1.35rem;
   height: 1.35rem;
   border-radius: 50%;
@@ -129,16 +129,12 @@ const ToggleThumb = styled.div`
   box-sizing: border-box;
   box-shadow: 2px 0px 10px -1px rgba(0,0,0,0.4);
 
-  [dir="rtl"] & {
-    left: 2.6rem;
-  }
-
   ${({ animations }) => animations && `
     transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   `}
 
-  ${({ checked }) => checked && `
-    left: 2.1rem;
+  ${({ checked }) => checked && css`
+    left: ${({ isRTL }) => isRTL ? '1px' : '2.1rem' };
     box-shadow: -2px 0px 10px -1px rgba(0,0,0,0.4);
   `}
 
