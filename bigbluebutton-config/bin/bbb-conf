@@ -164,7 +164,8 @@ fi
 WEBRTC_SFU_DEFAULT_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
 WEBRTC_SFU_ETC_CONFIG=/etc/bigbluebutton/bbb-webrtc-sfu/production.yml
 if [ -f $WEBRTC_SFU_ETC_CONFIG ]; then
-    WEBRTC_SFU_CONFIG=$(yq m -x $WEBRTC_SFU_DEFAULT_CONFIG $WEBRTC_SFU_ETC_CONFIG)
+    # -a overwrite: merges arrays by replacement (yq 3.4+, like the override)
+    WEBRTC_SFU_CONFIG=$(yq m -a overwrite -x $WEBRTC_SFU_DEFAULT_CONFIG $WEBRTC_SFU_ETC_CONFIG)
 else
     WEBRTC_SFU_CONFIG=$(yq r $WEBRTC_SFU_DEFAULT_CONFIG)
 fi
@@ -1435,9 +1436,12 @@ if [ $CHECK ]; then
     fi
 
     if [ -n "$WEBRTC_SFU_CONFIG" ]; then
+        MEDIASOUP_WEBRTC_IPS=$(echo "$WEBRTC_SFU_CONFIG" | yq r --printMode v - mediasoup.webrtc.listenIps.*.announcedIp)
         echo
         echo "/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (bbb-webrtc-sfu)"
         echo "/etc/bigbluebutton/bbb-webrtc-sfu/production.yml (bbb-webrtc-sfu - override)"
+        echo "    mediasoup.webrtc.*.announcedIp: $(echo "$MEDIASOUP_WEBRTC_IPS" | awk -v ORS=", " '{ print $1 }' | sed 's/, $//')"
+        echo "  mediasoup.plainRtp.*.announcedIp: $(echo "$WEBRTC_SFU_CONFIG" | yq r --printMode v - mediasoup.plainRtp.*.announcedIp)"
         echo "                        kurento.ip: $(echo "$WEBRTC_SFU_CONFIG" | yq r - kurento[0].ip)"
         echo "                       kurento.url: $(echo "$WEBRTC_SFU_CONFIG" | yq r - kurento[0].url)"
         echo "                 freeswitch.sip_ip: $(echo "$WEBRTC_SFU_CONFIG" | yq r - freeswitch.sip_ip)"
