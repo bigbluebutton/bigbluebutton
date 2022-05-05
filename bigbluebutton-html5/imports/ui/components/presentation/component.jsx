@@ -156,6 +156,8 @@ class Presentation extends PureComponent {
       presentationBounds,
       numCameras,
       intl,
+      multiUser,
+      clearFakeAnnotations,
     } = this.props;
 
     const { presentationWidth, presentationHeight } = this.state;
@@ -164,6 +166,10 @@ class Presentation extends PureComponent {
       numCameras: prevNumCameras,
       presentationBounds: prevPresentationBounds,
     } = prevProps;
+
+    if (!multiUser) {
+      clearFakeAnnotations();
+    }
 
     if (numCameras !== prevNumCameras) {
       this.onResize();
