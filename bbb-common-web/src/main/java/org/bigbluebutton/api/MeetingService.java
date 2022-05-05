@@ -104,7 +104,6 @@ public class MeetingService implements MessageListener {
   private CallbackUrlService callbackUrlService;
   private HTML5LoadBalancingService html5LoadBalancingService;
   private SwfSlidesGenerationProgressNotifier notifier;
-  private Boolean webcamsOnlyForModerator;
 
   private long usersTimeout;
   private long waitingGuestUsersTimeout;
@@ -1260,10 +1259,6 @@ public class MeetingService implements MessageListener {
     waitingGuestCleaner.stop();
     userCleaner.stop();
     enteredUserCleaner.stop();
-  }
-
-  public void setWebcamsOnlyForModerator(boolean webcamsOnlyForModerator) {
-    this.webcamsOnlyForModerator = webcamsOnlyForModerator;
   }
 
   public void setRecordingService(RecordingService s) {
