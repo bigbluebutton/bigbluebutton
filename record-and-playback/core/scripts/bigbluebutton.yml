@@ -40,10 +40,9 @@ anonymize_chat: false
 # meta param: meta_bbb-anonymize-chat-moderators (true/false)
 anonymize_chat_moderators: false
 
-# By default, the locks are going to be applied and the viewer's point
-# of view is going to be showed here
-# The webcamsOnlyForModerator is one example of it: only moderator's camera
-# are going to be shown, that is, if the below property is false.
+# By default, recordings assume the Viewer viewpoint (with all locks)
+# so when webcamsOnlyForModerator=true, only moderators webcams are included in recordings.
+# Use this option to ignore locks and assume Moderator viewpoint instead.
 show_moderator_viewpoint: false
 
 # Sequence of recording steps. Keys are the current step, values
