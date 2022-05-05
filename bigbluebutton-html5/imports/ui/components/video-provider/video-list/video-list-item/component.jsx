@@ -153,7 +153,7 @@ const VideoListItem = (props) => {
         />
       </Styled.VideoContainer>
 
-      {shouldRenderReconnect && <Styled.Reconnecting />}
+      {shouldRenderReconnect && <Styled.Reconnecting animations={animations} />}
     </Styled.Content>
   );
 };
