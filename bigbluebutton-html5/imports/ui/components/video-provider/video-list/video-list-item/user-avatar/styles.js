@@ -14,6 +14,10 @@ const UserAvatarStyled = styled(UserAvatar)`
   max-width: 66px;
   max-height: 66px;
 
+  ${({ unhealthyStream }) => unhealthyStream && `
+    filter: grayscale(50%) opacity(50%);
+  `}
+
   ${({ dialIn }) => dialIn && `
     &:before {
       content: "\\00a0\\e91a\\00a0";
@@ -39,7 +43,7 @@ const UserAvatarStyled = styled(UserAvatar)`
     &:before {
       padding: 0.7rem !important;
     }
-    `};
+  `};
 `;
 
 export default {

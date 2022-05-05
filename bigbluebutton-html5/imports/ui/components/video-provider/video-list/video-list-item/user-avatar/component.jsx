@@ -5,7 +5,7 @@ import Icon from '/imports/ui/components/common/icon/component';
 import UserListService from '/imports/ui/components/user-list/service';
 
 const UserAvatarVideo = (props) => {
-  const { user } = props;
+  const { user, unhealthyStream } = props;
   const {
     name, color, avatar, role, emoji, presenter, clientType,
   } = user;
@@ -27,6 +27,7 @@ const UserAvatarVideo = (props) => {
       color={color}
       emoji={emoji !== 'none'}
       avatar={avatar}
+      unhealthyStream={unhealthyStream}
     >
       {handleUserIcon()}
     </Styled.UserAvatarStyled>
@@ -45,4 +46,5 @@ UserAvatarVideo.propTypes = {
     presenter: PropTypes.bool.isRequired,
     clientType: PropTypes.string.isRequired,
   }).isRequired,
+  unhealthyStream: PropTypes.bool.isRequired,
 };
