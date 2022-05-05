@@ -133,5 +133,6 @@ export default withTracker(({ podId }) => {
       'bbb_force_restore_presentation_on_new_events',
       Meteor.settings.public.presentation.restoreOnUpdate,
     ),
+    clearFakeAnnotations: WhiteboardService.clearFakeAnnotations,
   };
 })(PresentationContainer);

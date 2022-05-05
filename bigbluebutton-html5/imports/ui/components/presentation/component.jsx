@@ -154,12 +154,18 @@ class Presentation extends PureComponent {
       presentationBounds,
       numCameras,
       intl,
+      multiUser,
+      clearFakeAnnotations,
     } = this.props;
 
     const {
       numCameras: prevNumCameras,
       presentationBounds: prevPresentationBounds,
     } = prevProps;
+
+    if (!multiUser) {
+      clearFakeAnnotations();
+    }
 
     if (numCameras !== prevNumCameras) {
       this.onResize();
