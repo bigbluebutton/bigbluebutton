@@ -1349,6 +1349,7 @@ class ApiController {
               break
             }
           }
+          isDefaultPresentationCurrent=!hasCurrent
           Boolean foundCurrent = !hasCurrent;
           int lastIndex = module.children().size() - 1
           module.children().eachWithIndex { document, index ->
