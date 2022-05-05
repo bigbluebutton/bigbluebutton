@@ -56,7 +56,7 @@ const Center = styled.div`
 `;
 
 const PresentationTitle = styled.h1`
-  font-weight: 200;
+  font-weight: 400;
   color: ${colorWhite};
   font-size: ${fontSizeBase};
   margin: 0;
