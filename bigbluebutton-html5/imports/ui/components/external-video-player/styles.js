@@ -74,12 +74,8 @@ const HoverToolbar = styled.div`
 `;
 
 const ProgressBar = styled.div`
-  display: none;
-
-  :hover > & {
-    display: block;
-  }
-
+  position: absolute;
+  bottom: 0;
   height: 5px;
   width: 100%;
 

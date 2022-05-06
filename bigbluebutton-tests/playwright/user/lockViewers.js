@@ -20,7 +20,7 @@ class LockViewers extends MultiUsers {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockShareWebcam);
     await this.modPage.waitAndClick(e.applyLockSettings);
-    await waitAndClearNotification(this.modPage);
+    // await waitAndClearNotification(this.modPage); // notification check is unstable
     const videoContainerLockedCount = await this.userPage2.getSelectorCount(e.webcamVideoItem);
     expect(videoContainerLockedCount).toBe(1);
 
@@ -99,13 +99,13 @@ class LockViewers extends MultiUsers {
   }
 
   async lockSeeOtherViewersUserList() {
-    const usersCount = this.userPage.getLocator(e.userListItem);
-    expect(await usersCount.count()).toBe(2);
+    expect(await this.userPage.getLocator(e.userListItem).count()).toBe(2);
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockUserList);
     await this.modPage.waitAndClick(e.applyLockSettings);
 
-    expect(await usersCount.count()).toBe(1);
+    await sleep(1000);
+    expect(await this.userPage.getLocator(e.userListItem).count()).toBe(1);
     await this.userPage2.hasText(e.userListItem, this.modPage.username);
   }
 
