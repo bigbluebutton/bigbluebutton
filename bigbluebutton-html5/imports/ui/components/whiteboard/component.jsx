@@ -36,12 +36,13 @@ export default function Whiteboard(props) {
     shapes,
     assets,
     currentUser,
-    publishCursorUpdate,
     curPres,
     curSlide,
     changeCurrentSlide,
+    whiteboardId,
   } = props;
   console.log('curPres : ', curPres)
+  //console.log('whiteboardId : ', whiteboardId)
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
     name: "test",
@@ -183,7 +184,7 @@ export default function Whiteboard(props) {
       <Cursors
         tldrawAPI={tldrawAPI}
         currentUser={currentUser}
-        publishCursorUpdate={publishCursorUpdate}
+        whiteboardId={whiteboardId}
       >
         <Tldraw
           document={doc}
@@ -209,13 +210,13 @@ export default function Whiteboard(props) {
 
           onUndo={s => {
             s?.selectedIds?.map(id => {
-              persistShape(s.getShape(id));
+              persistShape(s.getShape(id), whiteboardId);
             })
           }}
 
           onRedo={s => {
             s?.selectedIds?.map(id => {
-              persistShape(s.getShape(id));
+              persistShape(s.getShape(id), whiteboardId);
             });
           }}
 
@@ -228,7 +229,7 @@ export default function Whiteboard(props) {
                 .filter(([k, s]) => s?.type === 'draw')
                 .forEach(([k, s]) => {
                   if (!e.prevShapes[k] || !k.includes('slide-background')) {
-                    persistShape(s);
+                    persistShape(s, whiteboardId);
                   }
                 });
             }
@@ -236,7 +237,7 @@ export default function Whiteboard(props) {
             if (s.includes("style")
             || s?.includes("session:complete:ArrowSession")) {
               e.selectedIds.forEach(id => {
-                persistShape(e.getShape(id));
+                persistShape(e.getShape(id), whiteboardId);
               }); 
             }
 
@@ -245,20 +246,20 @@ export default function Whiteboard(props) {
               || s?.includes("updated_shapes")
               || s?.includes("session:complete:RotateSession")) {
                 e.selectedIds.forEach(id => {
-                    persistShape(e.getShape(id));
+                    persistShape(e.getShape(id), whiteboardId);
                     //checks to find any bindings assosiated with the selected shapes.
                     //If any, they need to be updated as well.
                     const pageBindings = rDocument?.current?.pages[e.getPage()?.id]?.bindings;
                     const boundShapes = [];
                     if (pageBindings) {
                       Object.entries(pageBindings).map(([k,b]) => {
-                        if (b.toId.includes(id)) {
+                        if (b.toId.includes(id), whiteboardId) {
                           boundShapes.push(rDocument?.current?.pages[e.getPage()?.id]?.shapes[b.fromId])
                         }
                       })
                     }
                     //persist shape(s) that was updated by the client and any shapes bound to it.
-                    boundShapes.forEach(bs => persistShape(bs))
+                    boundShapes.forEach(bs => persistShape(bs), whiteboardId)
                 });
             }
 
@@ -268,7 +269,7 @@ export default function Whiteboard(props) {
                 const ids = e.shapes.map(ss => ss.id);
                 if (!ids.includes(s.id)) shapesIdsToRemove.push(s.id);
               });
-              removeShapes(shapesIdsToRemove)
+              removeShapes(shapesIdsToRemove, whiteboardId)
             }
           }}
 

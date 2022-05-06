@@ -360,10 +360,7 @@ const removeIndividualAccess = (whiteboardId, userId) => {
   makeCall("removeIndividualAccess", whiteboardId, userId);
 };
 
-const DEFAULT_NUM_OF_PAGES = 1;
-
-const persistShape = (shape) => {  
-  const whiteboardId = getCurrentWhiteboardId();
+const persistShape = (shape, whiteboardId) => {
 
   const annotation = {
     id: shape.id,
@@ -379,19 +376,14 @@ const persistShape = (shape) => {
 
 const persistAsset = (asset) => makeCall("persistAsset", asset);
 
-const removeShapes = (shapes) => makeCall("deleteAnnotations", shapes, getCurrentWhiteboardId());
+const removeShapes = (shapes, whiteboardId) => makeCall("deleteAnnotations", shapes, whiteboardId);
 
 const changeCurrentSlide = (s) => {
   console.log('CHANGE CUR SLIDE SERVICE')
   makeCall("changeCurrentSlide", s);
 }
-const publishCursorUpdate = (userId, name, x, y, presenter, isPositionOutside) => {
-  makeCall("publishCursorUpdate", Auth.meetingID, userId, { userId, name, x, y, presenter, isPositionOutside })
-}
 
-const getShapes = () => {
-  let whiteboardId = getCurrentWhiteboardId();
-
+const getShapes = (whiteboardId) => {
   annotations =  Annotations.find(
     {
       whiteboardId,
@@ -476,7 +468,6 @@ export {
   getAssets,
   getCurrentPres,
   removeShapes,
-  publishCursorUpdate,
   changeCurrentSlide,
   getCurSlide,
 };

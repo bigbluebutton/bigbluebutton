@@ -76,6 +76,7 @@ const PositionLabel = (props) => {
     currentPoint,
     pageState,
     publishCursorUpdate,
+    whiteboardId,
   } = props;
 
   const { name, color, userId, presenter } = currentUser;
@@ -86,13 +87,11 @@ const PositionLabel = (props) => {
       const point = _.isEqual(currentPoint, prevCurrentPoint)
         ? [x, y]
         : currentPoint;
-      props.publishCursorUpdate(
-        userId,
-        name,
-        ((point[0] / pageState?.camera?.zoom) - pageState?.camera?.point[0]),
-        ((point[1] / pageState?.camera?.zoom) - pageState?.camera?.point[1]),
-        presenter
-      );
+      publishCursorUpdate({
+        xPercent: ((point[0] / pageState?.camera?.zoom) - pageState?.camera?.point[0]),
+        yPercent: ((point[1] / pageState?.camera?.zoom) - pageState?.camera?.point[1]),
+        whiteboardId
+      });
     } catch (e) {
       console.log(e);
     }
@@ -117,6 +116,7 @@ export default function Cursors(props) {
           currentPoint={props.tldrawAPI?.currentPoint}
           pageState={props.tldrawAPI?.getPageState()}
           publishCursorUpdate={props.publishCursorUpdate}
+          whiteboardId={props.whiteboardId}
         />
         {props.children}
       </ReactCursorPosition>
@@ -125,10 +125,10 @@ export default function Cursors(props) {
           props.currentUser.userId !== c.userId &&
           // !c.isPositionOutside &&
           renderCursor(
-            c.name,
+            c.userName,
             c.presenter ? "#C70039" : "#AFE1AF",
-            c.x,
-            c.y,
+            c.xPercent,
+            c.yPercent,
             null,
             props.tldrawAPI?.getPageState(),
             true
