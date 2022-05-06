@@ -22,7 +22,7 @@ const clearPreview = (annotation) => {
   UnsentAnnotations.remove({ id: annotation });
 };
 
-function clearFakeAnnotations() {
+const clearFakeAnnotations = () => {
   UnsentAnnotations.remove({});
 }
 
@@ -299,4 +299,5 @@ export {
   addIndividualAccess,
   removeGlobalAccess,
   removeIndividualAccess,
+  clearFakeAnnotations,
 };

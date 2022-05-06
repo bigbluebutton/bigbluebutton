@@ -24,6 +24,7 @@ import PollingContainer from '/imports/ui/components/polling/container';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import browserInfo from '/imports/utils/browserInfo';
+import { clearCursors } from '/imports/ui/components/cursor/service';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -154,12 +155,19 @@ class Presentation extends PureComponent {
       presentationBounds,
       numCameras,
       intl,
+      multiUser,
+      clearFakeAnnotations,
     } = this.props;
 
     const {
       numCameras: prevNumCameras,
       presentationBounds: prevPresentationBounds,
     } = prevProps;
+
+    if (!multiUser) {
+      clearFakeAnnotations();
+      clearCursors();
+    }
 
     if (numCameras !== prevNumCameras) {
       this.onResize();
