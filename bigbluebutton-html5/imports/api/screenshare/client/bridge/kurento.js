@@ -5,6 +5,7 @@ import ScreenshareBroker from '/imports/ui/services/bbb-webrtc-sfu/screenshare-b
 import { setSharingScreen, screenShareEndAlert } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from './errors';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
+import MediaStreamUtils from '/imports/utils/media-stream-utils';
 
 const SFU_CONFIG = Meteor.settings.public.kurento;
 const SFU_URL = SFU_CONFIG.wsUrl;
@@ -356,7 +357,11 @@ export default class KurentoScreenshareBridge {
       mediaElement.srcObject = null;
     }
 
-    this.gdmStream = null;
+    if (this.gdmStream) {
+      MediaStreamUtils.stopMediaStreamTracks(this.gdmStream);
+      this.gdmStream = null;
+    }
+
     this.clearReconnectionTimeout();
   }
 }
