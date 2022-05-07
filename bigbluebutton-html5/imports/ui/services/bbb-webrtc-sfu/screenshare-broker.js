@@ -24,19 +24,38 @@ class ScreenshareBroker extends BaseBroker {
     this.hasAudio = false;
     this.offering = true;
     this.signalCandidates = true;
+    this.ending = false;
 
     // Optional parameters are: userName, caleeName, iceServers, hasAudio,
     // bitrate, offering, mediaServer, signalCandidates
     Object.assign(this, options);
   }
 
-  onstreamended () {
+  _onstreamended() {
+    // Flag the broker as ending; we want to abort processing start responses
+    this.ending = true;
+    this.onstreamended();
+  }
+
+  onstreamended() {
     // To be implemented by instantiators
   }
 
-  share () {
-    return this.openWSConnection()
-      .then(this.startScreensharing.bind(this));
+  async share () {
+    return new Promise((resolve, reject) => {
+      if (this.stream == null) {
+        logger.error({
+          logCode: `${this.logCodePrefix}_missing_stream`,
+          extraInfo: { role: this.role, sfuComponent: this.sfuComponent },
+        }, 'Screenshare broker start failed: missing stream');
+        return reject(BaseBroker.assembleError(1305));
+      }
+
+      return this.openWSConnection()
+        .then(this.startScreensharing.bind(this))
+        .then(resolve)
+        .catch(reject);
+    });
   }
 
   view () {
@@ -49,11 +68,15 @@ class ScreenshareBroker extends BaseBroker {
 
     switch (parsedMessage.id) {
       case 'startResponse':
-        this.onRemoteDescriptionReceived(parsedMessage);
+        if (!this.ending && !this.started) {
+          this.onRemoteDescriptionReceived(parsedMessage);
+        }
         break;
       case 'playStart':
-        this.onstart();
-        this.started = true;
+        if (!this.ending && !this.started) {
+          this.onstart();
+          this.started = true;
+        }
         break;
       case 'stopSharing':
         this.stop();
@@ -152,7 +175,7 @@ class ScreenshareBroker extends BaseBroker {
     this.sendStartReq(sdpOffer);
   }
 
-  startScreensharing () {
+  startScreensharing() {
     return new Promise((resolve, reject) => {
       const options = {
         onicecandidate: this.signalCandidates ? this.onIceCandidate.bind(this) : null,
@@ -173,7 +196,7 @@ class ScreenshareBroker extends BaseBroker {
               sfuComponent: this.sfuComponent,
               started: this.started,
             },
-          }, `Screenshare peer creation failed`);
+          }, 'Screenshare peer creation failed');
           this.onerror(normalizedError);
           return reject(normalizedError);
         }
@@ -185,17 +208,6 @@ class ScreenshareBroker extends BaseBroker {
         } else {
           this.sendStartReq();
         }
-
-        const localStream = this.webRtcPeer.peerConnection.getLocalStreams()[0];
-
-        localStream.getVideoTracks()[0].onended = () => {
-          this.webRtcPeer.peerConnection.onconnectionstatechange = null;
-          this.onstreamended();
-        };
-
-        localStream.getVideoTracks()[0].oninactive = () => {
-          this.onstreamended();
-        };
 
         return resolve();
       });

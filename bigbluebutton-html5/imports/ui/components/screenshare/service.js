@@ -39,6 +39,32 @@ const setSharingScreen = (isSharingScreen) => {
   }
 };
 
+const _trackStreamTermination = (stream, handler) => {
+  if (typeof stream !== 'object' || typeof handler !== 'function') {
+    throw new TypeError('Invalid trackStreamTermination arguments');
+  }
+
+  if (stream.oninactive === null) {
+    stream.addEventListener('inactive', handler, { once: true });
+  } else {
+    const track = MediaStreamUtils.getVideoTracks(stream)[0];
+    if (track) {
+      track.addEventListener('ended', handler, { once: true });
+      track.onended = handler;
+    }
+  }
+};
+
+const _isStreamActive = (stream) => {
+  const tracksAreActive = !stream.getTracks().some(track => track.readyState === 'ended');
+
+  return tracksAreActive && stream.active;
+}
+
+const _handleStreamTermination = () => {
+  screenshareHasEnded();
+};
+
 // A simplified, trackable version of isVideoBroadcasting that DOES NOT
 // account for the presenter's local sharing state.
 // It reflects the GLOBAL screen sharing state (akka-apps)
@@ -122,11 +148,25 @@ const shareScreen = async (isPresenter, onFail) => {
 
   try {
     const stream = await BridgeService.getScreenStream();
-    if(!isPresenter) return MediaStreamUtils.stopMediaStreamTracks(stream);
+    _trackStreamTermination(stream, _handleStreamTermination);
+
+    if (!isPresenter) {
+      MediaStreamUtils.stopMediaStreamTracks(stream);
+      return;
+    }
+
     await KurentoBridge.share(stream, onFail);
+
+    // Stream might have been disabled in the meantime. I love badly designed
+    // async components like this screen sharing bridge :) - prlanzarin 09 May 22
+    if (!_isStreamActive(stream)) {
+      _handleStreamTermination();
+      return;
+    }
+
     setSharingScreen(true);
   } catch (error) {
-    return onFail(error);
+    onFail(error);
   }
 };
 
