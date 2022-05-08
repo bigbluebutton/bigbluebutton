@@ -144,11 +144,13 @@ export default class KurentoScreenshareBridge {
     return this.connectionAttempts > BridgeService.MAX_CONN_ATTEMPTS;
   }
 
-  scheduleReconnect () {
+  scheduleReconnect(immediate = false) {
     if (this.reconnectionTimeout == null) {
+      const nextRestartInterval = immediate ? 0 : this.restartIntervalMs;
+
       this.reconnectionTimeout = setTimeout(
         this.handleConnectionTimeoutExpiry.bind(this),
-        this.restartIntervalMs
+        nextRestartInterval,
       );
     }
   }
@@ -216,7 +218,9 @@ export default class KurentoScreenshareBridge {
     // during call; schedule a reconnect
     // If the session has not yet started, a reconnect should already be scheduled
     if (this._shouldReconnect()) {
-      this.scheduleReconnect();
+      // this.broker.started => whether the reconnect should happen immediately.
+      // If this session had alredy been established, it should.
+      this.scheduleReconnect(this.broker.started);
     }
 
     return error;
