@@ -66,10 +66,10 @@ class TimeWindowChatItem extends PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { height, forceCacheUpdate, systemMessage, index } = this.props;
+    const { height, forceCacheUpdate, index } = this.props;
     const elementHeight = this.itemRef ? this.itemRef.clientHeight : null;
 
-    if (systemMessage && elementHeight && height !== 'auto' && elementHeight !== height && this.state.forcedUpdateCount < 10) {
+    if (elementHeight && height !== 'auto' && elementHeight !== height && this.state.forcedUpdateCount < 10) {
       // forceCacheUpdate() internally calls forceUpdate(), so we need a stop flag
       // and cannot rely on shouldComponentUpdate() and other comparisons.
       forceCacheUpdate(index);
@@ -158,7 +158,10 @@ class TimeWindowChatItem extends PureComponent {
     const emphasizedText = messageFromModerator && CHAT_EMPHASIZE_TEXT && chatId === CHAT_PUBLIC_ID;
 
     return (
-      <Styled.Item key={`time-window-${messageKey}`}>
+      <Styled.Item
+        key={`time-window-${messageKey}`}
+        ref={element => this.itemRef = element}
+      >
         <Styled.Wrapper isSystemSender={isSystemSender}>
           <Styled.AvatarWrapper>
             <UserAvatar
