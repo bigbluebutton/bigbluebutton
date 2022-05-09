@@ -283,11 +283,7 @@ class TimeWindowChatItem extends PureComponent {
       return this.renderSystemMessage();
     }
 
-    return (
-      <Styled.Item>
-        {this.renderMessageItem()}
-      </Styled.Item>
-    );
+    return this.renderMessageItem();
   }
 }
 
