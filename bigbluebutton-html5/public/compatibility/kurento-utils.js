@@ -310,40 +310,22 @@ function WebRtcPeer(mode, options, callback) {
         return pc.remoteDescription;
     };
     function setRemoteVideo() {
-      if (remoteVideo) {
-        // TODO review the retry - prlanzarin 08/18
-        let played = false;
-        const MAX_RETRIES = 5;
-        let attempt = 0;
-        const playVideo = () => {
-          if (!played) {
-            if (attempt < MAX_RETRIES) {
-              remoteVideo.play()
-                .then(() => { remoteVideo.muted = false; played = true; attempt = 0;})
-                .catch(e => {
-                  attempt++;
-                  setTimeout(() => {
-                    playVideo(remoteVideo);
-                  }, 500);
+        if (remoteVideo) {
+            const stream = self.getRemoteStream();
+
+            remoteVideo.oncanplaythrough = function() {
+                remoteVideo.play().then(() => {
+                    remoteVideo.muted = false;
+                }).catch(() => {
+                    const tagFailedEvent = new CustomEvent('mediaTagPlayFailed', { detail: { mediaTag: remoteVideo } });
+                    window.dispatchEvent(tagFailedEvent);
                 });
-            } else {
-              const tagFailedEvent = new CustomEvent('mediaTagPlayFailed', { detail: { mediaTag: remoteVideo } });
-              window.dispatchEvent(tagFailedEvent);
-            }
-          }
+            };
+
+            remoteVideo.pause();
+            remoteVideo.srcObject = stream;
+            remoteVideo.load();
         }
-
-        let stream = self.getRemoteStream();
-
-        remoteVideo.oncanplaythrough = function() {
-          playVideo();
-        };
-
-        remoteVideo.pause();
-        remoteVideo.srcObject = stream;
-        remoteVideo.load();
-        logger.info('Remote URL:', remoteVideo.srcObject);
-      }
     }
     this.showLocalVideo = function () {
         localVideo.srcObject = videoStream;
@@ -3257,7 +3239,7 @@ exports.parse = function(sdp) {
 
             /;fbav\/([\w\.]+);/i                                                // Facebook App for iOS & Android with version
             ], [VERSION, [NAME, 'Facebook']], [
-            
+
             /FBAN\/FBIOS|FB_IAB\/FB4A/i                                         // Facebook App for iOS & Android without version
             ], [[NAME, 'Facebook']], [
 
@@ -3535,7 +3517,7 @@ exports.parse = function(sdp) {
 
             /android.+;\s(\w+)\s+build\/hm\1/i,                                 // Xiaomi Hongmi 'numeric' models
             /android.+(hm[\s\-_]?note?[\s_]?(?:\d\w)?)\sbuild/i,                // Xiaomi Hongmi
-            /android.+(redmi[\s\-_]?(?:note|k)?(?:[\s_]?[\w\s]+))(?:\sbuild|\))/i,      
+            /android.+(redmi[\s\-_]?(?:note|k)?(?:[\s_]?[\w\s]+))(?:\sbuild|\))/i,
                                                                                 // Xiaomi Redmi
             /android.+(mi[\s\-_]?(?:a\d|one|one[\s_]plus|note lte)?[\s_]?(?:\d?\w?)[\s_]?(?:plus)?)\sbuild/i
                                                                                 // Xiaomi Mi
