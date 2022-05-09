@@ -33,6 +33,7 @@ const MEDIA_TAG = MEDIA.mediaTag;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
 const SIPJS_HACK_VIA_WS = MEDIA.sipjsHackViaWs;
+const SIPJS_ALLOW_MDNS = MEDIA.sipjsAllowMdns || false;
 const IPV4_FALLBACK_DOMAIN = Meteor.settings.public.app.ipv4FallbackDomain;
 const CALL_CONNECT_TIMEOUT = 20000;
 const ICE_NEGOTIATION_TIMEOUT = 20000;
@@ -761,6 +762,11 @@ class SIPSession {
       const target = SIP.UserAgent.makeURI(`sip:${callExtension}@${hostname}`);
 
       const matchConstraints = getAudioConstraints({ deviceId: this.inputDeviceId });
+      const iceModifiers = [
+        filterValidIceCandidates.bind(this, this.validIceCandidates),
+      ];
+
+      if (!SIPJS_ALLOW_MDNS) iceModifiers.push(stripMDnsCandidates);
 
       const inviterOptions = {
         sessionDescriptionHandlerOptions: {
@@ -772,10 +778,7 @@ class SIPSession {
           },
           iceGatheringTimeout: ICE_GATHERING_TIMEOUT,
         },
-        sessionDescriptionHandlerModifiersPostICEGathering: [
-          stripMDnsCandidates,
-          filterValidIceCandidates.bind(this, this.validIceCandidates),
-        ],
+        sessionDescriptionHandlerModifiersPostICEGathering: iceModifiers,
         delegate: {
           onSessionDescriptionHandler:
             this.initSessionDescriptionHandler.bind(this),

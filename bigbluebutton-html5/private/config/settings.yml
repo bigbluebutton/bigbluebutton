@@ -550,6 +550,9 @@ public:
     # showing to the user there's an audio error.
     audioReconnectionAttempts: 3
     sipjsHackViaWs: false
+    # sipjsAllowMdns: whether mDNS candidates should be allowed in local SDPs.
+    # Default is false since FreeSWITCH doesn't resolve mDNS by default.
+    sipjsAllowMdns: false
     # the fqdn of this host.
     # If you run a traditional setup of multiple nodes behind scalelite and the users see the hostnames of the
     # individual nodes, you can leave this at the default setting
