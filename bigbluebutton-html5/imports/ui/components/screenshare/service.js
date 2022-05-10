@@ -9,14 +9,12 @@ import Auth from '/imports/ui/services/auth';
 import AudioService from '/imports/ui/components/audio/service';
 import { Meteor } from "meteor/meteor";
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
+import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 
 const VOLUME_CONTROL_ENABLED = Meteor.settings.public.kurento.screenshare.enableVolumeControl;
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
 
-/**
- * Screenshare status to be filtered in getStats()
- */
-const FILTER_SCREENSHARE_STATS = [
+const DEFAULT_SCREENSHARE_STATS_TYPES = [
   'outbound-rtp',
   'inbound-rtp',
 ];
@@ -192,33 +190,33 @@ const screenShareEndAlert = () => AudioService
 const dataSavingSetting = () => Settings.dataSaving.viewScreenshare;
 
 /**
-   * Get stats about all active screenshare peer.
-   * We filter the status based on FILTER_SCREENSHARE_STATS constant.
+   * Get stats about all active screenshare peers.
    *
    * For more information see:
-   * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
-   * and
-   * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
-   * @returns An Object containing the information about each active peer
-   *          (currently one, for screenshare). The returned format
-   *          follows the format returned by video's service getStats, which
-   *          considers more than one peer connection to be returned.
+   *  - https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
+   *  - https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
+
+   * @param {Array[String]} statsType - An array containing valid RTCStatsType
+   *                                    values to include in the return object
+   *
+   * @returns {Object} The information about each active screen sharing peer.
+   *          The returned format follows the format returned by video's service
+   *          getStats, which considers more than one peer connection to be returned.
    *          The format is given by:
    *          {
    *            peerIdString: RTCStatsReport
    *          }
    */
-const getStats = async () => {
+const getStats = async (statsTypes = DEFAULT_SCREENSHARE_STATS_TYPES) => {
+  const screenshareStats = {};
   const peer = KurentoBridge.getPeerConnection();
 
   if (!peer) return null;
 
   const peerStats = await peer.getStats();
 
-  const screenshareStats = {};
-
   peerStats.forEach((stat) => {
-    if (FILTER_SCREENSHARE_STATS.includes(stat.type)) {
+    if (statsTypes.includes(stat.type)) {
       screenshareStats[stat.type] = stat;
     }
   });
@@ -226,8 +224,21 @@ const getStats = async () => {
   return { screenshareStats };
 };
 
+// This method may throw errors
+const isMediaFlowing = (previousStats, currentStats) => {
+  const bpsData = ConnectionStatusService.calculateBitsPerSecond(
+    currentStats.screenshareStats,
+    previousStats.screenshareStats,
+  );
+  const bpsDataAggr = Object.values(bpsData)
+    .reduce((sum, partialBpsData = 0) => sum + parseFloat(partialBpsData), 0);
+
+  return bpsDataAggr > 0;
+};
+
 export {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
+  isMediaFlowing,
   isVideoBroadcasting,
   screenshareHasEnded,
   screenshareHasStarted,
