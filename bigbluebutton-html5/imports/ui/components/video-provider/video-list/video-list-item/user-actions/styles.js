@@ -9,7 +9,7 @@ const DropdownTrigger = styled(DivElipsis)`
   position: relative;
   // Keep the background with 0.5 opacity, but leave the text with 1
   background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 1px;
+  border-radius: 10px;
   color: ${colorOffWhite};
   padding: 0 1rem 0 .5rem !important;
   font-size: 80%;
