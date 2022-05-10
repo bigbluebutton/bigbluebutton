@@ -105,6 +105,9 @@ const getErrorLocale = (errorCode) => {
     // Unsupported errors
     case SCREENSHARING_ERRORS.NotSupportedError.errorCode:
       return intlMessages.unsupportedEnvError;
+    // Errors that should be silent/ignored. They WILL NOT be LOGGED nor NOTIFIED via toasts.
+    case SCREENSHARING_ERRORS.ENDED_WHILE_STARTING.errorCode:
+      return null;
     // Fall through: everything else is an error which might be solved with a retry
     default:
       return intlMessages.retryError;
@@ -128,13 +131,16 @@ const ScreenshareButton = ({
       errorMessage,
     } = error;
 
-    logger.error({
-      logCode: 'screenshare_failed',
-      extraInfo: { errorCode, errorMessage },
-    }, 'Screenshare failed');
-
     const localizedError = getErrorLocale(errorCode);
-    notify(intl.formatMessage(localizedError, { 0: errorCode }), 'error', 'desktop');
+
+    if (localizedError) {
+      notify(intl.formatMessage(localizedError, { 0: errorCode }), 'error', 'desktop');
+      logger.error({
+        logCode: 'screenshare_failed',
+        extraInfo: { errorCode, errorMessage },
+      }, `Screenshare failed: ${errorMessage} (code=${errorCode})`);
+    }
+
     screenshareHasEnded();
   };
 

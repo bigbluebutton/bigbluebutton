@@ -23,7 +23,8 @@ const ERROR_MAP = {
   1302: SCREENSHARING_ERRORS.SIGNALLING_TRANSPORT_CONNECTION_FAILED,
   1305: SCREENSHARING_ERRORS.PEER_NEGOTIATION_FAILED,
   1307: SCREENSHARING_ERRORS.ICE_STATE_FAILED,
-}
+  1310: SCREENSHARING_ERRORS.ENDED_WHILE_STARTING,
+};
 
 const mapErrorCode = (error) => {
   const { errorCode } = error;
@@ -330,11 +331,11 @@ export default class KurentoScreenshareBridge {
       this.broker.onended = this.handleEnded.bind(this);
 
       this.broker.share().then(() => {
-          this.scheduleReconnect();
-          return resolve();
-        }).catch(reject);
+        this.scheduleReconnect();
+        return resolve();
+      }).catch((error) => reject(mapErrorCode(error)));
     });
-  };
+  }
 
   stop() {
     const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
