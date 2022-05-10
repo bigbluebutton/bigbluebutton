@@ -203,7 +203,7 @@ class MessageForm extends PureComponent {
     let message = null;
     let error = null;
 
-    if (AUTO_CONVERT_EMOJI === true) {
+    if (AUTO_CONVERT_EMOJI) {
       message = checkText(e.target.value);
     } else {
       message = e.target.value;
