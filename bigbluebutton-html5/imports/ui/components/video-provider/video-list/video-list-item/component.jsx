@@ -22,7 +22,7 @@ const VideoListItem = (props) => {
 
   const [videoIsReady, setVideoIsReady] = useState(false);
   const [isStreamHealthy, setIsStreamHealthy] = useState(false);
-  const [isMirrored, setIsMirrored] = useState(VideoService.mirrorOwnWebcam(user.userId));
+  const [isMirrored, setIsMirrored] = useState(VideoService.mirrorOwnWebcam(user?.userId));
 
   const videoTag = useRef();
   const videoContainer = useRef();
