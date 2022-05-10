@@ -437,7 +437,7 @@ class SIPSession {
       this.userAgent = new SIP.UserAgent({
         uri: SIP.UserAgent.makeURI(`sip:${encodeURIComponent(callerIdName)}@${hostname}`),
         transportOptions: {
-          server: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/ws${SIPJS_HACK_VIA_WS ? '/sipjsHackViaWs' : ''}?${token}`,
+          server: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/${SIPJS_HACK_VIA_WS ? 'ws' : 'wss'}?${token}`,
           connectionTimeout: USER_AGENT_CONNECTION_TIMEOUT_MS,
           keepAliveInterval: WEBSOCKET_KEEP_ALIVE_INTERVAL,
           keepAliveDebounce: WEBSOCKET_KEEP_ALIVE_DEBOUNCE,

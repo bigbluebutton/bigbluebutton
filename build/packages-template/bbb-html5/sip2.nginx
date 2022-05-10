@@ -1,37 +1,29 @@
-location /ws {
-        # The client will use SIP to send FreeSWITCH a list of its addresses,
-        # from which one will be selected for use.  Which one depends on how
-        # the client connected - connections from a private address space
-        # should use the private address; connections from a public address
-        # should use it.  Since we're running through nginx as a proxy,
-        # FreeSWITCH can't determine on its own how the client connected.
-        # Therefore, we route the two different kinds of client connections
-        # to two different FreeSWITCH SIP profiles listening on separate ports.
+# The client will use SIP to send FreeSWITCH a list of its addresses,
+# from which one will be selected for use.  Which one depends on how
+# the client connected - connections from a private address space
+# should use the private address; connections from a public address
+# should use it.  Since we're running through nginx as a proxy,
+# FreeSWITCH can't determine on its own how the client connected.
+# Therefore, we route the two different kinds of client connections to
+# two different FreeSWITCH SIP profiles listening on separate ports.
+# A third type is used for IPv6 connections.
 
-        # Due to a long-standing bug in the FreeSWITCH SSL code
-        # (see https://github.com/bigbluebutton/bigbluebutton/issues/9667),
-        # we've added a sipjsHackViaWs option to the HTML 5 client which
-        # expects to connect to an unsecured (non-SSL) FreeSWITCH port
-        # proxied over a secure nginx session.  Depending on whether
-        # this option is specified, we route to either a WS or a WSS
-        # session on FreeSWITCH.
+# Due to a long-standing bug in the FreeSWITCH SSL code (see
+# https://github.com/bigbluebutton/bigbluebutton/issues/9667), we've
+# added a sipjsHackViaWs option to the HTML 5 client which expects to
+# connect to an unsecured (non-SSL) FreeSWITCH port proxied over a
+# secure nginx session.  Depending on whether this option is
+# specified, we route to either a WS or a WSS session on FreeSWITCH.
 
-        location = /ws {
-                if ($private_address = true) {
-                        proxy_pass https://127.0.0.1:7445;
-                }
-                if ($private_address = false) {
-                        proxy_pass https://127.0.0.1:7443;
-                }
+location /wss {
+        if ($private_address = 0) {
+                proxy_pass https://127.0.0.1:7443;
         }
-
-        location = /ws/sipjsHackViaWs {
-                if ($private_address = true) {
-                        proxy_pass http://127.0.0.1:5068;
-                }
-                if ($private_address = false) {
-                        proxy_pass http://127.0.0.1:5066;
-                }
+        if ($private_address = 1) {
+                proxy_pass https://127.0.0.1:7445;
+        }
+        if ($private_address = 2) {
+                proxy_pass https://127.0.0.1:7447;
         }
 
         proxy_http_version 1.1;
@@ -46,3 +38,25 @@ location /ws {
 	auth_request_set $auth_status $upstream_status;
 }
 
+location /ws {
+        if ($private_address = 0) {
+                proxy_pass http://127.0.0.1:5066;
+        }
+        if ($private_address = 1) {
+                proxy_pass http://127.0.0.1:5068;
+        }
+        if ($private_address = 2) {
+                proxy_pass http://127.0.0.1:5070;
+        }
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_read_timeout 120s;
+        proxy_send_timeout 120s;
+        client_body_timeout 120s;
+        send_timeout 120s;
+
+	auth_request /bigbluebutton/connection/checkAuthorization;
+	auth_request_set $auth_status $upstream_status;
+}
