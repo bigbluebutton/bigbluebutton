@@ -470,6 +470,7 @@ public:
     typingIndicator:
       enabled: true
     moderatorChatEmphasized: true
+    autoConvertEmoji: true
   notes:
     enabled: true
     id: notes

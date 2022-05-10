@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+import { checkText } from 'smile2emoji';
 import deviceInfo from '/imports/utils/deviceInfo';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
@@ -61,6 +62,7 @@ const messages = defineMessages({
 });
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
+const AUTO_CONVERT_EMOJI = Meteor.settings.public.chat.autoConvertEmoji;
 
 class MessageForm extends PureComponent {
   constructor(props) {
@@ -198,8 +200,14 @@ class MessageForm extends PureComponent {
       maxMessageLength,
     } = this.props;
 
-    const message = e.target.value;
+    let message = null;
     let error = null;
+
+    if (AUTO_CONVERT_EMOJI === true) {
+      message = checkText(e.target.value);
+    } else {
+      message = e.target.value;
+    }
 
     if (message.length > maxMessageLength) {
       error = intl.formatMessage(
