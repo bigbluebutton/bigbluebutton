@@ -92,7 +92,7 @@ export default class KurentoScreenshareBridge {
       },
     }, `Screenshare presenter session is reconnecting`);
 
-    this.stop();
+    this._stop();
     this.restartIntervalMs = BridgeService.getNextReconnectionInterval(currentRestartIntervalMs);
     this.share(stream, this.onerror).then(() => {
       this.clearReconnectionTimeout();
@@ -124,7 +124,7 @@ export default class KurentoScreenshareBridge {
     }, `Screenshare viewer session is reconnecting`);
 
     // Cleanly stop everything before triggering a reconnect
-    this.stop();
+    this._stop();
     // Create new reconnect interval time
     this.restartIntervalMs = BridgeService.getNextReconnectionInterval(currentRestartIntervalMs);
     this.view(this.hasAudio).then(() => {
@@ -215,6 +215,7 @@ export default class KurentoScreenshareBridge {
     }
 
     this.clearReconnectionTimeout();
+    this.connectionAttempts = 0;
   }
 
   handleBrokerFailure(error) {
@@ -338,9 +339,11 @@ export default class KurentoScreenshareBridge {
     });
   }
 
-  stop() {
-    const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
-
+  // This is a reconnect-safe internal method. Should be used when one wants
+  // to clear the internal components (ie broker, connection timeouts) without
+  // affecting externally controlled components (ie gDM stream,
+  // media tag, connectionAttempts, ...)
+  _stop() {
     if (this.broker) {
       this.broker.stop();
       // Checks if this session is a sharer and if it's not reconnecting
@@ -353,6 +356,15 @@ export default class KurentoScreenshareBridge {
       this.broker = null;
     }
 
+    this.clearReconnectionTimeout();
+  }
+
+  stop() {
+    const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
+
+    this._stop();
+    this.connectionAttempts = 0;
+
     if (mediaElement && typeof mediaElement.pause === 'function') {
       mediaElement.pause();
       mediaElement.srcObject = null;
@@ -362,7 +374,5 @@ export default class KurentoScreenshareBridge {
       MediaStreamUtils.stopMediaStreamTracks(this.gdmStream);
       this.gdmStream = null;
     }
-
-    this.clearReconnectionTimeout();
   }
 }
