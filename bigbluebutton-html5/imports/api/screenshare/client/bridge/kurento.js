@@ -59,6 +59,11 @@ export default class KurentoScreenshareBridge {
     this._gdmStream = stream;
   }
 
+  _shouldReconnect() {
+    // Sender/presenter reconnect is *not* implemented yet
+    return this.broker.started && this.role === RECV_ROLE;
+  }
+
   /**
    * Get the RTCPeerConnection object related to the screensharing stream.
    * @returns {Object} The RTCPeerConnection object related to the presenter/
@@ -79,38 +84,6 @@ export default class KurentoScreenshareBridge {
     }
   }
 
-  outboundStreamReconnect() {
-    const currentRestartIntervalMs = this.restartIntervalMs;
-    const stream = this.gdmStream;
-
-    logger.warn({
-      logCode: 'screenshare_presenter_reconnect',
-      extraInfo: {
-        reconnecting: this.reconnecting,
-        role: this.role,
-        bridge: BRIDGE_NAME
-      },
-    }, `Screenshare presenter session is reconnecting`);
-
-    this._stop();
-    this.restartIntervalMs = BridgeService.getNextReconnectionInterval(currentRestartIntervalMs);
-    this.share(stream, this.onerror).then(() => {
-      this.clearReconnectionTimeout();
-    }).catch(error => {
-      // Error handling is a no-op because it will be "handled" in handlePresenterFailure
-      logger.debug({
-        logCode: 'screenshare_reconnect_failed',
-        extraInfo: {
-          errorCode: error.errorCode,
-          errorMessage: error.errorMessage,
-          reconnecting: this.reconnecting,
-          role: this.role,
-          bridge: BRIDGE_NAME
-        },
-      }, 'Screensharing reconnect failed');
-    });
-  }
-
   inboundStreamReconnect() {
     const currentRestartIntervalMs = this.restartIntervalMs;
 
@@ -119,9 +92,9 @@ export default class KurentoScreenshareBridge {
       extraInfo: {
         reconnecting: this.reconnecting,
         role: this.role,
-        bridge: BRIDGE_NAME
+        bridge: BRIDGE_NAME,
       },
-    }, `Screenshare viewer session is reconnecting`);
+    }, 'Screenshare viewer is reconnecting');
 
     // Cleanly stop everything before triggering a reconnect
     this._stop();
@@ -129,7 +102,7 @@ export default class KurentoScreenshareBridge {
     this.restartIntervalMs = BridgeService.getNextReconnectionInterval(currentRestartIntervalMs);
     this.view(this.hasAudio).then(() => {
       this.clearReconnectionTimeout();
-    }).catch(error => {
+    }).catch((error) => {
       // Error handling is a no-op because it will be "handled" in handleViewerFailure
       logger.debug({
         logCode: 'screenshare_reconnect_failed',
@@ -150,13 +123,19 @@ export default class KurentoScreenshareBridge {
     switch (this.role) {
       case RECV_ROLE:
         return this.inboundStreamReconnect();
+
+      // Sender/presenter reconnect is *not* implemented yet
       case SEND_ROLE:
-        return this.outboundStreamReconnect();
       default:
         this.reconnecting = false;
         logger.error({
-          logCode: 'screenshare_invalid_role'
-        }, 'Screen sharing with invalid role, wont reconnect');
+          logCode: 'screenshare_wont_reconnect',
+          extraInfo: {
+            role: this.broker?.role || this.role,
+            started: !!(this.broker?.started),
+            bridge: BRIDGE_NAME,
+          },
+        }, 'Screen sharing will not reconnect');
         break;
     }
   }
@@ -165,11 +144,13 @@ export default class KurentoScreenshareBridge {
     return this.connectionAttempts > BridgeService.MAX_CONN_ATTEMPTS;
   }
 
-  scheduleReconnect () {
+  scheduleReconnect(immediate = false) {
     if (this.reconnectionTimeout == null) {
+      const nextRestartInterval = immediate ? 0 : this.restartIntervalMs;
+
       this.reconnectionTimeout = setTimeout(
         this.handleConnectionTimeoutExpiry.bind(this),
-        this.restartIntervalMs
+        nextRestartInterval,
       );
     }
   }
@@ -236,8 +217,10 @@ export default class KurentoScreenshareBridge {
     // Screensharing was already successfully negotiated and error occurred during
     // during call; schedule a reconnect
     // If the session has not yet started, a reconnect should already be scheduled
-    if (this.broker.started) {
-      this.scheduleReconnect();
+    if (this._shouldReconnect()) {
+      // this.broker.started => whether the reconnect should happen immediately.
+      // If this session had alredy been established, it should.
+      this.scheduleReconnect(this.broker.started);
     }
 
     return error;
@@ -296,12 +279,17 @@ export default class KurentoScreenshareBridge {
 
       const onerror = (error) => {
         const normalizedError = this.handleBrokerFailure(error);
-        if (this.maxConnectionAttemptsReached()) {
-          this.clearReconnectionTimeout();
-          this.connectionAttempts = 0;
-          onFailure(SCREENSHARING_ERRORS.MEDIA_TIMEOUT);
-
-          return reject(SCREENSHARING_ERRORS.MEDIA_TIMEOUT);
+        if (!this.broker.started) {
+        // Broker hasn't started - if there are retries left, try again.
+          if (this.maxConnectionAttemptsReached()) {
+            this.clearReconnectionTimeout();
+            this.connectionAttempts = 0;
+            onFailure(SCREENSHARING_ERRORS.MEDIA_TIMEOUT);
+            reject(SCREENSHARING_ERRORS.MEDIA_TIMEOUT);
+          }
+        } else if (!this._shouldReconnect()) {
+          // Broker has started - should reconnect? If it shouldn't, end it.
+          onFailure(normalizedError);
         }
       };
 
