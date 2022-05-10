@@ -214,9 +214,9 @@ public:
     wsConnectionTimeout: 4000
     # Time in milis to wait for the browser to return a gUM call (used in video-preview)
     gUMTimeout: 20000
-    # Experiment(al). Controls whether ICE candidates should be signaled.
-    # Applies to webcams, listen only and screen sharing. True is "stable behavior".
-    signalCandidates: true
+    # Controls whether ICE candidates should be signaled to bbb-webrtc-sfu.
+    # Enable this if you want to use Kurento as the media server.
+    signalCandidates: false
     # Forces relay usage only on Firefox. Applies to listen only, webcams and screenshare.
     forceRelayOnFirefox: false
     cameraTimeouts:

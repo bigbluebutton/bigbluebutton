@@ -11,6 +11,7 @@ import {
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import Settings from '/imports/ui/services/settings';
+import VideoService from '/imports/ui/components/video-provider/service';
 import Styled from './styles';
 
 const VIDEO_CONTAINER_WIDTH_BOUND = 125;
@@ -23,7 +24,7 @@ const VideoListItem = (props) => {
 
   const [videoIsReady, setVideoIsReady] = useState(false);
   const [isStreamHealthy, setIsStreamHealthy] = useState(false);
-  const [isMirrored, setIsMirrored] = useState(false);
+  const [isMirrored, setIsMirrored] = useState(VideoService.mirrorOwnWebcam(user.userId));
   const [isVideoSqueezed, setIsVideoSqueezed] = useState(false);
 
   const resizeObserver = new ResizeObserver((entry) => {
