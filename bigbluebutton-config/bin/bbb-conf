@@ -1618,6 +1618,11 @@ if [ -n "$HOST" ]; then
         echo "bigbluebutton.web.serverURL=$PROTOCOL://$HOST" >> "$BBB_WEB_ETC_CONFIG"
     fi
 
+    # Populate /etc/bigbluebutton/bbb-web.properites with the shared secret
+    if ! grep -q "^securitySalt" "$BBB_WEB_ETC_CONFIG"; then
+        echo "securitySalt=$(get_bbb_web_config_value securitySalt)" >> "$BBB_WEB_ETC_CONFIG"
+    fi
+
 
     if ! grep -q server_names_hash_bucket_size /etc/nginx/nginx.conf; then
         $SUDO sed -i "s/gzip  on;/gzip  on;\n    server_names_hash_bucket_size  64;/g" /etc/nginx/nginx.conf

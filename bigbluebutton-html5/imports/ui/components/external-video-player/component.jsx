@@ -13,6 +13,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 
 import logger from '/imports/startup/client/logger';
 
+import Subtitles from './subtitles/component';
 import VolumeSlider from './volume-slider/component';
 import ReloadButton from '/imports/ui/components/reload-button/component';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
@@ -33,6 +34,12 @@ const intlMessages = defineMessages({
   },
   fullscreenLabel: {
     id: 'app.externalVideo.fullscreenLabel',
+  },
+  subtitlesOn: {
+    id: 'app.externalVideo.subtitlesOn',
+  },
+  subtitlesOff: {
+    id: 'app.externalVideo.subtitlesOff',
   },
 });
 
@@ -69,6 +76,7 @@ class VideoPlayer extends Component {
     this.throttleTimeout = null;
 
     this.state = {
+      subtitlesOn: false,
       muted: false,
       playing: false,
       autoPlayBlocked: false,
@@ -83,6 +91,7 @@ class VideoPlayer extends Component {
       Vimeo: true,
       Facebook: true,
       ArcPlayer: true,
+      //YouTube: true,
     };
 
     this.opts = {
@@ -115,6 +124,7 @@ class VideoPlayer extends Component {
           rel: 0,
           ecver: 2,
           controls: isPresenter ? 1 : 0,
+          cc_lang_pref: document.getElementsByTagName('html')[0].lang.substring(0, 2),
         },
       },
       peertube: {
@@ -147,6 +157,7 @@ class VideoPlayer extends Component {
     this.getMuted = this.getMuted.bind(this);
     this.setPlaybackRate = this.setPlaybackRate.bind(this);
     this.onBeforeUnload = this.onBeforeUnload.bind(this);
+    this.toggleSubtitle = this.toggleSubtitle.bind(this);
 
     this.mobileHoverSetTimeout = null;
   }
@@ -227,6 +238,20 @@ class VideoPlayer extends Component {
         value: false,
       });
     }
+  }
+
+  toggleSubtitle() {
+    this.setState((state) => {
+      return { subtitlesOn: !state.subtitlesOn };
+    }, () => {
+      const { subtitlesOn } = this.state;
+      const { isPresenter } = this.props;
+      if (!isPresenter && subtitlesOn) {
+        this?.player?.getInternalPlayer()?.setOption('captions', 'reload', true);
+      } else {
+        this?.player?.getInternalPlayer()?.unloadModule('captions');
+      }
+    });
   }
 
   handleOnReady() {
@@ -548,7 +573,7 @@ class VideoPlayer extends Component {
 
     const {
       playing, playbackRate, mutedByEchoTest, autoPlayBlocked,
-      volume, muted, key, showHoverToolBar, played, loaded
+      volume, muted, key, showHoverToolBar, played, loaded, subtitlesOn
     } = this.state;
 
     // This looks weird, but I need to get this nested player
@@ -577,6 +602,7 @@ class VideoPlayer extends Component {
           width,
           pointerEvents: isResizing ? 'none' : 'inherit',
           display: isMinimized && 'none',
+          background: 'var(--color-black)',
         }}
       >
         <Styled.VideoPlayerWrapper
@@ -616,18 +642,6 @@ class VideoPlayer extends Component {
             !isPresenter
               ? [
                 (
-                  <Styled.ProgressBar>
-                    <Styled.Loaded
-                      style={{ width: loaded * 100 + '%' }}
-                      >
-                      <Styled.Played
-                        style={{ width: played * 100 / loaded + '%'}}
-                      >
-                      </Styled.Played>
-                    </Styled.Loaded>
-                  </Styled.ProgressBar>
-                ),
-                (
                   <Styled.HoverToolbar key="hover-toolbar-external-video">
                     <VolumeSlider
                       hideVolume={this.hideVolume[playerName]}
@@ -636,12 +650,32 @@ class VideoPlayer extends Component {
                       onMuted={this.handleOnMuted}
                       onVolumeChanged={this.handleVolumeChanged}
                     />
-
-                    <ReloadButton
-                      handleReload={this.handleReload}
-                      label={intl.formatMessage(intlMessages.refreshLabel)}
-                    />
+                    <Styled.ButtonsWrapper>
+                      <ReloadButton
+                        handleReload={this.handleReload}
+                        label={intl.formatMessage(intlMessages.refreshLabel)}
+                      />
+                      {playerName === 'YouTube' && (
+                        <Subtitles
+                          toggleSubtitle={this.toggleSubtitle}
+                          label={subtitlesOn
+                            ? intl.formatMessage(intlMessages.subtitlesOn)
+                            : intl.formatMessage(intlMessages.subtitlesOff)
+                          }
+                        />
+                      )}
+                    </Styled.ButtonsWrapper>
                     {this.renderFullscreenButton()}
+
+                    <Styled.ProgressBar>
+                      <Styled.Loaded
+                        style={{ width: loaded * 100 + '%' }}
+                      >
+                        <Styled.Played
+                          style={{ width: played * 100 / loaded + '%'}}
+                        />
+                      </Styled.Loaded>
+                    </Styled.ProgressBar>
                   </Styled.HoverToolbar>
                 ),
                 (deviceInfo.isMobile && playing) && (

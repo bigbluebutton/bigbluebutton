@@ -44,9 +44,7 @@ import Settings from '/imports/ui/services/settings';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import Notifications from '../notifications/container';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
-
 import MediaService from '/imports/ui/components/media/service';
-
 import ActionsBarContainer from '../actions-bar/container';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
