@@ -1,0 +1,45 @@
+<!-- SIP clients send FreeSWITCH a list of their IP addresses, from which -->
+<!-- one address will be selected for use.  Which one depends on how the client -->
+<!-- connected - connections from a private address space should use -->
+<!-- the private address; connections from a public address should use -->
+<!-- the public address.  Since BigBlueButton runs SIP through nginx as a proxy, -->
+<!-- FreeSWITCH can't determine on its own how the client connected. -->
+
+<!-- Therefore, different FreeSWITCH profiles are used, listening on -->
+<!-- different TCP ports for connections from localhost's nginx. -->
+
+<!-- This is the "ipv6" profile, listening for WS on port 5070 -->
+<!-- and WSS on port 7447, used for connections from IPv6 addresses. -->
+
+<!-- apply-candidate-acl uses only public IPv6 addresses -->
+<!-- ext-rtp-ip and ext-sip-ip are unused in IPv6 -->
+<!-- local-network-acl is set to none (nothing is local; everything is NAT) -->
+
+<profile name="ipv6">
+
+  <domains>
+    <!--<domain name="all" alias="false" parse="true"/>-->
+  </domains>
+
+  <settings>
+    <X-PRE-PROCESS cmd="include" data="common.xml"/>
+
+    <param name="sip-port" value="$${external_sip_port}"/>
+
+    <param name="local-network-acl" value="localnet.auto"/>
+
+    <param name="apply-candidate-acl" value="deny_private_v6"/>
+
+    <!--
+        DO NOT USE HOSTNAMES, ONLY IP ADDRESSES IN THESE SETTINGS!
+    -->
+
+    <param name="rtp-ip" value="$${local_ip_v6}"/>
+    <param name="sip-ip" value="$${local_ip_v6}"/>
+
+    <param name="ws-binding" value="127.0.0.1:5070"/>
+    <param name="wss-binding" value="127.0.0.1:7447"/>
+
+  </settings>
+</profile>
+
