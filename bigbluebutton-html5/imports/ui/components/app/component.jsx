@@ -160,12 +160,8 @@ class App extends Component {
       layoutContextDispatch,
       meetingLayout,
       settingsLayout,
-      focusedCamera,
-      presentationVideoRate,
       cameraWidth,
       cameraHeight,
-      cameraPosition,
-      presentationIsOpen,
       layoutPresOpen,
       layoutCamPosition,
       layoutFocusedCam,
@@ -617,7 +613,6 @@ class App extends Component {
       shouldShowExternalVideo,
       isPresenter,
       selectedLayout,
-      meetingLayout,
       presentationIsOpen,
     } = this.props;
 
