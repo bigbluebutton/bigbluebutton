@@ -1322,6 +1322,7 @@ class ApiController {
       else preUploadedPresentationOverrideDefault = po[0].toBoolean()
     }
 
+    Boolean isDefaultPresentationUsed = false;
     String requestBody = request.inputStream == null ? null : request.inputStream.text;
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
     Boolean isDefaultPresentationCurrent = false;
@@ -1332,6 +1333,7 @@ class ApiController {
         return;
       }
       isDefaultPresentationCurrent = true
+      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), isDefaultPresentationCurrent /* default presentation */, '', false, true);
     } else {
       def xml = new XmlSlurper().parseText(requestBody);
       xml.children().each { module ->
@@ -1349,7 +1351,14 @@ class ApiController {
               break
             }
           }
-          isDefaultPresentationCurrent=!hasCurrent
+          Boolean uploadDefault = !preUploadedPresentationOverrideDefault && !isDefaultPresentationUsed && !isFromInsertAPI;
+          if (uploadDefault){
+            isDefaultPresentationCurrent=!hasCurrent;
+            hasCurrent = true
+            isDefaultPresentationUsed = true
+            downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), isDefaultPresentationCurrent /* default presentation */, '', false, true);
+          }
+
           Boolean foundCurrent = !hasCurrent;
           int lastIndex = module.children().size() - 1
           module.children().eachWithIndex { document, index ->
@@ -1395,10 +1404,6 @@ class ApiController {
           }
         }
       }
-    }
-    Boolean uploadDefault = !preUploadedPresentationOverrideDefault || requestBody == null;
-    if (uploadDefault){
-      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), isDefaultPresentationCurrent /* default presentation */, '', false, true);
     }
   }
 
