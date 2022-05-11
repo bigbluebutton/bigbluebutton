@@ -1,9 +1,5 @@
-import Presentations from '/imports/api/presentations';
-import { Slides } from '/imports/api/slides';
 import { Meteor } from 'meteor/meteor';
-import RedisPubSub from '/imports/startup/server/redis';
 import { extractCredentials } from '/imports/api/common/server/helpers';
-import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import addAsset from '../modifiers/addAsset';
 

@@ -849,6 +849,7 @@ class Presentation extends PureComponent {
       numCameras,
       currentPresentation,
       layoutSwapped,
+      podId,
     } = this.props;
 
     const {
@@ -926,6 +927,8 @@ class Presentation extends PureComponent {
         >
           <WhiteboardContainer 
             whiteboardId={currentSlide?.id}
+            podId={podId}
+            slidePosition={slidePosition}
             getSvgRef={this.getSvgRef}
           />
           {isFullscreen && <PollingContainer />}

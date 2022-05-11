@@ -40,6 +40,9 @@ export default function Whiteboard(props) {
     curSlide,
     changeCurrentSlide,
     whiteboardId,
+    podId,
+    zoomSlide,
+    slidePosition,
   } = props;
   // console.log('curPres : ', curPres)
   //console.log('whiteboardId : ', whiteboardId)
@@ -61,8 +64,9 @@ export default function Whiteboard(props) {
   const [tldrawAPI, setTLDrawAPI] = React.useState(null);
   const prevShapes = usePrevious(shapes);
   const prevPage = usePrevious(curPage);
+  const prevSlidePosition = usePrevious(slidePosition);
 
-  const handleChange = React.useCallback((state) => {
+  const handleChange = React.useCallback((state, reason) => {
     rDocument.current = state.document;
   }, []);
 
@@ -147,6 +151,11 @@ export default function Whiteboard(props) {
             );
         }
       });
+    }
+
+    if (next.pageStates[pageID] && !isPresenter && !_.isEqual(slidePosition, prevSlidePosition)) {
+      next.pageStates[pageID].camera.point = [slidePosition.xCamera, slidePosition.yCamera]
+      next.pageStates[pageID].camera.zoom = slidePosition.zoom
     }
 
     setDoc(next);
@@ -271,6 +280,15 @@ export default function Whiteboard(props) {
                 if (!ids.includes(s.id)) shapesIdsToRemove.push(s.id);
               });
               removeShapes(shapesIdsToRemove, whiteboardId)
+            }
+          }}
+
+          onPatch={(s, reason) => {
+            if (reason && isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
+              const pageID = tldrawAPI?.getPage()?.id;
+              const camera = s.document.pageStates[pageID]?.camera
+              //console.log("Camera!!: ", camera);
+              zoomSlide(parseInt(pageID), podId, camera.zoom, camera.point[0], camera.point[1]);
             }
           }}
 

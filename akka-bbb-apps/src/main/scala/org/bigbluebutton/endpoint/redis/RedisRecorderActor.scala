@@ -188,10 +188,9 @@ class RedisRecorderActor(
     ev.setPodId(msg.body.podId)
     ev.setPresentationName(msg.body.presentationId)
     ev.setId(msg.body.pageId)
-    ev.setXOffset(msg.body.xOffset)
-    ev.setYOffset(msg.body.yOffset)
-    ev.setWidthRatio(msg.body.widthRatio)
-    ev.setHeightRatio(msg.body.heightRatio)
+    ev.setXCamera(msg.body.xCamera)
+    ev.setYCamera(msg.body.yCamera)
+    ev.setZoom(msg.body.zoom)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }

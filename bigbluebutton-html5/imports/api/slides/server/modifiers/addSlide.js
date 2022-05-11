@@ -54,19 +54,17 @@ export default function addSlide(meetingId, podId, presentationId, slide) {
     txtUri: String,
     svgUri: String,
     current: Boolean,
-    xOffset: Number,
-    yOffset: Number,
-    widthRatio: Number,
-    heightRatio: Number,
+    xCamera: Number,
+    yCamera: Number,
+    zoom: Number,
     content: String,
   });
 
   const {
     id: slideId,
-    xOffset,
-    yOffset,
-    widthRatio,
-    heightRatio,
+    xCamera,
+    yCamera,
+    zoom,
     ...restSlide
   } = slide;
 
@@ -103,17 +101,17 @@ export default function addSlide(meetingId, podId, presentationId, slide) {
         const slideData = {
           width,
           height,
-          xOffset,
-          yOffset,
-          widthRatio,
-          heightRatio,
+          x: xCamera,
+          y: yCamera,
+          zoom,
         };
         const slidePosition = calculateSlideData(slideData);
 
-        addSlidePositions(meetingId, podId, presentationId, slideId, slidePosition);
+        addSlidePositions(meetingId, podId, presentationId, slideId, slideData);
       }
 
       try {
+        console.log("modifier!!! ", modifier )
         const { insertedId, numberAffected } = Slides.upsert(selector, modifier);
 
         requestWhiteboardHistory(meetingId, slideId);

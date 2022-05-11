@@ -20,8 +20,7 @@ export default function addSlidePositions(
     height: Number,
     x: Number,
     y: Number,
-    viewBoxWidth: Number,
-    viewBoxHeight: Number,
+    zoom: Number,
   });
 
   const selector = {

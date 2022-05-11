@@ -28,6 +28,7 @@ import Whiteboard from "./component";
 import React, { useContext } from "react";
 import { UsersContext } from "../components-data/users-context/context";
 import Auth from "/imports/ui/services/auth";
+import PresentationToolbarService from '../presentation/presentation-toolbar/service';
 
 const WhiteboardContainer = (props) => {
     const usingUsersContext = useContext(UsersContext);
@@ -56,5 +57,6 @@ export default withTracker(({ whiteboardId }) => {
     assets: assets,
     curPres,
     removeShapes: Service.removeShapes,
+    zoomSlide: PresentationToolbarService.zoomSlide,
   };
 })(WhiteboardContainer);
