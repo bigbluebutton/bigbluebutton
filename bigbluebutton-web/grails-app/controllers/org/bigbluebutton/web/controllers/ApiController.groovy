@@ -1326,82 +1326,82 @@ class ApiController {
     String requestBody = request.inputStream == null ? null : request.inputStream.text;
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
     Boolean isDefaultPresentationCurrent = false;
+    def listOfPresentation = []
 
     if (requestBody == null) {
       if (isFromInsertAPI){
         log.warn("Insert Document API called without a payload - ignoring")
         return;
       }
-      isDefaultPresentationCurrent = true
-      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), isDefaultPresentationCurrent /* default presentation */, '', false, true);
+      listOfPresentation << [name: "default", current: true];
     } else {
       def xml = new XmlSlurper().parseText(requestBody);
+      Boolean hasCurrent = false;
       xml.children().each { module ->
         log.debug("module config found: [${module.@name}]");
 
         if ("presentation".equals(module.@name.toString())) {
-          // need to iterate over presentation files and process them
-          // In this first foreach we are going to know if some presentation has
-          // the current property
-          def Boolean hasCurrent = false;
           for (document in module.children()) {
             if (!StringUtils.isEmpty(document.@current.toString()) && java.lang.Boolean.parseBoolean(
-                    document.@current.toString())) {
+                    document.@current.toString()) && !hasCurrent) {
+              listOfPresentation.add(0, document)
               hasCurrent = true;
-              break
+            } else {
+              listOfPresentation << document
             }
           }
           Boolean uploadDefault = !preUploadedPresentationOverrideDefault && !isDefaultPresentationUsed && !isFromInsertAPI;
-          if (uploadDefault){
-            isDefaultPresentationCurrent=!hasCurrent;
+          if (uploadDefault) {
+            isDefaultPresentationCurrent = !hasCurrent;
             hasCurrent = true
             isDefaultPresentationUsed = true
-            downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), isDefaultPresentationCurrent /* default presentation */, '', false, true);
-          }
-
-          Boolean foundCurrent = !hasCurrent;
-          int lastIndex = module.children().size() - 1
-          module.children().eachWithIndex { document, index ->
-            def Boolean isCurrent = false;
-            def Boolean isRemovable = true;
-            def Boolean isDownloadable = false;
-            if (index == 0 && !hasCurrent){
-              isCurrent = true
-            }
-
-            // Extracting all properties inside the xml
-            if (!StringUtils.isEmpty(document.@removable.toString())) {
-              isRemovable = java.lang.Boolean.parseBoolean(document.@removable.toString());
-            }
-            if (!StringUtils.isEmpty(document.@downloadable.toString())) {
-              isDownloadable = java.lang.Boolean.parseBoolean(document.@downloadable.toString());
-            }
-            // I need to make sure that only one of the documents is going to be the current.
-            if (!StringUtils.isEmpty(document.@current.toString()) && !foundCurrent) {
-              isCurrent = java.lang.Boolean.parseBoolean(document.@current.toString());
-              foundCurrent = isCurrent;
-            }
-
-            isCurrent = isCurrent && !isFromInsertAPI
-
-            // Verifying whether the document is a base64 encoded or a url to download.
-            if (!StringUtils.isEmpty(document.@url.toString())) {
-              def fileName;
-              if (!StringUtils.isEmpty(document.@filename.toString())) {
-                log.debug("user provided filename: [${module.@filename}]");
-                fileName = document.@filename.toString();
-              }
-              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
-                      fileName, isDownloadable, isRemovable);
-            } else if (!StringUtils.isEmpty(document.@name.toString())) {
-              def b64 = new Base64()
-              def decodedBytes = b64.decode(document.text().getBytes())
-              processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                  conf.getInternalId(), isCurrent , isDownloadable, isRemovable/* default presentation */);
+            if (isDefaultPresentationCurrent) {
+              listOfPresentation.add(0, [name: "default", current: true])
             } else {
-              log.debug("presentation module config found, but it did not contain url or name attributes");
+              listOfPresentation << [name: "default", current: false];
             }
           }
+        }
+      }
+    }
+
+    listOfPresentation.eachWithIndex { document, index ->
+      def Boolean isCurrent = false;
+      def Boolean isRemovable = true;
+      def Boolean isDownloadable = false;
+
+      if (document.name != null && "default".equals(document.name)) {
+        downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), document.current /* default presentation */, '', false, true);
+      } else{
+        // Extracting all properties inside the xml
+        if (!StringUtils.isEmpty(document.@removable.toString())) {
+          isRemovable = java.lang.Boolean.parseBoolean(document.@removable.toString());
+        }
+        if (!StringUtils.isEmpty(document.@downloadable.toString())) {
+          isDownloadable = java.lang.Boolean.parseBoolean(document.@downloadable.toString());
+        }
+        // The array has already been processed to let the first be the current. (This way it is
+        // ensured that only one document is current)
+        if (index == 0) {
+          isCurrent = true
+        }
+        isCurrent = isCurrent && !isFromInsertAPI
+        // Verifying whether the document is a base64 encoded or a url to download.
+        if (!StringUtils.isEmpty(document.@url.toString())) {
+          def fileName;
+          if (!StringUtils.isEmpty(document.@filename.toString())) {
+            log.debug("user provided filename: [${document.@filename}]");
+            fileName = document.@filename.toString();
+          }
+          downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
+                  fileName, isDownloadable, isRemovable);
+        } else if (!StringUtils.isEmpty(document.@name.toString())) {
+          def b64 = new Base64()
+          def decodedBytes = b64.decode(document.text().getBytes())
+          processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
+                  conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */);
+        } else {
+          log.debug("presentation module config found, but it did not contain url or name attributes");
         }
       }
     }
