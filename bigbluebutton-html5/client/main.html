@@ -94,6 +94,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       color: var(--palette-placeholder-text);
       opacity: 1;
     }
+    
+    #TD-PrimaryTools {
+      flex-direction: column;
+    }
+
+    #TD-Tools {
+        position: absolute;
+        right: 1rem;
+        bottom: 5rem;
+    }
+
+    #TD-Tools > div {
+      flex-direction: column;
+    }
   </style>
   <script>
     document.addEventListener('gesturestart', function (e) {

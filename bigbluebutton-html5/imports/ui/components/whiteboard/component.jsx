@@ -41,7 +41,7 @@ export default function Whiteboard(props) {
     changeCurrentSlide,
     whiteboardId,
   } = props;
-  console.log('curPres : ', curPres)
+  // console.log('curPres : ', curPres)
   //console.log('whiteboardId : ', whiteboardId)
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
@@ -55,7 +55,7 @@ export default function Whiteboard(props) {
   });
   const [doc, setDoc] = React.useState(rDocument.current);
   const [curPage, setCurPage] = React.useState({ id: "1" });
-  const [ass, setAss] = React.useState(assets);
+  const [_assets, setAssets] = React.useState(assets);
   const [command, setCommand] = React.useState("");
   const [selectedIds, setSelectedIds] = React.useState([]);
   const [tldrawAPI, setTLDrawAPI] = React.useState(null);
@@ -154,13 +154,13 @@ export default function Whiteboard(props) {
     if (
       tldrawAPI &&
       !_.isEqual(shapes, prevShapes) &&
-      !_.isEqual(assets, ass)
+      !_.isEqual(assets, _assets)
     ) {
-      setAss(assets);
+      setAssets(assets);
       tldrawAPI?.replacePageContent(next?.pages[pageID]?.shapes, {}, assets);
     }
 
-    if (tldrawAPI && !_.isEqual(shapes, prevShapes) && !_.isEqual(assets, ass)) {
+    if (tldrawAPI && !_.isEqual(shapes, prevShapes) && !_.isEqual(assets, _assets)) {
       tldrawAPI?.replacePageContent(next?.pages[pageID]?.shapes, {}, assets);
     }
     
@@ -202,11 +202,11 @@ export default function Whiteboard(props) {
               persistAsset(a);
             });
           }}
-          showPages={false || isPresenter}
-          showUI={true || isPresenter}
+          showPages={isPresenter}
+          showUI={isPresenter}
           showMenu={false}
           showMultiplayerMenu={false}
-          // readOnly={!isPresenter}
+          readOnly={!isPresenter}
 
           onUndo={s => {
             s?.selectedIds?.map(id => {
@@ -250,6 +250,7 @@ export default function Whiteboard(props) {
                     //checks to find any bindings assosiated with the selected shapes.
                     //If any, they need to be updated as well.
                     const pageBindings = rDocument?.current?.pages[e.getPage()?.id]?.bindings;
+                    console.log('pageBindings', pageBindings)
                     const boundShapes = [];
                     if (pageBindings) {
                       Object.entries(pageBindings).map(([k,b]) => {
@@ -259,7 +260,7 @@ export default function Whiteboard(props) {
                       })
                     }
                     //persist shape(s) that was updated by the client and any shapes bound to it.
-                    boundShapes.forEach(bs => persistShape(bs), whiteboardId)
+                    boundShapes.forEach(bs => persistShape(bs, whiteboardId))
                 });
             }
 

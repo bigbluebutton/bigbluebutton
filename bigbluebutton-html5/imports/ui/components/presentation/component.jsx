@@ -925,7 +925,7 @@ class Presentation extends PureComponent {
           }}
         >
           <WhiteboardContainer 
-            whiteboardId={currentSlide.id}
+            whiteboardId={currentSlide?.id}
             getSvgRef={this.getSvgRef}
           />
           {isFullscreen && <PollingContainer />}
