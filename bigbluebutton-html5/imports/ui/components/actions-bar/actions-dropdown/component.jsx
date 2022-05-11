@@ -25,6 +25,7 @@ const propTypes = {
   stopExternalVideoShare: PropTypes.func.isRequired,
   isMobile: PropTypes.bool.isRequired,
   setMeetingLayout: PropTypes.func.isRequired,
+  setPushLayout: PropTypes.func.isRequired,
   showPushLayout: PropTypes.bool.isRequired,
 };
 
@@ -138,6 +139,7 @@ class ActionsDropdown extends PureComponent {
       layoutContextDispatch,
       hidePresentation,
       setMeetingLayout,
+      setPushLayout,
       showPushLayout,
     } = this.props;
 
@@ -217,12 +219,12 @@ class ActionsDropdown extends PureComponent {
       })
     }
 
-    if (amIPresenter && showPushLayout) {
+    if ((amIPresenter || amIModerator) && showPushLayout) {
       actions.push({
         icon: 'send',
         label: intl.formatMessage(intlMessages.propagateLayoutLabel),
         key: 'propagate layout',
-        onClick: setMeetingLayout,
+        onClick: amIPresenter ? setMeetingLayout : setPushLayout,
       });
     }
 

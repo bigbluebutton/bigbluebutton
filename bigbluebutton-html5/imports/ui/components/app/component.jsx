@@ -293,6 +293,7 @@ class App extends Component {
       cameraHeight,
       cameraIsResizing,
       isPresenter,
+      isModerator,
       layoutPresOpen,
       layoutIsResizing,
       layoutCamPosition,
@@ -304,6 +305,7 @@ class App extends Component {
       pushLayoutMeeting,
       layoutContextDispatch,
       mountRandomUserModal,
+      setPushLayout,
       setMeetingLayout,
     } = this.props;
 
@@ -423,11 +425,15 @@ class App extends Component {
       || focusedCamera !== prevProps.focusedCamera
       || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
 
-    if (isPresenter && ((pushLayout && selectedLayout === 'custom' && layoutChanged) // change layout sizes / states
+    if ((pushLayout && selectedLayout === 'custom' && layoutChanged) // change layout sizes / states
       || (!pushLayout && prevProps.pushLayout) // special case where we set pushLayout to false in all viewers
-      || (pushLayout && !prevProps.pushLayout && selectedLayout === 'custom')) // push layout once after presenter presses the button
+      || (pushLayout && !prevProps.pushLayout && selectedLayout === 'custom') // push layout once after presenter presses the button
     ) {
-      setMeetingLayout();
+      if (isPresenter) {
+        setMeetingLayout();
+      } else if (isModerator) {
+        setPushLayout();
+      }
     }
 
     if (mountRandomUserModal) mountModal(<RandomUserSelectContainer />);
@@ -529,6 +535,7 @@ class App extends Component {
       intl,
       actionsBarStyle,
       hideActionsBar,
+      setPushLayout,
       setMeetingLayout,
       presentationIsOpen,
       selectedLayout,
@@ -556,6 +563,7 @@ class App extends Component {
         }
       >
         <ActionsBarContainer
+          setPushLayout={setPushLayout}
           setMeetingLayout={setMeetingLayout}
           showPushLayout={showPushLayoutButton && selectedLayout === 'custom'}
           presentationIsOpen={presentationIsOpen}

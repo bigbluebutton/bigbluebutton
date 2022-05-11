@@ -22,6 +22,8 @@ import {
   layoutDispatch,
 } from '../layout/context';
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
 import {
   getFontSize,
   getBreakoutRooms,
@@ -112,6 +114,12 @@ const AppContainer = (props) => {
   && randomlySelectedUser.length > 0
   && !isModalOpen;
 
+  const setPushLayout = () => {
+    LayoutService.setMeetingLayout({
+      pushLayout,
+    });
+  }
+
   const setMeetingLayout = () => {
     const { isResizing } = cameraDockInput;
     LayoutService.setMeetingLayout({
@@ -132,6 +140,7 @@ const AppContainer = (props) => {
           actionsBarStyle,
           captionsStyle,
           currentUserId,
+          setPushLayout,
           setMeetingLayout,
           meetingLayout,
           selectedLayout,
@@ -190,7 +199,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     {
       fields:
       {
-        approved: 1, emoji: 1, userId: 1, presenter: 1,
+        approved: 1, emoji: 1, userId: 1, presenter: 1, role: 1,
       },
     },
   );
@@ -249,6 +258,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
     isPresenter,
+    isModerator: currentUser.role === ROLE_MODERATOR,
     meetingLayout: layout,
     meetingLayoutUpdatedAt: layoutUpdatedAt,
     presentationIsOpen,
