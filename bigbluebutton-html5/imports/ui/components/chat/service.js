@@ -191,6 +191,7 @@ const sendGroupMessage = (message, idChatOpen) => {
     sender: {
       id: senderUserId,
       name: '',
+      nameHtml: '',
       role: '',
     },
     chatEmphasizedText: CHAT_EMPHASIZE_TEXT,
