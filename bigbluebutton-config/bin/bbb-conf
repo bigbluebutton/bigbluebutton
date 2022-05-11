@@ -161,12 +161,13 @@ else
     HTML5_CONFIG=$(yq r $HTML5_DEFAULT_CONFIG)
 fi
 
-KURENTO_DEFAULT_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
-KURENTO_ETC_CONFIG=/etc/bigbluebutton/bbb-webrtc-sfu/production.yml
-if [ -f $KURENTO_ETC_CONFIG ]; then
-    KURENTO_CONFIG=$(yq m -x $KURENTO_DEFAULT_CONFIG $KURENTO_ETC_CONFIG)
+WEBRTC_SFU_DEFAULT_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
+WEBRTC_SFU_ETC_CONFIG=/etc/bigbluebutton/bbb-webrtc-sfu/production.yml
+if [ -f $WEBRTC_SFU_ETC_CONFIG ]; then
+    # -a overwrite: merges arrays by replacement (yq 3.4+, like the override)
+    WEBRTC_SFU_CONFIG=$(yq m -a overwrite -x $WEBRTC_SFU_DEFAULT_CONFIG $WEBRTC_SFU_ETC_CONFIG)
 else
-    KURENTO_CONFIG=$(yq r $KURENTO_DEFAULT_CONFIG)
+    WEBRTC_SFU_CONFIG=$(yq r $WEBRTC_SFU_DEFAULT_CONFIG)
 fi
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
@@ -1260,13 +1261,13 @@ check_state() {
     fi
 
     FREESWITCH_SIP=$(ss -anlt4 | grep :5066 | grep -v tcp6 | grep LISTEN | sed 's/ [ ]*/ /g' | cut -d' ' -f4 | sed 's/:5066//g')
-    KURENTO_SIP=$(echo "$KURENTO_CONFIG" | yq r - freeswitch.sip_ip)
-    
+    WEBRTC_SFU_SIP_IP=$(echo "$WEBRTC_SFU_CONFIG" | yq r - freeswitch.sip_ip)
+
     if [ ! -z "$FREESWITCH_SIP" ]; then
-      if [ "$FREESWITCH_SIP" != "$KURENTO_SIP" ]; then
+      if [ "$FREESWITCH_SIP" != "$WEBRTC_SFU_SIP_IP" ]; then
         echo
         echo "#"
-        echo "# Kurento will try to connect to $KURENTO_SIP but FreeSWITCH is listening on $FREESWITCH_SIP for port 5066"
+        echo "# bbb-webrtc-sfu will try to connect to $WEBRTC_SFU_SIP_IP but FreeSWITCH is listening on $FREESWITCH_SIP for port 5066"
         echo "#"
         echo "# To fix, run the commands"
         echo "#"
@@ -1434,17 +1435,20 @@ if [ $CHECK ]; then
         echo "                          protocol: $(cat /usr/share/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)"
     fi
 
-    if [ -n "$KURENTO_CONFIG" ]; then
+    if [ -n "$WEBRTC_SFU_CONFIG" ]; then
+        MEDIASOUP_WEBRTC_IPS=$(echo "$WEBRTC_SFU_CONFIG" | yq r --printMode v - mediasoup.webrtc.listenIps.*.announcedIp)
         echo
-        echo "/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (Kurento SFU)"
-        echo "/etc/bigbluebutton/bbb-webrtc-sfu/production.yml (Kurento SFU - override)"
-        echo "                        kurento.ip: $(echo "$KURENTO_CONFIG" | yq r - kurento[0].ip)"
-        echo "                       kurento.url: $(echo "$KURENTO_CONFIG" | yq r - kurento[0].url)"
-        echo "                    kurento.sip_ip: $(echo "$KURENTO_CONFIG" | yq r - freeswitch.sip_ip)"
-        echo "               recordScreenSharing: $(echo "$KURENTO_CONFIG" | yq r - recordScreenSharing)"
-        echo "                     recordWebcams: $(echo "$KURENTO_CONFIG" | yq r - recordWebcams)"
-        echo "                  codec_video_main: $(echo "$KURENTO_CONFIG" | yq r - conference-media-specs.codec_video_main)"
-        echo "               codec_video_content: $(echo "$KURENTO_CONFIG" | yq r - conference-media-specs.codec_video_content)"
+        echo "/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (bbb-webrtc-sfu)"
+        echo "/etc/bigbluebutton/bbb-webrtc-sfu/production.yml (bbb-webrtc-sfu - override)"
+        echo "    mediasoup.webrtc.*.announcedIp: $(echo "$MEDIASOUP_WEBRTC_IPS" | awk -v ORS=", " '{ print $1 }' | sed 's/, $//')"
+        echo "  mediasoup.plainRtp.*.announcedIp: $(echo "$WEBRTC_SFU_CONFIG" | yq r --printMode v - mediasoup.plainRtp.*.announcedIp)"
+        echo "                        kurento.ip: $(echo "$WEBRTC_SFU_CONFIG" | yq r - kurento[0].ip)"
+        echo "                       kurento.url: $(echo "$WEBRTC_SFU_CONFIG" | yq r - kurento[0].url)"
+        echo "                 freeswitch.sip_ip: $(echo "$WEBRTC_SFU_CONFIG" | yq r - freeswitch.sip_ip)"
+        echo "               recordScreenSharing: $(echo "$WEBRTC_SFU_CONFIG" | yq r - recordScreenSharing)"
+        echo "                     recordWebcams: $(echo "$WEBRTC_SFU_CONFIG" | yq r - recordWebcams)"
+        echo "                  codec_video_main: $(echo "$WEBRTC_SFU_CONFIG" | yq r - conference-media-specs.codec_video_main)"
+        echo "               codec_video_content: $(echo "$WEBRTC_SFU_CONFIG" | yq r - conference-media-specs.codec_video_content)"
     fi
 
      if [ -n "$HTML5_CONFIG" ]; then
@@ -1705,11 +1709,6 @@ String BigBlueButtonURL = \"$BBB_WEB_URL/bigbluebutton/\";
         yq w -i $HTML5_DEFAULT_CONFIG public.kurento.wsUrl "wss://$HOST/bbb-webrtc-sfu"
         yq w -i $HTML5_DEFAULT_CONFIG public.pads.url      "$PROTOCOL://$HOST/pad"
         chown meteor:meteor $HTML5_DEFAULT_CONFIG
-
-        #if [ -f $KURENTO_CONFIG ]; then
-        #    yq w -i $KURENTO_CONFIG kurento[0].url "ws://$HOST:8888/kurento"
-        #    chown bigbluebutton:bigbluebutton $KURENTO_CONFIG
-        #fi
     fi
 
     #
