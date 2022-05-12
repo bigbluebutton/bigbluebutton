@@ -445,6 +445,11 @@ public class ParamsProcessorUtil {
         String welcomeMessage = substituteKeywords(welcomeMessageTemplate,
                 dialNumber, telVoice, meetingNameHtml);
 
+        String welcomeMessageTemplateHtml = processWelcomeMessage(
+                params.get(ApiParams.WELCOME_HTML), isBreakout);
+        String welcomeMessageHtml = substituteKeywords(welcomeMessageTemplateHtml,
+                dialNumber, telVoice, meetingNameHtml);
+
         String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
 
         // Check if this is a test meeting. NOTE: This should not belong here.
@@ -672,7 +677,8 @@ public class ParamsProcessorUtil {
                 .withUserCameraCap(userCameraCap)
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
-                .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
+                .withWelcomeMessage(welcomeMessage).withWelcomeMessageTemplateHtml(welcomeMessageTemplateHtml)
+                .withWelcomeMessageHtml(welcomeMessageHtml).isBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
                 .withAuthenticatedGuest(authenticatedGuest)
                 .withAllowRequestsWithoutSession(allowRequestsWithoutSession)

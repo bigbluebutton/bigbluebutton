@@ -58,6 +58,9 @@ public class Meeting {
 	private ArrayList<String> disabledFeatures;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
+
+	private String welcomeMsgTemplateHtml;
+	private String welcomeMsgHtml;
 	private String modOnlyMessage = "";
 
 	private String modOnlyMessageHtml = "";
@@ -150,6 +153,8 @@ public class Meeting {
         telVoice = builder.telVoice;
         welcomeMsgTemplate = builder.welcomeMsgTemplate;
         welcomeMsg = builder.welcomeMsg;
+		welcomeMsgTemplateHtml = builder.welcomeMsgTemplateHtml;
+		welcomeMsgHtml = builder.welcomeMsgHtml;
         dialNumber = builder.dialNumber;
         metadata = builder.metadata;
         createdTime = builder.createdTime;
@@ -396,6 +401,14 @@ public class Meeting {
 
 	public String getWelcomeMessage() {
 		return welcomeMsg;
+	}
+
+	public String getWelcomeMessageTemplateHtml() {
+		return welcomeMsgTemplateHtml;
+	}
+
+	public String getWelcomeMessageHtml() {
+		return welcomeMsgHtml;
 	}
 
 	public String getDefaultAvatarURL() {
@@ -821,6 +834,9 @@ public class Meeting {
     	private String telVoice;
     	private String welcomeMsgTemplate;
     	private String welcomeMsg;
+
+		private String welcomeMsgTemplateHtml;
+		private String welcomeMsgHtml;
     	private String logoutUrl;
     	private String bannerColor;
     	private String bannerText;
@@ -948,6 +964,16 @@ public class Meeting {
             return this;
         }
 
+
+		public Builder withWelcomeMessageHtml(String w) {
+			welcomeMsgHtml = w;
+			return this;
+		}
+
+		public Builder withWelcomeMessageTemplateHtml(String w) {
+			welcomeMsgTemplateHtml = w;
+			return this;
+		}
     	public Builder withDefaultAvatarURL(String w) {
     		defaultAvatarURL = w;
     		return this;
