@@ -1,24 +1,20 @@
 package org.bigbluebutton.api2
 
-import scala.collection.JavaConverters._
 import akka.actor.ActorSystem
 import akka.event.Logging
-import org.apache.commons.text.StringEscapeUtils
-
-import java.util
 import org.bigbluebutton.api.domain.{ BreakoutRoomsParams, Group, LockSettingsParams }
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.WebRedisSubscriberActor
-import org.bigbluebutton.common2.redis.MessageSender
 import org.bigbluebutton.api2.meeting.{ OldMeetingMsgHdlrActor, RegisterUser }
+import org.bigbluebutton.common2.bus._
 import org.bigbluebutton.common2.domain._
+import org.bigbluebutton.common2.redis._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.presentation.messages._
 
+import scala.collection.JavaConverters._
 import scala.concurrent.duration._
-import org.bigbluebutton.common2.redis._
-import org.bigbluebutton.common2.bus._
 
 class BbbWebApiGWApp(
     val oldMessageReceivedGW: OldMessageReceivedGW,
@@ -120,7 +116,7 @@ class BbbWebApiGWApp(
     jsonMsgToAkkaAppsBus.publish(JsonMsgToAkkaAppsBusMsg(toAkkaAppsJsonChannel, new JsonMsgToSendToAkkaApps(channel, json)))
   }
 
-  def createMeeting(meetingId: String, extMeetingId: String, parentMeetingId: String, meetingName: String,
+  def createMeeting(meetingId: String, extMeetingId: String, parentMeetingId: String, meetingName: String, meetingNameHtml: String,
                     recorded: java.lang.Boolean, voiceBridge: String, duration: java.lang.Integer,
                     autoStartRecording:      java.lang.Boolean,
                     allowStartStopRecording: java.lang.Boolean, webcamsOnlyForModerator: java.lang.Boolean,
@@ -155,13 +151,14 @@ class BbbWebApiGWApp(
 
     val meetingProp = MeetingProp(
       name = meetingName,
+      nameHtml = meetingNameHtml,
       extId = extMeetingId,
       intId = meetingId,
       meetingCameraCap = meetingCameraCap.intValue(),
       isBreakout = isBreakout.booleanValue(),
       disabledFeaturesAsVector
     )
-
+    println("\n\nOla " + meetingNameHtml + "\n\n")
     val durationProps = DurationProps(
       duration = duration.intValue(),
       createdTime = createTime.longValue(), createDate,

@@ -37,6 +37,8 @@ public class Meeting {
 	public static final String ROLE_ATTENDEE = "VIEWER";
 
 	private String name;
+
+	private String nameHtml;
 	private String extMeetingId;
 	private String intMeetingId;
 	private String parentMeetingId = "bbb-none"; // Initialize so we don't send null in the json message.
@@ -115,6 +117,7 @@ public class Meeting {
 
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
+		nameHtml = builder.nameHtml;
         extMeetingId = builder.externalId;
         intMeetingId = builder.internalId;
 		disabledFeatures = builder.disabledFeatures;
@@ -329,6 +332,10 @@ public class Meeting {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getNameHtml() {
+		return nameHtml;
 	}
 
 	public boolean isForciblyEnded() {
@@ -793,6 +800,8 @@ public class Meeting {
 	 */
 	public static class Builder {
     	private String name;
+
+		private String nameHtml;
     	private String externalId;
     	private String internalId;
     	private int maxUsers;
@@ -843,6 +852,11 @@ public class Meeting {
     		this.name = name;
     		return this;
     	}
+
+		public Builder withNameHtml(String nameHtml) {
+			this.nameHtml = nameHtml;
+			return this;
+		}
 
     	public Builder withDuration(int minutes) {
     		duration = minutes;

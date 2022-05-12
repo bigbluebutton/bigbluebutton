@@ -37,6 +37,7 @@ import com.google.gson.JsonObject;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -392,8 +393,10 @@ public class ParamsProcessorUtil {
     public Meeting processCreateParams(Map<String, String> params) {
 
         String meetingName = params.get(ApiParams.NAME);
+        String meetingNameHtml = StringEscapeUtils.escapeHtml4(params.get(ApiParams.NAME));
         if (meetingName == null) {
             meetingName = "";
+            meetingNameHtml = "";
         }
 
         meetingName = ParamsUtil.stripControlChars(meetingName);
@@ -440,7 +443,7 @@ public class ParamsProcessorUtil {
         String welcomeMessageTemplate = processWelcomeMessage(
                 params.get(ApiParams.WELCOME), isBreakout);
         String welcomeMessage = substituteKeywords(welcomeMessageTemplate,
-                dialNumber, telVoice, meetingName);
+                dialNumber, telVoice, meetingNameHtml);
 
         String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
 
@@ -653,7 +656,7 @@ public class ParamsProcessorUtil {
 
         // Create the meeting with all passed in parameters.
         Meeting meeting = new Meeting.Builder(externalMeetingId,
-                internalMeetingId, createTime).withName(meetingName)
+                internalMeetingId, createTime).withName(meetingName).withNameHtml(meetingNameHtml)
                 .withMaxUsers(maxUsers).withModeratorPass(modPass)
                 .withViewerPass(viewerPass).withRecording(record)
                 .withDuration(meetingDuration).withLogoutUrl(logoutUrl)

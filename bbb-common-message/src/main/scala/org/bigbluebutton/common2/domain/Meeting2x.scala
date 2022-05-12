@@ -10,6 +10,7 @@ case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
 
 case class MeetingProp(
     name:             String,
+    nameHtml:         String,
     extId:            String,
     intId:            String,
     meetingCameraCap: Int,

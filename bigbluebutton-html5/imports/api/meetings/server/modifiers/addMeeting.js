@@ -54,6 +54,7 @@ export default function addMeeting(meeting) {
       meetingCameraCap: Number,
       isBreakout: Boolean,
       name: String,
+      nameHtml: String,
       disabledFeatures: Array,
     },
     usersProp: {

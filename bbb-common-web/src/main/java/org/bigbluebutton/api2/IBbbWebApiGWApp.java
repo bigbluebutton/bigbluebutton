@@ -17,7 +17,7 @@ import org.bigbluebutton.presentation.messages.IDocConversionMsg;
 public interface IBbbWebApiGWApp {
   void send(String channel, String message);
   void createMeeting(String meetingID, String externalMeetingID,
-                     String parentMeetingID, String meetingName, Boolean recorded,
+                     String parentMeetingID, String meetingName, String meetingNameHtml, Boolean recorded,
                      String voiceBridge, Integer duration, Boolean autoStartRecording,
                      Boolean allowStartStopRecording, Boolean webcamsOnlyForModerator,
                      Integer meetingCameraCap,
