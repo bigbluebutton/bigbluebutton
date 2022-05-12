@@ -16,6 +16,21 @@ Imports and parses recording metadata.xml files and stores the data in a Postgre
    - Run the unit tests using the command "mvn test"
    - Use the deploy.sh script to compile the program
    - Run the program with the recording-imex.sh script found in ~/usr/local/bin
+   - Use the --help option to see the usage
+   
+   Usage: {-e|-i <persist>} [-s <id>] [PATH]
+   Import/export recording(s) to/from PATH. The default PATH is
+   /var/bigbluebutton/published/presentation
+   -e                  export recording(s)
+   -i <persist>        import recording(s) and indicate if they should be persisted [true|false]
+   -s <id>             ID of single recording to be imported/exported
+
+
+   Examples
+   
+   ~/usr/local/bin/recording-imex.sh -i true -s random-7739095 /var/bigbluebutton/published/presentation/1abbc41a2f2faf1d754dbd130fba9ae072c6e742-1652301432519/metadata.xml
+
+   ~/usr/local/bin/recording-imex.sh -i true /var/bigbluebutton/published/presentation/
 
 
 ## Testing the new recording service

@@ -1,6 +1,9 @@
 package org.bigbluebutton;
 
 import java.io.Console;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.stream.IntStream;
 
 public class RecordingApp {
@@ -68,23 +71,41 @@ public class RecordingApp {
             }
         }
 
-        if (i == args.length) {
-            System.out.println("Error: Required arguments not specified");
-            printUsage();
-            return;
-        } else
+        if (i < args.length)
             path = args[i];
+        else {
+            path = createDefaultDirectory();
+            if (path == null)
+                return;
+        }
 
         executeCommands(export, persist, id, path);
     }
 
     private static void printUsage() {
-        System.out.println("Usage: {-e|-i <persist>} [-s <id>] PATH");
-        System.out.println("Import/export recording(s) to/from PATH");
+        System.out.println("Usage: {-e|-i <persist>} [-s <id>] [PATH]");
+        System.out.println("Import/export recording(s) to/from PATH. The default PATH is "
+                + "\n/var/bigbluebutton/published/presentation");
         System.out.println("-e                  export recording(s)");
         System.out.println(
                 "-i <persist>        import recording(s) and indicate if they should be persisted [true|false]");
         System.out.println("-s <id>             ID of single recording to be imported/exported");
+    }
+
+    private static String createDefaultDirectory() {
+        Path root = Paths.get(System.getProperty("user.dir")).getFileSystem().getRootDirectories().iterator().next();
+        String path = root.toAbsolutePath() + "var/bigbluebutton/published/presentation";
+
+        File directory = new File(path);
+        if (!directory.exists()) {
+            boolean created = directory.mkdirs();
+            if (!created) {
+                System.out.println("Error: Failed to create default presentation directory");
+                return null;
+            }
+        }
+
+        return path;
     }
 
     private static void executeCommands(boolean export, boolean persist, String id, String path) {

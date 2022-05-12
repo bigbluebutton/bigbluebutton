@@ -8,4 +8,5 @@ mkdir -p $RUN_DIR
 mvn package -Dmaven.test.skip
 cp target/${JAR_NAME} $JAR_DIR
 echo '#!/bin/bash
-java -jar '${JAR_DIR}'/'${JAR_NAME} > ${RUN_DIR}/recording-imex.sh
+java -jar '${JAR_DIR}'/'${JAR_NAME} '"$@"'> ${RUN_DIR}/recording-imex.sh
+chmod +x ${RUN_DIR}/recording-imex.sh
