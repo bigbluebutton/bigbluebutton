@@ -158,7 +158,6 @@ class BbbWebApiGWApp(
       isBreakout = isBreakout.booleanValue(),
       disabledFeaturesAsVector
     )
-    println("\n\nOla " + meetingNameHtml + "\n\n")
     val durationProps = DurationProps(
       duration = duration.intValue(),
       createdTime = createTime.longValue(), createDate,

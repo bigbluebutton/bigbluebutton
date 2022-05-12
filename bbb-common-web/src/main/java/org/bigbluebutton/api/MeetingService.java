@@ -404,7 +404,6 @@ public class MeetingService implements MessageListener {
     String logStr = gson.toJson(logData);
 
     log.info(" --analytics-- data={}", logStr);
-    System.out.println("\n\n message name: \n\n" + m.getNameHtml()+"\n\n");
     gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.getNameHtml(), m.isRecord(),
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
             m.getWebcamsOnlyForModerator(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getModeratorPassword(), m.getViewerPassword(),
