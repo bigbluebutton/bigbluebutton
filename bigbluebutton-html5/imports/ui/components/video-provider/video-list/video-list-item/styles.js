@@ -1,16 +1,27 @@
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import {
   colorPrimary,
   colorBlack,
   colorWhite,
+  webcamBackgroundColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { TextElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
+
+const rotate360 = keyframes`
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+`;
 
 const Content = styled.div`
   position: relative;
   display: flex;
   min-width: 100%;
-
+  border-radius: 10px;
+  border: 2px solid ${colorBlack};
   &::after {
     content: "";
     position: absolute;
@@ -18,7 +29,6 @@ const Content = styled.div`
     right: 0;
     bottom: 0;
     left: 0;
-    border: 5px solid ${colorPrimary};
     opacity: 0;
     pointer-events: none;
 
@@ -28,9 +38,7 @@ const Content = styled.div`
   }
 
   ${({ talking }) => talking && `
-    &::after {
-      opacity: 0.7;
-    }
+    border: 2px solid ${colorPrimary};
   `}
 
   ${({ fullscreen }) => fullscreen && `
@@ -44,25 +52,15 @@ const Content = styled.div`
 `;
 
 const WebcamConnecting = styled.div`
-  position: relative;
-  height: 100%;
-  width: 100%;
-  object-fit: contain;
-  background-color: ${colorBlack};
-
   display: flex;
   justify-content: center;
   align-items: center;
-  position: absolute;
-  white-space: nowrap;
-  z-index: 1;
-  vertical-align: middle;
-  border-radius: 1px;
-  opacity: 1;
-
-  position: relative;
-  display: flex;
+  height: 100%;
+  width: 100%;
   min-width: 100%;
+  border-radius: 10px;
+  background-color: ${webcamBackgroundColor};
+  z-index: 1;
 
   &::after {
     content: "";
@@ -71,7 +69,6 @@ const WebcamConnecting = styled.div`
     right: 0;
     bottom: 0;
     left: 0;
-    border: 5px solid ${colorPrimary};
     opacity: 0;
     pointer-events: none;
 
@@ -79,12 +76,6 @@ const WebcamConnecting = styled.div`
       transition: opacity .1s;
     `}
   }
-
-  ${({ talking }) => talking && `
-    &::after {
-      opacity: 0.7;
-    }
-  `}
 `;
 
 const LoadingText = styled(TextElipsis)`
@@ -96,37 +87,23 @@ const Reconnecting = styled.div`
   position: absolute;
   height: 100%;
   width: 100%;
-  object-fit: contain;
+  display: flex;
   font-size: 2.5rem;
-  text-align: center;
-  white-space: nowrap;
   z-index: 1;
-
-  &::after {
-    content: '';
-    display: inline-block;
-    height: 100%;
-    vertical-align: middle;
-    margin: 0 -0.25em 0 0;
-
-    [dir="rtl"] & {
-      margin: 0 0 0 -0.25em;
-    }
-  }
-
-  &::before {
-    content: "\\e949";
-    /* ascii code for the ellipsis character */
-    font-family: 'bbb-icons' !important;
-    display: inline-block;
-
-    ${({ animations }) => animations && `
-      animation: spin 4s infinite linear;
-    `}
-  }
-
+  align-items: center;
+  justify-content: center;
   background-color: transparent;
   color: ${colorWhite};
+
+  &::before {
+    font-family: 'bbb-icons' !important;
+    content: "\\e949";
+    /* ascii code for the ellipsis character */
+    display: inline-block;
+    ${({ animations }) => animations && css`
+      animation: ${rotate360} 2s infinite linear;
+    `}
+  }
 `;
 
 const VideoContainer = styled.div`
@@ -140,6 +117,7 @@ const Video = styled.video`
   width: 100%;
   object-fit: contain;
   background-color: ${colorBlack};
+  border-radius: 10px;
 
   ${({ mirrored }) => mirrored && `
     transform: scale(-1, 1);

@@ -249,6 +249,7 @@ module BigBlueButton
       recOverrideProps = YAML::load(File.open(filepathRecOverride))
       @props = @props.merge(recOverrideProps)
     end
+    @props
   end
 
   def self.create_redis_publisher

@@ -394,7 +394,7 @@
     "app.submenu.application.languageLabel": "使用言語",
     "app.submenu.application.languageOptionLabel": "言語を選択",
     "app.submenu.application.noLocaleOptionLabel": "アクティブなロケールがありません",
-    "app.submenu.application.paginationEnabledLabel": "ビデオのページ割",
+    "app.submenu.application.paginationEnabledLabel": "ビデオのページ付け",
     "app.submenu.application.layoutOptionLabel": "レイアウトのタイプ",
     "app.submenu.notification.SectionTitle": "通知",
     "app.submenu.notification.Desc": "何をどのように通知するかを設定できます。",
@@ -687,6 +687,10 @@
     "app.shortcut-help.toggleFullscreen": "フルスクリーン切り替え（プレゼンターのみ）",
     "app.shortcut-help.nextSlideDesc": "次のスライド（プレゼンターのみ）",
     "app.shortcut-help.previousSlideDesc": "前のスライド（プレゼンターのみ）",
+    "app.shortcut-help.togglePanKey": "スペース",
+    "app.shortcut-help.toggleFullscreenKey": "エンター",
+    "app.shortcut-help.nextSlideKey": "右矢印",
+    "app.shortcut-help.previousSlideKey": "左矢印",
     "app.lock-viewers.title": "参加者の行動を制限",
     "app.lock-viewers.description": "こちらの設定で参加者が使える機能を制限できます",
     "app.lock-viewers.featuresLable": "機能",
@@ -1043,15 +1047,17 @@
     "app.learningDashboard.statusTimelineTable.thumbnail": "プレゼンのサムネール",
     "app.learningDashboard.errors.invalidToken": "セッショントークンが無効です",
     "app.learningDashboard.errors.dataUnavailable": "データはもう閲覧できません",
-    "mobileApp.portals.list.empty.label": "ポータルを追加してください。",
-    "mobileApp.portals.list.add.button.label": "新規ポータル",
+    "mobileApp.portals.list.empty.addFirstPortal.label": "上のボタンで自分のポータルサイトを追加するか、",
+    "mobileApp.portals.list.empty.orUseOurDemoServer.label": "公式のデモサーバーを使用してください。",
+    "mobileApp.portals.list.add.button.label": "ポータルサイトを追加",
     "mobileApp.portals.fields.name.label": "ポータルの名前",
     "mobileApp.portals.fields.name.placeholder": "BigBlueButton demo",
     "mobileApp.portals.fields.url.label": "サーバーのURL",
-    "mobileApp.portals.addPortalPopup.confirm.button.label": "ポータルを追加",
+    "mobileApp.portals.addPortalPopup.confirm.button.label": "保存",
     "mobileApp.portals.drawerNavigation.button.label": "ポータル",
-    "mobileApp.portals.addPortalPopup.validation.emptyFilds": "フィールドを空にする",
-    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "既に同じ名前があります"
+    "mobileApp.portals.addPortalPopup.validation.emptyFields": "必須項目",
+    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "名前が既に使用されています",
+    "mobileApp.portals.addPortalPopup.validation.urlInvalid": "ウェブページのアクセスに失敗しましたーURLとネットワーク接続を確認してください"
 
 }
 

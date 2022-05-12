@@ -1,9 +1,5 @@
 import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import MediaService, {
-  getSwapLayout,
-  shouldEnableSwapLayout,
-} from '/imports/ui/components/media/service';
 import { notify } from '/imports/ui/services/notification';
 import PresentationService from './service';
 import { Slides } from '/imports/api/slides';
@@ -22,8 +18,7 @@ import {
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { DEVICE_TYPE } from '../layout/enums';
 
-const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props }) => {
-  const { layoutSwapped } = props;
+const PresentationContainer = ({ presentationIsOpen, presentationPodIds, mountPresentation, ...props }) => {
 
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
   const presentation = layoutSelectOutput((i) => i.presentation);
@@ -51,13 +46,14 @@ const PresentationContainer = ({ presentationPodIds, mountPresentation, ...props
         layoutContextDispatch,
         numCameras,
         ...props,
-        userIsPresenter: userIsPresenter && !layoutSwapped,
+        userIsPresenter,
         presentationBounds: presentation,
         layoutType,
         fullscreenContext,
         fullscreenElementId,
         isMobile: deviceType === DEVICE_TYPE.MOBILE,
         isIphone,
+        presentationIsOpen,
       }
       }
     />
@@ -68,10 +64,9 @@ const APP_CONFIG = Meteor.settings.public.app;
 const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 const fetchedpresentation = {};
 
-export default withTracker(({ podId }) => {
+export default withTracker(({ podId, presentationIsOpen }) => {
   const currentSlide = PresentationService.getCurrentSlide(podId);
   const presentationIsDownloadable = PresentationService.isPresentationDownloadable(podId);
-  const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
 
   let slidePosition;
   if (currentSlide) {
@@ -120,15 +115,13 @@ export default withTracker(({ podId }) => {
     slidePosition,
     downloadPresentationUri: PresentationService.downloadPresentationUri(podId),
     multiUser: WhiteboardService.hasMultiUserAccess(currentSlide && currentSlide.id, Auth.userID)
-      && !layoutSwapped,
+      && presentationIsOpen,
     presentationIsDownloadable,
     mountPresentation: !!currentSlide,
     currentPresentation: PresentationService.getCurrentPresentation(podId),
     notify,
     zoomSlide: PresentationToolbarService.zoomSlide,
     podId,
-    layoutSwapped,
-    toggleSwapLayout: MediaService.toggleSwapLayout,
     publishedPoll: Meetings.findOne({ meetingId: Auth.meetingID }, {
       fields: {
         publishedPoll: 1,

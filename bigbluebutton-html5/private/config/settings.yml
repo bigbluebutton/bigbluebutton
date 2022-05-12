@@ -77,7 +77,7 @@ public:
       threshold: -50
       duration: 4000
     remainingTimeThreshold: 30
-    remainingTimeAlertThreshold: 1
+    remainingTimeAlertThresholdArray: [1,5]
     enableDebugWindow: true
     # Warning: increasing the limit of breakout rooms per meeting
     # can generate excessive overhead to the server. We recommend
@@ -127,7 +127,6 @@ public:
         guestWaitingPushAlerts: true
         paginationEnabled: true
         darkTheme: false
-        pushLayoutToEveryone: false
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
         # specified in fallbackLocale. Note that fallbackLocale should be a
@@ -215,9 +214,9 @@ public:
     wsConnectionTimeout: 4000
     # Time in milis to wait for the browser to return a gUM call (used in video-preview)
     gUMTimeout: 20000
-    # Experiment(al). Controls whether ICE candidates should be signaled.
-    # Applies to webcams, listen only and screen sharing. True is "stable behavior".
-    signalCandidates: true
+    # Controls whether ICE candidates should be signaled to bbb-webrtc-sfu.
+    # Enable this if you want to use Kurento as the media server.
+    signalCandidates: false
     # Forces relay usage only on Firefox. Applies to listen only, webcams and screenshare.
     forceRelayOnFirefox: false
     cameraTimeouts:
@@ -327,12 +326,11 @@ public:
     enableVideo: true
     enableVideoMenu: true
     enableVideoPin: true
-    enableListenOnly: true
     # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
     # media server adapter should be used for listen only.
     # Default is undefined, which means the default setting in bbb-webrtc-sfu
     # prevails (listenOnlyMediaServer).
-    #listenOnlyMediaServer: Kurento
+    #listenOnlyMediaServer: mediasoup
     # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
     # media server adapter should be used for webcams.
     # Default is undefined, which means the default setting in bbb-webrtc-sfu
@@ -432,9 +430,8 @@ public:
     syncInterval: 60000
   poll:
     enabled: true
-    autoOptioning: true
+    allowCustomResponseInput: true
     maxCustom: 5
-    allowDragAndDropFile: true
     maxTypedAnswerLength: 45
     chatMessage: true
   captions:
@@ -478,9 +475,10 @@ public:
     enabled: true
     id: notes
   layout:
-    autoSwapLayout: false
     hidePresentation: false
     showParticipantsOnLogin: true
+    showPushLayoutButton: true
+    showPushLayoutToggle: true
   pads:
     url: ETHERPAD_HOST
     cookie:
@@ -500,11 +498,11 @@ public:
       # media server adapter should be used for fullaudio.
       # Default is undefined, which means the default setting in bbb-webrtc-sfu
       # prevails (fullAudioMediaServer).
-      # fullAudioMediaServer: Kurento
+      #fullAudioMediaServer: mediasoup
       #
       #
       # Default bridge to be used by listen only mechanism.
-      defaultListenOnlyBridge: kurento
+      defaultListenOnlyBridge: fullaudio
       #
       #
       # Bridge array, here's where we list our bridges.
@@ -517,16 +515,12 @@ public:
       # '/imports/api/audio/client' dir.
       #
       bridges:
-        #
-        # The name of the bridge
+        # name:  The name of the bridge
         - name: sipjs
-          #
-          # The bridge file path , relative to /imports/api/audio/client
+          # path: the bridge file path, relative to /imports/api/audio/client
           path: 'bridge/sip'
-        - name: kurento
-          path: 'bridge/kurento'
         - name: fullaudio
-          path: 'bridge/FullAudioBridge'
+          path: 'bridge/sfu-audio-bridge'
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
@@ -556,6 +550,9 @@ public:
     # showing to the user there's an audio error.
     audioReconnectionAttempts: 3
     sipjsHackViaWs: false
+    # sipjsAllowMdns: whether mDNS candidates should be allowed in local SDPs.
+    # Default is false since FreeSWITCH doesn't resolve mDNS by default.
+    sipjsAllowMdns: false
     # the fqdn of this host.
     # If you run a traditional setup of multiple nodes behind scalelite and the users see the hostnames of the
     # individual nodes, you can leave this at the default setting

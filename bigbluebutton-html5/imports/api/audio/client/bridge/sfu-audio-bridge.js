@@ -22,9 +22,11 @@ import {
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
+const DEFAULT_LISTENONLY_MEDIA_SERVER = Meteor.settings.public.kurento.listenOnlyMediaServer;
+const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
 const MEDIA = Meteor.settings.public.media;
 const DEFAULT_FULLAUDIO_MEDIA_SERVER = MEDIA.audio.fullAudioMediaServer;
-const DEFAULT_LISTENONLY_MEDIA_SERVER = Meteor.settings.public.kurento.listenOnlyMediaServer;
+const LISTEN_ONLY_OFFERING = MEDIA.listenOnlyOffering;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 const GLOBAL_AUDIO_PREFIX = 'GLOBAL_AUDIO_';
 const RECONNECT_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
@@ -67,7 +69,7 @@ const getMediaServerAdapter = (listenOnly = false) => {
   );
 };
 
-export default class FullAudioBridge extends BaseAudioBridge {
+export default class SFUAudioBridge extends BaseAudioBridge {
   constructor(userData) {
     super();
     this.userId = userData.userId;
@@ -316,6 +318,8 @@ export default class FullAudioBridge extends BaseAudioBridge {
           constraints: getAudioConstraints({ deviceId: this.inputDeviceId }),
           forceRelay: shouldForceRelay(),
           stream: (inputStream && inputStream.active) ? inputStream : undefined,
+          offering: isListenOnly ? LISTEN_ONLY_OFFERING : true,
+          signalCandidates: SIGNAL_CANDIDATES,
         };
 
         this.broker = new AudioBroker(
@@ -421,6 +425,48 @@ export default class FullAudioBridge extends BaseAudioBridge {
     }
   }
 
+  trickleIce() {
+    return new Promise((resolve, reject) => {
+      try {
+        fetchWebRTCMappedStunTurnServers(this.sessionToken)
+          .then((iceServers) => {
+            const options = {
+              userName: this.name,
+              caleeName: `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}`,
+              iceServers,
+              offering: LISTEN_ONLY_OFFERING,
+            };
+
+            this.broker = new AudioBroker(
+              Auth.authenticateURL(SFU_URL),
+              RECV_ROLE,
+              options,
+            );
+
+            this.broker.onstart = () => {
+              const { peerConnection } = this.broker.webRtcPeer;
+
+              if (!peerConnection) return resolve(null);
+
+              const selectedCandidatePair = peerConnection.getReceivers()[0]
+                .transport.iceTransport.getSelectedCandidatePair();
+
+              const validIceCandidate = [selectedCandidatePair.local];
+
+              this.broker.stop();
+              return resolve(validIceCandidate);
+            };
+
+            this.broker.joinAudio().catch(reject);
+          });
+      } catch (error) {
+        // Rollback
+        this.exitAudio();
+        reject(error);
+      }
+    });
+  }
+
   exitAudio() {
     const mediaElement = document.getElementById(MEDIA_TAG);
 
@@ -437,4 +483,4 @@ export default class FullAudioBridge extends BaseAudioBridge {
   }
 }
 
-module.exports = FullAudioBridge;
+module.exports = SFUAudioBridge;

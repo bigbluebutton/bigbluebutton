@@ -7,7 +7,7 @@ case class GetCurrentLayoutReqMsgBody()
 
 object BroadcastLayoutMsg { val NAME = "BroadcastLayoutMsg" }
 case class BroadcastLayoutMsg(header: BbbClientMsgHeader, body: BroadcastLayoutMsgBody) extends StandardMsg
-case class BroadcastLayoutMsgBody(layout: String)
+case class BroadcastLayoutMsgBody(layout: String, pushLayout: Boolean, presentationIsOpen: Boolean, isResizing: Boolean, cameraPosition: String, focusedCamera: String, presentationVideoRate: Double)
 
 // Out messages
 object GetCurrentLayoutRespMsg { val NAME = "GetCurrentLayoutRespMsg" }
@@ -16,4 +16,4 @@ case class GetCurrentLayoutRespMsgBody(layout: String, locked: Boolean, setByUse
 
 object BroadcastLayoutEvtMsg { val NAME = "BroadcastLayoutEvtMsg" }
 case class BroadcastLayoutEvtMsg(header: BbbClientMsgHeader, body: BroadcastLayoutEvtMsgBody) extends BbbCoreMsg
-case class BroadcastLayoutEvtMsgBody(layout: String, locked: Boolean, setByUserId: String, applyTo: Vector[String])
+case class BroadcastLayoutEvtMsgBody(layout: String, pushLayout: Boolean, presentationIsOpen: Boolean, isResizing: Boolean, cameraPosition: String, focusedCamera: String, presentationVideoRate: Double, locked: Boolean, setByUserId: String)

@@ -87,14 +87,19 @@ class App extends React.Component {
       const cDecoded = decodeURIComponent(document.cookie);
       const cArr = cDecoded.split('; ');
       cArr.forEach((val) => {
-        if (val.indexOf(`${cookieName}=`) === 0) learningDashboardAccessToken = val.substring((`${cookieName}=`).length);
+        if (val.indexOf(`${cookieName}=`) === 0) {
+          learningDashboardAccessToken = val.substring((`${cookieName}=`).length);
+        }
       });
 
       // Extend AccessToken lifetime by 7d (in each access)
       if (learningDashboardAccessToken !== '') {
         const cookieExpiresDate = new Date();
         cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 7));
-        document.cookie = `ld-${meetingId}=${learningDashboardAccessToken}; expires=${cookieExpiresDate.toGMTString()}; path=/;SameSite=None;Secure`;
+        const value = `ld-${meetingId}=${learningDashboardAccessToken};`;
+        const expire = `expires=${cookieExpiresDate.toGMTString()};`;
+        const args = 'path=/;SameSite=None;Secure';
+        document.cookie = `${value} ${expire} ${args}`;
       }
     }
 

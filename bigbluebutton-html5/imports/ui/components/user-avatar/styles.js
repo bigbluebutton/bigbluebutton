@@ -31,8 +31,9 @@ const Content = styled.div`
 
 const Image = styled.div`
   display: flex;
-  height: 2rem;
-  width: 2rem;
+  height: 100%;
+  width: 100%;
+  justify-content: center;
 `;
 
 const Img = styled.img`
@@ -65,8 +66,11 @@ const Talking = styled.div`
   right: 0;
   bottom: 0;
   left: 0;
-  background-color: currentColor;
   border-radius: inherit;
+
+  ${({ talking }) => talking && css`
+    background-color: currentColor;
+  `}
 
   ${({ talking, animations }) => talking && animations && css`
     animation: ${pulse} 1s infinite ease-in;
@@ -91,7 +95,7 @@ const Talking = styled.div`
 const Avatar = styled.div`
   position: relative;
   height: 2.25rem;
-  min-width: 2.25rem;
+  width: 2.25rem;
   border-radius: 50%;
   text-align: center;
   font-size: .85rem;

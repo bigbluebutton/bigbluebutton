@@ -1,6 +1,9 @@
 import { makeCall } from '/imports/ui/services/api';
 
-const setMeetingLayout = newValue => makeCall('changeLayout', newValue);
+const setMeetingLayout = (options) => {
+
+  makeCall('changeLayout', options)
+};
 
 export default {
   setMeetingLayout,

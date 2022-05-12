@@ -8,6 +8,7 @@ import Styled from './styles';
 import logger from '/imports/startup/client/logger';
 import AudioStreamVolume from '/imports/ui/components/audio/audio-stream-volume/component';
 import LocalEchoContainer from '/imports/ui/components/audio/local-echo/container';
+import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
 import {
   getAudioConstraints,
 } from '/imports/api/audio/client/bridge/service';
@@ -53,10 +54,6 @@ const intlMessages = defineMessages({
     id: 'app.audio.audioSettings.speakerSourceLabel',
     description: 'Label for speaker source',
   },
-  testSpeakerLabel: {
-    id: 'app.audio.audioSettings.testSpeakerLabel',
-    description: 'Label for the speaker test button',
-  },
   streamVolumeLabel: {
     id: 'app.audio.audioSettings.microphoneStreamLabel',
     description: 'Label for stream volume',
@@ -93,9 +90,12 @@ class AudioSettings extends React.Component {
   }
 
   componentDidMount() {
-    const { inputDeviceId } = this.state;
+    const { inputDeviceId, outputDeviceId } = this.state;
+
     this._isMounted = true;
-    this.handleInputChange(inputDeviceId);
+    // Guarantee initial in/out devices are initialized on all ends
+    this.setInputDevice(inputDeviceId);
+    this.setOutputDevice(outputDeviceId);
   }
 
   componentWillUnmount() {
@@ -109,6 +109,32 @@ class AudioSettings extends React.Component {
   }
 
   handleInputChange(deviceId) {
+    this.setInputDevice(deviceId);
+  }
+
+  handleOutputChange(deviceId) {
+    this.setOutputDevice(deviceId);
+  }
+
+  handleConfirmationClick() {
+    const { stream } = this.state;
+    const {
+      produceStreams,
+      handleConfirmation,
+    } = this.props;
+
+    // Stream generation disabled or there isn't any stream: just run the provided callback
+    if (!produceStreams || !stream) return handleConfirmation();
+
+    // Stream generation enabled and there is a valid input stream => call
+    // the confirmation callback with the input stream as arg so it can be used
+    // in upstream components. The rationale is no surplus gUM calls.
+    // We're cloning it because the original will be cleaned up on unmount here.
+    const clonedStream = stream.clone();
+    return handleConfirmation(clonedStream);
+  }
+
+  setInputDevice(deviceId) {
     const {
       handleGUMFailure,
       changeInputDevice,
@@ -124,7 +150,9 @@ class AudioSettings extends React.Component {
         if (!this._isMounted) return;
 
         this.setState({
-          inputDeviceId: deviceId,
+          // We extract the deviceId again from the stream to guarantee consistency
+          // between stream vs chosen device
+          inputDeviceId: MediaStreamUtils.extractDeviceIdFromStream(stream, 'audio'),
           stream,
           deviceSelectorsBlocked: false,
         });
@@ -146,7 +174,7 @@ class AudioSettings extends React.Component {
     }
   }
 
-  handleOutputChange(deviceId) {
+  setOutputDevice(deviceId) {
     const {
       changeOutputDevice,
       withEcho,
@@ -159,24 +187,6 @@ class AudioSettings extends React.Component {
     this.setState({
       outputDeviceId: deviceId,
     });
-  }
-
-  handleConfirmationClick() {
-    const { stream } = this.state;
-    const {
-      produceStreams,
-      handleConfirmation,
-    } = this.props;
-
-    // Stream generation disabled or there isn't any stream: just run the provided callback
-    if (!produceStreams || !stream) return handleConfirmation();
-
-    // Stream generation enabled and there is a valid input stream => call
-    // the confirmation callback with the input stream as arg so it can be used
-    // in upstream components. The rationale is no surplus gUM calls.
-    // We're cloning it because the original will be cleaned up on unmount here.
-    const clonedStream = stream.clone();
-    return handleConfirmation(clonedStream);
   }
 
   generateInputStream(inputDeviceId) {
@@ -205,7 +215,6 @@ class AudioSettings extends React.Component {
       <Styled.Row>
         <Styled.SpacedLeftCol>
           <Styled.LabelSmall htmlFor="audioTest">
-            {intl.formatMessage(intlMessages.testSpeakerLabel)}
             {!withEcho
               ? <AudioTestContainer id="audioTest" />
               : (
@@ -246,9 +255,9 @@ class AudioSettings extends React.Component {
           <Styled.FormElement>
             <Styled.LabelSmall htmlFor="inputDeviceSelector">
               {intl.formatMessage(intlMessages.micSourceLabel)}
-              <Styled.DeviceSelectorSelect
+              <DeviceSelector
                 id="inputDeviceSelector"
-                value={inputDeviceId}
+                deviceId={inputDeviceId}
                 kind="audioinput"
                 blocked={deviceSelectorsBlocked}
                 onChange={this.handleInputChange}
@@ -261,9 +270,9 @@ class AudioSettings extends React.Component {
           <Styled.FormElement>
             <Styled.LabelSmall htmlFor="outputDeviceSelector">
               {intl.formatMessage(intlMessages.speakerSourceLabel)}
-              <Styled.DeviceSelectorSelect
+              <DeviceSelector
                 id="outputDeviceSelector"
-                value={outputDeviceId}
+                deviceId={outputDeviceId}
                 kind="audiooutput"
                 blocked={deviceSelectorsBlocked}
                 onChange={this.handleOutputChange}
