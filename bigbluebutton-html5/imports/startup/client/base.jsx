@@ -429,6 +429,7 @@ export default withTracker(() => {
     userId: 1,
     inactivityCheck: 1,
     responseDelay: 1,
+    currentConnectionId: 1,
   };
   const User = Users.findOne({ intId: credentials.requesterUserId }, { fields });
   const meeting = Meetings.findOne({ meetingId }, {
@@ -447,6 +448,13 @@ export default withTracker(() => {
   const ejected = User?.ejected;
   const ejectedReason = User?.ejectedReason;
   const meetingEndedReason = meeting?.meetingEndedReason;
+  const currentConnectionId = User?.currentConnectionId;
+  const { connectionID } = Auth;
+
+  if (currentConnectionId && currentConnectionId !== connectionID) {
+    Session.set('codeError', 403);
+    Session.set('errorMessageDescription', 'joined_another_window_reason')
+  }
 
   let userSubscriptionHandler;
 
