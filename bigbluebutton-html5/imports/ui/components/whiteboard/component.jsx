@@ -85,7 +85,7 @@ export default function Whiteboard(props) {
     const pShapes = Object.entries(shapes || {})?.map(([k, v]) => v.id);
     shapes?.forEach((s) => {
       try {
-        Object.keys(next.pages[s.parentId].shapes).map((k) => {
+        Object.keys(next.pages[s.parentId].shapes).forEach((k) => {
           if (!pShapes.includes(k) && s.parentId === tldrawAPI?.getPage()?.id) {
             delete next.pages[s.parentId].shapes[k];
           }
@@ -113,27 +113,27 @@ export default function Whiteboard(props) {
           type: "image",
         };
 
-    try {
-      next.pages[i + 1]["shapes"]["slide-background-shape"] = {
-        assetId: `slide-background-asset-${i}`,
-        childIndex: 1,
-        id: "slide-background-shape",
-        name: "Image",
-        type: TDShapeType.Image,
-        parentId: `${i + 1}`,
-        childIndex: 1,
-        point: [50, 60],
-        isLocked: true,
-        size: [2560 / 3.5, 1440 / 3.5],
-        style: {
-          dash: DashStyle.Draw,
-          size: SizeStyle.Medium,
-          color: ColorStyle.Blue,
-        },
-      };
-    } catch (err) {
+        try {
+          next.pages[i + 1]["shapes"]["slide-background-shape"] = {
+            assetId: `slide-background-asset-${i}`,
+            childIndex: 1,
+            id: "slide-background-shape",
+            name: "Image",
+            type: TDShapeType.Image,
+            parentId: `${i + 1}`,
+            point: [50, 60],
+            isLocked: true,
+            size: [2560 / 3.5, 1440 / 3.5],
+            style: {
+              dash: DashStyle.Draw,
+              size: SizeStyle.Medium,
+              color: ColorStyle.Blue,
+            },
+          };
+        } catch (err) {
 
-    }
+        }
+        return p;
         // setDoc(next);
       });
     }

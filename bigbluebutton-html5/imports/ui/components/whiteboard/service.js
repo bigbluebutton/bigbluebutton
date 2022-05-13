@@ -361,7 +361,6 @@ const removeIndividualAccess = (whiteboardId, userId) => {
 };
 
 const persistShape = (shape, whiteboardId) => {
-
   const annotation = {
     id: shape.id,
     annotationInfo: shape,
@@ -371,7 +370,7 @@ const persistShape = (shape, whiteboardId) => {
 
   //console.log(shape);
 
-  sendAnnotation(annotation, whiteboardId);
+  sendAnnotation(annotation);
 };
 
 const persistAsset = (asset) => makeCall("persistAsset", asset);
