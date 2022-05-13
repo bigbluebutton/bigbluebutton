@@ -1,10 +1,10 @@
 {
-    "app.home.greeting": "A prezentáció hamarosan elindul ...",
+    "app.home.greeting": "A prezentáció hamarosan elindul…",
     "app.chat.submitLabel": "Üzenet küldése",
-    "app.chat.loading": "Üzenet töltődik: {0}%",
+    "app.chat.loading": "Csevegőüzenetek betöltve: {0}%",
     "app.chat.errorMaxMessageLength": "Az üzenet {0} karakterrel hosszabb",
-    "app.chat.disconnected": "Nem küldhetsz üzenete, mert nem kapcsolódtál",
-    "app.chat.locked": "Nem küldhetsz üzenetet, mert a beszélgetés zárolt",
+    "app.chat.disconnected": "Nincs kapcsolódva, nem küldhetők üzenetek",
+    "app.chat.locked": "A csevegés zárolt, nem küldhetők üzenetek",
     "app.chat.inputLabel": "{0}: üzenet érkezett",
     "app.chat.inputPlaceholder": "{0} üzenet",
     "app.chat.titlePublic": "Nyilvános üzenetek",
@@ -683,6 +683,10 @@
     "app.shortcut-help.toggleFullscreen": "Teljes képernyő váltás (előadó)",
     "app.shortcut-help.nextSlideDesc": "Következő dia (előadó)",
     "app.shortcut-help.previousSlideDesc": "Előző dia (előadó)",
+    "app.shortcut-help.togglePanKey": "Szóköz",
+    "app.shortcut-help.toggleFullscreenKey": "Enter",
+    "app.shortcut-help.nextSlideKey": "Jobb nyíl",
+    "app.shortcut-help.previousSlideKey": "Bal nyíl",
     "app.lock-viewers.title": "Résztvevők zárolása",
     "app.lock-viewers.description": "Ezek az opciókkal letilthatod, hogy a résztvevők meghatározott funkciókat használhassanak.",
     "app.lock-viewers.featuresLable": "Tulajdonság",
@@ -926,6 +930,8 @@
     "app.externalVideo.refreshLabel": "Videólejátszó frissítése",
     "app.externalVideo.fullscreenLabel": "Videólejátszó",
     "app.externalVideo.noteLabel": "Megjegyzés: A megosztott külső videó nem jelenik meg a felvételen. A YouTube, Vimeo, Instructure Media, Twitch, Daily Motion és média URL-ek (például https://example.com/xy.mp4) támogatottak.",
+    "app.externalVideo.subtitlesOn": "Kikapcsolás",
+    "app.externalVideo.subtitlesOff": "Bekapcsolás (ha elérhető)",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Egy külső videó megosztása",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Külső videó megosztásának befejezése",
     "app.iOSWarning.label": "Frissíts iOS 12.2-re vagy újabbra",
@@ -1039,10 +1045,17 @@
     "app.learningDashboard.statusTimelineTable.thumbnail": "Bemutató bélyegképe",
     "app.learningDashboard.errors.invalidToken": "Érvénytelen munkamenet-token",
     "app.learningDashboard.errors.dataUnavailable": "Az adat többé nem érhető el",
+    "mobileApp.portals.list.empty.addFirstPortal.label": "Hozd létre az első portálodat az alábbi gombbal,",
+    "mobileApp.portals.list.empty.orUseOurDemoServer.label": "vagy használja a demó szerverünket.",
+    "mobileApp.portals.list.add.button.label": "Portál hozzáadása",
     "mobileApp.portals.fields.name.label": "Portál neve",
     "mobileApp.portals.fields.name.placeholder": "BigBlueButton demo",
     "mobileApp.portals.fields.url.label": "Szerver URL-je",
-    "mobileApp.portals.drawerNavigation.button.label": "Portálok"
+    "mobileApp.portals.addPortalPopup.confirm.button.label": "Mentés",
+    "mobileApp.portals.drawerNavigation.button.label": "Portálok",
+    "mobileApp.portals.addPortalPopup.validation.emptyFields": "Kötelező mezők",
+    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "A név már használatban van",
+    "mobileApp.portals.addPortalPopup.validation.urlInvalid": "Hiba az oldal betöltésekor - ellenőrizd az URL-t és a hálózati kapcsolatot"
 
 }
 
