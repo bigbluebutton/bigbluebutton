@@ -65,6 +65,7 @@ class BreakoutDropdown extends PureComponent {
   render() {
     const {
       intl,
+      isRTL,
     } = this.props;
 
     return (
@@ -91,8 +92,8 @@ class BreakoutDropdown extends PureComponent {
             elevation: 3,
             getContentAnchorEl: null,
             fullwidth: "true",
-            anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
-            transformorigin: { vertical: 'bottom', horizontal: 'left' },
+            anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+            transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
           }}
           actions={this.getAvailableActions()}
         />

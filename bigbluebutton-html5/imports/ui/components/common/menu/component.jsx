@@ -26,7 +26,7 @@ class BBBMenu extends React.Component {
       anchorEl: null,
     };
 
-    this.opts = props.opts;
+    this.optsToMerge = {};
     this.autoFocus = false;
 
     this.handleClick = this.handleClick.bind(this);
@@ -112,7 +112,7 @@ class BBBMenu extends React.Component {
 
   render() {
     const { anchorEl } = this.state;
-    const { trigger, intl, customStyles, dataTest } = this.props;
+    const { trigger, intl, customStyles, dataTest, opts } = this.props;
     const actionsItems = this.makeMenuItems();
 
     let menuStyles = { zIndex: 9999 };
@@ -129,7 +129,7 @@ class BBBMenu extends React.Component {
             const firefoxInputSource = !([1, 5].includes(e.nativeEvent.mozInputSource)); // 1 = mouse, 5 = touch (firefox only)
             const chromeInputSource = !(['mouse', 'touch'].includes(e.nativeEvent.pointerType));
 
-            this.opts.autoFocus = firefoxInputSource && chromeInputSource;
+            this.optsToMerge.autoFocus = firefoxInputSource && chromeInputSource;
             this.handleClick(e);
           }}
           onKeyPress={(e) => {
@@ -144,7 +144,8 @@ class BBBMenu extends React.Component {
         </div>
 
         <Menu
-          {...this.opts}
+          {...opts}
+          {...this.optsToMerge}
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={this.handleClose}
