@@ -383,7 +383,7 @@ const changeCurrentSlide = (s) => {
 }
 
 const getShapes = (whiteboardId) => {
-  annotations =  Annotations.find(
+  const annotations =  Annotations.find(
     {
       whiteboardId,
     },
