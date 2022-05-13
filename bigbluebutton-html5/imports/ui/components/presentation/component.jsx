@@ -781,19 +781,11 @@ class Presentation extends PureComponent {
     return (
       <Styled.PresentationFullscreenButton
         fullscreenRef={this.refPresentationContainer}
-// <<<<<<< HEAD
-//         getScreenshotRef={this.getSvgRef}
-//         elementName={intl.formatMessage(intlMessages.presentationLabel)}
-//         elementId={fullscreenElementId}
-//         toggleSwapLayout={MediaService.toggleSwapLayout}
-//         layoutContextDispatch={layoutContextDispatch}
-// =======
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
         isFullscreen={isFullscreen}
         color="muted"
         fullScreenStyle={false}
-{/* >>>>>>> embed Tldraw into BBB client */}
       />
     );
   }
