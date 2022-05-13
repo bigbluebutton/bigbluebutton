@@ -2,6 +2,7 @@ import * as React from "react";
 import _ from "lodash";
 import Cursors from "./cursors/container";
 import { TldrawApp, Tldraw } from "@tldraw/tldraw";
+import logger from '/imports/startup/client/logger';
 import {
   ColorStyle,
   DashStyle,
@@ -131,7 +132,10 @@ export default function Whiteboard(props) {
             },
           };
         } catch (err) {
-
+          logger.error({
+            logCode: 'whiteboard_set_slide_background_error',
+            extraInfo: { error: err },
+          }, 'Error on adding background slide image');
         }
         return p;
         // setDoc(next);
