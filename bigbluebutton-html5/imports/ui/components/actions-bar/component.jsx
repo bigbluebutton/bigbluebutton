@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import CaptionsButtonContainer from '/imports/ui/components/captions/button/container';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from './styles';
 import ActionsDropdown from './actions-dropdown/container';
 import AudioCaptionsButtonContainer from '/imports/ui/components/audio/captions/button/container';
@@ -72,7 +73,11 @@ class ActionsBar extends PureComponent {
               <CaptionsButtonContainer {...{ intl }} />
             )
             : null}
-          <AudioCaptionsButtonContainer />
+          { !deviceInfo.isMobile
+            ? (
+              <AudioCaptionsButtonContainer />
+            )
+            : null }
         </Styled.Left>
         <Styled.Center>
           <AudioControlsContainer />
