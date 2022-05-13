@@ -2,7 +2,7 @@
   <extension name="ECHO_TO_CONFERENCE">
     <condition field="${bbb_from_echo}" expression="true" break="on-false"/>
     <condition field="destination_number" expression="^(ECHO_TO_CONFERENCE)$">
-      <action application="jitterbuffer" data="60:120"/>
+      <action application="jitterbuffer" data="120"/>
       <action application="answer"/>
       <action application="conference" data="${vbridge}@cdquality"/>
     </condition>

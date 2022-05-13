@@ -65,8 +65,11 @@ const Talking = styled.div`
   right: 0;
   bottom: 0;
   left: 0;
-  background-color: currentColor;
   border-radius: inherit;
+
+  ${({ talking }) => talking && css`
+    background-color: currentColor;
+  `}
 
   ${({ talking, animations }) => talking && animations && css`
     animation: ${pulse} 1s infinite ease-in;

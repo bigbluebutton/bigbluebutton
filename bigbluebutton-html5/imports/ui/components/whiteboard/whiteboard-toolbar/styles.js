@@ -6,7 +6,7 @@ import {
   colorDanger,
   colorWhite,
   colorGrayDark,
-  colorGrayLighter,
+  toolbarButtonBorderColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   toolbarButtonWidth,
@@ -16,6 +16,8 @@ import {
   smPaddingX,
   toolbarMargin,
   toolbarButtonBorderRadius,
+  toolbarItemOutlineOffset,
+  toolbarButtonBorder,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
@@ -87,11 +89,11 @@ const ToolbarWrapper = styled.div`
   pointer-events: all;
 
   .toolbarButtonWrapper > button {
-    outline-offset: -.19rem;
-    border-bottom: 1px solid ${colorGrayLighter};
+    outline-offset: ${toolbarItemOutlineOffset};
+    border-bottom: ${toolbarButtonBorder} solid ${toolbarButtonBorderColor};
   }
 
-  .toolbarButtonWrapper:first-child > button {
+  & > .toolbarButtonWrapper:first-child > button {
     border-top-left-radius: ${toolbarButtonBorderRadius};
     border-top-right-radius: ${toolbarButtonBorderRadius};
 

@@ -20,13 +20,10 @@ const UserStatus = (props) => {
 
 export default UserStatus;
 
-UserStatus.defaultProps = {
-};
-
 UserStatus.propTypes = {
   voiceUser: PropTypes.shape({
     listenOnly: PropTypes.bool.isRequired,
     muted: PropTypes.bool.isRequired,
-    joined: PropTypes.bool,
+    joined: PropTypes.bool.isRequired,
   }).isRequired,
 };

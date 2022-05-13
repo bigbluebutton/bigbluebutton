@@ -687,6 +687,10 @@
     "app.shortcut-help.toggleFullscreen": "Lülita täisekraani (Esitleja)",
     "app.shortcut-help.nextSlideDesc": "Järgmine slaid (Esitleja)",
     "app.shortcut-help.previousSlideDesc": "Eelmine slaid (Esitleja)",
+    "app.shortcut-help.togglePanKey": "Tühik",
+    "app.shortcut-help.toggleFullscreenKey": "Sisesta",
+    "app.shortcut-help.nextSlideKey": "Nool paremale",
+    "app.shortcut-help.previousSlideKey": "Nool vasakule",
     "app.lock-viewers.title": "Lukusta vaatajad",
     "app.lock-viewers.description": "Need valikud võimaldavad keelata vaatajatel teatud võimalusi kasutada.",
     "app.lock-viewers.featuresLable": "Võimalus",
@@ -1043,15 +1047,17 @@
     "app.learningDashboard.statusTimelineTable.thumbnail": "Esitluse pisipilt",
     "app.learningDashboard.errors.invalidToken": "Kehtetu sessioonitõend",
     "app.learningDashboard.errors.dataUnavailable": "Andmed ei ole enam kättesaadavad",
-    "mobileApp.portals.list.empty.label": "Palun lisa portaal.",
-    "mobileApp.portals.list.add.button.label": "Uus portaal",
+    "mobileApp.portals.list.empty.addFirstPortal.label": "Lisa esimene portaal ülaloleva nupuga",
+    "mobileApp.portals.list.empty.orUseOurDemoServer.label": "või kasuta meie demoserverit.",
+    "mobileApp.portals.list.add.button.label": "Lisa portaal",
     "mobileApp.portals.fields.name.label": "Portaali nimi",
     "mobileApp.portals.fields.name.placeholder": "BigBlueButtoni demo",
     "mobileApp.portals.fields.url.label": "Serveri URL",
-    "mobileApp.portals.addPortalPopup.confirm.button.label": "Lisa portaal",
+    "mobileApp.portals.addPortalPopup.confirm.button.label": "Salvesta",
     "mobileApp.portals.drawerNavigation.button.label": "Portaalid",
-    "mobileApp.portals.addPortalPopup.validation.emptyFilds": "Tühjad väljad",
-    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Nimi on juba olemas"
+    "mobileApp.portals.addPortalPopup.validation.emptyFields": "Nõutavad väljad",
+    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Nimi on juba kasutusel",
+    "mobileApp.portals.addPortalPopup.validation.urlInvalid": "Viga lehekülje laadimisel - kontrolli aadressi ja võrguühendust"
 
 }
 

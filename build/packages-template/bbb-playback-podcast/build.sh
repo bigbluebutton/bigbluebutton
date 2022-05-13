@@ -42,6 +42,7 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --after-install after-install.sh \
     --description "BigBluebutton playback in podcast" \
     $DIRECTORIES \
-    $OPTS
+    $OPTS \
+    -d 'yq (>= 3)' -d 'yq (<< 4)'
 
 
