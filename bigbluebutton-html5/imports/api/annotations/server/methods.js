@@ -7,7 +7,6 @@ import deleteAnnotations from './methods/deleteAnnotations';
 Meteor.methods({
   clearWhiteboard,
   sendAnnotations,
-  sendAnnotations,
   sendBulkAnnotations,
   deleteAnnotations,
 });
