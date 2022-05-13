@@ -486,7 +486,6 @@
     "app.lock-viewers.button.apply": "Приложи",
     "app.lock-viewers.button.cancel": "Отказ",
     "app.lock-viewers.locked": "Забранено",
-    "app.lock-viewers.unlocked": "Разрешено",
     "app.connection-status.title": "Статус на връзката",
     "app.connection-status.description": "Статус на връзката на потребителите",
     "app.connection-status.more": "още",

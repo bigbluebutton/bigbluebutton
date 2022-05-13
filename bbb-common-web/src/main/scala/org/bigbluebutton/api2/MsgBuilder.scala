@@ -157,7 +157,7 @@ object MsgBuilder {
     val header = BbbClientMsgHeader(PresentationConversionCompletedSysPubMsg.NAME, msg.meetingId, msg.authzToken)
 
     val pages = generatePresentationPages(msg.presId, msg.numPages.intValue(), msg.presBaseUrl)
-    val presentation = PresentationVO(msg.presId, msg.filename,
+    val presentation = PresentationVO(msg.presId, msg.temporaryPresentationId, msg.filename,
       current = msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue(), msg.removable.booleanValue())
 
     val body = PresentationConversionCompletedSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
@@ -228,6 +228,7 @@ object MsgBuilder {
     val body = PresentationConversionRequestReceivedSysMsgBody(
       podId = msg.podId,
       presentationId = msg.presId,
+      temporaryPresentationId = msg.temporaryPresentationId,
       current = msg.current,
       presName = msg.filename,
       downloadable = msg.downloadable,

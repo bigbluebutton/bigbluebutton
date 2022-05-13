@@ -1,6 +1,10 @@
 const e = require('../core/elements.js');
+const { getSettings } = require('../core/settings.js');
 
 async function openPoll(test) {
+  const { pollEnabled } = getSettings();
+  test.fail(!pollEnabled, 'Polling is disabled');
+
   await test.waitAndClick(e.actions);
   await test.waitAndClick(e.polling);
   await test.waitForSelector(e.hidePollDesc);

@@ -230,6 +230,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
       Meteor.settings.public.presentation.restoreOnUpdate,
     ),
     hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
+    autoSwapLayout: getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     isModalOpen: !!getModal(),
   };

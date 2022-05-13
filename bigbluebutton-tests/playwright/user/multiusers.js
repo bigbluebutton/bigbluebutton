@@ -1,9 +1,11 @@
-const { expect } = require('@playwright/test');
+const { expect, default: test } = require('@playwright/test');
 const Page = require('../core/page');
 const e = require('../core/elements');
 const { waitAndClearNotification } = require('../notifications/util');
 const { sleep } = require('../core/helpers');
 const { checkAvatarIcon, checkIsPresenter } = require('./util');
+const { checkTextContent } = require('../core/util');
+const { getSettings } = require('../core/settings');
 
 class MultiUsers {
   constructor(browser, context) {
@@ -118,20 +120,16 @@ class MultiUsers {
     await this.modPage2.wasRemoved(e.manageUsers);
   }
 
-  async raiseHandTest() {
+  async raiseAndLowerHand() {
+    const { raiseHandButton } = getSettings();
+    test.fail(!raiseHandButton, 'Raise/lower hand button is disabled');
+
     await this.userPage.waitAndClick(e.raiseHandBtn);
     await this.userPage.hasElement(e.lowerHandBtn);
-  }
-
-  async getAvatarColorAndCompareWithUserListItem() {
     const getBackgroundColorComputed = (locator) => locator.evaluate((elem) => getComputedStyle(elem).backgroundColor);
-
     const avatarInToastElementColor = this.modPage.getLocator(e.avatarsWrapperAvatar);
     const avatarInUserListColor = this.modPage.getLocator(`${e.userListItem} > div ${e.userAvatar}`);
     await expect(getBackgroundColorComputed(avatarInToastElementColor)).toStrictEqual(getBackgroundColorComputed(avatarInUserListColor));
-  }
-
-  async lowerHandTest() {
     await waitAndClearNotification(this.userPage);
     await this.userPage.waitAndClick(e.lowerHandBtn);
     await this.userPage.hasElement(e.raiseHandBtn);
@@ -149,6 +147,18 @@ class MultiUsers {
     await this.modPage.wasRemoved(e.chatWelcomeMessageText);
     await this.modPage.wasRemoved(e.chatBox);
     await this.modPage.hasElement(e.chatButton);
+  }
+
+  async saveUserNames(testInfo) {
+    await this.modPage.waitAndClick(e.manageUsers);
+    const { content } = await this.modPage.handleDownload(e.downloadUserNamesList, testInfo);
+
+    const dataToCheck = [
+      this.modPage.username,
+      this.userPage.username,
+      this.modPage.meetingId,
+    ];
+    await checkTextContent(content, dataToCheck);
   }
 
   async selectRandomUser() {

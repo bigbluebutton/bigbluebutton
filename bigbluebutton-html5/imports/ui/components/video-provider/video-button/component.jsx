@@ -50,50 +50,62 @@ const JOIN_VIDEO_DELAY_MILLISECONDS = 500;
 const propTypes = {
   intl: PropTypes.object.isRequired,
   hasVideoStream: PropTypes.bool.isRequired,
+  status: PropTypes.string.isRequired,
   mountVideoPreview: PropTypes.func.isRequired,
-  forceMountVideoPreview: PropTypes.func.isRequired,
 };
 
 const JoinVideoButton = ({
   intl,
   hasVideoStream,
+  status,
   disableReason,
   mountVideoPreview,
-  forceMountVideoPreview,
 }) => {
   const { isMobile } = deviceInfo;
-  const shouldEnableWebcamSelectorButton = ENABLE_WEBCAM_SELECTOR_BUTTON
-    && hasVideoStream
-    && !isMobile;
-  const exitVideo = () => hasVideoStream
-    && !isMobile
-    && (!VideoService.isMultipleCamerasEnabled() || shouldEnableWebcamSelectorButton);
   const isMobileSharingCamera = hasVideoStream && isMobile;
+  const isDesktopSharingCamera = hasVideoStream && !isMobile;
+  const shouldEnableWebcamSelectorButton = ENABLE_WEBCAM_SELECTOR_BUTTON
+    && isDesktopSharingCamera;
+  const exitVideo = () => isDesktopSharingCamera && (!VideoService.isMultipleCamerasEnabled()
+    || shouldEnableWebcamSelectorButton);
 
   const handleOnClick = debounce(() => {
     if (!validIOSVersion()) {
       return VideoService.notify(intl.formatMessage(intlMessages.iOSWarning));
     }
 
-    if (exitVideo()) {
-      VideoService.exitVideo();
-    } else if (isMobileSharingCamera) {
-      forceMountVideoPreview();
-    } else {
-      mountVideoPreview();
+    switch (status) {
+      case 'videoConnecting':
+        VideoService.stopVideo();
+        break;
+      case 'connected':
+      default:
+        if (exitVideo()) {
+          VideoService.exitVideo();
+        } else {
+          mountVideoPreview(isMobileSharingCamera);
+        }
     }
   }, JOIN_VIDEO_DELAY_MILLISECONDS);
 
   const handleOpenAdvancedOptions = (e) => {
     e.stopPropagation();
-    forceMountVideoPreview();
+    mountVideoPreview(isMobileSharingCamera);
   };
 
-  let label = exitVideo()
-    ? intl.formatMessage(intlMessages.leaveVideo)
-    : intl.formatMessage(intlMessages.joinVideo);
+  const getMessageFromStatus = () => {
+    let statusMessage = status;
+    if (status !== 'videoConnecting') {
+      statusMessage = exitVideo() ? 'leaveVideo' : 'joinVideo';
+    }
+    return statusMessage;
+  };
 
-  if (disableReason) label = intl.formatMessage(intlMessages[disableReason]);
+  const label = disableReason
+    ? intl.formatMessage(intlMessages[disableReason])
+    : intl.formatMessage(intlMessages[getMessageFromStatus()]);
+
+  const isSharing = hasVideoStream || status === 'videoConnecting';
 
   const renderEmojiButton = () => (
     shouldEnableWebcamSelectorButton
@@ -114,9 +126,9 @@ const JoinVideoButton = ({
         data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
         onClick={handleOnClick}
         hideLabel
-        color={hasVideoStream ? 'primary' : 'default'}
-        icon={hasVideoStream ? 'video' : 'video_off'}
-        ghost={!hasVideoStream}
+        color={isSharing ? 'primary' : 'default'}
+        icon={isSharing ? 'video' : 'video_off'}
+        ghost={!isSharing}
         size="lg"
         circle
         disabled={!!disableReason}

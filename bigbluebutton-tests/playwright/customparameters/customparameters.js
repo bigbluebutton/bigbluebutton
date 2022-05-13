@@ -4,6 +4,7 @@ const e = require('../core/elements');
 const c = require('./constants');
 const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const util = require('./util');
+const { getSettings } = require('../core/settings');
 
 class CustomParameters extends MultiUsers {
   constructor(browser, context) {
@@ -136,12 +137,13 @@ class CustomParameters extends MultiUsers {
 
   async forceRestorePresentationOnNewEvents(customParameter) {
     await this.initUserPage(true, this.context, { useModMeetingId: true, customParameter });
-    await this.userPage.waitAndClick(e.minimizePresentation);
+    const { presentationHidden, pollEnabled } = getSettings();
+    if (!presentationHidden) await this.userPage.waitAndClick(e.minimizePresentation);
     const zoomInCase = await util.zoomIn(this.modPage);
     await expect(zoomInCase).toBeTruthy();
     const zoomOutCase = await util.zoomOut(this.modPage);
     await expect(zoomOutCase).toBeTruthy();
-    await util.poll(this.modPage, this.userPage);
+    if (pollEnabled) await util.poll(this.modPage, this.userPage);
     await util.nextSlide(this.modPage);
     await util.previousSlide(this.modPage);
     await util.annotation(this.modPage);
@@ -150,8 +152,9 @@ class CustomParameters extends MultiUsers {
 
   async forceRestorePresentationOnNewPollResult(customParameter) {
     await this.initUserPage(true, this.context, { useModMeetingId: true, customParameter })
-    await this.userPage.waitAndClick(e.minimizePresentation);
-    await util.poll(this.modPage, this.userPage);
+    const { presentationHidden,pollEnabled } = getSettings();
+    if (!presentationHidden) await this.userPage.waitAndClick(e.minimizePresentation);
+    if (pollEnabled) await util.poll(this.modPage, this.userPage);
     await this.userPage.waitForSelector(e.smallToastMsg);
     await this.userPage.checkElement(e.restorePresentation);
   }
@@ -168,9 +171,8 @@ class CustomParameters extends MultiUsers {
     await this.modPage.shareWebcam(false);
     await this.modPage.waitAndClick(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
     await this.modPage.waitForSelector(e.joinVideo);
-    const parsedSettings = await this.modPage.getSettingsYaml();
-    const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-    await this.modPage.shareWebcam(videoPreviewTimeout);
+    const { videoPreviewTimeout } = this.modPage.settings;
+    await this.modPage.shareWebcam(true, videoPreviewTimeout);
   }
 
   async mirrorOwnWebcam() {

@@ -72,8 +72,7 @@ exports.message1 = 'Hello User2';
 exports.message2 = 'Hello User1';
 exports.publicMessage1 = 'This is a Public Message from User1';
 exports.publicMessage2 = 'This is a Public Message from User2';
-exports.longMessage5000 = '01234567890123456789012345678901234567890123456789'.repeat(100);
-exports.longMessage5001 = '01234567890123456789012345678901234567890123456789'.repeat(100) + '0';
+exports.uniqueCharacterMessage = 'A';
 
 // CustomParameters
 exports.audioOptionsButtons = 'span[data-test="audioModalOptions"] > button';
@@ -189,11 +188,12 @@ exports.messageTitle = 'h2[data-test="messageTitle"]';
 exports.notesTitle = 'h2[data-test="notesTitle"]';
 
 // User
-exports.userAvatar = 'div[data-test="userAvatar"]';
+const userAvatar = 'div[data-test="userAvatar"]';
+exports.userAvatar = userAvatar;
 exports.moderatorAvatar = 'div[data-test="moderatorAvatar"]';
 exports.viewerAvatar = 'div[data-test="viewerAvatar"]';
-exports.applauseIcon = `${this.userAvatar} > div > i[class="icon-bbb-applause"]`;
-exports.awayIcon = `${this.userAvatar} > div > i[class="icon-bbb-time"]`;
+exports.applauseIcon = `${userAvatar} > div > i[class="icon-bbb-applause"]`;
+exports.awayIcon = `${userAvatar} > div > i[class="icon-bbb-time"]`;
 exports.setStatus = 'li[data-test="setStatus"]';
 exports.away = 'li[data-test="away"]';
 exports.applaud = 'li[data-test="applause"]';
@@ -202,7 +202,6 @@ exports.currentUser = 'div[data-test="userListItemCurrent"]';
 exports.multiWhiteboardTool = 'span[data-test="multiWhiteboardTool"]';
 exports.manageUsers = 'button[data-test="manageUsers"]';
 exports.presenterClassName = 'presenter--';
-exports.anyUser = 'div[data-test="userListItem"]';
 exports.userListToggleBtn = 'button[data-test="toggleUserList"]';
 exports.mobileUser = 'span[data-test="mobileUser"]';
 exports.connectionStatusBtn = 'button[data-test="connectionStatusButton"]';
@@ -217,6 +216,7 @@ exports.connectionStatusOfflineUser = 'div[data-test="offlineUser"]';
 exports.connectionDataContainer = 'div[data-test="networkDataContainer"]';
 exports.avatarsWrapperAvatar = 'div[data-test="avatarsWrapperAvatar"]';
 exports.guestPolicyLabel = 'li[data-test="guestPolicyLabel"]';
+exports.downloadUserNamesList = 'li[data-test="downloadUserNamesList"]';
 exports.waitingUsersBtn = 'div[data-test="waitingUsersBtn"]';
 exports.joinMeetingDemoPage = 'div[class^="join-meeting"]';
 exports.askModerator = 'button[data-test="askModerator"]';

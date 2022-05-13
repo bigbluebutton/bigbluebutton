@@ -465,7 +465,6 @@
     "app.lock-viewers.button.apply": "ใช้งาน",
     "app.lock-viewers.button.cancel": "ยกเลิก",
     "app.lock-viewers.locked": "ล็อค",
-    "app.lock-viewers.unlocked": "ปลดล็อค",
     "app.recording.startTitle": "เริ่มการบันทึก",
     "app.recording.stopTitle": "หยุดการบันทึกชั่วคราว",
     "app.recording.resumeTitle": "ทำการบันทึกต่อ",

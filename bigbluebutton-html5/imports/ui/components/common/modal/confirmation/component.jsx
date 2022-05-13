@@ -71,7 +71,9 @@ class ConfirmationModal extends Component {
             </Styled.Title>
           </Styled.Header>
           <Styled.Description>
-            <span dangerouslySetInnerHTML={{ __html: description }} />
+            <Styled.DescriptionText>
+              {description}
+            </Styled.DescriptionText>
             { hasCheckbox ? (
               <label htmlFor="confirmationCheckbox" key="confirmation-checkbox">
                 <Styled.Checkbox

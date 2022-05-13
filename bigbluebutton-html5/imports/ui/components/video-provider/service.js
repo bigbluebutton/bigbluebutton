@@ -30,7 +30,11 @@ const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 const MIRROR_WEBCAM = Meteor.settings.public.app.mirrorOwnWebcam;
 const PIN_WEBCAM = Meteor.settings.public.kurento.enableVideoPin;
-const CAMERA_QUALITY_THRESHOLDS = Meteor.settings.public.kurento.cameraQualityThresholds.thresholds || [];
+const {
+  thresholds: CAMERA_QUALITY_THRESHOLDS = [],
+  applyConstraints: CAMERA_QUALITY_THR_CONSTRAINTS = false,
+  debounceTime: CAMERA_QUALITY_THR_DEBOUNCE = 2500,
+} = Meteor.settings.public.kurento.cameraQualityThresholds;
 const {
   paginationToggleEnabled: PAGINATION_TOGGLE_ENABLED,
   pageChangeDebounceTime: PAGE_CHANGE_DEBOUNCE_TIME,
@@ -726,10 +730,15 @@ class VideoService {
     this.exitVideo();
   }
 
+  getStatus() {
+    if (this.isConnecting) return 'videoConnecting';
+    if (this.isConnected) return 'connected';
+    return 'disconnected';
+  }
+
   disableReason() {
     const locks = {
       videoLocked: this.isUserLocked(),
-      videoConnecting: this.isConnecting,
       camCapReached: this.hasCapReached() && !this.hasVideoStream(),
       meteorDisconnected: !Meteor.status().connected
     };
@@ -832,59 +841,58 @@ class VideoService {
       return {
         ...constraints,
         width: trackSettings.width,
-        height: trackSettings.height
+        height: trackSettings.height,
       };
-    } else {
-      return constraints;
     }
+
+    return constraints;
   }
 
   applyCameraProfile (peer, profileId) {
-    const profile = CAMERA_PROFILES.find(targetProfile => targetProfile.id === profileId);
+    const profile = CAMERA_PROFILES.find((targetProfile) => targetProfile.id === profileId);
 
-    if (!profile) {
-      logger.warn({
-        logCode: 'video_provider_noprofile',
-        extraInfo: { profileId },
-      }, `Apply failed: no camera profile found.`);
-      return;
-    }
-
-    // Profile is currently applied or it's better than the original user's profile,
-    // skip
-    if (peer.currentProfileId === profileId
+    // When this should be skipped:
+    // 1 - Badly defined profile
+    // 2 - Badly defined peer (ie {})
+    // 3 - The target profile is already applied
+    // 4 - The targetr profile is better than the original profile
+    if (!profile
+      || peer == null
+      || peer.peerConnection == null
+      || peer.currentProfileId === profileId
       || this.isProfileBetter(profileId, peer.originalProfileId)) {
       return;
     }
 
     const { bitrate, constraints } = profile;
 
-    if (bitrate) {
-      this.applyBitrate(peer, bitrate);
-    }
+    if (bitrate) this.applyBitrate(peer, bitrate);
 
-    if (constraints && typeof constraints === 'object') {
-      peer.peerConnection.getSenders().forEach(sender => {
+    if (CAMERA_QUALITY_THR_CONSTRAINTS
+      && constraints
+      && typeof constraints === 'object'
+    ) {
+      peer.peerConnection.getSenders().forEach((sender) => {
         const { track } = sender;
-        if (track && track.kind === 'video' && typeof track.applyConstraints  === 'function') {
-          let normalizedVideoConstraints = this.reapplyResolutionIfNeeded(track, constraints);
+        if (track && track.kind === 'video' && typeof track.applyConstraints === 'function') {
+          const normalizedVideoConstraints = this.reapplyResolutionIfNeeded(track, constraints);
           track.applyConstraints(normalizedVideoConstraints)
-            .then(() => {
-              logger.info({
-                logCode: 'video_provider_profile_applied',
-                extraInfo: { profileId },
-              }, `New camera profile applied: ${profileId}`);
-              peer.currentProfileId = profileId;
-            })
-            .catch(error => {
+            .catch((error) => {
               logger.warn({
-                logCode: 'video_provider_profile_apply_failed',
+                logCode: 'video_provider_constraintchange_failed',
                 extraInfo: { errorName: error.name, errorCode: error.code },
               }, 'Error applying camera profile');
             });
         }
       });
     }
+
+    logger.info({
+      logCode: 'video_provider_profile_applied',
+      extraInfo: { profileId },
+    }, `New camera profile applied: ${profileId}`);
+
+    peer.currentProfileId = profileId;
   }
 
   getThreshold (numberOfPublishers) {
@@ -989,6 +997,7 @@ export default {
   getAuthenticatedURL: () => videoService.getAuthenticatedURL(),
   isLocalStream: cameraId => videoService.isLocalStream(cameraId),
   hasVideoStream: () => videoService.hasVideoStream(),
+  getStatus: () => videoService.getStatus(),
   disableReason: () => videoService.disableReason(),
   playStart: cameraId => videoService.playStart(cameraId),
   getCameraProfile: () => videoService.getCameraProfile(),
@@ -1005,7 +1014,11 @@ export default {
   onBeforeUnload: () => videoService.onBeforeUnload(),
   notify: message => notify(message, 'error', 'video'),
   updateNumberOfDevices: devices => videoService.updateNumberOfDevices(devices),
-  applyCameraProfile: (peer, newProfile) => videoService.applyCameraProfile(peer, newProfile),
+  applyCameraProfile: _.debounce(
+    videoService.applyCameraProfile.bind(videoService),
+    CAMERA_QUALITY_THR_DEBOUNCE,
+    { leading: false, trailing: true },
+  ),
   getThreshold: (numberOfPublishers) => videoService.getThreshold(numberOfPublishers),
   isPaginationEnabled: () => videoService.isPaginationEnabled(),
   getNumberOfPages: () => videoService.getNumberOfPages(),

@@ -38,7 +38,6 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
     private String fullName;
 
     @PasswordConstraint
-    @NotEmpty(key = "invalidPassword", message = "You must provide either the moderator or attendee password")
     private String password;
 
     @IsBooleanConstraint(message = "Guest must be a boolean value (true or false)")

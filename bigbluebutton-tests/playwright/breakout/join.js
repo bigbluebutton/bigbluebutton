@@ -23,17 +23,17 @@ class Join extends Create {
     await breakoutUserPage.bringToFront();
 
     if (!shouldJoinAudio) await breakoutUserPage.closeAudioModal();
-    await breakoutUserPage.hasElement(e.presentationPlaceholder);
+    await breakoutUserPage.waitForSelector(e.presentationTitle);
     return breakoutUserPage;
   }
 
   async joinAndShareWebcam() {
     const breakoutPage = await this.joinRoom();
 
-    const parsedSettings = await this.userPage.getSettingsYaml();
-    const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-    await breakoutPage.shareWebcam(videoPreviewTimeout);
+    const { videoPreviewTimeout } = breakoutPage.settings;
+    await breakoutPage.shareWebcam(true, videoPreviewTimeout);
     await breakoutPage.hasElement(e.presentationPlaceholder);
+    await breakoutPage.waitForSelector(e.presentationTitle);
   }
 
   async joinAndShareScreen() {

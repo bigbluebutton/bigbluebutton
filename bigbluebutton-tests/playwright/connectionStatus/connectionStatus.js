@@ -1,10 +1,8 @@
 const { expect } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { openConnectionStatus, checkNetworkStatus } = require('./util');
-const { startScreenshare } = require('../screenshare/util');
-const { waitAndClearNotification } = require('../notifications/util');
 
 
 class ConnectionStatus extends MultiUsers {

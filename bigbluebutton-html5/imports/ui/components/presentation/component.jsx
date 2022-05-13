@@ -158,6 +158,8 @@ class Presentation extends PureComponent {
       intl,
     } = this.props;
 
+    const { presentationWidth, presentationHeight } = this.state;
+
     const {
       numCameras: prevNumCameras,
       presentationBounds: prevPresentationBounds,
@@ -235,7 +237,22 @@ class Presentation extends PureComponent {
         }
       }
 
-      if (presentationBounds !== prevPresentationBounds) this.onResize();
+      if ((presentationBounds !== prevPresentationBounds) ||
+        (!presentationWidth && !presentationHeight)) this.onResize();
+    } else if (slidePosition) {
+      const { width: currWidth, height: currHeight } = slidePosition;
+
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_CURRENT_SLIDE_SIZE,
+        value: {
+          width: currWidth,
+          height: currHeight,
+        },
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_NUM_CURRENT_SLIDE,
+        value: currentSlide.num,
+      });
     }
   }
 
@@ -734,7 +751,7 @@ class Presentation extends PureComponent {
     return (
       <PresentationMenu
         fullscreenRef={this.refPresentationContainer}
-        screenshotRef={this.getSvgRef()}
+        getScreenshotRef={this.getSvgRef}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
         toggleSwapLayout={MediaService.toggleSwapLayout}

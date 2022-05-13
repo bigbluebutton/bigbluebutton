@@ -548,7 +548,6 @@
     "app.lock-viewers.button.apply": "Anvend",
     "app.lock-viewers.button.cancel": "Afbestille",
     "app.lock-viewers.locked": "Låst",
-    "app.lock-viewers.unlocked": "Oplåst",
     "app.connection-status.ariaTitle": "Forbindelsesstatus modal",
     "app.connection-status.title": "Forbindelsesstatus",
     "app.connection-status.description": "Se brugernes forbindelsesstatus",

@@ -658,8 +658,10 @@ fi
 
 if [[ $SECRET ]]; then
     need_root
-    if get_properties_value securitySalt "$BBB_WEB_ETC_CONFIG" > /dev/null ; then
-        change_var_salt "$BBB_WEB_ETC_CONFIG" securitySalt "$SECRET"
+
+    echo "Assigning secret in $BBB_WEB_ETC_CONFIG"
+    if [ -f "$BBB_WEB_ETC_CONFIG" ] && grep "^securitySalt" "$BBB_WEB_ETC_CONFIG" > /dev/null ; then
+        change_var_value "$BBB_WEB_ETC_CONFIG" securitySalt "$SECRET"
     else
         echo "securitySalt=$SECRET" >> "$BBB_WEB_ETC_CONFIG"
     fi
@@ -1296,19 +1298,6 @@ check_state() {
       done
     fi
 
-    stunServerAddress=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerAddress/{s/.*=//;p}')
-    stunServerPort=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerPort/{s/.*=//;p}')
-    if [ ! -z "$stunServerAddress" ]; then
-      if stunclient --mode full --localport 30000 $stunServerAddress $stunServerPort | grep -q "fail\|Unable\ to\ resolve"; then
-        echo
-        echo "#"
-        echo "# Warning: Failed to verify STUN server at $stunServerAddress:$stunServerPort with command"
-        echo "#"
-        echo "#    stunclient --mode full --localport 30000 $stunServerAddress $stunServerPort"
-        echo "#"
-      fi
-    fi
-
     BBB_LOG="/var/log/bigbluebutton"
     if [ "$(stat -c "%U %G" $BBB_LOG)" != "bigbluebutton bigbluebutton" ]; then
       echo
@@ -1476,14 +1465,6 @@ if [ $CHECK ]; then
        done
      fi
 
-     stunServerAddress=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerAddress/{s/.*=//;p}')
-     stunServerPort=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerPort/{s/.*=//;p}')
-     if [ ! -z "$stunServerAddress" ]; then
-        echo
-        echo "/etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini (STUN Server)"
-        echo "                              stun: $stunServerAddress:$stunServerPort"
-     fi
-
      check_state
      echo
 
@@ -1633,7 +1614,12 @@ if [ -n "$HOST" ]; then
     if [ -f "$BBB_WEB_ETC_CONFIG" ] && grep "bigbluebutton.web.serverURL" "$BBB_WEB_ETC_CONFIG" > /dev/null ; then
         change_var_value "$BBB_WEB_ETC_CONFIG" bigbluebutton.web.serverURL "$PROTOCOL://$HOST"
     else
-        echo "bigbluebutton.web.serverURL=$PROTOCOL://$HOST" > "$BBB_WEB_ETC_CONFIG"
+        echo "bigbluebutton.web.serverURL=$PROTOCOL://$HOST" >> "$BBB_WEB_ETC_CONFIG"
+    fi
+
+    # Populate /etc/bigbluebutton/bbb-web.properites with the shared secret
+    if ! grep -q "^securitySalt" "$BBB_WEB_ETC_CONFIG"; then
+        echo "securitySalt=$(get_bbb_web_config_value securitySalt)" >> "$BBB_WEB_ETC_CONFIG"
     fi
 
 

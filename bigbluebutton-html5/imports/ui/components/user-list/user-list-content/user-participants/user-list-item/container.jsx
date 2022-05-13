@@ -56,5 +56,6 @@ export default withTracker(({ user }) => {
     getEmojiList: UserListService.getEmojiList(),
     getEmoji: UserListService.getEmoji(),
     usersProp: UserListService.getUsersProp(),
+    selectedUserId: Session.get('dropdownOpenUserId'),
   };
 })(UserListItemContainer);

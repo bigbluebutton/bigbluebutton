@@ -26,6 +26,7 @@ public final class UploadedPresentation {
   private final String podId;
   private final String meetingId;
   private final String id;
+  private final String temporaryPresentationId;
   private final String name;
   private final boolean uploadFailed;
   private final ArrayList<String> uploadFailReason;
@@ -44,6 +45,7 @@ public final class UploadedPresentation {
   public UploadedPresentation(String podId,
                               String meetingId,
                               String id,
+                              String temporaryPresentationId,
                               String name,
                               String baseUrl,
                               Boolean current,
@@ -53,6 +55,7 @@ public final class UploadedPresentation {
     this.podId = podId;
     this.meetingId = meetingId;
     this.id = id;
+    this.temporaryPresentationId = temporaryPresentationId;
     this.name = name;
     this.baseUrl = baseUrl;
     this.isDownloadable = false;
@@ -60,6 +63,19 @@ public final class UploadedPresentation {
     this.authzToken = authzToken;
     this.uploadFailed = uploadFailed;
     this.uploadFailReason = uploadFailReason;
+  }
+
+  public UploadedPresentation(String podId,
+                              String meetingId,
+                              String id,
+                              String name,
+                              String baseUrl,
+                              Boolean current,
+                              String authzToken,
+                              Boolean uploadFailed,
+                              ArrayList<String> uploadFailReason) {
+    this(podId, meetingId, id, "", name, baseUrl,
+            current, authzToken, uploadFailed, uploadFailReason);
   }
 
   public File getUploadedFile() {
@@ -80,6 +96,10 @@ public final class UploadedPresentation {
 
   public String getId() {
     return id;
+  }
+
+  public String getTemporaryPresentationId() {
+    return temporaryPresentationId;
   }
 
   public String getName() {
