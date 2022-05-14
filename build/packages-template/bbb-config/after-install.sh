@@ -146,6 +146,7 @@ if [[ -f $BBB_RELEASE_FILE ]] ; then
 fi
 
 echo "4"
+grep bbbServerVersion /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
 # Fix permissions for logging
 chown bigbluebutton:bigbluebutton /var/log/bbb-fsesl-akka
