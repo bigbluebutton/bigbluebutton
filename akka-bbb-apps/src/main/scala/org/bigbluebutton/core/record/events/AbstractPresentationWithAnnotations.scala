@@ -19,30 +19,6 @@
 
 package org.bigbluebutton.core.record.events
 
-trait AbstractWhiteboardRecordEvent extends RecordEvent {
-  import AbstractWhiteboardRecordEvent._
-
-  setModule("WHITEBOARD")
-
-  def setPresentation(name: String) {
-    eventMap.put(PRESENTATION, name)
-  }
-
-  def setPageNumber(num: Integer) {
-    /*
-		 * Subtract 1 from the page number to be zero-based to be
-		 * compatible with 0.81 and earlier. (ralam Sept 2, 2014)
-		 */
-    eventMap.put(PAGE_NUM, (num - 1).toString)
-  }
-
-  def setWhiteboardId(id: String) {
-    eventMap.put(WHITEBOARD_ID, id)
-  }
-}
-
-object AbstractWhiteboardRecordEvent {
-  protected final val PRESENTATION = "presentation"
-  protected final val PAGE_NUM = "pageNumber"
-  protected final val WHITEBOARD_ID = "whiteboardId"
+trait AbstractPresentationWithAnnotations extends RecordEvent {
+  setModule("PRES-ANN")
 }

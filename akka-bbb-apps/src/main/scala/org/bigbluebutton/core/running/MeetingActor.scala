@@ -496,6 +496,9 @@ class MeetingActor(
       // Presentation
       case m: PreuploadedPresentationsSysPubMsg              => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg                          => state = handlePresenterChange(m, state)
+      case m: MakePresentationWithAnnotationDownloadReqMsg   => presentationPodsApp.handleMakePresentationWithAnnotationDownloadReqMsg(m, state, liveMeeting, msgBus)
+      case m: ExportPresentationWithAnnotationReqMsg         => presentationPodsApp.handleExportPresentationWithAnnotationReqMsg(m, state, liveMeeting, msgBus)
+      case m: NewPresAnnFileAvailableMsg                     => log.info("***** New PDF with annotations available.")
 
       // Presentation Pods
       case m: CreateNewPresentationPodPubMsg                 => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)

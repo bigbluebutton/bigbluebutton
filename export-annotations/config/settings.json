@@ -1,0 +1,35 @@
+{
+    "log": {
+      "level": "info"
+    },
+    "shared": {
+      "presDir": "/var/bigbluebutton",
+      "presAnnDropboxDir": "/tmp/pres-ann-dropbox"
+    },
+    "process": {
+      "whiteboardTextEncoding": "utf-8"
+    },
+    "notifier": {
+      "pod_id": "DEFAULT_PRESENTATION_POD",
+      "is_downloadable": "false",
+      "msgName": "NewPresAnnFileAvailableMsg",
+      "protocol": "https",
+      "host": "localhost"
+    },
+    "genPollSVG": {
+      "path": "/usr/local/bigbluebutton/core/scripts/utils/gen_poll_svg"
+    },
+    "bbbWeb": {
+      "host": "127.0.0.1",
+      "port": 8090
+    },
+    "redis": {
+      "host": "127.0.0.1",
+      "port": 6379,
+      "password": null,
+      "channels": {
+        "queue": "exportJobs",
+        "publish": "to-akka-apps-redis-channel"
+      }
+    }
+}

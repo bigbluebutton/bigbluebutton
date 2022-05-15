@@ -75,7 +75,7 @@ const intlMessages = defineMessages({
 class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
-
+    
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
     this.renderAriaDescs = this.renderAriaDescs.bind(this);
