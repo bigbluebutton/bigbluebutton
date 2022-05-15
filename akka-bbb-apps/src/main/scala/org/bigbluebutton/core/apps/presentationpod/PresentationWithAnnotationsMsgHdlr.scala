@@ -80,13 +80,12 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
 
       var whiteboardId = s"${presId}/${pageNumber.toString}"
       val presentationPage: PresentationPage = currentPres.get.pages(whiteboardId)
-      val xOffset: Double = presentationPage.xOffset
-      val yOffset: Double = presentationPage.yOffset
-      val widthRatio: Double = presentationPage.widthRatio
-      val heightRatio: Double = presentationPage.heightRatio
+      val xCamera: Double = presentationPage.xCamera
+      val yCamera: Double = presentationPage.yCamera
+      val zoom: Double = presentationPage.zoom
       val whiteboardHistory: Array[AnnotationVO] = liveMeeting.wbModel.getHistory(whiteboardId)
 
-      storeAnnotationPages(resultingPage) = new PresentationPageForExport(pageNumber, xOffset, yOffset, widthRatio, heightRatio, whiteboardHistory)
+      storeAnnotationPages(resultingPage) = new PresentationPageForExport(pageNumber, xCamera, yCamera, zoom, whiteboardHistory)
       resultingPage += 1
     }
 
@@ -141,13 +140,12 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     for (pageNumber <- pagesRange) {
       var whiteboardId = s"${presId}/${pageNumber.toString}"
       val presentationPage: PresentationPage = currentPres.get.pages(whiteboardId)
-      val xOffset: Double = presentationPage.xOffset
-      val yOffset: Double = presentationPage.yOffset
-      val widthRatio: Double = presentationPage.widthRatio
-      val heightRatio: Double = presentationPage.heightRatio
+      val xCamera: Double = presentationPage.xCamera
+      val yCamera: Double = presentationPage.yCamera
+      val zoom: Double = presentationPage.zoom
       val whiteboardHistory: Array[AnnotationVO] = liveMeeting.wbModel.getHistory(whiteboardId)
 
-      storeAnnotationPages(resultingPage) = new PresentationPageForExport(pageNumber, xOffset, yOffset, widthRatio, heightRatio, whiteboardHistory)
+      storeAnnotationPages(resultingPage) = new PresentationPageForExport(pageNumber, xCamera, yCamera, zoom, whiteboardHistory)
       resultingPage += 1
     }
 
