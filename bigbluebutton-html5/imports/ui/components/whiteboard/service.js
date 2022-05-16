@@ -93,7 +93,6 @@ function handleAddedAnnotation({
   userId,
   annotation,
 }) {
-  console.log ("********** handleAddedAnnotation!!!!!!!!! ***********")
   const isOwn = Auth.meetingID === meetingId && Auth.userID === userId;
   const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
 
@@ -368,8 +367,6 @@ const persistShape = (shape, whiteboardId) => {
     userId: Auth.userID,
   };
 
-  //console.log(shape);
-
   sendAnnotation(annotation);
 };
 
@@ -378,7 +375,6 @@ const persistAsset = (asset) => makeCall("persistAsset", asset);
 const removeShapes = (shapes, whiteboardId) => makeCall("deleteAnnotations", shapes, whiteboardId);
 
 const changeCurrentSlide = (s) => {
-  console.log('CHANGE CUR SLIDE SERVICE')
   makeCall("changeCurrentSlide", s);
 }
 
@@ -393,7 +389,6 @@ const getShapes = (whiteboardId) => {
   ).fetch();
 
   let result = annotations.map(a => a.annotationInfo);
-  console.log('getShapes : ', result);
   return result;
 };
 
@@ -404,7 +399,6 @@ const getCurrentPres = () => {
 
 const getCurSlide = () => {
   let m = Meetings.findOne({ meetingId: Auth.meetingID });
-  console.log('---- meeting = ', m);
   return m;
 }
 
