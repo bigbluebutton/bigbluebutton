@@ -122,7 +122,7 @@ export default function Cursors(props) {
       </ReactCursorPosition>
       {props.otherCursors.map((c) => {
         return (
-          props.currentUser.userId !== c.userId &&
+          c && props.currentUser.userId !== c?.userId &&
           // !c.isPositionOutside &&
           renderCursor(
             c.userName,
