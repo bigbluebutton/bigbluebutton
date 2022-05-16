@@ -17,7 +17,7 @@ import Styled from './styles';
 const VideoListItem = (props) => {
   const {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
-    cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
+    cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount, isRTL,
   } = props;
 
   const [videoIsReady, setVideoIsReady] = useState(false);
@@ -124,6 +124,7 @@ const VideoListItem = (props) => {
                     onHandleVideoFocus={onHandleVideoFocus}
                     focused={focused}
                     onHandleMirror={() => setIsMirrored((value) => !value)}
+                    isRTL={isRTL}
                   />
                   <UserStatus
                     voiceUser={voiceUser}

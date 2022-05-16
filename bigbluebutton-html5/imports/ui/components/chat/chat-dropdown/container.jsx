@@ -4,12 +4,14 @@ import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import ChatDropdown from './component';
+import { layoutSelect } from '../../layout/context';
 
 const ChatDropdownContainer = ({ ...props }) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
+  const isRTL = layoutSelect((i) => i.isRTL);
 
-  return <ChatDropdown {...props} users={users[Auth.meetingID]} />;
+  return <ChatDropdown {...{ isRTL, ...props }} users={users[Auth.meetingID]} />;
 };
 
 export default withTracker(() => {

@@ -131,6 +131,7 @@ class ChatDropdown extends PureComponent {
     const {
       intl,
       amIModerator,
+      isRTL,
     } = this.props;
 
     if (!amIModerator && !ENABLE_SAVE_AND_COPY_PUBLIC_CHAT) return null;
@@ -158,8 +159,8 @@ class ChatDropdown extends PureComponent {
           elevation: 3,
           getContentAnchorEl: null,
           fullwidth: "true",
-          anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
-          transformorigin: { vertical: 'bottom', horizontal: 'left' },
+          anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+          transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
         }}
         actions={this.getAvailableActions()}
       />

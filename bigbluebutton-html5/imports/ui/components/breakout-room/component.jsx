@@ -547,6 +547,7 @@ class BreakoutRoom extends PureComponent {
       intl,
       endAllBreakouts,
       amIModerator,
+      isRTL,
     } = this.props;
     return (
       <Styled.Panel ref={(n) => this.panel = n}>
@@ -568,6 +569,7 @@ class BreakoutRoom extends PureComponent {
               }}
               isMeteorConnected={isMeteorConnected}
               amIModerator={amIModerator}
+              isRTL={isRTL}
             />
           ) }
         </Styled.Header>

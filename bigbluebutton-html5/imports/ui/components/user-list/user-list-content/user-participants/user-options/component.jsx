@@ -343,7 +343,7 @@ class UserOptions extends PureComponent {
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, isRTL } = this.props;
 
     return (
       <BBBMenu
@@ -360,6 +360,16 @@ class UserOptions extends PureComponent {
           />
         )}
         actions={this.renderMenuItems()}
+        opts={{
+          id: "default-dropdown-menu",
+          keepMounted: true,
+          transitionDuration: 0,
+          elevation: 3,
+          getContentAnchorEl: null,
+          fullwidth: "true",
+          anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+          transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+        }}
       />
     );
   }

@@ -79,9 +79,9 @@ class AudioControls extends PureComponent {
   }
 
   static renderLeaveButtonWithLiveStreamSelector(props) {
-    const { handleLeaveAudio } = props;
+    const { handleLeaveAudio, isRTL } = props;
     return (
-      <InputStreamLiveSelectorContainer {...{ handleLeaveAudio }} />
+      <InputStreamLiveSelectorContainer {...{ handleLeaveAudio, isRTL }} />
     );
   }
 
