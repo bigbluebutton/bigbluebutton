@@ -255,6 +255,18 @@ export default function Whiteboard(props) {
               }); 
             }
 
+            if (s.includes('move_to_page')) {
+              const movedShapes = e.selectedIds.map(id => {
+                return e.getShape(id);
+              });
+              //remove shapes on origin page
+              removeShapes(e.selectedIds, whiteboardId);
+              //persist shapes for destination page
+              movedShapes.forEach(s => {
+                persistShape(s, whiteboardId);
+              });
+            }
+
             if (s?.includes("session:complete:TransformSingleSession") 
               || s?.includes("session:complete:TranslateSession") 
               || s?.includes("updated_shapes")
