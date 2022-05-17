@@ -339,7 +339,7 @@
             };
 
             if (code === 'FAILED') {
-              saveStatusResponse(status, response, token);
+              saveStatusResponse(code, response, token);
               return redirect(_('app.guest.' + data.response.messageKey), data.response.url);
             }
 
