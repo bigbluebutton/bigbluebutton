@@ -110,7 +110,7 @@ export default function Whiteboard(props) {
       curPres.pages.map((p, i) => {
         next.assets[`slide-background-asset-${i}`] = {
           id: `slide-background-asset-${i}`,
-          size: [2560 / 3.5, 1440 / 3.5],
+          size: [slidePosition?.width || 0, slidePosition?.height || 0],
           src: curPres?.pages[i]?.svgUri,
           type: "image",
         };
@@ -123,9 +123,9 @@ export default function Whiteboard(props) {
             name: "Image",
             type: TDShapeType.Image,
             parentId: `${i + 1}`,
-            point: [50, 60],
+            point: [0, 0],
             isLocked: true,
-            size: [2560 / 3.5, 1440 / 3.5],
+            size: [slidePosition?.width || 0, slidePosition?.height || 0],
             style: {
               dash: DashStyle.Draw,
               size: SizeStyle.Medium,
