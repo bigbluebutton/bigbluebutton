@@ -430,6 +430,7 @@ export default withTracker(() => {
     inactivityCheck: 1,
     responseDelay: 1,
     currentConnectionId: 1,
+    connectionIdUpdateTime: 1,
   };
   const User = Users.findOne({ intId: credentials.requesterUserId }, { fields });
   const meeting = Meetings.findOne({ meetingId }, {
@@ -449,9 +450,10 @@ export default withTracker(() => {
   const ejectedReason = User?.ejectedReason;
   const meetingEndedReason = meeting?.meetingEndedReason;
   const currentConnectionId = User?.currentConnectionId;
-  const { connectionID } = Auth;
+  const { connectionID, connectionAuthTime } = Auth;
+  const connectionIdUpdateTime = User?.connectionIdUpdateTime;
 
-  if (currentConnectionId && currentConnectionId !== connectionID) {
+  if (currentConnectionId && currentConnectionId !== connectionID && connectionIdUpdateTime > connectionAuthTime) {
     Session.set('codeError', 403);
     Session.set('errorMessageDescription', 'joined_another_window_reason')
   }

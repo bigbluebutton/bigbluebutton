@@ -12,6 +12,7 @@ export default function updateUserConnectionId(meetingId, userId, connectionId) 
   const modifier = {
     $set: {
       currentConnectionId: connectionId,
+      connectionIdUpdateTime: new Date().getTime(),
     },
   };
 
