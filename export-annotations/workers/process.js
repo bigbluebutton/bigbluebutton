@@ -28,36 +28,48 @@ const kickOffNotifierWorker = (jobType, filename) => {
 }
 
 function color_to_hex(color) {
-    color = parseInt(color).toString(16)
-    return '0'.repeat(6 - color.length) + color
+    switch(color) {
+        case 'white': return '#1d1d1d'
+        case 'lightGray': return '#c6cbd1'
+        case 'gray': return '#788492'
+        case 'black': return '#1d1d1d'
+        case 'green': return '#36b24d'
+        case 'cyan': return '#0e98ad'
+        case 'blue': return '#1c7ed6'
+        case 'indigo': return '#4263eb'
+        case 'violet': return '#7746f1'
+        case 'red': return '#ff2133'
+        case 'orange': return '#ff9433'
+        case 'yellow': return '#ffc936'
+
+        default: return color
+    }
+}
+
+function text_size_to_px(size) {
+    switch(size) {
+        case 'small': return 28
+        case 'medium': return 48
+        case 'large': return 96
+
+        default: return 28
+    }
+}
+
+function rad_to_degree(angle) {
+    return angle * (180 / Math.PI)
+}
+
+function determine_font_from_family(family) {
+    switch(family) {
+        case 'script': return 'Caveat Brush'
+
+        default: return family
+    }
 }
 
 function scale_shape(dimension, coord) {
     return (coord / 100.0 * dimension);
-}
-
-function render_HTMLTextBox(htmlFilePath, id, width, height) {
-    let commands = [
-        'wkhtmltoimage',
-        '--format', 'png',
-        '--encoding', `${config.process.whiteboardTextEncoding}`,
-        '--transparent',
-        '--crop-w', width,
-        '--crop-h', height,
-        '--log-level', 'none',
-        '--quality', '100',
-        htmlFilePath, path.join(dropbox, `text${id}.png`)
-    ]
-
-    execSync(commands.join(' '), (error, stderr) => {
-        if (error) {
-            logger.error(`Error when rendering text box for string "${string}" with wkhtmltoimage: ${error.message}`);
-        }
-
-        if (stderr) {
-            logger.error(`stderr when rendering text box for string "${string}" with wkhtmltoimage: ${stderr}`);
-        }
-    })
 }
 
 function overlay_ellipse(svg, annotation, w, h) {
@@ -258,81 +270,57 @@ function overlay_triangle(svg, annotation, w, h) {
     }).up()
 }
 
-function overlay_text(svg, annotation, w, h) {
+function overlay_text(svg, annotation) {
+    let fontColor = color_to_hex(annotation.style.color);
+    let fontSize = text_size_to_px(annotation.style.size);
+    let rotation = rad_to_degree(annotation.rotation);
+    let font = determine_font_from_family(annotation.style.font);
 
-    let fontColor = color_to_hex(annotation.fontColor);
-    let textBoxWidth = Math.round(scale_shape(w, annotation.textBoxWidth));
-    let textBoxHeight = Math.round(scale_shape(h, annotation.textBoxHeight));
-    let textBox_x = Math.round(scale_shape(w, annotation.x));
-    let textBox_y = Math.round(scale_shape(h, annotation.y));
+    let [textBox_x, textBox_y] = annotation.point;
+    let textNode = svg.ele('text', {
+        'x': textBox_x,
+        'y': textBox_y,
+        'transform-box': 'fill-box',
+        'transform-origin': 'center center',
+        'transform': `translate(${textBox_x}, ${textBox_y}) rotate(${rotation}) scale(${annotation.style.scale})`,
+        'font-size': fontSize,
+        'font-family': font,
+        'text-anchor': annotation.style.textAlign,
+        'fill': fontColor,
+    });
 
-    let fontSize = scale_shape(h, annotation.calcedFontSize)
-    let style = [
-        `width:${textBoxWidth}px;`,
-        `height:${textBoxHeight}px;`,
-        `color:#${fontColor};`,
-        "word-wrap:break-word;",
-        "font-family:Arial;",
-        `font-size:${fontSize}px`
-    ]
-
-    var html = twemoji.parse(
-        `<!DOCTYPE html>
-        <style>
-            img.emoji {
-            height: 1em;
-            width: 1em;
-        }
-        </style>
-        <html>
-            <p style="${style.join('')}">
-                ${annotation.text.split('\n').join('<br>')}
-            </p>
-        </html>`);
-    
-    var htmlFilePath = path.join(dropbox, `text${annotation.id}.html`)
-
-    fs.writeFileSync(htmlFilePath, html, function (err) {
-        if (err) logger.error(err)
-    })
-
-    render_HTMLTextBox(htmlFilePath, annotation.id, textBoxWidth, textBoxHeight)
-
-    svg.ele('image', {
-        'xlink:href': `file://${dropbox}/text${annotation.id}.png`,
-        x: textBox_x,
-        y: textBox_y - fontSize,
-        width: textBoxWidth,
-        height: textBoxHeight,
-    }).up();
+    for (let line of annotation.text.split('\n')) {
+        if (line === '\n') { line = '' }
+        textNode.ele('tspan', { x: textBox_x, dy: '1em' }).txt(line).up()
+    }
 }
 
 function overlay_annotations(svg, currentSlideAnnotations, w, h) {
     for(let annotation of currentSlideAnnotations) {        
-        switch (annotation.annotationType) {
-            case 'ellipse':
-                overlay_ellipse(svg, annotation.annotationInfo, w, h);
-                break;
-            case 'line':
-                overlay_line(svg, annotation.annotationInfo, w, h);
-                break;
-            case 'poll_result':
-                overlay_poll(svg, annotation.annotationInfo, w, h);
-                break;
-            case 'pencil':
-                overlay_pencil(svg, annotation.annotationInfo, w, h);
-                break;
-            case 'rectangle':
-                overlay_rectangle(svg, annotation.annotationInfo, w, h);
-                break;
+        switch (annotation.annotationInfo.type) {
+            // case 'ellipse':
+            //     overlay_ellipse(svg, annotation.annotationInfo, w, h);
+            //     break;
+            // case 'line':
+            //     overlay_line(svg, annotation.annotationInfo, w, h);
+            //     break;
+            // case 'poll_result':
+            //     overlay_poll(svg, annotation.annotationInfo, w, h);
+            //     break;
+            // case 'pencil':
+            //     overlay_pencil(svg, annotation.annotationInfo, w, h);
+            //     break;
+            // case 'rectangle':
+            //     overlay_rectangle(svg, annotation.annotationInfo, w, h);
+            //     break;
             case 'text':
-                overlay_text(svg, annotation.annotationInfo, w, h);
+                overlay_text(svg, annotation.annotationInfo);
                 break;
-            case 'triangle':
-                overlay_triangle(svg, annotation.annotationInfo, w, h);
-                break;
+            // case 'triangle':
+            //     overlay_triangle(svg, annotation.annotationInfo, w, h);
+            //     break;
             default:
-                logger.error(`Unknown annotation type ${annotation.annotationType}.`);
+                logger.error(`Unknown annotation type ${annotation.annotationInfo.type}.`);
         }
     }
 }
@@ -356,11 +344,6 @@ for (let currentSlide of pages) {
     var slideWidth = dimensions.width;
     var slideHeight = dimensions.height;
 
-    var panzoom_x = -currentSlide.xOffset * MAGIC_MYSTERY_NUMBER / 100.0 * slideWidth
-    var panzoom_y = -currentSlide.yOffset * MAGIC_MYSTERY_NUMBER / 100.0 * slideHeight
-    var panzoom_w = scale_shape(slideWidth, currentSlide.widthRatio)
-    var panzoom_h = scale_shape(slideHeight, currentSlide.heightRatio)
-
     // Create the SVG slide with the background image
     let svg = create({ version: '1.0', encoding: 'UTF-8' })
                 .ele('svg', { 
@@ -368,7 +351,6 @@ for (let currentSlide of pages) {
                     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
                     width: slideWidth,
                     height: slideHeight,
-                    viewBox: `${panzoom_x} ${panzoom_y} ${panzoom_w} ${panzoom_h}`
                 })
                 .dtd({ 
                     pubID: '-//W3C//DTD SVG 1.1//EN',
