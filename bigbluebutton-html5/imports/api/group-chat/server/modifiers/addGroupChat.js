@@ -37,9 +37,9 @@ export default function addGroupChat(meetingId, chat) {
     const { insertedId } = GroupChat.upsert(selector, modifier);
 
     if (insertedId) {
-      Logger.info(`Added group-chat name=${chat.name} meetingId=${meetingId}`);
+      Logger.info(`Added group-chat chatId=${chatDocument.chatId} meetingId=${meetingId}`);
     } else {
-      Logger.info(`Upserted group-chat name=${chat.name} meetingId=${meetingId}`);
+      Logger.info(`Upserted group-chat chatId=${chatDocument.chatId} meetingId=${meetingId}`);
     }
   } catch (err) {
     Logger.error(`Adding group-chat to collection: ${err}`);
