@@ -41,7 +41,7 @@ trait SyncGetGroupChatsInfoMsgHdlr {
       val respMsg = buildSyncGetGroupChatMsgsRespMsg(msgs, pc.id)
       bus.outGW.send(respMsg)
 
-      GroupChatInfo(pc.id, pc.name, pc.access, pc.createdBy, pc.users)
+      GroupChatInfo(pc.id, pc.access, pc.createdBy, pc.users)
     })
 
     // publishing a message with the group chat info
