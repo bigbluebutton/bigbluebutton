@@ -107,6 +107,14 @@ mark_for_republish() {
    done
 }
 
+get_secret() {
+	for item in $(bbb-conf --salt | grep "Secret:"); do 
+      		if [ $item != "Secret:" ]; then
+            		echo $item
+      		fi
+	done
+}
+
 need_root() {
    if [ $EUID != 0 ]; then
       echo "Need to be root to run this option"
@@ -127,6 +135,24 @@ print_header() {
       echo "** Potential problems described below **"
       HEADER=1
    fi
+}
+
+is_meetingID_in_array() {
+   id_to_validate=$1
+   list_meeting_id=$2
+
+   if [ "$id_to_validate" = "" ]; then
+      retval=$([ 0 ])
+      return
+   fi
+   for meetingId in $list_meeting_id; do
+      if [ "$id_to_validate" = "$meetingId" ]; then
+         retval=1
+         return
+      fi
+   done
+
+   retval=$([ 0 ])
 }
 
 usage() {
@@ -233,10 +259,15 @@ while [ $# -gt 0 ]; do
 
    if [ "$1" = "-deleteall" -o "$1" = "--deleteall" ]; then
       need_root
+      if [ "$2" = "-only-recordings" -o "$2" = "--only-recordings" ]; then
+         ONLY_RECORDING=1
+         shift
+      fi
       DELETEALL=1
       shift
       continue
    fi
+
    if [ "$1" = "-check" -o "$1" = "--check" ]; then
       need_root
       CHECK=1
@@ -412,12 +443,34 @@ if [ $DELETEALL ]; then
    rm -f /var/bigbluebutton/screenshare/*.flv
    rm -f /var/freeswitch/meetings/*.wav
    rm -f /var/freeswitch/meetings/*.opus
+   
+   if [ $ONLY_RECORDING ]; then
+      list_running_meeting=$( sudo bbb-conf --list-running-meetings )
 
-   for meeting in $(ls /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"); do
-      echo "deleting: $meeting"
-      rm -rf /var/bigbluebutton/$meeting
-      rm -rf /var/bigbluebutton/captions/$meeting
-   done
+      echo $list_running_meeting
+
+      for meeting in $(ls /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"); do
+         is_meetingID_in_array "$meeting" "$list_running_meeting"
+         if [ ! $retval ]; then
+            echo "A meeting $meeting não está rodando"
+            # echo "deleting: $meeting"
+            # rm -rf /var/bigbluebutton/$meeting
+            # rm -rf /var/bigbluebutton/captions/$meeting
+
+         else
+
+            echo "A meeting $meeting está rodando"
+         fi
+      done
+      
+   else
+      for meeting in $(ls /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"); do
+         echo "deleting: $meeting"
+         rm -rf /var/bigbluebutton/$meeting
+         rm -rf /var/bigbluebutton/captions/$meeting
+      done
+   fi
+
 fi
 
 if [ $LIST ]; then

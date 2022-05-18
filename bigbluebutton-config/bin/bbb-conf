@@ -209,6 +209,22 @@ if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
     fi
 fi
 
+get_meetings_xml () {
+    api_method="getMeetings"
+    X=$( bbb-conf --secret | fgrep URL: )
+    api_url=${X##* }
+
+    Y=$( bbb-conf --secret | fgrep Secret: )
+    Secret=${Y##* }
+
+    string_for_checksum=$api_method$Secret
+    checksum=$( echo -n $string_for_checksum | sha1sum | cut -f 1 -d ' ' )
+
+    URL="${api_url}api/$api_method?checksum=$checksum"
+
+    echo $( curl -s "$URL" )
+}
+
 #
 # Determine IP so it works on multilingual installations
 #
@@ -496,6 +512,17 @@ fi
 
 # Parse the parameters
 while [ $# -gt 0 ]; do
+    if [ "$1" = "-list-running-meetings" -o "$1" = "--list-running-meetings" ]; then
+        need_root
+        if [ "$2" = "-human-readable" -o "$2" = "--human-readable" ]; then
+            HUMAN_READABLE=1
+            shift
+        fi
+        RUNNING_MEETINGS=1
+        shift
+        continue
+    fi
+
     if [ "$1" = "-stop" -o "$1" = "--stop" ]; then
         need_root
         stop_bigbluebutton
@@ -1510,6 +1537,23 @@ if [ $CHECK ]; then
      echo
 
      exit 0
+fi
+
+#
+# Return a list of the running meetings
+#
+if [ $RUNNING_MEETINGS ]; then
+    xml=$( get_meetings_xml )
+    has_any=$( echo $xml | grep "no meetings were found on this server" )
+    if [ "$has_any" == "" ]; then
+        if [ $HUMAN_READABLE ]; then
+            list_of_internalId=$( ruby /usr/local/bigbluebutton/core/lib/xml_parser.rb -x "$xml" --human-readable)
+        else
+            list_of_internalId=$( ruby /usr/local/bigbluebutton/core/lib/xml_parser.rb -x "$xml" )
+        fi
+        echo -e $list_of_internalId
+    fi
+    
 fi
 
 #
