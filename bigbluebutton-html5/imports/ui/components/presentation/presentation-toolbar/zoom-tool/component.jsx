@@ -145,6 +145,7 @@ class ZoomTool extends PureComponent {
       intl,
       isMeteorConnected,
       step,
+      tldrawAPI,
     } = this.props;
     const { stateZoomValue } = this.state;
 
@@ -175,7 +176,7 @@ class ZoomTool extends PureComponent {
               aria-label={zoomOutAriaLabel}
               label={intl.formatMessage(intlMessages.zoomOutLabel)}
               icon="substract"
-              onClick={() => { }}
+              onClick={() => { tldrawAPI?.zoomOut() }}
               disabled={(zoomValue <= minBound) || !isMeteorConnected}
               hideLabel
             />
@@ -189,9 +190,9 @@ class ZoomTool extends PureComponent {
               aria-describedby="resetZoomDescription"
               disabled={(stateZoomValue === minBound) || !isMeteorConnected}
               color="default"
-              customIcon={stateZoomPct}
+              customIcon={`${this.props?.tldrawAPI?.getPageState()?.camera?.zoom * 100}%`}
               size="md"
-              onClick={() => this.resetZoom()}
+              onClick={() => tldrawAPI?.zoomTo(1)}
               label={intl.formatMessage(intlMessages.resetZoomLabel)}
               hideLabel
             />
@@ -214,7 +215,7 @@ class ZoomTool extends PureComponent {
               label={intl.formatMessage(intlMessages.zoomInLabel)}
               data-test="zoomInBtn"
               icon="add"
-              onClick={() => { }}
+              onClick={() => { tldrawAPI?.zoomIn() }}
               disabled={(zoomValue >= maxBound) || !isMeteorConnected}
               hideLabel
             />

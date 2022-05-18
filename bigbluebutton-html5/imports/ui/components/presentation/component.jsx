@@ -73,6 +73,7 @@ class Presentation extends PureComponent {
       zoom: 100,
       fitToWidth: false,
       isFullscreen: false,
+      tldrawAPI: null,
     };
 
     this.currentPresentationToastId = null;
@@ -86,6 +87,7 @@ class Presentation extends PureComponent {
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.getPresentationSizesAvailable = this.getPresentationSizesAvailable.bind(this);
     this.handleResize = this.handleResize.bind(this);
+    this.setTldrawAPI = this.setTldrawAPI.bind(this);
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
@@ -274,6 +276,12 @@ class Presentation extends PureComponent {
         },
       });
     }
+  }
+
+  setTldrawAPI(api) {
+    this.setState({
+      tldrawAPI: api,
+    })
   }
 
   handleResize() {
@@ -694,7 +702,7 @@ class Presentation extends PureComponent {
     );
   }
 
-  renderPresentationToolbar(svgWidth) {
+  renderPresentationToolbar(svgWidth = 0) {
     const {
       currentSlide,
       podId,
@@ -729,6 +737,8 @@ class Presentation extends PureComponent {
           layoutContextDispatch,
           presentationIsOpen,
         }}
+        tldrawAPI={this.state.tldrawAPI}
+        curPageId={this.state.tldrawAPI?.getPage()?.id}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
         zoomChanger={this.zoomChanger}
@@ -896,8 +906,6 @@ class Presentation extends PureComponent {
       );
     }
 
-    
-
     return (
       <>   
         <Styled.PresentationContainer
@@ -922,8 +930,11 @@ class Presentation extends PureComponent {
             podId={podId}
             slidePosition={slidePosition}
             getSvgRef={this.getSvgRef}
+            setTldrawAPI={this.setTldrawAPI}
+            curPageId={this.state.tldrawAPI?.getPage()?.id}
           />
           {isFullscreen && <PollingContainer />}
+          {this.renderPresentationToolbar()}
         {/* 
         <Styled.Presentation ref={(ref) => { this.refPresentation = ref; }}>
           <Styled.WhiteboardSizeAvailable ref={(ref) => { this.refWhiteboardArea = ref; }} />
