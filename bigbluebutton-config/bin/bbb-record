@@ -142,17 +142,15 @@ is_meetingID_in_array() {
    list_meeting_id=$2
 
    if [ "$id_to_validate" = "" ]; then
-      retval=$([ 0 ])
-      return
+      return 0
    fi
    for meetingId in $list_meeting_id; do
       if [ "$id_to_validate" = "$meetingId" ]; then
-         retval=1
-         return
+         return 1
       fi
    done
 
-   retval=$([ 0 ])
+   return 0
 }
 
 usage() {
@@ -451,15 +449,11 @@ if [ $DELETEALL ]; then
 
       for meeting in $(ls /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"); do
          is_meetingID_in_array "$meeting" "$list_running_meeting"
-         if [ ! $retval ]; then
-            echo "A meeting $meeting não está rodando"
-            # echo "deleting: $meeting"
-            # rm -rf /var/bigbluebutton/$meeting
-            # rm -rf /var/bigbluebutton/captions/$meeting
-
-         else
-
-            echo "A meeting $meeting está rodando"
+         retval=$? 
+         if [ $retval -eq 0 ]; then
+            echo "deleting: $meeting"
+            rm -rf /var/bigbluebutton/$meeting
+            rm -rf /var/bigbluebutton/captions/$meeting
          fi
       done
       
