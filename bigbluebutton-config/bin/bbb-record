@@ -160,6 +160,22 @@ print_header() {
    fi
 }
 
+is_meetingID_in_array() {
+   id_to_validate=$1
+   list_meeting_id=$2
+
+   if [ "$id_to_validate" = "" ]; then
+      return 0
+   fi
+   for meetingId in $list_meeting_id; do
+      if [ "$id_to_validate" = "$meetingId" ]; then
+         return 1
+      fi
+   done
+
+   return 0
+}
+
 # Checks if the passed file/directory exists, and if they are owned by BBB's user
 # $1: Path to directory or file
 # $2: -d or -f
@@ -171,7 +187,7 @@ check_path_owner_group() {
          echo "# Warning: owner:group of $1 not $BBB_USER:$BBB_USER."
          if [ "$3" ]; then
             echo "# chown -R $BBB_USER:$BBB_USER $1"
-         else 
+         else
             echo "# chown $BBB_USER:$BBB_USER $1"
          fi
          echo "#"
@@ -204,7 +220,7 @@ usage() {
    echo "   --rebuild <internal meetingID>     rebuild the output for the given internal meetingID"
    echo "   --rebuildall                       rebuild every recording"
    echo "   --delete <internal meetingID>      delete one meeting and recording"
-   echo "   --deleteall                        delete all meetings and recordings"
+   echo "   --deleteall --only-recordings      delete all meetings and recordings"
    echo "   --debug                            check for recording errors"
    echo "   --check                            check for configuration errors"
    echo "   --enable <workflow>                enable a recording workflow"
@@ -297,6 +313,10 @@ while [ $# -gt 0 ]; do
 
    if [ "$1" = "-deleteall" ] || [ "$1" = "--deleteall" ]; then
       need_root
+      if [ "$2" = "-only-recordings" -o "$2" = "--only-recordings" ]; then
+         ONLY_RECORDING=1
+         shift
+      fi
       DELETEALL=1
       shift
       continue
@@ -477,11 +497,29 @@ if [ $DELETEALL ]; then
    rm -f "$RAW_AUDIO_SRC"/*.wav
    rm -f "$RAW_AUDIO_SRC"/*.opus
 
-   for meeting in $(ls "$RAW_PRESENTATION_SRC" | grep "$MEETING_PATTERN"); do
-      echo "deleting: $meeting"
-      rm -rf "${RAW_PRESENTATION_SRC:?}"/"$meeting"
-      rm -rf "$RAW_PRESENTATION_SRC"/captions/"$meeting"
-   done
+   echo "Teste aqui"
+
+   if [ $ONLY_RECORDING ]; then
+      list_running_meeting=$( sudo bbb-conf --list-running-meetings )
+
+      for meeting in $(ls /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"); do
+         is_meetingID_in_array "$meeting" "$list_running_meeting"
+         retval=$?
+         if [ $retval -eq 0 ]; then
+            echo "deleting: $meeting"
+            rm -rf "${RAW_PRESENTATION_SRC:?}"/"$meeting"
+            rm -rf "$RAW_PRESENTATION_SRC"/captions/"$meeting"
+         fi
+      done
+      
+   else
+      for meeting in $(ls "$RAW_PRESENTATION_SRC" | grep "$MEETING_PATTERN"); do
+            echo "deleting: $meeting"
+            rm -rf "${RAW_PRESENTATION_SRC:?}"/"$meeting"
+            rm -rf "$RAW_PRESENTATION_SRC"/captions/"$meeting"
+      done
+   fi
+
 fi
 
 if [ $LIST ]; then
@@ -801,7 +839,7 @@ if [ $CHECK ]; then
          echo
       fi
    fi
-   
+
    if [ "$PLAYBACK_PROTOCOL" != "https" ]; then
       echo "#"
       echo "# Info: playback protocol set to $PLAYBACK_PROTOCOL instead of https"
@@ -810,7 +848,7 @@ if [ $CHECK ]; then
    fi
 
    if [ -d "$LOG_DIR" ]; then
- 
+
       if [ "$(stat -c %a "$LOG_DIR")" != "755" ]; then
          echo "#"
          echo "# Warning: access rights of BigBlueButton's log directory should be set to rwxr-xr-x, not $(stat -c %A "$LOG_DIR"):"
@@ -835,7 +873,7 @@ if [ $CHECK ]; then
    check_path_owner_group "$RECORDING_DIR/raw" "-d" "-R"
    check_path_owner_group "$RECORDING_DIR/process" "-d" "-R"
    check_path_owner_group "$RECORDING_DIR/publish" "-d" "-R"
-   
+
    check_path_owner_group "$STATUS" "-d" "-R"
    check_path_owner_group "$STATUS/recorded" "-d" "-R"
    check_path_owner_group "$STATUS/archived" "-d" "-R"
@@ -854,7 +892,7 @@ if [ $CHECK ]; then
 
    for type in $TYPES; do
       check_path_owner_group "$LOG_DIR/$type" "-d" "-R"
-      
+
       if [ "$(find "$LOG_DIR"/"$type" \! -user $BBB_USER \! -group $BBB_USER | wc -l)" -gt 0 ]; then
          echo "#"
          echo "# Some recording log files in $LOG_DIR/$type may not be writeable."
