@@ -1,88 +1,80 @@
-import React, { PureComponent } from "react";
-import PropTypes from "prop-types";
-import { defineMessages, injectIntl } from "react-intl";
-import deviceInfo from "/imports/utils/deviceInfo";
-import injectWbResizeEvent from "/imports/ui/components/presentation/resize-wrapper/component";
-import {
-  HUNDRED_PERCENT,
-  MAX_PERCENT,
-  STEP,
-} from "/imports/utils/slideCalcUtils";
-import Styled from "./styles";
-import ZoomTool from "./zoom-tool/component";
-import TooltipContainer from "/imports/ui/components/common/tooltip/container";
-import KEY_CODES from "/imports/utils/keyCodes";
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
+import { defineMessages, injectIntl } from 'react-intl';
+import deviceInfo from '/imports/utils/deviceInfo';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtils';
+import Styled from './styles';
+import ZoomTool from './zoom-tool/component';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import KEY_CODES from '/imports/utils/keyCodes';
 
 const intlMessages = defineMessages({
   previousSlideLabel: {
-    id: "app.presentation.presentationToolbar.prevSlideLabel",
-    description: "Previous slide button label",
+    id: 'app.presentation.presentationToolbar.prevSlideLabel',
+    description: 'Previous slide button label',
   },
   previousSlideDesc: {
-    id: "app.presentation.presentationToolbar.prevSlideDesc",
-    description: "Aria description for when switching to previous slide",
+    id: 'app.presentation.presentationToolbar.prevSlideDesc',
+    description: 'Aria description for when switching to previous slide',
   },
   nextSlideLabel: {
-    id: "app.presentation.presentationToolbar.nextSlideLabel",
-    description: "Next slide button label",
+    id: 'app.presentation.presentationToolbar.nextSlideLabel',
+    description: 'Next slide button label',
   },
   nextSlideDesc: {
-    id: "app.presentation.presentationToolbar.nextSlideDesc",
-    description: "Aria description for when switching to next slide",
+    id: 'app.presentation.presentationToolbar.nextSlideDesc',
+    description: 'Aria description for when switching to next slide',
   },
   noNextSlideDesc: {
-    id: "app.presentation.presentationToolbar.noNextSlideDesc",
-    description: "",
+    id: 'app.presentation.presentationToolbar.noNextSlideDesc',
+    description: '',
   },
   noPrevSlideDesc: {
-    id: "app.presentation.presentationToolbar.noPrevSlideDesc",
-    description: "",
+    id: 'app.presentation.presentationToolbar.noPrevSlideDesc',
+    description: '',
   },
   skipSlideLabel: {
-    id: "app.presentation.presentationToolbar.skipSlideLabel",
-    description: "Aria label for when switching to a specific slide",
+    id: 'app.presentation.presentationToolbar.skipSlideLabel',
+    description: 'Aria label for when switching to a specific slide',
   },
   skipSlideDesc: {
-    id: "app.presentation.presentationToolbar.skipSlideDesc",
-    description: "Aria description for when switching to a specific slide",
+    id: 'app.presentation.presentationToolbar.skipSlideDesc',
+    description: 'Aria description for when switching to a specific slide',
   },
   goToSlide: {
-    id: "app.presentation.presentationToolbar.goToSlide",
-    description: "button for slide select",
+    id: 'app.presentation.presentationToolbar.goToSlide',
+    description: 'button for slide select',
   },
   selectLabel: {
-    id: "app.presentation.presentationToolbar.selectLabel",
-    description: "slide select label",
+    id: 'app.presentation.presentationToolbar.selectLabel',
+    description: 'slide select label',
   },
   fitToWidth: {
-    id: "app.presentation.presentationToolbar.fitToWidth",
-    description: "button for fit to width",
+    id: 'app.presentation.presentationToolbar.fitToWidth',
+    description: 'button for fit to width',
   },
   fitToWidthDesc: {
-    id: "app.presentation.presentationToolbar.fitWidthDesc",
-    description: "Aria description to display the whole width of the slide",
+    id: 'app.presentation.presentationToolbar.fitWidthDesc',
+    description: 'Aria description to display the whole width of the slide',
   },
   fitToPage: {
-    id: "app.presentation.presentationToolbar.fitToPage",
-    description: "button label for fit to width",
+    id: 'app.presentation.presentationToolbar.fitToPage',
+    description: 'button label for fit to width',
   },
   fitToPageDesc: {
-    id: "app.presentation.presentationToolbar.fitScreenDesc",
-    description: "Aria description to display the whole slide",
+    id: 'app.presentation.presentationToolbar.fitScreenDesc',
+    description: 'Aria description to display the whole slide',
   },
   presentationLabel: {
-    id: "app.presentationUploder.title",
-    description: "presentation area element label",
+    id: 'app.presentationUploder.title',
+    description: 'presentation area element label',
   },
 });
 
 class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
-
-    this.state = {
-      curPageId: 1,
-    };
 
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
@@ -94,16 +86,16 @@ class PresentationToolbar extends PureComponent {
   }
 
   componentDidMount() {
-    document.addEventListener("keydown", this.switchSlide);
+    document.addEventListener('keydown', this.switchSlide);
   }
 
   componentWillUnmount() {
-    document.removeEventListener("keydown", this.switchSlide);
+    document.removeEventListener('keydown', this.switchSlide);
   }
 
   switchSlide(event) {
     const { target, which } = event;
-    const isBody = target.nodeName === "BODY";
+    const isBody = target.nodeName === 'BODY';
 
     if (isBody) {
       switch (which) {
@@ -124,26 +116,34 @@ class PresentationToolbar extends PureComponent {
   }
 
   handleSkipToSlideChange(event) {
-    const { skipToSlide, podId } = this.props;
+    const {
+      skipToSlide,
+      podId,
+    } = this.props;
     const requestedSlideNum = Number.parseInt(event.target.value, 10);
 
     if (event) event.currentTarget.blur();
-    // skipToSlide(requestedSlideNum, podId);
-    this.props?.tldrawAPI?.changePage(requestedSlideNum);
-    this.setState({
-      curPageId: parseInt(this.props?.tldrawAPI?.getPage()?.id),
-    });
+    skipToSlide(requestedSlideNum, podId);
   }
 
   nextSlideHandler(event) {
-    const { nextSlide, currentSlideNum, numberOfSlides, podId } = this.props;
+    const {
+      nextSlide,
+      currentSlideNum,
+      numberOfSlides,
+      podId,
+    } = this.props;
 
     if (event) event.currentTarget.blur();
     nextSlide(currentSlideNum, numberOfSlides, podId);
   }
 
   previousSlideHandler(event) {
-    const { previousSlide, currentSlideNum, podId } = this.props;
+    const {
+      previousSlide,
+      currentSlideNum,
+      podId,
+    } = this.props;
 
     if (event) event.currentTarget.blur();
     previousSlide(currentSlideNum, podId);
@@ -160,13 +160,13 @@ class PresentationToolbar extends PureComponent {
     } = this.props;
 
     handleToggleFullScreen(fullscreenRef);
-    const newElement = isFullscreen ? "" : fullscreenElementId;
+    const newElement = isFullscreen ? '' : fullscreenElementId;
 
     layoutContextDispatch({
       type: fullscreenAction,
       value: {
         element: newElement,
-        group: "",
+        group: '',
       },
     });
   }
@@ -211,11 +211,15 @@ class PresentationToolbar extends PureComponent {
     const { intl } = this.props;
     const optionList = [];
     for (let i = 1; i <= numberOfSlides; i += 1) {
-      optionList.push(
-        <option value={i} key={i}>
-          {intl.formatMessage(intlMessages.goToSlide, { 0: i })}
-        </option>
-      );
+      optionList.push((
+        <option
+          value={i}
+          key={i}
+        >
+          {
+            intl.formatMessage(intlMessages.goToSlide, { 0: i })
+          }
+        </option>));
     }
 
     return optionList;
@@ -241,47 +245,44 @@ class PresentationToolbar extends PureComponent {
 
     const { isMobile } = deviceInfo;
 
-    const startOfSlides = parseInt(this.state.curPageId) === 1;
-    const endOfSlides = parseInt(this.state.curPageId) === numberOfSlides;
+    const startOfSlides = !(currentSlideNum > 1);
+    const endOfSlides = !(currentSlideNum < numberOfSlides);
 
     const prevSlideAriaLabel = startOfSlides
       ? intl.formatMessage(intlMessages.previousSlideLabel)
-      : `${intl.formatMessage(intlMessages.previousSlideLabel)} (${
-          parseInt(this.props?.tldrawAPI?.getPage()?.id) <= 1
-            ? ""
-            : parseInt(this.props?.tldrawAPI?.getPage()?.id) - 1
-        })`;
+      : `${intl.formatMessage(intlMessages.previousSlideLabel)} (${currentSlideNum <= 1 ? '' : (currentSlideNum - 1)})`;
 
     const nextSlideAriaLabel = endOfSlides
       ? intl.formatMessage(intlMessages.nextSlideLabel)
-      : `${intl.formatMessage(intlMessages.nextSlideLabel)} (${
-          parseInt(this.props?.tldrawAPI?.getPage()?.id) >= 1
-            ? parseInt(this.props?.tldrawAPI?.getPage()?.id) + 1
-            : ""
-        })`;
+      : `${intl.formatMessage(intlMessages.nextSlideLabel)} (${currentSlideNum >= 1 ? (currentSlideNum + 1) : ''})`;
+
+    console.log("aeeeeeeeeeeeee: ", this.props?.tldrawAPI);
 
     return (
       <Styled.PresentationToolbarWrapper
         id="presentationToolbarWrapper"
-        style={{
-          width: "100%",
-        }}
-      >
+        style={
+          {
+            width: toolbarWidth,
+          }
+        }>
         {this.renderAriaDescs()}
         {
           <div>
-            {isPollingEnabled ? (
-              <Styled.QuickPollButton
-                {...{
-                  currentSlidHasContent,
-                  intl,
-                  amIPresenter,
-                  parseCurrentSlideContent,
-                  startPoll,
-                  currentSlide,
-                }}
-              />
-            ) : null}
+            {isPollingEnabled
+              ? (
+                <Styled.QuickPollButton
+                  {...{
+                    currentSlidHasContent,
+                    intl,
+                    amIPresenter,
+                    parseCurrentSlideContent,
+                    startPoll,
+                    currentSlide,
+                  }}
+                />
+              ) : null
+            }
           </div>
         }
         {
@@ -289,29 +290,18 @@ class PresentationToolbar extends PureComponent {
             <Styled.PrevSlideButton
               role="button"
               aria-label={prevSlideAriaLabel}
-              aria-describedby={
-                startOfSlides ? "noPrevSlideDesc" : "prevSlideDesc"
-              }
+              aria-describedby={startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'}
               disabled={startOfSlides || !isMeteorConnected}
               color="default"
               icon="left_arrow"
               size="md"
-              onClick={() => {
-                this.props?.tldrawAPI?.changePage(
-                  parseInt(this.props?.tldrawAPI?.getPage()?.id) - 1
-                );
-                this.setState({
-                  curPageId: parseInt(this.props?.tldrawAPI?.getPage()?.id),
-                });
-              }}
+              onClick={this.previousSlideHandler}
               label={intl.formatMessage(intlMessages.previousSlideLabel)}
               hideLabel
               data-test="prevSlide"
             />
 
-            <TooltipContainer
-              title={intl.formatMessage(intlMessages.selectLabel)}
-            >
+            <TooltipContainer title={intl.formatMessage(intlMessages.selectLabel)}>
               <Styled.SkipSlideSelect
                 id="skipSlide"
                 aria-label={intl.formatMessage(intlMessages.skipSlideLabel)}
@@ -319,7 +309,7 @@ class PresentationToolbar extends PureComponent {
                 aria-live="polite"
                 aria-relevant="all"
                 disabled={!isMeteorConnected}
-                value={this.state.curPageId}
+                value={currentSlideNum}
                 onChange={this.handleSkipToSlideChange}
                 data-test="skipSlide"
               >
@@ -329,21 +319,12 @@ class PresentationToolbar extends PureComponent {
             <Styled.NextSlideButton
               role="button"
               aria-label={nextSlideAriaLabel}
-              aria-describedby={
-                endOfSlides ? "noNextSlideDesc" : "nextSlideDesc"
-              }
+              aria-describedby={endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'}
               disabled={endOfSlides || !isMeteorConnected}
               color="default"
               icon="right_arrow"
               size="md"
-              onClick={() => {
-                this.props?.tldrawAPI?.changePage(
-                  parseInt(this.props?.tldrawAPI?.getPage()?.id) + 1
-                );
-                this.setState({
-                  curPageId: parseInt(this.props?.tldrawAPI?.getPage()?.id),
-                });
-              }}
+              onClick={this.nextSlideHandler}
               label={intl.formatMessage(intlMessages.nextSlideLabel)}
               hideLabel
               data-test="nextSlide"
@@ -352,12 +333,16 @@ class PresentationToolbar extends PureComponent {
         }
         {
           <Styled.PresentationZoomControls>
-            {!isMobile ? (
-              <TooltipContainer>
+            {
+              !isMobile
+                ? (
+                  <TooltipContainer>
                 <ZoomTool
                   zoomValue={
+                    //this.props?.tldrawAPI?.pageStates[currentSlideNum.toString()]?.camera?.zoom
                     this.props?.tldrawAPI?.getPageState()?.camera?.zoom
                   }
+                  currentSlideNum={currentSlideNum}
                   change={this.change}
                   minBound={0.1}
                   maxBound={5}
@@ -365,19 +350,16 @@ class PresentationToolbar extends PureComponent {
                   isMeteorConnected={isMeteorConnected}
                   tldrawAPI={this.props?.tldrawAPI}
                 />
-              </TooltipContainer>
-            ) : null}
+                  </TooltipContainer>
+                )
+                : null
+            }
             <Styled.FitToWidthButton
               role="button"
-              aria-describedby={fitToWidth ? "fitPageDesc" : "fitWidthDesc"}
-              aria-label={
-                fitToWidth
-                  ? `${intl.formatMessage(
-                      intlMessages.presentationLabel
-                    )} ${intl.formatMessage(intlMessages.fitToPage)}`
-                  : `${intl.formatMessage(
-                      intlMessages.presentationLabel
-                    )} ${intl.formatMessage(intlMessages.fitToWidth)}`
+              aria-describedby={fitToWidth ? 'fitPageDesc' : 'fitWidthDesc'}
+              aria-label={fitToWidth
+                ? `${intl.formatMessage(intlMessages.presentationLabel)} ${intl.formatMessage(intlMessages.fitToPage)}`
+                : `${intl.formatMessage(intlMessages.presentationLabel)} ${intl.formatMessage(intlMessages.fitToWidth)}`
               }
               color="default"
               disabled={!isMeteorConnected}

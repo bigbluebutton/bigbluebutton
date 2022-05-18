@@ -388,18 +388,17 @@ const getShapes = (whiteboardId) => {
     },
   ).fetch();
 
-  let result = annotations.map(a => a.annotationInfo);
+  let result = {};
+
+  annotations.forEach((annotation) => {
+    result[annotation.annotationInfo.id] = annotation.annotationInfo;
+  });
   return result;
 };
 
 const getCurrentPres = () => {
   const podId = "DEFAULT_PRESENTATION_POD";
   return  PresentationService.getCurrentPresentation(podId);
-}
-
-const getCurSlide = () => {
-  let m = Meetings.findOne({ meetingId: Auth.meetingID });
-  return m;
 }
 
 const getAssets = () => {

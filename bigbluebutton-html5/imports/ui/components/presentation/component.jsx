@@ -931,7 +931,8 @@ class Presentation extends PureComponent {
             slidePosition={slidePosition}
             getSvgRef={this.getSvgRef}
             setTldrawAPI={this.setTldrawAPI}
-            curPageId={this.state.tldrawAPI?.getPage()?.id}
+            curPageId={currentSlide?.num.toString()}
+            svgUri={currentSlide?.svgUri}
           />
           {isFullscreen && <PollingContainer />}
           {this.renderPresentationToolbar()}
