@@ -40,7 +40,7 @@ echo "writing $DESTINATION_DIR/mongod_start_pre.sh"
 sudo cp $LOCAL_PACKAGING_DIR/mongod_start_pre.sh "$DESTINATION_DIR"/mongod_start_pre.sh
 
 echo "writing $DESTINATION_DIR/mongo-ramdisk.conf"
-sudo cp $LOCAL_PACKAGING_DIR/mongo-ramdisk.conf "$DESTINATION_DIR"/mongo-ramdisk.conf
+sudo cp $LOCAL_PACKAGING_DIR/bionic/mongo-ramdisk.conf "$DESTINATION_DIR"/mongo-ramdisk.conf
 
 echo "writing $DESTINATION_DIR/bbb-html5-with-roles.conf"
 sudo tee "$DESTINATION_DIR/bbb-html5-with-roles.conf" >/dev/null <<HERE
