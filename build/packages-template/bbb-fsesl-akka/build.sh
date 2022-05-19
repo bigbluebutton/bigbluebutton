@@ -22,18 +22,19 @@ build_common_messages () {
     cd bbb-common-message
     sbt publish
     sbt publishLocal
+    cd ..
 }
 
 build_fsesl_client () {
     cd bbb-fsesl-client
     sbt publish
     sbt publishLocal
+    cd ..
 }
 
-# build these two in parallel
-build_common_messages &
-build_fsesl_client &
-wait
+build_common_messages
+build_fsesl_client
+
 
 cd akka-bbb-fsesl
 sed -i 's/\r$//' project/Dependencies.scala

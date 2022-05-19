@@ -104,6 +104,61 @@ class StatusTable extends React.Component {
 
     const isRTL = document.dir === 'rtl';
 
+    function makeLineThrough(userPeriod, period) {
+      const { registeredOn, leftOn } = userPeriod;
+      const boundaryLeft = period.start;
+      const boundaryRight = period.end;
+      const interval = period.end - period.start;
+      let roundedLeft = registeredOn >= boundaryLeft
+        && registeredOn <= boundaryRight ? 'rounded-l' : '';
+      let roundedRight = leftOn >= boundaryLeft
+        && leftOn <= boundaryRight ? 'rounded-r' : '';
+      let offsetLeft = 0;
+      let offsetRight = 0;
+      if (registeredOn >= boundaryLeft && registeredOn <= boundaryRight) {
+        offsetLeft = ((registeredOn - boundaryLeft) * 100) / interval;
+      }
+      if (leftOn >= boundaryLeft && leftOn <= boundaryRight) {
+        offsetRight = ((boundaryRight - leftOn) * 100) / interval;
+      }
+      let width = '';
+      if (offsetLeft === 0 && offsetRight >= 99) {
+        width = 'w-1.5';
+      }
+      if (offsetRight === 0 && offsetLeft >= 99) {
+        width = 'w-1.5';
+      }
+      if (offsetLeft && offsetRight) {
+        const variation = offsetLeft - offsetRight;
+        if (variation > -1 && variation < 1) {
+          width = 'w-1.5';
+        }
+      }
+      if (isRTL) {
+        const aux = roundedRight;
+
+        if (roundedLeft !== '') roundedRight = 'rounded-r';
+        else roundedRight = '';
+
+        if (aux !== '') roundedLeft = 'rounded-l';
+        else roundedLeft = '';
+      }
+      const redress = '(0.375rem / 2)';
+      return (
+        <div
+          className={
+            'h-1.5 bg-gray-200 absolute inset-x-0 z-10'
+            + ` ${width} ${roundedLeft} ${roundedRight}`
+          }
+          style={{
+            top: `calc(50% - ${redress})`,
+            left: `${isRTL ? offsetRight : offsetLeft}%`,
+            right: `${isRTL ? offsetLeft : offsetRight}%`,
+          }}
+        />
+      );
+    }
+
     return (
       <table className="w-full">
         <thead>
@@ -134,6 +189,8 @@ class StatusTable extends React.Component {
               { periods.map((period) => {
                 const { slide, start, end } = period;
                 const padding = isRTL ? 'paddingLeft' : 'paddingRight';
+                const URLPrefix = `/bigbluebutton/presentation/${meetingId}/${meetingId}`;
+                const { presentationId, pageNum } = slide || {};
                 return (
                   <td
                     style={{
@@ -147,13 +204,13 @@ class StatusTable extends React.Component {
                           aria-label={tsToHHmmss(start - periods[0].start)}
                         >
                           <a
-                            href={`/bigbluebutton/presentation/${meetingId}/${meetingId}/${slide.presentationId}/svg/${slide.pageNum}`}
+                            href={`${URLPrefix}/${presentationId}/svg/${pageNum}`}
                             className="block border-2 border-gray-300"
                             target="_blank"
                             rel="noreferrer"
                           >
                             <img
-                              src={`/bigbluebutton/presentation/${meetingId}/${meetingId}/${slide.presentationId}/thumbnail/${slide.pageNum}`}
+                              src={`${URLPrefix}/${presentationId}/thumbnail/${pageNum}`}
                               alt={intl.formatMessage({
                                 id: 'app.learningDashboard.statusTimelineTable.thumbnail',
                                 defaultMessage: 'Presentation thumbnail',
@@ -216,57 +273,9 @@ class StatusTable extends React.Component {
                                 { (registeredOn >= boundaryLeft && registeredOn <= boundaryRight)
                                   || (leftOn >= boundaryLeft && leftOn <= boundaryRight)
                                   || (boundaryLeft > registeredOn && boundaryRight < leftOn)
-                                  || (boundaryLeft >= registeredOn && leftOn === 0) ? (
-                                    (function makeLineThrough() {
-                                      let roundedLeft = registeredOn >= boundaryLeft
-                                        && registeredOn <= boundaryRight ? 'rounded-l' : '';
-                                      let roundedRight = leftOn >= boundaryLeft
-                                        && leftOn <= boundaryRight ? 'rounded-r' : '';
-                                      let offsetLeft = 0;
-                                      let offsetRight = 0;
-                                      if (registeredOn >= boundaryLeft
-                                        && registeredOn <= boundaryRight) {
-                                        offsetLeft = ((registeredOn - boundaryLeft) * 100)
-                                          / interval;
-                                      }
-                                      if (leftOn >= boundaryLeft && leftOn <= boundaryRight) {
-                                        offsetRight = ((boundaryRight - leftOn) * 100) / interval;
-                                      }
-                                      let width = '';
-                                      if (offsetLeft === 0 && offsetRight >= 99) {
-                                        width = 'w-1.5';
-                                      }
-                                      if (offsetRight === 0 && offsetLeft >= 99) {
-                                        width = 'w-1.5';
-                                      }
-                                      if (offsetLeft && offsetRight) {
-                                        const variation = offsetLeft - offsetRight;
-                                        if (variation > -1 && variation < 1) {
-                                          width = 'w-1.5';
-                                        }
-                                      }
-                                      if (isRTL) {
-                                        const aux = roundedRight;
-
-                                        if (roundedLeft !== '') roundedRight = 'rounded-r';
-                                        else roundedRight = '';
-
-                                        if (aux !== '') roundedLeft = 'rounded-l';
-                                        else roundedLeft = '';
-                                      }
-                                      const redress = '(0.375rem / 2)';
-                                      return (
-                                        <div
-                                          className={`h-1.5 ${width} bg-gray-200 absolute inset-x-0 z-10 ${roundedLeft} ${roundedRight}`}
-                                          style={{
-                                            top: `calc(50% - ${redress})`,
-                                            left: `${isRTL ? offsetRight : offsetLeft}%`,
-                                            right: `${isRTL ? offsetLeft : offsetRight}%`,
-                                          }}
-                                        />
-                                      );
-                                    })()
-                                  ) : null }
+                                  || (boundaryLeft >= registeredOn && leftOn === 0)
+                                  ? makeLineThrough(userPeriod, period)
+                                  : null }
                                 { userEmojisInPeriod.map((emoji) => {
                                   const offset = ((emoji.sentOn - period.start) * 100)
                                     / (interval);
@@ -285,7 +294,12 @@ class StatusTable extends React.Component {
                                         defaultMessage: emojiConfigs[emoji.name].defaultMessage,
                                       })}
                                     >
-                                      <i className={`${emojiConfigs[emoji.name].icon} text-sm bbb-icon-timeline`} />
+                                      <i
+                                        className={
+                                          'text-sm bbb-icon-timeline'
+                                          + ` ${emojiConfigs[emoji.name].icon}`
+                                        }
+                                      />
                                     </div>
                                   );
                                 }) }

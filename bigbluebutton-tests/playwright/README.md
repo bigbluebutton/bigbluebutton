@@ -10,10 +10,15 @@ $ cd ../bigbluebutton-tests/playwright
 $ npm install
 $ npx playwright install
 ```
+You may also need to run the following command:
+```bash
+$ npx playwright install-deps
+```
 To run these tests with an existing BigBlueButton server, you need to find the server's URL and secret (can be done with `bbb-conf --secret` command). You need to put them into the `.env` file inside `bigbluebutton-tests/playwright` folder (variables `BBB_URL` and `BBB_SECRET`).  Note: the value for `BBB_URL` follows the format of `https://<hostname>/bigbluebutton/api`.
 
 ## Run tests
 
+We recommend to use Node version 16 or higher to avoid errors in JavaScript.
 Tests can be executed using `npx` and `npm test`. You can run all tests in each of 3 supported environments (`chromium`, `firefox`, `webkit`) with one of the following commands:
 ```bash
 $ npx playwright test
