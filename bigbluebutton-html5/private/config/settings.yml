@@ -472,6 +472,7 @@ public:
       enabled: true
     moderatorChatEmphasized: true
     autoConvertEmoji: true
+    enableEmojiPicker: false
   notes:
     enabled: true
     id: notes

@@ -6,6 +6,7 @@
     "app.chat.disconnected": "You are disconnected, messages can't be sent",
     "app.chat.locked": "Chat is locked, messages can't be sent",
     "app.chat.inputLabel": "Message input for chat {0}",
+    "app.chat.emojiButtonLabel": "Emoji Picker",
     "app.chat.inputPlaceholder": "Message {0}",
     "app.chat.titlePublic": "Public Chat",
     "app.chat.titlePrivate": "Private Chat with {0}",
