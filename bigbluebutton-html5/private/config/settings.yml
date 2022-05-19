@@ -523,40 +523,29 @@ public:
       secure: true
   media:
     audio:
-      #
-      #
-      # Default bridge to be used by full audio mechanism.
+      # defaultFullAudioBridge => bridge to be used by microphones.
       # This is the bridge's name as contained in 'bridges' array
       defaultFullAudioBridge: sipjs
-      #
-      #
-      # Server wide configuration to choose which bbb-webrtc-sfu
-      # media server adapter should be used for fullaudio.
-      # Default is undefined, which means the default setting in bbb-webrtc-sfu
-      # prevails (fullAudioMediaServer).
-      #fullAudioMediaServer: mediasoup
-      #
-      #
-      # Default bridge to be used by listen only mechanism.
+      # fallbackFullAudioBridge => microphone bridge to be used in case the default fails.
+      #fallbackFullAudioBridge: fullaudio
+      # defaultListenOnlyBridge => bridge to be used by listen only.
       defaultListenOnlyBridge: fullaudio
-      #
-      #
-      # Bridge array, here's where we list our bridges.
+      # fallbackListenOnlyBridge => listen only bridge to be used in case the default fails.
+      #fallbackListenOnlyBridge: fullaudio
+      # bridges => array of implemented audio bridges.
+      # Each bridge in this list must be an object of the following format:
+      #  - name: <String> (bridge name)
+      #    path: <String> (bridge's main file path relative to '/imports/api/audio/client')
       # To add new bridges, simply add the corresponding .js file in
       # /imports/api/audio/client/bridge/ and add it to this list.
-      #
-      # Each bridge in this list, must have a name and path attribute.
-      # The name is the desired name/string you can set for your bridge, while
-      # the path specifies the file path, relative to
-      # '/imports/api/audio/client' dir.
-      #
       bridges:
-        # name:  The name of the bridge
         - name: sipjs
-          # path: the bridge file path, relative to /imports/api/audio/client
           path: 'bridge/sip'
         - name: fullaudio
           path: 'bridge/sfu-audio-bridge'
+      # fullAudioMediaServer => server wide configuration to choose which bbb-webrtc-sfu
+      # media server adapter should be used for microphones.
+      #fullAudioMediaServer: mediasoup
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''

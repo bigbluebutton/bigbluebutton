@@ -21,8 +21,6 @@ import {
 const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
-const MAX_LISTEN_ONLY_RETRIES = 1;
-const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 25000;
 const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
   Meteor.settings.public.app.experimentalUseKmsTrickleIceForMicrophone;
 
@@ -87,6 +85,8 @@ class AudioManager {
     this._inputStreamTracker = new Tracker.Dependency();
 
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
+    // Whether fallback bridge usage was triggered
+    this._useFallbackBridge = false;
   }
 
   async init(userData, audioEventHandler) {
@@ -109,11 +109,17 @@ class AudioManager {
     let ListenOnlyBridge = SFUAudioBridge;
 
     if (MEDIA.audio) {
-      const { bridges, defaultFullAudioBridge, defaultListenOnlyBridge } = MEDIA.audio;
+      const {
+        bridges,
+        defaultFullAudioBridge,
+        fallbackFullAudioBridge,
+        defaultListenOnlyBridge,
+        fallbackListenOnlyBridge,
+      } = MEDIA.audio;
 
       const _fullAudioBridge = getFromMeetingSettings(
         'fullaudio-bridge',
-        defaultFullAudioBridge
+        defaultFullAudioBridge,
       );
 
       this.bridges = {};
@@ -124,7 +130,7 @@ class AudioManager {
           this.bridges[bridge.name] = (
             (await import(DEFAULT_AUDIO_BRIDGES_PATH + bridge.path)) || {}
           ).default;
-        })
+        }),
       );
 
       if (_fullAudioBridge && this.bridges[_fullAudioBridge]) {
@@ -133,6 +139,16 @@ class AudioManager {
 
       if (defaultListenOnlyBridge && this.bridges[defaultListenOnlyBridge]) {
         ListenOnlyBridge = this.bridges[defaultListenOnlyBridge];
+      }
+
+      if (fallbackFullAudioBridge && this.bridges[fallbackFullAudioBridge]) {
+        const FbFullAudioBridge = this.bridges[fallbackFullAudioBridge];
+        this.fallbackFullAudioBridge = new FbFullAudioBridge(userData);
+      }
+
+      if (fallbackListenOnlyBridge && this.bridges[fallbackListenOnlyBridge]) {
+        const FbListenOnlyBridge = this.bridges[fallbackListenOnlyBridge];
+        this.fallbackListenOnlyBridge = new FbListenOnlyBridge(userData);
       }
     }
 
@@ -205,6 +221,51 @@ class AudioManager {
     }
   }
 
+  _joinViaFallback() {
+    const previousBridge = this.bridge.bridgeName;
+    // Make sure the current call is shut down.
+    this.bridge.exitAudio();
+    this._useFallbackBridge = true;
+
+    if (this.isEchoTest) {
+      this.joinEchoTest().catch((error) => {
+        logger.info({
+          logCode: 'audiomanager_fallback_echotest_failure',
+          extraInfo: {
+            previousBridge,
+            fallbackBridge: this.bridge?.bridgeName,
+            errorName: error.name,
+            errorMessage: error.message,
+          },
+        }, `Join audio via fallback (echo test) failed: ${error.name} - ${error.message}`);
+      });
+    } else if (this.isListenOnly) {
+      this.joinListenOnly().catch((error) => {
+        logger.info({
+          logCode: 'audiomanager_fallback_listenonly_failure',
+          extraInfo: {
+            previousBridge,
+            fallbackBridge: this.bridge.bridgeName,
+            errorName: error.name,
+            errorMessage: error.message,
+          },
+        }, `Join audio via fallback (listen only) failed: ${error.name} - ${error.message}`);
+      });
+    } else {
+      this.joinMicrophone().catch((error) => {
+        logger.info({
+          logCode: 'audiomanager_fallback_mic_failure',
+          extraInfo: {
+            previousBridge,
+            fallbackBridge: this.bridge.bridgeName,
+            errorName: error.name,
+            errorMessage: error.message,
+          },
+        }, `Join audio via fallback (mic) failed: ${error.name} - ${error.message}`);
+      });
+    }
+  }
+
   joinMicrophone() {
     this.audioJoinStartTime = new Date();
     this.logAudioJoinTime = false;
@@ -243,13 +304,15 @@ class AudioManager {
           inputStream: this.inputStream,
           validIceCandidates,
         };
-        logger.info(
-          {
-            logCode: 'audiomanager_join_echotest',
-            extraInfo: { logType: 'user_action' },
+        logger.info({
+          logCode: 'audiomanager_join_echotest',
+          extraInfo: {
+            logType: 'user_action',
+            bridge: this.bridge?.bridgeName,
+            usingFallback: this._useFallbackBridge,
           },
-          'User requested to join audio conference with mic'
-        );
+        }, 'User requested to join audio conference with mic');
+
         return this.joinAudio(callOptions, this.callStateCallback.bind(this));
       });
   }
@@ -303,83 +366,42 @@ class AudioManager {
       });
   }
 
-  async joinListenOnly(r = 0) {
+  async joinListenOnly() {
     this.audioJoinStartTime = new Date();
     this.logAudioJoinTime = false;
-    let retries = r;
     this.isListenOnly = true;
     this.isEchoTest = false;
 
-    const callOptions = {
-      isListenOnly: true,
-      extension: null,
-    };
-
     // Call polyfills for webrtc client if navigator is "iOS Webview"
+    // TODO - review whether this is still needed and, if it its, the userAgent
+    // thing is not ideal (prefer browserInfo etc) - prlanzarin May 19 - 2021
     const userAgent = window.navigator.userAgent.toLocaleLowerCase();
-    if (
-      (userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) &&
-      userAgent.indexOf('safari') === -1
+    if ((userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1)
+      && userAgent.indexOf('safari') === -1
     ) {
       iosWebviewAudioPolyfills();
     }
 
-    // We need this until we upgrade to SIP 9x. See #4690
-    const listenOnlyCallTimeoutErr = 'SIP_CALL_TIMEOUT';
-
-    const iceGatheringTimeout = new Promise((resolve, reject) => {
-      setTimeout(reject, LISTEN_ONLY_CALL_TIMEOUT_MS, listenOnlyCallTimeoutErr);
-    });
-
-    const handleListenOnlyError = (err) => {
-      if (iceGatheringTimeout) {
-        clearTimeout(iceGatheringTimeout);
-      }
-
-      const errorReason =
-        (typeof err === 'string' ? err : undefined) ||
-        err.errorReason ||
-        err.errorMessage;
-
-      logger.error(
-        {
-          logCode: 'audiomanager_listenonly_error',
-          extraInfo: {
-            errorReason,
-            audioBridge: this.bridge?.bridgeName,
-            retries,
-          },
-        },
-        `Listen only error - ${errorReason} - bridge: ${this.bridge?.bridgeName}`
-      );
-    };
-
-    logger.info(
-      {
-        logCode: 'audiomanager_join_listenonly',
-        extraInfo: { logType: 'user_action' },
+    logger.info({
+      logCode: 'audiomanager_join_listenonly',
+      extraInfo: {
+        logType: 'user_action',
+        bridge: this.bridge?.bridgeName,
+        usingFallback: this._useFallbackBridge,
       },
-      'user requested to connect to audio conference as listen only'
-    );
+    }, 'user requested to connect to audio conference as listen only');
 
+    // Autoplay failure handling
     window.addEventListener('audioPlayFailed', this.handlePlayElementFailed);
 
-    return this.onAudioJoining()
-      .then(() =>
-        Promise.race([
-          this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this)),
-          iceGatheringTimeout,
-        ])
-      )
-      .catch(async (err) => {
-        handleListenOnlyError(err);
-
-        if (retries < MAX_LISTEN_ONLY_RETRIES) {
-          retries += 1;
-          this.joinListenOnly(retries);
-        }
-
-        return null;
+    return this.onAudioJoining
+      .bind(this)()
+      .then(() => {
+        const callOptions = {
+          isListenOnly: true,
+          extension: null,
+        };
+        return this.joinAudio(callOptions, this.callStateCallback.bind(this));
       });
   }
 
@@ -463,20 +485,24 @@ class AudioManager {
 
     if (!this.logAudioJoinTime) {
       this.logAudioJoinTime = true;
-      logger.info(
-        {
-          logCode: 'audio_mic_join_time',
-          extraInfo: {
-            secondsToActivateAudio,
-          },
+      logger.info({
+        logCode: 'audio_mic_join_time',
+        extraInfo: {
+          secondsToActivateAudio,
+          bridge: this.bridge?.bridgeName,
         },
-        `Time needed to connect audio (seconds): ${secondsToActivateAudio}`
-      );
+      }, `Time needed to connect audio (seconds): ${secondsToActivateAudio}`);
     }
 
     if (!this.isEchoTest) {
       this.notify(this.intl.formatMessage(this.messages.info.JOINED_AUDIO));
-      logger.info({ logCode: 'audio_joined' }, 'Audio Joined');
+      logger.info({
+        logCode: 'audio_joined',
+        extraInfo: {
+          bridge: this.bridge?.bridgeName,
+          usingFallback: this._useFallbackBridge,
+        },
+      }, 'Audio Joined');
       this.inputStream = this.bridge ? this.bridge.inputStream : null;
       if (STATS.enabled) this.monitor();
       this.audioEventHandler({
@@ -537,9 +563,26 @@ class AudioManager {
           breakoutMeetingId: '',
           status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
         });
-        logger.info({ logCode: 'audio_ended' }, 'Audio ended without issue');
+        logger.info({
+          logCode: 'audio_ended',
+          extraInfo: {
+            bridge,
+            usingFallback: this._useFallbackBridge,
+          },
+        }, 'Audio ended without issue');
         this.onAudioExit();
       } else if (status === FAILED) {
+        // We have a fallback bridge configured for this audio mode
+        if (this.hasFallbackBridge()) {
+          // We've not tried fallback yet => try it.
+          if (!this._useFallbackBridge) {
+            this._joinViaFallback();
+            return resolve(RECONNECTING);
+          }
+
+          // We've tried the fallback and it failed - give up.
+          this._useFallbackBridge = false;
+        }
         this.isReconnecting = false;
         this.setBreakoutAudioTransferStatus({
           breakoutMeetingId: '',
@@ -549,17 +592,15 @@ class AudioManager {
           this.messages.error[error] || this.messages.error.GENERIC_ERROR;
         const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
         this.error = !!error;
-        logger.error(
-          {
-            logCode: 'audio_failure',
-            extraInfo: {
-              errorCode: error,
-              cause: bridgeError,
-              bridge,
-            },
+        logger.error({
+          logCode: 'audio_failure',
+          extraInfo: {
+            errorCode: error,
+            cause: bridgeError,
+            bridge,
+            usingFallback: this._useFallbackBridge,
           },
-          `Audio error - errorCode=${error}, cause=${bridgeError}`
-        );
+        }, `Audio error - errorCode=${error}, cause=${bridgeError}`);
         if (silenceNotifications !== true) {
           this.notify(errorMsg, true);
           this.exitAudio();
@@ -571,10 +612,13 @@ class AudioManager {
           breakoutMeetingId: '',
           status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
         });
-        logger.info(
-          { logCode: 'audio_reconnecting' },
-          'Attempting to reconnect audio'
-        );
+        logger.info({
+          logCode: 'audio_reconnecting',
+          extraInfo: {
+            bridge,
+            usingFallback: this._useFallbackBridge,
+          },
+        }, 'Attempting to reconnect audio');
         this.notify(
           this.intl.formatMessage(this.messages.info.RECONNECTING_AUDIO),
           true
@@ -682,7 +726,15 @@ class AudioManager {
   }
 
   get bridge() {
-    return this.isListenOnly ? this.listenOnlyBridge : this.fullAudioBridge;
+    if (!this._useFallbackBridge || !this.hasFallbackBridge()) {
+      return this.isListenOnly ? this.listenOnlyBridge : this.fullAudioBridge;
+    }
+
+    return this.isListenOnly ? this.fallbackListenOnlyBridge : this.fallbackFullAudioBridge;
+  }
+
+  hasFallbackBridge() {
+    return this.isListenOnly ? !!this.fallbackListenOnlyBridge : !!this.fallbackFullAudioBridge;
   }
 
   set inputStream(stream) {
