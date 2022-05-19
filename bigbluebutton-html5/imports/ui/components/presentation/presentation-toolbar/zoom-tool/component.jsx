@@ -190,7 +190,7 @@ class ZoomTool extends PureComponent {
               aria-describedby="resetZoomDescription"
               disabled={(stateZoomValue === minBound) || !isMeteorConnected}
               color="default"
-              customIcon={`${this.props?.tldrawAPI?.getPageState()?.camera?.zoom * 100}%`}
+              customIcon={`${parseInt(this.props?.tldrawAPI?.getPageState()?.camera?.zoom * 100)}%`}
               size="md"
               onClick={() => tldrawAPI?.zoomTo(1)}
               label={intl.formatMessage(intlMessages.resetZoomLabel)}

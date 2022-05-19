@@ -122,10 +122,6 @@ export default function Whiteboard(props) {
       changed = true;
     }
 
-    if (!isPresenter && !_.isEqual(slidePosition, prevSlidePosition)) {
-      tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
-    }
-
     if (changed) {
       tldrawAPI?.mergeDocument(next);
       if (tldrawAPI && history) tldrawAPI.history = history;
@@ -134,6 +130,8 @@ export default function Whiteboard(props) {
         currentDoc.pages[curPageId].bindings = pageBindings;
       }
     }
+
+    tldrawAPI && tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
     
     return currentDoc;
   }, [assets, shapes, curPres, tldrawAPI, curPageId, slidePosition]);
