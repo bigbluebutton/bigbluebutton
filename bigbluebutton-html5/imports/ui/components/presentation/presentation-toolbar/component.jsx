@@ -256,8 +256,6 @@ class PresentationToolbar extends PureComponent {
       ? intl.formatMessage(intlMessages.nextSlideLabel)
       : `${intl.formatMessage(intlMessages.nextSlideLabel)} (${currentSlideNum >= 1 ? (currentSlideNum + 1) : ''})`;
 
-    console.log("aeeeeeeeeeeeee: ", this.props?.tldrawAPI);
-
     return (
       <Styled.PresentationToolbarWrapper
         id="presentationToolbarWrapper"

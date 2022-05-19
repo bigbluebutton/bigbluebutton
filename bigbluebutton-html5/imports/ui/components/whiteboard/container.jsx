@@ -18,7 +18,6 @@ export default withTracker(({ whiteboardId }) => {
   const shapes = Service.getShapes(whiteboardId);
   const assets = Service.getAssets();
   const curPres = Service.getCurrentPres();
-  const curSlide = Service.getCurSlide();
 
   return {
     initDefaultPages: Service.initDefaultPages,
@@ -27,11 +26,11 @@ export default withTracker(({ whiteboardId }) => {
     isMultiUserActive: Service.isMultiUserActive,
     hasMultiUserAccess: Service.hasMultiUserAccess,
     changeCurrentSlide: Service.changeCurrentSlide,
-    curSlide,
     shapes: shapes,
     assets: assets,
     curPres,
     removeShapes: Service.removeShapes,
     zoomSlide: PresentationToolbarService.zoomSlide,
+    skipToSlide: PresentationToolbarService.skipToSlide,
   };
 })(WhiteboardContainer);

@@ -80,12 +80,14 @@ export default function Whiteboard(props) {
 
     let pageBindings = null;
     let history = null;
+    let stack = null;
     let changed = false;
 
     if (next.pageStates[curPageId] && !_.isEqual(prevShapes, shapes)) {
       // mergeDocument loses bindings and history, save it
       pageBindings = tldrawAPI?.getPage(curPageId)?.bindings;
       history = tldrawAPI?.history
+      stack = tldrawAPI?.stack
 
       next.pages[curPageId].shapes = shapes;
       
@@ -127,6 +129,7 @@ export default function Whiteboard(props) {
     if (changed) {
       tldrawAPI?.mergeDocument(next);
       if (tldrawAPI && history) tldrawAPI.history = history;
+      if (tldrawAPI && stack) tldrawAPI.stack = stack;
       if (pageBindings && Object.keys(pageBindings).length !== 0) {
         currentDoc.pages[curPageId].bindings = pageBindings;
       }
@@ -184,8 +187,15 @@ export default function Whiteboard(props) {
 
           onRedo={(e, s) => {
             e?.selectedIds?.map(id => {
-              persistShape(s.getShape(id), whiteboardId);
+              persistShape(e.getShape(id), whiteboardId);
             });
+            const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
+            let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
+            removeShapes(shapesIdsToRemove, whiteboardId)
+            let shapeIdsToReAdd = findRemoved(Object.keys(pageShapes), Object.keys(shapes))
+            shapeIdsToReAdd.forEach(id => {
+              persistShape(pageShapes[id], whiteboardId);
+            })
           }}
 
           onChangePage={(app, s, b, a) => {
