@@ -101,17 +101,17 @@ export default function addSlide(meetingId, podId, presentationId, slide) {
         const slideData = {
           width,
           height,
-          x: xCamera,
-          y: yCamera,
+          xCamera,
+          yCamera,
           zoom,
         };
-        const slidePosition = calculateSlideData(slideData);
+        //const slidePosition = calculateSlideData(slideData);
 
+        console.log
         addSlidePositions(meetingId, podId, presentationId, slideId, slideData);
       }
 
       try {
-        console.log("modifier!!! ", modifier )
         const { insertedId, numberAffected } = Slides.upsert(selector, modifier);
 
         requestWhiteboardHistory(meetingId, slideId);

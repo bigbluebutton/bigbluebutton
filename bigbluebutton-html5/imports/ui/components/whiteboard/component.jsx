@@ -49,8 +49,6 @@ export default function Whiteboard(props) {
     svgUri,
   } = props;
 
-  if (!curPres || !curPageId) return null;
-
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
     name: "test",
@@ -131,17 +129,28 @@ export default function Whiteboard(props) {
       }
     }
 
-    tldrawAPI && tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
-    
     return currentDoc;
-  }, [assets, shapes, curPres, tldrawAPI, curPageId, slidePosition]);
+  }, [assets, shapes, tldrawAPI, curPageId, slidePosition]);
 
+  // change tldraw page when presentation page changes
   React.useEffect(() => {
-    //console.log("changing slide!! ", curPageId, tldrawAPI)
+    const previousPageZoom = tldrawAPI?.getPageState()?.camera?.zoom;
     tldrawAPI &&
       curPageId &&
-      tldrawAPI.changePage(curPageId);
+      tldrawAPI.changePage(curPageId)
+      //change zoom of the new page to follow the previous one
+      previousPageZoom && 
+      tldrawAPI.zoomTo(previousPageZoom)
   }, [curPageId]);
+
+  // change tldraw camera when slidePosition changes
+  React.useEffect(() => {
+    tldrawAPI &&
+    !isPresenter &&
+    curPageId &&
+    slidePosition &&
+    tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
+  }, [curPageId, slidePosition]);
 
   const hasWBAccess = props?.hasMultiUserAccess(props.whiteboardId, props.currentUser.userId);
 
@@ -159,7 +168,7 @@ export default function Whiteboard(props) {
             setTLDrawAPI(app);
             props.setTldrawAPI(app);
             curPageId && app.changePage(curPageId);
-            //curPageId && app.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom)
+            curPageId && app.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom)
           }}
           //onChange={handleChange}
           onPersist={(e) => {
