@@ -11,6 +11,7 @@ import Styled from './styles';
 import { PANELS, ACTIONS } from '../layout/enums';
 import DragAndDrop from './dragAndDrop/component';
 import { alertScreenReader } from '/imports/utils/dom-utils';
+import Header from '/imports/ui/components/common/control-header/component';
 
 const intlMessages = defineMessages({
   pollPaneTitle: {
@@ -780,15 +781,12 @@ class Poll extends Component {
 
     return (
       <div>
-        <Styled.Header>
-          <Styled.PollHideButton
-            ref={(node) => { this.hideBtn = node; }}
-            data-test="hidePollDesc"
-            tabIndex={0}
-            label={intl.formatMessage(intlMessages.pollPaneTitle)}
-            icon="left_arrow"
-            aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
-            onClick={() => {
+        <Header
+          leftButtonProps={{
+            'aria-label': intl.formatMessage(intlMessages.hidePollDesc),
+            'data-test': "hidePollDesc",
+            label: intl.formatMessage(intlMessages.pollPaneTitle),
+            onClick: () => {
               layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
                 value: false,
@@ -797,12 +795,15 @@ class Poll extends Component {
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                 value: PANELS.NONE,
               });
-            }}
-          />
-          <Styled.PollCloseButton
-            label={intl.formatMessage(intlMessages.closeLabel)}
-            aria-label={`${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`}
-            onClick={() => {
+            },
+            ref: (node) => { this.hideBtn = node; },
+          }}
+          rightButtonProps={{
+            'aria-label': `${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`,
+            'data-test': "closePolling",
+            icon: "close",
+            label: intl.formatMessage(intlMessages.closeLabel),
+            onClick: () => {
               if (currentPoll) stopPoll();
               layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -814,13 +815,9 @@ class Poll extends Component {
               });
               Session.set('forcePollOpen', false);
               Session.set('pollInitiated', false);
-            }}
-            icon="close"
-            size="sm"
-            hideLabel
-            data-test="closePolling"
-          />
-        </Styled.Header>
+            },
+          }}
+        />
         {this.renderPollPanel()}
         <span className="sr-only" id="poll-config-button">{intl.formatMessage(intlMessages.showRespDesc)}</span>
         <span className="sr-only" id="add-item-button">{intl.formatMessage(intlMessages.addRespDesc)}</span>
