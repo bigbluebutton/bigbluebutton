@@ -471,6 +471,7 @@ class MeetingActor(
       // Layout
       case m: GetCurrentLayoutReqMsg  => handleGetCurrentLayoutReqMsg(m)
       case m: BroadcastLayoutMsg      => handleBroadcastLayoutMsg(m)
+      case m: BroadcastPushLayoutMsg  => handleBroadcastPushLayoutMsg(m)
 
       // Pads
       case m: PadCreateGroupReqMsg    => padsApp2x.handle(m, liveMeeting, msgBus)

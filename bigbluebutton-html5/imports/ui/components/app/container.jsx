@@ -115,9 +115,7 @@ const AppContainer = (props) => {
   && !isModalOpen;
 
   const setPushLayout = () => {
-    LayoutService.setMeetingLayout({
-      pushLayout,
-    });
+    LayoutService.setPushLayout(pushLayout);
   }
 
   const setMeetingLayout = () => {

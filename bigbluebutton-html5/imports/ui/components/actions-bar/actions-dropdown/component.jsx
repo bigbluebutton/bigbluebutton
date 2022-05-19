@@ -129,6 +129,7 @@ class ActionsDropdown extends PureComponent {
     const {
       intl,
       amIPresenter,
+      amIModerator,
       allowExternalVideo,
       handleTakePresenter,
       isSharingVideo,
