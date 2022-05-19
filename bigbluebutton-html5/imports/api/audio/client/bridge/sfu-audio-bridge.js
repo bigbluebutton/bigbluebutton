@@ -83,6 +83,26 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     this.iceServers = [];
     this.inEchoTest = false;
     this.bridgeName = BRIDGE_NAME;
+    this.callback = () => {};
+  }
+
+  set callback(_callback) {
+    this._originalCallback = _callback;
+    this._callback = (message) => {
+      if (this.alreadyErrored) {
+        return;
+      }
+
+      if (message.status === this.baseCallStates.failed) {
+        this.alreadyErrored = true;
+      }
+
+      this._originalCallback(message);
+    };
+  }
+
+  get callback() {
+    return this._callback;
   }
 
   get inputDeviceId() {
@@ -210,7 +230,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
   }
 
   handleBrokerFailure(error) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       mapErrorCode(error);
       const { errorMessage, errorCause, errorCode } = error;
 
@@ -249,7 +269,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
         bridgeError: errorMessage,
         bridge: this.bridgeName,
       });
-      return reject(error);
+      return resolve();
     });
   }
 
@@ -258,7 +278,10 @@ export default class SFUAudioBridge extends BaseAudioBridge {
       detail: { mediaElement },
     });
     window.dispatchEvent(tagFailedEvent);
-    this.callback({ status: this.baseCallStates.autoplayBlocked, bridge: this.bridgeName });
+    this.callback({
+      status: this.baseCallStates.autoplayBlocked,
+      bridge: this.bridgeName,
+    });
   }
 
   handleStart() {
@@ -298,47 +321,45 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     });
   }
 
-  async _startBroker(options) {
-    return new Promise((resolve, reject) => {
-      try {
-        const { isListenOnly, extension, inputStream } = options;
-        this.inEchoTest = !!extension;
-        this.isListenOnly = isListenOnly;
+  _startBroker(options) {
+    try {
+      const { isListenOnly, extension, inputStream } = options;
+      this.inEchoTest = !!extension;
+      this.isListenOnly = isListenOnly;
 
-        const brokerOptions = {
-          clientSessionNumber: getAudioSessionNumber(),
-          extension,
-          iceServers: this.iceServers,
-          mediaServer: getMediaServerAdapter(isListenOnly),
-          constraints: getAudioConstraints({ deviceId: this.inputDeviceId }),
-          forceRelay: shouldForceRelay(),
-          stream: (inputStream && inputStream.active) ? inputStream : undefined,
-          offering: isListenOnly ? LISTEN_ONLY_OFFERING : true,
-          signalCandidates: SIGNAL_CANDIDATES,
-          traceLogs: TRACE_LOGS,
-        };
+      const brokerOptions = {
+        clientSessionNumber: getAudioSessionNumber(),
+        extension,
+        iceServers: this.iceServers,
+        mediaServer: getMediaServerAdapter(isListenOnly),
+        constraints: getAudioConstraints({ deviceId: this.inputDeviceId }),
+        forceRelay: shouldForceRelay(),
+        stream: (inputStream && inputStream.active) ? inputStream : undefined,
+        offering: isListenOnly ? LISTEN_ONLY_OFFERING : true,
+        signalCandidates: SIGNAL_CANDIDATES,
+        traceLogs: TRACE_LOGS,
+      };
 
-        this.broker = new AudioBroker(
-          Auth.authenticateURL(SFU_URL),
-          isListenOnly ? RECV_ROLE : SENDRECV_ROLE,
-          brokerOptions,
-        );
+      this.broker = new AudioBroker(
+        Auth.authenticateURL(SFU_URL),
+        isListenOnly ? RECV_ROLE : SENDRECV_ROLE,
+        brokerOptions,
+      );
 
-        this.broker.onended = this.handleTermination.bind(this);
-        this.broker.onerror = (error) => {
-          this.handleBrokerFailure(error).catch(reject);
-        };
-        this.broker.onstart = () => {
-          this.handleStart().then(resolve).catch(reject);
-        };
+      this.broker.onended = this.handleTermination.bind(this);
+      this.broker.onerror = this.handleBrokerFailure.bind(this);
+      this.broker.onstart = this.handleStart.bind(this);
 
-        this.broker.joinAudio().catch(reject);
-      } catch (error) {
+      return this.broker.joinAudio().catch((error) => {
         logger.warn({ logCode: 'sfuaudio_bridge_broker_init_fail' },
           'Problem when initializing SFU broker for fullaudio bridge');
-        reject(error);
-      }
-    });
+        return Promise.reject(error);
+      });
+    } catch (error) {
+      logger.warn({ logCode: 'sfuaudio_bridge_broker_init_fail' },
+        'Problem when initializing SFU broker for fullaudio bridge');
+      return Promise.reject(error);
+    }
   }
 
   async joinAudio(options, callback) {
