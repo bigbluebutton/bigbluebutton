@@ -58,7 +58,6 @@ class ChatDropdown extends PureComponent {
       meetingIsBreakout,
       meetingName,
       timeWindowsValues,
-      users,
     } = this.props;
 
     const clearIcon = 'delete';
@@ -84,7 +83,7 @@ class ChatDropdown extends PureComponent {
               link.setAttribute(
                 'href',
                 `data: ${mimeType} ;charset=utf-8,`
-                + `${encodeURIComponent(ChatService.exportChat(timeWindowsValues, users, intl))}`,
+                + `${encodeURIComponent(ChatService.exportChat(timeWindowsValues, intl))}`,
               );
               link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
             }       
@@ -101,7 +100,7 @@ class ChatDropdown extends PureComponent {
             dataTest: "chatCopy",
             label: intl.formatMessage(intlMessages.copy),
             onClick: () => {
-              let chatHistory = ChatService.exportChat(timeWindowsValues, users, intl);
+              let chatHistory = ChatService.exportChat(timeWindowsValues, intl);
               navigator.clipboard.writeText(chatHistory).then(() => {
                 alertScreenReader(intl.formatMessage(intlMessages.copySuccess));
               }).catch(() => {

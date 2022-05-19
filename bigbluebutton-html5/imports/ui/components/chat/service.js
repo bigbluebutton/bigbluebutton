@@ -256,7 +256,7 @@ const htmlDecode = (input) => {
 };
 
 // Export the chat as [Hour:Min] user: message
-const exportChat = (timeWindowList, users, intl) => {
+const exportChat = (timeWindowList, intl) => {
   const messageList = timeWindowList.reduce((acc, timeWindow) => {
     const msgs = timeWindow.content.map((message) => {
       const date = new Date(message.time);
@@ -270,7 +270,7 @@ const exportChat = (timeWindowList, users, intl) => {
 
       let userName = message.id.startsWith(SYSTEM_CHAT_TYPE)
         ? ''
-        : `${users[timeWindow.sender].name}: `;
+        : `${timeWindow.senderName}: `;
       let messageText = '';
       if (message.text === PUBLIC_CHAT_CLEAR) {
         message.text = intl.formatMessage(intlMessages.publicChatClear);
