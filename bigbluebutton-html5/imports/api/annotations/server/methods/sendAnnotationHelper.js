@@ -23,9 +23,6 @@ export default function sendAnnotationHelper(annotations, meetingId, requesterUs
         annotations: whiteboardAnnotations,
       };
   
-      //console.log("AEAFAEWFEWFWE")
-      //console.log(annotations)
-  
       RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
     });
 

@@ -22,13 +22,6 @@ export default function deleteAnnotations(annotations, whiteboardId) {
       annotationsIds: annotations,
     };
 
-    console.log('$$$$$$$$$$$ shapes to remove $$$$$$$$$$$$$$$$$$$$$$')
-    console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
-    console.log(annotations)
-    console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
-    // shape.meetingId = meetingId;
-    //deleteShape(shape);
-
     return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   } catch (err) {
     Logger.error(`Exception while invoking method deleteAnnotation ${err.stack}`);

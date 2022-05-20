@@ -38,8 +38,6 @@ export default function Whiteboard(props) {
     assets,
     currentUser,
     curPres,
-    curSlide,
-    changeCurrentSlide,
     whiteboardId,
     podId,
     zoomSlide,
@@ -60,14 +58,12 @@ export default function Whiteboard(props) {
     assets,
   });
   //const [doc, setDoc] = React.useState(rDocument.current);
-  const [curPage, setCurPage] = React.useState({ id: "1" });
   const [_assets, setAssets] = React.useState(assets);
   const [command, setCommand] = React.useState("");
   const [wbAccess, setWBAccess] = React.useState(props?.hasMultiUserAccess(props.whiteboardId, props.currentUser.userId));
   const [selectedIds, setSelectedIds] = React.useState([]);
   const [tldrawAPI, setTLDrawAPI] = React.useState(null);
   const prevShapes = usePrevious(shapes);
-  const prevPage = usePrevious(curPage);
   const prevSlidePosition = usePrevious(slidePosition);
   const prevPageId = usePrevious(curPageId);
 
@@ -179,8 +175,8 @@ export default function Whiteboard(props) {
           }}
           showPages={false}
           showZoom={false}
-          showUI={isPresenter || hasWBAccess}
-          showMenu={false}
+          showUI={curPres ? (isPresenter || hasWBAccess) : true}
+          showMenu={curPres ? false : true}
           showMultiplayerMenu={false}
           readOnly={!isPresenter && !hasWBAccess}
           onUndo={(e, s) => {
@@ -254,7 +250,7 @@ export default function Whiteboard(props) {
                     const boundShapes = [];
                     if (pageBindings) {
                       Object.entries(pageBindings).map(([k,b]) => {
-                        if (b.toId.includes(id), whiteboardId) {
+                        if (b.toId.includes(id)) {
                           boundShapes.push(e.state.document.pages[e.getPage()?.id]?.shapes[b.fromId])
                         }
                       })
