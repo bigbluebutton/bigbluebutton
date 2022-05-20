@@ -107,7 +107,6 @@ export default function addSlide(meetingId, podId, presentationId, slide) {
         };
         //const slidePosition = calculateSlideData(slideData);
 
-        console.log
         addSlidePositions(meetingId, podId, presentationId, slideId, slideData);
       }
 
