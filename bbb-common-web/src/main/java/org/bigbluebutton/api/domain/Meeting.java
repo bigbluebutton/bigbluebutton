@@ -58,8 +58,6 @@ public class Meeting {
 	private ArrayList<String> disabledFeatures;
 	private String welcomeMsgTemplateHtml;
 	private String welcomeMsgHtml;
-	private String modOnlyMessage = "";
-
 	private String modOnlyMessageHtml = "";
 	private String logoutUrl;
 	private int logoutTimer = 0;
@@ -293,16 +291,7 @@ public class Meeting {
 		return endTime;
 	}
 
-	public void setModeratorOnlyMessage(String msg) {
-		modOnlyMessage = msg;
-	}
-
-	public String getModeratorOnlyMessage() {
-		return modOnlyMessage;
-	}
-
 	public void setModeratorOnlyMessageHtml(String msgHtml) {
-		modOnlyMessage = "";
 		modOnlyMessageHtml = msgHtml;
 	}
 

@@ -127,7 +127,7 @@ class BbbWebApiGWApp(
                     sequence: java.lang.Integer,
                     freeJoin: java.lang.Boolean,
                     metadata: java.util.Map[String, String], guestPolicy: String, authenticatedGuest: java.lang.Boolean, meetingLayout: String,
-                    welcomeMsgTemplateHtml: String, welcomeMsgHtml: String, modOnlyMessage: String,
+                    welcomeMsgTemplateHtml: String, welcomeMsgHtml: String,
                     modOnlyMessageHtml: String,
                     dialNumber:         String, maxUsers: java.lang.Integer,
                     meetingExpireIfNoUserJoinedInMinutes:   java.lang.Integer,
@@ -185,7 +185,7 @@ class BbbWebApiGWApp(
 
     val welcomeProp = WelcomeProp(
       welcomeMsgTemplateHtml = welcomeMsgTemplateHtml,
-      modOnlyMessage = modOnlyMessage, modOnlyMessageHtml = modOnlyMessageHtml, welcomeMsgHtml = welcomeMsgHtml
+      modOnlyMessageHtml = modOnlyMessageHtml, welcomeMsgHtml = welcomeMsgHtml
     )
     val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber, muteOnStart = muteOnStart.booleanValue())
     val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),

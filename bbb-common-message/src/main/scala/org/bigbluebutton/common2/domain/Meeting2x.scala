@@ -31,7 +31,7 @@ case class PasswordProp(moderatorPass: String, viewerPass: String, learningDashb
 
 case class RecordProp(record: Boolean, autoStartRecording: Boolean, allowStartStopRecording: Boolean, keepEvents: Boolean)
 
-case class WelcomeProp(welcomeMsgTemplateHtml: String, welcomeMsgHtml: String, modOnlyMessage: String, modOnlyMessageHtml: String)
+case class WelcomeProp(welcomeMsgTemplateHtml: String, welcomeMsgHtml: String, modOnlyMessageHtml: String)
 
 case class VoiceProp(telVoice: String, voiceConf: String, dialNumber: String, muteOnStart: Boolean)
 
