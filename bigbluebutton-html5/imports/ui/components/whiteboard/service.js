@@ -292,7 +292,7 @@ const persistShape = (shape, whiteboardId) => {
     id: shape.id,
     annotationInfo: shape,
     wbId: whiteboardId,
-    userId: Auth.userID,
+    userId: shape.userId ? shape.userId : Auth.userID,
   };
 
   sendAnnotation(annotation);
@@ -312,13 +312,14 @@ const getShapes = (whiteboardId) => {
       whiteboardId,
     },
     {
-      fields: { annotationInfo: 1, },
+      fields: { annotationInfo: 1, userId: 1, },
     },
   ).fetch();
 
   let result = {};
 
   annotations.forEach((annotation) => {
+    annotation.annotationInfo.userId = annotation.userId;
     result[annotation.annotationInfo.id] = annotation.annotationInfo;
   });
   return result;

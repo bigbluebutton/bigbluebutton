@@ -237,11 +237,13 @@ export default function Whiteboard(props) {
               });
             }
 
-            if (s?.includes("session:complete:TransformSingleSession") 
-              || s?.includes("session:complete:TranslateSession") 
-              || s?.includes("updated_shapes")
-              || s?.includes("session:complete:RotateSession")
-              || s?.includes("session:complete:HandleSession")) {
+            const conditions = [
+              "session:complete:TransformSingleSession", "session:complete:TranslateSession",
+              "session:complete:TranslateSession", "session:complete:RotateSession",
+              "session:complete:HandleSession", "updated_shapes", "duplicate",
+              "stretch", "align", "move", "create", "flip", "toggle", "group",
+            ]
+            if (conditions.some(el => s?.includes(el))) {
                 e.selectedIds.forEach(id => {
                     persistShape(e.getShape(id), whiteboardId);
                     //checks to find any bindings assosiated with the selected shapes.
@@ -257,6 +259,10 @@ export default function Whiteboard(props) {
                     }
                     //persist shape(s) that was updated by the client and any shapes bound to it.
                     boundShapes.forEach(bs => persistShape(bs, whiteboardId))
+
+                    const children = e.getShape(id).children
+                    //also persist children of the selected shape (grouped shapes)
+                    children && children.forEach(c => persistShape(e.getShape(c), whiteboardId))
                 });
             }
 
