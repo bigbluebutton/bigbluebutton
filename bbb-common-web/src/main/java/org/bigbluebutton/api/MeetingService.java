@@ -409,8 +409,8 @@ public class MeetingService implements MessageListener {
             m.getWebcamsOnlyForModerator(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getModeratorPassword(), m.getViewerPassword(),
             m.getLearningDashboardAccessToken(), m.getCreateTime(),
             formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(),
-            m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getMeetingLayout(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(),
-            m.getWelcomeMessageTemplateHtml(), m.getWelcomeMessageHtml(), m.getModeratorOnlyMessage(),
+            m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getMeetingLayout(), m.getWelcomeMessageTemplateHtml(), m.getWelcomeMessageHtml(),
+            m.getModeratorOnlyMessage(),
             m.getModeratorOnlyMessageHtml(),
             m.getDialNumber(), m.getMaxUsers(),
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getMeetingExpireWhenLastUserLeftInMinutes(),
@@ -645,7 +645,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.VOICE_BRIDGE, message.voiceConfId);
       params.put(ApiParams.DURATION, message.durationInMinutes.toString());
       params.put(ApiParams.RECORD, message.record.toString());
-      params.put(ApiParams.WELCOME, getMeeting(message.parentMeetingId).getWelcomeMessageTemplate());
+      params.put(ApiParams.WELCOME, getMeeting(message.parentMeetingId).getWelcomeMessageTemplateHtml());
 
       Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();
 

@@ -54,7 +54,7 @@ class ApiController {
   private static final String ROLE_ATTENDEE = "VIEWER"
   protected static Boolean REDIRECT_RESPONSE = true
 
-  MeetingService meetingService;
+  MeetingService MeetingService;
   PresentationService presentationService
   ParamsProcessorUtil paramsProcessorUtil
   ClientConfigService configService
@@ -359,7 +359,7 @@ class ApiController {
     us.webvoiceconf = meeting.getWebVoice()
     us.mode = "LIVE"
     us.record = meeting.isRecord()
-    us.welcome = meeting.getWelcomeMessage()
+    us.welcome = meeting.getWelcomeMessageHtml()
     us.guest = guest
     us.authed = authenticated
     us.guestStatus = guestStatusVal

@@ -81,10 +81,9 @@ export default function addMeeting(meeting) {
       timeRemaining: Number,
     },
     welcomeProp: {
-      welcomeMsg: String,
       modOnlyMessage: String,
       modOnlyMessageHtml: String,
-      welcomeMsgTemplate: String,
+      welcomeMsgTemplateHtml: String,
       welcomeMsgHtml: String,
     },
     recordProp: Match.ObjectIncluding({

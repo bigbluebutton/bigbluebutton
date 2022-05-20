@@ -98,7 +98,7 @@ const ChatContainer = (props) => {
       id: sysMessagesIds.welcomeId,
       content: [{
         id: sysMessagesIds.welcomeId,
-        textHtml: welcomeProp.welcomeMsgHtml || sanitizeHTML(welcomeProp.welcomeMsg),
+        textHtml: welcomeProp.welcomeMsgHtml,
         time: loginTime,
       }],
       key: sysMessagesIds.welcomeId,

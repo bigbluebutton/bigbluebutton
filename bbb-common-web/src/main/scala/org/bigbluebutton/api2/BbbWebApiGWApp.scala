@@ -127,7 +127,7 @@ class BbbWebApiGWApp(
                     sequence: java.lang.Integer,
                     freeJoin: java.lang.Boolean,
                     metadata: java.util.Map[String, String], guestPolicy: String, authenticatedGuest: java.lang.Boolean, meetingLayout: String,
-                    welcomeMsgTemplate: String, welcomeMsg: String, welcomeMsgTemplateHtml: String, welcomeMsgHtml: String, modOnlyMessage: String,
+                    welcomeMsgTemplateHtml: String, welcomeMsgHtml: String, modOnlyMessage: String,
                     modOnlyMessageHtml: String,
                     dialNumber:         String, maxUsers: java.lang.Integer,
                     meetingExpireIfNoUserJoinedInMinutes:   java.lang.Integer,
@@ -183,8 +183,10 @@ class BbbWebApiGWApp(
       privateChatEnabled = breakoutParams.privateChatEnabled.booleanValue()
     )
 
-    val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
-      modOnlyMessage = modOnlyMessage, modOnlyMessageHtml = modOnlyMessageHtml, welcomeMsgHtml = welcomeMsgHtml)
+    val welcomeProp = WelcomeProp(
+      welcomeMsgTemplateHtml = welcomeMsgTemplateHtml,
+      modOnlyMessage = modOnlyMessage, modOnlyMessageHtml = modOnlyMessageHtml, welcomeMsgHtml = welcomeMsgHtml
+    )
     val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber, muteOnStart = muteOnStart.booleanValue())
     val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
       userCameraCap = userCameraCap.intValue(),

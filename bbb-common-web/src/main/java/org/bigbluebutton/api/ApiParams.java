@@ -68,6 +68,7 @@ public class ApiParams {
     public static final String MEETING_EXPIRE_WHEN_LAST_USER_LEFT_IN_MINUTES = "meetingExpireWhenLastUserLeftInMinutes";
     public static final String WELCOME = "welcome";
     public static final String WELCOME_HTML = "welcomeHtml";
+    public static final String WELCOME_PLAIN = "welcomePlain";
     public static final String HTML5_INSTANCE_ID = "html5InstanceId";
     public static final String ROLE = "role";
     public static final String GROUPS = "groups";

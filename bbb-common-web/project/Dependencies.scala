@@ -1,7 +1,7 @@
 package org.bigbluebutton.build
 
+import sbt.Keys._
 import sbt._
-import Keys._
 
 object Dependencies {
 
@@ -19,6 +19,7 @@ object Dependencies {
     val freemarker = "2.3.31"
     val apacheHttp = "4.5.13"
     val apacheHttpAsync = "4.1.4"
+    val jsoup = "1.15.1"
 
     // Office and document conversion
     val apachePoi = "5.1.0"
@@ -63,7 +64,7 @@ object Dependencies {
     val apacheIo = "commons-io" % "commons-io" % Versions.io
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
     val apacheText = "org.apache.commons" % "commons-text" % Versions.text
-
+    val jsoup = "org.jsoup" % "jsoup" % "1.15.1"
     val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.13" % Versions.bbbCommons
   }
 
@@ -98,5 +99,6 @@ object Dependencies {
     Compile.apacheIo,
     Compile.apachePool2,
     Compile.apacheText,
-    Compile.bbbCommons) ++ testing
+    Compile.bbbCommons,
+    Compile.jsoup) ++ testing
 }

@@ -34,6 +34,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -49,6 +50,8 @@ import org.bigbluebutton.api.domain.LockSettingsParams;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Group;
 import org.bigbluebutton.api.util.ParamsUtil;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,34 +151,27 @@ public class ParamsProcessorUtil {
   		return s;
   	}
 
-    private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
+    private String resolvePlaceholders(String message, String dialNumber, String telVoice, String meetingName) {
         String welcomeMessage = message;
 
-        ArrayList<String> keywordList = new ArrayList<>();
-        keywordList.add(DIAL_NUM);
-        keywordList.add(CONF_NUM);
-        keywordList.add(CONF_NAME);
-        keywordList.add(SERVER_URL);
+        String SanitizedDialNumber = ParamsUtil.escapeHTMLTags(dialNumber);
+        String SanitizedTelVoice = ParamsUtil.escapeHTMLTags(formatConfNum(telVoice));
+        String SanitizedMeetingName = ParamsUtil.escapeHTMLTags(meetingName);
+        String SanitizedDefaultServerUrl = ParamsUtil.escapeHTMLTags(defaultServerUrl);
 
-        for (String keyword : keywordList) {
-            if (keyword.equals(DIAL_NUM)) {
-                welcomeMessage = welcomeMessage.replaceAll(
-                        Pattern.quote(DIAL_NUM),
-                        Matcher.quoteReplacement(dialNumber));
-            } else if (keyword.equals(CONF_NUM)) {
-                welcomeMessage = welcomeMessage.replaceAll(
-                        Pattern.quote(CONF_NUM),
-                        Matcher.quoteReplacement(formatConfNum(telVoice)));
-            } else if (keyword.equals(CONF_NAME)) {
-                welcomeMessage = welcomeMessage.replaceAll(
-                        Pattern.quote(CONF_NAME),
-                        Matcher.quoteReplacement(ParamsUtil.escapeHTMLTags(meetingName)));
-            } else if (keyword.equals(SERVER_URL)) {
-                welcomeMessage = welcomeMessage.replaceAll(
-                        Pattern.quote(SERVER_URL),
-                        Matcher.quoteReplacement(defaultServerUrl));
-            }
-        }
+        welcomeMessage = welcomeMessage.replaceAll(
+                Pattern.quote(DIAL_NUM),
+                Matcher.quoteReplacement(SanitizedDialNumber));
+        welcomeMessage = welcomeMessage.replaceAll(
+                Pattern.quote(CONF_NUM),
+                Matcher.quoteReplacement(SanitizedTelVoice));
+        welcomeMessage = welcomeMessage.replaceAll(
+                Pattern.quote(CONF_NAME),
+                Matcher.quoteReplacement(SanitizedMeetingName));
+        welcomeMessage = welcomeMessage.replaceAll(
+                Pattern.quote(SERVER_URL),
+                Matcher.quoteReplacement(SanitizedDefaultServerUrl));
+
         return  welcomeMessage;
     }
 
@@ -440,15 +436,20 @@ public class ParamsProcessorUtil {
             isBreakout = Boolean.valueOf(params.get(ApiParams.IS_BREAKOUT));
         }
 
-        String welcomeMessageTemplate = processWelcomeMessage(
-                params.get(ApiParams.WELCOME), isBreakout);
-        String welcomeMessage = substituteKeywords(welcomeMessageTemplate,
+        String welcomeMsgPlainParam = params.get(ApiParams.WELCOME_PLAIN);
+        String welcomeMsgParam = params.get(ApiParams.WELCOME);
+        String welcomeMsgHtmlParam = params.get(ApiParams.WELCOME_HTML);
+        String welcomeMessageTemplateHtml = "";
+
+        // WelcomeMessageHtml must take precedence over other welcomeMsgs parameters
+        // It's in order of permissiveness
+        if (!StringUtils.isEmpty(welcomeMsgPlainParam)) welcomeMessageTemplateHtml = defineWelcomeMessagePlain(welcomeMsgPlainParam, isBreakout);
+        if (!StringUtils.isEmpty(welcomeMsgParam)) welcomeMessageTemplateHtml = defineWelcomeMessage(welcomeMsgParam, isBreakout);
+        if (!StringUtils.isEmpty(welcomeMsgHtmlParam)) welcomeMessageTemplateHtml = defineWelcomeMessageHtml(welcomeMsgHtmlParam, isBreakout);
+
+        String welcomeMessageHtml = resolvePlaceholders(welcomeMessageTemplateHtml,
                 dialNumber, telVoice, meetingNameHtml);
 
-        String welcomeMessageTemplateHtml = processWelcomeMessage(
-                params.get(ApiParams.WELCOME_HTML), isBreakout);
-        String welcomeMessageHtml = substituteKeywords(welcomeMessageTemplateHtml,
-                dialNumber, telVoice, meetingNameHtml);
 
         String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
 
@@ -676,8 +677,7 @@ public class ParamsProcessorUtil {
                 .withMeetingCameraCap(meetingCameraCap)
                 .withUserCameraCap(userCameraCap)
                 .withMetadata(meetingInfo)
-                .withWelcomeMessageTemplate(welcomeMessageTemplate)
-                .withWelcomeMessage(welcomeMessage).withWelcomeMessageTemplateHtml(welcomeMessageTemplateHtml)
+                .withWelcomeMessageTemplateHtml(welcomeMessageTemplateHtml)
                 .withWelcomeMessageHtml(welcomeMessageHtml).isBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
                 .withAuthenticatedGuest(authenticatedGuest)
@@ -695,14 +695,14 @@ public class ParamsProcessorUtil {
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
             String moderatorOnlyMessageTemplate = params.get(ApiParams.MODERATOR_ONLY_MESSAGE);
-            String moderatorOnlyMessage = substituteKeywords(moderatorOnlyMessageTemplate,
+            String moderatorOnlyMessage = resolvePlaceholders(moderatorOnlyMessageTemplate,
                     dialNumber, telVoice, meetingName);
             meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
         }
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE_HTML))) {
             String moderatorOnlyMessageHtmlTemplate = params.get(ApiParams.MODERATOR_ONLY_MESSAGE_HTML);
-            String moderatorOnlyMessageHtml = substituteKeywords(moderatorOnlyMessageHtmlTemplate,
+            String moderatorOnlyMessageHtml = resolvePlaceholders(moderatorOnlyMessageHtmlTemplate,
                     dialNumber, telVoice, meetingName);
             meeting.setModeratorOnlyMessageHtml(moderatorOnlyMessageHtml);
         }
@@ -819,14 +819,49 @@ public class ParamsProcessorUtil {
     return allowRevealOfBBBVersion;
   }
 
-    public String processWelcomeMessage(String message, Boolean isBreakout) {
+    public String defineWelcomeMessage(String message, Boolean isBreakout) {
         String welcomeMessage = message;
         if (StringUtils.isEmpty(message)) {
             welcomeMessage = defaultWelcomeMessage;
         }
+
+
         if (!StringUtils.isEmpty(defaultWelcomeMessageFooter) && !isBreakout)
             welcomeMessage += "<br><br>" + defaultWelcomeMessageFooter;
-        return welcomeMessage;
+
+        String sanitizedWelcomeMessage = sanitizeWelcomeMessage(welcomeMessage);
+        return sanitizedWelcomeMessage;
+    }
+
+    public String defineWelcomeMessagePlain(String message, Boolean isBreakout) {
+        String welcomeMessage = message;
+        if (StringUtils.isEmpty(message)) {
+            welcomeMessage = defaultWelcomeMessage;
+        }
+
+        String escapedWelcomeMessage = ParamsUtil.escapeHTMLTags(welcomeMessage);
+
+        if (!StringUtils.isEmpty(defaultWelcomeMessageFooter) && !isBreakout)
+            escapedWelcomeMessage += "<br><br>" + defaultWelcomeMessageFooter;
+
+        return escapedWelcomeMessage;
+    }
+
+    public String defineWelcomeMessageHtml(String messageHtml, Boolean isBreakout) {
+        String welcomeMessageHtml = messageHtml;
+        if (StringUtils.isEmpty(messageHtml)) {
+            welcomeMessageHtml = defaultWelcomeMessage;
+        }
+
+        if (!StringUtils.isEmpty(defaultWelcomeMessageFooter) && !isBreakout)
+            welcomeMessageHtml += "<br><br>" + defaultWelcomeMessageFooter;
+
+        return welcomeMessageHtml;
+    }
+
+
+    public String sanitizeWelcomeMessage(String message) {
+        return Jsoup.clean(message, Safelist.basic());
     }
 
 	public String convertToInternalMeetingId(String extMeetingId) {

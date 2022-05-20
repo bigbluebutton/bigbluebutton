@@ -56,9 +56,6 @@ public class Meeting {
 	private int learningDashboardCleanupDelayInMinutes;
 	private String learningDashboardAccessToken;
 	private ArrayList<String> disabledFeatures;
-	private String welcomeMsgTemplate;
-	private String welcomeMsg;
-
 	private String welcomeMsgTemplateHtml;
 	private String welcomeMsgHtml;
 	private String modOnlyMessage = "";
@@ -151,8 +148,6 @@ public class Meeting {
         duration = builder.duration;
         webVoice = builder.webVoice;
         telVoice = builder.telVoice;
-        welcomeMsgTemplate = builder.welcomeMsgTemplate;
-        welcomeMsg = builder.welcomeMsg;
 		welcomeMsgTemplateHtml = builder.welcomeMsgTemplateHtml;
 		welcomeMsgHtml = builder.welcomeMsgHtml;
         dialNumber = builder.dialNumber;
@@ -393,14 +388,6 @@ public class Meeting {
 
 	public ArrayList<String> getDisabledFeatures() {
 		return disabledFeatures;
-	}
-
-  public String getWelcomeMessageTemplate() {
-    return welcomeMsgTemplate;
-  }
-
-	public String getWelcomeMessage() {
-		return welcomeMsg;
 	}
 
 	public String getWelcomeMessageTemplateHtml() {
@@ -832,10 +819,7 @@ public class Meeting {
     	private int duration;
     	private String webVoice;
     	private String telVoice;
-    	private String welcomeMsgTemplate;
-    	private String welcomeMsg;
-
-		private String welcomeMsgTemplateHtml;
+    	private String welcomeMsgTemplateHtml;
 		private String welcomeMsgHtml;
     	private String logoutUrl;
     	private String bannerColor;
@@ -953,18 +937,6 @@ public class Meeting {
 			this.disabledFeatures = list;
 			return this;
 		}
-
-    	public Builder withWelcomeMessage(String w) {
-    		welcomeMsg = w;
-    		return this;
-    	}
-
-	    public Builder withWelcomeMessageTemplate(String w) {
-            welcomeMsgTemplate = w;
-            return this;
-        }
-
-
 		public Builder withWelcomeMessageHtml(String w) {
 			welcomeMsgHtml = w;
 			return this;
