@@ -335,14 +335,19 @@ class PresentationToolbar extends PureComponent {
               !isMobile
                 ? (
                   <TooltipContainer>
-                    <ZoomTool
-                      zoomValue={zoom}
-                      change={this.change}
-                      minBound={HUNDRED_PERCENT}
-                      maxBound={MAX_PERCENT}
-                      step={STEP}
-                      isMeteorConnected={isMeteorConnected}
-                    />
+                <ZoomTool
+                  zoomValue={
+                    //this.props?.tldrawAPI?.pageStates[currentSlideNum.toString()]?.camera?.zoom
+                    this.props?.tldrawAPI?.getPageState()?.camera?.zoom
+                  }
+                  currentSlideNum={currentSlideNum}
+                  change={this.change}
+                  minBound={0.1}
+                  maxBound={5}
+                  step={STEP}
+                  isMeteorConnected={isMeteorConnected}
+                  tldrawAPI={this.props?.tldrawAPI}
+                />
                   </TooltipContainer>
                 )
                 : null
@@ -359,11 +364,8 @@ class PresentationToolbar extends PureComponent {
               icon="fit_to_width"
               size="md"
               circle={false}
-              onClick={fitToWidthHandler}
-              label={fitToWidth
-                ? intl.formatMessage(intlMessages.fitToPage)
-                : intl.formatMessage(intlMessages.fitToWidth)
-              }
+              onClick={() => this.props.tldrawAPI.zoomToFit()}
+              label={intl.formatMessage(intlMessages.fitToPage)}
               hideLabel
             />
           </Styled.PresentationZoomControls>

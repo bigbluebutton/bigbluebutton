@@ -1,4 +1,5 @@
 import Users from '/imports/api/users';
+import Captions from "/imports/api/captions";
 import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
@@ -6,18 +7,14 @@ import { Slides } from '/imports/api/slides';
 import { makeCall } from '/imports/ui/services/api';
 import PresentationService from '/imports/ui/components/presentation/service';
 import logger from '/imports/startup/client/logger';
-import { isEqual } from 'lodash';
 
 const Annotations = new Mongo.Collection(null);
+
 const UnsentAnnotations = new Mongo.Collection(null);
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
 const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
-
-const ANNOTATION_TYPE_PENCIL = 'pencil';
-const ANNOTATION_TYPE_TEXT = 'text';
-
 
 let annotationsStreamListener = null;
 
@@ -30,65 +27,11 @@ function clearFakeAnnotations() {
   Annotations.remove({ id: /-fake/g });
 }
 
-function handleAddedLiveSyncPreviewAnnotation({
-  meetingId, whiteboardId, userId, annotation,
-}) {
-  const isOwn = Auth.meetingID === meetingId && Auth.userID === userId;
-  const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
-
-  if (!isOwn) {
-    Annotations.upsert(query.selector, query.modifier);
-    return;
-  }
-
-  const fakeAnnotation = Annotations.findOne({ id: `${annotation.id}-fake` });
-  let fakePoints;
-
-  if (fakeAnnotation) {
-    fakePoints = fakeAnnotation.annotationInfo.points;
-    const { points: lastPoints } = annotation.annotationInfo;
-
-    if (annotation.annotationType !== 'pencil') {
-      Annotations.update(fakeAnnotation._id, {
-        $set: {
-          position: annotation.position,
-          'annotationInfo.color': isEqual(fakePoints, lastPoints) || annotation.status === DRAW_END
-            ? annotation.annotationInfo.color : fakeAnnotation.annotationInfo.color,
-        },
-        $inc: { version: 1 }, // TODO: Remove all this version stuff
-      });
-      return;
-    }
-  }
-
-  Annotations.upsert(query.selector, query.modifier, (err) => {
-    if (err) {
-      logger.error({
-        logCode: 'whiteboard_annotation_upsert_error',
-        extraInfo: { error: err },
-      }, 'Error on adding an annotation');
-      return;
-    }
-
-    // Remove fake annotation for pencil on draw end
-    if (annotation.status === DRAW_END) {
-      Annotations.remove({ id: `${annotation.id}-fake` });
-      return;
-    }
-
-    if (annotation.status === DRAW_START) {
-      Annotations.update(fakeAnnotation._id, {
-        $set: {
-          position: annotation.position - 1,
-        },
-        $inc: { version: 1 }, // TODO: Remove all this version stuff
-      });
-    }
-  });
-}
-
 function handleAddedAnnotation({
-  meetingId, whiteboardId, userId, annotation,
+  meetingId,
+  whiteboardId,
+  userId,
+  annotation,
 }) {
   const isOwn = Auth.meetingID === meetingId && Auth.userID === userId;
   const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
@@ -100,9 +43,7 @@ function handleAddedAnnotation({
   }
 }
 
-function handleRemovedAnnotation({
-  meetingId, whiteboardId, userId, shapeId,
-}) {
+function handleRemovedAnnotation({ meetingId, whiteboardId, userId, shapeId }) {
   const query = { meetingId, whiteboardId };
 
   if (userId) {
@@ -120,19 +61,26 @@ function handleRemovedAnnotation({
 }
 
 export function initAnnotationsStreamListener() {
-  logger.info({ logCode: 'init_annotations_stream_listener' }, 'initAnnotationsStreamListener called');
+  logger.info(
+    { logCode: "init_annotations_stream_listener" },
+    "initAnnotationsStreamListener called"
+  );
   /**
    * We create a promise to add the handlers after a ddp subscription stop.
    * The problem was caused because we add handlers to stream before the onStop event happens,
    * which set the handlers to undefined.
    */
-  annotationsStreamListener = new Meteor.Streamer(`annotations-${Auth.meetingID}`, { retransmit: false });
+  annotationsStreamListener = new Meteor.Streamer(
+    `annotations-${Auth.meetingID}`,
+    { retransmit: false }
+  );
 
   const startStreamHandlersPromise = new Promise((resolve) => {
     const checkStreamHandlersInterval = setInterval(() => {
-      const streamHandlersSize = Object.values(Meteor.StreamerCentral.instances[`annotations-${Auth.meetingID}`].handlers)
-        .filter(el => el !== undefined)
-        .length;
+      const streamHandlersSize = Object.values(
+        Meteor.StreamerCentral.instances[`annotations-${Auth.meetingID}`]
+          .handlers
+      ).filter((el) => el !== undefined).length;
 
       if (!streamHandlersSize) {
         resolve(clearInterval(checkStreamHandlersInterval));
@@ -141,42 +89,17 @@ export function initAnnotationsStreamListener() {
   });
 
   startStreamHandlersPromise.then(() => {
-    logger.debug({ logCode: 'annotations_stream_handler_attach' }, 'Attaching handlers for annotations stream');
+    logger.debug(
+      { logCode: "annotations_stream_handler_attach" },
+      "Attaching handlers for annotations stream"
+    );
 
-    annotationsStreamListener.on('removed', handleRemovedAnnotation);
+    annotationsStreamListener.on("removed", handleRemovedAnnotation);
 
-    annotationsStreamListener.on('added', ({ annotations }) => {
-      annotations.forEach((annotation) => {
-        const tool = annotation.annotation.annotationType;
-        if (tool === ANNOTATION_TYPE_TEXT) {
-          handleAddedLiveSyncPreviewAnnotation(annotation);
-        } else {
-          handleAddedAnnotation(annotation);
-        }
-      });
+    annotationsStreamListener.on("added", ({ annotations }) => {
+      annotations.forEach((annotation) => handleAddedAnnotation(annotation));
     });
   });
-}
-
-function increaseBrightness(realHex, percent) {
-  let hex = parseInt(realHex, 10).toString(16).padStart(6, 0);
-  // strip the leading # if it's there
-  hex = hex.replace(/^\s*#|\s*$/g, '');
-
-  // convert 3 char codes --> 6, e.g. `E0F` --> `EE00FF`
-  if (hex.length === 3) {
-    hex = hex.replace(/(.)/g, '$1$1');
-  }
-
-  const r = parseInt(hex.substr(0, 2), 16);
-  const g = parseInt(hex.substr(2, 2), 16);
-  const b = parseInt(hex.substr(4, 2), 16);
-
-  /* eslint-disable no-bitwise, no-mixed-operators */
-  return parseInt(((0 | (1 << 8) + r + ((256 - r) * percent) / 100).toString(16)).substr(1)
-     + ((0 | (1 << 8) + g + ((256 - g) * percent) / 100).toString(16)).substr(1)
-     + ((0 | (1 << 8) + b + ((256 - b) * percent) / 100).toString(16)).substr(1), 16);
-  /* eslint-enable no-bitwise, no-mixed-operators */
 }
 
 const annotationsQueue = [];
@@ -202,7 +125,7 @@ const proccessAnnotationsQueue = async () => {
 
   const annotations = annotationsQueue.splice(0, queueSize);
 
-  const isAnnotationSent = await makeCall('sendBulkAnnotations', annotations);
+  const isAnnotationSent = await makeCall("sendBulkAnnotations", annotations);
 
   if (!isAnnotationSent) {
     // undo splice
@@ -210,9 +133,11 @@ const proccessAnnotationsQueue = async () => {
     setTimeout(proccessAnnotationsQueue, annotationsRetryDelay);
   } else {
     // ask tiago
-    const delayPerc = Math.min(annotationsMaxDelayQueueSize, queueSize) / annotationsMaxDelayQueueSize;
+    const delayPerc =
+      Math.min(annotationsMaxDelayQueueSize, queueSize) /
+      annotationsMaxDelayQueueSize;
     const delayDelta = annotationsBufferTimeMax - annotationsBufferTimeMin;
-    const delayTime = annotationsBufferTimeMin + (delayDelta * delayPerc);
+    const delayTime = annotationsBufferTimeMin + delayDelta * delayPerc;
     setTimeout(proccessAnnotationsQueue, delayTime);
   }
 };
@@ -223,35 +148,9 @@ const sendAnnotation = (annotation) => {
   // reconnected. With this it will miss things
   if (!Meteor.status().connected) return;
 
-  if (annotation.status === DRAW_END) {
-    annotationsQueue.push(annotation);
-    if (!annotationsSenderIsRunning) setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
-  } else {
-    const { position, ...relevantAnotation } = annotation;
-    const queryFake = addAnnotationQuery(
-      Auth.meetingID, annotation.wbId, Auth.userID,
-      {
-        ...relevantAnotation,
-        id: `${annotation.id}`,
-        position: Number.MAX_SAFE_INTEGER,
-        annotationInfo: {
-          ...annotation.annotationInfo,
-          color: increaseBrightness(annotation.annotationInfo.color, 40),
-        },
-      },
-    );
-
-    // This is a really hacky solution, but because of the previous code reuse we need to edit
-    // the pencil draw update modifier so that it sets the whole array instead of pushing to
-    // the end
-    const { status, annotationType } = relevantAnotation;
-    if (status === DRAW_UPDATE && annotationType === ANNOTATION_TYPE_PENCIL) {
-      delete queryFake.modifier.$push;
-      queryFake.modifier.$set['annotationInfo.points'] = annotation.annotationInfo.points;
-    }
-
-    UnsentAnnotations.upsert(queryFake.selector, queryFake.modifier);
-  }
+  annotationsQueue.push(annotation);
+  if (!annotationsSenderIsRunning)
+    setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
 };
 
 const sendLiveSyncPreviewAnnotation = (annotation) => {
@@ -285,7 +184,10 @@ WhiteboardMultiUser.find({ meetingId: Auth.meetingID }).observeChanges({
   changed: clearFakeAnnotations,
 });
 
-Users.find({ userId: Auth.userID }, { fields: { presenter: 1 } }).observeChanges({
+Users.find(
+  { userId: Auth.userID },
+  { fields: { presenter: 1 } }
+).observeChanges({
   changed(id, { presenter }) {
     if (presenter === false) clearFakeAnnotations();
   },
@@ -296,7 +198,8 @@ const getMultiUser = (whiteboardId) => {
     {
       meetingId: Auth.meetingID,
       whiteboardId,
-    }, { fields: { multiUser: 1 } },
+    },
+    { fields: { multiUser: 1 } }
   );
 
   if (!data || !data.multiUser || !Array.isArray(data.multiUser)) return [];
@@ -319,14 +222,15 @@ const getMultiUserSize = (whiteboardId) => {
       meetingId: Auth.meetingID,
       userId: { $in: multiUser },
       presenter: false,
-    }, { fields: { userId: 1 } },
+    },
+    { fields: { userId: 1 } }
   ).fetch();
 
   return multiUserSize.length;
 };
 
 const getCurrentWhiteboardId = () => {
-  const podId = 'DEFAULT_PRESENTATION_POD';
+  const podId = "DEFAULT_PRESENTATION_POD";
   const currentPresentation = PresentationService.getCurrentPresentation(podId);
 
   if (!currentPresentation) return null;
@@ -336,11 +240,12 @@ const getCurrentWhiteboardId = () => {
       podId,
       presentationId: currentPresentation.id,
       current: true,
-    }, { fields: { id: 1 } },
+    },
+    { fields: { id: 1 } }
   );
 
   return currentSlide && currentSlide.id;
-}
+};
 
 const isMultiUserActive = (whiteboardId) => {
   const multiUser = getMultiUser(whiteboardId);
@@ -367,22 +272,102 @@ const changeWhiteboardAccess = (userId, access) => {
 };
 
 const addGlobalAccess = (whiteboardId) => {
-  makeCall('addGlobalAccess', whiteboardId);
+  makeCall("addGlobalAccess", whiteboardId);
 };
 
 const addIndividualAccess = (whiteboardId, userId) => {
-  makeCall('addIndividualAccess', whiteboardId, userId);
+  makeCall("addIndividualAccess", whiteboardId, userId);
 };
 
 const removeGlobalAccess = (whiteboardId) => {
-  makeCall('removeGlobalAccess', whiteboardId);
+  makeCall("removeGlobalAccess", whiteboardId);
 };
 
 const removeIndividualAccess = (whiteboardId, userId) => {
-  makeCall('removeIndividualAccess', whiteboardId, userId);
+  makeCall("removeIndividualAccess", whiteboardId, userId);
+};
+
+const persistShape = (shape, whiteboardId) => {
+  const annotation = {
+    id: shape.id,
+    annotationInfo: shape,
+    wbId: whiteboardId,
+    userId: shape.userId ? shape.userId : Auth.userID,
+  };
+
+  sendAnnotation(annotation);
+};
+
+const persistAsset = (asset) => makeCall("persistAsset", asset);
+
+const removeShapes = (shapes, whiteboardId) => makeCall("deleteAnnotations", shapes, whiteboardId);
+
+const changeCurrentSlide = (s) => {
+  makeCall("changeCurrentSlide", s);
+}
+
+const getShapes = (whiteboardId) => {
+  const annotations =  Annotations.find(
+    {
+      whiteboardId,
+    },
+    {
+      fields: { annotationInfo: 1, userId: 1, },
+    },
+  ).fetch();
+
+  let result = {};
+
+  annotations.forEach((annotation) => {
+    annotation.annotationInfo.userId = annotation.userId;
+    result[annotation.annotationInfo.id] = annotation.annotationInfo;
+  });
+  return result;
+};
+
+const getCurrentPres = () => {
+  const podId = "DEFAULT_PRESENTATION_POD";
+  return  PresentationService.getCurrentPresentation(podId);
+}
+
+const getAssets = () => {
+  // temporary storage for assets
+  let a = Captions.find().fetch().filter(s => s.src);
+  let _assets = {}
+  Object.entries(a).map(([k,v]) => {
+    _assets[v.id] = v;
+    return v.src && v;
+  });
+
+  return _assets;
+}
+
+const initDefaultPages = (count = 1) => {
+  const pages = {};
+  const pageStates = {};
+  let i = 1;
+  while (i < count + 1) {
+    pages[`${i}`] = {
+      id: `${i}`,
+      name: `Slide ${i}`,
+      shapes: {},
+      bindings: {},
+    };
+    pageStates[`${i}`] = {
+      id: `${i}`,
+      selectedIds: [],
+      camera: {
+        point: [0, 0],
+        zoom: 1,
+      },
+    };
+    i++;
+  }
+  return { pages, pageStates };
 };
 
 export {
+  initDefaultPages,
   Annotations,
   UnsentAnnotations,
   sendAnnotation,
@@ -398,4 +383,12 @@ export {
   addIndividualAccess,
   removeGlobalAccess,
   removeIndividualAccess,
+  persistShape,
+  persistAsset,
+  getShapes,
+  getAssets,
+  getCurrentPres,
+  removeShapes,
+  changeCurrentSlide,
+  getCurSlide,
 };

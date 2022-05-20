@@ -25,7 +25,7 @@ trait ResizeAndMovePagePubMsgHdlr extends RightsManagementTrait {
       )
 
       val body = ResizeAndMovePageEvtMsgBody(podId, msg.body.presentationId, page.id,
-        page.xOffset, page.yOffset, page.widthRatio, page.heightRatio)
+        page.xCamera, page.yCamera, page.zoom)
       val event = ResizeAndMovePageEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
@@ -41,14 +41,13 @@ trait ResizeAndMovePagePubMsgHdlr extends RightsManagementTrait {
       val podId: String = msg.body.podId
       val presentationId: String = msg.body.presentationId
       val pageId: String = msg.body.pageId
-      val xOffset: Double = msg.body.xOffset
-      val yOffset: Double = msg.body.yOffset
-      val widthRatio: Double = msg.body.widthRatio
-      val heightRatio: Double = msg.body.heightRatio
+      val xCamera: Double = msg.body.xCamera
+      val yCamera: Double = msg.body.yCamera
+      val zoom: Double = msg.body.zoom
 
       val newState = for {
         pod <- PresentationPodsApp.getPresentationPodIfPresenter(state, podId, msg.header.userId)
-        (updatedPod, page) <- pod.resizePage(presentationId, pageId, xOffset, yOffset, widthRatio, heightRatio)
+        (updatedPod, page) <- pod.resizePage(presentationId, pageId, xCamera, yCamera, zoom)
       } yield {
         broadcastEvent(msg, podId, page)
 
