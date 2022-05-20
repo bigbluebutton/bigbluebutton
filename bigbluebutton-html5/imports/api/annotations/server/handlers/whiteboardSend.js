@@ -43,7 +43,7 @@ export default function handleWhiteboardSend({ header, body }, meetingId) {
   }
   
   annotations.map(annotation => {
-    annotationsQueue[meetingId].push({ meetingId, whiteboardId, usrId: annotation.userId, annotation });
+    annotationsQueue[meetingId].push({ meetingId, whiteboardId, userId: annotation.userId, annotation });
     addAnnotation(meetingId, whiteboardId, annotation.userId, annotation);
   })
   if (queueMetrics) {
