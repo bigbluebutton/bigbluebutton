@@ -1,5 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import { CurrentPoll } from '/imports/api/polls';
+import { escapeHtml } from '/imports/utils/string-utils';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { defineMessages } from 'react-intl';
 
@@ -113,12 +114,7 @@ const isDefaultPoll = (pollType) => pollType !== pollTypes.Custom
 const getPollResultString = (pollResultData, intl) => {
   const formatBoldBlack = (s) => s.bold().fontcolor('black');
 
-  // Sanitize. See: https://gist.github.com/sagewall/47164de600df05fb0f6f44d48a09c0bd
-  const sanitize = (value) => {
-    const div = document.createElement('div');
-    div.appendChild(document.createTextNode(value));
-    return div.innerHTML;
-  };
+  const sanitize = (value) => escapeHtml(value);
 
   const { answers, numRespondents, questionType } = pollResultData;
   const ísDefault = isDefaultPoll(questionType);

@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import BBBMenu from "/imports/ui/components/common/menu/component";
-import Button from '/imports/ui/components/common/button/component';
+import Trigger from "/imports/ui/components/common/control-header/right/component";
 
 const intlMessages = defineMessages({
   options: {
@@ -72,14 +72,9 @@ class BreakoutDropdown extends PureComponent {
       <>
         <BBBMenu
           trigger={
-            <Button
+            <Trigger
               data-test="breakoutOptionsMenu"
               icon="more"
-              size="sm"
-              ghost
-              circle
-              hideLabel
-              color="dark"
               label={intl.formatMessage(intlMessages.options)}
               aria-label={intl.formatMessage(intlMessages.options)}
               onClick={() => null}

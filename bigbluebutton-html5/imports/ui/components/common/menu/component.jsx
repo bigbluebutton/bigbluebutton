@@ -70,12 +70,12 @@ class BBBMenu extends React.Component {
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
       let customStyles = {
-        paddingLeft: '4px',
-        paddingRight: '4px',
-        paddingTop: '8px',
-        paddingBottom: '8px',
-        marginLeft: '4px',
-        marginRight: '4px'
+        paddingLeft: '16px',
+        paddingRight: '16px',
+        paddingTop: '12px',
+        paddingBottom: '12px',
+        marginLeft: '0px',
+        marginRight: '0px',
       };
 
       if (a.customStyles) {
@@ -99,11 +99,11 @@ class BBBMenu extends React.Component {
             if (close) this.handleClose(event);
             event.stopPropagation();
           }}>
-          <div style={{ display: 'flex', flexFlow: 'row', width: '100%' }}>
+          <Styled.MenuItemWrapper>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
             <Styled.Option>{label}</Styled.Option>
             {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" /> : null}
-          </div>
+          </Styled.MenuItemWrapper>
         </Styled.BBBMenuItem>,
         a.divider && <Divider disabled />
       ];
