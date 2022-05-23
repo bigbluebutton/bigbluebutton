@@ -4,7 +4,7 @@ import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import _ from 'lodash';
 import BBBMenu from "/imports/ui/components/common/menu/component";
 import Button from '/imports/ui/components/common/button/component';
-
+import { getDateString } from '/imports/utils/string-utils';
 import { alertScreenReader } from '/imports/utils/dom-utils';
 
 import ChatService from '../service';
@@ -76,13 +76,10 @@ class ChatDropdown extends PureComponent {
             onClick: () => {
               const link = document.createElement('a');
               const mimeType = 'text/plain';
-              const date = new Date();
-              const time = `${date.getHours()}-${date.getMinutes()}`;
-              const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_${time}`;
-              link.setAttribute('download', `bbb-${meetingName}[public-chat]_${dateString}.txt`);
+              link.setAttribute('download', `bbb-${meetingName}[public-chat]_${getDateString()}.txt`);
               link.setAttribute(
                 'href',
-                `data: ${mimeType} ;charset=utf-8,`
+                `data: ${mimeType};charset=utf-8,`
                 + `${encodeURIComponent(ChatService.exportChat(timeWindowsValues, intl))}`,
               );
               link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
