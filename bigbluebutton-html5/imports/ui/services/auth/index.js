@@ -253,6 +253,7 @@ class Auth {
             initAnnotationsStreamListener();
             clearTimeout(validationTimeout);
             this.connectionID = authenticationTokenValidation.connectionId;
+            this.connectionAuthTime = new Date().getTime();
             Session.set('userWillAuth', false);
             setTimeout(() => resolve(true), 100);
             break;
