@@ -697,7 +697,7 @@ public class ParamsProcessorUtil {
         String modOnlyMsgHtml = params.get(ApiParams.MODERATOR_ONLY_MESSAGE_HTML);
 
         String moderatorOnlyMessageTemplateHtml = "";
-        if (!StringUtils.isEmpty(modOnlyMsg)) moderatorOnlyMessageTemplateHtml = ParamsUtil.escapeHTMLTags(modOnlyMsg);
+        if (!StringUtils.isEmpty(modOnlyMsgPlain)) moderatorOnlyMessageTemplateHtml = ParamsUtil.escapeHTMLTags(modOnlyMsgPlain);
         if (!StringUtils.isEmpty(modOnlyMsg)) moderatorOnlyMessageTemplateHtml = sanitizeWelcomeMessage(modOnlyMsg);
         if (!StringUtils.isEmpty(modOnlyMsgHtml)) moderatorOnlyMessageTemplateHtml = modOnlyMsgHtml;
 
