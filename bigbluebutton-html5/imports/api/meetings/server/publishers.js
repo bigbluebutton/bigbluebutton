@@ -52,7 +52,7 @@ function meetings() {
   const options = {
     fields: {
       password: false,
-      'welcomeProp.modOnlyMessage': false,
+      'welcomeProp.modOnlyMessageHtml': false,
     },
   };
 

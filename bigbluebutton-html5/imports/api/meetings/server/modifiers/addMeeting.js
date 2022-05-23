@@ -81,7 +81,6 @@ export default function addMeeting(meeting) {
       timeRemaining: Number,
     },
     welcomeProp: {
-      modOnlyMessage: String,
       modOnlyMessageHtml: String,
       welcomeMsgTemplateHtml: String,
       welcomeMsgHtml: String,
@@ -159,12 +158,6 @@ export default function addMeeting(meeting) {
     }
   } while (linkWithoutTarget.lastIndex > 0);
 
-  newMeeting.welcomeProp.welcomeMsg = welcomeMsg;
-
-  // note: as of July 2020 `modOnlyMessage` is not published to the client side.
-  // We are sanitizing this data simply to prevent future potential usage
-  // At the moment `modOnlyMessage` is obtained from client side as a response to Enter API
-  newMeeting.welcomeProp.modOnlyMessage = sanitizeHTML(newMeeting.welcomeProp.modOnlyMessage);
 
   const modifier = {
     $set: Object.assign({

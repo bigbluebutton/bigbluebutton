@@ -808,7 +808,7 @@ public class Meeting {
     	private int duration;
     	private String webVoice;
     	private String telVoice;
-    	private String welcomeMsgTemplateHtml;
+		private String welcomeMsgTemplateHtml;
 		private String welcomeMsgHtml;
     	private String logoutUrl;
     	private String bannerColor;

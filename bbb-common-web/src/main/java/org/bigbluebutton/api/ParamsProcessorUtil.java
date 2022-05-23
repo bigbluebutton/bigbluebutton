@@ -692,20 +692,19 @@ public class ParamsProcessorUtil {
                 .withGroups(groups)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .build();
+        String modOnlyMsgPlain = params.get(ApiParams.MODERATOR_ONLY_MESSAGE_PLAIN);
+        String modOnlyMsg = params.get(ApiParams.MODERATOR_ONLY_MESSAGE);
+        String modOnlyMsgHtml = params.get(ApiParams.MODERATOR_ONLY_MESSAGE_HTML);
 
-        if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
-            String moderatorOnlyMessageTemplate = params.get(ApiParams.MODERATOR_ONLY_MESSAGE);
-            String moderatorOnlyMessage = resolvePlaceholders(moderatorOnlyMessageTemplate,
-                    dialNumber, telVoice, meetingName);
-            meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
-        }
+        String moderatorOnlyMessageTemplateHtml = "";
+        if (!StringUtils.isEmpty(modOnlyMsg)) moderatorOnlyMessageTemplateHtml = ParamsUtil.escapeHTMLTags(modOnlyMsg);
+        if (!StringUtils.isEmpty(modOnlyMsg)) moderatorOnlyMessageTemplateHtml = sanitizeWelcomeMessage(modOnlyMsg);
+        if (!StringUtils.isEmpty(modOnlyMsgHtml)) moderatorOnlyMessageTemplateHtml = modOnlyMsgHtml;
 
-        if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE_HTML))) {
-            String moderatorOnlyMessageHtmlTemplate = params.get(ApiParams.MODERATOR_ONLY_MESSAGE_HTML);
-            String moderatorOnlyMessageHtml = resolvePlaceholders(moderatorOnlyMessageHtmlTemplate,
-                    dialNumber, telVoice, meetingName);
-            meeting.setModeratorOnlyMessageHtml(moderatorOnlyMessageHtml);
-        }
+        String moderatorOnlyMessageHtml = resolvePlaceholders(moderatorOnlyMessageTemplateHtml,
+                dialNumber, telVoice, meetingName);
+        meeting.setModeratorOnlyMessageHtml(moderatorOnlyMessageHtml);
+
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_ENDED_CALLBACK_URL))) {
         	String meetingEndedCallbackURL = params.get(ApiParams.MEETING_ENDED_CALLBACK_URL);
