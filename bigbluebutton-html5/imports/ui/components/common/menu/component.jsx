@@ -70,8 +70,8 @@ class BBBMenu extends React.Component {
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
       let customStyles = {
-        paddingLeft: '8px',
-        paddingRight: '8px',
+        paddingLeft: '16px',
+        paddingRight: '16px',
         paddingTop: '12px',
         paddingBottom: '12px',
         marginLeft: '0px',
