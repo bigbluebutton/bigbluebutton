@@ -497,10 +497,8 @@ if [ $DELETEALL ]; then
    rm -f "$RAW_AUDIO_SRC"/*.wav
    rm -f "$RAW_AUDIO_SRC"/*.opus
 
-   echo "Teste aqui"
-
    if [ $ONLY_RECORDING ]; then
-      list_running_meeting=$( sudo bbb-conf --list-running-meetings )
+      list_running_meeting=$( sudo bbb-conf --list-running-meetings --machine-readable)
 
       for meeting in $(ls /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"); do
          is_meetingID_in_array "$meeting" "$list_running_meeting"
