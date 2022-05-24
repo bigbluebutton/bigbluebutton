@@ -67,7 +67,7 @@ let exportJob = JSON.parse(job);
         let extactSlideAsPDFCommands = [
           'pdftocairo',
           '-png',
-          '-scale-to', '1600',
+          '-scale-to', '1920',
           '-f', pageNumber,
           '-l', pageNumber,
           '-singlefile',
@@ -95,7 +95,7 @@ let exportJob = JSON.parse(job);
           'convert',
           `${presentationFile}.jpeg`,
           '-background', 'white',
-          '-resize', '1600x1600',
+          '-resize', '1920x1920',
           '-auto-orient',
           '-flatten',
           `${outputFile}.png`

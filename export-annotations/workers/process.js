@@ -27,29 +27,57 @@ const kickOffNotifierWorker = (jobType, filename) => {
     })
 }
 
-function color_to_hex(color) {
+function color_to_hex(color, isStickyNote = false) {
+    if(isStickyNote) { color = `sticky-${color}`}
+
     switch(color) {
         case 'white': return '#1d1d1d'
+        case 'sticky-white': return '#fddf8e'
         case 'lightGray': return '#c6cbd1'
+        case 'sticky-lightGray': return '#dde0e3'
         case 'gray': return '#788492'
+        case 'sticky-gray': return '#b3b9c1'
         case 'black': return '#1d1d1d'
+        case 'sticky-black': return '#fddf8e'
         case 'green': return '#36b24d'
+        case 'sticky-green': return '#8ed29b'
         case 'cyan': return '#0e98ad'
+        case 'sticky-cyan': return '#78c4d0'
         case 'blue': return '#1c7ed6'
+        case 'sticky-blue': return '#80b6e6'
         case 'indigo': return '#4263eb'
+        case 'sticky-indigo': return '#95a7f2'
         case 'violet': return '#7746f1'
+        case 'sticky-violet': return '#b297f5'
         case 'red': return '#ff2133'
+        case 'sticky-red': return '#fd838d'
         case 'orange': return '#ff9433'
+        case 'sticky-orange': return '#fdc28d'
         case 'yellow': return '#ffc936'
+        case 'sticky-yellow': return '#fddf8e'
 
         default: return color
     }
 }
 
-function text_size_to_px(size) {
+function align_to_css_property(alignment) {
+    switch(alignment) {
+        case 'start': return 'left'
+        case 'middle': return 'center'
+        case 'end': return 'right'
+        default: return alignment
+    }
+}
+
+function text_size_to_px(size, isStickyNote = false) {
+    if(isStickyNote) { size = `sticky-${size}`}
+
     switch(size) {
+        case 'sticky-small': return 24
         case 'small': return 28
+        case 'sticky-medium': return 36
         case 'medium': return 48
+        case 'sticky-large': return 48
         case 'large': return 96
 
         default: return 28
@@ -70,6 +98,22 @@ function determine_font_from_family(family) {
 
 function scale_shape(dimension, coord) {
     return (coord / 100.0 * dimension);
+}
+
+function render_HTMLTextBox(htmlFilePath, id, width, height) {
+    let commands = [
+        'wkhtmltoimage',
+        '--format', 'png',
+        '--encoding', `${config.process.whiteboardTextEncoding}`,
+        '--transparent',
+        '--crop-w', width,
+        '--crop-h', height,
+        '--log-level', 'none',
+        '--quality', '100',
+        htmlFilePath, path.join(dropbox, `text${id}.png`)
+    ]
+
+    execSync(commands.join(' '));
 }
 
 function overlay_ellipse(svg, annotation, w, h) {
@@ -181,57 +225,6 @@ function overlay_pencil(svg, annotation, w, h) {
     }
 }
 
-function overlay_poll(svg, annotation, w, h) {
-    if (annotation.result.length == 0) {
-        return;
-    }
-
-    let poll_x = scale_shape(w, annotation.points[0]);
-    let poll_y = scale_shape(h, annotation.points[1]);
-    let poll_width = Math.round(scale_shape(w, annotation.points[2]));
-    let poll_height = Math.round(scale_shape(h, annotation.points[3]));
-    let pollId = annotation.id.replace(/\//g, '');
-    let pollSVG = path.join(dropbox, `poll-${pollId}.svg`);
-    let pollJSON = path.join(dropbox, `poll-${pollId}.json`);
-
-    // Rename 'numVotes' key to 'num_votes'
-    let pollJSONContent = annotation.result.map(result => {
-        result.num_votes = result.numVotes;
-        delete result.numVotes;
-        return result;
-    });
-
-    // Store the poll result in a JSON file
-    fs.writeFileSync(pollJSON, JSON.stringify(pollJSONContent), function(err) {
-        if(err) { return logger.error(err); }
-    });
-
-    // Create empty SVG poll
-    fs.writeFileSync(pollSVG, '', function(err) {
-        if(err) { return logger.error(err); }
-    });
-
-    // Render the poll SVG using gen_poll_svg script
-    execSync(`${config.genPollSVG.path} -i ${pollJSON} -w ${poll_width} -h ${poll_height} -n ${annotation.numResponders} -o ${pollSVG}`, (error, stderr) => {
-        if (error) {
-            return logger.error(`Poll generation failed with error: ${error.message}`);
-        }
-
-        if (stderr) {
-            return logger.error(`Poll generation failed with stderr: ${stderr}`);
-        }
-    });
-
-    // Add poll image element
-    svg.ele('image', {
-        'xlink:href': `file://${pollSVG}`,
-        x: poll_x,
-        y: poll_y,
-        width: poll_width,
-        height: poll_height,
-    })
-}
-
 function overlay_rectangle(svg, annotation, w, h) {
     let shapeColor = color_to_hex(annotation.color);
     let fill = annotation.fill ? `#${shapeColor}` : 'none';
@@ -271,6 +264,9 @@ function overlay_triangle(svg, annotation, w, h) {
 }
 
 function overlay_text(svg, annotation) {
+
+    logger.info(annotation);
+
     let fontColor = color_to_hex(annotation.style.color);
     let fontSize = text_size_to_px(annotation.style.size);
     let rotation = rad_to_degree(annotation.rotation);
@@ -280,12 +276,8 @@ function overlay_text(svg, annotation) {
     let textNode = svg.ele('text', {
         'x': textBox_x,
         'y': textBox_y,
-        'transform-box': 'fill-box',
-        'transform-origin': 'center center',
-        'transform': `translate(${textBox_x}, ${textBox_y}) rotate(${rotation}) scale(${annotation.style.scale})`,
         'font-size': fontSize,
         'font-family': font,
-        'text-anchor': annotation.style.textAlign,
         'fill': fontColor,
     });
 
@@ -295,7 +287,64 @@ function overlay_text(svg, annotation) {
     }
 }
 
+function overlay_sticky(svg, annotation) {
+
+    let backgroundColor = color_to_hex(annotation.style.color, true);
+    let fontSize = text_size_to_px(annotation.style.size, true);
+    let rotation = rad_to_degree(annotation.rotation);
+    let font = determine_font_from_family(annotation.style.font);
+    let textAlign = align_to_css_property(annotation.style.textAlign);
+
+    let [textBoxWidth, textBoxHeight] = annotation.size;
+    let [textBox_x, textBox_y] = annotation.point;
+
+    var html = twemoji.parse(
+        `<!DOCTYPE html>
+        <style>
+            img.emoji { height: 1em; width: 1em; }
+            p {
+                width:${textBoxWidth}px;
+                height:${textBoxHeight}px;
+                color:#0d0d0d;
+                word-wrap:break-word;
+                font-family:${font};
+                font-size:${fontSize}px;
+                text-align:${textAlign};
+                background-color:${backgroundColor};
+            }
+        </style>
+        <html>
+            <p>${annotation.text.split('\n').join('<br>')}</p>
+        </html>`);
+
+    var htmlFilePath = path.join(dropbox, `text${annotation.id}.html`)
+
+    fs.writeFileSync(htmlFilePath, html, function (err) {
+        if (err) logger.error(err);
+    })
+
+    render_HTMLTextBox(htmlFilePath, annotation.id, textBoxWidth, textBoxHeight)
+
+    svg.ele('image', {
+        'xlink:href': `file://${dropbox}/text${annotation.id}.png`,
+        x: textBox_x,
+        y: textBox_y,
+        width: textBoxWidth,
+        height: textBoxHeight,
+        transform: `rotate(${rotation}, ${textBox_x + (textBoxWidth / 2)}, ${textBox_y + (textBoxHeight / 2)})`
+    }).up();
+}
+
 function overlay_annotations(svg, currentSlideAnnotations, w, h) {
+
+    logger.info(currentSlideAnnotations)
+    // Order slide annotations by z-index
+    // currentSlideAnnotations.sort(function (a, b) {
+    //     return a.annotationInfo.childIndex < b.annotationInfo.childIndex;
+    // });
+    // logger.info("SORTED!")
+    // logger.info(currentSlideAnnotations)
+
     for(let annotation of currentSlideAnnotations) {        
         switch (annotation.annotationInfo.type) {
             // case 'ellipse':
@@ -304,15 +353,15 @@ function overlay_annotations(svg, currentSlideAnnotations, w, h) {
             // case 'line':
             //     overlay_line(svg, annotation.annotationInfo, w, h);
             //     break;
-            // case 'poll_result':
-            //     overlay_poll(svg, annotation.annotationInfo, w, h);
-            //     break;
             // case 'pencil':
             //     overlay_pencil(svg, annotation.annotationInfo, w, h);
             //     break;
             // case 'rectangle':
             //     overlay_rectangle(svg, annotation.annotationInfo, w, h);
             //     break;
+            case 'sticky':
+                overlay_sticky(svg, annotation.annotationInfo);
+                break;
             case 'text':
                 overlay_text(svg, annotation.annotationInfo);
                 break;

@@ -16,9 +16,6 @@
       "protocol": "https",
       "host": "localhost"
     },
-    "genPollSVG": {
-      "path": "/usr/local/bigbluebutton/core/scripts/utils/gen_poll_svg"
-    },
     "bbbWeb": {
       "host": "127.0.0.1",
       "port": 8090
