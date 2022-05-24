@@ -38,13 +38,13 @@ export default function Whiteboard(props) {
     assets,
     currentUser,
     curPres,
-    curSlide,
-    changeCurrentSlide,
     whiteboardId,
     podId,
     zoomSlide,
+    skipToSlide,
     slidePosition,
     curPageId,
+    svgUri,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -57,138 +57,96 @@ export default function Whiteboard(props) {
     bindings: {},
     assets,
   });
-  const [doc, setDoc] = React.useState(rDocument.current);
-  const [curPage, setCurPage] = React.useState({ id: "1" });
+  //const [doc, setDoc] = React.useState(rDocument.current);
   const [_assets, setAssets] = React.useState(assets);
   const [command, setCommand] = React.useState("");
   const [wbAccess, setWBAccess] = React.useState(props?.hasMultiUserAccess(props.whiteboardId, props.currentUser.userId));
   const [selectedIds, setSelectedIds] = React.useState([]);
   const [tldrawAPI, setTLDrawAPI] = React.useState(null);
   const prevShapes = usePrevious(shapes);
-  const prevPage = usePrevious(curPage);
   const prevSlidePosition = usePrevious(slidePosition);
+  const prevPageId = usePrevious(curPageId);
 
-  const handleChange = React.useCallback((state, reason) => {
-    rDocument.current = state.document;
-  }, []);
-
-  React.useMemo(() => {
+  const doc = React.useMemo(() => {
     const currentDoc = rDocument.current;
-    const propShapes = Object.entries(shapes.filter(s => s.parentId === tldrawAPI?.getPage()?.id) || {})?.map(([k, v]) => v.id);
 
-    if (tldrawAPI) {
-      tldrawAPI?.getPage()?.id && tldrawAPI.changePage(tldrawAPI?.getPage()?.id);
+    let next = { ...currentDoc };
+
+    let pageBindings = null;
+    let history = null;
+    let stack = null;
+    let changed = false;
+
+    if (next.pageStates[curPageId] && !_.isEqual(prevShapes, shapes)) {
+      // mergeDocument loses bindings and history, save it
+      pageBindings = tldrawAPI?.getPage(curPageId)?.bindings;
+      history = tldrawAPI?.history
+      stack = tldrawAPI?.stack
+
+      next.pages[curPageId].shapes = shapes;
+      
+      changed = true;
     }
 
-    const next = { ...currentDoc };
+    if (next.pages[curPageId] && !next.pages[curPageId].shapes["slide-background-shape"]) {
+      next.assets[`slide-background-asset-${curPageId}`] = {
+        id: `slide-background-asset-${curPageId}`,
+        size: [slidePosition?.width || 0, slidePosition?.height || 0],
+        src: svgUri,
+        type: "image",
+      };
 
-    next.assets = { ...assets };
+      next.pages[curPageId].shapes["slide-background-shape"] = {
+        assetId: `slide-background-asset-${curPageId}`,
+        childIndex: 1,
+        id: "slide-background-shape",
+        name: "Image",
+        type: TDShapeType.Image,
+        parentId: `${curPageId}`,
+        point: [0, 0],
+        isLocked: true,
+        size: [slidePosition?.width || 0, slidePosition?.height || 0],
+        style: {
+          dash: DashStyle.Draw,
+          size: SizeStyle.Medium,
+          color: ColorStyle.Blue,
+        },
+      };
 
-    const pShapes = Object.entries(shapes || {})?.map(([k, v]) => v.id);
-    shapes.filter(s => s.parentId === tldrawAPI?.getPage()?.id)?.forEach((s) => {
-      try {
-        Object.keys(next.pages[s.parentId].shapes).forEach((k) => {
-          if (!pShapes.includes(k) && s.parentId === tldrawAPI?.getPage()?.id) {
-            delete next.pages[s.parentId].shapes[k];
-          }
-        });
+      changed = true;
+    }
 
-        next.pages[s.parentId] = {
-          ...next.pages[s.parentId],
-          shapes: {
-            ...next.pages[s.parentId].shapes,
-            [s.id]: { ...s },
-          },
-        };
-
-      } catch (err) {
-
+    if (changed) {
+      tldrawAPI?.mergeDocument(next);
+      if (tldrawAPI && history) tldrawAPI.history = history;
+      if (tldrawAPI && stack) tldrawAPI.stack = stack;
+      if (pageBindings && Object.keys(pageBindings).length !== 0) {
+        currentDoc.pages[curPageId].bindings = pageBindings;
       }
-    });
-
-    if (curPres?.pages.length) {
-      curPres.pages.map((p, i) => {
-        next.assets[`slide-background-asset-${i}`] = {
-          id: `slide-background-asset-${i}`,
-          size: [slidePosition?.width || 0, slidePosition?.height || 0],
-          src: curPres?.pages[i]?.svgUri,
-          type: "image",
-        };
-
-        try {
-          next.pages[i + 1]["shapes"]["slide-background-shape"] = {
-            assetId: `slide-background-asset-${i}`,
-            childIndex: 1,
-            id: "slide-background-shape",
-            name: "Image",
-            type: TDShapeType.Image,
-            parentId: `${i + 1}`,
-            point: [0, 0],
-            isLocked: true,
-            size: [slidePosition?.width || 0, slidePosition?.height || 0],
-            style: {
-              dash: DashStyle.Draw,
-              size: SizeStyle.Medium,
-              color: ColorStyle.Blue,
-            },
-          };
-        } catch (err) {
-          logger.error({
-            logCode: 'whiteboard_set_slide_background_error',
-            extraInfo: { error: err },
-          }, 'Error on adding background slide image');
-        }
-        return p;
-        // setDoc(next);
-      });
     }
 
-    rDocument.current = next;
+    return currentDoc;
+  }, [assets, shapes, tldrawAPI, curPageId, slidePosition]);
 
-    const pageID = tldrawAPI?.getPage()?.id;
-    if (next.pageStates[pageID]?.selectedIds.length > 0) {
-      // if a selected id is not in the list of shapes remove it from list
-      next.pageStates[pageID]?.selectedIds.map((k) => {
-        if (!next.pages[pageID].shapes[k]) {
-          next.pageStates[pageID].selectedIds =
-            next.pageStates[pageID].selectedIds.filter(
-              (id) => id !== k
-            );
-        }
-      });
-    }
-
-    if (next.pageStates[pageID] && !isPresenter && !_.isEqual(slidePosition, prevSlidePosition)) {
-      next.pageStates[pageID].camera.point = [slidePosition.xCamera, slidePosition.yCamera]
-      next.pageStates[pageID].camera.zoom = slidePosition.zoom
-    }
-
-    setDoc(next);
-
-    if (
-      tldrawAPI &&
-      !_.isEqual(shapes, prevShapes) &&
-      !_.isEqual(assets, _assets)
-    ) {
-      setAssets(assets);
-      tldrawAPI?.replacePageContent(next?.pages[pageID]?.shapes, {}, assets);
-    }
-
-    if (tldrawAPI && !_.isEqual(shapes, prevShapes) && !_.isEqual(assets, _assets)) {
-      tldrawAPI?.replacePageContent(next?.pages[pageID]?.shapes, {}, assets);
-    }
-  }, [assets, shapes, curPres, tldrawAPI, curPageId]);
-
+  // change tldraw page when presentation page changes
   React.useEffect(() => {
-    isPresenter && curPage && changeCurrentSlide(curPage?.id);
-  }, [curPage]);
+    const previousPageZoom = tldrawAPI?.getPageState()?.camera?.zoom;
+    tldrawAPI &&
+      curPageId &&
+      tldrawAPI.changePage(curPageId)
+      //change zoom of the new page to follow the previous one
+      previousPageZoom && 
+      tldrawAPI.zoomTo(previousPageZoom)
+  }, [curPageId]);
 
+  // change tldraw camera when slidePosition changes
   React.useEffect(() => {
     tldrawAPI &&
-      !isPresenter &&
-      curSlide?.activeSlide &&
-      tldrawAPI.changePage(curSlide?.activeSlide);
-  }, [curSlide]);
+    !isPresenter &&
+    curPageId &&
+    slidePosition &&
+    tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
+  }, [curPageId, slidePosition]);
 
   const hasWBAccess = props?.hasMultiUserAccess(props.whiteboardId, props.currentUser.userId);
 
@@ -202,47 +160,58 @@ export default function Whiteboard(props) {
         <Tldraw
           document={doc}
           disableAssets={false}
-          onChangePage={(app, s, b, a) => {
-            setCurPage(app.getPage());
-          }}
           onMount={(app) => {
             setTLDrawAPI(app);
             props.setTldrawAPI(app);
+            curPageId && app.changePage(curPageId);
+            curPageId && app.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom)
           }}
-          onChange={handleChange}
+          //onChange={handleChange}
           onPersist={(e) => {
             ///////////// handle assets /////////////////////////
             e?.assets?.forEach((a) => {
-              persistAsset(a);
+              //persistAsset(a);
             });
           }}
           showPages={false}
           showZoom={false}
-          showUI={isPresenter || hasWBAccess}
-          showMenu={false}
+          showUI={curPres ? (isPresenter || hasWBAccess) : true}
+          showMenu={curPres ? false : true}
           showMultiplayerMenu={false}
           readOnly={!isPresenter && !hasWBAccess}
-          onUndo={s => {
-            s?.selectedIds?.map(id => {
-              persistShape(s.getShape(id), whiteboardId);
+          onUndo={(e, s) => {
+            e?.selectedIds?.map(id => {
+              persistShape(e.getShape(id), whiteboardId);
+            })
+            const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
+            let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
+            removeShapes(shapesIdsToRemove, whiteboardId)
+          }}
+
+          onRedo={(e, s) => {
+            e?.selectedIds?.map(id => {
+              persistShape(e.getShape(id), whiteboardId);
+            });
+            const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
+            let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
+            removeShapes(shapesIdsToRemove, whiteboardId)
+            let shapeIdsToReAdd = findRemoved(Object.keys(pageShapes), Object.keys(shapes))
+            shapeIdsToReAdd.forEach(id => {
+              persistShape(pageShapes[id], whiteboardId);
             })
           }}
 
-          onRedo={s => {
-            s?.selectedIds?.map(id => {
-              persistShape(s.getShape(id), whiteboardId);
-            });
-          }}
-
           onChangePage={(app, s, b, a) => {
-            if (curPage?.id !== app.getPage()?.id) setCurPage(app.getPage());
+            if (app.getPage()?.id !== curPageId) {
+              skipToSlide(Number.parseInt(app.getPage()?.id), podId)
+            }
           }}
           onCommand={(e, s, g) => {
             if (s.includes("session:complete:DrawSession")) {
-              Object.entries(rDocument?.current?.pages[e.getPage()?.id]?.shapes)
+              Object.entries(e.state.document.pages[e.getPage()?.id]?.shapes)
                 .filter(([k, s]) => s?.type === 'draw')
                 .forEach(([k, s]) => {
-                  if (!e.prevShapes[k] || !k.includes('slide-background')) {
+                  if (!e.prevShapes[k] && !k.includes('slide-background')) {
                     persistShape(s, whiteboardId);
                   }
                 });
@@ -262,39 +231,44 @@ export default function Whiteboard(props) {
               //remove shapes on origin page
               removeShapes(e.selectedIds, whiteboardId);
               //persist shapes for destination page
+              const newWhiteboardId = curPres.pages.find(page => page.num === Number.parseInt(e.getPage()?.id)).id;
               movedShapes.forEach(s => {
-                persistShape(s, whiteboardId);
+                persistShape(s, newWhiteboardId);
               });
             }
 
-            if (s?.includes("session:complete:TransformSingleSession") 
-              || s?.includes("session:complete:TranslateSession") 
-              || s?.includes("updated_shapes")
-              || s?.includes("session:complete:RotateSession")) {
+            const conditions = [
+              "session:complete:TransformSingleSession", "session:complete:TranslateSession",
+              "session:complete:TranslateSession", "session:complete:RotateSession",
+              "session:complete:HandleSession", "updated_shapes", "duplicate",
+              "stretch", "align", "move", "create", "flip", "toggle", "group",
+            ]
+            if (conditions.some(el => s?.includes(el))) {
                 e.selectedIds.forEach(id => {
                     persistShape(e.getShape(id), whiteboardId);
                     //checks to find any bindings assosiated with the selected shapes.
                     //If any, they need to be updated as well.
-                    const pageBindings = rDocument?.current?.pages[e.getPage()?.id]?.bindings;
+                    const pageBindings = e.state.document.pages[e.getPage()?.id]?.bindings;
                     const boundShapes = [];
                     if (pageBindings) {
                       Object.entries(pageBindings).map(([k,b]) => {
-                        if (b.toId.includes(id), whiteboardId) {
-                          boundShapes.push(rDocument?.current?.pages[e.getPage()?.id]?.shapes[b.fromId])
+                        if (b.toId.includes(id)) {
+                          boundShapes.push(e.state.document.pages[e.getPage()?.id]?.shapes[b.fromId])
                         }
                       })
                     }
                     //persist shape(s) that was updated by the client and any shapes bound to it.
                     boundShapes.forEach(bs => persistShape(bs, whiteboardId))
+
+                    const children = e.getShape(id).children
+                    //also persist children of the selected shape (grouped shapes)
+                    children && children.forEach(c => persistShape(e.getShape(c), whiteboardId))
                 });
             }
 
             if (s?.includes("session:complete:EraseSession") || s?.includes("delete")) {
-              let shapesIdsToRemove = []
-              shapes.forEach(s => {
-                const ids = e.shapes.map(ss => ss.id);
-                if (!ids.includes(s.id)) shapesIdsToRemove.push(s.id);
-              });
+              const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
+              let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
               removeShapes(shapesIdsToRemove, whiteboardId)
             }
           }}

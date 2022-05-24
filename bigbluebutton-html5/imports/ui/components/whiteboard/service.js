@@ -1,6 +1,5 @@
 import Users from '/imports/api/users';
 import Captions from "/imports/api/captions";
-import Meetings from "/imports/api/meetings";
 import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
@@ -8,7 +7,6 @@ import { Slides } from '/imports/api/slides';
 import { makeCall } from '/imports/ui/services/api';
 import PresentationService from '/imports/ui/components/presentation/service';
 import logger from '/imports/startup/client/logger';
-import { isEqual } from 'lodash';
 
 const Annotations = new Mongo.Collection(null);
 
@@ -17,7 +15,6 @@ const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
 const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
-const ANNOTATION_TYPE_PENCIL = "pencil";
 
 let annotationsStreamListener = null;
 
@@ -28,63 +25,6 @@ const clearPreview = (annotation) => {
 function clearFakeAnnotations() {
   UnsentAnnotations.remove({});
   Annotations.remove({ id: /-fake/g });
-}
-
-function handleAddedLiveSyncPreviewAnnotation({
-  meetingId, whiteboardId, userId, annotation,
-}) {
-  const isOwn = Auth.meetingID === meetingId && Auth.userID === userId;
-  const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
-
-  if (!isOwn) {
-    Annotations.upsert(query.selector, query.modifier);
-    return;
-  }
-
-  const fakeAnnotation = Annotations.findOne({ id: `${annotation.id}-fake` });
-  let fakePoints;
-
-  if (fakeAnnotation) {
-    fakePoints = fakeAnnotation.annotationInfo.points;
-    const { points: lastPoints } = annotation.annotationInfo;
-
-    if (annotation.annotationType !== 'pencil') {
-      Annotations.update(fakeAnnotation._id, {
-        $set: {
-          position: annotation.position,
-          'annotationInfo.color': isEqual(fakePoints, lastPoints) || annotation.status === DRAW_END
-            ? annotation.annotationInfo.color : fakeAnnotation.annotationInfo.color,
-        },
-        $inc: { version: 1 }, // TODO: Remove all this version stuff
-      });
-      return;
-    }
-  }
-
-  Annotations.upsert(query.selector, query.modifier, (err) => {
-    if (err) {
-      logger.error({
-        logCode: 'whiteboard_annotation_upsert_error',
-        extraInfo: { error: err },
-      }, 'Error on adding an annotation');
-      return;
-    }
-
-    // Remove fake annotation for pencil on draw end
-    if (annotation.status === DRAW_END) {
-      Annotations.remove({ id: `${annotation.id}-fake` });
-      return;
-    }
-
-    if (annotation.status === DRAW_START) {
-      Annotations.update(fakeAnnotation._id, {
-        $set: {
-          position: annotation.position - 1,
-        },
-        $inc: { version: 1 }, // TODO: Remove all this version stuff
-      });
-    }
-  });
 }
 
 function handleAddedAnnotation({
@@ -156,20 +96,8 @@ export function initAnnotationsStreamListener() {
 
     annotationsStreamListener.on("removed", handleRemovedAnnotation);
 
-// <<<<<<< HEAD
-//     annotationsStreamListener.on('added', ({ annotations }) => {
-//       annotations.forEach((annotation) => {
-//         const tool = annotation.annotation.annotationType;
-//         if (tool === ANNOTATION_TYPE_TEXT) {
-//           handleAddedLiveSyncPreviewAnnotation(annotation);
-//         } else {
-//           handleAddedAnnotation(annotation);
-//         }
-//       });
-// =======
     annotationsStreamListener.on("added", ({ annotations }) => {
       annotations.forEach((annotation) => handleAddedAnnotation(annotation));
-// >>>>>>> embed Tldraw into BBB client
     });
   });
 }
@@ -364,7 +292,7 @@ const persistShape = (shape, whiteboardId) => {
     id: shape.id,
     annotationInfo: shape,
     wbId: whiteboardId,
-    userId: Auth.userID,
+    userId: shape.userId ? shape.userId : Auth.userID,
   };
 
   sendAnnotation(annotation);
@@ -384,22 +312,22 @@ const getShapes = (whiteboardId) => {
       whiteboardId,
     },
     {
-      fields: { annotationInfo: 1, },
+      fields: { annotationInfo: 1, userId: 1, },
     },
   ).fetch();
 
-  let result = annotations.map(a => a.annotationInfo);
+  let result = {};
+
+  annotations.forEach((annotation) => {
+    annotation.annotationInfo.userId = annotation.userId;
+    result[annotation.annotationInfo.id] = annotation.annotationInfo;
+  });
   return result;
 };
 
 const getCurrentPres = () => {
   const podId = "DEFAULT_PRESENTATION_POD";
   return  PresentationService.getCurrentPresentation(podId);
-}
-
-const getCurSlide = () => {
-  let m = Meetings.findOne({ meetingId: Auth.meetingID });
-  return m;
 }
 
 const getAssets = () => {

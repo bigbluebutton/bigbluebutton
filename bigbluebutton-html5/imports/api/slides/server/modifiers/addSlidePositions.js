@@ -18,8 +18,8 @@ export default function addSlidePositions(
   check(slidePosition, {
     width: Number,
     height: Number,
-    x: Number,
-    y: Number,
+    xCamera: Number,
+    yCamera: Number,
     zoom: Number,
   });
 
