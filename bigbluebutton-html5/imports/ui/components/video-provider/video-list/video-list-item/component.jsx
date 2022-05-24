@@ -127,6 +127,7 @@ const VideoListItem = (props) => {
         user={user}
         voiceUser={voiceUser}
         unhealthyStream={shouldRenderReconnect}
+        squeezed={false}
       />
       <Styled.BottomBar>
         <UserActions
@@ -154,6 +155,7 @@ const VideoListItem = (props) => {
       <UserAvatarVideo
         user={user}
         unhealthyStream={shouldRenderReconnect}
+        squeezed
       />
       {renderSqueezedButton()}
     </Styled.WebcamConnecting>
