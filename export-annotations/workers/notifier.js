@@ -60,6 +60,7 @@ async function upload(exportJob) {
     formData.append('conference', exportJob.parentMeetingId);
     formData.append('pod_id', config.notifier.pod_id);
     formData.append('is_downloadable', config.notifier.is_downloadable);
+    formData.append('temporaryPresentationId', jobId);
     formData.append('fileUpload', fs.createReadStream(`${exportJob.presLocation}/pdfs/${jobId}/${filename}.pdf`));
 
     let res = await axios.post(callbackUrl, formData, { headers: formData.getHeaders() });
