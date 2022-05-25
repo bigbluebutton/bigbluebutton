@@ -10,7 +10,7 @@ import LiveResult from './live-result/component';
 import Styled from './styles';
 import { PANELS, ACTIONS } from '../layout/enums';
 import DragAndDrop from './dragAndDrop/component';
-import { alertScreenReader } from '/imports/utils/dom-utils';
+import { addNewAlert } from '../screenreader-alert/service';
 import Header from '/imports/ui/components/common/control-header/component';
 
 const intlMessages = defineMessages({
@@ -326,7 +326,7 @@ class Poll extends Component {
     const removed = list[index];
     list.splice(index, 1);
     this.setState({ optList: list }, () => {
-      alertScreenReader(`${intl.formatMessage(intlMessages.removePollOpt,
+      addNewAlert(`${intl.formatMessage(intlMessages.removePollOpt,
         { 0: removed.val || intl.formatMessage(intlMessages.emptyPollOpt) })}`);
     });
   }

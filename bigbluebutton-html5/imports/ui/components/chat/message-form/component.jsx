@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import TypingIndicatorContainer from './typing-indicator/container';
 import Styled from './styles';
+import { escapeHtml } from '/imports/utils/string-utils';
 import { isChatEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
@@ -235,15 +236,9 @@ class MessageForm extends PureComponent {
       return;
     }
 
-    // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
-
-    const div = document.createElement('div');
-    div.appendChild(document.createTextNode(msg));
-    msg = div.innerHTML;
-
     const callback = this.typingIndicator ? stopUserTyping : null;
 
-    handleSendMessage(msg);
+    handleSendMessage(escapeHtml(msg));
     this.setState({ message: '', hasErrors: false }, callback);
   }
 

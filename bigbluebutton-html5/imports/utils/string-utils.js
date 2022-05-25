@@ -1,3 +1,5 @@
+import sanitize from 'sanitize-html';
+
 export const capitalizeFirstLetter = (s = '') => s.charAt(0).toUpperCase() + s.slice(1);
 
 /**
@@ -14,7 +16,25 @@ export const getDateString = (date = new Date()) => {
   return dateString;
 };
 
+export const stripTags = (text) => sanitize(text, { allowedTags: [] });
+
+// Sanitize. See: https://gist.github.com/sagewall/47164de600df05fb0f6f44d48a09c0bd
+export const escapeHtml = (text) => {
+  const div = document.createElement('div');
+  div.appendChild(document.createTextNode(text));
+  return div.innerHTML;
+};
+
+export const unescapeHtml = (input) => {
+  const e = document.createElement('textarea');
+  e.innerHTML = input;
+  return e.value;
+};
+
 export default {
   capitalizeFirstLetter,
   getDateString,
+  stripTags,
+  escapeHtml,
+  unescapeHtml,
 };

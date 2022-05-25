@@ -162,6 +162,7 @@ class ConnectionStatusComponent extends PureComponent {
       dataPage: '1',
       dataSaving: props.dataSaving,
       hasNetworkData: false,
+      copyButtonText: intl.formatMessage(intlMessages.copy),
       networkData: {
         user: {
 
@@ -180,6 +181,7 @@ class ConnectionStatusComponent extends PureComponent {
       },
     };
     this.displaySettingsStatus = this.displaySettingsStatus.bind(this);
+    this.setButtonMessage = this.setButtonMessage.bind(this);
     this.rateInterval = null;
     this.audioUploadLabel = intl.formatMessage(intlMessages.audioUploadRate);
     this.audioDownloadLabel = intl.formatMessage(intlMessages.audioDownloadRate);
@@ -287,6 +289,12 @@ class ConnectionStatusComponent extends PureComponent {
     );
   }
 
+  setButtonMessage(msg) {
+    this.setState({
+      copyButtonText: msg,
+    });
+  }
+
   /**
    * Copy network data to clipboard
    * @param  {Object}  e              Event object from click event
@@ -305,14 +313,14 @@ class ConnectionStatusComponent extends PureComponent {
 
     const { target: copyButton } = e;
 
-    copyButton.innerHTML = intl.formatMessage(intlMessages.copied);
+    this.setButtonMessage(intl.formatMessage(intlMessages.copied));
 
     const data = JSON.stringify(networkData, null, 2);
 
     await navigator.clipboard.writeText(data);
 
     this.copyNetworkDataTimeout = setTimeout(() => {
-      copyButton.innerHTML = intl.formatMessage(intlMessages.copy);
+      this.setButtonMessage(intl.formatMessage(intlMessages.copy));
     }, MIN_TIMEOUT);
   }
 
@@ -623,7 +631,7 @@ class ConnectionStatusComponent extends PureComponent {
           onKeyPress={this.copyNetworkData.bind(this)}
           tabIndex={0}
         >
-          {intl.formatMessage(intlMessages.copy)}
+          {this.state.copyButtonText}
         </Styled.Copy>
       </Styled.CopyContainer>
     );

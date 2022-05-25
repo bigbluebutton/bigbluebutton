@@ -6,9 +6,8 @@ import BBBMenu from "/imports/ui/components/common/menu/component";
 import { getDateString } from '/imports/utils/string-utils';
 import Trigger from "/imports/ui/components/common/control-header/right/component";
 
-import { alertScreenReader } from '/imports/utils/dom-utils';
-
 import ChatService from '../service';
+import { addNewAlert } from '../../screenreader-alert/service';
 
 const intlMessages = defineMessages({
   clear: {
@@ -100,9 +99,9 @@ class ChatDropdown extends PureComponent {
             onClick: () => {
               let chatHistory = ChatService.exportChat(timeWindowsValues, intl);
               navigator.clipboard.writeText(chatHistory).then(() => {
-                alertScreenReader(intl.formatMessage(intlMessages.copySuccess));
+                addNewAlert(intl.formatMessage(intlMessages.copySuccess));
               }).catch(() => {
-                alertScreenReader(intl.formatMessage(intlMessages.copyErr));
+                addNewAlert(intl.formatMessage(intlMessages.copyErr));
               });
             }
           }
