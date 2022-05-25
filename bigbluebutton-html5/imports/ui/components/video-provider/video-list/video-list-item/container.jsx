@@ -13,6 +13,7 @@ const VideoListItemContainer = (props) => {
   const { element } = fullscreen;
   const isFullscreenContext = (element === cameraId);
   const layoutContextDispatch = layoutDispatch();
+  const isRTL = layoutSelect((i) => i.isRTL);
 
   return (
     <VideoListItem
@@ -20,6 +21,7 @@ const VideoListItemContainer = (props) => {
       {...{
         isFullscreenContext,
         layoutContextDispatch,
+        isRTL,
       }}
     />
   );
@@ -32,7 +34,11 @@ export default withTracker((props) => {
 
   return {
     voiceUser: VoiceUsers.findOne({ intId: userId },
-      { fields: { muted: 1, listenOnly: 1, talking: 1 } }),
+      {
+        fields: {
+          muted: 1, listenOnly: 1, talking: 1, joined: 1,
+        },
+      }),
     user: Users.findOne({ intId: userId },
       {
         fields: {

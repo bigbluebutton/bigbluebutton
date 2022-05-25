@@ -1,5 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import { CurrentPoll } from '/imports/api/polls';
+import { escapeHtml } from '/imports/utils/string-utils';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { sanitizeHTML } from '/imports/utils/string-utils';
 import { defineMessages } from 'react-intl';

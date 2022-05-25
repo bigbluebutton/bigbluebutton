@@ -36,8 +36,8 @@ function Card(props) {
   return (
     <div
       className={
-        `flex items-start justify-between p-3 bg-white \
-        rounded shadow border-l-4 ${cardClass}`
+        'flex items-start justify-between p-3 bg-white rounded shadow border-l-4'
+        + ` ${cardClass}`
       }
     >
       <div className="w-70">

@@ -74,12 +74,8 @@ const HoverToolbar = styled.div`
 `;
 
 const ProgressBar = styled.div`
-  display: none;
-
-  :hover > & {
-    display: block;
-  }
-
+  position: absolute;
+  bottom: 0;
   height: 5px;
   width: 100%;
 
@@ -96,6 +92,20 @@ const Played = styled.div`
   background-color: #DF2721;
 `;
 
+const ButtonsWrapper = styled.div`
+  position: absolute;
+  right: auto;
+  left: 0;
+  bottom: 0;
+  top: 0;
+  display: flex;
+
+  [dir="rtl"] & {
+    right: 0;
+    left : auto;
+  }
+`;
+
 export default {
   VideoPlayerWrapper,
   AutoPlayWarning,
@@ -105,4 +115,5 @@ export default {
   ProgressBar,
   Loaded,
   Played,
+  ButtonsWrapper,
 };

@@ -3,6 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import PropTypes from 'prop-types';
 import Styled from './styles';
+import { escapeHtml } from '/imports/utils/string-utils';
 import { notify } from '/imports/ui/services/notification';
 import { isChatEnabled } from '/imports/ui/services/features';
 

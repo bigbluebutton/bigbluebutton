@@ -96,9 +96,10 @@ class App extends React.Component {
       if (learningDashboardAccessToken !== '') {
         const cookieExpiresDate = new Date();
         cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 7));
-        document.cookie = `ld-${meetingId}=${learningDashboardAccessToken}; \
-          expires=${cookieExpiresDate.toGMTString()}; \
-          path=/;SameSite=None;Secure`;
+        const value = `ld-${meetingId}=${learningDashboardAccessToken};`;
+        const expire = `expires=${cookieExpiresDate.toGMTString()};`;
+        const args = 'path=/;SameSite=None;Secure';
+        document.cookie = `${value} ${expire} ${args}`;
       }
     }
 

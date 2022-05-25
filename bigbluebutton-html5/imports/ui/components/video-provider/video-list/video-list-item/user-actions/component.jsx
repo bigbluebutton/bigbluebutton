@@ -41,7 +41,8 @@ const intlMessages = defineMessages({
 
 const UserActions = (props) => {
   const {
-    name, cameraId, numOfStreams, onHandleVideoFocus, user, focused, onHandleMirror,
+    name, cameraId, numOfStreams, onHandleVideoFocus,
+    user, focused, onHandleMirror, isRTL,
   } = props;
 
   const intl = useIntl();
@@ -103,8 +104,8 @@ const UserActions = (props) => {
               elevation: 3,
               getContentAnchorEl: null,
               fullwidth: 'true',
-              anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
-              transformorigin: { vertical: 'bottom', horizontal: 'left' },
+              anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+              transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
             }}
           />
         )

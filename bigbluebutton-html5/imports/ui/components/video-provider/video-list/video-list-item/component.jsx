@@ -11,17 +11,18 @@ import {
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import Settings from '/imports/ui/services/settings';
+import VideoService from '/imports/ui/components/video-provider/service';
 import Styled from './styles';
 
 const VideoListItem = (props) => {
   const {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
-    cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
+    cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount, isRTL,
   } = props;
 
   const [videoIsReady, setVideoIsReady] = useState(false);
   const [isStreamHealthy, setIsStreamHealthy] = useState(false);
-  const [isMirrored, setIsMirrored] = useState(false);
+  const [isMirrored, setIsMirrored] = useState(VideoService.mirrorOwnWebcam(user?.userId));
 
   const videoTag = useRef();
   const videoContainer = useRef();
@@ -123,6 +124,7 @@ const VideoListItem = (props) => {
                     onHandleVideoFocus={onHandleVideoFocus}
                     focused={focused}
                     onHandleMirror={() => setIsMirrored((value) => !value)}
+                    isRTL={isRTL}
                   />
                   <UserStatus
                     voiceUser={voiceUser}
@@ -153,7 +155,7 @@ const VideoListItem = (props) => {
         />
       </Styled.VideoContainer>
 
-      {shouldRenderReconnect && <Styled.Reconnecting />}
+      {shouldRenderReconnect && <Styled.Reconnecting animations={animations} />}
     </Styled.Content>
   );
 };
@@ -184,6 +186,7 @@ VideoListItem.propTypes = {
     muted: PropTypes.bool.isRequired,
     listenOnly: PropTypes.bool.isRequired,
     talking: PropTypes.bool.isRequired,
+    joined: PropTypes.bool.isRequired,
   }).isRequired,
   focused: PropTypes.bool.isRequired,
 };

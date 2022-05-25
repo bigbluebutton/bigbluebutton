@@ -63,7 +63,7 @@ const ButtonIcon = styled(Icon)`
     }
   }
   .buttonWrapper:hover & {
-    opacity: .75;
+    opacity: .5;
   }
 `;
 
@@ -85,7 +85,8 @@ const ButtonLabel = styled.span`
       margin: 0 ${btnSpacing} 0 0;
     }
   }
-  &:hover {
+  &:hover,
+  .buttonWrapper:hover & {
     opacity: .5;
   }
 
@@ -259,7 +260,7 @@ const ButtonSpan = styled.span`
     border: ${borderSizeLarge} solid transparent;
 
     &:focus,
-    &:focus:not([aria-disabled="true"]) & {
+    .buttonWrapper:focus:not([aria-disabled="true"]) & {
       color: ${btnDefaultColor};
       background-color: ${btnDefaultBg};
       background-clip: padding-box;
