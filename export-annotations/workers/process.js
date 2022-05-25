@@ -7,7 +7,8 @@ const { execSync } = require("child_process");
 const { Worker, workerData, parentPort } = require('worker_threads');
 const path = require('path');
 const sanitize = require("sanitize-filename");
-const twemoji = require("twemoji")
+const twemoji = require("twemoji");
+const { getStroke, getStrokePoints } = require('perfect-freehand');
 
 const jobId = workerData;
 const MAGIC_MYSTERY_NUMBER = 2;
@@ -27,10 +28,19 @@ const kickOffNotifierWorker = (jobType, filename) => {
     })
 }
 
-function color_to_hex(color, isStickyNote = false) {
-    if(isStickyNote) { color = `sticky-${color}`}
+function align_to_css_property(alignment) {
+    switch (alignment) {
+        case 'start': return 'left'
+        case 'middle': return 'center'
+        case 'end': return 'right'
+        default: return alignment
+    }
+}
 
-    switch(color) {
+function color_to_hex(color, isStickyNote = false) {
+    if (isStickyNote) { color = `sticky-${color}` }
+
+    switch (color) {
         case 'white': return '#1d1d1d'
         case 'sticky-white': return '#fddf8e'
         case 'lightGray': return '#c6cbd1'
@@ -60,44 +70,26 @@ function color_to_hex(color, isStickyNote = false) {
     }
 }
 
-function align_to_css_property(alignment) {
-    switch(alignment) {
-        case 'start': return 'left'
-        case 'middle': return 'center'
-        case 'end': return 'right'
-        default: return alignment
+function determine_dasharray(dash, gap = 0) {
+
+    switch (dash) {
+        case 'dashed': return `stroke-linecap:butt;stroke-dasharray:${gap};`
+        case 'dotted': return `stroke-linecap:round;stroke-dasharray:${gap};`
+
+        default: return 'stroke-linejoin:round;stroke-linecap:round;'
     }
-}
-
-function text_size_to_px(size, isStickyNote = false) {
-    if(isStickyNote) { size = `sticky-${size}`}
-
-    switch(size) {
-        case 'sticky-small': return 24
-        case 'small': return 28
-        case 'sticky-medium': return 36
-        case 'medium': return 48
-        case 'sticky-large': return 48
-        case 'large': return 96
-
-        default: return 28
-    }
-}
-
-function rad_to_degree(angle) {
-    return angle * (180 / Math.PI)
 }
 
 function determine_font_from_family(family) {
-    switch(family) {
+    switch (family) {
         case 'script': return 'Caveat Brush'
 
         default: return family
     }
 }
 
-function scale_shape(dimension, coord) {
-    return (coord / 100.0 * dimension);
+function rad_to_degree(angle) {
+    return angle * (180 / Math.PI)
 }
 
 function render_HTMLTextBox(htmlFilePath, id, width, height) {
@@ -114,6 +106,49 @@ function render_HTMLTextBox(htmlFilePath, id, width, height) {
     ]
 
     execSync(commands.join(' '));
+}
+
+function get_gap(dash, size) {
+    switch (dash) {
+        case 'dash':
+            if (size == 'small') { return '8 8' }
+            else if (size == 'medium') { return '14 14' }
+            else { return '20 20' }
+        case 'dotted':
+            if (size == 'small') { return '0.1 8' }
+            else if (size == 'medium') { return '0.1 14' }
+            else { return '0.1 20' }
+
+        default: return '0'
+    }
+}
+
+function get_stroke_width(dash, size) {
+    switch (size) {
+        case 'small': if (dash === 'draw') { return 1 } else { return 4 };
+        case 'medium': if (dash === 'draw') { return 1.75 } else { return 6.25 };
+        case 'large': if (dash === 'draw') { return 2.5 } else { return 8.5 }
+
+        default: return 1;
+    }
+}
+function scale_shape(dimension, coord) {
+    return (coord / 100.0 * dimension);
+}
+
+function text_size_to_px(size, isStickyNote = false) {
+    if (isStickyNote) { size = `sticky-${size}` }
+
+    switch (size) {
+        case 'sticky-small': return 24
+        case 'small': return 28
+        case 'sticky-medium': return 36
+        case 'medium': return 48
+        case 'sticky-large': return 48
+        case 'large': return 96
+
+        default: return 28
+    }
 }
 
 function overlay_ellipse(svg, annotation, w, h) {
@@ -180,18 +215,18 @@ function overlay_pencil(svg, annotation, w, h) {
         }).ele('circle', {
             cx: scale_shape(w, annotation.points[0]),
             cy: scale_shape(h, annotation.points[1]),
-            r:  scale_shape(w, annotation.thickness) / 2
+            r: scale_shape(w, annotation.thickness) / 2
         }).up()
     }
 
     else {
         let x;
         let y;
-        let path =  ""
+        let path = ""
         let dataPoints = annotation.points
 
-        for(let command of annotation.commands) {
-            switch(command){
+        for (let command of annotation.commands) {
+            switch (command) {
                 case 1: // MOVE TO
                     x = scale_shape(w, dataPoints.shift())
                     y = scale_shape(h, dataPoints.shift())
@@ -212,7 +247,7 @@ function overlay_pencil(svg, annotation, w, h) {
                     path = `${path} C${cx1} ${cy1},${cx2} ${cy2},${x} ${y}`
                     break;
                 default:
-                    logger.error(`Unknown pencil command: ${annotation.commands[i]}`)       
+                    logger.error(`Unknown pencil command: ${annotation.commands[i]}`)
             }
         }
 
@@ -228,7 +263,7 @@ function overlay_pencil(svg, annotation, w, h) {
 function overlay_rectangle(svg, annotation, w, h) {
     let shapeColor = color_to_hex(annotation.color);
     let fill = annotation.fill ? `#${shapeColor}` : 'none';
-    
+
     let x1 = scale_shape(w, annotation.points[0])
     let y1 = scale_shape(h, annotation.points[1])
     let x2 = scale_shape(w, annotation.points[2])
@@ -237,7 +272,7 @@ function overlay_rectangle(svg, annotation, w, h) {
     let path = `M${x1} ${y1} L${x2} ${y1} L${x2} ${y2} L${x1} ${y2} Z`
 
     svg.ele('g', {
-        style: `stroke:#${shapeColor};stroke-width:${scale_shape(w, annotation.thickness)};fill:${fill};stroke-linejoin:miter`
+        style: `stroke:#${shapeColor};stroke-width:${scale_shape(w, annotation.thickness)};fill:none;stroke-linejoin:miter`
     }).ele('path', {
         d: path
     }).up()
@@ -246,7 +281,7 @@ function overlay_rectangle(svg, annotation, w, h) {
 function overlay_triangle(svg, annotation, w, h) {
     let shapeColor = color_to_hex(annotation.color);
     let fill = annotation.fill ? `#${shapeColor}` : 'none';
-    
+
     let x1 = scale_shape(w, annotation.points[0])
     let y1 = scale_shape(h, annotation.points[1])
     let x2 = scale_shape(w, annotation.points[2])
@@ -263,28 +298,51 @@ function overlay_triangle(svg, annotation, w, h) {
     }).up()
 }
 
-function overlay_text(svg, annotation) {
+function overlay_draw(svg, annotation) {
+    let dash = annotation.style.dash;
 
-    logger.info(annotation);
+    // let stroke = getStrokePoints(annotation.points).map((strokePoint) => strokePoint.point);
 
-    let fontColor = color_to_hex(annotation.style.color);
-    let fontSize = text_size_to_px(annotation.style.size);
-    let rotation = rad_to_degree(annotation.rotation);
-    let font = determine_font_from_family(annotation.style.font);
-
-    let [textBox_x, textBox_y] = annotation.point;
-    let textNode = svg.ele('text', {
-        'x': textBox_x,
-        'y': textBox_y,
-        'font-size': fontSize,
-        'font-family': font,
-        'fill': fontColor,
+    let stroke = getStroke(annotation.points, {
+        simulatePressure: (dash == 'draw'),
+        size: 5,
     });
 
-    for (let line of annotation.text.split('\n')) {
-        if (line === '\n') { line = '' }
-        textNode.ele('tspan', { x: textBox_x, dy: '1em' }).txt(line).up()
-    }
+    if (!stroke.length) return;
+
+    let shapeColor = color_to_hex(annotation.style.color);
+    let rotation = rad_to_degree(annotation.rotation);
+    let thickness = get_stroke_width(dash, annotation.style.size);
+    let gap = get_gap(dash, annotation.style.size);
+
+    let [x, y] = annotation.point;
+
+    // From steveruizok/perfect-freehand
+    let [max_x, max_y] = [0, 0];
+    let path = stroke.reduce(
+        (acc, [x0, y0], i, arr) => {
+            let [x1, y1] = arr[(i + 1) % arr.length]
+            if (x1 >= max_x) { max_x = x1 }
+            if (y1 >= max_y) { max_y = y1 }
+            acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2)
+            return acc;
+        },
+
+        ['M', ...stroke[0], 'Q']
+    );
+
+    path.push('Z');
+    path.join(' ');
+
+    let stroke_dasharray = determine_dasharray(dash, gap);
+    let fill = (dash === 'draw' || dash === 'solid') ? shapeColor : 'none';
+
+    svg.ele('g', {
+        style: `stroke:${shapeColor};stroke-width:${thickness};fill:${fill};${stroke_dasharray}`,
+    }).ele('path', {
+        d: path,
+        transform: `translate(${x} ${y}), rotate(${rotation} ${max_x / 2} ${max_y / 2})`
+    }).up()
 }
 
 function overlay_sticky(svg, annotation) {
@@ -335,9 +393,31 @@ function overlay_sticky(svg, annotation) {
     }).up();
 }
 
+function overlay_text(svg, annotation) {
+
+    let fontColor = color_to_hex(annotation.style.color);
+    let fontSize = text_size_to_px(annotation.style.size);
+    // let rotation = rad_to_degree(annotation.rotation);
+    let font = determine_font_from_family(annotation.style.font);
+
+    let [textBox_x, textBox_y] = annotation.point;
+    let textNode = svg.ele('text', {
+        'x': textBox_x,
+        'y': textBox_y,
+        'font-size': fontSize,
+        'font-family': font,
+        'fill': fontColor,
+    });
+
+    for (let line of annotation.text.split('\n')) {
+        if (line === '\n') { line = '' }
+        textNode.ele('tspan', { x: textBox_x, dy: '1em' }).txt(line).up()
+    }
+}
+
 function overlay_annotations(svg, currentSlideAnnotations, w, h) {
 
-    logger.info(currentSlideAnnotations)
+    // logger.info(currentSlideAnnotations)
     // Order slide annotations by z-index
     // currentSlideAnnotations.sort(function (a, b) {
     //     return a.annotationInfo.childIndex < b.annotationInfo.childIndex;
@@ -345,7 +425,7 @@ function overlay_annotations(svg, currentSlideAnnotations, w, h) {
     // logger.info("SORTED!")
     // logger.info(currentSlideAnnotations)
 
-    for(let annotation of currentSlideAnnotations) {        
+    for (let annotation of currentSlideAnnotations) {
         switch (annotation.annotationInfo.type) {
             // case 'ellipse':
             //     overlay_ellipse(svg, annotation.annotationInfo, w, h);
@@ -359,6 +439,9 @@ function overlay_annotations(svg, currentSlideAnnotations, w, h) {
             // case 'rectangle':
             //     overlay_rectangle(svg, annotation.annotationInfo, w, h);
             //     break;
+            case 'draw':
+                overlay_draw(svg, annotation.annotationInfo);
+                break;
             case 'sticky':
                 overlay_sticky(svg, annotation.annotationInfo);
                 break;
@@ -395,25 +478,25 @@ for (let currentSlide of pages) {
 
     // Create the SVG slide with the background image
     let svg = create({ version: '1.0', encoding: 'UTF-8' })
-                .ele('svg', { 
-                    xmlns: 'http://www.w3.org/2000/svg',
-                    'xmlns:xlink': 'http://www.w3.org/1999/xlink',
-                    width: slideWidth,
-                    height: slideHeight,
-                })
-                .dtd({ 
-                    pubID: '-//W3C//DTD SVG 1.1//EN',
-                    sysID: 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'
-                })
-                .ele('image', {
-                    'xlink:href': `file://${dropbox}/slide${currentSlide.page}.png`,
-                    width: slideWidth,
-                    height: slideHeight,
-                })
-                .up()
-                .ele('g', {
-                    class: 'canvas'
-                });
+        .ele('svg', {
+            xmlns: 'http://www.w3.org/2000/svg',
+            'xmlns:xlink': 'http://www.w3.org/1999/xlink',
+            width: slideWidth,
+            height: slideHeight,
+        })
+        .dtd({
+            pubID: '-//W3C//DTD SVG 1.1//EN',
+            sysID: 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'
+        })
+        .ele('image', {
+            'xlink:href': `file://${dropbox}/slide${currentSlide.page}.png`,
+            width: slideWidth,
+            height: slideHeight,
+        })
+        .up()
+        .ele('g', {
+            class: 'canvas'
+        });
 
     // 4. Overlay annotations onto slides
     // Based on /record-and-playback/presentation/scripts/publish/presentation.rb
@@ -424,8 +507,8 @@ for (let currentSlide of pages) {
     let SVGfile = path.join(dropbox, `annotated-slide${currentSlide.page}.svg`)
     let PDFfile = path.join(dropbox, `annotated-slide${currentSlide.page}.pdf`)
 
-    fs.writeFileSync(SVGfile, svg, function(err) {
-        if(err) { return logger.error(err); }
+    fs.writeFileSync(SVGfile, svg, function (err) {
+        if (err) { return logger.error(err); }
     });
 
     let convertAnnotatedSlide = [
@@ -463,7 +546,7 @@ let mergePDFs = [
     `-sOUTPUTFILE="${path.join(output_dir, `${filename}.pdf`)}"`,
     `-dBATCH`,
     ghostScriptInput,
-    ].join(' ');
+].join(' ');
 
 // Resulting PDF file is stored in the presentation dir
 execSync(mergePDFs, (error, stderr) => {
