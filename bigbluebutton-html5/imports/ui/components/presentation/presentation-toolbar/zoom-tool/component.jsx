@@ -6,6 +6,7 @@ import HoldButton from './holdButton/component';
 
 const DELAY_MILLISECONDS = 200;
 const STEP_TIME = 100;
+const ZOOM_INCREMENT = .1;
 
 const intlMessages = defineMessages({
   resetZoomLabel: {
@@ -176,7 +177,9 @@ class ZoomTool extends PureComponent {
               aria-label={zoomOutAriaLabel}
               label={intl.formatMessage(intlMessages.zoomOutLabel)}
               icon="substract"
-              onClick={() => { tldrawAPI?.zoomOut() }}
+              onClick={() => {
+                tldrawAPI.zoomTo(tldrawAPI?.getPageState()?.camera?.zoom - ZOOM_INCREMENT);
+              }}
               disabled={(zoomValue <= minBound) || !isMeteorConnected}
               hideLabel
             />
@@ -215,7 +218,9 @@ class ZoomTool extends PureComponent {
               label={intl.formatMessage(intlMessages.zoomInLabel)}
               data-test="zoomInBtn"
               icon="add"
-              onClick={() => { tldrawAPI?.zoomIn() }}
+              onClick={() => {
+                tldrawAPI.zoomTo(tldrawAPI?.getPageState()?.camera?.zoom + ZOOM_INCREMENT);
+               }}
               disabled={(zoomValue >= maxBound) || !isMeteorConnected}
               hideLabel
             />

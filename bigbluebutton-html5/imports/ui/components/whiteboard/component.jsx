@@ -88,7 +88,7 @@ export default function Whiteboard(props) {
       changed = true;
     }
 
-    if (next.pages[curPageId] && !next.pages[curPageId].shapes["slide-background-shape"]) {
+    if (next.pages[curPageId] && !next.pages[curPageId].shapes["slide-background-shape"]) {      
       next.assets[`slide-background-asset-${curPageId}`] = {
         id: `slide-background-asset-${curPageId}`,
         size: [slidePosition?.width || 0, slidePosition?.height || 0],
@@ -164,7 +164,7 @@ export default function Whiteboard(props) {
             setTLDrawAPI(app);
             props.setTldrawAPI(app);
             curPageId && app.changePage(curPageId);
-            curPageId && app.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom)
+            curPageId && app.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
           }}
           //onChange={handleChange}
           onPersist={(e) => {

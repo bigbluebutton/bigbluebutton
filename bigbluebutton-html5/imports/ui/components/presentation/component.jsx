@@ -746,6 +746,11 @@ class Presentation extends PureComponent {
         isFullscreen={fullscreenContext}
         fullscreenAction={ACTIONS.SET_FULLSCREEN_ELEMENT}
         fullscreenRef={this.refPresentationContainer}
+        addWhiteboardGlobalAccess={this.props.addWhiteboardGlobalAccess}
+        removeWhiteboardGlobalAccess={this.props.removeWhiteboardGlobalAccess}
+        multiUserSize={this.props.multiUserSize}
+        multiUser={this.props.multiUser}
+        whiteboardId={currentSlide?.id}
       />
     );
   }
