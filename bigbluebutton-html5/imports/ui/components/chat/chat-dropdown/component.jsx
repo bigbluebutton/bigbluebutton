@@ -3,8 +3,9 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import _ from 'lodash';
 import BBBMenu from "/imports/ui/components/common/menu/component";
-import Button from '/imports/ui/components/common/button/component';
 import { getDateString } from '/imports/utils/string-utils';
+import Trigger from "/imports/ui/components/common/control-header/right/component";
+
 import { alertScreenReader } from '/imports/utils/dom-utils';
 
 import ChatService from '../service';
@@ -135,14 +136,9 @@ class ChatDropdown extends PureComponent {
       <>
       <BBBMenu
         trigger={
-          <Button
+          <Trigger
             data-test="chatOptionsMenu"
             icon="more"
-            size="sm"
-            ghost
-            circle
-            hideLabel
-            color="dark"
             label={intl.formatMessage(intlMessages.options)}
             aria-label={intl.formatMessage(intlMessages.options)}
             onClick={() => null}
