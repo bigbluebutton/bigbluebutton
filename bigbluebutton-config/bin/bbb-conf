@@ -276,6 +276,7 @@ usage() {
     echo "   --version                        Display BigBlueButton version (packages)"
     echo "   --setip <IP/hostname>            Set IP/hostname for BigBlueButton"
     echo "   --setsecret <secret>             Change the shared secret in bigbluebutton.properties"
+    echo "   --set-port-range MIN-MAX         Change UDP port range used for audio/video/screenshare"
     echo
     echo "Monitoring:"
     echo "   --check                          Check configuration files and processes for problems"
@@ -588,6 +589,12 @@ while [ $# -gt 0 ]; do
         continue
     fi
 
+    if [ "$1" = "--set-port-range" ]; then
+        PORT_RANGE="${2}"
+        shift; shift
+        continue
+    fi
+
     if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--setsalt" -o "$1" = "--secret" -o "$1" = "-secret"  -o "$1" = "--setsecret" ]; then
         SECRET="${2}"
         if [ -z "$SECRET" ]; then
@@ -685,6 +692,33 @@ if [[ $SECRET ]]; then
 
     echo
     echo "BigBlueButton's shared secret is now $SECRET"
+    echo
+    echo "You must restart BigBlueButton for the changes to take effect"
+    echo
+    echo "  $SUDO bbb-conf --restart"
+    echo
+    echo
+fi
+
+#
+# Set Port Range
+#
+
+if [[ "$PORT_RANGE" =~ ^([[:digit:]]+)-([[:digit:]]+)$ ]]; then
+    START_PORT=${BASH_REMATCH[1]}
+    END_PORT=${BASH_REMATCH[2]}
+
+    sed -i "/rtp-start-port/s/value=\"[0-9]*\"/value=\"$START_PORT\"/" /opt/freeswitch/conf/autoload_configs/switch.conf.xml
+    sed -i "/rtp-end-port/s/value=\"[0-9]*\"/value=\"$END_PORT\"/" /opt/freeswitch/conf/autoload_configs/switch.conf.xml
+
+    sed -i "s/minPort=.*/minPort=$START_PORT/" /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini
+    sed -i "s/maxPort=.*/maxPort=$END_PORT/" /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini
+
+    yq w -i /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml mediasoup.worker.rtcMinPort $START_PORT
+    yq w -i /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml mediasoup.worker.rtcMaxPort $END_PORT
+
+    echo
+    echo "BigBlueButton's UDP port range is now $START_PORT-$END_PORT"
     echo
     echo "You must restart BigBlueButton for the changes to take effect"
     echo
