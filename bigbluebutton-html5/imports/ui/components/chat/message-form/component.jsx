@@ -302,6 +302,7 @@ class MessageForm extends PureComponent {
         icon="happy"
         color="dark"
         ghost
+        type="button"
         circle
         hideLabel
         label={intl.formatMessage(messages.emojiButtonLabel)}
