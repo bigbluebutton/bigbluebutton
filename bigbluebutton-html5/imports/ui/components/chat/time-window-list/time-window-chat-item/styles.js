@@ -173,12 +173,6 @@ const ChatItem = styled(MessageChatItem)`
   color: ${colorText};
   word-wrap: break-word;
 
-  ${({ hasLink }) => hasLink && `
-    & > a {
-      color: ${colorPrimary};
-    }
-  `}
-
   ${({ emphasizedMessage }) => emphasizedMessage && `
     font-weight: bold;
   `}
