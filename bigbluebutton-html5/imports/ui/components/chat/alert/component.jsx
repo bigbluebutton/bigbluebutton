@@ -68,8 +68,6 @@ const ChatAlert = (props) => {
     unreadMessagesByChat,
     intl,
     layoutContextDispatch,
-    chatsTracker,
-    notify,
   } = props;
 
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
@@ -104,35 +102,6 @@ const ChatAlert = (props) => {
       setAlertEnabledTimestamp(new Date().getTime());
     }
   }, [pushAlertEnabled]);
-
-  useEffect(() => {
-    const keys = Object.keys(chatsTracker);
-    keys.forEach((key) => {
-      if (chatsTracker[key]?.shouldNotify) {
-        if (audioAlertEnabled) {
-          AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-            + Meteor.settings.public.app.basename
-            + Meteor.settings.public.app.instanceId}`
-            + '/resources/sounds/notify.mp3');
-        }
-        if (pushAlertEnabled) {
-          notify(
-            key === 'MAIN-PUBLIC-GROUP-CHAT'
-              ? intl.formatMessage(intlMessages.publicChatMsg)
-              : intl.formatMessage(intlMessages.privateChatMsg),
-            'info',
-            'chat',
-            { autoClose: 3000 },
-            <div>
-              <div style={{ fontWeight: 700 }}>{chatsTracker[key].lastSender}</div>
-              <div dangerouslySetInnerHTML={{ __html: chatsTracker[key].content }} />
-            </div>,
-            true,
-          );
-        }
-      }
-    });
-  }, [chatsTracker]);
 
   useEffect(() => {
     if (pushAlertEnabled) {
