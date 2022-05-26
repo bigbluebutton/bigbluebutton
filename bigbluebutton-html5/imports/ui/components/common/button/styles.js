@@ -415,7 +415,7 @@ const ButtonSpan = styled.span`
       color: ${btnDefaultBg};
       background-color: ${btnDefaultColor};
       background-clip: padding-box;
-      box-shadow: 0 0 0 ${borderSizeLarge} ${btnDefaultBg};
+      box-shadow: 0 0 0 ${borderSizeLarge} ${btnDefaultBg} !important;
     }
 
     &:hover,
