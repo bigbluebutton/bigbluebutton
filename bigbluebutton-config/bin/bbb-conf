@@ -710,8 +710,10 @@ if [[ $PORT_RANGE ]]; then
         START_PORT=${BASH_REMATCH[1]}
         END_PORT=${BASH_REMATCH[2]}
 
-        sed -i "/rtp-start-port/s/value=\"[0-9]*\"/value=\"$START_PORT\"/" $FREESWITCH_SWITCH_CONF
-        sed -i "/rtp-end-port/s/value=\"[0-9]*\"/value=\"$END_PORT\"/" $FREESWITCH_SWITCH_CONF
+        need_root
+
+        xmlstarlet edit --inplace --update '/configuration/settings/param[@name="rtp-start-port"]/@value' --value $START_PORT $FREESWITCH_SWITCH_CONF
+        xmlstarlet edit --inplace --update '/configuration/settings/param[@name="rtp-end-port"]/@value' --value $END_PORT $FREESWITCH_SWITCH_CONF
 
         sed -i "s/minPort=.*/minPort=$START_PORT/" /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini
         sed -i "s/maxPort=.*/maxPort=$END_PORT/" /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini
