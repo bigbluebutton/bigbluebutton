@@ -310,6 +310,7 @@ class InputStreamLiveSelector extends Component {
               label={intl.formatMessage(intlMessages.changeAudioDevice)}
               hideLabel
               tabIndex={0}
+              rotate
             />
           </>
         )}
