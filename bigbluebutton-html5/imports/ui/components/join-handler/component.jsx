@@ -174,7 +174,7 @@ class JoinHandler extends Component {
     const fetchContent = await fetch(url, { credentials: 'include' });
     const parseToJson = await fetchContent.json();
     const { response } = parseToJson;
-    console.log('response', response);
+
     setLogoutURL(response);
     logUserInfo();
 

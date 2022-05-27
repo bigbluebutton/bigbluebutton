@@ -152,27 +152,27 @@ public class ParamsProcessorUtil {
   	}
 
     private String resolvePlaceholders(String message, String dialNumber, String telVoice, String meetingName) {
-        String welcomeMessage = message;
+        String welcomeMessageHtml = message;
 
         String SanitizedDialNumber = ParamsUtil.escapeHTMLTags(dialNumber);
         String SanitizedTelVoice = ParamsUtil.escapeHTMLTags(formatConfNum(telVoice));
         String SanitizedMeetingName = ParamsUtil.escapeHTMLTags(meetingName);
         String SanitizedDefaultServerUrl = ParamsUtil.escapeHTMLTags(defaultServerUrl);
 
-        welcomeMessage = welcomeMessage.replaceAll(
+        welcomeMessageHtml = welcomeMessageHtml.replaceAll(
                 Pattern.quote(DIAL_NUM),
                 Matcher.quoteReplacement(SanitizedDialNumber));
-        welcomeMessage = welcomeMessage.replaceAll(
+        welcomeMessageHtml = welcomeMessageHtml.replaceAll(
                 Pattern.quote(CONF_NUM),
                 Matcher.quoteReplacement(SanitizedTelVoice));
-        welcomeMessage = welcomeMessage.replaceAll(
+        welcomeMessageHtml = welcomeMessageHtml.replaceAll(
                 Pattern.quote(CONF_NAME),
                 Matcher.quoteReplacement(SanitizedMeetingName));
-        welcomeMessage = welcomeMessage.replaceAll(
+        welcomeMessageHtml = welcomeMessageHtml.replaceAll(
                 Pattern.quote(SERVER_URL),
                 Matcher.quoteReplacement(SanitizedDefaultServerUrl));
 
-        return  welcomeMessage;
+        return  welcomeMessageHtml;
     }
 
     public void processRequiredCreateParams(Map<String, String> params, ApiErrors errors) {
