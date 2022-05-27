@@ -311,35 +311,7 @@ class App extends Component {
 
     this.renderDarkMode();
 
-    if (meetingLayout !== prevProps.meetingLayout
-      || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
-
-      let contextLayout = meetingLayout;
-      if (isMobile()) {
-        contextLayout = meetingLayout === 'custom' ? 'smart' : meetingLayout;
-      }
-
-      layoutContextDispatch({
-        type: ACTIONS.SET_LAYOUT_TYPE,
-        value: contextLayout,
-      });
-
-      Settings.application.selectedLayout = contextLayout;
-      Settings.save();
-    }
-
-    if (selectedLayout !== prevProps.selectedLayout) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_LAYOUT_TYPE,
-        value: selectedLayout,
-      });
-
-      Settings.application.selectedLayout = selectedLayout;
-      Settings.save();
-    }
-
-    if (meetingLayout !== prevProps.meetingLayout
-      || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+    if (meetingLayout !== prevProps.meetingLayout) {
 
       let contextLayout = meetingLayout;
       if (isMobile()) {
@@ -357,6 +329,7 @@ class App extends Component {
 
     if (pushLayoutMeeting !== prevProps.pushLayoutMeeting) {
       Settings.application.pushLayout = pushLayoutMeeting;
+      Settings.save();
     }
 
     if (meetingLayout === "custom" && !isPresenter) {
@@ -420,14 +393,14 @@ class App extends Component {
     }
 
     const layoutChanged = presentationIsOpen !== prevProps.presentationIsOpen
+      || selectedLayout !== prevProps.selectedLayout
       || cameraIsResizing !== prevProps.cameraIsResizing
       || cameraPosition !== prevProps.cameraPosition
       || focusedCamera !== prevProps.focusedCamera
       || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
 
-    if ((pushLayout && selectedLayout === 'custom' && layoutChanged) // change layout sizes / states
-      || (!pushLayout && prevProps.pushLayout) // special case where we set pushLayout to false in all viewers
-      || (pushLayout && !prevProps.pushLayout && selectedLayout === 'custom') // push layout once after presenter presses the button
+    if ((pushLayout && layoutChanged) // change layout sizes / states
+      || (pushLayout !== prevProps.pushLayout) // push layout once after presenter toggles / special case where we set pushLayout to false in all viewers
     ) {
       if (isPresenter) {
         setMeetingLayout();
