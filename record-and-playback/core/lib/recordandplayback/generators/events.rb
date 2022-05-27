@@ -197,8 +197,11 @@ module BigBlueButton
       }
       list_user_info = {}
       webcamsOnlyForModerator = false
-      if show_moderator_viewpoint
-        events.xpath('/recording/event[@module="WEBCAM" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCShareEvent" or @eventname="StopWebRTCShareEvent")) or (@module="PARTICIPANT" and (@eventname="ParticipantStatusChangeEvent" or @eventname="ParticipantJoinEvent"))]').each do |event|
+      # moderators_only shows only moderators, if the user sets show_moderator_viewpoint and 
+      # moderators_only, the second config is more restrict than the first, so, the second is 
+      # prioritized.
+      if (show_moderator_viewpoint && !moderators_only)
+        events.xpath('/recording/event[@module="WEBCAM" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCShareEvent" or @eventname="StopWebRTCShareEvent"))]').each do |event|
           timestamp = event['timestamp'].to_i - initial_timestamp
           # Determine the video filename
           case event['eventname']
@@ -214,100 +217,34 @@ module BigBlueButton
           # Add the video to the EDL
           case event['eventname']
           when 'StartWebcamShareEvent', 'StartWebRTCShareEvent'
-            userId = BigBlueButton::Events.get_id_from_filename(filename)
-
-            if (moderators_only && BigBlueButton::Events.is_user_moderator(userId, list_user_info)) || !moderators_only
-              videos[filename] = { :timestamp => timestamp }
-              active_videos << filename
-              
-              edl_entry = {
-                :timestamp => timestamp,
-                :areas => { :webcam => [] }
+            videos[filename] = { :timestamp => timestamp }
+            active_videos << filename
+            
+            edl_entry = {
+              :timestamp => timestamp,
+              :areas => { :webcam => [] }
+            }
+            active_videos.each do |filename|
+              edl_entry[:areas][:webcam] << {
+                :filename => filename,
+                :timestamp => timestamp - videos[filename][:timestamp]
               }
-              active_videos.each do |filename|
-                edl_entry[:areas][:webcam] << {
-                  :filename => filename,
-                  :timestamp => timestamp - videos[filename][:timestamp]
-                }
-              end
-              video_edl << edl_entry
-
-            elsif moderators_only && !BigBlueButton::Events.is_user_moderator(userId, list_user_info)
-              inactive_videos << filename
-              videos[filename] = { :timestamp => timestamp }
             end
+            video_edl << edl_entry
           when 'StopWebcamShareEvent', 'StopWebRTCShareEvent'
-            userId = BigBlueButton::Events.get_id_from_filename(filename)
-
-            if (moderators_only && BigBlueButton::Events.is_user_moderator(userId, list_user_info)) || !moderators_only
-              active_videos.delete(filename)
-    
-              edl_entry = {
-                :timestamp => timestamp,
-                :areas => { :webcam => [] }
+            active_videos.delete(filename)
+  
+            edl_entry = {
+              :timestamp => timestamp,
+              :areas => { :webcam => [] }
+            }
+            active_videos.each do |filename|
+              edl_entry[:areas][:webcam] << {
+                :filename => filename,
+                :timestamp => timestamp - videos[filename][:timestamp]
               }
-              active_videos.each do |filename|
-                edl_entry[:areas][:webcam] << {
-                  :filename => filename,
-                  :timestamp => timestamp - videos[filename][:timestamp]
-                }
-              end
-              video_edl << edl_entry
-            elsif (moderators_only && !BigBlueButton::Events.is_user_moderator(userId, list_user_info))
-              inactive_videos.delete(filename)
             end
-          when "ParticipantJoinEvent"
-            user_id = event.at_xpath('userId').text
-            list_user_info[user_id] = event.at_xpath('role').text
-
-          when "ParticipantStatusChangeEvent"
-            userId = ""
-            filename_to_add = ""
-
-            if event.at_xpath('status').text == "role" 
-              userId = event.at_xpath('userId').text
-
-              if moderators_only && event.at_xpath('value').text == "MODERATOR"
-                filename_to_add = BigBlueButton::Events.extract_filename_from_userId(userId, inactive_videos)
-                if filename_to_add != ""
-                  inactive_videos.delete(filename_to_add)
-                  active_videos << filename_to_add
-
-                  edl_entry = {
-                    :timestamp => timestamp,
-                    :areas => { :webcam => [] }
-                  }
-                  active_videos.each do |filename|
-                    edl_entry[:areas][:webcam] << {
-                      :filename => filename,
-                      :timestamp => timestamp - videos[filename][:timestamp],
-                      :user_id => userId
-                    }
-                  end
-                  video_edl << edl_entry
-                end
-              elsif moderators_only && event.at_xpath('value').text == "VIEWER"
-                filename_to_add = BigBlueButton::Events.extract_filename_from_userId(userId, active_videos)
-                if filename != ""
-                  active_videos.delete(filename_to_add)
-                  inactive_videos << filename_to_add
-
-                  edl_entry = {
-                    :timestamp => timestamp,
-                    :areas => { :webcam => [] }
-                  }
-                  active_videos.each do |filename|
-                    edl_entry[:areas][:webcam] << {
-                      :filename => filename,
-                      :timestamp => timestamp - videos[filename][:timestamp],
-                      :user_id => userId
-                    }
-                  end
-                  video_edl << edl_entry
-                end
-              end
-              list_user_info[userId] = event.at_xpath('value').text
-            end
+            video_edl << edl_entry
           end
         end
       else
