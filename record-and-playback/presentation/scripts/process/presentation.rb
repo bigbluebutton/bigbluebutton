@@ -51,6 +51,11 @@ end
 presentation_props['audio_offset'] = 0 if presentation_props['audio_offset'].nil?
 presentation_props['include_deskshare'] = false if presentation_props['include_deskshare'].nil?
 
+render_cams_list = ["all"]
+if (!presentation_props['render_webcams_options'].nil?)
+  render_cams_list = presentation_props['render_webcams_options'].split(",")
+end
+
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 log_dir = props['log_dir']
@@ -225,7 +230,7 @@ unless FileTest.directory?(target_dir)
 
       webcam_framerate = 15 if webcam_framerate.nil?
       processed_audio_file = BigBlueButton::AudioProcessor.get_processed_audio_file(raw_archive_dir, "#{target_dir}/audio")
-      BigBlueButton.process_webcam_videos(target_dir, raw_archive_dir, webcam_width, webcam_height, webcam_framerate, presentation_props['audio_offset'], processed_audio_file, presentation_props['video_formats'], props['show_moderator_viewpoint'])
+      BigBlueButton.process_webcam_videos(target_dir, raw_archive_dir, webcam_width, webcam_height, webcam_framerate, presentation_props['audio_offset'], processed_audio_file, presentation_props['video_formats'], props['show_moderator_viewpoint'], render_cams_list)
     end
 
     if !Dir["#{raw_archive_dir}/deskshare/*"].empty? && presentation_props['include_deskshare']
