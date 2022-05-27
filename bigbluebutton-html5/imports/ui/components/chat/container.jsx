@@ -14,6 +14,7 @@ import Chat from '/imports/ui/components/chat/component';
 import { sanitizeHTML } from '/imports/utils/string-utils';
 import ChatService from './service';
 import { layoutSelect, layoutDispatch } from '../layout/context';
+import { escapeHtml } from '/imports/utils/string-utils';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
