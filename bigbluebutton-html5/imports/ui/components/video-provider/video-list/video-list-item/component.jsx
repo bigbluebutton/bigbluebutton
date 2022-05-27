@@ -149,7 +149,6 @@ const VideoListItem = (props) => {
   const renderWebcamConnectingSqueezed = () => (
     <Styled.WebcamConnecting
       data-test="webcamConnectingSqueezed"
-      talking={talking}
       animations={animations}
     >
       <UserAvatarVideo

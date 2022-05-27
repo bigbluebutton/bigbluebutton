@@ -21,7 +21,6 @@ const Content = styled.div`
   display: flex;
   min-width: 100%;
   border-radius: 10px;
-  border: 2px solid ${colorBlack};
   &::after {
     content: "";
     position: absolute;
@@ -37,8 +36,20 @@ const Content = styled.div`
     `}
   }
 
+  &::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 2px solid ${colorBlack};
+    border-radius: 10px;
+    z-index: 1;
+  }
+
   ${({ talking }) => talking && `
-    border: 2px solid ${colorPrimary};
+     &::before {
+      border: 2px solid ${colorPrimary};
+    }
   `}
 
   ${({ fullscreen }) => fullscreen && `
@@ -60,7 +71,7 @@ const WebcamConnecting = styled.div`
   min-width: 100%;
   border-radius: 10px;
   background-color: ${webcamBackgroundColor};
-  z-index: 1;
+  z-index: 0;
 
   &::after {
     content: "";
@@ -107,6 +118,8 @@ const Reconnecting = styled.div`
 `;
 
 const VideoContainer = styled.div`
+  display: flex;
+  justify-content: center;
   width: 100%;
   height: 100%;
 `;
@@ -114,7 +127,7 @@ const VideoContainer = styled.div`
 const Video = styled.video`
   position: relative;
   height: 100%;
-  width: 100%;
+  width: calc(100% - 1px);
   object-fit: contain;
   background-color: ${colorBlack};
   border-radius: 10px;
