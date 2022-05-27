@@ -5,6 +5,7 @@ import TextareaAutosize from 'react-autosize-textarea';
 import deviceInfo from '/imports/utils/deviceInfo';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import { escapeHtml } from '/imports/utils/string-utils';
 import TypingIndicatorContainer from './typing-indicator/container';
 import { styles } from './styles.scss';
 import Button from '../../button/component';
@@ -243,15 +244,9 @@ class MessageForm extends PureComponent {
       return;
     }
 
-    // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
-
-    const div = document.createElement('div');
-    div.appendChild(document.createTextNode(msg));
-    msg = div.innerHTML;
-
     const callback = this.typingIndicator ? stopUserTyping : null;
 
-    handleSendMessage(msg);
+    handleSendMessage(escapeHtml(msg));
     this.setState({ message: '', hasErrors: false }, callback);
   }
 
