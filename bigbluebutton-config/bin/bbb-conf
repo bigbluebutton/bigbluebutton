@@ -174,8 +174,6 @@ fi
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
 NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
-SIP_CONFIG=/usr/share/bigbluebutton/nginx/sip.nginx
-SIP_NGINX_IP=$(cat $SIP_CONFIG |  grep -v '#' | sed -n '/proxy_pass/{s/.*proxy_pass http[s]*:\/\///;s/:.*//;p}' | head -n 1)
 
 NCPU=$(nproc --all)
 
@@ -1135,45 +1133,6 @@ check_state() {
         echo "#"
     fi
 
-    if [ "$(echo "$HTML5_CONFIG" | yq r - public.media.sipjsHackViaWs)" != "true" ]; then
-      if [ "$PROTOCOL" == "https" ]; then
-        if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q https; then
-          echo "# Warning: You have this server defined for https, but in"
-          echo "#"
-          echo "#   $SIP_CONFIG"
-          echo "#"
-          echo "#  did not find the use of https in definition for proxy_pass"
-          echo "#"
-          echo "#    $(cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1)"
-          echo "#"
-        fi
-
-      if [ "$SIP_NGINX_IP" != $IP ]; then
-        if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
-          echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
-          echo "#"
-          echo "#    /usr/share/bigbluebutton/nginx/sip.nginx"
-          echo "#"
-          echo "# does not match the local IP address ($IP)."
-          echo "# (This is OK if you've manually changed the values)"
-          echo
-        fi
-      fi
-
-        if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q 7443; then
-          echo
-          echo "# Warning: You have this server defined for https, but in"
-          echo "#"
-          echo "#   $SIP_CONFIG"
-          echo "#"
-          echo "#  did not find the use of port 7443 in definition for proxy_pass"
-          echo "#"
-          echo "#    $(cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1)"
-          echo "#"
-        fi
-      fi
-    fi
-
     CHECK="$(get_bbb_web_config_value securitySalt|sha1sum |cut -d' ' -f1)"
     if [ "$CHECK" == "55b727b294158a877212570c3c0524c2b902a62c" ]; then
       echo
@@ -1401,13 +1360,6 @@ if [ $CHECK ]; then
         echo "                     playback_host: $(yq r $RECORD_CONFIG playback_host)"
         echo "                 playback_protocol: $(yq r $RECORD_CONFIG playback_protocol)"
         echo "                            ffmpeg: $(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3 | sed 's/--.*//g' | tr -d '\n')"
-    fi
-
-    if [ -f $SIP_CONFIG ]; then
-        echo
-        echo "$SIP_CONFIG (sip.nginx)"
-        echo "                        proxy_pass: $SIP_NGINX_IP"
-        echo "                          protocol: $(cat /usr/share/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)"
     fi
 
     if [ -n "$WEBRTC_SFU_CONFIG" ]; then
