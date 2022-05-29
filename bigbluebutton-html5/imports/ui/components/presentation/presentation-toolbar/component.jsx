@@ -278,9 +278,6 @@ class PresentationToolbar extends PureComponent {
     return (
       <Styled.PresentationToolbarWrapper
         id="presentationToolbarWrapper"
-        style={{
-          width: "100%",
-        }}
       >
         {this.renderAriaDescs()}
         {

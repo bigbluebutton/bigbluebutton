@@ -20,13 +20,14 @@ import {
 import Button from '/imports/ui/components/common/button/component';
 
 const PresentationToolbarWrapper = styled.div`
-  position: relative;
+  position: absolute;
   align-self: center;
   z-index: 1;
   background-color: ${colorOffWhite};
   border-top: 1px solid ${colorBlueLightest};
   min-width: fit-content;
   width: 100%;
+  bottom: 0px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
 

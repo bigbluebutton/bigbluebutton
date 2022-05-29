@@ -915,6 +915,7 @@ class Presentation extends PureComponent {
       <>   
         <Styled.PresentationContainer
           role="region"
+
           ref={(ref) => { this.refPresentationContainer = ref; }}
           style={{
             top: presentationBounds.top,

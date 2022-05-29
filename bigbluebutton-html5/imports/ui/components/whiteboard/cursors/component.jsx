@@ -25,8 +25,8 @@ const renderCursor = (
   let _y = null;
 
   if (!currentPoint) {
-    _x = ((x) + pageState?.camera?.point[0]) * pageState?.camera?.zoom;
-    _y = ((y) + pageState?.camera?.point[1]) * pageState?.camera?.zoom;
+    _x = (x + pageState?.camera?.point[0]) * pageState?.camera?.zoom;
+    _y = (y + pageState?.camera?.point[1]) * pageState?.camera?.zoom;
   }
 
   return (
@@ -88,9 +88,11 @@ const PositionLabel = (props) => {
         ? [x, y]
         : currentPoint;
       publishCursorUpdate({
-        xPercent: ((point[0] / pageState?.camera?.zoom) - pageState?.camera?.point[0]),
-        yPercent: ((point[1] / pageState?.camera?.zoom) - pageState?.camera?.point[1]),
-        whiteboardId
+        xPercent:
+          point[0] / pageState?.camera?.zoom - pageState?.camera?.point[0],
+        yPercent:
+          point[1] / pageState?.camera?.zoom - pageState?.camera?.point[1],
+        whiteboardId,
       });
     } catch (e) {
       console.log(e);
@@ -107,34 +109,56 @@ const PositionLabel = (props) => {
 };
 
 export default function Cursors(props) {
+  let cursorWrapper = React.useRef(null);
+  const [active, setActive] = React.useState(false);
+  React.useEffect(() => {
+    !cursorWrapper.hasOwnProperty("mouseenter") &&
+      cursorWrapper?.addEventListener("mouseenter", (event) => {
+        setActive(true);
+      });
+    !cursorWrapper.hasOwnProperty("mouseleave") &&
+      cursorWrapper?.addEventListener("mouseleave", (event) => {
+        props?.publishCursorUpdate({
+          xPercent: null,
+          yPercent: null,
+          whiteboardId: props?.whiteboardId,
+        });
+        setActive(false);
+      });
+  }, [cursorWrapper]);
+
   return (
-    <>
+    <span disabled={true} ref={(r) => (cursorWrapper = r)}>
       <ReactCursorPosition style={{ height: "100%", cursor: "none" }}>
-        <PositionLabel
-          otherCursors={props.otherCursors}
-          currentUser={props.currentUser}
-          currentPoint={props.tldrawAPI?.currentPoint}
-          pageState={props.tldrawAPI?.getPageState()}
-          publishCursorUpdate={props.publishCursorUpdate}
-          whiteboardId={props.whiteboardId}
-        />
+        {active && (
+          <PositionLabel
+            otherCursors={props.otherCursors}
+            currentUser={props.currentUser}
+            currentPoint={props.tldrawAPI?.currentPoint}
+            pageState={props.tldrawAPI?.getPageState()}
+            publishCursorUpdate={props.publishCursorUpdate}
+            whiteboardId={props.whiteboardId}
+          />
+        )}
         {props.children}
       </ReactCursorPosition>
-      {props.otherCursors.map((c) => {
-        return (
-          c && props.currentUser.userId !== c?.userId &&
-          // !c.isPositionOutside &&
-          renderCursor(
-            c.userName,
-            c.presenter ? "#C70039" : "#AFE1AF",
-            c.xPercent,
-            c.yPercent,
-            null,
-            props.tldrawAPI?.getPageState(),
-            true
-          )
-        );
-      })}
-    </>
+      {props.otherCursors
+        .filter((c) => c?.xPercent && c?.yPercent)
+        .map((c) => {
+          return (
+            c &&
+            props.currentUser.userId !== c?.userId &&
+            renderCursor(
+              c?.userName,
+              c?.presenter ? "#C70039" : "#AFE1AF",
+              c?.xPercent,
+              c?.yPercent,
+              null,
+              props.tldrawAPI?.getPageState(),
+              true
+            )
+          );
+        })}
+    </span>
   );
 }
