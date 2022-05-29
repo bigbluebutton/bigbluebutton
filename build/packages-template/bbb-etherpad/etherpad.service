@@ -1,7 +1,7 @@
 [Unit]
 Description=Etherpad Server
 Wants=redis-server.service
-After=syslog.target network.target
+After=syslog.target network.target redis-server.service
 
 [Service]
 Type=simple
