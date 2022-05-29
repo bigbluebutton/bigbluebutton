@@ -22,7 +22,7 @@
   </domains>
 
   <settings>
-    <X-PRE-PROCESS cmd="include" data="common.xml"/>
+    <X-PRE-PROCESS cmd="include" data="../sip_profile_common.xml"/>
 
     <!-- Unused by BBB, but FreeSWITCH won't run unless its specified -->
     <param name="sip-port" value="$${external_sip_port}"/>
