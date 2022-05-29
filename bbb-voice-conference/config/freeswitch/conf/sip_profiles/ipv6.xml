@@ -30,6 +30,9 @@
 
     <param name="apply-candidate-acl" value="deny_private_v6"/>
 
+    <!-- Name of the db to use for this profile -->
+    <param name="dbname" value="sqlite://memory://file:ipv6?mode=memory&amp;cache=shared"/>
+
     <!--
         DO NOT USE HOSTNAMES, ONLY IP ADDRESSES IN THESE SETTINGS!
     -->
