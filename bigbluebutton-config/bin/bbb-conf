@@ -1364,12 +1364,16 @@ if [ $CHECK ]; then
     echo "                   external_rtp_ip: $(xmlstarlet sel -t -m '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "external_rtp_ip=")]' -v @data $FREESWITCH_VARS | sed 's/external_rtp_ip=//g')"
     echo "                   external_sip_ip: $(xmlstarlet sel -t -m '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "external_sip_ip=")]' -v @data $FREESWITCH_VARS | sed 's/external_sip_ip=//g')"
 
-    echo
-    echo "$FREESWITCH_EXTERNAL (FreeSWITCH)"
-    echo "                        ext-rtp-ip: $(xmlstarlet sel -t -m 'profile/settings/param[@name="ext-rtp-ip"]' -v @value $FREESWITCH_EXTERNAL)"
-    echo "                        ext-sip-ip: $(xmlstarlet sel -t -m 'profile/settings/param[@name="ext-sip-ip"]' -v @value $FREESWITCH_EXTERNAL)"
-    echo "                        ws-binding: $(xmlstarlet sel -t -m 'profile/settings/param[@name="ws-binding"]' -v @value $FREESWITCH_EXTERNAL)"
-    echo "                       wss-binding: $(xmlstarlet sel -t -m 'profile/settings/param[@name="wss-binding"]' -v @value $FREESWITCH_EXTERNAL)"
+    for sip_profile in /opt/freeswitch/conf/sip_profiles/*.xml; do
+        if xmlstarlet -q sel -t -c /profile $sip_profile; then
+            echo
+            echo "$sip_profile (FreeSWITCH)"
+            echo "                        ext-rtp-ip: $(xmlstarlet sel -t -m 'profile/settings/param[@name="ext-rtp-ip"]' -v @value $sip_profile)"
+            echo "                        ext-sip-ip: $(xmlstarlet sel -t -m 'profile/settings/param[@name="ext-sip-ip"]' -v @value $sip_profile)"
+            echo "                        ws-binding: $(xmlstarlet sel -t -m 'profile/settings/param[@name="ws-binding"]' -v @value $sip_profile)"
+            echo "                       wss-binding: $(xmlstarlet sel -t -m 'profile/settings/param[@name="wss-binding"]' -v @value $sip_profile)"
+        fi
+    done
 
     # awk script from https://stackoverflow.com/a/14527886/1493790
     # open issue: a tool like crudini (https://stackoverflow.com/a/25513632/1493790)
