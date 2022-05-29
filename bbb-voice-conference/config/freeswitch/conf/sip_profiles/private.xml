@@ -27,10 +27,11 @@
     <!-- Unused by BBB, but FreeSWITCH won't run unless its specified -->
     <param name="sip-port" value="5062"/>
 
-    <param name="local-network-acl" value="localnet.auto"/>
+    <!-- local-network-acl is used to determine if NAT is in use -->
+    <!-- Due to nginx proxy, connection will always come from loopback, this will match, no NAT -->
+    <param name="local-network-acl" value="loopback"/>
 
     <param name="apply-candidate-acl" value="localnet.auto"/>
-    <param name="apply-candidate-acl" value="wan_v4.auto"/>
     <param name="apply-candidate-acl" value="rfc1918.auto"/>
     <param name="apply-candidate-acl" value="any_v4.auto"/>
 
