@@ -809,17 +809,6 @@ check_configuration() {
         fi
     fi
 
-    SIP_PROTOCOL=$(cat /usr/share/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
-    if [[ $SIP_PROTOCOL == "https" ]]; then
-        if ! grep wss-binding $FREESWITCH_EXTERNAL > /dev/null; then
-            echo "# Warning: Websockets is using HTTPS in /usr/share/bigbluebutton/nginx/sip.nginx"
-            echo "# but no definition for wss-binding found in "
-            echo "#"
-            echo "#    $FREESWITCH_EXTERNAL"
-            echo
-        fi
-    fi
-
     if [ "$(ls -ld /var/freeswitch/meetings | cut -d' ' -f3)" != "freeswitch" ]; then
         echo "# Warning: Detected the directory"
         echo "#    /var/freeswitch/meetings"
