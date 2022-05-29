@@ -158,20 +158,15 @@ export default function Whiteboard(props) {
         whiteboardId={whiteboardId}
       >
         <Tldraw
+          key={`wb-${!hasWBAccess && !isPresenter}`}
           document={doc}
           disableAssets={false}
           onMount={(app) => {
+            if (!hasWBAccess && !isPresenter) app.onPan = () => {}; 
             setTLDrawAPI(app);
             props.setTldrawAPI(app);
             curPageId && app.changePage(curPageId);
             curPageId && app.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
-          }}
-          //onChange={handleChange}
-          onPersist={(e) => {
-            ///////////// handle assets /////////////////////////
-            e?.assets?.forEach((a) => {
-              //persistAsset(a);
-            });
           }}
           showPages={false}
           showZoom={false}
