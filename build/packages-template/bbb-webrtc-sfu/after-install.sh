@@ -31,6 +31,25 @@ case "$1" in
 	fi
       fi
  
+    # bbb-install, if it detects a NAT configuration, will set listenIps[0].announcedIp
+    # to the public IP address.  Make sure we also announce our private IP address,
+    # for devices on our private network, by setting listenIps[1] here.
+
+    mkdir -p /etc/bigbluebutton/bbb-webrtc-sfu
+    TARGET=/etc/bigbluebutton/bbb-webrtc-sfu/production.yml
+    yq w -i $TARGET mediasoup.webrtc.listenIps[0].ip "0.0.0.0"
+    yq w -i $TARGET mediasoup.webrtc.listenIps[0].announcedIp "$IP"
+    yq w -i $TARGET mediasoup.webrtc.listenIps[1].ip "$IP"
+
+    # bbb-install will set this (incorrectly, after PR#?)
+    # in /usr/local/bigbluebutton.  Set it now in /etc/bigbluebutton to override
+    # what bbb-install is going to do and instead point mediasoup at FreeSWITCH's
+    # private SIP profile listening for insecure WS connections on port 5068.
+
+    yq w -i $TARGET freeswitch.ip "127.0.0.1"
+    yq w -i $TARGET freeswitch.sip_ip "127.0.0.1"
+    yq w -i $TARGET freeswitch.port "5068"
+
     cd /usr/local/bigbluebutton/bbb-webrtc-sfu
     mkdir -p node_modules
 
