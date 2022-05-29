@@ -35,6 +35,9 @@
     <param name="apply-candidate-acl" value="rfc1918.auto"/>
     <param name="apply-candidate-acl" value="any_v4.auto"/>
 
+    <!-- Name of the db to use for this profile -->
+    <param name="dbname" value="sqlite://memory://file:private?mode=memory&amp;cache=shared"/>
+
     <!--
         DO NOT USE HOSTNAMES, ONLY IP ADDRESSES IN THESE SETTINGS!
     -->
