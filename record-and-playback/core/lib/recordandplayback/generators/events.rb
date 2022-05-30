@@ -166,14 +166,13 @@ module BigBlueButton
 
     # Build a webcam EDL
     def self.create_webcam_edl(events, archive_dir, show_moderator_viewpoint, what_to_render)
-      render_all = true
+      # The following variables can't be true together.
+      # And they are independent from the show_moderator_viewpoint variable
       talking_people_only=false
       moderators_only=false
       if (what_to_render == "talking_people_only")
-        render_all = false
         talking_people_only=true
       elsif (what_to_render == "moderators_only")
-        render_all = false
         moderators_only=true
       end
 
@@ -196,17 +195,17 @@ module BigBlueButton
         :areas => { :webcam => [] }
       }
       list_user_info = {}
+      list_user_talking = {}
       webcamsOnlyForModerator = false
       # moderators_only shows only moderators, if the user sets show_moderator_viewpoint and 
       # moderators_only, the second config is more restrict than the first, so, the second is 
       # prioritized.
       if (show_moderator_viewpoint && !moderators_only)
-        events.xpath('/recording/event[@module="WEBCAM" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCShareEvent" or @eventname="StopWebRTCShareEvent"))]').each do |event|
+        events.xpath('/recording/event[@module="WEBCAM" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCShareEvent" or @eventname="StopWebRTCShareEvent")) or @eventname="ParticipantTalkingEvent" or @eventname="ParticipantMutedEvent"]').each do |event|
           timestamp = event['timestamp'].to_i - initial_timestamp
           # Determine the video filename
           case event['eventname']
           when 'StartWebcamShareEvent', 'StopWebcamShareEvent'
-            
             stream = event.at_xpath('stream').text
             filename = "#{video_dir}/#{stream}.flv"
           when 'StartWebRTCShareEvent', 'StopWebRTCShareEvent'
@@ -217,34 +216,101 @@ module BigBlueButton
           # Add the video to the EDL
           case event['eventname']
           when 'StartWebcamShareEvent', 'StartWebRTCShareEvent'
-            videos[filename] = { :timestamp => timestamp }
-            active_videos << filename
-            
-            edl_entry = {
-              :timestamp => timestamp,
-              :areas => { :webcam => [] }
-            }
-            active_videos.each do |filename|
-              edl_entry[:areas][:webcam] << {
-                :filename => filename,
-                :timestamp => timestamp - videos[filename][:timestamp]
+            user_id = BigBlueButton::Events.get_id_from_filename(filename)
+            if !talking_people_only || (talking_people_only && list_user_talking[user_id]) 
+              videos[filename] = { :timestamp => timestamp }
+              active_videos << filename
+
+              edl_entry = {
+                :timestamp => timestamp,
+                :areas => { :webcam => [] }
               }
+              active_videos.each do |filename|
+                edl_entry[:areas][:webcam] << {
+                  :filename => filename,
+                  :timestamp => timestamp - videos[filename][:timestamp]
+                }
+              end
+              video_edl << edl_entry
+            elsif (talking_people_only && !list_user_talking[user_id]) 
+              inactive_videos << filename
+              videos[filename] = { :timestamp => timestamp }
             end
-            video_edl << edl_entry
           when 'StopWebcamShareEvent', 'StopWebRTCShareEvent'
-            active_videos.delete(filename)
-  
-            edl_entry = {
-              :timestamp => timestamp,
-              :areas => { :webcam => [] }
-            }
-            active_videos.each do |filename|
-              edl_entry[:areas][:webcam] << {
-                :filename => filename,
-                :timestamp => timestamp - videos[filename][:timestamp]
+            user_id = BigBlueButton::Events.get_id_from_filename(filename)
+            if !talking_people_only || (talking_people_only && list_user_talking[user_id])
+              active_videos.delete(filename)
+    
+              edl_entry = {
+                :timestamp => timestamp,
+                :areas => { :webcam => [] }
               }
+              active_videos.each do |filename|
+                edl_entry[:areas][:webcam] << {
+                  :filename => filename,
+                  :timestamp => timestamp - videos[filename][:timestamp]
+                }
+              end
+              video_edl << edl_entry
+            elsif talking_people_only && !list_user_talking[user_id]
+              inactive_videos.delete(filename)
             end
-            video_edl << edl_entry
+          when 'ParticipantTalkingEvent', 'ParticipantMutedEvent'
+            
+            if (talking_people_only)
+              user_id = event.at_xpath('participant').text
+              is_talking = false
+              is_muted = false
+              if event['eventname'] == 'ParticipantTalkingEvent'
+                is_talking = BigBlueButton::Events.to_boolean(event.at_xpath('talking').text)
+              else
+                if BigBlueButton::Events.to_boolean(event.at_xpath('muted').text) && list_user_talking[user_id]
+                  is_muted = true
+                end
+              end
+
+              is_user_cam_on= false
+              is_only_cam_speaking=false
+              filename_to_add= ""
+
+              if (list_user_talking[user_id] != is_talking) || is_muted
+                if is_talking
+                  filename_to_add = BigBlueButton::Events.extract_filename_from_userId(user_id, inactive_videos)
+                  if filename_to_add != ""
+                    is_user_cam_on = true
+                    inactive_videos.delete(filename_to_add)
+                    active_videos << filename_to_add
+                  end
+                  list_user_talking[user_id] = is_talking
+                else
+                  filename_to_add = BigBlueButton::Events.extract_filename_from_userId(user_id, active_videos)
+                  if filename_to_add != ""
+                    is_user_cam_on = true
+                    active_videos.delete(filename_to_add)
+                    inactive_videos << filename_to_add
+                  end
+                  list_user_talking[user_id] = is_talking
+                end
+              end
+
+              if is_user_cam_on #&& !is_only_cam_speaking
+                edl_entry = {
+                  :timestamp => timestamp,
+                  :areas => { :webcam => [] }
+                }
+                active_videos.each do |filename|
+                  edl_entry[:areas][:webcam] << {
+                    :filename => filename,
+                    :timestamp => timestamp - videos[filename][:timestamp]
+                  }
+                end
+                video_edl << edl_entry
+              end
+
+              if !list_user_talking.has_key?(user_id)
+                list_user_talking[user_id] = is_talking
+              end
+            end
           end
         end
       else
