@@ -65,17 +65,26 @@ trait SendGroupChatMessageMsgHdlr {
         sender <- GroupChatApp.findGroupChatUser(msg.header.userId, liveMeeting.users2x)
         chat <- state.groupChats.find(msg.body.chatId)
       } yield {
-        val gcm = GroupChatApp.toGroupChatMessage(sender, msg.body.msg)
-        val gcs = GroupChatApp.addGroupChatMessage(chat, state.groupChats, gcm)
+        val chatIsPrivate = chat.access == GroupChatAccess.PRIVATE;
+        val userIsAParticipant = chat.users.filter(u => u.id == sender.id).length > 0;
 
-        val event = buildGroupChatMessageBroadcastEvtMsg(
-          liveMeeting.props.meetingProp.intId,
-          msg.header.userId, msg.body.chatId, gcm
-        )
+        if ((chatIsPrivate && userIsAParticipant) || !chatIsPrivate) {
+          val gcm = GroupChatApp.toGroupChatMessage(sender, msg.body.msg)
+          val gcs = GroupChatApp.addGroupChatMessage(chat, state.groupChats, gcm)
 
-        bus.outGW.send(event)
+          val event = buildGroupChatMessageBroadcastEvtMsg(
+            liveMeeting.props.meetingProp.intId,
+            msg.header.userId, msg.body.chatId, gcm
+          )
 
-        state.update(gcs)
+          bus.outGW.send(event)
+
+          state.update(gcs)
+        } else {
+          val reason = "User isn't a participant of the chat"
+          PermissionCheck.ejectUserForFailedPermission(msg.header.meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+          state
+        }
       }
 
       newState match {
