@@ -68,10 +68,10 @@ const VideoListItem = (props) => {
     onVideoItemMount(videoTag.current);
     subscribeToStreamStateChange(cameraId, onStreamStateChange);
     resizeObserver.observe(videoContainer.current);
-    videoTag.current.addEventListener('loadeddata', handleSetVideoIsReady);
+    videoTag?.current?.addEventListener('loadeddata', handleSetVideoIsReady);
 
     return () => {
-      videoTag.current.removeEventListener('loadeddata', handleSetVideoIsReady);
+      videoTag?.current?.removeEventListener('loadeddata', handleSetVideoIsReady);
       resizeObserver.disconnect();
     };
   }, []);
