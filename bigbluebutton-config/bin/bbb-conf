@@ -717,8 +717,8 @@ if [[ $PORT_RANGE ]]; then
         sed -i "s/minPort=.*/minPort=$START_PORT/" /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini
         sed -i "s/maxPort=.*/maxPort=$END_PORT/" /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini
 
-        yq w -i $WEBRTC_SFU_ETC_CONFIG mediasoup.worker.rtcMinPort $START_PORT
-        yq w -i $WEBRTC_SFU_ETC_CONFIG mediasoup.worker.rtcMaxPort $END_PORT
+        yq w -i $KURENTO_ETC_CONFIG mediasoup.worker.rtcMinPort $START_PORT
+        yq w -i $KURENTO_ETC_CONFIG mediasoup.worker.rtcMaxPort $END_PORT
 
         echo
         echo "BigBlueButton's UDP port range is now $START_PORT-$END_PORT"
@@ -1445,8 +1445,7 @@ if [ $CHECK ]; then
     echo
     echo "                        FreeSWITCH: $(xmlstarlet sel -t -m './configuration/settings/param[@name="rtp-start-port"]' -v @value $FREESWITCH_SWITCH_CONF)-$(xmlstarlet sel -t -m './configuration/settings/param[@name="rtp-end-port"]' -v @value $FREESWITCH_SWITCH_CONF)"
     echo "                           kurento: $(awk -F '=' '{if (! ($0 ~ /^;/) && $0 ~ /minPort/) print $2}' /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini)-$(awk -F '=' '{if (! ($0 ~ /^;/) && $0 ~ /maxPort/) print $2}' /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini)"
-
-    echo "                    bbb-webrtc-sfu: $(echo "$WEBRTC_SFU_CONFIG" | yq r - mediasoup.worker.rtcMinPort)-$(echo "$WEBRTC_SFU_CONFIG" | yq r - mediasoup.worker.rtcMaxPort)"
+    echo "                    bbb-webrtc-sfu: $(echo "$KURENTO_CONFIG" | yq r - mediasoup.worker.rtcMinPort)-$(echo "$KURENTO_CONFIG" | yq r - mediasoup.worker.rtcMaxPort)"
 
 
 #     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
