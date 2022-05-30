@@ -145,7 +145,7 @@ export default function Whiteboard(props) {
     !isPresenter &&
     curPageId &&
     slidePosition &&
-    tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
+    !hasWBAccess && tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
   }, [curPageId, slidePosition]);
 
   const hasWBAccess = props?.hasMultiUserAccess(props.whiteboardId, props.currentUser.userId);

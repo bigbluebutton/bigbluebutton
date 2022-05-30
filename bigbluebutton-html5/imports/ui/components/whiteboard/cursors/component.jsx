@@ -111,6 +111,14 @@ const PositionLabel = (props) => {
 export default function Cursors(props) {
   let cursorWrapper = React.useRef(null);
   const [active, setActive] = React.useState(false);
+  const {
+    whiteboardId,
+    otherCursors,
+    currentUser,
+    tldrawAPI,
+    publishCursorUpdate,
+    children,
+  } = props;
   React.useEffect(() => {
     !cursorWrapper.hasOwnProperty("mouseenter") &&
       cursorWrapper?.addEventListener("mouseenter", (event) => {
@@ -118,10 +126,10 @@ export default function Cursors(props) {
       });
     !cursorWrapper.hasOwnProperty("mouseleave") &&
       cursorWrapper?.addEventListener("mouseleave", (event) => {
-        props?.publishCursorUpdate({
+        publishCursorUpdate({
           xPercent: null,
           yPercent: null,
-          whiteboardId: props?.whiteboardId,
+          whiteboardId: whiteboardId,
         });
         setActive(false);
       });
@@ -132,29 +140,29 @@ export default function Cursors(props) {
       <ReactCursorPosition style={{ height: "100%", cursor: "none" }}>
         {active && (
           <PositionLabel
-            otherCursors={props.otherCursors}
-            currentUser={props.currentUser}
-            currentPoint={props.tldrawAPI?.currentPoint}
-            pageState={props.tldrawAPI?.getPageState()}
-            publishCursorUpdate={props.publishCursorUpdate}
-            whiteboardId={props.whiteboardId}
+            otherCursors={otherCursors}
+            currentUser={currentUser}
+            currentPoint={tldrawAPI?.currentPoint}
+            pageState={tldrawAPI?.getPageState()}
+            publishCursorUpdate={publishCursorUpdate}
+            whiteboardId={whiteboardId}
           />
         )}
-        {props.children}
+        {children}
       </ReactCursorPosition>
-      {props.otherCursors
+      {otherCursors
         .filter((c) => c?.xPercent && c?.yPercent)
         .map((c) => {
           return (
             c &&
-            props.currentUser.userId !== c?.userId &&
+            currentUser.userId !== c?.userId &&
             renderCursor(
               c?.userName,
               c?.presenter ? "#C70039" : "#AFE1AF",
               c?.xPercent,
               c?.yPercent,
               null,
-              props.tldrawAPI?.getPageState(),
+              tldrawAPI?.getPageState(),
               true
             )
           );
