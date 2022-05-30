@@ -1367,7 +1367,9 @@ if [ $CHECK ]; then
         echo
         echo "/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (bbb-webrtc-sfu)"
         echo "/etc/bigbluebutton/bbb-webrtc-sfu/production.yml (bbb-webrtc-sfu - override)"
-        echo "    mediasoup.webrtc.*.announcedIp: $(echo "$MEDIASOUP_WEBRTC_IPS" | awk -v ORS=", " '{ print $1 }' | sed 's/, $//')"
+        echo "             mediasoup.webrtc.*.ip: $(echo "$MEDIASOUP_WEBRTC_IPS" | yq r --printMode v - mediasoup.webrtc.listenIps.*.ip | tr '\n' ' ')"
+        echo "    mediasoup.webrtc.*.announcedIp: $(echo "$MEDIASOUP_WEBRTC_IPS" | yq r --printMode v - mediasoup.webrtc.listenIps.*.announcedIp | tr '\n' ' ')"
+        echo "           mediasoup.plainRtp.*.ip: $(echo "$WEBRTC_SFU_CONFIG" | yq r --printMode v - mediasoup.plainRtp.*.ip)"
         echo "  mediasoup.plainRtp.*.announcedIp: $(echo "$WEBRTC_SFU_CONFIG" | yq r --printMode v - mediasoup.plainRtp.*.announcedIp)"
         echo "                        kurento.ip: $(echo "$WEBRTC_SFU_CONFIG" | yq r - kurento[0].ip)"
         echo "                       kurento.url: $(echo "$WEBRTC_SFU_CONFIG" | yq r - kurento[0].url)"
