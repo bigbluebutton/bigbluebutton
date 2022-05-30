@@ -271,7 +271,18 @@ class MessageForm extends PureComponent {
 
   handleEmojiSelect(emojiObject) {
     const { message } = this.state;
-    this.setState({ message: message + emojiObject.native });
+    const cursor = this.textarea.selectionStart;
+
+    this.setState(
+      {
+        message: message.slice(0, cursor)
+        + emojiObject.native
+        + message.slice(cursor),
+      },
+    );
+
+    const newCursor = cursor + emojiObject.native.length;
+    setTimeout(() => this.textarea.setSelectionRange(newCursor, newCursor), 10);
   }
 
   renderEmojiPicker() {
