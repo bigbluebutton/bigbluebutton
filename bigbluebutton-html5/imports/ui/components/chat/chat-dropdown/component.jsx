@@ -3,9 +3,8 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import _ from 'lodash';
 import BBBMenu from "/imports/ui/components/menu/component";
+import { addNewAlert } from '../../screenreader-alert/service';
 import Button from '/imports/ui/components/button/component';
-
-import { alertScreenReader } from '/imports/utils/dom-utils';
 
 import ChatService from '../service';
 
@@ -103,9 +102,9 @@ class ChatDropdown extends PureComponent {
             onClick: () => {
               let chatHistory = ChatService.exportChat(timeWindowsValues, users, intl);
               navigator.clipboard.writeText(chatHistory).then(() => {
-                alertScreenReader(intl.formatMessage(intlMessages.copySuccess));
+                addNewAlert(intl.formatMessage(intlMessages.copySuccess));
               }).catch(() => {
-                alertScreenReader(intl.formatMessage(intlMessages.copyErr));
+                addNewAlert(intl.formatMessage(intlMessages.copyErr));
               });
             }
           }

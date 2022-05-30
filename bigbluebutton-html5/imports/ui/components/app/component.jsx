@@ -23,6 +23,7 @@ import StatusNotifier from '/imports/ui/components/status-notifier/container';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
+import ScreenReaderAlertContainer from '../screenreader-alert/container';
 import NewWebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
@@ -480,6 +481,7 @@ class App extends Component {
         >
           {this.renderActivityCheck()}
           {this.renderUserInformation()}
+          <ScreenReaderAlertContainer />
           <BannerBarContainer />
           <NotificationsBarContainer />
           <SidebarNavigationContainer />
