@@ -506,8 +506,6 @@
     "app.breakoutJoinConfirmation.freeJoinMessage": "Aukeratu azpitalde baten gela bertara sartzeko",
     "app.breakoutTimeRemainingMessage": "Azpitaldearen gelari geratzen zaion denbora: {0}",
     "app.breakoutWillCloseMessage": "Denbora agortu da. Azpitaldearen gela laster itxiko da",
-    "app.breakout.dropdown.manageDuration": "Kudeatu iraupena",
-    "app.breakout.dropdown.destroyAll": "Bukatu azpitaldeak",
     "app.breakout.dropdown.options": "Azpitaldeen aukerak",
     "app.calculatingBreakoutTimeRemaining": "Geratzen den denbora kalkulatzen...",
     "app.audioModal.ariaTitle": "Erabili audio modala",
