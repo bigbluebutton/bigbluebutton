@@ -1363,6 +1363,10 @@ if [ $CHECK ]; then
         echo
         echo "/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (Kurento SFU)"
         echo "/etc/bigbluebutton/bbb-webrtc-sfu/production.yml (Kurento SFU - override)"
+        echo "             mediasoup.webrtc.*.ip: $(echo "$KURENTO_CONFIG" | yq r --printMode v - mediasoup.webrtc.listenIps.*.ip | tr '\n' ' ')"
+        echo "    mediasoup.webrtc.*.announcedIp: $(echo "$KURENTO_CONFIG" | yq r --printMode v - mediasoup.webrtc.listenIps.*.announcedIp | tr '\n' ' ')"
+        echo "           mediasoup.plainRtp.*.ip: $(echo "$KURENTO_CONFIG" | yq r --printMode v - mediasoup.plainRtp.*.ip | tr '\n' ' ')"
+        echo "  mediasoup.plainRtp.*.announcedIp: $(echo "$KURENTO_CONFIG" | yq r --printMode v - mediasoup.plainRtp.*.announcedIp | tr '\n' ' ')"
         echo "                        kurento.ip: $(echo "$KURENTO_CONFIG" | yq r - kurento[0].ip)"
         echo "                       kurento.url: $(echo "$KURENTO_CONFIG" | yq r - kurento[0].url)"
         echo "                    kurento.sip_ip: $(echo "$KURENTO_CONFIG" | yq r - freeswitch.sip_ip)"
