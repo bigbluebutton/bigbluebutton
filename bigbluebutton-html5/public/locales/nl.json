@@ -504,8 +504,6 @@
     "app.breakoutJoinConfirmation.freeJoinMessage": "Kies een brainstormruimte om lid te worden",
     "app.breakoutTimeRemainingMessage": "Resterende brainstorm-tijd: {0}",
     "app.breakoutWillCloseMessage": "Tijd verstreken. Brainstormruimte wordt spoedig afgesloten",
-    "app.breakout.dropdown.manageDuration": "Beheer duur",
-    "app.breakout.dropdown.destroyAll": "Brainstormruimtes verwijderen",
     "app.breakout.dropdown.options": "Opties brainstormruimtes",
     "app.calculatingBreakoutTimeRemaining": "Resterende tijd berekenen ...",
     "app.audioModal.ariaTitle": "Deelnemen aan audio modaal",

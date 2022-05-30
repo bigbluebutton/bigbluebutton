@@ -481,7 +481,6 @@
     "app.breakoutJoinConfirmation.freeJoinMessage": "Επιλέξτε ένα υπο-δωμάτιο (breakout) για συμμετοχή",
     "app.breakoutTimeRemainingMessage": "Χρόνος υπο-δωματίου (breakout) που απομένει: {0}",
     "app.breakoutWillCloseMessage": "Ο χρόνος τελείωσε.  Το υπο-δωμάτιο (breakout) θα κλείσει σύντομα.",
-    "app.breakout.dropdown.manageDuration": "Διαχείριση διάρκειας",
     "app.calculatingBreakoutTimeRemaining": "Υπολογισμός υπόλοιπου χρόνου ...",
     "app.audioModal.ariaTitle": "Συμμετοχή με τυπικό ήχο",
     "app.audioModal.microphoneLabel": "Μικρόφωνο",
