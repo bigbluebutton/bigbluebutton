@@ -33,6 +33,8 @@ const intlMessages = defineMessages({
 });
 
 const VIDEO_CONTAINER_WIDTH_BOUND = 125;
+const MIME_TYPES_ALLOWED = ['image/png', 'image/jpeg'];
+const MAX_FILE_SIZE = 5000; // KBytes
 
 const VideoListItem = (props) => {
   const {
@@ -279,8 +281,10 @@ const VideoListItem = (props) => {
 
     const { files } = e.dataTransfer;
     const file = files[0];
+    const { size, type } = file;
+    const sizeInKB = size / 1024;
 
-    if (!file.type.startsWith('image')) return;
+    if (sizeInKB > MAX_FILE_SIZE || !MIME_TYPES_ALLOWED.includes(type)) return;
 
     if (Session.get('skipBackgroundDropConfirmation')) {
       return startAndSaveVirtualBackground(file);

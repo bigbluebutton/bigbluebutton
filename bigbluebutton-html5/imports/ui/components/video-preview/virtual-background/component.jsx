@@ -76,6 +76,8 @@ const intlMessages = defineMessages({
   }, {})
 });
 
+const MAX_FILE_SIZE = 5000;
+
 const VirtualBgSelector = ({
   intl,
   handleVirtualBgSelected,
@@ -159,7 +161,11 @@ const VirtualBgSelector = ({
 
   const handleCustomBgChange = (event) => {
     const file = event.target.files[0];
-    const { name: filename } = file;
+    const { name: filename, size } = file;
+    const sizeInKB = size / 1024;
+
+    if (sizeInKB > MAX_FILE_SIZE) return;
+
     const reader = new FileReader();
     const substrings = filename.split('.');
     substrings.pop();
@@ -340,6 +346,7 @@ const VirtualBgSelector = ({
                 id="customBgSelector"
                 onChange={handleCustomBgChange}
                 style={{ display: 'none' }}
+                accept="image/png, image/jpeg"
               />
               <div aria-hidden className="sr-only" id={`vr-cam-btn-custom`}>
                 {intl.formatMessage(intlMessages.customLabel)}
