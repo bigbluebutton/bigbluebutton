@@ -42,6 +42,7 @@
     "browser-bunyan": "^1.8.0",
     "classnames": "^2.2.6",
     "darkreader": "^4.9.46",
+    "emoji-mart": "^3.0.1",
     "eventemitter2": "~5.0.1",
     "fastdom": "^1.0.10",
     "fibers": "^4.0.2",
