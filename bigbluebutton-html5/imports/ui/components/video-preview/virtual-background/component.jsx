@@ -59,6 +59,10 @@ const intlMessages = defineMessages({
     id: 'app.video.virtualBackground.background',
     description: 'Label for the background word',
   },
+  backgroundWithIndex: {
+    id: 'app.video.virtualBackground.backgroundWithIndex',
+    description: 'Label for the background word indexed',
+  },
   ...IMAGE_NAMES.reduce((prev, imageName) => {
     const id = imageName.split('.').shift();
     return {
@@ -259,7 +263,9 @@ const VirtualBgSelector = ({
             .concat(newCustomBackgrounds)
             .map(({ filename, data, uniqueId }, index) => {
               const imageIndex = index + IMAGE_NAMES.length + 2;
-              const label = `Background ${imageIndex}`;
+              const label = intl.formatMessage(intlMessages.backgroundWithIndex, {
+                0: imageIndex,
+              });
 
               return (
                 <Styled.ThumbnailButtonWrapper key={`${filename}-${index}`}>

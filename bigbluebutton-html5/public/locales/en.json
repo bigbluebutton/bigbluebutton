@@ -831,6 +831,7 @@
     "app.video.virtualBackground.board": "Board",
     "app.video.virtualBackground.coffeeshop": "Coffeeshop",
     "app.video.virtualBackground.background": "Background",
+    "app.video.virtualBackground.backgroundWithIndex": "Background {0}",
     "app.video.virtualBackground.custom": "Upload from your computer",
     "app.video.virtualBackground.remove": "Remove added image",
     "app.video.virtualBackground.genericError": "Failed to apply camera effect. Try again.",
