@@ -228,9 +228,8 @@ const VirtualBgSelector = ({
             });
 
             return (
-              <React.Fragment key={`${imageName}-${index}`}>
+              <div key={`${imageName}-${index}`} style={{ position: 'relative' }}>
                 <Styled.ThumbnailButton
-                  style={{ backgroundImage: `url('${getVirtualBackgroundThumbnail(imageName)}')` }}
                   id={`${imageName}-${index}`}
                   label={label}
                   tabIndex={disabled ? -1 : 0}
@@ -240,19 +239,19 @@ const VirtualBgSelector = ({
                   aria-pressed={currentVirtualBg?.name?.includes(imageName.split('.').shift())}
                   hideLabel
                   ref={ref => inputElementsRef.current[index + 1] = ref}
-                  onClick={() => {
-                    const node = findDOMNode(inputElementsRef.current[index + 1]);
-                    node.focus();
-                    node.click();
-                    _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index + 1);
-                  }}
+                  onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index + 1)}
                   disabled={disabled}
                   isVisualEffects={isVisualEffects}
                 />
+                <Styled.Thumbnail onClick={() => {
+                  const node = findDOMNode(inputElementsRef.current[index + 1]);
+                  node.focus();
+                  node.click();
+                }} aria-hidden src={getVirtualBackgroundThumbnail(imageName)} />
                 <div aria-hidden className="sr-only" id={`vr-cam-btn-${index}`}>
                   {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: label })}
                 </div>
-              </React.Fragment>
+              </div>
             )
           })}
 
