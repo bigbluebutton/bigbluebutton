@@ -36,33 +36,46 @@ function align_to_css_property(alignment) {
     }
 }
 
-function color_to_hex(color, isStickyNote = false) {
+function color_to_hex(color, isStickyNote = false, isFilled = false) {
     if (isStickyNote) { color = `sticky-${color}` }
+    if (isFilled) { color = `fill-${color}` }
 
     switch (color) {
         case 'white': return '#1d1d1d'
+        case 'fill-white': return '#fefefe'
         case 'sticky-white': return '#fddf8e'
         case 'lightGray': return '#c6cbd1'
+        case 'fill-lightGray': return '#f1f2f3'
         case 'sticky-lightGray': return '#dde0e3'
         case 'gray': return '#788492'
+        case 'fill-gray': return '#e3e5e7'
         case 'sticky-gray': return '#b3b9c1'
         case 'black': return '#1d1d1d'
+        case 'fill-black': return '#d2d2d2'
         case 'sticky-black': return '#fddf8e'
         case 'green': return '#36b24d'
+        case 'fill-green': return '#d7eddb'
         case 'sticky-green': return '#8ed29b'
         case 'cyan': return '#0e98ad'
+        case 'fill-cyan': return '#d0e8ec'
         case 'sticky-cyan': return '#78c4d0'
         case 'blue': return '#1c7ed6'
+        case 'fill-blue': return '#d2e4f4'
         case 'sticky-blue': return '#80b6e6'
         case 'indigo': return '#4263eb'
+        case 'fill-indigo': return '#d9dff7'
         case 'sticky-indigo': return '#95a7f2'
         case 'violet': return '#7746f1'
+        case 'fill-violet': return '#e2daf8'
         case 'sticky-violet': return '#b297f5'
         case 'red': return '#ff2133'
+        case 'fill-red': return '#fbd3d6'
         case 'sticky-red': return '#fd838d'
         case 'orange': return '#ff9433'
+        case 'fill-orange': return '#fbe8d6'
         case 'sticky-orange': return '#fdc28d'
         case 'yellow': return '#ffc936'
+        case 'fill-yellow': return '#fbf1d7'
         case 'sticky-yellow': return '#fddf8e'
 
         default: return color
@@ -82,13 +95,16 @@ function determine_dasharray(dash, gap = 0) {
 function determine_font_from_family(family) {
     switch (family) {
         case 'script': return 'Caveat Brush'
+        case 'sans': return 'Source Sans Pro'
+        case 'serif': return 'Crimson Pro'
+        case 'mono': return 'Source Code Pro'
 
         default: return family
     }
 }
 
 function rad_to_degree(angle) {
-    return angle * (180 / Math.PI)
+    return angle * (180 / Math.PI);
 }
 
 function render_HTMLTextBox(htmlFilePath, id, width, height) {
@@ -132,18 +148,18 @@ function get_stroke_width(dash, size) {
     }
 }
 
-function text_size_to_px(size, isStickyNote = false) {
+function text_size_to_px(size, scale = 1, isStickyNote = false) {
     if (isStickyNote) { size = `sticky-${size}` }
 
     switch (size) {
         case 'sticky-small': return 24
-        case 'small': return 28
+        case 'small': return 28 * scale
         case 'sticky-medium': return 36
-        case 'medium': return 48
+        case 'medium': return 48 * scale
         case 'sticky-large': return 48
-        case 'large': return 96
+        case 'large': return 96 * scale
 
-        default: return 28
+        default: return 28 * scale
     }
 }
 
@@ -155,19 +171,19 @@ function getPath(annotationPoints) {
     let [max_x, max_y] = [0, 0];
     let path = stroke.reduce(
         (acc, [x0, y0], i, arr) => {
-          if (!arr[i + 1]) return acc
-          let [x1, y1] = arr[i + 1]
-          if (x1 >= max_x) { max_x = x1 }
-          if (y1 >= max_y) { max_y = y1 }
-          acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2)
-          return acc
+            if (!arr[i + 1]) return acc
+            let [x1, y1] = arr[i + 1]
+            if (x1 >= max_x) { max_x = x1 }
+            if (y1 >= max_y) { max_y = y1 }
+            acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2)
+            return acc
         },
 
         ['M', ...stroke[0], 'Q']
-      )
-    
-      path.join(' ');
-      return [path, max_x, max_y];
+    )
+
+    path.join(' ');
+    return [path, max_x, max_y];
 }
 
 function getOutlinePath(annotationPoints) {
@@ -211,8 +227,6 @@ function overlay_draw(svg, annotation) {
 
     let [x, y] = annotation.point;
 
-    console.log(annotation);
-
     let stroke_dasharray = determine_dasharray(dash, gap);
     let fill = (dash === 'draw') ? shapeColor : 'none';
 
@@ -224,10 +238,42 @@ function overlay_draw(svg, annotation) {
     }).up()
 }
 
+function overlay_rectangle(svg, annotation) {
+
+    let dash = annotation.style.dash;
+    let rect_dash = (dash == 'draw') ? 'solid' : dash // Use 'solid' thickness for draw type
+
+    let [x, y] = annotation.point;
+    let [w, h] = annotation.size;
+    let isFilled = annotation.style.isFilled;
+
+    let shapeColor = color_to_hex(annotation.style.color);
+    let fillColor = isFilled ? color_to_hex(annotation.style.color, false, isFilled) : 'none';
+
+    let rotation = rad_to_degree(annotation.rotation);
+    let sw = get_stroke_width(rect_dash, annotation.style.size);
+    let gap = get_gap(dash, annotation.style.size);
+
+    let stroke_dasharray = determine_dasharray(dash, gap);
+
+    let rx = (dash == 'draw') ? Math.min(w / 4, sw * 2) : 0;
+    let ry = (dash == 'draw') ? Math.min(h / 4, sw * 2) : 0;
+
+    svg.ele('g', {
+        style: `stroke:${shapeColor};stroke-width:${sw};fill:${fillColor};${stroke_dasharray}`,
+    }).ele('rect', {
+        width: w,
+        height: h,
+        'rx': rx,
+        'ry': ry,
+        transform: `translate(${x} ${y}), rotate(${rotation} ${(x + w) / 2} ${(y + h) / 2})`
+    }).up()
+}
+
 function overlay_sticky(svg, annotation) {
 
     let backgroundColor = color_to_hex(annotation.style.color, true);
-    let fontSize = text_size_to_px(annotation.style.size, true);
+    let fontSize = text_size_to_px(annotation.style.size, annotation.style.scale, true);
     let rotation = rad_to_degree(annotation.rotation);
     let font = determine_font_from_family(annotation.style.font);
     let textAlign = align_to_css_property(annotation.style.textAlign);
@@ -275,7 +321,7 @@ function overlay_sticky(svg, annotation) {
 function overlay_text(svg, annotation) {
 
     let fontColor = color_to_hex(annotation.style.color);
-    let fontSize = text_size_to_px(annotation.style.size);
+    let fontSize = text_size_to_px(annotation.style.size, annotation.style.scale);
     // let rotation = rad_to_degree(annotation.rotation);
     let font = determine_font_from_family(annotation.style.font);
 
@@ -297,21 +343,13 @@ function overlay_text(svg, annotation) {
 function overlay_annotations(svg, currentSlideAnnotations, w, h) {
 
     for (let annotation of currentSlideAnnotations) {
+        console.log(annotation.annotationInfo);
         switch (annotation.annotationInfo.type) {
-            // case 'ellipse':
-            //     overlay_ellipse(svg, annotation.annotationInfo, w, h);
-            //     break;
-            // case 'line':
-            //     overlay_line(svg, annotation.annotationInfo, w, h);
-            //     break;
-            // case 'pencil':
-            //     overlay_pencil(svg, annotation.annotationInfo, w, h);
-            //     break;
-            // case 'rectangle':
-            //     overlay_rectangle(svg, annotation.annotationInfo, w, h);
-            //     break;
             case 'draw':
                 overlay_draw(svg, annotation.annotationInfo);
+                break;
+            case 'rectangle':
+                overlay_rectangle(svg, annotation.annotationInfo);
                 break;
             case 'sticky':
                 overlay_sticky(svg, annotation.annotationInfo);
@@ -319,9 +357,6 @@ function overlay_annotations(svg, currentSlideAnnotations, w, h) {
             case 'text':
                 overlay_text(svg, annotation.annotationInfo);
                 break;
-            // case 'triangle':
-            //     overlay_triangle(svg, annotation.annotationInfo, w, h);
-            //     break;
             default:
                 logger.error(`Unknown annotation type ${annotation.annotationInfo.type}.`);
         }
@@ -399,8 +434,6 @@ let output_dir = path.join(exportJob.presLocation, 'pdfs', jobId);
 if (!fs.existsSync(output_dir)) { fs.mkdirSync(output_dir, { recursive: true }); }
 
 let filename = sanitize(exportJob.filename.replace(/\s/g, '_'));
-
-console.log(filename)
 
 let mergePDFs = [
     'gs',
