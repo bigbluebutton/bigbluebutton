@@ -264,7 +264,6 @@ const VirtualBgSelector = ({
               return (
                 <Styled.ThumbnailButtonWrapper key={`${filename}-${index}`}>
                   <Styled.ThumbnailButton
-                    style={{ backgroundImage: `url(${data})` }}
                     id={`${filename}-${imageIndex}`}
                     label={label}
                     tabIndex={disabled ? -1 : 0}
@@ -274,20 +273,20 @@ const VirtualBgSelector = ({
                     aria-pressed={currentVirtualBg?.name?.includes(filename)}
                     hideLabel
                     ref={ref => inputElementsRef.current[index + IMAGE_NAMES.length + 1] = ref}
-                    onClick={() => {
-                      const node = findDOMNode(inputElementsRef.current[index + IMAGE_NAMES.length + 1]);
-                      node.focus();
-                      node.click();
-                      _virtualBgSelected(
-                        EFFECT_TYPES.IMAGE_TYPE,
-                        filename,
-                        imageIndex - 1,
-                        { file: data },
-                      );
-                    }}
+                    onClick={() => _virtualBgSelected(
+                      EFFECT_TYPES.IMAGE_TYPE,
+                      filename,
+                      imageIndex - 1,
+                      { file: data },
+                    )}
                     disabled={disabled}
                     isVisualEffects={isVisualEffects}
                   />
+                  <Styled.Thumbnail onClick={() => {
+                    const node = findDOMNode(inputElementsRef.current[index + IMAGE_NAMES.length + 1]);
+                    node.focus();
+                    node.click();
+                  }} aria-hidden src={data} />
                   <Styled.ButtonWrapper>
                     <Styled.ButtonRemove
                       label={intl.formatMessage(intlMessages.removeLabel)}
