@@ -11,7 +11,6 @@ const twemoji = require("twemoji");
 const { getStroke, getStrokePoints } = require('perfect-freehand');
 
 const jobId = workerData;
-const MAGIC_MYSTERY_NUMBER = 2;
 
 const logger = new Logger('presAnn Process Worker');
 logger.info("Processing PDF for job " + jobId);
@@ -110,7 +109,7 @@ function render_HTMLTextBox(htmlFilePath, id, width, height) {
 
 function get_gap(dash, size) {
     switch (dash) {
-        case 'dash':
+        case 'dashed':
             if (size == 'small') { return '8 8' }
             else if (size == 'medium') { return '14 14' }
             else { return '20 20' }
@@ -132,9 +131,6 @@ function get_stroke_width(dash, size) {
         default: return 1;
     }
 }
-function scale_shape(dimension, coord) {
-    return (coord / 100.0 * dimension);
-}
 
 function text_size_to_px(size, isStickyNote = false) {
     if (isStickyNote) { size = `sticky-${size}` }
@@ -151,173 +147,37 @@ function text_size_to_px(size, isStickyNote = false) {
     }
 }
 
-function overlay_ellipse(svg, annotation, w, h) {
-    let shapeColor = color_to_hex(annotation.color);
-    let fill = annotation.fill ? `#${shapeColor}` : 'none';
+function getPath(annotationPoints) {
+    // Gets inner path of a stroke outline
+    // For solid, dashed, and dotted types
+    let stroke = getStrokePoints(annotationPoints).map((strokePoint) => strokePoint.point);
 
-    let x1 = scale_shape(w, annotation.points[0])
-    let y1 = scale_shape(h, annotation.points[1])
-    let x2 = scale_shape(w, annotation.points[2])
-    let y2 = scale_shape(h, annotation.points[3])
+    let [max_x, max_y] = [0, 0];
+    let path = stroke.reduce(
+        (acc, [x0, y0], i, arr) => {
+          if (!arr[i + 1]) return acc
+          let [x1, y1] = arr[i + 1]
+          if (x1 >= max_x) { max_x = x1 }
+          if (y1 >= max_y) { max_y = y1 }
+          acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2)
+          return acc
+        },
 
-    let width_r = Math.abs(x2 - x1) / 2
-    let height_r = Math.abs(y2 - y1) / 2
-    let hx = Math.abs(x1 + x2) / 2
-    let hy = Math.abs(y1 + y2) / 2
-
-    // Normalize the x,y coordinates
-    if (x1 > x2) {
-        [x1, x2] = [x2, x1]
-    }
-
-    if (y1 > y2) {
-        [y1, y2] = [y2, y1]
-    }
-
-    let path = `M${x1} ${hy}
-                A${width_r} ${height_r} 0 0 1 ${hx} ${y1}
-                A${width_r} ${height_r} 0 0 1 ${x2} ${hy}
-                A${width_r} ${height_r} 0 0 1 ${hx} ${y2}
-                A${width_r} ${height_r} 0 0 1 ${x1} ${hy}
-                Z`
-
-    svg.ele('g', {
-        style: `stroke:#${shapeColor};stroke-width:${scale_shape(w, annotation.thickness)};
-                fill:${fill};stroke-linejoin:miter;stroke-miterlimit:8`
-    }).ele('path', {
-        d: path
-    }).up()
+        ['M', ...stroke[0], 'Q']
+      )
+    
+      path.join(' ');
+      return [path, max_x, max_y];
 }
 
-function overlay_line(svg, annotation, w, h) {
-    let shapeColor = color_to_hex(annotation.color);
-
-    svg.ele('g', {
-        style: `stroke:#${shapeColor};stroke-width:${scale_shape(w, annotation.thickness)};stroke-linecap:butt`
-    }).ele('line', {
-        x1: scale_shape(w, annotation.points[0]),
-        y1: scale_shape(h, annotation.points[1]),
-        x2: scale_shape(w, annotation.points[2]),
-        y2: scale_shape(h, annotation.points[3]),
-    }).up()
-}
-
-function overlay_pencil(svg, annotation, w, h) {
-    let shapeColor = color_to_hex(annotation.color);
-
-    if (annotation.points.length < 2) {
-        logger.info("Pencil doesn't have enough points")
-    }
-
-    else if (annotation.points.length == 2) {
-        svg.ele('g', {
-            style: `stroke:none;fill:#${shapeColor}`,
-        }).ele('circle', {
-            cx: scale_shape(w, annotation.points[0]),
-            cy: scale_shape(h, annotation.points[1]),
-            r: scale_shape(w, annotation.thickness) / 2
-        }).up()
-    }
-
-    else {
-        let x;
-        let y;
-        let path = ""
-        let dataPoints = annotation.points
-
-        for (let command of annotation.commands) {
-            switch (command) {
-                case 1: // MOVE TO
-                    x = scale_shape(w, dataPoints.shift())
-                    y = scale_shape(h, dataPoints.shift())
-                    path = `${path} M${x} ${y}`
-                    break;
-                case 2: // LINE TO
-                    x = scale_shape(w, dataPoints.shift())
-                    y = scale_shape(h, dataPoints.shift())
-                    path = `${path} L${x} ${y}`
-                    break;
-                case 4: // C_CURVE_TO
-                    let cx1 = scale_shape(w, dataPoints.shift())
-                    let cy1 = scale_shape(h, dataPoints.shift())
-                    let cx2 = scale_shape(w, dataPoints.shift())
-                    let cy2 = scale_shape(h, dataPoints.shift())
-                    x = scale_shape(w, dataPoints.shift())
-                    y = scale_shape(h, dataPoints.shift())
-                    path = `${path} C${cx1} ${cy1},${cx2} ${cy2},${x} ${y}`
-                    break;
-                default:
-                    logger.error(`Unknown pencil command: ${annotation.commands[i]}`)
-            }
-        }
-
-        svg.ele('g', {
-            style: `stroke:#${shapeColor};stroke-linecap:round;stroke-linejoin:round;
-            stroke-width:${scale_shape(w, annotation.thickness)};fill:none`
-        }).ele('path', {
-            d: path
-        }).up()
-    }
-}
-
-function overlay_rectangle(svg, annotation, w, h) {
-    let shapeColor = color_to_hex(annotation.color);
-    let fill = annotation.fill ? `#${shapeColor}` : 'none';
-
-    let x1 = scale_shape(w, annotation.points[0])
-    let y1 = scale_shape(h, annotation.points[1])
-    let x2 = scale_shape(w, annotation.points[2])
-    let y2 = scale_shape(h, annotation.points[3])
-
-    let path = `M${x1} ${y1} L${x2} ${y1} L${x2} ${y2} L${x1} ${y2} Z`
-
-    svg.ele('g', {
-        style: `stroke:#${shapeColor};stroke-width:${scale_shape(w, annotation.thickness)};fill:none;stroke-linejoin:miter`
-    }).ele('path', {
-        d: path
-    }).up()
-}
-
-function overlay_triangle(svg, annotation, w, h) {
-    let shapeColor = color_to_hex(annotation.color);
-    let fill = annotation.fill ? `#${shapeColor}` : 'none';
-
-    let x1 = scale_shape(w, annotation.points[0])
-    let y1 = scale_shape(h, annotation.points[1])
-    let x2 = scale_shape(w, annotation.points[2])
-    let y2 = scale_shape(h, annotation.points[3])
-
-    let px = (x1 + x2) / 2
-
-    let path = `M${px} ${y1} L${x2} ${y2} L${x1} ${y2} Z`
-
-    svg.ele('g', {
-        style: `stroke:#${shapeColor};stroke-width:${scale_shape(w, annotation.thickness)};fill:${fill};stroke-linejoin:miter;stroke-miterlimit:8`
-    }).ele('path', {
-        d: path
-    }).up()
-}
-
-function overlay_draw(svg, annotation) {
-    let dash = annotation.style.dash;
-
-    // let stroke = getStrokePoints(annotation.points).map((strokePoint) => strokePoint.point);
-
-    let stroke = getStroke(annotation.points, {
-        simulatePressure: (dash == 'draw'),
-        size: 5,
+function getOutlinePath(annotationPoints) {
+    // From steveruizok/perfect-freehand
+    // Gets outline of a hand-drawn input, with pressure
+    let stroke = getStroke(annotationPoints, {
+        simulatePressure: true,
+        size: 8,
     });
 
-    if (!stroke.length) return;
-
-    let shapeColor = color_to_hex(annotation.style.color);
-    let rotation = rad_to_degree(annotation.rotation);
-    let thickness = get_stroke_width(dash, annotation.style.size);
-    let gap = get_gap(dash, annotation.style.size);
-
-    let [x, y] = annotation.point;
-
-    // From steveruizok/perfect-freehand
     let [max_x, max_y] = [0, 0];
     let path = stroke.reduce(
         (acc, [x0, y0], i, arr) => {
@@ -334,8 +194,27 @@ function overlay_draw(svg, annotation) {
     path.push('Z');
     path.join(' ');
 
+    return [path, max_x, max_y];
+}
+
+function overlay_draw(svg, annotation) {
+    let dash = annotation.style.dash;
+
+    let [path, max_x, max_y] = (dash == 'draw') ? getOutlinePath(annotation.points) : getPath(annotation.points);
+
+    if (!path.length) return;
+
+    let shapeColor = color_to_hex(annotation.style.color);
+    let rotation = rad_to_degree(annotation.rotation);
+    let thickness = get_stroke_width(dash, annotation.style.size);
+    let gap = get_gap(dash, annotation.style.size);
+
+    let [x, y] = annotation.point;
+
+    console.log(annotation);
+
     let stroke_dasharray = determine_dasharray(dash, gap);
-    let fill = (dash === 'draw' || dash === 'solid') ? shapeColor : 'none';
+    let fill = (dash === 'draw') ? shapeColor : 'none';
 
     svg.ele('g', {
         style: `stroke:${shapeColor};stroke-width:${thickness};fill:${fill};${stroke_dasharray}`,
@@ -416,14 +295,6 @@ function overlay_text(svg, annotation) {
 }
 
 function overlay_annotations(svg, currentSlideAnnotations, w, h) {
-
-    // logger.info(currentSlideAnnotations)
-    // Order slide annotations by z-index
-    // currentSlideAnnotations.sort(function (a, b) {
-    //     return a.annotationInfo.childIndex < b.annotationInfo.childIndex;
-    // });
-    // logger.info("SORTED!")
-    // logger.info(currentSlideAnnotations)
 
     for (let annotation of currentSlideAnnotations) {
         switch (annotation.annotationInfo.type) {
@@ -517,15 +388,7 @@ for (let currentSlide of pages) {
         '-o', PDFfile
     ].join(' ');
 
-    execSync(convertAnnotatedSlide, (error, stderr) => {
-        if (error) {
-            return logger.error(`SVG to PDF export failed with error: ${error.message}`);
-        }
-
-        if (stderr) {
-            return logger.error(`SVG to PDF export failed with stderr: ${stderr}`);
-        }
-    });
+    execSync(convertAnnotatedSlide);
 
     ghostScriptInput += `${PDFfile} `
 }
@@ -549,19 +412,11 @@ let mergePDFs = [
 ].join(' ');
 
 // Resulting PDF file is stored in the presentation dir
-execSync(mergePDFs, (error, stderr) => {
-    if (error) {
-        return logger.error(`SVG to PDF export failed with error: ${error.message}`);
-    }
-
-    if (stderr) {
-        return logger.error(`SVG to PDF export failed with stderr: ${stderr}`);
-    }
-});
+execSync(mergePDFs);
 
 // Launch Notifier Worker depending on job type
 logger.info(`Saved PDF at ${output_dir}/${jobId}/${filename}.pdf`);
 
 kickOffNotifierWorker(exportJob.jobType, filename);
 
-parentPort.postMessage({ message: workerData })
+parentPort.postMessage({ message: workerData });
