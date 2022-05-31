@@ -28,29 +28,18 @@ const Content = styled.div`
     right: 0;
     bottom: 0;
     left: 0;
-    opacity: 0;
     pointer-events: none;
+    border: 2px solid ${colorBlack};
+    border-radius: 10px;
+
+    ${({ talking }) => talking && `
+      border: 2px solid ${colorPrimary};
+    `}
 
     ${({ animations }) => animations && `
       transition: opacity .1s;
     `}
   }
-
-  &::before {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border: 2px solid ${colorBlack};
-    border-radius: 10px;
-    z-index: 1;
-  }
-
-  ${({ talking }) => talking && `
-     &::before {
-      border: 2px solid ${colorPrimary};
-    }
-  `}
 
   ${({ fullscreen }) => fullscreen && `
     position: fixed;
