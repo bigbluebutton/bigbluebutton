@@ -114,7 +114,7 @@ export default withTracker(({ podId, presentationIsOpen }) => {
     currentSlide,
     slidePosition,
     downloadPresentationUri: PresentationService.downloadPresentationUri(podId),
-    multiUser: WhiteboardService.hasMultiUserAccess(currentSlide && currentSlide.id, Auth.userID)
+    multiUser: (WhiteboardService.hasMultiUserAccess(currentSlide && currentSlide.id, Auth.userID) || WhiteboardService.isMultiUserActive(currentSlide?.id))
       && presentationIsOpen,
     presentationIsDownloadable,
     mountPresentation: !!currentSlide,
@@ -131,5 +131,8 @@ export default withTracker(({ podId, presentationIsOpen }) => {
       'bbb_force_restore_presentation_on_new_events',
       Meteor.settings.public.presentation.restoreOnUpdate,
     ),
+    addWhiteboardGlobalAccess: WhiteboardService.addGlobalAccess,
+    removeWhiteboardGlobalAccess: WhiteboardService.removeGlobalAccess,
+    multiUserSize: WhiteboardService.getMultiUserSize(currentSlide?.id),
   };
 })(PresentationContainer);
