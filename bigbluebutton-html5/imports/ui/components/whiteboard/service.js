@@ -306,7 +306,7 @@ const changeCurrentSlide = (s) => {
   makeCall("changeCurrentSlide", s);
 }
 
-const getShapes = (whiteboardId) => {
+const getShapes = (whiteboardId, curPageId, intl) => {
   const annotations =  Annotations.find(
     {
       whiteboardId,
@@ -319,6 +319,30 @@ const getShapes = (whiteboardId) => {
   let result = {};
 
   annotations.forEach((annotation) => {
+    if (annotation.annotationInfo.questionType) {
+      // poll result, convert it to text and create tldraw shape
+      const pollResult = PollService.getPollResultString(annotation.annotationInfo, intl)
+        .split('<br/>').join('\n').replace( /(<([^>]+)>)/ig, '');
+      annotation.annotationInfo = {
+        childIndex: 2,
+        id: annotation.annotationInfo.id,
+        name: `poll-result-${annotation.annotationInfo.id}`,
+        type: "text",
+        text: pollResult,
+        parentId: `${curPageId}`,
+        point: [0, 0],
+        rotation: 0,
+        style: {
+          isFilled: false,
+          size: "medium",
+          scale: 1,
+          color: "black",
+          textAlign: "start",
+          font: "script",
+          dash: "draw"
+        },
+      }
+    }
     annotation.annotationInfo.userId = annotation.userId;
     result[annotation.annotationInfo.id] = annotation.annotationInfo;
   });

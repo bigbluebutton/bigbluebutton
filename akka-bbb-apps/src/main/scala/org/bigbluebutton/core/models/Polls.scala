@@ -112,6 +112,7 @@ object Polls {
       shape = pollResultToWhiteboardShape(result)
       annot <- send(result, shape)
     } yield {
+      lm.wbModel.addAnnotations(annot.wbId, requesterId, Array[AnnotationVO](annot))
       showPollResult(pollId, lm.polls)
       (result, annot)
     }
@@ -249,54 +250,10 @@ object Polls {
     val shape = new scala.collection.mutable.HashMap[String, Object]()
     shape += "numRespondents" -> new Integer(result.numRespondents)
     shape += "numResponders" -> new Integer(result.numResponders)
-    shape += "pollType" -> result.questionType
+    shape += "questionType" -> result.questionType
+    shape += "questionText" -> result.questionText
     shape += "id" -> result.id
-
-    val answers = new ArrayBuffer[SimpleVoteOutVO]
-
-    def sortByNumVotes(s1: SimpleVoteOutVO, s2: SimpleVoteOutVO) = {
-      s1.numVotes > s2.numVotes
-    }
-
-    val sorted_answers = result.answers.sortWith(sortByNumVotes)
-
-    // Limit the number of answers displayed to minimize
-    // squishing the display.
-    if (sorted_answers.length <= 7) {
-      sorted_answers.foreach(ans => {
-        answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
-      })
-    } else {
-      var highestId = 0
-
-      for (i <- 0 until 7) {
-        val ans = sorted_answers(i)
-        answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
-        if (ans.id > highestId) {
-          highestId = ans.id
-        }
-      }
-
-      var otherNumVotes = 0
-      for (i <- 7 until sorted_answers.length) {
-        val ans = sorted_answers(i)
-        otherNumVotes += ans.numVotes
-        if (ans.id > highestId) {
-          highestId = ans.id
-        }
-      }
-
-      answers += SimpleVoteOutVO(highestId + 1, "...", otherNumVotes)
-    }
-
-    shape += "result" -> answers
-
-    // Hardcode poll result display location for now to display result
-    // in bottom-right corner.
-    val shapeHeight = 6.66 * answers.size
-    val mapA = List(66.toFloat, 100 - shapeHeight, 34.toFloat, shapeHeight)
-
-    shape += "points" -> mapA
+    shape += "answers" -> result.answers
     shape.toMap
   }
 

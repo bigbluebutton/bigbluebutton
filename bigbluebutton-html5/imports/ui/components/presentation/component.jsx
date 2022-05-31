@@ -857,6 +857,7 @@ class Presentation extends PureComponent {
       currentPresentation,
       layoutSwapped,
       podId,
+      intl,
     } = this.props;
 
     const {
@@ -939,6 +940,8 @@ class Presentation extends PureComponent {
             setTldrawAPI={this.setTldrawAPI}
             curPageId={currentSlide?.num.toString()}
             svgUri={currentSlide?.svgUri}
+            intl={intl}
+            presentationBounds={presentationBounds}
           />
           {isFullscreen && <PollingContainer />}
           {this.renderPresentationToolbar()}
