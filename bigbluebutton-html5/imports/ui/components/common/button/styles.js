@@ -200,7 +200,7 @@ const ButtonWrapper = styled(BaseButton)`
     padding: ${jumboPaddingY} ${jumboPaddingX};
   `}
 
-  ${({ color }) => color === 'primary' && `
+  ${({ size, circle, color }) => size === 'lg' && circle && color === 'primary' && `
     &:focus:not([aria-disabled="true"]){
       & > span{
         color: ${btnPrimaryColor};
@@ -235,7 +235,9 @@ const ButtonWrapper = styled(BaseButton)`
     }
   `}
 
-  ${({ circle, ghost, color }) => circle && ghost && color === 'default' && `
+  ${({
+    size, circle, ghost, color,
+  }) => size === 'lg' && circle && ghost && color === 'default' && `
     & > span{
       color: ${btnDefaultGhostColor};
     }
@@ -251,7 +253,7 @@ const ButtonWrapper = styled(BaseButton)`
 
     &:hover{
       & > span{
-        filter: brightness(90%);
+        filter: brightness(85%);
         background-color: ${btnDefaultGhostBg} !important;
       }
     }
@@ -259,7 +261,7 @@ const ButtonWrapper = styled(BaseButton)`
     &:active:focus{
       & > span{
         filter: brightness(85%);
-        background-color: ${btnDefaultGhostActiveBg};
+        background-color: ${btnDefaultGhostActiveBg} !important;
       }
     }
 
@@ -363,7 +365,7 @@ const ButtonSpan = styled.span`
       color: ${btnDefaultColor};
       background-color: ${btnDefaultBg};
       background-clip: padding-box;
-      box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBorder};
+      box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBg};
     }
 
     &:hover & {
@@ -375,6 +377,19 @@ const ButtonSpan = styled.span`
     color: ${btnPrimaryColor};
     background-color: ${btnPrimaryBg};
     border: ${borderSizeLarge} solid transparent;
+
+    &:focus,
+    .buttonWrapper:focus:not([aria-disabled="true"]) & {
+      color: ${btnPrimaryColor};
+      background-color: ${btnPrimaryBg};
+      background-clip: padding-box;
+      box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBg};
+    }
+    &:hover,
+    .buttonWrapper:hover & {
+      color: ${btnPrimaryColor};
+    }
+  
   `}
 
   ${({ color }) => color === 'success' && `
@@ -487,6 +502,25 @@ const ButtonSpan = styled.span`
     &:hover,
     .buttonWrapper:hover & {
       color: ${btnMutedColor};
+    }
+  `}
+
+  ${({ ghost, color, size }) => ghost && color === 'default' && size !== 'lg' && `
+    color: ${btnDefaultBg};
+    background-image: none;
+    background-color: transparent;
+    border: ${borderSizeLarge} solid transparent;
+    &:focus,
+    .buttonWrapper:focus & {
+      color: ${btnDefaultBg};
+      background-color: ${btnDefaultColor};
+      background-clip: padding-box;
+      box-shadow: 0 0 0 ${borderSizeLarge} ${btnDefaultBg};
+    }
+    &:hover,
+    .buttonWrapper:hover & {
+      color: ${btnDefaultBg};
+      background-color: ${btnDefaultColor};
     }
   `}
 
@@ -723,7 +757,7 @@ const Button = styled(BaseButton)`
       color: ${btnDefaultColor};
       background-color: ${btnDefaultBg};
       background-clip: padding-box;
-      box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBorder};
+      box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBg};
     }
 
     &:hover,
@@ -735,13 +769,14 @@ const Button = styled(BaseButton)`
   ${({ color }) => color === 'primary' && `
     color: ${btnPrimaryColor};
     background-color: ${btnPrimaryBg};
+    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus:not([aria-disabled="true"]) & {
       color: ${btnPrimaryColor};
       background-color: ${btnPrimaryBg};
       background-clip: padding-box;
-      box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBorder};
+      box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBg};
     }
 
     &:hover,
