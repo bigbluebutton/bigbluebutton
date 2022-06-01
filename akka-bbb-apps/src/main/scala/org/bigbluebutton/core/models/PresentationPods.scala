@@ -26,7 +26,7 @@ case class PresentationPage(
     current:     Boolean             = false,
     xCamera:     Double              = 0,
     yCamera:     Double              = 0,
-    zoom:        Double              = 1D,
+    zoom:        Double              = 0D,
 )
 
 object PresentationInPod {

@@ -14,8 +14,8 @@ const WhiteboardContainer = (props) => {
     return <Whiteboard {...{isPresenter, currentUser}} {...props} meetingId={Auth.meetingID} />
 };
 
-export default withTracker(({ whiteboardId }) => {
-  const shapes = Service.getShapes(whiteboardId);
+export default withTracker(({ whiteboardId, curPageId, intl }) => {
+  const shapes = Service.getShapes(whiteboardId, curPageId, intl);
   const assets = Service.getAssets();
   const curPres = Service.getCurrentPres();
 

@@ -10,7 +10,7 @@ import {
   TDDocument,
   TDShapeType,
 } from "@tldraw/tldraw";
-import { Renderer } from "@tldraw/core";
+import { Renderer, Utils } from "@tldraw/core";
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -45,6 +45,7 @@ export default function Whiteboard(props) {
     slidePosition,
     curPageId,
     svgUri,
+    presentationBounds
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -63,9 +64,32 @@ export default function Whiteboard(props) {
   const [wbAccess, setWBAccess] = React.useState(props?.hasMultiUserAccess(props.whiteboardId, props.currentUser.userId));
   const [selectedIds, setSelectedIds] = React.useState([]);
   const [tldrawAPI, setTLDrawAPI] = React.useState(null);
+  const [cameraFitSlide, setCameraFitSlide] = React.useState({point: [0, 0], zoom: 0});
+  const [zoomedIn, setZoomedIn] = React.useState(false);
   const prevShapes = usePrevious(shapes);
   const prevSlidePosition = usePrevious(slidePosition);
   const prevPageId = usePrevious(curPageId);
+
+  const calculateCameraFitSlide = () => {
+    let zoom = 
+      Math.min(
+        (presentationBounds.width) / slidePosition.width,
+        (presentationBounds.height) / slidePosition.height
+      )        
+      
+    zoom = Utils.clamp(zoom, 0.1, 5);
+
+    let point = [0, 0];
+    if ((presentationBounds.width / presentationBounds.height) > 
+        (slidePosition.width / slidePosition.height)) 
+    { 
+      point[0] = (presentationBounds.width - (slidePosition.width * zoom)) / 2 / zoom
+    } else {
+      point[1] = (presentationBounds.height - (slidePosition.height * zoom)) / 2 / zoom
+    }
+
+    return {point, zoom}
+  }
 
   const doc = React.useMemo(() => {
     const currentDoc = rDocument.current;
@@ -98,7 +122,7 @@ export default function Whiteboard(props) {
 
       next.pages[curPageId].shapes["slide-background-shape"] = {
         assetId: `slide-background-asset-${curPageId}`,
-        childIndex: 1,
+        childIndex: 0.5,
         id: "slide-background-shape",
         name: "Image",
         type: TDShapeType.Image,
@@ -117,35 +141,73 @@ export default function Whiteboard(props) {
     }
 
     if (changed) {
+      if (pageBindings) next.pages[curPageId].bindings = pageBindings;
       tldrawAPI?.mergeDocument(next);
       if (tldrawAPI && history) tldrawAPI.history = history;
       if (tldrawAPI && stack) tldrawAPI.stack = stack;
-      if (pageBindings && Object.keys(pageBindings).length !== 0) {
-        currentDoc.pages[curPageId].bindings = pageBindings;
-      }
+    }
+
+    // move poll result text to bottom right
+    if (next.pages[curPageId]) {
+      const pollResults = Object.entries(next.pages[curPageId].shapes)
+                                .filter(([id, shape]) => shape.name.includes("poll-result"))
+      for (const [id, shape] of pollResults) {
+        if (_.isEqual(shape.point, [0, 0])) {
+          const shapeBounds = tldrawAPI?.getShapeBounds(id);
+          if (shapeBounds) {
+            shape.point = [
+              slidePosition.width - shapeBounds.width,
+              slidePosition.height - shapeBounds.height
+            ]
+            shape.size = [shapeBounds.width, shapeBounds.height]
+            isPresenter && persistShape(shape, whiteboardId);
+          }
+        }
+      };
     }
 
     return currentDoc;
   }, [assets, shapes, tldrawAPI, curPageId, slidePosition]);
 
+  // when presentationBounds change, update tldraw camera
+  // to fit slide on center if zoomed out
+  React.useEffect(() => {
+    if (curPageId && slidePosition) {
+      const camera = calculateCameraFitSlide();
+      setCameraFitSlide(camera);
+      if (!zoomedIn) {
+        tldrawAPI?.setCamera(camera.point, camera.zoom);
+      }
+    }
+  }, [presentationBounds, curPageId]);
+
   // change tldraw page when presentation page changes
   React.useEffect(() => {
-    const previousPageZoom = tldrawAPI?.getPageState()?.camera?.zoom;
-    tldrawAPI &&
-      curPageId &&
-      tldrawAPI.changePage(curPageId)
+    if (tldrawAPI && curPageId) {
+      const previousPageZoom = tldrawAPI.getPageState()?.camera?.zoom;
+      tldrawAPI.changePage(curPageId);
       //change zoom of the new page to follow the previous one
-      previousPageZoom && 
-      tldrawAPI.zoomTo(previousPageZoom)
+      if (!zoomedIn && cameraFitSlide.zoom !== 0) {
+        tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom, "zoomed");
+      } else {
+        previousPageZoom &&
+        slidePosition && 
+        tldrawAPI.setCamera([slidePosition.xCamera, slidePosition.yCamera], previousPageZoom, "zoomed");
+      }
+    }
   }, [curPageId]);
 
   // change tldraw camera when slidePosition changes
   React.useEffect(() => {
-    tldrawAPI &&
-    !isPresenter &&
-    curPageId &&
-    slidePosition &&
-    !hasWBAccess && tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
+    if (tldrawAPI && !isPresenter && curPageId && slidePosition) {
+      if (slidePosition.zoom === 0 && slidePosition.xCamera === 0 && slidePosition.yCamera === 0) {
+        tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
+        setZoomedIn(false);
+      } else {
+        tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
+        setZoomedIn(true);
+      }
+    }
   }, [curPageId, slidePosition]);
 
   const hasWBAccess = props?.hasMultiUserAccess(props.whiteboardId, props.currentUser.userId);
@@ -165,8 +227,18 @@ export default function Whiteboard(props) {
             if (!hasWBAccess && !isPresenter) app.onPan = () => {}; 
             setTLDrawAPI(app);
             props.setTldrawAPI(app);
-            curPageId && app.changePage(curPageId);
-            curPageId && app.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
+            if (curPageId) {
+              app.changePage(curPageId);
+              if (slidePosition.zoom === 0) {
+                // first load, center the view to fit slide
+                const cameraFitSlide = calculateCameraFitSlide();
+                app.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
+                setCameraFitSlide(cameraFitSlide);
+              } else {
+                app.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom)
+                setZoomedIn(true);
+              }
+            }
           }}
           showPages={false}
           showZoom={false}
@@ -190,10 +262,6 @@ export default function Whiteboard(props) {
             const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
             let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
             removeShapes(shapesIdsToRemove, whiteboardId)
-            let shapeIdsToReAdd = findRemoved(Object.keys(pageShapes), Object.keys(shapes))
-            shapeIdsToReAdd.forEach(id => {
-              persistShape(pageShapes[id], whiteboardId);
-            })
           }}
 
           onChangePage={(app, s, b, a) => {
@@ -207,6 +275,8 @@ export default function Whiteboard(props) {
                 .filter(([k, s]) => s?.type === 'draw')
                 .forEach(([k, s]) => {
                   if (!e.prevShapes[k] && !k.includes('slide-background')) {
+                    const shapeBounds = e.getShapeBounds(k);
+                    s.size = [shapeBounds.width, shapeBounds.height];
                     persistShape(s, whiteboardId);
                   }
                 });
@@ -215,7 +285,10 @@ export default function Whiteboard(props) {
             if (s.includes("style")
             || s?.includes("session:complete:ArrowSession")) {
               e.selectedIds.forEach(id => {
-                persistShape(e.getShape(id), whiteboardId);
+                const shape = e.getShape(id);
+                const shapeBounds = e.getShapeBounds(id);
+                shape.size = [shapeBounds.width, shapeBounds.height];
+                persistShape(shape, whiteboardId);
               }); 
             }
 
@@ -230,34 +303,46 @@ export default function Whiteboard(props) {
               movedShapes.forEach(s => {
                 persistShape(s, newWhiteboardId);
               });
+              return;
             }
 
             const conditions = [
               "session:complete:TransformSingleSession", "session:complete:TranslateSession",
-              "session:complete:TranslateSession", "session:complete:RotateSession",
-              "session:complete:HandleSession", "updated_shapes", "duplicate",
-              "stretch", "align", "move", "create", "flip", "toggle", "group",
+              "session:complete:RotateSession", "session:complete:HandleSession", 
+              "updated_shapes", "duplicate", "stretch", "align", "move", 
+              "create", "flip", "toggle", "group", "translate"
             ]
             if (conditions.some(el => s?.includes(el))) {
                 e.selectedIds.forEach(id => {
-                    persistShape(e.getShape(id), whiteboardId);
-                    //checks to find any bindings assosiated with the selected shapes.
-                    //If any, they need to be updated as well.
-                    const pageBindings = e.state.document.pages[e.getPage()?.id]?.bindings;
-                    const boundShapes = [];
-                    if (pageBindings) {
-                      Object.entries(pageBindings).map(([k,b]) => {
-                        if (b.toId.includes(id)) {
-                          boundShapes.push(e.state.document.pages[e.getPage()?.id]?.shapes[b.fromId])
-                        }
-                      })
-                    }
-                    //persist shape(s) that was updated by the client and any shapes bound to it.
-                    boundShapes.forEach(bs => persistShape(bs, whiteboardId))
-
-                    const children = e.getShape(id).children
-                    //also persist children of the selected shape (grouped shapes)
-                    children && children.forEach(c => persistShape(e.getShape(c), whiteboardId))
+                  const shape = e.getShape(id);
+                  const shapeBounds = e.getShapeBounds(id);
+                  shape.size = [shapeBounds.width, shapeBounds.height];
+                  persistShape(shape, whiteboardId);
+                  //checks to find any bindings assosiated with the selected shapes.
+                  //If any, they need to be updated as well.
+                  const pageBindings = e.state.document.pages[e.getPage()?.id]?.bindings;
+                  const boundShapes = [];
+                  if (pageBindings) {
+                    Object.entries(pageBindings).map(([k,b]) => {
+                      if (b.toId.includes(id)) {
+                        boundShapes.push(e.state.document.pages[e.getPage()?.id]?.shapes[b.fromId])
+                      }
+                    })
+                  }
+                  //persist shape(s) that was updated by the client and any shapes bound to it.
+                  boundShapes.forEach(bs => {
+                    const shapeBounds = e.getShapeBounds(bs.id);
+                    bs.size = [shapeBounds.width, shapeBounds.height];
+                    persistShape(bs, whiteboardId)
+                  })
+                  const children = e.getShape(id).children
+                  //also persist children of the selected shape (grouped shapes)
+                  children && children.forEach(c => {
+                    const shape = e.getShape(c);
+                    const shapeBounds = e.getShapeBounds(c);
+                    shape.size = [shapeBounds.width, shapeBounds.height];
+                    persistShape(shape, whiteboardId)
+                  })
                 });
             }
 
@@ -270,10 +355,27 @@ export default function Whiteboard(props) {
 
           onPatch={(s, reason) => {
             if (reason && isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
-              const pageID = tldrawAPI?.getPage()?.id;
-              const camera = s.document.pageStates[pageID]?.camera
-              zoomSlide(parseInt(pageID), podId, camera.zoom, camera.point[0], camera.point[1]);
+              const camera = tldrawAPI.getPageState().camera;
+              //don't allow zoom out more than fit
+              if (camera.zoom <= cameraFitSlide.zoom) {
+                tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
+                setZoomedIn(false);
+                zoomSlide(parseInt(curPageId), podId, 0, 0, 0);
+              } else {
+                zoomSlide(parseInt(curPageId), podId, camera.zoom, camera.point[0], camera.point[1]);
+                setZoomedIn(true);
+              }
             }
+            //don't allow non-presenters to pan&zoom
+            if (slidePosition && reason && !isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
+              if (slidePosition.zoom === 0 && slidePosition.xCamera === 0 && slidePosition.yCamera === 0) {
+                tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
+                setZoomedIn(false);
+              } else {
+                tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
+                setZoomedIn(true);
+              }
+            } 
           }}
 
         />
