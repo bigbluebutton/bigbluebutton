@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { injectIntl, defineMessages } from 'react-intl';
-import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import { CustomVirtualBackgroundsContext } from '/imports/ui/components/video-preview/virtual-background/context';
 import { EFFECT_TYPES } from '/imports/ui/services/virtual-background/service';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
+import VirtualBgService from '/imports/ui/components/video-preview/virtual-background/service';
 
 const intlMessages = defineMessages({
   confirmationTitle: {
@@ -17,9 +17,6 @@ const intlMessages = defineMessages({
     description: 'Confirmation modal description',
   },
 });
-
-const MIME_TYPES_ALLOWED = ['image/png', 'image/jpeg'];
-const MAX_FILE_SIZE = 5000; // KBytes
 
 const DragAndDrop = (props) => {
   const { children, mountModal, intl } = props;
@@ -62,28 +59,23 @@ const DragAndDrop = (props) => {
     if (Auth.userID !== userId) return {};
 
     const startAndSaveVirtualBackground = (file) => {
-      const { name: filename } = file;
-      const reader = new FileReader();
-      const substrings = filename.split('.');
-      substrings.pop();
-      const filenameWithoutExtension = substrings.join('');
+      const { readFile } = VirtualBgService;
 
-      reader.onload = function (e) {
-        const background = {
-          filename: filenameWithoutExtension,
-          data: e.target.result,
-          uniqueId: _.uniqueId(),
-        };
-
-        onAction(EFFECT_TYPES.IMAGE_TYPE, filename, e.target.result).then(() => {
-          dispatchCustomBackground({
-            type: 'new',
-            background,
+      readFile(
+        file,
+        (background) => {
+          const { filename, data } = background;
+          onAction(EFFECT_TYPES.IMAGE_TYPE, filename, data).then(() => {
+            dispatchCustomBackground({
+              type: 'new',
+              background,
+            });
           });
-        });
-      };
-
-      reader.readAsDataURL(file);
+        },
+        (error) => {
+          // Add some logging, notification, etc.
+        }
+      );
     };
 
     const onDragOverHandler = (e) => {
@@ -99,10 +91,6 @@ const DragAndDrop = (props) => {
 
       const { files } = e.dataTransfer;
       const file = files[0];
-      const { size, type } = file;
-      const sizeInKB = size / 1024;
-
-      if (sizeInKB > MAX_FILE_SIZE || !MIME_TYPES_ALLOWED.includes(type)) return;
 
       if (Session.get('skipBackgroundDropConfirmation')) {
         return startAndSaveVirtualBackground(file);

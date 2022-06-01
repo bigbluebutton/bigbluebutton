@@ -2,7 +2,6 @@ import React, { useState, useRef, useContext, useEffect } from 'react';
 import { findDOMNode } from 'react-dom';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import Styled from './styles';
 import {
   EFFECT_TYPES,
@@ -12,6 +11,7 @@ import {
   isVirtualBackgroundSupported,
 } from '/imports/ui/services/virtual-background/service';
 import { CustomVirtualBackgroundsContext } from './context';
+import VirtualBgService from '/imports/ui/components/video-preview/virtual-background/service';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -76,8 +76,6 @@ const intlMessages = defineMessages({
   }, {})
 });
 
-const MAX_FILE_SIZE = 5000;
-
 const VirtualBgSelector = ({
   intl,
   handleVirtualBgSelected,
@@ -91,6 +89,7 @@ const VirtualBgSelector = ({
   });
 
   const inputElementsRef = useRef([]);
+  const customBgSelectorRef = useRef(null);
 
   const {
     dispatch,
@@ -99,6 +98,8 @@ const VirtualBgSelector = ({
     newCustomBackgrounds,
     loadFromDB,
   } = useContext(CustomVirtualBackgroundsContext);
+
+  const { MIME_TYPES_ALLOWED } = VirtualBgService;
 
   useEffect(() => {
     if (!loaded && isVisualEffects) loadFromDB();
@@ -157,32 +158,22 @@ const VirtualBgSelector = ({
     );
   }
 
-  const customBgSelectorRef = useRef(null);
-
   const handleCustomBgChange = (event) => {
     const file = event.target.files[0];
-    const { name: filename, size } = file;
-    const sizeInKB = size / 1024;
+    const { readFile } = VirtualBgService;
 
-    if (sizeInKB > MAX_FILE_SIZE) return;
-
-    const reader = new FileReader();
-    const substrings = filename.split('.');
-    substrings.pop();
-    const filenameWithoutExtension = substrings.join('');
-
-    reader.onload = function (e) {
-      const background = {
-        filename: filenameWithoutExtension,
-        data: e.target.result,
-        uniqueId: _.uniqueId(),
-      };
-      dispatch({
-        type: 'new',
-        background,
-      });
-    }
-    reader.readAsDataURL(file);
+    readFile(
+      file,
+      (background) => {
+        dispatch({
+          type: 'new',
+          background,
+        });
+      },
+      (error) => {
+        // Add some logging, notification, etc.
+      }
+    );
   }
 
   const renderThumbnailSelector = () => {
@@ -346,7 +337,7 @@ const VirtualBgSelector = ({
                 id="customBgSelector"
                 onChange={handleCustomBgChange}
                 style={{ display: 'none' }}
-                accept="image/png, image/jpeg"
+                accept={MIME_TYPES_ALLOWED.join(', ')}
               />
               <div aria-hidden className="sr-only" id={`vr-cam-btn-custom`}>
                 {intl.formatMessage(intlMessages.customLabel)}
