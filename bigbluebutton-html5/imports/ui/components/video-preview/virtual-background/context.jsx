@@ -32,6 +32,7 @@ const reducer = (state, action) => {
 
       del(action.uniqueId);
       return {
+        ...state,
         customBackgrounds: customBackgrounds.filter(filterFunc),
         newCustomBackgrounds: newCustomBackgrounds.filter(filterFunc),
       };
