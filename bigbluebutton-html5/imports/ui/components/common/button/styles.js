@@ -63,7 +63,7 @@ const ButtonIcon = styled(Icon)`
     }
   }
   .buttonWrapper:hover & {
-    opacity: .5;
+    opacity: .75;
   }
 `;
 
@@ -254,7 +254,7 @@ const ButtonSpan = styled.span`
     padding: ${jumboPaddingY} ${jumboPaddingX};
   `}
 
-  ${({ color }) => color === 'default' && `
+  ${({ color, ghost }) => color === 'default' && !ghost && `
     color: ${btnDefaultColor};
     background-color: ${btnDefaultBg};
     border: ${borderSizeLarge} solid transparent;
