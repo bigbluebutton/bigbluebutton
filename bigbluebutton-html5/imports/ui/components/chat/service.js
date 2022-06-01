@@ -19,7 +19,7 @@ const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
-const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.chat_clear;
+const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
 const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -273,7 +273,7 @@ const exportChat = (timeWindowList, users, intl) => {
         : `${users[timeWindow.sender].name}: `;
       let messageText = '';
       if (message.text === PUBLIC_CHAT_CLEAR) {
-        message.text = intl.formatMessage(intlMessages.publicChatClear);
+        messageText = intl.formatMessage(intlMessages.publicChatClear);
       } else if (message.id.includes(CHAT_POLL_RESULTS_MESSAGE)) {
         userName = `${intl.formatMessage(intlMessages.pollResult)}:\n`;
         const { pollResultData } = timeWindow.extra;
