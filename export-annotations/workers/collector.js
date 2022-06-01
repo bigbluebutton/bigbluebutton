@@ -2,8 +2,7 @@ const Logger = require('../lib/utils/logger');
 const config = require('../config');
 const fs = require('fs');
 const redis = require('redis');
-const { execSync } = require("child_process");
-const { Worker, workerData, parentPort } = require('worker_threads')
+const { Worker, workerData, parentPort } = require('worker_threads');
 const path = require('path');
 
 const jobId = workerData;
@@ -46,6 +45,8 @@ let exportJob = JSON.parse(job);
     // Remove annotations from Redis
     await client.DEL(jobId);
 
+    client.disconnect();
+
     let annotations = JSON.stringify(presAnn);
 
     let whiteboard = JSON.parse(annotations);
@@ -56,60 +57,28 @@ let exportJob = JSON.parse(job);
     });
 
     // Collect the Presentation Page files from the presentation directory
+    
+    // PDF / PNG / JPEG file
     let presentationFile = path.join(exportJob.presLocation, exportJob.presId);
-    let pdfFileExists = fs.existsSync(`${presentationFile}.pdf`);
 
+    // Use the SVG files as shown in the browser in order to avoid incorrect dimensions
+    // Tldraw uses absolute coordinates
+    
     for (let p of pages) {
       let pageNumber = p.page;
+      let svgFile = path.join(exportJob.presLocation, 'svgs',  `slide${pageNumber}.svg`)
       let outputFile = path.join(dropbox, `slide${pageNumber}`);
+      let svgFileExists = fs.existsSync(svgFile);
+      
+      // CairoSVG doesn't handle transparent SVG embeds properly, e.g., for transparent pictures.
+      // In these cases we reference the PNG image
 
-      if(pdfFileExists) {
-        let extactSlideAsPDFCommands = [
-          'pdftocairo',
-          '-png',
-          '-scale-to', '1920',
-          '-f', pageNumber,
-          '-l', pageNumber,
-          '-singlefile',
-          `${presentationFile}.pdf`,
-          outputFile
-        ].join(' ');
-  
-        execSync(extactSlideAsPDFCommands, (error, stderr) => {
-          if (error) {
-              return logger.error(`PDFtoCairo failed with error: ${error.message}`);
-          }
-  
-          if (stderr) {
-              return logger.error(`PDFtoCairo failed with stderr: ${stderr}`);
-          }
-        })
-      }
-
-      else if (fs.existsSync(`${presentationFile}.png`)) {
+      if (fs.existsSync(`${presentationFile}.png`)) {
         fs.copyFileSync(`${presentationFile}.png`, `${outputFile}.png`);
       }
-      
-      else if (fs.existsSync(`${presentationFile}.jpeg`)) {
-        let convertImageToPngCommands = [
-          'convert',
-          `${presentationFile}.jpeg`,
-          '-background', 'white',
-          '-resize', '1920x1920',
-          '-auto-orient',
-          '-flatten',
-          `${outputFile}.png`
-        ].join(' ');
 
-        execSync(convertImageToPngCommands, (error, stderr) => {
-          if (error) {
-              return logger.error(`Image conversion to PNG failed with error: ${error.message}`);
-          }
-  
-          if (stderr) {
-              return logger.error(`Image conversion to PNG failed with stderr: ${stderr}`);
-          }
-        })
+      else if (svgFileExists) {
+        fs.copyFileSync(svgFile, `${outputFile}.svg`);
       }
       
       else {
@@ -118,7 +87,6 @@ let exportJob = JSON.parse(job);
     }
 
     kickOffProcessWorker(exportJob.jobId);
-    client.disconnect();
 })()
 
 parentPort.postMessage({ message: workerData })

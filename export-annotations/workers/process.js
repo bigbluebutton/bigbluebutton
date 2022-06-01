@@ -1,7 +1,6 @@
 const Logger = require('../lib/utils/logger');
 const config = require('../config');
 const fs = require('fs');
-const sizeOf = require('image-size');
 const { create } = require('xmlbuilder2', { encoding: 'utf-8' });
 const { execSync } = require("child_process");
 const { Worker, workerData, parentPort } = require('worker_threads');
@@ -9,6 +8,7 @@ const path = require('path');
 const sanitize = require("sanitize-filename");
 const twemoji = require("twemoji");
 const { getStroke, getStrokePoints } = require('perfect-freehand');
+const probe = require('probe-image-size');
 
 const jobId = workerData;
 
@@ -395,20 +395,14 @@ function overlay_text(svg, annotation) {
     }
 }
 
-// function sortByKey(array, key, pos) {
-//     return array.sort(function(a, b) {
-//         let [x, y] = [a[key][pos], b[key][pos]]
-//         return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-//     });
-// }
-
 function overlay_annotations(svg, currentSlideAnnotations, w, h) {
 
-
-    // currentSlideAnnotations = sortByKey(currentSlideAnnotations, 'annotationInfo', 'childIndex');
-
     for (let annotation of currentSlideAnnotations) {
+
         switch (annotation.annotationInfo.type) {
+            // case 'arrow':
+            //     overlay_arrow(svg, annotation.annotationInfo);
+            //     break;
             case 'draw':
                 overlay_draw(svg, annotation.annotationInfo);
                 break;
@@ -448,9 +442,17 @@ let ghostScriptInput = ""
 
 // 3. Convert annotations to SVG
 for (let currentSlide of pages) {
-    var dimensions = sizeOf(path.join(dropbox, `slide${currentSlide.page}.png`));
-    var slideWidth = dimensions.width;
-    var slideHeight = dimensions.height;
+
+    let backgroundImagePath = path.join(dropbox, `slide${currentSlide.page}`);
+    let backgroundFormat = fs.existsSync(`${backgroundImagePath}.png`) ? 'png' : 'svg'
+
+    // Output dimensions in pixels even if stated otherwise (pt)
+    // CairoSVG didn't like attempts to read the dimensions from a stream
+    // to prevent loading file in memory
+    let dimensions = probe.sync(fs.readFileSync(`${backgroundImagePath}.${backgroundFormat}`));
+
+    let slideWidth = dimensions.width;
+    let slideHeight = dimensions.height;
 
     // Create the SVG slide with the background image
     let svg = create({ version: '1.0', encoding: 'UTF-8' })
@@ -465,7 +467,7 @@ for (let currentSlide of pages) {
             sysID: 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'
         })
         .ele('image', {
-            'xlink:href': `file://${dropbox}/slide${currentSlide.page}.png`,
+            'xlink:href': `file://${dropbox}/slide${currentSlide.page}.${backgroundFormat}`,
             width: slideWidth,
             height: slideHeight,
         })
