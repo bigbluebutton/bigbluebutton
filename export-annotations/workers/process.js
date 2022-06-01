@@ -346,6 +346,33 @@ function overlay_sticky(svg, annotation) {
     }).up();
 }
 
+function overlay_triangle(svg, annotation) {
+
+    let dash = annotation.style.dash;
+
+    let [x, y] = annotation.point;
+    let [w, h] = annotation.size;
+    let isFilled = annotation.style.isFilled;
+
+    let shapeColor = color_to_hex(annotation.style.color);
+    let fillColor = isFilled ? color_to_hex(annotation.style.color, false, isFilled) : 'none';
+
+    let rotation = rad_to_degree(annotation.rotation);
+    let sw = get_stroke_width(dash, annotation.style.size);
+    let gap = get_gap(dash, annotation.style.size);
+
+    let stroke_dasharray = determine_dasharray(dash, gap);
+    let points = `${w / 2} 0, ${w} ${h}, 0 ${h}, ${w / 2} 0`
+
+    svg.ele('g', {
+        style: `stroke:${shapeColor};stroke-width:${sw};fill:${fillColor};${stroke_dasharray}`,
+    }).ele('polygon', {
+        'points': points,
+        transform: `translate(${x}, ${y}), rotate(${rotation} ${w / 2} ${h / 2})`
+    }).up()
+
+}
+
 function overlay_text(svg, annotation) {
 
     let fontColor = color_to_hex(annotation.style.color);
@@ -381,9 +408,6 @@ function overlay_annotations(svg, currentSlideAnnotations, w, h) {
     // currentSlideAnnotations = sortByKey(currentSlideAnnotations, 'annotationInfo', 'childIndex');
 
     for (let annotation of currentSlideAnnotations) {
-        console.log("===========================")
-        console.log(annotation.annotationInfo.childIndex)
-        console.log("===========================")
         switch (annotation.annotationInfo.type) {
             case 'draw':
                 overlay_draw(svg, annotation.annotationInfo);
@@ -396,6 +420,9 @@ function overlay_annotations(svg, currentSlideAnnotations, w, h) {
                 break;
             case 'sticky':
                 overlay_sticky(svg, annotation.annotationInfo);
+                break;
+            case 'triangle':
+                overlay_triangle(svg, annotation.annotationInfo);
                 break;
             case 'text':
                 overlay_text(svg, annotation.annotationInfo);
