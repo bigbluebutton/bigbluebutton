@@ -10,7 +10,7 @@ import { debounce } from 'lodash';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 
 const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app.enableWebcamSelectorButton;
-const ENABLE_WEBCAM_BACKGROUND_UPLOAD = Meteor.settings.public.app.enableVirtualBackgroundUpload;
+const ENABLE_WEBCAM_BACKGROUND_UPLOAD = Meteor.settings.public.virtualBackgrounds.enableVirtualBackgroundUpload;
 
 const intlMessages = defineMessages({
   videoSettings: {
