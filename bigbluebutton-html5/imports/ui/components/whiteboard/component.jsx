@@ -88,7 +88,7 @@ export default function Whiteboard(props) {
       changed = true;
     }
 
-    if (next.pages[curPageId] && !next.pages[curPageId].shapes["slide-background-shape"]) {
+    if (next.pages[curPageId] && !next.pages[curPageId].shapes["slide-background-shape"]) {      
       next.assets[`slide-background-asset-${curPageId}`] = {
         id: `slide-background-asset-${curPageId}`,
         size: [slidePosition?.width || 0, slidePosition?.height || 0],
@@ -145,7 +145,7 @@ export default function Whiteboard(props) {
     !isPresenter &&
     curPageId &&
     slidePosition &&
-    tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
+    !hasWBAccess && tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
   }, [curPageId, slidePosition]);
 
   const hasWBAccess = props?.hasMultiUserAccess(props.whiteboardId, props.currentUser.userId);
@@ -158,20 +158,15 @@ export default function Whiteboard(props) {
         whiteboardId={whiteboardId}
       >
         <Tldraw
+          key={`wb-${!hasWBAccess && !isPresenter}`}
           document={doc}
           disableAssets={false}
           onMount={(app) => {
+            if (!hasWBAccess && !isPresenter) app.onPan = () => {}; 
             setTLDrawAPI(app);
             props.setTldrawAPI(app);
             curPageId && app.changePage(curPageId);
-            curPageId && app.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom)
-          }}
-          //onChange={handleChange}
-          onPersist={(e) => {
-            ///////////// handle assets /////////////////////////
-            e?.assets?.forEach((a) => {
-              //persistAsset(a);
-            });
+            curPageId && app.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
           }}
           showPages={false}
           showZoom={false}

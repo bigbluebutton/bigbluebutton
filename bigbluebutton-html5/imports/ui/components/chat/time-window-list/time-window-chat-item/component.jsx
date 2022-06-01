@@ -152,7 +152,6 @@ class TimeWindowChatItem extends PureComponent {
     } = this.props;
 
     const dateTime = new Date(timestamp);
-    const regEx = /<a[^>]+>/i;
     ChatLogger.debug('TimeWindowChatItem::renderMessageItem', this.props);
     const defaultAvatarString = name?.toLowerCase().slice(0, 2) || "  ";
     const emphasizedText = messageFromModerator && CHAT_EMPHASIZE_TEXT && chatId === CHAT_PUBLIC_ID;
@@ -191,7 +190,6 @@ class TimeWindowChatItem extends PureComponent {
             <Styled.Messages>
               {messages.map(message => (
                 <Styled.ChatItem
-                  hasLink={regEx.test(message.text)}
                   emphasizedMessage={emphasizedText}
                   key={message.id}
                   text={message.text}

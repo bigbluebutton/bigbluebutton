@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import {
   colorWhite,
   colorGrayDark,
+  colorPrimary
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
@@ -24,6 +25,35 @@ const Chat = styled.div`
   justify-content: space-around;
   overflow: hidden;
   height: 100%;
+
+  a {
+    color: ${colorPrimary};
+    text-decoration: none;
+
+    &:focus {
+      color: ${colorPrimary};
+      text-decoration: underline;
+    }
+    &:hover {
+      filter: brightness(90%);
+      text-decoration: underline;
+    }
+    &:active {
+      filter: brightness(85%);
+      text-decoration: underline;
+    }
+    &:hover:focus{
+      filter: brightness(90%);
+      text-decoration: underline;
+    }
+    &:focus:active {
+      filter: brightness(85%);
+      text-decoration: underline;
+    }
+  }
+  u {
+    text-decoration-line: none;
+  }
 
   ${({ isChrome }) => isChrome && `
     transform: translateZ(0);

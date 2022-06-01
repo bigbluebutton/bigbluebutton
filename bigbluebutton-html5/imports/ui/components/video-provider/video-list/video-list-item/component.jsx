@@ -68,10 +68,10 @@ const VideoListItem = (props) => {
     onVideoItemMount(videoTag.current);
     subscribeToStreamStateChange(cameraId, onStreamStateChange);
     resizeObserver.observe(videoContainer.current);
-    videoTag.current.addEventListener('loadeddata', handleSetVideoIsReady);
+    videoTag?.current?.addEventListener('loadeddata', handleSetVideoIsReady);
 
     return () => {
-      videoTag.current.removeEventListener('loadeddata', handleSetVideoIsReady);
+      videoTag?.current?.removeEventListener('loadeddata', handleSetVideoIsReady);
       resizeObserver.disconnect();
     };
   }, []);
@@ -127,6 +127,7 @@ const VideoListItem = (props) => {
         user={user}
         voiceUser={voiceUser}
         unhealthyStream={shouldRenderReconnect}
+        squeezed={false}
       />
       <Styled.BottomBar>
         <UserActions
@@ -148,12 +149,12 @@ const VideoListItem = (props) => {
   const renderWebcamConnectingSqueezed = () => (
     <Styled.WebcamConnecting
       data-test="webcamConnectingSqueezed"
-      talking={talking}
       animations={animations}
     >
       <UserAvatarVideo
         user={user}
         unhealthyStream={shouldRenderReconnect}
+        squeezed
       />
       {renderSqueezedButton()}
     </Styled.WebcamConnecting>
