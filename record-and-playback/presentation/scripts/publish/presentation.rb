@@ -1181,12 +1181,22 @@ end
 match = /(.*)-(.*)/.match @meeting_id
 @meeting_id = match[1]
 @playback = match[2]
+@webcams_filename_list = ["webcams"]
 
 begin
   if @playback == 'presentation'
     log_dir = bbb_props['log_dir']
     logger = Logger.new("#{log_dir}/presentation/publish-#{@meeting_id}.log", 'daily')
     BigBlueButton.logger = logger
+
+    if (!@presentation_props['render_webcams_options'].nil? && @presentation_props['render_webcams_options'] != "")
+      @presentation_props['render_webcams_options'].split(",").each_with_index do |item, index|
+        strip_item = item.strip
+        if strip_item != "all" || index != 0
+          @webcams_filename_list << "webcams_#{strip_item}"
+        end
+      end
+    end
 
     BigBlueButton.logger.info('Setting recording dir')
     @recording_dir = bbb_props['recording_dir']
@@ -1218,11 +1228,14 @@ begin
       begin
         video_formats = @presentation_props['video_formats']
 
-        video_files = Dir.glob("#{@process_dir}/webcams.{#{video_formats.join(',')}}")
-        if video_files.empty?
-          copy_media_files_helper('audio', ["#{@process_dir}/audio.webm", "#{@process_dir}/audio.ogg"], package_dir)
-        else
-          copy_media_files_helper('video', video_files, package_dir)
+        @webcams_filename_list.each_with_index do |filename, index|
+          video_files = Dir.glob("#{@process_dir}/#{filename}.{#{video_formats.join(',')}}")
+
+          if video_files.empty? && index == 0
+            copy_media_files_helper('audio', ["#{@process_dir}/audio.webm", "#{@process_dir}/audio.ogg"], package_dir)
+          else
+            copy_media_files_helper('video', video_files, package_dir)
+          end
         end
 
         video_files = Dir.glob("#{@process_dir}/deskshare.{#{video_formats.join(',')}}")

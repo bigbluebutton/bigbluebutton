@@ -142,7 +142,7 @@ module BigBlueButton
       return filename_return
     end
 
-    def self.process_webcamsOnlyForModerator(list_user_info, active_videos, inactive_videos, webcamsOnlyForModerator)
+    def self.process_webcamsOnlyForModerator(list_user_info, active_videos, inactive_videos, webcamsOnlyForModerator, list_user_talking)
       
       if webcamsOnlyForModerator
         list_user_info.each do |user_id, user_role|
@@ -157,10 +157,13 @@ module BigBlueButton
         end
       else
         # If the WebcamsOnlyForModerator is false, all previously inactive videos will become active
-        inactive_videos.each do |filename| 
-          active_videos << filename
+        inactive_videos.each do |filename|
+          user_id = BigBlueButton::Events.get_id_from_filename(filename)
+          if list_user_talking[user_id]
+            active_videos << filename
+            inactive_videos.delete(filename)
+          end
         end
-        inactive_videos.clear
       end
     end
 
@@ -217,7 +220,7 @@ module BigBlueButton
           case event['eventname']
           when 'StartWebcamShareEvent', 'StartWebRTCShareEvent'
             user_id = BigBlueButton::Events.get_id_from_filename(filename)
-            if !talking_people_only || (talking_people_only && list_user_talking[user_id]) 
+            if !talking_people_only || (talking_people_only && list_user_talking[user_id])
               videos[filename] = { :timestamp => timestamp }
               active_videos << filename
 
@@ -232,7 +235,7 @@ module BigBlueButton
                 }
               end
               video_edl << edl_entry
-            elsif (talking_people_only && !list_user_talking[user_id]) 
+            elsif (talking_people_only && !list_user_talking[user_id])
               inactive_videos << filename
               videos[filename] = { :timestamp => timestamp }
             end
@@ -240,7 +243,7 @@ module BigBlueButton
             user_id = BigBlueButton::Events.get_id_from_filename(filename)
             if !talking_people_only || (talking_people_only && list_user_talking[user_id])
               active_videos.delete(filename)
-    
+
               edl_entry = {
                 :timestamp => timestamp,
                 :areas => { :webcam => [] }
@@ -256,7 +259,7 @@ module BigBlueButton
               inactive_videos.delete(filename)
             end
           when 'ParticipantTalkingEvent', 'ParticipantMutedEvent'
-            
+
             if (talking_people_only)
               user_id = event.at_xpath('participant').text
               is_talking = false
@@ -293,7 +296,7 @@ module BigBlueButton
                 end
               end
 
-              if is_user_cam_on #&& !is_only_cam_speaking
+              if is_user_cam_on
                 edl_entry = {
                   :timestamp => timestamp,
                   :areas => { :webcam => [] }
@@ -314,7 +317,7 @@ module BigBlueButton
           end
         end
       else
-        events.xpath('/recording/event[@module="WEBCAM" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCShareEvent" or @eventname="StopWebRTCShareEvent")) or (@module="PARTICIPANT" and (@eventname="ParticipantStatusChangeEvent" or @eventname="ParticipantJoinEvent")) or @eventname="WebcamsOnlyForModeratorEvent" or @eventname="MeetingConfigurationEvent"]').each do |event|
+        events.xpath('/recording/event[@module="WEBCAM" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCShareEvent" or @eventname="StopWebRTCShareEvent")) or (@module="PARTICIPANT" and (@eventname="ParticipantStatusChangeEvent" or @eventname="ParticipantJoinEvent")) or @eventname="WebcamsOnlyForModeratorEvent" or @eventname="MeetingConfigurationEvent" or @eventname="ParticipantTalkingEvent" or @eventname="ParticipantMutedEvent"]').each do |event|
           timestamp = event['timestamp'].to_i - initial_timestamp
 
           # Determine the video filename if event is as the following
@@ -333,7 +336,7 @@ module BigBlueButton
             userId = BigBlueButton::Events.get_id_from_filename(filename)
             is_in_forbidden_period = webcamsOnlyForModerator
 
-            if (!is_in_forbidden_period && !moderators_only) || (BigBlueButton::Events.is_user_moderator(userId, list_user_info))
+            if ((!is_in_forbidden_period && !moderators_only && !talking_people_only) || (is_in_forbidden_period && BigBlueButton::Events.is_user_moderator(userId, list_user_info)) || (moderators_only && BigBlueButton::Events.is_user_moderator(userId, list_user_info))) ||  (talking_people_only && list_user_talking[userId])
               
               videos[filename] = { :timestamp => timestamp }
               active_videos << filename
@@ -350,7 +353,7 @@ module BigBlueButton
                 }
               end
               video_edl << edl_entry
-            elsif (is_in_forbidden_period || moderators_only) && !BigBlueButton::Events.is_user_moderator(userId, list_user_info)
+            elsif ((is_in_forbidden_period || moderators_only) && !BigBlueButton::Events.is_user_moderator(userId, list_user_info)) || (talking_people_only && !list_user_talking[userId])
               inactive_videos << filename
               videos[filename] = { :timestamp => timestamp }
             end
@@ -358,7 +361,7 @@ module BigBlueButton
             userId = BigBlueButton::Events.get_id_from_filename(filename)
             is_in_forbidden_period = webcamsOnlyForModerator
 
-            if (!is_in_forbidden_period && !moderators_only) || (BigBlueButton::Events.is_user_moderator(userId, list_user_info))
+            if ((!is_in_forbidden_period && !moderators_only && !talking_people_only) || (is_in_forbidden_period && BigBlueButton::Events.is_user_moderator(userId, list_user_info)) || (moderators_only && BigBlueButton::Events.is_user_moderator(userId, list_user_info))) ||  (talking_people_only && list_user_talking[userId])
               active_videos.delete(filename)
 
               edl_entry = {
@@ -373,7 +376,7 @@ module BigBlueButton
                 }
               end
               video_edl << edl_entry
-            elsif (is_in_forbidden_period || moderators_only) && !BigBlueButton::Events.is_user_moderator(userId, list_user_info)
+            elsif ((is_in_forbidden_period || moderators_only) && !BigBlueButton::Events.is_user_moderator(userId, list_user_info)) || (talking_people_only && !list_user_talking[userId])
               inactive_videos.delete(filename)
             end
           when "ParticipantJoinEvent"
@@ -388,7 +391,7 @@ module BigBlueButton
             if event.at_xpath('status').text == "role" 
               userId = event.at_xpath('userId').text
 
-              if (is_in_forbidden_period || moderators_only) && event.at_xpath('value').text == "MODERATOR"
+              if ((is_in_forbidden_period || moderators_only) && event.at_xpath('value').text == "MODERATOR") && (!talking_people_only || (talking_people_only && list_user_talking[userId]))
                 filename_to_add = BigBlueButton::Events.extract_filename_from_userId(userId, inactive_videos)
                 if filename_to_add != ""
                   inactive_videos.delete(filename_to_add)
@@ -436,7 +439,7 @@ module BigBlueButton
 
           when "WebcamsOnlyForModeratorEvent"
             # Change active and inactive videos.
-            BigBlueButton::Events.process_webcamsOnlyForModerator(list_user_info, active_videos, inactive_videos, BigBlueButton::Events.to_boolean(event.at_xpath("webcamsOnlyForModerator").text))
+            BigBlueButton::Events.process_webcamsOnlyForModerator(list_user_info, active_videos, inactive_videos, BigBlueButton::Events.to_boolean(event.at_xpath("webcamsOnlyForModerator").text), list_user_talking)
             
             edl_entry = {
               :timestamp => timestamp,
@@ -452,6 +455,63 @@ module BigBlueButton
             video_edl << edl_entry
             
             webcamsOnlyForModerator = BigBlueButton::Events.to_boolean(event.at_xpath('webcamsOnlyForModerator').text)
+          
+          when 'ParticipantTalkingEvent', 'ParticipantMutedEvent'
+
+            if (talking_people_only)
+              user_id = event.at_xpath('participant').text
+              is_talking = false
+              is_muted = false
+              if event['eventname'] == 'ParticipantTalkingEvent'
+                is_talking = BigBlueButton::Events.to_boolean(event.at_xpath('talking').text)
+              else
+                if BigBlueButton::Events.to_boolean(event.at_xpath('muted').text) && list_user_talking[user_id]
+                  is_muted = true
+                end
+              end
+
+              is_user_cam_on= false
+              is_only_cam_speaking=false
+              filename_to_add= ""
+
+              if (list_user_talking[user_id] != is_talking) || is_muted
+                if is_talking
+                  filename_to_add = BigBlueButton::Events.extract_filename_from_userId(user_id, inactive_videos)
+                  if filename_to_add != ""
+                    is_user_cam_on = true
+                    inactive_videos.delete(filename_to_add)
+                    active_videos << filename_to_add
+                  end
+                  list_user_talking[user_id] = is_talking
+                else
+                  filename_to_add = BigBlueButton::Events.extract_filename_from_userId(user_id, active_videos)
+                  if filename_to_add != ""
+                    is_user_cam_on = true
+                    active_videos.delete(filename_to_add)
+                    inactive_videos << filename_to_add
+                  end
+                  list_user_talking[user_id] = is_talking
+                end
+              end
+
+              if is_user_cam_on
+                edl_entry = {
+                  :timestamp => timestamp,
+                  :areas => { :webcam => [] }
+                }
+                active_videos.each do |filename|
+                  edl_entry[:areas][:webcam] << {
+                    :filename => filename,
+                    :timestamp => timestamp - videos[filename][:timestamp]
+                  }
+                end
+                video_edl << edl_entry
+              end
+
+              if !list_user_talking.has_key?(user_id)
+                list_user_talking[user_id] = is_talking
+              end
+            end
           end
         end
       end

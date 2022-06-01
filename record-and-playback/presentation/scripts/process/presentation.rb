@@ -52,8 +52,16 @@ presentation_props['audio_offset'] = 0 if presentation_props['audio_offset'].nil
 presentation_props['include_deskshare'] = false if presentation_props['include_deskshare'].nil?
 
 render_cams_list = ["all"]
-if (!presentation_props['render_webcams_options'].nil?)
-  render_cams_list = presentation_props['render_webcams_options'].split(",")
+if (!presentation_props['render_webcams_options'].nil? && presentation_props['render_webcams_options'] != "")
+  render_cams_list = []
+  presentation_props['render_webcams_options'].split(",").each do |item|
+    strip_item = item.strip
+    if strip_item == "all"
+      render_cams_list.unshift(strip_item)
+    else
+      render_cams_list << strip_item
+    end
+  end
 end
 
 recording_dir = props['recording_dir']
