@@ -238,6 +238,34 @@ function overlay_draw(svg, annotation) {
     }).up()
 }
 
+function overlay_ellipse(svg, annotation) {
+
+    let dash = annotation.style.dash;
+
+    let [x, y] = annotation.point; // Ellipse center coordinates
+    let [rx, ry] = annotation.radius;
+    let isFilled = annotation.style.isFilled;
+
+    let shapeColor = color_to_hex(annotation.style.color);
+    let fillColor = isFilled ? color_to_hex(annotation.style.color, false, isFilled) : 'none';
+
+    let rotation = rad_to_degree(annotation.rotation);
+    let sw = get_stroke_width(dash, annotation.style.size);
+    let gap = get_gap(dash, annotation.style.size);
+
+    let stroke_dasharray = determine_dasharray(dash, gap);
+
+    svg.ele('g', {
+        style: `stroke:${shapeColor};stroke-width:${sw};fill:${fillColor};${stroke_dasharray}`,
+    }).ele('ellipse', {
+        'cx': x + rx,
+        'cy': y + ry,
+        'rx': rx,
+        'ry': ry,
+        transform: `rotate(${rotation} ${x + rx} ${y + ry})`
+    }).up()
+}
+
 function overlay_rectangle(svg, annotation) {
 
     let dash = annotation.style.dash;
@@ -266,7 +294,7 @@ function overlay_rectangle(svg, annotation) {
         height: h,
         'rx': rx,
         'ry': ry,
-        transform: `translate(${x} ${y}), rotate(${rotation} ${(x + w) / 2} ${(y + h) / 2})`
+        transform: `translate(${x} ${y}), rotate(${rotation} ${w / 2} ${h / 2})`
     }).up()
 }
 
@@ -340,13 +368,28 @@ function overlay_text(svg, annotation) {
     }
 }
 
+// function sortByKey(array, key, pos) {
+//     return array.sort(function(a, b) {
+//         let [x, y] = [a[key][pos], b[key][pos]]
+//         return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+//     });
+// }
+
 function overlay_annotations(svg, currentSlideAnnotations, w, h) {
 
+
+    // currentSlideAnnotations = sortByKey(currentSlideAnnotations, 'annotationInfo', 'childIndex');
+
     for (let annotation of currentSlideAnnotations) {
-        console.log(annotation.annotationInfo);
+        console.log("===========================")
+        console.log(annotation.annotationInfo.childIndex)
+        console.log("===========================")
         switch (annotation.annotationInfo.type) {
             case 'draw':
                 overlay_draw(svg, annotation.annotationInfo);
+                break;
+            case 'ellipse':
+                overlay_ellipse(svg, annotation.annotationInfo);
                 break;
             case 'rectangle':
                 overlay_rectangle(svg, annotation.annotationInfo);
@@ -358,7 +401,7 @@ function overlay_annotations(svg, currentSlideAnnotations, w, h) {
                 overlay_text(svg, annotation.annotationInfo);
                 break;
             default:
-                logger.error(`Unknown annotation type ${annotation.annotationInfo.type}.`);
+                logger.warn(`Unknown annotation type ${annotation.annotationInfo.type}.`);
         }
     }
 }
