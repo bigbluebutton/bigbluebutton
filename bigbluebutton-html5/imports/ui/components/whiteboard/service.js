@@ -6,6 +6,7 @@ import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
 import { Slides } from '/imports/api/slides';
 import { makeCall } from '/imports/ui/services/api';
 import PresentationService from '/imports/ui/components/presentation/service';
+import PollService from '/imports/ui/components/poll/service';
 import logger from '/imports/startup/client/logger';
 
 const Annotations = new Mongo.Collection(null);
