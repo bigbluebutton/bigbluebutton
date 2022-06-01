@@ -1,17 +1,12 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { injectIntl, defineMessages } from 'react-intl';
+import React, { useEffect, useRef, useState } from 'react';
+import { injectIntl } from 'react-intl';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Auth from '/imports/ui/services/auth';
-import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import UserActions from '/imports/ui/components/video-provider/video-list/video-list-item/user-actions/component';
 import UserStatus from '/imports/ui/components/video-provider/video-list/video-list-item/user-status/component';
 import PinArea from '/imports/ui/components/video-provider/video-list/video-list-item/pin-area/component';
 import UserAvatarVideo from '/imports/ui/components/video-provider/video-list/video-list-item/user-avatar/component';
 import ViewActions from '/imports/ui/components/video-provider/video-list/video-list-item/view-actions/component';
-import { CustomVirtualBackgroundsContext } from '/imports/ui/components/video-preview/virtual-background/context';
-import { EFFECT_TYPES } from '/imports/ui/services/virtual-background/service';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import {
   isStreamStateUnhealthy,
   subscribeToStreamStateChange,
@@ -20,35 +15,21 @@ import {
 import Settings from '/imports/ui/services/settings';
 import VideoService from '/imports/ui/components/video-provider/service';
 import Styled from './styles';
-
-const intlMessages = defineMessages({
-  confirmationTitle: {
-    id: 'app.confirmation.virtualBackground.title',
-    description: 'Confirmation modal title',
-  },
-  confirmationDescription: {
-    id: 'app.confirmation.virtualBackground.description',
-    description: 'Confirmation modal description',
-  },
-});
+import { withDragAndDrop } from './drag-and-drop/component';
 
 const VIDEO_CONTAINER_WIDTH_BOUND = 125;
-const MIME_TYPES_ALLOWED = ['image/png', 'image/jpeg'];
-const MAX_FILE_SIZE = 5000; // KBytes
 
 const VideoListItem = (props) => {
   const {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount, onVirtualBgDrop,
-    mountModal, intl,
+    makeDragOperations,
   } = props;
 
   const [videoIsReady, setVideoIsReady] = useState(false);
   const [isStreamHealthy, setIsStreamHealthy] = useState(false);
   const [isMirrored, setIsMirrored] = useState(VideoService.mirrorOwnWebcam(user.userId));
   const [isVideoSqueezed, setIsVideoSqueezed] = useState(false);
-  const [dragging, setDragging] = useState(false);
-  const [draggingOver, setDraggingOver] = useState(false);
 
   const resizeObserver = new ResizeObserver((entry) => {
     if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_WIDTH_BOUND) {
@@ -59,8 +40,6 @@ const VideoListItem = (props) => {
 
   const videoTag = useRef();
   const videoContainer = useRef();
-
-  const { dispatch: dispatchCustomBackground } = useContext(CustomVirtualBackgroundsContext);
 
   const shouldRenderReconnect = !isStreamHealthy && videoIsReady;
   const { animations } = Settings.application;
@@ -213,117 +192,6 @@ const VideoListItem = (props) => {
       </Styled.BottomBar>
     </>
   );
-  const resetEvent = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
-  useEffect(() => {
-    const onDragOver = (e) => {
-      resetEvent(e);
-      setDragging(true);
-    };
-    const onDragLeave = (e) => {
-      resetEvent(e);
-      setDragging(false);
-    };
-    const onDrop = (e) => {
-      resetEvent(e);
-      setDragging(false);
-    };
-
-    window.addEventListener('dragover', onDragOver);
-    window.addEventListener('dragleave', onDragLeave);
-    window.addEventListener('drop', onDrop);
-
-    return () => {
-      window.removeEventListener('dragover', onDragOver);
-      window.removeEventListener('dragleave', onDragLeave);
-      window.removeEventListener('drop', onDrop);
-    };
-  }, []);
-
-  const startAndSaveVirtualBackground = (file) => {
-    const { name: filename } = file;
-    const reader = new FileReader();
-    const substrings = filename.split('.');
-    substrings.pop();
-    const filenameWithoutExtension = substrings.join('');
-
-    reader.onload = function (e) {
-      const background = {
-        filename: filenameWithoutExtension,
-        data: e.target.result,
-        uniqueId: _.uniqueId(),
-      };
-
-      onVirtualBgDrop(EFFECT_TYPES.IMAGE_TYPE, filename, e.target.result).then(() => {
-        dispatchCustomBackground({
-          type: 'new',
-          background,
-        });
-      });
-    };
-
-    reader.readAsDataURL(file);
-  };
-
-  const onDragOverHandler = (e) => {
-    resetEvent(e);
-    setDraggingOver(true);
-    setDragging(false);
-  }
-
-  const onDropHandler = (e) => {
-    resetEvent(e);
-    setDraggingOver(false);
-    setDragging(false);
-
-    const { files } = e.dataTransfer;
-    const file = files[0];
-    const { size, type } = file;
-    const sizeInKB = size / 1024;
-
-    if (sizeInKB > MAX_FILE_SIZE || !MIME_TYPES_ALLOWED.includes(type)) return;
-
-    if (Session.get('skipBackgroundDropConfirmation')) {
-      return startAndSaveVirtualBackground(file);
-    }
-
-    const onConfirm = (confirmParam, checked) => {
-      startAndSaveVirtualBackground(file);
-      Session.set('skipBackgroundDropConfirmation', checked);
-    };
-
-    mountModal(
-      <ConfirmationModal
-        intl={intl}
-        onConfirm={onConfirm}
-        title={intl.formatMessage(intlMessages.confirmationTitle)}
-        description={intl.formatMessage(intlMessages.confirmationDescription, { 0: file.name })}
-        checkboxMessageId="app.confirmation.skipConfirm"
-      />
-    );
-  };
-
-  const onDragLeaveHandler = (e) => {
-    resetEvent(e);
-    setDragging(false);
-    setDraggingOver(false);
-  }
-
-  const getDragOperations = () => {
-    if (Auth.userID === user.userId) {
-      return {
-        onDragOver: onDragOverHandler,
-        onDrop: onDropHandler,
-        onDragLeave: onDragLeaveHandler,
-        dragging,
-        draggingOver,
-      };
-    }
-    return {};
-  }
 
   return (
     <Styled.Content
@@ -332,7 +200,7 @@ const VideoListItem = (props) => {
       fullscreen={isFullscreenContext}
       data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
       animations={animations}
-      {...getDragOperations()}
+      {...makeDragOperations(onVirtualBgDrop, user.userId)}
     >
       <Styled.VideoContainer>
         <Styled.Video
@@ -359,7 +227,7 @@ const VideoListItem = (props) => {
   );
 };
 
-export default withModalMounter(injectIntl(VideoListItem));
+export default withDragAndDrop(injectIntl(VideoListItem));
 
 VideoListItem.defaultProps = {
   numOfStreams: 0,
