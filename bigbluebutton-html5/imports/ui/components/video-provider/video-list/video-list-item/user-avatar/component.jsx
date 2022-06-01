@@ -5,9 +5,12 @@ import Icon from '/imports/ui/components/common/icon/component';
 import UserListService from '/imports/ui/components/user-list/service';
 
 const UserAvatarVideo = (props) => {
-  const { user, unhealthyStream } = props;
+  const { user, unhealthyStream, squeezed } = props;
   const {
-    name, color, avatar, role, emoji, presenter, clientType,
+    name, color, avatar, role, emoji,
+  } = user;
+  let {
+    presenter, clientType,
   } = user;
 
   const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -18,6 +21,12 @@ const UserAvatarVideo = (props) => {
     }
     return name.toLowerCase().slice(0, 2);
   };
+
+  // hide icons when squeezed
+  if (squeezed) {
+    presenter = false;
+    clientType = false;
+  }
 
   return (
     <Styled.UserAvatarStyled
@@ -47,4 +56,5 @@ UserAvatarVideo.propTypes = {
     clientType: PropTypes.string.isRequired,
   }).isRequired,
   unhealthyStream: PropTypes.bool.isRequired,
+  squeezed: PropTypes.bool.isRequired,
 };

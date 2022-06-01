@@ -31,7 +31,6 @@ const Content = styled.div`
   display: flex;
   min-width: 100%;
   border-radius: 10px;
-  border: 2px solid ${colorBlack};
   &::after {
     content: "";
     position: absolute;
@@ -39,9 +38,13 @@ const Content = styled.div`
     right: 0;
     bottom: 0;
     left: 0;
-    opacity: 0;
     pointer-events: none;
+    border: 2px solid ${colorBlack};
     border-radius: 10px;
+
+    ${({ talking }) => talking && `
+      border: 2px solid ${colorPrimary};
+    `}
 
     ${({ animations }) => animations && `
       transition: opacity .1s;
@@ -87,7 +90,7 @@ const WebcamConnecting = styled.div`
   min-width: 100%;
   border-radius: 10px;
   background-color: ${webcamBackgroundColor};
-  z-index: 1;
+  z-index: 0;
 
   &::after {
     content: "";
@@ -134,6 +137,8 @@ const Reconnecting = styled.div`
 `;
 
 const VideoContainer = styled.div`
+  display: flex;
+  justify-content: center;
   width: 100%;
   height: 100%;
 `;
@@ -141,7 +146,7 @@ const VideoContainer = styled.div`
 const Video = styled.video`
   position: relative;
   height: 100%;
-  width: 100%;
+  width: calc(100% - 1px);
   object-fit: contain;
   background-color: ${colorBlack};
   border-radius: 10px;

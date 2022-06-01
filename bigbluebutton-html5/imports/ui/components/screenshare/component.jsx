@@ -12,15 +12,17 @@ import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import { notify } from '/imports/ui/services/notification';
 import {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
+  isMediaFlowing,
   screenshareHasEnded,
   screenshareHasStarted,
   getMediaElement,
   attachLocalPreviewStream,
   setVolume,
   getVolume,
+  getStats,
 } from '/imports/ui/components/screenshare/service';
 import {
-  isStreamStateUnhealthy,
+  isStreamStateHealthy,
   subscribeToStreamStateChange,
   unsubscribeFromStreamStateChange,
 } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
@@ -64,6 +66,7 @@ const intlMessages = defineMessages({
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 const MOBILE_HOVER_TIMEOUT = 5000;
+const MEDIA_FLOW_PROBE_INTERVAL = 500;
 
 class ScreenshareComponent extends React.Component {
   static renderScreenshareContainerInside(mainText) {
@@ -79,7 +82,7 @@ class ScreenshareComponent extends React.Component {
     this.state = {
       loaded: false,
       autoplayBlocked: false,
-      isStreamHealthy: false,
+      mediaFlowing: false,
       switched: false,
       // Volume control hover toolbar
       showHoverToolBar: false,
@@ -96,6 +99,7 @@ class ScreenshareComponent extends React.Component {
 
     this.volume = getVolume();
     this.mobileHoverSetTimeout = null;
+    this.mediaFlowMonitor = null;
   }
 
   componentDidMount() {
@@ -130,9 +134,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {
-      isPresenter,
-    } = this.props;
+    const { isPresenter } = this.props;
     if (prevProps.isPresenter && !isPresenter) {
       screenshareHasEnded();
     }
@@ -170,6 +172,14 @@ class ScreenshareComponent extends React.Component {
       });
     }
 
+    this.clearMediaFlowingMonitor();
+  }
+
+  clearMediaFlowingMonitor() {
+    if (this.mediaFlowMonitor) {
+      Meteor.clearInterval(this.mediaFlowMonitor);
+      this.mediaFlowMonitor = null;
+    }
   }
 
   handleAllowAutoplay() {
@@ -213,15 +223,25 @@ class ScreenshareComponent extends React.Component {
     }
   }
 
-  onStreamStateChange(event) {
-    const { streamState } = event.detail;
-    const { isStreamHealthy } = this.state;
+  async monitorMediaFlow() {
+    let previousStats = await getStats();
+    this.mediaFlowMonitor = Meteor.setInterval(async () => {
+      const { mediaFlowing: prevMediaFlowing } = this.state;
+      let mediaFlowing;
 
-    const newHealthState = !isStreamStateUnhealthy(streamState);
-    event.stopPropagation();
-    if (newHealthState !== isStreamHealthy) {
-      this.setState({ isStreamHealthy: newHealthState });
-    }
+      const currentStats = await getStats();
+
+      try {
+        mediaFlowing = isMediaFlowing(previousStats, currentStats);
+      } catch (_error) {
+        // Stats processing failed for whatever reason - maintain previous state
+        mediaFlowing = prevMediaFlowing;
+      }
+
+      previousStats = currentStats;
+
+      if (prevMediaFlowing !== mediaFlowing) this.setState({ mediaFlowing });
+    }, MEDIA_FLOW_PROBE_INTERVAL);
   }
 
   onLoadedData() {
@@ -242,6 +262,22 @@ class ScreenshareComponent extends React.Component {
       setVolume(0);
     } else {
       setVolume(this.volume);
+    }
+  }
+
+  onStreamStateChange(event) {
+    const { streamState } = event.detail;
+    const { mediaFlowing } = this.state;
+
+    const isStreamHealthy = isStreamStateHealthy(streamState);
+    event.stopPropagation();
+
+    if (isStreamHealthy) {
+      this.clearMediaFlowingMonitor();
+      // Current state is media not flowing - stream is now healthy so flip it
+      if (!mediaFlowing) this.setState({ mediaFlowing: isStreamHealthy });
+    } else {
+      if (this.mediaFlowMonitor == null) this.monitorMediaFlow();
     }
   }
 
@@ -318,7 +354,6 @@ class ScreenshareComponent extends React.Component {
     if (deviceInfo.isMobile && showHoverToolBar) {
       toolbarStyle = 'showMobileHoverToolbar';
     }
-  
 
     return [(
       <Styled.HoverToolbar
@@ -338,12 +373,13 @@ class ScreenshareComponent extends React.Component {
 
   renderVideo(switched) {
     const { isGloballyBroadcasting } = this.props;
+    const { mediaFlowing } = this.state;
 
     return (
       <Styled.ScreenshareVideo
         id={SCREENSHARE_MEDIA_ELEMENT_NAME}
         key={SCREENSHARE_MEDIA_ELEMENT_NAME}
-        unhealthyStream={!isGloballyBroadcasting}
+        unhealthyStream={!isGloballyBroadcasting || !mediaFlowing}
         style={switched
           ? { maxHeight: '100%', width: '100%', height: '100%' }
           : { maxHeight: '25%', width: '25%', height: '25%' }}
@@ -418,7 +454,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   render() {
-    const { loaded, autoplayBlocked, isStreamHealthy } = this.state;
+    const { loaded, autoplayBlocked, mediaFlowing} = this.state;
     const {
       isPresenter,
       isGloballyBroadcasting,
@@ -439,7 +475,7 @@ class ScreenshareComponent extends React.Component {
     // state transitioned to an unhealthy stream. tl;dr: screen sharing reconnection
     const shouldRenderConnectingState = !loaded
       || (isPresenter && !isGloballyBroadcasting)
-      || (!isStreamHealthy && loaded && isGloballyBroadcasting);
+      || (!mediaFlowing && loaded && isGloballyBroadcasting);
 
     const display = (width > 0 && height > 0) ? 'inherit' : 'none';
     const { animations } = Settings.application;

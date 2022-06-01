@@ -30,8 +30,8 @@ class AudioBroker extends BaseBroker {
   }
 
   getLocalStream() {
-    if (this.webRtcPeer && this.webRtcPeer.peerConnection) {
-      return this.webRtcPeer.peerConnection.getLocalStreams()[0];
+    if (this.webRtcPeer && typeof this.webRtcPeer.getLocalStream === 'function') {
+      return this.webRtcPeer.getLocalStream();
     }
 
     return null;

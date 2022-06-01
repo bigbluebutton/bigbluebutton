@@ -20,8 +20,8 @@ trait PreuploadedPresentationsPubMsgHdlr {
       val pages = new collection.mutable.HashMap[String, PageVO]()
 
       pres.pages.foreach { p =>
-        val page = new PageVO(p.id, p.num, p.thumbUri, p.swfUri, p.txtUri, p.svgUri, p.current, p.xOffset, p.yOffset,
-          p.widthRatio, p.heightRatio)
+        val page = new PageVO(p.id, p.num, p.thumbUri, p.swfUri, p.txtUri, p.svgUri,
+          p.current, p.xCamera, p.yCamera, p.zoom)
         pages += page.id -> page
       }
 

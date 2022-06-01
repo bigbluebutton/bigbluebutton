@@ -5,18 +5,18 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
-trait UndoWhiteboardPubMsgHdlr extends RightsManagementTrait {
+trait DeleteWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
   this: WhiteboardApp2x =>
 
-  def handle(msg: UndoWhiteboardPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+  def handle(msg: DeleteWhiteboardAnnotationsPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
-    def broadcastEvent(msg: UndoWhiteboardPubMsg, removedAnnotationId: String): Unit = {
+    def broadcastEvent(msg: DeleteWhiteboardAnnotationsPubMsg, removedAnnotationsIds: Array[String]): Unit = {
       val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, liveMeeting.props.systemProps.html5InstanceId.toString)
-      val envelope = BbbCoreEnvelope(UndoWhiteboardEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(UndoWhiteboardEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
+      val envelope = BbbCoreEnvelope(DeleteWhiteboardAnnotationsEvtMsg.NAME, routing)
+      val header = BbbClientMsgHeader(DeleteWhiteboardAnnotationsEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = UndoWhiteboardEvtMsgBody(msg.body.whiteboardId, msg.header.userId, removedAnnotationId)
-      val event = UndoWhiteboardEvtMsg(header, body)
+      val body = DeleteWhiteboardAnnotationsEvtMsgBody(msg.body.whiteboardId, removedAnnotationsIds)
+      val event = DeleteWhiteboardAnnotationsEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
     }
@@ -24,14 +24,13 @@ trait UndoWhiteboardPubMsgHdlr extends RightsManagementTrait {
     if (filterWhiteboardMessage(msg.body.whiteboardId, msg.header.userId, liveMeeting) && permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       if (isNonEjectionGracePeriodOver(msg.body.whiteboardId, msg.header.userId, liveMeeting)) {
         val meetingId = liveMeeting.props.meetingProp.intId
-        val reason = "No permission to undo an annotation."
+        val reason = "No permission to delete an annotation."
         PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       }
     } else {
-      for {
-        lastAnnotation <- undoWhiteboard(msg.body.whiteboardId, msg.header.userId, liveMeeting)
-      } yield {
-        broadcastEvent(msg, lastAnnotation.id)
+      val deletedAnnotations = deleteWhiteboardAnnotations(msg.body.whiteboardId, msg.header.userId, msg.body.annotationsIds, liveMeeting)
+      if (!deletedAnnotations.isEmpty) {
+        broadcastEvent(msg, deletedAnnotations)
       }
     }
   }

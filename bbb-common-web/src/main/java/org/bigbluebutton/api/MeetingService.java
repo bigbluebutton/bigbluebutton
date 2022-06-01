@@ -60,6 +60,7 @@ import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessa
 import org.bigbluebutton.api.messaging.messages.*;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
+import org.bigbluebutton.common2.msgs.MeetingCreatedEvtMsg;
 import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier;
