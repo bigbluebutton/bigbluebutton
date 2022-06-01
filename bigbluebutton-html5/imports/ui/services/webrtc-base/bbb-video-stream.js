@@ -76,12 +76,13 @@ export class BBBVideoStream extends EventEmitter2 {
     BBBVideoStream.trackStreamTermination(this.originalStream, notify);
   }
 
-  _changeVirtualBackground (type, name) {
+  _changeVirtualBackground (type, name, customParams) {
     try {
       this.virtualBgService.changeBackgroundImage({
         type,
         name,
         isVirtualBackground: this.isVirtualBackground(type),
+        customParams,
       });
       this.virtualBgType = type;
       this.virtualBgName = name;
@@ -92,14 +93,15 @@ export class BBBVideoStream extends EventEmitter2 {
   }
 
 
-  startVirtualBackground (type, name = '') {
-    if (this.virtualBgService) return this._changeVirtualBackground(type, name);
+  startVirtualBackground (type, name = '', customParams) {
+    if (this.virtualBgService) return this._changeVirtualBackground(type, name, customParams);
 
     return createVirtualBackgroundStream(
       type,
       name,
       this.isVirtualBackground(type),
-      this.mediaStream
+      this.mediaStream,
+      customParams,
     ).then(({ service, effect }) => {
       this.virtualBgService = service;
       this.virtualBgType = type;

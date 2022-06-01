@@ -767,6 +767,7 @@ public:
       logTag: ''
   virtualBackgrounds:
     enabled: true
+    enableVirtualBackgroundUpload: true
     storedOnBBB: true
     showThumbnails: true
     imagesPath: /resources/images/virtual-backgrounds/

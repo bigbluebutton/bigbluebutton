@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { injectIntl } from 'react-intl';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
-import ViewActions from '/imports/ui/components/video-provider/video-list/video-list-item/view-actions/component';
 import UserActions from '/imports/ui/components/video-provider/video-list/video-list-item/user-actions/component';
 import UserStatus from '/imports/ui/components/video-provider/video-list/video-list-item/user-status/component';
 import PinArea from '/imports/ui/components/video-provider/video-list/video-list-item/pin-area/component';
 import UserAvatarVideo from '/imports/ui/components/video-provider/video-list/video-list-item/user-avatar/component';
+import ViewActions from '/imports/ui/components/video-provider/video-list/video-list-item/view-actions/component';
 import {
   isStreamStateUnhealthy,
   subscribeToStreamStateChange,
@@ -14,13 +15,15 @@ import {
 import Settings from '/imports/ui/services/settings';
 import VideoService from '/imports/ui/components/video-provider/service';
 import Styled from './styles';
+import { withDragAndDrop } from './drag-and-drop/component';
 
 const VIDEO_CONTAINER_WIDTH_BOUND = 125;
 
 const VideoListItem = (props) => {
   const {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
-    cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
+    cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount, onVirtualBgDrop,
+    makeDragOperations,
   } = props;
 
   const [videoIsReady, setVideoIsReady] = useState(false);
@@ -198,6 +201,7 @@ const VideoListItem = (props) => {
       fullscreen={isFullscreenContext}
       data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
       animations={animations}
+      {...makeDragOperations(onVirtualBgDrop, user.userId)}
     >
       <Styled.VideoContainer>
         <Styled.Video
@@ -224,7 +228,7 @@ const VideoListItem = (props) => {
   );
 };
 
-export default injectIntl(VideoListItem);
+export default withDragAndDrop(injectIntl(VideoListItem));
 
 VideoListItem.defaultProps = {
   numOfStreams: 0,
