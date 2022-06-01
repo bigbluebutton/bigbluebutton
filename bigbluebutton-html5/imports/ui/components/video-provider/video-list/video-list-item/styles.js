@@ -67,10 +67,6 @@ const Content = styled.div`
     }
   `}
 
-  ${({ talking }) => talking && `
-    border: 2px solid ${colorPrimary};
-  `}
-
   ${({ fullscreen }) => fullscreen && `
     position: fixed;
     top: 0;
