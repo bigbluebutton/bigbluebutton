@@ -45,7 +45,8 @@ export default function Whiteboard(props) {
     slidePosition,
     curPageId,
     svgUri,
-    presentationBounds
+    presentationBounds,
+    isViewersCursorLocked,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -218,6 +219,7 @@ export default function Whiteboard(props) {
         tldrawAPI={tldrawAPI}
         currentUser={currentUser}
         whiteboardId={whiteboardId}
+        isViewersCursorLocked={isViewersCursorLocked}
       >
         <Tldraw
           key={`wb-${!hasWBAccess && !isPresenter}`}

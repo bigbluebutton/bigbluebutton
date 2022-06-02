@@ -118,6 +118,7 @@ export default function Cursors(props) {
     tldrawAPI,
     publishCursorUpdate,
     children,
+    isViewersCursorLocked
   } = props;
   React.useEffect(() => {
     !cursorWrapper.hasOwnProperty("mouseenter") &&
@@ -127,7 +128,7 @@ export default function Cursors(props) {
     !cursorWrapper.hasOwnProperty("mouseleave") &&
       cursorWrapper?.addEventListener("mouseleave", (event) => {
         publishCursorUpdate({
-          xPercent: null,
+          xPercent: null,   
           yPercent: null,
           whiteboardId: whiteboardId,
         });
@@ -152,6 +153,12 @@ export default function Cursors(props) {
       </ReactCursorPosition>
       {otherCursors
         .filter((c) => c?.xPercent && c?.yPercent)
+        .filter((c) => {
+          if ((isViewersCursorLocked && c?.role !== "VIEWER") || !isViewersCursorLocked || currentUser?.presenter) {
+            return c;
+          }
+          return null;
+        })
         .map((c) => {
           return (
             c &&
