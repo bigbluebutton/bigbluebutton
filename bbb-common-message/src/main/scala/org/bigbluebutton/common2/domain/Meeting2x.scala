@@ -105,6 +105,10 @@ case class AnswerVO(id: Int, key: String, text: Option[String], responders: Opti
 case class QuestionVO(id: Int, questionType: String, multiResponse: Boolean, questionText: Option[String], answers: Option[Array[AnswerVO]])
 case class PollVO(id: String, questions: Array[QuestionVO], title: Option[String], started: Boolean, stopped: Boolean, showResult: Boolean, isSecret: Boolean)
 
+case class SimpleQuestionQuizOutVO(id: String, isMultipleResponse: Boolean, answers: Array[SimpleAnswerOutVO])
+case class SimpleQuestionQuizResultOutVO(id: String, questionType: String, questionText: Option[String], answers: Array[SimpleVoteOutVO], numRespondents: Int, numResponders: Int)
+case class QuestionQuizVO(id: String, questions: Array[QuestionVO], title: Option[String], started: Boolean, stopped: Boolean, showResult: Boolean, isSecret: Boolean)
+
 case class UserVO(id: String, externalId: String, name: String, role: String,
                   guest: Boolean, authed: Boolean, guestStatus: String, emojiStatus: String,
                   presenter: Boolean, hasStream: Boolean, locked: Boolean, webcamStreams: Set[String],

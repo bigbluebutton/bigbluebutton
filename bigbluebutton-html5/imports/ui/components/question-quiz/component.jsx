@@ -13,13 +13,13 @@ import Modal from '/imports/ui/components/common/modal/simple/component';
 import { alertScreenReader } from '/imports/utils/dom-utils';
 
 
-const POLL_SETTINGS = Meteor.settings.public.poll;
+const QUIZ_SETTINGS = Meteor.settings.public.questionQuiz;
 
-const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
-const MAX_INPUT_CHARS = POLL_SETTINGS.maxTypedAnswerLength;
+const MAX_CUSTOM_FIELDS = QUIZ_SETTINGS.maxCustom;
+const MAX_INPUT_CHARS = QUIZ_SETTINGS.maxTypedAnswerLength;
 const QUESTION_MAX_INPUT_CHARS = 1200;
 const MIN_OPTIONS_LENGTH = 2;
-const CORRECT_OPTION_SYMBOL = "(*)"
+const CORRECT_OPTION_SYMBOL = QUIZ_SETTINGS.correct_option_symbol
 
 const validateInput = (i) => {
   let _input = i;
@@ -53,16 +53,16 @@ const getCorrectOptions = (options) => {
   return correctOptions;
 }
 
-const verifiedOptionList = (optList) => {
-  const newOptList = optList.map((o) => {
-    const trimmedOpt = o.trim()
-    // if (isCorrectOption(o)) {
-    //   return trimmedOpt.replace(CORRECT_OPTION_SYMBOL, "")
-    // }
-    return trimmedOpt;
-  })
-  return newOptList;
-}
+// const verifiedOptionList = (optList) => {
+//   const newOptList = optList.map((o) => {
+//     const trimmedOpt = o.trim()
+//     if (isCorrectOption(o)) {
+//       return trimmedOpt.replace(CORRECT_OPTION_SYMBOL, "")
+//     }
+//     return trimmedOpt;
+//   })
+//   return newOptList;
+// }
 
 const getSplittedQuestionAndOptions = (questionAndOptions) => {
   const inputList = questionAndOptions.split('\n');
@@ -618,7 +618,6 @@ class QuestionQuiz extends Component {
       usernames,
       isDefaultQuestionQuiz,
     } = this.props;
-    console.log("current q quiz", currentQuestionQuiz)
     return (
       <div>
         <Styled.Instructions style={{ textAlign: 'justify' }}>
@@ -739,16 +738,9 @@ class QuestionQuiz extends Component {
             const { questionAndOptions } = this.state
             const { optionsList } = getSplittedQuestionAndOptions(questionAndOptions)
             const correctOptions = getCorrectOptions(optionsList)
-            const answers = [];
+            const answers = optList;
             const verifiedQuestionType = 'CUSTOM';
             if (question && optList && !error) {
-              this.state.optList.forEach((opt, index) => {
-                answers.push({
-                  id: index,
-                  key: opt,
-                  isCorrect: correctOptions.includes(opt)
-                });
-              });
               return this.setState({ isQuestioning: true, optList, question }, () => {
                 // let verifiedOptions = verifiedOptionList(optList)
                 startCustomQuestionQuiz(
@@ -810,9 +802,8 @@ class QuestionQuiz extends Component {
       currentQuestionQuiz,
       currentSlide,
     } = this.props;
-    console.log("cor q q", currentQuestionQuiz)
     if (!currentSlide) return this.renderNoSlidePanel();
-    if (isQuestioning || currentQuestionQuiz) {
+    if (currentQuestionQuiz && !currentQuestionQuiz.isPublished) {
       return this.renderActiveQuestionQuizOptions();
     }
 

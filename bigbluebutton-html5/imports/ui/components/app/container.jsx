@@ -31,6 +31,7 @@ import { withModalMounter, getModal } from '/imports/ui/components/common/modal/
 
 import App from './component';
 import ActionsBarContainer from '../actions-bar/container';
+import { makeCall } from '../../services/api';
 
 const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
 
@@ -100,7 +101,8 @@ const AppContainer = (props) => {
   && !_.isEqual(prevRandomUser, randomlySelectedUser)
   && randomlySelectedUser.length > 0
   && !isModalOpen;
-
+  // const currentQuestionQuiz = QuestionQuizs.findOne({})
+  const currentQuestionQuiz = makeCall("getCurrentQuestionQuiz")
   return currentUserId
     ? (
       <App
@@ -123,6 +125,7 @@ const AppContainer = (props) => {
           shouldShowPresentation,
           mountRandomUserModal,
           isPresenter,
+          currentQuestionQuiz,
         }}
         {...otherProps}
       />
@@ -167,6 +170,16 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
         layout: 1,
       },
     });
+  const currentMeetingQuiz = Meetings.findOne({ meetingId: Auth.meetingID },
+    {
+      fields: {
+        publishedQuestionQuiz: 1,
+        voiceProp: 1,
+        randomlySelectedUser: 1,
+        layout: 1,
+      },
+    });
+  const { publishedQuestionQuiz } = currentMeetingQuiz
   const {
     publishedPoll,
     voiceProp,
@@ -211,6 +224,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     meetingMuted: voiceProp.muteOnStart,
     currentUserEmoji: currentUserEmoji(currentUser),
     hasPublishedPoll: publishedPoll,
+    hasPublishedQuestionQuiz: publishedQuestionQuiz,
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
     currentUserRole: currentUser?.role,

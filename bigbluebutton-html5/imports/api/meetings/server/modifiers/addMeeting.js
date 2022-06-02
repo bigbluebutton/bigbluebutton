@@ -175,6 +175,7 @@ export default function addMeeting(meeting) {
       meetingEnded,
       layout: LAYOUT_TYPE[meeting.usersProp.meetingLayout] || 'smart',
       publishedPoll: false,
+      publishedQuestionQuiz: false,
       guestLobbyMessage: '',
       randomlySelectedUser: [],
     }, flat(newMeeting, {

@@ -24,6 +24,10 @@ export function isPollingEnabled() {
   return getDisabledFeatures().indexOf('polls') === -1 && Meteor.settings.public.poll.enabled;
 }
 
+export function isQuestioningEnabled() {
+  return getDisabledFeatures().indexOf('questionQuizs') === -1 && Meteor.settings.public.questionQuiz.enabled;
+}
+
 export function isExternalVideoEnabled() {
   return getDisabledFeatures().indexOf('externalVideos') === -1 && Meteor.settings.public.externalVideoPlayer.enabled;
 }

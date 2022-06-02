@@ -126,23 +126,31 @@ const SidebarContent = (props) => {
       }}
     >
       {sidebarContentPanel === PANELS.CHAT
-      && (
-      <ErrorBoundary
-        Fallback={FallbackView}
-      >
-        <ChatContainer />
-      </ErrorBoundary>
-      )}
+        && (
+          <ErrorBoundary
+            Fallback={FallbackView}
+          >
+            <ChatContainer />
+          </ErrorBoundary>
+        )}
       {sidebarContentPanel === PANELS.SHARED_NOTES && <NotesContainer />}
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}
-      <Styled.Poll style={{ minWidth, top: '0', display: pollDisplay }} id="pollPanel">
-        <PollContainer smallSidebar={smallSidebar} />
-      </Styled.Poll>
-      <Styled.Poll style={{ minWidth, top: '0', display: questionQuizDisplay }} id="questionQuizPanel">
-        <QuestionQuizContainer smallSidebar={smallSidebar} />
-      </Styled.Poll>
+      {
+        sidebarContentPanel === PANELS.POLL && (
+          <Styled.Poll style={{ minWidth, top: '0', display: pollDisplay }} id="pollPanel">
+            <PollContainer smallSidebar={smallSidebar} />
+          </Styled.Poll>
+        )
+      }
+      {
+        sidebarContentPanel === PANELS.ASK_QUESTION && (
+          <Styled.Quiz style={{ minWidth, top: '0', display: questionQuizDisplay }} id="questionQuizPanel">
+            <QuestionQuizContainer smallSidebar={smallSidebar} />
+          </Styled.Quiz>
+        )
+      }
     </Resizable>
   );
 };

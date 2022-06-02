@@ -1,6 +1,6 @@
 import { check } from 'meteor/check';
-import removeQuestionQuiz from '../modifiers/removeQuestionQuiz';
-import clearQuestionQuizs from '../modifiers/clearQuestionQuizs';
+import updateQuestionQuiz from '../modifiers/updateQuestionQuiz';
+import publishAllQuestionQuizs from '../modifiers/publishAllQuestionQuizs';
 
 export default function questionQuizStopped({ body }, meetingId) {
   const { questionQuiz } = body;
@@ -12,8 +12,8 @@ export default function questionQuizStopped({ body }, meetingId) {
 
     check(questionQuizId, String);
 
-    return removeQuestionQuiz(meetingId, questionQuizId);
+    return updateQuestionQuiz(meetingId, questionQuizId);
   }
 
-  return clearQuestionQuizs(meetingId);
+  return publishAllQuestionQuizs(meetingId);
 }

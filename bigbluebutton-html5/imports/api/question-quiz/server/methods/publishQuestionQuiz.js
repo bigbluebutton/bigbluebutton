@@ -15,7 +15,7 @@ export default function publishQuestionQuiz() {
     check(meetingId, String);
     check(requesterUserId, String);
 
-    const questionQuiz = QuestionQuizs.findOne({ meetingId });
+    const questionQuiz = QuestionQuizs.findOne({ meetingId, isPublished: false });
      // TODO--send questionQuizid from client
     if (!questionQuiz) {
       Logger.error(`Attempted to publish inexisting questionQuiz for meetingId: ${meetingId}`);

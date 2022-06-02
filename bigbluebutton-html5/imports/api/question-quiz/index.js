@@ -4,7 +4,7 @@ const collectionOptions = Meteor.isClient ? {
   connection: null,
 } : {};
 
-const QuestionQuizs = new Mongo.Collection('questionQuiz', collectionOptions);
+const QuestionQuizs = new Mongo.Collection('questionQuizs',collectionOptions);
 export const CurrentQuestionQuiz = new Mongo.Collection('current-questionQuiz', { connection: null });
 
 if (Meteor.isServer) {

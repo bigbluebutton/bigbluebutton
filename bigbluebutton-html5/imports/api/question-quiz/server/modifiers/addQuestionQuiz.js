@@ -3,8 +3,11 @@ import QuestionQuizs from '/imports/api/question-quiz';
 import Logger from '/imports/startup/server/logger';
 import flat from 'flat';
 import { check } from 'meteor/check';
+import Service from '/imports/api/question-quiz/server/service'
 
 export default function addQuestionQuiz(meetingId, requesterId, questionQuiz, questionQuizType, secretQuestionQuiz, question = '') {
+  
+  questionQuiz.answers = Service.checkCorrectAnswers(questionQuiz.answers)
   check(requesterId, String);
   check(meetingId, String);
   check(questionQuiz, {
@@ -39,6 +42,8 @@ export default function addQuestionQuiz(meetingId, requesterId, questionQuiz, qu
     { meetingId },
     { requester: requesterId },
     { users: userIds },
+    {isPublished: false},
+    {createdAt: new Date()},
     { question, questionQuizType, secretQuestionQuiz },
     flat(questionQuiz, { safe: true }),
   );

@@ -2,11 +2,10 @@ import { check } from 'meteor/check';
 import setPublishedQuestionQuiz from '../../../meetings/server/modifiers/setPublishedQuestionQuiz';
 import handleSendSystemChatForPublishedQuestionQuiz from './sendQuestionQuizChatMsg';
 
-const QUESTION_QUIZ_CHAT_MESSAGE = Meteor.settings.public.poll.chatMessage;
+const QUESTION_QUIZ_CHAT_MESSAGE = Meteor.settings.public.questionQuiz.chatMessage;
 
 export default function questionQuizPublished({ body }, meetingId) {
   const { questionQuizId } = body;
-  console.log("///////////////////inside question quiz published")
   check(meetingId, String);
   check(questionQuizId, String);
 

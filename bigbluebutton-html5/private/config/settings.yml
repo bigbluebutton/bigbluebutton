@@ -439,6 +439,13 @@ public:
     allowDragAndDropFile: false
     maxTypedAnswerLength: 45
     chatMessage: true
+  questionQuiz:
+    enabled: true
+    maxCustom: 5
+    allowDragAndDropFile: false
+    maxTypedAnswerLength: 45
+    chatMessage: true
+    correct_option_symbol: '(*)'
   captions:
     enabled: true
     id: captions
@@ -473,6 +480,7 @@ public:
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
       chat_poll_result: PUBLIC_CHAT_POLL_RESULT
+      chat_quiz_result: PUBLIC_QUIZ_RESULT
     typingIndicator:
       enabled: true
     moderatorChatEmphasized: true

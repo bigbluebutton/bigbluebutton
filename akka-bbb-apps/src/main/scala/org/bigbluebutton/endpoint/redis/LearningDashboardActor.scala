@@ -22,6 +22,7 @@ case class Meeting(
   name:  String,
   users: Map[String, User] = Map(),
   polls: Map[String, Poll] = Map(),
+  questionQuizs: Map[String, QuestionQuiz] = Map(),
   screenshares: Vector[Screenshare] = Vector(),
   presentationSlides: Vector[PresentationSlide] = Vector(),
   createdOn: Long = System.currentTimeMillis(),
@@ -53,6 +54,17 @@ case class UserId(
 case class Poll(
   pollId:     String,
   pollType:   String,
+  anonymous:  Boolean,
+  multiple:   Boolean,
+  question:   String,
+  options:    Vector[String] = Vector(),
+  anonymousAnswers: Vector[String] = Vector(),
+  createdOn:  Long = System.currentTimeMillis(),
+)
+
+case class QuestionQuiz(
+  questionQuizId:     String,
+  questionQuizType:   String,
   anonymous:  Boolean,
   multiple:   Boolean,
   question:   String,
@@ -160,6 +172,10 @@ class LearningDashboardActor(
       // Poll
       case m: PollStartedEvtMsg                     => handlePollStartedEvtMsg(m)
       case m: UserRespondedToPollRecordMsg          => handleUserRespondedToPollRecordMsg(m)
+
+      // Question Quiz
+      case m: QuestionQuizStartedEvtMsg                     => handleQuestionQuizStartedEvtMsg(m)
+      case m: UserRespondedToQuestionQuizRecordMsg          => handleUserRespondedToQuestionQuizRecordMsg(m)
 
       case _                          => // message not to be handled.
     }
@@ -484,6 +500,41 @@ class LearningDashboardActor(
       } else {
         //Store Public Poll in `user.answers`
         val updatedUser = user.copy(answers = user.answers + (msg.body.pollId -> (user.answers.get(msg.body.pollId).getOrElse(Vector()) :+ msg.body.answer)))
+        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+        meetings += (updatedMeeting.intId -> updatedMeeting)
+      }
+    }
+  }
+
+  private def handleQuestionQuizStartedEvtMsg(msg: QuestionQuizStartedEvtMsg): Unit = {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+    } yield {
+      val options = msg.body.questionQuiz.answers.map(answer => answer.key)
+      val newQuestionQuiz = QuestionQuiz(msg.body.questionQuizId, msg.body.questionQuizType, msg.body.secretQuestionQuiz, msg.body.questionQuiz.isMultipleResponse, msg.body.question, options.toVector)
+
+      val updatedMeeting = meeting.copy(questionQuizs = meeting.questionQuizs + (newQuestionQuiz.questionQuizId -> newQuestionQuiz))
+      meetings += (updatedMeeting.intId -> updatedMeeting)
+    }
+  }
+
+  private def handleUserRespondedToQuestionQuizRecordMsg(msg: UserRespondedToQuestionQuizRecordMsg): Unit = {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      user <- findUserByIntId(meeting, msg.header.userId)
+    } yield {
+      if(msg.body.isSecret) {
+        //Store Anonymous QuestionQuiz in `QuestionQuiz.anonymousAnswers`
+        for {
+          questionQuiz <- meeting.questionQuizs.find(p => p._1 == msg.body.questionQuizId)
+        } yield {
+          val updatedQuestionQuiz = questionQuiz._2.copy(anonymousAnswers = questionQuiz._2.anonymousAnswers :+ msg.body.answer)
+          val updatedMeeting = meeting.copy(questionQuizs = meeting.questionQuizs + (questionQuiz._1 -> updatedQuestionQuiz))
+          meetings += (updatedMeeting.intId -> updatedMeeting)
+        }
+      } else {
+        //Store Public QuestionQuiz in `user.answers`
+        val updatedUser = user.copy(answers = user.answers + (msg.body.questionQuizId -> (user.answers.get(msg.body.questionQuizId).getOrElse(Vector()) :+ msg.body.answer)))
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }

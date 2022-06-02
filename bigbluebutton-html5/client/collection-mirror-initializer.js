@@ -7,6 +7,7 @@ import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Screenshare from '/imports/api/screenshare';
 import UserInfos from '/imports/api/users-infos';
 import Polls, { CurrentPoll } from '/imports/api/polls';
+import QuestionQuizs, { CurrentQuestionQuiz } from '/imports/api/question-quiz';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import UserSettings from '/imports/api/users-settings';
 import VideoStreams from '/imports/api/video-streams';
@@ -28,10 +29,12 @@ import { Slides, SlidePositions } from '/imports/api/slides';
 
 // Custom Publishers
 export const localCurrentPollSync = new AbstractCollection(CurrentPoll, CurrentPoll);
+export const localCurrentQuestionQuizSync = new AbstractCollection(CurrentQuestionQuiz, CurrentQuestionQuiz);
 export const localCurrentUserSync = new AbstractCollection(CurrentUser, CurrentUser);
 export const localSlidesSync = new AbstractCollection(Slides, Slides);
 export const localSlidePositionsSync = new AbstractCollection(SlidePositions, SlidePositions);
 export const localPollsSync = new AbstractCollection(Polls, Polls);
+export const localQuestionQuizsSync = new AbstractCollection(QuestionQuizs, QuestionQuizs);
 export const localPresentationsSync = new AbstractCollection(Presentations, Presentations);
 export const localPresentationPodsSync = new AbstractCollection(PresentationPods, PresentationPods);
 export const localPresentationUploadTokenSync = new AbstractCollection(PresentationUploadToken, PresentationUploadToken);
@@ -62,10 +65,12 @@ export const localUsersSync = new AbstractCollection(Users, Users);
 
 const collectionMirrorInitializer = () => {
   localCurrentPollSync.setupListeners();
+  localCurrentQuestionQuizSync.setupListeners();
   localCurrentUserSync.setupListeners();
   localSlidesSync.setupListeners();
   localSlidePositionsSync.setupListeners();
   localPollsSync.setupListeners();
+  localQuestionQuizsSync.setupListeners();
   localPresentationsSync.setupListeners();
   localPresentationPodsSync.setupListeners();
   localPresentationUploadTokenSync.setupListeners();

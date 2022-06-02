@@ -57,6 +57,7 @@
     "queue": "^6.0.2",
     "re-resizable": "^4.11.0",
     "react": "^16.14.0",
+    "react-apexcharts": "^1.4.0",
     "react-autosize-textarea": "^5.0.1",
     "react-color": "^2.19.3",
     "react-dom": "^16.14.0",

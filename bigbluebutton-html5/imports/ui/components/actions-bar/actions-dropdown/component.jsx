@@ -129,13 +129,13 @@ class ActionsDropdown extends PureComponent {
       handleTakePresenter,
       isSharingVideo,
       isPollingEnabled,
+      isQuestioningEnabled,
       isSelectRandomUserEnabled,
       stopExternalVideoShare,
       mountModal,
       layoutContextDispatch,
       hidePresentation,
     } = this.props;
-
     const {
       pollBtnLabel,
       presentationLabel,
@@ -182,8 +182,7 @@ class ActionsDropdown extends PureComponent {
         },
       })
     }
-
-    if (amIPresenter && isPollingEnabled) {
+    if (amIPresenter && isQuestioningEnabled) {
       actions.push({
         icon: 'help',
         dataTest: 'questionQuiz',

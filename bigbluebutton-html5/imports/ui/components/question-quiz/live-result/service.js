@@ -34,5 +34,5 @@ const sortUsers = (a, b) => {
 
 export default {
   sortUsers,
-  publishPoll: () => makeCall('publishPoll'),
+  publishQuestionQuiz: () => makeCall('publishQuestionQuiz'),
 };

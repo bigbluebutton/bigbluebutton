@@ -14,7 +14,7 @@ import ExternalVideoService from '/imports/ui/components/external-video-player/s
 import CaptionsService from '/imports/ui/components/captions/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
-import { isExternalVideoEnabled, isPollingEnabled } from '/imports/ui/services/features';
+import { isExternalVideoEnabled, isPollingEnabled, isQuestioningEnabled } from '/imports/ui/services/features';
 
 import MediaService, {
   getSwapLayout,
@@ -65,6 +65,7 @@ export default withTracker(() => ({
   isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
   isMeteorConnected: Meteor.status().connected,
   isPollingEnabled: isPollingEnabled(),
+  isQuestioningEnabled: isQuestioningEnabled(),
   isPresentationDisabled: PRESENTATION_DISABLED,
   isSelectRandomUserEnabled: SELECT_RANDOM_USER_ENABLED,
   isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,

@@ -134,6 +134,11 @@ export default withTracker(({ podId }) => {
         publishedPoll: 1,
       },
     }).publishedPoll,
+    publishedQuestionQuiz: Meetings.findOne({ meetingId: Auth.meetingID }, {
+      fields: {
+        publishedQuestionQuiz: 1,
+      },
+    }).publishedQuestionQuiz,
     restoreOnUpdate: getFromUserSettings(
       'bbb_force_restore_presentation_on_new_events',
       Meteor.settings.public.presentation.restoreOnUpdate,

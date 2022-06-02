@@ -30,6 +30,7 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   private val voiceUsers = new VoiceUsers
   private val users2x = new Users2x
   private val polls2x = new Polls
+  private val questionQuizs2x = new QuestionQuizs
   private val guestsWaiting = new GuestsWaiting
   private val deskshareModel = new ScreenshareModel
 
@@ -38,7 +39,7 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   // We extract the meeting handlers into this class so it is
   // easy to test.
   private val liveMeeting = new LiveMeeting(props, meetingStatux2x, deskshareModel, chatModel, externalVideoModel,
-    layouts, pads, registeredUsers, polls2x, wbModel, presModel, captionModel,
+    layouts, pads, registeredUsers, polls2x, questionQuizs2x, wbModel, presModel, captionModel,
     webcams, voiceUsers, users2x, guestsWaiting)
 
   GuestsWaiting.setGuestPolicy(

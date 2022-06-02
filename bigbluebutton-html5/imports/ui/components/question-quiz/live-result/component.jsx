@@ -8,6 +8,9 @@ import Styled from './styles';
 import Service from './service';
 import Settings from '/imports/ui/services/settings';
 
+
+const QUIZ_SETTINGS = Meteor.settings.public.questionQuiz;
+
 const intlMessages = defineMessages({
   usersTitle: {
     id: 'app.poll.liveResult.usersTitle',
@@ -37,20 +40,11 @@ const intlMessages = defineMessages({
     id: 'app.poll.waitingLabel',
     description: 'label shown while waiting for responses',
   },
-  secretPollLabel: {
-    id: 'app.poll.liveResult.secretLabel',
-    description: 'label shown instead of users in poll responses if poll is secret',
+  secretQuestionQuizLabel: {
+    id: 'app.questionQuiz.liveResult.secretLabel',
+    description: 'label shown instead of users in quiz responses if quiz is secret',
   },
 });
-
-const isCorrectOption = (opt) => {
-  const trimmedOption = opt.trim();
-  const trimmedOptLength = trimmedOption.length
-  return (
-    trimmedOptLength > 3 &&
-    trimmedOption.substring(trimmedOptLength - 3) === "(*)"
-  )
-}
 
 const getResponseString = (obj) => {
   const { children } = obj.props;
@@ -131,10 +125,9 @@ class LiveResult extends PureComponent {
       const calculatedWidth = {
         width: pctFotmatted,
       };
-      console.log("obj", obj)
       return questionQuizStats.push(
-        <Styled.Main key={_.uniqueId('stats-')}>
-          <Styled.Left isCorrect={isCorrectOption(obj.key)}>
+        <Styled.Main isCorrect={obj.isCorrect} key={_.uniqueId('stats-')}>
+          <Styled.Left isCorrect={obj.isCorrect}>
             {
               defaultQuestionQuiz && questionQuizAnswerIds[formattedMessageIndex]
                 ? intl.formatMessage(questionQuizAnswerIds[formattedMessageIndex])
@@ -239,7 +232,7 @@ class LiveResult extends PureComponent {
                   Session.set('resetQuestionQuizPanel', true);
                   stopQuestionQuiz();
                 }}
-                label={intl.formatMessage(intlMessages.cancelQuestionQuizLabel)}
+                label={intl.formatMessage(intlMessages.cancelPollLabel)}
                 data-test="cancelQuestionQuizLabel"
               />
             </Styled.ButtonsActions>

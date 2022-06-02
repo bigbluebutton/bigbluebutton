@@ -18,7 +18,6 @@ export default function setPublishedQuestionQuiz(meetingId, isPublished) {
 
   try {
     const { numberAffected } = Meetings.upsert(selector, modifier);
-    console.log("///////////////////inside setPublished question quiz")
     if (numberAffected) {
       Logger.info(`Set publishedQuestionQuiz=${isPublished} in meeitingId=${meetingId}`);
     }

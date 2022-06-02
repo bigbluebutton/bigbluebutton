@@ -284,14 +284,16 @@ class TimeWindowList extends PureComponent {
       && timeWindowsValues.length >= scrollPosition
       && !userScrolledBack
     );
-
     return (
       [
         <Styled.MessageListWrapper
           onMouseDown={() => {
-            this.setState({
-              userScrolledBack: true,
-            });
+            //*I commented this because we have to press quiz stats view button two times if we load the page
+            //*It works fine after we scroll the page or click somewhere on the page after loading it first time
+
+            // this.setState({
+            //   userScrolledBack: true,
+            // });
           }}
           onWheel={(e) => {
             if (e.deltaY < 0) {

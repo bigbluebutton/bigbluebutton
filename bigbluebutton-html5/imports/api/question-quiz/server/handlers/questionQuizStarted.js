@@ -6,7 +6,6 @@ export default function questionQuizStarted({ body }, meetingId) {
   const {
     userId, questionQuiz, questionQuizType, secretQuestionQuiz, question,
   } = body;
-  console.log("//////////////////////inside question quiz started")
   check(meetingId, String);
   check(userId, String);
   check(questionQuiz, Object);

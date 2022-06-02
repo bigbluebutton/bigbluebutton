@@ -130,6 +130,22 @@ class ReceivedJsonMsgHandlerActor(
       case RespondToTypedPollReqMsg.NAME =>
         routeGenericMsg[RespondToTypedPollReqMsg](envelope, jsonNode)
 
+      // Question Quiz
+      case StartCustomQuestionQuizReqMsg.NAME =>
+        routeGenericMsg[StartCustomQuestionQuizReqMsg](envelope, jsonNode)
+      case StartQuestionQuizReqMsg.NAME =>
+        routeGenericMsg[StartQuestionQuizReqMsg](envelope, jsonNode)
+      case StopQuestionQuizReqMsg.NAME =>
+        routeGenericMsg[StopQuestionQuizReqMsg](envelope, jsonNode)
+      case ShowQuestionQuizResultReqMsg.NAME =>
+        routeGenericMsg[ShowQuestionQuizResultReqMsg](envelope, jsonNode)
+      case GetCurrentQuestionQuizReqMsg.NAME =>
+        routeGenericMsg[GetCurrentQuestionQuizReqMsg](envelope, jsonNode)
+      case RespondToQuestionQuizReqMsg.NAME =>
+        routeGenericMsg[RespondToQuestionQuizReqMsg](envelope, jsonNode)
+      case RespondToTypedQuestionQuizReqMsg.NAME =>
+        routeGenericMsg[RespondToTypedQuestionQuizReqMsg](envelope, jsonNode)
+
       // Webcam
       case UserBroadcastCamStartMsg.NAME =>
         routeGenericMsg[UserBroadcastCamStartMsg](envelope, jsonNode)

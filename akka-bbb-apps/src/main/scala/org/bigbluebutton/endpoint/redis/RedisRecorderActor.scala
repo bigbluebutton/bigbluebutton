@@ -126,6 +126,12 @@ class RedisRecorderActor(
       case m: PollStoppedEvtMsg                     => handlePollStoppedEvtMsg(m)
       case m: PollShowResultEvtMsg                  => handlePollShowResultEvtMsg(m)
 
+      // QuestionQuiz
+      case m: QuestionQuizStartedEvtMsg             => handleQuestionQuizStartedEvtMsg(m)
+      case m: UserRespondedToQuestionQuizRecordMsg  => handleUserRespondedToQuestionQuizRecordMsg(m)
+      case m: QuestionQuizStoppedEvtMsg             => handleQuestionQuizStoppedEvtMsg(m)
+      case m: QuestionQuizShowResultEvtMsg          => handleQuestionQuizShowResultEvtMsg(m)
+
       // ExternalVideo
       case m: StartExternalVideoEvtMsg              => handleStartExternalVideoEvtMsg(m)
       case m: UpdateExternalVideoEvtMsg             => handleUpdateExternalVideoEvtMsg(m)
@@ -611,6 +617,48 @@ class RedisRecorderActor(
     ev.setAnswers(msg.body.poll.answers)
     ev.setNumRespondents(msg.body.poll.numRespondents)
     ev.setNumResponders(msg.body.poll.numResponders)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleQuestionQuizStartedEvtMsg(msg: QuestionQuizStartedEvtMsg): Unit = {
+    val ev = new QuestionQuizStartedRecordEvent()
+    ev.setQuestionQuizId(msg.body.questionQuizId)
+    ev.setQuestion(msg.body.question)
+    ev.setAnswers(msg.body.questionQuiz.answers)
+    ev.setType(msg.body.questionQuizType)
+    ev.setSecretQuestionQuiz(msg.body.secretQuestionQuiz)
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleUserRespondedToQuestionQuizRecordMsg(msg: UserRespondedToQuestionQuizRecordMsg): Unit = {
+    val ev = new UserRespondedToQuestionQuizRecordEvent()
+    ev.setQuestionQuizId(msg.body.questionQuizId)
+    if (msg.body.isSecret) {
+      ev.setUserId("")
+    } else {
+      ev.setUserId(msg.header.userId)
+    }
+    ev.setAnswerId(msg.body.answerId)
+    ev.setAnswer(msg.body.answer)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleQuestionQuizStoppedEvtMsg(msg: QuestionQuizStoppedEvtMsg): Unit = {
+    val ev = new QuestionQuizStoppedRecordEvent()
+    ev.setQuestionQuizId(msg.body.questionQuizId)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleQuestionQuizShowResultEvtMsg(msg: QuestionQuizShowResultEvtMsg): Unit = {
+    val ev = new QuestionQuizPublishedRecordEvent()
+    ev.setQuestionQuizId(msg.body.questionQuizId)
+    ev.setQuestion(msg.body.questionQuiz.questionText.getOrElse(""))
+    ev.setAnswers(msg.body.questionQuiz.answers)
+    ev.setNumRespondents(msg.body.questionQuiz.numRespondents)
+    ev.setNumResponders(msg.body.questionQuiz.numResponders)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }

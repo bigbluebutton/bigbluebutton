@@ -4,7 +4,8 @@ import {
   colorText,
   colorGrayLighter,
   pollStatsBorderColor,
-  questioningsuccessDarkColor
+  questioningsuccessDarkColor,
+  questioningsuccessLightColor
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -12,6 +13,7 @@ import {
   mdPaddingX,
   pollStatsElementWidth,
   pollSmMargin,
+  pollMdMargin,
   pollResultWidth,
   borderSizeLarge,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -38,6 +40,11 @@ const Main = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom:${pollMdMargin};
+  ${({ isCorrect }) => isCorrect && `
+  background-color:${questioningsuccessLightColor};
+  border-radius: ${borderSizeLarge};
+`}
 `;
 
 const Left = styled.div`

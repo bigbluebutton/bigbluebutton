@@ -103,7 +103,7 @@ class BBBMenu extends React.Component {
 
   render() {
     const { anchorEl } = this.state;
-    const { trigger, intl, customStyles, dataTest } = this.props;
+    const { trigger, intl, customStyles, dataTest, triggerBtnStyles } = this.props;
     const actionsItems = this.makeMenuItems();
 
     let menuStyles = { zIndex: 9999 };
@@ -126,6 +126,7 @@ class BBBMenu extends React.Component {
             this.handleClick(e);
           }}
           accessKey={this.props?.accessKey}
+          style={triggerBtnStyles}
         >
           {trigger}
         </div>

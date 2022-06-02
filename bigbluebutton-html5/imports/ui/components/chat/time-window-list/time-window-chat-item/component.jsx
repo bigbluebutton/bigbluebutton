@@ -5,11 +5,13 @@ import _ from 'lodash';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import PollService from '/imports/ui/components/poll/service';
+import QuestionQuizService from '/imports/ui/components/question-quiz/service';
 import Styled from './styles';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
 const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
+const CHAT_QUESTION_QUIZ_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_quiz_result;
 const CHAT_PUBLIC_ID = CHAT_CONFIG.public_id;
 const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
 
@@ -46,6 +48,10 @@ const intlMessages = defineMessages({
   pollResult: {
     id: 'app.chat.pollResult',
     description: 'used in place of user name who published poll to chat',
+  },
+  questionQuizResult: {
+    id: 'app.chat.questionQuizResult',
+    description: 'used in place of user name who published quiz to chat',
   },
   [CHAT_CLEAR_MESSAGE]: {
     id: 'app.chat.clearPublicChatMessage',
@@ -102,6 +108,10 @@ class TimeWindowChatItem extends PureComponent {
 
     if (messages && messages[0].id.includes(CHAT_POLL_RESULTS_MESSAGE)) {
       return this.renderPollItem();
+    }
+
+    if (messages && messages[0].id.includes(CHAT_QUESTION_QUIZ_RESULTS_MESSAGE)) {
+      return this.renderQuestionQuizItem();
     }
 
     return (
@@ -258,6 +268,61 @@ class TimeWindowChatItem extends PureComponent {
               type="poll"
               key={messages[0].id}
               text={getPollResultString(extra.pollResultData, intl)}
+              time={messages[0].time}
+              chatAreaId={chatAreaId}
+              lastReadMessageTime={lastReadMessageTime}
+              handleReadMessage={handleReadMessage}
+              scrollArea={scrollArea}
+              color={color}
+            />
+          </Styled.Content>
+        </Styled.Wrapper>
+      </Styled.Item>
+    ) : null;
+  }
+
+  renderQuestionQuizItem() {
+    const {
+      timestamp,
+      color,
+      intl,
+      getQuestionQuizResultString,
+      messages,
+      extra,
+      scrollArea,
+      chatAreaId,
+      lastReadMessageTime,
+      handleReadMessage,
+    } = this.props;
+
+    const dateTime = new Date(timestamp);
+
+    return messages ? (
+      <Styled.Item key={_.uniqueId('message-quiz-item-')}>
+        <Styled.Wrapper ref={(ref) => { this.item = ref; }}>
+          <Styled.AvatarWrapper>
+            <UserAvatar
+              color={QuestionQuizService.QUIZ_AVATAR_COLOR}
+              moderator={true}
+            >
+              {<Styled.PollIcon iconName="polling" />}
+            </UserAvatar>
+          </Styled.AvatarWrapper>
+          <Styled.Content>
+            <Styled.Meta>
+              <Styled.Name>
+                <span>{intl.formatMessage(intlMessages.questionQuizResult)}</span>
+              </Styled.Name>
+              <Styled.Time dateTime={dateTime}>
+                <FormattedTime value={dateTime} />
+              </Styled.Time>
+            </Styled.Meta>
+            <Styled.QuestionQuizMessageChatItem
+              type="questionQuiz"
+              key={messages[0].id}
+              intl={intl}
+              questionQuizResultData={extra.questionQuizResultData}
+              text={getQuestionQuizResultString(extra.questionQuizResultData, intl)}
               time={messages[0].time}
               chatAreaId={chatAreaId}
               lastReadMessageTime={lastReadMessageTime}

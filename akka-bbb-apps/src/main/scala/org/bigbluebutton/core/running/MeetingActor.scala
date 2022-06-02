@@ -30,6 +30,7 @@ import org.bigbluebutton.core2.message.handlers.meeting._
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout._
 import org.bigbluebutton.core.apps.polls._
+import org.bigbluebutton.core.apps.questionQuizs._
 import org.bigbluebutton.core.apps.voice._
 import akka.actor.Props
 import akka.actor.OneForOneStrategy
@@ -131,6 +132,7 @@ class MeetingActor(
   val groupChatApp = new GroupChatHdlrs
   val presentationPodsApp = new PresentationPodHdlrs
   val pollApp = new PollApp2x
+  var questionQuizApp = new QuestionQuizApp2x
   val webcamApp2x = new WebcamApp2x
   val wbApp = new WhiteboardApp2x
 
@@ -429,6 +431,27 @@ class MeetingActor(
         pollApp.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.body.requesterId)
 
+      // Question Quiz
+      case m: StartQuestionQuizReqMsg =>
+        questionQuizApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+        updateUserLastActivity(m.body.requesterId)
+      case m: StartCustomQuestionQuizReqMsg =>
+        questionQuizApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+        updateUserLastActivity(m.body.requesterId)
+      case m: StopQuestionQuizReqMsg =>
+        questionQuizApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+        updateUserLastActivity(m.body.requesterId)
+      case m: ShowQuestionQuizResultReqMsg =>
+        questionQuizApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+        updateUserLastActivity(m.body.requesterId)
+      case m: GetCurrentQuestionQuizReqMsg => questionQuizApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
+      case m: RespondToQuestionQuizReqMsg =>
+        questionQuizApp.handle(m, liveMeeting, msgBus)
+        updateUserLastActivity(m.body.requesterId)
+      case m: RespondToTypedQuestionQuizReqMsg =>
+        questionQuizApp.handle(m, liveMeeting, msgBus)
+        updateUserLastActivity(m.body.requesterId)
+
       // Breakout
       case m: BreakoutRoomsListMsg                => state = handleBreakoutRoomsListMsg(m, state)
       case m: CreateBreakoutRoomsCmdMsg           => state = handleCreateBreakoutRoomsCmdMsg(m, state)
@@ -710,6 +733,9 @@ class MeetingActor(
     // Stop poll if one is running as presenter left
     pollApp.stopPoll(state, msg.header.userId, liveMeeting, msgBus)
 
+    // Stop quiz if one is running as presenter left
+    questionQuizApp.stopQuestionQuiz(state, msg.header.userId, liveMeeting, msgBus)
+
     // switch user presenter status for old and new presenter
     val newState = usersApp.handleAssignPresenterReqMsg(msg, state)
 
@@ -865,6 +891,9 @@ class MeetingActor(
 
           // request ongoing poll to end
           Polls.handleStopPollReqMsg(state, u.intId, liveMeeting)
+
+          // request ongoing quiz to end
+          QuestionQuizs.handleStopQuestionQuizReqMsg(state, u.intId, liveMeeting)
         }
       }
     }

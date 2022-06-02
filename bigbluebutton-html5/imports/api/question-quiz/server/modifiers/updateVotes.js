@@ -2,8 +2,10 @@ import QuestionQuizs from '/imports/api/question-quiz';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import flat from 'flat';
+import Service from '/imports/api/question-quiz/server/service'
 
 export default function updateVotes(questionQuiz, meetingId) {
+  questionQuiz.answers = Service.checkCorrectAnswers(questionQuiz.answers)
   check(meetingId, String);
   check(questionQuiz, Object);
 

@@ -7,7 +7,7 @@ export default function sendQuestionQuizChatMsg({ body }, meetingId) {
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
   const PUBLIC_CHAT_SYSTEM_ID = CHAT_CONFIG.system_userid;
   const CHAT_QUESTION_QUIZ_RESULTS_MESSAGE = CHAT_CONFIG.
-  system_messages_keys.chat_questionQuiz_result;
+  system_messages_keys.chat_quiz_result;
   const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
   const questionQuizResultData = questionQuiz;

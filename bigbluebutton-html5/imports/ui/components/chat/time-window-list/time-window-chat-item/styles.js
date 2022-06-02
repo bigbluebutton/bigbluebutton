@@ -202,6 +202,20 @@ const PollMessageChatItem = styled(MessageChatItem)`
   margin-top: ${chatPollMarginSm} !important;
 `;
 
+const QuestionQuizMessageChatItem = styled(MessageChatItem)`
+  flex: 1;
+  margin-top: calc(${lineHeightComputed} / 3);
+  margin-bottom: 0;
+  color: ${colorText};
+  word-wrap: break-word;
+
+  background: ${systemMessageBackgroundColor};
+  border: solid 1px ${colorGrayLighter};
+  border-radius: ${borderRadius};
+  padding: ${chatPollMarginSm};
+  padding-left: 1rem;
+  margin-top: ${chatPollMarginSm} !important;
+`;
 export default {
   Item,
   Messages,
@@ -216,4 +230,5 @@ export default {
   ChatItem,
   PollIcon,
   PollMessageChatItem,
+  QuestionQuizMessageChatItem,
 };

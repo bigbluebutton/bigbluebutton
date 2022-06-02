@@ -17,7 +17,6 @@ function currentQuestionQuiz(secretQuestionQuiz) {
   const tokenValidation = AuthTokenValidation.findOne({
     connectionId: this.connection.id,
   });
-
   if (
     !tokenValidation
     || tokenValidation.validationStatus !== ValidationStates.VALIDATED

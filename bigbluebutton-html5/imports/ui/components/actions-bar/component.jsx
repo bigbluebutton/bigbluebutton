@@ -24,6 +24,7 @@ class ActionsBar extends PureComponent {
       isCaptionsAvailable,
       isMeteorConnected,
       isPollingEnabled,
+      isQuestioningEnabled,
       isSelectRandomUserEnabled,
       isRaiseHandButtonEnabled,
       isPresentationDisabled,
@@ -57,6 +58,7 @@ class ActionsBar extends PureComponent {
             isSharingVideo,
             stopExternalVideoShare,
             isMeteorConnected,
+            isQuestioningEnabled
           }}
           />
           {isCaptionsAvailable

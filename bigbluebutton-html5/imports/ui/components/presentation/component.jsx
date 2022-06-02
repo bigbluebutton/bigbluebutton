@@ -19,6 +19,7 @@ import DownloadPresentationButton from './download-presentation-button/component
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import Icon from '/imports/ui/components/common/icon/component';
 import PollingContainer from '/imports/ui/components/polling/container';
+import QuestioningContainer from '/imports/ui/components/questioning/container';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import { colorContentBackground } from '/imports/ui/stylesheets/styled-components/palette';
@@ -146,6 +147,7 @@ class Presentation extends PureComponent {
       layoutSwapped,
       currentSlide,
       publishedPoll,
+      publishedQuestionQuiz,
       toggleSwapLayout,
       restoreOnUpdate,
       layoutContextDispatch,
@@ -225,7 +227,8 @@ class Presentation extends PureComponent {
           .viewBoxHeight !== prevProps.slidePosition.viewBoxHeight
           || slidePosition.viewBoxWidth !== prevProps.slidePosition.viewBoxWidth;
         const pollPublished = publishedPoll && !prevProps.publishedPoll;
-        if (slideChanged || positionChanged || pollPublished) {
+        const questionQuizPublished = publishedQuestionQuiz && ! prevProps.publishedQuestionQuiz
+        if (slideChanged || positionChanged || pollPublished || questionQuizPublished) {
           toggleSwapLayout(layoutContextDispatch);
         }
       }
@@ -864,6 +867,8 @@ class Presentation extends PureComponent {
         data-test="presentationContainer"
       >
         {isFullscreen && <PollingContainer />}
+
+        {isFullscreen && <QuestioningContainer />}
 
         <Styled.Presentation ref={(ref) => { this.refPresentation = ref; }}>
           <Styled.WhiteboardSizeAvailable ref={(ref) => { this.refWhiteboardArea = ref; }} />

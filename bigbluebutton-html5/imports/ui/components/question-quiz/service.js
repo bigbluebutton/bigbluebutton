@@ -2,9 +2,14 @@ import Auth from '/imports/ui/services/auth';
 import { CurrentQuestionQuiz } from '/imports/api/question-quiz';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { defineMessages } from 'react-intl';
+import {
+  questioningsuccessDarkColorCode,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
-const POLL_AVATAR_COLOR = '#3B48A9';
+const QUIZ_AVATAR_COLOR = questioningsuccessDarkColorCode;
 const MAX_POLL_RESULT_BARS = 20;
+const QUIZ_SETTINGS = Meteor.settings.public.questionQuiz;
+const CORRECT_OPTION_SYMBOL = QUIZ_SETTINGS.correct_option_symbol
 
 // 'YN' = Yes,No
 // 'YNA' = Yes,No,Abstention
@@ -71,16 +76,37 @@ const questionQuizAnswerIds = {
 
 const intlMessages = defineMessages({
   legendTitle: {
-    id: 'app.polling.pollingTitle',
-    description: 'heading for chat poll legend',
+    id: 'app.questioning.questioningTitle',
+    description: 'heading for chat quiz legend',
   },
-  pollQuestionTitle: {
-    id: 'app.polling.pollQuestionTitle',
-    description: 'title displayed before poll question',
+  questionQuizQuestionTitle: {
+    id: 'app.questioning.quizQuestionTitle',
+    description: 'title displayed before quiz question',
+  },
+  questionQuizStatsVotesLabel: {
+    id: 'app.questionQuiz.chat.stats.votes.label',
+    description: 'Quiz stats votes title label.',
   },
 });
 
+const isCorrectOption = (opt) => {
+  const trimmedOption = opt.trim();
+  const trimmedOptLength = trimmedOption.length
+  const correctOptSymLength = CORRECT_OPTION_SYMBOL.length
+  return (
+    trimmedOptLength > correctOptSymLength &&
+    trimmedOption.substring(trimmedOptLength -
+    correctOptSymLength) === CORRECT_OPTION_SYMBOL
+  )
+}
+
 const getQuestionQuizResultsText = (isDefaultQuestionQuiz, answers, numRespondents, intl) => {
+  const correctOptionStyles = 
+  `color:${questioningsuccessDarkColorCode};font-weight:bold;padding:0;margin:0`
+  const correctOptionVoteStyles = 
+  `color:${questioningsuccessDarkColorCode};font-weight:bold;padding:0;margin:0`
+  const IncorrectOptionVoteStyles = 
+  `color:black;font-weight:bold;padding:0;margin:0`
   let responded = 0;
   let resultString = '';
   let optionsString = '';
@@ -93,14 +119,20 @@ const getQuestionQuizResultsText = (isDefaultQuestionQuiz, answers, numResponden
     const pct = Math.round((item.numVotes / numResponded) * 100);
     const pctBars = '|'.repeat((pct * MAX_POLL_RESULT_BARS) / 100);
     const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
+    const isCorrectOpt = isCorrectOption(item.key)
     if (isDefaultQuestionQuiz) {
       const translatedKey = questionQuizAnswerIds[item.key.toLowerCase()]
         ? intl.formatMessage(questionQuizAnswerIds[item.key.toLowerCase()])
         : item.key;
-      resultString += `${translatedKey}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
+      resultString += isCorrectOpt ? `<p style=${correctOptionVoteStyles}>${translatedKey}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}</p>` : 
+      `<p style=${IncorrectOptionVoteStyles}>${translatedKey}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}</p>`;
     } else {
-      resultString += `${item.id + 1}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
-      optionsString += `${item.id + 1}: ${item.key}\n`;
+      resultString += isCorrectOpt ? `<p style=${correctOptionVoteStyles}>${item.id + 1}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}</p>`:
+      `<p style=${IncorrectOptionVoteStyles}>${item.id + 1}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}</p>`;
+      optionsString += isCorrectOpt ? 
+      `<p style=${correctOptionStyles}>${item.id + 1}:${item.key.trim()
+        .replace(CORRECT_OPTION_SYMBOL, " (Correct)")}</p>`
+      : `${item.id + 1}: ${item.key}\n`;
     }
   });
 
@@ -126,12 +158,12 @@ const getQuestionQuizResultString = (questionQuizResultData, intl) => {
     resultString,
     optionsString,
   } = getQuestionQuizResultsText(ísDefault, answers, numRespondents, intl);
-  resultString = sanitize(resultString);
-  optionsString = sanitize(optionsString);
+  // resultString = sanitize(resultString);
+  // optionsString = sanitize(optionsString);
 
-  let questionQuizText = formatBoldBlack(resultString);
+  let questionQuizText = resultString;
   if (!ísDefault) {
-    questionQuizText += formatBoldBlack(`<br/><br/>${intl.formatMessage(intlMessages.legendTitle)}<br/>`);
+    questionQuizText += formatBoldBlack(`<br/>${intl.formatMessage(intlMessages.legendTitle)}<br/>`);
     questionQuizText += optionsString;
   }
 
@@ -139,7 +171,7 @@ const getQuestionQuizResultString = (questionQuizResultData, intl) => {
   if (questionQuizQuestion.trim() !== '') {
     const sanitizedQuestionQuizQuestion = sanitize(questionQuizQuestion.split('<br#>').join(' '));
 
-    questionQuizText = `${formatBoldBlack(intl.formatMessage(intlMessages.questionQuizQuestionTitle))}<br/>${sanitizedQuestionQuizQuestion}<br/><br/>${questionQuizText}`;
+    questionQuizText = `${formatBoldBlack(intl.formatMessage(intlMessages.questionQuizQuestionTitle))}<br/>${sanitizedQuestionQuizQuestion}<br/><br/>${formatBoldBlack(intl.formatMessage(intlMessages.questionQuizStatsVotesLabel))}<br/>${questionQuizText}`;
   }
 
   return questionQuizText;
@@ -213,13 +245,15 @@ const checkQuestionQuizType = (
 
 export default {
   questionQuizTypes,
-  currentQuestionQuiz: () => {console.log("all quizes", CurrentQuestionQuiz.find({}));return CurrentQuestionQuiz.findOne({ meetingId: Auth.meetingID })},
+  currentQuestionQuiz: () => CurrentQuestionQuiz.findOne({ meetingId: Auth.meetingID, isPublished: false }),
   questionQuizAnswerIds,
-  POLL_AVATAR_COLOR,
+  QUIZ_AVATAR_COLOR,
   isDefaultQuestionQuiz,
   getQuestionQuizResultString,
   matchYesNoQuestionQuiz,
   matchYesNoAbstentionQuestionQuiz,
   matchTrueFalseQuestionQuiz,
   checkQuestionQuizType,
+  isCorrectOption,
+  CORRECT_OPTION_SYMBOL
 };
