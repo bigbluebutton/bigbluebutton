@@ -239,6 +239,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetCurrentLayoutReqMsg](envelope, jsonNode)
       case BroadcastLayoutMsg.NAME =>
         routeGenericMsg[BroadcastLayoutMsg](envelope, jsonNode)
+      case BroadcastPushLayoutMsg.NAME =>
+        routeGenericMsg[BroadcastPushLayoutMsg](envelope, jsonNode)
 
       case UserLeaveReqMsg.NAME =>
         routeGenericMsg[UserLeaveReqMsg](envelope, jsonNode)

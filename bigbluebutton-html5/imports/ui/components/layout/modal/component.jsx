@@ -14,6 +14,7 @@ const LayoutModalComponent = (props) => {
   const {
     intl,
     closeModal,
+    isModerator,
     isPresenter,
     showToggleLabel,
     application,
@@ -93,11 +94,11 @@ const LayoutModalComponent = (props) => {
   };
 
   const renderPushLayoutsOptions = () => {
-    if (!isPresenter) {
+    if (!isPresenter && !isModerator) {
       return null;
     }
 
-    if (isKeepPushingLayoutEnabled && selectedLayout === 'custom') {
+    if (isKeepPushingLayoutEnabled) {
       return (
         <Styled.PushContainer>
           <Styled.LabelPushLayout>
