@@ -79,7 +79,7 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
       }
     };
   
-    return [tempGroupMessage, msg.sender, indexValue];
+    return [tempGroupMessage, msg.sender, indexValue, msg.senderName];
   };
 
   let stateMessages = state[msg.chatId];
@@ -99,6 +99,7 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
       state[msg.chatId] = {
         count: 0,
         lastSender: '',
+        lastSenderName: '',
         synced:true,
         chatIndexes: {},
         messageGroups: {},
@@ -116,10 +117,14 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
   const messageGroups = msg.chatId === getGroupChatId() ? forPublicChat : forPrivateChat;
   const timewindowIndex = stateMessages.chatIndexes[keyName];
   const groupMessage = messageGroups[keyName + '-' + timewindowIndex];
-  
-  if (!groupMessage || (groupMessage && groupMessage.sender !== stateMessages.lastSender) || msg.id.startsWith(SYSTEM_CHAT_TYPE)) {
-    const [tempGroupMessage, sender, newIndex] = msgBuilder(msg, stateMessages);
+  const fromSameSender = groupMessage
+    && groupMessage.sender !== stateMessages.lastSender
+    && groupMessage.senderName !== stateMessages.lastSenderName;
+
+  if (!groupMessage || fromSameSender || msg.id.startsWith(SYSTEM_CHAT_TYPE)) {
+    const [tempGroupMessage, sender, newIndex, senderName] = msgBuilder(msg, stateMessages);
     stateMessages.lastSender = sender;
+    stateMessages.lastSenderName = senderName;
     stateMessages.chatIndexes[keyName] = newIndex;
     stateMessages.lastTimewindow = keyName + '-' + newIndex;
     ChatLogger.trace('ChatContext::formatMsg::msgBuilder::tempGroupMessage', tempGroupMessage);
