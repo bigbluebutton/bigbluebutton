@@ -24,7 +24,7 @@ const colorMuted = 'var(--color-muted, #586571)';
 const colorMutedBackground = 'var(--color-muted-background, #F3F6F9)';
 
 const colorBackground = `var(--color-background, ${colorGrayDark})`;
-const colorOverlay = `var(--color-overlay, rgba(6, 23, 42, 0.75))`;
+const colorOverlay = 'var(--color-overlay, rgba(6, 23, 42, 0.75))';
 
 const userListBg = `var(--user-list-bg, ${colorOffWhite})`;
 const userListText = `var(--user-list-text, ${colorGray})`;
@@ -41,9 +41,16 @@ const btnDefaultColor = `var(--btn-default-color, ${colorGray})`;
 const btnDefaultBg = `var(--btn-default-bg, ${colorWhite})`;
 const btnDefaultBorder = `var(--btn-default-border, ${colorWhite})`;
 
-const btnPrimaryBorder = `var(--btn-primary-border, ${colorPrimary})`;
+const btnDefaultGhostColor = `var(--btn-default-color, ${colorWhite})`;
+const btnDefaultGhostBg = 'var(--btn-default-bg, rgba(255, 255, 255, 0.1))'; // colorWhite, 10%
+const btnDefaultGhostBorder = 'var(--btn-default-border, rgba(255, 255, 255, 0.5))'; // colorWhite, 50%
+const btnDefaultGhostActiveBg = 'var(--btn-default-active-bg, rgba(255, 255, 255, 0.2))'; // colorWhite, 20%
+
+const btnPrimaryBorder = 'var(--btn-primary-border, rgba(15, 112, 215, 0.5))'; // colorPrimary, 50%
 const btnPrimaryColor = `var(--btn-primary-color, ${colorWhite})`;
 const btnPrimaryBg = `var(--btn-primary-bg, ${colorPrimary})`;
+const btnPrimaryHoverBg = 'var(--btn-primary-hover-bg, #0C57A7)';
+const btnPrimaryActiveBg = 'var(--btn-primary-active-bg, #0A4B8F)';
 
 const btnSuccessBorder = `var(--btn-success-border, ${colorSuccess})`;
 const btnSuccessColor = `var(--btn-success-color, ${colorWhite})`;
@@ -143,9 +150,15 @@ export {
   btnDefaultColor,
   btnDefaultBg,
   btnDefaultBorder,
+  btnDefaultGhostColor,
+  btnDefaultGhostBg,
+  btnDefaultGhostBorder,
+  btnDefaultGhostActiveBg,
   btnPrimaryBorder,
   btnPrimaryColor,
   btnPrimaryBg,
+  btnPrimaryHoverBg,
+  btnPrimaryActiveBg,
   btnSuccessBorder,
   btnSuccessColor,
   btnSuccessBg,
