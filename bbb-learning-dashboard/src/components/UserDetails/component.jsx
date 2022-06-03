@@ -27,17 +27,17 @@ const UserDatailsComponent = (props) => {
     const focusHandler = () => {
       if (modal.current && document.activeElement) {
         if (!modal.current.contains(document.activeElement)) {
-          dispatch({ type: 'closeModal' });
+          closeButton.current.focus();
         }
       }
     };
 
     window.addEventListener('keydown', keydownhandler);
-    window.addEventListener('focus', focusHandler);
+    window.addEventListener('focus', focusHandler, true);
 
     return () => {
       window.removeEventListener('keydown', keydownhandler);
-      window.removeEventListener('focus', focusHandler);
+      window.removeEventListener('focus', focusHandler, true);
     };
   }, []);
 
