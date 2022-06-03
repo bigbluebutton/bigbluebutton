@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import {
   FormattedMessage, FormattedNumber, FormattedTime, injectIntl,
@@ -14,14 +14,34 @@ const UserDatailsComponent = (props) => {
 
   if (!isOpen) return null;
 
+  const modal = useRef();
+  const closeButton = useRef();
+
   useEffect(() => {
-    const handler = (e) => {
+    const keydownhandler = (e) => {
       if (e.code === 'Escape') dispatch({ type: 'closeModal' });
     };
 
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+    const focusHandler = () => {
+      if (modal.current && document.activeElement) {
+        if (!modal.current.contains(document.activeElement)) {
+          dispatch({ type: 'closeModal' });
+        }
+      }
+    };
+
+    window.addEventListener('keydown', keydownhandler);
+    window.addEventListener('focus', focusHandler);
+
+    return () => {
+      window.removeEventListener('keydown', keydownhandler);
+      window.removeEventListener('focus', focusHandler);
+    };
   }, []);
+
+  useEffect(() => {
+    closeButton.current?.focus();
+  });
 
   const {
     createdOn, endedOn, polls, users,
@@ -282,12 +302,14 @@ const UserDatailsComponent = (props) => {
         role="none"
         onClick={() => dispatch({ type: 'closeModal' })}
       />
-      <div className="overflow-auto w-full md:w-2/4 bg-gray-100 p-6">
+      <div ref={modal} className="overflow-auto w-full md:w-2/4 bg-gray-100 p-6">
         <div className="text-right rtl:text-left">
           <button
             onClick={() => dispatch({ type: 'closeModal' })}
             type="button"
             aria-label="Close user details modal"
+            ref={closeButton}
+            className="focus:rounded-md focus:outline-none focus:ring focus:ring-gray-500 focus:ring-opacity-50 hover:text-black/50 active:text-black/75"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
