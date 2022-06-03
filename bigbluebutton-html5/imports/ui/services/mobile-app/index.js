@@ -234,7 +234,6 @@ import logger from '/imports/startup/client/logger';
             }
 
             logger.info(`BBB-MOBILE - addTrack called`, {description, successCallback, failureCallback});
-            console.log(`BBB-MOBILE - addTrack called`, {description, successCallback, failureCallback});
         }
 
         prototype.originalGetLocalStreams = prototype.getLocalStreams;
@@ -274,12 +273,20 @@ import logger from '/imports/startup/client/logger';
             } );
         }
 
+        // Handle screenshare stop
+        const KurentoScreenShareBridge = require('/imports/api/screenshare/client/bridge/index.js').default;          
+        //Kurento Screen Share
+        var stopOriginal = KurentoScreenShareBridge.stop.bind(KurentoScreenShareBridge);
+        KurentoScreenShareBridge.stop = function(){  
+            callNativeMethod('stopScreenShare')
+            logger.debug(`BBB-MOBILE - Click on stop screen share`);
+            stopOriginal() 
+        } 
 
-        // Application events
+        // Handle screenshare stop requested by application (i.e. stopped the broadcast extension)
         window.bbbMobileScreenShareBroadcastFinishedCallback = function () {
             document.querySelector('[data-test="stopScreenShare"]')?.click();
         }
-
 
     }
 })();
