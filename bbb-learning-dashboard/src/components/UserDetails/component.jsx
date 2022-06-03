@@ -6,6 +6,7 @@ import {
 import { UserDetailsContext } from './context';
 import UserAvatar from '../UserAvatar';
 import { getSumOfTime, tsToHHmmss, getActivityScore } from '../../services/UserService';
+import { usePreviousValue } from '../../utils/hooks';
 
 const UserDatailsComponent = (props) => {
   const {
@@ -16,6 +17,7 @@ const UserDatailsComponent = (props) => {
 
   const modal = useRef();
   const closeButton = useRef();
+  const wasModalOpen = usePreviousValue(isOpen);
 
   useEffect(() => {
     const keydownhandler = (e) => {
@@ -40,7 +42,7 @@ const UserDatailsComponent = (props) => {
   }, []);
 
   useEffect(() => {
-    closeButton.current?.focus();
+    if (!wasModalOpen) closeButton.current?.focus();
   });
 
   const {
