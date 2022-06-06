@@ -131,6 +131,7 @@ class ExternalVideoModal extends Component {
             onClick={this.startWatchingHandler}
             disabled={startDisabled}
             data-test="startNewVideo"
+            color="primary"
           />
         </Styled.Content>
       </Styled.ExternalVideoModal>
