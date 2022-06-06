@@ -253,6 +253,8 @@ class PresentationToolbar extends PureComponent {
       parseCurrentSlideContent,
       startPoll,
       currentSlide,
+      slidePosition,
+      tldrawAPI,
       toolbarWidth,
       multiUserSize,
       multiUser,
@@ -378,16 +380,15 @@ class PresentationToolbar extends PureComponent {
             {!isMobile ? (
               <TooltipContainer>
                 <ZoomTool
-                  zoomValue={
-                    this.props?.tldrawAPI?.getPageState()?.camera?.zoom
-                  }
+                  slidePosition={slidePosition}
+                  zoomValue={tldrawAPI?.getPageState()?.camera?.zoom}
                   currentSlideNum={currentSlideNum}
                   change={this.change}
                   minBound={0.1}
                   maxBound={5}
                   step={STEP}
                   isMeteorConnected={isMeteorConnected}
-                  tldrawAPI={this.props?.tldrawAPI}
+                  tldrawAPI={tldrawAPI}
                 />
               </TooltipContainer>
             ) : null}

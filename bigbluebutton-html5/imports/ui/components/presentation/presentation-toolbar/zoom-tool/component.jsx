@@ -147,6 +147,7 @@ class ZoomTool extends PureComponent {
       isMeteorConnected,
       step,
       tldrawAPI,
+      slidePosition,
     } = this.props;
     const { stateZoomValue } = this.state;
 
@@ -193,7 +194,7 @@ class ZoomTool extends PureComponent {
               aria-describedby="resetZoomDescription"
               disabled={(stateZoomValue === minBound) || !isMeteorConnected}
               color="default"
-              customIcon={`${parseInt(this.props?.tldrawAPI?.getPageState()?.camera?.zoom * 100)}%`}
+              customIcon={`${parseInt(slidePosition?.zoom * 100)}%`}
               size="md"
               onClick={() => tldrawAPI?.zoomTo(1)}
               label={intl.formatMessage(intlMessages.resetZoomLabel)}
