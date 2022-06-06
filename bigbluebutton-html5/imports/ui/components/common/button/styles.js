@@ -769,19 +769,31 @@ const Button = styled(BaseButton)`
   ${({ color }) => color === 'primary' && `
     color: ${btnPrimaryColor};
     background-color: ${btnPrimaryBg};
-    border: ${borderSizeLarge} solid transparent;
+    border: ${borderSizeLarge} solid transparent !important;
 
-    &:focus,
-    .buttonWrapper:focus:not([aria-disabled="true"]) & {
+    &:focus:not([aria-disabled="true"]){
       color: ${btnPrimaryColor};
       background-color: ${btnPrimaryBg};
       background-clip: padding-box;
-      box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBg};
+      box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBorder};
     }
 
-    &:hover,
-    .buttonWrapper:hover & {
+    &:hover{
+      filter: brightness(90%);
       color: ${btnPrimaryColor};
+      background-color: ${btnPrimaryHoverBg} !important;
+    }
+
+    &:active:focus{
+      filter: brightness(85%);
+      color: ${btnPrimaryColor};
+      background-color: ${btnPrimaryActiveBg};
+    }
+
+    &:active{
+      filter: brightness(85%);
+      color: ${btnPrimaryColor};
+      background-color: ${btnPrimaryActiveBg};
     }
   `}
 
