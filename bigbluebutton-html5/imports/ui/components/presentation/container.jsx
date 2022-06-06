@@ -15,6 +15,7 @@ import {
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
+import lockContextContainer from "/imports/ui/components/lock-viewers/context/container";
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { DEVICE_TYPE } from '../layout/enums';
 
@@ -64,9 +65,11 @@ const APP_CONFIG = Meteor.settings.public.app;
 const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 const fetchedpresentation = {};
 
-export default withTracker(({ podId, presentationIsOpen }) => {
+export default lockContextContainer( 
+  withTracker(({ podId, presentationIsOpen, userLocks }) => {
   const currentSlide = PresentationService.getCurrentSlide(podId);
   const presentationIsDownloadable = PresentationService.isPresentationDownloadable(podId);
+  const isViewersCursorLocked = userLocks?.hideViewersCursor;
 
   let slidePosition;
   if (currentSlide) {
@@ -134,5 +137,6 @@ export default withTracker(({ podId, presentationIsOpen }) => {
     addWhiteboardGlobalAccess: WhiteboardService.addGlobalAccess,
     removeWhiteboardGlobalAccess: WhiteboardService.removeGlobalAccess,
     multiUserSize: WhiteboardService.getMultiUserSize(currentSlide?.id),
+    isViewersCursorLocked,
   };
-})(PresentationContainer);
+})(PresentationContainer));
