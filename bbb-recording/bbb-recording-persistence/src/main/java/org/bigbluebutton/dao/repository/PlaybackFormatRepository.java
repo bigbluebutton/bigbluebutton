@@ -1,6 +1,6 @@
-package org.bigbluebutton.dao;
+package org.bigbluebutton.dao.repository;
 
-import org.bigbluebutton.entity.PlaybackFormat;
+import org.bigbluebutton.dao.entity.PlaybackFormat;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

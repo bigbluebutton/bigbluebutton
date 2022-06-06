@@ -1,6 +1,6 @@
 package org.bigbluebutton.dao;
 
-import org.bigbluebutton.entity.*;
+import org.bigbluebutton.dao.entity.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;

@@ -1,6 +1,6 @@
 package org.bigbluebutton.service;
 
-import org.bigbluebutton.entity.*;
+import org.bigbluebutton.dao.entity.*;
 import org.springframework.data.domain.Page;
 
 import java.util.Collection;
@@ -15,5 +15,6 @@ public interface XmlService {
     String callbackDataToXml(CallbackData callbackData);
     String constructResponseFromRecordingsXml(String xml);
     String constructPaginatedResponse(Page<?> page, String response);
+    String constructGenericResponse(String[] keys, String[] values);
     Recording xmlToRecording(String recordId, String xml);
 }

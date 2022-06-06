@@ -9,6 +9,6 @@ services:
       - "POSTGRES_USER=${POSTGRES_USER}"
       - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
     ports:
-      - "${HOST_PORT}:${CONTAINER_PORT}"
+      - "${HOST_PORT}:${CONTAINER_PORT}"    
     volumes:
-      - "./src/main/java/db/migration:/docker-entrypoint-initdb.d"
+      - "./src/main/java/db/migration:/docker-entrypoint-initdb.d"  

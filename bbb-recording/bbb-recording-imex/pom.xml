@@ -27,7 +27,7 @@
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.bigbluebutton.RecordingApp</mainClass>
+                                    <mainClass>org.bigbluebutton.app.RecordingApp</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
@@ -54,9 +54,9 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <compilerSource>1.8</compilerSource>
-                    <compilerCompliance>1.8</compilerCompliance>
-                    <compilerTargetPlatform>1.8</compilerTargetPlatform>
+                    <compilerSource>11</compilerSource>
+                    <compilerCompliance>11</compilerCompliance>
+                    <compilerTargetPlatform>11</compilerTargetPlatform>
                     <lineEnding>LF</lineEnding>
                     <encoding>UTF-8</encoding>
                 </configuration>

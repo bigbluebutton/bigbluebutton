@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS metadata (
 	recording_id BIGINT,
 	key VARCHAR(256),
 	value VARCHAR(256),
-	CONSTRAINT fk_metadata_recording FOREIGN KEY(recording_id) REFERENCES recordings(id)
+	CONSTRAINT fk_metadata_recording FOREIGN KEY(recording_id) REFERENCES recording(id)
 );
 CREATE UNIQUE INDEX index_metadata_on_recording_id_and_key ON metadata(recording_id, key);
 

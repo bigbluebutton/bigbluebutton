@@ -1,4 +1,4 @@
-package org.bigbluebutton.entity;
+package org.bigbluebutton.dao.entity;
 
 import lombok.Getter;
 import lombok.Setter;

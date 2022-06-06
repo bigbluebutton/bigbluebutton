@@ -1,6 +1,6 @@
 package org.bigbluebutton.service.impl;
 
-import org.bigbluebutton.entity.*;
+import org.bigbluebutton.dao.entity.*;
 import org.bigbluebutton.service.XmlService;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.CharacterData;
@@ -313,6 +313,35 @@ public class XmlServiceImpl implements XmlService {
 //            logger.info("============================");
             return result;
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public String constructGenericResponse(String[] keys, String[] values) {
+        logger.info("Constructing response");
+
+        try {
+            setup();
+            Document document = builder.newDocument();
+
+            Element rootElement = createElement(document, "response", null);
+            document.appendChild(rootElement);
+
+            if(keys.length == values.length) {
+                for(int i = 0; i < keys.length; i++) {
+                    Element element = createElement(document, keys[i], values[i]);
+                    rootElement.appendChild(element);
+                }
+            }
+
+            String result = documentToString(document);
+//            logger.info("========== Result ==========");
+//            logger.info("{}", result);
+//            logger.info("============================");
+            return result;
+        } catch(Exception e) {
             e.printStackTrace();
         }
 
