@@ -11,10 +11,11 @@ import {
 
 const LayoutModalContainer = (props) => <LayoutModalComponent {...props} />;
 
-export default withModalMounter(withTracker(({ mountModal }) => ({
+export default withModalMounter(withTracker(({ mountModal, amIModerator }) => ({
   closeModal: () => mountModal(null),
   application: SettingsService.application,
   updateSettings,
   isPresenter: isPresenter(),
+  isModerator: amIModerator,
   showToggleLabel: false,
 }))(LayoutModalContainer));

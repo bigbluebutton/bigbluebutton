@@ -857,6 +857,8 @@ class Presentation extends PureComponent {
       currentPresentation,
       layoutSwapped,
       podId,
+      intl,
+      isViewersCursorLocked,
     } = this.props;
 
     const {
@@ -939,6 +941,9 @@ class Presentation extends PureComponent {
             setTldrawAPI={this.setTldrawAPI}
             curPageId={currentSlide?.num.toString()}
             svgUri={currentSlide?.svgUri}
+            intl={intl}
+            presentationBounds={presentationBounds}
+            isViewersCursorLocked={isViewersCursorLocked}
           />
           {isFullscreen && <PollingContainer />}
           {this.renderPresentationToolbar()}
@@ -972,7 +977,9 @@ class Presentation extends PureComponent {
               : null}
           </Styled.SvgContainer>
         </Styled.Presentation> */}
-      </Styled.PresentationContainer></>
+      </Styled.PresentationContainer>
+
+      </>
     );
   }
 }

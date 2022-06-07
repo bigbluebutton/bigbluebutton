@@ -291,6 +291,7 @@ class VideoList extends Component {
   renderVideoList() {
     const {
       streams,
+      onVirtualBgDrop,
       onVideoItemMount,
       onVideoItemUnmount,
       swapLayout,
@@ -322,6 +323,7 @@ class VideoList extends Component {
             }}
             onVideoItemUnmount={onVideoItemUnmount}
             swapLayout={swapLayout}
+            onVirtualBgDrop={(type, name, data) => onVirtualBgDrop(stream, type, name, data)}
           />
         </Styled.VideoListItem>
       );

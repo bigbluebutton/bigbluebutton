@@ -7,11 +7,14 @@ const CursorsContainer = (props) => {
   return <Cursors {...props}/>
 };
 
-export default withTracker(({ currentUser, tldrawAPI, whiteboardId }) => {
-  return { 
-    currentUser,
-    publishCursorUpdate: Service.publishCursorUpdate,
-    otherCursors: Service.getCurrentCursors(whiteboardId),
-    tldrawAPI,
-  };
-})(CursorsContainer);
+export default
+  withTracker((params) => {
+    return { 
+      currentUser: params.currentUser,
+      publishCursorUpdate: Service.publishCursorUpdate,
+      otherCursors: Service.getCurrentCursors(params.whiteboardId),
+      tldrawAPI: params.tldrawAPI,
+      isViewersCursorLocked: params.isViewersCursorLocked,
+    };
+  })(CursorsContainer)
+;
