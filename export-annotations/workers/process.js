@@ -213,6 +213,62 @@ function getOutlinePath(annotationPoints) {
     return [path, max_x, max_y];
 }
 
+function overlay_arrow(svg, annotation) {
+    console.log(annotation);
+
+    let [w, h] = annotation.size;
+    let [x, y] = annotation.point;
+    let bend = annotation.bend;
+    let decorations = annotation.decorations;
+
+    let dash = annotation.style.dash;
+    dash = (dash == 'draw') ? 'solid' : dash // Use 'solid' thickness
+
+    let shapeColor = color_to_hex(annotation.style.color);
+    let sw = get_stroke_width(dash, annotation.style.size);
+    let gap = get_gap(dash, annotation.style.size);
+    let stroke_dasharray = determine_dasharray(dash, gap);
+
+    let [start_x, start_y] = annotation.handles.start.point;
+    let [end_x, end_y] = annotation.handles.end.point;
+    let [bend_x, bend_y] = annotation.handles.bend.point;
+
+    let line = [];
+    let arrowHead = [];
+    let arrowDistance = Math.sqrt(Math.pow((end_x - start_x), 2) + Math.pow((end_y - start_y), 2));
+    let arrowHeadLength = Math.min(arrowDistance / 3, 8 * sw);
+    let isStraightLine = parseFloat(bend).toFixed(3) == 0;
+
+    let angle = Math.atan2(end_y - start_y, end_x - start_x)
+
+    if (isStraightLine) {
+        // Draws a straight line
+        line.push(`M ${start_x} ${start_y} L ${end_x} ${end_y}`);
+        
+        if (decorations.start || decorations.end) {
+            arrowHead.push(`M ${end_x} ${end_y}`);
+            arrowHead.push(`L ${end_x + arrowHeadLength * Math.cos(angle + (7/6) * Math.PI)} ${end_y + arrowHeadLength * Math.sin(angle + (7/6) * Math.PI)}`);
+            arrowHead.push(`M ${end_x} ${end_y}`);
+            arrowHead.push(`L ${end_x + arrowHeadLength * Math.cos(angle + (5/6) * Math.PI)} ${end_y + arrowHeadLength * Math.sin(angle + (5/6) * Math.PI)}`);
+        }
+
+    } else {
+
+    }
+
+    // The arrowhead is purposely not styled (e.g., dashed / dotted)
+    svg.ele('g', {
+        style: `stroke:${shapeColor};stroke-width:${sw};fill:none;`,
+        transform: `translate(${x} ${y})`
+    }).ele('path', {
+        'style': stroke_dasharray,
+        d: line.join(' '),
+    }).up()
+    .ele('path', {
+        d: arrowHead.join(' '),
+    }).up();
+}
+
 function overlay_draw(svg, annotation) {
     let dash = annotation.style.dash;
 
@@ -416,9 +472,9 @@ function overlay_annotations(svg, currentSlideAnnotations, w, h) {
     for (let annotation of currentSlideAnnotations) {
 
         switch (annotation.annotationInfo.type) {
-            // case 'arrow':
-            //     overlay_arrow(svg, annotation.annotationInfo);
-            //     break;
+            case 'arrow':
+                overlay_arrow(svg, annotation.annotationInfo);
+                break;
             case 'draw':
                 overlay_draw(svg, annotation.annotationInfo);
                 break;
