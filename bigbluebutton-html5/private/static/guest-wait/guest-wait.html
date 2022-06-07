@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>BigBlueButton - Guest Lobby</title>
+  <meta charset="UTF-8">
+  <style>
+    /* vietnamese */
+    @font-face {
+      font-family: 'Source Sans Pro';
+      font-style: normal;
+      font-weight: 300;
+      src: local('Source Sans Pro Light'), local('SourceSansPro-Light'),
+          url('fonts/SourceSansPro/SourceSansPro-Light.woff') format('woff');
+      unicode-range: U+0102-0103, U+1EA0-1EF9, U+20AB;
+    }
+    /* latin-ext */
+    @font-face {
+      font-family: 'Source Sans Pro';
+      font-style: normal;
+      font-weight: 300;
+      src: local('Source Sans Pro Light'), local('SourceSansPro-Light'),
+          url('fonts/SourceSansPro/SourceSansPro-Light.woff') format('woff');
+      unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+    }
+    /* latin */
+    @font-face {
+      font-family: 'Source Sans Pro';
+      font-style: normal;
+      font-weight: 300;
+      src: local('Source Sans Pro Light'), local('SourceSansPro-Light'),
+          url('fonts/SourceSansPro/SourceSansPro-Light.woff') format('woff');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+    }
+
+    :root {
+      --enableAnimation: 1;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #06172A;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #content {
+      text-align: center;
+      color: white;
+      font-weight: bold;
+      font-size: 24px;
+      font-family: 'Source Sans Pro', arial, sans-serif;
+    }
+
+    #content h1 {
+      font-size: 2rem;
+    }
+
+    .spinner {
+      margin: 20px auto;
+      font-size: 0px;
+    }
+
+    .spinner .bounce1 {
+      animation-delay: -0.32s;
+    }
+
+    .spinner .bounce2 {
+      animation-delay: -0.16s;
+    }
+
+    .spinner>div {
+      width: 18px;
+      height: 18px;
+      margin: 0 5px;
+      background-color: rgb(255, 255, 255);
+      display: inline-block;
+      border-radius: 100%;
+      animation: sk-bouncedelay calc(var(--enableAnimation) * 1.4s) infinite ease-in-out both;
+    }
+
+    @-webkit-keyframes sk-bouncedelay {
+
+      0%,
+      80%,
+      100% {
+        -webkit-transform: scale(0)
+      }
+
+      40% {
+        -webkit-transform: scale(1.0)
+      }
+    }
+
+    @keyframes sk-bouncedelay {
+
+      0%,
+      80%,
+      100% {
+        -webkit-transform: scale(0);
+        transform: scale(0);
+      }
+
+      40% {
+        -webkit-transform: scale(1.0);
+        transform: scale(1.0);
+      }
+    }
+  </style>
+
+  <script type="text/javascript">
+    let messages = {};
+
+    function _(message) {
+      return messages[message];
+    }
+
+    const REDIRECT_TIMEOUT = 15000;
+    const MESSAGE_TIMEOUT = 3000;
+
+    function updateMessage(message) {
+      document.querySelector('#content > p').innerHTML = message;
+    }
+
+    let lobbyMessage = '';
+    function updateLobbyMessage(message) {
+      if (message !== lobbyMessage) {
+        lobbyMessage = message;
+        if (lobbyMessage.length !== 0) {
+          updateMessage(lobbyMessage);
+        } else {
+          updateMessage(_('app.guest.guestWait'));
+        }
+      }
+    }
+
+    function getSearchParam(name) {
+      const params = new URLSearchParams(window.location.search);
+
+      if (params && params.has(name)) {
+        const param = params.get(name);
+
+        return param;
+      }
+
+      return null;
+    }
+
+    async function fetchLocalizedMessages() {
+      const DEFAULT_LANGUAGE = 'en';
+      const LOCALES_ENDPOINT = '/html5client/locale';
+      const url = new URL(`${window.location.origin}${LOCALES_ENDPOINT}`);
+      const overrideLocale = getSearchParam('locale');
+
+      url.search = overrideLocale
+        ? `locale=${overrideLocale}`
+        : `locale=${navigator.language}&init=true`;
+      
+      document.getElementsByTagName('html')[0].lang = overrideLocale || navigator.language;
+
+      const localesPath = 'locales';
+
+      fetch(url)
+        .then((response) => {
+          if (!response.ok) {
+            return false;
+          }
+          return response.json();
+        })
+        .then(({ normalizedLocale, regionDefaultLocale }) => {
+          const fetchFallbackMessages = new Promise((resolve, reject) => {
+            fetch(`${localesPath}/${DEFAULT_LANGUAGE}.json`)
+              .then((response) => {
+                if (!response.ok) {
+                  return reject();
+                }
+                return resolve(response.json());
+              });
+          });
+
+          const fetchRegionMessages = new Promise((resolve) => {
+            if (!regionDefaultLocale) {
+              return resolve(false);
+            }
+            fetch(`${localesPath}/${regionDefaultLocale}.json`)
+              .then((response) => {
+                if (!response.ok) {
+                  return resolve(false);
+                }
+                return response.json()
+                  .then((jsonResponse) => resolve(jsonResponse))
+                  .catch(() => {
+                    resolve(false);
+                  });
+              });
+          });
+
+          const fetchSpecificMessages = new Promise((resolve) => {
+            if (!normalizedLocale || normalizedLocale === DEFAULT_LANGUAGE || normalizedLocale === regionDefaultLocale) {
+              return resolve(false);
+            }
+            fetch(`${localesPath}/${normalizedLocale}.json`)
+              .then((response) => {
+                if (!response.ok) {
+                  return resolve(false);
+                }
+                return response.json()
+                  .then((jsonResponse) => resolve(jsonResponse))
+                  .catch(() => {
+                    resolve(false);
+                  });
+              });
+          });
+
+          Promise.all([fetchFallbackMessages, fetchRegionMessages, fetchSpecificMessages])
+            .then((values) => {
+              let mergedMessages = Object.assign({}, values[0]);
+
+              if (!values[1] && !values[2]) {
+                normalizedLocale = DEFAULT_LANGUAGE;
+              } else {
+                if (values[1]) {
+                  mergedMessages = Object.assign(mergedMessages, values[1]);
+                }
+                if (values[2]) {
+                  mergedMessages = Object.assign(mergedMessages, values[2]);
+                }
+              }
+
+              messages = mergedMessages;
+
+              window.document.title = _('app.guest.windowTitle');
+              document.querySelector('#heading').innerHTML = _('app.guest.windowTitle');
+              updateMessage(_('app.guest.guestWait'));
+              enableAnimation();
+              try {
+                const ATTEMPT_EVERY_MS = 5000;
+                const ATTEMPT_LIMIT = 100;
+
+                const sessionToken = getSearchParam('sessionToken');
+
+                if (!sessionToken) {
+                  disableAnimation()
+                  updateMessage(_('app.guest.noSessionToken'));
+                  return;
+                }
+
+                pollGuestStatus(sessionToken, 0, ATTEMPT_LIMIT, ATTEMPT_EVERY_MS);
+              } catch (e) {
+                disableAnimation();
+                console.error(e);
+                updateMessage(_('app.guest.errorSeeConsole'));
+              }
+
+
+            })
+            .catch((e) => {
+              console.error(e);
+            });
+        });
+    }
+
+    function fetchGuestWait(sessionToken) {
+      const GUEST_WAIT_ENDPOINT = '/bigbluebutton/api/guestWait';
+      const url = new URL(`${window.location.origin}${GUEST_WAIT_ENDPOINT}`);
+      url.search = `sessionToken=${sessionToken}&redirect=false`;
+      return fetch(url, { method: 'get' });
+    };
+
+    function redirect(message, url) {
+      disableAnimation();
+      updateMessage(message);
+      setTimeout(() => {
+        window.location = url;
+      }, REDIRECT_TIMEOUT);
+    };
+
+    function pollGuestStatus(token, attempt, limit, everyMs) {
+
+      setTimeout(function () {
+        if (attempt >= limit) {
+          disableAnimation();
+          updateMessage(_('app.guest.noModeratorResponse'));
+          return;
+        }
+
+        fetchGuestWait(token)
+          .then(async (resp) => await resp.json())
+          .then((data) => {
+            const code = data.response.returncode;
+
+            if (code === 'FAILED') {
+              return redirect(_('app.guest.' + data.response.messageKey), data.response.url);
+            }
+
+            const status = data.response.guestStatus;
+
+            if (status === 'DENY') {
+              return redirect(_('app.guest.' + data.response.messageKey), data.response.url);
+            }
+
+            if (status === 'ALLOW') {
+              updateLobbyMessage(_('app.guest.allow'));
+              // Timeout is required by accessibility to allow viewing of the message for a minimum of 3 seconds
+              // before redirecting.
+              setTimeout(() => {
+                disableAnimation();
+                window.location = data.response.url;
+              }, MESSAGE_TIMEOUT);
+              return;
+            }
+
+            updateLobbyMessage(data.response.lobbyMessage);
+
+            return pollGuestStatus(token, attempt + 1, limit, everyMs);
+          });
+      }, everyMs);
+    };
+
+    function enableAnimation() {
+      document.documentElement.style.setProperty('--enableAnimation', 1);
+    }
+
+    function disableAnimation() {
+      document.documentElement.style.setProperty('--enableAnimation', 0);
+    }
+
+    window.onload = function () {
+      fetchLocalizedMessages();
+    };
+  </script>
+</head>
+
+<body>
+  <div id="content">
+    <h1 id="heading">BigBlueButton - Guest Lobby</h1>
+    <div class="spinner">
+      <div class="bounce1"></div>
+      <div class="bounce2"></div>
+      <div class="bounce3"></div>
+    </div>
+    <p aria-live="polite">Please wait for a moderator to approve you joining the meeting.</p>
+  </div>
+</body>
+
+</html>

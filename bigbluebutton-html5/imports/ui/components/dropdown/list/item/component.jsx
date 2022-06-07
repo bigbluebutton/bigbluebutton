@@ -1,16 +1,34 @@
-import React, { Component, PropTypes } from 'react';
-import styles from '../styles';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import cx from 'classnames';
 import Icon from '/imports/ui/components/icon/component';
+import { styles } from '../styles';
 
 const propTypes = {
   icon: PropTypes.string,
   label: PropTypes.string,
   description: PropTypes.string,
+  accessKey: PropTypes.string,
+  tabIndex: PropTypes.number,
 };
 
-export default class DropdownListItem extends Component {
+const defaultProps = {
+  icon: '',
+  label: '',
+  description: '',
+  tabIndex: 0,
+  accessKey: null,
+};
+
+const messages = defineMessages({
+  activeAriaLabel: {
+    id: 'app.dropdown.list.item.activeLabel',
+  },
+});
+
+class DropdownListItem extends Component {
   constructor(props) {
     super(props);
     this.labelID = _.uniqueId('dropdown-item-label-');
@@ -18,21 +36,42 @@ export default class DropdownListItem extends Component {
   }
 
   renderDefault() {
-    let children = [];
-    const { icon, label } = this.props;
+    const {
+      icon, label, iconRight, accessKey,
+    } = this.props;
 
     return [
-      (icon ? <Icon iconName={icon} key="icon" className={styles.itemIcon}/> : null),
-      (<span className={styles.itemLabel} key="label">{label}</span>),
+      (icon ? <Icon iconName={icon} key="icon" className={styles.itemIcon} /> : null),
+      (
+        <span className={styles.itemLabel} key="label" accessKey={accessKey}>
+          {label}
+        </span>
+      ),
+      (iconRight ? <Icon iconName={iconRight} key="iconRight" className={styles.iconRight} /> : null),
     ];
   }
 
   render() {
-    const { label, description, children, injectRef, tabIndex, onClick, onKeyDown,
-      className, style, separator, intl} = this.props;
+    const {
+      id,
+      label,
+      description,
+      children,
+      injectRef,
+      tabIndex,
+      onClick,
+      onKeyDown,
+      className,
+      style,
+      intl,
+      'data-test': dataTest,
+    } = this.props;
 
+    const isSelected = className && className.includes('emojiSelected');
+    const _label = isSelected ? `${label} (${intl.formatMessage(messages.activeAriaLabel)})` : label;
     return (
       <li
+        id={id}
         ref={injectRef}
         onClick={onClick}
         onKeyDown={onKeyDown}
@@ -41,24 +80,24 @@ export default class DropdownListItem extends Component {
         aria-describedby={this.descID}
         className={cx(styles.item, className)}
         style={style}
-        role="menuitem">
+        role="menuitem"
+        data-test={dataTest}
+      >
         {
-          children ? children
-          : this.renderDefault()
+          children || this.renderDefault()
         }
         {
-          label ?
-          (<span id={this.labelID} key="labelledby" hidden>{label}</span>)
-          : null
+          label
+            ? (<span id={this.labelID} key="labelledby" hidden>{_label}</span>)
+            : null
         }
-        {
-          description ?
-          (<span id={this.descID} key="describedby" hidden>{description}</span>)
-          : null
-        }
+        <span id={this.descID} key="describedby" hidden>{description}</span>
       </li>
-      );
+    );
   }
 }
 
+export default injectIntl(DropdownListItem);
+
 DropdownListItem.propTypes = propTypes;
+DropdownListItem.defaultProps = defaultProps;

@@ -1,19 +1,28 @@
 import { Meteor } from 'meteor/meteor';
-import kickUser from './methods/kickUser';
-import listenOnlyToggle from './methods/listenOnlyToggle';
-import userLogout from './methods/userLogout';
-import assignPresenter from './methods/assignPresenter';
-import muteToggle from './methods/muteToggle';
-import setEmojiStatus from './methods/setEmojiStatus';
 import validateAuthToken from './methods/validateAuthToken';
+import setEmojiStatus from './methods/setEmojiStatus';
+import setMobileUser from './methods/setMobileUser';
+import assignPresenter from './methods/assignPresenter';
+import changeRole from './methods/changeRole';
+import removeUser from './methods/removeUser';
+import toggleUserLock from './methods/toggleUserLock';
+import setUserEffectiveConnectionType from './methods/setUserEffectiveConnectionType';
+import userActivitySign from './methods/userActivitySign';
+import userLeftMeeting from './methods/userLeftMeeting';
+import changePin from './methods/changePin';
+import setRandomUser from './methods/setRandomUser';
 
 Meteor.methods({
-  kickUser,
-  listenOnlyToggle,
-  userLogout,
-  assignPresenter,
   setEmojiStatus,
+  setMobileUser,
+  assignPresenter,
+  changeRole,
+  removeUser,
   validateAuthToken,
-  muteUser: (...args) => muteToggle(...args, true),
-  unmuteUser: (...args) => muteToggle(...args, false),
+  toggleUserLock,
+  setUserEffectiveConnectionType,
+  userActivitySign,
+  userLeftMeeting,
+  changePin,
+  setRandomUser,
 });

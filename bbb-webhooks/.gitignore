@@ -2,5 +2,5 @@
 **/#*#
 *.log
 node_modules/
-config_local.coffee
 log/*
+config/default.yml

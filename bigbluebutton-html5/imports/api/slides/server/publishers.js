@@ -1,22 +1,48 @@
-import Slides from '/imports/api/slides';
+import { Slides, SlidePositions } from '/imports/api/slides';
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-Meteor.publish('slides', (credentials) => {
-  // TODO: Some publishers have ACL and others dont
-  // if (!isAllowedTo('@@@', credentials)) {
-  //   this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'slides'"));
-  // }
+function slides() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing Slides was requested by unauth connection ${this.connection.id}`);
+    return Slides.find({ meetingId: '' });
+  }
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+  const { meetingId, userId } = tokenValidation;
 
-  Logger.info(`Publishing Slides for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug('Publishing Slides', { meetingId, userId });
 
   return Slides.find({ meetingId });
-});
+}
+
+function publish(...args) {
+  const boundSlides = slides.bind(this);
+  return boundSlides(...args);
+}
+
+Meteor.publish('slides', publish);
+
+function slidePositions() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing SlidePositions was requested by unauth connection ${this.connection.id}`);
+    return SlidePositions.find({ meetingId: '' });
+  }
+
+  const { meetingId, userId } = tokenValidation;
+
+  Logger.debug('Publishing SlidePositions', { meetingId, userId });
+
+  return SlidePositions.find({ meetingId });
+}
+
+function publishPositions(...args) {
+  const boundSlidePositions = slidePositions.bind(this);
+  return boundSlidePositions(...args);
+}
+
+Meteor.publish('slide-positions', publishPositions);

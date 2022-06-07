@@ -1,0 +1,12 @@
+--- src/mod/applications/mod_conference/conference_loop.c	2021-04-19 23:56:18.636116836 +0000
++++ src/mod/applications/mod_conference/conference_loop-new.c	2021-04-20 00:23:16.700700282 +0000
+@@ -1193,7 +1193,7 @@
+ 
+ 			member->last_score = member->score;
+ 
+-			if ((switch_channel_test_flag(channel, CF_VIDEO) || member->avatar_png_img) && (member->id == member->conference->floor_holder)) {
++			if (member->id == member->conference->floor_holder) {
+ 				if (member->id != member->conference->video_floor_holder &&
+ 					(member->floor_packets > member->conference->video_floor_packets || member->energy_level == 0)) {
+ 					conference_video_set_floor_holder(member->conference, member, SWITCH_FALSE);
+

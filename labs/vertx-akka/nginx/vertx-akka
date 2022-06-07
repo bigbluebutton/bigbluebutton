@@ -1,0 +1,13 @@
+server {
+     listen   80;
+     server_name  192.168.23.33;
+
+     access_log  /var/log/nginx/vertx-akka.access.log;
+
+        # Vertx-Akka landing page.
+        location / {
+          root   /var/www/vertx-akka;
+          index  index.html index.htm;
+          expires 1m;
+        }
+}

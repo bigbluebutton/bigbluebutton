@@ -1,0 +1,140 @@
+#!/usr/bin/ruby
+# frozen_string_literal: true
+
+# Copyright © 2019 BigBlueButton Inc. and by respective authors.
+#
+# This file is part of the BigBlueButton open source conferencing system.
+#
+# BigBlueButton is free software: you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by the
+# Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
+#
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with BigBlueButton.  If not, see <https://www.gnu.org/licenses/>.
+
+require 'rubygems'
+require 'bundler/setup'
+
+require 'optparse'
+require 'journald/logger'
+
+# Parse command-line options
+
+recording_id = nil
+OptionParser.new do |opts|
+  opts.on('--record-id=REC', 'Recording ID to copy captions into') do |rec|
+    recording_id = rec
+  end
+end.parse!
+
+unless recording_id
+  warn('--record-id was not specified')
+  exit(1)
+end
+
+# Read configuration and set up logger
+
+props = File.open(File.expand_path('../bigbluebutton.yml', __dir__)) do |bbb_yml|
+  YAML.safe_load(bbb_yml)
+end
+presentation_props = File.open(File.expand_path('../presentation.yml', __dir__)) do |pres_yml|
+  YAML.safe_load(pres_yml)
+end
+
+logger = Journald::Logger.new('caption/presentation')
+logger.tag(record_id: recording_id)
+
+captions_dir = props['captions_dir']
+publish_dir = presentation_props['publish_dir']
+
+unless captions_dir
+  logger.error('captions_dir was not defined in bigbluebutton.yml')
+  exit(1)
+end
+
+unless File.directory?(File.join(publish_dir, recording_id))
+  logger.error('Published recording directory for this recording does not exist')
+  exit(0)
+end
+
+# Load the captions index file and recording playback caption list
+
+begin
+  logger.info('Loading recording playback captions list')
+  playback_captions_path = File.join(publish_dir, recording_id, 'captions.json')
+  playback_captions = File.open(playback_captions_path) do |json|
+    JSON.parse(json.read)
+  end
+rescue Errno::ENOENT
+  logger.info("Playback doesn't have a captions.json - old playback format version?")
+  logger.info('Triggering recording reprocessing.')
+  archive_done_file = ''
+  File.open(archive_done_file, 'w') do |archive_done|
+    archive_done.write('Reprocessing for captions')
+  end
+  # Treat this as success, the captions will be integrated during reprocessing
+  exit(0)
+end
+
+# Captions index file
+begin
+  logger.info('Loading captions index file')
+  captions_path = File.join(captions_dir, recording_id, 'captions.json')
+  captions = File.open(captions_path) do |json|
+    JSON.parse(json.read)
+  end
+rescue Errno::ENOENT
+  captions = []
+end
+
+# Copy the new caption files over the existing ones in the playback
+
+captions.each do |caption|
+  kind = caption['kind']
+  lang = caption['lang']
+  label = caption['label']
+
+  # TODO: the presentation playback format needs to be updated to support
+  # kind != captions
+  next unless kind == 'captions'
+
+  logger.info("Copying file for kind=#{kind} lang=#{lang}")
+  dest_kind = case kind
+              when 'captions' then 'caption'
+              else kind
+              end
+
+  FileUtils.cp(
+    File.join(captions_dir, recording_id, "#{kind}_#{lang}.vtt"),
+    File.join(publish_dir, recording_id, "#{dest_kind}_#{lang}.vtt")
+  )
+
+  # Remove any existing matching tracks from the playback captions list...
+  playback_captions.reject! do |playback_caption|
+    playback_caption['locale'] == lang && (
+      playback_caption['kind'] == kind ||
+      (playback_caption['kind'].nil? && kind == 'captions')
+    )
+  end
+  # ...and add the new one.
+  playback_captions << {
+    'kind'       => kind,
+    'locale'     => lang,
+    'localeName' => label,
+  }
+end
+
+# Save the updated playback captions list
+
+logger.info('Saving updated playback captions list')
+# Sort the list by label so the selection menu looks nice
+playback_captions.sort { |a, b| a['localeName'] <=> b['localeName'] }
+File.open(playback_captions_path, 'w') do |json|
+  json.write(JSON.pretty_generate(playback_captions))
+end

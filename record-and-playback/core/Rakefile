@@ -1,0 +1,26 @@
+# frozen_string_literal: true
+
+require 'resque/tasks'
+require 'rake/testtask'
+
+task 'resque:setup' => :environment do
+  props = BigBlueButton.read_props
+  redis_host = props['redis_workers_host'] || props['redis_host']
+  redis_port = props['redis_workers_port'] || props['redis_port']
+  Resque.redis = "#{redis_host}:#{redis_port}"
+
+  # Make sure we're in the right directory because several rap scripts assume
+  # they are being executed from there and will fail otherwise
+  Dir.chdir(File.expand_path('scripts', __dir__))
+end
+
+task :environment do
+  require_relative 'lib/boot'
+  require 'recordandplayback/workers'
+end
+
+Rake::TestTask.new(:test) do |t|
+  t.libs << 'test'
+  t.libs << 'lib'
+  t.test_files = FileList['test/**/test_*.rb']
+end

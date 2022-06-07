@@ -1,0 +1,28 @@
+dist: bionic
+language: node_js
+node_js: 12
+
+env:
+  - JOB_TYPE=linter
+  - JOB_TYPE=acceptance_tests
+  global:
+    - BBB_SERVER_URL=http://localhost/bigbluebutton/api
+
+jobs:
+  allow_failures:
+  - env: JOB_TYPE=linter
+  include:
+  - stage: "Linter"
+    name: "ESLint"
+    env: JOB_TYPE=linter
+  - stage: "Tests"
+    name: "Acceptance Tests"
+    env: JOB_TYPE=acceptance_tests
+
+script:
+  - travis_wait 30 bash ./build_script.sh $JOB_TYPE
+
+after_script:
+  - docker stop $docker
+  - docker rm $docker
+  - docker rmi b2

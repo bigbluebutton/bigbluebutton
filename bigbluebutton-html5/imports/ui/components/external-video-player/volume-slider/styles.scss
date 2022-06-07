@@ -1,0 +1,47 @@
+@import "../../../stylesheets/variables/_all";
+
+%baseIndicator {
+  width: 0.9em;
+}
+
+%baseIndicatorLabel {
+  font-size: var(--font-size-base);
+  margin: 0 0 0 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  max-width: 20vw;
+}
+
+.slider {
+  @extend %baseIndicator;
+  display: flex;
+  position: relative;
+  bottom: 3.5em;
+  left: 1em;
+  padding: 0.25rem 0.5rem;
+  min-width: 200px;
+  background-color: rgba(0,0,0,0.5);
+  border-radius: 32px;
+
+  i {
+    color: white;
+    transition: 0.5s;
+    font-size: 200%;
+    cursor: pointer;
+  }
+  z-index: 2;
+}
+
+.volumeSlider {
+  width: 100%;
+
+  cursor: pointer;
+}
+
+.volume {
+  margin-right: 0.5em;
+
+  cursor: pointer;
+}

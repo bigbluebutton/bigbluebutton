@@ -1,0 +1,24 @@
+[Unit]
+Description=BigBlueButton Web Application
+Requires=network.target
+After=redis.service
+
+[Service]
+Type=simple
+User=bigbluebutton
+Group=bigbluebutton
+WorkingDirectory=/usr/share/bbb-web
+#EnvironmentFile=/etc/default/bbb-web
+#ExecStartPre=/bin/chown -R bigbluebutton:bigbluebutton /usr/share/bbb-web
+ExecStart=/usr/share/bbb-web/run-prod.sh
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=60
+SuccessExitStatus=
+TimeoutStopSec=5
+PermissionsStartOnly=true
+LimitNOFILE=1024
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,38 +1,44 @@
 import Breakouts from '/imports/api/breakouts';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
+import flat from 'flat';
 
-export default function handleBreakoutRoomStarted({ payload }) {
+export default function handleBreakoutRoomStarted({ body }, meetingId) {
+  // 0 seconds default breakout time, forces use of real expiration time
+  const DEFAULT_TIME_REMAINING = 0;
+
   const {
-    meetingId,
-    timeRemaining,
-    externalMeetingId,
-  } = payload;
+    parentMeetingId,
+    breakout,
+  } = body;
+
+  const { breakoutId } = breakout;
 
   check(meetingId, String);
 
   const selector = {
-    breakoutMeetingId: meetingId,
+    breakoutId,
   };
 
-  modifier = {
-    $set: {
-      users: [],
-      timeRemaining: Number(timeRemaining),
-      externalMeetingId: externalMeetingId,
-    },
+  const modifier = {
+    $set: Object.assign(
+      {
+        joinedUsers: [],
+      },
+      { timeRemaining: DEFAULT_TIME_REMAINING },
+      { parentMeetingId },
+      flat(breakout),
+    ),
   };
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`updating breakout: ${err}`);
+  try {
+    const { numberAffected } = Breakouts.upsert(selector, modifier);
+
+    if (numberAffected) {
+      Logger.info('Updated timeRemaining and externalMeetingId '
+        + `for breakout id=${breakoutId}`);
     }
-
-    if (numChanged) {
-      return Logger.info(`Updated timeRemaining and externalMeetingId ` +
-                         `for breakout id=${meetingId}`);
-    }
-  };
-
-  return Breakouts.update(selector, modifier, cb);
+  } catch (err) {
+    Logger.error(`updating breakout: ${err}`);
+  }
 }

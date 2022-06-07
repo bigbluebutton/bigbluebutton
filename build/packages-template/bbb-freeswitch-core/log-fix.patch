@@ -1,0 +1,213 @@
+diff --git a/libs/sofia-sip/libsofia-sip-ua/nta/nta.c b/libs/sofia-sip/libsofia-sip-ua/nta/nta.c
+index 9b2e295..572f5f7 100644
+--- a/libs/sofia-sip/libsofia-sip-ua/nta/nta.c
++++ b/libs/sofia-sip/libsofia-sip-ua/nta/nta.c
+@@ -7841,6 +7841,8 @@ nta_outgoing_t *outgoing_create(nta_agent_t *agent,
+   tagi_t const *t;
+   tport_t *override_tport = NULL;
+ 
++  SU_DEBUG_1(("nta: outgoing_create: ======= START ========= \n" VA_NONE));
++
+   if (!agent->sa_tport_ip6)
+     res_order = nta_res_ip4_only;
+   else if (!agent->sa_tport_ip4)
+@@ -7935,6 +7937,8 @@ nta_outgoing_t *outgoing_create(nta_agent_t *agent,
+   if (cc)
+     orq->orq_cc = nta_compartment_ref(cc);
+ 
++  SU_DEBUG_3(("nta: outgoing_create: outgoing_features\n" VA_NONE));
++
+   /* Add supported features */
+   outgoing_features(agent, orq, msg, sip, ta_args(ta));
+ 
+@@ -8014,7 +8018,10 @@ nta_outgoing_t *outgoing_create(nta_agent_t *agent,
+   orq->orq_branch = branch;
+   orq->orq_via_branch = branch;
+ 
++  SU_DEBUG_3(("nta: outgoing_create: orq_method\n" VA_NONE));
++
+   if (orq->orq_method == sip_method_ack) {
++    SU_DEBUG_3(("nta: outgoing_create: orq_method == sip_method_ack \n" VA_NONE));
+     /* Find the original INVITE which we are ACKing */
+     if (ack_branch != NULL && ack_branch != NONE) {
+       if (su_casenmatch(ack_branch, "branch=", 7))
+@@ -8046,7 +8053,7 @@ nta_outgoing_t *outgoing_create(nta_agent_t *agent,
+ 	}
+       }
+       else {
+-	SU_DEBUG_1(("outgoing_create: ACK without INVITE\n" VA_NONE));
++	SU_DEBUG_1(("nta: outgoing_create: ACK without INVITE\n" VA_NONE));
+ 	assert(!"INVITE found for ACK");
+       }
+     }
+@@ -8062,13 +8069,15 @@ nta_outgoing_t *outgoing_create(nta_agent_t *agent,
+   orq->orq_sips = su_casematch(scheme, "sips");
+ 
+   if (invalid < 0 || !orq->orq_branch || msg_serialize(msg, (void *)sip) < 0) {
+-    SU_DEBUG_3(("nta outgoing create: %s\n",
++    SU_DEBUG_3(("nta: outgoing_create: %s\n",
+ 		invalid < 0 ? "invalid URI" :
+ 		!orq->orq_branch ? "no branch" : "invalid message"));
+     outgoing_free(orq);
+     return NULL;
+   }
+ 
++  SU_DEBUG_1(("nta: outgoing_create: committed in sending the transaction \n" VA_NONE));
++
+   /* Now we are committed in sending the transaction */
+   orq->orq_request = msg;
+   agent->sa_stats->as_client_tr++;
+@@ -8098,10 +8107,19 @@ nta_outgoing_t *outgoing_create(nta_agent_t *agent,
+     return retval;
+   }
+ 
++  SU_DEBUG_1(("nta: outgoing_create:checking orq_queue \n" VA_NONE));
++
++  if (!orq->orq_queue) 
++   SU_DEBUG_5(("nta: outgoing_create: orq->orq_queue NULL.\n" VA_NONE));
++  else 
++   SU_DEBUG_5(("nta: outgoing_create: orq->orq_queue NOT NULL.\n" VA_NONE));
++  
+   assert(orq->orq_queue);
+ 
+   outgoing_insert(agent, orq);
+ 
++  SU_DEBUG_1(("nta: outgoing_create: ======= END ========= \n" VA_NONE));
++
+   return orq;
+ }
+ 
+@@ -8604,6 +8622,11 @@ outgoing_queue_adjust(nta_agent_t *sa,
+ su_inline int
+ outgoing_is_queued(nta_outgoing_t const *orq)
+ {
++  if (!orq->orq_queue)
++   SU_DEBUG_5(("outgoing_is_queued: orq->orq_queue is NULL.\n" VA_NONE));
++  else
++   SU_DEBUG_5(("outgoing_is_queued: orq->orq_queue is NOT NULL.\n" VA_NONE));
++
+   return orq && orq->orq_queue;
+ }
+ 
+@@ -8618,6 +8641,7 @@ outgoing_queue(outgoing_queue_t *queue,
+ 	       nta_outgoing_t *orq)
+ {
+   if (orq->orq_queue == queue) {
++    SU_DEBUG_5(("outgoing_queue: orq->orq_queue == queue.\n" VA_NONE));
+ 	//assert(queue->q_timeout == 0);
+     return;
+   }
+@@ -8629,6 +8653,8 @@ outgoing_queue(outgoing_queue_t *queue,
+ 
+   orq->orq_timeout = set_timeout(orq->orq_agent, queue->q_timeout);
+ 
++  SU_DEBUG_5(("outgoing_queue: orq->orq_queue = queue.\n" VA_NONE));
++
+   orq->orq_queue = queue;
+   orq->orq_prev = queue->q_tail;
+   *queue->q_tail = orq;
+@@ -8642,14 +8668,19 @@ outgoing_queue(outgoing_queue_t *queue,
+ su_inline
+ void outgoing_remove(nta_outgoing_t *orq)
+ {
++  SU_DEBUG_5(("outgoing_remove: orq->orq_queue = queue.\n" VA_NONE));
+   assert(outgoing_is_queued(orq));
+   assert(orq->orq_queue->q_length > 0);
+ 
++  SU_DEBUG_5(("outgoing_remove: orq->orq_queue queued and gt 0 \n" VA_NONE));
++
+   if ((*orq->orq_prev = orq->orq_next))
+     orq->orq_next->orq_prev = orq->orq_prev;
+   else
+     orq->orq_queue->q_tail = orq->orq_prev;
+ 
++  SU_DEBUG_5(("outgoing_remove: orq->orq_queue NULLing \n" VA_NONE));
++
+   orq->orq_queue->q_length--;
+   orq->orq_next = NULL;
+   orq->orq_prev = NULL;
+@@ -9077,10 +9108,15 @@ outgoing_complete(nta_outgoing_t *orq)
+   }
+ 
+   if (orq->orq_method == sip_method_invite) {
+-    if (orq->orq_queue != orq->orq_agent->sa_out.inv_completed)
++    SU_DEBUG_5(("outgoing_complete: orq->orq_method == sip_method_invite \n" VA_NONE));
++
++    if (orq->orq_queue != orq->orq_agent->sa_out.inv_completed) {
++      SU_DEBUG_5(("outgoing_complete: orq->orq_queue != orq->orq_agent->sa_out.inv_completed \n" VA_NONE));
+       outgoing_queue(orq->orq_agent->sa_out.inv_completed, orq); /* Timer D */
++    }
+   }
+   else {
++    SU_DEBUG_5(("outgoing_complete: orq->orq_agent->sa_out.completed \n" VA_NONE));
+     outgoing_queue(orq->orq_agent->sa_out.completed, orq); /* Timer K */
+   }
+ 
+@@ -9383,9 +9419,11 @@ int outgoing_recv(nta_outgoing_t *_orq,
+ 	orq->orq_status = status;
+ 
+       if (original->orq_queue == sa->sa_out.inv_calling) {
++        SU_DEBUG_5(("outgoing_recv: original->orq_queue == sa->sa_out.inv_calling.\n" VA_NONE));
+ 	outgoing_queue(sa->sa_out.inv_proceeding, original);
+       }
+       else if (original->orq_queue == sa->sa_out.inv_proceeding) {
++        SU_DEBUG_5(("outgoing_recv: original->orq_queue == sa->sa_out.inv_proceeding \n" VA_NONE));
+ 	if (sa->sa_out.inv_proceeding->q_timeout) {
+ 	  outgoing_remove(original);
+ 	  outgoing_queue(sa->sa_out.inv_proceeding, original);
+@@ -9442,6 +9480,7 @@ int outgoing_recv(nta_outgoing_t *_orq,
+     /* Non-INVITE */
+     if (orq->orq_queue == sa->sa_out.trying ||
+ 	orq->orq_queue == sa->sa_out.resolving) {
++        SU_DEBUG_5(("outgoing_recv: sa->sa_out.trying || sa->sa_out.resolving\n" VA_NONE));
+ 	  /* hacked by freeswitch, this is being hit by options 404 status with 404 orq->orq_status and orq_destroyed = 1, orq_completed = 1 */  
+ 	  /*      assert(orq->orq_status < 200); */
+ 	  if (orq->orq_status >= 200) {msg_destroy(msg); return 0;}
+@@ -9468,6 +9507,7 @@ int outgoing_recv(nta_outgoing_t *_orq,
+       }
+     }
+     else {
++      SU_DEBUG_5(("outgoing_recv: Already completed or terminated \n" VA_NONE));
+       /* Already completed or terminated */
+       assert(orq->orq_queue == sa->sa_out.completed ||
+ 	     orq->orq_queue == sa->sa_out.terminated);
+@@ -9752,8 +9792,10 @@ int outgoing_reply(nta_outgoing_t *orq, int status, char const *phrase,
+       SU_DEBUG_3(("nta(%p): responding %u %s to ACK!\n",
+ 		  (void *)orq, status, phrase));
+     orq->orq_status = status;
+-    if (orq->orq_queue == NULL)
++    if (orq->orq_queue == NULL) {
++      SU_DEBUG_5(("outgoing_reply: orq->orq_queue == NULL.\n" VA_NONE));
+       outgoing_trying(orq);	/* Timer F */
++    }
+     return 0;
+   }
+ 
+@@ -9768,8 +9810,10 @@ int outgoing_reply(nta_outgoing_t *orq, int status, char const *phrase,
+     ;
+   else if (orq->orq_queue == NULL ||
+ 	   orq->orq_queue == orq->orq_agent->sa_out.resolving ||
+-	   orq->orq_queue == orq->orq_agent->sa_out.delayed)
++	   orq->orq_queue == orq->orq_agent->sa_out.delayed) {
++    SU_DEBUG_5(("outgoing_reply: orq->orq_queue == NULL || sa_out.resolving || sa_out.delayed.\n" VA_NONE));
+     outgoing_trying(orq);
++  }
+ 
+   /** Insert a dummy Via header */
+   if (!orq->orq_prepared) {
+diff --git a/libs/sofia-sip/libsofia-sip-ua/tport/tport_type_ws.c b/libs/sofia-sip/libsofia-sip-ua/tport/tport_type_ws.c
+index 7e1dc76..8b27378 100644
+--- a/libs/sofia-sip/libsofia-sip-ua/tport/tport_type_ws.c
++++ b/libs/sofia-sip/libsofia-sip-ua/tport/tport_type_ws.c
+@@ -328,8 +328,8 @@ ssize_t tport_send_stream_ws(tport_t const *self, msg_t *msg,
+ 
+ 	  if (wrote < 0) {
+ 		  int err = su_errno();
+-		  SU_DEBUG_3(("ws_write_frame: %s\n", strerror(err)));
+-		  size = wrote;
++		  SU_DEBUG_3(("ws_write_frame: %s (%ld, %s, wstp_buflen: %ld)\n", strerror(err), (long)wrote, ((wstp->ws.down) ? "DOWN" : "NOT_DOWN"), (long)wstp->wstp_buflen));
++		  return -1;
+ 		  
+ 	  } else {
+ 		  size = wstp->wstp_buflen;
+

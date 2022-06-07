@@ -1,0 +1,8 @@
+:root {
+    --poll-annotation-gray: #333333;
+}
+
+.outline {
+    stroke: var(--poll-annotation-gray);
+    stroke-width: .5;
+}

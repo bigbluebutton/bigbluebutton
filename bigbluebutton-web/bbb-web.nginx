@@ -1,0 +1,181 @@
+	# Handle request to bbb-web running within a SpringBoot Tomcat embedded servlet container.  This is for BBB-API and Presentation.
+	location /bigbluebutton {
+		proxy_http_version 1.1;
+
+		location /bigbluebutton {
+			proxy_pass         http://127.0.0.1:8090;
+	       		proxy_redirect     default;
+        	        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+
+                    # Workaround IE refusal to set cookies in iframe
+                    add_header P3P 'CP="No P3P policy available"';
+                    if ($bbb_loadbalancer_node) {
+                        add_header 'Access-Control-Allow-Origin' $bbb_loadbalancer_node always;
+                        add_header 'Access-Control-Allow-Credentials' 'true' always;
+                    }
+		}
+
+
+		location ~ "^\/bigbluebutton\/presentation\/(?<prestoken>[a-zA-Z0-9_-]+)/upload$" {
+			# Grails can't handle CORS OPTION preflight requests correctly -> lets do this in nginx
+			if ($request_method = 'OPTIONS') {
+				add_header 'Access-Control-Allow-Origin' $bbb_loadbalancer_node always;
+				add_header 'Access-Control-Allow-Credentials' 'true' always;
+				add_header 'Content-Type' 'text/plain; charset=utf-8';
+				add_header 'Content-Length' 0;
+				return 204;
+			}
+			proxy_pass         http://127.0.0.1:8090;
+			proxy_redirect     default;
+			proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+
+			# Workaround IE refusal to set cookies in iframe
+			add_header P3P 'CP="No P3P policy available"';
+			if ($bbb_loadbalancer_node) {
+				add_header 'Access-Control-Allow-Origin' $bbb_loadbalancer_node always;
+				add_header 'Access-Control-Allow-Credentials' 'true' always;
+			}
+
+			# high limit for presentation as bbb-web will reject upload if larger than configured
+			client_max_body_size       1000m;
+			client_body_buffer_size    128k;
+
+			proxy_connect_timeout      90;
+			proxy_send_timeout         90;
+			proxy_read_timeout         90;
+
+		        proxy_buffer_size          4k;
+		        proxy_buffers              4 32k;
+		        proxy_busy_buffers_size    64k;
+		        proxy_temp_file_write_size 64k;
+
+		        include    fastcgi_params;
+
+			proxy_request_buffering off;
+
+			# Send a sub-request to allow bbb-web to refuse before loading
+			# If file is larger than configured bbb-web will return with code 403 and Header: x-file-too-large = 1
+			auth_request /bigbluebutton/presentation/checkPresentation;
+			error_page 403 = @error403;
+			auth_request_set $file_too_large_header $upstream_http_x_file_too_large;
+
+		}
+
+		location /bigbluebutton/presentation/download {
+			return 404;
+		}
+
+		location ~ "^/bigbluebutton/presentation/download\/[0-9a-f]+-[0-9]+/[0-9a-f]+-[0-9]+$" {
+			if ($arg_presFilename !~ "^[0-9a-f]+-[0-9]+\.[0-9a-zA-Z]+$") {
+				return 404;
+			}
+			proxy_pass         http://127.0.0.1:8090$uri$is_args$args;
+			proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+			# Workaround IE refusal to set cookies in iframe
+			add_header P3P 'CP="No P3P policy available"';
+			if ($bbb_loadbalancer_node) {
+				add_header 'Access-Control-Allow-Origin' $bbb_loadbalancer_node always;
+			}
+		}
+
+		location = /bigbluebutton/presentation/checkPresentation {
+			proxy_pass         http://127.0.0.1:8090;
+	       		proxy_redirect     default;
+        	        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+
+			proxy_set_header        X-Presentation-Token $prestoken;
+			proxy_set_header        X-Original-URI $request_uri;
+			proxy_set_header	Content-Length "";
+			proxy_set_header	X-Original-Content-Length $http_content_length;
+
+			# high limit for presentation as bbb-web will reject upload if larger than configured
+			client_max_body_size       1000m;
+			client_body_buffer_size    128k;
+
+			proxy_pass_request_body off;
+			proxy_request_buffering off;
+
+		}
+
+		# To check connection authentication, include:
+		#   auth_request /bigbluebutton/connection/checkAuthorization;
+		#   auth_request_set $auth_status $upstream_status;
+		#
+		# and make sure to add sessionToken param in the request URI
+		location = /bigbluebutton/connection/checkAuthorization {
+			internal;
+			proxy_pass               http://127.0.0.1:8090;
+			proxy_pass_request_body  off;
+			proxy_set_header         Content-Length "";
+			proxy_set_header         X-Original-URI $request_uri;
+		}
+
+		location = /bigbluebutton/connection/legacyCheckAuthorization {
+			internal;
+			proxy_pass               http://127.0.0.1:8090;
+			proxy_pass_request_body  off;
+			proxy_set_header         Content-Length "";
+			proxy_set_header         X-Original-URI $request_uri;
+		}
+
+		location = /bigbluebutton/connection/validatePad {
+			internal;
+			proxy_pass               http://127.0.0.1:8090;
+			proxy_pass_request_body  off;
+			proxy_set_header         Content-Length "";
+			proxy_set_header         X-Original-URI $request_uri;
+		}
+
+        location ~ "^/bigbluebutton\/textTrack\/(?<textTrackToken>[a-zA-Z0-9]+)\/(?<recordId>[a-zA-Z0-9_-]+)\/(?<textTrack>.+)$" {
+            # Workaround IE refusal to set cookies in iframe
+            add_header P3P 'CP="No P3P policy available"';
+            if ($bbb_loadbalancer_node) {
+                add_header 'Access-Control-Allow-Origin' $bbb_loadbalancer_node always;
+            }
+
+            # Allow 30M uploaded presentation document.
+            client_max_body_size       30m;
+            client_body_buffer_size    128k;
+
+            proxy_connect_timeout      90;
+            proxy_send_timeout         90;
+            proxy_read_timeout         90;
+
+            proxy_buffer_size          4k;
+            proxy_buffers              4 32k;
+            proxy_busy_buffers_size    64k;
+            proxy_temp_file_write_size 64k;
+
+            include    fastcgi_params;
+
+            proxy_request_buffering off;
+
+            # Send a sub-request to allow bbb-web to refuse before loading
+            auth_request /bigbluebutton/textTrack/validateAuthToken;
+
+            default_type text/plain;
+            alias    /var/bigbluebutton/captions/$recordId/$textTrack;
+
+        }
+
+        location = /bigbluebutton/textTrack/validateAuthToken {
+            internal;
+            proxy_pass         http://127.0.0.1:8090;
+            proxy_redirect     default;
+            proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+
+            proxy_set_header        X-textTrack-token $textTrackToken;
+            proxy_set_header        X-textTrack-recordId $recordId;
+            proxy_set_header        X-textTrack-track $textTrack;
+            proxy_set_header        X-Original-URI $request_uri;
+        }
+
+	}
+
+	location @error403 {
+            if ($file_too_large_header = '1') {
+                    return 413;
+            }
+
+            return 403;
+	}

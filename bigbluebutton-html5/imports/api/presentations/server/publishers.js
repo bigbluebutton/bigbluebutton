@@ -1,23 +1,26 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import Presentations from '/imports/api/presentations';
 import Logger from '/imports/startup/server/logger';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-Meteor.publish('presentations', (credentials) => {
-  // TODO: Some publishers have ACL and others dont
-  // if (!isAllowedTo('@@@', credentials)) {
-  //   this.error(new Meteor.Error(402,
-  //              "The user was not authorized to subscribe for 'presentations'"));
-  // }
+function presentations() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing Presentation was requested by unauth connection ${this.connection.id}`);
+    return Presentations.find({ meetingId: '' });
+  }
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+  const { meetingId, userId } = tokenValidation;
 
-  Logger.info(`Publishing Presentations for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug('Publishing Presentations', { meetingId, userId });
 
   return Presentations.find({ meetingId });
-});
+}
+
+function publish(...args) {
+  const boundPresentations = presentations.bind(this);
+  return boundPresentations(...args);
+}
+
+Meteor.publish('presentations', publish);

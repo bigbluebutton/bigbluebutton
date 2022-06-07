@@ -1,22 +1,32 @@
 import Captions from '/imports/api/captions';
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-Meteor.publish('captions', function (credentials) {
-  // TODO: Some publishers have ACL and others dont
-  // if (isAllowedTo('subscribeCaptions', credentials)) {
-  //   this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'captions'"));
-  // }
+function captions() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing Captions was requested by unauth connection ${this.connection.id}`);
+    return Captions.find({ meetingId: '' });
+  }
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+  const { meetingId, userId } = tokenValidation;
+  Logger.debug('Publishing Captions', { meetingId, requestedBy: userId });
 
-  Logger.verbose(`Publishing Captions for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  const options = {
+    fields: {
+      padId: 0,
+      readOnlyPadId: 0,
+    },
+  };
 
-  return Captions.find({ meetingId });
-});
+  return Captions.find({ meetingId }, options);
+}
+
+function publish(...args) {
+  const boundCaptions = captions.bind(this);
+  return boundCaptions(...args);
+}
+
+Meteor.publish('captions', publish);

@@ -15,26 +15,33 @@
     You should have received a copy of the GNU Lesser General Public License along
     with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 */
-$(document).ready( function () {
+$(document).ready(function() {
 	if (typeof jQuery !== 'undefined') {
 		(function($) {
 			$('[data-toggle="confirmation"]').confirmation({popout: true});
 			$('#recordings').dataTable({
 				columnDefs: [ {
-					targets: 3,
-					render: $.fn.dataTable.render.moment('X', 'LLL', locale)
+					targets: 4,
+					render: $.fn.dataTable.render.moment('X', 'lll', locale)
 				} ],
 				sPaginationType : "full_numbers",
 				"columns": [
 					null,
 					null,
 					null,
+					{ "width": "90px" },
 					null,
-					null,
-					{ "width": "160px" }
+					{ "width": "40px" },
+					{ "width": "120px" }
 				],
-				"order": [[ 3, "desc" ]]
+				"order": [[ 4, "desc" ]]
 			});
+			$(".glyphicon-eye-open").hover(function() {
+        $(this).toggleClass('glyphicon-eye-open glyphicon-eye-close');
+    	});
+			$(".glyphicon-eye-close").hover(function() {
+        $(this).toggleClass('glyphicon-eye-close glyphicon-eye-open');
+    	});
 		})(jQuery);
-	}
+	};
 });

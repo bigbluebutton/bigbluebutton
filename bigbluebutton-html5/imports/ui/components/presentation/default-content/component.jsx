@@ -1,175 +1,40 @@
-import React, { Component, PropTypes } from 'react';
-import styles from './styles.scss';
-import { FormattedMessage, FormattedDate } from 'react-intl';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import Button from '../../button/component';
+import React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import cx from 'classnames';
+import { styles } from './styles.scss';
 
-export default class DefaultContent extends Component {
-  handleClick() {
-    console.log('dummy handler');
-  }
-
-  render() {
-    return (
-      <ReactCSSTransitionGroup
-        transitionName={ {
+export default (props) => {
+  const { autoSwapLayout, hidePresentation } = props;
+  return (
+    <TransitionGroup>
+      <CSSTransition
+        classNames={{
           appear: styles.appear,
           appearActive: styles.appearActive,
-        } }
-        transitionAppear={true}
-        transitionEnter={true}
-        transitionLeave={false}
-        transitionAppearTimeout={700}
-        transitionEnterTimeout={0}
-        transitionLeaveTimeout={0}
+        }}
+        appear
+        enter={false}
+        exit={false}
+        timeout={{ enter: 400 }}
         className={styles.contentWrapper}
       >
-        <div className={styles.contentRatio}>
-          <div className={styles.content}>
-            <div className={styles.defaultContent}>
-              <p>
-                <FormattedMessage
-                  id="app.home.greeting"
-                  description="Message to greet the user."
-                  defaultMessage="Welcome {name}! Your presentation will begin shortly..."
-                  values={{ name: 'James Bond' }}
-                />
-                <br/>
-                Today is {' '}<FormattedDate value={Date.now()} />
-                <br/>
-                Here is some button examples
-                <br/>
-              </p>
-              <p>
-                <Button
-                  label={'Small'}
-                  onClick={this.handleClick}
-                  size={'sm'}
-                />&nbsp;
-                <Button
-                  label={'Medium'}
-                  onClick={this.handleClick}
-                />&nbsp;
-                <Button
-                  label={'Large'}
-                  onClick={this.handleClick}
-                  size={'lg'}
-                />
-              </p>
-              <p>
-                <Button
-                  label={'Default'}
-                  onClick={this.handleClick}
-                />&nbsp;
-                <Button
-                  label={'Primary'}
-                  onClick={this.handleClick}
-                  color={'primary'}
-                />&nbsp;
-                <Button
-                  label={'Danger'}
-                  onClick={this.handleClick}
-                  color={'danger'}
-                />&nbsp;
-                <Button
-                  label={'Success'}
-                  onClick={this.handleClick}
-                  color={'success'}
-                />
-              </p>
-              <p>
-                <Button
-                  label={'Default'}
-                  onClick={this.handleClick}
-                  ghost={true}
-                />&nbsp;
-                <Button
-                  label={'Primary'}
-                  onClick={this.handleClick}
-                  color={'primary'}
-                  ghost={true}
-                />&nbsp;
-                <Button
-                  label={'Danger'}
-                  onClick={this.handleClick}
-                  color={'danger'}
-                  ghost={true}
-                />&nbsp;
-                <Button
-                  label={'Success'}
-                  onClick={this.handleClick}
-                  color={'success'}
-                  ghost={true}
-                />
-              </p>
-              <p>
-                <Button
-                  label={'With Icon'}
-                  onClick={this.handleClick}
-                  icon={'add'}
-                />&nbsp;
-                <Button
-                  label={'Ghost With Icon'}
-                  onClick={this.handleClick}
-                  color={'primary'}
-                  icon={'add'}
-                  ghost={true}
-                />&nbsp;
-                <Button
-                  label={'Icon Right'}
-                  onClick={this.handleClick}
-                  color={'danger'}
-                  icon={'add'}
-                  ghost={true}
-                  iconRight={true}
-                />&nbsp;
-                <Button
-                  label={'Icon Right'}
-                  onClick={this.handleClick}
-                  color={'success'}
-                  icon={'add'}
-                  iconRight={true}
-                />
-              </p>
-              <p>
-                <Button
-                  label={'Medium'}
-                  onClick={this.handleClick}
-                  color={'primary'}
-                  icon={'unmute'}
-                  ghost={true}
-                  circle={true}
-                />&nbsp;
-                <Button
-                  label={'Large'}
-                  onClick={this.handleClick}
-                  color={'danger'}
-                  icon={'unmute'}
-                  size={'lg'}
-                  ghost={true}
-                  circle={true}
-                /><br/>
-                <Button
-                  label={'Small'}
-                  onClick={this.handleClick}
-                  icon={'unmute'}
-                  size={'sm'}
-                  circle={true}
-                />&nbsp;
-                <Button
-                  label={'Icon Right'}
-                  onClick={this.handleClick}
-                  color={'success'}
-                  icon={'unmute'}
-                  size={'sm'}
-                  iconRight={true}
-                  circle={true}
-                />
-              </p>
-            </div>
+        <div className={styles.content}>
+          <div className={cx(styles.defaultContent, {
+            [styles.hideContent]: autoSwapLayout && hidePresentation,
+          })}
+          >
+            <p>
+              <FormattedMessage
+                id="app.home.greeting"
+                description="Message to greet the user."
+                defaultMessage="Your presentation will begin shortly..."
+              />
+              <br />
+            </p>
           </div>
         </div>
-      </ReactCSSTransitionGroup>
-    );
-  }
-}
+      </CSSTransition>
+    </TransitionGroup>
+  );
+};

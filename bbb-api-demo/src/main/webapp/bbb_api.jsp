@@ -32,7 +32,6 @@
 <%@ page import="java.io.*"%>
 <%@ page import="java.nio.channels.FileChannel"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
-
 <%@ include file="bbb_api_conf.jsp"%> 
 
 <%!//
@@ -151,9 +150,7 @@ public String getJoinMeetingURL(String username, String meetingID, String passwo
 } 
 
 
-
-	
-// 
+//
 // Create a meeting and return a URL to join it as moderator.  This is used for the API demos.
 //
 // Passed
@@ -170,80 +167,15 @@ public String getJoinMeetingURL(String username, String meetingID, String passwo
 //  Note this meeting will use username for meetingID
 
 public String getJoinURL(String username, String meetingID, String record, String welcome, Map<String, String> metadata, String xml) {
+    String isHTML5Client = "false";
+    String isModerator = "true";
 
-	String base_url_create = BigBlueButtonURL + "api/create?";
-	String base_url_join = BigBlueButtonURL + "api/join?";
-
-	String welcome_param = "";
-	if ((welcome != null) && !welcome.equals("")) {
-		welcome_param = "&welcome=" + urlEncode(welcome);
-	}
-
-	String xml_param = "";
-	if ((xml != null) && !xml.equals("")) {
-		xml_param = xml;
-	}
-	
-	Random random = new Random();
-	String voiceBridge_param = "&voiceBridge=" + (70000 + random.nextInt(9999));
-	
-	//
-	// When creating a meeting, the 'name' parameter is the name of the meeting (not to be confused with
-	// the username).  For example, the name could be "Fred's meeting" and the meetingID could be "ID-1234312".
-	//
-	// While name and meetingID should be different, we'll keep them the same.  Why?  Because calling api/create? 
-	// with a previously used meetingID will return same meetingToken (regardless if the meeting is running or not).
-	//
-	// This means the first person to call getJoinURL with meetingID="Demo Meeting" will actually create the
-	// meeting.  Subsequent calls will return the same meetingToken and thus subsequent users will join the same
-	// meeting.
-	//
-	// Note: We're hard-coding the password for moderator and attendee (viewer) for purposes of demo.
-	//
-
-	String create_parameters = "name=" + urlEncode(meetingID)
-		+ "&meetingID=" + urlEncode(meetingID) + welcome_param + voiceBridge_param
-		+ "&attendeePW=ap&moderatorPW=mp"
-		+ "&isBreakoutRoom=false"
-		+ "&record=" + record + getMetaData( metadata );
-
-
-	// Attempt to create a meeting using meetingID
-	Document doc = null;
-	try {
-		String url = base_url_create + create_parameters
-			+ "&checksum="
-			+ checksum("create" + create_parameters + salt); 
-		doc = parseXml( postURL( url, xml_param ) );
-
-	} catch (Exception e) {
-		e.printStackTrace();
-	}
-
-	if (doc.getElementsByTagName("returncode").item(0).getTextContent()
-			.trim().equals("SUCCESS")) {
-
-		//
-		// Looks good, now return a URL to join that meeting
-		//  
-
-		String join_parameters = "meetingID=" + urlEncode(meetingID)
-			+ "&fullName=" + urlEncode(username) + "&password=mp";
-
-		return base_url_join + join_parameters + "&checksum="
-			+ checksum("join" + join_parameters + salt);
-	}
-	
-	return doc.getElementsByTagName("messageKey").item(0).getTextContent()
-		.trim()
-		+ ": " 
-		+ doc.getElementsByTagName("message").item(0).getTextContent()
-		.trim();
+    return getJoinURLExtended(username, meetingID, record, welcome, metadata, xml, isHTML5Client, isModerator);
 }
 
 
-// 
-// Create a meeting and return a URL to join it as attendee.  This is used for the API demos.
+//
+// Create a meeting and return a URL to join it as moderator.  This is used for the API demos.
 //
 // Passed
 //	- username
@@ -251,16 +183,16 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 //  - record ["true", "false"]
 //  - welcome message (null causes BigBlueButton to use the default welcome message
 //  - metadata (passed through when record="true"
-//  - xml (used for pre-upload of slides)
-//  - isModerator [true, false]
+//  - xml (used for pre-upload of slides)_
+//  - isHTML5Client ["true", "false"]
+//  - isModerator ["true", "false"]
 //
 // Returned
 //  - valid join URL using the username
 //
+//  Note this meeting will use username for meetingID
 
-// VERSION ADJUSTED TO THE NEEDS OF THE HTML5 CLIENT
-// -redirect=false //so that we get xml returned instead of being redirected to the meeting
-public String getJoinURLHTML5(String username, String meetingID, String record, String welcome, Map<String, String> metadata, String xml, boolean isModerator) {
+public String getJoinURLExtended(String username, String meetingID, String record, String welcome, Map<String, String> metadata, String xml, String isHTML5Client, String isModerator) {
 
 	String base_url_create = BigBlueButtonURL + "api/create?";
 	String base_url_join = BigBlueButtonURL + "api/join?";
@@ -274,22 +206,15 @@ public String getJoinURLHTML5(String username, String meetingID, String record, 
 	if ((xml != null) && !xml.equals("")) {
 		xml_param = xml;
 	}
-	
-	String defaultModeratorPW = "mp";
-	String defaultAttendeePW = "ap";
-	String html5UserPassword = defaultAttendeePW; // default html5 user to attendee
-	if (isModerator) {
-		html5UserPassword = defaultModeratorPW;
-	}
 
 	Random random = new Random();
 	String voiceBridge_param = "&voiceBridge=" + (70000 + random.nextInt(9999));
-	
+
 	//
 	// When creating a meeting, the 'name' parameter is the name of the meeting (not to be confused with
 	// the username).  For example, the name could be "Fred's meeting" and the meetingID could be "ID-1234312".
 	//
-	// While name and meetingID should be different, we'll keep them the same.  Why?  Because calling api/create? 
+	// While name and meetingID should be different, we'll keep them the same.  Why?  Because calling api/create?
 	// with a previously used meetingID will return same meetingToken (regardless if the meeting is running or not).
 	//
 	// This means the first person to call getJoinURL with meetingID="Demo Meeting" will actually create the
@@ -298,22 +223,24 @@ public String getJoinURLHTML5(String username, String meetingID, String record, 
 	//
 	// Note: We're hard-coding the password for moderator and attendee (viewer) for purposes of demo.
 	//
-
 	String create_parameters = "name=" + urlEncode(meetingID)
-		+ "&meetingID=" + urlEncode(meetingID)
-		+ welcome_param
-		+ voiceBridge_param
-		+ "&attendeePW=" + defaultAttendeePW
-		+ "&moderatorPW=" + defaultModeratorPW
+		+ "&meetingID=" + urlEncode(meetingID) + welcome_param + voiceBridge_param
+		+ "&attendeePW=ap&moderatorPW=mp"
+		+ "&isBreakoutRoom=false"
 		+ "&record=" + record + getMetaData( metadata );
 
+
+	String password = "mp"; // Attempt to join as moderator by default
+	if ("false" == isModerator) {
+		password = "ap"; // default attendee password
+	}
 
 	// Attempt to create a meeting using meetingID
 	Document doc = null;
 	try {
 		String url = base_url_create + create_parameters
 			+ "&checksum="
-			+ checksum("create" + create_parameters + salt); 
+			+ checksum("create" + create_parameters + salt);
 		doc = parseXml( postURL( url, xml_param ) );
 
 	} catch (Exception e) {
@@ -325,23 +252,24 @@ public String getJoinURLHTML5(String username, String meetingID, String record, 
 
 		//
 		// Looks good, now return a URL to join that meeting
-		//  
+		//
 
-		// Note that REDIRECT=FALSE -- we will use the url to extract meetingID, userID, authToken
-		// and will pass them to the joining url for the html5 client (different format)
-		// Also we set PASSWORD=AP FOR ATTENDEE
 		String join_parameters = "meetingID=" + urlEncode(meetingID)
-			+ "&fullName=" + urlEncode(username) + "&redirect=false&password=" + html5UserPassword;
+			+ "&fullName=" + urlEncode(username)
+
+		+ "&joinViaHtml5=" + isHTML5Client
+	 	+ "&password=" + password;
 
 		return base_url_join + join_parameters + "&checksum="
 			+ checksum("join" + join_parameters + salt);
 	}
-	
+
 	return doc.getElementsByTagName("messageKey").item(0).getTextContent()
 		.trim()
-		+ ": " 
+		+ ": "
 		+ doc.getElementsByTagName("message").item(0).getTextContent()
 		.trim();
+
 }
 
 
@@ -839,7 +767,7 @@ public String getMetaData( Map<String, String> metadata ) {
 public static String checksum(String s) {
 	String checksum = "";
 	try {
-		checksum = org.apache.commons.codec.digest.DigestUtils.shaHex(s);
+		checksum = org.apache.commons.codec.digest.DigestUtils.sha256Hex(s);
 	} catch (Exception e) {
 		e.printStackTrace();
 	}
@@ -1071,3 +999,4 @@ public static Element getElementWithAttribute(Node root, String attrName, String
 }
 
 %>
+

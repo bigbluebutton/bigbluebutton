@@ -15,6 +15,8 @@ public class RecordingMetadataPlayback {
 
   private Extensions extensions;
 
+  private String size;
+
   public void setFormat(String format) {
     this.format = format;
   }
@@ -62,5 +64,13 @@ public class RecordingMetadataPlayback {
 
   public Extensions getExtensions() {
     return extensions;
+  }
+
+  public void setSize(String size) {
+    this.size = size;
+  }
+
+  public String getSize() {
+    return size;
   }
 }

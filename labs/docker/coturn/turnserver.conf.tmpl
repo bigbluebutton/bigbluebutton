@@ -1,0 +1,14 @@
+listening-port={{ .Env.PORT }}
+min-port=49152
+max-port=65535
+fingerprint
+lt-cred-mech
+realm={{ .Env.SERVER_DOMAIN }}
+external-ip={{ .Env.EXTERNAL_IP }}
+
+{{ if isTrue .Env.ENABLE_REST_API }}
+use-auth-secret
+static-auth-secret={{ .Env.SECRET }}
+{{ else }}
+user={{ .Env.LT_USER }}:{{ .Env.LT_SECRET }}
+{{ end }}

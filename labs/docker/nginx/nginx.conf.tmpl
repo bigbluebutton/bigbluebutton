@@ -1,0 +1,66 @@
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+
+events {
+    worker_connections 768;
+}
+
+http {
+    ##
+    # Basic Settings
+    ##
+
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    ##
+    # SSL Settings
+    ##
+
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2; # Dropping SSLv3, ref: POODLE
+    ssl_prefer_server_ciphers on;
+
+    ##
+    # Logging Settings
+    ##
+
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+
+    ##
+    # Gzip Settings
+    ##
+
+    gzip on;
+    gzip_disable "msie6";
+
+    ##
+    # Virtual Host Configs
+    ##
+
+    server {
+        listen   80;
+        listen [::]:80;
+        server_name {{ .Env.SERVER_DOMAIN }};
+
+        access_log  /var/log/nginx/bigbluebutton.access.log;
+
+        location /ws {
+            proxy_pass https://bbb-freeswitch:7443;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+            proxy_read_timeout 6h;
+            proxy_send_timeout 6h;
+            client_body_timeout 6h;
+            send_timeout 6h;
+        }
+    }
+}

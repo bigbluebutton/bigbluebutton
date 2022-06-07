@@ -33,23 +33,33 @@ public class User {
 	private String avatarURL;
 	private Map<String,String> status;
 	private Boolean guest;
-	private Boolean waitingForAcceptance;
+	private String  guestStatus;
 	private Boolean listeningOnly = false;
 	private Boolean voiceJoined = false;
+	private String clientType;
 	private List<String> streams;
-	
-	public User(String internalUserId, String externalUserId, String fullname, String role, String avatarURL, Boolean guest, Boolean waitingForAcceptance) {
+	private Long leftOn = null;
+
+	public User(String internalUserId,
+							String externalUserId,
+							String fullname,
+							String role,
+							String avatarURL,
+							Boolean guest,
+							String  guestStatus,
+							String clientType) {
 		this.internalUserId = internalUserId;
 		this.externalUserId = externalUserId;
 		this.fullname = fullname;
 		this.role = role;
 		this.avatarURL = avatarURL;
 		this.guest = guest;
-		this.waitingForAcceptance = waitingForAcceptance;
-		this.status = new ConcurrentHashMap<String, String>();
+		this.guestStatus = guestStatus;
+		this.status = new ConcurrentHashMap<>();
 		this.streams = Collections.synchronizedList(new ArrayList<String>());
+		this.clientType = clientType;
 	}
-	
+
 	public String getInternalUserId() {
 		return this.internalUserId;
 	}
@@ -73,14 +83,30 @@ public class User {
 		return this.guest;
 	}
 
-	public void setWaitingForAcceptance(Boolean waitingForAcceptance) {
-		this.waitingForAcceptance = waitingForAcceptance;
+	public void setGuestStatus(String guestStatus) {
+		this.guestStatus = guestStatus;
 	}
 
-	public Boolean isWaitingForAcceptance() {
-		return this.waitingForAcceptance;
+	public String getGuestStatus() {
+		return this.guestStatus;
 	}
 	
+	public Boolean hasLeft() {
+		return leftOn != null;
+	}
+
+	public void joined() {
+		this.leftOn = null;
+	}
+
+	public void left() {
+		this.leftOn = System.currentTimeMillis();
+	}
+
+	public Long getLeftOn() {
+		return this.leftOn;
+	}
+
 	public String getFullname() {
 		return fullname;
 	}
@@ -103,7 +129,7 @@ public class User {
 	}
 
 	public boolean isModerator() {
-		return this.role.equalsIgnoreCase("MODERATOR");
+		return "MODERATOR".equalsIgnoreCase(this.role);
 	}
 	
 	public void setStatus(String key, String value){
@@ -119,13 +145,15 @@ public class User {
 	public boolean isPresenter() {
 		String isPresenter = this.status.get("presenter");
 		if (isPresenter != null) {
-			return isPresenter.equalsIgnoreCase("true");
+			return "true".equalsIgnoreCase(isPresenter);
 		}
 		return false;
 	}
 	
 	public void addStream(String stream) {
-		streams.add(stream);
+		if (!streams.contains(stream)) {
+			streams.add(stream);
+		}
 	}
 	
 	public void removeStream(String stream) {
@@ -136,9 +164,9 @@ public class User {
 		return streams;
 	}
 
-        public Boolean hasVideo() {
-                return this.getStreams().size() > 0;
-        }
+    public Boolean hasVideo() {
+        return !this.getStreams().isEmpty();
+    }
 
 	public Boolean isListeningOnly() {
 		return listeningOnly;
@@ -155,4 +183,9 @@ public class User {
 	public void setVoiceJoined(Boolean voiceJoined) {
 		this.voiceJoined = voiceJoined;
 	}
+
+	public String getClientType() {
+		return this.clientType;
+	}
+
 }

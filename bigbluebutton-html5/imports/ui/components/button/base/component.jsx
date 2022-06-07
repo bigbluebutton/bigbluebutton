@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 const propTypes = {
   /**
@@ -23,13 +24,47 @@ const propTypes = {
    * Defines the button click handler
    * @defaultValue undefined
    */
-  onClick: PropTypes.func.isRequired,
+  onClick: (props, propName, componentName) => {
+    if (!props.onClick && !props.onMouseDown && !props.onMouseUp) {
+      return new Error('One of props \'onClick\' or \'onMouseDown\' or' +
+        ` 'onMouseUp' was not specified in '${componentName}'.`);
+    }
+
+    return null;
+  },
+  onMouseDown: (props, propName, componentName) => {
+    if (!props.onClick && !props.onMouseDown && !props.onMouseUp) {
+      return new Error('One of props \'onClick\' or \'onMouseDown\' or' +
+        ` 'onMouseUp' was not specified in '${componentName}'.`);
+    }
+
+    return null;
+  },
+  onMouseUp: (props, propName, componentName) => {
+    if (!props.onClick && !props.onMouseDown && !props.onMouseUp) {
+      return new Error('One of props \'onClick\' or \'onMouseDown\' or' +
+        ` 'onMouseUp' was not specified in '${componentName}'.`);
+    }
+
+    return null;
+  },
+
+  onKeyPress: PropTypes.func,
+  onKeyDown: PropTypes.func,
+  onKeyUp: PropTypes.func,
+  setRef: PropTypes.func,
 };
 
 const defaultProps = {
   disabled: false,
   tagName: 'button',
-  role: 'button',
+  onClick: undefined,
+  onMouseDown: undefined,
+  onMouseUp: undefined,
+  onKeyPress: undefined,
+  onKeyDown: undefined,
+  onKeyUp: undefined,
+  setRef: undefined,
 };
 
 /**
@@ -39,7 +74,7 @@ const defaultProps = {
  * keyboard users to comply with ARIA standards.
  */
 
-export default class ButtonBase extends Component {
+export default class ButtonBase extends React.Component {
   constructor(props) {
     super(props);
 
@@ -59,40 +94,42 @@ export default class ButtonBase extends Component {
     if (!this.props.disabled && typeof eventHandler === 'function') {
       return eventHandler(...args);
     }
+
+    return null;
   }
 
   // Define Mouse Event Handlers
-  internalClickHandler(event) {
-    return this.validateDisabled(this.props.onClick, ...arguments);
+  internalClickHandler(...args) {
+    return this.validateDisabled(this.props.onClick, ...args);
   }
 
-  internalDoubleClickHandler(event) {
-    return this.validateDisabled(this.props.onDoubleClick, ...arguments);
+  internalDoubleClickHandler(...args) {
+    return this.validateDisabled(this.props.onDoubleClick, ...args);
   }
 
-  internalMouseDownHandler(event) {
-    return this.validateDisabled(this.props.onMouseDown, ...arguments);
+  internalMouseDownHandler(...args) {
+    return this.validateDisabled(this.props.onMouseDown, ...args);
   }
 
-  internalMouseUpHandler() {
-    return this.validateDisabled(this.props.onMouseUp, ...arguments);
+  internalMouseUpHandler(...args) {
+    return this.validateDisabled(this.props.onMouseUp, ...args);
   }
 
   // Define Keyboard Event Handlers
-  internalKeyPressHandler() {
-    return this.validateDisabled(this.props.onKeyPress, ...arguments);
+  internalKeyPressHandler(...args) {
+    return this.validateDisabled(this.props.onKeyPress, ...args);
   }
 
-  internalKeyDownHandler() {
-    return this.validateDisabled(this.props.onKeyDown, ...arguments);
+  internalKeyDownHandler(...args) {
+    return this.validateDisabled(this.props.onKeyDown, ...args);
   }
 
-  internalKeyUpHandler() {
-    return this.validateDisabled(this.props.onKeyUp, ...arguments);
+  internalKeyUpHandler(...args) {
+    return this.validateDisabled(this.props.onKeyUp, ...args);
   }
 
   render() {
-    let Component = this.props.tagName;
+    const Component = this.props.tagName;
 
     const remainingProps = Object.assign({}, this.props);
     delete remainingProps.label;
@@ -110,8 +147,12 @@ export default class ButtonBase extends Component {
     delete remainingProps.onKeyDown;
     delete remainingProps.onKeyUp;
 
+    // Delete setRef callback if it exists
+    delete remainingProps.setRef;
+
     return (
       <Component
+        ref={this.props.setRef}
         aria-label={this.props.label}
         aria-disabled={this.props.disabled}
 

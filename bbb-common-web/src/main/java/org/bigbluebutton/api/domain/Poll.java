@@ -36,7 +36,7 @@ public class Poll{
 		this.title = title;
 		this.question = question;
 		this.datetime = Long.toString(System.currentTimeMillis()); 
-		this.answers = new HashMap<String,String>();
+		this.answers = new HashMap<>();
 	}
 
 	public void addAnswer(String answer){
@@ -69,7 +69,7 @@ public class Poll{
 	}
 
 	public HashMap<String,String> toMap(){
-		HashMap<String,String> map = new HashMap<String,String>();
+		HashMap<String,String> map = new HashMap<>();
 		map.put("pollID",pollID);
 		map.put("meetingID",meetingID);
 		map.put("title", title);

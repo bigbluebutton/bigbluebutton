@@ -1,3 +1,0 @@
-log:
-  filename: '/log/development.log'
-  level: 'info'

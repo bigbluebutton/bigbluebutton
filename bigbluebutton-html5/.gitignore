@@ -1,17 +1,8 @@
-app/packages
-app/build/
+.dbshell
 npm-debug.log
 node_modules/
 .meteor/dev_bundle
+public/locales/de_DE.json
+public/locales/ja_JP.json
 
-private/config/server/*
-!private/config/server/app.yaml
-!private/config/server/redis.yaml
-!private/config/server/shell.yaml
 
-private/config/development/server/*
-!private/config/development/server/log.yaml
-
-private/config/production/server/*
-!private/config/production/server/log.yaml
-!private/config/production/server/shell.yaml

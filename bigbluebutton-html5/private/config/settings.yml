@@ -1,0 +1,829 @@
+public:
+  app:
+    mobileFontSize: 16px
+    desktopFontSize: 14px
+    audioChatNotification: false
+    # Shows the audio modal when user joins the room. The audio modal prompts
+    # user to select an option ("Microphone" and/or "Listen only") for joining
+    # audio
+    autoJoin: true
+    # Disables the listen only option in audio modal.
+    listenOnlyMode: true
+    forceListenOnly: false
+    # Skips the echo test when connecting with microphone.
+    skipCheck: false
+    # Skips the echo test when connecting with microphone right after user
+    # joins the room the first time. Subsequent joins to microphone won't
+    # have echo test skipped, for example if user leaves and joins the mic
+    # again or reloading page and joining mic again.
+    # This setting won't have effect if skipCheck = true
+    skipCheckOnJoin: false
+    #
+    # Allow users to change microphone/speaker dynamically
+    # The device is changed immediately, without the need to rejoin
+    # audio. Default value is true
+    # Firefox users: if no output devices is shown, you may set the flag
+    # "media.setsinkid.enabled" to make it work properly
+    # enableDynamicAudioDeviceSelection: true
+    #
+    clientTitle: BigBlueButton
+    appName: BigBlueButton HTML5 Client
+    bbbServerVersion: 2.4
+    copyright: '©2022 BigBlueButton Inc.'
+    html5ClientBuild: HTML5_CLIENT_VERSION
+    helpLink: https://bigbluebutton.org/html5/
+    lockOnJoin: true
+    cdn: ''
+    basename: '/html5client'
+    # the base location of the BBB API. If you use a cluster setup with a load
+    # balancer which hides the individual nodes, then this should be
+    # https://bbb-host/bigbluebutton
+    # If you run a traditional setup of multiple nodes behind scalelite and the
+    # users see the hostnames of the individual nodes, you can leave this at the
+    # default setting
+    bbbWebBase: '/bigbluebutton'
+    # If you run a cluster setup with a load balancer which hides the individual
+    # nodes, then this should be set to https://bbb-host/learning-analytics-dashboard
+    learningDashboardBase: '/learning-analytics-dashboard'
+    # Use https URL of CSS file. Example: https://docs.bigbluebutton.org/admin/customize.html#examples
+    customStyleUrl: null
+    askForFeedbackOnLogout: false
+    # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
+    # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
+    allowDefaultLogoutUrl: true
+    allowUserLookup: false
+    dynamicGuestPolicy: true
+    enableGuestLobbyMessage: true
+    enableLimitOfViewersInWebcam: false
+    enableMultipleCameras: true
+    # Allow users to open webcam video modal/preview when video is already
+    # active. This also allows to change virtual backgrounds without
+    # restarting webcam.
+    enableWebcamSelectorButton: true
+    enableTalkingIndicator: true
+    mirrorOwnWebcam: false
+    viewersInWebcam: 8
+    ipv4FallbackDomain: ''
+    allowLogout: true
+    allowFullscreen: true
+    preloadNextSlides: 2
+    warnAboutUnsavedContentOnMeetingEnd: false
+    mutedAlert:
+      enabled: true
+      interval: 200
+      threshold: -50
+      duration: 4000
+    remainingTimeThreshold: 30
+    remainingTimeAlertThreshold: 1
+    enableDebugWindow: true
+    # Warning: increasing the limit of breakout rooms per meeting
+    # can generate excessive overhead to the server. We recommend
+    # this value to be kept under 16.
+    breakouts:
+      breakoutRoomLimit: 16
+      sendInvitationToIncludedModerators: false
+    # https://github.com/bigbluebutton/bigbluebutton/pull/10826
+    customHeartbeat: false
+    showAllAvailableLocales: true
+    # Show "Audio Filters for Microphone" option in settings menu.
+    # When set to true, users are able to enable/disable microphone constraints,
+    # otherwise default values for 'microphoneConstraints' option
+    # are used.
+    # For more info, see 'microphoneConstraints' option in this config.
+    # If not set, default value is true.
+    showAudioFilters: true
+    raiseHandActionButton:
+      enabled: true
+    # If enabled, before joining microphone the client will perform a trickle
+    # ICE against Kurento and use the information about successfull
+    # candidate-pairs to filter out local candidates in SIP.js's SDP.
+    # Try enabling this setting in scenarios where the listenonly mode works,
+    # but microphone doesn't (for example, when using VPN).
+    # For compatibility check "Browser compatbility" section in:
+    # https://developer.mozilla.org/en-US/docs/Web/API/RTCDtlsTransport/iceTransport
+    # This is an EXPERIMENTAL setting and the default value is false
+    # experimentalUseKmsTrickleIceForMicrophone: false
+    #
+    # Shows stats about download and upload rates, audio jitter, lost packets
+    # and turn information
+    enableNetworkStats: true
+    # Enable the button to allow users to copy network stats to clipboard
+    enableCopyNetworkStatsButton: true
+    defaultSettings:
+      application:
+        animations: true
+        chatAudioAlerts: false
+        chatPushAlerts: false
+        userJoinAudioAlerts: false
+        userJoinPushAlerts: false
+        userLeaveAudioAlerts: false
+        userLeavePushAlerts: false
+        raiseHandAudioAlerts: true
+        raiseHandPushAlerts: true
+        guestWaitingAudioAlerts: true
+        guestWaitingPushAlerts: true
+        paginationEnabled: true
+        pushLayoutToEveryone: false
+        # fallbackLocale: if the locale the client is loaded in does not have a
+        # translation a string, it will use the translation from the locale
+        # specified in fallbackLocale. Note that fallbackLocale should be a
+        # 100% translated locale for best user experience
+        fallbackLocale: en
+        # overrideLocale (default is null): if set (for example to 'de') will
+        # force all clients to display the German translations of the strings.
+        # Users can individually set their preferred locale through Settings,
+        # but on first page load overrideLocale will trump the browser's
+        # preferred locale
+        overrideLocale: null
+        #Audio constraints for microphone. Use this to control browser's
+        #filters, such as AGC (Auto Gain Control) , Echo Cancellation,
+        #Noise Supression, etc.
+        #For more deails, see:
+        # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+        #Currently, google chrome sets {ideal: true} for autoGainControl,
+        #echoCancellation and noiseSuppression, if not set.
+        #The accepted value for each constraint is an object of type
+        #https://developer.mozilla.org/en-US/docs/Web/API/ConstrainBoolean
+        #These values are used as initial constraints for every new participant,
+        #and can be changed by user in: Settings > Application > Microphone
+        #Audio Filters.
+        # microphoneConstraints:
+        #   autoGainControl:
+        #     ideal: true
+        #   echoCancellation:
+        #     ideal: true
+        #   noiseSuppression:
+        #     ideal: true
+      audio:
+        inputDeviceId: undefined
+        outputDeviceId: undefined
+      dataSaving:
+        viewParticipantsWebcams: true
+        viewScreenshare: true
+    shortcuts:
+      openOptions:
+        accesskey: O
+        descId: openOptions
+      toggleUserList:
+        accesskey: U
+        descId: toggleUserList
+      toggleMute:
+        accesskey: M
+        descId: toggleMute
+      joinAudio:
+        accesskey: J
+        descId: joinAudio
+      leaveAudio:
+        accesskey: L
+        descId: leaveAudio
+      togglePublicChat:
+        accesskey: P
+        descId: togglePublicChat
+      hidePrivateChat:
+        accesskey: H
+        descId: hidePrivateChat
+      closePrivateChat:
+        accesskey: G
+        descId: closePrivateChat
+      raiseHand:
+        accesskey: R
+        descId: raiseHand
+      openActions:
+        accesskey: A
+        descId: openActions
+      openDebugWindow:
+        accesskey: K
+        descId: openDebugWindow
+    branding:
+      displayBrandingArea: true
+    connectionTimeout: 60000
+    showHelpButton: true
+    effectiveConnection:
+      - critical
+      - danger
+      - warning
+  externalVideoPlayer:
+    enabled: true
+  kurento:
+    wsUrl: HOST
+    # Valid for video-provider. Time (ms) before its WS connection times out
+    # and tries to reconnect.
+    wsConnectionTimeout: 4000
+    # Time in milis to wait for the browser to return a gUM call (used in video-preview)
+    gUMTimeout: 20000
+    # Experiment(al). Controls whether ICE candidates should be signaled.
+    # Applies to webcams, listen only and screen sharing. True is "stable behavior".
+    signalCandidates: true
+    # Forces relay usage only on Firefox. Applies to listen only, webcams and screenshare.
+    forceRelayOnFirefox: false
+    cameraTimeouts:
+      # Base camera timeout: used as the camera *sharing* timeout and
+      # as the minimum camera subscribe reconnection timeout
+      baseTimeout: 30000
+      # Max timeout: used as the max camera subscribe reconnection timeout. Each
+      # subscribe reattempt increases the reconnection timer up to this
+      maxTimeout: 60000
+    screenshare:
+      # Whether volume control should be allowed if screen sharing has audio
+      enableVolumeControl: false
+      # Experimental. True is the canonical behavior. Flip to false to reverse
+      # the negotiation flow for subscribers.
+      subscriberOffering: false
+      # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
+      # media server adapter should be used for screen sharing.
+      # Default is undefined, which means the default setting in bbb-webrtc-sfu
+      # prevails (screenshareMediaServer).
+      #mediaServer: Kurento
+      bitrate: 1500
+      mediaTimeouts:
+        maxConnectionAttempts: 2
+        # Base screen media timeout (send|recv)
+        baseTimeout: 30000
+        # Max timeout: used as the max camera subscribe reconnection timeout. Each
+        # subscribe reattempt increases the reconnection timer up to this
+        maxTimeout: 60000
+        timeoutIncreaseFactor: 1.5
+      constraints:
+        video:
+          frameRate:
+            ideal: 5
+            max: 10
+          width:
+            max: 2560
+          height:
+            max: 1600
+        audio: true
+    # cameraProfiles is an array of:
+    # - id: profile identifier
+    #   name: human-readable profile name
+    #   bitrate
+    #   hidden: whether this profile will be hidden in the video preview dropdown
+    #   constraints: a video media constraints dictionary (without the video key)
+    cameraProfiles:
+      # id: unique identifier of the profile
+      # name: name of the profile visible to users
+      # default: if this is the default profile which is pre-selected
+      # bitrate: the average bitrate for used for a webcam stream
+      # constraints:
+      #   # Optional constraints put on the requested video a browser MAY honor
+      #   # For a detailed list on possible values see:
+      #   # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+      #   # Examples:
+      #   width: requested width of the camera stream
+      #   frameRate: requested framerate
+      - id: low-u30
+        name: low-u30
+        bitrate: 30
+        hidden: true
+        constraints:
+          frameRate: 3
+      - id: low-u25
+        name: low-u25
+        bitrate: 40
+        hidden: true
+        constraints:
+          frameRate: 3
+      - id: low-u20
+        name: low-u20
+        bitrate: 50
+        hidden: true
+        constraints:
+          frameRate: 5
+      - id: low-u15
+        name: low-u15
+        bitrate: 70
+        hidden: true
+        constraints:
+          frameRate: 8
+      - id: low-u12
+        name: low-u12
+        bitrate: 90
+        hidden: true
+        constraints:
+          frameRate: 10
+      - id: low-u8
+        name: low-u8
+        bitrate: 100
+        hidden: true
+        constraints:
+          frameRate: 10
+      - id: low
+        name: Low
+        default: false
+        bitrate: 100
+      - id: medium
+        name: Medium
+        default: true
+        bitrate: 200
+      - id: high
+        name: High
+        default: false
+        bitrate: 500
+        constraints:
+          width: 1280
+          frameRate: 15
+      - id: hd
+        name: High definition
+        default: false
+        bitrate: 800
+        constraints:
+          width: 1280
+          frameRate: 30
+    enableScreensharing: true
+    enableVideo: true
+    enableVideoMenu: true
+    enableVideoPin: false
+    enableListenOnly: true
+    # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
+    # media server adapter should be used for listen only.
+    # Default is undefined, which means the default setting in bbb-webrtc-sfu
+    # prevails (listenOnlyMediaServer).
+    #listenOnlyMediaServer: Kurento
+    # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
+    # media server adapter should be used for webcams.
+    # Default is undefined, which means the default setting in bbb-webrtc-sfu
+    # prevails (videoMediaServer).
+    #videoMediaServer: Kurento
+    autoShareWebcam: false
+    skipVideoPreview: false
+    skipVideoPreviewOnFirstJoin: false
+    # cameraSortingModes.paginationSorting: sorting mode to be applied when pagination is active
+    # cameraSortingModes.defaultSorting: sorting mode when pagination is not active (full mesh)
+    # Current implemented modes are:
+    # 'LOCAL_ALPHABETICAL' | 'VOICE_ACTIVITY_LOCAL' | 'LOCAL_VOICE_ACTIVITY' | 'LOCAL_PRESENTER_ALPHABETICAL'
+    # The algorithm names are self-explanatory.
+    cameraSortingModes:
+      defaultSorting: LOCAL_ALPHABETICAL
+      paginationSorting: VOICE_ACTIVITY_LOCAL
+    # Entry `thresholds` is an array of:
+    # - threshold: minimum number of cameras being shared for profile to applied
+    #   profile: a camera profile id from the cameraProfiles configuration array
+    #            that will be applied to all cameras when threshold is hit
+    cameraQualityThresholds:
+      enabled: true
+      thresholds:
+        - threshold: 8
+          profile: low-u8
+        - threshold: 12
+          profile: low-u12
+        - threshold: 15
+          profile: low-u15
+        - threshold: 20
+          profile: low-u20
+        - threshold: 25
+          profile: low-u25
+        - threshold: 30
+          profile: low-u30
+    pagination:
+      # WARNING: the pagination.enabled setting has moved to
+      # public.app.defaultSettings.application.paginationEnabled
+      # paginationToggleEnabled: show a pagination toggle in settings for the
+      # user to enable/disable it
+      paginationToggleEnabled: true
+      # how long (in ms) the negotiation will be debounced after a page change.
+      pageChangeDebounceTime: 2500
+      # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
+      # PUBLISHERS aren't accounted for .
+      # A page size of 0 (zero) means that the page size is unlimited (disabled).
+      desktopPageSizes:
+        moderator: 0
+        viewer: 5
+      # video page sizes for MOBILE endpoints
+      mobilePageSizes:
+        moderator: 2
+        viewer: 2
+    paginationThresholds:
+      enabled: false
+      thresholds:
+        - users: 30
+          desktopPageSizes:
+            moderator: 25
+            viewer: 25
+        - users: 40
+          desktopPageSizes:
+            moderator: 20
+            viewer: 20
+        - users: 50
+          desktopPageSizes:
+            moderator: 16
+            viewer: 16
+        - users: 60
+          desktopPageSizes:
+            moderator: 14
+            viewer: 12
+        - users: 70
+          desktopPageSizes:
+            moderator: 12
+            viewer: 10
+        - users: 80
+          desktopPageSizes:
+            moderator: 10
+            viewer: 8
+        - users: 90
+          desktopPageSizes:
+            moderator: 8
+            viewer: 6
+        - users: 100
+          desktopPageSizes:
+            moderator: 6
+            viewer: 4
+  syncUsersWithConnectionManager:
+    enabled: false
+    syncInterval: 60000
+  allowOutsideCommands:
+    toggleRecording: false
+    toggleSelfVoice: false
+  poll:
+    enabled: true
+    maxCustom: 5
+    allowDragAndDropFile: false
+    maxTypedAnswerLength: 45
+    chatMessage: true
+  captions:
+    enabled: true
+    enableDictation: false
+    backgroundColor: '#000000'
+    fontColor: '#FFFFFF'
+    fontFamily: Calibri
+    fontSize: 24px
+    takeOwnership: true
+    lines: 2
+    time: 5000
+  chat:
+    enabled: true
+    itemsPerPage: 100
+    timeBetweenFetchs: 1000
+    enableSaveAndCopyPublicChat: true
+    bufferChatInsertsMs: 0
+    startClosed: false
+    min_message_length: 1
+    max_message_length: 5000
+    grouping_messages_window: 10000
+    type_system: SYSTEM_MESSAGE
+    type_public: PUBLIC_ACCESS
+    type_private: PRIVATE_ACCESS
+    system_userid: SYSTEM_MESSAGE
+    system_username: SYSTEM_MESSAGE
+    public_id: public
+    public_group_id: MAIN-PUBLIC-GROUP-CHAT
+    public_userid: public_chat_userid
+    public_username: public_chat_username
+    storage_key: UNREAD_CHATS
+    system_messages_keys:
+      chat_clear: PUBLIC_CHAT_CLEAR
+      chat_poll_result: PUBLIC_CHAT_POLL_RESULT
+    typingIndicator:
+      enabled: true
+    moderatorChatEmphasized: true
+  note:
+    enabled: true
+    url: ETHERPAD_HOST
+  layout:
+    autoSwapLayout: false
+    hidePresentation: false
+    showParticipantsOnLogin: true
+  media:
+    audio:
+      #
+      #
+      # Default bridge to be used by full audio mechanism.
+      # This is the bridge's name as contained in 'bridges' array
+      defaultFullAudioBridge: sipjs
+      #
+      #
+      # Server wide configuration to choose which bbb-webrtc-sfu
+      # media server adapter should be used for fullaudio.
+      # Default is undefined, which means the default setting in bbb-webrtc-sfu
+      # prevails (fullAudioMediaServer).
+      # fullAudioMediaServer: Kurento
+      #
+      #
+      # Default bridge to be used by listen only mechanism.
+      defaultListenOnlyBridge: kurento
+      #
+      #
+      # Bridge array, here's where we list our bridges.
+      # To add new bridges, simply add the corresponding .js file in
+      # /imports/api/audio/client/bridge/ and add it to this list.
+      #
+      # Each bridge in this list, must have a name and path attribute.
+      # The name is the desired name/string you can set for your bridge, while
+      # the path specifies the file path, relative to
+      # '/imports/api/audio/client' dir.
+      #
+      bridges:
+          #
+          # The name of the bridge
+        - name: sipjs
+          #
+          # The bridge file path , relative to /imports/api/audio/client
+          path: 'bridge/sip'
+        - name: kurento
+          path: 'bridge/kurento'
+        - name: fullaudio
+          path: 'bridge/FullAudioBridge'
+    stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
+    cacheStunTurnServers: true
+    fallbackStunServer: ''
+    # Forces relay usage on all browsers, environments and media modules.
+    # If true, supersedes public.kurento.forceRelayOnFirefox
+    forceRelay: false
+    mediaTag: '#remote-media'
+    callTransferTimeout: 5000
+    callHangupTimeout: 2000
+    callHangupMaximumRetries: 10
+    echoTestNumber: 'echo'
+    listenOnlyCallTimeout: 25000
+    # Experimental. True is the canonical behavior. Flip to false to reverse
+    # the negotiation flow for LO subscribers.
+    listenOnlyOffering: false
+    #Timeout (ms) for gathering ICE candidates. When this timeout expires
+    #the SDP is sent to the server with the candidates the browser gathered
+    #so far. Increasing this value might help avoiding 1004 error when
+    #user activates microphone.
+    iceGatheringTimeout: 5000
+    # Timeout (ms) for connecting to the audio's signaling websocket.
+    audioConnectionTimeout: 5000
+    # Delay (ms) between each reconnection attempt of the audio's signaling
+    # websocket.
+    audioReconnectionDelay: 5000
+    # Number of reconnection attempts of the signaling websocket, before
+    # showing to the user there's an audio error.
+    audioReconnectionAttempts: 3
+    sipjsHackViaWs: false
+    # the fqdn of this host.
+    # If you run a traditional setup of multiple nodes behind scalelite and the users see the hostnames of the
+    # individual nodes, you can leave this at the default setting
+    sip_ws_host: ''
+    # Mute/umute toggle throttle time
+    toggleMuteThrottleTime: 300
+    #Websocket keepAlive interval (seconds). You may set this to prevent
+    #websocket disconnection in some environments. When set, BBB will send
+    #'\r\n\r\n' string through SIP.js's websocket. If not set, default value
+    #is 0.
+    websocketKeepAliveInterval: 30
+    #Debounce time (seconds) for sending SIP.js's websocket keep alive message.
+    #If not set, default value is 10.
+    websocketKeepAliveDebounce: 10
+    #Trace sip/audio messages in browser. If not set, default value is false.
+    traceSip: false
+    # SDP semantics: plan-b|unified-plan
+    sdpSemantics: 'unified-plan'
+  stats:
+    enabled: true
+    interval: 10000
+    timeout: 30000
+    log: true
+    notification:
+      warning: false
+      error: true
+    jitter:
+      - 10
+      - 20
+      - 30
+    loss:
+      - 0.05
+      - 0.1
+      - 0.2
+    rtt:
+      - 500
+      - 1000
+      - 2000
+    level:
+      - warning
+      - danger
+      - critical
+    help: STATS_HELP_URL
+  presentation:
+    allowDownloadable: true
+    panZoomThrottle: 32
+    restoreOnUpdate: false
+    oldMinimizeButton: false
+    uploadEndpoint: '/bigbluebutton/presentation/upload'
+    uploadValidMimeTypes:
+      - extension: .pdf
+        mime: application/pdf
+      - extension: .doc
+        mime: application/msword
+      - extension: .docx
+        mime: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+      - extension: .xls
+        mime: application/vnd.ms-excel
+      - extension: .xlsx
+        mime: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      - extension: .ppt
+        mime: application/vnd.ms-powerpoint
+      - extension: .pptx
+        mime: application/vnd.openxmlformats-officedocument.presentationml.presentation
+      - extension: .txt
+        mime: text/plain
+      - extension: .rtf
+        mime: application/rtf
+      - extension: .odt
+        mime: application/vnd.oasis.opendocument.text
+      - extension: .ods
+        mime: application/vnd.oasis.opendocument.spreadsheet
+      - extension: .odp
+        mime: application/vnd.oasis.opendocument.presentation
+      - extension: .odg
+        mime: application/vnd.oasis.opendocument.graphics
+      - extension: .odc
+        mime: application/vnd.oasis.opendocument.chart
+      - extension: .odi
+        mime: application/vnd.oasis.opendocument.image
+      - extension: .jpg
+        mime: image/jpeg
+      - extension: .jpeg
+        mime: image/jpeg
+      - extension: .png
+        mime: image/png
+  selectRandomUser:
+    enabled: true
+    countdown: false
+  user:
+    role_moderator: MODERATOR
+    role_viewer: VIEWER
+    label:
+      moderator: false
+      mobile: true
+      guest: true
+      sharingWebcam: true
+  whiteboard:
+    annotationsQueueProcessInterval: 60
+    cursorInterval: 150
+    annotations:
+      status:
+        start: DRAW_START
+        update: DRAW_UPDATE
+        end: DRAW_END
+    toolbar:
+      multiUserPenOnly: false
+      colors:
+        - label: black
+          value: '#000000'
+        - label: white
+          value: '#ffffff'
+        - label: red
+          value: '#ff0000'
+        - label: orange
+          value: '#ff8800'
+        - label: eletricLime
+          value: '#ccff00'
+        - label: Lime
+          value: '#00ff00'
+        - label: Cyan
+          value: '#00ffff'
+        - label: dodgerBlue
+          value: '#0088ff'
+        - label: blue
+          value: '#0000ff'
+        - label: violet
+          value: '#8800ff'
+        - label: magenta
+          value: '#ff00ff'
+        - label: silver
+          value: '#c0c0c0'
+      thickness:
+        - value: 14
+        - value: 12
+        - value: 10
+        - value: 8
+        - value: 6
+        - value: 4
+        - value: 2
+        - value: 1
+      font_sizes:
+        - value: 36
+        - value: 32
+        - value: 28
+        - value: 24
+        - value: 20
+        - value: 16
+      tools:
+        - icon: text_tool
+          value: text
+        - icon: line_tool
+          value: line
+        - icon: circle_tool
+          value: ellipse
+        - icon: triangle_tool
+          value: triangle
+        - icon: rectangle_tool
+          value: rectangle
+        - icon: pen_tool
+          value: pencil
+        - icon: hand
+          value: hand
+      presenterTools:
+        - text
+        - line
+        - ellipse
+        - triangle
+        - rectangle
+        - pencil
+        - hand
+      multiUserTools:
+        - text
+        - line
+        - ellipse
+        - triangle
+        - rectangle
+        - pencil
+  clientLog:
+    server:
+      enabled: false
+      level: info
+    console:
+      enabled: true
+      level: debug
+    external:
+      enabled: false
+      level: info
+      url: https://LOG_HOST/html5Log
+      method: POST
+      throttleInterval: 400
+      flushOnClose: true
+      logTag: ''
+  virtualBackgrounds:
+    enabled: true
+    storedOnBBB: true
+    showThumbnails: true
+    imagesPath: /resources/images/virtual-backgrounds/
+    thumbnailsPath: /resources/images/virtual-backgrounds/thumbnails/
+    fileNames:
+      - home.jpg
+      - coffeeshop.jpg
+      - board.jpg
+private:
+  analytics:
+    includeChat: true
+  app:
+    host: 127.0.0.1
+    localesUrl: /locale-list
+    pencilChunkLength: 100
+    loadSlidesFromHttpAlways: false
+  etherpad:
+    apikey: ETHERPAD_APIKEY
+    version: 1.2.13
+    host: 127.0.0.1
+    port: 9001
+  redis:
+    host: 127.0.0.1
+    port: '6379'
+    timeout: 5000
+    password: null
+    debug: false
+    metrics:
+      queueMetrics: false
+      metricsDumpIntervalMs: 60000
+      metricsFolderPath: METRICS_FOLDER
+      removeMeetingOnEnd: true
+    channels:
+      toAkkaApps: to-akka-apps-redis-channel
+      toThirdParty: to-third-party-redis-channel
+    subscribeTo:
+      - to-html5-redis-channel
+      - from-akka-apps-[^f]*
+      - from-third-party-redis-channel
+      - from-etherpad-redis-channel
+    async:
+      - from-akka-apps-wb-redis-channel
+    ignored:
+      - CheckAlivePongSysMsg
+      - DoLatencyTracerMsg
+  serverLog:
+    level: info
+    streamerLog: false
+  minBrowserVersions:
+    - browser: chrome
+      version: 72
+    - browser: chromeMobileIOS
+      version: Infinity
+    - browser: firefox
+      version: 68
+    - browser: firefoxMobile
+      version: 68
+    - browser: edge
+      version: 79
+    - browser: ie
+      version: Infinity
+    - browser: safari
+      version: [12, 1]
+    - browser: mobileSafari
+      version: [12, 1]
+    - browser: opera
+      version: 50
+    - browser: electron
+      version: [0, 36]
+    - browser: SamsungInternet
+      version: 10
+    - browser: YandexBrowser
+      version: 19
+  # Direct Prometheus instrumentation.
+  # EXPERIMENTAL, so disabled by default.
+  prometheus:
+    enabled: false
+    # Metrics endpoint path
+    path: '/metrics'
+    # Whether default metrics for Node.js processes should be exported
+    collectDefaultMetrics: false

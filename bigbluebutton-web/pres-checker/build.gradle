@@ -1,0 +1,40 @@
+apply plugin: 'java'
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+version '0.0.1'
+jar.enabled = true
+archivesBaseName = 'bbb-pres-check'
+
+task resolveDeps(type: Copy) {
+    into('lib')
+    from configurations.default
+    from configurations.default.allArtifacts.file
+    doLast { println '[bbb:task] Resolved dependencies for pres-checker application' }
+}
+
+repositories {
+    jcenter()
+    mavenLocal()
+}
+
+dependencies {
+    compile 'org.apache.poi:poi:4.1.2'
+    compile 'org.apache.poi:poi-ooxml:4.1.2'
+    compile 'org.apache.poi:poi-ooxml-schemas:4.1.2'
+    compile 'commons-io:commons-io:2.6'
+    compile 'org.apache.commons:commons-lang3:3.9'
+    compile 'org.apache.commons:commons-collections4:4.4'
+    compile 'org.apache.xmlbeans:xmlbeans:3.0.2'
+    compile 'org.apache.commons:commons-compress:1.20'
+}
+
+jar {
+    manifest.mainAttributes("Permissions": "all-permissions")
+    manifest.mainAttributes("Codebase": "*")
+    manifest.mainAttributes("Application-Name": "BigBlueButton Presentation Checker")
+    manifest.mainAttributes("Application-Library-Allowable-Codebase": "*")
+    manifest.mainAttributes("Caller-Allowable-Codebase": "*")
+    manifest.mainAttributes("Trusted-Only": "true")
+}

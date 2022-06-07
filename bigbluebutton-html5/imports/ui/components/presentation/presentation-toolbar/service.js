@@ -1,58 +1,46 @@
-import AuthSingleton from '/imports/ui/services/auth/index.js';
-import Users from '/imports/api/users';
-import Slides from '/imports/api/slides';
-import { callServer } from '/imports/ui/services/api/index.js';
+import Auth from '/imports/ui/services/auth';
+import Presentations from '/imports/api/presentations';
+import { makeCall } from '/imports/ui/services/api';
+import { throttle } from 'lodash';
 
-let getSlideData = (params) => {
-  const { currentSlideNum, presentationId } = params;
+const PAN_ZOOM_INTERVAL = Meteor.settings.public.presentation.panZoomInterval || 200;
 
-  // Get userId and meetingId
-  const userId = AuthSingleton.userID;
-  const meetingId = AuthSingleton.meetingID;
+const getNumberOfSlides = (podId, presentationId) => {
+  const meetingId = Auth.meetingID;
 
-  // Find the user object of this specific meeting and userid
-  const currentUser = Users.findOne({
-    meetingId: meetingId,
-    userId: userId,
+  const presentation = Presentations.findOne({
+    meetingId,
+    podId,
+    id: presentationId,
   });
 
-  let userIsPresenter;
-  if (currentUser && currentUser.user) {
-    userIsPresenter = currentUser.user.presenter;
-  }
-
-  // Get total number of slides in this presentation
-  const numberOfSlides = Slides.find({
-    meetingId: meetingId,
-    presentationId: presentationId,
-  }).fetch().length;
-
-  return {
-    userIsPresenter: userIsPresenter,
-    numberOfSlides: numberOfSlides,
-  };
+  return presentation && presentation.pages ? presentation.pages.length : 0;
 };
 
-const previousSlide = (currentSlideNum) => {
+const previousSlide = (currentSlideNum, podId) => {
   if (currentSlideNum > 1) {
-    callServer('switchSlideMessage', currentSlideNum - 1);
+    makeCall('switchSlide', currentSlideNum - 1, podId);
   }
 };
 
-const nextSlide = (currentSlideNum, numberOfSlides) => {
+const nextSlide = (currentSlideNum, numberOfSlides, podId) => {
   if (currentSlideNum < numberOfSlides) {
-    callServer('switchSlideMessage', currentSlideNum + 1);
+    makeCall('switchSlide', currentSlideNum + 1, podId);
   }
 };
 
-const skipToSlide = (event) => {
-  const requestedSlideNum = parseInt(event.target.value);
-  callServer('switchSlideMessage', requestedSlideNum);
+const zoomSlide = throttle((currentSlideNum, podId, widthRatio, heightRatio, xOffset, yOffset) => {
+  makeCall('zoomSlide', currentSlideNum, podId, widthRatio, heightRatio, xOffset, yOffset);
+}, PAN_ZOOM_INTERVAL);
+
+const skipToSlide = (requestedSlideNum, podId) => {
+  makeCall('switchSlide', requestedSlideNum, podId);
 };
 
 export default {
-  getSlideData,
+  getNumberOfSlides,
   nextSlide,
   previousSlide,
   skipToSlide,
+  zoomSlide,
 };

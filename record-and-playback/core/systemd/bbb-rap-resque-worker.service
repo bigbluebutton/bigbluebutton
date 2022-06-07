@@ -1,0 +1,18 @@
+[Unit]
+Description=BigBlueButton resque worker for recordings
+Wants=redis.service
+After=redis.service
+
+[Service]
+Type=simple
+ExecStart=/bin/sh -c '/usr/bin/rake -f ../Rakefile resque:workers >> /var/log/bigbluebutton/bbb-rap-worker.log'
+WorkingDirectory=/usr/local/bigbluebutton/core/scripts
+Environment=QUEUE=rap:archive,rap:publish,rap:process,rap:sanity,rap:captions,rap:events
+Environment=COUNT=1
+# Environment=VVERBOSE=1
+User=bigbluebutton
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

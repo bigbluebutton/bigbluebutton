@@ -70,7 +70,7 @@ if (request.getParameterMap().isEmpty()) {
 				<td>&nbsp;</td>
 				<td style="text-align: right; ">Moderator Role:</td>
 				<td style="width: 5px; ">&nbsp;</td>
-				<td style="text-align: left "><input type=checkbox name=isModerator value="true"></td>
+				<td style="text-align: left "><input type=checkbox name=isModerator value="true" checked></td>
 			<tr>
 
 		<tr>
@@ -88,32 +88,28 @@ if (request.getParameterMap().isEmpty()) {
 <%
 } else if (request.getParameter("action").equals("create")) {
 
-	//
-	// Got an action=create
-	//
-
 	String username = request.getParameter("username");
-	String meetingname = request.getParameter("meetingname");
-	boolean isModerator = Boolean.parseBoolean(request.getParameter("isModerator"));
 
-	String joinURL = getJoinURLHTML5(username, meetingname, "false", null, null, null, isModerator);
-	Document doc = null;
-	doc = parseXml(getURL(joinURL));
+	// set defaults and overwrite them if custom values exist
+	String meetingname = "Demo Meeting";
+	if (request.getParameter("meetingname") != null) {
+		meetingname = request.getParameter("meetingname");
+	}
 
-	//Extract data from the xml
-	String meetingId = doc.getElementsByTagName("meeting_id").item(0).getTextContent();
-	String userId = doc.getElementsByTagName("user_id").item(0).getTextContent();
-	String authToken = doc.getElementsByTagName("auth_token").item(0).getTextContent();
-	String ip = BigBlueButtonURL.split("\\/bigbluebutton")[0];
+	Boolean isModerator = new Boolean(false);
+	Boolean isHTML5 = new Boolean(true);
+	Boolean isRecorded = new Boolean(true);
+	if (request.getParameter("isModerator") != null) {
+		isModerator = Boolean.parseBoolean(request.getParameter("isModerator"));
+	}
 
-	// redirect towards the html5 client which is waiting for the following parameters
-	String html5url = ip + "/html5client/join/" + meetingId + "/" + userId + "/" + authToken;
+	String joinURL = getJoinURLExtended(username, meetingname, isRecorded.toString(), null, null, null, isHTML5.toString(), isModerator.toString());
 
 	if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) {
 %>
 
 <script language="javascript" type="text/javascript">
-	window.location.href="<%=html5url%>";
+	window.location.href="<%=joinURL%>";
 </script>
 
 <%

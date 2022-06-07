@@ -1,0 +1,21 @@
+@import '/imports/ui/stylesheets/mixins/_indicators';
+@import "/imports/ui/stylesheets/variables/placeholders";
+
+.switch {
+    &:hover {
+        @extend %highContrastOutline;
+    }
+
+    &:focus,
+    &:focus-within {
+        @extend %highContrastOutline;
+        outline-style: solid;
+    }
+}
+
+.invertBackground {
+    background-color: var(--color-success) !important;
+    &.checked {
+        background-color: var(--color-danger) !important;
+    }
+}

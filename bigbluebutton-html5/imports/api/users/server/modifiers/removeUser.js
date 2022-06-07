@@ -1,56 +1,60 @@
 import { check } from 'meteor/check';
 import Users from '/imports/api/users';
+import VideoStreams from '/imports/api/video-streams';
 import Logger from '/imports/startup/server/logger';
+import setloggedOutStatus from '/imports/api/users-persistent-data/server/modifiers/setloggedOutStatus';
+import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
+import ClientConnections from '/imports/startup/server/ClientConnections';
+import UsersPersistentData from '/imports/api/users-persistent-data';
+import VoiceUsers from '/imports/api/voice-users/';
 
-import setConnectionStatus from './setConnectionStatus';
+const clearAllSessions = (sessionUserId) => {
+  const serverSessions = Meteor.server.sessions;
+  const interable = serverSessions.values();
 
-const CLIENT_TYPE_HTML = 'HTML5';
+  for (const session of interable) {
+    if (session.userId === sessionUserId) {
+      session.close();
+    }
+  }
+};
 
 export default function removeUser(meetingId, userId) {
   check(meetingId, String);
   check(userId, String);
 
-  const selector = {
-    meetingId,
-    userId,
-  };
+  try {
+    // we don't want to fully process the redis message in frontend
+    // since the backend is supposed to update Mongo
+    if ((process.env.BBB_HTML5_ROLE !== 'frontend')) {
+      const selector = {
+        meetingId,
+        userId,
+      };
 
-  const User = Users.findOne(selector);
+      setloggedOutStatus(userId, meetingId, true);
+      VideoStreams.remove({ meetingId, userId });
 
-  if (User && User.clientType !== CLIENT_TYPE_HTML) {
-    const cb = (err, numChanged) => {
-      if (err) {
-        return Logger.error(`Removing user from collection: ${err}`);
+      clearUserInfoForRequester(meetingId, userId);
+
+      const currentUser = Users.findOne({ userId, meetingId });
+      const hasMessages = currentUser?.hasMessages;
+  
+      if (!hasMessages) {
+        UsersPersistentData.remove(selector);
       }
+      Users.remove(selector);
+      VoiceUsers.remove({ intId: userId, meetingId });
+    }
 
-      if (numChanged) {
-        return Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
-      }
-    };
+    if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
+      const sessionUserId = `${meetingId}--${userId}`;
+      ClientConnections.removeClientConnection(sessionUserId);
+      clearAllSessions(sessionUserId);
+    }
 
-    return Users.remove(selector, cb);
+    Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
+  } catch (err) {
+    Logger.error(`Removing user from Users collection: ${err}`);
   }
-
-  const modifier = {
-    $set: {
-      'user.connection_status': 'offline',
-      'user.voiceUser.talking': false,
-      'user.voiceUser.joined': false,
-      'user.voiceUser.muted': false,
-      'user.time_of_joining': 0,
-      'user.listenOnly': false,
-    },
-  };
-
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Removing user from collection: ${err}`);
-    }
-
-    if (numChanged) {
-      return Logger.info(`Removed ${CLIENT_TYPE_HTML} user id=${userId} meeting=${meetingId}`);
-    }
-  };
-
-  return Users.update(selector, modifier, cb);
-};
+}

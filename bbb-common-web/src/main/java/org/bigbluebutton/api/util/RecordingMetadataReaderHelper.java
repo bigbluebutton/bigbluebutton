@@ -1,84 +1,58 @@
 package org.bigbluebutton.api.util;
 
+import java.io.File;
+import java.util.ArrayList;
 
-import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.bigbluebutton.api.domain.RecordingMetadata;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
-import javax.xml.stream.*;
-import java.io.*;
+import org.bigbluebutton.api2.RecordingServiceGW;
+import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import scala.Option;
 
 public class RecordingMetadataReaderHelper {
   private static Logger log = LoggerFactory.getLogger(RecordingMetadataReaderHelper.class);
 
-  public static String inputStreamToString(InputStream is) throws IOException {
-    StringBuilder sb = new StringBuilder();
-    String line;
-    BufferedReader br = new BufferedReader(new InputStreamReader(is));
-    while ((line = br.readLine()) != null) {
-      sb.append(line);
-    }
-    br.close();
-    return sb.toString();
+  private RecordingServiceGW recordingServiceGW;
+
+  public Boolean validateTextTrackSingleUseToken(String recordId, String caption, String token) {
+    return recordingServiceGW.validateTextTrackSingleUseToken(recordId, caption, token);
   }
 
-  public static RecordingMetadata getRecordingMetadata(File metadataXml) {
-    XMLInputFactory factory  = XMLInputFactory.newInstance();
+  public String getRecordingTextTracks(String recordId, String captionsDir, String captionsBaseUrl) {
+    return recordingServiceGW.getRecordingTextTracks(recordId, captionsDir, captionsBaseUrl);
+  }
 
-    JacksonXmlModule module   = new JacksonXmlModule();
-    // and then configure, for example:
-    module.setDefaultUseWrapper(false);
+  public String putRecordingTextTrack(UploadedTrack track) {
+    return recordingServiceGW.putRecordingTextTrack(track);
+  }
 
-    XmlMapper mapper  = new XmlMapper(module);
+  public String getRecordings2x(ArrayList<RecordingMetadata> recs) {
+    return recordingServiceGW.getRecordings2x(recs);
+  }
 
-    //Reading from xml file and creating XMLStreamReader
-    XMLStreamReader reader   = null;
+  public RecordingMetadata getRecordingMetadata(File metadataXml) {
+
     RecordingMetadata recMeta = null;
-    try {
-      reader = factory.createXMLStreamReader(new FileInputStream(metadataXml));
-      recMeta  = mapper.readValue(reader, RecordingMetadata.class);
-      recMeta.setMetadataXml(metadataXml.getParentFile().getName());
-    } catch (XMLStreamException e) {
-      log.error("Failed to read metadata xml for recording: " + metadataXml.getAbsolutePath(), e);
-    } catch (FileNotFoundException e) {
-      log.error("File not found: " + metadataXml.getAbsolutePath(), e);
-    } catch (IOException e) {
-      log.error("IOException on " + metadataXml.getAbsolutePath(), e);
+
+    Option<RecordingMetadata> rm = recordingServiceGW.getRecordingMetadata(metadataXml);
+    if (rm.isDefined()) {
+      return rm.get();
     }
 
-    if (recMeta == null) {
-      recMeta = new RecordingMetadata();
-      recMeta.setMetadataXml(metadataXml.getParentFile().getName());
-      recMeta.setProcessingError(true);
-    }
     return recMeta;
   }
 
-  public static File getMetadataXmlLocation(String destDir) {
+  public File getMetadataXmlLocation(String destDir) {
     return new File(destDir + File.separatorChar + "metadata.xml");
   }
 
-  public static void saveRecordingMetadata(File metadataXml, RecordingMetadata recordingMetadata) {
+  public boolean saveRecordingMetadata(File metadataXml, RecordingMetadata recordingMetadata) {
+    return recordingServiceGW.saveRecordingMetadata(metadataXml, recordingMetadata);
+  }
 
-    //XMLOutputFactory factory  = XMLOutputFactory.newInstance();
-    JacksonXmlModule module   = new JacksonXmlModule();
-    module.setDefaultUseWrapper(false);
-
-    XmlMapper mapper  = new XmlMapper(module);
-
-    //Reading from xml file and creating XMLStreamReader
-    //XMLStreamWriter writer   = null;
-    try {
-      //writer = factory.createXMLStreamWriter(new FileOutputStream(metadataXml));
-      mapper.enable(SerializationFeature.INDENT_OUTPUT);
-      mapper.writeValue(metadataXml, recordingMetadata);
-    } catch (FileNotFoundException e) {
-      log.error("File not found: " + metadataXml.getAbsolutePath(), e);
-    } catch (IOException e) {
-      log.error("IOException on " + metadataXml.getAbsolutePath(), e);
-    }
+  public void setRecordingServiceGW(RecordingServiceGW recordingServiceGW) {
+    this.recordingServiceGW = recordingServiceGW;
   }
 }

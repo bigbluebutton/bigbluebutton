@@ -1,0 +1,10 @@
+<#ftl output_format="XML" auto_esc=true>
+<#compress>
+<response>
+    <#-- Where code is a 'SUCCESS' String -->
+    <returncode>${returnCode}</returncode>
+    <version>${apiVersion}</version>
+    <apiVersion>${apiVersion}</apiVersion>
+    <bbbVersion>${bbbVersion}</bbbVersion>
+</response>
+</#compress>

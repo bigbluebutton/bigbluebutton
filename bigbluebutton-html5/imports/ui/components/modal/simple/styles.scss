@@ -1,0 +1,55 @@
+@import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/placeholders";
+@import "../base/styles";
+
+.modal {
+  @extend %highContrastOutline;
+  outline-style: solid;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--line-height-computed) / 2) var(--line-height-computed);
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+  background-color: var(--color-white) !important;
+}
+
+.content {
+  overflow: visible;
+  color: var(--color-text);
+  font-weight: normal;
+  padding: var(--line-height-computed) 0;
+}
+
+.headerNoBorder, .header {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.header {
+   padding: calc(var(--line-height-computed) / 2) 0;
+   border-bottom: var(--border-size) solid var(--color-gray-lighter);
+}
+
+.title {
+  @extend %text-elipsis;
+  flex: 1;
+  margin: 0;
+  font-weight: 400;
+  font-size: var(--font-size-large);
+  text-align: center;
+  align-self: flex-end;
+}
+
+.dismiss {
+  flex: 0;
+  > span:first-child {
+    border-color: transparent;
+    background-color: transparent;
+
+    > i { color: var(--color-text); }
+  }
+}
+
+.overlay {
+  @extend .overlay;
+  background-color: rgba(6, 23, 42, 0.75);
+}

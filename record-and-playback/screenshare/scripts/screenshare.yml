@@ -1,0 +1,64 @@
+publish_dir: /var/bigbluebutton/published/screenshare
+playback_dir: /usr/local/bigbluebutton/core/playback/screenshare
+
+layout:
+  :width: 1280
+  :height: 720
+  :areas:
+    - :name: :deskshare
+      :x: 0
+      :y: 0
+      :width: 1280
+      :height: 720
+    - :name: :webcam
+      :x: 1040
+      :y: 540
+      :width: 240
+      :height: 180
+
+formats:
+  - :mimetype: 'video/webm; codecs="vp9, opus"'
+    :extension: webm
+    :parameters:
+# Multi-pass encoding, high quality
+# VP9 encoder settings based on https://developers.google.com/media/vp9/settings/vod/
+# If you increase the video size above 720p, the -crf, -b:v, -minrate, and -maxrate should be adjusted
+      - [ '-c:v', 'libvpx-vp9',
+          '-crf', '32', '-b:v', '1024K', '-minrate', '512K', '-maxrate', '1485K',
+          '-quality', 'good', '-speed', '4', '-g', '240',
+          '-tile-columns', '2', '-threads', '8',
+          '-c:a', 'libopus',
+          '-b:a', '64K',
+          '-f', 'webm' ]
+# Comment the above and uncomment below to switch to multi-pass encoding - slower, but higher quality
+#      - [ '-pass', '1',
+#          # Video
+#          '-c:v', 'libvpx-vp9',
+#          '-crf', '32', '-b:v', '1024K', '-minrate', '512K', '-maxrate', '1485K',
+#          '-quality', 'good', '-speed', '4', '-g', '240',
+#          '-tile-columns', '2', '-threads', '8',
+#          # Disable audio in first pass
+#          '-an',
+#          # Container
+#          '-f', 'webm' ]
+#      - [ '-pass', '2',
+#          # Video
+#          '-c:v', 'libvpx-vp9',
+#          '-crf', '32', '-b:v', '1024K', '-minrate', '512K', '-maxrate', '1485K',
+#          '-quality', 'good', '-speed', '2', '-g', '240',
+#          '-tile-columns', '2', '-threads', '8',
+#          # Audio
+#          '-c:a', 'libopus',
+#          '-b:a', '64K',
+#          # Container
+#          '-f', 'webm' ]
+    :postprocess:
+      - [ 'mkclean', '--quiet', ':input', ':output' ]
+# Uncomment the following to enable generating an mp4 file (apple device compatibility)
+# These settings are suitable for resolutions up to 1080p
+#  - :mimetype: 'video/mp4; codecs="avc1.640028, mp4a.40.2"'
+#    :extension: mp4
+#    :parameters:
+#      - [ '-c:v', 'libx264', '-crf', '21', '-preset', 'medium', '-profile:v', 'high', '-level', '40', '-g', '240',
+#          '-c:a', 'aac', '-b:a', '96K',
+#          '-threads', '8', '-f', 'mp4', '-movflags', 'faststart' ]

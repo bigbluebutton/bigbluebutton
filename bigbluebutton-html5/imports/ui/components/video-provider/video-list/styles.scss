@@ -1,0 +1,357 @@
+@import "/imports/ui/stylesheets/variables/breakpoints";
+@import "/imports/ui/stylesheets/variables/placeholders";
+@import "/imports/ui/components/media/styles";
+
+.videoCanvas {
+  --cam-dropdown-width: 70%;
+  --audio-indicator-width: 1.12rem;
+  --audio-indicator-fs: 75%;
+  position: absolute;
+  width: 100%;
+  min-height: var(--video-height);
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.videoCanvasLRPosition {
+  flex-wrap: wrap;
+  align-content: center;
+  order: 0;
+}
+
+.videoList {
+  display: grid;
+
+  grid-auto-flow: dense;
+  grid-gap: 1px;
+
+  justify-content: center;
+
+  @include mq($medium-up) {
+    grid-gap: 2px;
+  }
+}
+
+.videoListItem {
+  display: flex;
+  overflow: hidden;
+  width: 100%;
+  max-height: 100%;
+
+  &.focused {
+    grid-column: 1 / span 2;
+    grid-row: 1 / span 2;
+  }
+}
+
+.mirroredVideo {
+  transform: scale(-1, 1);
+}
+
+.content {
+  position: relative;
+  display: flex;
+  min-width: 100%;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border: 5px solid var(--color-primary);
+    opacity: 0;
+    pointer-events: none;
+
+    :global(.animationsEnabled) & {
+      transition: opacity .1s;
+    }
+  }
+
+  &.talking::after {
+    opacity: 0.7;
+  }
+}
+
+%media-area {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  background-color: var(--color-black);
+}
+
+.cursorGrab{
+  cursor: grab;
+}
+
+.cursorGrabbing{
+  cursor: grabbing;
+}
+
+.videoContainer{
+  width: 100%;
+  height: 100%;
+}
+
+.connecting {
+  @extend %media-area;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  white-space: nowrap;
+  z-index: 1;
+  vertical-align: middle;
+  border-radius: 1px;
+  opacity: 1;
+}
+
+.loadingText {
+  @extend %text-elipsis;
+  color: var(--color-white);
+  font-size: 100%;
+}
+
+.media {
+  @extend %media-area;
+}
+
+.info {
+  position: absolute;
+  bottom: 1px;
+  left: 7px;
+  right: 5px;
+  z-index: 2;
+}
+
+.dropdown,
+.dropdownFireFox {
+  display: flex;
+  outline: none !important;
+  width: var(--cam-dropdown-width);
+
+  @include mq($medium-up) {
+    >[aria-expanded] {
+      padding: .25rem;
+    }
+  }
+
+  @include mq($landscape) {
+    button {
+      width: calc(100vw - 4rem);
+      margin-left: 1rem;
+    }
+  }
+}
+
+.dropdownFireFox {
+  max-width: 100%;
+}
+
+.dropdownTrigger,
+.userName {
+  @extend %text-elipsis;
+  position: relative;
+  max-width: 75%;
+  // Keep the background with 0.5 opacity, but leave the text with 1
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 1px;
+  color: var(--color-off-white);
+  padding: 0 1rem 0 .5rem !important;
+  font-size: 80%;
+}
+
+.noMenu {
+  padding: 0 .5rem 0 .5rem !important;
+}
+
+.dropdownTrigger {
+  cursor: pointer;
+
+  &::after {
+    content: "\203a";
+    position: absolute;
+    transform: rotate(90deg);
+    top: 45%;
+    width: 0;
+    line-height: 0;
+    right: .45rem;
+  }
+}
+
+.dropdownContent {
+  min-width: 8.5rem;
+
+  [dir="rtl"] & {
+    right: 2rem;
+  }
+
+  @include mq($small-only) {
+    height: 90%;
+    width: 100vw;
+  }
+}
+
+.dropdownList {
+  @include mq($medium-up) {
+    font-size: .86rem;
+  }
+}
+
+.hiddenDesktop {
+  display: none;
+
+  @include mq($small-only) {
+    display: block;
+  }
+}
+
+.muted,
+.voice {
+  display: inline-block;
+  position: absolute;
+  right: 7px;
+  bottom: 6px;
+  width: var(--audio-indicator-width);
+  height: var(--audio-indicator-width);
+  min-width: var(--audio-indicator-width);
+  min-height: var(--audio-indicator-width);
+  color: var(--color-white);
+  border-radius: 50%;
+
+  &::before {
+    font-size: var(--audio-indicator-fs);
+  }
+}
+
+.muted {
+  background-color: var(--color-danger);
+}
+
+.voice {
+  background-color: var(--color-success);
+}
+
+.nextPage,
+.previousPage{
+  color: var(--color-white);
+  width: var(--md-padding-x);
+
+  i {
+    [dir="rtl"] & {
+      -webkit-transform: scale(-1, 1);
+      -moz-transform: scale(-1, 1);
+      -ms-transform: scale(-1, 1);
+      -o-transform: scale(-1, 1);
+      transform: scale(-1, 1);
+    }
+  }
+}
+
+.nextPage {
+  margin-left: 1px;
+
+  @include mq($medium-up) {
+    margin-left: 2px;
+  }
+}
+
+.nextPageLRPosition {
+  order: 3;
+  margin-right: 2px;
+}
+
+.previousPage {
+  margin-right: 1px;
+
+  @include mq($medium-up) {
+    margin-right: 2px;
+  }
+}
+
+.previousPageLRPosition {
+  order: 2;
+  margin-left: 2px;
+}
+
+.unhealthyStream {
+  filter: grayscale(50%) opacity(50%);
+}
+
+.reconnecting {
+  @extend .connectingSpinner;
+  background-color: transparent;
+  color: var(--color-white);
+}
+
+.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99;
+}
+
+.break {
+  order: 1;
+  flex-basis: 100%;
+  height: 5px;
+}
+
+.wrapper {
+  position: absolute;
+  top: 0;
+  left: auto;
+  background-color: var(--color-transparent);
+  cursor: pointer;
+  border: 0;
+  z-index: 2;
+  margin: 2px;
+
+  [dir="rtl"] & {
+    right: auto;
+    left :0;
+  }
+
+  [class*="presentationZoomControls"] & {
+    position: relative !important;
+  }
+}
+
+.button {
+  padding: 5px;
+  &,
+  &:active,
+  &:hover,
+  &:focus {
+    background-color: var(--color-transparent) !important;
+    border: none !important;
+
+    i {
+      border: none !important;
+      color: var(--color-white);
+      font-size: 1rem;
+      background-color: var(--color-transparent) !important;
+    }
+  }
+}
+
+.dark {
+  background-color: rgba(0,0,0,.3);
+}
+
+.pinIcon {
+  position: absolute;
+  left: 2px;
+  font-size: 2rem;
+  top: 2px;
+}

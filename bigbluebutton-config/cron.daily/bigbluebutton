@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-#
+# 
 
 test -x /var/bigbluebutton || exit 0
 
@@ -26,42 +26,46 @@ test -x /var/bigbluebutton || exit 0
 history=5
 unrecorded_days=14
 published_days=14
+log_history=28
 
 #
 # Delete presentations older than N days
 #
-find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-*" -mtime +$history -exec rm -rf '{}' +
+find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-[0-9]*" -mtime +$history -exec rm -rf '{}' +
 
 #
-# Delete webcam streams in red5 older than N days
+# Delete streams from Kurento and mediasoup older than N days
 #
-find /usr/share/red5/webapps/video/streams/ -name "*.flv" -mtime +$history -exec rm '{}' +
-find /usr/share/red5/webapps/video/streams/ -name "*.flv.ser" -mtime +$history -exec rm '{}' +
-find /usr/share/red5/webapps/video/streams/ -name "*.flv.info" -mtime +$history -exec rm '{}' +
-find /usr/share/red5/webapps/video/streams/ -name "*.meta" -mtime +$history -exec rm '{}' +
-find /usr/share/red5/webapps/video/streams/ -type d -empty -mtime +$history -exec rmdir '{}' +
+kurento_dir=/var/kurento/
+mediasoup_dir=/var/mediasoup/
+
+remove_stale_sfu_raw_files() {
+  for app in recordings screenshare; do
+      app_dir="${1}${app}"
+      if [[ -d $app_dir ]]; then
+          find "$app_dir" -name "*.mkv" -o -name "*.webm" -mtime +"$history" -delete
+          find "$app_dir" -type d -empty -mtime +"$history" -exec rmdir '{}' +
+      fi
+  done
+}
+
+remove_stale_sfu_raw_files "$kurento_dir"
+remove_stale_sfu_raw_files "$mediasoup_dir"
 
 #
-# Delete webrtc deskshare streams in red5 older than N days
+# Delete FreeSWITCH wav/opus recordings older than N days
 #
-if [[ -d /usr/share/red5/webapps/video-broadcast/streams ]]; then
-	find /usr/share/red5/webapps/video-broadcast/streams/ -name "*.flv" -mtime +$history -exec rm '{}' \;
-fi
+find /var/freeswitch/meetings/ -name "*.wav"  -mtime +$history -delete
+find /var/freeswitch/meetings/ -name "*.opus" -mtime +$history -delete
 
 #
-# Delete desktop sharing streams in red5 older than N days
+# Delete old/rotated log files
 #
-find /usr/share/red5/webapps/screenshare/streams/ -name "*.flv" -mtime +$history -exec rm '{}' +
-
-#
-# Delete FreeSWITCH wav recordings older than N days
-#
-find /var/freeswitch/meetings/ -name "*.wav" -mtime +$history -exec rm '{}' +
-
-#
-# Delete FreeSWITCH log files and CDR
-#
-find /opt/freeswitch/var/log/freeswitch/ -name "*.xml" -type f -mtime +$history -exec rm '{}' +
+find /opt/freeswitch/var/log/freeswitch -type f -mtime +$log_history -delete
+[[ -d /var/log/tomcat7 ]] && find /var/log/tomcat7 -type f -mtime +$log_history -delete
+find /var/log/bigbluebutton -type f -mtime +$log_history -delete
+find /var/log/bbb-webrtc-sfu -type f -mtime +$log_history -delete
+find /var/log/kurento-media-server -name "*.pid*.log" -type f -mtime +$log_history -delete
 
 #
 # Delete raw files of recordings without recording marks older than N days
@@ -86,7 +90,8 @@ remove_raw_of_published_recordings(){
     #TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
     logger "Removing raw directory of old recordings:"
     TYPES="presentation"
-    old_meetings=$(find /var/bigbluebutton/recording/raw/*/events.xml  -mtime +$published_days | cut -d"/" -f6 )
+    cd /var/bigbluebutton/recording/raw/
+    old_meetings=$(find . -name events.xml -mtime +$published_days | cut -d"/" -f2 )
     for meeting in $old_meetings
     do
         PROPERLY_PUBLISHED="true"
@@ -108,17 +113,10 @@ remove_raw_of_published_recordings(){
     done
 }
 
-#remove_raw_of_published_recordings
+remove_raw_of_published_recordings
 
 #
-# Remove old *.afm and *.pfb files from /tmp directory (these were created by Ghostscript)
+# Remove old *.afm and *.pfb files from /tmp directory (if any exist)
 #
 find /tmp -name "*.afm" -mtime +$history -delete
 find /tmp -name "*.pfb" -mtime +$history -delete
-
-#
-# If there are no users currently logged in, restart libreoffice to clear its memory usage
-#
-if [[ $(netstat -ant | egrep ":1935\ " | egrep -v ":::|0.0.0.0"  | wc | awk '{print $1}') == 0 ]]; then
-  systemctl restart libreoffice.service
-fi

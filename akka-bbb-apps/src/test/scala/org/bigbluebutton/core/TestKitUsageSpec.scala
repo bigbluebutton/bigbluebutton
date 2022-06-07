@@ -11,7 +11,6 @@ import akka.testkit.ImplicitSender
 import akka.testkit.TestKit
 import scala.concurrent.duration._
 import scala.collection.immutable
-import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.WordSpecLike
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.Matchers
@@ -19,8 +18,10 @@ import org.scalatest.Matchers
 /**
  * a Test to show some TestKit examples
  */
-class TestKitUsageSpec extends TestKit(ActorSystem("TestKitUsageSpec",
-  ConfigFactory.parseString(TestKitUsageSpec.config)))
+class TestKitUsageSpec extends TestKit(ActorSystem(
+  "TestKitUsageSpec",
+  ConfigFactory.parseString(TestKitUsageSpec.config)
+))
     with DefaultTimeout with ImplicitSender with WordSpecLike
     with Matchers with BeforeAndAfterAll {
 
@@ -102,7 +103,8 @@ object TestKitUsageSpec {
   // Define your test specific configuration here
   val config = """
     akka {
-      loglevel = "WARNING"
+      loggers = ["akka.testkit.TestEventListener"]
+      loglevel = "DEBUG"
     }
     """
 
@@ -130,7 +132,7 @@ object TestKitUsageSpec {
   class FilteringActor(next: ActorRef) extends Actor {
     def receive = {
       case msg: String => next ! msg
-      case _ => None
+      case _           => None
     }
   }
 
@@ -141,7 +143,7 @@ object TestKitUsageSpec {
    * be bothered with the rest
    */
   class SequencingActor(next: ActorRef, head: immutable.Seq[String],
-      tail: immutable.Seq[String]) extends Actor {
+                        tail: immutable.Seq[String]) extends Actor {
     def receive = {
       case msg => {
         head foreach { next ! _ }

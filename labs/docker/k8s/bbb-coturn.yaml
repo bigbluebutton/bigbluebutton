@@ -1,0 +1,71 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: bbb-coturn
+    version: latest
+  name: bbb-coturn
+  namespace: bigbluebutton
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bbb-coturn
+      version: latest
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: bbb-coturn
+        version: latest
+      name: bbb-coturn
+    spec:
+      containers:
+      - env:
+        - name: PORT
+          value: "3478"
+        - name: SERVER_DOMAIN
+          value: bigbluebutton.rocket.chat
+        - name: SECRET
+          value: "54321"
+        - name: EXTERNAL_IP
+          value: "35.185.19.180"
+        - name: ENABLE_REST_API
+          value: "1"
+        image: fcecagno/bigbluebutton:bbb-coturn
+        imagePullPolicy: Always
+        name: bbb-coturn
+        ports:
+        - containerPort: 3478
+          protocol: TCP
+        - containerPort: 3478
+          protocol: UDP
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      nodeSelector:
+        role: 'bigbluebutton'
+      tolerations:
+      - key: role
+        operator: Equal
+        value: 'bigbluebutton'
+        effect: NoSchedule
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bbb-coturn
+  namespace: bigbluebutton
+  annotations:
+    traefik.backend.circuitbreaker: "NetworkErrorRatio() > 0.5"
+spec:
+  ports:
+  - name: http
+    targetPort: 3478
+    port: 3478
+  selector:
+    app: bbb-coturn

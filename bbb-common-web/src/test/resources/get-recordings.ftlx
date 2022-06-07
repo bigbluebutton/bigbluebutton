@@ -1,3 +1,4 @@
+<#ftl output_format="XML" auto_esc=true>
 <#-- GET_RECORDINGS FreeMarker XML template -->
 <#compress>
 <response>
@@ -8,7 +9,7 @@
     <recording>
         <#if r.hasError()>
           <error>
-            <recordID>${r.getMetadataXml()?html}</recordID>
+            <recordID>${r.getMetadataXml()}</recordID>
           </error>
         <#else>
           <#include "include-recording.ftlx">

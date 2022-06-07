@@ -44,7 +44,7 @@ module BigBlueButton
           end
           ffmpeg_cmd += ['-i', audio]
         end
-        ffmpeg_cmd += [*pass, lastoutput]
+        ffmpeg_cmd += [*pass, '-passlogfile', output_basename, lastoutput]
         Dir.chdir(File.dirname(output)) do
           exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)
           raise "ffmpeg failed, exit code #{exitstatus}" if exitstatus != 0
@@ -70,6 +70,7 @@ module BigBlueButton
             exitstatus = BigBlueButton.exec_ret(*cmd)
             raise "postprocess failed, exit code #{exitstatus}" if exitstatus != 0
           end
+          FileUtils.rm(lastoutput)
           lastoutput = ppoutput
         end
       end

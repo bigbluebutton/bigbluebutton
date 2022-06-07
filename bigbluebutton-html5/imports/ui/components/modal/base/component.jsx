@@ -1,65 +1,86 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import ReactModal from 'react-modal';
-import styles from './styles.scss';
-import cx from 'classnames';
+import { styles } from './styles.scss';
+import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 
 const propTypes = {
+  overlayClassName: PropTypes.string.isRequired,
+  portalClassName: PropTypes.string.isRequired,
+  contentLabel: PropTypes.string.isRequired,
   isOpen: PropTypes.bool.isRequired,
-  onShow: PropTypes.func,
-  onHide: PropTypes.func,
-  isTransparent: PropTypes.bool
 };
 
 const defaultProps = {
-  isOpen: false,
+  className: styles.modal,
+  overlayClassName: styles.overlay,
+  portalClassName: styles.portal,
+  contentLabel: 'Modal',
+  isOpen: true,
 };
 
 export default class ModalBase extends Component {
-  constructor(props) {
-    super(props);
 
-    this.handleAfterOpen = this.handleAfterOpen.bind(this);
-    this.handleRequestClose = this.handleRequestClose.bind(this);
+  componentDidMount() {
+    registerTitleView(this.props.contentLabel);
   }
 
-  handleAfterOpen() {
-    const { onShow } = this.props;
-    if (onShow) {
-      onShow.call(this, ...arguments);
-    }
-  }
-
-  handleRequestClose() {
-    const { onHide } = this.props;
-    if (onHide) {
-      onHide.call(this, ...arguments);
-    }
+  componentWillUnmount() {
+    unregisterTitleView();
   }
 
   render() {
-    const {
-      isOpen,
-      onShow,
-      onHide,
-      className,
-      isTransparent,
-    } = this.props;
-
-    let styleOverlay = (isTransparent) ? styles.transparentOverlay : styles.overlay;
+    if (!this.props.isOpen) return null;
 
     return (
       <ReactModal
-      className={cx(styles.modal, className)}
-      overlayClassName={styleOverlay}
-      portalClassName={styles.portal}
-      isOpen={isOpen}
-      onAfterOpen={this.handleAfterOpen}
-      onRequestClose={this.handleRequestClose}>
+        {...this.props}
+        parentSelector={() => {
+          if (document.fullscreenElement &&
+            document.fullscreenElement.nodeName &&
+            document.fullscreenElement.nodeName.toLowerCase() === 'div')
+            return document.fullscreenElement;
+          else return document.body;
+        }}
+      >
         {this.props.children}
       </ReactModal>
     );
   }
-};
+}
 
 ModalBase.propTypes = propTypes;
 ModalBase.defaultProps = defaultProps;
+
+export const withModalState = ComponentToWrap =>
+  class ModalStateWrapper extends Component {
+    constructor(props) {
+      super(props);
+
+      this.state = {
+        isOpen: true,
+      };
+
+      this.hide = this.hide.bind(this);
+      this.show = this.show.bind(this);
+    }
+
+    hide(cb = () => { }) {
+      Promise.resolve(cb())
+        .then(() => this.setState({ isOpen: false }));
+    }
+
+    show(cb = () => { }) {
+      Promise.resolve(cb())
+        .then(() => this.setState({ isOpen: true }));
+    }
+
+    render() {
+      return (<ComponentToWrap
+        {...this.props}
+        modalHide={this.hide}
+        modalShow={this.show}
+        modalisOpen={this.state.isOpen}
+      />);
+    }
+  };

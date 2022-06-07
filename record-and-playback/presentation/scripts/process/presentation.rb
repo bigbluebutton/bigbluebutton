@@ -1,4 +1,4 @@
- # Set encoding to utf-8
+# Set encoding to utf-8
 # encoding: UTF-8
 
 #
@@ -27,18 +27,18 @@
 require File.expand_path('../../../lib/recordandplayback', __FILE__)
 
 require 'rubygems'
-require 'trollop'
+require 'optimist'
 require 'yaml'
 require 'json'
 
-opts = Trollop::options do
+opts = Optimist::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
 end
 
 meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
+props = BigBlueButton.read_props
 presentation_props = YAML::load(File.open('presentation.yml'))
 presentation_props['audio_offset'] = 0 if presentation_props['audio_offset'].nil?
 presentation_props['include_deskshare'] = false if presentation_props['include_deskshare'].nil?
@@ -89,7 +89,7 @@ if not FileTest.directory?(target_dir)
     FileUtils.mkdir_p processed_pres_dir
 
     # Get the real-time start and end timestamp
-    @doc = Nokogiri::XML(File.open("#{target_dir}/events.xml"))
+    @doc = Nokogiri::XML(File.read("#{target_dir}/events.xml"))
 
     meeting_start = @doc.xpath("//event")[0][:timestamp]
     meeting_end = @doc.xpath("//event").last()[:timestamp]
@@ -101,7 +101,7 @@ if not FileTest.directory?(target_dir)
 
     # Add start_time, end_time and meta to metadata.xml
     ## Load metadata.xml
-    metadata = Nokogiri::XML(File.open("#{target_dir}/metadata.xml"))
+    metadata = Nokogiri::XML(File.read("#{target_dir}/metadata.xml"))
     ## Add start_time and end_time
     recording = metadata.root
     ### Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
@@ -129,7 +129,7 @@ if not FileTest.directory?(target_dir)
     end
 
     participants = recording.at_xpath("participants")
-    participants.content = BigBlueButton::Events.get_num_participants("#{target_dir}/events.xml")
+    participants.content = BigBlueButton::Events.get_num_participants(@doc)
 
     ## Remove empty meta
     metadata.search('//recording/meta').each do |meta|
@@ -179,9 +179,10 @@ if not FileTest.directory?(target_dir)
           text = {}
           1.upto(num_pages) do |page|
             BigBlueButton::Presentation.extract_png_page_from_pdf(
-              page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1200')
+              page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1600')
             if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
-              text["slide-#{page}"] = File.read("#{pres_dir}/textfiles/slide-#{page}.txt", :encoding => 'UTF-8')
+              t = File.read("#{pres_dir}/textfiles/slide-#{page}.txt", encoding: 'UTF-8')
+              text["slide-#{page}"] = t.encode('UTF-8', invalid: :replace)
               FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
             end
           end
@@ -189,13 +190,12 @@ if not FileTest.directory?(target_dir)
         end
       else
         ext = File.extname("#{images[0]}")
-        #BigBlueButton::Presentation.convert_image_to_png(images[0],"#{target_pres_dir}/slide-1.png")
-        command="convert #{images[0]} -resize 1600x1200 -background white -flatten #{target_pres_dir}/slide-1.png"
-        BigBlueButton.execute(command)
+        BigBlueButton::Presentation.convert_image_to_png(
+          images[0], "#{target_pres_dir}/slide-1.png", '1600x1600')
       end
 
       # Copy thumbnails from raw files
-      FileUtils.cp_r("#{pres_dir}/thumbnails", "#{target_pres_dir}/thumbnails")
+      FileUtils.cp_r("#{pres_dir}/thumbnails", "#{target_pres_dir}/thumbnails") if File.exist?("#{pres_dir}/thumbnails")
     end
 
     BigBlueButton.logger.info("Generating closed captions")
@@ -210,28 +210,42 @@ if not FileTest.directory?(target_dir)
       File.open("#{target_dir}/presentation_text.json","w") { |f| f.puts presentation_text.to_json }
     end
 
-    # We have to decide whether to actually generate the video file
+    # We have to decide whether to actually generate the webcams video file
     # We do so if any of the following conditions are true:
     # - There is webcam video present, or
     # - There's broadcast video present, or
     # - There are closed captions present (they need a video stream to be rendered on top of)
-    if !Dir["#{raw_archive_dir}/video/*"].empty? or !Dir["#{raw_archive_dir}/video-broadcast/*"].empty? or captions.length > 0
+    if !Dir["#{raw_archive_dir}/video/*"].empty? or
+        !Dir["#{raw_archive_dir}/video-broadcast/*"].empty? or
+        captions.length > 0
       webcam_width = presentation_props['video_output_width']
       webcam_height = presentation_props['video_output_height']
+      webcam_framerate = presentation_props['video_output_framerate']
 
       # Use a higher resolution video canvas if there's broadcast video streams
       if !Dir["#{raw_archive_dir}/video-broadcast/*"].empty?
         webcam_width = presentation_props['deskshare_output_width']
         webcam_height = presentation_props['deskshare_output_height']
+        webcam_framerate = presentation_props['deskshare_output_framerate']
       end
 
-      BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, webcam_width, webcam_height, presentation_props['audio_offset'])
+      webcam_framerate = 15 if webcam_framerate.nil?
+      processed_audio_file = BigBlueButton::AudioProcessor.get_processed_audio_file("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio")
+      BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, webcam_width, webcam_height, webcam_framerate, presentation_props['audio_offset'], processed_audio_file, presentation_props['video_formats'])
     end
 
     if !Dir["#{raw_archive_dir}/deskshare/*"].empty? and presentation_props['include_deskshare']
       deskshare_width = presentation_props['deskshare_output_width']
       deskshare_height = presentation_props['deskshare_output_height']
-      BigBlueButton.process_deskshare_videos(target_dir, temp_dir, meeting_id, deskshare_width, deskshare_height)
+      deskshare_framerate = presentation_props['deskshare_output_framerate']
+      deskshare_framerate = 5 if deskshare_framerate.nil?
+
+      BigBlueButton.process_deskshare_videos(target_dir, temp_dir, meeting_id, deskshare_width, deskshare_height, deskshare_framerate, presentation_props['video_formats'])
+    end
+
+    # Copy shared notes from raw files
+    if !Dir["#{raw_archive_dir}/notes/*"].empty?
+      FileUtils.cp_r("#{raw_archive_dir}/notes", target_dir)
     end
 
     process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", "w")
@@ -240,7 +254,7 @@ if not FileTest.directory?(target_dir)
 
     # Update state in metadata.xml
     ## Load metadata.xml
-    metadata = Nokogiri::XML(File.open("#{target_dir}/metadata.xml"))
+    metadata = Nokogiri::XML(File.read("#{target_dir}/metadata.xml"))
     ## Update status
     recording = metadata.root
     state = recording.at_xpath("state")

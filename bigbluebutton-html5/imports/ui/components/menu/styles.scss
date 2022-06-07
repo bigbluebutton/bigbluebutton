@@ -1,0 +1,97 @@
+
+@import "/imports/ui/stylesheets/variables/breakpoints";
+@import "/imports/ui/stylesheets/variables/placeholders";
+@import '/imports/ui/stylesheets/mixins/_indicators';
+
+.option {
+  line-height: 1;
+  margin-right: 1.65rem;
+  margin-left: .5rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  padding: .1rem 0;
+
+  [dir="rtl"] & {
+    margin-right: .5rem;
+    margin-left: 1.65rem;
+  }
+}
+
+.closeBtn {
+  position: fixed;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 5rem;
+  background-color: var(--color-white);
+  padding: 1rem;
+
+  border-radius: 0;
+  z-index: 1011;
+  font-size: calc(var(--font-size-large) * 1.1);
+  box-shadow: 0 0 0 2rem var(--color-white) !important;
+  border: var(--color-white) !important;
+  cursor: pointer !important;
+}
+
+.iRight {
+  display: flex;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.menu {
+  @include mq($small-only) {
+    :global(.MuiPaper-root.MuiMenu-paper.MuiPopover-paper) {
+      top: 0 !important;
+      left: 0 !important;
+      bottom: 0 !important;
+      right: 0 !important;
+      max-width: none;
+    }
+  }
+
+  :global(.MuiPaper-root) {
+    background-color: var(--dropdown-bg);
+    border-radius: var(--border-radius);
+    border: 0;
+    z-index: 9999;
+    max-width: 22rem;
+  } 
+}
+
+.wide {
+  :global(.MuiPaper-root) {
+    width: 100%;
+  }
+}
+
+.menuitem {
+  transition: none !important;
+  font-size: 90% !important;
+  
+  &:focus,
+  &:hover {
+    i { 
+      color: #FFF;
+    }
+    color: #FFF;
+    background-color: var(--color-primary) !important;
+  }
+}
+
+.emojiSelected {
+  div,
+  i {
+    color: var(--color-primary);
+  }
+
+  &:focus,
+  &:hover {
+    div,
+    i {
+      color: #FFF ;
+    }
+  }
+}

@@ -1,27 +1,31 @@
 import Auth from '/imports/ui/services/auth';
-import Breakouts from '/imports/api/breakouts';
+import { makeCall } from '/imports/ui/services/api';
+import RecordMeetings from '/imports/api/meetings';
 
-const getBreakouts = () => Breakouts.find().fetch();
-
-const getBreakoutJoinURL = (breakout) => {
-  const currentUserId = Auth.userID;
-
-  if (breakout.users) {
-    const user = breakout.users.find(user => user.userId === currentUserId);
-    if (user) {
-      const urlParams = user.urlParams;
-      return [
-        window.origin,
-        'html5client/join',
-        urlParams.meetingId,
-        urlParams.userId,
-        urlParams.authToken,
-      ].join('/');
+const processOutsideToggleRecording = (e) => {
+  switch (e.data) {
+    case 'c_record': {
+      makeCall('toggleRecording');
+      break;
+    }
+    case 'c_recording_status': {
+      const recordingState = (RecordMeetings.findOne({ meetingId: Auth.meetingID })).recording;
+      const recordingMessage = recordingState ? 'recordingStarted' : 'recordingStopped';
+      this.window.parent.postMessage({ response: recordingMessage }, '*');
+      break;
+    }
+    default: {
+      // console.log(e.data);
     }
   }
 };
 
+const connectRecordingObserver = () => {
+  // notify on load complete
+  this.window.parent.postMessage({ response: 'readyToConnect' }, '*');
+};
+
 export default {
-  getBreakouts,
-  getBreakoutJoinURL,
+  connectRecordingObserver: () => connectRecordingObserver(),
+  processOutsideToggleRecording: arg => processOutsideToggleRecording(arg),
 };

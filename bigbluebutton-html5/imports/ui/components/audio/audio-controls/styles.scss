@@ -1,0 +1,112 @@
+@import "/imports/ui/stylesheets/variables/breakpoints";
+@import "/imports/ui/components/actions-bar/styles.scss";
+
+.container {
+  display: flex;
+  flex-flow: row;
+  position: relative;
+
+  > div {
+    position: relative;
+  }
+
+  .muteToggle {
+    margin-right: var(--sm-padding-x);
+    margin-left: 0;
+
+    @include mq($small-only) {
+      margin-right: var(--sm-padding-y);
+    }
+
+    [dir="rtl"] & {
+      margin-left: var(--sm-padding-x);
+      margin-right: 0;
+
+      @include mq($small-only) {
+        margin-left: var(--sm-padding-y);
+      }
+    }
+  }
+  
+  > :last-child {
+    margin-left: var(--sm-padding-x);
+    margin-right: 0;
+
+    @include mq($small-only) {
+      margin-left: var(--sm-padding-y);
+    }
+
+    [dir="rtl"] & {
+      margin-left: 0;
+      margin-right: var(--sm-padding-x);
+
+      @include mq($small-only) {
+        margin-right: var(--sm-padding-y);
+      }
+    }
+  }
+
+  .dropdownContent {
+    [dir="rtl"] & {
+      right: auto;
+    }
+  }
+}
+
+.glow {
+  border-radius: 50%;
+  
+  :global(.animationsEnabled) & {
+    animation: pulse 1s infinite ease-in;
+  }
+
+  :global(.animationsDisabled) & span {
+    content: '';
+    outline: none !important;
+    background-clip: padding-box;
+    box-shadow: 0 0 0 4px rgba(255,255,255,.5);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 white;
+  }
+  70% {
+    box-shadow: 0 0 0 0.5625rem transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.dropdownListContainer {
+  width: max-content;
+
+  @include mq($small-only) {
+    width: 100%;
+  }
+}
+
+.stopButton {
+  & > span {
+    color: var(--color-danger);
+  }
+}
+
+.disableDeviceSelection {
+  pointer-events: none;
+}
+
+.selectedDevice {
+  font-weight: bold !important;
+}
+
+.audioDropdown {
+  span {
+    i {
+      width: 0px !important;
+      bottom: 1px;
+    }
+  }
+}

@@ -1,52 +1,55 @@
 import Presentations from '/imports/api/presentations';
-import Slides from '/imports/api/slides';
+import { Slides } from '/imports/api/slides';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import { extractCredentials } from '/imports/api/common/server/helpers';
+import Logger from '/imports/startup/server/logger';
 
-export default function switchSlide(credentials, slideNumber) {
-  const REDIS_CONFIG = Meteor.settings.redis;
+export default function switchSlide(slideNumber, podId) { // TODO-- send presentationId and SlideId
+  const REDIS_CONFIG = Meteor.settings.private.redis;
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const EVENT_NAME = 'SetCurrentPagePubMsg';
 
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.presentation;
-  const EVENT_NAME = 'go_to_slide';
+  try {
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+    check(meetingId, String);
+    check(requesterUserId, String);
+    check(slideNumber, Number);
+    check(podId, String);
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
-  check(slideNumber, Number);
+    const selector = {
+      meetingId,
+      podId,
+      current: true,
+    };
 
-  if (!isAllowedTo('switchSlide', credentials)) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to switchSlide`);
+    const Presentation = Presentations.findOne(selector);
+
+    if (!Presentation) {
+      throw new Meteor.Error('presentation-not-found', 'You need a presentation to be able to switch slides');
+    }
+
+    const Slide = Slides.findOne({
+      meetingId,
+      podId,
+      presentationId: Presentation.id,
+      num: slideNumber,
+    });
+
+    if (!Slide) {
+      throw new Meteor.Error('slide-not-found', `Slide number ${slideNumber} not found in the current presentation`);
+    }
+
+    const payload = {
+      podId,
+      presentationId: Presentation.id,
+      pageId: Slide.id,
+    };
+
+    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+  } catch (err) {
+    Logger.error(`Exception while invoking method switchSlide ${err.stack}`);
   }
-
-  const Presentation = Presentations.findOne({
-    meetingId,
-    'presentation.current': true,
-  });
-
-  if (!Presentation) {
-    throw new Meteor.Error(
-      'presentation-not-found', `You need a presentation to be able to switch slides`);
-  }
-
-  const Slide = Slides.findOne({
-    meetingId,
-    presentationId: Presentation.presentation.id,
-    'slide.num': parseInt(slideNumber),
-  });
-
-  if (!Slide) {
-    throw new Meteor.Error(
-      'slide-not-found', `Slide number ${slideNumber} not found in the current presentation`);
-  }
-
-  let payload = {
-    page: Slide.slide.id,
-    meeting_id: meetingId,
-  };
-
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
-};
+}

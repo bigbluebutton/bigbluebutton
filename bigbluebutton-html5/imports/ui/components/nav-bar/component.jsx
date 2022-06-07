@@ -1,177 +1,267 @@
-import React, { Component, PropTypes } from 'react';
-import _ from 'lodash';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import cx from 'classnames';
-import styles from './styles.scss';
-import { showModal } from '/imports/ui/components/app/service';
-import Button from '../button/component';
-import RecordingIndicator from './recording-indicator/component';
-import SettingsDropdownContainer from './settings-dropdown/container';
-import Icon from '/imports/ui/components/icon/component';
-import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/component';
-import Dropdown from '/imports/ui/components/dropdown/component';
-import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
-import DropdownContent from '/imports/ui/components/dropdown/content/component';
-import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import { defineMessages, injectIntl } from 'react-intl';
-
+import Icon from '../icon/component';
+import { styles } from './styles.scss';
+import Button from '/imports/ui/components/button/component';
+import RecordingIndicator from './recording-indicator/container';
+import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
+import ConnectionStatusButton from '/imports/ui/components/connection-status/button/container';
+import ConnectionStatusService from '/imports/ui/components/connection-status/service';
+import SettingsDropdownContainer from './settings-dropdown/container';
+import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
+import _ from "lodash";
+import {alertScreenReader} from '/imports/utils/dom-utils';
+import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
     id: 'app.navBar.userListToggleBtnLabel',
+    description: 'Toggle button label',
+  },
+  toggleUserListAria: {
+    id: 'app.navBar.toggleUserList.ariaLabel',
+    description: 'description of the lists inside the userlist',
+  },
+  newMessages: {
+    id: 'app.navBar.toggleUserList.newMessages',
+    description: 'label for toggleUserList btn when showing red notification',
+  },
+  newMsgAria: {
+    id: 'app.navBar.toggleUserList.newMsgAria',
+    description: 'label for new message screen reader alert',
+  },
+  defaultBreakoutName: {
+    id: 'app.createBreakoutRoom.room',
+    description: 'default breakout room name',
   },
 });
 
 const propTypes = {
-  presentationTitle: PropTypes.string.isRequired,
-  hasUnreadMessages: PropTypes.bool.isRequired,
-  beingRecorded: PropTypes.bool.isRequired,
+  presentationTitle: PropTypes.string,
+  hasUnreadMessages: PropTypes.bool,
+  shortcuts: PropTypes.string,
 };
 
 const defaultProps = {
   presentationTitle: 'Default Room Title',
   hasUnreadMessages: false,
-  beingRecorded: false,
+  shortcuts: '',
 };
-
-const openBreakoutJoinConfirmation = (breakoutURL, breakoutName) =>
-          showModal(<BreakoutJoinConfirmation
-                        breakoutURL={breakoutURL}
-                        breakoutName={breakoutName}/>);
 
 class NavBar extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      isActionsOpen: false,
-      didSendBreakoutInvite: false,
-    };
+        acs: props.activeChats,
+    }
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
   }
 
-  componendDidMount() {
-    document.title = this.props.presentationTitle;
+  componentDidMount() {
+    const {
+      processOutsideToggleRecording,
+      connectRecordingObserver,
+      shortcuts: TOGGLE_USERLIST_AK,
+      intl,
+      breakoutNum,
+      breakoutName,
+      meetingName,
+    } = this.props;
+
+    if (breakoutNum && breakoutNum > 0) {
+      const defaultBreakoutName = intl.formatMessage(intlMessages.defaultBreakoutName, {
+        0: breakoutNum,
+      });
+
+      if (breakoutName === defaultBreakoutName) {
+        document.title = `${breakoutNum} - ${meetingName}`;
+      } else {
+        document.title = `${breakoutName} - ${meetingName}`;
+      }
+    }
+
+    const { isFirefox } = browserInfo;
+    const { isMacos } = deviceInfo;
+
+    if (Meteor.settings.public.allowOutsideCommands.toggleRecording
+      || getFromUserSettings('bbb_outside_toggle_recording', false)) {
+      connectRecordingObserver();
+      window.addEventListener('message', processOutsideToggleRecording);
+    }
+
+    // accessKey U does not work on firefox for macOS for some unknown reason
+    if (isMacos && isFirefox && TOGGLE_USERLIST_AK === 'U') {
+      document.addEventListener('keyup', (event) => {
+        const { key, code } = event;
+        const eventKey = key?.toUpperCase();
+        const eventCode = code;
+        if (event?.altKey && (eventKey === TOGGLE_USERLIST_AK || eventCode === `Key${TOGGLE_USERLIST_AK}`)) {
+          this.handleToggleUserList();
+        }
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (!_.isEqual(prevProps.activeChats, this.props.activeChats)) {
+      this.setState({ acs: this.props.activeChats})
+    }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
   }
 
   handleToggleUserList() {
-    this.props.toggleUserList();
-  }
+    const {
+      sidebarNavigation,
+      sidebarContent,
+      layoutContextDispatch,
+    } = this.props;
 
-  inviteUserToBreakout(breakout, breakoutURL) {
-    this.setState({ didSendBreakoutInvite: true }, () => {
-      openBreakoutJoinConfirmation.call(this, breakoutURL, breakout.name);
-    });
+    if (sidebarNavigation.isOpen) {
+      if (sidebarContent.isOpen) {
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+          value: false,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+          value: PANELS.NONE,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_ID_CHAT_OPEN,
+          value: '',
+        });
+      }
+
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+        value: false,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
+        value: PANELS.NONE,
+      });
+    } else {
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+        value: true,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
+        value: PANELS.USERLIST,
+      });
+    }
   }
 
   render() {
-    const { hasUnreadMessages, beingRecorded, isExpanded, intl } = this.props;
-
-    let toggleBtnClasses = {};
-    toggleBtnClasses[styles.btn] = true;
-    toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
-
-    return (
-      <div className={styles.navbar}>
-        <div className={styles.left}>
-          <Button
-            onClick={this.handleToggleUserList}
-            ghost={true}
-            circle={true}
-            hideLabel={true}
-            label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-            icon={'user'}
-            className={cx(toggleBtnClasses)}
-            aria-expanded={isExpanded}
-          />
-        </div>
-        <div className={styles.center} role="banner">
-          {this.renderPresentationTitle()}
-          <RecordingIndicator beingRecorded={beingRecorded}/>
-        </div>
-        <div className={styles.right}>
-          <SettingsDropdownContainer />
-        </div>
-      </div>
-    );
-  }
-
-  renderPresentationTitle() {
     const {
-      breakouts,
-      isBreakoutRoom,
+      hasUnreadMessages,
+      hasUnreadNotes,
+      // isExpanded,
+      activeChats,
+      intl,
+      shortcuts: TOGGLE_USERLIST_AK,
+      mountModal,
       presentationTitle,
+      amIModerator,
+      style,
+      main,
+      sidebarNavigation,
     } = this.props;
 
-    if (isBreakoutRoom) {
-      return (
-        <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
-      );
-    }
+    const hasNotification = hasUnreadMessages || hasUnreadNotes;
+    const toggleBtnClasses = {};
+    toggleBtnClasses[styles.btn] = true;
+    toggleBtnClasses[styles.btnWithNotificationDot] = hasNotification;
 
-    return (
-      <Dropdown
-        isOpen={this.state.isActionsOpen}
-        ref="dropdown">
-        <DropdownTrigger>
-          <h1 className={cx(styles.presentationTitle, styles.dropdownBreakout)}>
-            {presentationTitle} <Icon iconName='down-arrow'/>
-          </h1>
-        </DropdownTrigger>
-        <DropdownContent
-          placement="bottom">
-          <DropdownList>
-            {breakouts.map(breakout => this.renderBreakoutItem(breakout))}
-          </DropdownList>
-        </DropdownContent>
-      </Dropdown>
-    );
-  }
+    let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
+    ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
 
-  componentDidUpdate() {
-    const {
-      breakouts,
-      getBreakoutJoinURL,
-      isBreakoutRoom,
-    } = this.props;
+    const isExpanded = sidebarNavigation.isOpen;
 
-    breakouts.forEach(breakout => {
-      if (!breakout.users) {
-        return;
-      }
+    const { acs } = this.state;
 
-      const breakoutURL = getBreakoutJoinURL(breakout);
-
-      if (!this.state.didSendBreakoutInvite && !isBreakoutRoom) {
-        this.inviteUserToBreakout(breakout, breakoutURL);
+    activeChats.map((c, i) => {
+      if (c?.unreadCounter > 0 && c?.unreadCounter !== acs[i]?.unreadCounter) {
+        alertScreenReader(`${intl.formatMessage(intlMessages.newMsgAria, { 0: c.name })}`)
       }
     });
 
-    if (!breakouts.length && this.state.didSendBreakoutInvite) {
-      this.setState({ didSendBreakoutInvite: false });
-    }
-  }
-
-  renderBreakoutItem(breakout) {
-    const {
-      getBreakoutJoinURL,
-    } = this.props;
-
-    const breakoutName = breakout.name;
-    const breakoutURL = getBreakoutJoinURL(breakout);
-
     return (
-      <DropdownListItem
-        className={styles.actionsHeader}
-        key={_.uniqueId('action-header')}
-        label={breakoutName}
-        onClick={openBreakoutJoinConfirmation.bind(this, breakoutURL, breakoutName)}
-      />
+      <header
+        className={styles.navbar}
+        style={
+          main === 'new'
+            ? {
+              position: 'absolute',
+              top: style.top,
+              left: style.left,
+              height: style.height,
+              width: style.width,
+            }
+            : {
+              position: 'relative',
+              height: style.height,
+              width: '100%',
+            }
+        }
+      >
+        <div className={styles.top}>
+          <div className={styles.left}>
+            {isExpanded && document.dir === 'ltr'
+              && <Icon iconName="left_arrow" className={styles.arrowLeft} />}
+            {!isExpanded && document.dir === 'rtl'
+              && <Icon iconName="left_arrow" className={styles.arrowLeft} />}
+            <Button
+              onClick={this.handleToggleUserList}
+              ghost
+              circle
+              hideLabel
+              data-test={hasNotification ? 'hasUnreadMessages' : null}
+              label={intl.formatMessage(intlMessages.toggleUserListLabel)}
+              tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
+              aria-label={ariaLabel}
+              icon="user"
+              className={cx(toggleBtnClasses)}
+              aria-expanded={isExpanded}
+              accessKey={TOGGLE_USERLIST_AK}
+            />
+            {!isExpanded && document.dir === 'ltr'
+              && <Icon iconName="right_arrow" className={styles.arrowRight} />}
+            {isExpanded && document.dir === 'rtl'
+              && <Icon iconName="right_arrow" className={styles.arrowRight} />}
+          </div>
+          <div className={styles.center}>
+            <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
+
+            <RecordingIndicator
+              mountModal={mountModal}
+              amIModerator={amIModerator}
+            />
+          </div>
+          <div className={styles.right}>
+            {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
+            <SettingsDropdownContainer amIModerator={amIModerator} />
+          </div>
+        </div>
+        <div className={styles.bottom}>
+          <TalkingIndicatorContainer amIModerator={amIModerator} />
+        </div>
+      </header>
     );
   }
 }
 
 NavBar.propTypes = propTypes;
 NavBar.defaultProps = defaultProps;
-export default injectIntl(NavBar);
+export default withShortcutHelper(withModalMounter(injectIntl(NavBar)), 'toggleUserList');

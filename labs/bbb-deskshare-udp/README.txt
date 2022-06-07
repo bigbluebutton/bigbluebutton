@@ -1,1 +1,0 @@
-This is the labs folder for BBB-DESKSHARE udp server.

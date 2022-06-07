@@ -1,36 +1,46 @@
 import Users from '/imports/api/users';
-import Captions from '/imports/api/captions';
 import Auth from '/imports/ui/services/auth';
-import _ from 'lodash';
 import Settings from '/imports/ui/services/settings';
-
-const getClosedCaptionLocales = () => {
-  //list of unique locales in the Captions Collection
-  const locales = _.uniq(Captions.find({}, {
-    sort: { locale: 1 },
-    fields: { locale: true },
-  }).fetch().map(function (obj) {
-    return obj.locale;
-  }), true);
-
-  return locales;
-};
+import { notify } from '/imports/ui/services/notification';
+import GuestService from '/imports/ui/components/waiting-users/service';
 
 const getUserRoles = () => {
   const user = Users.findOne({
     userId: Auth.userID,
-  }).user;
+  });
 
   return user.role;
 };
 
-const updateSettings = (obj) => {
-  Object.keys(obj).forEach(k => Settings[k] = obj[k]);
-  Settings.save();
+const showGuestNotification = () => {
+  const guestPolicy = GuestService.getGuestPolicy();
+
+  // Guest notification only makes sense when guest
+  // entrance is being controlled by moderators
+  return guestPolicy === 'ASK_MODERATOR';
 };
 
+const updateSettings = (obj, msg) => {
+  Object.keys(obj).forEach(k => (Settings[k] = obj[k]));
+  Settings.save();
+
+  if (msg) {
+    // prevents React state update on unmounted component
+    setTimeout(() => {
+      notify(
+        msg,
+        'info',
+        'settings',
+      );
+    }, 0);
+  }
+};
+
+const getAvailableLocales = () => fetch('./locale-list').then(locales => locales.json());
+
 export {
-  getClosedCaptionLocales,
   getUserRoles,
+  showGuestNotification,
   updateSettings,
+  getAvailableLocales,
 };

@@ -1,0 +1,16 @@
+@import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/placeholders";
+
+.chatThumbnail {
+  display: flex;
+  flex-flow: column;
+  color: var(--color-gray-light);
+  justify-content: center;
+  font-size: 175%;
+}
+
+.chatIcon {
+  @extend %highContrastOutline;
+  outline-style: solid;
+  flex: 0 0 2.2rem;
+}

@@ -1,16 +1,18 @@
-import React, { PropTypes } from 'react';
-import BaseButton from './base/component';
-import styles from './styles';
+import React from 'react';
+import PropTypes from 'prop-types';
 import cx from 'classnames';
-
+import TooltipContainer from '/imports/ui/components/tooltip/container';
+import { styles } from './styles';
 import Icon from '../icon/component';
+import BaseButton from './base/component';
+import ButtonEmoji from './button-emoji/ButtonEmoji';
 
 const SIZES = [
   'jumbo', 'lg', 'md', 'sm',
 ];
 
 const COLORS = [
-  'default', 'primary', 'danger', 'success',
+  'default', 'primary', 'danger', 'warning', 'success', 'dark', 'offline', 'muted',
 ];
 
 const propTypes = {
@@ -64,6 +66,14 @@ const propTypes = {
    * @defaultValue false
    */
   hideLabel: PropTypes.bool,
+
+  /**
+   * Optional SVG / html object can be passed to the button as an icon
+   * Has to be styled before being sent to the Button
+   * (e.g width, height, position and percentage-based object's coordinates)
+   * @defaultvalue undefined
+   */
+  customIcon: PropTypes.node,
 };
 
 const defaultProps = {
@@ -75,26 +85,20 @@ const defaultProps = {
   block: false,
   iconRight: false,
   hideLabel: false,
+  tooltipLabel: '',
 };
 
 export default class Button extends BaseButton {
-  constructor(props) {
-    super(props);
-  }
-
   _getClassNames() {
     const {
-      icon,
       size,
       color,
-      disabled,
       ghost,
       circle,
       block,
-      iconRight,
     } = this.props;
 
-    let propClassNames = {};
+    const propClassNames = {};
 
     propClassNames[styles.button] = true;
     propClassNames[styles[size]] = true;
@@ -102,15 +106,59 @@ export default class Button extends BaseButton {
     propClassNames[styles.ghost] = ghost;
     propClassNames[styles.circle] = circle;
     propClassNames[styles.block] = block;
-    propClassNames[styles.iconRight] = iconRight;
-    propClassNames[styles.disabled] = disabled;
 
     return propClassNames;
   }
 
+  _cleanProps(otherProps) {
+    const remainingProps = Object.assign({}, otherProps);
+    delete remainingProps.icon;
+    delete remainingProps.customIcon;
+    delete remainingProps.size;
+    delete remainingProps.color;
+    delete remainingProps.ghost;
+    delete remainingProps.circle;
+    delete remainingProps.block;
+    delete remainingProps.hideLabel;
+    delete remainingProps.tooltipLabel;
+
+    return remainingProps;
+  }
+
+  hasButtonEmojiComponent() {
+    const { children } = this.props;
+
+    if (!children) return false;
+
+    const buttonEmoji = React.Children.only(children);
+
+    return (buttonEmoji && buttonEmoji.type && buttonEmoji.type.name)
+      ? (buttonEmoji.type.name === ButtonEmoji.name)
+      : false;
+  }
+
   render() {
-    let renderFuncName = this.props.circle ?
-      'renderCircle' : 'renderDefault';
+    const {
+      circle,
+      hideLabel,
+      label,
+      'aria-label': ariaLabel,
+      'aria-expanded': ariaExpanded,
+      tooltipLabel,
+    } = this.props;
+
+    const renderFuncName = circle ? 'renderCircle' : 'renderDefault';
+
+    if ((hideLabel && !ariaExpanded) || tooltipLabel) {
+      const buttonLabel = label || ariaLabel;
+      return (
+        <TooltipContainer
+          title={tooltipLabel || buttonLabel}
+        >
+          {this[renderFuncName]()}
+        </TooltipContainer>
+      );
+    }
 
     return this[renderFuncName]();
   }
@@ -119,17 +167,10 @@ export default class Button extends BaseButton {
     const {
       className,
       iconRight,
-      ...otherProps,
+      ...otherProps
     } = this.props;
 
-    const remainingProps = Object.assign({}, otherProps);
-    delete remainingProps.icon;
-    delete remainingProps.size;
-    delete remainingProps.color;
-    delete remainingProps.ghost;
-    delete remainingProps.circle;
-    delete remainingProps.block;
-    delete remainingProps.hideLabel;
+    const remainingProps = this._cleanProps(otherProps);
 
     /* TODO: We can change this and make the button with flexbox to avoid html
       changes */
@@ -152,36 +193,46 @@ export default class Button extends BaseButton {
       className,
       size,
       iconRight,
-      ...otherProps,
+      children,
+      ...otherProps
     } = this.props;
 
-    const remainingProps = Object.assign({}, otherProps);
-    delete remainingProps.icon;
-    delete remainingProps.color;
-    delete remainingProps.ghost;
-    delete remainingProps.circle;
-    delete remainingProps.block;
-    delete remainingProps.hideLabel;
+    const remainingProps = this._cleanProps(otherProps);
 
     return (
       <BaseButton
         className={cx(styles[size], styles.buttonWrapper, className)}
         {...remainingProps}
       >
+        {this.renderButtonEmojiSibling()}
         {!iconRight ? null : this.renderLabel()}
         <span className={cx(this._getClassNames())}>
           {this.renderIcon()}
         </span>
         {iconRight ? null : this.renderLabel()}
+        {this.hasButtonEmojiComponent() ? children : null}
       </BaseButton>
     );
   }
 
+  renderButtonEmojiSibling() {
+    if (!this.hasButtonEmojiComponent()) {
+      return null;
+    }
+
+    return (<span className={styles.emojiButtonSibling} />);
+  }
+
   renderIcon() {
-    const iconName = this.props.icon;
+    const {
+      icon: iconName,
+      customIcon,
+    } = this.props;
 
     if (iconName) {
       return (<Icon className={styles.icon} iconName={iconName} />);
+    } if (customIcon) {
+      return customIcon;
     }
 
     return null;
@@ -190,7 +241,7 @@ export default class Button extends BaseButton {
   renderLabel() {
     const { label, hideLabel } = this.props;
 
-    let classNames = {};
+    const classNames = {};
 
     classNames[styles.label] = true;
     classNames[styles.hideLabel] = hideLabel;
@@ -198,7 +249,7 @@ export default class Button extends BaseButton {
     return (
       <span className={cx(classNames)}>
         {label}
-        {this.props.children}
+        {!this.hasButtonEmojiComponent() ? this.props.children : null}
       </span>
     );
   }

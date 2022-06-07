@@ -1,138 +1,308 @@
-import React, { Component, PropTypes } from 'react';
+import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import cx from 'classnames';
-import styles from '../styles';
-
-import { showModal } from '/imports/ui/components/app/service';
-import LogoutConfirmation from '/imports/ui/components/logout-confirmation/component';
+import PropTypes from 'prop-types';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
+import { makeCall } from '/imports/ui/services/api';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
-
 import Button from '/imports/ui/components/button/component';
-import Dropdown from '/imports/ui/components/dropdown/component';
-import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
-import DropdownContent from '/imports/ui/components/dropdown/content/component';
-import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import BBBMenu from '/imports/ui/components/menu/component';
+import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
+import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import FullscreenService from '../../fullscreen-button/service';
+import browserInfo from '/imports/utils/browserInfo';
+
+import { styles } from '../styles';
 
 const intlMessages = defineMessages({
   optionsLabel: {
     id: 'app.navBar.settingsDropdown.optionsLabel',
-    defaultMessage: 'Options',
+    description: 'Options button label',
   },
   fullscreenLabel: {
     id: 'app.navBar.settingsDropdown.fullscreenLabel',
-    defaultMessage: 'Make fullscreen',
+    description: 'Make fullscreen option label',
   },
   settingsLabel: {
     id: 'app.navBar.settingsDropdown.settingsLabel',
-    defaultMessage: 'Open settings',
+    description: 'Open settings option label',
   },
   aboutLabel: {
     id: 'app.navBar.settingsDropdown.aboutLabel',
-    defaultMessage: 'About',
+    description: 'About option label',
   },
   aboutDesc: {
     id: 'app.navBar.settingsDropdown.aboutDesc',
-    defaultMessage: 'About',
+    description: 'Describes about option',
   },
   leaveSessionLabel: {
     id: 'app.navBar.settingsDropdown.leaveSessionLabel',
-    defaultMessage: 'Logout',
+    description: 'Leave session button label',
   },
   fullscreenDesc: {
     id: 'app.navBar.settingsDropdown.fullscreenDesc',
-    defaultMessage: 'Make the settings menu fullscreen',
+    description: 'Describes fullscreen option',
   },
   settingsDesc: {
     id: 'app.navBar.settingsDropdown.settingsDesc',
-    defaultMessage: 'Change the general settings',
+    description: 'Describes settings option',
   },
   leaveSessionDesc: {
     id: 'app.navBar.settingsDropdown.leaveSessionDesc',
-    defaultMessage: 'Leave the meeting',
+    description: 'Describes leave session option',
   },
-  exitFullScreenDesc: {
-    id: 'app.navBar.settingsDropdown.exitFullScreenDesc',
-    defaultMessage: 'exit fullscreen mode',
+  exitFullscreenDesc: {
+    id: 'app.navBar.settingsDropdown.exitFullscreenDesc',
+    description: 'Describes exit fullscreen option',
   },
-  exitFullScreenLabel: {
-    id: 'app.navBar.settingsDropdown.exitFullScreenLabel',
-    defaultMessage: 'Exit fullscreen',
+  exitFullscreenLabel: {
+    id: 'app.navBar.settingsDropdown.exitFullscreenLabel',
+    description: 'Exit fullscreen option label',
+  },
+  hotkeysLabel: {
+    id: 'app.navBar.settingsDropdown.hotkeysLabel',
+    description: 'Hotkeys options label',
+  },
+  hotkeysDesc: {
+    id: 'app.navBar.settingsDropdown.hotkeysDesc',
+    description: 'Describes hotkeys option',
+  },
+  helpLabel: {
+    id: 'app.navBar.settingsDropdown.helpLabel',
+    description: 'Help options label',
+  },
+  helpDesc: {
+    id: 'app.navBar.settingsDropdown.helpDesc',
+    description: 'Describes help option',
+  },
+  endMeetingLabel: {
+    id: 'app.navBar.settingsDropdown.endMeetingLabel',
+    description: 'End meeting options label',
+  },
+  endMeetingDesc: {
+    id: 'app.navBar.settingsDropdown.endMeetingDesc',
+    description: 'Describes settings option closing the current meeting',
   },
 });
 
-const openSettings = () => showModal(<SettingsMenuContainer  />);
+const propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  handleToggleFullscreen: PropTypes.func.isRequired,
+  mountModal: PropTypes.func.isRequired,
+  noIOSFullscreen: PropTypes.bool,
+  amIModerator: PropTypes.bool,
+  shortcuts: PropTypes.string,
+  isBreakoutRoom: PropTypes.bool,
+  isMeteorConnected: PropTypes.bool.isRequired,
+  isDropdownOpen: PropTypes.bool,
+};
 
-const openAbout = () => showModal(<AboutContainer />);
+const defaultProps = {
+  noIOSFullscreen: true,
+  amIModerator: false,
+  shortcuts: '',
+  isBreakoutRoom: false,
+  isDropdownOpen: false,
+};
 
-const openLogoutConfirmation = () => showModal(<LogoutConfirmation />);
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const { isSafari } = browserInfo;
+const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
-class SettingsDropdown extends Component {
+class SettingsDropdown extends PureComponent {
   constructor(props) {
     super(props);
+
+    this.state = {
+      isFullscreen: false,
+    };
+
+    // Set the logout code to 680 because it's not a real code and can be matched on the other side
+    this.LOGOUT_CODE = '680';
+
+    this.leaveSession = this.leaveSession.bind(this);
+    this.onFullscreenChange = this.onFullscreenChange.bind(this);
   }
 
-  render() {
+  componentDidMount() {
+    document.documentElement.addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
+  }
 
-    const { intl, isFullScreen } = this.props;
+  componentWillUnmount() {
+    document.documentElement.removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
+  }
 
-    let fullScreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
-    let fullScreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
+  onFullscreenChange() {
+    const { isFullscreen } = this.state;
+    const newIsFullscreen = FullscreenService.isFullScreen(document.documentElement);
+    if (isFullscreen !== newIsFullscreen) {
+      this.setState({ isFullscreen: newIsFullscreen });
+    }
+  }
 
-    if (isFullScreen) {
-      fullScreenLabel = intl.formatMessage(intlMessages.exitFullScreenLabel);
-      fullScreenDesc = intl.formatMessage(intlMessages.exitFullScreenDesc);
+  getFullscreenItem(menuItems) {
+    const {
+      intl,
+      noIOSFullscreen,
+      handleToggleFullscreen,
+    } = this.props;
+    const { isFullscreen } = this.state;
+
+    if (noIOSFullscreen || !ALLOW_FULLSCREEN) return null;
+
+    let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
+    let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
+    let fullscreenIcon = 'fullscreen';
+
+    if (isFullscreen) {
+      fullscreenLabel = intl.formatMessage(intlMessages.exitFullscreenLabel);
+      fullscreenDesc = intl.formatMessage(intlMessages.exitFullscreenDesc);
+      fullscreenIcon = 'exit_fullscreen';
     }
 
     return (
-      <Dropdown ref="dropdown">
-        <DropdownTrigger>
+      menuItems.push(
+        {
+          key: 'list-item-fullscreen',
+          icon: fullscreenIcon,
+          label: fullscreenLabel,
+          // description: fullscreenDesc,
+          onClick: handleToggleFullscreen,
+        },
+      )
+    );
+  }
+
+  leaveSession() {
+    makeCall('userLeftMeeting');
+    // we don't check askForFeedbackOnLogout here,
+    // it is checked in meeting-ended component
+    Session.set('codeError', this.LOGOUT_CODE);
+  }
+
+  renderMenuItems() {
+    const {
+      intl, mountModal, amIModerator, isBreakoutRoom, isMeteorConnected,
+    } = this.props;
+
+    const allowedToEndMeeting = amIModerator && !isBreakoutRoom;
+
+    const {
+      showHelpButton: helpButton,
+      helpLink,
+      allowLogout: allowLogoutSetting,
+    } = Meteor.settings.public.app;
+
+    this.menuItems = [];
+
+    this.getFullscreenItem(this.menuItems);
+
+    this.menuItems.push(
+      {
+        key: 'list-item-settings',
+        icon: 'settings',
+        dataTest: 'settings',
+        label: intl.formatMessage(intlMessages.settingsLabel),
+        // description: intl.formatMessage(intlMessages.settingsDesc),
+        onClick: () => mountModal(<SettingsMenuContainer />),
+      },
+      {
+        key: 'list-item-about',
+        icon: 'about',
+        label: intl.formatMessage(intlMessages.aboutLabel),
+        // description: intl.formatMessage(intlMessages.aboutDesc),
+        onClick: () => mountModal(<AboutContainer />),
+      },
+    );
+
+    if (helpButton) {
+      this.menuItems.push(
+        {
+          key: 'list-item-help',
+          icon: 'help',
+          iconRight: 'popout_window',
+          label: intl.formatMessage(intlMessages.helpLabel),
+          // description: intl.formatMessage(intlMessages.helpDesc),
+          onClick: () => window.open(`${helpLink}`),
+        },
+      );
+    }
+
+    this.menuItems.push(
+      {
+        key: 'list-item-shortcuts',
+        icon: 'shortcuts',
+        label: intl.formatMessage(intlMessages.hotkeysLabel),
+        // description: intl.formatMessage(intlMessages.hotkeysDesc),
+        onClick: () => mountModal(<ShortcutHelpComponent />),
+        divider: true,
+      },
+    );
+
+    if (allowedToEndMeeting && isMeteorConnected) {
+      this.menuItems.push(
+        {
+          key: 'list-item-end-meeting',
+          icon: 'application',
+          label: intl.formatMessage(intlMessages.endMeetingLabel),
+          // description: intl.formatMessage(intlMessages.endMeetingDesc),
+          onClick: () => mountModal(<EndMeetingConfirmationContainer />),
+        },
+      );
+    }
+
+    if (allowLogoutSetting && isMeteorConnected) {
+      this.menuItems.push(
+        {
+          key: 'list-item-logout',
+          dataTest: 'logout',
+          icon: 'logout',
+          label: intl.formatMessage(intlMessages.leaveSessionLabel),
+          // description: intl.formatMessage(intlMessages.leaveSessionDesc),
+          className: styles.leaveMeetingButton,
+          onClick: () => this.leaveSession(),
+        },
+      );
+    }
+
+    return this.menuItems;
+  }
+
+  render() {
+    const {
+      intl,
+      shortcuts: OPEN_OPTIONS_AK,
+      isDropdownOpen,
+    } = this.props;
+
+    return (
+
+      <BBBMenu
+        classes={[styles.offsetTop]}
+        accessKey={OPEN_OPTIONS_AK}
+        trigger={(
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
-            ghost={true}
-            circle={true}
-            hideLabel={true}
-            className={cx(styles.btn, styles.btnSettings)}
-
+            data-test="optionsButton"
+            ghost
+            circle
+            hideLabel
+            className={isDropdownOpen ? styles.hideDropdownButton : styles.btn}
             // FIXME: Without onClick react proptypes keep warning
             // even after the DropdownTrigger inject an onClick handler
             onClick={() => null}
           />
-        </DropdownTrigger>
-        <DropdownContent placement="bottom right">
-          <DropdownList>
-            <DropdownListItem
-              icon="fullscreen"
-              label={fullScreenLabel}
-              description={fullScreenDesc}
-              onClick={this.props.handleToggleFullscreen}
-            />
-            <DropdownListItem
-              icon="more"
-              label={intl.formatMessage(intlMessages.settingsLabel)}
-              description={intl.formatMessage(intlMessages.settingsDesc)}
-              onClick={openSettings.bind(this)}
-            />
-            <DropdownListItem
-              label={intl.formatMessage(intlMessages.aboutLabel)}
-              description={intl.formatMessage(intlMessages.aboutDesc)}
-              onClick={openAbout.bind(this)}
-            />
-            <DropdownListSeparator />
-            <DropdownListItem
-              icon="logout"
-              label={intl.formatMessage(intlMessages.leaveSessionLabel)}
-              description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-              onClick={openLogoutConfirmation.bind(this)}
-            />
-          </DropdownList>
-        </DropdownContent>
-      </Dropdown>
+        )}
+        actions={this.renderMenuItems()}
+      />
+
     );
   }
 }
-
-export default injectIntl(SettingsDropdown);
+SettingsDropdown.propTypes = propTypes;
+SettingsDropdown.defaultProps = defaultProps;
+export default withShortcutHelper(withModalMounter(injectIntl(SettingsDropdown)), 'openOptions');

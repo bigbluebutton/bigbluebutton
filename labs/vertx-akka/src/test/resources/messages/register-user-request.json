@@ -1,0 +1,30 @@
+{
+    "header": {
+        "destination": {
+            "to": "apps_channel"
+        },
+        "reply": {
+            "to": "apps_channel",
+            "correlation_id": "abc"
+        },
+        "name": "register_user_request",
+        "timestamp": "2013-12-23T08:50Z",
+        "source": "bbb-web"
+    },
+    "payload": {
+        "meeting": {
+            "name": "English 101",
+            "id": "english_101"
+        },
+        "session": "english_101-12345",
+        "user_descriptor": {
+            "external_id": "user1",
+            "name": "Guga",
+            "role": "MODERATOR",
+            "pin": 12345,
+            "welcome_message": "Welcome to English 101",
+            "logout_url": "http://www.example.com",
+            "avatar_url": "http://www.example.com/avatar.png"
+        }
+    }
+}

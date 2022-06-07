@@ -1,61 +1,68 @@
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
 import RedisPubSub from '/imports/startup/server/redis';
 import { check } from 'meteor/check';
 import Polls from '/imports/api/polls';
 import Logger from '/imports/startup/server/logger';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function publishVote(credentials, pollId, pollAnswerId) { //TODO discuss location
-  const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.polling;
-  const EVENT_NAME = 'vote_poll_user_request_message';
+export default function publishVote(pollId, pollAnswerId) {
+  try {
+    const REDIS_CONFIG = Meteor.settings.private.redis;
+    const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+    const EVENT_NAME = 'RespondToPollReqMsg';
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  if (!isAllowedTo('subscribePoll', credentials)) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to publishVote`);
-  }
+    check(meetingId, String);
+    check(requesterUserId, String);
+    check(pollAnswerId, Number);
+    check(pollId, String);
 
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+    const allowedToVote = Polls.findOne({
+      id: pollId,
+      users: { $in: [requesterUserId] },
+      meetingId,
+    }, {
+      fields: {
+        users: 1,
+      },
+    });
 
-  const currentPoll = Polls.findOne({
-    users: requesterUserId,
-    meetingId: meetingId,
-    'poll.answers.id': pollAnswerId,
-    'poll.id': pollId,
-  });
-
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(pollAnswerId, Number);
-  check(currentPoll.meetingId, String);
-
-  let payload = {
-    meeting_id: currentPoll.meetingId,
-    user_id: requesterUserId,
-    poll_id: currentPoll.poll.id,
-    question_id: 0,
-    answer_id: pollAnswerId,
-  };
-
-  const selector = {
-    users: requesterUserId,
-    meetingId: meetingId,
-    'poll.answers.id': pollAnswerId,
-  };
-
-  const modifier = {
-    $pull: {
-      users: requesterUserId,
-    },
-  };
-
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Updating Polls collection: ${err}`);
+    if (!allowedToVote) {
+      Logger.info(`Poll User={${requesterUserId}} has already voted in PollId={${pollId}}`);
+      return null;
     }
 
-    Logger.info(`Updating Polls collection (meetingId: ${meetingId},
-                                            pollId: ${currentPoll.poll.id}!)`);
-  };
+    const selector = {
+      users: requesterUserId,
+      meetingId,
+      'answers.id': pollAnswerId,
+    };
 
-  Polls.update(selector, modifier, cb);
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
+    const payload = {
+      requesterId: requesterUserId,
+      pollId,
+      questionId: 0,
+      answerId: pollAnswerId,
+    };
+
+    /*
+     We keep an array of people who were in the meeting at the time the poll
+     was started. The poll is published to them only.
+     Once they vote - their ID is removed and they cannot see the poll anymore
+    */
+    const modifier = {
+      $pull: {
+        users: requesterUserId,
+      },
+    };
+
+    const numberAffected = Polls.update(selector, modifier);
+
+    if (numberAffected) {
+      Logger.info(`Removed responded user=${requesterUserId} from poll (meetingId: ${meetingId}, pollId: ${pollId}!)`);
+
+      RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+    }
+  } catch (err) {
+    Logger.error(`Exception while invoking method publishVote ${err.stack}`);
+  }
 }

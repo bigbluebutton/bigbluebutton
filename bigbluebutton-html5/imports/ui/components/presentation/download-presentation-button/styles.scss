@@ -1,0 +1,72 @@
+.wrapper {
+  position: absolute;
+  right: auto;
+  left: 0;
+  background-color: var(--color-transparent);
+  cursor: pointer;
+  border: 0;
+  z-index: 2;
+  margin: 2px;
+  bottom: 0;
+
+  [dir="rtl"] & {
+    right: 0;//auto;
+    left : auto;//0;
+  }
+
+  [class*="presentationZoomControls"] & {
+    position: relative !important;
+  }
+}
+
+.button {
+
+  &,
+  &:active,
+  &:hover,
+  &:focus {
+    background-color: var(--color-transparent) !important;
+    border: none !important;
+
+    i {
+      border: none !important;
+      background-color: var(--color-transparent) !important;
+    }
+  }
+}
+
+.light {
+  background-color: var(--color-transparent);
+}
+
+.light .button i {
+  color: var(--color-black);
+}
+
+.dark {
+  background-color: rgba(0,0,0,.3);
+}
+
+.dark .button i {
+  color: var(--color-white);
+}
+
+.top{
+  top: 0;
+}
+
+.bottom{
+  bottom: 0;
+}
+
+.downloadPresentationButton {
+  padding: 5px;
+
+  &:hover {
+    border: 0;
+  }
+
+  i {
+    font-size: 1rem;
+  }
+}

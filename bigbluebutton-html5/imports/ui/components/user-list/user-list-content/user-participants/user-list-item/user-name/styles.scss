@@ -1,0 +1,50 @@
+.userName {
+  display: flex;
+  flex-flow: column;
+  min-width: 0;
+  flex-grow: 1;
+  margin: 0 0 0 var(--sm-padding-x);
+  justify-content: center;
+  font-size: 90%;
+
+  [dir="rtl"]  & {
+    margin: 0 var(--sm-padding-x) 0 0;
+  }
+}
+
+.userNameMain {
+  margin: 0;
+  font-size: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 400;
+  color: var(--color-gray-dark);
+  display: flex;
+  flex-direction: row;
+
+  > span {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  :global(.animationsEnabled) & {
+    transition: all .3s;
+  }
+}
+
+.userNameSub {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 200;
+  color: var(--color-gray);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  i {
+    line-height: 0;
+    font-size: 75%;
+  }
+}

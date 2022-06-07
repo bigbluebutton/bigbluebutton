@@ -1,7 +1,5 @@
 // This is a simple wrapper to run the app with 'node app.js'
 
-require("coffee-script/register");
-
-Application = require('./application.coffee');
+Application = require('./application.js');
 application = new Application();
 application.start();

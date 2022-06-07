@@ -6,7 +6,7 @@ import { EJSON } from 'meteor/ejson';
 
 export default class StorageTracker {
   constructor(storage, prefix = '') {
-    if (!storage instanceof Storage) {
+    if (!(storage instanceof Storage)) {
       throw `Expecting a instanceof Storage recieve a '${storage.constructor.name}' instance`;
     }
 
@@ -17,7 +17,7 @@ export default class StorageTracker {
 
   _ensureDeps(key) {
     if (!this._trackers[key]) {
-      this._trackers[key] = new Tracker.Dependency;
+      this._trackers[key] = new Tracker.Dependency();
     }
   }
 
@@ -31,7 +31,7 @@ export default class StorageTracker {
   }
 
   getItem(key) {
-    let prefixedKey = this._prefixedKey(key);
+    const prefixedKey = this._prefixedKey(key);
     this._ensureDeps(prefixedKey);
     this._trackers[prefixedKey].depend();
 
@@ -47,7 +47,7 @@ export default class StorageTracker {
   }
 
   setItem(key, value) {
-    let prefixedKey = this._prefixedKey(key);
+    const prefixedKey = this._prefixedKey(key);
     this._ensureDeps(prefixedKey);
 
     // let currentValue = this.getItem(prefixedKey);
@@ -65,15 +65,15 @@ export default class StorageTracker {
   }
 
   removeItem(key) {
-    let prefixedKey = this._prefixedKey(key);
+    const prefixedKey = this._prefixedKey(key);
     this._storage.removeItem(prefixedKey);
     this._trackers[prefixedKey].changed();
     delete this._trackers[prefixedKey];
   }
 
   clear() {
-    Object.keys(this._trackers).forEach(key => {
+    Object.keys(this._trackers).forEach((key) => {
       this.removeItem(key);
     });
   }
-};
+}

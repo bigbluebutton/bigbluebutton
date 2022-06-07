@@ -2,69 +2,52 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Users from '/imports/api/users';
+import ClientConnections from '/imports/startup/server/ClientConnections';
 
-import setConnectionStatus from '../modifiers/setConnectionStatus';
-import listenOnlyToggle from './listenOnlyToggle';
+export default function userLeaving(meetingId, userId, connectionId) {
+  try {
+    const REDIS_CONFIG = Meteor.settings.private.redis;
+    const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+    const EVENT_NAME = 'UserLeaveReqMsg';
 
-const OFFLINE_CONNECTION_STATUS = 'offline';
+    check(userId, String);
 
-export default function userLeaving(credentials, userId) {
-  const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.users;
-  const EVENT_NAME = 'user_leaving_request';
-
-  const { meetingId, requesterUserId } = credentials;
-
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(userId, String);
-
-  const selector = {
-    meetingId,
-    userId,
-  };
-
-  const User = Users.findOne(selector);
-  if (!User) {
-    throw new Meteor.Error(
-      'user-not-found', `You need a valid user to be able to toggle audio`);
-  }
-
-  if (User.user.connection_status === OFFLINE_CONNECTION_STATUS) {
-    return;
-  }
-
-  if (User.user.listenOnly) {
-    listenOnlyToggle(credentials, false);
-  }
-
-  if (User.validated) {
-    const modifier = {
-      $set: {
-        validated: false,
-      },
+    const selector = {
+      meetingId,
+      userId,
     };
 
-    const cb = (err, numChanged) => {
-      if (err) {
-        return Logger.error(`Invalidating user: ${err}`);
-      }
+    const user = Users.findOne(selector);
 
-      if (numChanged) {
-        return Logger.info(`Invalidate user=${userId} meeting=${meetingId}`);
-      }
+    if (!user) {
+      Logger.info(`Skipping userLeaving. Could not find ${userId} in ${meetingId}`);
+      return;
+    }
+
+    const auth = AuthTokenValidation.findOne({
+      meetingId,
+      userId,
+    }, { sort: { updatedAt: -1 } });
+
+    // If the current user connection is not the same that triggered the leave we skip
+    if (auth?.connectionId !== connectionId) {
+      Logger.info(`Skipping userLeaving. User connectionId=${user.connectionId} is different from requester connectionId=${connectionId}`);
+      return false;
+    }
+
+    const payload = {
+      userId,
+      sessionId: meetingId,
+      loggedOut: user.loggedOut || false,
     };
 
-    return Users.update(selector, modifier, cb);
+    ClientConnections.removeClientConnection(`${meetingId}--${userId}`, connectionId);
+
+    Logger.info(`User '${userId}' is leaving meeting '${meetingId}'`);
+    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
+  } catch (err) {
+    Logger.error(`Exception while invoking method userLeaving ${err.stack}`);
   }
-
-  let payload = {
-    meeting_id: meetingId,
-    userid: userId,
-  };
-
-  Logger.verbose(`User '${requesterUserId}' left meeting '${meetingId}'`);
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
-};
+}

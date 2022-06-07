@@ -1,5 +1,3 @@
-@import "../../stylesheets/variables/_all";
-
 .input {
   border: 0;
   clip: rect(0 0 0 0);
@@ -11,12 +9,17 @@
   width: 1px;
 }
 
+.disabled .icon {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
 .icon {
   cursor: pointer;
   font-size: 1.35rem;
-  color: $color-gray-light;
+  color: var(--color-gray-light);
 }
 
 .checked {
-  color: $color-success;
+  color: var(--color-success);
 }

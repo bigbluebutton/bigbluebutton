@@ -1,15 +1,14 @@
-@import "../../../stylesheets/variables/_all";
-@import "../../../stylesheets/mixins/_scrollable";
+@import "/imports/ui/stylesheets/variables/breakpoints";
+@import "/imports/ui/stylesheets/mixins/_scrollable";
 
 .modal {
   @include scrollbox-vertical();
 
   max-width: 60vw;
   max-height: 100%;
-  border-radius: $border-radius;
+  border-radius: var(--border-radius);
   background: #fff;
   overflow: auto;
-  outline: none;
 
   @include mq($small-only) {
     max-width: 95vw;
@@ -20,11 +19,7 @@
   }
 }
 
-.transparentOverlay {
-  background: transparentize($color-gray-dark, .40) !important;
-}
-
-.overlay, .transparentOverlay {
+.overlay {
   z-index: 1000;
   background: #fff;
   display: flex;
@@ -37,4 +32,6 @@
   bottom: 0;
 }
 
-.portal {}
+.portal {
+  overflow: hidden;
+}

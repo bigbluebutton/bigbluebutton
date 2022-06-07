@@ -9,9 +9,12 @@
         <!-- File to log to -->
 	<!--<param name="logfile" value="/var/log/freeswitch.log"/>-->
         <!-- At this length in bytes rotate the log file (0 for never) -->
-        <param name="rollover" value="10485760"/>
-		<!-- Uncomment to prefix all log lines by the session's uuid  -->
-		<!-- <param name="uuid" value="true" /> -->
+        <param name="rollover" value="104857600"/>
+		<!-- Maximum number of log files to keep before wrapping -->
+		<!-- If this parameter is enabled, the log filenames will not include a date stamp -->
+		<param name="maximum-rotate" value="10"/>
+        <!-- Prefix all log lines by the session's uuid  -->
+        <param name="uuid" value="true" />
       </settings>
       <mappings>
 	<!-- 
@@ -19,7 +22,7 @@
 	     value is one or more of debug,info,notice,warning,err,crit,alert,all
 	     Please see comments in console.conf.xml for more information
 	-->
-	<map name="all" value="debug,info,notice,warning,err,crit,alert"/>
+	<map name="all" value="info,notice,warning,err,crit,alert"/>
       </mappings>
     </profile>
   </profiles>

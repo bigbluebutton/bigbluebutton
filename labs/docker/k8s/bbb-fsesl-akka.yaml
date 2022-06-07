@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: bbb-fsesl-akka
+    version: latest
+  name: bbb-fsesl-akka
+  namespace: bigbluebutton
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bbb-fsesl-akka
+      version: latest
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: bbb-fsesl-akka
+        version: latest
+      name: bbb-fsesl-akka
+    spec:
+      containers:
+      - env:
+        - name: JAVA_OPTS
+          value: -Dredis.host=redis -Dfreeswitch.esl.host=bbb-freeswitch
+        image: fcecagno/bigbluebutton:bbb-fsesl-akka
+        imagePullPolicy: Always
+        name: bbb-fsesl-akka
+        command: ["wait-for-it.sh", "bbb-freeswitch:8021", "--timeout=60", "--strict", "--", "/usr/share/bbb-fsesl-akka/bin/bbb-fsesl-akka"]
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      nodeSelector:
+        role: 'bigbluebutton'
+      tolerations:
+      - key: role
+        operator: Equal
+        value: 'bigbluebutton'
+        effect: NoSchedule

@@ -1,0 +1,269 @@
+@import "../../../stylesheets/variables/breakpoints";
+
+:root {
+  --toolbar-margin: .8rem;
+  --toolbar-box-shadow: 0 0 10px -2px rgba(0, 0, 0, .25);
+  --toolbar-button-color: var(--btn-default-color);
+  --toolbar-button-bg: var(--btn-default-bg);
+  --toolbar-button-width: 3rem;
+  --toolbar-button-height: 3rem;
+  --toolbar-button-font-size: 1.75rem;
+  --toolbar-button-border: 1px;
+  --toolbar-button-border-radius: 5px;
+  --toolbar-button-border-color: var(--color-gray-lighter);
+  --toolbar-list-bg: #ddd;
+  --toolbar-list-bg-focus: #c6c6c6;
+  --toolbar-list-color: var(--color-gray);
+  --toolbar-item-outline-offset: -.19rem;
+  --toolbar-item-triangle-padding: 2px;
+}
+
+.toolbarContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 var(--toolbar-margin) 0 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: auto;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 3;
+
+  [dir="rtl"] & {
+    margin: 0 0 0 var(--toolbar-margin);
+    right: auto;
+    left: 0;
+  }
+
+  @include mq("#{$landscape} and (max-height:#{upper-bound($small-range)}), #{$small-only}") {
+    transform: scale(.75);
+    transform-origin: right;
+  }
+}
+
+.toolbarWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--toolbar-box-shadow);
+  border-radius: var(--toolbar-button-border-radius);
+  pointer-events: all;
+
+  .buttonWrapper > .toolbarButton {
+    outline-offset: var(--toolbar-item-outline-offset);
+    border-bottom: var(--toolbar-button-border) solid var(--toolbar-button-border-color);
+  }
+
+  .buttonWrapper:first-child > .toolbarButton {
+    border-top-left-radius: var(--toolbar-button-border-radius);
+    border-top-right-radius: var(--toolbar-button-border-radius);
+
+    &.toolbarActive {
+      border-top-left-radius: 0;
+      border-top-right-radius: var(--toolbar-button-border-radius);
+
+      [dir="rtl"] & {
+        border-top-left-radius: var(--toolbar-button-border-radius);
+        border-top-right-radius: 0;
+      }
+    }
+  }
+
+  .buttonWrapper:last-child > .toolbarButton {
+    border-bottom: 0;
+    border-bottom-left-radius: var(--toolbar-button-border-radius);
+    border-bottom-right-radius: var(--toolbar-button-border-radius);
+
+    &.toolbarActive {
+      border-bottom-left-radius: 0;
+      border-top-right-radius: var(--toolbar-button-border-radius);
+
+      [dir="rtl"] & {
+        border-bottom-left-radius: var(--toolbar-button-border-radius);
+        border-top-right-radius: 0;
+      }
+    }
+  }
+}
+
+.buttonWrapper {
+  width: var(--toolbar-button-width);
+  min-width: var(--toolbar-button-width);
+  height: var(--toolbar-button-height);
+  min-height: var(--toolbar-button-height);
+  position: relative;
+}
+
+.cornerTriangle::before {
+  content: '';
+  position: absolute;
+  border-color: transparent;
+  border-style: solid;
+  z-index: 2;
+  border-radius: 0;
+  border-width: 0.35em;
+  bottom: var(--toolbar-item-triangle-padding);
+  left: var(--toolbar-item-triangle-padding);
+  border-left-color: var(--toolbar-list-color);
+  border-bottom-color: var(--toolbar-list-color);
+
+  [dir="rtl"] & {
+    left: auto;
+    right: var(--toolbar-item-triangle-padding);
+
+    border-left-color: transparent;
+    border-right-color: var(--toolbar-list-color);
+  }
+}
+
+.toolbarButton {
+  padding: 0;
+  border: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative;
+  border-radius: 0;
+  box-shadow: none !important;
+  z-index: 1;
+  font-size: var(--toolbar-button-font-size);
+  color: var(--toolbar-button-color);
+  background-color: var(--toolbar-button-bg);
+  border-color: var(--toolbar-button-border-color);
+
+  &:focus,
+  &:hover {
+    border: 0;
+  }
+
+  i {
+    color: var(--toolbar-button-color);
+  }
+
+  &.toolbarActive {
+    background-color: var(--toolbar-list-bg);
+
+    i {
+      color: var(--toolbar-list-color);
+    }
+  }
+}
+
+.toolbarList {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: var(--toolbar-button-height);
+  position: absolute;
+  right: var(--toolbar-button-height);
+  left: auto;
+  top: 0;
+  box-shadow: var(--toolbar-box-shadow);
+
+  [dir="rtl"] & {
+    right: auto;
+    left: var(--toolbar-button-height);
+  }
+
+  .buttonWrapper:first-child > .toolbarListButton {
+    border-top-left-radius: var(--toolbar-button-border-radius);
+    border-bottom-left-radius: var(--toolbar-button-border-radius);
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+
+    [dir="rtl"] & {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      border-top-right-radius: var(--toolbar-button-border-radius);
+      border-bottom-right-radius: var(--toolbar-button-border-radius);
+    }
+  }
+}
+
+.toolbarListButton {
+  width: var(--toolbar-button-width);
+  height: var(--toolbar-button-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--toolbar-button-font-size);
+  background-color: var(--toolbar-list-bg);
+  border: 0 !important;
+  box-shadow: none;
+  border-radius: 0;
+  padding: initial;
+  outline-offset: var(--toolbar-item-outline-offset);
+
+  &:hover,
+  &:focus {
+    background-color: #bbb;
+  }
+
+  i {
+    color: var(--toolbar-list-color);
+  }
+
+  svg {
+    fill: var(--toolbar-list-color);
+  }
+}
+
+.selectedListButton {
+  background-color: var(--toolbar-list-color) !important;
+
+  i {
+    color: var(--toolbar-list-bg-focus) !important;
+  }
+
+  svg {
+    fill: var(--toolbar-list-bg-focus);
+  }
+}
+
+.customSvgIcon {
+  position: absolute;
+  width: var(--toolbar-button-width);
+  height: var(--toolbar-button-height);
+  left: 0;
+  top: 0;
+}
+
+.textThickness {
+  font-family: Arial, sans-serif;
+  font-weight: normal;
+  text-shadow: -1px 0 var(--toolbar-list-bg-focus), 0 1px var(--toolbar-list-bg-focus), 1px 0 var(--toolbar-list-bg-focus), 0 -1px var(--toolbar-list-bg-focus);
+  margin: auto;
+  color: var(--toolbar-list-color);
+}
+
+.multiUserTool {
+  background-color: var(--color-danger);
+  border-radius: 50%;
+  width: var(--lg-padding-x);
+  height: var(--lg-padding-x);
+  position: absolute;
+  z-index: 2;
+  right: 0px;
+  color: var(--color-white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 1px 1px var(--border-size-large) var(--color-gray-dark);
+  font-size: var(--sm-padding-x);
+}
+
+.multiUserToolItem {
+  .toolbarButton {
+    border-top-right-radius: 0 !important;
+    border-top-left-radius: 0 !important;
+  }
+}
+

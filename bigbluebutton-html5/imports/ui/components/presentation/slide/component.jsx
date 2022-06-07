@@ -1,33 +1,41 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
-export default class Slide extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
+const Slide = ({ imageUri, svgWidth, svgHeight }) => (
+  <g>
+    {imageUri ?
+      // some pdfs lose a white background color during the conversion to svg
+      // their background color is transparent
+      // that's why we have a white rectangle covering the whole slide area by default
       <g>
-        {this.props.currentSlide ?
-          <g>
-            <rect
-              x="0"
-              y="0"
-              width={this.props.currentSlide.slide.width}
-              height={this.props.currentSlide.slide.height}
-              fill="white"
-            >
-            </rect>
-            <image x="0" y="0"
-              width={this.props.currentSlide.slide.width}
-              height={this.props.currentSlide.slide.height}
-              xlinkHref={this.props.currentSlide.slide.img_uri}
-              strokeWidth="0.8"
-            >
-            </image>
-          </g>
-        : null }
+        <rect
+          x="0"
+          y="0"
+          width={svgWidth}
+          height={svgHeight}
+          fill="white"
+        />
+        <image
+          x="0"
+          y="0"
+          width={svgWidth}
+          height={svgHeight}
+          xlinkHref={imageUri}
+          strokeWidth="0.8"
+          style={{ WebkitTapHighlightColor: 'transparent' }}
+        />
       </g>
-    );
-  }
-}
+      : null}
+  </g>
+);
+
+Slide.propTypes = {
+  // Image Uri
+  imageUri: PropTypes.string.isRequired,
+  // Width of the slide (Svg coordinate system)
+  svgWidth: PropTypes.number.isRequired,
+  // Height of the slide (Svg coordinate system)
+  svgHeight: PropTypes.number.isRequired,
+};
+
+export default Slide;

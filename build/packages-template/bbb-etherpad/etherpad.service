@@ -1,0 +1,18 @@
+[Unit]
+Description=Etherpad Server
+Wants=redis-server.service 
+After=syslog.target network.target 
+
+[Service]
+Type=simple
+User=etherpad
+Group=etherpad
+WorkingDirectory=/usr/share/etherpad-lite
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node node_modules/ep_etherpad-lite/node/server.js
+Restart=always 
+# use mysql plus a complete settings.json to avoid Service hold-off time over, scheduling restart.
+
+[Install]
+WantedBy=multi-user.target
+

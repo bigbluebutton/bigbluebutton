@@ -1,0 +1,87 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: bbb-webrtc-sfu
+    version: latest
+  name: bbb-webrtc-sfu
+  namespace: bigbluebutton
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bbb-webrtc-sfu
+      version: latest
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: bbb-webrtc-sfu
+        version: latest
+      name: bbb-webrtc-sfu
+    spec:
+      containers:
+      - env:
+        - name: KURENTO_NAME
+          value: kurento
+        - name: KURENTO_URL
+          value: ws://bbb-kurento:8888/kurento
+        - name: REDIS_HOST
+          value: redis
+        - name: FREESWITCH_IP
+          value: bbb-freeswitch
+        - name: LOG_LEVEL
+          value: debug
+        image: fcecagno/bigbluebutton:bbb-webrtc-sfu
+        imagePullPolicy: Always
+        name: bbb-webrtc-sfu
+        ports:
+        - containerPort: 3008
+          protocol: TCP
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      nodeSelector:
+        role: 'bigbluebutton'
+      tolerations:
+      - key: role
+        operator: Equal
+        value: 'bigbluebutton'
+        effect: NoSchedule
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bbb-webrtc-sfu
+  namespace: bigbluebutton
+  annotations:
+    traefik.backend.circuitbreaker: "NetworkErrorRatio() > 0.5"
+spec:
+  ports:
+  - name: http
+    targetPort: 3008
+    port: 3008
+  selector:
+    app: bbb-webrtc-sfu
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: bbb-webrtc-sfu
+  namespace: bigbluebutton
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+spec:
+  rules:
+  - host: bigbluebutton.rocket.chat
+    http:
+      paths:
+      - path: /bbb-webrtc-sfu
+        backend:
+          serviceName: bbb-webrtc-sfu
+          servicePort: 3008

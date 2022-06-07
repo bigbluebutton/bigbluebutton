@@ -1,10 +1,26 @@
-import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
+import Users from '/imports/api/users/index';
 
 export default function clearUsers(meetingId) {
   if (meetingId) {
-    return Users.remove({ meetingId }, Logger.info(`Cleared Users (${meetingId})`));
-  }
+    try {
+      const numberAffected = Users.remove({ meetingId });
 
-  return Users.remove({}, Logger.info('Cleared Users (all)'));
-};
+      if (numberAffected) {
+        Logger.info(`Cleared Users (${meetingId})`);
+      }
+    } catch (err) {
+      Logger.error(`Error clearing Users (${meetingId}). ${err}`);
+    }
+  } else {
+    try {
+      const numberAffected = Users.remove({});
+
+      if (numberAffected) {
+        Logger.info('Cleared Users (all)');
+      }
+    } catch (err) {
+      Logger.error(`Error clearing Users (all). ${err}`);
+    }
+  }
+}

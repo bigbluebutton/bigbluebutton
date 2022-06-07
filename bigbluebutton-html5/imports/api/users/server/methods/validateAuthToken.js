@@ -1,48 +1,33 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
-import Users from '/imports/api/users';
+import upsertValidationState from '/imports/api/auth-token-validation/server/modifiers/upsertValidationState';
+import { ValidationStates } from '/imports/api/auth-token-validation';
+import pendingAuthenticationsStore from '../store/pendingAuthentications';
 
-import createDummyUser from '../modifiers/createDummyUser';
-import setConnectionStatus from '../modifiers/setConnectionStatus';
+export default function validateAuthToken(meetingId, requesterUserId, requesterToken, externalId) {
+  try {
+    const REDIS_CONFIG = Meteor.settings.private.redis;
+    const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+    const EVENT_NAME = 'ValidateAuthTokenReqMsg';
 
-const ONLINE_CONNECTION_STATUS = 'online';
+    Logger.debug('ValidateAuthToken method called', { meetingId, requesterUserId, requesterToken, externalId });
 
-export default function validateAuthToken(credentials) {
-  const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.meeting;
-  const EVENT_NAME = 'validate_auth_token';
+    if (!meetingId) return false;
 
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+    // Store reference of methodInvocationObject ( to postpone the connection userId definition )
+    pendingAuthenticationsStore.add(meetingId, requesterUserId, requesterToken, this);
+    upsertValidationState(meetingId, requesterUserId, ValidationStates.VALIDATING, this.connection.id);
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+    const payload = {
+      userId: requesterUserId,
+      authToken: requesterToken,
+    };
 
-  const User = Users.findOne({
-    meetingId,
-    userId: requesterUserId,
-  });
+    Logger.info(`User '${requesterUserId}' is trying to validate auth token for meeting '${meetingId}' from connection '${this.connection.id}'`);
 
-  if (!User) {
-    createDummyUser(meetingId, requesterUserId, requesterToken);
-  } else if (User.validated) {
-    setConnectionStatus(meetingId, requesterUserId, ONLINE_CONNECTION_STATUS);
+    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+  } catch (err) {
+    Logger.error(`Exception while invoking method validateAuthToken ${err.stack}`);
   }
-
-  let payload = {
-    auth_token: requesterToken,
-    userid: requesterUserId,
-    meeting_id: meetingId,
-  };
-
-  const header = {
-    reply_to: `${meetingId}/${requesterUserId}`,
-  };
-
-  Logger.info(`User '${requesterUserId}' is trying to validate auth token for meeting '${meetingId}'`);
-
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload, header);
-};
+}

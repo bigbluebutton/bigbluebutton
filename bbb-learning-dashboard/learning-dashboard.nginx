@@ -1,0 +1,5 @@
+location /learning-analytics-dashboard/ {
+    alias /var/bigbluebutton/learning-dashboard/;
+    autoindex off;
+}
+

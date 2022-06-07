@@ -1,0 +1,42 @@
+@import "../../stylesheets/variables/breakpoints";
+
+.muteWarning {
+  position: absolute !important;
+  color: var(--color-white);
+  background-color: var(--color-tip-bg);
+  text-align: center;
+  line-height: 1;
+  font-size: var(--font-size-xl);
+  padding: var(--md-padding-x);
+  border-radius: var(--border-radius);
+  top: -100%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  cursor: pointer;
+
+  > span {
+    white-space: nowrap;
+  }
+
+  @include mq($small-only) {
+    font-size: var(--font-size-md);;
+  }
+}
+
+.alignForMod {
+  left: 72.25%;
+}
+
+.alignForViewer {
+  left: 80%;  
+}
+
+.alignForMod, .alignForViewer {
+  [dir="rtl"] & {
+    left: 20%;
+  }  
+  @include mq($medium-only) {
+    font-size: var(--font-size-sm);
+  }
+}

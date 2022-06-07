@@ -1,54 +1,73 @@
 import Users from '/imports/api/users';
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
+import { extractCredentials } from '/imports/api/common/server/helpers';
+import { check } from 'meteor/check';
 
-import userLeaving from './methods/userLeaving';
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-Meteor.publish('current-user', function (credentials) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+function currentUser() {
+  if (!this.userId) {
+    return Users.find({ meetingId: '' });
+  }
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
   check(meetingId, String);
   check(requesterUserId, String);
-  check(requesterToken, String);
 
   const selector = {
     meetingId,
     userId: requesterUserId,
-    authToken: requesterToken,
+    intId: { $exists: true },
   };
 
   const options = {
     fields: {
       user: false,
+      authToken: false, // Not asking for authToken from client side but also not exposing it
     },
   };
 
   return Users.find(selector, options);
-});
+}
 
-Meteor.publish('users', function (credentials) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+function publishCurrentUser(...args) {
+  const boundUsers = currentUser.bind(this);
+  return boundUsers(...args);
+}
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+Meteor.publish('current-user', publishCurrentUser);
 
-  if (!isAllowedTo('subscribeUsers', credentials)) {
-    this.error(new Meteor.Error(402, "The user was not authorized to subscribe for 'Users'"));
+function users(role) {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing Users was requested by unauth connection ${this.connection.id}`);
+    return Users.find({ meetingId: '' });
   }
 
-  this.onStop(() => {
-    userLeaving(credentials, requesterUserId);
-  });
+  if (!this.userId) {
+    return Users.find({ meetingId: '' });
+  }
+  const { meetingId, userId } = tokenValidation;
+
+  Logger.debug(`Publishing Users for ${meetingId} ${userId}`);
 
   const selector = {
-    meetingId,
-    'user.connection_status': {
-      $in: ['online', ''],
-    },
+    $or: [
+      { meetingId },
+    ],
+    intId: { $exists: true },
   };
+
+  const User = Users.findOne({ userId, meetingId }, { fields: { role: 1 } });
+  if (!!User && User.role === ROLE_MODERATOR) {
+    selector.$or.push({
+      'breakoutProps.isBreakoutUser': true,
+      'breakoutProps.parentId': meetingId,
+    });
+  }
 
   const options = {
     fields: {
@@ -56,7 +75,14 @@ Meteor.publish('users', function (credentials) {
     },
   };
 
-  Logger.info(`Publishing Users for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug('Publishing Users', { meetingId, userId });
 
   return Users.find(selector, options);
-});
+}
+
+function publish(...args) {
+  const boundUsers = users.bind(this);
+  return boundUsers(...args);
+}
+
+Meteor.publish('users', publish);

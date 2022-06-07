@@ -1,40 +1,55 @@
-import React, { Component, PropTypes, Children, cloneElement } from 'react';
-import styles from './styles';
+import React, { Component, Children, cloneElement } from 'react';
+import PropTypes from 'prop-types';
 import cx from 'classnames';
-
 import KEY_CODES from '/imports/utils/keyCodes';
-
+import { styles } from './styles';
 import ListItem from './item/component';
 import ListSeparator from './separator/component';
+import ListTitle from './title/component';
 
 const propTypes = {
-  children: PropTypes.arrayOf((propValue, key, componentName, location, propFullName) => {
-    if (propValue[key].type !== ListItem && propValue[key].type !== ListSeparator) {
-      return new Error(
-        'Invalid prop `' + propFullName + '` supplied to' +
-        ' `' + componentName + '`. Validation failed.'
-      );
+  /*  We should recheck this proptype, sometimes we need to create an container and send to
+   dropdown, but with this proptype, is not possible. */
+  children: PropTypes.arrayOf((propValue, key, componentName, propFullName) => {
+    if (propValue[key].type !== ListItem
+      && propValue[key].type !== ListSeparator
+      && propValue[key].type !== ListTitle) {
+      return new Error(`Invalid prop \`${propFullName}\` supplied to` +
+        ` \`${componentName}\`. Validation failed.`);
     }
-  }),
+    return true;
+  }).isRequired,
+
+  horizontal: PropTypes.bool,
+};
+
+const defaultProps = {
+  horizontal: false,
 };
 
 export default class DropdownList extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      focusedIndex: false,
+    };
+
     this.childrenRefs = [];
+    this.menuRefs = [];
     this.handleItemKeyDown = this.handleItemKeyDown.bind(this);
     this.handleItemClick = this.handleItemClick.bind(this);
   }
 
-  componentWillMount() {
-    this.setState({
-      activeItemIndex: 0,
-    });
+  componentDidMount() {
+    this._menu.addEventListener('keydown', (event) => this.handleItemKeyDown(event));
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { activeItemIndex } = this.state;
-    const activeRef = this.childrenRefs[activeItemIndex];
+  componentDidUpdate() {
+    const { focusedIndex } = this.state;
+    const children = [].slice.call(this._menu.children);
+    this.menuRefs = children.filter((child) => child.getAttribute('role') === 'menuitem');
+
+    const activeRef = this.menuRefs[focusedIndex];
 
     if (activeRef) {
       activeRef.focus();
@@ -42,40 +57,70 @@ export default class DropdownList extends Component {
   }
 
   handleItemKeyDown(event, callback) {
-    const { dropdownHide } = this.props;
-    const { activeItemIndex } = this.state;
+    const {
+      getDropdownMenuParent,
+      horizontal,
+    } = this.props;
+    const { focusedIndex } = this.state;
 
-    if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.which)) {
-      event.preventDefault();
+    let nextFocusedIndex = focusedIndex > 0 ? focusedIndex : 0;
+
+    if (focusedIndex === false) {
+      nextFocusedIndex = this.menuRefs.indexOf(document.activeElement);
+    }
+
+    const isHorizontal = horizontal;
+    const navigationKeys = {
+      previous: KEY_CODES[`ARROW_${isHorizontal ? 'LEFT' : 'UP'}`],
+      next: KEY_CODES[`ARROW_${isHorizontal ? 'RIGHT' : 'DOWN'}`],
+      click: isHorizontal ? [KEY_CODES.ENTER] : [KEY_CODES.ENTER, KEY_CODES.ARROW_RIGHT],
+      close: [KEY_CODES.ESCAPE,
+        KEY_CODES.TAB,
+        KEY_CODES[`ARROW_${isHorizontal ? 'DOWN' : 'LEFT'}`]],
+    };
+
+    if (navigationKeys.previous === event.which) {
       event.stopPropagation();
 
-      return event.currentTarget.click();
+      nextFocusedIndex -= 1;
+
+      if (nextFocusedIndex < 0) {
+        nextFocusedIndex = this.menuRefs.length - 1;
+      } else if (nextFocusedIndex > this.menuRefs.length - 1) {
+        nextFocusedIndex = 0;
+      }
     }
 
-    let nextActiveItemIndex = null;
+    if ([navigationKeys.next].includes(event.keyCode)) {
+      event.stopPropagation();
 
-    if (KEY_CODES.ARROW_UP === event.which) {
-      nextActiveItemIndex = activeItemIndex - 1;
+      nextFocusedIndex += 1;
+
+      if (nextFocusedIndex > this.menuRefs.length - 1) {
+        nextFocusedIndex = 0;
+      }
     }
 
-    if (KEY_CODES.ARROW_DOWN === event.which) {
-      nextActiveItemIndex = activeItemIndex + 1;
+    if (navigationKeys.click.includes(event.keyCode)) {
+      nextFocusedIndex = false;
+      event.stopPropagation();
+      document.activeElement.firstChild.click();
     }
 
-    if (nextActiveItemIndex > (this.childrenRefs.length - 1)) {
-      nextActiveItemIndex = 0;
-    }
+    if (navigationKeys.close.includes(event.keyCode)) {
+      nextFocusedIndex = false;
+      const { dropdownHide } = this.props;
 
-    if (nextActiveItemIndex < 0) {
-      nextActiveItemIndex = this.childrenRefs.length - 1;
-    }
+      event.stopPropagation();
+      event.preventDefault();
 
-    if ([KEY_CODES.TAB, KEY_CODES.ESCAPE].includes(event.which)) {
-      nextActiveItemIndex = 0;
       dropdownHide();
+      if (getDropdownMenuParent) {
+        getDropdownMenuParent().focus();
+      }
     }
 
-    this.setState({ activeItemIndex: nextActiveItemIndex });
+    this.setState({ focusedIndex: nextFocusedIndex });
 
     if (typeof callback === 'function') {
       callback(event);
@@ -83,11 +128,21 @@ export default class DropdownList extends Component {
   }
 
   handleItemClick(event, callback) {
-    const { dropdownHide } = this.props;
+    const {
+      getDropdownMenuParent,
+      onActionsHide,
+      dropdownHide,
+      keepOpen,
+    } = this.props;
 
-    this.setState({ activeItemIndex: null });
-
-    dropdownHide();
+    if (!keepOpen) {
+      if (getDropdownMenuParent) {
+        onActionsHide();
+      } else {
+        this.setState({ focusedIndex: null });
+        dropdownHide();
+      }
+    }
 
     if (typeof callback === 'function') {
       callback(event);
@@ -95,39 +150,53 @@ export default class DropdownList extends Component {
   }
 
   render() {
-    const { children, style, className } = this.props;
+    const {
+      children,
+      style,
+      className,
+      horizontal,
+    } = this.props;
 
-    const boundChildren = Children.map(children,
-      (item, i) => {
+    const boundChildren = Children.map(
+      children,
+      (item) => {
         if (item.type === ListSeparator) {
           return item;
         }
 
         return cloneElement(item, {
           tabIndex: 0,
-          injectRef: ref => {
-            if (ref && !this.childrenRefs.includes(ref))
-              this.childrenRefs.push(ref);
+          injectRef: (ref) => {
+            if (ref && !this.childrenRefs.includes(ref)) { this.childrenRefs.push(ref); }
           },
 
-          onClick: event => {
+          onClick: (event) => {
             let { onClick } = item.props;
             onClick = onClick ? onClick.bind(item) : null;
-
             this.handleItemClick(event, onClick);
           },
 
-          onKeyDown: event => {
+          onKeyDown: (event) => {
             let { onKeyDown } = item.props;
             onKeyDown = onKeyDown ? onKeyDown.bind(item) : null;
 
             this.handleItemKeyDown(event, onKeyDown);
           },
         });
-      });
+      },
+    );
 
+    const listDirection = horizontal ? styles.horizontalList : styles.verticalList;
     return (
-      <ul style={style} className={cx(styles.list, className)} role="menu">
+      <ul
+        style={style}
+        className={cx(listDirection, className)}
+        role="menu"
+        ref={(menu) => {
+          this._menu = menu;
+          return menu;
+        }}
+      >
         {boundChildren}
       </ul>
     );
@@ -135,3 +204,4 @@ export default class DropdownList extends Component {
 }
 
 DropdownList.propTypes = propTypes;
+DropdownList.defaultProps = defaultProps;

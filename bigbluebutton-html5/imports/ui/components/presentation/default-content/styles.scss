@@ -1,4 +1,4 @@
-@import "../../../stylesheets/variables/_all";
+@import "../../../stylesheets/variables/breakpoints";
 
 .contentRatio {
   position: relative;
@@ -11,7 +11,7 @@
 .contentWrapper {
   flex-basis: 90%;
 
-  @include mq($large-up) {
+  @include mq(var(--large-up)) {
     flex-basis: 90%;
   }
 }
@@ -28,12 +28,16 @@
   bottom: 0;
   left: 0;
 
-  padding: $line-height-computed;
+  padding: var(--line-height-computed);
   border: 0.25rem dashed;
   border-radius: 1.5rem;
   color: rgba(255, 255, 255, .5);
   text-align: center;
   overflow: auto;
+}
+
+.hideContent {
+  visibility: hidden;
 }
 
 .appear {
@@ -42,5 +46,8 @@
 
 .appearActive {
   opacity: 1;
-  transition: opacity 700ms ease-in;
+
+  :global(.animationsEnabled) & {
+    transition: opacity 700ms ease-in;
+  }
 }

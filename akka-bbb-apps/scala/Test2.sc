@@ -63,5 +63,15 @@ object Test2 {
 
   val result = createBaseString(params)           //> result  : String = fullName=User+4621018&isBreakout=true&meetingID=random-1
                                                   //| 853792&password=mp&redirect=true
-  
+
+  val between = Set("xab", "bc")
+  val u2 = Set("bc", "xab")
+  val u3 = u2 + "zxc"
+  val foo = between subsetOf(u2)
+
+  val id = between.toSeq.sorted.mkString("-")
+
+
+
+
 }

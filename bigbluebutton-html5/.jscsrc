@@ -1,6 +1,0 @@
-{
-    "preset": "airbnb",
-    "maxErrors": null, // display all errors
-    "fileExtensions": [".js", ".jsx"],
-    "esnext": true
-}

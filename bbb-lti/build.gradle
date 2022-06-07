@@ -1,0 +1,128 @@
+/*
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*/
+
+buildscript {
+  repositories {
+    jcenter()
+    mavenLocal()
+    maven { url "https://repo.grails.org/grails/core" }
+  }
+  dependencies {
+    classpath "org.grails:grails-gradle-plugin:$grailsVersion"
+    classpath "org.grails.plugins:hibernate5:${gormVersion - ".RELEASE"}"
+    classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.15.1"
+  }
+}
+
+version "0.5"
+group "org.bigbluebutton.lti"
+
+apply plugin: "eclipse"
+apply plugin: "idea"
+apply plugin: "war"
+apply plugin: "org.grails.grails-web"
+apply plugin: "asset-pipeline"
+apply plugin: "org.grails.grails-gsp"
+
+task resolveDeps(type: Copy) {
+  into('lib')
+  from configurations.default
+  from configurations.default.allArtifacts.file
+  doLast { println '[bbb:task] Resolved dependencies for bigbluebutton-lti application' }
+}
+
+// Task that creates the index file which lists all extra libs
+task copyWebInf(type: Copy) {
+  into("${project.buildDir}/resources/main/")
+  from("src/main/webapp")
+}
+
+task copyViews(type: Copy) {
+  into("${project.buildDir}/resources/main/grails-app/views")
+  from("grails-app/views")
+}
+
+task copyI18n(type: Copy) {
+  into("${project.buildDir}/resources/main/grails-app/i18n")
+  from("grails-app/i18n")
+}
+
+// make  processResources depends on copyWebInf task
+processResources.dependsOn copyWebInf
+copyWebInf.dependsOn copyViews
+copyViews.dependsOn copyI18n
+
+repositories {
+  jcenter()
+  mavenLocal()
+  maven { url "https://repo.grails.org/grails/core" }
+  maven { url "https://jitpack.io" }
+}
+
+dependencies {
+  compile "org.springframework.boot:spring-boot-starter-logging"
+  compile "org.springframework.boot:spring-boot-autoconfigure"
+  compile "org.grails:grails-core"
+  compile "org.springframework.boot:spring-boot-starter-actuator"
+  compile "org.springframework.boot:spring-boot-starter-tomcat"
+  compile "org.grails:grails-web-boot"
+  compile "org.grails:grails-logging"
+  compile "org.grails:grails-plugin-rest"
+  compile "org.grails:grails-plugin-databinding"
+  compile "org.grails:grails-plugin-i18n"
+  compile "org.grails:grails-plugin-services"
+  compile "org.grails:grails-plugin-url-mappings"
+  compile "org.grails:grails-plugin-interceptors"
+  compile 'org.grails.plugins:external-config:1.2.2'
+  compile "org.grails.plugins:cache"
+  compile "org.grails.plugins:async"
+  compile "org.grails.plugins:scaffolding"
+  compile "org.grails.plugins:events"
+  compile "org.grails.plugins:gsp"
+  compile 'com.github.blindsidenetworks:oauth:master-SNAPSHOT'
+  compile "org.json:json:20180813"
+  console "org.grails:grails-console"
+  profile "org.grails.profiles:web"
+  runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.15.1"
+  testCompile "org.grails:grails-gorm-testing-support"
+  testCompile "org.grails.plugins:geb"
+  testCompile "org.grails:grails-web-testing-support"
+  testCompile "org.grails.plugins:geb:1.1.2"
+  testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
+  testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
+  testRuntime "org.seleniumhq.selenium:selenium-chrome-driver:2.47.1"
+}
+
+bootRun {
+  jvmArgs('-Dspring.output.ansi.enabled=always')
+  addResources = true
+  String springProfilesActive = 'spring.profiles.active'
+  systemProperty springProfilesActive, System.getProperty(springProfilesActive)
+}
+
+tasks.withType(Test) {
+  systemProperty "geb.env", System.getProperty('geb.env')
+  systemProperty "geb.build.reportsDir", reporting.file("geb/integrationTest")
+  systemProperty "webdriver.chrome.driver", System.getProperty('webdriver.chrome.driver')
+  systemProperty "webdriver.gecko.driver", System.getProperty('webdriver.gecko.driver')
+}
+
+assets {
+  minifyJs = true
+  minifyCss = true
+}

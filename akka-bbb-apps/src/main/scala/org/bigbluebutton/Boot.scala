@@ -1,58 +1,105 @@
 package org.bigbluebutton
 
-import akka.event.{ LoggingAdapter, Logging }
-import akka.actor.{ ActorSystem, Props }
-import scala.concurrent.duration._
-import redis.RedisClient
-import scala.concurrent.{ Future, Await }
-import org.bigbluebutton.endpoint.redis.RedisPublisher
-import org.bigbluebutton.endpoint.redis.KeepAliveRedisPublisher
-import org.bigbluebutton.endpoint.redis.AppsRedisSubscriberActor
-import org.bigbluebutton.core.api.MessageOutGateway
-import org.bigbluebutton.core.api.IBigBlueButtonInGW
-import org.bigbluebutton.core.BigBlueButtonInGW
-import org.bigbluebutton.core.MessageSender
-import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.MessageSenderActor
-import org.bigbluebutton.core.RecorderActor
-import org.bigbluebutton.core.pubsub.receivers.RedisMessageReceiver
-import org.bigbluebutton.core.api.OutMessageListener2
-import org.bigbluebutton.core.pubsub.senders._
-import org.bigbluebutton.core.service.recorder.RedisDispatcher
-import org.bigbluebutton.core.service.recorder.RecorderApplication
+import akka.actor.ActorSystem
+import akka.event.Logging
+import akka.http.scaladsl.Http
+import akka.stream.ActorMaterializer
+import org.bigbluebutton.common2.redis.{ MessageSender, RedisConfig, RedisPublisher }
+import org.bigbluebutton.core._
 import org.bigbluebutton.core.bus._
-import org.bigbluebutton.core.JsonMessageSenderActor
+import org.bigbluebutton.core.pubsub.senders.ReceivedJsonMsgHandlerActor
+import org.bigbluebutton.core2.AnalyticsActor
+import org.bigbluebutton.core2.FromAkkaAppsMsgSenderActor
+import org.bigbluebutton.endpoint.redis.AppsRedisSubscriberActor
+import org.bigbluebutton.endpoint.redis.RedisRecorderActor
+import org.bigbluebutton.endpoint.redis.LearningDashboardActor
+import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
+import org.bigbluebutton.service.{ HealthzService, MeetingInfoActor, MeetingInfoService }
 
 object Boot extends App with SystemConfiguration {
 
   implicit val system = ActorSystem("bigbluebutton-apps-system")
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val executor = system.dispatcher
+
   val logger = Logging(system, getClass)
 
-  val eventBus = new IncomingEventBus
-  val outgoingEventBus = new OutgoingEventBus
+  val eventBus = new InMsgBusGW(new IncomingEventBusImp())
 
-  val outGW = new OutMessageGateway(outgoingEventBus)
+  val outBus2 = new OutEventBus2
+  val recordingEventBus = new RecordingEventBus
 
-  val redisPublisher = new RedisPublisher(system)
+  val outGW = new OutMessageGatewayImp(outBus2)
+
+  val redisPass = if (redisPassword != "") Some(redisPassword) else None
+  val redisConfig = RedisConfig(redisHost, redisPort, redisPass, redisExpireKey)
+
+  val redisPublisher = new RedisPublisher(
+    system,
+    "BbbAppsAkkaPub",
+    redisConfig
+  )
+
   val msgSender = new MessageSender(redisPublisher)
+  val bbbMsgBus = new BbbMsgRouterEventBus
 
-  val redisDispatcher = new RedisDispatcher(redisHost, redisPort, redisPassword, keysExpiresInSec)
-  val recorderApp = new RecorderApplication(redisDispatcher)
-  recorderApp.start()
+  val healthzService = HealthzService(system)
 
-  val messageSenderActor = system.actorOf(MessageSenderActor.props(msgSender), "messageSenderActor")
-  val recorderActor = system.actorOf(RecorderActor.props(recorderApp), "recorderActor")
-  val newMessageSenderActor = system.actorOf(JsonMessageSenderActor.props(msgSender), "newMessageSenderActor")
+  val meetingInfoActorRef = system.actorOf(MeetingInfoActor.props())
 
-  outgoingEventBus.subscribe(messageSenderActor, "outgoingMessageChannel")
-  outgoingEventBus.subscribe(recorderActor, "outgoingMessageChannel")
-  outgoingEventBus.subscribe(newMessageSenderActor, "outgoingMessageChannel")
+  outBus2.subscribe(meetingInfoActorRef, outBbbMsgMsgChannel)
+  bbbMsgBus.subscribe(meetingInfoActorRef, analyticsChannel)
 
-  val bbbInGW = new BigBlueButtonInGW(system, eventBus, outGW, red5DeskShareIP, red5DeskShareApp)
-  val redisMsgReceiver = new RedisMessageReceiver(bbbInGW)
+  val meetingInfoService = MeetingInfoService(system, meetingInfoActorRef)
 
-  val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(redisMsgReceiver), "redis-subscriber")
+  val apiService = new ApiService(healthzService, meetingInfoService)
 
-  val keepAliveRedisPublisher = new KeepAliveRedisPublisher(system, redisPublisher)
+  val redisRecorderActor = system.actorOf(
+    RedisRecorderActor.props(system, redisConfig, healthzService),
+    "redisRecorderActor"
+  )
+
+  val learningDashboardActor = system.actorOf(
+    LearningDashboardActor.props(system, outGW),
+    "LearningDashboardActor"
+  )
+
+  recordingEventBus.subscribe(redisRecorderActor, outMessageChannel)
+  val incomingJsonMessageBus = new IncomingJsonMessageBus
+
+  val fromAkkaAppsMsgSenderActorRef = system.actorOf(FromAkkaAppsMsgSenderActor.props(msgSender))
+
+  val analyticsActorRef = system.actorOf(AnalyticsActor.props(analyticsIncludeChat))
+  outBus2.subscribe(fromAkkaAppsMsgSenderActorRef, outBbbMsgMsgChannel)
+  outBus2.subscribe(redisRecorderActor, recordServiceMessageChannel)
+
+  outBus2.subscribe(analyticsActorRef, outBbbMsgMsgChannel)
+  bbbMsgBus.subscribe(analyticsActorRef, analyticsChannel)
+
+  outBus2.subscribe(learningDashboardActor, outBbbMsgMsgChannel)
+  bbbMsgBus.subscribe(learningDashboardActor, analyticsChannel)
+
+  val bbbActor = system.actorOf(BigBlueButtonActor.props(system, eventBus, bbbMsgBus, outGW, healthzService), "bigbluebutton-actor")
+  eventBus.subscribe(bbbActor, meetingManagerChannel)
+
+  val redisMessageHandlerActor = system.actorOf(ReceivedJsonMsgHandlerActor.props(bbbMsgBus, incomingJsonMessageBus))
+  incomingJsonMessageBus.subscribe(redisMessageHandlerActor, toAkkaAppsJsonChannel)
+
+  val channelsToSubscribe = Seq(
+    toAkkaAppsRedisChannel, fromVoiceConfRedisChannel, fromSfuRedisChannel,
+  )
+
+  val redisSubscriberActor = system.actorOf(
+    AppsRedisSubscriberActor.props(
+      system,
+      incomingJsonMessageBus,
+      redisConfig,
+      channelsToSubscribe,
+      Nil,
+      toAkkaAppsJsonChannel
+    ),
+    "redis-subscriber"
+  )
+
+  val bindingFuture = Http().bindAndHandle(apiService.routes, httpHost, httpPort)
 }

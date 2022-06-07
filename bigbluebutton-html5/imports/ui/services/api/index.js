@@ -1,20 +1,44 @@
 import Auth from '/imports/ui/services/auth';
+import { check } from 'meteor/check';
+import logger from '/imports/startup/client/logger';
 
-/* TODO: Will be pretty sweet if we return a promise from the callServer function */
-function callServer(name) {
-  if (!name || !(typeof (name) === 'string' || name instanceof String) || name.length === 0 ||
-    !name.trim() || /^\s*$/.test(name)) {
-    console.error(`serverCall: invalid function name '${name}'`);
-    return false;
-  }
+/**
+ * Send the request to the server via Meteor.call and don't treat errors.
+ *
+ * @param {string} name
+ * @param {any} args
+ * @see https://docs.meteor.com/api/methods.html#Meteor-call
+ * @return {Promise}
+ */
+export function makeCall(name, ...args) {
+  check(name, String);
 
-  const credentials = Auth.credentials;
+  // const { credentials } = Auth;
 
-  // slice off the first element. That is the function name but we already have that.
-  const args = Array.prototype.slice.call(arguments, 1);
-  Meteor.call(name, credentials, ...args);
-};
+  return new Promise((resolve, reject) => {
+    if (Meteor.status().connected) {
+      Meteor.call(name, ...args, (error, result) => {
+        if (error) {
+          reject(error);
+        }
 
-export {
-  callServer,
-};
+        resolve(result);
+      });
+    } else {
+      const failureString = `Call to ${name} failed because Meteor is not connected`;
+      // We don't want to send a log message if the call that failed was a log message.
+      // Without this you can get into an endless loop of failed logging.
+      if (name !== 'logClient') {
+        logger.warn({
+          logCode: 'servicesapiindex_makeCall',
+          extraInfo: {
+            attemptForUserInfo: Auth.fullInfo,
+            name,
+            ...args,
+          },
+        }, failureString);
+      }
+      reject(failureString);
+    }
+  });
+}

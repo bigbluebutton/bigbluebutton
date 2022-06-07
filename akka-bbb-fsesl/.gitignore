@@ -47,3 +47,4 @@ akka-patterns-store/
 lib_managed/
 .cache
 bin/
+src/main/resources/

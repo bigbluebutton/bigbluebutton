@@ -1,82 +1,52 @@
-import Breakouts from '/imports/api/breakouts';
-import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
+import Logger from '/imports/startup/server/logger';
+import Breakouts from '/imports/api/breakouts';
 
-import xml2js from 'xml2js';
-import url from 'url';
-const xmlParser = new xml2js.Parser();
-
-const getUrlParams = urlToParse => {
-  const options = { parseQueryString: true };
-  const parsedUrl = url.parse(urlToParse, options);
-  return parsedUrl.query;
-};
-
-export default function handleBreakoutJoinURL({ payload }) {
-  const REDIS_CONFIG = Meteor.settings.redis;
-  const CLIENT_HTML = 'HTML5';
-
+export default function handleBreakoutJoinURL({ body }) {
   const {
-    noRedirectJoinURL,
-  } = payload;
+    redirectToHtml5JoinURL,
+    userId,
+    breakoutId,
+  } = body;
 
-  check(noRedirectJoinURL, String);
-
-  const urlParams = getUrlParams(noRedirectJoinURL);
+  check(redirectToHtml5JoinURL, String);
 
   const selector = {
-    externalMeetingId: urlParams.meetingID,
+    breakoutId,
   };
 
-  let breakout = Breakouts.findOne(selector);
-
-  const res = Meteor.http.call('get', noRedirectJoinURL);
-  xmlParser.parseString(res.content, (err, parsedXML) => {
-    if (err) {
-      return Logger.error(`An Error occured when parsing xml response for: ${noRedirectJoinURL}`);
-    }
-
-    breakout = Breakouts.findOne(selector);
-
-    const { response } = parsedXML;
-    let users = breakout.users;
-
-    let user = {
-      userId: payload.userId,
-      urlParams: {
-        meetingId: response.meeting_id[0],
-        userId: response.user_id[0],
-        authToken: response.auth_token[0],
+  const modifier = {
+    $set: {
+      [`url_${userId}`]: {
+        redirectToHtml5JoinURL,
+        insertedTime: new Date().getTime(),
       },
-    };
+    },
+  };
 
-    const userExists = users.find(u => user.userId === u.userId);
+  try {
+    const ATTEMPT_EVERY_MS = 1000;
 
-    if (userExists) {
-      return;
-    }
+    let numberAffected = 0;
 
-    const modifier = {
-      $push: {
-        users: user,
-      },
-    };
+    const updateBreakout = Meteor.bindEnvironment(() => {
+      numberAffected = Breakouts.update(selector, modifier);
+    });
 
-    const cb = (err, numChanged) => {
-      if (err) {
-        return Logger.error(`Adding breakout to collection: ${err}`);
-      }
+    const updateBreakoutPromise = new Promise((resolve) => {
+      const updateBreakoutInterval = setInterval(() => {
+        updateBreakout();
 
-      const {
-        insertedId,
-      } = numChanged;
-      if (insertedId) {
-        return Logger.info(`Added breakout id=${urlParams.meetingID}`);
-      }
+        if (numberAffected) {
+          resolve(clearInterval(updateBreakoutInterval));
+        }
+      }, ATTEMPT_EVERY_MS);
+    });
 
-      return Logger.info(`Upserted breakout id=${urlParams.meetingID}`);
-    };
-
-    return Breakouts.upsert(selector, modifier, cb);
-  });
+    updateBreakoutPromise.then(() => {
+      Logger.info(`Upserted breakout id=${breakoutId}`);
+    });
+  } catch (err) {
+    Logger.error(`Adding breakout to collection: ${err}`);
+  }
 }

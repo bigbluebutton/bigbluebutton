@@ -1,0 +1,77 @@
+@import "../../../stylesheets/variables/breakpoints";
+@import "/imports/ui/stylesheets/variables/placeholders";
+@import "/imports/ui/stylesheets/mixins/_indicators";
+
+:root {
+  --popout-rtl-left: -0.5rem;
+  --modal-title-fw: 400;
+}
+
+.modal {
+  @extend %highContrastOutline;
+  outline-style: solid;
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+  padding: calc(var(--line-height-computed) / 2) var(--line-height-computed);
+
+  @include mq($small-only) {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.content {
+  color: var(--color-text);
+  font-weight: normal;
+  padding: var(--line-height-computed) 0;
+}
+
+.header {
+  display: flex;
+  padding: var(--line-height-computed) 0;
+  border-bottom: var(--border-size) solid var(--color-gray-lighter);
+}
+
+.actions {
+  flex: 0 1 35%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  @extend %text-elipsis;
+  flex: 1;
+  margin: 0;
+  font-weight: var(--modal-title-fw);
+}
+
+%btn {
+  flex: 0 1 48%;
+}
+
+.dismiss,
+.confirm {
+  @extend %btn;
+}
+
+.popout {
+  > i {
+    bottom: var(--border-size);
+    left: var(--sm-padding-x);
+
+    [dir="rtl"] & {
+      left: var(--popout-rtl-left);
+      transform: rotateY(180deg);
+    }
+  }
+}
+
+.dismiss {
+}
+
+.confirm {
+  color: var(--color-white) !important;
+  background-color: var(--color-link) !important;
+}

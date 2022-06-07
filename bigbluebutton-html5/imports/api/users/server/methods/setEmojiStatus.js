@@ -2,30 +2,32 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
-import { isAllowedTo } from '/imports/startup/server/userPermissions';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function setEmojiStatus(credentials, userId, status) {
-  const REDIS_CONFIG = Meteor.settings.redis;
-  const CHANNEL = REDIS_CONFIG.channels.toBBBApps.users;
-  const EVENT_NAME = 'user_emoji_status_message';
+export default function setEmojiStatus(userId, status) {
+  try {
+    const REDIS_CONFIG = Meteor.settings.private.redis;
+    const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+    const EVENT_NAME = 'ChangeUserEmojiCmdMsg';
 
-  const { meetingId, requesterUserId } = credentials;
+    const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(userId, String);
+    check(meetingId, String);
+    check(requesterUserId, String);
+    check(userId, String);
+    check(status, String);
 
-  if (!isAllowedTo('setEmojiStatus', credentials)) {
-    throw new Meteor.Error('not-allowed', `You are not allowed to setEmojiStatus`);
+    const payload = {
+      emoji: status,
+      userId,
+    };
+
+    Logger.verbose('User emoji status updated', {
+      userId, status, requesterUserId, meetingId,
+    });
+
+    RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+  } catch (err) {
+    Logger.error(`Exception while invoking method setEmojiStatus ${err.stack}`);
   }
-
-  let payload = {
-    emoji_status: status,
-    userid: userId,
-    meeting_id: meetingId,
-  };
-
-  Logger.verbose(`User '${userId}' emoji status updated to '${status}' by '${requesterUserId}' from meeting '${meetingId}'`);
-
-  return RedisPubSub.publish(CHANNEL, EVENT_NAME, payload);
-};
+}

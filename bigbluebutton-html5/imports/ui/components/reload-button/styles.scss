@@ -1,0 +1,49 @@
+@import '/imports/ui/stylesheets/variables/_all';
+
+.wrapper {
+  position: absolute;
+  right: auto;
+  left: 0;
+  background-color: var(--color-transparent);
+  cursor: pointer;
+  border: 0;
+  z-index: 2;
+  margin: 2px;
+  bottom: 0;
+
+  [dir="rtl"] & {
+    right: 0;
+    left : auto;
+  }
+}
+
+.button {
+
+  &,
+  &:active,
+  &:hover,
+  &:focus {
+    border: none !important;
+
+    i {
+      border: none !important;
+      background-color: var(--color-transparent) !important;
+    }
+  }
+}
+
+.top {
+  top: 0;
+}
+
+.reloadButton {
+  padding: 5px;
+
+  &:hover {
+    border: 0;
+  }
+
+  i {
+    font-size: 1rem;
+  }
+}

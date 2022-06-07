@@ -1,20 +1,29 @@
-import Breakouts from '/imports/api/breakouts';
 import Logger from '/imports/startup/server/logger';
-import removeMeeting from '/imports/api/meetings/server/modifiers/removeMeeting';
+import Breakouts from '/imports/api/breakouts';
 
-export default function clearBreakouts(meetingId) {
-  if (meetingId) {
+export default function clearBreakouts(breakoutId) {
+  if (breakoutId) {
     const selector = {
-      breakoutMeetingId: meetingId,
+      breakoutId,
     };
 
-    const cb = () => {
-      Logger.info(`Cleared Breakouts (${meetingId})`);
-      removeMeeting(meetingId);
-    };
+    try {
+      const numberAffected = Breakouts.remove(selector);
 
-    return Breakouts.remove(selector, cb);
+      if (numberAffected) {
+        Logger.info(`Cleared Breakouts (${breakoutId})`);
+      }
+    } catch (err) {
+      Logger.error(`Error on clearing Breakouts (${breakoutId})`);
+    }
+  } else {
+    try {
+      const numberAffected = Breakouts.remove({});
+      if (numberAffected) {
+        Logger.info('Cleared Breakouts (all)');
+      }
+    } catch (err) {
+      Logger.error('Error on clearing Breakouts (all)');
+    }
   }
-
-  return Breakouts.remove({}, Logger.info(`Cleared Breakouts (all)`));
 }

@@ -1,6 +1,23 @@
+<!--
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2019 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+-->
+
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BBB - HTML5 Client</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <style>
     html {
       box-sizing: border-box;
@@ -11,9 +28,20 @@
     }
 
     body {
+      position: fixed;
+      height: 100%;
       font-family: 'Source Sans Pro', Arial, sans-serif;
       font-size: 1rem; /* 16px */
-      background-color: #2A2D33;
+      background-color: #06172A;
+    }
+
+    /* language-specific font */
+    body.lang-fa {
+      font-family: Tahoma, 'Source Sans Pro', Arial, sans-serif;
+    }
+
+    :-webkit-full-screen {
+      background-color: inherit;
     }
 
     a {
@@ -21,7 +49,7 @@
     }
 
     #app {
-      height: 100vh;
+      height: 100%;
       width: 100vw;
       overflow: hidden;
     }
@@ -37,19 +65,61 @@
       border: 0;
     }
 
+    .set-z-index {
+      z-index: 15;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .remove-z-index {
+      z-index: 0;
+    }
+    /* .full-screen {
+      height: 100% !important;
+      width: 100% !important;
+      transform: translateX(0) translateY(0) translateZ(0) !important;
+    } */
+
     [hidden]:not([hidden="false"]) {
       display: none !important;
     }
+
+    ::-webkit-input-placeholder {
+      color: var(--palette-placeholder-text);
+      opacity: 1;
+    }
+
+    :-moz-placeholder, /* Firefox 4 to 18 */
+    ::-moz-placeholder { /* Firefox 19+ */
+      color: var(--palette-placeholder-text);
+      opacity: 1;
+    }
   </style>
+  <script>
+    document.addEventListener('gesturestart', function (e) {
+      e.preventDefault();
+    });
+  </script>
+  <script src="compatibility/adapter.js?v=VERSION" language="javascript"></script>
+  <script src="compatibility/sip.js?v=VERSION" language="javascript"></script>
+  <script src="compatibility/kurento-utils.js?v=VERSION" language="javascript"></script>
+  <script src="compatibility/tflite-simd.js?v=VERSION" language="javascript"></script>
+  <script src="compatibility/tflite.js?v=VERSION" language="javascript"></script>
+  <!-- fonts -->
+  <link rel="preload" href="fonts/BbbIcons/bbb-icons.woff?j1ntjp" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Light.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Regular.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Semibold.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Bold.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-LightItalic.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Italic.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-SemiboldItalic.woff" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-BoldItalic.woff" as="font" crossorigin="anonymous"/>
+  <!-- fonts -->
 </head>
-<body style="background-color: #2A2D33">
+<body style="background-color: #06172A">
   <div id="app" role="document"></div>
-  <script src="/client/lib/sip.js"></script>
-  <script src="/client/lib/bbb_webrtc_bridge_sip.js"></script>
-  <script src="/client/lib/bbblogger.js"></script>
-  <script src="/client/lib/jquery.json-2.4.min.js"></script>
-  <script src="/client/lib/jquery.FSRTC.js"></script>
-  <script src="/client/lib/jquery.verto.js"></script>
-  <script src="/client/lib/verto_extension.js"></script>
-  <script src="/client/lib/jquery.jsonrpcclient.js"></script>
+  <span id="destination"></span>
+  <audio id="remote-media" autoplay>
+  </audio>
 </body>

@@ -1,0 +1,188 @@
+# set up stages
+
+variables:
+  GIT_STRATEGY: fetch
+
+stages:
+  - change detection
+  - get external dependencies
+  - build
+  - push packages
+
+# define which docker image to use for builds
+default:
+  image: gitlab.senfcall.de:5050/senfcall-public/docker-bbb-build:v2021-11-01
+
+# This stage uses git to find out since when each package has been unmodified.
+# it then checks an API endpoint on the package server to find out for which of
+# these versions a build exists. If a viable build (from a commit where the
+# package is identical) is found, that package name and .deb-filename are
+# written to a file `packages_to_skip.txt` the root of the repo. This file is
+# passed to the subsequent stages:
+# - The jobs in the build stage check whether "their" package is listed in
+#   `packages_to_skip.txt` and don't build a new one if it is.
+# - The bigbluebutton-build job includes the package versions listed in that
+#   file as version-pinned dependencies of the `bigbluebutton` package (instead
+#   of the current commit version)
+# - The push_packages job sends the filenames of the packages that can be reused
+#   to the server, so they are included with the current branch. (Relevant for
+#   commits that start a new branch and don't change all packages)
+change_detection:
+  stage: change detection
+  script: build/change_detection.sh
+  artifacts:
+    paths:
+      - packages_to_skip.txt
+
+# replace placeholder files with actual external repos
+# (for source and version of the package see the placeholder file)
+# this step will be obsolete once dependencies can be tracked as
+# git submodules
+get_external_dependencies:
+  stage: get external dependencies
+  script: build/get_external_dependencies.sh
+  artifacts:
+    paths:
+      - bbb-etherpad
+      - bbb-webrtc-sfu
+      - freeswitch
+      - bbb-playback
+    expire_in: 1h 30min
+    
+# template job for build step
+.build_job:
+  stage: build
+  artifacts:
+    paths:
+      - artifacts/*.deb
+    expire_in: 1h 30min
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+      - cache/.gradle
+
+# jobs for all packages in the "build" stage (templated from above)
+bbb-apps-akka-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-apps-akka
+
+bbb-config-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-config
+
+bbb-demo-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-demo
+
+bbb-etherpad-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-etherpad
+
+bbb-freeswitch-core-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-freeswitch-core
+
+bbb-freeswitch-sounds-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-freeswitch-sounds
+
+bbb-fsesl-akka-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-fsesl-akka
+
+bbb-html5-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-html5
+
+bbb-learning-dashboard:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-learning-dashboard
+
+bbb-libreoffice-docker-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-libreoffice-docker
+
+bbb-lti-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-lti
+
+bbb-mkclean-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-mkclean
+
+bbb-playback-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-playback
+
+bbb-playback-notes-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-playback-notes
+
+bbb-playback-podcast-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-playback-podcast
+
+bbb-playback-presentation-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-playback-presentation
+
+bbb-playback-screenshare-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-playback-screenshare
+
+bbb-record-core-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-record-core
+
+bbb-web-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-web
+
+bbb-webhooks-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-webhooks
+
+bbb-webrtc-sfu-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-webrtc-sfu
+
+bigbluebutton-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bigbluebutton
+
+# upload packages to repo server
+push_packages:
+  stage: push packages
+  script: build/push_packages.sh
+  resource_group: push_packages
+  
+  # uncomment the lines below if you want one final 
+  # "artifacts" dir with all packages (increases runtime, fills up space on gitlab server) 
+  #artifacts:
+  #    paths:
+  #      - artifacts/*
+  #    expire_in: 2 days
+ 
+ 

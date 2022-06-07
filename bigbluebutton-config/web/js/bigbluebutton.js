@@ -13,6 +13,16 @@ function AutoClose() {
     window.close();
 }
 
+function escapeHTML(text) {
+  if (text != null) {
+    return text.replace(/&/g, '').
+      replace(/</g, ''). 
+      replace(/"/g, '').
+      replace(/]/g, '').
+      replace(/'/g, '');
+  }
+}
+
 $(document).ready(function() {
     var sClose = GetURLParameter('close');
     var sErrors = GetURLParameter('errors');
@@ -27,6 +37,7 @@ $(document).ready(function() {
 
         // Render error messages
         $.each(errors, function( index, error ) {
+            error.message = escapeHTML(error.message);
             $("#messages").append("<div class='alert alert-danger fade in' style='margin-top:18px;'><a href='#' class='close' data-dismiss='alert' aria-label='close' title='close'>&times;</a><strong><span id='error-key'>Error:</span></strong>&nbsp;<span id='error-message'>"+error.message+"</span></div>");
         });
         $('#messages').removeClass('hidden');

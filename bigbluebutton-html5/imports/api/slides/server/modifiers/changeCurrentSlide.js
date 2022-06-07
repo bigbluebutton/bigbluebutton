@@ -1,50 +1,60 @@
 import { check } from 'meteor/check';
-import Slides from '/imports/api/slides';
+import { Slides } from '/imports/api/slides';
 import Logger from '/imports/startup/server/logger';
 
-export default function changeCurrentSlide(meetingId, presentationId, slideId) {
+export default function changeCurrentSlide(meetingId, podId, presentationId, slideId) {
   check(meetingId, String);
   check(presentationId, String);
   check(slideId, String);
+  check(podId, String);
 
   const oldCurrent = {
     selector: {
       meetingId,
+      podId,
       presentationId,
-      'slide.current': true,
+      current: true,
     },
     modifier: {
-      $set: { 'slide.current': false },
+      $set: { current: false },
     },
     callback: (err) => {
       if (err) {
-        return Logger.error(`Unsetting the current slide: ${err}`);
+        Logger.error(`Unsetting the current slide: ${err}`);
+        return;
       }
 
-      return Logger.info(`Unsetted the current slide`);
+      Logger.info('Unsetted the current slide');
     },
   };
 
   const newCurrent = {
     selector: {
       meetingId,
+      podId,
       presentationId,
-      'slide.id': slideId,
+      id: slideId,
     },
     modifier: {
-      $set: { 'slide.current': true },
+      $set: { current: true },
     },
     callback: (err) => {
       if (err) {
-        return Logger.error(`Setting as current slide id=${slideId}: ${err}`);
+        Logger.error(`Setting as current slide id=${slideId}: ${err}`);
+        return;
       }
 
-      return Logger.info(`Setted as current slide id=${slideId}`);
+      Logger.info(`Setted as current slide id=${slideId}`);
     },
   };
 
   const oldSlide = Slides.findOne(oldCurrent.selector);
   const newSlide = Slides.findOne(newCurrent.selector);
+
+  // if the oldCurrent and newCurrent have the same ids
+  if (oldSlide && newSlide && (oldSlide._id === newSlide._id)) {
+    return;
+  }
 
   if (newSlide) {
     Slides.update(newSlide._id, newCurrent.modifier, newCurrent.callback);
@@ -53,4 +63,4 @@ export default function changeCurrentSlide(meetingId, presentationId, slideId) {
   if (oldSlide) {
     Slides.update(oldSlide._id, oldCurrent.modifier, oldCurrent.callback);
   }
-};
+}

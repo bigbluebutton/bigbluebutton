@@ -1,0 +1,22 @@
+<#ftl output_format="XML" auto_esc=true>
+<#compress>
+<response>
+  <#-- Where code is a 'SUCCESS' or 'FAILED' String -->
+  <returncode>${returnCode}</returncode>
+  <#list sessionsList>
+  <sessions>
+    <#items as session>
+      <meeting>
+        <meetingID>${session.meetingID}</meetingID>
+        <meetingName>${session.conferencename}</meetingName>
+        <userName>${session.fullname}</userName>
+      </meeting>
+    </#items>
+  </sessions>
+  <#else>
+  <sessions/>
+  <messageKey>${msgKey}</messageKey>
+  <message>${msg}</message>
+  </#list>
+</response>
+</#compress>

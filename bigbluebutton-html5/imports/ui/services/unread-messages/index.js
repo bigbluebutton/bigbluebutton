@@ -1,17 +1,19 @@
 import { Tracker } from 'meteor/tracker';
 
 import Storage from '/imports/ui/services/storage/session';
-import Auth from '/imports/ui/services/auth';
-import Chats from '/imports/api/chat';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;
 const STORAGE_KEY = CHAT_CONFIG.storage_key;
+const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
 class UnreadMessagesTracker {
   constructor() {
-    this._tracker = new Tracker.Dependency;
-    this._unreadChats = Storage.getItem('UNREAD_CHATS') || {};
+    this._tracker = new Tracker.Dependency();
+    this._unreadChats = {
+      ...Storage.getItem('UNREAD_CHATS'),
+      [PUBLIC_GROUP_CHAT_ID]: (new Date()).getTime(),
+    };
+    this.get = this.get.bind(this);
   }
 
   get(chatID) {
@@ -20,7 +22,7 @@ class UnreadMessagesTracker {
   }
 
   update(chatID, timestamp = 0) {
-    let currentValue = this.get(chatID);
+    const currentValue = this.get(chatID);
     if (currentValue < timestamp) {
       this._unreadChats[chatID] = timestamp;
       this._tracker.changed();
@@ -30,25 +32,24 @@ class UnreadMessagesTracker {
     return this._unreadChats[chatID];
   }
 
-  count(chatID) {
-    let filter = {
-      'message.from_time': {
-        $gt: this.get(chatID),
-      },
-      'message.from_userid': { $ne: Auth.userID },
-    };
+  getUnreadMessages(chatID, messages) {
+    const isPublicChat = chatID === PUBLIC_GROUP_CHAT_ID;
 
-    // Minimongo does not support $eq. See https://github.com/meteor/meteor/issues/4142
-    if (chatID === PUBLIC_CHAT_USERID) {
-      filter['message.to_userid'] = { $not: { $ne: chatID } };
-    } else {
-      filter['message.to_userid'] = { $not: { $ne: Auth.userID } };
-      filter['message.from_userid'].$not = { $ne: chatID };
+    let unreadMessages = [];
+
+    if (messages[chatID]) {
+      const contextChat = messages[chatID];
+      const unreadTimewindows = contextChat.unreadTimeWindows;
+      for (const unreadTimeWindowId of unreadTimewindows) {
+        unreadMessages.push(isPublicChat
+          ? contextChat?.preJoinMessages[unreadTimeWindowId] || contextChat?.posJoinMessages[unreadTimeWindowId]
+          : contextChat?.messageGroups[unreadTimeWindowId]);
+      }
     }
 
-    return Chats.find(filter).count();
+    return unreadMessages;
   }
-};
+}
 
-let UnreadTrackerSingleton = new UnreadMessagesTracker();
+const UnreadTrackerSingleton = new UnreadMessagesTracker();
 export default UnreadTrackerSingleton;

@@ -1,24 +1,22 @@
 /**
-* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-* 
-* Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
-*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 3.0 of the License, or (at your option) any later
-* version.
-* 
-* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
-* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License along
-* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+ * <p>
+ * Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
+ * <p>
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation; either version 3.0 of the License, or (at your option) any later
+ * version.
+ * <p>
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU Lesser General Public License along
+ * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ */
 package org.bigbluebutton.freeswitch.voice.freeswitch;
 
-import java.io.File;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -34,151 +32,188 @@ import org.bigbluebutton.freeswitch.voice.freeswitch.actions.RecordConferenceCom
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.TransferUserToMeetingCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.*;
 
-public class FreeswitchApplication {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-	private static final int SENDERTHREADS = 1;
-	private static final Executor msgSenderExec = Executors
-			.newFixedThreadPool(SENDERTHREADS);
-	private static final Executor runExec = Executors
-			.newFixedThreadPool(SENDERTHREADS);
-	private BlockingQueue<FreeswitchCommand> messages = new LinkedBlockingQueue<FreeswitchCommand>();
+public class FreeswitchApplication implements  IDelayedCommandListener{
+  private static Logger log = LoggerFactory.getLogger(FreeswitchApplication.class);
 
-	private final ConnectionManager manager;
+  private static final int SENDERTHREADS = 1;
+  private static final Executor msgSenderExec = Executors.newFixedThreadPool(SENDERTHREADS);
+  private static final Executor runExec = Executors.newFixedThreadPool(SENDERTHREADS);
+  private BlockingQueue<FreeswitchCommand> messages = new LinkedBlockingQueue<FreeswitchCommand>();
 
-	private final String USER = "0"; /* not used for now */
+  private final ConnectionManager manager;
+  private DelayedCommandSenderService delayedCommandSenderService;
 
-	private volatile boolean sendMessages = false;
-	
-	private final String audioProfile;
+  private final String USER = "0"; /* not used for now */
 
-	public FreeswitchApplication(ConnectionManager manager, String profile) {
-		this.manager = manager;
-		this.audioProfile = profile;
-	}
+  private volatile boolean sendMessages = false;
 
-	private void queueMessage(FreeswitchCommand command) {
-		try {
-			messages.offer(command, 5, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+  private final String audioProfile;
 
-    public void transferUserToMeeting(String voiceConfId,
-            String targetVoiceConfId, String voiceUserId) {
-        TransferUserToMeetingCommand tutmc = new TransferUserToMeetingCommand(
-                voiceConfId, targetVoiceConfId, voiceUserId, this.audioProfile,
-                USER);
-        queueMessage(tutmc);
+  public FreeswitchApplication(ConnectionManager manager, String profile) {
+    this.manager = manager;
+    this.audioProfile = profile;
+    delayedCommandSenderService = new DelayedCommandSenderService();
+    delayedCommandSenderService.setDelayedCommandListener(this);
+  }
+
+  public void runDelayedCommand(FreeswitchCommand command) {
+    log.info("Run DelayedCommand.");
+    queueMessage(command);
+  }
+
+  private void queueMessage(FreeswitchCommand command) {
+    try {
+      log.info("Queue message: " + command.getCommand() + " " + command.getCommandArgs());
+      messages.offer(command, 5, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      log.error("Exception queueing message: ", e);
     }
+  }
 
-	public void start() {
-		sendMessages = true;
-		Runnable sender = new Runnable() {
-			public void run() {
-				while (sendMessages) {
-					FreeswitchCommand message;
-					try {
-						message = messages.take();
-						sendMessageToFreeswitch(message);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		};
-		msgSenderExec.execute(sender);
-	}
+  public void transferUserToMeeting(String voiceConfId,
+                                    String targetVoiceConfId, String voiceUserId) {
+    TransferUserToMeetingCommand tutmc = new TransferUserToMeetingCommand(
+      voiceConfId, targetVoiceConfId, voiceUserId, this.audioProfile,
+      USER);
+    queueMessage(tutmc);
+  }
 
-	public void getAllUsers(String voiceConfId) {
-		GetAllUsersCommand prc = new GetAllUsersCommand(voiceConfId, USER);
-		queueMessage(prc);
-	}
-	
-	public void muteUser(String voiceConfId, String voiceUserId, Boolean mute) {
-		MuteUserCommand mpc = new MuteUserCommand(voiceConfId, voiceUserId, mute, USER);
-		queueMessage(mpc);
-	}
+  public void start() {
+    delayedCommandSenderService.start();
 
-	public void eject(String voiceConfId, String voiceUserId) {
-		EjectUserCommand mpc = new EjectUserCommand(voiceConfId, voiceUserId, USER);
-		queueMessage(mpc);
-	}
+    sendMessages = true;
+    Runnable sender = new Runnable() {
+      public void run() {
+        while (sendMessages) {
+          FreeswitchCommand message;
+          try {
+            message = messages.take();
+            sendMessageToFreeswitch(message);
+          } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            log.error("Exception taking message from queue: ", e);
+          }
+        }
+      }
+    };
+    msgSenderExec.execute(sender);
+  }
 
-	public void ejectAll(String voiceConfId) {
-		EjectAllUsersCommand mpc = new EjectAllUsersCommand(voiceConfId, USER);
-		queueMessage(mpc);
-	}
+  public void getUsersStatus(String voiceConfId, String meetingId) {
+    GetUsersStatusCommand ccrc = new GetUsersStatusCommand(voiceConfId, meetingId);
+    queueMessage(ccrc);
+  }
 
-	private Long genTimestamp() {
-		return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
-	}
+  public void checkRunningAndRecording(String voiceConfId, String meetingId) {
+    ConferenceCheckRecordCommand ccrc = new ConferenceCheckRecordCommand(voiceConfId, meetingId);
+    queueMessage(ccrc);
+  }
 
-	public void startRecording(String voiceConfId, String meetingid){
-		String RECORD_DIR = "/var/freeswitch/meetings";
-		String voicePath = RECORD_DIR + File.separatorChar + meetingid + "-" + genTimestamp() + ".wav";
+  public void getAllUsers(String voiceConfId) {
+    GetAllUsersCommand prc = new GetAllUsersCommand(voiceConfId, USER);
+    queueMessage(prc);
+  }
 
-		RecordConferenceCommand rcc = new RecordConferenceCommand(voiceConfId, USER, true, voicePath);
-		queueMessage(rcc);
-	}
+  public void muteUser(String voiceConfId, String voiceUserId, Boolean mute) {
+    MuteUserCommand mpc = new MuteUserCommand(voiceConfId, voiceUserId, mute, USER);
+    queueMessage(mpc);
+  }
 
-	public void stopRecording(String voiceConfId, String meetingid, String voicePath){
-		RecordConferenceCommand rcc = new RecordConferenceCommand(voiceConfId, USER, false, voicePath);
-		queueMessage(rcc);
-	}
+  public void eject(String voiceConfId, String voiceUserId) {
+    EjectUserCommand mpc = new EjectUserCommand(voiceConfId, voiceUserId, USER);
+    queueMessage(mpc);
+  }
 
-	public void deskShareBroadcastRTMP(String voiceConfId, String streamUrl, String timestamp, Boolean broadcast){
-		DeskShareBroadcastRTMPCommand rtmp = new DeskShareBroadcastRTMPCommand(voiceConfId, USER, streamUrl, timestamp, broadcast);
-		queueMessage(rtmp);
-	}
+  public void ejectAll(String voiceConfId) {
+    EjectAllUsersCommand mpc = new EjectAllUsersCommand(voiceConfId, USER);
+    queueMessage(mpc);
+  }
 
-	public void deskShareHangUp(String voiceConfId, String fsConferenceName, String timestamp){
-		DeskShareHangUpCommand huCmd = new DeskShareHangUpCommand(voiceConfId, fsConferenceName, USER, timestamp);
-		queueMessage(huCmd);
-	}
-		private void sendMessageToFreeswitch(final FreeswitchCommand command) {
-			Runnable task = new Runnable() {
-				public void run() {
-					if (command instanceof GetAllUsersCommand) {
-						GetAllUsersCommand cmd = (GetAllUsersCommand) command;
-						System.out.println("Sending PopulateRoomCommand for conference = [" + cmd.getRoom() + "]");
-						manager.getUsers(cmd);
-					} else if (command instanceof MuteUserCommand) {
-						MuteUserCommand cmd = (MuteUserCommand) command;
-						System.out.println("Sending MuteParticipantCommand for conference = [" + cmd.getRoom() + "]");
-						manager.mute(cmd);
-					} else if (command instanceof EjectUserCommand) {
-						EjectUserCommand cmd = (EjectUserCommand) command;
-						System.out.println("Sending EjectParticipantCommand for conference = [" + cmd.getRoom() + "]");
-						manager.eject(cmd);
-					} else if (command instanceof EjectAllUsersCommand) {
-						EjectAllUsersCommand cmd = (EjectAllUsersCommand) command;
-						System.out.println("Sending EjectAllUsersCommand for conference = [" + cmd.getRoom() + "]");
-						manager.ejectAll(cmd);
-					} else if (command instanceof TransferUserToMeetingCommand) {
-						TransferUserToMeetingCommand cmd = (TransferUserToMeetingCommand) command;
-						System.out.println("Sending TransferUsetToMeetingCommand for conference = ["
-										+ cmd.getRoom() + "]");
-						manager.tranfer(cmd);
-					} else if (command instanceof RecordConferenceCommand) {
-						manager.record((RecordConferenceCommand) command);
-					} else if (command instanceof DeskShareBroadcastRTMPCommand) {
-						manager.broadcastRTMP((DeskShareBroadcastRTMPCommand)command);
-					} else if (command instanceof DeskShareHangUpCommand) {
-						DeskShareHangUpCommand cmd = (DeskShareHangUpCommand) command;
-						manager.hangUp(cmd);
-					} else if (command instanceof BroadcastConferenceCommand) {
-						manager.broadcast((BroadcastConferenceCommand) command);
-					}
-				}
-			};
+  private Long genTimestamp() {
+    return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+  }
 
-			runExec.execute(task);
-		}
+  public void startRecording(String voiceConfId, String meetingid, String voicePath) {
+    RecordConferenceCommand rcc = new RecordConferenceCommand(voiceConfId, USER, true, voicePath);
+    queueMessage(rcc);
+  }
 
-	public void stop() {
-		sendMessages = false;
-		}
+  public void stopRecording(String voiceConfId, String meetingid, String voicePath) {
+    RecordConferenceCommand rcc = new RecordConferenceCommand(voiceConfId, USER, false, voicePath);
+    queueMessage(rcc);
+  }
+
+  public void deskShareBroadcastRTMP(String voiceConfId, String streamUrl, String timestamp, Boolean broadcast) {
+    ScreenshareBroadcastRTMPCommand rtmp = new ScreenshareBroadcastRTMPCommand(voiceConfId, USER,
+            streamUrl, timestamp, broadcast);
+    queueMessage(rtmp);
+  }
+
+  public void deskShareHangUp(String voiceConfId, String fsConferenceName, String timestamp) {
+    ScreenshareHangUpCommand huCmd = new ScreenshareHangUpCommand(voiceConfId, fsConferenceName, USER, timestamp);
+    queueMessage(huCmd);
+  }
+
+  private void sendMessageToFreeswitch(final FreeswitchCommand command) {
+    Runnable task = new Runnable() {
+      public void run() {
+        log.info("Sending message: " + command.getCommand() + " " + command.getCommandArgs());
+        try {
+          if (command instanceof GetAllUsersCommand) {
+            GetAllUsersCommand cmd = (GetAllUsersCommand) command;
+            manager.getUsers(cmd);
+          } else if (command instanceof MuteUserCommand) {
+            MuteUserCommand cmd = (MuteUserCommand) command;
+            manager.mute(cmd);
+          } else if (command instanceof EjectUserCommand) {
+            EjectUserCommand cmd = (EjectUserCommand) command;
+            manager.eject(cmd);
+          } else if (command instanceof EjectAllUsersCommand) {
+            EjectAllUsersCommand cmd = (EjectAllUsersCommand) command;
+            manager.ejectAll(cmd);
+
+            CheckIfConfIsRunningCommand command = new CheckIfConfIsRunningCommand(cmd.getRoom(),
+                    cmd.getRequesterId(),
+                    delayedCommandSenderService, 0);
+            delayedCommandSenderService.handleMessage(command, 5000);
+          } else if (command instanceof TransferUserToMeetingCommand) {
+            TransferUserToMeetingCommand cmd = (TransferUserToMeetingCommand) command;
+            manager.tranfer(cmd);
+          } else if (command instanceof RecordConferenceCommand) {
+            manager.record((RecordConferenceCommand) command);
+          } else if (command instanceof ScreenshareBroadcastRTMPCommand) {
+            manager.broadcastRTMP((ScreenshareBroadcastRTMPCommand) command);
+          } else if (command instanceof ScreenshareHangUpCommand) {
+            ScreenshareHangUpCommand cmd = (ScreenshareHangUpCommand) command;
+            manager.hangUp(cmd);
+          } else if (command instanceof BroadcastConferenceCommand) {
+            manager.broadcast((BroadcastConferenceCommand) command);
+          } else if (command instanceof ConferenceCheckRecordCommand) {
+            manager.checkIfConferenceIsRecording((ConferenceCheckRecordCommand) command);
+          } else if (command instanceof CheckIfConfIsRunningCommand) {
+            manager.checkIfConfIsRunningCommand((CheckIfConfIsRunningCommand) command);
+          } else if (command instanceof ForceEjectUserCommand) {
+            manager.forceEjectUser((ForceEjectUserCommand) command);
+          } else if (command instanceof GetUsersStatusCommand) {
+            manager.getUsersStatus((GetUsersStatusCommand) command);
+          }
+        } catch (RuntimeException e) {
+          log.warn(e.getMessage());
+        }
+      }
+    };
+
+    runExec.execute(task);
+  }
+
+  public void stop() {
+    delayedCommandSenderService.stop();
+
+    sendMessages = false;
+  }
+
 }

@@ -1,0 +1,22 @@
+@import '/imports/ui/components/breakout-room/styles';
+
+.buttonWrapper,
+.button,
+.joinButton {
+  background-color: inherit;
+  &:focus,&:hover {
+    background-color: inherit;
+  }
+}
+
+.buttonWrapper {
+  @extend .breakoutActions;
+}
+
+.button {
+  @extend .button;
+}
+
+.info {
+  margin: 0;
+}

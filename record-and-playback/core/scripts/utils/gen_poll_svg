@@ -1,0 +1,243 @@
+#!/usr/bin/python3
+
+# This file is part of BigBlueButton.
+#
+# BigBlueButton is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# BigBlueButton is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
+
+# Required Ubuntu packages: python3 python3-attr python3-cairo python3-gi gir1.2-pango-1.0
+
+import argparse
+from attr import attrs, attrib
+import cairo
+import json
+
+import gi
+
+gi.require_version("Pango", "1.0")
+gi.require_version("PangoCairo", "1.0")
+from gi.repository import Pango, PangoCairo
+
+
+@attrs
+class Color(object):
+    r = attrib()
+    g = attrib()
+    b = attrib()
+    a = attrib(default=None)
+
+    @classmethod
+    def from_int(cls, i, a=None):
+        r = ((i & 0xFF0000) >> 16) / 255.0
+        g = ((i & 0x00FF00) >> 8) / 255.0
+        b = ((i & 0x0000FF)) / 255.0
+        return cls(r, g, b, a)
+
+    def __iter__(self):
+        yield self.r
+        yield self.g
+        yield self.b
+        if self.a is not None:
+            yield self.a
+
+
+FONT_FAMILY = "Arial"
+
+POLL_LINE_WIDTH = 2.0
+POLL_FONT_SIZE = 22
+POLL_BG = Color.from_int(0xFFFFFF)
+POLL_FG = Color.from_int(0x000000)
+POLL_BAR_FG = Color.from_int(0xFFFFFF)
+POLL_BAR_BG = Color.from_int(0x333333)
+POLL_VPADDING = 20.0
+POLL_HPADDING = 10.0
+POLL_MAX_LABEL_WIDTH = 0.5
+POLL_MAX_PERCENT_WIDTH = 0.25
+
+
+def draw_poll_result(output, num_responders, width, height, poll_data):
+    surface = cairo.SVGSurface(output, width, height)
+    ctx = cairo.Context(surface)
+
+    ctx.set_line_join(cairo.LINE_JOIN_MITER)
+    ctx.set_line_cap(cairo.LINE_CAP_SQUARE)
+
+    # Draw the background and poll outline
+    half_lw = POLL_LINE_WIDTH / 2.0
+    ctx.set_line_width(POLL_LINE_WIDTH)
+    ctx.move_to(half_lw, half_lw)
+    ctx.line_to(width - half_lw, half_lw)
+    ctx.line_to(width - half_lw, height - half_lw)
+    ctx.line_to(half_lw, height - half_lw)
+    ctx.close_path()
+    ctx.set_source_rgb(*POLL_BG)
+    ctx.fill_preserve()
+    ctx.set_source_rgb(*POLL_FG)
+    ctx.stroke()
+
+    font = Pango.FontDescription()
+    font.set_family(FONT_FAMILY)
+    font.set_absolute_size(int(POLL_FONT_SIZE * Pango.SCALE))
+
+    # Use Pango to calculate the label width space needed
+    pctx = PangoCairo.create_context(ctx)
+    layout = Pango.Layout(pctx)
+    layout.set_font_description(font)
+
+    max_label_width = 0.0
+    max_percent_width = 0.0
+    for result in poll_data:
+        layout.set_text(result["key"], -1)
+        (label_width, _) = layout.get_pixel_size()
+        if label_width > max_label_width:
+            max_label_width = label_width
+        if num_responders > 0:
+            result["percent"] = "{}%".format(
+                int(float(result["num_votes"]) / float(num_responders) * 100)
+            )
+        else:
+            result["percent"] = "0%"
+        layout.set_text(result["percent"], -1)
+        (percent_width, _) = layout.get_pixel_size()
+        if percent_width > max_percent_width:
+            max_percent_width = percent_width
+
+    max_label_width = min(max_label_width, width * POLL_MAX_LABEL_WIDTH)
+    max_percent_width = min(max_percent_width, width * POLL_MAX_PERCENT_WIDTH)
+
+    bar_height = (height - POLL_VPADDING) / len(poll_data) - POLL_VPADDING
+    bar_width = width - 4 * POLL_HPADDING - max_label_width - max_percent_width
+    bar_x = 2 * POLL_HPADDING + max_label_width
+
+    max_num_votes = max(result["num_votes"] for result in poll_data)
+
+    # All sizes are calculated, so draw the poll
+    for i, result in enumerate(poll_data):
+        bar_y = (bar_height + POLL_VPADDING) * i + POLL_VPADDING
+        if max_num_votes > 0:
+            result_ratio = float(result["num_votes"]) / float(max_num_votes)
+        else:
+            result_ratio = 0.0
+
+        bar_x2 = bar_x + (bar_width * result_ratio)
+
+        # Draw the bar
+        ctx.set_line_width(POLL_LINE_WIDTH)
+        ctx.move_to(bar_x + half_lw, bar_y + half_lw)
+        ctx.line_to(max(bar_x + half_lw, bar_x2 - half_lw), bar_y + half_lw)
+        ctx.line_to(
+            max(bar_x + half_lw, bar_x2 - half_lw), bar_y + bar_height - half_lw
+        )
+        ctx.line_to(bar_x + half_lw, bar_y + bar_height - half_lw)
+        ctx.close_path()
+        ctx.set_source_rgb(*POLL_BAR_BG)
+        ctx.fill_preserve()
+        ctx.stroke()
+
+        # Draw the label and percentage
+        layout.set_ellipsize(Pango.EllipsizeMode.END)
+        ctx.set_source_rgb(*POLL_FG)
+        layout.set_width(int(max_label_width * Pango.SCALE))
+        layout.set_text(result["key"], -1)
+        label_width, label_height = layout.get_pixel_size()
+        ctx.move_to(
+            bar_x - POLL_HPADDING - label_width, bar_y + (bar_height - label_height) / 2
+        )
+        PangoCairo.show_layout(ctx, layout)
+        layout.set_width(int(max_percent_width * Pango.SCALE))
+        layout.set_text(result["percent"], -1)
+        percent_width, percent_height = layout.get_pixel_size()
+        ctx.move_to(
+            width - POLL_HPADDING - percent_width,
+            bar_y + (bar_height - percent_height) / 2,
+        )
+        PangoCairo.show_layout(ctx, layout)
+
+        # Draw the result count
+        layout.set_ellipsize(Pango.EllipsizeMode.NONE)
+        layout.set_width(-1)
+        layout.set_text(str(result["num_votes"]), -1)
+        votes_width, votes_height = layout.get_pixel_size()
+        if votes_width < (bar_x2 - bar_x - 2 * POLL_HPADDING):
+            # Votes fit in the bar
+            ctx.move_to(
+                bar_x + (bar_x2 - bar_x - votes_width) / 2,
+                bar_y + (bar_height - votes_height) / 2,
+            )
+            ctx.set_source_rgb(*POLL_BAR_FG)
+            PangoCairo.show_layout(ctx, layout)
+        else:
+            # Votes do not fit in the bar, so put them after
+            ctx.move_to(bar_x2 + POLL_HPADDING, bar_y + (bar_height - votes_height) / 2)
+            ctx.set_source_rgb(*POLL_FG)
+            PangoCairo.show_layout(ctx, layout)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Generate SVG poll image for BigBlueButton recording",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        allow_abbrev=False,
+        add_help=False,
+    )
+    parser.add_argument("--help", action="help", help="show this help message and exit")
+    parser.add_argument(
+        "-i",
+        "--input",
+        metavar="POLL_JSON",
+        type=argparse.FileType("rb"),
+        help="JSON data for poll result",
+        required=True,
+    )
+    parser.add_argument(
+        "-n",
+        "--num-responders",
+        metavar="N",
+        type=int,
+        help="number of people who responded to the poll",
+        required=True,
+    )
+    parser.add_argument(
+        "-w",
+        "--width",
+        metavar="PT",
+        type=int,
+        help="width of SVG image to generate",
+        required=True,
+    )
+    parser.add_argument(
+        "-h",
+        "--height",
+        metavar="PT",
+        type=int,
+        help="height of SVG image to generate",
+        required=True,
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        metavar="SVG_FILE",
+        help="output SVG filename",
+        default="poll.svg",
+    )
+    args = parser.parse_args()
+
+    poll_data = json.load(args.input)
+
+    draw_poll_result(
+        args.output, args.num_responders, args.width, args.height, poll_data
+    )
+
+
+if __name__ == "__main__":
+    main()

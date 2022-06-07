@@ -1,0 +1,3 @@
+These wav files enable the administrator to shorten the FreeSWITCH audio prompts "you have been muted" and "you have been unmuted" to "muted" and "unmuted" versions.
+
+cp -r /etc/bigbluebutton/bbb-conf/sounds /opt/freeswitch/share/freeswitch

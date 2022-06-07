@@ -1,0 +1,434 @@
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/placeholders";
+
+:root {
+    --poll-column-amount: 2;
+    --poll-blue: #1A73D4;
+    --poll-header-offset: -0.875rem;
+    --poll-addItem-width: 100%;
+    --poll-input-height: 2.5rem;
+}
+
+.closeBtn {
+    font-size: var(--font-size-base);
+    position: relative;
+	> i {
+        color: var(--color-text);
+	}
+}
+
+.btn {
+    margin-top: var(--sm-padding-y);
+    margin-bottom: var(--sm-padding-y);
+}
+
+.hideBtn {
+    position: relative;
+    background-color: var(--color-white);
+    display: block;
+    margin: var(--border-size-large);
+    margin-bottom: var(--border-size);
+    padding-left: 0;
+    padding-right: inherit;
+
+    [dir="rtl"] & {
+      padding-left: inherit;
+      padding-right: 0;
+    }
+
+    > i {
+        color: var(--color-gray-dark);
+        font-size: smaller;
+
+        [dir="rtl"] & {
+            -webkit-transform: scale(-1, 1);
+            -moz-transform: scale(-1, 1);
+            -ms-transform: scale(-1, 1);
+            -o-transform: scale(-1, 1);
+            transform: scale(-1, 1);
+        }
+    }
+
+    &:hover {
+        background-color: var(--color-white);
+    }
+  }
+
+.customInputWrapper {
+  width: 100%;
+  margin-top: var(--md-padding-y);
+  
+  > Button {
+    width: 100%;
+    margin-top: var(--sm-padding-y);
+    margin-bottom: var(--sm-padding-y);
+  }
+}
+
+.pollInput {
+  > input {
+    width: 100%;
+    margin-top: var(--sm-padding-y);
+    margin-bottom: var(--sm-padding-y);
+  }
+
+  > input::placeholder {
+    color: var(--color-text);
+    opacity: 1; /* Firefox */
+  }
+}
+
+.header {
+    position: relative;
+    top: var(--poll-header-offset);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--md-padding-y);
+}
+
+.instructions {
+    margin-bottom: var(--lg-padding-x);
+    color: var(--color-text);
+}
+
+.pollBtn:nth-child(even) {
+    margin-right: inherit;
+    margin-left: var(--sm-padding-y);
+
+    [dir="rtl"] & {
+        margin-right: var(--sm-padding-y);
+        margin-left: inherit;
+    }
+}
+
+.pollBtn:nth-child(odd) {
+    margin-right: 1rem;
+    margin-left: inherit;
+
+    [dir="rtl"] & {
+        margin-right: inherit;
+        margin-left: var(--sm-padding-y);
+    }
+}
+
+.pollBtn:hover {
+    box-shadow: 0 0 0 1px var(--poll-blue);
+    background-color: var(--color-white);
+    color: var(--poll-blue);
+
+    > span {
+        color: var(--poll-blue);
+        opacity: 1;
+    }
+}
+
+.pollBtn {
+    margin-top: var(--sm-padding-y);
+    margin-bottom: var(--sm-padding-y);
+    background-color: var(--color-white);
+    box-shadow: 0 0 0 1px var(--color-gray);
+    color: var(--color-gray);
+
+    > span {
+        color: var(--color-gray);
+    }
+
+    > span:hover {
+        color: var(--poll-blue);
+        opacity: 1;
+    }
+}
+
+.pollBtn:active {
+    &:focus {
+        box-shadow: 0 0 0 1px var(--poll-blue);
+    }
+
+    background-color: var(--color-white);
+    box-shadow: 0 0 0 1px var(--poll-blue);
+
+    > span {
+        color: var(--poll-blue);
+    }
+}
+
+.pollBtn:focus {
+    background-color: var(--color-white);
+    box-shadow: 0 0 0 1px var(--poll-blue);
+
+    > span {
+        color: var(--poll-blue);
+    }
+}
+
+.inputError {
+    color: var(--color-danger);
+    font-size: var(--font-size-small);
+}
+
+.inputError,
+.errorSpacer {
+    position: relative;
+    height: 1.25rem;
+}
+
+.input {
+    @include inputFocus(var(--color-blue-light));
+ 
+    &:hover,
+    &:focus {
+        @extend %highContrastOutline;
+    }
+
+    &:focus {
+        outline-style: solid !important;
+    }
+    
+    margin: 0;
+    color: var(--color-text);
+    background: var(--color-white);
+    font-size: var(--font-size-small);
+    border: 1px solid var(--color-gray-lighter);
+    border-radius: var(--border-radius);
+}
+
+.noSlidePanelContainer {
+    color: var(--color-gray-drak);
+    text-align: center;
+}
+
+.responseType {
+    display: flex;
+    justify-content: space-between;
+    flex-flow: wrap;
+    overflow-wrap: break-word;
+    position: relative;
+    width: 100%;
+    margin-bottom: var(--lg-padding-x);
+
+    button {
+        position: relative;
+        width: 100%;
+    }
+}
+
+.fullWidth {
+    width: 100%;
+}
+
+.pollQuestion {
+    resize: none;
+}
+
+.pollOption {
+    margin-right: 1rem;
+
+    [dir="rtl"] & {
+        margin-right: 0;
+        margin-left: 1rem;
+    }
+}
+
+.pollQuestion,
+.pollOption {
+    @include inputFocus(var(--color-blue-light));
+
+    width: 100%;
+    color: var(--color-text);
+    -webkit-appearance: none;
+    padding: calc(var(--sm-padding-y) * 2) calc(var(--sm-padding-x) * 1);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-base);
+    border: 1px solid var(--color-gray-lighter);
+    box-shadow: 0 0 0 1px var(--color-gray-lighter);
+}
+
+.hasError {
+    border-color: var(--color-danger);
+    box-shadow: 0 0 0 1px var(--color-danger);
+}
+
+.exampleTitle {
+    background-color: var(--color-gray-lightest);
+    height: var(--sm-padding-x);
+    border-radius:  var(--border-radius);
+    width: 75%;
+}
+
+.exampleResponse {
+    border: var(--color-gray-light) solid 1px;
+    border-radius:  var(--border-radius);
+    padding: 1rem;
+    margin-top: 1rem;
+
+    .responseInput {
+        border: var(--color-gray-light) solid 1px;
+        border-radius: var(--border-radius);
+        margin-top: 1rem;
+        height: var(--poll-input-height);
+        padding-top: var(--sm-padding-x);
+        padding-left: var(--sm-padding-x);
+        position: relative;
+    }
+}
+
+.rInput {
+    background-color: var(--color-gray-lightest);
+    height: var(--lg-padding-y);
+    border-radius: var(--border-radius);
+    width: 75%;  
+}
+
+.addItemBtn {
+    top: 1px;
+    position: relative;
+    display: block;
+    width: var(--poll-addItem-width);
+    text-align: left;
+    color: var(--color-primary);
+    padding-left: 0;
+    padding-right: 0;
+    font-size: var(--font-size-base);
+    white-space: pre-wrap;
+
+    &:hover {
+        span {
+            opacity: 1;
+        }
+    }
+}
+
+.startPollBtn {
+    position: relative;
+    width: 100%;
+    min-height: var(--poll-input-height);
+    margin-top: 1rem;
+    font-size: var(--font-size-base);
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+
+    &:hover {
+        span {
+            opacity: 1;
+        }
+    }
+}
+
+.pBtn {
+    border: solid var(--color-gray-light) 1px;
+    min-height: var(--poll-input-height);
+    font-size: var(--font-size-base);
+    white-space: pre-wrap;
+    span {
+        &:hover {
+            opacity: 1;
+        }
+    }
+}
+
+.deleteBtn {
+    font-size: var(--font-size-base);
+    flex: none;
+    width: 40px;
+    position: relative;
+    i {
+        font-size: 150%;
+    }
+}
+
+.pBtn {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.smallBtn {
+    width: 49% !important;
+}
+
+.selectedBtnBlue {
+    background-color: var(--poll-blue);
+    color: var(--color-white);
+    font-size: var(--font-size-base);
+
+    &:hover,
+    &:focus,
+    &:active {
+        background-color: var(--poll-blue) !important;
+        box-shadow: none !important;
+        color: var(--color-white) !important;
+    }
+}
+
+.selectedTypeBtn {
+    background-color: var(--color-gray-lightest);
+    font-size: var(--font-size-base);
+
+    &:hover,
+    &:focus,
+    &:active {
+        background-color: var(--color-gray-lightest) !important;
+        box-shadow: none !important;
+    }
+}
+
+.dragAndDropPollContainer {
+    width: 200px !important;
+    height: 200px !important;
+}
+
+.row {
+  display: flex;
+  flex-flow: wrap;
+  flex-grow: 1;
+  justify-content: space-between;
+  margin-top: 0.7rem;
+  margin-bottom: 0.7rem;
+}
+
+.label {
+    color: var(--color-text);
+}
+
+.toggle {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+
+.col {
+  display: flex;
+  position: relative;
+  flex-flow: column;
+  flex-grow: 1;
+  
+  &:last-child {
+    padding-right: 0;
+    padding-left: 1rem;
+
+    [dir="rtl"] & {
+      padding-right: 0.1rem;
+      padding-left: 0;
+    }
+  }
+}
+
+.toggleLabel {
+  margin-right: var(--sm-padding-x);
+
+  [dir="rtl"] & {
+    margin: 0 0 0 var(--sm-padding-x);
+  }
+}
+
+.sectionHeading {
+  margin-top: 0;
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+.pollParagraph {
+  color: var(--color-text);
+}

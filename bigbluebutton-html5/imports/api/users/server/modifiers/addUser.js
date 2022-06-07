@@ -1,71 +1,111 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-
-import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
+import VoiceUsers from '/imports/api/voice-users/';
+import addUserPsersistentData from '/imports/api/users-persistent-data/server/modifiers/addUserPersistentData';
+import stringHash from 'string-hash';
+import flat from 'flat';
 
-import requestStunTurn from '../methods/requestStunTurn';
+import addVoiceUser from '/imports/api/voice-users/server/modifiers/addVoiceUser';
 
-export default function addUser(meetingId, user) {
-  check(user, Object);
+const COLOR_LIST = [
+  '#7b1fa2', '#6a1b9a', '#4a148c', '#5e35b1', '#512da8', '#4527a0',
+  '#311b92', '#3949ab', '#303f9f', '#283593', '#1a237e', '#1976d2', '#1565c0',
+  '#0d47a1', '#0277bd', '#01579b',
+];
+
+export default function addUser(meetingId, userData) {
+  const user = userData;
+
   check(meetingId, String);
 
-  const userId = user.userid;
-  check(userId, String);
+  check(user, {
+    intId: String,
+    extId: String,
+    name: String,
+    role: String,
+    guest: Boolean,
+    authed: Boolean,
+    waitingForAcceptance: Match.Maybe(Boolean),
+    guestStatus: String,
+    emoji: String,
+    presenter: Boolean,
+    locked: Boolean,
+    avatar: String,
+    pin: Boolean,
+    clientType: String,
+  });
+
+  const userId = user.intId;
 
   const selector = {
     meetingId,
     userId,
   };
+  const Meeting = Meetings.findOne({ meetingId });
+
+  /* While the akka-apps dont generate a color we just pick one
+    from a list based on the userId */
+  const color = COLOR_LIST[stringHash(user.intId) % COLOR_LIST.length];
+
+  const userInfos = {
+    meetingId,
+    sortName: user.name.trim().toLowerCase(),
+    color,
+    mobile: false,
+    breakoutProps: {
+      isBreakoutUser: Meeting.meetingProp.isBreakout,
+      parentId: Meeting.breakoutProps.parentId,
+    },
+    effectiveConnectionType: null,
+    inactivityCheck: false,
+    responseDelay: 0,
+    loggedOut: false,
+    ...flat(user),
+  };
 
   const modifier = {
-    $set: {
-      meetingId,
-      userId,
-      'user.connection_status': 'online',
-      'user.userid': userId,
-      'user.extern_userid': user.extern_userid,
-      'user.role': user.role,
-      'user.name': user.name,
-      'user._sort_name': user.name.trim().toLowerCase(),
-      'user.avatarURL': user.avatarURL,
-      'user.set_emoji_time': user.set_emoji_time || (new Date()).getTime(),
-      'user.time_of_joining': (new Date()).getTime(),
-      'user.emoji_status': user.emoji_status,
-      'user.webcam_stream': user.webcam_stream,
-      'user.presenter': user.presenter,
-      'user.locked': user.locked,
-      'user.phone_user': user.phone_user,
-      'user.listenOnly': user.listenOnly,
-      'user.has_stream': user.has_stream,
-      'user.voiceUser.web_userid': user.voiceUser.web_userid,
-      'user.voiceUser.callernum': user.voiceUser.callernum,
-      'user.voiceUser.userid': user.voiceUser.userid,
-      'user.voiceUser.talking': user.voiceUser.talking,
-      'user.voiceUser.joined': user.voiceUser.joined,
-      'user.voiceUser.callername': user.voiceUser.callername,
-      'user.voiceUser.locked': user.voiceUser.locked,
-      'user.voiceUser.muted': user.voiceUser.muted,
-    },
+    $set: userInfos,
   };
+  addUserPsersistentData(userInfos);
+  // Only add an empty VoiceUser if there isn't one already and if the user coming in isn't a
+  // dial-in user. We want to avoid overwriting good data
+  if (user.clientType !== 'dial-in-user' && !VoiceUsers.findOne({ meetingId, intId: userId })) {
+    addVoiceUser(meetingId, {
+      voiceUserId: '',
+      intId: userId,
+      callerName: user.name,
+      callerNum: '',
+      muted: false,
+      talking: false,
+      callingWith: '',
+      listenOnly: false,
+      voiceConf: '',
+      joined: false,
+    });
+  }
 
-  const cb = (err, numChanged) => {
-    if (err) {
-      return Logger.error(`Adding user to collection: ${err}`);
-    }
+  /**
+   * Add a verification to check if the user was set as presenter.
+   * In some cases the user information is set after the presenter is set
+   * causing the first moderator to join a meeting be marked as presenter: false
+   */
+  const partialUser = Users.findOne(selector);
 
-    // TODO: Do we really need to request the stun/turn everytime?
-    requestStunTurn(meetingId, userId);
+  if (partialUser?.presenter) {
+    modifier.$set.presenter = true;
+  }
 
-    const { insertedId } = numChanged;
+  try {
+    const { insertedId } = Users.upsert(selector, modifier);
+
     if (insertedId) {
-      return Logger.info(`Added user id=${userId} meeting=${meetingId}`);
+      Logger.info(`Added user id=${userId} meeting=${meetingId}`);
+    } else {
+      Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
     }
-
-    if (numChanged) {
-      return Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
-    }
-  };
-
-  return Users.upsert(selector, modifier, cb);
-};
+  } catch (err) {
+    Logger.error(`Adding user to collection: ${err}`);
+  }
+}

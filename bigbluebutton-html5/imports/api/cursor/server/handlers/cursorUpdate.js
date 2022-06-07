@@ -1,15 +1,45 @@
-import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
-import updateCursor from '../modifiers/updateCursor';
+import CursorStreamer from '/imports/api/cursor/server/streamer';
+import Logger from '/imports/startup/server/logger';
+import _ from 'lodash';
 
-export default function handleCursorUpdate({ payload }) {
-  const meetingId = payload.meeting_id;
-  const x = payload.x_percent;
-  const y = payload.y_percent;
+const CURSOR_PROCCESS_INTERVAL = 30;
+
+const cursorQueue = {};
+
+const proccess = _.throttle(() => {
+  try {
+    Object.keys(cursorQueue).forEach((meetingId) => {
+      try {
+        const cursors = [];
+        for (let userId in cursorQueue[meetingId]){
+          cursorQueue[meetingId][userId].userId = userId;
+          cursors.push(cursorQueue[meetingId][userId]);
+        }
+        delete cursorQueue[meetingId];
+        CursorStreamer(meetingId).emit('message', { meetingId, cursors });
+      } catch (error) {
+        Logger.error(`Error while trying to send cursor streamer data for meeting ${meetingId}. ${error}`);
+      }
+    });
+  } catch (error) {
+    Logger.error(`Error while processing cursor queue. ${error}`);
+  }
+}, CURSOR_PROCCESS_INTERVAL);
+
+export default function handleCursorUpdate({ header, body }, meetingId) {
+  const { userId } = header;
+  check(body, Object);
 
   check(meetingId, String);
-  check(x, Number);
-  check(y, Number);
+  check(userId, String);
 
-  return updateCursor(meetingId, x, y);
-};
+  if (!cursorQueue[meetingId]) {
+    cursorQueue[meetingId] = {};
+  }
+
+  // overwrite since we dont care about the other positions
+  cursorQueue[meetingId][userId] = body;
+
+  proccess();
+}

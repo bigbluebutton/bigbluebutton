@@ -1,33 +1,34 @@
 package org.bigbluebutton.freeswitch.voice.freeswitch;
 
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
-import org.bigbluebutton.freeswitch.voice.events.DeskShareEndedEvent;
-import org.bigbluebutton.freeswitch.voice.events.DeskShareStartedEvent;
-import org.bigbluebutton.freeswitch.voice.events.DeskShareRTMPBroadcastEvent;
-import org.bigbluebutton.freeswitch.voice.events.VoiceConferenceEvent;
-import org.bigbluebutton.freeswitch.voice.events.VoiceStartRecordingEvent;
-import org.bigbluebutton.freeswitch.voice.events.VoiceUserJoinedEvent;
-import org.bigbluebutton.freeswitch.voice.events.VoiceUserLeftEvent;
-import org.bigbluebutton.freeswitch.voice.events.VoiceUserMutedEvent;
-import org.bigbluebutton.freeswitch.voice.events.VoiceUserTalkingEvent;
+import com.google.gson.Gson;
+import org.bigbluebutton.freeswitch.voice.events.*;
+import org.bigbluebutton.freeswitch.voice.events.ScreenshareStartedEvent;
 import org.freeswitch.esl.client.IEslEventListener;
 import org.freeswitch.esl.client.transport.event.EslEvent;
 import org.jboss.netty.channel.ExceptionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ESLEventListener implements IEslEventListener {
+    private static Logger log = LoggerFactory.getLogger(ESLEventListener.class);
 
     private static final String START_TALKING_EVENT = "start-talking";
     private static final String STOP_TALKING_EVENT = "stop-talking";
     private static final String START_RECORDING_EVENT = "start-recording";
     private static final String STOP_RECORDING_EVENT = "stop-recording";
+    private static final String CONFERENCE_CREATED_EVENT = "conference-create";
+    private static final String CONFERENCE_DESTROYED_EVENT = "conference-destroy";
+    private static final String FLOOR_CHANGE_EVENT = "video-floor-change";
 
-    private static final String DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE";
+    private static final String SCREENSHARE_CONFERENCE_NAME_SUFFIX = "-SCREENSHARE";
 
     private final ConferenceEventListener conferenceEventListener;
     
@@ -42,17 +43,21 @@ public class ESLEventListener implements IEslEventListener {
 
     @Override
     public void backgroundJobResultReceived(EslEvent event) {
-        System.out.println( "Background job result received [" + event + "]");
+        //System.out.println( "Background job result received [" + event + "]");
     }
 
     @Override
     public void exceptionCaught(ExceptionEvent e) {
+        log.warn("Exception caught: ", e);
 //        setChanged();
 //        notifyObservers(e);
     }
 
     private static final Pattern GLOBAL_AUDION_PATTERN = Pattern.compile("(GLOBAL_AUDIO)_(.*)$");
     private static final Pattern CALLERNAME_PATTERN = Pattern.compile("(.*)-bbbID-(.*)$");
+    private static final Pattern CALLERNAME_WITH_SESS_INFO_PATTERN = Pattern.compile("^(.*)_(\\d+)-bbbID-(.*)$");
+    private static final Pattern CALLERNAME_LISTENONLY_PATTERN = Pattern.compile("^(.*)_(\\d+)-bbbID-LISTENONLY-(.*)$");
+    private static final Pattern ECHO_TEST_DEST_PATTERN = Pattern.compile("^echo(\\d+)$");
     
     @Override
     public void conferenceEventJoin(String uniqueId, String confName, int confSize, EslEvent event) {
@@ -68,29 +73,70 @@ public class ESLEventListener implements IEslEventListener {
 
         Matcher gapMatcher = GLOBAL_AUDION_PATTERN.matcher(callerIdName);
         if (gapMatcher.matches()) {
-            System.out.println("Ignoring GLOBAL AUDIO USER [" + callerIdName + "]");
+            //System.out.println("Ignoring GLOBAL AUDIO USER [" + callerIdName + "]");
             return;
         }
         
-        // (WebRTC) Deskstop sharing conferences' name is of the form ddddd-DESKSHARE
+        // (WebRTC) Deskstop sharing conferences' name is of the form ddddd-SCREENSHARE
         // Voice conferences' name is of the form ddddd
-        if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
-            System.out.println("User joined deskshare conference, user=[" + callerIdName + "], " +
-                    "conf=[" + confName + "] callerId=[" + callerId + "]");
-            DeskShareStartedEvent dsStart = new DeskShareStartedEvent(confName, callerId, callerIdName);
+        if (confName.endsWith(SCREENSHARE_CONFERENCE_NAME_SUFFIX)) {
+            ScreenshareStartedEvent dsStart = new ScreenshareStartedEvent(confName, callerId, callerIdName);
             conferenceEventListener.handleConferenceEvent(dsStart);
         } else {
+            String coreuuid = headers.get("Core-UUID");
+            String callState = "IN_CONFERENCE";
+            String origCallerIdName = headers.get("Caller-Caller-ID-Name");
+            String origCallerDestNumber = headers.get("Caller-Destination-Number");
+            String clientSession = "0";
+
             Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
-            if (matcher.matches()) {
+            Matcher callWithSess = CALLERNAME_WITH_SESS_INFO_PATTERN.matcher(callerIdName);
+            if (callWithSess.matches()) {
+                voiceUserId = callWithSess.group(1).trim();
+                clientSession = callWithSess.group(2).trim();
+                callerIdName = callWithSess.group(3).trim();
+            } else if (matcher.matches()) {
                 voiceUserId = matcher.group(1).trim();
                 callerIdName = matcher.group(2).trim();
+            } else {
+                // This is a caller using phone. Let's create a userId that will allow
+                // us to identify the user as such in other parts of the system.
+                // (ralam - sept 1, 2017)
+                voiceUserId = "v_" + memberId.toString();
             }
 
-            System.out.println("User joined voice conference, user=[" + callerIdName + "], conf=[" +
-                    confName + "] callerId=[" + callerId + "]");
+            VoiceCallStateEvent csEvent = new VoiceCallStateEvent(
+                    confName,
+                    coreuuid,
+                    clientSession,
+                    voiceUserId,
+                    callerIdName,
+                    callState,
+                    origCallerIdName,
+                    origCallerDestNumber);
+            conferenceEventListener.handleConferenceEvent(csEvent);
 
-            VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId, memberId.toString(), confName, callerId, callerIdName, muted, speaking, "none");
+            String callerUUID = this.getMemberUUIDFromEvent(event);
+            log.info("Caller joined: conf=" + confName +
+                    ",uuid=" + callerUUID +
+                    ",memberId=" + memberId +
+                    ",callerId=" + callerId +
+                    ",callerIdName=" + callerIdName +
+                    ",muted=" + muted +
+                    ",talking=" + speaking
+                    );
+
+            VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId,
+                    memberId.toString(),
+                    confName,
+                    callerId,
+                    callerIdName,
+                    muted,
+                    speaking,
+                    "none");
             conferenceEventListener.handleConferenceEvent(pj);
+
+
         }
     }
 
@@ -100,16 +146,19 @@ public class ESLEventListener implements IEslEventListener {
         String callerId = this.getCallerIdFromEvent(event);
         String callerIdName = this.getCallerIdNameFromEvent(event);
 
-        // (WebRTC) Deskstop sharing conferences' name is of the form ddddd-DESKSHARE
+        // (WebRTC) Deskstop sharing conferences' name is of the form ddddd-SCREENSHARE
         // Voice conferences' name is of the form ddddd
-        if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
-            System.out.println("User left deskshare conference, user=[" + memberId.toString() +
-                    "], " + "conf=[" + confName + "]");
+        if (confName.endsWith(SCREENSHARE_CONFERENCE_NAME_SUFFIX)) {
             DeskShareEndedEvent dsEnd = new DeskShareEndedEvent(confName, callerId, callerIdName);
             conferenceEventListener.handleConferenceEvent(dsEnd);
         } else {
-            System.out.println("User left voice conference, user=[" + memberId.toString() + "], " +
-                    "conf=[" + confName + "]");
+            String callerUUID = this.getMemberUUIDFromEvent(event);
+            log.info("Caller left: conf=" + confName +
+                    ",uuid=" + callerUUID +
+                    ",memberId=" + memberId +
+                    ",callerId=" + callerId +
+                    ",callerIdName=" + callerIdName
+            );
             VoiceUserLeftEvent pl = new VoiceUserLeftEvent(memberId.toString(), confName);
             conferenceEventListener.handleConferenceEvent(pl);
         }
@@ -118,8 +167,6 @@ public class ESLEventListener implements IEslEventListener {
     @Override
     public void conferenceEventMute(String uniqueId, String confName, int confSize, EslEvent event) {
         Integer memberId = this.getMemberIdFromEvent(event);
-        System.out.println("******************** Received Conference Muted Event from FreeSWITCH user[" + memberId.toString() + "]");
-        System.out.println("User muted voice conference, user=[" + memberId.toString() + "], conf=[" + confName + "]");
         VoiceUserMutedEvent pm = new VoiceUserMutedEvent(memberId.toString(), confName, true);
         conferenceEventListener.handleConferenceEvent(pm);
     }
@@ -127,31 +174,38 @@ public class ESLEventListener implements IEslEventListener {
     @Override
     public void conferenceEventUnMute(String uniqueId, String confName, int confSize, EslEvent event) {
         Integer memberId = this.getMemberIdFromEvent(event);
-        System.out.println("******************** Received ConferenceUnmuted Event from FreeSWITCH user[" + memberId.toString() + "]");
-        System.out.println("User unmuted voice conference, user=[" + memberId.toString() + "], conf=[" + confName + "]");
         VoiceUserMutedEvent pm = new VoiceUserMutedEvent(memberId.toString(), confName, false);
         conferenceEventListener.handleConferenceEvent(pm);
     }
 
     @Override
     public void conferenceEventAction(String uniqueId, String confName, int confSize, String action, EslEvent event) {
-        Integer memberId = this.getMemberIdFromEvent(event);
-        VoiceUserTalkingEvent pt;
-        
-        System.out.println("******************** Receive conference Action [" + action + "]");
-        
         if (action == null) {
             return;
         }
 
         if (action.equals(START_TALKING_EVENT)) {
-            pt = new VoiceUserTalkingEvent(memberId.toString(), confName, true);
+            Integer memberId = this.getMemberIdFromEvent(event);
+            VoiceUserTalkingEvent pt = new VoiceUserTalkingEvent(memberId.toString(), confName, true);
             conferenceEventListener.handleConferenceEvent(pt);          
         } else if (action.equals(STOP_TALKING_EVENT)) {
-            pt = new VoiceUserTalkingEvent(memberId.toString(), confName, false);
+            Integer memberId = this.getMemberIdFromEvent(event);
+            VoiceUserTalkingEvent pt = new VoiceUserTalkingEvent(memberId.toString(), confName, false);
             conferenceEventListener.handleConferenceEvent(pt);          
+        } else if (action.equals(CONFERENCE_CREATED_EVENT)) {
+            VoiceConfRunningEvent pt = new VoiceConfRunningEvent(confName, true);
+            conferenceEventListener.handleConferenceEvent(pt);
+        } else if (action.equals(CONFERENCE_DESTROYED_EVENT)) {
+            VoiceConfRunningEvent pt = new VoiceConfRunningEvent(confName, false);
+            conferenceEventListener.handleConferenceEvent(pt);
+        } else if (action.equals(FLOOR_CHANGE_EVENT)) {
+            String holderMemberId = this.getNewFloorHolderMemberIdFromEvent(event);
+            String oldHolderMemberId = this.getOldFloorHolderMemberIdFromEvent(event);
+            String floorTimestamp = event.getEventHeaders().get("Event-Date-Timestamp");
+            AudioFloorChangedEvent vFloor= new AudioFloorChangedEvent(confName, holderMemberId, oldHolderMemberId, floorTimestamp);
+            conferenceEventListener.handleConferenceEvent(vFloor);
         } else {
-            System.out.println("Unknown conference Action [" + action + "]");
+            log.warn("Unknown conference Action [" + action + "]");
         }
     }
 
@@ -174,16 +228,14 @@ public class ESLEventListener implements IEslEventListener {
         }
 
         if (action.equals(START_RECORDING_EVENT)) {
-            if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)){
+            if (confName.endsWith(SCREENSHARE_CONFERENCE_NAME_SUFFIX)){
                 if (isRTMPStream(event)) {
-                    DeskShareRTMPBroadcastEvent rtmp = new DeskShareRTMPBroadcastEvent(confName, true);
+                    ScreenshareRTMPBroadcastEvent rtmp = new ScreenshareRTMPBroadcastEvent(confName, true);
                     rtmp.setBroadcastingStreamUrl(getStreamUrl(event));
                     rtmp.setVideoHeight(Integer.parseInt(getBroadcastParameter(event, "vh")));
                     rtmp.setVideoWidth(Integer.parseInt(getBroadcastParameter(event, "vw")));
                     rtmp.setTimestamp(genTimestamp().toString());
 
-                    System.out.println("DeskShare conference broadcast started. url=["
-                            + getStreamUrl(event) + "], conf=[" + confName + "]");
                     conferenceEventListener.handleConferenceEvent(rtmp);
                 }
             } else {
@@ -191,35 +243,29 @@ public class ESLEventListener implements IEslEventListener {
                 sre.setRecordingFilename(getRecordFilenameFromEvent(event));
                 sre.setTimestamp(genTimestamp().toString());
 
-                System.out.println("Voice conference recording started. file=["
-                 + getRecordFilenameFromEvent(event) + "], conf=[" + confName + "]");
                 conferenceEventListener.handleConferenceEvent(sre);
             }
         } else if (action.equals(STOP_RECORDING_EVENT)) {
-            if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)){
+            if (confName.endsWith(SCREENSHARE_CONFERENCE_NAME_SUFFIX)){
                 if (isRTMPStream(event)) {
-                    DeskShareRTMPBroadcastEvent rtmp = new DeskShareRTMPBroadcastEvent(confName, false);
+                    ScreenshareRTMPBroadcastEvent rtmp = new ScreenshareRTMPBroadcastEvent(confName, false);
                     rtmp.setBroadcastingStreamUrl(getStreamUrl(event));
                     rtmp.setVideoHeight(Integer.parseInt(getBroadcastParameter(event, "vh")));
                     rtmp.setVideoWidth(Integer.parseInt(getBroadcastParameter(event, "vw")));
                     rtmp.setTimestamp(genTimestamp().toString());
 
-                    System.out.println("DeskShare conference broadcast stopped. url=["
-                            + getStreamUrl(event) + "], conf=[" + confName + "]");
                     conferenceEventListener.handleConferenceEvent(rtmp);
                 }
             } else {
                 VoiceStartRecordingEvent sre = new VoiceStartRecordingEvent(confName, false);
                 sre.setRecordingFilename(getRecordFilenameFromEvent(event));
                 sre.setTimestamp(genTimestamp().toString());
-                System.out.println("Voice conference recording stopped. file=["
-                 + getRecordFilenameFromEvent(event) + "], conf=[" + confName + "]");
                 conferenceEventListener.handleConferenceEvent(sre);
             }
         } 
 
         else {
-            System.out.println("Processing UNKNOWN conference Action " + action + "]");
+            log.warn("Processing UNKNOWN conference Action " + action + "]");
         }
     }
 
@@ -229,13 +275,214 @@ public class ESLEventListener implements IEslEventListener {
     
     @Override
     public void eventReceived(EslEvent event) {
-        System.out.println("ESL Event Listener received event=[" + event.getEventName() + "]" +
-                event.getEventHeaders().toString());
-//        if (event.getEventName().equals(FreeswitchHeartbeatMonitor.EVENT_HEARTBEAT)) {
-////           setChanged();
-//           notifyObservers(event);
-//           return; 
-//        }
+//        System.out.println("*********** ESL Event Listener received event=[" + event.getEventName() + "]" +
+//                event.getEventHeaders().toString());
+
+        /**
+        Map<String, String> eventHeaders1 = event.getEventHeaders();
+         StringBuilder sb = new StringBuilder("");
+         sb.append("\n");
+         for (Iterator it = eventHeaders1.entrySet().iterator(); it.hasNext(); ) {
+         Map.Entry entry = (Map.Entry)it.next();
+         sb.append(entry.getKey());
+         sb.append(" => '");
+         sb.append(entry.getValue());
+         sb.append("'\n");
+         }
+
+         System.out.println("##### ===>>> " + sb.toString());
+         System.out.println("<<<=== #####");
+        **/
+
+        if (event.getEventName().equals("HEARTBEAT")) {
+            Gson gson = new Gson();
+            String json = gson.toJson(event.getEventHeaders());
+            //log.info(json);
+
+            log.info("Received Heartbeat from Freeswitch.");
+            Map<String, String> headers = event.getEventHeaders();
+
+            Map<String, String> hb = new HashMap<String, String>();
+            hb.put("timestamp", headers.get("Event-Date-Timestamp"));
+            hb.put("version", headers.get("FreeSWITCH-Version"));
+            hb.put("uptime", headers.get("Up-Time"));
+
+            FreeswitchHeartbeatEvent hbeatEvent = new FreeswitchHeartbeatEvent(hb);
+            conferenceEventListener.handleConferenceEvent(hbeatEvent);
+
+        } else if (event.getEventName().equals( "CHANNEL_EXECUTE" )) {
+            Map<String, String> eventHeaders = event.getEventHeaders();
+
+            String application = (eventHeaders.get("Application") == null) ? "" : eventHeaders.get("Application");
+            String channelCallState = (eventHeaders.get("Channel-Call-State") == null) ? "" : eventHeaders.get("Channel-Call-State");
+            String varvBridge = (eventHeaders.get("variable_vbridge") == null) ? "" : eventHeaders.get("variable_vbridge");
+
+            if ("echo".equalsIgnoreCase(application) && !varvBridge.isEmpty()) {
+                String origCallerIdName = eventHeaders.get("Caller-Caller-ID-Name");
+                String origCallerDestNumber = eventHeaders.get("Caller-Destination-Number");
+                String coreuuid = eventHeaders.get("Core-UUID");
+
+                //System.out.println("******** uuid=" + coreuuid + " " + origCallerIdName + " is in echo test " + origCallerDestNumber + " vbridge=" + varvBridge);
+
+                String voiceUserId = "";
+                String callerName = origCallerIdName;
+                String clientSession = "0";
+                String callState = "IN_ECHO_TEST";
+
+                Matcher callerListenOnly = CALLERNAME_LISTENONLY_PATTERN.matcher(origCallerIdName);
+                Matcher callWithSess = CALLERNAME_WITH_SESS_INFO_PATTERN.matcher(origCallerIdName);
+                if (callWithSess.matches()) {
+                    voiceUserId = callWithSess.group(1).trim();
+                    clientSession = callWithSess.group(2).trim();
+                    callerName = callWithSess.group(3).trim();
+                } else if (callerListenOnly.matches()) {
+                    voiceUserId = callerListenOnly.group(1).trim();
+                    clientSession = callWithSess.group(2).trim();
+                    callerName = callerListenOnly.group(3).trim();
+                }
+
+                String conf = origCallerDestNumber;
+                Matcher callerDestNumberMatcher = ECHO_TEST_DEST_PATTERN.matcher(origCallerDestNumber);
+                if (callerDestNumberMatcher.matches()) {
+                    conf = callerDestNumberMatcher.group(1).trim();
+                }
+
+                VoiceCallStateEvent csEvent = new VoiceCallStateEvent(conf,
+                        coreuuid,
+                        clientSession,
+                        voiceUserId,
+                        callerName,
+                        callState,
+                        origCallerIdName,
+                        origCallerDestNumber);
+                conferenceEventListener.handleConferenceEvent(csEvent);
+
+            } else if ("RINGING".equalsIgnoreCase(channelCallState) && !varvBridge.isEmpty()) {
+                String origCallerIdName = eventHeaders.get("Caller-Caller-ID-Name");
+                String origCallerDestNumber = eventHeaders.get("Caller-Destination-Number");
+                String coreuuid = eventHeaders.get("Core-UUID");
+                //System.out.println("******** uuid=" + coreuuid + " " + origCallerIdName + " is in ringing " + origCallerDestNumber + " vbridge=" + varvBridge);
+
+                String voiceUserId = "";
+                String callerName = origCallerIdName;
+                String clientSession = "0";
+                String callState = "CALL_STARTED";
+
+                Matcher callerListenOnly = CALLERNAME_LISTENONLY_PATTERN.matcher(origCallerIdName);
+                Matcher callWithSess = CALLERNAME_WITH_SESS_INFO_PATTERN.matcher(origCallerIdName);
+                if (callWithSess.matches()) {
+                    voiceUserId = callWithSess.group(1).trim();
+                    clientSession = callWithSess.group(2).trim();
+                    callerName = callWithSess.group(3).trim();
+                } else if (callerListenOnly.matches()) {
+                    voiceUserId = callerListenOnly.group(1).trim();
+                    clientSession = callWithSess.group(2).trim();
+                    callerName = callerListenOnly.group(3).trim();
+                }
+
+                String conf = origCallerDestNumber;
+                Matcher callerDestNumberMatcher = ECHO_TEST_DEST_PATTERN.matcher(origCallerDestNumber);
+                if (callerDestNumberMatcher.matches()) {
+                    conf = callerDestNumberMatcher.group(1).trim();
+                }
+
+                VoiceCallStateEvent csEvent = new VoiceCallStateEvent(conf,
+                        coreuuid,
+                        clientSession,
+                        voiceUserId,
+                        callerName,
+                        callState,
+                        origCallerIdName,
+                        origCallerDestNumber);
+                conferenceEventListener.handleConferenceEvent(csEvent);
+            }
+        } else if (event.getEventName().equalsIgnoreCase("CHANNEL_STATE")) {
+            Map<String, String> eventHeaders = event.getEventHeaders();
+            String channelCallState = (eventHeaders.get("Channel-Call-State") == null) ? "" : eventHeaders.get("Channel-Call-State");
+            String channelState = (eventHeaders.get("Channel-State") == null) ? "" : eventHeaders.get("Channel-State");
+
+            if ("HANGUP".equalsIgnoreCase(channelCallState) && "CS_DESTROY".equalsIgnoreCase(channelState)) {
+                String origCallerIdName = eventHeaders.get("Caller-Caller-ID-Name");
+                String origCallerDestNumber = eventHeaders.get("Caller-Destination-Number");
+                String coreuuid = eventHeaders.get("Core-UUID");
+                //System.out.println("******** uuid=" + coreuuid + " " + origCallerIdName + " is hanging up " + origCallerDestNumber);
+
+                String voiceUserId = "";
+                String callerName = origCallerIdName;
+                String clientSession = "0";
+                String callState = "CALL_ENDED";
+
+                Matcher callerListenOnly = CALLERNAME_LISTENONLY_PATTERN.matcher(origCallerIdName);
+                Matcher callWithSess = CALLERNAME_WITH_SESS_INFO_PATTERN.matcher(origCallerIdName);
+                if (callWithSess.matches()) {
+                    voiceUserId = callWithSess.group(1).trim();
+                    clientSession = callWithSess.group(2).trim();
+                    callerName = callWithSess.group(3).trim();
+                } else if (callerListenOnly.matches()) {
+                    voiceUserId = callerListenOnly.group(1).trim();
+                    clientSession = callWithSess.group(2).trim();
+                    callerName = callerListenOnly.group(3).trim();
+                }
+
+                String conf = origCallerDestNumber;
+                Matcher callerDestNumberMatcher = ECHO_TEST_DEST_PATTERN.matcher(origCallerDestNumber);
+                if (callerDestNumberMatcher.matches()) {
+                    conf = callerDestNumberMatcher.group(1).trim();
+                }
+
+                VoiceCallStateEvent csEvent = new VoiceCallStateEvent(conf,
+                        coreuuid,
+                        clientSession,
+                        voiceUserId,
+                        callerName,
+                        callState,
+                        origCallerIdName,
+                        origCallerDestNumber
+                        );
+                conferenceEventListener.handleConferenceEvent(csEvent);
+
+            } else if ("RINGING".equalsIgnoreCase(channelCallState) && "CS_EXECUTE".equalsIgnoreCase(channelState)) {
+                String origCallerIdName = eventHeaders.get("Caller-Caller-ID-Name");
+                String origCallerDestNumber = eventHeaders.get("Caller-Destination-Number");
+                String coreuuid = eventHeaders.get("Core-UUID");
+                //System.out.println("******** uuid=" + coreuuid + " " + origCallerIdName + " is ringing " + origCallerDestNumber);
+
+                String voiceUserId = "";
+                String callerName = origCallerIdName;
+                String clientSession = "0";
+                String callState = "CALL_STARTED";
+
+                Matcher callerListenOnly = CALLERNAME_LISTENONLY_PATTERN.matcher(origCallerIdName);
+                Matcher callWithSess = CALLERNAME_WITH_SESS_INFO_PATTERN.matcher(origCallerIdName);
+                if (callWithSess.matches()) {
+                    voiceUserId = callWithSess.group(1).trim();
+                    clientSession = callWithSess.group(2).trim();
+                    callerName = callWithSess.group(3).trim();
+                } else if (callerListenOnly.matches()) {
+                    voiceUserId = callerListenOnly.group(1).trim();
+                    clientSession = callWithSess.group(2).trim();
+                    callerName = callerListenOnly.group(3).trim();
+                }
+
+                String conf = origCallerDestNumber;
+                Matcher callerDestNumberMatcher = ECHO_TEST_DEST_PATTERN.matcher(origCallerDestNumber);
+                if (callerDestNumberMatcher.matches()) {
+                    conf = callerDestNumberMatcher.group(1).trim();
+                }
+
+                VoiceCallStateEvent csEvent = new VoiceCallStateEvent(conf,
+                        coreuuid,
+                        clientSession,
+                        voiceUserId,
+                        callerName,
+                        callState,
+                        origCallerIdName,
+                        origCallerDestNumber
+                        );
+                conferenceEventListener.handleConferenceEvent(csEvent);
+            }
+
+        }
     }
 
     private Integer getMemberIdFromEvent(EslEvent e) {
@@ -246,12 +493,41 @@ public class ESLEventListener implements IEslEventListener {
         return e.getEventHeaders().get("Caller-Caller-ID-Number");
     }
 
+    private String getMemberUUIDFromEvent(EslEvent e) {
+        return e.getEventHeaders().get("Caller-Unique-ID");
+    }
+
+    private String getCallerChannelCreateTimeFromEvent(EslEvent e) {
+        return e.getEventHeaders().get("Caller-Channel-Created-Time");
+    }
+
+    private String getCallerChannelHangupTimeFromEvent(EslEvent e) {
+        return e.getEventHeaders().get("Caller-Channel-Hangup-Time");
+    }
+
+
     private String getCallerIdNameFromEvent(EslEvent e) {
         return e.getEventHeaders().get("Caller-Caller-ID-Name");
     }
 
     private String getRecordFilenameFromEvent(EslEvent e) {
         return e.getEventHeaders().get("Path");
+    }
+
+    private String getOldFloorHolderMemberIdFromEvent(EslEvent e) {
+        String oldFloorHolder = e.getEventHeaders().get("Old-ID");
+        if(oldFloorHolder == null || oldFloorHolder.equalsIgnoreCase("none")) {
+            oldFloorHolder= "";
+        }
+        return oldFloorHolder;
+    }
+
+    private String getNewFloorHolderMemberIdFromEvent(EslEvent e) {
+        String newHolder = e.getEventHeaders().get("New-ID");
+        if(newHolder == null || newHolder.equalsIgnoreCase("none")) {
+            newHolder = "";
+        }
+        return newHolder;
     }
 
     // Distinguish between recording to a file:
