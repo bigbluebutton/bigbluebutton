@@ -793,7 +793,7 @@ const Button = styled(BaseButton)`
     &:active{
       filter: brightness(85%);
       color: ${btnPrimaryColor};
-      background-color: ${btnPrimaryActiveBg};
+      background-color: ${btnPrimaryActiveBg} !important;
     }
   `}
 
