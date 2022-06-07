@@ -922,6 +922,7 @@
     "playback.player.about.modal.shortcuts.title": "Горячие клавиши",
     "playback.player.about.modal.shortcuts.alt": "Alt",
     "playback.player.about.modal.shortcuts.shift": "Shift",
+    "playback.player.about.modal.shortcuts.fullscreen": "Развернуть на весь экран",
     "playback.player.about.modal.shortcuts.play": "Старт/Пауза",
     "playback.player.about.modal.shortcuts.skip.next": "Следующий слайд",
     "playback.player.about.modal.shortcuts.skip.previous": "Предыдущий слайд",
