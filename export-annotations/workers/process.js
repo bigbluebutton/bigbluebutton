@@ -377,16 +377,32 @@ function overlay_text(svg, annotation) {
 
     let fontColor = color_to_hex(annotation.style.color);
     let fontSize = text_size_to_px(annotation.style.size, annotation.style.scale);
-    // let rotation = rad_to_degree(annotation.rotation);
+    let text_anchor = annotation.style.textAlign;
+    let rotation = rad_to_degree(annotation.rotation);
     let font = determine_font_from_family(annotation.style.font);
 
+    let [w, h] = annotation.size;
     let [textBox_x, textBox_y] = annotation.point;
+
+    // Offsets for the text positioning given alignment value (default 'start' == 'justify')
+    let rotation_x = textBox_x + (w / 2)
+
+    if (text_anchor == 'middle') {
+        textBox_x += (w / 2)
+        rotation_x = textBox_x
+    } else if (text_anchor == 'end') {
+        textBox_x += w
+        rotation_x = textBox_x - (w / 2)
+    }
+
     let textNode = svg.ele('text', {
         'x': textBox_x,
         'y': textBox_y,
+        'text-anchor': text_anchor,
         'font-size': fontSize,
         'font-family': font,
         'fill': fontColor,
+        transform: `rotate(${rotation} ${rotation_x} ${textBox_y + (h / 2)})`
     });
 
     for (let line of annotation.text.split('\n')) {
