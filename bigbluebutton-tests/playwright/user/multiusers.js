@@ -1,7 +1,7 @@
 const { expect, default: test } = require('@playwright/test');
 const Page = require('../core/page');
 const e = require('../core/elements');
-const { waitAndClearNotification } = require('../notifications/util');
+const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 const { sleep } = require('../core/helpers');
 const { checkAvatarIcon, checkIsPresenter } = require('./util');
 const { checkTextContent } = require('../core/util');
@@ -124,13 +124,15 @@ class MultiUsers {
     const { raiseHandButton } = getSettings();
     test.fail(!raiseHandButton, 'Raise/lower hand button is disabled');
 
+    await waitAndClearDefaultPresentationNotification(this.modPage);
+    await waitAndClearDefaultPresentationNotification(this.userPage);
     await this.userPage.waitAndClick(e.raiseHandBtn);
+    await sleep(1000);
     await this.userPage.hasElement(e.lowerHandBtn);
     const getBackgroundColorComputed = (locator) => locator.evaluate((elem) => getComputedStyle(elem).backgroundColor);
     const avatarInToastElementColor = this.modPage.getLocator(e.avatarsWrapperAvatar);
     const avatarInUserListColor = this.modPage.getLocator(`${e.userListItem} > div ${e.userAvatar}`);
     await expect(getBackgroundColorComputed(avatarInToastElementColor)).toStrictEqual(getBackgroundColorComputed(avatarInUserListColor));
-    await waitAndClearNotification(this.userPage);
     await this.userPage.waitAndClick(e.lowerHandBtn);
     await this.userPage.hasElement(e.raiseHandBtn);
   }
