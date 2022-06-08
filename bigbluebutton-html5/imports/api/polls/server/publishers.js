@@ -12,10 +12,8 @@ Meteor.server.setPublicationStrategy('polls', DDPServer.publicationStrategies.NO
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-function currentPoll(secretPoll, amIPresenter) {
+function currentPoll(secretPoll) {
   check(secretPoll, Boolean);
-  check(amIPresenter, Boolean);
-
   const tokenValidation = AuthTokenValidation.findOne({
     connectionId: this.connection.id,
   });
