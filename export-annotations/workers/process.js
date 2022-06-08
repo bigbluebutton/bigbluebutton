@@ -27,6 +27,8 @@ const kickOffNotifierWorker = (jobType, filename) => {
     })
 }
 
+// General utilities for rendering SVGs resembling Tldraw as much as possible
+
 function align_to_css_property(alignment) {
     switch (alignment) {
         case 'start': return 'left'
@@ -148,6 +150,13 @@ function get_stroke_width(dash, size) {
     }
 }
 
+function sortByKey(array, key, value) {
+    return array.sort(function (a, b) {
+        let [x, y] = [a[key][value], b[key][value]];
+        return x - y;
+    });
+}
+
 function text_size_to_px(size, scale = 1, isStickyNote = false) {
     if (isStickyNote) { size = `sticky-${size}` }
 
@@ -162,7 +171,7 @@ function text_size_to_px(size, scale = 1, isStickyNote = false) {
         default: return 28 * scale
     }
 }
-
+// Methods based on tldraw's utilities
 function getPath(annotationPoints) {
     // Gets inner path of a stroke outline
     // For solid, dashed, and dotted types
@@ -213,7 +222,6 @@ function getOutlinePath(annotationPoints) {
     return [path, max_x, max_y];
 }
 
-// From tldraw/utils
 function circleFromThreePoints(A, B, C) {
     let [x1, y1] = A
     let [x2, y2] = B
@@ -268,39 +276,39 @@ function getSweep(C, A, B) {
 }
 
 function intersectCircleCircle(c1, r1, c2, r2) {
-    
+
     let dx = c2[0] - c1[0];
     let dy = c2[1] - c1[1];
-  
+
     let d = Math.sqrt(dx * dx + dy * dy);
     let x = (d * d - r2 * r2 + r1 * r1) / (2 * d);
     let y = Math.sqrt(r1 * r1 - x * x);
-  
+
     dx /= d
     dy /= d
-  
-    return [[c1[0] + dx * x - dy * y, c1[1] + dy * x + dx * y], 
-            [c1[0] + dx * x + dy * y, c1[1] + dy * x - dx * y]]
+
+    return [[c1[0] + dx * x - dy * y, c1[1] + dy * x + dx * y],
+    [c1[0] + dx * x + dy * y, c1[1] + dy * x - dx * y]]
 }
 
-// Rotate a vector A around another vector C by r radians
 function rotWith(A, C, r = 0) {
- if (r === 0) return A
+    // Rotate a vector A around another vector C by r radians
+    if (r === 0) return A
 
- let s = Math.sin(r)
- let c = Math.cos(r)
+    let s = Math.sin(r)
+    let c = Math.cos(r)
 
- let px = A[0] - C[0]
- let py = A[1] - C[1]
+    let px = A[0] - C[0]
+    let py = A[1] - C[1]
 
- let nx = px * c - py * s
- let ny = px * s + py * c
+    let nx = px * c - py * s
+    let ny = px * s + py * c
 
- return [nx + C[0], ny + C[1]]
+    return [nx + C[0], ny + C[1]]
 }
 
-// Pushes a point A towards a point B by a given distance
 function nudge(A, B, d) {
+    // Pushes a point A towards a point B by a given distance
     if (A[0] === B[0] && A[1] === B[1]) return A
 
     // B - A
@@ -324,7 +332,7 @@ function getCurvedArrowHeadPath(A, r1, C, r2, sweep) {
     // Determine intersections between two circles
 
     let ints = intersectCircleCircle(A, r1 * (phi - 1), C, r2)
-    
+
     if (!ints) {
         logger.info('Could not find an intersection for the arrow head.')
         return { left: A, right: A }
@@ -333,10 +341,11 @@ function getCurvedArrowHeadPath(A, r1, C, r2, sweep) {
     let int = sweep ? ints[0] : ints[1]
     let left = int ? nudge(rotWith(int, A, Math.PI / 6), A, r1 * -0.382) : A
     let right = int ? nudge(rotWith(int, A, -Math.PI / 6), A, r1 * -0.382) : A
-    
+
     return `M ${left} L ${A} ${right}`
 }
 
+// Methods to convert Akka message contents into SVG
 function overlay_arrow(svg, annotation) {
 
     let [x, y] = annotation.point;
@@ -540,6 +549,7 @@ function overlay_sticky(svg, annotation) {
 function overlay_triangle(svg, annotation) {
 
     let dash = annotation.style.dash;
+    dash = (dash == 'draw') ? 'solid' : dash
 
     let [x, y] = annotation.point;
     let [w, h] = annotation.size;
@@ -602,34 +612,61 @@ function overlay_text(svg, annotation) {
     }
 }
 
-function overlay_annotations(svg, currentSlideAnnotations, w, h) {
+function overlay_annotation(svg, currentAnnotation) {
+
+    if (currentAnnotation.childIndex >= 1) {
+        switch (currentAnnotation.type) {
+            case 'arrow':
+                overlay_arrow(svg, currentAnnotation);
+                break;
+            case 'draw':
+                overlay_draw(svg, currentAnnotation);
+                break;
+            case 'ellipse':
+                overlay_ellipse(svg, currentAnnotation);
+                break;
+            case 'rectangle':
+                overlay_rectangle(svg, currentAnnotation);
+                break;
+            case 'sticky':
+                overlay_sticky(svg, currentAnnotation);
+                break;
+            case 'triangle':
+                overlay_triangle(svg, currentAnnotation);
+                break;
+            case 'text':
+                overlay_text(svg, currentAnnotation);
+                break;
+            default:
+                logger.info(`Unknown annotation type ${currentAnnotation.type}.`);
+        }
+    }
+}
+
+function overlay_annotations(svg, currentSlideAnnotations) {
+
+    // Sort annotations by lowest child index
+    currentSlideAnnotations = sortByKey(currentSlideAnnotations, 'annotationInfo', 'childIndex');
 
     for (let annotation of currentSlideAnnotations) {
 
         switch (annotation.annotationInfo.type) {
-            case 'arrow':
-                overlay_arrow(svg, annotation.annotationInfo);
+            case 'group':
+                // Get annotations that have this group as parent
+                let children = annotation.annotationInfo.children;
+
+                for (let childId of children) {
+                    let childAnnotation = currentSlideAnnotations.find(ann => ann.id == childId);
+                    overlay_annotation(svg, childAnnotation.annotationInfo);
+                }
+
                 break;
-            case 'draw':
-                overlay_draw(svg, annotation.annotationInfo);
-                break;
-            case 'ellipse':
-                overlay_ellipse(svg, annotation.annotationInfo);
-                break;
-            case 'rectangle':
-                overlay_rectangle(svg, annotation.annotationInfo);
-                break;
-            case 'sticky':
-                overlay_sticky(svg, annotation.annotationInfo);
-                break;
-            case 'triangle':
-                overlay_triangle(svg, annotation.annotationInfo);
-                break;
-            case 'text':
-                overlay_text(svg, annotation.annotationInfo);
-                break;
+
             default:
-                logger.warn(`Unknown annotation type ${annotation.annotationInfo.type}.`);
+                // Add individual annotations if they don't belong to a group
+                if (annotation.annotationInfo.parentId == '1') {
+                    overlay_annotation(svg, annotation.annotationInfo);
+                }
         }
     }
 }
@@ -684,8 +721,7 @@ for (let currentSlide of pages) {
         });
 
     // 4. Overlay annotations onto slides
-    // Based on /record-and-playback/presentation/scripts/publish/presentation.rb
-    overlay_annotations(svg, currentSlide.annotations, slideWidth, slideHeight)
+    overlay_annotations(svg, currentSlide.annotations)
 
     svg = svg.end({ prettyPrint: true });
     // Write annotated SVG file
