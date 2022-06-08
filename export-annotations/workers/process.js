@@ -213,10 +213,132 @@ function getOutlinePath(annotationPoints) {
     return [path, max_x, max_y];
 }
 
-function overlay_arrow(svg, annotation) {
-    console.log(annotation);
+// From tldraw/utils
+function circleFromThreePoints(A, B, C) {
+    let [x1, y1] = A
+    let [x2, y2] = B
+    let [x3, y3] = C
 
-    let [w, h] = annotation.size;
+    let a = x1 * (y2 - y3) - y1 * (x2 - x3) + x2 * y3 - x3 * y2
+
+    let b =
+        (x1 * x1 + y1 * y1) * (y3 - y2) +
+        (x2 * x2 + y2 * y2) * (y1 - y3) +
+        (x3 * x3 + y3 * y3) * (y2 - y1)
+
+    let c =
+        (x1 * x1 + y1 * y1) * (x2 - x3) +
+        (x2 * x2 + y2 * y2) * (x3 - x1) +
+        (x3 * x3 + y3 * y3) * (x1 - x2)
+
+    let x = -b / (2 * a)
+    let y = -c / (2 * a)
+
+    return [x, y, Math.hypot(x - x1, y - y1)]
+}
+
+function getArcLength(C, r, A, B) {
+    let sweep = getSweep(C, A, B);
+    return r * (2 * Math.PI) * (sweep / (2 * Math.PI));
+}
+
+function getSweep(C, A, B) {
+
+    // | C × A |
+    let cpr0 = C[0] * A[1] - A[0] * C[1];
+
+    // C • A
+    let dpr0 = C[0] * A[0] + C[1] * A[0];
+
+    // | C × B |
+    let cpr1 = C[0] * B[1] - C[0] * B[1];
+
+    // C • B
+    let dpr1 = C[0] * B[0] + C[1] * B[0];
+
+    // Get angle between two vectors in radians
+    let a0 = Math.atan2(cpr0, dpr0);
+    let a1 = Math.atan2(cpr1, dpr1);
+
+    // Short distance between two angles
+    let max = Math.PI * 2
+    let da = (a1 - a0) % max
+
+    return ((2 * da) % max) - da
+}
+
+function intersectCircleCircle(c1, r1, c2, r2) {
+    
+    let dx = c2[0] - c1[0];
+    let dy = c2[1] - c1[1];
+  
+    let d = Math.sqrt(dx * dx + dy * dy);
+    let x = (d * d - r2 * r2 + r1 * r1) / (2 * d);
+    let y = Math.sqrt(r1 * r1 - x * x);
+  
+    dx /= d
+    dy /= d
+  
+    return [[c1[0] + dx * x - dy * y, c1[1] + dy * x + dx * y], 
+            [c1[0] + dx * x + dy * y, c1[1] + dy * x - dx * y]]
+}
+
+// Rotate a vector A around another vector C by r radians
+function rotWith(A, C, r = 0) {
+ if (r === 0) return A
+
+ let s = Math.sin(r)
+ let c = Math.cos(r)
+
+ let px = A[0] - C[0]
+ let py = A[1] - C[1]
+
+ let nx = px * c - py * s
+ let ny = px * s + py * c
+
+ return [nx + C[0], ny + C[1]]
+}
+
+// Pushes a point A towards a point B by a given distance
+function nudge(A, B, d) {
+    if (A[0] === B[0] && A[1] === B[1]) return A
+
+    // B - A
+    let sub = [B[0] - A[0], B[1] - A[0]];
+
+    // Vector length
+    let len = Math.hypot(sub[0], sub[1]);
+
+    // Get unit vector
+    let unit = [sub[0] / len, sub[1] / len];
+
+    // Multiply by distance
+    let mul = [unit[0] * d, unit[1] * d];
+
+    return [A[0] + mul[0], A[1] + mul[1]]
+}
+
+function getCurvedArrowHeadPath(A, r1, C, r2, sweep) {
+    const phi = (1 + Math.sqrt(5)) / 2;
+
+    // Determine intersections between two circles
+
+    let ints = intersectCircleCircle(A, r1 * (phi - 1), C, r2)
+    
+    if (!ints) {
+        logger.info('Could not find an intersection for the arrow head.')
+        return { left: A, right: A }
+    }
+
+    let int = sweep ? ints[0] : ints[1]
+    let left = int ? nudge(rotWith(int, A, Math.PI / 6), A, r1 * -0.382) : A
+    let right = int ? nudge(rotWith(int, A, -Math.PI / 6), A, r1 * -0.382) : A
+    
+    return `M ${left} L ${A} ${right}`
+}
+
+function overlay_arrow(svg, annotation) {
+
     let [x, y] = annotation.point;
     let bend = annotation.bend;
     let decorations = annotation.decorations;
@@ -242,18 +364,31 @@ function overlay_arrow(svg, annotation) {
     let angle = Math.atan2(end_y - start_y, end_x - start_x)
 
     if (isStraightLine) {
-        // Draws a straight line
+        // Draws a straight line / arrow
         line.push(`M ${start_x} ${start_y} L ${end_x} ${end_y}`);
-        
+
         if (decorations.start || decorations.end) {
             arrowHead.push(`M ${end_x} ${end_y}`);
-            arrowHead.push(`L ${end_x + arrowHeadLength * Math.cos(angle + (7/6) * Math.PI)} ${end_y + arrowHeadLength * Math.sin(angle + (7/6) * Math.PI)}`);
+            arrowHead.push(`L ${end_x + arrowHeadLength * Math.cos(angle + (7 / 6) * Math.PI)} ${end_y + arrowHeadLength * Math.sin(angle + (7 / 6) * Math.PI)}`);
             arrowHead.push(`M ${end_x} ${end_y}`);
-            arrowHead.push(`L ${end_x + arrowHeadLength * Math.cos(angle + (5/6) * Math.PI)} ${end_y + arrowHeadLength * Math.sin(angle + (5/6) * Math.PI)}`);
+            arrowHead.push(`L ${end_x + arrowHeadLength * Math.cos(angle + (5 / 6) * Math.PI)} ${end_y + arrowHeadLength * Math.sin(angle + (5 / 6) * Math.PI)}`);
         }
 
     } else {
 
+        // Curved lines and arrows
+        let circle = circleFromThreePoints([start_x, start_y], [bend_x, bend_y], [end_x, end_y]);
+        let center = [circle[0], circle[1]]
+        let radius = circle[2]
+        let length = getArcLength(center, radius, [start_x, start_y], [end_x, end_y]);
+
+        line.push(`M ${start_x} ${start_y} A ${radius} ${radius} 0 0 ${length > 0 ? '1' : '0'} ${end_x} ${end_y}`);
+
+        if (decorations.start)
+            arrowHead.push(getCurvedArrowHeadPath([start_x, start_y], arrowHeadLength, center, radius, length < 0));
+        else if (decorations.end) {
+            arrowHead.push(getCurvedArrowHeadPath([end_x, end_y], arrowHeadLength, center, radius, length >= 0));
+        }
     }
 
     // The arrowhead is purposely not styled (e.g., dashed / dotted)
@@ -264,9 +399,9 @@ function overlay_arrow(svg, annotation) {
         'style': stroke_dasharray,
         d: line.join(' '),
     }).up()
-    .ele('path', {
-        d: arrowHead.join(' '),
-    }).up();
+        .ele('path', {
+            d: arrowHead.join(' '),
+        }).up();
 }
 
 function overlay_draw(svg, annotation) {
