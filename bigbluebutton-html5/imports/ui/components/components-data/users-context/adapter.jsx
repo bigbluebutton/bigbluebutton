@@ -1,6 +1,5 @@
 import { useContext, useEffect } from 'react';
-import { CurrentUser } from '/imports/api/users';
-import Users from '/imports/api/users';
+import Users, { CurrentUser } from '/imports/api/users';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import { UsersContext, ACTIONS } from './context';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
@@ -30,7 +29,15 @@ const Adapter = () => {
           },
         });
       },
-      removed: () => {},
+      removed: (obj) => {
+        ChatLogger.debug('usersAdapter::observe::removed', obj);
+        dispatch({
+          type: ACTIONS.REMOVED,
+          value: {
+            user: obj,
+          },
+        });
+      },
     });
   }, []);
 
