@@ -5,7 +5,7 @@ import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteb
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
-import { politeSRAlert } from '/imports/utils/dom-utils';
+import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationPlaceholder from './presentation-placeholder/component';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
@@ -181,7 +181,7 @@ class Presentation extends PureComponent {
       && prevProps?.currentSlide?.num != null
       && currentSlide?.num !== prevProps.currentSlide?.num
     ) {
-      politeSRAlert(intl.formatMessage(intlMessages.slideContentChanged, { 0: currentSlide.num }));
+      addNewAlert(intl.formatMessage(intlMessages.slideContentChanged, { 0: currentSlide.num }));
     }
 
     if (currentPresentation) {

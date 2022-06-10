@@ -23,27 +23,7 @@ export const unregisterTitleView = () => {
     title.text = data.join(' - ');
 };
 
-export const alertScreenReader = (s = '') => {
-    const app = document.getElementById('app');
-    const ariaAlert = document.createElement("div"); 
-    ariaAlert.setAttribute("id", "aria-alert"); 
-    ariaAlert.setAttribute("role", "alert"); 
-    ariaAlert.setAttribute("aria-hidden", false);
-    ariaAlert.setAttribute("className", "sr-only");
-    ariaAlert.textContent = s;
-    app.appendChild(ariaAlert);
-
-    setTimeout(() => {
-        document.getElementById('aria-alert').remove();
-    }, ARIA_ALERT_TIMEOUT);
+export default {
+  registerTitleView,
+  unregisterTitleView,
 };
-
-export const politeSRAlert = (s = '') => {
-    const liveArea = document.getElementById('aria-polite-alert')
-    if (liveArea) liveArea.innerHTML = s;
-    setTimeout(() => {
-        if (liveArea) liveArea.innerHTML = '';
-    }, ARIA_ALERT_EXT_TIMEOUT);
-};
-
-export default { registerTitleView, unregisterTitleView, alertScreenReader, politeSRAlert };
