@@ -26,11 +26,12 @@ class CursorContainer extends Component {
 
 
 export default withTracker((params) => {
-  const { cursorId, whiteboardId } = params;
+  const { cursorId, whiteboardId, presenter } = params;
 
   const cursor = CursorService.getCurrentCursor(cursorId);
+  const hasPermission = presenter || WhiteboardService.hasMultiUserAccess(whiteboardId, cursor.userId);
 
-  if (cursor && WhiteboardService.hasMultiUserAccess(whiteboardId, cursor.userId)) {
+  if (cursor && hasPermission) {
     const { xPercent: cursorX, yPercent: cursorY, userName } = cursor;
     const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
     return {
