@@ -16,14 +16,14 @@ import java.util.Set;
 public class Recording {
 
     public enum State {
-        STATE_PROCESSING("processing"),
-        STATE_PROCESSED("processed"),
-        STATE_PUBLISING("publishing"),
-        STATE_PUBLISHED("published"),
-        STATE_UNPUBLISING("unpublishing"),
-        STATE_UNPUBLISHED("unpublished"),
-        STATE_DELETING("deleting"),
-        STATE_DELETED("deleted");
+        PROCESSING("processing"),
+        PROCESSED("processed"),
+        PUBLISHING("publishing"),
+        PUBLISHED("published"),
+        UNPUBLISHING("unpublishing"),
+        UNPUBLISHED("unpublished"),
+        DELETING("deleting"),
+        DELETED("deleted");
 
         private String value;
 

@@ -2,6 +2,7 @@ package org.bigbluebutton.rest.v1;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.bigbluebutton.dao.entity.Recording;
+import org.bigbluebutton.request.MetadataParams;
 import org.bigbluebutton.service.RecordingService;
 import org.bigbluebutton.service.XmlService;
 import org.slf4j.Logger;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 public class RecordingApiControllerV1 implements RecordingApiV1 {
@@ -26,12 +29,13 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
     @Value("${bbb.security.salt}")
     private String securitySalt;
 
-    private RecordingService recordingService;
-    private XmlService xmlService;
+    private final RecordingService recordingService;
+    private final XmlService xmlService;
 
     @Autowired
     public RecordingApiControllerV1(@Qualifier("fileImpl") RecordingService recordingService, XmlService xmlService) {
         this.recordingService = recordingService;
+        this.xmlService = xmlService;
     }
 
     @Override
@@ -64,8 +68,10 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
         }
 
         for(Map.Entry<String, String[]> entry: params.entrySet()) {
-            if (entry.getKey().startsWith("meta")) meta.put(entry.getKey(), entry.getValue()[0]);
+            if (MetadataParams.isMetaValid(entry.getKey())) meta.put(entry.getKey(), entry.getValue()[0]);
         }
+
+        meta = MetadataParams.processMetaParams(meta);
 
         if(!validateChecksum("getRecordings", checksum, request.getQueryString())) {
             return xmlService.constructGenericResponse(
@@ -183,8 +189,10 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
         if(params.containsKey("checksum")) checksum = params.get("checksum")[0];
 
         for(Map.Entry<String, String[]> entry: params.entrySet()) {
-            if (entry.getKey().startsWith("meta")) meta.put(entry.getKey(), entry.getValue()[0]);
+            if (MetadataParams.isMetaValid(entry.getKey())) meta.put(entry.getKey(), entry.getValue()[0]);
         }
+
+        meta = MetadataParams.processMetaParams(meta);
 
         if(!validateChecksum("updateRecordings", checksum, request.getQueryString())) {
             return xmlService.constructGenericResponse(

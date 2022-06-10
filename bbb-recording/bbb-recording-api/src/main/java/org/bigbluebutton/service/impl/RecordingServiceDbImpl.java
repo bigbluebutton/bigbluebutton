@@ -31,58 +31,58 @@ public class RecordingServiceDbImpl implements RecordingService {
         logger.info("Retrieving all recordings");
         Set<Recording> recordings = new HashSet<>(recordingRepository.findAll());
 
-        Set<Recording> recordingsByMeetingId = new HashSet<>();
-        for(String id: meetingIds) {
-            List<Recording> r = recordingRepository.findByMeetingId(id);
-            if(r != null) recordingsByMeetingId.addAll(r);
-        }
+        if(meetingIds.size() > 0) {
+            Set<Recording> recordingsByMeetingId = new HashSet<>();
+            for(String id: meetingIds) {
+                List<Recording> r = recordingRepository.findByMeetingId(id);
+                if(r != null) recordingsByMeetingId.addAll(r);
+            }
 
-        logger.info("Filtering recordings by meeting ID");
-        if(recordingsByMeetingId.size() > 0) {
+            logger.info("Filtering recordings by meeting ID");
             recordings.retainAll(recordingsByMeetingId);
-        }
-        logger.info("{} recordings remaining", recordings.size());
-
-        Set<Recording> recordingsByRecordId = new HashSet<>();
-        for(String id: recordIds) {
-            Optional<Recording> recording = recordingRepository.findByRecordId(id);
-            recording.ifPresent(recordingsByRecordId::add);
+            logger.info("{} recordings remaining", recordings.size());
         }
 
-        logger.info("Filtering recordings by meeting ID");
-        if(recordingsByRecordId.size() > 0) {
+        if(recordIds.size() > 0) {
+            Set<Recording> recordingsByRecordId = new HashSet<>();
+            for(String id: recordIds) {
+                Optional<Recording> recording = recordingRepository.findByRecordId(id);
+                recording.ifPresent(recordingsByRecordId::add);
+            }
+
+            logger.info("Filtering recordings by recording ID");
             recordings.retainAll(recordingsByRecordId);
-        }
-        logger.info("{} recordings remaining", recordings.size());
-
-        Set<Recording> recordingsByState = new HashSet<>();
-        for(String state: states) {
-            List<Recording> r = recordingRepository.findByState(state);
-            if(r != null) recordingsByState.addAll(r);
+            logger.info("{} recordings remaining", recordings.size());
         }
 
-        logger.info("Filtering recordings by state");
-        if(recordingsByState.size() > 0) {
+        if(states.size() > 0) {
+            Set<Recording> recordingsByState = new HashSet<>();
+            for(String state: states) {
+                List<Recording> r = recordingRepository.findByState(state);
+                if(r != null) recordingsByState.addAll(r);
+            }
+
+            logger.info("Filtering recordings by state");
             recordings.retainAll(recordingsByState);
-        }
-        logger.info("{} recordings remaining", recordings.size());
-
-        List<Metadata> metadata = new ArrayList<>();
-        for(Map.Entry<String, String> filter: meta.entrySet()) {
-            List<Metadata> m = metadataRepository.findByKeyAndValue(filter.getKey(), filter.getValue());
-            if(m != null) metadata.addAll(m);
+            logger.info("{} recordings remaining", recordings.size());
         }
 
-        Set<Recording> recordingsByMetadata = new HashSet<>();
-        for(Metadata m: metadata) {
-            recordingsByMetadata.add(m.getRecording());
-        }
+        if(meta.size() > 0) {
+            List<Metadata> metadata = new ArrayList<>();
+            for(Map.Entry<String, String> filter: meta.entrySet()) {
+                List<Metadata> m = metadataRepository.findByKeyAndValue(filter.getKey(), filter.getValue());
+                if(m != null) metadata.addAll(m);
+            }
 
-        logger.info("Filtering recordings by metadata");
-        if(recordingsByMetadata.size() > 0) {
+            Set<Recording> recordingsByMetadata = new HashSet<>();
+            for(Metadata m: metadata) {
+                recordingsByMetadata.add(m.getRecording());
+            }
+
+            logger.info("Filtering recordings by metadata");
             recordings.retainAll(recordingsByMetadata);
+            logger.info("{} recordings remaining", recordings.size());
         }
-        logger.info("{} recordings remaining", recordings.size());
 
         return List.copyOf(recordings);
     }
@@ -129,7 +129,7 @@ public class RecordingServiceDbImpl implements RecordingService {
         if(optional.isPresent()) {
             Recording recording = optional.get();
             recording.setPublished(publish);
-            String state = (publish) ? Recording.State.STATE_PUBLISHED.getValue() : Recording.State.STATE_UNPUBLISHED.getValue();
+            String state = (publish) ? Recording.State.PUBLISHED.getValue() : Recording.State.UNPUBLISHED.getValue();
             recording.setState(state);
             recordingRepository.save(recording);
             return recording;

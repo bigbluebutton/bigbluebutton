@@ -32,7 +32,16 @@ spring.datasource.hikari.minimumIdle=5
 spring.datasource.hikari.minimumPoolSize=10
 spring.datasource.hikari.idelTimeout=30000
 
-bbb.security.salt='"$SECURITY_SALT"`
+bbb.web.defaultServerUrl=http://bigbluebutton.example.com
+bbb.web.defaultTextTrackUrl=${bbb.web.defaultServerURL}/bigbluebutton
+
+bbb.security.salt=330a8b08c3b4c61533e1d0c5ce1ac88f
+
+bbb.recording.publishedDir=/var/bigbluebutton/published
+bbb.recording.unpublishedDir=/var/bigbluebutton/unpublished
+bbb.recording.captionsDir=/var/bigbluebutton/captions
+bbb.recording.presentationBaseDir=/var/bigbluebutton
+'`
 
 echo "$CONTENT" > "${PERSISTENCE_DIR}/${CFG_FILE}"
 
