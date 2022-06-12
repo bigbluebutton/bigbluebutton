@@ -22,19 +22,17 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 
 const DropdownButton = styled.button`
-  background-color: ${colorGrayLightest};
+  background-color: #FFF;
   border: none;
-  border-radius: 1px;
+  border-radius: 7px;
   color: ${colorGrayDark};
   cursor: pointer;
-  padding: .2rem .5rem;
+  padding: .3rem .5rem;
+  padding-bottom: 6px;
+  tab-index: 0;
 
-  &:hover, &:focus {
-    color: ${colorGray};
-  }
-
-  &:focus {
-    outline: ${colorGray} solid ${borderSize};
+  &:hover {
+    background-color: #ececec;
   }
 `;
 
@@ -42,8 +40,8 @@ const Right = styled.div`
   cursor: pointer;
   position: absolute;
   left: auto;
-  top: ${borderSize};
-  right: ${borderSize};
+  top: .5rem;
+  right: .5rem;
   z-index: 999;
 
   [dir="rtl"] & {
