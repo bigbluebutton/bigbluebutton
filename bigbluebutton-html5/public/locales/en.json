@@ -603,6 +603,7 @@
     "app.error.500": "Ops, something went wrong",
     "app.error.userLoggedOut": "User has an invalid sessionToken due to log out",
     "app.error.ejectedUser": "User has an invalid sessionToken due to ejection",
+    "app.error.joinedAnotherWindow": "This session seems to be opened in another browser window.",
     "app.error.userBanned": "User has been banned",
     "app.error.leaveLabel": "Log in again",
     "app.error.fallback.presentation.title": "An error occurred",

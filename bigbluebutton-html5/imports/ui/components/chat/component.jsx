@@ -2,7 +2,6 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import Button from '/imports/ui/components/common/button/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { Meteor } from 'meteor/meteor';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
@@ -14,6 +13,7 @@ import { PANELS, ACTIONS } from '../layout/enums';
 import { UserSentMessageCollection } from './service';
 import Auth from '/imports/ui/services/auth';
 import browserInfo from '/imports/utils/browserInfo';
+import Header from '/imports/ui/components/common/control-header/component';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -67,68 +67,56 @@ const Chat = (props) => {
       isChrome={isChrome}
       data-test={isPublicChat ? 'publicChat' : 'privateChat'}
     >
-      <Styled.Header>
-        <Styled.Title data-test="chatTitle">
-          <Styled.HideChatButton
-            onClick={() => {
-              layoutContextDispatch({
-                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-                value: false,
-              });
-              layoutContextDispatch({
-                type: ACTIONS.SET_ID_CHAT_OPEN,
-                value: '',
-              });
-              layoutContextDispatch({
-                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-                value: PANELS.NONE,
-              });
-            }}
-            aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
-            accessKey={chatID !== 'public' ? HIDE_CHAT_AK : null}
-            data-test={isPublicChat ? 'hidePublicChat' : 'hidePrivateChat'}
-            label={title}
-            icon="left_arrow"
+      <Header
+        leftButtonProps={{
+          accessKey: chatID !== 'public' ? HIDE_CHAT_AK : null,
+          'aria-label': intl.formatMessage(intlMessages.hideChatLabel, { 0: title }),
+          'data-test': isPublicChat ? 'hidePublicChat' : 'hidePrivateChat',
+          label: title,
+          onClick: () => {
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: false,
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_ID_CHAT_OPEN,
+              value: '',
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+              value: PANELS.NONE,
+            });
+          },
+        }}
+        rightButtonProps={{
+          accessKey: CLOSE_CHAT_AK,
+          'aria-label': intl.formatMessage(intlMessages.closeChatLabel, { 0: title }),
+          'data-test': "closePrivateChat",
+          icon: "close",
+          label: intl.formatMessage(intlMessages.closeChatLabel, { 0: title }),
+          onClick: () => {
+            actions.handleClosePrivateChat(chatID);
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: false,
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_ID_CHAT_OPEN,
+              value: '',
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+              value: PANELS.NONE,
+            });
+          },
+        }}
+        customRightButton={isPublicChat && (
+          <ChatDropdownContainer {...{
+            meetingIsBreakout, isMeteorConnected, amIModerator, timeWindowsValues,
+          }}
           />
-        </Styled.Title>
-        {
-          !isPublicChat
-            ? (
-              <Button
-                icon="close"
-                size="sm"
-                ghost
-                color="dark"
-                hideLabel
-                onClick={() => {
-                  actions.handleClosePrivateChat(chatID);
-                  layoutContextDispatch({
-                    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-                    value: false,
-                  });
-                  layoutContextDispatch({
-                    type: ACTIONS.SET_ID_CHAT_OPEN,
-                    value: '',
-                  });
-                  layoutContextDispatch({
-                    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-                    value: PANELS.NONE,
-                  });
-                }}
-                aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
-                label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
-                accessKey={CLOSE_CHAT_AK}
-                data-test="closePrivateChat"
-              />
-            )
-            : (
-              <ChatDropdownContainer {...{
-                meetingIsBreakout, isMeteorConnected, amIModerator, timeWindowsValues,
-              }}
-              />
-            )
-        }
-      </Styled.Header>
+        )}
+      />
       <TimeWindowList
         id={ELEMENT_ID}
         chatId={chatID}

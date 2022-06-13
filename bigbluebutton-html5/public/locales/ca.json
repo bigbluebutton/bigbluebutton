@@ -504,8 +504,6 @@
     "app.breakoutJoinConfirmation.freeJoinMessage": "Escull la sala separada per a unir-se",
     "app.breakoutTimeRemainingMessage": "Temps restant a la sala separada: {0}",
     "app.breakoutWillCloseMessage": "Temps finalitzat. La reunió separada es tancarà aviat",
-    "app.breakout.dropdown.manageDuration": "Gestionar la durada",
-    "app.breakout.dropdown.destroyAll": "Esborrar sales externes",
     "app.breakout.dropdown.options": "Opcions de sales externes",
     "app.calculatingBreakoutTimeRemaining": "Calculant temps restant ...",
     "app.audioModal.ariaTitle": "Entra a l'àudio modal",
