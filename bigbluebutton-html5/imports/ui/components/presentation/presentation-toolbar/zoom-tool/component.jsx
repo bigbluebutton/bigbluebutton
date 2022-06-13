@@ -53,10 +53,15 @@ class ZoomTool extends PureComponent {
   }
 
   componentDidUpdate() {
-    const { zoomValue } = this.props;
+    const { zoomValue, tldrawAPI } = this.props;
     const { stateZoomValue } = this.state;
     const isDifferent = zoomValue !== stateZoomValue;
-    if (isDifferent) this.onChanger(zoomValue);
+    if (isDifferent) {
+      this.onChanger(zoomValue);
+      if (tldrawAPI && zoomValue === 1 && tldrawAPI?.getPageState()?.camera?.zoom === 1) {
+        tldrawAPI?.zoomToFit();
+      }
+    }
   }
 
   onChanger(value) {
