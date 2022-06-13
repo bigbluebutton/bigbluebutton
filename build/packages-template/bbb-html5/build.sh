@@ -122,6 +122,14 @@ touch staging/var/www/bigbluebutton/index.html
 
 . ./opts-$DISTRO.sh
 
+# We don't include private_address.conf in the list of configuration files, because the
+# configuration files get installed in two stages (first stage with .dpkg_new appended),
+# so we could get into a situation where the private_address variable is referenced
+# but never defined, which will trigger fatal errors from nginx and all kinds of
+# configuration problems.
+
+DEB_CONFIG_FILES=$(find staging/etc -type f -not -name private_address.conf -exec echo --deb-config {} \;)
+
 #
 # Build RPM package
 fpm -s dir -C ./staging -n $PACKAGE \
@@ -131,6 +139,7 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --before-remove before-remove.sh \
     --after-remove after-remove.sh \
     --description "The HTML5 components for BigBlueButton" \
+    --deb-no-default-config-files $DEB_CONFIG_FILES \
     $DIRECTORIES \
     $OPTS \
     -d 'yq (>= 3)' -d 'yq (<< 4)'
