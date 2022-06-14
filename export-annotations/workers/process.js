@@ -452,6 +452,8 @@ function overlay_ellipse(svg, annotation) {
         'ry': ry,
         transform: `rotate(${rotation} ${x + rx} ${y + ry})`
     }).up()
+
+    if (annotation.label) { overlay_shape_label(svg, annotation) }
 }
 
 function overlay_rectangle(svg, annotation) {
@@ -484,6 +486,28 @@ function overlay_rectangle(svg, annotation) {
         'ry': ry,
         transform: `translate(${x} ${y}), rotate(${rotation} ${w / 2} ${h / 2})`
     }).up()
+
+    if (annotation.label) { overlay_shape_label(svg, annotation) }
+}
+
+function overlay_shape_label(svg, annotation) {
+
+    let shape_text = {
+        size: annotation.size,
+        point: annotation.point,
+        labelPoint: annotation.labelPoint,
+        style: {
+            color: annotation.style.color,
+            scale: annotation.style.scale,
+            textAlign: 'shape_label',
+            font: annotation.style.font,
+            size: annotation.style.size,
+        },
+        text: annotation.label,
+        rotation: annotation.rotation,
+    }
+
+    overlay_text(svg, shape_text);
 }
 
 function overlay_sticky(svg, annotation) {
@@ -560,6 +584,7 @@ function overlay_triangle(svg, annotation) {
         transform: `translate(${x}, ${y}), rotate(${rotation} ${w / 2} ${h / 2})`
     }).up()
 
+    if (annotation.label) { overlay_shape_label(svg, annotation) }
 }
 
 function overlay_text(svg, annotation) {
@@ -569,12 +594,13 @@ function overlay_text(svg, annotation) {
     let text_anchor = annotation.style.textAlign;
     let rotation = rad_to_degree(annotation.rotation);
     let font = determine_font_from_family(annotation.style.font);
-
     let [w, h] = annotation.size;
     let [textBox_x, textBox_y] = annotation.point;
+    let dominant_baseline = 'auto';
 
     // Offsets for the text positioning given alignment value (default 'start' == 'justify')
     let rotation_x = textBox_x + (w / 2)
+    let rotation_y = textBox_y + (h / 2)
 
     if (text_anchor == 'middle') {
         textBox_x += (w / 2)
@@ -582,6 +608,15 @@ function overlay_text(svg, annotation) {
     } else if (text_anchor == 'end') {
         textBox_x += w
         rotation_x = textBox_x - (w / 2)
+    } else if (text_anchor == 'shape_label') {
+        text_anchor = 'middle'
+        dominant_baseline = 'middle'
+
+        textBox_x += annotation.labelPoint[0] * w;
+        textBox_y += annotation.labelPoint[1] * h;
+
+        // Subtract 1em
+        textBox_y -= fontSize
     }
 
     let textNode = svg.ele('text', {
@@ -591,7 +626,8 @@ function overlay_text(svg, annotation) {
         'font-size': fontSize,
         'font-family': font,
         'fill': fontColor,
-        transform: `rotate(${rotation} ${rotation_x} ${textBox_y + (h / 2)})`
+        'dominant-baseline': dominant_baseline,
+        transform: `rotate(${rotation} ${rotation_x} ${rotation_y})`
     });
 
     for (let line of annotation.text.split('\n')) {
