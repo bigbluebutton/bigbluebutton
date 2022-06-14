@@ -5,8 +5,7 @@ const { create } = require('xmlbuilder2', { encoding: 'utf-8' });
 const { execSync } = require("child_process");
 const { Worker, workerData, parentPort } = require('worker_threads');
 const path = require('path');
-const sanitize = require("sanitize-filename");
-const twemoji = require("twemoji");
+const sanitize = require('sanitize-filename');
 const { getStroke, getStrokePoints } = require('perfect-freehand');
 const probe = require('probe-image-size');
 
@@ -115,10 +114,14 @@ function render_HTMLTextBox(htmlFilePath, id, width, height) {
         '--format', 'png',
         '--encoding', `${config.process.whiteboardTextEncoding}`,
         '--transparent',
-        '--crop-w', width,
-        '--crop-h', height,
+        '--width', width,
+        '--height', height,
         '--log-level', 'none',
         '--quality', '100',
+        '--disable-javascript',
+        '--no-images',
+        '--disable-local-file-access',
+        '--transparent',
         htmlFilePath, path.join(dropbox, `text${id}.png`)
     ]
 
@@ -520,11 +523,10 @@ function overlay_sticky(svg, annotation) {
 
     let [textBoxWidth, textBoxHeight] = annotation.size;
     let [textBox_x, textBox_y] = annotation.point;
-
-    var html = twemoji.parse(
+    
+    let html =
         `<!DOCTYPE html>
         <style>
-            img.emoji { height: 1em; width: 1em; }
             p {
                 width:${textBoxWidth}px;
                 height:${textBoxHeight}px;
@@ -533,12 +535,11 @@ function overlay_sticky(svg, annotation) {
                 font-family:${font};
                 font-size:${fontSize}px;
                 text-align:${textAlign};
-                background-color:${backgroundColor};
             }
         </style>
         <html>
             <p>${annotation.text.split('\n').join('<br>')}</p>
-        </html>`);
+        </html>`;
 
     var htmlFilePath = path.join(dropbox, `text${annotation.id}.html`)
 
@@ -546,12 +547,23 @@ function overlay_sticky(svg, annotation) {
         if (err) logger.error(err);
     })
 
-    render_HTMLTextBox(htmlFilePath, annotation.id, textBoxWidth, textBoxHeight)
+    // Extend width due to text padding with 0.5em on top & below, besides the paragraph line break
+    render_HTMLTextBox(htmlFilePath, annotation.id, textBoxWidth, textBoxHeight + 2 * fontSize)
 
+    // Empty sticky note
+    svg.ele('rect', {
+        x: textBox_x,
+        y: textBox_y,
+        width: textBoxWidth,
+        height: textBoxHeight,
+        fill: backgroundColor,
+    }).up()
+
+    // Overlay transparent text image
     svg.ele('image', {
         'xlink:href': `file://${dropbox}/text${annotation.id}.png`,
         x: textBox_x,
-        y: textBox_y,
+        y: textBox_y - (fontSize / 2),
         width: textBoxWidth,
         height: textBoxHeight,
         transform: `rotate(${rotation}, ${textBox_x + (textBoxWidth / 2)}, ${textBox_y + (textBoxHeight / 2)})`

@@ -12,7 +12,6 @@
     "probe-image-size": "^7.2.3",
     "redis": "^4.0.3",
     "sanitize-filename": "^1.6.3",
-    "twemoji": "^14.0.2",
     "xmlbuilder2": "^3.0.2"
   }
 }
