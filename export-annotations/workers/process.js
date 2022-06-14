@@ -252,21 +252,9 @@ function getArcLength(C, r, A, B) {
 
 function getSweep(C, A, B) {
 
-    // | C × A |
-    let cpr0 = C[0] * A[1] - A[0] * C[1];
-
-    // C • A
-    let dpr0 = C[0] * A[0] + C[1] * A[0];
-
-    // | C × B |
-    let cpr1 = C[0] * B[1] - C[0] * B[1];
-
-    // C • B
-    let dpr1 = C[0] * B[0] + C[1] * B[0];
-
     // Get angle between two vectors in radians
-    let a0 = Math.atan2(cpr0, dpr0);
-    let a1 = Math.atan2(cpr1, dpr1);
+    let a0 = Math.atan2(A[1] - C[1], A[0] - C[0]);
+    let a1 = Math.atan2(B[1] - C[1], B[0] - C[0]);
 
     // Short distance between two angles
     let max = Math.PI * 2
@@ -312,7 +300,7 @@ function nudge(A, B, d) {
     if (A[0] === B[0] && A[1] === B[1]) return A
 
     // B - A
-    let sub = [B[0] - A[0], B[1] - A[0]];
+    let sub = [B[0] - A[0], B[1] - A[1]];
 
     // Vector length
     let len = Math.hypot(sub[0], sub[1]);
@@ -330,7 +318,6 @@ function getCurvedArrowHeadPath(A, r1, C, r2, sweep) {
     const phi = (1 + Math.sqrt(5)) / 2;
 
     // Determine intersections between two circles
-
     let ints = intersectCircleCircle(A, r1 * (phi - 1), C, r2)
 
     if (!ints) {
