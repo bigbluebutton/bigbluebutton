@@ -314,12 +314,33 @@ class VideoPreview extends Component {
     });
   }
 
+  updateVirtualBackgroundInfo = () => {
+    const { webcamDeviceId } = this.state;
+
+    // Update this session's virtual camera effect information if it's enabled
+    setSessionVirtualBackgroundInfo(
+      this.currentVideoStream.virtualBgType,
+      this.currentVideoStream.virtualBgName,
+      webcamDeviceId,
+    );
+  };
+
   // Resolves into true if the background switch is successful, false otherwise
   handleVirtualBgSelected(type, name) {
+    const { sharedDevices } = this.props;
+    const { webcamDeviceId } = this.state;
+    const shared = sharedDevices.includes(webcamDeviceId);
+
     if (type !== EFFECT_TYPES.NONE_TYPE) {
-      return this.startVirtualBackground(this.currentVideoStream, type, name);
+      return this.startVirtualBackground(this.currentVideoStream, type, name).then((switched) => {
+        // If it's not shared we don't have to update here because
+        // it will be updated in the handleStartSharing method.
+        if (switched && shared) this.updateVirtualBackgroundInfo();
+        return switched;
+      });
     } else {
       this.stopVirtualBackground(this.currentVideoStream);
+      if (shared) this.updateVirtualBackgroundInfo();
       return Promise.resolve(true);
     }
   }
@@ -366,12 +387,7 @@ class VideoPreview extends Component {
       this.currentVideoStream.stop();
     }
 
-    // Update this session's virtual camera effect information if it's enabled
-    setSessionVirtualBackgroundInfo(
-      this.currentVideoStream.virtualBgType,
-      this.currentVideoStream.virtualBgName,
-      webcamDeviceId,
-    );
+    this.updateVirtualBackgroundInfo();
     this.cleanupStreamAndVideo();
     startSharing(webcamDeviceId);
     if (resolve) resolve();
