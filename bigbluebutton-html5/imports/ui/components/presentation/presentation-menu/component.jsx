@@ -5,6 +5,7 @@ import { toPng } from 'html-to-image';
 import { toast } from 'react-toastify';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
+import BBBMenu from "/imports/ui/components/common/menu/component";
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
@@ -95,6 +96,7 @@ const PresentationMenu = (props) => {
     layoutContextDispatch,
     meetingName,
     isIphone,
+    isRTL
   } = props;
 
   const [state, setState] = useState({
@@ -260,46 +262,29 @@ const PresentationMenu = (props) => {
 
   return (
     <Styled.Right>
-      <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
-        <Styled.DropdownButton
+      <BBBMenu 
+        trigger={
+          <Styled.DropdownButton
           state={isDropdownOpen ? 'open' : 'closed'}
           aria-label={intl.formatMessage(intlMessages.optionsLabel)}
           data-test="whiteboardOptionsButton"
           onClick={() => setIsDropdownOpen((isOpen) => !isOpen)}
-        >
-          <Styled.ButtonIcon iconName="more" />
-        </Styled.DropdownButton>
-      </TooltipContainer>
-      { isDropdownOpen && (
-        <>
-          <Styled.Overlay onClick={() => setIsDropdownOpen(false)} />
-          <Styled.Dropdown
-            ref={dropdownRef}
-            onBlur={() => setIsDropdownOpen(false)}
-            tabIndex={0}
           >
-            <Styled.List>
-              { options.map((option) => {
-                const {
-                  label, onClick, key, dataTest,
-                } = option;
-
-                return (
-                  <Styled.ListItem
-                    {...{
-                      onClick,
-                      key,
-                      'data-test': dataTest ?? '',
-                    }}
-                  >
-                    {label}
-                  </Styled.ListItem>
-                );
-              }) }
-            </Styled.List>
-          </Styled.Dropdown>
-        </>
-      ) }
+            <Styled.ButtonIcon iconName="more" />
+          </Styled.DropdownButton>
+        }
+        opts={{
+          id: "default-dropdown-menu",
+          keepMounted: true,
+          transitionDuration: 0,
+          elevation: 3,
+          getContentAnchorEl: null,
+          fullwidth: "true",
+          anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+          transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+        }}
+        actions={getAvailableOptions()}
+      />
     </Styled.Right>
   );
 };

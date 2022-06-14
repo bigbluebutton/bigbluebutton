@@ -125,52 +125,9 @@ const Line = styled.div`
   padding: ${lgPaddingX} 0;
 `;
 
-const List = styled.ul`
-  list-style-type: none;
-  padding: ${mdPaddingY} ${borderSize};
-  margin: 0;
-  white-space: nowrap;
-  text-align: left;
-
-  [dir="rtl"] & {
-    text-align: right;
-  }
-`;
-
-const ListItem = styled.li`
-  padding: ${mdPaddingY} ${mdPaddingX};
-
-  &:hover {
-    background-color: ${colorPrimary};
-    color: white;
-  }
-`;
-
-const Dropdown = styled.div`
-  position: absolute;
-  right: 0;
-  top: 117%;
-  background-color: ${colorWhite};
-  z-index: 1000;
-  box-shadow: 0 0 10px 1px ${colorGrayLightest};
-  border-radius: ${borderRadius};
-
-  [dir="rtl"] & {
-    right: auto;
-    left: 0;
-  }
-`;
-
 const ButtonIcon = styled(Icon)`
   width: 1em;
   text-align: center;
-`;
-
-const Overlay = styled.div`
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  cursor: auto;
 `;
 
 export default {
@@ -180,9 +137,5 @@ export default {
   StatusIcon,
   ToastIcon,
   Line,
-  List,
-  Dropdown,
-  ListItem,
   ButtonIcon,
-  Overlay,
 };
