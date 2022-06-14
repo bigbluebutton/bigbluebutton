@@ -441,6 +441,7 @@ function overlay_draw(svg, annotation) {
 function overlay_ellipse(svg, annotation) {
 
     let dash = annotation.style.dash;
+    dash = (dash == 'draw') ? 'solid' : dash // Use 'solid' thickness for draw type
 
     let [x, y] = annotation.point; // Ellipse center coordinates
     let [rx, ry] = annotation.radius;
@@ -664,7 +665,7 @@ function overlay_annotations(svg, currentSlideAnnotations) {
 
             default:
                 // Add individual annotations if they don't belong to a group
-                if (annotation.annotationInfo.parentId == '1') {
+                if (annotation.annotationInfo.parentId % 1 === 0) {
                     overlay_annotation(svg, annotation.annotationInfo);
                 }
         }
@@ -693,6 +694,7 @@ for (let currentSlide of pages) {
     // Output dimensions in pixels even if stated otherwise (pt)
     // CairoSVG didn't like attempts to read the dimensions from a stream
     // to prevent loading file in memory
+    // Ideally, use dimensions provided by tldraw's background image asset instead
     let dimensions = probe.sync(fs.readFileSync(`${backgroundImagePath}.${backgroundFormat}`));
 
     let slideWidth = dimensions.width;
