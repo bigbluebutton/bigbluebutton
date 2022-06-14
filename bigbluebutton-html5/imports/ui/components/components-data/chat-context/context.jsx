@@ -7,12 +7,14 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
+import UserService from '/imports/ui/components/user-list/service';
 import { _ } from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
+const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
 export const ACTIONS = {
@@ -130,7 +132,14 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
       const message = tempGroupMessage[key];
       message.messageType = msgType;
       const previousMessage = message.timestamp <= getLoginTime();
-      if (!previousMessage && message.sender !== Auth.userID && !message.id.startsWith(SYSTEM_CHAT_TYPE) && !message.read) {
+      const amIPresenter = UserService.isUserPresenter(Auth.userID);
+      const shouldAddPollResultMessage = message.id.includes(CHAT_POLL_RESULTS_MESSAGE) && !amIPresenter;
+      if (
+        !previousMessage
+        && message.sender !== Auth.userID
+        && (!message.id.startsWith(SYSTEM_CHAT_TYPE) || shouldAddPollResultMessage)
+        && !message.read
+      ) {
         stateMessages.unreadTimeWindows.add(key);
       }
     });
