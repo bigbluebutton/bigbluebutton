@@ -173,7 +173,7 @@
     "app.presentation.options.fullscreen": "Fullscreen",
     "app.presentation.options.exitFullscreen": "Exit Fullscreen",
     "app.presentation.options.minimize": "Minimize",
-    "app.presentation.options.snapshot": "Snapshot of current presentation",
+    "app.presentation.options.snapshot": "Snapshot of current slide",
     "app.presentation.options.downloading": "Downloading...",
     "app.presentation.options.downloaded": "Current presentation was downloaded",
     "app.presentation.options.downloadFailed": "Could not download current presentation",
