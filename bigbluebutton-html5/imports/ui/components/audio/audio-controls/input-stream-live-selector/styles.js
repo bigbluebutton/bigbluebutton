@@ -1,7 +1,13 @@
 import styled, { css, keyframes } from 'styled-components';
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import Button from '/imports/ui/components/common/button/component';
-import { colorPrimary, colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorPrimary,
+  colorDanger,
+  colorWhite,
+  colorGrayDark,
+  colorOffWhite,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
 const pulse = keyframes`
   0% {
@@ -58,6 +64,13 @@ const DangerColor = {
 
 const SelectedLabel = {
   color: colorPrimary,
+  backgroundColor: colorOffWhite,
+};
+
+const DisabledLabel = {
+  color: colorGrayDark,
+  fontWeight: 'bold',
+  opacity: 1,
 };
 
 export default {
@@ -65,4 +78,5 @@ export default {
   MuteToggleButton,
   DangerColor,
   SelectedLabel,
+  DisabledLabel,
 };

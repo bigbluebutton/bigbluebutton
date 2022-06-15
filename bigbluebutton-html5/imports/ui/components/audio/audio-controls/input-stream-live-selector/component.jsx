@@ -239,6 +239,7 @@ class InputStreamLiveSelector extends Component {
         label: title,
         iconRight: (deviceKind === 'audioinput') ? 'unmute' : 'volume_level_2',
         disabled: true,
+        customStyles: Styled.DisabledLabel,
         divider: true,
       },
     ];
