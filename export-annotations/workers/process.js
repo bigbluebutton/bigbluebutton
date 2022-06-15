@@ -174,6 +174,7 @@ function text_size_to_px(size, scale = 1, isStickyNote = false) {
         default: return 28 * scale
     }
 }
+
 // Methods based on tldraw's utilities
 function getPath(annotationPoints) {
     // Gets inner path of a stroke outline
@@ -246,6 +247,10 @@ function circleFromThreePoints(A, B, C) {
     let y = -c / (2 * a)
 
     return [x, y, Math.hypot(x - x1, y - y1)]
+}
+
+function distance(x1, y1, x2, y2) {
+    return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
 }
 
 function getArcLength(C, r, A, B) {
@@ -356,7 +361,7 @@ function overlay_arrow(svg, annotation) {
 
     let line = [];
     let arrowHead = [];
-    let arrowDistance = Math.sqrt(Math.pow((end_x - start_x), 2) + Math.pow((end_y - start_y), 2));
+    let arrowDistance = distance(start_x, start_y, end_x, end_y);
     let arrowHeadLength = Math.min(arrowDistance / 3, 8 * sw);
     let isStraightLine = parseFloat(bend).toFixed(3) == 0;
 
@@ -420,12 +425,32 @@ function overlay_draw(svg, annotation) {
     let stroke_dasharray = determine_dasharray(dash, gap);
     let fill = (dash === 'draw') ? shapeColor : 'none';
 
+    let shapeFillColor = color_to_hex(`fill-${annotation.style.color}`)
+    let filledPath = "";
+
+    // Fill assuming solid, small pencil used
+    if (annotation.style.isFilled &&
+        annotation.points.length > 3
+        && Math.round(distance(
+            annotation.points[0][0],
+            annotation.points[0][1],
+            annotation.points[annotation.points.length - 1][0],
+            annotation.points[annotation.points.length - 1][1]
+        )) <= 2 * get_stroke_width('solid', 'small')) {
+
+        filledPath = getPath(annotation.points)[0] + 'Z';
+    }
+
     svg.ele('g', {
-        style: `stroke:${shapeColor};stroke-width:${thickness};fill:${fill};${stroke_dasharray}`,
+        transform: `translate(${x} ${y}), rotate(${rotation} ${max_x / 2} ${max_y / 2})`,
     }).ele('path', {
-        d: path,
-        transform: `translate(${x} ${y}), rotate(${rotation} ${max_x / 2} ${max_y / 2})`
+        style: `fill:${shapeFillColor};`,
+        d: filledPath,
     }).up()
+        .ele('path', {
+            style: `stroke:${shapeColor};stroke-width:${thickness};fill:${fill};${stroke_dasharray}`,
+            d: path,
+        }).up()
 }
 
 function overlay_ellipse(svg, annotation) {
@@ -523,7 +548,7 @@ function overlay_sticky(svg, annotation) {
 
     let [textBoxWidth, textBoxHeight] = annotation.size;
     let [textBox_x, textBox_y] = annotation.point;
-    
+
     let html =
         `<!DOCTYPE html>
         <style>
