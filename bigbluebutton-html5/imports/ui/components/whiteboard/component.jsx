@@ -47,6 +47,8 @@ export default function Whiteboard(props) {
     svgUri,
     presentationBounds,
     isViewersCursorLocked,
+    setIsZoomed,
+    isZoomed,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -66,7 +68,6 @@ export default function Whiteboard(props) {
   const [selectedIds, setSelectedIds] = React.useState([]);
   const [tldrawAPI, setTLDrawAPI] = React.useState(null);
   const [cameraFitSlide, setCameraFitSlide] = React.useState({point: [0, 0], zoom: 0});
-  const [zoomedIn, setZoomedIn] = React.useState(false);
   const prevShapes = usePrevious(shapes);
   const prevSlidePosition = usePrevious(slidePosition);
   const prevPageId = usePrevious(curPageId);
@@ -176,7 +177,7 @@ export default function Whiteboard(props) {
     if (curPageId && slidePosition) {
       const camera = calculateCameraFitSlide();
       setCameraFitSlide(camera);
-      if (!zoomedIn) {
+      if (!isZoomed) {
         tldrawAPI?.setCamera(camera.point, camera.zoom);
       }
     }
@@ -188,7 +189,7 @@ export default function Whiteboard(props) {
       const previousPageZoom = tldrawAPI.getPageState()?.camera?.zoom;
       tldrawAPI.changePage(curPageId);
       //change zoom of the new page to follow the previous one
-      if (!zoomedIn && cameraFitSlide.zoom !== 0) {
+      if (!isZoomed && cameraFitSlide.zoom !== 0) {
         tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom, "zoomed");
       } else {
         previousPageZoom &&
@@ -203,10 +204,10 @@ export default function Whiteboard(props) {
     if (tldrawAPI && !isPresenter && curPageId && slidePosition) {
       if (slidePosition.zoom === 0 && slidePosition.xCamera === 0 && slidePosition.yCamera === 0) {
         tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
-        setZoomedIn(false);
+        setIsZoomed(false);
       } else {
         tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
-        setZoomedIn(true);
+        setIsZoomed(true);
       }
     }
   }, [curPageId, slidePosition]);
@@ -237,8 +238,8 @@ export default function Whiteboard(props) {
                 app.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
                 setCameraFitSlide(cameraFitSlide);
               } else {
-                app.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom)
-                setZoomedIn(true);
+                app.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
+                setIsZoomed(true);
               }
             }
           }}
@@ -361,21 +362,21 @@ export default function Whiteboard(props) {
               //don't allow zoom out more than fit
               if (camera.zoom <= cameraFitSlide.zoom) {
                 tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
-                setZoomedIn(false);
+                setIsZoomed(false);
                 zoomSlide(parseInt(curPageId), podId, 0, 0, 0);
               } else {
                 zoomSlide(parseInt(curPageId), podId, camera.zoom, camera.point[0], camera.point[1]);
-                setZoomedIn(true);
+                setIsZoomed(true);
               }
             }
             //don't allow non-presenters to pan&zoom
             if (slidePosition && reason && !isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
               if (slidePosition.zoom === 0 && slidePosition.xCamera === 0 && slidePosition.yCamera === 0) {
                 tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
-                setZoomedIn(false);
+                setIsZoomed(false);
               } else {
                 tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
-                setZoomedIn(true);
+                setIsZoomed(true);
               }
             } 
           }}

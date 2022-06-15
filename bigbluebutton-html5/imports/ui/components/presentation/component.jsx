@@ -74,6 +74,7 @@ class Presentation extends PureComponent {
       fitToWidth: false,
       isFullscreen: false,
       tldrawAPI: null,
+      isZoomed: false,
     };
 
     this.currentPresentationToastId = null;
@@ -88,6 +89,7 @@ class Presentation extends PureComponent {
     this.getPresentationSizesAvailable = this.getPresentationSizesAvailable.bind(this);
     this.handleResize = this.handleResize.bind(this);
     this.setTldrawAPI = this.setTldrawAPI.bind(this);
+    this.setIsZoomed = this.setIsZoomed.bind(this);
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
@@ -281,6 +283,12 @@ class Presentation extends PureComponent {
   setTldrawAPI(api) {
     this.setState({
       tldrawAPI: api,
+    })
+  }
+
+  setIsZoomed(isZoomed) {
+    this.setState({
+      isZoomed,
     })
   }
 
@@ -516,6 +524,7 @@ class Presentation extends PureComponent {
     const {
       zoom,
       fitToWidth,
+      isZoomed,
     } = this.state;
 
     if (!userIsPresenter && !multiUser) {
@@ -566,6 +575,8 @@ class Presentation extends PureComponent {
           physicalSlideHeight={physicalDimensions.height}
           zoom={zoom}
           zoomChanger={this.zoomChanger}
+          setIsZoomed={this.setIsZoomed}
+          isZoomed={isZoomed}
         />
       </PresentationOverlayContainer>
     );
@@ -739,6 +750,7 @@ class Presentation extends PureComponent {
           layoutContextDispatch,
           presentationIsOpen,
         }}
+        isZoomed={this.state.isZoomed}
         tldrawAPI={this.state.tldrawAPI}
         curPageId={this.state.tldrawAPI?.getPage()?.id}
         currentSlideNum={currentSlide.num}
@@ -946,6 +958,7 @@ class Presentation extends PureComponent {
             intl={intl}
             presentationBounds={presentationBounds}
             isViewersCursorLocked={isViewersCursorLocked}
+            setIsZoomed={this.setIsZoomed}
           />
           {isFullscreen && <PollingContainer />}
           {this.renderPresentationToolbar()}

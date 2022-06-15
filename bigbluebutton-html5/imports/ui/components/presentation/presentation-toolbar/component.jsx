@@ -258,6 +258,7 @@ class PresentationToolbar extends PureComponent {
       toolbarWidth,
       multiUserSize,
       multiUser,
+      isZoomed,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -389,6 +390,7 @@ class PresentationToolbar extends PureComponent {
                   step={STEP}
                   isMeteorConnected={isMeteorConnected}
                   tldrawAPI={tldrawAPI}
+                  isZoomed={isZoomed}
                 />
               </TooltipContainer>
             ) : null}
