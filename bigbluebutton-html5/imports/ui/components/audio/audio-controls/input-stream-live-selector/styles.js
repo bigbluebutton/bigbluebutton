@@ -60,6 +60,7 @@ const MuteToggleButton = styled(Button)`
 
 const DangerColor = {
   color: colorDanger,
+  paddingLeft: 12,
 };
 
 const SelectedLabel = {

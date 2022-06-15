@@ -367,7 +367,7 @@ class InputStreamLiveSelector extends Component {
     );
 
     const leaveAudioOption = {
-      iconRight: 'logout',
+      icon: 'logout',
       label: intl.formatMessage(intlMessages.leaveAudio),
       key: 'leaveAudioOption',
       customStyles: Styled.DangerColor,
