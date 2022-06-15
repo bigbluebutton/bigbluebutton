@@ -22,6 +22,7 @@ import com.google.gson.Gson
 import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
 import org.apache.commons.codec.binary.Base64
+import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang.RandomStringUtils
 import org.apache.commons.lang.StringUtils

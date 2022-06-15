@@ -3,9 +3,9 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Modal from '/imports/ui/components/common/modal/simple/component';
 import Auth from '/imports/ui/services/auth';
 import Button from '/imports/ui/components/common/button/component';
+import PropTypes from 'prop-types';
 import Styled from './styles';
 import Meetings from '/imports/api/meetings';
-import PropTypes from 'prop-types';
 
 const APP_CONFIG = Meteor.settings.public.app;
 
@@ -68,7 +68,7 @@ class MobileAppModal extends Component {
     const meetingId = Auth.meetingID;
     const meetingObject = Meetings.findOne({
       meetingId,
-    }, { fields: { 'meetingProp.name': 1, 'breakoutProps.sequence': 1, meetingId: 1 } });
+    }, { fields: { 'meetingProp.name': 1 } });
     if (meetingObject != null) {
       this.setState({ meetingName: meetingObject.meetingProp.name });
     }
