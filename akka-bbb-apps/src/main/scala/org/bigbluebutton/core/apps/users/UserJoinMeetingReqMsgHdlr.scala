@@ -3,8 +3,9 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs.UserJoinMeetingReqMsg
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.{ Users2x, VoiceUsers }
+import org.bigbluebutton.core.models.{ RegisteredUsers, Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting, MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
   this: MeetingActor =>
@@ -34,6 +35,27 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
 
         // fresh user joined (not due to reconnection). Clear (pop) the cached voice user
         VoiceUsers.recoverVoiceUser(liveMeeting.voiceUsers, msg.body.userId)
+
+        // Warn previous users that someone connected with same Id
+        for {
+          regUser <- RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId,
+            liveMeeting.registeredUsers)
+        } yield {
+          RegisteredUsers.findAllWithExternUserId(regUser.externId, liveMeeting.registeredUsers)
+            .filter(u => u.id != regUser.id)
+            .foreach { previousUser =>
+              val notifyUserEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+                previousUser.id,
+                liveMeeting.props.meetingProp.intId,
+                "info",
+                "promote",
+                "app.mobileAppModal.userConnectedWithSameId",
+                "Notification to warn that user connect again from other browser/device",
+                Vector(regUser.name)
+              )
+              outGW.send(notifyUserEvent)
+            }
+        }
 
         newState
     }

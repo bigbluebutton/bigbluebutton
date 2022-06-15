@@ -5,6 +5,7 @@ import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
 import { makeCall } from '/imports/ui/services/api';
 import AboutContainer from '/imports/ui/components/about/container';
+import MobileAppModal from '/imports/ui/components/mobile-app-modal/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
@@ -13,6 +14,7 @@ import FullscreenService from '/imports/ui/components/common/fullscreen-button/s
 import { colorDanger } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -70,6 +72,10 @@ const intlMessages = defineMessages({
   helpLabel: {
     id: 'app.navBar.settingsDropdown.helpLabel',
     description: 'Help options label',
+  },
+  openAppLabel: {
+    id: 'app.navBar.settingsDropdown.openAppLabel',
+    description: 'Open mobile app label',
   },
   helpDesc: {
     id: 'app.navBar.settingsDropdown.helpDesc',
@@ -188,6 +194,8 @@ class SettingsDropdown extends PureComponent {
       intl, mountModal, amIModerator, isBreakoutRoom, isMeteorConnected,
     } = this.props;
 
+    const { isIos } = deviceInfo;
+
     const allowedToEndMeeting = amIModerator && !isBreakoutRoom;
 
     const {
@@ -227,6 +235,17 @@ class SettingsDropdown extends PureComponent {
           label: intl.formatMessage(intlMessages.helpLabel),
           // description: intl.formatMessage(intlMessages.helpDesc),
           onClick: () => window.open(`${helpLink}`),
+        },
+      );
+    }
+
+    if (isIos) {
+      this.menuItems.push(
+        {
+          key: 'list-item-help',
+          icon: 'popout_window',
+          label: intl.formatMessage(intlMessages.openAppLabel),
+          onClick: () => mountModal(<MobileAppModal />),
         },
       );
     }

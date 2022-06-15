@@ -41,6 +41,7 @@ public class ValidationService {
         STUNS("stuns", RequestType.GET),
         SIGN_OUT("signOut", RequestType.GET),
         LEARNING_DASHBOARD("learningDashboard", RequestType.GET),
+        GET_JOIN_URL("getJoinUrl", RequestType.GET),
         INSERT_DOCUMENT("insertDocument", RequestType.GET);
 
         private final String name;
@@ -140,6 +141,9 @@ public class ValidationService {
                         break;
                     case LEARNING_DASHBOARD:
                         request = new LearningDashboard();
+                        break;
+                    case GET_JOIN_URL:
+                        request = new GetJoinUrl();
                         break;
                 }
             case POST:

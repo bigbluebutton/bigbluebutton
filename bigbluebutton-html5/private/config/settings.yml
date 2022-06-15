@@ -33,6 +33,8 @@ public:
     copyright: '©2022 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
+    iosAppStoreUrl: ''
+    iosAppUrlScheme: bigbluebutton
     lockOnJoin: true
     cdn: ''
     basename: '/html5client'
