@@ -35,7 +35,7 @@ class StoreAnnotationsInRedisPresAnnEvent extends AbstractPresentationWithAnnota
     eventMap.put(PRES_ID, presId)
   }
 
-  def setPages(pages: Array[PresentationPageForExport]) {
+  def setPages(pages: List[PresentationPageForExport]) {
     eventMap.put(PAGES, JsonUtil.toJson(pages))
   }
 }

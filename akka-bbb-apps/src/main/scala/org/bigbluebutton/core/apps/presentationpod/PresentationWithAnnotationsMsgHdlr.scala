@@ -7,6 +7,7 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.util.RandomStringGenerator
 import org.bigbluebutton.core.models.{ PresentationPod, PresentationPage, PresentationInPod }
+import java.io.File
 
 trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
@@ -40,139 +41,124 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def handleMakePresentationWithAnnotationDownloadReqMsg(m: MakePresentationWithAnnotationDownloadReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+  def getPresentationPagesForExport(pagesRange: List[Int], pageCount: Int, presId: String, currentPres: Option[PresentationInPod], liveMeeting: LiveMeeting, storeAnnotationPages: List[PresentationPageForExport] = List()): List[PresentationPageForExport] = {
 
-    val meetingId = liveMeeting.props.meetingProp.intId
+    pagesRange match {
+      case (pageNumber :: pages) => {
 
-    // Whiteboard ID
-    val presId: String = m.body.presId match {
-      case "" => PresentationPodsApp.getAllPresentationPodsInMeeting(state).flatMap(_.getCurrentPresentation.map(_.id)).mkString
-      case _  => m.body.presId
-    }
+        if (pageNumber >= 1 && pageNumber <= pageCount) {
 
-    val allPages: Boolean = m.body.allPages // Whether or not all pages of the presentation should be exported
-    val pages: List[Int] = m.body.pages // Desired presentation pages for export
+          val whiteboardId = s"${presId}/${pageNumber.toString}"
+          val presentationPage: PresentationPage = currentPres.get.pages(whiteboardId)
+          val xCamera: Double = presentationPage.xCamera
+          val yCamera: Double = presentationPage.yCamera
+          val zoom: Double = presentationPage.zoom
+          val whiteboardHistory: Array[AnnotationVO] = liveMeeting.wbModel.getHistory(whiteboardId)
 
-    // Determine page amount
-    val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
-
-    val currentPres = presentationPods.flatMap(_.getCurrentPresentation()).headOption
-
-    currentPres match {
-      case None =>
-        log.error(s"No presentation set in meeting ${meetingId}")
-        return
-      case _ => ()
-    }
-
-    val pageCount = currentPres.get.pages.size
-    val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else pages
-
-    var storeAnnotationPages = new Array[PresentationPageForExport](pagesRange.size)
-    var resultingPage = 0
-
-    for (pageNumber <- pagesRange) {
-      if (pageNumber < 1 || pageNumber > pageCount) {
-        println(pagesRange.length)
-        log.error(s"Page ${pageNumber} requested for export out of range, aborting")
-        return
+          val page = new PresentationPageForExport(pageNumber, xCamera, yCamera, zoom, whiteboardHistory)
+          getPresentationPagesForExport(pages, pageCount, presId, currentPres, liveMeeting, storeAnnotationPages :+ page)
+        } else {
+          getPresentationPagesForExport(pages, pageCount, presId, currentPres, liveMeeting, storeAnnotationPages)
+        }
       }
 
-      var whiteboardId = s"${presId}/${pageNumber.toString}"
-      val presentationPage: PresentationPage = currentPres.get.pages(whiteboardId)
-      val xCamera: Double = presentationPage.xCamera
-      val yCamera: Double = presentationPage.yCamera
-      val zoom: Double = presentationPage.zoom
-      val whiteboardHistory: Array[AnnotationVO] = liveMeeting.wbModel.getHistory(whiteboardId)
-
-      storeAnnotationPages(resultingPage) = new PresentationPageForExport(pageNumber, xCamera, yCamera, zoom, whiteboardHistory)
-      resultingPage += 1
+      case _ => storeAnnotationPages
     }
-
-    val jobId = RandomStringGenerator.randomAlphanumericString(16)
-
-    // 1) Send Annotations to Redis
-    var annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
-    bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
-
-    // 2) Insert Export Job in Redis
-    val jobType = "PresentationWithAnnotationDownloadJob"
-    val presLocation = s"/var/bigbluebutton/${meetingId}/${meetingId}/${presId}"
-    val exportJob = new ExportJob(jobId, jobType, "annotated_slides", presId, presLocation, allPages, pagesRange, meetingId, "")
-    var job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
-    bus.outGW.send(job)
   }
 
-  def handleExportPresentationWithAnnotationReqMsg(m: ExportPresentationWithAnnotationReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+  def handle(m: MakePresentationWithAnnotationDownloadReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
     val userId = m.header.userId
 
+    val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
+    val currentPres: Option[PresentationInPod] = presentationPods.flatMap(_.getCurrentPresentation()).headOption
+
     if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
       val reason = "No permission to export presentation."
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
-      return
+    } else if (currentPres.isEmpty) {
+      log.error(s"No presentation set in meeting ${meetingId}")
+    } else {
+
+      val jobType: String = "PresentationWithAnnotationDownloadJob"
+      val jobId: String = RandomStringGenerator.randomAlphanumericString(16);
+      val allPages: Boolean = m.body.allPages
+      val pageCount = currentPres.get.pages.size
+
+      val presId: String = m.body.presId match {
+        case "" => PresentationPodsApp.getAllPresentationPodsInMeeting(state).flatMap(_.getCurrentPresentation.map(_.id)).mkString
+        case _  => m.body.presId
+      }
+
+      val presLocation = List("var", "bigbluebutton", meetingId, meetingId, presId).mkString(File.separator, File.separator, "");
+      val pages: List[Int] = m.body.pages // Desired presentation pages for export
+      val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else pages
+
+      val exportJob: ExportJob = new ExportJob(jobId, jobType, "annotated_slides", presId, presLocation, allPages, pagesRange, meetingId, "");
+      val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
+
+      // Send Export Job to Redis
+      val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
+      bus.outGW.send(job)
+
+      // Send Annotations to Redis
+      val annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
+      bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
     }
-
-    val parentMeetingId: String = m.body.parentMeetingId
-
-    val presId: String = PresentationPodsApp.getAllPresentationPodsInMeeting(state).flatMap(_.getCurrentPresentation.map(_.id)).mkString
-    val allPages: Boolean = m.body.allPages
-
-    val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
-    val currentPres = presentationPods.flatMap(_.getCurrentPresentation()).headOption
-
-    currentPres match {
-      case None =>
-        log.error(s"No presentation set in meeting ${meetingId}")
-        return
-      case _ => ()
-    }
-
-    val currentPage: PresentationPage = PresentationInPod.getCurrentPage(currentPres.get).get
-
-    val pageCount = currentPres.get.pages.size
-    val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else List(currentPage.num)
-
-    var storeAnnotationPages = new Array[PresentationPageForExport](pagesRange.size)
-    var resultingPage = 0
-
-    for (pageNumber <- pagesRange) {
-      var whiteboardId = s"${presId}/${pageNumber.toString}"
-      val presentationPage: PresentationPage = currentPres.get.pages(whiteboardId)
-      val xCamera: Double = presentationPage.xCamera
-      val yCamera: Double = presentationPage.yCamera
-      val zoom: Double = presentationPage.zoom
-      val whiteboardHistory: Array[AnnotationVO] = liveMeeting.wbModel.getHistory(whiteboardId)
-
-      storeAnnotationPages(resultingPage) = new PresentationPageForExport(pageNumber, xCamera, yCamera, zoom, whiteboardHistory)
-      resultingPage += 1
-    }
-
-    val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
-    val jobId = RandomStringGenerator.randomAlphanumericString(16)
-
-    // Set filename, checking if it is already in use
-    var filename: String = liveMeeting.props.meetingProp.name
-    val duplicatedCount = presentationPods.flatMap(_.getPresentationsByFilename(filename)).size
-    filename = duplicatedCount match {
-      case 0 => filename
-      case _ => s"${filename}(${duplicatedCount})"
-    }
-
-    // Informs bbb-web about the token so that when we use it to upload the presentation, it is able to look it up in the list of tokens
-    bus.outGW.send(buildPresentationUploadTokenSysPubMsg(parentMeetingId, userId, presentationUploadToken, filename))
-
-    // 1) Send Annotations to Redis
-    var annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
-    bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
-
-    // 2) Insert Export Job in Redis
-    val jobType: String = "PresentationWithAnnotationExportJob"
-    val presLocation = s"/var/bigbluebutton/${meetingId}/${meetingId}/${presId}"
-    val exportJob = new ExportJob(jobId, jobType, filename, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
-    var job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
-    bus.outGW.send(job)
   }
 
+  def handle(m: ExportPresentationWithAnnotationReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+
+    val meetingId = liveMeeting.props.meetingProp.intId
+    val userId = m.header.userId
+
+    val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
+    val currentPres: Option[PresentationInPod] = presentationPods.flatMap(_.getCurrentPresentation()).headOption
+
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
+      val reason = "No permission to export presentation."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
+    } else if (currentPres.isEmpty) {
+      log.error(s"No presentation set in meeting ${meetingId}")
+    } else {
+
+      val jobId: String = RandomStringGenerator.randomAlphanumericString(16);
+      val jobType = "PresentationWithAnnotationExportJob"
+      val allPages: Boolean = m.body.allPages
+      val pageCount = currentPres.get.pages.size
+
+      val presId: String = PresentationPodsApp.getAllPresentationPodsInMeeting(state).flatMap(_.getCurrentPresentation.map(_.id)).mkString
+      val presLocation = List("var", "bigbluebutton", meetingId, meetingId, presId).mkString(File.separator, File.separator, "");
+      val parentMeetingId: String = m.body.parentMeetingId
+
+      val currentPage: PresentationPage = PresentationInPod.getCurrentPage(currentPres.get).get
+      val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else List(currentPage.num)
+
+      val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
+
+      // Set filename, checking if it is already in use
+      val meetingName: String = liveMeeting.props.meetingProp.name
+      val duplicatedCount = presentationPods.flatMap(_.getPresentationsByFilename(meetingName)).size
+
+      val filename = duplicatedCount match {
+        case 0 => meetingName
+        case _ => s"${meetingName}(${duplicatedCount})"
+      }
+
+      // Informs bbb-web about the token so that when we use it to upload the presentation, it is able to look it up in the list of tokens
+      bus.outGW.send(buildPresentationUploadTokenSysPubMsg(parentMeetingId, userId, presentationUploadToken, filename))
+
+      val exportJob: ExportJob = new ExportJob(jobId, jobType, filename, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
+      val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
+
+      // Send Export Job to Redis
+      val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
+      bus.outGW.send(job)
+
+      // Send Annotations to Redis
+      val annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
+      bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
+    }
+  }
 }

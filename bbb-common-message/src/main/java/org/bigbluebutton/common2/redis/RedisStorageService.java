@@ -120,7 +120,7 @@ public class RedisStorageService extends RedisAwareCommunicator {
         commands.multi();
         
         switch (msgType) {
-            case "Annotations": {
+            case "PresAnn": {
                 commands.hmset(event.get("jobId"), event);
                 break;
             }
@@ -133,7 +133,7 @@ public class RedisStorageService extends RedisAwareCommunicator {
             }
 
             default: {
-                log.error("Attempted to store PresentationAnnotations message of type: {} (expected 'Annotations' or 'ExportJob')", clientName);
+                log.error("Attempted to store PresentationAnnotations message of type: {}", clientName);
                 break;
             }
         }

@@ -67,7 +67,7 @@ class ExportAnnotationsActor(
     ev.setPresId(msg.body.annotations.presId)
     ev.setPages(msg.body.annotations.pages)
 
-    storePresentationAnnotations(msg.header.meetingId, ev.toMap.asJava, "Annotations")
+    storePresentationAnnotations(msg.header.meetingId, ev.toMap.asJava, "PresAnn")
   }
 
   private def handleStoreExportJobInRedisSysMsg(msg: StoreExportJobInRedisSysMsg) {
