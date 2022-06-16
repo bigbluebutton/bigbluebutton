@@ -7,6 +7,7 @@ import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/scree
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
+import Button from '/imports/ui/components/common/button/component';
 
 class ActionsBar extends PureComponent {
   render() {
@@ -95,7 +96,7 @@ class ActionsBar extends PureComponent {
           />
           {isRaiseHandButtonEnabled
             ? (
-              <Styled.RaiseHandButton
+              <Button
                 icon="hand"
                 label={intl.formatMessage({
                   id: `app.actionsBar.emojiMenu.${

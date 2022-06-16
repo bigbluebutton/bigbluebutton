@@ -239,6 +239,12 @@ const ButtonWrapper = styled(BaseButton)`
   ${({
     size, circle, ghost, color,
   }) => size === 'lg' && circle && ghost && color === 'default' && `
+    span {
+      box-shadow: 0 0 1px 0px ${btnDefaultGhostColor} inset, 0 0 1px 0px ${btnDefaultGhostColor};
+      background-color: transparent !important;
+      border-color: ${btnDefaultGhostColor} !important;
+    }
+
     & > span{
       color: ${btnDefaultGhostColor};
     }

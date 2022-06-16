@@ -13,6 +13,7 @@ import {
   screenshareHasEnded,
 } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
+import Button from '/imports/ui/components/common/button/component';
 
 const { isMobile } = deviceInfo;
 const { isSafari } = browserInfo;
@@ -175,7 +176,7 @@ const ScreenshareButton = ({
 
   return shouldAllowScreensharing
     ? (
-      <Styled.ScreenShareButton
+      <Button
         disabled={(!isMeteorConnected && !isVideoBroadcasting) || !screenshareDataSavingSetting}
         icon={isVideoBroadcasting ? 'desktop' : 'desktop_off'}
         data-test={dataTest}

@@ -4,7 +4,6 @@ import Button from '/imports/ui/components/common/button/component';
 import {
   colorPrimary,
   colorDanger,
-  colorWhite,
   colorGrayDark,
   colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -31,15 +30,6 @@ const AudioDropdown = styled(ButtonEmoji)`
 `;
 
 const MuteToggleButton = styled(Button)`
-
-  ${({ ghost }) => ghost && `
-    span {
-      box-shadow: none;
-      background-color: transparent !important;
-      border-color: ${colorWhite} !important;
-    }
-  `}
-
   ${({ talking }) => talking && `
     border-radius: 50%;
   `}
