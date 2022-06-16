@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
+import Settings from '/imports/ui/services/settings';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/common/button/component';
@@ -39,6 +40,14 @@ const intlMessages = defineMessages({
     id: 'app.audio.speakers',
     description: 'Output audio dropdown item label',
   },
+  muteAudio: {
+    id: 'app.actionsBar.muteLabel',
+    description: 'Mute audio button label',
+  },
+  unmuteAudio: {
+    id: 'app.actionsBar.unmuteLabel',
+    description: 'Unmute audio button label',
+  },
 });
 
 const propTypes = {
@@ -53,6 +62,15 @@ const propTypes = {
   currentOutputDeviceId: PropTypes.string.isRequired,
   isListenOnly: PropTypes.bool.isRequired,
   isAudioConnected: PropTypes.bool.isRequired,
+  _enableDynamicDeviceSelection: PropTypes.bool.isRequired,
+  handleToggleMuteMicrophone: PropTypes.func.isRequired,
+  muted: PropTypes.bool.isRequired,
+  disable: PropTypes.bool.isRequired,
+  talking: PropTypes.bool,
+};
+
+const defaultProps = {
+  talking: false,
 };
 
 class InputStreamLiveSelector extends Component {
@@ -67,6 +85,10 @@ class InputStreamLiveSelector extends Component {
     super(props);
     this.updateDeviceList = this.updateDeviceList.bind(this);
     this.renderDeviceList = this.renderDeviceList.bind(this);
+    this.renderListenOnlyButton = this.renderListenOnlyButton.bind(this);
+    this.renderMuteToggleButton = this.renderMuteToggleButton.bind(this);
+    this.renderButtonsWithSelectorDevice = this.renderButtonsWithSelectorDevice.bind(this);
+    this.renderButtonsWithoutSelectorDevice = this.renderButtonsWithoutSelectorDevice.bind(this);
     this.state = {
       audioInputDevices: null,
       audioOutputDevices: null,
@@ -206,8 +228,7 @@ class InputStreamLiveSelector extends Component {
       });
   }
 
-  renderDeviceList(deviceKind, list, callback, title, currentDeviceId,
-    renderSeparator = true) {
+  renderDeviceList(deviceKind, list, callback, title, currentDeviceId) {
     const {
       intl,
     } = this.props;
@@ -216,20 +237,19 @@ class InputStreamLiveSelector extends Component {
       {
         key: `audioDeviceList-${deviceKind}`,
         label: title,
+        iconRight: (deviceKind === 'audioinput') ? 'unmute' : 'volume_level_2',
         disabled: true,
-        dividerTop: (!renderSeparator),
+        customStyles: Styled.DisabledLabel,
+        divider: true,
       },
     ];
-
-    const customStyles = { fontWeight: 'bold' };
-    const disableDeviceStyles = { pointerEvents: 'none' };
 
     const deviceList = (listLength > 0)
       ? list.map((device) => (
         {
           key: `${device.deviceId}-${deviceKind}`,
           label: InputStreamLiveSelector.truncateDeviceName(device.label),
-          customStyles: (device.deviceId === currentDeviceId) ? customStyles : null,
+          customStyles: (device.deviceId === currentDeviceId) && Styled.SelectedLabel,
           iconRight: (device.deviceId === currentDeviceId) ? 'check' : null,
           onClick: () => this.onDeviceListClick(device.deviceId, deviceKind, callback),
         }
@@ -240,13 +260,77 @@ class InputStreamLiveSelector extends Component {
           label: listLength < 0
             ? intl.formatMessage(intlMessages.loading)
             : intl.formatMessage(intlMessages.noDeviceFound),
-          customStyles: disableDeviceStyles,
         },
       ];
     return listTitle.concat(deviceList);
   }
 
-  render() {
+  renderMuteToggleButton() {
+    const {
+      intl,
+      shortcuts,
+      handleToggleMuteMicrophone,
+      muted,
+      disable,
+      talking,
+    } = this.props;
+
+    const label = muted ? intl.formatMessage(intlMessages.unmuteAudio)
+      : intl.formatMessage(intlMessages.muteAudio);
+
+    const { animations } = Settings.application;
+
+    return (
+      <Styled.MuteToggleButton
+        onClick={(e) => {
+          e.stopPropagation();
+          handleToggleMuteMicrophone();
+        }}
+        disabled={disable}
+        hideLabel
+        label={label}
+        aria-label={label}
+        color={!muted ? 'primary' : 'default'}
+        ghost={muted}
+        icon={muted ? 'mute' : 'unmute'}
+        size="lg"
+        circle
+        accessKey={shortcuts.togglemute}
+        talking={talking || undefined}
+        animations={animations}
+        data-test="toggleMicrophoneButton"
+      />
+    );
+  }
+
+  renderListenOnlyButton() {
+    const {
+      handleLeaveAudio,
+      intl,
+      shortcuts,
+      isListenOnly,
+    } = this.props;
+
+    return (
+      <Button
+        aria-label={intl.formatMessage(intlMessages.leaveAudio)}
+        label={intl.formatMessage(intlMessages.leaveAudio)}
+        accessKey={shortcuts.leaveaudio}
+        data-test="leaveAudio"
+        hideLabel
+        color="primary"
+        icon={isListenOnly ? 'listen' : 'volume_level_2'}
+        size="lg"
+        circle
+        onClick={(e) => {
+          e.stopPropagation();
+          handleLeaveAudio();
+        }}
+      />
+    );
+  }
+
+  renderButtonsWithSelectorDevice() {
     const {
       audioInputDevices,
       audioOutputDevices,
@@ -259,7 +343,6 @@ class InputStreamLiveSelector extends Component {
       handleLeaveAudio,
       liveChangeOutputDevice,
       intl,
-      shortcuts,
       currentInputDeviceId,
       currentOutputDeviceId,
       isListenOnly,
@@ -283,27 +366,24 @@ class InputStreamLiveSelector extends Component {
       false,
     );
 
-    const dropdownListComplete = inputDeviceList.concat(outputDeviceList);
+    const leaveAudioOption = {
+      icon: 'logout',
+      label: intl.formatMessage(intlMessages.leaveAudio),
+      key: 'leaveAudioOption',
+      customStyles: Styled.DangerColor,
+      dividerTop: true,
+      onClick: () => handleLeaveAudio(),
+    };
+
+    const dropdownListComplete = inputDeviceList.concat(outputDeviceList).concat(leaveAudioOption);
 
     return (
       <BBBMenu
         trigger={(
           <>
-            <Button
-              aria-label={intl.formatMessage(intlMessages.leaveAudio)}
-              label={intl.formatMessage(intlMessages.leaveAudio)}
-              accessKey={shortcuts.leaveaudio}
-              data-test="leaveAudio"
-              hideLabel
-              color="primary"
-              icon={isListenOnly ? 'listen' : 'volume_level_2'}
-              size="lg"
-              circle
-              onClick={(e) => {
-                e.stopPropagation();
-                handleLeaveAudio();
-              }}
-            />
+            {isListenOnly
+              ? this.renderListenOnlyButton()
+              : this.renderMuteToggleButton()}
             <Styled.AudioDropdown
               emoji="device_list_selector"
               label={intl.formatMessage(intlMessages.changeAudioDevice)}
@@ -316,9 +396,30 @@ class InputStreamLiveSelector extends Component {
       />
     );
   }
+
+  renderButtonsWithoutSelectorDevice() {
+    const { isListenOnly } = this.props;
+    return isListenOnly
+      ? this.renderListenOnlyButton()
+      : (
+        <>
+          {this.renderMuteToggleButton()}
+          {this.renderListenOnlyButton()}
+        </>
+      );
+  }
+
+  render() {
+    const { _enableDynamicDeviceSelection } = this.props;
+
+    return _enableDynamicDeviceSelection
+      ? this.renderButtonsWithSelectorDevice()
+      : this.renderButtonsWithoutSelectorDevice();
+  }
 }
 
 InputStreamLiveSelector.propTypes = propTypes;
+InputStreamLiveSelector.defaultProps = defaultProps;
 
 export default withShortcutHelper(injectIntl(InputStreamLiveSelector),
   ['leaveAudio']);
