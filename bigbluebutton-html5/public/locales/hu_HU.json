@@ -510,8 +510,6 @@
     "app.breakoutJoinConfirmation.freeJoinMessage": "Csoportterem választása",
     "app.breakoutTimeRemainingMessage": "Csoport hátralévő ideje: {0}",
     "app.breakoutWillCloseMessage": "Az idő lejárt. A csoportterem hamarosan bezárul",
-    "app.breakout.dropdown.manageDuration": "Időtartam kezelése",
-    "app.breakout.dropdown.destroyAll": "Csoporttermek megszüntetése",
     "app.breakout.dropdown.options": "Csoporttermek beállításai",
     "app.calculatingBreakoutTimeRemaining": "Hátralévő idő számítása ...",
     "app.audioModal.ariaTitle": "Csatlakozás hangablak",

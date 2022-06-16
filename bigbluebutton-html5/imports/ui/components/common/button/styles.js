@@ -95,7 +95,8 @@ const ButtonLabel = styled.span`
       margin: 0 ${btnSpacing} 0 0;
     }
   }
-  &:hover {
+  &:hover,
+  .buttonWrapper:hover & {
     opacity: .5;
   }
 
@@ -355,13 +356,13 @@ const ButtonSpan = styled.span`
     padding: ${jumboPaddingY} ${jumboPaddingX};
   `}
 
-  ${({ color }) => color === 'default' && `
+  ${({ color, ghost }) => color === 'default' && !ghost && `
     color: ${btnDefaultColor};
     background-color: ${btnDefaultBg};
     border: ${borderSizeLarge} solid transparent;
 
     &:focus,
-    &:focus:not([aria-disabled="true"]) & {
+    .buttonWrapper:focus:not([aria-disabled="true"]) & {
       color: ${btnDefaultColor};
       background-color: ${btnDefaultBg};
       background-clip: padding-box;
@@ -515,7 +516,7 @@ const ButtonSpan = styled.span`
       color: ${btnDefaultBg};
       background-color: ${btnDefaultColor};
       background-clip: padding-box;
-      box-shadow: 0 0 0 ${borderSizeLarge} ${btnDefaultBg};
+      box-shadow: 0 0 0 ${borderSizeLarge} ${btnDefaultBg} !important;
     }
     &:hover,
     .buttonWrapper:hover & {

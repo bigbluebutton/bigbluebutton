@@ -8,6 +8,7 @@ import ConverterButtonContainer from './converter-button/container';
 import Styled from './styles';
 import { PANELS, ACTIONS } from '../layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
+import Header from '/imports/ui/components/common/control-header/component';
 
 const intlMessages = defineMessages({
   hide: {
@@ -42,27 +43,26 @@ const Notes = ({
 
   return (
     <Styled.Notes data-test="notes" isChrome={isChrome}>
-      <Styled.Header>
-        <Styled.Title data-test="notesTitle">
-          <Styled.HideButton
-            onClick={() => {
-              layoutContextDispatch({
-                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-                value: false,
-              });
-              layoutContextDispatch({
-                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-                value: PANELS.NONE,
-              });
-            }}
-            data-test="hideNotesLabel"
-            aria-label={intl.formatMessage(intlMessages.hide)}
-            label={intl.formatMessage(intlMessages.title)}
-            icon={isRTL ? 'right_arrow' : 'left_arrow'}
-          />
-        </Styled.Title>
-        <ConverterButtonContainer />
-      </Styled.Header>
+      <Header
+        leftButtonProps={{
+          onClick: () => {
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: false,
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+              value: PANELS.NONE,
+            });
+          },
+          'data-test': 'hideNotesLabel',
+          'aria-label': intl.formatMessage(intlMessages.hide),
+          label: intl.formatMessage(intlMessages.title),
+        }}
+        customRightButton={
+          <ConverterButtonContainer />
+        }
+      />
       <PadContainer
         externalId={Service.ID}
         hasPermission={hasPermission}

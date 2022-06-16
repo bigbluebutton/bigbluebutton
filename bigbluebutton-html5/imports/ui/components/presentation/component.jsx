@@ -6,7 +6,6 @@ import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteb
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
-import { politeSRAlert } from '/imports/utils/dom-utils';
 import { Session } from 'meteor/session';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationPlaceholder from './presentation-placeholder/component';
@@ -25,6 +24,7 @@ import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import { colorContentBackground } from '/imports/ui/stylesheets/styled-components/palette';
 import browserInfo from '/imports/utils/browserInfo';
+import { addNewAlert } from '../screenreader-alert/service';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -177,7 +177,7 @@ class Presentation extends PureComponent {
       && prevProps?.currentSlide?.num != null
       && currentSlide?.num !== prevProps.currentSlide?.num
     ) {
-      politeSRAlert(intl.formatMessage(intlMessages.slideContentChanged, { 0: currentSlide.num }));
+      addNewAlert(intl.formatMessage(intlMessages.slideContentChanged, { 0: currentSlide.num }));
     }
 
     if (currentPresentation) {
