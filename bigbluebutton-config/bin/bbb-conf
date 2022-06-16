@@ -718,6 +718,7 @@ if [[ $PORT_RANGE ]]; then
         sed -i "s/minPort=.*/minPort=$START_PORT/" /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini
         sed -i "s/maxPort=.*/maxPort=$END_PORT/" /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini
 
+        mkdir -p $(dirname $WEBRTC_SFU_ETC_CONFIG)
         touch $WEBRTC_SFU_ETC_CONFIG
         yq w -i $WEBRTC_SFU_ETC_CONFIG mediasoup.worker.rtcMinPort $START_PORT
         yq w -i $WEBRTC_SFU_ETC_CONFIG mediasoup.worker.rtcMaxPort $END_PORT
