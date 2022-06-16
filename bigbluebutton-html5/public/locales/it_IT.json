@@ -493,7 +493,6 @@
     "app.breakoutJoinConfirmation.freeJoinMessage": "Scegli una Stanza Separata in cui entrare",
     "app.breakoutTimeRemainingMessage": "Tempo rimasto per la Stanza Separata: {0}",
     "app.breakoutWillCloseMessage": "Tempo scaduto. La Stanza Separata verrà chiusa a breve",
-    "app.breakout.dropdown.manageDuration": "Gestisci durata",
     "app.calculatingBreakoutTimeRemaining": "Calcolo del tempo rimanente...",
     "app.audioModal.ariaTitle": "Partecipa in modalità audio",
     "app.audioModal.microphoneLabel": "Microfono",

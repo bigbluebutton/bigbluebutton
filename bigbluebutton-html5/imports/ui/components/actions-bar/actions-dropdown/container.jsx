@@ -4,7 +4,7 @@ import Presentations from '/imports/api/presentations';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
 import PresentationPodService from '/imports/ui/components/presentation-pod/service';
 import ActionsDropdown from './component';
-import { layoutSelectInput, layoutDispatch } from '../../layout/context';
+import { layoutSelectInput, layoutDispatch, layoutSelect } from '../../layout/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
 
@@ -14,6 +14,7 @@ const ActionsDropdownContainer = (props) => {
   const { width: browserWidth } = layoutSelectInput((i) => i.browser);
   const isMobile = browserWidth <= SMALL_VIEWPORT_BREAKPOINT;
   const layoutContextDispatch = layoutDispatch();
+  const isRTL = layoutSelect((i) => i.isRTL);
 
   return (
     <ActionsDropdown {...{
@@ -21,6 +22,7 @@ const ActionsDropdownContainer = (props) => {
       sidebarContent,
       sidebarNavigation,
       isMobile,
+      isRTL,
       ...props,
     }}
     />

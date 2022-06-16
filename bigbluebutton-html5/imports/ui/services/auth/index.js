@@ -58,10 +58,6 @@ class Auth {
     Storage.setItem('sessionToken', this._sessionToken);
   }
 
-  get sessionToken() {
-    return this._sessionToken;
-  }
-
   get userID() {
     return this._userID;
   }
@@ -149,15 +145,6 @@ class Auth {
       externUserID: this.externUserID,
       uniqueClientSession: this.uniqueClientSession,
     };
-  }
-
-  set _connectionID(connectionId) {
-    this._connectionID = connectionId;
-    Storage.setItem('sessionToken', this._connectionID);
-  }
-
-  get sessionToken() {
-    return this._sessionToken;
   }
 
   set(
@@ -253,6 +240,7 @@ class Auth {
             initAnnotationsStreamListener();
             clearTimeout(validationTimeout);
             this.connectionID = authenticationTokenValidation.connectionId;
+            this.connectionAuthTime = new Date().getTime();
             Session.set('userWillAuth', false);
             setTimeout(() => resolve(true), 100);
             break;
