@@ -265,12 +265,14 @@ const PresentationMenu = (props) => {
       <BBBMenu 
         trigger={
           <Styled.DropdownButton
-          state={isDropdownOpen ? 'open' : 'closed'}
-          aria-label={intl.formatMessage(intlMessages.optionsLabel)}
-          data-test="whiteboardOptionsButton"
-          onClick={() => setIsDropdownOpen((isOpen) => !isOpen)}
-          >
-            <Styled.ButtonIcon iconName="more" />
+            state={isDropdownOpen ? 'open' : 'closed'}
+            aria-label={intl.formatMessage(intlMessages.optionsLabel)}
+            data-test="whiteboardOptionsButton"
+            onClick={() => {
+              setIsDropdownOpen((isOpen) => !isOpen)
+            }}
+            >
+              <Styled.ButtonIcon iconName="more" />
           </Styled.DropdownButton>
         }
         opts={{
@@ -282,6 +284,7 @@ const PresentationMenu = (props) => {
           fullwidth: "true",
           anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
           transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+          container: fullscreenRef
         }}
         actions={getAvailableOptions()}
       />

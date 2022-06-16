@@ -44,7 +44,7 @@ const Right = styled.div`
   left: auto;
   top: ${borderSize};
   right: ${borderSize};
-  z-index: 999;
+  z-index:999;
 
   [dir="rtl"] & {
     right: auto;
