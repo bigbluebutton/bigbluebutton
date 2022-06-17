@@ -57,11 +57,7 @@ class ZoomTool extends PureComponent {
     const { stateZoomValue } = this.state;
     const isDifferent = zoomValue !== stateZoomValue;
     if (isDifferent) {
-      this.onChanger(zoomValue);
-    }
-
-    if (tldrawAPI && zoomValue === 1 && tldrawAPI?.getPageState()?.camera?.zoom === 1) {
-      tldrawAPI?.zoomToFit();
+      this.onChanger(tldrawAPI?.getPageState()?.camera?.zoom);
     }
   }
 
@@ -169,7 +165,11 @@ class ZoomTool extends PureComponent {
     }
 
     const stateZoomPct = intl.formatNumber((stateZoomValue / 100), { style: 'percent' });
-
+    const tldrawZoomState = tldrawAPI?.getPageState()?.camera?.zoom;
+    let displayZoom = zoomValue < tldrawZoomState && tldrawZoomState !== 1 
+      ? tldrawZoomState : zoomValue;
+    if (zoomValue === 1) displayZoom = tldrawZoomState;
+    
     return (
       [
         (
@@ -201,7 +201,7 @@ class ZoomTool extends PureComponent {
               aria-describedby="resetZoomDescription"
               disabled={(stateZoomValue === minBound) || !isMeteorConnected}
               color="default"
-              customIcon={`${parseInt(tldrawAPI?.getPageState()?.camera?.zoom * 100)}%`}
+              customIcon={`${parseInt(displayZoom * 100)}%`}
               size="md"
               onClick={() => tldrawAPI?.zoomTo(1)}
               label={intl.formatMessage(intlMessages.resetZoomLabel)}

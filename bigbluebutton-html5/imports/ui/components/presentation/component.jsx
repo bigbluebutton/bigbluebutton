@@ -432,20 +432,8 @@ class Presentation extends PureComponent {
     };
   }
 
-  zoomChanger(incomingZoom) {
-    const {
-      zoom,
-    } = this.state;
-
-    let newZoom = incomingZoom;
-
-    if (newZoom <= HUNDRED_PERCENT) {
-      newZoom = HUNDRED_PERCENT;
-    } else if (incomingZoom >= MAX_PERCENT) {
-      newZoom = MAX_PERCENT;
-    }
-
-    if (newZoom !== zoom) this.setState({ zoom: newZoom });
+  zoomChanger(zoom) {
+    this.setState({ zoom });
   }
 
   fitToWidthHandler() {
@@ -959,6 +947,7 @@ class Presentation extends PureComponent {
             presentationBounds={presentationBounds}
             isViewersCursorLocked={isViewersCursorLocked}
             setIsZoomed={this.setIsZoomed}
+            zoomChanger={this.zoomChanger}
           />
           {isFullscreen && <PollingContainer />}
           {this.renderPresentationToolbar()}

@@ -382,7 +382,7 @@ class PresentationToolbar extends PureComponent {
               <TooltipContainer>
                 <ZoomTool
                   slidePosition={slidePosition}
-                  zoomValue={tldrawAPI?.getPageState()?.camera?.zoom}
+                  zoomValue={zoom}
                   currentSlideNum={currentSlideNum}
                   change={this.change}
                   minBound={0.1}

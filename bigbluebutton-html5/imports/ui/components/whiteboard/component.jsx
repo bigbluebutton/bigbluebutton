@@ -48,6 +48,7 @@ export default function Whiteboard(props) {
     presentationBounds,
     isViewersCursorLocked,
     setIsZoomed,
+    zoomChanger,
     isZoomed,
   } = props;
 
@@ -90,6 +91,7 @@ export default function Whiteboard(props) {
       point[1] = (presentationBounds.height - (slidePosition.height * zoom)) / 2 / zoom
     }
 
+    isPresenter && zoomChanger(zoom);
     return {point, zoom}
   }
 
