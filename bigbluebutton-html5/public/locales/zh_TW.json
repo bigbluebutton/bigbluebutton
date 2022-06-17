@@ -506,8 +506,6 @@
     "app.breakoutJoinConfirmation.freeJoinMessage": "選擇並加入分組會議室",
     "app.breakoutTimeRemainingMessage": "分組會議室時間剩餘: {0}",
     "app.breakoutWillCloseMessage": "時間結束，分組會議室將很快關閉。",
-    "app.breakout.dropdown.manageDuration": "管理持續時間",
-    "app.breakout.dropdown.destroyAll": "結束分組討論",
     "app.breakout.dropdown.options": "分組選項",
     "app.calculatingBreakoutTimeRemaining": "計算剩餘時間",
     "app.audioModal.ariaTitle": "加入音訊模式",

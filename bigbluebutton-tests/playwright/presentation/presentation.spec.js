@@ -2,13 +2,13 @@ const { test } = require('@playwright/test');
 const { Presentation } = require('./presentation');
 
 test.describe.parallel('Presentation', () => {
-  test('Skip slide', async ({ browser, context, page }) => {
+  test('Skip slide @ci', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.skipSlide();
   });
 
-  test('Hide/Restore presentation', async ({ browser, context, page }) => {
+  test('Hide/Restore presentation @ci', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.hideAndRestorePresentation();
@@ -21,13 +21,13 @@ test.describe.parallel('Presentation', () => {
   });
 
   test.describe.parallel('Manage', () => {
-    test('Upload presentation', async ({ browser, context, page }) => {
+    test('Upload presentation @ci', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.uploadPresentationTest();
     });
 
-    test('Allow and disallow presentation download', async ({ browser, context, page }, testInfo) => {
+    test('Allow and disallow presentation download @ci', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.allowAndDisallowDownload(testInfo);

@@ -5,13 +5,10 @@ import {
   smPaddingY,
   lgPaddingX,
   borderRadius,
-  mdPaddingY,
   borderSize,
-  borderSizeLarge,
   pollInputHeight,
   pollSmMargin,
   pollMdMargin,
-  pollHeaderOffset,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorText,
@@ -324,56 +321,6 @@ const DragAndDropPollContainer = styled.div`
   height: 200px !important;
 `;
 
-const Header = styled.header`
-  position: relative;
-  top: ${pollHeaderOffset};
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: ${mdPaddingY};
-`;
-
-const PollHideButton = styled(Button)`
-  position: relative;
-  background-color: ${colorWhite};
-  display: block;
-  margin: ${borderSizeLarge};
-  margin-bottom: ${borderSize};
-  padding-left: 0;
-  padding-right: inherit;
-
-  [dir="rtl"] & {
-    padding-left: inherit;
-    padding-right: 0;
-  }
-
-  > i {
-    color: ${colorGrayDark};
-    font-size: smaller;
-
-    [dir="rtl"] & {
-      -webkit-transform: scale(-1, 1);
-      -moz-transform: scale(-1, 1);
-      -ms-transform: scale(-1, 1);
-      -o-transform: scale(-1, 1);
-      transform: scale(-1, 1);
-    }
-  }
-
-  &:hover {
-    background-color: ${colorWhite};
-  }
-`;
-
-const PollCloseButton = styled(Button)`
-  font-size: ${fontSizeBase};
-  position: relative;
-  & > i {
-    color: ${colorText};
-  }
-`;
-
 export default {
   ToggleLabel,
   PollOptionInput,
@@ -396,7 +343,4 @@ export default {
   NoSlidePanelContainer,
   PollButton,
   DragAndDropPollContainer,
-  Header,
-  PollHideButton,
-  PollCloseButton,
 };

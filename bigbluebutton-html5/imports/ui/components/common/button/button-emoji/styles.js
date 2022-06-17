@@ -65,6 +65,15 @@ const EmojiButton = styled.button`
     margin-top: 40%;
     color: ${btnDefaultColor};
   }
+
+  ${({ rotate }) => rotate && `
+    span {
+      i {
+        transform: rotate(180deg);
+        margin-top: 20%;
+      }
+    }
+  `}
 `;
 
 const EmojiButtonSpace = styled.div`

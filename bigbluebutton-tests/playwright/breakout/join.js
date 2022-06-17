@@ -2,6 +2,7 @@ const { Create } = require('./create');
 const utilScreenShare = require('../screenshare/util');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { getSettings } = require('../core/settings');
 
 class Join extends Create {
   constructor(browser, context) {
@@ -30,7 +31,7 @@ class Join extends Create {
   async joinAndShareWebcam() {
     const breakoutPage = await this.joinRoom();
 
-    const { videoPreviewTimeout } = breakoutPage.settings;
+    const { videoPreviewTimeout } = getSettings();
     await breakoutPage.shareWebcam(true, videoPreviewTimeout);
     await breakoutPage.hasElement(e.presentationPlaceholder);
     await breakoutPage.waitForSelector(e.presentationTitle);

@@ -3,13 +3,14 @@
     "test": "npx playwright test",
     "test:filter": "npx playwright test -g",
     "test:headed": "npx playwright test --headed",
-    "test:debug": "npx playwright test --debug -g"
+    "test:debug": "npx playwright test --debug -g",
+    "test-ci": "export CI='true' && npx playwright test --project=chromium --grep @ci"
   },
-  "devDependencies": {
-    "@playwright/test": "^1.18.1",
+  "dependencies": {
+    "@playwright/test": "^1.19.2",
+    "playwright": "^1.19.2",
     "axios": "^0.26.1",
     "dotenv": "^16.0.0",
-    "playwright": "^1.18.1",
     "sha1": "^1.1.1"
   }
 }
