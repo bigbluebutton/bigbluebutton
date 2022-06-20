@@ -20,11 +20,23 @@ test.describe.parallel('Presentation', () => {
     await presentation.startExternalVideo();
   });
 
+  test('Presentation fit to width', async ({ browser, context, page }) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initPages(page);
+    await presentation.fitToWidthTest();
+  });
+
   test.describe.parallel('Manage', () => {
-    test('Upload presentation @ci', async ({ browser, context, page }) => {
+    test('Upload single presentation @ci', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
-      await presentation.uploadPresentationTest();
+      await presentation.uploadSinglePresentationTest();
+    });
+
+    test('Upload multiple presentations', async ({ browser, context, page }) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page);
+      await presentation.uploadMultiplePresentationsTest();
     });
 
     test('Allow and disallow presentation download @ci', async ({ browser, context, page }, testInfo) => {

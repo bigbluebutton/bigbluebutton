@@ -151,6 +151,7 @@ exports.pollYesNoAbstentionBtn = 'button[data-test="pollYesNoAbstentionBtn"]';
 // Presentation
 exports.uploadPresentationFileName = 'uploadTest.png';
 exports.presentationPlaceholderLabel = 'There is no currently active presentation';
+exports.noPresentationLabel = 'There is no currently active presentation';
 exports.startScreenSharing = 'button[data-test="startScreenShare"]';
 exports.stopScreenSharing = 'button[data-test="stopScreenShare"]';
 exports.managePresentations = 'li[data-test="managePresentations"]';
@@ -175,9 +176,10 @@ exports.videoModalInput = 'input[id="video-modal-input"]';
 exports.startShareVideoBtn = 'button[data-test="startNewVideo"]';
 exports.videoPlayer = 'div[data-test="videoPlayer"]';
 exports.presentationTitle = 'h1[data-test="presentationTitle"]';
+exports.fitToWidthButton = 'button[data-test="fitToWidthButton"]';
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
-exports.youtubeFrame = 'iframe[title^="YouTube"]';
+exports.youtubeFrame = 'iframe[title^="Creating your own personal rooms with GreenLight"]';
 exports.ytFrameTitle = 'a[class^="ytp-title-link"]';
 // Toasts
 exports.statingUploadPresentationToast = 'To be uploaded ...';

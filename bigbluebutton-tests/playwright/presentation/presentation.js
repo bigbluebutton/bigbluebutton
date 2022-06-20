@@ -2,7 +2,7 @@ const { expect, default: test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const Page = require('../core/page');
 const e = require('../core/elements');
-const { checkSvgIndex, getSvgOuterHtml, uploadPresentation } = require('./util.js');
+const { checkSvgIndex, getSvgOuterHtml, uploadSinglePresentation, uploadMultiplePresentations } = require('./util.js');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
@@ -62,7 +62,7 @@ class Presentation extends MultiUsers {
     await userFrame.hasElement('video');
   }
 
-  async uploadPresentationTest() {
+  async uploadSinglePresentationTest() {
     await waitAndClearDefaultPresentationNotification(this.modPage);
     await this.modPage.waitForSelector(e.skipSlide);
 
@@ -70,7 +70,7 @@ class Presentation extends MultiUsers {
     const userSlides0 = await this.userPage.page.evaluate(getSvgOuterHtml);
     await expect(modSlides0).toEqual(userSlides0);
 
-    await uploadPresentation(this.modPage, e.uploadPresentationFileName);
+    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
 
     const modSlides1 = await this.userPage.page.evaluate(async () => document.querySelector('svg g g g').outerHTML);
     const userSlides1 = await this.modPage.page.evaluate(async () => document.querySelector('svg g g g').outerHTML);
@@ -78,6 +78,34 @@ class Presentation extends MultiUsers {
 
     await expect(modSlides0).not.toEqual(modSlides1);
     await expect(userSlides0).not.toEqual(userSlides1);
+  }
+
+  async uploadMultiplePresentationsTest() {
+    await waitAndClearDefaultPresentationNotification(this.modPage);
+    await this.modPage.waitForSelector(e.skipSlide);
+
+    const modSlides0 = await this.modPage.page.evaluate(getSvgOuterHtml);
+    const userSlides0 = await this.userPage.page.evaluate(getSvgOuterHtml);
+    await expect(modSlides0).toEqual(userSlides0);
+
+    await uploadMultiplePresentations(this.modPage, [e.uploadPresentationFileName, e.questionSlideFileName]);
+
+    const modSlides1 = await this.userPage.page.evaluate(async () => document.querySelector('svg g g g').outerHTML);
+    const userSlides1 = await this.modPage.page.evaluate(async () => document.querySelector('svg g g g').outerHTML);
+    await expect(modSlides1).toEqual(userSlides1);
+
+    await expect(modSlides0).not.toEqual(modSlides1);
+    await expect(userSlides0).not.toEqual(userSlides1);
+  }
+
+  async fitToWidthTest() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
+    const width1 = await this.modPage.page.locator(e.whiteboard).getAttribute("width");
+    await this.modPage.waitAndClick(e.fitToWidthButton);
+    const width2 = await this.modPage.page.locator(e.whiteboard).getAttribute("width");
+    await expect(width2 > width1).toBeTruthy();
   }
 
   async allowAndDisallowDownload(testInfo) {
