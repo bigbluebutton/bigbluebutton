@@ -74,18 +74,18 @@ export default function Whiteboard(props) {
   const prevPageId = usePrevious(curPageId);
 
   const calculateCameraFitSlide = () => {
-    let zoom = 
+    let zoom =
       Math.min(
         (presentationBounds.width) / slidePosition.width,
         (presentationBounds.height) / slidePosition.height
-      )        
-      
+      );
+
     zoom = Utils.clamp(zoom, 0.1, 5);
 
     let point = [0, 0];
-    if ((presentationBounds.width / presentationBounds.height) > 
-        (slidePosition.width / slidePosition.height)) 
-    { 
+    if ((presentationBounds.width / presentationBounds.height) >
+        (slidePosition.width / slidePosition.height))
+    {
       point[0] = (presentationBounds.width - (slidePosition.width * zoom)) / 2 / zoom
     } else {
       point[1] = (presentationBounds.height - (slidePosition.height * zoom)) / 2 / zoom
@@ -112,11 +112,11 @@ export default function Whiteboard(props) {
       stack = tldrawAPI?.stack
 
       next.pages[curPageId].shapes = shapes;
-      
+
       changed = true;
     }
 
-    if (next.pages[curPageId] && !next.pages[curPageId].shapes["slide-background-shape"]) {      
+    if (next.pages[curPageId] && !next.pages[curPageId].shapes["slide-background-shape"]) {
       next.assets[`slide-background-asset-${curPageId}`] = {
         id: `slide-background-asset-${curPageId}`,
         size: [slidePosition?.width || 0, slidePosition?.height || 0],
@@ -195,7 +195,7 @@ export default function Whiteboard(props) {
         tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom, "zoomed");
       } else {
         previousPageZoom &&
-        slidePosition && 
+        slidePosition &&
         tldrawAPI.setCamera([slidePosition.xCamera, slidePosition.yCamera], previousPageZoom, "zoomed");
       }
     }
@@ -227,9 +227,11 @@ export default function Whiteboard(props) {
         <Tldraw
           key={`wb-${!hasWBAccess && !isPresenter}`}
           document={doc}
-          disableAssets={false}
+          // disable the ability to drag and drop files onto the whiteboard
+          // until we handle saving of assets in akka.
+          disableAssets={true}
           onMount={(app) => {
-            if (!hasWBAccess && !isPresenter) app.onPan = () => {}; 
+            if (!hasWBAccess && !isPresenter) app.onPan = () => {};
             setTLDrawAPI(app);
             props.setTldrawAPI(app);
             if (curPageId) {
@@ -294,7 +296,7 @@ export default function Whiteboard(props) {
                 const shapeBounds = e.getShapeBounds(id);
                 shape.size = [shapeBounds.width, shapeBounds.height];
                 persistShape(shape, whiteboardId);
-              }); 
+              });
             }
 
             if (s.includes('move_to_page')) {
@@ -313,8 +315,8 @@ export default function Whiteboard(props) {
 
             const conditions = [
               "session:complete:TransformSingleSession", "session:complete:TranslateSession",
-              "session:complete:RotateSession", "session:complete:HandleSession", 
-              "updated_shapes", "duplicate", "stretch", "align", "move", 
+              "session:complete:RotateSession", "session:complete:HandleSession",
+              "updated_shapes", "duplicate", "stretch", "align", "move",
               "create", "flip", "toggle", "group", "translate"
             ]
             if (conditions.some(el => s?.includes(el))) {
@@ -380,9 +382,8 @@ export default function Whiteboard(props) {
                 tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
                 setIsZoomed(true);
               }
-            } 
+            }
           }}
-
         />
       </Cursors>
     </>
