@@ -904,7 +904,7 @@
     "app.createBreakoutRoom.resetAssignments": "Zuordnungen zurücksetzen",
     "app.createBreakoutRoom.resetAssignmentsDesc": "Alle Raumzuordnungen der Teilnehmer:innen zurücksetzen",
     "app.createBreakoutRoom.endAllBreakouts": "Alle Gruppenräume beenden",
-    "app.createBreakoutRoom.chatTitleMsgAllRooms": "alle Räume",
+    "app.createBreakoutRoom.chatTitleMsgAllRooms": "an alle Räume",
     "app.createBreakoutRoom.msgToBreakoutsSent": "Nachricht wurde an {0} Gruppenräume gesendet",
     "app.createBreakoutRoom.roomName": "{0} (Raum - {1})",
     "app.createBreakoutRoom.doneLabel": "Fertig",
