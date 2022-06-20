@@ -79,7 +79,7 @@ const Select = ({
     );
   }
 
-  if (SpeechService.useDefault()) return null;
+  if (SpeechService.useFixedLocale()) return null;
 
   const onChange = (e) => {
     const { value } = e.target;

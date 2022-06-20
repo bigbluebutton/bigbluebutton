@@ -85,8 +85,17 @@ public:
           - pt-BR
         # - ru-RU
         # - zh-CN
-        default: false
-        locale: pt-BR
+        # If true, automatically uses the below locale field content as transcription language
+        # and the language selector in audio modal won't show up!
+        forceLocale: false
+        # If true, the default selected value for language selector in audio modal
+        # is the below locale field content
+        defaultSelectLocale: true
+        # Possible Values:
+        # browserLanguage: to set browser language
+        # [en-US, es-ES, pt-BR,...]: to set a specific locale
+        # disabled: to set disabled
+        locale: disabled
     mutedAlert:
       enabled: true
       interval: 200

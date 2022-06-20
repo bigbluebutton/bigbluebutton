@@ -43,7 +43,7 @@ const setSpeechLocale = (value) => {
   }
 };
 
-const useDefault = () => ENABLED && CONFIG.language.default;
+const useFixedLocale = () => isEnabled() && CONFIG.language.forceLocale;
 
 const initSpeechRecognition = () => {
   if (!isEnabled()) return null;
@@ -54,8 +54,8 @@ const initSpeechRecognition = () => {
     speechRecognition.continuous = true;
     speechRecognition.interimResults = true;
 
-    if (useDefault()) {
-      setSpeechLocale(CONFIG.language.locale);
+    if (useFixedLocale() || localeAsDefaultSelected()) {
+      setSpeechLocale(getLocale());
     } else {
       setSpeechLocale(navigator.language);
     }
@@ -142,6 +142,15 @@ const getStatus = () => {
 
 const generateId = () => `${Auth.userID}-${Date.now()}`;
 
+const localeAsDefaultSelected = () => CONFIG.language.defaultSelectLocale;
+
+const getLocale = () => {
+  const { locale } = CONFIG.language;
+  if (locale === 'browserLanguage') return navigator.language;
+  if (locale === 'disabled') return '';
+  return locale;
+};
+
 export default {
   LANGUAGES,
   hasSpeechRecognitionSupport,
@@ -157,5 +166,5 @@ export default {
   isActive,
   getStatus,
   generateId,
-  useDefault,
+  useFixedLocale,
 };
