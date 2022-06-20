@@ -15,8 +15,7 @@ rm -rf staging
 # Create build directories for markign by fpm
 DIRS="/etc/bigbluebutton \
       /var/bigbluebutton/blank \
-      /usr/share/bigbluebutton/blank \
-      /var/www/bigbluebutton-default"
+      /usr/share/bigbluebutton/blank"
 for dir in $DIRS; do
   mkdir -p staging$dir
   DIRECTORIES="$DIRECTORIES --directories $dir"
@@ -28,8 +27,6 @@ cp slides/nopdfmark.ps staging/etc/bigbluebutton
 # XXX remove /var/bigbluebutton
 cp slides/blank* staging/var/bigbluebutton/blank
 cp slides/blank* staging/usr/share/bigbluebutton/blank
-
-cp -r web/* staging/var/www/bigbluebutton-default
 
 mkdir -p staging/usr/bin
 cp bin/bbb-conf bin/bbb-record staging/usr/bin

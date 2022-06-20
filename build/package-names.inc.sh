@@ -2,7 +2,6 @@ declare -A DEBNAME_TO_SOURCEDIR
 
 DEBNAME_TO_SOURCEDIR[bbb-apps-akka]="akka-bbb-apps bbb-common-message"
 DEBNAME_TO_SOURCEDIR[bbb-config]="bigbluebutton-config"
-DEBNAME_TO_SOURCEDIR[bbb-demo]="bbb-api-demo"
 DEBNAME_TO_SOURCEDIR[bbb-etherpad]="bbb-etherpad"
 DEBNAME_TO_SOURCEDIR[bbb-freeswitch-core]="freeswitch bbb-voice-conference"
 DEBNAME_TO_SOURCEDIR[bbb-freeswitch-sounds]="do_not_copy_anything"
