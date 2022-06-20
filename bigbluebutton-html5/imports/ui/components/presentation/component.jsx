@@ -74,6 +74,7 @@ class Presentation extends PureComponent {
       fitToWidth: false,
       isFullscreen: false,
       tldrawAPI: null,
+      isZoomed: false,
     };
 
     this.currentPresentationToastId = null;
@@ -88,6 +89,7 @@ class Presentation extends PureComponent {
     this.getPresentationSizesAvailable = this.getPresentationSizesAvailable.bind(this);
     this.handleResize = this.handleResize.bind(this);
     this.setTldrawAPI = this.setTldrawAPI.bind(this);
+    this.setIsZoomed = this.setIsZoomed.bind(this);
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
@@ -284,6 +286,12 @@ class Presentation extends PureComponent {
     })
   }
 
+  setIsZoomed(isZoomed) {
+    this.setState({
+      isZoomed,
+    })
+  }
+
   handleResize() {
     const presentationSizes = this.getPresentationSizesAvailable();
     if (Object.keys(presentationSizes).length > 0) {
@@ -424,20 +432,8 @@ class Presentation extends PureComponent {
     };
   }
 
-  zoomChanger(incomingZoom) {
-    const {
-      zoom,
-    } = this.state;
-
-    let newZoom = incomingZoom;
-
-    if (newZoom <= HUNDRED_PERCENT) {
-      newZoom = HUNDRED_PERCENT;
-    } else if (incomingZoom >= MAX_PERCENT) {
-      newZoom = MAX_PERCENT;
-    }
-
-    if (newZoom !== zoom) this.setState({ zoom: newZoom });
+  zoomChanger(zoom) {
+    this.setState({ zoom });
   }
 
   fitToWidthHandler() {
@@ -516,6 +512,7 @@ class Presentation extends PureComponent {
     const {
       zoom,
       fitToWidth,
+      isZoomed,
     } = this.state;
 
     if (!userIsPresenter && !multiUser) {
@@ -566,6 +563,8 @@ class Presentation extends PureComponent {
           physicalSlideHeight={physicalDimensions.height}
           zoom={zoom}
           zoomChanger={this.zoomChanger}
+          setIsZoomed={this.setIsZoomed}
+          isZoomed={isZoomed}
         />
       </PresentationOverlayContainer>
     );
@@ -713,6 +712,7 @@ class Presentation extends PureComponent {
       fullscreenContext,
       layoutContextDispatch,
       presentationIsOpen,
+      slidePosition,
     } = this.props;
     const { zoom, fitToWidth } = this.state;
 
@@ -732,11 +732,13 @@ class Presentation extends PureComponent {
           zoom,
           podId,
           currentSlide,
+          slidePosition,
           toolbarWidth,
           fullscreenElementId,
           layoutContextDispatch,
           presentationIsOpen,
         }}
+        isZoomed={this.state.isZoomed}
         tldrawAPI={this.state.tldrawAPI}
         curPageId={this.state.tldrawAPI?.getPage()?.id}
         currentSlideNum={currentSlide.num}
@@ -944,6 +946,8 @@ class Presentation extends PureComponent {
             intl={intl}
             presentationBounds={presentationBounds}
             isViewersCursorLocked={isViewersCursorLocked}
+            setIsZoomed={this.setIsZoomed}
+            zoomChanger={this.zoomChanger}
           />
           {isFullscreen && <PollingContainer />}
           {this.renderPresentationToolbar()}
