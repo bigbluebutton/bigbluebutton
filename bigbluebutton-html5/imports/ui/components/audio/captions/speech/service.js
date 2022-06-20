@@ -46,6 +46,7 @@ const setSpeechLocale = (value) => {
 const useDefault = () => ENABLED && CONFIG.language.default;
 
 const initSpeechRecognition = () => {
+  if (!isEnabled()) return null;
   if (hasSpeechRecognitionSupport()) {
     // Effectivate getVoices
     setSpeechVoices();
