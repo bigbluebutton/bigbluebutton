@@ -510,8 +510,6 @@
     "app.breakoutJoinConfirmation.freeJoinMessage": "Vali eraldatud ruum, millega liituda",
     "app.breakoutTimeRemainingMessage": "Eraldatud ruumi järelejäänud aeg: {0}",
     "app.breakoutWillCloseMessage": "Aeg sai läbi. Eraldatud ruum suletakse kohe",
-    "app.breakout.dropdown.manageDuration": "Halda kestust",
-    "app.breakout.dropdown.destroyAll": "Lõpeta eraldatud ruumid",
     "app.breakout.dropdown.options": "Eraldatud ruumide valikud",
     "app.calculatingBreakoutTimeRemaining": "Arvutan järelejäänud aega...",
     "app.audioModal.ariaTitle": "Audioga liitumise aken",

@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import {
   colorGray,
+  colorGrayLightest
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Wrapper = styled.div`
@@ -16,8 +17,7 @@ font-size: 15px;
 color: ${colorGray};
 bottom: 0;
 box-sizing: border-box;
-display: flex;
-flex-direction: column;
+display: block;
 overflow-x: hidden;
 overflow-wrap: break-word;
 word-break: break-all;
@@ -42,6 +42,8 @@ top: 0;
 const Iframe = styled.iframe`
   border-width: 0;
   width: 100%;
+  border-top: 1px solid ${colorGrayLightest};
+  border-bottom: 1px solid ${colorGrayLightest};
 `;
 
 export default {

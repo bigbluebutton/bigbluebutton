@@ -4,7 +4,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import BreakoutComponent from './component';
 import Service from './service';
-import { layoutDispatch } from '../layout/context';
+import { layoutDispatch, layoutSelect } from '../layout/context';
 import Auth from '/imports/ui/services/auth';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import {
@@ -18,10 +18,11 @@ const BreakoutContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
+  const isRTL = layoutSelect((i) => i.isRTL);
 
   return <BreakoutComponent
     amIPresenter={amIPresenter}
-    {...{ layoutContextDispatch, ...props }}
+    {...{ layoutContextDispatch, isRTL, ...props }}
   />;
 };
 

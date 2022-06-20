@@ -508,8 +508,6 @@
     "app.breakoutJoinConfirmation.freeJoinMessage": "Ընտրեք խմբային աշխատանքի սենյակը, որին ցանկանում եք միանալ",
     "app.breakoutTimeRemainingMessage": "Խմբային աշխատանքի ավարտին մնացել է {0}",
     "app.breakoutWillCloseMessage": "Ժամանակը սպառվեց և Խմբային աշխատանքի սենյակը շուտով կփակվի",
-    "app.breakout.dropdown.manageDuration": "Կառավարել տևողությունը",
-    "app.breakout.dropdown.destroyAll": "Փակել առանձնացված սենյակները",
     "app.breakout.dropdown.options": "Առանձնացված սենյակների կարգավորումներ",
     "app.calculatingBreakoutTimeRemaining": "Մնացած ժամանակի հետհաշվարկ․..",
     "app.audioModal.ariaTitle": "Հանդիպման միացման պատուհան",
