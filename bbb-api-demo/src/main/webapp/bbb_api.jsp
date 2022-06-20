@@ -170,7 +170,7 @@ public String getJoinURL(String username, String meetingID, String record, Strin
     String isHTML5Client = "false";
     String isModerator = "true";
 
-    return getJoinURLExtended(username, meetingID, record, welcome, metadata, xml, isHTML5Client, isModerator);
+    return getJoinURLExtended(username, meetingID, record, welcome, metadata, xml, isHTML5Client, isModerator, null, null);
 }
 
 
@@ -192,7 +192,7 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 //
 //  Note this meeting will use username for meetingID
 
-public String getJoinURLExtended(String username, String meetingID, String record, String welcome, Map<String, String> metadata, String xml, String isHTML5Client, String isModerator) {
+public String getJoinURLExtended(String username, String meetingID, String record, String welcome, Map<String, String> metadata, String xml, String isHTML5Client, String isModerator, String extraCreateParameters, String extraJoinParameters) {
 
 	String base_url_create = BigBlueButtonURL + "api/create?";
 	String base_url_join = BigBlueButtonURL + "api/join?";
@@ -228,6 +228,9 @@ public String getJoinURLExtended(String username, String meetingID, String recor
 		+ "&attendeePW=ap&moderatorPW=mp"
 		+ "&isBreakoutRoom=false"
 		+ "&record=" + record + getMetaData( metadata );
+	if ((extraCreateParameters != null) && !extraCreateParameters.equals("")) {
+		create_parameters += "&" + extraCreateParameters;
+	}
 
 
 	String password = "mp"; // Attempt to join as moderator by default
@@ -259,6 +262,11 @@ public String getJoinURLExtended(String username, String meetingID, String recor
 
 		+ "&joinViaHtml5=" + isHTML5Client
 	 	+ "&password=" + password;
+
+		if ((extraJoinParameters != null) && !extraJoinParameters.equals("")) {
+			join_parameters += "&" + extraJoinParameters;
+		}
+
 
 		return base_url_join + join_parameters + "&checksum="
 			+ checksum("join" + join_parameters + salt);

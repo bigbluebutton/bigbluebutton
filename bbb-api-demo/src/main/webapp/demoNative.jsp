@@ -103,7 +103,7 @@ if (request.getParameterMap().isEmpty()) {
 		isModerator = Boolean.parseBoolean(request.getParameter("isModerator"));
 	}
 
-	String joinURL = getJoinURLExtended(username, meetingname, isRecorded.toString(), null, null, null, isHTML5.toString(), isModerator.toString());
+	String joinURL = getJoinURLExtended(username, meetingname, isRecorded.toString(), null, null, null, isHTML5.toString(), isModerator.toString(), null, null);
 
 	if (joinURL.startsWith("https://")) {
 		joinURL = joinURL.replaceAll("https://", "bbbnative://join//");

@@ -53,13 +53,28 @@
 
             <form name="form1" method="GET" onsubmit="return checkform(this);" action="/demo/demoHTML5.jsp">
               <input type="text" id="username" required="" name="username" placeholder="Enter Your Name" size="29" class="field input-default" autofocus>
+	      <input type="hidden" id="createParameters" name="createParameters" placeholder="Enter create parameters" size="29" class="field input-default">
+	      <input type="hidden" id="joinParameters" name="joinParameters" placeholder="Enter join parameters" size="29" class="field input-default">
               <input type="submit" value="Join" class="submit_btn button success large"><br>
               <input type="hidden" name="isModerator" value="true">
               <input type="hidden" name="action" value="create">
             </form>
 
+	    <script>
+	      function toggleAdvanced() {
+		  if (document.getElementById("createParameters").getAttribute("type") == "hidden") {
+		      document.getElementById("createParameters").setAttribute("type", "text");
+		      document.getElementById("joinParameters").setAttribute("type", "text");
+		  } else {
+		      document.getElementById("createParameters").setAttribute("type", "hidden");
+		      document.getElementById("joinParameters").setAttribute("type", "hidden");
+		  }
+	      }
+	    </script>
+
           <a class="watch" href="https://www.youtube.com/watch?v=uYYnryIM0Uw;feature=youtu.be" class="pull-right">Viewer Overview</a> - 
-          <a class="watch" href="https://www.youtube.com/watch?v=Q2tG2SS4gXA&feature=youtu.be" class="pull-right">Moderator Overview</a>
+          <a class="watch" href="https://www.youtube.com/watch?v=Q2tG2SS4gXA&feature=youtu.be" class="pull-right">Moderator Overview</a> -
+	  <a class="watch" href="#" onclick="toggleAdvanced();return false;" class="pull-right">Advanced</a>
 
           </div>
         </div>

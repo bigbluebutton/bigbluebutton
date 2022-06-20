@@ -85,7 +85,7 @@ if (request.getParameterMap().isEmpty()) {
 	Boolean isHTML5 = new Boolean(true);
 	Boolean isRecorded = new Boolean(true);
 
-	String joinURL = getJoinURLExtended(username, meetingname, isRecorded.toString(), null, metadata, null, isHTML5.toString(), isModerator.toString());
+	String joinURL = getJoinURLExtended(username, meetingname, isRecorded.toString(), null, metadata, null, isHTML5.toString(), isModerator.toString(), null, null);
 
 	if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) {
 %>

@@ -103,7 +103,7 @@ if (request.getParameterMap().isEmpty()) {
 		isModerator = Boolean.parseBoolean(request.getParameter("isModerator"));
 	}
 
-	String joinURL = getJoinURLExtended(username, meetingname, isRecorded.toString(), null, null, null, isHTML5.toString(), isModerator.toString());
+	String joinURL = getJoinURLExtended(username, meetingname, isRecorded.toString(), null, null, null, isHTML5.toString(), isModerator.toString(), request.getParameter("createParameters"), request.getParameter("joinParameters"));
 
 	if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) {
 %>
