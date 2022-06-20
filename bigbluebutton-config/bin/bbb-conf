@@ -635,9 +635,9 @@ done
 print_bigbluebutton_version() {
     echo
     if [ $DISTRIB_ID == "centos" ]; then
-        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(rpm -qa | grep bbb | grep -v bbb-demo | grep -v bbb-lti | grep -v bbb-redis | grep -v bbb-tomcat | grep -v freeswitch | sed 's/.*[0-9].[0-9].[0-9]-//g' | sed 's/\..*//g' | awk '{ sum+=$1} END {print sum}'))"
+        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(rpm -qa | grep bbb | grep -v bbb-lti | grep -v bbb-redis | grep -v bbb-tomcat | grep -v freeswitch | sed 's/.*[0-9].[0-9].[0-9]-//g' | sed 's/\..*//g' | awk '{ sum+=$1} END {print sum}'))"
     else
-        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(dpkg -l | grep bbb | grep -v bbb-demo | grep -v bbb-lti | sed -n '/[0-9].[0-9].[0-9]-/{s/.*[0-9].[0-9].[0-9]-//;s/;//;p}' | awk '{ sum+=$1} END {print sum}'))"
+        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(dpkg -l | grep bbb | grep -v bbb-lti | sed -n '/[0-9].[0-9].[0-9]-/{s/.*[0-9].[0-9].[0-9]-//;s/;//;p}' | awk '{ sum+=$1} END {print sum}'))"
     fi
 }
 
@@ -746,33 +746,6 @@ check_configuration() {
 
     BBB_SECRET="$(get_bbb_web_config_value securitySalt)"
 
-    if [ -f /var/lib/$TOMCAT_USER/webapps/demo/bbb_api_conf.jsp ]; then
-        #
-        # Make sure the shared secret for the API matches the server
-        #
-        SECRET_DEMO=$(cat ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp | grep -v '^//' | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
-
-        if [ "$BBB_SECRET" != "$SECRET_DEMO" ]; then
-            echo "#"
-            echo "# Warning: API Shared Secret mismatch: "
-            echo "#"
-            echo "#  $BBB_WEB_ETC_CONFIG = $BBB_SECRET"
-            echo "#  /var/lib/$TOMCAT_USER/webapps/demo/bbb_api_conf.jsp               = $SECRET_DEMO"
-            echo "#"
-            echo "# You need to edit bbb_api_conf.jsp to have the same shared secret defined in bigbluebutton.properties"
-            echo "#"
-            echo
-        fi
-
-        if ! grep -q https ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp; then
-            echo
-            echo "# Warning: Did not detect https for API demos in "
-            echo "#"
-            echo "#    ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp"
-            echo "#"
-            echo
-        fi
-    fi
 
     if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
         WEBHOOKS_CONF=/usr/local/bigbluebutton/bbb-webhooks/config/default.yml
@@ -1057,16 +1030,6 @@ check_state() {
         fi
     fi
 
-    if [ -d ${TOMCAT_DIR}/webapps/demo ]; then
-        if test ${TOMCAT_DIR}/webapps/demo.war -nt ${TOMCAT_DIR}/webapps/demo; then
-            echo "# Error: The updated demo.war did not deploy.  To manually deploy:"
-            echo "#"
-            echo "#   $SUDO touch ${SERVLET_DIR}/demo.war"
-            echo "#"
-            echo
-        fi
-    fi
-
     if (( $MEM < 3940 )); then
         echo "# Warning: You are running BigBlueButton on a server with less than 4G of memory.  Your"
         echo "# performance may suffer."
@@ -1074,22 +1037,6 @@ check_state() {
     fi
 
     BBB_WEB="$(get_bbb_web_config_value bigbluebutton.web.serverURL)"
-    if [ -f ${TOMCAT_DIR}/webapps/demo/demo1.jsp ]; then
-        echo "# Warning: The API demos are installed and accessible from:"
-        echo "#"
-        echo "#    $BBB_WEB"
-        echo "#"
-        echo "# and"
-        echo "#"
-        echo "#    $BBB_WEB/demo/demo1.jsp"
-        echo "#"
-        echo "# These API demos allow anyone to access your server without authentication"
-        echo "# to create/manage meetings and recordings. They are for testing purposes only."
-        echo "# If you are running a production system, remove them by running:"
-        echo "#"
-        echo "#   $SUDO apt-get purge bbb-demo"
-        echo
-    fi
 
     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
         LTI_URL="${PROTOCOL}://"$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
@@ -1431,29 +1378,29 @@ if [ $CHECK ]; then
         echo "               codec_video_content: $(echo "$WEBRTC_SFU_CONFIG" | yq r - conference-media-specs.codec_video_content)"
     fi
 
-     if [ -n "$HTML5_CONFIG" ]; then
+    if [ -n "$HTML5_CONFIG" ]; then
+    echo
+    echo "/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml (HTML5 client)"
+    echo "/etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)"
+    echo "                             build: $(echo "$HTML5_CONFIG" | yq r - public.app.html5ClientBuild)"
+    echo "                        kurentoUrl: $(echo "$HTML5_CONFIG" | yq r - public.kurento.wsUrl)"
+    echo "            defaultFullAudioBridge: $(echo "$HTML5_CONFIG" | yq r - public.media.audio.defaultFullAudioBridge)"
+    echo "           defaultListenOnlyBridge: $(echo "$HTML5_CONFIG" | yq r - public.media.audio.defaultListenOnlyBridge)"
+    echo "                    sipjsHackViaWs: $(echo "$HTML5_CONFIG" | yq r - public.media.sipjsHackViaWs)"
+    fi
+
+    if [ ! -z "$STUN" ]; then
+    for i in $STUN; do
         echo
-        echo "/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml (HTML5 client)"
-        echo "/etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)"
-        echo "                             build: $(echo "$HTML5_CONFIG" | yq r - public.app.html5ClientBuild)"
-        echo "                        kurentoUrl: $(echo "$HTML5_CONFIG" | yq r - public.kurento.wsUrl)"
-        echo "            defaultFullAudioBridge: $(echo "$HTML5_CONFIG" | yq r - public.media.audio.defaultFullAudioBridge)"
-        echo "           defaultListenOnlyBridge: $(echo "$HTML5_CONFIG" | yq r - public.media.audio.defaultListenOnlyBridge)"
-        echo "                    sipjsHackViaWs: $(echo "$HTML5_CONFIG" | yq r - public.media.sipjsHackViaWs)"
-     fi
+        echo "$TURN (STUN Server)"
+        echo "                              stun: $(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m "_:beans/_:bean[@id=\"$i\"]/_:constructor-arg[@index=\"0\"]" -v @value $TURN | sed 's/stun://g')"
+    done
+    fi
 
-     if [ ! -z "$STUN" ]; then
-       for i in $STUN; do
-         echo
-         echo "$TURN (STUN Server)"
-         echo "                              stun: $(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m "_:beans/_:bean[@id=\"$i\"]/_:constructor-arg[@index=\"0\"]" -v @value $TURN | sed 's/stun://g')"
-       done
-     fi
+    check_state
+    echo
 
-     check_state
-     echo
-
-     exit 0
+    exit 0
 fi
 
 #
@@ -1624,25 +1571,6 @@ if [ -n "$HOST" ]; then
         SECRET=$(get_bbb_web_config_value securitySalt)
         sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" \
                 /etc/bigbluebutton/bbb-apps-akka.conf
-    fi
-
-    #
-    # Update api demos
-    #
-    if [ -f ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp ]; then
-      echo "there is bbb-demo installed"
-      BBB_WEB_URL=$(get_bbb_web_config_value bigbluebutton.web.serverURL)
-      SECRET=$(get_bbb_web_config_value securitySalt)
-
-      echo "Assigning $BBB_WEB_URL for api demos in ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp"
-      $SUDO echo -n "<%" > ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp
-      $SUDO echo "!
-// This is the security salt that must match the value set in the BigBlueButton server
-String salt = \"$SECRET\";
-
-// This is the URL for the BigBlueButton server
-String BigBlueButtonURL = \"$BBB_WEB_URL/bigbluebutton/\";
-%>" >> ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp
     fi
 
     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
