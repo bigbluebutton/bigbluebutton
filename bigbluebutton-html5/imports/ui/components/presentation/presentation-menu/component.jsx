@@ -264,16 +264,18 @@ const PresentationMenu = (props) => {
     <Styled.Right>
       <BBBMenu 
         trigger={
-          <Styled.DropdownButton
-            state={isDropdownOpen ? 'open' : 'closed'}
-            aria-label={intl.formatMessage(intlMessages.optionsLabel)}
-            data-test="whiteboardOptionsButton"
-            onClick={() => {
-              setIsDropdownOpen((isOpen) => !isOpen)
-            }}
-            >
-              <Styled.ButtonIcon iconName="more" />
-          </Styled.DropdownButton>
+          <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
+            <Styled.DropdownButton
+              state={isDropdownOpen ? 'open' : 'closed'}
+              aria-label={intl.formatMessage(intlMessages.optionsLabel)}
+              data-test="whiteboardOptionsButton"
+              onClick={() => {
+                setIsDropdownOpen((isOpen) => !isOpen)
+              }}
+              >
+                <Styled.ButtonIcon iconName="more" />
+            </Styled.DropdownButton>
+          </TooltipContainer>
         }
         opts={{
           id: "default-dropdown-menu",
