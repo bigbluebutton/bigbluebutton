@@ -22,7 +22,7 @@ const PollContainer = ({ ...props }) => {
   const { users } = usingUsersContext;
   const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
 
-  const isPollSecret = Session.get('secretPoll') || false;
+  const { isPollSecret } = props;
   Meteor.subscribe('current-poll', isPollSecret, amIPresenter);
 
   const usernames = {};
@@ -41,6 +41,7 @@ const PollContainer = ({ ...props }) => {
 };
 
 export default withTracker(() => {
+  const isPollSecret = Session.get('secretPoll') || false;
   const currentPresentation = Presentations.findOne({
     current: true,
   }, { fields: { podId: 1 } }) || {};
@@ -58,6 +59,7 @@ export default withTracker(() => {
   const stopPoll = () => makeCall('stopPoll');
 
   return {
+    isPollSecret,
     currentSlide,
     pollTypes,
     startPoll,
