@@ -426,31 +426,32 @@ function overlay_draw(svg, annotation) {
     let fill = (dash === 'draw') ? shapeColor : 'none';
 
     let shapeFillColor = color_to_hex(`fill-${annotation.style.color}`)
-    let filledPath = "";
+    let shapeTransform = `translate(${x} ${y}), rotate(${rotation} ${max_x / 2} ${max_y / 2})`
 
-    // Fill assuming solid, small pencil used
-    if (annotation.style.isFilled &&
-        annotation.points.length > 3
+    // Fill assuming solid, small pencil used when path start- and end points overlap
+    let shapeIsFilled = 
+        annotation.style.isFilled &&
+        annotation.points.length > 3 
         && Math.round(distance(
             annotation.points[0][0],
             annotation.points[0][1],
             annotation.points[annotation.points.length - 1][0],
             annotation.points[annotation.points.length - 1][1]
-        )) <= 2 * get_stroke_width('solid', 'small')) {
+        )) <= 2 * get_stroke_width('solid', 'small');
 
-        filledPath = getPath(annotation.points)[0] + 'Z';
-    }
-
-    svg.ele('g', {
-        transform: `translate(${x} ${y}), rotate(${rotation} ${max_x / 2} ${max_y / 2})`,
-    }).ele('path', {
-        style: `fill:${shapeFillColor};`,
-        d: filledPath,
-    }).up()
-        .ele('path', {
-            style: `stroke:${shapeColor};stroke-width:${thickness};fill:${fill};${stroke_dasharray}`,
-            d: path,
+    if (shapeIsFilled) {
+        svg.ele('path', {
+            style: `fill:${shapeFillColor};`,
+            d: getPath(annotation.points)[0] + 'Z',
+            transform: shapeTransform
         }).up()
+    }
+    
+    svg.ele('path', {
+        style: `stroke:${shapeColor};stroke-width:${thickness};fill:${fill};${stroke_dasharray}`,
+        d: path,
+        transform: shapeTransform
+    })
 }
 
 function overlay_ellipse(svg, annotation) {
