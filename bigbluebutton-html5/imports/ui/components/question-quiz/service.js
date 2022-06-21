@@ -11,13 +11,6 @@ const MAX_POLL_RESULT_BARS = 20;
 const QUIZ_SETTINGS = Meteor.settings.public.questionQuiz;
 const CORRECT_OPTION_SYMBOL = QUIZ_SETTINGS.correct_option_symbol
 
-// 'YN' = Yes,No
-// 'YNA' = Yes,No,Abstention
-// 'TF' = True,False
-// 'A-2' = A,B
-// 'A-3' = A,B,C
-// 'A-4' = A,B,C,D
-// 'A-5' = A,B,C,D,E
 const questionQuizTypes = {
   YesNo: 'YN',
   YesNoAbstention: 'YNA',
@@ -76,15 +69,15 @@ const questionQuizAnswerIds = {
 
 const intlMessages = defineMessages({
   legendTitle: {
-    id: 'app.questioning.questioningTitle',
+    id: 'playback.player.chat.message.poll.options',
     description: 'heading for chat quiz legend',
   },
   questionQuizQuestionTitle: {
-    id: 'app.questioning.quizQuestionTitle',
+    id: 'playback.player.chat.message.poll.question',
     description: 'title displayed before quiz question',
   },
   questionQuizStatsVotesLabel: {
-    id: 'app.questionQuiz.chat.stats.votes.label',
+    id: 'app.poll.liveResult.responsesTitle',
     description: 'Quiz stats votes title label.',
   },
 });

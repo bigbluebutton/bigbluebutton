@@ -11,16 +11,16 @@ const MAX_INPUT_CHARS = Meteor.settings.public.questionQuiz.maxTypedAnswerLength
 
 const intlMessages = defineMessages({
   questionQuizingTitleLabel: {
-    id: 'app.questioning.questioningTitle',
+    id: 'playback.player.chat.message.poll.options',
   },
   questionQuizAnswerLabel: {
     id: 'app.questioning.questionQuizAnswerLabel',
   },
   questionQuizAnswerDesc: {
-    id: 'app.questioning.questionQuizAnswerDesc',
+    id: 'app.polling.pollAnswerDesc',
   },
   questionQuizQuestionTitle: {
-    id: 'app.questioning.quizQuestionTitle',
+    id: 'playback.player.chat.message.poll.question',
   },
   responseIsSecret: {
     id: 'app.questioning.responseSecret',
@@ -29,13 +29,13 @@ const intlMessages = defineMessages({
     id: 'app.questioning.responseNotSecret',
   },
   submitLabel: {
-    id: 'app.questioning.submitLabel',
+    id: 'app.polling.submitLabel',
   },
   submitAriaLabel: {
     id: 'app.questioning.submitAriaLabel',
   },
   responsePlaceholder: {
-    id: 'app.questioning.responsePlaceholder',
+    id: 'app.polling.responsePlaceholder',
   },
 });
 
@@ -155,7 +155,7 @@ class Questioning extends Component {
                       <Styled.QuestionQuizButtonWrapper key={questionQuizAnswer.id} >
                         <Styled.QuestionQuizingButton
                           disabled={!isMeteorConnected}
-                          color="primary"
+                          color="success"
                           size="md"
                           label={label}
                           key={questionQuizAnswer.key}

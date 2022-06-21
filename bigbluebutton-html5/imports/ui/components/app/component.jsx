@@ -105,11 +105,15 @@ const intlMessages = defineMessages({
     description: 'message displayed when a quiz is published',
   },
   questionQuizCorrectAnswer: {
-    id: "app.questionQuiz.correctAnswer",
+    id: "app.questionQuiz.correctOptionLabel",
     description: "correct answer selected notification"
   },
   questionQuizIncorrectAnswer: {
-    id: "app.questionQuiz.incorrectAnswer",
+    id: "app.questionQuiz.incorrectOptionLabel",
+    description: "correct answer selected notification"
+  },
+  questionQuizUserInfoAnswer: {
+    id: "app.questionQuiz.info.answer",
     description: "incorrect answer selected notification"
   },
   defaultViewLabel: {
@@ -338,13 +342,15 @@ class App extends Component {
                   isCorrect = true
                   return notify(
                     `${intl.formatMessage(intlMessages.questionQuizPublishedLabel)}. 
-                  ${intl.formatMessage(intlMessages.questionQuizCorrectAnswer)}`, 'success', 'polling',
+                  ${intl.formatMessage(intlMessages.questionQuizUserInfoAnswer)} ${intl.formatMessage(
+                    intlMessages.questionQuizCorrectAnswer)}!`, 'success', 'polling',
                   );
                 }
               })
               !isCorrect && notify(
                 `${intl.formatMessage(intlMessages.questionQuizPublishedLabel)}. 
-              ${intl.formatMessage(intlMessages.questionQuizIncorrectAnswer)}`, 'warning', 'polling',
+              ${intl.formatMessage(intlMessages.questionQuizUserInfoAnswer)} ${intl.formatMessage(
+                intlMessages.questionQuizIncorrectAnswer)}!`, 'warning', 'polling',
               );
             }
           })

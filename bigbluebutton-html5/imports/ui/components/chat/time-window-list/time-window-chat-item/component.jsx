@@ -31,6 +31,7 @@ const propTypes = {
   chatAreaId: PropTypes.string.isRequired,
   handleReadMessage: PropTypes.func.isRequired,
   lastReadMessageTime: PropTypes.number,
+  usernames: PropTypes.object
 };
 
 const defaultProps = {
@@ -38,6 +39,7 @@ const defaultProps = {
   scrollArea: null,
   lastReadMessageTime: 0,
   timestamp: 0,
+  usernames: null
 };
 
 const intlMessages = defineMessages({
@@ -293,6 +295,7 @@ class TimeWindowChatItem extends PureComponent {
       chatAreaId,
       lastReadMessageTime,
       handleReadMessage,
+      usernames
     } = this.props;
 
     const dateTime = new Date(timestamp);
@@ -324,6 +327,7 @@ class TimeWindowChatItem extends PureComponent {
               questionQuizResultData={extra.questionQuizResultData}
               text={getQuestionQuizResultString(extra.questionQuizResultData, intl)}
               time={messages[0].time}
+              usernames={usernames}
               chatAreaId={chatAreaId}
               lastReadMessageTime={lastReadMessageTime}
               handleReadMessage={handleReadMessage}

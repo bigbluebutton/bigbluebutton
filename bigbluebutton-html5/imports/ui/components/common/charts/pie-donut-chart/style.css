@@ -1,0 +1,13 @@
+.apexcharts-svg{
+    height:400px !important;
+}
+.apexcharts-canvas{
+    height: 400px !important;
+}
+foreignObject{
+    height: 400px !important;
+} 
+.apexcharts-legend{
+    position: relative ;
+    margin-top: 280px ;
+}

@@ -69,6 +69,10 @@ const btnMutedBorder = `var(--btn-muted-border, ${colorMutedBackground})`;
 const btnMutedColor = `var(--btn-muted-color, ${colorMuted})`;
 const btnMutedBg = `var(--btn-muted-bg, ${colorMutedBackground})`;
 
+const colorBadgeSuccess = `var(--badge-success, #D1E7DD)`;
+const colorBadgeWarning = `var(--badge-warning, #FFF3CD)`;
+const colorBadgeDanger = `var(--btn-danger, #F8D7DA)`;
+
 const toolbarButtonColor = `var(--toolbar-button-color, ${btnDefaultColor})`;
 const userThumbnailBorder = `var(--user-thumbnail-border, ${colorGrayLight})`;
 const loaderBg = `var(--loader-bg, ${colorGrayDark})`;
@@ -167,6 +171,9 @@ export {
   btnMutedBorder,
   btnMutedColor,
   btnMutedBg,
+  colorBadgeSuccess,
+  colorBadgeDanger,
+  colorBadgeWarning,
   toolbarButtonColor,
   userThumbnailBorder,
   loaderBg,

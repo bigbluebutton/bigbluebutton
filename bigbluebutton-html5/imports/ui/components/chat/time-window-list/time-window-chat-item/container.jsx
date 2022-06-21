@@ -17,6 +17,11 @@ const TimeWindowChatItemContainer = (props) => {
   const idChatOpen = layoutSelect((i) => i.idChatOpen);
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
+  const usernames = {};
+  Object.values(users[Auth.meetingID]).forEach((user) => {
+    if(!user.presenter)
+    usernames[user.userId] = { userId: user.userId, name: user.name };
+  });
   const {
     sender,
     senderName,
@@ -59,6 +64,7 @@ const TimeWindowChatItemContainer = (props) => {
         systemMessage: messageId.startsWith(SYSTEM_CHAT_TYPE) || !sender,
         messageKey,
         handleReadMessage,
+        usernames,
         ...props,
       }
       }

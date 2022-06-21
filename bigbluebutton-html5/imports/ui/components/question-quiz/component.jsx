@@ -34,7 +34,7 @@ const isCorrectOption = (opt) => {
   return (
     trimmedOptLength > correctOptSymLength &&
     trimmedOption.substring(trimmedOptLength -
-    correctOptSymLength) === CORRECT_OPTION_SYMBOL
+      correctOptSymLength) === CORRECT_OPTION_SYMBOL
   )
 }
 
@@ -53,16 +53,17 @@ const getCorrectOptions = (options) => {
   return correctOptions;
 }
 
-// const verifiedOptionList = (optList) => {
-//   const newOptList = optList.map((o) => {
-//     const trimmedOpt = o.trim()
-//     if (isCorrectOption(o)) {
-//       return trimmedOpt.replace(CORRECT_OPTION_SYMBOL, "")
-//     }
-//     return trimmedOpt;
-//   })
-//   return newOptList;
-// }
+const verifiedOptionList = (optList) => {
+  const newOptList = optList.map((o) => {
+    const trimmedOpt = o.trim()
+    if (isCorrectOption(o)) {
+      return trimmedOpt.substring(0,
+      trimmedOpt.length - CORRECT_OPTION_SYMBOL.length)
+    }
+    return trimmedOpt;
+  })
+  return newOptList;
+}
 
 const getSplittedQuestionAndOptions = (questionAndOptions) => {
   const inputList = questionAndOptions.split('\n');
@@ -77,13 +78,19 @@ const getSplittedQuestionAndOptions = (questionAndOptions) => {
 const checkIfAnyOptionIsEmpty = (options) => {
   let isOptionEmpty = false;
   options.forEach((opt) => {
-    if ((!opt.trim()) || 
-    (opt.trim().replace(CORRECT_OPTION_SYMBOL, '') === '')) {
+    if ((!opt.trim()) ||
+      (opt.trim().replace(CORRECT_OPTION_SYMBOL, '') === '')) {
       isOptionEmpty = true;
       return isOptionEmpty;
     }
   });
   return isOptionEmpty;
+}
+
+const checkIfDuplicateOptions = (optionsList) => {
+  optionsList = verifiedOptionList(optionsList)
+  const isDuplicate = optionsList.some((e, i, arr) => arr.indexOf(e) !== i)
+  return isDuplicate;
 }
 
 
@@ -128,6 +135,10 @@ const intlMessages = defineMessages({
     id: 'app.questionQuiz.error.selectCorrectOpt',
     description: 'Error for selecting correct option',
   },
+  sameOptionErr: {
+    id: 'app.questionQuiz.error.optionsRepeated',
+    description: 'Error for repeated option',
+  },
   optionEmptyError: {
     id: 'app.questionQuiz.error.optionEmptySpace',
     description: '',
@@ -169,7 +180,7 @@ const intlMessages = defineMessages({
     description: 'Close',
   },
   optionsLabel: {
-    id: 'app.questionQuiz.optionsHeading',
+    id: 'playback.player.chat.message.poll.options',
     description: 'label for options heading',
   },
   maxOptionsWarning: {
@@ -181,7 +192,7 @@ const intlMessages = defineMessages({
     description: '',
   },
   questionLabel: {
-    id: 'app.questionQuiz.questionHeading',
+    id: 'playback.player.chat.message.poll.question',
     description: '',
   },
   addOptionLabel: {
@@ -320,7 +331,7 @@ class QuestionQuiz extends Component {
     const {
       optList, questionAndOptions, error
     } = this.state;
-    
+
     const list = [...optList];
     const validatedVal = validateInput(e.target.value).replace(/\s{2,}/g, ' ');
     const charsRemovedCount = e.target.value.length - validatedVal.length;
@@ -328,7 +339,7 @@ class QuestionQuiz extends Component {
     const caretStart = e.target.selectionStart;
     const caretEnd = e.target.selectionEnd;
     const valWithoutEsterik = validatedVal.substring(0,
-       validatedVal.length - CORRECT_OPTION_SYMBOL.length)
+      validatedVal.length - CORRECT_OPTION_SYMBOL.length)
     list[index] = isCorrectOption(validatedVal) ? valWithoutEsterik : validatedVal
     let questionAndOptionsList = [];
     if (questionAndOptions.length > 0) {
@@ -365,8 +376,8 @@ class QuestionQuiz extends Component {
       getSplittedQuestionAndOptions(validatedInput)
     optionsList.forEach((opt, i) => {
       if (isCorrectOption(opt)) {
-        const verifiedOpt = opt.substring(0, 
-        opt.length - CORRECT_OPTION_SYMBOL.length)
+        const verifiedOpt = opt.substring(0,
+          opt.length - CORRECT_OPTION_SYMBOL.length)
         optionsList[i] = verifiedOpt
       }
     })
@@ -378,12 +389,6 @@ class QuestionQuiz extends Component {
       question: splittedQuestion, optList: optionsList,
     });
   }
-
-  // handlePollValuesText(text) {
-  //   if (text && text.length > 0) {
-  //     this.pushToCustomPollValues(text);
-  //   }
-  // }
 
   handleRemoveOption(index) {
     const { intl } = this.props;
@@ -430,8 +435,8 @@ class QuestionQuiz extends Component {
       options[index] = selectedOption.concat(CORRECT_OPTION_SYMBOL)
     }
     else {
-      options[index] = selectedOption.slice(0, 
-      selectedOption.length - CORRECT_OPTION_SYMBOL.length)
+      options[index] = selectedOption.slice(0,
+        selectedOption.length - CORRECT_OPTION_SYMBOL.length)
       optListArray[index] = options[index]
     }
     const questionAndOptionsString = `${question}\n${options.join('\n')}`
@@ -523,6 +528,16 @@ class QuestionQuiz extends Component {
       })
       return true;
     }
+
+    //repeated options error
+    const hasDuplicates = checkIfDuplicateOptions(optionsList)
+    if(hasDuplicates){
+      this.setState({
+        error: intl.formatMessage(intlMessages.sameOptionErr),
+      })
+      return true;
+    }
+
     return { question: splittedQuestion, optList: optionsList };
   }
 
@@ -577,6 +592,9 @@ class QuestionQuiz extends Component {
     const correctOptionErrorMsg = intl.formatMessage(
       intlMessages.correctOptionErr,
     );
+    const sameOptionErrorMsg = intl.formatMessage(
+      intlMessages.sameOptionErr,
+    );
     if (
       (
         error === invalidEmptyTextErrorMsg
@@ -601,6 +619,10 @@ class QuestionQuiz extends Component {
       (
         error === correctOptionErrorMsg
         && correctOptions.length > 0
+      ) ||
+      (
+        error === sameOptionErrorMsg
+        && !checkIfDuplicateOptions(optionList)
       )
     ) {
       return true
@@ -675,7 +697,13 @@ class QuestionQuiz extends Component {
             <Styled.Warning>{warning}</Styled.Warning>
           ) : null} */}
 
-          <div>
+          {/* I commented this feature beacuse students can select multiple answers in 
+          multipleResponseCheckbox feature and it will make easy for them to check
+          all answers and one of them will be correct definetly, Maybe we can do some 
+          addition in this in future, So i am keeping the code here. Incase you want
+          to check it you can uncomment it and run the feature. */}
+
+          {/* <div>
             <Styled.QuestionQuizCheckbox>
               <Checkbox
                 onChange={this.toggleIsMultipleResponse}
@@ -686,7 +714,7 @@ class QuestionQuiz extends Component {
             <Styled.InstructionsLabel id="multipleResponseCheckboxLabel">
               {intl.formatMessage(intlMessages.enableMultipleResponseLabel)}
             </Styled.InstructionsLabel>
-          </div>
+          </div> */}
           {this.renderInputs()}
           {
             questionAndOptions && (
@@ -735,9 +763,6 @@ class QuestionQuiz extends Component {
           color="primary"
           onClick={() => {
             const { question, optList } = this.seperateQuestionsAndOptionsFromString();
-            const { questionAndOptions } = this.state
-            const { optionsList } = getSplittedQuestionAndOptions(questionAndOptions)
-            const correctOptions = getCorrectOptions(optionsList)
             const answers = optList;
             const verifiedQuestionType = 'CUSTOM';
             if (question && optList && !error) {
@@ -771,11 +796,6 @@ class QuestionQuiz extends Component {
           }
           }
         />
-        {/* {
-          FILE_DRAG_AND_DROP_ENABLED
-          && type !== QuestionQuizTypes.Response
-          && this.renderDragDrop()
-        } */}
       </div>
     )
   }
@@ -797,7 +817,6 @@ class QuestionQuiz extends Component {
   }
 
   renderQuestionQuizPanel() {
-    const { isQuestioning } = this.state;
     const {
       currentQuestionQuiz,
       currentSlide,
@@ -821,7 +840,7 @@ class QuestionQuiz extends Component {
     return optList.slice(0, MAX_CUSTOM_FIELDS).map((o, i) => {
       const questionQuizOptionKey = `questionQuiz-option-${i}`;
       const option = isCorrectOption(o) ? o.substring(0,
-         o.length - CORRECT_OPTION_SYMBOL.length) : o
+        o.length - CORRECT_OPTION_SYMBOL.length) : o
       return (
         <span key={questionQuizOptionKey}>
           <div
@@ -944,7 +963,7 @@ class QuestionQuiz extends Component {
             this.setState({ openPreviewModal: false });
           }}
           hideBorder
-          data-test="audioModal"
+          data-test="previewQuizModal"
           title={intl.formatMessage(intlMessages.previewBtnLabel)}
         >
           <Styled.PreviewModalContainer>
@@ -961,11 +980,11 @@ class QuestionQuiz extends Component {
               {optList
                 ? optList.map((opt, index) => {
                   const uniqueKey = `opt-list-question-${index}`;
-                  const option = isCorrectOption(opt) ? opt.substring(0, 
+                  const option = isCorrectOption(opt) ? opt.substring(0,
                     opt.length - CORRECT_OPTION_SYMBOL.length) : opt
                   return (
-                    <Styled.OptionListItem key={uniqueKey} 
-                    isCorrect={correctOptions.includes(option)}>
+                    <Styled.OptionListItem key={uniqueKey}
+                      isCorrect={correctOptions.includes(option)}>
                       {`${index + 1}.  `}
                       {!correctOptions.includes(option) ? (
                         opt
