@@ -27,18 +27,21 @@ test.describe.parallel('Presentation', () => {
   });
 
   test.describe.parallel('Manage', () => {
+    // https://docs.bigbluebutton.org/2.5/release-tests.html#uploading-a-presentation-automated
     test('Upload single presentation @ci', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.uploadSinglePresentationTest();
     });
 
+    // https://docs.bigbluebutton.org/2.5/release-tests.html#uploading-multiple-presentations-automated
     test('Upload multiple presentations', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.uploadMultiplePresentationsTest();
     });
 
+    // https://docs.bigbluebutton.org/2.5/release-tests.html#enabling-and-disabling-presentation-download-automated
     test('Allow and disallow presentation download @ci', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);

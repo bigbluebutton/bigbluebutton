@@ -9,6 +9,7 @@ const iPhone11 = devices['iPhone 11'];
 
 test.describe.parallel('User', () => {
   test.describe.parallel('Actions', () => {
+    // https://docs.bigbluebutton.org/2.5/release-tests.html#set-status--raise-hand-automated
     test('Raise and lower Hand Toast', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
@@ -23,6 +24,7 @@ test.describe.parallel('User', () => {
   });
 
   test.describe.parallel('List', () => {
+    // https://docs.bigbluebutton.org/2.5/release-tests.html#set-status--raise-hand-automated
     test('Change user status @ci', async ({ browser, page }) => {
       const status = new Status(browser, page);
       await status.init(true, true);
