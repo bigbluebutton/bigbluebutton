@@ -1,0 +1,194 @@
+body {
+    text-rendering: optimizelegibility;
+    color: #999;
+    background: #f5f5f5;
+}
+
+p {
+    font-weight: 300;
+    margin-bottom: 20px;
+    line-height: 26px;
+    font-size: 15px;
+}
+
+.center {
+    text-align: center;
+}
+
+.watch { 
+	font-size:12px;
+}
+
+input {
+    width: 100%;
+}
+
+.main {
+    max-width: 1292px;
+    overflow: hidden;
+    background-color: #fff;
+    margin: 0 auto 40px auto;
+    padding-bottom: 60px;
+    border-right: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    border-left: 1px solid #eee;
+}
+
+.logo {
+    padding: 20px;
+}
+
+.featurette-divider {
+    margin: 20px 0 60px 0;
+    border-top: 0;
+    border-bottom: 1px #eee solid;
+}
+
+.featurette-heading {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.join-meeting {
+    background: #EDF4FB;
+    padding: 60px;
+    text-align: center;
+    border: 1px solid rgba(0,0,0,0.1);
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.join-meeting .button { 
+	margin-bottom:20px;
+}
+
+.input-center{
+    margin: auto !important;
+    float:unset !important;
+    display:block !important;
+}
+
+.bbb-features i {
+    display: block;
+    float: left;
+    width: 50px;
+    height: auto;
+    margin: 0 15px 0 0;
+    padding: 15px 0;
+    background-color: #f2f2f2;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    font-size: 22px;
+    text-align: center;
+}
+
+.bbb-features .bbb-features-content {
+    overflow: hidden;
+}
+
+.bbb-videos {
+    text-align: center;
+}
+
+.bbb-videos img {
+    width: 95%;
+}
+
+.video-item {
+    position: relative;
+}
+
+.video-btn {
+    position: absolute;
+    display: block;
+    margin: 21% 0 0 0;
+    width: 100%;
+    height: auto;
+    text-align: center;
+    z-index: 100;
+    color: #edf4fb;
+    font-size: 40px;
+}
+
+.input-default {
+    display: block;
+    background: #fff;
+    border: 1px solid #c7cdd1;
+    border-radius: 3px;
+    font-size: 14px;
+    padding: 12px 18px;
+    margin-bottom: 15px;
+}
+
+footer p {
+    font-size: 12px;
+}
+
+footer ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    float: right;
+}
+
+footer ul li {
+    display: block;
+    float: left;
+    margin-left: 10px;
+    font-size: 12px;
+    line-height: 26px;
+}
+
+footer ul li a {
+    display: block;
+    float: left;
+    width: 25px;
+    height: auto;
+    font-size: 12px;
+    color: #fff;
+    text-align: center;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    -webkit-transition: .4s;
+    -moz-transition: .4s;
+    -o-transition: .4s;
+    transition: .4s;
+}
+
+footer ul li a:hover {
+    color: #fff;
+}
+
+.twitter {
+    background: #13C4F8;
+}
+
+.facebook {
+    background: #6586D0;
+}
+
+.youtube {
+    background: #CE1312;
+}
+
+.google {
+    background: #E95B34;
+}
+
+.twitter:hover, .facebook:hover, .youtube:hover, .google:hover {
+    opacity: 0.8;
+}
+
+@media only screen and (min-width: 768px) and (max-width: 999px) {
+}
+
+@media only screen and (max-width: 767px) {
+
+}
+
+@media only screen and (min-width: 480px) and (max-width: 767px) {
+
+}
