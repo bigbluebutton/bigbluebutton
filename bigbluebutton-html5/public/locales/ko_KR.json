@@ -172,7 +172,6 @@
     "app.presentation.options.fullscreen": "전체화면",
     "app.presentation.options.exitFullscreen": "전체화면 나가기",
     "app.presentation.options.minimize": "최소화",
-    "app.presentation.options.snapshot": "현 프레젠테이션의 스냅샷",
     "app.presentation.options.downloading": "다운로드 중",
     "app.presentation.options.downloaded": "현 프레젠테이션은 다운로드 되었습니다",
     "app.presentation.options.downloadFailed": "현 프레젠테이션을 다운로드 할 수 없습니다",

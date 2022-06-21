@@ -173,7 +173,6 @@
     "app.presentation.options.fullscreen": "Tam ekrana geç",
     "app.presentation.options.exitFullscreen": "Tam ekrandan çık",
     "app.presentation.options.minimize": "Küçült",
-    "app.presentation.options.snapshot": "Geçerli sunumun ekran görüntüsü",
     "app.presentation.options.downloading": "İndiriliyor...",
     "app.presentation.options.downloaded": "Geçerli sunum indirildi",
     "app.presentation.options.downloadFailed": "Geçerli sunum indirilemedi",
