@@ -19,4 +19,16 @@ test.describe.parallel('Connection Status', () => {
     await connectionStatus.initModPage(page);
     await connectionStatus.reportUserInConnectionIssues();
   });
+
+  test('Go to settings modal', async ({ browser, context, page }) => {
+    const connectionStatus = new ConnectionStatus(browser, context);
+    await connectionStatus.initModPage(page);
+    await connectionStatus.linkToSettingsTest();
+  });
+
+  test.only('Copy stats', async ({ browser, context, page }) => {
+    const connectionStatus = new ConnectionStatus(browser, context);
+    await connectionStatus.initModPage(page);
+    await connectionStatus.copyStatsTest(context);
+  });
 });

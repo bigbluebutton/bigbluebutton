@@ -190,6 +190,7 @@ exports.presentationUploadedToast = 'Current presentation';
 exports.languageSelector = 'select[id="langSelector"]';
 exports.messageTitle = 'h2[data-test="messageTitle"]';
 exports.notesTitle = 'h2[data-test="notesTitle"]';
+exports.dataSavingsTab = 'span[id="dataSaving"]';
 
 // User
 const userAvatar = 'div[data-test="userAvatar"]';
@@ -210,11 +211,13 @@ exports.userListToggleBtn = 'button[data-test="toggleUserList"]';
 exports.mobileUser = 'span[data-test="mobileUser"]';
 exports.connectionStatusBtn = 'button[data-test="connectionStatusButton"]';
 exports.connectionStatusModal = 'div[data-test="connectionStatusModal"]';
+exports.copyStats = 'span[data-test="copyStats"]';
 exports.dataSavingScreenshare = 'input[data-test="dataSavingScreenshare"]';
 exports.screenshareLocked = 'button[data-test="screenshareLocked"]';
 exports.connectionStatusItemEmpty = 'div[data-test="connectionStatusItemEmpty"]';
 exports.connectionStatusTab2 = 'div[data-tab="2"]';
 exports.connectionStatusItemUser = 'div[data-test="connectionStatusItemUser"]';
+exports.connectionStatusLinkToSettings = 'div[data-test="networkDataContainer"] span[role="button"]';
 exports.dataSavingWebcams = 'input[data-test="dataSavingWebcams"]';
 exports.connectionStatusOfflineUser = 'div[data-test="offlineUser"]';
 exports.connectionDataContainer = 'div[data-test="networkDataContainer"]';
