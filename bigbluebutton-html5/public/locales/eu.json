@@ -173,7 +173,6 @@
     "app.presentation.options.fullscreen": "Pantaila osoa",
     "app.presentation.options.exitFullscreen": "Irten pantaila osotik",
     "app.presentation.options.minimize": "Minimizatu",
-    "app.presentation.options.snapshot": "Uneko aurkezpenaren argazkia",
     "app.presentation.options.downloading": "Deskargatzen...",
     "app.presentation.options.downloaded": "Uneko aurkezpena deskargatu da",
     "app.presentation.options.downloadFailed": "Ezin izan da uneko aurkezpena deskargatu",

@@ -171,7 +171,6 @@
     "app.presentation.options.fullscreen": "Ողջ էկրանով",
     "app.presentation.options.exitFullscreen": "Չեղարկել ամբողջ էկրանը ծածկելու վիճակը",
     "app.presentation.options.minimize": "Թաքցնել",
-    "app.presentation.options.snapshot": "Տվյալ ներկայացումից սքրինշոթ",
     "app.presentation.options.downloading": "Բեռնվում է",
     "app.presentation.options.downloaded": "Ընթացիկ ներկայացումը բեռնվել է",
     "app.presentation.options.downloadFailed": "Հնարավոր չէ բեռնել ընթացիկ ներկայացումը",
