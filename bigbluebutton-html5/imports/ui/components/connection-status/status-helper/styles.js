@@ -10,10 +10,10 @@ const StatusIconWrapper = styled.div`
   border-radius: 50%;
   padding: 1.5rem;
 
-  ${(color) => {
+  ${({ color }) => {
     let bgColor = colorSuccess;
-    backgroundColor = color === 'warning' ? colorWarning : bgColor;
-    backgroundColor = color === 'danger' ? colorDanger : bgColor;
+    bgColor = color === 'warning' ? colorWarning : bgColor;
+    bgColor = color === 'danger' ? colorDanger : bgColor;
     return `background-color: ${bgColor};`
   }}
 `;

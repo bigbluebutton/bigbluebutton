@@ -173,7 +173,6 @@
     "app.presentation.options.fullscreen": "Teljes képernyő",
     "app.presentation.options.exitFullscreen": "Teljes képernyő bezárása",
     "app.presentation.options.minimize": "Kis méret",
-    "app.presentation.options.snapshot": "Pillanatkép az aktuális előadásról ",
     "app.presentation.options.downloading": "Letöltés...",
     "app.presentation.options.downloaded": "Az aktuális előadás letöltve",
     "app.presentation.options.downloadFailed": "Az aktuális előadás nem tölthető le",

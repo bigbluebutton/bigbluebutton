@@ -171,7 +171,6 @@
     "app.presentation.options.fullscreen": "Pantalla completa",
     "app.presentation.options.exitFullscreen": "Surt de la pantalla completa",
     "app.presentation.options.minimize": "Minimitzar",
-    "app.presentation.options.snapshot": "Instantània de la presentació actual",
     "app.presentation.options.downloading": "Descarregant...",
     "app.presentation.options.downloaded": "S'ha descarregat la presentació actual",
     "app.presentation.options.downloadFailed": "No s'ha pogut descarregar la presentació actual",

@@ -49,8 +49,8 @@ const intlMessages = defineMessages({
   },
   snapshotLabel: {
     id: 'app.presentation.options.snapshot',
-    description: 'Snapshot of current presentation label',
-    defaultMessage: 'Snapshot of current presentation',
+    description: 'Snapshot of current slide label',
+    defaultMessage: 'Snapshot of current slide',
   },
 });
 

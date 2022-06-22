@@ -54,7 +54,10 @@ def archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
   FileUtils.mkdir_p(notes_dir)
 
   tmp_note = "#{notes_dir}/tmp_note.txt"
-  BigBlueButton.try_download("#{notes_endpoint}/#{CGI.escape notes_id}/export/txt", tmp_note)
+  base_path_notes = CGI.escape notes_id
+  if base_path_notes != "undefined"
+    BigBlueButton.try_download("#{notes_endpoint}/#{base_path_notes}/export/txt", tmp_note)
+  end
   if File.exist? tmp_note
     # If the notes are empty, do not archive them
     blank = false
