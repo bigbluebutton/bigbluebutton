@@ -14,7 +14,7 @@ const WhiteboardContainer = (props) => {
     return <Whiteboard {...{isPresenter, currentUser}} {...props} meetingId={Auth.meetingID} />
 };
 
-export default withTracker(({ whiteboardId, curPageId, intl }) => {
+export default withTracker(({ whiteboardId, curPageId, intl, zoomChanger }) => {
   const shapes = Service.getShapes(whiteboardId, curPageId, intl);
   const assets = Service.getAssets();
   const curPres = Service.getCurrentPres();
@@ -32,5 +32,6 @@ export default withTracker(({ whiteboardId, curPageId, intl }) => {
     removeShapes: Service.removeShapes,
     zoomSlide: PresentationToolbarService.zoomSlide,
     skipToSlide: PresentationToolbarService.skipToSlide,
+    zoomChanger: zoomChanger,
   };
 })(WhiteboardContainer);

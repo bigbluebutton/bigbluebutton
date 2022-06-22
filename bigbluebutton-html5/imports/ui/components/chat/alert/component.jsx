@@ -6,6 +6,7 @@ import _ from 'lodash';
 import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import AudioService from '/imports/ui/components/audio/service';
 import ChatPushAlert from './push-alert/component';
+import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import Service from '../service';
 import Styled from './styles';
 
@@ -146,11 +147,8 @@ const ChatAlert = (props) => {
         if (content.text === PUBLIC_CHAT_CLEAR) {
           return intl.formatMessage(intlMessages.publicChatClear);
         }
-        /* this code is to remove html tags that come in the server's messages */
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = content.text;
-        const textWithoutTag = tempDiv.innerText;
-        return textWithoutTag;
+
+        return unescapeHtml(stripTags(content.text));
       });
 
     return contentMessage;

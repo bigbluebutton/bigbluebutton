@@ -6,6 +6,7 @@ import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
+import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { defineMessages } from 'react-intl';
 import PollService from '/imports/ui/components/poll/service';
@@ -246,17 +247,13 @@ const removeFromClosedChatsSession = (idChatOpen) => {
   }
 };
 
-// We decode to prevent HTML5 escaped characters.
 const htmlDecode = (input) => {
-  const e = document.createElement('div');
-  e.innerHTML = input;
-  const messages = Array.from(e.childNodes);
-  const message = messages.map((chatMessage) => chatMessage.textContent);
-  return message.join('');
+  const replacedBRs = input.replaceAll('<br/>', '\n');
+  return unescapeHtml(stripTags(replacedBRs));
 };
 
 // Export the chat as [Hour:Min] user: message
-const exportChat = (timeWindowList, users, intl) => {
+const exportChat = (timeWindowList, intl) => {
   const messageList = timeWindowList.reduce((acc, timeWindow) => {
     const msgs = timeWindow.content.map((message) => {
       const date = new Date(message.time);
@@ -270,7 +267,7 @@ const exportChat = (timeWindowList, users, intl) => {
 
       let userName = message.id.startsWith(SYSTEM_CHAT_TYPE)
         ? ''
-        : `${users[timeWindow.sender].name}: `;
+        : `${timeWindow.senderName}: `;
       let messageText = '';
       if (message.text === PUBLIC_CHAT_CLEAR) {
         message.text = intl.formatMessage(intlMessages.publicChatClear);

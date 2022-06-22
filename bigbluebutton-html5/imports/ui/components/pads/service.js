@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import Pads, { PadsUpdates } from '/imports/api/pads';
+import Pads, { PadsSessions, PadsUpdates } from '/imports/api/pads';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
@@ -47,9 +47,13 @@ const throttledCreateSession = _.throttle(createSession, THROTTLE_TIMEOUT, {
 
 const buildPadURL = (padId) => {
   if (padId) {
-    const params = getParams();
-    const url = Auth.authenticateURL(`${PADS_CONFIG.url}/p/${padId}?${params}`);
-    return url;
+    const padsSessions = PadsSessions.findOne({});
+    if (padsSessions && padsSessions.sessions) {
+      const params = getParams();
+      const sessionIds = padsSessions.sessions.map(session => Object.values(session)).join(',');
+      const url = Auth.authenticateURL(`${PADS_CONFIG.url}/auth_session?padName=${padId}&sessionID=${sessionIds}&${params}`);
+      return url;
+    }
   }
 
   return null;

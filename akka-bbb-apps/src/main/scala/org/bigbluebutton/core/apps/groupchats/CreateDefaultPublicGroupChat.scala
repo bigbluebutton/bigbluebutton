@@ -20,7 +20,7 @@ trait CreateDefaultPublicGroupChat {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
       val envelope = BbbCoreEnvelope(GroupChatCreatedEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(GroupChatCreatedEvtMsg.NAME, meetingId, userId)
-      val body = GroupChatCreatedEvtMsgBody(correlationId, gc.id, gc.createdBy, gc.name, gc.access, gc.users, msgs)
+      val body = GroupChatCreatedEvtMsgBody(correlationId, gc.id, gc.createdBy, gc.access, gc.users, msgs)
       val event = GroupChatCreatedEvtMsg(header, body)
       BbbCommonEnvCoreMsg(envelope, event)
     }
