@@ -16,8 +16,7 @@ trait GetGlobalAudioPermissionReqMsgHdlr {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
     } yield {
-      if (!user.userLeftFlag.left
-        && liveMeeting.props.meetingProp.intId == msg.body.meetingId
+      if (liveMeeting.props.meetingProp.intId == msg.body.meetingId
         && liveMeeting.props.voiceProp.voiceConf == msg.body.voiceConf) {
         allowed = true
       }
