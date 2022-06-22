@@ -105,8 +105,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         bottom: 5rem;
     }
 
+    [dir="rtl"] #TD-Tools {
+        left: 1rem;
+        right: auto;
+    }
+
     #TD-Tools > div {
       flex-direction: column;
+    }
+
+    #TD-Styles + div {
+      display: flex;
+      padding-right: 2.5rem;
+    }
+
+    [dir="rtl"] #TD-Styles + div  {
+      padding-left: 2.5rem;
+      padding-right: 0px;
     }
   </style>
   <script>
