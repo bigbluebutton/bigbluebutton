@@ -30,7 +30,15 @@ const Adapter = () => {
           },
         });
       },
-      removed: () => {},
+      removed: (obj) => {
+        ChatLogger.debug('usersAdapter::observe::removed', obj);
+        dispatch({
+          type: ACTIONS.REMOVED,
+          value: {
+            user: obj,
+          },
+        });
+      },
     });
   }, []);
 
