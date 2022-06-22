@@ -9,6 +9,7 @@ import ChatPushAlert from './push-alert/component';
 import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import Service from '../service';
 import Styled from './styles';
+import { usePreviousValue } from '/imports/ui/components/utils/hooks';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.chat_clear;
@@ -75,6 +76,7 @@ const ChatAlert = (props) => {
   const [unreadMessages, setUnreadMessages] = useState([]);
   const [lastAlertTimestampByChat, setLastAlertTimestampByChat] = useState({});
   const [alertEnabledTimestamp, setAlertEnabledTimestamp] = useState(null);
+  const prevUnreadMessages = usePreviousValue(unreadMessages);
 
   // audio alerts
   useEffect(() => {
@@ -165,6 +167,10 @@ const ChatAlert = (props) => {
       </Styled.ContentMessage>
     </Styled.PushMessageContent>
   );
+
+  if (_.isEqual(prevUnreadMessages, unreadMessages)) {
+    return null;
+  }
 
   return pushAlertEnabled
     ? unreadMessages.map((timeWindow) => {

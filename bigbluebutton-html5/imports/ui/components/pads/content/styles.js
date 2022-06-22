@@ -20,12 +20,13 @@ box-sizing: border-box;
 display: block;
 overflow-x: hidden;
 overflow-wrap: break-word;
-word-break: break-all;
 overflow-y: auto;
 padding-top: 1rem;
 position: absolute;
-width: 100%;
+right: 0;
+left:0;
 top: 0;
+white-space: normal;
 
 
 [dir="ltr"] & {

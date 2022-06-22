@@ -179,7 +179,6 @@
     "app.presentation.options.fullscreen": "全螢幕",
     "app.presentation.options.exitFullscreen": "離開全螢幕",
     "app.presentation.options.minimize": "最小化",
-    "app.presentation.options.snapshot": "目前簡報的快照",
     "app.presentation.options.downloading": "下載中...",
     "app.presentation.options.downloaded": "目前的簡報已下載",
     "app.presentation.options.downloadFailed": "無法下載目前的簡報",

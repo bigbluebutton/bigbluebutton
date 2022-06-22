@@ -53,11 +53,9 @@ jobs:
           sudo sh -c '
           mkdir /root/bbb-ci-ssl/
           cd /root/bbb-ci-ssl/
-
           openssl rand -base64 48 > /root/bbb-ci-ssl/bbb-dev-ca.pass ;
           chmod 600 /root/bbb-ci-ssl/bbb-dev-ca.pass ;
           openssl genrsa -des3 -out bbb-dev-ca.key -passout file:/root/bbb-ci-ssl/bbb-dev-ca.pass 2048 ;
-
           openssl req -x509 -new -nodes -key bbb-dev-ca.key -sha256 -days 1460 -passin file:/root/bbb-ci-ssl/bbb-dev-ca.pass -out bbb-dev-ca.crt -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=BBB-DEV" ;
           '
       - name: Trust CA
@@ -67,7 +65,6 @@ jobs:
           sudo cp /root/bbb-ci-ssl/bbb-dev-ca.crt /usr/local/share/ca-certificates/bbb-dev/
           sudo chmod 644 /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           sudo update-ca-certificates
-
           '
       - name: Generate certificate
         run: |
@@ -84,9 +81,7 @@ jobs:
           [alt_names]
           DNS.1 = bbb-ci.test
           EOF
-
-          openssl req -nodes -newkey rsa:2048 -keyout bbb-ci.test.key -out bbb-ci.test.csr -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=bbb-ci.test" -addext "subjectAltName = DNS:bbb-ci.test" 
-
+          openssl req -nodes -newkey rsa:2048 -keyout bbb-ci.test.key -out bbb-ci.test.csr -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=bbb-ci.test" -addext "subjectAltName = DNS:bbb-ci.test"
           openssl x509 -req -in bbb-ci.test.csr -CA bbb-dev-ca.crt -CAkey bbb-dev-ca.key -CAcreateserial -out bbb-ci.test.crt -days 825 -sha256 -passin file:/root/bbb-ci-ssl/bbb-dev-ca.pass -extfile bbb-ci.test.ext
           cd
 
@@ -95,7 +90,6 @@ jobs:
           cat /root/bbb-ci-ssl/bbb-ci.test.crt > /local/certs/fullchain.pem
           cat /root/bbb-ci-ssl/bbb-dev-ca.crt >> /local/certs/fullchain.pem
           cat /root/bbb-ci-ssl/bbb-ci.test.key > /local/certs/privkey.pem
-
           '
       - name: Setup local repository
         run: |
@@ -118,22 +112,29 @@ jobs:
             cd /root/ && wget -q https://ubuntu.bigbluebutton.org/bbb-install-2.5.sh -O bbb-install.sh
             cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v focal-25-dev -s bbb-ci.test -d /certs/
             bbb-conf --salt bbbci
+            echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" >> /usr/share/meteor/bundle/bbb-html5-with-roles.conf
             bbb-conf --restart
             '
-      - name: Run tests
+      - name: Install test dependencies
+        working-directory: ./bigbluebutton-tests/playwright
         run: |
-            sh -c '
-            echo "Teste"
-            cd /home/runner/work/bigbluebutton/bigbluebutton/bigbluebutton-tests/playwright/
-            echo "
-            BBB_URL=\"https://bbb-ci.test/bigbluebutton/api\"
-            BBB_SECRET=\"bbbci\"
-
-            DEBUG_MODE=\"\"
-            " > .env
-            npm install
-            npx playwright install-deps
-            npx playwright install
-            export NODE_TLS_REJECT_UNAUTHORIZED='0'
-            npx playwright test --project=chromium --grep @ci
-            '
+          sh -c '
+          npm install
+          npx playwright install-deps
+          npx playwright install
+          '
+      - name: Run tests
+        working-directory: ./bigbluebutton-tests/playwright
+        env:
+          NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+          ACTIONS_RUNNER_DEBUG: true
+          BBB_URL: https://bbb-ci.test/bigbluebutton/api
+          BBB_SECRET: bbbci
+        run: npm run test-ci
+      - if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: tests-report
+          path: |
+            bigbluebutton-tests/playwright/playwright-report
+            bigbluebutton-tests/playwright/test-results
