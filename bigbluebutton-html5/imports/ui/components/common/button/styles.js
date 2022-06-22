@@ -51,6 +51,7 @@ import {
   btnMutedBorder,
   btnMutedColor,
   btnMutedBg,
+  colorGray,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import BaseButton from './base/component';
 
@@ -903,6 +904,45 @@ const Button = styled(BaseButton)`
     &:hover,
     .buttonWrapper:hover & {
       color: ${btnMutedColor};
+    }
+  `}
+
+  ${({ color }) => color === 'secondary' && `
+    background: transparent;
+    color: ${colorGray};
+    border: 3px solid transparent;
+    border-radius: 4px;
+  
+
+    &:focus {
+      background: hsl(210, 30%, 95%);
+      box-shadow: 0 0 0 ${borderSize} hsl(211, 87%, 80%);
+    }
+
+    &:hover {
+      background: hsl(210, 30%, 95%);
+      color: hsl(210, 13%, 35%);
+    }
+
+    &:active {
+      background: hsl(210, 30%, 89%);
+      color: hsl(210, 13%, 30%);
+    }
+
+    &:hover {
+      &:focus {
+        background: hsl(210, 30%, 95%);
+        color: hsl(210, 13%, 30%);
+        box-shadow: 0 0 0 ${borderSize} hsl(211, 87%, 80%);
+      }
+    }
+
+    &:focus {
+      &:active {
+        background: hsl(210, 30%, 89%);
+        color: hsl(210, 13%, 30%);
+        box-shadow: 0 0 0 ${borderSize} hsl(211, 87%, 80%);
+      }
     }
   `}
 
