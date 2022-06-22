@@ -80,6 +80,7 @@ class MeetingActor(
   with MuteMeetingCmdMsgHdlr
   with IsMeetingMutedReqMsgHdlr
   with GetGlobalAudioPermissionReqMsgHdlr
+  with GetMicrophonePermissionReqMsgHdlr
   with GetScreenBroadcastPermissionReqMsgHdlr
   with GetScreenSubscribePermissionReqMsgHdlr
 
@@ -467,6 +468,8 @@ class MeetingActor(
         handleUserStatusVoiceConfEvtMsg(m)
       case m: GetGlobalAudioPermissionReqMsg =>
         handleGetGlobalAudioPermissionReqMsg(m)
+      case m: GetMicrophonePermissionReqMsg =>
+        handleGetMicrophonePermissionReqMsg(m)
 
       // Layout
       case m: GetCurrentLayoutReqMsg  => handleGetCurrentLayoutReqMsg(m)
