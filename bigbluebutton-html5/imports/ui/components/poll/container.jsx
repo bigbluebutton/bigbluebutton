@@ -20,10 +20,6 @@ const PollContainer = ({ ...props }) => {
 
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
-  const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
-
-  const { isPollSecret } = props;
-  Meteor.subscribe('current-poll', isPollSecret, amIPresenter);
 
   const usernames = {};
 
@@ -35,16 +31,17 @@ const PollContainer = ({ ...props }) => {
     <Poll
       {...{ layoutContextDispatch, sidebarContentPanel, ...props }}
       usernames={usernames}
-      amIPresenter={amIPresenter}
     />
   );
 };
 
-export default withTracker(() => {
+export default withTracker(({ amIPresenter }) => {
   const isPollSecret = Session.get('secretPoll') || false;
   const currentPresentation = Presentations.findOne({
     current: true,
   }, { fields: { podId: 1 } }) || {};
+
+  Meteor.subscribe('current-poll', isPollSecret, amIPresenter);
 
   const currentSlide = PresentationService.getCurrentSlide(currentPresentation.podId);
 
