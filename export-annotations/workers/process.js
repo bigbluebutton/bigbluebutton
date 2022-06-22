@@ -27,13 +27,13 @@ const kickOffNotifierWorker = (jobType, filename) => {
 }
 
 // General utilities for rendering SVGs resembling Tldraw as much as possible
-
-function align_to_css_property(alignment) {
+function align_to_pango(alignment) {
     switch (alignment) {
         case 'start': return 'left'
         case 'middle': return 'center'
         case 'end': return 'right'
-        default: return alignment
+        case 'justify': return 'justify'
+        default: return 'left'
     }
 }
 
@@ -79,7 +79,7 @@ function color_to_hex(color, isStickyNote = false, isFilled = false) {
         case 'fill-yellow': return '#fbf1d7'
         case 'sticky-yellow': return '#fddf8e'
 
-        default: return color
+        default: return '#0d0d0d'
     }
 }
 
@@ -98,6 +98,8 @@ function determine_font_from_family(family) {
         case 'script': return 'Caveat Brush'
         case 'sans': return 'Source Sans Pro'
         case 'serif': return 'Crimson Pro'
+        // Temporary workaround due to typo in messages
+        case 'erif': return 'Crimson Pro'
         case 'mono': return 'Source Code Pro'
 
         default: return family
@@ -108,24 +110,33 @@ function rad_to_degree(angle) {
     return angle * (180 / Math.PI);
 }
 
-function render_HTMLTextBox(htmlFilePath, id, width, height) {
-    let commands = [
-        'wkhtmltoimage',
-        '--format', 'png',
-        '--encoding', `${config.process.whiteboardTextEncoding}`,
-        '--transparent',
-        '--width', width,
-        '--height', height,
-        '--log-level', 'none',
-        '--quality', '100',
-        '--disable-javascript',
-        '--no-images',
-        '--disable-local-file-access',
-        '--transparent',
-        htmlFilePath, path.join(dropbox, `text${id}.png`)
-    ]
+function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxWidth = null) {
+    
+    // Convert pixels to points
+    fontSize = (fontSize / config.process.pixelsPerInch) * config.process.pointsPerInch;
 
-    execSync(commands.join(' '));
+    // Sticky notes need automatic line wrapping: take width into account
+    let size = textBoxWidth ? `-size ${textBoxWidth}x` : ''
+
+    let pangoText = `pango:"<span font_family='${font}' font='${fontSize}' color='${textColor}'>${text}</span>"`
+
+    let justify = textAlign === 'justify'
+    textAlign = justify ? 'left' : textAlign
+
+    let commands = [
+        'convert',
+        '-encoding', `${config.process.whiteboardTextEncoding}`,
+        '-density', config.process.pixelsPerInch,
+        '-background', 'transparent',
+        size,
+        '-define', `pango:align=${textAlign}`,
+        '-define', `pango:justify=${justify}`,
+        '-define', 'pango:wrap=word-char',
+        pangoText,
+        path.join(dropbox, `text${id}.png`)
+    ].join(' ')
+
+    execSync(commands);
 }
 
 function get_gap(dash, size) {
@@ -200,7 +211,6 @@ function getPath(annotationPoints) {
 }
 
 function getOutlinePath(annotationPoints) {
-    // From steveruizok/perfect-freehand
     // Gets outline of a hand-drawn input, with pressure
     let stroke = getStroke(annotationPoints, {
         simulatePressure: true,
@@ -429,9 +439,9 @@ function overlay_draw(svg, annotation) {
     let shapeTransform = `translate(${x} ${y}), rotate(${rotation} ${max_x / 2} ${max_y / 2})`
 
     // Fill assuming solid, small pencil used when path start- and end points overlap
-    let shapeIsFilled = 
+    let shapeIsFilled =
         annotation.style.isFilled &&
-        annotation.points.length > 3 
+        annotation.points.length > 3
         && Math.round(distance(
             annotation.points[0][0],
             annotation.points[0][1],
@@ -446,7 +456,7 @@ function overlay_draw(svg, annotation) {
             transform: shapeTransform
         }).up()
     }
-    
+
     svg.ele('path', {
         style: `stroke:${shapeColor};stroke-width:${thickness};fill:${fill};${stroke_dasharray}`,
         d: path,
@@ -521,22 +531,38 @@ function overlay_rectangle(svg, annotation) {
 
 function overlay_shape_label(svg, annotation) {
 
-    let shape_text = {
-        size: annotation.size,
-        point: annotation.point,
-        labelPoint: annotation.labelPoint,
-        style: {
-            color: annotation.style.color,
-            scale: annotation.style.scale,
-            textAlign: 'shape_label',
-            font: annotation.style.font,
-            size: annotation.style.size,
-        },
-        text: annotation.label,
-        rotation: annotation.rotation,
-    }
+    let fontColor = color_to_hex(annotation.style.color);
+    let font = determine_font_from_family(annotation.style.font);
+    let fontSize = text_size_to_px(annotation.style.size, annotation.style.scale);
+    let textAlign = 'center';
+    let text = annotation.label;
+    let id = annotation.id;
+    let rotation = rad_to_degree(annotation.rotation);
 
-    overlay_text(svg, shape_text);
+    let [shape_width, shape_height] = annotation.size
+    let [shape_x, shape_y] = annotation.point;
+
+    let x_offset = annotation.labelPoint[0]
+    let y_offset = annotation.labelPoint[1]
+
+    let label_center_x = shape_x + shape_width * x_offset
+    let label_center_y = shape_y + shape_height * y_offset
+    
+    render_textbox(fontColor, font, fontSize, textAlign, text, id);
+
+    let dimensions = probe.sync(fs.readFileSync(path.join(dropbox, `text${id}.png`)));
+    let labelWidth = dimensions.width;
+    let labelHeight = dimensions.height;
+    
+    svg.ele('g', {
+        transform: `rotate(${rotation} ${label_center_x} ${label_center_y})`
+    }).ele('image', {
+        x: label_center_x - (labelWidth * x_offset),
+        y: label_center_y - (labelHeight * y_offset),
+        width: labelWidth,
+        height: labelHeight,
+        'xlink:href': `file://${dropbox}/text${id}.png`,
+    }).up();
 }
 
 function overlay_sticky(svg, annotation) {
@@ -545,54 +571,33 @@ function overlay_sticky(svg, annotation) {
     let fontSize = text_size_to_px(annotation.style.size, annotation.style.scale, true);
     let rotation = rad_to_degree(annotation.rotation);
     let font = determine_font_from_family(annotation.style.font);
-    let textAlign = align_to_css_property(annotation.style.textAlign);
+    let textAlign = align_to_pango(annotation.style.textAlign);
 
     let [textBoxWidth, textBoxHeight] = annotation.size;
     let [textBox_x, textBox_y] = annotation.point;
 
-    let html =
-        `<!DOCTYPE html>
-        <style>
-            p {
-                width:${textBoxWidth}px;
-                height:${textBoxHeight}px;
-                color:#0d0d0d;
-                word-wrap:break-word;
-                font-family:${font};
-                font-size:${fontSize}px;
-                text-align:${textAlign};
-            }
-        </style>
-        <html>
-            <p>${annotation.text.split('\n').join('<br>')}</p>
-        </html>`;
+    let textColor = "#0d0d0d" // For sticky notes
+    let text = annotation.text
+    let id = annotation.id;
 
-    var htmlFilePath = path.join(dropbox, `text${annotation.id}.html`)
+    render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxWidth);
 
-    fs.writeFileSync(htmlFilePath, html, function (err) {
-        if (err) logger.error(err);
-    })
-
-    // Extend width due to text padding with 0.5em on top & below, besides the paragraph line break
-    render_HTMLTextBox(htmlFilePath, annotation.id, textBoxWidth, textBoxHeight + 2 * fontSize)
-
-    // Empty sticky note
-    svg.ele('rect', {
+    // Overlay transparent text image over empty sticky note
+    svg.ele('g', {
+        transform: `rotate(${rotation}, ${textBox_x + (textBoxWidth / 2)}, ${textBox_y + (textBoxHeight / 2)})`
+    }).ele('rect', {
         x: textBox_x,
         y: textBox_y,
         width: textBoxWidth,
         height: textBoxHeight,
         fill: backgroundColor,
     }).up()
-
-    // Overlay transparent text image
-    svg.ele('image', {
-        'xlink:href': `file://${dropbox}/text${annotation.id}.png`,
+    .ele('image', {
         x: textBox_x,
-        y: textBox_y - (fontSize / 2),
+        y: textBox_y,
         width: textBoxWidth,
         height: textBoxHeight,
-        transform: `rotate(${rotation}, ${textBox_x + (textBoxWidth / 2)}, ${textBox_y + (textBoxHeight / 2)})`
+        'xlink:href': `file://${dropbox}/text${id}.png`,
     }).up();
 }
 
@@ -627,51 +632,31 @@ function overlay_triangle(svg, annotation) {
 
 function overlay_text(svg, annotation) {
 
+    let [textBoxWidth, textBoxHeight] = annotation.size;
     let fontColor = color_to_hex(annotation.style.color);
-    let fontSize = text_size_to_px(annotation.style.size, annotation.style.scale);
-    let text_anchor = annotation.style.textAlign;
-    let rotation = rad_to_degree(annotation.rotation);
     let font = determine_font_from_family(annotation.style.font);
-    let [w, h] = annotation.size;
+    let fontSize = text_size_to_px(annotation.style.size, annotation.style.scale);
+    let textAlign = align_to_pango(annotation.style.textAlign);
+    let text = annotation.text
+    let id = annotation.id;
+
+    let rotation = rad_to_degree(annotation.rotation);
     let [textBox_x, textBox_y] = annotation.point;
-    let dominant_baseline = 'auto';
 
-    // Offsets for the text positioning given alignment value (default 'start' == 'justify')
-    let rotation_x = textBox_x + (w / 2)
-    let rotation_y = textBox_y + (h / 2)
+    render_textbox(fontColor, font, fontSize, textAlign, text, id);
 
-    if (text_anchor == 'middle') {
-        textBox_x += (w / 2)
-        rotation_x = textBox_x
-    } else if (text_anchor == 'end') {
-        textBox_x += w
-        rotation_x = textBox_x - (w / 2)
-    } else if (text_anchor == 'shape_label') {
-        text_anchor = 'middle'
-        dominant_baseline = 'middle'
+    let rotation_x = textBox_x + (textBoxWidth / 2)
+    let rotation_y = textBox_y + (textBoxHeight / 2)
 
-        textBox_x += annotation.labelPoint[0] * w;
-        textBox_y += annotation.labelPoint[1] * h;
-
-        // Subtract 1em
-        textBox_y -= fontSize
-    }
-
-    let textNode = svg.ele('text', {
-        'x': textBox_x,
-        'y': textBox_y,
-        'text-anchor': text_anchor,
-        'font-size': fontSize,
-        'font-family': font,
-        'fill': fontColor,
-        'dominant-baseline': dominant_baseline,
+    svg.ele('g', {
         transform: `rotate(${rotation} ${rotation_x} ${rotation_y})`
-    });
-
-    for (let line of annotation.text.split('\n')) {
-        if (line === '\n') { line = '' }
-        textNode.ele('tspan', { x: textBox_x, dy: '1em' }).txt(line).up()
-    }
+    }).ele('image', {
+        x: textBox_x,
+        y: textBox_y,
+        width: textBoxWidth,
+        height: textBoxHeight,
+        'xlink:href': `file://${dropbox}/text${id}.png`,
+    }).up();
 }
 
 function overlay_annotation(svg, currentAnnotation) {
