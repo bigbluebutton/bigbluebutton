@@ -73,7 +73,7 @@ if [ -f /usr/share/bbb-apps-akka/conf/application.conf ]; then
        /usr/share/bbb-apps-akka/conf/application.conf
     sed -i "s/deskshareip[ ]*=[ ]*\"[^\"]*\"/deskshareip=\"$HOST\"/g" \
        /usr/share/bbb-apps-akka/conf/application.conf
-    sed -i "s/defaultPresentationURL[ ]*=[ ]*\"[^\"]*\"/defaultPresentationURL=\"http:\/\/$HOST\/assets\/default.pdf\"/g" \
+    sed -i "s/defaultPresentationURL[ ]*=[ ]*\"[^\"]*\"/defaultPresentationURL=\"http:\/\/$HOST\/default.pdf\"/g" \
        /usr/share/bbb-apps-akka/conf/application.conf
 
   fi

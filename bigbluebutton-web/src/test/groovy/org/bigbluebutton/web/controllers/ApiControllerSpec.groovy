@@ -40,7 +40,7 @@ class ApiControllerSpec extends Specification implements ControllerUnitTest<ApiC
     controller.meetingService.paramsProcessorUtil = paramsProcessorUtil
 
     def presentationService = new PresentationService()
-    presentationService.setDefaultUploadedPresentation(defaultServerUrl + "/assets/default.pdf")
+    presentationService.setDefaultUploadedPresentation(defaultServerUrl + "/default.pdf")
     controller.presentationService = presentationService
 
     def presDownloadService = new PresentationUrlDownloadService()
