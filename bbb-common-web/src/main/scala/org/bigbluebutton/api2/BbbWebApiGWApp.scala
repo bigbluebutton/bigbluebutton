@@ -148,7 +148,9 @@ class BbbWebApiGWApp(
                     html5InstanceId:                        java.lang.Integer,
                     groups:                                 java.util.ArrayList[Group],
                     disabledFeatures:                       java.util.ArrayList[String],
-                    notifyRecordingIsOn:                    java.lang.Boolean): Unit = {
+                    notifyRecordingIsOn:                    java.lang.Boolean,
+                    uploadExternalDescription:              String,
+                    uploadExternalUrl:                      String): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
@@ -160,7 +162,9 @@ class BbbWebApiGWApp(
       maxPinnedCameras = maxPinnedCameras.intValue(),
       isBreakout = isBreakout.booleanValue(),
       disabledFeaturesAsVector,
-      notifyRecordingIsOn
+      notifyRecordingIsOn,
+      uploadExternalDescription,
+      uploadExternalUrl
     )
 
     val durationProps = DurationProps(
