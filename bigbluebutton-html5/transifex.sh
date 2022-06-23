@@ -58,7 +58,7 @@ else
               fi
             done
         else
-          TRANSLATION=$(curl -L --user "$USER":"$PW" -X GET "https://www.transifex.com/api/2/project/bigbluebutton-v26-client/resource/enjson/translation/$ARG/?mode=onlytranslated&file")
+          TRANSLATION=$(curl -L --user "$USER":"$PW" -X GET "https://www.transifex.com/api/2/project/bigbluebutton-v26-html5-client/resource/enjson/translation/$ARG/?mode=onlytranslated&file")
           if [ "$TRANSLATION" == "Not Found" ]
           then
             echo -e "${RED}Err${NC}: Translations not found for locale ->${RED}$ARG${NC}<-"
