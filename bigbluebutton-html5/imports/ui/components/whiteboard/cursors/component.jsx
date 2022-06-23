@@ -1,6 +1,5 @@
 import * as React from "react";
 import ReactCursorPosition from "react-cursor-position";
-import Vec from "@tldraw/vec";
 import { _ } from "lodash";
 
 function usePrevious(value) {
@@ -79,7 +78,7 @@ const PositionLabel = (props) => {
     whiteboardId,
   } = props;
 
-  const { name, color, userId, presenter } = currentUser;
+  const { name, color } = currentUser;
   const prevCurrentPoint = usePrevious(currentPoint);
 
   React.useEffect(() => {
@@ -128,8 +127,8 @@ export default function Cursors(props) {
     !cursorWrapper.hasOwnProperty("mouseleave") &&
       cursorWrapper?.addEventListener("mouseleave", (event) => {
         publishCursorUpdate({
-          xPercent: null,   
-          yPercent: null,
+          xPercent: -1.0,
+          yPercent: -1.0,
           whiteboardId: whiteboardId,
         });
         setActive(false);
