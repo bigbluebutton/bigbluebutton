@@ -126,6 +126,13 @@ const RecordingIndicator = styled.div`
 
 const RecordingStatusViewOnly = styled.div`
   display: flex;
+
+  ${({ recording }) => recording && `
+    padding: 5px;
+    background-color: ${colorDanger};
+    border: ${borderSizeLarge} solid ${colorDanger};
+    border-radius: 10px;
+  `}
 `;
 
 export default {
