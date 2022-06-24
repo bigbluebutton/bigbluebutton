@@ -11,7 +11,7 @@ test.describe.parallel('User', () => {
   test.describe.parallel('Actions', () => {
     test('Raise and lower Hand Toast', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initPages(page);
+      await multiusers.initPages(page, true);
       await multiusers.raiseAndLowerHand();
     });
 

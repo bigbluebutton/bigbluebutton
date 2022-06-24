@@ -5,7 +5,7 @@ test.describe.parallel('Polling', () => {
   test.describe.parallel('Manage', () => {
     test('Create Poll @ci', async ({ browser, context, page }) => {
       const polling = new Polling(browser, context);
-      await polling.initPages(page);
+      await polling.initPages(page, true);
       await polling.createPoll();
     });
 

@@ -14,7 +14,6 @@ class Polling extends MultiUsers {
   }
 
   async createPoll() {
-    await waitAndClearDefaultPresentationNotification(this.modPage);
     await util.startPoll(this.modPage);
     await this.modPage.hasElement(e.pollMenuButton);
   }
