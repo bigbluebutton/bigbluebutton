@@ -64,7 +64,7 @@ const handleLeaveAudio = () => {
     Storage.setItem('getEchoTest', true);
   }
 
-  Service.exitAudio();
+  Service.forceExitAudio();
   logger.info({
     logCode: 'audiocontrols_leave_audio',
     extraInfo: { logType: 'user_action' },

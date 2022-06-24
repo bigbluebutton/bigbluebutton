@@ -1,31 +1,30 @@
 {
-  "name": "bbb-callbacks",
-  "version": "2.2.0",
-  "description": "A module for BigBlueButton for API callbacks",
+  "name": "bbb-webhooks",
+  "version": "2.3.0",
+  "description": "A BigBlueButton mudule for events WebHooks",
   "keywords": [
     "bigbluebutton",
-    "Web API",
-    "callbacks"
+    "webhooks"
   ],
   "dependencies": {
-    "async": "2.6.1",
-    "body-parser": "^1.19.0",
-    "config": "1.30.0",
-    "express": "4.16.4",
-    "js-yaml": "^3.14.1",
+    "async": "^3.2.3",
+    "body-parser": "^1.20.0",
+    "config": "^3.3.7",
+    "express": "^4.17.3",
+    "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
-    "nock": "^10.0.6",
+    "nock": "^13.2.4",
     "redis": "^3.1.2",
-    "request": "2.88.0",
-    "sha1": "1.1.1",
-    "sinon": "^7.5.0",
-    "winston": "3.1.0"
+    "request": "^2.88.2",
+    "sha1": "^1.1.1",
+    "sinon": "^12.0.1",
+    "winston": "^3.7.2"
   },
   "engines": {
-    "node": "8.4.0"
+    "node": "^12.22"
   },
   "devDependencies": {
-    "mocha": "^8.3.2",
+    "mocha": "^9.2.2",
     "supertest": "^3.4.2"
   },
   "scripts": {

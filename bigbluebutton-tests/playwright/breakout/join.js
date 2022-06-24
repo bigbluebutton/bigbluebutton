@@ -22,8 +22,8 @@ class Join extends Create {
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
     await breakoutUserPage.bringToFront();
 
-    await breakoutUserPage.hasElement(e.presentationPlaceholder);
     if (!shouldJoinAudio) await breakoutUserPage.closeAudioModal();
+    await breakoutUserPage.waitForSelector(e.presentationTitle);
     return breakoutUserPage;
   }
 
@@ -33,7 +33,7 @@ class Join extends Create {
     const parsedSettings = await this.userPage.getSettingsYaml();
     const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
     await breakoutPage.shareWebcam(videoPreviewTimeout);
-    await breakoutPage.hasElement(e.presentationPlaceholder);
+    await breakoutPage.waitForSelector(e.presentationTitle);
   }
 
   async joinAndShareScreen() {

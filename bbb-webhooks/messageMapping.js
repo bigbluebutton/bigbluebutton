@@ -6,13 +6,69 @@ module.exports = class MessageMapping {
   constructor() {
     this.mappedObject = {};
     this.mappedMessage = {};
-    this.meetingEvents = ["MeetingCreatedEvtMsg","MeetingDestroyedEvtMsg", "ScreenshareRtmpBroadcastStartedEvtMsg", "ScreenshareRtmpBroadcastStoppedEvtMsg", "SetCurrentPresentationEvtMsg", "RecordingStatusChangedEvtMsg"];
-    this.userEvents = ["UserJoinedMeetingEvtMsg","UserLeftMeetingEvtMsg","UserJoinedVoiceConfToClientEvtMsg","UserLeftVoiceConfToClientEvtMsg","PresenterAssignedEvtMsg", "PresenterUnassignedEvtMsg", "UserBroadcastCamStartedEvtMsg", "UserBroadcastCamStoppedEvtMsg", "UserEmojiChangedEvtMsg"];
-    this.chatEvents = ["SendPublicMessageEvtMsg","SendPrivateMessageEvtMsg"];
-    this.rapEvents = ["PublishedRecordingSysMsg","UnpublishedRecordingSysMsg","DeletedRecordingSysMsg"];
-    this.compMeetingEvents = ["meeting_created_message","meeting_destroyed_event"];
-    this.compUserEvents = ["user_joined_message","user_left_message","user_listening_only","user_joined_voice_message","user_left_voice_message","user_shared_webcam_message","user_unshared_webcam_message","user_status_changed_message"];
-    this.compRapEvents = ["archive_started","archive_ended","sanity_started","sanity_ended","post_archive_started","post_archive_ended","process_started","process_ended","post_process_started","post_process_ended","publish_started","publish_ended","post_publish_started","post_publish_ended","published","unpublished","deleted"];
+    this.meetingEvents = [
+      "MeetingCreatedEvtMsg",
+      "MeetingDestroyedEvtMsg",
+      "ScreenshareRtmpBroadcastStartedEvtMsg",
+      "ScreenshareRtmpBroadcastStoppedEvtMsg",
+      "SetCurrentPresentationEvtMsg",
+      "RecordingStatusChangedEvtMsg",
+    ];
+    this.userEvents = [
+      "UserJoinedMeetingEvtMsg",
+      "UserLeftMeetingEvtMsg",
+      "UserJoinedVoiceConfToClientEvtMsg",
+      "UserLeftVoiceConfToClientEvtMsg",
+      "PresenterAssignedEvtMsg",
+      "PresenterUnassignedEvtMsg",
+      "UserBroadcastCamStartedEvtMsg",
+      "UserBroadcastCamStoppedEvtMsg",
+      "UserEmojiChangedEvtMsg",
+    ];
+    this.chatEvents = [
+      "GroupChatMessageBroadcastEvtMsg",
+    ];
+    this.rapEvents = [
+      "PublishedRecordingSysMsg",
+      "UnpublishedRecordingSysMsg",
+      "DeletedRecordingSysMsg",
+    ];
+    this.compMeetingEvents = [
+      "meeting_created_message",
+      "meeting_destroyed_event",
+    ];
+    this.compUserEvents = [
+      "user_joined_message",
+      "user_left_message",
+      "user_listening_only",
+      "user_joined_voice_message",
+      "user_left_voice_message",
+      "user_shared_webcam_message",
+      "user_unshared_webcam_message",
+      "user_status_changed_message",
+    ];
+    this.compRapEvents = [
+      "archive_started",
+      "archive_ended",
+      "sanity_started",
+      "sanity_ended",
+      "post_archive_started",
+      "post_archive_ended",
+      "process_started",
+      "process_ended",
+      "post_process_started",
+      "post_process_ended",
+      "publish_started",
+      "publish_ended",
+      "post_publish_started",
+      "post_publish_ended",
+      "published",
+      "unpublished",
+      "deleted",
+    ];
+    this.padEvents = [
+      "PadContentEvtMsg"
+    ];
   }
 
   // Map internal message based on it's type
@@ -31,6 +87,8 @@ module.exports = class MessageMapping {
       this.compUserTemplate(messageObj);
     } else if (this.mappedEvent(messageObj,this.compRapEvents)) {
       this.compRapTemplate(messageObj);
+    } else if (this.mappedEvent(messageObj,this.padEvents)) {
+      this.padTemplate(messageObj);
     }
   }
 
@@ -83,8 +141,17 @@ module.exports = class MessageMapping {
         }
       };
     }
+    if (messageObj.envelope.name === "SetCurrentPresentationEvtMsg") {
+      this.mappedObject.data.attributes = {
+        "meeting":{
+          "internal-meeting-id": meetingId,
+          "external-meeting-id": IDMapping.getExternalMeetingID(meetingId),
+          "presentation-id": messageObj.core.body.presentationId
+        }
+      };
+    }
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   compMeetingTemplate(messageObj) {
@@ -124,7 +191,7 @@ module.exports = class MessageMapping {
       };
     }
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   // Map internal to external message for user information
@@ -161,7 +228,7 @@ module.exports = class MessageMapping {
       this.mappedObject.data["attributes"]["user"]["sharing-mic"] = false;
     }
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   // Map internal to external message for user information
@@ -223,12 +290,15 @@ module.exports = class MessageMapping {
       }
     };
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   // Map internal to external message for chat information
   chatTemplate(messageObj) {
-    const message = messageObj.core.body.message;
+    const { body } = messageObj.core;
+    // Ignore private chats
+    if (body.chatId !== 'MAIN-PUBLIC-GROUP-CHAT') return;
+
     this.mappedObject.data = {
       "type": "event",
       "id": this.mapInternalMessage(messageObj),
@@ -238,27 +308,22 @@ module.exports = class MessageMapping {
           "external-meeting-id": IDMapping.getExternalMeetingID(messageObj.envelope.routing.meetingId)
         },
         "chat-message":{
-          "message": message.message,
+          "message": body.msg.message,
           "sender":{
-            "internal-user-id": message.fromUserId,
-            "external-user-id": message.fromUsername,
-            "timezone-offset": message.fromTimezoneOffset,
-            "time": message.fromTime
+            "internal-user-id": body.msg.sender.id,
+            "external-user-id": body.msg.sender.name,
+            "timezone-offset": body.msg.fromTimezoneOffset,
+            "time": body.msg.timestamp
           }
-        }
+        },
+        "chat-id": body.chatId
       },
       "event":{
         "ts": Date.now()
       }
     };
-    if (messageObj.envelope.name.indexOf("Private") !== -1) {
-      this.mappedObject.data.attributes["chat-message"].receiver = {
-        "internal-user-id": message.toUserId,
-        "external-user-id": message.toUsername
-      };
-    }
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   rapTemplate(messageObj) {
@@ -277,7 +342,7 @@ module.exports = class MessageMapping {
       }
     };
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   compRapTemplate(messageObj) {
@@ -325,9 +390,65 @@ module.exports = class MessageMapping {
       }
     }
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
+  handleRecordingStatusChanged(message) {
+    const event = "meeting-recording";
+    const { core } = message;
+    if (core && core.body) {
+      const { recording } = core.body;
+      if (typeof recording === 'boolean') {
+        if (recording) return `${event}-started`;
+        return `${event}-stopped`;
+      }
+    }
+    return `${event}-unhandled`;
+  }
+
+  handleUserListeningOnly(message) {
+    const event = "user-audio-listen-only";
+    if (message.payload.listen_only) return `${event}-enabled`;
+    return `${event}-disabled`;
+  }
+
+  handleUserStatusChanged(message) {
+    const event = "user-presenter";
+    if (message.payload.status === "presenter") {
+      if (message.payload.value === "true") return `${event}-assigned`;
+      return `${event}-unassigned`;
+    }
+  }
+
+  padTemplate(messageObj) {
+    const {
+      body,
+      header,
+    } = messageObj.core;
+    this.mappedObject.data = {
+      "type": "event",
+      "id": this.mapInternalMessage(messageObj),
+      "attributes":{
+        "meeting":{
+          "internal-meeting-id": header.meetingId,
+          "external-meeting-id": IDMapping.getExternalMeetingID(header.meetingId)
+        },
+        "pad":{
+          "id": body.padId,
+          "external-pad-id": body.externalId,
+          "rev": body.rev,
+          "start": body.start,
+          "end": body.end,
+          "text": body.text
+        }
+      },
+      "event":{
+        "ts": Date.now()
+      }
+    };
+    this.mappedMessage = JSON.stringify(this.mappedObject);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
+  }
 
   mapInternalMessage(message) {
     let name;
@@ -340,7 +461,7 @@ module.exports = class MessageMapping {
     const mappedMsg = (() => { switch (name) {
       case "MeetingCreatedEvtMsg": return "meeting-created";
       case "MeetingDestroyedEvtMsg": return "meeting-ended";
-      case "RecordingStatusChangedEvtMsg": return "meeting-recording-changed";
+      case "RecordingStatusChangedEvtMsg": return this.handleRecordingStatusChanged(message);
       case "ScreenshareRtmpBroadcastStartedEvtMsg": return "meeting-screenshare-started";
       case "ScreenshareRtmpBroadcastStoppedEvtMsg": return "meeting-screenshare-stopped";
       case "SetCurrentPresentationEvtMsg": return "meeting-presentation-changed";
@@ -353,8 +474,7 @@ module.exports = class MessageMapping {
       case "PresenterAssignedEvtMsg": return "user-presenter-assigned";
       case "PresenterUnassignedEvtMsg": return "user-presenter-unassigned";
       case "UserEmojiChangedEvtMsg": return "user-emoji-changed";
-      case "SendPublicMessageEvtMsg": return "chat-public-message-sent";
-      case "SendPrivateMessageEvtMsg": return "chat-private-message-sent";
+      case "GroupChatMessageBroadcastEvtMsg": return "chat-group-message-sent";
       case "archive_started": return "rap-archive-started";
       case "archive_ended": return "rap-archive-ended";
       case "sanity_started": return "rap-sanity-started";
@@ -379,15 +499,13 @@ module.exports = class MessageMapping {
       case "meeting_destroyed_event": return "meeting-ended";
       case "user_joined_message": return "user-joined";
       case "user_left_message": return "user-left";
-      case "user_listening_only": return (message.payload.listen_only ? "user-audio-listen-only-enabled" : "user-audio-listen-only-disabled");
+      case "user_listening_only": return this.handleUserListeningOnly(message);
       case "user_joined_voice_message": return "user-audio-voice-enabled";
       case "user_left_voice_message": return "user-audio-voice-disabled";
       case "user_shared_webcam_message": return "user-cam-broadcast-start";
       case "video_stream_unpublished": return "user-cam-broadcast-end";
-      case "user_status_changed_message":
-        if (message.payload.status === "presenter") {
-          return (message.payload.value === "true" ? "user-presenter-assigned" : "user-presenter-unassigned" );
-        }
+      case "user_status_changed_message": return this.handleUserStatusChanged(message);
+      case "PadContentEvtMsg": return "pad-content";
     } })();
     return mappedMsg;
   }

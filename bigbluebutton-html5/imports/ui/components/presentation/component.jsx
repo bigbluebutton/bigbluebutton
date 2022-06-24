@@ -5,7 +5,7 @@ import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteb
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
-import { politeSRAlert } from '/imports/utils/dom-utils';
+import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationPlaceholder from './presentation-placeholder/component';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
@@ -24,6 +24,7 @@ import PollingContainer from '/imports/ui/components/polling/container';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import browserInfo from '/imports/utils/browserInfo';
+import { clearCursors } from '/imports/ui/components/cursor/service';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -154,12 +155,19 @@ class Presentation extends PureComponent {
       presentationBounds,
       numCameras,
       intl,
+      multiUser,
+      clearFakeAnnotations,
     } = this.props;
 
     const {
       numCameras: prevNumCameras,
       presentationBounds: prevPresentationBounds,
     } = prevProps;
+
+    if (!multiUser) {
+      clearFakeAnnotations();
+      clearCursors();
+    }
 
     if (numCameras !== prevNumCameras) {
       this.onResize();
@@ -170,7 +178,7 @@ class Presentation extends PureComponent {
       && prevProps?.currentSlide?.num != null
       && currentSlide?.num !== prevProps.currentSlide?.num
     ) {
-      politeSRAlert(intl.formatMessage(intlMessages.slideContentChanged, { 0: currentSlide.num }));
+      addNewAlert(intl.formatMessage(intlMessages.slideContentChanged, { 0: currentSlide.num }));
     }
 
     if (prevProps?.slidePosition && slidePosition) {

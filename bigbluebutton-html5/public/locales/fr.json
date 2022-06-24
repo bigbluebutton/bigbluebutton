@@ -925,7 +925,7 @@
     "playback.player.about.modal.shortcuts.fullscreen": "Basculer en plein écran",
     "playback.player.about.modal.shortcuts.play": "Lecture/Pause",
     "playback.player.about.modal.shortcuts.section": "Basculer le volet latéral",
-    "playback.player.about.modal.shortcuts.seek.backward": "Rechercher en remontant",
+    "playback.player.about.modal.shortcuts.seek.backward": "Rechercher vers le début",
     "playback.player.about.modal.shortcuts.seek.forward": "Rechercher en avançant",
     "playback.player.about.modal.shortcuts.skip.next": "Diapositive suivante",
     "playback.player.about.modal.shortcuts.skip.previous": "Diapositive précédente",

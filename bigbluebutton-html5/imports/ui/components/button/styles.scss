@@ -252,6 +252,13 @@
     font-size: 50%;
     margin-top: 40%;
     color: var(--btn-default-color);
+
+    [dir="rtl"] & {
+      left: unset;
+      margin-left: unset;
+      right: 0;
+      margin-right: 25%;
+    }
   }
 }
 

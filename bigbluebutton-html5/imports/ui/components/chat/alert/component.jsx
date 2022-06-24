@@ -5,6 +5,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import injectNotify from '/imports/ui/components/toast/inject-notify/component';
 import AudioService from '/imports/ui/components/audio/service';
+import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import ChatPushAlert from './push-alert/component';
 import Service from '../service';
 import { styles } from '../styles';
@@ -68,8 +69,6 @@ const ChatAlert = (props) => {
     unreadMessagesByChat,
     intl,
     layoutContextDispatch,
-    chatsTracker,
-    notify,
   } = props;
 
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
@@ -104,35 +103,6 @@ const ChatAlert = (props) => {
       setAlertEnabledTimestamp(new Date().getTime());
     }
   }, [pushAlertEnabled]);
-
-  useEffect(() => {
-    const keys = Object.keys(chatsTracker);
-    keys.forEach((key) => {
-      if (chatsTracker[key]?.shouldNotify) {
-        if (audioAlertEnabled) {
-          AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-            + Meteor.settings.public.app.basename
-            + Meteor.settings.public.app.instanceId}`
-            + '/resources/sounds/notify.mp3');
-        }
-        if (pushAlertEnabled) {
-          notify(
-            key === 'MAIN-PUBLIC-GROUP-CHAT'
-              ? intl.formatMessage(intlMessages.publicChatMsg)
-              : intl.formatMessage(intlMessages.privateChatMsg),
-            'info',
-            'chat',
-            { autoClose: 3000 },
-            <div>
-              <div style={{ fontWeight: 700 }}>{chatsTracker[key].lastSender}</div>
-              <div dangerouslySetInnerHTML={{ __html: chatsTracker[key].content }} />
-            </div>,
-            true,
-          );
-        }
-      }
-    });
-  }, [chatsTracker]);
 
   useEffect(() => {
     if (pushAlertEnabled) {
@@ -177,11 +147,7 @@ const ChatAlert = (props) => {
         if (content.text === PUBLIC_CHAT_CLEAR) {
           return intl.formatMessage(intlMessages.publicChatClear);
         }
-        /* this code is to remove html tags that come in the server's messages */
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = content.text;
-        const textWithoutTag = tempDiv.innerText;
-        return textWithoutTag;
+        return unescapeHtml(stripTags(content.text));
       });
 
     return contentMessage;

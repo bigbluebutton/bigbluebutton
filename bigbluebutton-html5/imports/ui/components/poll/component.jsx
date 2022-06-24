@@ -7,11 +7,11 @@ import { Session } from 'meteor/session';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
+import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
 import { PANELS, ACTIONS } from '../layout/enums';
 import DragAndDrop from './dragAndDrop/component';
-import { alertScreenReader } from '/imports/utils/dom-utils';
 
 const intlMessages = defineMessages({
   pollPaneTitle: {
@@ -315,7 +315,7 @@ class Poll extends Component {
     const removed = list[index];
     list.splice(index, 1);
     this.setState({ optList: list }, () => {
-      alertScreenReader(`${intl.formatMessage(intlMessages.removePollOpt,
+      addNewAlert(`${intl.formatMessage(intlMessages.removePollOpt,
         { 0: removed.val || intl.formatMessage(intlMessages.emptyPollOpt) })}`);
     });
   }
@@ -343,9 +343,11 @@ class Poll extends Component {
         diff -= 1;
       }
     } else {
+      let index = optList.length-1;
       while (diff < 0) {
-        this.handleRemoveOption();
+        this.handleRemoveOption(index);
         diff += 1;
+        index -=1;
       }
     }
   }

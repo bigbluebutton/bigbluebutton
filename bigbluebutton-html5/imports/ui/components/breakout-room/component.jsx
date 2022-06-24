@@ -13,6 +13,8 @@ import { PANELS, ACTIONS } from '../layout/enums';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 import UserListService from '/imports/ui/components/user-list/service';
 import AudioManager from '/imports/ui/services/audio-manager';
+import Users from '/imports/api/users';
+import Auth from '/imports/ui/services/auth';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -263,7 +265,8 @@ class BreakoutRoom extends PureComponent {
       amIModerator,
       intl,
       isUserInBreakoutRoom,
-      exitAudio,
+      forceExitAudio,
+      rejoinAudio,
       setBreakoutAudioTransferStatus,
       getBreakoutAudioTransferStatus,
     } = this.props;
@@ -331,7 +334,7 @@ class BreakoutRoom extends PureComponent {
                   this.getBreakoutURL(breakoutId);
                   // leave main room's audio,
                   // and stops video and screenshare when joining a breakout room
-                  exitAudio();
+                  forceExitAudio();
                   logger.info({
                     logCode: 'breakoutroom_join',
                     extraInfo: { logType: 'user_action' },
@@ -339,6 +342,31 @@ class BreakoutRoom extends PureComponent {
                   VideoService.storeDeviceIds();
                   VideoService.exitVideo();
                   if (UserListService.amIPresenter()) screenshareHasEnded();
+
+                  Tracker.autorun((c) => {
+                    const selector = {
+                      meetingId: breakoutId,
+                    };
+
+                    const query = Users.find(selector, {
+                      fields: {
+                        loggedOut: 1,
+                        extId: 1,
+                      },
+                    });
+
+                    const observeLogOut = (user) => {
+                      if (user?.loggedOut && user?.extId?.startsWith(Auth.userID)) {
+                        rejoinAudio();
+                        c.stop();
+                      }
+                    }
+
+                    query.observe({
+                      added: observeLogOut,
+                      changed: observeLogOut,
+                    });
+                  });
                 }}
                 disabled={disable}
                 className={styles.joinButton}

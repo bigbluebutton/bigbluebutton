@@ -201,7 +201,6 @@ exports.firstUser = 'div[data-test="userListItemCurrent"]';
 exports.multiWhiteboardTool = 'span[data-test="multiWhiteboardTool"]';
 exports.manageUsers = 'button[data-test="manageUsers"]';
 exports.presenterClassName = 'presenter--';
-exports.anyUser = 'div[data-test="userListItem"]';
 exports.userListToggleBtn = 'button[data-test="toggleUserList"]';
 exports.mobileUser = 'span[data-test="mobileUser"]';
 exports.connectionStatusBtn = 'button[data-test="connectionStatusButton"]';

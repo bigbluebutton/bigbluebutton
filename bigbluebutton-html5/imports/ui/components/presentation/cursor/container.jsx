@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import CursorService from './service';
 import Cursor from './component';
-
+import WhiteboardService from '/imports/ui/components/whiteboard/service';
 
 class CursorContainer extends Component {
 
@@ -26,11 +26,12 @@ class CursorContainer extends Component {
 
 
 export default withTracker((params) => {
-  const { cursorId } = params;
+  const { cursorId, whiteboardId, presenter } = params;
 
   const cursor = CursorService.getCurrentCursor(cursorId);
+  const hasPermission = presenter || WhiteboardService.hasMultiUserAccess(whiteboardId, cursor.userId);
 
-  if (cursor) {
+  if (cursor && hasPermission) {
     const { xPercent: cursorX, yPercent: cursorY, userName } = cursor;
     const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
     return {

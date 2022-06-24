@@ -23,6 +23,7 @@ import StatusNotifier from '/imports/ui/components/status-notifier/container';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
+import ScreenReaderAlertContainer from '../screenreader-alert/container';
 import NewWebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
@@ -47,6 +48,7 @@ import { NAVBAR_HEIGHT, LARGE_NAVBAR_HEIGHT } from '/imports/ui/components/layou
 import Settings from '/imports/ui/services/settings';
 import LayoutService from '/imports/ui/components/layout/service';
 import { registerTitleView } from '/imports/utils/dom-utils';
+import MediaService from '/imports/ui/components/media/service';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -175,6 +177,10 @@ class App extends Component {
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
       value: presentationOpen,
     });
+
+    if (!presentationOpen && !MediaService.getSwapLayout()) {
+      MediaService.setSwapLayout(layoutContextDispatch);
+    }
 
     Modal.setAppElement('#app');
 
@@ -475,6 +481,7 @@ class App extends Component {
         >
           {this.renderActivityCheck()}
           {this.renderUserInformation()}
+          <ScreenReaderAlertContainer />
           <BannerBarContainer />
           <NotificationsBarContainer />
           <SidebarNavigationContainer />

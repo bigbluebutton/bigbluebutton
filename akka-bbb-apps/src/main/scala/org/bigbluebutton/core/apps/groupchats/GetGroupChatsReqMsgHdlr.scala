@@ -27,8 +27,8 @@ trait GetGroupChatsReqMsgHdlr {
 
     val publicChats = state.groupChats.findAllPublicChats()
     val privateChats = state.groupChats.findAllPrivateChatsForUser(msg.header.userId)
-    val pubChats = publicChats map (pc => GroupChatInfo(pc.id, pc.name, pc.access, pc.createdBy, pc.users))
-    val privChats = privateChats map (pc => GroupChatInfo(pc.id, pc.name, pc.access, pc.createdBy, pc.users))
+    val pubChats = publicChats map (pc => GroupChatInfo(pc.id, pc.access, pc.createdBy, pc.users))
+    val privChats = privateChats map (pc => GroupChatInfo(pc.id, pc.access, pc.createdBy, pc.users))
 
     val allChats = pubChats ++ privChats
 

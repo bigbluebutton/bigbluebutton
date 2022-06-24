@@ -270,28 +270,7 @@ class AudioModal extends Component {
         disableActions: false,
       });
     }).catch((err) => {
-      const { type } = err;
-      switch (type) {
-        case 'MEDIA_ERROR':
-          this.setState({
-            content: 'help',
-            errCode: 0,
-            disableActions: false,
-          });
-          break;
-        case 'CONNECTION_ERROR':
-          this.setState({
-            errCode: 0,
-            disableActions: false,
-          });
-          break;
-        default:
-          this.setState({
-            errCode: 0,
-            disableActions: false,
-          });
-          break;
-      }
+      this.handleJoinMicrophoneError(err);
     });
   }
 
@@ -309,6 +288,7 @@ class AudioModal extends Component {
 
     this.setState({
       disableActions: true,
+      hasError: false,
     });
 
     return joinListenOnly().then(() => {
@@ -345,7 +325,29 @@ class AudioModal extends Component {
       this.setState({
         disableActions: false,
       });
-    }).catch(this.handleGoToAudioOptions);
+    }).catch((err) => {
+      this.handleJoinMicrophoneError(err);
+    });
+  }
+
+  handleJoinMicrophoneError(err) {
+    const { type } = err;
+    switch (type) {
+      case 'MEDIA_ERROR':
+        this.setState({
+          content: 'help',
+          errCode: 0,
+          disableActions: false,
+        });
+        break;
+      case 'CONNECTION_ERROR':
+      default:
+        this.setState({
+          errCode: 0,
+          disableActions: false,
+        });
+        break;
+    }
   }
 
   setContent(content) {

@@ -12,7 +12,7 @@ class Language extends Page {
     const selectedKeysBySelector = {
       [e.messageTitle]: 'app.userList.messagesTitle',
       [e.notesTitle]: 'app.userList.notesTitle',
-      [e.userList]: 'app.navBar.userListToggleBtnLabel',
+      [e.userListToggleBtn]: 'app.navBar.userListToggleBtnLabel',
       [e.hidePublicChat]: 'app.chat.titlePublic',
       [e.sendButton]: 'app.chat.submitLabel',
       [e.actions]: 'app.actionsBar.actionsDropdown.actionsLabel',

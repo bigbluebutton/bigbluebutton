@@ -739,6 +739,7 @@ class CustomLayout extends Component {
       .calculatesSidebarNavBounds(sidebarNavWidth.width, sidebarContentWidth.width);
     const sidebarContentBounds = this
       .calculatesSidebarContentBounds(sidebarNavWidth.width, sidebarContentWidth.width);
+    const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
     const mediaAreaBounds = this
       .calculatesMediaAreaBounds(sidebarNavWidth.width, sidebarContentWidth.width);
     const navbarBounds = this.calculatesNavbarBounds(mediaAreaBounds);
@@ -794,9 +795,9 @@ class CustomLayout extends Component {
     layoutContextDispatch({
       type: ACTIONS.SET_CAPTIONS_OUTPUT,
       value: {
-        left: !isRTL ? (mediaBounds.left + captionsMargin) : null,
-        right: isRTL ? (mediaBounds.right + captionsMargin) : null,
-        maxWidth: mediaBounds.width - (captionsMargin * 2),
+        left: !isRTL ? (sidebarSize + captionsMargin) : null,
+        right: isRTL ? (sidebarSize + captionsMargin) : null,
+        maxWidth: mediaAreaBounds.width - (captionsMargin * 2),
       },
     });
 

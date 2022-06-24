@@ -15,8 +15,9 @@ import ConnectionStatusService from '/imports/ui/components/connection-status/se
 import SettingsDropdownContainer from './settings-dropdown/container';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
+
 import _ from "lodash";
-import { politeSRAlert } from '/imports/utils/dom-utils';
 import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
@@ -198,7 +199,7 @@ class NavBar extends Component {
 
     activeChats.map((c, i) => {
       if (c?.unreadCounter > 0 && c?.unreadCounter !== acs[i]?.unreadCounter) {
-        politeSRAlert(`${intl.formatMessage(intlMessages.newMsgAria, { 0: c.name })}`)
+        addNewAlert(`${intl.formatMessage(intlMessages.newMsgAria, { 0: c.name })}`)
       }
     });
 

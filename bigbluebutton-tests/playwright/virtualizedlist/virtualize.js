@@ -13,7 +13,7 @@ class VirtualizeList {
   // Join BigBlueButton meeting
   async init() {
     await this.page1.init(true, true, { fullName: 'BroadCaster1' });
-    await this.page1.waitForSelector(e.anyUser);
+    await this.page1.waitForSelector(e.firstUser);
     for (let i = 1; i <= parseInt(USER_LIST_VLIST_BOTS_LISTENING); i++) {
       const newPage = await this.browser.newPage();
       const viewerPage = new Page(this.browser, newPage);
@@ -26,7 +26,7 @@ class VirtualizeList {
   }
 
   async test() {
-    const USER_LIST_VLIST_VISIBLE_USERS = await this.page1.getSelectorCount(e.anyUser);
+    const USER_LIST_VLIST_VISIBLE_USERS = await this.page1.getSelectorCount(e.userListItem);
     const totalNumberOfUsersMongo = await this.page1.page.evaluate(() => {
       const collection = require('/imports/api/users/index.js');
       return collection.default._collection.find().count();
