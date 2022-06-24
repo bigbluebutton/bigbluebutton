@@ -6,6 +6,7 @@ import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import _ from 'lodash';
 import { Random } from 'meteor/random'
+import Meetings from '/imports/api/meetings';
 
 const CONVERSION_TIMEOUT = 300000;
 const TOKEN_TIMEOUT = 5000;
@@ -268,10 +269,30 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId) =
     .then(removePresentations.bind(null, presentationsToRemove, podId));
 };
 
+const getExternalUploadData = () => {
+  const { meetingProp } = Meetings.findOne(
+    { meetingId: Auth.meetingID },
+    {
+      fields: {
+        'meetingProp.uploadExternalDescription': 1,
+        'meetingProp.uploadExternalUrl': 1
+      },
+    },
+  );
+
+  const { uploadExternalDescription, uploadExternalUrl } = meetingProp;
+
+  return {
+    uploadExternalDescription,
+    uploadExternalUrl,
+  }
+};
+
 export default {
   getPresentations,
   persistPresentationChanges,
   dispatchTogglePresentationDownloadable,
   setPresentation,
   requestPresentationUploadToken,
+  getExternalUploadData,
 };

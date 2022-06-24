@@ -84,6 +84,8 @@ export default function addMeeting(meeting) {
       name: String,
       disabledFeatures: Array,
       notifyRecordingIsOn: Boolean,
+      uploadExternalDescription: String,
+      uploadExternalUrl: String,
     },
     usersProp: {
       webcamsOnlyForModerator: Boolean,

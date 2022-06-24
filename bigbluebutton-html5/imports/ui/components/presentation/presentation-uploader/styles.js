@@ -39,6 +39,7 @@ import {
   colorSuccess,
   colorGrayLightest,
   colorText,
+  colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
@@ -575,6 +576,33 @@ const ExtraHint = styled.div`
   font-weight: bold;
 `;
 
+const ExternalUpload = styled.div`
+  background-color: ${colorOffWhite};
+  border-radius: ${borderRadius};
+  margin-top: 2rem;
+  padding: ${lgPaddingX};
+  color: ${colorText};
+  font-weight: normal;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+
+  & p {
+    margin: 0;
+  }
+`;
+
+const ExternalUploadTitle = styled.h4`
+  font-size: 0.9rem;
+  margin: 0;
+`;
+
+const ExternalUploadButton = styled(Button)`
+  height: 2rem;
+  align-self: center;
+  margin-left: 2rem;
+`;
+
 export default {
   UploadRow,
   FileLine,
@@ -613,4 +641,7 @@ export default {
   TableItemActions,
   DownloadButton,
   ExtraHint,
+  ExternalUpload,
+  ExternalUploadTitle,
+  ExternalUploadButton,
 };

@@ -49,5 +49,6 @@ export default withTracker(() => {
     dispatchTogglePresentationDownloadable,
     isOpen: Session.get('showUploadPresentationView') || false,
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
+    externalUploadData: Service.getExternalUploadData(),
   };
 })(PresentationUploaderContainer);
