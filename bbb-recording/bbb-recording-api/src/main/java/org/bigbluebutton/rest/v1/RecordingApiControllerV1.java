@@ -1,8 +1,15 @@
 package org.bigbluebutton.rest.v1;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.LocaleUtils;
 import org.bigbluebutton.dao.entity.Recording;
+import org.bigbluebutton.dao.entity.Track;
 import org.bigbluebutton.request.MetadataParams;
+import org.bigbluebutton.response.Response;
+import org.bigbluebutton.response.ResponseV1;
+import org.bigbluebutton.response.content.MessageContent;
+import org.bigbluebutton.response.content.TrackContent;
+import org.bigbluebutton.response.dto.TrackDto;
 import org.bigbluebutton.service.RecordingService;
 import org.bigbluebutton.service.XmlService;
 import org.slf4j.Logger;
@@ -14,12 +21,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @RestController
 public class RecordingApiControllerV1 implements RecordingApiV1 {
@@ -148,7 +157,6 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
         Map<String, String[]> params = request.getParameterMap();
 
         if(params.containsKey("recordID")) recordIds.addAll(Arrays.asList(params.get("recordID")));
-
         if(params.containsKey("checksum")) checksum = params.get("checksum")[0];
 
         if(!validateChecksum("deleteRecordings", checksum, request.getQueryString())) {
@@ -218,6 +226,227 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
         );
     }
 
+    @Override
+    public ResponseEntity<Response> getRecordingTextTracks(HttpServletRequest request) {
+        ResponseV1 response = new ResponseV1();
+
+        String recordId = null;
+        String checksum = null;
+        int page = 0;
+        int size = 25;
+
+        Map<String, String[]> params = request.getParameterMap();
+
+        if(params.containsKey("recordID")) recordId = params.get("recordID")[0];
+        if(params.containsKey("checksum")) checksum = params.get("checksum")[0];
+
+        if(params.containsKey("page")) {
+            try {
+                page = Integer.parseInt(params.get("page")[0]);
+            } catch(NumberFormatException ignored) { }
+        }
+
+        if(params.containsKey("size")) {
+            try {
+                size = Integer.parseInt(params.get("size")[0]);
+            } catch(NumberFormatException ignored) { }
+        }
+
+        if(recordId == null || recordId.isEmpty()) {
+            return createMessageResponse(
+                    response,
+                    "missingParamRecordID",
+                    "You must specify a recordID.",
+                    "FAILED",
+                    HttpStatus.METHOD_NOT_ALLOWED
+            );
+        }
+
+        if(!validateChecksum("getRecordingTextTracks", checksum, request.getQueryString())) {
+            return createMessageResponse(
+                    response,
+                    "checksumError",
+                    "You did not pass the checksum security check",
+                    "FAILED",
+                    HttpStatus.METHOD_NOT_ALLOWED
+            );
+        }
+
+        List<Track> tracks = recordingService.getTracks(recordId);
+
+        if(tracks == null) {
+            return createMessageResponse(
+                    response,
+                    "noRecordings",
+                    "No recording found for " + recordId,
+                    "FAILED",
+                    HttpStatus.NOT_FOUND
+            );
+        } else if(tracks.size() == 0) {
+            return createMessageResponse(
+                    response,
+                    "noCaptionsFound",
+                    "No captions found for " + recordId,
+                    "FAILED",
+                    HttpStatus.NOT_FOUND
+            );
+        } else {
+            TrackContent content = new TrackContent();
+            List<TrackDto> trackDtos = new ArrayList<>();
+            for(Track track: tracks) trackDtos.add(TrackDto.trackToDto(track));
+
+            Pageable pageable = PageRequest.of(page, size);
+            int start = (int) pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), trackDtos.size());
+            Page<TrackDto> trackPage = new PageImpl<>(trackDtos.subList(start, end), pageable, trackDtos.size());
+
+            content.setTracks(trackPage);
+            response.setContent(content);
+            response.setReturnCode("SUCCESS");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+    }
+
+    @Override
+    public ResponseEntity<Response> putRecordingTextTrack(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+        ResponseV1 response = new ResponseV1();
+
+        String recordId = null;
+        String kind = null;
+        String lang = null;
+        String label = null;
+        String checksum = null;
+
+        Map<String, String[]> params = request.getParameterMap();
+
+        if(params.containsKey("recordID")) recordId = params.get("recordID")[0];
+        if(params.containsKey("kind")) kind = params.get("kind")[0];
+        if(params.containsKey("lang")) lang = params.get("lang")[0];
+        if(params.containsKey("label")) label = params.get("label")[0];
+        if(params.containsKey("checksum")) checksum = params.get("checksum")[0];
+
+        if(!validateChecksum("putRecordingTextTrack", checksum, request.getQueryString())) {
+            return createMessageResponse(
+                    response,
+                    "checksumError",
+                    "You did not pass the checksum security check",
+                    "FAILED",
+                    HttpStatus.METHOD_NOT_ALLOWED
+            );
+        }
+
+        if(recordId == null || recordId.isEmpty()) {
+            return createMessageResponse(
+                    response,
+                    "paramError",
+                    "Missing param recordID.",
+                    "FAILED",
+                    HttpStatus.METHOD_NOT_ALLOWED
+            );
+        }
+
+        if(kind == null || kind.isEmpty()) {
+            return createMessageResponse(
+                    response,
+                    "paramError",
+                    "Missing param kind.",
+                    "FAILED",
+                    HttpStatus.METHOD_NOT_ALLOWED
+            );
+        }
+
+        if(!kind.equals("subtitles") && !kind.equals("captions")) {
+            return createMessageResponse(
+                    response,
+                    "invalidKind",
+                    "Invalid kind parameter, expected='subtitles|captions' actual=" + kind,
+                    "FAILED",
+                    HttpStatus.METHOD_NOT_ALLOWED
+            );
+        }
+
+        if(lang == null || lang.isEmpty()) {
+            return createMessageResponse(
+                    response,
+                    "paramError",
+                    "Missing param lang.",
+                    "FAILED",
+                    HttpStatus.METHOD_NOT_ALLOWED
+            );
+        }
+
+        Locale locale;
+        try {
+            locale = LocaleUtils.toLocale(lang);
+        } catch(IllegalArgumentException e) {
+            return createMessageResponse(
+                    response,
+                    "invalidLang",
+                    "Malformed lang param, received=" + lang,
+                    "FAILED",
+                    HttpStatus.METHOD_NOT_ALLOWED
+            );
+        }
+
+        String captionsLang = locale.toLanguageTag();
+        if(label == null || label.isEmpty()) label = locale.getDisplayLanguage();
+
+        if(!file.isEmpty()) {
+            boolean result = recordingService.putTrack(file, recordId, kind, captionsLang, label);
+            if(result) {
+                MessageContent content = new MessageContent();
+                content.setMessageKey("upload_text_track_success");
+                content.setMessage("Text track uploaded successfully");
+                content.setRecordId(recordId);
+                response.setContent(content);
+                response.setReturnCode("SUCCESS");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                MessageContent content = new MessageContent();
+                content.setMessageKey("upload_text_track_success");
+                content.setMessage("Text track uploaded successfully");
+                content.setRecordId(recordId);
+                response.setContent(content);
+                response.setReturnCode("FAILED");
+                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return createMessageResponse(
+                    response,
+                    "empty_uploaded_text_track",
+                    "Empty uploaded text track.",
+                    "FAILED",
+                    HttpStatus.METHOD_NOT_ALLOWED
+            );
+        }
+    }
+
+    @Override
+    public ResponseEntity<Response> getRecordingEvents(HttpServletRequest request) {
+        ResponseV1 response = new ResponseV1();
+
+        String recordId = null;
+        String checksum = null;
+
+        Map<String, String[]> params = request.getParameterMap();
+
+        if(params.containsKey("recordID")) recordId = params.get("recordID")[0];
+        if(params.containsKey("checksum")) checksum = params.get("checksum")[0];
+
+        if(!validateChecksum("getRecordingEvents", checksum, request.getQueryString())) {
+            return createMessageResponse(
+                    response,
+                    "checksumError",
+                    "You did not pass the checksum security check",
+                    "FAILED",
+                    HttpStatus.METHOD_NOT_ALLOWED
+            );
+        }
+
+        return null;
+    }
+
+
     private boolean validateChecksum(String apiCall, String checksum, String queryString) {
         if(checksum == null || checksum.equals("")) return false;
 
@@ -244,5 +473,14 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
         }
 
         return true;
+    }
+
+    private ResponseEntity<Response> createMessageResponse(ResponseV1 response, String messageKey, String message, String returnCode, HttpStatus status) {
+        MessageContent content = new MessageContent();
+        content.setMessageKey(messageKey);
+        content.setMessage(message);
+        response.setContent(content);
+        response.setReturnCode(returnCode);
+        return new ResponseEntity<>(response, status);
     }
 }

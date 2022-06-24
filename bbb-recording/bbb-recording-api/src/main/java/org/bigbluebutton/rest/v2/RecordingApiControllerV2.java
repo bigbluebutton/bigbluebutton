@@ -116,6 +116,11 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
         return createRecordingResponse(response, recording);
     }
 
+    @Override
+    public ResponseEntity<Response> getRecordingEvents(String recordID) {
+        return null;
+    }
+
     private ResponseEntity<Response> checkForId(ResponseEnvelope response, String recordID) {
         if (recordID == null || recordID.isEmpty()) {
             Errors errors = new Errors();

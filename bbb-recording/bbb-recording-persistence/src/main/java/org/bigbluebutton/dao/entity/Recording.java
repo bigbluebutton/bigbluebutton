@@ -83,13 +83,22 @@ public class Recording {
     @OneToOne(mappedBy = "recording", cascade = CascadeType.ALL)
     private CallbackData callbackData;
 
-    public void addMetadata(Metadata metadata) {
-        if(this.metadata == null) {
-            this.metadata = new HashSet<>();
-        }
+    @OneToMany(mappedBy = "recording", cascade = CascadeType.ALL)
+    private Set<Track> tracks;
 
+    @OneToOne(mappedBy = "recording", cascade = CascadeType.ALL)
+    private Events events;
+
+    public void addMetadata(Metadata metadata) {
+        if(this.metadata == null) this.metadata = new HashSet<>();
         metadata.setRecording(this);
         this.metadata.add(metadata);
+    }
+
+    public void addTrack(Track track) {
+        if(tracks == null) tracks = new HashSet<>();
+        track.setRecording(this);
+        tracks.add(track);
     }
 
     @Override

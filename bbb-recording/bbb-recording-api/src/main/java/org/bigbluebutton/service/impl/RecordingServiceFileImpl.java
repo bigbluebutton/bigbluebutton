@@ -1,8 +1,13 @@
 package org.bigbluebutton.service.impl;
 
+import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.io.FileUtils;
+import org.bigbluebutton.dao.entity.Events;
 import org.bigbluebutton.dao.entity.Metadata;
 import org.bigbluebutton.dao.entity.Recording;
+import org.bigbluebutton.dao.entity.Track;
 import org.bigbluebutton.service.RecordingService;
 import org.bigbluebutton.service.XmlService;
 import org.slf4j.Logger;
@@ -11,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -29,6 +35,7 @@ import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
@@ -41,6 +48,9 @@ public class RecordingServiceFileImpl implements RecordingService {
     private static final Logger logger = LoggerFactory.getLogger(RecordingService.class);
 
     private static final Pattern PRESENTATION_ID_PATTERN = Pattern.compile("^[a-z0-9]{40}-[0-9]{13}\\.[0-9a-zA-Z]{3,4}$");
+
+    private static final String METADATA_FILE = "metadata.xml";
+    private static final String CAPTIONS_FILE = "captions.json";
 
     private static String processDir = "/var/bigbluebutton/recording/process";
 
@@ -115,7 +125,7 @@ public class RecordingServiceFileImpl implements RecordingService {
         for(Map.Entry<Recording.State, List<File>> entry: allDirectories.entrySet()) {
             List<File> recordings = getRecordingsForPath(recordId, entry.getValue());
             for(File recording: recordings) {
-                File metadataXml = new File(recording.getPath() + File.separatorChar + "metadata.xml");
+                File metadataXml = new File(recording.getPath() + File.separatorChar + METADATA_FILE);
                 r = updateRecordingMetadata(metadataXml, meta, metadataXml);
             }
         }
@@ -133,7 +143,75 @@ public class RecordingServiceFileImpl implements RecordingService {
 
     @Override
     public boolean deleteRecording(String recordId) {
-        return false;
+        Recording recording = changeState(recordId, Recording.State.DELETED);
+        return recording != null;
+    }
+
+    @Override
+    public List<Track> getTracks(String recordId) {
+        String captionFileUrlDirectory = defaultTextTrackUrl + "/textTrack/";
+        String recordingPath = captionsDir + File.separatorChar + recordId;
+        List<Track> tracks = new ArrayList<>();
+
+        if(!Files.exists(Paths.get(recordingPath))) return null;
+        else {
+            String captionsFilePath = recordingPath + File.separatorChar + CAPTIONS_FILE;
+            try {
+                byte[] bytes = Files.readAllBytes(Paths.get(captionsFilePath));
+                String captions = new String(bytes, StandardCharsets.UTF_8);
+
+                Gson gson = new Gson();
+                Type type = new TypeToken<List<LinkedTreeMap<String, String>>>() {}.getType();
+                List<LinkedTreeMap<String, String>> captionTracks = gson.fromJson(captions, type);
+
+                for(LinkedTreeMap<String, String> captionTrack: captionTracks) {
+                    String caption = captionTrack.get("kind") + "_" + captionTrack.get("lang") + ".vtt";
+                    Track track = new Track();
+                    track.setHref(captionFileUrlDirectory + recordId + "/" + caption);
+                    track.setKind(captionTrack.get("kind"));
+                    track.setLabel(captionTrack.get("label"));
+                    track.setLang(captionTrack.get("lang"));
+                    track.setSource(captionTrack.get("source"));
+                    tracks.add(track);
+                }
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return tracks;
+    }
+
+    @Override
+    public boolean putTrack(MultipartFile file, String recordId, String kind, String lang, String label) {
+        String contentType = file.getContentType();
+        String originalFileName = file.getOriginalFilename();
+        String trackId = recordId + "-" + System.currentTimeMillis();
+        String tempFileName = trackId + "-track.txt";
+        String captionsFilePath = captionsDir + File.separatorChar + "inbox" + File.separatorChar + tempFileName;
+
+        try {
+            File captionsFile = new File(captionsFilePath);
+            file.transferTo(captionsFile);
+
+            Track track = new Track();
+            track.setRecordId(recordId);
+            track.setKind(kind);
+            track.setLang(lang);
+            track.setOriginalName(originalFileName);
+            track.setTempName(tempFileName);
+            track.setContentType(contentType);
+
+            return saveTrackInfoFile(track, trackId, captionsDir);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public Events getEvents(String recordId) {
+        return null;
     }
 
     private List<Recording> getRecordings(List<String> recordIds, List<String> states) {
@@ -150,7 +228,7 @@ public class RecordingServiceFileImpl implements RecordingService {
             for (Map.Entry<Recording.State, List<File>> entry : allDirectories.entrySet()) {
                 List<File> _recs = getRecordingsForPath(recordId, entry.getValue());
                 for (File _rec : _recs) {
-                    Recording r = getRecording(new File(_rec.getPath() + File.separatorChar + "metadata.xml"));
+                    Recording r = getRecording(new File(_rec.getPath() + File.separatorChar + METADATA_FILE));
                     if (r != null) {
                         recordings.add(r);
                     }
@@ -450,7 +528,7 @@ public class RecordingServiceFileImpl implements RecordingService {
     }
 
     private Recording publishRecording(File destDir, String recordingId, File recordingDir, String format) {
-        File metadataXml = new File(recordingDir.getPath() + File.separatorChar + "metadata.xml");
+        File metadataXml = new File(recordingDir.getPath() + File.separatorChar + METADATA_FILE);
         Recording recording = getRecording(metadataXml);
 
         if (recording != null) {
@@ -462,7 +540,7 @@ public class RecordingServiceFileImpl implements RecordingService {
                 recording.setState(Recording.State.PUBLISHED.getValue());
                 recording.setPublished(true);
 
-                File metadataXmlFile = new File(destDir.getAbsolutePath() + File.separatorChar + recordingId + File.separatorChar + "metadata.xml");
+                File metadataXmlFile = new File(destDir.getAbsolutePath() + File.separatorChar + recordingId + File.separatorChar + METADATA_FILE);
 
                 // Process the changes by saving the recording into metadata.xml
                 boolean exported = exportMetadata(metadataXmlFile, recording);
@@ -475,7 +553,7 @@ public class RecordingServiceFileImpl implements RecordingService {
     }
 
     private Recording unpublishRecording(File destDir, String recordingId, File recordingDir, String format) {
-        File metadataXml = new File(recordingDir.getPath() + File.separatorChar + "metadata.xml");
+        File metadataXml = new File(recordingDir.getPath() + File.separatorChar + METADATA_FILE);
         Recording recording = getRecording(metadataXml);
 
         if (recording != null) {
@@ -486,7 +564,7 @@ public class RecordingServiceFileImpl implements RecordingService {
                 recording.setState(Recording.State.UNPUBLISHED.getValue());
                 recording.setPublished(false);
 
-                File metadataXmlFile = new File(destDir.getAbsolutePath() + File.separatorChar + recordingId + File.separatorChar + "metadata.xml");
+                File metadataXmlFile = new File(destDir.getAbsolutePath() + File.separatorChar + recordingId + File.separatorChar + METADATA_FILE);
 
                 // Process the changes by saving the recording into metadata.xml
                 boolean exported = exportMetadata(metadataXmlFile, recording);
@@ -500,7 +578,7 @@ public class RecordingServiceFileImpl implements RecordingService {
     }
 
     private Recording deleteRecording(File destDir, String recordingId, File recordingDir, String format) {
-        File metadataXml = new File(recordingDir.getPath() + File.separatorChar + "metadata.xml");
+        File metadataXml = new File(recordingDir.getPath() + File.separatorChar + METADATA_FILE);
         Recording recording = getRecording(metadataXml);
 
         if (recording != null) {
@@ -511,7 +589,7 @@ public class RecordingServiceFileImpl implements RecordingService {
                 recording.setState(Recording.State.DELETED.getValue());
                 recording.setPublished(false);
 
-                File metadataXmlFile = new File(destDir.getAbsolutePath() + File.separatorChar + recordingId + File.separatorChar + "metadata.xml");
+                File metadataXmlFile = new File(destDir.getAbsolutePath() + File.separatorChar + recordingId + File.separatorChar + METADATA_FILE);
 
                 // Process the changes by saving the recording into metadata.xml
                 boolean exported = exportMetadata(metadataXmlFile, recording);

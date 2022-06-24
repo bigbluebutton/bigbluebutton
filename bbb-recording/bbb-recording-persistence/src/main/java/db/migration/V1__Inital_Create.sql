@@ -62,6 +62,27 @@ CREATE TABLE IF NOT EXISTS callback_data (
 	CONSTRAINT fk_callback_data_recording FOREIGN KEY (recording_id) REFERENCES recording(id)
 );
 
+CREATE TABLE IF NOT EXISTS track (
+    id BIGSERIAL PRIMARY KEY,
+    recording_id BIGINT,
+    href VARCHAR(256),
+    kind VARCHAR(128),
+    lang VARCHAR(128),
+    label VARCHAR(128),
+    original_name VARCHAR(256),
+    temp_name VARCHAR(256),
+    content_type VARCHAR(128),
+    source VARCHAR(128),
+    CONSTRAINT fk_track_recording FOREIGN KEY (recording_id) REFERENCES recording (id)
+);
+
+CREATE TABLE IF NOT EXISTS events (
+    id BIGSERIAL PRIMARY KEY,
+    recording_id BIGINT,
+    content TEXT,
+    CONSTRAINT fk_event_recording FOREIGN KEY (recording_id) REFERENCES recording (id)
+)
+
 CREATE OR REPLACE FUNCTION truncate_tables(username IN VARCHAR) RETURNS void AS $$
 DECLARE
     statements CURSOR FOR
