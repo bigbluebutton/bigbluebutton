@@ -26,7 +26,8 @@ test.describe.parallel('Connection Status', () => {
     await connectionStatus.linkToSettingsTest();
   });
 
-  test.only('Copy stats', async ({ browser, context, page }) => {
+  test('Copy stats', async ({ browser, context, page }, testInfo) => {
+    test.fixme(testInfo.project.use.headless, 'Only works in headed mode');
     const connectionStatus = new ConnectionStatus(browser, context);
     await connectionStatus.initModPage(page);
     await connectionStatus.copyStatsTest(context);
