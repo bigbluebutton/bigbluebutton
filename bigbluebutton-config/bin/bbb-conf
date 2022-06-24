@@ -274,7 +274,7 @@ usage() {
     echo "Configuration:"
     echo "   --version                        Display BigBlueButton version (packages)"
     echo "   --setip <IP/hostname>            Set IP/hostname for BigBlueButton"
-    echo "   --setsecret <secret>             Change the shared secret in bigbluebutton.properties"
+    echo "   --setsecret <secret>             Change the shared secret in /etc/bigbluebutton/bbb-web.properties"
     echo
     echo "Monitoring:"
     echo "   --check                          Check configuration files and processes for problems"
