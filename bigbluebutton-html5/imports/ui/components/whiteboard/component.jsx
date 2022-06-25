@@ -234,6 +234,25 @@ export default function Whiteboard(props) {
             if (!hasWBAccess && !isPresenter) app.onPan = () => {};
             setTLDrawAPI(app);
             props.setTldrawAPI(app);
+            // disable pan for non presenter that doesn't have multi user access
+            if (!hasWBAccess && !isPresenter) app.onPan = () => {}; 
+            // disable hover highlight for background slide shape
+            app.setHoveredId = (id) => {
+              if (id.includes('slide-background')) return null;
+              app.patchState(
+                {
+                  document: {
+                    pageStates: {
+                      [app.getPage()?.id]: {
+                        hoveredId: id,
+                      },
+                    },
+                  },
+                },
+                `set_hovered_id`
+              );
+            };
+
             if (curPageId) {
               app.changePage(curPageId);
               if (slidePosition.zoom === 0) {
