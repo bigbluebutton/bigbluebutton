@@ -1,6 +1,4 @@
 import * as React from "react";
-import ReactCursorPosition from "react-cursor-position";
-import Vec from "@tldraw/vec";
 import { _ } from "lodash";
 
 function usePrevious(value) {
@@ -71,12 +69,12 @@ const renderCursor = (
 
 const PositionLabel = (props) => {
   const {
-    position: { x = 0, y = 0 } = {},
     currentUser,
     currentPoint,
     pageState,
     publishCursorUpdate,
     whiteboardId,
+    pos,
   } = props;
 
   const { name, color, userId, presenter } = currentUser;
@@ -84,9 +82,7 @@ const PositionLabel = (props) => {
 
   React.useEffect(() => {
     try {
-      const point = _.isEqual(currentPoint, prevCurrentPoint)
-        ? [x, y]
-        : currentPoint;
+      const point = [pos.x, pos.y];
       publishCursorUpdate({
         xPercent:
           point[0] / pageState?.camera?.zoom - pageState?.camera?.point[0],
@@ -97,12 +93,12 @@ const PositionLabel = (props) => {
     } catch (e) {
       console.log(e);
     }
-  }, [x, y]);
+  }, [pos?.x, pos?.y]);
 
   return (
     <>
       <div style={{ position: "absolute", height: "100%", width: "100%" }}>
-        {renderCursor(name, color, x, y, currentPoint, props.pageState)}
+        {renderCursor(name, color, pos.x, pos.y, currentPoint, props.pageState)}
       </div>
     </>
   );
@@ -111,6 +107,7 @@ const PositionLabel = (props) => {
 export default function Cursors(props) {
   let cursorWrapper = React.useRef(null);
   const [active, setActive] = React.useState(false);
+  const [pos, setPos] = React.useState({ x: 0, y: 0 });
   const {
     whiteboardId,
     otherCursors,
@@ -120,27 +117,65 @@ export default function Cursors(props) {
     children,
     isViewersCursorLocked
   } = props;
+
+  const start = () => setActive(true);
+  
+  const end = () => {
+    publishCursorUpdate({
+      xPercent: null,   
+      yPercent: null,
+      whiteboardId: whiteboardId,
+    });
+    setActive(false);
+  };
+
+  const moved = (event) => {
+    const { type } = event;
+    const yOffset = parseFloat(document.getElementById('Navbar')?.style?.height);
+    const getSibling = (el) => el?.previousSibling || null;
+    const panel = getSibling(document.getElementById('Navbar'));
+    const subPanel = panel && getSibling(panel);
+    const xOffset = (parseFloat(panel?.style?.width) || 0) + (parseFloat(subPanel?.style?.width) || 0);
+    if (type === 'touchmove') {
+      !active && setActive(true);
+      return setPos({ x: event?.changedTouches[0]?.clientX - xOffset, y: event?.changedTouches[0]?.clientY - yOffset });
+    }
+    return setPos({ x: event.x - xOffset, y: event.y - yOffset });
+  }
+
   React.useEffect(() => {
     !cursorWrapper.hasOwnProperty("mouseenter") &&
-      cursorWrapper?.addEventListener("mouseenter", (event) => {
-        setActive(true);
-      });
+      cursorWrapper?.addEventListener("mouseenter", start);
+
     !cursorWrapper.hasOwnProperty("mouseleave") &&
-      cursorWrapper?.addEventListener("mouseleave", (event) => {
-        publishCursorUpdate({
-          xPercent: null,   
-          yPercent: null,
-          whiteboardId: whiteboardId,
-        });
-        setActive(false);
-      });
+      cursorWrapper?.addEventListener("mouseleave", end);
+
+    !cursorWrapper.hasOwnProperty("touchend") &&
+      cursorWrapper?.addEventListener("touchend", end);
+
+    !cursorWrapper.hasOwnProperty("mousemove") &&
+      cursorWrapper?.addEventListener("mousemove", moved);
+
+    !cursorWrapper.hasOwnProperty("touchmove") &&
+      cursorWrapper?.addEventListener("touchmove", moved);
   }, [cursorWrapper]);
+
+  React.useEffect(() => {
+    return () => {
+      cursorWrapper.removeEventListener('mouseenter', start);
+      cursorWrapper.removeEventListener('mouseleave', end);
+      cursorWrapper.removeEventListener('mousemove', moved);
+      cursorWrapper.removeEventListener('touchend', end);
+      cursorWrapper.removeEventListener('touchmove', moved);
+    }
+  }, []);
 
   return (
     <span disabled={true} ref={(r) => (cursorWrapper = r)}>
-      <ReactCursorPosition style={{ height: "100%", cursor: "none" }}>
+      <div style={{ height: "100%", cursor: "none" }}>
         {active && (
           <PositionLabel
+            pos={pos}
             otherCursors={otherCursors}
             currentUser={currentUser}
             currentPoint={tldrawAPI?.currentPoint}
@@ -150,7 +185,7 @@ export default function Cursors(props) {
           />
         )}
         {children}
-      </ReactCursorPosition>
+      </div>
       {otherCursors
         .filter((c) => c?.xPercent && c?.yPercent)
         .filter((c) => {
