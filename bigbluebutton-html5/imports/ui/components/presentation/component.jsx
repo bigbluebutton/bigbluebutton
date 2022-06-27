@@ -166,9 +166,10 @@ class Presentation extends PureComponent {
     const {
       numCameras: prevNumCameras,
       presentationBounds: prevPresentationBounds,
+      multiUser: prevMultiUser,
     } = prevProps;
 
-    if (!multiUser) {
+    if (prevMultiUser && !multiUser) {
       clearFakeAnnotations();
       clearCursors();
     }
