@@ -6,8 +6,10 @@ import _ from 'lodash';
 import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import AudioService from '/imports/ui/components/audio/service';
 import ChatPushAlert from './push-alert/component';
+import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import Service from '../service';
 import Styled from './styles';
+import { usePreviousValue } from '/imports/ui/components/utils/hooks';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.chat_clear;
@@ -68,14 +70,13 @@ const ChatAlert = (props) => {
     unreadMessagesByChat,
     intl,
     layoutContextDispatch,
-    chatsTracker,
-    notify,
   } = props;
 
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState([]);
   const [lastAlertTimestampByChat, setLastAlertTimestampByChat] = useState({});
   const [alertEnabledTimestamp, setAlertEnabledTimestamp] = useState(null);
+  const prevUnreadMessages = usePreviousValue(unreadMessages);
 
   // audio alerts
   useEffect(() => {
@@ -104,35 +105,6 @@ const ChatAlert = (props) => {
       setAlertEnabledTimestamp(new Date().getTime());
     }
   }, [pushAlertEnabled]);
-
-  useEffect(() => {
-    const keys = Object.keys(chatsTracker);
-    keys.forEach((key) => {
-      if (chatsTracker[key]?.shouldNotify) {
-        if (audioAlertEnabled) {
-          AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-            + Meteor.settings.public.app.basename
-            + Meteor.settings.public.app.instanceId}`
-            + '/resources/sounds/notify.mp3');
-        }
-        if (pushAlertEnabled) {
-          notify(
-            key === 'MAIN-PUBLIC-GROUP-CHAT'
-              ? intl.formatMessage(intlMessages.publicChatMsg)
-              : intl.formatMessage(intlMessages.privateChatMsg),
-            'info',
-            'chat',
-            { autoClose: 3000 },
-            <div>
-              <div style={{ fontWeight: 700 }}>{chatsTracker[key].lastSender}</div>
-              <div dangerouslySetInnerHTML={{ __html: chatsTracker[key].content }} />
-            </div>,
-            true,
-          );
-        }
-      }
-    });
-  }, [chatsTracker]);
 
   useEffect(() => {
     if (pushAlertEnabled) {
@@ -177,11 +149,8 @@ const ChatAlert = (props) => {
         if (content.text === PUBLIC_CHAT_CLEAR) {
           return intl.formatMessage(intlMessages.publicChatClear);
         }
-        /* this code is to remove html tags that come in the server's messages */
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = content.text;
-        const textWithoutTag = tempDiv.innerText;
-        return textWithoutTag;
+
+        return unescapeHtml(stripTags(content.text));
       });
 
     return contentMessage;
@@ -198,6 +167,10 @@ const ChatAlert = (props) => {
       </Styled.ContentMessage>
     </Styled.PushMessageContent>
   );
+
+  if (_.isEqual(prevUnreadMessages, unreadMessages)) {
+    return null;
+  }
 
   return pushAlertEnabled
     ? unreadMessages.map((timeWindow) => {

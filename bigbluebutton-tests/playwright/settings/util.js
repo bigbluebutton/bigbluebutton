@@ -11,7 +11,7 @@ async function getLocaleValues(elements, locale) {
   let currentLocale = {};
   try {
     currentLocale = require(`../../../bigbluebutton-html5/public/locales/${locale.replace('-', '_')}.json`);
-  } catch (e) { }
+  } catch (err) { }
 
   for (const selector in elements) {
     const currentKey = elements[selector];
@@ -22,7 +22,7 @@ async function getLocaleValues(elements, locale) {
       let generalLocale = {};
       try {
         generalLocale = require(`../../../bigbluebutton-html5/public/locales/${generalLocaleName}.json`);
-      } catch (e) { }
+      } catch (err) { }
       return generalLocale[currentKey] ? generalLocale[currentKey] : defaultLocale[currentKey];
     }
   }

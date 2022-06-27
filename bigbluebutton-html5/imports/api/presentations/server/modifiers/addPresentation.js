@@ -34,6 +34,7 @@ export default function addPresentation(meetingId, podId, presentation) {
     id: String,
     name: String,
     current: Boolean,
+    temporaryPresentationId: String,
     pages: [
       {
         id: String,
@@ -43,10 +44,9 @@ export default function addPresentation(meetingId, podId, presentation) {
         txtUri: String,
         svgUri: String,
         current: Boolean,
-        xOffset: Number,
-        yOffset: Number,
-        widthRatio: Number,
-        heightRatio: Number,
+        xCamera: Number,
+        yCamera: Number,
+        zoom: Number,
       },
     ],
     downloadable: Boolean,

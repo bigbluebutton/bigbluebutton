@@ -24,6 +24,8 @@ import {
   getAudioSessionNumber,
   getAudioConstraints,
   filterSupportedConstraints,
+  DEFAULT_INPUT_DEVICE_ID,
+  DEFAULT_OUTPUT_DEVICE_ID,
 } from '/imports/api/audio/client/bridge/service';
 
 const MEDIA = Meteor.settings.public.media;
@@ -31,6 +33,7 @@ const MEDIA_TAG = MEDIA.mediaTag;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
 const SIPJS_HACK_VIA_WS = MEDIA.sipjsHackViaWs;
+const SIPJS_ALLOW_MDNS = MEDIA.sipjsAllowMdns || false;
 const IPV4_FALLBACK_DOMAIN = Meteor.settings.public.app.ipv4FallbackDomain;
 const CALL_CONNECT_TIMEOUT = 20000;
 const ICE_NEGOTIATION_TIMEOUT = 20000;
@@ -45,11 +48,10 @@ const TRACE_SIP = MEDIA.traceSip || false;
 const SDP_SEMANTICS = MEDIA.sdpSemantics;
 const FORCE_RELAY = MEDIA.forceRelay;
 
-const DEFAULT_INPUT_DEVICE_ID = 'default';
-const DEFAULT_OUTPUT_DEVICE_ID = 'default';
-
 const INPUT_DEVICE_ID_KEY = 'audioInputDeviceId';
 const OUTPUT_DEVICE_ID_KEY = 'audioOutputDeviceId';
+const UA_SERVER_VERSION = Meteor.settings.public.app.bbbServerVersion;
+const UA_CLIENT_VERSION = Meteor.settings.public.app.html5ClientBuild;
 
 /**
   * Get error code from SIP.js websocket messages.
@@ -87,6 +89,8 @@ class SIPSession {
     this._reconnecting = false;
     this._currentSessionState = null;
     this._ignoreCallState = false;
+
+    this.mediaStreamFactory = this.mediaStreamFactory.bind(this)
   }
 
   get inputStream() {
@@ -223,6 +227,7 @@ class SIPSession {
     inputDeviceId,
     outputDeviceId,
     validIceCandidates,
+    inputStream,
   }, managerCallback) {
     return new Promise((resolve, reject) => {
       const callExtension = extension ? `${extension}${this.userData.voiceBridge}` : this.userData.voiceBridge;
@@ -258,6 +263,7 @@ class SIPSession {
         isListenOnly,
         inputDeviceId,
         outputDeviceId,
+        inputStream,
       }).catch((reason) => {
         reject(reason);
       });
@@ -286,10 +292,14 @@ class SIPSession {
       isListenOnly,
       inputDeviceId,
       outputDeviceId,
+      inputStream,
     } = options;
 
     this.inputDeviceId = inputDeviceId;
     this.outputDeviceId = outputDeviceId;
+    // If a valid MediaStream was provided it means it was preloaded somewhere
+    // else - let's use it so we don't call gUM needlessly
+    if (inputStream && inputStream.active) this.preloadedInputStream = inputStream;
 
     const {
       userId,
@@ -422,6 +432,17 @@ class SIPSession {
     return this.stopUserAgent();
   }
 
+  mediaStreamFactory(constraints) {
+    if (this.preloadedInputStream && this.preloadedInputStream.active) {
+      return Promise.resolve(this.preloadedInputStream);
+    }
+    // The rest of this mimicks the default factory behavior.
+    if (!constraints.audio && !constraints.video) {
+      return Promise.resolve(new MediaStream());
+    }
+    return navigator.mediaDevices.getUserMedia(constraints);
+  }
+
   createUserAgent(iceServers) {
     return new Promise((resolve, reject) => {
       if (this.userRequestedHangup === true) reject();
@@ -464,6 +485,9 @@ class SIPSession {
       let userAgentConnected = false;
       const token = `sessionToken=${sessionToken}`;
 
+      // Create session description handler factory
+      const customSDHFactory = SIP.Web.defaultSessionDescriptionHandlerFactory(this.mediaStreamFactory);
+
       this.userAgent = new SIP.UserAgent({
         uri: SIP.UserAgent.makeURI(`sip:${encodeURIComponent(callerIdName)}@${hostname}`),
         transportOptions: {
@@ -473,6 +497,7 @@ class SIPSession {
           keepAliveDebounce: WEBSOCKET_KEEP_ALIVE_DEBOUNCE,
           traceSip: TRACE_SIP,
         },
+        sessionDescriptionHandlerFactory: customSDHFactory,
         sessionDescriptionHandlerFactoryOptions: {
           peerConnectionConfiguration: {
             iceServers,
@@ -482,7 +507,7 @@ class SIPSession {
         },
         displayName: callerIdName,
         register: false,
-        userAgentString: 'BigBlueButton',
+        userAgentString: `BigBlueButton/${UA_SERVER_VERSION} (HTML5, rv:${UA_CLIENT_VERSION}) ${window.navigator.userAgent}`,
         hackViaWs: SIPJS_HACK_VIA_WS,
       });
 
@@ -737,6 +762,11 @@ class SIPSession {
       const target = SIP.UserAgent.makeURI(`sip:${callExtension}@${hostname}`);
 
       const matchConstraints = getAudioConstraints({ deviceId: this.inputDeviceId });
+      const iceModifiers = [
+        filterValidIceCandidates.bind(this, this.validIceCandidates),
+      ];
+
+      if (!SIPJS_ALLOW_MDNS) iceModifiers.push(stripMDnsCandidates);
 
       const inviterOptions = {
         sessionDescriptionHandlerOptions: {
@@ -748,10 +778,7 @@ class SIPSession {
           },
           iceGatheringTimeout: ICE_GATHERING_TIMEOUT,
         },
-        sessionDescriptionHandlerModifiersPostICEGathering: [
-          stripMDnsCandidates,
-          filterValidIceCandidates.bind(this, this.validIceCandidates),
-        ],
+        sessionDescriptionHandlerModifiersPostICEGathering: iceModifiers,
         delegate: {
           onSessionDescriptionHandler:
             this.initSessionDescriptionHandler.bind(this),
@@ -1279,7 +1306,12 @@ export default class SIPBridge extends BaseAudioBridge {
     return this.activeSession ? this.activeSession.ignoreCallState : false;
   }
 
-  joinAudio({ isListenOnly, extension, validIceCandidates }, managerCallback) {
+  joinAudio({
+    isListenOnly,
+    extension,
+    validIceCandidates,
+    inputStream,
+  }, managerCallback) {
     const hasFallbackDomain = typeof IPV4_FALLBACK_DOMAIN === 'string' && IPV4_FALLBACK_DOMAIN !== '';
 
     return new Promise((resolve, reject) => {
@@ -1318,6 +1350,7 @@ export default class SIPBridge extends BaseAudioBridge {
               inputDeviceId,
               outputDeviceId,
               validIceCandidates,
+              inputStream,
             }, callback)
               .then((value) => {
                 this.changeOutputDevice(outputDeviceId, true);
@@ -1338,6 +1371,7 @@ export default class SIPBridge extends BaseAudioBridge {
         inputDeviceId,
         outputDeviceId,
         validIceCandidates,
+        inputStream,
       }, callback)
         .then((value) => {
           this.changeOutputDevice(outputDeviceId, true);

@@ -92,10 +92,12 @@ public class ParamsProcessorUtil {
     private boolean webcamsOnlyForModerator;
     private Integer defaultMeetingCameraCap = 0;
     private Integer defaultUserCameraCap = 0;
+    private Integer defaultMaxPinnedCameras = 3;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultAllowModsToEjectCameras = false;
     private String defaultDisabledFeatures;
+    private boolean defaultNotifyRecordingIsOn = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
     private String defaultLogoURL;
@@ -528,6 +530,11 @@ public class ParamsProcessorUtil {
             learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
         }
 
+        Boolean notifyRecordingIsOn = defaultNotifyRecordingIsOn;
+        if (!StringUtils.isEmpty(params.get(ApiParams.NOTIFY_RECORDING_IS_ON))) {
+            notifyRecordingIsOn = Boolean.parseBoolean(params.get(ApiParams.NOTIFY_RECORDING_IS_ON));
+        }
+
         boolean webcamsOnlyForMod = webcamsOnlyForModerator;
         if (!StringUtils.isEmpty(params.get(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR))) {
             try {
@@ -558,6 +565,16 @@ public class ParamsProcessorUtil {
             } catch (NumberFormatException e) {
                 log.warn("Invalid param [userCameraCap] for meeting=[{}]", internalMeetingId);
             }
+        }
+
+        Integer maxPinnedCameras = defaultMaxPinnedCameras;
+        if (!StringUtils.isEmpty(params.get(ApiParams.MAX_PINNED_CAMERAS))) {
+          try {
+            Integer maxPinnedCamerasParam = Integer.parseInt(params.get(ApiParams.MAX_PINNED_CAMERAS));
+            if (maxPinnedCamerasParam > 0) maxPinnedCameras = maxPinnedCamerasParam;
+          } catch (NumberFormatException e) {
+            log.warn("Invalid param [maxPinnedCameras] for meeting =[{}]", internalMeetingId);
+          }
         }
 
         Integer meetingExpireIfNoUserJoinedInMinutes = defaultMeetingExpireIfNoUserJoinedInMinutes;
@@ -667,6 +684,7 @@ public class ParamsProcessorUtil {
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
                 .withMeetingCameraCap(meetingCameraCap)
                 .withUserCameraCap(userCameraCap)
+                .withMaxPinnedCameras(maxPinnedCameras)
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
@@ -682,6 +700,7 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
                 .withDisabledFeatures(listOfDisabledFeatures)
+                .withNotifyRecordingIsOn(notifyRecordingIsOn)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
@@ -817,11 +836,11 @@ public class ParamsProcessorUtil {
 		return DigestUtils.sha1Hex(extMeetingId);
 	}
 
-	public String processPassword(String pass) {
-		return StringUtils.isEmpty(pass) ? RandomStringUtils.randomAlphanumeric(8) : pass;
-	}
+    public String processPassword(String pass) {
+        return StringUtils.isEmpty(pass) ? RandomStringUtils.randomAlphanumeric(8) : pass;
+    }
 
-	public boolean hasChecksumAndQueryString(String checksum, String queryString) {
+    public boolean hasChecksumAndQueryString(String checksum, String queryString) {
 		return (! StringUtils.isEmpty(checksum) && StringUtils.isEmpty(queryString));
 	}
 
@@ -1127,6 +1146,10 @@ public class ParamsProcessorUtil {
         this.defaultUserCameraCap = userCameraCap;
     }
 
+    public void setDefaultMaxPinnedCameras(Integer maxPinnedCameras) {
+        this.defaultMaxPinnedCameras = maxPinnedCameras;
+    }
+
 	public void setUseDefaultAvatar(Boolean value) {
 		this.useDefaultAvatar = value;
 	}
@@ -1341,6 +1364,10 @@ public class ParamsProcessorUtil {
   public void setDisabledFeatures(String disabledFeatures) {
         this.defaultDisabledFeatures = disabledFeatures;
     }
+
+  public void setNotifyRecordingIsOn(Boolean notifyRecordingIsOn) {
+      this.defaultNotifyRecordingIsOn = notifyRecordingIsOn;
+  }
 
   public void setBbbVersion(String version) {
       this.bbbVersion = this.allowRevealOfBBBVersion ? version : "";

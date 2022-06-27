@@ -5,6 +5,7 @@ import {
   colorWhite,
   colorDanger,
   colorGrayDark,
+  colorBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import { phoneLandscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
@@ -16,6 +17,7 @@ const Navbar = styled.header`
   flex-direction: column;
   text-align: center;
   font-size: 1.5rem;
+  background-color: ${colorBackground};
   padding: ${barsPadding} ${barsPadding} 0 ${barsPadding};
 `;
 
@@ -56,7 +58,7 @@ const Center = styled.div`
 `;
 
 const PresentationTitle = styled.h1`
-  font-weight: 200;
+  font-weight: 400;
   color: ${colorWhite};
   font-size: ${fontSizeBase};
   margin: 0;

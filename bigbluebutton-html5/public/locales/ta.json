@@ -609,7 +609,6 @@
     "app.lock-viewers.button.apply": "விண்ணப்பிக்கவும்",
     "app.lock-viewers.button.cancel": "ரத்துசெய்",
     "app.lock-viewers.locked": "பூட்டப்பட்டுள்ளது",
-    "app.lock-viewers.unlocked": "திறக்கப்பட்டது",
     "app.guest-policy.ariaTitle": "விருந்தினர் கொள்கை அமைப்புகள் மாதிரி",
     "app.guest-policy.title": "விருந்தினர் கொள்கை",
     "app.guest-policy.description": "சந்திப்பு விருந்தினர் கொள்கை அமைப்பை மாற்றவும்",

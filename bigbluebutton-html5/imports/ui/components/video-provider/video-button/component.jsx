@@ -7,10 +7,20 @@ import Styled from './styles';
 import { validIOSVersion } from '/imports/ui/components/app/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { debounce } from 'lodash';
+import BBBMenu from '/imports/ui/components/common/menu/component';
 
 const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app.enableWebcamSelectorButton;
+const ENABLE_WEBCAM_BACKGROUND_UPLOAD = Meteor.settings.public.virtualBackgrounds.enableVirtualBackgroundUpload;
 
 const intlMessages = defineMessages({
+  videoSettings: {
+    id: 'app.video.videoSettings',
+    description: 'Open video settings',
+  },
+  visualEffects: {
+    id: 'app.video.visualEffects',
+    description: 'Visual effects label',
+  },
   joinVideo: {
     id: 'app.video.joinVideo',
     description: 'Join video button label',
@@ -50,62 +60,104 @@ const JOIN_VIDEO_DELAY_MILLISECONDS = 500;
 const propTypes = {
   intl: PropTypes.object.isRequired,
   hasVideoStream: PropTypes.bool.isRequired,
+  status: PropTypes.string.isRequired,
   mountVideoPreview: PropTypes.func.isRequired,
-  forceMountVideoPreview: PropTypes.func.isRequired,
 };
 
 const JoinVideoButton = ({
   intl,
   hasVideoStream,
+  status,
   disableReason,
   mountVideoPreview,
-  forceMountVideoPreview,
 }) => {
   const { isMobile } = deviceInfo;
+  const isMobileSharingCamera = hasVideoStream && isMobile;
+  const isDesktopSharingCamera = hasVideoStream && !isMobile;
   const shouldEnableWebcamSelectorButton = ENABLE_WEBCAM_SELECTOR_BUTTON
+    && isDesktopSharingCamera;
+  const shouldEnableWebcamBackgroundUploadButton = ENABLE_WEBCAM_BACKGROUND_UPLOAD
     && hasVideoStream
     && !isMobile;
-  const exitVideo = () => hasVideoStream
-    && !isMobile
-    && (!VideoService.isMultipleCamerasEnabled() || shouldEnableWebcamSelectorButton);
-  const isMobileSharingCamera = hasVideoStream && isMobile;
+  const exitVideo = () => isDesktopSharingCamera && (!VideoService.isMultipleCamerasEnabled()
+    || shouldEnableWebcamSelectorButton);
 
   const handleOnClick = debounce(() => {
     if (!validIOSVersion()) {
       return VideoService.notify(intl.formatMessage(intlMessages.iOSWarning));
     }
 
-    if (exitVideo()) {
-      VideoService.exitVideo();
-    } else if (isMobileSharingCamera) {
-      forceMountVideoPreview();
-    } else {
-      mountVideoPreview();
+    switch (status) {
+      case 'videoConnecting':
+        VideoService.stopVideo();
+        break;
+      case 'connected':
+      default:
+        if (exitVideo()) {
+          VideoService.exitVideo();
+        } else {
+          mountVideoPreview(isMobileSharingCamera);
+        }
     }
   }, JOIN_VIDEO_DELAY_MILLISECONDS);
 
-  const handleOpenAdvancedOptions = (e) => {
-    e.stopPropagation();
-    forceMountVideoPreview();
+  const handleOpenAdvancedOptions = (props) => {
+    mountVideoPreview(isMobileSharingCamera, props);
   };
 
-  let label = exitVideo()
-    ? intl.formatMessage(intlMessages.leaveVideo)
-    : intl.formatMessage(intlMessages.joinVideo);
+  const getMessageFromStatus = () => {
+    let statusMessage = status;
+    if (status !== 'videoConnecting') {
+      statusMessage = exitVideo() ? 'leaveVideo' : 'joinVideo';
+    }
+    return statusMessage;
+  };
 
-  if (disableReason) label = intl.formatMessage(intlMessages[disableReason]);
+  const label = disableReason
+    ? intl.formatMessage(intlMessages[disableReason])
+    : intl.formatMessage(intlMessages[getMessageFromStatus()]);
 
-  const renderEmojiButton = () => (
-    shouldEnableWebcamSelectorButton
-      && (
-      <ButtonEmoji
-        onClick={handleOpenAdvancedOptions}
-        emoji="device_list_selector"
-        hideLabel
-        label={intl.formatMessage(intlMessages.advancedVideo)}
+  const isSharing = hasVideoStream || status === 'videoConnecting';
+
+  const renderUserActions = () => {
+    const actions = [];
+
+    if (shouldEnableWebcamSelectorButton) {
+      actions.push(
+        {
+          key: 'advancedVideo',
+          label: intl.formatMessage(intlMessages.advancedVideo),
+          onClick: () => handleOpenAdvancedOptions(),
+        },
+      );
+    }
+
+    if (shouldEnableWebcamBackgroundUploadButton) {
+      actions.push(
+        {
+          key: 'virtualBgSelection',
+          label: intl.formatMessage(intlMessages.visualEffects),
+          onClick: () => handleOpenAdvancedOptions({ isVisualEffects: true }),
+        },
+      );
+    }
+
+    if (actions.length === 0) return null;
+
+    return (
+      <BBBMenu
+        trigger={(
+          <ButtonEmoji
+            emoji="device_list_selector"
+            hideLabel
+            label={intl.formatMessage(intlMessages.videoSettings)}
+            rotate
+          />
+        )}
+        actions={actions}
       />
-      )
-  );
+    );
+  }
 
   return (
     <Styled.OffsetBottom>
@@ -114,14 +166,14 @@ const JoinVideoButton = ({
         data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
         onClick={handleOnClick}
         hideLabel
-        color={hasVideoStream ? 'primary' : 'default'}
-        icon={hasVideoStream ? 'video' : 'video_off'}
-        ghost={!hasVideoStream}
+        color={isSharing ? 'primary' : 'default'}
+        icon={isSharing ? 'video' : 'video_off'}
+        ghost={!isSharing}
         size="lg"
         circle
         disabled={!!disableReason}
       />
-      {renderEmojiButton()}
+      {renderUserActions()}
     </Styled.OffsetBottom>
   );
 };

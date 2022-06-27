@@ -48,6 +48,8 @@ public:
     learningDashboardBase: '/learning-analytics-dashboard'
     # Use https URL of CSS file. Example: https://docs.bigbluebutton.org/admin/customize.html#examples
     customStyleUrl: null
+    darkTheme:
+      enabled: true
     askForFeedbackOnLogout: false
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
@@ -75,7 +77,7 @@ public:
       threshold: -50
       duration: 4000
     remainingTimeThreshold: 30
-    remainingTimeAlertThreshold: 1
+    remainingTimeAlertThresholdArray: [1,5]
     enableDebugWindow: true
     # Warning: increasing the limit of breakout rooms per meeting
     # can generate excessive overhead to the server. We recommend
@@ -124,7 +126,7 @@ public:
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
         paginationEnabled: true
-        pushLayoutToEveryone: false
+        darkTheme: false
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
         # specified in fallbackLocale. Note that fallbackLocale should be a
@@ -212,9 +214,9 @@ public:
     wsConnectionTimeout: 4000
     # Time in milis to wait for the browser to return a gUM call (used in video-preview)
     gUMTimeout: 20000
-    # Experiment(al). Controls whether ICE candidates should be signaled.
-    # Applies to webcams, listen only and screen sharing. True is "stable behavior".
-    signalCandidates: true
+    # Controls whether ICE candidates should be signaled to bbb-webrtc-sfu.
+    # Enable this if you want to use Kurento as the media server.
+    signalCandidates: false
     # Forces relay usage only on Firefox. Applies to listen only, webcams and screenshare.
     forceRelayOnFirefox: false
     cameraTimeouts:
@@ -276,38 +278,26 @@ public:
         name: low-u30
         bitrate: 30
         hidden: true
-        constraints:
-          frameRate: 3
       - id: low-u25
         name: low-u25
         bitrate: 40
         hidden: true
-        constraints:
-          frameRate: 3
       - id: low-u20
         name: low-u20
         bitrate: 50
         hidden: true
-        constraints:
-          frameRate: 5
       - id: low-u15
         name: low-u15
         bitrate: 70
         hidden: true
-        constraints:
-          frameRate: 8
       - id: low-u12
         name: low-u12
         bitrate: 90
         hidden: true
-        constraints:
-          frameRate: 10
       - id: low-u8
         name: low-u8
         bitrate: 100
         hidden: true
-        constraints:
-          frameRate: 10
       - id: low
         name: Low
         default: false
@@ -336,12 +326,11 @@ public:
     enableVideo: true
     enableVideoMenu: true
     enableVideoPin: true
-    enableListenOnly: true
     # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
     # media server adapter should be used for listen only.
     # Default is undefined, which means the default setting in bbb-webrtc-sfu
     # prevails (listenOnlyMediaServer).
-    #listenOnlyMediaServer: Kurento
+    #listenOnlyMediaServer: mediasoup
     # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
     # media server adapter should be used for webcams.
     # Default is undefined, which means the default setting in bbb-webrtc-sfu
@@ -364,6 +353,12 @@ public:
     #            that will be applied to all cameras when threshold is hit
     cameraQualityThresholds:
       enabled: true
+      # applyConstraints: whether profile constraints should be applied on profile changes
+      applyConstraints: false
+      # privilegedStreams: whether cameras should revert to their original profile on
+      # certain actions (eg floor changes, pin)
+      privilegedStreams: true
+      debounceTime: 2500
       thresholds:
         - threshold: 8
           profile: low-u8
@@ -435,8 +430,8 @@ public:
     syncInterval: 60000
   poll:
     enabled: true
+    allowCustomResponseInput: true
     maxCustom: 5
-    allowDragAndDropFile: false
     maxTypedAnswerLength: 45
     chatMessage: true
   captions:
@@ -476,13 +471,16 @@ public:
     typingIndicator:
       enabled: true
     moderatorChatEmphasized: true
+    autoConvertEmoji: true
+    enableEmojiPicker: false
   notes:
     enabled: true
     id: notes
   layout:
-    autoSwapLayout: false
     hidePresentation: false
     showParticipantsOnLogin: true
+    showPushLayoutButton: true
+    showPushLayoutToggle: true
   pads:
     url: ETHERPAD_HOST
     cookie:
@@ -502,11 +500,11 @@ public:
       # media server adapter should be used for fullaudio.
       # Default is undefined, which means the default setting in bbb-webrtc-sfu
       # prevails (fullAudioMediaServer).
-      # fullAudioMediaServer: Kurento
+      #fullAudioMediaServer: mediasoup
       #
       #
       # Default bridge to be used by listen only mechanism.
-      defaultListenOnlyBridge: kurento
+      defaultListenOnlyBridge: fullaudio
       #
       #
       # Bridge array, here's where we list our bridges.
@@ -519,16 +517,12 @@ public:
       # '/imports/api/audio/client' dir.
       #
       bridges:
-        #
-        # The name of the bridge
+        # name:  The name of the bridge
         - name: sipjs
-          #
-          # The bridge file path , relative to /imports/api/audio/client
+          # path: the bridge file path, relative to /imports/api/audio/client
           path: 'bridge/sip'
-        - name: kurento
-          path: 'bridge/kurento'
         - name: fullaudio
-          path: 'bridge/FullAudioBridge'
+          path: 'bridge/sfu-audio-bridge'
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
@@ -558,6 +552,9 @@ public:
     # showing to the user there's an audio error.
     audioReconnectionAttempts: 3
     sipjsHackViaWs: false
+    # sipjsAllowMdns: whether mDNS candidates should be allowed in local SDPs.
+    # Default is false since FreeSWITCH doesn't resolve mDNS by default.
+    sipjsAllowMdns: false
     # the fqdn of this host.
     # If you run a traditional setup of multiple nodes behind scalelite and the users see the hostnames of the
     # individual nodes, you can leave this at the default setting
@@ -576,6 +573,18 @@ public:
     traceSip: false
     # SDP semantics: plan-b|unified-plan
     sdpSemantics: 'unified-plan'
+    # localEchoTest:
+    #   enabled: Boolean => enables an experimental, simplified echo test mode
+    #   initialHearingState: Boolean => whether users should hear themselves firsthand
+    #   useRtcLoopbackInChromium: Boolean => whether a local RTC loopback should
+    #   be used in Chromium browsers. Works around the fact that Chromium has no
+    #   echo cancellation in non-rtc audio streams
+    localEchoTest:
+      enabled: false
+      initialHearingState: false
+      useRtcLoopbackInChromium: false
+    # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
+    showVolumeMeter: false
   stats:
     enabled: true
     interval: 10000
@@ -758,6 +767,7 @@ public:
       logTag: ''
   virtualBackgrounds:
     enabled: true
+    enableVirtualBackgroundUpload: true
     storedOnBBB: true
     showThumbnails: true
     imagesPath: /resources/images/virtual-backgrounds/
@@ -833,3 +843,5 @@ private:
     path: '/metrics'
     # Whether default metrics for Node.js processes should be exported
     collectDefaultMetrics: false
+    # Whether redis metrics should be exported
+    collectRedisMetrics: false

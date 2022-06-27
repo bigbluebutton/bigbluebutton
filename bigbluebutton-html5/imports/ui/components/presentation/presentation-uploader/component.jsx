@@ -301,14 +301,23 @@ class PresentationUploader extends Component {
         }
       });
 
-      if (!_.isEqual(prevProps.presentations, propPresentations) || presentations.length === 0) {
-        this.setState({
-          presentations: Object.values({
-            ...presentations,
-            ...propPresentations,
-          }),
-        });
-      }
+      const presState = Object.values({
+        ...propPresentations,
+        ...presentations,
+      });
+      const presStateMapped = presState.map((presentation) => {
+        propPresentations.forEach((propPres) => {
+          if (propPres.id == presentation.id){
+            presentation.isCurrent = propPres.isCurrent;
+          }
+        })
+        return presentation;
+      })
+
+      this.setState({
+        presentations: presStateMapped,
+      })
+      
     }
 
     if (presentations.length > 0) {
@@ -554,8 +563,8 @@ class PresentationUploader extends Component {
     const { presentations: propPresentations } = this.props;
     const ids = new Set(propPresentations.map((d) => d.ID));
     const merged = [
-      ...propPresentations,
       ...presentations.filter((d) => !ids.has(d.ID)),
+      ...propPresentations,
     ];
     this.setState(
       { presentations: merged },
@@ -635,7 +644,7 @@ class PresentationUploader extends Component {
           </Styled.StatusIcon>
         </Styled.FileLine>
         <Styled.StatusInfo>
-          <Styled.StatusInfoSpan styles={hasError ? 'error' : 'info'}>
+          <Styled.StatusInfoSpan data-test="presentationStatusInfo" styles={hasError ? 'error' : 'info'}>
             {this.renderPresentationItemStatus(item)}
           </Styled.StatusInfoSpan>
         </Styled.StatusInfo>
@@ -857,7 +866,6 @@ class PresentationUploader extends Component {
               keyValue={item.id}
               onChange={() => this.handleCurrentChange(item.id)}
               disabled={disableActions}
-              animations={animations}
               />
             </Styled.ItemAction>
             {isRemovable ? (
@@ -1039,7 +1047,7 @@ class PresentationUploader extends Component {
 
     let hasNewUpload = false;
 
-    presentations.map((item) => {
+    presentations.forEach((item) => {
       if (item.id.indexOf(item.filename) !== -1 && item.upload.progress === 0) hasNewUpload = true;
     });
 

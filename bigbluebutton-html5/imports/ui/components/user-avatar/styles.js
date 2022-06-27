@@ -31,8 +31,9 @@ const Content = styled.div`
 
 const Image = styled.div`
   display: flex;
-  height: 2rem;
-  width: 2rem;
+  height: 100%;
+  width: 100%;
+  justify-content: center;
 `;
 
 const Img = styled.img`
@@ -65,8 +66,11 @@ const Talking = styled.div`
   right: 0;
   bottom: 0;
   left: 0;
-  background-color: currentColor;
   border-radius: inherit;
+
+  ${({ talking }) => talking && css`
+    background-color: currentColor;
+  `}
 
   ${({ talking, animations }) => talking && animations && css`
     animation: ${pulse} 1s infinite ease-in;
@@ -91,7 +95,7 @@ const Talking = styled.div`
 const Avatar = styled.div`
   position: relative;
   height: 2.25rem;
-  min-width: 2.25rem;
+  width: 2.25rem;
   border-radius: 50%;
   text-align: center;
   font-size: .85rem;
@@ -148,7 +152,7 @@ const Avatar = styled.div`
   ${({ presenter }) => presenter && `
     &:before {
       content: "\\00a0\\e90b\\00a0";
-      padding: ${mdPaddingY};
+      padding: ${mdPaddingY} !important;
       opacity: 1;
       top: ${userIndicatorsOffset};
       left: ${userIndicatorsOffset};
@@ -169,7 +173,7 @@ const Avatar = styled.div`
     presenter, isChrome, isFirefox, isEdge,
   }) => presenter && (isChrome || isFirefox || isEdge) && `
     &:before {
-      padding: ${indicatorPadding};
+      padding: ${indicatorPadding} !important;
     }
   `}
 

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
+import { withModalMounter, getModal } from '/imports/ui/components/common/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
@@ -8,11 +8,11 @@ import RecordingIndicator from './recording-indicator/container';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
 import ConnectionStatusButton from '/imports/ui/components/connection-status/button/container';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
+import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import SettingsDropdownContainer from './settings-dropdown/container';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import _ from "lodash";
-import { politeSRAlert } from '/imports/utils/dom-utils';
 import { PANELS, ACTIONS } from '../layout/enums';
 
 const intlMessages = defineMessages({
@@ -182,12 +182,13 @@ class NavBar extends Component {
 
     activeChats.map((c, i) => {
       if (c?.unreadCounter > 0 && c?.unreadCounter !== acs[i]?.unreadCounter) {
-        politeSRAlert(`${intl.formatMessage(intlMessages.newMsgAria, { 0: c.name })}`)
+        addNewAlert(`${intl.formatMessage(intlMessages.newMsgAria, { 0: c.name })}`);
       }
     });
 
     return (
       <Styled.Navbar
+        id="Navbar"
         style={
           main === 'new'
             ? {
@@ -235,6 +236,7 @@ class NavBar extends Component {
             </Styled.PresentationTitle>
             <RecordingIndicator
               mountModal={mountModal}
+              getModal={getModal}
               amIModerator={amIModerator}
             />
           </Styled.Center>

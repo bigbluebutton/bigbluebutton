@@ -171,7 +171,6 @@
     "app.presentation.options.fullscreen": "Ողջ էկրանով",
     "app.presentation.options.exitFullscreen": "Չեղարկել ամբողջ էկրանը ծածկելու վիճակը",
     "app.presentation.options.minimize": "Թաքցնել",
-    "app.presentation.options.snapshot": "Տվյալ ներկայացումից սքրինշոթ",
     "app.presentation.options.downloading": "Բեռնվում է",
     "app.presentation.options.downloaded": "Ընթացիկ ներկայացումը բեռնվել է",
     "app.presentation.options.downloadFailed": "Հնարավոր չէ բեռնել ընթացիկ ներկայացումը",
@@ -504,8 +503,6 @@
     "app.breakoutJoinConfirmation.freeJoinMessage": "Ընտրեք խմբային աշխատանքի սենյակը, որին ցանկանում եք միանալ",
     "app.breakoutTimeRemainingMessage": "Խմբային աշխատանքի ավարտին մնացել է {0}",
     "app.breakoutWillCloseMessage": "Ժամանակը սպառվեց և Խմբային աշխատանքի սենյակը շուտով կփակվի",
-    "app.breakout.dropdown.manageDuration": "Կառավարել տևողությունը",
-    "app.breakout.dropdown.destroyAll": "Փակել առանձնացված սենյակները",
     "app.breakout.dropdown.options": "Առանձնացված սենյակների կարգավորումներ",
     "app.calculatingBreakoutTimeRemaining": "Մնացած ժամանակի հետհաշվարկ․..",
     "app.audioModal.ariaTitle": "Հանդիպման միացման պատուհան",
@@ -695,7 +692,6 @@
     "app.lock-viewers.button.apply": "Ընդունել",
     "app.lock-viewers.button.cancel": "Չեղարկել",
     "app.lock-viewers.locked": "Արգելափակված է",
-    "app.lock-viewers.unlocked": "Արգելափակված չէ",
     "app.guest-policy.ariaTitle": "Հյուրերի միանալու կանոնների պատուհան",
     "app.guest-policy.title": "Հյուրերի միանալու կանոններ",
     "app.guest-policy.description": "Փոխել հյուրերի միանալու կանոնները",
@@ -1035,15 +1031,10 @@
     "app.learningDashboard.statusTimelineTable.thumbnail": "Ներկայացման պատկեր",
     "app.learningDashboard.errors.invalidToken": "Սեանսի սխալ թոքեն",
     "app.learningDashboard.errors.dataUnavailable": "Տվյալներն այլևս հասանելի չեն",
-    "mobileApp.portals.list.empty.label": "Խնդրում ենք ավելացրեք պորտալներ։",
-    "mobileApp.portals.list.add.button.label": "Նոր պորտալ",
     "mobileApp.portals.fields.name.label": "Պորտալի անվանում",
     "mobileApp.portals.fields.name.placeholder": "Փորձնական",
     "mobileApp.portals.fields.url.label": "Սերվերի հասցեն",
-    "mobileApp.portals.addPortalPopup.confirm.button.label": "Ավելացնել պորտալ",
-    "mobileApp.portals.drawerNavigation.button.label": "Պորտալներ",
-    "mobileApp.portals.addPortalPopup.validation.emptyFilds": "Դատարկ դաշտեր",
-    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Անունն արդեն կա"
+    "mobileApp.portals.drawerNavigation.button.label": "Պորտալներ"
 
 }
 

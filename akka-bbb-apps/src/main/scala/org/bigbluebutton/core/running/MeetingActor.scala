@@ -80,6 +80,7 @@ class MeetingActor(
   with MuteMeetingCmdMsgHdlr
   with IsMeetingMutedReqMsgHdlr
   with GetGlobalAudioPermissionReqMsgHdlr
+  with GetMicrophonePermissionReqMsgHdlr
   with GetScreenBroadcastPermissionReqMsgHdlr
   with GetScreenSubscribePermissionReqMsgHdlr
 
@@ -401,12 +402,12 @@ class MeetingActor(
         updateModeratorsPresence()
 
       // Whiteboard
-      case m: SendCursorPositionPubMsg       => wbApp.handle(m, liveMeeting, msgBus)
-      case m: ClearWhiteboardPubMsg          => wbApp.handle(m, liveMeeting, msgBus)
-      case m: UndoWhiteboardPubMsg           => wbApp.handle(m, liveMeeting, msgBus)
-      case m: ModifyWhiteboardAccessPubMsg   => wbApp.handle(m, liveMeeting, msgBus)
-      case m: SendWhiteboardAnnotationPubMsg => wbApp.handle(m, liveMeeting, msgBus)
-      case m: GetWhiteboardAnnotationsReqMsg => wbApp.handle(m, liveMeeting, msgBus)
+      case m: SendCursorPositionPubMsg          => wbApp.handle(m, liveMeeting, msgBus)
+      case m: ClearWhiteboardPubMsg             => wbApp.handle(m, liveMeeting, msgBus)
+      case m: DeleteWhiteboardAnnotationsPubMsg => wbApp.handle(m, liveMeeting, msgBus)
+      case m: ModifyWhiteboardAccessPubMsg      => wbApp.handle(m, liveMeeting, msgBus)
+      case m: SendWhiteboardAnnotationsPubMsg   => wbApp.handle(m, liveMeeting, msgBus)
+      case m: GetWhiteboardAnnotationsReqMsg    => wbApp.handle(m, liveMeeting, msgBus)
 
       // Poll
       case m: StartPollReqMsg =>
@@ -437,6 +438,7 @@ class MeetingActor(
       case m: TransferUserToMeetingRequestMsg     => state = handleTransferUserToMeetingRequestMsg(m, state)
       case m: UpdateBreakoutRoomsTimeReqMsg       => state = handleUpdateBreakoutRoomsTimeMsg(m, state)
       case m: SendMessageToAllBreakoutRoomsReqMsg => state = handleSendMessageToAllBreakoutRoomsMsg(m, state)
+      case m: ChangeUserBreakoutReqMsg            => state = handleChangeUserBreakoutReqMsg(m, state)
 
       // Voice
       case m: UserLeftVoiceConfEvtMsg             => handleUserLeftVoiceConfEvtMsg(m)
@@ -466,10 +468,13 @@ class MeetingActor(
         handleUserStatusVoiceConfEvtMsg(m)
       case m: GetGlobalAudioPermissionReqMsg =>
         handleGetGlobalAudioPermissionReqMsg(m)
+      case m: GetMicrophonePermissionReqMsg =>
+        handleGetMicrophonePermissionReqMsg(m)
 
       // Layout
       case m: GetCurrentLayoutReqMsg  => handleGetCurrentLayoutReqMsg(m)
       case m: BroadcastLayoutMsg      => handleBroadcastLayoutMsg(m)
+      case m: BroadcastPushLayoutMsg  => handleBroadcastPushLayoutMsg(m)
 
       // Pads
       case m: PadCreateGroupReqMsg    => padsApp2x.handle(m, liveMeeting, msgBus)
@@ -858,6 +863,16 @@ class MeetingActor(
         // send a user left event for the clients to update
         val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, u.intId)
         outGW.send(userLeftMeetingEvent)
+
+        val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+          liveMeeting.props.meetingProp.intId,
+          "info",
+          "user",
+          "app.notification.userLeavePushAlert",
+          "Notification for a user leaves the meeting",
+          Vector(s"${u.name}")
+        )
+        outGW.send(notifyEvent)
 
         if (u.presenter) {
           log.info("removeUsersWithExpiredUserLeftFlag will cause an automaticallyAssignPresenter because user={} left", u)

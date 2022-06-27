@@ -62,4 +62,5 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --after-install after-install.sh \
     --description "BigBlueButton configuration utilities" \
     $DIRECTORIES \
-    $OPTS
+    $OPTS \
+    -d 'yq (>= 3)' -d 'yq (<< 4)'

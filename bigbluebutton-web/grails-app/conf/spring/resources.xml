@@ -156,6 +156,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
         <property name="defaultMeetingCameraCap" value="${meetingCameraCap}"/>
         <property name="defaultUserCameraCap" value="${userCameraCap}"/>
+        <property name="defaultMaxPinnedCameras" value="${maxPinnedCameras}"/>
         <property name="useDefaultAvatar" value="${useDefaultAvatar}"/>
         <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
         <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>
@@ -188,6 +189,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>
         <property name="endWhenNoModeratorDelayInMinutes" value="${endWhenNoModeratorDelayInMinutes}"/>
         <property name="disabledFeatures" value="${disabledFeatures}"/>
+        <property name="notifyRecordingIsOn" value="${notifyRecordingIsOn}"/>
         <property name="defaultKeepEvents" value="${defaultKeepEvents}"/>
         <property name="allowRevealOfBBBVersion" value="${allowRevealOfBBBVersion}"/>
     </bean>

@@ -55,6 +55,10 @@ const Description = styled.div`
   margin-bottom: ${jumboPaddingY};
 `;
 
+const DescriptionText = styled.span`
+  white-space: pre-line;
+`;
+
 const Checkbox = styled.input`
   position: relative;
   top: 0.134rem;
@@ -79,13 +83,19 @@ const ConfirmationButton = styled(Button)`
   }
 `;
 
+const Label = styled.label`
+  display: block;
+`;
+
 export default {
   ConfirmationModal,
   Container,
   Header,
   Title,
   Description,
+  DescriptionText,
   Checkbox,
   Footer,
   ConfirmationButton,
+  Label,
 };

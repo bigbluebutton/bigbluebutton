@@ -49,11 +49,12 @@ public class Meeting {
 	private boolean forciblyEnded = false;
 	private String telVoice;
 	private String webVoice;
-	private String moderatorPass;
-	private String viewerPass;
+	private String moderatorPass = "";
+	private String viewerPass = "";
 	private int learningDashboardCleanupDelayInMinutes;
 	private String learningDashboardAccessToken;
 	private ArrayList<String> disabledFeatures;
+	private Boolean notifyRecordingIsOn;
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
 	private String modOnlyMessage = "";
@@ -69,6 +70,7 @@ public class Meeting {
 	private boolean webcamsOnlyForModerator = false;
 	private Integer meetingCameraCap = 0;
 	private Integer userCameraCap = 0;
+	private Integer maxPinnedCameras = 0;
 	private String dialNumber;
 	private String defaultAvatarURL;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
@@ -115,9 +117,18 @@ public class Meeting {
         name = builder.name;
         extMeetingId = builder.externalId;
         intMeetingId = builder.internalId;
-        viewerPass = builder.viewerPass;
-        moderatorPass = builder.moderatorPass;
 		disabledFeatures = builder.disabledFeatures;
+		notifyRecordingIsOn = builder.notifyRecordingIsOn;
+		if (builder.viewerPass == null){
+			viewerPass = "";
+		} else {
+			viewerPass = builder.viewerPass;
+		}
+		if (builder.moderatorPass == null){
+			moderatorPass = "";
+		} else {
+			moderatorPass = builder.moderatorPass;
+		}
 		learningDashboardCleanupDelayInMinutes = builder.learningDashboardCleanupDelayInMinutes;
 		learningDashboardAccessToken = builder.learningDashboardAccessToken;
         maxUsers = builder.maxUsers;
@@ -132,6 +143,7 @@ public class Meeting {
         webcamsOnlyForModerator = builder.webcamsOnlyForModerator;
         meetingCameraCap = builder.meetingCameraCap;
         userCameraCap = builder.userCameraCap;
+        maxPinnedCameras = builder.maxPinnedCameras;
         duration = builder.duration;
         webVoice = builder.webVoice;
         telVoice = builder.telVoice;
@@ -364,6 +376,10 @@ public class Meeting {
 		return disabledFeatures;
 	}
 
+	public Boolean getNotifyRecordingIsOn() {
+		return notifyRecordingIsOn;
+	}
+
   public String getWelcomeMessageTemplate() {
     return welcomeMsgTemplate;
   }
@@ -511,6 +527,10 @@ public class Meeting {
 
     public Integer getUserCameraCap() {
         return userCameraCap;
+    }
+
+    public Integer getMaxPinnedCameras() {
+        return maxPinnedCameras;
     }
 
 	public boolean hasUserJoined() {
@@ -783,11 +803,13 @@ public class Meeting {
         private boolean webcamsOnlyForModerator;
         private Integer meetingCameraCap;
         private Integer userCameraCap;
+        private Integer maxPinnedCameras;
     	private String moderatorPass;
     	private String viewerPass;
     	private int learningDashboardCleanupDelayInMinutes;
     	private String learningDashboardAccessToken;
 		private ArrayList<String> disabledFeatures;
+		private Boolean notifyRecordingIsOn;
     	private int duration;
     	private String webVoice;
     	private String telVoice;
@@ -865,6 +887,11 @@ public class Meeting {
             return this;
         }
 
+        public Builder withMaxPinnedCameras(Integer pins) {
+            this.maxPinnedCameras = pins;
+            return this;
+        }
+
     	public Builder withWebVoice(String w) {
     		this.webVoice = w;
     		return this;
@@ -904,6 +931,11 @@ public class Meeting {
 			this.disabledFeatures = list;
 			return this;
 		}
+
+    	public Builder withNotifyRecordingIsOn(Boolean b) {
+	    	this.notifyRecordingIsOn = b;
+	    	return this;
+	    }
 
     	public Builder withWelcomeMessage(String w) {
     		welcomeMsg = w;

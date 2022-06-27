@@ -1,10 +1,13 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+import { checkText } from 'smile2emoji';
 import deviceInfo from '/imports/utils/deviceInfo';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import TypingIndicatorContainer from './typing-indicator/container';
+import ClickOutside from '/imports/ui/components/click-outside/component';
 import Styled from './styles';
+import { escapeHtml } from '/imports/utils/string-utils';
 import { isChatEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
@@ -32,6 +35,10 @@ const messages = defineMessages({
   inputLabel: {
     id: 'app.chat.inputLabel',
     description: 'Chat message input label',
+  },
+  emojiButtonLabel: {
+    id: 'app.chat.emojiButtonLabel',
+    description: 'Chat message emoji picker button label',
   },
   inputPlaceholder: {
     id: 'app.chat.inputPlaceholder',
@@ -61,6 +68,8 @@ const messages = defineMessages({
 });
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
+const AUTO_CONVERT_EMOJI = Meteor.settings.public.chat.autoConvertEmoji;
+const ENABLE_EMOJI_PICKER = Meteor.settings.public.chat.enableEmojiPicker;
 
 class MessageForm extends PureComponent {
   constructor(props) {
@@ -70,6 +79,7 @@ class MessageForm extends PureComponent {
       message: '',
       error: null,
       hasErrors: false,
+      showEmojiPicker: false,
     };
 
     this.handleMessageChange = this.handleMessageChange.bind(this);
@@ -130,6 +140,13 @@ class MessageForm extends PureComponent {
     this.setMessageState();
   }
 
+  handleClickOutside() {
+    const { showEmojiPicker } = this.state;
+    if (showEmojiPicker) {
+      this.setState({ showEmojiPicker: false });
+    }
+  }
+
   setMessageHint() {
     const {
       connected,
@@ -182,7 +199,7 @@ class MessageForm extends PureComponent {
         cancelable: true,
       });
 
-      this.form.dispatchEvent(event);
+      this.handleSubmit(event);
     }
   }
 
@@ -198,8 +215,14 @@ class MessageForm extends PureComponent {
       maxMessageLength,
     } = this.props;
 
-    const message = e.target.value;
+    let message = null;
     let error = null;
+
+    if (AUTO_CONVERT_EMOJI) {
+      message = checkText(e.target.value);
+    } else {
+      message = e.target.value;
+    }
 
     if (message.length > maxMessageLength) {
       error = intl.formatMessage(
@@ -235,19 +258,65 @@ class MessageForm extends PureComponent {
       return;
     }
 
-    // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
-
-    const div = document.createElement('div');
-    div.appendChild(document.createTextNode(msg));
-    msg = div.innerHTML;
-
     const callback = this.typingIndicator ? stopUserTyping : null;
 
-    handleSendMessage(msg);
-    this.setState({ message: '', hasErrors: false }, callback);
+    handleSendMessage(escapeHtml(msg));
+    this.setState({ message: '', hasErrors: false, showEmojiPicker: false }, callback);
   }
 
-  render() {
+  handleEmojiSelect(emojiObject) {
+    const { message } = this.state;
+    const cursor = this.textarea.selectionStart;
+
+    this.setState(
+      {
+        message: message.slice(0, cursor)
+        + emojiObject.native
+        + message.slice(cursor),
+      },
+    );
+
+    const newCursor = cursor + emojiObject.native.length;
+    setTimeout(() => this.textarea.setSelectionRange(newCursor, newCursor), 10);
+  }
+
+  renderEmojiPicker() {
+    const { showEmojiPicker } = this.state;
+
+    if (showEmojiPicker) {
+      return (
+        <Styled.EmojiPickerWrapper>
+          <Styled.EmojiPicker
+            onEmojiSelect={(emojiObject) => this.handleEmojiSelect(emojiObject)}
+            showPreview={false}
+            showSkinTones={false}
+          />
+        </Styled.EmojiPickerWrapper>
+      );
+    }
+    return null;
+  }
+
+  renderEmojiButton() {
+    const { intl } = this.props;
+
+    return (
+      <Styled.EmojiButton
+        onClick={() => this.setState((prevState) => ({
+          showEmojiPicker: !prevState.showEmojiPicker,
+        }))}
+        icon="happy"
+        color="dark"
+        ghost
+        type="button"
+        circle
+        hideLabel
+        label={intl.formatMessage(messages.emojiButtonLabel)}
+      />
+    );
+  }
+
+  renderForm() {
     const {
       intl,
       chatTitle,
@@ -257,13 +326,16 @@ class MessageForm extends PureComponent {
       partnerIsLoggedOut,
     } = this.props;
 
-    const { hasErrors, error, message } = this.state;
+    const {
+      hasErrors, error, message,
+    } = this.state;
 
-    return isChatEnabled() ? (
+    return (
       <Styled.Form
         ref={(ref) => { this.form = ref; }}
         onSubmit={this.handleSubmit}
       >
+        {this.renderEmojiPicker()}
         <Styled.Wrapper>
           <Styled.Input
             id="message-input"
@@ -280,6 +352,7 @@ class MessageForm extends PureComponent {
             onKeyDown={this.handleMessageKeyDown}
             async
           />
+          {ENABLE_EMOJI_PICKER && this.renderEmojiButton()}
           <Styled.SendButton
             hideLabel
             circle
@@ -295,7 +368,19 @@ class MessageForm extends PureComponent {
         </Styled.Wrapper>
         <TypingIndicatorContainer {...{ idChatOpen, error }} />
       </Styled.Form>
-    ) : null;
+    );
+  }
+
+  render() {
+    if (!isChatEnabled()) return null;
+
+    return ENABLE_EMOJI_PICKER ? (
+      <ClickOutside
+        onClick={() => this.handleClickOutside()}
+      >
+        {this.renderForm()}
+      </ClickOutside>
+    ) : this.renderForm();
   }
 }
 

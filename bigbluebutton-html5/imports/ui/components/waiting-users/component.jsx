@@ -8,6 +8,7 @@ import Styled from './styles';
 import { PANELS, ACTIONS } from '../layout/enums';
 import Settings from '/imports/ui/services/settings';
 import browserInfo from '/imports/utils/browserInfo';
+import Header from '/imports/ui/components/common/control-header/component';
 
 const intlMessages = defineMessages({
   waitingUsersTitle: {
@@ -314,15 +315,12 @@ const WaitingUsers = (props) => {
 
   return (
     <Styled.Panel data-test="note" isChrome={isChrome}>
-      <Styled.Header>
-        <Styled.Title data-test="noteTitle">
-          <Styled.HideButton
-            onClick={() => closePanel()}
-            label={intl.formatMessage(intlMessages.title)}
-            icon="left_arrow"
-          />
-        </Styled.Title>
-      </Styled.Header>
+      <Header
+        leftButtonProps={{
+          onClick: () => closePanel(),
+          label: intl.formatMessage(intlMessages.title),
+        }}
+      />
       <Styled.ScrollableArea>
         {isGuestLobbyMessageEnabled ? (
           <Styled.LobbyMessage>
@@ -344,9 +342,7 @@ const WaitingUsers = (props) => {
             </p>
           </Styled.LobbyMessage>
         ) : null}
-        {existPendingUsers && (
-        <div>
-          <div>
+          <Styled.ModeratorActions>
             <Styled.MainTitle>{intl.formatMessage(intlMessages.optionTitle)}</Styled.MainTitle>
             {
             buttonsData.map((buttonData) => renderButton(
@@ -354,8 +350,6 @@ const WaitingUsers = (props) => {
               buttonData,
             ))
           }
-          </div>
-
           {allowRememberChoice ? (
             <Styled.RememberContainer>
               <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
@@ -364,8 +358,7 @@ const WaitingUsers = (props) => {
               </label>
             </Styled.RememberContainer>
           ) : null}
-        </div>
-        )}
+        </Styled.ModeratorActions>
         {renderPendingUsers(
           intl.formatMessage(intlMessages.pendingUsers,
             { 0: authenticatedUsers.length }),

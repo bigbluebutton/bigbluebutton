@@ -264,14 +264,56 @@ class ApiController {
 
     // Now determine if this user is a moderator or a viewer.
     String role = null;
-    if (meeting.getModeratorPassword().equals(attPW)) {
-      role = Meeting.ROLE_MODERATOR
-    } else if (meeting.getViewerPassword().equals(attPW)) {
-      role = Meeting.ROLE_ATTENDEE
-    }
 
+    // First Case: send a valid role
     if (!StringUtils.isEmpty(params.role) && roles.containsKey(params.role.toLowerCase())) {
-        role = roles.get(params.role.toLowerCase());
+      role = roles.get(params.role.toLowerCase());
+
+    // Second case: role is not present or valid BUT there is password
+    } else if (attPW != null && !attPW.isEmpty()){
+      // Check if the meeting has passwords
+      if ((meeting.getModeratorPassword() != null && !meeting.getModeratorPassword().isEmpty())
+              && (meeting.getViewerPassword() != null && !meeting.getViewerPassword().isEmpty())){
+        // Check which role does the user belong
+        if (meeting.getModeratorPassword().equals(attPW)) {
+          role = Meeting.ROLE_MODERATOR
+        } else if (meeting.getViewerPassword().equals(attPW)) {
+          role = Meeting.ROLE_ATTENDEE
+        } else {
+          log.debug("Password does not match any of the registered ones");
+          response.addHeader("Cache-Control", "no-cache")
+          withFormat {
+            xml {
+              render(text: responseBuilder.buildError("Params required", "You must enter a valid password",
+                      RESP_CODE_FAILED), contentType: "text/xml")
+            }
+          }
+          return
+        }
+      // In this case, the meeting doesn't have any password registered and there is no role param
+      } else {
+        log.debug("This meeting doesn't have any password");
+        response.addHeader("Cache-Control", "no-cache")
+        withFormat {
+          xml {
+            render(text: responseBuilder.buildError("Params required", "You must send the 'role' parameter, since " +
+                    "this meeting doesn't have any password.", RESP_CODE_FAILED), contentType: "text/xml")
+          }
+        }
+        return
+      }
+
+    // Third case: No valid role + no valid password
+    } else {
+      log.debug("No matching params encountered");
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        xml {
+          render(text: responseBuilder.buildError("Params required", "You must either send the valid role of the user, or " +
+                  "the password, sould the meeting has one.", RESP_CODE_FAILED), contentType: "text/xml")
+        }
+      }
+      return
     }
 
     // We preprend "w_" to our internal meeting Id to indicate that this is a web user.
@@ -1273,75 +1315,93 @@ class ApiController {
       key, value -> params[key] = sanitizeInput(value)
     }
 
+    Boolean preUploadedPresentationOverrideDefault=true
+    if (!isFromInsertAPI) {
+      String[] po = request.getParameterMap().get("preUploadedPresentationOverrideDefault")
+      if (po == null) preUploadedPresentationOverrideDefault = presentationService.preUploadedPresentationOverrideDefault.toBoolean()
+      else preUploadedPresentationOverrideDefault = po[0].toBoolean()
+    }
+
+    Boolean isDefaultPresentationUsed = false;
     String requestBody = request.inputStream == null ? null : request.inputStream.text;
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
+    Boolean isDefaultPresentationCurrent = false;
+    def listOfPresentation = []
 
     if (requestBody == null) {
       if (isFromInsertAPI){
         log.warn("Insert Document API called without a payload - ignoring")
         return;
       }
-      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), true /* default presentation */, '', false, true);
+      listOfPresentation << [name: "default", current: true];
     } else {
       def xml = new XmlSlurper().parseText(requestBody);
+      Boolean hasCurrent = false;
       xml.children().each { module ->
         log.debug("module config found: [${module.@name}]");
 
         if ("presentation".equals(module.@name.toString())) {
-          // need to iterate over presentation files and process them
-          // In this first foreach we are going to know if some presentation has
-          // the current property
-          def Boolean hasCurrent = false;
           for (document in module.children()) {
             if (!StringUtils.isEmpty(document.@current.toString()) && java.lang.Boolean.parseBoolean(
-                    document.@current.toString())) {
+                    document.@current.toString()) && !hasCurrent) {
+              listOfPresentation.add(0, document)
               hasCurrent = true;
-              break
-            }
-          }
-          Boolean foundCurrent = !hasCurrent;
-          int lastIndex = module.children().size() - 1
-          module.children().eachWithIndex { document, index ->
-            def Boolean isCurrent = false;
-            def Boolean isRemovable = true;
-            def Boolean isDownloadable = false;
-            if (index == 0 && !hasCurrent){
-              isCurrent = true
-            }
-
-            // Extracting all properties inside the xml
-            if (!StringUtils.isEmpty(document.@removable.toString())) {
-              isRemovable = java.lang.Boolean.parseBoolean(document.@removable.toString());
-            }
-            if (!StringUtils.isEmpty(document.@downloadable.toString())) {
-              isDownloadable = java.lang.Boolean.parseBoolean(document.@downloadable.toString());
-            }
-            // I need to make sure that only one of the documents is going to be the current.
-            if (!StringUtils.isEmpty(document.@current.toString()) && !foundCurrent) {
-              isCurrent = java.lang.Boolean.parseBoolean(document.@current.toString());
-              foundCurrent = isCurrent;
-            }
-
-            isCurrent = isCurrent && !isFromInsertAPI
-
-            // Verifying whether the document is a base64 encoded or a url to download.
-            if (!StringUtils.isEmpty(document.@url.toString())) {
-              def fileName;
-              if (!StringUtils.isEmpty(document.@filename.toString())) {
-                log.debug("user provided filename: [${module.@filename}]");
-                fileName = document.@filename.toString();
-              }
-              downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
-                      fileName, isDownloadable, isRemovable);
-            } else if (!StringUtils.isEmpty(document.@name.toString())) {
-              def b64 = new Base64()
-              def decodedBytes = b64.decode(document.text().getBytes())
-              processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                  conf.getInternalId(), isCurrent , isDownloadable, isRemovable/* default presentation */);
             } else {
-              log.debug("presentation module config found, but it did not contain url or name attributes");
+              listOfPresentation << document
             }
           }
+          Boolean uploadDefault = !preUploadedPresentationOverrideDefault && !isDefaultPresentationUsed && !isFromInsertAPI;
+          if (uploadDefault) {
+            isDefaultPresentationCurrent = !hasCurrent;
+            hasCurrent = true
+            isDefaultPresentationUsed = true
+            if (isDefaultPresentationCurrent) {
+              listOfPresentation.add(0, [name: "default", current: true])
+            } else {
+              listOfPresentation << [name: "default", current: false];
+            }
+          }
+        }
+      }
+    }
+
+    listOfPresentation.eachWithIndex { document, index ->
+      def Boolean isCurrent = false;
+      def Boolean isRemovable = true;
+      def Boolean isDownloadable = false;
+
+      if (document.name != null && "default".equals(document.name)) {
+        downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), document.current /* default presentation */, '', false, true);
+      } else{
+        // Extracting all properties inside the xml
+        if (!StringUtils.isEmpty(document.@removable.toString())) {
+          isRemovable = java.lang.Boolean.parseBoolean(document.@removable.toString());
+        }
+        if (!StringUtils.isEmpty(document.@downloadable.toString())) {
+          isDownloadable = java.lang.Boolean.parseBoolean(document.@downloadable.toString());
+        }
+        // The array has already been processed to let the first be the current. (This way it is
+        // ensured that only one document is current)
+        if (index == 0) {
+          isCurrent = true
+        }
+        isCurrent = isCurrent && !isFromInsertAPI
+        // Verifying whether the document is a base64 encoded or a url to download.
+        if (!StringUtils.isEmpty(document.@url.toString())) {
+          def fileName;
+          if (!StringUtils.isEmpty(document.@filename.toString())) {
+            log.debug("user provided filename: [${document.@filename}]");
+            fileName = document.@filename.toString();
+          }
+          downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
+                  fileName, isDownloadable, isRemovable);
+        } else if (!StringUtils.isEmpty(document.@name.toString())) {
+          def b64 = new Base64()
+          def decodedBytes = b64.decode(document.text().getBytes())
+          processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
+                  conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */);
+        } else {
+          log.debug("presentation module config found, but it did not contain url or name attributes");
         }
       }
     }

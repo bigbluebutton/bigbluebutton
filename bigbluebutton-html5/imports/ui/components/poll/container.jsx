@@ -22,6 +22,9 @@ const PollContainer = ({ ...props }) => {
   const { users } = usingUsersContext;
   const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
 
+  const isPollSecret = Session.get('secretPoll') || false;
+  Meteor.subscribe('current-poll', isPollSecret, amIPresenter);
+
   const usernames = {};
 
   Object.values(users[Auth.meetingID]).forEach((user) => {
@@ -38,9 +41,6 @@ const PollContainer = ({ ...props }) => {
 };
 
 export default withTracker(() => {
-  const isPollSecret = Session.get('secretPoll') || false;
-  Meteor.subscribe('current-poll', isPollSecret);
-
   const currentPresentation = Presentations.findOne({
     current: true,
   }, { fields: { podId: 1 } }) || {};
@@ -70,5 +70,8 @@ export default withTracker(() => {
     resetPollPanel: Session.get('resetPollPanel') || false,
     pollAnswerIds: Service.pollAnswerIds,
     isMeteorConnected: Meteor.status().connected,
+    validateInput: Service.validateInput,
+    removeEmptyLineSpaces: Service.removeEmptyLineSpaces,
+    getSplittedQuestionAndOptions: Service.getSplittedQuestionAndOptions,
   };
 })(PollContainer);

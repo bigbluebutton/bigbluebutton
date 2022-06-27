@@ -4,7 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings';
+import Meetings, { LayoutMeetings } from '/imports/api/meetings';
 import { notify } from '/imports/ui/services/notification';
 import CaptionsContainer from '/imports/ui/components/captions/live/container';
 import CaptionsService from '/imports/ui/components/captions/service';
@@ -13,6 +13,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
+import LayoutService from '/imports/ui/components/layout/service';
 import _ from 'lodash';
 import {
   layoutSelect,
@@ -20,6 +21,8 @@ import {
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
+
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 import {
   getFontSize,
@@ -30,18 +33,8 @@ import {
 import { withModalMounter, getModal } from '/imports/ui/components/common/modal/service';
 
 import App from './component';
-import ActionsBarContainer from '../actions-bar/container';
 
 const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
-
-const propTypes = {
-  actionsbar: PropTypes.node,
-  meetingLayout: PropTypes.string.isRequired,
-};
-
-const defaultProps = {
-  actionsbar: <ActionsBarContainer />,
-};
 
 const intlMessages = defineMessages({
   waitingApprovalMessage: {
@@ -67,15 +60,21 @@ const AppContainer = (props) => {
   const {
     actionsbar,
     meetingLayout,
+    meetingLayoutUpdatedAt,
     selectedLayout,
-    settingsLayout,
-    pushLayoutToEveryone,
+    pushLayout,
+    pushLayoutMeeting,
     currentUserId,
     shouldShowPresentation: propsShouldShowPresentation,
     presentationRestoreOnUpdate,
     isPresenter,
     randomlySelectedUser,
     isModalOpen,
+    presentationIsOpen: layoutPresOpen,
+    isResizing: layoutIsResizing,
+    cameraPosition: layoutCamPosition,
+    focusedCamera: layoutFocusedCam,
+    presentationVideoRate: layoutRate,
     ...otherProps
   } = props;
 
@@ -83,6 +82,8 @@ const AppContainer = (props) => {
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const captionsStyle = layoutSelectOutput((i) => i.captions);
+  const cameraDock = layoutSelectOutput((i) => i.cameraDock);
+  const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const presentation = layoutSelectInput((i) => i.presentation);
   const layoutType = layoutSelect((i) => i.layoutType);
   const deviceType = layoutSelect((i) => i.deviceType);
@@ -94,6 +95,18 @@ const AppContainer = (props) => {
   const shouldShowPresentation = propsShouldShowPresentation
     && (presentationIsOpen || presentationRestoreOnUpdate);
 
+  const { focusedId } = cameraDock;
+
+  const horizontalPosition = cameraDock.position === 'contentLeft' || cameraDock.position === 'contentRight';
+  // this is not exactly right yet
+  let presentationVideoRate;
+  if (horizontalPosition) {
+    presentationVideoRate = cameraDock.width / window.innerWidth;
+  } else {
+    presentationVideoRate = cameraDock.height / window.innerHeight;
+  }
+  presentationVideoRate = parseFloat(presentationVideoRate.toFixed(2));
+
   const prevRandomUser = usePrevious(randomlySelectedUser);
 
   const mountRandomUserModal = !isPresenter
@@ -101,19 +114,50 @@ const AppContainer = (props) => {
   && randomlySelectedUser.length > 0
   && !isModalOpen;
 
+  const setPushLayout = () => {
+    LayoutService.setPushLayout(pushLayout);
+  }
+
+  const setMeetingLayout = () => {
+    const { isResizing } = cameraDockInput;
+    LayoutService.setMeetingLayout({
+      layout: selectedLayout,
+      presentationIsOpen,
+      isResizing,
+      cameraPosition: cameraDock.position,
+      focusedCamera: focusedId,
+      presentationVideoRate,
+      pushLayout,
+    });
+  };
+
   return currentUserId
     ? (
       <App
         {...{
-          actionsbar,
           actionsBarStyle,
           captionsStyle,
           currentUserId,
-          layoutType,
+          setPushLayout,
+          setMeetingLayout,
           meetingLayout,
           selectedLayout,
-          settingsLayout,
-          pushLayoutToEveryone,
+          pushLayout,
+          pushLayoutMeeting,
+          meetingLayoutUpdatedAt,
+          presentationIsOpen,
+          cameraPosition: cameraDock.position,
+          focusedCamera: focusedId,
+          presentationVideoRate,
+          cameraWidth: cameraDock.width,
+          cameraHeight: cameraDock.height,
+          cameraIsResizing: cameraDockInput.isResizing,
+          layoutPresOpen,
+          layoutIsResizing,
+          layoutCamPosition,
+          layoutFocusedCam,
+          layoutRate,
+          horizontalPosition,
           deviceType,
           layoutContextDispatch,
           sidebarNavPanel,
@@ -161,18 +205,16 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
     {
       fields: {
-        publishedPoll: 1,
-        voiceProp: 1,
         randomlySelectedUser: 1,
         layout: 1,
       },
     });
   const {
-    publishedPoll,
-    voiceProp,
     randomlySelectedUser,
-    layout,
   } = currentMeeting;
+
+  const meetingLayout = LayoutMeetings.findOne({ meetingId: Auth.meetingID }) || {};
+  const { layout, pushLayout: pushLayoutMeeting, layoutUpdatedAt, presentationIsOpen, isResizing, cameraPosition, focusedCamera, presentationVideoRate } = meetingLayout;
 
   if (currentUser && !currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -184,7 +226,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   }).fetch();
 
   const AppSettings = Settings.application;
-  const { selectedLayout } = AppSettings;
+  const { selectedLayout, pushLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
@@ -197,6 +239,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
 
   const LAYOUT_CONFIG = Meteor.settings.public.layout;
 
+  const isPresenter = currentUser?.presenter;
+
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     fontSize: getFontSize(),
@@ -208,19 +252,24 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     validIOSVersion,
     isPhone: deviceInfo.isPhone,
     isRTL: document.documentElement.getAttribute('dir') === 'rtl',
-    meetingMuted: voiceProp.muteOnStart,
     currentUserEmoji: currentUserEmoji(currentUser),
-    hasPublishedPoll: publishedPoll,
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
-    currentUserRole: currentUser?.role,
-    isPresenter: currentUser?.presenter,
+    isPresenter,
+    isModerator: currentUser.role === ROLE_MODERATOR,
     meetingLayout: layout,
+    meetingLayoutUpdatedAt: layoutUpdatedAt,
+    presentationIsOpen,
+    isResizing,
+    cameraPosition,
+    focusedCamera,
+    presentationVideoRate,
     selectedLayout,
-    settingsLayout: selectedLayout?.replace('Push', ''),
-    pushLayoutToEveryone: selectedLayout?.includes('Push'),
+    pushLayout,
+    pushLayoutMeeting,
     audioAlertEnabled: AppSettings.chatAudioAlerts,
     pushAlertEnabled: AppSettings.chatPushAlerts,
+    darkTheme: AppSettings.darkTheme,
     shouldShowScreenshare,
     shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo,
     shouldShowExternalVideo,
@@ -234,6 +283,3 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     isModalOpen: !!getModal(),
   };
 })(AppContainer)));
-
-AppContainer.defaultProps = defaultProps;
-AppContainer.propTypes = propTypes;

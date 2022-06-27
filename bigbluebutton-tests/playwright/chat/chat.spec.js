@@ -3,13 +3,13 @@ const { Chat } = require('./chat');
 const { PrivateChat } = require('./privateChat');
 
 test.describe.parallel('Chat', () => {
-  test('Send public message', async ({ browser, page }) => {
+  test('Send public message @ci', async ({ browser, page }) => {
     const chat = new Chat(browser, page);
     await chat.init(true, true);
     await chat.sendPublicMessage();
   });
 
-  test('Send private message', async ({ browser, context, page }) => {
+  test('Send private message @ci', async ({ browser, context, page }) => {
     const privateChat = new PrivateChat(browser, context);
     await privateChat.initPages(page);
     await privateChat.sendPrivateMessage();
@@ -22,20 +22,19 @@ test.describe.parallel('Chat', () => {
   });
 
   test('Copy chat', async ({ browser, context, page }, testInfo) => {
-    test.fixme(testInfo.config.projects[0].use.headless, 'Only works in headed mode');
+    test.fixme(testInfo.project.use.headless, 'Only works in headed mode');
     const chat = new Chat(browser, page);
     await chat.init(true, true);
     await chat.copyChat(context);
   });
 
-  test.skip('Save chat', async ({ browser, page }) => {
-    test.fixme();
+  test('Save chat', async ({ browser, page }, testInfo) => {
     const chat = new Chat(browser, page);
     await chat.init(true, true);
-    await chat.saveChat();
+    await chat.saveChat(testInfo);
   });
 
-  test('Verify character limit (5000 characters)', async ({ browser, page }) => {
+  test('Verify character limit', async ({ browser, page }) => {
     const chat = new Chat(browser, page);
     await chat.init(true, true);
     await chat.characterLimit();
@@ -47,13 +46,13 @@ test.describe.parallel('Chat', () => {
     await chat.emptyMessage();
   });
 
-  test('Close private chat', async ({ browser, context, page }) => {
+  test('Close private chat @ci', async ({ browser, context, page }) => {
     const privateChat = new PrivateChat(browser, context);
     await privateChat.initPages(page);
     await privateChat.closeChat();
   });
 
-  test('Private chat disabled when user leaves meeting', async ({ browser, context, page }) => {
+  test('Private chat disabled when user leaves meeting @ci', async ({ browser, context, page }) => {
     const privateChat = new PrivateChat(browser, context);
     await privateChat.initPages(page);
     await privateChat.chatDisabledUserLeaves();

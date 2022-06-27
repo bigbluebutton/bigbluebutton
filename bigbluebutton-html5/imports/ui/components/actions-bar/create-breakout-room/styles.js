@@ -12,12 +12,15 @@ import {
   colorWhite,
   colorPrimary,
   colorBlueLight,
+  colorBlueLightest,
+  colorGrayLightest,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeSmall, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeSmall, fontSizeBase, fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   borderRadius,
   borderSize,
   lgPaddingX,
+  lgPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 
 const BoxContainer = styled.div`
@@ -66,9 +69,10 @@ const FreeJoinLabel = styled.label`
 const BreakoutNameInput = styled.input`
   width: 100%;
   text-align: left;
-  font-weight: normal;
-  padding: .25rem;
+  font-weight: 600;
+  padding: .25rem .25rem .25rem 0;
   margin: 0;
+  border: none;
   &::placeholder {
     color: ${colorGray};
     opacity: 1;
@@ -79,8 +83,9 @@ const BreakoutBox = styled(ScrollboxVertical)`
   width: 100%;
   min-height: 6rem;
   max-height: 8rem;
-  border: 1px solid ${colorGrayLighter};
-  border-radius: ${borderRadius}; 
+  border: 1px solid ${colorGrayLightest};
+  border-radius: ${borderRadius};
+  padding: ${lgPaddingY} 0;
 `;
 
 const SpanWarn = styled.span`
@@ -228,10 +233,19 @@ const RoomUserItem = styled.p`
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
-  border-bottom: solid .5px ${colorGrayLighter};
+  display: flex;
+  justify-content: space-between;
 
   [dir="rtl"] & {
     padding: .25rem .25rem .25rem 0;
+  }
+
+  span.close {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-right: 5px;
+    font-size: ${fontSizeSmaller};
   }
 
   ${({ selected }) => selected && `
@@ -242,6 +256,10 @@ const RoomUserItem = styled.p`
   ${({ disabled }) => disabled && `
     cursor: not-allowed;
     color: ${colorGrayLighter};
+  `}
+
+  ${({ highlight }) => highlight && `
+    background-color: ${colorBlueLightest};
   `}
 `;
 

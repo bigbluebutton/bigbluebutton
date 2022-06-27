@@ -1,10 +1,12 @@
-const { expect } = require('@playwright/test');
+const { expect, default: test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const Page = require('../core/page');
 const e = require('../core/elements');
 const { checkSvgIndex, getSvgOuterHtml, uploadPresentation } = require('./util.js');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
+const { getSettings } = require('../core/settings');
+const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 
 class Presentation extends MultiUsers {
   constructor(browser, context) {
@@ -31,8 +33,11 @@ class Presentation extends MultiUsers {
   }
 
   async hideAndRestorePresentation() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.waitAndClick(e.minimizePresentation);
+    const { presentationHidden } = getSettings();
+    if (!presentationHidden) {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.waitAndClick(e.minimizePresentation);
+    }
     await this.modPage.wasRemoved(e.presentationContainer);
 
     await this.modPage.waitAndClick(e.restorePresentation);
@@ -40,6 +45,9 @@ class Presentation extends MultiUsers {
   }
 
   async startExternalVideo() {
+    const { externalVideoPlayer } = getSettings();
+    test.fail(!externalVideoPlayer, 'External video is disabled');
+
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.shareExternalVideoBtn);
@@ -55,7 +63,7 @@ class Presentation extends MultiUsers {
   }
 
   async uploadPresentationTest() {
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await waitAndClearDefaultPresentationNotification(this.modPage);
     await this.modPage.waitForSelector(e.skipSlide);
 
     const modSlides0 = await this.modPage.page.evaluate(getSvgOuterHtml);
@@ -72,7 +80,10 @@ class Presentation extends MultiUsers {
     await expect(userSlides0).not.toEqual(userSlides1);
   }
 
-  async allowAndDisallowDownload() {
+  async allowAndDisallowDownload(testInfo) {
+    const { presentationDownloadable } = getSettings();
+    test.fail(!presentationDownloadable, 'Presentation download is disable');
+
     // allow the presentation download
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.actions);
@@ -83,6 +94,7 @@ class Presentation extends MultiUsers {
     await this.userPage.waitForSelector(e.toastDownload);
     // check download button in presentation after ALLOW it - should be true
     await this.userPage.hasElement(e.presentationDownloadBtn);
+    await this.userPage.handleDownload(e.presentationDownloadBtn, testInfo);
 
     // disallow the presentation download
     await this.modPage.waitAndClick(e.actions);

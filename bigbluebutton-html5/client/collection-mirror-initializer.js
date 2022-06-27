@@ -21,7 +21,7 @@ import Annotations from '/imports/api/annotations';
 import Breakouts from '/imports/api/breakouts';
 import BreakoutsHistory from '/imports/api/breakouts-history';
 import guestUsers from '/imports/api/guest-users';
-import Meetings, { RecordMeetings, ExternalVideoMeetings, MeetingTimeRemaining } from '/imports/api/meetings';
+import Meetings, { RecordMeetings, ExternalVideoMeetings, MeetingTimeRemaining, Notifications } from '/imports/api/meetings';
 import { UsersTyping } from '/imports/api/group-chat-msg';
 import Users, { CurrentUser } from '/imports/api/users';
 import { Slides, SlidePositions } from '/imports/api/slides';
@@ -59,6 +59,7 @@ export const localBreakoutsHistorySync = new AbstractCollection(BreakoutsHistory
 export const localGuestUsersSync = new AbstractCollection(guestUsers, guestUsers);
 export const localMeetingsSync = new AbstractCollection(Meetings, Meetings);
 export const localUsersSync = new AbstractCollection(Users, Users);
+export const localNotificationsSync = new AbstractCollection(Notifications, Notifications);
 
 const collectionMirrorInitializer = () => {
   localCurrentPollSync.setupListeners();
@@ -93,6 +94,7 @@ const collectionMirrorInitializer = () => {
   localGuestUsersSync.setupListeners();
   localMeetingsSync.setupListeners();
   localUsersSync.setupListeners();
+  localNotificationsSync.setupListeners();
 };
 
 export default collectionMirrorInitializer;

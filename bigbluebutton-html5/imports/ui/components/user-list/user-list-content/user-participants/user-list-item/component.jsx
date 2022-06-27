@@ -208,6 +208,16 @@ class UserListItem extends PureComponent {
     this.seperator = _.uniqueId('action-separator-');
   }
 
+  componentDidUpdate() {
+    const { user, selectedUserId } = this.props;
+    const { selected } = this.state;
+    if (selectedUserId === user?.userId && !selected) {
+      this.setState({ selected: true });
+    } else if (selectedUserId !== user?.userId && selected) {
+      this.setState({ selected: false });
+    }
+  }
+
   handleScroll() {
     this.setState({
       isActionsOpen: false,
@@ -414,6 +424,7 @@ class UserListItem extends PureComponent {
       },
       {
         allowed: allowedToUnmuteAudio
+          && !user.locked
           && !userLocks.userMic
           && isMeteorConnected
           && !meetingIsBreakout
@@ -646,6 +657,7 @@ class UserListItem extends PureComponent {
       userLastBreakout,
       isMe,
       isRTL,
+      selectedUserId,
     } = this.props;
 
     const {
@@ -814,7 +826,7 @@ class UserListItem extends PureComponent {
               isActionsOpen={isActionsOpen}
               selected={selected === true}
               tabIndex={-1}
-              onClick={() => this.setState({ selected: true })}
+              onClick={() => this.setState({ selected: true }, () => Session.set('dropdownOpenUserId', user.userId))}
               onKeyPress={() => { }}
               role="button"
             >
@@ -824,7 +836,8 @@ class UserListItem extends PureComponent {
         }
         actions={actions}
         selectedEmoji={user.emoji}
-        onCloseCallback={() => this.setState({ selected: false, showNestedOptions: false })}
+        onCloseCallback={() => this.setState({ selected: false }, () => Session.set('dropdownOpenUserId', null))}
+        open={selectedUserId === user.userId}
       />
     );
   }

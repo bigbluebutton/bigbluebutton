@@ -648,7 +648,6 @@
     "app.lock-viewers.button.apply": "Aplicar",
     "app.lock-viewers.button.cancel": "Cancelar",
     "app.lock-viewers.locked": "Bloqueado",
-    "app.lock-viewers.unlocked": "Desbloqueado",
     "app.guest-policy.ariaTitle": "Janela de configurações da política de convidado",
     "app.guest-policy.title": "Política de convidado",
     "app.guest-policy.description": "Alterar configuração da política de convidados da sessão",

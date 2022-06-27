@@ -62,7 +62,9 @@ class StatusNotifier extends Component {
 
     switch (status) {
       case 'raiseHand':
-        if (emojiUsers.length === 0) return toast.dismiss(this.statusNotifierId);
+        if (emojiUsers.length === 0) {
+          return this.statusNotifierId ? toast.dismiss(this.statusNotifierId) : null;
+        }
 
         if (raiseHandAudioAlert && emojiUsers.length > prevProps.emojiUsers.length) {
           this.audio.play();

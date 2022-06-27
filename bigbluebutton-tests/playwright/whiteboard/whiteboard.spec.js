@@ -2,7 +2,7 @@ const { test } = require('@playwright/test');
 const { Draw } = require('./draw');
 const { MultiUsers } = require('../user/multiusers');
 
-test.describe.parallel('Whiteboard', () => {
+test.describe.parallel('Whiteboard @ci', () => {
   test('Draw rectangle', async ({ browser, page }) => {
     const draw = new Draw(browser, page);
     await draw.init(true, true);

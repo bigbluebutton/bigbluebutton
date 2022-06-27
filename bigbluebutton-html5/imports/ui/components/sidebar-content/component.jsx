@@ -123,6 +123,10 @@ const SidebarContent = (props) => {
         width,
         height,
       }}
+      handleStyles={{
+        left: { height: '100vh' },
+        right: { height: '100vh' },
+      }}
     >
       {sidebarContentPanel === PANELS.CHAT
       && (

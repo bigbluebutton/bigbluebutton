@@ -10,14 +10,9 @@ import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import { Session } from 'meteor/session';
-import { FormattedMessage } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
-import { RecordMeetings } from '../../api/meetings';
 import Meetings from '/imports/api/meetings';
 import AppService from '/imports/ui/components/app/service';
-import Breakouts from '/imports/api/breakouts';
-import AudioService from '/imports/ui/components/audio/service';
-import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { layoutSelectInput, layoutDispatch } from '../../ui/components/layout/context';
@@ -25,16 +20,12 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
 import { isChatEnabled } from '/imports/ui/services/features';
-import MediaService from '/imports/ui/components/media/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
-const BREAKOUT_END_NOTIFY_DELAY = 50;
-
 const HTML = document.getElementsByTagName('html')[0];
 
-let breakoutNotified = false;
 let checkedUserSettings = false;
 
 const propTypes = {
@@ -64,6 +55,7 @@ class Base extends Component {
     this.state = {
       loading: false,
       meetingExisted: false,
+      userRemoved: false,
     };
     this.updateLoadingState = this.updateLoadingState.bind(this);
     this.handleFullscreenChange = this.handleFullscreenChange.bind(this);
@@ -97,12 +89,6 @@ class Base extends Component {
       value: usersVideo.length,
     });
 
-    MediaService.setSwapLayout(layoutContextDispatch);
-
-    const {
-      userID: localUserId,
-    } = Auth;
-
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
 
@@ -110,82 +96,6 @@ class Base extends Component {
       document.addEventListener(event, this.handleFullscreenChange);
     });
     Session.set('isFullscreen', false);
-
-    // TODO move this find to container
-    const users = Users.find({
-      meetingId: Auth.meetingID,
-      validated: true,
-      userId: { $ne: localUserId },
-    }, { fields: { name: 1, userId: 1 } });
-
-    users.observe({
-      added: (user) => {
-        const subscriptionsReady = Session.get('subscriptionsReady');
-
-        if (!subscriptionsReady) return;
-
-        const {
-          userJoinAudioAlerts,
-          userJoinPushAlerts,
-        } = Settings.application;
-
-        if (!userJoinAudioAlerts && !userJoinPushAlerts) return;
-
-        if (userJoinAudioAlerts) {
-          AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-            + Meteor.settings.public.app.basename
-            + Meteor.settings.public.app.instanceId}`
-            + '/resources/sounds/userJoin.mp3');
-        }
-
-        if (userJoinPushAlerts) {
-          notify(
-            <FormattedMessage
-              id="app.notification.userJoinPushAlert"
-              description="Notification for a user joins the meeting"
-              values={{
-                0: user.name,
-              }}
-            />,
-            'info',
-            'user',
-          );
-        }
-      },
-      removed: (user) => {
-        const subscriptionsReady = Session.get('subscriptionsReady');
-
-        if (!subscriptionsReady) return;
-
-        const {
-          userLeaveAudioAlerts,
-          userLeavePushAlerts,
-        } = Settings.application;
-
-        if (!userLeaveAudioAlerts && !userLeavePushAlerts) return;
-
-        if (userLeaveAudioAlerts) {
-          AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
-            + Meteor.settings.public.app.basename
-            + Meteor.settings.public.app.instanceId}`
-            + '/resources/sounds/notify.mp3');
-        }
-
-        if (userLeavePushAlerts) {
-          notify(
-            <FormattedMessage
-              id="app.notification.userLeavePushAlert"
-              description="Notification for a user leaves the meeting"
-              values={{
-                0: user.name,
-              }}
-            />,
-            'info',
-            'user',
-          );
-        }
-      },
-    });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -199,6 +109,7 @@ class Base extends Component {
       layoutContextDispatch,
       sidebarContentPanel,
       usersVideo,
+      User,
     } = this.props;
     const {
       loading,
@@ -233,6 +144,10 @@ class Base extends Component {
     if (prevProps.ejected || ejected) {
       Session.set('codeError', '403');
       Session.set('isMeetingEnded', true);
+    }
+
+    if (prevProps.User && !User) {
+      this.setUserRemoved(true);
     }
 
     // In case the meteor restart avoid error log
@@ -313,6 +228,10 @@ class Base extends Component {
     this.setState({ meetingExisted });
   }
 
+  setUserRemoved(userRemoved) {
+    this.setState({ userRemoved });
+  }
+
   updateLoadingState(loading = false) {
     this.setState({
       loading,
@@ -322,7 +241,7 @@ class Base extends Component {
   renderByState() {
     const { updateLoadingState } = this;
     const stateControls = { updateLoadingState };
-    const { loading } = this.state;
+    const { loading, userRemoved } = this.state;
     const {
       codeError,
       ejected,
@@ -337,6 +256,11 @@ class Base extends Component {
 
     if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
+    }
+
+    if (meetingIsBreakout && (ejected || userRemoved)) {
+      window.close();
+      return null;
     }
 
     if (ejected) {
@@ -429,6 +353,8 @@ export default withTracker(() => {
     userId: 1,
     inactivityCheck: 1,
     responseDelay: 1,
+    currentConnectionId: 1,
+    connectionIdUpdateTime: 1,
   };
   const User = Users.findOne({ intId: credentials.requesterUserId }, { fields });
   const meeting = Meetings.findOne({ meetingId }, {
@@ -447,68 +373,16 @@ export default withTracker(() => {
   const ejected = User?.ejected;
   const ejectedReason = User?.ejectedReason;
   const meetingEndedReason = meeting?.meetingEndedReason;
+  const currentConnectionId = User?.currentConnectionId;
+  const { connectionID, connectionAuthTime } = Auth;
+  const connectionIdUpdateTime = User?.connectionIdUpdateTime;
+
+  if (currentConnectionId && currentConnectionId !== connectionID && connectionIdUpdateTime > connectionAuthTime) {
+    Session.set('codeError', 403);
+    Session.set('errorMessageDescription', 'joined_another_window_reason')
+  }
 
   let userSubscriptionHandler;
-
-  Breakouts.find({}, { fields: { _id: 1 } }).observeChanges({
-    added() {
-      breakoutNotified = false;
-    },
-    removed() {
-      // Need to check the number of breakouts left because if a user's role changes to viewer
-      // then all but one room is removed. The data here isn't reactive so no need to filter
-      // the fields
-      const numBreakouts = Breakouts.find().count();
-      if (!AudioService.isUsingAudio() && !breakoutNotified && numBreakouts === 0) {
-        if (meeting && !meeting.meetingEnded && !meeting.meetingProp.isBreakout) {
-          // There's a race condition when reloading a tab where the collection gets cleared
-          // out and then refilled. The removal of the old data triggers the notification so
-          // instead wait a bit and check to see that records weren't added right after.
-          setTimeout(() => {
-            if (breakoutNotified) {
-              notify(
-                <FormattedMessage
-                  id="app.toast.breakoutRoomEnded"
-                  description="message when the breakout room is ended"
-                />,
-                'info',
-                'rooms',
-              );
-            }
-          }, BREAKOUT_END_NOTIFY_DELAY);
-        }
-        breakoutNotified = true;
-      }
-    },
-  });
-
-  RecordMeetings.find({ meetingId }, { fields: { recording: 1 } }).observe({
-    changed: (newDocument, oldDocument) => {
-      if (newDocument) {
-        if (!oldDocument.recording && newDocument.recording) {
-          notify(
-            <FormattedMessage
-              id="app.notification.recordingStart"
-              description="Notification for when the recording starts"
-            />,
-            'success',
-            'record',
-          );
-        }
-
-        if (oldDocument.recording && !newDocument.recording) {
-          notify(
-            <FormattedMessage
-              id="app.notification.recordingPaused"
-              description="Notification for when the recording stops"
-            />,
-            'error',
-            'record',
-          );
-        }
-      }
-    },
-  });
 
   const codeError = Session.get('codeError');
   const { streams: usersVideo } = VideoService.getVideoStreams();

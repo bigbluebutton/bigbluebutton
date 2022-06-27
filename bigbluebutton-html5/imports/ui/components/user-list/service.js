@@ -1,3 +1,4 @@
+import React from 'react';
 import Users from '/imports/api/users';
 import VoiceUsers from '/imports/api/voice-users';
 import GroupChat from '/imports/api/group-chat';
@@ -14,6 +15,10 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import logger from '/imports/startup/client/logger';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { Session } from 'meteor/session';
+import Settings from '/imports/ui/services/settings';
+import { notify } from '/imports/ui/services/notification';
+import { FormattedMessage } from 'react-intl';
+import { getDateString } from '/imports/utils/string-utils';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -213,7 +218,7 @@ const getUsers = () => {
 };
 
 const formatUsers = (contextUsers, videoUsers, whiteboardUsers) => {
-  let users = contextUsers.filter((user) => !user.loggedOut);
+  let users = contextUsers.filter((user) => user.loggedOut === false && user.left === false);
 
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
   if (currentUser && currentUser.role === ROLE_VIEWER && currentUser.locked) {
@@ -662,16 +667,69 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
   const link = document.createElement('a');
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'meetingProp.name': 1 } });
-  const date = new Date();
-  const time = `${date.getHours()}-${date.getMinutes()}`;
-  const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_${time}`;
-  link.setAttribute('download', `bbb-${meeting.meetingProp.name}[users-list]_${dateString}.txt`);
+  link.setAttribute('download', `bbb-${meeting.meetingProp.name}[users-list]_${getDateString()}.txt`);
   link.setAttribute(
     'href',
-    `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(namesListsString)}`,
+    `data: ${mimeType};charset=utf-16,${encodeURIComponent(namesListsString)}`,
   );
   return link;
 };
+
+const UserJoinedMeetingAlert = (obj) => {
+  const {
+    userJoinAudioAlerts,
+    userJoinPushAlerts,
+  } = Settings.application;
+
+  if (!userJoinAudioAlerts && !userJoinPushAlerts) return;
+
+  if (userJoinAudioAlerts) {
+    AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+      + Meteor.settings.public.app.basename
+      + Meteor.settings.public.app.instanceId}`
+      + '/resources/sounds/userJoin.mp3');
+  }
+
+  if (userJoinPushAlerts) {
+    notify(
+      <FormattedMessage
+        id={obj.messageId}
+        values={obj.messageValues}
+        description={obj.messageDescription}
+      />,
+      obj.notificationType,
+      obj.icon,
+    );
+  }
+}
+
+const UserLeftMeetingAlert = (obj) => {
+  const {
+    userLeaveAudioAlerts,
+    userLeavePushAlerts,
+  } = Settings.application;
+
+  if (!userLeaveAudioAlerts && !userLeavePushAlerts) return;
+
+  if (userLeaveAudioAlerts) {
+    AudioService.playAlertSound(`${Meteor.settings.public.app.cdn
+      + Meteor.settings.public.app.basename
+      + Meteor.settings.public.app.instanceId}`
+      + '/resources/sounds/notify.mp3');
+  }
+
+  if (userLeavePushAlerts) {
+    notify(
+      <FormattedMessage
+        id={obj.messageId}
+        values={obj.messageValues}
+        description={obj.messageDescription}
+      />,
+      obj.notificationType,
+      obj.icon,
+    );
+  }
+}
 
 export default {
   sortUsersByName,
@@ -707,4 +765,6 @@ export default {
   getUserCount,
   sortUsersByCurrent,
   ejectUserCameras,
+  UserJoinedMeetingAlert,
+  UserLeftMeetingAlert,
 };

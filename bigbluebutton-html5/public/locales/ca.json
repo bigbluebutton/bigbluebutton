@@ -171,7 +171,6 @@
     "app.presentation.options.fullscreen": "Pantalla completa",
     "app.presentation.options.exitFullscreen": "Surt de la pantalla completa",
     "app.presentation.options.minimize": "Minimitzar",
-    "app.presentation.options.snapshot": "Instantània de la presentació actual",
     "app.presentation.options.downloading": "Descarregant...",
     "app.presentation.options.downloaded": "S'ha descarregat la presentació actual",
     "app.presentation.options.downloadFailed": "No s'ha pogut descarregar la presentació actual",
@@ -504,8 +503,6 @@
     "app.breakoutJoinConfirmation.freeJoinMessage": "Escull la sala separada per a unir-se",
     "app.breakoutTimeRemainingMessage": "Temps restant a la sala separada: {0}",
     "app.breakoutWillCloseMessage": "Temps finalitzat. La reunió separada es tancarà aviat",
-    "app.breakout.dropdown.manageDuration": "Gestionar la durada",
-    "app.breakout.dropdown.destroyAll": "Esborrar sales externes",
     "app.breakout.dropdown.options": "Opcions de sales externes",
     "app.calculatingBreakoutTimeRemaining": "Calculant temps restant ...",
     "app.audioModal.ariaTitle": "Entra a l'àudio modal",
@@ -695,7 +692,6 @@
     "app.lock-viewers.button.apply": "Aplica",
     "app.lock-viewers.button.cancel": "Cancel·la",
     "app.lock-viewers.locked": "Bloquejat/da",
-    "app.lock-viewers.unlocked": "Desbloqueja",
     "app.guest-policy.ariaTitle": "Modalitat de configuració de la política de convidats",
     "app.guest-policy.title": "Política de convidats",
     "app.guest-policy.description": "Canviar la configuració de la política de convidats a les reunions",
@@ -1034,15 +1030,10 @@
     "app.learningDashboard.statusTimelineTable.thumbnail": "Presentació en miniatura.",
     "app.learningDashboard.errors.invalidToken": "Token de sessió no vàlid",
     "app.learningDashboard.errors.dataUnavailable": "Les dades ja no estan disponibles",
-    "mobileApp.portals.list.empty.label": "Si us plau, afegeixi portals.",
-    "mobileApp.portals.list.add.button.label": "Nou portal",
     "mobileApp.portals.fields.name.label": "Nom del portal",
     "mobileApp.portals.fields.name.placeholder": "BigBlueButton demo",
     "mobileApp.portals.fields.url.label": "URL del servidor",
-    "mobileApp.portals.addPortalPopup.confirm.button.label": "Afegir portal",
-    "mobileApp.portals.drawerNavigation.button.label": "Portals",
-    "mobileApp.portals.addPortalPopup.validation.emptyFilds": "Camps buits",
-    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "El nom ja existeix"
+    "mobileApp.portals.drawerNavigation.button.label": "Portals"
 
 }
 

@@ -215,6 +215,8 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[VoiceConfCallStateEvtMsg](envelope, jsonNode)
       case GetGlobalAudioPermissionReqMsg.NAME =>
         routeGenericMsg[GetGlobalAudioPermissionReqMsg](envelope, jsonNode)
+      case GetMicrophonePermissionReqMsg.NAME =>
+        routeGenericMsg[GetMicrophonePermissionReqMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
@@ -231,12 +233,16 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UpdateBreakoutRoomsTimeReqMsg](envelope, jsonNode)
       case SendMessageToAllBreakoutRoomsReqMsg.NAME =>
         routeGenericMsg[SendMessageToAllBreakoutRoomsReqMsg](envelope, jsonNode)
+      case ChangeUserBreakoutReqMsg.NAME =>
+        routeGenericMsg[ChangeUserBreakoutReqMsg](envelope, jsonNode)
 
       // Layout
       case GetCurrentLayoutReqMsg.NAME =>
         routeGenericMsg[GetCurrentLayoutReqMsg](envelope, jsonNode)
       case BroadcastLayoutMsg.NAME =>
         routeGenericMsg[BroadcastLayoutMsg](envelope, jsonNode)
+      case BroadcastPushLayoutMsg.NAME =>
+        routeGenericMsg[BroadcastPushLayoutMsg](envelope, jsonNode)
 
       case UserLeaveReqMsg.NAME =>
         routeGenericMsg[UserLeaveReqMsg](envelope, jsonNode)
@@ -252,10 +258,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ModifyWhiteboardAccessPubMsg](envelope, jsonNode)
       case ClearWhiteboardPubMsg.NAME =>
         routeGenericMsg[ClearWhiteboardPubMsg](envelope, jsonNode)
-      case UndoWhiteboardPubMsg.NAME =>
-        routeGenericMsg[UndoWhiteboardPubMsg](envelope, jsonNode)
-      case SendWhiteboardAnnotationPubMsg.NAME =>
-        routeGenericMsg[SendWhiteboardAnnotationPubMsg](envelope, jsonNode)
+      case DeleteWhiteboardAnnotationsPubMsg.NAME =>
+        routeGenericMsg[DeleteWhiteboardAnnotationsPubMsg](envelope, jsonNode)
+      case SendWhiteboardAnnotationsPubMsg.NAME =>
+        routeGenericMsg[SendWhiteboardAnnotationsPubMsg](envelope, jsonNode)
       case GetWhiteboardAnnotationsReqMsg.NAME =>
         routeGenericMsg[GetWhiteboardAnnotationsReqMsg](envelope, jsonNode)
       case ClientToServerLatencyTracerMsg.NAME =>

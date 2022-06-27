@@ -82,6 +82,29 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
 
   }
 
+  def sendChangeUserBreakoutMsg(
+      outGW:                  OutMsgRouter,
+      meetingId:              String,
+      userId:                 String,
+      fromBreakoutId:         String,
+      toBreakoutId:           String,
+      redirectToHtml5JoinURL: String
+  ): Unit = {
+    def build(meetingId: String, userId: String, fromBreakoutId: String, toBreakoutId: String, redirectToHtml5JoinURL: String): BbbCommonEnvCoreMsg = {
+      val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
+      val envelope = BbbCoreEnvelope(ChangeUserBreakoutEvtMsg.NAME, routing)
+      val header = BbbClientMsgHeader(ChangeUserBreakoutEvtMsg.NAME, meetingId, userId)
+
+      val body = ChangeUserBreakoutEvtMsgBody(meetingId, userId, fromBreakoutId, toBreakoutId, redirectToHtml5JoinURL)
+      val event = ChangeUserBreakoutEvtMsg(header, body)
+      BbbCommonEnvCoreMsg(envelope, event)
+    }
+
+    val msgEvent = build(meetingId, userId, fromBreakoutId, toBreakoutId, redirectToHtml5JoinURL)
+    outGW.send(msgEvent)
+
+  }
+
   def updateParentMeetingWithUsers(
       liveMeeting: LiveMeeting,
       eventBus:    InternalEventBus

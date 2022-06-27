@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 # frozen_string_literal: true
 
 # Copyright © 2021 BigBlueButton Inc. and by respective authors.
@@ -18,10 +18,14 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'rubygems'
+
+ENV['BUNDLE_GEMFILE'] = File.join(__dir__, '../Gemfile')
+require 'bundler/setup'
+
 require_relative '../lib/recordandplayback'
 
 require 'recordandplayback/workers'
-require 'rubygems'
 require 'yaml'
 require 'resque'
 

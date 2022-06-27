@@ -3,13 +3,13 @@ const { Create } = require('./create');
 const { Join } = require('./join');
 
 test.describe.parallel('Breakout', () => {
-  test('Create Breakout room', async ({ browser, context, page }) => {
+  test('Create Breakout room @ci', async ({ browser, context, page }) => {
     const create = new Create(browser, context);
     await create.initPages(page);
     await create.create();
   });
 
-  test('Join Breakout room', async ({ browser, context, page }) => {
+  test('Join Breakout room @ci', async ({ browser, context, page }) => {
     const join = new Join(browser, context);
     await join.initPages(page);
     await join.create()
