@@ -561,3 +561,31 @@ case class GetGlobalAudioPermissionRespMsgBody(
     sfuSessionId: String,
     allowed:      Boolean
 )
+
+/* Sent by bbb-webrtc-sfu to ask permission for a new microphone/full audio
+ * connection
+ */
+object GetMicrophonePermissionReqMsg { val NAME = "GetMicrophonePermissionReqMsg" }
+case class GetMicrophonePermissionReqMsg(
+    header: BbbClientMsgHeader,
+    body:   GetMicrophonePermissionReqMsgBody
+) extends StandardMsg
+case class GetMicrophonePermissionReqMsgBody(
+    meetingId:    String,
+    voiceConf:    String,
+    userId:       String,
+    sfuSessionId: String
+)
+
+object GetMicrophonePermissionRespMsg { val NAME = "GetMicrophonePermissionRespMsg" }
+case class GetMicrophonePermissionRespMsg(
+    header: BbbClientMsgHeader,
+    body:   GetMicrophonePermissionRespMsgBody
+) extends StandardMsg
+case class GetMicrophonePermissionRespMsgBody(
+    meetingId:    String,
+    voiceConf:    String,
+    userId:       String,
+    sfuSessionId: String,
+    allowed:      Boolean
+)
