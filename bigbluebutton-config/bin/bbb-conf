@@ -1141,18 +1141,17 @@ check_state() {
     fi
 
     if bbb-conf --status | grep -q inactive; then
-        echo "entrou aqui no inactive"
 
         if bbb-conf --status | grep -q tomcat9; then
-            echo "# Warning: Tomcat9 is not started correctly"
+            echo "# Warning: $TOMCAT_SERVICE is not started correctly"
             echo "#"
-            echo "#   $(bbb-conf --status | grep inactive | grep tomcat9)"
+            echo "#   $(bbb-conf --status | grep inactive | grep $TOMCAT_SERVICE)"
             echo "#"
         fi
         if bbb-conf --status | grep inactive | grep -vq tomcat9; then
             echo "# Error: Detected some processes have not started correctly"
             echo "#"
-            echo "#   $(bbb-conf --status | grep inactive | grep -v tomcat9)"
+            echo "#   $(bbb-conf --status | grep inactive | grep -v $TOMCAT_SERVICE)"
             echo "#"
         fi
     fi
