@@ -15,6 +15,7 @@ export default
       otherCursors: Service.getCurrentCursors(params.whiteboardId),
       tldrawAPI: params.tldrawAPI,
       isViewersCursorLocked: params.isViewersCursorLocked,
+      hasMultiUserAccess: params.hasMultiUserAccess,
     };
   })(CursorsContainer)
 ;

@@ -115,7 +115,8 @@ export default function Cursors(props) {
     tldrawAPI,
     publishCursorUpdate,
     children,
-    isViewersCursorLocked
+    isViewersCursorLocked,
+    hasMultiUserAccess,
   } = props;
 
   const start = () => setActive(true);
@@ -195,19 +196,31 @@ export default function Cursors(props) {
           return null;
         })
         .map((c) => {
-          return (
-            c &&
-            currentUser.userId !== c?.userId &&
-            renderCursor(
-              c?.userName,
-              c?.presenter ? "#C70039" : "#AFE1AF",
-              c?.xPercent,
-              c?.yPercent,
-              null,
-              tldrawAPI?.getPageState(),
-              true
-            )
-          );
+          if (c && currentUser.userId !== c?.userId) {
+            if (c.presenter) {
+              return renderCursor(
+                c?.userName,
+                "#C70039",
+                c?.xPercent,
+                c?.yPercent,
+                null,
+                tldrawAPI?.getPageState(),
+                true
+              );
+            }
+
+            return hasMultiUserAccess(whiteboardId, c?.userId) && (
+              renderCursor(
+                c?.userName,
+                "#AFE1AF",
+                c?.xPercent,
+                c?.yPercent,
+                null,
+                tldrawAPI?.getPageState(),
+                true
+              )
+            );
+          }
         })}
     </span>
   );
