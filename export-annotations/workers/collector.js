@@ -4,6 +4,8 @@ const fs = require('fs');
 const redis = require('redis');
 const { Worker, workerData, parentPort } = require('worker_threads');
 const path = require('path');
+const probe = require('probe-image-size');
+const { execSync } = require("child_process");
 
 const jobId = workerData;
 
@@ -22,7 +24,7 @@ const kickOffProcessWorker = (jobId) => {
   })
 }
 
-let dropbox = path.join(config.shared.presAnnDropboxDir, jobId);
+const dropbox = path.join(config.shared.presAnnDropboxDir, jobId);
 
 // Takes the Job from the dropbox
 let job = fs.readFileSync(path.join(dropbox, 'job'));
@@ -56,34 +58,57 @@ let exportJob = JSON.parse(job);
       if(err) { return logger.error(err); }
     });
 
-    // Collect the Presentation Page files from the presentation directory
-    
-    // PDF / PNG / JPEG file
+    // Collect the Presentation Page files (PDF / PNG / JPEG) from the presentation directory
     let presentationFile = path.join(exportJob.presLocation, exportJob.presId);
+    let pdfFile = `${presentationFile}.pdf`
 
-    // Use the SVG files as shown in the browser in order to avoid incorrect dimensions
-    // Tldraw uses absolute coordinates
-    
-    for (let p of pages) {
-      let pageNumber = p.page;
-      let svgFile = path.join(exportJob.presLocation, 'svgs',  `slide${pageNumber}.svg`)
-      let outputFile = path.join(dropbox, `slide${pageNumber}`);
-      let svgFileExists = fs.existsSync(svgFile);
-      
-      // CairoSVG doesn't handle transparent SVG embeds properly, e.g., for transparent pictures.
-      // In these cases we reference the PNG image
+    if (fs.existsSync(pdfFile)) {
 
-      if (fs.existsSync(`${presentationFile}.png`)) {
-        fs.copyFileSync(`${presentationFile}.png`, `${outputFile}.png`);
+      for (let p of pages) {
+        let pageNumber = p.page;
+        let svgFile = path.join(exportJob.presLocation, 'svgs',  `slide${pageNumber}.svg`)
+        let outputFile = path.join(dropbox, `slide${pageNumber}`);
+        let svgFileExists = fs.existsSync(svgFile);
+        
+        // CairoSVG doesn't handle transparent SVG and PNG embeds properly, e.g., in rasterized text.
+        // So textboxes may get a black background when downloading/exporting repeatedly.
+        // To avoid that, we take slides from the uploaded file, but probe the dimensions from the SVG
+        // so it matches what was shown in the browser -- Tldraw unfortunately uses absolute coordinates.
+        // This rasterizing process does mean a loss in quality.
+  
+        if (svgFileExists) {
+          let dimensions = probe.sync(fs.readFileSync(svgFile));
+          let slideWidth = parseInt(dimensions.width, 10);
+          let slideHeight = parseInt(dimensions.height, 10);
+          
+          let extract_png_from_pdf = [
+            'pdftocairo',
+            '-png', 
+            '-f', pageNumber, 
+            '-l', pageNumber,
+            '-scale-to-x', slideWidth,
+            '-scale-to-y', slideHeight,
+            '-singlefile',
+            pdfFile, outputFile,
+            ].join(' ')
+            
+            execSync(extract_png_from_pdf);
+        }
       }
+    }
 
-      else if (svgFileExists) {
-        fs.copyFileSync(svgFile, `${outputFile}.svg`);
-      }
-      
-      else {
-        return logger.error(`Could not find whiteboard presentation file for job ${exportJob.jobId}`);
-      }
+    // If PNG file already available
+    else if (fs.existsSync(`${presentationFile}.png`)) {
+      fs.copyFileSync(`${presentationFile}.png`, path.join(dropbox, 'slide1.png'));
+    }
+  
+    // If JPEG file available
+    else if (fs.existsSync(`${presentationFile}.jpeg`)) {
+      fs.copyFileSync(`${presentationFile}.jpeg`, path.join(dropbox, 'slide1.jpeg'));
+    }
+
+    else {
+      return logger.error(`Could not find whiteboard presentation file for job ${exportJob.jobId}`);
     }
 
     kickOffProcessWorker(exportJob.jobId);

@@ -102,7 +102,7 @@ function determine_font_from_family(family) {
         case 'erif': return 'Crimson Pro'
         case 'mono': return 'Source Code Pro'
 
-        default: return family
+        default: return 'Caveat Brush'
     }
 }
 
@@ -110,10 +110,19 @@ function rad_to_degree(angle) {
     return angle * (180 / Math.PI);
 }
 
+// Convert pixels to points
+function to_pt(px) {
+    return (px / config.process.pixelsPerInch) * config.process.pointsPerInch
+}
+
+// Convert points to pixels
+function to_px(pt) {
+    return (pt / config.process.pointsPerInch) * config.process.pixelsPerInch
+}
+
 function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxWidth = null) {
     
-    // Convert pixels to points
-    fontSize = (fontSize / config.process.pixelsPerInch) * config.process.pointsPerInch;
+    fontSize = to_pt(fontSize);
 
     // Sticky notes need automatic line wrapping: take width into account
     let size = textBoxWidth ? `-size ${textBoxWidth}x` : ''
@@ -735,16 +744,17 @@ let ghostScriptInput = ""
 for (let currentSlide of pages) {
 
     let backgroundImagePath = path.join(dropbox, `slide${currentSlide.page}`);
-    let backgroundFormat = fs.existsSync(`${backgroundImagePath}.png`) ? 'png' : 'svg'
+    let backgroundFormat = fs.existsSync(`${backgroundImagePath}.png`) ? 'png' : 'jpeg'
 
     // Output dimensions in pixels even if stated otherwise (pt)
     // CairoSVG didn't like attempts to read the dimensions from a stream
-    // to prevent loading file in memory
-    // Ideally, use dimensions provided by tldraw's background image asset instead
+    // that would prevent loading file in memory
+    // Ideally, use dimensions provided by tldraw's background image asset
+    // (this is not yet always provided)
     let dimensions = probe.sync(fs.readFileSync(`${backgroundImagePath}.${backgroundFormat}`));
 
-    let slideWidth = dimensions.width;
-    let slideHeight = dimensions.height;
+    let slideWidth = parseInt(dimensions.width, 10);
+    let slideHeight = parseInt(dimensions.height, 10);
 
     // Create the SVG slide with the background image
     let svg = create({ version: '1.0', encoding: 'UTF-8' })
@@ -772,6 +782,7 @@ for (let currentSlide of pages) {
     overlay_annotations(svg, currentSlide.annotations)
 
     svg = svg.end({ prettyPrint: true });
+    
     // Write annotated SVG file
     let SVGfile = path.join(dropbox, `annotated-slide${currentSlide.page}.svg`)
     let PDFfile = path.join(dropbox, `annotated-slide${currentSlide.page}.pdf`)
@@ -780,9 +791,20 @@ for (let currentSlide of pages) {
         if (err) { return logger.error(err); }
     });
 
+    // Dimensions converted back to a pixel size which,
+    // when converted to points, will yield the desired
+    // dimension in pixels when read without conversion
+
+    // e.g. say Tldraw's canvas is 1920x1080 px.
+    // The background SVG dimensions are set to 1920x1080 pt (incorrect unit).
+    // So we read it in ignoring the unit as 1920x1080 px, making the position of the drawings match.
+    // Now we assume we had 1920x1080pt and resize to 2560x1440 px so that the SVG generates with the original "wrong" size.
+
     let convertAnnotatedSlide = [
         'cairosvg',
         SVGfile,
+        '--output-width', to_px(slideWidth),
+        '--output-height', to_px(slideHeight),
         '-o', PDFfile
     ].join(' ');
 
