@@ -374,7 +374,21 @@ start_bigbluebutton () {
         TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    systemctl start $TOMCAT_SERVICE bigbluebutton.target
+    systemctl start $TOMCAT_SERVICE || {
+        echo
+        echo "# Warning: $TOMCAT_SERVICE could not be started. Please, check BBB-LTI or BBB-Demo."
+        echo "#     Run the command:"
+        echo "#       sudo journalctl -u $TOMCAT_SERVICE"
+        echo "#     To better understand the ERROR"
+    }
+
+    systemctl start bigbluebutton.target
+
+    if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
+        systemctl start mongod
+        sleep 3
+        systemctl start bbb-html5
+    fi
 }
 
 display_bigbluebutton_status () {
@@ -1081,10 +1095,19 @@ check_state() {
     fi
 
     if bbb-conf --status | grep -q inactive; then
-        echo "# Error: Detected some processes have not started correctly"
-        echo "#"
-        echo "#   $(bbb-conf --status | grep inactive)"
-        echo "#"
+
+        if bbb-conf --status | grep -q tomcat9; then
+            echo "# Warning: $TOMCAT_SERVICE is not started correctly"
+            echo "#"
+            echo "#   $(bbb-conf --status | grep inactive | grep $TOMCAT_SERVICE)"
+            echo "#"
+        fi
+        if bbb-conf --status | grep inactive | grep -vq tomcat9; then
+            echo "# Error: Detected some processes have not started correctly"
+            echo "#"
+            echo "#   $(bbb-conf --status | grep inactive | grep -v $TOMCAT_SERVICE)"
+            echo "#"
+        fi
     fi
 
     if systemctl status freeswitch | grep -q SETSCHEDULER; then
