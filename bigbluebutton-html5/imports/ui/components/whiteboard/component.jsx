@@ -231,27 +231,31 @@ export default function Whiteboard(props) {
           // until we handle saving of assets in akka.
           disableAssets={true}
           onMount={(app) => {
-            if (!hasWBAccess && !isPresenter) app.onPan = () => {};
             setTLDrawAPI(app);
             props.setTldrawAPI(app);
-            // disable pan for non presenter that doesn't have multi user access
-            if (!hasWBAccess && !isPresenter) app.onPan = () => {}; 
-            // disable hover highlight for background slide shape
-            app.setHoveredId = (id) => {
-              if (id.includes('slide-background')) return null;
-              app.patchState(
-                {
-                  document: {
-                    pageStates: {
-                      [app.getPage()?.id]: {
-                        hoveredId: id,
+            // disable for non presenter that doesn't have multi user access
+            if (!hasWBAccess && !isPresenter) {
+              app.onPan = () => {};
+              app.setSelectedIds = () => {};
+              app.setHoveredId = () => {};
+            } else {
+              // disable hover highlight for background slide shape
+              app.setHoveredId = (id) => {
+                if (id.includes('slide-background')) return null;
+                app.patchState(
+                  {
+                    document: {
+                      pageStates: {
+                        [app.getPage()?.id]: {
+                          hoveredId: id,
+                        },
                       },
                     },
                   },
-                },
-                `set_hovered_id`
-              );
-            };
+                  `set_hovered_id`
+                );
+              };
+            }
 
             if (curPageId) {
               app.changePage(curPageId);
