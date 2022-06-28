@@ -28,7 +28,6 @@ const MEDIA = Meteor.settings.public.media;
 const DEFAULT_FULLAUDIO_MEDIA_SERVER = MEDIA.audio.fullAudioMediaServer;
 const LISTEN_ONLY_OFFERING = MEDIA.listenOnlyOffering;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
-const GLOBAL_AUDIO_PREFIX = 'GLOBAL_AUDIO_';
 const RECONNECT_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
 const SENDRECV_ROLE = 'sendrecv';
 const RECV_ROLE = 'recv';
@@ -304,14 +303,9 @@ export default class SFUAudioBridge extends BaseAudioBridge {
         const { isListenOnly, extension, inputStream } = options;
         this.inEchoTest = !!extension;
         this.isListenOnly = isListenOnly;
-        const callerIdName = [
-          `${this.userId}_${getAudioSessionNumber()}`,
-          'bbbID',
-          isListenOnly ? `${GLOBAL_AUDIO_PREFIX}` : this.name,
-        ].join('-').replace(/"/g, "'");
 
         const brokerOptions = {
-          caleeName: callerIdName,
+          clientSessionNumber: getAudioSessionNumber(),
           extension,
           iceServers: this.iceServers,
           mediaServer: getMediaServerAdapter(isListenOnly),
@@ -431,8 +425,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
         fetchWebRTCMappedStunTurnServers(this.sessionToken)
           .then((iceServers) => {
             const options = {
-              userName: this.name,
-              caleeName: `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}`,
+              clientSessionNumber: getAudioSessionNumber(),
               iceServers,
               offering: LISTEN_ONLY_OFFERING,
             };
