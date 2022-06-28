@@ -346,7 +346,7 @@ stop_bigbluebutton () {
       TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    systemctl stop $TOMCAT_SERVICE bigbluebutton.service
+    systemctl stop $TOMCAT_SERVICE bigbluebutton.target
 }
 
 start_bigbluebutton () {
