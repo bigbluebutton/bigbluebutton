@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Service from '/imports/ui/components/audio/captions/service';
-import Button from '/imports/ui/components/common/button/component';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   start: {
@@ -25,7 +25,7 @@ const CaptionsButton = ({
   if (!enabled) return null;
 
   return (
-    <Button
+    <Styled.ClosedCaptionToggleButton
       icon={active ? 'closed_caption' : 'closed_caption_stop'}
       label={intl.formatMessage(active ? intlMessages.stop : intlMessages.start)}
       color={active ? 'primary' : 'default'}
