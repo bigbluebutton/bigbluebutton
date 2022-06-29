@@ -1,16 +1,13 @@
-#!/bin/bash
-. .env
-mkdir -p ./src/main/resources
-echo '<!DOCTYPE hibernate-configuration PUBLIC
+<!DOCTYPE hibernate-configuration PUBLIC
         "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
       <hibernate-configuration>
         <session-factory>
           <!-- JDBC Database connection settings -->
 	  <property name="connection.driver_class">org.postgresql.Driver</property>
-          <property name="connection.url">jdbc:postgresql://localhost:'"$HOST_PORT"'/bbb</property>
-          <property name="connection.username">'"$POSTGRES_USER"'</property>
-          <property name="connection.password">'"$POSTGRES_PASSWORD"'</property>
+          <property name="connection.url">jdbc:postgresql://localhost:5432/bbb</property>
+          <property name="connection.username">bbb</property>
+          <property name="connection.password">bbb123</property>
           <!-- JDBC connection pool settings -->
           <property name="hibernate.connection.provider_class">com.zaxxer.hikari.hibernate.HikariConnectionProvider</property>
           <property name="hibernate.hikari.minimumIdle">5</property>
@@ -28,4 +25,4 @@ echo '<!DOCTYPE hibernate-configuration PUBLIC
           <!-- show the hql as comment -->
           <property name="use_sql_comments">false</property>
         </session-factory>
-      </hibernate-configuration>' > ./src/main/resources/hibernate.cfg.xml
+      </hibernate-configuration>
