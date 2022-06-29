@@ -68,32 +68,25 @@ let exportJob = JSON.parse(job);
         let pageNumber = p.page;
         let svgFile = path.join(exportJob.presLocation, 'svgs',  `slide${pageNumber}.svg`)
         let outputFile = path.join(dropbox, `slide${pageNumber}`);
-        let svgFileExists = fs.existsSync(svgFile);
         
         // CairoSVG doesn't handle transparent SVG and PNG embeds properly, e.g., in rasterized text.
         // So textboxes may get a black background when downloading/exporting repeatedly.
-        // To avoid that, we take slides from the uploaded file, but probe the dimensions from the SVG
+        // To avoid that, we take slides from the uploaded file, but later probe the dimensions from the SVG
         // so it matches what was shown in the browser -- Tldraw unfortunately uses absolute coordinates.
-        // This rasterizing process does mean a loss in quality.
-  
-        if (svgFileExists) {
-          let dimensions = probe.sync(fs.readFileSync(svgFile));
-          let slideWidth = parseInt(dimensions.width, 10);
-          let slideHeight = parseInt(dimensions.height, 10);
-          
-          let extract_png_from_pdf = [
-            'pdftocairo',
-            '-png', 
-            '-f', pageNumber, 
-            '-l', pageNumber,
-            '-scale-to-x', slideWidth,
-            '-scale-to-y', slideHeight,
-            '-singlefile',
-            pdfFile, outputFile,
-            ].join(' ')
-            
-            execSync(extract_png_from_pdf);
-        }
+
+        let extract_png_from_pdf = [
+          'pdftocairo',
+          '-png',
+          '-f', pageNumber, 
+          '-l', pageNumber,
+          '-r', config.collector.backgroundSlidePPI,
+          '-singlefile',
+          '-cropbox',
+          pdfFile, outputFile,
+        ].join(' ')
+
+        execSync(extract_png_from_pdf);
+        fs.copyFileSync(svgFile, path.join(dropbox, `slide${pageNumber}.svg`));
       }
     }
 

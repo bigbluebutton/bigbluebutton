@@ -6,6 +6,10 @@
       "presDir": "/var/bigbluebutton",
       "presAnnDropboxDir": "/tmp/pres-ann-dropbox"
     },
+    "collector": {
+      "backgroundSlideDPI": 300,
+      "backgroundSlidePPI": 200
+    },
     "process": {
       "whiteboardTextEncoding": "utf-8",
       "pointsPerInch": 72,

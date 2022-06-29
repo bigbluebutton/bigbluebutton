@@ -744,6 +744,7 @@ let ghostScriptInput = ""
 for (let currentSlide of pages) {
 
     let backgroundImagePath = path.join(dropbox, `slide${currentSlide.page}`);
+    let svgFileExists = fs.existsSync(`${backgroundImagePath}.svg`)
     let backgroundFormat = fs.existsSync(`${backgroundImagePath}.png`) ? 'png' : 'jpeg'
 
     // Output dimensions in pixels even if stated otherwise (pt)
@@ -751,7 +752,9 @@ for (let currentSlide of pages) {
     // that would prevent loading file in memory
     // Ideally, use dimensions provided by tldraw's background image asset
     // (this is not yet always provided)
-    let dimensions = probe.sync(fs.readFileSync(`${backgroundImagePath}.${backgroundFormat}`));
+    let dimensions = svgFileExists ? 
+        probe.sync(fs.readFileSync(`${backgroundImagePath}.svg`)) :
+        probe.sync(fs.readFileSync(`${backgroundImagePath}.${backgroundFormat}`));
 
     let slideWidth = parseInt(dimensions.width, 10);
     let slideHeight = parseInt(dimensions.height, 10);
@@ -761,8 +764,8 @@ for (let currentSlide of pages) {
         .ele('svg', {
             xmlns: 'http://www.w3.org/2000/svg',
             'xmlns:xlink': 'http://www.w3.org/1999/xlink',
-            width: slideWidth,
-            height: slideHeight,
+            width: `${slideWidth}px`,
+            height: `${slideHeight}px`,
         })
         .dtd({
             pubID: '-//W3C//DTD SVG 1.1//EN',
@@ -770,8 +773,8 @@ for (let currentSlide of pages) {
         })
         .ele('image', {
             'xlink:href': `file://${dropbox}/slide${currentSlide.page}.${backgroundFormat}`,
-            width: slideWidth,
-            height: slideHeight,
+            width: `${slideWidth}px`,
+            height: `${slideHeight}px`,
         })
         .up()
         .ele('g', {
