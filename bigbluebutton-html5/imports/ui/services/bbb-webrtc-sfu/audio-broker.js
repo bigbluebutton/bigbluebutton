@@ -18,7 +18,7 @@ class AudioBroker extends BaseBroker {
     this.offering = true;
 
     // Optional parameters are:
-    // caleeName,
+    // clientSessionNumber
     // iceServers,
     // offering,
     // mediaServer,
@@ -192,7 +192,7 @@ class AudioBroker extends BaseBroker {
       id: 'start',
       type: this.sfuComponent,
       role: this.role,
-      caleeName: this.caleeName,
+      clientSessionNumber: this.clientSessionNumber,
       sdpOffer: offer,
       mediaServer: this.mediaServer,
       extension: this.extension,
