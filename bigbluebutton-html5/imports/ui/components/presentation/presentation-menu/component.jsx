@@ -49,8 +49,8 @@ const intlMessages = defineMessages({
   },
   snapshotLabel: {
     id: 'app.presentation.options.snapshot',
-    description: 'Snapshot of current presentation label',
-    defaultMessage: 'Snapshot of current presentation',
+    description: 'Snapshot of current slide label',
+    defaultMessage: 'Snapshot of current slide',
   },
 });
 
@@ -185,33 +185,41 @@ const PresentationMenu = (props) => {
               },
             });
 
-            toPng(getScreenshotRef(), {
-              width: window.screen.width,
-              height: window.screen.height,
-            }).then((data) => {
-              const anchor = document.createElement('a');
-              anchor.href = data;
-              anchor.setAttribute(
-                'download',
-                `${elementName}_${meetingName}_${new Date().toISOString()}.png`,
-              );
-              anchor.click();
-
-              setState({
-                loading: false,
-                hasError: false,
+            try {
+              const wbRef = document.getElementById('Navbar')?.nextSibling?.childNodes[1]?.querySelector('[tabindex = "0"]');
+              toPng(wbRef, {
+                width: window.screen.width,
+                height: window.screen.height,
+              }).then((data) => {
+                const anchor = document.createElement('a');
+                anchor.href = data;
+                anchor.setAttribute(
+                  'download',
+                  `${elementName}_${meetingName}_${new Date().toISOString()}.png`,
+                );
+                anchor.click();
+  
+                setState({
+                  loading: false,
+                  hasError: false,
+                });
+              }).catch((error) => {
+                logger.warn({
+                  logCode: 'presentation_snapshot_error',
+                  extraInfo: error,
+                });
+  
+                setState({
+                  loading: false,
+                  hasError: true,
+                });
               });
-            }).catch((error) => {
+            } catch (err) {
               logger.warn({
                 logCode: 'presentation_snapshot_error',
-                extraInfo: error,
+                extraInfo: err,
               });
-
-              setState({
-                loading: false,
-                hasError: true,
-              });
-            });
+            }
           },
         },
       );
@@ -242,7 +250,13 @@ const PresentationMenu = (props) => {
 
   const options = getAvailableOptions();
 
-  if (options.length === 0) return null;
+  if (options.length === 0) {
+    const undoCtrls = document.getElementById('TD-Styles')?.nextSibling;
+    if (undoCtrls?.style) {
+      undoCtrls.style = "padding:0px";
+    }
+    return null
+  };
 
   return (
     <Styled.Right>

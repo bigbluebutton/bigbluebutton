@@ -95,7 +95,8 @@ const ButtonLabel = styled.span`
       margin: 0 ${btnSpacing} 0 0;
     }
   }
-  &:hover {
+  &:hover,
+  .buttonWrapper:hover & {
     opacity: .5;
   }
 
@@ -355,13 +356,13 @@ const ButtonSpan = styled.span`
     padding: ${jumboPaddingY} ${jumboPaddingX};
   `}
 
-  ${({ color }) => color === 'default' && `
+  ${({ color, ghost }) => color === 'default' && !ghost && `
     color: ${btnDefaultColor};
     background-color: ${btnDefaultBg};
     border: ${borderSizeLarge} solid transparent;
 
     &:focus,
-    &:focus:not([aria-disabled="true"]) & {
+    .buttonWrapper:focus:not([aria-disabled="true"]) & {
       color: ${btnDefaultColor};
       background-color: ${btnDefaultBg};
       background-clip: padding-box;
@@ -515,7 +516,7 @@ const ButtonSpan = styled.span`
       color: ${btnDefaultBg};
       background-color: ${btnDefaultColor};
       background-clip: padding-box;
-      box-shadow: 0 0 0 ${borderSizeLarge} ${btnDefaultBg};
+      box-shadow: 0 0 0 ${borderSizeLarge} ${btnDefaultBg} !important;
     }
     &:hover,
     .buttonWrapper:hover & {
@@ -769,19 +770,31 @@ const Button = styled(BaseButton)`
   ${({ color }) => color === 'primary' && `
     color: ${btnPrimaryColor};
     background-color: ${btnPrimaryBg};
-    border: ${borderSizeLarge} solid transparent;
+    border: ${borderSizeLarge} solid transparent !important;
 
-    &:focus,
-    .buttonWrapper:focus:not([aria-disabled="true"]) & {
+    &:focus:not([aria-disabled="true"]){
       color: ${btnPrimaryColor};
       background-color: ${btnPrimaryBg};
       background-clip: padding-box;
-      box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBg};
+      box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBorder};
     }
 
-    &:hover,
-    .buttonWrapper:hover & {
+    &:hover{
+      filter: brightness(90%);
       color: ${btnPrimaryColor};
+      background-color: ${btnPrimaryHoverBg} !important;
+    }
+
+    &:active:focus{
+      filter: brightness(85%);
+      color: ${btnPrimaryColor};
+      background-color: ${btnPrimaryActiveBg};
+    }
+
+    &:active{
+      filter: brightness(85%);
+      color: ${btnPrimaryColor};
+      background-color: ${btnPrimaryActiveBg} !important;
     }
   `}
 

@@ -8,6 +8,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   mdPaddingY,
+  btnSpacing,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
 
@@ -48,6 +49,8 @@ const AudioModalButton = styled(Button)`
     color: black;
     font-size: 1rem;
     font-weight: 600;
+    margin-top: ${btnSpacing};
+    line-height: 1.5;
   }
 `;
 
@@ -115,6 +118,7 @@ const Title = styled.h2`
   font-size: 1.3rem;
   color: ${colorGrayDark};
   white-space: normal;
+  margin: 0;
 
   @media ${smallOnly} {
     font-size: 1rem;

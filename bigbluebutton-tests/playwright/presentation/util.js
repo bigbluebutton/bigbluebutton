@@ -23,9 +23,8 @@ async function uploadPresentation(test, fileName, uploadTimeout = ELEMENT_WAIT_L
   await test.hasText('body', e.statingUploadPresentationToast);
 
   await test.waitAndClick(e.confirmManagePresentation);
-  await test.hasText('body', e.convertingPresentationFileToast);
-
-  await test.hasText('body', e.presentationUploadedToast, uploadTimeout);
+  await test.hasText(e.presentationStatusInfo, e.convertingPresentationFileToast, uploadTimeout);
+  await test.hasText(e.smallToastMsg, e.presentationUploadedToast, uploadTimeout);
 }
 
 exports.checkSvgIndex = checkSvgIndex;
