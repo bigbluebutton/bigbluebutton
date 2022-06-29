@@ -16,6 +16,7 @@ export default
       tldrawAPI: params.tldrawAPI,
       isViewersCursorLocked: params.isViewersCursorLocked,
       hasMultiUserAccess: params.hasMultiUserAccess,
+      isMultiUserActive: params.isMultiUserActive,
     };
   })(CursorsContainer)
 ;

@@ -16,7 +16,9 @@ const renderCursor = (
   y,
   currentPoint,
   pageState,
-  owner = false
+  isMultiUserActive,
+  owner = false,
+
 ) => {
   const z = !owner ? 2 : 1;
   let _x = null;
@@ -44,7 +46,7 @@ const renderCursor = (
         }}
       />
 
-      <div
+      {isMultiUserActive && <div
         style={{
           zIndex: z,
           position: "absolute",
@@ -62,7 +64,7 @@ const renderCursor = (
         }}
       >
         {name}
-      </div>
+      </div>}
     </>
   );
 };
@@ -75,6 +77,7 @@ const PositionLabel = (props) => {
     publishCursorUpdate,
     whiteboardId,
     pos,
+    isMultiUserActive,
   } = props;
 
   const { name, color, userId, presenter } = currentUser;
@@ -98,7 +101,7 @@ const PositionLabel = (props) => {
   return (
     <>
       <div style={{ position: "absolute", height: "100%", width: "100%" }}>
-        {renderCursor(name, color, pos.x, pos.y, currentPoint, props.pageState)}
+        {renderCursor(name, color, pos.x, pos.y, currentPoint, props.pageState, isMultiUserActive(whiteboardId))}
       </div>
     </>
   );
@@ -117,6 +120,7 @@ export default function Cursors(props) {
     children,
     isViewersCursorLocked,
     hasMultiUserAccess,
+    isMultiUserActive,
   } = props;
 
   const start = () => setActive(true);
@@ -183,6 +187,7 @@ export default function Cursors(props) {
             pageState={tldrawAPI?.getPageState()}
             publishCursorUpdate={publishCursorUpdate}
             whiteboardId={whiteboardId}
+            isMultiUserActive={isMultiUserActive}
           />
         )}
         {children}
@@ -205,6 +210,7 @@ export default function Cursors(props) {
                 c?.yPercent,
                 null,
                 tldrawAPI?.getPageState(),
+                isMultiUserActive(whiteboardId),
                 true
               );
             }
@@ -217,6 +223,7 @@ export default function Cursors(props) {
                 c?.yPercent,
                 null,
                 tldrawAPI?.getPageState(),
+                isMultiUserActive(whiteboardId),
                 true
               )
             );
