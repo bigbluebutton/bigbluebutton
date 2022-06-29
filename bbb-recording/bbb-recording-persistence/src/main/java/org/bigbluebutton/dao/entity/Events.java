@@ -1,6 +1,5 @@
 package org.bigbluebutton.dao.entity;
 
-import jdk.jfr.Name;
 import lombok.Getter;
 import lombok.Setter;
 

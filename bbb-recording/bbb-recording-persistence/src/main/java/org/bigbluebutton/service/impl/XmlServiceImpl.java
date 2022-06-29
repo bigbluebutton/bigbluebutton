@@ -2,6 +2,8 @@ package org.bigbluebutton.service.impl;
 
 import org.bigbluebutton.dao.entity.*;
 import org.bigbluebutton.service.XmlService;
+import org.json.JSONObject;
+import org.json.XML;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
@@ -34,7 +36,7 @@ import org.w3c.dom.NodeList;
 @Service
 public class XmlServiceImpl implements XmlService {
 
-    private static Logger logger = LoggerFactory.getLogger(XmlServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(XmlServiceImpl.class);
 
     private DocumentBuilderFactory factory;
     private DocumentBuilder builder;
@@ -236,7 +238,35 @@ public class XmlServiceImpl implements XmlService {
     }
 
     @Override
-    public String constructResponseFromRecordingsXml(String xml) {
+    public String eventsToXml(Events events) {
+        logger.info("Converting {} to xml", events);
+
+        try {
+            setup();
+            Document document = builder.newDocument();
+
+            String json = events.getContent();
+            JSONObject obj = new JSONObject(json);
+            String xml = XML.toString(obj, "meetingSummary");
+
+            Document eventsDoc = builder.parse(new ByteArrayInputStream(xml.getBytes()));
+            Node node = document.importNode(eventsDoc.getDocumentElement(), true);
+            document.appendChild(node);
+
+            String result = documentToString(document);
+//            logger.info("========== Result ==========");
+//            logger.info("{}", result);
+//            logger.info("============================");
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    @Override
+    public String constructResponseFromXml(String xml) {
         logger.info("Constructing response from recordings xml");
 
         try {
@@ -249,9 +279,9 @@ public class XmlServiceImpl implements XmlService {
             Element returnCode = createElement(document, "returncode", "SUCCESS");
             rootElement.appendChild(returnCode);
 
-            Document recordingsDoc = builder.parse(new ByteArrayInputStream(xml.getBytes()));
-            Node recordingsNode = document.importNode(recordingsDoc.getDocumentElement(), true);
-            rootElement.appendChild(recordingsNode);
+            Document doc = builder.parse(new ByteArrayInputStream(xml.getBytes()));
+            Node node = document.importNode(doc.getDocumentElement(), true);
+            rootElement.appendChild(node);
 
             String result = documentToString(document);
 //            logger.info("========== Result ==========");

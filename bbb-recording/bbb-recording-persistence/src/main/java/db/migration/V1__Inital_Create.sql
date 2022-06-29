@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS events (
     recording_id BIGINT,
     content TEXT,
     CONSTRAINT fk_event_recording FOREIGN KEY (recording_id) REFERENCES recording (id)
-)
+);
 
 CREATE OR REPLACE FUNCTION truncate_tables(username IN VARCHAR) RETURNS void AS $$
 DECLARE

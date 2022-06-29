@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-@RestController
+//@RestController
 @EnableHypermediaSupport(type = HypermediaType.HAL)
 public class RecordingApiControllerV2 implements RecordingApiV2 {
 
@@ -117,7 +117,7 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
     }
 
     @Override
-    public ResponseEntity<Response> getRecordingEvents(String recordID) {
+    public ResponseEntity<Response> getMeetingSummary(String recordID) {
         return null;
     }
 

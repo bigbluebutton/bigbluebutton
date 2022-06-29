@@ -2,6 +2,7 @@ package org.bigbluebutton.rest.v1;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.LocaleUtils;
+import org.bigbluebutton.dao.entity.Events;
 import org.bigbluebutton.dao.entity.Recording;
 import org.bigbluebutton.dao.entity.Track;
 import org.bigbluebutton.request.MetadataParams;
@@ -59,34 +60,39 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
 
         Map<String, String[]> params = request.getParameterMap();
 
-        if(params.containsKey("meetingID")) meetingIds.addAll(Arrays.asList(params.get("meetingID")));
-        if(params.containsKey("recordID")) recordIds.addAll(Arrays.asList(params.get("recordID")));
-        if(params.containsKey("state")) states.addAll(Arrays.asList(params.get("state")));
-        if(params.containsKey("checksum")) checksum = params.get("checksum")[0];
+        if (params.containsKey("meetingID"))
+            meetingIds.addAll(Arrays.asList(params.get("meetingID")));
+        if (params.containsKey("recordID"))
+            recordIds.addAll(Arrays.asList(params.get("recordID")));
+        if (params.containsKey("state"))
+            states.addAll(Arrays.asList(params.get("state")));
+        if (params.containsKey("checksum"))
+            checksum = params.get("checksum")[0];
 
-        if(params.containsKey("page")) {
+        if (params.containsKey("page")) {
             try {
                 page = Integer.parseInt(params.get("page")[0]);
-            } catch(NumberFormatException ignored) { }
+            } catch (NumberFormatException ignored) {
+            }
         }
 
-        if(params.containsKey("size")) {
+        if (params.containsKey("size")) {
             try {
                 size = Integer.parseInt(params.get("size")[0]);
-            } catch(NumberFormatException ignored) { }
+            } catch (NumberFormatException ignored) {
+            }
         }
 
-        for(Map.Entry<String, String[]> entry: params.entrySet()) {
-            if (MetadataParams.isMetaValid(entry.getKey())) meta.put(entry.getKey(), entry.getValue()[0]);
+        for (Map.Entry<String, String[]> entry : params.entrySet()) {
+            if (MetadataParams.isMetaValid(entry.getKey()))
+                meta.put(entry.getKey(), entry.getValue()[0]);
         }
 
         meta = MetadataParams.processMetaParams(meta);
 
-        if(!validateChecksum("getRecordings", checksum, request.getQueryString())) {
-            return xmlService.constructGenericResponse(
-                    new String[] { "returnCode", "messageKey","message" },
-                    new String[] { "FAILED", "checksumError", "You did not pass the checksum security check" }
-            );
+        if (!validateChecksum("getRecordings", checksum, request.getQueryString())) {
+            return xmlService.constructGenericResponse(new String[] { "returnCode", "messageKey", "message" },
+                    new String[] { "FAILED", "checksumError", "You did not pass the checksum security check" });
         }
 
         List<Recording> recordings = recordingService.searchRecordings(meetingIds, recordIds, states, meta);
@@ -97,7 +103,7 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
         Page<Recording> recordingPage = new PageImpl<>(recordings.subList(start, end), pageable, recordings.size());
 
         String recordingsXml = xmlService.recordingsToXml(recordingPage.getContent());
-        String response = xmlService.constructResponseFromRecordingsXml(recordingsXml);
+        String response = xmlService.constructResponseFromXml(recordingsXml);
         return xmlService.constructPaginatedResponse(recordingPage, response);
     }
 
@@ -109,44 +115,43 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
 
         Map<String, String[]> params = request.getParameterMap();
 
-        if(params.containsKey("recordID")) recordIds.addAll(Arrays.asList(params.get("recordID")));
+        if (params.containsKey("recordID"))
+            recordIds.addAll(Arrays.asList(params.get("recordID")));
 
-        if(params.containsKey("publish")) {
+        if (params.containsKey("publish")) {
             String p = params.get("publish")[0];
-            if(p.equalsIgnoreCase("true")) publish = true;
-            else if(p.equalsIgnoreCase("false")) publish = false;
+            if (p.equalsIgnoreCase("true"))
+                publish = true;
+            else if (p.equalsIgnoreCase("false"))
+                publish = false;
             else {
-                return xmlService.constructGenericResponse(
-                        new String[] { "returnCode", "messageKey", "message" },
-                        new String[] { "FAILED", "missingParamPublish", "You must specify a publish value true or false." }
-                );
+                return xmlService.constructGenericResponse(new String[] { "returnCode", "messageKey", "message" },
+                        new String[] { "FAILED", "missingParamPublish",
+                                "You must specify a publish value true or false." });
             }
         }
 
-        if(params.containsKey("checksum")) checksum = params.get("checksum")[0];
+        if (params.containsKey("checksum"))
+            checksum = params.get("checksum")[0];
 
-        if(!validateChecksum("publishRecordings", checksum, request.getQueryString())) {
-            return xmlService.constructGenericResponse(
-                    new String[] { "returnCode", "messageKey","message" },
-                    new String[] { "FAILED", "checksumError", "You did not pass the checksum security check" }
-            );
+        if (!validateChecksum("publishRecordings", checksum, request.getQueryString())) {
+            return xmlService.constructGenericResponse(new String[] { "returnCode", "messageKey", "message" },
+                    new String[] { "FAILED", "checksumError", "You did not pass the checksum security check" });
         }
 
         List<Recording> recordings = new ArrayList<>();
-        for(String id: recordIds) {
+        for (String id : recordIds) {
             Recording recording = recordingService.publishRecording(id, publish);
-            if(recording != null) recordings.add(recording);
+            if (recording != null)
+                recordings.add(recording);
         }
 
-        if(recordings.size() == 0) {
-            return xmlService.constructGenericResponse(
-                    new String[] { "returnCode","messageKey", "message" },
-                    new String[] { "FAILED", "notFound", "We could not find any recordings" }
-            );
-        } else return xmlService.constructGenericResponse(
-                new String[] { "returnCode", "published" },
-                new String[] { "SUCCESS", String.valueOf(publish) }
-        );
+        if (recordings.size() == 0) {
+            return xmlService.constructGenericResponse(new String[] { "returnCode", "messageKey", "message" },
+                    new String[] { "FAILED", "notFound", "We could not find any recordings" });
+        } else
+            return xmlService.constructGenericResponse(new String[] { "returnCode", "published" },
+                    new String[] { "SUCCESS", String.valueOf(publish) });
     }
 
     @Override
@@ -156,32 +161,29 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
 
         Map<String, String[]> params = request.getParameterMap();
 
-        if(params.containsKey("recordID")) recordIds.addAll(Arrays.asList(params.get("recordID")));
-        if(params.containsKey("checksum")) checksum = params.get("checksum")[0];
+        if (params.containsKey("recordID"))
+            recordIds.addAll(Arrays.asList(params.get("recordID")));
+        if (params.containsKey("checksum"))
+            checksum = params.get("checksum")[0];
 
-        if(!validateChecksum("deleteRecordings", checksum, request.getQueryString())) {
-            return xmlService.constructGenericResponse(
-                    new String[] { "returnCode", "messageKey","message" },
-                    new String[] { "FAILED", "checksumError", "You did not pass the checksum security check" }
-            );
+        if (!validateChecksum("deleteRecordings", checksum, request.getQueryString())) {
+            return xmlService.constructGenericResponse(new String[] { "returnCode", "messageKey", "message" },
+                    new String[] { "FAILED", "checksumError", "You did not pass the checksum security check" });
         }
 
         List<Boolean> deletions = new ArrayList<>();
-        for(String id: recordIds) {
+        for (String id : recordIds) {
             boolean wasDeleted = recordingService.deleteRecording(id);
-            if(wasDeleted) deletions.add(true);
+            if (wasDeleted)
+                deletions.add(true);
         }
 
-        if(deletions.size() == 0) {
-            return xmlService.constructGenericResponse(
-                    new String[] { "returnCode","messageKey", "message" },
-                    new String[] { "FAILED", "notFound", "We could not find any recordings" }
-            );
+        if (deletions.size() == 0) {
+            return xmlService.constructGenericResponse(new String[] { "returnCode", "messageKey", "message" },
+                    new String[] { "FAILED", "notFound", "We could not find any recordings" });
         } else {
-            return xmlService.constructGenericResponse(
-                    new String[] { "returnCode","deleted" },
-                    new String[] { "SUCCESS", "true" }
-            );
+            return xmlService.constructGenericResponse(new String[] { "returnCode", "deleted" },
+                    new String[] { "SUCCESS", "true" });
         }
     }
 
@@ -193,37 +195,36 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
 
         Map<String, String[]> params = request.getParameterMap();
 
-        if(params.containsKey("recordID")) recordIds.addAll(Arrays.asList(params.get("recordID")));
-        if(params.containsKey("checksum")) checksum = params.get("checksum")[0];
+        if (params.containsKey("recordID"))
+            recordIds.addAll(Arrays.asList(params.get("recordID")));
+        if (params.containsKey("checksum"))
+            checksum = params.get("checksum")[0];
 
-        for(Map.Entry<String, String[]> entry: params.entrySet()) {
-            if (MetadataParams.isMetaValid(entry.getKey())) meta.put(entry.getKey(), entry.getValue()[0]);
+        for (Map.Entry<String, String[]> entry : params.entrySet()) {
+            if (MetadataParams.isMetaValid(entry.getKey()))
+                meta.put(entry.getKey(), entry.getValue()[0]);
         }
 
         meta = MetadataParams.processMetaParams(meta);
 
-        if(!validateChecksum("updateRecordings", checksum, request.getQueryString())) {
-            return xmlService.constructGenericResponse(
-                    new String[] { "returnCode", "messageKey","message" },
-                    new String[] { "FAILED", "checksumError", "You did not pass the checksum security check" }
-            );
+        if (!validateChecksum("updateRecordings", checksum, request.getQueryString())) {
+            return xmlService.constructGenericResponse(new String[] { "returnCode", "messageKey", "message" },
+                    new String[] { "FAILED", "checksumError", "You did not pass the checksum security check" });
         }
 
         List<Recording> recordings = new ArrayList<>();
-        for(String id: recordIds) {
+        for (String id : recordIds) {
             Recording recording = recordingService.updateRecording(id, meta);
-            if(recording != null) recordings.add(recording);
+            if (recording != null)
+                recordings.add(recording);
         }
 
-        if(recordings.size() == 0) {
-            return xmlService.constructGenericResponse(
-                    new String[] { "returnCode","messageKey", "message" },
-                    new String[] { "FAILED", "notFound", "We could not find any recordings" }
-            );
-        } else return xmlService.constructGenericResponse(
-                new String[] { "returnCode", "updated" },
-                new String[] { "SUCCESS", "true" }
-        );
+        if (recordings.size() == 0) {
+            return xmlService.constructGenericResponse(new String[] { "returnCode", "messageKey", "message" },
+                    new String[] { "FAILED", "notFound", "We could not find any recordings" });
+        } else
+            return xmlService.constructGenericResponse(new String[] { "returnCode", "updated" },
+                    new String[] { "SUCCESS", "true" });
     }
 
     @Override
@@ -237,63 +238,48 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
 
         Map<String, String[]> params = request.getParameterMap();
 
-        if(params.containsKey("recordID")) recordId = params.get("recordID")[0];
-        if(params.containsKey("checksum")) checksum = params.get("checksum")[0];
+        if (params.containsKey("recordID"))
+            recordId = params.get("recordID")[0];
+        if (params.containsKey("checksum"))
+            checksum = params.get("checksum")[0];
 
-        if(params.containsKey("page")) {
+        if (params.containsKey("page")) {
             try {
                 page = Integer.parseInt(params.get("page")[0]);
-            } catch(NumberFormatException ignored) { }
+            } catch (NumberFormatException ignored) {
+            }
         }
 
-        if(params.containsKey("size")) {
+        if (params.containsKey("size")) {
             try {
                 size = Integer.parseInt(params.get("size")[0]);
-            } catch(NumberFormatException ignored) { }
+            } catch (NumberFormatException ignored) {
+            }
         }
 
-        if(recordId == null || recordId.isEmpty()) {
-            return createMessageResponse(
-                    response,
-                    "missingParamRecordID",
-                    "You must specify a recordID.",
-                    "FAILED",
-                    HttpStatus.METHOD_NOT_ALLOWED
-            );
+        if (recordId == null || recordId.isEmpty()) {
+            return createMessageResponse(response, "missingParamRecordID", "You must specify a recordID.", "FAILED",
+                    HttpStatus.METHOD_NOT_ALLOWED);
         }
 
-        if(!validateChecksum("getRecordingTextTracks", checksum, request.getQueryString())) {
-            return createMessageResponse(
-                    response,
-                    "checksumError",
-                    "You did not pass the checksum security check",
-                    "FAILED",
-                    HttpStatus.METHOD_NOT_ALLOWED
-            );
+        if (!validateChecksum("getRecordingTextTracks", checksum, request.getQueryString())) {
+            return createMessageResponse(response, "checksumError", "You did not pass the checksum security check",
+                    "FAILED", HttpStatus.METHOD_NOT_ALLOWED);
         }
 
         List<Track> tracks = recordingService.getTracks(recordId);
 
-        if(tracks == null) {
-            return createMessageResponse(
-                    response,
-                    "noRecordings",
-                    "No recording found for " + recordId,
-                    "FAILED",
-                    HttpStatus.NOT_FOUND
-            );
-        } else if(tracks.size() == 0) {
-            return createMessageResponse(
-                    response,
-                    "noCaptionsFound",
-                    "No captions found for " + recordId,
-                    "FAILED",
-                    HttpStatus.NOT_FOUND
-            );
+        if (tracks == null) {
+            return createMessageResponse(response, "noRecordings", "No recording found for " + recordId, "FAILED",
+                    HttpStatus.NOT_FOUND);
+        } else if (tracks.size() == 0) {
+            return createMessageResponse(response, "noCaptionsFound", "No captions found for " + recordId, "FAILED",
+                    HttpStatus.NOT_FOUND);
         } else {
             TrackContent content = new TrackContent();
             List<TrackDto> trackDtos = new ArrayList<>();
-            for(Track track: tracks) trackDtos.add(TrackDto.trackToDto(track));
+            for (Track track : tracks)
+                trackDtos.add(TrackDto.trackToDto(track));
 
             Pageable pageable = PageRequest.of(page, size);
             int start = (int) pageable.getOffset();
@@ -308,7 +294,8 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
     }
 
     @Override
-    public ResponseEntity<Response> putRecordingTextTrack(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+    public ResponseEntity<Response> putRecordingTextTrack(@RequestParam("file") MultipartFile file,
+            HttpServletRequest request) {
         ResponseV1 response = new ResponseV1();
 
         String recordId = null;
@@ -319,81 +306,58 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
 
         Map<String, String[]> params = request.getParameterMap();
 
-        if(params.containsKey("recordID")) recordId = params.get("recordID")[0];
-        if(params.containsKey("kind")) kind = params.get("kind")[0];
-        if(params.containsKey("lang")) lang = params.get("lang")[0];
-        if(params.containsKey("label")) label = params.get("label")[0];
-        if(params.containsKey("checksum")) checksum = params.get("checksum")[0];
+        if (params.containsKey("recordID"))
+            recordId = params.get("recordID")[0];
+        if (params.containsKey("kind"))
+            kind = params.get("kind")[0];
+        if (params.containsKey("lang"))
+            lang = params.get("lang")[0];
+        if (params.containsKey("label"))
+            label = params.get("label")[0];
+        if (params.containsKey("checksum"))
+            checksum = params.get("checksum")[0];
 
-        if(!validateChecksum("putRecordingTextTrack", checksum, request.getQueryString())) {
-            return createMessageResponse(
-                    response,
-                    "checksumError",
-                    "You did not pass the checksum security check",
-                    "FAILED",
-                    HttpStatus.METHOD_NOT_ALLOWED
-            );
+        if (!validateChecksum("putRecordingTextTrack", checksum, request.getQueryString())) {
+            return createMessageResponse(response, "checksumError", "You did not pass the checksum security check",
+                    "FAILED", HttpStatus.METHOD_NOT_ALLOWED);
         }
 
-        if(recordId == null || recordId.isEmpty()) {
-            return createMessageResponse(
-                    response,
-                    "paramError",
-                    "Missing param recordID.",
-                    "FAILED",
-                    HttpStatus.METHOD_NOT_ALLOWED
-            );
+        if (recordId == null || recordId.isEmpty()) {
+            return createMessageResponse(response, "paramError", "Missing param recordID.", "FAILED",
+                    HttpStatus.METHOD_NOT_ALLOWED);
         }
 
-        if(kind == null || kind.isEmpty()) {
-            return createMessageResponse(
-                    response,
-                    "paramError",
-                    "Missing param kind.",
-                    "FAILED",
-                    HttpStatus.METHOD_NOT_ALLOWED
-            );
+        if (kind == null || kind.isEmpty()) {
+            return createMessageResponse(response, "paramError", "Missing param kind.", "FAILED",
+                    HttpStatus.METHOD_NOT_ALLOWED);
         }
 
-        if(!kind.equals("subtitles") && !kind.equals("captions")) {
-            return createMessageResponse(
-                    response,
-                    "invalidKind",
-                    "Invalid kind parameter, expected='subtitles|captions' actual=" + kind,
-                    "FAILED",
-                    HttpStatus.METHOD_NOT_ALLOWED
-            );
+        if (!kind.equals("subtitles") && !kind.equals("captions")) {
+            return createMessageResponse(response, "invalidKind",
+                    "Invalid kind parameter, expected='subtitles|captions' actual=" + kind, "FAILED",
+                    HttpStatus.METHOD_NOT_ALLOWED);
         }
 
-        if(lang == null || lang.isEmpty()) {
-            return createMessageResponse(
-                    response,
-                    "paramError",
-                    "Missing param lang.",
-                    "FAILED",
-                    HttpStatus.METHOD_NOT_ALLOWED
-            );
+        if (lang == null || lang.isEmpty()) {
+            return createMessageResponse(response, "paramError", "Missing param lang.", "FAILED",
+                    HttpStatus.METHOD_NOT_ALLOWED);
         }
 
         Locale locale;
         try {
             locale = LocaleUtils.toLocale(lang);
-        } catch(IllegalArgumentException e) {
-            return createMessageResponse(
-                    response,
-                    "invalidLang",
-                    "Malformed lang param, received=" + lang,
-                    "FAILED",
-                    HttpStatus.METHOD_NOT_ALLOWED
-            );
+        } catch (IllegalArgumentException e) {
+            return createMessageResponse(response, "invalidLang", "Malformed lang param, received=" + lang, "FAILED",
+                    HttpStatus.METHOD_NOT_ALLOWED);
         }
 
         String captionsLang = locale.toLanguageTag();
-        if(label == null || label.isEmpty()) label = locale.getDisplayLanguage();
+        if (label == null || label.isEmpty())
+            label = locale.getDisplayLanguage();
 
-        if(!file.isEmpty()) {
+        if (!file.isEmpty()) {
             boolean result = recordingService.putTrack(file, recordId, kind, captionsLang, label);
-            if(result) {
+            if (result) {
                 MessageContent content = new MessageContent();
                 content.setMessageKey("upload_text_track_success");
                 content.setMessage("Text track uploaded successfully");
@@ -411,18 +375,13 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
                 return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } else {
-            return createMessageResponse(
-                    response,
-                    "empty_uploaded_text_track",
-                    "Empty uploaded text track.",
-                    "FAILED",
-                    HttpStatus.METHOD_NOT_ALLOWED
-            );
+            return createMessageResponse(response, "empty_uploaded_text_track", "Empty uploaded text track.", "FAILED",
+                    HttpStatus.METHOD_NOT_ALLOWED);
         }
     }
 
     @Override
-    public ResponseEntity<Response> getRecordingEvents(HttpServletRequest request) {
+    public String getMeetingSummary(HttpServletRequest request) {
         ResponseV1 response = new ResponseV1();
 
         String recordId = null;
@@ -430,27 +389,38 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
 
         Map<String, String[]> params = request.getParameterMap();
 
-        if(params.containsKey("recordID")) recordId = params.get("recordID")[0];
-        if(params.containsKey("checksum")) checksum = params.get("checksum")[0];
+        if (params.containsKey("recordID"))
+            recordId = params.get("recordID")[0];
+        if (params.containsKey("checksum"))
+            checksum = params.get("checksum")[0];
 
-        if(!validateChecksum("getRecordingEvents", checksum, request.getQueryString())) {
-            return createMessageResponse(
-                    response,
-                    "checksumError",
-                    "You did not pass the checksum security check",
-                    "FAILED",
-                    HttpStatus.METHOD_NOT_ALLOWED
-            );
+        if (!validateChecksum("getRecordingEvents", checksum, request.getQueryString())) {
+            return xmlService.constructGenericResponse(new String[] { "returnCode", "messageKey", "message" },
+                    new String[] { "FAILED", "checksumError", "You did not pass the checksum security check" });
         }
 
-        return null;
+        if (recordId == null || recordId.isEmpty()) {
+            return xmlService.constructGenericResponse(new String[] { "returnCode", "messageKey", "message" },
+                    new String[] { "FAILED", "missingParamRecordID", "You must provide a recordID" });
+        }
+
+        Events events = recordingService.getEvents(recordId);
+
+        if (events == null) {
+            return xmlService.constructGenericResponse(new String[] { "returnCode", "messageKey", "message" },
+                    new String[] { "FAILED", "notFound", "We could not find any events for " + recordId });
+        }
+
+        String eventsXml = xmlService.eventsToXml(events);
+        return xmlService.constructResponseFromXml(eventsXml);
     }
 
-
     private boolean validateChecksum(String apiCall, String checksum, String queryString) {
-        if(checksum == null || checksum.equals("")) return false;
+        if (checksum == null || checksum.equals(""))
+            return false;
 
-        if(queryString == null) queryString = "";
+        if (queryString == null)
+            queryString = "";
         else {
             queryString = queryString.replace("&checksum=" + checksum, "");
             queryString = queryString.replace("checksum=" + checksum + "&", "");
@@ -475,7 +445,8 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
         return true;
     }
 
-    private ResponseEntity<Response> createMessageResponse(ResponseV1 response, String messageKey, String message, String returnCode, HttpStatus status) {
+    private ResponseEntity<Response> createMessageResponse(ResponseV1 response, String messageKey, String message,
+            String returnCode, HttpStatus status) {
         MessageContent content = new MessageContent();
         content.setMessageKey(messageKey);
         content.setMessage(message);

@@ -38,15 +38,17 @@ public class RecordingServiceDbImpl implements RecordingService {
     }
 
     @Override
-    public List<Recording> searchRecordings(List<String> meetingIds, List<String> recordIds, List<String> states, Map<String, String> meta) {
+    public List<Recording> searchRecordings(List<String> meetingIds, List<String> recordIds, List<String> states,
+            Map<String, String> meta) {
         logger.info("Retrieving all recordings");
         Set<Recording> recordings = new HashSet<>(recordingRepository.findAll());
 
-        if(meetingIds.size() > 0) {
+        if (meetingIds.size() > 0) {
             Set<Recording> recordingsByMeetingId = new HashSet<>();
-            for(String id: meetingIds) {
+            for (String id : meetingIds) {
                 List<Recording> r = recordingRepository.findByMeetingId(id);
-                if(r != null) recordingsByMeetingId.addAll(r);
+                if (r != null)
+                    recordingsByMeetingId.addAll(r);
             }
 
             logger.info("Filtering recordings by meeting ID");
@@ -54,9 +56,9 @@ public class RecordingServiceDbImpl implements RecordingService {
             logger.info("{} recordings remaining", recordings.size());
         }
 
-        if(recordIds.size() > 0) {
+        if (recordIds.size() > 0) {
             Set<Recording> recordingsByRecordId = new HashSet<>();
-            for(String id: recordIds) {
+            for (String id : recordIds) {
                 Optional<Recording> recording = recordingRepository.findByRecordId(id);
                 recording.ifPresent(recordingsByRecordId::add);
             }
@@ -66,11 +68,12 @@ public class RecordingServiceDbImpl implements RecordingService {
             logger.info("{} recordings remaining", recordings.size());
         }
 
-        if(states.size() > 0) {
+        if (states.size() > 0) {
             Set<Recording> recordingsByState = new HashSet<>();
-            for(String state: states) {
+            for (String state : states) {
                 List<Recording> r = recordingRepository.findByState(state);
-                if(r != null) recordingsByState.addAll(r);
+                if (r != null)
+                    recordingsByState.addAll(r);
             }
 
             logger.info("Filtering recordings by state");
@@ -78,15 +81,16 @@ public class RecordingServiceDbImpl implements RecordingService {
             logger.info("{} recordings remaining", recordings.size());
         }
 
-        if(meta.size() > 0) {
+        if (meta.size() > 0) {
             List<Metadata> metadata = new ArrayList<>();
-            for(Map.Entry<String, String> filter: meta.entrySet()) {
+            for (Map.Entry<String, String> filter : meta.entrySet()) {
                 List<Metadata> m = metadataRepository.findByKeyAndValue(filter.getKey(), filter.getValue());
-                if(m != null) metadata.addAll(m);
+                if (m != null)
+                    metadata.addAll(m);
             }
 
             Set<Recording> recordingsByMetadata = new HashSet<>();
-            for(Metadata m: metadata) {
+            for (Metadata m : metadata) {
                 recordingsByMetadata.add(m.getRecording());
             }
 
@@ -108,11 +112,11 @@ public class RecordingServiceDbImpl implements RecordingService {
     public Recording updateRecording(String recordId, Map<String, String> meta) {
         Optional<Recording> optional = recordingRepository.findByRecordId(recordId);
 
-        if(optional.isPresent()) {
+        if (optional.isPresent()) {
             Recording recording = optional.get();
             Set<Metadata> metadata = recording.getMetadata();
 
-            for(Map.Entry<String, String> entry: meta.entrySet()) {
+            for (Map.Entry<String, String> entry : meta.entrySet()) {
                 for (Metadata m : metadata) {
                     if (m.getKey().equals(entry.getKey())) {
                         m.setValue(entry.getValue());
@@ -137,7 +141,7 @@ public class RecordingServiceDbImpl implements RecordingService {
     public Recording publishRecording(String recordId, boolean publish) {
         Optional<Recording> optional = recordingRepository.findByRecordId(recordId);
 
-        if(optional.isPresent()) {
+        if (optional.isPresent()) {
             Recording recording = optional.get();
             recording.setPublished(publish);
             String state = (publish) ? Recording.State.PUBLISHED.getValue() : Recording.State.UNPUBLISHED.getValue();
@@ -153,7 +157,7 @@ public class RecordingServiceDbImpl implements RecordingService {
     public boolean deleteRecording(String recordId) {
         Optional<Recording> recording = recordingRepository.findByRecordId(recordId);
 
-        if(recording.isPresent()) {
+        if (recording.isPresent()) {
             recordingRepository.delete(recording.get());
             return true;
         }
@@ -165,10 +169,11 @@ public class RecordingServiceDbImpl implements RecordingService {
     public List<Track> getTracks(String recordId) {
         Optional<Recording> optional = recordingRepository.findByRecordId(recordId);
 
-        if(optional.isPresent()) {
+        if (optional.isPresent()) {
             Recording recording = optional.get();
             List<Track> tracks = new ArrayList<>();
-            if(recording.getTracks() != null) tracks.addAll(recording.getTracks());
+            if (recording.getTracks() != null)
+                tracks.addAll(recording.getTracks());
             return tracks;
         }
 
@@ -202,7 +207,7 @@ public class RecordingServiceDbImpl implements RecordingService {
             track.setHref(captionFileUrlDirectory + recordId + "/" + caption);
 
             Optional<Recording> optional = recordingRepository.findByRecordId(recordId);
-            if(optional.isPresent()) {
+            if (optional.isPresent()) {
                 Recording recording = optional.get();
                 recording.addTrack(track);
                 recordingRepository.save(recording);
@@ -210,7 +215,7 @@ public class RecordingServiceDbImpl implements RecordingService {
             }
 
             return false;
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -220,7 +225,7 @@ public class RecordingServiceDbImpl implements RecordingService {
     public Events getEvents(String recordId) {
         Optional<Recording> optional = recordingRepository.findByRecordId(recordId);
 
-        if(optional.isPresent()) {
+        if (optional.isPresent()) {
             Recording recording = optional.get();
             return recording.getEvents();
         }

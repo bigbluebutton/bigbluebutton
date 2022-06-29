@@ -76,7 +76,7 @@ public class RecordingExportHandler {
             if (!dir.exists()) {
                 logger.info("Directory does not exist, creating");
                 boolean directoryCreated = dir.mkdir();
-                if(!directoryCreated) {
+                if (!directoryCreated) {
                     logger.info("Failed to create export directory.");
                     return;
                 }
@@ -84,10 +84,10 @@ public class RecordingExportHandler {
 
             File file = new File(dir + File.separator + "metadata.xml");
 
-            if(file.exists()) {
+            if (file.exists()) {
                 logger.info("File {} already exists...replacing it", file.getPath());
                 boolean deleted = file.delete();
-                if(!deleted) {
+                if (!deleted) {
                     logger.info("Failed to remove previous metadata file.");
                     return;
                 }

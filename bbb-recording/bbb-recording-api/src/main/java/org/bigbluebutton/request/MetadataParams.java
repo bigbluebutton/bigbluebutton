@@ -21,8 +21,8 @@ public class MetadataParams {
     public static Map<String, String> processMetaParams(Map<String, String> params) {
         Map<String, String> meta = new HashMap<>();
 
-        for(Map.Entry<String, String> entry: params.entrySet()) {
-            String key =  entry.getKey().substring(0, 5);
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            String key = entry.getKey().substring(0, 5);
             meta.put(key, entry.getValue());
         }
 

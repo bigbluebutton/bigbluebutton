@@ -14,19 +14,30 @@ import java.util.Map;
 
 public interface RecordingService {
 
-    List<Recording> searchRecordings(List<String> meetingIds, List<String> recordIds, List<String> states, Map<String, String> meta);
+    List<Recording> searchRecordings(List<String> meetingIds, List<String> recordIds, List<String> states,
+            Map<String, String> meta);
+
     Recording findRecording(String recordId);
+
     Recording updateRecording(String recordId, Map<String, String> meta);
+
     Recording publishRecording(String recordId, boolean publish);
+
     boolean deleteRecording(String recordId);
+
     List<Track> getTracks(String recordId);
+
     boolean putTrack(MultipartFile file, String recordId, String kind, String lang, String label);
+
     Events getEvents(String recordId);
 
-    default String convertToInternalId(String id) { return DigestUtils.sha1Hex(id); }
+    default String convertToInternalId(String id) {
+        return DigestUtils.sha1Hex(id);
+    }
 
     default boolean saveTrackInfoFile(Track track, String trackId, String captionsDir) {
-        String trackInfoFilePath = captionsDir + File.separatorChar + "inbox" + File.separatorChar + trackId + "-track.json";
+        String trackInfoFilePath = captionsDir + File.separatorChar + "inbox" + File.separatorChar + trackId
+                + "-track.json";
         String tempTrackInfoFilePath = trackInfoFilePath + ".tmp";
 
         boolean result;
@@ -37,12 +48,13 @@ public interface RecordingService {
             result = true;
             writer.flush();
             writer.close();
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             result = false;
         }
 
-        if(result) result = moveTrackInfoFile(tempTrackInfoFilePath, trackInfoFilePath);
+        if (result)
+            result = moveTrackInfoFile(tempTrackInfoFilePath, trackInfoFilePath);
 
         return result;
     }
@@ -52,7 +64,7 @@ public interface RecordingService {
 
         try {
             result = new File(tempFile).renameTo(new File(file));
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

@@ -47,7 +47,8 @@ public class RecordingServiceFileImpl implements RecordingService {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordingService.class);
 
-    private static final Pattern PRESENTATION_ID_PATTERN = Pattern.compile("^[a-z0-9]{40}-[0-9]{13}\\.[0-9a-zA-Z]{3,4}$");
+    private static final Pattern PRESENTATION_ID_PATTERN = Pattern
+            .compile("^[a-z0-9]{40}-[0-9]{13}\\.[0-9a-zA-Z]{3,4}$");
 
     private static final String METADATA_FILE = "metadata.xml";
     private static final String CAPTIONS_FILE = "captions.json";
@@ -55,10 +56,10 @@ public class RecordingServiceFileImpl implements RecordingService {
     private static String processDir = "/var/bigbluebutton/recording/process";
 
     @Value("${bbb.recording.publishedDir}")
-    private static String publishedDir = "/var/bigbluebutton/published";
+    private String publishedDir = "/var/bigbluebutton/published";
 
     @Value("${bbb.recording.unpublishedDir}")
-    private static String unpublishedDir = "/var/bigbluebutton/unpublished";
+    private String unpublishedDir = "/var/bigbluebutton/unpublished";
 
     private static String deletedDir = "/var/bigbluebutton/deleted";
     private String recordStatusDir;
@@ -83,21 +84,24 @@ public class RecordingServiceFileImpl implements RecordingService {
     }
 
     @Override
-    public List<Recording> searchRecordings(List<String> meetingIds, List<String> recordIds, List<String> states, Map<String, String> meta) {
-        if(recordIds.size() == 0 && meetingIds.size() > 0) {
-            for(String meetingId: meetingIds) recordIds.add(convertToInternalId(meetingId));
+    public List<Recording> searchRecordings(List<String> meetingIds, List<String> recordIds, List<String> states,
+            Map<String, String> meta) {
+        if (recordIds.size() == 0 && meetingIds.size() > 0) {
+            for (String meetingId : meetingIds)
+                recordIds.add(convertToInternalId(meetingId));
         }
 
         List<Recording> recordings = getRecordings(recordIds, states);
 
-        if(meta.size() == 0) return recordings;
+        if (meta.size() == 0)
+            return recordings;
 
         List<Recording> filteredRecordings = new ArrayList<>();
 
-        for(Map.Entry<String, String> entry: meta.entrySet()) {
-            for(Recording recording: recordings) {
-                for(Metadata metadata: recording.getMetadata()) {
-                    if(metadata.getKey().equals(entry.getKey()) && metadata.getValue().equals(entry.getValue())) {
+        for (Map.Entry<String, String> entry : meta.entrySet()) {
+            for (Recording recording : recordings) {
+                for (Metadata metadata : recording.getMetadata()) {
+                    if (metadata.getKey().equals(entry.getKey()) && metadata.getValue().equals(entry.getValue())) {
                         filteredRecordings.add(recording);
                         break;
                     }
@@ -122,9 +126,9 @@ public class RecordingServiceFileImpl implements RecordingService {
 
         Recording r = null;
         Map<Recording.State, List<File>> allDirectories = getAllDirectories(states);
-        for(Map.Entry<Recording.State, List<File>> entry: allDirectories.entrySet()) {
+        for (Map.Entry<Recording.State, List<File>> entry : allDirectories.entrySet()) {
             List<File> recordings = getRecordingsForPath(recordId, entry.getValue());
-            for(File recording: recordings) {
+            for (File recording : recordings) {
                 File metadataXml = new File(recording.getPath() + File.separatorChar + METADATA_FILE);
                 r = updateRecordingMetadata(metadataXml, meta, metadataXml);
             }
@@ -136,8 +140,10 @@ public class RecordingServiceFileImpl implements RecordingService {
     @Override
     public Recording publishRecording(String recordId, boolean publish) {
         Recording recording;
-        if(publish) recording = changeState(recordId, Recording.State.PUBLISHED);
-        else recording = changeState(recordId, Recording.State.UNPUBLISHED);
+        if (publish)
+            recording = changeState(recordId, Recording.State.PUBLISHED);
+        else
+            recording = changeState(recordId, Recording.State.UNPUBLISHED);
         return recording;
     }
 
@@ -153,7 +159,8 @@ public class RecordingServiceFileImpl implements RecordingService {
         String recordingPath = captionsDir + File.separatorChar + recordId;
         List<Track> tracks = new ArrayList<>();
 
-        if(!Files.exists(Paths.get(recordingPath))) return null;
+        if (!Files.exists(Paths.get(recordingPath)))
+            return null;
         else {
             String captionsFilePath = recordingPath + File.separatorChar + CAPTIONS_FILE;
             try {
@@ -161,10 +168,11 @@ public class RecordingServiceFileImpl implements RecordingService {
                 String captions = new String(bytes, StandardCharsets.UTF_8);
 
                 Gson gson = new Gson();
-                Type type = new TypeToken<List<LinkedTreeMap<String, String>>>() {}.getType();
+                Type type = new TypeToken<List<LinkedTreeMap<String, String>>>() {
+                }.getType();
                 List<LinkedTreeMap<String, String>> captionTracks = gson.fromJson(captions, type);
 
-                for(LinkedTreeMap<String, String> captionTrack: captionTracks) {
+                for (LinkedTreeMap<String, String> captionTrack : captionTracks) {
                     String caption = captionTrack.get("kind") + "_" + captionTrack.get("lang") + ".vtt";
                     Track track = new Track();
                     track.setHref(captionFileUrlDirectory + recordId + "/" + caption);
@@ -174,7 +182,7 @@ public class RecordingServiceFileImpl implements RecordingService {
                     track.setSource(captionTrack.get("source"));
                     tracks.add(track);
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -203,7 +211,7 @@ public class RecordingServiceFileImpl implements RecordingService {
             track.setContentType(contentType);
 
             return saveTrackInfoFile(track, trackId, captionsDir);
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -244,7 +252,7 @@ public class RecordingServiceFileImpl implements RecordingService {
         try {
             byte[] encoded = Files.readAllBytes(Paths.get(file.getPath()));
             content = new String(encoded, StandardCharsets.UTF_8);
-        } catch(IOException e) {
+        } catch (IOException e) {
             logger.error("Failed to import {}", file.getPath());
             e.printStackTrace();
         }
@@ -260,27 +268,27 @@ public class RecordingServiceFileImpl implements RecordingService {
     private Map<Recording.State, List<File>> getAllDirectories(List<String> states) {
         Map<Recording.State, List<File>> allDirectories = new HashMap<>();
 
-        if ( shouldIncludeState(states, Recording.State.PUBLISHED) ) {
+        if (shouldIncludeState(states, Recording.State.PUBLISHED)) {
             List<File> listedDirectories = getAllDirectories(Recording.State.PUBLISHED);
             allDirectories.put(Recording.State.PUBLISHED, listedDirectories);
         }
 
-        if ( shouldIncludeState(states, Recording.State.UNPUBLISHED) ) {
+        if (shouldIncludeState(states, Recording.State.UNPUBLISHED)) {
             List<File> listedDirectories = getAllDirectories(Recording.State.UNPUBLISHED);
             allDirectories.put(Recording.State.UNPUBLISHED, listedDirectories);
         }
 
-        if ( shouldIncludeState(states, Recording.State.DELETED) ) {
+        if (shouldIncludeState(states, Recording.State.DELETED)) {
             List<File> listedDirectories = getAllDirectories(Recording.State.DELETED);
             allDirectories.put(Recording.State.DELETED, listedDirectories);
         }
 
-        if ( shouldIncludeState(states, Recording.State.PROCESSING) ) {
+        if (shouldIncludeState(states, Recording.State.PROCESSING)) {
             List<File> listedDirectories = getAllDirectories(Recording.State.PROCESSING);
             allDirectories.put(Recording.State.PROCESSING, listedDirectories);
         }
 
-        if ( shouldIncludeState(states, Recording.State.PROCESSED) ) {
+        if (shouldIncludeState(states, Recording.State.PROCESSED)) {
             List<File> listedDirectories = getAllDirectories(Recording.State.PROCESSED);
             allDirectories.put(Recording.State.PROCESSED, listedDirectories);
         }
@@ -297,13 +305,16 @@ public class RecordingServiceFileImpl implements RecordingService {
             } else {
                 if (state == Recording.State.PUBLISHED && states.contains(Recording.State.PUBLISHED.getValue())) {
                     r = true;
-                } else if (state == Recording.State.UNPUBLISHED && states.contains(Recording.State.UNPUBLISHED.getValue())) {
+                } else if (state == Recording.State.UNPUBLISHED
+                        && states.contains(Recording.State.UNPUBLISHED.getValue())) {
                     r = true;
                 } else if (state == Recording.State.DELETED && states.contains(Recording.State.DELETED.getValue())) {
                     r = true;
-                } else if (state == Recording.State.PROCESSING && states.contains(Recording.State.PROCESSING.getValue())) {
+                } else if (state == Recording.State.PROCESSING
+                        && states.contains(Recording.State.PROCESSING.getValue())) {
                     r = true;
-                } else if (state == Recording.State.PROCESSED && states.contains(Recording.State.PROCESSED.getValue())) {
+                } else if (state == Recording.State.PROCESSED
+                        && states.contains(Recording.State.PROCESSED.getValue())) {
                     r = true;
                 }
             }
@@ -322,7 +333,7 @@ public class RecordingServiceFileImpl implements RecordingService {
 
         String dir = getDestinationBaseDirectoryName(state);
 
-        if ( dir != null ) {
+        if (dir != null) {
             String[] formats = getPlaybackFormats(dir);
             for (String format : formats) {
                 allDirectories.addAll(getDirectories(dir + File.separatorChar + format));
@@ -339,15 +350,15 @@ public class RecordingServiceFileImpl implements RecordingService {
     private String getDestinationBaseDirectoryName(Recording.State state, boolean forceDefault) {
         String baseDir = null;
 
-        if ( state == Recording.State.PROCESSING || state == Recording.State.PROCESSED )
+        if (state == Recording.State.PROCESSING || state == Recording.State.PROCESSED)
             baseDir = processDir;
-        else if ( state == Recording.State.PUBLISHED )
+        else if (state == Recording.State.PUBLISHED)
             baseDir = publishedDir;
-        else if ( state == Recording.State.UNPUBLISHED )
+        else if (state == Recording.State.UNPUBLISHED)
             baseDir = unpublishedDir;
-        else if ( state == Recording.State.DELETED )
+        else if (state == Recording.State.DELETED)
             baseDir = deletedDir;
-        else if ( forceDefault )
+        else if (forceDefault)
             baseDir = publishedDir;
 
         return baseDir;
@@ -408,10 +419,10 @@ public class RecordingServiceFileImpl implements RecordingService {
     private Recording updateRecordingMetadata(File src, Map<String, String> meta, File dest) {
         Recording recording = getRecording(src);
 
-        if(recording != null) {
+        if (recording != null) {
             Set<Metadata> metadata = recording.getMetadata();
 
-            for(Map.Entry<String, String> entry: meta.entrySet()) {
+            for (Map.Entry<String, String> entry : meta.entrySet()) {
                 for (Metadata m : metadata) {
                     if (m.getKey().equals(entry.getKey())) {
                         m.setValue(entry.getValue());
@@ -426,7 +437,8 @@ public class RecordingServiceFileImpl implements RecordingService {
             }
 
             boolean exported = exportMetadata(dest, recording);
-            if(exported) return recording;
+            if (exported)
+                return recording;
         }
 
         return null;
@@ -434,9 +446,9 @@ public class RecordingServiceFileImpl implements RecordingService {
 
     private boolean exportMetadata(File dest, Recording recording) {
         try {
-            if(dest.exists()) {
+            if (dest.exists()) {
                 boolean deleted = dest.delete();
-                if(!deleted) {
+                if (!deleted) {
                     logger.info("Failed to remove previous metadata file");
                     return false;
                 }
@@ -444,7 +456,7 @@ public class RecordingServiceFileImpl implements RecordingService {
 
             boolean created = dest.createNewFile();
 
-            if(created) {
+            if (created) {
                 String xml = xmlService.recordingToXml(recording);
 
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -474,7 +486,7 @@ public class RecordingServiceFileImpl implements RecordingService {
 
                 return true;
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -532,7 +544,8 @@ public class RecordingServiceFileImpl implements RecordingService {
         Recording recording = getRecording(metadataXml);
 
         if (recording != null) {
-            if (!destDir.exists()) destDir.mkdirs();
+            if (!destDir.exists())
+                destDir.mkdirs();
 
             try {
                 FileUtils.moveDirectory(recordingDir, new File(destDir.getPath() + File.separatorChar + recordingId));
@@ -540,11 +553,13 @@ public class RecordingServiceFileImpl implements RecordingService {
                 recording.setState(Recording.State.PUBLISHED.getValue());
                 recording.setPublished(true);
 
-                File metadataXmlFile = new File(destDir.getAbsolutePath() + File.separatorChar + recordingId + File.separatorChar + METADATA_FILE);
+                File metadataXmlFile = new File(destDir.getAbsolutePath() + File.separatorChar + recordingId
+                        + File.separatorChar + METADATA_FILE);
 
                 // Process the changes by saving the recording into metadata.xml
                 boolean exported = exportMetadata(metadataXmlFile, recording);
-                if(exported) return recording;
+                if (exported)
+                    return recording;
             } catch (IOException e) {
                 logger.error("Failed to publish recording : " + recordingId, e);
             }
@@ -557,18 +572,21 @@ public class RecordingServiceFileImpl implements RecordingService {
         Recording recording = getRecording(metadataXml);
 
         if (recording != null) {
-            if (!destDir.exists()) destDir.mkdirs();
+            if (!destDir.exists())
+                destDir.mkdirs();
 
             try {
                 FileUtils.moveDirectory(recordingDir, new File(destDir.getPath() + File.separatorChar + recordingId));
                 recording.setState(Recording.State.UNPUBLISHED.getValue());
                 recording.setPublished(false);
 
-                File metadataXmlFile = new File(destDir.getAbsolutePath() + File.separatorChar + recordingId + File.separatorChar + METADATA_FILE);
+                File metadataXmlFile = new File(destDir.getAbsolutePath() + File.separatorChar + recordingId
+                        + File.separatorChar + METADATA_FILE);
 
                 // Process the changes by saving the recording into metadata.xml
                 boolean exported = exportMetadata(metadataXmlFile, recording);
-                if(exported) return recording;
+                if (exported)
+                    return recording;
             } catch (IOException e) {
                 logger.error("Failed to unpublish recording : " + recordingId, e);
             }
@@ -582,18 +600,21 @@ public class RecordingServiceFileImpl implements RecordingService {
         Recording recording = getRecording(metadataXml);
 
         if (recording != null) {
-            if (!destDir.exists()) destDir.mkdirs();
+            if (!destDir.exists())
+                destDir.mkdirs();
 
             try {
                 FileUtils.moveDirectory(recordingDir, new File(destDir.getPath() + File.separatorChar + recordingId));
                 recording.setState(Recording.State.DELETED.getValue());
                 recording.setPublished(false);
 
-                File metadataXmlFile = new File(destDir.getAbsolutePath() + File.separatorChar + recordingId + File.separatorChar + METADATA_FILE);
+                File metadataXmlFile = new File(destDir.getAbsolutePath() + File.separatorChar + recordingId
+                        + File.separatorChar + METADATA_FILE);
 
                 // Process the changes by saving the recording into metadata.xml
                 boolean exported = exportMetadata(metadataXmlFile, recording);
-                if(exported) return recording;
+                if (exported)
+                    return recording;
             } catch (IOException e) {
                 logger.error("Failed to delete recording : " + recordingId, e);
             }

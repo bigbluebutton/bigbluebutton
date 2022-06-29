@@ -35,6 +35,8 @@ public class DataStore {
                 .addAnnotatedClass(PlaybackFormat.class)
                 .addAnnotatedClass(Thumbnail.class)
                 .addAnnotatedClass(CallbackData.class)
+                .addAnnotatedClass(Track.class)
+                .addAnnotatedClass(Events.class)
                 .buildSessionFactory();
     }
 

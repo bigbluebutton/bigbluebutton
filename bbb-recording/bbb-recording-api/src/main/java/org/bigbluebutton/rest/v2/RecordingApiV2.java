@@ -18,31 +18,27 @@ public interface RecordingApiV2 {
     @RequestMapping(value = "/v2/recordings/{recordID}", produces = { MediaType.APPLICATION_JSON_VALUE,
             MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.GET)
     ResponseEntity<Response> getRecording(
-            @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID
-    );
+            @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID);
 
     @RequestMapping(value = "/v2/recordings/{recordID}", produces = { MediaType.APPLICATION_JSON_VALUE,
             MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.POST)
     ResponseEntity<Response> updateRecording(
             @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID,
-            @Parameter(in = ParameterIn.DEFAULT, description = "Metadata params to update", required = true) @RequestBody MetadataParams meta
-    );
+            @Parameter(in = ParameterIn.DEFAULT, description = "Metadata params to update", required = true) @RequestBody MetadataParams meta);
 
     @RequestMapping(value = "/v2/recordings/{recordID}", produces = { MediaType.APPLICATION_JSON_VALUE,
             MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.DELETE)
     ResponseEntity<Response> deleteRecording(
-            @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID
-    );
+            @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID);
 
     @RequestMapping(value = "/v2/recordings/{recordID}", produces = { MediaType.APPLICATION_JSON_VALUE,
             MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.PUT)
     ResponseEntity<Response> publishRecording(
             @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID,
-            @Parameter(in = ParameterIn.QUERY, description = "Should the recording be published", required = true) @RequestParam("publish") Boolean publish
-    );
+            @Parameter(in = ParameterIn.QUERY, description = "Should the recording be published", required = true) @RequestParam("publish") Boolean publish);
 
-    @RequestMapping(value = "/v2/recordings/{recordID}/events", produces = {MediaType.APPLICATION_JSON_VALUE,
-            MediaType.APPLICATION_XML_VALUE}, method = RequestMethod.GET)
-    ResponseEntity<Response> getRecordingEvents(
+    @RequestMapping(value = "/v2/recordings/{recordID}/events", produces = { MediaType.APPLICATION_JSON_VALUE,
+            MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.GET)
+    ResponseEntity<Response> getMeetingSummary(
             @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID);
 }

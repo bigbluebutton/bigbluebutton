@@ -13,7 +13,8 @@ public interface XmlService {
     String playbackFormatToXml(PlaybackFormat playbackFormat);
     String thumbnailToXml(Thumbnail thumbnail);
     String callbackDataToXml(CallbackData callbackData);
-    String constructResponseFromRecordingsXml(String xml);
+    String eventsToXml(Events events);
+    String constructResponseFromXml(String xml);
     String constructPaginatedResponse(Page<?> page, String response);
     String constructGenericResponse(String[] keys, String[] values);
     Recording xmlToRecording(String recordId, String xml);
