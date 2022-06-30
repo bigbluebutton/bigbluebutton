@@ -296,7 +296,7 @@ class InputStreamLiveSelector extends Component {
         size="lg"
         circle
         accessKey={shortcuts.togglemute}
-        talking={talking || undefined}
+        $talking={talking || undefined}
         animations={animations}
         data-test="toggleMicrophoneButton"
       />

@@ -50,6 +50,7 @@ export default function Whiteboard(props) {
     setIsZoomed,
     zoomChanger,
     isZoomed,
+    isMultiUserActive,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -221,8 +222,10 @@ export default function Whiteboard(props) {
       <Cursors
         tldrawAPI={tldrawAPI}
         currentUser={currentUser}
+        hasMultiUserAccess={props?.hasMultiUserAccess}
         whiteboardId={whiteboardId}
         isViewersCursorLocked={isViewersCursorLocked}
+        isMultiUserActive={isMultiUserActive}
       >
         <Tldraw
           key={`wb-${!hasWBAccess && !isPresenter}`}
@@ -231,9 +234,32 @@ export default function Whiteboard(props) {
           // until we handle saving of assets in akka.
           disableAssets={true}
           onMount={(app) => {
-            if (!hasWBAccess && !isPresenter) app.onPan = () => {};
             setTLDrawAPI(app);
             props.setTldrawAPI(app);
+            // disable for non presenter that doesn't have multi user access
+            if (!hasWBAccess && !isPresenter) {
+              app.onPan = () => {};
+              app.setSelectedIds = () => {};
+              app.setHoveredId = () => {};
+            } else {
+              // disable hover highlight for background slide shape
+              app.setHoveredId = (id) => {
+                if (id.includes('slide-background')) return null;
+                app.patchState(
+                  {
+                    document: {
+                      pageStates: {
+                        [app.getPage()?.id]: {
+                          hoveredId: id,
+                        },
+                      },
+                    },
+                  },
+                  `set_hovered_id`
+                );
+              };
+            }
+
             if (curPageId) {
               app.changePage(curPageId);
               if (slidePosition.zoom === 0) {
