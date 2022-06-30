@@ -3,7 +3,7 @@ const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { openConnectionStatus, checkNetworkStatus } = require('./util');
-const { sleep } = require('../core/helpers');;
+const { sleep } = require('../core/helpers');
 
 class ConnectionStatus extends MultiUsers {
   constructor(browser, context) {
@@ -44,17 +44,17 @@ class ConnectionStatus extends MultiUsers {
     await this.modPage.page.evaluate(() => window.dispatchEvent(new CustomEvent('socketstats', { detail: { rtt: 2000 } })));
     await this.modPage.hasElement(e.connectionStatusLinkToSettings);
     await this.modPage.waitAndClick(e.connectionStatusLinkToSettings);
-    await sleep(5000);
     await this.modPage.waitForSelector(e.dataSavingsTab);
   }
 
   async copyStatsTest(context) {
     await openConnectionStatus(this.modPage);
+    await this.modPage.hasElementEnabled(e.copyStats);
     await this.modPage.waitAndClick(e.copyStats);
     await context.grantPermissions(['clipboard-write', 'clipboard-read'], { origin: process.env.BBB_URL });
     const copiedText = await this.modPage.page.evaluate(async () => navigator.clipboard.readText());
     const check = copiedText.includes("audioCurrentUploadRate");
-    expect(check).toBeTruthy();
+    await expect(check).toBeTruthy();
   }
 }
 

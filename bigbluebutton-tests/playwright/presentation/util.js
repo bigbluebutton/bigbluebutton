@@ -36,7 +36,7 @@ async function uploadMultiplePresentations(test, fileNames, uploadTimeout = ELEM
   await test.hasText('body', e.statingUploadPresentationToast);
 
   await test.waitAndClick(e.confirmManagePresentation);
-  await test.hasText(e.presentationStatusInfo, e.convertingPresentationFileToast, uploadTimeout);
+  await test.hasText(e.presentationStatusInfo, [e.convertingPresentationFileToast], uploadTimeout);
   await test.hasText(e.smallToastMsg, e.presentationUploadedToast, uploadTimeout);
 }
 

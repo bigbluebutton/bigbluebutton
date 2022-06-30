@@ -165,7 +165,7 @@ class Page {
   }
 
   async hasElementEnabled(selector, timeout = ELEMENT_WAIT_TIME) {
-    const locator = this.getLocator(selector);
+    const locator = this.getLocator(`${selector}:not([disabled])`);
     await expect(locator).toBeEnabled({ timeout });
   }
 

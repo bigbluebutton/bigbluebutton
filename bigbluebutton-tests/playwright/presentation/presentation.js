@@ -105,7 +105,7 @@ class Presentation extends MultiUsers {
     const width1 = await this.modPage.page.locator(e.whiteboard).getAttribute("width");
     await this.modPage.waitAndClick(e.fitToWidthButton);
     const width2 = await this.modPage.page.locator(e.whiteboard).getAttribute("width");
-    await expect(width2 > width1).toBeTruthy();
+    await expect(Number(width2) > Number(width1)).toBeTruthy();
   }
 
   async allowAndDisallowDownload(testInfo) {

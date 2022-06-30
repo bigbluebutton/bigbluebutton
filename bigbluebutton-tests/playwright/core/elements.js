@@ -194,6 +194,7 @@ exports.dataSavingsTab = 'span[id="dataSaving"]';
 
 // User
 const userAvatar = 'div[data-test="userAvatar"]';
+const networkDataContainer = 'div[data-test="networkDataContainer"]';
 exports.userAvatar = userAvatar;
 exports.moderatorAvatar = 'div[data-test="moderatorAvatar"]';
 exports.viewerAvatar = 'div[data-test="viewerAvatar"]';
@@ -217,10 +218,10 @@ exports.screenshareLocked = 'button[data-test="screenshareLocked"]';
 exports.connectionStatusItemEmpty = 'div[data-test="connectionStatusItemEmpty"]';
 exports.connectionStatusTab2 = 'div[data-tab="2"]';
 exports.connectionStatusItemUser = 'div[data-test="connectionStatusItemUser"]';
-exports.connectionStatusLinkToSettings = 'div[data-test="networkDataContainer"] span[role="button"]';
+exports.connectionStatusLinkToSettings = `${networkDataContainer} span[role="button"]`;
 exports.dataSavingWebcams = 'input[data-test="dataSavingWebcams"]';
 exports.connectionStatusOfflineUser = 'div[data-test="offlineUser"]';
-exports.connectionDataContainer = 'div[data-test="networkDataContainer"]';
+exports.connectionDataContainer = networkDataContainer;
 exports.avatarsWrapperAvatar = 'div[data-test="avatarsWrapperAvatar"]';
 exports.guestPolicyLabel = 'li[data-test="guestPolicyLabel"]';
 exports.downloadUserNamesList = 'li[data-test="downloadUserNamesList"]';
