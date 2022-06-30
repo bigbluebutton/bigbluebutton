@@ -36,6 +36,7 @@ class ActionsBar extends PureComponent {
       actionsBarStyle,
       setMeetingLayout,
       showPushLayout,
+      setPushLayout,
     } = this.props;
 
     return (
@@ -59,6 +60,7 @@ class ActionsBar extends PureComponent {
             stopExternalVideoShare,
             isMeteorConnected,
             setMeetingLayout,
+            setPushLayout,
             presentationIsOpen,
             showPushLayout,
           }}

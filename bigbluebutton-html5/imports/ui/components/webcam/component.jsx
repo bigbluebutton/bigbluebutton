@@ -24,6 +24,7 @@ const WebcamComponent = ({
   const [isFullscreen, setIsFullScreen] = useState(false);
   const [resizeStart, setResizeStart] = useState({ width: 0, height: 0 });
   const [cameraMaxWidth, setCameraMaxWidth] = useState(0);
+  const [draggedAtLeastOneTime, setDraggedAtLeastOneTime] = useState(false);
 
   const lastSize = Storage.getItem('webcamSize') || { width: 0, height: 0 };
   const { width: lastWidth, height: lastHeight } = lastSize;
@@ -119,9 +120,10 @@ const WebcamComponent = ({
 
   const handleWebcamDragStop = (e) => {
     setIsDragging(false);
+    setDraggedAtLeastOneTime(false);
     document.body.style.overflow = 'auto';
 
-    if (Object.values(CAMERADOCK_POSITION).includes(e.target.id)) {
+    if (Object.values(CAMERADOCK_POSITION).includes(e.target.id) && draggedAtLeastOneTime) {
       layoutContextDispatch({
         type: ACTIONS.SET_CAMERA_DOCK_POSITION,
         value: e.target.id,
@@ -160,6 +162,11 @@ const WebcamComponent = ({
           handle="video"
           bounds="html"
           onStart={handleWebcamDragStart}
+          onDrag={() => {
+            if (!draggedAtLeastOneTime) {
+              setDraggedAtLeastOneTime(true);
+            }
+          }}
           onStop={handleWebcamDragStop}
           onMouseDown={
             cameraDock.isDraggable ? (e) => e.preventDefault() : undefined

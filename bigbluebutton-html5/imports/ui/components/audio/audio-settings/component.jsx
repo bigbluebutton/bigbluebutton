@@ -309,10 +309,8 @@ class AudioSettings extends React.Component {
           <Styled.BackButton
             label={intl.formatMessage(intlMessages.backLabel)}
             size="md"
-            color="primary"
             onClick={handleBack}
             disabled={isConnecting}
-            ghost
           />
           <Button
             size="md"

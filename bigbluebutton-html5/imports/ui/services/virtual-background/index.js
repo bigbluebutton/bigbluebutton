@@ -249,7 +249,11 @@ class VirtualBackgroundService {
         }
         this._virtualImage = document.createElement('img');
         this._virtualImage.crossOrigin = 'anonymous';
-        this._virtualImage.src = virtualBackgroundImagePath + imagesrc;
+        if (parameters.customParams) {
+            this._virtualImage.src = parameters.customParams.file;
+        } else {
+            this._virtualImage.src = virtualBackgroundImagePath + imagesrc;
+        }
     }
 
     /**
@@ -335,7 +339,11 @@ export async function createVirtualBackgroundService(parameters = null) {
         parameters.backgroundType = 'blur';
         parameters.isVirtualBackground = false;
     } else {
-        parameters.virtualSource = virtualBackgroundImagePath + parameters.backgroundFilename;
+        if (parameters.customParams) {
+            parameters.virtualSource = parameters.customParams.file;
+        } else {
+            parameters.virtualSource = virtualBackgroundImagePath + parameters.backgroundFilename;
+        }
     }
 
     if (!modelResponse.ok) {

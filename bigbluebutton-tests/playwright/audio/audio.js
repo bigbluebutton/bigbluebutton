@@ -13,7 +13,6 @@ class Audio extends Page {
     await this.waitAndClick(e.listenOnlyButton);
     await this.wasRemoved(e.connecting);
     await this.waitForSelector(e.leaveAudio, listenOnlyCallTimeout);
-    await this.waitForSelector(e.whiteboard);
     await this.hasElement(e.leaveAudio);
   }
 
@@ -33,8 +32,9 @@ class Audio extends Page {
       await this.wasRemoved(e.connectingToEchoTest, ELEMENT_WAIT_LONGER_TIME);
       await this.waitAndClick(e.echoYesButton, listenOnlyCallTimeout);
     }
-    await this.waitForSelector(e.whiteboard, shouldSkipEchoTest ? listenOnlyCallTimeout : ELEMENT_WAIT_TIME);
     await this.hasElement(e.isTalking);
+    await this.hasElement(e.toggleMicrophoneButton);
+    await this.hasElement(e.leaveAudio);
   }
 }
 

@@ -45,6 +45,11 @@ const EmojiButton = styled.button`
   z-index: 2;
   border: none;
 
+  [dir="rtl"] & {
+    right: initial;
+    left: -.2em;
+  }
+
   &:hover {
     transform: scale(1.5);
     transition-duration: 150ms;
@@ -60,6 +65,15 @@ const EmojiButton = styled.button`
     margin-top: 40%;
     color: ${btnDefaultColor};
   }
+
+  ${({ rotate }) => rotate && `
+    span {
+      i {
+        transform: rotate(180deg);
+        margin-top: 20%;
+      }
+    }
+  `}
 `;
 
 const EmojiButtonSpace = styled.div`
@@ -70,6 +84,11 @@ const EmojiButtonSpace = styled.div`
   right: -.4em;
   bottom: -.2em;
   border-radius: 50%;
+
+  [dir="rtl"] & {
+    right: initial;
+    left: -.4em;
+  }
 `;
 
 export default {

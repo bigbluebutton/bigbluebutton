@@ -3,6 +3,7 @@ import {
   borderSize,
   borderSizeLarge,
   borderSizeSmall,
+  smPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   userThumbnailBorder,
@@ -13,18 +14,26 @@ import {
   colorPrimary,
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+import { fontSizeSmallest } from '/imports/ui/stylesheets/styled-components/typography';
 import Button from '/imports/ui/components/common/button/component';
 
 const VirtualBackgroundRowThumbnail = styled.div`
   margin-top: 0.4rem;
 `;
 
-const BgWrapper = styled.div`
+const BgWrapper = styled(ScrollboxVertical)`
   display: flex;
   justify-content: flex-start;
   overflow-x: auto;
   margin: ${borderSizeLarge};
   padding: ${borderSizeLarge};
+
+  ${({ isVisualEffects }) => isVisualEffects && `
+    height: 15rem;
+    flex-wrap: wrap;
+    align-content: flex-start;
+  `}
 `;
 
 const BgNoneButton = styled(Button)`
@@ -34,6 +43,10 @@ const BgNoneButton = styled(Button)`
   border: ${borderSizeSmall} solid ${userThumbnailBorder};
   margin: 0 0.15em;
   flex-shrink: 0;
+
+  ${({ isVisualEffects }) => isVisualEffects && `
+    margin: 0.15em;
+  `}
 `;
 
 const ThumbnailButton = styled(Button)`
@@ -51,6 +64,12 @@ const ThumbnailButton = styled(Button)`
   border: ${borderSizeSmall} solid ${userThumbnailBorder};
   margin: 0 0.15em;
   flex-shrink: 0;
+
+  ${({ isVisualEffects }) => isVisualEffects && `
+    background-size: cover;
+    background-position: center;
+    margin: 0.15em;
+  `}
 
   & + img {
     border-radius: ${borderSizeLarge};
@@ -112,6 +131,26 @@ const Label = styled.label`
   color: ${colorGrayLabel};
 `;
 
+const ThumbnailButtonWrapper = styled.div`
+  position: relative;
+`;
+
+const ButtonWrapper = styled.div`
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  top: 0;
+`;
+
+const ButtonRemove = styled(Button)`
+  span {
+    font-size: ${fontSizeSmallest};
+    padding: ${smPaddingY};
+  }
+`;
+
+const BgCustomButton = styled(BgNoneButton)``;
+
 export default {
   VirtualBackgroundRowThumbnail,
   BgWrapper,
@@ -120,4 +159,8 @@ export default {
   Thumbnail,
   Select,
   Label,
+  ThumbnailButtonWrapper,
+  ButtonWrapper,
+  ButtonRemove,
+  BgCustomButton,
 };

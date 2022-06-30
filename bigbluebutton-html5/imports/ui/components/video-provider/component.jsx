@@ -147,6 +147,7 @@ class VideoProvider extends Component {
       VideoService.getPageChangeDebounceTime(),
       { leading: false, trailing: true },
     );
+    this.startVirtualBackgroundByDrop = this.startVirtualBackgroundByDrop.bind(this);
   }
 
   componentDidMount() {
@@ -937,6 +938,34 @@ class VideoProvider extends Component {
     }
   }
 
+  startVirtualBackgroundByDrop(stream, type, name, data) {
+    return new Promise((resolve, reject) => {
+      const peer = this.webRtcPeers[stream];
+      const { bbbVideoStream } = peer;
+      const video = this.getVideoElement(stream);
+
+      if (peer && video && peer.attached && video.srcObject) {
+        bbbVideoStream.startVirtualBackground(type, name, { file: data })
+          .then(resolve)
+          .catch(reject);
+      }
+    }).catch((error) => {
+      this.handleVirtualBgErrorByDropping(error, type, name);
+    });
+  }
+
+  handleVirtualBgErrorByDropping(error, type, name) {
+    logger.error({
+      logCode: `video_provider_virtualbg_error`,
+      extraInfo: {
+        errorName: error.name,
+        errorMessage: error.message,
+        virtualBgType: type,
+        virtualBgName: name,
+      },
+    }, `Failed to start virtual background by dropping image: ${error.message}`);
+  }
+
   restoreVirtualBackground(stream, type, name) {
     return new Promise((resolve, reject) => {
       if (type !== EFFECT_TYPES.NONE_TYPE) {
@@ -1116,6 +1145,7 @@ class VideoProvider extends Component {
         }}
         onVideoItemMount={this.createVideoTag}
         onVideoItemUnmount={this.destroyVideoTag}
+        onVirtualBgDrop={this.startVirtualBackgroundByDrop}
       />
     );
   }
