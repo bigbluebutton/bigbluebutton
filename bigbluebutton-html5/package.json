@@ -64,7 +64,6 @@
     "react": "^17.0.2",
     "react-autosize-textarea": "^5.0.1",
     "react-color": "^2.19.3",
-    "react-cursor-position": "^3.0.3",
     "react-dom": "^17.0.2",
     "react-draggable": "^3.3.2",
     "react-dropzone": "^7.0.1",

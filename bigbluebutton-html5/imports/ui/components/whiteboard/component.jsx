@@ -50,6 +50,7 @@ export default function Whiteboard(props) {
     setIsZoomed,
     zoomChanger,
     isZoomed,
+    isMultiUserActive,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -221,8 +222,10 @@ export default function Whiteboard(props) {
       <Cursors
         tldrawAPI={tldrawAPI}
         currentUser={currentUser}
+        hasMultiUserAccess={props?.hasMultiUserAccess}
         whiteboardId={whiteboardId}
         isViewersCursorLocked={isViewersCursorLocked}
+        isMultiUserActive={isMultiUserActive}
       >
         <Tldraw
           key={`wb-${!hasWBAccess && !isPresenter}`}
