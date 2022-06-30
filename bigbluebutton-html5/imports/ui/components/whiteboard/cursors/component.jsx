@@ -1,6 +1,8 @@
 import * as React from "react";
 import { _ } from "lodash";
 
+const RESIZE_HANDLE_HEIGHT = 8;
+
 function usePrevious(value) {
   const ref = React.useRef();
   React.useEffect(() => {
@@ -136,15 +138,27 @@ export default function Cursors(props) {
 
   const moved = (event) => {
     const { type } = event;
-    const yOffset = parseFloat(document.getElementById('Navbar')?.style?.height);
+    const nav = document.getElementById('Navbar');
+    let yOffset = parseFloat(nav?.style?.height);
     const getSibling = (el) => el?.previousSibling || null;
-    const panel = getSibling(document.getElementById('Navbar'));
+    const panel = getSibling(nav);
+    const webcams = !nav?.nextSibling?.hasAttribute('role') ? nav?.nextSibling : null;
     const subPanel = panel && getSibling(panel);
-    const xOffset = (parseFloat(panel?.style?.width) || 0) + (parseFloat(subPanel?.style?.width) || 0);
+    let xOffset = (parseFloat(panel?.style?.width) || 0) + (parseFloat(subPanel?.style?.width) || 0);
+
     if (type === 'touchmove') {
       !active && setActive(true);
       return setPos({ x: event?.changedTouches[0]?.clientX - xOffset, y: event?.changedTouches[0]?.clientY - yOffset });
     }
+
+    if (webcams) {
+      yOffset += (parseFloat(webcams?.firstChild?.style?.height) + RESIZE_HANDLE_HEIGHT);
+    }
+
+    if (document?.documentElement?.dir === 'rtl') {
+      xOffset = 0;
+    }
+
     return setPos({ x: event.x - xOffset, y: event.y - yOffset });
   }
 
