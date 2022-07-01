@@ -35,10 +35,12 @@ const CursorContainer = (props) => {
 
 export default lockContextContainer(
   withTracker((params) => {
-    const { cursorId, userLocks, whiteboardId } = params;
+    const { cursorId, userLocks, whiteboardId, presenter } = params;
     const isViewersCursorLocked = userLocks?.hideViewersCursor;
     const cursor = CursorService.getCurrentCursor(cursorId);
-    if (cursor && WhiteboardService.hasMultiUserAccess(whiteboardId, cursor.userId)) {
+    const hasPermission = presenter || WhiteboardService.hasMultiUserAccess(whiteboardId, cursor.userId);
+
+    if (cursor&& hasPermission) {
       const {
         xPercent: cursorX,
         yPercent: cursorY,
