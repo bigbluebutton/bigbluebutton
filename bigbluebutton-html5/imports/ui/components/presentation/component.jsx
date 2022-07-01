@@ -25,6 +25,7 @@ import { colorContentBackground } from '/imports/ui/stylesheets/styled-component
 import browserInfo from '/imports/utils/browserInfo';
 import PresentationMenu from './presentation-menu/container';
 import { addNewAlert } from '../screenreader-alert/service';
+import { clearCursors } from '/imports/ui/components/cursor/service';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -169,6 +170,7 @@ class Presentation extends PureComponent {
 
     if (!multiUser) {
       clearFakeAnnotations();
+      clearCursors();
     }
 
     if (numCameras !== prevNumCameras) {
