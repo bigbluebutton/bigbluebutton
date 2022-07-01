@@ -944,7 +944,7 @@ class Presentation extends PureComponent {
       <>
         <Styled.PresentationContainer
           role="region"
-
+          data-test="presentationContainer"
           ref={(ref) => { this.refPresentationContainer = ref; }}
           style={{
             top: presentationBounds.top,
@@ -961,7 +961,7 @@ class Presentation extends PureComponent {
           }}
         >
           {this.renderPresentationMenu()}
-          <WhiteboardContainer 
+          <WhiteboardContainer
             whiteboardId={currentSlide?.id}
             podId={podId}
             slidePosition={slidePosition}

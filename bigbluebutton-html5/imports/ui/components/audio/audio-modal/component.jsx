@@ -480,7 +480,7 @@ class AudioModal extends Component {
     if (this.skipAudioOptions()) {
       return (
         <Styled.Connecting role="alert">
-          <span data-test={!isEchoTest ? 'connecting' : 'connectingToEchoTest'}>
+          <span data-test={!isEchoTest ? 'establishingAudioLabel' : 'connectingToEchoTest'}>
             {intl.formatMessage(intlMessages.connecting)}
           </span>
           <Styled.ConnectingAnimation animations={animations} />

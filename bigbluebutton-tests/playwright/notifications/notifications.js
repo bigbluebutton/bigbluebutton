@@ -25,11 +25,12 @@ class Notifications extends MultiUsers {
     await util.checkNotificationText(this.modPage, e.joinAudioToast);
     await util.checkNotificationIcon(this.modPage, e.unmuteIcon);
     await util.waitAndClearNotification(this.modPage);
+    await this.modPage.waitAndClick(e.audioDropdownMenu);
     await this.modPage.waitAndClick(e.leaveAudio);
     await util.waitAndClearNotification(this.modPage);
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.waitAndClick(e.listenOnlyButton);
-    await this.modPage.wasRemoved(e.connecting);
+    await this.modPage.wasRemoved(e.establishingAudioLabel);
     await util.checkNotificationText(this.modPage, e.joinAudioToast);
     await util.checkNotificationIcon(this.modPage, e.listenOnlyIcon);
   }
