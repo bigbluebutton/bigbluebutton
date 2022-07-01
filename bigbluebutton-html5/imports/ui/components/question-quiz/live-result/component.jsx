@@ -9,7 +9,6 @@ import Service from './service';
 import Settings from '/imports/ui/services/settings';
 
 
-const QUIZ_SETTINGS = Meteor.settings.public.questionQuiz;
 
 const intlMessages = defineMessages({
   usersTitle: {
@@ -77,42 +76,46 @@ class LiveResult extends PureComponent {
 
     userAnswers = userAnswers.map(id => usernames[id])
       .map((user) => {
-        let answer = '';
+        if(user){
+          let answer = '';
 
-        if (responses) {
-          const response = responses.find(r => r.userId === user.userId);
-          if (response) {
-            const answerKeys = [];
-            response.answerIds.forEach((answerId) => {
-              answerKeys.push(answers[answerId].key);
-            });
-            answer = answerKeys.join(', ');
+          if (responses) {
+            const response = responses.find(r => r.userId === user.userId);
+            if (response) {
+              const answerKeys = [];
+              response.answerIds.forEach((answerId) => {
+                answerKeys.push(answers[answerId].key);
+              });
+              answer = answerKeys.join(', ');
+            }
           }
+  
+          return {
+            name: user.name,
+            answer,
+          };
         }
-
-        return {
-          name: user.name,
-          answer,
-        };
       })
       .sort(Service.sortUsers)
       .reduce((acc, user) => {
-        const formattedMessageIndex = user.answer.toLowerCase();
-        return ([
-          ...acc,
-          (
-            <tr key={_.uniqueId('stats-')}>
-              <Styled.ResultLeft>{user.name}</Styled.ResultLeft>
-              <Styled.ResultRight data-test="receivedAnswer">
-                {
-                  defaultQuestionQuiz && questionQuizAnswerIds[formattedMessageIndex]
-                    ? intl.formatMessage(questionQuizAnswerIds[formattedMessageIndex])
-                    : user.answer
-                }
-              </Styled.ResultRight>
-            </tr>
-          ),
-        ]);
+        if(user){
+          const formattedMessageIndex = user.answer.toLowerCase();
+          return ([
+            ...acc,
+            (
+              <tr key={_.uniqueId('stats-')}>
+                <Styled.ResultLeft>{user.name}</Styled.ResultLeft>
+                <Styled.ResultRight data-test="receivedAnswer">
+                  {
+                    defaultQuestionQuiz && questionQuizAnswerIds[formattedMessageIndex]
+                      ? intl.formatMessage(questionQuizAnswerIds[formattedMessageIndex])
+                      : user.answer
+                  }
+                </Styled.ResultRight>
+              </tr>
+            ),
+          ]);
+        }
       }, []);
 
     const questionQuizStats = [];

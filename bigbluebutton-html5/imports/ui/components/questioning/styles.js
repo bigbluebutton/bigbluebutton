@@ -48,14 +48,11 @@ const QuestionQuizButtonWrapper = styled.div`
 
 const QuestionQuizingButton = styled(Button)`
   width: 100%;
-  max-width: 9em;
-
   @media ${hasPhoneDimentions} {
-    max-width: none;
+    max-width: 22em;
   }
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-wrap: break-word;
+  white-space: pre-wrap;
 `;
 
 const Hidden = styled.div`
@@ -91,7 +88,7 @@ const SubmitVoteButton = styled(Button)`
 
 const QuestionQuizingSecret = styled.div`
   font-size: ${fontSizeSmall};
-  max-width: ${pollWidth};
+  max-width: 100%;
 `;
 
 const MultipleResponseAnswersTable = styled.table`
@@ -132,15 +129,15 @@ const QHeader = styled.span`
 `;
 
 const QTitle = styled.div`
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeLarge};
 `;
 
 const QText = styled.div`
   color: ${colorText};
   word-break: break-word;
   white-space: pre-wrap;
-  font-size: ${fontSizeLarge};
-  max-width: ${pollWidth};
+  font-size: ${fontSizeSmall};
+  max-width: 100%;
   padding-right: ${smPaddingX};
 `;
 
@@ -159,7 +156,10 @@ const QuestionQuizingContainer = styled.div`
   padding: ${mdPaddingY};
   background-color: ${colorWhite};
   bottom: ${pollBottomOffset};
-  right: ${jumboPaddingX};
+  right: ${smPaddingX};
+  max-width:60%;
+  max-height: 80%;
+  overflow-y: auto;
 
   [dir="rtl"] & {
     left: ${jumboPaddingX};

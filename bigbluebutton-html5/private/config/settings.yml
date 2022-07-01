@@ -444,6 +444,7 @@ public:
     maxCustom: 5
     allowDragAndDropFile: false
     maxTypedAnswerLength: 45
+    maxQuestionOptionsLength: 1100
     chatMessage: true
     correct_option_symbol: '(*)'
   captions:

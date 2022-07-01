@@ -25,26 +25,6 @@ const questionQuizTypes = {
 };
 
 const questionQuizAnswerIds = {
-  true: {
-    id: 'app.poll.answer.true',
-    description: 'label for poll answer True',
-  },
-  false: {
-    id: 'app.poll.answer.false',
-    description: 'label for poll answer False',
-  },
-  yes: {
-    id: 'app.poll.answer.yes',
-    description: 'label for poll answer Yes',
-  },
-  no: {
-    id: 'app.poll.answer.no',
-    description: 'label for poll answer No',
-  },
-  abstention: {
-    id: 'app.poll.answer.abstention',
-    description: 'label for poll answer Abstention',
-  },
   a: {
     id: 'app.poll.answer.a',
     description: 'label for poll answer A',
@@ -79,6 +59,10 @@ const intlMessages = defineMessages({
   questionQuizStatsVotesLabel: {
     id: 'app.poll.liveResult.responsesTitle',
     description: 'Quiz stats votes title label.',
+  },
+  questionQuizCorrectLabel: {
+    id: 'app.questionQuiz.correctOptionLabel',
+    description: 'Quiz results correct lable',
   },
 });
 
@@ -124,7 +108,8 @@ const getQuestionQuizResultsText = (isDefaultQuestionQuiz, answers, numResponden
       `<p style=${IncorrectOptionVoteStyles}>${item.id + 1}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}</p>`;
       optionsString += isCorrectOpt ? 
       `<p style=${correctOptionStyles}>${item.id + 1}:${item.key.trim()
-        .replace(CORRECT_OPTION_SYMBOL, " (Correct)")}</p>`
+        .replace(CORRECT_OPTION_SYMBOL,
+        ` (${intl.formatMessage(intlMessages.questionQuizCorrectLabel)})`)}</p>`
       : `${item.id + 1}: ${item.key}\n`;
     }
   });

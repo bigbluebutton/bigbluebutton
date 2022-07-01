@@ -7,7 +7,6 @@ import Styled from './styles';
 import AudioService from '/imports/ui/components/audio/service';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
 
-const MAX_INPUT_CHARS = Meteor.settings.public.questionQuiz.maxTypedAnswerLength;
 
 const intlMessages = defineMessages({
   questionQuizingTitleLabel: {
@@ -175,37 +174,6 @@ class Questioning extends Component {
                   })}
                 </Styled.QuestionQuizingAnswers>
             </span>
-          )
-        }
-        {
-          questionQuiz.questionQuizType === questionQuizTypes.Response
-          && (
-            <Styled.TypedResponseWrapper>
-              <Styled.TypedResponseInput
-                data-test="questionQuizAnswerOption"
-                onChange={(e) => {
-                  this.handleUpdateResponseInput(e);
-                }}
-                onKeyDown={(e) => {
-                  this.handleMessageKeyDown(e);
-                }}
-                type="text"
-                placeholder={intl.formatMessage(intlMessages.responsePlaceholder)}
-                maxLength={MAX_INPUT_CHARS}
-                ref={(r) => { this.responseInput = r; }}
-              />
-              <Styled.SubmitVoteButton
-                data-test="submitAnswer"
-                disabled={typedAns.length === 0}
-                color="primary"
-                size="sm"
-                label={intl.formatMessage(intlMessages.submitLabel)}
-                aria-label={intl.formatMessage(intlMessages.submitAriaLabel)}
-                onClick={() => {
-                  handleTypedVote(questionQuiz.questionQuizId, typedAns);
-                }}
-              />
-            </Styled.TypedResponseWrapper>
           )
         }
         <Styled.QuestionQuizingSecret>

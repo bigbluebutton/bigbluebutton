@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import PollService from '/imports/ui/components/poll/service';
+import QuestionQuizService from '/imports/ui/components/question-quiz/service';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { injectIntl, defineMessages } from 'react-intl';
 import Styled from './styles';
@@ -262,10 +263,16 @@ class PollDrawComponent extends Component {
     const arrayLength = reducedResult.length;
     const { pollAnswerIds } = PollService;
     const isDefaultPoll = PollService.isDefaultPoll(pollType);
+    const {CORRECT_OPTION_SYMBOL} = QuestionQuizService
     for (let i = 0; i < arrayLength; i += 1) {
       const _tempArray = [];
       const _result = reducedResult[i];
-
+      if(annotation.questionQuizType){
+        let resultKey = _result.key
+        resultKey = QuestionQuizService.isCorrectOption(resultKey) ?
+        resultKey.substring(0, resultKey.length - CORRECT_OPTION_SYMBOL.length) : resultKey
+        _result.key = resultKey
+      }
       if (isDefaultPoll && pollAnswerIds[_result.key.toLowerCase()]) {
         _result.key = intl.formatMessage(pollAnswerIds[_result.key.toLowerCase()]);
       }

@@ -18,6 +18,7 @@ const TimeWindowChatItemContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const usernames = {};
+  const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
   Object.values(users[Auth.meetingID]).forEach((user) => {
     if(!user.presenter)
     usernames[user.userId] = { userId: user.userId, name: user.name };
@@ -65,6 +66,7 @@ const TimeWindowChatItemContainer = (props) => {
         messageKey,
         handleReadMessage,
         usernames,
+        amIPresenter,
         ...props,
       }
       }

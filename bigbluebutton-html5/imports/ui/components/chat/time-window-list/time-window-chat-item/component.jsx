@@ -7,6 +7,7 @@ import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import PollService from '/imports/ui/components/poll/service';
 import QuestionQuizService from '/imports/ui/components/question-quiz/service';
 import Styled from './styles';
+import QuizStats from '/imports/ui/components/question-quiz/stats/component'
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
@@ -31,7 +32,8 @@ const propTypes = {
   chatAreaId: PropTypes.string.isRequired,
   handleReadMessage: PropTypes.func.isRequired,
   lastReadMessageTime: PropTypes.number,
-  usernames: PropTypes.object
+  usernames: PropTypes.object,
+  amIPresenter: PropTypes.bool
 };
 
 const defaultProps = {
@@ -295,7 +297,8 @@ class TimeWindowChatItem extends PureComponent {
       chatAreaId,
       lastReadMessageTime,
       handleReadMessage,
-      usernames
+      usernames,
+      amIPresenter
     } = this.props;
 
     const dateTime = new Date(timestamp);
@@ -319,6 +322,13 @@ class TimeWindowChatItem extends PureComponent {
               <Styled.Time dateTime={dateTime}>
                 <FormattedTime value={dateTime} />
               </Styled.Time>
+              {amIPresenter && (
+                <QuizStats
+                  intl={intl}
+                  usernames={usernames}
+                  questionQuizResultData={extra?.questionQuizResultData}
+                />
+              )}
             </Styled.Meta>
             <Styled.QuestionQuizMessageChatItem
               type="questionQuiz"
@@ -328,6 +338,7 @@ class TimeWindowChatItem extends PureComponent {
               text={getQuestionQuizResultString(extra.questionQuizResultData, intl)}
               time={messages[0].time}
               usernames={usernames}
+              amIPresenter={amIPresenter}
               chatAreaId={chatAreaId}
               lastReadMessageTime={lastReadMessageTime}
               handleReadMessage={handleReadMessage}

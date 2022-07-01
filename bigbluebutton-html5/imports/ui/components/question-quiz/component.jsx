@@ -16,8 +16,7 @@ import { alertScreenReader } from '/imports/utils/dom-utils';
 const QUIZ_SETTINGS = Meteor.settings.public.questionQuiz;
 
 const MAX_CUSTOM_FIELDS = QUIZ_SETTINGS.maxCustom;
-const MAX_INPUT_CHARS = QUIZ_SETTINGS.maxTypedAnswerLength;
-const QUESTION_MAX_INPUT_CHARS = 1200;
+const QUESTION_OPTIONS_MAX_INPUT_CHARS = QUIZ_SETTINGS.maxQuestionOptionsLength
 const MIN_OPTIONS_LENGTH = 2;
 const CORRECT_OPTION_SYMBOL = QUIZ_SETTINGS.correct_option_symbol
 
@@ -43,9 +42,9 @@ const getCorrectOptions = (options) => {
   let isCorrect = false;
   options.forEach((opt) => {
     isCorrect = false
-    while(isCorrectOption(opt)){
+    while (isCorrectOption(opt)) {
       opt = opt.substring(0,
-      opt.length - CORRECT_OPTION_SYMBOL.length)
+        opt.length - CORRECT_OPTION_SYMBOL.length)
       isCorrect = true
     }
     isCorrect && correctOptions.push(opt)
@@ -58,7 +57,7 @@ const verifiedOptionList = (optList) => {
     const trimmedOpt = o.trim()
     if (isCorrectOption(o)) {
       return trimmedOpt.substring(0,
-      trimmedOpt.length - CORRECT_OPTION_SYMBOL.length)
+        trimmedOpt.length - CORRECT_OPTION_SYMBOL.length)
     }
     return trimmedOpt;
   })
@@ -93,6 +92,14 @@ const checkIfDuplicateOptions = (optionsList) => {
   return isDuplicate;
 }
 
+const getMaxInputCharacters = (optList) => {
+  const correctOptions = getCorrectOptions(optList)
+  const charactersForCorrectOption = CORRECT_OPTION_SYMBOL.length
+    * (correctOptions.length)
+  const maxInputCharacters = QUESTION_OPTIONS_MAX_INPUT_CHARS
+    + charactersForCorrectOption
+  return maxInputCharacters
+}
 
 const intlMessages = defineMessages({
   questionQuizPaneTitle: {
@@ -143,6 +150,10 @@ const intlMessages = defineMessages({
     id: 'app.questionQuiz.error.optionEmptySpace',
     description: '',
   },
+  maxInputError: {
+    id: 'app.questionQuiz.error.maxInputLimit',
+    description: 'max input characters reached error message',
+  },
   closeLabel: {
     id: 'app.poll.closeLabel',
     description: 'label for poll pane close button',
@@ -183,10 +194,6 @@ const intlMessages = defineMessages({
     id: 'playback.player.chat.message.poll.options',
     description: 'label for options heading',
   },
-  maxOptionsWarning: {
-    id: 'app.poll.maxOptionsWarning.label',
-    description: 'poll max options error',
-  },
   delete: {
     id: 'app.poll.optionDelete.label',
     description: '',
@@ -203,12 +210,12 @@ const intlMessages = defineMessages({
     id: 'app.questionQuiz.questionQuizBtn',
     description: '',
   },
-  secretPollLabel: {
+  secretQuizLabel: {
     id: 'app.questionQuiz.secretQuestioning.label',
     description: '',
   },
-  isSecretPollLabel: {
-    id: 'app.poll.secretPoll.isSecretLabel',
+  isSecretQuizLabel: {
+    id: 'app.questionQuiz.secretQuestioning.isSecretLabel',
     description: '',
   },
   enableMultipleResponseLabel: {
@@ -316,22 +323,12 @@ class QuestionQuiz extends Component {
     });
   }
 
-  handleInputTextChange(index, text) {
-    const { optList } = this.state;
-    // This regex will replace any instance of 2 or more consecutive white spaces
-    // with a single white space character.
-    const option = text.replace(/\s{2,}/g, ' ').trim();
-
-    if (index < optList.length) optList[index] = option === '' ? '' : option;
-
-    this.setState({ optList });
-  }
-
   handleInputChange(e, index) {
     const {
-      optList, questionAndOptions, error
+      optList, questionAndOptions
     } = this.state;
-
+    let { error } = this.state
+    const { intl } = this.props
     const list = [...optList];
     const validatedVal = validateInput(e.target.value).replace(/\s{2,}/g, ' ');
     const charsRemovedCount = e.target.value.length - validatedVal.length;
@@ -351,6 +348,11 @@ class QuestionQuiz extends Component {
         questionAndOptionsList[index + 1] = validatedVal
     }
     const newQuestionAndOptions = questionAndOptionsList.join('\n')
+    const maxInputCharacters = getMaxInputCharacters(list)
+    if (newQuestionAndOptions.length > maxInputCharacters) {
+      error = intl.formatMessage(intlMessages.maxInputError, 
+      {0: QUESTION_OPTIONS_MAX_INPUT_CHARS})
+    }
     let clearError = error && this.isAllErrorsCleared(newQuestionAndOptions)
     this.setState({
       optList: list,
@@ -369,11 +371,12 @@ class QuestionQuiz extends Component {
     let { error } = this.state
     const { intl } = this.props
     const maxOptionsErrorMsg = intl.formatMessage(
-      intlMessages.maxOptionsLength,
+      intlMessages.maxOptionsLength, { 0: MAX_CUSTOM_FIELDS }
     );
+    let clearError = false
     const validatedInput = validateInput(e.target.value);
-    const { splittedQuestion, optionsList } =
-      getSplittedQuestionAndOptions(validatedInput)
+    const { splittedQuestion, optionsList } = getSplittedQuestionAndOptions(validatedInput)
+    const maxInputCharacters = getMaxInputCharacters(optionsList)
     optionsList.forEach((opt, i) => {
       if (isCorrectOption(opt)) {
         const verifiedOpt = opt.substring(0,
@@ -381,8 +384,18 @@ class QuestionQuiz extends Component {
         optionsList[i] = verifiedOpt
       }
     })
-    let clearError = false
     if (error) clearError = this.isAllErrorsCleared(validatedInput);
+    if (validatedInput.length > maxInputCharacters) {
+      error = intl.formatMessage(intlMessages.maxInputError, 
+      {0: QUESTION_OPTIONS_MAX_INPUT_CHARS})
+      clearError = false
+    }
+    //repeated options error
+    const hasDuplicates = checkIfDuplicateOptions(optionsList)
+    if (hasDuplicates) {
+      error = intl.formatMessage(intlMessages.sameOptionErr)
+      clearError = false
+    }
     if (optionsList.length > MAX_CUSTOM_FIELDS) error = maxOptionsErrorMsg
     this.setState({
       error: clearError ? null : error, questionAndOptions: validatedInput,
@@ -421,6 +434,8 @@ class QuestionQuiz extends Component {
     const correctOptionErrorMsg = intl.formatMessage(
       intlMessages.correctOptionErr,
     );
+
+    //empty option error
     const selectedOption = options[index].trim()
     if (!selectedOption) {
       this.setState({
@@ -430,6 +445,18 @@ class QuestionQuiz extends Component {
       })
       return null;
     }
+
+    //repeated options error
+    const hasDuplicates = checkIfDuplicateOptions(options)
+    if (hasDuplicates) {
+      this.setState({
+        error: intl.formatMessage(
+          intlMessages.sameOptionErr,
+        )
+      })
+      return null;
+    }
+
     const isCorrectOpt = isCorrectOption(selectedOption)
     if (!isCorrectOpt) {
       options[index] = selectedOption.concat(CORRECT_OPTION_SYMBOL)
@@ -488,6 +515,18 @@ class QuestionQuiz extends Component {
     const { questionAndOptions } = this.state;
     const { splittedQuestion, optionsList } =
       getSplittedQuestionAndOptions(questionAndOptions)
+    const correctOptions = getCorrectOptions(optionsList)
+    const maxInputCharacters = getMaxInputCharacters(optionsList)
+
+    //max input characters error
+    if (questionAndOptions.length > maxInputCharacters) {
+      this.setState({
+        error: intl.formatMessage(intlMessages.maxInputError, 
+        {0: QUESTION_OPTIONS_MAX_INPUT_CHARS})
+      });
+      return true
+    }
+
     //empty field error
     if (!splittedQuestion) {
       this.setState({
@@ -507,7 +546,7 @@ class QuestionQuiz extends Component {
     // min options error
     if (optionsList.length < MIN_OPTIONS_LENGTH) {
       this.setState({
-        error: intl.formatMessage(intlMessages.minOptionsLength),
+        error: intl.formatMessage(intlMessages.minOptionsLength, { 0: MIN_OPTIONS_LENGTH }),
       })
       return true;
     }
@@ -515,13 +554,12 @@ class QuestionQuiz extends Component {
     // max options error
     if (optionsList.length > MAX_CUSTOM_FIELDS) {
       this.setState({
-        error: intl.formatMessage(intlMessages.maxOptionsLength),
+        error: intl.formatMessage(intlMessages.maxOptionsLength, { 0: MAX_CUSTOM_FIELDS }),
       })
       return true;
     }
 
     // not set correct option error
-    const correctOptions = getCorrectOptions(optionsList)
     if (!correctOptions.length > 0) {
       this.setState({
         error: intl.formatMessage(intlMessages.correctOptionErr),
@@ -531,7 +569,7 @@ class QuestionQuiz extends Component {
 
     //repeated options error
     const hasDuplicates = checkIfDuplicateOptions(optionsList)
-    if(hasDuplicates){
+    if (hasDuplicates) {
       this.setState({
         error: intl.formatMessage(intlMessages.sameOptionErr),
       })
@@ -544,21 +582,6 @@ class QuestionQuiz extends Component {
   toggleIsMultipleResponse() {
     const { isMultipleResponse } = this.state;
     return this.setState({ isMultipleResponse: !isMultipleResponse });
-  }
-
-  pushToCustomQuestionQuizValues(text) {
-    const lines = text.split('\n');
-    this.setOptListLength(lines.length);
-    for (let i = 0; i < MAX_CUSTOM_FIELDS; i += 1) {
-      let line = '';
-      if (i < lines.length) {
-        line = lines[i];
-        line = line.length > MAX_INPUT_CHARS ?
-          line.substring(0, MAX_INPUT_CHARS) :
-          line;
-      }
-      this.handleInputTextChange(i, line);
-    }
   }
 
   displayToggleStatus(status) {
@@ -577,11 +600,12 @@ class QuestionQuiz extends Component {
     const { error } = this.state;
     const { optionsList: optionList } = getSplittedQuestionAndOptions(validatedInput)
     const correctOptions = getCorrectOptions(optionList)
+    const maxInputCharacters = getMaxInputCharacters(optionList)
     const maxOptionsErrorMsg = intl.formatMessage(
-      intlMessages.maxOptionsLength,
+      intlMessages.maxOptionsLength, { 0: MAX_CUSTOM_FIELDS }
     );
     const minOptionsErrorMsg = intl.formatMessage(
-      intlMessages.minOptionsLength,
+      intlMessages.minOptionsLength, { 0: MIN_OPTIONS_LENGTH }
     );
     const invalidEmptyTextErrorMsg = intl.formatMessage(
       intlMessages.invalidQuestionAndOptions,
@@ -595,6 +619,8 @@ class QuestionQuiz extends Component {
     const sameOptionErrorMsg = intl.formatMessage(
       intlMessages.sameOptionErr,
     );
+    const maxInputError = intl.formatMessage(intlMessages.maxInputError,
+      {0: QUESTION_OPTIONS_MAX_INPUT_CHARS})
     if (
       (
         error === invalidEmptyTextErrorMsg
@@ -623,6 +649,10 @@ class QuestionQuiz extends Component {
       (
         error === sameOptionErrorMsg
         && !checkIfDuplicateOptions(optionList)
+      ) ||
+      (
+        error === maxInputError &&
+        validatedInput.length <= maxInputCharacters
       )
     ) {
       return true
@@ -672,7 +702,7 @@ class QuestionQuiz extends Component {
         <Styled.Instructions style={{ marginBottom: '0.9rem', textAlign: 'justify' }}>
           {intl.formatMessage(intlMessages.addingQuestionInstructionsText)}
           <Styled.CorrectOptionInstructions>
-            {" "}{intl.formatMessage(intlMessages.addingCorrectOptionInstructionsText)}
+            {" "}{intl.formatMessage(intlMessages.addingCorrectOptionInstructionsText, { 0: CORRECT_OPTION_SYMBOL })}
           </Styled.CorrectOptionInstructions>
         </Styled.Instructions>
 
@@ -684,9 +714,9 @@ class QuestionQuiz extends Component {
             onChange={(e) => this.handleTextareaChange(e)}
             rows="8"
             cols="35"
-            maxLength={QUESTION_MAX_INPUT_CHARS}
-            aria-label={intl.formatMessage(questionAndOptionsPlaceholderLabel)}
-            placeholder={intl.formatMessage(questionAndOptionsPlaceholderLabel)}
+            // maxLength={QUESTION_OPTIONS_MAX_INPUT_CHARS}
+            aria-label={intl.formatMessage(questionAndOptionsPlaceholderLabel, { 0: CORRECT_OPTION_SYMBOL })}
+            placeholder={intl.formatMessage(questionAndOptionsPlaceholderLabel, { 0: CORRECT_OPTION_SYMBOL })}
           />
           {hasQuestionError ? (
             <Styled.InputError>{error}</Styled.InputError>
@@ -734,7 +764,7 @@ class QuestionQuiz extends Component {
         <Styled.Row>
           <Styled.Col aria-hidden="true">
             <Styled.SectionHeading>
-              {intl.formatMessage(intlMessages.secretPollLabel)}
+              {intl.formatMessage(intlMessages.secretQuizLabel)}
             </Styled.SectionHeading>
           </Styled.Col>
           <Styled.Col>
@@ -744,7 +774,7 @@ class QuestionQuiz extends Component {
                 icons={false}
                 defaultChecked={secretQuestionQuiz}
                 onChange={() => this.handleToggle()}
-                ariaLabel={intl.formatMessage(intlMessages.secretPollLabel)}
+                ariaLabel={intl.formatMessage(intlMessages.secretQuizLabel)}
                 showToggleLabel={false}
                 data-test="anonymousQuestionQuizBtn"
               />
@@ -754,7 +784,7 @@ class QuestionQuiz extends Component {
         {secretQuestionQuiz
           && (
             <Styled.AnonymousQuestionQuizParagraph>
-              {intl.formatMessage(intlMessages.isSecretPollLabel)}
+              {intl.formatMessage(intlMessages.isSecretQuizLabel)}
             </Styled.AnonymousQuestionQuizParagraph>
           )}
         <Styled.StartQuestionQuizBtn
@@ -837,6 +867,9 @@ class QuestionQuiz extends Component {
     const emptyOptionErrorMsg = intl.formatMessage(
       intlMessages.optionEmptyError,
     );
+    const sameOptionErrorMsg = intl.formatMessage(
+      intlMessages.sameOptionErr,
+    );
     return optList.slice(0, MAX_CUSTOM_FIELDS).map((o, i) => {
       const questionQuizOptionKey = `questionQuiz-option-${i}`;
       const option = isCorrectOption(o) ? o.substring(0,
@@ -853,9 +886,9 @@ class QuestionQuiz extends Component {
               type="text"
               value={o}
               placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
-              data-test="pollOptionItem"
+              data-test="quizOptionItem"
               onChange={(e) => this.handleInputChange(e, i)}
-              maxLength={MAX_INPUT_CHARS}
+              // maxLength={QUESTION_OPTIONS_MAX_INPUT_CHARS}
               isCorrect={correctOptions.includes(option)}
             />
             <Styled.QuestionQuizCheckbox>
@@ -887,8 +920,10 @@ class QuestionQuiz extends Component {
                 { 0: (o || intl.formatMessage(intlMessages.emptyPollOpt)) })}
             </span>
           </div>
-          {(!o.trim() || (o.trim().replace(CORRECT_OPTION_SYMBOL, '') === ''))
-            && error === emptyOptionErrorMsg ? (
+          {((!o.trim() || (o.trim().replace(CORRECT_OPTION_SYMBOL, '') === ''))
+            && (error === emptyOptionErrorMsg)) || 
+           (optList.filter((val, index) => index !== i).includes(o) && 
+           (error === sameOptionErrorMsg))? (
             <Styled.InputError>{error}</Styled.InputError>
           ) : (
             <Styled.ErrorSpacer>&nbsp;</Styled.ErrorSpacer>
@@ -976,7 +1011,7 @@ class QuestionQuiz extends Component {
             <Styled.ModalHeading>
               {intl.formatMessage(intlMessages.optionsLabel)}
             </Styled.ModalHeading>
-            <ul style={{ listStyle: 'none' }}>
+            <ul style={{ listStyle: 'none', padding: 0 }}>
               {optList
                 ? optList.map((opt, index) => {
                   const uniqueKey = `opt-list-question-${index}`;

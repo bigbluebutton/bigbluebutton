@@ -22,6 +22,15 @@ const propTypes = {
   questionQuizResultData: PropTypes.object,
 };
 
+const calYPaddingOfText = (text, pageMaxWidth, pdf) => {
+  const { w: lineWidth, h: lineHeight } = pdf.getTextDimensions(text)
+  const floatLines = lineWidth / pageMaxWidth
+  let numOfLines = Number.isInteger(floatLines) ?
+    floatLines : Math.floor(floatLines) + 1
+  numOfLines = numOfLines < 2 ? numOfLines + 1 : numOfLines
+  const Ypadding = (numOfLines * (lineHeight + 2))
+  return Ypadding
+}
 const intlMessages = defineMessages({
   questionQuizStatsTitle: {
     id: 'app.questionQuiz.chat.stats.title',
@@ -42,6 +51,10 @@ const intlMessages = defineMessages({
   questionQuizStatsVotesLabel: {
     id: 'app.poll.liveResult.responsesTitle',
     description: 'Quiz stats votes title label.',
+  },
+  questionQuizTotalRespondentsLabel: {
+    id: 'app.questionQuiz.responses.total.title',
+    description: 'Quiz stats respondents total label.',
   },
   usersTitle: {
     id: 'app.poll.liveResult.usersTitle',
@@ -67,6 +80,14 @@ const intlMessages = defineMessages({
     id: 'app.questionQuiz.chat.notAttempted.label',
     description: 'Quiz results not attempted lable',
   },
+  questionTitle: {
+    id: 'playback.player.chat.message.poll.question',
+    description: 'title of question'
+  },
+  optionsTitle: {
+    id: 'playback.player.chat.message.poll.options',
+    description: 'Title for quiz options'
+  }
 });
 
 
@@ -118,6 +139,9 @@ class QuestionQuizStats extends PureComponent {
             style={{
               padding: 0,
               margin: 0,
+              position: 'absolute',
+              right: 0,
+              top: -3
             }}
           />
         }
@@ -139,11 +163,16 @@ class QuestionQuizStats extends PureComponent {
 
   downloadQuizStatsPdf() {
     const { quizResult } = this.state
-    const { intl } = this.props
+    const { intl, questionQuizResultData } = this.props
+    const question = questionQuizResultData?.questionText
+    const options = questionQuizResultData?.answers
     const pdf = new jsPDF('p', 'mm');
+    const { CORRECT_OPTION_SYMBOL, questionQuizAnswerIds } = QuestionQuizService
+    const quizAnswerIdsArray = _.toArray(questionQuizAnswerIds);
     //adding chart data page
     html2canvas(document.querySelector(".apexcharts-canvas")).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
+      const fontSize = 11
       const headingText = intl.formatMessage(intlMessages.questionQuizStatsTitle)
       const pageHeadingX = (pdf.internal.pageSize.getWidth() - pdf.getTextWidth(headingText)) / 2
       const pageHeadingY = 15
@@ -151,11 +180,42 @@ class QuestionQuizStats extends PureComponent {
       const pageFotterY = 316 - 30
       const statsImgX = 10
       const statsImgY = 30
+      const YspaceAfterText = 10
+      const Xpadding = 10
+      let Ypadding = 8
+      const pageMaxWidth = 185
+      // pdf.setFont('Source Sans Pro', 'normal')
       pdf.text(headingText, pageHeadingX, pageHeadingY)
       pdf.page = 1;
+      pdf.setFontSize(fontSize)
+      pdf.text(pdf.page + '', pageFotterX, pageFotterY, null, null, "right");
+      //First page containing question and options
+      Ypadding = statsImgY
+      pdf.setFont(undefined, 'bold').text(intl.formatMessage(intlMessages.questionTitle), Xpadding,
+      Ypadding).setFont(undefined, 'normal')
+      Ypadding = Ypadding + YspaceAfterText
+      pdf.text(question, Xpadding, Ypadding, { maxWidth: pageMaxWidth })
+      Ypadding = Ypadding + calYPaddingOfText(question, pageMaxWidth, pdf)
+      pdf.setFont(undefined, 'bold').text(intl.formatMessage(intlMessages.optionsTitle), Xpadding,
+        Ypadding).setFont(undefined, 'normal')
+      Ypadding = Ypadding + YspaceAfterText
+      options.map((opt, index) => {
+        let option = `${intl.formatMessage(quizAnswerIdsArray[index])}: ${opt.key}`
+        const isCorrectOption = QuestionQuizService.isCorrectOption(option)
+        option = isCorrectOption ? option.substring(0,
+          option.length - CORRECT_OPTION_SYMBOL.length) + ' (' +
+          intl.formatMessage(intlMessages.questionQuizCorrectLabel) + ')' : option
+        pdf.text(option, Xpadding, Ypadding, { maxWidth: pageMaxWidth })
+        Ypadding = calYPaddingOfText(option, pageMaxWidth, pdf) + Ypadding
+      })
+
+      //Second page for graphical stats
+      pdf.addPage();
+      pdf.page++;
       pdf.text(pdf.page + '', pageFotterX, pageFotterY, null, null, "right");
       pdf.addImage(imgData, 'PNG', statsImgX, statsImgY);
-      //adding table of responses data page
+
+      //adding table of responses data pages
       html2canvas(document.querySelector("#quizResultStatsTable")).then((canvas) => {
         pdf.addPage();
         pdf.page++;
@@ -168,7 +228,8 @@ class QuestionQuizStats extends PureComponent {
         })
         const timeElapsed = Date.now();
         const today = new Date(timeElapsed);
-        pdf.save(`Chart_Stats_${today.toLocaleTimeString()}.pdf`);
+        pdf.save(`${headingText.split(" ").join('-')}-${today.toLocaleTimeString()
+          .replace("AM", "").replace("PM", "").trim()}.pdf`);
       });
     });
   }
@@ -187,13 +248,14 @@ class QuestionQuizStats extends PureComponent {
         const userAnswers = [...users].map(id => usernames[id])
           .map((user) => {
             let answer = '';
-
+            const answerIds = []
             if (responses) {
               const response = responses.find(r => r.userId === user.userId);
               if (response) {
                 const answerKeys = [];
                 response.answerIds.forEach((answerId) => {
                   answerKeys.push(answers[answerId].key);
+                  answerIds.push(answerId)
                 });
                 answer = answerKeys.join(', ');
               }
@@ -201,19 +263,23 @@ class QuestionQuizStats extends PureComponent {
             return {
               name: user.name,
               answer: answer,
+              answerIds: answerIds
             };
           })
 
           .sort(Service.sortUsers)
           .reduce((acc, user) => {
             const isCorrectAnswer = QuestionQuizService.isCorrectOption(user.answer)
-            const correctOptSymbol = QuestionQuizService.CORRECT_OPTION_SYMBOL
+            const { questionQuizAnswerIds } = QuestionQuizService
+            const quizAnswerIdsArray = _.toArray(questionQuizAnswerIds);
             const resultColString = isCorrectAnswer ?
               intl.formatMessage(intlMessages.questionQuizCorrectLabel) :
               intl.formatMessage(intlMessages.questionQuizIncorrectLabel)
-            let responseAnswer = user.answer ? user.answer.trim() : '-'
-            responseAnswer = isCorrectAnswer ? responseAnswer.substring(0,
-              responseAnswer.length - correctOptSymbol.length) : responseAnswer
+            const answerIds = []
+            let responseAnswer = user.answerIds.forEach((id) => {
+              answerIds.push(intl.formatMessage(quizAnswerIdsArray[id]))
+            })
+            responseAnswer = answerIds.length > 0 ? answerIds.join(',') : '-'
             resultArray.push([
               user.name,
               responseAnswer,
@@ -237,7 +303,7 @@ class QuestionQuizStats extends PureComponent {
               ),
             ]);
           }, []);
-        this.setState({ quizResponses: userAnswers, quizResult: resultArray})
+        this.setState({ quizResponses: userAnswers, quizResult: resultArray })
       }
     })
   }
@@ -245,14 +311,22 @@ class QuestionQuizStats extends PureComponent {
   questionQuizStatsModal() {
     const { isOpenStatsPreviewModal, quizResponses } = this.state
     const { questionQuizResultData, intl } = this.props
+    const { questionQuizAnswerIds } = QuestionQuizService
+    const quizAnswerIdsArray = _.toArray(questionQuizAnswerIds);
     if (isOpenStatsPreviewModal) {
       const options = [];
       const votesOfOptions = [];
       const question = questionQuizResultData?.questionText
-      questionQuizResultData?.answers.forEach((opt) => {
-        options.push(opt.key)
+      const totalRespondents = questionQuizResultData?.numRespondents
+      const totalResponders = questionQuizResultData?.numResponders
+      const notAttemptedUsers = totalRespondents - totalResponders
+      const correctText = intl.formatMessage(intlMessages.questionQuizCorrectLabel)
+      questionQuizResultData?.answers.forEach((opt, i) => {
+        options.push(`${intl.formatMessage(quizAnswerIdsArray[i])}: ${opt.key}`)
         votesOfOptions.push(opt.numVotes)
       })
+      options.push(intl.formatMessage(intlMessages.notAttemptedQuizLabel))
+      votesOfOptions.push(notAttemptedUsers)
       const isQuizId = questionQuizResultData?.id.split('/')
       const chartId = isQuizId?.length > 2 ? isQuizId[2] : isQuizId
       return (
@@ -270,12 +344,14 @@ class QuestionQuizStats extends PureComponent {
           >
             <Styled.PreviewModalContainer>
               <Chart series={votesOfOptions} type='donut'
-                totalLabel={intl.formatMessage(intlMessages.questionQuizStatsVotesLabel)}
+                totalLabel={intl.formatMessage(intlMessages.questionQuizTotalRespondentsLabel)}
                 labels={options} tooltipLabel={intl.formatMessage(intlMessages.questionQuizStatsVotesLabel)}
                 titleText={question} chartId={parseInt(chartId)}
                 isDownloadPdf={false} isDownloadPngCsvSvg={false} viewTotalCount={true}
-                downloadPdfLabel={intl.formatMessage(intlMessages.questionQuizDownloadPdfButtonLabel)} />
-              {quizResponses && (
+                downloadPdfLabel={intl.formatMessage(intlMessages.questionQuizDownloadPdfButtonLabel)}
+                totalValue={totalRespondents}
+                extra={{ correctText }} />
+              {quizResponses.length > 0 && (
                 <table data-test="quizResponsesTable" style={{ marginTop: 12, marginLeft: 10 }}>
                   <tbody id='quizResultStatsTable'>
                     <tr>

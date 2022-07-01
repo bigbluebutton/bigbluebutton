@@ -9,13 +9,13 @@ import './style'
 import { jsPDF } from "jspdf";
 
 const propTypes = {
-  series: PropTypes.array,
+  series: PropTypes.array.isRequired,
   height: PropTypes.number,
   type: PropTypes.string,
   totalLabel: PropTypes.string,
   MAX_OPTION_LENGTH: PropTypes.number,
   legendColors: PropTypes.array,
-  labels: PropTypes.array,
+  labels: PropTypes.array.isRequired,
   tooltipLabel: PropTypes.string,
   titleText: PropTypes.string,
   MAX_TITLE_LENGTH: PropTypes.number,
@@ -23,14 +23,17 @@ const propTypes = {
   isDownloadPdf: PropTypes.bool,
   isDownloadPngCsvSvg: PropTypes.bool,
   viewTotalCount: PropTypes.bool,
-  downloadPdfLabel: PropTypes.string
+  downloadPdfLabel: PropTypes.string,
+  totalValue: PropTypes.number,
+  chartColors: PropTypes.array,
+  extra: PropTypes.object
 };
 
 const defaultProps = {
   height: 450,
   type: 'donut',
   totalLabel: '',
-  MAX_OPTION_LENGTH: 75,
+  MAX_OPTION_LENGTH: 65,
   legendColors: [],
   tooltipLabel: '',
   titleText: '',
@@ -39,7 +42,10 @@ const defaultProps = {
   isDownloadPdf:false,
   isDownloadPngCsvSvg:false,
   viewTotalCount:true,
-  downloadPdfLabel:''
+  downloadPdfLabel:'',
+  chartColors: ['#008FFB','#775dd0','#ff4560',
+  '#feb019', '#00e396','#ab814f'],
+  extra: null
 };
 
 export default class PieChart extends PureComponent {
@@ -65,6 +71,10 @@ export default class PieChart extends PureComponent {
   }
 
   getFormattedLegendText(value, optionLength) {
+    const {extra} = this.props
+    if(!extra?.correctText){
+      return value.substring(0, optionLength)+ '...'
+    }
     const trimmedVal = value.trim()
     const isCorrectOpt = QuestionQuizService.isCorrectOption(trimmedVal)
     const correctOptSymbol = QuestionQuizService.CORRECT_OPTION_SYMBOL
@@ -72,14 +82,14 @@ export default class PieChart extends PureComponent {
     trimmedVal.length - correctOptSymbol.length): trimmedVal
     const shortenedText = newVal.length > optionLength ?
       newVal.substring(0, optionLength) + '...' : newVal
-    return isCorrectOpt ? shortenedText + " (Correct)" : shortenedText
+    return isCorrectOpt ? shortenedText + ` (${extra.correctText})` : shortenedText
   }
 
   render() {
     const { series, height, type, totalLabel, MAX_OPTION_LENGTH,
       legendColors, labels, tooltipLabel, titleText, MAX_TITLE_LENGTH,
       chartId, isDownloadPdf, isDownloadPngCsvSvg, viewTotalCount, 
-      downloadPdfLabel } = this.props
+      downloadPdfLabel, totalValue, chartColors } = this.props
     const pieChartData = {
       series: series,
       pie: {
@@ -100,6 +110,9 @@ export default class PieChart extends PureComponent {
                 showAlways: viewTotalCount,
                 label: totalLabel,
                 fontWeight: 'bold',
+                formatter: function (obj) {
+                  return totalValue ? totalValue : obj?.globals?.total;
+               }
               }
             }
           }
@@ -130,7 +143,7 @@ export default class PieChart extends PureComponent {
         }
         // offsetY: 50
       },
-
+      colors: chartColors,
       labels: labels,
       dataLabels: {
         enabled: true,

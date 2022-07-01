@@ -12,6 +12,7 @@ import Pencil from '../annotations/pencil/component';
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
+const ANNOTATION_TYPE_POLL = 'poll_result';
 
 export default class AnnotationFactory extends Component {
   static renderStaticAnnotation(annotationInfo, slideWidth, slideHeight, drawObject, whiteboardId) {
@@ -67,8 +68,17 @@ export default class AnnotationFactory extends Component {
   }
 
   render() {
-    const { annotationsInfo } = this.props;
-
+    let { annotationsInfo } = this.props;
+    const pollAnnotations = []
+    annotationsInfo = annotationsInfo.filter((val) => {
+      if (val.annotationType === ANNOTATION_TYPE_POLL)
+      pollAnnotations.push(val)
+      else
+      return val
+    })
+    if(pollAnnotations.length > 0 && annotationsInfo){
+      annotationsInfo.push(pollAnnotations[pollAnnotations.length - 1])
+    }
     return (
       <g>
         {annotationsInfo

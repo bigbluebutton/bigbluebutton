@@ -103,6 +103,7 @@ const ErrorSpacer = styled.div`
 const InputError = styled(ErrorSpacer)`
   color: ${colorDanger};
   font-size: ${fontSizeSmall};
+  height: 2.5rem;
 `;
 
 const Instructions = styled.div`

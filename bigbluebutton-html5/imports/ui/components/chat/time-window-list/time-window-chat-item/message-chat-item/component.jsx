@@ -4,13 +4,11 @@ import _ from 'lodash';
 import fastdom from 'fastdom';
 import { injectIntl } from 'react-intl';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
-import QuizStats from '/imports/ui/components/question-quiz/stats/component'
 
 const propTypes = {
   text: PropTypes.string.isRequired,
   time: PropTypes.number.isRequired,
   lastReadMessageTime: PropTypes.number,
-  questionQuizResultData: PropTypes.object,
   handleReadMessage: PropTypes.func.isRequired,
   scrollArea: PropTypes.instanceOf(Element),
   className: PropTypes.string.isRequired,
@@ -159,9 +157,6 @@ class MessageChatItem extends PureComponent {
       chatUserMessageItem,
       systemMessageType,
       color,
-      intl,
-      usernames,
-      questionQuizResultData, 
     } = this.props;
     ChatLogger.debug('MessageChatItem::render', this.props);
     if (type === 'poll') {
@@ -177,23 +172,15 @@ class MessageChatItem extends PureComponent {
     }
     else if (type === 'questionQuiz') {
       return (
-        <div style={{ borderLeft: `3px ${color} solid`, display: 'flex',
-          whiteSpace: 'pre-wrap', }}>
           <p
             className={className}
             style={{
-              whiteSpace: 'pre-wrap',
+              borderLeft: `3px ${color} solid`, whiteSpace: 'pre-wrap',
             }}
             ref={(ref) => { this.text = ref; }}
             dangerouslySetInnerHTML={{ __html: text }}
             data-test="chatQuizMessageText"
           />
-          <QuizStats 
-            intl={intl}
-            usernames={usernames} 
-            questionQuizResultData={questionQuizResultData}
-          />
-        </div>
       );
     } else {
       return (
