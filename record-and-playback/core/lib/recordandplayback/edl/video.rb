@@ -486,6 +486,18 @@ module BigBlueButton
 
             pad_name = "#{layout_area[:name]}_x#{tile_x}_y#{tile_y}"
 
+            tile_x += 1
+            if tile_x >= tiles_h
+              tile_x = 0
+              tile_y += 1
+            end
+
+            # Only create the video input if the seekpoint is before the end of the file
+            if seek >= this_videoinfo[:duration]
+              ffmpeg_filter << "color=c=white:s=#{tile_width}x#{tile_height}:r=#{layout[:framerate]}[#{pad_name}];"
+              next
+            end
+
             # Apply the video start time offset to seek to the correct point.
             # Only actually apply the offset if we're already seeking so we
             # don't start seeking in a file where we've overridden the seek
@@ -518,12 +530,6 @@ module BigBlueButton
             ffmpeg_filter << "color=c=white:s=#{tile_width}x#{tile_height}:r=#{layout[:framerate]}"
             ffmpeg_filter << "[#{pad_name}_pad];"
             ffmpeg_filter << "[#{pad_name}_movie][#{pad_name}_pad]concat=n=2:v=1:a=0[#{pad_name}];"
-
-            tile_x += 1
-            if tile_x >= tiles_h
-              tile_x = 0
-              tile_y += 1
-            end
           end
 
           # Create the video rows

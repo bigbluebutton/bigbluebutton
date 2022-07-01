@@ -231,6 +231,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UpdateBreakoutRoomsTimeReqMsg](envelope, jsonNode)
       case SendMessageToAllBreakoutRoomsReqMsg.NAME =>
         routeGenericMsg[SendMessageToAllBreakoutRoomsReqMsg](envelope, jsonNode)
+      case ChangeUserBreakoutReqMsg.NAME =>
+        routeGenericMsg[ChangeUserBreakoutReqMsg](envelope, jsonNode)
 
       // Layout
       case GetCurrentLayoutReqMsg.NAME =>

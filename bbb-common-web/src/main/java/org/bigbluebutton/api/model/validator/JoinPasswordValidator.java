@@ -36,17 +36,9 @@ public class JoinPasswordValidator implements ConstraintValidator<JoinPasswordCo
         String attendeePassword = meeting.getViewerPassword();
         String providedPassword = joinPassword.getPassword();
 
-        if(providedPassword == null) {
-            return false;
-        }
-
         log.info("Moderator password: {}", moderatorPassword);
         log.info("Attendee password: {}", attendeePassword);
         log.info("Provided password: {}", providedPassword);
-
-        if(!providedPassword.equals(moderatorPassword) && !providedPassword.equals(attendeePassword)) {
-            return false;
-        }
 
         return true;
     }

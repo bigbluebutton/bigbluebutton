@@ -12,6 +12,11 @@ case "$1" in
       sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=$IP\"/>@g"  /opt/freeswitch/etc/freeswitch/vars.xml
     fi
 
+    # Fix issue #14670 (we do it here to fix a previously broken install)
+    if grep -q "data=\"local_ip_v4=\"" /opt/freeswitch/etc/freeswitch/vars.xml; then
+      sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=$IP\"/>@g"  /opt/freeswitch/etc/freeswitch/vars.xml
+    fi
+
     sed -n 's/,VP8//g' /opt/freeswitch/etc/freeswitch/vars.xml
 
     SOURCE=/tmp/external.xml

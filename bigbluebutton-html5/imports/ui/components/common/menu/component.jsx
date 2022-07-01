@@ -33,6 +33,15 @@ class BBBMenu extends React.Component {
     this.handleClose = this.handleClose.bind(this);
   }
 
+  componentDidUpdate() {
+    const { anchorEl } = this.state;
+    if (this.props.open === false && anchorEl) {
+      this.setState({ anchorEl: null });
+    } else if (this.props.open === true && !anchorEl) {
+      this.setState({ anchorEl: this.anchorElRef });
+    }
+  }
+
   handleClick(event) {
     this.setState({ anchorEl: event.currentTarget });
   };
@@ -117,7 +126,10 @@ class BBBMenu extends React.Component {
         <div
           onClick={(e) => {
             e.persist();
-            this.opts.autoFocus = !(['mouse', 'touch'].includes(e.nativeEvent.pointerType));
+            const firefoxInputSource = !([1, 5].includes(e.nativeEvent.mozInputSource)); // 1 = mouse, 5 = touch (firefox only)
+            const chromeInputSource = !(['mouse', 'touch'].includes(e.nativeEvent.pointerType));
+
+            this.opts.autoFocus = firefoxInputSource && chromeInputSource;
             this.handleClick(e);
           }}
           onKeyPress={(e) => {
@@ -126,6 +138,7 @@ class BBBMenu extends React.Component {
             this.handleClick(e);
           }}
           accessKey={this.props?.accessKey}
+          ref={(ref) => this.anchorElRef = ref}
         >
           {trigger}
         </div>

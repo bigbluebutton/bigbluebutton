@@ -7,6 +7,7 @@ import SanitizeHTML from 'sanitize-html';
 import Meetings, {
   RecordMeetings,
   ExternalVideoMeetings,
+  LayoutMeetings,
 } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 import { initPads } from '/imports/api/pads/server/helpers';
@@ -35,6 +36,32 @@ const addExternalVideo = (meetingId) => {
   }
 };
 
+const addLayout = (meetingId, layout) => {
+  const selector = { meetingId };
+
+  const modifier = {
+    meetingId,
+    layout,
+    layoutUpdatedAt: new Date().getTime(),
+    presentationIsOpen: true,
+    isResizing: false,
+    cameraPosition: 'contentTop',
+    focusedCamera: 'none',
+    presentationVideoRate: 0,
+    pushLayout: false,
+  };
+
+  try {
+    const { numberAffected } = LayoutMeetings.upsert(selector, modifier);
+
+    if (numberAffected) {
+      Logger.verbose(`Added layout meetingId=${meetingId}`, numberAffected);
+    }
+  } catch (err) {
+    Logger.error(`Adding layout: ${err}`);
+  }
+};
+
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
 
@@ -52,9 +79,11 @@ export default function addMeeting(meeting) {
       intId: String,
       extId: String,
       meetingCameraCap: Number,
+      maxPinnedCameras: Number,
       isBreakout: Boolean,
       name: String,
       disabledFeatures: Array,
+      notifyRecordingIsOn: Boolean,
     },
     usersProp: {
       webcamsOnlyForModerator: Boolean,
@@ -139,10 +168,13 @@ export default function addMeeting(meeting) {
   const sanitizeTextInChat = original => SanitizeHTML(original, {
     allowedTags: ['a', 'b', 'br', 'i', 'img', 'li', 'small', 'span', 'strong', 'u', 'ul'],
     allowedAttributes: {
-      a: ['href', 'name', 'target'],
+      a: ['href', 'target'],
       img: ['src', 'width', 'height'],
     },
     allowedSchemes: ['https'],
+    allowedSchemesByTag: {
+      a: ['https', 'mailto', 'tel']
+    }
   });
 
   const sanitizedWelcomeText = sanitizeTextInChat(welcomeMsg);
@@ -153,14 +185,18 @@ export default function addMeeting(meeting) {
 
   const insertBlankTarget = (s, i) => `${s.substr(0, i)} target="_blank"${s.substr(i)}`;
   const linkWithoutTarget = new RegExp('<a href="(.*?)">', 'g');
-  linkWithoutTarget.test(welcomeMsg);
 
-  if (linkWithoutTarget.lastIndex > 0) {
-    welcomeMsg = insertBlankTarget(
-      welcomeMsg,
-      linkWithoutTarget.lastIndex - 1,
-    );
-  }
+  do {
+    linkWithoutTarget.test(welcomeMsg);
+
+    if (linkWithoutTarget.lastIndex > 0) {
+      welcomeMsg = insertBlankTarget(
+        welcomeMsg,
+        linkWithoutTarget.lastIndex - 1,
+      );
+      linkWithoutTarget.lastIndex = linkWithoutTarget.lastIndex - 1;
+    }
+  } while (linkWithoutTarget.lastIndex > 0);
 
   newMeeting.welcomeProp.welcomeMsg = welcomeMsg;
 
@@ -169,11 +205,13 @@ export default function addMeeting(meeting) {
   // At the moment `modOnlyMessage` is obtained from client side as a response to Enter API
   newMeeting.welcomeProp.modOnlyMessage = sanitizeTextInChat(newMeeting.welcomeProp.modOnlyMessage);
 
+  const { meetingLayout } = meeting.usersProp;
+
   const modifier = {
     $set: Object.assign({
       meetingId,
       meetingEnded,
-      layout: LAYOUT_TYPE[meeting.usersProp.meetingLayout] || 'smart',
+      layout: LAYOUT_TYPE[meetingLayout] || 'smart',
       publishedPoll: false,
       guestLobbyMessage: '',
       randomlySelectedUser: [],
@@ -206,6 +244,7 @@ export default function addMeeting(meeting) {
   }
 
   addExternalVideo(meetingId);
+  addLayout(meetingId, LAYOUT_TYPE[meetingLayout] || 'smart');
 
   try {
     const { insertedId, numberAffected } = Meetings.upsert(selector, modifier);

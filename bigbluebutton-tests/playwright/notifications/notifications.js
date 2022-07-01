@@ -3,6 +3,7 @@ const e = require('../core/elements');
 const util = require('./util');
 const { openSettings } = require('../settings/util');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { default: test } = require('@playwright/test');
 
 class Notifications extends MultiUsers {
   constructor(browser, context) {
@@ -38,6 +39,9 @@ class Notifications extends MultiUsers {
   }
 
   async raiseAndLowerHandNotification() {
+    const { raiseHandButton } = getSettings();
+    test.fail(!raiseHandButton, 'Raise/lower hand button is disabled');
+
     await this.modPage.waitAndClick(e.raiseHandBtn);
     await this.modPage.waitForSelector(e.smallToastMsg);
     await util.checkNotificationText(this.modPage, e.raisingHandToast);

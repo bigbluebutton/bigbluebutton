@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import PresentationService from '/imports/ui/components/presentation/service';
-import MediaService from '/imports/ui/components/media/service';
+import Service from '/imports/ui/components/actions-bar/service';
 import PollService from '/imports/ui/components/poll/service';
 import { makeCall } from '/imports/ui/services/api';
 import PresentationToolbar from './component';
@@ -53,7 +53,6 @@ export default withTracker((params) => {
   };
 
   return {
-    layoutSwapped: MediaService.getSwapLayout() && MediaService.shouldEnableSwapLayout(),
     numberOfSlides: PresentationToolbarService.getNumberOfSlides(podId, presentationId),
     nextSlide: PresentationToolbarService.nextSlide,
     previousSlide: PresentationToolbarService.previousSlide,

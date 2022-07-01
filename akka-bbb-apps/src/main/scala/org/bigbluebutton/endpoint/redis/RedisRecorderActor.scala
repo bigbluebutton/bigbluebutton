@@ -116,6 +116,7 @@ class RedisRecorderActor(
       case m: RecordStatusResetSysMsg               => handleRecordStatusResetSysMsg(m)
       case m: WebcamsOnlyForModeratorChangedEvtMsg  => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
       case m: MeetingEndingEvtMsg                   => handleEndAndKickAllSysMsg(m)
+      case m: MeetingCreatedEvtMsg                  => handleStarterConfigurations(m)
 
       // Recording
       case m: RecordingChapterBreakSysMsg           => handleRecordingChapterBreakSysMsg(m)
@@ -142,7 +143,7 @@ class RedisRecorderActor(
       ev.setSenderId(msg.body.msg.sender.id)
       ev.setMessage(msg.body.msg.message)
       ev.setSenderRole(msg.body.msg.sender.role)
-      
+
       val isModerator = msg.body.msg.sender.role == "MODERATOR"
       ev.setChatEmphasizedText(msg.body.msg.chatEmphasizedText && isModerator)
 
@@ -620,6 +621,12 @@ class RedisRecorderActor(
       healthzService.sendRecordingDBStatusMessage(System.currentTimeMillis())
     else
       log.error("recording database is not available.")
+  }
+
+  private def handleStarterConfigurations(msg: MeetingCreatedEvtMsg): Unit = {
+    val ev = new MeetingConfigurationEvent()
+    ev.setWebcamsOnlyForModerator(msg.body.props.usersProp.webcamsOnlyForModerator)
+    record(msg.body.props.meetingProp.intId, ev.toMap().asJava)
   }
 
 }

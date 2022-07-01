@@ -60,7 +60,6 @@ const propTypes = {
   }).isRequired,
   handleToggleFullscreen: PropTypes.func.isRequired,
   isDropdownOpen: PropTypes.bool,
-  toggleSwapLayout: PropTypes.func.isRequired,
   isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
   fullscreenRef: PropTypes.instanceOf(Element),
@@ -82,7 +81,6 @@ const defaultProps = {
 const PresentationMenu = (props) => {
   const {
     intl,
-    toggleSwapLayout,
     isFullscreen,
     elementId,
     elementName,
@@ -90,7 +88,7 @@ const PresentationMenu = (props) => {
     currentElement,
     currentGroup,
     fullscreenRef,
-    screenshotRef,
+    getScreenshotRef,
     handleToggleFullscreen,
     layoutContextDispatch,
     meetingName,
@@ -164,18 +162,6 @@ const PresentationMenu = (props) => {
       );
     }
 
-    if (OLD_MINIMIZE_BUTTON_ENABLED) {
-      menuItems.push(
-        {
-          key: 'list-item-minimize',
-          label: intl.formatMessage(intlMessages.minimizePresentationLabel),
-          onClick: () => {
-            toggleSwapLayout(layoutContextDispatch);
-          },
-        },
-      );
-    }
-
     const { isSafari } = browserInfo;
 
     if (!isSafari) {
@@ -199,7 +185,7 @@ const PresentationMenu = (props) => {
               },
             });
 
-            toPng(screenshotRef, {
+            toPng(getScreenshotRef(), {
               width: window.screen.width,
               height: window.screen.height,
             }).then((data) => {

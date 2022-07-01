@@ -15,6 +15,7 @@ const config = {
         launchOptions: {
           args: [
             '--no-sandbox',
+            '--ignore-certificate-errors',
             '--use-fake-ui-for-media-stream',
             '--use-fake-device-for-media-stream',
           ]

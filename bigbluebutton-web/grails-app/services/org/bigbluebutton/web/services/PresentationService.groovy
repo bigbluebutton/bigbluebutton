@@ -34,6 +34,7 @@ class PresentationService {
 	def testUploadedPresentation
 	def defaultUploadedPresentation
 	def presentationBaseUrl
+	def preUploadedPresentationOverrideDefault
 
 	def deletePresentation = {conf, room, filename ->
 		def directory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename)

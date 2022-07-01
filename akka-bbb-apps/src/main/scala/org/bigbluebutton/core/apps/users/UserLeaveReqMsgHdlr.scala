@@ -3,9 +3,9 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs.UserLeaveReqMsg
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users2x }
-import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core.running.{ HandlerHelpers, MeetingActor, OutMsgRouter }
 
-trait UserLeaveReqMsgHdlr {
+trait UserLeaveReqMsgHdlr extends HandlerHelpers {
   this: MeetingActor =>
 
   val outGW: OutMsgRouter
@@ -19,6 +19,8 @@ trait UserLeaveReqMsgHdlr {
           // Just flag that user has left as the user might be reconnecting.
           // An audit will remove this user if it hasn't rejoined after a certain period of time.
           // ralam oct 23, 2018
+          sendUserLeftFlagUpdatedEvtMsg(outGW, liveMeeting, msg.body.userId, true)
+
           Users2x.setUserLeftFlag(liveMeeting.users2x, msg.body.userId)
         }
         if (msg.body.loggedOut) {

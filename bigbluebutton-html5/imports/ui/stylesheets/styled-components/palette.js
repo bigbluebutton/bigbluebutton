@@ -107,6 +107,8 @@ const toastSuccessBg = `var(--toast-success-bg, ${colorSuccess})`;
 const toastErrorColor = `var(--toast-error-color, ${colorWhite})`;
 const toastErrorBg = `var(--toast-error-bg, ${colorDanger})`;
 
+const webcamBackgroundColor = 'var(--webcam-background-color, #001428FF)';
+
 const toastWarningColor = `var(--toast-warning-color, ${colorWhite})`;
 const toastWarningBg = `var(--toast-warning-bg, ${colorWarning})`;
 
@@ -193,4 +195,5 @@ export {
   toastErrorBg,
   toastWarningColor,
   toastWarningBg,
+  webcamBackgroundColor,
 };

@@ -1,4 +1,4 @@
-const { expect } = require('@playwright/test');
+const { expect, default: test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const util = require('./util.js');
@@ -64,6 +64,9 @@ class Polling extends MultiUsers {
   }
 
   async pollResultsOnChat() {
+    const { pollChatMessage } = getSettings();
+    test.fail(!pollChatMessage, 'Poll results on chat is disabled');
+
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.startPoll(this.modPage, true);
     await this.modPage.waitAndClick(e.chatButton);

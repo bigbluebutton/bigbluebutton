@@ -3,21 +3,64 @@ package org.bigbluebutton.core.models
 import scala.collection.mutable.Map
 
 object Layouts {
-  def setCurrentLayout(instance: Layouts, layout: String, setBy: String) {
+  def setCurrentLayout(instance: Layouts, layout: String) {
     instance.currentLayout = layout
-    instance.setByUser = setBy;
   }
 
   def getCurrentLayout(instance: Layouts): String = {
     instance.currentLayout
   }
 
-  def applyToViewersOnly(instance: Layouts, viewersOnly: Boolean) {
-    instance.affectViewersOnly = viewersOnly
+  def setPushLayout(instance: Layouts, pushLayout: Boolean) {
+    instance.pushLayout = pushLayout
   }
 
-  def doesLayoutApplyToViewersOnly(instance: Layouts): Boolean = {
-    instance.affectViewersOnly
+  def getPushLayout(instance: Layouts): Boolean = {
+    instance.pushLayout
+  }
+
+  def setPresentationIsOpen(instance: Layouts, p: Boolean) = {
+    instance.presentationIsOpen = p
+  }
+
+  def getPresentationIsOpen(instance: Layouts): Boolean = {
+    instance.presentationIsOpen
+  }
+
+  def setCameraDockIsResizing(instance: Layouts, p: Boolean) = {
+    instance.isResizing = p
+  }
+
+  def getCameraDockIsResizing(instance: Layouts): Boolean = {
+    instance.isResizing
+  }
+
+  def setCameraPosition(instance: Layouts, cp: String) = {
+    instance.cameraPosition = cp
+  }
+
+  def getCameraPosition(instance: Layouts): String = {
+    instance.cameraPosition
+  }
+
+  def setFocusedCamera(instance: Layouts, fc: String) = {
+    instance.focusedCamera = fc
+  }
+
+  def getFocusedCamera(instance: Layouts): String = {
+    instance.focusedCamera
+  }
+
+  def setPresentationVideoRate(instance: Layouts, pvr: Double) = {
+    instance.presentationVideoRate = pvr
+  }
+
+  def getPresentationVideoRate(instance: Layouts): Double = {
+    instance.presentationVideoRate
+  }
+
+  def setRequestedBy(instance: Layouts, setBy: String) = {
+    instance.setByUser = setBy;
   }
 
   def getLayoutSetter(instance: Layouts): String = {
@@ -28,8 +71,12 @@ object Layouts {
 class Layouts {
   private var setByUser: String = "system";
   private var currentLayout = "";
-  // this is not being set by the client, and we need to apply the layouts to all users, not just viewers, so will keep the default value of this as false
-  private var affectViewersOnly = true
+  private var pushLayout: Boolean = false;
+  private var presentationIsOpen: Boolean = true;
+  private var isResizing: Boolean = false;
+  private var cameraPosition: String = "";
+  private var focusedCamera: String = "";
+  private var presentationVideoRate: Double = 0;
 }
 
 object LayoutsType {
