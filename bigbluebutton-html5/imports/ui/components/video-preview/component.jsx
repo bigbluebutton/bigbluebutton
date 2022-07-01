@@ -808,7 +808,7 @@ class VideoPreview extends Component {
             />)}
             </Styled.Actions>
           </Styled.Footer>
-        ) : null }
+        ) : <div aria-hidden={true} /> }
       </>
     );
   }

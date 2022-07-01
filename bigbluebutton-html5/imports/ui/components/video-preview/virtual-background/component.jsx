@@ -12,6 +12,7 @@ import {
 } from '/imports/ui/services/virtual-background/service';
 import { CustomVirtualBackgroundsContext } from './context';
 import VirtualBgService from '/imports/ui/components/video-preview/virtual-background/service';
+import Loader from '/imports/ui/components/common/loader/component'
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -353,6 +354,14 @@ const VirtualBgSelector = ({
     if (showThumbnails) return renderThumbnailSelector();
     return renderDropdownSelector();
   };
+
+  if (!loaded && isVisualEffects) {
+    return (
+      <Styled.LoaderWrapper>
+        <Loader size="md" />
+      </Styled.LoaderWrapper>
+    );
+  }
 
   return (
     <>

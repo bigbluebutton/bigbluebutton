@@ -151,6 +151,14 @@ const ButtonRemove = styled(Button)`
 
 const BgCustomButton = styled(BgNoneButton)``;
 
+const LoaderWrapper = styled.div`
+  height: 15rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: calc(.4rem + 3px) 3px 3px;
+`;
+
 export default {
   VirtualBackgroundRowThumbnail,
   BgWrapper,
@@ -163,4 +171,5 @@ export default {
   ButtonWrapper,
   ButtonRemove,
   BgCustomButton,
+  LoaderWrapper,
 };
