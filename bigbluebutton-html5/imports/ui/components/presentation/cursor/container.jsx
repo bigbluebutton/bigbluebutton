@@ -6,6 +6,7 @@ import lockContextContainer from "/imports/ui/components/lock-viewers/context/co
 import { UsersContext } from "/imports/ui/components/components-data/users-context/context";
 import CursorService from "./service";
 import Cursor from "./component";
+import WhiteboardService from "/imports/ui/components/whiteboard/service";
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -34,10 +35,10 @@ const CursorContainer = (props) => {
 
 export default lockContextContainer(
   withTracker((params) => {
-    const { cursorId, userLocks } = params;
+    const { cursorId, userLocks, whiteboardId } = params;
     const isViewersCursorLocked = userLocks?.hideViewersCursor;
     const cursor = CursorService.getCurrentCursor(cursorId);
-    if (cursor) {
+    if (cursor && WhiteboardService.hasMultiUserAccess(whiteboardId, cursor.userId)) {
       const {
         xPercent: cursorX,
         yPercent: cursorY,
