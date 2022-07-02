@@ -281,20 +281,42 @@ export default function Whiteboard(props) {
           readOnly={!isPresenter && !hasWBAccess}
           onUndo={(e, s) => {
             e?.selectedIds?.map(id => {
-              persistShape(e.getShape(id), whiteboardId);
+              const shape = e.getShape(id);
+              persistShape(shape, whiteboardId);
+              const children = shape.children;
+              children && children.forEach(c => {
+                const childShape = e.getShape(c);
+                const shapeBounds = e.getShapeBounds(c);
+                childShape.size = [shapeBounds.width, shapeBounds.height];
+                persistShape(childShape, whiteboardId)
+              });
             })
             const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
             let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
-            removeShapes(shapesIdsToRemove, whiteboardId)
+            if (shapesIdsToRemove.length) {
+              // add a little delay, wee need to make sure children are updated first
+              setTimeout(() => removeShapes(shapesIdsToRemove, whiteboardId), 200);
+            }
           }}
 
           onRedo={(e, s) => {
             e?.selectedIds?.map(id => {
-              persistShape(e.getShape(id), whiteboardId);
+              const shape = e.getShape(id);
+              persistShape(shape, whiteboardId);
+              const children = shape.children;
+              children && children.forEach(c => {
+                const childShape = e.getShape(c);
+                const shapeBounds = e.getShapeBounds(c);
+                childShape.size = [shapeBounds.width, shapeBounds.height];
+                persistShape(childShape, whiteboardId)
+              });
             });
             const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
             let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
-            removeShapes(shapesIdsToRemove, whiteboardId)
+            if (shapesIdsToRemove.length) {
+              // add a little delay, wee need to make sure children are updated first
+              setTimeout(() => removeShapes(shapesIdsToRemove, whiteboardId), 200);
+            }
           }}
 
           onChangePage={(app, s, b, a) => {
@@ -303,86 +325,124 @@ export default function Whiteboard(props) {
             }
           }}
           onCommand={(e, s, g) => {
-            if (s.includes("session:complete:DrawSession")) {
-              Object.entries(e.state.document.pages[e.getPage()?.id]?.shapes)
-                .filter(([k, s]) => s?.type === 'draw')
-                .forEach(([k, s]) => {
-                  if (!e.prevShapes[k] && !k.includes('slide-background')) {
-                    const shapeBounds = e.getShapeBounds(k);
-                    s.size = [shapeBounds.width, shapeBounds.height];
-                    persistShape(s, whiteboardId);
-                  }
+
+            if (s.includes('move_to_page')) {
+              let groupShapes = [];
+              let nonGroupShapes = [];
+              let movedShapes = {};
+              e.selectedIds.forEach(id => {
+                const shape = e.getShape(id);
+                if (shape.type === 'group')
+                  groupShapes.push(id);
+                else
+                  nonGroupShapes.push(id);
+                movedShapes[id] = e.getShape(id);
+              });
+              //remove shapes on origin page
+              let idsToRemove = nonGroupShapes.concat(groupShapes);
+              removeShapes(idsToRemove, whiteboardId);
+              //persist shapes for destination page
+              const newWhiteboardId = curPres.pages.find(page => page.num === Number.parseInt(e.getPage()?.id)).id;
+              let idsToInsert = groupShapes.concat(nonGroupShapes);
+              idsToInsert.forEach(id => {
+                persistShape(movedShapes[id], newWhiteboardId);
+                const children = movedShapes[id].children;
+                children && children.forEach(c => {
+                  persistShape(e.getShape(c), newWhiteboardId)
                 });
+              });
+              return;
             }
 
-            if (s.includes("style")
-            || s?.includes("session:complete:ArrowSession")) {
+            if (s.includes('ungroup')) {
+              e?.selectedIds?.map(id => {
+                persistShape(e.getShape(id), whiteboardId);
+              })
+
+              // check for deleted shapes
+              const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
+              let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
+              if (shapesIdsToRemove.length) {
+                // add a little delay, wee need to make sure children are updated first
+                setTimeout(() => removeShapes(shapesIdsToRemove, whiteboardId), 200);
+              }
+              return;
+            }
+
+            const conditions = [
+              "session:complete", "style", "updated_shapes", "duplicate", "stretch", 
+              "align", "move", "delete", "create", "flip", "toggle", "group", "translate"
+            ]
+            if (conditions.some(el => s?.startsWith(el))) {
               e.selectedIds.forEach(id => {
                 const shape = e.getShape(id);
                 const shapeBounds = e.getShapeBounds(id);
                 shape.size = [shapeBounds.width, shapeBounds.height];
                 persistShape(shape, whiteboardId);
-              });
-            }
-
-            if (s.includes('move_to_page')) {
-              const movedShapes = e.selectedIds.map(id => {
-                return e.getShape(id);
-              });
-              //remove shapes on origin page
-              removeShapes(e.selectedIds, whiteboardId);
-              //persist shapes for destination page
-              const newWhiteboardId = curPres.pages.find(page => page.num === Number.parseInt(e.getPage()?.id)).id;
-              movedShapes.forEach(s => {
-                persistShape(s, newWhiteboardId);
-              });
-              return;
-            }
-
-            const conditions = [
-              "session:complete:TransformSingleSession", "session:complete:TranslateSession",
-              "session:complete:RotateSession", "session:complete:HandleSession",
-              "updated_shapes", "duplicate", "stretch", "align", "move",
-              "create", "flip", "toggle", "group", "translate"
-            ]
-            if (conditions.some(el => s?.includes(el))) {
-                e.selectedIds.forEach(id => {
-                  const shape = e.getShape(id);
-                  const shapeBounds = e.getShapeBounds(id);
+                //checks to find any bindings assosiated with the selected shapes.
+                //If any, they need to be updated as well.
+                const pageBindings = e.bindings;
+                const boundShapes = {};
+                if (pageBindings) {
+                  Object.entries(pageBindings).map(([k,b]) => {
+                    if (b.toId.includes(id)) {
+                      boundShapes[b.fromId] = e.getShape(b.fromId);
+                    }
+                  })
+                }
+                //persist shape(s) that was updated by the client and any shapes bound to it.
+                Object.entries(boundShapes).map(([k,bs]) => {
+                  const shapeBounds = e.getShapeBounds(k);
+                  bs.size = [shapeBounds.width, shapeBounds.height];
+                  persistShape(bs, whiteboardId)
+                })
+                const children = e.getShape(id).children;
+                //also persist children of the selected shape (grouped shapes)
+                children && children.forEach(c => {
+                  const shape = e.getShape(c);
+                  const shapeBounds = e.getShapeBounds(c);
                   shape.size = [shapeBounds.width, shapeBounds.height];
-                  persistShape(shape, whiteboardId);
-                  //checks to find any bindings assosiated with the selected shapes.
-                  //If any, they need to be updated as well.
-                  const pageBindings = e.state.document.pages[e.getPage()?.id]?.bindings;
-                  const boundShapes = [];
+                  persistShape(shape, whiteboardId)
+                  // also persist shapes that are bound to the children
                   if (pageBindings) {
                     Object.entries(pageBindings).map(([k,b]) => {
-                      if (b.toId.includes(id)) {
-                        boundShapes.push(e.state.document.pages[e.getPage()?.id]?.shapes[b.fromId])
+                      if (!(b.fromId in boundShapes) && b.toId.includes(c)) {
+                        const shape = e.getShape(b.fromId);
+                        persistShape(shape, whiteboardId)
+                        boundShapes[b.fromId] = shape;
                       }
                     })
                   }
-                  //persist shape(s) that was updated by the client and any shapes bound to it.
-                  boundShapes.forEach(bs => {
-                    const shapeBounds = e.getShapeBounds(bs.id);
-                    bs.size = [shapeBounds.width, shapeBounds.height];
-                    persistShape(bs, whiteboardId)
-                  })
-                  const children = e.getShape(id).children
-                  //also persist children of the selected shape (grouped shapes)
-                  children && children.forEach(c => {
-                    const shape = e.getShape(c);
-                    const shapeBounds = e.getShapeBounds(c);
-                    shape.size = [shapeBounds.width, shapeBounds.height];
-                    persistShape(shape, whiteboardId)
-                  })
-                });
-            }
+                })
+              });
+              // draw shapes
+              Object.entries(e.state.document.pages[e.getPage()?.id]?.shapes)
+                .filter(([k, s]) => s?.type === 'draw')
+                .forEach(([k, s]) => {
+                  if (!prevShapes[k] && !k.includes('slide-background')) {
+                    const shapeBounds = e.getShapeBounds(k);
+                    s.size = [shapeBounds.width, shapeBounds.height];
+                    persistShape(s, whiteboardId);
+                  }
+              });
 
-            if (s?.includes("session:complete:EraseSession") || s?.includes("delete")) {
+              // check for deleted shapes
               const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
               let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
-              removeShapes(shapesIdsToRemove, whiteboardId)
+              let groups = [];
+              let nonGroups = [];
+              // if we have groups, we need to make sure they are removed lastly
+              shapesIdsToRemove.forEach(shape => {
+                if (shapes[shape].type === 'group') {
+                  groups.push(shape);
+                } else {
+                  nonGroups.push(shape);
+                }
+              });
+              if (shapesIdsToRemove.length) {
+                shapesIdsToRemove = nonGroups.concat(groups);
+                removeShapes(shapesIdsToRemove, whiteboardId);
+              }
             }
           }}
 
