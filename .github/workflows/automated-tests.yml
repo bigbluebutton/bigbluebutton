@@ -7,6 +7,9 @@ on:
       - 'v[3-9].*.x-release'
   pull_request:
     types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+
 jobs:
   build-install-and-test:
     runs-on: ubuntu-20.04
