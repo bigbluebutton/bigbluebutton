@@ -2,7 +2,7 @@ const { test, devices } = require('@playwright/test');
 const { ScreenShare } = require('./screenshare');
 
 test.describe.parallel('Screenshare', () => {
-  test('Share screen', async ({ browser, page }) => {
+  test('Share screen @ci', async ({ browser, page }) => {
     const screenshare = new ScreenShare(browser, page);
     await screenshare.init(true, true);
     await screenshare.startSharing();

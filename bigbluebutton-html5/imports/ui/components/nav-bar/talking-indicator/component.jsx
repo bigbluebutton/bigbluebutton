@@ -66,9 +66,9 @@ class TalkingIndicator extends PureComponent {
 
       return (
         <Styled.TalkingIndicatorButton
-          spoke={!talking}
-          muted={muted}
-          isViewer={!amIModerator}
+          $spoke={!talking || undefined}
+          $muted={muted}
+          $isViewer={!amIModerator || undefined}
           key={_.uniqueId(`${callerName}-`)}
           onClick={() => this.handleMuteUser(id)}
           label={callerName}
@@ -109,9 +109,9 @@ class TalkingIndicator extends PureComponent {
 
       return (
         <Styled.TalkingIndicatorButton
-          spoke={nobodyTalking}
-          muted={false}
-          isViewer={false}
+          $spoke={nobodyTalking}
+          $muted={false}
+          $isViewer={false}
           key={_.uniqueId('_has__More_')}
           onClick={() => {}} // maybe add a dropdown to show the rest of the users
           label="..."

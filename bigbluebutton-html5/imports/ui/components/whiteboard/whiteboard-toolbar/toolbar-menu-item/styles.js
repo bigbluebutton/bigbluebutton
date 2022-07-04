@@ -81,14 +81,6 @@ const ToolbarButton = styled(Button)`
     & > i {
       color: ${toolbarListColor};
     }
-
-    border-top-left-radius: 0;
-    border-top-right-radius: ${toolbarButtonBorderRadius};
-
-    [dir="rtl"] & {
-      border-top-left-radius: ${toolbarButtonBorderRadius};
-      border-top-right-radius: 0;
-    }
   `}
 `;
 

@@ -327,11 +327,6 @@ module BigBlueButton
           # Convert the duration to milliseconds
           info[:duration] = (info[:format][:duration].to_r * 1000).to_i
 
-          # Red5 writes video files with the first frame often having a pts
-          # much greater than 0.
-          # We can compensate for this during decoding if we know the
-          # timestamp offset, which ffprobe handily finds. Convert the units
-          # to ms.
           info[:start_time] = (info[:format][:start_time].to_r * 1000).to_i
           info[:video][:start_time] = (info[:video][:start_time].to_r * 1000).to_i
 
