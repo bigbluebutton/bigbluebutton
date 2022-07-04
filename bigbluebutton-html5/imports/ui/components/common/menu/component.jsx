@@ -26,7 +26,7 @@ class BBBMenu extends React.Component {
       anchorEl: null,
     };
 
-    this.opts = props.opts;
+    this.optsToMerge = {};
     this.autoFocus = false;
 
     this.handleClick = this.handleClick.bind(this);
@@ -70,12 +70,12 @@ class BBBMenu extends React.Component {
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
       let customStyles = {
-        paddingLeft: '4px',
-        paddingRight: '4px',
-        paddingTop: '8px',
-        paddingBottom: '8px',
-        marginLeft: '4px',
-        marginRight: '4px'
+        paddingLeft: '16px',
+        paddingRight: '16px',
+        paddingTop: '12px',
+        paddingBottom: '12px',
+        marginLeft: '0px',
+        marginRight: '0px',
       };
 
       if (a.customStyles) {
@@ -99,11 +99,11 @@ class BBBMenu extends React.Component {
             if (close) this.handleClose(event);
             event.stopPropagation();
           }}>
-          <div style={{ display: 'flex', flexFlow: 'row', width: '100%' }}>
+          <Styled.MenuItemWrapper>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
             <Styled.Option>{label}</Styled.Option>
             {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" /> : null}
-          </div>
+          </Styled.MenuItemWrapper>
         </Styled.BBBMenuItem>,
         a.divider && <Divider disabled />
       ];
@@ -112,7 +112,7 @@ class BBBMenu extends React.Component {
 
   render() {
     const { anchorEl } = this.state;
-    const { trigger, intl, customStyles, dataTest } = this.props;
+    const { trigger, intl, customStyles, dataTest, opts } = this.props;
     const actionsItems = this.makeMenuItems();
 
     let menuStyles = { zIndex: 9999 };
@@ -129,7 +129,7 @@ class BBBMenu extends React.Component {
             const firefoxInputSource = !([1, 5].includes(e.nativeEvent.mozInputSource)); // 1 = mouse, 5 = touch (firefox only)
             const chromeInputSource = !(['mouse', 'touch'].includes(e.nativeEvent.pointerType));
 
-            this.opts.autoFocus = firefoxInputSource && chromeInputSource;
+            this.optsToMerge.autoFocus = firefoxInputSource && chromeInputSource;
             this.handleClick(e);
           }}
           onKeyPress={(e) => {
@@ -144,7 +144,8 @@ class BBBMenu extends React.Component {
         </div>
 
         <Menu
-          {...this.opts}
+          {...opts}
+          {...this.optsToMerge}
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={this.handleClose}

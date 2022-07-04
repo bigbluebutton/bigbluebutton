@@ -96,7 +96,7 @@ const Adapter = () => {
   /* needed to prevent an issue with dupĺicated messages when user role is changed
   more info: https://github.com/bigbluebutton/bigbluebutton/issues/11842 */
   useEffect(() => {
-    if (users[Auth.meetingID]) {
+    if (users[Auth.meetingID] && users[Auth.meetingID][Auth.userID]) {
       if (currentUserData?.role !== users[Auth.meetingID][Auth.userID].role) {
         prevUserData = currentUserData;
       }

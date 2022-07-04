@@ -4,8 +4,8 @@ case class PresentationVO(id: String, temporaryPresentationId: String, name: Str
                           pages: Vector[PageVO], downloadable: Boolean, removable: Boolean)
 
 case class PageVO(id: String, num: Int, thumbUri: String = "", swfUri: String,
-                  txtUri: String, svgUri: String, current: Boolean = false, xOffset: Double = 0,
-                  yOffset: Double = 0, widthRatio: Double = 100D, heightRatio: Double = 100D)
+                  txtUri: String, svgUri: String, current: Boolean = false, xCamera: Double = 0,
+                  yCamera: Double = 0, zoom: Double = 1D)
 
 case class PresentationPodVO(id: String, currentPresenter: String,
                              presentations: Vector[PresentationVO])
@@ -18,12 +18,11 @@ case class PresentationPageConvertedVO(
 )
 
 case class PresentationPageVO(
-    id:          String,
-    num:         Int,
-    urls:        Map[String, String],
-    current:     Boolean             = false,
-    xOffset:     Double              = 0,
-    yOffset:     Double              = 0,
-    widthRatio:  Double              = 100D,
-    heightRatio: Double              = 100D
+    id:      String,
+    num:     Int,
+    urls:    Map[String, String],
+    current: Boolean             = false,
+    xCamera: Double              = 0,
+    yCamera: Double              = 0,
+    zoom:    Double              = 1D
 )

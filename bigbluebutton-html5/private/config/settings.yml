@@ -472,6 +472,7 @@ public:
       enabled: true
     moderatorChatEmphasized: true
     autoConvertEmoji: true
+    enableEmojiPicker: false
   notes:
     enabled: true
     id: notes
@@ -579,11 +580,11 @@ public:
     #   be used in Chromium browsers. Works around the fact that Chromium has no
     #   echo cancellation in non-rtc audio streams
     localEchoTest:
-      enabled: false
-      initialHearingState: false
-      useRtcLoopbackInChromium: false
+      enabled: true
+      initialHearingState: true
+      useRtcLoopbackInChromium: true
     # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
-    showVolumeMeter: false
+    showVolumeMeter: true
   stats:
     enabled: true
     interval: 10000
@@ -766,6 +767,7 @@ public:
       logTag: ''
   virtualBackgrounds:
     enabled: true
+    enableVirtualBackgroundUpload: true
     storedOnBBB: true
     showThumbnails: true
     imagesPath: /resources/images/virtual-backgrounds/

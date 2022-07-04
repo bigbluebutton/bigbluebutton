@@ -40,6 +40,9 @@ const intlMessages = defineMessages({
   banned_user_rejoining_reason: {
     id: 'app.error.userBanned',
   },
+  joined_another_window_reason: {
+    id: 'app.error.joinedAnotherWindow',
+  },
 });
 
 const propTypes = {

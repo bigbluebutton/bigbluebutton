@@ -1,5 +1,5 @@
 import Breakouts from '/imports/api/breakouts';
-import { MeetingTimeRemaining, Meetings } from '/imports/api/meetings';
+import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';

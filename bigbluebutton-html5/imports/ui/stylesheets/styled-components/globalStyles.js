@@ -26,6 +26,10 @@ const GlobalStyle = createGlobalStyle`
     }
   }
 
+  .MuiList-padding {
+    padding: 0 !important;
+  }
+
   .MuiPaper-root {
     background-color: ${dropdownBg};
     border-radius: ${borderRadius};

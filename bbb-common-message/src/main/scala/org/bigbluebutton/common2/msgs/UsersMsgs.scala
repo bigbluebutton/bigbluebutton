@@ -310,7 +310,7 @@ case class UserJoinMeetingAfterReconnectReqMsg(header: BbbClientMsgHeader, body:
 case class UserJoinMeetingAfterReconnectReqMsgBody(userId: String, authToken: String, clientType: String)
 
 /**
- * Sent from bbb-apps when user disconnects from Red5.
+ * Sent from client to bbb-akka to notify that a user is leaving
  */
 object UserLeaveReqMsg { val NAME = "UserLeaveReqMsg" }
 case class UserLeaveReqMsg(header: BbbClientMsgHeader, body: UserLeaveReqMsgBody) extends StandardMsg

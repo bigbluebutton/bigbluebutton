@@ -644,7 +644,7 @@ class PresentationUploader extends Component {
           </Styled.StatusIcon>
         </Styled.FileLine>
         <Styled.StatusInfo>
-          <Styled.StatusInfoSpan styles={hasError ? 'error' : 'info'}>
+          <Styled.StatusInfoSpan data-test="presentationStatusInfo" styles={hasError ? 'error' : 'info'}>
             {this.renderPresentationItemStatus(item)}
           </Styled.StatusInfoSpan>
         </Styled.StatusInfo>
