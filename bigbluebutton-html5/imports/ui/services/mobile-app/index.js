@@ -108,6 +108,7 @@ import logger from '/imports/startup/client/logger';
                         };
                         fakeVideoTrack.onended = null; // callbacks added from screenshare (we can use it later)
                         fakeVideoTrack.oninactive = null; // callbacks added from screenshare (we can use it later)
+                        fakeVideoTrack.addEventListener = function() {}; // skip listeners
                         
                         const videoTracks = [
                             fakeVideoTrack
@@ -115,6 +116,7 @@ import logger from '/imports/startup/client/logger';
                         stream.getTracks = stream.getVideoTracks = function () {
                             return videoTracks;
                         };
+                        stream.active=true;
                         resolve(stream);
                     }
                 ).catch(
