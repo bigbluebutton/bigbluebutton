@@ -12,7 +12,7 @@ mkdir -p ${PERSISTENCE_DIR}
 #HASH=${HASH:0:64}
 
 CONTENT=`echo 'springfox.documentation.open-api.v3.path=/api-docs
-server.servlet.contextPath=/
+server.servlet.contextPath=/bigbluebutton/api
 server.port=8081
 spring.jackson.date-format=org.bigbluebutton.RFC3339DateFormat
 spring.jackson.serialization.WRITE_DATES_AS_TIMESTAMPS=false

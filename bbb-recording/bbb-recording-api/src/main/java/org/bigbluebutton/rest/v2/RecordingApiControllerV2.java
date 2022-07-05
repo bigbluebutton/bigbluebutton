@@ -3,6 +3,7 @@ package org.bigbluebutton.rest.v2;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import org.bigbluebutton.dao.entity.Recording;
+import org.bigbluebutton.request.AddTextTrackBody;
 import org.bigbluebutton.request.MetadataParams;
 import org.bigbluebutton.response.Response;
 import org.bigbluebutton.response.ResponseEnvelope;
@@ -114,6 +115,16 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
 
         Recording recording = recordingService.publishRecording(recordID, publish);
         return createRecordingResponse(response, recording);
+    }
+
+    @Override
+    public ResponseEntity<Response> getRecordingTextTracks(String recordID) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<Response> addRecordingTextTrack(String recordID, AddTextTrackBody body) {
+        return null;
     }
 
     @Override

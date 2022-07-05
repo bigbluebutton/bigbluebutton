@@ -13,7 +13,7 @@ externalDocs:
   description: Find out more about Big Blue Button
   url: http://docs.bigbluebutton.org
 servers:
-  - url: https://api.bigbluebutton.org/2.0
+  - url: https://bigbluebutton.org/bigbluebutton/api/v2
 tags:
   - name: recording
     description: Access to meeting recordings
@@ -49,7 +49,7 @@ paths:
           schema:
             type: string
           description: "You can pass one or more metadata values to filter the recordings returned. The format of these parameters is the same as the metadata passed to the create call."
-          example: "meta_presenter=joe&meta_category"
+          example: "meta_presenter=joe&meta_category=education"
         - in: query
           name: page
           schema:
@@ -71,14 +71,14 @@ paths:
         - api_key: []
       x-codegen-request-body-name: body
 
-  /recordings/{recordingId}:
+  /recordings/{recordID}:
     get:
       tags:
         - recording
       summary: Retrieve a single recording
       operationId: getRecording
       parameters:
-        - name: recordingId
+        - name: recordID
           in: path
           description: ID of the recording to be retrieved
           required: true
@@ -99,7 +99,7 @@ paths:
       summary: Delete a recording
       operationId: deleteRecording
       parameters:
-        - name: recordingId
+        - name: recordID
           in: path
           description: ID of the recording to be deleted
           required: true
@@ -121,14 +121,14 @@ paths:
       summary: Update the metadata of an existing recording
       operationId: updateRecording
       parameters:
-        - name: recordingId
+        - name: recordID
           in: path
           description: ID of the recording to be updated
           required: true
           schema:
             type: string
       requestBody:
-        description: XPath formatted metadata values to be updated
+        description: Metadata key/value pairs to be updated
         content:
           application/json:
             schema:
@@ -137,6 +137,116 @@ paths:
             schema:
               $ref: '#/components/schemas/RecordingMetadata'
         required: true
+      responses:
+        200:
+          $ref: '#/components/responses/Hateoas'
+        404:
+          $ref: '#/components/responses/NotFound'
+        405:
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - api_key: []
+      x-codegen-request-body-name: body
+    put:
+      tags:
+        - recording
+      summary: Publish/unpublish recording
+      operationId: publishRecording
+      parameters:
+        - name: recordID
+          in: path
+          description: ID of the recording to be updated
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: publish
+          schema:
+            type: string
+          description: "Boolean value indicating whether the recording should be published"
+      responses:
+        200:
+          $ref: '#/components/responses/Hateoas'
+        404:
+          $ref: '#/components/responses/NotFound'
+        405:
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - api_key: []
+      x-codegen-request-body-name: body
+  /recordings/{recordID}/tracks:
+    get:
+      tags:
+        - recording
+      summary: Retrieve recording text tracks
+      operationId: getRecordingTextTracks
+      parameters:
+        - name: recordID
+          in: path
+          description: ID of the recording
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: ''
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+        - api_key: []
+      x-codegen-request-body-name: body
+    post:
+      tags:
+        - recording
+      summary: Upload text track for a recording
+      operationId: addRecordingTextTrack
+      parameters:
+        - name: recordID
+          in: path
+          description: ID of the recording
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Text track file and details
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                kind:
+                  type: string
+                lang:
+                  type: string
+                label:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+        required: true
+      responses:
+        200:
+          $ref: '#/components/responses/Hateoas'
+        404:
+          $ref: '#/components/responses/NotFound'
+        405:
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - api_key: []
+      x-codegen-request-body-name: body
+  /recordings/{recordID}/events:
+    get:
+      tags:
+        - recording
+      summary: Retrieve summary of meeting events
+      operationId: getMeetingSummary
+      parameters:
+        - name: recordID
+          in: path
+          description: ID of the recording
+          required: true
+          schema:
+            type: string
       responses:
         200:
           $ref: '#/components/responses/Hateoas'
