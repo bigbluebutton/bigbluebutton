@@ -181,18 +181,22 @@ export default function Cursors(props) {
 
   React.useEffect(() => {
     return () => {
-      cursorWrapper.removeEventListener('mouseenter', start);
-      cursorWrapper.removeEventListener('mouseleave', end);
-      cursorWrapper.removeEventListener('mousemove', moved);
-      cursorWrapper.removeEventListener('touchend', end);
-      cursorWrapper.removeEventListener('touchmove', moved);
+      if (cursorWrapper) {
+        cursorWrapper.removeEventListener('mouseenter', start);
+        cursorWrapper.removeEventListener('mouseleave', end);
+        cursorWrapper.removeEventListener('mousemove', moved);
+        cursorWrapper.removeEventListener('touchend', end);
+        cursorWrapper.removeEventListener('touchmove', moved);
+      }
     }
-  }, []);
+  });
+
+  const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
 
   return (
     <span disabled={true} ref={(r) => (cursorWrapper = r)}>
-      <div style={{ height: "100%", cursor: "none" }}>
-        {active && (
+      <div style={{ height: "100%", cursor: multiUserAccess || currentUser?.presenter ? "none" : "default" }}>
+        {(active && multiUserAccess || (active && currentUser?.presenter)) && (
           <PositionLabel
             pos={pos}
             otherCursors={otherCursors}
