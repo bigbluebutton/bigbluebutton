@@ -167,6 +167,18 @@ module BigBlueButton
       end
     end
 
+    def self.is_talking_period_greater_than(events, initial_talking_timestamp, initial_timestamp, duration, user_id_analysed)
+      # It checks if the next event of closing talking is greater than the specific duration
+      # if so, then it can create another EDL, otherwise, it would become chaotic 
+      events.xpath('/recording/event[@eventname="ParticipantTalkingEvent" or @eventname="ParticipantMutedEvent"]').each do |event|
+        timestamp = event['timestamp'].to_i - initial_timestamp
+        user_id = event.at_xpath('participant').text
+        if timestamp > initial_talking_timestamp && user_id == user_id_analysed
+          return (timestamp - initial_talking_timestamp > duration * 1000)
+        end
+      end
+    end
+
     # Build a webcam EDL
     def self.create_webcam_edl(events, archive_dir, show_moderator_viewpoint, what_to_render)
       # The following variables can't be true together.
@@ -260,6 +272,8 @@ module BigBlueButton
             end
           when 'ParticipantTalkingEvent', 'ParticipantMutedEvent'
 
+            # These events will only be taken into consideration should 
+            # talking_people_only be set 
             if (talking_people_only)
               user_id = event.at_xpath('participant').text
               is_talking = false
@@ -276,16 +290,23 @@ module BigBlueButton
               is_only_cam_speaking=false
               filename_to_add= ""
 
+              # The EDL will only change if the is_talking changes (i.e. if the person 
+              # was talinkg and stops, or the other way around).
+              # The other way for the EDL to change is if the person mute their mic (if  
+              # they just unmute themselves, it doesn't mean that they will talk).
               if (list_user_talking[user_id] != is_talking) || is_muted
                 if is_talking
+                  # Flow to insert a new Camera in the new_EDL
                   filename_to_add = BigBlueButton::Events.extract_filename_from_userId(user_id, inactive_videos)
-                  if filename_to_add != ""
+                  edl_will_modify = BigBlueButton::Events.is_talking_period_greater_than(events, initial_timestamp, timestamp, 2, user_id)
+                  if filename_to_add != "" && edl_will_modify
                     is_user_cam_on = true
                     inactive_videos.delete(filename_to_add)
                     active_videos << filename_to_add
                   end
                   list_user_talking[user_id] = is_talking
                 else
+                  # Flow to remove a Camera from the EDL
                   filename_to_add = BigBlueButton::Events.extract_filename_from_userId(user_id, active_videos)
                   if filename_to_add != ""
                     is_user_cam_on = true
@@ -310,6 +331,8 @@ module BigBlueButton
                 video_edl << edl_entry
               end
 
+              # The user is set in the list_user_talking which is just a list 
+              # of the users' states throughout the meeting 
               if !list_user_talking.has_key?(user_id)
                 list_user_talking[user_id] = is_talking
               end
@@ -458,6 +481,8 @@ module BigBlueButton
           
           when 'ParticipantTalkingEvent', 'ParticipantMutedEvent'
 
+            # These events will only be taken into consideration should 
+            # talking_people_only be set 
             if (talking_people_only)
               user_id = event.at_xpath('participant').text
               is_talking = false
@@ -474,16 +499,23 @@ module BigBlueButton
               is_only_cam_speaking=false
               filename_to_add= ""
 
+              # The EDL will only change if the is_talking changes (i.e. if the person 
+              # was talinkg and stops, or the other way around).
+              # The other way for the EDL to change is if the person mute their mic (if  
+              # they just unmute themselves, it doesn't mean that they will talk).
               if (list_user_talking[user_id] != is_talking) || is_muted
                 if is_talking
+                  # Flow to insert a new Camera in the new_EDL
                   filename_to_add = BigBlueButton::Events.extract_filename_from_userId(user_id, inactive_videos)
-                  if filename_to_add != ""
+                  edl_will_modify = BigBlueButton::Events.is_talking_period_greater_than(events, initial_timestamp, timestamp, 2, user_id)
+                  if filename_to_add != "" && edl_will_modify
                     is_user_cam_on = true
                     inactive_videos.delete(filename_to_add)
                     active_videos << filename_to_add
                   end
                   list_user_talking[user_id] = is_talking
                 else
+                  # Flow to remove a Camera from the EDL
                   filename_to_add = BigBlueButton::Events.extract_filename_from_userId(user_id, active_videos)
                   if filename_to_add != ""
                     is_user_cam_on = true
@@ -508,6 +540,8 @@ module BigBlueButton
                 video_edl << edl_entry
               end
 
+              # The user is set in the list_user_talking which is just a list 
+              # of the users' states throughout the meeting 
               if !list_user_talking.has_key?(user_id)
                 list_user_talking[user_id] = is_talking
               end
