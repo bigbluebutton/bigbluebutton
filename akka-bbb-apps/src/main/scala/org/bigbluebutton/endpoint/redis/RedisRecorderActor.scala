@@ -184,7 +184,7 @@ class RedisRecorderActor(
   }
 
   private def handleResizeAndMovePageEvtMsg(msg: ResizeAndMovePageEvtMsg) {
-    val ev = new ResizeAndMoveSlideRecordEvent()
+    val ev = new TldrawCameraChangedRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
     ev.setPresentationName(msg.body.presentationId)
@@ -280,7 +280,7 @@ class RedisRecorderActor(
 
   private def handleSendWhiteboardAnnotationsEvtMsg(msg: SendWhiteboardAnnotationsEvtMsg) {
     msg.body.annotations.foreach(annotation => {
-      val ev = new AddShapeWhiteboardRecordEvent()
+      val ev = new AddTldrawShapeWhiteboardRecordEvent()
       ev.setMeetingId(msg.header.meetingId)
       ev.setPresentation(getPresentationId(annotation.wbId))
       ev.setPageNumber(getPageNum(annotation.wbId))
@@ -320,7 +320,7 @@ class RedisRecorderActor(
 
   private def handleDeleteWhiteboardAnnotationsEvtMsg(msg: DeleteWhiteboardAnnotationsEvtMsg) {
     msg.body.annotationsIds.foreach(annotationId => {
-      val ev = new UndoAnnotationRecordEvent()
+      val ev = new DeleteTldrawShapeRecordEvent()
       ev.setMeetingId(msg.header.meetingId)
       ev.setPresentation(getPresentationId(msg.body.whiteboardId))
       ev.setPageNumber(getPageNum(msg.body.whiteboardId))

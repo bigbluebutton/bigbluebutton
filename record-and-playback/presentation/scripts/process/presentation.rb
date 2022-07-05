@@ -192,6 +192,10 @@ unless FileTest.directory?(target_dir)
 
       # Copy thumbnails from raw files
       FileUtils.cp_r("#{pres_dir}/thumbnails", "#{target_pres_dir}/thumbnails") if File.exist?("#{pres_dir}/thumbnails")
+      tldraw = BigBlueButton::Events.check_for_tldraw_events(@doc);
+      if (tldraw)
+        FileUtils.cp_r("#{pres_dir}/svgs", "#{target_pres_dir}/svgs") if File.exist?("#{pres_dir}/svgs")
+      end
     end
 
     BigBlueButton.logger.info('Generating closed captions')

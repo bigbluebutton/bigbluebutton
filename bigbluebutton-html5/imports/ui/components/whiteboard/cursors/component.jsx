@@ -80,7 +80,7 @@ const PositionLabel = (props) => {
     isMultiUserActive,
   } = props;
 
-  const { name, color, userId, presenter } = currentUser;
+  const { name, color } = currentUser;
   const prevCurrentPoint = usePrevious(currentPoint);
 
   React.useEffect(() => {
@@ -127,8 +127,8 @@ export default function Cursors(props) {
   
   const end = () => {
     publishCursorUpdate({
-      xPercent: null,   
-      yPercent: null,
+      xPercent: -1.0,
+      yPercent: -1.0,
       whiteboardId: whiteboardId,
     });
     setActive(false);
