@@ -101,6 +101,7 @@ class Presentation extends MultiUsers {
   async fitToWidthTest() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.waitAndClick(e.userListToggleBtn);
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
     const width1 = await this.modPage.page.locator(e.whiteboard).getAttribute("width");
     await this.modPage.waitAndClick(e.fitToWidthButton);
