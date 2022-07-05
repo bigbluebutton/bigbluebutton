@@ -1142,30 +1142,20 @@ check_state() {
     fi
 
     if bbb-conf --status | grep -q inactive; then
-
         if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
             TOMCAT_SERVICE=$TOMCAT_USER
 
-            if bbb-conf --status | grep -q $TOMCAT_SERVICE; then
+            if bbb-conf --status | grep -q inactive | grep -q $TOMCAT_SERVICE; then
                 echo "# Warning: $TOMCAT_SERVICE is not started correctly"
                 echo "#"
-                echo "#   $(bbb-conf --status | grep inactive | grep $TOMCAT_SERVICE)"
-                echo "#"
             fi
-            if bbb-conf --status | grep inactive | grep -vq $TOMCAT_SERVICE; then
-                echo "# Error: Detected some processes have not started correctly"
-                echo "#"
-                echo "#   $(bbb-conf --status | grep inactive | grep -v $TOMCAT_SERVICE)"
-                echo "#"
-            fi
-            
-        else
-            if bbb-conf --status | grep inactive; then
+        fi
+
+        if bbb-conf --status | grep inactive; then
             echo "# Error: Detected some processes have not started correctly"
             echo "#"
             echo "#   $(bbb-conf --status | grep inactive)"
             echo "#"
-            fi
         fi
     fi
 
