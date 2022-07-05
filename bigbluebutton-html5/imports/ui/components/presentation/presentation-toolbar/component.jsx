@@ -308,7 +308,8 @@ class PresentationToolbar extends PureComponent {
                 startOfSlides ? "noPrevSlideDesc" : "prevSlideDesc"
               }
               disabled={startOfSlides || !isMeteorConnected}
-              color="default"
+              color="light"
+              circle
               icon="left_arrow"
               size="md"
               onClick={this.previousSlideHandler}
@@ -341,7 +342,8 @@ class PresentationToolbar extends PureComponent {
                 endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'
               }
               disabled={endOfSlides || !isMeteorConnected}
-              color="default"
+              color="light"
+              circle
               icon="right_arrow"
               size="md"
               onClick={this.nextSlideHandler}
@@ -360,11 +362,11 @@ class PresentationToolbar extends PureComponent {
                   ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
                   : intl.formatMessage(intlMessages.toolbarMultiUserOn)
               }
-              color="default"
+              color="light"
               disabled={!isMeteorConnected}
               icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
               size="md"
-              circle={false}
+              circle
               onClick={() => this.handleSwitchWhiteboardMode(!multiUser)}
               label={
                 multiUser
@@ -406,11 +408,11 @@ class PresentationToolbar extends PureComponent {
                       intlMessages.presentationLabel
                     )} ${intl.formatMessage(intlMessages.fitToWidth)}`
               }
-              color="default"
+              color="light"
               disabled={!isMeteorConnected}
               icon="fit_to_width"
               size="md"
-              circle={false}
+              circle
               onClick={() => this.props.tldrawAPI.zoomToFit()}
               label={intl.formatMessage(intlMessages.fitToPage)}
               hideLabel
