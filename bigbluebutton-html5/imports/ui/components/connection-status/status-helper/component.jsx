@@ -69,8 +69,8 @@ class ConnectionStatusIcon extends PureComponent {
         <Styled.Label>
           {intl.formatMessage(intlMessages.label)}
         </Styled.Label>
-        {level === 'critical' || level === 'danger'
-          && (
+        {(level === 'critical' || level === 'danger')
+          ? (
             <div>
               <Styled.Settings
                 onClick={this.openAdjustSettings.bind(this)}
@@ -79,6 +79,9 @@ class ConnectionStatusIcon extends PureComponent {
                 {intl.formatMessage(intlMessages.settings)}
               </Styled.Settings>
             </div>
+          )
+          : (
+            <div>&nbsp;</div>
           )
         }
       </Fragment>

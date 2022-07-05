@@ -261,8 +261,6 @@
               updateMessage(_('app.guest.guestWait'));
               enableAnimation();
               try {
-                const ATTEMPT_EVERY_MS = 10 * 1000; // 10 seconds
-
                 const sessionToken = getSearchParam('sessionToken');
 
                 if (!sessionToken) {
@@ -270,8 +268,32 @@
                   updateMessage(_('app.guest.noSessionToken'));
                   return;
                 }
+                //First, check that we already have a response
+                const statusFromStorage = sessionStorage.getItem(`guestStatus_${sessionToken}`);
 
-                pollGuestStatus(sessionToken, ATTEMPT_EVERY_MS);
+                if(statusFromStorage) {
+                  stopUpdatingWaitingPosition();
+
+                  const statusParsed = JSON.parse(statusFromStorage);
+                  const { status, response } = statusParsed;
+
+                  if(status === 'ALLOW'){
+                    updateLobbyMessage(_('app.guest.allow'));
+                    setTimeout(() => {
+                      disableAnimation();
+                      window.location = response.url;
+                    }, MESSAGE_TIMEOUT);
+                  } else {
+                    redirect(
+                      _('app.guest.' + response.messageKey),
+                      response.url,
+                    );
+                  }
+
+                  return;
+                }
+
+                pollGuestStatus(sessionToken, 0);
               } catch (e) {
                 disableAnimation();
                 console.error(e);
@@ -309,21 +331,28 @@
           .then((data) => {
             const code = data.response.returncode;
 
-            if (code === 'FAILED') {
+            const response = data.response;
+
+            const saveStatusResponse = (status, response, token) => {
               stopUpdatingWaitingPosition();
+              sessionStorage.setItem(`guestStatus_${token}`, JSON.stringify({ status, response }));
+            };
+
+            if (code === 'FAILED') {
+              saveStatusResponse(code, response, token);
               return redirect(_('app.guest.' + data.response.messageKey), data.response.url);
             }
 
             const status = data.response.guestStatus;
 
             if (status === 'DENY') {
-              stopUpdatingWaitingPosition();
+              saveStatusResponse(status, response, token);
               return redirect(_('app.guest.' + data.response.messageKey), data.response.url);
             }
 
             if (status === 'ALLOW') {
               updateLobbyMessage(_('app.guest.allow'));
-              stopUpdatingWaitingPosition();
+              saveStatusResponse(status, response, token);
               // Timeout is required by accessibility to allow viewing of the message for a minimum of 3 seconds
               // before redirecting.
               setTimeout(() => {
@@ -335,7 +364,8 @@
             updatePositionInWaitingQueue(data.response.positionInWaitingQueue);
             updateLobbyMessage(data.response.lobbyMessage);
 
-            return pollGuestStatus(token, everyMs);
+            const ATTEMPT_EVERY_MS = 10 * 1000; // 10 seconds
+            return pollGuestStatus(token, ATTEMPT_EVERY_MS);
           });
       }, everyMs);
     };

@@ -102,9 +102,21 @@ class RecordingController {
       log.debug intRecId
     }
 
-    Map<String, String> metadataFilters = ParamsProcessorUtil.processMetaParam(params);
+    Map<String, String> metadataFilters = ParamsProcessorUtil.processMetaParam(params)
 
-    def getRecordingsResult = meetingService.getRecordings2x(internalRecordIds, states, metadataFilters)
+    String page
+    if(!StringUtils.isEmpty(params.page)) {
+      page = params.page
+      log.info("Requested page [${page}]")
+    }
+
+    String size
+    if(!StringUtils.isEmpty(params.size)) {
+      size = params.size
+      log.info("Requested page size [${size}]")
+    }
+
+    def getRecordingsResult = meetingService.getRecordings2x(internalRecordIds, states, metadataFilters, page, size)
 
     withFormat {
       xml {

@@ -5,7 +5,7 @@ import browserInfo from '/imports/utils/browserInfo';
 import SettingsDropdown from './component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
-import { layoutSelectInput } from '../../layout/context';
+import { layoutSelectInput, layoutSelect } from '../../layout/context';
 import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
 
 const { isIphone } = deviceInfo;
@@ -16,9 +16,10 @@ const noIOSFullscreen = !!(((isSafari && !isValidSafariVersion) || isIphone));
 const SettingsDropdownContainer = (props) => {
   const { width: browserWidth } = layoutSelectInput((i) => i.browser);
   const isMobile = browserWidth <= SMALL_VIEWPORT_BREAKPOINT;
+  const isRTL = layoutSelect((i) => i.isRTL);
 
   return (
-    <SettingsDropdown {...{ isMobile, ...props }} />
+    <SettingsDropdown {...{ isMobile, isRTL, ...props }} />
   );
 };
 

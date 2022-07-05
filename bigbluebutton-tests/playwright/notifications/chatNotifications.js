@@ -10,6 +10,7 @@ class ChatNotifications extends MultiUsers {
   }
 
   async publicChatNotification() {
+    await util.waitAndClearDefaultPresentationNotification(this.modPage);
     await openSettings(this.modPage);
     await util.enableChatPopup(this.modPage);
     await util.saveSettings(this.modPage);
@@ -23,6 +24,7 @@ class ChatNotifications extends MultiUsers {
   }
 
   async privateChatNotification() {
+    await util.waitAndClearDefaultPresentationNotification(this.modPage);
     await openSettings(this.modPage);
     await util.enableChatPopup(this.modPage);
     await util.saveSettings(this.modPage);

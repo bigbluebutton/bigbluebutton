@@ -6,7 +6,7 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 
-export default function zoomSlide(slideNumber, podId, widthRatio, heightRatio, x, y) {
+export default function zoomSlide(slideNumber, podId, zoom, x, y) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'ResizeAndMovePagePubMsg';
@@ -43,10 +43,9 @@ export default function zoomSlide(slideNumber, podId, widthRatio, heightRatio, x
       podId,
       presentationId: Presentation.id,
       pageId: Slide.id,
-      xOffset: x,
-      yOffset: y,
-      widthRatio,
-      heightRatio,
+      xCamera: x,
+      yCamera: y,
+      zoom,
     };
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
