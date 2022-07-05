@@ -66,7 +66,6 @@ let exportJob = JSON.parse(job);
 
       for (let p of pages) {
         let pageNumber = p.page;
-        let svgFile = path.join(exportJob.presLocation, 'svgs',  `slide${pageNumber}.svg`)
         let outputFile = path.join(dropbox, `slide${pageNumber}`);
         
         // CairoSVG doesn't handle transparent SVG and PNG embeds properly, e.g., in rasterized text.
@@ -86,7 +85,6 @@ let exportJob = JSON.parse(job);
         ].join(' ')
 
         execSync(extract_png_from_pdf);
-        fs.copyFileSync(svgFile, path.join(dropbox, `slide${pageNumber}.svg`));
       }
     }
 

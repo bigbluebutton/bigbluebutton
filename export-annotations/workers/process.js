@@ -122,10 +122,11 @@ function to_px(pt) {
 
 function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxWidth = null) {
     
-    fontSize = to_pt(fontSize);
+    fontSize = to_pt(fontSize) * config.process.textScaleFactor
 
     // Sticky notes need automatic line wrapping: take width into account
-    let size = textBoxWidth ? `-size ${textBoxWidth}x` : ''
+    // Texbox scaled by a constant factor to improve resolution at small scales
+    let size = textBoxWidth ? `-size ${textBoxWidth * config.process.textScaleFactor}x` : ''
 
     let pangoText = `pango:"<span font_family='${font}' font='${fontSize}' color='${textColor}'>${text}</span>"`
 
@@ -560,8 +561,8 @@ function overlay_shape_label(svg, annotation) {
     render_textbox(fontColor, font, fontSize, textAlign, text, id);
 
     let dimensions = probe.sync(fs.readFileSync(path.join(dropbox, `text${id}.png`)));
-    let labelWidth = dimensions.width;
-    let labelHeight = dimensions.height;
+    let labelWidth = dimensions.width / config.process.textScaleFactor;
+    let labelHeight = dimensions.height / config.process.textScaleFactor;
     
     svg.ele('g', {
         transform: `rotate(${rotation} ${label_center_x} ${label_center_y})`
@@ -744,7 +745,8 @@ let ghostScriptInput = ""
 for (let currentSlide of pages) {
 
     let backgroundImagePath = path.join(dropbox, `slide${currentSlide.page}`);
-    let svgFileExists = fs.existsSync(`${backgroundImagePath}.svg`)
+    let svgBackgroundSlide = path.join(exportJob.presLocation, 'svgs',  `slide${currentSlide.page}.svg`);
+    let svgBackgroundExists = fs.existsSync(svgBackgroundSlide);
     let backgroundFormat = fs.existsSync(`${backgroundImagePath}.png`) ? 'png' : 'jpeg'
 
     // Output dimensions in pixels even if stated otherwise (pt)
@@ -752,8 +754,8 @@ for (let currentSlide of pages) {
     // that would prevent loading file in memory
     // Ideally, use dimensions provided by tldraw's background image asset
     // (this is not yet always provided)
-    let dimensions = svgFileExists ? 
-        probe.sync(fs.readFileSync(`${backgroundImagePath}.svg`)) :
+    let dimensions = svgBackgroundExists ? 
+        probe.sync(fs.readFileSync(svgBackgroundSlide)) :
         probe.sync(fs.readFileSync(`${backgroundImagePath}.${backgroundFormat}`));
 
     let slideWidth = parseInt(dimensions.width, 10);
