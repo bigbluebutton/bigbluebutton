@@ -203,9 +203,9 @@ const VirtualBgSelector = ({
             </div>
           </>
 
-          <>
+          <Styled.ThumbnailButtonWrapper isVisualEffects={isVisualEffects}>
             <Styled.ThumbnailButton
-              style={{ backgroundImage: `url('${getVirtualBackgroundThumbnail(BLUR_FILENAME)}')` }}
+              background={getVirtualBackgroundThumbnail(BLUR_FILENAME)}
               aria-label={intl.formatMessage(intlMessages.blurLabel)}
               label={intl.formatMessage(intlMessages.blurLabel)}
               aria-describedby={`vr-cam-btn-blur`}
@@ -220,7 +220,7 @@ const VirtualBgSelector = ({
             <div aria-hidden className="sr-only" id={`vr-cam-btn-blur`}>
               {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.BLUR_TYPE })}
             </div>
-          </>
+          </Styled.ThumbnailButtonWrapper>
 
           {IMAGE_NAMES.map((imageName, index) => {
             const label = intl.formatMessage(intlMessages[imageName.split('.').shift()], {
@@ -229,7 +229,10 @@ const VirtualBgSelector = ({
             });
 
             return (
-              <div key={`${imageName}-${index}`} style={{ position: 'relative' }}>
+              <Styled.ThumbnailButtonWrapper
+                key={`${imageName}-${index}`}
+                isVisualEffects={isVisualEffects}
+              >
                 <Styled.ThumbnailButton
                   id={`${imageName}-${index}`}
                   label={label}
@@ -243,16 +246,12 @@ const VirtualBgSelector = ({
                   onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index + 1)}
                   disabled={disabled}
                   isVisualEffects={isVisualEffects}
+                  background={getVirtualBackgroundThumbnail(imageName)}
                 />
-                <Styled.Thumbnail onClick={() => {
-                  const node = findDOMNode(inputElementsRef.current[index + 1]);
-                  node.focus();
-                  node.click();
-                }} aria-hidden src={getVirtualBackgroundThumbnail(imageName)} />
                 <div aria-hidden className="sr-only" id={`vr-cam-btn-${index}`}>
                   {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: label })}
                 </div>
-              </div>
+              </Styled.ThumbnailButtonWrapper>
             )
           })}
 
@@ -265,7 +264,10 @@ const VirtualBgSelector = ({
               });
 
               return (
-                <Styled.ThumbnailButtonWrapper key={`${filename}-${index}`}>
+                <Styled.ThumbnailButtonWrapper
+                  key={`${filename}-${index}`}
+                  isVisualEffects={isVisualEffects}
+                >
                   <Styled.ThumbnailButton
                     id={`${filename}-${imageIndex}`}
                     label={label}
@@ -284,12 +286,8 @@ const VirtualBgSelector = ({
                     )}
                     disabled={disabled}
                     isVisualEffects={isVisualEffects}
+                    background={data}
                   />
-                  <Styled.Thumbnail onClick={() => {
-                    const node = findDOMNode(inputElementsRef.current[index + IMAGE_NAMES.length + 1]);
-                    node.focus();
-                    node.click();
-                  }} aria-hidden src={data} />
                   <Styled.ButtonWrapper>
                     <Styled.ButtonRemove
                       label={intl.formatMessage(intlMessages.removeLabel)}

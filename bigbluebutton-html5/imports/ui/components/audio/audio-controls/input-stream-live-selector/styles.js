@@ -30,15 +30,24 @@ const AudioDropdown = styled(ButtonEmoji)`
 `;
 
 const MuteToggleButton = styled(Button)`
-  ${({ talking }) => talking && `
+
+  ${({ ghost }) => ghost && `
+    span {
+      box-shadow: none;
+      background-color: transparent !important;
+      border-color: ${colorWhite} !important;
+    }
+  `}
+
+  ${({ $talking }) => $talking && `
     border-radius: 50%;
   `}
-    
-  ${({ talking, animations }) => talking && animations && css`
+
+  ${({ $talking, animations }) => $talking && animations && css`
     animation: ${pulse} 1s infinite ease-in;
   `}
 
-  ${({ talking, animations }) => talking && !animations && css`
+  ${({ $talking, animations }) => $talking && !animations && css`
     & span {
       content: '';
       outline: none !important;

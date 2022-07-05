@@ -47,6 +47,10 @@ export default function Whiteboard(props) {
     svgUri,
     presentationBounds,
     isViewersCursorLocked,
+    setIsZoomed,
+    zoomChanger,
+    isZoomed,
+    isMultiUserActive,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -66,29 +70,29 @@ export default function Whiteboard(props) {
   const [selectedIds, setSelectedIds] = React.useState([]);
   const [tldrawAPI, setTLDrawAPI] = React.useState(null);
   const [cameraFitSlide, setCameraFitSlide] = React.useState({point: [0, 0], zoom: 0});
-  const [zoomedIn, setZoomedIn] = React.useState(false);
   const prevShapes = usePrevious(shapes);
   const prevSlidePosition = usePrevious(slidePosition);
   const prevPageId = usePrevious(curPageId);
 
   const calculateCameraFitSlide = () => {
-    let zoom = 
+    let zoom =
       Math.min(
         (presentationBounds.width) / slidePosition.width,
         (presentationBounds.height) / slidePosition.height
-      )        
-      
+      );
+
     zoom = Utils.clamp(zoom, 0.1, 5);
 
     let point = [0, 0];
-    if ((presentationBounds.width / presentationBounds.height) > 
-        (slidePosition.width / slidePosition.height)) 
-    { 
+    if ((presentationBounds.width / presentationBounds.height) >
+        (slidePosition.width / slidePosition.height))
+    {
       point[0] = (presentationBounds.width - (slidePosition.width * zoom)) / 2 / zoom
     } else {
       point[1] = (presentationBounds.height - (slidePosition.height * zoom)) / 2 / zoom
     }
 
+    isPresenter && zoomChanger(zoom);
     return {point, zoom}
   }
 
@@ -109,11 +113,11 @@ export default function Whiteboard(props) {
       stack = tldrawAPI?.stack
 
       next.pages[curPageId].shapes = shapes;
-      
+
       changed = true;
     }
 
-    if (next.pages[curPageId] && !next.pages[curPageId].shapes["slide-background-shape"]) {      
+    if (next.pages[curPageId] && !next.pages[curPageId].shapes["slide-background-shape"]) {
       next.assets[`slide-background-asset-${curPageId}`] = {
         id: `slide-background-asset-${curPageId}`,
         size: [slidePosition?.width || 0, slidePosition?.height || 0],
@@ -176,7 +180,7 @@ export default function Whiteboard(props) {
     if (curPageId && slidePosition) {
       const camera = calculateCameraFitSlide();
       setCameraFitSlide(camera);
-      if (!zoomedIn) {
+      if (!isZoomed) {
         tldrawAPI?.setCamera(camera.point, camera.zoom);
       }
     }
@@ -188,11 +192,11 @@ export default function Whiteboard(props) {
       const previousPageZoom = tldrawAPI.getPageState()?.camera?.zoom;
       tldrawAPI.changePage(curPageId);
       //change zoom of the new page to follow the previous one
-      if (!zoomedIn && cameraFitSlide.zoom !== 0) {
+      if (!isZoomed && cameraFitSlide.zoom !== 0) {
         tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom, "zoomed");
       } else {
         previousPageZoom &&
-        slidePosition && 
+        slidePosition &&
         tldrawAPI.setCamera([slidePosition.xCamera, slidePosition.yCamera], previousPageZoom, "zoomed");
       }
     }
@@ -203,10 +207,10 @@ export default function Whiteboard(props) {
     if (tldrawAPI && !isPresenter && curPageId && slidePosition) {
       if (slidePosition.zoom === 0 && slidePosition.xCamera === 0 && slidePosition.yCamera === 0) {
         tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
-        setZoomedIn(false);
+        setIsZoomed(false);
       } else {
         tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
-        setZoomedIn(true);
+        setIsZoomed(true);
       }
     }
   }, [curPageId, slidePosition]);
@@ -218,17 +222,44 @@ export default function Whiteboard(props) {
       <Cursors
         tldrawAPI={tldrawAPI}
         currentUser={currentUser}
+        hasMultiUserAccess={props?.hasMultiUserAccess}
         whiteboardId={whiteboardId}
         isViewersCursorLocked={isViewersCursorLocked}
+        isMultiUserActive={isMultiUserActive}
       >
         <Tldraw
           key={`wb-${!hasWBAccess && !isPresenter}`}
           document={doc}
-          disableAssets={false}
+          // disable the ability to drag and drop files onto the whiteboard
+          // until we handle saving of assets in akka.
+          disableAssets={true}
           onMount={(app) => {
-            if (!hasWBAccess && !isPresenter) app.onPan = () => {}; 
             setTLDrawAPI(app);
             props.setTldrawAPI(app);
+            // disable for non presenter that doesn't have multi user access
+            if (!hasWBAccess && !isPresenter) {
+              app.onPan = () => {};
+              app.setSelectedIds = () => {};
+              app.setHoveredId = () => {};
+            } else {
+              // disable hover highlight for background slide shape
+              app.setHoveredId = (id) => {
+                if (id.includes('slide-background')) return null;
+                app.patchState(
+                  {
+                    document: {
+                      pageStates: {
+                        [app.getPage()?.id]: {
+                          hoveredId: id,
+                        },
+                      },
+                    },
+                  },
+                  `set_hovered_id`
+                );
+              };
+            }
+
             if (curPageId) {
               app.changePage(curPageId);
               if (slidePosition.zoom === 0) {
@@ -237,8 +268,8 @@ export default function Whiteboard(props) {
                 app.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
                 setCameraFitSlide(cameraFitSlide);
               } else {
-                app.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom)
-                setZoomedIn(true);
+                app.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
+                setIsZoomed(true);
               }
             }
           }}
@@ -291,7 +322,7 @@ export default function Whiteboard(props) {
                 const shapeBounds = e.getShapeBounds(id);
                 shape.size = [shapeBounds.width, shapeBounds.height];
                 persistShape(shape, whiteboardId);
-              }); 
+              });
             }
 
             if (s.includes('move_to_page')) {
@@ -310,8 +341,8 @@ export default function Whiteboard(props) {
 
             const conditions = [
               "session:complete:TransformSingleSession", "session:complete:TranslateSession",
-              "session:complete:RotateSession", "session:complete:HandleSession", 
-              "updated_shapes", "duplicate", "stretch", "align", "move", 
+              "session:complete:RotateSession", "session:complete:HandleSession",
+              "updated_shapes", "duplicate", "stretch", "align", "move",
               "create", "flip", "toggle", "group", "translate"
             ]
             if (conditions.some(el => s?.includes(el))) {
@@ -361,25 +392,24 @@ export default function Whiteboard(props) {
               //don't allow zoom out more than fit
               if (camera.zoom <= cameraFitSlide.zoom) {
                 tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
-                setZoomedIn(false);
+                setIsZoomed(false);
                 zoomSlide(parseInt(curPageId), podId, 0, 0, 0);
               } else {
                 zoomSlide(parseInt(curPageId), podId, camera.zoom, camera.point[0], camera.point[1]);
-                setZoomedIn(true);
+                setIsZoomed(true);
               }
             }
             //don't allow non-presenters to pan&zoom
             if (slidePosition && reason && !isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
               if (slidePosition.zoom === 0 && slidePosition.xCamera === 0 && slidePosition.yCamera === 0) {
                 tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
-                setZoomedIn(false);
+                setIsZoomed(false);
               } else {
                 tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
-                setZoomedIn(true);
+                setIsZoomed(true);
               }
-            } 
+            }
           }}
-
         />
       </Cursors>
     </>

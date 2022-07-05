@@ -53,10 +53,12 @@ class ZoomTool extends PureComponent {
   }
 
   componentDidUpdate() {
-    const { zoomValue } = this.props;
+    const { zoomValue, tldrawAPI } = this.props;
     const { stateZoomValue } = this.state;
     const isDifferent = zoomValue !== stateZoomValue;
-    if (isDifferent) this.onChanger(zoomValue);
+    if (isDifferent) {
+      this.onChanger(tldrawAPI?.getPageState()?.camera?.zoom);
+    }
   }
 
   onChanger(value) {
@@ -147,6 +149,8 @@ class ZoomTool extends PureComponent {
       isMeteorConnected,
       step,
       tldrawAPI,
+      slidePosition,
+      isZoomed,
     } = this.props;
     const { stateZoomValue } = this.state;
 
@@ -161,7 +165,11 @@ class ZoomTool extends PureComponent {
     }
 
     const stateZoomPct = intl.formatNumber((stateZoomValue / 100), { style: 'percent' });
-
+    const tldrawZoomState = tldrawAPI?.getPageState()?.camera?.zoom;
+    let displayZoom = zoomValue < tldrawZoomState && tldrawZoomState !== 1 
+      ? tldrawZoomState : zoomValue;
+    if (zoomValue === 1) displayZoom = tldrawZoomState;
+    
     return (
       [
         (
@@ -180,7 +188,7 @@ class ZoomTool extends PureComponent {
               onClick={() => {
                 tldrawAPI.zoomTo(tldrawAPI?.getPageState()?.camera?.zoom - ZOOM_INCREMENT);
               }}
-              disabled={(zoomValue <= minBound) || !isMeteorConnected}
+              disabled={!isZoomed || !isMeteorConnected}
               hideLabel
             />
             <div id="zoomOutDescription" hidden>{intl.formatMessage(intlMessages.zoomOutDesc)}</div>
@@ -193,7 +201,7 @@ class ZoomTool extends PureComponent {
               aria-describedby="resetZoomDescription"
               disabled={(stateZoomValue === minBound) || !isMeteorConnected}
               color="default"
-              customIcon={`${parseInt(this.props?.tldrawAPI?.getPageState()?.camera?.zoom * 100)}%`}
+              customIcon={`${parseInt(displayZoom * 100)}%`}
               size="md"
               onClick={() => tldrawAPI?.zoomTo(1)}
               label={intl.formatMessage(intlMessages.resetZoomLabel)}
