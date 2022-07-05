@@ -49,7 +49,7 @@ fi
 export MONGO_OPLOG_URL=mongodb://127.0.1.1/local
 export MONGO_URL=mongodb://127.0.1.1/meteor
 export NODE_ENV=production
-export NODE_VERSION=node-v14.19.1-linux-x64
+export NODE_VERSION=node-v14.19.3-linux-x64
 export SERVER_WEBSOCKET_COMPRESSION=0
 export BIND_IP=127.0.0.1
 PORT=$PORT /usr/share/$NODE_VERSION/bin/node --max-old-space-size=2048 --max_semi_space_size=128 main.js NODEJS_BACKEND_INSTANCE_ID=$INSTANCE_ID
