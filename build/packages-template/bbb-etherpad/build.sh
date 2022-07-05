@@ -49,6 +49,7 @@ npm install ./ep_redis_publisher-*.tgz
 
 npm install ep_cursortrace
 npm install ep_disable_chat
+npm install --no-save --legacy-peer-deps ep_auth_session
 
 mkdir -p staging/usr/share/etherpad-lite
 

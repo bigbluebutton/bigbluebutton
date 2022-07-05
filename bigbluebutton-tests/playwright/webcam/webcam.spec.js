@@ -1,7 +1,7 @@
 const { test } = require('@playwright/test');
 const { Webcam } = require('./webcam');
 
-test.describe.parallel('Webcam', () => {
+test.describe.parallel('Webcam @ci', () => {
   test('Shares webcam', async ({ browser, page }) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, true);

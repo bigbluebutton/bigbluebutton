@@ -31,6 +31,9 @@ import ChatAdapter from '/imports/ui/components/components-data/chat-context/ada
 import UsersAdapter from '/imports/ui/components/components-data/users-context/adapter';
 import GroupChatAdapter from '/imports/ui/components/components-data/group-chat-context/adapter';
 import { liveDataEventBrokerInitializer } from '/imports/ui/services/LiveDataEventBroker/LiveDataEventBroker';
+// The adapter import is "unused" as far as static code is concerned, but it
+// needs to here to override global prototypes. So: don't remove it - prlanzarin 25 Apr 2022
+import adapter from 'webrtc-adapter';
 
 import collectionMirrorInitializer from './collection-mirror-initializer';
 

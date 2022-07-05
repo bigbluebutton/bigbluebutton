@@ -49,8 +49,6 @@ case class UsersProp(
 
 case class MetadataProp(metadata: collection.immutable.Map[String, String])
 
-case class ScreenshareProps(screenshareConf: String, red5ScreenshareIp: String, red5ScreenshareApp: String)
-
 case class LockSettingsProps(
     disableCam:             Boolean,
     disableMic:             Boolean,

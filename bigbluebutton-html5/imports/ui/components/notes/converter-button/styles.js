@@ -13,14 +13,7 @@ const ConvertAndUpload = styled(Button)`
   position: relative;
   background-color: ${colorWhite};
   display: block;
-  margin: ${borderSizeLarge};
-  margin-bottom: ${borderSize};
-  padding-left: 0;
-  padding-right: inherit;
-  [dir="rtl"] & {
-    padding-left: inherit;
-    padding-right: 0;
-  }
+  padding: 0;
   & > i {
     color: ${colorGrayDark};
     font-size: smaller;
