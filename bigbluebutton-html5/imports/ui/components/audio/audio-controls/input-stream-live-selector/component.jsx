@@ -347,6 +347,7 @@ class InputStreamLiveSelector extends Component {
       currentOutputDeviceId,
       isListenOnly,
       isRTL,
+      shortcuts,
     } = this.props;
 
     const inputDeviceList = !isListenOnly
@@ -379,33 +380,43 @@ class InputStreamLiveSelector extends Component {
     const dropdownListComplete = inputDeviceList.concat(outputDeviceList).concat(leaveAudioOption);
 
     return (
-      <BBBMenu
-        trigger={(
-          <>
-            {isListenOnly
-              ? this.renderListenOnlyButton()
-              : this.renderMuteToggleButton()}
-            <Styled.AudioDropdown
-              emoji="device_list_selector"
-              label={intl.formatMessage(intlMessages.changeAudioDevice)}
-              hideLabel
-              tabIndex={0}
-              rotate
-            />
-          </>
-        )}
-        actions={dropdownListComplete}
-        opts={{
-          id: 'default-dropdown-menu',
-          keepMounted: true,
-          transitionDuration: 0,
-          elevation: 3,
-          getContentAnchorEl: null,
-          fullwidth: 'true',
-          anchorOrigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
-          transformOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
-        }}
-      />
+      <>
+        {!isListenOnly ? (
+          <span
+            style={{ display: 'none' }}
+            accessKey={shortcuts.leaveaudio}
+            onClick={() => handleLeaveAudio()}
+            aria-hidden="true"
+          />
+        ) : null}
+        <BBBMenu
+          trigger={(
+            <>
+              {isListenOnly
+                ? this.renderListenOnlyButton()
+                : this.renderMuteToggleButton()}
+              <Styled.AudioDropdown
+                emoji="device_list_selector"
+                label={intl.formatMessage(intlMessages.changeAudioDevice)}
+                hideLabel
+                tabIndex={0}
+                rotate
+              />
+            </>
+          )}
+          actions={dropdownListComplete}
+          opts={{
+            id: 'default-dropdown-menu',
+            keepMounted: true,
+            transitionDuration: 0,
+            elevation: 3,
+            getContentAnchorEl: null,
+            fullwidth: 'true',
+            anchorOrigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
+            transformOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+          }}
+        />
+      </>
     );
   }
 
@@ -434,4 +445,4 @@ InputStreamLiveSelector.propTypes = propTypes;
 InputStreamLiveSelector.defaultProps = defaultProps;
 
 export default withShortcutHelper(injectIntl(InputStreamLiveSelector),
-  ['leaveAudio']);
+  ['leaveAudio', 'toggleMute']);
