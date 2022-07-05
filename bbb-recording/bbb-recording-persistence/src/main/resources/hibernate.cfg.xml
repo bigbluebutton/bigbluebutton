@@ -4,8 +4,8 @@
     <!-- JDBC Database connection settings -->
     <property name="connection.driver_class">org.postgresql.Driver</property>
     <property name="connection.url">jdbc:postgresql://localhost:5432/bbb</property>
-    <property name="connection.username">pguser</property>
-    <property name="connection.password">pgpass</property>
+    <property name="connection.username">bbb</property>
+    <property name="connection.password">bbb123</property>
           
     <!-- JDBC connection pool settings -->
     <property name="hibernate.connection.provider_class">com.zaxxer.hikari.hibernate.HikariConnectionProvider</property>

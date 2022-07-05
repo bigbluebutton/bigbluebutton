@@ -19,6 +19,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -83,7 +84,7 @@ public class XmlServiceImpl implements XmlService {
 
             Element rootElement = createElement(document, "recording", null);
             document.appendChild(rootElement);
-            appendFields(document, rootElement, recording, new String[]{"id", "metadata", "format", "callbackData"}, Type.CHILD);
+            appendFields(document, rootElement, recording, Type.CHILD);
 
             Element meta = createElement(document, "meta", null);
             rootElement.appendChild(meta);
@@ -160,7 +161,7 @@ public class XmlServiceImpl implements XmlService {
 
             Element rootElement = createElement(document, "playback", null);
             document.appendChild(rootElement);
-            appendFields(document, rootElement, playbackFormat, new String[]{"id", "recording", "thumbnails"}, Type.CHILD);
+            appendFields(document, rootElement, playbackFormat, Type.CHILD);
 
             if (playbackFormat.getThumbnails() != null && !playbackFormat.getThumbnails().isEmpty()) {
                 Element images = createElement(document, "images", null);
@@ -199,7 +200,7 @@ public class XmlServiceImpl implements XmlService {
 
             Element rootElement = createElement(document, "image", thumbnail.getUrl());
             document.appendChild(rootElement);
-            appendFields(document, rootElement, thumbnail, new String[]{"id", "url", "playbackFormat"}, Type.ATTRIBUTE);
+            appendFields(document, rootElement, thumbnail, Type.ATTRIBUTE);
 
             String result = documentToString(document);
 //            logger.info("========== Result ==========");
@@ -223,7 +224,7 @@ public class XmlServiceImpl implements XmlService {
 
             Element rootElement = createElement(document, "callback", null);
             document.appendChild(rootElement);
-            appendFields(document, rootElement, callbackData, new String[]{"id", "recording"}, Type.CHILD);
+            appendFields(document, rootElement, callbackData, Type.CHILD);
 
             String result = documentToString(document);
 //            logger.info("========== Result ==========");
@@ -593,11 +594,21 @@ public class XmlServiceImpl implements XmlService {
         return output;
     }
 
-    private void appendFields(Document document, Element parent, Object object, String[] ignoredFields, Type type) throws IllegalAccessException {
+    private void appendFields(Document document, Element parent, Object object, Type type) throws IllegalAccessException {
         Field[] fields = object.getClass().getDeclaredFields();
 
         for (Field field : fields) {
-            if (Arrays.stream(ignoredFields).anyMatch(field.getName()::equals)) continue;
+            Annotation[] annotations = field.getDeclaredAnnotations();
+            String fieldName = field.getName();
+
+            for(Annotation annotation: annotations) {
+                if(annotation instanceof XmlExport) {
+                    XmlExport xmlExport = (XmlExport) annotation;
+                    if(!xmlExport.shouldInclude()) continue;
+                    if(!xmlExport.name().equals("")) fieldName = xmlExport.name();
+                }
+            }
+
             field.setAccessible(true);
             Object fieldValue = field.get(object);
             if (fieldValue != null) {

@@ -39,12 +39,15 @@ public class Recording {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @XmlExport(shouldInclude = false)
     private Long id;
 
     @Column(name = "record_id")
+    @XmlExport(name = "id")
     private String recordId;
 
     @Column(name = "meeting_id")
+    @XmlExport(name = "externalId")
     private String meetingId;
 
     @Column(name = "name")
@@ -60,33 +63,43 @@ public class Recording {
     private String state;
 
     @Column(name = "start_time")
+    @XmlExport(name = "start_time")
     private LocalDateTime startTime;
 
     @Column(name = "end_time")
+    @XmlExport(name = "end_time")
     private LocalDateTime endTime;
 
     @Column(name = "deleted_at")
+    @XmlExport(name = "deletedAt")
     private LocalDateTime deletedAt;
 
     @Column(name = "publish_updated")
+    @XmlExport(name = "deleted_at")
     private Boolean publishUpdated;
 
     @Column(name = "protected")
+    @XmlExport(name = "protected")
     private Boolean isProtected;
 
     @OneToMany(mappedBy = "recording", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @XmlExport(shouldInclude = false)
     private Set<Metadata> metadata;
 
     @OneToOne(mappedBy = "recording", cascade = CascadeType.ALL)
+    @XmlExport(shouldInclude = false)
     private PlaybackFormat format;
 
     @OneToOne(mappedBy = "recording", cascade = CascadeType.ALL)
+    @XmlExport(shouldInclude = false)
     private CallbackData callbackData;
 
     @OneToMany(mappedBy = "recording", cascade = CascadeType.ALL)
+    @XmlExport(shouldInclude = false)
     private Set<Track> tracks;
 
     @OneToOne(mappedBy = "recording", cascade = CascadeType.ALL)
+    @XmlExport(shouldInclude = false)
     private Events events;
 
     public void addMetadata(Metadata metadata) {

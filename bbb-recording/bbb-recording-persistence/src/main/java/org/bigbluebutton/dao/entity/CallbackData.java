@@ -16,6 +16,7 @@ public class CallbackData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @XmlExport(shouldInclude = false)
     private Long id;
 
     @Column(name = "meeting_id")
@@ -32,6 +33,7 @@ public class CallbackData {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "recording_id", referencedColumnName = "id")
+    @XmlExport(shouldInclude = false)
     private Recording recording;
 
     @Override

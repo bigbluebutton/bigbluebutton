@@ -17,6 +17,7 @@ public class PlaybackFormat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @XmlExport(shouldInclude = false)
     private Long id;
 
     @Column(name = "format")
@@ -33,9 +34,11 @@ public class PlaybackFormat {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "recording_id", referencedColumnName = "id")
+    @XmlExport(shouldInclude = false)
     private Recording recording;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "playbackFormat", fetch = FetchType.EAGER)
+    @XmlExport(shouldInclude = false)
     private Set<Thumbnail> thumbnails;
 
     public void addThumbnail(Thumbnail thumbnail) {

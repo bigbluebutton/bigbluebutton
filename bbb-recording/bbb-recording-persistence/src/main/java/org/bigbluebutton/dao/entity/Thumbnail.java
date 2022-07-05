@@ -15,6 +15,7 @@ public class Thumbnail implements Comparable<Thumbnail> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @XmlExport(shouldInclude = false)
     private Long id;
 
     @Column(name = "height")
@@ -27,6 +28,7 @@ public class Thumbnail implements Comparable<Thumbnail> {
     private String alt;
 
     @Column(name = "url")
+    @XmlExport(shouldInclude = false)
     private String url;
 
     @Column(name = "sequence")
@@ -34,6 +36,7 @@ public class Thumbnail implements Comparable<Thumbnail> {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "playback_format_id", referencedColumnName = "id")
+    @XmlExport(shouldInclude = false)
     private PlaybackFormat playbackFormat;
 
     @Override
