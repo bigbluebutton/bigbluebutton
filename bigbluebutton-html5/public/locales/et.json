@@ -173,6 +173,7 @@
     "app.presentation.options.fullscreen": "Täisekraan",
     "app.presentation.options.exitFullscreen": "Välju täisekraanilt",
     "app.presentation.options.minimize": "Minimeeri",
+    "app.presentation.options.snapshot": "Praeguse slaidi hetktõmmis",
     "app.presentation.options.downloading": "Allalaadimine...",
     "app.presentation.options.downloaded": "Aktiivne esitlus laaditi alla",
     "app.presentation.options.downloadFailed": "Ei saa aktiivset esitlust alla laadida",

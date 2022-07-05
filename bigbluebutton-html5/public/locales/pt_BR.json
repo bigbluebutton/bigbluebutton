@@ -173,6 +173,7 @@
     "app.presentation.options.fullscreen": "Tela cheia",
     "app.presentation.options.exitFullscreen": "Sair de tela cheia",
     "app.presentation.options.minimize": "Minimizar",
+    "app.presentation.options.snapshot": "Salvar imagem do slide atual",
     "app.presentation.options.downloading": "Downloading...",
     "app.presentation.options.downloaded": "Donwload da apresentação atual encerrado",
     "app.presentation.options.downloadFailed": "Não foi possível fazer o download da apresentação atual",
