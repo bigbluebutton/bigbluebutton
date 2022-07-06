@@ -19,7 +19,7 @@ class PresenterNotifications extends MultiUsers {
   }
 
   async fileUploaderNotification() {
-    await utilPresentation.uploadPresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
+    await utilPresentation.uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
     await util.checkNotificationText(this.userPage, e.presentationUploadedToast);
   }
 
