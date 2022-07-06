@@ -12,6 +12,9 @@ import {
 } from '/imports/ui/services/virtual-background/service';
 import { CustomVirtualBackgroundsContext } from './context';
 import VirtualBgService from '/imports/ui/components/video-preview/virtual-background/service';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -76,6 +79,8 @@ const intlMessages = defineMessages({
   }, {})
 });
 
+const SKELETON_COUNT = 5;
+
 const VirtualBgSelector = ({
   intl,
   handleVirtualBgSelected,
@@ -102,7 +107,7 @@ const VirtualBgSelector = ({
   const { MIME_TYPES_ALLOWED } = VirtualBgService;
 
   useEffect(() => {
-    if (!loaded && isVisualEffects) loadFromDB();
+    if (!loaded) loadFromDB();
   }, []);
 
   const _virtualBgSelected = (type, name, index, customParams) =>
@@ -178,6 +183,7 @@ const VirtualBgSelector = ({
 
   const renderThumbnailSelector = () => {
     const disabled = locked || !isVirtualBackgroundSupported();
+    const isRTL = Settings.application.isRTL;
 
     return (
       <Styled.VirtualBackgroundRowThumbnail>
@@ -186,160 +192,172 @@ const VirtualBgSelector = ({
           aria-label={intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
           isVisualEffects={isVisualEffects}
         >
-          <>
-            <Styled.BgNoneButton
-              icon='close'
-              label={intl.formatMessage(intlMessages.noneLabel)}
-              aria-pressed={currentVirtualBg?.name === undefined}
-              aria-describedby={`vr-cam-btn-none`}
-              hideLabel
-              tabIndex={disabled ? -1 : 0}
-              disabled={disabled}
-              onClick={() => _virtualBgSelected(EFFECT_TYPES.NONE_TYPE)}
-              isVisualEffects={isVisualEffects}
-            />
-            <div aria-hidden className="sr-only" id={`vr-cam-btn-none`}>
-              {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.NONE_TYPE })}
-            </div>
-          </>
+          {!loaded && (
+            <SkeletonTheme baseColor="#DCE4EC" direction={isRTL ? 'rtl' : 'ltr'}>
+              {new Array(SKELETON_COUNT).fill(null).map((_, index) => (
+                <Styled.SkeletonWrapper key={`skeleton-${index}`}>
+                  <Skeleton />
+                </Styled.SkeletonWrapper>
+              ))}
+            </SkeletonTheme>
+          )}
 
-          <Styled.ThumbnailButtonWrapper isVisualEffects={isVisualEffects}>
-            <Styled.ThumbnailButton
-              background={getVirtualBackgroundThumbnail(BLUR_FILENAME)}
-              aria-label={intl.formatMessage(intlMessages.blurLabel)}
-              label={intl.formatMessage(intlMessages.blurLabel)}
-              aria-describedby={`vr-cam-btn-blur`}
-              tabIndex={disabled ? -1 : 0}
-              hideLabel
-              aria-pressed={currentVirtualBg?.name?.includes('blur') || currentVirtualBg?.name?.includes('Blur')}
-              disabled={disabled}
-              ref={ref => { inputElementsRef.current[0] = ref; }}
-              onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE, 'Blur', 0)}
-              isVisualEffects={isVisualEffects}
-            />
-            <div aria-hidden className="sr-only" id={`vr-cam-btn-blur`}>
-              {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.BLUR_TYPE })}
-            </div>
-          </Styled.ThumbnailButtonWrapper>
-
-          {IMAGE_NAMES.map((imageName, index) => {
-            const label = intl.formatMessage(intlMessages[imageName.split('.').shift()], {
-              index: index + 2,
-              background: intl.formatMessage(intlMessages.background),
-            });
-
-            return (
-              <Styled.ThumbnailButtonWrapper
-                key={`${imageName}-${index}`}
-                isVisualEffects={isVisualEffects}
-              >
-                <Styled.ThumbnailButton
-                  id={`${imageName}-${index}`}
-                  label={label}
-                  tabIndex={disabled ? -1 : 0}
-                  role="button"
-                  aria-label={label}
-                  aria-describedby={`vr-cam-btn-${index}`}
-                  aria-pressed={currentVirtualBg?.name?.includes(imageName.split('.').shift())}
+          {loaded && (
+            <>
+              <>
+                <Styled.BgNoneButton
+                  icon='close'
+                  label={intl.formatMessage(intlMessages.noneLabel)}
+                  aria-pressed={currentVirtualBg?.name === undefined}
+                  aria-describedby={`vr-cam-btn-none`}
                   hideLabel
-                  ref={ref => inputElementsRef.current[index + 1] = ref}
-                  onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index + 1)}
+                  tabIndex={disabled ? -1 : 0}
                   disabled={disabled}
+                  onClick={() => _virtualBgSelected(EFFECT_TYPES.NONE_TYPE)}
                   isVisualEffects={isVisualEffects}
-                  background={getVirtualBackgroundThumbnail(imageName)}
                 />
-                <div aria-hidden className="sr-only" id={`vr-cam-btn-${index}`}>
-                  {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: label })}
+                <div aria-hidden className="sr-only" id={`vr-cam-btn-none`}>
+                  {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.NONE_TYPE })}
+                </div>
+              </>
+
+              <Styled.ThumbnailButtonWrapper isVisualEffects={isVisualEffects}>
+                <Styled.ThumbnailButton
+                  background={getVirtualBackgroundThumbnail(BLUR_FILENAME)}
+                  aria-label={intl.formatMessage(intlMessages.blurLabel)}
+                  label={intl.formatMessage(intlMessages.blurLabel)}
+                  aria-describedby={`vr-cam-btn-blur`}
+                  tabIndex={disabled ? -1 : 0}
+                  hideLabel
+                  aria-pressed={currentVirtualBg?.name?.includes('blur') || currentVirtualBg?.name?.includes('Blur')}
+                  disabled={disabled}
+                  ref={ref => { inputElementsRef.current[0] = ref; }}
+                  onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE, 'Blur', 0)}
+                  isVisualEffects={isVisualEffects}
+                />
+                <div aria-hidden className="sr-only" id={`vr-cam-btn-blur`}>
+                  {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.BLUR_TYPE })}
                 </div>
               </Styled.ThumbnailButtonWrapper>
-            )
-          })}
 
-          {isVisualEffects && customBackgrounds
-            .concat(newCustomBackgrounds)
-            .map(({ filename, data, uniqueId }, index) => {
-              const imageIndex = index + IMAGE_NAMES.length + 2;
-              const label = intl.formatMessage(intlMessages.backgroundWithIndex, {
-                0: imageIndex,
-              });
+              {IMAGE_NAMES.map((imageName, index) => {
+                const label = intl.formatMessage(intlMessages[imageName.split('.').shift()], {
+                  index: index + 2,
+                  background: intl.formatMessage(intlMessages.background),
+                });
 
-              return (
-                <Styled.ThumbnailButtonWrapper
-                  key={`${filename}-${index}`}
-                  isVisualEffects={isVisualEffects}
-                >
-                  <Styled.ThumbnailButton
-                    id={`${filename}-${imageIndex}`}
-                    label={label}
-                    tabIndex={disabled ? -1 : 0}
-                    role="button"
-                    aria-label={label}
-                    aria-describedby={`vr-cam-btn-${imageIndex}`}
-                    aria-pressed={currentVirtualBg?.name?.includes(filename)}
-                    hideLabel
-                    ref={ref => inputElementsRef.current[index + IMAGE_NAMES.length + 1] = ref}
-                    onClick={() => _virtualBgSelected(
-                      EFFECT_TYPES.IMAGE_TYPE,
-                      filename,
-                      imageIndex - 1,
-                      { file: data },
-                    )}
-                    disabled={disabled}
+                return (
+                  <Styled.ThumbnailButtonWrapper
+                    key={`${imageName}-${index}`}
                     isVisualEffects={isVisualEffects}
-                    background={data}
-                  />
-                  <Styled.ButtonWrapper>
-                    <Styled.ButtonRemove
-                      label={intl.formatMessage(intlMessages.removeLabel)}
-                      aria-label={intl.formatMessage(intlMessages.removeLabel)}
-                      data-test="removeCustomBackground"
-                      icon="close"
-                      size="sm"
-                      color="dark"
-                      circle
+                  >
+                    <Styled.ThumbnailButton
+                      id={`${imageName}-${index}`}
+                      label={label}
+                      tabIndex={disabled ? -1 : 0}
+                      role="button"
+                      aria-label={label}
+                      aria-describedby={`vr-cam-btn-${index}`}
+                      aria-pressed={currentVirtualBg?.name?.includes(imageName.split('.').shift())}
                       hideLabel
-                      onClick={() => {
-                        dispatch({
-                          type: 'delete',
-                          uniqueId,
-                        });
-                      }}
+                      ref={ref => inputElementsRef.current[index + 1] = ref}
+                      onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index + 1)}
+                      disabled={disabled}
+                      isVisualEffects={isVisualEffects}
+                      background={getVirtualBackgroundThumbnail(imageName)}
                     />
-                  </Styled.ButtonWrapper>
-                  <div aria-hidden className="sr-only" id={`vr-cam-btn-${imageIndex}`}>
-                    {label}
-                  </div>
-                </Styled.ThumbnailButtonWrapper>
-              );
-            })}
+                    <div aria-hidden className="sr-only" id={`vr-cam-btn-${index}`}>
+                      {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: label })}
+                    </div>
+                  </Styled.ThumbnailButtonWrapper>
+                )
+              })}
 
-          {isVisualEffects && (
-            <>
-              <Styled.BgCustomButton
-                icon='plus'
-                label={intl.formatMessage(intlMessages.customLabel)}
-                aria-describedby={`vr-cam-btn-custom`}
-                hideLabel
-                tabIndex={disabled ? -1 : 0}
-                disabled={disabled}
-                onClick={() => {
-                  if (customBgSelectorRef.current) {
-                    customBgSelectorRef.current.click();
-                  }
-                }}
-                isVisualEffects={isVisualEffects}
-              />
-              <input
-                ref={customBgSelectorRef}
-                type="file"
-                id="customBgSelector"
-                onChange={handleCustomBgChange}
-                style={{ display: 'none' }}
-                accept={MIME_TYPES_ALLOWED.join(', ')}
-              />
-              <div aria-hidden className="sr-only" id={`vr-cam-btn-custom`}>
-                {intl.formatMessage(intlMessages.customLabel)}
-              </div>
+              {customBackgrounds
+                .concat(newCustomBackgrounds)
+                .map(({ filename, data, uniqueId }, index) => {
+                  const imageIndex = index + IMAGE_NAMES.length + 2;
+                  const label = intl.formatMessage(intlMessages.backgroundWithIndex, {
+                    0: imageIndex,
+                  });
+
+                  return (
+                    <Styled.ThumbnailButtonWrapper
+                      key={`${filename}-${index}`}
+                      isVisualEffects={isVisualEffects}
+                    >
+                      <Styled.ThumbnailButton
+                        id={`${filename}-${imageIndex}`}
+                        label={label}
+                        tabIndex={disabled ? -1 : 0}
+                        role="button"
+                        aria-label={label}
+                        aria-describedby={`vr-cam-btn-${imageIndex}`}
+                        aria-pressed={currentVirtualBg?.name?.includes(filename)}
+                        hideLabel
+                        ref={ref => inputElementsRef.current[index + IMAGE_NAMES.length + 1] = ref}
+                        onClick={() => _virtualBgSelected(
+                          EFFECT_TYPES.IMAGE_TYPE,
+                          filename,
+                          imageIndex - 1,
+                          { file: data },
+                        )}
+                        disabled={disabled}
+                        isVisualEffects={isVisualEffects}
+                        background={data}
+                      />
+                      <Styled.ButtonWrapper>
+                        <Styled.ButtonRemove
+                          label={intl.formatMessage(intlMessages.removeLabel)}
+                          aria-label={intl.formatMessage(intlMessages.removeLabel)}
+                          data-test="removeCustomBackground"
+                          icon="close"
+                          size="sm"
+                          color="dark"
+                          circle
+                          hideLabel
+                          onClick={() => {
+                            dispatch({
+                              type: 'delete',
+                              uniqueId,
+                            });
+                          }}
+                        />
+                      </Styled.ButtonWrapper>
+                      <div aria-hidden className="sr-only" id={`vr-cam-btn-${imageIndex}`}>
+                        {label}
+                      </div>
+                    </Styled.ThumbnailButtonWrapper>
+                  );
+                })}
+
+              <>
+                <Styled.BgCustomButton
+                  icon='plus'
+                  label={intl.formatMessage(intlMessages.customLabel)}
+                  aria-describedby={`vr-cam-btn-custom`}
+                  hideLabel
+                  tabIndex={disabled ? -1 : 0}
+                  disabled={disabled}
+                  onClick={() => {
+                    if (customBgSelectorRef.current) {
+                      customBgSelectorRef.current.click();
+                    }
+                  }}
+                  isVisualEffects={isVisualEffects}
+                />
+                <input
+                  ref={customBgSelectorRef}
+                  type="file"
+                  id="customBgSelector"
+                  onChange={handleCustomBgChange}
+                  style={{ display: 'none' }}
+                  accept={MIME_TYPES_ALLOWED.join(', ')}
+                />
+                <div aria-hidden className="sr-only" id={`vr-cam-btn-custom`}>
+                  {intl.formatMessage(intlMessages.customLabel)}
+                </div>
+              </>
             </>
           )}
         </Styled.BgWrapper>
