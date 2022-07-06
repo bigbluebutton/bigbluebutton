@@ -1,6 +1,10 @@
 import * as React from "react";
 import { _ } from "lodash";
 
+const RESIZE_HANDLE_HEIGHT = 8;
+const RESIZE_HANDLE_WIDTH = 18;
+const BOTTOM_CAM_HANDLE_HEIGHT = 10;
+
 function usePrevious(value) {
   const ref = React.useRef();
   React.useEffect(() => {
@@ -121,6 +125,7 @@ export default function Cursors(props) {
     isViewersCursorLocked,
     hasMultiUserAccess,
     isMultiUserActive,
+    application,
   } = props;
 
   const start = () => setActive(true);
@@ -136,15 +141,78 @@ export default function Cursors(props) {
 
   const moved = (event) => {
     const { type } = event;
-    const yOffset = parseFloat(document.getElementById('Navbar')?.style?.height);
+    const nav = document.getElementById('Navbar');
+    let yOffset = parseFloat(nav?.style?.height);
     const getSibling = (el) => el?.previousSibling || null;
-    const panel = getSibling(document.getElementById('Navbar'));
+    const panel = getSibling(nav);
+    const webcams = document.getElementById('cameraDock');
     const subPanel = panel && getSibling(panel);
-    const xOffset = (parseFloat(panel?.style?.width) || 0) + (parseFloat(subPanel?.style?.width) || 0);
+    let xOffset = (parseFloat(panel?.style?.width) || 0) + (parseFloat(subPanel?.style?.width) || 0);
+    const camPosition = document.getElementById('layout')?.getAttribute('data-cam-position') || null;
+
+    const sl = document.getElementById('layout')?.getAttribute('data-layout');
     if (type === 'touchmove') {
       !active && setActive(true);
       return setPos({ x: event?.changedTouches[0]?.clientX - xOffset, y: event?.changedTouches[0]?.clientY - yOffset });
     }
+
+    const handleCustomYOffsets = () => {
+      if (camPosition === 'contentTop' || !camPosition) {
+        yOffset += (parseFloat(webcams?.style?.height) + RESIZE_HANDLE_HEIGHT);
+      }
+      if (camPosition === 'contentBottom') {
+        yOffset -= BOTTOM_CAM_HANDLE_HEIGHT;
+      }
+    }
+
+    if (document?.documentElement?.dir === 'rtl') {
+      xOffset = 0;
+      if (webcams && sl?.includes('custom')) {
+        handleCustomYOffsets();
+        if (camPosition === 'contentRight') {
+          xOffset += (parseFloat(webcams?.style?.width) + RESIZE_HANDLE_WIDTH);
+        }
+      }
+      if (webcams && sl?.includes('smart')) {
+        if (panel || subPanel) {
+          const dockPos = webcams?.getAttribute("data-position");
+          if (dockPos === 'contentRight') {
+            xOffset += (parseFloat(webcams?.style?.width) + RESIZE_HANDLE_WIDTH);
+          }
+          if (dockPos === 'contentTop') {
+            yOffset += (parseFloat(webcams?.style?.height) + RESIZE_HANDLE_WIDTH);
+          }
+        } 
+
+        if (!panel && !subPanel) {
+          xOffset = 0;
+        }
+    }
+    } else {
+      if (webcams && sl?.includes('custom')) {
+        handleCustomYOffsets();
+        if (camPosition === 'contentLeft') {
+          xOffset += (parseFloat(webcams?.style?.width) + RESIZE_HANDLE_WIDTH);
+        }
+      }
+
+      if (webcams && sl?.includes('smart')) {
+          if (panel || subPanel) {
+            const dockPos = webcams?.getAttribute("data-position");
+            if (dockPos === 'contentLeft') {
+              xOffset += (parseFloat(webcams?.style?.width) + RESIZE_HANDLE_WIDTH);
+            }
+            if (dockPos === 'contentTop') {
+              yOffset += (parseFloat(webcams?.style?.height) + RESIZE_HANDLE_WIDTH);
+            }
+          } 
+
+          if (!panel && !subPanel) {
+            xOffset = (parseFloat(webcams?.style?.width) + RESIZE_HANDLE_WIDTH);
+          }
+      }
+    }
+
     return setPos({ x: event.x - xOffset, y: event.y - yOffset });
   }
 
@@ -167,18 +235,22 @@ export default function Cursors(props) {
 
   React.useEffect(() => {
     return () => {
-      cursorWrapper.removeEventListener('mouseenter', start);
-      cursorWrapper.removeEventListener('mouseleave', end);
-      cursorWrapper.removeEventListener('mousemove', moved);
-      cursorWrapper.removeEventListener('touchend', end);
-      cursorWrapper.removeEventListener('touchmove', moved);
+      if (cursorWrapper) {
+        cursorWrapper.removeEventListener('mouseenter', start);
+        cursorWrapper.removeEventListener('mouseleave', end);
+        cursorWrapper.removeEventListener('mousemove', moved);
+        cursorWrapper.removeEventListener('touchend', end);
+        cursorWrapper.removeEventListener('touchmove', moved);
+      }
     }
-  }, []);
+  });
+
+  const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
 
   return (
     <span disabled={true} ref={(r) => (cursorWrapper = r)}>
-      <div style={{ height: "100%", cursor: "none" }}>
-        {active && (
+      <div style={{ height: "100%", cursor: multiUserAccess || currentUser?.presenter ? "none" : "default" }}>
+        {(active && multiUserAccess || (active && currentUser?.presenter)) && (
           <PositionLabel
             pos={pos}
             otherCursors={otherCursors}
