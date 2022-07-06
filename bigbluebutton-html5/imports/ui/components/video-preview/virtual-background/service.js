@@ -1,6 +1,4 @@
-import _ from 'lodash';
 import logger from '/imports/startup/client/logger';
-import { notify } from '/imports/ui/services/notification';
 
 const MIME_TYPES_ALLOWED = ['image/png', 'image/jpeg'];
 const MAX_FILE_SIZE = 5000; // KBytes
@@ -29,18 +27,16 @@ const withObjectStore = ({
 
 const genericErrorHandlerBuilder = (
   code,
-  errorMessage,
-  notifyMessage,
+  message,
   callback,
 ) => (e) => {
-  notify(notifyMessage, 'error', 'warning');
   logger.warn({
     logCode: code,
     extraInfo: {
       errorName: e.name,
       errorMessage: e.message,
     },
-  }, `${errorMessage}: ${e.message}`);
+  }, `${message}: ${e.message}`);
 
   if (callback) callback(e);
 };
@@ -49,8 +45,7 @@ const load = (onError, onSuccess) => {
   withObjectStore({
     onError: genericErrorHandlerBuilder(
       'IndexedDB_access',
-      'Error on load custom backgrounds to IndexedDB',
-      'Something wrong while loading custom backgrounds',
+      'Error on load custom backgrounds from IndexedDB',
       onError,
     ),
     onSuccess: (objectStore) => {
@@ -70,12 +65,12 @@ const load = (onError, onSuccess) => {
   });
 };
 
-const save = (background) => {
+const save = (background, onError) => {
   withObjectStore({
     onError: genericErrorHandlerBuilder(
       'IndexedDB_access',
       'Error on save custom background to IndexedDB',
-      'Something wrong while saving custom background',
+      onError,
     ),
     onSuccess: (objectStore) => {
       objectStore.add(background);
@@ -83,12 +78,12 @@ const save = (background) => {
   });
 };
 
-const del = (key) => {
+const del = (key, onError) => {
   withObjectStore({
     onError: genericErrorHandlerBuilder(
       'IndexedDB_access',
-      'Error on delete custom background to IndexedDB',
-      'Something wrong while deleting custom background',
+      'Error on delete custom background from IndexedDB',
+      onError,
     ),
     onSuccess: (objectStore) => {
       objectStore.delete(key);
@@ -96,44 +91,10 @@ const del = (key) => {
   });
 };
 
-const parseFilename = (filename = '') => {
-  const substrings = filename.split('.');
-  substrings.pop();
-  const filenameWithoutExtension = substrings.join('');
-  return filenameWithoutExtension;
-};
-
-const readFile = (file, onSuccess, onError) => {
-  const { name, size, type } = file;
-  const sizeInKB = size / 1024;
-
-  if (sizeInKB > MAX_FILE_SIZE) {
-    return onError(new Error('Maximum file size exceeded.'));
-  }
-
-  if (!MIME_TYPES_ALLOWED.includes(type)) {
-    return onError(new Error('File type not allowed.'));
-  }
-
-  const filenameWithoutExtension = parseFilename(name);
-  const reader = new FileReader();
-
-  reader.onload = function (e) {
-    const background = {
-      filename: filenameWithoutExtension,
-      data: e.target.result,
-      uniqueId: _.uniqueId(),
-    };
-    onSuccess(background);
-  }
-  reader.readAsDataURL(file);
-};
-
 export default {
   load,
   save,
   del,
-  readFile,
   MIME_TYPES_ALLOWED,
   MAX_FILE_SIZE,
 };

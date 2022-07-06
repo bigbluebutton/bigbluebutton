@@ -12,6 +12,10 @@ import {
 } from '/imports/ui/services/virtual-background/service';
 import { CustomVirtualBackgroundsContext } from './context';
 import VirtualBgService from '/imports/ui/components/video-preview/virtual-background/service';
+import logger from '/imports/startup/client/logger';
+import withFileReader from '/imports/ui/components/common/file-reader/component';
+
+const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -83,6 +87,7 @@ const VirtualBgSelector = ({
   showThumbnails,
   initialVirtualBgState,
   isVisualEffects,
+  readFile,
 }) => {
   const [currentVirtualBg, setCurrentVirtualBg] = useState({
     ...initialVirtualBgState,
@@ -160,21 +165,26 @@ const VirtualBgSelector = ({
 
   const handleCustomBgChange = (event) => {
     const file = event.target.files[0];
-    const { readFile } = VirtualBgService;
 
-    readFile(
-      file,
-      (background) => {
-        dispatch({
-          type: 'new',
-          background,
-        });
-      },
-      (error) => {
-        // Add some logging, notification, etc.
-      }
-    );
-  }
+    const onSuccess = (background) => {
+      dispatch({
+        type: 'new',
+        background,
+      });
+    };
+
+    const onError = (error) => {
+      logger.warn({
+        logCode: 'read_file_error',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, error.message);
+    };
+
+    readFile(file, onSuccess, onError);
+  };
 
   const renderThumbnailSelector = () => {
     const disabled = locked || !isVirtualBackgroundSupported();
@@ -375,4 +385,4 @@ VirtualBgSelector.defaultProps = {
   },
 };
 
-export default injectIntl(VirtualBgSelector);
+export default injectIntl(withFileReader(VirtualBgSelector, MIME_TYPES_ALLOWED, MAX_FILE_SIZE));

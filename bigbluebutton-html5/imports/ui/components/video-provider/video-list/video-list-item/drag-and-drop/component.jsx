@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { injectIntl, defineMessages } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
@@ -6,6 +6,10 @@ import { CustomVirtualBackgroundsContext } from '/imports/ui/components/video-pr
 import { EFFECT_TYPES } from '/imports/ui/services/virtual-background/service';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import VirtualBgService from '/imports/ui/components/video-preview/virtual-background/service';
+import logger from '/imports/startup/client/logger';
+import withFileReader from '/imports/ui/components/common/file-reader/component';
+
+const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
 
 const intlMessages = defineMessages({
   confirmationTitle: {
@@ -21,7 +25,7 @@ const intlMessages = defineMessages({
 const ENABLE_WEBCAM_BACKGROUND_UPLOAD = Meteor.settings.public.virtualBackgrounds.enableVirtualBackgroundUpload;
 
 const DragAndDrop = (props) => {
-  const { children, mountModal, intl } = props;
+  const { children, mountModal, intl, readFile } = props;
 
   const [dragging, setDragging] = useState(false);
   const [draggingOver, setDraggingOver] = useState(false);
@@ -57,34 +61,38 @@ const DragAndDrop = (props) => {
     };
   }, []);
 
-  const makeDragOperations = (onAction, userId) => {
+  const makeDragOperations = useCallback((onAction, userId) => {
     if (!userId || Auth.userID !== userId || !ENABLE_WEBCAM_BACKGROUND_UPLOAD) return {};
 
     const startAndSaveVirtualBackground = (file) => {
-      const { readFile } = VirtualBgService;
-
-      readFile(
-        file,
-        (background) => {
-          const { filename, data } = background;
-          onAction(EFFECT_TYPES.IMAGE_TYPE, filename, data).then(() => {
-            dispatchCustomBackground({
-              type: 'new',
-              background,
-            });
+      const onSuccess = (background) => {
+        const { filename, data } = background;
+        onAction(EFFECT_TYPES.IMAGE_TYPE, filename, data).then(() => {
+          dispatchCustomBackground({
+            type: 'new',
+            background,
           });
-        },
-        (error) => {
-          // Add some logging, notification, etc.
-        }
-      );
+        });
+      };
+
+      const onError = (error) => {
+        logger.warn({
+          logCode: 'read_file_error',
+          extraInfo: {
+            errorName: error.name,
+            errorMessage: error.message,
+          },
+        }, error.message);
+      };
+
+      readFile(file, onSuccess, onError);
     };
 
     const onDragOverHandler = (e) => {
       resetEvent(e);
       setDraggingOver(true);
       setDragging(false);
-    }
+    };
 
     const onDropHandler = (e) => {
       resetEvent(e);
@@ -118,18 +126,16 @@ const DragAndDrop = (props) => {
       resetEvent(e);
       setDragging(false);
       setDraggingOver(false);
-    }
+    };
 
     return {
       onDragOver: onDragOverHandler,
       onDrop: onDropHandler,
       onDragLeave: onDragLeaveHandler,
-      dragging,
-      draggingOver,
     };
-  }
+  }, [Auth.userID]);
 
-  return React.cloneElement(children, { ...props, makeDragOperations })
+  return React.cloneElement(children, { ...props, dragging, draggingOver, makeDragOperations });
 };
 
 const Wrapper = (Component) => (props) => (
@@ -138,4 +144,5 @@ const Wrapper = (Component) => (props) => (
   </DragAndDrop>
 );
 
-export const withDragAndDrop = (Component) => withModalMounter(injectIntl(Wrapper(Component)));
+export const withDragAndDrop = (Component) =>
+  withModalMounter(injectIntl(withFileReader(Wrapper(Component), MIME_TYPES_ALLOWED, MAX_FILE_SIZE)));
