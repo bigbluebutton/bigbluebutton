@@ -179,7 +179,8 @@ exports.presentationTitle = 'h1[data-test="presentationTitle"]';
 exports.fitToWidthButton = 'button[data-test="fitToWidthButton"]';
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
-exports.youtubeFrame = 'iframe[title^="Creating your own personal rooms with GreenLight"]';
+// The title we match for here is the title of the test video specified by youtubeLink
+exports.youtubeFrame = 'iframe[title~="GreenLight"]';
 exports.ytFrameTitle = 'a[class^="ytp-title-link"]';
 // Toasts
 exports.statingUploadPresentationToast = 'To be uploaded ...';
