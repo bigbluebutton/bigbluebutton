@@ -2,6 +2,8 @@ import * as React from "react";
 import { _ } from "lodash";
 
 const RESIZE_HANDLE_HEIGHT = 8;
+const RESIZE_HANDLE_WIDTH = 18;
+const BOTTOM_CAM_HANDLE_HEIGHT = 10;
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -123,6 +125,7 @@ export default function Cursors(props) {
     isViewersCursorLocked,
     hasMultiUserAccess,
     isMultiUserActive,
+    application,
   } = props;
 
   const start = () => setActive(true);
@@ -136,7 +139,7 @@ export default function Cursors(props) {
     setActive(false);
   };
 
-  const moved = (event) => {
+  const moved = (event, sl) => {
     const { type } = event;
     const nav = document.getElementById('Navbar');
     let yOffset = parseFloat(nav?.style?.height);
@@ -145,18 +148,37 @@ export default function Cursors(props) {
     const webcams = !nav?.nextSibling?.hasAttribute('role') ? nav?.nextSibling : null;
     const subPanel = panel && getSibling(panel);
     let xOffset = (parseFloat(panel?.style?.width) || 0) + (parseFloat(subPanel?.style?.width) || 0);
+    const camPosition = document.getElementById('layout')?.getAttribute('data-cam-position') || null;
 
     if (type === 'touchmove') {
       !active && setActive(true);
       return setPos({ x: event?.changedTouches[0]?.clientX - xOffset, y: event?.changedTouches[0]?.clientY - yOffset });
     }
 
-    if (webcams) {
-      yOffset += (parseFloat(webcams?.firstChild?.style?.height) + RESIZE_HANDLE_HEIGHT);
+    const handleYOffsets = () => {
+      if (camPosition === 'contentTop' || !camPosition) {
+        yOffset += (parseFloat(webcams?.firstChild?.style?.height) + RESIZE_HANDLE_HEIGHT);
+      }
+      if (camPosition === 'contentBottom') {
+        yOffset -= BOTTOM_CAM_HANDLE_HEIGHT;
+      }
     }
 
     if (document?.documentElement?.dir === 'rtl') {
       xOffset = 0;
+      if (webcams && sl?.includes('custom')) {
+        handleYOffsets();
+        if (camPosition === 'contentRight') {
+          xOffset += (parseFloat(webcams?.firstChild?.style?.width) + RESIZE_HANDLE_WIDTH);
+        }
+      }
+    } else {
+      if (webcams && sl?.includes('custom')) {
+        handleYOffsets();
+        if (camPosition === 'contentLeft') {
+          xOffset += (parseFloat(webcams?.firstChild?.style?.width) + RESIZE_HANDLE_WIDTH);
+        }
+      }
     }
 
     return setPos({ x: event.x - xOffset, y: event.y - yOffset });
@@ -173,10 +195,10 @@ export default function Cursors(props) {
       cursorWrapper?.addEventListener("touchend", end);
 
     !cursorWrapper.hasOwnProperty("mousemove") &&
-      cursorWrapper?.addEventListener("mousemove", moved);
+      cursorWrapper?.addEventListener("mousemove", (event) => moved(event, application?.selectedLayout));
 
     !cursorWrapper.hasOwnProperty("touchmove") &&
-      cursorWrapper?.addEventListener("touchmove", moved);
+      cursorWrapper?.addEventListener("touchmove", (event) => moved(event, application?.selectedLayout));
   }, [cursorWrapper]);
 
   React.useEffect(() => {
@@ -184,9 +206,9 @@ export default function Cursors(props) {
       if (cursorWrapper) {
         cursorWrapper.removeEventListener('mouseenter', start);
         cursorWrapper.removeEventListener('mouseleave', end);
-        cursorWrapper.removeEventListener('mousemove', moved);
+        // cursorWrapper.removeEventListener('mousemove', moved);
         cursorWrapper.removeEventListener('touchend', end);
-        cursorWrapper.removeEventListener('touchmove', moved);
+        // cursorWrapper.removeEventListener('touchmove', moved);
       }
     }
   });

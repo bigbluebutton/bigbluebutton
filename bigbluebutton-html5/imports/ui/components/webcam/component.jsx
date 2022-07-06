@@ -122,6 +122,8 @@ const WebcamComponent = ({
     setIsDragging(false);
     setDraggedAtLeastOneTime(false);
     document.body.style.overflow = 'auto';
+    const layout = document.getElementById('layout');
+    layout?.setAttribute("data-cam-position", e?.target?.id);
 
     if (Object.values(CAMERADOCK_POSITION).includes(e.target.id) && draggedAtLeastOneTime) {
       layoutContextDispatch({
